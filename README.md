@@ -1,2 +1,3 @@
-# BeeCount
-蜜蜂记账
+# beecount
+
+A new Flutter project.
