@@ -585,7 +585,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                   color: Colors.black87),
                                         ),
                                         onTap: () async {
-                                          // 需求3：点击明细后默认分类+弹出金额备注
                                           await Navigator.of(context).push(
                                             MaterialPageRoute(
                                               builder: (_) =>
@@ -594,6 +593,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                 quickAdd: true,
                                                 initialCategoryId:
                                                     it.t.categoryId,
+                                                initialAmount: it.t.amount,
+                                                initialDate: it.t.happenedAt,
+                                                initialNote: it.t.note,
+                                                editingTransactionId: it.t.id,
                                               ),
                                             ),
                                           );

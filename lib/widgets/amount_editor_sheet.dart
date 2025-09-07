@@ -5,7 +5,7 @@ import 'package:beecount/widgets/wheel_date_picker.dart';
 typedef AmountEditorResult = ({double amount, String? note, DateTime date});
 
 class AmountEditorSheet extends StatefulWidget {
-  final String categoryName;
+  final String categoryName; // 仅用于上层提交，不在UI展示
   final DateTime initialDate;
   final double? initialAmount;
   final String? initialNote;
@@ -68,9 +68,7 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
     // 占位：可加自定义逻辑
   }
 
-  void _setToday() {
-    setState(() => _date = DateTime.now());
-  }
+  // _setToday 移除，改为点击日历按钮选择日期
 
   void _pickDate() async {
     final res = await showWheelDatePicker(
@@ -114,11 +112,7 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
       );
     }
 
-    String fmtDate(DateTime d) {
-      final mm = d.month.toString().padLeft(2, '0');
-      final dd = d.day.toString().padLeft(2, '0');
-      return '${d.year}-$mm-$dd';
-    }
+    String fmtDate(DateTime d) => '${d.year}/${d.month}/${d.day}';
 
     return SafeArea(
       top: false,
@@ -128,67 +122,75 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 顶部信息行：分类与日期
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.categoryName,
-                    style: text.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+            // 金额单独一行（右对齐）
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                parsed().toStringAsFixed(2),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: text.displayMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
                 ),
-                TextButton.icon(
-                  onPressed: _pickDate,
-                  style: TextButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    foregroundColor: Colors.black87,
-                    backgroundColor: Colors.grey[200],
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                  icon: const Icon(Icons.calendar_month, size: 16),
-                  label: Text(
-                    fmtDate(_date),
-                    style:
-                        text.labelMedium?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 4),
-            // 标题与金额行
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _noteCtrl,
-                    decoration: InputDecoration(
-                      hintText: '备注…',
-                      isDense: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+            const SizedBox(height: 10),
+            // 日期单独一行（今天 显示“今天”，否则显示 yyyy/M/d）
+            Builder(builder: (ctx) {
+              final now = DateTime.now();
+              final isToday = _date.year == now.year &&
+                  _date.month == now.month &&
+                  _date.day == now.day;
+              final label = isToday ? '今天' : fmtDate(_date);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Material(
+                  color: const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: _pickDate,
+                    child: Container(
+                      height: 44,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_month,
+                              size: 18, color: Colors.black87),
+                          const SizedBox(width: 8),
+                          Text(
+                            label,
+                            style: text.titleMedium?.copyWith(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const Spacer(),
+                          const Icon(Icons.chevron_right,
+                              color: Colors.black45),
+                        ],
                       ),
-                      filled: true,
-                      fillColor: const Color(0xFFF3F4F6),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 10),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Text(
-                  parsed().toStringAsFixed(2),
-                  style: text.displayMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.2,
-                  ),
+              );
+            }),
+            // 备注单独一行
+            TextField(
+              controller: _noteCtrl,
+              decoration: InputDecoration(
+                hintText: '备注…',
+                isDense: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
-              ],
+                filled: true,
+                fillColor: const Color(0xFFF3F4F6),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              ),
             ),
             const SizedBox(height: 10),
             // 数字键盘
@@ -208,8 +210,22 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                         child: keyBtn('9', onTap: () => _append('9'))),
                     SizedBox(
                       width: w,
-                      child: keyBtn('今天',
-                          fg: primary, bg: Colors.grey[100], onTap: _setToday),
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Material(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: _backspace,
+                            child: const SizedBox(
+                              height: 60,
+                              child:
+                                  Center(child: Icon(Icons.backspace_outlined)),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ]),
                   const SizedBox(height: 2),
@@ -260,22 +276,7 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                         child: keyBtn('0', onTap: () => _append('0'))),
                     SizedBox(
                       width: w,
-                      child: Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: Material(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: _backspace,
-                            child: const SizedBox(
-                              height: 60,
-                              child:
-                                  Center(child: Icon(Icons.backspace_outlined)),
-                            ),
-                          ),
-                        ),
-                      ),
+                      child: const SizedBox.shrink(),
                     ),
                     SizedBox(
                       width: w,

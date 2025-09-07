@@ -3,20 +3,29 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
 import '../data/db.dart';
-import '../widgets/primary_header.dart';
+// Compact top bar instead of PrimaryHeader to remove extra whitespace
 import '../widgets/category_icon.dart';
 import '../widgets/amount_editor_sheet.dart';
+import '../widgets/primary_header.dart';
 
 class CategoryPickerPage extends ConsumerStatefulWidget {
   final String initialKind; // 'expense' or 'income'
   // quickAdd: 点击分类后在当前弹窗上叠加金额输入，保存成功后依次关闭两个弹窗
   final bool quickAdd;
   final int? initialCategoryId;
+  final String? initialNote; // 用于金额输入弹窗回填备注
+  final double? initialAmount;
+  final DateTime? initialDate;
+  final int? editingTransactionId;
   const CategoryPickerPage(
       {super.key,
       required this.initialKind,
       this.quickAdd = false,
-      this.initialCategoryId});
+      this.initialCategoryId,
+      this.initialNote,
+      this.initialAmount,
+      this.initialDate,
+      this.editingTransactionId});
 
   @override
   ConsumerState<CategoryPickerPage> createState() => _CategoryPickerPageState();
@@ -62,16 +71,19 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
             PrimaryHeader(
               title: '',
               bottom: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                height: 44,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                alignment: Alignment.center,
                 child: Row(
                   children: [
                     Expanded(
                       child: Center(
                         child: TabBar(
                           controller: _tab,
-                          indicatorColor: Colors.white,
-                          labelColor: Colors.white,
-                          unselectedLabelColor: Colors.white70,
+                          isScrollable: false,
+                          labelColor: Colors.black,
+                          unselectedLabelColor: Colors.black54,
+                          indicatorColor: Colors.transparent, // 去除下划线
                           tabs: const [
                             Tab(text: '支出'),
                             Tab(text: '收入'),
@@ -82,8 +94,8 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: const Text('取消',
-                          style: TextStyle(color: Colors.white)),
-                    ),
+                          style: TextStyle(color: Colors.black)),
+                    )
                   ],
                 ),
               ),
@@ -123,18 +135,31 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
       ),
       builder: (ctx) => AmountEditorSheet(
         categoryName: c.name,
-        initialDate: DateTime.now(),
+        initialDate: widget.initialDate ?? DateTime.now(),
+        initialAmount: widget.initialAmount,
+        initialNote: widget.initialNote,
         onSubmit: (res) async {
           final repo = ref.read(repositoryProvider);
           final ledgerId = ref.read(currentLedgerIdProvider);
-          await repo.addTransaction(
-            ledgerId: ledgerId,
-            type: kind,
-            amount: res.amount,
-            categoryId: c.id,
-            happenedAt: res.date,
-            note: res.note,
-          );
+          if (widget.editingTransactionId != null) {
+            await repo.updateTransaction(
+              id: widget.editingTransactionId!,
+              type: kind,
+              amount: res.amount,
+              categoryId: c.id,
+              note: res.note,
+              happenedAt: res.date,
+            );
+          } else {
+            await repo.addTransaction(
+              ledgerId: ledgerId,
+              type: kind,
+              amount: res.amount,
+              categoryId: c.id,
+              happenedAt: res.date,
+              note: res.note,
+            );
+          }
           if (Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
           if (Navigator.of(context).canPop()) Navigator.of(context).pop();
           ScaffoldMessenger.of(context)
@@ -145,7 +170,7 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
   }
 }
 
-class _CategoryGrid extends ConsumerWidget {
+class _CategoryGrid extends ConsumerStatefulWidget {
   final String kind;
   final ValueChanged<Category> onPick;
   final int? initialId;
@@ -153,10 +178,19 @@ class _CategoryGrid extends ConsumerWidget {
       {required this.kind, required this.onPick, this.initialId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CategoryGrid> createState() => _CategoryGridState();
+}
+
+class _CategoryGridState extends ConsumerState<_CategoryGrid> {
+  final Map<int, GlobalKey> _keys = {};
+  bool _scrolled = false;
+
+  @override
+  Widget build(BuildContext context) {
     final db = ref.watch(databaseProvider);
-    final q =
-        (db.select(db.categories)..where((c) => c.kind.equals(kind))).watch();
+    final q = (db.select(db.categories)
+          ..where((c) => c.kind.equals(widget.kind)))
+        .watch();
     return StreamBuilder<List<Category>>(
       stream: q,
       builder: (context, snap) {
@@ -164,6 +198,20 @@ class _CategoryGrid extends ConsumerWidget {
         if (list.isEmpty) {
           return const Center(child: Text('暂无分类'));
         }
+
+        // 初次渲染后滚动到初始分类顶部
+        if (!_scrolled && widget.initialId != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final key = _keys[widget.initialId!];
+            final ctx = key?.currentContext;
+            if (ctx != null) {
+              Scrollable.ensureVisible(ctx,
+                  alignment: 0.0, duration: const Duration(milliseconds: 250));
+              _scrolled = true;
+            }
+          });
+        }
+
         return GridView.builder(
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -175,16 +223,14 @@ class _CategoryGrid extends ConsumerWidget {
           itemCount: list.length,
           itemBuilder: (context, i) {
             final c = list[i];
-            final selected = initialId != null && c.id == initialId;
-            if (selected &&
-                WidgetsBinding.instance.schedulerPhase == SchedulerPhase.idle) {
-              // 自动触发一次选中，打开金额输入
-              Future.microtask(() => onPick(c));
-            }
+            final selected =
+                widget.initialId != null && c.id == widget.initialId;
+            final key = _keys.putIfAbsent(c.id, () => GlobalKey());
             return _CategoryItem(
+              key: key,
               name: c.name,
               selected: selected,
-              onTap: () => onPick(c),
+              onTap: () => widget.onPick(c),
             );
           },
         );
@@ -198,7 +244,10 @@ class _CategoryItem extends StatelessWidget {
   final VoidCallback onTap;
   final bool selected;
   const _CategoryItem(
-      {required this.name, required this.onTap, this.selected = false});
+      {super.key,
+      required this.name,
+      required this.onTap,
+      this.selected = false});
 
   IconData _iconFor(String n) => iconForCategory(n);
 

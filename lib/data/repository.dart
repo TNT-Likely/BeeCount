@@ -19,6 +19,35 @@ class BeeRepository {
     return q;
   }
 
+  // Aggregation: totals by category for a period and type (income/expense)
+  Future<List<({String name, double total})>> totalsByCategory({
+    required int ledgerId,
+    required String type, // 'income' or 'expense'
+    required DateTime start,
+    required DateTime end,
+  }) async {
+    final q = (db.select(db.transactions)
+          ..where((t) =>
+              t.ledgerId.equals(ledgerId) &
+              t.type.equals(type) &
+              t.happenedAt.isBetweenValues(start, end)))
+        .join([
+      d.leftOuterJoin(db.categories,
+          db.categories.id.equalsExp(db.transactions.categoryId)),
+    ]);
+    final rows = await q.get();
+    final map = <String, double>{};
+    for (final r in rows) {
+      final t = r.readTable(db.transactions);
+      final c = r.readTableOrNull(db.categories);
+      final name = c?.name ?? '未分类';
+      map.update(name, (v) => v + t.amount, ifAbsent: () => t.amount);
+    }
+    final list = map.entries.map((e) => (name: e.key, total: e.value)).toList()
+      ..sort((a, b) => b.total.compareTo(a.total));
+    return list;
+  }
+
   Stream<List<Transaction>> transactionsInMonth(
       {required int ledgerId, required DateTime month}) {
     final start = DateTime(month.year, month.month, 1);
