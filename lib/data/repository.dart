@@ -20,7 +20,7 @@ class BeeRepository {
   }
 
   // Aggregation: totals by category for a period and type (income/expense)
-  Future<List<({String name, double total})>> totalsByCategory({
+  Future<List<({int? id, String name, double total})>> totalsByCategory({
     required int ledgerId,
     required String type, // 'income' or 'expense'
     required DateTime start,
@@ -36,14 +36,19 @@ class BeeRepository {
           db.categories.id.equalsExp(db.transactions.categoryId)),
     ]);
     final rows = await q.get();
-    final map = <String, double>{};
+    final map = <int?, double>{}; // categoryId (nullable) -> total
+    final names = <int?, String>{};
     for (final r in rows) {
       final t = r.readTable(db.transactions);
       final c = r.readTableOrNull(db.categories);
+      final id = c?.id;
       final name = c?.name ?? '未分类';
-      map.update(name, (v) => v + t.amount, ifAbsent: () => t.amount);
+      names[id] = name;
+      map.update(id, (v) => v + t.amount, ifAbsent: () => t.amount);
     }
-    final list = map.entries.map((e) => (name: e.key, total: e.value)).toList()
+    final list = map.entries
+        .map((e) => (id: e.key, name: names[e.key] ?? '未分类', total: e.value))
+        .toList()
       ..sort((a, b) => b.total.compareTo(a.total));
     return list;
   }
@@ -75,6 +80,41 @@ class BeeRepository {
       result.add((day: d, total: map[d] ?? 0));
     }
     return result;
+  }
+
+  // Transactions with category filter within a range (by categoryId and type)
+  Stream<List<({Transaction t, Category? category})>>
+      transactionsForCategoryInRange({
+    required int ledgerId,
+    required DateTime start,
+    required DateTime end,
+    int? categoryId,
+    required String type, // 'income' or 'expense'
+  }) {
+    final base = (db.select(db.transactions)
+          ..where((t) =>
+              t.ledgerId.equals(ledgerId) &
+              t.type.equals(type) &
+              t.happenedAt.isBetweenValues(start, end))
+          ..orderBy([
+            (t) => d.OrderingTerm(
+                expression: t.happenedAt, mode: d.OrderingMode.desc)
+          ]))
+        .join([
+      d.leftOuterJoin(db.categories,
+          db.categories.id.equalsExp(db.transactions.categoryId)),
+    ]);
+    if (categoryId == null) {
+      base.where(db.transactions.categoryId.isNull());
+    } else {
+      base.where(db.transactions.categoryId.equals(categoryId));
+    }
+    return base.watch().map((rows) => rows
+        .map((r) => (
+              t: r.readTable(db.transactions),
+              category: r.readTableOrNull(db.categories)
+            ))
+        .toList());
   }
 
   // Aggregation: totals by month for a year and type

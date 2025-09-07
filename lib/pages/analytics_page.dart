@@ -18,7 +18,6 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
   String _type = 'expense'; // expense | income
   bool _chartSwiped = false; // 吸收图表区域横滑，避免父级切换收入/支出
   bool _showHeaderHint = true; // 顶部“横滑切换”提示可关闭
-  bool _showChartHint = true; // 图表“横滑切换相邻周期”提示可关闭
 
   @override
   Widget build(BuildContext context) {
@@ -56,12 +55,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
         children: [
           PrimaryHeader(
             title: '',
-            center: _TypeDropdown(
-              value: _type,
-              showHint: _showHeaderHint,
-              onCloseHint: () => setState(() => _showHeaderHint = false),
-              onChanged: (v) => setState(() => _type = v),
-            ),
+            center: null,
             bottom: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: _CapsuleSwitcher(
@@ -97,7 +91,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                 }
                 final list = snapshot.data as List<dynamic>;
                 final catData =
-                    (list[0] as List<({String name, double total})>);
+                    (list[0] as List<({int? id, String name, double total})>);
                 final seriesRaw = list[1];
 
                 final sum = catData.fold<double>(0, (a, b) => a + b.total);
@@ -212,12 +206,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                             }
                             setState(() => _chartSwiped = true);
                           },
-                          showHint: _showChartHint && _scope != 'all',
-                          hintText: _scope == 'year'
-                              ? '左右滑动切换 上/下一年'
-                              : '左右滑动切换 上/下一个月',
-                          onCloseHint: () =>
-                              setState(() => _showChartHint = false),
+                          showHint: false,
+                          hintText: null,
+                          onCloseHint: null,
                           whiteBg: true,
                           showGrid: false,
                           showDots: true,
@@ -225,15 +216,62 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text(_type == 'expense' ? '支出排行榜' : '收入排行榜',
-                          style: Theme.of(context).textTheme.titleMedium),
+                      Row(
+                        children: [
+                          Text(
+                            _type == 'expense' ? '支出排行榜' : '收入排行榜',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.04),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              _currentPeriodLabel(_scope, selMonth),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(color: Colors.black54),
+                            ),
+                          ),
+                          const Spacer(),
+                          if (_showHeaderHint)
+                            InkWell(
+                              onTap: () =>
+                                  setState(() => _showHeaderHint = false),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.swipe,
+                                      size: 14, color: Colors.black54),
+                                  const SizedBox(width: 4),
+                                  Text('横滑切换',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall
+                                          ?.copyWith(color: Colors.black54)),
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.close,
+                                      size: 14, color: Colors.black45),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
                       const SizedBox(height: 8),
                       for (final item in catData)
-                        _RankRow(
-                          name: item.name,
-                          value: item.total,
-                          percent: sum == 0 ? 0 : item.total / sum,
-                          color: Theme.of(context).colorScheme.primary,
+                        InkWell(
+                          onTap: () => _openCategoryDetail(
+                              context, item.id, item.name, start, end, _type),
+                          child: _RankRow(
+                            name: item.name,
+                            value: item.total,
+                            percent: sum == 0 ? 0 : item.total / sum,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
                     ],
                   ),
@@ -247,67 +285,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
   }
 }
 
-class _TypeDropdown extends StatelessWidget {
-  final String value; // 'income' | 'expense'
-  final ValueChanged<String> onChanged;
-  final bool showHint;
-  final VoidCallback? onCloseHint;
-  const _TypeDropdown({
-    required this.value,
-    required this.onChanged,
-    this.showHint = false,
-    this.onCloseHint,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isExpense = value == 'expense';
-    final label = isExpense ? '支出' : '收入';
-    final chip = InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () async {
-        final selected = await showMenu<String>(
-          context: context,
-          position: const RelativeRect.fromLTRB(24, 60, 24, 0),
-          items: const [
-            PopupMenuItem(value: 'expense', child: Text('支出')),
-            PopupMenuItem(value: 'income', child: Text('收入')),
-          ],
-        );
-        if (selected != null && selected != value) onChanged(selected);
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(label, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(width: 4),
-            const Icon(Icons.arrow_drop_down, size: 20),
-            if (showHint) ...[
-              const SizedBox(width: 8),
-              const Icon(Icons.swipe, size: 14, color: Colors.black54),
-              const SizedBox(width: 2),
-              Text('横滑切换', style: Theme.of(context).textTheme.labelSmall),
-              const SizedBox(width: 4),
-              InkWell(
-                onTap: onCloseHint,
-                child: const Icon(Icons.close, size: 14, color: Colors.black45),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.4),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: chip,
-    );
-  }
-}
+// 顶部类型下拉已移除
 
 class _CapsuleSwitcher extends StatelessWidget {
   final String value; // month | year | all
@@ -793,7 +771,6 @@ class _TopTexts extends StatelessWidget {
   Widget build(BuildContext context) {
     final grey = Colors.black54;
     final titleWord = isExpense ? '支出' : '收入';
-    final primaryColor = Theme.of(context).colorScheme.primary;
     String avgLabel;
     switch (scope) {
       case 'year':
@@ -817,8 +794,10 @@ class _TopTexts extends StatelessWidget {
                     .bodyMedium
                     ?.copyWith(color: grey)),
             Text(total.toStringAsFixed(2),
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: primaryColor, fontWeight: FontWeight.w600)),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: grey, fontWeight: FontWeight.w600)),
           ],
         ),
         const SizedBox(height: 4),
@@ -839,6 +818,90 @@ class _TopTexts extends StatelessWidget {
         const SizedBox(height: 8),
         Divider(height: 1, color: Colors.black12.withOpacity(0.2)),
       ],
+    );
+  }
+}
+
+String _currentPeriodLabel(String scope, DateTime selMonth) {
+  switch (scope) {
+    case 'year':
+      return '${selMonth.year}年';
+    case 'all':
+      return '全部年份';
+    case 'month':
+    default:
+      return '${selMonth.year}-${selMonth.month.toString().padLeft(2, '0')}';
+  }
+}
+
+void _openCategoryDetail(BuildContext context, int? categoryId, String name,
+    DateTime start, DateTime end, String type) {
+  Navigator.of(context).push(MaterialPageRoute(
+    builder: (_) => _CategoryDetailPage(
+      categoryId: categoryId,
+      categoryName: name,
+      start: start,
+      end: end,
+      type: type,
+    ),
+  ));
+}
+
+class _CategoryDetailPage extends ConsumerWidget {
+  final int? categoryId;
+  final String categoryName;
+  final DateTime start;
+  final DateTime end;
+  final String type;
+  const _CategoryDetailPage({
+    required this.categoryId,
+    required this.categoryName,
+    required this.start,
+    required this.end,
+    required this.type,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final repo = ref.watch(repositoryProvider);
+    final ledgerId = ref.watch(currentLedgerIdProvider);
+    return Scaffold(
+      appBar: AppBar(title: Text('$categoryName 明细')),
+      body: StreamBuilder(
+        stream: repo.transactionsForCategoryInRange(
+            ledgerId: ledgerId,
+            start: start,
+            end: end,
+            categoryId: categoryId,
+            type: type),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final list = snapshot.data!;
+          if (list.isEmpty) {
+            return const Center(child: Text('暂无明细'));
+          }
+          return ListView.separated(
+            itemCount: list.length,
+            separatorBuilder: (_, __) => const Divider(height: 1),
+            itemBuilder: (_, i) {
+              final item = list[i];
+              final t = item.t;
+              final c = item.category;
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.black12.withOpacity(0.06),
+                  child: Icon(iconForCategory(c?.name ?? '未分类')),
+                ),
+                title: Text(c?.name ?? '未分类'),
+                subtitle: Text('${t.happenedAt.toLocal()}'),
+                trailing: Text(t.amount.toStringAsFixed(2)),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
