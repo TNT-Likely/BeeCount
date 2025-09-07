@@ -16,7 +16,7 @@ class LedgersPage extends ConsumerWidget {
         children: [
           PrimaryHeader(
             title: '账本管理',
-            showBack: true,
+            showBack: false,
             actions: [
               IconButton(
                 onPressed: () async {
