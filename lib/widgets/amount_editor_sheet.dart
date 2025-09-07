@@ -261,7 +261,6 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                     SizedBox(
                         width: w,
                         child: keyBtn('+',
-                            fg: primary,
                             bg: Colors.grey[100],
                             onTap: () => _toggleSign(true))),
                   ]),
@@ -279,7 +278,6 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                     SizedBox(
                         width: w,
                         child: keyBtn('-',
-                            fg: primary,
                             bg: Colors.grey[100],
                             onTap: () => _toggleSign(false))),
                   ]),
