@@ -20,31 +20,58 @@ class LedgersPage extends ConsumerWidget {
             actions: [
               IconButton(
                 onPressed: () async {
-                  final name = await showDialog<String>(
+                  final result =
+                      await showDialog<(String name, String currency)?>(
                     context: context,
                     builder: (ctx) {
                       final c = TextEditingController();
+                      String currency = 'CNY';
                       return AlertDialog(
                         title: const Text('新建账本'),
-                        content: TextField(
-                            controller: c,
-                            decoration: const InputDecoration(labelText: '名称')),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextField(
+                                controller: c,
+                                decoration:
+                                    const InputDecoration(labelText: '名称')),
+                            const SizedBox(height: 12),
+                            DropdownButtonFormField<String>(
+                              decoration:
+                                  const InputDecoration(labelText: '币种'),
+                              value: currency,
+                              items: const [
+                                DropdownMenuItem(
+                                    value: 'CNY', child: Text('CNY 人民币')),
+                                DropdownMenuItem(
+                                    value: 'USD', child: Text('USD 美元')),
+                                DropdownMenuItem(
+                                    value: 'EUR', child: Text('EUR 欧元')),
+                                DropdownMenuItem(
+                                    value: 'JPY', child: Text('JPY 日元')),
+                              ],
+                              onChanged: (v) => currency = v ?? 'CNY',
+                            ),
+                          ],
+                        ),
                         actions: [
                           TextButton(
                               onPressed: () => Navigator.pop(ctx),
                               child: const Text('取消')),
                           FilledButton(
-                              onPressed: () => Navigator.pop(ctx, c.text),
+                              onPressed: () =>
+                                  Navigator.pop(ctx, (c.text, currency)),
                               child: const Text('确定')),
                         ],
                       );
                     },
                   );
-                  if (name != null && name.trim().isNotEmpty) {
-                    await repo.createLedger(name: name.trim());
+                  if (result != null && result.$1.trim().isNotEmpty) {
+                    await repo.createLedger(
+                        name: result.$1.trim(), currency: result.$2);
                   }
                 },
-                icon: const Icon(Icons.add, color: Colors.white),
+                icon: const Icon(Icons.add, color: Colors.black),
               ),
             ],
           ),
@@ -69,7 +96,11 @@ class LedgersPage extends ConsumerWidget {
                       ledger: l,
                       selected: selected,
                       onTap: () async {
-                        // 选中即编辑
+                        // 点击切换账本
+                        ref.read(currentLedgerIdProvider.notifier).state = l.id;
+                      },
+                      onLongPress: () async {
+                        // 长按编辑
                         final newName = await showDialog<String>(
                           context: context,
                           builder: (ctx) {
@@ -103,8 +134,25 @@ class LedgersPage extends ConsumerWidget {
                         );
                         if (newName != null && newName.isNotEmpty) {
                           await repo.updateLedgerName(id: l.id, name: newName);
-                          ref.read(currentLedgerIdProvider.notifier).state =
-                              l.id;
+                          // 提示同步中（占位）
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Row(
+                                  children: [
+                                    SizedBox(
+                                        height: 16,
+                                        width: 16,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2)),
+                                    SizedBox(width: 12),
+                                    Text('同步账本中...'),
+                                  ],
+                                ),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
                         }
                       },
                     );
@@ -124,13 +172,18 @@ class _LedgerCard extends StatelessWidget {
   final Ledger ledger;
   final bool selected;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   const _LedgerCard(
-      {required this.ledger, required this.selected, required this.onTap});
+      {required this.ledger,
+      required this.selected,
+      required this.onTap,
+      this.onLongPress});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       borderRadius: BorderRadius.circular(12),
       child: Ink(
         decoration: BoxDecoration(

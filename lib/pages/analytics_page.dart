@@ -56,6 +56,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
           PrimaryHeader(
             title: '',
             center: null,
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
             bottom: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: _CapsuleSwitcher(
@@ -866,43 +867,78 @@ class _CategoryDetailPage extends ConsumerWidget {
     final repo = ref.watch(repositoryProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     return Scaffold(
-      appBar: AppBar(title: Text('$categoryName 明细')),
-      body: StreamBuilder(
-        stream: repo.transactionsForCategoryInRange(
-            ledgerId: ledgerId,
-            start: start,
-            end: end,
-            categoryId: categoryId,
-            type: type),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final list = snapshot.data!;
-          if (list.isEmpty) {
-            return const Center(child: Text('暂无明细'));
-          }
-          return ListView.separated(
-            itemCount: list.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (_, i) {
-              final item = list[i];
-              final t = item.t;
-              final c = item.category;
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.black12.withOpacity(0.06),
-                  child: Icon(iconForCategory(c?.name ?? '未分类')),
-                ),
-                title: Text(c?.name ?? '未分类'),
-                subtitle: Text('${t.happenedAt.toLocal()}'),
-                trailing: Text(t.amount.toStringAsFixed(2)),
-              );
-            },
-          );
-        },
+      body: Column(
+        children: [
+          PrimaryHeader(
+            title: categoryName,
+            showBack: true,
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+            actions: const [
+              Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: Icon(Icons.list_alt, color: Colors.black87),
+              )
+            ],
+          ),
+          Expanded(
+            child: StreamBuilder(
+              stream: repo.transactionsForCategoryInRange(
+                  ledgerId: ledgerId,
+                  start: start,
+                  end: end,
+                  categoryId: categoryId,
+                  type: type),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final list = snapshot.data!;
+                if (list.isEmpty) {
+                  return const Center(child: Text('暂无明细'));
+                }
+                return ListView.separated(
+                  itemCount: list.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (_, i) {
+                    final item = list[i];
+                    final t = item.t;
+                    final c = item.category;
+                    final left =
+                        '${c?.name ?? '未分类'} · ${_fmtDate(t.happenedAt.toLocal())}';
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.black12.withOpacity(0.06),
+                        child: Icon(iconForCategory(c?.name ?? '未分类'),
+                            color: Theme.of(context).colorScheme.primary),
+                      ),
+                      title: Row(
+                        children: [
+                          Expanded(
+                            child: Text(left,
+                                maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(t.amount.toStringAsFixed(2),
+                              style: Theme.of(context).textTheme.bodyMedium),
+                        ],
+                      ),
+                      dense: true,
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  String _fmtDate(DateTime d) {
+    final y = d.year.toString().padLeft(4, '0');
+    final m = d.month.toString().padLeft(2, '0');
+    final day = d.day.toString().padLeft(2, '0');
+    return '$y-$m-$day';
   }
 }
 

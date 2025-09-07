@@ -11,6 +11,8 @@ class PrimaryHeader extends ConsumerWidget {
   final Widget? bottom;
   // 自由布局插槽：提供后将完全替代默认的标题/副标题/居中/操作区布局
   final Widget? content;
+  // 顶部区域内边距（应用于 content 或默认行）
+  final EdgeInsetsGeometry padding;
   // 可选：标题右侧紧邻的小部件（例如月份旁的图标）
   final Widget? titleTrailing;
   // 可选：副标题右侧紧邻的小部件（例如当副标题显示月份时的图标）
@@ -25,6 +27,7 @@ class PrimaryHeader extends ConsumerWidget {
       this.actions,
       this.bottom,
       this.content,
+      this.padding = const EdgeInsets.fromLTRB(8, 8, 8, 8),
       this.titleTrailing,
       this.subtitleTrailing,
       this.center});
@@ -55,12 +58,12 @@ class PrimaryHeader extends ConsumerWidget {
             children: [
               if (content != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                  padding: padding,
                   child: content!,
                 )
               else
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                  padding: padding,
                   child: Row(
                     children: [
                       if (showBack)
