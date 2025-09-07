@@ -82,3 +82,47 @@ class AppListTile extends StatelessWidget {
     );
   }
 }
+
+class AmountText extends StatelessWidget {
+  final double value;
+  final bool hide;
+  final bool signed; // 是否显示正负号
+  final int decimals;
+  final TextStyle? style;
+  const AmountText(
+      {super.key,
+      required this.value,
+      this.hide = false,
+      this.signed = true,
+      this.decimals = 2,
+      this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    if (hide)
+      return Text('****',
+          style: style ??
+              Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Colors.black87));
+    final s = _format(value, signed: signed, decimals: decimals);
+    return Text(
+      s,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      textAlign: TextAlign.right,
+      style: style ??
+          Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: Colors.black87),
+    );
+  }
+
+  String _format(double v, {bool signed = true, int decimals = 2}) {
+    final sign = signed ? (v < 0 ? '-' : '+') : '';
+    final abs = v.abs();
+    return '$sign${abs.toStringAsFixed(decimals)}';
+  }
+}

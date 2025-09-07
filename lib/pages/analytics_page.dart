@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/primary_header.dart';
+import '../widgets/common.dart';
+import '../styles/design.dart';
 import '../providers.dart';
 import '../widgets/category_icon.dart';
 
@@ -852,7 +854,7 @@ class _TopTexts extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        Divider(height: 1, color: Colors.black12.withOpacity(0.2)),
+        AppDivider.thin(),
       ],
     );
   }
@@ -953,8 +955,7 @@ class _CategoryDetailPage extends ConsumerWidget {
                                 maxLines: 1, overflow: TextOverflow.ellipsis),
                           ),
                           const SizedBox(width: 8),
-                          Text(t.amount.toStringAsFixed(2),
-                              style: Theme.of(context).textTheme.bodyMedium),
+                          AmountText(value: t.amount, signed: false),
                         ],
                       ),
                       dense: true,
@@ -1014,8 +1015,7 @@ class _RankRow extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodyMedium),
                     ),
                     const SizedBox(width: 8),
-                    Text(value.toStringAsFixed(0),
-                        style: Theme.of(context).textTheme.bodyMedium),
+                    AmountText(value: value, signed: false, decimals: 0),
                   ],
                 ),
                 const SizedBox(height: 6),
