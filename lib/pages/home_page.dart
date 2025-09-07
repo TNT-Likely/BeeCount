@@ -7,7 +7,7 @@ import 'personalize_page.dart' show headerStyleProvider;
 import '../data/db.dart';
 import '../widgets/primary_header.dart';
 import 'category_picker.dart';
-import 'package:beecount/widgets/wheel_date_picker.dart';
+// import 'package:beecount/widgets/wheel_date_picker.dart';
 import 'package:beecount/widgets/measure_size.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -110,51 +110,91 @@ class _HomePageState extends ConsumerState<HomePage> {
         children: [
           Consumer(builder: (context, ref, _) {
             ref.watch(headerStyleProvider);
+            final hide = ref.watch(hideAmountsProvider);
             return PrimaryHeader(
-              // 年在上
-              title: '${month.year}年',
-              // 月在下
-              subtitle: '${month.month.toString().padLeft(2, '0')}月',
-              subtitleTrailing: InkWell(
-                onTap: () async {
-                  final res = await showWheelDatePicker(
-                    context,
-                    initial: month,
-                    mode: WheelDatePickerMode.ym,
-                    maxDate: DateTime.now(),
-                  );
-                  if (res != null) {
-                    final target = DateTime(res.year, res.month, 1);
-                    ref.read(selectedMonthProvider.notifier).state = target;
-                    // 标记等待滚动到该月份
-                    setState(() {
-                      _pendingScrollMonth = target;
-                    });
-                  }
-                },
-                child: const Padding(
-                  padding: EdgeInsets.only(left: 2),
-                  child:
-                      Icon(Icons.calendar_month, color: Colors.black, size: 18),
-                ),
-              ),
-              center: _HeaderCenterSummary(hide: hide),
-              bottom: const _HeaderDecor(),
-              actions: [
-                IconButton(
-                  tooltip: hide ? '显示金额' : '隐藏金额',
-                  onPressed: () {
-                    final cur = ref.read(hideAmountsProvider);
-                    ref.read(hideAmountsProvider.notifier).state = !cur;
-                  },
-                  icon: Icon(
-                    hide
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    color: Colors.black,
+              title: '',
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 第一行：中间品牌名，右边小眼睛
+                  Row(
+                    children: [
+                      const SizedBox(width: 40),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            '蜜蜂记账',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  color: Colors.black87,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: hide ? '显示金额' : '隐藏金额',
+                        onPressed: () {
+                          final cur = ref.read(hideAmountsProvider);
+                          ref.read(hideAmountsProvider.notifier).state = !cur;
+                        },
+                        icon: Icon(
+                          hide
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          size: 18,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  // 第二行
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // 左：年/月上下排列，月份旁日期图标
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${month.year}年',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                      color: Colors.black54,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500)),
+                          const SizedBox(height: 2),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.calendar_month,
+                                  size: 16, color: Colors.black87),
+                              const SizedBox(width: 6),
+                              Text('${month.month.toString().padLeft(2, '0')}月',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                          color: Colors.black87,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 14),
+                      // 右：汇总标题+金额
+                      Expanded(child: _HeaderCenterSummary(hide: hide)),
+                    ],
+                  ),
+                ],
+              ),
+              bottom: const _HeaderDecor(),
             );
           }),
           // 顶部与内容之间的过渡条，去除额外空白

@@ -9,6 +9,8 @@ class PrimaryHeader extends ConsumerWidget {
   final bool showBack;
   final List<Widget>? actions;
   final Widget? bottom;
+  // 自由布局插槽：提供后将完全替代默认的标题/副标题/居中/操作区布局
+  final Widget? content;
   // 可选：标题右侧紧邻的小部件（例如月份旁的图标）
   final Widget? titleTrailing;
   // 可选：副标题右侧紧邻的小部件（例如当副标题显示月份时的图标）
@@ -22,6 +24,7 @@ class PrimaryHeader extends ConsumerWidget {
       this.showBack = false,
       this.actions,
       this.bottom,
+      this.content,
       this.titleTrailing,
       this.subtitleTrailing,
       this.center});
@@ -50,62 +53,69 @@ class PrimaryHeader extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                child: Row(
-                  children: [
-                    if (showBack)
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.black),
-                        onPressed: () => Navigator.of(context).maybePop(),
-                      ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Flexible(
-                                  child: Text(title,
-                                      style: titleStyle,
-                                      overflow: TextOverflow.ellipsis)),
-                              if (titleTrailing != null) ...[
-                                const SizedBox(width: 6),
-                                titleTrailing!,
-                              ],
-                            ],
-                          ),
-                          if (subtitle != null)
+              if (content != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                  child: content!,
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                  child: Row(
+                    children: [
+                      if (showBack)
+                        IconButton(
+                          icon:
+                              const Icon(Icons.arrow_back, color: Colors.black),
+                          onPressed: () => Navigator.of(context).maybePop(),
+                        ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Flexible(
-                                    child: Text(subtitle!,
-                                        style: subStyle,
+                                    child: Text(title,
+                                        style: titleStyle,
                                         overflow: TextOverflow.ellipsis)),
-                                if (subtitleTrailing != null) ...[
+                                if (titleTrailing != null) ...[
                                   const SizedBox(width: 6),
-                                  subtitleTrailing!,
-                                ]
+                                  titleTrailing!,
+                                ],
                               ],
                             ),
-                        ],
+                            if (subtitle != null)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                      child: Text(subtitle!,
+                                          style: subStyle,
+                                          overflow: TextOverflow.ellipsis)),
+                                  if (subtitleTrailing != null) ...[
+                                    const SizedBox(width: 6),
+                                    subtitleTrailing!,
+                                  ]
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                    if (center != null) ...[
-                      const SizedBox(width: 6),
-                      DefaultTextStyle(
-                        style: Theme.of(context).textTheme.labelMedium ??
-                            const TextStyle(
-                                fontSize: 12, color: Colors.black87),
-                        child: center!,
-                      ),
+                      if (center != null) ...[
+                        const SizedBox(width: 6),
+                        DefaultTextStyle(
+                          style: Theme.of(context).textTheme.labelMedium ??
+                              const TextStyle(
+                                  fontSize: 12, color: Colors.black87),
+                          child: center!,
+                        ),
+                      ],
+                      if (actions != null) ...actions!,
                     ],
-                    if (actions != null) ...actions!,
-                  ],
+                  ),
                 ),
-              ),
               if (bottom != null) bottom!,
             ],
           ),
