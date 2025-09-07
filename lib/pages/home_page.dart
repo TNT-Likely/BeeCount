@@ -9,6 +9,7 @@ import '../widgets/primary_header.dart';
 import 'category_picker.dart';
 import '../widgets/wheel_date_picker.dart';
 import '../widgets/category_icon.dart';
+import '../styles/colors.dart';
 // import 'package:beecount/widgets/wheel_date_picker.dart';
 import 'package:beecount/widgets/measure_size.dart';
 
@@ -121,7 +122,26 @@ class _HomePageState extends ConsumerState<HomePage> {
                   // 第一行：中间品牌名，右边小眼睛
                   Row(
                     children: [
-                      const SizedBox(width: 40),
+                      // 标题左侧放日期选择图标
+                      IconButton(
+                        tooltip: '选择日期',
+                        onPressed: () async {
+                          final res = await showWheelDatePicker(
+                            context,
+                            initial: month,
+                            mode: WheelDatePickerMode.ym,
+                            maxDate: DateTime.now(),
+                          );
+                          if (res != null) {
+                            ref.read(selectedMonthProvider.notifier).state =
+                                DateTime(res.year, res.month, 1);
+                            _pendingScrollMonth =
+                                DateTime(res.year, res.month, 1);
+                          }
+                        },
+                        icon: const Icon(Icons.calendar_month,
+                            size: 18, color: BeeColors.primaryText),
+                      ),
                       Expanded(
                         child: Center(
                           child: Text(
@@ -130,7 +150,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 .textTheme
                                 .titleLarge
                                 ?.copyWith(
-                                  color: Colors.black87,
+                                  color: BeeColors.primaryText,
                                   fontSize: 22,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -148,7 +168,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
                           size: 18,
-                          color: Colors.black87,
+                          color: BeeColors.primaryText,
                         ),
                       ),
                     ],
@@ -171,7 +191,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                           if (res != null) {
                             ref.read(selectedMonthProvider.notifier).state =
                                 DateTime(res.year, res.month, 1);
-                            _pendingScrollMonth = DateTime(res.year, res.month, 1);
+                            _pendingScrollMonth =
+                                DateTime(res.year, res.month, 1);
                           }
                         },
                         child: Column(
@@ -182,7 +203,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     .textTheme
                                     .labelLarge
                                     ?.copyWith(
-                                        color: Colors.black54,
+                                        color: BeeColors.secondaryText,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500)),
                             const SizedBox(height: 2),
@@ -195,13 +216,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       .textTheme
                                       .titleMedium
                                       ?.copyWith(
-                                          color: Colors.black87,
+                                          color: BeeColors.primaryText,
                                           fontSize: 20,
                                           fontWeight: FontWeight.w500),
                                 ),
                                 const SizedBox(width: 6),
-                                const Icon(Icons.calendar_month,
-                                    size: 16, color: Colors.black87),
                               ],
                             ),
                           ],
@@ -239,7 +258,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     final dateFmt = DateFormat('yyyy-MM-dd');
                     final groups =
                         <String, List<({Transaction t, Category? category})>>{};
-                      for (final item in joined) {
+                    for (final item in joined) {
                       final dt = item.t.happenedAt.toLocal();
                       final key =
                           dateFmt.format(DateTime(dt.year, dt.month, dt.day));
@@ -467,7 +486,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                               final isExpense = it.t.type == 'expense';
                               final amountPrefix = isExpense ? '-' : '+';
                               final categoryName = it.category?.name ?? '未分类';
-                              
 
                               final subtitle = it.t.note ?? '';
                               final isLastInGroup = rowIndex == list.length - 1;
@@ -511,7 +529,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       const SnackBar(content: Text('已删除')));
                                 },
                                 child: Column(
-              children: [
+                                  children: [
                                     MeasureSize(
                                       onChange: (size) {
                                         if (_rowHeights[key] != null &&
@@ -534,7 +552,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           radius: 14,
                                           backgroundColor: Colors.grey[200],
                                           child: Icon(
-                iconForCategory(categoryName),
+                                            iconForCategory(categoryName),
                                             color: Theme.of(context)
                                                 .colorScheme
                                                 .primary,
@@ -551,7 +569,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               .textTheme
                                               .bodyMedium
                                               ?.copyWith(
-                  fontSize: 15,
+                                                  fontSize: 15,
                                                   color: Colors.black87),
                                         ),
                                         subtitle: null,
@@ -563,7 +581,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               .textTheme
                                               .bodyMedium
                                               ?.copyWith(
-                  fontSize: 15,
+                                                  fontSize: 15,
                                                   color: Colors.black87),
                                         ),
                                         onTap: () async {
@@ -634,16 +652,16 @@ class _HeaderCenterSummary extends ConsumerWidget {
               children: [
                 Text(title,
                     textAlign: TextAlign.left,
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelSmall
-                        ?.copyWith(color: Colors.black54, fontSize: 12)),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: BeeColors.secondaryText, fontSize: 12)),
                 const SizedBox(height: 2),
                 Text(
                   hide ? '****' : value.toStringAsFixed(2),
                   textAlign: TextAlign.left,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: Colors.black87,
+                        color: BeeColors.primaryText,
                         fontWeight: FontWeight.w500,
                         fontSize: 20,
                       ),
@@ -692,7 +710,7 @@ class _DayHeader extends StatelessWidget {
     final week = weekdayZh(dateText);
     // 需求1：头部全灰且字体一致；金额为 0.00 时不展示
     String fmt(double v) => v == 0 ? '' : v.toStringAsFixed(2);
-    final grey = Colors.black54;
+    final grey = BeeColors.secondaryText;
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
