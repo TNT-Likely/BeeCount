@@ -36,10 +36,10 @@ class _BeeAppState extends ConsumerState<BeeApp> {
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
         shape: const CircularNotchedRectangle(),
-        notchMargin: 6,
+        notchMargin: 4,
         elevation: 8,
         child: SizedBox(
-          height: 64,
+          height: 54,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(5, (i) {
@@ -101,21 +101,26 @@ class _BeeAppState extends ConsumerState<BeeApp> {
       floatingActionButton: Consumer(builder: (context, ref, _) {
         final style = ref.watch(headerStyleProvider);
         final color = Theme.of(context).colorScheme.primary;
-        return FloatingActionButton(
-          heroTag: 'addFab',
-          elevation: 6,
-          backgroundColor: style == 'primary' ? color : color,
-          onPressed: () async {
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const CategoryPickerPage(
-                  initialKind: 'expense',
-                  quickAdd: true,
+        return SizedBox(
+          width: 58,
+          height: 58,
+          child: FloatingActionButton(
+            heroTag: 'addFab',
+            elevation: 8,
+            shape: const CircleBorder(),
+            backgroundColor: style == 'primary' ? color : color,
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const CategoryPickerPage(
+                    initialKind: 'expense',
+                    quickAdd: true,
+                  ),
                 ),
-              ),
-            );
-          },
-          child: const Icon(Icons.add, color: Colors.white),
+              );
+            },
+            child: const Icon(Icons.add, color: Colors.white, size: 28),
+          ),
         );
       }),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

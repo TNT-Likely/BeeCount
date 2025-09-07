@@ -201,8 +201,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               ],
             );
           }),
-          // 顶部与内容之间的过渡条，缩小高度以减少空白
-          Container(height: 4, color: Colors.white),
+          // 顶部与内容之间的过渡条，去除额外空白
+          const SizedBox(height: 0),
           Expanded(
             child: StreamBuilder<List<({Transaction t, Category? category})>>(
               stream: view == 'year'
@@ -307,6 +307,21 @@ class _HomePageState extends ConsumerState<HomePage> {
                               if (name.contains('购物') || name.contains('百货')) {
                                 return Icons.shopping_bag_outlined;
                               }
+                              if (name.contains('服饰') ||
+                                  name.contains('衣') ||
+                                  name.contains('鞋') ||
+                                  name.contains('裤') ||
+                                  name.contains('帽')) {
+                                return Icons.checkroom_outlined;
+                              }
+                              if (name.contains('超市') ||
+                                  name.contains('生鲜') ||
+                                  name.contains('菜') ||
+                                  name.contains('粮油') ||
+                                  name.contains('蔬菜') ||
+                                  name.contains('水果')) {
+                                return Icons.local_grocery_store_outlined;
+                              }
                               if (name.contains('娱乐') || name.contains('游戏')) {
                                 return Icons.sports_esports_outlined;
                               }
@@ -328,6 +343,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   name.contains('宽带')) {
                                 return Icons.phone_iphone_outlined;
                               }
+                              if (name.contains('订阅') ||
+                                  name.contains('会员') ||
+                                  name.contains('流媒体')) {
+                                return Icons.subscriptions_outlined;
+                              }
                               if (name.contains('礼物') ||
                                   name.contains('红包') ||
                                   name.contains('礼金')) {
@@ -341,6 +361,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                               }
                               if (name.contains('房') || name.contains('租')) {
                                 return Icons.home_outlined;
+                              }
+                              if (name.contains('房贷') ||
+                                  name.contains('按揭') ||
+                                  name.contains('贷款')) {
+                                return Icons.account_balance_outlined;
                               }
                               if (name.contains('工资') ||
                                   name.contains('收入') ||
@@ -386,6 +411,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   name.contains('出差')) {
                                 return Icons.card_travel_outlined;
                               }
+                              if (name.contains('酒店') ||
+                                  name.contains('住宿') ||
+                                  name.contains('民宿')) {
+                                return Icons.hotel_outlined;
+                              }
                               if (name.contains('烟') ||
                                   name.contains('酒') ||
                                   name.contains('茶')) {
@@ -401,6 +431,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   name.contains('汽车') ||
                                   name.contains('保养')) {
                                 return Icons.local_gas_station_outlined;
+                              }
+                              if (name.contains('快递') || name.contains('邮寄')) {
+                                return Icons.local_shipping_outlined;
+                              }
+                              if (name.contains('税') ||
+                                  name.contains('社保') ||
+                                  name.contains('公积金')) {
+                                return Icons.receipt_long_outlined;
+                              }
+                              if (name.contains('捐赠') || name.contains('公益')) {
+                                return Icons.volunteer_activism_outlined;
                               }
                               return Icons.circle_outlined;
                             }
@@ -450,10 +491,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         const VisualDensity(vertical: -2),
                                     leading: CircleAvatar(
                                       radius: 14,
-                                      backgroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withOpacity(0.1),
+                                      backgroundColor: Colors.grey[200],
                                       child: Icon(
                                         iconFor(categoryName),
                                         color: Theme.of(context)
@@ -480,11 +518,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       hide
                                           ? '****'
                                           : '$amountPrefix${it.t.amount.toStringAsFixed(2)}',
-                                      style: TextStyle(
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 18,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                              fontSize: 13,
+                                              color: Colors.black87),
                                     ),
                                     onTap: () async {
                                       final amountController =
