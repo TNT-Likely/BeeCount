@@ -7,6 +7,8 @@ import 'personalize_page.dart' show headerStyleProvider;
 import '../data/db.dart';
 import '../widgets/primary_header.dart';
 import 'category_picker.dart';
+import '../widgets/wheel_date_picker.dart';
+import '../widgets/category_icon.dart';
 // import 'package:beecount/widgets/wheel_date_picker.dart';
 import 'package:beecount/widgets/measure_size.dart';
 
@@ -157,44 +159,69 @@ class _HomePageState extends ConsumerState<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // 左：年/月上下排列，月份旁日期图标
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('${month.year}年',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelLarge
-                                  ?.copyWith(
-                                      color: Colors.black54,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500)),
-                          const SizedBox(height: 2),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.calendar_month,
-                                  size: 16, color: Colors.black87),
-                              const SizedBox(width: 6),
-                              Text('${month.month.toString().padLeft(2, '0')}月',
+                      InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () async {
+                          final res = await showWheelDatePicker(
+                            context,
+                            initial: month,
+                            mode: WheelDatePickerMode.ym,
+                            maxDate: DateTime.now(),
+                          );
+                          if (res != null) {
+                            ref.read(selectedMonthProvider.notifier).state =
+                                DateTime(res.year, res.month, 1);
+                            _pendingScrollMonth = DateTime(res.year, res.month, 1);
+                          }
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('${month.year}年',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                        color: Colors.black54,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500)),
+                            const SizedBox(height: 2),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${month.month.toString().padLeft(2, '0')}月',
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium
                                       ?.copyWith(
                                           color: Colors.black87,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600)),
-                            ],
-                          ),
-                        ],
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w500),
+                                ),
+                                const SizedBox(width: 6),
+                                const Icon(Icons.calendar_month,
+                                    size: 16, color: Colors.black87),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(width: 14),
-                      // 右：汇总标题+金额
+                      // 细竖线分割
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 12),
+                        width: 1,
+                        height: 36,
+                        color: Colors.black12,
+                      ),
+                      // 右：汇总三等分、左对齐
                       Expanded(child: _HeaderCenterSummary(hide: hide)),
                     ],
                   ),
                 ],
               ),
-              bottom: const _HeaderDecor(),
+              // 去掉头部下方的小提示
+              bottom: null,
             );
           }),
           // 顶部与内容之间的过渡条，去除额外空白
@@ -212,7 +239,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     final dateFmt = DateFormat('yyyy-MM-dd');
                     final groups =
                         <String, List<({Transaction t, Category? category})>>{};
-                    for (final item in joined) {
+                      for (final item in joined) {
                       final dt = item.t.happenedAt.toLocal();
                       final key =
                           dateFmt.format(DateTime(dt.year, dt.month, dt.day));
@@ -440,179 +467,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                               final isExpense = it.t.type == 'expense';
                               final amountPrefix = isExpense ? '-' : '+';
                               final categoryName = it.category?.name ?? '未分类';
-                              IconData iconFor(String n) {
-                                final name = n;
-                                if (name.contains('餐') ||
-                                    name.contains('饭') ||
-                                    name.contains('吃') ||
-                                    name.contains('外卖')) {
-                                  return Icons.restaurant_outlined;
-                                }
-                                if (name.contains('交通') ||
-                                    name.contains('出行') ||
-                                    name.contains('打车') ||
-                                    name.contains('地铁') ||
-                                    name.contains('公交') ||
-                                    name.contains('高铁') ||
-                                    name.contains('火车') ||
-                                    name.contains('飞机')) {
-                                  return Icons.directions_transit_outlined;
-                                }
-                                // 车类：未被上面的交通关键词覆盖但名字中明确表示车辆
-                                if (name == '车' ||
-                                    name.contains('车辆') ||
-                                    name.contains('车贷') ||
-                                    name.contains('购车') ||
-                                    name.contains('爱车')) {
-                                  return Icons.directions_car_outlined;
-                                }
-                                if (name.contains('购物') ||
-                                    name.contains('百货')) {
-                                  return Icons.shopping_bag_outlined;
-                                }
-                                if (name.contains('服饰') ||
-                                    name.contains('衣') ||
-                                    name.contains('鞋') ||
-                                    name.contains('裤') ||
-                                    name.contains('帽')) {
-                                  return Icons.checkroom_outlined;
-                                }
-                                if (name.contains('超市') ||
-                                    name.contains('生鲜') ||
-                                    name.contains('菜') ||
-                                    name.contains('粮油') ||
-                                    name.contains('蔬菜') ||
-                                    name.contains('水果')) {
-                                  return Icons.local_grocery_store_outlined;
-                                }
-                                if (name.contains('娱乐') ||
-                                    name.contains('游戏')) {
-                                  return Icons.sports_esports_outlined;
-                                }
-                                if (name.contains('居家') ||
-                                    name.contains('家') ||
-                                    name.contains('家居') ||
-                                    name.contains('物业') ||
-                                    name.contains('维修')) {
-                                  return Icons.chair_outlined;
-                                }
-                                if (name.contains('美妆') ||
-                                    name.contains('化妆') ||
-                                    name.contains('护肤') ||
-                                    name.contains('美容')) {
-                                  return Icons.brush_outlined;
-                                }
-                                if (name.contains('通讯') ||
-                                    name.contains('话费') ||
-                                    name.contains('宽带')) {
-                                  return Icons.phone_iphone_outlined;
-                                }
-                                if (name.contains('订阅') ||
-                                    name.contains('会员') ||
-                                    name.contains('流媒体')) {
-                                  return Icons.subscriptions_outlined;
-                                }
-                                if (name.contains('礼物') ||
-                                    name.contains('红包') ||
-                                    name.contains('礼金')) {
-                                  return Icons.card_giftcard_outlined;
-                                }
-                                if (name.contains('水') ||
-                                    name.contains('电') ||
-                                    name.contains('煤') ||
-                                    name.contains('燃气')) {
-                                  return Icons.water_drop_outlined;
-                                }
-                                if (name.contains('房') || name.contains('租')) {
-                                  return Icons.home_outlined;
-                                }
-                                if (name.contains('房贷') ||
-                                    name.contains('按揭') ||
-                                    name.contains('贷款')) {
-                                  return Icons.account_balance_outlined;
-                                }
-                                if (name.contains('工资') ||
-                                    name.contains('收入') ||
-                                    name.contains('奖金') ||
-                                    name.contains('报销') ||
-                                    name.contains('兼职')) {
-                                  return Icons.attach_money_outlined;
-                                }
-                                if (name.contains('理财') ||
-                                    name.contains('利息') ||
-                                    name.contains('基金') ||
-                                    name.contains('股票') ||
-                                    name.contains('退款')) {
-                                  return Icons.savings_outlined;
-                                }
-                                if (name.contains('教育') ||
-                                    name.contains('学习') ||
-                                    name.contains('培训')) {
-                                  return Icons.menu_book_outlined;
-                                }
-                                if (name.contains('医疗') ||
-                                    name.contains('医院') ||
-                                    name.contains('药')) {
-                                  return Icons.medical_services_outlined;
-                                }
-                                if (name.contains('宠物') ||
-                                    name.contains('猫') ||
-                                    name.contains('狗')) {
-                                  return Icons.pets_outlined;
-                                }
-                                if (name.contains('运动') ||
-                                    name.contains('健身') ||
-                                    name.contains('球')) {
-                                  return Icons.fitness_center_outlined;
-                                }
-                                if (name.contains('数码') ||
-                                    name.contains('电子') ||
-                                    name.contains('手机')) {
-                                  return Icons.devices_other_outlined;
-                                }
-                                if (name.contains('旅行') ||
-                                    name.contains('旅游') ||
-                                    name.contains('出差')) {
-                                  return Icons.card_travel_outlined;
-                                }
-                                if (name.contains('酒店') ||
-                                    name.contains('住宿') ||
-                                    name.contains('民宿')) {
-                                  return Icons.hotel_outlined;
-                                }
-                                if (name.contains('烟') ||
-                                    name.contains('酒') ||
-                                    name.contains('茶')) {
-                                  return Icons.local_bar_outlined;
-                                }
-                                if (name.contains('母婴') ||
-                                    name.contains('孩子') ||
-                                    name.contains('奶粉')) {
-                                  return Icons.child_friendly_outlined;
-                                }
-                                if (name.contains('停车') ||
-                                    name.contains('加油') ||
-                                    name.contains('汽车') ||
-                                    name.contains('保养')) {
-                                  return Icons.local_gas_station_outlined;
-                                }
-                                if (name.contains('快递') ||
-                                    name.contains('邮寄')) {
-                                  return Icons.local_shipping_outlined;
-                                }
-                                if (name.contains('税') ||
-                                    name.contains('社保') ||
-                                    name.contains('公积金')) {
-                                  return Icons.receipt_long_outlined;
-                                }
-                                if (name.contains('捐赠') ||
-                                    name.contains('公益')) {
-                                  return Icons.volunteer_activism_outlined;
-                                }
-                                return Icons.circle_outlined;
-                              }
+                              
 
                               final subtitle = it.t.note ?? '';
+                              final isLastInGroup = rowIndex == list.length - 1;
                               return Dismissible(
                                 key: ValueKey(it.t.id),
                                 direction: DismissDirection.endToStart,
@@ -653,7 +511,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       const SnackBar(content: Text('已删除')));
                                 },
                                 child: Column(
-                                  children: [
+              children: [
                                     MeasureSize(
                                       onChange: (size) {
                                         if (_rowHeights[key] != null &&
@@ -676,7 +534,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           radius: 14,
                                           backgroundColor: Colors.grey[200],
                                           child: Icon(
-                                            iconFor(categoryName),
+                iconForCategory(categoryName),
                                             color: Theme.of(context)
                                                 .colorScheme
                                                 .primary,
@@ -693,7 +551,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               .textTheme
                                               .bodyMedium
                                               ?.copyWith(
-                                                  fontSize: 14,
+                  fontSize: 15,
                                                   color: Colors.black87),
                                         ),
                                         subtitle: null,
@@ -705,7 +563,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               .textTheme
                                               .bodyMedium
                                               ?.copyWith(
-                                                  fontSize: 14,
+                  fontSize: 15,
                                                   color: Colors.black87),
                                         ),
                                         onTap: () async {
@@ -725,14 +583,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       ),
                                     ),
                                     // 需求2：底部分割线缩短（从分类到金额），颜色略淡
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 56 + 16, right: 16),
-                                      child: Divider(
-                                          height: 1,
-                                          color:
-                                              Colors.black12.withOpacity(0.06)),
-                                    ),
+                                    if (!isLastInGroup)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 56 + 16, right: 16),
+                                        child: Divider(
+                                            height: 1,
+                                            color: Colors.black12
+                                                .withOpacity(0.06)),
+                                      ),
                                   ],
                                 ),
                               );
@@ -763,43 +622,42 @@ class _HeaderCenterSummary extends ConsumerWidget {
     final repo = ref.watch(repositoryProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final month = ref.watch(selectedMonthProvider);
-    final view = ref.watch(selectedViewProvider);
     return FutureBuilder<(double income, double expense)>(
-      future: view == 'year'
-          ? repo.yearlyTotals(ledgerId: ledgerId, year: month.year)
-          : repo.monthlyTotals(ledgerId: ledgerId, month: month),
+      future: repo.monthlyTotals(ledgerId: ledgerId, month: month),
       builder: (context, snap) {
         final income = (snap.data?.$1) ?? 0.0;
         final expense = (snap.data?.$2) ?? 0.0;
         final balance = income - expense;
         Widget item(String title, double value) => Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title,
+                    textAlign: TextAlign.left,
                     style: Theme.of(context)
                         .textTheme
                         .labelSmall
-                        ?.copyWith(color: Colors.black54, fontSize: 11)),
-                const SizedBox(height: 1),
+                        ?.copyWith(color: Colors.black54, fontSize: 12)),
+                const SizedBox(height: 2),
                 Text(
                   hide ? '****' : value.toStringAsFixed(2),
+                  textAlign: TextAlign.left,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         color: Colors.black87,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 20,
                       ),
                 ),
               ],
             );
         return Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            item('收入', income),
-            const SizedBox(width: 10),
-            item('支出', expense),
-            const SizedBox(width: 10),
-            item('结余', balance),
+            Expanded(child: item('收入', income)),
+            const SizedBox(width: 8),
+            Expanded(child: item('支出', expense)),
+            const SizedBox(width: 8),
+            Expanded(child: item('结余', balance)),
           ],
         );
       },
@@ -878,43 +736,6 @@ class _DayHeader extends StatelessWidget {
 }
 
 // 顶部插画/卡片装饰，可按需替换为图片资源
-class _HeaderDecor extends StatelessWidget {
-  const _HeaderDecor();
-  @override
-  Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
-    final text = Theme.of(context).textTheme;
-    return Container(
-      height: 56,
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.25),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black12.withOpacity(0.05)),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: 12),
-          Icon(Icons.assessment_outlined, color: Colors.black54, size: 18),
-          const SizedBox(width: 8),
-          Text('小提示：点击月份可切换按年/按月视图',
-              style: text.labelSmall?.copyWith(color: Colors.black54)),
-          const Spacer(),
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: primary.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text('记账小助手',
-                style: text.labelSmall?.copyWith(
-                    color: Colors.black87, fontWeight: FontWeight.w600)),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// _HeaderDecor 已移除
 
 // 旧的渐变统计卡与快捷入口行已移除，顶部统计改为白色背景的 _TopSummaryBar。

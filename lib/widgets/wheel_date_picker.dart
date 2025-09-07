@@ -46,6 +46,9 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
   late int year;
   late int month;
   late int day;
+  late FixedExtentScrollController _yearCtrl;
+  FixedExtentScrollController? _monthCtrl;
+  FixedExtentScrollController? _dayCtrl;
 
   @override
   void initState() {
@@ -54,6 +57,10 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
     year = clamped.year;
     month = clamped.month;
     day = clamped.day;
+  // 初始化滚动控制器
+  final years = [for (int y = _min.year; y <= _max.year; y++) y];
+  _yearCtrl = FixedExtentScrollController(initialItem: years.indexOf(year));
+  // month/day 控制器在 build 中根据当前 year/month 的有效范围惰性创建
   }
 
   DateTime get _min => widget.minDate ?? DateTime(2000, 1, 1);
@@ -87,7 +94,12 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
     final days = [for (int d = startDay; d <= endDay; d++) d];
     final mode = widget.mode;
 
-    return SafeArea(
+  // 确保 month/day 控制器已创建并指向当前索引
+  _monthCtrl ??= FixedExtentScrollController(initialItem: months.indexOf(month));
+  final dayIndex = days.indexOf(day);
+  _dayCtrl ??= FixedExtentScrollController(initialItem: dayIndex < 0 ? 0 : dayIndex);
+
+  return SafeArea(
       top: false,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -124,14 +136,13 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
             ),
           ),
           SizedBox(
-            height: 180,
+            height: 120, // 每列显示3个 item，40*3
             child: Row(
               children: [
                 Expanded(
                   child: CupertinoPicker(
-                    itemExtent: 32,
-                    scrollController: FixedExtentScrollController(
-                        initialItem: years.indexOf(year)),
+                    itemExtent: 40,
+                    scrollController: _yearCtrl,
                     onSelectedItemChanged: (i) => setState(() {
                       year = years[i];
                       // 调整月份与日期以符合边界
@@ -146,18 +157,37 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                       if (year == max.year && month == max.month) ed = max.day;
                       if (day < sd) day = sd;
                       if (day > ed) day = ed;
+                      // 同步月份/日期滚动位置
+                      final monthsNow = [for (int m = sm; m <= em; m++) m];
+                      final mi = monthsNow.indexOf(month);
+                      if (_monthCtrl == null) {
+                        _monthCtrl = FixedExtentScrollController(initialItem: mi);
+                      } else {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _monthCtrl!.jumpToItem(mi);
+                        });
+                      }
+                      final daysNow = [for (int d = sd; d <= ed; d++) d];
+                      final di = daysNow.indexOf(day);
+                      if (_dayCtrl == null) {
+                        _dayCtrl = FixedExtentScrollController(initialItem: di < 0 ? 0 : di);
+                      } else {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _dayCtrl!.jumpToItem(di < 0 ? 0 : di);
+                        });
+                      }
                     }),
                     children: [
-                      for (final y in years) Center(child: Text('$y'))
+                      for (final y in years)
+                        Center(child: Text('$y', style: const TextStyle(fontSize: 16))),
                     ],
                   ),
                 ),
                 if (mode != WheelDatePickerMode.y)
                   Expanded(
                     child: CupertinoPicker(
-                      itemExtent: 32,
-                      scrollController: FixedExtentScrollController(
-                          initialItem: months.indexOf(month)),
+                      itemExtent: 40,
+                      scrollController: _monthCtrl,
                       onSelectedItemChanged: (i) => setState(() {
                         month = months[i];
                         // 调整日期以符合边界
@@ -169,23 +199,34 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                           ed = max.day;
                         if (day < sd) day = sd;
                         if (day > ed) day = ed;
+                        // 同步日期滚动位置
+                        final daysNow = [for (int d = sd; d <= ed; d++) d];
+                        final di = daysNow.indexOf(day);
+                        if (_dayCtrl == null) {
+                          _dayCtrl = FixedExtentScrollController(initialItem: di < 0 ? 0 : di);
+                        } else {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            _dayCtrl!.jumpToItem(di < 0 ? 0 : di);
+                          });
+                        }
                       }),
                       children: [
-                        for (final m in months) Center(child: Text('$m'))
+                        for (final m in months)
+                          Center(child: Text('$m', style: const TextStyle(fontSize: 16))),
                       ],
                     ),
                   ),
                 if (mode == WheelDatePickerMode.ymd)
                   Expanded(
                     child: CupertinoPicker(
-                      itemExtent: 32,
-                      scrollController: FixedExtentScrollController(
-                          initialItem: days.indexOf(day)),
+                      itemExtent: 40,
+                      scrollController: _dayCtrl,
                       onSelectedItemChanged: (i) => setState(() {
                         day = days[i];
                       }),
                       children: [
-                        for (final d in days) Center(child: Text('$d'))
+                        for (final d in days)
+                          Center(child: Text('$d', style: const TextStyle(fontSize: 16))),
                       ],
                     ),
                   ),
