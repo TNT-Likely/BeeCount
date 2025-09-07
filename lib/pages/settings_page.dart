@@ -7,12 +7,13 @@ import 'package:intl/intl.dart';
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:file_picker/file_picker.dart';
 
 import 'import_page.dart';
 import 'personalize_page.dart';
 import '../providers.dart';
 import '../widgets/primary_header.dart';
-import 'ledgers_page.dart';
+// 快捷入口已移除，不再需要跳转到账本页
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -26,10 +27,16 @@ class SettingsPage extends ConsumerWidget {
       try {
         final joined =
             await repo.transactionsWithCategoryAll(ledgerId: ledgerId).first;
+        if (joined.isEmpty) {
+          await _showNiceDialog(context,
+              title: '没有数据', message: '当前账本还没有任何记账，无法导出。', success: false);
+          return;
+        }
         final rows = <List<dynamic>>[];
         rows.add(['日期', '类型', '金额', '分类', '备注']);
         final fmt = DateFormat('yyyy-MM-dd HH:mm:ss');
         for (final r in joined) {
+          // 导出全部：收入 + 支出
           final t = r.t;
           final cat = r.category?.name ?? '未分类';
           rows.add([
@@ -41,180 +48,155 @@ class SettingsPage extends ConsumerWidget {
           ]);
         }
         final csv = const ListToCsvConverter(eol: '\n').convert(rows);
-        final dir = await getApplicationDocumentsDirectory();
-        final exportDir = Directory(p.join(dir.path, 'exports'));
-        if (!await exportDir.exists()) {
-          await exportDir.create(recursive: true);
-        }
+
+        // 选择保存地址，若取消则保存到应用文档目录下的 exports
         final ts = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-        final file = File(p.join(exportDir.path, 'beecount_$ts.csv'));
-        await file.writeAsString(csv);
-        await showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('导出完成'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('文件已保存到：'),
-                const SizedBox(height: 8),
-                SelectableText(file.path,
-                    style: Theme.of(ctx).textTheme.bodySmall),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: file.path));
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('已复制路径')),
-                  );
-                },
-                child: const Text('复制路径'),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('好的'),
-              )
-            ],
-          ),
-        );
+        String? targetPath;
+        try {
+          targetPath = await FilePicker.platform.saveFile(
+            dialogTitle: '保存导出的 CSV',
+            fileName: 'beecount_expense_$ts.csv',
+            type: FileType.custom,
+            allowedExtensions: ['csv'],
+          );
+        } catch (_) {
+          // 某些平台不支持 saveFile
+          targetPath = null;
+        }
+        if (targetPath == null || targetPath.isEmpty) {
+          try {
+            final dirPath = await FilePicker.platform.getDirectoryPath(
+              dialogTitle: '选择保存文件夹',
+            );
+            if (dirPath != null && dirPath.isNotEmpty) {
+              targetPath = p.join(dirPath, 'beecount_expense_$ts.csv');
+            }
+          } catch (_) {
+            // ignore and fallback
+          }
+        }
+        if (targetPath == null || targetPath.isEmpty) {
+          final dir = await getApplicationDocumentsDirectory();
+          final exportDir = Directory(p.join(dir.path, 'exports'));
+          if (!await exportDir.exists()) {
+            await exportDir.create(recursive: true);
+          }
+          targetPath = p.join(exportDir.path, 'beecount_expense_$ts.csv');
+        }
+        final file = File(targetPath);
+        try {
+          await file.writeAsString(csv);
+        } catch (e) {
+          // 写入失败则落到应用文档目录
+          final dir = await getApplicationDocumentsDirectory();
+          final fallback =
+              File(p.join(dir.path, 'exports', 'beecount_expense_$ts.csv'))
+                ..createSync(recursive: true);
+          await fallback.writeAsString(csv);
+          await _showNiceDialog(context,
+              title: '部分受限',
+              message: '所选位置不可写，已改为保存到:\n${fallback.path}',
+              success: false,
+              copyText: fallback.path);
+          return;
+        }
+        await _showNiceDialog(context,
+            title: '导出完成',
+            message: file.path,
+            success: true,
+            copyText: file.path);
       } catch (e) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('导出失败：$e')));
+        await _showNiceDialog(context,
+            title: '导出失败', message: '$e', success: false);
       }
     }
 
     return Scaffold(
       body: ListView(
         children: [
-          // 顶部大卡片样式
+          // 顶部：上行头像+名字，下一行统计信息
           PrimaryHeader(
             showBack: false,
             title: '',
             content: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.person, color: Colors.black87),
+                  Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 28,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.person, color: Colors.black87),
+                      ),
+                      const SizedBox(width: 12),
+                      Text('我的',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w600)),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FutureBuilder<
-                        ({int ledgerCount, int dayCount, int txCount})>(
-                      future: () async {
-                        final ledgers =
-                            await ref.read(repositoryProvider).ledgers().first;
-                        final list = await repo
-                            .transactionsWithCategoryAll(ledgerId: ledgerId)
-                            .first;
-                        final days = <String>{};
-                        for (final r in list) {
-                          final d = r.t.happenedAt.toLocal();
-                          days.add('${d.year}-${d.month}-${d.day}');
-                        }
-                        return (
-                          ledgerCount: ledgers.length,
-                          dayCount: days.length,
-                          txCount: list.length,
-                        );
-                      }(),
-                      builder: (ctx, snap) {
-                        final data = snap.data ??
-                            (ledgerCount: 1, dayCount: 0, txCount: 0);
-                        final labelStyle = Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(color: Colors.black54);
-                        final numStyle = Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w600);
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('我的',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w600)),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                _StatCell(
-                                    label: '账本',
-                                    value: data.ledgerCount.toString(),
-                                    labelStyle: labelStyle,
-                                    numStyle: numStyle),
-                                const SizedBox(width: 24),
-                                _StatCell(
-                                    label: '记账天数',
-                                    value: data.dayCount.toString(),
-                                    labelStyle: labelStyle,
-                                    numStyle: numStyle),
-                                const SizedBox(width: 24),
-                                _StatCell(
-                                    label: '总笔数',
-                                    value: data.txCount.toString(),
-                                    labelStyle: labelStyle,
-                                    numStyle: numStyle),
-                              ],
-                            ),
-                          ],
-                        );
-                      },
-                    ),
+                  const SizedBox(height: 10),
+                  FutureBuilder<({int ledgerCount, int dayCount, int txCount})>(
+                    future: () async {
+                      final ledgers =
+                          await ref.read(repositoryProvider).ledgers().first;
+                      final list = await repo
+                          .transactionsWithCategoryAll(ledgerId: ledgerId)
+                          .first;
+                      final days = <String>{};
+                      for (final r in list) {
+                        final d = r.t.happenedAt.toLocal();
+                        days.add('${d.year}-${d.month}-${d.day}');
+                      }
+                      return (
+                        ledgerCount: ledgers.length,
+                        dayCount: days.length,
+                        txCount: list.length,
+                      );
+                    }(),
+                    builder: (ctx, snap) {
+                      final data = snap.data ??
+                          (ledgerCount: 1, dayCount: 0, txCount: 0);
+                      final labelStyle = Theme.of(context)
+                          .textTheme
+                          .labelMedium
+                          ?.copyWith(color: Colors.black54);
+                      final numStyle = Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600);
+                      return Row(
+                        children: [
+                          _StatCell(
+                              label: '账本',
+                              value: data.ledgerCount.toString(),
+                              labelStyle: labelStyle,
+                              numStyle: numStyle),
+                          const SizedBox(width: 24),
+                          _StatCell(
+                              label: '记账天数',
+                              value: data.dayCount.toString(),
+                              labelStyle: labelStyle,
+                              numStyle: numStyle),
+                          const SizedBox(width: 24),
+                          _StatCell(
+                              label: '总笔数',
+                              value: data.txCount.toString(),
+                              labelStyle: labelStyle,
+                              numStyle: numStyle),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
-            ),
-          ),
-
-          // 快捷入口（与截图风格类似，保留少量常用项）
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _QuickIcon(
-                    title: '我的账本',
-                    icon: Icons.menu_book_outlined,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const LedgersPage()),
-                      );
-                    }),
-                _QuickIcon(
-                    title: '个性化',
-                    icon: Icons.brush_outlined,
-                    onTap: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const PersonalizePage()),
-                      );
-                    }),
-                _QuickIcon(
-                    title: '导入',
-                    icon: Icons.file_upload_outlined,
-                    onTap: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const ImportPage()),
-                      );
-                    }),
-                _QuickIcon(
-                    title: '导出',
-                    icon: Icons.file_download_outlined,
-                    onTap: exportCsv),
-              ],
             ),
           ),
 
@@ -222,20 +204,8 @@ class SettingsPage extends ConsumerWidget {
           const SizedBox(height: 8),
           _GroupCard(children: [
             ListTile(
-              leading: const Icon(Icons.today_outlined),
-              title: const Text('跳转到本月'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                final now = DateTime.now();
-                ref.read(selectedMonthProvider.notifier).state =
-                    DateTime(now.year, now.month, 1);
-              },
-            ),
-            const Divider(height: 1),
-            ListTile(
               leading: const Icon(Icons.file_upload_outlined),
-              title: const Text('导入账单（CSV 文件/粘贴）'),
-              subtitle: const Text('日期,类型,金额,备注'),
+              title: const Text('导入'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () async {
                 await Navigator.of(context).push(
@@ -246,19 +216,20 @@ class SettingsPage extends ConsumerWidget {
             const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.file_download_outlined),
-              title: const Text('导出账单到本地文件（CSV）'),
+              title: const Text('导出账单'),
               trailing: const Icon(Icons.chevron_right),
               onTap: exportCsv,
             ),
-          ]),
-
-          const SizedBox(height: 8),
-          _GroupCard(children: const [
+            const Divider(height: 1),
             ListTile(
-              leading: Icon(Icons.info_outline),
-              title: Text('关于'),
-              subtitle: Text('版本与开源协议'),
-              trailing: Icon(Icons.chevron_right),
+              leading: const Icon(Icons.brush_outlined),
+              title: const Text('个性化'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PersonalizePage()),
+                );
+              },
             ),
           ]),
           const SizedBox(height: 12),
@@ -292,46 +263,7 @@ class _StatCell extends StatelessWidget {
   }
 }
 
-class _QuickIcon extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final VoidCallback onTap;
-  const _QuickIcon(
-      {required this.title, required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        child: Column(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  )
-                ],
-              ),
-              child: Icon(icon, color: Colors.black87),
-            ),
-            const SizedBox(height: 6),
-            Text(title, style: Theme.of(context).textTheme.labelSmall),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// 已移除底部快捷入口行
 
 class _GroupCard extends StatelessWidget {
   final List<Widget> children;
@@ -355,4 +287,68 @@ class _GroupCard extends StatelessWidget {
       child: Column(children: children),
     );
   }
+}
+
+Future<void> _showNiceDialog(BuildContext context,
+    {required String title,
+    required String message,
+    required bool success,
+    String? copyText}) async {
+  final color = success ? Colors.green : Colors.red;
+  await showDialog(
+    context: context,
+    builder: (ctx) => Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                      color: color.withOpacity(0.1), shape: BoxShape.circle),
+                  child: Icon(
+                    success ? Icons.check_circle : Icons.error_outline,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(title,
+                      style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                          color: Colors.black87, fontWeight: FontWeight.w600)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SelectableText(message,
+                style:
+                    Theme.of(ctx).textTheme.bodyMedium?.copyWith(height: 1.3)),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (copyText != null)
+                  TextButton(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: copyText));
+                        Navigator.pop(ctx);
+                      },
+                      child: const Text('复制')),
+                const SizedBox(width: 4),
+                FilledButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('确定')),
+              ],
+            )
+          ],
+        ),
+      ),
+    ),
+  );
 }
