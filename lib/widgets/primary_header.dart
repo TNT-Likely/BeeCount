@@ -11,6 +11,8 @@ class PrimaryHeader extends ConsumerWidget {
   final Widget? bottom;
   // 可选：标题右侧紧邻的小部件（例如月份旁的图标）
   final Widget? titleTrailing;
+  // 可选：主行中部的小部件（例如汇总信息），位于标题区域与右侧 actions 之间
+  final Widget? center;
   const PrimaryHeader(
       {super.key,
       required this.title,
@@ -18,7 +20,8 @@ class PrimaryHeader extends ConsumerWidget {
       this.showBack = false,
       this.actions,
       this.bottom,
-      this.titleTrailing});
+      this.titleTrailing,
+      this.center});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,7 +48,7 @@ class PrimaryHeader extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                 child: Row(
                   children: [
                     if (showBack)
@@ -75,6 +78,15 @@ class PrimaryHeader extends ConsumerWidget {
                         ],
                       ),
                     ),
+                    if (center != null) ...[
+                      const SizedBox(width: 6),
+                      DefaultTextStyle(
+                        style: Theme.of(context).textTheme.labelMedium ??
+                            const TextStyle(
+                                fontSize: 12, color: Colors.black87),
+                        child: center!,
+                      ),
+                    ],
                     if (actions != null) ...actions!,
                   ],
                 ),

@@ -1,25 +1,102 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers.dart';
-import 'personalize_page.dart' show headerStyleProvider, PersonalizePage;
+import 'personalize_page.dart' show headerStyleProvider;
 import '../data/db.dart';
 import '../widgets/primary_header.dart';
-import 'import_page.dart';
-import 'analytics_page.dart';
-import 'ledgers_page.dart';
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  final ScrollController _scrollController = ScrollController();
+  bool _switching = false;
+  double _lastPixels = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_switching) return;
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+    final delta = pos.pixels - _lastPixels;
+    // 上滑：接近底部切换到上一个月（仅按月视角）
+    if (pos.maxScrollExtent > 0 &&
+        pos.pixels >= pos.maxScrollExtent - 24 &&
+        delta > 0) {
+      final view = ref.read(selectedViewProvider);
+      if (view == 'month') {
+        _switching = true;
+        final cur = ref.read(selectedMonthProvider);
+        final prev = DateTime(cur.year, cur.month - 1, 1);
+        ref.read(selectedMonthProvider.notifier).state = prev;
+        // 轻微震动反馈
+        HapticFeedback.selectionClick();
+        // 稍作节流，避免反复触发
+        Future.delayed(const Duration(milliseconds: 350), () {
+          if (mounted) _switching = false;
+        });
+        // 回到顶部
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _scrollController.hasClients) {
+            _scrollController.jumpTo(0);
+          }
+        });
+      }
+    }
+    // 下拉：在顶部轻微下拉尝试往“下一个月”（不超过当前月）
+    if (pos.pixels <= 12 && delta < 0) {
+      final view = ref.read(selectedViewProvider);
+      if (view == 'month') {
+        final cur = ref.read(selectedMonthProvider);
+        final next = DateTime(cur.year, cur.month + 1, 1);
+        final now = DateTime.now();
+        final currentMonth = DateTime(now.year, now.month, 1);
+        if (!next.isAfter(currentMonth)) {
+          _switching = true;
+          ref.read(selectedMonthProvider.notifier).state = next;
+          // 轻微震动反馈
+          HapticFeedback.selectionClick();
+          Future.delayed(const Duration(milliseconds: 350), () {
+            if (mounted) _switching = false;
+          });
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && _scrollController.hasClients) {
+              _scrollController.jumpTo(0);
+            }
+          });
+        }
+      }
+    }
+    _lastPixels = pos.pixels;
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final repo = ref.watch(repositoryProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final month = ref.watch(selectedMonthProvider);
     final view = ref.watch(selectedViewProvider);
     final hide = ref.watch(hideAmountsProvider);
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           Consumer(builder: (context, ref, _) {
@@ -105,6 +182,8 @@ class HomePage extends ConsumerWidget {
                       Icon(Icons.calendar_month, color: Colors.black, size: 18),
                 ),
               ),
+              center: _HeaderCenterSummary(hide: hide),
+              bottom: const _HeaderDecor(),
               actions: [
                 IconButton(
                   tooltip: hide ? '显示金额' : '隐藏金额',
@@ -122,8 +201,8 @@ class HomePage extends ConsumerWidget {
               ],
             );
           }),
-          // 顶部与内容之间的过渡条，避免在 Android 上出现重叠阴影或分层
-          Container(height: 8, color: Colors.white),
+          // 顶部与内容之间的过渡条，缩小高度以减少空白
+          Container(height: 4, color: Colors.white),
           Expanded(
             child: StreamBuilder<List<({Transaction t, Category? category})>>(
               stream: view == 'year'
@@ -138,9 +217,7 @@ class HomePage extends ConsumerWidget {
                       ? repo.yearlyTotals(ledgerId: ledgerId, year: month.year)
                       : repo.monthlyTotals(ledgerId: ledgerId, month: month),
                   builder: (context, totalSnap) {
-                    final income = (totalSnap.data?.$1) ?? 0.0;
-                    final expense = (totalSnap.data?.$2) ?? 0.0;
-                    final balance = income - expense;
+                    // 汇总已移动到 Header 的 center 区域，这里的局部值不再直接渲染
                     // 分组：按天
                     final dateFmt = DateFormat('yyyy-MM-dd');
                     final groups =
@@ -156,7 +233,8 @@ class HomePage extends ConsumerWidget {
                       ..sort((a, b) => b.compareTo(a));
 
                     return ListView.builder(
-                      itemCount: 1 + // 顶部统计卡
+                      controller: _scrollController,
+                      itemCount: // 不再有顶部额外卡片，仅内容
                           (sortedKeys.isEmpty
                               ? 1 // 空态
                               : sortedKeys
@@ -164,39 +242,6 @@ class HomePage extends ConsumerWidget {
                                       1 + groups[k]!.length) // 每组1个分组头+N条
                                   .reduce((a, b) => a + b)),
                       itemBuilder: (context, index) {
-                        // 0 位置放顶部统计卡
-                        if (index == 0) {
-                          return Column(
-                            children: [
-                              _HeaderCard(
-                                income: income,
-                                expense: expense,
-                                balance: balance,
-                                hide: hide,
-                              ),
-                              const SizedBox(height: 8),
-                              _QuickActionsRow(
-                                onImport: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (_) => const ImportPage()),
-                                ),
-                                onAnalytics: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (_) => const AnalyticsPage()),
-                                ),
-                                onLedgers: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (_) => const LedgersPage()),
-                                ),
-                                onPersonalize: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (_) => const PersonalizePage()),
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-
                         if (sortedKeys.isEmpty) {
                           return const Padding(
                             padding: EdgeInsets.all(24.0),
@@ -204,8 +249,8 @@ class HomePage extends ConsumerWidget {
                           );
                         }
 
-                        // 将 index-1 映射到分组和分组内的行
-                        var idx = index - 1;
+                        // 将 index 映射到分组和分组内的行
+                        var idx = index;
                         for (final key in sortedKeys) {
                           final list = groups[key]!;
                           if (idx == 0) {
@@ -250,6 +295,14 @@ class HomePage extends ConsumerWidget {
                                   name.contains('火车') ||
                                   name.contains('飞机')) {
                                 return Icons.directions_transit_outlined;
+                              }
+                              // 车类：未被上面的交通关键词覆盖但名字中明确表示车辆
+                              if (name == '车' ||
+                                  name.contains('车辆') ||
+                                  name.contains('车贷') ||
+                                  name.contains('购车') ||
+                                  name.contains('爱车')) {
+                                return Icons.directions_car_outlined;
                               }
                               if (name.contains('购物') || name.contains('百货')) {
                                 return Icons.shopping_bag_outlined;
@@ -393,7 +446,10 @@ class HomePage extends ConsumerWidget {
                               child: Column(
                                 children: [
                                   ListTile(
+                                    visualDensity:
+                                        const VisualDensity(vertical: -2),
                                     leading: CircleAvatar(
+                                      radius: 14,
                                       backgroundColor: Theme.of(context)
                                           .colorScheme
                                           .primary
@@ -403,25 +459,31 @@ class HomePage extends ConsumerWidget {
                                         color: Theme.of(context)
                                             .colorScheme
                                             .primary,
+                                        size: 16,
                                       ),
                                     ),
-                                    title: Text(categoryName,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis),
-                                    subtitle: subtitle.isEmpty
-                                        ? null
-                                        : Text(subtitle,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis),
+                                    title: Text(
+                                      subtitle.isNotEmpty
+                                          ? subtitle
+                                          : categoryName,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                              fontSize: 13,
+                                              color: Colors.black87),
+                                    ),
+                                    subtitle: null,
                                     trailing: Text(
                                       hide
                                           ? '****'
                                           : '$amountPrefix${it.t.amount.toStringAsFixed(2)}',
                                       style: TextStyle(
-                                        color: isExpense
-                                            ? Colors.red
-                                            : Colors.green,
-                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 18,
                                       ),
                                     ),
                                     onTap: () async {
@@ -535,7 +597,7 @@ class HomePage extends ConsumerWidget {
                                       );
                                     },
                                   ),
-                                  const Divider(height: 1),
+                                  Divider(height: 1, color: Colors.grey[200]),
                                 ],
                               ),
                             );
@@ -556,36 +618,55 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-class _StatChip extends StatelessWidget {
-  final String label;
-  final double value;
-  final Color color;
+class _HeaderCenterSummary extends ConsumerWidget {
   final bool hide;
-  final Color? labelColor;
-  const _StatChip(
-      {required this.label,
-      required this.value,
-      required this.color,
-      this.hide = false,
-      this.labelColor});
+  const _HeaderCenterSummary({required this.hide});
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: (Theme.of(context).textTheme.labelMedium)?.copyWith(
-            color: labelColor,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(hide ? '****' : value.toStringAsFixed(2),
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: color, fontWeight: FontWeight.bold)),
-      ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    final repo = ref.watch(repositoryProvider);
+    final ledgerId = ref.watch(currentLedgerIdProvider);
+    final month = ref.watch(selectedMonthProvider);
+    final view = ref.watch(selectedViewProvider);
+    return FutureBuilder<(double income, double expense)>(
+      future: view == 'year'
+          ? repo.yearlyTotals(ledgerId: ledgerId, year: month.year)
+          : repo.monthlyTotals(ledgerId: ledgerId, month: month),
+      builder: (context, snap) {
+        final income = (snap.data?.$1) ?? 0.0;
+        final expense = (snap.data?.$2) ?? 0.0;
+        final balance = income - expense;
+        Widget item(String title, double value) => Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(title,
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelSmall
+                        ?.copyWith(color: Colors.black54, fontSize: 11)),
+                const SizedBox(height: 1),
+                Text(
+                  hide ? '****' : value.toStringAsFixed(2),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                ),
+              ],
+            );
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            item('收入', income),
+            const SizedBox(width: 10),
+            item('支出', expense),
+            const SizedBox(width: 10),
+            item('结余', balance),
+          ],
+        );
+      },
     );
   }
 }
@@ -604,23 +685,44 @@ class _DayHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String weekdayZh(String yyyyMMdd) {
+      try {
+        final dt = DateTime.parse(yyyyMMdd);
+        const names = ['一', '二', '三', '四', '五', '六', '日'];
+        return '星期${names[dt.weekday - 1]}';
+      } catch (_) {
+        return '';
+      }
+    }
+
+    final week = weekdayZh(dateText);
     return Container(
-      color: Colors.grey[100],
+      color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(dateText,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
-                  ?.copyWith(color: Colors.grey[700])),
+          Row(children: [
+            Text(dateText,
+                style: Theme.of(context)
+                    .textTheme
+                    .labelLarge
+                    ?.copyWith(color: Colors.black87)),
+            if (week.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Text(week,
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(color: Colors.black54)),
+            ]
+          ]),
           Row(children: [
             Text('支出 ${hide ? '****' : expense.toStringAsFixed(2)}',
-                style: TextStyle(color: Colors.red[700])),
+                style: const TextStyle(color: Colors.black54)),
             const SizedBox(width: 12),
             Text('收入 ${hide ? '****' : income.toStringAsFixed(2)}',
-                style: TextStyle(color: Colors.green[700])),
+                style: const TextStyle(color: Colors.black54)),
           ])
         ],
       ),
@@ -628,146 +730,44 @@ class _DayHeader extends StatelessWidget {
   }
 }
 
-class _HeaderCard extends ConsumerWidget {
-  final double income;
-  final double expense;
-  final double balance;
-  final bool hide;
-  const _HeaderCard({
-    required this.income,
-    required this.expense,
-    required this.balance,
-    required this.hide,
-  });
-
+// 顶部插画/卡片装饰，可按需替换为图片资源
+class _HeaderDecor extends StatelessWidget {
+  const _HeaderDecor();
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
-    // 简单加深一档作为渐变尾色
-    final hsl = HSLColor.fromColor(primary);
-    final darker =
-        hsl.withLightness((hsl.lightness * 0.8).clamp(0.0, 1.0)).toColor();
+    final text = Theme.of(context).textTheme;
     return Container(
-      margin: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-      padding: const EdgeInsets.all(16),
+      height: 56,
+      margin: const EdgeInsets.fromLTRB(12, 0, 12, 6),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [primary, darker],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _StatChip(
-            label: '收入',
-            value: income,
-            color: Colors.white,
-            labelColor: Colors.white70,
-            hide: hide,
-          ),
-          _StatChip(
-            label: '支出',
-            value: expense,
-            color: Colors.white,
-            labelColor: Colors.white70,
-            hide: hide,
-          ),
-          _StatChip(
-            label: '结余',
-            value: balance,
-            color: Colors.white,
-            labelColor: Colors.white70,
-            hide: hide,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QuickActionsRow extends StatelessWidget {
-  final VoidCallback onImport;
-  final VoidCallback onAnalytics;
-  final VoidCallback onLedgers;
-  final VoidCallback onPersonalize;
-
-  const _QuickActionsRow({
-    required this.onImport,
-    required this.onAnalytics,
-    required this.onLedgers,
-    required this.onPersonalize,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withOpacity(0.25),
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          )
-        ],
+        border: Border.all(color: Colors.black12.withOpacity(0.05)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _ActionButton(
-              icon: Icons.file_upload_outlined, label: '导入', onTap: onImport),
-          _ActionButton(
-              icon: Icons.pie_chart_outline, label: '图表', onTap: onAnalytics),
-          _ActionButton(
-              icon: Icons.menu_book_outlined, label: '账本', onTap: onLedgers),
-          _ActionButton(
-              icon: Icons.color_lens_outlined,
-              label: '个性化',
-              onTap: onPersonalize),
+          const SizedBox(width: 12),
+          Icon(Icons.assessment_outlined, color: Colors.black54, size: 18),
+          const SizedBox(width: 8),
+          Text('小提示：点击月份可切换按年/按月视图',
+              style: text.labelSmall?.copyWith(color: Colors.black54)),
+          const Spacer(),
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: primary.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text('记账小助手',
+                style: text.labelSmall?.copyWith(
+                    color: Colors.black87, fontWeight: FontWeight.w600)),
+          ),
         ],
       ),
     );
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  const _ActionButton(
-      {required this.icon, required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor:
-                  Theme.of(context).colorScheme.primary.withOpacity(0.1),
-              child: Icon(icon,
-                  color: Theme.of(context).colorScheme.primary, size: 20),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// 旧的渐变统计卡与快捷入口行已移除，顶部统计改为白色背景的 _TopSummaryBar。

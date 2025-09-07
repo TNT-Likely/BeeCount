@@ -27,27 +27,84 @@ class _BeeAppState extends ConsumerState<BeeApp> {
 
   @override
   Widget build(BuildContext context) {
+    // 将 4 个页面映射到 5 槽位（中间为“+”）：
+    // 页面索引 0,1,2,3 对应视觉槽位 0,1,3,4（槽位 2 为 +）。
+    final visualActiveIndex = _index >= 2 ? _index + 1 : _index;
+
     return Scaffold(
       body: _pages[_index],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _index,
-        onTap: (i) => setState(() => _index = i),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: '首页'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.pie_chart_outline), label: '图表'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.menu_book_outlined), label: '账本'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined), label: '设置'),
-        ],
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 6,
+        elevation: 8,
+        child: SizedBox(
+          height: 64,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(5, (i) {
+              if (i == 2) {
+                // 中间预留给 FAB 的槽位，确保 5 等分
+                return const Expanded(child: SizedBox());
+              }
+              // 槽位转页面索引
+              final pageIndex = i > 2 ? i - 1 : i;
+              final active = visualActiveIndex == i;
+              Color color = active
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.black54;
+              IconData icon;
+              String label;
+              switch (pageIndex) {
+                case 0:
+                  icon = Icons.home_outlined;
+                  label = '首页';
+                  break;
+                case 1:
+                  icon = Icons.pie_chart_outline;
+                  label = '图表';
+                  break;
+                case 2:
+                  icon = Icons.menu_book_outlined;
+                  label = '账本';
+                  break;
+                default:
+                  icon = Icons.settings_outlined;
+                  label = '设置';
+              }
+              return Expanded(
+                child: InkWell(
+                  onTap: () => setState(() => _index = pageIndex),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(icon, color: color),
+                        const SizedBox(height: 4),
+                        Text(label,
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: color,
+                                fontWeight: active
+                                    ? FontWeight.w600
+                                    : FontWeight.w400)),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
       ),
       floatingActionButton: Consumer(builder: (context, ref, _) {
         final style = ref.watch(headerStyleProvider);
         final color = Theme.of(context).colorScheme.primary;
         return FloatingActionButton(
-          elevation: 0,
-          backgroundColor: style == 'primary' ? color : null,
+          heroTag: 'addFab',
+          elevation: 6,
+          backgroundColor: style == 'primary' ? color : color,
           onPressed: () async {
             await Navigator.of(context).push(
               MaterialPageRoute(
