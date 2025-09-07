@@ -9,6 +9,7 @@ import '../widgets/primary_header.dart';
 import 'category_picker.dart';
 import '../widgets/wheel_date_picker.dart';
 import '../widgets/category_icon.dart';
+import '../widgets/common.dart';
 import '../styles/colors.dart';
 // import 'package:beecount/widgets/wheel_date_picker.dart';
 import 'package:beecount/widgets/measure_size.dart';
@@ -484,7 +485,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                               final rowIndex = idx;
                               final it = list[rowIndex];
                               final isExpense = it.t.type == 'expense';
-                              final amountPrefix = isExpense ? '-' : '+';
                               final categoryName = it.category?.name ?? '未分类';
 
                               final subtitle = it.t.note ?? '';
@@ -545,45 +545,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           }
                                         }
                                       },
-                                      child: ListTile(
-                                        visualDensity:
-                                            const VisualDensity(vertical: -2),
-                                        leading: CircleAvatar(
-                                          radius: 14,
-                                          backgroundColor: Colors.grey[200],
-                                          child: Icon(
-                                            iconForCategory(categoryName),
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                            size: 16,
-                                          ),
-                                        ),
-                                        title: Text(
-                                          subtitle.isNotEmpty
-                                              ? subtitle
-                                              : categoryName,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(
-                                                  fontSize: 15,
-                                                  color: Colors.black87),
-                                        ),
-                                        subtitle: null,
-                                        trailing: Text(
-                                          hide
-                                              ? '****'
-                                              : '$amountPrefix${it.t.amount.toStringAsFixed(2)}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(
-                                                  fontSize: 15,
-                                                  color: Colors.black87),
-                                        ),
+                                      child: TransactionListItem(
+                                        icon: iconForCategory(categoryName),
+                                        title: subtitle.isNotEmpty
+                                            ? subtitle
+                                            : categoryName,
+                                        amount: it.t.amount,
+                                        isExpense: isExpense,
+                                        hide: hide,
                                         onTap: () async {
                                           await Navigator.of(context).push(
                                             MaterialPageRoute(
