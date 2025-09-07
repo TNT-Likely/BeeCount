@@ -14,6 +14,8 @@ import 'personalize_page.dart';
 import '../providers.dart';
 import '../widgets/primary_header.dart';
 // 快捷入口已移除，不再需要跳转到账本页
+import '../widgets/common.dart';
+import '../styles/design.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -202,37 +204,39 @@ class SettingsPage extends ConsumerWidget {
 
           // 分组：工具
           const SizedBox(height: 8),
-          _GroupCard(children: [
-            ListTile(
-              leading: const Icon(Icons.file_upload_outlined),
-              title: const Text('导入'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ImportPage()),
-                );
-              },
+          SectionCard(
+            child: Column(
+              children: [
+                AppListTile(
+                  leading: Icons.file_upload_outlined,
+                  title: '导入',
+                  onTap: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ImportPage()),
+                    );
+                  },
+                ),
+                AppDivider.thin(),
+                AppListTile(
+                  leading: Icons.file_download_outlined,
+                  title: '导出账单',
+                  onTap: exportCsv,
+                ),
+                AppDivider.thin(),
+                AppListTile(
+                  leading: Icons.brush_outlined,
+                  title: '个性化',
+                  onTap: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const PersonalizePage()),
+                    );
+                  },
+                ),
+              ],
             ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.file_download_outlined),
-              title: const Text('导出账单'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: exportCsv,
-            ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.brush_outlined),
-              title: const Text('个性化'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const PersonalizePage()),
-                );
-              },
-            ),
-          ]),
-          const SizedBox(height: 12),
+          ),
+          const SizedBox(height: AppDimens.p16),
         ],
       ),
     );
@@ -265,29 +269,7 @@ class _StatCell extends StatelessWidget {
 
 // 已移除底部快捷入口行
 
-class _GroupCard extends StatelessWidget {
-  final List<Widget> children;
-  const _GroupCard({required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          )
-        ],
-      ),
-      child: Column(children: children),
-    );
-  }
-}
+// 旧 GroupCard 已替换为 SectionCard
 
 Future<void> _showNiceDialog(BuildContext context,
     {required String title,

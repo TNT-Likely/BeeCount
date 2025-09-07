@@ -32,6 +32,12 @@ class MainApp extends ConsumerWidget {
       colorScheme: base.colorScheme.copyWith(primary: primary),
       primaryColor: primary,
       scaffoldBackgroundColor: Colors.white,
+      dividerColor: Colors.black12.withOpacity(0.06),
+      listTileTheme: const ListTileThemeData(
+        dense: true,
+        contentPadding: EdgeInsets.symmetric(horizontal: 12),
+        iconColor: Colors.black87,
+      ),
       dialogTheme: base.dialogTheme.copyWith(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
