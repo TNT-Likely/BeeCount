@@ -1,5 +1,18 @@
 import 'package:flutter/material.dart';
 import '../styles/design.dart';
+import '../styles/colors.dart';
+
+// 金额格式：最多保留2位小数，移除多余0和末尾小数点
+String formatMoneyCompact(double v,
+    {int maxDecimals = 2, bool signed = false}) {
+  final sign = signed ? (v < 0 ? '-' : '+') : '';
+  String s = v.abs().toStringAsFixed(maxDecimals);
+  if (s.contains('.')) {
+    s = s.replaceFirst(RegExp(r'0+$'), '');
+    s = s.replaceFirst(RegExp(r'\.$'), '');
+  }
+  return '$sign$s';
+}
 
 class SectionCard extends StatelessWidget {
   final Widget child;
@@ -40,9 +53,11 @@ class AppListTile extends StatelessWidget {
     final titleStyle = Theme.of(context)
         .textTheme
         .bodyMedium
-        ?.copyWith(fontSize: 15, color: Colors.black87);
-    final subStyle =
-        Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54);
+        ?.copyWith(fontSize: 15, color: BeeColors.primaryText);
+    final subStyle = Theme.of(context)
+        .textTheme
+        .bodySmall
+        ?.copyWith(color: BeeColors.black54);
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -56,7 +71,7 @@ class AppListTile extends StatelessWidget {
                 color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(leading, color: Colors.black87),
+              child: Icon(leading, color: BeeColors.primaryText),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -105,8 +120,8 @@ class AmountText extends StatelessWidget {
               Theme.of(context)
                   .textTheme
                   .bodyMedium
-                  ?.copyWith(color: Colors.black87));
-    final s = _format(value, signed: signed, decimals: decimals);
+                  ?.copyWith(color: BeeColors.primaryText));
+    final s = formatMoneyCompact(value, maxDecimals: decimals, signed: signed);
     return Text(
       s,
       maxLines: 1,
@@ -116,15 +131,11 @@ class AmountText extends StatelessWidget {
           Theme.of(context)
               .textTheme
               .bodyMedium
-              ?.copyWith(color: Colors.black87),
+              ?.copyWith(color: BeeColors.primaryText),
     );
   }
 
-  String _format(double v, {bool signed = true, int decimals = 2}) {
-    final sign = signed ? (v < 0 ? '-' : '+') : '';
-    final abs = v.abs();
-    return '$sign${abs.toStringAsFixed(decimals)}';
-  }
+  // 旧格式化函数已移除，统一使用 formatMoneyCompact
 }
 
 /// 统一的明细行组件：左侧分类圆标，中间标题，右侧金额
@@ -215,8 +226,8 @@ class DaySectionHeader extends StatelessWidget {
       }
     }
 
-    String fmt(double v) => v == 0 ? '' : v.toStringAsFixed(2);
-    final grey = Colors.black54;
+    String fmt(double v) => v == 0 ? '' : formatMoneyCompact(v, maxDecimals: 2);
+    final grey = BeeColors.black54;
     final week = weekdayZh(dateText);
     return Container(
       color: Colors.white,
@@ -271,6 +282,55 @@ class AppEmpty extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+      ),
+    );
+  }
+}
+
+/// 小胶囊标签
+class InfoTag extends StatelessWidget {
+  final String text;
+  const InfoTag(this.text, {super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        text,
+        style: Theme.of(context)
+            .textTheme
+            .labelSmall
+            ?.copyWith(color: BeeColors.black54),
+      ),
+    );
+  }
+}
+
+/// 统一弹窗（简单版）
+class AppDialog {
+  static Future<T?> show<T>(BuildContext context,
+      {required String title,
+      required String message,
+      List<({String label, VoidCallback onTap, bool primary})>? actions}) {
+    actions ??= [
+      (label: '确定', onTap: () => Navigator.pop(context), primary: true),
+    ];
+    return showDialog<T>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        actions: [
+          for (final a in actions!)
+            a.primary
+                ? FilledButton(onPressed: a.onTap, child: Text(a.label))
+                : TextButton(onPressed: a.onTap, child: Text(a.label))
+        ],
       ),
     );
   }

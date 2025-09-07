@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
 import '../data/db.dart';
@@ -7,6 +6,7 @@ import '../data/db.dart';
 import '../widgets/category_icon.dart';
 import '../widgets/amount_editor_sheet.dart';
 import '../widgets/primary_header.dart';
+import '../styles/colors.dart';
 
 class CategoryPickerPage extends ConsumerStatefulWidget {
   final String initialKind; // 'expense' or 'income'
@@ -82,7 +82,7 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
                           controller: _tab,
                           isScrollable: false,
                           labelColor: Colors.black,
-                          unselectedLabelColor: Colors.black54,
+                          unselectedLabelColor: BeeColors.black54,
                           indicatorColor: Colors.transparent, // 去除下划线
                           tabs: const [
                             Tab(text: '支出'),
@@ -264,7 +264,10 @@ class _CategoryItem extends StatelessWidget {
             height: 56,
             decoration: BoxDecoration(
               color: selected
-                  ? Theme.of(context).colorScheme.primary.withOpacity(0.25)
+                  ? Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.25)
                   : Colors.grey[200],
               shape: BoxShape.circle,
             ),

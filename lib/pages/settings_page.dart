@@ -16,6 +16,7 @@ import '../widgets/primary_header.dart';
 // 快捷入口已移除，不再需要跳转到账本页
 import '../widgets/common.dart';
 import '../styles/design.dart';
+import '../styles/colors.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -130,7 +131,7 @@ class SettingsPage extends ConsumerWidget {
                       const CircleAvatar(
                         radius: 28,
                         backgroundColor: Colors.white,
-                        child: Icon(Icons.person, color: Colors.black87),
+                        child: Icon(Icons.person, color: BeeColors.primaryText),
                       ),
                       const SizedBox(width: 12),
                       Text('我的',
@@ -138,7 +139,7 @@ class SettingsPage extends ConsumerWidget {
                               .textTheme
                               .titleLarge
                               ?.copyWith(
-                                  color: Colors.black87,
+                                  color: BeeColors.primaryText,
                                   fontWeight: FontWeight.w600)),
                     ],
                   ),
@@ -167,12 +168,12 @@ class SettingsPage extends ConsumerWidget {
                       final labelStyle = Theme.of(context)
                           .textTheme
                           .labelMedium
-                          ?.copyWith(color: Colors.black54);
+                          ?.copyWith(color: BeeColors.black54);
                       final numStyle = Theme.of(context)
                           .textTheme
                           .titleLarge
                           ?.copyWith(
-                              color: Colors.black87,
+                              color: BeeColors.primaryText,
                               fontWeight: FontWeight.w600);
                       return Row(
                         children: [
@@ -293,7 +294,8 @@ Future<void> _showNiceDialog(BuildContext context,
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                      color: color.withOpacity(0.1), shape: BoxShape.circle),
+                      color: color.withValues(alpha: 0.1),
+                      shape: BoxShape.circle),
                   child: Icon(
                     success ? Icons.check_circle : Icons.error_outline,
                     color: color,

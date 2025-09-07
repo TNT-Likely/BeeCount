@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:beecount/widgets/wheel_date_picker.dart';
+import '../styles/colors.dart';
 
 typedef AmountEditorResult = ({double amount, String? note, DateTime date});
 
@@ -103,7 +103,7 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
               child: Text(
                 label,
                 style: text.titleMedium?.copyWith(
-                  color: fg ?? Colors.black87,
+                  color: fg ?? BeeColors.primaryText,
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
@@ -178,7 +178,7 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                                 Text(
                                   fmtDate(_date),
                                   style: text.labelMedium?.copyWith(
-                                      color: Colors.black87,
+                                      color: BeeColors.primaryText,
                                       fontWeight: FontWeight.w600),
                                 ),
                               ],
@@ -200,7 +200,7 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                           height: 60,
                           child: Center(
                               child: Icon(Icons.close_rounded,
-                                  color: Colors.black87)),
+                                  color: BeeColors.primaryText)),
                         ),
                       ),
                     ),

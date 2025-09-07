@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
+import '../styles/colors.dart';
 
 class PrimaryHeader extends ConsumerWidget {
   final String title;
@@ -42,7 +43,7 @@ class PrimaryHeader extends ConsumerWidget {
     final subStyle = Theme.of(context)
         .textTheme
         .labelMedium
-        ?.copyWith(color: Colors.black54);
+        ?.copyWith(color: BeeColors.black54);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: primary,

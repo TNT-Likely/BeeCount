@@ -205,7 +205,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     .textTheme
                                     .labelLarge
                                     ?.copyWith(
-                                        color: BeeColors.secondaryText,
+                                        color: BeeColors.black54,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500)),
                             const SizedBox(height: 2),
@@ -233,7 +233,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         margin: const EdgeInsets.symmetric(horizontal: 12),
                         width: 1,
                         height: 36,
-                        color: Colors.black12,
+                        color: BeeColors.divider,
                       ),
                       // 右：汇总三等分、左对齐
                       Expanded(child: _HeaderCenterSummary(hide: hide)),
@@ -615,11 +615,13 @@ class _HeaderCenterSummary extends ConsumerWidget {
               children: [
                 Text(title,
                     textAlign: TextAlign.left,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: BeeColors.secondaryText, fontSize: 12)),
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelSmall
+                        ?.copyWith(color: BeeColors.black54, fontSize: 12)),
                 const SizedBox(height: 2),
                 Text(
-                  hide ? '****' : value.toStringAsFixed(2),
+                  hide ? '****' : formatMoneyCompact(value, maxDecimals: 2),
                   textAlign: TextAlign.left,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -632,12 +634,9 @@ class _HeaderCenterSummary extends ConsumerWidget {
               ],
             );
         return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(child: item('收入', income)),
-            const SizedBox(width: 8),
             Expanded(child: item('支出', expense)),
-            const SizedBox(width: 8),
             Expanded(child: item('结余', balance)),
           ],
         );

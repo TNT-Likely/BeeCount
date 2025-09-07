@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
 import 'theme.dart';
 import 'providers.dart';
+import 'styles/colors.dart';
 
 void main() {
   runApp(const ProviderScope(child: MainApp()));
@@ -32,19 +33,19 @@ class MainApp extends ConsumerWidget {
       colorScheme: base.colorScheme.copyWith(primary: primary),
       primaryColor: primary,
       scaffoldBackgroundColor: Colors.white,
-      dividerColor: Colors.black12.withOpacity(0.06),
+      dividerColor: BeeColors.divider,
       listTileTheme: const ListTileThemeData(
         dense: true,
         contentPadding: EdgeInsets.symmetric(horizontal: 12),
-        iconColor: Colors.black87,
+        iconColor: BeeColors.primaryText,
       ),
       dialogTheme: base.dialogTheme.copyWith(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        titleTextStyle: base.textTheme.titleMedium
-            ?.copyWith(color: Colors.black87, fontWeight: FontWeight.w600),
+        titleTextStyle: base.textTheme.titleMedium?.copyWith(
+            color: BeeColors.primaryText, fontWeight: FontWeight.w600),
         contentTextStyle:
-            base.textTheme.bodyMedium?.copyWith(color: Colors.black87),
+            base.textTheme.bodyMedium?.copyWith(color: BeeColors.secondaryText),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(

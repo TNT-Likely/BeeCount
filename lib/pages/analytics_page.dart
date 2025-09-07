@@ -7,6 +7,7 @@ import '../widgets/common.dart';
 import '../styles/design.dart';
 import '../providers.dart';
 import '../widgets/category_icon.dart';
+import '../styles/colors.dart';
 
 class AnalyticsPage extends ConsumerStatefulWidget {
   const AnalyticsPage({super.key});
@@ -173,6 +174,12 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                           xLabels: xLabels,
                           highlightIndex: highlightIndex,
                           themeColor: Theme.of(context).colorScheme.primary,
+                          // 使用统一图表令牌
+                          lineWidth: AppChartTokens.lineWidth,
+                          dotRadius: AppChartTokens.dotRadius,
+                          cornerRadius: AppChartTokens.cornerRadius,
+                          xLabelFontSize: AppChartTokens.xLabelFontSize,
+                          yLabelFontSize: AppChartTokens.yLabelFontSize,
                           onSwipeLeft: () {
                             // 下一周期
                             if (_scope == 'all') return; // 全部不滑
@@ -238,21 +245,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.04),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              _currentPeriodLabel(_scope, selMonth),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall
-                                  ?.copyWith(color: Colors.black54),
-                            ),
-                          ),
+                          InfoTag(_currentPeriodLabel(_scope, selMonth)),
                           const Spacer(),
                           if (_showHeaderHint)
                             InkWell(
@@ -260,17 +253,18 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                                   setState(() => _showHeaderHint = false),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.swipe,
-                                      size: 14, color: Colors.black54),
+                                  Icon(Icons.swipe,
+                                      size: 14, color: BeeColors.secondaryText),
                                   const SizedBox(width: 4),
                                   Text('横滑切换',
                                       style: Theme.of(context)
                                           .textTheme
                                           .labelSmall
-                                          ?.copyWith(color: Colors.black54)),
+                                          ?.copyWith(
+                                              color: BeeColors.secondaryText)),
                                   const SizedBox(width: 4),
-                                  const Icon(Icons.close,
-                                      size: 14, color: Colors.black45),
+                                  Icon(Icons.close,
+                                      size: 14, color: BeeColors.hintText),
                                 ],
                               ),
                             ),
@@ -316,13 +310,15 @@ class _CapsuleSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = Colors.black12.withOpacity(0.06);
+    final bg = BeeColors.divider;
     Widget seg({
       required String v,
       required String label,
       VoidCallback? onArrow,
     }) {
       final selected = value == v;
+      final selectedBg = Colors.black;
+      final selectedFg = Colors.white;
       return Expanded(
         child: GestureDetector(
           onTap: () => onChanged(v),
@@ -330,7 +326,7 @@ class _CapsuleSwitcher extends StatelessWidget {
             duration: const Duration(milliseconds: 160),
             height: 36,
             decoration: BoxDecoration(
-              color: selected ? Colors.black : Colors.transparent,
+              color: selected ? selectedBg : Colors.transparent,
               borderRadius: BorderRadius.circular(18),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -341,7 +337,7 @@ class _CapsuleSwitcher extends StatelessWidget {
                 Text(
                   label,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: selected ? Colors.white : Colors.black87,
+                        color: selected ? selectedFg : BeeColors.primaryText,
                         fontWeight: FontWeight.w600,
                       ),
                 ),
@@ -353,7 +349,7 @@ class _CapsuleSwitcher extends StatelessWidget {
                     child: Icon(
                       Icons.arrow_drop_down,
                       size: 18,
-                      color: selected ? Colors.white : Colors.black87,
+                      color: selected ? selectedFg : BeeColors.primaryText,
                     ),
                   ),
                 ]
@@ -398,6 +394,12 @@ class _LineChart extends StatelessWidget {
   final bool showDots;
   final bool annotate;
   final Color themeColor;
+  // 令牌化参数
+  final double lineWidth;
+  final double dotRadius;
+  final double cornerRadius;
+  final double xLabelFontSize;
+  final double yLabelFontSize;
   const _LineChart({
     required this.values,
     required this.xLabels,
@@ -412,6 +414,11 @@ class _LineChart extends StatelessWidget {
     this.showDots = true,
     this.annotate = true,
     required this.themeColor,
+    this.lineWidth = 2.0,
+    this.dotRadius = 2.5,
+    this.cornerRadius = 12,
+    this.xLabelFontSize = 10,
+    this.yLabelFontSize = 10,
   });
 
   @override
@@ -439,6 +446,11 @@ class _LineChart extends StatelessWidget {
               showDots: showDots,
               annotate: annotate,
               themeColor: themeColor,
+              lineWidth: lineWidth,
+              dotRadius: dotRadius,
+              cornerRadius: cornerRadius,
+              xLabelFontSize: xLabelFontSize,
+              yLabelFontSize: yLabelFontSize,
             ),
           ),
           if (showHint)
@@ -447,7 +459,7 @@ class _LineChart extends StatelessWidget {
               top: 8,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.05),
+                  color: BeeColors.divider,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
@@ -455,20 +467,21 @@ class _LineChart extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: Row(
                     children: [
-                      const Icon(Icons.swipe, size: 14, color: Colors.black54),
+                      Icon(Icons.swipe,
+                          size: 14, color: BeeColors.secondaryText),
                       const SizedBox(width: 4),
                       Text(
                         hintText ?? '左右滑动切换',
                         style: Theme.of(context)
                             .textTheme
                             .labelSmall
-                            ?.copyWith(color: Colors.black54),
+                            ?.copyWith(color: BeeColors.secondaryText),
                       ),
                       const SizedBox(width: 4),
                       InkWell(
                         onTap: onCloseHint,
-                        child: const Icon(Icons.close,
-                            size: 14, color: Colors.black45),
+                        child: Icon(Icons.close,
+                            size: 14, color: BeeColors.hintText),
                       ),
                     ],
                   ),
@@ -490,6 +503,11 @@ class _LinePainter extends CustomPainter {
   final bool showDots;
   final bool annotate;
   final Color themeColor;
+  final double lineWidth;
+  final double dotRadius;
+  final double cornerRadius;
+  final double xLabelFontSize;
+  final double yLabelFontSize;
   _LinePainter({
     required this.values,
     required this.xLabels,
@@ -499,21 +517,25 @@ class _LinePainter extends CustomPainter {
     required this.showDots,
     required this.annotate,
     required this.themeColor,
+    this.lineWidth = 2.0,
+    this.dotRadius = 2.5,
+    this.cornerRadius = 12,
+    this.xLabelFontSize = 10,
+    this.yLabelFontSize = 10,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    final bgPaint = Paint()
-      ..color = whiteBg ? Colors.white : Colors.black12.withOpacity(0.06);
+    final bgPaint = Paint()..color = whiteBg ? Colors.white : BeeColors.divider;
     // 背景
     canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, const Radius.circular(12)), bgPaint);
+        RRect.fromRectAndRadius(rect, Radius.circular(cornerRadius)), bgPaint);
 
     // 网格（可选）
     if (showGrid) {
       final gridPaint = Paint()
-        ..color = Colors.black12
+        ..color = BeeColors.divider
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1;
       const rows = 4;
@@ -524,11 +546,18 @@ class _LinePainter extends CustomPainter {
     }
 
     if (values.isEmpty) return;
+    // 仅用于统计/绘制：忽略值为 0 的点（不显示 0），但保留原始 X 轴间距与标签
+    final nonZeroIdx = <int>[];
+    for (int i = 0; i < values.length; i++) {
+      if (values[i] != 0) nonZeroIdx.add(i);
+    }
+    if (nonZeroIdx.isEmpty) return;
 
     // 数据归一化
-    final maxV = values.reduce(math.max);
-    final minV = values.reduce(math.min);
-    final avgV = values.reduce((a, b) => a + b) / values.length;
+    final nonZeroVals = [for (final i in nonZeroIdx) values[i]];
+    final maxV = nonZeroVals.reduce(math.max);
+    final minV = nonZeroVals.reduce(math.min);
+    final avgV = nonZeroVals.reduce((a, b) => a + b) / nonZeroVals.length;
     final span = (maxV - minV).abs();
     final bottomPadding = 20.0;
     final topPadding = 12.0;
@@ -539,103 +568,81 @@ class _LinePainter extends CustomPainter {
     }
 
     final dx = (size.width - 24) / (values.length - 1).clamp(1, 999);
-    final points = <Offset>[];
-    for (int i = 0; i < values.length; i++) {
-      points.add(Offset(12 + i * dx, yFor(values[i])));
-    }
+    Offset pointFor(int i) => Offset(12 + i * dx, yFor(values[i]));
 
-    // 平滑曲线（简易二次贝塞尔）
-    final path = Path()..moveTo(points.first.dx, points.first.dy);
-    for (int i = 1; i < points.length; i++) {
-      final prev = points[i - 1];
-      final curr = points[i];
-      final mid = Offset((prev.dx + curr.dx) / 2, (prev.dy + curr.dy) / 2);
-      path.quadraticBezierTo(prev.dx, prev.dy, mid.dx, mid.dy);
+    // 仅收集非零点用于绘制与标注；路径跨越零值（不在零值处中断）
+    final nzPoints = <Offset>[];
+    final nzIndices = <int>[];
+    for (int i = 0; i < values.length; i++) {
+      if (values[i] == 0) continue;
+      final p = pointFor(i);
+      nzPoints.add(p);
+      nzIndices.add(i);
     }
-    path.lineTo(points.last.dx, points.last.dy);
 
     final line = Paint()
       ..color = themeColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0
+      ..strokeWidth = lineWidth
       ..isAntiAlias = true;
-    canvas.drawPath(path, line);
+    if (nzPoints.length >= 2) {
+      final path = Path()..moveTo(nzPoints.first.dx, nzPoints.first.dy);
+      for (int i = 1; i < nzPoints.length; i++) {
+        final prev = nzPoints[i - 1];
+        final curr = nzPoints[i];
+        final mid = Offset((prev.dx + curr.dx) / 2, (prev.dy + curr.dy) / 2);
+        path.quadraticBezierTo(prev.dx, prev.dy, mid.dx, mid.dy);
+      }
+      path.lineTo(nzPoints.last.dx, nzPoints.last.dy);
+      canvas.drawPath(path, line);
+    }
 
     if (showDots) {
       final dot = Paint()..color = themeColor;
-      for (final p in points) {
-        canvas.drawCircle(p, 2.5, dot);
+      for (final p in nzPoints) {
+        canvas.drawCircle(p, dotRadius, dot);
       }
     }
 
     // 左侧Y轴线
     final axisPaint = Paint()
-      ..color = Colors.black12
+      ..color = BeeColors.divider
       ..strokeWidth = 1.0;
     canvas.drawLine(Offset(8, topPadding),
         Offset(8, size.height - bottomPadding), axisPaint);
 
-    // 最高线 + 平均线
-    final maxY = yFor(maxV);
+    // 不显示“最高线”和最高金额，仅绘制平均线（虚线）
     final avgY = yFor(avgV);
-    final maxLinePaint = Paint()
-      ..color = Colors.black26
-      ..strokeWidth = 1.2;
     final avgLinePaint = Paint()
-      ..color = Colors.black38
+      ..color = BeeColors.secondaryText.withValues(alpha: 0.55)
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
-    // 虚线画平均线
     _drawDashedLine(
         canvas, Offset(8, avgY), Offset(size.width - 8, avgY), avgLinePaint,
         dashWidth: 6, gapWidth: 4);
-    // 实线画最高线
-    canvas.drawLine(
-        Offset(8, maxY), Offset(size.width - 8, maxY), maxLinePaint);
 
-    // 最高线标注数值（右侧）
-    final maxLabel = TextPainter(
-      text: TextSpan(
-          text: _fmt(maxV),
-          style: const TextStyle(fontSize: 10, color: Colors.black87)),
-      textDirection: TextDirection.ltr,
-    )..layout(maxWidth: 80);
-    maxLabel.paint(canvas,
-        Offset(size.width - 8 - maxLabel.width, maxY - maxLabel.height - 2));
-
-    // 最高点标注（仅一个点）
+    // 所有非零点数值标注
     if (annotate) {
-      final maxIndex = values.indexOf(maxV);
-      if (maxIndex >= 0 && maxIndex < points.length) {
-        final p = points[maxIndex];
+      final textStyle =
+          TextStyle(fontSize: yLabelFontSize - 1, color: BeeColors.primaryText);
+      for (int i = 0; i < nzPoints.length; i++) {
         final tp = TextPainter(
-          text: TextSpan(
-              text: _fmt(maxV),
-              style: const TextStyle(fontSize: 10, color: Colors.black87)),
-          textDirection: TextDirection.ltr,
-        )..layout(maxWidth: 80);
-        tp.paint(canvas, Offset(p.dx - tp.width / 2, p.dy - tp.height - 4));
-      }
-    }
-
-    // 所有点数值标注
-    if (annotate) {
-      final textStyle = const TextStyle(fontSize: 9, color: Colors.black87);
-      for (int i = 0; i < points.length; i++) {
-        final tp = TextPainter(
-          text: TextSpan(text: _fmt(values[i]), style: textStyle),
+          text: TextSpan(text: _fmt(values[nzIndices[i]]), style: textStyle),
           textDirection: TextDirection.ltr,
         )..layout(maxWidth: 60);
-        final pos = points[i] + const Offset(0, -10);
+        final pos = nzPoints[i] + const Offset(0, -10);
         tp.paint(canvas, Offset(pos.dx - tp.width / 2, pos.dy - tp.height));
       }
     }
 
-    // X 轴标签
+    // X 轴标签（保持原始标签与索引）
     if (xLabels.isNotEmpty) {
-      final baseStyle = const TextStyle(fontSize: 10, color: Colors.black54);
-      final hiStyle = const TextStyle(
-          fontSize: 10, color: Colors.black87, fontWeight: FontWeight.w600);
+      final baseStyle =
+          TextStyle(fontSize: xLabelFontSize, color: BeeColors.secondaryText);
+      final hiStyle = TextStyle(
+          fontSize: xLabelFontSize,
+          color: BeeColors.primaryText,
+          fontWeight: FontWeight.w600);
       final n = xLabels.length;
       int step = (n / 8).ceil();
       if (step < 1) step = 1;
@@ -810,7 +817,7 @@ class _TopTexts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final grey = Colors.black54;
+    final grey = BeeColors.secondaryText;
     final titleWord = isExpense ? '支出' : '收入';
     String avgLabel;
     switch (scope) {
@@ -990,7 +997,7 @@ class _RankRow extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 22,
-            backgroundColor: Colors.black12.withOpacity(0.06),
+            backgroundColor: BeeColors.divider,
             child: Icon(iconForCategory(name), color: color),
           ),
           const SizedBox(width: 12),
@@ -1017,7 +1024,7 @@ class _RankRow extends StatelessWidget {
                         style: Theme.of(context)
                             .textTheme
                             .labelMedium
-                            ?.copyWith(color: Colors.black45)),
+                            ?.copyWith(color: BeeColors.hintText)),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -1025,11 +1032,12 @@ class _RankRow extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: Stack(
                     children: [
-                      Container(height: 6, color: color.withOpacity(0.15)),
+                      Container(
+                          height: 6, color: color.withValues(alpha: 0.15)),
                       FractionallySizedBox(
                         widthFactor: percent.clamp(0, 1),
-                        child:
-                            Container(height: 6, color: color.withOpacity(0.9)),
+                        child: Container(
+                            height: 6, color: color.withValues(alpha: 0.9)),
                       ),
                     ],
                   ),
