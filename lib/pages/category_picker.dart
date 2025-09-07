@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
 import '../data/db.dart';
 import '../widgets/primary_header.dart';
+import '../widgets/amount_editor_sheet.dart';
 
 class CategoryPickerPage extends ConsumerStatefulWidget {
   final String initialKind; // 'expense' or 'income'
@@ -92,8 +93,6 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
       Navigator.pop(context, c);
       return;
     }
-    final amountCtrl = TextEditingController();
-    final noteCtrl = TextEditingController();
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -101,77 +100,25 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(ctx).viewInsets.bottom,
-          left: 12,
-          right: 12,
-          top: 12,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(c.name,
-                style: Theme.of(ctx)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 6),
-            TextField(
-              controller: amountCtrl,
-              autofocus: true,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: '金额',
-                prefixIcon: Icon(Icons.currency_yuan),
-              ),
-            ),
-            const SizedBox(height: 6),
-            TextField(
-              controller: noteCtrl,
-              decoration: const InputDecoration(labelText: '备注（可选）'),
-            ),
-            const SizedBox(height: 12),
-            Row(children: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('取消'),
-              ),
-              const Spacer(),
-              FilledButton(
-                onPressed: () async {
-                  final repo = ref.read(repositoryProvider);
-                  final ledgerId = ref.read(currentLedgerIdProvider);
-                  final amount = double.tryParse(amountCtrl.text);
-                  if (amount == null) {
-                    ScaffoldMessenger.of(ctx).showSnackBar(
-                      const SnackBar(content: Text('请输入有效金额')),
-                    );
-                    return;
-                  }
-                  await repo.addTransaction(
-                    ledgerId: ledgerId,
-                    type: kind,
-                    amount: amount,
-                    categoryId: c.id,
-                    happenedAt: DateTime.now(),
-                    note: noteCtrl.text.isEmpty ? null : noteCtrl.text,
-                  );
-                  if (Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
-                  if (Navigator.of(context).canPop())
-                    Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('已记账')),
-                  );
-                },
-                child: const Text('保存'),
-              ),
-            ]),
-            const SizedBox(height: 16),
-          ],
-        ),
+      builder: (ctx) => AmountEditorSheet(
+        categoryName: c.name,
+        initialDate: DateTime.now(),
+        onSubmit: (res) async {
+          final repo = ref.read(repositoryProvider);
+          final ledgerId = ref.read(currentLedgerIdProvider);
+          await repo.addTransaction(
+            ledgerId: ledgerId,
+            type: kind,
+            amount: res.amount,
+            categoryId: c.id,
+            happenedAt: res.date,
+            note: res.note,
+          );
+          if (Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
+          if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('已记账')));
+        },
       ),
     );
   }

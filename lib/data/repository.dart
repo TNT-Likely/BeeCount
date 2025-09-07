@@ -192,4 +192,25 @@ class BeeRepository {
       ),
     );
   }
+
+  // All transactions joined with category, ordered by date desc
+  Stream<List<({Transaction t, Category? category})>>
+      transactionsWithCategoryAll({required int ledgerId}) {
+    final q = (db.select(db.transactions)
+          ..where((t) => t.ledgerId.equals(ledgerId))
+          ..orderBy([
+            (t) => d.OrderingTerm(
+                expression: t.happenedAt, mode: d.OrderingMode.desc)
+          ]))
+        .join([
+      d.leftOuterJoin(db.categories,
+          db.categories.id.equalsExp(db.transactions.categoryId)),
+    ]);
+    return q.watch().map((rows) => rows
+        .map((r) => (
+              t: r.readTable(db.transactions),
+              category: r.readTableOrNull(db.categories)
+            ))
+        .toList());
+  }
 }

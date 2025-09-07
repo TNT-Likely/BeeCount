@@ -7,6 +7,7 @@ import 'personalize_page.dart' show headerStyleProvider;
 import '../data/db.dart';
 import '../widgets/primary_header.dart';
 import 'category_picker.dart';
+import 'package:beecount/widgets/wheel_date_picker.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -165,21 +166,52 @@ class _HomePageState extends ConsumerState<HomePage> {
                               ]),
                               const SizedBox(height: 12),
                               if (view == 'month')
-                                CalendarDatePicker(
-                                  initialDate: pick,
-                                  firstDate: DateTime(2000),
-                                  lastDate: DateTime(2100),
-                                  onDateChanged: (d) => setS(() => pick = d),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: OutlinedButton.icon(
+                                    icon: const Icon(Icons.calendar_month),
+                                    label: Text(
+                                        '选择月份（${pick.year}-${pick.month.toString().padLeft(2, '0')}）'),
+                                    onPressed: () async {
+                                      final res =
+                                          await showModalBottomSheet<DateTime>(
+                                        context: context,
+                                        backgroundColor: Colors.white,
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.vertical(
+                                              top: Radius.circular(16)),
+                                        ),
+                                        builder: (_) => WheelDatePicker(
+                                          initial: pick,
+                                          mode: WheelDatePickerMode.ym,
+                                        ),
+                                      );
+                                      if (res != null) setS(() => pick = res);
+                                    },
+                                  ),
                                 )
                               else
-                                SizedBox(
-                                  height: 240,
-                                  child: YearPicker(
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime(2100),
-                                    selectedDate: pick,
-                                    onChanged: (d) => setS(
-                                        () => pick = DateTime(d.year, 1, 1)),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: OutlinedButton.icon(
+                                    icon: const Icon(Icons.event),
+                                    label: Text('选择年份（${pick.year}）'),
+                                    onPressed: () async {
+                                      final res =
+                                          await showModalBottomSheet<DateTime>(
+                                        context: context,
+                                        backgroundColor: Colors.white,
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.vertical(
+                                              top: Radius.circular(16)),
+                                        ),
+                                        builder: (_) => WheelDatePicker(
+                                          initial: pick,
+                                          mode: WheelDatePickerMode.y,
+                                        ),
+                                      );
+                                      if (res != null) setS(() => pick = res);
+                                    },
                                   ),
                                 ),
                             ],
@@ -229,8 +261,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               stream: view == 'year'
                   ? repo.transactionsWithCategoryInYear(
                       ledgerId: ledgerId, year: month.year)
-                  : repo.transactionsWithCategoryInMonth(
-                      ledgerId: ledgerId, month: month),
+                  : repo.transactionsWithCategoryAll(ledgerId: ledgerId),
               builder: (context, snapshot) {
                 final joined = snapshot.data ?? [];
                 return FutureBuilder<(double income, double expense)>(
@@ -249,327 +280,377 @@ class _HomePageState extends ConsumerState<HomePage> {
                           dateFmt.format(DateTime(dt.year, dt.month, dt.day));
                       groups.putIfAbsent(key, () => []).add(item);
                     }
-                    // 排序：日期降序
                     final sortedKeys = groups.keys.toList()
                       ..sort((a, b) => b.compareTo(a));
 
-                    return ListView.builder(
-                      controller: _scrollController,
-                      physics: const BouncingScrollPhysics(
-                          parent: AlwaysScrollableScrollPhysics()),
-                      padding: EdgeInsets.zero,
-                      itemCount: // 不再有顶部额外卡片，仅内容
-                          (sortedKeys.isEmpty
-                              ? 1 // 空态
-                              : sortedKeys
-                                  .map((k) =>
-                                      1 + groups[k]!.length) // 每组1个分组头+N条
-                                  .reduce((a, b) => a + b)),
-                      itemBuilder: (context, index) {
-                        if (sortedKeys.isEmpty) {
-                          return const Padding(
-                            padding: EdgeInsets.all(24.0),
-                            child: Center(child: Text('暂无数据，点击右下角记一笔')),
-                          );
-                        }
+                    // 预计算每个分组的累积高度，便于快速定位滚动位置对应的分组
+                    final groupEnds = <double>[];
+                    {
+                      double acc = 0;
+                      for (final key in sortedKeys) {
+                        acc += 48; // 分组头
+                        acc += (groups[key]!.length * 56); // 行高估算
+                        groupEnds.add(acc);
+                      }
+                    }
 
-                        // 将 index 映射到分组和分组内的行
-                        var idx = index;
-                        for (final key in sortedKeys) {
-                          final list = groups[key]!;
-                          if (idx == 0) {
-                            // 分组头
-                            // 计算当日小计（支出/收入）
-                            double dayIncome = 0, dayExpense = 0;
-                            for (final it in list) {
-                              if (it.t.type == 'income') {
-                                dayIncome += it.t.amount;
-                              }
-                              if (it.t.type == 'expense') {
-                                dayExpense += it.t.amount;
-                              }
-                            }
-                            return _DayHeader(
-                              dateText: key,
-                              income: dayIncome,
-                              expense: dayExpense,
-                              hide: hide,
-                            );
-                          }
-                          idx--;
-                          if (idx < list.length) {
-                            final it = list[idx];
-                            final isExpense = it.t.type == 'expense';
-                            final amountPrefix = isExpense ? '-' : '+';
-                            final categoryName = it.category?.name ?? '未分类';
-                            IconData iconFor(String n) {
-                              final name = n;
-                              if (name.contains('餐') ||
-                                  name.contains('饭') ||
-                                  name.contains('吃') ||
-                                  name.contains('外卖')) {
-                                return Icons.restaurant_outlined;
-                              }
-                              if (name.contains('交通') ||
-                                  name.contains('出行') ||
-                                  name.contains('打车') ||
-                                  name.contains('地铁') ||
-                                  name.contains('公交') ||
-                                  name.contains('高铁') ||
-                                  name.contains('火车') ||
-                                  name.contains('飞机')) {
-                                return Icons.directions_transit_outlined;
-                              }
-                              // 车类：未被上面的交通关键词覆盖但名字中明确表示车辆
-                              if (name == '车' ||
-                                  name.contains('车辆') ||
-                                  name.contains('车贷') ||
-                                  name.contains('购车') ||
-                                  name.contains('爱车')) {
-                                return Icons.directions_car_outlined;
-                              }
-                              if (name.contains('购物') || name.contains('百货')) {
-                                return Icons.shopping_bag_outlined;
-                              }
-                              if (name.contains('服饰') ||
-                                  name.contains('衣') ||
-                                  name.contains('鞋') ||
-                                  name.contains('裤') ||
-                                  name.contains('帽')) {
-                                return Icons.checkroom_outlined;
-                              }
-                              if (name.contains('超市') ||
-                                  name.contains('生鲜') ||
-                                  name.contains('菜') ||
-                                  name.contains('粮油') ||
-                                  name.contains('蔬菜') ||
-                                  name.contains('水果')) {
-                                return Icons.local_grocery_store_outlined;
-                              }
-                              if (name.contains('娱乐') || name.contains('游戏')) {
-                                return Icons.sports_esports_outlined;
-                              }
-                              if (name.contains('居家') ||
-                                  name.contains('家') ||
-                                  name.contains('家居') ||
-                                  name.contains('物业') ||
-                                  name.contains('维修')) {
-                                return Icons.chair_outlined;
-                              }
-                              if (name.contains('美妆') ||
-                                  name.contains('化妆') ||
-                                  name.contains('护肤') ||
-                                  name.contains('美容')) {
-                                return Icons.brush_outlined;
-                              }
-                              if (name.contains('通讯') ||
-                                  name.contains('话费') ||
-                                  name.contains('宽带')) {
-                                return Icons.phone_iphone_outlined;
-                              }
-                              if (name.contains('订阅') ||
-                                  name.contains('会员') ||
-                                  name.contains('流媒体')) {
-                                return Icons.subscriptions_outlined;
-                              }
-                              if (name.contains('礼物') ||
-                                  name.contains('红包') ||
-                                  name.contains('礼金')) {
-                                return Icons.card_giftcard_outlined;
-                              }
-                              if (name.contains('水') ||
-                                  name.contains('电') ||
-                                  name.contains('煤') ||
-                                  name.contains('燃气')) {
-                                return Icons.water_drop_outlined;
-                              }
-                              if (name.contains('房') || name.contains('租')) {
-                                return Icons.home_outlined;
-                              }
-                              if (name.contains('房贷') ||
-                                  name.contains('按揭') ||
-                                  name.contains('贷款')) {
-                                return Icons.account_balance_outlined;
-                              }
-                              if (name.contains('工资') ||
-                                  name.contains('收入') ||
-                                  name.contains('奖金') ||
-                                  name.contains('报销') ||
-                                  name.contains('兼职')) {
-                                return Icons.attach_money_outlined;
-                              }
-                              if (name.contains('理财') ||
-                                  name.contains('利息') ||
-                                  name.contains('基金') ||
-                                  name.contains('股票') ||
-                                  name.contains('退款')) {
-                                return Icons.savings_outlined;
-                              }
-                              if (name.contains('教育') ||
-                                  name.contains('学习') ||
-                                  name.contains('培训')) {
-                                return Icons.menu_book_outlined;
-                              }
-                              if (name.contains('医疗') ||
-                                  name.contains('医院') ||
-                                  name.contains('药')) {
-                                return Icons.medical_services_outlined;
-                              }
-                              if (name.contains('宠物') ||
-                                  name.contains('猫') ||
-                                  name.contains('狗')) {
-                                return Icons.pets_outlined;
-                              }
-                              if (name.contains('运动') ||
-                                  name.contains('健身') ||
-                                  name.contains('球')) {
-                                return Icons.fitness_center_outlined;
-                              }
-                              if (name.contains('数码') ||
-                                  name.contains('电子') ||
-                                  name.contains('手机')) {
-                                return Icons.devices_other_outlined;
-                              }
-                              if (name.contains('旅行') ||
-                                  name.contains('旅游') ||
-                                  name.contains('出差')) {
-                                return Icons.card_travel_outlined;
-                              }
-                              if (name.contains('酒店') ||
-                                  name.contains('住宿') ||
-                                  name.contains('民宿')) {
-                                return Icons.hotel_outlined;
-                              }
-                              if (name.contains('烟') ||
-                                  name.contains('酒') ||
-                                  name.contains('茶')) {
-                                return Icons.local_bar_outlined;
-                              }
-                              if (name.contains('母婴') ||
-                                  name.contains('孩子') ||
-                                  name.contains('奶粉')) {
-                                return Icons.child_friendly_outlined;
-                              }
-                              if (name.contains('停车') ||
-                                  name.contains('加油') ||
-                                  name.contains('汽车') ||
-                                  name.contains('保养')) {
-                                return Icons.local_gas_station_outlined;
-                              }
-                              if (name.contains('快递') || name.contains('邮寄')) {
-                                return Icons.local_shipping_outlined;
-                              }
-                              if (name.contains('税') ||
-                                  name.contains('社保') ||
-                                  name.contains('公积金')) {
-                                return Icons.receipt_long_outlined;
-                              }
-                              if (name.contains('捐赠') || name.contains('公益')) {
-                                return Icons.volunteer_activism_outlined;
-                              }
-                              return Icons.circle_outlined;
-                            }
-
-                            final subtitle = it.t.note ?? '';
-                            return Dismissible(
-                              key: ValueKey(it.t.id),
-                              direction: DismissDirection.endToStart,
-                              background: Container(color: Colors.transparent),
-                              secondaryBackground: Container(
-                                  color: Colors.red[100],
-                                  alignment: Alignment.centerRight,
-                                  padding: const EdgeInsets.only(right: 16),
-                                  child: const Icon(Icons.delete_outline,
-                                      color: Colors.red)),
-                              confirmDismiss: (_) async {
-                                return await showDialog<bool>(
-                                        context: context,
-                                        builder: (ctx) => AlertDialog(
-                                                title: const Text('删除这条记账？'),
-                                                actions: [
-                                                  TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(
-                                                              ctx, false),
-                                                      child: const Text('取消')),
-                                                  FilledButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(
-                                                              ctx, true),
-                                                      child: const Text('删除'))
-                                                ])) ??
-                                    false;
-                              },
-                              onDismissed: (_) async {
-                                final db = ref.read(databaseProvider);
-                                await (db.delete(db.transactions)
-                                      ..where((t) => t.id.equals(it.t.id)))
-                                    .go();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('已删除')));
-                              },
-                              child: Column(
-                                children: [
-                                  ListTile(
-                                    visualDensity:
-                                        const VisualDensity(vertical: -2),
-                                    leading: CircleAvatar(
-                                      radius: 14,
-                                      backgroundColor: Colors.grey[200],
-                                      child: Icon(
-                                        iconFor(categoryName),
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        size: 16,
-                                      ),
-                                    ),
-                                    title: Text(
-                                      subtitle.isNotEmpty
-                                          ? subtitle
-                                          : categoryName,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                              fontSize: 13,
-                                              color: Colors.black87),
-                                    ),
-                                    subtitle: null,
-                                    trailing: Text(
-                                      hide
-                                          ? '****'
-                                          : '$amountPrefix${it.t.amount.toStringAsFixed(2)}',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                              fontSize: 13,
-                                              color: Colors.black87),
-                                    ),
-                                    onTap: () async {
-                                      // 跳到记账页（分类选择），并自动打开金额输入（quickAdd）
-                                      await Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) => CategoryPickerPage(
-                                            initialKind: it.t.type,
-                                            quickAdd: true,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  Divider(height: 1, color: Colors.grey[200]),
-                                ],
-                              ),
-                            );
-                          }
-                          idx -= list.length;
+                    int upperBound(List<double> arr, double x) {
+                      var l = 0, r = arr.length;
+                      while (l < r) {
+                        final m = (l + r) >> 1;
+                        if (arr[m] >= x) {
+                          r = m;
+                        } else {
+                          l = m + 1;
                         }
-                        return const SizedBox.shrink();
+                      }
+                      return l; // 第一个 >= x 的下标
+                    }
+
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: (n) {
+                        if (n is ScrollUpdateNotification &&
+                            _scrollController.positions.isNotEmpty &&
+                            sortedKeys.isNotEmpty) {
+                          // 使用二分搜索提高定位效率
+                          final offset = _scrollController.offset;
+                          final idx = upperBound(groupEnds, offset);
+                          if (idx >= 0 && idx < sortedKeys.length) {
+                            final key = sortedKeys[idx];
+                            final dt = DateTime.parse(key);
+                            final cur = DateTime(dt.year, dt.month, 1);
+                            final sel = ref.read(selectedMonthProvider);
+                            if (sel.year != cur.year ||
+                                sel.month != cur.month) {
+                              ref.read(selectedMonthProvider.notifier).state =
+                                  cur;
+                            }
+                          }
+                        }
+                        return false;
                       },
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        physics: const BouncingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics()),
+                        padding: EdgeInsets.zero,
+                        itemCount: (sortedKeys.isEmpty
+                            ? 1
+                            : sortedKeys
+                                .map((k) => 1 + groups[k]!.length)
+                                .reduce((a, b) => a + b)),
+                        itemBuilder: (context, index) {
+                          if (sortedKeys.isEmpty) {
+                            return const Padding(
+                              padding: EdgeInsets.all(24.0),
+                              child: Center(child: Text('暂无数据，点击右下角记一笔')),
+                            );
+                          }
+
+                          // 将 index 映射到分组和分组内的行
+                          var idx = index;
+                          for (final key in sortedKeys) {
+                            final list = groups[key]!;
+                            if (idx == 0) {
+                              // 分组头
+                              // 计算当日小计（支出/收入）
+                              double dayIncome = 0, dayExpense = 0;
+                              for (final it in list) {
+                                if (it.t.type == 'income') {
+                                  dayIncome += it.t.amount;
+                                }
+                                if (it.t.type == 'expense') {
+                                  dayExpense += it.t.amount;
+                                }
+                              }
+                              return _DayHeader(
+                                dateText: key,
+                                income: dayIncome,
+                                expense: dayExpense,
+                                hide: hide,
+                              );
+                            }
+                            idx--;
+                            if (idx < list.length) {
+                              final it = list[idx];
+                              final isExpense = it.t.type == 'expense';
+                              final amountPrefix = isExpense ? '-' : '+';
+                              final categoryName = it.category?.name ?? '未分类';
+                              IconData iconFor(String n) {
+                                final name = n;
+                                if (name.contains('餐') ||
+                                    name.contains('饭') ||
+                                    name.contains('吃') ||
+                                    name.contains('外卖')) {
+                                  return Icons.restaurant_outlined;
+                                }
+                                if (name.contains('交通') ||
+                                    name.contains('出行') ||
+                                    name.contains('打车') ||
+                                    name.contains('地铁') ||
+                                    name.contains('公交') ||
+                                    name.contains('高铁') ||
+                                    name.contains('火车') ||
+                                    name.contains('飞机')) {
+                                  return Icons.directions_transit_outlined;
+                                }
+                                // 车类：未被上面的交通关键词覆盖但名字中明确表示车辆
+                                if (name == '车' ||
+                                    name.contains('车辆') ||
+                                    name.contains('车贷') ||
+                                    name.contains('购车') ||
+                                    name.contains('爱车')) {
+                                  return Icons.directions_car_outlined;
+                                }
+                                if (name.contains('购物') ||
+                                    name.contains('百货')) {
+                                  return Icons.shopping_bag_outlined;
+                                }
+                                if (name.contains('服饰') ||
+                                    name.contains('衣') ||
+                                    name.contains('鞋') ||
+                                    name.contains('裤') ||
+                                    name.contains('帽')) {
+                                  return Icons.checkroom_outlined;
+                                }
+                                if (name.contains('超市') ||
+                                    name.contains('生鲜') ||
+                                    name.contains('菜') ||
+                                    name.contains('粮油') ||
+                                    name.contains('蔬菜') ||
+                                    name.contains('水果')) {
+                                  return Icons.local_grocery_store_outlined;
+                                }
+                                if (name.contains('娱乐') ||
+                                    name.contains('游戏')) {
+                                  return Icons.sports_esports_outlined;
+                                }
+                                if (name.contains('居家') ||
+                                    name.contains('家') ||
+                                    name.contains('家居') ||
+                                    name.contains('物业') ||
+                                    name.contains('维修')) {
+                                  return Icons.chair_outlined;
+                                }
+                                if (name.contains('美妆') ||
+                                    name.contains('化妆') ||
+                                    name.contains('护肤') ||
+                                    name.contains('美容')) {
+                                  return Icons.brush_outlined;
+                                }
+                                if (name.contains('通讯') ||
+                                    name.contains('话费') ||
+                                    name.contains('宽带')) {
+                                  return Icons.phone_iphone_outlined;
+                                }
+                                if (name.contains('订阅') ||
+                                    name.contains('会员') ||
+                                    name.contains('流媒体')) {
+                                  return Icons.subscriptions_outlined;
+                                }
+                                if (name.contains('礼物') ||
+                                    name.contains('红包') ||
+                                    name.contains('礼金')) {
+                                  return Icons.card_giftcard_outlined;
+                                }
+                                if (name.contains('水') ||
+                                    name.contains('电') ||
+                                    name.contains('煤') ||
+                                    name.contains('燃气')) {
+                                  return Icons.water_drop_outlined;
+                                }
+                                if (name.contains('房') || name.contains('租')) {
+                                  return Icons.home_outlined;
+                                }
+                                if (name.contains('房贷') ||
+                                    name.contains('按揭') ||
+                                    name.contains('贷款')) {
+                                  return Icons.account_balance_outlined;
+                                }
+                                if (name.contains('工资') ||
+                                    name.contains('收入') ||
+                                    name.contains('奖金') ||
+                                    name.contains('报销') ||
+                                    name.contains('兼职')) {
+                                  return Icons.attach_money_outlined;
+                                }
+                                if (name.contains('理财') ||
+                                    name.contains('利息') ||
+                                    name.contains('基金') ||
+                                    name.contains('股票') ||
+                                    name.contains('退款')) {
+                                  return Icons.savings_outlined;
+                                }
+                                if (name.contains('教育') ||
+                                    name.contains('学习') ||
+                                    name.contains('培训')) {
+                                  return Icons.menu_book_outlined;
+                                }
+                                if (name.contains('医疗') ||
+                                    name.contains('医院') ||
+                                    name.contains('药')) {
+                                  return Icons.medical_services_outlined;
+                                }
+                                if (name.contains('宠物') ||
+                                    name.contains('猫') ||
+                                    name.contains('狗')) {
+                                  return Icons.pets_outlined;
+                                }
+                                if (name.contains('运动') ||
+                                    name.contains('健身') ||
+                                    name.contains('球')) {
+                                  return Icons.fitness_center_outlined;
+                                }
+                                if (name.contains('数码') ||
+                                    name.contains('电子') ||
+                                    name.contains('手机')) {
+                                  return Icons.devices_other_outlined;
+                                }
+                                if (name.contains('旅行') ||
+                                    name.contains('旅游') ||
+                                    name.contains('出差')) {
+                                  return Icons.card_travel_outlined;
+                                }
+                                if (name.contains('酒店') ||
+                                    name.contains('住宿') ||
+                                    name.contains('民宿')) {
+                                  return Icons.hotel_outlined;
+                                }
+                                if (name.contains('烟') ||
+                                    name.contains('酒') ||
+                                    name.contains('茶')) {
+                                  return Icons.local_bar_outlined;
+                                }
+                                if (name.contains('母婴') ||
+                                    name.contains('孩子') ||
+                                    name.contains('奶粉')) {
+                                  return Icons.child_friendly_outlined;
+                                }
+                                if (name.contains('停车') ||
+                                    name.contains('加油') ||
+                                    name.contains('汽车') ||
+                                    name.contains('保养')) {
+                                  return Icons.local_gas_station_outlined;
+                                }
+                                if (name.contains('快递') ||
+                                    name.contains('邮寄')) {
+                                  return Icons.local_shipping_outlined;
+                                }
+                                if (name.contains('税') ||
+                                    name.contains('社保') ||
+                                    name.contains('公积金')) {
+                                  return Icons.receipt_long_outlined;
+                                }
+                                if (name.contains('捐赠') ||
+                                    name.contains('公益')) {
+                                  return Icons.volunteer_activism_outlined;
+                                }
+                                return Icons.circle_outlined;
+                              }
+
+                              final subtitle = it.t.note ?? '';
+                              return Dismissible(
+                                key: ValueKey(it.t.id),
+                                direction: DismissDirection.endToStart,
+                                background:
+                                    Container(color: Colors.transparent),
+                                secondaryBackground: Container(
+                                    color: Colors.red[100],
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.only(right: 16),
+                                    child: const Icon(Icons.delete_outline,
+                                        color: Colors.red)),
+                                confirmDismiss: (_) async {
+                                  return await showDialog<bool>(
+                                          context: context,
+                                          builder: (ctx) => AlertDialog(
+                                                  title: const Text('删除这条记账？'),
+                                                  actions: [
+                                                    TextButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                                ctx, false),
+                                                        child:
+                                                            const Text('取消')),
+                                                    FilledButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                                ctx, true),
+                                                        child: const Text('删除'))
+                                                  ])) ??
+                                      false;
+                                },
+                                onDismissed: (_) async {
+                                  final db = ref.read(databaseProvider);
+                                  await (db.delete(db.transactions)
+                                        ..where((t) => t.id.equals(it.t.id)))
+                                      .go();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('已删除')));
+                                },
+                                child: Column(
+                                  children: [
+                                    ListTile(
+                                      visualDensity:
+                                          const VisualDensity(vertical: -2),
+                                      leading: CircleAvatar(
+                                        radius: 14,
+                                        backgroundColor: Colors.grey[200],
+                                        child: Icon(
+                                          iconFor(categoryName),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          size: 16,
+                                        ),
+                                      ),
+                                      title: Text(
+                                        subtitle.isNotEmpty
+                                            ? subtitle
+                                            : categoryName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                                fontSize: 13,
+                                                color: Colors.black87),
+                                      ),
+                                      subtitle: null,
+                                      trailing: Text(
+                                        hide
+                                            ? '****'
+                                            : '$amountPrefix${it.t.amount.toStringAsFixed(2)}',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                                fontSize: 13,
+                                                color: Colors.black87),
+                                      ),
+                                      onTap: () async {
+                                        // 跳到记账页（分类选择），并自动打开金额输入（quickAdd）
+                                        await Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => CategoryPickerPage(
+                                              initialKind: it.t.type,
+                                              quickAdd: true,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    Divider(height: 1, color: Colors.grey[200]),
+                                  ],
+                                ),
+                              );
+                            }
+                            idx -= list.length;
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
                     );
                   },
                 );
