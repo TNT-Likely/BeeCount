@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
 import '../data/db.dart';
@@ -8,8 +9,12 @@ class CategoryPickerPage extends ConsumerStatefulWidget {
   final String initialKind; // 'expense' or 'income'
   // quickAdd: 点击分类后在当前弹窗上叠加金额输入，保存成功后依次关闭两个弹窗
   final bool quickAdd;
+  final int? initialCategoryId;
   const CategoryPickerPage(
-      {super.key, required this.initialKind, this.quickAdd = false});
+      {super.key,
+      required this.initialKind,
+      this.quickAdd = false,
+      this.initialCategoryId});
 
   @override
   ConsumerState<CategoryPickerPage> createState() => _CategoryPickerPageState();
@@ -35,8 +40,7 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
             PrimaryHeader(
               title: '',
               bottom: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 child: Row(
                   children: [
                     Expanded(
@@ -68,10 +72,12 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
                 children: [
                   _CategoryGrid(
                       kind: 'expense',
-                      onPick: (c) => _onPick(context, c, 'expense')),
+                      onPick: (c) => _onPick(context, c, 'expense'),
+                      initialId: widget.initialCategoryId),
                   _CategoryGrid(
                       kind: 'income',
-                      onPick: (c) => _onPick(context, c, 'income')),
+                      onPick: (c) => _onPick(context, c, 'income'),
+                      initialId: widget.initialCategoryId),
                 ],
               ),
             )
@@ -98,16 +104,20 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(ctx).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 20,
+          left: 12,
+          right: 12,
+          top: 12,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(c.name, style: Theme.of(ctx).textTheme.titleLarge),
-            const SizedBox(height: 8),
+            Text(c.name,
+                style: Theme.of(ctx)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 6),
             TextField(
               controller: amountCtrl,
               autofocus: true,
@@ -118,12 +128,12 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
                 prefixIcon: Icon(Icons.currency_yuan),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             TextField(
               controller: noteCtrl,
               decoration: const InputDecoration(labelText: '备注（可选）'),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Row(children: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
@@ -159,7 +169,7 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
                 child: const Text('保存'),
               ),
             ]),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
           ],
         ),
       ),
@@ -170,7 +180,9 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
 class _CategoryGrid extends ConsumerWidget {
   final String kind;
   final ValueChanged<Category> onPick;
-  const _CategoryGrid({required this.kind, required this.onPick});
+  final int? initialId;
+  const _CategoryGrid(
+      {required this.kind, required this.onPick, this.initialId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -185,7 +197,7 @@ class _CategoryGrid extends ConsumerWidget {
           return const Center(child: Text('暂无分类'));
         }
         return GridView.builder(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 16,
@@ -195,8 +207,15 @@ class _CategoryGrid extends ConsumerWidget {
           itemCount: list.length,
           itemBuilder: (context, i) {
             final c = list[i];
+            final selected = initialId != null && c.id == initialId;
+            if (selected &&
+                WidgetsBinding.instance.schedulerPhase == SchedulerPhase.idle) {
+              // 自动触发一次选中，打开金额输入
+              Future.microtask(() => onPick(c));
+            }
             return _CategoryItem(
               name: c.name,
+              selected: selected,
               onTap: () => onPick(c),
             );
           },
@@ -209,7 +228,9 @@ class _CategoryGrid extends ConsumerWidget {
 class _CategoryItem extends StatelessWidget {
   final String name;
   final VoidCallback onTap;
-  const _CategoryItem({required this.name, required this.onTap});
+  final bool selected;
+  const _CategoryItem(
+      {required this.name, required this.onTap, this.selected = false});
 
   IconData _iconFor(String n) {
     if (n.contains('餐') ||
@@ -291,10 +312,15 @@ class _CategoryItem extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: Colors.grey[200],
+              color: selected
+                  ? Theme.of(context).colorScheme.primary.withOpacity(0.25)
+                  : Colors.grey[200],
               shape: BoxShape.circle,
             ),
-            child: Icon(_iconFor(name), color: Colors.grey[700]),
+            child: Icon(_iconFor(name),
+                color: selected
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.grey[700]),
           ),
           const SizedBox(height: 8),
           Text(

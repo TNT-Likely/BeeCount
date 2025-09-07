@@ -6,6 +6,7 @@ import '../providers.dart';
 import 'personalize_page.dart' show headerStyleProvider;
 import '../data/db.dart';
 import '../widgets/primary_header.dart';
+import 'category_picker.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -30,10 +31,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (!_scrollController.hasClients) return;
     final pos = _scrollController.position;
     final delta = pos.pixels - _lastPixels;
-    // 上滑：接近底部切换到上一个月（仅按月视角）
-    if (pos.maxScrollExtent > 0 &&
-        pos.pixels >= pos.maxScrollExtent - 24 &&
-        delta > 0) {
+    // 上滑：到达底部切换到上一个月（仅按月视角）
+    if (pos.atEdge && pos.pixels > 0 && delta > 0) {
       final view = ref.read(selectedViewProvider);
       if (view == 'month') {
         _switching = true;
@@ -54,8 +53,8 @@ class _HomePageState extends ConsumerState<HomePage> {
         });
       }
     }
-    // 下拉：在顶部轻微下拉尝试往“下一个月”（不超过当前月）
-    if (pos.pixels <= 12 && delta < 0) {
+    // 下拉：在顶部向下继续拉，尝试往“下一个月”（不超过当前月）
+    if (pos.atEdge && pos.pixels <= 0 && delta < 0) {
       final view = ref.read(selectedViewProvider);
       if (view == 'month') {
         final cur = ref.read(selectedMonthProvider);
@@ -102,11 +101,13 @@ class _HomePageState extends ConsumerState<HomePage> {
           Consumer(builder: (context, ref, _) {
             ref.watch(headerStyleProvider);
             return PrimaryHeader(
-              title: view == 'year'
+              // 年在上
+              title: '${month.year}年',
+              // 月在下
+              subtitle: view == 'year'
                   ? '全年'
                   : '${month.month.toString().padLeft(2, '0')}月',
-              subtitle: '${month.year}年',
-              titleTrailing: InkWell(
+              subtitleTrailing: InkWell(
                 onTap: () async {
                   final choice =
                       await showModalBottomSheet<(String view, DateTime date)>(
@@ -124,12 +125,32 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 const Text('视角：'),
                                 ChoiceChip(
                                     label: const Text('按月'),
+                                    selectedColor: Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withOpacity(0.15),
+                                    labelStyle: TextStyle(
+                                        color: view == 'month'
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                            : Colors.black87),
                                     selected: view == 'month',
                                     onSelected: (_) =>
                                         setS(() => view = 'month')),
                                 const SizedBox(width: 8),
                                 ChoiceChip(
                                     label: const Text('按年'),
+                                    selectedColor: Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withOpacity(0.15),
+                                    labelStyle: TextStyle(
+                                        color: view == 'year'
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                            : Colors.black87),
                                     selected: view == 'year',
                                     onSelected: (_) =>
                                         setS(() => view = 'year')),
@@ -234,6 +255,9 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                     return ListView.builder(
                       controller: _scrollController,
+                      physics: const BouncingScrollPhysics(
+                          parent: AlwaysScrollableScrollPhysics()),
+                      padding: EdgeInsets.zero,
                       itemCount: // 不再有顶部额外卡片，仅内容
                           (sortedKeys.isEmpty
                               ? 1 // 空态
@@ -526,111 +550,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               color: Colors.black87),
                                     ),
                                     onTap: () async {
-                                      final amountController =
-                                          TextEditingController(
-                                              text: it.t.amount
-                                                  .toStringAsFixed(2));
-                                      final noteController =
-                                          TextEditingController(
-                                              text: it.t.note ?? '');
-                                      await showModalBottomSheet(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.white,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                              top: Radius.circular(16)),
-                                        ),
-                                        builder: (ctx) => Padding(
-                                          padding: EdgeInsets.only(
-                                            bottom: MediaQuery.of(ctx)
-                                                .viewInsets
-                                                .bottom,
-                                            left: 16,
-                                            right: 16,
-                                            top: 20,
-                                          ),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(categoryName,
-                                                  style: Theme.of(ctx)
-                                                      .textTheme
-                                                      .titleLarge),
-                                              const SizedBox(height: 8),
-                                              TextField(
-                                                controller: amountController,
-                                                keyboardType:
-                                                    const TextInputType
-                                                        .numberWithOptions(
-                                                        decimal: true),
-                                                decoration:
-                                                    const InputDecoration(
-                                                        labelText: '金额',
-                                                        prefixIcon: Icon(Icons
-                                                            .currency_yuan)),
-                                              ),
-                                              const SizedBox(height: 8),
-                                              TextField(
-                                                controller: noteController,
-                                                decoration:
-                                                    const InputDecoration(
-                                                        labelText: '备注（可选）'),
-                                              ),
-                                              const SizedBox(height: 16),
-                                              Row(children: [
-                                                TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.pop(ctx),
-                                                  child: const Text('取消'),
-                                                ),
-                                                const Spacer(),
-                                                Consumer(
-                                                    builder: (context, ref, _) {
-                                                  return FilledButton(
-                                                    onPressed: () async {
-                                                      final repo = ref.read(
-                                                          repositoryProvider);
-                                                      final newAmount =
-                                                          double.tryParse(
-                                                              amountController
-                                                                  .text);
-                                                      if (newAmount == null) {
-                                                        ScaffoldMessenger.of(
-                                                                ctx)
-                                                            .showSnackBar(
-                                                                const SnackBar(
-                                                                    content: Text(
-                                                                        '请输入有效金额')));
-                                                        return;
-                                                      }
-                                                      await repo
-                                                          .updateTransaction(
-                                                        id: it.t.id,
-                                                        type: it.t.type,
-                                                        amount: newAmount,
-                                                        categoryId:
-                                                            it.t.categoryId,
-                                                        note: noteController
-                                                                .text.isEmpty
-                                                            ? null
-                                                            : noteController
-                                                                .text,
-                                                        happenedAt:
-                                                            it.t.happenedAt,
-                                                      );
-                                                      if (Navigator.of(ctx)
-                                                          .canPop())
-                                                        Navigator.of(ctx).pop();
-                                                    },
-                                                    child: const Text('保存'),
-                                                  );
-                                                })
-                                              ]),
-                                              const SizedBox(height: 24),
-                                            ],
+                                      // 跳到记账页（分类选择），并自动打开金额输入（quickAdd）
+                                      await Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => CategoryPickerPage(
+                                            initialKind: it.t.type,
+                                            quickAdd: true,
                                           ),
                                         ),
                                       );
@@ -758,10 +683,16 @@ class _DayHeader extends StatelessWidget {
           ]),
           Row(children: [
             Text('支出 ${hide ? '****' : expense.toStringAsFixed(2)}',
-                style: const TextStyle(color: Colors.black54)),
+                style: Theme.of(context)
+                    .textTheme
+                    .labelMedium
+                    ?.copyWith(color: Colors.black54)),
             const SizedBox(width: 12),
             Text('收入 ${hide ? '****' : income.toStringAsFixed(2)}',
-                style: const TextStyle(color: Colors.black54)),
+                style: Theme.of(context)
+                    .textTheme
+                    .labelMedium
+                    ?.copyWith(color: Colors.black54)),
           ])
         ],
       ),

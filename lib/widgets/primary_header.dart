@@ -11,6 +11,8 @@ class PrimaryHeader extends ConsumerWidget {
   final Widget? bottom;
   // 可选：标题右侧紧邻的小部件（例如月份旁的图标）
   final Widget? titleTrailing;
+  // 可选：副标题右侧紧邻的小部件（例如当副标题显示月份时的图标）
+  final Widget? subtitleTrailing;
   // 可选：主行中部的小部件（例如汇总信息），位于标题区域与右侧 actions 之间
   final Widget? center;
   const PrimaryHeader(
@@ -21,6 +23,7 @@ class PrimaryHeader extends ConsumerWidget {
       this.actions,
       this.bottom,
       this.titleTrailing,
+      this.subtitleTrailing,
       this.center});
 
   @override
@@ -74,7 +77,19 @@ class PrimaryHeader extends ConsumerWidget {
                             ],
                           ),
                           if (subtitle != null)
-                            Text(subtitle!, style: subStyle),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(
+                                    child: Text(subtitle!,
+                                        style: subStyle,
+                                        overflow: TextOverflow.ellipsis)),
+                                if (subtitleTrailing != null) ...[
+                                  const SizedBox(width: 6),
+                                  subtitleTrailing!,
+                                ]
+                              ],
+                            ),
                         ],
                       ),
                     ),
