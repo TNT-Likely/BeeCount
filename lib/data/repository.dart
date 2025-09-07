@@ -103,6 +103,30 @@ class BeeRepository {
     return result;
   }
 
+  // Aggregation: totals by year (all years) for a type
+  Future<List<({int year, double total})>> totalsByYearSeries({
+    required int ledgerId,
+    required String type, // 'income' or 'expense'
+  }) async {
+    final rows = await (db.select(db.transactions)
+          ..where((t) => t.ledgerId.equals(ledgerId) & t.type.equals(type)))
+        .get();
+    if (rows.isEmpty) return const [];
+    final map = <int, double>{};
+    int minYear = 9999, maxYear = 0;
+    for (final t in rows) {
+      final y = t.happenedAt.toLocal().year;
+      if (y < minYear) minYear = y;
+      if (y > maxYear) maxYear = y;
+      map.update(y, (v) => v + t.amount, ifAbsent: () => t.amount);
+    }
+    final out = <({int year, double total})>[];
+    for (int y = minYear; y <= maxYear; y++) {
+      out.add((year: y, total: map[y] ?? 0));
+    }
+    return out;
+  }
+
   // Aggregation: income & expense totals for arbitrary range
   Future<(double income, double expense)> totalsInRange({
     required int ledgerId,

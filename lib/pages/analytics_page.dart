@@ -13,23 +13,25 @@ class AnalyticsPage extends ConsumerStatefulWidget {
 }
 
 class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
-  String _scope = 'month'; // month/year/all
-  String _type = 'expense'; // expense/income，左右滑切换
-  bool _chartSwiped = false; // 阻止父级横滑在图表区域触发
+  String _scope = 'month'; // month | year | all
+  String _type = 'expense'; // expense | income
+  bool _chartSwiped = false; // 吸收图表区域横滑，避免父级切换收入/支出
 
   @override
   Widget build(BuildContext context) {
     final repo = ref.watch(repositoryProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
-    final month = ref.watch(selectedMonthProvider);
+    final selMonth = ref.watch(selectedMonthProvider);
 
-    DateTime start, end;
+    // 时间范围
+    late DateTime start;
+    late DateTime end;
     if (_scope == 'month') {
-      start = DateTime(month.year, month.month, 1);
-      end = DateTime(month.year, month.month + 1, 1);
+      start = DateTime(selMonth.year, selMonth.month, 1);
+      end = DateTime(selMonth.year, selMonth.month + 1, 1);
     } else if (_scope == 'year') {
-      start = DateTime(month.year, 1, 1);
-      end = DateTime(month.year + 1, 1, 1);
+      start = DateTime(selMonth.year, 1, 1);
+      end = DateTime(selMonth.year + 1, 1, 1);
     } else {
       final today = DateTime.now();
       start = DateTime(1970, 1, 1);
@@ -37,23 +39,55 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
           .add(const Duration(days: 1));
     }
 
-    final Future<dynamic> seriesFuture = _scope == 'year'
-        ? repo.totalsByMonth(ledgerId: ledgerId, type: _type, year: month.year)
-        : _scope == 'month'
-            ? repo.totalsByDay(
-                ledgerId: ledgerId, type: _type, start: start, end: end)
-            : Future.value(const <({DateTime day, double total})>[]);
+    // 按视角获取序列
+    final Future<dynamic> seriesFuture = _scope == 'month'
+        ? repo.totalsByDay(
+            ledgerId: ledgerId, type: _type, start: start, end: end)
+        : _scope == 'year'
+            ? repo.totalsByMonth(
+                ledgerId: ledgerId, type: _type, year: selMonth.year)
+            : repo.totalsByYearSeries(ledgerId: ledgerId, type: _type);
 
     return Scaffold(
       body: Column(
         children: [
           PrimaryHeader(
-            title: _type == 'expense' ? '支出 ▼' : '收入 ▼',
+            title: '',
+            center: _TypeDropdown(
+              value: _type,
+              onChanged: (v) => setState(() => _type = v),
+            ),
             bottom: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: _CapsuleSwitcher(
                 value: _scope,
                 onChanged: (s) => setState(() => _scope = s),
+                onPickMonth: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: selMonth,
+                    firstDate: DateTime(2000, 1, 1),
+                    lastDate: DateTime(2100, 12, 31),
+                    helpText: '选择月份',
+                  );
+                  if (picked != null) {
+                    ref.read(selectedMonthProvider.notifier).state =
+                        DateTime(picked.year, picked.month, 1);
+                  }
+                },
+                onPickYear: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: selMonth,
+                    firstDate: DateTime(2000, 1, 1),
+                    lastDate: DateTime(2100, 12, 31),
+                    helpText: '选择年份',
+                  );
+                  if (picked != null) {
+                    ref.read(selectedMonthProvider.notifier).state =
+                        DateTime(picked.year, 1, 1);
+                  }
+                },
               ),
             ),
           ),
@@ -63,23 +97,27 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                 repo.totalsByCategory(
                     ledgerId: ledgerId, type: _type, start: start, end: end),
                 seriesFuture,
-                repo.totalsInRange(ledgerId: ledgerId, start: start, end: end),
               ]),
-              builder: (context, snap) {
-                if (!snap.hasData) {
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                final list = snap.data as List<dynamic>;
+                final list = snapshot.data as List<dynamic>;
                 final catData =
                     (list[0] as List<({String name, double total})>);
                 final seriesRaw = list[1];
 
                 final sum = catData.fold<double>(0, (a, b) => a + b.total);
-                final List<double> lineValues = () {
+
+                // 转换为折线值数组
+                final values = () {
                   if (seriesRaw is List<({DateTime day, double total})>) {
                     return seriesRaw.map((e) => e.total).toList();
                   }
                   if (seriesRaw is List<({DateTime month, double total})>) {
+                    return seriesRaw.map((e) => e.total).toList();
+                  }
+                  if (seriesRaw is List<({int year, double total})>) {
                     return seriesRaw.map((e) => e.total).toList();
                   }
                   return const <double>[];
@@ -105,21 +143,25 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                       ),
                       const SizedBox(height: 12),
                       SizedBox(
-                        height: 220,
+                        height: 240,
                         child: _LineChart(
-                          values: lineValues,
+                          values: values,
                           onScopeSwipe: () {
                             setState(() {
-                              if (_scope == 'year') {
-                                _scope = 'month';
-                              } else if (_scope == 'month') {
+                              if (_scope == 'month') {
                                 _scope = 'year';
+                              } else if (_scope == 'year') {
+                                _scope = 'month';
                               }
                               _chartSwiped = true;
                             });
                           },
                           showHint: _scope != 'all',
                           isYear: _scope == 'year',
+                          whiteBg: true,
+                          showGrid: true,
+                          showDots: true,
+                          annotate: true,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -145,20 +187,154 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
   }
 }
 
-// 颜色方案（可用于折线或图例）
-Color pieColorFor(String name) => const Color(0xFF5B8FF9);
+class _TypeDropdown extends StatelessWidget {
+  final String value; // 'income' | 'expense'
+  final ValueChanged<String> onChanged;
+  const _TypeDropdown({required this.value, required this.onChanged});
 
-// 简易折线图实现
+  @override
+  Widget build(BuildContext context) {
+    final isExpense = value == 'expense';
+    final label = isExpense ? '支出' : '收入';
+    final chip = InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () async {
+        final selected = await showMenu<String>(
+          context: context,
+          position: const RelativeRect.fromLTRB(24, 60, 24, 0),
+          items: const [
+            PopupMenuItem(value: 'expense', child: Text('支出')),
+            PopupMenuItem(value: 'income', child: Text('收入')),
+          ],
+        );
+        if (selected != null && selected != value) onChanged(selected);
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(label, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(width: 4),
+            const Icon(Icons.arrow_drop_down, size: 20),
+            const SizedBox(width: 8),
+            const Icon(Icons.swipe, size: 14, color: Colors.black54),
+            const SizedBox(width: 2),
+            Text('横滑切换', style: Theme.of(context).textTheme.labelSmall),
+          ],
+        ),
+      ),
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: chip,
+    );
+  }
+}
+
+class _CapsuleSwitcher extends StatelessWidget {
+  final String value; // month | year | all
+  final ValueChanged<String> onChanged;
+  final VoidCallback? onPickMonth;
+  final VoidCallback? onPickYear;
+  const _CapsuleSwitcher({
+    required this.value,
+    required this.onChanged,
+    this.onPickMonth,
+    this.onPickYear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = Colors.black12.withOpacity(0.06);
+    Widget seg({
+      required String v,
+      required String label,
+      VoidCallback? onArrow,
+    }) {
+      final selected = value == v;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => onChanged(v),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            height: 36,
+            decoration: BoxDecoration(
+              color: selected ? Colors.black : Colors.transparent,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: selected ? Colors.white : Colors.black87,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                if (onArrow != null) ...[
+                  const SizedBox(width: 4),
+                  InkWell(
+                    onTap: onArrow,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Icon(
+                      Icons.arrow_drop_down,
+                      size: 18,
+                      color: selected ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                ]
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      height: 40,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          seg(v: 'month', label: '月', onArrow: onPickMonth),
+          const SizedBox(width: 4),
+          seg(v: 'year', label: '年', onArrow: onPickYear),
+          const SizedBox(width: 4),
+          seg(v: 'all', label: '全部'),
+        ],
+      ),
+    );
+  }
+}
+
 class _LineChart extends StatelessWidget {
   final List<double> values;
   final VoidCallback onScopeSwipe;
   final bool showHint;
   final bool isYear;
+  final bool whiteBg;
+  final bool showGrid;
+  final bool showDots;
+  final bool annotate;
   const _LineChart({
     required this.values,
     required this.onScopeSwipe,
     required this.showHint,
     required this.isYear,
+    this.whiteBg = true,
+    this.showGrid = true,
+    this.showDots = true,
+    this.annotate = true,
   });
 
   @override
@@ -170,7 +346,14 @@ class _LineChart extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           CustomPaint(
-            painter: _LinePainter(values: values),
+            painter: _LinePainter(
+              values: values,
+              whiteBg: whiteBg,
+              showGrid: showGrid,
+              showDots: showDots,
+              annotate: annotate,
+              themeColor: const Color(0xFF5B8FF9),
+            ),
           ),
           if (showHint)
             Positioned(
@@ -208,80 +391,125 @@ class _LineChart extends StatelessWidget {
 
 class _LinePainter extends CustomPainter {
   final List<double> values;
-  _LinePainter({required this.values});
+  final bool whiteBg;
+  final bool showGrid;
+  final bool showDots;
+  final bool annotate;
+  final Color themeColor;
+  _LinePainter({
+    required this.values,
+    required this.whiteBg,
+    required this.showGrid,
+    required this.showDots,
+    required this.annotate,
+    required this.themeColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    final bg = Paint()..color = Colors.black12.withOpacity(0.06);
-    final axis = Paint()
-      ..color = Colors.black12
-      ..strokeWidth = 1;
+    final bgPaint = Paint()
+      ..color = whiteBg ? Colors.white : Colors.black12.withOpacity(0.06);
     // 背景
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(12)),
-      bg,
-    );
+        RRect.fromRectAndRadius(rect, const Radius.circular(12)), bgPaint);
 
-    // 坐标轴底部线
-    final bottom = size.height - 16;
-    canvas.drawLine(Offset(8, bottom), Offset(size.width - 8, bottom), axis);
+    // 网格
+    if (showGrid) {
+      final gridPaint = Paint()
+        ..color = Colors.black12
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1;
+      const rows = 4;
+      for (int i = 1; i <= rows; i++) {
+        final y = size.height * i / (rows + 1);
+        canvas.drawLine(Offset(8, y), Offset(size.width - 8, y), gridPaint);
+      }
+    }
 
     if (values.isEmpty) return;
+
+    // 数据归一化
     final maxV = values.reduce(math.max);
     final minV = values.reduce(math.min);
     final span = (maxV - minV).abs();
-    y(double v) {
-      if (span == 0) return bottom - 40; // 平线
-      final t = (v - minV) / span;
-      return 12 + (1 - t) * (bottom - 24);
+    final bottomPadding = 20.0;
+    final topPadding = 12.0;
+    double yFor(double v) {
+      if (span == 0) return size.height / 2;
+      final t = (v - minV) / span; // 0..1
+      return topPadding + (1 - t) * (size.height - topPadding - bottomPadding);
     }
 
     final dx = (size.width - 24) / (values.length - 1).clamp(1, 999);
-
-    final path = Path();
+    final points = <Offset>[];
     for (int i = 0; i < values.length; i++) {
-      final px = 12 + i * dx;
-      final py = y(values[i]);
-      if (i == 0) {
-        path.moveTo(px, py);
-      } else {
-        path.lineTo(px, py);
-      }
+      points.add(Offset(12 + i * dx, yFor(values[i])));
     }
+
+    // 平滑曲线（简易二次贝塞尔）
+    final path = Path()..moveTo(points.first.dx, points.first.dy);
+    for (int i = 1; i < points.length; i++) {
+      final prev = points[i - 1];
+      final curr = points[i];
+      final mid = Offset((prev.dx + curr.dx) / 2, (prev.dy + curr.dy) / 2);
+      path.quadraticBezierTo(prev.dx, prev.dy, mid.dx, mid.dy);
+    }
+    path.lineTo(points.last.dx, points.last.dy);
+
     final line = Paint()
-      ..color = const Color(0xFF5B8FF9)
+      ..color = themeColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0
       ..isAntiAlias = true;
     canvas.drawPath(path, line);
 
-    // 端点
-    final dot = Paint()..color = const Color(0xFF5B8FF9);
-    for (int i = 0; i < values.length; i++) {
-      final px = 12 + i * dx;
-      final py = y(values[i]);
-      canvas.drawCircle(Offset(px, py), 2.5, dot);
+    if (showDots) {
+      final dot = Paint()..color = themeColor;
+      for (final p in points) {
+        canvas.drawCircle(p, 2.5, dot);
+      }
     }
+
+    if (annotate) {
+      final textStyle = const TextStyle(fontSize: 10, color: Colors.black87);
+      for (int i = 0; i < points.length; i++) {
+        final tp = TextPainter(
+          text: TextSpan(text: _fmt(values[i]), style: textStyle),
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: 60);
+        final pos = points[i] + const Offset(0, -12);
+        tp.paint(canvas, Offset(pos.dx - tp.width / 2, pos.dy - tp.height));
+      }
+    }
+  }
+
+  String _fmt(double v) {
+    if (v >= 10000) return '${(v / 10000).toStringAsFixed(1)}w';
+    if (v >= 1000) return '${(v / 1000).toStringAsFixed(1)}k';
+    return v.toStringAsFixed(0);
   }
 
   @override
   bool shouldRepaint(covariant _LinePainter oldDelegate) {
-    return oldDelegate.values != values;
+    return oldDelegate.values != values ||
+        oldDelegate.whiteBg != whiteBg ||
+        oldDelegate.showGrid != showGrid ||
+        oldDelegate.showDots != showDots ||
+        oldDelegate.annotate != annotate;
   }
 }
 
 class _TopTexts extends StatelessWidget {
-  final String scope; // week/month/year
+  final String scope; // month/year/all
   final bool isExpense;
   final double total;
   final double avg;
-  const _TopTexts({
-    required this.scope,
-    required this.isExpense,
-    required this.total,
-    required this.avg,
-  });
+  const _TopTexts(
+      {required this.scope,
+      required this.isExpense,
+      required this.total,
+      required this.avg});
 
   @override
   Widget build(BuildContext context) {
@@ -342,12 +570,11 @@ class _RankRow extends StatelessWidget {
   final double value;
   final double percent; // 0..1
   final Color color;
-  const _RankRow({
-    required this.name,
-    required this.value,
-    required this.percent,
-    required this.color,
-  });
+  const _RankRow(
+      {required this.name,
+      required this.value,
+      required this.percent,
+      required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -369,12 +596,10 @@ class _RankRow extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
+                      child: Text(name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyMedium),
                     ),
                     const SizedBox(width: 8),
                     Text(value.toStringAsFixed(0),
@@ -396,16 +621,11 @@ class _RankRow extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: Stack(
                     children: [
-                      Container(
-                        height: 6,
-                        color: color.withOpacity(0.15),
-                      ),
+                      Container(height: 6, color: color.withOpacity(0.15)),
                       FractionallySizedBox(
                         widthFactor: percent.clamp(0, 1),
-                        child: Container(
-                          height: 6,
-                          color: color.withOpacity(0.9),
-                        ),
+                        child:
+                            Container(height: 6, color: color.withOpacity(0.9)),
                       ),
                     ],
                   ),
@@ -430,62 +650,10 @@ double _computeAverage(dynamic seriesRaw, String scope) {
     final sum = seriesRaw.fold<double>(0, (a, b) => a + b.total);
     return sum / seriesRaw.length;
   }
-  return 0;
-}
-
-// 线图已替换为饼图布局，上面保留的平均值使用序列计算
-
-// 胶囊分段（月/年/全部）
-class _CapsuleSwitcher extends StatelessWidget {
-  final String value; // 'month' | 'year' | 'all'
-  final ValueChanged<String> onChanged;
-  const _CapsuleSwitcher({required this.value, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    final bg = Colors.black12.withOpacity(0.06);
-    final textStyle = Theme.of(context).textTheme.bodyMedium;
-    Widget seg(String v, String label, {bool last = false}) {
-      final selected = value == v;
-      return Expanded(
-        child: GestureDetector(
-          onTap: () => onChanged(v),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 160),
-            height: 34,
-            decoration: BoxDecoration(
-              color: selected ? Colors.black : Colors.transparent,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              label,
-              style: textStyle?.copyWith(
-                color: selected ? Colors.white : Colors.black87,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      height: 38,
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          seg('month', '月'),
-          const SizedBox(width: 4),
-          seg('year', '年'),
-          const SizedBox(width: 4),
-          seg('all', '全部'),
-        ],
-      ),
-    );
+  if (seriesRaw is List<({int year, double total})>) {
+    if (seriesRaw.isEmpty) return 0;
+    final sum = seriesRaw.fold<double>(0, (a, b) => a + b.total);
+    return sum / seriesRaw.length;
   }
+  return 0;
 }
