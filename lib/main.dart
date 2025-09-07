@@ -6,8 +6,18 @@ import 'app.dart';
 import 'theme.dart';
 import 'providers.dart';
 import 'styles/colors.dart';
+import 'config.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as s;
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppConfig.init();
+  if (AppConfig.hasSupabase) {
+    await s.Supabase.initialize(
+      url: AppConfig.supabaseUrl,
+      anonKey: AppConfig.supabaseAnonKey,
+    );
+  }
   runApp(const ProviderScope(child: MainApp()));
 }
 

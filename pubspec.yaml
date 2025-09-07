@@ -21,6 +21,7 @@ dependencies:
   shared_preferences: ^2.3.2
   csv: ^5.0.2
   file_picker: ^8.1.2
+  supabase_flutter: ^2.5.6
 
 dev_dependencies:
   flutter_test:
@@ -31,3 +32,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/config.json

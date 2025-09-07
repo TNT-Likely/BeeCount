@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:csv/csv.dart';
@@ -17,6 +18,7 @@ import '../widgets/primary_header.dart';
 import '../widgets/common.dart';
 import '../styles/design.dart';
 import '../styles/colors.dart';
+import '../cloud/auth.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -25,6 +27,9 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final repo = ref.watch(repositoryProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
+    final auth = ref.watch(authServiceProvider);
+    final sync = ref.watch(syncServiceProvider);
+    final authUserStream = auth.authStateChanges();
 
     Future<void> exportCsv() async {
       try {
@@ -208,6 +213,74 @@ class SettingsPage extends ConsumerWidget {
           SectionCard(
             child: Column(
               children: [
+                // 登录/注册/同步
+                StreamBuilder<AuthUser?>(
+                  stream: authUserStream,
+                  builder: (ctx, snap) {
+                    final user = snap.data;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        AppListTile(
+                          leading: user == null
+                              ? Icons.login
+                              : Icons.verified_user_outlined,
+                          title: user == null
+                              ? '登录 / 注册（用于云同步）'
+                              : (user.email ?? '已登录'),
+                          subtitle:
+                              user == null ? '不登录也可使用，仅在同步时需要' : '点击可退出登录',
+                          onTap: () async {
+                            if (user == null) {
+                              await _showAuthSheet(context, auth);
+                            } else {
+                              await auth.signOut();
+                            }
+                          },
+                        ),
+                        AppDivider.thin(),
+                        AppListTile(
+                          leading: Icons.cloud_upload_outlined,
+                          title: '上传当前账本到云端',
+                          subtitle: '需登录后使用',
+                          onTap: () async {
+                            try {
+                              await sync.uploadCurrentLedger(
+                                  ledgerId: ledgerId);
+                              await _showNiceDialog(context,
+                                  title: '上传完成',
+                                  message: '已将当前账本上传到云端',
+                                  success: true);
+                            } catch (e) {
+                              await _showNiceDialog(context,
+                                  title: '失败', message: '$e', success: false);
+                            }
+                          },
+                        ),
+                        AppDivider.thin(),
+                        AppListTile(
+                          leading: Icons.cloud_download_outlined,
+                          title: '从云端下载并合并到当前账本',
+                          subtitle: '需登录后使用',
+                          onTap: () async {
+                            try {
+                              final count =
+                                  await sync.downloadAndRestoreToCurrentLedger(
+                                      ledgerId: ledgerId);
+                              await _showNiceDialog(context,
+                                  title: '下载完成',
+                                  message: '导入 $count 条记录',
+                                  success: true);
+                            } catch (e) {
+                              await _showNiceDialog(context,
+                                  title: '失败', message: '$e', success: false);
+                            }
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                ),
                 AppListTile(
                   leading: Icons.file_upload_outlined,
                   title: '导入',
@@ -242,6 +315,92 @@ class SettingsPage extends ConsumerWidget {
       ),
     );
   }
+}
+
+Future<void> _showAuthSheet(BuildContext context, AuthService auth) async {
+  final emailCtrl = TextEditingController();
+  final pwdCtrl = TextEditingController();
+  await showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (ctx) {
+      return Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          bottom: 16 + MediaQuery.of(ctx).viewInsets.bottom,
+          top: 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('登录 / 注册',
+                style: Theme.of(ctx)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 12),
+            TextField(
+              controller: emailCtrl,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(labelText: '邮箱'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: pwdCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: '密码'),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () async {
+                      try {
+                        await auth.signInWithEmail(
+                            email: emailCtrl.text.trim(),
+                            password: pwdCtrl.text);
+                        Navigator.pop(ctx);
+                      } catch (e, st) {
+                        debugPrint('Login failed: $e\n$st');
+                        _showToast(context, '登录失败：$e');
+                      }
+                    },
+                    child: const Text('登录'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () async {
+                      try {
+                        await auth.signUpWithEmail(
+                            email: emailCtrl.text.trim(),
+                            password: pwdCtrl.text);
+                        Navigator.pop(ctx);
+                      } catch (e, st) {
+                        debugPrint('Signup failed: $e\n$st');
+                        _showToast(context, '注册失败：$e');
+                      }
+                    },
+                    child: const Text('注册'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text('提示：不登录也可以正常使用；仅在需要同步账本时登录。',
+                style: Theme.of(ctx)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: BeeColors.black54)),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 class _StatCell extends StatelessWidget {
@@ -335,4 +494,42 @@ Future<void> _showNiceDialog(BuildContext context,
       ),
     ),
   );
+}
+
+void _showToast(BuildContext context, String message,
+    {Duration duration = const Duration(seconds: 2)}) {
+  // 使用根 Overlay，确保在所有弹窗（Dialog/BottomSheet）之上显示
+  final overlay = Overlay.of(context, rootOverlay: true);
+  final entry = OverlayEntry(
+    builder: (ctx) => IgnorePointer(
+      ignoring: true,
+      child: Positioned.fill(
+        child: SafeArea(
+          child: Center(
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  overlay.insert(entry);
+  Future.delayed(duration, () {
+    entry.remove();
+  });
 }
