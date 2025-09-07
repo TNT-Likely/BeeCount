@@ -29,38 +29,43 @@ class _ImportPageState extends ConsumerState<ImportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const PrimaryHeader(title: '导入账单', showBack: true),
-            const Text('请选择 CSV/TSV 文件进行导入（默认第一行为表头）'),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                FilledButton.icon(
-                  onPressed: _pickFile,
-                  icon: const Icon(Icons.folder_open),
-                  label: const Text('选择文件'),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _picked?.name ?? '未选择文件',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+      body: Column(
+        children: [
+          const PrimaryHeader(title: '导入账单', showBack: true),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('请选择 CSV/TSV 文件进行导入（默认第一行为表头）'),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      FilledButton.icon(
+                        onPressed: _pickFile,
+                        icon: const Icon(Icons.folder_open),
+                        label: const Text('选择文件'),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _picked?.name ?? '未选择文件',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  const Spacer(),
+                  if (_picked == null)
+                    const Text('提示：请选择一个 CSV/TSV 文件开始导入',
+                        style: TextStyle(color: Colors.grey)),
+                ],
+              ),
             ),
-            const Spacer(),
-            if (_picked == null)
-              const Text('提示：请选择一个 CSV/TSV 文件开始导入',
-                  style: TextStyle(color: Colors.grey)),
-            const SizedBox(height: 12),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

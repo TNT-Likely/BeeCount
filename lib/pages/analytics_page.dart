@@ -16,11 +16,10 @@ class AnalyticsPage extends ConsumerStatefulWidget {
 }
 
 class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
-  String _scope = 'month'; // week | month | year | all
+  String _scope = 'month'; // month | year | all
   String _type = 'expense'; // expense | income
   bool _chartSwiped = false; // 吸收图表区域横滑，避免父级切换收入/支出
   bool _showHeaderHint = true; // 顶部“横滑切换”提示可关闭
-  DateTime _weekAnchor = DateTime.now(); // 周视角锚点：所在周任意一天
 
   @override
   Widget build(BuildContext context) {
@@ -31,15 +30,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
     // 时间范围
     late DateTime start;
     late DateTime end;
-    if (_scope == 'week') {
-      // 以周一为一周开始
-      final d = _weekAnchor.toLocal();
-      final weekday = d.weekday; // 1..7
-      final monday = DateTime(d.year, d.month, d.day)
-          .subtract(Duration(days: weekday - 1));
-      start = DateTime(monday.year, monday.month, monday.day);
-      end = start.add(const Duration(days: 7));
-    } else if (_scope == 'month') {
+    if (_scope == 'month') {
       start = DateTime(selMonth.year, selMonth.month, 1);
       end = DateTime(selMonth.year, selMonth.month + 1, 1);
     } else if (_scope == 'year') {
@@ -53,7 +44,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
     }
 
     // 按视角获取序列
-    final Future<dynamic> seriesFuture = _scope == 'month' || _scope == 'week'
+    final Future<dynamic> seriesFuture = _scope == 'month'
         ? repo.totalsByDay(
             ledgerId: ledgerId, type: _type, start: start, end: end)
         : _scope == 'year'
@@ -125,14 +116,6 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
 
                 final xLabels = () {
                   if (seriesRaw is List<({DateTime day, double total})>) {
-                    if (_scope == 'week') {
-                      const names = ['一', '二', '三', '四', '五', '六', '日'];
-                      return seriesRaw
-                          .asMap()
-                          .entries
-                          .map((e) => '周${names[e.key % 7]}')
-                          .toList(growable: false);
-                    }
                     return seriesRaw
                         .map((e) => e.day.day.toString())
                         .toList(growable: false);
@@ -151,37 +134,15 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                 }();
 
                 int? highlightIndex;
-                if ((_scope == 'month' || _scope == 'week') &&
+                if (_scope == 'month' &&
                     seriesRaw is List<({DateTime day, double total})>) {
                   final today = DateTime.now();
-                  // 高亮逻辑：
-                  if (_scope == 'month') {
-                    if (today.year == selMonth.year &&
-                        today.month == selMonth.month) {
-                      highlightIndex = today.day - 1; // 从 0 开始
-                      if (highlightIndex >= 0 &&
-                          highlightIndex < xLabels.length) {
-                        xLabels[highlightIndex] = '今天';
-                      }
-                    }
-                  } else {
-                    // week：检查是否同一周
-                    final weekday = today.weekday;
-                    final mon = DateTime(today.year, today.month, today.day)
-                        .subtract(Duration(days: weekday - 1));
-                    final weekStart = DateTime(mon.year, mon.month, mon.day);
-                    final d = _weekAnchor;
-                    final dWeekday = d.weekday;
-                    final dMon = DateTime(d.year, d.month, d.day)
-                        .subtract(Duration(days: dWeekday - 1));
-                    final anchorStart =
-                        DateTime(dMon.year, dMon.month, dMon.day);
-                    if (anchorStart == weekStart) {
-                      highlightIndex = today.weekday - 1;
-                      if (highlightIndex >= 0 &&
-                          highlightIndex < xLabels.length) {
-                        xLabels[highlightIndex] = '今天';
-                      }
+                  if (today.year == selMonth.year &&
+                      today.month == selMonth.month) {
+                    highlightIndex = today.day - 1; // 从 0 开始
+                    if (highlightIndex >= 0 &&
+                        highlightIndex < xLabels.length) {
+                      xLabels[highlightIndex] = '今天';
                     }
                   }
                 }
@@ -217,20 +178,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                             if (_scope == 'all') return; // 全部不滑
                             final m = ref.read(selectedMonthProvider);
                             final now = DateTime.now();
-                            if (_scope == 'week') {
-                              // 不能超过本周
-                              final next =
-                                  _weekAnchor.add(const Duration(days: 7));
-                              // 计算下周周一是否在未来周
-                              final weekday = now.weekday;
-                              final thisMon =
-                                  DateTime(now.year, now.month, now.day)
-                                      .subtract(Duration(days: weekday - 1));
-                              if (!DateTime(next.year, next.month, next.day)
-                                  .isAfter(thisMon)) {
-                                setState(() => _weekAnchor = next);
-                              }
-                            } else if (_scope == 'month') {
+                            if (_scope == 'month') {
                               var y = m.year;
                               var mon = m.month + 1;
                               if (mon > 12) {
@@ -258,10 +206,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                             // 上一周期
                             if (_scope == 'all') return;
                             final m = ref.read(selectedMonthProvider);
-                            if (_scope == 'week') {
-                              setState(() => _weekAnchor = _weekAnchor
-                                  .subtract(const Duration(days: 7)));
-                            } else if (_scope == 'month') {
+                            if (_scope == 'month') {
                               var y = m.year;
                               var mon = m.month - 1;
                               if (mon < 1) {
@@ -428,8 +373,6 @@ class _CapsuleSwitcher extends StatelessWidget {
       ),
       child: Row(
         children: [
-          seg(v: 'week', label: '周'),
-          const SizedBox(width: 4),
           seg(v: 'month', label: '月', onArrow: onPickMonth),
           const SizedBox(width: 4),
           seg(v: 'year', label: '年', onArrow: onPickYear),
@@ -871,9 +814,6 @@ class _TopTexts extends StatelessWidget {
     final titleWord = isExpense ? '支出' : '收入';
     String avgLabel;
     switch (scope) {
-      case 'week':
-        avgLabel = '平均值';
-        break;
       case 'year':
         avgLabel = '月均';
         break;
@@ -925,9 +865,6 @@ class _TopTexts extends StatelessWidget {
 
 String _currentPeriodLabel(String scope, DateTime selMonth) {
   switch (scope) {
-    case 'week':
-      // 仅返回“本周”或“某周”简单标签；更精确可展示起止日期
-      return '本周';
     case 'year':
       return '${selMonth.year}年';
     case 'all':
