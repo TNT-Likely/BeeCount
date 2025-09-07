@@ -56,9 +56,10 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
           PrimaryHeader(
             title: '',
             center: null,
-            padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+            padding: EdgeInsets.zero,
+            content: const SizedBox.shrink(),
             bottom: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
               child: _CapsuleSwitcher(
                 value: _scope,
                 onChanged: (s) => setState(() => _scope = s),
@@ -173,6 +174,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                             // 下一周期
                             if (_scope == 'all') return; // 全部不滑
                             final m = ref.read(selectedMonthProvider);
+                            final now = DateTime.now();
                             if (_scope == 'month') {
                               var y = m.year;
                               var mon = m.month + 1;
@@ -180,11 +182,20 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                                 mon = 1;
                                 y++;
                               }
-                              ref.read(selectedMonthProvider.notifier).state =
-                                  DateTime(y, mon, 1);
+                              final cand = DateTime(y, mon, 1);
+                              final lastAllowed =
+                                  DateTime(now.year, now.month, 1);
+                              if (!cand.isAfter(lastAllowed)) {
+                                ref.read(selectedMonthProvider.notifier).state =
+                                    cand;
+                              }
                             } else if (_scope == 'year') {
-                              ref.read(selectedMonthProvider.notifier).state =
-                                  DateTime(m.year + 1, 1, 1);
+                              final cand = DateTime(m.year + 1, 1, 1);
+                              final lastAllowed = DateTime(now.year, 1, 1);
+                              if (!cand.isAfter(lastAllowed)) {
+                                ref.read(selectedMonthProvider.notifier).state =
+                                    cand;
+                              }
                             }
                             setState(() => _chartSwiped = true);
                           },
@@ -552,6 +563,13 @@ class _LinePainter extends CustomPainter {
       }
     }
 
+    // 左侧Y轴线
+    final axisPaint = Paint()
+      ..color = Colors.black12
+      ..strokeWidth = 1.0;
+    canvas.drawLine(Offset(8, topPadding),
+        Offset(8, size.height - bottomPadding), axisPaint);
+
     // 最高线 + 平均线
     final maxY = yFor(maxV);
     final avgY = yFor(avgV);
@@ -592,6 +610,19 @@ class _LinePainter extends CustomPainter {
           textDirection: TextDirection.ltr,
         )..layout(maxWidth: 80);
         tp.paint(canvas, Offset(p.dx - tp.width / 2, p.dy - tp.height - 4));
+      }
+    }
+
+    // 所有点数值标注
+    if (annotate) {
+      final textStyle = const TextStyle(fontSize: 9, color: Colors.black87);
+      for (int i = 0; i < points.length; i++) {
+        final tp = TextPainter(
+          text: TextSpan(text: _fmt(values[i]), style: textStyle),
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: 60);
+        final pos = points[i] + const Offset(0, -10);
+        tp.paint(canvas, Offset(pos.dx - tp.width / 2, pos.dy - tp.height));
       }
     }
 
@@ -661,7 +692,7 @@ Future<DateTime?> _showMonthPicker(
     context: context,
     builder: (ctx) {
       return SizedBox(
-        height: 280,
+        height: 260,
         child: Column(
           children: [
             Row(
@@ -669,13 +700,15 @@ Future<DateTime?> _showMonthPicker(
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('取消'),
+                  child:
+                      const Text('取消', style: TextStyle(color: Colors.black87)),
                 ),
                 const Text('选择月份',
                     style: TextStyle(fontWeight: FontWeight.w600)),
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, DateTime(year, month, 1)),
-                  child: const Text('完成'),
+                  child:
+                      const Text('完成', style: TextStyle(color: Colors.black54)),
                 ),
               ],
             ),
@@ -686,7 +719,7 @@ Future<DateTime?> _showMonthPicker(
                     child: CupertinoPicker(
                       scrollController: FixedExtentScrollController(
                           initialItem: years.indexOf(year)),
-                      itemExtent: 32,
+                      itemExtent: 36,
                       onSelectedItemChanged: (i) => year = years[i],
                       children: [
                         for (final y in years) Center(child: Text('$y年'))
@@ -697,7 +730,7 @@ Future<DateTime?> _showMonthPicker(
                     child: CupertinoPicker(
                       scrollController:
                           FixedExtentScrollController(initialItem: month - 1),
-                      itemExtent: 32,
+                      itemExtent: 36,
                       onSelectedItemChanged: (i) => month = i + 1,
                       children: [
                         for (int m = 1; m <= 12; m++) Center(child: Text('$m月'))
@@ -723,7 +756,7 @@ Future<DateTime?> _showYearPicker(
     context: context,
     builder: (ctx) {
       return SizedBox(
-        height: 280,
+        height: 240,
         child: Column(
           children: [
             Row(
@@ -731,13 +764,15 @@ Future<DateTime?> _showYearPicker(
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('取消'),
+                  child:
+                      const Text('取消', style: TextStyle(color: Colors.black87)),
                 ),
                 const Text('选择年份',
                     style: TextStyle(fontWeight: FontWeight.w600)),
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, DateTime(year, 1, 1)),
-                  child: const Text('完成'),
+                  child:
+                      const Text('完成', style: TextStyle(color: Colors.black54)),
                 ),
               ],
             ),
@@ -745,7 +780,7 @@ Future<DateTime?> _showYearPicker(
               child: CupertinoPicker(
                 scrollController: FixedExtentScrollController(
                     initialItem: years.indexOf(year)),
-                itemExtent: 32,
+                itemExtent: 36,
                 onSelectedItemChanged: (i) => year = years[i],
                 children: [for (final y in years) Center(child: Text('$y年'))],
               ),
