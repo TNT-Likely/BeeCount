@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/primary_header.dart';
@@ -16,6 +17,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
   String _scope = 'month'; // month | year | all
   String _type = 'expense'; // expense | income
   bool _chartSwiped = false; // 吸收图表区域横滑，避免父级切换收入/支出
+  bool _showHeaderHint = true; // 顶部“横滑切换”提示可关闭
+  bool _showChartHint = true; // 图表“横滑切换相邻周期”提示可关闭
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +58,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
             title: '',
             center: _TypeDropdown(
               value: _type,
+              showHint: _showHeaderHint,
+              onCloseHint: () => setState(() => _showHeaderHint = false),
               onChanged: (v) => setState(() => _type = v),
             ),
             bottom: Padding(
@@ -63,26 +68,14 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                 value: _scope,
                 onChanged: (s) => setState(() => _scope = s),
                 onPickMonth: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: selMonth,
-                    firstDate: DateTime(2000, 1, 1),
-                    lastDate: DateTime(2100, 12, 31),
-                    helpText: '选择月份',
-                  );
+                  final picked = await _showMonthPicker(context, selMonth);
                   if (picked != null) {
                     ref.read(selectedMonthProvider.notifier).state =
                         DateTime(picked.year, picked.month, 1);
                   }
                 },
                 onPickYear: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: selMonth,
-                    firstDate: DateTime(2000, 1, 1),
-                    lastDate: DateTime(2100, 12, 31),
-                    helpText: '选择年份',
-                  );
+                  final picked = await _showYearPicker(context, selMonth);
                   if (picked != null) {
                     ref.read(selectedMonthProvider.notifier).state =
                         DateTime(picked.year, 1, 1);
@@ -109,7 +102,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
 
                 final sum = catData.fold<double>(0, (a, b) => a + b.total);
 
-                // 转换为折线值数组
+                // 转换为折线值数组 + x 轴标签
                 final values = () {
                   if (seriesRaw is List<({DateTime day, double total})>) {
                     return seriesRaw.map((e) => e.total).toList();
@@ -122,6 +115,39 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                   }
                   return const <double>[];
                 }();
+
+                final xLabels = () {
+                  if (seriesRaw is List<({DateTime day, double total})>) {
+                    return seriesRaw
+                        .map((e) => e.day.day.toString())
+                        .toList(growable: false);
+                  }
+                  if (seriesRaw is List<({DateTime month, double total})>) {
+                    return seriesRaw
+                        .map((e) => '${e.month.month}月')
+                        .toList(growable: false);
+                  }
+                  if (seriesRaw is List<({int year, double total})>) {
+                    return seriesRaw
+                        .map((e) => e.year.toString())
+                        .toList(growable: false);
+                  }
+                  return const <String>[];
+                }();
+
+                int? highlightIndex;
+                if (_scope == 'month' &&
+                    seriesRaw is List<({DateTime day, double total})>) {
+                  final today = DateTime.now();
+                  if (today.year == selMonth.year &&
+                      today.month == selMonth.month) {
+                    highlightIndex = today.day - 1; // 从 0 开始
+                    if (highlightIndex >= 0 &&
+                        highlightIndex < xLabels.length) {
+                      xLabels[highlightIndex] = '今天';
+                    }
+                  }
+                }
 
                 return GestureDetector(
                   onHorizontalDragEnd: (_) {
@@ -146,20 +172,54 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                         height: 240,
                         child: _LineChart(
                           values: values,
-                          onScopeSwipe: () {
-                            setState(() {
-                              if (_scope == 'month') {
-                                _scope = 'year';
-                              } else if (_scope == 'year') {
-                                _scope = 'month';
+                          xLabels: xLabels,
+                          highlightIndex: highlightIndex,
+                          onSwipeLeft: () {
+                            // 下一周期
+                            if (_scope == 'all') return; // 全部不滑
+                            final m = ref.read(selectedMonthProvider);
+                            if (_scope == 'month') {
+                              var y = m.year;
+                              var mon = m.month + 1;
+                              if (mon > 12) {
+                                mon = 1;
+                                y++;
                               }
-                              _chartSwiped = true;
-                            });
+                              ref.read(selectedMonthProvider.notifier).state =
+                                  DateTime(y, mon, 1);
+                            } else if (_scope == 'year') {
+                              ref.read(selectedMonthProvider.notifier).state =
+                                  DateTime(m.year + 1, 1, 1);
+                            }
+                            setState(() => _chartSwiped = true);
                           },
-                          showHint: _scope != 'all',
-                          isYear: _scope == 'year',
+                          onSwipeRight: () {
+                            // 上一周期
+                            if (_scope == 'all') return;
+                            final m = ref.read(selectedMonthProvider);
+                            if (_scope == 'month') {
+                              var y = m.year;
+                              var mon = m.month - 1;
+                              if (mon < 1) {
+                                mon = 12;
+                                y--;
+                              }
+                              ref.read(selectedMonthProvider.notifier).state =
+                                  DateTime(y, mon, 1);
+                            } else if (_scope == 'year') {
+                              ref.read(selectedMonthProvider.notifier).state =
+                                  DateTime(m.year - 1, 1, 1);
+                            }
+                            setState(() => _chartSwiped = true);
+                          },
+                          showHint: _showChartHint && _scope != 'all',
+                          hintText: _scope == 'year'
+                              ? '左右滑动切换 上/下一年'
+                              : '左右滑动切换 上/下一个月',
+                          onCloseHint: () =>
+                              setState(() => _showChartHint = false),
                           whiteBg: true,
-                          showGrid: true,
+                          showGrid: false,
                           showDots: true,
                           annotate: true,
                         ),
@@ -190,7 +250,14 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
 class _TypeDropdown extends StatelessWidget {
   final String value; // 'income' | 'expense'
   final ValueChanged<String> onChanged;
-  const _TypeDropdown({required this.value, required this.onChanged});
+  final bool showHint;
+  final VoidCallback? onCloseHint;
+  const _TypeDropdown({
+    required this.value,
+    required this.onChanged,
+    this.showHint = false,
+    this.onCloseHint,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -217,10 +284,17 @@ class _TypeDropdown extends StatelessWidget {
             Text(label, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(width: 4),
             const Icon(Icons.arrow_drop_down, size: 20),
-            const SizedBox(width: 8),
-            const Icon(Icons.swipe, size: 14, color: Colors.black54),
-            const SizedBox(width: 2),
-            Text('横滑切换', style: Theme.of(context).textTheme.labelSmall),
+            if (showHint) ...[
+              const SizedBox(width: 8),
+              const Icon(Icons.swipe, size: 14, color: Colors.black54),
+              const SizedBox(width: 2),
+              Text('横滑切换', style: Theme.of(context).textTheme.labelSmall),
+              const SizedBox(width: 4),
+              InkWell(
+                onTap: onCloseHint,
+                child: const Icon(Icons.close, size: 14, color: Colors.black45),
+              ),
+            ],
           ],
         ),
       ),
@@ -319,18 +393,26 @@ class _CapsuleSwitcher extends StatelessWidget {
 
 class _LineChart extends StatelessWidget {
   final List<double> values;
-  final VoidCallback onScopeSwipe;
+  final List<String> xLabels;
+  final int? highlightIndex;
+  final VoidCallback onSwipeLeft; // 下一周期
+  final VoidCallback onSwipeRight; // 上一周期
   final bool showHint;
-  final bool isYear;
+  final String? hintText;
+  final VoidCallback? onCloseHint;
   final bool whiteBg;
   final bool showGrid;
   final bool showDots;
   final bool annotate;
   const _LineChart({
     required this.values,
-    required this.onScopeSwipe,
+    required this.xLabels,
+    required this.highlightIndex,
+    required this.onSwipeLeft,
+    required this.onSwipeRight,
     required this.showHint,
-    required this.isYear,
+    this.hintText,
+    this.onCloseHint,
     this.whiteBg = true,
     this.showGrid = true,
     this.showDots = true,
@@ -341,13 +423,22 @@ class _LineChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onHorizontalDragEnd: (_) => onScopeSwipe(),
+      onHorizontalDragEnd: (details) {
+        final v = details.primaryVelocity ?? 0;
+        if (v < 0) {
+          onSwipeLeft();
+        } else if (v > 0) {
+          onSwipeRight();
+        }
+      },
       child: Stack(
         fit: StackFit.expand,
         children: [
           CustomPaint(
             painter: _LinePainter(
               values: values,
+              xLabels: xLabels,
+              highlightIndex: highlightIndex,
               whiteBg: whiteBg,
               showGrid: showGrid,
               showDots: showDots,
@@ -372,11 +463,17 @@ class _LineChart extends StatelessWidget {
                       const Icon(Icons.swipe, size: 14, color: Colors.black54),
                       const SizedBox(width: 4),
                       Text(
-                        isYear ? '左右滑动切换至 月' : '左右滑动切换至 年',
+                        hintText ?? '左右滑动切换',
                         style: Theme.of(context)
                             .textTheme
                             .labelSmall
                             ?.copyWith(color: Colors.black54),
+                      ),
+                      const SizedBox(width: 4),
+                      InkWell(
+                        onTap: onCloseHint,
+                        child: const Icon(Icons.close,
+                            size: 14, color: Colors.black45),
                       ),
                     ],
                   ),
@@ -391,6 +488,8 @@ class _LineChart extends StatelessWidget {
 
 class _LinePainter extends CustomPainter {
   final List<double> values;
+  final List<String> xLabels;
+  final int? highlightIndex;
   final bool whiteBg;
   final bool showGrid;
   final bool showDots;
@@ -398,6 +497,8 @@ class _LinePainter extends CustomPainter {
   final Color themeColor;
   _LinePainter({
     required this.values,
+    required this.xLabels,
+    required this.highlightIndex,
     required this.whiteBg,
     required this.showGrid,
     required this.showDots,
@@ -414,7 +515,7 @@ class _LinePainter extends CustomPainter {
     canvas.drawRRect(
         RRect.fromRectAndRadius(rect, const Radius.circular(12)), bgPaint);
 
-    // 网格
+    // 网格（可选）
     if (showGrid) {
       final gridPaint = Paint()
         ..color = Colors.black12
@@ -432,6 +533,7 @@ class _LinePainter extends CustomPainter {
     // 数据归一化
     final maxV = values.reduce(math.max);
     final minV = values.reduce(math.min);
+    final avgV = values.reduce((a, b) => a + b) / values.length;
     final span = (maxV - minV).abs();
     final bottomPadding = 20.0;
     final topPadding = 12.0;
@@ -471,15 +573,70 @@ class _LinePainter extends CustomPainter {
       }
     }
 
+    // 最高线 + 平均线
+    final maxY = yFor(maxV);
+    final avgY = yFor(avgV);
+    final maxLinePaint = Paint()
+      ..color = Colors.black26
+      ..strokeWidth = 1.2;
+    final avgLinePaint = Paint()
+      ..color = Colors.black38
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+    // 虚线画平均线
+    _drawDashedLine(
+        canvas, Offset(8, avgY), Offset(size.width - 8, avgY), avgLinePaint,
+        dashWidth: 6, gapWidth: 4);
+    // 实线画最高线
+    canvas.drawLine(
+        Offset(8, maxY), Offset(size.width - 8, maxY), maxLinePaint);
+
+    // 最高线标注数值（右侧）
+    final maxLabel = TextPainter(
+      text: TextSpan(
+          text: _fmt(maxV),
+          style: const TextStyle(fontSize: 10, color: Colors.black87)),
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: 80);
+    maxLabel.paint(canvas,
+        Offset(size.width - 8 - maxLabel.width, maxY - maxLabel.height - 2));
+
+    // 最高点标注（仅一个点）
     if (annotate) {
-      final textStyle = const TextStyle(fontSize: 10, color: Colors.black87);
-      for (int i = 0; i < points.length; i++) {
+      final maxIndex = values.indexOf(maxV);
+      if (maxIndex >= 0 && maxIndex < points.length) {
+        final p = points[maxIndex];
         final tp = TextPainter(
-          text: TextSpan(text: _fmt(values[i]), style: textStyle),
+          text: TextSpan(
+              text: _fmt(maxV),
+              style: const TextStyle(fontSize: 10, color: Colors.black87)),
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: 80);
+        tp.paint(canvas, Offset(p.dx - tp.width / 2, p.dy - tp.height - 4));
+      }
+    }
+
+    // X 轴标签
+    if (xLabels.isNotEmpty) {
+      final baseStyle = const TextStyle(fontSize: 10, color: Colors.black54);
+      final hiStyle = const TextStyle(
+          fontSize: 10, color: Colors.black87, fontWeight: FontWeight.w600);
+      final n = xLabels.length;
+      int step = (n / 8).ceil();
+      if (step < 1) step = 1;
+      for (int i = 0; i < n; i += step) {
+        final lbl = xLabels[i];
+        final tp = TextPainter(
+          text: TextSpan(
+              text: lbl,
+              style: (highlightIndex != null && i == highlightIndex)
+                  ? hiStyle
+                  : baseStyle),
           textDirection: TextDirection.ltr,
         )..layout(maxWidth: 60);
-        final pos = points[i] + const Offset(0, -12);
-        tp.paint(canvas, Offset(pos.dx - tp.width / 2, pos.dy - tp.height));
+        final dxi = (i / (n - 1).clamp(1, 999)) * (size.width - 24) + 12;
+        tp.paint(
+            canvas, Offset(dxi - tp.width / 2, size.height - tp.height - 2));
       }
     }
   }
@@ -493,11 +650,132 @@ class _LinePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _LinePainter oldDelegate) {
     return oldDelegate.values != values ||
+        oldDelegate.xLabels != xLabels ||
+        oldDelegate.highlightIndex != highlightIndex ||
         oldDelegate.whiteBg != whiteBg ||
         oldDelegate.showGrid != showGrid ||
         oldDelegate.showDots != showDots ||
         oldDelegate.annotate != annotate;
   }
+}
+
+void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint,
+    {double dashWidth = 5, double gapWidth = 3}) {
+  final total = (p2 - p1).distance;
+  final dir = (p2 - p1) / total;
+  double drawn = 0;
+  while (drawn < total) {
+    final start = p1 + dir * drawn;
+    final end = p1 + dir * (drawn + dashWidth).clamp(0, total);
+    canvas.drawLine(start, end, paint);
+    drawn += dashWidth + gapWidth;
+  }
+}
+
+// 自定义选择器：月份（年+月）
+Future<DateTime?> _showMonthPicker(
+    BuildContext context, DateTime initial) async {
+  int year = initial.year;
+  int month = initial.month;
+  final years = List<int>.generate(101, (i) => 2000 + i);
+  return showModalBottomSheet<DateTime>(
+    context: context,
+    builder: (ctx) {
+      return SizedBox(
+        height: 280,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('取消'),
+                ),
+                const Text('选择月份',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, DateTime(year, month, 1)),
+                  child: const Text('完成'),
+                ),
+              ],
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: CupertinoPicker(
+                      scrollController: FixedExtentScrollController(
+                          initialItem: years.indexOf(year)),
+                      itemExtent: 32,
+                      onSelectedItemChanged: (i) => year = years[i],
+                      children: [
+                        for (final y in years) Center(child: Text('$y年'))
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: CupertinoPicker(
+                      scrollController:
+                          FixedExtentScrollController(initialItem: month - 1),
+                      itemExtent: 32,
+                      onSelectedItemChanged: (i) => month = i + 1,
+                      children: [
+                        for (int m = 1; m <= 12; m++) Center(child: Text('$m月'))
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+// 自定义选择器：年份
+Future<DateTime?> _showYearPicker(
+    BuildContext context, DateTime initial) async {
+  int year = initial.year;
+  final years = List<int>.generate(101, (i) => 2000 + i);
+  return showModalBottomSheet<DateTime>(
+    context: context,
+    builder: (ctx) {
+      return SizedBox(
+        height: 280,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('取消'),
+                ),
+                const Text('选择年份',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, DateTime(year, 1, 1)),
+                  child: const Text('完成'),
+                ),
+              ],
+            ),
+            Expanded(
+              child: CupertinoPicker(
+                scrollController: FixedExtentScrollController(
+                    initialItem: years.indexOf(year)),
+                itemExtent: 32,
+                onSelectedItemChanged: (i) => year = years[i],
+                children: [for (final y in years) Center(child: Text('$y年'))],
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 class _TopTexts extends StatelessWidget {
