@@ -48,6 +48,80 @@ class BeeRepository {
     return list;
   }
 
+  // Aggregation: totals by day for a period and type
+  Future<List<({DateTime day, double total})>> totalsByDay({
+    required int ledgerId,
+    required String type, // 'income' or 'expense'
+    required DateTime start,
+    required DateTime end,
+  }) async {
+    final rows = await (db.select(db.transactions)
+          ..where((t) =>
+              t.ledgerId.equals(ledgerId) &
+              t.type.equals(type) &
+              t.happenedAt.isBetweenValues(start, end)))
+        .get();
+    final map = <DateTime, double>{};
+    for (final t in rows) {
+      final dt = t.happenedAt.toLocal();
+      final day = DateTime(dt.year, dt.month, dt.day);
+      map.update(day, (v) => v + t.amount, ifAbsent: () => t.amount);
+    }
+    // ensure full range continuity
+    final result = <({DateTime day, double total})>[];
+    for (DateTime d = DateTime(start.year, start.month, start.day);
+        d.isBefore(end);
+        d = d.add(const Duration(days: 1))) {
+      result.add((day: d, total: map[d] ?? 0));
+    }
+    return result;
+  }
+
+  // Aggregation: totals by month for a year and type
+  Future<List<({DateTime month, double total})>> totalsByMonth({
+    required int ledgerId,
+    required String type, // 'income' or 'expense'
+    required int year,
+  }) async {
+    final start = DateTime(year, 1, 1);
+    final end = DateTime(year + 1, 1, 1);
+    final rows = await (db.select(db.transactions)
+          ..where((t) =>
+              t.ledgerId.equals(ledgerId) &
+              t.type.equals(type) &
+              t.happenedAt.isBetweenValues(start, end)))
+        .get();
+    final map = <int, double>{}; // month -> total
+    for (final t in rows) {
+      final dt = t.happenedAt.toLocal();
+      map.update(dt.month, (v) => v + t.amount, ifAbsent: () => t.amount);
+    }
+    final result = <({DateTime month, double total})>[];
+    for (int m = 1; m <= 12; m++) {
+      result.add((month: DateTime(year, m, 1), total: map[m] ?? 0));
+    }
+    return result;
+  }
+
+  // Aggregation: income & expense totals for arbitrary range
+  Future<(double income, double expense)> totalsInRange({
+    required int ledgerId,
+    required DateTime start,
+    required DateTime end,
+  }) async {
+    final list = await (db.select(db.transactions)
+          ..where((t) =>
+              t.ledgerId.equals(ledgerId) &
+              t.happenedAt.isBetweenValues(start, end)))
+        .get();
+    double income = 0, expense = 0;
+    for (final t in list) {
+      if (t.type == 'income') income += t.amount;
+      if (t.type == 'expense') expense += t.amount;
+    }
+    return (income, expense);
+  }
+
   Stream<List<Transaction>> transactionsInMonth(
       {required int ledgerId, required DateTime month}) {
     final start = DateTime(month.year, month.month, 1);
