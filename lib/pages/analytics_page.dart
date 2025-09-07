@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/primary_header.dart';
 import '../providers.dart';
+import '../widgets/category_icon.dart';
 
 class AnalyticsPage extends ConsumerStatefulWidget {
   const AnalyticsPage({super.key});
@@ -14,7 +15,7 @@ class AnalyticsPage extends ConsumerStatefulWidget {
 class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
   String _scope = 'month'; // week/month/year
   String _type = 'expense'; // expense/income，左右滑切换
-  double _pieLabelThreshold = 0.05; // 饼图标签阈值，可配置
+  final double _pieLabelThreshold = 0.05; // 固定阈值，贴合截图简洁度
 
   @override
   Widget build(BuildContext context) {
@@ -48,14 +49,20 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
       body: Column(
         children: [
           PrimaryHeader(
-            title: '图表',
-            bottom: _ScopeSwitcher(
-              scope: _scope,
-              onScope: (s) => setState(() => _scope = s),
-              type: _type,
-              onSwipeType: (t) => setState(() => _type = t),
-              labelThreshold: _pieLabelThreshold,
-              onChangeThreshold: (v) => setState(() => _pieLabelThreshold = v),
+            title: _type == 'expense' ? '支出 ▼' : '收入 ▼',
+            bottom: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _CapsuleSwitcher(
+                    value: _scope,
+                    onChanged: (s) => setState(() => _scope = s),
+                  ),
+                  const SizedBox(height: 8),
+                  const _WeekStrip(),
+                ],
+              ),
             ),
           ),
           Expanded(
@@ -79,26 +86,11 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                 final catData =
                     (list[0] as List<({String name, double total})>);
                 final seriesRaw = list[1];
-                final (rangeIncome, rangeExpense) =
-                    (list[2] as (double, double));
-
-                // 标准化序列为 double 列表
-                List<double> series;
-                List<String> xLabels;
-                if (_scope == 'year') {
-                  final m = seriesRaw as List<({DateTime month, double total})>;
-                  series = m.map((e) => e.total).toList();
-                  xLabels = List.generate(12, (i) => '${i + 1}月');
-                } else {
-                  final d = seriesRaw as List<({DateTime day, double total})>;
-                  series = d.map((e) => e.total).toList();
-                  xLabels = d
-                      .map((e) => '${e.day.month}/${e.day.day}')
-                      .toList(growable: false);
-                }
+                // 保留 totalsInRange 供后续卡片扩展需要，当前布局不直接展示
+                // final (rangeIncome, rangeExpense) =
+                //     (list[2] as (double, double));
 
                 final sum = catData.fold<double>(0, (a, b) => a + b.total);
-                final balance = rangeIncome - rangeExpense;
 
                 return GestureDetector(
                   onHorizontalDragEnd: (_) => setState(
@@ -106,17 +98,14 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                   child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      _SummaryCards(
-                        income: rangeIncome,
-                        expense: rangeExpense,
-                        balance: balance,
+                      // 顶部统计文本：总支出/收入 & 平均值
+                      _TopTexts(
+                        scope: _scope,
+                        isExpense: _type == 'expense',
+                        total: sum,
+                        avg: _computeAverage(seriesRaw, _scope),
                       ),
                       const SizedBox(height: 12),
-                      SizedBox(
-                        height: 200,
-                        child: _LineChart(series: series, labels: xLabels),
-                      ),
-                      const SizedBox(height: 16),
                       SizedBox(
                         height: 220,
                         child: _PieChart(
@@ -126,20 +115,15 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text('图例 / 排行',
+                      Text(_type == 'expense' ? '支出排行榜' : '收入排行榜',
                           style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
                       for (final item in catData)
-                        ListTile(
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                          leading: CircleAvatar(
-                            radius: 6,
-                            backgroundColor: pieColorFor(item.name),
-                          ),
-                          title: Text(item.name),
-                          trailing: Text(
-                              '${sum <= 0 ? '0%' : ((item.total / sum) * 100).toStringAsFixed(0)}%  ${item.total.toStringAsFixed(2)}'),
+                        _RankRow(
+                          name: item.name,
+                          value: item.total,
+                          percent: sum == 0 ? 0 : item.total / sum,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                     ],
                   ),
@@ -153,67 +137,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
   }
 }
 
-class _ScopeSwitcher extends StatelessWidget {
-  final String scope;
-  final ValueChanged<String> onScope;
-  final String type;
-  final ValueChanged<String> onSwipeType;
-  final double labelThreshold;
-  final ValueChanged<double> onChangeThreshold;
-  const _ScopeSwitcher({
-    required this.scope,
-    required this.onScope,
-    required this.type,
-    required this.onSwipeType,
-    required this.labelThreshold,
-    required this.onChangeThreshold,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Row(
-        children: [
-          SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: 'week', label: Text('周视角')),
-              ButtonSegment(value: 'month', label: Text('月视角')),
-              ButtonSegment(value: 'year', label: Text('年视角')),
-            ],
-            selected: {scope},
-            onSelectionChanged: (s) => onScope(s.first),
-          ),
-          const Spacer(),
-          Text(type == 'expense' ? '支出' : '收入',
-              style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(width: 8),
-          const Icon(Icons.swipe, size: 16),
-          const SizedBox(width: 4),
-          const Text('横滑切换'),
-          const SizedBox(width: 12),
-          PopupMenuButton<double>(
-            tooltip: '饼图标签阈值',
-            onSelected: onChangeThreshold,
-            itemBuilder: (ctx) => const [
-              PopupMenuItem(value: 0.03, child: Text('标签≥3%')),
-              PopupMenuItem(value: 0.05, child: Text('标签≥5%')),
-              PopupMenuItem(value: 0.08, child: Text('标签≥8%')),
-            ],
-            child: Row(
-              children: [
-                const Icon(Icons.percent, size: 16),
-                const SizedBox(width: 4),
-                Text('${(labelThreshold * 100).toStringAsFixed(0)}%'),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
+// 移除旧的分段控件实现（已用胶囊分段替换）
 
 Color pieColorFor(String name) => _PiePainter.colorFor(name);
 
@@ -359,165 +283,281 @@ class _PiePainter extends CustomPainter {
   }
 }
 
-class _SummaryCards extends StatelessWidget {
-  final double income;
-  final double expense;
-  final double balance;
-  const _SummaryCards(
-      {required this.income, required this.expense, required this.balance});
+class _TopTexts extends StatelessWidget {
+  final String scope; // week/month/year
+  final bool isExpense;
+  final double total;
+  final double avg;
+  const _TopTexts({
+    required this.scope,
+    required this.isExpense,
+    required this.total,
+    required this.avg,
+  });
 
   @override
   Widget build(BuildContext context) {
-    Widget card(String title, double value, Color color) => Expanded(
-          child: Container(
-            height: 64,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            margin: const EdgeInsets.only(right: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(title,
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelSmall
-                        ?.copyWith(color: Colors.black54)),
-                const SizedBox(height: 2),
-                Text(value.toStringAsFixed(2),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(color: color, fontWeight: FontWeight.w600)),
-              ],
-            ),
-          ),
-        );
-    return Row(
+    final grey = Colors.black54;
+    final titleWord = isExpense ? '支出' : '收入';
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    String avgLabel;
+    switch (scope) {
+      case 'week':
+        avgLabel = '日均';
+        break;
+      case 'year':
+        avgLabel = '月均';
+        break;
+      case 'month':
+      default:
+        avgLabel = '日均';
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        card('收入', income, Colors.teal),
-        card('支出', expense, Colors.orange),
-        Expanded(
-          child: Container(
-            height: 64,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('结余',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelSmall
-                        ?.copyWith(color: Colors.black54)),
-                const SizedBox(height: 2),
-                Text(balance.toStringAsFixed(2),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: balance >= 0 ? Colors.teal : Colors.redAccent,
-                        fontWeight: FontWeight.w600)),
-              ],
-            ),
-          ),
+        Row(
+          children: [
+            Text('总$titleWord： ',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: grey)),
+            Text(total.toStringAsFixed(2),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: primaryColor, fontWeight: FontWeight.w600)),
+          ],
         ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Text('$avgLabel： ',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: grey)),
+            Text(avg.toStringAsFixed(2),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: grey)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Divider(height: 1, color: Colors.black12.withOpacity(0.2)),
       ],
     );
   }
 }
 
-class _LineChart extends StatelessWidget {
-  final List<double> series;
-  final List<String> labels;
-  const _LineChart({required this.series, required this.labels});
+class _RankRow extends StatelessWidget {
+  final String name;
+  final double value;
+  final double percent; // 0..1
+  final Color color;
+  const _RankRow({
+    required this.name,
+    required this.value,
+    required this.percent,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _LineChartPainter(series: series, labels: labels),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: Colors.black12.withOpacity(0.06),
+            child: Icon(iconForCategory(name), color: color),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(value.toStringAsFixed(0),
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Text('${(percent * 100).toStringAsFixed(1)}%',
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(color: Colors.black45)),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: Stack(
+                    children: [
+                      Container(
+                        height: 6,
+                        color: color.withOpacity(0.15),
+                      ),
+                      FractionallySizedBox(
+                        widthFactor: percent.clamp(0, 1),
+                        child: Container(
+                          height: 6,
+                          color: color.withOpacity(0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _LineChartPainter extends CustomPainter {
-  final List<double> series;
-  final List<String> labels;
-  _LineChartPainter({required this.series, required this.labels});
+double _computeAverage(dynamic seriesRaw, String scope) {
+  if (seriesRaw is List<({DateTime day, double total})>) {
+    if (seriesRaw.isEmpty) return 0;
+    final sum = seriesRaw.fold<double>(0, (a, b) => a + b.total);
+    return sum / seriesRaw.length;
+  }
+  if (seriesRaw is List<({DateTime month, double total})>) {
+    if (seriesRaw.isEmpty) return 0;
+    final sum = seriesRaw.fold<double>(0, (a, b) => a + b.total);
+    return sum / seriesRaw.length;
+  }
+  return 0;
+}
+
+// 线图已替换为饼图布局，上面保留的平均值使用序列计算
+
+// 胶囊分段（周/月/年）
+class _CapsuleSwitcher extends StatelessWidget {
+  final String value; // 'week' | 'month' | 'year'
+  final ValueChanged<String> onChanged;
+  const _CapsuleSwitcher({required this.value, required this.onChanged});
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final padding = const EdgeInsets.fromLTRB(8, 8, 8, 20);
-    final chart = Rect.fromLTWH(
-        rect.left + padding.left,
-        rect.top + padding.top,
-        rect.width - padding.horizontal,
-        rect.height - padding.vertical);
-
-    final axisPaint = Paint()
-      ..color = Colors.black12
-      ..strokeWidth = 1;
-    // X/Y axis baseline
-    canvas.drawLine(Offset(chart.left, chart.bottom),
-        Offset(chart.right, chart.bottom), axisPaint);
-    canvas.drawLine(Offset(chart.left, chart.top),
-        Offset(chart.left, chart.bottom), axisPaint);
-
-    if (series.isEmpty) return;
-    final maxVal = series.fold<double>(0, (a, b) => a > b ? a : b);
-    final minVal = 0.0;
-    final range = (maxVal - minVal) == 0 ? 1.0 : (maxVal - minVal);
-
-    final stepX = chart.width / (series.length - 1).clamp(1, double.infinity);
-    final path = Path();
-    final pointPaint = Paint()..color = const Color(0xFF5B8FF9);
-
-    for (int i = 0; i < series.length; i++) {
-      final x = chart.left + stepX * i;
-      final y = chart.bottom - (series[i] - minVal) / range * chart.height;
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    final linePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..color = const Color(0xFF5B8FF9);
-    canvas.drawPath(path, linePaint);
-
-    // points
-    for (int i = 0; i < series.length; i++) {
-      final x = chart.left + stepX * i;
-      final y = chart.bottom - (series[i] - minVal) / range * chart.height;
-      canvas.drawCircle(Offset(x, y), 3, pointPaint);
+  Widget build(BuildContext context) {
+    final bg = Colors.black12.withOpacity(0.06);
+    final textStyle = Theme.of(context).textTheme.bodyMedium;
+    Widget seg(String v, String label, {bool last = false}) {
+      final selected = value == v;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => onChanged(v),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            height: 34,
+            decoration: BoxDecoration(
+              color: selected ? Colors.black : Colors.transparent,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              style: textStyle?.copyWith(
+                color: selected ? Colors.white : Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      );
     }
 
-    // x labels (sparse if too many)
-    final tp = TextPainter(textDirection: TextDirection.ltr);
-    final every = (labels.length / 6).ceil().clamp(1, 9999);
-    for (int i = 0; i < labels.length; i += every) {
-      final x = chart.left + stepX * i;
-      tp.text = TextSpan(
-          text: labels[i],
-          style: const TextStyle(fontSize: 10, color: Colors.black54));
-      tp.layout(maxWidth: 60);
-      tp.paint(canvas, Offset(x - tp.width / 2, chart.bottom + 2));
-    }
+    return Container(
+      height: 38,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          seg('week', '周'),
+          const SizedBox(width: 4),
+          seg('month', '月'),
+          const SizedBox(width: 4),
+          seg('year', '年'),
+        ],
+      ),
+    );
+  }
+}
+
+// 周序条（… 上周 本周）
+class _WeekStrip extends StatelessWidget {
+  const _WeekStrip();
+
+  int _isoWeekNumber(DateTime date) {
+    // 基于 ISO 周数的简化实现
+    final thursday = date.add(Duration(days: 3 - ((date.weekday + 6) % 7)));
+    final firstThursday = DateTime(thursday.year, 1, 4);
+    final diff = thursday.difference(firstThursday);
+    return 1 + (diff.inDays / 7).floor();
   }
 
   @override
-  bool shouldRepaint(covariant _LineChartPainter oldDelegate) {
-    return oldDelegate.series != series || oldDelegate.labels != labels;
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final thisWeek = _isoWeekNumber(now).clamp(1, 53);
+    int wrap(int w) {
+      // 1..53 循环
+      if (w < 1) return 53 + w;
+      if (w > 53) return w - 53;
+      return w;
+    }
+
+    final weeks = [wrap(thisWeek - 4), wrap(thisWeek - 3), wrap(thisWeek - 2)];
+
+    Widget chip(String text,
+        {bool filled = false,
+        EdgeInsets padding =
+            const EdgeInsets.symmetric(horizontal: 10, vertical: 6)}) {
+      return Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: padding,
+        decoration: BoxDecoration(
+          color: filled ? Colors.black : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.black12.withOpacity(0.2)),
+        ),
+        child: Text(
+          text,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: filled ? Colors.white : Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (final w in weeks) chip('$w周'),
+          chip('上周'),
+          chip('本周', filled: true),
+        ],
+      ),
+    );
   }
 }
