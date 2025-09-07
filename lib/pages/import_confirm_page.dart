@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
 import '../providers.dart';
 import '../widgets/primary_header.dart';
@@ -19,6 +18,8 @@ class ImportConfirmPage extends ConsumerStatefulWidget {
 
 class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
   late List<List<String>> rows;
+  // 自动识别到的表头所在行（仅当 hasHeader 为 true 时使用）
+  int headerRow = 0;
   final Map<String, int?> mapping = {
     'date': null,
     'type': null,
@@ -40,6 +41,10 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
     rows = _parseRows(widget.csvText);
     debugPrint(
         '[ImportConfirm] parsed rows=${rows.length} cols=${rows.isNotEmpty ? rows.first.length : 0}');
+    // 需求：总是将第一行作为表头
+    if (widget.hasHeader && rows.isNotEmpty) {
+      headerRow = 0;
+    }
     _autoDetectMapping();
     // 预取分类列表供第二步选择
     allCategoriesFuture = _loadAllCategories(ref);
@@ -47,7 +52,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
 
   void _autoDetectMapping() {
     if (rows.isEmpty || !widget.hasHeader) return;
-    final headers = rows.first.map((e) => e.toString().trim()).toList();
+    final headers = rows[headerRow].map((e) => e.toString().trim()).toList();
     String? normalizeToKey(String raw) {
       final s = raw.trim();
       if (s.isEmpty) return null;
@@ -78,6 +83,10 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
         return 'amount';
       if (containsAny(s, ['分类', '类别', '账目名称', '科目', '标签'])) return 'category';
       if (containsAny(s, ['备注', '说明', '标题', '摘要', '附言'])) return 'note';
+      // 明确忽略
+      if (containsAny(s, ['账目编号', '编号', '单号', '流水号', '相关图片', '图片', '附件'])) {
+        return null;
+      }
       return null;
     }
 
@@ -90,12 +99,16 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
 
   @override
   Widget build(BuildContext context) {
-    final columnCount = rows.isNotEmpty ? rows.first.length : 0;
+    final columnCount =
+        rows.isNotEmpty ? rows[widget.hasHeader ? headerRow : 0].length : 0;
     List<DropdownMenuItem<int>> items() => List.generate(columnCount, (i) {
+          final header = widget.hasHeader
+              ? rows[headerRow]
+              : (rows.isNotEmpty ? rows.first : const <String>[]);
           final label = (widget.hasHeader &&
-                  i < rows.first.length &&
-                  rows.first[i].trim().isNotEmpty)
-              ? rows.first[i].trim()
+                  i < header.length &&
+                  header[i].trim().isNotEmpty)
+              ? header[i].trim()
               : '第 ${i + 1} 列';
           return DropdownMenuItem(
               value: i, child: Text(label, overflow: TextOverflow.ellipsis));
@@ -120,10 +133,12 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                              '调试：rows=${rows.length}, cols=${rows.isNotEmpty ? rows.first.length : 0}'),
+                              '调试：rows=${rows.length}, cols=${rows.isNotEmpty ? rows.first.length : 0}, headerRow=$headerRow'),
                           if (rows.isNotEmpty)
-                            Text('表头: ${rows.first.join(', ')}',
-                                maxLines: 2, overflow: TextOverflow.ellipsis),
+                            Text(
+                                '表头: ${(widget.hasHeader ? rows[headerRow] : rows.first).join(', ')}',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis),
                           Text(
                               '映射: date=${mapping['date']}, type=${mapping['type']}, amount=${mapping['amount']}, category=${mapping['category']}, note=${mapping['note']}')
                         ],
@@ -250,11 +265,15 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
       children: [
         SizedBox(width: 64, child: Text(label)),
         const SizedBox(width: 8),
-        DropdownButton<int>(
-          value: mapping[key],
-          hint: const Text('自动'),
-          items: items,
-          onChanged: (v) => setState(() => mapping[key] = v),
+        SizedBox(
+          width: 220,
+          child: DropdownButton<int>(
+            isExpanded: true,
+            value: mapping[key],
+            hint: const Text('自动'),
+            items: items,
+            onChanged: (v) => setState(() => mapping[key] = v),
+          ),
         ),
       ],
     );
@@ -269,7 +288,8 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
     final repo = ref.read(repositoryProvider);
     final ledgerId = ref.read(currentLedgerIdProvider);
 
-    for (int i = widget.hasHeader ? 1 : 0; i < rows.length; i++) {
+    final dataStart = widget.hasHeader ? (headerRow + 1) : 0;
+    for (int i = dataStart; i < rows.length; i++) {
       final r = rows[i];
       try {
         String? getBy(String key, int fallback) {
@@ -367,7 +387,8 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
       return;
     }
     final set = <String>{};
-    for (int i = widget.hasHeader ? 1 : 0; i < rows.length; i++) {
+    final dataStart = widget.hasHeader ? (headerRow + 1) : 0;
+    for (int i = dataStart; i < rows.length; i++) {
       if (catIdx < rows[i].length) {
         final name = rows[i][catIdx].trim();
         if (name.isNotEmpty) set.add(name);
@@ -389,34 +410,60 @@ DateTime? _tryParseWithFormats(String input, List<String> formats) {
 }
 
 List<List<String>> _parseRows(String input) {
+  // 规范化换行并移除 UTF-8 BOM
   var text = input.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
   if (text.isNotEmpty && text.codeUnitAt(0) == 0xFEFF) {
     text = text.substring(1);
   }
-  if (text.contains('\t')) {
-    try {
-      return const CsvToListConverter(fieldDelimiter: '\t')
-          .convert(text)
-          .map((r) => r.map((e) => (e?.toString() ?? '').trim()).toList())
-          .toList();
-    } catch (e) {
-      debugPrint('[ImportConfirm] TSV parse error: $e');
-    }
-  }
-  if (text.contains(',')) {
-    try {
-      return const CsvToListConverter(fieldDelimiter: ',')
-          .convert(text)
-          .map((r) => r.map((e) => (e?.toString() ?? '').trim()).toList())
-          .toList();
-    } catch (e) {
-      debugPrint('[ImportConfirm] CSV parse error: $e');
-    }
-  }
-  final ws = RegExp(r'[ \t\u00A0\u3000]+');
-  final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
-  return lines.map((l) => l.trim().split(ws).toList()).toList();
+
+  final lines =
+      text.split('\n').map((l) => l).where((l) => l.trim().isNotEmpty).toList();
+
+  // 按行解析，行内严格以逗号分隔，并处理成对双引号与外围空白/引号
+  return lines.map(_splitCsvLine).toList();
 }
+
+// 将一行按逗号拆分，支持成对双引号包裹字段；会移除外围双引号与多余空格。
+List<String> _splitCsvLine(String line) {
+  final fields = <String>[];
+  final buf = StringBuffer();
+  bool inQuotes = false;
+  for (int i = 0; i < line.length; i++) {
+    final ch = line[i];
+    if (ch == '"') {
+      if (inQuotes) {
+        // 处理转义的双引号 "" -> "
+        if (i + 1 < line.length && line[i + 1] == '"') {
+          buf.write('"');
+          i++; // 跳过转义的第二个引号
+        } else {
+          inQuotes = false; // 结束引号段
+        }
+      } else {
+        inQuotes = true; // 开始引号段
+      }
+      continue;
+    }
+    if (ch == ',' && !inQuotes) {
+      fields.add(_cleanCsvField(buf.toString()));
+      buf.clear();
+      continue;
+    }
+    buf.write(ch);
+  }
+  fields.add(_cleanCsvField(buf.toString()));
+  return fields;
+}
+
+String _cleanCsvField(String raw) {
+  var s = raw.trim();
+  if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) {
+    s = s.substring(1, s.length - 1).replaceAll('""', '"').trim();
+  }
+  return s;
+}
+
+//（保留占位注释：以前这里有自动表头行识别，现固定第一行作为表头）
 
 Future<List<schema.Category>> _loadAllCategories(WidgetRef ref) async {
   final db = ref.read(databaseProvider);

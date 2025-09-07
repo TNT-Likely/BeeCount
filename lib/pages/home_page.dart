@@ -233,6 +233,125 @@ class HomePage extends ConsumerWidget {
                             final isExpense = it.t.type == 'expense';
                             final amountPrefix = isExpense ? '-' : '+';
                             final categoryName = it.category?.name ?? '未分类';
+                            IconData iconFor(String n) {
+                              final name = n;
+                              if (name.contains('餐') ||
+                                  name.contains('饭') ||
+                                  name.contains('吃') ||
+                                  name.contains('外卖')) {
+                                return Icons.restaurant_outlined;
+                              }
+                              if (name.contains('交通') ||
+                                  name.contains('出行') ||
+                                  name.contains('打车') ||
+                                  name.contains('地铁') ||
+                                  name.contains('公交') ||
+                                  name.contains('高铁') ||
+                                  name.contains('火车') ||
+                                  name.contains('飞机')) {
+                                return Icons.directions_transit_outlined;
+                              }
+                              if (name.contains('购物') || name.contains('百货')) {
+                                return Icons.shopping_bag_outlined;
+                              }
+                              if (name.contains('娱乐') || name.contains('游戏')) {
+                                return Icons.sports_esports_outlined;
+                              }
+                              if (name.contains('居家') ||
+                                  name.contains('家') ||
+                                  name.contains('家居') ||
+                                  name.contains('物业') ||
+                                  name.contains('维修')) {
+                                return Icons.chair_outlined;
+                              }
+                              if (name.contains('美妆') ||
+                                  name.contains('化妆') ||
+                                  name.contains('护肤') ||
+                                  name.contains('美容')) {
+                                return Icons.brush_outlined;
+                              }
+                              if (name.contains('通讯') ||
+                                  name.contains('话费') ||
+                                  name.contains('宽带')) {
+                                return Icons.phone_iphone_outlined;
+                              }
+                              if (name.contains('礼物') ||
+                                  name.contains('红包') ||
+                                  name.contains('礼金')) {
+                                return Icons.card_giftcard_outlined;
+                              }
+                              if (name.contains('水') ||
+                                  name.contains('电') ||
+                                  name.contains('煤') ||
+                                  name.contains('燃气')) {
+                                return Icons.water_drop_outlined;
+                              }
+                              if (name.contains('房') || name.contains('租')) {
+                                return Icons.home_outlined;
+                              }
+                              if (name.contains('工资') ||
+                                  name.contains('收入') ||
+                                  name.contains('奖金') ||
+                                  name.contains('报销') ||
+                                  name.contains('兼职')) {
+                                return Icons.attach_money_outlined;
+                              }
+                              if (name.contains('理财') ||
+                                  name.contains('利息') ||
+                                  name.contains('基金') ||
+                                  name.contains('股票') ||
+                                  name.contains('退款')) {
+                                return Icons.savings_outlined;
+                              }
+                              if (name.contains('教育') ||
+                                  name.contains('学习') ||
+                                  name.contains('培训')) {
+                                return Icons.menu_book_outlined;
+                              }
+                              if (name.contains('医疗') ||
+                                  name.contains('医院') ||
+                                  name.contains('药')) {
+                                return Icons.medical_services_outlined;
+                              }
+                              if (name.contains('宠物') ||
+                                  name.contains('猫') ||
+                                  name.contains('狗')) {
+                                return Icons.pets_outlined;
+                              }
+                              if (name.contains('运动') ||
+                                  name.contains('健身') ||
+                                  name.contains('球')) {
+                                return Icons.fitness_center_outlined;
+                              }
+                              if (name.contains('数码') ||
+                                  name.contains('电子') ||
+                                  name.contains('手机')) {
+                                return Icons.devices_other_outlined;
+                              }
+                              if (name.contains('旅行') ||
+                                  name.contains('旅游') ||
+                                  name.contains('出差')) {
+                                return Icons.card_travel_outlined;
+                              }
+                              if (name.contains('烟') ||
+                                  name.contains('酒') ||
+                                  name.contains('茶')) {
+                                return Icons.local_bar_outlined;
+                              }
+                              if (name.contains('母婴') ||
+                                  name.contains('孩子') ||
+                                  name.contains('奶粉')) {
+                                return Icons.child_friendly_outlined;
+                              }
+                              if (name.contains('停车') ||
+                                  name.contains('加油') ||
+                                  name.contains('汽车') ||
+                                  name.contains('保养')) {
+                                return Icons.local_gas_station_outlined;
+                              }
+                              return Icons.circle_outlined;
+                            }
+
                             final subtitle = it.t.note ?? '';
                             return Dismissible(
                               key: ValueKey(it.t.id),
@@ -275,16 +394,15 @@ class HomePage extends ConsumerWidget {
                                 children: [
                                   ListTile(
                                     leading: CircleAvatar(
-                                      backgroundColor: isExpense
-                                          ? Colors.red[50]
-                                          : Colors.green[50],
+                                      backgroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withOpacity(0.1),
                                       child: Icon(
-                                        isExpense
-                                            ? Icons.south_east
-                                            : Icons.north_east,
-                                        color: isExpense
-                                            ? Colors.red
-                                            : Colors.green,
+                                        iconFor(categoryName),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                       ),
                                     ),
                                     title: Text(categoryName,
