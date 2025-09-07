@@ -73,13 +73,11 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
   }
 
   void _pickDate() async {
-    final res = await showModalBottomSheet<DateTime>(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-      builder: (ctx) =>
-          WheelDatePicker(initial: _date, mode: WheelDatePickerMode.ymd),
+    final res = await showWheelDatePicker(
+      context,
+      initial: _date,
+      mode: WheelDatePickerMode.ymd,
+      maxDate: DateTime.now(),
     );
     if (res != null) setState(() => _date = res);
   }
@@ -91,18 +89,27 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
     double parsed() => double.tryParse(_amountStr) ?? 0.0;
 
     Widget keyBtn(String label, {Color? bg, Color? fg, VoidCallback? onTap}) {
-      return InkWell(
-        onTap: onTap,
-        child: Container(
-          height: 56,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: bg ?? Colors.white,
-            border: Border.all(color: Colors.black12.withOpacity(0.06)),
+      return Padding(
+        padding: const EdgeInsets.all(6),
+        child: Material(
+          color: bg ?? Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: onTap,
+            child: Container(
+              height: 60,
+              alignment: Alignment.center,
+              child: Text(
+                label,
+                style: text.titleMedium?.copyWith(
+                  color: fg ?? Colors.black87,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ),
-          child: Text(label,
-              style: text.titleMedium
-                  ?.copyWith(color: fg ?? Colors.black87, fontSize: 18)),
         ),
       );
     }
@@ -116,7 +123,7 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,15 +134,28 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                 Expanded(
                   child: Text(
                     widget.categoryName,
-                    style:
-                        text.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                    style: text.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 TextButton.icon(
                   onPressed: _pickDate,
-                  icon: const Icon(Icons.calendar_month, size: 18),
-                  label: Text(fmtDate(_date)),
+                  style: TextButton.styleFrom(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    foregroundColor: Colors.black87,
+                    backgroundColor: Colors.grey[200],
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                  icon: const Icon(Icons.calendar_month, size: 16),
+                  label: Text(
+                    fmtDate(_date),
+                    style:
+                        text.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+                  ),
                 ),
               ],
             ),
@@ -146,25 +166,31 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                 Expanded(
                   child: TextField(
                     controller: _noteCtrl,
-                    decoration: const InputDecoration(
-                      labelText: '备注： 点击填写备注',
-                      border: OutlineInputBorder(borderSide: BorderSide.none),
+                    decoration: InputDecoration(
+                      hintText: '备注…',
+                      isDense: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
                       filled: true,
-                      fillColor: Color(0xFFF7F7F7),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      fillColor: const Color(0xFFF3F4F6),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Text(
                   parsed().toStringAsFixed(2),
-                  style:
-                      text.displaySmall?.copyWith(fontWeight: FontWeight.w600),
+                  style: text.displayMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.2,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             // 数字键盘
             LayoutBuilder(builder: (ctx, c) {
               final w = (c.maxWidth) / 4;
@@ -182,9 +208,11 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                         child: keyBtn('9', onTap: () => _append('9'))),
                     SizedBox(
                       width: w,
-                      child: keyBtn('今天', onTap: _setToday),
+                      child: keyBtn('今天',
+                          fg: primary, bg: Colors.grey[100], onTap: _setToday),
                     ),
                   ]),
+                  const SizedBox(height: 2),
                   Row(children: [
                     SizedBox(
                         width: w,
@@ -197,9 +225,13 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                         child: keyBtn('6', onTap: () => _append('6'))),
                     SizedBox(
                       width: w,
-                      child: keyBtn('+', onTap: () => _toggleSign(true)),
+                      child: keyBtn('+',
+                          fg: primary,
+                          bg: Colors.grey[100],
+                          onTap: () => _toggleSign(true)),
                     ),
                   ]),
+                  const SizedBox(height: 2),
                   Row(children: [
                     SizedBox(
                         width: w,
@@ -212,9 +244,13 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                         child: keyBtn('3', onTap: () => _append('3'))),
                     SizedBox(
                       width: w,
-                      child: keyBtn('-', onTap: () => _toggleSign(false)),
+                      child: keyBtn('-',
+                          fg: primary,
+                          bg: Colors.grey[100],
+                          onTap: () => _toggleSign(false)),
                     ),
                   ]),
+                  const SizedBox(height: 2),
                   Row(children: [
                     SizedBox(
                         width: w,
@@ -224,35 +260,52 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                         child: keyBtn('0', onTap: () => _append('0'))),
                     SizedBox(
                       width: w,
-                      child: InkWell(
-                        onTap: _backspace,
-                        child: Container(
-                          height: 56,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(
-                                color: Colors.black12.withOpacity(0.06)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Material(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: _backspace,
+                            child: const SizedBox(
+                              height: 60,
+                              child:
+                                  Center(child: Icon(Icons.backspace_outlined)),
+                            ),
                           ),
-                          child: const Icon(Icons.backspace_outlined),
                         ),
                       ),
                     ),
                     SizedBox(
                       width: w,
-                      child: InkWell(
-                        onTap: () => widget.onSubmit((
-                          amount: parsed(),
-                          note: _noteCtrl.text.isEmpty ? null : _noteCtrl.text,
-                          date: _date,
-                        )),
-                        child: Container(
-                          height: 56,
-                          alignment: Alignment.center,
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Material(
                           color: primary,
-                          child: const Text('完成',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16)),
+                          borderRadius: BorderRadius.circular(12),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () => widget.onSubmit((
+                              amount: parsed(),
+                              note: _noteCtrl.text.isEmpty
+                                  ? null
+                                  : _noteCtrl.text,
+                              date: _date,
+                            )),
+                            child: const SizedBox(
+                              height: 60,
+                              child: Center(
+                                child: Text(
+                                  '完成',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),

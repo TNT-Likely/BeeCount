@@ -8,6 +8,7 @@ import '../data/db.dart';
 import '../widgets/primary_header.dart';
 import 'category_picker.dart';
 import 'package:beecount/widgets/wheel_date_picker.dart';
+import 'package:beecount/widgets/measure_size.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -20,6 +21,14 @@ class _HomePageState extends ConsumerState<HomePage> {
   final ScrollController _scrollController = ScrollController();
   bool _switching = false;
   double _lastPixels = 0;
+  // 惰性分段缓存：分组顺序、头/行高度、累积高度与已计算分组数量
+  List<String> _sortedKeysCache = [];
+  final Map<String, double> _headerHeights = {}; // 默认 48
+  final Map<String, List<double>> _rowHeights = {}; // 默认每行 56
+  final List<double> _groupEnds = [];
+  int _computedGroups = 0;
+  static const int _chunkSize = 60;
+  DateTime? _pendingScrollMonth; // 选月后待滚动定位
 
   @override
   void initState() {
@@ -93,7 +102,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final repo = ref.watch(repositoryProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final month = ref.watch(selectedMonthProvider);
-    final view = ref.watch(selectedViewProvider);
+    // 需求4：移除“年视角”，固定为按月（不再使用 view 变量）
     final hide = ref.watch(hideAmountsProvider);
     return Scaffold(
       backgroundColor: Colors.white,
@@ -105,128 +114,22 @@ class _HomePageState extends ConsumerState<HomePage> {
               // 年在上
               title: '${month.year}年',
               // 月在下
-              subtitle: view == 'year'
-                  ? '全年'
-                  : '${month.month.toString().padLeft(2, '0')}月',
+              subtitle: '${month.month.toString().padLeft(2, '0')}月',
               subtitleTrailing: InkWell(
                 onTap: () async {
-                  final choice =
-                      await showModalBottomSheet<(String view, DateTime date)>(
-                    context: context,
-                    builder: (ctx) {
-                      String view = 'month';
-                      DateTime pick = month;
-                      return StatefulBuilder(builder: (ctx, setS) {
-                        return Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(children: [
-                                const Text('视角：'),
-                                ChoiceChip(
-                                    label: const Text('按月'),
-                                    selectedColor: Theme.of(context)
-                                        .colorScheme
-                                        .primary
-                                        .withOpacity(0.15),
-                                    labelStyle: TextStyle(
-                                        color: view == 'month'
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .primary
-                                            : Colors.black87),
-                                    selected: view == 'month',
-                                    onSelected: (_) =>
-                                        setS(() => view = 'month')),
-                                const SizedBox(width: 8),
-                                ChoiceChip(
-                                    label: const Text('按年'),
-                                    selectedColor: Theme.of(context)
-                                        .colorScheme
-                                        .primary
-                                        .withOpacity(0.15),
-                                    labelStyle: TextStyle(
-                                        color: view == 'year'
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .primary
-                                            : Colors.black87),
-                                    selected: view == 'year',
-                                    onSelected: (_) =>
-                                        setS(() => view = 'year')),
-                                const Spacer(),
-                                TextButton(
-                                    onPressed: () => Navigator.pop(ctx),
-                                    child: const Text('取消')),
-                                FilledButton(
-                                    onPressed: () =>
-                                        Navigator.pop(ctx, (view, pick)),
-                                    child: const Text('确定')),
-                              ]),
-                              const SizedBox(height: 12),
-                              if (view == 'month')
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: OutlinedButton.icon(
-                                    icon: const Icon(Icons.calendar_month),
-                                    label: Text(
-                                        '选择月份（${pick.year}-${pick.month.toString().padLeft(2, '0')}）'),
-                                    onPressed: () async {
-                                      final res =
-                                          await showModalBottomSheet<DateTime>(
-                                        context: context,
-                                        backgroundColor: Colors.white,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                              top: Radius.circular(16)),
-                                        ),
-                                        builder: (_) => WheelDatePicker(
-                                          initial: pick,
-                                          mode: WheelDatePickerMode.ym,
-                                        ),
-                                      );
-                                      if (res != null) setS(() => pick = res);
-                                    },
-                                  ),
-                                )
-                              else
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: OutlinedButton.icon(
-                                    icon: const Icon(Icons.event),
-                                    label: Text('选择年份（${pick.year}）'),
-                                    onPressed: () async {
-                                      final res =
-                                          await showModalBottomSheet<DateTime>(
-                                        context: context,
-                                        backgroundColor: Colors.white,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                              top: Radius.circular(16)),
-                                        ),
-                                        builder: (_) => WheelDatePicker(
-                                          initial: pick,
-                                          mode: WheelDatePickerMode.y,
-                                        ),
-                                      );
-                                      if (res != null) setS(() => pick = res);
-                                    },
-                                  ),
-                                ),
-                            ],
-                          ),
-                        );
-                      });
-                    },
+                  final res = await showWheelDatePicker(
+                    context,
+                    initial: month,
+                    mode: WheelDatePickerMode.ym,
+                    maxDate: DateTime.now(),
                   );
-                  if (choice != null) {
-                    final (v, date) = choice;
-                    ref.read(selectedViewProvider.notifier).state = v;
-                    final target = v == 'year'
-                        ? DateTime(date.year, 1, 1)
-                        : DateTime(date.year, date.month, 1);
+                  if (res != null) {
+                    final target = DateTime(res.year, res.month, 1);
                     ref.read(selectedMonthProvider.notifier).state = target;
+                    // 标记等待滚动到该月份
+                    setState(() {
+                      _pendingScrollMonth = target;
+                    });
                   }
                 },
                 child: const Padding(
@@ -258,16 +161,11 @@ class _HomePageState extends ConsumerState<HomePage> {
           const SizedBox(height: 0),
           Expanded(
             child: StreamBuilder<List<({Transaction t, Category? category})>>(
-              stream: view == 'year'
-                  ? repo.transactionsWithCategoryInYear(
-                      ledgerId: ledgerId, year: month.year)
-                  : repo.transactionsWithCategoryAll(ledgerId: ledgerId),
+              stream: repo.transactionsWithCategoryAll(ledgerId: ledgerId),
               builder: (context, snapshot) {
                 final joined = snapshot.data ?? [];
                 return FutureBuilder<(double income, double expense)>(
-                  future: view == 'year'
-                      ? repo.yearlyTotals(ledgerId: ledgerId, year: month.year)
-                      : repo.monthlyTotals(ledgerId: ledgerId, month: month),
+                  future: repo.monthlyTotals(ledgerId: ledgerId, month: month),
                   builder: (context, totalSnap) {
                     // 汇总已移动到 Header 的 center 区域，这里的局部值不再直接渲染
                     // 分组：按天
@@ -283,17 +181,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     final sortedKeys = groups.keys.toList()
                       ..sort((a, b) => b.compareTo(a));
 
-                    // 预计算每个分组的累积高度，便于快速定位滚动位置对应的分组
-                    final groupEnds = <double>[];
-                    {
-                      double acc = 0;
-                      for (final key in sortedKeys) {
-                        acc += 48; // 分组头
-                        acc += (groups[key]!.length * 56); // 行高估算
-                        groupEnds.add(acc);
-                      }
-                    }
-
+                    // 工具：上界二分
                     int upperBound(List<double> arr, double x) {
                       var l = 0, r = arr.length;
                       while (l < r) {
@@ -304,7 +192,121 @@ class _HomePageState extends ConsumerState<HomePage> {
                           l = m + 1;
                         }
                       }
-                      return l; // 第一个 >= x 的下标
+                      return l;
+                    }
+
+                    // 重置/同步缓存
+                    void resetCachesIfNeeded() {
+                      final sameLength =
+                          _sortedKeysCache.length == sortedKeys.length;
+                      final sameOrder = sameLength &&
+                          _sortedKeysCache
+                              .asMap()
+                              .entries
+                              .every((e) => e.value == sortedKeys[e.key]);
+                      if (!sameOrder) {
+                        _sortedKeysCache = List.of(sortedKeys);
+                        _headerHeights
+                          ..clear()
+                          ..addEntries(sortedKeys.map((k) => MapEntry(k, 48)));
+                        _rowHeights
+                          ..clear()
+                          ..addEntries(sortedKeys.map((k) => MapEntry(
+                              k, List<double>.filled(groups[k]!.length, 56))));
+                        _groupEnds.clear();
+                        _computedGroups = 0;
+                      } else {
+                        // 行数变化（插入/删除）时同步长度
+                        for (final k in sortedKeys) {
+                          final need = groups[k]!.length;
+                          final cur = _rowHeights[k]?.length ?? 0;
+                          if (cur != need) {
+                            _rowHeights[k] = List<double>.filled(need, 56);
+                          }
+                        }
+                      }
+                    }
+
+                    // 段式增量计算 groupEnds（只计算新段）
+                    void computeMore(int count) {
+                      if (_computedGroups > _sortedKeysCache.length) {
+                        _computedGroups = _sortedKeysCache.length;
+                      }
+                      final until = (_computedGroups + count)
+                          .clamp(0, _sortedKeysCache.length);
+                      double base;
+                      if (_groupEnds.isEmpty) {
+                        base = 0;
+                      } else {
+                        base = _groupEnds.last;
+                      }
+                      for (int i = _computedGroups; i < until; i++) {
+                        final k = _sortedKeysCache[i];
+                        base += (_headerHeights[k] ?? 0) +
+                            (_rowHeights[k]?.fold<double>(0, (a, b) => a + b) ??
+                                0);
+                        _groupEnds.add(base);
+                      }
+                      _computedGroups = until;
+                    }
+
+                    // 重建已计算范围的 groupEnds（当高度回填改变时）
+                    void rebuildComputedGroupEnds() {
+                      _groupEnds.clear();
+                      double acc = 0;
+                      for (int i = 0; i < _computedGroups; i++) {
+                        final k = _sortedKeysCache[i];
+                        acc += (_headerHeights[k] ?? 0) +
+                            (_rowHeights[k]?.fold<double>(0, (a, b) => a + b) ??
+                                0);
+                        _groupEnds.add(acc);
+                      }
+                    }
+
+                    resetCachesIfNeeded();
+                    if (_computedGroups == 0) computeMore(_chunkSize);
+
+                    // 若有待滚动月份，则定位
+                    if (_pendingScrollMonth != null && sortedKeys.isNotEmpty) {
+                      final ym = _pendingScrollMonth!;
+                      int idxMonth = 0;
+                      for (int i = 0; i < sortedKeys.length; i++) {
+                        final dt = DateTime.parse(sortedKeys[i]);
+                        if (dt.year == ym.year && dt.month == ym.month) {
+                          idxMonth = i;
+                          break;
+                        }
+                      }
+                      // 确保该下标已在已计算范围内
+                      if (idxMonth >= _computedGroups) {
+                        computeMore(
+                            ((idxMonth - _computedGroups) ~/ _chunkSize + 1) *
+                                _chunkSize);
+                      }
+                      final target =
+                          idxMonth == 0 ? 0.0 : _groupEnds[idxMonth - 1];
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (_scrollController.hasClients) {
+                          _scrollController.jumpTo(target);
+                        }
+                      });
+                      _pendingScrollMonth = null;
+                    }
+
+                    // 真实测量每个分组头和行的高度，构建累积高度表
+                    final headerHeights = <String, double>{};
+                    final rowHeights = <String, List<double>>{};
+                    final groupEnds = <double>[];
+                    double acc = 0;
+                    for (final key in sortedKeys) {
+                      final rows = groups[key]!;
+                      final rowsHeights = List<double>.filled(rows.length, 56);
+                      rowHeights[key] = rowsHeights;
+                      headerHeights[key] = 48;
+                      // 先占位，后续通过 MeasureSize 回填再重建 groupEnds
+                      acc += headerHeights[key]! +
+                          rowsHeights.fold(0, (a, b) => a + b);
+                      groupEnds.add(acc);
                     }
 
                     return NotificationListener<ScrollNotification>(
@@ -312,10 +314,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                         if (n is ScrollUpdateNotification &&
                             _scrollController.positions.isNotEmpty &&
                             sortedKeys.isNotEmpty) {
-                          // 使用二分搜索提高定位效率
+                          // 二分定位当前分组；若滚过已计算范围则增量扩展
                           final offset = _scrollController.offset;
-                          final idx = upperBound(groupEnds, offset);
-                          if (idx >= 0 && idx < sortedKeys.length) {
+                          if (_groupEnds.isNotEmpty &&
+                              offset > _groupEnds.last &&
+                              _computedGroups < _sortedKeysCache.length) {
+                            computeMore(_chunkSize);
+                          }
+                          final idx = upperBound(_groupEnds, offset);
+                          if (idx >= 0 && idx < _computedGroups) {
                             final key = sortedKeys[idx];
                             final dt = DateTime.parse(key);
                             final cur = DateTime(dt.year, dt.month, 1);
@@ -363,16 +370,33 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   dayExpense += it.t.amount;
                                 }
                               }
-                              return _DayHeader(
-                                dateText: key,
-                                income: dayIncome,
-                                expense: dayExpense,
-                                hide: hide,
+                              final isFirst = key == sortedKeys.first;
+                              return Column(
+                                children: [
+                                  if (!isFirst)
+                                    Divider(height: 1, color: Colors.grey[200]),
+                                  MeasureSize(
+                                    onChange: (size) {
+                                      final old = _headerHeights[key];
+                                      if (old != size.height) {
+                                        _headerHeights[key] = size.height;
+                                        rebuildComputedGroupEnds();
+                                      }
+                                    },
+                                    child: _DayHeader(
+                                      dateText: key,
+                                      income: dayIncome,
+                                      expense: dayExpense,
+                                      hide: hide,
+                                    ),
+                                  ),
+                                ],
                               );
                             }
                             idx--;
                             if (idx < list.length) {
-                              final it = list[idx];
+                              final rowIndex = idx;
+                              final it = list[rowIndex];
                               final isExpense = it.t.type == 'expense';
                               final amountPrefix = isExpense ? '-' : '+';
                               final categoryName = it.category?.name ?? '未分类';
@@ -590,58 +614,85 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 },
                                 child: Column(
                                   children: [
-                                    ListTile(
-                                      visualDensity:
-                                          const VisualDensity(vertical: -2),
-                                      leading: CircleAvatar(
-                                        radius: 14,
-                                        backgroundColor: Colors.grey[200],
-                                        child: Icon(
-                                          iconFor(categoryName),
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          size: 16,
-                                        ),
-                                      ),
-                                      title: Text(
-                                        subtitle.isNotEmpty
-                                            ? subtitle
-                                            : categoryName,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                                fontSize: 13,
-                                                color: Colors.black87),
-                                      ),
-                                      subtitle: null,
-                                      trailing: Text(
-                                        hide
-                                            ? '****'
-                                            : '$amountPrefix${it.t.amount.toStringAsFixed(2)}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                                fontSize: 13,
-                                                color: Colors.black87),
-                                      ),
-                                      onTap: () async {
-                                        // 跳到记账页（分类选择），并自动打开金额输入（quickAdd）
-                                        await Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (_) => CategoryPickerPage(
-                                              initialKind: it.t.type,
-                                              quickAdd: true,
-                                            ),
-                                          ),
-                                        );
+                                    MeasureSize(
+                                      onChange: (size) {
+                                        if (_rowHeights[key] != null &&
+                                            rowIndex >= 0 &&
+                                            rowIndex <
+                                                _rowHeights[key]!.length) {
+                                          final old =
+                                              _rowHeights[key]![rowIndex];
+                                          if (old != size.height) {
+                                            _rowHeights[key]![rowIndex] =
+                                                size.height;
+                                            rebuildComputedGroupEnds();
+                                          }
+                                        }
                                       },
+                                      child: ListTile(
+                                        visualDensity:
+                                            const VisualDensity(vertical: -2),
+                                        leading: CircleAvatar(
+                                          radius: 14,
+                                          backgroundColor: Colors.grey[200],
+                                          child: Icon(
+                                            iconFor(categoryName),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            size: 16,
+                                          ),
+                                        ),
+                                        title: Text(
+                                          subtitle.isNotEmpty
+                                              ? subtitle
+                                              : categoryName,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                  fontSize: 14,
+                                                  color: Colors.black87),
+                                        ),
+                                        subtitle: null,
+                                        trailing: Text(
+                                          hide
+                                              ? '****'
+                                              : '$amountPrefix${it.t.amount.toStringAsFixed(2)}',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                  fontSize: 14,
+                                                  color: Colors.black87),
+                                        ),
+                                        onTap: () async {
+                                          // 需求3：点击明细后默认分类+弹出金额备注
+                                          await Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  CategoryPickerPage(
+                                                initialKind: it.t.type,
+                                                quickAdd: true,
+                                                initialCategoryId:
+                                                    it.t.categoryId,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
                                     ),
-                                    Divider(height: 1, color: Colors.grey[200]),
+                                    // 需求2：底部分割线缩短（从分类到金额），颜色略淡
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 56 + 16, right: 16),
+                                      child: Divider(
+                                          height: 1,
+                                          color:
+                                              Colors.black12.withOpacity(0.06)),
+                                    ),
                                   ],
                                 ),
                               );
@@ -741,6 +792,9 @@ class _DayHeader extends StatelessWidget {
     }
 
     final week = weekdayZh(dateText);
+    // 需求1：头部全灰且字体一致；金额为 0.00 时不展示
+    String fmt(double v) => v == 0 ? '' : v.toStringAsFixed(2);
+    final grey = Colors.black54;
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -751,29 +805,31 @@ class _DayHeader extends StatelessWidget {
             Text(dateText,
                 style: Theme.of(context)
                     .textTheme
-                    .labelLarge
-                    ?.copyWith(color: Colors.black87)),
+                    .labelMedium
+                    ?.copyWith(color: grey, fontSize: 12)),
             if (week.isNotEmpty) ...[
               const SizedBox(width: 8),
               Text(week,
                   style: Theme.of(context)
                       .textTheme
                       .labelMedium
-                      ?.copyWith(color: Colors.black54)),
+                      ?.copyWith(color: grey, fontSize: 12)),
             ]
           ]),
           Row(children: [
-            Text('支出 ${hide ? '****' : expense.toStringAsFixed(2)}',
-                style: Theme.of(context)
-                    .textTheme
-                    .labelMedium
-                    ?.copyWith(color: Colors.black54)),
-            const SizedBox(width: 12),
-            Text('收入 ${hide ? '****' : income.toStringAsFixed(2)}',
-                style: Theme.of(context)
-                    .textTheme
-                    .labelMedium
-                    ?.copyWith(color: Colors.black54)),
+            if (!hide && fmt(expense).isNotEmpty)
+              Text('支出 ${fmt(expense)}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(color: grey, fontSize: 12)),
+            if (!hide && fmt(expense).isNotEmpty) const SizedBox(width: 12),
+            if (!hide && fmt(income).isNotEmpty)
+              Text('收入 ${fmt(income)}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(color: grey, fontSize: 12)),
           ])
         ],
       ),

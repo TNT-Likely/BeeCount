@@ -6,11 +6,40 @@ enum WheelDatePickerMode { y, ym, ymd }
 class WheelDatePicker extends StatefulWidget {
   final DateTime initial;
   final WheelDatePickerMode mode;
-  const WheelDatePicker(
-      {super.key, required this.initial, this.mode = WheelDatePickerMode.ymd});
+  final DateTime? minDate;
+  final DateTime? maxDate;
+  const WheelDatePicker({
+    super.key,
+    required this.initial,
+    this.mode = WheelDatePickerMode.ymd,
+    this.minDate,
+    this.maxDate,
+  });
 
   @override
   State<WheelDatePicker> createState() => _WheelDatePickerState();
+}
+
+Future<DateTime?> showWheelDatePicker(
+  BuildContext context, {
+  required DateTime initial,
+  WheelDatePickerMode mode = WheelDatePickerMode.ymd,
+  DateTime? minDate,
+  DateTime? maxDate,
+}) {
+  return showModalBottomSheet<DateTime>(
+    context: context,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: (_) => WheelDatePicker(
+      initial: initial,
+      mode: mode,
+      minDate: minDate,
+      maxDate: maxDate,
+    ),
+  );
 }
 
 class _WheelDatePickerState extends State<WheelDatePicker> {
@@ -21,9 +50,19 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
   @override
   void initState() {
     super.initState();
-    year = widget.initial.year;
-    month = widget.initial.month;
-    day = widget.initial.day;
+    final clamped = _clamp(widget.initial);
+    year = clamped.year;
+    month = clamped.month;
+    day = clamped.day;
+  }
+
+  DateTime get _min => widget.minDate ?? DateTime(2000, 1, 1);
+  DateTime get _max => widget.maxDate ?? DateTime(2100, 12, 31);
+
+  DateTime _clamp(DateTime d) {
+    if (d.isBefore(_min)) return _min;
+    if (d.isAfter(_max)) return _max;
+    return d;
   }
 
   List<int> _daysInMonth(int y, int m) {
@@ -33,9 +72,19 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
 
   @override
   Widget build(BuildContext context) {
-    final years = List.generate(201, (i) => 2000 + i);
-    final months = List.generate(12, (i) => i + 1);
-    final days = _daysInMonth(year, month);
+    final min = _min;
+    final max = _max;
+
+    final years = [for (int y = min.year; y <= max.year; y++) y];
+    int startMonth = 1, endMonth = 12;
+    if (year == min.year) startMonth = min.month;
+    if (year == max.year) endMonth = max.month;
+    final months = [for (int m = startMonth; m <= endMonth; m++) m];
+
+    int startDay = 1, endDay = _daysInMonth(year, month).last;
+    if (year == min.year && month == min.month) startDay = min.day;
+    if (year == max.year && month == max.month) endDay = max.day;
+    final days = [for (int d = startDay; d <= endDay; d++) d];
     final mode = widget.mode;
 
     return SafeArea(
@@ -59,13 +108,13 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                       DateTime result;
                       switch (mode) {
                         case WheelDatePickerMode.y:
-                          result = DateTime(year, 1, 1);
+                          result = _clamp(DateTime(year, 1, 1));
                           break;
                         case WheelDatePickerMode.ym:
-                          result = DateTime(year, month, 1);
+                          result = _clamp(DateTime(year, month, 1));
                           break;
                         case WheelDatePickerMode.ymd:
-                          result = DateTime(year, month, day);
+                          result = _clamp(DateTime(year, month, day));
                           break;
                       }
                       Navigator.pop(context, result);
@@ -85,9 +134,18 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                         initialItem: years.indexOf(year)),
                     onSelectedItemChanged: (i) => setState(() {
                       year = years[i];
-                      if (day > _daysInMonth(year, month).last) {
-                        day = _daysInMonth(year, month).last;
-                      }
+                      // 调整月份与日期以符合边界
+                      int sm = 1, em = 12;
+                      if (year == min.year) sm = min.month;
+                      if (year == max.year) em = max.month;
+                      if (month < sm) month = sm;
+                      if (month > em) month = em;
+                      final dim = _daysInMonth(year, month).last;
+                      int sd = 1, ed = dim;
+                      if (year == min.year && month == min.month) sd = min.day;
+                      if (year == max.year && month == max.month) ed = max.day;
+                      if (day < sd) day = sd;
+                      if (day > ed) day = ed;
                     }),
                     children: [
                       for (final y in years) Center(child: Text('$y'))
@@ -102,9 +160,15 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                           initialItem: months.indexOf(month)),
                       onSelectedItemChanged: (i) => setState(() {
                         month = months[i];
-                        if (day > _daysInMonth(year, month).last) {
-                          day = _daysInMonth(year, month).last;
-                        }
+                        // 调整日期以符合边界
+                        final dim = _daysInMonth(year, month).last;
+                        int sd = 1, ed = dim;
+                        if (year == min.year && month == min.month)
+                          sd = min.day;
+                        if (year == max.year && month == max.month)
+                          ed = max.day;
+                        if (day < sd) day = sd;
+                        if (day > ed) day = ed;
                       }),
                       children: [
                         for (final m in months) Center(child: Text('$m'))
@@ -118,7 +182,7 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                       scrollController: FixedExtentScrollController(
                           initialItem: days.indexOf(day)),
                       onSelectedItemChanged: (i) => setState(() {
-                        day = _daysInMonth(year, month)[i];
+                        day = days[i];
                       }),
                       children: [
                         for (final d in days) Center(child: Text('$d'))

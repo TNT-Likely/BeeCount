@@ -24,12 +24,32 @@ class CategoryPickerPage extends ConsumerStatefulWidget {
 class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
     with SingleTickerProviderStateMixin {
   late TabController _tab;
+  bool _autoOpened = false;
 
   @override
   void initState() {
     super.initState();
     _tab = TabController(length: 2, vsync: this);
     _tab.index = widget.initialKind == 'income' ? 1 : 0;
+    // 若需要自动打开金额输入，则在首帧后查询分类并触发
+    if (widget.quickAdd && widget.initialCategoryId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted || _autoOpened) return;
+        final db = ref.read(databaseProvider);
+        final c = await (db.select(db.categories)
+              ..where((t) => t.id.equals(widget.initialCategoryId!)))
+            .getSingleOrNull();
+        if (c != null && mounted) {
+          // 切换到对应的 tab
+          final idx = c.kind == 'income' ? 1 : 0;
+          if (_tab.index != idx) _tab.animateTo(idx);
+          _autoOpened = true;
+          // 直接调用 onPick 逻辑，打开金额输入
+          // ignore: use_build_context_synchronously
+          await _onPick(context, c, c.kind);
+        }
+      });
+    }
   }
 
   @override
