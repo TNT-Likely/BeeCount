@@ -25,4 +25,12 @@ class AppDivider {
         thickness: 1,
         color: Colors.black12.withOpacity(0.06),
       );
+
+  static Divider short({double indent = 0, double endIndent = 0}) => Divider(
+        height: 1,
+        thickness: 1,
+        indent: indent,
+        endIndent: endIndent,
+        color: Colors.black12.withOpacity(0.06),
+      );
 }

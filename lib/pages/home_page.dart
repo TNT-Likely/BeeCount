@@ -10,6 +10,7 @@ import 'category_picker.dart';
 import '../widgets/wheel_date_picker.dart';
 import '../widgets/category_icon.dart';
 import '../widgets/common.dart';
+import '../styles/design.dart';
 import '../styles/colors.dart';
 // import 'package:beecount/widgets/wheel_date_picker.dart';
 import 'package:beecount/widgets/measure_size.dart';
@@ -435,10 +436,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 .reduce((a, b) => a + b)),
                         itemBuilder: (context, index) {
                           if (sortedKeys.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.all(24.0),
-                              child: Center(child: Text('暂无数据，点击右下角记一笔')),
-                            );
+                            return const AppEmpty(text: '暂无数据，点击右下角记一笔');
                           }
 
                           // 将 index 映射到分组和分组内的行
@@ -470,12 +468,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         rebuildComputedGroupEnds();
                                       }
                                     },
-                                    child: _DayHeader(
-                                      dateText: key,
-                                      income: dayIncome,
-                                      expense: dayExpense,
-                                      hide: hide,
-                                    ),
+                                    child: DaySectionHeader(
+                                        dateText: key,
+                                        income: dayIncome,
+                                        expense: dayExpense,
+                                        hide: hide),
                                   ),
                                 ],
                               );
@@ -574,14 +571,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     ),
                                     // 需求2：底部分割线缩短（从分类到金额），颜色略淡
                                     if (!isLastInGroup)
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 56 + 16, right: 16),
-                                        child: Divider(
-                                            height: 1,
-                                            color: Colors.black12
-                                                .withOpacity(0.06)),
-                                      ),
+                                      AppDivider.short(
+                                          indent: 56 + 16, endIndent: 16),
                                   ],
                                 ),
                               );
@@ -651,76 +642,6 @@ class _HeaderCenterSummary extends ConsumerWidget {
           ],
         );
       },
-    );
-  }
-}
-
-class _DayHeader extends StatelessWidget {
-  final String dateText;
-  final double income;
-  final double expense;
-  final bool hide;
-  const _DayHeader({
-    required this.dateText,
-    required this.income,
-    required this.expense,
-    this.hide = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    String weekdayZh(String yyyyMMdd) {
-      try {
-        final dt = DateTime.parse(yyyyMMdd);
-        const names = ['一', '二', '三', '四', '五', '六', '日'];
-        return '星期${names[dt.weekday - 1]}';
-      } catch (_) {
-        return '';
-      }
-    }
-
-    final week = weekdayZh(dateText);
-    // 需求1：头部全灰且字体一致；金额为 0.00 时不展示
-    String fmt(double v) => v == 0 ? '' : v.toStringAsFixed(2);
-    final grey = BeeColors.secondaryText;
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(children: [
-            Text(dateText,
-                style: Theme.of(context)
-                    .textTheme
-                    .labelMedium
-                    ?.copyWith(color: grey, fontSize: 12)),
-            if (week.isNotEmpty) ...[
-              const SizedBox(width: 8),
-              Text(week,
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelMedium
-                      ?.copyWith(color: grey, fontSize: 12)),
-            ]
-          ]),
-          Row(children: [
-            if (!hide && fmt(expense).isNotEmpty)
-              Text('支出 ${fmt(expense)}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelMedium
-                      ?.copyWith(color: grey, fontSize: 12)),
-            if (!hide && fmt(expense).isNotEmpty) const SizedBox(width: 12),
-            if (!hide && fmt(income).isNotEmpty)
-              Text('收入 ${fmt(income)}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelMedium
-                      ?.copyWith(color: grey, fontSize: 12)),
-          ])
-        ],
-      ),
     );
   }
 }

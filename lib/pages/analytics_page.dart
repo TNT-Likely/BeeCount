@@ -999,32 +999,21 @@ class _CategoryDetailPage extends ConsumerWidget {
                 if (list.isEmpty) {
                   return const Center(child: Text('暂无明细'));
                 }
+                if (list.isEmpty) return const AppEmpty();
                 return ListView.separated(
                   itemCount: list.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  separatorBuilder: (_, __) => AppDivider.thin(),
                   itemBuilder: (_, i) {
                     final item = list[i];
                     final t = item.t;
                     final c = item.category;
-                    final left =
+                    final title =
                         '${c?.name ?? '未分类'} · ${_fmtDate(t.happenedAt.toLocal())}';
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.black12.withOpacity(0.06),
-                        child: Icon(iconForCategory(c?.name ?? '未分类'),
-                            color: Theme.of(context).colorScheme.primary),
-                      ),
-                      title: Row(
-                        children: [
-                          Expanded(
-                            child: Text(left,
-                                maxLines: 1, overflow: TextOverflow.ellipsis),
-                          ),
-                          const SizedBox(width: 8),
-                          AmountText(value: t.amount, signed: false),
-                        ],
-                      ),
-                      dense: true,
+                    return TransactionListItem(
+                      icon: iconForCategory(c?.name ?? '未分类'),
+                      title: title,
+                      amount: t.amount,
+                      isExpense: t.type == 'expense',
                     );
                   },
                 );

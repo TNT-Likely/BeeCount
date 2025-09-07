@@ -188,3 +188,90 @@ class TransactionListItem extends StatelessWidget {
     );
   }
 }
+
+/// 统一的分组日期头：左侧日期+星期，右侧收入/支出（0 不显示）
+class DaySectionHeader extends StatelessWidget {
+  final String dateText; // yyyy-MM-dd
+  final double income;
+  final double expense;
+  final bool hide;
+  const DaySectionHeader({
+    super.key,
+    required this.dateText,
+    required this.income,
+    required this.expense,
+    this.hide = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    String weekdayZh(String yyyyMMdd) {
+      try {
+        final dt = DateTime.parse(yyyyMMdd);
+        const names = ['一', '二', '三', '四', '五', '六', '日'];
+        return '星期${names[dt.weekday - 1]}';
+      } catch (_) {
+        return '';
+      }
+    }
+
+    String fmt(double v) => v == 0 ? '' : v.toStringAsFixed(2);
+    final grey = Colors.black54;
+    final week = weekdayZh(dateText);
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(children: [
+            Text(dateText,
+                style: Theme.of(context)
+                    .textTheme
+                    .labelMedium
+                    ?.copyWith(color: grey, fontSize: 12)),
+            if (week.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Text(week,
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(color: grey, fontSize: 12)),
+            ]
+          ]),
+          Row(children: [
+            if (!hide && fmt(expense).isNotEmpty)
+              Text('支出 ${fmt(expense)}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(color: grey, fontSize: 12)),
+            if (!hide && fmt(expense).isNotEmpty) const SizedBox(width: 12),
+            if (!hide && fmt(income).isNotEmpty)
+              Text('收入 ${fmt(income)}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(color: grey, fontSize: 12)),
+          ])
+        ],
+      ),
+    );
+  }
+}
+
+/// 统一空状态
+class AppEmpty extends StatelessWidget {
+  final String text;
+  const AppEmpty({super.key, this.text = '暂无数据'});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+      ),
+    );
+  }
+}
