@@ -77,6 +77,7 @@ class SettingsPage extends ConsumerWidget {
     }
 
     return Scaffold(
+      backgroundColor: BeeColors.greyBg,
       body: ListView(
         children: [
           // 顶部：居中标题 + 统计（无头像）
@@ -113,7 +114,7 @@ class SettingsPage extends ConsumerWidget {
                               color: BeeColors.primaryText,
                               fontWeight: FontWeight.w600);
                       return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           _StatCell(
                               label: '账本',

@@ -12,6 +12,7 @@ class BeeColors {
   // 分隔/卡片背景（通过透明度控制层级）
   static Color divider = Colors.black.withValues(alpha: 0.06);
   static Color cardBg = Colors.white;
+  static Color greyBg = Colors.grey.shade50;
 
   // 语义色
   static const Color success = Color(0xFF22C55E);
