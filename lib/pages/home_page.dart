@@ -249,7 +249,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           const SizedBox(height: 0),
           Expanded(
             child: StreamBuilder<List<({Transaction t, Category? category})>>(
-              stream: repo.transactionsWithCategoryAll(ledgerId: ledgerId),
+              stream: repo.transactionsWithCategoryInMonth(
+                  ledgerId: ledgerId, month: month),
               builder: (context, snapshot) {
                 final joined = snapshot.data ?? [];
                 return FutureBuilder<(double income, double expense)>(

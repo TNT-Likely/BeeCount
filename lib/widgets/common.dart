@@ -185,9 +185,16 @@ class TransactionListItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.grey[200],
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
               child: Icon(icon,
                   color: Theme.of(context).colorScheme.primary, size: 18),
             ),

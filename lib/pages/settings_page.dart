@@ -235,6 +235,70 @@ class SettingsPage extends ConsumerWidget {
                               },
                             ),
                             AppDivider.thin(),
+                            // 一键去重修复（本地 + 云端）
+                            StatefulBuilder(builder: (ctx, setSB) {
+                              bool busy = false;
+                              return AppListTile(
+                                leading: Icons.unfold_less,
+                                title: '修复重复数据（本地+云端）',
+                                subtitle: '先清理本地重复，再上传覆盖云端',
+                                enabled: !busy,
+                                trailing: busy
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2),
+                                      )
+                                    : null,
+                                onTap: () async {
+                                  setSB(() => busy = true);
+                                  try {
+                                    final removed = await repo
+                                        .deduplicateLedgerTransactions(
+                                            ledgerId);
+                                    final wantUpload =
+                                        await AppDialog.show<bool>(
+                                              context,
+                                              title: '去重完成',
+                                              message:
+                                                  '已删除本地重复记录：$removed 条\n是否立即上传以修复云端？',
+                                              actions: [
+                                                (
+                                                  label: '取消',
+                                                  onTap: () => Navigator.pop(
+                                                      context, false),
+                                                  primary: false,
+                                                ),
+                                                (
+                                                  label: '上传',
+                                                  onTap: () => Navigator.pop(
+                                                      context, true),
+                                                  primary: true,
+                                                ),
+                                              ],
+                                            ) ??
+                                            false;
+                                    if (wantUpload) {
+                                      await sync.uploadCurrentLedger(
+                                          ledgerId: ledgerId);
+                                      await AppDialog.show(context,
+                                          title: '已上传', message: '云端已修复');
+                                    }
+                                    ref
+                                        .read(
+                                            syncStatusRefreshProvider.notifier)
+                                        .state++;
+                                  } catch (e) {
+                                    await AppDialog.show(context,
+                                        title: '失败', message: '$e');
+                                  } finally {
+                                    if (ctx.mounted) setSB(() => busy = false);
+                                  }
+                                },
+                              );
+                            }),
+                            AppDivider.thin(),
                             StatefulBuilder(builder: (ctx, setSB) {
                               return AppListTile(
                                 leading: Icons.cloud_upload_outlined,
@@ -293,11 +357,15 @@ class SettingsPage extends ConsumerWidget {
                                 onTap: () async {
                                   setSB(() => downloadBusy = true);
                                   try {
-                                    final count = await sync
+                                    final res = await sync
                                         .downloadAndRestoreToCurrentLedger(
                                             ledgerId: ledgerId);
+                                    final msg = StringBuffer()
+                                      ..writeln('新增导入：${res.inserted} 条')
+                                      ..writeln('已存在跳过：${res.skipped} 条')
+                                      ..writeln('清理历史重复：${res.deletedDup} 条');
                                     await AppDialog.show(context,
-                                        title: '已下载', message: '导入 $count 条记录');
+                                        title: '完成', message: msg.toString());
                                     ref
                                         .read(
                                             syncStatusRefreshProvider.notifier)

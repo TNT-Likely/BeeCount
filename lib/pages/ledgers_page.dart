@@ -144,76 +144,164 @@ class LedgersPage extends ConsumerWidget {
                         ref.read(currentLedgerIdProvider.notifier).state = l.id;
                       },
                       onLongPress: () async {
-                        // 长按编辑
-                        final newName = await showDialog<String>(
+                        // 长按编辑：统一标准弹窗（标题与按钮居中，取消为主题色描边）
+                        String name = l.name;
+                        String currency = l.currency;
+                        final nameCtrl = TextEditingController(text: name);
+                        final ok = await showDialog<bool>(
                           context: context,
                           builder: (ctx) {
-                            final c = TextEditingController(text: l.name);
+                            final primary = Theme.of(ctx).colorScheme.primary;
                             return AlertDialog(
-                              title: const Text('编辑账本'),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16)),
+                              contentPadding:
+                                  const EdgeInsets.fromLTRB(20, 20, 20, 0),
                               content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  Text('编辑账本',
+                                      textAlign: TextAlign.center,
+                                      style: Theme.of(ctx)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.w600)),
+                                  const SizedBox(height: 12),
                                   TextField(
-                                    controller: c,
+                                    controller: nameCtrl,
                                     decoration:
                                         const InputDecoration(labelText: '名称'),
                                   ),
+                                  const SizedBox(height: 12),
+                                  ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    title: const Text('币种'),
+                                    subtitle: Text(currency),
+                                    trailing: const Icon(Icons.chevron_right),
+                                    onTap: () async {
+                                      final picked =
+                                          await showModalBottomSheet<String>(
+                                        context: ctx,
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.white,
+                                        shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.vertical(
+                                                top: Radius.circular(16))),
+                                        builder: (bctx) {
+                                          final list = const [
+                                            'CNY',
+                                            'USD',
+                                            'EUR',
+                                            'JPY',
+                                            'HKD',
+                                            'TWD',
+                                            'GBP',
+                                            'AUD',
+                                            'CAD',
+                                            'KRW',
+                                            'SGD',
+                                            'THB',
+                                            'IDR',
+                                            'INR',
+                                            'RUB'
+                                          ];
+                                          return Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                16, 12, 16, 16),
+                                            child: SizedBox(
+                                              height: 360,
+                                              child: Column(
+                                                children: [
+                                                  Container(
+                                                    width: 36,
+                                                    height: 4,
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                            bottom: 8),
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.black12,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(2)),
+                                                  ),
+                                                  Text('选择币种',
+                                                      style: Theme.of(bctx)
+                                                          .textTheme
+                                                          .titleMedium),
+                                                  const SizedBox(height: 8),
+                                                  Expanded(
+                                                    child: ListView.builder(
+                                                      itemCount: list.length,
+                                                      itemBuilder: (_, i) {
+                                                        final ccy = list[i];
+                                                        final sel =
+                                                            ccy == currency;
+                                                        return ListTile(
+                                                          title: Text(ccy),
+                                                          trailing: sel
+                                                              ? const Icon(
+                                                                  Icons.check,
+                                                                  color: Colors
+                                                                      .black)
+                                                              : null,
+                                                          onTap: () =>
+                                                              Navigator.pop(
+                                                                  bctx, ccy),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                      if (picked != null) {
+                                        currency = picked;
+                                        (ctx as Element).markNeedsBuild();
+                                      }
+                                    },
+                                  ),
                                   const SizedBox(height: 8),
                                   Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text('币种：',
-                                          style: Theme.of(ctx)
-                                              .textTheme
-                                              .bodySmall),
-                                      Text(l.currency,
-                                          style: Theme.of(ctx)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.w600)),
-                                      const SizedBox(width: 4),
-                                      const Text('（不可修改）',
-                                          style: TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 12)),
+                                      OutlinedButton(
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, false),
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: primary,
+                                          side: BorderSide(color: primary),
+                                        ),
+                                        child: const Text('取消'),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      FilledButton(
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, true),
+                                        child: const Text('保存'),
+                                      ),
                                     ],
                                   ),
+                                  const SizedBox(height: 12),
                                 ],
                               ),
-                              actions: [
-                                TextButton(
-                                    onPressed: () => Navigator.pop(ctx),
-                                    child: const Text('取消')),
-                                FilledButton(
-                                    onPressed: () =>
-                                        Navigator.pop(ctx, c.text.trim()),
-                                    child: const Text('保存')),
-                              ],
                             );
                           },
                         );
-                        if (newName != null && newName.isNotEmpty) {
-                          await repo.updateLedgerName(id: l.id, name: newName);
-                          // 提示同步中（占位）
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Row(
-                                  children: [
-                                    SizedBox(
-                                        height: 16,
-                                        width: 16,
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 2)),
-                                    SizedBox(width: 12),
-                                    Text('同步账本中...'),
-                                  ],
-                                ),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
+                        if (ok == true) {
+                          final newName = nameCtrl.text.trim();
+                          final changedName =
+                              newName.isNotEmpty && newName != l.name;
+                          final changedCcy =
+                              currency.isNotEmpty && currency != l.currency;
+                          if (changedName || changedCcy) {
+                            await repo.updateLedger(
+                                id: l.id,
+                                name: changedName ? newName : null,
+                                currency: changedCcy ? currency : null);
                           }
                         }
                       },

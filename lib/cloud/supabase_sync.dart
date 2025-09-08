@@ -119,7 +119,8 @@ class SupabaseSyncService implements SyncService {
   }
 
   @override
-  Future<int> downloadAndRestoreToCurrentLedger({required int ledgerId}) async {
+  Future<({int inserted, int skipped, int deletedDup})>
+      downloadAndRestoreToCurrentLedger({required int ledgerId}) async {
     final user = await auth.currentUser();
     if (user == null) {
       throw StateError('请先登录后再同步');
@@ -128,8 +129,14 @@ class SupabaseSyncService implements SyncService {
     debugPrint('[sync] download -> bucket=$bucket path=$path uid=${user.id}');
     final data = await client.storage.from(bucket).download(path);
     final jsonStr = _decodeBytesCompat(data);
-    final count = await importTransactionsJson(repo, ledgerId, jsonStr);
-    return count;
+    final imported = await importTransactionsJson(repo, ledgerId, jsonStr);
+    // 二次去重，清理历史重复
+    final deleted = await repo.deduplicateLedgerTransactions(ledgerId);
+    return (
+      inserted: imported.inserted,
+      skipped: imported.skipped,
+      deletedDup: deleted
+    );
   }
 
   @override

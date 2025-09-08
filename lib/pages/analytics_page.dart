@@ -8,6 +8,7 @@ import '../styles/design.dart';
 import '../providers.dart';
 import '../widgets/category_icon.dart';
 import '../styles/colors.dart';
+import '../widgets/wheel_date_picker.dart';
 
 class AnalyticsPage extends ConsumerStatefulWidget {
   const AnalyticsPage({super.key});
@@ -67,17 +68,28 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                 value: _scope,
                 onChanged: (s) => setState(() => _scope = s),
                 onPickMonth: () async {
-                  final picked = await _showMonthPicker(context, selMonth);
+                  final res = await showWheelDatePicker(
+                    context,
+                    initial: selMonth,
+                    mode: WheelDatePickerMode.ym,
+                    maxDate: DateTime.now(),
+                  );
+                  final picked =
+                      res == null ? null : DateTime(res.year, res.month, 1);
                   if (picked != null) {
-                    ref.read(selectedMonthProvider.notifier).state =
-                        DateTime(picked.year, picked.month, 1);
+                    ref.read(selectedMonthProvider.notifier).state = picked;
                   }
                 },
                 onPickYear: () async {
-                  final picked = await _showYearPicker(context, selMonth);
-                  if (picked != null) {
+                  final res = await showWheelDatePicker(
+                    context,
+                    initial: selMonth,
+                    mode: WheelDatePickerMode.y,
+                    maxDate: DateTime.now(),
+                  );
+                  if (res != null) {
                     ref.read(selectedMonthProvider.notifier).state =
-                        DateTime(picked.year, 1, 1);
+                        DateTime(res.year, 1, 1);
                   }
                 },
               ),
@@ -695,114 +707,7 @@ void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint,
 }
 
 // 自定义选择器：月份（年+月）
-Future<DateTime?> _showMonthPicker(
-    BuildContext context, DateTime initial) async {
-  int year = initial.year;
-  int month = initial.month;
-  final years = List<int>.generate(101, (i) => 2000 + i);
-  return showModalBottomSheet<DateTime>(
-    context: context,
-    builder: (ctx) {
-      return SizedBox(
-        height: 260,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child:
-                      const Text('取消', style: TextStyle(color: Colors.black87)),
-                ),
-                const Text('选择月份',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, DateTime(year, month, 1)),
-                  child:
-                      const Text('完成', style: TextStyle(color: Colors.black54)),
-                ),
-              ],
-            ),
-            Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: CupertinoPicker(
-                      scrollController: FixedExtentScrollController(
-                          initialItem: years.indexOf(year)),
-                      itemExtent: 36,
-                      onSelectedItemChanged: (i) => year = years[i],
-                      children: [
-                        for (final y in years) Center(child: Text('$y年'))
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: CupertinoPicker(
-                      scrollController:
-                          FixedExtentScrollController(initialItem: month - 1),
-                      itemExtent: 36,
-                      onSelectedItemChanged: (i) => month = i + 1,
-                      children: [
-                        for (int m = 1; m <= 12; m++) Center(child: Text('$m月'))
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
-// 自定义选择器：年份
-Future<DateTime?> _showYearPicker(
-    BuildContext context, DateTime initial) async {
-  int year = initial.year;
-  final years = List<int>.generate(101, (i) => 2000 + i);
-  return showModalBottomSheet<DateTime>(
-    context: context,
-    builder: (ctx) {
-      return SizedBox(
-        height: 240,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child:
-                      const Text('取消', style: TextStyle(color: Colors.black87)),
-                ),
-                const Text('选择年份',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, DateTime(year, 1, 1)),
-                  child:
-                      const Text('完成', style: TextStyle(color: Colors.black54)),
-                ),
-              ],
-            ),
-            Expanded(
-              child: CupertinoPicker(
-                scrollController: FixedExtentScrollController(
-                    initialItem: years.indexOf(year)),
-                itemExtent: 36,
-                onSelectedItemChanged: (i) => year = years[i],
-                children: [for (final y in years) Center(child: Text('$y年'))],
-              ),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
+// 旧的自定义年月选择器已移除，统一使用 showWheelDatePicker。
 
 class _TopTexts extends StatelessWidget {
   final String scope; // month/year/all
@@ -995,9 +900,14 @@ class _RankRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: BeeColors.divider,
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
             child: Icon(iconForCategory(name), color: color),
           ),
           const SizedBox(width: 12),

@@ -5,13 +5,21 @@ import '../data/repository.dart';
 
 abstract class SyncService {
   Future<void> uploadCurrentLedger({required int ledgerId});
-  Future<int> downloadAndRestoreToCurrentLedger({required int ledgerId});
+
+  /// 下载并导入到当前账本，带去重。
+  /// 返回 (inserted, skipped, deletedDup) 三元组：
+  /// - inserted: 新增条数
+  /// - skipped: 因重复而跳过的条数
+  /// - deletedDup: 导入后执行本地二次去重所删除的条数
+  Future<({int inserted, int skipped, int deletedDup})>
+      downloadAndRestoreToCurrentLedger({required int ledgerId});
   Future<SyncStatus> getStatus({required int ledgerId});
 }
 
 class LocalOnlySyncService implements SyncService {
   @override
-  Future<int> downloadAndRestoreToCurrentLedger({required int ledgerId}) async {
+  Future<({int inserted, int skipped, int deletedDup})>
+      downloadAndRestoreToCurrentLedger({required int ledgerId}) async {
     throw UnsupportedError('Cloud sync not configured');
   }
 
@@ -73,11 +81,16 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
   return jsonEncode(payload);
 }
 
-Future<int> importTransactionsJson(
+/// 解析 JSON 并增量导入，使用签名去重（与本地现有数据合并）。
+/// 返回 (inserted, skipped)
+Future<({int inserted, int skipped})> importTransactionsJson(
     BeeRepository repo, int ledgerId, String jsonStr) async {
   final data = jsonDecode(jsonStr) as Map<String, dynamic>;
   final items = (data['items'] as List).cast<Map<String, dynamic>>();
   int inserted = 0;
+  int skipped = 0;
+  // 先构建现有签名集合，避免 N^2
+  final existing = await repo.signatureSetForLedger(ledgerId);
   for (final it in items) {
     final type = it['type'] as String;
     final amount = (it['amount'] as num).toDouble();
@@ -91,6 +104,16 @@ Future<int> importTransactionsJson(
       categoryId =
           await repo.upsertCategory(name: categoryName, kind: categoryKind);
     }
+    final sig = repo.txSignature(
+        type: type,
+        amount: amount,
+        categoryId: categoryId,
+        happenedAt: happenedAt,
+        note: note);
+    if (existing.contains(sig)) {
+      skipped++;
+      continue;
+    }
     await repo.addTransaction(
       ledgerId: ledgerId,
       type: type,
@@ -101,9 +124,10 @@ Future<int> importTransactionsJson(
       happenedAt: happenedAt,
       note: note,
     );
+    existing.add(sig);
     inserted++;
   }
-  return inserted;
+  return (inserted: inserted, skipped: skipped);
 }
 
 // ---- 状态模型 ----

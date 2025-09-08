@@ -255,6 +255,72 @@ class BeeRepository {
         ));
   }
 
+  // --- 去重与签名工具 ---
+
+  /// 生成用于判重的签名（同一账本内）：
+  /// type|amount|categoryId|null-safe|happenedAtEpochMs|note
+  String txSignature({
+    required String type,
+    required double amount,
+    required int? categoryId,
+    required DateTime happenedAt,
+    required String? note,
+  }) {
+    final ts = happenedAt.millisecondsSinceEpoch;
+    final cat = categoryId?.toString() ?? '';
+    final n = note ?? '';
+    // 避免小数误差，amount 规范为最多 6 位小数
+    final amt = amount.toStringAsFixed(6);
+    return '$type|$amt|$cat|$ts|$n';
+  }
+
+  /// 获取某账本下所有交易的签名集合
+  Future<Set<String>> signatureSetForLedger(int ledgerId) async {
+    final rows = await (db.select(db.transactions)
+          ..where((t) => t.ledgerId.equals(ledgerId)))
+        .get();
+    final set = <String>{};
+    for (final t in rows) {
+      set.add(txSignature(
+          type: t.type,
+          amount: t.amount,
+          categoryId: t.categoryId,
+          happenedAt: t.happenedAt,
+          note: t.note));
+    }
+    return set;
+  }
+
+  /// 对指定账本执行去重：保留每个签名的最小 id，删除其它重复项。
+  /// 返回删除的条数。
+  Future<int> deduplicateLedgerTransactions(int ledgerId) async {
+    final rows = await (db.select(db.transactions)
+          ..where((t) => t.ledgerId.equals(ledgerId))
+          ..orderBy([(t) => d.OrderingTerm(expression: t.id)]))
+        .get();
+    final firstIdForSig = <String, int>{};
+    final toDelete = <int>[];
+    for (final t in rows) {
+      final sig = txSignature(
+          type: t.type,
+          amount: t.amount,
+          categoryId: t.categoryId,
+          happenedAt: t.happenedAt,
+          note: t.note);
+      final id = t.id;
+      final existed = firstIdForSig[sig];
+      if (existed == null) {
+        firstIdForSig[sig] = id;
+      } else {
+        // 此签名已存在，视为重复，删除当前 id
+        toDelete.add(id);
+      }
+    }
+    if (toDelete.isEmpty) return 0;
+    await (db.delete(db.transactions)..where((t) => t.id.isIn(toDelete))).go();
+    return toDelete.length;
+  }
+
   // Ledgers
   Stream<List<Ledger>> ledgers() => db.select(db.ledgers).watch();
 
@@ -268,6 +334,16 @@ class BeeRepository {
     await (db.update(db.ledgers)..where((tbl) => tbl.id.equals(id))).write(
       LedgersCompanion(name: d.Value(name)),
     );
+  }
+
+  Future<void> updateLedger(
+      {required int id, String? name, String? currency}) async {
+    final comp = LedgersCompanion(
+      name: name != null ? d.Value(name) : const d.Value.absent(),
+      currency: currency != null ? d.Value(currency) : const d.Value.absent(),
+    );
+    await (db.update(db.ledgers)..where((tbl) => tbl.id.equals(id)))
+        .write(comp);
   }
 
   Future<void> deleteLedger(int id) async {
