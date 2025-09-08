@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
 import '../data/db.dart';
-import '../widgets/primary_header.dart';
+import '../widgets/ui/ui.dart';
 
 class LedgersPage extends ConsumerWidget {
   const LedgersPage({super.key});

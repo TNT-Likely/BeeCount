@@ -5,11 +5,11 @@ import 'package:intl/intl.dart';
 import '../providers.dart';
 import 'personalize_page.dart' show headerStyleProvider;
 import '../data/db.dart';
-import '../widgets/primary_header.dart';
+import '../widgets/ui/ui.dart';
 import 'category_picker.dart';
-import '../widgets/wheel_date_picker.dart';
 import '../widgets/category_icon.dart';
-import '../widgets/common.dart';
+// ui barrel already imported above
+import '../widgets/biz/biz.dart';
 import '../styles/design.dart';
 import '../styles/colors.dart';
 // import 'package:beecount/widgets/wheel_date_picker.dart';

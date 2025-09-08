@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:beecount/widgets/wheel_date_picker.dart';
-import '../styles/colors.dart';
+import 'package:beecount/widgets/ui/wheel_date_picker.dart';
+import '../../styles/colors.dart';
 
 typedef AmountEditorResult = ({double amount, String? note, DateTime date});
 

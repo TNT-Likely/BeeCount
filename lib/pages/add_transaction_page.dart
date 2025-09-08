@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
 import '../data/db.dart';
-import '../widgets/primary_header.dart';
+import '../widgets/ui/ui.dart';
 import 'category_picker.dart';
-import '../widgets/amount_editor_sheet.dart';
+import '../widgets/biz/amount_editor_sheet.dart';
 import '../utils/sync_helpers.dart';
 import 'package:flutter/services.dart';
 

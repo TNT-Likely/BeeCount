@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
-import '../widgets/primary_header.dart';
+import '../widgets/ui/ui.dart';
 
 // 兼容旧引用
 final headerStyleProvider = StateProvider<String>((ref) => 'primary');

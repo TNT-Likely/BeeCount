@@ -4,8 +4,8 @@ import '../providers.dart';
 import '../data/db.dart';
 // Compact top bar instead of PrimaryHeader to remove extra whitespace
 import '../widgets/category_icon.dart';
-import '../widgets/amount_editor_sheet.dart';
-import '../widgets/primary_header.dart';
+import '../widgets/biz/amount_editor_sheet.dart';
+import '../widgets/ui/ui.dart';
 import '../styles/colors.dart';
 import 'package:flutter/services.dart';
 import '../utils/sync_helpers.dart';

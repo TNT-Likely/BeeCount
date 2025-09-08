@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers.dart';
-import '../widgets/primary_header.dart';
+import '../widgets/ui/ui.dart';
 import '../data/db.dart' as schema;
 import '../utils/sync_helpers.dart';
 
