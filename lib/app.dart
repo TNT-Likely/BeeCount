@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/home_page.dart';
 import 'pages/analytics_page.dart';
 import 'pages/ledgers_page.dart';
-import 'pages/settings_page.dart';
+import 'pages/mine_page.dart';
 import 'pages/category_picker.dart';
 import 'pages/personalize_page.dart' show headerStyleProvider;
 
@@ -22,7 +22,7 @@ class _BeeAppState extends ConsumerState<BeeApp> {
     HomePage(),
     AnalyticsPage(),
     LedgersPage(),
-    SettingsPage(),
+    MinePage(),
   ];
 
   @override

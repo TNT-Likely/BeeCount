@@ -18,8 +18,8 @@ import '../cloud/auth.dart';
 import '../cloud/sync.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingsPage extends ConsumerWidget {
-  const SettingsPage({super.key});
+class MinePage extends ConsumerWidget {
+  const MinePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
