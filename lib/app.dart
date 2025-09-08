@@ -70,7 +70,7 @@ class _BeeAppState extends ConsumerState<BeeApp> {
                   break;
                 default:
                   icon = Icons.settings_rounded;
-                  label = '设置';
+                  label = '我的';
               }
               return Expanded(
                 child: InkWell(

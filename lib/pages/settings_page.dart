@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:csv/csv.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 import 'package:file_picker/file_picker.dart';
+import 'package:drift/drift.dart' as d;
 
 import 'import_page.dart';
 import 'personalize_page.dart';
@@ -31,76 +30,47 @@ class SettingsPage extends ConsumerWidget {
     final refreshTick = ref.watch(syncStatusRefreshProvider);
     final authUserStream = auth.authStateChanges();
 
+    // 导出 CSV（当前账本）
     Future<void> exportCsv() async {
       try {
-        final joined =
-            await repo.transactionsWithCategoryAll(ledgerId: ledgerId).first;
-        if (joined.isEmpty) {
-          await AppDialog.show(context,
-              title: '没有数据', message: '当前账本还没有任何记账，无法导出。');
-          return;
-        }
+        final q = (repo.db.select(repo.db.transactions)
+              ..where((t) => t.ledgerId.equals(ledgerId))
+              ..orderBy([
+                (t) => d.OrderingTerm(
+                    expression: t.happenedAt, mode: d.OrderingMode.desc)
+              ]))
+            .join([
+          d.leftOuterJoin(repo.db.categories,
+              repo.db.categories.id.equalsExp(repo.db.transactions.categoryId)),
+        ]);
+        final rowsJoin = await q.get();
         final rows = <List<dynamic>>[];
-        rows.add(['日期', '类型', '金额', '分类', '备注']);
-        final fmt = DateFormat('yyyy-MM-dd HH:mm:ss');
-        for (final r in joined) {
-          final t = r.t;
-          final cat = r.category?.name ?? '未分类';
+        rows.add(['时间', '类型', '分类', '金额', '备注']);
+        for (final r in rowsJoin) {
+          final t = r.readTable(repo.db.transactions);
+          final c = r.readTableOrNull(repo.db.categories);
+          final timeStr =
+              DateFormat('yyyy-MM-dd HH:mm').format(t.happenedAt.toLocal());
           rows.add([
-            fmt.format(t.happenedAt.toLocal()),
+            timeStr,
             t.type,
-            t.amount,
-            cat,
-            t.note ?? ''
+            c?.name ?? '',
+            t.amount.toStringAsFixed(2),
+            t.note ?? '',
           ]);
         }
-        final csv = const ListToCsvConverter(eol: '\n').convert(rows);
+        final csvStr = const ListToCsvConverter(eol: '\n').convert(rows);
         final ts = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-
-        String? targetPath;
-        try {
-          targetPath = await FilePicker.platform.saveFile(
-            dialogTitle: '保存导出的 CSV',
-            fileName: 'beecount_expense_$ts.csv',
-            type: FileType.custom,
-            allowedExtensions: ['csv'],
-          );
-        } catch (_) {}
-
-        if (targetPath == null || targetPath.isEmpty) {
-          try {
-            final dirPath = await FilePicker.platform.getDirectoryPath(
-              dialogTitle: '选择保存文件夹',
-            );
-            if (dirPath != null && dirPath.isNotEmpty) {
-              targetPath = p.join(dirPath, 'beecount_expense_$ts.csv');
-            }
-          } catch (_) {}
-        }
-
-        if (targetPath == null || targetPath.isEmpty) {
-          final dir = await getApplicationDocumentsDirectory();
-          final exportDir = Directory(p.join(dir.path, 'exports'));
-          if (!await exportDir.exists()) {
-            await exportDir.create(recursive: true);
-          }
-          targetPath = p.join(exportDir.path, 'beecount_expense_$ts.csv');
-        }
-
-        final file = File(targetPath);
-        try {
-          await file.writeAsString(csv);
-        } catch (e) {
-          final dir = await getApplicationDocumentsDirectory();
-          final fallback =
-              File(p.join(dir.path, 'exports', 'beecount_expense_$ts.csv'))
-                ..createSync(recursive: true);
-          await fallback.writeAsString(csv);
-          await AppDialog.show(context,
-              title: '部分受限', message: '所选位置不可写，已改为保存到:\n${fallback.path}');
-          return;
-        }
-        await AppDialog.show(context, title: '导出完成', message: file.path);
+        String? targetPath = await FilePicker.platform.saveFile(
+          dialogTitle: '保存导出的 CSV',
+          fileName: 'beecount_$ts.csv',
+          type: FileType.custom,
+          allowedExtensions: ['csv'],
+        );
+        if (targetPath == null) return; // 用户取消
+        await File(targetPath).writeAsString(csvStr);
+        await AppDialog.show(context,
+            title: '导出成功', message: '已保存到：\n$targetPath');
       } catch (e) {
         await AppDialog.show(context, title: '导出失败', message: '$e');
       }
@@ -120,14 +90,13 @@ class SettingsPage extends ConsumerWidget {
                 children: [
                   const SizedBox(height: 6),
                   FutureBuilder<({int ledgerCount, int dayCount, int txCount})>(
-                    // 轻量查询：不订阅全量 stream，避免设置页打开就刷新大量数据
                     future: () async {
                       final lCount = await repo.ledgerCount();
                       final c = await repo.countsForLedger(ledgerId: ledgerId);
                       return (
                         ledgerCount: lCount,
                         dayCount: c.dayCount,
-                        txCount: c.txCount
+                        txCount: c.txCount,
                       );
                     }(),
                     builder: (ctx, snap) {
@@ -231,6 +200,9 @@ class SettingsPage extends ConsumerWidget {
                           subtitle = '读取中…';
                         }
 
+                        bool uploadBusy = false;
+                        bool downloadBusy = false;
+
                         return Column(
                           children: [
                             AppListTile(
@@ -263,71 +235,83 @@ class SettingsPage extends ConsumerWidget {
                               },
                             ),
                             AppDivider.thin(),
-                            AppListTile(
-                              leading: Icons.cloud_upload_outlined,
-                              title: '上传',
-                              subtitle:
-                                  canUseCloud ? (inSync ? '已同步' : null) : '需登录',
-                              enabled: canUseCloud && !inSync,
-                              onTap: () async {
-                                // 简单 loading 覆盖层
-                                showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (_) => const Center(
-                                          child: CircularProgressIndicator(),
-                                        ));
-                                try {
-                                  await sync.uploadCurrentLedger(
-                                      ledgerId: ledgerId);
-                                  if (context.mounted)
-                                    Navigator.of(context).pop();
-                                  await AppDialog.show(context,
-                                      title: '已上传', message: '当前账本已同步到云端');
-                                  ref
-                                      .read(syncStatusRefreshProvider.notifier)
-                                      .state++;
-                                } catch (e) {
-                                  if (context.mounted)
-                                    Navigator.of(context).pop();
-                                  await AppDialog.show(context,
-                                      title: '失败', message: '$e');
-                                }
-                              },
-                            ),
+                            StatefulBuilder(builder: (ctx, setSB) {
+                              return AppListTile(
+                                leading: Icons.cloud_upload_outlined,
+                                title: '上传',
+                                subtitle: canUseCloud
+                                    ? (inSync ? '已同步' : null)
+                                    : '需登录',
+                                enabled: canUseCloud && !inSync && !uploadBusy,
+                                trailing: uploadBusy
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2),
+                                      )
+                                    : null,
+                                onTap: () async {
+                                  setSB(() => uploadBusy = true);
+                                  try {
+                                    await sync.uploadCurrentLedger(
+                                        ledgerId: ledgerId);
+                                    await AppDialog.show(context,
+                                        title: '已上传', message: '当前账本已同步到云端');
+                                    ref
+                                        .read(
+                                            syncStatusRefreshProvider.notifier)
+                                        .state++;
+                                  } catch (e) {
+                                    await AppDialog.show(context,
+                                        title: '失败', message: '$e');
+                                  } finally {
+                                    if (ctx.mounted)
+                                      setSB(() => uploadBusy = false);
+                                  }
+                                },
+                              );
+                            }),
                             AppDivider.thin(),
-                            AppListTile(
-                              leading: Icons.cloud_download_outlined,
-                              title: '下载',
-                              subtitle:
-                                  canUseCloud ? (inSync ? '已同步' : null) : '需登录',
-                              enabled: canUseCloud && !inSync,
-                              onTap: () async {
-                                showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (_) => const Center(
-                                          child: CircularProgressIndicator(),
-                                        ));
-                                try {
-                                  final count = await sync
-                                      .downloadAndRestoreToCurrentLedger(
-                                          ledgerId: ledgerId);
-                                  if (context.mounted)
-                                    Navigator.of(context).pop();
-                                  await AppDialog.show(context,
-                                      title: '已下载', message: '导入 $count 条记录');
-                                  ref
-                                      .read(syncStatusRefreshProvider.notifier)
-                                      .state++;
-                                } catch (e) {
-                                  if (context.mounted)
-                                    Navigator.of(context).pop();
-                                  await AppDialog.show(context,
-                                      title: '失败', message: '$e');
-                                }
-                              },
-                            ),
+                            StatefulBuilder(builder: (ctx, setSB) {
+                              return AppListTile(
+                                leading: Icons.cloud_download_outlined,
+                                title: '下载',
+                                subtitle: canUseCloud
+                                    ? (inSync ? '已同步' : null)
+                                    : '需登录',
+                                enabled:
+                                    canUseCloud && !inSync && !downloadBusy,
+                                trailing: downloadBusy
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2),
+                                      )
+                                    : null,
+                                onTap: () async {
+                                  setSB(() => downloadBusy = true);
+                                  try {
+                                    final count = await sync
+                                        .downloadAndRestoreToCurrentLedger(
+                                            ledgerId: ledgerId);
+                                    await AppDialog.show(context,
+                                        title: '已下载', message: '导入 $count 条记录');
+                                    ref
+                                        .read(
+                                            syncStatusRefreshProvider.notifier)
+                                        .state++;
+                                  } catch (e) {
+                                    await AppDialog.show(context,
+                                        title: '失败', message: '$e');
+                                  } finally {
+                                    if (ctx.mounted)
+                                      setSB(() => downloadBusy = false);
+                                  }
+                                },
+                              );
+                            }),
                             AppDivider.thin(),
                             AppListTile(
                               leading: user == null
@@ -550,13 +534,8 @@ class _StatCell extends StatelessWidget {
   }
 }
 
-// 已移除底部快捷入口行
-
-// 旧 GroupCard 已替换为 SectionCard
-
 void _showToast(BuildContext context, String message,
     {Duration duration = const Duration(seconds: 2)}) {
-  // 使用根 Overlay，确保在所有弹窗（Dialog/BottomSheet）之上显示
   final overlay = Overlay.of(context, rootOverlay: true);
   final entry = OverlayEntry(
     builder: (ctx) => IgnorePointer(

@@ -38,17 +38,21 @@ class SectionCard extends StatelessWidget {
 
 class AppListTile extends StatelessWidget {
   final IconData leading;
+  final Widget? leadingWidget;
   final String title;
   final String? subtitle;
   final VoidCallback? onTap;
   final bool enabled;
+  final Widget? trailing;
   const AppListTile(
       {super.key,
       required this.leading,
+      this.leadingWidget,
       required this.title,
       this.subtitle,
       this.onTap,
-      this.enabled = true});
+      this.enabled = true,
+      this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -64,19 +68,22 @@ class AppListTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color:
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              leading,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
+          leadingWidget ??
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  leading,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -94,7 +101,10 @@ class AppListTile extends StatelessWidget {
               ],
             ),
           ),
-          if (enabled) const Icon(Icons.chevron_right, color: Colors.black38),
+          if (trailing != null)
+            trailing!
+          else if (enabled)
+            const Icon(Icons.chevron_right, color: Colors.black38),
         ],
       ),
     );
@@ -357,14 +367,17 @@ class AppDialog {
               children: [
                 for (final a in actions!) ...[
                   if (!a.primary)
-                    OutlinedButton(
-                      onPressed: a.onTap,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.black87,
-                        side: const BorderSide(color: Color(0x1F000000)),
-                      ),
-                      child: Text(a.label),
-                    )
+                    Builder(builder: (context) {
+                      final primary = Theme.of(ctx).colorScheme.primary;
+                      return OutlinedButton(
+                        onPressed: a.onTap,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: primary,
+                          side: BorderSide(color: primary),
+                        ),
+                        child: Text(a.label),
+                      );
+                    })
                   else
                     FilledButton(onPressed: a.onTap, child: Text(a.label)),
                   const SizedBox(width: 12),
