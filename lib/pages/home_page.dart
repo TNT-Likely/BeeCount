@@ -499,24 +499,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     child: const Icon(Icons.delete_outline,
                                         color: Colors.red)),
                                 confirmDismiss: (_) async {
-                                  final ok = await AppDialog.show<bool>(
+                                  final ok = await AppDialog.confirm<bool>(
                                         context,
                                         title: '删除确认',
                                         message: '确定要删除这条记账吗？',
-                                        actions: [
-                                          (
-                                            label: '取消',
-                                            onTap: () =>
-                                                Navigator.pop(context, false),
-                                            primary: false,
-                                          ),
-                                          (
-                                            label: '确定',
-                                            onTap: () =>
-                                                Navigator.pop(context, true),
-                                            primary: true,
-                                          ),
-                                        ],
+                                        onCancel: () =>
+                                            Navigator.pop(context, false),
+                                        onOk: () =>
+                                            Navigator.pop(context, true),
                                       ) ??
                                       false;
                                   return ok;

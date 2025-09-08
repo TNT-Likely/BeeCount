@@ -69,10 +69,10 @@ class MinePage extends ConsumerWidget {
         );
         if (targetPath == null) return; // 用户取消
         await File(targetPath).writeAsString(csvStr);
-        await AppDialog.show(context,
+        await AppDialog.info(context,
             title: '导出成功', message: '已保存到：\n$targetPath');
       } catch (e) {
-        await AppDialog.show(context, title: '导出失败', message: '$e');
+        await AppDialog.info(context, title: '导出失败', message: '$e');
       }
     }
 
@@ -228,8 +228,11 @@ class MinePage extends ConsumerWidget {
                                 if (st2.message != null) {
                                   lines.add('说明: ${st2.message}');
                                 }
-                                await AppDialog.show(context,
-                                    title: '同步状态详情', message: lines.join('\n'));
+                                await AppDialog.info(
+                                  context,
+                                  title: '同步状态详情',
+                                  message: lines.join('\n'),
+                                );
                                 ref
                                     .read(syncStatusRefreshProvider.notifier)
                                     .state++;
@@ -259,14 +262,14 @@ class MinePage extends ConsumerWidget {
                                   try {
                                     await sync.uploadCurrentLedger(
                                         ledgerId: ledgerId);
-                                    await AppDialog.show(context,
+                                    await AppDialog.info(context,
                                         title: '已上传', message: '当前账本已同步到云端');
                                     ref
                                         .read(
                                             syncStatusRefreshProvider.notifier)
                                         .state++;
                                   } catch (e) {
-                                    await AppDialog.show(context,
+                                    await AppDialog.info(context,
                                         title: '失败', message: '$e');
                                   } finally {
                                     if (ctx.mounted)
@@ -303,14 +306,14 @@ class MinePage extends ConsumerWidget {
                                       ..writeln('新增导入：${res.inserted} 条')
                                       ..writeln('已存在跳过：${res.skipped} 条')
                                       ..writeln('清理历史重复：${res.deletedDup} 条');
-                                    await AppDialog.show(context,
+                                    await AppDialog.info(context,
                                         title: '完成', message: msg.toString());
                                     ref
                                         .read(
                                             syncStatusRefreshProvider.notifier)
                                         .state++;
                                   } catch (e) {
-                                    await AppDialog.show(context,
+                                    await AppDialog.error(context,
                                         title: '失败', message: '$e');
                                   } finally {
                                     if (ctx.mounted)
@@ -390,7 +393,7 @@ class MinePage extends ConsumerWidget {
                 AppDivider.thin(),
                 AppListTile(
                   leading: Icons.file_download_outlined,
-                  title: '导出账单',
+                  title: '导出',
                   onTap: exportCsv,
                 ),
               ],

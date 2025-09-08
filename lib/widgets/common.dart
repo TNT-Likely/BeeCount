@@ -324,10 +324,118 @@ class InfoTag extends StatelessWidget {
 
 /// 统一弹窗（简单版）
 class AppDialog {
-  static Future<T?> show<T>(BuildContext context,
-      {required String title,
-      required String message,
-      List<({String label, VoidCallback onTap, bool primary})>? actions}) {
+  static Future<T?> confirm<T>(
+    BuildContext context, {
+    required String title,
+    required String message,
+    String cancelLabel = '取消',
+    String okLabel = '确定',
+    VoidCallback? onCancel,
+    VoidCallback? onOk,
+  }) {
+    return _show<T>(
+      context,
+      title: title,
+      message: message,
+      actions: [
+        (
+          label: cancelLabel,
+          onTap: () {
+            Navigator.pop(context, false);
+            if (onCancel != null) onCancel();
+          },
+          primary: false
+        ),
+        (
+          label: okLabel,
+          onTap: () {
+            Navigator.pop(context, true);
+            if (onOk != null) onOk();
+          },
+          primary: true
+        ),
+      ],
+    );
+  }
+
+  static Future<T?> info<T>(
+    BuildContext context, {
+    required String title,
+    required String message,
+    String okLabel = '知道了',
+    VoidCallback? onOk,
+  }) {
+    return _show<T>(
+      context,
+      title: title,
+      message: message,
+      actions: [
+        (
+          label: okLabel,
+          onTap: () {
+            Navigator.pop(context, true);
+            if (onOk != null) onOk();
+          },
+          primary: true
+        ),
+      ],
+    );
+  }
+
+  static Future<T?> error<T>(
+    BuildContext context, {
+    required String title,
+    required String message,
+    String okLabel = '知道了',
+    VoidCallback? onOk,
+  }) {
+    return _show<T>(
+      context,
+      title: title,
+      message: message,
+      actions: [
+        (
+          label: okLabel,
+          onTap: () {
+            Navigator.pop(context, true);
+            if (onOk != null) onOk();
+          },
+          primary: true
+        ),
+      ],
+    );
+  }
+
+  static Future<T?> warning<T>(
+    BuildContext context, {
+    required String title,
+    required String message,
+    String okLabel = '知道了',
+    VoidCallback? onOk,
+  }) {
+    return _show<T>(
+      context,
+      title: title,
+      message: message,
+      actions: [
+        (
+          label: okLabel,
+          onTap: () {
+            Navigator.pop(context, true);
+            if (onOk != null) onOk();
+          },
+          primary: true
+        ),
+      ],
+    );
+  }
+
+  static Future<T?> _show<T>(
+    BuildContext context, {
+    required String title,
+    required String message,
+    List<({String label, VoidCallback onTap, bool primary})>? actions,
+  }) {
     actions ??= [
       (label: '取消', onTap: () => Navigator.pop(context), primary: false),
       (label: '确定', onTap: () => Navigator.pop(context), primary: true),
@@ -349,7 +457,7 @@ class AppDialog {
             const SizedBox(height: 12),
             Text(
               message,
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.left,
               style: Theme.of(ctx).textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
