@@ -41,12 +41,14 @@ class AppListTile extends StatelessWidget {
   final String title;
   final String? subtitle;
   final VoidCallback? onTap;
+  final bool enabled;
   const AppListTile(
       {super.key,
       required this.leading,
       required this.title,
       this.subtitle,
-      this.onTap});
+      this.onTap,
+      this.enabled = true});
 
   @override
   Widget build(BuildContext context) {
@@ -58,41 +60,50 @@ class AppListTile extends StatelessWidget {
         .textTheme
         .bodySmall
         ?.copyWith(color: BeeColors.black54);
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(leading, color: BeeColors.primaryText),
+    final tile = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.black, width: 1),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style: titleStyle,
+            child: Icon(
+              leading,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: titleStyle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+                if (subtitle != null)
+                  Text(subtitle!,
+                      style: subStyle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
-                  if (subtitle != null)
-                    Text(subtitle!,
-                        style: subStyle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
-                ],
-              ),
+              ],
             ),
-            const Icon(Icons.chevron_right, color: Colors.black38),
-          ],
-        ),
+          ),
+          if (enabled) const Icon(Icons.chevron_right, color: Colors.black38),
+        ],
+      ),
+    );
+
+    return Opacity(
+      opacity: enabled ? 1 : 0.5,
+      child: InkWell(
+        onTap: enabled ? onTap : null,
+        child: tile,
       ),
     );
   }

@@ -57,19 +57,19 @@ class _BeeAppState extends ConsumerState<BeeApp> {
               String label;
               switch (pageIndex) {
                 case 0:
-                  icon = Icons.home_outlined;
-                  label = '首页';
+                  icon = Icons.list_alt_rounded;
+                  label = '明细';
                   break;
                 case 1:
-                  icon = Icons.pie_chart_outline;
+                  icon = Icons.pie_chart_rounded;
                   label = '图表';
                   break;
                 case 2:
-                  icon = Icons.menu_book_outlined;
+                  icon = Icons.menu_book_rounded;
                   label = '账本';
                   break;
                 default:
-                  icon = Icons.settings_outlined;
+                  icon = Icons.settings_rounded;
                   label = '设置';
               }
               return Expanded(

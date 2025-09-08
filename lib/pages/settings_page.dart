@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:csv/csv.dart';
@@ -14,11 +13,11 @@ import 'import_page.dart';
 import 'personalize_page.dart';
 import '../providers.dart';
 import '../widgets/primary_header.dart';
-// 快捷入口已移除，不再需要跳转到账本页
 import '../widgets/common.dart';
 import '../styles/design.dart';
 import '../styles/colors.dart';
 import '../cloud/auth.dart';
+import '../cloud/sync.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -29,6 +28,7 @@ class SettingsPage extends ConsumerWidget {
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final auth = ref.watch(authServiceProvider);
     final sync = ref.watch(syncServiceProvider);
+    final refreshTick = ref.watch(syncStatusRefreshProvider);
     final authUserStream = auth.authStateChanges();
 
     Future<void> exportCsv() async {
@@ -44,7 +44,6 @@ class SettingsPage extends ConsumerWidget {
         rows.add(['日期', '类型', '金额', '分类', '备注']);
         final fmt = DateFormat('yyyy-MM-dd HH:mm:ss');
         for (final r in joined) {
-          // 导出全部：收入 + 支出
           final t = r.t;
           final cat = r.category?.name ?? '未分类';
           rows.add([
@@ -56,9 +55,8 @@ class SettingsPage extends ConsumerWidget {
           ]);
         }
         final csv = const ListToCsvConverter(eol: '\n').convert(rows);
-
-        // 选择保存地址，若取消则保存到应用文档目录下的 exports
         final ts = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+
         String? targetPath;
         try {
           targetPath = await FilePicker.platform.saveFile(
@@ -67,10 +65,8 @@ class SettingsPage extends ConsumerWidget {
             type: FileType.custom,
             allowedExtensions: ['csv'],
           );
-        } catch (_) {
-          // 某些平台不支持 saveFile
-          targetPath = null;
-        }
+        } catch (_) {}
+
         if (targetPath == null || targetPath.isEmpty) {
           try {
             final dirPath = await FilePicker.platform.getDirectoryPath(
@@ -79,10 +75,9 @@ class SettingsPage extends ConsumerWidget {
             if (dirPath != null && dirPath.isNotEmpty) {
               targetPath = p.join(dirPath, 'beecount_expense_$ts.csv');
             }
-          } catch (_) {
-            // ignore and fallback
-          }
+          } catch (_) {}
         }
+
         if (targetPath == null || targetPath.isEmpty) {
           final dir = await getApplicationDocumentsDirectory();
           final exportDir = Directory(p.join(dir.path, 'exports'));
@@ -91,11 +86,11 @@ class SettingsPage extends ConsumerWidget {
           }
           targetPath = p.join(exportDir.path, 'beecount_expense_$ts.csv');
         }
+
         final file = File(targetPath);
         try {
           await file.writeAsString(csv);
         } catch (e) {
-          // 写入失败则落到应用文档目录
           final dir = await getApplicationDocumentsDirectory();
           final fallback =
               File(p.join(dir.path, 'exports', 'beecount_expense_$ts.csv'))
@@ -122,33 +117,16 @@ class SettingsPage extends ConsumerWidget {
     return Scaffold(
       body: ListView(
         children: [
-          // 顶部：上行头像+名字，下一行统计信息
+          // 顶部：居中标题 + 统计（无头像）
           PrimaryHeader(
             showBack: false,
-            title: '',
+            title: '我的',
             content: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 28,
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.person, color: BeeColors.primaryText),
-                      ),
-                      const SizedBox(width: 12),
-                      Text('我的',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(
-                                  color: BeeColors.primaryText,
-                                  fontWeight: FontWeight.w600)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 6),
                   FutureBuilder<({int ledgerCount, int dayCount, int txCount})>(
                     future: () async {
                       final ledgers =
@@ -181,19 +159,18 @@ class SettingsPage extends ConsumerWidget {
                               color: BeeColors.primaryText,
                               fontWeight: FontWeight.w600);
                       return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           _StatCell(
                               label: '账本',
                               value: data.ledgerCount.toString(),
                               labelStyle: labelStyle,
                               numStyle: numStyle),
-                          const SizedBox(width: 24),
                           _StatCell(
                               label: '记账天数',
                               value: data.dayCount.toString(),
                               labelStyle: labelStyle,
                               numStyle: numStyle),
-                          const SizedBox(width: 24),
                           _StatCell(
                               label: '总笔数',
                               value: data.txCount.toString(),
@@ -208,79 +185,196 @@ class SettingsPage extends ConsumerWidget {
             ),
           ),
 
-          // 分组：工具
+          // 分组：同步
           const SizedBox(height: 8),
           SectionCard(
             child: Column(
               children: [
-                // 登录/注册/同步
                 StreamBuilder<AuthUser?>(
                   stream: authUserStream,
                   builder: (ctx, snap) {
                     final user = snap.data;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        AppListTile(
-                          leading: user == null
-                              ? Icons.login
-                              : Icons.verified_user_outlined,
-                          title: user == null
-                              ? '登录 / 注册（用于云同步）'
-                              : (user.email ?? '已登录'),
-                          subtitle:
-                              user == null ? '不登录也可使用，仅在同步时需要' : '点击可退出登录',
-                          onTap: () async {
-                            if (user == null) {
-                              await _showAuthSheet(context, auth);
-                            } else {
-                              await auth.signOut();
-                            }
-                          },
-                        ),
-                        AppDivider.thin(),
-                        AppListTile(
-                          leading: Icons.cloud_upload_outlined,
-                          title: '上传当前账本到云端',
-                          subtitle: '需登录后使用',
-                          onTap: () async {
-                            try {
-                              await sync.uploadCurrentLedger(
-                                  ledgerId: ledgerId);
-                              await _showNiceDialog(context,
-                                  title: '上传完成',
-                                  message: '已将当前账本上传到云端',
-                                  success: true);
-                            } catch (e) {
-                              await _showNiceDialog(context,
-                                  title: '失败', message: '$e', success: false);
-                            }
-                          },
-                        ),
-                        AppDivider.thin(),
-                        AppListTile(
-                          leading: Icons.cloud_download_outlined,
-                          title: '从云端下载并合并到当前账本',
-                          subtitle: '需登录后使用',
-                          onTap: () async {
-                            try {
-                              final count =
-                                  await sync.downloadAndRestoreToCurrentLedger(
+                    final canUseCloud = user != null;
+                    return FutureBuilder<SyncStatus>(
+                      key: ValueKey(refreshTick),
+                      future: sync.getStatus(ledgerId: ledgerId),
+                      builder: (c, s) {
+                        String subtitle = '';
+                        IconData icon = Icons.sync_outlined;
+                        bool inSync = false;
+                        final st = s.data;
+                        if (st != null) {
+                          switch (st.diff) {
+                            case SyncDiff.notLoggedIn:
+                              subtitle = '未登录';
+                              icon = Icons.lock_outline;
+                              break;
+                            case SyncDiff.notConfigured:
+                              subtitle = '未配置云端';
+                              icon = Icons.cloud_off_outlined;
+                              break;
+                            case SyncDiff.noRemote:
+                              subtitle = '云端暂无备份';
+                              icon = Icons.cloud_queue_outlined;
+                              break;
+                            case SyncDiff.inSync:
+                              subtitle = '已同步 (本地${st.localCount}条)';
+                              icon = Icons.verified_outlined;
+                              inSync = true;
+                              break;
+                            case SyncDiff.localNewer:
+                              subtitle = '本地较新 (本地${st.localCount}条, 建议上传)';
+                              icon = Icons.upload_outlined;
+                              break;
+                            case SyncDiff.cloudNewer:
+                              subtitle = '云端较新 (建议下载并合并)';
+                              icon = Icons.download_outlined;
+                              break;
+                            case SyncDiff.different:
+                              subtitle = '本地与云端不同步';
+                              icon = Icons.change_circle_outlined;
+                              break;
+                            case SyncDiff.error:
+                              subtitle = st.message ?? '状态获取失败';
+                              icon = Icons.error_outline;
+                              break;
+                          }
+                        } else if (s.hasError) {
+                          subtitle = '${s.error}';
+                          icon = Icons.error_outline;
+                        } else {
+                          subtitle = '读取中…';
+                        }
+
+                        return Column(
+                          children: [
+                            AppListTile(
+                              leading: icon,
+                              title: '同步状态',
+                              subtitle: subtitle,
+                              onTap: () async {
+                                final st2 =
+                                    await sync.getStatus(ledgerId: ledgerId);
+                                final lines = <String>[];
+                                lines.add('本地记录数: ${st2.localCount}');
+                                if (st2.cloudCount != null) {
+                                  lines.add('云端记录数: ${st2.cloudCount}');
+                                }
+                                if (st2.cloudExportedAt != null) {
+                                  lines.add('云端最新记账时间: ${st2.cloudExportedAt}');
+                                }
+                                lines.add('本地指纹: ${st2.localFingerprint}');
+                                if (st2.cloudFingerprint != null) {
+                                  lines.add('云端指纹: ${st2.cloudFingerprint}');
+                                }
+                                if (st2.message != null) {
+                                  lines.add('说明: ${st2.message}');
+                                }
+                                await _showNiceDialog(context,
+                                    title: '同步状态详情',
+                                    message: lines.join('\n'),
+                                    success: st2.diff == SyncDiff.inSync);
+                                ref
+                                    .read(syncStatusRefreshProvider.notifier)
+                                    .state++;
+                              },
+                            ),
+                            AppDivider.thin(),
+                            AppListTile(
+                              leading: Icons.cloud_upload_outlined,
+                              title: '上传当前账本到云端',
+                              subtitle: canUseCloud
+                                  ? (inSync ? '已同步，无需上传' : null)
+                                  : '需登录后使用',
+                              enabled: canUseCloud && !inSync,
+                              onTap: () async {
+                                try {
+                                  await sync.uploadCurrentLedger(
                                       ledgerId: ledgerId);
-                              await _showNiceDialog(context,
-                                  title: '下载完成',
-                                  message: '导入 $count 条记录',
-                                  success: true);
-                            } catch (e) {
-                              await _showNiceDialog(context,
-                                  title: '失败', message: '$e', success: false);
-                            }
-                          },
-                        ),
-                      ],
+                                  await _showNiceDialog(context,
+                                      title: '上传完成',
+                                      message: '已将当前账本上传到云端',
+                                      success: true);
+                                  ref
+                                      .read(syncStatusRefreshProvider.notifier)
+                                      .state++;
+                                } catch (e) {
+                                  await _showNiceDialog(context,
+                                      title: '失败',
+                                      message: '$e',
+                                      success: false);
+                                }
+                              },
+                            ),
+                            AppDivider.thin(),
+                            AppListTile(
+                              leading: Icons.cloud_download_outlined,
+                              title: '从云端下载并合并到当前账本',
+                              subtitle: canUseCloud
+                                  ? (inSync ? '已同步，无需下载' : null)
+                                  : '需登录后使用',
+                              enabled: canUseCloud && !inSync,
+                              onTap: () async {
+                                try {
+                                  final count = await sync
+                                      .downloadAndRestoreToCurrentLedger(
+                                          ledgerId: ledgerId);
+                                  await _showNiceDialog(context,
+                                      title: '下载完成',
+                                      message: '导入 $count 条记录',
+                                      success: true);
+                                  ref
+                                      .read(syncStatusRefreshProvider.notifier)
+                                      .state++;
+                                } catch (e) {
+                                  await _showNiceDialog(context,
+                                      title: '失败',
+                                      message: '$e',
+                                      success: false);
+                                }
+                              },
+                            ),
+                            AppDivider.thin(),
+                            AppListTile(
+                              leading: user == null
+                                  ? Icons.login
+                                  : Icons.verified_user_outlined,
+                              title: user == null
+                                  ? '登录 / 注册（用于云同步）'
+                                  : (user.email ?? '已登录'),
+                              subtitle: user == null ? '仅在同步时需要' : '点击可退出登录',
+                              onTap: () async {
+                                if (user == null) {
+                                  await _showAuthSheet(context, auth,
+                                      onChanged: () {
+                                    ref
+                                        .read(
+                                            syncStatusRefreshProvider.notifier)
+                                        .state++;
+                                  });
+                                } else {
+                                  await auth.signOut();
+                                  ref
+                                      .read(syncStatusRefreshProvider.notifier)
+                                      .state++;
+                                }
+                              },
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
                 ),
+              ],
+            ),
+          ),
+
+          // 分组：导入/导出
+          const SizedBox(height: 8),
+          SectionCard(
+            child: Column(
+              children: [
                 AppListTile(
                   leading: Icons.file_upload_outlined,
                   title: '导入',
@@ -296,20 +390,24 @@ class SettingsPage extends ConsumerWidget {
                   title: '导出账单',
                   onTap: exportCsv,
                 ),
-                AppDivider.thin(),
-                AppListTile(
-                  leading: Icons.brush_outlined,
-                  title: '个性化',
-                  onTap: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const PersonalizePage()),
-                    );
-                  },
-                ),
               ],
             ),
           ),
+
+          // 分组：个性化
+          const SizedBox(height: 8),
+          SectionCard(
+            child: AppListTile(
+              leading: Icons.brush_outlined,
+              title: '个性化',
+              onTap: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PersonalizePage()),
+                );
+              },
+            ),
+          ),
+
           const SizedBox(height: AppDimens.p16),
         ],
       ),
@@ -317,7 +415,8 @@ class SettingsPage extends ConsumerWidget {
   }
 }
 
-Future<void> _showAuthSheet(BuildContext context, AuthService auth) async {
+Future<void> _showAuthSheet(BuildContext context, AuthService auth,
+    {VoidCallback? onChanged}) async {
   final emailCtrl = TextEditingController();
   final pwdCtrl = TextEditingController();
   await showModalBottomSheet(
@@ -363,6 +462,7 @@ Future<void> _showAuthSheet(BuildContext context, AuthService auth) async {
                             email: emailCtrl.text.trim(),
                             password: pwdCtrl.text);
                         Navigator.pop(ctx);
+                        onChanged?.call();
                       } catch (e, st) {
                         debugPrint('Login failed: $e\n$st');
                         _showToast(context, '登录失败：$e');
@@ -380,6 +480,7 @@ Future<void> _showAuthSheet(BuildContext context, AuthService auth) async {
                             email: emailCtrl.text.trim(),
                             password: pwdCtrl.text);
                         Navigator.pop(ctx);
+                        onChanged?.call();
                       } catch (e, st) {
                         debugPrint('Signup failed: $e\n$st');
                         _showToast(context, '注册失败：$e');

@@ -69,6 +69,9 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   return SupabaseSyncService(client: client, db: db, repo: repo, auth: auth);
 });
 
+// 用于触发设置页同步状态的刷新（每次 +1 即可触发 FutureBuilder 重新获取）
+final syncStatusRefreshProvider = StateProvider<int>((ref) => 0);
+
 // For now, always use default ledger id 1
 final currentLedgerIdProvider = StateProvider<int>((ref) => 1);
 

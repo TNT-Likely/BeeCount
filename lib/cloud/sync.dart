@@ -6,6 +6,7 @@ import '../data/repository.dart';
 abstract class SyncService {
   Future<void> uploadCurrentLedger({required int ledgerId});
   Future<int> downloadAndRestoreToCurrentLedger({required int ledgerId});
+  Future<SyncStatus> getStatus({required int ledgerId});
 }
 
 class LocalOnlySyncService implements SyncService {
@@ -18,6 +19,16 @@ class LocalOnlySyncService implements SyncService {
   Future<void> uploadCurrentLedger({required int ledgerId}) async {
     throw UnsupportedError('Cloud sync not configured');
   }
+
+  @override
+  Future<SyncStatus> getStatus({required int ledgerId}) async {
+    return const SyncStatus(
+      diff: SyncDiff.notConfigured,
+      localCount: 0,
+      localFingerprint: '',
+      message: '未配置云端',
+    );
+  }
 }
 
 // --- Simple serialization of transactions for a single ledger ---
@@ -26,6 +37,12 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
   final txs = await (db.select(db.transactions)
         ..where((t) => t.ledgerId.equals(ledgerId)))
       .get();
+  // 稳定排序，避免不同平台/查询导致顺序差异
+  txs.sort((a, b) {
+    final c = a.happenedAt.compareTo(b.happenedAt);
+    if (c != 0) return c;
+    return a.id.compareTo(b.id);
+  });
   // Map categoryId -> name/kind for used categories
   final usedCatIds = txs.map((t) => t.categoryId).whereType<int>().toSet();
   final cats = <int, Map<String, dynamic>>{};
@@ -87,4 +104,37 @@ Future<int> importTransactionsJson(
     inserted++;
   }
   return inserted;
+}
+
+// ---- 状态模型 ----
+
+enum SyncDiff {
+  notConfigured,
+  notLoggedIn,
+  noRemote,
+  inSync,
+  localNewer,
+  cloudNewer,
+  different,
+  error,
+}
+
+class SyncStatus {
+  final SyncDiff diff;
+  final int localCount;
+  final int? cloudCount;
+  final String localFingerprint;
+  final String? cloudFingerprint;
+  final DateTime? cloudExportedAt;
+  final String? message; // 错误或说明
+
+  const SyncStatus({
+    required this.diff,
+    required this.localCount,
+    required this.localFingerprint,
+    this.cloudCount,
+    this.cloudFingerprint,
+    this.cloudExportedAt,
+    this.message,
+  });
 }
