@@ -72,7 +72,7 @@ class _BeeAppState extends ConsumerState<BeeApp> {
                   label = '账本';
                   break;
                 default:
-                  icon = Icons.settings_rounded;
+                  icon = Icons.person_rounded;
                   label = '我的';
               }
               return Expanded(
