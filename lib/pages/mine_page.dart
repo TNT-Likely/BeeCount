@@ -219,7 +219,12 @@ class MinePage extends ConsumerWidget {
                                   lines.add('云端记录数: ${st2.cloudCount}');
                                 }
                                 if (st2.cloudExportedAt != null) {
-                                  lines.add('云端最新记账时间: ${st2.cloudExportedAt}');
+                                  final cloudTime = st2.cloudExportedAt;
+                                  final cloudTimeStr = cloudTime != null
+                                      ? DateFormat('yyyy-MM-dd HH:mm:ss')
+                                          .format(cloudTime.toLocal())
+                                      : '';
+                                  lines.add('云端最新记账时间: $cloudTimeStr');
                                 }
                                 lines.add('本地指纹: ${st2.localFingerprint}');
                                 if (st2.cloudFingerprint != null) {
