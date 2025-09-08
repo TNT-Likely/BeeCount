@@ -37,9 +37,13 @@ class BeeRepository {
         variables: [d.Variable.withInt(ledgerId)],
         readsFrom: {db.transactions}).getSingle();
     final dayRow = await db.customSelect(
-        'SELECT COUNT(DISTINCT date(happened_at)) AS c FROM transactions WHERE ledger_id = ?1',
+      """
+      SELECT COUNT(DISTINCT strftime('%Y-%m-%d', happened_at, 'unixepoch', 'localtime')) AS c
+      FROM transactions WHERE ledger_id = ?1
+      """,
         variables: [d.Variable.withInt(ledgerId)],
         readsFrom: {db.transactions}).getSingle();
+
     int parse(dynamic v) {
       if (v is int) return v;
       if (v is BigInt) return v.toInt();
