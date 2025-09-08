@@ -75,6 +75,19 @@ final syncStatusRefreshProvider = StateProvider<int>((ref) => 0);
 // For now, always use default ledger id 1
 final currentLedgerIdProvider = StateProvider<int>((ref) => 1);
 
+// 当账本切换时，顺便触发一次设置页状态刷新（确保“我的”页及时反映）
+final _ledgerChangeListener = Provider<void>((ref) {
+  ref.listen<int>(currentLedgerIdProvider, (prev, next) {
+    ref.read(syncStatusRefreshProvider.notifier).state++;
+  });
+});
+
+// 确保监听器被激活
+final appInitProvider = FutureProvider<void>((ref) async {
+  // 读取以激活监听
+  ref.read(_ledgerChangeListener);
+});
+
 // Currently selected month (first day), default to now
 final selectedMonthProvider = StateProvider<DateTime>((ref) {
   final now = DateTime.now();

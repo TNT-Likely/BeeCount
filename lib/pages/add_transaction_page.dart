@@ -5,8 +5,8 @@ import '../data/db.dart';
 import '../widgets/primary_header.dart';
 import 'category_picker.dart';
 import '../widgets/amount_editor_sheet.dart';
+import '../utils/sync_helpers.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AddTransactionPage extends ConsumerStatefulWidget {
   const AddTransactionPage({super.key});
@@ -104,20 +104,13 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
             happenedAt: res.date,
             note: res.note,
           );
+          // 统一处理：自动/手动同步与状态刷新
+          await handleLocalChange(ref, ledgerId: ledgerId, background: true);
           if (Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
           if (Navigator.of(context).canPop()) Navigator.of(context).pop();
           // 轻触反馈
           HapticFeedback.lightImpact();
           SystemSound.play(SystemSoundType.click);
-          // 自动同步（可选）
-          try {
-            final prefs = await SharedPreferences.getInstance();
-            final auto = prefs.getBool('auto_sync') ?? false;
-            if (auto) {
-              final sync = ref.read(syncServiceProvider);
-              await sync.uploadCurrentLedger(ledgerId: ledgerId);
-            }
-          } catch (_) {}
         },
       ),
     );

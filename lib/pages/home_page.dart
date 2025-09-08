@@ -14,6 +14,7 @@ import '../styles/design.dart';
 import '../styles/colors.dart';
 // import 'package:beecount/widgets/wheel_date_picker.dart';
 import 'package:beecount/widgets/measure_size.dart';
+import '../utils/sync_helpers.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -525,6 +526,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   await (db.delete(db.transactions)
                                         ..where((t) => t.id.equals(it.t.id)))
                                       .go();
+                                  // 全局处理删除后的同步逻辑（后台静默上传/或刷新状态）
+                                  final curLedger =
+                                      ref.read(currentLedgerIdProvider);
+                                  // fire-and-forget，避免阻塞动画
+                                  Future(() => handleLocalChange(ref,
+                                      ledgerId: curLedger, background: true));
                                   showToast(context, '已删除');
                                 },
                                 child: Column(
@@ -617,21 +624,17 @@ class _HeaderCenterSummary extends ConsumerWidget {
               children: [
                 Text(title,
                     textAlign: TextAlign.left,
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelSmall
-                        ?.copyWith(color: BeeColors.black54, fontSize: 12)),
+                    style: AppTextTokens.label(context)),
                 const SizedBox(height: 2),
                 Text(
                   hide ? '****' : formatMoneyCompact(value, maxDecimals: 2),
                   textAlign: TextAlign.left,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: BeeColors.primaryText,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 20,
-                      ),
+                  style: AppTextTokens.title(context).copyWith(
+                    color: BeeColors.primaryText,
+                    fontSize: 20,
+                  ),
                 ),
               ],
             );

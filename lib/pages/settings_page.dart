@@ -235,70 +235,8 @@ class SettingsPage extends ConsumerWidget {
                               },
                             ),
                             AppDivider.thin(),
-                            // 一键去重修复（本地 + 云端）
-                            StatefulBuilder(builder: (ctx, setSB) {
-                              bool busy = false;
-                              return AppListTile(
-                                leading: Icons.unfold_less,
-                                title: '修复重复数据（本地+云端）',
-                                subtitle: '先清理本地重复，再上传覆盖云端',
-                                enabled: !busy,
-                                trailing: busy
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 2),
-                                      )
-                                    : null,
-                                onTap: () async {
-                                  setSB(() => busy = true);
-                                  try {
-                                    final removed = await repo
-                                        .deduplicateLedgerTransactions(
-                                            ledgerId);
-                                    final wantUpload =
-                                        await AppDialog.show<bool>(
-                                              context,
-                                              title: '去重完成',
-                                              message:
-                                                  '已删除本地重复记录：$removed 条\n是否立即上传以修复云端？',
-                                              actions: [
-                                                (
-                                                  label: '取消',
-                                                  onTap: () => Navigator.pop(
-                                                      context, false),
-                                                  primary: false,
-                                                ),
-                                                (
-                                                  label: '上传',
-                                                  onTap: () => Navigator.pop(
-                                                      context, true),
-                                                  primary: true,
-                                                ),
-                                              ],
-                                            ) ??
-                                            false;
-                                    if (wantUpload) {
-                                      await sync.uploadCurrentLedger(
-                                          ledgerId: ledgerId);
-                                      await AppDialog.show(context,
-                                          title: '已上传', message: '云端已修复');
-                                    }
-                                    ref
-                                        .read(
-                                            syncStatusRefreshProvider.notifier)
-                                        .state++;
-                                  } catch (e) {
-                                    await AppDialog.show(context,
-                                        title: '失败', message: '$e');
-                                  } finally {
-                                    if (ctx.mounted) setSB(() => busy = false);
-                                  }
-                                },
-                              );
-                            }),
-                            AppDivider.thin(),
+                            // 去除一键去重修复入口，避免误操作与死代码告警
+                            // 同步相关操作保留“上传/下载/登录/自动同步”等
                             StatefulBuilder(builder: (ctx, setSB) {
                               return AppListTile(
                                 leading: Icons.cloud_upload_outlined,

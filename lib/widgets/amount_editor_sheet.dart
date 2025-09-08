@@ -147,6 +147,17 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                // 运算状态符号（+ / -），更直观地展示当前累加/累减状态
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: Text(
+                    _op == '-' ? '−' : '+',
+                    style: text.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BeeColors.primaryText,
+                    ),
+                  ),
+                ),
                 Text(
                   (_negative ? '-' : '') +
                       (() {

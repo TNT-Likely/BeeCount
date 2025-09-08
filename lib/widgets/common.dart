@@ -56,14 +56,9 @@ class AppListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final titleStyle = Theme.of(context)
-        .textTheme
-        .bodyMedium
-        ?.copyWith(fontSize: 15, color: BeeColors.primaryText);
-    final subStyle = Theme.of(context)
-        .textTheme
-        .bodySmall
-        ?.copyWith(color: BeeColors.black54);
+    final titleStyle =
+        AppTextTokens.title(context).copyWith(color: BeeColors.primaryText);
+    final subStyle = AppTextTokens.label(context);
     final tile = Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -199,10 +194,7 @@ class TransactionListItem extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(fontSize: 15, color: Colors.black87),
+                style: AppTextTokens.title(context),
               ),
             ),
             const SizedBox(width: 8),
@@ -211,10 +203,7 @@ class TransactionListItem extends StatelessWidget {
               hide: hide,
               signed: true,
               decimals: 2,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(fontSize: 15, color: Colors.black87),
+              style: AppTextTokens.title(context),
             ),
           ],
         ),

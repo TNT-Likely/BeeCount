@@ -254,7 +254,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                         children: [
                           Text(
                             _type == 'expense' ? '支出排行榜' : '收入排行榜',
-                            style: Theme.of(context).textTheme.titleMedium,
+                            style: AppTextTokens.title(context),
                           ),
                           const SizedBox(width: 8),
                           InfoTag(_currentPeriodLabel(_scope, selMonth)),
@@ -850,6 +850,7 @@ class _CategoryDetailPage extends ConsumerWidget {
                 }
                 if (list.isEmpty) return const AppEmpty();
                 return ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                   itemCount: list.length,
                   separatorBuilder: (_, __) => AppDivider.thin(),
                   itemBuilder: (_, i) {

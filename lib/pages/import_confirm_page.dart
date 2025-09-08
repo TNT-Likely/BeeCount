@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../providers.dart';
 import '../widgets/primary_header.dart';
 import '../data/db.dart' as schema;
+import '../utils/sync_helpers.dart';
 
 class ImportConfirmPage extends ConsumerStatefulWidget {
   final String csvText;
@@ -373,6 +374,8 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
     }
 
     if (!mounted) return;
+    // 导入完成：统一处理同步逻辑（后台静默）
+    await handleLocalChange(ref, ledgerId: ledgerId, background: true);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('导入完成：成功 $ok 条，失败 $fail 条')),
     );

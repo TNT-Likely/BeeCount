@@ -277,4 +277,9 @@ class SupabaseSyncService implements SyncService {
       return st;
     }
   }
+
+  @override
+  void markLocalChanged({required int ledgerId}) {
+    _statusCache.remove(ledgerId);
+  }
 }

@@ -14,6 +14,9 @@ abstract class SyncService {
   Future<({int inserted, int skipped, int deletedDup})>
       downloadAndRestoreToCurrentLedger({required int ledgerId});
   Future<SyncStatus> getStatus({required int ledgerId});
+
+  /// 当本地数据发生变更（增删改）时调用，以便使缓存状态失效
+  void markLocalChanged({required int ledgerId});
 }
 
 class LocalOnlySyncService implements SyncService {
@@ -37,6 +40,9 @@ class LocalOnlySyncService implements SyncService {
       message: '未配置云端',
     );
   }
+
+  @override
+  void markLocalChanged({required int ledgerId}) {}
 }
 
 // --- Simple serialization of transactions for a single ledger ---
