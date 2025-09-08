@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
 import '../data/db.dart';
 import '../widgets/ui/ui.dart';
+import '../utils/currencies.dart';
 
 class LedgersPage extends ConsumerWidget {
   const LedgersPage({super.key});
@@ -20,26 +21,24 @@ class LedgersPage extends ConsumerWidget {
             actions: [
               IconButton(
                 onPressed: () async {
-                  final nameCtrl = TextEditingController();
+                  // 复用编辑弹窗的样式：此处作为“新建”用途，允许选择币种
+                  String name = '';
                   String currency = 'CNY';
-                  final ok = await showModalBottomSheet<bool>(
+                  final nameCtrl = TextEditingController(text: name);
+                  final ok = await showDialog<bool>(
                     context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.white,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(16))),
                     builder: (ctx) {
-                      return Padding(
-                        padding: EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            top: 16,
-                            bottom: 16 + MediaQuery.of(ctx).viewInsets.bottom),
-                        child: Column(
+                      final primary = Theme.of(ctx).colorScheme.primary;
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                        contentPadding:
+                            const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                        content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text('新建账本',
+                                textAlign: TextAlign.center,
                                 style: Theme.of(ctx)
                                     .textTheme
                                     .titleMedium
@@ -48,63 +47,43 @@ class LedgersPage extends ConsumerWidget {
                             TextField(
                               controller: nameCtrl,
                               decoration:
-                                  const InputDecoration(hintText: '账本名称'),
+                                  const InputDecoration(labelText: '名称'),
                             ),
                             const SizedBox(height: 12),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text('币种',
-                                  style: Theme.of(ctx).textTheme.bodySmall),
-                            ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              height: 240,
-                              child: ListView(
-                                children: [
-                                  for (final ccy in const [
-                                    'CNY',
-                                    'USD',
-                                    'EUR',
-                                    'JPY',
-                                    'HKD',
-                                    'TWD',
-                                    'GBP',
-                                    'AUD',
-                                    'CAD',
-                                    'KRW',
-                                    'SGD',
-                                    'THB',
-                                    'IDR',
-                                    'INR',
-                                    'RUB',
-                                  ])
-                                    ListTile(
-                                      title: Text(ccy),
-                                      trailing: currency == ccy
-                                          ? const Icon(Icons.check,
-                                              color: Colors.black)
-                                          : null,
-                                      onTap: () {
-                                        currency = ccy;
-                                        (ctx as Element).markNeedsBuild();
-                                      },
-                                    ),
-                                ],
-                              ),
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: const Text('币种'),
+                              subtitle: Text(displayCurrency(currency)),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: () async {
+                                final picked = await _showCurrencyPicker(ctx,
+                                    initial: currency);
+                                if (picked != null) {
+                                  currency = picked;
+                                  (ctx as Element).markNeedsBuild();
+                                }
+                              },
                             ),
                             const SizedBox(height: 8),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 OutlinedButton(
-                                    onPressed: () => Navigator.pop(ctx, false),
-                                    child: const Text('取消')),
+                                  onPressed: () => Navigator.pop(ctx, false),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: primary,
+                                    side: BorderSide(color: primary),
+                                  ),
+                                  child: const Text('取消'),
+                                ),
                                 const SizedBox(width: 12),
                                 FilledButton(
-                                    onPressed: () => Navigator.pop(ctx, true),
-                                    child: const Text('确定')),
+                                  onPressed: () => Navigator.pop(ctx, true),
+                                  child: const Text('创建'),
+                                ),
                               ],
-                            )
+                            ),
+                            const SizedBox(height: 12),
                           ],
                         ),
                       );
@@ -116,6 +95,23 @@ class LedgersPage extends ConsumerWidget {
                   }
                 },
                 icon: const Icon(Icons.add, color: Colors.black),
+              ),
+              IconButton(
+                tooltip: '清空当前账本',
+                onPressed: () async {
+                  final id = ref.read(currentLedgerIdProvider);
+                  final confirm = await AppDialog.confirm<bool>(context,
+                      title: '清空当前账本？', message: '将删除该账本下所有交易记录，且不可恢复。');
+
+                  if (confirm == true) {
+                    final n = await repo.clearLedgerTransactions(id);
+                    if (context.mounted) {
+                      showToast(context, '已删除 $n 条记录');
+                    }
+                  }
+                },
+                icon: const Icon(Icons.delete_sweep_outlined,
+                    color: Colors.black),
               ),
             ],
           ),
@@ -174,95 +170,11 @@ class LedgersPage extends ConsumerWidget {
                                         const InputDecoration(labelText: '名称'),
                                   ),
                                   const SizedBox(height: 12),
+                                  // 编辑模式下禁用币种修改
                                   ListTile(
                                     contentPadding: EdgeInsets.zero,
                                     title: const Text('币种'),
-                                    subtitle: Text(currency),
-                                    trailing: const Icon(Icons.chevron_right),
-                                    onTap: () async {
-                                      final picked =
-                                          await showModalBottomSheet<String>(
-                                        context: ctx,
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.white,
-                                        shape: const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.vertical(
-                                                top: Radius.circular(16))),
-                                        builder: (bctx) {
-                                          final list = const [
-                                            'CNY',
-                                            'USD',
-                                            'EUR',
-                                            'JPY',
-                                            'HKD',
-                                            'TWD',
-                                            'GBP',
-                                            'AUD',
-                                            'CAD',
-                                            'KRW',
-                                            'SGD',
-                                            'THB',
-                                            'IDR',
-                                            'INR',
-                                            'RUB'
-                                          ];
-                                          return Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                16, 12, 16, 16),
-                                            child: SizedBox(
-                                              height: 360,
-                                              child: Column(
-                                                children: [
-                                                  Container(
-                                                    width: 36,
-                                                    height: 4,
-                                                    margin:
-                                                        const EdgeInsets.only(
-                                                            bottom: 8),
-                                                    decoration: BoxDecoration(
-                                                        color: Colors.black12,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(2)),
-                                                  ),
-                                                  Text('选择币种',
-                                                      style: Theme.of(bctx)
-                                                          .textTheme
-                                                          .titleMedium),
-                                                  const SizedBox(height: 8),
-                                                  Expanded(
-                                                    child: ListView.builder(
-                                                      itemCount: list.length,
-                                                      itemBuilder: (_, i) {
-                                                        final ccy = list[i];
-                                                        final sel =
-                                                            ccy == currency;
-                                                        return ListTile(
-                                                          title: Text(ccy),
-                                                          trailing: sel
-                                                              ? const Icon(
-                                                                  Icons.check,
-                                                                  color: Colors
-                                                                      .black)
-                                                              : null,
-                                                          onTap: () =>
-                                                              Navigator.pop(
-                                                                  bctx, ccy),
-                                                        );
-                                                      },
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      );
-                                      if (picked != null) {
-                                        currency = picked;
-                                        (ctx as Element).markNeedsBuild();
-                                      }
-                                    },
+                                    subtitle: Text(displayCurrency(currency)),
                                   ),
                                   const SizedBox(height: 8),
                                   Row(
@@ -378,7 +290,7 @@ class _LedgerCard extends StatelessWidget {
                   Text(ledger.name,
                       style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 4),
-                  Text('币种：${ledger.currency}',
+                  Text('币种：${displayCurrency(ledger.currency)}',
                       style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
@@ -388,4 +300,76 @@ class _LedgerCard extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<String?> _showCurrencyPicker(BuildContext context,
+    {String? initial}) async {
+  return showModalBottomSheet<String>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+    builder: (bctx) {
+      String query = '';
+      String? selected = initial;
+      return StatefulBuilder(builder: (sctx, setState) {
+        final filtered = kCurrencies.where((c) {
+          final q = query.trim();
+          if (q.isEmpty) return true;
+          final uq = q.toUpperCase();
+          return c.code.contains(uq) || c.name.contains(q);
+        }).toList();
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 12,
+            bottom: 16 + MediaQuery.of(bctx).viewInsets.bottom,
+          ),
+          child: SizedBox(
+            height: 420,
+            child: Column(
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                      color: Colors.black12,
+                      borderRadius: BorderRadius.circular(2)),
+                ),
+                Text('选择币种', style: Theme.of(bctx).textTheme.titleMedium),
+                const SizedBox(height: 8),
+                TextField(
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.search),
+                    hintText: '搜索：中文或代码',
+                  ),
+                  onChanged: (v) => setState(() => query = v),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: filtered.length,
+                    itemBuilder: (_, i) {
+                      final c = filtered[i];
+                      final sel = c.code == selected;
+                      return ListTile(
+                        title: Text('${c.name} (${c.code})'),
+                        trailing: sel
+                            ? const Icon(Icons.check, color: Colors.black)
+                            : null,
+                        onTap: () => Navigator.pop(bctx, c.code),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      });
+    },
+  );
 }

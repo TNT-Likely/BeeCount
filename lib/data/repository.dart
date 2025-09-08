@@ -36,8 +36,7 @@ class BeeRepository {
         'SELECT COUNT(*) AS c FROM transactions WHERE ledger_id = ?1',
         variables: [d.Variable.withInt(ledgerId)],
         readsFrom: {db.transactions}).getSingle();
-    final dayRow = await db.customSelect(
-      """
+    final dayRow = await db.customSelect("""
       SELECT COUNT(DISTINCT strftime('%Y-%m-%d', happened_at, 'unixepoch', 'localtime')) AS c
       FROM transactions WHERE ledger_id = ?1
       """,
@@ -353,6 +352,14 @@ class BeeRepository {
   Future<void> deleteLedger(int id) async {
     await (db.delete(db.ledgers)..where((tbl) => tbl.id.equals(id))).go();
     // Note: For simplicity, we do not cascade delete related rows here in MVP
+  }
+
+  /// 清空指定账本的所有交易记录，返回删除的条数
+  Future<int> clearLedgerTransactions(int ledgerId) async {
+    final count = await (db.delete(db.transactions)
+          ..where((t) => t.ledgerId.equals(ledgerId)))
+        .go();
+    return count;
   }
 
   // Monthly totals
