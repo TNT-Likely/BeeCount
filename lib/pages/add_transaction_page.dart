@@ -4,6 +4,9 @@ import '../providers.dart';
 import '../data/db.dart';
 import '../widgets/primary_header.dart';
 import 'category_picker.dart';
+import '../widgets/amount_editor_sheet.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddTransactionPage extends ConsumerStatefulWidget {
   const AddTransactionPage({super.key});
@@ -14,9 +17,7 @@ class AddTransactionPage extends ConsumerStatefulWidget {
 
 class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
   String _type = 'expense';
-  final _amountCtrl = TextEditingController();
   final DateTime _date = DateTime.now();
-  final _noteCtrl = TextEditingController();
   int? _categoryId;
   String? _categoryName;
 
@@ -77,29 +78,7 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
     );
   }
 
-  Future<void> _save() async {
-    final repo = ref.read(repositoryProvider);
-    final ledgerId = ref.read(currentLedgerIdProvider);
-    final amount = double.tryParse(_amountCtrl.text);
-    if (amount == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请输入有效金额')),
-      );
-      return;
-    }
-    await repo.addTransaction(
-      ledgerId: ledgerId,
-      type: _type,
-      amount: amount,
-      happenedAt: _date,
-      note: _noteCtrl.text.isEmpty ? null : _noteCtrl.text,
-      categoryId: _categoryId,
-    );
-    if (!mounted) return;
-    Navigator.of(context).pop(); // 关 bottom sheet
-    // 不再返回中间页面，保持当前导航栈简单
-    Navigator.of(context).maybePop();
-  }
+  // _save 已由 AmountEditorSheet 的 onSubmit 替代
 
   Future<void> _openAmountSheet() async {
     await showModalBottomSheet(
@@ -109,55 +88,38 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (ctx) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom,
-            left: 16,
-            right: 16,
-            top: 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(_categoryName ?? '记一笔',
-                  style: Theme.of(ctx).textTheme.titleLarge),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _amountCtrl,
-                autofocus: true,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: '金额',
-                  prefixIcon: Icon(Icons.currency_yuan),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _noteCtrl,
-                decoration: const InputDecoration(labelText: '备注（可选）'),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('取消'),
-                  ),
-                  const Spacer(),
-                  FilledButton(
-                    onPressed: _save,
-                    child: const Text('保存'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        );
-      },
+      builder: (ctx) => AmountEditorSheet(
+        categoryName: _categoryName ?? '记一笔',
+        initialDate: _date,
+        initialAmount: null,
+        initialNote: null,
+        onSubmit: (res) async {
+          final repo = ref.read(repositoryProvider);
+          final ledgerId = ref.read(currentLedgerIdProvider);
+          await repo.addTransaction(
+            ledgerId: ledgerId,
+            type: _type,
+            amount: res.amount,
+            categoryId: _categoryId,
+            happenedAt: res.date,
+            note: res.note,
+          );
+          if (Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
+          if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+          // 轻触反馈
+          HapticFeedback.lightImpact();
+          SystemSound.play(SystemSoundType.click);
+          // 自动同步（可选）
+          try {
+            final prefs = await SharedPreferences.getInstance();
+            final auto = prefs.getBool('auto_sync') ?? false;
+            if (auto) {
+              final sync = ref.read(syncServiceProvider);
+              await sync.uploadCurrentLedger(ledgerId: ledgerId);
+            }
+          } catch (_) {}
+        },
+      ),
     );
   }
 }

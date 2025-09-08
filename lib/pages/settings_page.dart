@@ -18,6 +18,7 @@ import '../styles/design.dart';
 import '../styles/colors.dart';
 import '../cloud/auth.dart';
 import '../cloud/sync.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -202,6 +203,7 @@ class SettingsPage extends ConsumerWidget {
                         String subtitle = '';
                         IconData icon = Icons.sync_outlined;
                         bool inSync = false;
+                        bool busy = false;
                         final st = s.data;
                         if (st != null) {
                           switch (st.diff) {
@@ -250,7 +252,7 @@ class SettingsPage extends ConsumerWidget {
                           children: [
                             AppListTile(
                               leading: icon,
-                              title: '同步状态',
+                              title: '同步',
                               subtitle: subtitle,
                               onTap: () async {
                                 final st2 =
@@ -280,67 +282,83 @@ class SettingsPage extends ConsumerWidget {
                               },
                             ),
                             AppDivider.thin(),
-                            AppListTile(
-                              leading: Icons.cloud_upload_outlined,
-                              title: '上传当前账本到云端',
-                              subtitle: canUseCloud
-                                  ? (inSync ? '已同步，无需上传' : null)
-                                  : '需登录后使用',
-                              enabled: canUseCloud && !inSync,
-                              onTap: () async {
-                                try {
-                                  await sync.uploadCurrentLedger(
-                                      ledgerId: ledgerId);
-                                  await _showNiceDialog(context,
-                                      title: '上传完成',
-                                      message: '已将当前账本上传到云端',
-                                      success: true);
-                                  ref
-                                      .read(syncStatusRefreshProvider.notifier)
-                                      .state++;
-                                } catch (e) {
-                                  await _showNiceDialog(context,
-                                      title: '失败',
-                                      message: '$e',
-                                      success: false);
-                                }
-                              },
-                            ),
+                            StatefulBuilder(builder: (ctx, setState) {
+                              // ignore: dead_code
+                              return AppListTile(
+                                leading: Icons.cloud_upload_outlined,
+                                title: busy ? '正在上传…' : '上传',
+                                subtitle: canUseCloud
+                                    ? (inSync ? '已同步' : null)
+                                    : '需登录',
+                                enabled: canUseCloud && !inSync && !busy,
+                                onTap: () async {
+                                  setState(() => busy = true);
+                                  try {
+                                    await sync.uploadCurrentLedger(
+                                        ledgerId: ledgerId);
+                                    await _showNiceDialog(context,
+                                        title: '已上传',
+                                        message: '当前账本已同步到云端',
+                                        success: true);
+                                    ref
+                                        .read(
+                                            syncStatusRefreshProvider.notifier)
+                                        .state++;
+                                  } catch (e) {
+                                    await _showNiceDialog(context,
+                                        title: '失败',
+                                        message: '$e',
+                                        success: false);
+                                  } finally {
+                                    if (ctx.mounted)
+                                      setState(() => busy = false);
+                                  }
+                                },
+                              );
+                            }),
                             AppDivider.thin(),
-                            AppListTile(
-                              leading: Icons.cloud_download_outlined,
-                              title: '从云端下载并合并到当前账本',
-                              subtitle: canUseCloud
-                                  ? (inSync ? '已同步，无需下载' : null)
-                                  : '需登录后使用',
-                              enabled: canUseCloud && !inSync,
-                              onTap: () async {
-                                try {
-                                  final count = await sync
-                                      .downloadAndRestoreToCurrentLedger(
-                                          ledgerId: ledgerId);
-                                  await _showNiceDialog(context,
-                                      title: '下载完成',
-                                      message: '导入 $count 条记录',
-                                      success: true);
-                                  ref
-                                      .read(syncStatusRefreshProvider.notifier)
-                                      .state++;
-                                } catch (e) {
-                                  await _showNiceDialog(context,
-                                      title: '失败',
-                                      message: '$e',
-                                      success: false);
-                                }
-                              },
-                            ),
+                            StatefulBuilder(builder: (ctx, setState) {
+                              bool busy2 = false;
+                              return AppListTile(
+                                leading: Icons.cloud_download_outlined,
+                                title: busy2 ? '正在下载…' : '下载',
+                                subtitle: canUseCloud
+                                    ? (inSync ? '已同步' : null)
+                                    : '需登录',
+                                enabled: canUseCloud && !inSync && !busy2,
+                                onTap: () async {
+                                  setState(() => busy2 = true);
+                                  try {
+                                    final count = await sync
+                                        .downloadAndRestoreToCurrentLedger(
+                                            ledgerId: ledgerId);
+                                    await _showNiceDialog(context,
+                                        title: '已下载',
+                                        message: '导入 $count 条记录',
+                                        success: true);
+                                    ref
+                                        .read(
+                                            syncStatusRefreshProvider.notifier)
+                                        .state++;
+                                  } catch (e) {
+                                    await _showNiceDialog(context,
+                                        title: '失败',
+                                        message: '$e',
+                                        success: false);
+                                  } finally {
+                                    if (ctx.mounted)
+                                      setState(() => busy2 = false);
+                                  }
+                                },
+                              );
+                            }),
                             AppDivider.thin(),
                             AppListTile(
                               leading: user == null
                                   ? Icons.login
                                   : Icons.verified_user_outlined,
                               title: user == null
-                                  ? '登录 / 注册（用于云同步）'
+                                  ? '登录 / 注册'
                                   : (user.email ?? '已登录'),
                               subtitle: user == null ? '仅在同步时需要' : '点击可退出登录',
                               onTap: () async {
@@ -360,6 +378,24 @@ class SettingsPage extends ConsumerWidget {
                                 }
                               },
                             ),
+                            AppDivider.thin(),
+                            StatefulBuilder(builder: (ctx, setState) {
+                              return FutureBuilder<bool>(
+                                future: _getAutoSync(),
+                                builder: (ctx2, snapAuto) {
+                                  final value = snapAuto.data ?? false;
+                                  return SwitchListTile(
+                                    title: const Text('自动同步账本'),
+                                    subtitle: const Text('记账后自动上传到云端'),
+                                    value: value,
+                                    onChanged: (v) async {
+                                      await _setAutoSync(v);
+                                      if (ctx.mounted) setState(() {});
+                                    },
+                                  );
+                                },
+                              );
+                            }),
                           ],
                         );
                       },
@@ -413,6 +449,16 @@ class SettingsPage extends ConsumerWidget {
       ),
     );
   }
+}
+
+Future<bool> _getAutoSync() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('auto_sync') ?? false;
+}
+
+Future<void> _setAutoSync(bool v) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('auto_sync', v);
 }
 
 Future<void> _showAuthSheet(BuildContext context, AuthService auth,

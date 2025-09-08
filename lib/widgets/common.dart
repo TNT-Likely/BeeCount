@@ -68,9 +68,9 @@ class AppListTile extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.black, width: 1),
             ),
             child: Icon(
               leading,

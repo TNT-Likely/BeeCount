@@ -7,6 +7,8 @@ import '../widgets/category_icon.dart';
 import '../widgets/amount_editor_sheet.dart';
 import '../widgets/primary_header.dart';
 import '../styles/colors.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CategoryPickerPage extends ConsumerStatefulWidget {
   final String initialKind; // 'expense' or 'income'
@@ -162,8 +164,21 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
           }
           if (Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
           if (Navigator.of(context).canPop()) Navigator.of(context).pop();
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('已记账')));
+          // 反馈：轻微触感 + 系统点击音
+          HapticFeedback.lightImpact();
+          SystemSound.play(SystemSoundType.click);
+          // 自动同步（可选）
+          try {
+            final prefs = await SharedPreferences.getInstance();
+            final auto = prefs.getBool('auto_sync') ?? false;
+            if (auto) {
+              final sync = ref.read(syncServiceProvider);
+              final ledgerId = ref.read(currentLedgerIdProvider);
+              await sync.uploadCurrentLedger(ledgerId: ledgerId);
+              // 提示精简
+              // 不再弹出提示，避免顶起按钮
+            }
+          } catch (_) {}
         },
       ),
     );

@@ -49,6 +49,28 @@ class LedgersPage extends ConsumerWidget {
                                     value: 'EUR', child: Text('EUR 欧元')),
                                 DropdownMenuItem(
                                     value: 'JPY', child: Text('JPY 日元')),
+                                DropdownMenuItem(
+                                    value: 'HKD', child: Text('HKD 港币')),
+                                DropdownMenuItem(
+                                    value: 'TWD', child: Text('TWD 新台币')),
+                                DropdownMenuItem(
+                                    value: 'GBP', child: Text('GBP 英镑')),
+                                DropdownMenuItem(
+                                    value: 'AUD', child: Text('AUD 澳元')),
+                                DropdownMenuItem(
+                                    value: 'CAD', child: Text('CAD 加元')),
+                                DropdownMenuItem(
+                                    value: 'KRW', child: Text('KRW 韩元')),
+                                DropdownMenuItem(
+                                    value: 'SGD', child: Text('SGD 新元')),
+                                DropdownMenuItem(
+                                    value: 'THB', child: Text('THB 泰铢')),
+                                DropdownMenuItem(
+                                    value: 'IDR', child: Text('IDR 印尼盾')),
+                                DropdownMenuItem(
+                                    value: 'INR', child: Text('INR 印度卢比')),
+                                DropdownMenuItem(
+                                    value: 'RUB', child: Text('RUB 卢布')),
                               ],
                               onChanged: (v) => currency = v ?? 'CNY',
                             ),
