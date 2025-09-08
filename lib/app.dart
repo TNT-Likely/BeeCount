@@ -32,7 +32,10 @@ class _BeeAppState extends ConsumerState<BeeApp> {
     final visualActiveIndex = _index >= 2 ? _index + 1 : _index;
 
     return Scaffold(
-      body: _pages[_index],
+      body: IndexedStack(
+        index: _index,
+        children: _pages,
+      ),
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
         shape: const CircularNotchedRectangle(),
