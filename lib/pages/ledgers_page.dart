@@ -20,77 +20,99 @@ class LedgersPage extends ConsumerWidget {
             actions: [
               IconButton(
                 onPressed: () async {
-                  final result =
-                      await showDialog<(String name, String currency)?>(
+                  final nameCtrl = TextEditingController();
+                  String currency = 'CNY';
+                  final ok = await showModalBottomSheet<bool>(
                     context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.white,
+                    shape: const RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(16))),
                     builder: (ctx) {
-                      final c = TextEditingController();
-                      String currency = 'CNY';
-                      return AlertDialog(
-                        title: const Text('新建账本'),
-                        content: Column(
+                      return Padding(
+                        padding: EdgeInsets.only(
+                            left: 16,
+                            right: 16,
+                            top: 16,
+                            bottom: 16 + MediaQuery.of(ctx).viewInsets.bottom),
+                        child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            TextField(
-                                controller: c,
-                                decoration:
-                                    const InputDecoration(labelText: '名称')),
+                            Text('新建账本',
+                                style: Theme.of(ctx)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600)),
                             const SizedBox(height: 12),
-                            DropdownButtonFormField<String>(
+                            TextField(
+                              controller: nameCtrl,
                               decoration:
-                                  const InputDecoration(labelText: '币种'),
-                              value: currency,
-                              items: const [
-                                DropdownMenuItem(
-                                    value: 'CNY', child: Text('CNY 人民币')),
-                                DropdownMenuItem(
-                                    value: 'USD', child: Text('USD 美元')),
-                                DropdownMenuItem(
-                                    value: 'EUR', child: Text('EUR 欧元')),
-                                DropdownMenuItem(
-                                    value: 'JPY', child: Text('JPY 日元')),
-                                DropdownMenuItem(
-                                    value: 'HKD', child: Text('HKD 港币')),
-                                DropdownMenuItem(
-                                    value: 'TWD', child: Text('TWD 新台币')),
-                                DropdownMenuItem(
-                                    value: 'GBP', child: Text('GBP 英镑')),
-                                DropdownMenuItem(
-                                    value: 'AUD', child: Text('AUD 澳元')),
-                                DropdownMenuItem(
-                                    value: 'CAD', child: Text('CAD 加元')),
-                                DropdownMenuItem(
-                                    value: 'KRW', child: Text('KRW 韩元')),
-                                DropdownMenuItem(
-                                    value: 'SGD', child: Text('SGD 新元')),
-                                DropdownMenuItem(
-                                    value: 'THB', child: Text('THB 泰铢')),
-                                DropdownMenuItem(
-                                    value: 'IDR', child: Text('IDR 印尼盾')),
-                                DropdownMenuItem(
-                                    value: 'INR', child: Text('INR 印度卢比')),
-                                DropdownMenuItem(
-                                    value: 'RUB', child: Text('RUB 卢布')),
-                              ],
-                              onChanged: (v) => currency = v ?? 'CNY',
+                                  const InputDecoration(hintText: '账本名称'),
                             ),
+                            const SizedBox(height: 12),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text('币种',
+                                  style: Theme.of(ctx).textTheme.bodySmall),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              height: 240,
+                              child: ListView(
+                                children: [
+                                  for (final ccy in const [
+                                    'CNY',
+                                    'USD',
+                                    'EUR',
+                                    'JPY',
+                                    'HKD',
+                                    'TWD',
+                                    'GBP',
+                                    'AUD',
+                                    'CAD',
+                                    'KRW',
+                                    'SGD',
+                                    'THB',
+                                    'IDR',
+                                    'INR',
+                                    'RUB',
+                                  ])
+                                    ListTile(
+                                      title: Text(ccy),
+                                      trailing: currency == ccy
+                                          ? const Icon(Icons.check,
+                                              color: Colors.black)
+                                          : null,
+                                      onTap: () {
+                                        currency = ccy;
+                                        (ctx as Element).markNeedsBuild();
+                                      },
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                OutlinedButton(
+                                    onPressed: () => Navigator.pop(ctx, false),
+                                    child: const Text('取消')),
+                                const SizedBox(width: 12),
+                                FilledButton(
+                                    onPressed: () => Navigator.pop(ctx, true),
+                                    child: const Text('确定')),
+                              ],
+                            )
                           ],
                         ),
-                        actions: [
-                          TextButton(
-                              onPressed: () => Navigator.pop(ctx),
-                              child: const Text('取消')),
-                          FilledButton(
-                              onPressed: () =>
-                                  Navigator.pop(ctx, (c.text, currency)),
-                              child: const Text('确定')),
-                        ],
                       );
                     },
                   );
-                  if (result != null && result.$1.trim().isNotEmpty) {
+                  if (ok == true && nameCtrl.text.trim().isNotEmpty) {
                     await repo.createLedger(
-                        name: result.$1.trim(), currency: result.$2);
+                        name: nameCtrl.text.trim(), currency: currency);
                   }
                 },
                 icon: const Icon(Icons.add, color: Colors.black),
@@ -138,8 +160,26 @@ class LedgersPage extends ConsumerWidget {
                                         const InputDecoration(labelText: '名称'),
                                   ),
                                   const SizedBox(height: 8),
-                                  Text('币种：${l.currency}（不可修改）',
-                                      style: Theme.of(ctx).textTheme.bodySmall),
+                                  Row(
+                                    children: [
+                                      Text('币种：',
+                                          style: Theme.of(ctx)
+                                              .textTheme
+                                              .bodySmall),
+                                      Text(l.currency,
+                                          style: Theme.of(ctx)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.w600)),
+                                      const SizedBox(width: 4),
+                                      const Text('（不可修改）',
+                                          style: TextStyle(
+                                              color: Colors.black54,
+                                              fontSize: 12)),
+                                    ],
+                                  ),
                                 ],
                               ),
                               actions: [

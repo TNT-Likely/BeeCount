@@ -19,6 +19,37 @@ class BeeRepository {
     return q;
   }
 
+  // Lightweight counts for Settings header (performance-friendly)
+  Future<int> ledgerCount() async {
+    final row = await db.customSelect('SELECT COUNT(*) AS c FROM ledgers',
+        readsFrom: {db.ledgers}).getSingle();
+    final v = row.data['c'];
+    if (v is int) return v;
+    if (v is BigInt) return v.toInt();
+    if (v is num) return v.toInt();
+    return 0;
+  }
+
+  Future<({int dayCount, int txCount})> countsForLedger(
+      {required int ledgerId}) async {
+    final txRow = await db.customSelect(
+        'SELECT COUNT(*) AS c FROM transactions WHERE ledger_id = ?1',
+        variables: [d.Variable.withInt(ledgerId)],
+        readsFrom: {db.transactions}).getSingle();
+    final dayRow = await db.customSelect(
+        'SELECT COUNT(DISTINCT date(happened_at)) AS c FROM transactions WHERE ledger_id = ?1',
+        variables: [d.Variable.withInt(ledgerId)],
+        readsFrom: {db.transactions}).getSingle();
+    int parse(dynamic v) {
+      if (v is int) return v;
+      if (v is BigInt) return v.toInt();
+      if (v is num) return v.toInt();
+      return 0;
+    }
+
+    return (dayCount: parse(dayRow.data['c']), txCount: parse(txRow.data['c']));
+  }
+
   // Aggregation: totals by category for a period and type (income/expense)
   Future<List<({int? id, String name, double total})>> totalsByCategory({
     required int ledgerId,

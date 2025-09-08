@@ -70,36 +70,46 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
       body: SafeArea(
         child: Column(
           children: [
+            // 紧凑顶部：去除多余留白 + 选中下划线
             PrimaryHeader(
               title: '',
-              bottom: Container(
-                height: 44,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                alignment: Alignment.center,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Center(
-                        child: TabBar(
-                          controller: _tab,
-                          isScrollable: false,
-                          labelColor: Colors.black,
-                          unselectedLabelColor: BeeColors.black54,
-                          indicatorColor: Colors.transparent, // 去除下划线
-                          tabs: const [
-                            Tab(text: '支出'),
-                            Tab(text: '收入'),
-                          ],
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+              bottom: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: 44,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: TabBar(
+                              controller: _tab,
+                              isScrollable: false,
+                              labelColor: Colors.black,
+                              unselectedLabelColor: BeeColors.black54,
+                              indicator: const UnderlineTabIndicator(
+                                borderSide:
+                                    BorderSide(width: 2, color: Colors.black),
+                                insets: EdgeInsets.symmetric(horizontal: 24),
+                              ),
+                              tabs: const [
+                                Tab(text: '支出'),
+                                Tab(text: '收入'),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('取消',
+                              style: TextStyle(color: Colors.black)),
+                        )
+                      ],
                     ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('取消',
-                          style: TextStyle(color: Colors.black)),
-                    )
-                  ],
-                ),
+                  ),
+                  const Divider(height: 1),
+                ],
               ),
             ),
             Expanded(
@@ -199,6 +209,7 @@ class _CategoryGrid extends ConsumerStatefulWidget {
 class _CategoryGridState extends ConsumerState<_CategoryGrid> {
   final Map<int, GlobalKey> _keys = {};
   bool _scrolled = false;
+  int? _selectedId; // 记录当前点击的分类用于高亮
 
   @override
   Widget build(BuildContext context) {
@@ -244,8 +255,11 @@ class _CategoryGridState extends ConsumerState<_CategoryGrid> {
             return _CategoryItem(
               key: key,
               name: c.name,
-              selected: selected,
-              onTap: () => widget.onPick(c),
+              selected: selected || _selectedId == c.id,
+              onTap: () {
+                setState(() => _selectedId = c.id);
+                widget.onPick(c);
+              },
             );
           },
         );

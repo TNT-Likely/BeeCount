@@ -328,20 +328,52 @@ class AppDialog {
       required String message,
       List<({String label, VoidCallback onTap, bool primary})>? actions}) {
     actions ??= [
+      (label: '取消', onTap: () => Navigator.pop(context), primary: false),
       (label: '确定', onTap: () => Navigator.pop(context), primary: true),
     ];
     return showDialog<T>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        actions: [
-          for (final a in actions!)
-            a.primary
-                ? FilledButton(onPressed: a.onTap, child: Text(a.label))
-                : TextButton(onPressed: a.onTap, child: Text(a.label))
-        ],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600, color: Colors.black87),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(ctx).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (final a in actions!) ...[
+                  if (!a.primary)
+                    OutlinedButton(
+                      onPressed: a.onTap,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black87,
+                        side: const BorderSide(color: Color(0x1F000000)),
+                      ),
+                      child: Text(a.label),
+                    )
+                  else
+                    FilledButton(onPressed: a.onTap, child: Text(a.label)),
+                  const SizedBox(width: 12),
+                ]
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
       ),
     );
   }

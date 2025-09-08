@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:csv/csv.dart';
@@ -37,8 +36,8 @@ class SettingsPage extends ConsumerWidget {
         final joined =
             await repo.transactionsWithCategoryAll(ledgerId: ledgerId).first;
         if (joined.isEmpty) {
-          await _showNiceDialog(context,
-              title: '没有数据', message: '当前账本还没有任何记账，无法导出。', success: false);
+          await AppDialog.show(context,
+              title: '没有数据', message: '当前账本还没有任何记账，无法导出。');
           return;
         }
         final rows = <List<dynamic>>[];
@@ -97,21 +96,13 @@ class SettingsPage extends ConsumerWidget {
               File(p.join(dir.path, 'exports', 'beecount_expense_$ts.csv'))
                 ..createSync(recursive: true);
           await fallback.writeAsString(csv);
-          await _showNiceDialog(context,
-              title: '部分受限',
-              message: '所选位置不可写，已改为保存到:\n${fallback.path}',
-              success: false,
-              copyText: fallback.path);
+          await AppDialog.show(context,
+              title: '部分受限', message: '所选位置不可写，已改为保存到:\n${fallback.path}');
           return;
         }
-        await _showNiceDialog(context,
-            title: '导出完成',
-            message: file.path,
-            success: true,
-            copyText: file.path);
+        await AppDialog.show(context, title: '导出完成', message: file.path);
       } catch (e) {
-        await _showNiceDialog(context,
-            title: '导出失败', message: '$e', success: false);
+        await AppDialog.show(context, title: '导出失败', message: '$e');
       }
     }
 
@@ -129,21 +120,14 @@ class SettingsPage extends ConsumerWidget {
                 children: [
                   const SizedBox(height: 6),
                   FutureBuilder<({int ledgerCount, int dayCount, int txCount})>(
+                    // 轻量查询：不订阅全量 stream，避免设置页打开就刷新大量数据
                     future: () async {
-                      final ledgers =
-                          await ref.read(repositoryProvider).ledgers().first;
-                      final list = await repo
-                          .transactionsWithCategoryAll(ledgerId: ledgerId)
-                          .first;
-                      final days = <String>{};
-                      for (final r in list) {
-                        final d = r.t.happenedAt.toLocal();
-                        days.add('${d.year}-${d.month}-${d.day}');
-                      }
+                      final lCount = await repo.ledgerCount();
+                      final c = await repo.countsForLedger(ledgerId: ledgerId);
                       return (
-                        ledgerCount: ledgers.length,
-                        dayCount: days.length,
-                        txCount: list.length,
+                        ledgerCount: lCount,
+                        dayCount: c.dayCount,
+                        txCount: c.txCount
                       );
                     }(),
                     builder: (ctx, snap) {
@@ -203,7 +187,6 @@ class SettingsPage extends ConsumerWidget {
                         String subtitle = '';
                         IconData icon = Icons.sync_outlined;
                         bool inSync = false;
-                        bool busy = false;
                         final st = s.data;
                         if (st != null) {
                           switch (st.diff) {
@@ -272,86 +255,79 @@ class SettingsPage extends ConsumerWidget {
                                 if (st2.message != null) {
                                   lines.add('说明: ${st2.message}');
                                 }
-                                await _showNiceDialog(context,
-                                    title: '同步状态详情',
-                                    message: lines.join('\n'),
-                                    success: st2.diff == SyncDiff.inSync);
+                                await AppDialog.show(context,
+                                    title: '同步状态详情', message: lines.join('\n'));
                                 ref
                                     .read(syncStatusRefreshProvider.notifier)
                                     .state++;
                               },
                             ),
                             AppDivider.thin(),
-                            StatefulBuilder(builder: (ctx, setState) {
-                              // ignore: dead_code
-                              return AppListTile(
-                                leading: Icons.cloud_upload_outlined,
-                                title: busy ? '正在上传…' : '上传',
-                                subtitle: canUseCloud
-                                    ? (inSync ? '已同步' : null)
-                                    : '需登录',
-                                enabled: canUseCloud && !inSync && !busy,
-                                onTap: () async {
-                                  setState(() => busy = true);
-                                  try {
-                                    await sync.uploadCurrentLedger(
-                                        ledgerId: ledgerId);
-                                    await _showNiceDialog(context,
-                                        title: '已上传',
-                                        message: '当前账本已同步到云端',
-                                        success: true);
-                                    ref
-                                        .read(
-                                            syncStatusRefreshProvider.notifier)
-                                        .state++;
-                                  } catch (e) {
-                                    await _showNiceDialog(context,
-                                        title: '失败',
-                                        message: '$e',
-                                        success: false);
-                                  } finally {
-                                    if (ctx.mounted)
-                                      setState(() => busy = false);
-                                  }
-                                },
-                              );
-                            }),
+                            AppListTile(
+                              leading: Icons.cloud_upload_outlined,
+                              title: '上传',
+                              subtitle:
+                                  canUseCloud ? (inSync ? '已同步' : null) : '需登录',
+                              enabled: canUseCloud && !inSync,
+                              onTap: () async {
+                                // 简单 loading 覆盖层
+                                showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (_) => const Center(
+                                          child: CircularProgressIndicator(),
+                                        ));
+                                try {
+                                  await sync.uploadCurrentLedger(
+                                      ledgerId: ledgerId);
+                                  if (context.mounted)
+                                    Navigator.of(context).pop();
+                                  await AppDialog.show(context,
+                                      title: '已上传', message: '当前账本已同步到云端');
+                                  ref
+                                      .read(syncStatusRefreshProvider.notifier)
+                                      .state++;
+                                } catch (e) {
+                                  if (context.mounted)
+                                    Navigator.of(context).pop();
+                                  await AppDialog.show(context,
+                                      title: '失败', message: '$e');
+                                }
+                              },
+                            ),
                             AppDivider.thin(),
-                            StatefulBuilder(builder: (ctx, setState) {
-                              bool busy2 = false;
-                              return AppListTile(
-                                leading: Icons.cloud_download_outlined,
-                                title: busy2 ? '正在下载…' : '下载',
-                                subtitle: canUseCloud
-                                    ? (inSync ? '已同步' : null)
-                                    : '需登录',
-                                enabled: canUseCloud && !inSync && !busy2,
-                                onTap: () async {
-                                  setState(() => busy2 = true);
-                                  try {
-                                    final count = await sync
-                                        .downloadAndRestoreToCurrentLedger(
-                                            ledgerId: ledgerId);
-                                    await _showNiceDialog(context,
-                                        title: '已下载',
-                                        message: '导入 $count 条记录',
-                                        success: true);
-                                    ref
-                                        .read(
-                                            syncStatusRefreshProvider.notifier)
-                                        .state++;
-                                  } catch (e) {
-                                    await _showNiceDialog(context,
-                                        title: '失败',
-                                        message: '$e',
-                                        success: false);
-                                  } finally {
-                                    if (ctx.mounted)
-                                      setState(() => busy2 = false);
-                                  }
-                                },
-                              );
-                            }),
+                            AppListTile(
+                              leading: Icons.cloud_download_outlined,
+                              title: '下载',
+                              subtitle:
+                                  canUseCloud ? (inSync ? '已同步' : null) : '需登录',
+                              enabled: canUseCloud && !inSync,
+                              onTap: () async {
+                                showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (_) => const Center(
+                                          child: CircularProgressIndicator(),
+                                        ));
+                                try {
+                                  final count = await sync
+                                      .downloadAndRestoreToCurrentLedger(
+                                          ledgerId: ledgerId);
+                                  if (context.mounted)
+                                    Navigator.of(context).pop();
+                                  await AppDialog.show(context,
+                                      title: '已下载', message: '导入 $count 条记录');
+                                  ref
+                                      .read(syncStatusRefreshProvider.notifier)
+                                      .state++;
+                                } catch (e) {
+                                  if (context.mounted)
+                                    Navigator.of(context).pop();
+                                  await AppDialog.show(context,
+                                      title: '失败', message: '$e');
+                                }
+                              },
+                            ),
                             AppDivider.thin(),
                             AppListTile(
                               leading: user == null
@@ -577,71 +553,6 @@ class _StatCell extends StatelessWidget {
 // 已移除底部快捷入口行
 
 // 旧 GroupCard 已替换为 SectionCard
-
-Future<void> _showNiceDialog(BuildContext context,
-    {required String title,
-    required String message,
-    required bool success,
-    String? copyText}) async {
-  final color = success ? Colors.green : Colors.red;
-  await showDialog(
-    context: context,
-    builder: (ctx) => Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.1),
-                      shape: BoxShape.circle),
-                  child: Icon(
-                    success ? Icons.check_circle : Icons.error_outline,
-                    color: color,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(title,
-                      style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                          color: Colors.black87, fontWeight: FontWeight.w600)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            SelectableText(message,
-                style:
-                    Theme.of(ctx).textTheme.bodyMedium?.copyWith(height: 1.3)),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (copyText != null)
-                  TextButton(
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: copyText));
-                        Navigator.pop(ctx);
-                      },
-                      child: const Text('复制')),
-                const SizedBox(width: 4),
-                FilledButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('确定')),
-              ],
-            )
-          ],
-        ),
-      ),
-    ),
-  );
-}
 
 void _showToast(BuildContext context, String message,
     {Duration duration = const Duration(seconds: 2)}) {
