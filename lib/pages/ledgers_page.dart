@@ -4,6 +4,7 @@ import '../providers.dart';
 import '../data/db.dart';
 import '../widgets/ui/ui.dart';
 import '../utils/currencies.dart';
+import '../utils/sync_helpers.dart';
 
 class LedgersPage extends ConsumerWidget {
   const LedgersPage({super.key});
@@ -105,6 +106,9 @@ class LedgersPage extends ConsumerWidget {
 
                   if (confirm == true) {
                     final n = await repo.clearLedgerTransactions(id);
+                    // 清空后触发一次同步处理（后台），并刷新同步状态
+                    await handleLocalChange(ref,
+                        ledgerId: id, background: true);
                     if (context.mounted) {
                       showToast(context, '已删除 $n 条记录');
                     }
