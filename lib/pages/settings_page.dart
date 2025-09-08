@@ -477,7 +477,7 @@ Future<void> _showAuthSheet(BuildContext context, AuthService auth,
                         onChanged?.call();
                       } catch (e, st) {
                         debugPrint('Login failed: $e\n$st');
-                        _showToast(context, '登录失败：$e');
+                        showToast(context, '登录失败：$e');
                       }
                     },
                     child: const Text('登录'),
@@ -495,7 +495,7 @@ Future<void> _showAuthSheet(BuildContext context, AuthService auth,
                         onChanged?.call();
                       } catch (e, st) {
                         debugPrint('Signup failed: $e\n$st');
-                        _showToast(context, '注册失败：$e');
+                        showToast(context, '注册失败：$e');
                       }
                     },
                     child: const Text('注册'),
@@ -538,41 +538,4 @@ class _StatCell extends StatelessWidget {
       ],
     );
   }
-}
-
-void _showToast(BuildContext context, String message,
-    {Duration duration = const Duration(seconds: 2)}) {
-  final overlay = Overlay.of(context, rootOverlay: true);
-  final entry = OverlayEntry(
-    builder: (ctx) => IgnorePointer(
-      ignoring: true,
-      child: Positioned.fill(
-        child: SafeArea(
-          child: Center(
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 24),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-  overlay.insert(entry);
-  Future.delayed(duration, () {
-    entry.remove();
-  });
 }
