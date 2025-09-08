@@ -16,6 +16,7 @@ class SupabaseSyncService implements SyncService {
   final BeeRepository repo;
   final AuthService auth;
   final String bucket;
+  final Map<int, SyncStatus> _statusCache = {};
   SupabaseSyncService({
     required this.client,
     required this.db,
@@ -106,6 +107,8 @@ class SupabaseSyncService implements SyncService {
             fileOptions: const s.FileOptions(
                 upsert: true, contentType: 'application/json'),
           );
+      // invalidate cache after upload
+      _statusCache.remove(ledgerId);
     } on s.StorageException catch (e) {
       // 常见为 403（RLS 拒绝），给出指导
       if ('${e.statusCode}' == '403') {
@@ -132,6 +135,8 @@ class SupabaseSyncService implements SyncService {
     final imported = await importTransactionsJson(repo, ledgerId, jsonStr);
     // 二次去重，清理历史重复
     final deleted = await repo.deduplicateLedgerTransactions(ledgerId);
+    // invalidate cache after restore
+    _statusCache.remove(ledgerId);
     return (
       inserted: imported.inserted,
       skipped: imported.skipped,
@@ -141,17 +146,22 @@ class SupabaseSyncService implements SyncService {
 
   @override
   Future<SyncStatus> getStatus({required int ledgerId}) async {
+    // return cached if available
+    final cached = _statusCache[ledgerId];
+    if (cached != null) return cached;
     try {
       final user = await auth.currentUser();
       if (user == null) {
         // 本地指纹
         final local = await exportTransactionsJson(db, ledgerId);
-        return SyncStatus(
+        final st = SyncStatus(
           diff: SyncDiff.notLoggedIn,
           localCount: (jsonDecode(local)['count'] as num).toInt(),
           localFingerprint: _fingerprint(local),
           message: '未登录',
         );
+        _statusCache[ledgerId] = st;
+        return st;
       }
 
       // 本地
@@ -182,7 +192,7 @@ class SupabaseSyncService implements SyncService {
 
         // 对比
         if (remoteFp == localFp) {
-          return SyncStatus(
+          final st = SyncStatus(
             diff: SyncDiff.inSync,
             localCount: localCount,
             localFingerprint: localFp,
@@ -190,6 +200,8 @@ class SupabaseSyncService implements SyncService {
             cloudFingerprint: remoteFp,
             cloudExportedAt: remoteAt,
           );
+          _statusCache[ledgerId] = st;
+          return st;
         }
 
         // 用导出时间粗略判断方向，若缺失则仅提示不同
@@ -197,7 +209,7 @@ class SupabaseSyncService implements SyncService {
           final localAt = _maxHappenedAt(localMap);
           if (localAt != null) {
             if (localAt.isAfter(remoteAt)) {
-              return SyncStatus(
+              final st = SyncStatus(
                 diff: SyncDiff.localNewer,
                 localCount: localCount,
                 localFingerprint: localFp,
@@ -205,8 +217,10 @@ class SupabaseSyncService implements SyncService {
                 cloudFingerprint: remoteFp,
                 cloudExportedAt: remoteAt,
               );
+              _statusCache[ledgerId] = st;
+              return st;
             } else if (remoteAt.isAfter(localAt)) {
-              return SyncStatus(
+              final st = SyncStatus(
                 diff: SyncDiff.cloudNewer,
                 localCount: localCount,
                 localFingerprint: localFp,
@@ -214,10 +228,12 @@ class SupabaseSyncService implements SyncService {
                 cloudFingerprint: remoteFp,
                 cloudExportedAt: remoteAt,
               );
+              _statusCache[ledgerId] = st;
+              return st;
             }
           }
         }
-        return SyncStatus(
+        final st = SyncStatus(
           diff: SyncDiff.different,
           localCount: localCount,
           localFingerprint: localFp,
@@ -225,32 +241,40 @@ class SupabaseSyncService implements SyncService {
           cloudFingerprint: remoteFp,
           cloudExportedAt: remoteAt,
         );
+        _statusCache[ledgerId] = st;
+        return st;
       } on s.StorageException catch (e) {
         if ('${e.statusCode}' == '404') {
-          return SyncStatus(
+          final st = SyncStatus(
             diff: SyncDiff.noRemote,
             localCount: localCount,
             localFingerprint: localFp,
             message: '云端暂无备份',
           );
+          _statusCache[ledgerId] = st;
+          return st;
         }
         if ('${e.statusCode}' == '403') {
-          return SyncStatus(
+          final st = SyncStatus(
             diff: SyncDiff.error,
             localCount: localCount,
             localFingerprint: localFp,
             message: '403 拒绝访问（检查 storage RLS 策略与路径）',
           );
+          _statusCache[ledgerId] = st;
+          return st;
         }
         rethrow;
       }
     } catch (e) {
-      return SyncStatus(
+      final st = SyncStatus(
         diff: SyncDiff.error,
         localCount: 0,
         localFingerprint: '',
         message: '$e',
       );
+      _statusCache[ledgerId] = st;
+      return st;
     }
   }
 }

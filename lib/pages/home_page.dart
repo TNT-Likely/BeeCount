@@ -498,32 +498,34 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     child: const Icon(Icons.delete_outline,
                                         color: Colors.red)),
                                 confirmDismiss: (_) async {
-                                  return await showDialog<bool>(
-                                          context: context,
-                                          builder: (ctx) => AlertDialog(
-                                                  title: const Text('删除这条记账？'),
-                                                  actions: [
-                                                    TextButton(
-                                                        onPressed: () =>
-                                                            Navigator.pop(
-                                                                ctx, false),
-                                                        child:
-                                                            const Text('取消')),
-                                                    FilledButton(
-                                                        onPressed: () =>
-                                                            Navigator.pop(
-                                                                ctx, true),
-                                                        child: const Text('删除'))
-                                                  ])) ??
+                                  final ok = await AppDialog.show<bool>(
+                                        context,
+                                        title: '删除确认',
+                                        message: '确定要删除这条记账吗？',
+                                        actions: [
+                                          (
+                                            label: '取消',
+                                            onTap: () =>
+                                                Navigator.pop(context, false),
+                                            primary: false,
+                                          ),
+                                          (
+                                            label: '确定',
+                                            onTap: () =>
+                                                Navigator.pop(context, true),
+                                            primary: true,
+                                          ),
+                                        ],
+                                      ) ??
                                       false;
+                                  return ok;
                                 },
                                 onDismissed: (_) async {
                                   final db = ref.read(databaseProvider);
                                   await (db.delete(db.transactions)
                                         ..where((t) => t.id.equals(it.t.id)))
                                       .go();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('已删除')));
+                                  showToast(context, '已删除');
                                 },
                                 child: Column(
                                   children: [

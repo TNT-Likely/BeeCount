@@ -73,10 +73,8 @@ class AppListTile extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withValues(alpha: 0.12),
+                  color:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -189,10 +187,7 @@ class TransactionListItem extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.12),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon,
@@ -324,7 +319,7 @@ class InfoTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.04),
+        color: Colors.black.withOpacity(0.04),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
@@ -397,4 +392,42 @@ class AppDialog {
       ),
     );
   }
+}
+
+/// 轻量 Toast，不占据布局空间，不会顶起 FAB
+void showToast(BuildContext context, String message,
+    {Duration duration = const Duration(seconds: 2)}) {
+  final overlay = Overlay.of(context, rootOverlay: true);
+  final entry = OverlayEntry(
+    builder: (ctx) => IgnorePointer(
+      ignoring: true,
+      child: Positioned.fill(
+        child: SafeArea(
+          child: Center(
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.85),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  overlay.insert(entry);
+  Future.delayed(duration, () {
+    entry.remove();
+  });
 }
