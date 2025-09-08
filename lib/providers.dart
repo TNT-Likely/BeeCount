@@ -46,6 +46,64 @@ final repositoryProvider = Provider<BeeRepository>((ref) {
   return BeeRepository(db);
 });
 
+// 统计：账本数量
+final ledgerCountProvider = FutureProvider.autoDispose<int>((ref) async {
+  final repo = ref.watch(repositoryProvider);
+  final link = ref.keepAlive();
+  ref.onDispose(() => link.close());
+  return repo.ledgerCount();
+});
+
+// 统计：某账本的记账天数与总笔数
+final countsForLedgerProvider = FutureProvider.family
+    .autoDispose<({int dayCount, int txCount}), int>((ref, ledgerId) async {
+  final repo = ref.watch(repositoryProvider);
+  final link = ref.keepAlive();
+  ref.onDispose(() => link.close());
+  return repo.countsForLedger(ledgerId: ledgerId);
+});
+
+// 同步状态（根据 ledgerId 与刷新 tick 缓存），避免因 UI 重建重复拉取
+final syncStatusProvider =
+    FutureProvider.family.autoDispose<SyncStatus, int>((ref, ledgerId) async {
+  final sync = ref.watch(syncServiceProvider);
+  // 依赖 tick，使得手动刷新时重新获取；否则保持缓存
+  ref.watch(syncStatusRefreshProvider);
+  final link = ref.keepAlive();
+  ref.onDispose(() => link.close());
+  final status = await sync.getStatus(ledgerId: ledgerId);
+  // 写入最近一次成功值，供 UI 在刷新期间显示旧值，避免闪烁
+  ref.read(lastSyncStatusProvider(ledgerId).notifier).state = status;
+  return status;
+});
+
+// 最近一次同步状态缓存（按 ledgerId）
+final lastSyncStatusProvider =
+    StateProvider.family<SyncStatus?, int>((ref, ledgerId) => null);
+
+// 自动同步开关：值与设置
+final autoSyncValueProvider = FutureProvider.autoDispose<bool>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  final link = ref.keepAlive();
+  ref.onDispose(() => link.close());
+  return prefs.getBool('auto_sync') ?? false;
+});
+
+class AutoSyncSetter {
+  AutoSyncSetter(this._ref);
+  final Ref _ref;
+  Future<void> set(bool v) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('auto_sync', v);
+    // 使缓存失效，触发读取最新值
+    _ref.invalidate(autoSyncValueProvider);
+  }
+}
+
+final autoSyncSetterProvider = Provider<AutoSyncSetter>((ref) {
+  return AutoSyncSetter(ref);
+});
+
 // Auth 与 Sync 抽象：未配置时使用 Noop/LocalOnly；配置后使用 Supabase
 final supabaseClientProvider = Provider<s.SupabaseClient?>((ref) {
   if (AppConfig.supabaseUrl.isEmpty || AppConfig.supabaseAnonKey.isEmpty) {
