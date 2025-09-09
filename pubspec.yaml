@@ -44,6 +44,3 @@ flutter:
     - assets/config.json
     - assets/logo.svg
     - assets/logo.png
-    - assets/logo_cute_bee.svg
-    - assets/logo_cool_bee.svg
-    - assets/logo_bee_coin.svg
