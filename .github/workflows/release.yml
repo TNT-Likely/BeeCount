@@ -23,20 +23,16 @@ jobs:
           channel: stable
           flutter-version: 3.27.3
 
+      - name: Setup Java 17 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Install dependencies
         run: |
           flutter --version
           flutter pub get
-
-      - name: Inject Supabase credentials
-        run: |
-          mkdir -p assets
-          cat > assets/config.json << 'JSON'
-          {
-            "supabaseUrl": "${SUPABASE_URL}",
-            "supabaseAnonKey": "${SUPABASE_ANON_KEY}"
-          }
-          JSON
 
       - name: Bump version from tag
         run: |
