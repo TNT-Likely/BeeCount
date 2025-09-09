@@ -13,7 +13,6 @@ class PersonalizePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final primary = ref.watch(primaryColorProvider);
     final options = <_ThemeOption>[
-      _ThemeOption('默认', const Color(0xFFFFB300)),
       _ThemeOption('蜜蜂黄', const Color(0xFFF8C91C)),
       _ThemeOption('火焰橙', const Color(0xFFFF7043)),
       _ThemeOption('琉璃绿', const Color(0xFF26A69A)),
