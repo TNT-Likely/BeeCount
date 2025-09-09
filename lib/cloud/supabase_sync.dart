@@ -357,8 +357,38 @@ class SupabaseSyncService implements SyncService {
           return st;
         }
 
-        // 用“更新时间”（本地 recentChangeAt / 云端 exportedAt）判断方向，若缺失则仅提示不同
-        if (remoteAt != null && localUpdatedAt != null) {
+        // 方向判断：优先基于“是否为空”判定
+        if ((localCount == 0) && ((remoteCount ?? 0) > 0)) {
+          final st = SyncStatus(
+            diff: SyncDiff.cloudNewer,
+            localCount: localCount,
+            localFingerprint: localFp,
+            cloudCount: remoteCount,
+            cloudFingerprint: remoteFp,
+            cloudExportedAt: remoteAt,
+          );
+          logI('sync', '获取状态: 云端较新（本地=0, 云端>0）');
+          _statusCache[ledgerId] = st;
+          return st;
+        }
+        if ((remoteCount ?? 0) == 0 && localCount > 0) {
+          final st = SyncStatus(
+            diff: SyncDiff.localNewer,
+            localCount: localCount,
+            localFingerprint: localFp,
+            cloudCount: remoteCount,
+            cloudFingerprint: remoteFp,
+            cloudExportedAt: remoteAt,
+          );
+          logI('sync', '获取状态: 本地较新（云端=0, 本地>0）');
+          _statusCache[ledgerId] = st;
+          return st;
+        }
+        // 双方均非空时，使用“更新时间”判断方向；若缺失则仅提示不同
+        if (localCount > 0 &&
+            (remoteCount ?? 0) > 0 &&
+            remoteAt != null &&
+            localUpdatedAt != null) {
           if (localUpdatedAt.isAfter(remoteAt)) {
             final st = SyncStatus(
               diff: SyncDiff.localNewer,
