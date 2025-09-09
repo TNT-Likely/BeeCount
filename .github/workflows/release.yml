@@ -9,21 +9,17 @@ on:
       tag_name:
         description: "Release tag (手动运行可自定义，留空则使用 manual-<short_sha>)"
         required: false
-        type: string
       release_name:
         description: "Release 名称（可选，默认与 tag 相同）"
         required: false
-        type: string
       prerelease:
         description: "是否标记为 Pre-release（手动运行默认 true）"
         required: false
         default: false
-        type: boolean
       create_release:
         description: "是否创建 GitHub Release（手动运行可设为 false，仅构建与产出 Actions Artifacts）"
         required: false
         default: true
-        type: boolean
 
 permissions:
   contents: write
@@ -143,7 +139,7 @@ jobs:
     name: Create GitHub Release
     runs-on: ubuntu-latest
   needs: [android, ios]
-    steps:
+  steps:
       - name: Prepare release metadata
         id: meta
         shell: bash
