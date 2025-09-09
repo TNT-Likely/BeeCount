@@ -174,6 +174,9 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
           }
           // 统一处理：自动/手动同步与状态刷新（后台静默）
           await handleLocalChange(ref, ledgerId: ledgerId, background: true);
+          // 刷新：账本笔数与全局统计
+          ref.invalidate(countsForLedgerProvider(ledgerId));
+          ref.read(statsRefreshProvider.notifier).state++;
           if (Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
           if (Navigator.of(context).canPop()) Navigator.of(context).pop();
           // 反馈：轻微触感 + 系统点击音

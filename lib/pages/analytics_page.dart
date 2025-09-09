@@ -28,6 +28,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
     final repo = ref.watch(repositoryProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final selMonth = ref.watch(selectedMonthProvider);
+    // 统计刷新 tick：当有新增/编辑/删除时我们会 +1，这里监听以触发重建和重新拉取
+    ref.watch(statsRefreshProvider);
 
     // 时间范围
     late DateTime start;

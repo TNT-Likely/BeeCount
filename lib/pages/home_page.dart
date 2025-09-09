@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import '../providers.dart';
 import 'personalize_page.dart' show headerStyleProvider;
@@ -147,16 +148,26 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                       Expanded(
                         child: Center(
-                          child: Text(
-                            '蜜蜂记账',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  color: BeeColors.primaryText,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Image.asset('assets/logo.png',
+                              //     width: 22, height: 22),
+                              SvgPicture.asset('assets/logo.svg',
+                                  width: 30, height: 30),
+                              const SizedBox(width: 6),
+                              Text(
+                                '蜜蜂记账',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      color: BeeColors.primaryText,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -507,6 +518,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       ref.read(currentLedgerIdProvider);
                                   Future(() => handleLocalChange(ref,
                                       ledgerId: curLedger, background: true));
+                                  // 同步刷新：账本笔数与全局统计
+                                  ref.invalidate(
+                                      countsForLedgerProvider(curLedger));
+                                  ref
+                                      .read(statsRefreshProvider.notifier)
+                                      .state++;
                                   if (!mounted) return;
                                   setState(() {
                                     _sortedKeysCache = [];

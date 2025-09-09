@@ -494,31 +494,33 @@ class MinePage extends ConsumerWidget {
             ),
           ),
 
-          // 分组：调试工具（临时）
-          const SizedBox(height: 8),
-          SectionCard(
-            child: Column(
-              children: [
-                AppListTile(
-                  leading: Icons.refresh,
-                  title: '刷新统计信息（临时）',
-                  subtitle: '触发全局统计 Provider 重新计算',
-                  onTap: () {
-                    ref.read(statsRefreshProvider.notifier).state++;
-                  },
-                ),
-                AppDivider.thin(),
-                AppListTile(
-                  leading: Icons.sync,
-                  title: '刷新同步状态（临时）',
-                  subtitle: '触发同步状态 Provider 重新获取',
-                  onTap: () {
-                    ref.read(syncStatusRefreshProvider.notifier).state++;
-                  },
-                ),
-              ],
+          // 分组：调试工具（仅开发环境可见）
+          if (!const bool.fromEnvironment('dart.vm.product')) ...[
+            const SizedBox(height: 8),
+            SectionCard(
+              child: Column(
+                children: [
+                  AppListTile(
+                    leading: Icons.refresh,
+                    title: '刷新统计信息（临时）',
+                    subtitle: '触发全局统计 Provider 重新计算',
+                    onTap: () {
+                      ref.read(statsRefreshProvider.notifier).state++;
+                    },
+                  ),
+                  AppDivider.thin(),
+                  AppListTile(
+                    leading: Icons.sync,
+                    title: '刷新同步状态（临时）',
+                    subtitle: '触发同步状态 Provider 重新获取',
+                    onTap: () {
+                      ref.read(syncStatusRefreshProvider.notifier).state++;
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
 
           const SizedBox(height: AppDimens.p16),
         ],
