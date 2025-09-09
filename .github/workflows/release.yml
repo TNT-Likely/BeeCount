@@ -59,15 +59,25 @@ jobs:
         run: flutter pub get
 
       - name: Build APK (release)
-        run: flutter build apk --release
+        run: >-
+          flutter build apk --release --flavor prod
+          --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
 
       - name: Build App Bundle (AAB)
-        run: flutter build appbundle --release
+        run: >-
+          flutter build appbundle --release --flavor prod
+          --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
 
       - name: List Android outputs (debug)
         run: |
           echo "== build/app/outputs =="
           ls -R build/app/outputs || true
+          echo "== flutter-apk =="
+          ls -la build/app/outputs/flutter-apk || true
+          echo "== bundle =="
+          ls -R build/app/outputs/bundle || true
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
@@ -75,8 +85,8 @@ jobs:
           name: android
           if-no-files-found: error
           path: |
-            build/app/outputs/flutter-apk/*.apk
-            build/app/outputs/bundle/release/*.aab
+            build/app/outputs/flutter-apk/app-prod-release*.apk
+            build/app/outputs/bundle/prodRelease/*.aab
 
   ios:
     name: iOS (app.zip + unsigned .ipa)
@@ -96,10 +106,16 @@ jobs:
         run: flutter pub get
 
       - name: Build iOS (no codesign)
-        run: flutter build ios --release --no-codesign
+        run: >-
+          flutter build ios --release --no-codesign
+          --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
 
       - name: Build iOS (debug simulator, unsigned)
-        run: flutter build ios --debug --simulator
+        run: >-
+          flutter build ios --debug --simulator
+          --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
 
       - name: Package iOS Runner.app (unsigned)
         run: |

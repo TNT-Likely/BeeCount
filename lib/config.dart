@@ -24,8 +24,14 @@ class AppConfig {
       _supabaseUrl = (map['supabaseUrl'] as String?)?.trim() ?? '';
       _supabaseAnonKey = (map['supabaseAnonKey'] as String?)?.trim() ?? '';
     } catch (_) {
-      // ignore, fallback to env
+      // ignore, keep defaults and let env fill below
+    }
+
+    // 若通过 --dart-define 提供了变量，则优先生效覆盖 assets 值。
+    if (_envUrl.isNotEmpty) {
       _supabaseUrl = _envUrl;
+    }
+    if (_envAnon.isNotEmpty) {
       _supabaseAnonKey = _envAnon;
     }
   }
