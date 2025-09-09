@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show compute;
+import 'package:drift/drift.dart' as d;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers.dart';
@@ -176,13 +177,49 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
                     ],
                   ),
                   const SizedBox(height: 12),
+                  // 预览仅展示前 N 行，避免大文件一次性渲染导致卡顿
                   Text('预览：', style: Theme.of(context).textTheme.labelLarge),
                   const SizedBox(height: 6),
                   SizedBox(
-                    height: 260,
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: _PreviewTable(rows: rows),
+                      child: Builder(builder: (_) {
+                        const int maxPreview = 10; // 预览最多 100 行
+                        final totalRows = rows.length;
+                        final dataStart =
+                            widget.hasHeader ? (headerRow + 1) : 0;
+                        // 保证包含表头行 + 最多 maxPreview-1 行数据
+                        final header = widget.hasHeader
+                            ? [rows[headerRow]]
+                            : <List<String>>[];
+                        final body = totalRows > dataStart
+                            ? () {
+                                final take = (maxPreview - header.length);
+                                final end = (dataStart + take <= totalRows)
+                                    ? dataStart + take
+                                    : totalRows;
+                                return rows.sublist(dataStart, end);
+                              }()
+                            : const <List<String>>[];
+                        final limited = [...header, ...body];
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _PreviewTable(rows: limited),
+                            if (totalRows > limited.length)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6.0),
+                                child: Text(
+                                  '仅预览前 ${limited.length} 行，共 $totalRows 行',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(color: Colors.black54),
+                                ),
+                              ),
+                          ],
+                        );
+                      }),
                     ),
                   ),
                 ] else ...[
@@ -370,7 +407,40 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
       },
     );
 
+    // 分类缓存：当选择“保持原名”时，按 (name, kind) 维度缓存 upsert 结果，避免重复查询
+    final Map<String, int> incomeCatCache = {};
+    final Map<String, int> expenseCatCache = {};
+    // 批量缓冲
+    const int batchSize = 500;
+    final List<schema.TransactionsCompanion> batch = [];
     int done = 0;
+
+    Future<void> flushBatch() async {
+      if (batch.isEmpty) return;
+      try {
+        final inserted = await repo.insertTransactionsBatch(batch);
+        ok += inserted;
+      } catch (_) {
+        // 回退到逐条插入，尽可能保留成功数
+        for (final item in batch) {
+          if (_cancelled) break;
+          try {
+            await repo.db.into(repo.db.transactions).insert(item);
+            ok++;
+          } catch (_) {
+            fail++;
+          }
+        }
+      } finally {
+        batch.clear();
+        // 批次完成后更新一次进度
+        container.read(importProgressProvider.notifier).state = ImportProgress(
+            running: true, total: total, done: done, ok: ok, fail: fail);
+        await Future<void>.delayed(Duration.zero);
+        if (mounted) setState(() {});
+      }
+    }
+
     for (int i = dataStart; i < rows.length; i++) {
       if (_cancelled) break;
       final r = rows[i];
@@ -391,12 +461,8 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
 
         // 类型中文到内部值
         final lower = typeRaw.trim().toLowerCase();
-        String type;
-        if (lower == '收入' || lower == 'income') {
-          type = 'income';
-        } else {
-          type = 'expense';
-        }
+        final type =
+            (lower == '收入' || lower == 'income') ? 'income' : 'expense';
 
         // 金额解析
         final amountClean =
@@ -431,37 +497,69 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
 
         int? categoryId;
         if (categoryName != null && categoryName.trim().isNotEmpty) {
-          final chosen = categoryMapping[categoryName.trim()];
+          final name = categoryName.trim();
+          final chosen = categoryMapping[name];
           if (chosen != null) {
             categoryId = chosen;
           } else {
-            final kind = (type == 'income') ? 'income' : 'expense';
-            categoryId = await repo.upsertCategory(
-                name: categoryName.trim(), kind: kind);
+            if (type == 'income') {
+              final cached = incomeCatCache[name];
+              if (cached != null) {
+                categoryId = cached;
+              } else {
+                final id =
+                    await repo.upsertCategory(name: name, kind: 'income');
+                incomeCatCache[name] = id;
+                categoryId = id;
+              }
+            } else {
+              final cached = expenseCatCache[name];
+              if (cached != null) {
+                categoryId = cached;
+              } else {
+                final id =
+                    await repo.upsertCategory(name: name, kind: 'expense');
+                expenseCatCache[name] = id;
+                categoryId = id;
+              }
+            }
           }
         }
-        await repo.addTransaction(
+
+        // 构造行
+        final item = schema.TransactionsCompanion.insert(
           ledgerId: ledgerId,
           type: type,
           amount: amount,
-          happenedAt: date,
-          note: note,
-          categoryId: categoryId,
+          categoryId: d.Value(categoryId),
+          accountId: const d.Value(null),
+          toAccountId: const d.Value(null),
+          happenedAt: d.Value(date),
+          note: d.Value(note),
         );
-        ok++;
+        batch.add(item);
       } catch (_) {
         fail++;
       }
       done++;
-      // 更新全局进度（降低频率，但更“实时”）
-      if (done % 10 == 0 || done == total || _cancelled) {
+
+      // 达到批量阈值则落库一次
+      if (batch.length >= batchSize) {
+        await flushBatch();
+        // 当文件巨大时，主动让出一帧，避免 UI 卡顿
+        await Future<void>.delayed(Duration.zero);
+      }
+      // 降低频率的进度更新（不依赖落库）
+      if (done % 50 == 0 || done == total || _cancelled) {
         container.read(importProgressProvider.notifier).state = ImportProgress(
             running: true, total: total, done: done, ok: ok, fail: fail);
-        // 让出事件循环，避免 UI 卡顿
         await Future<void>.delayed(Duration.zero);
         if (mounted) setState(() {});
       }
     }
+
+    // 刷新剩余缓冲
+    await flushBatch();
 
     // 即使页面已被关闭（mounted=false），也要继续更新全局进度供“我的”页展示
     // 先切换为“完成”以驱动 UI 展示成功动画/提示（不等待云上传）
