@@ -13,6 +13,7 @@ import '../styles/design.dart';
 import '../styles/colors.dart';
 import '../cloud/auth.dart';
 import '../cloud/sync.dart';
+import '../utils/logger.dart';
 
 class MinePage extends ConsumerWidget {
   const MinePage({super.key});
@@ -110,11 +111,14 @@ class MinePage extends ConsumerWidget {
                       String subtitle = '';
                       IconData icon = Icons.sync_outlined;
                       bool inSync = false;
+                      bool notLoggedIn = false;
+                      final refreshing = asyncSt.isLoading; // 正在刷新同步状态
                       if (!isFirstLoad) {
                         switch (st.diff) {
                           case SyncDiff.notLoggedIn:
                             subtitle = '未登录';
                             icon = Icons.lock_outline;
+                            notLoggedIn = true;
                             break;
                           case SyncDiff.notConfigured:
                             subtitle = '未配置云端';
@@ -153,141 +157,210 @@ class MinePage extends ConsumerWidget {
 
                       return Column(
                         children: [
-                          AppListTile(
-                            leading: icon,
-                            title: '同步',
-                            subtitle: isFirstLoad ? null : subtitle,
-                            enabled: canUseCloud && !isFirstLoad,
-                            trailing: (isFirstLoad && canUseCloud)
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2),
-                                  )
-                                : null,
-                            onTap: (isFirstLoad || !canUseCloud)
-                                ? null
-                                : () async {
-                                    final st2 = await sync.getStatus(
-                                        ledgerId: ledgerId);
-                                    final lines = <String>[];
-                                    lines.add('本地记录数: ${st2.localCount}');
-                                    if (st2.cloudCount != null) {
-                                      lines.add('云端记录数: ${st2.cloudCount}');
-                                    }
-                                    if (st2.cloudExportedAt != null) {
-                                      final cloudTime = st2.cloudExportedAt!;
-                                      final cloudTimeStr =
-                                          DateFormat('yyyy-MM-dd HH:mm:ss')
-                                              .format(cloudTime.toLocal());
-                                      lines.add('云端最新记账时间: $cloudTimeStr');
-                                    }
-                                    lines.add('本地指纹: ${st2.localFingerprint}');
-                                    if (st2.cloudFingerprint != null) {
-                                      lines
-                                          .add('云端指纹: ${st2.cloudFingerprint}');
-                                    }
-                                    if (st2.message != null) {
-                                      lines.add('说明: ${st2.message}');
-                                    }
-                                    await AppDialog.info(
-                                      context,
-                                      title: '同步状态详情',
-                                      message: lines.join('\n'),
-                                    );
-                                    // 查看详情不修改状态，不触发刷新
-                                  },
-                          ),
-                          AppDivider.thin(),
-                          // 去除一键去重修复入口，避免误操作与死代码告警
-                          // 同步相关操作保留“上传/下载/登录/自动同步”等
                           StatefulBuilder(builder: (ctx, setSB) {
-                            return AppListTile(
-                              leading: Icons.cloud_upload_outlined,
-                              title: '上传',
-                              subtitle: isFirstLoad
-                                  ? null
-                                  : canUseCloud
-                                      ? (inSync ? '已同步' : null)
-                                      : '需登录',
-                              enabled: canUseCloud &&
-                                  !inSync &&
-                                  !uploadBusy &&
-                                  !isFirstLoad,
-                              trailing: (uploadBusy || isFirstLoad)
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    )
-                                  : null,
-                              onTap: () async {
-                                setSB(() => uploadBusy = true);
-                                try {
-                                  await sync.uploadCurrentLedger(
-                                      ledgerId: ledgerId);
-                                  await AppDialog.info(context,
-                                      title: '已上传', message: '当前账本已同步到云端');
-                                  ref
-                                      .read(syncStatusRefreshProvider.notifier)
-                                      .state++;
-                                } catch (e) {
-                                  await AppDialog.info(context,
-                                      title: '失败', message: '$e');
-                                } finally {
-                                  if (ctx.mounted)
-                                    setSB(() => uploadBusy = false);
-                                }
-                              },
-                            );
-                          }),
-                          AppDivider.thin(),
-                          StatefulBuilder(builder: (ctx, setSB) {
-                            return AppListTile(
-                              leading: Icons.cloud_download_outlined,
-                              title: '下载',
-                              subtitle: isFirstLoad
-                                  ? null
-                                  : canUseCloud
-                                      ? (inSync ? '已同步' : null)
-                                      : '需登录',
-                              enabled: canUseCloud &&
-                                  !inSync &&
-                                  !downloadBusy &&
-                                  !isFirstLoad,
-                              trailing: (downloadBusy || isFirstLoad)
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    )
-                                  : null,
-                              onTap: () async {
-                                setSB(() => downloadBusy = true);
-                                try {
-                                  final res = await sync
-                                      .downloadAndRestoreToCurrentLedger(
+                            return Column(
+                              children: [
+                                AppListTile(
+                                  leading: icon,
+                                  title: '同步',
+                                  subtitle: isFirstLoad ? null : subtitle,
+                                  enabled: canUseCloud &&
+                                      !isFirstLoad &&
+                                      !refreshing &&
+                                      !uploadBusy &&
+                                      !downloadBusy,
+                                  trailing: (canUseCloud &&
+                                          (isFirstLoad ||
+                                              refreshing ||
+                                              uploadBusy ||
+                                              downloadBusy))
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                        )
+                                      : null,
+                                  onTap: (isFirstLoad ||
+                                          !canUseCloud ||
+                                          refreshing ||
+                                          uploadBusy ||
+                                          downloadBusy)
+                                      ? null
+                                      : () async {
+                                          final st2 = await sync.getStatus(
+                                              ledgerId: ledgerId);
+                                          final lines = <String>[];
+                                          lines.add('本地记录数: ${st2.localCount}');
+                                          if (st2.cloudCount != null) {
+                                            lines.add(
+                                                '云端记录数: ${st2.cloudCount}');
+                                          }
+                                          if (st2.cloudExportedAt != null) {
+                                            final cloudTime =
+                                                st2.cloudExportedAt!;
+                                            final cloudTimeStr = DateFormat(
+                                                    'yyyy-MM-dd HH:mm:ss')
+                                                .format(cloudTime.toLocal());
+                                            lines
+                                                .add('云端最新记账时间: $cloudTimeStr');
+                                          }
+                                          lines.add(
+                                              '本地指纹: ${st2.localFingerprint}');
+                                          if (st2.cloudFingerprint != null) {
+                                            lines.add(
+                                                '云端指纹: ${st2.cloudFingerprint}');
+                                          }
+                                          if (st2.message != null) {
+                                            lines.add('说明: ${st2.message}');
+                                          }
+                                          await AppDialog.info(
+                                            context,
+                                            title: '同步状态详情',
+                                            message: lines.join('\n'),
+                                          );
+                                          // 查看详情不修改状态，不触发刷新
+                                        },
+                                ),
+                                AppDivider.thin(),
+                                AppListTile(
+                                  leading: Icons.cloud_upload_outlined,
+                                  title: '上传',
+                                  subtitle: isFirstLoad
+                                      ? null
+                                      : (!canUseCloud || notLoggedIn)
+                                          ? '需登录'
+                                          : uploadBusy
+                                              ? '正在上传中…'
+                                              : (refreshing
+                                                  ? '刷新中…'
+                                                  : (inSync ? '已同步' : null)),
+                                  enabled: canUseCloud &&
+                                      !inSync &&
+                                      !notLoggedIn &&
+                                      !uploadBusy &&
+                                      !downloadBusy &&
+                                      !isFirstLoad &&
+                                      !refreshing,
+                                  trailing: (uploadBusy ||
+                                          refreshing ||
+                                          (isFirstLoad && canUseCloud))
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                        )
+                                      : null,
+                                  onTap: () async {
+                                    setSB(() => uploadBusy = true);
+                                    try {
+                                      await sync.uploadCurrentLedger(
                                           ledgerId: ledgerId);
-                                  final msg = StringBuffer()
-                                    ..writeln('新增导入：${res.inserted} 条')
-                                    ..writeln('已存在跳过：${res.skipped} 条')
-                                    ..writeln('清理历史重复：${res.deletedDup} 条');
-                                  await AppDialog.info(context,
-                                      title: '完成', message: msg.toString());
-                                  ref
-                                      .read(syncStatusRefreshProvider.notifier)
-                                      .state++;
-                                } catch (e) {
-                                  await AppDialog.error(context,
-                                      title: '失败', message: '$e');
-                                } finally {
-                                  if (ctx.mounted)
-                                    setSB(() => downloadBusy = false);
-                                }
-                              },
+                                      await AppDialog.info(context,
+                                          title: '已上传', message: '当前账本已同步到云端');
+                                      // 上传后先主动刷新云端指纹，若一致将直接更新缓存
+                                      Future(() async {
+                                        try {
+                                          logI('sync/ui', '上传后开始刷新云端指纹');
+                                          await sync.refreshCloudFingerprint(
+                                              ledgerId: ledgerId);
+                                        } catch (_) {}
+                                      });
+                                      // 然后在后台轮询一次远端，避免对象存储延迟导致仍显示“本地较新”
+                                      Future(() async {
+                                        const maxAttempts = 6; // 最长约 ~12s
+                                        var delay =
+                                            const Duration(milliseconds: 500);
+                                        for (var i = 0; i < maxAttempts; i++) {
+                                          try {
+                                            // 注意：不要在此处调用 markLocalChanged，避免打断“上传后短窗”的 inSync 判断
+                                          } catch (_) {}
+                                          final stNow = await sync.getStatus(
+                                              ledgerId: ledgerId);
+                                          if (stNow.diff == SyncDiff.inSync) {
+                                            // 立即更新缓存供 UI 显示
+                                            ref
+                                                .read(lastSyncStatusProvider(
+                                                        ledgerId)
+                                                    .notifier)
+                                                .state = stNow;
+                                            break;
+                                          }
+                                          if (i < maxAttempts - 1) {
+                                            await Future.delayed(delay);
+                                            delay *= 2; // 0.5s,1s,2s,4s,8s
+                                          }
+                                        }
+                                        // 最终触发 Provider 刷新
+                                        ref
+                                            .read(syncStatusRefreshProvider
+                                                .notifier)
+                                            .state++;
+                                      });
+                                    } catch (e) {
+                                      await AppDialog.info(context,
+                                          title: '失败', message: '$e');
+                                    } finally {
+                                      if (ctx.mounted)
+                                        setSB(() => uploadBusy = false);
+                                    }
+                                  },
+                                ),
+                                AppDivider.thin(),
+                                AppListTile(
+                                  leading: Icons.cloud_download_outlined,
+                                  title: '下载',
+                                  subtitle: isFirstLoad
+                                      ? null
+                                      : (!canUseCloud || notLoggedIn)
+                                          ? '需登录'
+                                          : (refreshing
+                                              ? '刷新中…'
+                                              : (inSync ? '已同步' : null)),
+                                  enabled: canUseCloud &&
+                                      !inSync &&
+                                      !notLoggedIn &&
+                                      !downloadBusy &&
+                                      !isFirstLoad &&
+                                      !refreshing &&
+                                      !uploadBusy,
+                                  trailing: (downloadBusy ||
+                                          refreshing ||
+                                          (isFirstLoad && canUseCloud))
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                        )
+                                      : null,
+                                  onTap: () async {
+                                    setSB(() => downloadBusy = true);
+                                    try {
+                                      final res = await sync
+                                          .downloadAndRestoreToCurrentLedger(
+                                              ledgerId: ledgerId);
+                                      final msg = StringBuffer()
+                                        ..writeln('新增导入：${res.inserted} 条')
+                                        ..writeln('已存在跳过：${res.skipped} 条')
+                                        ..writeln('清理历史重复：${res.deletedDup} 条');
+                                      await AppDialog.info(context,
+                                          title: '完成', message: msg.toString());
+                                      ref
+                                          .read(syncStatusRefreshProvider
+                                              .notifier)
+                                          .state++;
+                                    } catch (e) {
+                                      await AppDialog.error(context,
+                                          title: '失败', message: '$e');
+                                    } finally {
+                                      if (ctx.mounted)
+                                        setSB(() => downloadBusy = false);
+                                    }
+                                  },
+                                ),
+                              ],
                             );
                           }),
                           AppDivider.thin(),

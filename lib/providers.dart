@@ -91,6 +91,10 @@ final syncStatusProvider =
   ref.watch(syncStatusRefreshProvider);
   final link = ref.keepAlive();
   ref.onDispose(() => link.close());
+  // 显式清理缓存，确保“刷新同步状态（临时）”能强制重新拉取
+  try {
+    sync.markLocalChanged(ledgerId: ledgerId);
+  } catch (_) {}
   final status = await sync.getStatus(ledgerId: ledgerId);
   // 写入最近一次成功值，供 UI 在刷新期间显示旧值，避免闪烁
   ref.read(lastSyncStatusProvider(ledgerId).notifier).state = status;

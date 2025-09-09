@@ -15,6 +15,11 @@ abstract class SyncService {
       downloadAndRestoreToCurrentLedger({required int ledgerId});
   Future<SyncStatus> getStatus({required int ledgerId});
 
+  /// 主动刷新云端指纹：强制下载云端对象并计算指纹，返回 (fingerprint, count, exportedAt)。
+  /// 实现可在内部根据对比结果适度更新缓存，便于 UI 立即反映状态。
+  Future<({String? fingerprint, int? count, DateTime? exportedAt})>
+      refreshCloudFingerprint({required int ledgerId});
+
   /// 当本地数据发生变更（增删改）时调用，以便使缓存状态失效
   void markLocalChanged({required int ledgerId});
 }
@@ -43,6 +48,12 @@ class LocalOnlySyncService implements SyncService {
 
   @override
   void markLocalChanged({required int ledgerId}) {}
+
+  @override
+  Future<({String? fingerprint, int? count, DateTime? exportedAt})>
+      refreshCloudFingerprint({required int ledgerId}) async {
+    throw UnsupportedError('Cloud sync not configured');
+  }
 }
 
 // --- Simple serialization of transactions for a single ledger ---

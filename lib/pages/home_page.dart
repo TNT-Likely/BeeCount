@@ -487,41 +487,34 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                               final subtitle = it.t.note ?? '';
                               final isLastInGroup = rowIndex == list.length - 1;
-                              return Dismissible(
-                                key: ValueKey(it.t.id),
-                                direction: DismissDirection.endToStart,
-                                background:
-                                    Container(color: Colors.transparent),
-                                secondaryBackground: Container(
-                                    color: Colors.red[100],
-                                    alignment: Alignment.centerRight,
-                                    padding: const EdgeInsets.only(right: 16),
-                                    child: const Icon(Icons.delete_outline,
-                                        color: Colors.red)),
-                                confirmDismiss: (_) async {
+                              return GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onLongPress: () async {
+                                  // 注意：AppDialog.confirm 内部已处理 Navigator.pop，
+                                  // 这里不要再传 onCancel/onOk 里调用 pop，避免二次 pop 误退页面。
                                   final ok = await AppDialog.confirm<bool>(
                                         context,
                                         title: '删除确认',
                                         message: '确定要删除这条记账吗？',
-                                        onCancel: () =>
-                                            Navigator.pop(context, false),
-                                        onOk: () =>
-                                            Navigator.pop(context, true),
                                       ) ??
                                       false;
-                                  return ok;
-                                },
-                                onDismissed: (_) async {
+                                  if (!ok) return;
                                   final db = ref.read(databaseProvider);
                                   await (db.delete(db.transactions)
                                         ..where((t) => t.id.equals(it.t.id)))
                                       .go();
-                                  // 全局处理删除后的同步逻辑（后台静默上传/或刷新状态）
                                   final curLedger =
                                       ref.read(currentLedgerIdProvider);
-                                  // fire-and-forget，避免阻塞动画
                                   Future(() => handleLocalChange(ref,
                                       ledgerId: curLedger, background: true));
+                                  if (!mounted) return;
+                                  setState(() {
+                                    _sortedKeysCache = [];
+                                    _headerHeights.clear();
+                                    _rowHeights.clear();
+                                    _groupEnds.clear();
+                                    _computedGroups = 0;
+                                  });
                                   showToast(context, '已删除');
                                 },
                                 child: Column(
