@@ -279,7 +279,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                         controller: pwd2Ctrl,
                         obscureText: !_showPwd2,
                         decoration: InputDecoration(
-                          labelText: '确认密码（再次输入以避免输错）',
+                          labelText: '确认密码',
                           suffixIcon: IconButton(
                             icon: Icon(
                               _showPwd2
