@@ -445,7 +445,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 .reduce((a, b) => a + b)),
                         itemBuilder: (context, index) {
                           if (sortedKeys.isEmpty) {
-                            return const AppEmpty(text: '暂无数据，点击右下角记一笔');
+                            return const AppEmpty(text: '暂无数据，点击底部加号记一笔');
                           }
 
                           // 将 index 映射到分组和分组内的行

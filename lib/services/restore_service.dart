@@ -383,10 +383,19 @@ class RestoreService {
         reusedLedger = false;
       }
     } else {
-      targetLedgerId = await repo.createLedger(
-          name: item.name, currency: item.currency ?? 'CNY');
-      nameToId[item.name] = targetLedgerId;
-      reusedLedger = false;
+      // 无映射：若存在同名账本，且本地条数为0且未被占用，则优先复用
+      final sameNameId = nameToId[item.name];
+      if (sameNameId != null &&
+          !usedLedgerIds.contains(sameNameId) &&
+          (localCounts[sameNameId] ?? 0) == 0) {
+        targetLedgerId = sameNameId;
+        reusedLedger = true;
+      } else {
+        targetLedgerId = await repo.createLedger(
+            name: item.name, currency: item.currency ?? 'CNY');
+        nameToId[item.name] = targetLedgerId;
+        reusedLedger = false;
+      }
     }
     usedLedgerIds.add(targetLedgerId);
     if (reusedLedger) {
