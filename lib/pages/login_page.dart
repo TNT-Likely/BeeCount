@@ -1,3 +1,4 @@
+import 'package:beecount/styles/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as s;
@@ -179,7 +180,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     final theme = Theme.of(context);
     final radius = BorderRadius.circular(12);
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F7),
+      backgroundColor: BeeColors.greyBg,
       body: Column(
         children: [
           PrimaryHeader(title: isSignup ? '注册' : '登录', showBack: true),
@@ -210,43 +211,41 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                         ChoiceChip(
                           selected: !isSignup,
                           label: const Text('登录'),
-                          selectedColor:
-                              theme.colorScheme.primary.withOpacity(0.12),
-                          backgroundColor: Colors.transparent,
+                          selectedColor: theme.colorScheme.primary,
+                          backgroundColor: Colors.white,
                           side: BorderSide(
-                            color: (!isSignup)
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.outline.withOpacity(0.3),
+                            color: theme.colorScheme.primary,
+                            width: (!isSignup) ? 0 : 1,
                           ),
                           labelStyle: TextStyle(
                             color: (!isSignup)
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurface,
+                                ? theme.colorScheme.onPrimary
+                                : theme.colorScheme.primary,
                             fontWeight:
                                 (!isSignup) ? FontWeight.w600 : FontWeight.w400,
                           ),
                           onSelected: (v) => _switchMode(false),
+                          checkmarkColor: theme.colorScheme.onPrimary,
                         ),
                         const SizedBox(width: 8),
                         ChoiceChip(
                           selected: isSignup,
                           label: const Text('注册'),
-                          selectedColor:
-                              theme.colorScheme.primary.withOpacity(0.12),
-                          backgroundColor: Colors.transparent,
+                          selectedColor: theme.colorScheme.primary,
+                          backgroundColor: Colors.white,
                           side: BorderSide(
-                            color: (isSignup)
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.outline.withOpacity(0.3),
+                            color: theme.colorScheme.primary,
+                            width: (isSignup) ? 0 : 1,
                           ),
                           labelStyle: TextStyle(
                             color: (isSignup)
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurface,
+                                ? theme.colorScheme.onPrimary
+                                : theme.colorScheme.primary,
                             fontWeight:
                                 (isSignup) ? FontWeight.w600 : FontWeight.w400,
                           ),
                           onSelected: (v) => _switchMode(true),
+                          checkmarkColor: theme.colorScheme.onPrimary,
                         ),
                       ],
                     ),
