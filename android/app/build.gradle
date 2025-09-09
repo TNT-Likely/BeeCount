@@ -28,13 +28,44 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    // 当未在命令行指定 --flavor 时，默认选择 dev 风味，避免 Flutter 调试找不到 APK。
+    missingDimensionStrategy "env", "dev"
+    }
+
+    flavorDimensions += ["env"]
+    productFlavors {
+        dev {
+            dimension "env"
+            applicationIdSuffix ".dev"
+            resValue "string", "app_name", "蜜蜂记账测试版"
+        }
+        prod {
+            dimension "env"
+            resValue "string", "app_name", "蜜蜂记账"
+        }
     }
 
     buildTypes {
+        debug {
+            // Debug 构建追加独立后缀，名称显示为测试版，便于与生产包共存
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+            resValue "string", "app_name", "蜜蜂记账测试版"
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+        }
+    }
+
+    // 当存在 flavors 时，assembleDebug 会聚合构建所有 debug 变体（devDebug、prodDebug），
+    // 这会让 Flutter 工具无法确定唯一 APK 路径。这里忽略 prodDebug，仅保留 devDebug，
+    // 从而让不带 --flavor 的 `flutter run` 正常工作并默认使用 dev。
+    variantFilter { variant ->
+        def names = variant.flavors*.name
+        if (variant.buildType.name == 'debug' && names.contains('prod')) {
+            setIgnore(true)
         }
     }
 }

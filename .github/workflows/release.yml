@@ -1,0 +1,87 @@
+name: Release Mobile Apps
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g., v0.1.0)"
+        required: true
+
+jobs:
+  build-release:
+    runs-on: macos-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: |
+          flutter --version
+          flutter pub get
+
+      - name: Inject Supabase credentials
+        run: |
+          mkdir -p assets
+          cat > assets/config.json << 'JSON'
+          {
+            "supabaseUrl": "${SUPABASE_URL}",
+            "supabaseAnonKey": "${SUPABASE_ANON_KEY}"
+          }
+          JSON
+
+      - name: Bump version from tag
+        run: |
+          TAG=${{ github.event.inputs.tag }}
+          echo "Using tag: $TAG"
+          sed -i '' -E "s/^version:.*/version: ${TAG#v}/" pubspec.yaml
+
+      - name: Build Android APK (prod)
+        run: |
+          flutter build apk --flavor prod --dart-define=SUPABASE_URL=${SUPABASE_URL} --dart-define=SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY} --release
+
+      - name: Build Android AppBundle (prod)
+        run: |
+          flutter build appbundle --flavor prod --dart-define=SUPABASE_URL=${SUPABASE_URL} --dart-define=SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY} --release
+
+      - name: Build iOS IPA (prod)
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+        run: |
+          # Create export options for ad-hoc or app store depending on your process
+          flutter build ipa --no-codesign --release --flavor prod --dart-define=SUPABASE_URL=${SUPABASE_URL} --dart-define=SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+
+      - name: Generate changelog from commits since last tag
+        id: changelog
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || echo '')
+          if [ -z "$LAST_TAG" ]; then
+            echo "note=Initial release" >> $GITHUB_OUTPUT
+          else
+            LOG=$(git log --pretty=format:'- %s (%h)' "$LAST_TAG"..HEAD)
+            echo "note<<EON" >> $GITHUB_OUTPUT
+            echo "$LOG" >> $GITHUB_OUTPUT
+            echo "EON" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          name: ${{ github.event.inputs.tag }}
+          body: ${{ steps.changelog.outputs.note }}
+          files: |
+            build/app/outputs/flutter-apk/*prod*.apk
+            build/app/outputs/bundle/prodRelease/*.aab
+            build/ios/ipa/*.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

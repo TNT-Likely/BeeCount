@@ -1,2 +1,5 @@
+// App display name and bundle id for release
+APP_DISPLAY_NAME=蜜蜂记账
+PRODUCT_BUNDLE_IDENTIFIER=com.example.beecount
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
 #include "Generated.xcconfig"

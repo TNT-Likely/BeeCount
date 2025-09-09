@@ -1,5 +1,4 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as s;
-import '../config.dart';
 import '../utils/logger.dart';
 
 import 'auth.dart';
@@ -55,16 +54,9 @@ class SupabaseAuthService implements AuthService {
 
   @override
   Future<void> sendPasswordResetEmail({required String email}) async {
-    final redirect = AppConfig.supabaseRedirectTo.isNotEmpty
-        ? AppConfig.supabaseRedirectTo
-        : (AppConfig.supabaseUrl.isNotEmpty ? AppConfig.supabaseUrl : null);
-    logI('Auth',
-        'resetPassword email=$email redirectTo=${redirect ?? '(default)'}');
-    // 补充 redirectTo：优先使用自定义回调，否则回退到 Site URL；都没有则交给 Supabase 默认
-    await client.auth.resetPasswordForEmail(
-      email,
-      redirectTo: redirect,
-    );
+    logI('Auth', 'resetPassword email=$email');
+    // 直接使用 Supabase Project 配置中的重置回调（不在客户端覆盖 redirect）
+    await client.auth.resetPasswordForEmail(email);
   }
 
   @override

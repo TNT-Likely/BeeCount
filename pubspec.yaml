@@ -23,6 +23,7 @@ dependencies:
   file_picker: ^8.1.2
   supabase_flutter: ^2.5.6
   crypto: ^3.0.5
+  flutter_svg: ^2.0.10+1
 
 dev_dependencies:
   flutter_test:
@@ -30,8 +31,19 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   build_runner: ^2.4.10
   drift_dev: ^2.20.2
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/logo.png
 
 flutter:
   uses-material-design: true
   assets:
     - assets/config.json
+    - assets/logo.svg
+    - assets/logo.png
+    - assets/logo_cute_bee.svg
+    - assets/logo_cool_bee.svg
+    - assets/logo_bee_coin.svg
