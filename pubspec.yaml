@@ -44,3 +44,4 @@ flutter:
     - assets/config.json
     - assets/logo.svg
     - assets/logo.png
+    - assets/title-logo.svg
