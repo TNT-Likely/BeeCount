@@ -168,6 +168,16 @@ jobs:
       - android
       - ios
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Ensure tags are fetched
+        run: |
+          git fetch --tags --force || true
+
       - name: Prepare release metadata
         id: meta
         shell: bash
