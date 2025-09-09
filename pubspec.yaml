@@ -41,7 +41,8 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
   assets:
-    - assets/config.json
+    # 发布产物不再打包 config.json，避免误用和泄露（本地如需调试，可临时添加）
+    # - assets/config.json
     - assets/logo.svg
     - assets/logo.png
     - assets/title-logo.svg

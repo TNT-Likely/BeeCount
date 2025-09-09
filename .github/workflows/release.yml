@@ -60,6 +60,18 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
+      - name: Check Supabase secrets
+        run: |
+          test -n "${{ secrets.SUPABASE_URL }}" || (echo "Missing SUPABASE_URL" >&2; exit 1)
+          test -n "${{ secrets.SUPABASE_ANON_KEY }}" || (echo "Missing SUPABASE_ANON_KEY" >&2; exit 1)
+
+      - name: Print define length (debug, safe)
+        run: |
+          export SUPABASE_URL='${{ secrets.SUPABASE_URL }}'
+          export SUPABASE_ANON_KEY='${{ secrets.SUPABASE_ANON_KEY }}'
+          echo "SUPABASE_URL length: ${#SUPABASE_URL}"
+          echo "SUPABASE_ANON_KEY length: ${#SUPABASE_ANON_KEY}"
+
       - name: Build APK (release)
         run: |
           export SUPABASE_URL='${{ secrets.SUPABASE_URL }}'
@@ -110,6 +122,18 @@ jobs:
 
       - name: Flutter pub get
         run: flutter pub get
+
+      - name: Check Supabase secrets
+        run: |
+          test -n "${{ secrets.SUPABASE_URL }}" || (echo "Missing SUPABASE_URL" >&2; exit 1)
+          test -n "${{ secrets.SUPABASE_ANON_KEY }}" || (echo "Missing SUPABASE_ANON_KEY" >&2; exit 1)
+
+      - name: Print define length (debug, safe)
+        run: |
+          export SUPABASE_URL='${{ secrets.SUPABASE_URL }}'
+          export SUPABASE_ANON_KEY='${{ secrets.SUPABASE_ANON_KEY }}'
+          echo "SUPABASE_URL length: ${#SUPABASE_URL}"
+          echo "SUPABASE_ANON_KEY length: ${#SUPABASE_ANON_KEY}"
 
       - name: Build iOS (no codesign)
         run: |
