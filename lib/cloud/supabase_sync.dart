@@ -38,6 +38,56 @@ class SupabaseSyncService implements SyncService {
     return sha256.convert(bytes).toString();
   }
 
+  /// 列出当前用户云端下的所有账本备份对象（users/<uid>/ledger_*.json），并解析摘要信息。
+  Future<List<Map<String, dynamic>>> listRemoteBackups() async {
+    final user = await auth.currentUser();
+    if (user == null) return const [];
+    final prefix = 'users/${user.id}';
+    try {
+      final files = await client.storage.from(bucket).list(path: prefix);
+      final outs = <Map<String, dynamic>>[];
+      for (final f in files) {
+        final name = f.name;
+        if (!name.endsWith('.json') || !name.startsWith('ledger_')) continue;
+        final path = '$prefix/$name';
+        try {
+          final data = await client.storage.from(bucket).download(path);
+          final str = _decodeBytesCompat(data);
+          final map = jsonDecode(str) as Map<String, dynamic>;
+          final cnt = (map['count'] as num?)?.toInt() ?? 0;
+          final lname = map['ledgerName'] as String?;
+          final cur = map['currency'] as String?;
+          outs.add({
+            'path': path,
+            'name': name,
+            'size': f.metadata?['size'] as int?,
+            'count': cnt,
+            'ledgerName': lname,
+            'currency': cur,
+          });
+        } catch (e) {
+          // 忽略损坏或无法访问的对象
+          logW('sync', '读取备份对象失败: $path $e');
+        }
+      }
+      return outs;
+    } catch (e) {
+      logW('sync', '列出云端备份失败: $e');
+      return const [];
+    }
+  }
+
+  /// 下载任意对象为字符串（用于恢复流程）
+  Future<String?> downloadObjectAsString(String path) async {
+    try {
+      final data = await client.storage.from(bucket).download(path);
+      return _decodeBytesCompat(data);
+    } catch (e) {
+      logW('sync', '下载对象失败: $path $e');
+      return null;
+    }
+  }
+
   String _contentFingerprintFromMap(Map<String, dynamic> payload) {
     final items = (payload['items'] as List).cast<Map<String, dynamic>>();
     final canon = items
@@ -179,7 +229,13 @@ class SupabaseSyncService implements SyncService {
     try {
       data = await client.storage.from(bucket).download(path);
     } on s.StorageException catch (e) {
-      if ('${e.statusCode}' == '404') {
+      final codeStr = '${e.statusCode}';
+      final msgStr = e.message;
+      final is404 = codeStr == '404' ||
+          msgStr.contains('not_found') ||
+          msgStr.contains('Object not found') ||
+          msgStr.contains('"statusCode":"404"');
+      if (is404) {
         // 对象不存在：创建一个空的备份对象，随后返回“无可恢复”
         final emptyJson = jsonEncode({
           'count': 0,
@@ -341,7 +397,13 @@ class SupabaseSyncService implements SyncService {
         _statusCache[ledgerId] = st;
         return st;
       } on s.StorageException catch (e) {
-        if ('${e.statusCode}' == '404') {
+        final codeStr = '${e.statusCode}';
+        final msgStr = e.message;
+        final is404 = codeStr == '404' ||
+            msgStr.contains('not_found') ||
+            msgStr.contains('Object not found') ||
+            msgStr.contains('"statusCode":"404"');
+        if (is404) {
           final st = SyncStatus(
             diff: SyncDiff.noRemote,
             localCount: localCount,

@@ -157,6 +157,71 @@ class MinePage extends ConsumerWidget {
 
                       return Column(
                         children: [
+                          // 登录后一键恢复：后台进度显示
+                          Consumer(builder: (ctx, r, _) {
+                            final p = r.watch(cloudRestoreProgressProvider);
+                            final summary =
+                                r.watch(cloudRestoreSummaryProvider);
+                            // 显示进行中的进度
+                            if (p.running) {
+                              final lead = Icons.cloud_download_outlined;
+                              final title =
+                                  '云端恢复中… (${p.currentIndex}/${p.totalLedgers})';
+                              final sub = [
+                                if (p.currentLedgerName != null)
+                                  '账本：${p.currentLedgerName}',
+                                '记录：${p.currentDone}/${p.currentTotal}'
+                              ].join('  ');
+                              final percent = p.currentTotal == 0
+                                  ? null
+                                  : (p.currentDone / p.currentTotal)
+                                      .clamp(0.0, 1.0);
+                              return Column(
+                                children: [
+                                  AppListTile(
+                                    leading: lead,
+                                    title: title,
+                                    subtitle: sub,
+                                    trailing: SizedBox(
+                                      width: 72,
+                                      child: LinearProgressIndicator(
+                                          value: percent),
+                                    ),
+                                    onTap: null,
+                                  ),
+                                  AppDivider.thin(),
+                                ],
+                              );
+                            }
+                            // 显示完成摘要
+                            if (summary != null) {
+                              return Column(
+                                children: [
+                                  AppListTile(
+                                    leading: Icons.info_outline,
+                                    title: '恢复完成',
+                                    subtitle:
+                                        '账本：${summary.successLedgers}/${summary.totalLedgers} 成功，失败 ${summary.failedLedgers}，总处理 ${summary.totalImported} 条',
+                                    onTap: () async {
+                                      final details = summary.failedDetails;
+                                      final msg = details.isEmpty
+                                          ? '全部成功'
+                                          : '失败列表:\n${details.join('\n')}';
+                                      await AppDialog.info(context,
+                                          title: '完成摘要', message: msg);
+                                      // 清空摘要，避免反复提示
+                                      r
+                                          .read(cloudRestoreSummaryProvider
+                                              .notifier)
+                                          .state = null;
+                                    },
+                                  ),
+                                  AppDivider.thin(),
+                                ],
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          }),
                           StatefulBuilder(builder: (ctx, setSB) {
                             return Column(
                               children: [
@@ -381,11 +446,15 @@ class MinePage extends ConsumerWidget {
                                 ref
                                     .read(syncStatusRefreshProvider.notifier)
                                     .state++;
+                                // 登录流程可能触发云端恢复；强制刷新统计
+                                ref.read(statsRefreshProvider.notifier).state++;
                               } else {
                                 await auth.signOut();
                                 ref
                                     .read(syncStatusRefreshProvider.notifier)
                                     .state++;
+                                // 退出登录也刷新统计，避免显示过期数
+                                ref.read(statsRefreshProvider.notifier).state++;
                               }
                             },
                           ),
@@ -485,7 +554,7 @@ class MinePage extends ConsumerWidget {
           SectionCard(
             child: AppListTile(
               leading: Icons.brush_outlined,
-              title: '个性化',
+              title: '个性装扮',
               onTap: () async {
                 await Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const PersonalizePage()),

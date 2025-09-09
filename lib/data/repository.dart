@@ -282,6 +282,15 @@ class BeeRepository {
         ));
   }
 
+  /// 批量新增交易，单事务内插入，返回插入条数
+  Future<int> insertTransactionsBatch(List<TransactionsCompanion> items) async {
+    if (items.isEmpty) return 0;
+    return db.transaction(() async {
+      await db.batch((b) => b.insertAll(db.transactions, items));
+      return items.length;
+    });
+  }
+
   // --- 去重与签名工具 ---
 
   /// 生成用于判重的签名（同一账本内）：

@@ -49,6 +49,8 @@ final repositoryProvider = Provider<BeeRepository>((ref) {
 // 统计：账本数量
 final ledgerCountProvider = FutureProvider.autoDispose<int>((ref) async {
   final repo = ref.watch(repositoryProvider);
+  // 依赖全局统计刷新 tick，确保手动刷新或恢复后能重新计算
+  ref.watch(statsRefreshProvider);
   final link = ref.keepAlive();
   ref.onDispose(() => link.close());
   return repo.ledgerCount();
@@ -238,3 +240,66 @@ class ImportProgress {
 
 final importProgressProvider =
     StateProvider<ImportProgress>((ref) => ImportProgress.empty);
+
+// 云端恢复进度（登录后的一键恢复）
+class CloudRestoreProgress {
+  final bool running;
+  final int totalLedgers;
+  final int currentIndex; // 1-based
+  final String? currentLedgerName;
+  final int currentTotal; // 当前账本总记录数
+  final int currentDone; // 当前账本已处理条数
+  const CloudRestoreProgress({
+    required this.running,
+    required this.totalLedgers,
+    required this.currentIndex,
+    required this.currentLedgerName,
+    required this.currentTotal,
+    required this.currentDone,
+  });
+  CloudRestoreProgress copyWith({
+    bool? running,
+    int? totalLedgers,
+    int? currentIndex,
+    String? currentLedgerName,
+    int? currentTotal,
+    int? currentDone,
+  }) =>
+      CloudRestoreProgress(
+        running: running ?? this.running,
+        totalLedgers: totalLedgers ?? this.totalLedgers,
+        currentIndex: currentIndex ?? this.currentIndex,
+        currentLedgerName: currentLedgerName ?? this.currentLedgerName,
+        currentTotal: currentTotal ?? this.currentTotal,
+        currentDone: currentDone ?? this.currentDone,
+      );
+  static const empty = CloudRestoreProgress(
+      running: false,
+      totalLedgers: 0,
+      currentIndex: 0,
+      currentLedgerName: null,
+      currentTotal: 0,
+      currentDone: 0);
+}
+
+final cloudRestoreProgressProvider =
+    StateProvider<CloudRestoreProgress>((ref) => CloudRestoreProgress.empty);
+
+// 云端恢复完成摘要
+class CloudRestoreSummary {
+  final int totalLedgers;
+  final int successLedgers;
+  final int failedLedgers;
+  final int totalImported; // 累计导入（含跳过）
+  final List<String> failedDetails; // 每个失败账本的原因摘要
+  const CloudRestoreSummary({
+    required this.totalLedgers,
+    required this.successLedgers,
+    required this.failedLedgers,
+    required this.totalImported,
+    required this.failedDetails,
+  });
+}
+
+final cloudRestoreSummaryProvider =
+    StateProvider<CloudRestoreSummary?>((ref) => null);

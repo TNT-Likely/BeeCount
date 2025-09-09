@@ -1,10 +1,11 @@
-import 'package:beecount/styles/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as s;
 import '../providers.dart';
+import '../cloud/auth.dart';
 import '../widgets/ui/ui.dart';
 import '../utils/logger.dart';
+import '../services/restore_service.dart';
 
 enum AuthMode { login, signup }
 
@@ -26,6 +27,15 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   late bool isSignup;
   bool _showPwd = false;
   bool _showPwd2 = false;
+  void _switchMode(bool toSignup) {
+    setState(() {
+      isSignup = toSignup;
+      errorText = null;
+      infoText = null;
+    });
+  }
+
+  AuthService get auth => ref.read(authServiceProvider);
 
   @override
   void initState() {
@@ -140,24 +150,16 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           return '操作过于频繁，请稍后再试。';
         case 'email_address_not_confirmed':
         case 'email_not_confirmed':
-          if (action == '重置密码') return '邮箱未验证，请先完成邮箱验证后再尝试重置。';
-          break;
+          return '邮箱未验证，无法$action。';
       }
     }
     final lower = e.toString().toLowerCase();
-    if (lower.contains('not found') || lower.contains('user_not_found')) {
-      return '邮箱未注册，无法$action。';
+    if (lower.contains('email') &&
+        lower.contains('not') &&
+        lower.contains('confirm')) {
+      return '邮箱未验证，无法$action。';
     }
-    if (lower.contains('already') &&
-        (lower.contains('verified') || lower.contains('confirmed'))) {
-      return '该邮箱已验证，无需重发。';
-    }
-    if ((lower.contains('not confirmed') || lower.contains('unverified')) &&
-        action == '重置密码') {
-      return '邮箱未验证，请先完成邮箱验证后再尝试重置。';
-    }
-    if (lower.contains('rate') && lower.contains('limit') ||
-        lower.contains('too many')) {
+    if (lower.contains('rate') && lower.contains('limit')) {
       return '操作过于频繁，请稍后再试。';
     }
     if (lower.contains('network') || lower.contains('timeout')) {
@@ -166,315 +168,334 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     return '$action失败，请稍后再试。';
   }
 
-  void _switchMode(bool toSignup) {
-    setState(() {
-      isSignup = toSignup;
-      errorText = null;
-      infoText = null;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final auth = ref.watch(authServiceProvider);
     final theme = Theme.of(context);
     final radius = BorderRadius.circular(12);
     return Scaffold(
-      backgroundColor: BeeColors.greyBg,
       body: Column(
         children: [
           PrimaryHeader(title: isSignup ? '注册' : '登录', showBack: true),
           Expanded(
             child: Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 420),
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    )
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ChoiceChip(
-                          selected: !isSignup,
-                          label: const Text('登录'),
-                          selectedColor: theme.colorScheme.primary,
-                          backgroundColor: Colors.white,
-                          side: BorderSide(
-                            color: theme.colorScheme.primary,
-                            width: (!isSignup) ? 0 : 1,
-                          ),
-                          labelStyle: TextStyle(
-                            color: (!isSignup)
-                                ? theme.colorScheme.onPrimary
-                                : theme.colorScheme.primary,
-                            fontWeight:
-                                (!isSignup) ? FontWeight.w600 : FontWeight.w400,
-                          ),
-                          onSelected: (v) => _switchMode(false),
-                          checkmarkColor: theme.colorScheme.onPrimary,
-                        ),
-                        const SizedBox(width: 8),
-                        ChoiceChip(
-                          selected: isSignup,
-                          label: const Text('注册'),
-                          selectedColor: theme.colorScheme.primary,
-                          backgroundColor: Colors.white,
-                          side: BorderSide(
-                            color: theme.colorScheme.primary,
-                            width: (isSignup) ? 0 : 1,
-                          ),
-                          labelStyle: TextStyle(
-                            color: (isSignup)
-                                ? theme.colorScheme.onPrimary
-                                : theme.colorScheme.primary,
-                            fontWeight:
-                                (isSignup) ? FontWeight.w600 : FontWeight.w400,
-                          ),
-                          onSelected: (v) => _switchMode(true),
-                          checkmarkColor: theme.colorScheme.onPrimary,
-                        ),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: SingleChildScrollView(
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        )
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: emailCtrl,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(labelText: '邮箱'),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: pwdCtrl,
-                      obscureText: !_showPwd,
-                      decoration: InputDecoration(
-                        labelText: isSignup ? '密码（至少 6 位，需包含字母和数字）' : '密码',
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _showPwd
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                          ),
-                          onPressed: () => setState(() {
-                            _showPwd = !_showPwd;
-                          }),
-                        ),
-                      ),
-                    ),
-                    if (isSignup) const SizedBox(height: 8),
-                    if (isSignup)
-                      TextField(
-                        controller: pwd2Ctrl,
-                        obscureText: !_showPwd2,
-                        decoration: InputDecoration(
-                          labelText: '确认密码',
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _showPwd2
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ChoiceChip(
+                              selected: !isSignup,
+                              label: const Text('登录'),
+                              selectedColor: theme.colorScheme.primary,
+                              backgroundColor: Colors.white,
+                              side: BorderSide(
+                                color: theme.colorScheme.primary,
+                                width: (!isSignup) ? 0 : 1,
+                              ),
+                              labelStyle: TextStyle(
+                                color: (!isSignup)
+                                    ? theme.colorScheme.onPrimary
+                                    : theme.colorScheme.primary,
+                                fontWeight: (!isSignup)
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                              ),
+                              onSelected: (v) => _switchMode(false),
+                              checkmarkColor: theme.colorScheme.onPrimary,
                             ),
-                            onPressed: () => setState(() {
-                              _showPwd2 = !_showPwd2;
-                            }),
+                            const SizedBox(width: 8),
+                            ChoiceChip(
+                              selected: isSignup,
+                              label: const Text('注册'),
+                              selectedColor: theme.colorScheme.primary,
+                              backgroundColor: Colors.white,
+                              side: BorderSide(
+                                color: theme.colorScheme.primary,
+                                width: (isSignup) ? 0 : 1,
+                              ),
+                              labelStyle: TextStyle(
+                                color: (isSignup)
+                                    ? theme.colorScheme.onPrimary
+                                    : theme.colorScheme.primary,
+                                fontWeight: (isSignup)
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                              ),
+                              onSelected: (v) => _switchMode(true),
+                              checkmarkColor: theme.colorScheme.onPrimary,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: emailCtrl,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(labelText: '邮箱'),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: pwdCtrl,
+                          obscureText: !_showPwd,
+                          decoration: InputDecoration(
+                            labelText: isSignup ? '密码（至少 6 位，需包含字母和数字）' : '密码',
+                            suffixIcon: IconButton(
+                              icon: Icon(_showPwd
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined),
+                              onPressed: () =>
+                                  setState(() => _showPwd = !_showPwd),
+                            ),
                           ),
                         ),
-                      ),
-                    const SizedBox(height: 12),
-                    if (errorText != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text(
-                          errorText!,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ),
-                    if (infoText != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text(
-                          infoText!,
-                          style: const TextStyle(color: Colors.green),
-                        ),
-                      ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: isSignup
-                          ? OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: radius),
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                                side: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.primary),
+                        if (isSignup) ...[
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: pwd2Ctrl,
+                            obscureText: !_showPwd2,
+                            decoration: InputDecoration(
+                              labelText: '确认密码',
+                              suffixIcon: IconButton(
+                                icon: Icon(_showPwd2
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined),
+                                onPressed: () =>
+                                    setState(() => _showPwd2 = !_showPwd2),
                               ),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        if (errorText != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Text(
+                              errorText!,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        if (infoText != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Text(
+                              infoText!,
+                              style: const TextStyle(color: Colors.green),
+                            ),
+                          ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: isSignup
+                              ? OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: radius),
+                                    foregroundColor:
+                                        Theme.of(context).colorScheme.primary,
+                                    side: BorderSide(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary),
+                                  ),
+                                  onPressed: busy
+                                      ? null
+                                      : () async {
+                                          final email = emailCtrl.text.trim();
+                                          final pwd = pwdCtrl.text;
+                                          final pwd2 = pwd2Ctrl.text;
+                                          logI('auth', '开始注册：邮箱=$email');
+                                          if (!isValidEmail(email)) {
+                                            setState(
+                                                () => errorText = '请输入有效的邮箱地址');
+                                            return;
+                                          }
+                                          if (!isValidPassword(pwd)) {
+                                            setState(() => errorText =
+                                                '密码需包含字母和数字，长度至少 6 位');
+                                            return;
+                                          }
+                                          if (pwd != pwd2) {
+                                            setState(
+                                                () => errorText = '两次输入的密码不一致');
+                                            return;
+                                          }
+                                          setState(() {
+                                            busy = true;
+                                            errorText = null;
+                                            infoText = null;
+                                          });
+                                          try {
+                                            await auth.signUpWithEmail(
+                                                email: email, password: pwd);
+                                            if (!mounted) return;
+                                            logI('auth',
+                                                '注册成功，已发送验证邮件：邮箱=$email');
+                                            Navigator.of(context)
+                                                .pushReplacement(
+                                              MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      const SignupSuccessPage()),
+                                            );
+                                          } catch (e, stSignup) {
+                                            logE(
+                                                'auth',
+                                                '注册失败：邮箱=$email，原因=${friendlySignupError(e)}',
+                                                e,
+                                                stSignup);
+                                            setState(() => errorText =
+                                                friendlySignupError(e));
+                                          } finally {
+                                            if (mounted)
+                                              setState(() => busy = false);
+                                          }
+                                        },
+                                  child: busy
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                        )
+                                      : const Text('注册'),
+                                )
+                              : FilledButton(
+                                  style: FilledButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: radius),
+                                  ),
+                                  onPressed: busy
+                                      ? null
+                                      : () async {
+                                          final email = emailCtrl.text.trim();
+                                          final pwd = pwdCtrl.text;
+                                          logI('auth', '开始登录：邮箱=$email');
+                                          if (!isValidEmail(email)) {
+                                            setState(
+                                                () => errorText = '请输入有效的邮箱地址');
+                                            return;
+                                          }
+                                          if (!isValidPassword(pwd)) {
+                                            setState(() => errorText =
+                                                '密码需包含字母和数字，长度至少 6 位');
+                                            return;
+                                          }
+                                          setState(() {
+                                            busy = true;
+                                            errorText = null;
+                                            infoText = null;
+                                          });
+                                          try {
+                                            await auth.signInWithEmail(
+                                                email: email, password: pwd);
+                                            if (!mounted) return;
+                                            logI('auth', '登录成功：邮箱=$email');
+                                            ref
+                                                .read(syncStatusRefreshProvider
+                                                    .notifier)
+                                                .state++;
+                                            // 登录后检查是否需要恢复
+                                            final check = await RestoreService
+                                                .checkNeedRestore(ref);
+                                            if (check.needsRestore) {
+                                              final ok = await AppDialog.confirm<
+                                                          bool>(context,
+                                                      title: '发现云端备份',
+                                                      message:
+                                                          '检测到云端与本地账本不一致，是否恢复到本地？\n(将后台执行并显示进度)') ??
+                                                  false;
+                                              if (ok) {
+                                                Future(() async {
+                                                  await RestoreService
+                                                      .startBackgroundRestore(
+                                                          check.backups, ref);
+                                                });
+                                              }
+                                            }
+                                            Navigator.pop(context);
+                                          } catch (e, st) {
+                                            final msg = friendlyAuthError(e);
+                                            logE(
+                                                'auth',
+                                                '登录失败：邮箱=$email，原因=$msg',
+                                                e,
+                                                st);
+                                            setState(() => errorText = msg);
+                                          } finally {
+                                            if (mounted)
+                                              setState(() => busy = false);
+                                          }
+                                        },
+                                  child: busy
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white),
+                                        )
+                                      : const Text('登录'),
+                                ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
                               onPressed: busy
                                   ? null
                                   : () async {
                                       final email = emailCtrl.text.trim();
-                                      final pwd = pwdCtrl.text;
-                                      final pwd2 = pwd2Ctrl.text;
-                                      logI('auth', '开始注册：邮箱=$email');
                                       if (!isValidEmail(email)) {
                                         setState(
                                             () => errorText = '请输入有效的邮箱地址');
                                         return;
                                       }
-                                      if (!isValidPassword(pwd)) {
-                                        setState(() =>
-                                            errorText = '密码需包含字母和数字，长度至少 6 位');
-                                        return;
-                                      }
-                                      if (pwd != pwd2) {
-                                        setState(
-                                            () => errorText = '两次输入的密码不一致');
-                                        return;
-                                      }
                                       setState(() {
-                                        busy = true;
                                         errorText = null;
                                         infoText = null;
-                                      });
-                                      try {
-                                        await auth.signUpWithEmail(
-                                            email: email, password: pwd);
-                                        if (!mounted) return;
-                                        logI('auth', '注册成功，已发送验证邮件：邮箱=$email');
-                                        Navigator.of(context).pushReplacement(
-                                          MaterialPageRoute(
-                                              builder: (_) =>
-                                                  const SignupSuccessPage()),
-                                        );
-                                      } catch (e, stSignup) {
-                                        logE(
-                                            'auth',
-                                            '注册失败：邮箱=$email，原因=${friendlySignupError(e)}',
-                                            e,
-                                            stSignup);
-                                        setState(() =>
-                                            errorText = friendlySignupError(e));
-                                      } finally {
-                                        if (mounted)
-                                          setState(() => busy = false);
-                                      }
-                                    },
-                              child: busy
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    )
-                                  : const Text('注册'),
-                            )
-                          : FilledButton(
-                              style: FilledButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: radius),
-                              ),
-                              onPressed: busy
-                                  ? null
-                                  : () async {
-                                      final email = emailCtrl.text.trim();
-                                      final pwd = pwdCtrl.text;
-                                      logI('auth', '开始登录：邮箱=$email');
-                                      if (!isValidEmail(email)) {
-                                        setState(
-                                            () => errorText = '请输入有效的邮箱地址');
-                                        return;
-                                      }
-                                      if (!isValidPassword(pwd)) {
-                                        setState(() =>
-                                            errorText = '密码需包含字母和数字，长度至少 6 位');
-                                        return;
-                                      }
-                                      setState(() {
                                         busy = true;
-                                        errorText = null;
-                                        infoText = null;
                                       });
                                       try {
-                                        await auth.signInWithEmail(
-                                            email: email, password: pwd);
+                                        await auth.resendEmailVerification(
+                                            email: email);
                                         if (!mounted) return;
-                                        logI('auth', '登录成功：邮箱=$email');
-                                        ref
-                                            .read(syncStatusRefreshProvider
-                                                .notifier)
-                                            .state++;
-                                        Navigator.pop(context);
-                                      } catch (e, st) {
-                                        final msg = friendlyAuthError(e);
-                                        logE('auth', '登录失败：邮箱=$email，原因=$msg',
-                                            e, st);
+                                        showToast(context, '验证邮件已重新发送。');
+                                        setState(() => infoText = '验证邮件已重新发送。');
+                                      } catch (e) {
+                                        final msg = friendlyActionError(e,
+                                            action: '重发验证');
+                                        if (!mounted) return;
+                                        showToast(context, msg);
                                         setState(() => errorText = msg);
                                       } finally {
                                         if (mounted)
                                           setState(() => busy = false);
                                       }
                                     },
-                              child: busy
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2, color: Colors.white),
-                                    )
-                                  : const Text('登录'),
+                              child: const Text('重发验证邮件'),
                             ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed: busy
-                              ? null
-                              : () async {
-                                  final email = emailCtrl.text.trim();
-                                  if (!isValidEmail(email)) {
-                                    setState(() => errorText = '请输入有效的邮箱地址');
-                                    return;
-                                  }
-                                  setState(() {
-                                    errorText = null;
-                                    infoText = null;
-                                    busy = true;
-                                  });
-                                  try {
-                                    await auth.resendEmailVerification(
-                                        email: email);
-                                    if (!mounted) return;
-                                    showToast(context, '验证邮件已重新发送。');
-                                    setState(() => infoText = '验证邮件已重新发送。');
-                                  } catch (e) {
-                                    final msg =
-                                        friendlyActionError(e, action: '重发验证');
-                                    if (!mounted) return;
-                                    showToast(context, msg);
-                                    setState(() => errorText = msg);
-                                  } finally {
-                                    if (mounted) setState(() => busy = false);
-                                  }
-                                },
-                          child: const Text('重发验证邮件'),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

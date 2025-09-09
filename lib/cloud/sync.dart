@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../data/db.dart';
+import 'package:drift/drift.dart' as d;
 import '../data/repository.dart';
 
 abstract class SyncService {
@@ -88,10 +89,16 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
             'note': t.note,
           })
       .toList();
+  // ledger meta
+  final ledger = await (db.select(db.ledgers)
+        ..where((l) => l.id.equals(ledgerId)))
+      .getSingleOrNull();
   final payload = {
     'version': 1,
     'exportedAt': DateTime.now().toUtc().toIso8601String(),
     'ledgerId': ledgerId,
+    'ledgerName': ledger?.name,
+    'currency': ledger?.currency,
     'count': items.length,
     'items': items,
   };
@@ -101,13 +108,30 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
 /// 解析 JSON 并增量导入，使用签名去重（与本地现有数据合并）。
 /// 返回 (inserted, skipped)
 Future<({int inserted, int skipped})> importTransactionsJson(
-    BeeRepository repo, int ledgerId, String jsonStr) async {
+    BeeRepository repo, int ledgerId, String jsonStr,
+    {void Function(int done, int total)? onProgress}) async {
   final data = jsonDecode(jsonStr) as Map<String, dynamic>;
   final items = (data['items'] as List).cast<Map<String, dynamic>>();
+  // optional: update local ledger name & currency if present
+  final ledgerName = data['ledgerName'] as String?;
+  final currency = data['currency'] as String?;
+  if (ledgerName != null || currency != null) {
+    try {
+      await repo.updateLedger(
+          id: ledgerId, name: ledgerName, currency: currency);
+    } catch (_) {}
+  }
   int inserted = 0;
   int skipped = 0;
+  int processed = 0;
+  final total = items.length;
   // 先构建现有签名集合，避免 N^2
   final existing = await repo.signatureSetForLedger(ledgerId);
+  // 构建批量待插入列表，分批写入
+  final toInsert = <TransactionsCompanion>[];
+  const batchSize = 500;
+  // 预热：用于减少 upsertCategory 的重复查询
+  final categoryCache = <String, int>{}; // key: kind|name -> id
   for (final it in items) {
     final type = it['type'] as String;
     final amount = (it['amount'] as num).toDouble();
@@ -118,8 +142,15 @@ Future<({int inserted, int skipped})> importTransactionsJson(
 
     int? categoryId;
     if (categoryName != null && categoryKind != null) {
-      categoryId =
-          await repo.upsertCategory(name: categoryName, kind: categoryKind);
+      final key = '$categoryKind|$categoryName';
+      final cached = categoryCache[key];
+      if (cached != null) {
+        categoryId = cached;
+      } else {
+        categoryId =
+            await repo.upsertCategory(name: categoryName, kind: categoryKind);
+        categoryCache[key] = categoryId;
+      }
     }
     final sig = repo.txSignature(
         type: type,
@@ -129,21 +160,39 @@ Future<({int inserted, int skipped})> importTransactionsJson(
         note: note);
     if (existing.contains(sig)) {
       skipped++;
+      processed++;
+      // 节流触发进度（每 200 条或最后）
+      if (onProgress != null && (processed % 200 == 0)) {
+        onProgress(processed, total);
+      }
       continue;
     }
-    await repo.addTransaction(
+    toInsert.add(TransactionsCompanion.insert(
       ledgerId: ledgerId,
       type: type,
       amount: amount,
-      categoryId: categoryId,
-      accountId: null,
-      toAccountId: null,
-      happenedAt: happenedAt,
-      note: note,
-    );
+      categoryId: d.Value(categoryId),
+      accountId: const d.Value(null),
+      toAccountId: const d.Value(null),
+      happenedAt: d.Value(happenedAt),
+      note: d.Value(note),
+    ));
     existing.add(sig);
-    inserted++;
+    // 批量写入达到阈值时落盘并更新进度
+    if (toInsert.length >= batchSize) {
+      final n = await repo.insertTransactionsBatch(List.of(toInsert));
+      toInsert.clear();
+      inserted += n;
+      processed += n;
+      if (onProgress != null) onProgress(processed, total);
+    }
   }
+  if (toInsert.isNotEmpty) {
+    final n = await repo.insertTransactionsBatch(toInsert);
+    inserted += n;
+    processed += n;
+  }
+  if (onProgress != null) onProgress(processed, total);
   return (inserted: inserted, skipped: skipped);
 }
 
