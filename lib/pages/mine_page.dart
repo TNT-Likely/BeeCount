@@ -43,11 +43,17 @@ class MinePage extends ConsumerWidget {
                   const SizedBox(height: 6),
                   Builder(builder: (ctx) {
                     final lCount = ref.watch(ledgerCountProvider);
-                    final counts = ref.watch(countsForLedgerProvider(ledgerId));
+                    // 顶部统计改为全应用聚合：使用异步值或回退到缓存，避免刷新时闪烁
+                    final countsAsync = ref.watch(countsAllProvider);
+                    final countsCached = ref.watch(lastCountsAllProvider);
+                    final day = countsAsync.asData?.value.dayCount ??
+                        (countsCached?.dayCount ?? 0);
+                    final tx = countsAsync.asData?.value.txCount ??
+                        (countsCached?.txCount ?? 0);
                     final data = (
                       ledgerCount: lCount.asData?.value ?? 1,
-                      dayCount: counts.asData?.value.dayCount ?? 0,
-                      txCount: counts.asData?.value.txCount ?? 0,
+                      dayCount: day,
+                      txCount: tx,
                     );
                     final labelStyle = Theme.of(context)
                         .textTheme
@@ -412,6 +418,32 @@ class MinePage extends ConsumerWidget {
                   MaterialPageRoute(builder: (_) => const PersonalizePage()),
                 );
               },
+            ),
+          ),
+
+          // 分组：调试工具（临时）
+          const SizedBox(height: 8),
+          SectionCard(
+            child: Column(
+              children: [
+                AppListTile(
+                  leading: Icons.refresh,
+                  title: '刷新统计信息（临时）',
+                  subtitle: '触发全局统计 Provider 重新计算',
+                  onTap: () {
+                    ref.read(statsRefreshProvider.notifier).state++;
+                  },
+                ),
+                AppDivider.thin(),
+                AppListTile(
+                  leading: Icons.sync,
+                  title: '刷新同步状态（临时）',
+                  subtitle: '触发同步状态 Provider 重新获取',
+                  onTap: () {
+                    ref.read(syncStatusRefreshProvider.notifier).state++;
+                  },
+                ),
+              ],
             ),
           ),
 

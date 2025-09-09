@@ -53,6 +53,30 @@ class BeeRepository {
     return (dayCount: parse(dayRow.data['c']), txCount: parse(txRow.data['c']));
   }
 
+  /// 全部账本的聚合统计：总笔数与记账天数（不同日期求去重）
+  Future<({int dayCount, int txCount})> countsAll() async {
+    final txRow = await db.customSelect(
+      'SELECT COUNT(*) AS c FROM transactions',
+      readsFrom: {db.transactions},
+    ).getSingle();
+    final dayRow = await db.customSelect(
+      """
+      SELECT COUNT(DISTINCT strftime('%Y-%m-%d', happened_at, 'unixepoch', 'localtime')) AS c
+      FROM transactions
+      """,
+      readsFrom: {db.transactions},
+    ).getSingle();
+
+    int parse(dynamic v) {
+      if (v is int) return v;
+      if (v is BigInt) return v.toInt();
+      if (v is num) return v.toInt();
+      return 0;
+    }
+
+    return (dayCount: parse(dayRow.data['c']), txCount: parse(txRow.data['c']));
+  }
+
   // Aggregation: totals by category for a period and type (income/expense)
   Future<List<({int? id, String name, double total})>> totalsByCategory({
     required int ledgerId,

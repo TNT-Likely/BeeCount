@@ -109,6 +109,10 @@ class LedgersPage extends ConsumerWidget {
                     // 清空后触发一次同步处理（后台），并刷新同步状态
                     await handleLocalChange(ref,
                         ledgerId: id, background: true);
+                    // 刷新：当前账本计数卡片、我的页全局统计与同步状态
+                    ref.invalidate(countsForLedgerProvider(id));
+                    ref.read(statsRefreshProvider.notifier).state++;
+                    ref.read(syncStatusRefreshProvider.notifier).state++;
                     if (context.mounted) {
                       showToast(context, '已删除 $n 条记录');
                     }
@@ -296,12 +300,30 @@ class _LedgerCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text('币种：${displayCurrency(ledger.currency)}',
                       style: Theme.of(context).textTheme.bodySmall),
+                  const SizedBox(height: 2),
+                  // 显示该账本的总笔数
+                  _LedgerTxCount(ledgerId: ledger.id),
                 ],
               ),
             )
           ],
         ),
       ),
+    );
+  }
+}
+
+class _LedgerTxCount extends ConsumerWidget {
+  final int ledgerId;
+  const _LedgerTxCount({required this.ledgerId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final counts = ref.watch(countsForLedgerProvider(ledgerId));
+    final n = counts.asData?.value.txCount;
+    return Text(
+      '笔数：${n ?? '…'}',
+      style: Theme.of(context).textTheme.bodySmall,
     );
   }
 }

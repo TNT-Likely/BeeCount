@@ -63,6 +63,26 @@ final countsForLedgerProvider = FutureProvider.family
   return repo.countsForLedger(ledgerId: ledgerId);
 });
 
+// 统计刷新 tick（全局）：每次 +1 触发统计相关 Provider 重新获取
+final statsRefreshProvider = StateProvider<int>((ref) => 0);
+
+// 统计：全应用的记账天数与总笔数（跨账本聚合）
+final lastCountsAllProvider =
+    StateProvider<({int dayCount, int txCount})?>((ref) => null);
+
+final countsAllProvider =
+    FutureProvider.autoDispose<({int dayCount, int txCount})>((ref) async {
+  final repo = ref.watch(repositoryProvider);
+  // 依赖 tick 触发手动刷新
+  ref.watch(statsRefreshProvider);
+  final link = ref.keepAlive();
+  ref.onDispose(() => link.close());
+  final res = await repo.countsAll();
+  // 写入最近一次成功值，供 UI 在刷新期间显示旧值
+  ref.read(lastCountsAllProvider.notifier).state = res;
+  return res;
+});
+
 // 同步状态（根据 ledgerId 与刷新 tick 缓存），避免因 UI 重建重复拉取
 final syncStatusProvider =
     FutureProvider.family.autoDispose<SyncStatus, int>((ref, ledgerId) async {
