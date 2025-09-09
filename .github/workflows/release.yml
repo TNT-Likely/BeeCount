@@ -9,17 +9,19 @@ on:
       tag_name:
         description: "Release tag (手动运行可自定义，留空则使用 manual-<short_sha>)"
         required: false
+        default: ""
       release_name:
         description: "Release 名称（可选，默认与 tag 相同）"
         required: false
+        default: ""
       prerelease:
         description: "是否标记为 Pre-release（手动运行默认 true）"
         required: false
-        default: false
+        default: "false"
       create_release:
         description: "是否创建 GitHub Release（手动运行可设为 false，仅构建与产出 Actions Artifacts）"
         required: false
-        default: true
+        default: "true"
 
 permissions:
   contents: write
@@ -59,16 +61,20 @@ jobs:
         run: flutter pub get
 
       - name: Build APK (release)
-        run: >-
-          flutter build apk --release --flavor prod
-          --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-          --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          export SUPABASE_URL='${{ secrets.SUPABASE_URL }}'
+          export SUPABASE_ANON_KEY='${{ secrets.SUPABASE_ANON_KEY }}'
+          flutter build apk --release --flavor prod \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
 
       - name: Build App Bundle (AAB)
-        run: >-
-          flutter build appbundle --release --flavor prod
-          --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-          --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          export SUPABASE_URL='${{ secrets.SUPABASE_URL }}'
+          export SUPABASE_ANON_KEY='${{ secrets.SUPABASE_ANON_KEY }}'
+          flutter build appbundle --release --flavor prod \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
 
       - name: List Android outputs (debug)
         run: |
@@ -106,16 +112,20 @@ jobs:
         run: flutter pub get
 
       - name: Build iOS (no codesign)
-        run: >-
-          flutter build ios --release --no-codesign
-          --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-          --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          export SUPABASE_URL='${{ secrets.SUPABASE_URL }}'
+          export SUPABASE_ANON_KEY='${{ secrets.SUPABASE_ANON_KEY }}'
+          flutter build ios --release --no-codesign \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
 
       - name: Build iOS (debug simulator, unsigned)
-        run: >-
-          flutter build ios --debug --simulator
-          --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-          --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          export SUPABASE_URL='${{ secrets.SUPABASE_URL }}'
+          export SUPABASE_ANON_KEY='${{ secrets.SUPABASE_ANON_KEY }}'
+          flutter build ios --debug --simulator \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
 
       - name: Package iOS Runner.app (unsigned)
         run: |
@@ -170,7 +180,7 @@ jobs:
             TAG_NAME="${GITHUB_REF#refs/tags/}"
           fi
           if [[ -z "$TAG_NAME" ]]; then
-            INPUT_TAG="${{ github.event.inputs.tag_name || '' }}"
+            INPUT_TAG="${{ github.event.inputs.tag_name }}"
             if [[ -n "$INPUT_TAG" ]]; then
               TAG_NAME="$INPUT_TAG"
             else
@@ -178,19 +188,19 @@ jobs:
               TAG_NAME="manual-${SHORT_SHA}"
             fi
           fi
-          INPUT_PRERELEASE="${{ github.event.inputs.prerelease || '' }}"
+          INPUT_PRERELEASE="${{ github.event.inputs.prerelease }}"
           if [[ "$IS_TAG" == "true" ]]; then
             PRERELEASE="false"
           else
             PRERELEASE=${INPUT_PRERELEASE:-true}
           fi
-          INPUT_CREATE="${{ github.event.inputs.create_release || '' }}"
+          INPUT_CREATE="${{ github.event.inputs.create_release }}"
           if [[ "$IS_TAG" == "true" ]]; then
             CREATE_RELEASE="true"
           else
             CREATE_RELEASE=${INPUT_CREATE:-false}
           fi
-          RELEASE_NAME_INPUT="${{ github.event.inputs.release_name || '' }}"
+          RELEASE_NAME_INPUT="${{ github.event.inputs.release_name }}"
           if [[ -n "$RELEASE_NAME_INPUT" ]]; then
             RELEASE_NAME="$RELEASE_NAME_INPUT"
           else
@@ -228,7 +238,7 @@ jobs:
           else
             COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))")
           fi
-          cat > RELEASE_NOTES.md <<'EOF'
+          cat > RELEASE_NOTES.md <<EOF
 
           ## 变更记录
           $COMMITS
