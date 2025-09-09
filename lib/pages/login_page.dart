@@ -5,7 +5,6 @@ import '../providers.dart';
 import '../cloud/auth.dart';
 import '../widgets/ui/ui.dart';
 import '../utils/logger.dart';
-import '../services/restore_service.dart';
 
 enum AuthMode { login, signup }
 
@@ -167,6 +166,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     }
     return '$action失败，请稍后再试。';
   }
+
+  // 恢复流程改为登录后回到“我的”页由其触发，不再在登录页内执行
 
   @override
   Widget build(BuildContext context) {
@@ -410,25 +411,25 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                                 .read(syncStatusRefreshProvider
                                                     .notifier)
                                                 .state++;
-                                            // 登录后检查是否需要恢复
-                                            final check = await RestoreService
-                                                .checkNeedRestore(ref);
-                                            if (check.needsRestore) {
-                                              final ok = await AppDialog.confirm<
-                                                          bool>(context,
-                                                      title: '发现云端备份',
-                                                      message:
-                                                          '检测到云端与本地账本不一致，是否恢复到本地？\n(将后台执行并显示进度)') ??
-                                                  false;
-                                              if (ok) {
-                                                Future(() async {
-                                                  await RestoreService
-                                                      .startBackgroundRestore(
-                                                          check.backups, ref);
-                                                });
-                                              }
+                                            // 登录成功：让“我的”页去检测是否需要恢复
+                                            ref
+                                                .read(
+                                                    restoreCheckRequestProvider
+                                                        .notifier)
+                                                .state = true;
+                                            // 直接切到“我的”页并关闭登录页
+                                            if (mounted) {
+                                              ref
+                                                  .read(bottomTabIndexProvider
+                                                      .notifier)
+                                                  .state = 3; // Mine tab index
+                                              final can = Navigator.of(context)
+                                                  .canPop();
+                                              logI('nav',
+                                                  'login: success -> switch tab to Mine, canPop=$can; pop login');
+                                              if (can)
+                                                Navigator.of(context).pop();
                                             }
-                                            Navigator.pop(context);
                                           } catch (e, st) {
                                             final msg = friendlyAuthError(e);
                                             logE(
@@ -555,3 +556,5 @@ class SignupSuccessPage extends StatelessWidget {
     );
   }
 }
+
+// 旧的对话框已废弃，改为独立页面展示

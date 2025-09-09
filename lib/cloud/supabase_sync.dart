@@ -527,6 +527,38 @@ class SupabaseSyncService implements SyncService {
       return (fingerprint: null, count: null, exportedAt: null);
     }
   }
+
+  @override
+  Future<void> deleteRemoteBackup({required int ledgerId}) async {
+    final user = await auth.currentUser();
+    if (user == null) {
+      logW('sync', '删除云端备份: 未登录，忽略');
+      return;
+    }
+    final path = _objectPath(user.id, ledgerId);
+    try {
+      await client.storage.from(bucket).remove([path]);
+      logI('sync', '已删除云端备份: $path');
+      // 删除后清理状态缓存
+      _statusCache.remove(ledgerId);
+    } on s.StorageException catch (e) {
+      final code = '${e.statusCode}';
+      final msg = e.message.toLowerCase();
+      final is404 = code == '404' ||
+          msg.contains('not_found') ||
+          msg.contains('object not found') ||
+          msg.contains('no such file') ||
+          msg.contains('not found');
+      if (is404) {
+        logW('sync', '删除云端备份: 对象不存在（忽略） $path');
+        return;
+      }
+      rethrow;
+    } catch (e) {
+      logW('sync', '删除云端备份失败: $e');
+      rethrow;
+    }
+  }
 }
 
 class _RecentUpload {

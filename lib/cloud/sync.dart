@@ -23,6 +23,9 @@ abstract class SyncService {
 
   /// 当本地数据发生变更（增删改）时调用，以便使缓存状态失效
   void markLocalChanged({required int ledgerId});
+
+  /// 删除云端备份（若存在）。应忽略 404。
+  Future<void> deleteRemoteBackup({required int ledgerId});
 }
 
 class LocalOnlySyncService implements SyncService {
@@ -53,6 +56,11 @@ class LocalOnlySyncService implements SyncService {
   @override
   Future<({String? fingerprint, int? count, DateTime? exportedAt})>
       refreshCloudFingerprint({required int ledgerId}) async {
+    throw UnsupportedError('Cloud sync not configured');
+  }
+
+  @override
+  Future<void> deleteRemoteBackup({required int ledgerId}) async {
     throw UnsupportedError('Cloud sync not configured');
   }
 }

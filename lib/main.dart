@@ -8,6 +8,7 @@ import 'providers.dart';
 import 'styles/colors.dart';
 import 'config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as s;
+import 'utils/route_logger.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -94,6 +95,7 @@ class MainApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: theme,
       darkTheme: BeeTheme.darkTheme(),
+      navigatorObservers: [LoggingNavigatorObserver()],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -103,7 +105,17 @@ class MainApp extends ConsumerWidget {
         Locale('zh', 'CN'),
         Locale('en', 'US'),
       ],
+      // 显式命名根路由，便于路由日志与 popUntil 精确识别
       home: const BeeApp(),
+      onGenerateRoute: (settings) {
+        if (settings.name == Navigator.defaultRouteName ||
+            settings.name == '/') {
+          return MaterialPageRoute(
+              builder: (_) => const BeeApp(),
+              settings: const RouteSettings(name: '/'));
+        }
+        return null;
+      },
     );
   }
 }

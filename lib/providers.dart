@@ -197,6 +197,9 @@ final appInitProvider = FutureProvider<void>((ref) async {
   ref.read(_ledgerChangeListener);
 });
 
+// 底部导航索引（0: 明细, 1: 图表, 2: 账本, 3: 我的）
+final bottomTabIndexProvider = StateProvider<int>((ref) => 0);
+
 // Currently selected month (first day), default to now
 final selectedMonthProvider = StateProvider<DateTime>((ref) {
   final now = DateTime.now();
@@ -303,3 +306,10 @@ class CloudRestoreSummary {
 
 final cloudRestoreSummaryProvider =
     StateProvider<CloudRestoreSummary?>((ref) => null);
+
+// 云端恢复日志（仅 UI 展示用途，保留最近若干行）
+final cloudRestoreLogProvider =
+    StateProvider<List<String>>((ref) => const <String>[]);
+
+// 登录后请求“我的”页弹窗检查云端备份（一次性标记）
+final restoreCheckRequestProvider = StateProvider<bool>((ref) => false);

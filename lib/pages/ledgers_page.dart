@@ -5,6 +5,7 @@ import '../data/db.dart';
 import '../widgets/ui/ui.dart';
 import '../utils/currencies.dart';
 import '../utils/sync_helpers.dart';
+import '../utils/logger.dart';
 
 class LedgersPage extends ConsumerWidget {
   const LedgersPage({super.key});
@@ -148,81 +149,54 @@ class LedgersPage extends ConsumerWidget {
                         ref.read(currentLedgerIdProvider.notifier).state = l.id;
                       },
                       onLongPress: () async {
-                        // 长按编辑：统一标准弹窗（标题与按钮居中，取消为主题色描边）
-                        String name = l.name;
-                        String currency = l.currency;
-                        final nameCtrl = TextEditingController(text: name);
-                        final ok = await showDialog<bool>(
-                          context: context,
-                          builder: (ctx) {
-                            final primary = Theme.of(ctx).colorScheme.primary;
-                            return AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16)),
-                              contentPadding:
-                                  const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('编辑账本',
-                                      textAlign: TextAlign.center,
-                                      style: Theme.of(ctx)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.w600)),
-                                  const SizedBox(height: 12),
-                                  TextField(
-                                    controller: nameCtrl,
-                                    decoration:
-                                        const InputDecoration(labelText: '名称'),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  // 编辑模式下禁用币种修改
-                                  ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    title: const Text('币种'),
-                                    subtitle: Text(displayCurrency(currency)),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      OutlinedButton(
-                                        onPressed: () =>
-                                            Navigator.pop(ctx, false),
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: primary,
-                                          side: BorderSide(color: primary),
-                                        ),
-                                        child: const Text('取消'),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      FilledButton(
-                                        onPressed: () =>
-                                            Navigator.pop(ctx, true),
-                                        child: const Text('保存'),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                        if (ok == true) {
-                          final newName = nameCtrl.text.trim();
-                          final changedName =
-                              newName.isNotEmpty && newName != l.name;
-                          final changedCcy =
-                              currency.isNotEmpty && currency != l.currency;
-                          if (changedName || changedCcy) {
-                            await repo.updateLedger(
-                                id: l.id,
-                                name: changedName ? newName : null,
-                                currency: changedCcy ? currency : null);
+                        // 长按：直接弹“删除账本”确认框
+                        final ok = await AppDialog.confirm<bool>(context,
+                                title: '删除账本',
+                                message:
+                                    '确定要删除该账本及其全部记录吗？此操作不可恢复。\n若云端存在备份，也会一并删除。') ??
+                            false;
+                        if (ok) {
+                          final repo = ref.read(repositoryProvider);
+                          final sync = ref.read(syncServiceProvider);
+                          final current = ref.read(currentLedgerIdProvider);
+                          try {
+                            await repo.deleteLedger(l.id);
+                            // 若该账本是当前账本：选择一个新的作为当前
+                            if (current == l.id) {
+                              final remain =
+                                  await repo.db.select(repo.db.ledgers).get();
+                              int newId = 1;
+                              if (remain.isNotEmpty) {
+                                newId = remain.first.id;
+                              } else {
+                                // 若全部删除（极端情况），重新种子并取默认账本
+                                await repo.db.ensureSeed();
+                                final list =
+                                    await repo.db.select(repo.db.ledgers).get();
+                                newId = list.first.id;
+                              }
+                              ref.read(currentLedgerIdProvider.notifier).state =
+                                  newId;
+                            }
+                            // 删除云端备份（忽略 404）
+                            try {
+                              await sync.deleteRemoteBackup(ledgerId: l.id);
+                            } catch (e) {
+                              logW('ledger', '删除云端备份失败（忽略）：$e');
+                            }
+                            // 刷新统计与同步状态
+                            ref.read(statsRefreshProvider.notifier).state++;
+                            ref
+                                .read(syncStatusRefreshProvider.notifier)
+                                .state++;
+                            if (context.mounted) showToast(context, '已删除');
+                          } catch (e) {
+                            if (context.mounted) {
+                              await AppDialog.error(context,
+                                  title: '删除失败', message: '$e');
+                            }
                           }
+                          return;
                         }
                       },
                     );

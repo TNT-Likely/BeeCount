@@ -151,11 +151,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Image.asset('assets/logo.png',
-                              //     width: 22, height: 22),
-                              SvgPicture.asset('assets/logo.svg',
-                                  width: 30, height: 30),
-                              const SizedBox(width: 6),
+                              SvgPicture.asset('assets/title-logo.svg',
+                                  width: 36, height: 36),
                               Text(
                                 '蜜蜂记账',
                                 style: Theme.of(context)

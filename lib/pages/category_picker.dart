@@ -67,68 +67,66 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // 紧凑顶部：去除多余留白 + 选中下划线
-            PrimaryHeader(
-              title: '',
-              padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-              bottom: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    height: 44,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Center(
-                            child: TabBar(
-                              controller: _tab,
-                              isScrollable: false,
-                              labelColor: Colors.black,
-                              unselectedLabelColor: BeeColors.black54,
-                              indicator: const UnderlineTabIndicator(
-                                borderSide:
-                                    BorderSide(width: 2, color: Colors.black),
-                                insets: EdgeInsets.symmetric(horizontal: 24),
-                              ),
-                              tabs: const [
-                                Tab(text: '支出'),
-                                Tab(text: '收入'),
-                              ],
+      body: Column(
+        children: [
+          // 紧凑顶部：去除多余留白 + 选中下划线
+          PrimaryHeader(
+            title: '',
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+            bottom: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 44,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: TabBar(
+                            controller: _tab,
+                            isScrollable: false,
+                            labelColor: Colors.black,
+                            unselectedLabelColor: BeeColors.black54,
+                            indicator: const UnderlineTabIndicator(
+                              borderSide:
+                                  BorderSide(width: 2, color: Colors.black),
+                              insets: EdgeInsets.symmetric(horizontal: 24),
                             ),
+                            tabs: const [
+                              Tab(text: '支出'),
+                              Tab(text: '收入'),
+                            ],
                           ),
                         ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('取消',
-                              style: TextStyle(color: Colors.black)),
-                        )
-                      ],
-                    ),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('取消',
+                            style: TextStyle(color: Colors.black)),
+                      )
+                    ],
                   ),
-                  const Divider(height: 1),
-                ],
-              ),
+                ),
+                const Divider(height: 1),
+              ],
             ),
-            Expanded(
-              child: TabBarView(
-                controller: _tab,
-                children: [
-                  _CategoryGrid(
-                      kind: 'expense',
-                      onPick: (c) => _onPick(context, c, 'expense'),
-                      initialId: widget.initialCategoryId),
-                  _CategoryGrid(
-                      kind: 'income',
-                      onPick: (c) => _onPick(context, c, 'income'),
-                      initialId: widget.initialCategoryId),
-                ],
-              ),
-            )
-          ],
-        ),
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tab,
+              children: [
+                _CategoryGrid(
+                    kind: 'expense',
+                    onPick: (c) => _onPick(context, c, 'expense'),
+                    initialId: widget.initialCategoryId),
+                _CategoryGrid(
+                    kind: 'income',
+                    onPick: (c) => _onPick(context, c, 'income'),
+                    initialId: widget.initialCategoryId),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

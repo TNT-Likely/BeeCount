@@ -383,8 +383,12 @@ class BeeRepository {
   }
 
   Future<void> deleteLedger(int id) async {
-    await (db.delete(db.ledgers)..where((tbl) => tbl.id.equals(id))).go();
-    // Note: For simplicity, we do not cascade delete related rows here in MVP
+    // 先删除该账本下的所有交易，再删除账本本身
+    await db.transaction(() async {
+      await (db.delete(db.transactions)..where((t) => t.ledgerId.equals(id)))
+          .go();
+      await (db.delete(db.ledgers)..where((tbl) => tbl.id.equals(id))).go();
+    });
   }
 
   /// 清空指定账本的所有交易记录，返回删除的条数
