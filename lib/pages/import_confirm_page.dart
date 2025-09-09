@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers.dart';
 import '../widgets/ui/ui.dart';
 import '../data/db.dart' as schema;
-import '../utils/sync_helpers.dart';
 
 class ImportConfirmPage extends ConsumerStatefulWidget {
   final String csvText;
@@ -18,7 +17,8 @@ class ImportConfirmPage extends ConsumerStatefulWidget {
 }
 
 class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
-  late List<List<String>> rows;
+  List<List<String>> rows = const [];
+  bool parsing = true;
   // 自动识别到的表头所在行（仅当 hasHeader 为 true 时使用）
   int headerRow = 0;
   final Map<String, int?> mapping = {
@@ -31,6 +31,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
   bool importing = false;
   int ok = 0, fail = 0;
   int step = 0; // 0: 字段映射, 1: 分类映射
+  bool _cancelled = false;
   List<String> distinctCategories = [];
   Map<String, int?> categoryMapping = {}; // 源分类名 -> 目标分类ID（null表示保持原名）
   Future<List<schema.Category>>? allCategoriesFuture;
@@ -38,17 +39,23 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
   @override
   void initState() {
     super.initState();
-    debugPrint('[ImportConfirm] raw length=${widget.csvText.length}');
-    rows = _parseRows(widget.csvText);
-    debugPrint(
-        '[ImportConfirm] parsed rows=${rows.length} cols=${rows.isNotEmpty ? rows.first.length : 0}');
-    // 需求：总是将第一行作为表头
-    if (widget.hasHeader && rows.isNotEmpty) {
-      headerRow = 0;
-    }
-    _autoDetectMapping();
-    // 预取分类列表供第二步选择
-    allCategoriesFuture = _loadAllCategories(ref);
+    // 解析在后台 isolate 完成，避免主线程卡顿
+    () async {
+      final parsed = await compute(_parseRowsIsolate, widget.csvText);
+      if (!mounted) return;
+      setState(() {
+        rows = parsed;
+        parsing = false;
+      });
+      // 解析完成
+      // 需求：总是将第一行作为表头
+      if (widget.hasHeader && rows.isNotEmpty) {
+        headerRow = 0;
+      }
+      _autoDetectMapping();
+      // 预取分类列表供第二步选择
+      allCategoriesFuture = _loadAllCategories(ref);
+    }();
   }
 
   void _autoDetectMapping() {
@@ -59,31 +66,48 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
       if (s.isEmpty) return null;
       final lower = s.toLowerCase();
       final noSpace = lower.replaceAll(RegExp(r'\s+'), '');
-      if (noSpace == 'date' || noSpace == 'time' || noSpace == 'datetime')
+      if (noSpace == 'date' || noSpace == 'time' || noSpace == 'datetime') {
         return 'date';
-      if (noSpace == 'type' || noSpace == 'inout' || noSpace == 'direction')
+      }
+      if (noSpace == 'type' || noSpace == 'inout' || noSpace == 'direction') {
         return 'type';
+      }
       if (noSpace == 'amount' ||
           noSpace == 'money' ||
           noSpace == 'price' ||
-          noSpace == 'value') return 'amount';
+          noSpace == 'value') {
+        return 'amount';
+      }
       if (noSpace == 'category' ||
           noSpace == 'cate' ||
           noSpace == 'subject' ||
-          noSpace == 'tag') return 'category';
+          noSpace == 'tag') {
+        return 'category';
+      }
       if (noSpace == 'note' ||
           noSpace == 'memo' ||
           noSpace == 'desc' ||
           noSpace == 'description' ||
           noSpace == 'remark' ||
-          noSpace == 'title') return 'note';
+          noSpace == 'title') {
+        return 'note';
+      }
       containsAny(String t, List<String> ks) => ks.any((k) => t.contains(k));
-      if (containsAny(s, ['日期', '时间', '交易时间', '账单时间', '创建时间'])) return 'date';
-      if (containsAny(s, ['类型', '收支', '方向', '交易类型'])) return 'type';
-      if (containsAny(s, ['金额', '金额(元)', '交易金额', '变动金额', '收支金额']))
+      if (containsAny(s, ['日期', '时间', '交易时间', '账单时间', '创建时间'])) {
+        return 'date';
+      }
+      if (containsAny(s, ['类型', '收支', '方向', '交易类型'])) {
+        return 'type';
+      }
+      if (containsAny(s, ['金额', '金额(元)', '交易金额', '变动金额', '收支金额'])) {
         return 'amount';
-      if (containsAny(s, ['分类', '类别', '账目名称', '科目', '标签'])) return 'category';
-      if (containsAny(s, ['备注', '说明', '标题', '摘要', '附言'])) return 'note';
+      }
+      if (containsAny(s, ['分类', '类别', '账目名称', '科目', '标签'])) {
+        return 'category';
+      }
+      if (containsAny(s, ['备注', '说明', '标题', '摘要', '附言'])) {
+        return 'note';
+      }
       // 明确忽略
       if (containsAny(s, ['账目编号', '编号', '单号', '流水号', '相关图片', '图片', '附件'])) {
         return null;
@@ -100,6 +124,20 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (parsing) {
+      return Scaffold(
+        body: Column(
+          children: const [
+            PrimaryHeader(title: '解析中…', showBack: true),
+            Expanded(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          ],
+        ),
+      );
+    }
     final columnCount =
         rows.isNotEmpty ? rows[widget.hasHeader ? headerRow : 0].length : 0;
     List<DropdownMenuItem<int>> items() => List.generate(columnCount, (i) {
@@ -124,29 +162,6 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               children: [
-                if (kDebugMode) ...[
-                  Card(
-                    elevation: 0,
-                    color: Colors.grey.shade100,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                              '调试：rows=${rows.length}, cols=${rows.isNotEmpty ? rows.first.length : 0}, headerRow=$headerRow'),
-                          if (rows.isNotEmpty)
-                            Text(
-                                '表头: ${(widget.hasHeader ? rows[headerRow] : rows.first).join(', ')}',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis),
-                          Text(
-                              '映射: date=${mapping['date']}, type=${mapping['type']}, amount=${mapping['amount']}, category=${mapping['category']}, note=${mapping['note']}')
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
                 if (step == 0) ...[
                   if (rows.isEmpty) const Text('未解析到任何数据，请返回上一页检查 CSV 内容或分隔符。'),
                   Wrap(
@@ -229,9 +244,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
                     FilledButton(
                       onPressed: () {
                         if (mapping['category'] == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('请先选择“分类”列再继续')),
-                          );
+                          showToast(context, '请先选择“分类”列再继续');
                           return;
                         }
                         _buildDistinctCategories();
@@ -281,6 +294,8 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
   }
 
   Future<void> _startImport() async {
+    // 使用根容器，保证页面被销毁后仍可更新全局进度供“我的”页展示
+    final container = ProviderScope.containerOf(context, listen: false);
     setState(() {
       importing = true;
       ok = 0;
@@ -290,7 +305,74 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
     final ledgerId = ref.read(currentLedgerIdProvider);
 
     final dataStart = widget.hasHeader ? (headerRow + 1) : 0;
+    final total = rows.length - dataStart;
+    // 初始化全局进度
+    container.read(importProgressProvider.notifier).state = ImportProgress(
+      running: true,
+      total: total,
+      done: 0,
+      ok: 0,
+      fail: 0,
+    );
+
+    bool dialogOpen = true;
+    // 进度弹窗（可转后台）
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dctx) {
+        return Consumer(builder: (dctx, r, _) {
+          final p = r.watch(importProgressProvider);
+          final percent =
+              p.total == 0 ? 0.0 : (p.done / p.total).clamp(0.0, 1.0);
+          return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            title: const Text('正在导入…'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                LinearProgressIndicator(
+                    value: percent > 0 && percent < 1 ? percent : null),
+                const SizedBox(height: 8),
+                // 实时进度文案（每50条更新一次，足够流畅）
+                Text('已完成：${p.done}/${p.total}，成功 ${p.ok}，失败 ${p.fail}',
+                    style: Theme.of(dctx)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Colors.black54)),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  dialogOpen = false;
+                  Navigator.of(dctx).pop();
+                  // 返回到我的页面继续后台导入
+                  if (context.mounted) {
+                    Navigator.of(context).popUntil((r) => r.isFirst);
+                  }
+                },
+                child: const Text('后台导入'),
+              ),
+              TextButton(
+                onPressed: () {
+                  _cancelled = true;
+                  dialogOpen = false;
+                  Navigator.of(dctx).pop();
+                },
+                child: const Text('取消导入'),
+              ),
+            ],
+          );
+        });
+      },
+    );
+
+    int done = 0;
     for (int i = dataStart; i < rows.length; i++) {
+      if (_cancelled) break;
       final r = rows[i];
       try {
         String? getBy(String key, int fallback) {
@@ -370,16 +452,58 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
       } catch (_) {
         fail++;
       }
-      if (mounted) setState(() {});
+      done++;
+      // 更新全局进度（降低频率，但更“实时”）
+      if (done % 10 == 0 || done == total || _cancelled) {
+        container.read(importProgressProvider.notifier).state = ImportProgress(
+            running: true, total: total, done: done, ok: ok, fail: fail);
+        // 让出事件循环，避免 UI 卡顿
+        await Future<void>.delayed(Duration.zero);
+        if (mounted) setState(() {});
+      }
     }
 
-    if (!mounted) return;
-    // 导入完成：统一处理同步逻辑（后台静默）
-    await handleLocalChange(ref, ledgerId: ledgerId, background: true);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('导入完成：成功 $ok 条，失败 $fail 条')),
+    // 即使页面已被关闭（mounted=false），也要继续更新全局进度供“我的”页展示
+    // 先切换为“完成”以驱动 UI 展示成功动画/提示（不等待云上传）
+    container.read(importProgressProvider.notifier).state = ImportProgress(
+      running: false,
+      total: total,
+      done: done,
+      ok: ok,
+      fail: fail,
     );
-    Navigator.pop(context, ok);
+    // 成功提示 -> 延时清空 -> 刷新统计与同步状态（取消时不处理）
+    if (!_cancelled) {
+      Future<void>.delayed(const Duration(seconds: 3), () {
+        try {
+          container.read(importProgressProvider.notifier).state =
+              ImportProgress.empty;
+          // 刷新“我的”页统计（笔数/天数）
+          container.invalidate(countsForLedgerProvider(ledgerId));
+          // 触发一次同步状态刷新（UI 端会复用缓存避免闪烁）
+          container.read(syncStatusRefreshProvider.notifier).state++;
+        } catch (_) {}
+      });
+    }
+
+    // 导入完成后，云上传改为后台并行执行，不阻塞 UI
+    () async {
+      try {
+        final sync = container.read(syncServiceProvider);
+        await sync.uploadCurrentLedger(ledgerId: ledgerId);
+        // 上传完成后再触发一次状态刷新（若站点有变更则更新）
+        container.read(syncStatusRefreshProvider.notifier).state++;
+      } catch (_) {}
+    }();
+    if (dialogOpen && context.mounted) {
+      Navigator.of(context).pop();
+    }
+    if (context.mounted) {
+      final cancelledText = _cancelled ? '（已取消）' : '';
+      showToast(context, '导入完成$cancelledText：成功 $ok 条，失败 $fail 条');
+      // 关闭确认页 -> 返回到我的页面
+      Navigator.of(context).popUntil((r) => r.isFirst);
+    }
   }
 
   void _buildDistinctCategories() {
@@ -424,6 +548,11 @@ List<List<String>> _parseRows(String input) {
 
   // 按行解析，行内严格以逗号分隔，并处理成对双引号与外围空白/引号
   return lines.map(_splitCsvLine).toList();
+}
+
+// isolate 入口函数：在后台解析 CSV 文本
+List<List<String>> _parseRowsIsolate(String input) {
+  return _parseRows(input);
 }
 
 // 将一行按逗号拆分，支持成对双引号包裹字段；会移除外围双引号与多余空格。

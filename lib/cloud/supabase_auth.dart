@@ -1,4 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as s;
+import '../config.dart';
+import '../utils/logger.dart';
 
 import 'auth.dart';
 
@@ -27,17 +29,51 @@ class SupabaseAuthService implements AuthService {
   @override
   Future<AuthUser> signInWithEmail(
       {required String email, required String password}) async {
+    logI('Auth', 'signIn email=$email');
     final res =
         await client.auth.signInWithPassword(email: email, password: password);
     final u = res.user!;
+    logI('Auth', 'signIn success uid=${u.id}');
     return AuthUser(id: u.id, email: u.email);
   }
 
   @override
   Future<AuthUser> signUpWithEmail(
       {required String email, required String password}) async {
-    final res = await client.auth.signUp(email: email, password: password);
-    final u = res.user!;
-    return AuthUser(id: u.id, email: u.email);
+    logI('Auth', 'signUp email=$email');
+    try {
+      final res = await client.auth.signUp(email: email, password: password);
+      final u = res.user!;
+      logI('Auth',
+          'signUp success uid=${u.id} emailConfirmed=${u.emailConfirmedAt != null}');
+      return AuthUser(id: u.id, email: u.email);
+    } catch (e, st) {
+      logE('Auth', 'signUp failed', e, st);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    final redirect = AppConfig.supabaseRedirectTo.isNotEmpty
+        ? AppConfig.supabaseRedirectTo
+        : (AppConfig.supabaseUrl.isNotEmpty ? AppConfig.supabaseUrl : null);
+    logI('Auth',
+        'resetPassword email=$email redirectTo=${redirect ?? '(default)'}');
+    // 补充 redirectTo：优先使用自定义回调，否则回退到 Site URL；都没有则交给 Supabase 默认
+    await client.auth.resetPasswordForEmail(
+      email,
+      redirectTo: redirect,
+    );
+  }
+
+  @override
+  Future<void> resendEmailVerification({required String email}) async {
+    // 使用 Supabase 的 resend 接口重发验证邮件（signup 类型）
+    logI('Auth', 'resendVerify email=$email');
+    await client.auth.resend(
+      type: s.OtpType.signup,
+      email: email,
+    );
   }
 }

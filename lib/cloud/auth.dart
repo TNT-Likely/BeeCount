@@ -15,6 +15,8 @@ abstract class AuthService {
   Future<AuthUser> signUpWithEmail(
       {required String email, required String password});
   Future<void> signOut();
+  Future<void> sendPasswordResetEmail({required String email});
+  Future<void> resendEmailVerification({required String email});
 }
 
 class NoopAuthService implements AuthService {
@@ -36,6 +38,16 @@ class NoopAuthService implements AuthService {
   @override
   Future<AuthUser> signUpWithEmail(
       {required String email, required String password}) async {
+    throw UnsupportedError('Auth is not configured');
+  }
+
+  @override
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    throw UnsupportedError('Auth is not configured');
+  }
+
+  @override
+  Future<void> resendEmailVerification({required String email}) async {
     throw UnsupportedError('Auth is not configured');
   }
 }

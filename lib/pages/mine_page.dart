@@ -1,13 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:csv/csv.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:drift/drift.dart' as d;
 
 import 'import_page.dart';
+import 'login_page.dart';
+import 'export_page.dart';
 import 'personalize_page.dart';
 import '../providers.dart';
 import '../widgets/ui/ui.dart';
@@ -22,58 +19,13 @@ class MinePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repo = ref.watch(repositoryProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final auth = ref.watch(authServiceProvider);
     final sync = ref.watch(syncServiceProvider);
     // note: refresh tick is handled inside provider; no local watch needed here
     final authUserStream = auth.authStateChanges();
 
-    // 导出 CSV（当前账本）
-    Future<void> exportCsv() async {
-      try {
-        final q = (repo.db.select(repo.db.transactions)
-              ..where((t) => t.ledgerId.equals(ledgerId))
-              ..orderBy([
-                (t) => d.OrderingTerm(
-                    expression: t.happenedAt, mode: d.OrderingMode.desc)
-              ]))
-            .join([
-          d.leftOuterJoin(repo.db.categories,
-              repo.db.categories.id.equalsExp(repo.db.transactions.categoryId)),
-        ]);
-        final rowsJoin = await q.get();
-        final rows = <List<dynamic>>[];
-        rows.add(['时间', '类型', '分类', '金额', '备注']);
-        for (final r in rowsJoin) {
-          final t = r.readTable(repo.db.transactions);
-          final c = r.readTableOrNull(repo.db.categories);
-          final timeStr =
-              DateFormat('yyyy-MM-dd HH:mm').format(t.happenedAt.toLocal());
-          rows.add([
-            timeStr,
-            t.type,
-            c?.name ?? '',
-            t.amount.toStringAsFixed(2),
-            t.note ?? '',
-          ]);
-        }
-        final csvStr = const ListToCsvConverter(eol: '\n').convert(rows);
-        final ts = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-        String? targetPath = await FilePicker.platform.saveFile(
-          dialogTitle: '保存导出的 CSV',
-          fileName: 'beecount_$ts.csv',
-          type: FileType.custom,
-          allowedExtensions: ['csv'],
-        );
-        if (targetPath == null) return; // 用户取消
-        await File(targetPath).writeAsString(csvStr);
-        await AppDialog.info(context,
-            title: '导出成功', message: '已保存到：\n$targetPath');
-      } catch (e) {
-        await AppDialog.info(context, title: '导出失败', message: '$e');
-      }
-    }
+    // 导出功能已迁移到 ExportPage
 
     return Scaffold(
       backgroundColor: BeeColors.greyBg,
@@ -199,7 +151,8 @@ class MinePage extends ConsumerWidget {
                             leading: icon,
                             title: '同步',
                             subtitle: isFirstLoad ? null : subtitle,
-                            trailing: isFirstLoad
+                            enabled: canUseCloud && !isFirstLoad,
+                            trailing: (isFirstLoad && canUseCloud)
                                 ? const SizedBox(
                                     width: 20,
                                     height: 20,
@@ -207,7 +160,7 @@ class MinePage extends ConsumerWidget {
                                         strokeWidth: 2),
                                   )
                                 : null,
-                            onTap: isFirstLoad
+                            onTap: (isFirstLoad || !canUseCloud)
                                 ? null
                                 : () async {
                                     final st2 = await sync.getStatus(
@@ -342,12 +295,13 @@ class MinePage extends ConsumerWidget {
                             subtitle: user == null ? '仅在同步时需要' : '点击可退出登录',
                             onTap: () async {
                               if (user == null) {
-                                await _showAuthSheet(context, auth,
-                                    onChanged: () {
-                                  ref
-                                      .read(syncStatusRefreshProvider.notifier)
-                                      .state++;
-                                });
+                                await Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (_) => const LoginPage()),
+                                );
+                                ref
+                                    .read(syncStatusRefreshProvider.notifier)
+                                    .state++;
                               } else {
                                 await auth.signOut();
                                 ref
@@ -363,11 +317,15 @@ class MinePage extends ConsumerWidget {
                             final value = autoSync.asData?.value ?? false;
                             return SwitchListTile(
                               title: const Text('自动同步账本'),
-                              subtitle: const Text('记账后自动上传到云端'),
-                              value: value,
-                              onChanged: (v) async {
-                                await setter.set(v);
-                              },
+                              subtitle: canUseCloud
+                                  ? const Text('记账后自动上传到云端')
+                                  : const Text('需登录后可开启'),
+                              value: canUseCloud ? value : false,
+                              onChanged: canUseCloud
+                                  ? (v) async {
+                                      await setter.set(v);
+                                    }
+                                  : null,
                             );
                           }),
                         ],
@@ -384,20 +342,60 @@ class MinePage extends ConsumerWidget {
           SectionCard(
             child: Column(
               children: [
-                AppListTile(
-                  leading: Icons.file_upload_outlined,
-                  title: '导入',
-                  onTap: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ImportPage()),
+                // 将导入状态融合到“导入”这一行，不再新增额外行
+                Consumer(builder: (ctx, r, _) {
+                  final p = r.watch(importProgressProvider);
+                  // 默认：正常“导入”入口
+                  if (!p.running && p.total == 0) {
+                    return AppListTile(
+                      leading: Icons.file_upload_outlined,
+                      title: '导入',
+                      onTap: () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const ImportPage()),
+                        );
+                      },
                     );
-                  },
-                ),
+                  }
+                  // 运行中：在同一行展示进度
+                  if (p.running) {
+                    final percent = p.total == 0
+                        ? null
+                        : (p.done / p.total).clamp(0.0, 1.0);
+                    return AppListTile(
+                      leading: Icons.upload_outlined,
+                      title: '后台导入中…',
+                      subtitle:
+                          '进度：${p.done}/${p.total}，成功 ${p.ok}，失败 ${p.fail}',
+                      trailing: SizedBox(
+                        width: 72,
+                        child: LinearProgressIndicator(value: percent),
+                      ),
+                      onTap: null,
+                    );
+                  }
+                  // 完成：短暂停留动画后会被清空，自动恢复为默认“导入”
+                  final allOk = (p.done == p.total) && (p.fail == 0);
+                  if (allOk) {
+                    return const _ImportSuccessTile();
+                  }
+                  // 有失败时的完成摘要
+                  return AppListTile(
+                    leading: Icons.info_outline,
+                    title: '导入完成',
+                    subtitle: '成功 ${p.ok}，失败 ${p.fail}',
+                    onTap: null,
+                  );
+                }),
                 AppDivider.thin(),
                 AppListTile(
                   leading: Icons.file_download_outlined,
                   title: '导出',
-                  onTap: exportCsv,
+                  onTap: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ExportPage()),
+                    );
+                  },
                 ),
               ],
             ),
@@ -424,97 +422,6 @@ class MinePage extends ConsumerWidget {
   }
 }
 
-// legacy helpers removed; replaced by autoSyncValueProvider/autoSyncSetterProvider
-
-Future<void> _showAuthSheet(BuildContext context, AuthService auth,
-    {VoidCallback? onChanged}) async {
-  final emailCtrl = TextEditingController();
-  final pwdCtrl = TextEditingController();
-  await showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    builder: (ctx) {
-      return Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          bottom: 16 + MediaQuery.of(ctx).viewInsets.bottom,
-          top: 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('登录 / 注册',
-                style: Theme.of(ctx)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 12),
-            TextField(
-              controller: emailCtrl,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: '邮箱'),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: pwdCtrl,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: '密码'),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () async {
-                      try {
-                        await auth.signInWithEmail(
-                            email: emailCtrl.text.trim(),
-                            password: pwdCtrl.text);
-                        Navigator.pop(ctx);
-                        onChanged?.call();
-                      } catch (e, st) {
-                        debugPrint('Login failed: $e\n$st');
-                        showToast(context, '登录失败：$e');
-                      }
-                    },
-                    child: const Text('登录'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      try {
-                        await auth.signUpWithEmail(
-                            email: emailCtrl.text.trim(),
-                            password: pwdCtrl.text);
-                        Navigator.pop(ctx);
-                        onChanged?.call();
-                      } catch (e, st) {
-                        debugPrint('Signup failed: $e\n$st');
-                        showToast(context, '注册失败：$e');
-                      }
-                    },
-                    child: const Text('注册'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text('提示：不登录也可以正常使用；仅在需要同步账本时登录。',
-                style: Theme.of(ctx)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: BeeColors.black54)),
-          ],
-        ),
-      );
-    },
-  );
-}
-
 class _StatCell extends StatelessWidget {
   final String label;
   final String value;
@@ -535,6 +442,35 @@ class _StatCell extends StatelessWidget {
         const SizedBox(height: 2),
         Text(label, style: labelStyle),
       ],
+    );
+  }
+}
+
+// 导入完成后的短暂动画提示：线性进度条从 0 -> 100%
+class _ImportSuccessTile extends StatelessWidget {
+  const _ImportSuccessTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 900),
+      curve: Curves.easeOutCubic,
+      builder: (ctx, v, child) {
+        return AppListTile(
+          leading: Icons.check_circle_outline,
+          title: '导入完成',
+          subtitle: '全部成功',
+          trailing: SizedBox(
+            width: 72,
+            child: LinearProgressIndicator(
+              value: v,
+              valueColor: AlwaysStoppedAnimation(primary),
+            ),
+          ),
+        );
+      },
     );
   }
 }

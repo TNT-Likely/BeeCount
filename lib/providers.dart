@@ -130,11 +130,36 @@ final syncServiceProvider = Provider<SyncService>((ref) {
 // 用于触发设置页同步状态的刷新（每次 +1 即可触发 FutureBuilder 重新获取）
 final syncStatusRefreshProvider = StateProvider<int>((ref) => 0);
 
-// For now, always use default ledger id 1
+// 记住当前账本：启动时加载，切换时持久化
 final currentLedgerIdProvider = StateProvider<int>((ref) => 1);
+
+final _currentLedgerPersist = Provider<void>((ref) {
+  // load on first read
+  () async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getInt('current_ledger_id');
+      if (saved != null) {
+        final st = ref.read(currentLedgerIdProvider);
+        if (st != saved) {
+          ref.read(currentLedgerIdProvider.notifier).state = saved;
+        }
+      }
+    } catch (_) {}
+  }();
+  // persist on change
+  ref.listen<int>(currentLedgerIdProvider, (prev, next) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('current_ledger_id', next);
+    } catch (_) {}
+  });
+});
 
 // 当账本切换时，顺便触发一次设置页状态刷新（确保“我的”页及时反映）
 final _ledgerChangeListener = Provider<void>((ref) {
+  // 激活持久化监听
+  ref.read(_currentLedgerPersist);
   ref.listen<int>(currentLedgerIdProvider, (prev, next) {
     ref.read(syncStatusRefreshProvider.notifier).state++;
   });
@@ -154,3 +179,38 @@ final selectedMonthProvider = StateProvider<DateTime>((ref) {
 
 // 视角：'month' 或 'year'
 final selectedViewProvider = StateProvider<String>((ref) => 'month');
+
+// 导入任务进度：用于显示“后台导入中”状态与进度
+class ImportProgress {
+  final bool running;
+  final int total;
+  final int done;
+  final int ok;
+  final int fail;
+  const ImportProgress({
+    required this.running,
+    required this.total,
+    required this.done,
+    required this.ok,
+    required this.fail,
+  });
+  ImportProgress copyWith({
+    bool? running,
+    int? total,
+    int? done,
+    int? ok,
+    int? fail,
+  }) =>
+      ImportProgress(
+        running: running ?? this.running,
+        total: total ?? this.total,
+        done: done ?? this.done,
+        ok: ok ?? this.ok,
+        fail: fail ?? this.fail,
+      );
+  static const empty =
+      ImportProgress(running: false, total: 0, done: 0, ok: 0, fail: 0);
+}
+
+final importProgressProvider =
+    StateProvider<ImportProgress>((ref) => ImportProgress.empty);

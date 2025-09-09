@@ -37,6 +37,8 @@ class MainApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // 启动时初始化主题色（本地持久化）
     ref.watch(primaryColorInitProvider);
+    // 启动时激活应用初始化（包含：恢复当前账本选择、监听账本切换等）
+    ref.watch(appInitProvider);
     final primary = ref.watch(primaryColorProvider);
     final base = BeeTheme.lightTheme();
     final theme = base.copyWith(

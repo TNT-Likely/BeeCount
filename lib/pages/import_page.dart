@@ -17,6 +17,9 @@ class _ImportPageState extends ConsumerState<ImportPage> {
   final _controller = TextEditingController();
   final bool _hasHeader = true;
   PlatformFile? _picked;
+  bool _reading = false;
+  double? _readProgress; // 0~1
+  bool _cancelRead = false;
 
   @override
   void initState() {
@@ -33,36 +36,75 @@ class _ImportPageState extends ConsumerState<ImportPage> {
         children: [
           const PrimaryHeader(title: '导入账单', showBack: true),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('请选择 CSV/TSV 文件进行导入（默认第一行为表头）'),
-                  const SizedBox(height: 8),
-                  Row(
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      FilledButton.icon(
-                        onPressed: _pickFile,
-                        icon: const Icon(Icons.folder_open),
-                        label: const Text('选择文件'),
+                      const Text('请选择 CSV/TSV 文件进行导入（默认第一行为表头）'),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          FilledButton.icon(
+                            onPressed: _pickFile,
+                            icon: const Icon(Icons.folder_open),
+                            label: const Text('选择文件'),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _picked?.name ?? '未选择文件',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _picked?.name ?? '未选择文件',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                      const Spacer(),
+                      if (_picked == null)
+                        const Text('提示：请选择一个 CSV/TSV 文件开始导入',
+                            style: TextStyle(color: Colors.grey)),
                     ],
                   ),
-                  const Spacer(),
-                  if (_picked == null)
-                    const Text('提示：请选择一个 CSV/TSV 文件开始导入',
-                        style: TextStyle(color: Colors.grey)),
-                ],
-              ),
+                ),
+                if (_reading)
+                  Positioned.fill(
+                    child: Container(
+                      color: Colors.black.withOpacity(0.4),
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          width: 320,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text('读取文件中…'),
+                              const SizedBox(height: 12),
+                              LinearProgressIndicator(value: _readProgress),
+                              const SizedBox(height: 8),
+                              Text(_readProgress == null
+                                  ? '准备中…'
+                                  : '${((_readProgress ?? 0) * 100).clamp(0, 100).toStringAsFixed(0)}%'),
+                              const SizedBox(height: 12),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() => _cancelRead = true);
+                                },
+                                child: const Text('取消'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
@@ -73,20 +115,9 @@ class _ImportPageState extends ConsumerState<ImportPage> {
   Future<void> _onImport() async {
     String csvText = _controller.text.trim();
     if (_picked != null) {
-      List<int>? bytes;
-      try {
-        if (_picked!.path != null) {
-          bytes = await File(_picked!.path!).readAsBytes();
-        }
-      } catch (_) {
-        // ignore and fallback to picker provided bytes
-      }
-      bytes ??= _picked!.bytes;
-      if (bytes != null && bytes.isNotEmpty) {
-        csvText = _decodeBytes(bytes);
-      }
+      csvText = await _readFileStreaming(_picked!);
     }
-    if (csvText.isEmpty) return;
+    if (csvText.isEmpty) return; // 可能读取被取消
     // 跳转到确认映射页，批量导入在新页面执行
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -111,9 +142,68 @@ class _ImportPageState extends ConsumerState<ImportPage> {
       }
     } on Exception catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('无法打开文件选择器：$e\n可以尝试把文本复制后使用“从剪贴板粘贴”导入。')),
-      );
+      showToast(context, '无法打开文件选择器：$e');
+    }
+  }
+
+  // 流式读取文件并显示进度（State 内部方法，可使用 setState）
+  Future<String> _readFileStreaming(PlatformFile picked) async {
+    if (!mounted) return '';
+    if (picked.path == null || picked.path!.isEmpty) {
+      final b = picked.bytes;
+      if (b == null || b.isEmpty) return '';
+      return _decodeBytes(b);
+    }
+    final file = File(picked.path!);
+    final exists = await file.exists();
+    if (!exists) {
+      final b = picked.bytes;
+      if (b == null || b.isEmpty) return '';
+      return _decodeBytes(b);
+    }
+
+    const int chunkSize = 256 * 1024; // 256KB
+    final length = await file.length();
+    final raf = await file.open();
+    try {
+      final chunks = <List<int>>[];
+      int offset = 0;
+      setState(() {
+        _reading = true;
+        _readProgress = 0;
+        _cancelRead = false;
+      });
+      while (offset < length) {
+        if (_cancelRead) {
+          setState(() {
+            _reading = false;
+            _readProgress = null;
+          });
+          return '';
+        }
+        final toRead =
+            (length - offset) < chunkSize ? (length - offset) : chunkSize;
+        final bytes = await raf.read(toRead);
+        if (bytes.isEmpty) break;
+        chunks.add(bytes);
+        offset += bytes.length;
+        setState(() {
+          _readProgress = offset / (length == 0 ? 1 : length);
+        });
+        await Future<void>.delayed(Duration.zero);
+      }
+      final all = <int>[];
+      for (final c in chunks) {
+        all.addAll(c);
+      }
+      final text = _decodeBytes(all);
+      setState(() {
+        _reading = false;
+        _readProgress = null;
+      });
+      return text;
+    } finally {
+      await raf.close();
     }
   }
 }

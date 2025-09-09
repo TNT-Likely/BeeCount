@@ -130,7 +130,28 @@ class SupabaseSyncService implements SyncService {
     }
     final path = _objectPath(user.id, ledgerId);
     debugPrint('[sync] download -> bucket=$bucket path=$path uid=${user.id}');
-    final data = await client.storage.from(bucket).download(path);
+    Uint8List data;
+    try {
+      data = await client.storage.from(bucket).download(path);
+    } on s.StorageException catch (e) {
+      if ('${e.statusCode}' == '404') {
+        // 对象不存在：创建一个空的备份对象，随后返回“无可恢复”
+        final emptyJson = jsonEncode({
+          'count': 0,
+          'items': <Map<String, dynamic>>[],
+        });
+        final bytes = Uint8List.fromList(utf8.encode(emptyJson));
+        await client.storage.from(bucket).uploadBinary(
+              path,
+              bytes,
+              fileOptions: const s.FileOptions(
+                  upsert: true, contentType: 'application/json'),
+            );
+        // 无任何可导入内容，直接返回空变更
+        return (inserted: 0, skipped: 0, deletedDup: 0);
+      }
+      rethrow;
+    }
     final jsonStr = _decodeBytesCompat(data);
     final imported = await importTransactionsJson(repo, ledgerId, jsonStr);
     // 二次去重，清理历史重复
