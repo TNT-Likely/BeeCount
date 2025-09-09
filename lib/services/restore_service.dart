@@ -408,6 +408,72 @@ class RestoreService {
     } else {
       addLog('· 新建本地账本：${item.name} (#$targetLedgerId)');
     }
+
+    // 采用“沿用远端ID”的策略：
+    // 若存在 rid 且当前目标账本ID != rid，则：
+    // 1) 若本地已有 ledger 占用 rid，则将其迁移到一个新的空闲ID；
+    // 2) 将当前目标账本ID迁移为 rid；
+    // 3) 更新内存结构/映射/当前账本ID，确保后续上传使用 rid，避免远端备份越积越多。
+    if (rid != null && targetLedgerId != rid) {
+      try {
+        // 1) 释放 rid
+        final occupied = idToLedger[rid];
+        if (occupied != null) {
+          // 选择一个不与已使用集合冲突的新ID
+          int newId = await repo.nextFreeLedgerId();
+          while (usedLedgerIds.contains(newId) || newId == targetLedgerId) {
+            newId += 1;
+          }
+          await repo.reassignLedgerId(fromId: rid, toId: newId);
+          addLog('· 释放远端ID：将本地账本 #$rid 迁移为 #$newId');
+          // 更新映射缓存
+          final occ = idToLedger.remove(rid);
+          if (occ != null) {
+            idToLedger[newId] = occ; // 占位引用即可
+            // 名称映射
+            try {
+              final occName = (occ as dynamic).name as String?;
+              if (occName != null && nameToId[occName] == rid) {
+                nameToId[occName] = newId;
+              }
+            } catch (_) {}
+          }
+          final oldCnt = localCounts.remove(rid);
+          if (oldCnt != null) localCounts[newId] = oldCnt;
+          if (usedLedgerIds.remove(rid)) usedLedgerIds.add(newId);
+          // 当前账本若指向 rid，需同步
+          try {
+            final cur = ref.read(currentLedgerIdProvider);
+            if (cur == rid) {
+              ref.read(currentLedgerIdProvider.notifier).state = newId;
+            }
+          } catch (_) {}
+        }
+
+        // 2) 将目标账本迁移为 rid
+        await repo.reassignLedgerId(fromId: targetLedgerId, toId: rid);
+        addLog('· 采用远端ID：将目标账本 #$targetLedgerId 迁移为 #$rid');
+        // 更新本地缓存/集合
+        final tgt = idToLedger.remove(targetLedgerId);
+        if (tgt != null) idToLedger[rid] = tgt;
+        nameToId[item.name] = rid;
+        final tgtCnt = localCounts.remove(targetLedgerId);
+        if (tgtCnt != null) localCounts[rid] = tgtCnt;
+        usedLedgerIds.remove(targetLedgerId);
+        usedLedgerIds.add(rid);
+        // 当前账本若指向旧ID，切换到 rid
+        try {
+          final cur = ref.read(currentLedgerIdProvider);
+          if (cur == targetLedgerId) {
+            ref.read(currentLedgerIdProvider.notifier).state = rid;
+          }
+        } catch (_) {}
+        // 让后续流程使用 rid
+        targetLedgerId = rid;
+      } catch (e) {
+        addLog('· 沿用远端ID失败（忽略，继续使用本地ID #$targetLedgerId）：$e');
+      }
+    }
     // 避免把币种覆盖为 null
     try {
       final cand = (idToLedger[targetLedgerId]);
@@ -462,6 +528,7 @@ class RestoreService {
     } catch (_) {}
 
     if (rid != null) {
+      // 此时 targetLedgerId 已尽量等于 rid
       idMap['$rid'] = targetLedgerId;
     }
     try {

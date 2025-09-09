@@ -391,6 +391,56 @@ class BeeRepository {
     });
   }
 
+  /// 获取当前最大账本ID
+  Future<int> maxLedgerId() async {
+    final row = await db.customSelect(
+        'SELECT IFNULL(MAX(id), 0) AS m FROM ledgers',
+        readsFrom: {db.ledgers}).getSingle();
+    final v = row.data['m'];
+    if (v is int) return v;
+    if (v is BigInt) return v.toInt();
+    if (v is num) return v.toInt();
+    return 0;
+  }
+
+  /// 取得下一个未占用的账本ID（通常为 max+1）
+  Future<int> nextFreeLedgerId() async {
+    final maxId = await maxLedgerId();
+    return maxId + 1;
+  }
+
+  /// 将账本ID从 fromId 迁移到 toId（同时更新关联的 accounts/transactions）
+  /// 要求 toId 在迁移前未被 ledgers 使用。
+  Future<void> reassignLedgerId(
+      {required int fromId, required int toId}) async {
+    if (fromId == toId) return;
+    final existsTo = await (db.select(db.ledgers)
+          ..where((l) => l.id.equals(toId)))
+        .getSingleOrNull();
+    if (existsTo != null) {
+      throw StateError('目标账本ID已存在: $toId');
+    }
+    await db.transaction(() async {
+      // 先迁移子表中的外键引用
+      await db.customUpdate(
+        'UPDATE accounts SET ledger_id = ?1 WHERE ledger_id = ?2',
+        variables: [d.Variable<int>(toId), d.Variable<int>(fromId)],
+        updates: {db.accounts},
+      );
+      await db.customUpdate(
+        'UPDATE transactions SET ledger_id = ?1 WHERE ledger_id = ?2',
+        variables: [d.Variable<int>(toId), d.Variable<int>(fromId)],
+        updates: {db.transactions},
+      );
+      // 再更新主表ID（SQLite 允许更新 INTEGER PRIMARY KEY 的值）
+      await db.customUpdate(
+        'UPDATE ledgers SET id = ?1 WHERE id = ?2',
+        variables: [d.Variable<int>(toId), d.Variable<int>(fromId)],
+        updates: {db.ledgers},
+      );
+    });
+  }
+
   /// 清空指定账本的所有交易记录，返回删除的条数
   Future<int> clearLedgerTransactions(int ledgerId) async {
     final count = await (db.delete(db.transactions)
