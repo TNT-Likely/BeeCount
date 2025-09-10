@@ -1,0 +1,14 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simple bee icon, clean lines, transparent background -->
+  <circle cx="128" cy="96" r="36" fill="#000000"/>
+  <ellipse cx="128" cy="164" rx="54" ry="40" fill="currentColor"/>
+  <ellipse cx="128" cy="164" rx="54" ry="40" stroke-width="10" stroke="#000" />
+  <path d="M74 164h108" stroke="#000" stroke-width="12" stroke-linecap="round"/>
+  <path d="M86 180h84" stroke="#000" stroke-width="12" stroke-linecap="round"/>
+  <path d="M128 56c0-14 10-26 24-28" stroke="#000" stroke-width="10" stroke-linecap="round"/>
+  <path d="M128 56c0-14-10-26-24-28" stroke="#000" stroke-width="10" stroke-linecap="round"/>
+  <ellipse cx="92" cy="116" rx="28" ry="18" fill="#80DEEA" opacity="0.8"/>
+  <ellipse cx="164" cy="116" rx="28" ry="18" fill="#80DEEA" opacity="0.8"/>
+  <circle cx="116" cy="92" r="6" fill="#fff"/>
+  <circle cx="140" cy="92" r="6" fill="#fff"/>
+</svg>

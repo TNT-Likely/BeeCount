@@ -1,0 +1,7 @@
+# Copy this file to android/key.properties and fill in your keystore info.
+# Do NOT commit the real key.properties to VCS.
+# Paths are relative to the android/ directory.
+storeFile=app/release.keystore
+storePassword=YOUR_STORE_PASSWORD
+keyAlias=beecount
+keyPassword=YOUR_KEY_PASSWORD

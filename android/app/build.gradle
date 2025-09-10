@@ -1,0 +1,158 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+// Load signing credentials from key.properties (not committed to VCS)
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    namespace = "com.example.beecount"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId = "com.example.beecount"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    // 当未在命令行指定 --flavor 时，默认选择 dev 风味，避免 Flutter 调试找不到 APK。
+    missingDimensionStrategy "env", "dev"
+    }
+
+    flavorDimensions += ["env"]
+    productFlavors {
+        dev {
+            dimension "env"
+            applicationIdSuffix ".dev"
+            resValue "string", "app_name", "蜜蜂记账测试版"
+        }
+        prod {
+            dimension "env"
+            resValue "string", "app_name", "蜜蜂记账"
+        }
+    }
+
+    signingConfigs {
+        release {
+            if (keystoreProperties['storeFile']) {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            } else {
+                // CI/Local fallback: if no key.properties, ensure a temporary debug keystore exists
+                // and sign release with it so the build doesn't fail. Artifacts will be installable
+                // but NOT suitable for Play upload. Provide real key.properties for production.
+                def ciKeystorePath = new File(rootDir, "ci-debug.keystore")
+                if (!ciKeystorePath.exists()) {
+                    // Try to generate a debug-like keystore via keytool
+                    def javaHome = System.getenv('JAVA_HOME')
+                    def keytool = javaHome ? new File(javaHome, 'bin/keytool').absolutePath : 'keytool'
+                    try {
+                        project.logger.lifecycle("[signing] Generating CI debug keystore at ${ciKeystorePath.absolutePath}")
+                        def proc = new ProcessBuilder(
+                                keytool,
+                                '-genkey', '-noprompt',
+                                '-keystore', ciKeystorePath.absolutePath,
+                                '-storepass', 'android',
+                                '-keypass', 'android',
+                                '-alias', 'androiddebugkey',
+                                '-dname', 'CN=CI, OU=CI, O=CI, L=Mountain View, S=CA, C=US',
+                                '-validity', '10000',
+                                '-keyalg', 'RSA', '-keysize', '2048'
+                        ).redirectErrorStream(true).start()
+                        proc.waitFor()
+                    } catch (Throwable t) {
+                        project.logger.warn('[signing] Failed to generate CI debug keystore, build may produce unsigned artifacts', t)
+                    }
+                }
+                if (ciKeystorePath.exists()) {
+                    storeFile ciKeystorePath
+                    storePassword 'android'
+                    keyAlias 'androiddebugkey'
+                    keyPassword 'android'
+                } else {
+                    // As a last resort, try using the conventional user home debug.keystore if present.
+                    def homeDebug = new File(System.getProperty('user.home'), '.android/debug.keystore')
+                    if (homeDebug.exists()) {
+                        storeFile homeDebug
+                        storePassword 'android'
+                        keyAlias 'androiddebugkey'
+                        keyPassword 'android'
+                    } else {
+                        // Leave signingConfig incomplete so AGP will output an unsigned APK instead of failing early.
+                        project.logger.lifecycle('[signing] No keystore available; release APK will be unsigned.')
+                    }
+                }
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            // Debug 构建追加独立后缀，名称显示为测试版，便于与生产包共存
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+            resValue "string", "app_name", "蜜蜂记账测试版"
+        }
+        release {
+            // Use a stable release keystore so upgrades don't require uninstall
+            signingConfig = signingConfigs.release
+            // Enables code shrinking, obfuscation, and optimization for release builds.
+            // You can tune or remove these if not desired.
+            // minifyEnabled true
+            // shrinkResources true
+        }
+    }
+
+    // 当存在 flavors 时，assembleDebug 会聚合构建所有 debug 变体（devDebug、prodDebug），
+    // 这会让 Flutter 工具无法确定唯一 APK 路径。这里忽略 prodDebug，仅保留 devDebug，
+    // 从而让不带 --flavor 的 `flutter run` 正常工作并默认使用 dev。
+    variantFilter { variant ->
+        def names = variant.flavors*.name
+        if (variant.buildType.name == 'debug' && names.contains('prod')) {
+            setIgnore(true)
+        }
+    }
+}
+
+// 自定义 Release APK 命名：app-<flavor>-release-v<versionName>(<versionCode>).apk
+android.applicationVariants.all { variant ->
+    if (variant.buildType.name == 'release') {
+        variant.outputs.all { output ->
+            def flavor = variant.flavorName ?: ""
+            def vName = variant.versionName
+            def vCode = variant.versionCode
+            def baseName = "app-${flavor}-release-v${vName}(${vCode}).apk"
+            try {
+                output.outputFileName = baseName
+            } catch (ignored) {
+                // For newer AGP where outputFileName setter may differ, ignore silently
+            }
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
