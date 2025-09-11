@@ -7,13 +7,19 @@
     {
       "name": "BeeCount",
       "request": "launch",
-      "type": "dart"
+      "type": "dart",
+      "args": [
+        "--dart-define-from-file=assets/config.json"
+      ]
     },
     {
       "name": "BeeCount (profile mode)",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "profile"
+      "flutterMode": "profile",
+      "args": [
+        "--dart-define-from-file=assets/config.json"
+      ]
     },
     {
       "name": "BeeCount (release mode)",
@@ -22,13 +28,25 @@
       "flutterMode": "release"
     },
     {
-      "name": "BeeCount (dev mode)",
+      "name": "BeeCount (Android dev)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
       "args": [
         "--flavor",
-        "dev"
+        "dev",
+        "--dart-define-from-file=assets/config.json"
+      ]
+    },
+    {
+      "name": "BeeCount (iOS)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "args": [
+        "-d",
+        "ios",
+        "--dart-define-from-file=assets/config.json"
       ]
     }
   ]

@@ -2,6 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as s;
 import '../config.dart';
+import '../cloud/cloud_service_config.dart';
+import '../cloud/cloud_service_store.dart';
+import '../utils/logger.dart';
 import '../cloud/auth.dart';
 import '../cloud/sync.dart';
 import '../cloud/supabase_auth.dart';
@@ -53,12 +56,63 @@ final autoSyncSetterProvider = Provider<AutoSyncSetter>((ref) {
   return AutoSyncSetter(ref);
 });
 
-// Auth 与 Sync 抽象：未配置时使用 Noop/LocalOnly；配置后使用 Supabase
+// ====== 云服务动态配置 ======
+
+// 内置配置（不展示真实 URL/Key）
+final builtinCloudConfigProvider = Provider<CloudServiceConfig>((ref) {
+  return CloudServiceConfig.builtinDefault(
+    url: AppConfig.supabaseUrl,
+    key: AppConfig.supabaseAnonKey,
+  );
+});
+
+final cloudServiceStoreProvider =
+    Provider<CloudServiceStore>((_) => CloudServiceStore());
+
+// 当前激活配置（Future，因需读 SharedPreferences）
+final activeCloudConfigProvider =
+    FutureProvider<CloudServiceConfig>((ref) async {
+  final builtin = ref.watch(builtinCloudConfigProvider);
+  final store = ref.watch(cloudServiceStoreProvider);
+  return store.loadActive(builtin);
+});
+
+// 首次全量上传标记
+final firstFullUploadPendingProvider = FutureProvider<bool>((ref) async {
+  final store = ref.watch(cloudServiceStoreProvider);
+  return store.isFirstFullUploadPending();
+});
+
+// 已保存（未必激活）的自定义配置（用于 UI 在默认模式下展示“可启用”）
+final storedCustomCloudConfigProvider =
+    FutureProvider<CloudServiceConfig?>((ref) async {
+  final store = ref.watch(cloudServiceStoreProvider);
+  return store.loadCustom();
+});
+
+// Supabase Client Provider：
+// 1) 自定义配置 -> 创建独立 client 实例（不依赖全局 initialize）
+// 2) 内置配置 -> 若启动时已 initialize 则使用单例；否则返回 null
 final supabaseClientProvider = Provider<s.SupabaseClient?>((ref) {
-  if (AppConfig.supabaseUrl.isEmpty || AppConfig.supabaseAnonKey.isEmpty) {
+  final activeAsync = ref.watch(activeCloudConfigProvider);
+  if (!activeAsync.hasValue) return null;
+  final cfg = activeAsync.value!;
+  if (!cfg.valid) return null;
+  if (cfg.builtin) {
+    if (AppConfig.hasSupabase) {
+      return s.Supabase.instance.client;
+    }
     return null;
   }
-  return s.Supabase.instance.client;
+  // 自定义：创建独立 client（避免多次 initialize 冲突）
+  logI('cloudCfg', '使用自定义 Supabase Client (${cfg.obfuscatedUrl()})');
+  return s.SupabaseClient(
+    cfg.supabaseUrl!,
+    cfg.supabaseAnonKey!,
+    // 使用 implicit 流程，避免需要 PKCE asyncStorage（便于动态创建客户端）
+    authOptions:
+        const s.AuthClientOptions(authFlowType: s.AuthFlowType.implicit),
+  );
 });
 
 final authServiceProvider = Provider<AuthService>((ref) {

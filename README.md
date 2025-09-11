@@ -2,9 +2,7 @@
 
 **你的数据，你做主的开源记账应用**
 
-轻量、开源的个人记账 App，支持 iOS 与 Android。内置账本、分类、统计分析、导入导出功能。**最重要的是**：支持自定义 Supabase 后端，让你完全掌控自己的财务数据，无隐私担忧。
-
-演示截图
+轻量、开源、隐私可控的个人记账 App（iOS / Android）。内置：账本、分类、统计分析、导入导出、可选云备份。**核心差异：支持自定义 Supabase 后端，数据完全由你掌控。**
 
 <div align="center">
  <img src="assets/preview/home.png" alt="首页" width="200" />
@@ -12,135 +10,135 @@
  <img src="assets/preview/analytic.jpg" alt="分析页" width="200" />
  <img src="assets/preview/zhangben.jpg" alt="账本" width="200" />
  <img src="assets/preview/mine.png" alt="我的页" width="200" />
+ <img src="assets/preview/custom.jpg" alt="自定义云服务" width="200" />
 </div>
 
-上述为部分功能页面截图，更多细节请体验 App。
+---
 
-## 核心亮点
+## 目录
 
-### 🔒 数据安全，完全自主控制
-- **你的数据，你做主**：支持自定义 Supabase 后端，数据存储在你自己的服务器
-- **开源透明**：所有代码开源，数据处理逻辑完全可见，无隐私担忧
-- **离线优先**：本地 SQLite 数据库，无网络也能正常使用
-- **可选云同步**：需要时才连接云端，你决定何时何地备份数据
+0. TL;DR（一分钟了解差异 & 用法）
+1. 核心亮点
+2. 快速开始（普通用户：无需写代码）
+3. 使用说明（日常操作）
+4. 自建 Supabase 云端（可选进阶）
+5. 构建与发布（仅需自行打包 / iOS 用）
+6. 成本 & 安全最佳实践
+7. 开发指南（贡献 / 二次开发）
+8. 开源协议与免责声明
+
+---
+
+## 0. TL;DR
+
+| 你是谁 | 推荐路径 | 是否需要 Supabase 账号 | 是否需要写代码 |
+| ------ | -------- | ---------------------- | --------------- |
+| 只想本地记账用户 | 直接安装 / 构建后使用，忽略“云服务” | 否 | 否 |
+| 想备份/多设备同步 | 在 App 内“云服务”填入你自建的 Supabase URL/Key | 是 | 否（在官网点几下） |
+| 想完全托管在自己 Supabase | 按第 4 节搭建 + App 内切换自定义 | 是 | 否 |
+| 想二次开发或贡献代码 | 读第 7 节，clone 仓库运行 | 可选 | 是 |
+
+最短上手（普通用户）：
+
+1. 下载 Release 中最新 APK（或自行 `flutter build`）。
+2. 直接使用（默认本地离线）。
+3. 需要同步 → 第 4 节 10 分钟自建 Supabase → App 内“云服务”粘贴 URL / anon key → 登录 → 上传。
+
+无需担心：不填 Supabase 仍可永久本地使用；云同步是可选增强，而不是强制注册。
+
+---
+
+## 1. 核心亮点
+
+### 🔒 数据安全与自主
+
+- 自定义 Supabase 后端：数据存你自己的项目
+- 开源透明：逻辑可审计，无黑箱
+- 离线优先：本地 SQLite；无网可记
+- 可选同步：需要时才上传
 
 ### 📱 功能特性
-- **记账**：分类、金额、日期、备注，支持快速录入
-- **分析**：月度收支、结余与分类排行，数据可视化
-- **数据管理**：CSV 导入、导出，数据迁移无障碍  
-- **云同步**：可选的云端备份/恢复，多设备数据同步
-- **个性化**：主题色、图标自定义，打造专属记账体验
 
-## 快速开始（用户）
+- 记账：分类、金额、日期、备注，快速录入
+- 分析：月度收支、结余、分类排行
+- 数据：CSV 导入/导出
+- 云备份：可选存储备份，多设备同步
+- 个性化：主题色、图标
 
-前置要求
+---
 
-- Flutter 3.27+（fvm 可选）
-- iOS/macOS 需 Xcode，Android 需 Android Studio/SDK
+## 2. 快速开始（普通用户：无需写代码）
 
-安装与运行
+前置环境
 
-1) 安装依赖
+- Flutter 3.27+（用于本地运行源码；直接安装 App 则不需要）
+- iOS/macOS: Xcode；Android: Android Studio/SDK
+
+使用方式有两种：
+
+### A. 直接安装（最快）
+
+到 Releases 下载最新 `app-prod-release-*.apk` 安装即可。（iOS 目前需自行打包或 TestFlight，见第 5 节）
+
+### B. 自行运行源码（可调试）
+
+克隆仓库后执行：
 
 ```bash
 flutter pub get
-```
-
-1) 运行（示例）
-
-```bash
 # Android 调试
 flutter run --flavor dev -d android
 # iOS 模拟器
 flutter run -d ios
 ```
 
-## 使用说明
+---
 
-### 基础操作
-- **记账**：在首页底部"+"添加，支持长按记录删除
-- **切换月份**：顶部日期选择器；到列表顶部/底部继续拉可切换月
-- **隐藏金额**：首页右上角"眼睛"按钮
-- **导入/导出**：我的页 → 导入/导出
+## 3. 使用说明
 
-### 云同步设置
-1. **首次使用**：按照上述步骤创建自己的 Supabase 项目
-2. **配置连接**：在应用中配置你的 Supabase URL 和密钥
-3. **注册登录**：我的页 → 登录/注册，使用邮箱注册账号
-4. **启用同步**：开启"自动同步"，记账后自动上传到你的云端
+基础操作
 
-### 数据安全提醒
-- ⚠️ **请使用你自己的 Supabase 项目**，不要使用他人提供的配置
-- ✅ **定期导出备份**：建议每月导出 CSV 文件作为本地备份  
-- 🔄 **多设备同步**：在其他设备上配置相同的 Supabase 项目即可同步数据
+- 新增记账：首页底部 “+”
+- 删除记录：长按条目
+- 切换月份：顶部日期；滚动至列表首/尾继续拉可翻月
+- 隐藏金额：首页右上角“眼睛”
+- 导入/导出：我的 → 导入/导出 → 选择 CSV
 
-## 构建与发布
+云同步（默认模式）
 
-风味与命名
+- 可直接使用内置“默认云服务”（若启用）
+- 或切换至“自定义 Supabase”（推荐，见下节）
 
-- Android flavors：dev（测试包）、prod（发布包）
-- Debug 包：显示名“蜜蜂记账测试版”，可与 prod 共存
-- Release 包：prodRelease，输出命名包含版本号，例如：`app-prod-release-v1.2.3(45).apk`
+数据安全建议
 
-Android 打包
+- 使用自己的 Supabase 项目
+- 每月手动导出 CSV 备份
+- 多设备：在另一设备填入相同 Supabase URL & anon key 即可同步
 
-- Debug：
+---
 
-```bash
-flutter build apk --flavor dev --debug
-```
+## 4. 自建 Supabase 云端（可选进阶）
 
-- Release：
+### 4.1 为什么自建？
 
-1) 配置签名：复制 `android/key.properties.sample` 为 `android/key.properties` 并填写
+- 数据主权：无第三方介入
+- 隐私：开发者不可访问
+- 稳定：不依赖作者托管
+- 成本：免费额度足够个人使用
 
-2) 构建：
+### 4.2 创建项目
 
-```bash
-flutter build apk --flavor prod --release
-```
+1. <https://supabase.com> 注册
+2. New Project → 选区域 → 设数据库密码
+3. 进入项目 Settings → 找到：
 
-iOS 打包
+- URL: `https://your-project-id.supabase.co`
+- anon key: 浏览器侧公开密钥（不要使用 service_role）
 
-- 在 Xcode 中打开 `ios/Runner.xcworkspace`，按常规流程 Archive & Distribute
+### 4.3 配置方式
 
-CI 与版本
+方式一：assets/config.json
 
-- GitHub Actions 会根据标签创建 Release 并打包
-- 应用内“关于”与“检测更新”会展示/获取最新版本
-
-## 🛡️ 数据安全：自建云端服务
-
-### 为什么选择自定义 Supabase？
-
-与其他记账软件不同，蜜蜂记账让你完全掌控自己的财务数据：
-
-- **数据主权**：财务数据存储在你自己的 Supabase 项目中，而非第三方服务器
-- **隐私保护**：没有人能访问你的数据，包括开发者
-- **服务稳定**：不依赖开发者提供的云服务，避免服务关闭风险
-- **成本可控**：Supabase 提供慷慨的免费额度，足够个人使用
-
-### 📋 自建步骤详解
-
-#### 1. 创建 Supabase 项目
-
-1. 访问 [supabase.com](https://supabase.com) 并注册账号
-2. 点击"New Project"创建新项目
-3. 选择区域（建议选择距离你最近的区域以获得最佳性能）
-4. 设置数据库密码（请妥善保管）
-
-#### 2. 获取项目配置
-
-项目创建完成后，在项目设置页面获取：
-- **URL**：形如 `https://your-project-id.supabase.co`
-- **anon key**：公开密钥，用于客户端访问
-
-#### 3. 配置应用
-
-有两种方式配置你的 Supabase 连接：
-
-**方式一：本地开发配置**
-在项目根目录创建 `assets/config.json`：
 ```json
 {
   "SUPABASE_URL": "https://your-project-id.supabase.co",
@@ -148,59 +146,201 @@ CI 与版本
 }
 ```
 
-**方式二：编译时注入**
+方式二：运行时注入
+
 ```bash
 flutter run \
   --dart-define=SUPABASE_URL=https://your-project-id.supabase.co \
   --dart-define=SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
-#### 4. 数据表自动创建
+> 当前版本仅使用 Supabase **Storage** 存放备份文件（JSON / 压缩），无须手动创建数据库表（后续可能扩展）。
 
-首次登录时，应用会自动创建所需的数据表：
-- `user_ledgers`：账本信息
-- `user_transactions`：交易记录  
-- `user_profiles`：用户配置
+### 4.4 创建 Storage Bucket
 
-### 🔐 安全最佳实践
+1. Project → Storage → New Bucket
+2. 名称：`beecount-backups`
+3. 访问：推荐 Private
+4. 启用后添加访问策略（见下）
 
-- ✅ **仅使用 anon key**：绝不在客户端使用 service_role key
-- ✅ **启用 RLS**：Supabase 的行级安全策略确保用户只能访问自己的数据
-- ✅ **定期备份**：虽然 Supabase 很稳定，但定期导出 CSV 备份是好习惯
-- ✅ **密码安全**：使用强密码，启用双因素认证
+文件命名（客户端自动）：
 
-### 💰 成本说明
+- `users/{user_id}/ledger_{ledgerId}.json` 或 `users/{user_id}/ledger_{ledgerId}.json.gz`
 
-Supabase 免费计划包含：
-- 500MB 数据库存储
-- 每月 2GB 传输量
+### 4.5 运行时切换自定义云服务
+
+路径：我的 → 云服务  
+操作：
+
+- 填入 Supabase URL + anon key
+- 登录 / 注册（邮箱）
+- 首次启用：为每个账本执行一次“上传”初始化
+- 可随时切回默认配置，原自定义设置会被保留
+
+安全提示：不要使用 service_role key。
+
+### 4.6 Storage 策略（RLS Policies）
+
+目标：仅允许用户访问自己目录：`users/{auth.uid()}/...`
+
+在 SQL Editor 中（或 Storage → Policies）依次创建策略（对象表：`storage.objects`）。确保 bucket 已创建且策略作用范围包含该 bucket。示例（PostgreSQL）：
+
+SELECT / 读取
+
+```sql
+create policy "beecount_select_own"
+on storage.objects for select
+using (
+  bucket_id = 'beecount-backups'
+  and (storage.foldername(name))[1] = 'users'
+  and (storage.foldername(name))[2] = auth.uid()::text
+);
+```
+
+INSERT / 上传
+
+```sql
+create policy "beecount_insert_own"
+on storage.objects for insert
+with check (
+  bucket_id = 'beecount-backups'
+  and (storage.foldername(name))[1] = 'users'
+  and (storage.foldername(name))[2] = auth.uid()::text
+);
+```
+
+UPDATE
+
+```sql
+create policy "beecount_update_own"
+on storage.objects for update
+using (
+  bucket_id = 'beecount-backups'
+  and (storage.foldername(name))[1] = 'users'
+  and (storage.foldername(name))[2] = auth.uid()::text
+)
+with check (
+  bucket_id = 'beecount-backups'
+  and (storage.foldername(name))[1] = 'users'
+  and (storage.foldername(name))[2] = auth.uid()::text
+);
+```
+
+DELETE
+
+```sql
+create policy "beecount_delete_own"
+on storage.objects for delete
+using (
+  bucket_id = 'beecount-backups'
+  and (storage.foldername(name))[1] = 'users'
+  and (storage.foldername(name))[2] = auth.uid()::text
+);
+```
+
+> 若 Bucket 设为 Private 必须有上述策略；否则客户端无法读写。
+
+---
+
+## 5. 构建与发布（需要自行打包 / iOS 安装时再看）
+
+如果你只是 Android 普通用户并已下载 Release APK，可跳过此节。
+
+风味
+
+- Android flavors：dev（测试）、prod（发布）
+- Debug 应用名：“蜜蜂记账测试版”
+- Release 产物：`app-prod-release-vX.Y.Z(build).apk`
+
+Android
+Debug：
+
+```bash
+flutter build apk --flavor dev --debug
+```
+
+Release：
+
+1. 复制 `android/key.properties.sample` → `android/key.properties` 并填写  
+2. 构建：
+
+```bash
+flutter build apk --flavor prod --release
+```
+
+iOS
+
+- 用 Xcode 打开 `ios/Runner.xcworkspace` → Archive → Distribute
+
+CI
+
+- GitHub Actions 依据标签自动打包并创建 Release
+- 应用内“关于 / 检测更新”展示最新版本
+
+---
+
+## 6. 成本 & 安全最佳实践
+
+安全建议
+
+- 仅使用 anon key
+- （未来若用数据库）开启 RLS 并编写策略
+- 私有 Bucket + 严格策略
+- 定期 CSV 线下备份
+- 强密码 + 2FA
+
+成本（Supabase 免费层示例）
+
+- 500MB PostgreSQL
 - 50MB 文件存储
+- 2GB 流量/月  
+个人记账足够；超出后付费层起步 $25/月。
 
-对于个人记账使用，免费额度绰绰有余。即使超出，付费计划也只需 $25/月起。
+---
 
-## 开发指南
+## 7. 开发指南（贡献 / 二次开发）
 
 主要技术
 
-- Flutter + Riverpod + Drift(SQLite)
-- 结构：`lib/pages` 页面、`lib/widgets` 组件、`lib/data` 数据层、`lib/cloud` 云服务
+- Flutter + Riverpod + Drift (SQLite)
+- 结构：`lib/pages`（页面）、`lib/widgets`（组件）、`lib/data`（数据层）、`lib/cloud`（云服务）、`lib/styles`（样式）
 
 代码约定
 
-- UI 颜色与间距：见 `lib/styles`
+- 颜色 / 间距：`lib/styles`
 - Header：`lib/widgets/ui/primary_header.dart`
 - 日志：`lib/utils/logger.dart`
 
-常见脚本
+常用命令
 
-- 依赖：flutter pub get
-- 代码生成：dart run build_runner build -d
+```bash
+flutter pub get
+dart run build_runner build -d
+```
 
-## 开源协议与免责声明
+---
 
-- 协议：本项目遵循 MIT License（见仓库 LICENSE）。
+## 8. 开源协议与免责声明
+
+- 协议：MIT（见 LICENSE）
 - 免责声明：
+  - 本软件按“现状”提供，不提供任何明示或暗示保证
+  - 使用导致的数据丢失、经济损失由使用者自行承担
+  - 请合法、合规使用
 
-  - 本软件按“现状”提供，不对可用性或适配性作任何明示或暗示担保；
-  - 使用本软件产生的任何数据丢失或损失风险由使用者自行承担；
-  - 请遵守当地法律法规，不得用于任何违法用途。
+---
+
+---
+
+### FAQ（简短）
+
+**Q: 不配置 Supabase 能一直用吗？** 可以，全部本地存储。你仍可随时导出 CSV。  
+**Q: 自定义 Supabase 后能再切回默认吗？** 可以，且已保存的自定义配置不会丢失，可再次启用。  
+**Q: 上传/下载失败？** 检查 anon key、Bucket 策略、网络或时间是否同步。  
+**Q: 安全性？** 仅使用 anon key，Storage 目录隔离到 `users/{uid}`，策略限制跨用户访问。  
+
+---
+
+欢迎提交 Issue / PR 改进功能与策略示例。  
+如有建议可在仓库讨论区提出。  
+感谢使用 蜜蜂记账 🐝
