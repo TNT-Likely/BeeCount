@@ -44,6 +44,7 @@ class MinePage extends ConsumerWidget {
       try {
         final check = await RestoreService.checkNeedRestore(ref);
         if (!check.needsRestore) return;
+        if (!context.mounted) return;
         final ok = await AppDialog.confirm<bool>(context,
                 title: '发现云端备份',
                 message: '检测到云端与本地账本不一致，是否恢复到本地？\n(将进入恢复进度页)') ??
@@ -58,6 +59,7 @@ class MinePage extends ConsumerWidget {
         ref.read(syncStatusRefreshProvider.notifier).state++;
         ref.read(statsRefreshProvider.notifier).state++;
       } catch (e) {
+        if (!context.mounted) return;
         await AppDialog.error(context, title: '恢复失败', message: '$e');
       }
     });
@@ -346,6 +348,7 @@ class MinePage extends ConsumerWidget {
                                                 final st2 =
                                                     await sync.getStatus(
                                                         ledgerId: ledgerId);
+                                                if (!context.mounted) return;
                                                 final lines = <String>[];
                                                 lines.add(
                                                     '本地记录数: ${st2.localCount}');
@@ -421,6 +424,7 @@ class MinePage extends ConsumerWidget {
                                           try {
                                             await sync.uploadCurrentLedger(
                                                 ledgerId: ledgerId);
+                                            if (!context.mounted) return;
                                             await AppDialog.info(context,
                                                 title: '已上传',
                                                 message: '当前账本已同步到云端');
@@ -472,11 +476,13 @@ class MinePage extends ConsumerWidget {
                                                   .state++;
                                             });
                                           } catch (e) {
+                                            if (!context.mounted) return;
                                             await AppDialog.info(context,
                                                 title: '失败', message: '$e');
                                           } finally {
-                                            if (ctx.mounted)
+                                            if (ctx.mounted) {
                                               setSB(() => uploadBusy = false);
+                                            }
                                           }
                                         },
                                       ),
@@ -515,6 +521,7 @@ class MinePage extends ConsumerWidget {
                                             final res = await sync
                                                 .downloadAndRestoreToCurrentLedger(
                                                     ledgerId: ledgerId);
+                                            if (!context.mounted) return;
                                             final msg = StringBuffer()
                                               ..writeln(
                                                   '新增导入：${res.inserted} 条')
@@ -530,11 +537,13 @@ class MinePage extends ConsumerWidget {
                                                     .notifier)
                                                 .state++;
                                           } catch (e) {
+                                            if (!context.mounted) return;
                                             await AppDialog.error(context,
                                                 title: '失败', message: '$e');
                                           } finally {
-                                            if (ctx.mounted)
+                                            if (ctx.mounted) {
                                               setSB(() => downloadBusy = false);
+                                            }
                                           }
                                         },
                                       ),
@@ -700,8 +709,15 @@ class MinePage extends ConsumerWidget {
                         title: '关于',
                         onTap: () async {
                           final info = await _getAppInfo();
+                          if (!context.mounted) return;
                           final msg =
-                              '应用：蜜蜂记账\n版本：${info.version} (${info.buildNumber})\n开源地址：https://github.com/TNT-Likely/BeeCount\n开源协议：详见仓库 LICENSE';
+                              () {
+                                // 发布版本不显示buildNumber，开发版显示
+                                final versionText = info.version.startsWith('dev-') 
+                                    ? '${info.version} (${info.buildNumber})'
+                                    : info.version;
+                                return '应用：蜜蜂记账\n版本：$versionText\n开源地址：https://github.com/TNT-Likely/BeeCount\n开源协议：详见仓库 LICENSE';
+                              }();
                           final open = await AppDialog.confirm<bool>(
                                 context,
                                 title: '关于',
@@ -713,19 +729,26 @@ class MinePage extends ConsumerWidget {
                           if (open) {
                             final url = Uri.parse(
                                 'https://github.com/TNT-Likely/BeeCount');
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url,
-                                  mode: LaunchMode.externalApplication);
-                            }
+                            await _tryOpenUrl(url);
                           }
                         },
                       ),
                       AppDivider.thin(),
-                      AppListTile(
-                        leading: Icons.system_update_alt_outlined,
-                        title: '检测更新',
-                        onTap: () async {
-                          await _checkUpdate(context);
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final isLoading = ref.watch(checkUpdateLoadingProvider);
+                          return AppListTile(
+                            leading: isLoading 
+                              ? Icons.hourglass_empty
+                              : Icons.system_update_alt_outlined,
+                            title: isLoading ? '检测更新中...' : '检测更新',
+                            trailing: isLoading 
+                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                              : null,
+                            onTap: isLoading ? null : () async {
+                              await _checkUpdateWithLoading(context, ref);
+                            },
+                          );
                         },
                       ),
                     ],
@@ -852,8 +875,25 @@ Future<_AppInfo> _getAppInfo() async {
       buildTime: buildTime.isEmpty ? null : buildTime);
 }
 
+/// 带加载状态的检查更新封装函数
+Future<void> _checkUpdateWithLoading(BuildContext context, WidgetRef ref) async {
+  // 防重复点击
+  if (ref.read(checkUpdateLoadingProvider)) return;
+  
+  try {
+    ref.read(checkUpdateLoadingProvider.notifier).state = true;
+    await _checkUpdate(context);
+  } finally {
+    ref.read(checkUpdateLoadingProvider.notifier).state = false;
+  }
+}
+
 Future<void> _checkUpdate(BuildContext context) async {
   try {
+    // 获取当前版本信息
+    final currentInfo = await _getAppInfo();
+    final currentVersion = _normalizeVersion(currentInfo.version);
+    
     // 获取最新 release 信息
     final resp = await http.get(
       Uri.parse(
@@ -863,7 +903,7 @@ Future<void> _checkUpdate(BuildContext context) async {
         'X-GitHub-Api-Version': '2022-11-28',
         'User-Agent': 'BeeCount-App',
       },
-    ).timeout(const Duration(seconds: 8));
+    ).timeout(const Duration(seconds: 5));
     if (resp.statusCode == 200) {
       final data = convert.jsonDecode(resp.body) as Map<String, dynamic>;
       final tag = (data['tag_name'] as String?) ?? '';
@@ -876,9 +916,20 @@ Future<void> _checkUpdate(BuildContext context) async {
               (a['name'] as String?)?.toLowerCase().endsWith('.apk') ?? false,
           orElse: () => {});
 
+      // 比较版本，只有远程版本更新时才提示
+      final remoteVersion = _normalizeVersion(tag);
+      if (!_isNewerVersion(remoteVersion, currentVersion)) {
+        if (!context.mounted) return;
+        await AppDialog.info(context, 
+          title: '检查更新', 
+          message: '当前已是最新版本 $currentVersion');
+        return;
+      }
+
       // 弹窗提示最新版本与更新说明（截断过长文案）
       final previewBody =
           (body.length > 400) ? ('${body.substring(0, 400)}...') : body;
+      if (!context.mounted) return;
       final ok = await AppDialog.confirm<bool>(
             context,
             title: '发现新版本：$name',
@@ -891,19 +942,15 @@ Future<void> _checkUpdate(BuildContext context) async {
 
       if (Platform.isAndroid && apk.isNotEmpty) {
         final url = Uri.parse(apk['browser_download_url'] as String);
-        if (await canLaunchUrl(url)) {
-          await launchUrl(url, mode: LaunchMode.externalApplication);
-          return;
-        }
+        final opened = await _tryOpenUrl(url);
+        if (opened) return;
       }
       // 回退：打开 Releases 页面
       final fall = Uri.parse('https://github.com/TNT-Likely/BeeCount/releases');
-      if (await canLaunchUrl(fall)) {
-        await launchUrl(fall, mode: LaunchMode.externalApplication);
-        return;
-      }
+      await _tryOpenUrl(fall);
     } else {
       // API 失败：提示并引导前往 Releases
+      if (!context.mounted) return;
       final go = await AppDialog.confirm<bool>(
             context,
             title: '无法获取最新版本',
@@ -915,14 +962,12 @@ Future<void> _checkUpdate(BuildContext context) async {
       if (go) {
         final fall =
             Uri.parse('https://github.com/TNT-Likely/BeeCount/releases');
-        if (await canLaunchUrl(fall)) {
-          await launchUrl(fall, mode: LaunchMode.externalApplication);
-          return;
-        }
+        await _tryOpenUrl(fall);
       }
     }
   } catch (e) {
     // 异常：同样给出提示
+    if (!context.mounted) return;
     final go = await AppDialog.confirm<bool>(
           context,
           title: '网络异常',
@@ -933,12 +978,80 @@ Future<void> _checkUpdate(BuildContext context) async {
         false;
     if (go) {
       final fall = Uri.parse('https://github.com/TNT-Likely/BeeCount/releases');
-      if (await canLaunchUrl(fall)) {
-        await launchUrl(fall, mode: LaunchMode.externalApplication);
-        return;
-      }
+      await _tryOpenUrl(fall);
     }
   }
   // 用户取消或无法打开浏览器：不再弹窗
   return;
+}
+
+/// 标准化版本号，移除 'v' 前缀和 '-' 后缀
+String _normalizeVersion(String version) {
+  String normalized = version;
+  // 移除 'v' 前缀
+  if (normalized.startsWith('v')) {
+    normalized = normalized.substring(1);
+  }
+  // 移除 'dev-' 前缀
+  if (normalized.startsWith('dev-')) {
+    normalized = normalized.substring(4);
+  }
+  // 移除 '-' 后缀（如 -alpha, -beta, -dev 等）
+  final dashIndex = normalized.indexOf('-');
+  if (dashIndex != -1) {
+    normalized = normalized.substring(0, dashIndex);
+  }
+  return normalized;
+}
+
+/// 比较两个版本号，判断 newVersion 是否比 currentVersion 更新
+bool _isNewerVersion(String newVersion, String currentVersion) {
+  final newParts = newVersion.split('.').map(int.tryParse).where((e) => e != null).cast<int>().toList();
+  final currentParts = currentVersion.split('.').map(int.tryParse).where((e) => e != null).cast<int>().toList();
+  
+  // 补齐长度，短的用 0 填充
+  final maxLength = [newParts.length, currentParts.length].reduce((a, b) => a > b ? a : b);
+  while (newParts.length < maxLength) {
+    newParts.add(0);
+  }
+  while (currentParts.length < maxLength) {
+    currentParts.add(0);
+  }
+  
+  // 逐位比较
+  for (int i = 0; i < maxLength; i++) {
+    if (newParts[i] > currentParts[i]) return true;
+    if (newParts[i] < currentParts[i]) return false;
+  }
+  
+  return false; // 版本相等
+}
+
+/// 尝试使用多种方式打开URL，提供更好的兼容性
+Future<bool> _tryOpenUrl(Uri url) async {
+  try {
+    // 方式1: 默认外部应用打开
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+      return true;
+    }
+    
+    // 方式2: 浏览器内打开
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalNonBrowserApplication);
+      return true;
+    }
+    
+    // 方式3: 平台默认方式
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.platformDefault);
+      return true;
+    }
+    
+    logE('MinePage', '无法打开URL: $url');
+    return false;
+  } catch (e) {
+    logE('MinePage', '打开URL失败: $url', e);
+    return false;
+  }
 }

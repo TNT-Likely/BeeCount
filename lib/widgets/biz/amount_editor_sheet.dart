@@ -264,12 +264,15 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                           // 计算总额（包含最后一段）
                           final cur = parsed();
                           double total = _acc;
-                          if (_op == '+')
+                          if (_op == '+') {
                             total += cur;
-                          else if (_op == '-')
+                          }
+                          else if (_op == '-') {
                             total -= cur;
-                          else
+                          }
+                          else {
                             total = cur;
+                          }
                           HapticFeedback.lightImpact();
                           SystemSound.play(SystemSoundType.click);
                           widget.onSubmit((

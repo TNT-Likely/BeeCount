@@ -1,6 +1,5 @@
 import 'package:beecount/widgets/biz/bee_icon.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class AppEmpty extends StatelessWidget {
   final String text;
@@ -11,7 +10,7 @@ class AppEmpty extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
-    final bg = primary.withOpacity(0.08);
+    final bg = primary.withValues(alpha: 0.08);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),

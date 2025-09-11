@@ -72,7 +72,7 @@ class _ImportPageState extends ConsumerState<ImportPage> {
                 if (_reading)
                   Positioned.fill(
                     child: Container(
-                      color: Colors.black.withOpacity(0.4),
+                      color: Colors.black.withValues(alpha: 0.4),
                       child: Center(
                         child: Container(
                           padding: const EdgeInsets.all(16),
@@ -116,8 +116,10 @@ class _ImportPageState extends ConsumerState<ImportPage> {
     String csvText = _controller.text.trim();
     if (_picked != null) {
       csvText = await _readFileStreaming(_picked!);
+      if (!mounted) return;
     }
     if (csvText.isEmpty) return; // 可能读取被取消
+    if (!mounted) return;
     // 跳转到确认映射页，批量导入在新页面执行
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -125,6 +127,7 @@ class _ImportPageState extends ConsumerState<ImportPage> {
             ImportConfirmPage(csvText: csvText, hasHeader: _hasHeader),
       ),
     );
+    if (!mounted) return;
   }
 
   Future<void> _pickFile() async {
@@ -135,10 +138,12 @@ class _ImportPageState extends ConsumerState<ImportPage> {
         allowMultiple: false,
         withData: true, // iOS 模拟器/沙盒下读取 bytes
       );
+      if (!context.mounted) return;
       if (res != null && res.files.isNotEmpty) {
         setState(() => _picked = res.files.first);
         // 选中即进入确认页
         await _onImport();
+        if (!context.mounted) return;
       }
     } on Exception catch (e) {
       if (!mounted) return;

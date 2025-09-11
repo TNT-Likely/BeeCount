@@ -515,11 +515,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         message: '确定要删除这条记账吗？',
                                       ) ??
                                       false;
+                                  if (!context.mounted) return;
                                   if (!ok) return;
                                   final db = ref.read(databaseProvider);
                                   await (db.delete(db.transactions)
                                         ..where((t) => t.id.equals(it.t.id)))
                                       .go();
+                                  if (!context.mounted) return;
                                   final curLedger =
                                       ref.read(currentLedgerIdProvider);
                                   Future(() => handleLocalChange(ref,
@@ -538,6 +540,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     _groupEnds.clear();
                                     _computedGroups = 0;
                                   });
+                                  if (!context.mounted) return;
                                   showToast(context, '已删除');
                                 },
                                 child: Column(

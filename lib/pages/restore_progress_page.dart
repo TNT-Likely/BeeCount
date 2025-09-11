@@ -73,7 +73,7 @@ class RestoreProgressPage extends ConsumerWidget {
                                 ? 0
                                 : (p.currentIndex / p.totalLedgers)
                                     .clamp(0.0, 1.0),
-                            backgroundColor: Colors.black.withOpacity(0.06),
+                            backgroundColor: Colors.black.withValues(alpha: 0.06),
                           ),
                         ),
                       ),

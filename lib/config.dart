@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'utils/logger.dart';
 
@@ -18,34 +16,19 @@ class AppConfig {
   static bool get hasSupabase =>
       supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
 
-  // 发布版仅使用 dart-define；非发布（调试/本地）可尝试从 assets 读取作为方便。
+  // 通过 --dart-define 或 --dart-define-from-file 注入配置
   static Future<void> init() async {
     logI('Config', '开始初始化 AppConfig，kReleaseMode=$kReleaseMode');
     
-    // 非发布构建尝试读取 assets/config.json，失败则忽略
-    if (!kReleaseMode) {
-      try {
-        logI('Config', '非Release模式，尝试读取 assets/config.json');
-        final txt = await rootBundle.loadString('assets/config.json');
-        final map = jsonDecode(txt) as Map<String, dynamic>;
-        _supabaseUrl = (map['supabaseUrl'] as String?)?.trim() ?? '';
-        _supabaseAnonKey = (map['supabaseAnonKey'] as String?)?.trim() ?? '';
-        logI('Config', '成功从 assets/config.json 加载配置，URL长度=${_supabaseUrl.length}，Key长度=${_supabaseAnonKey.length}');
-      } catch (e) {
-        logE('Config', '读取 assets/config.json 失败', e);
-      }
-    } else {
-      logI('Config', 'Release模式，跳过 assets/config.json，仅依赖 --dart-define');
-    }
-
-    // 若通过 --dart-define 提供了变量，则优先生效覆盖
+    // 从 --dart-define 环境变量获取配置
     logI('Config', '--dart-define 环境变量：URL长度=${_envUrl.length}，Key长度=${_envAnon.length}');
+    _supabaseUrl = _envUrl;
+    _supabaseAnonKey = _envAnon;
+    
     if (_envUrl.isNotEmpty) {
-      _supabaseUrl = _envUrl;
       logI('Config', '使用 --dart-define 的 SUPABASE_URL');
     }
     if (_envAnon.isNotEmpty) {
-      _supabaseAnonKey = _envAnon;
       logI('Config', '使用 --dart-define 的 SUPABASE_ANON_KEY');
     }
     

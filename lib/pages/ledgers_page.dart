@@ -128,17 +128,20 @@ class LedgersPage extends ConsumerWidget {
                           },
                         );
 
+                        if (!context.mounted) return;
                         if (action == 'edit') {
                           final res = await _showLedgerEditorDialog(context,
                               title: '编辑账本',
                               initialName: l.name,
                               initialCurrency: l.currency);
+                          if (!context.mounted) return;
                           if (res != null && res.name.trim().isNotEmpty) {
                             final repo = ref.read(repositoryProvider);
                             await repo.updateLedger(
                                 id: l.id,
                                 name: res.name.trim(),
                                 currency: res.currency);
+                            if (!context.mounted) return;
                           }
                         } else if (action == 'delete') {
                           final ok = await AppDialog.confirm<bool>(context,
@@ -146,6 +149,7 @@ class LedgersPage extends ConsumerWidget {
                                   message:
                                       '确定要删除该账本及其全部记录吗？此操作不可恢复。\n若云端存在备份，也会一并删除。') ??
                               false;
+                          if (!context.mounted) return;
                           if (!ok) return;
                           final repo = ref.read(repositoryProvider);
                           final sync = ref.read(syncServiceProvider);
@@ -155,6 +159,7 @@ class LedgersPage extends ConsumerWidget {
                             if (current == l.id) {
                               final allLedgers =
                                   await repo.db.select(repo.db.ledgers).get();
+                              if (!context.mounted) return;
                               final remainAfterDelete = allLedgers.where((ledger) => ledger.id != l.id).toList();
                               int newId = 1;
                               if (remainAfterDelete.isNotEmpty) {
@@ -162,6 +167,7 @@ class LedgersPage extends ConsumerWidget {
                               } else {
                                 // 若全部删除（极端情况），重新种子并取默认账本
                                 await repo.db.ensureSeed();
+                                if (!context.mounted) return;
                                 final list =
                                     await repo.db.select(repo.db.ledgers).get();
                                 newId = list.first.id;
@@ -172,12 +178,14 @@ class LedgersPage extends ConsumerWidget {
                             }
                             // 现在安全删除账本
                             await repo.deleteLedger(l.id);
+                            if (!context.mounted) return;
                             // 删除云端备份（忽略 404）
                             try {
                               await sync.deleteRemoteBackup(ledgerId: l.id);
                             } catch (e) {
                               logW('ledger', '删除云端备份失败（忽略）：$e');
                             }
+                            if (!context.mounted) return;
                             // 刷新统计与同步状态
                             ref.read(statsRefreshProvider.notifier).state++;
                             ref
@@ -228,7 +236,7 @@ class _LedgerCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2),
             )
@@ -240,7 +248,7 @@ class _LedgerCard extends StatelessWidget {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(12),
                     topRight: Radius.circular(12),

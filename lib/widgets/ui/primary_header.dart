@@ -84,7 +84,7 @@ class PrimaryHeader extends ConsumerWidget {
                                   width: 36,
                                   height: 36,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.7),
+                                    color: Colors.white.withValues(alpha: 0.7),
                                     shape: BoxShape.circle,
                                   ),
                                   child:

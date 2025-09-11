@@ -331,8 +331,9 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
   }
 
   Future<void> _startImport() async {
-    // 使用根容器，保证页面被销毁后仍可更新全局进度供“我的”页展示
+    // 使用根容器，保证页面被销毁后仍可更新全局进度供"我的"页展示
     final container = ProviderScope.containerOf(context, listen: false);
+    final currentContext = context;
     setState(() {
       importing = true;
       ok = 0;
@@ -355,7 +356,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
     bool dialogOpen = true;
     // 进度弹窗（可转后台）
     showDialog(
-      context: context,
+      context: currentContext,
       barrierDismissible: false,
       builder: (dctx) {
         return Consumer(builder: (dctx, r, _) {
@@ -387,8 +388,8 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
                   dialogOpen = false;
                   Navigator.of(dctx).pop();
                   // 返回到我的页面继续后台导入
-                  if (context.mounted) {
-                    Navigator.of(context).popUntil((r) => r.isFirst);
+                  if (mounted) {
+                    Navigator.of(currentContext).popUntil((r) => r.isFirst);
                   }
                 },
                 child: const Text('后台导入'),
@@ -561,30 +562,57 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
     // 刷新剩余缓冲
     await flushBatch();
 
-    // 即使页面已被关闭（mounted=false），也要继续更新全局进度供“我的”页展示
-    // 先切换为“完成”以驱动 UI 展示成功动画/提示（不等待云上传）
-    container.read(importProgressProvider.notifier).state = ImportProgress(
-      running: false,
-      total: total,
-      done: done,
-      ok: ok,
-      fail: fail,
-    );
-    // 成功提示 -> 延时清空 -> 刷新统计与同步状态（取消时不处理）
+    // 即使页面已被关闭（mounted=false），也要继续更新全局进度供"我的"页展示
+    // 先切换为"完成"以驱动 UI 展示成功动画/提示（不等待云上传）
+    try {
+      container.read(importProgressProvider.notifier).state = ImportProgress(
+        running: false,
+        total: total,
+        done: done,
+        ok: ok,
+        fail: fail,
+      );
+    } catch (e) {
+    }
+
+    // 延迟清空和刷新（不依赖页面状态，即使页面销毁也要执行）
     if (!_cancelled) {
-      Future<void>.delayed(const Duration(seconds: 3), () {
+      Future<void>.delayed(const Duration(seconds: 5), () {  // 延长到5秒，让用户看到动画
         try {
           container.read(importProgressProvider.notifier).state =
               ImportProgress.empty;
-          // 刷新“我的”页统计（笔数/天数）
+          // 刷新"我的"页统计（笔数/天数）
           container.invalidate(countsForLedgerProvider(ledgerId));
-          // 触发全局统计刷新（用于“我的”页顶部聚合信息）
+          // 触发全局统计刷新（用于"我的"页顶部聚合信息）
           container.read(statsRefreshProvider.notifier).state++;
           // 触发一次同步状态刷新（UI 端会复用缓存避免闪烁）
           container.read(syncStatusRefreshProvider.notifier).state++;
-        } catch (_) {}
+        } catch (e) {
+        }
       });
     }
+
+    // Check if context is still mounted for UI operations
+    if (!context.mounted) {
+      return;
+    }
+    
+    // 显示导入完成提示
+    final cancelledText = _cancelled ? '（已取消）' : '';
+    showToast(context, '导入完成$cancelledText：成功 $ok 条，失败 $fail 条');
+
+    // Handle UI operations before cloud upload
+    if (dialogOpen) {
+      Navigator.of(currentContext).pop();
+    }
+    // 关闭确认页 -> 返回到我的页面
+    Navigator.of(currentContext).popUntil((r) => r.isFirst);
+    // 返回后再显式刷新一次全局统计，确保顶部汇总即时更新
+    try {
+      container
+          .read(statsRefreshProvider.notifier)
+          .state++;
+    } catch (_) {}
 
     // 导入完成后，云上传改为后台并行执行，不阻塞 UI
     () async {
@@ -595,21 +623,6 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
         container.read(syncStatusRefreshProvider.notifier).state++;
       } catch (_) {}
     }();
-    if (dialogOpen && context.mounted) {
-      Navigator.of(context).pop();
-    }
-    if (context.mounted) {
-      final cancelledText = _cancelled ? '（已取消）' : '';
-      showToast(context, '导入完成$cancelledText：成功 $ok 条，失败 $fail 条');
-      // 关闭确认页 -> 返回到我的页面
-      Navigator.of(context).popUntil((r) => r.isFirst);
-      // 返回后再显式刷新一次全局统计，确保顶部汇总即时更新
-      try {
-        ProviderScope.containerOf(context, listen: false)
-            .read(statsRefreshProvider.notifier)
-            .state++;
-      } catch (_) {}
-    }
   }
 
   void _buildDistinctCategories() {

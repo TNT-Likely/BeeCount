@@ -191,7 +191,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
+                          color: Colors.black.withValues(alpha: 0.04),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         )
@@ -345,7 +345,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                           try {
                                             await auth.signUpWithEmail(
                                                 email: email, password: pwd);
-                                            if (!mounted) return;
+                                            if (!context.mounted) return;
                                             logI('auth',
                                                 '注册成功，已发送验证邮件：邮箱=$email');
                                             Navigator.of(context)
@@ -365,8 +365,9 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                             setState(() => errorText =
                                                 '$friendlyMsg\n\n调试信息: $detailedMsg');
                                           } finally {
-                                            if (mounted)
+                                            if (mounted) {
                                               setState(() => busy = false);
+                                            }
                                           }
                                         },
                                   child: busy
@@ -407,7 +408,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                           try {
                                             await auth.signInWithEmail(
                                                 email: email, password: pwd);
-                                            if (!mounted) return;
+                                            if (!context.mounted) return;
                                             logI('auth', '登录成功：邮箱=$email');
                                             ref
                                                 .read(syncStatusRefreshProvider
@@ -419,18 +420,17 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                                     restoreCheckRequestProvider
                                                         .notifier)
                                                 .state = true;
-                                            // 直接切到“我的”页并关闭登录页
-                                            if (mounted) {
-                                              ref
-                                                  .read(bottomTabIndexProvider
-                                                      .notifier)
-                                                  .state = 3; // Mine tab index
-                                              final can = Navigator.of(context)
-                                                  .canPop();
-                                              logI('nav',
-                                                  'login: success -> switch tab to Mine, canPop=$can; pop login');
-                                              if (can)
-                                                Navigator.of(context).pop();
+                                            // 直接切到"我的"页并关闭登录页
+                                            ref
+                                                .read(bottomTabIndexProvider
+                                                    .notifier)
+                                                .state = 3; // Mine tab index
+                                            final can = Navigator.of(context)
+                                                .canPop();
+                                            logI('nav',
+                                                'login: success -> switch tab to Mine, canPop=$can; pop login');
+                                            if (can) {
+                                              Navigator.of(context).pop();
                                             }
                                           } catch (e, st) {
                                             final msg = friendlyAuthError(e);
@@ -442,8 +442,9 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                                 st);
                                             setState(() => errorText = '$msg\n\n调试信息: $detailedMsg');
                                           } finally {
-                                            if (mounted)
+                                            if (mounted) {
                                               setState(() => busy = false);
+                                            }
                                           }
                                         },
                                   child: busy
@@ -479,18 +480,19 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                       try {
                                         await auth.resendEmailVerification(
                                             email: email);
-                                        if (!mounted) return;
+                                        if (!context.mounted) return;
                                         showToast(context, '验证邮件已重新发送。');
                                         setState(() => infoText = '验证邮件已重新发送。');
                                       } catch (e) {
                                         final msg = friendlyActionError(e,
                                             action: '重发验证');
-                                        if (!mounted) return;
+                                        if (!context.mounted) return;
                                         showToast(context, msg);
                                         setState(() => errorText = msg);
                                       } finally {
-                                        if (mounted)
+                                        if (mounted) {
                                           setState(() => busy = false);
+                                        }
                                       }
                                     },
                               child: const Text('重发验证邮件'),

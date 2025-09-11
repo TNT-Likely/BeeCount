@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // wheel_date_picker exported via ui barrel
@@ -358,8 +357,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                             final setter =
                                 ref.read(analyticsHintsSetterProvider);
                             await setter.dismissChart();
-                            if (mounted)
+                            if (mounted) {
                               setState(() => _localChartDismissed = true);
+                            }
                           },
                           whiteBg: true,
                           showGrid: false,
@@ -383,8 +383,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                                 final setter =
                                     ref.read(analyticsHintsSetterProvider);
                                 await setter.dismissHeader();
-                                if (mounted)
+                                if (mounted) {
                                   setState(() => _localHeaderDismissed = true);
+                                }
                               },
                               child: Row(
                                 children: [
@@ -749,7 +750,7 @@ class _LinePainter extends CustomPainter {
     // 不显示“最高线”和最高金额，仅绘制平均线（虚线）
     final avgY = yFor(avgV);
     final avgLinePaint = Paint()
-      ..color = BeeColors.secondaryText.withOpacity(0.55)
+      ..color = BeeColors.secondaryText.withValues(alpha: 0.55)
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
     _drawDashedLine(
@@ -1028,7 +1029,7 @@ class _RankRow extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(iconForCategory(name), color: color),
@@ -1065,11 +1066,11 @@ class _RankRow extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: Stack(
                     children: [
-                      Container(height: 6, color: color.withOpacity(0.15)),
+                      Container(height: 6, color: color.withValues(alpha: 0.15)),
                       FractionallySizedBox(
                         widthFactor: percent.clamp(0, 1),
                         child:
-                            Container(height: 6, color: color.withOpacity(0.9)),
+                            Container(height: 6, color: color.withValues(alpha: 0.9)),
                       ),
                     ],
                   ),

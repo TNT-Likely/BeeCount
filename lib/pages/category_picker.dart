@@ -174,8 +174,9 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
           // 刷新：账本笔数与全局统计
           ref.invalidate(countsForLedgerProvider(ledgerId));
           ref.read(statsRefreshProvider.notifier).state++;
-          if (Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
-          if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+          if (!mounted) return;
+          if (ctx.mounted && Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
+          if (context.mounted && Navigator.of(context).canPop()) Navigator.of(context).pop();
           // 反馈：轻微触感 + 系统点击音
           HapticFeedback.lightImpact();
           SystemSound.play(SystemSoundType.click);

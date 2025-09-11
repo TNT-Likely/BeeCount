@@ -28,11 +28,12 @@ class _BeeAppState extends ConsumerState<BeeApp> {
   Widget build(BuildContext context) {
     // 将 4 个页面映射到 5 槽位（中间为“+”）：页面索引 0,1,2,3 对应视觉槽位 0,1,3,4（槽位 2 为 +）。
     final idx = ref.watch(bottomTabIndexProvider);
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
         // 拦截根路由的返回键，避免意外将根路由 pop 到空导致黑屏。
-        // 若需要支持“再次返回退出应用”，可在此实现双击退出逻辑。
-        return false;
+        // 若需要支持"再次返回退出应用"，可在此实现双击退出逻辑。
+        // didPop will be false since canPop is false
       },
       child: Scaffold(
         body: IndexedStack(

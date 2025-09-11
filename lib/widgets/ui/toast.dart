@@ -5,9 +5,9 @@ void showToast(BuildContext context, String message,
     {Duration duration = const Duration(seconds: 2)}) {
   final overlay = Overlay.of(context, rootOverlay: true);
   final entry = OverlayEntry(
-    builder: (ctx) => IgnorePointer(
-      ignoring: true,
-      child: Positioned.fill(
+    builder: (ctx) => Positioned.fill(
+      child: IgnorePointer(
+        ignoring: true,
         child: SafeArea(
           child: Center(
             child: Material(
@@ -17,7 +17,7 @@ void showToast(BuildContext context, String message,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.85),
+                  color: Colors.black.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(

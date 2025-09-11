@@ -200,10 +200,12 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                         // 调整日期以符合边界
                         final dim = _daysInMonth(year, month).last;
                         int sd = 1, ed = dim;
-                        if (year == min.year && month == min.month)
+                        if (year == min.year && month == min.month) {
                           sd = min.day;
-                        if (year == max.year && month == max.month)
+                        }
+                        if (year == max.year && month == max.month) {
                           ed = max.day;
+                        }
                         if (day < sd) day = sd;
                         if (day > ed) day = ed;
                         // 同步日期滚动位置
