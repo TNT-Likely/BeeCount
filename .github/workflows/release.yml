@@ -52,6 +52,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Prepare release metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          IS_TAG="false"
+          TAG_NAME=""
+          if [[ "${GITHUB_REF:-}" == refs/tags/* ]]; then
+            IS_TAG="true"
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+          fi
+          if [[ -z "$TAG_NAME" ]]; then
+            INPUT_TAG="${{ github.event.inputs.tag_name || '' }}"
+            if [[ -n "$INPUT_TAG" ]]; then
+              TAG_NAME="$INPUT_TAG"
+            else
+              SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+              TAG_NAME="manual-${SHORT_SHA}"
+            fi
+          fi
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
 
       - name: Setup Java 17
         uses: actions/setup-java@v4
@@ -118,6 +143,8 @@ jobs:
           export CI_VERSION='${{ steps.meta.outputs.tag_name }}'
           export GIT_COMMIT='${{ github.sha }}'
           export BUILD_TIME='${{ github.run_id }}'
+          echo "Debug: CI_VERSION=$CI_VERSION"
+          echo "Debug: TAG_NAME=${{ steps.meta.outputs.tag_name }}"
           flutter build apk --release --flavor prod \
             --dart-define=SUPABASE_URL="$SUPABASE_URL" \
             --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
@@ -385,25 +412,16 @@ jobs:
           TAG="${{ steps.meta.outputs.tag_name }}"
           IS_TAG="${{ steps.meta.outputs.is_tag }}"
           
-          # 获取上一个发布tag（排除当前tag如果存在）
-          if [ "$IS_TAG" = "true" ] && git rev-parse --verify "$TAG" >/dev/null 2>&1; then
-            # 如果当前是真实tag，获取它之前的tag
-            PREV_TAG=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || git describe --tags --abbrev=0 --exclude="$TAG" 2>/dev/null || echo "")
-            RANGE="$PREV_TAG..$TAG"
-          else
-            # 如果是手动触发或tag不存在，从最新tag到HEAD
-            PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-            RANGE="$PREV_TAG..HEAD"
-          fi
+          # 获取上一个 tag（不含当前 tag）
+          PREV_TAG=$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || echo "")
           
-          echo "生成release notes: 范围从 '$PREV_TAG' 到 '$([ "$IS_TAG" = "true" ] && echo "$TAG" || echo "HEAD")'"
+          echo "生成release notes: 范围从 '$PREV_TAG' 到 '$TAG'"
           
           # 生成 commit 列表（排除 merge commit）
           if [ -n "$PREV_TAG" ]; then
-            COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))" "$RANGE")
+            COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))" "$PREV_TAG".."$TAG")
           else
-            echo "警告: 没有找到上一个tag，显示最近10个提交"
-            COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))" -n 10)
+            COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))")
           fi
           
           {
