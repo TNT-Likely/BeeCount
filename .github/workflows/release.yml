@@ -410,29 +410,20 @@ jobs:
         id: notes
         run: |
           TAG="${{ steps.meta.outputs.tag_name }}"
-          IS_TAG="${{ steps.meta.outputs.is_tag }}"
-          
           # 获取上一个 tag（不含当前 tag）
           PREV_TAG=$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || echo "")
-          
-          echo "生成release notes: 范围从 '$PREV_TAG' 到 '$TAG'"
-          
           # 生成 commit 列表（排除 merge commit）
           if [ -n "$PREV_TAG" ]; then
             COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))" "$PREV_TAG".."$TAG")
           else
             COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))")
           fi
-          
-          {
-            echo "## 变更记录"
-            if [ -n "$PREV_TAG" ]; then
-              echo ""
-              echo "**发布范围**: \`$PREV_TAG\` → \`$([ "$IS_TAG" = "true" ] && echo "$TAG" || echo "HEAD")\`"
-              echo ""
-            fi
-            echo "$COMMITS"
-          } > RELEASE_NOTES.md
+          cat > RELEASE_NOTES.md <<'EOF'
+
+          ## 变更记录
+          $COMMITS
+
+          EOF
           echo "notes_file=RELEASE_NOTES.md" >> $GITHUB_OUTPUT
 
       - name: Create Release
