@@ -30,9 +30,25 @@ env:
   FLUTTER_VERSION: "3.27.3"
 
 jobs:
+  check-branch:
+    name: Check if main branch
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Check branch
+        run: |
+          if [ "${{ github.ref_name }}" != "main" ]; then
+            echo "❌ Release workflow can only be triggered from main branch"
+            echo "Current branch: ${{ github.ref_name }}"
+            exit 1
+          fi
+          echo "✅ Branch check passed: ${{ github.ref_name }}"
+
   android:
     name: Android (APK + AAB)
     runs-on: ubuntu-latest
+    needs: [check-branch]
+    if: always() && (needs.check-branch.result == 'success' || github.event_name == 'push')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -161,6 +177,8 @@ jobs:
   ios:
     name: iOS (app.zip + unsigned .ipa)
     runs-on: macos-latest
+    needs: [check-branch]
+    if: always() && (needs.check-branch.result == 'success' || github.event_name == 'push')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -284,8 +302,10 @@ jobs:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     needs:
+      - check-branch
       - android
       - ios
+    if: always() && (needs.check-branch.result == 'success' || github.event_name == 'push') && needs.android.result == 'success' && needs.ios.result == 'success'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
