@@ -416,8 +416,8 @@ jobs:
           echo "Previous tag: $PREV_TAG"
           # 生成 commit 列表（排除 merge commit）
           if [ -n "$PREV_TAG" ]; then
-            echo "Generating commit log from $PREV_TAG to $TAG"
-            COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))" "$PREV_TAG".."$TAG")
+            echo "Generating commit log from $PREV_TAG to HEAD"
+            COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))" "$PREV_TAG"..HEAD)
           else
             echo "No previous tag found, showing all commits"
             COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))")
