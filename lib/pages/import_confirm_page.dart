@@ -572,12 +572,12 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
         ok: ok,
         fail: fail,
       );
-    } catch (e) {
-    }
+    } catch (e) {}
 
     // 延迟清空和刷新（不依赖页面状态，即使页面销毁也要执行）
     if (!_cancelled) {
-      Future<void>.delayed(const Duration(seconds: 5), () {  // 延长到5秒，让用户看到动画
+      Future<void>.delayed(const Duration(seconds: 5), () {
+        // 延长到5秒，让用户看到动画
         try {
           container.read(importProgressProvider.notifier).state =
               ImportProgress.empty;
@@ -587,8 +587,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
           container.read(statsRefreshProvider.notifier).state++;
           // 触发一次同步状态刷新（UI 端会复用缓存避免闪烁）
           container.read(syncStatusRefreshProvider.notifier).state++;
-        } catch (e) {
-        }
+        } catch (e) {}
       });
     }
 
@@ -596,7 +595,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
     if (!context.mounted) {
       return;
     }
-    
+
     // 显示导入完成提示
     final cancelledText = _cancelled ? '（已取消）' : '';
     showToast(context, '导入完成$cancelledText：成功 $ok 条，失败 $fail 条');
@@ -609,9 +608,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
     Navigator.of(currentContext).popUntil((r) => r.isFirst);
     // 返回后再显式刷新一次全局统计，确保顶部汇总即时更新
     try {
-      container
-          .read(statsRefreshProvider.notifier)
-          .state++;
+      container.read(statsRefreshProvider.notifier).state++;
     } catch (_) {}
 
     // 导入完成后，云上传改为后台并行执行，不阻塞 UI
@@ -662,11 +659,38 @@ List<List<String>> _parseRows(String input) {
     text = text.substring(1);
   }
 
-  final lines =
-      text.split('\n').map((l) => l).where((l) => l.trim().isNotEmpty).toList();
+  final lines = text
+      .split('\n')
+      .where((l) => l.trim().isNotEmpty)
+      .toList(growable: false);
+  if (lines.isEmpty) return const [];
 
-  // 按行解析，行内严格以逗号分隔，并处理成对双引号与外围空白/引号
-  return lines.map(_splitCsvLine).toList();
+  // 1. 先尝试自动检测常规分隔符（逗号/制表符/分号/竖线）
+  final delimiter = _detectDelimiter(lines);
+
+  List<List<String>> parsed;
+  if (delimiter == 'space') {
+    parsed = lines.map((l) => _splitSpaceSeparatedLine(l)).toList();
+  } else {
+    parsed = lines.map((l) => _splitDelimitedLine(l, delimiter)).toList();
+  }
+
+  // 2. 如果仍然全部只有 1 列（说明可能不是上述分隔符），且文本出现了连续双空格/制表符，再次尝试空白分隔
+  final multiColumn = parsed.any((r) => r.length > 1);
+  if (!multiColumn) {
+    final hasMultiSpaces = RegExp(r' {2,}').hasMatch(text);
+    final hasTab = text.contains('\t');
+    if (hasTab) {
+      final tabParsed = lines.map((l) => _splitDelimitedLine(l, '\t')).toList();
+      if (tabParsed.any((r) => r.length > 1)) return tabParsed;
+    }
+    if (hasMultiSpaces) {
+      final spaceParsed = lines.map(_splitSpaceSeparatedLine).toList();
+      if (spaceParsed.any((r) => r.length > 1)) return spaceParsed;
+    }
+  }
+
+  return parsed;
 }
 
 // isolate 入口函数：在后台解析 CSV 文本
@@ -674,36 +698,118 @@ List<List<String>> _parseRowsIsolate(String input) {
   return _parseRows(input);
 }
 
-// 将一行按逗号拆分，支持成对双引号包裹字段；会移除外围双引号与多余空格。
-List<String> _splitCsvLine(String line) {
-  final fields = <String>[];
+// 自动检测首若干行的分隔符（不进入引号内部）：优先级：逗号 > 制表符 > 分号 > 竖线；都没有再考虑空格
+String _detectDelimiter(List<String> lines) {
+  final maxLines = lines.length < 20 ? lines.length : 20;
+  final counts = <String, int>{',': 0, '\t': 0, ';': 0, '|': 0};
+  for (int i = 0; i < maxLines; i++) {
+    final l = lines[i];
+    bool inQuotes = false;
+    for (int j = 0; j < l.length; j++) {
+      final ch = l[j];
+      if (ch == '"') {
+        if (inQuotes && j + 1 < l.length && l[j + 1] == '"') {
+          j++; // 跳过转义
+          continue;
+        }
+        inQuotes = !inQuotes;
+        continue;
+      }
+      if (!inQuotes) {
+        if (counts.containsKey(ch)) counts[ch] = counts[ch]! + 1;
+      }
+    }
+  }
+  // 选择出现次数最多的分隔符（>0）
+  String? best;
+  int bestCount = 0;
+  counts.forEach((k, v) {
+    if (v > bestCount) {
+      best = k;
+      bestCount = v;
+    }
+  });
+  if (best != null && bestCount > 0) return best!;
+  // 检查是否存在连续多空格用于分隔
+  final hasMultiSpaces =
+      lines.take(maxLines).any((l) => RegExp(r' {2,}').hasMatch(l));
+  if (hasMultiSpaces) return 'space';
+  // 默认回退逗号（保持与以前行为兼容）
+  return ',';
+}
+
+// 拆分一行：适用于明确单字符分隔符（逗号/制表符/分号/竖线），支持双引号转义
+List<String> _splitDelimitedLine(String line, String delimiter) {
+  final out = <String>[];
   final buf = StringBuffer();
   bool inQuotes = false;
   for (int i = 0; i < line.length; i++) {
     final ch = line[i];
     if (ch == '"') {
-      if (inQuotes) {
-        // 处理转义的双引号 "" -> "
-        if (i + 1 < line.length && line[i + 1] == '"') {
-          buf.write('"');
-          i++; // 跳过转义的第二个引号
-        } else {
-          inQuotes = false; // 结束引号段
-        }
+      if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
+        buf.write('"');
+        i++;
       } else {
-        inQuotes = true; // 开始引号段
+        inQuotes = !inQuotes;
       }
       continue;
     }
-    if (ch == ',' && !inQuotes) {
-      fields.add(_cleanCsvField(buf.toString()));
+    if (!inQuotes && ch == delimiter) {
+      out.add(_cleanCsvField(buf.toString()));
       buf.clear();
       continue;
     }
     buf.write(ch);
   }
-  fields.add(_cleanCsvField(buf.toString()));
-  return fields;
+  out.add(_cleanCsvField(buf.toString()));
+  return out;
+}
+
+// 空格（或多个空格）分隔的行拆分：忽略引号内空格；多个连续空格视为一个分隔
+List<String> _splitSpaceSeparatedLine(String line) {
+  final out = <String>[];
+  final buf = StringBuffer();
+  bool inQuotes = false;
+  int spaceRun = 0;
+  void pushBuf() {
+    out.add(_cleanCsvField(buf.toString()));
+    buf.clear();
+  }
+
+  for (int i = 0; i < line.length; i++) {
+    final ch = line[i];
+    if (ch == '"') {
+      if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
+        buf.write('"');
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      spaceRun = 0;
+      continue;
+    }
+    if (!inQuotes && ch == ' ') {
+      spaceRun++;
+      if (spaceRun == 1) {
+        // 先标记一次空格，等待看是否为分隔符（需要 >=1 且前面已有内容）
+      }
+      continue;
+    }
+    // 碰到非空格字符
+    if (!inQuotes && spaceRun > 0) {
+      // 之前累积的空格作为分隔符（忽略行首空格）
+      if (buf.isNotEmpty) {
+        pushBuf();
+      }
+      spaceRun = 0;
+    }
+    buf.write(ch);
+  }
+  // 行尾 push
+  if (buf.isNotEmpty) {
+    pushBuf();
+  }
+  return out;
 }
 
 String _cleanCsvField(String raw) {
