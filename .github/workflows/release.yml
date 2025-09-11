@@ -411,11 +411,15 @@ jobs:
         run: |
           TAG="${{ steps.meta.outputs.tag_name }}"
           # 获取上一个 tag（不含当前 tag）
-          PREV_TAG=$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || echo "")
+          PREV_TAG=$(git tag --list --sort=-version:refname | grep -v "^${TAG}$" | head -n1)
+          echo "Current tag: $TAG"
+          echo "Previous tag: $PREV_TAG"
           # 生成 commit 列表（排除 merge commit）
           if [ -n "$PREV_TAG" ]; then
+            echo "Generating commit log from $PREV_TAG to $TAG"
             COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))" "$PREV_TAG".."$TAG")
           else
+            echo "No previous tag found, showing all commits"
             COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))")
           fi
           cat > RELEASE_NOTES.md <<EOF
