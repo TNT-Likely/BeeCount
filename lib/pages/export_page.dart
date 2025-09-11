@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -39,7 +42,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                   FilledButton.icon(
                     onPressed: exporting ? null : () => _export(repo, ledgerId),
                     icon: const Icon(Icons.save_alt_outlined),
-                    label: const Text('选择文件夹并导出'),
+                    label: Text(Platform.isIOS ? '导出并分享 (iOS)' : '选择文件夹并导出'),
                   ),
                   const SizedBox(height: 16),
                   if (exporting)
@@ -77,12 +80,21 @@ class _ExportPageState extends ConsumerState<ExportPage> {
         progress = 0;
         savedPath = null;
       });
-      String? directory = await FilePicker.platform.getDirectoryPath(
-        dialogTitle: '选择导出文件夹',
-      );
-      if (directory == null) {
-        setState(() => exporting = false);
-        return;
+      String? directory;
+      bool shareAfter = false;
+      if (Platform.isIOS) {
+        // iOS: 写入应用文档目录，然后使用系统分享，不使用 getDirectoryPath（iOS 不支持）
+        final docDir = await getApplicationDocumentsDirectory();
+        directory = docDir.path;
+        shareAfter = true;
+      } else {
+        directory = await FilePicker.platform.getDirectoryPath(
+          dialogTitle: '选择导出文件夹',
+        );
+        if (directory == null) {
+          setState(() => exporting = false);
+          return;
+        }
       }
 
       final q = (repo.db.select(repo.db.transactions)
@@ -120,7 +132,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
 
       final csvStr = const ListToCsvConverter(eol: '\n').convert(rows);
       final ts = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-      final path = '$directory/beecount_$ts.csv';
+      final path = p.join(directory, 'beecount_$ts.csv');
       await File(path).writeAsString(csvStr);
       setState(() {
         savedPath = path;
@@ -128,7 +140,14 @@ class _ExportPageState extends ConsumerState<ExportPage> {
         progress = 1;
       });
       if (!mounted) return;
-      await AppDialog.info(context, title: '导出成功', message: '已保存到：\n$path');
+      if (shareAfter) {
+        // 触发分享面板
+        await Share.shareXFiles([XFile(path)], text: 'BeeCount 导出文件');
+        await AppDialog.info(context,
+            title: '导出成功', message: '已保存并可在分享历史中找到：\n$path');
+      } else {
+        await AppDialog.info(context, title: '导出成功', message: '已保存到：\n$path');
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() => exporting = false);

@@ -44,8 +44,6 @@
       "type": "dart",
       "flutterMode": "debug",
       "args": [
-        "-d",
-        "ios",
         "--dart-define-from-file=assets/config.json"
       ]
     }
