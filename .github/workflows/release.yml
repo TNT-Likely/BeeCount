@@ -418,7 +418,7 @@ jobs:
           else
             COMMITS=$(git log --no-merges --pretty=format:"- %s ([%h](https://github.com/${GITHUB_REPOSITORY}/commit/%H))")
           fi
-          cat > RELEASE_NOTES.md <<'EOF'
+          cat > RELEASE_NOTES.md <<EOF
 
           ## 变更记录
           $COMMITS
