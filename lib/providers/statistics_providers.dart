@@ -39,3 +39,14 @@ final countsAllProvider =
   ref.read(lastCountsAllProvider.notifier).state = res;
   return res;
 });
+
+// 统计：当前账本总余额
+final currentBalanceProvider =
+    FutureProvider.family.autoDispose<double, int>((ref, ledgerId) async {
+  final repo = ref.watch(repositoryProvider);
+  // 依赖 tick 触发刷新
+  ref.watch(statsRefreshProvider);
+  final link = ref.keepAlive();
+  ref.onDispose(() => link.close());
+  return repo.getCurrentBalance(ledgerId: ledgerId);
+});

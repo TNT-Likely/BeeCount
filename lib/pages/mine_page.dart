@@ -107,47 +107,52 @@ class MinePage extends ConsumerWidget {
                           ),
                           const SizedBox(height: 5), // 标语与统计区间距增大
                           Builder(builder: (ctx) {
-                            final lCount = ref.watch(ledgerCountProvider);
-                            final countsAsync = ref.watch(countsAllProvider);
-                            final countsCached =
-                                ref.watch(lastCountsAllProvider);
-                            final day = countsAsync.asData?.value.dayCount ??
-                                (countsCached?.dayCount ?? 0);
-                            final tx = countsAsync.asData?.value.txCount ??
-                                (countsCached?.txCount ?? 0);
-                            final data = (
-                              ledgerCount: lCount.asData?.value ?? 1,
-                              dayCount: day,
-                              txCount: tx,
-                            );
+                            // 获取当前账本信息
+                            final currentLedgerId =
+                                ref.watch(currentLedgerIdProvider);
+                            final countsAsync = ref.watch(
+                                countsForLedgerProvider(currentLedgerId));
+                            final balanceAsync = ref
+                                .watch(currentBalanceProvider(currentLedgerId));
+
+                            final day = countsAsync.asData?.value.dayCount ?? 0;
+                            final tx = countsAsync.asData?.value.txCount ?? 0;
+                            final balance = balanceAsync.asData?.value ?? 0.0;
+
                             final labelStyle = Theme.of(context)
                                 .textTheme
                                 .labelMedium
                                 ?.copyWith(color: BeeColors.black54);
-                            // 需求：统计数字与左侧“我的”标题字号/字重保持一致，取消更粗/更大
+                            // 需求：统计数字与左侧"我的"标题字号/字重保持一致，取消更粗/更大
                             final numStyle = AppTextTokens.strongTitle(context)
                                 .copyWith(
                                     fontSize: 20, color: BeeColors.primaryText);
-                            return Row(children: [
-                              Expanded(
-                                  child: _StatCell(
-                                      label: '账本',
-                                      value: data.ledgerCount.toString(),
-                                      labelStyle: labelStyle,
-                                      numStyle: numStyle)),
-                              Expanded(
-                                  child: _StatCell(
-                                      label: '记账天数',
-                                      value: data.dayCount.toString(),
-                                      labelStyle: labelStyle,
-                                      numStyle: numStyle)),
-                              Expanded(
-                                  child: _StatCell(
-                                      label: '总笔数',
-                                      value: data.txCount.toString(),
-                                      labelStyle: labelStyle,
-                                      numStyle: numStyle)),
-                            ]);
+                            return IntrinsicHeight(
+                              child: Row(children: [
+                                Expanded(
+                                    child: _StatCell(
+                                        label: '记账天数',
+                                        value: day.toString(),
+                                        labelStyle: labelStyle,
+                                        numStyle: numStyle)),
+                                Expanded(
+                                    child: _StatCell(
+                                        label: '总笔数',
+                                        value: tx.toString(),
+                                        labelStyle: labelStyle,
+                                        numStyle: numStyle)),
+                                Expanded(
+                                    child: _StatCell(
+                                        label: '当前余额',
+                                        value: _formatBalance(balance),
+                                        labelStyle: labelStyle,
+                                        numStyle: numStyle.copyWith(
+                                          color: balance >= 0
+                                              ? BeeColors.primaryText
+                                              : Colors.red,
+                                        ))),
+                              ]),
+                            );
                           }),
                         ],
                       ),
@@ -953,5 +958,24 @@ Future<bool> _tryOpenUrl(Uri url) async {
   } catch (e) {
     logE('MinePage', '打开URL失败: $url', e);
     return false;
+  }
+}
+
+/// 格式化余额显示，大数字用千、万单位
+String _formatBalance(double balance) {
+  final absBalance = balance.abs();
+  final sign = balance >= 0 ? '¥' : '-¥';
+
+  if (absBalance >= 10000) {
+    // 万元以上显示万单位
+    final wan = absBalance / 10000;
+    return '$sign${wan.toStringAsFixed(1)}万';
+  } else if (absBalance >= 1000) {
+    // 千元以上显示千单位
+    final qian = absBalance / 1000;
+    return '$sign${qian.toStringAsFixed(1)}k';
+  } else {
+    // 千元以下显示原始金额
+    return '$sign${absBalance.toStringAsFixed(2)}';
   }
 }

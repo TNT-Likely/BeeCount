@@ -284,6 +284,23 @@ class BeeRepository {
     return q;
   }
 
+  /// 计算当前账本总余额：收入 - 支出
+  Future<double> getCurrentBalance({required int ledgerId}) async {
+    final rows = await (db.select(db.transactions)
+          ..where((t) => t.ledgerId.equals(ledgerId)))
+        .get();
+    double balance = 0;
+    for (final t in rows) {
+      if (t.type == 'income') {
+        balance += t.amount;
+      } else if (t.type == 'expense') {
+        balance -= t.amount;
+      }
+      // transfer 不影响总余额
+    }
+    return balance;
+  }
+
   Future<int> addTransaction({
     required int ledgerId,
     required String type, // expense / income / transfer
