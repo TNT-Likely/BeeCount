@@ -6,6 +6,7 @@ import '../widgets/ui/ui.dart';
 import '../utils/currencies.dart';
 import '../utils/sync_helpers.dart';
 import '../utils/logger.dart';
+import '../utils/format_utils.dart';
 
 class LedgersPage extends ConsumerWidget {
   const LedgersPage({super.key});
@@ -278,6 +279,9 @@ class _LedgerCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   // 显示该账本的总笔数
                   _LedgerTxCount(ledgerId: ledger.id),
+                  const SizedBox(height: 2),
+                  // 显示该账本的余额
+                  _LedgerBalance(ledgerId: ledger.id),
                 ],
               ),
             )
@@ -299,6 +303,33 @@ class _LedgerTxCount extends ConsumerWidget {
     return Text(
       '笔数：${n ?? '…'}',
       style: Theme.of(context).textTheme.bodySmall,
+    );
+  }
+}
+
+class _LedgerBalance extends ConsumerWidget {
+  final int ledgerId;
+  const _LedgerBalance({required this.ledgerId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final balanceAsync = ref.watch(currentBalanceProvider(ledgerId));
+    final balance = balanceAsync.asData?.value;
+    
+    if (balance == null) {
+      return Text(
+        '余额：…',
+        style: Theme.of(context).textTheme.bodySmall,
+      );
+    }
+    
+    return Text(
+      '余额：${formatBalance(balance)}',
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: balance >= 0 
+          ? Theme.of(context).textTheme.bodySmall?.color
+          : Colors.red,
+      ),
     );
   }
 }

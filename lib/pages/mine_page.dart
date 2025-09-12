@@ -24,6 +24,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 import 'dart:io' show Platform;
+import '../utils/format_utils.dart';
 
 class MinePage extends ConsumerWidget {
   const MinePage({super.key});
@@ -144,7 +145,7 @@ class MinePage extends ConsumerWidget {
                                 Expanded(
                                     child: _StatCell(
                                         label: '当前余额',
-                                        value: _formatBalance(balance),
+                                        value: formatBalance(balance),
                                         labelStyle: labelStyle,
                                         numStyle: numStyle.copyWith(
                                           color: balance >= 0
@@ -958,24 +959,5 @@ Future<bool> _tryOpenUrl(Uri url) async {
   } catch (e) {
     logE('MinePage', '打开URL失败: $url', e);
     return false;
-  }
-}
-
-/// 格式化余额显示，大数字用千、万单位
-String _formatBalance(double balance) {
-  final absBalance = balance.abs();
-  final sign = balance >= 0 ? '¥' : '-¥';
-
-  if (absBalance >= 10000) {
-    // 万元以上显示万单位
-    final wan = absBalance / 10000;
-    return '$sign${wan.toStringAsFixed(1)}万';
-  } else if (absBalance >= 1000) {
-    // 千元以上显示千单位
-    final qian = absBalance / 1000;
-    return '$sign${qian.toStringAsFixed(1)}k';
-  } else {
-    // 千元以下显示原始金额
-    return '$sign${absBalance.toStringAsFixed(2)}';
   }
 }
