@@ -6,6 +6,7 @@ import 'app.dart';
 import 'theme.dart';
 import 'providers.dart';
 import 'styles/colors.dart';
+import 'providers/font_scale_provider.dart';
 import 'config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as s;
 import 'utils/route_logger.dart';
@@ -41,7 +42,8 @@ class MainApp extends ConsumerWidget {
     // 启动时激活应用初始化（包含：恢复当前账本选择、监听账本切换等）
     ref.watch(appInitProvider);
     final primary = ref.watch(primaryColorProvider);
-    final base = BeeTheme.lightTheme();
+    final platform = Theme.of(context).platform; // 当前平台
+    final base = BeeTheme.lightTheme(platform: platform);
     final theme = base.copyWith(
       colorScheme: base.colorScheme.copyWith(primary: primary),
       primaryColor: primary,
@@ -89,33 +91,47 @@ class MainApp extends ConsumerWidget {
         margin: EdgeInsets.zero,
       ),
     );
-    return MaterialApp(
-      title: '蜜蜂记账',
-      scrollBehavior: const NoGlowScrollBehavior(),
-      debugShowCheckedModeBanner: false,
-      theme: theme,
-      darkTheme: BeeTheme.darkTheme(),
-      navigatorObservers: [LoggingNavigatorObserver()],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('zh', 'CN'),
-        Locale('en', 'US'),
-      ],
-      // 显式命名根路由，便于路由日志与 popUntil 精确识别
-      home: const BeeApp(),
-      onGenerateRoute: (settings) {
-        if (settings.name == Navigator.defaultRouteName ||
-            settings.name == '/') {
-          return MaterialPageRoute(
-              builder: (_) => const BeeApp(),
-              settings: const RouteSettings(name: '/'));
-        }
-        return null;
-      },
+    // Clamp 系统字体缩放，避免部分设备设置 1.5+ 造成 UI 溢出
+    final media = MediaQuery.of(context);
+    // init font scale persistence
+    ref.watch(fontScaleInitProvider);
+    final customScale = ref.watch(effectiveFontScaleProvider);
+    final clamped = media.textScaler.clamp(
+      minScaleFactor: 0.85,
+      maxScaleFactor: 1.15,
+    );
+    final combinedScale = clamped.scale(customScale); // returns double
+    final newScaler = TextScaler.linear(combinedScale);
+    return MediaQuery(
+      data: media.copyWith(textScaler: newScaler),
+      child: MaterialApp(
+        title: '蜜蜂记账',
+        scrollBehavior: const NoGlowScrollBehavior(),
+        debugShowCheckedModeBanner: false,
+        theme: theme,
+        darkTheme: BeeTheme.darkTheme(),
+        navigatorObservers: [LoggingNavigatorObserver()],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('zh', 'CN'),
+          Locale('en', 'US'),
+        ],
+        // 显式命名根路由，便于路由日志与 popUntil 精确识别
+        home: const BeeApp(),
+        onGenerateRoute: (settings) {
+          if (settings.name == Navigator.defaultRouteName ||
+              settings.name == '/') {
+            return MaterialPageRoute(
+                builder: (_) => const BeeApp(),
+                settings: const RouteSettings(name: '/'));
+          }
+          return null;
+        },
+      ),
     );
   }
 }

@@ -22,8 +22,8 @@ class AppListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final titleStyle =
-        AppTextTokens.title(context).copyWith(color: BeeColors.primaryText);
+    final titleStyle = AppTextTokens.title(context)
+        .copyWith(color: BeeColors.primaryText); // 已下调为 400
     final subStyle = AppTextTokens.label(context);
     final tile = Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -34,8 +34,10 @@ class AppListTile extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color:
-                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

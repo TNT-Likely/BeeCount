@@ -37,7 +37,14 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
   void initState() {
     super.initState();
     _date = widget.initialDate;
-    _amountStr = (widget.initialAmount ?? 0).toStringAsFixed(0);
+    // 保留原始小数（最多两位），避免编辑已有记录时小数被截断为整数
+    final init = widget.initialAmount ?? 0;
+    final s = init.toStringAsFixed(2);
+    // 去除多余 0 和结尾的小数点
+    final trimmed = s.contains('.')
+        ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '')
+        : s;
+    _amountStr = trimmed.isEmpty ? '0' : trimmed;
     _noteCtrl.text = widget.initialNote ?? '';
   }
 
@@ -266,11 +273,9 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                           double total = _acc;
                           if (_op == '+') {
                             total += cur;
-                          }
-                          else if (_op == '-') {
+                          } else if (_op == '-') {
                             total -= cur;
-                          }
-                          else {
+                          } else {
                             total = cur;
                           }
                           HapticFeedback.lightImpact();

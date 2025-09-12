@@ -18,6 +18,7 @@ import 'cloud_service_page.dart';
 import '../utils/logger.dart';
 import '../services/restore_service.dart';
 import 'restore_progress_page.dart';
+import 'font_settings_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
@@ -104,7 +105,7 @@ class MinePage extends ConsumerWidget {
                                 ),
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 5), // 标语与统计区间距增大
                           Builder(builder: (ctx) {
                             final lCount = ref.watch(ledgerCountProvider);
                             final countsAsync = ref.watch(countsAllProvider);
@@ -123,13 +124,10 @@ class MinePage extends ConsumerWidget {
                                 .textTheme
                                 .labelMedium
                                 ?.copyWith(color: BeeColors.black54);
-                            final numStyle = Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  color: BeeColors.primaryText,
-                                  fontWeight: FontWeight.w600,
-                                );
+                            // 需求：统计数字与左侧“我的”标题字号/字重保持一致，取消更粗/更大
+                            final numStyle = AppTextTokens.strongTitle(context)
+                                .copyWith(
+                                    fontSize: 20, color: BeeColors.primaryText);
                             return Row(children: [
                               Expanded(
                                   child: _StatCell(
@@ -231,6 +229,21 @@ class MinePage extends ConsumerWidget {
                       await Navigator.of(context).push(
                         MaterialPageRoute(
                             builder: (_) => const PersonalizePage()),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SectionCard(
+                  margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                  child: AppListTile(
+                    leading: Icons.text_fields_outlined,
+                    title: '字体与字号',
+                    subtitle: '微调显示大小',
+                    onTap: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const FontSettingsPage()),
                       );
                     },
                   ),
@@ -690,7 +703,7 @@ class _StatCell extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(value, style: numStyle),
-        const SizedBox(height: 2),
+        const SizedBox(height: 4), // 数字与标签间距增大
         Text(label, style: labelStyle),
       ],
     );

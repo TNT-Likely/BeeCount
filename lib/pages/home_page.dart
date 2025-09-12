@@ -640,10 +640,17 @@ class _HeaderCenterSummary extends ConsumerWidget {
                   textAlign: TextAlign.left,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextTokens.title(context).copyWith(
-                    color: BeeColors.primaryText,
-                    fontSize: 20,
-                  ),
+                  // 使用与月份相同的基准：titleMedium w500 size 20
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: BeeColors.primaryText,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                          ) ??
+                      const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: BeeColors.primaryText,
+                      ),
                 ),
               ],
             );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../styles/colors.dart';
+import '../../styles/design.dart';
 import 'format_money.dart';
 
 class DaySectionHeader extends StatelessWidget {
@@ -31,7 +32,8 @@ class DaySectionHeader extends StatelessWidget {
     final week = weekdayZh(dateText);
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+          horizontal: 12, vertical: AppDimens.listHeaderVertical),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
