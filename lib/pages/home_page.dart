@@ -504,19 +504,28 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                               final subtitle = it.t.note ?? '';
                               final isLastInGroup = rowIndex == list.length - 1;
-                              return GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onLongPress: () async {
-                                  // 注意：AppDialog.confirm 内部已处理 Navigator.pop，
-                                  // 这里不要再传 onCancel/onOk 里调用 pop，避免二次 pop 误退页面。
+                              return Dismissible(
+                                key: Key('tx-${it.t.id}'),
+                                direction: DismissDirection.endToStart,
+                                background: Container(
+                                  alignment: Alignment.centerRight,
+                                  padding: const EdgeInsets.only(right: 16),
+                                  color: Colors.red,
+                                  child: const Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                confirmDismiss: (direction) async {
                                   final ok = await AppDialog.confirm<bool>(
                                         context,
                                         title: '删除确认',
                                         message: '确定要删除这条记账吗？',
                                       ) ??
                                       false;
-                                  if (!context.mounted) return;
-                                  if (!ok) return;
+                                  return ok;
+                                },
+                                onDismissed: (direction) async {
                                   final db = ref.read(databaseProvider);
                                   await (db.delete(db.transactions)
                                         ..where((t) => t.id.equals(it.t.id)))
