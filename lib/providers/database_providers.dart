@@ -59,3 +59,9 @@ final appInitProvider = FutureProvider<void>((ref) async {
   // 读取以激活监听
   ref.read(_ledgerChangeListener);
 });
+
+// 分类Provider
+final categoriesProvider = FutureProvider<List<Category>>((ref) async {
+  final db = ref.watch(databaseProvider);
+  return await db.select(db.categories).get();
+});

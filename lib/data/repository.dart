@@ -626,4 +626,50 @@ class BeeRepository {
             ))
         .toList());
   }
+  
+  // Category CRUD operations
+  Future<int> createCategory({
+    required String name,
+    required String kind,
+    String? icon,
+  }) async {
+    return await db.into(db.categories).insert(
+      CategoriesCompanion.insert(
+        name: name,
+        kind: kind,
+        icon: d.Value(icon),
+      ),
+    );
+  }
+  
+  Future<void> updateCategory(
+    int id, {
+    String? name,
+    String? icon,
+  }) async {
+    await (db.update(db.categories)..where((c) => c.id.equals(id))).write(
+      CategoriesCompanion(
+        name: name != null ? d.Value(name) : const d.Value.absent(),
+        icon: icon != null ? d.Value(icon) : const d.Value.absent(),
+      ),
+    );
+  }
+  
+  Future<void> deleteCategory(int id) async {
+    await (db.delete(db.categories)..where((c) => c.id.equals(id))).go();
+  }
+  
+  Future<int> getTransactionCountByCategory(int categoryId) async {
+    final result = await db.customSelect(
+      'SELECT COUNT(*) AS count FROM transactions WHERE category_id = ?1',
+      variables: [d.Variable.withInt(categoryId)],
+      readsFrom: {db.transactions},
+    ).getSingle();
+    
+    final count = result.data['count'];
+    if (count is int) return count;
+    if (count is BigInt) return count.toInt();
+    if (count is num) return count.toInt();
+    return 0;
+  }
 }
