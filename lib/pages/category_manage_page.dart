@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
+import '../providers/database_providers.dart';
 import '../data/repository.dart';
 import '../widgets/ui/ui.dart';
 import '../data/db.dart' as db;
@@ -30,7 +31,7 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
   
   @override
   Widget build(BuildContext context) {
-    final categoriesAsync = ref.watch(categoriesProvider);
+    final categoriesWithCountAsync = ref.watch(categoriesWithCountProvider);
     
     return Scaffold(
       body: Column(
@@ -54,15 +55,15 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
             ],
           ),
           Expanded(
-            child: categoriesAsync.when(
+            child: categoriesWithCountAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) => Center(child: Text('加载失败: $error')),
-              data: (categories) {
+              data: (categoriesWithCount) {
                 return TabBarView(
                   controller: _tabController,
                   children: [
-                    _CategoryGridView(categories: categories, kind: 'expense'),
-                    _CategoryGridView(categories: categories, kind: 'income'),
+                    _CategoryGridView(categoriesWithCount: categoriesWithCount, kind: 'expense'),
+                    _CategoryGridView(categoriesWithCount: categoriesWithCount, kind: 'income'),
                   ],
                 );
               },
@@ -84,16 +85,17 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
     // 如果有更新，刷新分类列表
     if (result == true) {
       ref.invalidate(categoriesProvider);
+      ref.invalidate(categoriesWithCountProvider);
     }
   }
 }
 
 class _CategoryGridView extends ConsumerWidget {
-  final List<db.Category> categories;
+  final List<({db.Category category, int transactionCount})> categoriesWithCount;
   final String kind;
   
   const _CategoryGridView({
-    required this.categories,
+    required this.categoriesWithCount,
     required this.kind,
   });
   
@@ -103,8 +105,8 @@ class _CategoryGridView extends ConsumerWidget {
     final defaultNames = _getDefaultCategoryNames(kind);
     
     // 只显示自定义分类
-    final customCategories = categories
-        .where((c) => c.kind == kind && !defaultNames.contains(c.name))
+    final customCategories = categoriesWithCount
+        .where((item) => item.category.kind == kind && !defaultNames.contains(item.category.name))
         .toList();
     
     if (customCategories.isEmpty) {
@@ -146,8 +148,11 @@ class _CategoryGridView extends ConsumerWidget {
       ),
       itemCount: customCategories.length,
       itemBuilder: (context, index) {
-        final category = customCategories[index];
-        return _CategoryCard(category: category);
+        final categoryWithCount = customCategories[index];
+        return _CategoryCard(
+          category: categoryWithCount.category,
+          transactionCount: categoryWithCount.transactionCount,
+        );
       },
     );
   }
@@ -170,9 +175,11 @@ class _CategoryGridView extends ConsumerWidget {
 
 class _CategoryCard extends ConsumerWidget {
   final db.Category category;
+  final int transactionCount;
   
   const _CategoryCard({
     required this.category,
+    required this.transactionCount,
   });
   
   @override
@@ -191,6 +198,7 @@ class _CategoryCard extends ConsumerWidget {
         // 如果有更新，刷新分类列表
         if (result == true) {
           ref.invalidate(categoriesProvider);
+          ref.invalidate(categoriesWithCountProvider);
         }
       },
       borderRadius: BorderRadius.circular(12),
@@ -226,6 +234,17 @@ class _CategoryCard extends ConsumerWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
+            if (transactionCount > 0) ...[
+              const SizedBox(height: 2),
+              Text(
+                '$transactionCount笔',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                  fontSize: 10,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ],
         ),
       ),

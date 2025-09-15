@@ -65,3 +65,19 @@ final categoriesProvider = FutureProvider<List<Category>>((ref) async {
   final db = ref.watch(databaseProvider);
   return await db.select(db.categories).get();
 });
+
+// 分类与交易笔数组合Provider
+final categoriesWithCountProvider = FutureProvider<List<({Category category, int transactionCount})>>((ref) async {
+  final repo = ref.watch(repositoryProvider);
+  final db = ref.watch(databaseProvider);
+  
+  final categories = await db.select(db.categories).get();
+  final List<({Category category, int transactionCount})> result = [];
+  
+  for (final category in categories) {
+    final count = await repo.getTransactionCountByCategory(category.id);
+    result.add((category: category, transactionCount: count));
+  }
+  
+  return result;
+});
