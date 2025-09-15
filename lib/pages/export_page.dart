@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
@@ -111,19 +112,30 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       final rowsJoin = await q.get();
       final total = rowsJoin.length;
       final rows = <List<dynamic>>[];
-      rows.add(['时间', '类型', '分类', '金额', '备注']);
+      rows.add(['类型', '分类', '金额', '备注', '时间']);
       for (int i = 0; i < rowsJoin.length; i++) {
         final r = rowsJoin[i];
         final t = r.readTable(repo.db.transactions);
         final c = r.readTableOrNull(repo.db.categories);
-        final timeStr =
-            DateFormat('yyyy-MM-dd HH:mm').format(t.happenedAt.toLocal());
+        // 使用完整的时间格式，包含年份和秒，添加前导空格增加列宽
+        final timeStr = t.happenedAt != null
+            ? () {
+                try {
+                  final localTime = t.happenedAt.toLocal();
+                  // 完整时间格式: YYYY-MM-DD HH:mm:ss，前面添加空格增加列宽
+                  return '  ${localTime.year}-${localTime.month.toString().padLeft(2, '0')}-${localTime.day.toString().padLeft(2, '0')} ${localTime.hour.toString().padLeft(2, '0')}:${localTime.minute.toString().padLeft(2, '0')}:${localTime.second.toString().padLeft(2, '0')}  ';
+                } catch (e) {
+                  return '';
+                }
+              }()
+            : '';
+        final typeStr = _getTypeDisplayName(t.type);
         rows.add([
-          timeStr,
-          t.type,
+          typeStr,
           c?.name ?? '',
           t.amount.toStringAsFixed(2),
-          t.note ?? ''
+          t.note ?? '',
+          timeStr
         ]);
         if (i % 50 == 0) {
           setState(() => progress = (i + 1) / (total == 0 ? 1 : total));
@@ -133,7 +145,10 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       final csvStr = const ListToCsvConverter(eol: '\n').convert(rows);
       final ts = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
       final path = p.join(directory, 'beecount_$ts.csv');
-      await File(path).writeAsString(csvStr);
+      
+      // 添加UTF-8 BOM标记，确保Excel正确识别中文编码
+      const utf8Bom = '\uFEFF';
+      await File(path).writeAsString(utf8Bom + csvStr, encoding: Encoding.getByName('utf-8')!);
       setState(() {
         savedPath = path;
         exporting = false;
@@ -152,6 +167,20 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       if (!mounted) return;
       setState(() => exporting = false);
       await AppDialog.error(context, title: '导出失败', message: '$e');
+    }
+  }
+
+  /// 将英文类型转换为中文显示名称
+  String _getTypeDisplayName(String type) {
+    switch (type) {
+      case 'income':
+        return '收入';
+      case 'expense':
+        return '支出';
+      case 'transfer':
+        return '转账';
+      default:
+        return type; // 兜底返回原始值
     }
   }
 }
