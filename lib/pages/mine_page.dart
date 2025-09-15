@@ -529,9 +529,19 @@ class MinePage extends ConsumerWidget {
                   ref.read(syncStatusRefreshProvider.notifier).state++;
                   ref.read(statsRefreshProvider.notifier).state++;
                 } else {
-                  await ref.read(authServiceProvider).signOut();
-                  ref.read(syncStatusRefreshProvider.notifier).state++;
-                  ref.read(statsRefreshProvider.notifier).state++;
+                  final confirmed = await AppDialog.confirm<bool>(
+                    context,
+                    title: '退出登录',
+                    message: '确定要退出当前账号登录吗？\n退出后将无法使用云同步功能。',
+                    okLabel: '退出',
+                    cancelLabel: '取消',
+                  ) ?? false;
+                  
+                  if (confirmed) {
+                    await ref.read(authServiceProvider).signOut();
+                    ref.read(syncStatusRefreshProvider.notifier).state++;
+                    ref.read(statsRefreshProvider.notifier).state++;
+                  }
                 }
               },
             );

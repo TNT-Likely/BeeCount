@@ -262,7 +262,30 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: StreamBuilder<List<({Transaction t, Category? category})>>(
               stream: repo.transactionsWithCategoryAll(ledgerId: ledgerId),
               builder: (context, snapshot) {
-                final joined = snapshot.data ?? [];
+                // 优先使用缓存数据（如果存在）
+                final cachedTransactions = ref.watch(cachedTransactionsWithCategoryProvider);
+                
+                List<({Transaction t, Category? category})> joined;
+                
+                if (snapshot.hasData) {
+                  // 有 Stream 数据时使用 Stream 数据，清空缓存
+                  joined = snapshot.data ?? [];
+                  if (cachedTransactions != null) {
+                    // 清空缓存，后续使用实时数据
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      ref.read(cachedTransactionsWithCategoryProvider.notifier).state = null;
+                    });
+                  }
+                } else if (cachedTransactions != null) {
+                  // 没有 Stream 数据但有缓存时直接使用缓存
+                  joined = cachedTransactions;
+                } else if (!snapshot.hasError) {
+                  // 无数据且无缓存时显示骨架屏
+                  return _buildTransactionSkeleton();
+                } else {
+                  // 有错误时使用空数据
+                  joined = [];
+                }
                 return FutureBuilder<(double income, double expense)>(
                   future: repo.monthlyTotals(ledgerId: ledgerId, month: month),
                   builder: (context, totalSnap) {
@@ -526,31 +549,25 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   return ok;
                                 },
                                 onDismissed: (direction) async {
+                                  // 删除数据库记录，Stream会自动更新UI
                                   final db = ref.read(databaseProvider);
                                   await (db.delete(db.transactions)
                                         ..where((t) => t.id.equals(it.t.id)))
                                       .go();
+                                  
                                   if (!context.mounted) return;
-                                  final curLedger =
-                                      ref.read(currentLedgerIdProvider);
-                                  Future(() => handleLocalChange(ref,
-                                      ledgerId: curLedger, background: true));
-                                  // 同步刷新：账本笔数与全局统计
-                                  ref.invalidate(
-                                      countsForLedgerProvider(curLedger));
-                                  ref
-                                      .read(statsRefreshProvider.notifier)
-                                      .state++;
-                                  if (!mounted) return;
-                                  setState(() {
-                                    _sortedKeysCache = [];
-                                    _headerHeights.clear();
-                                    _rowHeights.clear();
-                                    _groupEnds.clear();
-                                    _computedGroups = 0;
-                                  });
-                                  if (!context.mounted) return;
-                                  showToast(context, '已删除');
+                                  final curLedger = ref.read(currentLedgerIdProvider);
+                                  
+                                  // 同步刷新统计信息
+                                  ref.invalidate(countsForLedgerProvider(curLedger));
+                                  ref.read(statsRefreshProvider.notifier).state++;
+                                  
+                                  // 后台处理同步
+                                  handleLocalChange(ref, ledgerId: curLedger, background: true);
+                                  
+                                  if (context.mounted) {
+                                    showToast(context, '已删除');
+                                  }
                                 },
                                 child: Column(
                                   children: [
@@ -619,6 +636,80 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
     );
   }
+
+  // 构建交易列表骨架屏
+  Widget _buildTransactionSkeleton() {
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      itemCount: 8, // 显示8个骨架项
+      itemBuilder: (context, index) {
+        return _buildSkeletonItem();
+      },
+    );
+  }
+
+  // 单个骨架项
+  Widget _buildSkeletonItem() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          // 分类图标骨架
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // 文字信息骨架
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 分类名称骨架
+                Container(
+                  height: 16,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // 备注骨架
+                Container(
+                  height: 12,
+                  width: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // 金额骨架
+          Container(
+            height: 20,
+            width: 60,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _HeaderCenterSummary extends ConsumerWidget {
@@ -627,52 +718,80 @@ class _HeaderCenterSummary extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repo = ref.watch(repositoryProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final month = ref.watch(selectedMonthProvider);
-    return FutureBuilder<(double income, double expense)>(
-      future: repo.monthlyTotals(ledgerId: ledgerId, month: month),
-      builder: (context, snap) {
-        final income = (snap.data?.$1) ?? 0.0;
-        final expense = (snap.data?.$2) ?? 0.0;
-        final balance = income - expense;
-        Widget item(String title, double value) => Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    textAlign: TextAlign.left,
-                    style: AppTextTokens.label(context)),
-                const SizedBox(height: 2),
-                Text(
-                  hide ? '****' : formatMoneyCompact(value, maxDecimals: 2),
-                  textAlign: TextAlign.left,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  // 使用与月份相同的基准：titleMedium w500 size 20
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: BeeColors.primaryText,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ) ??
-                      const TextStyle(
+    final params = (ledgerId: ledgerId, month: month);
+    
+    // 触发异步加载（后台更新）
+    ref.watch(monthlyTotalsProvider(params));
+    
+    // 使用缓存值，避免loading闪烁
+    final cachedTotals = ref.watch(lastMonthlyTotalsProvider(params));
+    final (income, expense) = cachedTotals ?? (0.0, 0.0);
+    final balance = income - expense;
+    
+    Widget item(String title, double value) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                textAlign: TextAlign.left,
+                style: AppTextTokens.label(context)),
+            const SizedBox(height: 2),
+            Text(
+              hide ? '****' : formatMoneyCompact(value, maxDecimals: 2),
+              textAlign: TextAlign.left,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              // 使用与月份相同的基准：titleMedium w500 size 20
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: BeeColors.primaryText,
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
-                        color: BeeColors.primaryText,
-                      ),
-                ),
-              ],
-            );
-        return Row(
-          children: [
-            Expanded(child: item('收入', income)),
-            Expanded(child: item('支出', expense)),
-            Expanded(child: item('结余', balance)),
+                      ) ??
+                  const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: BeeColors.primaryText,
+                  ),
+            ),
           ],
         );
-      },
+    return Row(
+      children: [
+        Expanded(child: item('收入', income)),
+        Expanded(child: item('支出', expense)),
+        Expanded(child: item('结余', balance)),
+      ],
     );
   }
+
+  Widget _loadingItem(BuildContext context, String title) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextTokens.label(context)),
+          const SizedBox(height: 2),
+          Container(
+            height: 24,
+            width: 60,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
+      );
+
+  Widget _errorItem(BuildContext context, String title) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextTokens.label(context)),
+          const SizedBox(height: 2),
+          const Text('--', style: TextStyle(fontSize: 20, color: Colors.grey)),
+        ],
+      );
 }
 
 // 顶部插画/卡片装饰，可按需替换为图片资源

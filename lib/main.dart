@@ -10,6 +10,7 @@ import 'providers/font_scale_provider.dart';
 import 'config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as s;
 import 'utils/route_logger.dart';
+import 'pages/splash_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,10 +38,14 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 启动时初始化主题色（本地持久化）
-    ref.watch(primaryColorInitProvider);
-    // 启动时激活应用初始化（包含：恢复当前账本选择、监听账本切换等）
-    ref.watch(appInitProvider);
+    // 检查应用初始化状态
+    final initState = ref.watch(appInitStateProvider);
+    
+    // 如果是启屏状态，启动初始化
+    if (initState == AppInitState.splash) {
+      ref.watch(appSplashInitProvider);
+    }
+    
     final primary = ref.watch(primaryColorProvider);
     final platform = Theme.of(context).platform; // 当前平台
     final base = BeeTheme.lightTheme(platform: platform);
@@ -121,12 +126,12 @@ class MainApp extends ConsumerWidget {
           Locale('en', 'US'),
         ],
         // 显式命名根路由，便于路由日志与 popUntil 精确识别
-        home: const BeeApp(),
+        home: initState == AppInitState.ready ? const BeeApp() : const SplashPage(),
         onGenerateRoute: (settings) {
           if (settings.name == Navigator.defaultRouteName ||
               settings.name == '/') {
             return MaterialPageRoute(
-                builder: (_) => const BeeApp(),
+                builder: (_) => initState == AppInitState.ready ? const BeeApp() : const SplashPage(),
                 settings: const RouteSettings(name: '/'));
           }
           return null;

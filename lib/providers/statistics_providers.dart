@@ -50,3 +50,21 @@ final currentBalanceProvider =
   ref.onDispose(() => link.close());
   return repo.getCurrentBalance(ledgerId: ledgerId);
 });
+
+// 统计：月度汇总最近值（避免loading闪烁）
+final lastMonthlyTotalsProvider = StateProvider.family<(double income, double expense)?, ({int ledgerId, DateTime month})>((ref, params) => null);
+
+// 统计：月度汇总（收入、支出）
+final monthlyTotalsProvider = FutureProvider.family
+    .autoDispose<(double income, double expense), ({int ledgerId, DateTime month})>(
+        (ref, params) async {
+  final repo = ref.watch(repositoryProvider);
+  // 依赖 tick 触发刷新
+  ref.watch(statsRefreshProvider);
+  final link = ref.keepAlive();
+  ref.onDispose(() => link.close());
+  final res = await repo.monthlyTotals(ledgerId: params.ledgerId, month: params.month);
+  // 写入最近一次成功值，供 UI 在刷新期间显示旧值
+  ref.read(lastMonthlyTotalsProvider(params).notifier).state = res;
+  return res;
+});
