@@ -19,6 +19,8 @@ import '../utils/logger.dart';
 import '../services/restore_service.dart';
 import 'restore_progress_page.dart';
 import 'font_settings_page.dart';
+import 'category_manage_page.dart';
+import 'category_migration_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
@@ -228,15 +230,43 @@ class MinePage extends ConsumerWidget {
                 const SizedBox(height: 8),
                 SectionCard(
                   margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                  child: AppListTile(
-                    leading: Icons.brush_outlined,
-                    title: '个性装扮',
-                    onTap: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const PersonalizePage()),
-                      );
-                    },
+                  child: Column(
+                    children: [
+                      AppListTile(
+                        leading: Icons.category_outlined,
+                        title: '分类管理',
+                        subtitle: '编辑自定义分类',
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const CategoryManagePage()),
+                          );
+                        },
+                      ),
+                      AppDivider.thin(),
+                      AppListTile(
+                        leading: Icons.swap_horiz,
+                        title: '分类迁移',
+                        subtitle: '将分类数据迁移到其他分类',
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const CategoryMigrationPage()),
+                          );
+                        },
+                      ),
+                      AppDivider.thin(),
+                      AppListTile(
+                        leading: Icons.brush_outlined,
+                        title: '个性装扮',
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const PersonalizePage()),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 8),
