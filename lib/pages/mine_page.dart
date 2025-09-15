@@ -20,6 +20,7 @@ import '../services/restore_service.dart';
 import 'restore_progress_page.dart';
 import 'font_settings_page.dart';
 import 'category_manage_page.dart';
+import 'category_migration_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
@@ -239,6 +240,18 @@ class MinePage extends ConsumerWidget {
                           await Navigator.of(context).push(
                             MaterialPageRoute(
                                 builder: (_) => const CategoryManagePage()),
+                          );
+                        },
+                      ),
+                      AppDivider.thin(),
+                      AppListTile(
+                        leading: Icons.swap_horiz,
+                        title: '分类迁移',
+                        subtitle: '将分类数据迁移到其他分类',
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const CategoryMigrationPage()),
                           );
                         },
                       ),

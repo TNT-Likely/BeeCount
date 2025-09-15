@@ -672,4 +672,41 @@ class BeeRepository {
     if (count is num) return count.toInt();
     return 0;
   }
+  
+  // 分类迁移：将fromCategoryId的所有交易迁移到toCategoryId
+  Future<int> migrateCategory({
+    required int fromCategoryId,
+    required int toCategoryId,
+  }) async {
+    // 获取迁移前的数量
+    final beforeCount = await getTransactionCountByCategory(fromCategoryId);
+    
+    // 执行迁移
+    await (db.update(db.transactions)
+      ..where((t) => t.categoryId.equals(fromCategoryId))).write(
+      TransactionsCompanion(
+        categoryId: d.Value(toCategoryId),
+      ),
+    );
+    
+    // 返回迁移的交易数量
+    return beforeCount;
+  }
+  
+  // 获取分类迁移信息（检查是否可以迁移）
+  Future<({int transactionCount, bool canMigrate})> getCategoryMigrationInfo({
+    required int fromCategoryId,
+    required int toCategoryId,
+  }) async {
+    // 检查源分类的交易数量
+    final transactionCount = await getTransactionCountByCategory(fromCategoryId);
+    
+    // 检查目标分类是否存在
+    final targetCategory = await (db.select(db.categories)
+      ..where((c) => c.id.equals(toCategoryId))).getSingleOrNull();
+    
+    final canMigrate = transactionCount > 0 && targetCategory != null && fromCategoryId != toCategoryId;
+    
+    return (transactionCount: transactionCount, canMigrate: canMigrate);
+  }
 }
