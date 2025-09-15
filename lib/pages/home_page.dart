@@ -9,6 +9,7 @@ import '../data/db.dart';
 import '../widgets/ui/ui.dart';
 import 'category_picker.dart';
 import '../widgets/category_icon.dart';
+import 'category_detail_page.dart';
 // ui barrel already imported above
 import '../widgets/biz/biz.dart';
 import '../styles/design.dart';
@@ -591,6 +592,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         title: subtitle.isNotEmpty
                                             ? subtitle
                                             : categoryName,
+                                        categoryName: categoryName,
                                         amount: it.t.amount,
                                         isExpense: isExpense,
                                         hide: hide,
@@ -611,6 +613,16 @@ class _HomePageState extends ConsumerState<HomePage> {
                                             ),
                                           );
                                         },
+                                        onCategoryTap: it.category?.id != null ? () async {
+                                          await Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) => CategoryDetailPage(
+                                                categoryId: it.category!.id,
+                                                categoryName: categoryName,
+                                              ),
+                                            ),
+                                          );
+                                        } : null,
                                       ),
                                     ),
                                     // 需求2：底部分割线缩短（从分类到金额），颜色略淡

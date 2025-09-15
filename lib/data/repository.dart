@@ -709,4 +709,58 @@ class BeeRepository {
     
     return (transactionCount: transactionCount, canMigrate: canMigrate);
   }
+  
+  // 获取分类汇总信息
+  Future<({int totalCount, double totalAmount, double averageAmount})> getCategorySummary(int categoryId) async {
+    final result = await db.customSelect(
+      '''
+      SELECT 
+        COUNT(*) as count,
+        SUM(amount) as total,
+        AVG(amount) as average
+      FROM transactions 
+      WHERE category_id = ?1
+      ''',
+      variables: [d.Variable.withInt(categoryId)],
+      readsFrom: {db.transactions},
+    ).getSingle();
+    
+    int parseCount(dynamic v) {
+      if (v is int) return v;
+      if (v is BigInt) return v.toInt();
+      if (v is num) return v.toInt();
+      return 0;
+    }
+    
+    double parseAmount(dynamic v) {
+      if (v == null) return 0.0;
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      if (v is BigInt) return v.toDouble();
+      if (v is num) return v.toDouble();
+      return 0.0;
+    }
+    
+    final count = parseCount(result.data['count']);
+    final total = parseAmount(result.data['total']);
+    final average = parseAmount(result.data['average']);
+    
+    return (
+      totalCount: count,
+      totalAmount: total,
+      averageAmount: average,
+    );
+  }
+  
+  // 获取分类下的所有交易记录（按时间倒序）
+  Future<List<Transaction>> getTransactionsByCategory(int categoryId) async {
+    return await (db.select(db.transactions)
+      ..where((t) => t.categoryId.equals(categoryId))
+      ..orderBy([
+        (t) => d.OrderingTerm(
+          expression: t.happenedAt, 
+          mode: d.OrderingMode.desc,
+        )
+      ])).get();
+  }
 }

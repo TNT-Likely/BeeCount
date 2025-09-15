@@ -6,7 +6,12 @@ import '../widgets/ui/ui.dart';
 import '../widgets/biz/biz.dart';
 
 class CategoryMigrationPage extends ConsumerStatefulWidget {
-  const CategoryMigrationPage({super.key});
+  final db.Category? preselectedFromCategory; // 预填充的来源分类
+  
+  const CategoryMigrationPage({
+    super.key,
+    this.preselectedFromCategory,
+  });
   
   @override
   ConsumerState<CategoryMigrationPage> createState() => _CategoryMigrationPageState();
@@ -16,6 +21,13 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
   db.Category? _fromCategory;
   db.Category? _toCategory;
   bool _isLoading = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    // 预填充来源分类
+    _fromCategory = widget.preselectedFromCategory;
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -234,7 +246,7 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
       ref.invalidate(categoriesWithCountProvider);
       
       // 返回上一页
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(true);
       
     } catch (e) {
       if (!mounted) return;

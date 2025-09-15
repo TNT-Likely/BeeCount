@@ -29,7 +29,14 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.category?.name ?? '');
-    _selectedIcon = widget.category?.icon ?? 'category';
+    
+    // 确保选中的图标在可用的图标组中存在
+    final categoryIcon = widget.category?.icon;
+    if (categoryIcon != null && categoryIcon.isNotEmpty && _isValidIcon(categoryIcon)) {
+      _selectedIcon = categoryIcon;
+    } else {
+      _selectedIcon = 'category'; // 默认图标
+    }
   }
   
   @override
@@ -273,6 +280,17 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
     }
   }
   
+  bool _isValidIcon(String iconName) {
+    // 直接检查图标名称是否在 _getCategoryIcon 方法的映射中存在
+    try {
+      final iconData = _getCategoryIcon(iconName);
+      // 如果返回的不是默认的 Icons.category，说明图标名称是有效的
+      return iconData != Icons.category || iconName == 'category';
+    } catch (e) {
+      return false;
+    }
+  }
+
   IconData _getCategoryIcon(String? iconName) {
     if (iconName == null || iconName.isEmpty) {
       return Icons.category;

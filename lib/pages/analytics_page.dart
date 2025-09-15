@@ -8,6 +8,7 @@ import '../providers.dart';
 import '../widgets/category_icon.dart';
 import '../styles/colors.dart';
 import '../widgets/ui/ui.dart';
+import 'category_detail_page.dart';
 
 class AnalyticsPage extends ConsumerStatefulWidget {
   const AnalyticsPage({super.key});
@@ -911,101 +912,6 @@ String _currentPeriodLabel(String scope, DateTime selMonth) {
   }
 }
 
-void _openCategoryDetail(BuildContext context, int? categoryId, String name,
-    DateTime start, DateTime end, String type) {
-  Navigator.of(context).push(MaterialPageRoute(
-    builder: (_) => _CategoryDetailPage(
-      categoryId: categoryId,
-      categoryName: name,
-      start: start,
-      end: end,
-      type: type,
-    ),
-  ));
-}
-
-class _CategoryDetailPage extends ConsumerWidget {
-  final int? categoryId;
-  final String categoryName;
-  final DateTime start;
-  final DateTime end;
-  final String type;
-  const _CategoryDetailPage({
-    required this.categoryId,
-    required this.categoryName,
-    required this.start,
-    required this.end,
-    required this.type,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final repo = ref.watch(repositoryProvider);
-    final ledgerId = ref.watch(currentLedgerIdProvider);
-    return Scaffold(
-      body: Column(
-        children: [
-          PrimaryHeader(
-            title: categoryName,
-            showBack: true,
-            padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-            actions: const [
-              Padding(
-                padding: EdgeInsets.only(right: 8.0),
-                child: Icon(Icons.list_alt, color: Colors.black87),
-              )
-            ],
-          ),
-          Expanded(
-            child: StreamBuilder(
-              stream: repo.transactionsForCategoryInRange(
-                  ledgerId: ledgerId,
-                  start: start,
-                  end: end,
-                  categoryId: categoryId,
-                  type: type),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final list = snapshot.data!;
-                if (list.isEmpty) {
-                  return const Center(child: Text('暂无明细'));
-                }
-                if (list.isEmpty) return const AppEmpty();
-                return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  itemCount: list.length,
-                  separatorBuilder: (_, __) => AppDivider.thin(),
-                  itemBuilder: (_, i) {
-                    final item = list[i];
-                    final t = item.t;
-                    final c = item.category;
-                    final title =
-                        '${c?.name ?? '未分类'} · ${_fmtDate(t.happenedAt.toLocal())}';
-                    return TransactionListItem(
-                      icon: iconForCategory(c?.name ?? '未分类'),
-                      title: title,
-                      amount: t.amount,
-                      isExpense: t.type == 'expense',
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _fmtDate(DateTime d) {
-    final y = d.year.toString().padLeft(4, '0');
-    final m = d.month.toString().padLeft(2, '0');
-    final day = d.day.toString().padLeft(2, '0');
-    return '$y-$m-$day';
-  }
-}
 
 class _RankRow extends StatelessWidget {
   final String name;
@@ -1101,4 +1007,18 @@ double _computeAverage(dynamic seriesRaw, String scope) {
     return sum / seriesRaw.length;
   }
   return 0;
+}
+
+// 打开分类详情页面
+void _openCategoryDetail(BuildContext context, int? categoryId, String categoryName, DateTime start, DateTime end, String type) {
+  if (categoryId == null) return;
+  
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => CategoryDetailPage(
+        categoryId: categoryId,
+        categoryName: categoryName,
+      ),
+    ),
+  );
 }
