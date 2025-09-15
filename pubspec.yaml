@@ -54,6 +54,7 @@ flutter:
     - assets/logo.svg
     - assets/bee.svg
     - assets/logo.png
+    - assets/logo2.png
   fonts:
     - family: Inter
       fonts:

@@ -262,7 +262,30 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: StreamBuilder<List<({Transaction t, Category? category})>>(
               stream: repo.transactionsWithCategoryAll(ledgerId: ledgerId),
               builder: (context, snapshot) {
-                final joined = snapshot.data ?? [];
+                // 优先使用缓存数据（如果存在）
+                final cachedTransactions = ref.watch(cachedTransactionsWithCategoryProvider);
+                
+                List<({Transaction t, Category? category})> joined;
+                
+                if (snapshot.hasData) {
+                  // 有 Stream 数据时使用 Stream 数据，清空缓存
+                  joined = snapshot.data ?? [];
+                  if (cachedTransactions != null) {
+                    // 清空缓存，后续使用实时数据
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      ref.read(cachedTransactionsWithCategoryProvider.notifier).state = null;
+                    });
+                  }
+                } else if (cachedTransactions != null) {
+                  // 没有 Stream 数据但有缓存时直接使用缓存
+                  joined = cachedTransactions;
+                } else if (!snapshot.hasError) {
+                  // 无数据且无缓存时显示骨架屏
+                  return _buildTransactionSkeleton();
+                } else {
+                  // 有错误时使用空数据
+                  joined = [];
+                }
                 return FutureBuilder<(double income, double expense)>(
                   future: repo.monthlyTotals(ledgerId: ledgerId, month: month),
                   builder: (context, totalSnap) {
@@ -607,6 +630,80 @@ class _HomePageState extends ConsumerState<HomePage> {
                   },
                 );
               },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 构建交易列表骨架屏
+  Widget _buildTransactionSkeleton() {
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      itemCount: 8, // 显示8个骨架项
+      itemBuilder: (context, index) {
+        return _buildSkeletonItem();
+      },
+    );
+  }
+
+  // 单个骨架项
+  Widget _buildSkeletonItem() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          // 分类图标骨架
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // 文字信息骨架
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 分类名称骨架
+                Container(
+                  height: 16,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // 备注骨架
+                Container(
+                  height: 12,
+                  width: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // 金额骨架
+          Container(
+            height: 20,
+            width: 60,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(4),
             ),
           ),
         ],
