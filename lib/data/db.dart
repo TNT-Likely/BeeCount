@@ -120,19 +120,19 @@ class BeeDatabase extends _$BeeDatabase {
     } catch (_) {}
 
     for (final name in defaultExpense) {
-      final exists = await (select(categories)
+      final existingCategories = await (select(categories)
             ..where((c) => c.name.equals(name) & c.kind.equals(expense)))
-          .getSingleOrNull();
-      if (exists == null) {
+          .get();
+      if (existingCategories.isEmpty) {
         await into(categories).insert(CategoriesCompanion.insert(
             name: name, kind: expense, icon: const Value(null)));
       }
     }
     for (final name in defaultIncome) {
-      final exists = await (select(categories)
+      final existingCategories = await (select(categories)
             ..where((c) => c.name.equals(name) & c.kind.equals(income)))
-          .getSingleOrNull();
-      if (exists == null) {
+          .get();
+      if (existingCategories.isEmpty) {
         await into(categories).insert(CategoriesCompanion.insert(
             name: name, kind: income, icon: const Value(null)));
       }
