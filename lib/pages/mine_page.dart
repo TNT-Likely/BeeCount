@@ -27,6 +27,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 import 'dart:io' show Platform;
 import '../utils/format_utils.dart';
+import '../services/update_service.dart';
 
 class MinePage extends ConsumerWidget {
   const MinePage({super.key});
@@ -684,21 +685,48 @@ class MinePage extends ConsumerWidget {
         AppDivider.thin(),
         Consumer(builder: (context, ref2, child) {
           final isLoading = ref2.watch(checkUpdateLoadingProvider);
+          final downloadProgress = ref2.watch(updateProgressProvider);
+          
+          // 确定显示状态
+          bool showProgress = false;
+          String title = '检测更新';
+          String? subtitle;
+          IconData icon = Icons.system_update_alt_outlined;
+          Widget? trailing;
+          
+          if (isLoading) {
+            title = '检测更新中...';
+            subtitle = '正在检查最新版本';
+            icon = Icons.hourglass_empty;
+            trailing = const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2)
+            );
+          } else if (downloadProgress.isActive) {
+            showProgress = true;
+            final progressPercent = (downloadProgress.progress * 100).toInt();
+            title = '下载中: $progressPercent%';
+            icon = Icons.download_outlined;
+            trailing = SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                value: downloadProgress.progress,
+              )
+            );
+          }
+          
           return AppListTile(
-            leading: isLoading
-                ? Icons.hourglass_empty
-                : Icons.system_update_alt_outlined,
-            title: isLoading ? '检测更新中...' : '检测更新',
-            trailing: isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : null,
-            onTap: isLoading
+            leading: icon,
+            title: title,
+            subtitle: showProgress ? downloadProgress.status : subtitle,
+            trailing: trailing,
+            onTap: (isLoading || showProgress)
                 ? null
                 : () async {
-                    await _checkUpdateWithLoading(context, ref2);
+                    await _checkUpdateWithNewService(context, ref2);
                   },
           );
         }),
@@ -810,7 +838,93 @@ Future<_AppInfo> _getAppInfo() async {
       buildTime: buildTime.isEmpty ? null : buildTime);
 }
 
-/// 带加载状态的检查更新封装函数
+/// 使用新的UpdateService进行更新检测
+Future<void> _checkUpdateWithNewService(
+    BuildContext context, WidgetRef ref) async {
+  // 防重复点击
+  if (ref.read(checkUpdateLoadingProvider)) return;
+
+  try {
+    ref.read(checkUpdateLoadingProvider.notifier).state = true;
+    ref.read(updateProgressProvider.notifier).state = UpdateProgress.idle();
+    
+    if (Platform.isAndroid) {
+      // Android: 先检查更新
+      final checkResult = await UpdateService.checkUpdate();
+      
+      if (!context.mounted) return;
+      
+      if (!checkResult.hasUpdate) {
+        // 显示没有更新或错误信息
+        await AppDialog.info(
+          context,
+          title: '检查更新',
+          message: checkResult.message ?? '当前已是最新版本',
+        );
+        return;
+      }
+      
+      // 发现有新版本，显示确认对话框
+      final shouldDownload = await _showDownloadConfirmDialog(
+        context,
+        checkResult.version ?? '',
+        checkResult.releaseNotes ?? '',
+      );
+      
+      if (!shouldDownload || !context.mounted) return;
+      
+      // 用户确认下载，重置检查更新状态，开始下载过程
+      ref.read(checkUpdateLoadingProvider.notifier).state = false;
+      final downloadResult = await UpdateService.downloadAndInstallUpdate(
+        context,
+        checkResult.downloadUrl!,
+        onProgress: (progress, status) {
+          ref.read(updateProgressProvider.notifier).state = 
+              UpdateProgress.active(progress, status);
+        },
+      );
+      
+      if (!context.mounted) return;
+      
+      if (!downloadResult.success && downloadResult.message != null) {
+        // 显示下载错误信息
+        await AppDialog.error(
+          context,
+          title: '下载失败',
+          message: downloadResult.message!,
+        );
+      }
+      // 成功下载的情况不需要额外提示，UpdateService内部已处理
+    } else {
+      // iOS和其他平台使用原来的方式
+      await _checkUpdate(context);
+    }
+  } finally {
+    ref.read(checkUpdateLoadingProvider.notifier).state = false;
+    ref.read(updateProgressProvider.notifier).state = UpdateProgress.idle();
+  }
+}
+
+/// 显示下载确认对话框
+Future<bool> _showDownloadConfirmDialog(
+  BuildContext context,
+  String version,
+  String releaseNotes,
+) async {
+  if (!context.mounted) return false;
+  
+  final message = releaseNotes.isEmpty ? '发现新版本，是否立即下载？' : '更新内容：\n\n${releaseNotes}';
+  
+  return await AppDialog.confirm<bool>(
+    context,
+    title: '发现新版本 $version',
+    message: message,
+    cancelLabel: '取消',
+    okLabel: '下载更新',
+  ) ?? false;
+}
+
+/// 带加载状态的检查更新封装函数（保留用于iOS等平台）
 Future<void> _checkUpdateWithLoading(
     BuildContext context, WidgetRef ref) async {
   // 防重复点击
