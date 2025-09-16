@@ -4,6 +4,7 @@ import 'database_providers.dart';
 import 'theme_providers.dart';
 import 'statistics_providers.dart';
 import 'font_scale_provider.dart';
+import 'update_providers.dart';
 import '../data/db.dart';
 
 // 底部导航索引（0: 明细, 1: 图表, 2: 账本, 3: 我的）
@@ -18,8 +19,11 @@ final selectedMonthProvider = StateProvider<DateTime>((ref) {
 // 视角：'month' 或 'year'
 final selectedViewProvider = StateProvider<String>((ref) => 'month');
 
-// 检查更新状态 - 防止重复点击
+// 检查更新状态 - 防止重复点击  
 final checkUpdateLoadingProvider = StateProvider<bool>((ref) => false);
+
+// 下载进度状态
+final downloadProgressProvider = StateProvider<UpdateProgress?>((ref) => null);
 
 // ---------- Analytics 提示持久化（本地 SharedPreferences） ----------
 final analyticsHeaderHintDismissedProvider =

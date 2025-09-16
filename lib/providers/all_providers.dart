@@ -17,3 +17,6 @@ export 'ui_state_providers.dart';
 
 // 导入导出相关
 export 'import_export_providers.dart';
+
+// 更新相关
+export 'update_providers.dart';
