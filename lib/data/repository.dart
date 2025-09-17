@@ -794,9 +794,36 @@ class BeeRepository {
       ..where((t) => t.categoryId.equals(categoryId))
       ..orderBy([
         (t) => d.OrderingTerm(
-          expression: t.happenedAt, 
+          expression: t.happenedAt,
           mode: d.OrderingMode.desc,
         )
       ])).get();
+  }
+
+  // 获取分类下的所有交易记录（支持自定义排序）
+  Future<List<Transaction>> getTransactionsByCategoryWithSort(
+    int categoryId, {
+    String sortBy = 'time', // 'time' or 'amount'
+    bool ascending = false,
+  }) async {
+    final query = db.select(db.transactions)..where((t) => t.categoryId.equals(categoryId));
+
+    if (sortBy == 'amount') {
+      query.orderBy([
+        (t) => d.OrderingTerm(
+          expression: t.amount,
+          mode: ascending ? d.OrderingMode.asc : d.OrderingMode.desc,
+        )
+      ]);
+    } else {
+      query.orderBy([
+        (t) => d.OrderingTerm(
+          expression: t.happenedAt,
+          mode: ascending ? d.OrderingMode.asc : d.OrderingMode.desc,
+        )
+      ]);
+    }
+
+    return await query.get();
   }
 }

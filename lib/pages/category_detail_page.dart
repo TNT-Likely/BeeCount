@@ -11,6 +11,8 @@ import 'package:intl/intl.dart';
 import 'category_edit_page.dart';
 import 'category_migration_page.dart';
 
+enum SortType { timeAsc, timeDesc, amountAsc, amountDesc }
+
 class CategoryDetailPage extends ConsumerStatefulWidget {
   final int categoryId;
   final String categoryName;
@@ -26,11 +28,13 @@ class CategoryDetailPage extends ConsumerStatefulWidget {
 }
 
 class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
+  SortType _currentSortType = SortType.timeDesc; // 默认时间倒序（最新在前）
+
   @override
   Widget build(BuildContext context) {
     final categoryAsync = ref.watch(_categoryProvider(widget.categoryId));
     final summaryAsync = ref.watch(_categorySummaryProvider(widget.categoryId));
-    final transactionsAsync = ref.watch(_categoryTransactionsProvider(widget.categoryId));
+    final transactionsAsync = ref.watch(_categoryTransactionsWithSortProvider((categoryId: widget.categoryId, sortType: _currentSortType)));
     
     return Scaffold(
       body: Column(
@@ -128,6 +132,8 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                   ),
                   data: (summary) => _buildSummaryCard(summary),
                 ),
+                // 排序控件
+                _buildSortControls(),
                 // 交易记录列表
                 Expanded(
                   child: transactionsAsync.when(
@@ -203,7 +209,68 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
       ),
     );
   }
-  
+
+  Widget _buildSortControls() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Icon(
+            Icons.sort,
+            size: 16,
+            color: Theme.of(context).colorScheme.outline,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '排序',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.outline,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _SortButton(
+                    label: '时间↓',
+                    isSelected: _currentSortType == SortType.timeDesc,
+                    onTap: () => _changeSortType(SortType.timeDesc),
+                  ),
+                  const SizedBox(width: 8),
+                  _SortButton(
+                    label: '时间↑',
+                    isSelected: _currentSortType == SortType.timeAsc,
+                    onTap: () => _changeSortType(SortType.timeAsc),
+                  ),
+                  const SizedBox(width: 8),
+                  _SortButton(
+                    label: '金额↓',
+                    isSelected: _currentSortType == SortType.amountDesc,
+                    onTap: () => _changeSortType(SortType.amountDesc),
+                  ),
+                  const SizedBox(width: 8),
+                  _SortButton(
+                    label: '金额↑',
+                    isSelected: _currentSortType == SortType.amountAsc,
+                    onTap: () => _changeSortType(SortType.amountAsc),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _changeSortType(SortType newSortType) {
+    setState(() {
+      _currentSortType = newSortType;
+    });
+  }
+
   Widget _buildTransactionsList(List<db.Transaction> transactions) {
     if (transactions.isEmpty) {
       return AppEmpty(
@@ -211,16 +278,42 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
         subtext: '该分类下还没有任何交易记录',
       );
     }
-    
-    // 按日期分组
-    final Map<String, List<db.Transaction>> groupedTransactions = {};
+
+    // 按日期分组，但保持原有的排序顺序（使用LinkedHashMap维持插入顺序）
+    final Map<String, List<db.Transaction>> groupedTransactions = <String, List<db.Transaction>>{};
     for (final transaction in transactions) {
       final dateKey = DateFormat('yyyy-MM-dd').format(transaction.happenedAt.toLocal());
       groupedTransactions.putIfAbsent(dateKey, () => []).add(transaction);
     }
-    
-    final sortedKeys = groupedTransactions.keys.toList()
-      ..sort((a, b) => b.compareTo(a)); // 最新日期在前
+
+    // 获取日期键并按需排序
+    final sortedKeys = groupedTransactions.keys.toList();
+
+    // 根据排序类型决定日期分组的显示顺序
+    if (_currentSortType == SortType.amountDesc || _currentSortType == SortType.amountAsc) {
+      // 金额排序时：按照第一个交易的金额来排序日期分组
+      sortedKeys.sort((dateA, dateB) {
+        final transactionsA = groupedTransactions[dateA]!;
+        final transactionsB = groupedTransactions[dateB]!;
+
+        if (transactionsA.isEmpty || transactionsB.isEmpty) return 0;
+
+        // 用每组第一个交易的金额来比较（因为组内已经按金额排序）
+        final amountA = transactionsA.first.amount;
+        final amountB = transactionsB.first.amount;
+
+        return _currentSortType == SortType.amountDesc
+          ? amountB.compareTo(amountA)  // 降序
+          : amountA.compareTo(amountB); // 升序
+      });
+    } else {
+      // 时间排序时：按日期排序分组
+      if (_currentSortType == SortType.timeDesc) {
+        sortedKeys.sort((a, b) => b.compareTo(a)); // 最新日期在前
+      } else {
+        sortedKeys.sort((a, b) => a.compareTo(b)); // 最早日期在前
+      }
+    }
     
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -246,16 +339,15 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
               title: _getTransactionTitle(transaction),
               amount: transaction.amount,
               isExpense: transaction.type == 'expense',
-              onTap: () {
-                // 可以在这里添加编辑交易的功能
-              },
             )),
           ],
         );
       },
     );
   }
-  
+
+
+
   IconData _getTransactionIcon(db.Transaction transaction) {
     final categoryAsync = ref.read(_categoryProvider(widget.categoryId));
     final categoryName = categoryAsync.value?.name ?? widget.categoryName;
@@ -319,8 +411,83 @@ final _categorySummaryProvider = FutureProvider.family<({int totalCount, double 
   return await repo.getCategorySummary(categoryId);
 });
 
-// Provider for category transactions
+// Provider for category transactions with sorting
+final _categoryTransactionsWithSortProvider = FutureProvider.family<List<db.Transaction>, ({int categoryId, SortType sortType})>((ref, params) async {
+  final repo = ref.watch(repositoryProvider);
+
+  String sortBy;
+  bool ascending;
+
+  switch (params.sortType) {
+    case SortType.timeAsc:
+      sortBy = 'time';
+      ascending = true;
+      break;
+    case SortType.timeDesc:
+      sortBy = 'time';
+      ascending = false;
+      break;
+    case SortType.amountAsc:
+      sortBy = 'amount';
+      ascending = true;
+      break;
+    case SortType.amountDesc:
+      sortBy = 'amount';
+      ascending = false;
+      break;
+  }
+
+  return await repo.getTransactionsByCategoryWithSort(
+    params.categoryId,
+    sortBy: sortBy,
+    ascending: ascending,
+  );
+});
+
+// Provider for category transactions (kept for backward compatibility)
 final _categoryTransactionsProvider = FutureProvider.family<List<db.Transaction>, int>((ref, categoryId) async {
   final repo = ref.watch(repositoryProvider);
   return await repo.getTransactionsByCategory(categoryId);
 });
+
+class _SortButton extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _SortButton({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: isSelected
+              ? Colors.white
+              : Theme.of(context).colorScheme.onSurface,
+            fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+}
