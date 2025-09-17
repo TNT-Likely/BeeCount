@@ -28,6 +28,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/format_utils.dart';
 import '../services/update_service.dart';
+import '../utils/ui_scale_extensions.dart';
 
 class MinePage extends ConsumerWidget {
   const MinePage({super.key});
@@ -76,7 +77,7 @@ class MinePage extends ConsumerWidget {
             compact: true,
             showTitleSection: false,
             content: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+              padding: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 8.0.scaled(context, ref), 12.0.scaled(context, ref), 10.0.scaled(context, ref)),
               child: IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -87,12 +88,12 @@ class MinePage extends ConsumerWidget {
                       children: [
                         BeeIcon(
                           color: Theme.of(context).colorScheme.primary,
-                          size: 48,
+                          size: 48.0.scaled(context, ref),
                         ),
                         Text('我的', style: AppTextTokens.title(context)),
                       ],
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.0.scaled(context, ref)),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,7 +110,7 @@ class MinePage extends ConsumerWidget {
                                 ),
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 5), // 标语与统计区间距增大
+                          SizedBox(height: 5.0.scaled(context, ref)), // 标语与统计区间距增大
                           Builder(builder: (ctx) {
                             // 获取当前账本信息
                             final currentLedgerId =
@@ -171,10 +172,10 @@ class MinePage extends ConsumerWidget {
               padding: EdgeInsets.zero,
               children: [
                 const Divider(height: 1),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.0.scaled(context, ref)),
                 // 同步分组
                 SectionCard(
-                  margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                  margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0, 12.0.scaled(context, ref), 0),
                   child: Column(
                     children: [
                       Consumer(builder: (ctx, r, _) {
@@ -225,12 +226,12 @@ class MinePage extends ConsumerWidget {
                   ),
                 ),
                 // 导入导出
-                const SizedBox(height: 8),
-                _buildImportExportSection(context),
+                SizedBox(height: 8.0.scaled(context, ref)),
+                _buildImportExportSection(context, ref),
                 // 个性化
-                const SizedBox(height: 8),
+                SizedBox(height: 8.0.scaled(context, ref)),
                 SectionCard(
-                  margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                  margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0, 12.0.scaled(context, ref), 0),
                   child: Column(
                     children: [
                       AppListTile(
@@ -297,13 +298,13 @@ class MinePage extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.0.scaled(context, ref)),
                 SectionCard(
-                  margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                  margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0, 12.0.scaled(context, ref), 0),
                   child: AppListTile(
-                    leading: Icons.text_fields_outlined,
-                    title: '字号设置',
-                    subtitle: '调整显示大小',
+                    leading: Icons.zoom_out_map_outlined,
+                    title: '显示缩放',
+                    subtitle: '调整文字和界面元素大小',
                     onTap: () async {
                       await Navigator.of(context).push(
                         MaterialPageRoute(
@@ -313,14 +314,14 @@ class MinePage extends ConsumerWidget {
                   ),
                 ),
                 // 关于与版本
-                const SizedBox(height: 8),
+                SizedBox(height: 8.0.scaled(context, ref)),
                 _buildAboutSection(context, ref),
                 // 调试
                 if (!const bool.fromEnvironment('dart.vm.product')) ...[
-                  const SizedBox(height: 8),
-                  _buildDebugSection(ref),
+                  SizedBox(height: 8.0.scaled(context, ref)),
+                  _buildDebugSection(context, ref),
                 ],
-                const SizedBox(height: AppDimens.p16),
+                SizedBox(height: AppDimens.p16.scaled(context, ref)),
               ],
             ),
           ),
@@ -626,9 +627,9 @@ class MinePage extends ConsumerWidget {
     });
   }
 
-  Widget _buildImportExportSection(BuildContext context) {
+  Widget _buildImportExportSection(BuildContext context, WidgetRef ref) {
     return SectionCard(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+      margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0, 12.0.scaled(context, ref), 0),
       child: Column(
         children: [
           Consumer(builder: (ctx, r, _) {
@@ -682,7 +683,7 @@ class MinePage extends ConsumerWidget {
 
   Widget _buildAboutSection(BuildContext context, WidgetRef ref) {
     return SectionCard(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+      margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0, 12.0.scaled(context, ref), 0),
       child: Column(children: [
         AppListTile(
           leading: Icons.info_outline,
@@ -770,9 +771,9 @@ class MinePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildDebugSection(WidgetRef ref) {
+  Widget _buildDebugSection(BuildContext context, WidgetRef ref) {
     return SectionCard(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+      margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0, 12.0.scaled(context, ref), 0),
       child: Column(children: [
         AppListTile(
           leading: Icons.refresh,
@@ -796,7 +797,7 @@ class MinePage extends ConsumerWidget {
   }
 }
 
-class _StatCell extends StatelessWidget {
+class _StatCell extends ConsumerWidget {
   final String label;
   final String value;
   final TextStyle? labelStyle;
@@ -808,12 +809,12 @@ class _StatCell extends StatelessWidget {
       this.numStyle});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(value, style: numStyle),
-        const SizedBox(height: 4), // 数字与标签间距增大
+        SizedBox(height: 4.0.scaled(context, ref)), // 数字与标签间距增大
         Text(label, style: labelStyle),
       ],
     );
@@ -910,3 +911,4 @@ Future<bool> _tryOpenUrl(Uri url) async {
     return false;
   }
 }
+

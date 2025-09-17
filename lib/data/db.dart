@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:drift/drift.dart';
+import '../services/category_service.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import '../services/category_service.dart';
 
 part 'db.g.dart';
 
@@ -62,60 +62,8 @@ class BeeDatabase extends _$BeeDatabase {
     // 总是确保默认分类存在
     const expense = 'expense';
     const income = 'income';
-    final defaultExpense = <String>[
-      '餐饮',
-      '交通',
-      '购物',
-      '娱乐',
-      '居家',
-      '家庭',
-      '通讯',
-      '水电',
-      '住房',
-      '医疗',
-      '教育',
-      '宠物',
-      '运动',
-      '数码',
-      '旅行',
-      '烟酒',
-      '母婴',
-      '美容',
-      '维修',
-      '社交',
-      '学习',
-      '汽车',
-      '打车',
-      '地铁',
-      '外卖',
-      // 将话费/宽带/流量聚合为"通讯"一类
-      '物业',
-      '停车',
-      '捐赠',
-      '饮料',
-      '服装',
-      '零食',
-      '红包',
-      '水果',
-      '游戏',
-      '书',
-      '爱人',
-      '装修',
-      '日用品'
-    ];
-    final defaultIncome = <String>[
-      '工资',
-      '理财',
-      '红包',
-      '奖金',
-      '报销',
-      '兼职',
-      '礼金',
-      '利息',
-      '退款',
-      '投资',
-      '二手转卖'
-    ];
+    final defaultExpense = CategoryService.defaultExpenseCategories;
+    final defaultIncome = CategoryService.defaultIncomeCategories;
 
     // 轻量迁移：将历史 "房租" 重命名为 "住房"（仅当不存在同名"住房"时）
     try {

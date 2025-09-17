@@ -584,9 +584,9 @@ class NotificationService {
     }
   }
 
-  /// 30秒快速测试（仅使用AlarmManager）
+  /// 15秒快速测试（仅使用AlarmManager）
   static Future<void> scheduleQuickTest() async {
-    print('🚀 开始设置30秒快速测试...');
+    print('🚀 开始设置15秒快速测试...');
 
     if (!Platform.isAndroid) {
       print('❌ 快速测试仅支持Android');
@@ -594,20 +594,20 @@ class NotificationService {
     }
 
     final now = DateTime.now();
-    final testTime = now.add(const Duration(seconds: 30));
+    final testTime = now.add(const Duration(seconds: 15));
 
     try {
       await _channel.invokeMethod('scheduleNotification', {
         'title': '快速测试提醒',
-        'body': '30秒测试提醒到达！如果您看到这个通知说明AlarmManager工作正常 ✅',
+        'body': '15秒测试提醒到达！如果您看到这个通知说明AlarmManager工作正常 ✅',
         'scheduledTimeMillis': testTime.millisecondsSinceEpoch,
         'notificationId': 9997,
       });
 
-      print('✅ 30秒快速测试设置成功');
+      print('✅ 15秒快速测试设置成功');
       print('⏰ 测试时间: $testTime');
     } catch (e) {
-      print('❌ 30秒快速测试设置失败: $e');
+      print('❌ 15秒快速测试设置失败: $e');
       rethrow;
     }
   }

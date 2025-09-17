@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
 import '../data/db.dart';
+import 'package:drift/drift.dart' as drift;
 // Compact top bar instead of PrimaryHeader to remove extra whitespace
 import '../widgets/category_icon.dart';
 import '../widgets/biz/amount_editor_sheet.dart';
@@ -213,17 +214,23 @@ class _CategoryGridState extends ConsumerState<_CategoryGrid> {
     return StreamBuilder<List<Category>>(
       stream: q,
       builder: (context, snap) {
-        final rawList = snap.data ?? [];
-        if (rawList.isEmpty) {
+        final dbCategories = snap.data ?? [];
+
+        // 合并默认分类与数据库分类
+        final list = CategoryService.mergeDefaultAndDbCategories<Category>(
+          dbCategories: dbCategories,
+          kind: widget.kind,
+          createCategory: ({required int id, required String name, required String kind, required String icon}) {
+            return Category(id: id, name: name, kind: kind, icon: icon);
+          },
+          getNameFn: (category) => category.name,
+          getKindFn: (category) => category.kind,
+          getIdFn: (category) => category.id,
+        );
+
+        if (list.isEmpty) {
           return const Center(child: Text('暂无分类'));
         }
-
-        // 排序：默认分类在前，按照预定义顺序；非默认分类在后，按名称排序
-        final list = CategoryService.sortCategories(
-          rawList,
-          (category) => category.name,
-          (category) => category.kind,
-        );
 
         // 初次渲染后滚动到初始分类顶部
         if (!_scrolled && widget.initialId != null) {
@@ -256,9 +263,29 @@ class _CategoryGridState extends ConsumerState<_CategoryGrid> {
               key: key,
               name: c.name,
               selected: selected || _selectedId == c.id,
-              onTap: () {
+              onTap: () async {
                 setState(() => _selectedId = c.id);
-                widget.onPick(c);
+
+                // 如果是虚拟分类（ID为-1），需要先创建到数据库
+                if (c.id == -1) {
+                  final db = ref.read(databaseProvider);
+                  final newId = await db.into(db.categories).insert(CategoriesCompanion.insert(
+                    name: c.name,
+                    kind: c.kind,
+                    icon: drift.Value(c.icon),
+                  ));
+
+                  // 创建一个新的Category对象，包含真实的数据库ID
+                  final realCategory = Category(
+                    id: newId,
+                    name: c.name,
+                    kind: c.kind,
+                    icon: c.icon,
+                  );
+                  widget.onPick(realCategory);
+                } else {
+                  widget.onPick(c);
+                }
               },
             );
           },
@@ -266,6 +293,7 @@ class _CategoryGridState extends ConsumerState<_CategoryGrid> {
       },
     );
   }
+
 }
 
 class _CategoryItem extends StatelessWidget {

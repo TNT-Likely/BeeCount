@@ -9,12 +9,14 @@ class CategoryService {
     '餐饮', '交通', '购物', '娱乐', '居家', '家庭', '通讯', '水电', '住房', '医疗', '教育',
     '宠物', '运动', '数码', '旅行', '烟酒', '母婴', '美容', '维修', '社交',
     '学习', '汽车', '打车', '地铁', '外卖', '物业', '停车', '捐赠',
-    '饮料', '服装', '零食', '红包', '水果', '游戏', '书', '爱人', '装修', '日用品'
+    '饮料', '服装', '零食', '红包', '水果', '游戏', '书', '爱人', '装修', '日用品',
+    '彩票', '股票', '社保'
   ];
 
   /// 默认收入分类列表 (按优先级排序)
   static const List<String> defaultIncomeCategories = [
-    '工资', '理财', '红包', '奖金', '报销', '兼职', '礼金', '利息', '退款', '投资', '二手转卖'
+    '工资', '理财', '红包', '奖金', '报销', '兼职', '礼金', '利息', '退款', '投资', '二手转卖',
+    '社会保障', '退税退费', '公积金'
   ];
 
   /// 判断是否为默认分类
@@ -68,7 +70,7 @@ class CategoryService {
         case '烟酒': return 'local_bar';
         case '母婴': return 'child_care';
         case '美容': return 'face';
-        case '维修': return 'build';
+        case '维修': return 'handyman';
         case '社交': return 'group';
         case '学习': return 'school';
         case '汽车': return 'directions_car';
@@ -81,13 +83,16 @@ class CategoryService {
         case '饮料': return 'local_cafe';
         case '服装': return 'checkroom';
         case '零食': return 'fastfood';
-        case '红包': return 'card_giftcard';
-        case '水果': return 'local_grocery_store';
+        case '红包': return 'wallet';
+        case '水果': return 'eco';
         case '游戏': return 'sports_esports';
         case '书': return 'menu_book';
         case '爱人': return 'favorite';
-        case '装修': return 'build';
+        case '装修': return 'home_repair_service';
         case '日用品': return 'local_laundry_service';
+        case '彩票': return 'confirmation_number';
+        case '股票': return 'trending_up';
+        case '社保': return 'security';
         default: return 'category';
       }
     } else {
@@ -97,12 +102,15 @@ class CategoryService {
         case '红包': return 'card_giftcard';
         case '奖金': return 'emoji_events';
         case '报销': return 'receipt';
-        case '兼职': return 'work_outline';
+        case '兼职': return 'schedule';
         case '礼金': return 'card_giftcard';
         case '利息': return 'monetization_on';
-        case '退款': return 'keyboard_return';
+        case '退款': return 'undo';
         case '投资': return 'trending_up';
         case '二手转卖': return 'sell';
+        case '社会保障': return 'health_and_safety';
+        case '退税退费': return 'receipt_long';
+        case '公积金': return 'account_balance_wallet';
         default: return 'attach_money';
       }
     }
@@ -341,6 +349,7 @@ class CategoryService {
       case 'restaurant_menu': return Icons.restaurant_menu;
       case 'set_meal': return Icons.set_meal;
       case 'ramen_dining': return Icons.ramen_dining;
+      case 'delivery_dining': return Icons.delivery_dining;
 
       // 交通出行
       case 'directions_car': return Icons.directions_car;
@@ -400,6 +409,8 @@ class CategoryService {
       case 'hvac': return Icons.hvac;
       case 'roofing': return Icons.roofing;
       case 'foundation': return Icons.foundation;
+      case 'home_work': return Icons.home_work;
+      case 'home_repair_service': return Icons.home_repair_service;
 
       // 通讯设备
       case 'phone': return Icons.phone;
@@ -438,6 +449,7 @@ class CategoryService {
       case 'sports_soccer': return Icons.sports_soccer;
       case 'sports_basketball': return Icons.sports_basketball;
       case 'sports_tennis': return Icons.sports_tennis;
+      case 'group': return Icons.group;
 
       // 健康医疗
       case 'local_hospital': return Icons.local_hospital;
@@ -456,6 +468,7 @@ class CategoryService {
       case 'biotech': return Icons.biotech;
       case 'coronavirus': return Icons.coronavirus;
       case 'vaccines': return Icons.vaccines;
+      case 'child_care': return Icons.child_care;
 
       // 教育学习
       case 'school': return Icons.school;
@@ -508,6 +521,7 @@ class CategoryService {
       case 'engineering': return Icons.engineering;
       case 'design_services': return Icons.design_services;
       case 'construction': return Icons.construction;
+      case 'handyman': return Icons.handyman;
       case 'code': return Icons.code;
       case 'developer_mode': return Icons.developer_mode;
       case 'gavel': return Icons.gavel;
@@ -585,6 +599,7 @@ class CategoryService {
       case 'explore': return Icons.explore;
       case 'compass': return Icons.explore;
       case 'access_time': return Icons.access_time;
+      case 'security': return Icons.security;
 
       default:
         return Icons.category;
@@ -705,5 +720,62 @@ class CategoryService {
       'customExpense': customExpenses.length,
       'customIncome': customIncomes.length,
     };
+  }
+
+  /// 合并默认分类与数据库分类
+  ///
+  /// 确保所有默认分类都显示（即使数据库中不存在），并使用统一图标
+  /// [dbCategories] 数据库中的分类列表
+  /// [kind] 分类类型：'expense' 或 'income'
+  /// 返回合并后的分类列表，按默认分类在前、自定义分类在后的顺序
+  static List<T> mergeDefaultAndDbCategories<T>({
+    required List<T> dbCategories,
+    required String kind,
+    required T Function({
+      required int id,
+      required String name,
+      required String kind,
+      required String icon,
+    }) createCategory,
+    required String Function(T) getNameFn,
+    required String Function(T) getKindFn,
+    required int Function(T) getIdFn,
+  }) {
+    // 从数据库分类中创建名称到分类的映射
+    final Map<String, T> dbCategoryMap = {
+      for (final cat in dbCategories) getNameFn(cat): cat
+    };
+
+    final List<T> result = [];
+
+    // 首先添加所有默认分类（按默认顺序）
+    final defaultCategories = kind == 'expense'
+        ? defaultExpenseCategories
+        : defaultIncomeCategories;
+
+    for (final defaultName in defaultCategories) {
+      final existingCategory = dbCategoryMap[defaultName];
+      if (existingCategory != null) {
+        // 数据库中存在，使用数据库的分类
+        result.add(existingCategory);
+        dbCategoryMap.remove(defaultName); // 从map中移除，避免重复
+      } else {
+        // 数据库中不存在，创建虚拟分类对象
+        final virtualCategory = createCategory(
+          id: -1, // 使用负数ID表示虚拟分类
+          name: defaultName,
+          kind: kind,
+          icon: getDefaultCategoryIcon(defaultName, kind),
+        );
+        result.add(virtualCategory);
+      }
+    }
+
+    // 然后添加剩余的自定义分类（按名称排序）
+    final customCategories = dbCategoryMap.values.toList()
+      ..sort((a, b) => getNameFn(a).compareTo(getNameFn(b)));
+    result.addAll(customCategories);
+
+    return result;
   }
 }
