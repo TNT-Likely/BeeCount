@@ -141,7 +141,7 @@ class ReminderSettingsPage extends ConsumerWidget {
 
           const SizedBox(height: 16),
 
-          // 30秒测试按钮
+          // 15秒测试按钮
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             width: double.infinity,
@@ -150,7 +150,7 @@ class ReminderSettingsPage extends ConsumerWidget {
                 await NotificationService.scheduleQuickTest();
 
                 if (context.mounted) {
-                  showToast(context, '已设置30秒后的快速测试，请保持应用在后台');
+                  showToast(context, '已设置15秒后的快速测试，请保持应用在后台');
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -162,7 +162,7 @@ class ReminderSettingsPage extends ConsumerWidget {
                 ),
               ),
               child: const Text(
-                '快速测试 (30秒后)',
+                '快速测试 (15秒后)',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
