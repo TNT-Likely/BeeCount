@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:beecount/widgets/biz/bee_icon.dart';
@@ -7,6 +8,7 @@ import 'import_page.dart';
 import 'login_page.dart';
 import 'export_page.dart';
 import 'personalize_page.dart';
+import 'ui_demo_page.dart';
 import '../providers.dart';
 import '../widgets/ui/ui.dart';
 import '../widgets/biz/biz.dart';
@@ -21,11 +23,9 @@ import 'restore_progress_page.dart';
 import 'font_settings_page.dart';
 import 'category_manage_page.dart';
 import 'category_migration_page.dart';
+import 'reminder_settings_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
-import 'dart:io' show Platform;
 import '../utils/format_utils.dart';
 import '../services/update_service.dart';
 
@@ -258,6 +258,18 @@ class MinePage extends ConsumerWidget {
                       ),
                       AppDivider.thin(),
                       AppListTile(
+                        leading: Icons.notifications_outlined,
+                        title: '记账提醒',
+                        subtitle: '设置每日记账提醒',
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const ReminderSettingsPage()),
+                          );
+                        },
+                      ),
+                      AppDivider.thin(),
+                      AppListTile(
                         leading: Icons.brush_outlined,
                         title: '个性装扮',
                         onTap: () async {
@@ -267,6 +279,21 @@ class MinePage extends ConsumerWidget {
                           );
                         },
                       ),
+                      // UI 组件演示 - 仅在开发环境显示
+                      if (kDebugMode) ...[
+                        AppDivider.thin(),
+                        AppListTile(
+                          leading: Icons.widgets_outlined,
+                          title: 'UI 组件演示',
+                          subtitle: '查看应用 UI 组件效果（仅开发环境）',
+                          onTap: () async {
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) => const UiDemoPage()),
+                            );
+                          },
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -705,8 +732,7 @@ class MinePage extends ConsumerWidget {
             );
           } else if (downloadProgress.isActive) {
             showProgress = true;
-            final progressPercent = (downloadProgress.progress * 100).toInt();
-            title = '下载中: $progressPercent%';
+            title = '下载更新';
             icon = Icons.download_outlined;
             trailing = SizedBox(
               width: 20,
@@ -726,7 +752,17 @@ class MinePage extends ConsumerWidget {
             onTap: (isLoading || showProgress)
                 ? null
                 : () async {
-                    await _checkUpdateWithNewService(context, ref2);
+                    await UpdateService.checkUpdateWithUI(
+                      context,
+                      setLoading: (loading) => ref2.read(checkUpdateLoadingProvider.notifier).state = loading,
+                      setProgress: (progress, status) {
+                        if (status.isEmpty) {
+                          ref2.read(updateProgressProvider.notifier).state = UpdateProgress.idle();
+                        } else {
+                          ref2.read(updateProgressProvider.notifier).state = UpdateProgress.active(progress, status);
+                        }
+                      },
+                    );
                   },
           );
         }),
@@ -838,254 +874,13 @@ Future<_AppInfo> _getAppInfo() async {
       buildTime: buildTime.isEmpty ? null : buildTime);
 }
 
-/// 使用新的UpdateService进行更新检测
-Future<void> _checkUpdateWithNewService(
-    BuildContext context, WidgetRef ref) async {
-  // 防重复点击
-  if (ref.read(checkUpdateLoadingProvider)) return;
 
-  try {
-    ref.read(checkUpdateLoadingProvider.notifier).state = true;
-    ref.read(updateProgressProvider.notifier).state = UpdateProgress.idle();
-    
-    if (Platform.isAndroid) {
-      // Android: 先检查更新
-      final checkResult = await UpdateService.checkUpdate();
-      
-      if (!context.mounted) return;
-      
-      if (!checkResult.hasUpdate) {
-        // 显示没有更新或错误信息
-        await AppDialog.info(
-          context,
-          title: '检查更新',
-          message: checkResult.message ?? '当前已是最新版本',
-        );
-        return;
-      }
-      
-      // 发现有新版本，显示确认对话框
-      final shouldDownload = await _showDownloadConfirmDialog(
-        context,
-        checkResult.version ?? '',
-        checkResult.releaseNotes ?? '',
-      );
-      
-      if (!shouldDownload || !context.mounted) return;
-      
-      // 用户确认下载，重置检查更新状态，开始下载过程
-      ref.read(checkUpdateLoadingProvider.notifier).state = false;
-      final downloadResult = await UpdateService.downloadAndInstallUpdate(
-        context,
-        checkResult.downloadUrl!,
-        onProgress: (progress, status) {
-          ref.read(updateProgressProvider.notifier).state = 
-              UpdateProgress.active(progress, status);
-        },
-      );
-      
-      if (!context.mounted) return;
-      
-      if (!downloadResult.success && downloadResult.message != null) {
-        // 显示下载错误信息
-        await AppDialog.error(
-          context,
-          title: '下载失败',
-          message: downloadResult.message!,
-        );
-      }
-      // 成功下载的情况不需要额外提示，UpdateService内部已处理
-    } else {
-      // iOS和其他平台使用原来的方式
-      await _checkUpdate(context);
-    }
-  } finally {
-    ref.read(checkUpdateLoadingProvider.notifier).state = false;
-    ref.read(updateProgressProvider.notifier).state = UpdateProgress.idle();
-  }
-}
 
-/// 显示下载确认对话框
-Future<bool> _showDownloadConfirmDialog(
-  BuildContext context,
-  String version,
-  String releaseNotes,
-) async {
-  if (!context.mounted) return false;
-  
-  final message = releaseNotes.isEmpty ? '发现新版本，是否立即下载？' : '更新内容：\n\n${releaseNotes}';
-  
-  return await AppDialog.confirm<bool>(
-    context,
-    title: '发现新版本 $version',
-    message: message,
-    cancelLabel: '取消',
-    okLabel: '下载更新',
-  ) ?? false;
-}
 
-/// 带加载状态的检查更新封装函数（保留用于iOS等平台）
-Future<void> _checkUpdateWithLoading(
-    BuildContext context, WidgetRef ref) async {
-  // 防重复点击
-  if (ref.read(checkUpdateLoadingProvider)) return;
 
-  try {
-    ref.read(checkUpdateLoadingProvider.notifier).state = true;
-    await _checkUpdate(context);
-  } finally {
-    ref.read(checkUpdateLoadingProvider.notifier).state = false;
-  }
-}
 
-Future<void> _checkUpdate(BuildContext context) async {
-  try {
-    // 获取当前版本信息
-    final currentInfo = await _getAppInfo();
-    final currentVersion = _normalizeVersion(currentInfo.version);
 
-    // 获取最新 release 信息
-    final resp = await http.get(
-      Uri.parse(
-          'https://api.github.com/repos/TNT-Likely/BeeCount/releases/latest'),
-      headers: const {
-        'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-        'User-Agent': 'BeeCount-App',
-      },
-    ).timeout(const Duration(seconds: 5));
-    if (resp.statusCode == 200) {
-      final data = convert.jsonDecode(resp.body) as Map<String, dynamic>;
-      final tag = (data['tag_name'] as String?) ?? '';
-      final name = (data['name'] as String?) ?? tag;
-      final body = (data['body'] as String?) ?? '';
-      final assets =
-          (data['assets'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
-      final apk = assets.firstWhere(
-          (a) =>
-              (a['name'] as String?)?.toLowerCase().endsWith('.apk') ?? false,
-          orElse: () => {});
 
-      // 比较版本，只有远程版本更新时才提示
-      final remoteVersion = _normalizeVersion(tag);
-      if (!_isNewerVersion(remoteVersion, currentVersion)) {
-        if (!context.mounted) return;
-        await AppDialog.info(context,
-            title: '检查更新', message: '当前已是最新版本 $currentVersion');
-        return;
-      }
-
-      // 弹窗提示最新版本与更新说明（截断过长文案）
-      final previewBody =
-          (body.length > 400) ? ('${body.substring(0, 400)}...') : body;
-      if (!context.mounted) return;
-      final ok = await AppDialog.confirm<bool>(
-            context,
-            title: '发现新版本：$name',
-            message: previewBody.isEmpty ? '是否前往更新？' : previewBody,
-            okLabel: Platform.isAndroid ? '下载/前往' : '前往',
-            cancelLabel: '稍后',
-          ) ??
-          false;
-      if (!ok) return;
-
-      if (Platform.isAndroid && apk.isNotEmpty) {
-        final url = Uri.parse(apk['browser_download_url'] as String);
-        final opened = await _tryOpenUrl(url);
-        if (opened) return;
-      }
-      // 回退：打开 Releases 页面
-      final fall = Uri.parse('https://github.com/TNT-Likely/BeeCount/releases');
-      await _tryOpenUrl(fall);
-    } else {
-      // API 失败：提示并引导前往 Releases
-      if (!context.mounted) return;
-      final go = await AppDialog.confirm<bool>(
-            context,
-            title: '无法获取最新版本',
-            message: '是否前往 Releases 查看？',
-            okLabel: '前往',
-            cancelLabel: '取消',
-          ) ??
-          false;
-      if (go) {
-        final fall =
-            Uri.parse('https://github.com/TNT-Likely/BeeCount/releases');
-        await _tryOpenUrl(fall);
-      }
-    }
-  } catch (e) {
-    // 异常：同样给出提示
-    if (!context.mounted) return;
-    final go = await AppDialog.confirm<bool>(
-          context,
-          title: '网络异常',
-          message: '无法获取更新信息，是否前往 Releases 查看？',
-          okLabel: '前往',
-          cancelLabel: '取消',
-        ) ??
-        false;
-    if (go) {
-      final fall = Uri.parse('https://github.com/TNT-Likely/BeeCount/releases');
-      await _tryOpenUrl(fall);
-    }
-  }
-  // 用户取消或无法打开浏览器：不再弹窗
-  return;
-}
-
-/// 标准化版本号，移除 'v' 前缀和 '-' 后缀
-String _normalizeVersion(String version) {
-  String normalized = version;
-  // 移除 'v' 前缀
-  if (normalized.startsWith('v')) {
-    normalized = normalized.substring(1);
-  }
-  // 移除 'dev-' 前缀
-  if (normalized.startsWith('dev-')) {
-    normalized = normalized.substring(4);
-  }
-  // 移除 '-' 后缀（如 -alpha, -beta, -dev 等）
-  final dashIndex = normalized.indexOf('-');
-  if (dashIndex != -1) {
-    normalized = normalized.substring(0, dashIndex);
-  }
-  return normalized;
-}
-
-/// 比较两个版本号，判断 newVersion 是否比 currentVersion 更新
-bool _isNewerVersion(String newVersion, String currentVersion) {
-  final newParts = newVersion
-      .split('.')
-      .map(int.tryParse)
-      .where((e) => e != null)
-      .cast<int>()
-      .toList();
-  final currentParts = currentVersion
-      .split('.')
-      .map(int.tryParse)
-      .where((e) => e != null)
-      .cast<int>()
-      .toList();
-
-  // 补齐长度，短的用 0 填充
-  final maxLength =
-      [newParts.length, currentParts.length].reduce((a, b) => a > b ? a : b);
-  while (newParts.length < maxLength) {
-    newParts.add(0);
-  }
-  while (currentParts.length < maxLength) {
-    currentParts.add(0);
-  }
-
-  // 逐位比较
-  for (int i = 0; i < maxLength; i++) {
-    if (newParts[i] > currentParts[i]) return true;
-    if (newParts[i] < currentParts[i]) return false;
-  }
-
-  return false; // 版本相等
-}
 
 /// 尝试使用多种方式打开URL，提供更好的兼容性
 Future<bool> _tryOpenUrl(Uri url) async {

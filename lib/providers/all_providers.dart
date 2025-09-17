@@ -20,3 +20,6 @@ export 'import_export_providers.dart';
 
 // 更新相关
 export 'update_providers.dart';
+
+// 提醒相关
+export 'reminder_providers.dart';

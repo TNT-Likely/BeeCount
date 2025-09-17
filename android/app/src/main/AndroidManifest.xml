@@ -10,6 +10,18 @@
     <!-- Required for showing notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Required for exact alarms on Android 12+ -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- Required for notifications to work while the app is in background -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Optional: vibration for notifications -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Required for foreground service notifications -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Required for apps targeting Android 14+ -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- Required for requesting battery optimization exemption -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     
     <application
         android:label="@string/app_name"
@@ -53,6 +65,31 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        
+        <!-- 后台通知接收器 -->
+        <receiver android:name=".NotificationReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <data android:scheme="package" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.example.beecount.NOTIFICATION_ALARM" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 通知点击接收器 -->
+        <receiver android:name=".NotificationClickReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.beecount.NOTIFICATION_CLICK" />
+            </intent-filter>
+        </receiver>
+            
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

@@ -4,6 +4,8 @@ import '../providers.dart';
 import '../data/repository.dart';
 import '../widgets/ui/ui.dart';
 import '../data/db.dart' as db;
+import 'category_detail_page.dart';
+import 'category_migration_page.dart';
 
 class CategoryEditPage extends ConsumerStatefulWidget {
   final db.Category? category; // null表示新建
@@ -55,6 +57,37 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
           PrimaryHeader(
             title: isEditing ? '编辑分类' : '新建分类',
             showBack: true,
+            actions: isEditing && widget.category != null ? [
+              // 分类详情按钮
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CategoryDetailPage(
+                        categoryId: widget.category!.id,
+                        categoryName: widget.category!.name,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.analytics_outlined),
+                tooltip: '分类详情',
+              ),
+              // 分类迁移按钮
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CategoryMigrationPage(
+                        preselectedFromCategory: widget.category!,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.move_down_outlined),
+                tooltip: '分类迁移',
+              ),
+            ] : null,
           ),
           Expanded(
             child: Form(
