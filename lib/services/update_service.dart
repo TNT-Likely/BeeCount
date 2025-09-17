@@ -9,7 +9,9 @@ import 'package:open_filex/open_filex.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart' hide Priority;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart' as notifications;
+import 'package:url_launcher/url_launcher.dart';
 import '../utils/logger.dart';
+import '../widgets/ui/ui.dart';
 
 class UpdateService {
   static final Dio _dio = Dio();
@@ -137,7 +139,7 @@ class UpdateService {
   }) async {
     try {
       // 检查权限
-      onProgress?.call(0.1, '检查权限...');
+      onProgress?.call(0.0, '检查权限...');
       final hasPermission = await _checkAndRequestPermissions();
       if (!hasPermission) {
         return UpdateResult(
@@ -153,7 +155,7 @@ class UpdateService {
       }
 
       // 开始下载
-      onProgress?.call(0.2, '开始下载...');
+      onProgress?.call(0.0, '准备下载...');
       if (!context.mounted) {
         return UpdateResult(
           hasUpdate: false,
@@ -505,9 +507,12 @@ class UpdateService {
       double progress = 0.0;
       bool cancelled = false;
       late StateSetter dialogSetState;
-      
+
       // 重置进度记录
       _lastNotificationProgress = -1;
+
+      // 创建取消令牌
+      final cancelToken = CancelToken();
 
       // 显示初始通知 - 从确定进度0%开始
       await _showProgressNotification(0, indeterminate: false);
@@ -536,6 +541,7 @@ class UpdateService {
                   TextButton(
                     onPressed: () {
                       cancelled = true;
+                      cancelToken.cancel('用户取消下载');
                       Navigator.of(context).pop();
                     },
                     child: const Text('取消'),
@@ -552,9 +558,6 @@ class UpdateService {
           ),
         );
       }
-
-      // 创建取消令牌
-      final cancelToken = CancelToken();
       
       // 开始下载
       await _dio.download(
@@ -594,14 +597,22 @@ class UpdateService {
         cancelToken: cancelToken,
       );
 
-      // 强制关闭下载对话框
+      if (cancelled) {
+        // 用户取消了下载，对话框已经通过取消按钮关闭，无需额外处理
+        logI('UpdateService', '用户取消下载');
+        await _cancelDownloadNotification();
+        onProgress?.call(0.0, ''); // 立即清除进度状态
+        return UpdateResult.userCancelled();
+      }
+
+      // 下载完成，强制关闭下载对话框
       logI('UpdateService', '下载完成，准备关闭下载进度对话框');
       if (context.mounted) {
         try {
           // 检查导航栈状态
           final canPop = Navigator.of(context).canPop();
           logI('UpdateService', '当前导航栈可以pop: $canPop');
-          
+
           if (canPop) {
             // 直接关闭当前对话框
             Navigator.of(context).pop();
@@ -625,16 +636,10 @@ class UpdateService {
       } else {
         logW('UpdateService', 'Context未挂载，无法关闭下载对话框');
       }
-      
+
       // 等待对话框完全关闭，确保UI状态正常
       logI('UpdateService', '等待对话框完全关闭...');
       await Future.delayed(const Duration(milliseconds: 800));
-
-      if (cancelled) {
-        cancelToken.cancel('用户取消下载');
-        await _cancelDownloadNotification();
-        return UpdateResult.userCancelled();
-      }
 
       logI('UpdateService', '下载完成: $filePath');
       onProgress?.call(0.9, '下载完成');
@@ -642,15 +647,33 @@ class UpdateService {
       onProgress?.call(1.0, '完成');
       return UpdateResult.downloadSuccess(filePath);
     } catch (e) {
+      // 检查是否是用户取消导致的异常
+      if (e is DioException && e.type == DioExceptionType.cancel) {
+        logI('UpdateService', '用户取消下载（通过异常捕获）');
+        await _cancelDownloadNotification();
+        onProgress?.call(0.0, ''); // 清除进度状态
+        return UpdateResult.userCancelled();
+      }
+
+      // 真正的下载错误
+      logE('UpdateService', '下载失败', e);
+
+      // 安全关闭下载对话框
       if (context.mounted) {
         try {
-          Navigator.of(context).pop();
-        } catch (e) {
-          // 对话框可能已经关闭
+          // 检查是否有活跃的对话框需要关闭
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+            // 等待对话框关闭动画完成
+            await Future.delayed(const Duration(milliseconds: 300));
+          }
+        } catch (navError) {
+          logE('UpdateService', '关闭下载对话框失败', navError);
         }
       }
+
       await _cancelDownloadNotification();
-      logE('UpdateService', '下载失败', e);
+      onProgress?.call(0.0, ''); // 清除进度状态
       return UpdateResult.error('下载失败: $e');
     }
   }
@@ -1062,6 +1085,302 @@ class UpdateService {
     }
 
     return false;
+  }
+
+  /// 完整的更新检查流程，包含UI交互
+  static Future<void> checkUpdateWithUI(
+    BuildContext context, {
+    required Function(bool loading) setLoading,
+    required Function(double progress, String status) setProgress,
+  }) async {
+    // 防重复点击
+    if (Platform.isAndroid) {
+      setLoading(true);
+      setProgress(0.0, '正在检查更新...');
+
+      try {
+        // Android: 先检查更新
+        final checkResult = await checkUpdate();
+
+        if (!context.mounted) return;
+
+        if (!checkResult.hasUpdate) {
+          // 检查是否是网络错误或API错误，提供兜底方案
+          final message = checkResult.message ?? '当前已是最新版本';
+          final isNetworkError = message.contains('检查更新失败') ||
+                                 message.contains('HTTP') ||
+                                 message.contains('异常') ||
+                                 message.contains('失败');
+          if (isNetworkError) {
+            // 网络错误或API错误，提供去GitHub的兜底选项
+            await _showUpdateErrorWithFallback(context, message);
+          } else {
+            // 正常情况（已是最新版本）
+            await AppDialog.info(
+              context,
+              title: '检查更新',
+              message: message,
+            );
+          }
+          return;
+        }
+
+        // 发现有新版本，显示确认对话框
+        // 重置进度和加载状态，显示确认对话框
+        setLoading(false);
+        setProgress(0.0, '');
+
+        final shouldDownload = await _showDownloadConfirmDialog(
+          context,
+          checkResult.version ?? '',
+          checkResult.releaseNotes ?? '',
+        );
+
+        if (!shouldDownload || !context.mounted) {
+          // 用户取消下载，完全清除状态显示
+          setLoading(false);
+          setProgress(0.0, '');
+          return;
+        }
+
+        // 用户确认下载，开始下载过程
+        final downloadResult = await downloadAndInstallUpdate(
+          context,
+          checkResult.downloadUrl!,
+          onProgress: setProgress,
+        );
+
+        if (!context.mounted) return;
+
+        if (!downloadResult.success && downloadResult.message != null) {
+          // 检查是否是用户取消，如果是则不显示错误弹窗
+          if (downloadResult.type == UpdateResultType.userCancelled) {
+            // 用户取消下载，什么都不做，静默返回
+            return;
+          }
+
+          // 等待一段时间确保下载对话框完全关闭，避免黑屏
+          await Future.delayed(const Duration(milliseconds: 500));
+
+          // 再次检查context是否仍然有效
+          if (!context.mounted) return;
+
+          // 显示下载错误信息，并提供GitHub fallback
+          await _showDownloadErrorWithFallback(context, downloadResult.message!);
+        }
+        // 成功下载的情况不需要额外提示，UpdateService内部已处理
+      } catch (e) {
+        if (context.mounted) {
+          await _showUpdateErrorWithFallback(context, '检查更新失败: $e');
+        }
+      } finally {
+        setLoading(false);
+        setProgress(0.0, '');
+      }
+    }
+  }
+
+  /// 显示下载确认对话框
+  static Future<bool> _showDownloadConfirmDialog(
+    BuildContext context,
+    String version,
+    String releaseNotes,
+  ) async {
+    if (!context.mounted) return false;
+
+    final message = releaseNotes.isEmpty ? '发现新版本，是否立即下载？' : '更新内容：\n\n$releaseNotes';
+
+    return await AppDialog.confirm<bool>(
+      context,
+      title: '发现新版本 $version',
+      message: message,
+      cancelLabel: '取消',
+      okLabel: '下载更新',
+    ) ?? false;
+  }
+
+  /// 显示更新检测失败的错误弹窗，提供去GitHub的兜底选项
+  static Future<void> _showUpdateErrorWithFallback(
+    BuildContext context,
+    String errorMessage,
+  ) async {
+    if (!context.mounted) return;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.orange, size: 28),
+            const SizedBox(width: 12),
+            const Text('检测更新失败'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '无法自动检测更新：\n$errorMessage',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      '您可以手动前往GitHub Releases页面查看和下载最新版本',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Theme.of(context).primaryColor,
+              side: BorderSide(color: Theme.of(context).primaryColor),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('取消'),
+          ),
+          const SizedBox(width: 12),
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            icon: const Icon(Icons.open_in_new, size: 18),
+            label: const Text('前往GitHub'),
+          ),
+        ],
+      ),
+    );
+    if (result == true && context.mounted) {
+      await _launchGitHubReleases(context);
+    }
+  }
+
+  /// 显示下载失败的错误弹窗，提供去GitHub的兜底选项
+  static Future<void> _showDownloadErrorWithFallback(
+    BuildContext context,
+    String errorMessage,
+  ) async {
+    if (!context.mounted) return;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.orange, size: 28),
+            const SizedBox(width: 12),
+            const Text('下载失败'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '下载更新文件失败：\n$errorMessage',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      '您可以手动前往GitHub Releases页面下载最新版本APK文件',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Theme.of(context).primaryColor,
+              side: BorderSide(color: Theme.of(context).primaryColor),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('取消'),
+          ),
+          const SizedBox(width: 12),
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            icon: const Icon(Icons.open_in_new, size: 18),
+            label: const Text('前往GitHub'),
+          ),
+        ],
+      ),
+    );
+    if (result == true && context.mounted) {
+      await _launchGitHubReleases(context);
+    }
+  }
+
+  /// 启动GitHub Releases页面
+  static Future<void> _launchGitHubReleases(BuildContext context) async {
+    final uri = Uri.parse('https://github.com/TNT-Likely/BeeCount/releases');
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        // 如果无法打开，显示提示
+        if (context.mounted) {
+          await AppDialog.info(
+            context,
+            title: '无法打开链接',
+            message: '请手动在浏览器中访问：\nhttps://github.com/TNT-Likely/BeeCount/releases',
+          );
+        }
+      }
+    } catch (e) {
+      // 打开链接失败，显示提示
+      if (context.mounted) {
+        await AppDialog.info(
+          context,
+          title: '无法打开链接',
+          message: '请手动在浏览器中访问：\nhttps://github.com/TNT-Likely/BeeCount/releases',
+        );
+      }
+    }
   }
 }
 
