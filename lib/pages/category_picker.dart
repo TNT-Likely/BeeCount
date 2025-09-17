@@ -9,38 +9,8 @@ import '../widgets/ui/ui.dart';
 import '../styles/colors.dart';
 import 'package:flutter/services.dart';
 import '../utils/sync_helpers.dart';
+import '../services/category_service.dart';
 
-// 默认分类列表 - 用于排序
-const _defaultExpenseCategories = [
-  '餐饮', '交通', '购物', '娱乐', '居家', '通讯', '水电', '住房', '医疗', '教育',
-  '宠物', '运动', '数码', '旅行', '烟酒', '母婴', '美容', '维修', '社交',
-  '学习', '汽车', '打车', '地铁', '外卖', '物业', '停车', '捐赠',
-  '饮料', '服装', '零食', '红包', '水果', '游戏', '书', '爱人', '装修', '日用品'
-];
-
-const _defaultIncomeCategories = [
-  '工资', '理财', '红包', '奖金', '报销', '兼职', '礼金', '利息', '退款', '投资', '二手转卖'
-];
-
-// 判断是否为默认分类
-bool _isDefaultCategory(String name, String kind) {
-  if (kind == 'expense') {
-    return _defaultExpenseCategories.contains(name);
-  } else {
-    return _defaultIncomeCategories.contains(name);
-  }
-}
-
-// 获取默认分类的排序权重（越小越靠前）
-int _getDefaultCategoryWeight(String name, String kind) {
-  if (kind == 'expense') {
-    final index = _defaultExpenseCategories.indexOf(name);
-    return index >= 0 ? index : 999;
-  } else {
-    final index = _defaultIncomeCategories.indexOf(name);
-    return index >= 0 ? index : 999;
-  }
-}
 
 class CategoryPickerPage extends ConsumerStatefulWidget {
   final String initialKind; // 'expense' or 'income'
@@ -249,26 +219,11 @@ class _CategoryGridState extends ConsumerState<_CategoryGrid> {
         }
 
         // 排序：默认分类在前，按照预定义顺序；非默认分类在后，按名称排序
-        final list = List<Category>.from(rawList);
-        list.sort((a, b) {
-          final aIsDefault = _isDefaultCategory(a.name, widget.kind);
-          final bIsDefault = _isDefaultCategory(b.name, widget.kind);
-
-          if (aIsDefault && bIsDefault) {
-            // 两个都是默认分类，按预定义顺序排序
-            return _getDefaultCategoryWeight(a.name, widget.kind)
-                .compareTo(_getDefaultCategoryWeight(b.name, widget.kind));
-          } else if (aIsDefault && !bIsDefault) {
-            // a是默认分类，b不是，a排在前面
-            return -1;
-          } else if (!aIsDefault && bIsDefault) {
-            // a不是默认分类，b是，b排在前面
-            return 1;
-          } else {
-            // 两个都不是默认分类，按名称排序
-            return a.name.compareTo(b.name);
-          }
-        });
+        final list = CategoryService.sortCategories(
+          rawList,
+          (category) => category.name,
+          (category) => category.kind,
+        );
 
         // 初次渲染后滚动到初始分类顶部
         if (!_scrolled && widget.initialId != null) {
