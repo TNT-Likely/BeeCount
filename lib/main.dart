@@ -11,6 +11,7 @@ import 'config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as s;
 import 'utils/route_logger.dart';
 import 'pages/splash_page.dart';
+import 'services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,8 @@ Future<void> main() async {
       anonKey: AppConfig.supabaseAnonKey,
     );
   }
+  // 初始化通知服务
+  await NotificationService.initialize();
   runApp(const ProviderScope(child: MainApp()));
 }
 

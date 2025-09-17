@@ -21,6 +21,7 @@ import 'restore_progress_page.dart';
 import 'font_settings_page.dart';
 import 'category_manage_page.dart';
 import 'category_migration_page.dart';
+import 'reminder_settings_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
@@ -253,6 +254,18 @@ class MinePage extends ConsumerWidget {
                           await Navigator.of(context).push(
                             MaterialPageRoute(
                                 builder: (_) => const CategoryMigrationPage()),
+                          );
+                        },
+                      ),
+                      AppDivider.thin(),
+                      AppListTile(
+                        leading: Icons.notifications_outlined,
+                        title: '记账提醒',
+                        subtitle: '设置每日记账提醒',
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const ReminderSettingsPage()),
                           );
                         },
                       ),
