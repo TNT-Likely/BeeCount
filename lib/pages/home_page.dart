@@ -7,7 +7,6 @@ import '../providers.dart';
 import 'personalize_page.dart' show headerStyleProvider;
 import '../data/db.dart';
 import '../widgets/ui/ui.dart';
-import 'category_picker.dart';
 import '../widgets/category_icon.dart';
 import 'category_detail_page.dart';
 // ui barrel already imported above
@@ -17,6 +16,7 @@ import '../styles/colors.dart';
 // import 'package:beecount/widgets/wheel_date_picker.dart';
 import 'package:beecount/widgets/measure_size.dart';
 import '../utils/sync_helpers.dart';
+import '../utils/transaction_edit_utils.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -597,20 +597,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         isExpense: isExpense,
                                         hide: hide,
                                         onTap: () async {
-                                          await Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (_) =>
-                                                  CategoryPickerPage(
-                                                initialKind: it.t.type,
-                                                quickAdd: true,
-                                                initialCategoryId:
-                                                    it.t.categoryId,
-                                                initialAmount: it.t.amount,
-                                                initialDate: it.t.happenedAt,
-                                                initialNote: it.t.note,
-                                                editingTransactionId: it.t.id,
-                                              ),
-                                            ),
+                                          await TransactionEditUtils.editTransaction(
+                                            context,
+                                            ref,
+                                            it.t,
+                                            it.category,
                                           );
                                         },
                                         onCategoryTap: it.category?.id != null ? () async {
@@ -778,32 +769,7 @@ class _HeaderCenterSummary extends ConsumerWidget {
     );
   }
 
-  Widget _loadingItem(BuildContext context, String title) => Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextTokens.label(context)),
-          const SizedBox(height: 2),
-          Container(
-            height: 24,
-            width: 60,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-        ],
-      );
 
-  Widget _errorItem(BuildContext context, String title) => Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextTokens.label(context)),
-          const SizedBox(height: 2),
-          const Text('--', style: TextStyle(fontSize: 20, color: Colors.grey)),
-        ],
-      );
 }
 
 // 顶部插画/卡片装饰，可按需替换为图片资源

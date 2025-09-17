@@ -826,4 +826,23 @@ class BeeRepository {
 
     return await query.get();
   }
+
+  /// 响应式监听分类下的交易变化
+  Stream<List<Transaction>> watchTransactionsByCategory(int categoryId) {
+    return (db.select(db.transactions)
+      ..where((t) => t.categoryId.equals(categoryId))
+      ..orderBy([
+        (t) => d.OrderingTerm(
+          expression: t.happenedAt,
+          mode: d.OrderingMode.desc,
+        )
+      ])).watch();
+  }
+
+  /// 响应式监听分类信息变化
+  Stream<Category?> watchCategory(int categoryId) {
+    return (db.select(db.categories)
+      ..where((c) => c.id.equals(categoryId))
+    ).watchSingleOrNull();
+  }
 }
