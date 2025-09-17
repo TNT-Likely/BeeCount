@@ -272,41 +272,83 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
       );
     }
 
-    // 按日期分组，但保持原有的排序顺序（使用LinkedHashMap维持插入顺序）
+    // 金额排序时：预计算UI列表，避免动态插入导致卡顿
+    if (currentSortType == SortType.amountDesc || currentSortType == SortType.amountAsc) {
+      // 先计算每个日期的统计数据（避免重复计算）
+      final Map<String, ({double expense, double income})> dateStats = {};
+      for (final transaction in transactions) {
+        final dateKey = DateFormat('yyyy-MM-dd').format(transaction.happenedAt.toLocal());
+        final current = dateStats[dateKey] ?? (expense: 0.0, income: 0.0);
+        dateStats[dateKey] = transaction.type == 'expense'
+          ? (expense: current.expense + transaction.amount, income: current.income)
+          : (expense: current.expense, income: current.income + transaction.amount);
+      }
+
+      // 预构建显示项列表
+      final List<({bool isHeader, String? dateKey, db.Transaction? transaction})> displayItems = [];
+      String? lastDateKey;
+
+      for (final transaction in transactions) {
+        final dateKey = DateFormat('yyyy-MM-dd').format(transaction.happenedAt.toLocal());
+
+        // 当日期改变时，添加日期头
+        if (lastDateKey != dateKey) {
+          displayItems.add((isHeader: true, dateKey: dateKey, transaction: null));
+          lastDateKey = dateKey;
+        }
+
+        // 添加交易项
+        displayItems.add((isHeader: false, dateKey: null, transaction: transaction));
+      }
+
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: displayItems.length,
+        itemBuilder: (context, index) {
+          final item = displayItems[index];
+
+          if (item.isHeader) {
+            final stats = dateStats[item.dateKey!]!;
+            return DaySectionHeader(
+              dateText: item.dateKey!,
+              expense: stats.expense,
+              income: stats.income,
+            );
+          } else {
+            final transaction = item.transaction!;
+            return TransactionListItem(
+              icon: _getTransactionIcon(transaction),
+              title: _getTransactionTitle(transaction),
+              amount: transaction.amount,
+              isExpense: transaction.type == 'expense',
+              onTap: () async {
+                final categoryData = ref.read(_categoryStreamProvider(widget.categoryId));
+                await TransactionEditUtils.editTransaction(
+                  context,
+                  ref,
+                  transaction,
+                  categoryData.value,
+                );
+              },
+            );
+          }
+        },
+      );
+    }
+
+    // 时间排序时：按日期分组，然后按时间排序日期分组
     final Map<String, List<db.Transaction>> groupedTransactions = <String, List<db.Transaction>>{};
     for (final transaction in transactions) {
       final dateKey = DateFormat('yyyy-MM-dd').format(transaction.happenedAt.toLocal());
       groupedTransactions.putIfAbsent(dateKey, () => []).add(transaction);
     }
 
-    // 获取日期键并按排序类型处理
     final sortedKeys = groupedTransactions.keys.toList();
-
-    // 根据当前排序类型决定日期分组的显示顺序
-    if (currentSortType == SortType.amountDesc || currentSortType == SortType.amountAsc) {
-      // 金额排序时：按照每组第一个交易的金额来排序日期分组
-      // 这样保证金额排序的视觉连续性
-      sortedKeys.sort((dateA, dateB) {
-        final transactionsA = groupedTransactions[dateA]!;
-        final transactionsB = groupedTransactions[dateB]!;
-
-        if (transactionsA.isEmpty || transactionsB.isEmpty) return 0;
-
-        // 用每组第一个交易的金额来比较（因为组内已经按金额排序）
-        final amountA = transactionsA.first.amount;
-        final amountB = transactionsB.first.amount;
-
-        return currentSortType == SortType.amountDesc
-          ? amountB.compareTo(amountA)  // 降序
-          : amountA.compareTo(amountB); // 升序
-      });
+    // 时间排序时：按日期排序分组
+    if (currentSortType == SortType.timeDesc) {
+      sortedKeys.sort((a, b) => b.compareTo(a)); // 最新日期在前
     } else {
-      // 时间排序时：按日期排序分组
-      if (currentSortType == SortType.timeDesc) {
-        sortedKeys.sort((a, b) => b.compareTo(a)); // 最新日期在前
-      } else {
-        sortedKeys.sort((a, b) => a.compareTo(b)); // 最早日期在前
-      }
+      sortedKeys.sort((a, b) => a.compareTo(b)); // 最早日期在前
     }
     
     return ListView.builder(
