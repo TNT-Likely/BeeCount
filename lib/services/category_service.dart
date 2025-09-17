@@ -6,7 +6,7 @@ class CategoryService {
 
   /// 默认支出分类列表 (按优先级排序)
   static const List<String> defaultExpenseCategories = [
-    '餐饮', '交通', '购物', '娱乐', '居家', '通讯', '水电', '住房', '医疗', '教育',
+    '餐饮', '交通', '购物', '娱乐', '居家', '家庭', '通讯', '水电', '住房', '医疗', '教育',
     '宠物', '运动', '数码', '旅行', '烟酒', '母婴', '美容', '维修', '社交',
     '学习', '汽车', '打车', '地铁', '外卖', '物业', '停车', '捐赠',
     '饮料', '服装', '零食', '红包', '水果', '游戏', '书', '爱人', '装修', '日用品'
@@ -55,6 +55,7 @@ class CategoryService {
         case '购物': return 'shopping_cart';
         case '娱乐': return 'movie';
         case '居家': return 'home';
+        case '家庭': return 'family_restroom';
         case '通讯': return 'phone';
         case '水电': return 'flash_on';
         case '住房': return 'home_work';
@@ -176,6 +177,11 @@ class CategoryService {
         n.contains('电影') ||
         n.contains('影院')) {
       return Icons.sports_esports_outlined;
+    }
+    if (n.contains('家庭') ||
+        n.contains('家人') ||
+        n.contains('家属')) {
+      return Icons.family_restroom_outlined;
     }
     if (n.contains('居家') ||
         n.contains('家') ||
@@ -377,6 +383,7 @@ class CategoryService {
       // 居住生活
       case 'home': return Icons.home;
       case 'house': return Icons.house;
+      case 'family_restroom': return Icons.family_restroom;
       case 'apartment': return Icons.apartment;
       case 'cleaning_services': return Icons.cleaning_services;
       case 'plumbing': return Icons.plumbing;

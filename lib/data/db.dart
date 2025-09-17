@@ -68,6 +68,7 @@ class BeeDatabase extends _$BeeDatabase {
       '购物',
       '娱乐',
       '居家',
+      '家庭',
       '通讯',
       '水电',
       '住房',
