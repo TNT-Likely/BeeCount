@@ -52,7 +52,10 @@ class MainApp extends ConsumerWidget {
     final primary = ref.watch(primaryColorProvider);
     final platform = Theme.of(context).platform; // 当前平台
     final base = BeeTheme.lightTheme(platform: platform);
+    final baseTextTheme = base.textTheme;
+
     final theme = base.copyWith(
+      textTheme: baseTextTheme,
       colorScheme: base.colorScheme.copyWith(primary: primary),
       primaryColor: primary,
       scaffoldBackgroundColor: Colors.white,
@@ -65,15 +68,15 @@ class MainApp extends ConsumerWidget {
       dialogTheme: base.dialogTheme.copyWith(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        titleTextStyle: base.textTheme.titleMedium?.copyWith(
+        titleTextStyle: baseTextTheme.titleMedium?.copyWith(
             color: BeeColors.primaryText, fontWeight: FontWeight.w600),
         contentTextStyle:
-            base.textTheme.bodyMedium?.copyWith(color: BeeColors.secondaryText),
+            baseTextTheme.bodyMedium?.copyWith(color: BeeColors.secondaryText),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primary,
-          textStyle: base.textTheme.labelLarge,
+          textStyle: baseTextTheme.labelLarge,
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(

@@ -28,7 +28,7 @@ import 'package:flutter/material.dart';
 /// 4. Set [AppTypography.useBundledFonts] = true (can be wired to a provider / settings later).
 /// 5. Rebuild. If fonts missing, leave `useBundledFonts` false to fall back gracefully.
 class AppTypography {
-  static bool useBundledFonts = true; // 已添加到 pubspec，启用打包字体
+  static bool useBundledFonts = false; // 已禁用打包字体，使用系统字体
 
   // Primary Latin family when bundled; fallback to system if not available.
   static const String bundledLatin = 'Inter';

@@ -12,6 +12,8 @@ final primaryColorProvider = StateProvider<Color>((ref) => BeeTheme.honeyGold);
 // 是否隐藏金额显示
 final hideAmountsProvider = StateProvider<bool>((ref) => false);
 
+// 字体选择Provider - 已移除，仅使用系统默认字体
+
 // 主题色持久化初始化：
 // - 启动时加载保存的主色
 // - 监听主色变化并写入本地
@@ -26,3 +28,5 @@ final primaryColorInitProvider = FutureProvider<void>((ref) async {
     await prefs.setInt('primaryColor', colorValue);
   });
 });
+
+// 字体持久化初始化 - 已移除，仅使用系统默认字体

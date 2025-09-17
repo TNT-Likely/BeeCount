@@ -22,11 +22,18 @@ class FontSettingsPage extends ConsumerWidget {
     return Scaffold(
       body: Column(
         children: [
-          const PrimaryHeader(title: '字体设置', showBack: true, compact: true),
+          const PrimaryHeader(title: '字号设置', showBack: true, compact: true),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               children: [
+                // 字号设置部分
+                Text('字号设置',
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelLarge
+                        ?.copyWith(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
                 Text('当前缩放：x${eff.toStringAsFixed(2)}',
                     style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: 12),
@@ -230,4 +237,4 @@ class _ListTileMock extends StatelessWidget {
   }
 }
 
-// 滑块已移除：保留档位按钮以保持交互简单。
+// 字体选择相关类已移除，仅保留字号设置功能

@@ -302,8 +302,8 @@ class MinePage extends ConsumerWidget {
                   margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
                   child: AppListTile(
                     leading: Icons.text_fields_outlined,
-                    title: '字体与字号',
-                    subtitle: '微调显示大小',
+                    title: '字号设置',
+                    subtitle: '调整显示大小',
                     onTap: () async {
                       await Navigator.of(context).push(
                         MaterialPageRoute(
