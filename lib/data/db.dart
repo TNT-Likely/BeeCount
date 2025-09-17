@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import '../services/category_service.dart';
 
 part 'db.g.dart';
 
@@ -67,6 +68,7 @@ class BeeDatabase extends _$BeeDatabase {
       '购物',
       '娱乐',
       '居家',
+      '家庭',
       '通讯',
       '水电',
       '住房',
@@ -195,69 +197,6 @@ class BeeDatabase extends _$BeeDatabase {
     } catch (_) {}
 
     // 为分类名称分配默认图标
-    String getDefaultIcon(String name, String kind) {
-      if (kind == expense) {
-        switch (name) {
-          case '饮料': return 'local_cafe';
-          case '服装': return 'checkroom';
-          case '零食': return 'fastfood';
-          case '服饰': return 'checkroom';
-          case '红包': return 'card_giftcard';
-          case '水果': return 'local_grocery_store';
-          case '游戏': return 'sports_esports';
-          case '书': return 'menu_book';
-          case '爱人': return 'favorite';
-          case '装修': return 'build';
-          case '旅游': return 'flight';
-          case '日用品': return 'local_laundry_service';
-          case '餐饮': return 'restaurant';
-          case '交通': return 'directions_car';
-          case '购物': return 'shopping_cart';
-          case '娱乐': return 'movie';
-          case '居家': return 'home';
-          case '通讯': return 'phone';
-          case '水电': return 'flash_on';
-          case '住房': return 'home_work';
-          case '医疗': return 'local_hospital';
-          case '教育': return 'school';
-          case '宠物': return 'pets';
-          case '运动': return 'fitness_center';
-          case '数码': return 'smartphone';
-          case '旅行': return 'flight';
-          case '网购': return 'shopping_cart';
-          case '烟酒': return 'local_bar';
-          case '母婴': return 'child_care';
-          case '美容': return 'face';
-          case '维修': return 'build';
-          case '社交': return 'group';
-          case '学习': return 'school';
-          case '汽车': return 'directions_car';
-          case '打车': return 'local_taxi';
-          case '地铁': return 'directions_subway';
-          case '外卖': return 'delivery_dining';
-          case '奶茶水果': return 'local_cafe';
-          case '物业': return 'apartment';
-          case '停车': return 'local_parking';
-          case '捐赠': return 'volunteer_activism';
-          default: return 'category';
-        }
-      } else {
-        switch (name) {
-          case '投资': return 'trending_up';
-          case '二手转卖': return 'sell';
-          case '工资': return 'work';
-          case '理财': return 'account_balance';
-          case '红包': return 'card_giftcard';
-          case '奖金': return 'emoji_events';
-          case '报销': return 'receipt';
-          case '兼职': return 'work_outline';
-          case '礼金': return 'card_giftcard';
-          case '利息': return 'monetization_on';
-          case '退款': return 'keyboard_return';
-          default: return 'attach_money';
-        }
-      }
-    }
 
     for (final name in defaultExpense) {
       final existingCategories = await (select(categories)
@@ -265,7 +204,16 @@ class BeeDatabase extends _$BeeDatabase {
           .get();
       if (existingCategories.isEmpty) {
         await into(categories).insert(CategoriesCompanion.insert(
-            name: name, kind: expense, icon: Value(getDefaultIcon(name, expense))));
+            name: name, kind: expense, icon: Value(CategoryService.getDefaultCategoryIcon(name, expense))));
+      } else {
+        // 更新现有分类的图标（如果图标为空或不正确）
+        for (final category in existingCategories) {
+          final correctIcon = CategoryService.getDefaultCategoryIcon(name, expense);
+          if (category.icon != correctIcon) {
+            await (update(categories)..where((c) => c.id.equals(category.id)))
+                .write(CategoriesCompanion(icon: Value(correctIcon)));
+          }
+        }
       }
     }
     for (final name in defaultIncome) {
@@ -274,7 +222,16 @@ class BeeDatabase extends _$BeeDatabase {
           .get();
       if (existingCategories.isEmpty) {
         await into(categories).insert(CategoriesCompanion.insert(
-            name: name, kind: income, icon: Value(getDefaultIcon(name, income))));
+            name: name, kind: income, icon: Value(CategoryService.getDefaultCategoryIcon(name, income))));
+      } else {
+        // 更新现有分类的图标（如果图标为空或不正确）
+        for (final category in existingCategories) {
+          final correctIcon = CategoryService.getDefaultCategoryIcon(name, income);
+          if (category.icon != correctIcon) {
+            await (update(categories)..where((c) => c.id.equals(category.id)))
+                .write(CategoriesCompanion(icon: Value(correctIcon)));
+          }
+        }
       }
     }
   }

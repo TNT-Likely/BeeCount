@@ -60,22 +60,23 @@ flutter:
     - assets/bee.svg
     - assets/logo.png
     - assets/logo2.png
-  fonts:
-    - family: Inter
-      fonts:
-        - asset: assets/fonts/Inter-Regular.ttf
-        - asset: assets/fonts/Inter-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Inter-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Inter-Bold.ttf
-          weight: 700
-    - family: NotoSansSC
-      fonts:
-        - asset: assets/fonts/NotoSansSC-Regular.ttf
-        - asset: assets/fonts/NotoSansSC-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/NotoSansSC-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/NotoSansSC-Bold.ttf
-          weight: 700
+  # 字体已移动到可选依赖，使用系统字体以减少应用体积
+  # fonts:
+  #   - family: Inter
+  #     fonts:
+  #       - asset: assets/fonts/Inter-Regular.ttf
+  #       - asset: assets/fonts/Inter-Medium.ttf
+  #         weight: 500
+  #       - asset: assets/fonts/Inter-SemiBold.ttf
+  #         weight: 600
+  #       - asset: assets/fonts/Inter-Bold.ttf
+  #         weight: 700
+  #   - family: NotoSansSC
+  #     fonts:
+  #       - asset: assets/fonts/NotoSansSC-Regular.ttf
+  #       - asset: assets/fonts/NotoSansSC-Medium.ttf
+  #         weight: 500
+  #       - asset: assets/fonts/NotoSansSC-SemiBold.ttf
+  #         weight: 600
+  #       - asset: assets/fonts/NotoSansSC-Bold.ttf
+  #         weight: 700

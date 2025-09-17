@@ -4,6 +4,7 @@ import '../providers.dart';
 import '../data/repository.dart';
 import '../widgets/ui/ui.dart';
 import '../data/db.dart' as db;
+import '../services/category_service.dart';
 import 'category_detail_page.dart';
 import 'category_migration_page.dart';
 
@@ -48,6 +49,9 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
   }
   
   bool get isEditing => widget.category != null;
+
+  bool get isDefaultCategory => widget.category != null &&
+      CategoryService.isDefaultCategory(widget.category!.name, widget.category!.kind);
   
   @override
   Widget build(BuildContext context) {
@@ -105,6 +109,32 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                       title: Text(widget.kind == 'expense' ? '支出分类' : '收入分类'),
                     ),
                   ),
+
+                  // 默认分类警告
+                  if (isDefaultCategory) ...[
+                    const SizedBox(height: 16),
+                    Card(
+                      color: Colors.orange[50],
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.info_outline,
+                          color: Colors.orange[700],
+                        ),
+                        title: Text(
+                          '默认分类',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange[700],
+                          ),
+                        ),
+                        subtitle: Text(
+                          '默认分类不可修改名称和图标，但可以查看详情和迁移数据',
+                          style: TextStyle(color: Colors.orange[600]),
+                        ),
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 16),
                   
                   // 分类名称
@@ -121,9 +151,12 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _nameController,
-                            decoration: const InputDecoration(
-                              hintText: '请输入分类名称',
-                              border: OutlineInputBorder(),
+                            enabled: !isDefaultCategory,
+                            decoration: InputDecoration(
+                              hintText: isDefaultCategory ? '默认分类名称不可修改' : '请输入分类名称',
+                              border: const OutlineInputBorder(),
+                              fillColor: isDefaultCategory ? Colors.grey[100] : null,
+                              filled: isDefaultCategory,
                             ),
                             maxLength: 4,
                             validator: (value) {
@@ -151,24 +184,50 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                         children: [
                           Text(
                             '分类图标',
-                            style: Theme.of(context).textTheme.titleMedium,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: isDefaultCategory ? Colors.grey[600] : null,
+                            ),
                           ),
                           const SizedBox(height: 16),
-                          _GroupedIconGrid(
-                            selectedIcon: _selectedIcon,
-                            kind: widget.kind,
-                            onIconSelected: (icon) {
-                              setState(() {
-                                _selectedIcon = icon;
-                              });
-                            },
-                          ),
+                          if (isDefaultCategory)
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.grey[300]!),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    CategoryService.getCategoryIcon(_selectedIcon),
+                                    size: 24,
+                                    color: Colors.grey[600],
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    '默认分类图标不可修改',
+                                    style: TextStyle(color: Colors.grey[600]),
+                                  ),
+                                ],
+                              ),
+                            )
+                          else
+                            _GroupedIconGrid(
+                              selectedIcon: _selectedIcon,
+                              kind: widget.kind,
+                              onIconSelected: (icon) {
+                                setState(() {
+                                  _selectedIcon = icon;
+                                });
+                              },
+                            ),
                         ],
                       ),
                     ),
                   ),
                   
-                  if (isEditing) ...[
+                  if (isEditing && !isDefaultCategory) ...[
                     const SizedBox(height: 32),
                     const Divider(),
                     const SizedBox(height: 16),
@@ -184,7 +243,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                         leading: const Icon(Icons.delete, color: Colors.red),
                         title: const Text('删除分类'),
                         subtitle: const Text('删除后无法恢复'),
-                        onTap: _deleteCategory,
+                        onTap: isDefaultCategory ? null : _deleteCategory,
                       ),
                     ),
                   ],
@@ -198,8 +257,8 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             child: FilledButton(
-              onPressed: _saving ? null : _saveCategory,
-              child: _saving 
+              onPressed: (_saving || isDefaultCategory) ? null : _saveCategory,
+              child: _saving
                   ? const SizedBox(
                       width: 20,
                       height: 20,
@@ -208,7 +267,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                         color: Colors.white,
                       ),
                     )
-                  : const Text('保存'),
+                  : Text(isDefaultCategory ? '默认分类不可保存' : '保存'),
             ),
           ),
         ],

@@ -665,12 +665,48 @@ class BeeRepository {
       variables: [d.Variable.withInt(categoryId)],
       readsFrom: {db.transactions},
     ).getSingle();
-    
+
     final count = result.data['count'];
     if (count is int) return count;
     if (count is BigInt) return count.toInt();
     if (count is num) return count.toInt();
     return 0;
+  }
+
+  /// 批量获取所有分类的交易数量（性能优化版本）
+  Future<Map<int, int>> getAllCategoryTransactionCounts() async {
+    final result = await db.customSelect(
+      '''
+      SELECT
+        c.id as category_id,
+        COALESCE(COUNT(t.id), 0) as transaction_count
+      FROM categories c
+      LEFT JOIN transactions t ON c.id = t.category_id
+      GROUP BY c.id
+      ''',
+      readsFrom: {db.categories, db.transactions},
+    ).get();
+
+    final Map<int, int> counts = {};
+    for (final row in result) {
+      final categoryId = row.data['category_id'];
+      final count = row.data['transaction_count'];
+
+      if (categoryId is int) {
+        int countInt = 0;
+        if (count is int) {
+          countInt = count;
+        } else if (count is BigInt) {
+          countInt = count.toInt();
+        } else if (count is num) {
+          countInt = count.toInt();
+        }
+
+        counts[categoryId] = countInt;
+      }
+    }
+
+    return counts;
   }
   
   // 分类迁移：将fromCategoryId的所有交易迁移到toCategoryId
@@ -758,9 +794,55 @@ class BeeRepository {
       ..where((t) => t.categoryId.equals(categoryId))
       ..orderBy([
         (t) => d.OrderingTerm(
-          expression: t.happenedAt, 
+          expression: t.happenedAt,
           mode: d.OrderingMode.desc,
         )
       ])).get();
+  }
+
+  // 获取分类下的所有交易记录（支持自定义排序）
+  Future<List<Transaction>> getTransactionsByCategoryWithSort(
+    int categoryId, {
+    String sortBy = 'time', // 'time' or 'amount'
+    bool ascending = false,
+  }) async {
+    final query = db.select(db.transactions)..where((t) => t.categoryId.equals(categoryId));
+
+    if (sortBy == 'amount') {
+      query.orderBy([
+        (t) => d.OrderingTerm(
+          expression: t.amount,
+          mode: ascending ? d.OrderingMode.asc : d.OrderingMode.desc,
+        )
+      ]);
+    } else {
+      query.orderBy([
+        (t) => d.OrderingTerm(
+          expression: t.happenedAt,
+          mode: ascending ? d.OrderingMode.asc : d.OrderingMode.desc,
+        )
+      ]);
+    }
+
+    return await query.get();
+  }
+
+  /// 响应式监听分类下的交易变化
+  Stream<List<Transaction>> watchTransactionsByCategory(int categoryId) {
+    return (db.select(db.transactions)
+      ..where((t) => t.categoryId.equals(categoryId))
+      ..orderBy([
+        (t) => d.OrderingTerm(
+          expression: t.happenedAt,
+          mode: d.OrderingMode.desc,
+        )
+      ])).watch();
+  }
+
+  /// 响应式监听分类信息变化
+  Stream<Category?> watchCategory(int categoryId) {
+    return (db.select(db.categories)
+      ..where((c) => c.id.equals(categoryId))
+    ).watchSingleOrNull();
   }
 }
