@@ -22,9 +22,8 @@ class MainActivity: FlutterActivity() {
         handleNotificationIntent(intent)
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        setIntent(intent) // 重要：更新当前intent
+    private fun onNewIntentHandler(intent: Intent?) {
+        intent?.let { setIntent(it) } // 重要：更新当前intent
         handleNotificationIntent(intent)
     }
 
@@ -317,7 +316,7 @@ class MainActivity: FlutterActivity() {
             }
         } catch (e: Exception) {
             android.util.Log.e("MainActivity", "获取通知渠道信息失败: $e")
-            return mapOf(
+            return mapOf<String, Any>(
                 "isEnabled" to false,
                 "importance" to "unknown",
                 "sound" to false,

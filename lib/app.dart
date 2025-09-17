@@ -8,6 +8,7 @@ import 'pages/mine_page.dart';
 import 'pages/category_picker.dart';
 import 'pages/personalize_page.dart' show headerStyleProvider;
 import 'providers.dart';
+import 'utils/ui_scale_extensions.dart';
 
 class BeeApp extends ConsumerStatefulWidget {
   const BeeApp({super.key});
@@ -43,10 +44,10 @@ class _BeeAppState extends ConsumerState<BeeApp> {
         bottomNavigationBar: BottomAppBar(
           color: Colors.white,
           shape: const CircularNotchedRectangle(),
-          notchMargin: 8,
+          notchMargin: 8.0.scaled(context, ref),
           elevation: 8,
           child: SizedBox(
-            height: 60,
+            height: 60.0.scaled(context, ref),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(5, (i) {
@@ -86,12 +87,12 @@ class _BeeAppState extends ConsumerState<BeeApp> {
                         .read(bottomTabIndexProvider.notifier)
                         .state = pageIndex,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 8),
+                      padding: EdgeInsets.only(top: 8.0.scaled(context, ref)),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(icon, color: color),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4.0.scaled(context, ref)),
                           Text(label,
                               style: TextStyle(
                                   fontSize: 11,
@@ -112,8 +113,8 @@ class _BeeAppState extends ConsumerState<BeeApp> {
           final style = ref.watch(headerStyleProvider);
           final color = Theme.of(context).colorScheme.primary;
           return SizedBox(
-            width: 80,
-            height: 80,
+            width: 80.0.scaled(context, ref),
+            height: 80.0.scaled(context, ref),
             child: FloatingActionButton(
               heroTag: 'addFab',
               elevation: 8,
@@ -129,7 +130,7 @@ class _BeeAppState extends ConsumerState<BeeApp> {
                   ),
                 );
               },
-              child: const Icon(Icons.add, color: Colors.white, size: 34),
+              child: Icon(Icons.add, color: Colors.white, size: 34.0.scaled(context, ref)),
             ),
           );
         }),
