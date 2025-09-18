@@ -433,17 +433,16 @@ class MinePage extends ConsumerWidget {
                     downloadBusy)
                 ? null
                 : () async {
-                    final st2 = await sync.getStatus(ledgerId: ledgerId);
                     if (!context.mounted) return;
                     final lines = <String>[
-                      '本地记录数: ${st2.localCount}',
-                      if (st2.cloudCount != null) '云端记录数: ${st2.cloudCount}',
-                      if (st2.cloudExportedAt != null)
-                        '云端最新记账时间: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(st2.cloudExportedAt!.toLocal())}',
-                      '本地指纹: ${st2.localFingerprint}',
-                      if (st2.cloudFingerprint != null)
-                        '云端指纹: ${st2.cloudFingerprint}',
-                      if (st2.message != null) '说明: ${st2.message}',
+                      '本地记录数: ${st.localCount}',
+                      if (st.cloudCount != null) '云端记录数: ${st.cloudCount}',
+                      if (st.cloudExportedAt != null)
+                        '云端最新记账时间: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(st.cloudExportedAt!.toLocal())}',
+                      '本地指纹: ${st.localFingerprint}',
+                      if (st.cloudFingerprint != null)
+                        '云端指纹: ${st.cloudFingerprint}',
+                      if (st.message != null) '说明: ${st.message}',
                     ];
                     await AppDialog.info(context,
                         title: '同步状态详情', message: lines.join('\n'));

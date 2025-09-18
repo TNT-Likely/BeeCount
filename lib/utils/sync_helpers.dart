@@ -21,6 +21,9 @@ Future<void> handleLocalChange(WidgetRef ref,
     auto = prefs.getBool('auto_sync') ?? false;
   } catch (_) {}
 
+  // 始终立即刷新一次状态，确保UI及时反映本地变更
+  ref.read(syncStatusRefreshProvider.notifier).state++;
+
   if (auto) {
     if (background) {
       final refresh = ref.read(syncStatusRefreshProvider.notifier);
@@ -34,11 +37,8 @@ Future<void> handleLocalChange(WidgetRef ref,
     } else {
       try {
         await sync.uploadCurrentLedger(ledgerId: ledgerId);
+        ref.read(syncStatusRefreshProvider.notifier).state++;
       } catch (_) {}
-      ref.read(syncStatusRefreshProvider.notifier).state++;
     }
-  } else {
-    // 未开启自动同步：立刻刷新，显示“本地较新”
-    ref.read(syncStatusRefreshProvider.notifier).state++;
   }
 }

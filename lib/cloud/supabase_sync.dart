@@ -198,7 +198,7 @@ class SupabaseSyncService implements SyncService {
           localFingerprint: localFp,
           cloudCount: localCount,
           cloudFingerprint: localFp,
-          cloudExportedAt: localMaxAt,
+          cloudExportedAt: DateTime.now(), // 使用上传时间而不是最后记录时间
         );
       } else {
         // 若解析失败，仅清理状态缓存，后续由轮询兜底
@@ -308,7 +308,7 @@ class SupabaseSyncService implements SyncService {
             localFingerprint: localFp,
             cloudCount: ru.count,
             cloudFingerprint: ru.fp,
-            cloudExportedAt: ru.maxAt,
+            cloudExportedAt: ru.at, // 使用上传时间而不是最后记录时间
           );
           _statusCache[ledgerId] = st;
           return st;
@@ -333,7 +333,7 @@ class SupabaseSyncService implements SyncService {
         }
         final remoteFp = _contentFingerprintFromMap(map);
         final remoteCount = (map['count'] as num?)?.toInt();
-        // 云端“更新时间”：优先使用导出时间 exportedAt，否则回退到内容最大发生时间
+        // 云端"最新记账时间"：优先使用导出时间 exportedAt（账本更新时间），否则回退到内容最大发生时间
         DateTime? remoteAt;
         final exportedAtStr = map['exportedAt'] as String?;
         if (exportedAtStr != null) {
@@ -384,7 +384,7 @@ class SupabaseSyncService implements SyncService {
           _statusCache[ledgerId] = st;
           return st;
         }
-        // 双方均非空时，使用“更新时间”判断方向；若缺失则仅提示不同
+        // 双方均非空时，使用"更新时间"判断方向；若缺失则仅提示不同
         if (localCount > 0 &&
             (remoteCount ?? 0) > 0 &&
             remoteAt != null &&
@@ -498,7 +498,13 @@ class SupabaseSyncService implements SyncService {
       }
       final fp = _contentFingerprintFromMap(map);
       final cnt = (map['count'] as num?)?.toInt();
-      final at = _maxHappenedAt(map);
+      // 优先使用导出时间 exportedAt（账本更新时间），否则回退到内容最大发生时间
+      DateTime? at;
+      final exportedAtStr = map['exportedAt'] as String?;
+      if (exportedAtStr != null) {
+        at = DateTime.tryParse(exportedAtStr);
+      }
+      at ??= _maxHappenedAt(map);
       logI('sync', '刷新云端指纹成功: 指纹=$fp 条数=$cnt 时间=$at');
       // 若与本地一致，直接更新缓存为已同步，帮助 UI 立即显示正确结果
       try {
