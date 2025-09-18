@@ -15,6 +15,26 @@
 -keep class io.flutter.** { *; }
 -keep class com.dexterous.** { *; }
 
+# Keep flutter_local_notifications plugin classes
+-keep class com.dexterous.flutterlocalnotifications.** { *; }
+-keep class com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin { *; }
+
+# Keep notification plugin method signatures and generics
+-keepclassmembers class com.dexterous.flutterlocalnotifications.** {
+    public *;
+}
+
+# Preserve generic signatures for plugin methods
+-keepattributes Signature
+-keepattributes InnerClasses
+-keepattributes EnclosingMethod
+
+# Keep timezone data for notifications
+-keep class net.danlew.android.joda.** { *; }
+
+# Keep notification-related enum classes
+-keep class * extends java.lang.Enum { *; }
+
 # Keep notification channel related classes
 -keep class android.app.NotificationChannel { *; }
 -keep class android.app.NotificationManager { *; }

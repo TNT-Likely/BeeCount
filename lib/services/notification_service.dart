@@ -3,19 +3,35 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter/services.dart';
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart';
 
 class NotificationService {
   static FlutterLocalNotificationsPlugin? _flutterLocalNotificationsPlugin;
   static bool _initialized = false;
-  
+
   static const int _accountingReminderId = 1001;
   static const MethodChannel _channel = MethodChannel('notification_channel');
+
+  /// 生产环境增强调试日志
+  static void _debugLog(String message, {bool forceLog = false}) {
+    final now = DateTime.now().toIso8601String();
+    final buildMode = kDebugMode ? 'DEBUG' : (kProfileMode ? 'PROFILE' : 'RELEASE');
+    final flavor = const String.fromEnvironment('FLAVOR', defaultValue: 'unknown');
+    final logPrefix = '[$now] [NotificationService] [$buildMode] [$flavor]';
+
+    // 在生产环境或强制记录时，使用print确保日志输出
+    if (!kDebugMode || forceLog) {
+      print('$logPrefix $message');
+    } else {
+      print('$logPrefix $message');
+    }
+  }
 
   /// 初始化通知服务
   static Future<void> initialize() async {
     if (_initialized) return;
 
-    print('开始初始化通知服务...');
+    _debugLog('开始初始化通知服务...');
     _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     
     // 初始化时区数据
@@ -130,19 +146,19 @@ class NotificationService {
     required int hour,
     required int minute,
   }) async {
-    print('🔔 开始设置记账提醒: ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}');
-    
+    _debugLog('🔔 开始设置记账提醒: ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}', forceLog: true);
+
     if (!_initialized) {
-      print('⚠️  通知服务未初始化，正在初始化...');
+      _debugLog('⚠️  通知服务未初始化，正在初始化...');
       await initialize();
     }
     if (_flutterLocalNotificationsPlugin == null) {
-      print('❌ 通知插件为null，无法设置提醒');
+      _debugLog('❌ 通知插件为null，无法设置提醒');
       return;
     }
 
     // 先取消之前的提醒
-    print('🗑️  取消之前的提醒...');
+    _debugLog('🗑️  取消之前的提醒...');
     await cancelAccountingReminder();
 
     // 计算下一次提醒时间
@@ -222,9 +238,23 @@ class NotificationService {
       }
       
     } catch (e) {
-      print('❌ 设置记账提醒失败: $e');
-      print('❌ 错误详情: ${e.toString()}');
-      rethrow;
+      _debugLog('❌ 设置Flutter记账提醒失败: $e');
+      _debugLog('❌ 错误详情: ${e.toString()}');
+      _debugLog('🔄 继续使用AlarmManager作为备用调度方案...');
+
+      // Flutter通知失败时，使用AlarmManager作为备用
+      if (Platform.isAndroid) {
+        try {
+          _debugLog('📱 使用AlarmManager备用调度...');
+          await _scheduleAlarmManagerBackup(hour, minute);
+          _debugLog('✅ AlarmManager备用调度设置成功');
+        } catch (alarmError) {
+          _debugLog('❌ AlarmManager备用调度也失败: $alarmError');
+          rethrow;
+        }
+      } else {
+        rethrow; // iOS平台重新抛出异常
+      }
     }
   }
   
@@ -310,38 +340,43 @@ class NotificationService {
 
   /// 取消记账提醒
   static Future<void> cancelAccountingReminder() async {
-    print('🗑️  开始取消所有记账提醒...');
-    
+    _debugLog('🗑️  开始取消所有记账提醒...');
+
     if (!_initialized) await initialize();
     if (_flutterLocalNotificationsPlugin == null) {
-      print('❌ 通知插件为null，无法取消提醒');
+      _debugLog('❌ 通知插件为null，无法取消提醒');
       return;
     }
 
-    // 取消主要提醒
-    print('🗑️  取消主要提醒 (ID: $_accountingReminderId)');
-    await _flutterLocalNotificationsPlugin!.cancel(_accountingReminderId);
-    
-    // 取消所有备用提醒 (未来7天)
-    print('🗑️  取消备用提醒 (ID: ${_accountingReminderId + 1} - ${_accountingReminderId + 7})');
-    for (int i = 1; i <= 7; i++) {
-      await _flutterLocalNotificationsPlugin!.cancel(_accountingReminderId + i);
+    try {
+      // 取消主要提醒
+      _debugLog('🗑️  取消主要提醒 (ID: $_accountingReminderId)');
+      await _flutterLocalNotificationsPlugin!.cancel(_accountingReminderId);
+
+      // 取消所有备用提醒 (未来7天)
+      _debugLog('🗑️  取消备用提醒 (ID: ${_accountingReminderId + 1} - ${_accountingReminderId + 7})');
+      for (int i = 1; i <= 7; i++) {
+        await _flutterLocalNotificationsPlugin!.cancel(_accountingReminderId + i);
+      }
+      _debugLog('✅ Flutter通知取消完成');
+    } catch (e) {
+      _debugLog('⚠️ 取消Flutter通知时出错: $e，继续处理其他取消操作');
     }
 
     // 取消AlarmManager备用提醒
     if (Platform.isAndroid) {
       try {
-        print('🗑️  取消AlarmManager备用提醒 (ID: ${_accountingReminderId + 100})');
+        _debugLog('🗑️  取消AlarmManager备用提醒 (ID: ${_accountingReminderId + 100})');
         await _channel.invokeMethod('cancelNotification', {
           'notificationId': _accountingReminderId + 100,
         });
-        print('✅ AlarmManager备用提醒已取消');
+        _debugLog('✅ AlarmManager备用提醒已取消');
       } catch (e) {
-        print('❌ 取消AlarmManager备用提醒失败: $e');
+        _debugLog('❌ 取消AlarmManager备用提醒失败: $e');
       }
     }
 
-    print('✅ 所有记账提醒已取消 (包括备用提醒)');
+    _debugLog('✅ 所有记账提醒已取消 (包括备用提醒)');
   }
 
   /// 立即发送测试通知
@@ -496,6 +531,39 @@ class NotificationService {
         'manufacturer': 'Unknown',
       };
     }
+  }
+
+  /// 获取生产环境诊断信息（用于debug生产提醒问题）- 简化版避免限流
+  static Future<Map<String, dynamic>> getProductionDiagnosticInfo() async {
+    final Map<String, dynamic> info = {
+      'timestamp': DateTime.now().toIso8601String(),
+      'buildMode': kDebugMode ? 'DEBUG' : (kProfileMode ? 'PROFILE' : 'RELEASE'),
+      'flavor': const String.fromEnvironment('FLAVOR', defaultValue: 'unknown'),
+      'platform': Platform.operatingSystem,
+      'platformVersion': Platform.operatingSystemVersion,
+      'isInitialized': _initialized,
+    };
+
+    try {
+      // 只获取基本的权限状态，避免频繁调用可能导致限流
+      final androidPlugin = _flutterLocalNotificationsPlugin
+          ?.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidPlugin != null) {
+        info['notificationsEnabled'] = await androidPlugin.areNotificationsEnabled() ?? false;
+        info['canScheduleExactAlarms'] = await androidPlugin.canScheduleExactNotifications() ?? false;
+      }
+
+      // 简化信息收集，避免过多的系统调用
+      info['pendingNotificationsCount'] = (await getPendingNotifications()).length;
+
+      _debugLog('生产环境基础诊断信息: buildMode=${info['buildMode']}, flavor=${info['flavor']}, notificationsEnabled=${info['notificationsEnabled']}, canScheduleExactAlarms=${info['canScheduleExactAlarms']}');
+    } catch (e) {
+      _debugLog('收集生产环境诊断信息失败: $e');
+      info['error'] = e.toString();
+    }
+
+    return info;
   }
 
   /// 设置一个几分钟后的测试提醒（用于验证后台通知功能）

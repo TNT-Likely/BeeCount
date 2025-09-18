@@ -316,7 +316,7 @@ class MainActivity: FlutterActivity() {
             }
         } catch (e: Exception) {
             android.util.Log.e("MainActivity", "获取通知渠道信息失败: $e")
-            return mapOf<String, Any>(
+            return mapOf(
                 "isEnabled" to false,
                 "importance" to "unknown",
                 "sound" to false,
