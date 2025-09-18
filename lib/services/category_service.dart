@@ -10,7 +10,7 @@ class CategoryService {
     '宠物', '运动', '数码', '旅行', '烟酒', '母婴', '美容', '维修', '社交',
     '学习', '汽车', '打车', '地铁', '外卖', '物业', '停车', '捐赠', '礼金', '纳税',
     '饮料', '服装', '零食', '红包', '水果', '游戏', '书', '爱人', '装修', '日用品',
-    '彩票', '股票', '社保'
+    '彩票', '股票', '社保', '快递', '工作'
   ];
 
   /// 默认收入分类列表 (按优先级排序)
@@ -95,6 +95,8 @@ class CategoryService {
         case '彩票': return 'confirmation_number';
         case '股票': return 'trending_up';
         case '社保': return 'security';
+        case '快递': return 'local_shipping';
+        case '工作': return 'work_outline';
         default: return 'category';
       }
     } else {
@@ -313,6 +315,13 @@ class CategoryService {
     if (n.contains('捐赠') || n.contains('公益')) {
       return Icons.volunteer_activism_outlined;
     }
+    if (n.contains('工作') ||
+        n.contains('办公') ||
+        n.contains('出差') ||
+        n.contains('职场') ||
+        n.contains('会议')) {
+      return Icons.work_outline;
+    }
     return Icons.circle_outlined;
   }
 
@@ -367,6 +376,7 @@ class CategoryService {
       case 'electric_scooter': return Icons.electric_scooter;
       case 'local_gas_station': return Icons.local_gas_station;
       case 'local_parking': return Icons.local_parking;
+      case 'local_shipping': return Icons.local_shipping;
       case 'traffic': return Icons.traffic;
       case 'directions_railway': return Icons.directions_railway;
       case 'airport_shuttle': return Icons.airport_shuttle;
@@ -518,6 +528,7 @@ class CategoryService {
 
       // 工作职业（收入）
       case 'work': return Icons.work;
+      case 'work_outline': return Icons.work_outline;
       case 'business': return Icons.business;
       case 'business_center': return Icons.business_center;
       case 'engineering': return Icons.engineering;
