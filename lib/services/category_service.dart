@@ -8,7 +8,7 @@ class CategoryService {
   static const List<String> defaultExpenseCategories = [
     '餐饮', '交通', '购物', '娱乐', '居家', '家庭', '通讯', '水电', '住房', '医疗', '教育',
     '宠物', '运动', '数码', '旅行', '烟酒', '母婴', '美容', '维修', '社交',
-    '学习', '汽车', '打车', '地铁', '外卖', '物业', '停车', '捐赠',
+    '学习', '汽车', '打车', '地铁', '外卖', '物业', '停车', '捐赠', '礼金', '纳税',
     '饮料', '服装', '零食', '红包', '水果', '游戏', '书', '爱人', '装修', '日用品',
     '彩票', '股票', '社保'
   ];
@@ -80,6 +80,8 @@ class CategoryService {
         case '物业': return 'apartment';
         case '停车': return 'local_parking';
         case '捐赠': return 'volunteer_activism';
+        case '礼金': return 'card_giftcard';
+        case '纳税': return 'receipt_long';
         case '饮料': return 'local_cafe';
         case '服装': return 'checkroom';
         case '零食': return 'fastfood';

@@ -83,7 +83,7 @@ final firstFullUploadPendingProvider = FutureProvider<bool>((ref) async {
   return store.isFirstFullUploadPending();
 });
 
-// 已保存（未必激活）的自定义配置（用于 UI 在默认模式下展示“可启用”）
+// 已保存（未必激活）的自定义配置（用于 UI 在默认模式下展示"可启用"）
 final storedCustomCloudConfigProvider =
     FutureProvider<CloudServiceConfig?>((ref) async {
   final store = ref.watch(cloudServiceStoreProvider);

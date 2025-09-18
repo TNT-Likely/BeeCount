@@ -28,9 +28,14 @@ class CloudServiceStore {
   Future<CloudServiceConfig?> loadCustom() async {
     final sp = await SharedPreferences.getInstance();
     final raw = sp.getString(_kCustomCfg);
-    if (raw == null) return null;
+    if (raw == null) {
+      logI('cloudStore', 'loadCustom: 没有找到自定义配置');
+      return null;
+    }
     try {
-      return decodeCloudConfig(raw);
+      final config = decodeCloudConfig(raw);
+      logI('cloudStore', 'loadCustom: 成功加载自定义配置');
+      return config;
     } catch (e) {
       logW('cloudCfg', 'loadCustom 解析失败: $e');
       return null;
@@ -43,6 +48,14 @@ class CloudServiceStore {
     await sp.setString(_kActiveKey, 'custom');
     // 标记需要首次全量上传（待用户登录后执行）
     await sp.setBool(_kFirstFullUploadFlag, true);
+  }
+
+  /// 仅保存自定义配置，不激活
+  Future<void> saveCustomOnly(CloudServiceConfig cfg) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString(_kCustomCfg, encodeCloudConfig(cfg));
+    logI('cloudStore', '自定义配置已保存到 SharedPreferences');
+    // 不改变激活状态，不设置首次上传标记
   }
 
   Future<void> switchToBuiltin() async {
