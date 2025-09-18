@@ -148,7 +148,7 @@ jobs:
           # 生成构建号（使用 GitHub run number）
           BUILD_NUMBER=${{ github.run_number }}
           # 更新 pubspec.yaml
-          sed -i "s/^version: .*/version: ${CLEAN_VERSION}+${BUILD_NUMBER}/" pubspec.yaml
+          sed -i "" "s/^version: .*/version: ${CLEAN_VERSION}+${BUILD_NUMBER}/" pubspec.yaml
           echo "Updated version in pubspec.yaml:"
           grep "^version:" pubspec.yaml
 
@@ -285,7 +285,7 @@ jobs:
           # 生成构建号（使用 GitHub run number）
           BUILD_NUMBER=${{ github.run_number }}
           # 更新 pubspec.yaml
-          sed -i "s/^version: .*/version: ${CLEAN_VERSION}+${BUILD_NUMBER}/" pubspec.yaml
+          sed -i "" "s/^version: .*/version: ${CLEAN_VERSION}+${BUILD_NUMBER}/" pubspec.yaml
           echo "Updated version in pubspec.yaml:"
           grep "^version:" pubspec.yaml
 
