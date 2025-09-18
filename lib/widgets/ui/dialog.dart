@@ -118,61 +118,74 @@ class AppDialog {
       (label: '取消', onTap: () => Navigator.pop(context), primary: false),
       (label: '确定', onTap: () => Navigator.pop(context), primary: true),
     ];
+
+
     return showDialog<T>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600, color: Colors.black87),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.left,
-              style: Theme.of(ctx).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (final a in actions!) ...[
-                  if (!a.primary)
-                    Builder(builder: (context) {
-                      final primary = Theme.of(ctx).colorScheme.primary;
-                      return OutlinedButton(
-                        onPressed: a.onTap,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: primary,
-                          side: BorderSide(color: primary),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        child: Text(a.label),
-                      );
-                    })
-                  else
-                    FilledButton(
-                        onPressed: a.onTap,
-                        style: FilledButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        child: Text(a.label)),
-                  const SizedBox(width: 12),
-                ]
-              ],
-            ),
-            const SizedBox(height: 12),
-          ],
+        content: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+            maxWidth: MediaQuery.of(context).size.width * 0.85,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600, color: Colors.black87),
+              ),
+              const SizedBox(height: 12),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Text(
+                    message,
+                    textAlign: TextAlign.left,
+                    style: Theme.of(ctx).textTheme.bodyMedium,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (final a in actions!) ...[
+                    if (!a.primary)
+                      Builder(builder: (context) {
+                        final primary = Theme.of(ctx).colorScheme.primary;
+                        return OutlinedButton(
+                          onPressed: a.onTap,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: primary,
+                            side: BorderSide(color: primary),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: Text(a.label),
+                        );
+                      })
+                    else
+                      FilledButton(
+                          onPressed: a.onTap,
+                          style: FilledButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: Text(a.label)),
+                    const SizedBox(width: 12),
+                  ]
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
         ),
       ),
     );
   }
+
 }

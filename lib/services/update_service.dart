@@ -1125,8 +1125,14 @@ class UpdateService {
   ) async {
     if (!context.mounted) return false;
 
-    final message =
-        releaseNotes.isEmpty ? '发现新版本，是否立即下载？' : '更新内容：\n\n$releaseNotes';
+    String message;
+    if (releaseNotes.isEmpty) {
+      message = '发现新版本，是否立即下载？';
+    } else {
+      // 清理变更记录内容
+      final cleanedNotes = _cleanReleaseNotes(releaseNotes);
+      message = '更新内容：\n\n$cleanedNotes';
+    }
 
     return await AppDialog.confirm<bool>(
           context,
@@ -1136,6 +1142,44 @@ class UpdateService {
           okLabel: '下载更新',
         ) ??
         false;
+  }
+
+  /// 清理变更记录内容，移除commit hash和链接
+  static String _cleanReleaseNotes(String releaseNotes) {
+    String cleaned = releaseNotes;
+
+    // 移除commit hash (7-40位十六进制字符)
+    cleaned = cleaned.replaceAll(RegExp(r'\b[a-f0-9]{7,40}\b'), '');
+
+    // 移除GitHub链接
+    cleaned = cleaned.replaceAll(RegExp(r'https://github\.com/[^\s)]+'), '');
+
+    // 移除Markdown链接格式 [text](url)
+    cleaned = cleaned.replaceAll(RegExp(r'\[([^\]]+)\]\([^)]+\)'), r'$1');
+
+    // 移除行尾的空括号模式 ([]())
+    cleaned = cleaned.replaceAll(RegExp(r'\s*\(\[\]\(\)\)\s*$', multiLine: true), '');
+
+    // 移除其他行尾的多余括号和空格
+    cleaned = cleaned.replaceAll(RegExp(r'\s*\(\)\s*$', multiLine: true), '');
+    cleaned = cleaned.replaceAll(RegExp(r'\s*\[\]\s*$', multiLine: true), '');
+
+    // 移除多余的空行和空格
+    cleaned = cleaned.replaceAll(RegExp(r'\n\s*\n\s*\n'), '\n\n');
+    cleaned = cleaned.replaceAll(RegExp(r'[ \t]+'), ' ');
+
+    // 移除行首行末的空格
+    cleaned = cleaned.split('\n').map((line) => line.trim()).join('\n');
+
+    // 移除开头和结尾的空行
+    cleaned = cleaned.trim();
+
+    // 限制最大长度，避免过长的内容
+    if (cleaned.length > 2000) {
+      cleaned = '${cleaned.substring(0, 2000)}...';
+    }
+
+    return cleaned;
   }
 
   /// 显示更新检测失败的错误弹窗，提供去GitHub的兜底选项

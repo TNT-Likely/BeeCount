@@ -592,7 +592,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         title: subtitle.isNotEmpty
                                             ? subtitle
                                             : categoryName,
-                                        categoryName: categoryName,
+                                        categoryName: subtitle.isNotEmpty
+                                            ? null
+                                            : categoryName,
                                         amount: it.t.amount,
                                         isExpense: isExpense,
                                         hide: hide,
