@@ -7,9 +7,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart' hide Priority;
-import 'package:flutter_local_notifications/flutter_local_notifications.dart' as notifications;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    hide Priority;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    as notifications;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/logger.dart';
 import '../widgets/ui/ui.dart';
 
@@ -20,27 +23,53 @@ class UpdateService {
   static bool _isNotificationInitialized = false;
   static bool _notificationPermissionDenied = false;
   static int _lastNotificationProgress = -1; // 记录上次通知的进度，避免频繁更新
-  
+
+  // APK缓存相关常量
+  static const String _cachedApkPathKey = 'cached_apk_path';
+  static const String _cachedApkVersionKey = 'cached_apk_version';
+
+  /// 生成随机User-Agent，避免被GitHub限制
+  static String _generateRandomUserAgent() {
+    final userAgents = [
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0',
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0',
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0',
+    ];
+
+    // 使用时间戳作为随机种子，确保每次调用都可能不同
+    final random = (DateTime.now().millisecondsSinceEpoch % userAgents.length);
+    final selectedUA = userAgents[random];
+
+    logI('UpdateService', '使用User-Agent: ${selectedUA.substring(0, 50)}...');
+    return selectedUA;
+  }
+
   /// 检查更新信息
   static Future<UpdateResult> checkUpdate() async {
     try {
       // 获取当前版本信息
       final currentInfo = await _getAppInfo();
       final currentVersion = _normalizeVersion(currentInfo.version);
-      
+
       logI('UpdateService', '当前版本: $currentVersion');
 
       // 配置Dio超时
       _dio.options.connectTimeout = const Duration(seconds: 30);
       _dio.options.receiveTimeout = const Duration(minutes: 2);
       _dio.options.sendTimeout = const Duration(minutes: 2);
-      
+
       // 获取最新 release 信息 - 添加重试机制
       logI('UpdateService', '开始请求GitHub API...');
       Response? resp;
       int attempts = 0;
       const maxAttempts = 3;
-      
+
       while (attempts < maxAttempts) {
         attempts++;
         try {
@@ -50,7 +79,7 @@ class UpdateService {
             options: Options(
               headers: {
                 'Accept': 'application/vnd.github+json',
-                'User-Agent': 'BeeCount-Mobile-App/1.0 (Android)',
+                'User-Agent': _generateRandomUserAgent(),
               },
             ),
           );
@@ -79,21 +108,21 @@ class UpdateService {
       if (resp != null && resp.statusCode == 200) {
         final data = resp.data;
         final latestVersion = _normalizeVersion(data['tag_name']);
-        
+
         logI('UpdateService', '最新版本: $latestVersion');
-        
+
         if (_isNewerVersion(latestVersion, currentVersion)) {
           // 找到APK下载链接
           final assets = data['assets'] as List;
           String? apkUrl;
-          
+
           for (final asset in assets) {
             if (asset['name'].toString().endsWith('.apk')) {
               apkUrl = asset['browser_download_url'];
               break;
             }
           }
-          
+
           if (apkUrl != null) {
             return UpdateResult(
               hasUpdate: true,
@@ -116,7 +145,8 @@ class UpdateService {
       } else {
         final statusCode = resp?.statusCode ?? 'unknown';
         final responseData = resp?.data ?? 'no response';
-        logE('UpdateService', 'GitHub API请求失败: HTTP $statusCode, 响应: $responseData');
+        logE('UpdateService',
+            'GitHub API请求失败: HTTP $statusCode, 响应: $responseData');
         return UpdateResult(
           hasUpdate: false,
           message: '检查更新失败: HTTP $statusCode',
@@ -154,6 +184,44 @@ class UpdateService {
         _notificationPermissionDenied = false; // 重置状态，避免重复显示
       }
 
+      // 从URL中提取版本信息用于文件命名和缓存检查
+      onProgress?.call(0.0, '检查本地缓存...');
+      final uri = Uri.parse(downloadUrl);
+      final originalFileName = uri.pathSegments.last;
+      String? version;
+      final versionMatch = RegExp(r'beecount-([0-9]+\.[0-9]+\.[0-9]+)\.apk')
+          .firstMatch(originalFileName);
+      if (versionMatch != null) {
+        version = versionMatch.group(1);
+        logI('UpdateService', '从URL提取的版本号: $version');
+      }
+
+      final cachedApkPath = await _checkCachedApkForUrl(downloadUrl);
+
+      if (cachedApkPath != null) {
+        logI('UpdateService', '找到缓存的APK: $cachedApkPath');
+        if (context.mounted) {
+          // 显示缓存APK安装确认弹窗
+          final shouldInstall = await AppDialog.confirm<bool>(
+            context,
+            title: '发现已下载版本',
+            message:
+                '已找到之前下载的安装包，是否直接安装？\n\n点击"确定"立即安装，点击"取消"重新下载。\n\n文件路径: $cachedApkPath',
+          );
+
+          if (shouldInstall == true) {
+            // 安装缓存的APK
+            await _installApk(cachedApkPath);
+            return UpdateResult(
+              hasUpdate: true,
+              message: '正在安装缓存的APK',
+              filePath: cachedApkPath,
+            );
+          }
+          // 如果选择重新下载，则继续下载流程
+        }
+      }
+
       // 开始下载
       onProgress?.call(0.0, '准备下载...');
       if (!context.mounted) {
@@ -162,55 +230,58 @@ class UpdateService {
           message: '用户取消下载',
         );
       }
-      
+
+      // 使用版本号作为文件名，如果没有提取到版本号则使用默认名称
+      final fileName = version != null ? 'v$version' : 'BeeCount更新';
       final downloadResult = await _downloadApk(
         context,
         downloadUrl,
-        'BeeCount更新',
+        fileName,
         onProgress: onProgress,
       );
-      
+
       if (downloadResult.success && downloadResult.filePath != null) {
         // 下载成功，询问是否立即安装
         logI('UpdateService', '下载成功，准备显示安装确认弹窗');
         logI('UpdateService', 'Context挂载状态: ${context.mounted}');
-        
+
         if (context.mounted) {
           // 检查Context状态和Widget树
           logI('UpdateService', 'Context已挂载，正在检查Widget树状态...');
-          
+
           try {
-            // 使用PostFrameCallback确保在下一帧显示对话框，避免黑屏
-            logI('UpdateService', '等待UI刷新完成再显示安装确认弹窗');
-            
+            // 简化对话框显示逻辑，减少等待时间
+            logI('UpdateService', '准备显示安装确认弹窗');
+
             bool? shouldInstall;
-            // 等待更长时间，确保UI完全刷新
-            await Future.delayed(const Duration(milliseconds: 1000));
-            
+            // 较短的等待时间，确保下载对话框完全关闭
+            await Future.delayed(const Duration(milliseconds: 300));
+
             // 再次检查context状态
             if (context.mounted) {
-              logI('UpdateService', '延迟后Context仍然挂载，开始显示安装确认弹窗');
-              
-              // 使用更简洁的方式显示对话框，避免复杂的导航栈操作
-              shouldInstall = await _showInstallDialogSafely(context);
+              logI('UpdateService', 'Context仍然挂载，开始显示安装确认弹窗');
+
+              // 使用简化的对话框显示方法
+              shouldInstall = await _showInstallDialog(context);
               logI('UpdateService', '安装确认弹窗返回结果: $shouldInstall');
             } else {
               logW('UpdateService', 'Context在延迟后变为未挂载状态');
               shouldInstall = false;
             }
-            
+
             if (shouldInstall == true) {
               // 在安装前提供进度回调
               logI('UpdateService', '用户确认安装，开始启动安装程序');
               onProgress?.call(0.95, '正在启动安装...');
-              
+
               // 确保在启动安装器之前，界面状态是正确的
               await Future.delayed(const Duration(milliseconds: 300));
-              
-              logI('UpdateService', '调用_installApk方法，文件路径: ${downloadResult.filePath}');
+
+              logI('UpdateService',
+                  '调用_installApk方法，文件路径: ${downloadResult.filePath}');
               final installed = await _installApk(downloadResult.filePath!);
               logI('UpdateService', '_installApk返回结果: $installed');
-              
+
               if (installed) {
                 onProgress?.call(1.0, '安装程序已启动');
                 return UpdateResult(
@@ -286,7 +357,7 @@ class UpdateService {
     logI('UpdateService', '开始检查权限...');
 
     // Android 10以下需要存储权限
-    if (Platform.version.contains('API') && 
+    if (Platform.version.contains('API') &&
         int.tryParse(Platform.version.split(' ').last) != null &&
         int.parse(Platform.version.split(' ').last) <= 29) {
       final storageStatus = await Permission.storage.status;
@@ -317,12 +388,12 @@ class UpdateService {
     try {
       final notificationStatus = await Permission.notification.status;
       logI('UpdateService', '通知权限状态: $notificationStatus');
-      
+
       if (!notificationStatus.isGranted) {
         logI('UpdateService', '申请通知权限...');
         final result = await Permission.notification.request();
         logI('UpdateService', '通知权限申请结果: $result');
-        
+
         if (!result.isGranted) {
           logW('UpdateService', '通知权限被拒绝，进度通知将不会显示，但不影响下载功能');
           // 存储通知权限被拒绝的状态，稍后显示用户指南
@@ -344,7 +415,7 @@ class UpdateService {
   /// 初始化通知
   static Future<void> _initializeNotifications() async {
     if (_isNotificationInitialized) return;
-    
+
     try {
       // Android 通知渠道设置
       const androidChannel = AndroidNotificationChannel(
@@ -356,28 +427,32 @@ class UpdateService {
         enableVibration: false,
         showBadge: false,
       );
-      
+
       // 创建通知渠道
-      final androidImplementation = _notificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-      
+      final androidImplementation =
+          _notificationsPlugin.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+
       if (androidImplementation != null) {
         await androidImplementation.createNotificationChannel(androidChannel);
         logI('UpdateService', '通知渠道创建成功: ${androidChannel.id}');
-        
+
         // 检查权限状态（Android 13+）
-        final hasPermission = await androidImplementation.requestNotificationsPermission();
+        final hasPermission =
+            await androidImplementation.requestNotificationsPermission();
         logI('UpdateService', '通知权限状态: $hasPermission');
       }
-      
-      const initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+
+      const initializationSettingsAndroid =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
       const initializationSettingsIOS = DarwinInitializationSettings();
       const initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid,
         iOS: initializationSettingsIOS,
       );
-      
-      final initialized = await _notificationsPlugin.initialize(initializationSettings);
+
+      final initialized =
+          await _notificationsPlugin.initialize(initializationSettings);
       _isNotificationInitialized = initialized == true;
       logI('UpdateService', '通知初始化结果: $initialized');
     } catch (e) {
@@ -386,14 +461,15 @@ class UpdateService {
   }
 
   /// 显示下载进度通知
-  static Future<void> _showProgressNotification(int progress, {bool indeterminate = false}) async {
+  static Future<void> _showProgressNotification(int progress,
+      {bool indeterminate = false}) async {
     try {
       await _initializeNotifications();
       if (!_isNotificationInitialized) {
         logW('UpdateService', '通知未初始化，跳过显示进度');
         return;
       }
-      
+
       final androidDetails = AndroidNotificationDetails(
         'update_download',
         '更新下载',
@@ -409,27 +485,29 @@ class UpdateService {
         playSound: false,
         enableVibration: false,
       );
-      
+
       const iosDetails = DarwinNotificationDetails(
         presentAlert: false,
         presentBadge: false,
         presentSound: false,
       );
-      
-      final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
-      
+
+      final details =
+          NotificationDetails(android: androidDetails, iOS: iosDetails);
+
       final title = '蜜蜂记账更新下载';
       final body = indeterminate ? '正在下载新版本...' : '下载进度: $progress%';
-      
-      logI('UpdateService', '开始显示通知 - 标题: $title, 内容: $body, 进度: $progress, 不确定: $indeterminate');
-      
+
+      logI('UpdateService',
+          '开始显示通知 - 标题: $title, 内容: $body, 进度: $progress, 不确定: $indeterminate');
+
       await _notificationsPlugin.show(
         0,
         title,
         body,
         details,
       );
-      
+
       logI('UpdateService', '通知显示完成 - ID: 0, 进度: $progress%');
     } catch (e) {
       logE('UpdateService', '显示进度通知失败', e);
@@ -444,7 +522,7 @@ class UpdateService {
         logW('UpdateService', '通知未初始化，跳过显示完成通知');
         return;
       }
-      
+
       const androidDetails = AndroidNotificationDetails(
         'update_download',
         '更新下载',
@@ -454,17 +532,18 @@ class UpdateService {
         playSound: true,
         enableVibration: true,
       );
-      
+
       const iosDetails = DarwinNotificationDetails();
-      const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
-      
+      const details =
+          NotificationDetails(android: androidDetails, iOS: iosDetails);
+
       await _notificationsPlugin.show(
         0,
         '下载完成',
         '新版本已下载完成，点击安装',
         details,
       );
-      
+
       logI('UpdateService', '显示下载完成通知');
     } catch (e) {
       logE('UpdateService', '显示完成通知失败', e);
@@ -483,8 +562,10 @@ class UpdateService {
 
   /// 下载APK文件
   static Future<UpdateResult> _downloadApk(
-      BuildContext context, String url, String fileName, {
-      Function(double progress, String status)? onProgress,
+    BuildContext context,
+    String url,
+    String fileName, {
+    Function(double progress, String status)? onProgress,
   }) async {
     try {
       // 获取下载目录
@@ -497,9 +578,10 @@ class UpdateService {
       final filePath = '${downloadDir.path}/BeeCount_$fileName.apk';
       logI('UpdateService', '下载路径: $filePath');
 
-      // 删除旧文件
+      // 只删除当前要下载的文件（如果存在），保留其他版本的缓存
       final file = File(filePath);
       if (await file.exists()) {
+        logI('UpdateService', '删除已存在的同版本文件: $filePath');
         await file.delete();
       }
 
@@ -534,7 +616,7 @@ class UpdateService {
                     LinearProgressIndicator(value: progress),
                     const SizedBox(height: 16),
                     const Text('可以将应用切换到后台，下载会继续进行',
-                      style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        style: TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
                 ),
                 actions: [
@@ -558,20 +640,25 @@ class UpdateService {
           ),
         );
       }
-      
+
       // 开始下载
       await _dio.download(
         url,
         filePath,
+        options: Options(
+          headers: {
+            'User-Agent': _generateRandomUserAgent(),
+          },
+        ),
         onReceiveProgress: (received, total) {
           if (total > 0 && !cancelled) {
             final newProgress = received / total;
             progress = newProgress;
             final progressPercent = (progress * 100).round();
-            
-            // 调用外部进度回调  
+
+            // 调用外部进度回调
             onProgress?.call(newProgress, '下载中: $progressPercent%');
-            
+
             // 更新UI进度（如果对话框还在显示）
             try {
               if (context.mounted) {
@@ -580,15 +667,16 @@ class UpdateService {
             } catch (e) {
               // 对话框已关闭，忽略错误
             }
-            
+
             // 只有进度变化超过1%或者是关键节点时才更新通知（减少频率）
-            if (_lastNotificationProgress == -1 || 
+            if (_lastNotificationProgress == -1 ||
                 progressPercent - _lastNotificationProgress >= 1 ||
                 progressPercent == 0 ||
                 progressPercent == 100) {
               _lastNotificationProgress = progressPercent;
               // 异步更新通知进度，不阻塞下载
-              _showProgressNotification(progressPercent, indeterminate: false).catchError((e) {
+              _showProgressNotification(progressPercent, indeterminate: false)
+                  .catchError((e) {
                 logE('UpdateService', '更新通知进度失败', e);
               });
             }
@@ -643,6 +731,10 @@ class UpdateService {
 
       logI('UpdateService', '下载完成: $filePath');
       onProgress?.call(0.9, '下载完成');
+
+      // 保存APK路径和版本信息到缓存
+      await _saveApkPath(filePath);
+
       await _showDownloadCompleteNotification(filePath);
       onProgress?.call(1.0, '完成');
       return UpdateResult.downloadSuccess(filePath);
@@ -729,191 +821,33 @@ class UpdateService {
     return result ?? false;
   }
 
-  /// 安全地显示安装确认对话框 - 避免黑屏问题
-  static Future<bool> _showInstallDialogSafely(BuildContext context) async {
-    logI('UpdateService', '=== 安全显示安装确认对话框 ===');
-    
-    if (!context.mounted) {
-      logW('UpdateService', 'Context未挂载，无法显示安装确认对话框');
-      return false;
-    }
-    
-    try {
-      // 使用Completer来更好地控制异步操作
-      final completer = Completer<bool>();
-      
-      // 确保在下一帧显示对话框
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) {
-          logI('UpdateService', 'PostFrameCallback: 开始显示安装确认对话框');
-          showDialog<bool>(
-            context: context,
-            barrierDismissible: false,
-            useRootNavigator: false, // 不使用根导航器，避免层级问题
-            builder: (dialogContext) {
-              logI('UpdateService', '安装确认对话框Builder被调用');
-              return AlertDialog(
-                title: const Text('下载完成'),
-                content: const Text('APK文件下载完成，是否立即安装？\n\n注意：安装时应用会暂时退到后台，这是正常现象。'),
-                actions: [
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Theme.of(context).primaryColor,
-                      side: BorderSide(color: Theme.of(context).primaryColor),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    onPressed: () {
-                      logI('UpdateService', '用户点击"稍后安装"按钮');
-                      if (dialogContext.mounted) {
-                        Navigator.of(dialogContext).pop();
-                        completer.complete(false);
-                      }
-                    },
-                    child: const Text('稍后安装'),
-                  ),
-                  const SizedBox(width: 12),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    onPressed: () {
-                      logI('UpdateService', '用户点击"立即安装"按钮');
-                      if (dialogContext.mounted) {
-                        Navigator.of(dialogContext).pop();
-                        completer.complete(true);
-                      }
-                    },
-                    child: const Text('立即安装'),
-                  ),
-                ],
-              );
-            },
-          ).then((result) {
-            if (!completer.isCompleted) {
-              logI('UpdateService', 'showDialog then回调: $result');
-              completer.complete(result ?? false);
-            }
-          }).catchError((error) {
-            logE('UpdateService', 'showDialog发生错误', error);
-            if (!completer.isCompleted) {
-              completer.complete(false);
-            }
-          });
-        } else {
-          logW('UpdateService', 'PostFrameCallback: Context未挂载');
-          completer.complete(false);
-        }
-      });
-      
-      // 等待对话框完成
-      final result = await completer.future;
-      logI('UpdateService', '=== 安全显示安装确认对话框完成，结果: $result ===');
-      return result;
-      
-    } catch (e) {
-      logE('UpdateService', '安全显示安装确认对话框异常', e);
-      return false;
-    }
-  }
-
   /// 显示安装确认对话框
   static Future<bool> _showInstallDialog(BuildContext context) async {
     logI('UpdateService', '=== 开始显示安装确认对话框 ===');
     logI('UpdateService', 'Context挂载状态: ${context.mounted}');
-    
+
     if (!context.mounted) {
       logW('UpdateService', 'Context未挂载，无法显示安装确认对话框');
       return false;
     }
-    
-    // 检查导航栈状态
+
+    logI('UpdateService', '准备调用AppDialog.confirm显示安装确认对话框');
+
     try {
-      final canPush = Navigator.of(context).canPop();
-      logI('UpdateService', '当前可以pop的导航栈状态: $canPush');
-      
-      // 检查是否已经有其他对话框在显示
-      final overlay = Overlay.of(context);
-      logI('UpdateService', 'Overlay状态: ${overlay != null}');
-      
-    } catch (e) {
-      logE('UpdateService', '检查导航栈状态失败', e);
-    }
-    
-    logI('UpdateService', '准备调用showDialog显示安装确认对话框');
-    
-    bool? result;
-    try {
-      result = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // 防止意外关闭
-        useRootNavigator: true, // 确保使用根导航器
-        builder: (dialogContext) {
-          logI('UpdateService', '安装确认对话框Builder被调用');
-          return AlertDialog(
-            title: const Text('下载完成'),
-            content: const Text('APK文件下载完成，是否立即安装？\n\n注意：安装时应用会暂时退到后台，这是正常现象。'),
-            actions: [
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Theme.of(context).primaryColor,
-                  side: BorderSide(color: Theme.of(context).primaryColor),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: () {
-                  logI('UpdateService', '用户点击"稍后安装"按钮');
-                  try {
-                    if (dialogContext.mounted) {
-                      Navigator.of(dialogContext).pop(false);
-                      logI('UpdateService', '稍后安装 - 对话框已关闭');
-                    } else {
-                      logW('UpdateService', '稍后安装 - dialogContext未挂载');
-                    }
-                  } catch (e) {
-                    logE('UpdateService', '稍后安装按钮处理失败', e);
-                  }
-                },
-                child: const Text('稍后安装'),
-              ),
-              const SizedBox(width: 12),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: () {
-                  logI('UpdateService', '用户点击"立即安装"按钮');
-                  try {
-                    if (dialogContext.mounted) {
-                      Navigator.of(dialogContext).pop(true);
-                      logI('UpdateService', '立即安装 - 对话框已关闭');
-                    } else {
-                      logW('UpdateService', '立即安装 - dialogContext未挂载');
-                    }
-                  } catch (e) {
-                    logE('UpdateService', '立即安装按钮处理失败', e);
-                  }
-                },
-                child: const Text('立即安装'),
-              ),
-            ],
-          );
-        },
+      final result = await AppDialog.confirm<bool>(
+        context,
+        title: '下载完成',
+        message: 'APK文件下载完成，是否立即安装？\n\n注意：安装时应用会暂时退到后台，这是正常现象。',
+        cancelLabel: '稍后安装',
+        okLabel: '立即安装',
       );
-      logI('UpdateService', 'showDialog调用完成，结果: $result');
+
+      logI('UpdateService', 'AppDialog.confirm调用完成，结果: $result');
+      return result ?? false;
     } catch (e) {
-      logE('UpdateService', 'showDialog调用失败', e);
-      result = false;
+      logE('UpdateService', 'AppDialog.confirm调用失败', e);
+      return false;
     }
-    
-    logI('UpdateService', '=== 安装确认对话框返回结果: $result ===');
-    return result ?? false;
   }
 
   /// 显示通知权限指南对话框
@@ -1027,7 +961,6 @@ class UpdateService {
     );
   }
 
-
   // 下面是从mine_page.dart复制的辅助方法
   static Future<_AppInfo> _getAppInfo() async {
     final p = await PackageInfo.fromPlatform();
@@ -1071,7 +1004,8 @@ class UpdateService {
         .cast<int>()
         .toList();
 
-    final maxLength = [newParts.length, currentParts.length].reduce((a, b) => a > b ? a : b);
+    final maxLength =
+        [newParts.length, currentParts.length].reduce((a, b) => a > b ? a : b);
     while (newParts.length < maxLength) {
       newParts.add(0);
     }
@@ -1099,7 +1033,7 @@ class UpdateService {
       setProgress(0.0, '正在检查更新...');
 
       try {
-        // Android: 先检查更新
+        // Android: 检查远程更新
         final checkResult = await checkUpdate();
 
         if (!context.mounted) return;
@@ -1108,9 +1042,9 @@ class UpdateService {
           // 检查是否是网络错误或API错误，提供兜底方案
           final message = checkResult.message ?? '当前已是最新版本';
           final isNetworkError = message.contains('检查更新失败') ||
-                                 message.contains('HTTP') ||
-                                 message.contains('异常') ||
-                                 message.contains('失败');
+              message.contains('HTTP') ||
+              message.contains('异常') ||
+              message.contains('失败');
           if (isNetworkError) {
             // 网络错误或API错误，提供去GitHub的兜底选项
             await _showUpdateErrorWithFallback(context, message);
@@ -1166,7 +1100,8 @@ class UpdateService {
           if (!context.mounted) return;
 
           // 显示下载错误信息，并提供GitHub fallback
-          await _showDownloadErrorWithFallback(context, downloadResult.message!);
+          await _showDownloadErrorWithFallback(
+              context, downloadResult.message!);
         }
         // 成功下载的情况不需要额外提示，UpdateService内部已处理
       } catch (e) {
@@ -1188,15 +1123,17 @@ class UpdateService {
   ) async {
     if (!context.mounted) return false;
 
-    final message = releaseNotes.isEmpty ? '发现新版本，是否立即下载？' : '更新内容：\n\n$releaseNotes';
+    final message =
+        releaseNotes.isEmpty ? '发现新版本，是否立即下载？' : '更新内容：\n\n$releaseNotes';
 
     return await AppDialog.confirm<bool>(
-      context,
-      title: '发现新版本 $version',
-      message: message,
-      cancelLabel: '取消',
-      okLabel: '下载更新',
-    ) ?? false;
+          context,
+          title: '发现新版本 $version',
+          message: message,
+          cancelLabel: '取消',
+          okLabel: '下载更新',
+        ) ??
+        false;
   }
 
   /// 显示更新检测失败的错误弹窗，提供去GitHub的兜底选项
@@ -1222,27 +1159,6 @@ class UpdateService {
             Text(
               '无法自动检测更新：\n$errorMessage',
               style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
-                  const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
-                      '您可以手动前往GitHub Releases页面查看和下载最新版本',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
@@ -1367,7 +1283,8 @@ class UpdateService {
           await AppDialog.info(
             context,
             title: '无法打开链接',
-            message: '请手动在浏览器中访问：\nhttps://github.com/TNT-Likely/BeeCount/releases',
+            message:
+                '请手动在浏览器中访问：\nhttps://github.com/TNT-Likely/BeeCount/releases',
           );
         }
       }
@@ -1377,10 +1294,336 @@ class UpdateService {
         await AppDialog.info(
           context,
           title: '无法打开链接',
-          message: '请手动在浏览器中访问：\nhttps://github.com/TNT-Likely/BeeCount/releases',
+          message:
+              '请手动在浏览器中访问：\nhttps://github.com/TNT-Likely/BeeCount/releases',
         );
       }
     }
+  }
+
+  /// 检查是否有缓存的APK文件对应给定的下载URL
+  static Future<String?> _checkCachedApkForUrl(String downloadUrl) async {
+    try {
+      // 从URL中提取版本信息
+      final uri = Uri.parse(downloadUrl);
+      final fileName = uri.pathSegments.last;
+      logI('UpdateService', '检查缓存APK，URL文件名: $fileName');
+
+      // 获取下载目录
+      Directory? downloadDir;
+      if (Platform.isAndroid) {
+        downloadDir = await getExternalStorageDirectory();
+      }
+      downloadDir ??= await getApplicationDocumentsDirectory();
+
+      // 从URL文件名提取版本号（格式如 beecount-0.8.1.apk）
+      String? version;
+      final versionMatch = RegExp(r'beecount-([0-9]+\.[0-9]+\.[0-9]+)\.apk')
+          .firstMatch(fileName);
+      if (versionMatch != null) {
+        version = versionMatch.group(1);
+        logI('UpdateService', '从URL提取的版本号: $version');
+      }
+
+      if (version == null) {
+        logW('UpdateService', '无法从URL中提取版本号: $downloadUrl');
+        return null;
+      }
+
+      // 在下载目录中查找对应版本的BeeCount APK
+      // 文件名格式应该是 BeeCount_v{version}.apk
+      final targetFileName = 'BeeCount_v$version.apk';
+      final expectedFilePath = '${downloadDir.path}/$targetFileName';
+      final file = File(expectedFilePath);
+
+      if (await file.exists()) {
+        final fileSize = await file.length();
+        logI('UpdateService', '找到缓存的APK: ${file.path}, 大小: $fileSize字节');
+        return file.path;
+      } else {
+        logI('UpdateService', '缓存APK不存在: $expectedFilePath');
+
+        // 也检查一下旧的文件名格式作为备选
+        final files = downloadDir.listSync();
+        for (final checkFile in files) {
+          if (checkFile is File &&
+              checkFile.path.contains('BeeCount') &&
+              checkFile.path.endsWith('.apk') &&
+              checkFile.path.contains(version)) {
+            // 验证文件是否存在且可读
+            if (await checkFile.exists()) {
+              final fileSize = await checkFile.length();
+              logI('UpdateService',
+                  '找到旧格式的缓存APK: ${checkFile.path}, 大小: $fileSize字节');
+              return checkFile.path;
+            }
+          }
+        }
+      }
+
+      logI('UpdateService', '未找到版本 $version 的缓存APK');
+      return null;
+    } catch (e) {
+      logE('UpdateService', '检查缓存APK失败', e);
+      return null;
+    }
+  }
+
+  /// 清理旧的APK文件
+  static Future<void> _cleanupOldApkFiles(Directory downloadDir) async {
+    try {
+      logI('UpdateService', '开始清理旧的APK文件...');
+
+      final files = downloadDir.listSync();
+      int deletedCount = 0;
+
+      for (final file in files) {
+        if (file is File &&
+            file.path.contains('BeeCount') &&
+            file.path.endsWith('.apk')) {
+          try {
+            await file.delete();
+            deletedCount++;
+            logI('UpdateService', '已删除旧APK文件: ${file.path}');
+          } catch (e) {
+            logW('UpdateService', '删除旧APK文件失败: ${file.path}, 错误: $e');
+          }
+        }
+      }
+
+      if (deletedCount > 0) {
+        logI('UpdateService', '清理完成，共删除 $deletedCount 个旧APK文件');
+      } else {
+        logI('UpdateService', '没有找到需要清理的旧APK文件');
+      }
+    } catch (e) {
+      logE('UpdateService', '清理旧APK文件失败', e);
+    }
+  }
+
+  /// 保存APK路径到缓存
+  static Future<void> _saveApkPath(String filePath) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_cachedApkPathKey, filePath);
+
+      // 同时保存当前时间戳，用于判断APK是否过期
+      await prefs.setInt(
+          'cached_apk_timestamp', DateTime.now().millisecondsSinceEpoch);
+
+      logI('UpdateService', '已保存APK路径到缓存: $filePath');
+    } catch (e) {
+      logE('UpdateService', '保存APK路径失败', e);
+    }
+  }
+
+  /// 获取缓存的APK路径
+  static Future<String?> getCachedApkPath() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cachedPath = prefs.getString(_cachedApkPathKey);
+
+      if (cachedPath != null) {
+        // 检查文件是否还存在
+        final file = File(cachedPath);
+        if (await file.exists()) {
+          // 检查是否在7天内下载的（避免过期的APK）
+          final timestamp = prefs.getInt('cached_apk_timestamp') ?? 0;
+          final cachedTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+          final daysSinceDownload =
+              DateTime.now().difference(cachedTime).inDays;
+
+          if (daysSinceDownload <= 7) {
+            logI('UpdateService', '找到有效的缓存APK: $cachedPath');
+            return cachedPath;
+          } else {
+            logI('UpdateService', '缓存APK已过期（$daysSinceDownload天），清理缓存');
+            await _clearCachedApk();
+          }
+        } else {
+          logI('UpdateService', '缓存APK文件不存在，清理缓存');
+          await _clearCachedApk();
+        }
+      }
+
+      return null;
+    } catch (e) {
+      logE('UpdateService', '获取缓存APK路径失败', e);
+      return null;
+    }
+  }
+
+  /// 清理缓存的APK
+  static Future<void> _clearCachedApk() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cachedPath = prefs.getString(_cachedApkPathKey);
+
+      if (cachedPath != null) {
+        final file = File(cachedPath);
+        if (await file.exists()) {
+          await file.delete();
+          logI('UpdateService', '已删除缓存APK文件: $cachedPath');
+        }
+      }
+
+      await prefs.remove(_cachedApkPathKey);
+      await prefs.remove(_cachedApkVersionKey);
+      await prefs.remove('cached_apk_timestamp');
+
+      logI('UpdateService', '已清理APK缓存');
+    } catch (e) {
+      logE('UpdateService', '清理APK缓存失败', e);
+    }
+  }
+
+  /// 手动查找并安装本地APK
+  static Future<bool> showLocalApkInstallOption(BuildContext context) async {
+    try {
+      // 获取下载目录
+      Directory? downloadDir;
+      if (Platform.isAndroid) {
+        downloadDir = await getExternalStorageDirectory();
+      }
+      downloadDir ??= await getApplicationDocumentsDirectory();
+
+      // 查找所有BeeCount APK文件
+      final files = downloadDir.listSync();
+      final apkFiles = files
+          .where((file) =>
+              file is File &&
+              file.path.contains('BeeCount') &&
+              file.path.endsWith('.apk'))
+          .cast<File>()
+          .toList();
+
+      if (apkFiles.isEmpty) {
+        if (context.mounted) {
+          await AppDialog.info(
+            context,
+            title: '未找到更新包',
+            message: '没有找到已下载的更新包文件。\n\n请先通过"检查更新"下载新版本。',
+          );
+        }
+        return false;
+      }
+
+      // 按修改时间排序，最新的在前
+      apkFiles.sort(
+          (a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+
+      if (!context.mounted) return false;
+
+      // 如果只有一个APK文件，直接显示安装选项
+      if (apkFiles.length == 1) {
+        final file = apkFiles.first;
+        final fileStat = file.statSync();
+        final fileSize = (fileStat.size / (1024 * 1024)).toStringAsFixed(1);
+        final fileName = file.path.split('/').last;
+        final modifiedTime = fileStat.modified;
+
+        final shouldInstall = await AppDialog.confirm<bool>(
+          context,
+          title: '安装更新包',
+          message:
+              '找到更新包：\n\n文件名：$fileName\n大小：${fileSize}MB\n下载时间：${modifiedTime.year}-${modifiedTime.month.toString().padLeft(2, '0')}-${modifiedTime.day.toString().padLeft(2, '0')} ${modifiedTime.hour.toString().padLeft(2, '0')}:${modifiedTime.minute.toString().padLeft(2, '0')}\n\n是否立即安装？',
+          cancelLabel: '取消',
+          okLabel: '立即安装',
+        );
+
+        if (!context.mounted) return false;
+
+        if (shouldInstall == true) {
+          final installed = await _installApk(file.path);
+          if (installed) {
+            return true;
+          } else {
+            if (context.mounted) {
+              await AppDialog.error(
+                context,
+                title: '安装失败',
+                message: '无法启动APK安装程序，请检查文件权限。',
+              );
+            }
+          }
+        }
+      } else {
+        // 多个APK文件，让用户选择
+        if (context.mounted) {
+          await AppDialog.info(
+            context,
+            title: '找到多个更新包',
+            message:
+                '找到 ${apkFiles.length} 个更新包文件。\n\n建议使用最新下载的版本，或手动到文件管理器中安装。\n\n文件位置：${downloadDir.path}',
+          );
+        }
+      }
+    } catch (e) {
+      logE('UpdateService', '查找本地APK失败', e);
+      if (context.mounted) {
+        await AppDialog.error(
+          context,
+          title: '查找失败',
+          message: '查找本地更新包时发生错误：$e',
+        );
+      }
+    }
+
+    return false;
+  }
+
+  /// 检查是否有可用的缓存APK并提供安装选项
+  static Future<bool> showCachedApkInstallOption(BuildContext context) async {
+    final cachedPath = await getCachedApkPath();
+
+    if (cachedPath == null || !context.mounted) {
+      return false;
+    }
+
+    try {
+      final file = File(cachedPath);
+      final fileStat = await file.stat();
+      final fileSize = (fileStat.size / (1024 * 1024)).toStringAsFixed(1); // MB
+      final fileName = cachedPath.split('/').last;
+
+      final shouldInstall = await AppDialog.confirm<bool>(
+        context,
+        title: '发现已下载的更新包',
+        message: '检测到之前下载的更新包：\n\n文件名：$fileName\n大小：${fileSize}MB\n\n是否立即安装？',
+        cancelLabel: '忽略',
+        okLabel: '立即安装',
+      );
+
+      if (!context.mounted) return false;
+
+      if (shouldInstall == true) {
+        final installed = await _installApk(cachedPath);
+        if (installed) {
+          // 安装成功后清理缓存
+          await _clearCachedApk();
+          return true;
+        } else {
+          if (context.mounted) {
+            await AppDialog.error(
+              context,
+              title: '安装失败',
+              message: '无法启动APK安装程序，请检查文件权限。',
+            );
+          }
+        }
+      }
+    } catch (e) {
+      logE('UpdateService', '显示缓存APK安装选项失败', e);
+      if (context.mounted) {
+        await AppDialog.error(
+          context,
+          title: '错误',
+          message: '读取缓存更新包失败：$e',
+        );
+      }
+    }
+
+    return false;
   }
 }
 
@@ -1475,6 +1718,6 @@ class _AppInfo {
   final String buildNumber;
   final String? commit;
   final String? buildTime;
-  
+
   const _AppInfo(this.version, this.buildNumber, {this.commit, this.buildTime});
 }
