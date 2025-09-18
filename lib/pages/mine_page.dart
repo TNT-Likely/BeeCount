@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:beecount/widgets/biz/bee_icon.dart';
@@ -8,7 +7,6 @@ import 'import_page.dart';
 import 'login_page.dart';
 import 'export_page.dart';
 import 'personalize_page.dart';
-import 'ui_demo_page.dart';
 import '../providers.dart';
 import '../widgets/ui/ui.dart';
 import '../widgets/biz/biz.dart';
@@ -280,21 +278,6 @@ class MinePage extends ConsumerWidget {
                           );
                         },
                       ),
-                      // UI 组件演示 - 仅在开发环境显示
-                      if (kDebugMode) ...[
-                        AppDivider.thin(),
-                        AppListTile(
-                          leading: Icons.widgets_outlined,
-                          title: 'UI 组件演示',
-                          subtitle: '查看应用 UI 组件效果（仅开发环境）',
-                          onTap: () async {
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (_) => const UiDemoPage()),
-                            );
-                          },
-                        ),
-                      ],
                     ],
                   ),
                 ),
