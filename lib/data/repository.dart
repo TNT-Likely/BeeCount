@@ -606,6 +606,11 @@ class BeeRepository {
     );
   }
 
+  /// 删除交易记录
+  Future<void> deleteTransaction(int id) async {
+    await (db.delete(db.transactions)..where((t) => t.id.equals(id))).go();
+  }
+
   // All transactions joined with category, ordered by date desc
   Stream<List<({Transaction t, Category? category})>>
       transactionsWithCategoryAll({required int ledgerId}) {

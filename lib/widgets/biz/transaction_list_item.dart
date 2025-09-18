@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../styles/design.dart';
+import '../../widgets/ui/ui.dart';
 import 'amount_text.dart';
 
 class TransactionListItem extends StatelessWidget {
@@ -11,6 +12,7 @@ class TransactionListItem extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onCategoryTap; // 点击分类图标/名称的回调
   final String? categoryName; // 分类名称，用于显示
+  final VoidCallback? onDelete; // 删除回调
   const TransactionListItem(
       {super.key,
       required this.icon,
@@ -20,11 +22,12 @@ class TransactionListItem extends StatelessWidget {
       this.hide = false,
       this.onTap,
       this.onCategoryTap,
-      this.categoryName});
+      this.categoryName,
+      this.onDelete});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    Widget child = InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -85,5 +88,37 @@ class TransactionListItem extends StatelessWidget {
         ),
       ),
     );
+
+    // 如果提供了删除回调，则包装在Dismissible中支持侧滑删除
+    if (onDelete != null) {
+      return Dismissible(
+        key: ValueKey('transaction_$title${amount.toString()}'),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
+          color: Colors.red,
+          child: const Icon(
+            Icons.delete,
+            color: Colors.white,
+            size: 24,
+          ),
+        ),
+        confirmDismiss: (direction) async {
+          // 显示确认对话框
+          return await AppDialog.confirm<bool>(
+            context,
+            title: '确认删除',
+            message: '确定要删除这笔交易吗？此操作无法撤销。',
+          ) ?? false;
+        },
+        onDismissed: (direction) {
+          onDelete!();
+        },
+        child: child,
+      );
+    }
+
+    return child;
   }
 }
