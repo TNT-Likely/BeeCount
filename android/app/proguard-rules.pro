@@ -55,3 +55,11 @@
 -keep public class * extends android.app.Application
 -keep public class * extends android.app.Activity
 -keep public class * extends android.app.Service
+
+# Ignore missing Google Play Core classes (not needed for direct APK distribution)
+-dontwarn com.google.android.play.core.**
+-keep class com.google.android.play.core.** { *; }
+
+# Ignore Flutter Play Store related classes
+-dontwarn io.flutter.app.FlutterPlayStoreSplitApplication
+-dontwarn io.flutter.embedding.engine.deferredcomponents.PlayStoreDeferredComponentManager**
