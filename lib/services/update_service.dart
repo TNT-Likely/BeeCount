@@ -206,7 +206,7 @@ class UpdateService {
             context,
             title: '发现已下载版本',
             message:
-                '已找到之前下载的安装包，是否直接安装？\n\n点击"确定"立即安装，点击"取消"重新下载。\n\n文件路径: $cachedApkPath',
+                '已找到之前下载的安装包，是否直接安装？\n\n点击"确定"立即安装，点击"取消"关闭此弹窗。\n\n文件路径: $cachedApkPath',
           );
 
           if (shouldInstall == true) {
@@ -217,8 +217,10 @@ class UpdateService {
               message: '正在安装缓存的APK',
               filePath: cachedApkPath,
             );
+          } else {
+            // 用户选择取消，直接返回
+            return UpdateResult.userCancelled();
           }
-          // 如果选择重新下载，则继续下载流程
         }
       }
 
