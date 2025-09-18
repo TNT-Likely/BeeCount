@@ -6,16 +6,21 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInstaller
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import androidx.core.content.FileProvider
+import java.io.File
+import java.io.FileInputStream
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "notification_channel"
+    private val INSTALL_CHANNEL = "com.example.beecount/install"
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +56,24 @@ class MainActivity: FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        
+
+        // 安装APK的MethodChannel
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, INSTALL_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "installApk" -> {
+                    val filePath = call.argument<String>("filePath")
+                    if (filePath != null) {
+                        val success = installApkWithIntent(filePath)
+                        result.success(success)
+                    } else {
+                        result.error("INVALID_ARGUMENT", "文件路径不能为空", null)
+                    }
+                }
+                else -> result.notImplemented()
+            }
+        }
+
+        // 通知相关的MethodChannel
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "scheduleNotification" -> {
@@ -344,6 +366,74 @@ class MainActivity: FlutterActivity() {
             android.util.Log.d("MainActivity", "✅ NotificationReceiver调用完成")
         } catch (e: Exception) {
             android.util.Log.e("MainActivity", "❌ 直接测试NotificationReceiver失败: $e")
+        }
+    }
+
+    private fun installApkWithIntent(filePath: String): Boolean {
+        return try {
+            android.util.Log.d("MainActivity", "UPDATE_CRASH: 开始原生Intent安装APK: $filePath")
+
+            val sourceFile = File(filePath)
+            if (!sourceFile.exists()) {
+                android.util.Log.e("MainActivity", "UPDATE_CRASH: APK文件不存在: $filePath")
+                return false
+            }
+
+            android.util.Log.d("MainActivity", "UPDATE_CRASH: APK文件大小: ${sourceFile.length()} 字节")
+
+            // 直接在缓存根目录创建APK，避免子目录配置问题
+            android.util.Log.d("MainActivity", "UPDATE_CRASH: 复制APK到缓存根目录")
+            val cachedApk = File(cacheDir, "install.apk")
+            sourceFile.copyTo(cachedApk, overwrite = true)
+            android.util.Log.d("MainActivity", "UPDATE_CRASH: APK已复制到: ${cachedApk.absolutePath}")
+
+            val intent = Intent(Intent.ACTION_VIEW)
+
+            android.util.Log.d("MainActivity", "UPDATE_CRASH: 使用FileProvider创建URI")
+            try {
+                android.util.Log.d("MainActivity", "UPDATE_CRASH: 包名: $packageName")
+                android.util.Log.d("MainActivity", "UPDATE_CRASH: Authority: $packageName.fileprovider")
+                android.util.Log.d("MainActivity", "UPDATE_CRASH: 缓存APK路径: ${cachedApk.absolutePath}")
+                android.util.Log.d("MainActivity", "UPDATE_CRASH: 调试 - applicationId: $packageName")
+                android.util.Log.d("MainActivity", "UPDATE_CRASH: 调试 - Authority完整: $packageName.fileprovider")
+
+                val uri = FileProvider.getUriForFile(
+                    this,
+                    "$packageName.fileprovider",
+                    cachedApk
+                )
+                android.util.Log.d("MainActivity", "UPDATE_CRASH: ✅ FileProvider URI创建成功: $uri")
+
+                intent.setDataAndType(uri, "application/vnd.android.package-archive")
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                android.util.Log.d("MainActivity", "UPDATE_CRASH: URI权限已设置")
+
+            } catch (e: IllegalArgumentException) {
+                android.util.Log.e("MainActivity", "UPDATE_CRASH: ❌ FileProvider路径配置错误", e)
+                return false
+            } catch (e: Exception) {
+                android.util.Log.e("MainActivity", "UPDATE_CRASH: ❌ FileProvider创建URI失败", e)
+                return false
+            }
+
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+            android.util.Log.d("MainActivity", "UPDATE_CRASH: 启动APK安装Intent")
+
+            // 检查是否有应用可以处理该Intent
+            if (intent.resolveActivity(packageManager) != null) {
+                android.util.Log.d("MainActivity", "UPDATE_CRASH: 找到可处理APK安装的应用")
+                startActivity(intent)
+                android.util.Log.d("MainActivity", "UPDATE_CRASH: ✅ APK安装Intent启动成功")
+                return true
+            } else {
+                android.util.Log.e("MainActivity", "UPDATE_CRASH: ❌ 没有应用可以处理APK安装")
+                return false
+            }
+
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "UPDATE_CRASH: ❌ 原生Intent安装失败: $e")
+            return false
         }
     }
 }

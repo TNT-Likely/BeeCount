@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:open_filex/open_filex.dart';
@@ -214,6 +215,7 @@ class UpdateService {
             await _installApk(cachedApkPath);
             return UpdateResult(
               hasUpdate: true,
+              success: true,
               message: '正在安装缓存的APK',
               filePath: cachedApkPath,
             );
@@ -273,16 +275,36 @@ class UpdateService {
 
             if (shouldInstall == true) {
               // 在安装前提供进度回调
-              logI('UpdateService', '用户确认安装，开始启动安装程序');
+              logI('UpdateService', 'UPDATE_CRASH: 🚀 用户确认安装，开始启动安装程序');
+              logI('UpdateService', 'UPDATE_CRASH: 当前构建模式: ${const bool.fromEnvironment('dart.vm.product') ? "生产模式" : "开发模式"}');
+              logI('UpdateService', 'UPDATE_CRASH: 当前flavor: ${const String.fromEnvironment('flavor', defaultValue: 'unknown')}');
               onProgress?.call(0.95, '正在启动安装...');
 
               // 确保在启动安装器之前，界面状态是正确的
               await Future.delayed(const Duration(milliseconds: 300));
 
               logI('UpdateService',
-                  '调用_installApk方法，文件路径: ${downloadResult.filePath}');
+                  'UPDATE_CRASH: 🔧 调用_installApk方法，文件路径: ${downloadResult.filePath}');
+
+              // 在生产环境中添加额外的预检查
+              if (const bool.fromEnvironment('dart.vm.product')) {
+                logI('UpdateService', 'UPDATE_CRASH: 🏭 生产环境，执行额外预检查...');
+                try {
+                  final preCheck = File(downloadResult.filePath!);
+                  final preCheckExists = await preCheck.exists();
+                  final preCheckSize = preCheckExists ? await preCheck.length() : 0;
+                  logI('UpdateService', 'UPDATE_CRASH: 生产环境预检查 - 文件存在: $preCheckExists, 大小: $preCheckSize');
+                } catch (preCheckError) {
+                  logE('UpdateService', 'UPDATE_CRASH: 生产环境预检查失败', preCheckError);
+                }
+              }
+
               final installed = await _installApk(downloadResult.filePath!);
-              logI('UpdateService', '_installApk返回结果: $installed');
+              logI('UpdateService', 'UPDATE_CRASH: 🎯 _installApk返回结果: $installed');
+
+              if (const bool.fromEnvironment('dart.vm.product')) {
+                logI('UpdateService', 'UPDATE_CRASH: 🏭 生产环境安装调用完成，应用即将进入后台或退出');
+              }
 
               if (installed) {
                 onProgress?.call(1.0, '安装程序已启动');
@@ -775,12 +797,109 @@ class UpdateService {
   /// 安装APK
   static Future<bool> _installApk(String filePath) async {
     try {
-      logI('UpdateService', '开始安装APK: $filePath');
-      final result = await OpenFilex.open(filePath);
-      logI('UpdateService', '安装结果: ${result.message}');
-      return result.type == ResultType.done;
-    } catch (e) {
-      logE('UpdateService', '安装APK失败', e);
+      logI('UpdateService', 'UPDATE_CRASH: === 开始APK安装流程 ===');
+      logI('UpdateService', 'UPDATE_CRASH: 文件路径: $filePath');
+
+      // 检查文件是否存在
+      final file = File(filePath);
+      final exists = await file.exists();
+      logI('UpdateService', 'UPDATE_CRASH: 文件是否存在: $exists');
+
+      if (!exists) {
+        logE('UpdateService', 'UPDATE_CRASH: APK文件不存在，无法安装');
+        return false;
+      }
+
+      // 检查文件大小
+      final fileSize = await file.length();
+      logI('UpdateService', 'UPDATE_CRASH: APK文件大小: ${(fileSize / 1024 / 1024).toStringAsFixed(2)}MB');
+
+      // 检查平台
+      logI('UpdateService', 'UPDATE_CRASH: 运行平台: ${Platform.operatingSystem}');
+      logI('UpdateService', 'UPDATE_CRASH: 平台版本: ${Platform.version}');
+
+      // 检查权限状态
+      final installPermission = await Permission.requestInstallPackages.status;
+      logI('UpdateService', 'UPDATE_CRASH: 安装权限状态: $installPermission');
+
+      logI('UpdateService', 'UPDATE_CRASH: 准备调用OpenFilex.open...');
+
+      // 在生产环境中使用更安全的调用方式
+      bool success = false;
+      if (const bool.fromEnvironment('dart.vm.product')) {
+        logI('UpdateService', 'UPDATE_CRASH: 生产环境，使用原生Intent方式安装');
+        try {
+          success = await _installApkWithIntent(filePath);
+        } catch (intentException) {
+          logE('UpdateService', 'UPDATE_CRASH: Intent安装失败，尝试OpenFilex备用方案', intentException);
+          try {
+            final result = await OpenFilex.open(filePath);
+            logI('UpdateService', 'UPDATE_CRASH: === OpenFilex.open备用调用完成 ===');
+            success = result.type == ResultType.done;
+          } catch (openFileException) {
+            logE('UpdateService', 'UPDATE_CRASH: OpenFilex备用方案也失败', openFileException);
+            success = false;
+          }
+        }
+      } else {
+        // 开发环境使用原来的方式
+        final result = await OpenFilex.open(filePath);
+        logI('UpdateService', 'UPDATE_CRASH: === OpenFilex.open调用完成 ===');
+        logI('UpdateService', 'UPDATE_CRASH: 返回类型: ${result.type}');
+        logI('UpdateService', 'UPDATE_CRASH: 返回消息: ${result.message}');
+        success = result.type == ResultType.done;
+      }
+
+      logI('UpdateService', 'UPDATE_CRASH: 安装结果判定: $success');
+
+      if (success) {
+        logI('UpdateService', 'UPDATE_CRASH: ✅ APK安装程序启动成功');
+      } else {
+        logW('UpdateService', 'UPDATE_CRASH: ⚠️ APK安装程序启动失败');
+      }
+
+      return success;
+    } catch (e, stackTrace) {
+      logE('UpdateService', 'UPDATE_CRASH: ❌ 安装APK过程中发生异常', e);
+      logE('UpdateService', 'UPDATE_CRASH: 异常堆栈: $stackTrace');
+
+      // 记录异常类型
+      logE('UpdateService', 'UPDATE_CRASH: 异常类型: ${e.runtimeType}');
+      if (e is PlatformException) {
+        logE('UpdateService', 'UPDATE_CRASH: PlatformException code: ${e.code}');
+        logE('UpdateService', 'UPDATE_CRASH: PlatformException message: ${e.message}');
+        logE('UpdateService', 'UPDATE_CRASH: PlatformException details: ${e.details}');
+      }
+
+      return false;
+    }
+  }
+
+  /// 使用原生Android Intent安装APK（生产环境专用）
+  static Future<bool> _installApkWithIntent(String filePath) async {
+    try {
+      logI('UpdateService', 'UPDATE_CRASH: 开始使用Intent安装APK');
+
+      if (!Platform.isAndroid) {
+        logE('UpdateService', 'UPDATE_CRASH: 非Android平台，无法使用Intent安装');
+        return false;
+      }
+
+      // 使用MethodChannel调用原生Android代码
+      const platform = MethodChannel('com.example.beecount/install');
+
+      logI('UpdateService', 'UPDATE_CRASH: 调用原生安装方法，文件路径: $filePath');
+
+      final result = await platform.invokeMethod('installApk', {
+        'filePath': filePath,
+      });
+
+      logI('UpdateService', 'UPDATE_CRASH: 原生安装方法调用完成，结果: $result');
+
+      return result == true;
+    } catch (e, stackTrace) {
+      logE('UpdateService', 'UPDATE_CRASH: Intent安装异常', e);
+      logE('UpdateService', 'UPDATE_CRASH: Intent安装异常堆栈', stackTrace);
       return false;
     }
   }
@@ -1088,10 +1207,15 @@ class UpdateService {
 
         if (!context.mounted) return;
 
+        logI('UpdateService', 'UPDATE_CRASH: 📊 downloadResult检查 - success: ${downloadResult.success}, message: ${downloadResult.message}, type: ${downloadResult.type}');
+
         if (!downloadResult.success && downloadResult.message != null) {
+          logW('UpdateService', 'UPDATE_CRASH: ⚠️ 检测到下载结果为失败，准备显示错误弹窗');
+
           // 检查是否是用户取消，如果是则不显示错误弹窗
           if (downloadResult.type == UpdateResultType.userCancelled) {
             // 用户取消下载，什么都不做，静默返回
+            logI('UpdateService', 'UPDATE_CRASH: 🚫 用户取消下载，静默返回');
             return;
           }
 
@@ -1102,8 +1226,11 @@ class UpdateService {
           if (!context.mounted) return;
 
           // 显示下载错误信息，并提供GitHub fallback
+          logW('UpdateService', 'UPDATE_CRASH: 🚨 即将显示下载失败弹窗');
           await _showDownloadErrorWithFallback(
               context, downloadResult.message!);
+        } else if (downloadResult.success) {
+          logI('UpdateService', 'UPDATE_CRASH: ✅ 下载和安装流程成功完成');
         }
         // 成功下载的情况不需要额外提示，UpdateService内部已处理
       } catch (e) {

@@ -68,6 +68,37 @@
 # Keep OpenFilex plugin classes (用于APK安装)
 -keep class com.crazecoder.openfile.** { *; }
 
+# Keep all FileProvider related classes and methods (防止混淆影响APK安装)
+-keep class androidx.core.content.FileProvider { *; }
+-keep class androidx.core.content.FileProvider$** { *; }
+-keepclassmembers class androidx.core.content.FileProvider {
+    public *;
+    private *;
+}
+
+# Keep XML parser related classes (修复IncompatibleClassChangeError)
+-keep class android.content.res.XmlBlock { *; }
+-keep class android.content.res.XmlBlock$Parser { *; }
+-keep interface android.content.res.XmlResourceParser { *; }
+-keep interface org.xmlpull.v1.XmlPullParser { *; }
+
+# Keep XML parsing implementation classes
+-keep class org.xmlpull.v1.** { *; }
+-dontwarn org.xmlpull.v1.**
+
+# Keep method signatures for file provider paths
+-keepattributes *Annotation*
+-keep class * extends androidx.core.content.FileProvider
+
+# Prevent obfuscation of authority strings
+-keepclassmembers class ** {
+    @androidx.core.content.FileProvider$* <fields>;
+}
+
+# 保护Android系统XML接口不被混淆 (关键修复)
+-keep interface android.content.res.** { *; }
+-keep class android.content.res.** { *; }
+
 # Preserve line numbers for debugging crashes
 -keepattributes SourceFile,LineNumberTable
 

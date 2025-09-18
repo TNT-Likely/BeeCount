@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<paths>
-    <!-- External storage for APK files -->
-    <external-path name="external_files" path="." />
-    <!-- Cache directory for temporary APK files -->
-    <cache-path name="cache" path="." />
-    <!-- Files directory for APK files -->
-    <files-path name="files" path="." />
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 允许访问 cache/apk 目录 - 与你的分析完全一致 -->
+    <cache-path name="apk_cache" path="apk/" />
+
+    <!-- 允许访问全部缓存目录作为备用 -->
+    <cache-path name="all_cache" path="." />
+
+    <!-- External app-specific files directory -->
+    <external-files-path name="external_app_files" path="." />
 </paths>
