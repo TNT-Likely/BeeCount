@@ -112,8 +112,8 @@ class MainActivity: FlutterActivity() {
                 putExtra("title", title)
                 putExtra("body", body)
                 putExtra("notificationId", notificationId)
-                // 使用固定的action，但通过extras区分不同通知
-                action = "com.example.beecount.NOTIFICATION_ALARM"
+                // 使用动态包名构建action
+                action = "${packageName}.NOTIFICATION_ALARM"
             }
 
             val pendingIntent = PendingIntent.getBroadcast(
@@ -176,7 +176,7 @@ class MainActivity: FlutterActivity() {
     private fun cancelNotification(notificationId: Int) {
         android.util.Log.d("MainActivity", "取消通知: ID=$notificationId")
         val intent = Intent(this, NotificationReceiver::class.java).apply {
-            action = "com.example.beecount.NOTIFICATION_ALARM"
+            action = "${packageName}.NOTIFICATION_ALARM"
         }
         val pendingIntent = PendingIntent.getBroadcast(
             this,

@@ -77,7 +77,7 @@
                 <data android:scheme="package" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.example.beecount.NOTIFICATION_ALARM" />
+                <action android:name="${applicationId}.NOTIFICATION_ALARM" />
             </intent-filter>
         </receiver>
 
@@ -86,7 +86,7 @@
             android:enabled="true"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.example.beecount.NOTIFICATION_CLICK" />
+                <action android:name="${applicationId}.NOTIFICATION_CLICK" />
             </intent-filter>
         </receiver>
             

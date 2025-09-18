@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
-import '../providers/database_providers.dart';
 import '../data/db.dart' as db;
 import '../widgets/ui/ui.dart';
 import '../widgets/biz/biz.dart';
@@ -11,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'category_edit_page.dart';
 import 'category_migration_page.dart';
 import '../utils/transaction_edit_utils.dart';
+import '../utils/sync_helpers.dart';
 
 enum SortType { timeAsc, timeDesc, amountAsc, amountDesc }
 
@@ -330,6 +330,29 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                   categoryData.value,
                 );
               },
+              onDelete: () async {
+                final repo = ref.read(repositoryProvider);
+                final ledgerId = ref.read(currentLedgerIdProvider);
+
+                try {
+                  await repo.deleteTransaction(transaction.id);
+
+                  // 统一处理：自动/手动同步与状态刷新（后台静默）
+                  await handleLocalChange(ref, ledgerId: ledgerId, background: true);
+
+                  // 刷新：账本笔数与全局统计
+                  ref.invalidate(countsForLedgerProvider(ledgerId));
+                  ref.read(statsRefreshProvider.notifier).state++;
+
+                  // 响应式provider会自动更新，无需手动刷新交易列表
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('删除失败: $e')),
+                    );
+                  }
+                }
+              },
             );
           }
         },
@@ -385,6 +408,29 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                 );
                 // 注意：现在无需手动刷新！
                 // 数据库变化会自动通过Stream推送到UI
+              },
+              onDelete: () async {
+                final repo = ref.read(repositoryProvider);
+                final ledgerId = ref.read(currentLedgerIdProvider);
+
+                try {
+                  await repo.deleteTransaction(transaction.id);
+
+                  // 统一处理：自动/手动同步与状态刷新（后台静默）
+                  await handleLocalChange(ref, ledgerId: ledgerId, background: true);
+
+                  // 刷新：账本笔数与全局统计
+                  ref.invalidate(countsForLedgerProvider(ledgerId));
+                  ref.read(statsRefreshProvider.notifier).state++;
+
+                  // 响应式provider会自动更新，无需手动刷新交易列表
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('删除失败: $e')),
+                    );
+                  }
+                }
               },
             )),
           ],

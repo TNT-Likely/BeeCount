@@ -81,17 +81,13 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
   
   void _addCategory() async {
     final kind = _tabController.index == 0 ? 'expense' : 'income';
-    final result = await Navigator.of(context).push(
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => CategoryEditPage(kind: kind),
       ),
     );
-    
-    // 如果有更新，刷新分类列表
-    if (result == true) {
-      ref.invalidate(categoriesProvider);
-      ref.invalidate(categoriesWithCountProvider);
-    }
+
+    // 响应式provider会自动更新，无需手动刷新
   }
 }
 
@@ -254,7 +250,7 @@ class _CategoryCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return InkWell(
       onTap: () async {
-        final result = await Navigator.of(context).push(
+        await Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => CategoryEditPage(
               category: category,
@@ -263,11 +259,7 @@ class _CategoryCard extends ConsumerWidget {
           ),
         );
 
-        // 如果有更新，刷新分类列表
-        if (result == true) {
-          ref.invalidate(categoriesProvider);
-          ref.invalidate(categoriesWithCountProvider);
-        }
+        // 响应式provider会自动更新，无需手动刷新
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
