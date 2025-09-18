@@ -136,6 +136,22 @@ jobs:
           echo "SUPABASE_URL length: ${#SUPABASE_URL}"
           echo "SUPABASE_ANON_KEY length: ${#SUPABASE_ANON_KEY}"
 
+      - name: Update pubspec.yaml version
+        run: |
+          VERSION='${{ steps.meta.outputs.tag_name }}'
+          echo "Updating pubspec.yaml version to: $VERSION"
+          # 备份原始 pubspec.yaml
+          cp pubspec.yaml pubspec.yaml.backup
+          # 更新版本号，保持构建号递增
+          # 从标签中提取版本号（去掉 v 前缀）
+          CLEAN_VERSION=${VERSION#v}
+          # 生成构建号（使用 GitHub run number）
+          BUILD_NUMBER=${{ github.run_number }}
+          # 更新 pubspec.yaml
+          sed -i "s/^version: .*/version: ${CLEAN_VERSION}+${BUILD_NUMBER}/" pubspec.yaml
+          echo "Updated version in pubspec.yaml:"
+          grep "^version:" pubspec.yaml
+
       - name: Build APK (release)
         run: |
           export SUPABASE_URL='${{ secrets.SUPABASE_URL }}'
@@ -256,6 +272,22 @@ jobs:
           export SUPABASE_ANON_KEY='${{ secrets.SUPABASE_ANON_KEY }}'
           echo "SUPABASE_URL length: ${#SUPABASE_URL}"
           echo "SUPABASE_ANON_KEY length: ${#SUPABASE_ANON_KEY}"
+
+      - name: Update pubspec.yaml version (iOS)
+        run: |
+          VERSION='${{ steps.meta.outputs.tag_name }}'
+          echo "Updating pubspec.yaml version to: $VERSION"
+          # 备份原始 pubspec.yaml
+          cp pubspec.yaml pubspec.yaml.backup
+          # 更新版本号，保持构建号递增
+          # 从标签中提取版本号（去掉 v 前缀）
+          CLEAN_VERSION=${VERSION#v}
+          # 生成构建号（使用 GitHub run number）
+          BUILD_NUMBER=${{ github.run_number }}
+          # 更新 pubspec.yaml
+          sed -i "s/^version: .*/version: ${CLEAN_VERSION}+${BUILD_NUMBER}/" pubspec.yaml
+          echo "Updated version in pubspec.yaml:"
+          grep "^version:" pubspec.yaml
 
       - name: Build iOS (no codesign)
         run: |
