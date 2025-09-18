@@ -66,20 +66,8 @@ final categoriesProvider = FutureProvider<List<Category>>((ref) async {
   return await db.select(db.categories).get();
 });
 
-// 分类与交易笔数组合Provider（性能优化版本）
-final categoriesWithCountProvider = FutureProvider<List<({Category category, int transactionCount})>>((ref) async {
+// 分类与交易笔数组合Provider（响应式版本）
+final categoriesWithCountProvider = StreamProvider<List<({Category category, int transactionCount})>>((ref) {
   final repo = ref.watch(repositoryProvider);
-  final db = ref.watch(databaseProvider);
-
-  // 使用批量查询一次性获取所有分类和对应的交易数量
-  final categories = await db.select(db.categories).get();
-  final transactionCounts = await repo.getAllCategoryTransactionCounts();
-
-  // 将分类和交易数量组合
-  final result = categories.map((category) {
-    final count = transactionCounts[category.id] ?? 0;
-    return (category: category, transactionCount: count);
-  }).toList();
-
-  return result;
+  return repo.watchCategoriesWithCount();
 });

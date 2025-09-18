@@ -845,4 +845,35 @@ class BeeRepository {
       ..where((c) => c.id.equals(categoryId))
     ).watchSingleOrNull();
   }
+
+  /// 响应式监听所有分类及其交易数量变化
+  Stream<List<({Category category, int transactionCount})>> watchCategoriesWithCount() {
+    // 使用自定义查询监听分类和交易数量的变化
+    return db.customSelect(
+      '''
+      SELECT
+        c.id as category_id,
+        c.name as category_name,
+        c.kind as category_kind,
+        c.icon as category_icon,
+        COALESCE(COUNT(t.id), 0) as transaction_count
+      FROM categories c
+      LEFT JOIN transactions t ON c.id = t.category_id
+      GROUP BY c.id, c.name, c.kind, c.icon
+      ORDER BY c.id
+      ''',
+      readsFrom: {db.categories, db.transactions},
+    ).watch().map((rows) {
+      return rows.map((row) {
+        final category = Category(
+          id: row.read<int>('category_id'),
+          name: row.read<String>('category_name'),
+          kind: row.read<String>('category_kind'),
+          icon: row.read<String?>('category_icon'),
+        );
+        final transactionCount = row.read<int>('transaction_count');
+        return (category: category, transactionCount: transactionCount);
+      }).toList();
+    });
+  }
 }
