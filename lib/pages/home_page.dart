@@ -177,6 +177,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final repo = ref.watch(repositoryProvider);
+    final cachedData = ref.watch(cachedTransactionsWithCategoryProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final month = ref.watch(selectedMonthProvider);
     final hide = ref.watch(hideAmountsProvider);
@@ -309,11 +310,8 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: StreamBuilder<List<({Transaction t, Category? category})>>(
               stream: repo.transactionsWithCategoryAll(ledgerId: ledgerId),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final joined = snapshot.data ?? [];
+                // 优先使用流数据，否则使用缓存数据，避免显示loading
+                final joined = snapshot.hasData ? snapshot.data! : (cachedData ?? []);
                 _transactions = joined; // 保存交易数据
 
                 // 按天分组 - 保持原有逻辑
