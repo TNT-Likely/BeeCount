@@ -35,17 +35,25 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
     // 时间范围
     late DateTime start;
     late DateTime end;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
     if (_scope == 'month') {
       start = DateTime(selMonth.year, selMonth.month, 1);
-      end = DateTime(selMonth.year, selMonth.month + 1, 1);
+      final monthEnd = DateTime(selMonth.year, selMonth.month + 1, 1);
+      // 当前月份：只到今天；历史月份：到月末
+      final isCurrentMonth =
+          selMonth.year == now.year && selMonth.month == now.month;
+      end = isCurrentMonth ? today.add(const Duration(days: 1)) : monthEnd;
     } else if (_scope == 'year') {
       start = DateTime(selMonth.year, 1, 1);
-      end = DateTime(selMonth.year + 1, 1, 1);
+      final yearEnd = DateTime(selMonth.year + 1, 1, 1);
+      // 当前年份：只到今天；历史年份：到年末
+      final isCurrentYear = selMonth.year == now.year;
+      end = isCurrentYear ? today.add(const Duration(days: 1)) : yearEnd;
     } else {
-      final today = DateTime.now();
       start = DateTime(1970, 1, 1);
-      end = DateTime(today.year, today.month, today.day)
-          .add(const Duration(days: 1));
+      end = today.add(const Duration(days: 1));
     }
 
     // 按视角获取序列
@@ -211,33 +219,60 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
 
                 // 注意：sum 非 0 或曲线存在非零值则继续渲染
 
-                // 转换为折线值数组 + x 轴标签
-                final values = () {
+                // 过滤数据：只显示到当前时间的数据
+                final filteredSeriesRaw = () {
                   if (seriesRaw is List<({DateTime day, double total})>) {
-                    return seriesRaw.map((e) => e.total).toList();
+                    // 天数据：已经通过时间范围过滤了
+                    return seriesRaw;
                   }
                   if (seriesRaw is List<({DateTime month, double total})>) {
-                    return seriesRaw.map((e) => e.total).toList();
+                    // 月数据：过滤到当前月份
+                    final isCurrentYear = selMonth.year == now.year;
+                    if (isCurrentYear) {
+                      return seriesRaw
+                          .where((e) => e.month.month <= now.month)
+                          .toList();
+                    }
+                    return seriesRaw;
                   }
                   if (seriesRaw is List<({int year, double total})>) {
-                    return seriesRaw.map((e) => e.total).toList();
+                    // 年数据：过滤到当前年份
+                    return seriesRaw.where((e) => e.year <= now.year).toList();
+                  }
+                  return seriesRaw;
+                }();
+
+                // 转换为折线值数组 + x 轴标签
+                final values = () {
+                  if (filteredSeriesRaw
+                      is List<({DateTime day, double total})>) {
+                    return filteredSeriesRaw.map((e) => e.total).toList();
+                  }
+                  if (filteredSeriesRaw
+                      is List<({DateTime month, double total})>) {
+                    return filteredSeriesRaw.map((e) => e.total).toList();
+                  }
+                  if (filteredSeriesRaw is List<({int year, double total})>) {
+                    return filteredSeriesRaw.map((e) => e.total).toList();
                   }
                   return const <double>[];
                 }();
 
                 final xLabels = () {
-                  if (seriesRaw is List<({DateTime day, double total})>) {
-                    return seriesRaw
+                  if (filteredSeriesRaw
+                      is List<({DateTime day, double total})>) {
+                    return filteredSeriesRaw
                         .map((e) => e.day.day.toString())
                         .toList(growable: false);
                   }
-                  if (seriesRaw is List<({DateTime month, double total})>) {
-                    return seriesRaw
+                  if (filteredSeriesRaw
+                      is List<({DateTime month, double total})>) {
+                    return filteredSeriesRaw
                         .map((e) => '${e.month.month}月')
                         .toList(growable: false);
                   }
-                  if (seriesRaw is List<({int year, double total})>) {
-                    return seriesRaw
+                  if (filteredSeriesRaw is List<({int year, double total})>) {
+                    return filteredSeriesRaw
                         .map((e) => e.year.toString())
                         .toList(growable: false);
                   }
@@ -246,7 +281,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
 
                 int? highlightIndex;
                 if (_scope == 'month' &&
-                    seriesRaw is List<({DateTime day, double total})>) {
+                    filteredSeriesRaw is List<({DateTime day, double total})>) {
                   final today = DateTime.now();
                   if (today.year == selMonth.year &&
                       today.month == selMonth.month) {
@@ -288,7 +323,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                         scope: _scope,
                         isExpense: _type == 'expense',
                         total: sum,
-                        avg: _computeAverage(seriesRaw, _scope),
+                        avg: _computeAverage(filteredSeriesRaw, _scope),
                       ),
                       const SizedBox(height: 12),
                       SizedBox(
@@ -375,8 +410,6 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                             _type == 'expense' ? '支出排行榜' : '收入排行榜',
                             style: AppTextTokens.title(context),
                           ),
-                          const SizedBox(width: 8),
-                          InfoTag(_currentPeriodLabel(_scope, selMonth)),
                           const Spacer(),
                           if (!headerDismissed)
                             InkWell(
@@ -683,18 +716,17 @@ class _LinePainter extends CustomPainter {
     }
 
     if (values.isEmpty) return;
-    // 仅用于统计/绘制：忽略值为 0 的点（不显示 0），但保留原始 X 轴间距与标签
-    final nonZeroIdx = <int>[];
-    for (int i = 0; i < values.length; i++) {
-      if (values[i] != 0) nonZeroIdx.add(i);
-    }
-    if (nonZeroIdx.isEmpty) return;
 
-    // 数据归一化
-    final nonZeroVals = [for (final i in nonZeroIdx) values[i]];
-    final maxV = nonZeroVals.reduce(math.max);
-    final minV = nonZeroVals.reduce(math.min);
-    final avgV = nonZeroVals.reduce((a, b) => a + b) / nonZeroVals.length;
+    // 数据归一化 - 包含所有值（包括0）用于正确的Y轴缩放
+    final maxV = values.reduce(math.max);
+    final minV = values.reduce(math.min);
+
+    // 计算非零值的平均值，用于平均线绘制
+    final nonZeroVals = values.where((v) => v != 0).toList();
+    final avgV = nonZeroVals.isEmpty
+        ? 0.0
+        : nonZeroVals.reduce((a, b) => a + b) / nonZeroVals.length;
+
     final span = (maxV - minV).abs();
     final bottomPadding = 20.0;
     final topPadding = 12.0;
@@ -707,14 +739,16 @@ class _LinePainter extends CustomPainter {
     final dx = (size.width - 24) / (values.length - 1).clamp(1, 999);
     Offset pointFor(int i) => Offset(12 + i * dx, yFor(values[i]));
 
-    // 仅收集非零点用于绘制与标注；路径跨越零值（不在零值处中断）
-    final nzPoints = <Offset>[];
+    // 为所有点生成坐标，包括零值点，确保线条连续
+    final allPoints = <Offset>[];
+    for (int i = 0; i < values.length; i++) {
+      allPoints.add(pointFor(i));
+    }
+
+    // 收集非零点的索引，用于绘制圆点和标注
     final nzIndices = <int>[];
     for (int i = 0; i < values.length; i++) {
-      if (values[i] == 0) continue;
-      final p = pointFor(i);
-      nzPoints.add(p);
-      nzIndices.add(i);
+      if (values[i] != 0) nzIndices.add(i);
     }
 
     final line = Paint()
@@ -722,22 +756,21 @@ class _LinePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = lineWidth
       ..isAntiAlias = true;
-    if (nzPoints.length >= 2) {
-      final path = Path()..moveTo(nzPoints.first.dx, nzPoints.first.dy);
-      for (int i = 1; i < nzPoints.length; i++) {
-        final prev = nzPoints[i - 1];
-        final curr = nzPoints[i];
-        final mid = Offset((prev.dx + curr.dx) / 2, (prev.dy + curr.dy) / 2);
-        path.quadraticBezierTo(prev.dx, prev.dy, mid.dx, mid.dy);
+
+    // 绘制连续的折线，包括所有点（包括零值点）
+    if (allPoints.length >= 2) {
+      final path = Path()..moveTo(allPoints.first.dx, allPoints.first.dy);
+      for (int i = 1; i < allPoints.length; i++) {
+        path.lineTo(allPoints[i].dx, allPoints[i].dy);
       }
-      path.lineTo(nzPoints.last.dx, nzPoints.last.dy);
       canvas.drawPath(path, line);
     }
 
     if (showDots) {
       final dot = Paint()..color = themeColor;
-      for (final p in nzPoints) {
-        canvas.drawCircle(p, dotRadius, dot);
+      // 只在非零值点绘制圆点
+      for (final i in nzIndices) {
+        canvas.drawCircle(allPoints[i], dotRadius, dot);
       }
     }
 
@@ -762,12 +795,12 @@ class _LinePainter extends CustomPainter {
     if (annotate) {
       final textStyle =
           TextStyle(fontSize: yLabelFontSize - 1, color: BeeColors.primaryText);
-      for (int i = 0; i < nzPoints.length; i++) {
+      for (final i in nzIndices) {
         final tp = TextPainter(
-          text: TextSpan(text: _fmt(values[nzIndices[i]]), style: textStyle),
+          text: TextSpan(text: _fmt(values[i]), style: textStyle),
           textDirection: TextDirection.ltr,
         )..layout(maxWidth: 60);
-        final pos = nzPoints[i] + const Offset(0, -10);
+        final pos = allPoints[i] + const Offset(0, -10);
         tp.paint(canvas, Offset(pos.dx - tp.width / 2, pos.dy - tp.height));
       }
     }
@@ -912,7 +945,6 @@ String _currentPeriodLabel(String scope, DateTime selMonth) {
   }
 }
 
-
 class _RankRow extends StatelessWidget {
   final String name;
   final double value;
@@ -935,7 +967,8 @@ class _RankRow extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(iconForCategory(name), color: color),
@@ -972,11 +1005,12 @@ class _RankRow extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: Stack(
                     children: [
-                      Container(height: 6, color: color.withValues(alpha: 0.15)),
+                      Container(
+                          height: 6, color: color.withValues(alpha: 0.15)),
                       FractionallySizedBox(
                         widthFactor: percent.clamp(0, 1),
-                        child:
-                            Container(height: 6, color: color.withValues(alpha: 0.9)),
+                        child: Container(
+                            height: 6, color: color.withValues(alpha: 0.9)),
                       ),
                     ],
                   ),
@@ -991,28 +1025,65 @@ class _RankRow extends StatelessWidget {
 }
 
 double _computeAverage(dynamic seriesRaw, String scope) {
+  final now = DateTime.now();
+
   if (seriesRaw is List<({DateTime day, double total})>) {
     if (seriesRaw.isEmpty) return 0;
     final sum = seriesRaw.fold<double>(0, (a, b) => a + b.total);
+
+    // 月度视角：计算已经过去的天数
+    if (seriesRaw.isNotEmpty) {
+      final firstDay = seriesRaw.first.day;
+      final isCurrentMonth =
+          firstDay.year == now.year && firstDay.month == now.month;
+
+      if (isCurrentMonth) {
+        // 当前月份：使用今天的日期作为分母
+        return sum / now.day;
+      } else {
+        // 历史月份：使用该月的总天数
+        final lastDay = DateTime(firstDay.year, firstDay.month + 1, 0).day;
+        return sum / lastDay;
+      }
+    }
     return sum / seriesRaw.length;
   }
+
   if (seriesRaw is List<({DateTime month, double total})>) {
     if (seriesRaw.isEmpty) return 0;
     final sum = seriesRaw.fold<double>(0, (a, b) => a + b.total);
+
+    // 年度视角：计算已经过去的月份
+    if (seriesRaw.isNotEmpty) {
+      final firstMonth = seriesRaw.first.month;
+      final isCurrentYear = firstMonth.year == now.year;
+
+      if (isCurrentYear) {
+        // 当前年份：使用当前月份作为分母
+        return sum / now.month;
+      } else {
+        // 历史年份：使用12个月
+        return sum / 12;
+      }
+    }
     return sum / seriesRaw.length;
   }
+
   if (seriesRaw is List<({int year, double total})>) {
     if (seriesRaw.isEmpty) return 0;
     final sum = seriesRaw.fold<double>(0, (a, b) => a + b.total);
+    // 全部视角：按实际年份数量计算
     return sum / seriesRaw.length;
   }
+
   return 0;
 }
 
 // 打开分类详情页面
-void _openCategoryDetail(BuildContext context, int? categoryId, String categoryName, DateTime start, DateTime end, String type) {
+void _openCategoryDetail(BuildContext context, int? categoryId,
+    String categoryName, DateTime start, DateTime end, String type) {
   if (categoryId == null) return;
-  
+
   Navigator.of(context).push(
     MaterialPageRoute(
       builder: (_) => CategoryDetailPage(

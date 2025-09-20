@@ -29,8 +29,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   late FlutterListViewController _listController;
   bool _isJumping = false;
   List<({Transaction t, Category? category})> _transactions = [];
-  Map<String, int> _dateIndexMap = {}; // 日期到列表索引的映射
-  Map<int, String> _indexDateMap = {}; // 索引到日期的映射
+  final Map<String, int> _dateIndexMap = {}; // 日期到列表索引的映射
+  final Map<int, String> _indexDateMap = {}; // 索引到日期的映射
   List<dynamic> _flatItems = []; // 保存扁平化的项目列表
 
   // 可见性管理
@@ -70,7 +70,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   // 找到目标月份的第一个交易索引
   int? _findMonthFirstIndex(DateTime targetMonth) {
-    final monthKey = '${targetMonth.year}-${targetMonth.month.toString().padLeft(2, '0')}';
+    final monthKey =
+        '${targetMonth.year}-${targetMonth.month.toString().padLeft(2, '0')}';
 
     // 查找该月份的任意一天
     for (final entry in _dateIndexMap.entries) {
@@ -130,7 +131,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     try {
       // 获取最顶部的可见日期头部（按日期排序，取最新的）
-      final sortedDates = _visibleHeaders.toList()..sort((a, b) => b.compareTo(a));
+      final sortedDates = _visibleHeaders.toList()
+        ..sort((a, b) => b.compareTo(a));
       final topDateKey = sortedDates.first;
 
       final dateParts = topDateKey.split('-');
@@ -199,16 +201,16 @@ class _HomePageState extends ConsumerState<HomePage> {
                         tooltip: '选择日期',
                         onPressed: _isJumping ? null : _handleDateSelection,
                         icon: _isJumping
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: BeeColors.primaryText,
-                              ),
-                            )
-                          : const Icon(Icons.calendar_month,
-                              size: 18, color: BeeColors.primaryText),
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: BeeColors.primaryText,
+                                ),
+                              )
+                            : const Icon(Icons.calendar_month,
+                                size: 18, color: BeeColors.primaryText),
                       ),
                       Expanded(
                         child: Center(
@@ -219,7 +221,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   color: Theme.of(context).colorScheme.primary,
                                   size: 32),
                               Text(
-                                '蜜蜂记账 (优化版)',
+                                '蜜蜂记账',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge
@@ -316,13 +318,16 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                 // 按天分组 - 保持原有逻辑
                 final dateFmt = DateFormat('yyyy-MM-dd');
-                final groups = <String, List<({Transaction t, Category? category})>>{};
+                final groups =
+                    <String, List<({Transaction t, Category? category})>>{};
                 for (final item in joined) {
                   final dt = item.t.happenedAt.toLocal();
-                  final key = dateFmt.format(DateTime(dt.year, dt.month, dt.day));
+                  final key =
+                      dateFmt.format(DateTime(dt.year, dt.month, dt.day));
                   groups.putIfAbsent(key, () => []).add(item);
                 }
-                final sortedKeys = groups.keys.toList()..sort((a, b) => b.compareTo(a));
+                final sortedKeys = groups.keys.toList()
+                  ..sort((a, b) => b.compareTo(a));
 
                 // 无数据时展示空状态
                 if (sortedKeys.isEmpty) {
@@ -349,17 +354,18 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                 // 使用FlutterListView替代ListView.builder
                 return FlutterListView(
-                    controller: _listController,
-                    physics: const BouncingScrollPhysics(),
-                    delegate: FlutterListViewDelegate(
-                      (BuildContext context, int index) {
-                        final item = _flatItems[index];
+                  controller: _listController,
+                  physics: const BouncingScrollPhysics(),
+                  delegate: FlutterListViewDelegate(
+                    (BuildContext context, int index) {
+                      final item = _flatItems[index];
                       final type = item.$1 as String;
 
                       if (type == 'header') {
                         // 渲染日期头部
                         final dateKey = item.$2 as String;
-                        final list = item.$3 as List<({Transaction t, Category? category})>;
+                        final list = item.$3
+                            as List<({Transaction t, Category? category})>;
                         double dayIncome = 0, dayExpense = 0;
                         for (final it in list) {
                           if (it.t.type == 'income') {
@@ -374,11 +380,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                           key: Key('header-$dateKey'),
                           onVisibilityChanged: (VisibilityInfo info) {
                             // 当可见比例大于50%时认为可见
-                            _onHeaderVisibilityChanged(dateKey, info.visibleFraction > 0.5);
+                            _onHeaderVisibilityChanged(
+                                dateKey, info.visibleFraction > 0.5);
                           },
                           child: Column(
                             children: [
-                              if (!isFirst) Divider(height: 1, color: Colors.grey[200]),
+                              if (!isFirst)
+                                Divider(height: 1, color: Colors.grey[200]),
                               DaySectionHeader(
                                 dateText: dateKey,
                                 income: dayIncome,
@@ -390,14 +398,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                         );
                       } else {
                         // 渲染交易项
-                        final it = item.$2 as ({Transaction t, Category? category});
-                        final allItemsInDay = item.$3 as List<({Transaction t, Category? category})>;
+                        final it =
+                            item.$2 as ({Transaction t, Category? category});
+                        final allItemsInDay = item.$3
+                            as List<({Transaction t, Category? category})>;
                         final isExpense = it.t.type == 'expense';
                         final categoryName = it.category?.name ?? '未分类';
                         final subtitle = it.t.note ?? '';
 
                         // 检查是否是当天最后一项
-                        final isLastInGroup = allItemsInDay.last.t.id == it.t.id;
+                        final isLastInGroup =
+                            allItemsInDay.last.t.id == it.t.id;
 
                         return Dismissible(
                           key: Key('tx-${it.t.id}-$index'), // 添加索引避免key冲突
@@ -406,24 +417,29 @@ class _HomePageState extends ConsumerState<HomePage> {
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.only(right: 16),
                             color: Colors.red,
-                            child: const Icon(Icons.delete, color: Colors.white),
+                            child:
+                                const Icon(Icons.delete, color: Colors.white),
                           ),
                           confirmDismiss: (direction) async {
                             return await AppDialog.confirm<bool>(
-                              context,
-                              title: '删除确认',
-                              message: '确定要删除这条记账吗？',
-                            ) ?? false;
+                                  context,
+                                  title: '删除确认',
+                                  message: '确定要删除这条记账吗？',
+                                ) ??
+                                false;
                           },
                           onDismissed: (direction) async {
                             final db = ref.read(databaseProvider);
-                            await (db.delete(db.transactions)..where((t) => t.id.equals(it.t.id))).go();
+                            await (db.delete(db.transactions)
+                                  ..where((t) => t.id.equals(it.t.id)))
+                                .go();
 
                             if (!context.mounted) return;
                             final curLedger = ref.read(currentLedgerIdProvider);
                             ref.invalidate(countsForLedgerProvider(curLedger));
                             ref.read(statsRefreshProvider.notifier).state++;
-                            handleLocalChange(ref, ledgerId: curLedger, background: true);
+                            handleLocalChange(ref,
+                                ledgerId: curLedger, background: true);
 
                             if (context.mounted) {
                               showToast(context, '已删除');
@@ -433,8 +449,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                             children: [
                               TransactionListItem(
                                 icon: iconForCategory(categoryName),
-                                title: subtitle.isNotEmpty ? subtitle : categoryName,
-                                categoryName: subtitle.isNotEmpty ? null : categoryName,
+                                title: subtitle.isNotEmpty
+                                    ? subtitle
+                                    : categoryName,
+                                categoryName:
+                                    subtitle.isNotEmpty ? null : categoryName,
                                 amount: it.t.amount,
                                 isExpense: isExpense,
                                 hide: hide,
@@ -446,19 +465,22 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     it.category,
                                   );
                                 },
-                                onCategoryTap: it.category?.id != null ? () async {
-                                  await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => CategoryDetailPage(
-                                        categoryId: it.category!.id,
-                                        categoryName: categoryName,
-                                      ),
-                                    ),
-                                  );
-                                } : null,
+                                onCategoryTap: it.category?.id != null
+                                    ? () async {
+                                        await Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => CategoryDetailPage(
+                                              categoryId: it.category!.id,
+                                              categoryName: categoryName,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    : null,
                               ),
                               if (!isLastInGroup)
-                                AppDivider.short(indent: 56 + 16, endIndent: 16),
+                                AppDivider.short(
+                                    indent: 56 + 16, endIndent: 16),
                             ],
                           ),
                         );
@@ -495,7 +517,8 @@ class _HeaderCenterSummary extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, textAlign: TextAlign.left, style: AppTextTokens.label(context)),
+            Text(title,
+                textAlign: TextAlign.left, style: AppTextTokens.label(context)),
             const SizedBox(height: 2),
             Text(
               hide ? '****' : formatMoneyCompact(value, maxDecimals: 2),
@@ -503,10 +526,10 @@ class _HeaderCenterSummary extends ConsumerWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: BeeColors.primaryText,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                  ) ??
+                        color: BeeColors.primaryText,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ) ??
                   const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
