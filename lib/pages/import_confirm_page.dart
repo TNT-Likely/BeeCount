@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../providers.dart';
 import '../widgets/ui/ui.dart';
 import '../data/db.dart' as schema;
+import '../l10n/app_localizations.dart';
 
 class ImportConfirmPage extends ConsumerStatefulWidget {
   final String csvText;
@@ -128,8 +129,8 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
     if (parsing) {
       return Scaffold(
         body: Column(
-          children: const [
-            PrimaryHeader(title: '解析中…', showBack: true),
+          children: [
+            PrimaryHeader(title: AppLocalizations.of(context)!.importPreparing, showBack: true),
             Expanded(
               child: Center(
                 child: CircularProgressIndicator(),
@@ -149,7 +150,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
                   i < header.length &&
                   header[i].trim().isNotEmpty)
               ? header[i].trim()
-              : '第 ${i + 1} 列';
+              : AppLocalizations.of(context)!.importColumnNumber(i + 1);
           return DropdownMenuItem(
               value: i, child: Text(label, overflow: TextOverflow.ellipsis));
         });
@@ -158,27 +159,27 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PrimaryHeader(title: step == 0 ? '确认映射' : '分类映射', showBack: true),
+          PrimaryHeader(title: step == 0 ? AppLocalizations.of(context)!.importConfirmMapping : AppLocalizations.of(context)!.importCategoryMapping, showBack: true),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               children: [
                 if (step == 0) ...[
-                  if (rows.isEmpty) const Text('未解析到任何数据，请返回上一页检查 CSV 内容或分隔符。'),
+                  if (rows.isEmpty) Text(AppLocalizations.of(context)!.importNoDataParsed),
                   Wrap(
                     spacing: 12,
                     runSpacing: 8,
                     children: [
-                      _mapRow('日期', 'date', items()),
-                      _mapRow('类型', 'type', items()),
-                      _mapRow('金额', 'amount', items()),
-                      _mapRow('分类', 'category', items()),
-                      _mapRow('备注', 'note', items()),
+                      _mapRow(AppLocalizations.of(context)!.importFieldDate, 'date', items()),
+                      _mapRow(AppLocalizations.of(context)!.importFieldType, 'type', items()),
+                      _mapRow(AppLocalizations.of(context)!.importFieldAmount, 'amount', items()),
+                      _mapRow(AppLocalizations.of(context)!.importFieldCategory, 'category', items()),
+                      _mapRow(AppLocalizations.of(context)!.importFieldNote, 'note', items()),
                     ],
                   ),
                   const SizedBox(height: 12),
                   // 预览仅展示前 N 行，避免大文件一次性渲染导致卡顿
-                  Text('预览：', style: Theme.of(context).textTheme.labelLarge),
+                  Text(AppLocalizations.of(context)!.importPreview, style: Theme.of(context).textTheme.labelLarge),
                   const SizedBox(height: 6),
                   SizedBox(
                     child: SingleChildScrollView(
@@ -210,7 +211,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 6.0),
                                 child: Text(
-                                  '仅预览前 ${limited.length} 行，共 $totalRows 行',
+                                  AppLocalizations.of(context)!.importPreviewLimit(limited.length, totalRows),
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall
@@ -224,20 +225,20 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
                   ),
                 ] else ...[
                   if (mapping['category'] == null)
-                    const Text('未选择“分类”列，请点击“上一步”返回并设置“分类”的列，再继续。'),
-                  Text('请将左侧“源分类名”映射到系统内已有分类（或保持原名自动创建/合并）'),
+                    Text(AppLocalizations.of(context)!.importCategoryNotSelected),
+                  Text(AppLocalizations.of(context)!.importCategoryMappingDescription),
                   const SizedBox(height: 8),
                   FutureBuilder<List<schema.Category>>(
                     future: allCategoriesFuture,
                     builder: (context, snap) {
                       final cats = snap.data ?? [];
                       final items = <DropdownMenuItem<int?>>[
-                        const DropdownMenuItem(
-                            value: null, child: Text('保持原名（自动创建/合并）')),
+                        DropdownMenuItem(
+                            value: null, child: Text(AppLocalizations.of(context)!.importKeepOriginalName)),
                         ...cats.map((c) => DropdownMenuItem<int?>(
                               value: c.id,
                               child: Text(
-                                  '${c.name} (${c.kind == 'income' ? '收入' : '支出'})'),
+                                  '${c.name} (${c.kind == 'income' ? AppLocalizations.of(context)!.categoryIncome : AppLocalizations.of(context)!.categoryExpense})'),
                             )),
                       ];
                       return Column(
@@ -275,30 +276,30 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  if (importing) Text('导入中… 成功 $ok，失败 $fail'),
+                  if (importing) Text(AppLocalizations.of(context)!.importProgress(ok, fail)),
                   const Spacer(),
                   if (step == 0)
                     FilledButton(
                       onPressed: () {
                         if (mapping['category'] == null) {
-                          showToast(context, '请先选择“分类”列再继续');
+                          showToast(context, AppLocalizations.of(context)!.importSelectCategoryFirst);
                           return;
                         }
                         _buildDistinctCategories();
                         setState(() => step = 1);
                       },
-                      child: const Text('下一步'),
+                      child: Text(AppLocalizations.of(context)!.importNextStep),
                     )
                   else ...[
                     OutlinedButton(
                       onPressed:
                           importing ? null : () => setState(() => step = 0),
-                      child: const Text('上一步'),
+                      child: Text(AppLocalizations.of(context)!.importPreviousStep),
                     ),
                     const SizedBox(width: 12),
                     FilledButton(
                       onPressed: importing ? null : _startImport,
-                      child: const Text('开始导入'),
+                      child: Text(AppLocalizations.of(context)!.importStartImport),
                     ),
                   ],
                 ],
@@ -321,7 +322,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
           child: DropdownButton<int>(
             isExpanded: true,
             value: mapping[key],
-            hint: const Text('自动'),
+            hint: Text(AppLocalizations.of(context)!.importAutoDetect),
             items: items,
             onChanged: (v) => setState(() => mapping[key] = v),
           ),
@@ -366,7 +367,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
           return AlertDialog(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            title: const Text('正在导入…'),
+            title: Text(AppLocalizations.of(context)!.importInProgress),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,7 +376,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
                     value: percent > 0 && percent < 1 ? percent : null),
                 const SizedBox(height: 8),
                 // 实时进度文案（每50条更新一次，足够流畅）
-                Text('已完成：${p.done}/${p.total}，成功 ${p.ok}，失败 ${p.fail}',
+                Text(AppLocalizations.of(context)!.importProgressDetail(p.done, p.total, p.ok, p.fail),
                     style: Theme.of(dctx)
                         .textTheme
                         .bodySmall
@@ -392,7 +393,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
                     Navigator.of(currentContext).popUntil((r) => r.isFirst);
                   }
                 },
-                child: const Text('后台导入'),
+                child: Text(AppLocalizations.of(context)!.importBackgroundImport),
               ),
               TextButton(
                 onPressed: () {
@@ -400,7 +401,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
                   dialogOpen = false;
                   Navigator.of(dctx).pop();
                 },
-                child: const Text('取消导入'),
+                child: Text(AppLocalizations.of(context)!.importCancelImport),
               ),
             ],
           );
@@ -597,8 +598,8 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
     }
 
     // 显示导入完成提示
-    final cancelledText = _cancelled ? '（已取消）' : '';
-    showToast(context, '导入完成$cancelledText：成功 $ok 条，失败 $fail 条');
+    final cancelledText = _cancelled ? AppLocalizations.of(context)!.importCancelled : '';
+    showToast(context, AppLocalizations.of(context)!.importCompleted(cancelledText, ok, fail));
 
     // Handle UI operations before cloud upload
     if (dialogOpen) {

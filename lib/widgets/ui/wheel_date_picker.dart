@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 enum WheelDatePickerMode { y, ym, ymd }
 
@@ -114,9 +115,9 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
               children: [
                 TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('取消', style: TextStyle(fontSize: 16))),
+                    child: Text(AppLocalizations.of(context)!.commonCancel, style: const TextStyle(fontSize: 16))),
                 const Spacer(),
-                const Text('选择日期', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                Text(AppLocalizations.of(context)!.homeSelectDate, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                 const Spacer(),
                 TextButton(
                     onPressed: () {
@@ -134,7 +135,7 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                       }
                       Navigator.pop(context, result);
                     },
-                    child: const Text('确定', style: TextStyle(fontSize: 16))),
+                    child: Text(AppLocalizations.of(context)!.commonOk, style: const TextStyle(fontSize: 16))),
               ],
             ),
           ),

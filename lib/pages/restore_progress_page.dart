@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers.dart';
 import '../widgets/ui/ui.dart';
+import '../l10n/app_localizations.dart';
 
 class RestoreProgressPage extends ConsumerWidget {
   const RestoreProgressPage({super.key});
@@ -13,10 +14,14 @@ class RestoreProgressPage extends ConsumerWidget {
     final logs = ref.watch(cloudRestoreLogProvider);
     final summary = ref.watch(cloudRestoreSummaryProvider);
     final title =
-        p.running ? '恢复中 (${p.currentIndex}/${p.totalLedgers})' : '准备中…';
+        p.running ? AppLocalizations.of(context)!.restoreProgress(p.currentIndex, p.totalLedgers) : AppLocalizations.of(context)!.restorePreparing;
     final sub = p.currentLedgerName == null
         ? ''
-        : '账本：${p.currentLedgerName}  记录：${p.currentDone}/${p.currentTotal}';
+        : AppLocalizations.of(context)!.restoreLedgerProgress(
+            p.currentLedgerName ?? '',
+            p.currentDone,
+            p.currentTotal,
+          );
 
     // 仅当检测到“已完成摘要”时自动返回，避免任务尚未启动（running=false）时立刻返回
     if (!p.running && summary != null) {
@@ -31,18 +36,18 @@ class RestoreProgressPage extends ConsumerWidget {
       body: Column(
         children: [
           PrimaryHeader(
-            title: '云端恢复',
+            title: AppLocalizations.of(context)!.restoreTitle,
             showBack: true,
             actions: [
               IconButton(
-                tooltip: '复制日志',
+                tooltip: AppLocalizations.of(context)!.copyLog,
                 onPressed: logs.isEmpty
                     ? null
                     : () async {
                         final text = logs.join('\n');
                         await Clipboard.setData(ClipboardData(text: text));
                         if (context.mounted) {
-                          showToast(context, '日志已复制');
+                          showToast(context, AppLocalizations.of(context)!.logCopied);
                         }
                       },
                 icon: const Icon(Icons.copy, color: Colors.black87),
@@ -60,7 +65,7 @@ class RestoreProgressPage extends ConsumerWidget {
                       Text(title, style: const TextStyle(fontSize: 16)),
                       if (!p.running && summary == null) ...[
                         const SizedBox(height: 6),
-                        const Text('等待恢复任务启动…'),
+                        Text(AppLocalizations.of(context)!.waitingRestore),
                       ],
                       const SizedBox(height: 6),
                       // 总体百分比条（已完成账本/总账本）

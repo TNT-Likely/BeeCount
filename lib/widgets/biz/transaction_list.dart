@@ -10,8 +10,10 @@ import '../../widgets/biz/biz.dart';
 import '../../styles/design.dart';
 import '../../utils/sync_helpers.dart';
 import '../../utils/transaction_edit_utils.dart';
+import '../../utils/category_utils.dart';
 import '../category_icon.dart';
 import '../../pages/category_detail_page.dart';
+import '../../l10n/app_localizations.dart';
 
 /// 可复用的交易列表组件
 /// 支持显示分组的交易列表，包含日期头部和交易项
@@ -126,9 +128,9 @@ class TransactionListState extends ConsumerState<TransactionList> {
     // 无数据时展示空状态
     if (_flatItems.isEmpty) {
       return widget.emptyWidget ??
-        const AppEmpty(
-          text: '暂无数据',
-          subtext: '没有找到相关交易记录',
+        AppEmpty(
+          text: AppLocalizations.of(context).commonEmpty,
+          subtext: AppLocalizations.of(context).homeNoRecords,
         );
     }
 
@@ -186,7 +188,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
             final it = item.$2 as ({Transaction t, Category? category});
             final allItemsInDay = item.$3 as List<({Transaction t, Category? category})>;
             final isExpense = it.t.type == 'expense';
-            final categoryName = it.category?.name ?? '未分类';
+            final categoryName = CategoryUtils.getDisplayName(it.category?.name, context);
             final subtitle = it.t.note ?? '';
 
             // 检查是否是当天最后一项
@@ -204,8 +206,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
               confirmDismiss: (direction) async {
                 return await AppDialog.confirm<bool>(
                       context,
-                      title: '删除确认',
-                      message: '确定要删除这条记账吗？',
+                      title: AppLocalizations.of(context).deleteConfirmTitle,
+                      message: AppLocalizations.of(context).deleteConfirmMessage,
                     ) ??
                     false;
               },
@@ -222,7 +224,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
                 handleLocalChange(ref, ledgerId: curLedger, background: true);
 
                 if (context.mounted) {
-                  showToast(context, '已删除');
+                  showToast(context, AppLocalizations.of(context).ledgersDeleted);
                 }
               },
               child: Column(

@@ -13,6 +13,7 @@ import '../widgets/analytics/category_rank_row.dart';
 import '../widgets/ui/capsule_switcher.dart';
 import 'category_detail_page.dart';
 import 'analytics2_page.dart';
+import '../l10n/app_localizations.dart';
 
 class AnalyticsPage extends ConsumerStatefulWidget {
   const AnalyticsPage({super.key});
@@ -73,18 +74,19 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
       body: Column(
         children: [
           PrimaryHeader(
-            title: '图表分析',
+            title: AppLocalizations.of(context).analyticsTitle,
             leadingIcon: Icons.bar_chart_outlined,
             leadingPlain: true,
             compact: true,
             subtitle:
-                '${_currentPeriodLabel(_scope, selMonth)} · ${_type == 'expense' ? '支出' : '收入'}',
+                '${_currentPeriodLabel(_scope, selMonth, context)} · ${_type == 'expense' ? AppLocalizations.of(context).homeExpense : AppLocalizations.of(context).homeIncome}',
             center: null,
             padding: EdgeInsets.zero,
             actions: [
               if (kDebugMode)
                 IconButton(
-                  icon: const Icon(Icons.analytics_outlined, color: Colors.black87),
+                  icon: const Icon(Icons.analytics_outlined,
+                      color: Colors.black87),
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -99,13 +101,13 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                   await showDialog(
                     context: context,
                     builder: (ctx) => AlertDialog(
-                      title: const Text('小提示'),
-                      content: const Text(
-                          '1) 顶部左右滑动可在“月/年/全部”切换\n2) 图表区域左右滑动可切换上一/下一周期\n3) 点击月份或年份可快速选择'),
+                      title: Text(AppLocalizations.of(context).commonHelp),
+                      content: Text(
+                          AppLocalizations.of(context).analyticsTipContent),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.of(ctx).pop(),
-                          child: const Text('知道了'),
+                          child: Text(AppLocalizations.of(context).commonOk),
                         ),
                       ],
                     ),
@@ -120,7 +122,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                 options: [
                   CapsuleOption(
                     value: 'month',
-                    label: '月',
+                    label: AppLocalizations.of(context).analyticsMonth,
                     showArrow: true,
                     onTap: () async {
                       final res = await showWheelDatePicker(
@@ -138,7 +140,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                   ),
                   CapsuleOption(
                     value: 'year',
-                    label: '年',
+                    label: AppLocalizations.of(context).analyticsYear,
                     showArrow: true,
                     onTap: () async {
                       final res = await showWheelDatePicker(
@@ -155,7 +157,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                   ),
                   CapsuleOption(
                     value: 'all',
-                    label: '全部',
+                    label: AppLocalizations.of(context).analyticsAll,
                   ),
                 ],
                 onChanged: (value) => setState(() => _scope = value),
@@ -212,9 +214,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                     child: ListView(
                       padding: const EdgeInsets.all(16),
                       children: [
-                        const AppEmpty(
-                          text: '暂无数据',
-                          subtext: '可左右滑动切换 收入/支出，或用上方周期切换',
+                        AppEmpty(
+                          text: AppLocalizations.of(context).commonEmpty,
+                          subtext: AppLocalizations.of(context).analyticsNoDataSubtext,
                         ),
                         const SizedBox(height: 12),
                         Align(
@@ -222,7 +224,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                           child: OutlinedButton.icon(
                             icon: const Icon(Icons.swap_horiz),
                             label:
-                                Text('切换到${_type == "expense" ? "收入" : "支出"}'),
+                                Text(AppLocalizations.of(context).analyticsSwitchTo(_type == "expense" ? AppLocalizations.of(context).homeIncome : AppLocalizations.of(context).homeExpense)),
                             onPressed: () => setState(() => _type =
                                 _type == 'expense' ? 'income' : 'expense'),
                           ),
@@ -235,7 +237,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                               Icon(Icons.info_outline,
                                   size: 14, color: BeeColors.secondaryText),
                               const SizedBox(width: 6),
-                              Text('提示：顶部胶囊可切换 月/年/全部',
+                              Text(AppLocalizations.of(context).analyticsTipHeader,
                                   style: Theme.of(context)
                                       .textTheme
                                       .labelSmall
@@ -299,7 +301,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                   if (filteredSeriesRaw
                       is List<({DateTime month, double total})>) {
                     return filteredSeriesRaw
-                        .map((e) => '${e.month.month}月')
+                        .map((e) => AppLocalizations.of(context).homeMonth(e.month.month.toString().padLeft(2, '0')))
                         .toList(growable: false);
                   }
                   if (filteredSeriesRaw is List<({int year, double total})>) {
@@ -319,7 +321,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                     highlightIndex = today.day - 1; // 从 0 开始
                     if (highlightIndex >= 0 &&
                         highlightIndex < xLabels.length) {
-                      xLabels[highlightIndex] = '今天';
+                      xLabels[highlightIndex] = AppLocalizations.of(context).analyticsToday;
                     }
                   }
                 }
@@ -374,7 +376,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                           yLabelFontSize: AppChartTokens.yLabelFontSize,
                           onSwipeLeft: () {
                             // 下一周期
-                            if (_scope == 'all') return; // 全部不滑
+                            if (_scope == 'all') return; // All scope doesn't swipe
                             final m = ref.read(selectedMonthProvider);
                             final now = DateTime.now();
                             if (_scope == 'month') {
@@ -421,7 +423,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                             setState(() => _chartSwiped = true);
                           },
                           showHint: !chartDismissed,
-                          hintText: '左右滑动切换周期',
+                          hintText: AppLocalizations.of(context).analyticsSwipeHint,
                           onCloseHint: () async {
                             final setter =
                                 ref.read(analyticsHintsSetterProvider);
@@ -440,7 +442,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                       Row(
                         children: [
                           Text(
-                            _type == 'expense' ? '支出排行榜' : '收入排行榜',
+                            _type == 'expense' ? AppLocalizations.of(context).analyticsCategoryRanking : AppLocalizations.of(context).analyticsCategoryRanking,
                             style: AppTextTokens.title(context),
                           ),
                           const Spacer(),
@@ -459,7 +461,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                                   Icon(Icons.swipe,
                                       size: 14, color: BeeColors.secondaryText),
                                   const SizedBox(width: 4),
-                                  Text('横滑切换',
+                                  Text(AppLocalizations.of(context).analyticsSwipeToSwitch,
                                       style: Theme.of(context)
                                           .textTheme
                                           .labelSmall
@@ -499,24 +501,20 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
 
 // 顶部类型下拉已移除
 
-
-
 // 自定义选择器：月份（年+月）
 // 旧的自定义年月选择器已移除，统一使用 showWheelDatePicker。
 
-
-String _currentPeriodLabel(String scope, DateTime selMonth) {
+String _currentPeriodLabel(String scope, DateTime selMonth, BuildContext context) {
   switch (scope) {
     case 'year':
-      return '${selMonth.year}年';
+      return '${selMonth.year}';
     case 'all':
-      return '全部年份';
+      return AppLocalizations.of(context).analyticsAllYears;
     case 'month':
     default:
       return '${selMonth.year}-${selMonth.month.toString().padLeft(2, '0')}';
   }
 }
-
 
 double _computeAverage(dynamic seriesRaw, String scope) {
   final now = DateTime.now();

@@ -5,6 +5,7 @@ import '../providers.dart';
 import '../cloud/auth.dart';
 import '../widgets/ui/ui.dart';
 import '../utils/logger.dart';
+import '../l10n/app_localizations.dart';
 
 enum AuthMode { login, signup }
 
@@ -78,33 +79,33 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     if (code != null) {
       switch (code) {
         case 'invalid_credentials':
-          return '邮箱或密码不正确。';
+          return AppLocalizations.of(context).authErrorInvalidCredentials;
         case 'email_address_not_confirmed':
         case 'email_not_confirmed':
-          return '邮箱未验证，请先到邮箱完成验证再登录。';
+          return AppLocalizations.of(context).authErrorEmailNotConfirmed;
         case 'over_email_send_rate_limit':
-          return '操作过于频繁，请稍后再试。';
+          return AppLocalizations.of(context).authErrorRateLimit;
       }
     }
     final msg = e.toString().toLowerCase();
     if (msg.contains('email') &&
         msg.contains('not') &&
         msg.contains('confirmed')) {
-      return '邮箱未验证，请先到邮箱完成验证再登录。';
+      return AppLocalizations.of(context).authErrorEmailNotConfirmed;
     }
     if (msg.contains('invalid') &&
         (msg.contains('login') ||
             msg.contains('credential') ||
             msg.contains('password'))) {
-      return '邮箱或密码不正确。';
+      return AppLocalizations.of(context).authErrorInvalidCredentials;
     }
     if (msg.contains('rate') && msg.contains('limit')) {
-      return '操作过于频繁，请稍后再试。';
+      return AppLocalizations.of(context).authErrorRateLimit;
     }
     if (msg.contains('network') || msg.contains('timeout')) {
-      return '网络异常，请检查网络后重试。';
+      return AppLocalizations.of(context).authErrorNetworkIssue;
     }
-    return '登录失败，请稍后再试。';
+    return AppLocalizations.of(context).authErrorLoginFailed;
   }
 
   String friendlySignupError(Object e) {
@@ -112,31 +113,31 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     if (code != null) {
       switch (code) {
         case 'email_address_invalid':
-          return '邮箱地址无效，请检查是否拼写有误。';
+          return AppLocalizations.of(context).authErrorEmailInvalid;
         case 'user_already_exists':
         case 'email_address_exists':
-          return '该邮箱已注册，请直接登录或重置密码。';
+          return AppLocalizations.of(context).authErrorEmailExists;
         case 'weak_password':
-          return '密码过于简单，请包含字母和数字，长度至少 6 位。';
+          return AppLocalizations.of(context).authErrorWeakPassword;
         case 'over_email_send_rate_limit':
-          return '操作过于频繁，请稍后再试。';
+          return AppLocalizations.of(context).authErrorRateLimit;
       }
     }
     final lower = e.toString().toLowerCase();
     if (lower.contains('weak') ||
         (lower.contains('password') && lower.contains('at least'))) {
-      return '密码过于简单，请包含字母和数字，长度至少 6 位。';
+      return AppLocalizations.of(context).authErrorWeakPassword;
     }
     if (lower.contains('already') && lower.contains('registered')) {
-      return '该邮箱已注册，请直接登录或重置密码。';
+      return AppLocalizations.of(context).authErrorEmailExists;
     }
     if (lower.contains('rate') && lower.contains('limit')) {
-      return '操作过于频繁，请稍后再试。';
+      return AppLocalizations.of(context).authErrorRateLimit;
     }
     if (lower.contains('network') || lower.contains('timeout')) {
-      return '网络异常，请检查网络后重试。';
+      return AppLocalizations.of(context).authErrorNetworkIssue;
     }
-    return '注册失败，请稍后再试。';
+    return AppLocalizations.of(context).authErrorSignupFailed;
   }
 
   String friendlyActionError(Object e, {required String action}) {
@@ -144,27 +145,27 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     if (code != null) {
       switch (code) {
         case 'user_not_found':
-          return '邮箱未注册，无法$action。';
+          return AppLocalizations.of(context).authErrorUserNotFound(action);
         case 'over_email_send_rate_limit':
-          return '操作过于频繁，请稍后再试。';
+          return AppLocalizations.of(context).authErrorRateLimit;
         case 'email_address_not_confirmed':
         case 'email_not_confirmed':
-          return '邮箱未验证，无法$action。';
+          return AppLocalizations.of(context).authErrorEmailNotVerified(action);
       }
     }
     final lower = e.toString().toLowerCase();
     if (lower.contains('email') &&
         lower.contains('not') &&
         lower.contains('confirm')) {
-      return '邮箱未验证，无法$action。';
+      return AppLocalizations.of(context).authErrorEmailNotVerified(action);
     }
     if (lower.contains('rate') && lower.contains('limit')) {
-      return '操作过于频繁，请稍后再试。';
+      return AppLocalizations.of(context).authErrorRateLimit;
     }
     if (lower.contains('network') || lower.contains('timeout')) {
-      return '网络异常，请检查网络后重试。';
+      return AppLocalizations.of(context).authErrorNetworkIssue;
     }
-    return '$action失败，请稍后再试。';
+    return AppLocalizations.of(context).authErrorActionFailed(action);
   }
 
   // 恢复流程改为登录后回到“我的”页由其触发，不再在登录页内执行
@@ -176,7 +177,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     return Scaffold(
       body: Column(
         children: [
-          PrimaryHeader(title: isSignup ? '注册' : '登录', showBack: true),
+          PrimaryHeader(title: isSignup ? AppLocalizations.of(context).authSignup : AppLocalizations.of(context).authLogin, showBack: true),
           Expanded(
             child: Center(
               child: Padding(
@@ -205,7 +206,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                           children: [
                             ChoiceChip(
                               selected: !isSignup,
-                              label: const Text('登录'),
+                              label: Text(AppLocalizations.of(context).authLogin),
                               selectedColor: theme.colorScheme.primary,
                               backgroundColor: Colors.white,
                               side: BorderSide(
@@ -226,7 +227,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                             const SizedBox(width: 8),
                             ChoiceChip(
                               selected: isSignup,
-                              label: const Text('注册'),
+                              label: Text(AppLocalizations.of(context).authSignup),
                               selectedColor: theme.colorScheme.primary,
                               backgroundColor: Colors.white,
                               side: BorderSide(
@@ -250,14 +251,14 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                         TextField(
                           controller: emailCtrl,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(labelText: '邮箱'),
+                          decoration: InputDecoration(labelText: AppLocalizations.of(context).authEmail),
                         ),
                         const SizedBox(height: 8),
                         TextField(
                           controller: pwdCtrl,
                           obscureText: !_showPwd,
                           decoration: InputDecoration(
-                            labelText: isSignup ? '密码（至少 6 位，需包含字母和数字）' : '密码',
+                            labelText: isSignup ? AppLocalizations.of(context).authPasswordRequirement : AppLocalizations.of(context).authPassword,
                             suffixIcon: IconButton(
                               icon: Icon(_showPwd
                                   ? Icons.visibility_off_outlined
@@ -273,7 +274,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                             controller: pwd2Ctrl,
                             obscureText: !_showPwd2,
                             decoration: InputDecoration(
-                              labelText: '确认密码',
+                              labelText: AppLocalizations.of(context).authConfirmPassword,
                               suffixIcon: IconButton(
                                 icon: Icon(_showPwd2
                                     ? Icons.visibility_off_outlined
@@ -324,17 +325,17 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                           logI('auth', '开始注册：邮箱=$email');
                                           if (!isValidEmail(email)) {
                                             setState(
-                                                () => errorText = '请输入有效的邮箱地址');
+                                                () => errorText = 'AppLocalizations.of(context).authInvalidEmail');
                                             return;
                                           }
                                           if (!isValidPassword(pwd)) {
                                             setState(() => errorText =
-                                                '密码需包含字母和数字，长度至少 6 位');
+                                                'AppLocalizations.of(context).authPasswordRequirementShort');
                                             return;
                                           }
                                           if (pwd != pwd2) {
                                             setState(
-                                                () => errorText = '两次输入的密码不一致');
+                                                () => errorText = AppLocalizations.of(context).authPasswordMismatch);
                                             return;
                                           }
                                           setState(() {
@@ -377,7 +378,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                           child: CircularProgressIndicator(
                                               strokeWidth: 2),
                                         )
-                                      : const Text('注册'),
+                                      : Text(AppLocalizations.of(context).authSignup),
                                 )
                               : FilledButton(
                                   style: FilledButton.styleFrom(
@@ -392,12 +393,12 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                           logI('auth', '开始登录：邮箱=$email');
                                           if (!isValidEmail(email)) {
                                             setState(
-                                                () => errorText = '请输入有效的邮箱地址');
+                                                () => errorText = 'AppLocalizations.of(context).authInvalidEmail');
                                             return;
                                           }
                                           if (!isValidPassword(pwd)) {
                                             setState(() => errorText =
-                                                '密码需包含字母和数字，长度至少 6 位');
+                                                'AppLocalizations.of(context).authPasswordRequirementShort');
                                             return;
                                           }
                                           setState(() {
@@ -455,7 +456,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                               strokeWidth: 2,
                                               color: Colors.white),
                                         )
-                                      : const Text('登录'),
+                                      : Text(AppLocalizations.of(context).authLogin),
                                 ),
                         ),
                         const SizedBox(height: 8),
@@ -469,7 +470,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                       final email = emailCtrl.text.trim();
                                       if (!isValidEmail(email)) {
                                         setState(
-                                            () => errorText = '请输入有效的邮箱地址');
+                                            () => errorText = 'AppLocalizations.of(context).authInvalidEmail');
                                         return;
                                       }
                                       setState(() {
@@ -481,11 +482,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                         await auth.resendEmailVerification(
                                             email: email);
                                         if (!context.mounted) return;
-                                        showToast(context, '验证邮件已重新发送。');
-                                        setState(() => infoText = '验证邮件已重新发送。');
+                                        showToast(context, AppLocalizations.of(context).authVerificationEmailResent);
+                                        setState(() => infoText = AppLocalizations.of(context).authVerificationEmailResent);
                                       } catch (e) {
                                         final msg = friendlyActionError(e,
-                                            action: '重发验证');
+                                            action: AppLocalizations.of(context).authResendAction);
                                         if (!context.mounted) return;
                                         showToast(context, msg);
                                         setState(() => errorText = msg);
@@ -495,7 +496,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                         }
                                       }
                                     },
-                              child: const Text('重发验证邮件'),
+                              child: Text(AppLocalizations.of(context).authResendVerification),
                             ),
                           ],
                         ),
@@ -533,7 +534,7 @@ class SignupSuccessPage extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          const PrimaryHeader(title: '注册成功', showBack: false),
+          PrimaryHeader(title: AppLocalizations.of(context).authSignupSuccess, showBack: false),
           Expanded(
             child: Center(
               child: Padding(
@@ -544,12 +545,12 @@ class SignupSuccessPage extends StatelessWidget {
                     const Icon(Icons.mark_email_read_outlined,
                         size: 72, color: Colors.green),
                     const SizedBox(height: 12),
-                    const Text('验证邮件已发送，请前往邮箱完成验证后再登录。'),
+                    Text(AppLocalizations.of(context).authVerificationEmailSent),
                     const SizedBox(height: 16),
                     FilledButton(
                       onPressed: () =>
                           Navigator.of(context).popUntil((r) => r.isFirst),
-                      child: const Text('返回我的页面'),
+                      child: Text(AppLocalizations.of(context).authBackToMinePage),
                     ),
                   ],
                 ),

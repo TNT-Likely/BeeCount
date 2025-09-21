@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 /// 分类服务类，统一管理默认分类和图标映射
 class CategoryService {
@@ -45,6 +46,74 @@ class CategoryService {
       return defaultExpenseCategories.toSet();
     } else {
       return defaultIncomeCategories.toSet();
+    }
+  }
+
+  /// 翻译默认分类名称到当前语言
+  static String translateCategoryName(String chineseName, AppLocalizations l10n) {
+    switch (chineseName) {
+      // 支出分类
+      case '餐饮': return l10n.categoryNameDining;
+      case '交通': return l10n.categoryNameTransport;
+      case '购物': return l10n.categoryNameShopping;
+      case '娱乐': return l10n.categoryNameEntertainment;
+      case '居家': return l10n.categoryNameHome;
+      case '家庭': return l10n.categoryNameFamily;
+      case '通讯': return l10n.categoryNameCommunication;
+      case '水电': return l10n.categoryNameUtilities;
+      case '住房': return l10n.categoryNameHousing;
+      case '医疗': return l10n.categoryNameMedical;
+      case '教育': return l10n.categoryNameEducation;
+      case '宠物': return l10n.categoryNamePets;
+      case '运动': return l10n.categoryNameSports;
+      case '数码': return l10n.categoryNameDigital;
+      case '旅行': return l10n.categoryNameTravel;
+      case '烟酒': return l10n.categoryNameAlcoholTobacco;
+      case '母婴': return l10n.categoryNameBabyCare;
+      case '美容': return l10n.categoryNameBeauty;
+      case '维修': return l10n.categoryNameRepair;
+      case '社交': return l10n.categoryNameSocial;
+      case '学习': return l10n.categoryNameLearning;
+      case '汽车': return l10n.categoryNameCar;
+      case '打车': return l10n.categoryNameTaxi;
+      case '地铁': return l10n.categoryNameSubway;
+      case '外卖': return l10n.categoryNameDelivery;
+      case '物业': return l10n.categoryNameProperty;
+      case '停车': return l10n.categoryNameParking;
+      case '捐赠': return l10n.categoryNameDonation;
+      case '礼金': return l10n.categoryNameGift;
+      case '纳税': return l10n.categoryNameTax;
+      case '饮料': return l10n.categoryNameBeverage;
+      case '服装': return l10n.categoryNameClothing;
+      case '零食': return l10n.categoryNameSnacks;
+      case '红包': return l10n.categoryNameRedPacket;
+      case '水果': return l10n.categoryNameFruit;
+      case '游戏': return l10n.categoryNameGame;
+      case '书': return l10n.categoryNameBook;
+      case '爱人': return l10n.categoryNameLover;
+      case '装修': return l10n.categoryNameDecoration;
+      case '日用品': return l10n.categoryNameDailyGoods;
+      case '彩票': return l10n.categoryNameLottery;
+      case '股票': return l10n.categoryNameStock;
+      case '社保': return l10n.categoryNameSocialSecurity;
+      case '快递': return l10n.categoryNameExpress;
+      case '工作': return l10n.categoryNameWork;
+
+      // 收入分类
+      case '工资': return l10n.categoryNameSalary;
+      case '理财': return l10n.categoryNameInvestment;
+      case '奖金': return l10n.categoryNameBonus;
+      case '报销': return l10n.categoryNameReimbursement;
+      case '兼职': return l10n.categoryNamePartTime;
+      case '利息': return l10n.categoryNameInterest;
+      case '退款': return l10n.categoryNameRefund;
+      case '二手转卖': return l10n.categoryNameSecondHand;
+      case '社会保障': return l10n.categoryNameSocialBenefit;
+      case '退税退费': return l10n.categoryNameTaxRefund;
+      case '公积金': return l10n.categoryNameProvidentFund;
+
+      // 如果没有翻译，返回原始名称
+      default: return chineseName;
     }
   }
 

@@ -5,6 +5,8 @@ import '../providers.dart';
 import '../widgets/biz/biz.dart';
 import '../widgets/ui/ui.dart';
 import '../styles/colors.dart';
+import '../utils/category_utils.dart';
+import '../l10n/app_localizations.dart';
 
 /// 搜索页面
 class SearchPage extends ConsumerStatefulWidget {
@@ -81,7 +83,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       if (_searchText.isNotEmpty) {
         final searchLower = _searchText.toLowerCase();
         final note = transaction.note?.toLowerCase() ?? '';
-        final categoryName = (category?.name ?? '未分类').toLowerCase();
+        final categoryName = CategoryUtils.getDisplayName(category?.name, context).toLowerCase();
         final amountStr = transaction.amount.toString();
 
         textMatch = note.contains(searchLower) ||
@@ -134,7 +136,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         children: [
           // 使用PrimaryHeader仅作为标题
           PrimaryHeader(
-            title: '搜索',
+            title: AppLocalizations.of(context).searchTitle,
             showBack: true,
           ),
           // 搜索框区域
@@ -156,7 +158,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: '搜索备注、分类或金额...',
+                    hintText: AppLocalizations.of(context).searchHint,
                     prefixIcon: const Icon(Icons.search, color: BeeColors.black54),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
@@ -183,7 +185,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   children: [
                     Expanded(
                       child: Text(
-                        '金额范围筛选',
+                        AppLocalizations.of(context).searchAmountRange,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: BeeColors.primaryText,
                         ),
@@ -220,7 +222,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           controller: _minAmountController,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           decoration: InputDecoration(
-                            hintText: '最小金额',
+                            hintText: AppLocalizations.of(context).searchMinAmount,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
@@ -231,14 +233,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text('至', style: Theme.of(context).textTheme.bodyMedium),
+                      Text(AppLocalizations.of(context).searchTo, style: Theme.of(context).textTheme.bodyMedium),
                       const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
                           controller: _maxAmountController,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           decoration: InputDecoration(
-                            hintText: '最大金额',
+                            hintText: AppLocalizations.of(context).searchMaxAmount,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
@@ -277,19 +279,19 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 }
 
                 if (_searchText.isEmpty && _minAmount == null && _maxAmount == null) {
-                  return const Center(
+                  return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.search,
                           size: 64,
                           color: BeeColors.black54,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
-                          '输入关键词开始搜索',
-                          style: TextStyle(
+                          AppLocalizations.of(context).searchNoInput,
+                          style: const TextStyle(
                             color: BeeColors.black54,
                             fontSize: 16,
                           ),
@@ -300,19 +302,19 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 }
 
                 if (_searchResults.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.search_off,
                           size: 64,
                           color: BeeColors.black54,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
-                          '未找到匹配的结果',
-                          style: TextStyle(
+                          AppLocalizations.of(context).searchNoResults,
+                          style: const TextStyle(
                             color: BeeColors.black54,
                             fontSize: 16,
                           ),
@@ -327,9 +329,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   transactions: _searchResults,
                   hideAmounts: hide,
                   enableVisibilityTracking: false, // 搜索页面不需要可见性跟踪
-                  emptyWidget: const AppEmpty(
-                    text: '未找到匹配的结果',
-                    subtext: '请尝试其他关键词或调整筛选条件',
+                  emptyWidget: AppEmpty(
+                    text: AppLocalizations.of(context).searchResultsEmpty,
+                    subtext: AppLocalizations.of(context).searchResultsEmptyHint,
                   ),
                 );
               },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../styles/colors.dart';
 import '../../styles/design.dart';
+import '../../l10n/app_localizations.dart';
 import 'format_money.dart';
 
 class DaySectionHeader extends StatelessWidget {
@@ -17,11 +18,28 @@ class DaySectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String weekdayZh(String yyyyMMdd) {
+    String getWeekday(String yyyyMMdd) {
       try {
         final dt = DateTime.parse(yyyyMMdd);
-        const names = ['一', '二', '三', '四', '五', '六', '日'];
-        return '星期${names[dt.weekday - 1]}';
+        final l10n = AppLocalizations.of(context);
+        switch (dt.weekday) {
+          case DateTime.monday:
+            return l10n.commonWeekdayMonday;
+          case DateTime.tuesday:
+            return l10n.commonWeekdayTuesday;
+          case DateTime.wednesday:
+            return l10n.commonWeekdayWednesday;
+          case DateTime.thursday:
+            return l10n.commonWeekdayThursday;
+          case DateTime.friday:
+            return l10n.commonWeekdayFriday;
+          case DateTime.saturday:
+            return l10n.commonWeekdaySaturday;
+          case DateTime.sunday:
+            return l10n.commonWeekdaySunday;
+          default:
+            return '';
+        }
       } catch (_) {
         return '';
       }
@@ -29,7 +47,8 @@ class DaySectionHeader extends StatelessWidget {
 
     String fmt(double v) => v == 0 ? '' : formatMoneyCompact(v, maxDecimals: 2);
     final grey = BeeColors.black54;
-    final week = weekdayZh(dateText);
+    final week = getWeekday(dateText);
+    final l10n = AppLocalizations.of(context);
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(
@@ -54,14 +73,14 @@ class DaySectionHeader extends StatelessWidget {
           ]),
           Row(children: [
             if (!hide && fmt(expense).isNotEmpty)
-              Text('支出 ${fmt(expense)}',
+              Text('${l10n.homeExpense} ${fmt(expense)}',
                   style: Theme.of(context)
                       .textTheme
                       .labelMedium
                       ?.copyWith(color: grey, fontSize: 12)),
             if (!hide && fmt(income).isNotEmpty) const SizedBox(width: 12),
             if (!hide && fmt(income).isNotEmpty)
-              Text('收入 ${fmt(income)}',
+              Text('${l10n.homeIncome} ${fmt(income)}',
                   style: Theme.of(context)
                       .textTheme
                       .labelMedium

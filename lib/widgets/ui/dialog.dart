@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 /// 统一弹窗（基础 UI 组件）
 class AppDialog {
@@ -6,11 +7,14 @@ class AppDialog {
     BuildContext context, {
     required String title,
     required String message,
-    String cancelLabel = '取消',
-    String okLabel = '确定',
+    String? cancelLabel,
+    String? okLabel,
     VoidCallback? onCancel,
     VoidCallback? onOk,
   }) {
+    final l10n = AppLocalizations.of(context);
+    cancelLabel ??= l10n.commonCancel;
+    okLabel ??= l10n.commonConfirm;
     return _show<T>(
       context,
       title: title,
@@ -40,9 +44,11 @@ class AppDialog {
     BuildContext context, {
     required String title,
     required String message,
-    String okLabel = '知道了',
+    String? okLabel,
     VoidCallback? onOk,
   }) {
+    final l10n = AppLocalizations.of(context);
+    okLabel ??= l10n.commonOk;
     return _show<T>(
       context,
       title: title,
@@ -64,9 +70,11 @@ class AppDialog {
     BuildContext context, {
     required String title,
     required String message,
-    String okLabel = '知道了',
+    String? okLabel,
     VoidCallback? onOk,
   }) {
+    final l10n = AppLocalizations.of(context);
+    okLabel ??= l10n.commonOk;
     return _show<T>(
       context,
       title: title,
@@ -88,9 +96,11 @@ class AppDialog {
     BuildContext context, {
     required String title,
     required String message,
-    String okLabel = '知道了',
+    String? okLabel,
     VoidCallback? onOk,
   }) {
+    final l10n = AppLocalizations.of(context);
+    okLabel ??= l10n.commonOk;
     return _show<T>(
       context,
       title: title,
@@ -114,9 +124,10 @@ class AppDialog {
     required String message,
     List<({String label, VoidCallback onTap, bool primary})>? actions,
   }) {
+    final l10n = AppLocalizations.of(context);
     actions ??= [
-      (label: '取消', onTap: () => Navigator.pop(context), primary: false),
-      (label: '确定', onTap: () => Navigator.pop(context), primary: true),
+      (label: l10n.commonCancel, onTap: () => Navigator.pop(context), primary: false),
+      (label: l10n.commonConfirm, onTap: () => Navigator.pop(context), primary: true),
     ];
 
 

@@ -23,3 +23,6 @@ export 'update_providers.dart';
 
 // 提醒相关
 export 'reminder_providers.dart';
+
+// 语言相关
+export 'language_provider.dart';

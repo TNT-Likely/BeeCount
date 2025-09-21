@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../l10n/app_localizations.dart';
 import '../providers.dart';
 import '../data/db.dart';
 import 'package:drift/drift.dart' as drift;
@@ -11,6 +12,7 @@ import '../styles/colors.dart';
 import 'package:flutter/services.dart';
 import '../utils/sync_helpers.dart';
 import '../services/category_service.dart';
+import '../utils/category_utils.dart';
 
 
 class CategoryPickerPage extends ConsumerStatefulWidget {
@@ -95,17 +97,17 @@ class _CategoryPickerPageState extends ConsumerState<CategoryPickerPage>
                                   BorderSide(width: 2, color: Colors.black),
                               insets: EdgeInsets.symmetric(horizontal: 24),
                             ),
-                            tabs: const [
-                              Tab(text: '支出'),
-                              Tab(text: '收入'),
+                            tabs: [
+                              Tab(text: AppLocalizations.of(context)!.categoryExpense),
+                              Tab(text: AppLocalizations.of(context)!.categoryIncome),
                             ],
                           ),
                         ),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('取消',
-                            style: TextStyle(color: Colors.black)),
+                        child: Text(AppLocalizations.of(context)!.commonCancel,
+                            style: const TextStyle(color: Colors.black)),
                       )
                     ],
                   ),
@@ -229,7 +231,7 @@ class _CategoryGridState extends ConsumerState<_CategoryGrid> {
         );
 
         if (list.isEmpty) {
-          return const Center(child: Text('暂无分类'));
+          return Center(child: Text(AppLocalizations.of(context)!.categoryEmpty));
         }
 
         // 初次渲染后滚动到初始分类顶部
@@ -335,7 +337,7 @@ class _CategoryItem extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            name,
+            CategoryUtils.getDisplayName(name, context),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodySmall,

@@ -12,6 +12,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as s;
 import 'utils/route_logger.dart';
 import 'pages/splash_page.dart';
 import 'services/notification_service.dart';
+import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +44,7 @@ class MainApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // 检查应用初始化状态
     final initState = ref.watch(appInitStateProvider);
+    final selectedLanguage = ref.watch(languageProvider);
     
     // 如果是启屏状态，启动初始化
     if (initState == AppInitState.splash) {
@@ -116,21 +118,23 @@ class MainApp extends ConsumerWidget {
     return MediaQuery(
       data: media.copyWith(textScaler: newScaler),
       child: MaterialApp(
-        title: '蜜蜂记账',
+        title: 'Bee Accounting',
         scrollBehavior: const NoGlowScrollBehavior(),
         debugShowCheckedModeBanner: false,
         theme: theme,
         darkTheme: BeeTheme.darkTheme(),
         navigatorObservers: [LoggingNavigatorObserver()],
         localizationsDelegates: const [
+          AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: const [
-          Locale('zh', 'CN'),
-          Locale('en', 'US'),
+          Locale('en'),
+          Locale('zh'),
         ],
+        locale: selectedLanguage,
         // 显式命名根路由，便于路由日志与 popUntil 精确识别
         home: initState == AppInitState.ready ? const BeeApp() : const SplashPage(),
         onGenerateRoute: (settings) {

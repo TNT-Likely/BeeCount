@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:beecount/widgets/ui/wheel_date_picker.dart';
 import '../../styles/colors.dart';
+import '../../l10n/app_localizations.dart';
 
 typedef AmountEditorResult = ({double amount, String? note, DateTime date});
 
@@ -197,7 +198,7 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
             TextField(
               controller: _noteCtrl,
               decoration: InputDecoration(
-                hintText: '备注…',
+                hintText: AppLocalizations.of(context)!.commonNoteHint,
                 isDense: true,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -287,12 +288,12 @@ class _AmountEditorSheetState extends State<AmountEditorSheet> {
                             date: _date,
                           ));
                         },
-                        child: const SizedBox(
+                        child: SizedBox(
                           height: 60,
                           child: Center(
                             child: Text(
-                              '完成',
-                              style: TextStyle(
+                              AppLocalizations.of(context)!.commonFinish,
+                              style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700),

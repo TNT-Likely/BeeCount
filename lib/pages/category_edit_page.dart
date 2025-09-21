@@ -5,6 +5,7 @@ import '../data/repository.dart';
 import '../widgets/ui/ui.dart';
 import '../data/db.dart' as db;
 import '../services/category_service.dart';
+import '../l10n/app_localizations.dart';
 import 'category_detail_page.dart';
 import 'category_migration_page.dart';
 
@@ -59,7 +60,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
       body: Column(
         children: [
           PrimaryHeader(
-            title: isEditing ? '编辑分类' : '新建分类',
+            title: isEditing ? AppLocalizations.of(context).categoryEditTitle : AppLocalizations.of(context).categoryNewTitle,
             showBack: true,
             actions: isEditing && widget.category != null ? [
               // 分类详情按钮
@@ -75,7 +76,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                   );
                 },
                 icon: const Icon(Icons.analytics_outlined),
-                tooltip: '分类详情',
+                tooltip: AppLocalizations.of(context).categoryDetailTooltip,
               ),
               // 分类迁移按钮
               IconButton(
@@ -89,7 +90,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                   );
                 },
                 icon: const Icon(Icons.move_down_outlined),
-                tooltip: '分类迁移',
+                tooltip: AppLocalizations.of(context).categoryMigrationTooltip,
               ),
             ] : null,
           ),
@@ -106,7 +107,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                         widget.kind == 'expense' ? Icons.trending_down : Icons.trending_up,
                         color: widget.kind == 'expense' ? Colors.red : Colors.green,
                       ),
-                      title: Text(widget.kind == 'expense' ? '支出分类' : '收入分类'),
+                      title: Text(widget.kind == 'expense' ? AppLocalizations.of(context).categoryExpenseType : AppLocalizations.of(context).categoryIncomeType),
                     ),
                   ),
 
@@ -121,14 +122,14 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                           color: Colors.orange[700],
                         ),
                         title: Text(
-                          '默认分类',
+                          AppLocalizations.of(context).categoryDefaultTitle,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.orange[700],
                           ),
                         ),
                         subtitle: Text(
-                          '默认分类不可修改名称和图标，但可以查看详情和迁移数据',
+                          AppLocalizations.of(context).categoryDefaultMessage,
                           style: TextStyle(color: Colors.orange[600]),
                         ),
                       ),
@@ -145,7 +146,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '分类名称',
+                            AppLocalizations.of(context).categoryNameLabel,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 8),
@@ -153,7 +154,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                             controller: _nameController,
                             enabled: !isDefaultCategory,
                             decoration: InputDecoration(
-                              hintText: isDefaultCategory ? '默认分类名称不可修改' : '请输入分类名称',
+                              hintText: isDefaultCategory ? AppLocalizations.of(context).categoryNameHintDefault : AppLocalizations.of(context).categoryNameHint,
                               border: const OutlineInputBorder(),
                               fillColor: isDefaultCategory ? Colors.grey[100] : null,
                               filled: isDefaultCategory,
@@ -161,10 +162,10 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                             maxLength: 4,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return '请输入分类名称';
+                                return AppLocalizations.of(context).categoryNameRequired;
                               }
                               if (value.trim().length > 4) {
-                                return '分类名称不能超过4个字';
+                                return AppLocalizations.of(context).categoryNameTooLong;
                               }
                               return null;
                             },
@@ -183,7 +184,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '分类图标',
+                            AppLocalizations.of(context).categoryIconLabel,
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               color: isDefaultCategory ? Colors.grey[600] : null,
                             ),
@@ -206,7 +207,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
-                                    '默认分类图标不可修改',
+                                    AppLocalizations.of(context).categoryIconDefaultMessage,
                                     style: TextStyle(color: Colors.grey[600]),
                                   ),
                                 ],
@@ -232,7 +233,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                     const Divider(),
                     const SizedBox(height: 16),
                     Text(
-                      '危险操作',
+                      AppLocalizations.of(context).categoryDangerousOperations,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Colors.red,
                       ),
@@ -241,8 +242,8 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                     Card(
                       child: ListTile(
                         leading: const Icon(Icons.delete, color: Colors.red),
-                        title: const Text('删除分类'),
-                        subtitle: const Text('删除后无法恢复'),
+                        title: Text(AppLocalizations.of(context).categoryDeleteTitle),
+                        subtitle: Text(AppLocalizations.of(context).categoryDeleteSubtitle),
                         onTap: isDefaultCategory ? null : _deleteCategory,
                       ),
                     ),
@@ -267,7 +268,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                         color: Colors.white,
                       ),
                     )
-                  : Text(isDefaultCategory ? '默认分类不可保存' : '保存'),
+                  : Text(isDefaultCategory ? AppLocalizations.of(context).categoryDefaultCannotSave : AppLocalizations.of(context).commonSave),
             ),
           ),
         ],
@@ -293,7 +294,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
           icon: _selectedIcon,
         );
         if (!mounted) return;
-        showToast(context, '分类"$name"已更新');
+        showToast(context, AppLocalizations.of(context).categoryUpdated(name));
       } else {
         // 新建分类
         await repo.createCategory(
@@ -302,7 +303,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
           icon: _selectedIcon,
         );
         if (!mounted) return;
-        showToast(context, '分类"$name"已创建');
+        showToast(context, AppLocalizations.of(context).categoryCreated(name));
       }
       
       // 刷新分类列表
@@ -314,7 +315,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
       if (!mounted) return;
       await AppDialog.error(
         context,
-        title: '保存失败',
+        title: AppLocalizations.of(context).categorySaveError,
         message: '$e',
       );
     } finally {
@@ -334,8 +335,8 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
       if (!mounted) return;
       await AppDialog.info(
         context,
-        title: '无法删除',
-        message: '该分类下还有 $transactionCount 笔交易记录，请先处理这些记录。',
+        title: AppLocalizations.of(context).categoryCannotDelete,
+        message: AppLocalizations.of(context).categoryCannotDeleteMessage(transactionCount),
       );
       return;
     }
@@ -343,10 +344,10 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
     if (!mounted) return;
     final confirmed = await AppDialog.confirm<bool>(
       context,
-      title: '删除分类',
-      message: '确定要删除分类"${widget.category!.name}"吗？此操作无法撤销。',
-      okLabel: '删除',
-      cancelLabel: '取消',
+      title: AppLocalizations.of(context).categoryDeleteConfirmTitle,
+      message: AppLocalizations.of(context).categoryDeleteConfirmMessage(widget.category!.name),
+      okLabel: AppLocalizations.of(context).commonDelete,
+      cancelLabel: AppLocalizations.of(context).commonCancel,
     ) ?? false;
     
     if (!confirmed) return;
@@ -358,7 +359,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
       // 刷新分类列表
       ref.invalidate(categoriesProvider);
       
-      showToast(context, '分类"${widget.category!.name}"已删除');
+      showToast(context, AppLocalizations.of(context).categoryDeleted(widget.category!.name));
       
       if (!mounted) return;
       Navigator.of(context).pop(true); // 返回true表示有更新
@@ -366,7 +367,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
       if (!mounted) return;
       await AppDialog.error(
         context,
-        title: '删除失败',
+        title: AppLocalizations.of(context).categoryDeleteError,
         message: '$e',
       );
     }

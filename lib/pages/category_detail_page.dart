@@ -11,6 +11,8 @@ import 'category_edit_page.dart';
 import 'category_migration_page.dart';
 import '../utils/transaction_edit_utils.dart';
 import '../utils/sync_helpers.dart';
+import '../l10n/app_localizations.dart';
+import '../utils/category_utils.dart';
 
 enum SortType { timeAsc, timeDesc, amountAsc, amountDesc }
 
@@ -43,7 +45,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
         children: [
           categoryAsync.when(
             loading: () => PrimaryHeader(
-              title: widget.categoryName, // 显示传入的名称作为fallback
+              title: CategoryUtils.getDisplayName(widget.categoryName, context), // 显示翻译后的名称作为fallback
               showBack: true,
               actions: [
                 IconButton(
@@ -57,7 +59,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
               ],
             ),
             error: (error, stack) => PrimaryHeader(
-              title: widget.categoryName,
+              title: CategoryUtils.getDisplayName(widget.categoryName, context),
               showBack: true,
               actions: [
                 IconButton(
@@ -71,12 +73,12 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
               ],
             ),
             data: (category) => PrimaryHeader(
-              title: category?.name ?? widget.categoryName, // 使用最新的分类名称
+              title: CategoryUtils.getDisplayName(category?.name ?? widget.categoryName, context), // 使用翻译后的分类名称
               showBack: true,
               actions: [
                 IconButton(
                   icon: const Icon(Icons.swap_horiz_outlined),
-                  tooltip: '迁移分类',
+                  tooltip: AppLocalizations.of(context).categoryMigrationTooltip,
                   onPressed: category != null ? () async {
                     final result = await Navigator.of(context).push(
                       MaterialPageRoute(
@@ -94,7 +96,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit_outlined),
-                  tooltip: '编辑分类',
+                  tooltip: AppLocalizations.of(context).commonEdit,
                   onPressed: category != null ? () async {
                     final result = await Navigator.of(context).push(
                       MaterialPageRoute(
@@ -126,7 +128,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                   error: (error, stack) => Container(
                     height: 120,
                     margin: const EdgeInsets.all(16),
-                    child: Center(child: Text('加载失败: $error')),
+                    child: Center(child: Text(AppLocalizations.of(context).categoryLoadFailed(error.toString()))),
                   ),
                   data: (summary) => _buildSummaryCard(summary),
                 ),
@@ -136,7 +138,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                 Expanded(
                   child: transactionsAsync.when(
                     loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (error, stack) => Center(child: Text('加载失败: $error')),
+                    error: (error, stack) => Center(child: Text('${AppLocalizations.of(context).categoryDetailLoadFailed}: $error')),
                     data: (transactions) => _buildTransactionsList(transactions, currentSortType),
                   ),
                 ),
@@ -166,7 +168,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '分类汇总',
+                    AppLocalizations.of(context).categoryDetailSummaryTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -178,14 +180,14 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                 children: [
                   Expanded(
                     child: _SummaryItem(
-                      label: '总笔数',
-                      value: '${summary.totalCount}笔',
+                      label: AppLocalizations.of(context).categoryDetailTotalCount,
+                      value: AppLocalizations.of(context).categoryMigrationTransactionLabel(summary.totalCount),
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   Expanded(
                     child: _SummaryItem(
-                      label: '总金额',
+                      label: AppLocalizations.of(context).categoryDetailTotalAmount,
                       value: formatBalance(summary.totalAmount),
                       color: summary.totalAmount >= 0 
                         ? Colors.green 
@@ -194,7 +196,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                   ),
                   Expanded(
                     child: _SummaryItem(
-                      label: '平均金额',
+                      label: AppLocalizations.of(context).categoryDetailAverageAmount,
                       value: formatBalance(summary.averageAmount),
                       color: Theme.of(context).colorScheme.outline,
                     ),
@@ -220,7 +222,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
           ),
           const SizedBox(width: 8),
           Text(
-            '排序',
+            AppLocalizations.of(context).categoryDetailSortTitle,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(context).colorScheme.outline,
             ),
@@ -232,25 +234,25 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
               child: Row(
                 children: [
                   _SortButton(
-                    label: '时间↓',
+                    label: AppLocalizations.of(context).categoryDetailSortTimeDesc,
                     isSelected: currentSortType == SortType.timeDesc,
                     onTap: () => ref.read(_categorySortTypeProvider(widget.categoryId).notifier).state = SortType.timeDesc,
                   ),
                   const SizedBox(width: 8),
                   _SortButton(
-                    label: '时间↑',
+                    label: AppLocalizations.of(context).categoryDetailSortTimeAsc,
                     isSelected: currentSortType == SortType.timeAsc,
                     onTap: () => ref.read(_categorySortTypeProvider(widget.categoryId).notifier).state = SortType.timeAsc,
                   ),
                   const SizedBox(width: 8),
                   _SortButton(
-                    label: '金额↓',
+                    label: AppLocalizations.of(context).categoryDetailSortAmountDesc,
                     isSelected: currentSortType == SortType.amountDesc,
                     onTap: () => ref.read(_categorySortTypeProvider(widget.categoryId).notifier).state = SortType.amountDesc,
                   ),
                   const SizedBox(width: 8),
                   _SortButton(
-                    label: '金额↑',
+                    label: AppLocalizations.of(context).categoryDetailSortAmountAsc,
                     isSelected: currentSortType == SortType.amountAsc,
                     onTap: () => ref.read(_categorySortTypeProvider(widget.categoryId).notifier).state = SortType.amountAsc,
                   ),
@@ -267,8 +269,8 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
   Widget _buildTransactionsList(List<db.Transaction> transactions, SortType currentSortType) {
     if (transactions.isEmpty) {
       return AppEmpty(
-        text: '暂无交易记录',
-        subtext: '该分类下还没有任何交易记录',
+        text: AppLocalizations.of(context).categoryDetailNoTransactions,
+        subtext: AppLocalizations.of(context).categoryDetailNoTransactionsSubtext,
       );
     }
 
@@ -347,9 +349,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                   // 响应式provider会自动更新，无需手动刷新交易列表
                 } catch (e) {
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('删除失败: $e')),
-                    );
+                    showToast(context, '${AppLocalizations.of(context).categoryDetailDeleteFailed}: $e');
                   }
                 }
               },
@@ -426,9 +426,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                   // 响应式provider会自动更新，无需手动刷新交易列表
                 } catch (e) {
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('删除失败: $e')),
-                    );
+                    showToast(context, '${AppLocalizations.of(context).categoryDetailDeleteFailed}: $e');
                   }
                 }
               },
@@ -451,10 +449,10 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
   String _getTransactionTitle(db.Transaction transaction) {
     final categoryAsync = ref.read(_categoryStreamProvider(widget.categoryId));
     final categoryName = categoryAsync.value?.name ?? widget.categoryName;
-    // 优先显示备注，无备注时显示分类名
+    // 优先显示备注，无备注时显示翻译后的分类名
     return transaction.note?.isNotEmpty == true
       ? transaction.note!
-      : categoryName;
+      : CategoryUtils.getDisplayName(categoryName, context);
   }
 }
 

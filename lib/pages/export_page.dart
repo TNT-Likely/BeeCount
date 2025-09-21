@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import '../providers.dart';
 import '../data/repository.dart';
@@ -31,19 +32,19 @@ class _ExportPageState extends ConsumerState<ExportPage> {
     return Scaffold(
       body: Column(
         children: [
-          const PrimaryHeader(title: '导出', showBack: true),
+          PrimaryHeader(title: AppLocalizations.of(context)!.exportTitle, showBack: true),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('点击下方按钮选择保存位置，开始导出当前账本为 CSV 文件。'),
+                  Text(AppLocalizations.of(context)!.exportDescription),
                   const SizedBox(height: 12),
                   FilledButton.icon(
                     onPressed: exporting ? null : () => _export(repo, ledgerId),
                     icon: const Icon(Icons.save_alt_outlined),
-                    label: Text(Platform.isIOS ? '导出并分享 (iOS)' : '选择文件夹并导出'),
+                    label: Text(Platform.isIOS ? AppLocalizations.of(context)!.exportButtonIOS : AppLocalizations.of(context)!.exportButtonAndroid),
                   ),
                   const SizedBox(height: 16),
                   if (exporting)
@@ -63,7 +64,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                     ),
                   if (savedPath != null) ...[
                     const SizedBox(height: 12),
-                    Text('已保存到：$savedPath'),
+                    Text(AppLocalizations.of(context)!.exportSavedTo(savedPath!)),
                   ],
                 ],
               ),
@@ -90,7 +91,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
         shareAfter = true;
       } else {
         directory = await FilePicker.platform.getDirectoryPath(
-          dialogTitle: '选择导出文件夹',
+          dialogTitle: AppLocalizations.of(context)!.exportSelectFolder,
         );
         if (directory == null) {
           setState(() => exporting = false);
@@ -112,7 +113,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       final rowsJoin = await q.get();
       final total = rowsJoin.length;
       final rows = <List<dynamic>>[];
-      rows.add(['类型', '分类', '金额', '备注', '时间']);
+      rows.add([AppLocalizations.of(context)!.exportCsvHeaders]);
       for (int i = 0; i < rowsJoin.length; i++) {
         final r = rowsJoin[i];
         final t = r.readTable(repo.db.transactions);
@@ -157,16 +158,16 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       if (!mounted) return;
       if (shareAfter) {
         // 触发分享面板
-        await Share.shareXFiles([XFile(path)], text: 'BeeCount 导出文件');
+        await Share.shareXFiles([XFile(path)], text: AppLocalizations.of(context)!.exportShareText);
         await AppDialog.info(context,
-            title: '导出成功', message: '已保存并可在分享历史中找到：\n$path');
+            title: AppLocalizations.of(context)!.exportSuccessTitle, message: AppLocalizations.of(context)!.exportSuccessMessageIOS(path));
       } else {
-        await AppDialog.info(context, title: '导出成功', message: '已保存到：\n$path');
+        await AppDialog.info(context, title: AppLocalizations.of(context)!.exportSuccessTitle, message: AppLocalizations.of(context)!.exportSuccessMessageAndroid(path));
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => exporting = false);
-      await AppDialog.error(context, title: '导出失败', message: '$e');
+      await AppDialog.error(context, title: AppLocalizations.of(context)!.exportFailedTitle, message: e.toString());
     }
   }
 
@@ -174,11 +175,11 @@ class _ExportPageState extends ConsumerState<ExportPage> {
   String _getTypeDisplayName(String type) {
     switch (type) {
       case 'income':
-        return '收入';
+        return AppLocalizations.of(context)!.exportTypeIncome;
       case 'expense':
-        return '支出';
+        return AppLocalizations.of(context)!.exportTypeExpense;
       case 'transfer':
-        return '转账';
+        return AppLocalizations.of(context)!.exportTypeTransfer;
       default:
         return type; // 兜底返回原始值
     }
