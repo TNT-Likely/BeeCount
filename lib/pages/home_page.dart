@@ -1,9 +1,7 @@
 import 'package:beecount/widgets/biz/bee_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'dart:async';
 import '../providers.dart';
 import 'personalize_page.dart' show headerStyleProvider;
@@ -12,10 +10,7 @@ import '../widgets/ui/ui.dart';
 import '../widgets/biz/biz.dart';
 import '../styles/design.dart';
 import '../styles/colors.dart';
-import '../utils/sync_helpers.dart';
-import '../utils/transaction_edit_utils.dart';
-import 'category_detail_page.dart';
-import '../widgets/category_icon.dart';
+import 'search_page.dart';
 
 // 优化版首页 - 使用FlutterListView实现精准定位和丝滑跳转
 class HomePage extends ConsumerStatefulWidget {
@@ -28,10 +23,7 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   late FlutterListViewController _listController;
   bool _isJumping = false;
-  List<({Transaction t, Category? category})> _transactions = [];
-  final Map<String, int> _dateIndexMap = {}; // 日期到列表索引的映射
-  final Map<int, String> _indexDateMap = {}; // 索引到日期的映射
-  List<dynamic> _flatItems = []; // 保存扁平化的项目列表
+  final GlobalKey<TransactionListState> _transactionListKey = GlobalKey<TransactionListState>();
 
   // 可见性管理
   final Set<String> _visibleHeaders = {}; // 当前可见的日期头部
@@ -50,40 +42,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.dispose();
   }
 
-  // 构建日期索引映射，用于快速定位（基于扁平化后的列表）
-  void _buildDateIndexMap(List<dynamic> flatItems) {
-    _dateIndexMap.clear();
-    _indexDateMap.clear();
-
-    for (int i = 0; i < flatItems.length; i++) {
-      final item = flatItems[i];
-      final type = item.$1 as String;
-
-      if (type == 'header') {
-        final dateKey = item.$2 as String;
-        // 记录每个日期头部的索引
-        _dateIndexMap[dateKey] = i;
-        _indexDateMap[i] = dateKey;
-      }
-    }
-  }
-
-  // 找到目标月份的第一个交易索引
-  int? _findMonthFirstIndex(DateTime targetMonth) {
-    final monthKey =
-        '${targetMonth.year}-${targetMonth.month.toString().padLeft(2, '0')}';
-
-    // 查找该月份的任意一天
-    for (final entry in _dateIndexMap.entries) {
-      if (entry.key.startsWith(monthKey)) {
-        return entry.value;
-      }
-    }
-
-    return null;
-  }
-
-  // 精准月份跳转 - 使用FlutterListView的jumpToIndex
+  // 精准月份跳转 - 使用TransactionList组件的跳转功能
   Future<void> _jumpToTargetMonth(DateTime targetMonth) async {
     if (_isJumping) return; // 防止重复跳转
 
@@ -92,12 +51,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
 
     try {
-      // 查找目标月份的第一个交易索引
-      final targetIndex = _findMonthFirstIndex(targetMonth);
-
-      if (targetIndex != null && mounted) {
-        // 使用FlutterListViewController的正确方法
-        _listController.sliverController.jumpToIndex(targetIndex);
+      // 使用TransactionList组件的跳转方法
+      final transactionListState = _transactionListKey.currentState;
+      if (transactionListState != null && mounted) {
+        transactionListState.jumpToMonth(targetMonth);
       }
     } finally {
       if (mounted) {
@@ -195,23 +152,23 @@ class _HomePageState extends ConsumerState<HomePage> {
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // 头部 - 保持原有设计
+                  // 头部 - 重新设计布局
                   Row(
                     children: [
+                      // 左上角：隐藏金额按钮
                       IconButton(
-                        tooltip: '选择日期',
-                        onPressed: _isJumping ? null : _handleDateSelection,
-                        icon: _isJumping
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: BeeColors.primaryText,
-                                ),
-                              )
-                            : const Icon(Icons.calendar_month,
-                                size: 18, color: BeeColors.primaryText),
+                        tooltip: hide ? '显示金额' : '隐藏金额',
+                        onPressed: () {
+                          final cur = ref.read(hideAmountsProvider);
+                          ref.read(hideAmountsProvider.notifier).state = !cur;
+                        },
+                        icon: Icon(
+                          hide
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          size: 20,
+                          color: BeeColors.primaryText,
+                        ),
                       ),
                       Expanded(
                         child: Center(
@@ -236,17 +193,19 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                         ),
                       ),
+                      // 右上角：搜索按钮
                       IconButton(
-                        tooltip: hide ? '显示金额' : '隐藏金额',
+                        tooltip: '搜索',
                         onPressed: () {
-                          final cur = ref.read(hideAmountsProvider);
-                          ref.read(hideAmountsProvider.notifier).state = !cur;
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const SearchPage(),
+                            ),
+                          );
                         },
-                        icon: Icon(
-                          hide
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 18,
+                        icon: const Icon(
+                          Icons.search,
+                          size: 20,
                           color: BeeColors.primaryText,
                         ),
                       ),
@@ -285,7 +244,22 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           fontSize: 20,
                                           fontWeight: FontWeight.w500),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 4),
+                                // 月份旁边的向下三角形（日期选择）
+                                _isJumping
+                                    ? const SizedBox(
+                                        width: 12,
+                                        height: 12,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 1.5,
+                                          color: BeeColors.primaryText,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.keyboard_arrow_down,
+                                        size: 16,
+                                        color: BeeColors.black54,
+                                      ),
                               ],
                             ),
                           ],
@@ -312,179 +286,18 @@ class _HomePageState extends ConsumerState<HomePage> {
               builder: (context, snapshot) {
                 // 优先使用流数据，否则使用缓存数据，避免显示loading
                 final joined = snapshot.hasData ? snapshot.data! : (cachedData ?? []);
-                _transactions = joined; // 保存交易数据
 
-                // 按天分组 - 保持原有逻辑
-                final dateFmt = DateFormat('yyyy-MM-dd');
-                final groups =
-                    <String, List<({Transaction t, Category? category})>>{};
-                for (final item in joined) {
-                  final dt = item.t.happenedAt.toLocal();
-                  final key =
-                      dateFmt.format(DateTime(dt.year, dt.month, dt.day));
-                  groups.putIfAbsent(key, () => []).add(item);
-                }
-                final sortedKeys = groups.keys.toList()
-                  ..sort((a, b) => b.compareTo(a));
-
-                // 无数据时展示空状态
-                if (sortedKeys.isEmpty) {
-                  return const AppEmpty(
+                // 使用新的可复用TransactionList组件
+                return TransactionList(
+                  key: _transactionListKey,
+                  transactions: joined,
+                  hideAmounts: hide,
+                  enableVisibilityTracking: true,
+                  onDateVisibilityChanged: _onHeaderVisibilityChanged,
+                  controller: _listController,
+                  emptyWidget: const AppEmpty(
                     text: '还没有记账',
                     subtext: '点击底部加号，马上记一笔',
-                  );
-                }
-
-                // 构建扁平的项目列表
-                _flatItems = <dynamic>[];
-                for (final key in sortedKeys) {
-                  final list = groups[key]!;
-                  // 添加日期头部
-                  _flatItems.add(('header', key, list));
-                  // 添加所有交易项
-                  for (final item in list) {
-                    _flatItems.add(('transaction', item, list));
-                  }
-                }
-
-                // 构建索引映射（基于扁平化后的列表）
-                _buildDateIndexMap(_flatItems);
-
-                // 使用FlutterListView替代ListView.builder
-                return FlutterListView(
-                  controller: _listController,
-                  physics: const BouncingScrollPhysics(),
-                  delegate: FlutterListViewDelegate(
-                    (BuildContext context, int index) {
-                      final item = _flatItems[index];
-                      final type = item.$1 as String;
-
-                      if (type == 'header') {
-                        // 渲染日期头部
-                        final dateKey = item.$2 as String;
-                        final list = item.$3
-                            as List<({Transaction t, Category? category})>;
-                        double dayIncome = 0, dayExpense = 0;
-                        for (final it in list) {
-                          if (it.t.type == 'income') {
-                            dayIncome += it.t.amount;
-                          }
-                          if (it.t.type == 'expense') {
-                            dayExpense += it.t.amount;
-                          }
-                        }
-                        final isFirst = index == 0;
-                        return VisibilityDetector(
-                          key: Key('header-$dateKey'),
-                          onVisibilityChanged: (VisibilityInfo info) {
-                            // 当可见比例大于50%时认为可见
-                            _onHeaderVisibilityChanged(
-                                dateKey, info.visibleFraction > 0.5);
-                          },
-                          child: Column(
-                            children: [
-                              if (!isFirst)
-                                Divider(height: 1, color: Colors.grey[200]),
-                              DaySectionHeader(
-                                dateText: dateKey,
-                                income: dayIncome,
-                                expense: dayExpense,
-                                hide: hide,
-                              ),
-                            ],
-                          ),
-                        );
-                      } else {
-                        // 渲染交易项
-                        final it =
-                            item.$2 as ({Transaction t, Category? category});
-                        final allItemsInDay = item.$3
-                            as List<({Transaction t, Category? category})>;
-                        final isExpense = it.t.type == 'expense';
-                        final categoryName = it.category?.name ?? '未分类';
-                        final subtitle = it.t.note ?? '';
-
-                        // 检查是否是当天最后一项
-                        final isLastInGroup =
-                            allItemsInDay.last.t.id == it.t.id;
-
-                        return Dismissible(
-                          key: Key('tx-${it.t.id}-$index'), // 添加索引避免key冲突
-                          direction: DismissDirection.endToStart,
-                          background: Container(
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.only(right: 16),
-                            color: Colors.red,
-                            child:
-                                const Icon(Icons.delete, color: Colors.white),
-                          ),
-                          confirmDismiss: (direction) async {
-                            return await AppDialog.confirm<bool>(
-                                  context,
-                                  title: '删除确认',
-                                  message: '确定要删除这条记账吗？',
-                                ) ??
-                                false;
-                          },
-                          onDismissed: (direction) async {
-                            final db = ref.read(databaseProvider);
-                            await (db.delete(db.transactions)
-                                  ..where((t) => t.id.equals(it.t.id)))
-                                .go();
-
-                            if (!context.mounted) return;
-                            final curLedger = ref.read(currentLedgerIdProvider);
-                            ref.invalidate(countsForLedgerProvider(curLedger));
-                            ref.read(statsRefreshProvider.notifier).state++;
-                            handleLocalChange(ref,
-                                ledgerId: curLedger, background: true);
-
-                            if (context.mounted) {
-                              showToast(context, '已删除');
-                            }
-                          },
-                          child: Column(
-                            children: [
-                              TransactionListItem(
-                                icon: iconForCategory(categoryName),
-                                title: subtitle.isNotEmpty
-                                    ? subtitle
-                                    : categoryName,
-                                categoryName:
-                                    subtitle.isNotEmpty ? null : categoryName,
-                                amount: it.t.amount,
-                                isExpense: isExpense,
-                                hide: hide,
-                                onTap: () async {
-                                  await TransactionEditUtils.editTransaction(
-                                    context,
-                                    ref,
-                                    it.t,
-                                    it.category,
-                                  );
-                                },
-                                onCategoryTap: it.category?.id != null
-                                    ? () async {
-                                        await Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (_) => CategoryDetailPage(
-                                              categoryId: it.category!.id,
-                                              categoryName: categoryName,
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    : null,
-                              ),
-                              if (!isLastInGroup)
-                                AppDivider.short(
-                                    indent: 56 + 16, endIndent: 16),
-                            ],
-                          ),
-                        );
-                      }
-                    },
-                    childCount: _flatItems.length,
                   ),
                 );
               },

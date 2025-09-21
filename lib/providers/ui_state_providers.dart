@@ -68,6 +68,26 @@ enum AppInitState {
 // 应用初始化状态Provider
 final appInitStateProvider = StateProvider<AppInitState>((ref) => AppInitState.splash);
 
+// 搜索页面金额范围筛选开关持久化
+final searchAmountFilterEnabledProvider =
+    FutureProvider.autoDispose<bool>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  final link = ref.keepAlive();
+  ref.onDispose(() => link.close());
+  return prefs.getBool('search_amount_filter_enabled') ?? false;
+});
+
+class SearchSettingsSetter {
+  Future<void> setAmountFilterEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('search_amount_filter_enabled', enabled);
+  }
+}
+
+final searchSettingsSetterProvider = Provider<SearchSettingsSetter>((ref) {
+  return SearchSettingsSetter();
+});
+
 // 缓存的交易数据Provider（用于首屏快速展示）
 final cachedTransactionsWithCategoryProvider = StateProvider<List<({Transaction t, Category? category})>?>((ref) => null);
 
