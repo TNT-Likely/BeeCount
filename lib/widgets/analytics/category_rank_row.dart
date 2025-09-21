@@ -8,6 +8,8 @@ class CategoryRankRow extends StatelessWidget {
   final double value;
   final double percent; // 0..1
   final Color color;
+  final bool isIncome; // 是否为收入分类
+  final bool isExpense; // 是否为支出分类
 
   const CategoryRankRow({
     super.key,
@@ -15,6 +17,8 @@ class CategoryRankRow extends StatelessWidget {
     required this.value,
     required this.percent,
     required this.color,
+    this.isIncome = false,
+    this.isExpense = false,
   });
 
   @override
@@ -42,10 +46,48 @@ class CategoryRankRow extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyMedium),
+                      child: Row(
+                        children: [
+                          Text(name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium),
+                          if (isIncome) ...[
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: Text(
+                                '收入',
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: Colors.green,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                          ],
+                          if (isExpense) ...[
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: Text(
+                                '支出',
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: Colors.red,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                     const SizedBox(width: 8),
                     AmountText(value: value, signed: false, decimals: 0),

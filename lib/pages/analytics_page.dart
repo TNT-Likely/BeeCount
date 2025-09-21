@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // wheel_date_picker exported via ui barrel
 import '../widgets/biz/biz.dart';
@@ -11,6 +12,7 @@ import '../widgets/analytics/analytics_summary.dart';
 import '../widgets/analytics/category_rank_row.dart';
 import '../widgets/ui/capsule_switcher.dart';
 import 'category_detail_page.dart';
+import 'analytics2_page.dart';
 
 class AnalyticsPage extends ConsumerStatefulWidget {
   const AnalyticsPage({super.key});
@@ -80,6 +82,17 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
             center: null,
             padding: EdgeInsets.zero,
             actions: [
+              if (kDebugMode)
+                IconButton(
+                  icon: const Icon(Icons.analytics_outlined, color: Colors.black87),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const Analytics2Page(),
+                      ),
+                    );
+                  },
+                ),
               IconButton(
                 icon: const Icon(Icons.info_outline, color: Colors.black87),
                 onPressed: () async {
@@ -342,6 +355,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                         isExpense: _type == 'expense',
                         total: sum,
                         avg: _computeAverage(filteredSeriesRaw, _scope),
+                        expenseColor: Theme.of(context).colorScheme.primary,
+                        incomeColor: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(height: 12),
                       SizedBox(

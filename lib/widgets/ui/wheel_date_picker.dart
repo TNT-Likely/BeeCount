@@ -108,15 +108,15 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            height: 44,
+            height: 52,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               children: [
                 TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('取消')),
+                    child: const Text('取消', style: TextStyle(fontSize: 16))),
                 const Spacer(),
-                const Text('选择日期'),
+                const Text('选择日期', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                 const Spacer(),
                 TextButton(
                     onPressed: () {
@@ -134,17 +134,17 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                       }
                       Navigator.pop(context, result);
                     },
-                    child: const Text('确定')),
+                    child: const Text('确定', style: TextStyle(fontSize: 16))),
               ],
             ),
           ),
           SizedBox(
-            height: 132, // 3个可见项（44*3）更舒适
+            height: 156, // 3个可见项（52*3）更舒适
             child: Row(
               children: [
                 Expanded(
                   child: CupertinoPicker(
-                    itemExtent: 44,
+                    itemExtent: 52,
                     scrollController: _yearCtrl,
                     onSelectedItemChanged: (i) => setState(() {
                       year = years[i];
@@ -186,14 +186,14 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                       for (final y in years)
                         Center(
                             child: Text('$y',
-                                style: const TextStyle(fontSize: 16))),
+                                style: const TextStyle(fontSize: 18))),
                     ],
                   ),
                 ),
                 if (mode != WheelDatePickerMode.y)
                   Expanded(
                     child: CupertinoPicker(
-                      itemExtent: 44,
+                      itemExtent: 52,
                       scrollController: _monthCtrl,
                       onSelectedItemChanged: (i) => setState(() {
                         month = months[i];
@@ -224,14 +224,14 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                         for (final m in months)
                           Center(
                               child: Text('$m',
-                                  style: const TextStyle(fontSize: 16))),
+                                  style: const TextStyle(fontSize: 18))),
                       ],
                     ),
                   ),
                 if (mode == WheelDatePickerMode.ymd)
                   Expanded(
                     child: CupertinoPicker(
-                      itemExtent: 44,
+                      itemExtent: 52,
                       scrollController: _dayCtrl,
                       onSelectedItemChanged: (i) => setState(() {
                         day = days[i];
@@ -240,7 +240,7 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                         for (final d in days)
                           Center(
                               child: Text('$d',
-                                  style: const TextStyle(fontSize: 16))),
+                                  style: const TextStyle(fontSize: 18))),
                       ],
                     ),
                   ),
