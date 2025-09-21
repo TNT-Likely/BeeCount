@@ -233,15 +233,42 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
                     future: allCategoriesFuture,
                     builder: (context, snap) {
                       final cats = snap.data ?? [];
+                      final l10n = AppLocalizations.of(context)!;
                       final items = <DropdownMenuItem<int?>>[
                         DropdownMenuItem(
-                            value: null, child: Text(AppLocalizations.of(context)!.importKeepOriginalName)),
+                            value: null, child: Text(l10n.importKeepOriginalName)),
                         ...cats.map((c) => DropdownMenuItem<int?>(
                               value: c.id,
                               child: Text(
-                                  '${c.name} (${c.kind == 'income' ? AppLocalizations.of(context)!.categoryIncome : AppLocalizations.of(context)!.categoryExpense})'),
+                                  '${CategoryService.translateCategoryName(c.name, l10n)} (${c.kind == 'income' ? l10n.categoryIncome : l10n.categoryExpense})'),
                             )),
                       ];
+                      // 为每个源分类预设自动匹配（仅在首次加载时执行）
+                      if (categoryMapping.values.every((v) => v == null) && cats.isNotEmpty) {
+                        bool hasMatch = false;
+                        for (final sourceName in distinctCategories) {
+                          final mappedChineseName = CategoryService.mapEnglishToChinese(sourceName);
+                          if (mappedChineseName != sourceName) {
+                            // 查找匹配的分类ID
+                            try {
+                              final matchingCategory = cats.firstWhere(
+                                (c) => c.name == mappedChineseName,
+                              );
+                              categoryMapping[sourceName] = matchingCategory.id;
+                              hasMatch = true;
+                            } catch (e) {
+                              // 没有找到匹配的分类，保持为null
+                            }
+                          }
+                        }
+                        // 如果有自动匹配，触发重建以显示预设的匹配
+                        if (hasMatch) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted) setState(() {});
+                          });
+                        }
+                      }
+
                       return Column(
                         children: [
                           for (final name in distinctCategories)
@@ -644,6 +671,8 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
       }
     }
     distinctCategories = set.toList()..sort();
+
+    // 初始化分类映射为null，后续在FutureBuilder中进行自动匹配
     categoryMapping = {for (final n in distinctCategories) n: null};
   }
 }
