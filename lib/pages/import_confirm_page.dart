@@ -7,6 +7,7 @@ import '../providers.dart';
 import '../widgets/ui/ui.dart';
 import '../data/db.dart' as schema;
 import '../l10n/app_localizations.dart';
+import '../services/category_service.dart';
 
 class ImportConfirmPage extends ConsumerStatefulWidget {
   final String csvText;
@@ -499,11 +500,15 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
 
         int? categoryId;
         if (categoryName != null && categoryName.trim().isNotEmpty) {
-          final name = categoryName.trim();
-          final chosen = categoryMapping[name];
+          final originalName = categoryName.trim();
+          final chosen = categoryMapping[originalName];
           if (chosen != null) {
             categoryId = chosen;
           } else {
+            // 尝试将英文分类映射为中文存储名称
+            final mappedName = CategoryService.mapEnglishToChinese(originalName);
+            final name = mappedName != originalName ? mappedName : originalName;
+
             if (type == 'income') {
               final cached = incomeCatCache[name];
               if (cached != null) {

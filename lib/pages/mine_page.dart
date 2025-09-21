@@ -18,6 +18,8 @@ import 'cloud_service_page.dart';
 import '../utils/logger.dart';
 import '../services/restore_service.dart';
 import 'restore_progress_page.dart';
+import '../utils/format_utils.dart';
+import '../l10n/app_localizations.dart';
 import 'font_settings_page.dart';
 import 'category_manage_page.dart';
 import 'category_migration_page.dart';
@@ -119,10 +121,16 @@ class MinePage extends ConsumerWidget {
                                 countsForLedgerProvider(currentLedgerId));
                             final balanceAsync = ref
                                 .watch(currentBalanceProvider(currentLedgerId));
+                            final currentLedgerAsync = ref.watch(currentLedgerProvider);
+                            final selectedLocale = ref.watch(languageProvider);
 
                             final day = countsAsync.asData?.value.dayCount ?? 0;
                             final tx = countsAsync.asData?.value.txCount ?? 0;
                             final balance = balanceAsync.asData?.value ?? 0.0;
+                            final currentLedger = currentLedgerAsync.asData?.value;
+                            final currencyCode = currentLedger?.currency ?? 'CNY';
+                            final isChineseLocale = selectedLocale?.languageCode == 'zh' ||
+                                (selectedLocale == null && Localizations.localeOf(context).languageCode == 'zh');
 
                             final labelStyle = Theme.of(context)
                                 .textTheme
@@ -149,7 +157,7 @@ class MinePage extends ConsumerWidget {
                                 Expanded(
                                     child: _StatCell(
                                         label: AppLocalizations.of(context).mineCurrentBalance,
-                                        value: formatBalance(balance),
+                                        value: formatBalance(balance, currencyCode, isChineseLocale: isChineseLocale),
                                         labelStyle: labelStyle,
                                         numStyle: numStyle.copyWith(
                                           color: balance >= 0
@@ -367,7 +375,30 @@ class MinePage extends ConsumerWidget {
           icon = Icons.change_circle_outlined;
           break;
         case SyncDiff.error:
-          subtitle = st.message ?? AppLocalizations.of(context).mineSyncError;
+          // 本地化同步消息
+          String? localizedMessage;
+          if (st.message != null) {
+            switch (st.message!) {
+              case '__SYNC_NOT_CONFIGURED__':
+                localizedMessage = AppLocalizations.of(context).syncNotConfiguredMessage;
+                break;
+              case '__SYNC_NOT_LOGGED_IN__':
+                localizedMessage = AppLocalizations.of(context).syncNotLoggedInMessage;
+                break;
+              case '__SYNC_CLOUD_BACKUP_CORRUPTED__':
+                localizedMessage = AppLocalizations.of(context).syncCloudBackupCorruptedMessage;
+                break;
+              case '__SYNC_NO_CLOUD_BACKUP__':
+                localizedMessage = AppLocalizations.of(context).syncNoCloudBackupMessage;
+                break;
+              case '__SYNC_ACCESS_DENIED__':
+                localizedMessage = AppLocalizations.of(context).syncAccessDeniedMessage;
+                break;
+              default:
+                localizedMessage = st.message;
+            }
+          }
+          subtitle = localizedMessage ?? AppLocalizations.of(context).mineSyncError;
           icon = Icons.error_outline;
           break;
       }
@@ -447,7 +478,27 @@ class MinePage extends ConsumerWidget {
                       AppLocalizations.of(context).mineSyncLocalFingerprint(st.localFingerprint),
                       if (st.cloudFingerprint != null)
                         AppLocalizations.of(context).mineSyncCloudFingerprint(st.cloudFingerprint!),
-                      if (st.message != null) AppLocalizations.of(context).mineSyncMessage(st.message!),
+                      if (st.message != null) () {
+                        String localizedMessage = st.message!;
+                        switch (st.message!) {
+                          case '__SYNC_NOT_CONFIGURED__':
+                            localizedMessage = AppLocalizations.of(context).syncNotConfiguredMessage;
+                            break;
+                          case '__SYNC_NOT_LOGGED_IN__':
+                            localizedMessage = AppLocalizations.of(context).syncNotLoggedInMessage;
+                            break;
+                          case '__SYNC_CLOUD_BACKUP_CORRUPTED__':
+                            localizedMessage = AppLocalizations.of(context).syncCloudBackupCorruptedMessage;
+                            break;
+                          case '__SYNC_NO_CLOUD_BACKUP__':
+                            localizedMessage = AppLocalizations.of(context).syncNoCloudBackupMessage;
+                            break;
+                          case '__SYNC_ACCESS_DENIED__':
+                            localizedMessage = AppLocalizations.of(context).syncAccessDeniedMessage;
+                            break;
+                        }
+                        return AppLocalizations.of(context).mineSyncMessage(localizedMessage);
+                      }(),
                     ];
                     await AppDialog.info(context,
                         title: AppLocalizations.of(context).mineSyncDetailTitle, message: lines.join('\n'));

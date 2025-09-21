@@ -22,6 +22,27 @@ final repositoryProvider = Provider<BeeRepository>((ref) {
 // 记住当前账本：启动时加载，切换时持久化
 final currentLedgerIdProvider = StateProvider<int>((ref) => 1);
 
+// 获取当前账本的详细信息
+final currentLedgerProvider = FutureProvider<Ledger?>((ref) async {
+  final ledgerId = ref.watch(currentLedgerIdProvider);
+  final db = ref.watch(databaseProvider);
+
+  final result = await (db.select(db.ledgers)
+    ..where((l) => l.id.equals(ledgerId))).get();
+
+  return result.isNotEmpty ? result.first : null;
+});
+
+// 获取指定账本的详细信息
+final ledgerByIdProvider = FutureProvider.family<Ledger?, int>((ref, ledgerId) async {
+  final db = ref.watch(databaseProvider);
+
+  final result = await (db.select(db.ledgers)
+    ..where((l) => l.id.equals(ledgerId))).get();
+
+  return result.isNotEmpty ? result.first : null;
+});
+
 final _currentLedgerPersist = Provider<void>((ref) {
   // load on first read
   () async {

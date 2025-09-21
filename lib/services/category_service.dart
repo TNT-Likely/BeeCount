@@ -49,6 +49,75 @@ class CategoryService {
     }
   }
 
+  /// 将英文分类名称映射回中文存储名称（用于导入）
+  static String mapEnglishToChinese(String englishName) {
+    final normalized = englishName.toLowerCase().trim();
+
+    // 支出分类映射
+    switch (normalized) {
+      case 'dining': case 'food': case 'restaurant': case 'meal': return '餐饮';
+      case 'transport': case 'transportation': case 'travel': return '交通';
+      case 'shopping': case 'purchase': return '购物';
+      case 'entertainment': case 'leisure': return '娱乐';
+      case 'home': case 'household': return '居家';
+      case 'family': return '家庭';
+      case 'communication': case 'phone': case 'mobile': return '通讯';
+      case 'utilities': case 'water': case 'electricity': return '水电';
+      case 'housing': case 'rent': return '住房';
+      case 'medical': case 'health': case 'healthcare': return '医疗';
+      case 'education': case 'school': return '教育';
+      case 'pets': case 'pet': return '宠物';
+      case 'sports': case 'fitness': case 'exercise': return '运动';
+      case 'digital': case 'electronics': case 'tech': return '数码';
+      case 'trip': case 'tourism': case 'vacation': return '旅行';
+      case 'alcohol': case 'tobacco': case 'cigarettes': return '烟酒';
+      case 'baby': case 'childcare': return '母婴';
+      case 'beauty': case 'cosmetics': return '美容';
+      case 'repair': case 'maintenance': return '维修';
+      case 'social': case 'socializing': return '社交';
+      case 'learning': case 'study': return '学习';
+      case 'car': case 'vehicle': case 'auto': return '汽车';
+      case 'taxi': case 'ride': return '打车';
+      case 'subway': case 'metro': return '地铁';
+      case 'delivery': case 'takeout': return '外卖';
+      case 'property': case 'management': return '物业';
+      case 'parking': return '停车';
+      case 'donation': case 'charity': return '捐赠';
+      case 'gift': case 'present': return '礼金';
+      case 'tax': case 'taxes': return '纳税';
+      case 'beverage': case 'drink': return '饮料';
+      case 'clothing': case 'clothes': return '服装';
+      case 'snacks': case 'snack': return '零食';
+      case 'red packet': case 'hongbao': return '红包';
+      case 'fruit': case 'fruits': return '水果';
+      case 'game': case 'gaming': return '游戏';
+      case 'book': case 'books': return '书';
+      case 'lover': case 'partner': return '爱人';
+      case 'decoration': case 'decor': return '装修';
+      case 'daily goods': case 'daily': return '日用品';
+      case 'lottery': return '彩票';
+      case 'stock': case 'stocks': return '股票';
+      case 'social security': return '社保';
+      case 'express': case 'courier': return '快递';
+      case 'work': case 'job': return '工作';
+
+      // 收入分类映射
+      case 'salary': case 'wage': case 'wages': return '工资';
+      case 'investment': case 'financial': return '理财';
+      case 'bonus': return '奖金';
+      case 'reimbursement': case 'refund': return '报销';
+      case 'part time': case 'parttime': case 'freelance': return '兼职';
+      case 'interest': return '利息';
+      case 'second hand': case 'secondhand': return '二手转卖';
+      case 'social benefit': case 'welfare': return '社会保障';
+      case 'tax refund': return '退税退费';
+      case 'provident fund': return '公积金';
+
+      // 如果没有映射，返回原始名称
+      default: return englishName;
+    }
+  }
+
   /// 翻译默认分类名称到当前语言
   static String translateCategoryName(String chineseName, AppLocalizations l10n) {
     switch (chineseName) {

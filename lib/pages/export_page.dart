@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import '../providers.dart';
 import '../data/repository.dart';
 import '../widgets/ui/ui.dart';
+import '../utils/category_utils.dart';
 import 'package:drift/drift.dart' as d;
 
 class ExportPage extends ConsumerStatefulWidget {
@@ -113,7 +114,13 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       final rowsJoin = await q.get();
       final total = rowsJoin.length;
       final rows = <List<dynamic>>[];
-      rows.add([AppLocalizations.of(context)!.exportCsvHeaders]);
+      rows.add([
+        AppLocalizations.of(context)!.exportCsvHeaderType,
+        AppLocalizations.of(context)!.exportCsvHeaderCategory,
+        AppLocalizations.of(context)!.exportCsvHeaderAmount,
+        AppLocalizations.of(context)!.exportCsvHeaderNote,
+        AppLocalizations.of(context)!.exportCsvHeaderTime,
+      ]);
       for (int i = 0; i < rowsJoin.length; i++) {
         final r = rowsJoin[i];
         final t = r.readTable(repo.db.transactions);
@@ -131,9 +138,10 @@ class _ExportPageState extends ConsumerState<ExportPage> {
               }()
             : '';
         final typeStr = _getTypeDisplayName(t.type);
+        final categoryName = CategoryUtils.getDisplayName(c?.name, context);
         rows.add([
           typeStr,
-          c?.name ?? '',
+          categoryName,
           t.amount.toStringAsFixed(2),
           t.note ?? '',
           timeStr

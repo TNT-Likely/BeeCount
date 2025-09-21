@@ -55,9 +55,9 @@ class BeeDatabase extends _$BeeDatabase {
     final count = await (select(ledgers).get()).then((v) => v.length);
     if (count == 0) {
       final ledgerId =
-          await into(ledgers).insert(LedgersCompanion.insert(name: '默认账本'));
+          await into(ledgers).insert(LedgersCompanion.insert(name: 'Default Ledger')); // Will be displayed with localization in UI
       await into(accounts)
-          .insert(AccountsCompanion.insert(ledgerId: ledgerId, name: '现金'));
+          .insert(AccountsCompanion.insert(ledgerId: ledgerId, name: 'Cash')); // Will be displayed with localization in UI
     }
     // 总是确保默认分类存在
     const expense = 'expense';

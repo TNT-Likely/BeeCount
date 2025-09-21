@@ -336,6 +336,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ledgersName => '名称';
 
   @override
+  String get ledgersDefaultLedgerName => '默认账本';
+
+  @override
+  String get ledgersDefaultAccountName => '现金';
+
+  @override
   String get ledgersCurrency => '币种';
 
   @override
@@ -1681,6 +1687,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cloudAddCustomService => '添加自定义云服务';
 
   @override
+  String get cloudDefaultServiceName => '默认云服务';
+
+  @override
   String get cloudUseYourSupabase => '使用你自己的 Supabase';
 
   @override
@@ -1904,7 +1913,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get exportSelectFolder => '选择导出文件夹';
 
   @override
-  String get exportCsvHeaders => '类型,分类,金额,备注,时间';
+  String get exportCsvHeaderType => '类型';
+
+  @override
+  String get exportCsvHeaderCategory => '分类';
+
+  @override
+  String get exportCsvHeaderAmount => '金额';
+
+  @override
+  String get exportCsvHeaderNote => '备注';
+
+  @override
+  String get exportCsvHeaderTime => '时间';
 
   @override
   String get exportShareText => 'BeeCount 导出文件';
@@ -2060,6 +2081,312 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get updateCheckTitle => '检查更新';
+
+  @override
+  String get updateNewVersionFound => '发现新版本';
+
+  @override
+  String updateNewVersionTitle(String version) {
+    return '发现新版本 $version';
+  }
+
+  @override
+  String get updateNoApkFound => '未找到APK下载链接';
+
+  @override
+  String get updateAlreadyLatest => '当前已是最新版本';
+
+  @override
+  String get updateCheckFailed => '检查更新失败';
+
+  @override
+  String get updatePermissionDenied => '权限被拒绝';
+
+  @override
+  String get updateUserCancelled => '用户取消';
+
+  @override
+  String get updateDownloadTitle => '下载更新';
+
+  @override
+  String updateDownloading(String percent) {
+    return '下载中: $percent%';
+  }
+
+  @override
+  String get updateDownloadBackgroundHint => '可以将应用切换到后台，下载会继续进行';
+
+  @override
+  String get updateCancelButton => '取消';
+
+  @override
+  String get updateBackgroundDownload => '后台下载';
+
+  @override
+  String get updateLaterButton => '稍后';
+
+  @override
+  String get updateDownloadButton => '下载';
+
+  @override
+  String get updateFoundCachedTitle => '发现已下载版本';
+
+  @override
+  String updateFoundCachedMessage(String path) {
+    return '已找到之前下载的安装包，是否直接安装？\\n\\n点击\\\"确定\\\"立即安装，点击\\\"取消\\\"关闭此弹窗。\\n\\n文件路径: $path';
+  }
+
+  @override
+  String get updateInstallingCachedApk => '正在安装缓存的APK';
+
+  @override
+  String get updateDownloadComplete => '下载完成';
+
+  @override
+  String get updateInstallStarted => '下载完成，安装程序已启动';
+
+  @override
+  String get updateInstallFailed => '安装失败';
+
+  @override
+  String get updateDownloadCompleteManual => '下载完成，可以手动安装';
+
+  @override
+  String get updateDownloadCompleteException => '下载完成，请手动安装（弹窗异常）';
+
+  @override
+  String get updateDownloadCompleteManualContext => '下载完成，请手动安装';
+
+  @override
+  String get updateDownloadFailed => '下载失败';
+
+  @override
+  String get updateInstallTitle => '下载完成';
+
+  @override
+  String get updateInstallMessage => 'APK文件下载完成，是否立即安装？\\n\\n注意：安装时应用会暂时退到后台，这是正常现象。';
+
+  @override
+  String get updateInstallNow => '立即安装';
+
+  @override
+  String get updateInstallLater => '稍后安装';
+
+  @override
+  String get updateNotificationTitle => '蜜蜂记账更新下载';
+
+  @override
+  String get updateNotificationBody => '正在下载新版本...';
+
+  @override
+  String get updateNotificationComplete => '下载完成，点击安装';
+
+  @override
+  String get updateNotificationPermissionTitle => '通知权限被拒绝';
+
+  @override
+  String get updateNotificationPermissionMessage => '无法获得通知权限，下载进度将不会在通知栏显示，但下载功能正常。';
+
+  @override
+  String get updateNotificationGuideTitle => '如需开启通知，请按以下步骤操作：';
+
+  @override
+  String get updateNotificationStep1 => '打开系统设置';
+
+  @override
+  String get updateNotificationStep2 => '找到「应用管理」或「应用设置」';
+
+  @override
+  String get updateNotificationStep3 => '找到「蜜蜂记账」应用';
+
+  @override
+  String get updateNotificationStep4 => '点击「权限管理」或「通知管理」';
+
+  @override
+  String get updateNotificationStep5 => '开启「通知权限」';
+
+  @override
+  String get updateNotificationMiuiHint => 'MIUI用户：小米系统对通知权限管控较严，可能需要在安全中心中额外设置';
+
+  @override
+  String get updateNotificationGotIt => '知道了';
+
+  @override
+  String get updateCheckFailedTitle => '检测更新失败';
+
+  @override
+  String get updateDownloadFailedTitle => '下载失败';
+
+  @override
+  String get updateGoToGitHub => '前往GitHub';
+
+  @override
+  String get updateCannotOpenLink => '无法打开链接';
+
+  @override
+  String get updateManualVisit => '请手动在浏览器中访问：\\nhttps://github.com/TNT-Likely/BeeCount/releases';
+
+  @override
+  String get updateNoLocalApkTitle => '未找到更新包';
+
+  @override
+  String get updateNoLocalApkMessage => '没有找到已下载的更新包文件。\\n\\n请先通过\\\"检查更新\\\"下载新版本。';
+
+  @override
+  String get updateInstallPackageTitle => '安装更新包';
+
+  @override
+  String get updateMultiplePackagesTitle => '找到多个更新包';
+
+  @override
+  String updateMultiplePackagesMessage(int count, String path) {
+    return '找到 $count 个更新包文件。\\n\\n建议使用最新下载的版本，或手动到文件管理器中安装。\\n\\n文件位置：$path';
+  }
+
+  @override
+  String get updateSearchFailedTitle => '查找失败';
+
+  @override
+  String updateSearchFailedMessage(String error) {
+    return '查找本地更新包时发生错误：$error';
+  }
+
+  @override
+  String get updateFoundCachedPackageTitle => '发现已下载的更新包';
+
+  @override
+  String updateFoundCachedPackageMessage(String fileName, String fileSize) {
+    return '检测到之前下载的更新包：\\n\\n文件名：$fileName\\n大小：${fileSize}MB\\n\\n是否立即安装？';
+  }
+
+  @override
+  String get updateIgnoreButton => '忽略';
+
+  @override
+  String get updateInstallFailedTitle => '安装失败';
+
+  @override
+  String get updateInstallFailedMessage => '无法启动APK安装程序，请检查文件权限。';
+
+  @override
+  String get updateErrorTitle => '错误';
+
+  @override
+  String updateReadCacheFailedMessage(String error) {
+    return '读取缓存更新包失败：$error';
+  }
+
+  @override
+  String get updateCheckingPermissions => '检查权限...';
+
+  @override
+  String get updateCheckingCache => '检查本地缓存...';
+
+  @override
+  String get updatePreparingDownload => '准备下载...';
+
+  @override
+  String get updateUserCancelledDownload => '用户取消下载';
+
+  @override
+  String get updateStartingInstaller => '正在启动安装...';
+
+  @override
+  String get updateInstallerStarted => '安装程序已启动';
+
+  @override
+  String get updateInstallationFailed => '安装失败';
+
+  @override
+  String get updateDownloadCompleted => '下载完成';
+
+  @override
+  String get updateDownloadCompletedManual => '下载完成，可以手动安装';
+
+  @override
+  String get updateDownloadCompletedDialog => '下载完成，请手动安装（弹窗异常）';
+
+  @override
+  String get updateDownloadCompletedContext => '下载完成，请手动安装';
+
+  @override
+  String get updateDownloadFailedGeneric => '下载失败';
+
+  @override
+  String get updateCheckingUpdate => '正在检查更新...';
+
+  @override
+  String get updateCurrentLatestVersion => '当前已是最新版本';
+
+  @override
+  String get updateCheckFailedGeneric => '检查更新失败';
+
+  @override
+  String updateDownloadProgress(String percent) {
+    return '下载中: $percent%';
+  }
+
+  @override
+  String get updateNoApkFoundError => '未找到APK下载链接';
+
+  @override
+  String updateCheckingUpdateError(String error) {
+    return '检查更新失败: $error';
+  }
+
+  @override
+  String get updateNotificationChannelName => '更新下载';
+
+  @override
+  String get updateNotificationDownloadingIndeterminate => '正在下载新版本...';
+
+  @override
+  String updateNotificationDownloadingProgress(String progress) {
+    return '下载进度: $progress%';
+  }
+
+  @override
+  String get updateNotificationDownloadCompleteTitle => '下载完成';
+
+  @override
+  String get updateNotificationDownloadCompleteMessage => '新版本已下载完成，点击安装';
+
+  @override
+  String get updateUserCancelledDownloadDialog => '用户取消下载';
+
+  @override
+  String get updateCannotOpenLinkError => '无法打开链接';
+
+  @override
+  String get updateNoLocalApkFoundMessage => '没有找到已下载的更新包文件。\n\n请先通过\"检查更新\"下载新版本。';
+
+  @override
+  String updateInstallPackageFoundMessage(String fileName, String fileSize, String time) {
+    return '找到更新包：\n\n文件名：$fileName\n大小：${fileSize}MB\n下载时间：$time\n\n是否立即安装？';
+  }
+
+  @override
+  String updateMultiplePackagesFoundMessage(int count, String path) {
+    return '找到 $count 个更新包文件。\n\n建议使用最新下载的版本，或手动到文件管理器中安装。\n\n文件位置：$path';
+  }
+
+  @override
+  String updateSearchLocalApkError(String error) {
+    return '查找本地更新包时发生错误：$error';
+  }
+
+  @override
+  String updateCachedPackageFoundMessage(String fileName, String fileSize) {
+    return '检测到之前下载的更新包：\n\n文件名：$fileName\n大小：${fileSize}MB\n\n是否立即安装？';
+  }
+
+  @override
+  String updateReadCachedPackageError(String error) {
+    return '读取缓存更新包失败：$error';
+  }
+
+  @override
   String get reminderQuickTestSent => '已设置15秒后的快速测试，请保持应用在后台';
 
   @override
@@ -2067,4 +2394,106 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reminderAlarmTestSent => '已设置AlarmManager测试通知（1秒后），点击查看是否能打开应用';
+
+  @override
+  String get updateOk => '知道了';
+
+  @override
+  String get updateCannotOpenLinkTitle => '无法打开链接';
+
+  @override
+  String get updateCachedVersionTitle => '发现已下载版本';
+
+  @override
+  String get updateCachedVersionMessage => '已找到之前下载的安装包...点击\\\"确定\\\"立即安装，点击\\\"取消\\\"关闭...';
+
+  @override
+  String get updateConfirmDownload => '立即下载并安装';
+
+  @override
+  String get updateDownloadCompleteTitle => '下载完成';
+
+  @override
+  String get updateInstallConfirmMessage => '新版本已下载完成，是否立即安装？';
+
+  @override
+  String get updateNotificationPermissionGuideText => '下载进度通知被关闭，但不影响下载功能。如需查看进度：';
+
+  @override
+  String get updateNotificationGuideStep1 => '进入系统设置 > 应用管理';
+
+  @override
+  String get updateNotificationGuideStep2 => '找到\\\"蜜蜂记账\\\"应用';
+
+  @override
+  String get updateNotificationGuideStep3 => '开启通知权限';
+
+  @override
+  String get updateNotificationGuideInfo => '即使不开启通知，下载也会在后台正常进行';
+
+  @override
+  String get currencyCNY => '人民币';
+
+  @override
+  String get currencyUSD => '美元';
+
+  @override
+  String get currencyEUR => '欧元';
+
+  @override
+  String get currencyJPY => '日元';
+
+  @override
+  String get currencyHKD => '港币';
+
+  @override
+  String get currencyTWD => '新台币';
+
+  @override
+  String get currencyGBP => '英镑';
+
+  @override
+  String get currencyAUD => '澳元';
+
+  @override
+  String get currencyCAD => '加元';
+
+  @override
+  String get currencyKRW => '韩元';
+
+  @override
+  String get currencySGD => '新加坡元';
+
+  @override
+  String get currencyTHB => '泰铢';
+
+  @override
+  String get currencyIDR => '印尼卢比';
+
+  @override
+  String get currencyINR => '印度卢比';
+
+  @override
+  String get currencyRUB => '卢布';
+
+  @override
+  String get cloudDefaultServiceDisplayName => '默认云服务';
+
+  @override
+  String get cloudNotConfiguredDisplay => '未配置';
+
+  @override
+  String get syncNotConfiguredMessage => '未配置云端';
+
+  @override
+  String get syncNotLoggedInMessage => '未登录';
+
+  @override
+  String get syncCloudBackupCorruptedMessage => '云端备份内容无法解析，可能是早期版本编码问题造成的损坏。请点击\\\"上传当前账本到云端\\\"覆盖修复。';
+
+  @override
+  String get syncNoCloudBackupMessage => '云端暂无备份';
+
+  @override
+  String get syncAccessDeniedMessage => '403 拒绝访问（检查 storage RLS 策略与路径）';
 }

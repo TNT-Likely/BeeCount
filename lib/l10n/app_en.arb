@@ -145,6 +145,8 @@
     }
   },
   "ledgersName": "Name",
+  "ledgersDefaultLedgerName": "Default Ledger",
+  "ledgersDefaultAccountName": "Cash",
   "ledgersCurrency": "Currency",
   "ledgersSelectCurrency": "Select Currency",
   "ledgersSearchCurrency": "Search: Chinese or code",
@@ -635,6 +637,7 @@
   "cloudConnectionNormal": "Connection normal",
   "cloudConnectionFailed": "Connection failed",
   "cloudAddCustomService": "Add custom cloud service",
+  "cloudDefaultServiceName": "Default Cloud Service",
   "cloudUseYourSupabase": "Use your own Supabase",
   "cloudTest": "Test",
   "cloudSwitchService": "Switch Cloud Service",
@@ -754,7 +757,11 @@
   "exportButtonAndroid": "Select Folder and Export",
   "exportSavedTo": "Saved to: {path}",
   "exportSelectFolder": "Select Export Folder",
-  "exportCsvHeaders": "Type,Category,Amount,Note,Time",
+  "exportCsvHeaderType": "Type",
+  "exportCsvHeaderCategory": "Category",
+  "exportCsvHeaderAmount": "Amount",
+  "exportCsvHeaderNote": "Note",
+  "exportCsvHeaderTime": "Time",
   "exportShareText": "BeeCount Export File",
   "exportSuccessTitle": "Export Successful",
   "exportSuccessMessageIOS": "Saved and available in share history:\n{path}",
@@ -855,6 +862,224 @@
     }
   },
 
+  "updateCheckTitle": "Check Update",
+  "updateNewVersionFound": "New Version Found",
+  "updateNewVersionTitle": "New Version {version} Found",
+  "@updateNewVersionTitle": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNoApkFound": "APK download link not found",
+  "updateAlreadyLatest": "Already latest version",
+  "updateCheckFailed": "Update check failed",
+  "updatePermissionDenied": "Permission denied",
+  "updateUserCancelled": "User cancelled",
+  "updateDownloadTitle": "Download Update",
+  "updateDownloading": "Downloading: {percent}%",
+  "@updateDownloading": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "updateDownloadBackgroundHint": "You can switch the app to background, download will continue",
+  "updateCancelButton": "Cancel",
+  "updateBackgroundDownload": "Background Download",
+  "updateLaterButton": "Later",
+  "updateDownloadButton": "Download",
+  "updateFoundCachedTitle": "Found Downloaded Version",
+  "updateFoundCachedMessage": "Found a previously downloaded installer, install directly?\\n\\nClick \"OK\" to install immediately, click \"Cancel\" to close this dialog.\\n\\nFile path: {path}",
+  "@updateFoundCachedMessage": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateInstallingCachedApk": "Installing cached APK",
+  "updateDownloadComplete": "Download Complete",
+  "updateInstallStarted": "Download complete, installer started",
+  "updateInstallFailed": "Installation failed",
+  "updateDownloadCompleteManual": "Download complete, can install manually",
+  "updateDownloadCompleteException": "Download complete, please install manually (dialog exception)",
+  "updateDownloadCompleteManualContext": "Download complete, please install manually",
+  "updateDownloadFailed": "Download failed",
+  "updateInstallTitle": "Download Complete",
+  "updateInstallMessage": "APK file download complete, install immediately?\\n\\nNote: The app will temporarily go to background during installation, this is normal.",
+  "updateInstallNow": "Install Now",
+  "updateInstallLater": "Install Later",
+  "updateNotificationTitle": "BeeCount Update Download",
+  "updateNotificationBody": "Downloading new version...",
+  "updateNotificationComplete": "Download complete, tap to install",
+  "updateNotificationPermissionTitle": "Notification Permission Denied",
+  "updateNotificationPermissionMessage": "Cannot get notification permission, download progress will not show in notification bar, but download function works normally.",
+  "updateNotificationGuideTitle": "If you need to enable notifications, follow these steps:",
+  "updateNotificationStep1": "Open system settings",
+  "updateNotificationStep2": "Find \"App Management\" or \"App Settings\"",
+  "updateNotificationStep3": "Find \"BeeCount\" app",
+  "updateNotificationStep4": "Click \"Permission Management\" or \"Notification Management\"",
+  "updateNotificationStep5": "Enable \"Notification Permission\"",
+  "updateNotificationMiuiHint": "MIUI users: Xiaomi system has strict notification permission control, may need additional settings in Security Center",
+  "updateNotificationGotIt": "Got it",
+  "updateCheckFailedTitle": "Update Check Failed",
+  "updateDownloadFailedTitle": "Download Failed",
+  "updateGoToGitHub": "Go to GitHub",
+  "updateCannotOpenLink": "Cannot open link",
+  "updateManualVisit": "Please manually visit in browser:\\nhttps://github.com/TNT-Likely/BeeCount/releases",
+  "updateNoLocalApkTitle": "No Update Package Found",
+  "updateNoLocalApkMessage": "No downloaded update package file found.\\n\\nPlease first download new version through \"Check Update\".",
+  "updateInstallPackageTitle": "Install Update Package",
+  "updateMultiplePackagesTitle": "Found Multiple Update Packages",
+  "updateMultiplePackagesMessage": "Found {count} update package files.\\n\\nRecommend using the latest downloaded version, or manually install in file manager.\\n\\nFile location: {path}",
+  "@updateMultiplePackagesMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateSearchFailedTitle": "Search Failed",
+  "updateSearchFailedMessage": "Error occurred while searching for local update packages: {error}",
+  "@updateSearchFailedMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateFoundCachedPackageTitle": "Found Downloaded Update Package",
+  "updateFoundCachedPackageMessage": "Detected previously downloaded update package:\\n\\nFile name: {fileName}\\nSize: {fileSize}MB\\n\\nInstall immediately?",
+  "@updateFoundCachedPackageMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      }
+    }
+  },
+  "updateIgnoreButton": "Ignore",
+  "updateInstallFailedTitle": "Installation Failed",
+  "updateInstallFailedMessage": "Cannot start APK installer, please check file permissions.",
+  "updateErrorTitle": "Error",
+  "updateReadCacheFailedMessage": "Failed to read cached update package: {error}",
+  "@updateReadCacheFailedMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "updateCheckingPermissions": "Checking permissions...",
+  "updateCheckingCache": "Checking local cache...",
+  "updatePreparingDownload": "Preparing download...",
+  "updateInstallingCachedApk": "Installing cached APK",
+  "updateUserCancelledDownload": "User cancelled download",
+  "updateStartingInstaller": "Starting installer...",
+  "updateInstallerStarted": "Installer started",
+  "updateInstallationFailed": "Installation failed",
+  "updateDownloadCompleted": "Download completed",
+  "updateDownloadCompletedManual": "Download completed, can install manually",
+  "updateDownloadCompletedDialog": "Download completed, please install manually (dialog exception)",
+  "updateDownloadCompletedContext": "Download completed, please install manually",
+  "updateDownloadFailedGeneric": "Download failed",
+  "updateCheckingUpdate": "Checking for updates...",
+  "updateCurrentLatestVersion": "Already latest version",
+  "updateCheckFailedGeneric": "Update check failed",
+  "updateDownloadProgress": "Downloading: {percent}%",
+  "@updateDownloadProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNoApkFoundError": "APK download link not found",
+  "updateCheckingUpdateError": "Update check failed: {error}",
+  "@updateCheckingUpdateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNotificationChannelName": "Update Download",
+  "updateNotificationDownloadingIndeterminate": "Downloading new version...",
+  "updateNotificationDownloadingProgress": "Download progress: {progress}%",
+  "@updateNotificationDownloadingProgress": {
+    "placeholders": {
+      "progress": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNotificationDownloadCompleteTitle": "Download Complete",
+  "updateNotificationDownloadCompleteMessage": "New version downloaded, tap to install",
+  "updateUserCancelledDownloadDialog": "User cancelled download",
+  "updateCannotOpenLinkError": "Cannot open link",
+  "updateNoLocalApkFoundMessage": "No downloaded update package file found.\\n\\nPlease first download new version through \"Check Update\".",
+  "updateInstallPackageFoundMessage": "Found update package:\\n\\nFile name: {fileName}\\nSize: {fileSize}MB\\nDownload time: {time}\\n\\nInstall immediately?",
+  "@updateInstallPackageFoundMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "updateMultiplePackagesFoundMessage": "Found {count} update package files.\\n\\nRecommend using the latest downloaded version, or manually install in file manager.\\n\\nFile location: {path}",
+  "@updateMultiplePackagesFoundMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateSearchLocalApkError": "Error occurred while searching for local update packages: {error}",
+  "@updateSearchLocalApkError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateCachedPackageFoundMessage": "Detected previously downloaded update package:\\n\\nFile name: {fileName}\\nSize: {fileSize}MB\\n\\nInstall immediately?",
+  "@updateCachedPackageFoundMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      }
+    }
+  },
+  "updateReadCachedPackageError": "Failed to read cached update package: {error}",
+  "@updateReadCachedPackageError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
   "reminderTitle": "Recording Reminder",
   "reminderSubtitle": "Set daily recording reminder time",
   "reminderDailyTitle": "Daily Recording Reminder",
@@ -866,5 +1091,42 @@
   "reminderQuickTest": "Quick Test (15s later)",
   "reminderFlutterTestSent": "Flutter test notification sent, click to see if it opens the app",
   "reminderFlutterTest": "🔧 Test Flutter Notification Click (Dev)",
-  "reminderAlarmTestSent": "AlarmManager test notification set (1 second later), click to see if it opens the app"
+  "reminderAlarmTestSent": "AlarmManager test notification set (1 second later), click to see if it opens the app",
+  "updateOk": "OK",
+  "updateCannotOpenLinkTitle": "Cannot Open Link",
+  "updateCachedVersionTitle": "Found Downloaded Version",
+  "updateCachedVersionMessage": "Found previously downloaded installation package... Click \\\"OK\\\" to install immediately, click \\\"Cancel\\\" to close...",
+  "updateConfirmDownload": "Download and Install Now",
+  "updateDownloadCompleteTitle": "Download Complete",
+  "updateInstallConfirmMessage": "New version has been downloaded. Install now?",
+  "updateNotificationPermissionGuideText": "Download progress notifications are disabled, but this doesn't affect download functionality. To view progress:",
+  "updateNotificationGuideStep1": "Go to System Settings > App Management",
+  "updateNotificationGuideStep2": "Find \\\"BeeCount\\\" app",
+  "updateNotificationGuideStep3": "Enable notification permissions",
+  "updateNotificationGuideInfo": "Downloads will continue normally in the background even without notifications",
+
+  "currencyCNY": "Chinese Yuan",
+  "currencyUSD": "US Dollar",
+  "currencyEUR": "Euro",
+  "currencyJPY": "Japanese Yen",
+  "currencyHKD": "Hong Kong Dollar",
+  "currencyTWD": "New Taiwan Dollar",
+  "currencyGBP": "British Pound",
+  "currencyAUD": "Australian Dollar",
+  "currencyCAD": "Canadian Dollar",
+  "currencyKRW": "South Korean Won",
+  "currencySGD": "Singapore Dollar",
+  "currencyTHB": "Thai Baht",
+  "currencyIDR": "Indonesian Rupiah",
+  "currencyINR": "Indian Rupee",
+  "currencyRUB": "Russian Ruble",
+
+  "cloudDefaultServiceDisplayName": "Default Cloud Service",
+  "cloudNotConfiguredDisplay": "Not Configured",
+
+  "syncNotConfiguredMessage": "Cloud not configured",
+  "syncNotLoggedInMessage": "Not logged in",
+  "syncCloudBackupCorruptedMessage": "Cloud backup content is corrupted, possibly due to encoding issues from earlier versions. Please click 'Upload Current Ledger to Cloud' to overwrite and fix.",
+  "syncNoCloudBackupMessage": "No cloud backup",
+  "syncAccessDeniedMessage": "403 Access denied (check storage RLS policy and path)"
 }

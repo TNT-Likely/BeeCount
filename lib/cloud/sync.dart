@@ -46,7 +46,7 @@ class LocalOnlySyncService implements SyncService {
       diff: SyncDiff.notConfigured,
       localCount: 0,
       localFingerprint: '',
-      message: '未配置云端',
+      message: '__SYNC_NOT_CONFIGURED__', // 特殊标记，在UI层处理本地化
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_localizations.dart';
 
 // 语言设置提供者
 final languageProvider = StateNotifierProvider<LanguageNotifier, Locale?>((ref) {
@@ -46,15 +47,17 @@ class LanguageNotifier extends StateNotifier<Locale?> {
 
   // 获取当前语言的显示名称
   String getLanguageDisplayName(BuildContext context, Locale? locale) {
+    final l10n = AppLocalizations.of(context);
+
     if (locale == null) {
-      return '跟随系统';
+      return l10n.languageSystemDefault;
     }
 
     switch (locale.languageCode) {
       case 'zh':
-        return '中文';
+        return l10n.languageChinese;
       case 'en':
-        return 'English';
+        return l10n.languageEnglish;
       default:
         return locale.languageCode;
     }

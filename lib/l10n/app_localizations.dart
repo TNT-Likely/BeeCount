@@ -737,6 +737,18 @@ abstract class AppLocalizations {
   /// **'Name'**
   String get ledgersName;
 
+  /// No description provided for @ledgersDefaultLedgerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Ledger'**
+  String get ledgersDefaultLedgerName;
+
+  /// No description provided for @ledgersDefaultAccountName.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get ledgersDefaultAccountName;
+
   /// No description provided for @ledgersCurrency.
   ///
   /// In en, this message translates to:
@@ -3239,6 +3251,12 @@ abstract class AppLocalizations {
   /// **'Add custom cloud service'**
   String get cloudAddCustomService;
 
+  /// No description provided for @cloudDefaultServiceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Cloud Service'**
+  String get cloudDefaultServiceName;
+
   /// No description provided for @cloudUseYourSupabase.
   ///
   /// In en, this message translates to:
@@ -3665,11 +3683,35 @@ abstract class AppLocalizations {
   /// **'Select Export Folder'**
   String get exportSelectFolder;
 
-  /// No description provided for @exportCsvHeaders.
+  /// No description provided for @exportCsvHeaderType.
   ///
   /// In en, this message translates to:
-  /// **'Type,Category,Amount,Note,Time'**
-  String get exportCsvHeaders;
+  /// **'Type'**
+  String get exportCsvHeaderType;
+
+  /// No description provided for @exportCsvHeaderCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get exportCsvHeaderCategory;
+
+  /// No description provided for @exportCsvHeaderAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get exportCsvHeaderAmount;
+
+  /// No description provided for @exportCsvHeaderNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get exportCsvHeaderNote;
+
+  /// No description provided for @exportCsvHeaderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get exportCsvHeaderTime;
 
   /// No description provided for @exportShareText.
   ///
@@ -3953,6 +3995,558 @@ abstract class AppLocalizations {
   /// **'{avgLabel}: '**
   String analyticsAverage(String avgLabel);
 
+  /// No description provided for @updateCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Update'**
+  String get updateCheckTitle;
+
+  /// No description provided for @updateNewVersionFound.
+  ///
+  /// In en, this message translates to:
+  /// **'New Version Found'**
+  String get updateNewVersionFound;
+
+  /// No description provided for @updateNewVersionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New Version {version} Found'**
+  String updateNewVersionTitle(String version);
+
+  /// No description provided for @updateNoApkFound.
+  ///
+  /// In en, this message translates to:
+  /// **'APK download link not found'**
+  String get updateNoApkFound;
+
+  /// No description provided for @updateAlreadyLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Already latest version'**
+  String get updateAlreadyLatest;
+
+  /// No description provided for @updateCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Update check failed'**
+  String get updateCheckFailed;
+
+  /// No description provided for @updatePermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission denied'**
+  String get updatePermissionDenied;
+
+  /// No description provided for @updateUserCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'User cancelled'**
+  String get updateUserCancelled;
+
+  /// No description provided for @updateDownloadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Update'**
+  String get updateDownloadTitle;
+
+  /// No description provided for @updateDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading: {percent}%'**
+  String updateDownloading(String percent);
+
+  /// No description provided for @updateDownloadBackgroundHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can switch the app to background, download will continue'**
+  String get updateDownloadBackgroundHint;
+
+  /// No description provided for @updateCancelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get updateCancelButton;
+
+  /// No description provided for @updateBackgroundDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Background Download'**
+  String get updateBackgroundDownload;
+
+  /// No description provided for @updateLaterButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLaterButton;
+
+  /// No description provided for @updateDownloadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get updateDownloadButton;
+
+  /// No description provided for @updateFoundCachedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Found Downloaded Version'**
+  String get updateFoundCachedTitle;
+
+  /// No description provided for @updateFoundCachedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Found a previously downloaded installer, install directly?\\n\\nClick \"OK\" to install immediately, click \"Cancel\" to close this dialog.\\n\\nFile path: {path}'**
+  String updateFoundCachedMessage(String path);
+
+  /// No description provided for @updateInstallingCachedApk.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing cached APK'**
+  String get updateInstallingCachedApk;
+
+  /// No description provided for @updateDownloadComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Complete'**
+  String get updateDownloadComplete;
+
+  /// No description provided for @updateInstallStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Download complete, installer started'**
+  String get updateInstallStarted;
+
+  /// No description provided for @updateInstallFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Installation failed'**
+  String get updateInstallFailed;
+
+  /// No description provided for @updateDownloadCompleteManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Download complete, can install manually'**
+  String get updateDownloadCompleteManual;
+
+  /// No description provided for @updateDownloadCompleteException.
+  ///
+  /// In en, this message translates to:
+  /// **'Download complete, please install manually (dialog exception)'**
+  String get updateDownloadCompleteException;
+
+  /// No description provided for @updateDownloadCompleteManualContext.
+  ///
+  /// In en, this message translates to:
+  /// **'Download complete, please install manually'**
+  String get updateDownloadCompleteManualContext;
+
+  /// No description provided for @updateDownloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed'**
+  String get updateDownloadFailed;
+
+  /// No description provided for @updateInstallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Complete'**
+  String get updateInstallTitle;
+
+  /// No description provided for @updateInstallMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'APK file download complete, install immediately?\\n\\nNote: The app will temporarily go to background during installation, this is normal.'**
+  String get updateInstallMessage;
+
+  /// No description provided for @updateInstallNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Install Now'**
+  String get updateInstallNow;
+
+  /// No description provided for @updateInstallLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Install Later'**
+  String get updateInstallLater;
+
+  /// No description provided for @updateNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'BeeCount Update Download'**
+  String get updateNotificationTitle;
+
+  /// No description provided for @updateNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading new version...'**
+  String get updateNotificationBody;
+
+  /// No description provided for @updateNotificationComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Download complete, tap to install'**
+  String get updateNotificationComplete;
+
+  /// No description provided for @updateNotificationPermissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Permission Denied'**
+  String get updateNotificationPermissionTitle;
+
+  /// No description provided for @updateNotificationPermissionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot get notification permission, download progress will not show in notification bar, but download function works normally.'**
+  String get updateNotificationPermissionMessage;
+
+  /// No description provided for @updateNotificationGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'If you need to enable notifications, follow these steps:'**
+  String get updateNotificationGuideTitle;
+
+  /// No description provided for @updateNotificationStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Open system settings'**
+  String get updateNotificationStep1;
+
+  /// No description provided for @updateNotificationStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Find \"App Management\" or \"App Settings\"'**
+  String get updateNotificationStep2;
+
+  /// No description provided for @updateNotificationStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Find \"BeeCount\" app'**
+  String get updateNotificationStep3;
+
+  /// No description provided for @updateNotificationStep4.
+  ///
+  /// In en, this message translates to:
+  /// **'Click \"Permission Management\" or \"Notification Management\"'**
+  String get updateNotificationStep4;
+
+  /// No description provided for @updateNotificationStep5.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable \"Notification Permission\"'**
+  String get updateNotificationStep5;
+
+  /// No description provided for @updateNotificationMiuiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'MIUI users: Xiaomi system has strict notification permission control, may need additional settings in Security Center'**
+  String get updateNotificationMiuiHint;
+
+  /// No description provided for @updateNotificationGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get updateNotificationGotIt;
+
+  /// No description provided for @updateCheckFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Check Failed'**
+  String get updateCheckFailedTitle;
+
+  /// No description provided for @updateDownloadFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Failed'**
+  String get updateDownloadFailedTitle;
+
+  /// No description provided for @updateGoToGitHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to GitHub'**
+  String get updateGoToGitHub;
+
+  /// No description provided for @updateCannotOpenLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot open link'**
+  String get updateCannotOpenLink;
+
+  /// No description provided for @updateManualVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Please manually visit in browser:\\nhttps://github.com/TNT-Likely/BeeCount/releases'**
+  String get updateManualVisit;
+
+  /// No description provided for @updateNoLocalApkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Update Package Found'**
+  String get updateNoLocalApkTitle;
+
+  /// No description provided for @updateNoLocalApkMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No downloaded update package file found.\\n\\nPlease first download new version through \"Check Update\".'**
+  String get updateNoLocalApkMessage;
+
+  /// No description provided for @updateInstallPackageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Install Update Package'**
+  String get updateInstallPackageTitle;
+
+  /// No description provided for @updateMultiplePackagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Found Multiple Update Packages'**
+  String get updateMultiplePackagesTitle;
+
+  /// No description provided for @updateMultiplePackagesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Found {count} update package files.\\n\\nRecommend using the latest downloaded version, or manually install in file manager.\\n\\nFile location: {path}'**
+  String updateMultiplePackagesMessage(int count, String path);
+
+  /// No description provided for @updateSearchFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Failed'**
+  String get updateSearchFailedTitle;
+
+  /// No description provided for @updateSearchFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Error occurred while searching for local update packages: {error}'**
+  String updateSearchFailedMessage(String error);
+
+  /// No description provided for @updateFoundCachedPackageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Found Downloaded Update Package'**
+  String get updateFoundCachedPackageTitle;
+
+  /// No description provided for @updateFoundCachedPackageMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected previously downloaded update package:\\n\\nFile name: {fileName}\\nSize: {fileSize}MB\\n\\nInstall immediately?'**
+  String updateFoundCachedPackageMessage(String fileName, String fileSize);
+
+  /// No description provided for @updateIgnoreButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Ignore'**
+  String get updateIgnoreButton;
+
+  /// No description provided for @updateInstallFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Installation Failed'**
+  String get updateInstallFailedTitle;
+
+  /// No description provided for @updateInstallFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot start APK installer, please check file permissions.'**
+  String get updateInstallFailedMessage;
+
+  /// No description provided for @updateErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get updateErrorTitle;
+
+  /// No description provided for @updateReadCacheFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to read cached update package: {error}'**
+  String updateReadCacheFailedMessage(String error);
+
+  /// No description provided for @updateCheckingPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking permissions...'**
+  String get updateCheckingPermissions;
+
+  /// No description provided for @updateCheckingCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking local cache...'**
+  String get updateCheckingCache;
+
+  /// No description provided for @updatePreparingDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing download...'**
+  String get updatePreparingDownload;
+
+  /// No description provided for @updateUserCancelledDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'User cancelled download'**
+  String get updateUserCancelledDownload;
+
+  /// No description provided for @updateStartingInstaller.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting installer...'**
+  String get updateStartingInstaller;
+
+  /// No description provided for @updateInstallerStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Installer started'**
+  String get updateInstallerStarted;
+
+  /// No description provided for @updateInstallationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Installation failed'**
+  String get updateInstallationFailed;
+
+  /// No description provided for @updateDownloadCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Download completed'**
+  String get updateDownloadCompleted;
+
+  /// No description provided for @updateDownloadCompletedManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Download completed, can install manually'**
+  String get updateDownloadCompletedManual;
+
+  /// No description provided for @updateDownloadCompletedDialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Download completed, please install manually (dialog exception)'**
+  String get updateDownloadCompletedDialog;
+
+  /// No description provided for @updateDownloadCompletedContext.
+  ///
+  /// In en, this message translates to:
+  /// **'Download completed, please install manually'**
+  String get updateDownloadCompletedContext;
+
+  /// No description provided for @updateDownloadFailedGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed'**
+  String get updateDownloadFailedGeneric;
+
+  /// No description provided for @updateCheckingUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for updates...'**
+  String get updateCheckingUpdate;
+
+  /// No description provided for @updateCurrentLatestVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Already latest version'**
+  String get updateCurrentLatestVersion;
+
+  /// No description provided for @updateCheckFailedGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Update check failed'**
+  String get updateCheckFailedGeneric;
+
+  /// No description provided for @updateDownloadProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading: {percent}%'**
+  String updateDownloadProgress(String percent);
+
+  /// No description provided for @updateNoApkFoundError.
+  ///
+  /// In en, this message translates to:
+  /// **'APK download link not found'**
+  String get updateNoApkFoundError;
+
+  /// No description provided for @updateCheckingUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Update check failed: {error}'**
+  String updateCheckingUpdateError(String error);
+
+  /// No description provided for @updateNotificationChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Download'**
+  String get updateNotificationChannelName;
+
+  /// No description provided for @updateNotificationDownloadingIndeterminate.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading new version...'**
+  String get updateNotificationDownloadingIndeterminate;
+
+  /// No description provided for @updateNotificationDownloadingProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Download progress: {progress}%'**
+  String updateNotificationDownloadingProgress(String progress);
+
+  /// No description provided for @updateNotificationDownloadCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Complete'**
+  String get updateNotificationDownloadCompleteTitle;
+
+  /// No description provided for @updateNotificationDownloadCompleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'New version downloaded, tap to install'**
+  String get updateNotificationDownloadCompleteMessage;
+
+  /// No description provided for @updateUserCancelledDownloadDialog.
+  ///
+  /// In en, this message translates to:
+  /// **'User cancelled download'**
+  String get updateUserCancelledDownloadDialog;
+
+  /// No description provided for @updateCannotOpenLinkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot open link'**
+  String get updateCannotOpenLinkError;
+
+  /// No description provided for @updateNoLocalApkFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No downloaded update package file found.\\n\\nPlease first download new version through \"Check Update\".'**
+  String get updateNoLocalApkFoundMessage;
+
+  /// No description provided for @updateInstallPackageFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Found update package:\\n\\nFile name: {fileName}\\nSize: {fileSize}MB\\nDownload time: {time}\\n\\nInstall immediately?'**
+  String updateInstallPackageFoundMessage(String fileName, String fileSize, String time);
+
+  /// No description provided for @updateMultiplePackagesFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Found {count} update package files.\\n\\nRecommend using the latest downloaded version, or manually install in file manager.\\n\\nFile location: {path}'**
+  String updateMultiplePackagesFoundMessage(int count, String path);
+
+  /// No description provided for @updateSearchLocalApkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error occurred while searching for local update packages: {error}'**
+  String updateSearchLocalApkError(String error);
+
+  /// No description provided for @updateCachedPackageFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected previously downloaded update package:\\n\\nFile name: {fileName}\\nSize: {fileSize}MB\\n\\nInstall immediately?'**
+  String updateCachedPackageFoundMessage(String fileName, String fileSize);
+
+  /// No description provided for @updateReadCachedPackageError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to read cached update package: {error}'**
+  String updateReadCachedPackageError(String error);
+
   /// No description provided for @reminderQuickTestSent.
   ///
   /// In en, this message translates to:
@@ -3970,6 +4564,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AlarmManager test notification set (1 second later), click to see if it opens the app'**
   String get reminderAlarmTestSent;
+
+  /// No description provided for @updateOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get updateOk;
+
+  /// No description provided for @updateCannotOpenLinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot Open Link'**
+  String get updateCannotOpenLinkTitle;
+
+  /// No description provided for @updateCachedVersionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Found Downloaded Version'**
+  String get updateCachedVersionTitle;
+
+  /// No description provided for @updateCachedVersionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Found previously downloaded installation package... Click \\\"OK\\\" to install immediately, click \\\"Cancel\\\" to close...'**
+  String get updateCachedVersionMessage;
+
+  /// No description provided for @updateConfirmDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download and Install Now'**
+  String get updateConfirmDownload;
+
+  /// No description provided for @updateDownloadCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Complete'**
+  String get updateDownloadCompleteTitle;
+
+  /// No description provided for @updateInstallConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'New version has been downloaded. Install now?'**
+  String get updateInstallConfirmMessage;
+
+  /// No description provided for @updateNotificationPermissionGuideText.
+  ///
+  /// In en, this message translates to:
+  /// **'Download progress notifications are disabled, but this doesn\'t affect download functionality. To view progress:'**
+  String get updateNotificationPermissionGuideText;
+
+  /// No description provided for @updateNotificationGuideStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to System Settings > App Management'**
+  String get updateNotificationGuideStep1;
+
+  /// No description provided for @updateNotificationGuideStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Find \\\"BeeCount\\\" app'**
+  String get updateNotificationGuideStep2;
+
+  /// No description provided for @updateNotificationGuideStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable notification permissions'**
+  String get updateNotificationGuideStep3;
+
+  /// No description provided for @updateNotificationGuideInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads will continue normally in the background even without notifications'**
+  String get updateNotificationGuideInfo;
+
+  /// No description provided for @currencyCNY.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese Yuan'**
+  String get currencyCNY;
+
+  /// No description provided for @currencyUSD.
+  ///
+  /// In en, this message translates to:
+  /// **'US Dollar'**
+  String get currencyUSD;
+
+  /// No description provided for @currencyEUR.
+  ///
+  /// In en, this message translates to:
+  /// **'Euro'**
+  String get currencyEUR;
+
+  /// No description provided for @currencyJPY.
+  ///
+  /// In en, this message translates to:
+  /// **'Japanese Yen'**
+  String get currencyJPY;
+
+  /// No description provided for @currencyHKD.
+  ///
+  /// In en, this message translates to:
+  /// **'Hong Kong Dollar'**
+  String get currencyHKD;
+
+  /// No description provided for @currencyTWD.
+  ///
+  /// In en, this message translates to:
+  /// **'New Taiwan Dollar'**
+  String get currencyTWD;
+
+  /// No description provided for @currencyGBP.
+  ///
+  /// In en, this message translates to:
+  /// **'British Pound'**
+  String get currencyGBP;
+
+  /// No description provided for @currencyAUD.
+  ///
+  /// In en, this message translates to:
+  /// **'Australian Dollar'**
+  String get currencyAUD;
+
+  /// No description provided for @currencyCAD.
+  ///
+  /// In en, this message translates to:
+  /// **'Canadian Dollar'**
+  String get currencyCAD;
+
+  /// No description provided for @currencyKRW.
+  ///
+  /// In en, this message translates to:
+  /// **'South Korean Won'**
+  String get currencyKRW;
+
+  /// No description provided for @currencySGD.
+  ///
+  /// In en, this message translates to:
+  /// **'Singapore Dollar'**
+  String get currencySGD;
+
+  /// No description provided for @currencyTHB.
+  ///
+  /// In en, this message translates to:
+  /// **'Thai Baht'**
+  String get currencyTHB;
+
+  /// No description provided for @currencyIDR.
+  ///
+  /// In en, this message translates to:
+  /// **'Indonesian Rupiah'**
+  String get currencyIDR;
+
+  /// No description provided for @currencyINR.
+  ///
+  /// In en, this message translates to:
+  /// **'Indian Rupee'**
+  String get currencyINR;
+
+  /// No description provided for @currencyRUB.
+  ///
+  /// In en, this message translates to:
+  /// **'Russian Ruble'**
+  String get currencyRUB;
+
+  /// No description provided for @cloudDefaultServiceDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Cloud Service'**
+  String get cloudDefaultServiceDisplayName;
+
+  /// No description provided for @cloudNotConfiguredDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Configured'**
+  String get cloudNotConfiguredDisplay;
+
+  /// No description provided for @syncNotConfiguredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud not configured'**
+  String get syncNotConfiguredMessage;
+
+  /// No description provided for @syncNotLoggedInMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Not logged in'**
+  String get syncNotLoggedInMessage;
+
+  /// No description provided for @syncCloudBackupCorruptedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud backup content is corrupted, possibly due to encoding issues from earlier versions. Please click \'Upload Current Ledger to Cloud\' to overwrite and fix.'**
+  String get syncCloudBackupCorruptedMessage;
+
+  /// No description provided for @syncNoCloudBackupMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No cloud backup'**
+  String get syncNoCloudBackupMessage;
+
+  /// No description provided for @syncAccessDeniedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'403 Access denied (check storage RLS policy and path)'**
+  String get syncAccessDeniedMessage;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

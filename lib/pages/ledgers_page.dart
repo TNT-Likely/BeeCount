@@ -271,10 +271,14 @@ class _LedgerCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(ledger.name,
-                      style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    ledger.name == 'Default Ledger' || ledger.name == '默认账本'
+                        ? AppLocalizations.of(context).ledgersDefaultLedgerName
+                        : ledger.name,
+                    style: Theme.of(context).textTheme.titleMedium
+                  ),
                   const SizedBox(height: 4),
-                  Text('${AppLocalizations.of(context).ledgersCurrency}：${displayCurrency(ledger.currency)}',
+                  Text('${AppLocalizations.of(context).ledgersCurrency}：${displayCurrency(ledger.currency, context)}',
                       style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: 2),
                   // 显示该账本的总笔数
@@ -314,19 +318,27 @@ class _LedgerBalance extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final balanceAsync = ref.watch(currentBalanceProvider(ledgerId));
+    final ledgerAsync = ref.watch(ledgerByIdProvider(ledgerId));
+    final selectedLocale = ref.watch(languageProvider);
+
     final balance = balanceAsync.asData?.value;
-    
+    final ledger = ledgerAsync.asData?.value;
+
     if (balance == null) {
       return Text(
         AppLocalizations.of(context).ledgersBalance('…'),
         style: Theme.of(context).textTheme.bodySmall,
       );
     }
-    
+
+    final currencyCode = ledger?.currency ?? 'CNY';
+    final isChineseLocale = selectedLocale?.languageCode == 'zh' ||
+        (selectedLocale == null && Localizations.localeOf(context).languageCode == 'zh');
+
     return Text(
-      AppLocalizations.of(context).ledgersBalance(formatBalance(balance)),
+      AppLocalizations.of(context).ledgersBalance(formatBalance(balance, currencyCode, isChineseLocale: isChineseLocale)),
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: balance >= 0 
+        color: balance >= 0
           ? Theme.of(context).textTheme.bodySmall?.color
           : Colors.red,
       ),
@@ -346,7 +358,7 @@ Future<String?> _showCurrencyPicker(BuildContext context,
       String query = '';
       String? selected = initial;
       return StatefulBuilder(builder: (sctx, setState) {
-        final filtered = kCurrencies.where((c) {
+        final filtered = getCurrencies(context).where((c) {
           final q = query.trim();
           if (q.isEmpty) return true;
           final uq = q.toUpperCase();
@@ -442,7 +454,7 @@ Future<({String name, String currency})?> _showLedgerEditorDialog(
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(AppLocalizations.of(ctx).ledgersCurrency),
-                subtitle: Text(displayCurrency(currency)),
+                subtitle: Text(displayCurrency(currency, context)),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () async {
                   final picked =

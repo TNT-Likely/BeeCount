@@ -151,6 +151,12 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
   }
   
   Widget _buildSummaryCard(({int totalCount, double totalAmount, double averageAmount}) summary) {
+    final currentLedgerAsync = ref.watch(currentLedgerProvider);
+    final selectedLocale = ref.watch(languageProvider);
+    final currentLedger = currentLedgerAsync.asData?.value;
+    final currencyCode = currentLedger?.currency ?? 'CNY';
+    final isChineseLocale = selectedLocale?.languageCode == 'zh' ||
+        (selectedLocale == null && Localizations.localeOf(context).languageCode == 'zh');
     return Container(
       margin: const EdgeInsets.all(16),
       child: SectionCard(
@@ -188,7 +194,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                   Expanded(
                     child: _SummaryItem(
                       label: AppLocalizations.of(context).categoryDetailTotalAmount,
-                      value: formatBalance(summary.totalAmount),
+                      value: formatBalance(summary.totalAmount, currencyCode, isChineseLocale: isChineseLocale),
                       color: summary.totalAmount >= 0 
                         ? Colors.green 
                         : Colors.red,
@@ -197,7 +203,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                   Expanded(
                     child: _SummaryItem(
                       label: AppLocalizations.of(context).categoryDetailAverageAmount,
-                      value: formatBalance(summary.averageAmount),
+                      value: formatBalance(summary.averageAmount, currencyCode, isChineseLocale: isChineseLocale),
                       color: Theme.of(context).colorScheme.outline,
                     ),
                   ),

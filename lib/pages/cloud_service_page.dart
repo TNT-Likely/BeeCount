@@ -79,7 +79,9 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              active.name,
+                              active.builtin
+                                ? AppLocalizations.of(context).cloudDefaultServiceName
+                                : active.name,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -246,7 +248,9 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                               Row(
                                 children: [
                                   Text(
-                                    config.name,
+                                    config.builtin
+                                      ? AppLocalizations.of(context).cloudDefaultServiceName
+                                      : config.name,
                                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -474,7 +478,10 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
     if (config.builtin) {
       return config.valid ? AppLocalizations.of(context).cloudServiceDescription : AppLocalizations.of(context).cloudServiceDescriptionNotConfigured;
     } else {
-      return AppLocalizations.of(context).cloudServiceDescriptionCustom(config.obfuscatedUrl());
+      final url = config.obfuscatedUrl();
+      return AppLocalizations.of(context).cloudServiceDescriptionCustom(
+        url == '__NOT_CONFIGURED__' ? AppLocalizations.of(context).cloudNotConfigured : url
+      );
     }
   }
 

@@ -336,6 +336,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ledgersName => 'Name';
 
   @override
+  String get ledgersDefaultLedgerName => 'Default Ledger';
+
+  @override
+  String get ledgersDefaultAccountName => 'Cash';
+
+  @override
   String get ledgersCurrency => 'Currency';
 
   @override
@@ -1681,6 +1687,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudAddCustomService => 'Add custom cloud service';
 
   @override
+  String get cloudDefaultServiceName => 'Default Cloud Service';
+
+  @override
   String get cloudUseYourSupabase => 'Use your own Supabase';
 
   @override
@@ -1904,7 +1913,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exportSelectFolder => 'Select Export Folder';
 
   @override
-  String get exportCsvHeaders => 'Type,Category,Amount,Note,Time';
+  String get exportCsvHeaderType => 'Type';
+
+  @override
+  String get exportCsvHeaderCategory => 'Category';
+
+  @override
+  String get exportCsvHeaderAmount => 'Amount';
+
+  @override
+  String get exportCsvHeaderNote => 'Note';
+
+  @override
+  String get exportCsvHeaderTime => 'Time';
 
   @override
   String get exportShareText => 'BeeCount Export File';
@@ -2060,6 +2081,312 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get updateCheckTitle => 'Check Update';
+
+  @override
+  String get updateNewVersionFound => 'New Version Found';
+
+  @override
+  String updateNewVersionTitle(String version) {
+    return 'New Version $version Found';
+  }
+
+  @override
+  String get updateNoApkFound => 'APK download link not found';
+
+  @override
+  String get updateAlreadyLatest => 'Already latest version';
+
+  @override
+  String get updateCheckFailed => 'Update check failed';
+
+  @override
+  String get updatePermissionDenied => 'Permission denied';
+
+  @override
+  String get updateUserCancelled => 'User cancelled';
+
+  @override
+  String get updateDownloadTitle => 'Download Update';
+
+  @override
+  String updateDownloading(String percent) {
+    return 'Downloading: $percent%';
+  }
+
+  @override
+  String get updateDownloadBackgroundHint => 'You can switch the app to background, download will continue';
+
+  @override
+  String get updateCancelButton => 'Cancel';
+
+  @override
+  String get updateBackgroundDownload => 'Background Download';
+
+  @override
+  String get updateLaterButton => 'Later';
+
+  @override
+  String get updateDownloadButton => 'Download';
+
+  @override
+  String get updateFoundCachedTitle => 'Found Downloaded Version';
+
+  @override
+  String updateFoundCachedMessage(String path) {
+    return 'Found a previously downloaded installer, install directly?\\n\\nClick \"OK\" to install immediately, click \"Cancel\" to close this dialog.\\n\\nFile path: $path';
+  }
+
+  @override
+  String get updateInstallingCachedApk => 'Installing cached APK';
+
+  @override
+  String get updateDownloadComplete => 'Download Complete';
+
+  @override
+  String get updateInstallStarted => 'Download complete, installer started';
+
+  @override
+  String get updateInstallFailed => 'Installation failed';
+
+  @override
+  String get updateDownloadCompleteManual => 'Download complete, can install manually';
+
+  @override
+  String get updateDownloadCompleteException => 'Download complete, please install manually (dialog exception)';
+
+  @override
+  String get updateDownloadCompleteManualContext => 'Download complete, please install manually';
+
+  @override
+  String get updateDownloadFailed => 'Download failed';
+
+  @override
+  String get updateInstallTitle => 'Download Complete';
+
+  @override
+  String get updateInstallMessage => 'APK file download complete, install immediately?\\n\\nNote: The app will temporarily go to background during installation, this is normal.';
+
+  @override
+  String get updateInstallNow => 'Install Now';
+
+  @override
+  String get updateInstallLater => 'Install Later';
+
+  @override
+  String get updateNotificationTitle => 'BeeCount Update Download';
+
+  @override
+  String get updateNotificationBody => 'Downloading new version...';
+
+  @override
+  String get updateNotificationComplete => 'Download complete, tap to install';
+
+  @override
+  String get updateNotificationPermissionTitle => 'Notification Permission Denied';
+
+  @override
+  String get updateNotificationPermissionMessage => 'Cannot get notification permission, download progress will not show in notification bar, but download function works normally.';
+
+  @override
+  String get updateNotificationGuideTitle => 'If you need to enable notifications, follow these steps:';
+
+  @override
+  String get updateNotificationStep1 => 'Open system settings';
+
+  @override
+  String get updateNotificationStep2 => 'Find \"App Management\" or \"App Settings\"';
+
+  @override
+  String get updateNotificationStep3 => 'Find \"BeeCount\" app';
+
+  @override
+  String get updateNotificationStep4 => 'Click \"Permission Management\" or \"Notification Management\"';
+
+  @override
+  String get updateNotificationStep5 => 'Enable \"Notification Permission\"';
+
+  @override
+  String get updateNotificationMiuiHint => 'MIUI users: Xiaomi system has strict notification permission control, may need additional settings in Security Center';
+
+  @override
+  String get updateNotificationGotIt => 'Got it';
+
+  @override
+  String get updateCheckFailedTitle => 'Update Check Failed';
+
+  @override
+  String get updateDownloadFailedTitle => 'Download Failed';
+
+  @override
+  String get updateGoToGitHub => 'Go to GitHub';
+
+  @override
+  String get updateCannotOpenLink => 'Cannot open link';
+
+  @override
+  String get updateManualVisit => 'Please manually visit in browser:\\nhttps://github.com/TNT-Likely/BeeCount/releases';
+
+  @override
+  String get updateNoLocalApkTitle => 'No Update Package Found';
+
+  @override
+  String get updateNoLocalApkMessage => 'No downloaded update package file found.\\n\\nPlease first download new version through \"Check Update\".';
+
+  @override
+  String get updateInstallPackageTitle => 'Install Update Package';
+
+  @override
+  String get updateMultiplePackagesTitle => 'Found Multiple Update Packages';
+
+  @override
+  String updateMultiplePackagesMessage(int count, String path) {
+    return 'Found $count update package files.\\n\\nRecommend using the latest downloaded version, or manually install in file manager.\\n\\nFile location: $path';
+  }
+
+  @override
+  String get updateSearchFailedTitle => 'Search Failed';
+
+  @override
+  String updateSearchFailedMessage(String error) {
+    return 'Error occurred while searching for local update packages: $error';
+  }
+
+  @override
+  String get updateFoundCachedPackageTitle => 'Found Downloaded Update Package';
+
+  @override
+  String updateFoundCachedPackageMessage(String fileName, String fileSize) {
+    return 'Detected previously downloaded update package:\\n\\nFile name: $fileName\\nSize: ${fileSize}MB\\n\\nInstall immediately?';
+  }
+
+  @override
+  String get updateIgnoreButton => 'Ignore';
+
+  @override
+  String get updateInstallFailedTitle => 'Installation Failed';
+
+  @override
+  String get updateInstallFailedMessage => 'Cannot start APK installer, please check file permissions.';
+
+  @override
+  String get updateErrorTitle => 'Error';
+
+  @override
+  String updateReadCacheFailedMessage(String error) {
+    return 'Failed to read cached update package: $error';
+  }
+
+  @override
+  String get updateCheckingPermissions => 'Checking permissions...';
+
+  @override
+  String get updateCheckingCache => 'Checking local cache...';
+
+  @override
+  String get updatePreparingDownload => 'Preparing download...';
+
+  @override
+  String get updateUserCancelledDownload => 'User cancelled download';
+
+  @override
+  String get updateStartingInstaller => 'Starting installer...';
+
+  @override
+  String get updateInstallerStarted => 'Installer started';
+
+  @override
+  String get updateInstallationFailed => 'Installation failed';
+
+  @override
+  String get updateDownloadCompleted => 'Download completed';
+
+  @override
+  String get updateDownloadCompletedManual => 'Download completed, can install manually';
+
+  @override
+  String get updateDownloadCompletedDialog => 'Download completed, please install manually (dialog exception)';
+
+  @override
+  String get updateDownloadCompletedContext => 'Download completed, please install manually';
+
+  @override
+  String get updateDownloadFailedGeneric => 'Download failed';
+
+  @override
+  String get updateCheckingUpdate => 'Checking for updates...';
+
+  @override
+  String get updateCurrentLatestVersion => 'Already latest version';
+
+  @override
+  String get updateCheckFailedGeneric => 'Update check failed';
+
+  @override
+  String updateDownloadProgress(String percent) {
+    return 'Downloading: $percent%';
+  }
+
+  @override
+  String get updateNoApkFoundError => 'APK download link not found';
+
+  @override
+  String updateCheckingUpdateError(String error) {
+    return 'Update check failed: $error';
+  }
+
+  @override
+  String get updateNotificationChannelName => 'Update Download';
+
+  @override
+  String get updateNotificationDownloadingIndeterminate => 'Downloading new version...';
+
+  @override
+  String updateNotificationDownloadingProgress(String progress) {
+    return 'Download progress: $progress%';
+  }
+
+  @override
+  String get updateNotificationDownloadCompleteTitle => 'Download Complete';
+
+  @override
+  String get updateNotificationDownloadCompleteMessage => 'New version downloaded, tap to install';
+
+  @override
+  String get updateUserCancelledDownloadDialog => 'User cancelled download';
+
+  @override
+  String get updateCannotOpenLinkError => 'Cannot open link';
+
+  @override
+  String get updateNoLocalApkFoundMessage => 'No downloaded update package file found.\\n\\nPlease first download new version through \"Check Update\".';
+
+  @override
+  String updateInstallPackageFoundMessage(String fileName, String fileSize, String time) {
+    return 'Found update package:\\n\\nFile name: $fileName\\nSize: ${fileSize}MB\\nDownload time: $time\\n\\nInstall immediately?';
+  }
+
+  @override
+  String updateMultiplePackagesFoundMessage(int count, String path) {
+    return 'Found $count update package files.\\n\\nRecommend using the latest downloaded version, or manually install in file manager.\\n\\nFile location: $path';
+  }
+
+  @override
+  String updateSearchLocalApkError(String error) {
+    return 'Error occurred while searching for local update packages: $error';
+  }
+
+  @override
+  String updateCachedPackageFoundMessage(String fileName, String fileSize) {
+    return 'Detected previously downloaded update package:\\n\\nFile name: $fileName\\nSize: ${fileSize}MB\\n\\nInstall immediately?';
+  }
+
+  @override
+  String updateReadCachedPackageError(String error) {
+    return 'Failed to read cached update package: $error';
+  }
+
+  @override
   String get reminderQuickTestSent => 'Quick test set for 15 seconds later, please keep app in background';
 
   @override
@@ -2067,4 +2394,106 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderAlarmTestSent => 'AlarmManager test notification set (1 second later), click to see if it opens the app';
+
+  @override
+  String get updateOk => 'OK';
+
+  @override
+  String get updateCannotOpenLinkTitle => 'Cannot Open Link';
+
+  @override
+  String get updateCachedVersionTitle => 'Found Downloaded Version';
+
+  @override
+  String get updateCachedVersionMessage => 'Found previously downloaded installation package... Click \\\"OK\\\" to install immediately, click \\\"Cancel\\\" to close...';
+
+  @override
+  String get updateConfirmDownload => 'Download and Install Now';
+
+  @override
+  String get updateDownloadCompleteTitle => 'Download Complete';
+
+  @override
+  String get updateInstallConfirmMessage => 'New version has been downloaded. Install now?';
+
+  @override
+  String get updateNotificationPermissionGuideText => 'Download progress notifications are disabled, but this doesn\'t affect download functionality. To view progress:';
+
+  @override
+  String get updateNotificationGuideStep1 => 'Go to System Settings > App Management';
+
+  @override
+  String get updateNotificationGuideStep2 => 'Find \\\"BeeCount\\\" app';
+
+  @override
+  String get updateNotificationGuideStep3 => 'Enable notification permissions';
+
+  @override
+  String get updateNotificationGuideInfo => 'Downloads will continue normally in the background even without notifications';
+
+  @override
+  String get currencyCNY => 'Chinese Yuan';
+
+  @override
+  String get currencyUSD => 'US Dollar';
+
+  @override
+  String get currencyEUR => 'Euro';
+
+  @override
+  String get currencyJPY => 'Japanese Yen';
+
+  @override
+  String get currencyHKD => 'Hong Kong Dollar';
+
+  @override
+  String get currencyTWD => 'New Taiwan Dollar';
+
+  @override
+  String get currencyGBP => 'British Pound';
+
+  @override
+  String get currencyAUD => 'Australian Dollar';
+
+  @override
+  String get currencyCAD => 'Canadian Dollar';
+
+  @override
+  String get currencyKRW => 'South Korean Won';
+
+  @override
+  String get currencySGD => 'Singapore Dollar';
+
+  @override
+  String get currencyTHB => 'Thai Baht';
+
+  @override
+  String get currencyIDR => 'Indonesian Rupiah';
+
+  @override
+  String get currencyINR => 'Indian Rupee';
+
+  @override
+  String get currencyRUB => 'Russian Ruble';
+
+  @override
+  String get cloudDefaultServiceDisplayName => 'Default Cloud Service';
+
+  @override
+  String get cloudNotConfiguredDisplay => 'Not Configured';
+
+  @override
+  String get syncNotConfiguredMessage => 'Cloud not configured';
+
+  @override
+  String get syncNotLoggedInMessage => 'Not logged in';
+
+  @override
+  String get syncCloudBackupCorruptedMessage => 'Cloud backup content is corrupted, possibly due to encoding issues from earlier versions. Please click \'Upload Current Ledger to Cloud\' to overwrite and fix.';
+
+  @override
+  String get syncNoCloudBackupMessage => 'No cloud backup';
+
+  @override
+  String get syncAccessDeniedMessage => '403 Access denied (check storage RLS policy and path)';
 }
