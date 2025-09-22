@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 class WheelTimePicker extends StatefulWidget {
   final TimeOfDay initial;
@@ -76,9 +77,9 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text(
-                      '取消',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context)!.commonCancel,
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Color(0xFF999999),
                       ),
@@ -97,7 +98,7 @@ class _WheelTimePickerState extends State<WheelTimePicker> {
                       Navigator.of(context).pop(TimeOfDay(hour: hour, minute: minute));
                     },
                     child: Text(
-                      '确定',
+                      AppLocalizations.of(context)!.commonOk,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,

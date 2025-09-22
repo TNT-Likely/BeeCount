@@ -13,6 +13,49 @@ import 'update/update_downloader.dart';
 import 'update/update_installer.dart';
 import 'update/update_cache.dart';
 
+/// 本地化UpdateResult消息的辅助函数
+String _localizeUpdateMessage(BuildContext context, String? message) {
+  if (message == null) return '';
+
+  // 处理带参数的消息（格式："__KEY__:param"）
+  if (message.contains(':')) {
+    final parts = message.split(':');
+    final key = parts[0];
+    final param = parts.length > 1 ? parts[1] : '';
+
+    switch (key) {
+      case '__UPDATE_ALREADY_LATEST__':
+        return '${AppLocalizations.of(context).updateAlreadyLatest} $param';
+      case '__UPDATE_DOWNLOAD_FAILED__':
+        return '${AppLocalizations.of(context).updateDownloadFailed}: $param';
+      case '__UPDATE_INSTALL_FAILED__':
+        return '${AppLocalizations.of(context).updateInstallFailed}: $param';
+      case '__UPDATE_CHECK_FAILED__':
+        return '${AppLocalizations.of(context).updateCheckFailed}: $param';
+      case '__UPDATE_CHECK_HTTP_FAILED__':
+        return '${AppLocalizations.of(context).updateCheckFailed}: HTTP $param';
+      case '__UPDATE_CHECK_EXCEPTION__':
+        return '${AppLocalizations.of(context).updateCheckFailed}: $param';
+      default:
+        return message;
+    }
+  }
+
+  // 处理不带参数的消息
+  switch (message) {
+    case '__UPDATE_USER_CANCELLED__':
+      return AppLocalizations.of(context).updateUserCancelled;
+    case '__UPDATE_PERMISSION_DENIED__':
+      return AppLocalizations.of(context).updatePermissionDenied;
+    case '__UPDATE_NO_APK_FOUND__':
+      return AppLocalizations.of(context).updateNoApkFound;
+    case '__UPDATE_ALREADY_LATEST_SIMPLE__':
+      return AppLocalizations.of(context).updateAlreadyLatest;
+    default:
+      return message;
+  }
+}
+
 class UpdateService {
   UpdateService._();
 
@@ -94,7 +137,7 @@ class UpdateService {
       }
 
       // 使用版本号作为文件名，如果没有提取到版本号则使用默认名称
-      final fileName = version != null ? 'v$version' : 'BeeCount更新';
+      final fileName = version != null ? 'v$version' : 'BeeCount_Update';
       final downloadResult = await UpdateDownloader.downloadApk(
         context,
         downloadUrl,
@@ -218,7 +261,9 @@ class UpdateService {
         return UpdateResult(
           hasUpdate: false,
           success: false,
-          message: downloadResult.message ?? AppLocalizations.of(context).updateDownloadFailedGeneric,
+          message: _localizeUpdateMessage(context, downloadResult.message).isNotEmpty ?
+              _localizeUpdateMessage(context, downloadResult.message) :
+              AppLocalizations.of(context).updateDownloadFailedGeneric,
         );
       }
     } catch (e) {
@@ -251,11 +296,11 @@ class UpdateService {
 
         if (!checkResult.hasUpdate) {
           // 检查是否是网络错误或API错误，提供兜底方案
-          final message = checkResult.message ?? AppLocalizations.of(context).updateCurrentLatestVersion;
+          final localizedMessage = _localizeUpdateMessage(context, checkResult.message);
+          final message = localizedMessage.isEmpty ? AppLocalizations.of(context).updateCurrentLatestVersion : localizedMessage;
           final isNetworkError = message.contains(AppLocalizations.of(context).updateCheckFailedGeneric) ||
               message.contains('HTTP') ||
-              message.contains('异常') ||
-              message.contains('失败');
+              checkResult.message?.startsWith('__UPDATE_CHECK') == true;
           if (isNetworkError) {
             // 网络错误或API错误，提供去GitHub的兜底选项
             await UpdateDialogs.showUpdateErrorWithFallback(context, message);
@@ -317,8 +362,9 @@ class UpdateService {
 
           // 显示下载错误信息，并提供GitHub fallback
           logW('UpdateService', 'UPDATE_CRASH: 🚨 即将显示下载失败弹窗');
+          final localizedError = _localizeUpdateMessage(context, downloadResult.message!);
           await UpdateDialogs.showDownloadErrorWithFallback(
-              context, downloadResult.message!);
+              context, localizedError.isNotEmpty ? localizedError : downloadResult.message!);
         } else if (downloadResult.success) {
           logI('UpdateService', 'UPDATE_CRASH: ✅ 下载和安装流程成功完成');
         }

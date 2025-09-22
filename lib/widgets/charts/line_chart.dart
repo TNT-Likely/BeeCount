@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../../styles/colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class LineChart extends StatelessWidget {
   final List<double> values;
@@ -111,7 +112,7 @@ class LineChart extends StatelessWidget {
                           size: 14, color: BeeColors.secondaryText),
                       const SizedBox(width: 4),
                       Text(
-                        hintText ?? '左右滑动切换',
+                        hintText ?? AppLocalizations.of(context)!.analyticsSwipeHint,
                         style: Theme.of(context)
                             .textTheme
                             .labelSmall

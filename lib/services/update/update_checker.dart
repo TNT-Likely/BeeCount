@@ -115,13 +115,13 @@ class UpdateChecker {
           } else {
             return UpdateResult(
               hasUpdate: false,
-              message: 'APK download link not found',
+              message: '__UPDATE_NO_APK_FOUND__',
             );
           }
         } else {
           return UpdateResult(
             hasUpdate: false,
-            message: 'Already latest version',
+            message: '__UPDATE_ALREADY_LATEST_SIMPLE__',
           );
         }
       } else {
@@ -131,14 +131,14 @@ class UpdateChecker {
             'GitHub API请求失败: HTTP $statusCode, 响应: $responseData');
         return UpdateResult(
           hasUpdate: false,
-          message: 'Update check failed: HTTP $statusCode',
+          message: '__UPDATE_CHECK_HTTP_FAILED__:$statusCode',
         );
       }
     } catch (e) {
       logE('UpdateChecker', '检查更新异常', e);
       return UpdateResult(
         hasUpdate: false,
-        message: 'Update check failed: $e',
+        message: '__UPDATE_CHECK_EXCEPTION__:$e',
       );
     }
   }

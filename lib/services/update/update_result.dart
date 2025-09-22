@@ -39,37 +39,37 @@ class UpdateResult {
 
   factory UpdateResult.alreadyLatest(String version) => UpdateResult._(
         success: true,
-        message: '当前已是最新版本 $version',
+        message: '__UPDATE_ALREADY_LATEST__:$version',
         type: UpdateResultType.alreadyLatest,
       );
 
   factory UpdateResult.userCancelled() => UpdateResult._(
         success: false,
-        message: '用户取消',
+        message: '__UPDATE_USER_CANCELLED__',
         type: UpdateResultType.userCancelled,
       );
 
   factory UpdateResult.permissionDenied() => UpdateResult._(
         success: false,
-        message: '权限被拒绝',
+        message: '__UPDATE_PERMISSION_DENIED__',
         type: UpdateResultType.permissionDenied,
       );
 
   factory UpdateResult.downloadFailed(String error) => UpdateResult._(
         success: false,
-        message: '下载失败: $error',
+        message: '__UPDATE_DOWNLOAD_FAILED__:$error',
         type: UpdateResultType.downloadFailed,
       );
 
   factory UpdateResult.installFailed(String error) => UpdateResult._(
         success: false,
-        message: '安装失败: $error',
+        message: '__UPDATE_INSTALL_FAILED__:$error',
         type: UpdateResultType.installFailed,
       );
 
   factory UpdateResult.checkFailed(String error) => UpdateResult._(
         success: false,
-        message: '检查更新失败: $error',
+        message: '__UPDATE_CHECK_FAILED__:$error',
         type: UpdateResultType.checkFailed,
       );
 }
