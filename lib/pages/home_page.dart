@@ -11,6 +11,7 @@ import '../widgets/biz/biz.dart';
 import '../styles/design.dart';
 import '../styles/colors.dart';
 import 'search_page.dart';
+import '../l10n/app_localizations.dart';
 
 // 优化版首页 - 使用FlutterListView实现精准定位和丝滑跳转
 class HomePage extends ConsumerStatefulWidget {
@@ -157,7 +158,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     children: [
                       // 左上角：隐藏金额按钮
                       IconButton(
-                        tooltip: hide ? '显示金额' : '隐藏金额',
+                        tooltip: hide ? AppLocalizations.of(context).homeShowAmount : AppLocalizations.of(context).homeHideAmount,
                         onPressed: () {
                           final cur = ref.read(hideAmountsProvider);
                           ref.read(hideAmountsProvider.notifier).state = !cur;
@@ -179,7 +180,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   color: Theme.of(context).colorScheme.primary,
                                   size: 32),
                               Text(
-                                '蜜蜂记账',
+                                AppLocalizations.of(context).homeAppTitle,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge
@@ -195,7 +196,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                       // 右上角：搜索按钮
                       IconButton(
-                        tooltip: '搜索',
+                        tooltip: AppLocalizations.of(context).homeSearch,
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -222,7 +223,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('${month.year}年',
+                            Text(AppLocalizations.of(context).homeYear(month.year),
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelLarge
@@ -235,7 +236,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  '${month.month.toString().padLeft(2, '0')}月',
+                                  AppLocalizations.of(context).homeMonth(month.month.toString().padLeft(2, '0')),
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium
@@ -295,9 +296,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                   enableVisibilityTracking: true,
                   onDateVisibilityChanged: _onHeaderVisibilityChanged,
                   controller: _listController,
-                  emptyWidget: const AppEmpty(
-                    text: '还没有记账',
-                    subtext: '点击底部加号，马上记一笔',
+                  emptyWidget: AppEmpty(
+                    text: AppLocalizations.of(context).homeNoRecords,
+                    subtext: AppLocalizations.of(context).homeNoRecordsSubtext,
                   ),
                 );
               },
@@ -351,9 +352,9 @@ class _HeaderCenterSummary extends ConsumerWidget {
         );
     return Row(
       children: [
-        Expanded(child: item('收入', income)),
-        Expanded(child: item('支出', expense)),
-        Expanded(child: item('结余', balance)),
+        Expanded(child: item(AppLocalizations.of(context).homeIncome, income)),
+        Expanded(child: item(AppLocalizations.of(context).homeExpense, expense)),
+        Expanded(child: item(AppLocalizations.of(context).homeBalance, balance)),
       ],
     );
   }

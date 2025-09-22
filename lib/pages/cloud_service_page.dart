@@ -11,6 +11,7 @@ import '../widgets/ui/toast.dart';
 import '../widgets/biz/section_card.dart';
 import '../styles/colors.dart';
 import '../utils/logger.dart';
+import '../l10n/app_localizations.dart';
 
 class CloudServicePage extends ConsumerStatefulWidget {
   const CloudServicePage({super.key});
@@ -38,13 +39,13 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       body: Column(
         children: [
             PrimaryHeader(
-              title: '云服务',
+              title: AppLocalizations.of(context).mineCloudService,
               showBack: true,
               actions: kDebugMode ? [
                 IconButton(
                   icon: const Icon(Icons.delete_outline, color: Colors.black87),
                   onPressed: _clearCustomConfig,
-                  tooltip: '清空自定义配置（开发）',
+                  tooltip: 'Clear custom config (Dev)',
                 ),
               ] : null,
               content: Padding(
@@ -55,14 +56,14 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                       child: Align(
                           alignment: Alignment.centerLeft,
                           child: CircularProgressIndicator(strokeWidth: 2))),
-                  error: (e, _) => Text('加载失败: $e',
+                  error: (e, _) => Text('${AppLocalizations.of(context).commonLoading}: $e',
                       style: const TextStyle(color: Colors.redAccent)),
                   data: (active) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '当前云服务',
+                          AppLocalizations.of(context).cloudCurrentService,
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
@@ -78,7 +79,9 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              active.name,
+                              active.builtin
+                                ? AppLocalizations.of(context).cloudDefaultServiceName
+                                : active.name,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -92,7 +95,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                active.valid ? '已连接' : '离线模式',
+                                active.valid ? AppLocalizations.of(context).cloudConnected : AppLocalizations.of(context).cloudOfflineMode,
                                 style: TextStyle(
                                   fontSize: 10,
                                   color: active.valid ? Colors.green : Colors.orange,
@@ -111,13 +114,13 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
             Expanded(
               child: activeAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) => Center(child: Text('加载失败: $e')),
+                error: (e, _) => Center(child: Text('${AppLocalizations.of(context).commonError}: $e')),
                 data: (active) {
                   return ListView(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                     children: [
                       Text(
-                        '可用云服务',
+                        AppLocalizations.of(context).cloudAvailableServices,
                         style: Theme.of(context)
                             .textTheme
                             .titleSmall
@@ -144,7 +147,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                           height: 60,
                           child: Center(child: CircularProgressIndicator()),
                         ),
-                        error: (e, _) => _buildErrorItem('读取自定义配置失败: $e'),
+                        error: (e, _) => _buildErrorItem('${AppLocalizations.of(context).cloudReadCustomConfigFailed}: $e'),
                         data: (customConfig) {
                           final hasCustom = customConfig != null && customConfig.valid;
                           final isCustomSelected = !active.builtin;
@@ -174,10 +177,10 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                         const SizedBox(height: 16),
                         Card(
                           color: Colors.orange.withValues(alpha: 0.1),
-                          child: const ListTile(
-                            leading: Icon(Icons.cloud_upload_outlined, color: Colors.orange),
-                            title: Text('首次全量上传尚未完成'),
-                            subtitle: Text('登录后在"我的/同步"中手动执行"上传"完成初始化'),
+                          child: ListTile(
+                            leading: const Icon(Icons.cloud_upload_outlined, color: Colors.orange),
+                            title: Text(AppLocalizations.of(context).cloudFirstUploadNotComplete),
+                            subtitle: Text(AppLocalizations.of(context).cloudFirstUploadInstruction),
                           ),
                         ),
                       ],
@@ -245,7 +248,9 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                               Row(
                                 children: [
                                   Text(
-                                    config.name,
+                                    config.builtin
+                                      ? AppLocalizations.of(context).cloudDefaultServiceName
+                                      : config.name,
                                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -379,7 +384,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '添加自定义云服务',
+                      AppLocalizations.of(context).cloudAddCustomService,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: BeeColors.secondaryText,
@@ -387,7 +392,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '使用你自己的 Supabase',
+                      AppLocalizations.of(context).cloudUseYourSupabase,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: BeeColors.secondaryText,
                       ),
@@ -415,9 +420,9 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
         minimumSize: const Size(60, 32),
         padding: const EdgeInsets.symmetric(horizontal: 12),
       ),
-      child: const Text(
-        '编辑',
-        style: TextStyle(fontSize: 12),
+      child: Text(
+        AppLocalizations.of(context).commonEdit,
+        style: const TextStyle(fontSize: 12),
       ),
     );
   }
@@ -435,9 +440,9 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
               height: 14,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : const Text(
-              '测试',
-              style: TextStyle(fontSize: 12),
+          : Text(
+              AppLocalizations.of(context).cloudTest,
+              style: const TextStyle(fontSize: 12),
             ),
     );
   }
@@ -469,10 +474,14 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
   }
 
   String _getServiceDescription(CloudServiceConfig config) {
+    final context = this.context;
     if (config.builtin) {
-      return config.valid ? '应用内置的云端服务（免费但可能不稳定，建议使用自己的或定期备份）' : '当前构建未内置云服务配置';
+      return config.valid ? AppLocalizations.of(context).cloudServiceDescription : AppLocalizations.of(context).cloudServiceDescriptionNotConfigured;
     } else {
-      return '服务器: ${config.obfuscatedUrl()}';
+      final url = config.obfuscatedUrl();
+      return AppLocalizations.of(context).cloudServiceDescriptionCustom(
+        url == '__NOT_CONFIGURED__' ? AppLocalizations.of(context).cloudNotConfigured : url
+      );
     }
   }
 
@@ -482,8 +491,8 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
 
     // 二次确认
     final confirmed = await AppDialog.confirm(context,
-        title: '切换云服务',
-        message: '确定要切换到默认云服务吗？这将退出当前登录状态。');
+        title: AppLocalizations.of(context).cloudSwitchService,
+        message: AppLocalizations.of(context).cloudSwitchToBuiltinConfirm);
     if (!confirmed) return;
 
     setState(() => _saving = true);
@@ -501,12 +510,12 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
 
       if (mounted) {
         await AppDialog.info(context,
-            title: '已切换',
-            message: '已切换到默认云服务并已退出登录');
+            title: AppLocalizations.of(context).cloudSwitched,
+            message: AppLocalizations.of(context).cloudSwitchedToBuiltin);
       }
     } catch (e) {
       if (mounted) {
-        await AppDialog.error(context, title: '切换失败', message: '$e');
+        await AppDialog.error(context, title: AppLocalizations.of(context).cloudSwitchFailed, message: '$e');
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -519,8 +528,8 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
 
     // 二次确认
     final confirmed = await AppDialog.confirm(context,
-        title: '切换云服务',
-        message: '确定要切换到自定义云服务吗？这将退出当前登录状态。');
+        title: AppLocalizations.of(context).cloudSwitchService,
+        message: AppLocalizations.of(context).cloudSwitchToCustomConfirm);
     if (!confirmed) return;
 
     setState(() => _saving = true);
@@ -536,20 +545,20 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       if (!ok) {
         if (mounted) {
           await AppDialog.error(context,
-              title: '启用失败',
-              message: '已保存的配置无效');
+              title: AppLocalizations.of(context).cloudActivateFailed,
+              message: AppLocalizations.of(context).cloudActivateFailedMessage);
         }
       } else {
 
         if (mounted) {
           await AppDialog.info(context,
-              title: '已启用',
-              message: '已切换到自定义云服务并已退出登录，请重新登录');
+              title: AppLocalizations.of(context).cloudActivated,
+              message: AppLocalizations.of(context).cloudActivatedMessage);
         }
       }
     } catch (e) {
       if (mounted) {
-        await AppDialog.error(context, title: '切换失败', message: '$e');
+        await AppDialog.error(context, title: AppLocalizations.of(context).cloudSwitchFailed, message: '$e');
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -581,16 +590,16 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text(existingConfig != null ? '编辑自定义云服务' : '添加自定义云服务'),
+          title: Text(existingConfig != null ? AppLocalizations.of(context).cloudEditCustomService : AppLocalizations.of(context).cloudAddCustomServiceTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: urlController,
-                  decoration: const InputDecoration(
-                    labelText: 'Supabase URL',
-                    hintText: 'https://xxx.supabase.co',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context).cloudSupabaseUrlLabel,
+                    hintText: AppLocalizations.of(context).cloudSupabaseUrlHint,
                   ),
                   keyboardType: TextInputType.url,
                   enabled: !isSaving,
@@ -600,15 +609,15 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                   controller: keyController,
                   minLines: 2,
                   maxLines: 4,
-                  decoration: const InputDecoration(
-                    labelText: 'Anon Key',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context).cloudAnonKeyLabel,
                   ),
                   enabled: !isSaving,
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  '提示：不要填写 service_role Key；Anon Key 为公开可用。',
-                  style: TextStyle(fontSize: 12, color: Colors.orange),
+                Text(
+                  AppLocalizations.of(context).cloudAnonKeyHint,
+                  style: const TextStyle(fontSize: 12, color: Colors.orange),
                 ),
               ],
             ),
@@ -616,7 +625,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
           actions: [
             TextButton(
               onPressed: isSaving ? null : () => Navigator.of(context).pop(false),
-              child: const Text('取消'),
+              child: Text(AppLocalizations.of(context).commonCancel),
             ),
             FilledButton(
               onPressed: isSaving ? null : () async {
@@ -625,7 +634,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                 final err = _validate(url, key);
                 if (err != null) {
                   await AppDialog.error(context,
-                      title: '无效输入', message: err);
+                      title: AppLocalizations.of(context).cloudInvalidInput, message: err);
                   return;
                 }
 
@@ -634,7 +643,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                   final cfg = CloudServiceConfig(
                     id: 'custom',
                     type: CloudBackendType.supabase,
-                    name: '自定义云服务',
+                    name: AppLocalizations.of(context).cloudAddCustomService,
                     supabaseUrl: url,
                     supabaseAnonKey: key,
                     builtin: false,
@@ -665,14 +674,14 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                     Navigator.of(context).pop(true);
 
                     // 使用 Toast 显示成功提示
-                    showToast(context, existingConfig != null ? '配置已更新' : '配置已保存');
+                    showToast(context, existingConfig != null ? AppLocalizations.of(context).cloudConfigUpdated : AppLocalizations.of(context).cloudConfigSaved);
                     logI('cloudCfg', '保存流程完成');
                   }
                 } catch (e) {
                   logE('cloudCfg', '保存失败', e);
                   if (context.mounted) {
                     await AppDialog.error(context,
-                        title: '失败', message: '$e');
+                        title: AppLocalizations.of(context).commonFailed, message: '$e');
                   }
                 } finally {
                   setDialogState(() => isSaving = false);
@@ -684,7 +693,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(existingConfig != null ? '保存' : '保存'),
+                  : Text(AppLocalizations.of(context).commonSave),
             ),
           ],
         ),
@@ -699,11 +708,12 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
   }
 
   String? _validate(String url, String key) {
-    if (url.isEmpty || key.isEmpty) return 'URL 与 Key 均不能为空';
-    if (!url.startsWith('https://')) return 'URL 需以 https:// 开头';
-    if (key.length < 20) return 'Key 长度过短，可能无效';
+    final context = this.context;
+    if (url.isEmpty || key.isEmpty) return AppLocalizations.of(context).cloudValidationEmptyFields;
+    if (!url.startsWith('https://')) return AppLocalizations.of(context).cloudValidationHttpsRequired;
+    if (key.length < 20) return AppLocalizations.of(context).cloudValidationKeyTooShort;
     final lower = key.toLowerCase();
-    if (lower.contains('service_role')) return '禁止使用 service_role Key';
+    if (lower.contains('service_role')) return AppLocalizations.of(context).cloudValidationServiceRoleKey;
     return null;
   }
 
@@ -729,24 +739,25 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
   }
 
   String _getConnectionStatusText(CloudServiceConfig config) {
+    final context = this.context;
     if (!config.valid) {
-      return '未配置';
+      return AppLocalizations.of(context).cloudNotConfigured;
     }
 
     // 对于自定义配置，显示测试状态
     if (!config.builtin) {
       final testResult = _connectionTestResults[config.id];
       if (testResult == null) {
-        return '未测试';
+        return AppLocalizations.of(context).cloudNotTested;
       } else if (testResult) {
-        return '连接正常';
+        return AppLocalizations.of(context).cloudConnectionNormal;
       } else {
-        return '连接失败';
+        return AppLocalizations.of(context).cloudConnectionFailed;
       }
     }
 
     // 内置配置
-    return '已连接';
+    return AppLocalizations.of(context).cloudConnected;
   }
 
   // 测试连接状态
@@ -778,15 +789,15 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
 
       if (mounted) {
         await AppDialog.info(context,
-            title: '测试完成',
-            message: connectionSuccess ? '连接测试成功！' : '连接测试失败，请检查配置是否正确。');
+            title: AppLocalizations.of(context).cloudTestComplete,
+            message: connectionSuccess ? AppLocalizations.of(context).cloudTestSuccess : AppLocalizations.of(context).cloudTestFailed);
       }
     } catch (e) {
       setState(() {
         _connectionTestResults[config.id] = false;
       });
       if (mounted) {
-        await AppDialog.error(context, title: '测试失败', message: '$e');
+        await AppDialog.error(context, title: AppLocalizations.of(context).cloudTestError, message: '$e');
       }
     } finally {
       if (mounted) setState(() => _testingConnection = false);
@@ -798,8 +809,8 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
     if (!kDebugMode) return;
 
     final confirmed = await AppDialog.confirm(context,
-        title: '清空配置',
-        message: '确定要清空自定义云服务配置吗？（仅开发环境可用）');
+        title: AppLocalizations.of(context).cloudClearConfig,
+        message: AppLocalizations.of(context).cloudClearConfigConfirm);
     if (!confirmed) return;
 
     setState(() => _saving = true);
@@ -817,7 +828,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       if (mounted && context.mounted) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           if (mounted && context.mounted) {
-            showToast(context, '自定义云服务配置已清空');
+            showToast(context, AppLocalizations.of(context).cloudConfigCleared);
           }
         });
       }
@@ -825,7 +836,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       if (mounted && context.mounted) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           if (mounted && context.mounted) {
-            showToast(context, '清空失败: $e');
+            showToast(context, '${AppLocalizations.of(context).cloudClearFailed}: $e');
           }
         });
       }

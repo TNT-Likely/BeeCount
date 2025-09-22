@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../l10n/app_localizations.dart';
 import '../providers.dart';
 import '../widgets/ui/ui.dart';
 
@@ -17,42 +18,43 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
   @override
   Widget build(BuildContext context) {
     final primary = ref.watch(primaryColorProvider);
+    final l10n = AppLocalizations.of(context)!;
     final options = <_ThemeOption>[
-      _ThemeOption('蜜蜂黄', const Color(0xFFF8C91C)),
-      _ThemeOption('火焰橙', const Color(0xFFFF7043)),
-      _ThemeOption('琉璃绿', const Color(0xFF26A69A)),
-      _ThemeOption('青莲紫', const Color(0xFF7E57C2)),
-      _ThemeOption('樱绯红', const Color(0xFFE91E63)),
-      _ThemeOption('晴空蓝', const Color(0xFF2196F3)),
-      _ThemeOption('林间月', const Color(0xFF80CBC4)),
-      _ThemeOption('黄昏沙丘', const Color(0xFFFFCC80)),
-      _ThemeOption('雪与松', const Color(0xFFB39DDB)),
-      _ThemeOption('迷雾仙境', const Color(0xFF90CAF9)),
+      _ThemeOption(l10n.personalizeThemeHoney, const Color(0xFFF8C91C)),
+      _ThemeOption(l10n.personalizeThemeOrange, const Color(0xFFFF7043)),
+      _ThemeOption(l10n.personalizeThemeGreen, const Color(0xFF26A69A)),
+      _ThemeOption(l10n.personalizeThemePurple, const Color(0xFF7E57C2)),
+      _ThemeOption(l10n.personalizeThemePink, const Color(0xFFE91E63)),
+      _ThemeOption(l10n.personalizeThemeBlue, const Color(0xFF2196F3)),
+      _ThemeOption(l10n.personalizeThemeMint, const Color(0xFF80CBC4)),
+      _ThemeOption(l10n.personalizeThemeSand, const Color(0xFFFFCC80)),
+      _ThemeOption(l10n.personalizeThemeLavender, const Color(0xFFB39DDB)),
+      _ThemeOption(l10n.personalizeThemeSky, const Color(0xFF90CAF9)),
       // 新增注意色系
-      _ThemeOption('暖阳橘', const Color(0xFFFF8A65)),
-      _ThemeOption('薄荷青', const Color(0xFF4DB6AC)),
-      _ThemeOption('玫瑰金', const Color(0xFFAD7A99)),
-      _ThemeOption('深海蓝', const Color(0xFF1565C0)),
-      _ThemeOption('枫叶红', const Color(0xFFD32F2F)),
-      _ThemeOption('翡翠绿', const Color(0xFF388E3C)),
-      _ThemeOption('薰衣草', const Color(0xFF9575CD)),
-      _ThemeOption('琥珀黄', const Color(0xFFFFA726)),
-      _ThemeOption('胭脂红', const Color(0xFFC2185B)),
-      _ThemeOption('靛青蓝', const Color(0xFF3F51B5)),
-      _ThemeOption('橄榄绿', const Color(0xFF689F38)),
-      _ThemeOption('珊瑚粉', const Color(0xFFFF8A80)),
-      _ThemeOption('墨绿色', const Color(0xFF2E7D32)),
-      _ThemeOption('紫罗兰', const Color(0xFF673AB7)),
-      _ThemeOption('日落橙', const Color(0xFFFF5722)),
-      _ThemeOption('孔雀蓝', const Color(0xFF00ACC1)),
-      _ThemeOption('柠檬绿', Colors.lime),
+      _ThemeOption(l10n.personalizeThemeWarmOrange, const Color(0xFFFF8A65)),
+      _ThemeOption(l10n.personalizeThemeMintGreen, const Color(0xFF4DB6AC)),
+      _ThemeOption(l10n.personalizeThemeRoseGold, const Color(0xFFAD7A99)),
+      _ThemeOption(l10n.personalizeThemeDeepBlue, const Color(0xFF1565C0)),
+      _ThemeOption(l10n.personalizeThemeMapleRed, const Color(0xFFD32F2F)),
+      _ThemeOption(l10n.personalizeThemeEmerald, const Color(0xFF388E3C)),
+      _ThemeOption(l10n.personalizeThemeLavenderPurple, const Color(0xFF9575CD)),
+      _ThemeOption(l10n.personalizeThemeAmber, const Color(0xFFFFA726)),
+      _ThemeOption(l10n.personalizeThemeRouge, const Color(0xFFC2185B)),
+      _ThemeOption(l10n.personalizeThemeIndigo, const Color(0xFF3F51B5)),
+      _ThemeOption(l10n.personalizeThemeOlive, const Color(0xFF689F38)),
+      _ThemeOption(l10n.personalizeThemeCoral, const Color(0xFFFF8A80)),
+      _ThemeOption(l10n.personalizeThemeDarkGreen, const Color(0xFF2E7D32)),
+      _ThemeOption(l10n.personalizeThemeViolet, const Color(0xFF673AB7)),
+      _ThemeOption(l10n.personalizeThemeSunset, const Color(0xFFFF5722)),
+      _ThemeOption(l10n.personalizeThemePeacock, const Color(0xFF00ACC1)),
+      _ThemeOption(l10n.personalizeThemeLime, Colors.lime),
     ];
 
     return Scaffold(
       body: Column(
         children: [
-          const PrimaryHeader(
-            title: '个性装扮',
+          PrimaryHeader(
+            title: AppLocalizations.of(context)!.personalizeTitle,
             showBack: true,
             leadingIcon: Icons.brush_outlined,
             leadingPlain: true,
@@ -95,7 +97,7 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('选择自定义颜色'),
+        title: Text(AppLocalizations.of(context)!.personalizeCustomTitle),
         content: SingleChildScrollView(
           child: _ColorPicker(
             onColorSelected: (color) {
@@ -220,7 +222,7 @@ class _CustomColorCard extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               alignment: Alignment.center,
               child: Text(
-                '自定义',
+                AppLocalizations.of(context)!.personalizeCustomColor,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Colors.grey[700],
                 ),
@@ -275,7 +277,7 @@ class _ColorPickerState extends State<_ColorPicker> {
           const SizedBox(height: 20),
 
           // 色相滑块
-          Text('色相 (${currentColor.hue.round()}°)', style: const TextStyle(fontWeight: FontWeight.w500)),
+          Text(AppLocalizations.of(context)!.personalizeHue(currentColor.hue.round()), style: const TextStyle(fontWeight: FontWeight.w500)),
           Container(
             height: 40,
             decoration: BoxDecoration(
@@ -307,7 +309,7 @@ class _ColorPickerState extends State<_ColorPicker> {
           const SizedBox(height: 10),
 
           // 饱和度滑块
-          Text('饱和度 (${(currentColor.saturation * 100).round()}%)', style: const TextStyle(fontWeight: FontWeight.w500)),
+          Text(AppLocalizations.of(context)!.personalizeSaturation((currentColor.saturation * 100).round()), style: const TextStyle(fontWeight: FontWeight.w500)),
           Container(
             height: 40,
             decoration: BoxDecoration(
@@ -342,7 +344,7 @@ class _ColorPickerState extends State<_ColorPicker> {
           const SizedBox(height: 10),
 
           // 亮度滑块
-          Text('亮度 (${(currentColor.value * 100).round()}%)', style: const TextStyle(fontWeight: FontWeight.w500)),
+          Text(AppLocalizations.of(context)!.personalizeBrightness((currentColor.value * 100).round()), style: const TextStyle(fontWeight: FontWeight.w500)),
           Container(
             height: 40,
             decoration: BoxDecoration(
@@ -389,7 +391,7 @@ class _ColorPickerState extends State<_ColorPicker> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('选择此颜色', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(AppLocalizations.of(context)!.personalizeSelectColor, style: const TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
         ],

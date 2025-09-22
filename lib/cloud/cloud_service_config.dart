@@ -49,14 +49,14 @@ class CloudServiceConfig {
       CloudServiceConfig(
         id: 'builtin',
         type: CloudBackendType.supabase,
-        name: '默认云服务',
+        name: '__DEFAULT_CLOUD_SERVICE__', // 特殊标记，在UI层处理本地化
         supabaseUrl: url?.isNotEmpty == true ? url : null,
         supabaseAnonKey: key?.isNotEmpty == true ? key : null,
         builtin: true,
       );
 
   String obfuscatedUrl() {
-    if (supabaseUrl == null || supabaseUrl!.isEmpty) return '未配置';
+    if (supabaseUrl == null || supabaseUrl!.isEmpty) return '__NOT_CONFIGURED__'; // 特殊标记，在UI层处理本地化
     // 仅显示域名部分（隐藏具体 path / 项目 id）
     try {
       final uri = Uri.parse(supabaseUrl!);

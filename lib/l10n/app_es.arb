@@ -1,0 +1,1132 @@
+{
+  "@@locale": "es",
+  "appTitle": "Contabilidad Abeja",
+  "@appTitle": {
+    "description": "The application title"
+  },
+
+  "tabHome": "Inicio",
+  "tabAnalytics": "Gráficos",
+  "tabLedgers": "Libros",
+  "tabMine": "Mío",
+
+  "commonCancel": "Cancelar",
+  "commonConfirm": "Confirmar",
+  "commonSave": "Guardar",
+  "commonDelete": "Eliminar",
+  "commonEdit": "Editar",
+  "commonAdd": "Agregar",
+  "commonOk": "OK",
+  "commonYes": "Sí",
+  "commonNo": "No",
+  "commonLoading": "Cargando...",
+  "commonEmpty": "Sin datos",
+  "commonError": "Error",
+  "commonSuccess": "Éxito",
+  "commonFailed": "Falló",
+  "commonRetry": "Reintentar",
+  "commonBack": "Atrás",
+  "commonNext": "Siguiente",
+  "commonPrevious": "Anterior",
+  "commonFinish": "Finalizar",
+  "commonClose": "Cerrar",
+  "commonCopy": "Copiar",
+  "commonSearch": "Buscar",
+  "commonNoteHint": "Nota...",
+  "commonFilter": "Filtrar",
+  "commonClear": "Limpiar",
+  "commonSelectAll": "Seleccionar todo",
+  "commonSettings": "Configuración",
+  "commonHelp": "Ayuda",
+  "commonAbout": "Acerca de",
+  "commonLanguage": "Idioma",
+  "commonWeekdayMonday": "Lunes",
+  "commonWeekdayTuesday": "Martes",
+  "commonWeekdayWednesday": "Miércoles",
+  "commonWeekdayThursday": "Jueves",
+  "commonWeekdayFriday": "Viernes",
+  "commonWeekdaySaturday": "Sábado",
+  "commonWeekdaySunday": "Domingo",
+
+  "homeTitle": "Contabilidad Abeja",
+  "homeIncome": "Ingresos",
+  "homeExpense": "Gastos",
+  "homeBalance": "Balance",
+  "homeTotal": "Total",
+  "homeAverage": "Promedio",
+  "homeDailyAvg": "Promedio diario",
+  "homeMonthlyAvg": "Promedio mensual",
+  "homeNoRecords": "No hay registros aún",
+  "homeAddRecord": "Agregar registro tocando el botón más",
+  "homeHideAmounts": "Ocultar montos",
+  "homeShowAmounts": "Mostrar montos",
+  "homeSelectDate": "Seleccionar fecha",
+  "homeAppTitle": "Contabilidad Abeja",
+  "homeSearch": "Buscar",
+  "homeShowAmount": "Mostrar montos",
+  "homeHideAmount": "Ocultar montos",
+  "homeYear": "{year}",
+  "@homeYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "homeMonth": "{month}M",
+  "@homeMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "homeNoRecordsSubtext": "Toca el botón más en la parte inferior para agregar un registro",
+
+  "searchTitle": "Buscar",
+  "searchHint": "Buscar notas, categorías o montos...",
+  "searchAmountRange": "Filtro de rango de monto",
+  "searchMinAmount": "Monto mínimo",
+  "searchMaxAmount": "Monto máximo",
+  "searchTo": "a",
+  "searchNoInput": "Ingresa palabras clave para comenzar a buscar",
+  "searchNoResults": "No se encontraron resultados coincidentes",
+  "searchResultsEmpty": "No se encontraron resultados coincidentes",
+  "searchResultsEmptyHint": "Prueba con otras palabras clave o ajusta las condiciones del filtro",
+
+  "analyticsTitle": "Analíticas",
+  "analyticsMonth": "Mes",
+  "analyticsYear": "Año",
+  "analyticsAll": "Todo",
+  "analyticsWeek": "Semana",
+  "analyticsCustom": "Personalizado",
+  "analyticsIncome": "Ingresos",
+  "analyticsExpense": "Gastos",
+  "analyticsBalance": "Balance",
+  "analyticsStatistics": "Estadísticas",
+  "analyticsNoData": "Sin datos para mostrar",
+  "analyticsCategories": "Categorías",
+  "analyticsTrend": "Tendencia",
+  "analyticsDaily": "Diario",
+  "analyticsMonthly": "Mensual",
+  "analyticsYearly": "Anual",
+  "analyticsAverage": "Promedio",
+  "analyticsAmount": "Monto",
+  "analyticsCount": "Cantidad",
+  "analyticsPercent": "Porcentaje",
+  "analyticsTop": "Top",
+  "analyticsNoDataHint": "Agrega algunos registros para ver analíticas",
+  "analyticsIncomeExpense": "Ingresos y Gastos",
+  "analyticsSelectTimeRange": "Seleccionar rango de tiempo",
+  "analyticsSelectDate": "Seleccionar fecha",
+  "analyticsSelectStartDate": "Seleccionar fecha de inicio",
+  "analyticsSelectEndDate": "Seleccionar fecha de fin",
+  "analyticsWeeklyTrend": "Tendencia semanal",
+  "analyticsMonthlyTrend": "Tendencia mensual",
+  "analyticsYearlyTrend": "Tendencia anual",
+  "analyticsStatDetail": "Detalle estadístico",
+  "analyticsTotal": "Total",
+  "analyticsShowDetail": "Mostrar detalle",
+  "analyticsHideDetail": "Ocultar detalle",
+  "analyticsDataRange": "Rango de datos",
+  "analyticsIncomeTotal": "Total de ingresos",
+  "analyticsExpenseTotal": "Total de gastos",
+  "analyticsNetIncome": "Ingresos netos",
+
+  "ledgersTitle": "Libros de cuentas",
+  "ledgersAdd": "Agregar libro",
+  "ledgersEdit": "Editar libro",
+  "ledgersDelete": "Eliminar libro",
+  "ledgersName": "Nombre del libro",
+  "ledgersNameHint": "Ingresa el nombre del libro",
+  "ledgersNameRequired": "El nombre del libro es requerido",
+  "ledgersNameExists": "El nombre del libro ya existe",
+  "ledgersDescription": "Descripción",
+  "ledgersDescriptionHint": "Ingresa la descripción del libro",
+  "ledgersDefaultLedger": "Libro predeterminado",
+  "ledgersSetAsDefault": "Establecer como predeterminado",
+  "ledgersCannotDeleteDefault": "No se puede eliminar el libro predeterminado",
+  "ledgersDeleteConfirm": "¿Estás seguro de que quieres eliminar este libro?",
+  "ledgersDeleteHint": "Esta acción no se puede deshacer. Todos los registros en este libro serán eliminados.",
+  "ledgersNoLedgers": "No hay libros aún",
+  "ledgersNoLedgersHint": "Toca el botón más para crear tu primer libro",
+  "ledgersRecordCount": "{count} registros",
+  "@ledgersRecordCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ledgersCreatedAt": "Creado el {date}",
+  "@ledgersCreatedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ledgersLastUpdated": "Última actualización {date}",
+  "@ledgersLastUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+
+  "mineTitle": "Mío",
+  "mineLedgers": "Libros de cuentas",
+  "mineCategories": "Categorías",
+  "mineImport": "Importar",
+  "mineExport": "Exportar",
+  "mineTheme": "Tema",
+  "mineLanguage": "Idioma",
+  "mineAbout": "Acerca de",
+  "mineSettings": "Configuración",
+  "mineCloudSync": "Sincronización en la nube",
+  "mineDataManagement": "Gestión de datos",
+  "minePreferences": "Preferencias",
+  "mineSupport": "Soporte",
+  "minePrivacy": "Privacidad",
+  "mineTerms": "Términos",
+  "mineFeedback": "Comentarios",
+  "mineVersion": "Versión",
+  "mineUpdate": "Actualizar",
+  "mineCheckUpdate": "Verificar actualizaciones",
+  "mineNoUpdate": "Ya tienes la última versión",
+  "mineUpdateAvailable": "Actualización disponible",
+  "mineUpdateNow": "Actualizar ahora",
+  "mineUpdateLater": "Actualizar más tarde",
+
+  "categoriesTitle": "Categorías",
+  "categoriesIncome": "Ingresos",
+  "categoriesExpense": "Gastos",
+  "categoriesAdd": "Agregar categoría",
+  "categoriesEdit": "Editar categoría",
+  "categoriesDelete": "Eliminar categoría",
+  "categoriesName": "Nombre de la categoría",
+  "categoriesNameHint": "Ingresa el nombre de la categoría",
+  "categoriesNameRequired": "El nombre de la categoría es requerido",
+  "categoriesNameExists": "El nombre de la categoría ya existe",
+  "categoriesIcon": "Icono",
+  "categoriesColor": "Color",
+  "categoriesSelectIcon": "Seleccionar icono",
+  "categoriesSelectColor": "Seleccionar color",
+  "categoriesDeleteConfirm": "¿Estás seguro de que quieres eliminar esta categoría?",
+  "categoriesDeleteHint": "Esta acción no se puede deshacer. Todos los registros de esta categoría serán eliminados.",
+  "categoriesCannotDeleteSystem": "No se pueden eliminar las categorías del sistema",
+  "categoriesSystemCategory": "Categoría del sistema",
+  "categoriesUserCategory": "Categoría del usuario",
+  "categoriesUsedCount": "Usado {count} veces",
+  "@categoriesUsedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoriesNoCategories": "No hay categorías aún",
+  "categoriesNoCategoriesHint": "Toca el botón más para crear tu primera categoría",
+  "categoriesPreset": "Preestablecida",
+  "categoriesCustom": "Personalizada",
+
+  "recordTitle": "Agregar registro",
+  "recordEditTitle": "Editar registro",
+  "recordAmount": "Monto",
+  "recordAmountHint": "0.00",
+  "recordAmountRequired": "El monto es requerido",
+  "recordAmountInvalid": "Monto inválido",
+  "recordCategory": "Categoría",
+  "recordSelectCategory": "Seleccionar categoría",
+  "recordCategoryRequired": "La categoría es requerida",
+  "recordAccount": "Cuenta",
+  "recordSelectAccount": "Seleccionar cuenta",
+  "recordAccountRequired": "La cuenta es requerida",
+  "recordNote": "Nota",
+  "recordNoteHint": "Nota opcional...",
+  "recordDate": "Fecha",
+  "recordTime": "Hora",
+  "recordSelectDate": "Seleccionar fecha",
+  "recordSelectTime": "Seleccionar hora",
+  "recordSave": "Guardar",
+  "recordSaveSuccess": "Registro guardado exitosamente",
+  "recordSaveFailed": "Error al guardar el registro",
+  "recordDelete": "Eliminar registro",
+  "recordDeleteConfirm": "¿Estás seguro de que quieres eliminar este registro?",
+  "recordDeleteSuccess": "Registro eliminado exitosamente",
+  "recordDeleteFailed": "Error al eliminar el registro",
+  "recordIncome": "Ingreso",
+  "recordExpense": "Gasto",
+  "recordType": "Tipo",
+  "recordLedger": "Libro",
+  "recordSelectLedger": "Seleccionar libro",
+  "recordLedgerRequired": "El libro es requerido",
+
+  "accountsTitle": "Cuentas",
+  "accountsAdd": "Agregar cuenta",
+  "accountsEdit": "Editar cuenta",
+  "accountsDelete": "Eliminar cuenta",
+  "accountsName": "Nombre de la cuenta",
+  "accountsNameHint": "Ingresa el nombre de la cuenta",
+  "accountsNameRequired": "El nombre de la cuenta es requerido",
+  "accountsNameExists": "El nombre de la cuenta ya existe",
+  "accountsType": "Tipo de cuenta",
+  "accountsTypeCash": "Efectivo",
+  "accountsTypeCard": "Tarjeta",
+  "accountsTypeBank": "Banco",
+  "accountsTypeAlipay": "Alipay",
+  "accountsTypeWechat": "WeChat Pay",
+  "accountsTypeOther": "Otro",
+  "accountsBalance": "Balance",
+  "accountsBalanceHint": "Balance inicial",
+  "accountsDeleteConfirm": "¿Estás seguro de que quieres eliminar esta cuenta?",
+  "accountsDeleteHint": "Esta acción no se puede deshacer. Todos los registros de esta cuenta serán eliminados.",
+  "accountsCannotDeleteSystem": "No se pueden eliminar las cuentas del sistema",
+  "accountsSystemAccount": "Cuenta del sistema",
+  "accountsUserAccount": "Cuenta del usuario",
+  "accountsUsedCount": "Usado {count} veces",
+  "@accountsUsedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountsNoAccounts": "No hay cuentas aún",
+  "accountsNoAccountsHint": "Toca el botón más para crear tu primera cuenta",
+  "accountsCurrentBalance": "Balance actual: {balance}",
+  "@accountsCurrentBalance": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+
+  "themeTitle": "Tema",
+  "themeSystem": "Seguir sistema",
+  "themeLight": "Claro",
+  "themeDark": "Oscuro",
+  "themeColor": "Color del tema",
+  "themeColorBlue": "Azul",
+  "themeColorGreen": "Verde",
+  "themeColorRed": "Rojo",
+  "themeColorOrange": "Naranja",
+  "themeColorPurple": "Morado",
+  "themeColorPink": "Rosa",
+  "themeColorTeal": "Verde azulado",
+  "themeColorIndigo": "Índigo",
+
+  "languageTitle": "Idioma",
+  "languageSystemDefault": "Seguir sistema",
+  "languageChinese": "简体中文",
+  "languageTraditionalChinese": "繁體中文",
+  "languageEnglish": "English",
+  "languageJapanese": "日本語",
+  "languageKorean": "한국어",
+  "languageSpanish": "Español",
+  "languageFrench": "Français",
+  "languageGerman": "Deutsch",
+
+  "importTitle": "Importar",
+  "importFromFile": "Importar desde archivo",
+  "importFromCloud": "Importar desde la nube",
+  "importSelectFile": "Seleccionar archivo",
+  "importFileFormat": "Formato de archivo",
+  "importCSV": "CSV",
+  "importJSON": "JSON",
+  "importPreview": "Vista previa",
+  "importMapping": "Mapeo de campos",
+  "importFieldDate": "Fecha",
+  "importFieldAmount": "Monto",
+  "importFieldCategory": "Categoría",
+  "importFieldAccount": "Cuenta",
+  "importFieldNote": "Nota",
+  "importFieldType": "Tipo",
+  "importStart": "Iniciar importación",
+  "importSuccess": "Importación exitosa",
+  "importFailed": "Importación fallida",
+  "importProgress": "Progreso de importación",
+  "importComplete": "Importación completa",
+  "importRecordsCount": "{count} registros importados",
+  "@importRecordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importConfirm": "Confirmar importación",
+  "importConfirmHint": "¿Estás seguro de que quieres importar estos registros?",
+  "importOverwriteData": "Sobrescribir datos existentes",
+  "importMergeData": "Fusionar con datos existentes",
+  "importDataConflict": "Conflicto de datos",
+  "importResolveConflict": "Resolver conflicto",
+  "importSkipConflict": "Omitir conflicto",
+  "importDuplicateHandling": "Manejo de duplicados",
+  "importSkipDuplicate": "Omitir duplicados",
+  "importUpdateDuplicate": "Actualizar duplicados",
+
+  "exportTitle": "Exportar",
+  "exportToFile": "Exportar a archivo",
+  "exportToCloud": "Exportar a la nube",
+  "exportSelectFormat": "Seleccionar formato",
+  "exportCSV": "CSV",
+  "exportJSON": "JSON",
+  "exportPDF": "PDF",
+  "exportExcel": "Excel",
+  "exportDateRange": "Rango de fechas",
+  "exportSelectDateRange": "Seleccionar rango de fechas",
+  "exportAllData": "Todos los datos",
+  "exportCustomRange": "Rango personalizado",
+  "exportCategories": "Categorías",
+  "exportAccounts": "Cuentas",
+  "exportLedgers": "Libros",
+  "exportSelectCategories": "Seleccionar categorías",
+  "exportSelectAccounts": "Seleccionar cuentas",
+  "exportSelectLedgers": "Seleccionar libros",
+  "exportStart": "Iniciar exportación",
+  "exportSuccess": "Exportación exitosa",
+  "exportFailed": "Exportación fallida",
+  "exportProgress": "Progreso de exportación",
+  "exportComplete": "Exportación completa",
+  "exportRecordsCount": "{count} registros exportados",
+  "@exportRecordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exportFileName": "Nombre del archivo",
+  "exportFileNameHint": "Ingresa el nombre del archivo",
+  "exportSaveToDownloads": "Guardar en Descargas",
+  "exportShareFile": "Compartir archivo",
+  "exportFileSaved": "Archivo guardado en: {path}",
+  "@exportFileSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+
+  "cloudTitle": "Sincronización en la nube",
+  "cloudSignIn": "Iniciar sesión",
+  "cloudSignOut": "Cerrar sesión",
+  "cloudSignUp": "Registrarse",
+  "cloudEmail": "Correo electrónico",
+  "cloudPassword": "Contraseña",
+  "cloudConfirmPassword": "Confirmar contraseña",
+  "cloudEmailHint": "Ingresa tu correo electrónico",
+  "cloudPasswordHint": "Ingresa tu contraseña",
+  "cloudConfirmPasswordHint": "Confirma tu contraseña",
+  "cloudEmailRequired": "El correo electrónico es requerido",
+  "cloudEmailInvalid": "Formato de correo electrónico inválido",
+  "cloudPasswordRequired": "La contraseña es requerida",
+  "cloudPasswordTooShort": "La contraseña debe tener al menos 6 caracteres",
+  "cloudPasswordMismatch": "Las contraseñas no coinciden",
+  "cloudSignInSuccess": "Inicio de sesión exitoso",
+  "cloudSignInFailed": "Error al iniciar sesión",
+  "cloudSignUpSuccess": "Registro exitoso",
+  "cloudSignUpFailed": "Error al registrarse",
+  "cloudSignOutSuccess": "Cierre de sesión exitoso",
+  "cloudSignOutFailed": "Error al cerrar sesión",
+  "cloudSyncNow": "Sincronizar ahora",
+  "cloudSyncAuto": "Sincronización automática",
+  "cloudSyncSuccess": "Sincronización exitosa",
+  "cloudSyncFailed": "Error de sincronización",
+  "cloudSyncProgress": "Sincronizando...",
+  "cloudLastSync": "Última sincronización: {time}",
+  "@cloudLastSync": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudNeverSynced": "Nunca sincronizado",
+  "cloudSyncConflict": "Conflicto de sincronización",
+  "cloudSyncConflictHint": "Se detectaron conflictos durante la sincronización. Por favor elige cómo resolverlos.",
+  "cloudUseLocal": "Usar datos locales",
+  "cloudUseRemote": "Usar datos remotos",
+  "cloudMerge": "Fusionar datos",
+  "cloudDataSize": "Tamaño de datos: {size}",
+  "@cloudDataSize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudRecordsCount": "{count} registros en la nube",
+  "@cloudRecordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "aboutTitle": "Acerca de",
+  "aboutAppName": "Contabilidad Abeja",
+  "aboutVersion": "Versión",
+  "aboutDescription": "Una aplicación simple y eficiente de contabilidad personal",
+  "aboutDeveloper": "Desarrollador",
+  "aboutContact": "Contacto",
+  "aboutPrivacy": "Política de privacidad",
+  "aboutTerms": "Términos de servicio",
+  "aboutLicense": "Licencia",
+  "aboutOpenSource": "Código abierto",
+  "aboutThirdParty": "Bibliotecas de terceros",
+  "aboutFeedback": "Comentarios",
+  "aboutRate": "Calificar aplicación",
+  "aboutShare": "Compartir aplicación",
+  "aboutUpdate": "Verificar actualizaciones",
+
+  "errorTitle": "Error",
+  "errorUnknown": "Error desconocido",
+  "errorNetwork": "Error de red",
+  "errorNetworkHint": "Por favor verifica tu conexión a internet",
+  "errorServer": "Error del servidor",
+  "errorServerHint": "El servidor no está disponible temporalmente",
+  "errorPermission": "Error de permisos",
+  "errorPermissionHint": "Por favor otorga los permisos necesarios",
+  "errorFile": "Error de archivo",
+  "errorFileHint": "Error al acceder al archivo",
+  "errorDatabase": "Error de base de datos",
+  "errorDatabaseHint": "Error al acceder a la base de datos",
+  "errorAuth": "Error de autenticación",
+  "errorAuthHint": "Por favor inicia sesión nuevamente",
+  "errorTimeout": "Tiempo de espera agotado",
+  "errorTimeoutHint": "La operación tardó demasiado tiempo",
+
+  "permissionTitle": "Permisos",
+  "permissionStorage": "Almacenamiento",
+  "permissionStorageHint": "Necesario para importar/exportar archivos",
+  "permissionCamera": "Cámara",
+  "permissionCameraHint": "Necesario para escanear códigos QR",
+  "permissionLocation": "Ubicación",
+  "permissionLocationHint": "Necesario para funciones basadas en ubicación",
+  "permissionGrant": "Otorgar permisos",
+  "permissionDenied": "Permisos denegados",
+  "permissionDeniedHint": "Por favor otorga los permisos en la configuración",
+  "permissionSettings": "Configuración",
+
+  "validationRequired": "Este campo es requerido",
+  "validationEmail": "Por favor ingresa un correo electrónico válido",
+  "validationPassword": "La contraseña debe tener al menos 6 caracteres",
+  "validationPasswordMismatch": "Las contraseñas no coinciden",
+  "validationNumber": "Por favor ingresa un número válido",
+  "validationPositiveNumber": "Por favor ingresa un número positivo",
+  "validationLength": "La longitud debe estar entre {min} y {max} caracteres",
+  "@validationLength": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+
+  "currencySymbol": "$",
+  "currencyCode": "USD",
+  "currencyName": "Dólar estadounidense",
+
+  "formatCurrency": "{symbol}{amount}",
+  "@formatCurrency": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+
+  "formatDate": "{year}-{month}-{day}",
+  "@formatDate": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+
+  "formatTime": "{hour}:{minute}",
+  "@formatTime": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      },
+      "minute": {
+        "type": "String"
+      }
+    }
+  },
+
+  "formatDateTime": "{date} {time}",
+  "@formatDateTime": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "reminderTitle": "Recordatorio",
+  "reminderContent": "Contenido del recordatorio",
+  "reminderTime": "Hora del recordatorio",
+  "reminderRepeat": "Repetir",
+  "reminderRepeatNone": "No repetir",
+  "reminderRepeatDaily": "Diariamente",
+  "reminderRepeatWeekly": "Semanalmente",
+  "reminderRepeatMonthly": "Mensualmente",
+  "reminderRepeatYearly": "Anualmente",
+  "reminderAdd": "Agregar recordatorio",
+  "reminderEdit": "Editar recordatorio",
+  "reminderDelete": "Eliminar recordatorio",
+  "reminderDeleteConfirm": "¿Estás seguro de que quieres eliminar este recordatorio?",
+  "reminderSaveSuccess": "Recordatorio guardado exitosamente",
+  "reminderSaveFailed": "Error al guardar el recordatorio",
+  "reminderDeleteSuccess": "Recordatorio eliminado exitosamente",
+  "reminderDeleteFailed": "Error al eliminar el recordatorio",
+
+  "budgetTitle": "Presupuesto",
+  "budgetAdd": "Agregar presupuesto",
+  "budgetEdit": "Editar presupuesto",
+  "budgetDelete": "Eliminar presupuesto",
+  "budgetName": "Nombre del presupuesto",
+  "budgetAmount": "Monto del presupuesto",
+  "budgetPeriod": "Período",
+  "budgetPeriodDaily": "Diario",
+  "budgetPeriodWeekly": "Semanal",
+  "budgetPeriodMonthly": "Mensual",
+  "budgetPeriodYearly": "Anual",
+  "budgetCategory": "Categoría",
+  "budgetProgress": "Progreso",
+  "budgetRemaining": "Restante",
+  "budgetExceeded": "Excedido",
+  "budgetAlert": "Alerta de presupuesto",
+  "budgetAlertHint": "Has excedido tu presupuesto para {category}",
+  "@budgetAlertHint": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetSaveSuccess": "Presupuesto guardado exitosamente",
+  "budgetSaveFailed": "Error al guardar el presupuesto",
+  "budgetDeleteSuccess": "Presupuesto eliminado exitosamente",
+  "budgetDeleteFailed": "Error al eliminar el presupuesto",
+
+  "goalTitle": "Meta",
+  "goalAdd": "Agregar meta",
+  "goalEdit": "Editar meta",
+  "goalDelete": "Eliminar meta",
+  "goalName": "Nombre de la meta",
+  "goalAmount": "Monto de la meta",
+  "goalTargetDate": "Fecha objetivo",
+  "goalCurrentAmount": "Monto actual",
+  "goalProgress": "Progreso",
+  "goalRemaining": "Restante",
+  "goalDaysLeft": "{days} días restantes",
+  "@goalDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "goalAchieved": "Meta alcanzada",
+  "goalAchievedHint": "¡Felicidades! Has alcanzado tu meta: {goal}",
+  "@goalAchievedHint": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "goalSaveSuccess": "Meta guardada exitosamente",
+  "goalSaveFailed": "Error al guardar la meta",
+  "goalDeleteSuccess": "Meta eliminada exitosamente",
+  "goalDeleteFailed": "Error al eliminar la meta",
+
+  "reportTitle": "Reporte",
+  "reportGenerate": "Generar reporte",
+  "reportPeriod": "Período del reporte",
+  "reportType": "Tipo de reporte",
+  "reportTypeIncome": "Reporte de ingresos",
+  "reportTypeExpense": "Reporte de gastos",
+  "reportTypeBalance": "Reporte de balance",
+  "reportTypeCategory": "Reporte por categorías",
+  "reportTypeAccount": "Reporte por cuentas",
+  "reportTypeTrend": "Reporte de tendencias",
+  "reportFormat": "Formato del reporte",
+  "reportFormatPDF": "PDF",
+  "reportFormatExcel": "Excel",
+  "reportFormatCSV": "CSV",
+  "reportGenerateSuccess": "Reporte generado exitosamente",
+  "reportGenerateFailed": "Error al generar el reporte",
+  "reportShare": "Compartir reporte",
+  "reportSave": "Guardar reporte",
+
+  "backupTitle": "Respaldo",
+  "backupCreate": "Crear respaldo",
+  "backupRestore": "Restaurar respaldo",
+  "backupAuto": "Respaldo automático",
+  "backupAutoHint": "Crear respaldos automáticamente",
+  "backupFrequency": "Frecuencia de respaldo",
+  "backupFrequencyDaily": "Diariamente",
+  "backupFrequencyWeekly": "Semanalmente",
+  "backupFrequencyMonthly": "Mensualmente",
+  "backupLocation": "Ubicación del respaldo",
+  "backupLocationLocal": "Local",
+  "backupLocationCloud": "Nube",
+  "backupCreateSuccess": "Respaldo creado exitosamente",
+  "backupCreateFailed": "Error al crear el respaldo",
+  "backupRestoreSuccess": "Respaldo restaurado exitosamente",
+  "backupRestoreFailed": "Error al restaurar el respaldo",
+  "backupDeleteConfirm": "¿Estás seguro de que quieres eliminar este respaldo?",
+
+  "securityTitle": "Seguridad",
+  "securityPinCode": "Código PIN",
+  "securityBiometric": "Biométrico",
+  "securityFaceID": "Face ID",
+  "securityTouchID": "Touch ID",
+  "securityFingerprint": "Huella dactilar",
+  "securitySetPinCode": "Establecer código PIN",
+  "securityChangePinCode": "Cambiar código PIN",
+  "securityRemovePinCode": "Eliminar código PIN",
+  "securityEnterPinCode": "Ingresar código PIN",
+  "securityConfirmPinCode": "Confirmar código PIN",
+  "securityPinCodeMismatch": "Los códigos PIN no coinciden",
+  "securityPinCodeSet": "Código PIN establecido",
+  "securityPinCodeChanged": "Código PIN cambiado",
+  "securityPinCodeRemoved": "Código PIN eliminado",
+  "securityBiometricEnable": "Habilitar autenticación biométrica",
+  "securityBiometricDisable": "Deshabilitar autenticación biométrica",
+  "securityBiometricSuccess": "Autenticación biométrica exitosa",
+  "securityBiometricFailed": "Error de autenticación biométrica",
+  "securityBiometricNotAvailable": "Autenticación biométrica no disponible",
+  "securityUnlock": "Desbloquear",
+  "securityLocked": "Bloqueado",
+
+  "notificationTitle": "Notificación",
+  "notificationEnable": "Habilitar notificaciones",
+  "notificationDisable": "Deshabilitar notificaciones",
+  "notificationSound": "Sonido de notificación",
+  "notificationVibration": "Vibración",
+  "notificationBudgetAlert": "Alerta de presupuesto",
+  "notificationGoalReminder": "Recordatorio de meta",
+  "notificationBackupReminder": "Recordatorio de respaldo",
+  "notificationSyncResult": "Resultado de sincronización",
+
+  "widgetTitle": "Widget",
+  "widgetBalance": "Balance",
+  "widgetIncome": "Ingresos",
+  "widgetExpense": "Gastos",
+  "widgetRecentTransactions": "Transacciones recientes",
+  "widgetMonthlyStats": "Estadísticas mensuales",
+  "widgetAddToHomeScreen": "Agregar a pantalla de inicio",
+
+  "developerTitle": "Desarrollador",
+  "developerMode": "Modo desarrollador",
+  "developerDebugInfo": "Información de depuración",
+  "developerTestData": "Datos de prueba",
+  "developerClearCache": "Limpiar caché",
+  "developerResetApp": "Restablecer aplicación",
+  "developerResetConfirm": "¿Estás seguro de que quieres restablecer la aplicación?",
+  "developerResetHint": "Esta acción eliminará todos los datos y configuraciones.",
+
+  "exportDescription": "Haz clic en el botón de abajo para seleccionar la ubicación de guardado y exportar el libro actual a un archivo CSV.",
+  "exportButtonIOS": "Exportar y compartir (iOS)",
+  "exportButtonAndroid": "Seleccionar carpeta y exportar",
+  "exportSavedTo": "Guardado en: {path}",
+  "@exportSavedTo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "exportSelectFolder": "Seleccionar carpeta de exportación",
+  "exportCsvHeaderType": "Tipo",
+  "exportCsvHeaderCategory": "Categoría",
+  "exportCsvHeaderAmount": "Monto",
+  "exportCsvHeaderNote": "Nota",
+  "exportCsvHeaderTime": "Hora",
+  "exportShareText": "Archivo de exportación de BeeCount",
+  "exportSuccessTitle": "Exportación exitosa",
+  "exportSuccessMessageIOS": "Guardado y disponible en el historial de compartir:\n{path}",
+  "@exportSuccessMessageIOS": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "exportSuccessMessageAndroid": "Guardado en:\n{path}",
+  "@exportSuccessMessageAndroid": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "exportFailedTitle": "Exportación fallida",
+  "exportTypeIncome": "Ingreso",
+  "exportTypeExpense": "Gasto",
+  "exportTypeTransfer": "Transferencia",
+
+  "personalizeTitle": "Personalizar",
+  "personalizeThemeHoney": "Amarillo abeja",
+  "personalizeThemeOrange": "Naranja llama",
+  "personalizeThemeGreen": "Verde esmeralda",
+  "personalizeThemePurple": "Loto púrpura",
+  "personalizeThemePink": "Rosa cereza",
+  "personalizeThemeBlue": "Azul cielo",
+  "personalizeThemeMint": "Luna del bosque",
+  "personalizeThemeSand": "Duna del atardecer",
+  "personalizeThemeLavender": "Nieve y pino",
+  "personalizeThemeSky": "País de las maravillas brumoso",
+  "personalizeThemeWarmOrange": "Naranja cálido",
+  "personalizeThemeMintGreen": "Verde menta",
+  "personalizeThemeRoseGold": "Oro rosa",
+  "personalizeThemeDeepBlue": "Azul profundo",
+  "personalizeThemeMapleRed": "Rojo arce",
+  "personalizeThemeEmerald": "Esmeralda",
+  "personalizeThemeLavenderPurple": "Lavanda",
+  "personalizeThemeAmber": "Ámbar",
+  "personalizeThemeRouge": "Rojo bermellón",
+  "personalizeThemeIndigo": "Azul índigo",
+  "personalizeThemeOlive": "Verde oliva",
+  "personalizeThemeCoral": "Rosa coral",
+  "personalizeThemeDarkGreen": "Verde oscuro",
+  "personalizeThemeViolet": "Violeta",
+  "personalizeThemeSunset": "Naranja atardecer",
+  "personalizeThemePeacock": "Azul pavo real",
+  "personalizeThemeLime": "Verde lima",
+
+  "analyticsMonthlyAvg": "Promedio mensual",
+  "analyticsDailyAvg": "Promedio diario",
+  "analyticsOverallAvg": "Promedio general",
+  "analyticsTotalIncome": "Total de ingresos: ",
+  "analyticsTotalExpense": "Total de gastos: ",
+  "analyticsBalance": "Balance: ",
+  "analyticsAvgIncome": "{avgLabel} ingresos: ",
+  "@analyticsAvgIncome": {
+    "placeholders": {
+      "avgLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsAvgExpense": "{avgLabel} gastos: ",
+  "@analyticsAvgExpense": {
+    "placeholders": {
+      "avgLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsExpense": "Gastos",
+  "analyticsIncome": "Ingresos",
+  "analyticsTotal": "Total {type}: ",
+  "@analyticsTotal": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsAverage": "{avgLabel}: ",
+  "@analyticsAverage": {
+    "placeholders": {
+      "avgLabel": {
+        "type": "String"
+      }
+    }
+  },
+
+  "updateCheckTitle": "Verificar actualización",
+  "updateNewVersionFound": "Nueva versión encontrada",
+  "updateNewVersionTitle": "Nueva versión {version} encontrada",
+  "@updateNewVersionTitle": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNoApkFound": "Enlace de descarga APK no encontrado",
+  "updateAlreadyLatest": "Ya tienes la última versión",
+  "updateCheckFailed": "Error al verificar actualización",
+  "updatePermissionDenied": "Permiso denegado",
+  "updateUserCancelled": "Usuario canceló",
+  "updateDownloadTitle": "Descargar actualización",
+  "updateDownloading": "Descargando: {percent}%",
+  "@updateDownloading": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "updateDownloadBackgroundHint": "Puedes poner la aplicación en segundo plano, la descarga continuará",
+  "updateCancelButton": "Cancelar",
+  "updateBackgroundDownload": "Descarga en segundo plano",
+  "updateLaterButton": "Más tarde",
+  "updateDownloadButton": "Descargar",
+  "updateFoundCachedTitle": "Versión descargada encontrada",
+  "updateFoundCachedMessage": "Se encontró un instalador descargado previamente, ¿instalar directamente?\\n\\nHaz clic en \"OK\" para instalar inmediatamente, haz clic en \"Cancelar\" para cerrar este diálogo.\\n\\nRuta del archivo: {path}",
+  "@updateFoundCachedMessage": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateInstallingCachedApk": "Instalando APK en caché",
+  "updateDownloadComplete": "Descarga completa",
+  "updateInstallStarted": "Descarga completa, instalador iniciado",
+  "updateInstallFailed": "Instalación fallida",
+  "updateDownloadCompleteManual": "Descarga completa, se puede instalar manualmente",
+  "updateDownloadCompleteException": "Descarga completa, por favor instalar manualmente (excepción de diálogo)",
+  "updateDownloadCompleteManualContext": "Descarga completa, por favor instalar manualmente",
+  "updateDownloadFailed": "Descarga fallida",
+  "updateInstallTitle": "Descarga completa",
+  "updateInstallMessage": "Descarga del archivo APK completa, ¿instalar inmediatamente?\\n\\nNota: La aplicación irá temporalmente a segundo plano durante la instalación, esto es normal.",
+  "updateInstallNow": "Instalar ahora",
+  "updateInstallLater": "Instalar más tarde",
+  "updateNotificationTitle": "Descarga de actualización de BeeCount",
+  "updateNotificationBody": "Descargando nueva versión...",
+  "updateNotificationComplete": "Descarga completa, toca para instalar",
+  "updateNotificationPermissionTitle": "Permiso de notificación denegado",
+  "updateNotificationPermissionMessage": "No se puede obtener el permiso de notificación, el progreso de descarga no se mostrará en la barra de notificaciones, pero la función de descarga funciona normalmente.",
+  "updateNotificationGuideTitle": "Si necesitas habilitar las notificaciones, sigue estos pasos:",
+  "updateNotificationStep1": "Abrir configuración del sistema",
+  "updateNotificationStep2": "Buscar \"Gestión de aplicaciones\" o \"Configuración de aplicaciones\"",
+  "updateNotificationStep3": "Buscar la aplicación \"BeeCount\"",
+  "updateNotificationStep4": "Hacer clic en \"Gestión de permisos\" o \"Gestión de notificaciones\"",
+  "updateNotificationStep5": "Habilitar \"Permiso de notificación\"",
+  "updateNotificationMiuiHint": "Usuarios de MIUI: El sistema Xiaomi tiene un control estricto de permisos de notificación, puede necesitar configuraciones adicionales en el Centro de seguridad",
+  "updateNotificationGotIt": "Entendido",
+  "updateCheckFailedTitle": "Error al verificar actualización",
+  "updateDownloadFailedTitle": "Descarga fallida",
+  "updateGoToGitHub": "Ir a GitHub",
+  "updateCannotOpenLink": "No se puede abrir el enlace",
+  "updateManualVisit": "Por favor visita manualmente en el navegador:\\nhttps://github.com/TNT-Likely/BeeCount/releases",
+  "updateNoLocalApkTitle": "No se encontró paquete de actualización",
+  "updateNoLocalApkMessage": "No se encontró archivo de paquete de actualización descargado.\\n\\nPor favor descarga primero la nueva versión a través de \"Verificar actualización\".",
+  "updateInstallPackageTitle": "Instalar paquete de actualización",
+  "updateMultiplePackagesTitle": "Se encontraron múltiples paquetes de actualización",
+  "updateMultiplePackagesMessage": "Se encontraron {count} archivos de paquete de actualización.\\n\\nSe recomienda usar la versión descargada más reciente, o instalar manualmente en el administrador de archivos.\\n\\nUbicación del archivo: {path}",
+  "@updateMultiplePackagesMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateSearchFailedTitle": "Búsqueda fallida",
+  "updateSearchFailedMessage": "Ocurrió un error al buscar paquetes de actualización locales: {error}",
+  "@updateSearchFailedMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateFoundCachedPackageTitle": "Paquete de actualización descargado encontrado",
+  "updateFoundCachedPackageMessage": "Se detectó un paquete de actualización descargado previamente:\\n\\nNombre del archivo: {fileName}\\nTamaño: {fileSize}MB\\n\\n¿Instalar inmediatamente?",
+  "@updateFoundCachedPackageMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      }
+    }
+  },
+  "updateIgnoreButton": "Ignorar",
+  "updateInstallFailedTitle": "Instalación fallida",
+  "updateInstallFailedMessage": "No se puede iniciar el instalador APK, por favor verifica los permisos del archivo.",
+  "updateErrorTitle": "Error",
+  "updateReadCacheFailedMessage": "Error al leer el paquete de actualización en caché: {error}",
+  "@updateReadCacheFailedMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "updateCheckingPermissions": "Verificando permisos...",
+  "updateCheckingCache": "Verificando caché local...",
+  "updatePreparingDownload": "Preparando descarga...",
+  "updateUserCancelledDownload": "Usuario canceló la descarga",
+  "updateStartingInstaller": "Iniciando instalador...",
+  "updateInstallerStarted": "Instalador iniciado",
+  "updateInstallationFailed": "Instalación fallida",
+  "updateDownloadCompleted": "Descarga completada",
+  "updateDownloadCompletedManual": "Descarga completada, se puede instalar manualmente",
+  "updateDownloadCompletedDialog": "Descarga completada, por favor instalar manualmente (excepción de diálogo)",
+  "updateDownloadCompletedContext": "Descarga completada, por favor instalar manualmente",
+  "updateDownloadFailedGeneric": "Descarga fallida",
+  "updateCheckingUpdate": "Verificando actualizaciones...",
+  "updateCurrentLatestVersion": "Ya tienes la última versión",
+  "updateCheckFailedGeneric": "Error al verificar actualización",
+  "updateDownloadProgress": "Descargando: {percent}%",
+  "@updateDownloadProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNoApkFoundError": "Enlace de descarga APK no encontrado",
+  "updateCheckingUpdateError": "Error al verificar actualización: {error}",
+  "@updateCheckingUpdateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNotificationChannelName": "Descarga de actualización",
+  "updateNotificationDownloadingIndeterminate": "Descargando nueva versión...",
+  "updateNotificationDownloadingProgress": "Progreso de descarga: {progress}%",
+  "@updateNotificationDownloadingProgress": {
+    "placeholders": {
+      "progress": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNotificationDownloadCompleteTitle": "Descarga completa",
+  "updateNotificationDownloadCompleteMessage": "Nueva versión descargada, toca para instalar",
+  "updateUserCancelledDownloadDialog": "Usuario canceló la descarga",
+  "updateCannotOpenLinkError": "No se puede abrir el enlace",
+  "updateNoLocalApkFoundMessage": "No se encontró archivo de paquete de actualización descargado.\\n\\nPor favor descarga primero la nueva versión a través de \"Verificar actualización\".",
+  "updateInstallPackageFoundMessage": "Paquete de actualización encontrado:\\n\\nNombre del archivo: {fileName}\\nTamaño: {fileSize}MB\\nHora de descarga: {time}\\n\\n¿Instalar inmediatamente?",
+  "@updateInstallPackageFoundMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "updateMultiplePackagesFoundMessage": "Se encontraron {count} archivos de paquete de actualización.\\n\\nSe recomienda usar la versión descargada más reciente, o instalar manualmente en el administrador de archivos.\\n\\nUbicación del archivo: {path}",
+  "@updateMultiplePackagesFoundMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateSearchLocalApkError": "Ocurrió un error al buscar paquetes de actualización locales: {error}",
+  "@updateSearchLocalApkError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateCachedPackageFoundMessage": "Se detectó un paquete de actualización descargado previamente:\\n\\nNombre del archivo: {fileName}\\nTamaño: {fileSize}MB\\n\\n¿Instalar inmediatamente?",
+  "@updateCachedPackageFoundMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      }
+    }
+  },
+  "updateReadCachedPackageError": "Error al leer el paquete de actualización en caché: {error}",
+  "@updateReadCachedPackageError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "reminderTitle": "Recordatorio de registro",
+  "reminderSubtitle": "Establecer hora de recordatorio de registro diario",
+  "reminderDailyTitle": "Recordatorio de registro diario",
+  "reminderDailySubtitle": "Cuando esté habilitado, te recordará registrar a la hora especificada",
+  "reminderTimeTitle": "Hora del recordatorio",
+  "reminderTestSent": "Notificación de prueba enviada",
+  "reminderTestNotification": "Enviar notificación de prueba",
+  "reminderQuickTestSent": "Prueba rápida configurada para 15 segundos después, por favor mantén la aplicación en segundo plano",
+  "reminderQuickTest": "Prueba rápida (15s después)",
+  "reminderFlutterTestSent": "Notificación de prueba de Flutter enviada, haz clic para ver si abre la aplicación",
+  "reminderFlutterTest": "🔧 Probar notificación de clic de Flutter (Dev)",
+  "reminderAlarmTestSent": "Notificación de prueba de AlarmManager configurada (1 segundo después), haz clic para ver si abre la aplicación",
+  "updateOk": "OK",
+  "updateCannotOpenLinkTitle": "No se puede abrir el enlace",
+  "updateCachedVersionTitle": "Versión descargada encontrada",
+  "updateCachedVersionMessage": "Se encontró un paquete de instalación descargado previamente... Haz clic en \\\"OK\\\" para instalar inmediatamente, haz clic en \\\"Cancelar\\\" para cerrar...",
+  "updateConfirmDownload": "Descargar e instalar ahora",
+  "updateDownloadCompleteTitle": "Descarga completa",
+  "updateInstallConfirmMessage": "Nueva versión descargada. ¿Instalar ahora?",
+  "updateNotificationPermissionGuideText": "Las notificaciones de progreso de descarga están deshabilitadas, pero esto no afecta la funcionalidad de descarga. Para ver el progreso:",
+  "updateNotificationGuideStep1": "Ir a Configuración del sistema > Gestión de aplicaciones",
+  "updateNotificationGuideStep2": "Buscar la aplicación \\\"BeeCount\\\"",
+  "updateNotificationGuideStep3": "Habilitar permisos de notificación",
+  "updateNotificationGuideInfo": "Las descargas continuarán normalmente en segundo plano incluso sin notificaciones",
+
+  "currencyCNY": "Yuan chino",
+  "currencyUSD": "Dólar estadounidense",
+  "currencyEUR": "Euro",
+  "currencyJPY": "Yen japonés",
+  "currencyHKD": "Dólar de Hong Kong",
+  "currencyTWD": "Nuevo dólar taiwanés",
+  "currencyGBP": "Libra esterlina",
+  "currencyAUD": "Dólar australiano",
+  "currencyCAD": "Dólar canadiense",
+  "currencyKRW": "Won surcoreano",
+  "currencySGD": "Dólar de Singapur",
+  "currencyTHB": "Baht tailandés",
+  "currencyIDR": "Rupia indonesia",
+  "currencyINR": "Rupia india",
+  "currencyRUB": "Rublo ruso",
+
+  "cloudDefaultServiceDisplayName": "Servicio de nube predeterminado",
+  "cloudNotConfiguredDisplay": "No configurado",
+
+  "syncNotConfiguredMessage": "Nube no configurada",
+  "syncNotLoggedInMessage": "No conectado",
+  "syncCloudBackupCorruptedMessage": "El contenido de la copia de seguridad en la nube está corrupto, posiblemente debido a problemas de codificación de versiones anteriores. Por favor haz clic en 'Subir libro actual a la nube' para sobrescribir y corregir.",
+  "syncNoCloudBackupMessage": "Sin copia de seguridad en la nube",
+  "syncAccessDeniedMessage": "403 Acceso denegado (verificar política RLS de almacenamiento y ruta)"
+}

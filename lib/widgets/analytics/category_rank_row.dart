@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../styles/colors.dart';
 import '../../widgets/category_icon.dart';
 import '../biz/biz.dart';
+import '../../l10n/app_localizations.dart';
+import '../../utils/category_utils.dart';
 
 class CategoryRankRow extends StatelessWidget {
   final String name;
@@ -48,7 +50,7 @@ class CategoryRankRow extends StatelessWidget {
                     Expanded(
                       child: Row(
                         children: [
-                          Text(name,
+                          Text(CategoryUtils.getDisplayName(name, context),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.bodyMedium),
@@ -61,7 +63,7 @@ class CategoryRankRow extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(2),
                               ),
                               child: Text(
-                                '收入',
+                                AppLocalizations.of(context).homeIncome,
                                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                   color: Colors.green,
                                   fontSize: 10,
@@ -78,7 +80,7 @@ class CategoryRankRow extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(2),
                               ),
                               child: Text(
-                                '支出',
+                                AppLocalizations.of(context).homeExpense,
                                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                   color: Colors.red,
                                   fontSize: 10,

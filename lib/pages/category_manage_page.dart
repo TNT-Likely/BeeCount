@@ -7,6 +7,8 @@ import '../widgets/ui/ui.dart';
 import '../widgets/ui/toast.dart';
 import '../data/db.dart' as db;
 import '../services/category_service.dart';
+import '../l10n/app_localizations.dart';
+import '../utils/category_utils.dart';
 import 'category_edit_page.dart';
 
 class CategoryManagePage extends ConsumerStatefulWidget {
@@ -42,27 +44,27 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
       body: Column(
         children: [
           PrimaryHeader(
-            title: '分类管理',
+            title: AppLocalizations.of(context)!.categoryTitle,
             showBack: true,
             actions: [
               IconButton(
                 onPressed: () => _addCategory(),
                 icon: const Icon(Icons.add),
-                tooltip: '新建分类',
+                tooltip: AppLocalizations.of(context)!.categoryNew,
               ),
             ],
           ),
           TabBar(
             controller: _tabController,
-            tabs: const [
-              Tab(text: '支出分类'),
-              Tab(text: '收入分类'),
+            tabs: [
+              Tab(text: AppLocalizations.of(context)!.categoryExpense),
+              Tab(text: AppLocalizations.of(context)!.categoryIncome),
             ],
           ),
           Expanded(
             child: categoriesWithCountAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(child: Text('加载失败: $error')),
+              error: (error, stack) => Center(child: Text(AppLocalizations.of(context)!.categoryLoadFailed(error.toString()))),
               data: (categoriesWithCount) {
                 return TabBarView(
                   controller: _tabController,
@@ -152,7 +154,7 @@ class _CategoryGridView extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              '暂无分类',
+              AppLocalizations.of(context)!.categoryEmpty,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Colors.grey[600],
               ),
@@ -197,7 +199,7 @@ class _CategoryGridView extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  '默认分类',
+                  AppLocalizations.of(context)!.categoryDefault,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: Colors.grey[600],
                     fontWeight: FontWeight.bold,
@@ -288,7 +290,7 @@ class _CategoryCard extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              category.name,
+              CategoryUtils.getDisplayName(category.name, context),
               style: Theme.of(context).textTheme.labelSmall,
               textAlign: TextAlign.center,
               maxLines: 1,
@@ -296,7 +298,7 @@ class _CategoryCard extends ConsumerWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              '$transactionCount笔',
+              AppLocalizations.of(context)!.categoryMigrationTransactionLabel(transactionCount),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: Theme.of(context).colorScheme.outline,
                 fontSize: 10,

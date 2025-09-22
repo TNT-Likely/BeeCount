@@ -1,346 +1,241 @@
-# 蜜蜂记账（BeeCount）
+# BeeCount
 
-**你的数据，你做主的开源记账应用**
+> [中文](README_CN.md) | English
 
-轻量、开源、隐私可控的个人记账 App（iOS / Android）。内置：账本、分类、统计分析、导入导出、可选云备份。**核心差异：支持自定义 Supabase 后端，数据完全由你掌控。**
+**Your Data, Your Control - Open Source Accounting App**
+
+A lightweight, open-source, privacy-focused personal accounting app for iOS/Android. Features complete ledger management, category statistics, data analysis, import/export functionality, and customizable cloud backup. **Core Advantage: Support for custom Supabase backend, giving you complete control over your data.**
+
+## 📱 Product Demo
+
+### Core Features
 
 <div align="center">
- <img src="assets/preview/home.png" alt="首页" width="200" />
- <img src="assets/preview/add.jpg" alt="记一笔" width="200" />
- <img src="assets/preview/analytic.jpg" alt="分析页" width="200" />
- <img src="assets/preview/zhangben.jpg" alt="账本" width="200" />
- <img src="assets/preview/mine.png" alt="我的页" width="200" />
- <img src="assets/preview/custom.jpg" alt="自定义云服务" width="200" />
+  <img src="demo/preview/en/01-home.png" alt="Home Screen" width="200" />
+  <img src="demo/preview/en/02-search.png" alt="Smart Search" width="200" />
+  <img src="demo/preview/en/03-edit-transaction.png" alt="Edit Transaction" width="200" />
+  <img src="demo/preview/en/04-chart-analysis.png" alt="Chart Analysis" width="200" />
 </div>
 
----
+<div align="center">
+  <img src="demo/preview/en/05-ledger-management.png" alt="Ledger Management" width="200" />
+  <img src="demo/preview/en/06-profile.png" alt="Profile" width="200" />
+  <img src="demo/preview/en/07-category-detail.png" alt="Category Details" width="200" />
+  <img src="demo/preview/en/08-category-migration.png" alt="Category Migration" width="200" />
+</div>
 
-## 目录
+### Advanced Features
 
-0. TL;DR（一分钟了解差异 & 用法）
-1. 核心亮点
-2. 快速开始（普通用户：无需写代码）
-3. 使用说明（日常操作）
-4. 自建 Supabase 云端（可选进阶）
-5. 构建与发布（仅需自行打包 / iOS 用）
-6. 成本 & 安全最佳实践
-7. 开发指南（贡献 / 二次开发）
-8. 开源协议与免责声明
+<div align="center">
+  <img src="demo/preview/en/09-category-management.png" alt="Category Management" width="200" />
+  <img src="demo/preview/en/10-personalization.png" alt="Personalization" width="200" />
+  <img src="demo/preview/en/11-cloud-service.png" alt="Cloud Service" width="200" />
+  <img src="demo/preview/en/12-import-confirm.png" alt="Import Confirmation" width="200" />
+</div>
 
----
+## 🌟 Key Features
 
-## 0. TL;DR
+### 🔒 Data Security & Privacy
 
-| 你是谁 | 推荐路径 | 是否需要 Supabase 账号 | 是否需要写代码 |
-| ------ | -------- | ---------------------- | --------------- |
-| 只想本地记账用户 | 直接安装 / 构建后使用，忽略“云服务” | 否 | 否 |
-| 想备份/多设备同步 | 在 App 内“云服务”填入你自建的 Supabase URL/Key | 是 | 否（在官网点几下） |
-| 想完全托管在自己 Supabase | 按第 4 节搭建 + App 内切换自定义 | 是 | 否 |
-| 想二次开发或贡献代码 | 读第 7 节，clone 仓库运行 | 可选 | 是 |
+- **Complete Autonomy**: Support for custom Supabase backend, data stored in your own project
+- **Open & Transparent**: Fully open-source code, auditable logic, no black boxes
+- **Offline First**: Based on local SQLite database, works without network connection
+- **Optional Sync**: Cloud sync is an enhancement feature, works completely without external services
 
-最短上手（普通用户）：
+### 📊 Complete Accounting Features
 
-1. 下载 Release 中最新 APK（或自行 `flutter build`）。
-2. 直接使用（默认本地离线）。
-3. 需要同步 → 第 4 节 10 分钟自建 Supabase → App 内“云服务”粘贴 URL / anon key → 登录 → 上传。
+- **Smart Accounting**: Support for income/expense categories, amounts, dates, notes, and complete information
+- **Multi-Ledger Management**: Create multiple ledgers for different scenarios like personal, work, etc.
+- **Category Statistics**: Automatically generate monthly income/expense reports, category rankings, trend analysis
+- **Data Analysis**: Intuitive charts to help understand spending habits and financial status
 
-无需担心：不填 Supabase 仍可永久本地使用；云同步是可选增强，而不是强制注册。
+### 🔄 Data Management
 
----
+- **CSV Import/Export**: Support migration from other accounting apps or regular backups
+- **Cloud Backup**: Optional upload to your own Supabase project for backup
+- **Multi-Device Sync**: Configure same cloud service to sync data across multiple devices
+- **Category Migration**: Support batch migration of transaction records to other categories
 
-## 1. 核心亮点
+### 🎨 Personalization
 
-### 🔒 数据安全与自主
+- **Theme Customization**: Multiple theme colors available to create your personal interface style
+- **Multi-Language Support**: Supports 8 language interface switching, covering major international languages
+- **Flexible Configuration**: Adjust various usage preferences according to personal habits
 
-- 自定义 Supabase 后端：数据存你自己的项目
-- 开源透明：逻辑可审计，无黑箱
-- 离线优先：本地 SQLite；无网可记
-- 可选同步：需要时才上传
+### 🌍 Internationalization Support
 
-### 📱 功能特性
+- **Supported Languages**:
+  - Simplified Chinese 🇨🇳
+  - Traditional Chinese 🇨🇳
+  - English 🇬🇧
+  - 日本語 🇯🇵
+  - 한국어 🇰🇷
+  - Español 🇪🇸
+  - Français 🇫🇷
+  - Deutsch 🇩🇪
+- **Language Features**:
+  - Complete interface translation including all menus, buttons, and prompts
+  - Smart category name translation and mapping
+  - Localized date and number format display
+  - Automatic recognition and matching of multi-language category names during CSV import
+  - Support for system follow or manual language selection
 
-- 记账：分类、金额、日期、备注，快速录入
-- 分析：月度收支、结余、分类排行
-- 数据：CSV 导入/导出
-- 云备份：可选存储备份，多设备同步
-- 个性化：主题色、图标
+> If you'd like to add support for a new language, welcome to create an issue or submit a PR directly!
 
----
+## 🚀 Quick Start
 
-## 2. 快速开始（普通用户：无需写代码）
+### Option 1: Direct Installation (Recommended)
 
-前置环境
+1. Go to the [Releases](https://github.com/FBSocial/BeeCount/releases) page
+2. Download the latest `app-prod-release-*.apk` file
+3. Install and start using (default local mode, no configuration needed)
 
-- Flutter 3.27+（用于本地运行源码；直接安装 App 则不需要）
-- iOS/macOS: Xcode；Android: Android Studio/SDK
-
-使用方式有两种：
-
-### A. 直接安装（最快）
-
-到 Releases 下载最新 `app-prod-release-*.apk` 安装即可。（iOS 目前需自行打包或 TestFlight，见第 5 节）
-
-### B. 自行运行源码（可调试）
-
-克隆仓库后执行：
+### Option 2: Build from Source
 
 ```bash
+# Clone the project
+git clone https://github.com/FBSocial/BeeCount.git
+cd BeeCount
+
+# Install dependencies
 flutter pub get
-# Android 调试
-flutter run --flavor dev -d android
-# iOS 模拟器
-flutter run -d ios
+dart run build_runner build -d
+
+# Run the app
+flutter run --flavor dev -d android --dart-define-from-file=assets/config.json
 ```
 
----
+## 📖 User Guide
 
-## 3. 使用说明
+### Basic Operations
 
-基础操作
+- **Add Transaction**: Tap the "+" button at the bottom of the home screen
+- **Edit Record**: Tap any transaction record to enter edit page
+- **Delete Record**: Long press transaction record to select delete
+- **Switch Months**: Tap the date at the top or scroll up/down in the list to flip pages
+- **Hide Amounts**: Tap the eye icon in the top right of the home screen
 
-- 新增记账：首页底部 “+”
-- 删除记录：长按条目
-- 切换月份：顶部日期；滚动至列表首/尾继续拉可翻月
-- 隐藏金额：首页右上角“眼睛”
-- 导入/导出：我的 → 导入/导出 → 选择 CSV
+### Data Management
 
-云同步（默认模式）
+- **Import Data**: Profile → Import Data → Select CSV file
+- **Export Backup**: Profile → Export Data → Select export format
+- **Category Management**: Profile → Category Management → Add/Edit/Delete categories
+- **Ledger Switching**: Bottom navigation → Ledgers → Select or create new ledger
 
-- 可直接使用内置“默认云服务”（若启用）
-- 或切换至“自定义 Supabase”（推荐，见下节）
+## ☁️ Cloud Backup Configuration (Optional)
 
-数据安全建议
+### Why Choose Self-Hosted Cloud Service?
 
-- 使用自己的 Supabase 项目
-- 每月手动导出 CSV 备份
-- 多设备：在另一设备填入相同 Supabase URL & anon key 即可同步
+- **Data Sovereignty**: Data completely stored in your own Supabase project
+- **Privacy Protection**: Developers cannot access any of your data
+- **Cost Control**: Supabase free tier is sufficient for personal use
+- **Stable & Reliable**: No dependency on third-party hosting services
 
----
+### Configuration Steps
 
-## 4. 自建 Supabase 云端（可选进阶）
+1. **Create Supabase Project**
+   - Visit [supabase.com](https://supabase.com) to register an account
+   - Create a new project, select appropriate region
+   - Get URL and anon key from project settings
 
-### 4.1 为什么自建？
+2. **Configure Storage**
+   - Create a Storage Bucket named `beecount-backups` in Supabase console
+   - Set as Private and configure RLS access policies
 
-- 数据主权：无第三方介入
-- 隐私：开发者不可访问
-- 稳定：不依赖作者托管
-- 成本：免费额度足够个人使用
+3. **App Configuration**
+   - Open BeeCount → Profile → Cloud Service
+   - Select "Custom Cloud Service"
+   - Enter your Supabase URL and anon key
+   - Login/register and start syncing
 
-### 4.2 创建项目
+For detailed configuration guide, please refer to the project documentation.
 
-1. <https://supabase.com> 注册
-2. New Project → 选区域 → 设数据库密码
-3. 进入项目 Settings → 找到：
+## 🛠️ Development Guide
 
-- URL: `https://your-project-id.supabase.co`
-- anon key: 浏览器侧公开密钥（不要使用 service_role）
+### Tech Stack
 
-### 4.3 配置方式
+- **Flutter 3.27+**: Cross-platform UI framework
+- **Riverpod**: State management solution
+- **Drift (SQLite)**: Local database ORM
+- **Supabase**: Cloud backup and sync service
 
-方式一：assets/config.json
+### Project Structure
 
-```json
-{
-  "SUPABASE_URL": "https://your-project-id.supabase.co",
-  "SUPABASE_ANON_KEY": "your-anon-key-here"
-}
+```
+lib/
+├── data/           # Data models and database operations
+├── pages/          # Application pages
+├── widgets/        # Reusable components
+├── cloud/          # Cloud service integration
+├── l10n/           # Internationalization resources
+├── providers/      # Riverpod state providers
+└── utils/          # Utility functions
 ```
 
-方式二：运行时注入
+### Development Commands
 
 ```bash
-flutter run \
-  --dart-define=SUPABASE_URL=https://your-project-id.supabase.co \
-  --dart-define=SUPABASE_ANON_KEY=your-anon-key-here
-```
+# Install dependencies
+flutter pub get
 
-> 当前版本仅使用 Supabase **Storage** 存放备份文件（JSON / 压缩），无须手动创建数据库表（后续可能扩展）。
+# Code generation
+dart run build_runner build --delete-conflicting-outputs
 
-### 4.4 创建 Storage Bucket
+# Run tests
+flutter test
 
-1. Project → Storage → New Bucket
-2. 名称：`beecount-backups`
-3. 访问：推荐 Private
-4. 启用后添加访问策略（见下）
-
-文件命名（客户端自动）：
-
-- `users/{user_id}/ledger_{ledgerId}.json` 或 `users/{user_id}/ledger_{ledgerId}.json.gz`
-
-### 4.5 运行时切换自定义云服务
-
-路径：我的 → 云服务  
-操作：
-
-- 填入 Supabase URL + anon key
-- 登录 / 注册（邮箱）
-- 首次启用：为每个账本执行一次“上传”初始化
-- 可随时切回默认配置，原自定义设置会被保留
-
-安全提示：不要使用 service_role key。
-
-### 4.6 Storage 策略（RLS Policies）
-
-目标：仅允许用户访问自己目录：`users/{auth.uid()}/...`
-
-在 SQL Editor 中（或 Storage → Policies）依次创建策略（对象表：`storage.objects`）。确保 bucket 已创建且策略作用范围包含该 bucket。示例（PostgreSQL）：
-
-SELECT / 读取
-
-```sql
-create policy "beecount_select_own"
-on storage.objects for select
-using (
-  bucket_id = 'beecount-backups'
-  and (storage.foldername(name))[1] = 'users'
-  and (storage.foldername(name))[2] = auth.uid()::text
-);
-```
-
-INSERT / 上传
-
-```sql
-create policy "beecount_insert_own"
-on storage.objects for insert
-with check (
-  bucket_id = 'beecount-backups'
-  and (storage.foldername(name))[1] = 'users'
-  and (storage.foldername(name))[2] = auth.uid()::text
-);
-```
-
-UPDATE
-
-```sql
-create policy "beecount_update_own"
-on storage.objects for update
-using (
-  bucket_id = 'beecount-backups'
-  and (storage.foldername(name))[1] = 'users'
-  and (storage.foldername(name))[2] = auth.uid()::text
-)
-with check (
-  bucket_id = 'beecount-backups'
-  and (storage.foldername(name))[1] = 'users'
-  and (storage.foldername(name))[2] = auth.uid()::text
-);
-```
-
-DELETE
-
-```sql
-create policy "beecount_delete_own"
-on storage.objects for delete
-using (
-  bucket_id = 'beecount-backups'
-  and (storage.foldername(name))[1] = 'users'
-  and (storage.foldername(name))[2] = auth.uid()::text
-);
-```
-
-> 若 Bucket 设为 Private 必须有上述策略；否则客户端无法读写。
-
----
-
-## 5. 构建与发布（需要自行打包 / iOS 安装时再看）
-
-如果你只是 Android 普通用户并已下载 Release APK，可跳过此节。
-
-风味
-
-- Android flavors：dev（测试）、prod（发布）
-- Debug 应用名：“蜜蜂记账测试版”
-- Release 产物：`app-prod-release-vX.Y.Z(build).apk`
-
-Android
-Debug：
-
-```bash
-flutter build apk --flavor dev --debug
-```
-
-Release：
-
-1. 复制 `android/key.properties.sample` → `android/key.properties` 并填写  
-2. 构建：
-
-```bash
+# Build release version
 flutter build apk --flavor prod --release
 ```
 
-iOS
+### Contribution Guidelines
 
-- 用 Xcode 打开 `ios/Runner.xcworkspace` → Archive → Distribute
+1. Fork this project
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'feat: add some feature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Create Pull Request
 
-CI
+**Commit Convention**: Use Chinese commit messages in format `type: brief description`
+- `feat:` New feature
+- `fix:` Bug fix
+- `refactor:` Code refactoring
+- `style:` Style adjustments
+- `docs:` Documentation updates
 
-- GitHub Actions 依据标签自动打包并创建 Release
-- 应用内“关于 / 检测更新”展示最新版本
+## 📄 Open Source License
 
----
+This project is open-sourced under the [MIT License](LICENSE). You are free to use, modify, and distribute.
 
-## 6. 成本 & 安全最佳实践
+## ⚠️ Disclaimer
 
-安全建议
+- This software is provided "as is" without any express or implied warranties
+- Users are responsible for any data loss or financial loss caused by using this software
+- Please ensure legal and compliant use of this software
 
-- 仅使用 anon key
-- （未来若用数据库）开启 RLS 并编写策略
-- 私有 Bucket + 严格策略
-- 定期 CSV 线下备份
-- 强密码 + 2FA
+## 💬 FAQ
 
-成本（Supabase 免费层示例）
+**Q: Can I use it normally without configuring cloud services?**
+A: Absolutely! The app uses local storage by default, and all features work normally. You can still export CSV at any time.
 
-- 500MB PostgreSQL
-- 50MB 文件存储
-- 2GB 流量/月  
-个人记账足够；超出后付费层起步 $25/月。
+**Q: Can I switch back to default mode after configuring custom cloud service?**
+A: Yes, you can switch anytime. The saved custom configuration won't be lost and can be re-enabled.
 
----
+**Q: How to ensure data security?**
+A: We recommend using your own Supabase project, configuring proper access policies, regularly exporting CSV backups, using strong passwords and enabling two-factor authentication.
 
-## 7. 开发指南（贡献 / 二次开发）
+**Q: What data formats are supported?**
+A: Currently supports CSV format for import/export, compatible with data formats from most mainstream accounting apps.
 
-主要技术
-
-- Flutter + Riverpod + Drift (SQLite)
-- 结构：`lib/pages`（页面）、`lib/widgets`（组件）、`lib/data`（数据层）、`lib/cloud`（云服务）、`lib/styles`（样式）
-
-代码约定
-
-- 颜色 / 间距：`lib/styles`
-- Header：`lib/widgets/ui/primary_header.dart`
-- 日志：`lib/utils/logger.dart`
-
-常用命令
-
-```bash
-flutter pub get
-dart run build_runner build -d
-```
+**Q: How to sync data across multiple devices?**
+A: Configure the same Supabase URL and anon key on all devices, and log in with the same account for automatic sync.
 
 ---
 
-## 8. 开源协议与免责声明
+## 🙏 Acknowledgments
 
-- 协议：MIT（见 LICENSE）
-- 免责声明：
-  - 本软件按“现状”提供，不提供任何明示或暗示保证
-  - 使用导致的数据丢失、经济损失由使用者自行承担
-  - 请合法、合规使用
+Thanks to all friends who have contributed code, suggestions, and feedback to the BeeCount project!
 
----
+If you have questions or suggestions, feel free to raise them in [Issues](https://github.com/FBSocial/BeeCount/issues) or participate in discussions at [Discussions](https://github.com/FBSocial/BeeCount/discussions).
 
----
-
-### FAQ（简短）
-
-**Q: 不配置 Supabase 能一直用吗？** 可以，全部本地存储。你仍可随时导出 CSV。  
-**Q: 自定义 Supabase 后能再切回默认吗？** 可以，且已保存的自定义配置不会丢失，可再次启用。  
-**Q: 上传/下载失败？** 检查 anon key、Bucket 策略、网络或时间是否同步。  
-**Q: 安全性？** 仅使用 anon key，Storage 目录隔离到 `users/{uid}`，策略限制跨用户访问。  
-
----
-
-欢迎提交 Issue / PR 改进功能与策略示例。  
-如有建议可在仓库讨论区提出。  
-感谢使用 蜜蜂记账 🐝
+**BeeCount 🐝 - Making Accounting Simple and Secure**

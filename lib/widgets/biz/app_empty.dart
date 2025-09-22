@@ -1,10 +1,11 @@
 import 'package:beecount/widgets/biz/bee_icon.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 class AppEmpty extends StatelessWidget {
-  final String text;
+  final String? text;
   final String? subtext;
-  const AppEmpty({super.key, this.text = '暂无数据', this.subtext});
+  const AppEmpty({super.key, this.text, this.subtext});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +37,7 @@ class AppEmpty extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            Text(text,
+            Text(text ?? AppLocalizations.of(context).commonEmpty,
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(fontWeight: FontWeight.w600)),
             if (subtext != null) ...[

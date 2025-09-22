@@ -9,6 +9,7 @@ import 'pages/category_picker.dart';
 import 'pages/personalize_page.dart' show headerStyleProvider;
 import 'providers.dart';
 import 'utils/ui_scale_extensions.dart';
+import 'l10n/app_localizations.dart';
 
 class BeeApp extends ConsumerStatefulWidget {
   const BeeApp({super.key});
@@ -64,22 +65,23 @@ class _BeeAppState extends ConsumerState<BeeApp> {
                     : Colors.black54;
                 IconData icon;
                 String label;
+                final l10n = AppLocalizations.of(context);
                 switch (pageIndex) {
                   case 0:
                     icon = Icons.list_alt_rounded;
-                    label = '明细';
+                    label = l10n.tabHome;
                     break;
                   case 1:
                     icon = Icons.pie_chart_rounded;
-                    label = '图表';
+                    label = l10n.tabAnalytics;
                     break;
                   case 2:
                     icon = Icons.menu_book_rounded;
-                    label = '账本';
+                    label = l10n.tabLedgers;
                     break;
                   default:
                     icon = Icons.person_rounded;
-                    label = '我的';
+                    label = l10n.tabMine;
                 }
                 return Expanded(
                   child: InkWell(

@@ -18,10 +18,14 @@ import 'cloud_service_page.dart';
 import '../utils/logger.dart';
 import '../services/restore_service.dart';
 import 'restore_progress_page.dart';
+import '../utils/format_utils.dart';
+import '../l10n/app_localizations.dart';
 import 'font_settings_page.dart';
 import 'category_manage_page.dart';
 import 'category_migration_page.dart';
 import 'reminder_settings_page.dart';
+import 'language_settings_page.dart';
+import '../l10n/app_localizations.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/format_utils.dart';
@@ -49,8 +53,8 @@ class MinePage extends ConsumerWidget {
         if (!check.needsRestore) return;
         if (!context.mounted) return;
         final ok = await AppDialog.confirm<bool>(context,
-                title: '发现云端备份',
-                message: '检测到云端与本地账本不一致，是否恢复到本地？\n(将进入恢复进度页)') ??
+                title: AppLocalizations.of(context).cloudBackupFound,
+                message: AppLocalizations.of(context).cloudBackupRestoreMessage) ??
             false;
         if (!ok || !context.mounted) return;
         RestoreService.startBackgroundRestore(check.backups, ref);
@@ -61,7 +65,7 @@ class MinePage extends ConsumerWidget {
         ref.read(statsRefreshProvider.notifier).state++;
       } catch (e) {
         if (!context.mounted) return;
-        await AppDialog.error(context, title: '恢复失败', message: '$e');
+        await AppDialog.error(context, title: AppLocalizations.of(context).cloudBackupRestoreFailed, message: '$e');
       }
     });
 
@@ -71,7 +75,7 @@ class MinePage extends ConsumerWidget {
         children: [
           PrimaryHeader(
             showBack: false,
-            title: '我的',
+            title: AppLocalizations.of(context).mineTitle,
             compact: true,
             showTitleSection: false,
             content: Padding(
@@ -88,7 +92,7 @@ class MinePage extends ConsumerWidget {
                           color: Theme.of(context).colorScheme.primary,
                           size: 48.0.scaled(context, ref),
                         ),
-                        Text('我的', style: AppTextTokens.title(context)),
+                        Text(AppLocalizations.of(context).mineTitle, style: AppTextTokens.title(context)),
                       ],
                     ),
                     SizedBox(width: 12.0.scaled(context, ref)),
@@ -98,7 +102,7 @@ class MinePage extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '蜜蜂记账，一笔一蜜',
+                            AppLocalizations.of(context).mineSlogan,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -117,10 +121,16 @@ class MinePage extends ConsumerWidget {
                                 countsForLedgerProvider(currentLedgerId));
                             final balanceAsync = ref
                                 .watch(currentBalanceProvider(currentLedgerId));
+                            final currentLedgerAsync = ref.watch(currentLedgerProvider);
+                            final selectedLocale = ref.watch(languageProvider);
 
                             final day = countsAsync.asData?.value.dayCount ?? 0;
                             final tx = countsAsync.asData?.value.txCount ?? 0;
                             final balance = balanceAsync.asData?.value ?? 0.0;
+                            final currentLedger = currentLedgerAsync.asData?.value;
+                            final currencyCode = currentLedger?.currency ?? 'CNY';
+                            final isChineseLocale = selectedLocale?.languageCode == 'zh' ||
+                                (selectedLocale == null && Localizations.localeOf(context).languageCode == 'zh');
 
                             final labelStyle = Theme.of(context)
                                 .textTheme
@@ -134,20 +144,20 @@ class MinePage extends ConsumerWidget {
                               child: Row(children: [
                                 Expanded(
                                     child: _StatCell(
-                                        label: '记账天数',
+                                        label: AppLocalizations.of(context).mineDaysCount,
                                         value: day.toString(),
                                         labelStyle: labelStyle,
                                         numStyle: numStyle)),
                                 Expanded(
                                     child: _StatCell(
-                                        label: '总笔数',
+                                        label: AppLocalizations.of(context).mineTotalRecords,
                                         value: tx.toString(),
                                         labelStyle: labelStyle,
                                         numStyle: numStyle)),
                                 Expanded(
                                     child: _StatCell(
-                                        label: '当前余额',
-                                        value: formatBalance(balance),
+                                        label: AppLocalizations.of(context).mineCurrentBalance,
+                                        value: formatBalance(balance, currencyCode, isChineseLocale: isChineseLocale),
                                         labelStyle: labelStyle,
                                         numStyle: numStyle.copyWith(
                                           color: balance >= 0
@@ -180,13 +190,13 @@ class MinePage extends ConsumerWidget {
                         final activeCfg = r.watch(activeCloudConfigProvider);
                         return AppListTile(
                           leading: Icons.cloud_queue_outlined,
-                          title: '云服务',
+                          title: AppLocalizations.of(context).mineCloudService,
                           subtitle: activeCfg.when(
-                            loading: () => '加载中…',
-                            error: (e, _) => '错误: $e',
+                            loading: () => AppLocalizations.of(context).mineCloudServiceLoading,
+                            error: (e, _) => '${AppLocalizations.of(context).commonError}: $e',
                             data: (cfg) => cfg.builtin
-                                ? (cfg.valid ? '默认云服务 (已启用)' : '默认模式 (离线)')
-                                : '自定义 Supabase',
+                                ? (cfg.valid ? AppLocalizations.of(context).mineCloudServiceDefault : AppLocalizations.of(context).mineCloudServiceOffline)
+                                : AppLocalizations.of(context).mineCloudServiceCustom,
                           ),
                           onTap: () async {
                             await Navigator.of(context).push(
@@ -234,8 +244,8 @@ class MinePage extends ConsumerWidget {
                     children: [
                       AppListTile(
                         leading: Icons.category_outlined,
-                        title: '分类管理',
-                        subtitle: '编辑自定义分类',
+                        title: AppLocalizations.of(context).mineCategoryManagement,
+                        subtitle: AppLocalizations.of(context).mineCategoryManagementSubtitle,
                         onTap: () async {
                           await Navigator.of(context).push(
                             MaterialPageRoute(
@@ -246,8 +256,8 @@ class MinePage extends ConsumerWidget {
                       AppDivider.thin(),
                       AppListTile(
                         leading: Icons.swap_horiz,
-                        title: '分类迁移',
-                        subtitle: '将分类数据迁移到其他分类',
+                        title: AppLocalizations.of(context).mineCategoryMigration,
+                        subtitle: AppLocalizations.of(context).mineCategoryMigrationSubtitle,
                         onTap: () async {
                           await Navigator.of(context).push(
                             MaterialPageRoute(
@@ -258,8 +268,8 @@ class MinePage extends ConsumerWidget {
                       AppDivider.thin(),
                       AppListTile(
                         leading: Icons.notifications_outlined,
-                        title: '记账提醒',
-                        subtitle: '设置每日记账提醒',
+                        title: AppLocalizations.of(context).mineReminderSettings,
+                        subtitle: AppLocalizations.of(context).mineReminderSettingsSubtitle,
                         onTap: () async {
                           await Navigator.of(context).push(
                             MaterialPageRoute(
@@ -270,7 +280,7 @@ class MinePage extends ConsumerWidget {
                       AppDivider.thin(),
                       AppListTile(
                         leading: Icons.brush_outlined,
-                        title: '个性装扮',
+                        title: AppLocalizations.of(context).minePersonalize,
                         onTap: () async {
                           await Navigator.of(context).push(
                             MaterialPageRoute(
@@ -286,8 +296,8 @@ class MinePage extends ConsumerWidget {
                   margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0, 12.0.scaled(context, ref), 0),
                   child: AppListTile(
                     leading: Icons.zoom_out_map_outlined,
-                    title: '显示缩放',
-                    subtitle: '调整文字和界面元素大小',
+                    title: AppLocalizations.of(context).mineDisplayScale,
+                    subtitle: AppLocalizations.of(context).mineDisplayScaleSubtitle,
                     onTap: () async {
                       await Navigator.of(context).push(
                         MaterialPageRoute(
@@ -296,6 +306,9 @@ class MinePage extends ConsumerWidget {
                     },
                   ),
                 ),
+                // 语言设置
+                SizedBox(height: 8.0.scaled(context, ref)),
+                _buildLanguageSection(context, ref),
                 // 关于与版本
                 SizedBox(height: 8.0.scaled(context, ref)),
                 _buildAboutSection(context, ref),
@@ -332,37 +345,60 @@ class MinePage extends ConsumerWidget {
     if (!isFirstLoad) {
       switch (st.diff) {
         case SyncDiff.notLoggedIn:
-          subtitle = '未登录';
+          subtitle = AppLocalizations.of(context).mineSyncNotLoggedIn;
           icon = Icons.lock_outline;
           notLoggedIn = true;
           break;
         case SyncDiff.notConfigured:
-          subtitle = '未配置云端';
+          subtitle = AppLocalizations.of(context).mineSyncNotConfigured;
           icon = Icons.cloud_off_outlined;
           break;
         case SyncDiff.noRemote:
-          subtitle = '云端暂无备份';
+          subtitle = AppLocalizations.of(context).mineSyncNoRemote;
           icon = Icons.cloud_queue_outlined;
           break;
         case SyncDiff.inSync:
-          subtitle = '已同步 (本地${st.localCount}条)';
+          subtitle = AppLocalizations.of(context).mineSyncInSync(st.localCount);
           icon = Icons.verified_outlined;
           inSync = true;
           break;
         case SyncDiff.localNewer:
-          subtitle = '本地较新 (本地${st.localCount}条, 建议上传)';
+          subtitle = AppLocalizations.of(context).mineSyncLocalNewer(st.localCount);
           icon = Icons.upload_outlined;
           break;
         case SyncDiff.cloudNewer:
-          subtitle = '云端较新 (建议下载并合并)';
+          subtitle = AppLocalizations.of(context).mineSyncCloudNewer;
           icon = Icons.download_outlined;
           break;
         case SyncDiff.different:
-          subtitle = '本地与云端不同步';
+          subtitle = AppLocalizations.of(context).mineSyncDifferent;
           icon = Icons.change_circle_outlined;
           break;
         case SyncDiff.error:
-          subtitle = st.message ?? '状态获取失败';
+          // 本地化同步消息
+          String? localizedMessage;
+          if (st.message != null) {
+            switch (st.message!) {
+              case '__SYNC_NOT_CONFIGURED__':
+                localizedMessage = AppLocalizations.of(context).syncNotConfiguredMessage;
+                break;
+              case '__SYNC_NOT_LOGGED_IN__':
+                localizedMessage = AppLocalizations.of(context).syncNotLoggedInMessage;
+                break;
+              case '__SYNC_CLOUD_BACKUP_CORRUPTED__':
+                localizedMessage = AppLocalizations.of(context).syncCloudBackupCorruptedMessage;
+                break;
+              case '__SYNC_NO_CLOUD_BACKUP__':
+                localizedMessage = AppLocalizations.of(context).syncNoCloudBackupMessage;
+                break;
+              case '__SYNC_ACCESS_DENIED__':
+                localizedMessage = AppLocalizations.of(context).syncAccessDeniedMessage;
+                break;
+              default:
+                localizedMessage = st.message;
+            }
+          }
+          subtitle = localizedMessage ?? AppLocalizations.of(context).mineSyncError;
           icon = Icons.error_outline;
           break;
       }
@@ -385,14 +421,14 @@ class MinePage extends ConsumerWidget {
             return Column(children: [
               AppListTile(
                 leading: Icons.cloud_upload,
-                title: '首次全量上传',
-                subtitle: '将所有本地账本上传到当前 Supabase',
+                title: AppLocalizations.of(context).mineFirstFullUpload,
+                subtitle: AppLocalizations.of(context).mineFirstFullUploadSubtitle,
                 onTap: () async {
                   try {
                     await sync.uploadCurrentLedger(ledgerId: ledgerId);
                     if (context.mounted) {
                       await AppDialog.info(context,
-                          title: '完成', message: '已上传当前账本。其它账本请切换后再上传。');
+                          title: AppLocalizations.of(context).mineFirstFullUploadComplete, message: AppLocalizations.of(context).mineFirstFullUploadMessage);
                     }
                     await r3
                         .read(cloudServiceStoreProvider)
@@ -402,7 +438,7 @@ class MinePage extends ConsumerWidget {
                   } catch (e) {
                     if (context.mounted) {
                       await AppDialog.error(context,
-                          title: '失败', message: '$e');
+                          title: AppLocalizations.of(context).mineFirstFullUploadFailed, message: '$e');
                     }
                   }
                 },
@@ -412,7 +448,7 @@ class MinePage extends ConsumerWidget {
           }),
           AppListTile(
             leading: icon,
-            title: '同步',
+            title: AppLocalizations.of(context).mineSyncTitle,
             subtitle: isFirstLoad ? null : subtitle,
             enabled: canUseCloud &&
                 !isFirstLoad &&
@@ -435,30 +471,50 @@ class MinePage extends ConsumerWidget {
                 : () async {
                     if (!context.mounted) return;
                     final lines = <String>[
-                      '本地记录数: ${st.localCount}',
-                      if (st.cloudCount != null) '云端记录数: ${st.cloudCount}',
+                      AppLocalizations.of(context).mineSyncLocalRecords(st.localCount),
+                      if (st.cloudCount != null) AppLocalizations.of(context).mineSyncCloudRecords(st.cloudCount!),
                       if (st.cloudExportedAt != null)
-                        '云端最新记账时间: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(st.cloudExportedAt!.toLocal())}',
-                      '本地指纹: ${st.localFingerprint}',
+                        AppLocalizations.of(context).mineSyncCloudLatest(DateFormat('yyyy-MM-dd HH:mm:ss').format(st.cloudExportedAt!.toLocal())),
+                      AppLocalizations.of(context).mineSyncLocalFingerprint(st.localFingerprint),
                       if (st.cloudFingerprint != null)
-                        '云端指纹: ${st.cloudFingerprint}',
-                      if (st.message != null) '说明: ${st.message}',
+                        AppLocalizations.of(context).mineSyncCloudFingerprint(st.cloudFingerprint!),
+                      if (st.message != null) () {
+                        String localizedMessage = st.message!;
+                        switch (st.message!) {
+                          case '__SYNC_NOT_CONFIGURED__':
+                            localizedMessage = AppLocalizations.of(context).syncNotConfiguredMessage;
+                            break;
+                          case '__SYNC_NOT_LOGGED_IN__':
+                            localizedMessage = AppLocalizations.of(context).syncNotLoggedInMessage;
+                            break;
+                          case '__SYNC_CLOUD_BACKUP_CORRUPTED__':
+                            localizedMessage = AppLocalizations.of(context).syncCloudBackupCorruptedMessage;
+                            break;
+                          case '__SYNC_NO_CLOUD_BACKUP__':
+                            localizedMessage = AppLocalizations.of(context).syncNoCloudBackupMessage;
+                            break;
+                          case '__SYNC_ACCESS_DENIED__':
+                            localizedMessage = AppLocalizations.of(context).syncAccessDeniedMessage;
+                            break;
+                        }
+                        return AppLocalizations.of(context).mineSyncMessage(localizedMessage);
+                      }(),
                     ];
                     await AppDialog.info(context,
-                        title: '同步状态详情', message: lines.join('\n'));
+                        title: AppLocalizations.of(context).mineSyncDetailTitle, message: lines.join('\n'));
                   },
           ),
           AppDivider.thin(),
           AppListTile(
             leading: Icons.cloud_upload_outlined,
-            title: '上传',
+            title: AppLocalizations.of(context).mineUploadTitle,
             subtitle: isFirstLoad
                 ? null
                 : (!canUseCloud || notLoggedIn)
-                    ? '需登录'
+                    ? AppLocalizations.of(context).mineUploadNeedLogin
                     : uploadBusy
-                        ? '正在上传中…'
-                        : (refreshing ? '刷新中…' : (inSync ? '已同步' : null)),
+                        ? AppLocalizations.of(context).mineUploadInProgress
+                        : (refreshing ? AppLocalizations.of(context).mineUploadRefreshing : (inSync ? AppLocalizations.of(context).mineUploadSynced : null)),
             enabled: canUseCloud &&
                 !inSync &&
                 !notLoggedIn &&
@@ -478,7 +534,7 @@ class MinePage extends ConsumerWidget {
                 await sync.uploadCurrentLedger(ledgerId: ledgerId);
                 if (!context.mounted) return;
                 await AppDialog.info(context,
-                    title: '已上传', message: '当前账本已同步到云端');
+                    title: AppLocalizations.of(context).mineUploadSuccess, message: AppLocalizations.of(context).mineUploadSuccessMessage);
                 Future(() async {
                   try {
                     await sync.refreshCloudFingerprint(ledgerId: ledgerId);
@@ -504,7 +560,7 @@ class MinePage extends ConsumerWidget {
                 });
               } catch (e) {
                 if (!context.mounted) return;
-                await AppDialog.info(context, title: '失败', message: '$e');
+                await AppDialog.info(context, title: AppLocalizations.of(context).commonFailed, message: '$e');
               } finally {
                 if (ctx.mounted) setSB(() => uploadBusy = false);
               }
@@ -513,12 +569,12 @@ class MinePage extends ConsumerWidget {
           AppDivider.thin(),
           AppListTile(
             leading: Icons.cloud_download_outlined,
-            title: '下载',
+            title: AppLocalizations.of(context).mineDownloadTitle,
             subtitle: isFirstLoad
                 ? null
                 : (!canUseCloud || notLoggedIn)
-                    ? '需登录'
-                    : (refreshing ? '刷新中…' : (inSync ? '已同步' : null)),
+                    ? AppLocalizations.of(context).mineUploadNeedLogin
+                    : (refreshing ? AppLocalizations.of(context).mineUploadRefreshing : (inSync ? AppLocalizations.of(context).mineUploadSynced : null)),
             enabled: canUseCloud &&
                 !inSync &&
                 !notLoggedIn &&
@@ -539,16 +595,13 @@ class MinePage extends ConsumerWidget {
                 final res = await sync.downloadAndRestoreToCurrentLedger(
                     ledgerId: ledgerId);
                 if (!context.mounted) return;
-                final msg = StringBuffer()
-                  ..writeln('新增导入：${res.inserted} 条')
-                  ..writeln('已存在跳过：${res.skipped} 条')
-                  ..writeln('清理历史重复：${res.deletedDup} 条');
+                final msg = AppLocalizations.of(context).mineDownloadResult(res.inserted, res.skipped, res.deletedDup);
                 await AppDialog.info(context,
-                    title: '完成', message: msg.toString());
+                    title: AppLocalizations.of(context).mineDownloadComplete, message: msg);
                 ref.read(syncStatusRefreshProvider.notifier).state++;
               } catch (e) {
                 if (!context.mounted) return;
-                await AppDialog.error(context, title: '失败', message: '$e');
+                await AppDialog.error(context, title: AppLocalizations.of(context).commonFailed, message: '$e');
               } finally {
                 if (ctx.mounted) setSB(() => downloadBusy = false);
               }
@@ -561,8 +614,8 @@ class MinePage extends ConsumerWidget {
             return AppListTile(
               leading:
                   userNow == null ? Icons.login : Icons.verified_user_outlined,
-              title: userNow == null ? '登录 / 注册' : (userNow.email ?? '已登录'),
-              subtitle: userNow == null ? '仅在同步时需要' : '点击可退出登录',
+              title: userNow == null ? AppLocalizations.of(context).mineLoginTitle : (userNow.email ?? AppLocalizations.of(context).mineLoggedInEmail),
+              subtitle: userNow == null ? AppLocalizations.of(context).mineLoginSubtitle : AppLocalizations.of(context).mineLogoutSubtitle,
               onTap: () async {
                 if (userNow == null) {
                   await Navigator.of(context).push(
@@ -572,10 +625,10 @@ class MinePage extends ConsumerWidget {
                 } else {
                   final confirmed = await AppDialog.confirm<bool>(
                     context,
-                    title: '退出登录',
-                    message: '确定要退出当前账号登录吗？\n退出后将无法使用云同步功能。',
-                    okLabel: '退出',
-                    cancelLabel: '取消',
+                    title: AppLocalizations.of(context).mineLogoutConfirmTitle,
+                    message: AppLocalizations.of(context).mineLogoutConfirmMessage,
+                    okLabel: AppLocalizations.of(context).mineLogoutButton,
+                    cancelLabel: AppLocalizations.of(context).commonCancel,
                   ) ?? false;
                   
                   if (confirmed) {
@@ -594,8 +647,8 @@ class MinePage extends ConsumerWidget {
             final value = autoSync.asData?.value ?? false;
             final can = canUseCloud;
             return SwitchListTile(
-              title: const Text('自动同步账本'),
-              subtitle: can ? const Text('记账后自动上传到云端') : const Text('需登录后可开启'),
+              title: Text(AppLocalizations.of(context).mineAutoSyncTitle),
+              subtitle: can ? Text(AppLocalizations.of(context).mineAutoSyncSubtitle) : Text(AppLocalizations.of(context).mineAutoSyncNeedLogin),
               value: can ? value : false,
               onChanged: can
                   ? (v) async {
@@ -619,7 +672,7 @@ class MinePage extends ConsumerWidget {
             if (!p.running && p.total == 0) {
               return AppListTile(
                 leading: Icons.file_upload_outlined,
-                title: '导入',
+                title: AppLocalizations.of(context).mineImport,
                 onTap: () async {
                   await Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const ImportPage()),
@@ -632,8 +685,8 @@ class MinePage extends ConsumerWidget {
                   p.total == 0 ? null : (p.done / p.total).clamp(0.0, 1.0);
               return AppListTile(
                 leading: Icons.upload_outlined,
-                title: '后台导入中…',
-                subtitle: '进度：${p.done}/${p.total}，成功 ${p.ok}，失败 ${p.fail}',
+                title: AppLocalizations.of(context).mineImportProgressTitle,
+                subtitle: AppLocalizations.of(context).mineImportProgressSubtitle(p.done, p.total, p.ok, p.fail),
                 trailing: SizedBox(
                     width: 72, child: LinearProgressIndicator(value: percent)),
                 onTap: null,
@@ -643,15 +696,15 @@ class MinePage extends ConsumerWidget {
             if (allOk) return const _ImportSuccessTile();
             return AppListTile(
               leading: Icons.info_outline,
-              title: '导入完成',
-              subtitle: '成功 ${p.ok}，失败 ${p.fail}',
+              title: AppLocalizations.of(context).mineImportCompleteTitle,
+              subtitle: '${AppLocalizations.of(context).commonSuccess} ${p.ok}，${AppLocalizations.of(context).commonFailed} ${p.fail}',
               onTap: null,
             );
           }),
           AppDivider.thin(),
           AppListTile(
             leading: Icons.file_download_outlined,
-            title: '导出',
+            title: AppLocalizations.of(context).mineExport,
             onTap: () async {
               await Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ExportPage()),
@@ -669,7 +722,7 @@ class MinePage extends ConsumerWidget {
       child: Column(children: [
         AppListTile(
           leading: Icons.info_outline,
-          title: '关于',
+          title: AppLocalizations.of(context).mineAboutTitle,
           onTap: () async {
             final info = await _getAppInfo();
             if (!context.mounted) return;
@@ -677,13 +730,13 @@ class MinePage extends ConsumerWidget {
                 ? '${info.version} (${info.buildNumber})'
                 : info.version;
             final msg =
-                '应用：蜜蜂记账\n版本：$versionText\n开源地址：https://github.com/TNT-Likely/BeeCount\n开源协议：详见仓库 LICENSE';
+                '${AppLocalizations.of(context).mineAboutAppName}\n${AppLocalizations.of(context).mineAboutVersion(versionText)}\n${AppLocalizations.of(context).mineAboutRepo}\n${AppLocalizations.of(context).mineAboutLicense}';
             final open = await AppDialog.confirm<bool>(
                   context,
-                  title: '关于',
+                  title: AppLocalizations.of(context).mineAboutTitle,
                   message: msg,
-                  okLabel: '打开 GitHub',
-                  cancelLabel: '关闭',
+                  okLabel: AppLocalizations.of(context).mineAboutOpenGitHub,
+                  cancelLabel: AppLocalizations.of(context).commonClose,
                 ) ??
                 false;
             if (open) {
@@ -699,14 +752,14 @@ class MinePage extends ConsumerWidget {
           
           // 确定显示状态
           bool showProgress = false;
-          String title = '检测更新';
+          String title = AppLocalizations.of(context).mineCheckUpdate;
           String? subtitle;
           IconData icon = Icons.system_update_alt_outlined;
           Widget? trailing;
           
           if (isLoading) {
-            title = '检测更新中...';
-            subtitle = '正在检查最新版本';
+            title = AppLocalizations.of(context).mineCheckUpdateDetecting;
+            subtitle = AppLocalizations.of(context).mineCheckUpdateSubtitleDetecting;
             icon = Icons.hourglass_empty;
             trailing = const SizedBox(
               width: 20,
@@ -715,7 +768,7 @@ class MinePage extends ConsumerWidget {
             );
           } else if (downloadProgress.isActive) {
             showProgress = true;
-            title = '下载更新';
+            title = AppLocalizations.of(context).mineUpdateDownloadTitle;
             icon = Icons.download_outlined;
             trailing = SizedBox(
               width: 20,
@@ -759,8 +812,8 @@ class MinePage extends ConsumerWidget {
       child: Column(children: [
         AppListTile(
           leading: Icons.refresh,
-          title: '刷新统计信息（临时）',
-          subtitle: '触发全局统计 Provider 重新计算',
+          title: AppLocalizations.of(context).mineDebugRefreshStats,
+          subtitle: AppLocalizations.of(context).mineDebugRefreshStatsSubtitle,
           onTap: () {
             ref.read(statsRefreshProvider.notifier).state++;
           },
@@ -768,13 +821,68 @@ class MinePage extends ConsumerWidget {
         AppDivider.thin(),
         AppListTile(
           leading: Icons.sync,
-          title: '刷新同步状态（临时）',
-          subtitle: '触发同步状态 Provider 重新获取',
+          title: AppLocalizations.of(context).mineDebugRefreshSync,
+          subtitle: AppLocalizations.of(context).mineDebugRefreshSyncSubtitle,
           onTap: () {
             ref.read(syncStatusRefreshProvider.notifier).state++;
           },
         ),
       ]),
+    );
+  }
+
+  Widget _buildLanguageSection(BuildContext context, WidgetRef ref) {
+    final currentLanguage = ref.watch(languageProvider);
+    final l10n = AppLocalizations.of(context);
+
+    // 获取当前语言显示名称
+    String currentLanguageDisplay;
+    if (currentLanguage == null) {
+      currentLanguageDisplay = l10n.languageSystemDefault;
+    } else {
+      switch (currentLanguage.languageCode) {
+        case 'zh':
+          currentLanguageDisplay = l10n.languageChinese;
+          break;
+        case 'en':
+          currentLanguageDisplay = l10n.languageEnglish;
+          break;
+        default:
+          currentLanguageDisplay = currentLanguage.languageCode;
+      }
+    }
+
+    return SectionCard(
+      margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0, 12.0.scaled(context, ref), 0),
+      child: AppListTile(
+        leading: Icons.language_outlined,
+        title: l10n.mineLanguageSettings,
+        subtitle: l10n.mineLanguageSettingsSubtitle,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              currentLanguageDisplay,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.chevron_right,
+              color: Colors.grey[400],
+              size: 20,
+            ),
+          ],
+        ),
+        onTap: () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+                builder: (_) => const LanguageSettingsPage()),
+          );
+        },
+      ),
     );
   }
 }
@@ -817,8 +925,8 @@ class _ImportSuccessTile extends StatelessWidget {
       builder: (ctx, v, child) {
         return AppListTile(
           leading: Icons.check_circle_outline,
-          title: '导入完成',
-          subtitle: '全部成功',
+          title: AppLocalizations.of(ctx).mineImportCompleteTitle,
+          subtitle: AppLocalizations.of(ctx).mineImportCompleteAllSuccess,
           trailing: SizedBox(
             width: 72,
             child: LinearProgressIndicator(

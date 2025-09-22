@@ -7,6 +7,7 @@ import '../utils/currencies.dart';
 import '../utils/sync_helpers.dart';
 import '../utils/logger.dart';
 import '../utils/format_utils.dart';
+import '../l10n/app_localizations.dart';
 
 class LedgersPage extends ConsumerWidget {
   const LedgersPage({super.key});
@@ -19,13 +20,13 @@ class LedgersPage extends ConsumerWidget {
       body: Column(
         children: [
           PrimaryHeader(
-            title: '账本管理',
+            title: AppLocalizations.of(context).ledgersTitle,
             showBack: false,
             actions: [
               IconButton(
                 onPressed: () async {
                   final res =
-                      await _showLedgerEditorDialog(context, title: '新建账本');
+                      await _showLedgerEditorDialog(context, title: AppLocalizations.of(context).ledgersNew);
                   if (res != null && res.name.trim().isNotEmpty) {
                     await repo.createLedger(
                         name: res.name.trim(), currency: res.currency);
@@ -34,11 +35,11 @@ class LedgersPage extends ConsumerWidget {
                 icon: const Icon(Icons.add, color: Colors.black),
               ),
               IconButton(
-                tooltip: '清空当前账本',
+                tooltip: AppLocalizations.of(context).ledgersClear,
                 onPressed: () async {
                   final id = ref.read(currentLedgerIdProvider);
                   final confirm = await AppDialog.confirm<bool>(context,
-                      title: '清空当前账本？', message: '将删除该账本下所有交易记录，且不可恢复。');
+                      title: AppLocalizations.of(context).ledgersClearConfirm, message: AppLocalizations.of(context).ledgersClearMessage);
 
                   if (confirm == true) {
                     final n = await repo.clearLedgerTransactions(id);
@@ -50,7 +51,7 @@ class LedgersPage extends ConsumerWidget {
                     ref.read(statsRefreshProvider.notifier).state++;
                     ref.read(syncStatusRefreshProvider.notifier).state++;
                     if (context.mounted) {
-                      showToast(context, '已删除 $n 条记录');
+                      showToast(context, AppLocalizations.of(context).ledgersRecordsDeleted(n));
                     }
                   }
                 },
@@ -100,7 +101,7 @@ class LedgersPage extends ConsumerWidget {
                             return SimpleDialog(
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16)),
-                              title: const Text('操作'),
+                              title: Text(AppLocalizations.of(context).ledgersActions),
                               children: [
                                 SimpleDialogOption(
                                   onPressed: () => Navigator.pop(dctx, 'edit'),
@@ -108,19 +109,19 @@ class LedgersPage extends ConsumerWidget {
                                     children: [
                                       Icon(Icons.edit, color: primary),
                                       const SizedBox(width: 8),
-                                      const Text('编辑'),
+                                      Text(AppLocalizations.of(context).ledgersEdit),
                                     ],
                                   ),
                                 ),
                                 SimpleDialogOption(
                                   onPressed: () =>
                                       Navigator.pop(dctx, 'delete'),
-                                  child: const Row(
+                                  child: Row(
                                     children: [
-                                      Icon(Icons.delete_forever_outlined,
+                                      const Icon(Icons.delete_forever_outlined,
                                           color: Colors.redAccent),
-                                      SizedBox(width: 8),
-                                      Text('删除'),
+                                      const SizedBox(width: 8),
+                                      Text(AppLocalizations.of(context).ledgersDelete),
                                     ],
                                   ),
                                 ),
@@ -132,7 +133,7 @@ class LedgersPage extends ConsumerWidget {
                         if (!context.mounted) return;
                         if (action == 'edit') {
                           final res = await _showLedgerEditorDialog(context,
-                              title: '编辑账本',
+                              title: AppLocalizations.of(context).ledgersEdit,
                               initialName: l.name,
                               initialCurrency: l.currency);
                           if (!context.mounted) return;
@@ -146,9 +147,8 @@ class LedgersPage extends ConsumerWidget {
                           }
                         } else if (action == 'delete') {
                           final ok = await AppDialog.confirm<bool>(context,
-                                  title: '删除账本',
-                                  message:
-                                      '确定要删除该账本及其全部记录吗？此操作不可恢复。\n若云端存在备份，也会一并删除。') ??
+                                  title: AppLocalizations.of(context).ledgersDeleteConfirm,
+                                  message: AppLocalizations.of(context).ledgersDeleteMessage) ??
                               false;
                           if (!context.mounted) return;
                           if (!ok) return;
@@ -192,11 +192,11 @@ class LedgersPage extends ConsumerWidget {
                             ref
                                 .read(syncStatusRefreshProvider.notifier)
                                 .state++;
-                            if (context.mounted) showToast(context, '已删除');
+                            if (context.mounted) showToast(context, AppLocalizations.of(context).ledgersDeleted);
                           } catch (e) {
                             if (context.mounted) {
                               await AppDialog.error(context,
-                                  title: '删除失败', message: '$e');
+                                  title: AppLocalizations.of(context).ledgersDeleteFailed, message: '$e');
                             }
                           }
                         }
@@ -271,10 +271,14 @@ class _LedgerCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(ledger.name,
-                      style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    ledger.name == 'Default Ledger' || ledger.name == '默认账本'
+                        ? AppLocalizations.of(context).ledgersDefaultLedgerName
+                        : ledger.name,
+                    style: Theme.of(context).textTheme.titleMedium
+                  ),
                   const SizedBox(height: 4),
-                  Text('币种：${displayCurrency(ledger.currency)}',
+                  Text('${AppLocalizations.of(context).ledgersCurrency}：${displayCurrency(ledger.currency, context)}',
                       style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: 2),
                   // 显示该账本的总笔数
@@ -301,7 +305,7 @@ class _LedgerTxCount extends ConsumerWidget {
     final counts = ref.watch(countsForLedgerProvider(ledgerId));
     final n = counts.asData?.value.txCount;
     return Text(
-      '笔数：${n ?? '…'}',
+      AppLocalizations.of(context).ledgersRecords(n?.toString() ?? '…'),
       style: Theme.of(context).textTheme.bodySmall,
     );
   }
@@ -314,19 +318,27 @@ class _LedgerBalance extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final balanceAsync = ref.watch(currentBalanceProvider(ledgerId));
+    final ledgerAsync = ref.watch(ledgerByIdProvider(ledgerId));
+    final selectedLocale = ref.watch(languageProvider);
+
     final balance = balanceAsync.asData?.value;
-    
+    final ledger = ledgerAsync.asData?.value;
+
     if (balance == null) {
       return Text(
-        '余额：…',
+        AppLocalizations.of(context).ledgersBalance('…'),
         style: Theme.of(context).textTheme.bodySmall,
       );
     }
-    
+
+    final currencyCode = ledger?.currency ?? 'CNY';
+    final isChineseLocale = selectedLocale?.languageCode == 'zh' ||
+        (selectedLocale == null && Localizations.localeOf(context).languageCode == 'zh');
+
     return Text(
-      '余额：${formatBalance(balance)}',
+      AppLocalizations.of(context).ledgersBalance(formatBalance(balance, currencyCode, isChineseLocale: isChineseLocale)),
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: balance >= 0 
+        color: balance >= 0
           ? Theme.of(context).textTheme.bodySmall?.color
           : Colors.red,
       ),
@@ -346,7 +358,7 @@ Future<String?> _showCurrencyPicker(BuildContext context,
       String query = '';
       String? selected = initial;
       return StatefulBuilder(builder: (sctx, setState) {
-        final filtered = kCurrencies.where((c) {
+        final filtered = getCurrencies(context).where((c) {
           final q = query.trim();
           if (q.isEmpty) return true;
           final uq = q.toUpperCase();
@@ -371,12 +383,12 @@ Future<String?> _showCurrencyPicker(BuildContext context,
                       color: Colors.black12,
                       borderRadius: BorderRadius.circular(2)),
                 ),
-                Text('选择币种', style: Theme.of(bctx).textTheme.titleMedium),
+                Text(AppLocalizations.of(bctx).ledgersSelectCurrency, style: Theme.of(bctx).textTheme.titleMedium),
                 const SizedBox(height: 8),
                 TextField(
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.search),
-                    hintText: '搜索：中文或代码',
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: AppLocalizations.of(bctx).ledgersSearchCurrency,
                   ),
                   onChanged: (v) => setState(() => query = v),
                 ),
@@ -436,13 +448,13 @@ Future<({String name, String currency})?> _showLedgerEditorDialog(
               const SizedBox(height: 12),
               TextField(
                 controller: nameCtrl,
-                decoration: const InputDecoration(labelText: '名称'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(ctx).ledgersName),
               ),
               const SizedBox(height: 12),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('币种'),
-                subtitle: Text(displayCurrency(currency)),
+                title: Text(AppLocalizations.of(ctx).ledgersCurrency),
+                subtitle: Text(displayCurrency(currency, context)),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () async {
                   final picked =
@@ -462,12 +474,12 @@ Future<({String name, String currency})?> _showLedgerEditorDialog(
                       foregroundColor: primary,
                       side: BorderSide(color: primary),
                     ),
-                    child: const Text('取消'),
+                    child: Text(AppLocalizations.of(ctx).commonCancel),
                   ),
                   const SizedBox(width: 12),
                   FilledButton(
                     onPressed: () => Navigator.pop(ctx, true),
-                    child: Text(title.contains('新建') ? '创建' : '保存'),
+                    child: Text(title == AppLocalizations.of(ctx).ledgersNew ? AppLocalizations.of(ctx).ledgersCreate : AppLocalizations.of(ctx).commonSave),
                   ),
                 ],
               ),

@@ -1,0 +1,1132 @@
+{
+  "@@locale": "en",
+  "appTitle": "Bee Accounting",
+  "@appTitle": {
+    "description": "The application title"
+  },
+
+  "tabHome": "Home",
+  "tabAnalytics": "Charts",
+  "tabLedgers": "Ledgers",
+  "tabMine": "Mine",
+
+  "commonCancel": "Cancel",
+  "commonConfirm": "Confirm",
+  "commonSave": "Save",
+  "commonDelete": "Delete",
+  "commonEdit": "Edit",
+  "commonAdd": "Add",
+  "commonOk": "OK",
+  "commonYes": "Yes",
+  "commonNo": "No",
+  "commonLoading": "Loading...",
+  "commonEmpty": "No data",
+  "commonError": "Error",
+  "commonSuccess": "Success",
+  "commonFailed": "Failed",
+  "commonRetry": "Retry",
+  "commonBack": "Back",
+  "commonNext": "Next",
+  "commonPrevious": "Previous",
+  "commonFinish": "Finish",
+  "commonClose": "Close",
+  "commonCopy": "Copy",
+  "commonSearch": "Search",
+  "commonNoteHint": "Note...",
+  "commonFilter": "Filter",
+  "commonClear": "Clear",
+  "commonSelectAll": "Select All",
+  "commonSettings": "Settings",
+  "commonHelp": "Help",
+  "commonAbout": "About",
+  "commonLanguage": "Language",
+  "commonWeekdayMonday": "Monday",
+  "commonWeekdayTuesday": "Tuesday",
+  "commonWeekdayWednesday": "Wednesday",
+  "commonWeekdayThursday": "Thursday",
+  "commonWeekdayFriday": "Friday",
+  "commonWeekdaySaturday": "Saturday",
+  "commonWeekdaySunday": "Sunday",
+
+  "homeTitle": "Bee Accounting",
+  "homeIncome": "Income",
+  "homeExpense": "Expense",
+  "homeBalance": "Balance",
+  "homeTotal": "Total",
+  "homeAverage": "Average",
+  "homeDailyAvg": "Daily Avg",
+  "homeMonthlyAvg": "Monthly Avg",
+  "homeNoRecords": "No records yet",
+  "homeAddRecord": "Add record by tapping the plus button",
+  "homeHideAmounts": "Hide amounts",
+  "homeShowAmounts": "Show amounts",
+  "homeSelectDate": "Select date",
+  "homeAppTitle": "Bee Accounting",
+  "homeSearch": "Search",
+  "homeShowAmount": "Show amounts",
+  "homeHideAmount": "Hide amounts",
+  "homeYear": "{year}",
+  "@homeYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "homeMonth": "{month}M",
+  "@homeMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "homeNoRecordsSubtext": "Tap the plus button at the bottom to add a record",
+
+  "searchTitle": "Search",
+  "searchHint": "Search notes, categories or amounts...",
+  "searchAmountRange": "Amount range filter",
+  "searchMinAmount": "Min amount",
+  "searchMaxAmount": "Max amount",
+  "searchTo": "to",
+  "searchNoInput": "Enter keywords to start searching",
+  "searchNoResults": "No matching results found",
+  "searchResultsEmpty": "No matching results found",
+  "searchResultsEmptyHint": "Try other keywords or adjust filter conditions",
+
+  "analyticsTitle": "Analytics",
+  "analyticsMonth": "Month",
+  "analyticsYear": "Year",
+  "analyticsAll": "All",
+  "analyticsSummary": "Summary",
+  "analyticsCategoryRanking": "Category Ranking",
+  "analyticsCurrentPeriod": "Current Period",
+  "analyticsNoDataSubtext": "Swipe left/right to toggle income/expense, or use the period switcher above",
+  "analyticsSwipeHint": "Swipe left/right to change period",
+  "analyticsTipContent": "1) Swipe left/right at the top to switch \"Month/Year/All\"\\n2) Swipe left/right in chart area to switch periods\\n3) Tap month or year to quickly select",
+  "analyticsSwitchTo": "Switch to {type}",
+  "@analyticsSwitchTo": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsTipHeader": "Tip: Top capsule can switch Month/Year/All",
+  "analyticsSwipeToSwitch": "Swipe to switch",
+  "analyticsAllYears": "All Years",
+  "analyticsToday": "Today",
+
+  "splashAppName": "Bee Accounting",
+  "splashSlogan": "Record Every Drop",
+  "splashSecurityTitle": "Open Source Data Security",
+  "splashSecurityFeature1": "• Local data storage, complete privacy control",
+  "splashSecurityFeature2": "• Open source code transparency, trustworthy security",
+  "splashSecurityFeature3": "• Optional cloud sync, consistent data across devices",
+  "splashInitializing": "Initializing data...",
+
+  "ledgersTitle": "Ledger Management",
+  "ledgersNew": "New Ledger",
+  "ledgersClear": "Clear Current Ledger",
+  "ledgersClearConfirm": "Clear current ledger?",
+  "ledgersClearMessage": "All transaction records in this ledger will be deleted and cannot be recovered.",
+  "ledgersEdit": "Edit Ledger",
+  "ledgersDelete": "Delete Ledger",
+  "ledgersDeleteConfirm": "Delete Ledger",
+  "ledgersDeleteMessage": "Are you sure you want to delete this ledger and all its records? This action cannot be undone.\\nIf there is a backup in the cloud, it will also be deleted.",
+  "ledgersDeleted": "Deleted",
+  "ledgersDeleteFailed": "Delete Failed",
+  "ledgersRecordsDeleted": "Deleted {count} records",
+  "@ledgersRecordsDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ledgersName": "Name",
+  "ledgersDefaultLedgerName": "Default Ledger",
+  "ledgersDefaultAccountName": "Cash",
+  "ledgersCurrency": "Currency",
+  "ledgersSelectCurrency": "Select Currency",
+  "ledgersSearchCurrency": "Search: Chinese or code",
+  "ledgersCreate": "Create",
+  "ledgersActions": "Actions",
+  "ledgersRecords": "Records: {count}",
+  "@ledgersRecords": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ledgersBalance": "Balance: {balance}",
+  "@ledgersBalance": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+
+  "categoryTitle": "Category Management",
+  "categoryNew": "New Category",
+  "categoryExpense": "Expense Categories",
+  "categoryIncome": "Income Categories",
+  "categoryEmpty": "No categories",
+  "categoryDefault": "Default Category",
+  "categoryLoadFailed": "Load failed: {error}",
+  "@categoryLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "iconPickerTitle": "Select Icon",
+  "iconCategoryFood": "Food",
+  "iconCategoryTransport": "Transport",
+  "iconCategoryShopping": "Shopping",
+  "iconCategoryEntertainment": "Entertainment",
+  "iconCategoryLife": "Life",
+  "iconCategoryHealth": "Health",
+  "iconCategoryEducation": "Education",
+  "iconCategoryWork": "Work",
+  "iconCategoryFinance": "Finance",
+  "iconCategoryReward": "Reward",
+  "iconCategoryOther": "Other",
+  "iconCategoryDining": "Dining",
+
+  "importTitle": "Import Bills",
+  "importSelectFile": "Please select a CSV/TSV file to import (default first row as header)",
+  "importChooseFile": "Choose File",
+  "importNoFileSelected": "No file selected",
+  "importHint": "Tip: Please select a CSV/TSV file to start importing",
+  "importReading": "Reading file...",
+  "importPreparing": "Preparing...",
+  "importColumnNumber": "Column {number}",
+  "importConfirmMapping": "Confirm Mapping",
+  "importCategoryMapping": "Category Mapping",
+  "importNoDataParsed": "No data parsed. Please return to previous page to check CSV content or separator.",
+  "importFieldDate": "Date",
+  "importFieldType": "Type",
+  "importFieldAmount": "Amount",
+  "importFieldCategory": "Category",
+  "importFieldNote": "Note",
+  "importPreview": "Data Preview",
+  "importPreviewLimit": "Showing first {shown} of {total} records",
+  "importCategoryNotSelected": "Category not selected",
+  "importCategoryMappingDescription": "Please select corresponding local categories for each category name:",
+  "importKeepOriginalName": "Keep original name",
+  "importProgress": "Importing, success: {ok}, failed: {fail}",
+  "importCancelImport": "Cancel Import",
+  "importCompleteTitle": "Import Complete",
+  "importCompletedCount": "Successfully imported {count} records",
+  "importFailed": "Import Failed",
+  "importFailedMessage": "Import failed: {error}",
+  "importSelectCategoryFirst": "Please select category mapping first",
+  "importNextStep": "Next Step",
+  "importPreviousStep": "Previous Step",
+  "importStartImport": "Start Import",
+  "importAutoDetect": "Auto Detect",
+  "importInProgress": "Import in Progress",
+  "importProgressDetail": "Imported {done} / {total} records, success {ok}, failed {fail}",
+  "importBackgroundImport": "Background Import",
+  "importCancelled": "Import Cancelled",
+  "importCompleted": "Import Completed{cancelled}, success {ok}, failed {fail}",
+  "importFileOpenError": "Cannot open file picker: {error}",
+  "@importFileOpenError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "mineTitle": "Mine",
+  "mineSettings": "Settings",
+  "mineTheme": "Theme Settings",
+  "mineFont": "Font Settings",
+  "mineReminder": "Reminder Settings",
+  "mineData": "Data Management",
+  "mineImport": "Import Data",
+  "mineExport": "Export Data",
+  "mineCloud": "Cloud Service",
+  "mineAbout": "About",
+  "mineVersion": "Version",
+  "mineUpdate": "Check for Updates",
+  "mineLanguageSettings": "Language Settings",
+  "mineLanguageSettingsSubtitle": "Switch application language",
+
+  "languageTitle": "Language Settings",
+  "languageChinese": "中文",
+  "languageEnglish": "English",
+  "languageSystemDefault": "Follow System",
+
+  "deleteConfirmTitle": "Delete Confirmation",
+  "deleteConfirmMessage": "Are you sure you want to delete this record?",
+  "logCopied": "Log copied",
+  "waitingRestore": "Waiting for restore task to start...",
+  "restoreTitle": "Cloud Restore",
+  "copyLog": "Copy Log",
+  "restoreProgress": "Restoring ({current}/{total})",
+  "restorePreparing": "Preparing...",
+  "restoreLedgerProgress": "Ledger: {ledger}  Records: {done}/{total}",
+  "@restoreLedgerProgress": {
+    "placeholders": {
+      "ledger": {
+        "type": "String"
+      },
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+
+  "mineSlogan": "Bee Accounting, Every Penny Counts",
+  "mineDaysCount": "Days",
+  "mineTotalRecords": "Records",
+  "mineCurrentBalance": "Balance",
+  "mineCloudService": "Cloud Service",
+  "mineCloudServiceLoading": "Loading...",
+  "mineCloudServiceError": "Error: {error}",
+  "mineCloudServiceDefault": "Default Cloud (Enabled)",
+  "mineCloudServiceOffline": "Default Mode (Offline)",
+  "mineCloudServiceCustom": "Custom Supabase",
+  "mineFirstFullUpload": "First Full Upload",
+  "mineFirstFullUploadSubtitle": "Upload all local ledgers to current Supabase",
+  "mineFirstFullUploadComplete": "Complete",
+  "mineFirstFullUploadMessage": "Current ledger uploaded. Switch to other ledgers to upload them.",
+  "mineFirstFullUploadFailed": "Failed",
+  "mineSyncTitle": "Sync",
+  "mineSyncNotLoggedIn": "Not logged in",
+  "mineSyncNotConfigured": "Cloud not configured",
+  "mineSyncNoRemote": "No cloud backup",
+  "mineSyncInSync": "Synced (local {count} records)",
+  "mineSyncLocalNewer": "Local newer (local {count} records, upload recommended)",
+  "mineSyncCloudNewer": "Cloud newer (download recommended)",
+  "mineSyncDifferent": "Local and cloud differ",
+  "mineSyncError": "Failed to get status",
+  "mineSyncDetailTitle": "Sync Status Details",
+  "mineSyncLocalRecords": "Local records: {count}",
+  "mineSyncCloudRecords": "Cloud records: {count}",
+  "mineSyncCloudLatest": "Cloud latest record time: {time}",
+  "mineSyncLocalFingerprint": "Local fingerprint: {fingerprint}",
+  "mineSyncCloudFingerprint": "Cloud fingerprint: {fingerprint}",
+  "mineSyncMessage": "Message: {message}",
+  "mineUploadTitle": "Upload",
+  "mineUploadNeedLogin": "Login required",
+  "mineUploadInProgress": "Uploading...",
+  "mineUploadRefreshing": "Refreshing...",
+  "mineUploadSynced": "Synced",
+  "mineUploadSuccess": "Uploaded",
+  "mineUploadSuccessMessage": "Current ledger synced to cloud",
+  "mineDownloadTitle": "Download",
+  "mineDownloadComplete": "Complete",
+  "mineDownloadResult": "New imports: {inserted}\nExisting skipped: {skipped}\nDuplicates cleaned: {deleted}",
+  "mineLoginTitle": "Login / Register",
+  "mineLoginSubtitle": "Only needed for sync",
+  "mineLoggedInEmail": "Logged in",
+  "mineLogoutSubtitle": "Tap to logout",
+  "mineLogoutConfirmTitle": "Logout",
+  "mineLogoutConfirmMessage": "Are you sure you want to logout?\nYou won't be able to use cloud sync after logout.",
+  "mineLogoutButton": "Logout",
+  "mineAutoSyncTitle": "Auto sync ledger",
+  "mineAutoSyncSubtitle": "Auto upload to cloud after recording",
+  "mineAutoSyncNeedLogin": "Login required to enable",
+  "mineImportProgressTitle": "Importing in background...",
+  "mineImportProgressSubtitle": "Progress: {done}/{total}, Success {ok}, Failed {fail}",
+  "mineImportCompleteTitle": "Import complete",
+  "mineImportCompleteSubtitle": "Success {ok}, Failed {fail}",
+  "mineCategoryManagement": "Category Management",
+  "mineCategoryManagementSubtitle": "Edit custom categories",
+  "mineCategoryMigration": "Category Migration",
+  "mineCategoryMigrationSubtitle": "Migrate category data to other categories",
+  "mineReminderSettings": "Reminder Settings",
+  "mineReminderSettingsSubtitle": "Set daily recording reminders",
+  "minePersonalize": "Personalization",
+  "mineDisplayScale": "Display Scale",
+  "mineDisplayScaleSubtitle": "Adjust text and UI element sizes",
+  "mineAboutTitle": "About",
+  "mineAboutMessage": "App: Bee Accounting\nVersion: {version}\nSource: https://github.com/TNT-Likely/BeeCount\nLicense: See LICENSE in repository",
+  "mineAboutOpenGitHub": "Open GitHub",
+  "mineCheckUpdate": "Check Update",
+  "mineCheckUpdateInProgress": "Checking update...",
+  "mineCheckUpdateSubtitle": "Checking for latest version",
+  "mineUpdateDownload": "Download Update",
+  "mineRefreshStats": "Refresh Stats (Debug)",
+  "mineRefreshStatsSubtitle": "Trigger global stats provider recalculation",
+  "mineRefreshSync": "Refresh Sync Status (Debug)",
+  "mineRefreshSyncSubtitle": "Trigger sync status provider refresh",
+
+  "categoryEditTitle": "Edit Category",
+  "categoryNewTitle": "New Category",
+  "categoryDetailTooltip": "Category Details",
+  "categoryMigrationTooltip": "Category Migration",
+  "categoryMigrationTitle": "Category Migration",
+  "categoryMigrationDescription": "Category Migration Instructions",
+  "categoryMigrationDescriptionContent": "• Migrate all transaction records from one category to another\n• After migration, all transaction data from the source category will be transferred to the target category\n• This operation cannot be undone, please choose carefully",
+  "categoryMigrationFromLabel": "From Category",
+  "categoryMigrationFromHint": "Select category to migrate from",
+  "categoryMigrationToLabel": "To Category",
+  "categoryMigrationToHint": "Select target category",
+  "categoryMigrationToHintFirst": "Please select source category first",
+  "categoryMigrationStartButton": "Start Migration",
+  "categoryMigrationTransactionCount": "{count} records",
+  "@categoryMigrationTransactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryMigrationCannotTitle": "Cannot Migrate",
+  "categoryMigrationCannotMessage": "Selected categories cannot be migrated, please check category status.",
+  "categoryExpenseType": "Expense Category",
+  "categoryIncomeType": "Income Category",
+  "categoryDefaultTitle": "Default Category",
+  "categoryDefaultMessage": "Default categories cannot be modified, but you can view details and migrate data",
+
+  "categoryNameDining": "Dining",
+  "categoryNameTransport": "Transport",
+  "categoryNameShopping": "Shopping",
+  "categoryNameEntertainment": "Entertainment",
+  "categoryNameHome": "Home",
+  "categoryNameFamily": "Family",
+  "categoryNameCommunication": "Communication",
+  "categoryNameUtilities": "Utilities",
+  "categoryNameHousing": "Housing",
+  "categoryNameMedical": "Medical",
+  "categoryNameEducation": "Education",
+  "categoryNamePets": "Pets",
+  "categoryNameSports": "Sports",
+  "categoryNameDigital": "Digital",
+  "categoryNameTravel": "Travel",
+  "categoryNameAlcoholTobacco": "Alcohol & Tobacco",
+  "categoryNameBabyCare": "Baby Care",
+  "categoryNameBeauty": "Beauty",
+  "categoryNameRepair": "Repair",
+  "categoryNameSocial": "Social",
+  "categoryNameLearning": "Learning",
+  "categoryNameCar": "Car",
+  "categoryNameTaxi": "Taxi",
+  "categoryNameSubway": "Subway",
+  "categoryNameDelivery": "Delivery",
+  "categoryNameProperty": "Property",
+  "categoryNameParking": "Parking",
+  "categoryNameDonation": "Donation",
+  "categoryNameGift": "Gift",
+  "categoryNameTax": "Tax",
+  "categoryNameBeverage": "Beverage",
+  "categoryNameClothing": "Clothing",
+  "categoryNameSnacks": "Snacks",
+  "categoryNameRedPacket": "Red Packet",
+  "categoryNameFruit": "Fruit",
+  "categoryNameGame": "Game",
+  "categoryNameBook": "Book",
+  "categoryNameLover": "Lover",
+  "categoryNameDecoration": "Decoration",
+  "categoryNameDailyGoods": "Daily Goods",
+  "categoryNameLottery": "Lottery",
+  "categoryNameStock": "Stock",
+  "categoryNameSocialSecurity": "Social Security",
+  "categoryNameExpress": "Express",
+  "categoryNameWork": "Work",
+
+  "categoryNameSalary": "Salary",
+  "categoryNameInvestment": "Investment",
+  "categoryNameBonus": "Bonus",
+  "categoryNameReimbursement": "Reimbursement",
+  "categoryNamePartTime": "Part-time",
+  "categoryNameInterest": "Interest",
+  "categoryNameRefund": "Refund",
+  "categoryNameSecondHand": "Second-hand Sale",
+  "categoryNameSocialBenefit": "Social Benefit",
+  "categoryNameTaxRefund": "Tax Refund",
+  "categoryNameProvidentFund": "Provident Fund",
+  "categoryNameLabel": "Category Name",
+  "categoryNameHint": "Enter category name",
+  "categoryNameHintDefault": "Default category name cannot be modified",
+  "categoryNameRequired": "Please enter category name",
+  "categoryNameTooLong": "Category name cannot exceed 4 characters",
+  "categoryIconLabel": "Category Icon",
+  "categoryIconDefaultMessage": "Default category icon cannot be modified",
+  "categoryDangerousOperations": "Dangerous Operations",
+  "categoryDeleteTitle": "Delete Category",
+  "categoryDeleteSubtitle": "Cannot be recovered after deletion",
+  "categoryDefaultCannotSave": "Default category cannot be saved",
+  "categorySaveError": "Save failed",
+  "categoryUpdated": "Category \"{name}\" updated",
+  "categoryCreated": "Category \"{name}\" created",
+  "categoryCannotDelete": "Cannot delete",
+  "categoryCannotDeleteMessage": "This category has {count} transaction records. Please handle them first.",
+  "categoryDeleteConfirmTitle": "Delete Category",
+  "categoryDeleteConfirmMessage": "Are you sure you want to delete category \"{name}\"? This action cannot be undone.",
+  "categoryDeleteError": "Delete failed",
+  "categoryDeleted": "Category \"{name}\" deleted",
+
+  "personalizeTitle": "Personalization",
+  "personalizeCustomColor": "Choose custom color",
+  "personalizeCustomTitle": "Custom",
+  "personalizeHue": "Hue ({value}°)",
+  "personalizeSaturation": "Saturation ({value}%)",
+  "personalizeBrightness": "Brightness ({value}%)",
+  "personalizeSelectColor": "Select this color",
+
+  "fontSettingsTitle": "Display Scale",
+  "fontSettingsCurrentScale": "Current scale: x{scale}",
+  "fontSettingsPreview": "Live Preview",
+  "fontSettingsPreviewText": "Spent 23.50 on lunch today, record it;\nRecorded for 45 days this month, 320 entries;\nPersistence is victory!",
+  "fontSettingsCurrentLevel": "Current level: {level} (scale x{scale})",
+  "fontSettingsQuickLevel": "Quick Levels",
+  "fontSettingsCustomAdjust": "Custom Adjustment",
+  "fontSettingsDescription": "Note: This setting ensures consistent display at 1.0x across all devices, with device differences auto-compensated; adjust values for personalized scaling on this consistent base.",
+  "fontSettingsExtraSmall": "Extra Small",
+  "fontSettingsVerySmall": "Very Small",
+  "fontSettingsSmall": "Small",
+  "fontSettingsStandard": "Standard",
+  "fontSettingsLarge": "Large",
+  "fontSettingsBig": "Big",
+  "fontSettingsVeryBig": "Very Big",
+  "fontSettingsExtraBig": "Extra Big",
+  "fontSettingsMoreStyles": "More Styles",
+  "fontSettingsPageTitle": "Page Title",
+  "fontSettingsBlockTitle": "Block Title",
+  "fontSettingsBodyExample": "Body Text",
+  "fontSettingsLabelExample": "Label Text",
+  "fontSettingsStrongNumber": "Strong Number",
+  "fontSettingsListTitle": "List Item Title",
+  "fontSettingsListSubtitle": "Helper Text",
+  "fontSettingsScreenInfo": "Screen Adaptation Info",
+  "fontSettingsScreenDensity": "Screen Density",
+  "fontSettingsScreenWidth": "Screen Width",
+  "fontSettingsDeviceScale": "Device Scale",
+  "fontSettingsUserScale": "User Scale",
+  "fontSettingsFinalScale": "Final Scale",
+  "fontSettingsBaseDevice": "Base Device",
+  "fontSettingsRecommendedScale": "Recommended Scale",
+  "fontSettingsYes": "Yes",
+  "fontSettingsNo": "No",
+  "fontSettingsScaleExample": "This box and spacing auto-scale based on device",
+  "fontSettingsPreciseAdjust": "Precise Adjustment",
+  "fontSettingsResetTo1x": "Reset to 1.0x",
+  "fontSettingsAdaptBase": "Adapt to Base",
+
+  "reminderTitle": "Recording Reminder",
+  "reminderSubtitle": "Set daily recording reminder time",
+  "reminderDailyTitle": "Daily Recording Reminder",
+  "reminderDailySubtitle": "Will remind you to record at specified time when enabled",
+  "reminderTimeTitle": "Reminder Time",
+  "reminderTestNotification": "Send Test Notification",
+  "reminderTestSent": "Test notification sent",
+  "reminderQuickTest": "Quick Test (15s later)",
+  "reminderQuickTestMessage": "Quick test set for 15 seconds later, keep app in background",
+  "reminderFlutterTest": "🔧 Test Flutter Notification Click (Dev)",
+  "reminderFlutterTestMessage": "Flutter test notification sent, tap to see if app opens",
+  "reminderAlarmTest": "🔧 Test AlarmManager Notification Click (Dev)",
+  "reminderAlarmTestMessage": "AlarmManager test notification set (1s later), tap to see if app opens",
+  "reminderDirectTest": "🔧 Direct Test NotificationReceiver (Dev)",
+  "reminderDirectTestMessage": "Directly called NotificationReceiver to create notification, check if tap works",
+  "reminderCheckStatus": "🔧 Check Notification Status (Dev)",
+  "reminderNotificationStatus": "Notification Status",
+  "reminderPendingCount": "Pending notifications: {count}",
+  "reminderNoPending": "No pending notifications",
+  "reminderCheckBattery": "Check Battery Optimization Status",
+  "reminderBatteryStatus": "Battery Optimization Status",
+  "reminderManufacturer": "Manufacturer: {value}",
+  "reminderModel": "Model: {value}",
+  "reminderAndroidVersion": "Android Version: {value}",
+  "reminderBatteryIgnored": "Battery optimization: Ignored ✅",
+  "reminderBatteryNotIgnored": "Battery optimization: Not ignored ⚠️",
+  "reminderBatteryAdvice": "Recommend disabling battery optimization for proper notifications",
+  "reminderGoToSettings": "Go to Settings",
+  "reminderCheckChannel": "Check Notification Channel Settings",
+  "reminderChannelStatus": "Notification Channel Status",
+  "reminderChannelEnabled": "Channel enabled: Yes ✅",
+  "reminderChannelDisabled": "Channel enabled: No ❌",
+  "reminderChannelImportance": "Importance: {value}",
+  "reminderChannelSoundOn": "Sound: On 🔊",
+  "reminderChannelSoundOff": "Sound: Off 🔇",
+  "reminderChannelVibrationOn": "Vibration: On 📳",
+  "reminderChannelVibrationOff": "Vibration: Off",
+  "reminderChannelDndBypass": "Do Not Disturb: Can bypass",
+  "reminderChannelDndNoBypass": "Do Not Disturb: Cannot bypass",
+  "reminderChannelAdvice": "⚠️ Recommended settings:",
+  "reminderChannelAdviceImportance": "• Importance: Urgent or High",
+  "reminderChannelAdviceSound": "• Enable sound and vibration",
+  "reminderChannelAdviceBanner": "• Allow banner notifications",
+  "reminderChannelAdviceXiaomi": "• Xiaomi phones need individual channel setup",
+  "reminderChannelGood": "✅ Notification channel well configured",
+  "reminderOpenAppSettings": "Open App Settings",
+  "reminderAppSettingsMessage": "Please allow notifications and disable battery optimization in settings",
+  "reminderIOSTest": "🍎 iOS Notification Debug Test",
+  "reminderIOSTestTitle": "iOS Notification Test",
+  "reminderIOSTestMessage": "Test notification sent.\n\n🍎 iOS Simulator limitations:\n• Notifications may not show in notification center\n• Banner alerts may not work\n• But Xcode console will show logs\n\n💡 Debug methods:\n• Check Xcode console output\n• Check Flutter log info\n• Use real device for full experience",
+  "reminderDescription": "Tip: When recording reminder is enabled, the system will send notifications at the specified time daily to remind you to record income and expenses.",
+  "reminderIOSInstructions": "🍎 iOS notification settings:\n• Settings > Notifications > Bee Accounting\n• Enable \"Allow Notifications\"\n• Set notification style: Banner or Alert\n• Enable sound and vibration\n\n⚠️ iOS Simulator limitations:\n• Simulator notification features are limited\n• Recommend using real device\n• Check Xcode console for notification status\n\nIf testing in simulator, observe:\n• Xcode console log output\n• Flutter Debug Console info\n• In-app popups confirming notification sent",
+  "reminderAndroidInstructions": "If notifications don't work properly, check:\n• App is allowed to send notifications\n• Disable battery optimization/power saving for app\n• Allow app to run in background and auto-start\n• Android 12+ needs exact alarm permission\n\n📱 Xiaomi phone special settings:\n• Settings > App Management > Bee Accounting > Notification Management\n• Tap \"Recording Reminder\" channel\n• Set importance to \"Urgent\" or \"High\"\n• Enable \"Banner notifications\", \"Sound\", \"Vibration\"\n• Security Center > App Management > Permissions > Auto-start\n\n🔒 Lock background methods:\n• Find Bee Accounting in recent tasks\n• Pull down app card to show lock icon\n• Tap lock icon to prevent cleanup",
+
+  "categoryDetailLoadFailed": "Load failed",
+  "categoryDetailSummaryTitle": "Category Summary",
+  "categoryDetailTotalCount": "Total Count",
+  "categoryDetailTotalAmount": "Total Amount",
+  "categoryDetailAverageAmount": "Average Amount",
+  "categoryDetailSortTitle": "Sort",
+  "categoryDetailSortTimeDesc": "Time ↓",
+  "categoryDetailSortTimeAsc": "Time ↑",
+  "categoryDetailSortAmountDesc": "Amount ↓",
+  "categoryDetailSortAmountAsc": "Amount ↑",
+  "categoryDetailNoTransactions": "No transactions",
+  "categoryDetailNoTransactionsSubtext": "No transactions in this category yet",
+  "categoryDetailDeleteFailed": "Delete failed",
+
+  "categoryMigrationConfirmTitle": "Confirm Migration",
+  "categoryMigrationConfirmMessage": "Migrate {count} transactions from \"{fromName}\" to \"{toName}\"?\n\nThis operation cannot be undone!",
+  "categoryMigrationConfirmOk": "Confirm Migration",
+  "categoryMigrationCompleteTitle": "Migration Complete",
+  "categoryMigrationCompleteMessage": "Successfully migrated {count} transactions from \"{fromName}\" to \"{toName}\".",
+  "categoryMigrationFailedTitle": "Migration Failed",
+  "categoryMigrationFailedMessage": "Migration error: {error}",
+  "categoryMigrationTransactionLabel": "{count} records",
+  "@categoryMigrationTransactionLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "categoryPickerExpenseTab": "Expense",
+  "categoryPickerIncomeTab": "Income",
+  "categoryPickerCancel": "Cancel",
+  "categoryPickerEmpty": "No categories",
+
+  "cloudBackupFound": "Cloud Backup Found",
+  "cloudBackupRestoreMessage": "Cloud and local ledgers are inconsistent. Restore from cloud?\n(Will enter restore progress page)",
+  "cloudBackupRestoreFailed": "Restore Failed",
+  "mineCloudBackupRestoreTitle": "Cloud Backup Found",
+  "mineAutoSyncRemoteDesc": "Auto upload to cloud after recording",
+  "mineAutoSyncLoginRequired": "Login required to enable",
+  "mineImportCompleteAllSuccess": "All Success",
+  "mineImportCompleteTitleShort": "Import Complete",
+  "mineAboutAppName": "App: Bee Accounting",
+  "mineAboutVersion": "Version: {version}",
+  "mineAboutRepo": "Source: https://github.com/TNT-Likely/BeeCount",
+  "mineAboutLicense": "License: See LICENSE in repository",
+  "mineCheckUpdateDetecting": "Checking update...",
+  "mineCheckUpdateSubtitleDetecting": "Checking for latest version",
+  "mineUpdateDownloadTitle": "Download Update",
+  "mineDebugRefreshStats": "Refresh Stats (Debug)",
+  "mineDebugRefreshStatsSubtitle": "Trigger global stats provider recalculation",
+  "mineDebugRefreshSync": "Refresh Sync Status (Debug)",
+  "mineDebugRefreshSyncSubtitle": "Trigger sync status provider refresh",
+
+  "cloudCurrentService": "Current Cloud Service",
+  "cloudConnected": "Connected",
+  "cloudOfflineMode": "Offline Mode",
+  "cloudAvailableServices": "Available Cloud Services",
+  "cloudReadCustomConfigFailed": "Failed to read custom configuration",
+  "cloudFirstUploadNotComplete": "First full upload not completed",
+  "cloudFirstUploadInstruction": "Login and manually execute \"Upload\" in \"Mine/Sync\" to complete initialization",
+  "cloudNotConfigured": "Not configured",
+  "cloudNotTested": "Not tested",
+  "cloudConnectionNormal": "Connection normal",
+  "cloudConnectionFailed": "Connection failed",
+  "cloudAddCustomService": "Add custom cloud service",
+  "cloudDefaultServiceName": "Default Cloud Service",
+  "cloudUseYourSupabase": "Use your own Supabase",
+  "cloudTest": "Test",
+  "cloudSwitchService": "Switch Cloud Service",
+  "cloudSwitchToBuiltinConfirm": "Are you sure you want to switch to the default cloud service? This will log out the current session.",
+  "cloudSwitchToCustomConfirm": "Are you sure you want to switch to the custom cloud service? This will log out the current session.",
+  "cloudSwitched": "Switched",
+  "cloudSwitchedToBuiltin": "Switched to default cloud service and logged out",
+  "cloudSwitchFailed": "Switch failed",
+  "cloudActivateFailed": "Activation failed",
+  "cloudActivateFailedMessage": "Saved configuration is invalid",
+  "cloudActivated": "Activated",
+  "cloudActivatedMessage": "Switched to custom cloud service and logged out, please log in again",
+  "cloudEditCustomService": "Edit custom cloud service",
+  "cloudAddCustomServiceTitle": "Add custom cloud service",
+  "cloudSupabaseUrlLabel": "Supabase URL",
+  "cloudSupabaseUrlHint": "https://xxx.supabase.co",
+  "cloudAnonKeyLabel": "Anon Key",
+  "cloudAnonKeyHint": "Note: Do not fill in service_role Key; Anon Key is publicly available.",
+  "cloudInvalidInput": "Invalid input",
+  "cloudValidationEmptyFields": "URL and Key cannot be empty",
+  "cloudValidationHttpsRequired": "URL must start with https://",
+  "cloudValidationKeyTooShort": "Key length is too short, may be invalid",
+  "cloudValidationServiceRoleKey": "service_role Key is not allowed",
+  "cloudConfigUpdated": "Configuration updated",
+  "cloudConfigSaved": "Configuration saved",
+  "cloudTestComplete": "Test complete",
+  "cloudTestSuccess": "Connection test successful!",
+  "cloudTestFailed": "Connection test failed, please check if the configuration is correct.",
+  "cloudTestError": "Test failed",
+  "cloudClearConfig": "Clear configuration",
+  "cloudClearConfigConfirm": "Are you sure you want to clear the custom cloud service configuration? (Development environment only)",
+  "cloudConfigCleared": "Custom cloud service configuration cleared",
+  "cloudClearFailed": "Clear failed",
+  "cloudServiceDescription": "Built-in cloud service (free but may be unstable, recommend using your own or regular backup)",
+  "cloudServiceDescriptionNotConfigured": "Current build does not have built-in cloud service configuration",
+  "cloudServiceDescriptionCustom": "Server: {url}",
+  "@cloudServiceDescriptionCustom": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+
+  "authLogin": "Login",
+  "authSignup": "Sign Up",
+  "authRegister": "Register",
+  "authEmail": "Email",
+  "authPassword": "Password",
+  "authPasswordRequirement": "Password (at least 6 characters, include letters and numbers)",
+  "authConfirmPassword": "Confirm Password",
+  "authInvalidEmail": "Please enter a valid email address",
+  "authPasswordRequirementShort": "Password must contain letters and numbers, at least 6 characters",
+  "authPasswordMismatch": "Passwords do not match",
+  "authResendVerification": "Resend verification email",
+  "authSignupSuccess": "Registration successful",
+  "authVerificationEmailSent": "Verification email sent, please go to your email to complete verification before logging in.",
+  "authBackToMinePage": "Back to My Page",
+  "authVerificationEmailResent": "Verification email resent.",
+  "authResendAction": "resend verification",
+
+  "authErrorInvalidCredentials": "Email or password is incorrect.",
+  "authErrorEmailNotConfirmed": "Email not verified, please complete verification in your email before logging in.",
+  "authErrorRateLimit": "Too many attempts, please try again later.",
+  "authErrorNetworkIssue": "Network error, please check your connection and try again.",
+  "authErrorLoginFailed": "Login failed, please try again later.",
+
+  "authErrorEmailInvalid": "Email address is invalid, please check for spelling errors.",
+  "authErrorEmailExists": "This email is already registered, please login directly or reset password.",
+  "authErrorWeakPassword": "Password is too simple, please include letters and numbers, at least 6 characters.",
+  "authErrorSignupFailed": "Registration failed, please try again later.",
+
+  "authErrorUserNotFound": "Email not registered, cannot {action}.",
+  "authErrorEmailNotVerified": "Email not verified, cannot {action}.",
+  "authErrorActionFailed": "{action} failed, please try again later.",
+  "@authErrorUserNotFound": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "@authErrorEmailNotVerified": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "@authErrorActionFailed": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+
+  "importTitle": "Import Bills",
+  "importSelectCsvFile": "Please select CSV/TSV file to import (first row as header by default)",
+  "importChooseFile": "Choose File",
+  "importNoFileSelected": "No file selected",
+  "importHint": "Tip: Please select a CSV/TSV file to start importing",
+  "importReading": "Reading file…",
+  "importPreparing": "Preparing…",
+  "importFileOpenError": "Unable to open file picker: {error}",
+  "@importFileOpenError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "exportTitle": "Export",
+  "exportDescription": "Click the button below to select save location and export current ledger to CSV file.",
+  "exportButtonIOS": "Export and Share (iOS)",
+  "exportButtonAndroid": "Select Folder and Export",
+  "exportSavedTo": "Saved to: {path}",
+  "exportSelectFolder": "Select Export Folder",
+  "exportCsvHeaderType": "Type",
+  "exportCsvHeaderCategory": "Category",
+  "exportCsvHeaderAmount": "Amount",
+  "exportCsvHeaderNote": "Note",
+  "exportCsvHeaderTime": "Time",
+  "exportShareText": "BeeCount Export File",
+  "exportSuccessTitle": "Export Successful",
+  "exportSuccessMessageIOS": "Saved and available in share history:\n{path}",
+  "exportSuccessMessageAndroid": "Saved to:\n{path}",
+  "exportFailedTitle": "Export Failed",
+  "exportTypeIncome": "Income",
+  "exportTypeExpense": "Expense",
+  "exportTypeTransfer": "Transfer",
+  "@exportSavedTo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "@exportSuccessMessageIOS": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "@exportSuccessMessageAndroid": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+
+  "personalizeTitle": "Personalize",
+  "personalizeThemeHoney": "Bee Yellow",
+  "personalizeThemeOrange": "Flame Orange",
+  "personalizeThemeGreen": "Emerald Green",
+  "personalizeThemePurple": "Purple Lotus",
+  "personalizeThemePink": "Cherry Pink",
+  "personalizeThemeBlue": "Sky Blue",
+  "personalizeThemeMint": "Forest Moon",
+  "personalizeThemeSand": "Sunset Dune",
+  "personalizeThemeLavender": "Snow & Pine",
+  "personalizeThemeSky": "Misty Wonderland",
+  "personalizeThemeWarmOrange": "Warm Orange",
+  "personalizeThemeMintGreen": "Mint Green",
+  "personalizeThemeRoseGold": "Rose Gold",
+  "personalizeThemeDeepBlue": "Deep Blue",
+  "personalizeThemeMapleRed": "Maple Red",
+  "personalizeThemeEmerald": "Emerald",
+  "personalizeThemeLavenderPurple": "Lavender",
+  "personalizeThemeAmber": "Amber",
+  "personalizeThemeRouge": "Rouge Red",
+  "personalizeThemeIndigo": "Indigo Blue",
+  "personalizeThemeOlive": "Olive Green",
+  "personalizeThemeCoral": "Coral Pink",
+  "personalizeThemeDarkGreen": "Dark Green",
+  "personalizeThemeViolet": "Violet",
+  "personalizeThemeSunset": "Sunset Orange",
+  "personalizeThemePeacock": "Peacock Blue",
+  "personalizeThemeLime": "Lime Green",
+
+  "analyticsMonthlyAvg": "Monthly Avg",
+  "analyticsDailyAvg": "Daily Avg",
+  "analyticsOverallAvg": "Overall Avg",
+  "analyticsTotalIncome": "Total Income: ",
+  "analyticsTotalExpense": "Total Expense: ",
+  "analyticsBalance": "Balance: ",
+  "analyticsAvgIncome": "{avgLabel} Income: ",
+  "@analyticsAvgIncome": {
+    "placeholders": {
+      "avgLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsAvgExpense": "{avgLabel} Expense: ",
+  "@analyticsAvgExpense": {
+    "placeholders": {
+      "avgLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsExpense": "Expense",
+  "analyticsIncome": "Income",
+  "analyticsTotal": "Total {type}: ",
+  "@analyticsTotal": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsAverage": "{avgLabel}: ",
+  "@analyticsAverage": {
+    "placeholders": {
+      "avgLabel": {
+        "type": "String"
+      }
+    }
+  },
+
+  "updateCheckTitle": "Check Update",
+  "updateNewVersionFound": "New Version Found",
+  "updateNewVersionTitle": "New Version {version} Found",
+  "@updateNewVersionTitle": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNoApkFound": "APK download link not found",
+  "updateAlreadyLatest": "Already latest version",
+  "updateCheckFailed": "Update check failed",
+  "updatePermissionDenied": "Permission denied",
+  "updateUserCancelled": "User cancelled",
+  "updateDownloadTitle": "Download Update",
+  "updateDownloading": "Downloading: {percent}%",
+  "@updateDownloading": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "updateDownloadBackgroundHint": "You can switch the app to background, download will continue",
+  "updateCancelButton": "Cancel",
+  "updateBackgroundDownload": "Background Download",
+  "updateLaterButton": "Later",
+  "updateDownloadButton": "Download",
+  "updateFoundCachedTitle": "Found Downloaded Version",
+  "updateFoundCachedMessage": "Found a previously downloaded installer, install directly?\\n\\nClick \"OK\" to install immediately, click \"Cancel\" to close this dialog.\\n\\nFile path: {path}",
+  "@updateFoundCachedMessage": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateInstallingCachedApk": "Installing cached APK",
+  "updateDownloadComplete": "Download Complete",
+  "updateInstallStarted": "Download complete, installer started",
+  "updateInstallFailed": "Installation failed",
+  "updateDownloadCompleteManual": "Download complete, can install manually",
+  "updateDownloadCompleteException": "Download complete, please install manually (dialog exception)",
+  "updateDownloadCompleteManualContext": "Download complete, please install manually",
+  "updateDownloadFailed": "Download failed",
+  "updateInstallTitle": "Download Complete",
+  "updateInstallMessage": "APK file download complete, install immediately?\\n\\nNote: The app will temporarily go to background during installation, this is normal.",
+  "updateInstallNow": "Install Now",
+  "updateInstallLater": "Install Later",
+  "updateNotificationTitle": "BeeCount Update Download",
+  "updateNotificationBody": "Downloading new version...",
+  "updateNotificationComplete": "Download complete, tap to install",
+  "updateNotificationPermissionTitle": "Notification Permission Denied",
+  "updateNotificationPermissionMessage": "Cannot get notification permission, download progress will not show in notification bar, but download function works normally.",
+  "updateNotificationGuideTitle": "If you need to enable notifications, follow these steps:",
+  "updateNotificationStep1": "Open system settings",
+  "updateNotificationStep2": "Find \"App Management\" or \"App Settings\"",
+  "updateNotificationStep3": "Find \"BeeCount\" app",
+  "updateNotificationStep4": "Click \"Permission Management\" or \"Notification Management\"",
+  "updateNotificationStep5": "Enable \"Notification Permission\"",
+  "updateNotificationMiuiHint": "MIUI users: Xiaomi system has strict notification permission control, may need additional settings in Security Center",
+  "updateNotificationGotIt": "Got it",
+  "updateCheckFailedTitle": "Update Check Failed",
+  "updateDownloadFailedTitle": "Download Failed",
+  "updateGoToGitHub": "Go to GitHub",
+  "updateCannotOpenLink": "Cannot open link",
+  "updateManualVisit": "Please manually visit in browser:\\nhttps://github.com/TNT-Likely/BeeCount/releases",
+  "updateNoLocalApkTitle": "No Update Package Found",
+  "updateNoLocalApkMessage": "No downloaded update package file found.\\n\\nPlease first download new version through \"Check Update\".",
+  "updateInstallPackageTitle": "Install Update Package",
+  "updateMultiplePackagesTitle": "Found Multiple Update Packages",
+  "updateMultiplePackagesMessage": "Found {count} update package files.\\n\\nRecommend using the latest downloaded version, or manually install in file manager.\\n\\nFile location: {path}",
+  "@updateMultiplePackagesMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateSearchFailedTitle": "Search Failed",
+  "updateSearchFailedMessage": "Error occurred while searching for local update packages: {error}",
+  "@updateSearchFailedMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateFoundCachedPackageTitle": "Found Downloaded Update Package",
+  "updateFoundCachedPackageMessage": "Detected previously downloaded update package:\\n\\nFile name: {fileName}\\nSize: {fileSize}MB\\n\\nInstall immediately?",
+  "@updateFoundCachedPackageMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      }
+    }
+  },
+  "updateIgnoreButton": "Ignore",
+  "updateInstallFailedTitle": "Installation Failed",
+  "updateInstallFailedMessage": "Cannot start APK installer, please check file permissions.",
+  "updateErrorTitle": "Error",
+  "updateReadCacheFailedMessage": "Failed to read cached update package: {error}",
+  "@updateReadCacheFailedMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "updateCheckingPermissions": "Checking permissions...",
+  "updateCheckingCache": "Checking local cache...",
+  "updatePreparingDownload": "Preparing download...",
+  "updateInstallingCachedApk": "Installing cached APK",
+  "updateUserCancelledDownload": "User cancelled download",
+  "updateStartingInstaller": "Starting installer...",
+  "updateInstallerStarted": "Installer started",
+  "updateInstallationFailed": "Installation failed",
+  "updateDownloadCompleted": "Download completed",
+  "updateDownloadCompletedManual": "Download completed, can install manually",
+  "updateDownloadCompletedDialog": "Download completed, please install manually (dialog exception)",
+  "updateDownloadCompletedContext": "Download completed, please install manually",
+  "updateDownloadFailedGeneric": "Download failed",
+  "updateCheckingUpdate": "Checking for updates...",
+  "updateCurrentLatestVersion": "Already latest version",
+  "updateCheckFailedGeneric": "Update check failed",
+  "updateDownloadProgress": "Downloading: {percent}%",
+  "@updateDownloadProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNoApkFoundError": "APK download link not found",
+  "updateCheckingUpdateError": "Update check failed: {error}",
+  "@updateCheckingUpdateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNotificationChannelName": "Update Download",
+  "updateNotificationDownloadingIndeterminate": "Downloading new version...",
+  "updateNotificationDownloadingProgress": "Download progress: {progress}%",
+  "@updateNotificationDownloadingProgress": {
+    "placeholders": {
+      "progress": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNotificationDownloadCompleteTitle": "Download Complete",
+  "updateNotificationDownloadCompleteMessage": "New version downloaded, tap to install",
+  "updateUserCancelledDownloadDialog": "User cancelled download",
+  "updateCannotOpenLinkError": "Cannot open link",
+  "updateNoLocalApkFoundMessage": "No downloaded update package file found.\\n\\nPlease first download new version through \"Check Update\".",
+  "updateInstallPackageFoundMessage": "Found update package:\\n\\nFile name: {fileName}\\nSize: {fileSize}MB\\nDownload time: {time}\\n\\nInstall immediately?",
+  "@updateInstallPackageFoundMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "updateMultiplePackagesFoundMessage": "Found {count} update package files.\\n\\nRecommend using the latest downloaded version, or manually install in file manager.\\n\\nFile location: {path}",
+  "@updateMultiplePackagesFoundMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateSearchLocalApkError": "Error occurred while searching for local update packages: {error}",
+  "@updateSearchLocalApkError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateCachedPackageFoundMessage": "Detected previously downloaded update package:\\n\\nFile name: {fileName}\\nSize: {fileSize}MB\\n\\nInstall immediately?",
+  "@updateCachedPackageFoundMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      }
+    }
+  },
+  "updateReadCachedPackageError": "Failed to read cached update package: {error}",
+  "@updateReadCachedPackageError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "reminderTitle": "Recording Reminder",
+  "reminderSubtitle": "Set daily recording reminder time",
+  "reminderDailyTitle": "Daily Recording Reminder",
+  "reminderDailySubtitle": "When enabled, will remind you to record at specified time",
+  "reminderTimeTitle": "Reminder Time",
+  "reminderTestSent": "Test notification sent",
+  "reminderTestNotification": "Send Test Notification",
+  "reminderQuickTestSent": "Quick test set for 15 seconds later, please keep app in background",
+  "reminderQuickTest": "Quick Test (15s later)",
+  "reminderFlutterTestSent": "Flutter test notification sent, click to see if it opens the app",
+  "reminderFlutterTest": "🔧 Test Flutter Notification Click (Dev)",
+  "reminderAlarmTestSent": "AlarmManager test notification set (1 second later), click to see if it opens the app",
+  "updateOk": "OK",
+  "updateCannotOpenLinkTitle": "Cannot Open Link",
+  "updateCachedVersionTitle": "Found Downloaded Version",
+  "updateCachedVersionMessage": "Found previously downloaded installation package... Click \\\"OK\\\" to install immediately, click \\\"Cancel\\\" to close...",
+  "updateConfirmDownload": "Download and Install Now",
+  "updateDownloadCompleteTitle": "Download Complete",
+  "updateInstallConfirmMessage": "New version has been downloaded. Install now?",
+  "updateNotificationPermissionGuideText": "Download progress notifications are disabled, but this doesn't affect download functionality. To view progress:",
+  "updateNotificationGuideStep1": "Go to System Settings > App Management",
+  "updateNotificationGuideStep2": "Find \\\"BeeCount\\\" app",
+  "updateNotificationGuideStep3": "Enable notification permissions",
+  "updateNotificationGuideInfo": "Downloads will continue normally in the background even without notifications",
+
+  "currencyCNY": "Chinese Yuan",
+  "currencyUSD": "US Dollar",
+  "currencyEUR": "Euro",
+  "currencyJPY": "Japanese Yen",
+  "currencyHKD": "Hong Kong Dollar",
+  "currencyTWD": "New Taiwan Dollar",
+  "currencyGBP": "British Pound",
+  "currencyAUD": "Australian Dollar",
+  "currencyCAD": "Canadian Dollar",
+  "currencyKRW": "South Korean Won",
+  "currencySGD": "Singapore Dollar",
+  "currencyTHB": "Thai Baht",
+  "currencyIDR": "Indonesian Rupiah",
+  "currencyINR": "Indian Rupee",
+  "currencyRUB": "Russian Ruble",
+
+  "cloudDefaultServiceDisplayName": "Default Cloud Service",
+  "cloudNotConfiguredDisplay": "Not Configured",
+
+  "syncNotConfiguredMessage": "Cloud not configured",
+  "syncNotLoggedInMessage": "Not logged in",
+  "syncCloudBackupCorruptedMessage": "Cloud backup content is corrupted, possibly due to encoding issues from earlier versions. Please click 'Upload Current Ledger to Cloud' to overwrite and fix.",
+  "syncNoCloudBackupMessage": "No cloud backup",
+  "syncAccessDeniedMessage": "403 Access denied (check storage RLS policy and path)"
+}

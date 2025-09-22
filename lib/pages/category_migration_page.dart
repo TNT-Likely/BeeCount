@@ -4,6 +4,8 @@ import '../providers/database_providers.dart';
 import '../data/db.dart' as db;
 import '../widgets/ui/ui.dart';
 import '../widgets/biz/biz.dart';
+import '../l10n/app_localizations.dart';
+import '../utils/category_utils.dart';
 
 class CategoryMigrationPage extends ConsumerStatefulWidget {
   final db.Category? preselectedFromCategory; // 预填充的来源分类
@@ -37,13 +39,13 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
       body: Column(
         children: [
           PrimaryHeader(
-            title: '分类迁移',
+            title: AppLocalizations.of(context).categoryMigrationTitle,
             showBack: true,
           ),
           Expanded(
             child: categoriesWithCountAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(child: Text('加载失败: $error')),
+              error: (error, stack) => Center(child: Text(AppLocalizations.of(context).categoryLoadFailed(error.toString()))),
               data: (categoriesWithCount) {
                 return _buildMigrationForm(categoriesWithCount);
               },
@@ -74,7 +76,7 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '分类迁移说明',
+                        AppLocalizations.of(context).categoryMigrationDescription,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w600,
@@ -84,9 +86,7 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    '• 将指定分类的所有交易记录迁移到另一个分类\n'
-                    '• 迁移后，原分类的交易数据将全部转移到目标分类\n'
-                    '• 此操作不可撤销，请谨慎选择',
+                    AppLocalizations.of(context).categoryMigrationDescriptionContent,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                     ),
@@ -97,7 +97,7 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
           ),
           const SizedBox(height: 24),
           Text(
-            '迁出分类',
+            AppLocalizations.of(context).categoryMigrationFromLabel,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
             ),
@@ -106,7 +106,7 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
           SearchableDropdown<({db.Category category, int transactionCount})>(
             items: categoriesWithCount.where((item) => item.transactionCount > 0).toList(),
             value: categoriesWithCount.where((item) => item.category.id == _fromCategory?.id).firstOrNull,
-            hintText: '选择要迁出的分类',
+            hintText: AppLocalizations.of(context).categoryMigrationFromHint,
             prefixIcon: const Icon(Icons.upload_outlined),
             onChanged: (item) {
               setState(() {
@@ -122,14 +122,14 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
               transactionCount: item.transactionCount,
             ),
             filter: (item, query) {
-              return item.category.name.toLowerCase().contains(query) ||
+              return CategoryUtils.getDisplayName(item.category.name, context).toLowerCase().contains(query) ||
                      item.category.kind.toLowerCase().contains(query);
             },
-            labelExtractor: (item) => '${item.category.name} (${item.transactionCount}笔)',
+            labelExtractor: (item) => '${CategoryUtils.getDisplayName(item.category.name, context)} (${AppLocalizations.of(context).categoryMigrationTransactionCount(item.transactionCount)})',
           ),
           const SizedBox(height: 24),
           Text(
-            '迁入分类',
+            AppLocalizations.of(context).categoryMigrationToLabel,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
             ),
@@ -143,7 +143,7 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
                 ).toList()
               : [],
             value: categoriesWithCount.where((item) => item.category.id == _toCategory?.id).firstOrNull,
-            hintText: _fromCategory == null ? '请先选择迁出分类' : '选择迁入的分类',
+            hintText: _fromCategory == null ? AppLocalizations.of(context).categoryMigrationToHintFirst : AppLocalizations.of(context).categoryMigrationToHint,
             prefixIcon: const Icon(Icons.download_outlined),
             enabled: _fromCategory != null,
             onChanged: (item) {
@@ -156,10 +156,10 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
               transactionCount: item.transactionCount,
             ),
             filter: (item, query) {
-              return item.category.name.toLowerCase().contains(query) ||
+              return CategoryUtils.getDisplayName(item.category.name, context).toLowerCase().contains(query) ||
                      item.category.kind.toLowerCase().contains(query);
             },
-            labelExtractor: (item) => '${item.category.name} (${item.transactionCount}笔)',
+            labelExtractor: (item) => '${CategoryUtils.getDisplayName(item.category.name, context)} (${AppLocalizations.of(context).categoryMigrationTransactionCount(item.transactionCount)})',
           ),
           const Spacer(),
           SizedBox(
@@ -172,7 +172,7 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('开始迁移'),
+                : Text(AppLocalizations.of(context).categoryMigrationStartButton),
             ),
           ),
           const SizedBox(height: 16),
@@ -204,8 +204,8 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
       if (!mounted) return;
       await AppDialog.error(
         context,
-        title: '无法迁移',
-        message: '选择的分类无法进行迁移，请检查分类状态。',
+        title: AppLocalizations.of(context).categoryMigrationCannotTitle,
+        message: AppLocalizations.of(context).categoryMigrationCannotMessage,
       );
       return;
     }
@@ -214,10 +214,14 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
     if (!mounted) return;
     final confirmed = await AppDialog.confirm<bool>(
       context,
-      title: '确认迁移',
-      message: '确定要将「${fromCategory.name}」的 ${migrationInfo.transactionCount} 笔交易迁移到「${toCategory.name}」吗？\n\n此操作不可撤销！',
-      okLabel: '确认迁移',
-      cancelLabel: '取消',
+      title: AppLocalizations.of(context).categoryMigrationConfirmTitle,
+      message: AppLocalizations.of(context).categoryMigrationConfirmMessage(
+        CategoryUtils.getDisplayName(fromCategory.name, context),
+        migrationInfo.transactionCount.toString(),
+        CategoryUtils.getDisplayName(toCategory.name, context),
+      ),
+      okLabel: AppLocalizations.of(context).categoryMigrationConfirmOk,
+      cancelLabel: AppLocalizations.of(context).commonCancel,
     ) ?? false;
     
     if (!confirmed) return;
@@ -238,8 +242,12 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
       // 显示结果
       await AppDialog.info(
         context,
-        title: '迁移完成',
-        message: '成功将 $migratedCount 笔交易从「${fromCategory.name}」迁移到「${toCategory.name}」。',
+        title: AppLocalizations.of(context).categoryMigrationCompleteTitle,
+        message: AppLocalizations.of(context).categoryMigrationCompleteMessage(
+          migratedCount.toString(),
+          CategoryUtils.getDisplayName(fromCategory.name, context),
+          CategoryUtils.getDisplayName(toCategory.name, context),
+        ),
       );
       
       // 刷新数据
@@ -252,8 +260,8 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
       if (!mounted) return;
       await AppDialog.error(
         context,
-        title: '迁移失败',
-        message: '迁移过程中发生错误：$e',
+        title: AppLocalizations.of(context).categoryMigrationFailedTitle,
+        message: AppLocalizations.of(context).categoryMigrationFailedMessage(e.toString()),
       );
     } finally {
       if (mounted) {
@@ -304,7 +312,7 @@ class _CategoryDropdownItem extends StatelessWidget {
               ),
               if (transactionCount > 0)
                 Text(
-                  '$transactionCount笔 · ${category.kind == 'expense' ? '支出' : '收入'}',
+                  '${AppLocalizations.of(context).categoryMigrationTransactionLabel(transactionCount)} · ${category.kind == 'expense' ? AppLocalizations.of(context).homeExpense : AppLocalizations.of(context).homeIncome}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),

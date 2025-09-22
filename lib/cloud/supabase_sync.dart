@@ -281,7 +281,7 @@ class SupabaseSyncService implements SyncService {
           diff: SyncDiff.notLoggedIn,
           localCount: (jsonDecode(local)['count'] as num).toInt(),
           localFingerprint: _fingerprint(local),
-          message: '未登录',
+          message: '__SYNC_NOT_LOGGED_IN__', // 特殊标记，在UI层处理本地化
         );
         _statusCache[ledgerId] = st;
         return st;
@@ -328,7 +328,7 @@ class SupabaseSyncService implements SyncService {
             diff: SyncDiff.error,
             localCount: localCount,
             localFingerprint: localFp,
-            message: '云端备份内容无法解析，可能是早期版本编码问题造成的损坏。请点击“上传当前账本到云端”覆盖修复。',
+            message: '__SYNC_CLOUD_BACKUP_CORRUPTED__', // 特殊标记，在UI层处理本地化
           );
         }
         final remoteFp = _contentFingerprintFromMap(map);
@@ -438,7 +438,7 @@ class SupabaseSyncService implements SyncService {
             diff: SyncDiff.noRemote,
             localCount: localCount,
             localFingerprint: localFp,
-            message: '云端暂无备份',
+            message: '__SYNC_NO_CLOUD_BACKUP__', // 特殊标记，在UI层处理本地化
           );
           logI('sync', '获取状态: 云端暂无备份');
           _statusCache[ledgerId] = st;
@@ -449,7 +449,7 @@ class SupabaseSyncService implements SyncService {
             diff: SyncDiff.error,
             localCount: localCount,
             localFingerprint: localFp,
-            message: '403 拒绝访问（检查 storage RLS 策略与路径）',
+            message: '__SYNC_ACCESS_DENIED__', // 特殊标记，在UI层处理本地化
           );
           logW('sync', '获取状态: 403 拒绝访问');
           _statusCache[ledgerId] = st;

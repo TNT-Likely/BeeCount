@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../styles/colors.dart';
+import '../l10n/app_localizations.dart';
 
 class SplashPage extends ConsumerWidget {
   const SplashPage({super.key});
@@ -47,7 +47,7 @@ class SplashPage extends ConsumerWidget {
               
               // 应用名称
               Text(
-                '蜜蜂记账',
+                AppLocalizations.of(context).splashAppName,
                 style: theme.textTheme.headlineMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -59,7 +59,7 @@ class SplashPage extends ConsumerWidget {
               
               // Slogan
               Text(
-                '一笔一蜜',
+                AppLocalizations.of(context).splashSlogan,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: Colors.white.withOpacity(0.9),
                   fontWeight: FontWeight.w500,
@@ -91,7 +91,7 @@ class SplashPage extends ConsumerWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '开源数据安全',
+                          AppLocalizations.of(context).splashSecurityTitle,
                           style: theme.textTheme.titleSmall?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -101,9 +101,9 @@ class SplashPage extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      '• 数据本地存储，隐私完全自控\n'
-                      '• 开源代码透明，安全值得信赖\n'
-                      '• 可选云端同步，多设备数据一致',
+                      '${AppLocalizations.of(context).splashSecurityFeature1}\n'
+                      '${AppLocalizations.of(context).splashSecurityFeature2}\n'
+                      '${AppLocalizations.of(context).splashSecurityFeature3}',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.white.withOpacity(0.9),
                         height: 1.5,
@@ -128,7 +128,7 @@ class SplashPage extends ConsumerWidget {
               const SizedBox(height: 16),
               
               Text(
-                '正在初始化数据...',
+                AppLocalizations.of(context).splashInitializing,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: Colors.white.withOpacity(0.8),
                 ),

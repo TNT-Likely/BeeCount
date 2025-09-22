@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/ui/ui.dart';
 import '../providers/font_scale_provider.dart';
 import '../styles/design.dart';
@@ -14,33 +15,33 @@ class FontSettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final level = ref.watch(fontScaleLevelProvider);
     final eff = ref.watch(effectiveFontScaleProvider);
-    final options = const [
-      _FontOption(label: '极小', value: -3, preview: '12.34 记账示例'),
-      _FontOption(label: '很小', value: -2, preview: '12.34 记账示例'),
-      _FontOption(label: '较小', value: -1, preview: '12.34 记账示例'),
-      _FontOption(label: '标准', value: 0, preview: '12.34 记账示例'),
-      _FontOption(label: '较大', value: 1, preview: '12.34 记账示例'),
-      _FontOption(label: '大', value: 2, preview: '12.34 记账示例'),
-      _FontOption(label: '很大', value: 3, preview: '12.34 记账示例'),
-      _FontOption(label: '极大', value: 4, preview: '12.34 记账示例'),
+    final options = [
+      _FontOption(label: AppLocalizations.of(context)!.fontSettingsExtraSmall, value: -3, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(label: AppLocalizations.of(context)!.fontSettingsVerySmall, value: -2, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(label: AppLocalizations.of(context)!.fontSettingsSmall, value: -1, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(label: AppLocalizations.of(context)!.fontSettingsStandard, value: 0, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(label: AppLocalizations.of(context)!.fontSettingsLarge, value: 1, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(label: AppLocalizations.of(context)!.fontSettingsBig, value: 2, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(label: AppLocalizations.of(context)!.fontSettingsVeryBig, value: 3, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(label: AppLocalizations.of(context)!.fontSettingsExtraBig, value: 4, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
     ];
 
     return Scaffold(
       body: Column(
         children: [
-          const PrimaryHeader(title: '显示缩放', showBack: true, compact: true),
+          PrimaryHeader(title: AppLocalizations.of(context)!.mineDisplayScale, showBack: true, compact: true),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               children: [
                 // 显示缩放设置部分
-                Text('显示缩放',
+                Text(AppLocalizations.of(context)!.mineDisplayScale,
                     style: Theme.of(context)
                         .textTheme
                         .labelLarge
                         ?.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
-                Text('当前缩放：x${eff.toStringAsFixed(2)}',
+                Text(AppLocalizations.of(context)!.fontSettingsCurrentScale(eff.toStringAsFixed(2)),
                     style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: 12),
                 _PreviewParagraph(level: level),
@@ -49,7 +50,7 @@ class FontSettingsPage extends ConsumerWidget {
                 const SizedBox(height: 12),
                 _MultiStylePreview(),
                 const SizedBox(height: 20),
-                Text('快速档位',
+                Text(AppLocalizations.of(context)!.fontSettingsQuickLevel,
                     style: Theme.of(context)
                         .textTheme
                         .labelLarge
@@ -57,7 +58,7 @@ class FontSettingsPage extends ConsumerWidget {
                 const SizedBox(height: 8),
                 ...options.map((o) => _buildOption(context, ref, o, level)),
                 const SizedBox(height: 24),
-                Text('自定义调整',
+                Text(AppLocalizations.of(context)!.fontSettingsCustomAdjust,
                     style: Theme.of(context)
                         .textTheme
                         .labelLarge
@@ -66,7 +67,7 @@ class FontSettingsPage extends ConsumerWidget {
                 _CustomScaleSlider(),
                 const SizedBox(height: 24),
                 Text(
-                    '说明：此设置确保所有设备在1.0倍时显示效果一致，设备差异已自动补偿；调整数值可在一致基础上进行个性化缩放。',
+                    AppLocalizations.of(context)!.fontSettingsDescription,
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall
@@ -115,7 +116,7 @@ class _PreviewParagraph extends ConsumerWidget {
     final scale = ref.watch(effectiveFontScaleProvider);
     final theme = Theme.of(context).textTheme;
     final lineStyle = theme.bodyMedium;
-    final sample = '今天吃饭花了 23.50 元，记一笔；\n本月已记账 45 天，共 320 条记录；\n坚持就是胜利！';
+    final sample = AppLocalizations.of(context)!.fontSettingsPreviewText;
     return Card(
       elevation: 0,
       child: Padding(
@@ -123,7 +124,7 @@ class _PreviewParagraph extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('实时预览', style: theme.titleMedium),
+            Text(AppLocalizations.of(context)!.fontSettingsPreview, style: theme.titleMedium),
             const SizedBox(height: 8),
             Transform.scale(
               scale: 1.0, // 视觉不再二次放大，仅展示换档后真实文本
@@ -131,7 +132,7 @@ class _PreviewParagraph extends ConsumerWidget {
                   style: lineStyle, textAlign: TextAlign.left, softWrap: true),
             ),
             const SizedBox(height: 8),
-            Text('当前档位：${_levelName(level)}  (倍率 x${scale.toStringAsFixed(2)})',
+            Text(AppLocalizations.of(context)!.fontSettingsCurrentLevel(_levelName(context, level), scale.toStringAsFixed(2)),
                 style: theme.bodySmall?.copyWith(color: Colors.black54)),
           ],
         ),
@@ -139,24 +140,24 @@ class _PreviewParagraph extends ConsumerWidget {
     );
   }
 
-  String _levelName(int l) {
+  String _levelName(BuildContext context, int l) {
     switch (l) {
       case -3:
-        return '极小';
+        return AppLocalizations.of(context)!.fontSettingsExtraSmall;
       case -2:
-        return '很小';
+        return AppLocalizations.of(context)!.fontSettingsVerySmall;
       case -1:
-        return '较小';
+        return AppLocalizations.of(context)!.fontSettingsSmall;
       case 1:
-        return '较大';
+        return AppLocalizations.of(context)!.fontSettingsLarge;
       case 2:
-        return '大';
+        return AppLocalizations.of(context)!.fontSettingsBig;
       case 3:
-        return '很大';
+        return AppLocalizations.of(context)!.fontSettingsVeryBig;
       case 4:
-        return '极大';
+        return AppLocalizations.of(context)!.fontSettingsExtraBig;
       default:
-        return '标准';
+        return AppLocalizations.of(context)!.fontSettingsStandard;
     }
   }
 }
@@ -173,17 +174,17 @@ class _MultiStylePreview extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('更多风格', style: theme.titleMedium),
+            Text(AppLocalizations.of(context)!.fontSettingsMoreStyles, style: theme.titleMedium),
             const SizedBox(height: 10),
-            _kv('页面标题', '月度统计与分析', theme.titleLarge),
+            _kv(AppLocalizations.of(context)!.fontSettingsPageTitle, '月度统计与分析', theme.titleLarge),
             const SizedBox(height: 6),
-            _kv('区块标题', '最近记账', theme.titleMedium),
+            _kv(AppLocalizations.of(context)!.fontSettingsBlockTitle, '最近记账', theme.titleMedium),
             const SizedBox(height: 6),
-            _kv('正文示例', '今天早餐：豆浆 + 包子 6.50 元', theme.bodyMedium),
+            _kv(AppLocalizations.of(context)!.fontSettingsBodyExample, '今天早餐：豆浆 + 包子 6.50 元', theme.bodyMedium),
             const SizedBox(height: 6),
-            _kv('标签说明', '隐藏金额已开启', theme.labelMedium),
+            _kv(AppLocalizations.of(context)!.fontSettingsLabelExample, '隐藏金额已开启', theme.labelMedium),
             const SizedBox(height: 6),
-            _kv('强调数字', '1234.56',
+            _kv(AppLocalizations.of(context)!.fontSettingsStrongNumber, '1234.56',
                 AppTextTokens.strongTitle(context).copyWith(fontSize: 18)),
             const Divider(height: 20),
             _ListTileMock(),
@@ -246,9 +247,9 @@ class _ListTileMock extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('列表项标题',
+                Text(AppLocalizations.of(context)!.fontSettingsListTitle,
                     style: title, maxLines: 1, overflow: TextOverflow.ellipsis),
-                Text('辅助说明文本',
+                Text(AppLocalizations.of(context)!.fontSettingsListSubtitle,
                     style: label, maxLines: 1, overflow: TextOverflow.ellipsis),
               ],
             ),
@@ -275,15 +276,15 @@ class _UIScaleInfo extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('屏幕适配信息', style: theme.titleMedium),
+            Text(AppLocalizations.of(context)!.fontSettingsScreenInfo, style: theme.titleMedium),
             SizedBox(height: 8.0.scaled(context, ref)),
-            _infoRow('屏幕密度', debugInfo['devicePixelRatio']!.toStringAsFixed(2)),
-            _infoRow('屏幕宽度', '${debugInfo['screenWidth']!.toStringAsFixed(0)}dp'),
-            _infoRow('设备缩放', 'x${debugInfo['deviceScaleFactor']!.toStringAsFixed(2)}'),
-            _infoRow('用户缩放', 'x${debugInfo['userScaleFactor']!.toStringAsFixed(2)}'),
-            _infoRow('最终缩放', 'x${debugInfo['finalScaleFactor']!.toStringAsFixed(2)}'),
-            _infoRow('基准设备', debugInfo['isBaseDevice']! > 0.5 ? '是' : '否'),
-            _infoRow('推荐缩放', 'x${debugInfo['recommendedUserScale']!.toStringAsFixed(2)}'),
+            _infoRow(AppLocalizations.of(context)!.fontSettingsScreenDensity, debugInfo['devicePixelRatio']!.toStringAsFixed(2)),
+            _infoRow(AppLocalizations.of(context)!.fontSettingsScreenWidth, '${debugInfo['screenWidth']!.toStringAsFixed(0)}dp'),
+            _infoRow(AppLocalizations.of(context)!.fontSettingsDeviceScale, 'x${debugInfo['deviceScaleFactor']!.toStringAsFixed(2)}'),
+            _infoRow(AppLocalizations.of(context)!.fontSettingsUserScale, 'x${debugInfo['userScaleFactor']!.toStringAsFixed(2)}'),
+            _infoRow(AppLocalizations.of(context)!.fontSettingsFinalScale, 'x${debugInfo['finalScaleFactor']!.toStringAsFixed(2)}'),
+            _infoRow(AppLocalizations.of(context)!.fontSettingsBaseDevice, debugInfo['isBaseDevice']! > 0.5 ? AppLocalizations.of(context)!.fontSettingsYes : AppLocalizations.of(context)!.fontSettingsNo),
+            _infoRow(AppLocalizations.of(context)!.fontSettingsRecommendedScale, 'x${debugInfo['recommendedUserScale']!.toStringAsFixed(2)}'),
             SizedBox(height: 8.0.scaled(context, ref)),
             Container(
               padding: EdgeInsets.all(8.0.scaled(context, ref)),
@@ -304,7 +305,7 @@ class _UIScaleInfo extends ConsumerWidget {
                   SizedBox(width: 8.0.scaled(context, ref)),
                   Expanded(
                     child: Text(
-                      '此方框和间距会根据设备自动缩放',
+                      AppLocalizations.of(context)!.fontSettingsScaleExample,
                       style: theme.bodySmall,
                     ),
                   ),
@@ -349,7 +350,7 @@ class _CustomScaleSlider extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('精确调整', style: theme.titleMedium),
+                Text(AppLocalizations.of(context)!.fontSettingsPreciseAdjust, style: theme.titleMedium),
                 Text('x${effectiveScale.toStringAsFixed(2)}',
                     style: theme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
               ],
@@ -391,7 +392,7 @@ class _CustomScaleSlider extends ConsumerWidget {
                     onPressed: () {
                       ref.read(customFontScaleProvider.notifier).state = 1.0;
                     },
-                    child: const Text('重置到1.0x'),
+                    child: Text(AppLocalizations.of(context)!.fontSettingsResetTo1x),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -401,7 +402,7 @@ class _CustomScaleSlider extends ConsumerWidget {
                       final recommendedScale = UIScaleService.getRecommendedUserScale(context);
                       ref.read(customFontScaleProvider.notifier).state = recommendedScale;
                     },
-                    child: const Text('适配基准'),
+                    child: Text(AppLocalizations.of(context)!.fontSettingsAdaptBase),
                   ),
                 ),
               ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../styles/colors.dart';
 import '../../styles/design.dart';
+import '../../l10n/app_localizations.dart';
 
 class AnalyticsSummary extends StatelessWidget {
   final String scope; // month/year/all
@@ -37,19 +38,19 @@ class AnalyticsSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final grey = BeeColors.secondaryText;
-    final primaryColor = Theme.of(context).colorScheme.primary;
+    final l10n = AppLocalizations.of(context)!;
 
     String avgLabel;
     switch (scope) {
       case 'year':
-        avgLabel = '月均';
+        avgLabel = l10n.analyticsMonthlyAvg;
         break;
       case 'all':
-        avgLabel = '平均值';
+        avgLabel = l10n.analyticsOverallAvg;
         break;
       case 'month':
       default:
-        avgLabel = '日均';
+        avgLabel = l10n.analyticsDailyAvg;
     }
 
     if (isSummary) {
@@ -72,7 +73,7 @@ class AnalyticsSummary extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Text('总收入： ',
+                          Text(l10n.analyticsTotalIncome,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -87,7 +88,7 @@ class AnalyticsSummary extends StatelessWidget {
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          Text('$avgLabel收入： ',
+                          Text(l10n.analyticsAvgIncome(avgLabel),
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -109,7 +110,7 @@ class AnalyticsSummary extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Text('总支出： ',
+                          Text(l10n.analyticsTotalExpense,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -124,7 +125,7 @@ class AnalyticsSummary extends StatelessWidget {
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          Text('$avgLabel支出： ',
+                          Text(l10n.analyticsAvgExpense(avgLabel),
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -144,7 +145,7 @@ class AnalyticsSummary extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              Text('结余： ',
+              Text(l10n.analyticsBalance,
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium
@@ -164,13 +165,13 @@ class AnalyticsSummary extends StatelessWidget {
       );
     } else {
       // 单一视角：原有逻辑
-      final titleWord = isExpense ? '支出' : '收入';
+      final titleWord = isExpense ? l10n.analyticsExpense : l10n.analyticsIncome;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              Text('总$titleWord： ',
+              Text(l10n.analyticsTotal(titleWord),
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium
@@ -185,7 +186,7 @@ class AnalyticsSummary extends StatelessWidget {
           const SizedBox(height: 4),
           Row(
             children: [
-              Text('$avgLabel： ',
+              Text(l10n.analyticsAverage(avgLabel),
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium

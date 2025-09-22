@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/ui/ui.dart';
 import 'import_confirm_page.dart';
 
@@ -34,7 +35,7 @@ class _ImportPageState extends ConsumerState<ImportPage> {
     return Scaffold(
       body: Column(
         children: [
-          const PrimaryHeader(title: '导入账单', showBack: true),
+          PrimaryHeader(title: AppLocalizations.of(context)!.importTitle, showBack: true),
           Expanded(
             child: Stack(
               children: [
@@ -43,19 +44,19 @@ class _ImportPageState extends ConsumerState<ImportPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('请选择 CSV/TSV 文件进行导入（默认第一行为表头）'),
+                      Text(AppLocalizations.of(context)!.importSelectCsvFile),
                       const SizedBox(height: 8),
                       Row(
                         children: [
                           FilledButton.icon(
                             onPressed: _pickFile,
                             icon: const Icon(Icons.folder_open),
-                            label: const Text('选择文件'),
+                            label: Text(AppLocalizations.of(context)!.importChooseFile),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              _picked?.name ?? '未选择文件',
+                              _picked?.name ?? AppLocalizations.of(context)!.importNoFileSelected,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -64,7 +65,7 @@ class _ImportPageState extends ConsumerState<ImportPage> {
                       ),
                       const Spacer(),
                       if (_picked == null)
-                        const Text('提示：请选择一个 CSV/TSV 文件开始导入',
+                        Text(AppLocalizations.of(context)!.importHint,
                             style: TextStyle(color: Colors.grey)),
                     ],
                   ),
@@ -84,19 +85,19 @@ class _ImportPageState extends ConsumerState<ImportPage> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text('读取文件中…'),
+                              Text(AppLocalizations.of(context)!.importReading),
                               const SizedBox(height: 12),
                               LinearProgressIndicator(value: _readProgress),
                               const SizedBox(height: 8),
                               Text(_readProgress == null
-                                  ? '准备中…'
+                                  ? AppLocalizations.of(context)!.importPreparing
                                   : '${((_readProgress ?? 0) * 100).clamp(0, 100).toStringAsFixed(0)}%'),
                               const SizedBox(height: 12),
                               TextButton(
                                 onPressed: () {
                                   setState(() => _cancelRead = true);
                                 },
-                                child: const Text('取消'),
+                                child: Text(AppLocalizations.of(context)!.commonCancel),
                               ),
                             ],
                           ),
@@ -147,7 +148,7 @@ class _ImportPageState extends ConsumerState<ImportPage> {
       }
     } on Exception catch (e) {
       if (!mounted) return;
-      showToast(context, '无法打开文件选择器：$e');
+      showToast(context, AppLocalizations.of(context)!.importFileOpenError(e.toString()));
     }
   }
 
