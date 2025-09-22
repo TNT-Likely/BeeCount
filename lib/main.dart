@@ -133,6 +133,12 @@ class MainApp extends ConsumerWidget {
         supportedLocales: const [
           Locale('en'),
           Locale('zh'),
+          Locale('zh', 'TW'),
+          Locale('ja'),
+          Locale('ko'),
+          Locale('es'),
+          Locale('fr'),
+          Locale('de'),
         ],
         locale: selectedLanguage,
         // 显式命名根路由，便于路由日志与 popUntil 精确识别

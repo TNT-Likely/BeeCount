@@ -20,8 +20,9 @@ class LanguageNotifier extends StateNotifier<Locale?> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final languageCode = prefs.getString(_languageKey);
+      final countryCode = prefs.getString('${_languageKey}_country');
       if (languageCode != null) {
-        state = Locale(languageCode);
+        state = Locale(languageCode, countryCode);
       }
     } catch (e) {
       // 如果加载失败，保持默认值（null，跟随系统）
@@ -35,9 +36,15 @@ class LanguageNotifier extends StateNotifier<Locale?> {
       if (locale == null) {
         // 跟随系统语言
         await prefs.remove(_languageKey);
+        await prefs.remove('${_languageKey}_country');
       } else {
         // 设置特定语言
         await prefs.setString(_languageKey, locale.languageCode);
+        if (locale.countryCode != null) {
+          await prefs.setString('${_languageKey}_country', locale.countryCode!);
+        } else {
+          await prefs.remove('${_languageKey}_country');
+        }
       }
       state = locale;
     } catch (e) {
@@ -55,9 +62,22 @@ class LanguageNotifier extends StateNotifier<Locale?> {
 
     switch (locale.languageCode) {
       case 'zh':
+        if (locale.countryCode == 'TW') {
+          return '繁體中文';
+        }
         return l10n.languageChinese;
       case 'en':
         return l10n.languageEnglish;
+      case 'ja':
+        return '日本語';
+      case 'ko':
+        return '한국어';
+      case 'es':
+        return 'Español';
+      case 'fr':
+        return 'Français';
+      case 'de':
+        return 'Deutsch';
       default:
         return locale.languageCode;
     }

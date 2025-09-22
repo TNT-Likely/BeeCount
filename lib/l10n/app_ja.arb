@@ -1,0 +1,1132 @@
+{
+  "@@locale": "ja",
+  "appTitle": "蜜蜂家計簿",
+  "@appTitle": {
+    "description": "The application title"
+  },
+
+  "tabHome": "ホーム",
+  "tabAnalytics": "チャート",
+  "tabLedgers": "家計簿",
+  "tabMine": "マイページ",
+
+  "commonCancel": "キャンセル",
+  "commonConfirm": "確認",
+  "commonSave": "保存",
+  "commonDelete": "削除",
+  "commonEdit": "編集",
+  "commonAdd": "追加",
+  "commonOk": "OK",
+  "commonYes": "はい",
+  "commonNo": "いいえ",
+  "commonLoading": "読み込み中...",
+  "commonEmpty": "データなし",
+  "commonError": "エラー",
+  "commonSuccess": "成功",
+  "commonFailed": "失敗",
+  "commonRetry": "再試行",
+  "commonBack": "戻る",
+  "commonNext": "次へ",
+  "commonPrevious": "前へ",
+  "commonFinish": "完了",
+  "commonClose": "閉じる",
+  "commonCopy": "コピー",
+  "commonSearch": "検索",
+  "commonNoteHint": "メモ...",
+  "commonFilter": "フィルター",
+  "commonClear": "クリア",
+  "commonSelectAll": "すべて選択",
+  "commonSettings": "設定",
+  "commonHelp": "ヘルプ",
+  "commonAbout": "について",
+  "commonLanguage": "言語",
+  "commonWeekdayMonday": "月曜日",
+  "commonWeekdayTuesday": "火曜日",
+  "commonWeekdayWednesday": "水曜日",
+  "commonWeekdayThursday": "木曜日",
+  "commonWeekdayFriday": "金曜日",
+  "commonWeekdaySaturday": "土曜日",
+  "commonWeekdaySunday": "日曜日",
+
+  "homeTitle": "蜜蜂家計簿",
+  "homeIncome": "収入",
+  "homeExpense": "支出",
+  "homeBalance": "残高",
+  "homeTotal": "合計",
+  "homeAverage": "平均",
+  "homeDailyAvg": "日平均",
+  "homeMonthlyAvg": "月平均",
+  "homeNoRecords": "まだ記録がありません",
+  "homeAddRecord": "プラスボタンをタップして記録を追加",
+  "homeHideAmounts": "金額を非表示",
+  "homeShowAmounts": "金額を表示",
+  "homeSelectDate": "日付を選択",
+  "homeAppTitle": "蜜蜂家計簿",
+  "homeSearch": "検索",
+  "homeShowAmount": "金額を表示",
+  "homeHideAmount": "金額を非表示",
+  "homeYear": "{year}年",
+  "@homeYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "homeMonth": "{month}月",
+  "@homeMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "homeNoRecordsSubtext": "下のプラスボタンをタップして記録を追加してください",
+
+  "searchTitle": "検索",
+  "searchHint": "メモ、カテゴリ、金額を検索...",
+  "searchAmountRange": "金額範囲フィルター",
+  "searchMinAmount": "最小金額",
+  "searchMaxAmount": "最大金額",
+  "searchTo": "から",
+  "searchNoInput": "キーワードを入力して検索を開始",
+  "searchNoResults": "一致する結果が見つかりません",
+  "searchResultsEmpty": "一致する結果が見つかりません",
+  "searchResultsEmptyHint": "他のキーワードを試すか、フィルター条件を調整してください",
+
+  "analyticsTitle": "分析",
+  "analyticsMonth": "月",
+  "analyticsYear": "年",
+  "analyticsAll": "すべて",
+  "analyticsSummary": "概要",
+  "analyticsCategoryRanking": "カテゴリランキング",
+  "analyticsCurrentPeriod": "現在の期間",
+  "analyticsNoDataSubtext": "左右にスワイプして収入/支出を切り替えるか、上の期間切り替えを使用してください",
+  "analyticsSwipeHint": "左右にスワイプして期間を変更",
+  "analyticsTipContent": "1) 上部を左右にスワイプして「月/年/すべて」を切り替え\\n2) チャートエリアを左右にスワイプして期間を切り替え\\n3) 月や年をタップして素早く選択",
+  "analyticsSwitchTo": "{type}に切り替え",
+  "@analyticsSwitchTo": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsTipHeader": "ヒント：上部のカプセルで月/年/すべてを切り替え可能",
+  "analyticsSwipeToSwitch": "スワイプして切り替え",
+  "analyticsAllYears": "すべての年",
+  "analyticsToday": "今日",
+
+  "splashAppName": "蜜蜂家計簿",
+  "splashSlogan": "一滴一滴を記録",
+  "splashSecurityTitle": "オープンソースデータセキュリティ",
+  "splashSecurityFeature1": "• ローカルデータストレージ、完全プライバシー制御",
+  "splashSecurityFeature2": "• オープンソースコードの透明性、信頼できるセキュリティ",
+  "splashSecurityFeature3": "• オプションのクラウド同期、デバイス間でのデータ一貫性",
+  "splashInitializing": "データを初期化中...",
+
+  "ledgersTitle": "家計簿管理",
+  "ledgersNew": "新しい家計簿",
+  "ledgersClear": "現在の家計簿をクリア",
+  "ledgersClearConfirm": "現在の家計簿をクリアしますか？",
+  "ledgersClearMessage": "この家計簿のすべての取引記録が削除され、復元できません。",
+  "ledgersEdit": "家計簿を編集",
+  "ledgersDelete": "家計簿を削除",
+  "ledgersDeleteConfirm": "家計簿を削除",
+  "ledgersDeleteMessage": "この家計簿とすべての記録を削除してもよろしいですか？この操作は取り消せません。\\nクラウドにバックアップがある場合、それも削除されます。",
+  "ledgersDeleted": "削除済み",
+  "ledgersDeleteFailed": "削除失敗",
+  "ledgersRecordsDeleted": "{count}件の記録を削除しました",
+  "@ledgersRecordsDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ledgersName": "名前",
+  "ledgersDefaultLedgerName": "デフォルト家計簿",
+  "ledgersDefaultAccountName": "現金",
+  "ledgersCurrency": "通貨",
+  "ledgersSelectCurrency": "通貨を選択",
+  "ledgersSearchCurrency": "検索：中国語またはコード",
+  "ledgersCreate": "作成",
+  "ledgersActions": "操作",
+  "ledgersRecords": "記録：{count}件",
+  "@ledgersRecords": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ledgersBalance": "残高：{balance}",
+  "@ledgersBalance": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+
+  "categoryTitle": "カテゴリ管理",
+  "categoryNew": "新しいカテゴリ",
+  "categoryExpense": "支出カテゴリ",
+  "categoryIncome": "収入カテゴリ",
+  "categoryEmpty": "カテゴリなし",
+  "categoryDefault": "デフォルトカテゴリ",
+  "categoryLoadFailed": "読み込み失敗：{error}",
+  "@categoryLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "iconPickerTitle": "アイコンを選択",
+  "iconCategoryFood": "食事",
+  "iconCategoryTransport": "交通",
+  "iconCategoryShopping": "ショッピング",
+  "iconCategoryEntertainment": "娯楽",
+  "iconCategoryLife": "生活",
+  "iconCategoryHealth": "健康",
+  "iconCategoryEducation": "教育",
+  "iconCategoryWork": "仕事",
+  "iconCategoryFinance": "金融",
+  "iconCategoryReward": "報酬",
+  "iconCategoryOther": "その他",
+  "iconCategoryDining": "外食",
+
+  "importTitle": "請求書のインポート",
+  "importSelectFile": "インポートするCSV/TSVファイルを選択してください（デフォルトで最初の行をヘッダーとします）",
+  "importChooseFile": "ファイルを選択",
+  "importNoFileSelected": "ファイルが選択されていません",
+  "importHint": "ヒント：CSV/TSVファイルを選択してインポートを開始してください",
+  "importReading": "ファイルを読み込み中...",
+  "importPreparing": "準備中...",
+  "importColumnNumber": "列 {number}",
+  "importConfirmMapping": "マッピングを確認",
+  "importCategoryMapping": "カテゴリマッピング",
+  "importNoDataParsed": "データが解析されませんでした。前のページに戻ってCSVの内容または区切り文字を確認してください。",
+  "importFieldDate": "日付",
+  "importFieldType": "タイプ",
+  "importFieldAmount": "金額",
+  "importFieldCategory": "カテゴリ",
+  "importFieldNote": "メモ",
+  "importPreview": "データプレビュー",
+  "importPreviewLimit": "{total}件中最初の{shown}件を表示",
+  "importCategoryNotSelected": "カテゴリが選択されていません",
+  "importCategoryMappingDescription": "各カテゴリ名に対応するローカルカテゴリを選択してください：",
+  "importKeepOriginalName": "元の名前を保持",
+  "importProgress": "インポート中、成功：{ok}、失敗：{fail}",
+  "importCancelImport": "インポートをキャンセル",
+  "importCompleteTitle": "インポート完了",
+  "importCompletedCount": "{count}件の記録を正常にインポートしました",
+  "importFailed": "インポート失敗",
+  "importFailedMessage": "インポート失敗：{error}",
+  "importSelectCategoryFirst": "最初にカテゴリマッピングを選択してください",
+  "importNextStep": "次のステップ",
+  "importPreviousStep": "前のステップ",
+  "importStartImport": "インポート開始",
+  "importAutoDetect": "自動検出",
+  "importInProgress": "インポート中",
+  "importProgressDetail": "{total}件中{done}件をインポート、成功{ok}件、失敗{fail}件",
+  "importBackgroundImport": "バックグラウンドインポート",
+  "importCancelled": "インポートキャンセル",
+  "importCompleted": "インポート完了{cancelled}、成功{ok}件、失敗{fail}件",
+  "importFileOpenError": "ファイルピッカーを開けません：{error}",
+  "@importFileOpenError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "mineTitle": "マイページ",
+  "mineSettings": "設定",
+  "mineTheme": "テーマ設定",
+  "mineFont": "フォント設定",
+  "mineReminder": "リマインダー設定",
+  "mineData": "データ管理",
+  "mineImport": "データのインポート",
+  "mineExport": "データのエクスポート",
+  "mineCloud": "クラウドサービス",
+  "mineAbout": "について",
+  "mineVersion": "バージョン",
+  "mineUpdate": "アップデートを確認",
+  "mineLanguageSettings": "言語設定",
+  "mineLanguageSettingsSubtitle": "アプリケーション言語を切り替え",
+
+  "languageTitle": "言語設定",
+  "languageChinese": "中文",
+  "languageEnglish": "English",
+  "languageSystemDefault": "システムに従う",
+
+  "deleteConfirmTitle": "削除確認",
+  "deleteConfirmMessage": "この記録を削除してもよろしいですか？",
+  "logCopied": "ログをコピーしました",
+  "waitingRestore": "復元タスクの開始を待機中...",
+  "restoreTitle": "クラウド復元",
+  "copyLog": "ログをコピー",
+  "restoreProgress": "復元中（{current}/{total}）",
+  "restorePreparing": "準備中...",
+  "restoreLedgerProgress": "家計簿：{ledger} 記録：{done}/{total}",
+  "@restoreLedgerProgress": {
+    "placeholders": {
+      "ledger": {
+        "type": "String"
+      },
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+
+  "mineSlogan": "蜜蜂家計簿、一円も逃さない",
+  "mineDaysCount": "日",
+  "mineTotalRecords": "記録",
+  "mineCurrentBalance": "残高",
+  "mineCloudService": "クラウドサービス",
+  "mineCloudServiceLoading": "読み込み中...",
+  "mineCloudServiceError": "エラー：{error}",
+  "mineCloudServiceDefault": "デフォルトクラウド（有効）",
+  "mineCloudServiceOffline": "デフォルトモード（オフライン）",
+  "mineCloudServiceCustom": "カスタムSupabase",
+  "mineFirstFullUpload": "初回フルアップロード",
+  "mineFirstFullUploadSubtitle": "すべてのローカル家計簿を現在のSupabaseにアップロード",
+  "mineFirstFullUploadComplete": "完了",
+  "mineFirstFullUploadMessage": "現在の家計簿がアップロードされました。他の家計簿に切り替えてアップロードしてください。",
+  "mineFirstFullUploadFailed": "失敗",
+  "mineSyncTitle": "同期",
+  "mineSyncNotLoggedIn": "ログインしていません",
+  "mineSyncNotConfigured": "クラウドが設定されていません",
+  "mineSyncNoRemote": "クラウドバックアップなし",
+  "mineSyncInSync": "同期済み（ローカル{count}件の記録）",
+  "mineSyncLocalNewer": "ローカルが新しい（ローカル{count}件の記録、アップロード推奨）",
+  "mineSyncCloudNewer": "クラウドが新しい（ダウンロード推奨）",
+  "mineSyncDifferent": "ローカルとクラウドが異なります",
+  "mineSyncError": "ステータス取得に失敗",
+  "mineSyncDetailTitle": "同期ステータス詳細",
+  "mineSyncLocalRecords": "ローカル記録：{count}件",
+  "mineSyncCloudRecords": "クラウド記録：{count}件",
+  "mineSyncCloudLatest": "クラウド最新記録時刻：{time}",
+  "mineSyncLocalFingerprint": "ローカルフィンガープリント：{fingerprint}",
+  "mineSyncCloudFingerprint": "クラウドフィンガープリント：{fingerprint}",
+  "mineSyncMessage": "メッセージ：{message}",
+  "mineUploadTitle": "アップロード",
+  "mineUploadNeedLogin": "ログインが必要です",
+  "mineUploadInProgress": "アップロード中...",
+  "mineUploadRefreshing": "更新中...",
+  "mineUploadSynced": "同期済み",
+  "mineUploadSuccess": "アップロード完了",
+  "mineUploadSuccessMessage": "現在の家計簿がクラウドに同期されました",
+  "mineDownloadTitle": "ダウンロード",
+  "mineDownloadComplete": "完了",
+  "mineDownloadResult": "新規インポート：{inserted}\\n既存スキップ：{skipped}\\n重複クリーンアップ：{deleted}",
+  "mineLoginTitle": "ログイン / 登録",
+  "mineLoginSubtitle": "同期にのみ必要",
+  "mineLoggedInEmail": "ログイン済み",
+  "mineLogoutSubtitle": "タップしてログアウト",
+  "mineLogoutConfirmTitle": "ログアウト",
+  "mineLogoutConfirmMessage": "ログアウトしてもよろしいですか？\\nログアウト後はクラウド同期を使用できません。",
+  "mineLogoutButton": "ログアウト",
+  "mineAutoSyncTitle": "家計簿の自動同期",
+  "mineAutoSyncSubtitle": "記録後に自動でクラウドにアップロード",
+  "mineAutoSyncNeedLogin": "有効にするにはログインが必要です",
+  "mineImportProgressTitle": "バックグラウンドでインポート中...",
+  "mineImportProgressSubtitle": "進行状況：{done}/{total}、成功{ok}件、失敗{fail}件",
+  "mineImportCompleteTitle": "インポート完了",
+  "mineImportCompleteSubtitle": "成功{ok}件、失敗{fail}件",
+  "mineCategoryManagement": "カテゴリ管理",
+  "mineCategoryManagementSubtitle": "カスタムカテゴリを編集",
+  "mineCategoryMigration": "カテゴリ移行",
+  "mineCategoryMigrationSubtitle": "カテゴリデータを他のカテゴリに移行",
+  "mineReminderSettings": "リマインダー設定",
+  "mineReminderSettingsSubtitle": "日次記録リマインダーを設定",
+  "minePersonalize": "パーソナライゼーション",
+  "mineDisplayScale": "表示スケール",
+  "mineDisplayScaleSubtitle": "テキストとUI要素のサイズを調整",
+  "mineAboutTitle": "について",
+  "mineAboutMessage": "アプリ：蜜蜂家計簿\\nバージョン：{version}\\nソース：https://github.com/TNT-Likely/BeeCount\\nライセンス：リポジトリのLICENSEを参照",
+  "mineAboutOpenGitHub": "GitHubを開く",
+  "mineCheckUpdate": "アップデートを確認",
+  "mineCheckUpdateInProgress": "アップデートを確認中...",
+  "mineCheckUpdateSubtitle": "最新バージョンを確認中",
+  "mineUpdateDownload": "アップデートをダウンロード",
+  "mineRefreshStats": "統計を更新（デバッグ）",
+  "mineRefreshStatsSubtitle": "グローバル統計プロバイダーの再計算をトリガー",
+  "mineRefreshSync": "同期ステータスを更新（デバッグ）",
+  "mineRefreshSyncSubtitle": "同期ステータスプロバイダーの更新をトリガー",
+
+  "categoryEditTitle": "カテゴリを編集",
+  "categoryNewTitle": "新しいカテゴリ",
+  "categoryDetailTooltip": "カテゴリ詳細",
+  "categoryMigrationTooltip": "カテゴリ移行",
+  "categoryMigrationTitle": "カテゴリ移行",
+  "categoryMigrationDescription": "カテゴリ移行手順",
+  "categoryMigrationDescriptionContent": "• あるカテゴリのすべての取引記録を別のカテゴリに移行\\n• 移行後、元のカテゴリのすべての取引データが対象カテゴリに転送されます\\n• この操作は取り消せません、慎重に選択してください",
+  "categoryMigrationFromLabel": "移行元カテゴリ",
+  "categoryMigrationFromHint": "移行元のカテゴリを選択",
+  "categoryMigrationToLabel": "移行先カテゴリ",
+  "categoryMigrationToHint": "対象カテゴリを選択",
+  "categoryMigrationToHintFirst": "最初に元のカテゴリを選択してください",
+  "categoryMigrationStartButton": "移行開始",
+  "categoryMigrationTransactionCount": "{count}件の記録",
+  "@categoryMigrationTransactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryMigrationCannotTitle": "移行できません",
+  "categoryMigrationCannotMessage": "選択されたカテゴリは移行できません、カテゴリのステータスを確認してください。",
+  "categoryExpenseType": "支出カテゴリ",
+  "categoryIncomeType": "収入カテゴリ",
+  "categoryDefaultTitle": "デフォルトカテゴリ",
+  "categoryDefaultMessage": "デフォルトカテゴリは変更できませんが、詳細を表示してデータを移行できます",
+
+  "categoryNameDining": "外食",
+  "categoryNameTransport": "交通",
+  "categoryNameShopping": "ショッピング",
+  "categoryNameEntertainment": "娯楽",
+  "categoryNameHome": "家庭",
+  "categoryNameFamily": "家族",
+  "categoryNameCommunication": "通信",
+  "categoryNameUtilities": "光熱費",
+  "categoryNameHousing": "住居",
+  "categoryNameMedical": "医療",
+  "categoryNameEducation": "教育",
+  "categoryNamePets": "ペット",
+  "categoryNameSports": "スポーツ",
+  "categoryNameDigital": "デジタル",
+  "categoryNameTravel": "旅行",
+  "categoryNameAlcoholTobacco": "酒・タバコ",
+  "categoryNameBabyCare": "育児",
+  "categoryNameBeauty": "美容",
+  "categoryNameRepair": "修理",
+  "categoryNameSocial": "社交",
+  "categoryNameLearning": "学習",
+  "categoryNameCar": "車",
+  "categoryNameTaxi": "タクシー",
+  "categoryNameSubway": "地下鉄",
+  "categoryNameDelivery": "配送",
+  "categoryNameProperty": "不動産",
+  "categoryNameParking": "駐車場",
+  "categoryNameDonation": "寄付",
+  "categoryNameGift": "ギフト",
+  "categoryNameTax": "税金",
+  "categoryNameBeverage": "飲み物",
+  "categoryNameClothing": "衣服",
+  "categoryNameSnacks": "お菓子",
+  "categoryNameRedPacket": "お年玉",
+  "categoryNameFruit": "果物",
+  "categoryNameGame": "ゲーム",
+  "categoryNameBook": "本",
+  "categoryNameLover": "恋人",
+  "categoryNameDecoration": "装飾",
+  "categoryNameDailyGoods": "日用品",
+  "categoryNameLottery": "宝くじ",
+  "categoryNameStock": "株式",
+  "categoryNameSocialSecurity": "社会保障",
+  "categoryNameExpress": "宅配便",
+  "categoryNameWork": "仕事",
+
+  "categoryNameSalary": "給料",
+  "categoryNameInvestment": "投資",
+  "categoryNameBonus": "ボーナス",
+  "categoryNameReimbursement": "払い戻し",
+  "categoryNamePartTime": "アルバイト",
+  "categoryNameInterest": "利息",
+  "categoryNameRefund": "返金",
+  "categoryNameSecondHand": "中古販売",
+  "categoryNameSocialBenefit": "社会保障給付",
+  "categoryNameTaxRefund": "税金還付",
+  "categoryNameProvidentFund": "積立金",
+  "categoryNameLabel": "カテゴリ名",
+  "categoryNameHint": "カテゴリ名を入力",
+  "categoryNameHintDefault": "デフォルトカテゴリ名は変更できません",
+  "categoryNameRequired": "カテゴリ名を入力してください",
+  "categoryNameTooLong": "カテゴリ名は4文字以内にしてください",
+  "categoryIconLabel": "カテゴリアイコン",
+  "categoryIconDefaultMessage": "デフォルトカテゴリアイコンは変更できません",
+  "categoryDangerousOperations": "危険な操作",
+  "categoryDeleteTitle": "カテゴリを削除",
+  "categoryDeleteSubtitle": "削除後は復元できません",
+  "categoryDefaultCannotSave": "デフォルトカテゴリは保存できません",
+  "categorySaveError": "保存に失敗しました",
+  "categoryUpdated": "カテゴリ「{name}」を更新しました",
+  "categoryCreated": "カテゴリ「{name}」を作成しました",
+  "categoryCannotDelete": "削除できません",
+  "categoryCannotDeleteMessage": "このカテゴリには{count}件の取引記録があります。最初に処理してください。",
+  "categoryDeleteConfirmTitle": "カテゴリを削除",
+  "categoryDeleteConfirmMessage": "カテゴリ「{name}」を削除してもよろしいですか？この操作は取り消せません。",
+  "categoryDeleteError": "削除に失敗しました",
+  "categoryDeleted": "カテゴリ「{name}」を削除しました",
+
+  "personalizeTitle": "パーソナライゼーション",
+  "personalizeCustomColor": "カスタム色を選択",
+  "personalizeCustomTitle": "カスタム",
+  "personalizeHue": "色相（{value}°）",
+  "personalizeSaturation": "彩度（{value}%）",
+  "personalizeBrightness": "明度（{value}%）",
+  "personalizeSelectColor": "この色を選択",
+
+  "fontSettingsTitle": "表示スケール",
+  "fontSettingsCurrentScale": "現在のスケール：x{scale}",
+  "fontSettingsPreview": "ライブプレビュー",
+  "fontSettingsPreviewText": "今日のランチに23.50を使用、記録しました；\\n今月は45日間記録、320件のエントリ；\\n継続は勝利！",
+  "fontSettingsCurrentLevel": "現在のレベル：{level}（スケールx{scale}）",
+  "fontSettingsQuickLevel": "クイックレベル",
+  "fontSettingsCustomAdjust": "カスタム調整",
+  "fontSettingsDescription": "注：この設定はすべてのデバイスで1.0xでの一貫した表示を保証し、デバイスの違いは自動補正されます；この一貫したベース上でパーソナライズされたスケーリング値を調整してください。",
+  "fontSettingsExtraSmall": "極小",
+  "fontSettingsVerySmall": "とても小さい",
+  "fontSettingsSmall": "小さい",
+  "fontSettingsStandard": "標準",
+  "fontSettingsLarge": "大きい",
+  "fontSettingsBig": "大",
+  "fontSettingsVeryBig": "とても大きい",
+  "fontSettingsExtraBig": "極大",
+  "fontSettingsMoreStyles": "その他のスタイル",
+  "fontSettingsPageTitle": "ページタイトル",
+  "fontSettingsBlockTitle": "ブロックタイトル",
+  "fontSettingsBodyExample": "本文テキスト",
+  "fontSettingsLabelExample": "ラベルテキスト",
+  "fontSettingsStrongNumber": "強調数字",
+  "fontSettingsListTitle": "リストアイテムタイトル",
+  "fontSettingsListSubtitle": "ヘルパーテキスト",
+  "fontSettingsScreenInfo": "画面適応情報",
+  "fontSettingsScreenDensity": "画面密度",
+  "fontSettingsScreenWidth": "画面幅",
+  "fontSettingsDeviceScale": "デバイススケール",
+  "fontSettingsUserScale": "ユーザースケール",
+  "fontSettingsFinalScale": "最終スケール",
+  "fontSettingsBaseDevice": "ベースデバイス",
+  "fontSettingsRecommendedScale": "推奨スケール",
+  "fontSettingsYes": "はい",
+  "fontSettingsNo": "いいえ",
+  "fontSettingsScaleExample": "このボックスと間隔はデバイスに基づいて自動スケール",
+  "fontSettingsPreciseAdjust": "精密調整",
+  "fontSettingsResetTo1x": "1.0xにリセット",
+  "fontSettingsAdaptBase": "ベースに適応",
+
+  "reminderTitle": "記録リマインダー",
+  "reminderSubtitle": "日次記録リマインダー時刻を設定",
+  "reminderDailyTitle": "日次記録リマインダー",
+  "reminderDailySubtitle": "有効にすると、指定した時刻に記録を促すリマインダーが送信されます",
+  "reminderTimeTitle": "リマインダー時刻",
+  "reminderTestNotification": "テスト通知を送信",
+  "reminderTestSent": "テスト通知を送信しました",
+  "reminderQuickTest": "クイックテスト（15秒後）",
+  "reminderQuickTestMessage": "15秒後のクイックテストを設定しました、アプリをバックグラウンドに保持してください",
+  "reminderFlutterTest": "🔧 Flutter通知クリックテスト（開発）",
+  "reminderFlutterTestMessage": "Flutterテスト通知を送信しました、タップしてアプリが開くか確認してください",
+  "reminderAlarmTest": "🔧 AlarmManager通知クリックテスト（開発）",
+  "reminderAlarmTestMessage": "AlarmManagerテスト通知を設定しました（1秒後）、タップしてアプリが開くか確認してください",
+  "reminderDirectTest": "🔧 NotificationReceiverの直接テスト（開発）",
+  "reminderDirectTestMessage": "NotificationReceiverを直接呼び出して通知を作成しました、タップが機能するか確認してください",
+  "reminderCheckStatus": "🔧 通知ステータスを確認（開発）",
+  "reminderNotificationStatus": "通知ステータス",
+  "reminderPendingCount": "保留中の通知：{count}件",
+  "reminderNoPending": "保留中の通知はありません",
+  "reminderCheckBattery": "バッテリー最適化ステータスを確認",
+  "reminderBatteryStatus": "バッテリー最適化ステータス",
+  "reminderManufacturer": "メーカー：{value}",
+  "reminderModel": "モデル：{value}",
+  "reminderAndroidVersion": "Androidバージョン：{value}",
+  "reminderBatteryIgnored": "バッテリー最適化：無視 ✅",
+  "reminderBatteryNotIgnored": "バッテリー最適化：無視されていません ⚠️",
+  "reminderBatteryAdvice": "適切な通知のためにバッテリー最適化を無効にすることをお勧めします",
+  "reminderGoToSettings": "設定に移動",
+  "reminderCheckChannel": "通知チャンネル設定を確認",
+  "reminderChannelStatus": "通知チャンネルステータス",
+  "reminderChannelEnabled": "チャンネル有効：はい ✅",
+  "reminderChannelDisabled": "チャンネル有効：いいえ ❌",
+  "reminderChannelImportance": "重要度：{value}",
+  "reminderChannelSoundOn": "音：オン 🔊",
+  "reminderChannelSoundOff": "音：オフ 🔇",
+  "reminderChannelVibrationOn": "バイブレーション：オン 📳",
+  "reminderChannelVibrationOff": "バイブレーション：オフ",
+  "reminderChannelDndBypass": "おやすみモード：バイパス可能",
+  "reminderChannelDndNoBypass": "おやすみモード：バイパス不可",
+  "reminderChannelAdvice": "⚠️ 推奨設定：",
+  "reminderChannelAdviceImportance": "• 重要度：緊急または高",
+  "reminderChannelAdviceSound": "• 音とバイブレーションを有効化",
+  "reminderChannelAdviceBanner": "• バナー通知を許可",
+  "reminderChannelAdviceXiaomi": "• Xiaomiスマホは個別チャンネル設定が必要",
+  "reminderChannelGood": "✅ 通知チャンネルが適切に設定されています",
+  "reminderOpenAppSettings": "アプリ設定を開く",
+  "reminderAppSettingsMessage": "設定で通知を許可し、バッテリー最適化を無効にしてください",
+  "reminderIOSTest": "🍎 iOS通知デバッグテスト",
+  "reminderIOSTestTitle": "iOS通知テスト",
+  "reminderIOSTestMessage": "テスト通知を送信しました。\\n\\n🍎 iOSシミュレータの制限：\\n• 通知センターに通知が表示されない場合があります\\n• バナーアラートが機能しない場合があります\\n• ただし、Xcodeコンソールにログが表示されます\\n\\n💡 デバッグ方法：\\n• Xcodeコンソール出力を確認\\n• Flutterログ情報を確認\\n• 完全な体験には実機を使用",
+  "reminderDescription": "ヒント：記録リマインダーが有効な場合、システムは毎日指定した時刻に通知を送信し、収入と支出の記録を促します。",
+  "reminderIOSInstructions": "🍎 iOS通知設定：\\n• 設定 > 通知 > 蜜蜂家計簿\\n• 「通知を許可」を有効化\\n• 通知スタイルを設定：バナーまたはアラート\\n• 音とバイブレーションを有効化\\n\\n⚠️ iOSシミュレータの制限：\\n• シミュレータの通知機能は制限されています\\n• 実機の使用をお勧めします\\n• 通知ステータスはXcodeコンソールで確認\\n\\nシミュレータでテストする場合は観察してください：\\n• Xcodeコンソールログ出力\\n• Flutterデバッグコンソール情報\\n• アプリ内の通知送信確認ポップアップ",
+  "reminderAndroidInstructions": "通知が正常に機能しない場合は確認してください：\\n• アプリが通知の送信を許可されている\\n• アプリのバッテリー最適化/省電力モードを無効化\\n• アプリのバックグラウンド実行と自動開始を許可\\n• Android 12+では正確なアラーム権限が必要\\n\\n📱 Xiaomiスマホの特別設定：\\n• 設定 > アプリ管理 > 蜜蜂家計簿 > 通知管理\\n• 「記録リマインダー」チャンネルをタップ\\n• 重要度を「緊急」または「高」に設定\\n• 「バナー通知」、「音」、「バイブレーション」を有効化\\n• セキュリティセンター > アプリ管理 > 権限 > 自動開始\\n\\n🔒 バックグラウンドロック方法：\\n• 最近のタスクで蜜蜂家計簿を見つける\\n• アプリカードを下にスワイプしてロックアイコンを表示\\n• ロックアイコンをタップしてクリーンアップを防ぐ",
+
+  "categoryDetailLoadFailed": "読み込み失敗",
+  "categoryDetailSummaryTitle": "カテゴリ概要",
+  "categoryDetailTotalCount": "総件数",
+  "categoryDetailTotalAmount": "総金額",
+  "categoryDetailAverageAmount": "平均金額",
+  "categoryDetailSortTitle": "ソート",
+  "categoryDetailSortTimeDesc": "時刻 ↓",
+  "categoryDetailSortTimeAsc": "時刻 ↑",
+  "categoryDetailSortAmountDesc": "金額 ↓",
+  "categoryDetailSortAmountAsc": "金額 ↑",
+  "categoryDetailNoTransactions": "取引なし",
+  "categoryDetailNoTransactionsSubtext": "このカテゴリにはまだ取引がありません",
+  "categoryDetailDeleteFailed": "削除失敗",
+
+  "categoryMigrationConfirmTitle": "移行確認",
+  "categoryMigrationConfirmMessage": "「{fromName}」から「{toName}」に{count}件の取引を移行しますか？\\n\\nこの操作は取り消せません！",
+  "categoryMigrationConfirmOk": "移行確認",
+  "categoryMigrationCompleteTitle": "移行完了",
+  "categoryMigrationCompleteMessage": "「{fromName}」から「{toName}」に{count}件の取引を正常に移行しました。",
+  "categoryMigrationFailedTitle": "移行失敗",
+  "categoryMigrationFailedMessage": "移行エラー：{error}",
+  "categoryMigrationTransactionLabel": "{count}件の記録",
+  "@categoryMigrationTransactionLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "categoryPickerExpenseTab": "支出",
+  "categoryPickerIncomeTab": "収入",
+  "categoryPickerCancel": "キャンセル",
+  "categoryPickerEmpty": "カテゴリなし",
+
+  "cloudBackupFound": "クラウドバックアップが見つかりました",
+  "cloudBackupRestoreMessage": "クラウドとローカルの家計簿が一致しません。クラウドから復元しますか？\\n（復元進行ページに移動します）",
+  "cloudBackupRestoreFailed": "復元失敗",
+  "mineCloudBackupRestoreTitle": "クラウドバックアップが見つかりました",
+  "mineAutoSyncRemoteDesc": "記録後に自動でクラウドにアップロード",
+  "mineAutoSyncLoginRequired": "有効にするにはログインが必要です",
+  "mineImportCompleteAllSuccess": "すべて成功",
+  "mineImportCompleteTitleShort": "インポート完了",
+  "mineAboutAppName": "アプリ：蜜蜂家計簿",
+  "mineAboutVersion": "バージョン：{version}",
+  "mineAboutRepo": "ソース：https://github.com/TNT-Likely/BeeCount",
+  "mineAboutLicense": "ライセンス：リポジトリのLICENSEを参照",
+  "mineCheckUpdateDetecting": "アップデートを確認中...",
+  "mineCheckUpdateSubtitleDetecting": "最新バージョンを確認中",
+  "mineUpdateDownloadTitle": "アップデートをダウンロード",
+  "mineDebugRefreshStats": "統計を更新（デバッグ）",
+  "mineDebugRefreshStatsSubtitle": "グローバル統計プロバイダーの再計算をトリガー",
+  "mineDebugRefreshSync": "同期ステータスを更新（デバッグ）",
+  "mineDebugRefreshSyncSubtitle": "同期ステータスプロバイダーの更新をトリガー",
+
+  "cloudCurrentService": "現在のクラウドサービス",
+  "cloudConnected": "接続済み",
+  "cloudOfflineMode": "オフラインモード",
+  "cloudAvailableServices": "利用可能なクラウドサービス",
+  "cloudReadCustomConfigFailed": "カスタム設定の読み込みに失敗しました",
+  "cloudFirstUploadNotComplete": "初回フルアップロードが完了していません",
+  "cloudFirstUploadInstruction": "ログインして「マイページ/同期」で手動で「アップロード」を実行して初期化を完了してください",
+  "cloudNotConfigured": "設定されていません",
+  "cloudNotTested": "テストされていません",
+  "cloudConnectionNormal": "接続正常",
+  "cloudConnectionFailed": "接続失敗",
+  "cloudAddCustomService": "カスタムクラウドサービスを追加",
+  "cloudDefaultServiceName": "デフォルトクラウドサービス",
+  "cloudUseYourSupabase": "独自のSupabaseを使用",
+  "cloudTest": "テスト",
+  "cloudSwitchService": "クラウドサービスを切り替え",
+  "cloudSwitchToBuiltinConfirm": "デフォルトクラウドサービスに切り替えてもよろしいですか？現在のセッションからログアウトされます。",
+  "cloudSwitchToCustomConfirm": "カスタムクラウドサービスに切り替えてもよろしいですか？現在のセッションからログアウトされます。",
+  "cloudSwitched": "切り替え完了",
+  "cloudSwitchedToBuiltin": "デフォルトクラウドサービスに切り替えてログアウトしました",
+  "cloudSwitchFailed": "切り替え失敗",
+  "cloudActivateFailed": "アクティベーション失敗",
+  "cloudActivateFailedMessage": "保存された設定が無効です",
+  "cloudActivated": "アクティベート完了",
+  "cloudActivatedMessage": "カスタムクラウドサービスに切り替えてログアウトしました、再度ログインしてください",
+  "cloudEditCustomService": "カスタムクラウドサービスを編集",
+  "cloudAddCustomServiceTitle": "カスタムクラウドサービスを追加",
+  "cloudSupabaseUrlLabel": "Supabase URL",
+  "cloudSupabaseUrlHint": "https://xxx.supabase.co",
+  "cloudAnonKeyLabel": "Anon Key",
+  "cloudAnonKeyHint": "注：service_role Keyは入力しないでください；Anon Keyは公開されています。",
+  "cloudInvalidInput": "無効な入力",
+  "cloudValidationEmptyFields": "URLとKeyを空にすることはできません",
+  "cloudValidationHttpsRequired": "URLはhttps://で始まる必要があります",
+  "cloudValidationKeyTooShort": "Keyの長さが短すぎます、無効な可能性があります",
+  "cloudValidationServiceRoleKey": "service_role Keyは許可されていません",
+  "cloudConfigUpdated": "設定を更新しました",
+  "cloudConfigSaved": "設定を保存しました",
+  "cloudTestComplete": "テスト完了",
+  "cloudTestSuccess": "接続テスト成功！",
+  "cloudTestFailed": "接続テストに失敗しました、設定が正しいか確認してください。",
+  "cloudTestError": "テスト失敗",
+  "cloudClearConfig": "設定をクリア",
+  "cloudClearConfigConfirm": "カスタムクラウドサービス設定をクリアしてもよろしいですか？（開発環境のみ）",
+  "cloudConfigCleared": "カスタムクラウドサービス設定をクリアしました",
+  "cloudClearFailed": "クリア失敗",
+  "cloudServiceDescription": "内蔵クラウドサービス（無料ですが不安定な場合があります、独自のサービスまたは定期バックアップを推奨）",
+  "cloudServiceDescriptionNotConfigured": "現在のビルドには内蔵クラウドサービス設定がありません",
+  "cloudServiceDescriptionCustom": "サーバー：{url}",
+  "@cloudServiceDescriptionCustom": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+
+  "authLogin": "ログイン",
+  "authSignup": "サインアップ",
+  "authRegister": "登録",
+  "authEmail": "メール",
+  "authPassword": "パスワード",
+  "authPasswordRequirement": "パスワード（6文字以上、文字と数字を含む）",
+  "authConfirmPassword": "パスワード確認",
+  "authInvalidEmail": "有効なメールアドレスを入力してください",
+  "authPasswordRequirementShort": "パスワードは文字と数字を含み、6文字以上である必要があります",
+  "authPasswordMismatch": "パスワードが一致しません",
+  "authResendVerification": "確認メールを再送信",
+  "authSignupSuccess": "登録成功",
+  "authVerificationEmailSent": "確認メールを送信しました、メールで確認を完了してからログインしてください。",
+  "authBackToMinePage": "マイページに戻る",
+  "authVerificationEmailResent": "確認メールを再送信しました。",
+  "authResendAction": "確認を再送信",
+
+  "authErrorInvalidCredentials": "メールまたはパスワードが正しくありません。",
+  "authErrorEmailNotConfirmed": "メールが確認されていません、ログイン前にメールで確認を完了してください。",
+  "authErrorRateLimit": "試行回数が多すぎます、しばらくしてから再試行してください。",
+  "authErrorNetworkIssue": "ネットワークエラー、接続を確認して再試行してください。",
+  "authErrorLoginFailed": "ログインに失敗しました、しばらくしてから再試行してください。",
+
+  "authErrorEmailInvalid": "メールアドレスが無効です、スペルミスがないか確認してください。",
+  "authErrorEmailExists": "このメールは既に登録されています、直接ログインするかパスワードをリセットしてください。",
+  "authErrorWeakPassword": "パスワードが単純すぎます、文字と数字を含み6文字以上にしてください。",
+  "authErrorSignupFailed": "登録に失敗しました、しばらくしてから再試行してください。",
+
+  "authErrorUserNotFound": "メールが登録されていません、{action}できません。",
+  "authErrorEmailNotVerified": "メールが確認されていません、{action}できません。",
+  "authErrorActionFailed": "{action}に失敗しました、しばらくしてから再試行してください。",
+  "@authErrorUserNotFound": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "@authErrorEmailNotVerified": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "@authErrorActionFailed": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+
+  "importTitle": "請求書のインポート",
+  "importSelectCsvFile": "インポートするCSV/TSVファイルを選択してください（デフォルトで最初の行をヘッダーとします）",
+  "importChooseFile": "ファイルを選択",
+  "importNoFileSelected": "ファイルが選択されていません",
+  "importHint": "ヒント：CSV/TSVファイルを選択してインポートを開始してください",
+  "importReading": "ファイルを読み込み中…",
+  "importPreparing": "準備中…",
+  "importFileOpenError": "ファイルピッカーを開けません：{error}",
+  "@importFileOpenError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "exportTitle": "エクスポート",
+  "exportDescription": "下のボタンをクリックして保存場所を選択し、現在の家計簿をCSVファイルにエクスポートします。",
+  "exportButtonIOS": "エクスポートして共有（iOS）",
+  "exportButtonAndroid": "フォルダを選択してエクスポート",
+  "exportSavedTo": "保存先：{path}",
+  "exportSelectFolder": "エクスポートフォルダを選択",
+  "exportCsvHeaderType": "タイプ",
+  "exportCsvHeaderCategory": "カテゴリ",
+  "exportCsvHeaderAmount": "金額",
+  "exportCsvHeaderNote": "メモ",
+  "exportCsvHeaderTime": "時刻",
+  "exportShareText": "BeeCountエクスポートファイル",
+  "exportSuccessTitle": "エクスポート成功",
+  "exportSuccessMessageIOS": "保存され、共有履歴で利用可能：\\n{path}",
+  "exportSuccessMessageAndroid": "保存先：\\n{path}",
+  "exportFailedTitle": "エクスポート失敗",
+  "exportTypeIncome": "収入",
+  "exportTypeExpense": "支出",
+  "exportTypeTransfer": "振替",
+  "@exportSavedTo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "@exportSuccessMessageIOS": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "@exportSuccessMessageAndroid": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+
+  "personalizeTitle": "パーソナライズ",
+  "personalizeThemeHoney": "蜜蜂イエロー",
+  "personalizeThemeOrange": "フレームオレンジ",
+  "personalizeThemeGreen": "エメラルドグリーン",
+  "personalizeThemePurple": "紫蓮",
+  "personalizeThemePink": "チェリーピンク",
+  "personalizeThemeBlue": "スカイブルー",
+  "personalizeThemeMint": "フォレストムーン",
+  "personalizeThemeSand": "サンセットデューン",
+  "personalizeThemeLavender": "雪と松",
+  "personalizeThemeSky": "ミスティワンダーランド",
+  "personalizeThemeWarmOrange": "ウォームオレンジ",
+  "personalizeThemeMintGreen": "ミントグリーン",
+  "personalizeThemeRoseGold": "ローズゴールド",
+  "personalizeThemeDeepBlue": "ディープブルー",
+  "personalizeThemeMapleRed": "メープルレッド",
+  "personalizeThemeEmerald": "エメラルド",
+  "personalizeThemeLavenderPurple": "ラベンダー",
+  "personalizeThemeAmber": "アンバー",
+  "personalizeThemeRouge": "ルージュレッド",
+  "personalizeThemeIndigo": "インディゴブルー",
+  "personalizeThemeOlive": "オリーブグリーン",
+  "personalizeThemeCoral": "コーラルピンク",
+  "personalizeThemeDarkGreen": "ダークグリーン",
+  "personalizeThemeViolet": "バイオレット",
+  "personalizeThemeSunset": "サンセットオレンジ",
+  "personalizeThemePeacock": "ピーコックブルー",
+  "personalizeThemeLime": "ライムグリーン",
+
+  "analyticsMonthlyAvg": "月平均",
+  "analyticsDailyAvg": "日平均",
+  "analyticsOverallAvg": "全体平均",
+  "analyticsTotalIncome": "総収入：",
+  "analyticsTotalExpense": "総支出：",
+  "analyticsBalance": "残高：",
+  "analyticsAvgIncome": "{avgLabel}収入：",
+  "@analyticsAvgIncome": {
+    "placeholders": {
+      "avgLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsAvgExpense": "{avgLabel}支出：",
+  "@analyticsAvgExpense": {
+    "placeholders": {
+      "avgLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsExpense": "支出",
+  "analyticsIncome": "収入",
+  "analyticsTotal": "総{type}：",
+  "@analyticsTotal": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsAverage": "{avgLabel}：",
+  "@analyticsAverage": {
+    "placeholders": {
+      "avgLabel": {
+        "type": "String"
+      }
+    }
+  },
+
+  "updateCheckTitle": "アップデートを確認",
+  "updateNewVersionFound": "新しいバージョンが見つかりました",
+  "updateNewVersionTitle": "新しいバージョン{version}が見つかりました",
+  "@updateNewVersionTitle": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNoApkFound": "APKダウンロードリンクが見つかりません",
+  "updateAlreadyLatest": "既に最新バージョンです",
+  "updateCheckFailed": "アップデート確認に失敗しました",
+  "updatePermissionDenied": "権限が拒否されました",
+  "updateUserCancelled": "ユーザーがキャンセルしました",
+  "updateDownloadTitle": "アップデートをダウンロード",
+  "updateDownloading": "ダウンロード中：{percent}%",
+  "@updateDownloading": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "updateDownloadBackgroundHint": "アプリをバックグラウンドに切り替えることができます、ダウンロードは継続されます",
+  "updateCancelButton": "キャンセル",
+  "updateBackgroundDownload": "バックグラウンドダウンロード",
+  "updateLaterButton": "後で",
+  "updateDownloadButton": "ダウンロード",
+  "updateFoundCachedTitle": "ダウンロード済みバージョンが見つかりました",
+  "updateFoundCachedMessage": "以前にダウンロードしたインストーラーが見つかりました、直接インストールしますか？\\n\\n「OK」をクリックして即座にインストール、「キャンセル」をクリックしてこのダイアログを閉じます。\\n\\nファイルパス：{path}",
+  "@updateFoundCachedMessage": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateInstallingCachedApk": "キャッシュされたAPKをインストール中",
+  "updateDownloadComplete": "ダウンロード完了",
+  "updateInstallStarted": "ダウンロード完了、インストーラーを開始しました",
+  "updateInstallFailed": "インストールに失敗しました",
+  "updateDownloadCompleteManual": "ダウンロード完了、手動でインストールできます",
+  "updateDownloadCompleteException": "ダウンロード完了、手動でインストールしてください（ダイアログ例外）",
+  "updateDownloadCompleteManualContext": "ダウンロード完了、手動でインストールしてください",
+  "updateDownloadFailed": "ダウンロードに失敗しました",
+  "updateInstallTitle": "ダウンロード完了",
+  "updateInstallMessage": "APKファイルのダウンロードが完了しました、すぐにインストールしますか？\\n\\n注：インストール中にアプリが一時的にバックグラウンドに移動しますが、これは正常です。",
+  "updateInstallNow": "今すぐインストール",
+  "updateInstallLater": "後でインストール",
+  "updateNotificationTitle": "BeeCountアップデートダウンロード",
+  "updateNotificationBody": "新しいバージョンをダウンロード中...",
+  "updateNotificationComplete": "ダウンロード完了、タップしてインストール",
+  "updateNotificationPermissionTitle": "通知権限が拒否されました",
+  "updateNotificationPermissionMessage": "通知権限を取得できません、ダウンロード進行状況は通知バーに表示されませんが、ダウンロード機能は正常に動作します。",
+  "updateNotificationGuideTitle": "通知を有効にする必要がある場合は、次の手順に従ってください：",
+  "updateNotificationStep1": "システム設定を開く",
+  "updateNotificationStep2": "「アプリ管理」または「アプリ設定」を見つける",
+  "updateNotificationStep3": "「BeeCount」アプリを見つける",
+  "updateNotificationStep4": "「権限管理」または「通知管理」をクリック",
+  "updateNotificationStep5": "「通知権限」を有効化",
+  "updateNotificationMiuiHint": "MIUIユーザー：Xiaomiシステムは厳格な通知権限制御があり、セキュリティセンターで追加設定が必要な場合があります",
+  "updateNotificationGotIt": "わかりました",
+  "updateCheckFailedTitle": "アップデート確認失敗",
+  "updateDownloadFailedTitle": "ダウンロード失敗",
+  "updateGoToGitHub": "GitHubに移動",
+  "updateCannotOpenLink": "リンクを開けません",
+  "updateManualVisit": "ブラウザで手動でアクセスしてください：\\nhttps://github.com/TNT-Likely/BeeCount/releases",
+  "updateNoLocalApkTitle": "アップデートパッケージが見つかりません",
+  "updateNoLocalApkMessage": "ダウンロードされたアップデートパッケージファイルが見つかりません。\\n\\n最初に「アップデートを確認」から新しいバージョンをダウンロードしてください。",
+  "updateInstallPackageTitle": "アップデートパッケージをインストール",
+  "updateMultiplePackagesTitle": "複数のアップデートパッケージが見つかりました",
+  "updateMultiplePackagesMessage": "{count}個のアップデートパッケージファイルが見つかりました。\\n\\n最新のダウンロードバージョンの使用をお勧めします、またはファイルマネージャーで手動インストールしてください。\\n\\nファイル場所：{path}",
+  "@updateMultiplePackagesMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateSearchFailedTitle": "検索失敗",
+  "updateSearchFailedMessage": "ローカルアップデートパッケージの検索中にエラーが発生しました：{error}",
+  "@updateSearchFailedMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateFoundCachedPackageTitle": "ダウンロード済みアップデートパッケージが見つかりました",
+  "updateFoundCachedPackageMessage": "以前にダウンロードしたアップデートパッケージが検出されました：\\n\\nファイル名：{fileName}\\nサイズ：{fileSize}MB\\n\\nすぐにインストールしますか？",
+  "@updateFoundCachedPackageMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      }
+    }
+  },
+  "updateIgnoreButton": "無視",
+  "updateInstallFailedTitle": "インストール失敗",
+  "updateInstallFailedMessage": "APKインストーラーを開始できません、ファイル権限を確認してください。",
+  "updateErrorTitle": "エラー",
+  "updateReadCacheFailedMessage": "キャッシュされたアップデートパッケージの読み込みに失敗しました：{error}",
+  "@updateReadCacheFailedMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "updateCheckingPermissions": "権限を確認中...",
+  "updateCheckingCache": "ローカルキャッシュを確認中...",
+  "updatePreparingDownload": "ダウンロードを準備中...",
+  "updateInstallingCachedApk": "キャッシュされたAPKをインストール中",
+  "updateUserCancelledDownload": "ユーザーがダウンロードをキャンセルしました",
+  "updateStartingInstaller": "インストーラーを開始中...",
+  "updateInstallerStarted": "インストーラーを開始しました",
+  "updateInstallationFailed": "インストールに失敗しました",
+  "updateDownloadCompleted": "ダウンロード完了",
+  "updateDownloadCompletedManual": "ダウンロード完了、手動でインストールできます",
+  "updateDownloadCompletedDialog": "ダウンロード完了、手動でインストールしてください（ダイアログ例外）",
+  "updateDownloadCompletedContext": "ダウンロード完了、手動でインストールしてください",
+  "updateDownloadFailedGeneric": "ダウンロードに失敗しました",
+  "updateCheckingUpdate": "アップデートを確認中...",
+  "updateCurrentLatestVersion": "既に最新バージョンです",
+  "updateCheckFailedGeneric": "アップデート確認に失敗しました",
+  "updateDownloadProgress": "ダウンロード中：{percent}%",
+  "@updateDownloadProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNoApkFoundError": "APKダウンロードリンクが見つかりません",
+  "updateCheckingUpdateError": "アップデート確認に失敗しました：{error}",
+  "@updateCheckingUpdateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNotificationChannelName": "アップデートダウンロード",
+  "updateNotificationDownloadingIndeterminate": "新しいバージョンをダウンロード中...",
+  "updateNotificationDownloadingProgress": "ダウンロード進行状況：{progress}%",
+  "@updateNotificationDownloadingProgress": {
+    "placeholders": {
+      "progress": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNotificationDownloadCompleteTitle": "ダウンロード完了",
+  "updateNotificationDownloadCompleteMessage": "新しいバージョンがダウンロードされました、タップしてインストール",
+  "updateUserCancelledDownloadDialog": "ユーザーがダウンロードをキャンセルしました",
+  "updateCannotOpenLinkError": "リンクを開けません",
+  "updateNoLocalApkFoundMessage": "ダウンロードされたアップデートパッケージファイルが見つかりません。\\n\\n最初に「アップデートを確認」から新しいバージョンをダウンロードしてください。",
+  "updateInstallPackageFoundMessage": "アップデートパッケージが見つかりました：\\n\\nファイル名：{fileName}\\nサイズ：{fileSize}MB\\nダウンロード時刻：{time}\\n\\nすぐにインストールしますか？",
+  "@updateInstallPackageFoundMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "updateMultiplePackagesFoundMessage": "{count}個のアップデートパッケージファイルが見つかりました。\\n\\n最新のダウンロードバージョンの使用をお勧めします、またはファイルマネージャーで手動インストールしてください。\\n\\nファイル場所：{path}",
+  "@updateMultiplePackagesFoundMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateSearchLocalApkError": "ローカルアップデートパッケージの検索中にエラーが発生しました：{error}",
+  "@updateSearchLocalApkError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateCachedPackageFoundMessage": "以前にダウンロードしたアップデートパッケージが検出されました：\\n\\nファイル名：{fileName}\\nサイズ：{fileSize}MB\\n\\nすぐにインストールしますか？",
+  "@updateCachedPackageFoundMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      }
+    }
+  },
+  "updateReadCachedPackageError": "キャッシュされたアップデートパッケージの読み込みに失敗しました：{error}",
+  "@updateReadCachedPackageError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "reminderTitle": "記録リマインダー",
+  "reminderSubtitle": "日次記録リマインダー時刻を設定",
+  "reminderDailyTitle": "日次記録リマインダー",
+  "reminderDailySubtitle": "有効にすると、指定した時刻に記録を促すリマインダーが送信されます",
+  "reminderTimeTitle": "リマインダー時刻",
+  "reminderTestSent": "テスト通知を送信しました",
+  "reminderTestNotification": "テスト通知を送信",
+  "reminderQuickTestSent": "15秒後のクイックテストを設定しました、アプリをバックグラウンドに保持してください",
+  "reminderQuickTest": "クイックテスト（15秒後）",
+  "reminderFlutterTestSent": "Flutterテスト通知を送信しました、タップしてアプリが開くか確認してください",
+  "reminderFlutterTest": "🔧 Flutter通知クリックテスト（開発）",
+  "reminderAlarmTestSent": "AlarmManagerテスト通知を設定しました（1秒後）、タップしてアプリが開くか確認してください",
+  "updateOk": "OK",
+  "updateCannotOpenLinkTitle": "リンクを開けません",
+  "updateCachedVersionTitle": "ダウンロード済みバージョンが見つかりました",
+  "updateCachedVersionMessage": "以前にダウンロードしたインストールパッケージが見つかりました...「OK」をクリックしてすぐにインストール、「キャンセル」をクリックして閉じます...",
+  "updateConfirmDownload": "今すぐダウンロードしてインストール",
+  "updateDownloadCompleteTitle": "ダウンロード完了",
+  "updateInstallConfirmMessage": "新しいバージョンがダウンロードされました。今すぐインストールしますか？",
+  "updateNotificationPermissionGuideText": "ダウンロード進行状況通知が無効になっていますが、ダウンロード機能には影響しません。進行状況を確認するには：",
+  "updateNotificationGuideStep1": "システム設定 > アプリ管理に移動",
+  "updateNotificationGuideStep2": "「BeeCount」アプリを見つける",
+  "updateNotificationGuideStep3": "通知権限を有効化",
+  "updateNotificationGuideInfo": "通知なしでもダウンロードは正常にバックグラウンドで継続されます",
+
+  "currencyCNY": "中国人民元",
+  "currencyUSD": "米ドル",
+  "currencyEUR": "ユーロ",
+  "currencyJPY": "日本円",
+  "currencyHKD": "香港ドル",
+  "currencyTWD": "新台湾ドル",
+  "currencyGBP": "英ポンド",
+  "currencyAUD": "豪ドル",
+  "currencyCAD": "カナダドル",
+  "currencyKRW": "韓国ウォン",
+  "currencySGD": "シンガポールドル",
+  "currencyTHB": "タイバーツ",
+  "currencyIDR": "インドネシアルピア",
+  "currencyINR": "インドルピー",
+  "currencyRUB": "ロシアルーブル",
+
+  "cloudDefaultServiceDisplayName": "デフォルトクラウドサービス",
+  "cloudNotConfiguredDisplay": "設定されていません",
+
+  "syncNotConfiguredMessage": "クラウドが設定されていません",
+  "syncNotLoggedInMessage": "ログインしていません",
+  "syncCloudBackupCorruptedMessage": "クラウドバックアップの内容が破損しています、以前のバージョンのエンコーディング問題が原因の可能性があります。「現在の家計簿をクラウドにアップロード」をクリックして上書きして修正してください。",
+  "syncNoCloudBackupMessage": "クラウドバックアップなし",
+  "syncAccessDeniedMessage": "403 アクセス拒否（ストレージRLSポリシーとパスを確認）"
+}

@@ -1,0 +1,1132 @@
+{
+  "@@locale": "ko",
+  "appTitle": "꿀벌 가계부",
+  "@appTitle": {
+    "description": "The application title"
+  },
+
+  "tabHome": "홈",
+  "tabAnalytics": "차트",
+  "tabLedgers": "가계부",
+  "tabMine": "마이페이지",
+
+  "commonCancel": "취소",
+  "commonConfirm": "확인",
+  "commonSave": "저장",
+  "commonDelete": "삭제",
+  "commonEdit": "편집",
+  "commonAdd": "추가",
+  "commonOk": "확인",
+  "commonYes": "네",
+  "commonNo": "아니오",
+  "commonLoading": "로딩 중...",
+  "commonEmpty": "데이터 없음",
+  "commonError": "오류",
+  "commonSuccess": "성공",
+  "commonFailed": "실패",
+  "commonRetry": "다시 시도",
+  "commonBack": "뒤로",
+  "commonNext": "다음",
+  "commonPrevious": "이전",
+  "commonFinish": "완료",
+  "commonClose": "닫기",
+  "commonCopy": "복사",
+  "commonSearch": "검색",
+  "commonNoteHint": "메모...",
+  "commonFilter": "필터",
+  "commonClear": "지우기",
+  "commonSelectAll": "모두 선택",
+  "commonSettings": "설정",
+  "commonHelp": "도움말",
+  "commonAbout": "정보",
+  "commonLanguage": "언어",
+  "commonWeekdayMonday": "월요일",
+  "commonWeekdayTuesday": "화요일",
+  "commonWeekdayWednesday": "수요일",
+  "commonWeekdayThursday": "목요일",
+  "commonWeekdayFriday": "금요일",
+  "commonWeekdaySaturday": "토요일",
+  "commonWeekdaySunday": "일요일",
+
+  "homeTitle": "꿀벌 가계부",
+  "homeIncome": "수입",
+  "homeExpense": "지출",
+  "homeBalance": "잔액",
+  "homeTotal": "총계",
+  "homeAverage": "평균",
+  "homeDailyAvg": "일평균",
+  "homeMonthlyAvg": "월평균",
+  "homeNoRecords": "아직 기록이 없습니다",
+  "homeAddRecord": "플러스 버튼을 눌러 기록을 추가하세요",
+  "homeHideAmounts": "금액 숨기기",
+  "homeShowAmounts": "금액 표시",
+  "homeSelectDate": "날짜 선택",
+  "homeAppTitle": "꿀벌 가계부",
+  "homeSearch": "검색",
+  "homeShowAmount": "금액 표시",
+  "homeHideAmount": "금액 숨기기",
+  "homeYear": "{year}년",
+  "@homeYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "homeMonth": "{month}월",
+  "@homeMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "homeNoRecordsSubtext": "아래 플러스 버튼을 눌러 기록을 추가하세요",
+
+  "searchTitle": "검색",
+  "searchHint": "메모, 카테고리, 금액을 검색...",
+  "searchAmountRange": "금액 범위 필터",
+  "searchMinAmount": "최소 금액",
+  "searchMaxAmount": "최대 금액",
+  "searchTo": "~",
+  "searchNoInput": "키워드를 입력하여 검색을 시작하세요",
+  "searchNoResults": "일치하는 결과를 찾을 수 없습니다",
+  "searchResultsEmpty": "일치하는 결과를 찾을 수 없습니다",
+  "searchResultsEmptyHint": "다른 키워드를 시도하거나 필터 조건을 조정하세요",
+
+  "analyticsTitle": "분석",
+  "analyticsMonth": "월",
+  "analyticsYear": "년",
+  "analyticsAll": "전체",
+  "analyticsSummary": "요약",
+  "analyticsCategoryRanking": "카테고리 순위",
+  "analyticsCurrentPeriod": "현재 기간",
+  "analyticsNoDataSubtext": "좌우로 스와이프하여 수입/지출을 전환하거나, 위의 기간 전환을 사용하세요",
+  "analyticsSwipeHint": "좌우로 스와이프하여 기간을 변경하세요",
+  "analyticsTipContent": "1) 상단을 좌우로 스와이프하여 \"월/년/전체\" 전환\\n2) 차트 영역을 좌우로 스와이프하여 기간 전환\\n3) 월이나 년을 탭하여 빠르게 선택",
+  "analyticsSwitchTo": "{type}로 전환",
+  "@analyticsSwitchTo": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsTipHeader": "팁: 상단 캡슐로 월/년/전체 전환 가능",
+  "analyticsSwipeToSwitch": "스와이프하여 전환",
+  "analyticsAllYears": "모든 년도",
+  "analyticsToday": "오늘",
+
+  "splashAppName": "꿀벌 가계부",
+  "splashSlogan": "한 방울 한 방울을 기록",
+  "splashSecurityTitle": "오픈소스 데이터 보안",
+  "splashSecurityFeature1": "• 로컬 데이터 저장, 완전한 프라이버시 제어",
+  "splashSecurityFeature2": "• 오픈소스 코드 투명성, 신뢰할 수 있는 보안",
+  "splashSecurityFeature3": "• 선택적 클라우드 동기화, 기기 간 데이터 일관성",
+  "splashInitializing": "데이터 초기화 중...",
+
+  "ledgersTitle": "가계부 관리",
+  "ledgersNew": "새 가계부",
+  "ledgersClear": "현재 가계부 비우기",
+  "ledgersClearConfirm": "현재 가계부를 비우시겠습니까?",
+  "ledgersClearMessage": "이 가계부의 모든 거래 기록이 삭제되며 복구할 수 없습니다.",
+  "ledgersEdit": "가계부 편집",
+  "ledgersDelete": "가계부 삭제",
+  "ledgersDeleteConfirm": "가계부 삭제",
+  "ledgersDeleteMessage": "이 가계부와 모든 기록을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.\\n클라우드에 백업이 있는 경우에도 삭제됩니다.",
+  "ledgersDeleted": "삭제됨",
+  "ledgersDeleteFailed": "삭제 실패",
+  "ledgersRecordsDeleted": "{count}개의 기록이 삭제되었습니다",
+  "@ledgersRecordsDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ledgersName": "이름",
+  "ledgersDefaultLedgerName": "기본 가계부",
+  "ledgersDefaultAccountName": "현금",
+  "ledgersCurrency": "통화",
+  "ledgersSelectCurrency": "통화 선택",
+  "ledgersSearchCurrency": "검색: 중국어 또는 코드",
+  "ledgersCreate": "생성",
+  "ledgersActions": "작업",
+  "ledgersRecords": "기록: {count}개",
+  "@ledgersRecords": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ledgersBalance": "잔액: {balance}",
+  "@ledgersBalance": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+
+  "categoryTitle": "카테고리 관리",
+  "categoryNew": "새 카테고리",
+  "categoryExpense": "지출 카테고리",
+  "categoryIncome": "수입 카테고리",
+  "categoryEmpty": "카테고리 없음",
+  "categoryDefault": "기본 카테고리",
+  "categoryLoadFailed": "로딩 실패: {error}",
+  "@categoryLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "iconPickerTitle": "아이콘 선택",
+  "iconCategoryFood": "음식",
+  "iconCategoryTransport": "교통",
+  "iconCategoryShopping": "쇼핑",
+  "iconCategoryEntertainment": "오락",
+  "iconCategoryLife": "생활",
+  "iconCategoryHealth": "건강",
+  "iconCategoryEducation": "교육",
+  "iconCategoryWork": "업무",
+  "iconCategoryFinance": "금융",
+  "iconCategoryReward": "보상",
+  "iconCategoryOther": "기타",
+  "iconCategoryDining": "외식",
+
+  "importTitle": "계산서 가져오기",
+  "importSelectFile": "가져올 CSV/TSV 파일을 선택하세요 (기본적으로 첫 번째 행을 헤더로 사용)",
+  "importChooseFile": "파일 선택",
+  "importNoFileSelected": "파일이 선택되지 않았습니다",
+  "importHint": "팁: CSV/TSV 파일을 선택하여 가져오기를 시작하세요",
+  "importReading": "파일 읽는 중...",
+  "importPreparing": "준비 중...",
+  "importColumnNumber": "열 {number}",
+  "importConfirmMapping": "매핑 확인",
+  "importCategoryMapping": "카테고리 매핑",
+  "importNoDataParsed": "데이터가 파싱되지 않았습니다. 이전 페이지로 돌아가서 CSV 내용이나 구분자를 확인하세요.",
+  "importFieldDate": "날짜",
+  "importFieldType": "유형",
+  "importFieldAmount": "금액",
+  "importFieldCategory": "카테고리",
+  "importFieldNote": "메모",
+  "importPreview": "데이터 미리보기",
+  "importPreviewLimit": "{total}개 중 처음 {shown}개 표시",
+  "importCategoryNotSelected": "카테고리가 선택되지 않았습니다",
+  "importCategoryMappingDescription": "각 카테고리 이름에 해당하는 로컬 카테고리를 선택하세요:",
+  "importKeepOriginalName": "원래 이름 유지",
+  "importProgress": "가져오는 중, 성공: {ok}, 실패: {fail}",
+  "importCancelImport": "가져오기 취소",
+  "importCompleteTitle": "가져오기 완료",
+  "importCompletedCount": "{count}개의 기록을 성공적으로 가져왔습니다",
+  "importFailed": "가져오기 실패",
+  "importFailedMessage": "가져오기 실패: {error}",
+  "importSelectCategoryFirst": "먼저 카테고리 매핑을 선택하세요",
+  "importNextStep": "다음 단계",
+  "importPreviousStep": "이전 단계",
+  "importStartImport": "가져오기 시작",
+  "importAutoDetect": "자동 감지",
+  "importInProgress": "가져오기 진행 중",
+  "importProgressDetail": "{total}개 중 {done}개 가져옴, 성공 {ok}개, 실패 {fail}개",
+  "importBackgroundImport": "백그라운드 가져오기",
+  "importCancelled": "가져오기 취소됨",
+  "importCompleted": "가져오기 완료{cancelled}, 성공 {ok}개, 실패 {fail}개",
+  "importFileOpenError": "파일 선택기를 열 수 없습니다: {error}",
+  "@importFileOpenError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "mineTitle": "마이페이지",
+  "mineSettings": "설정",
+  "mineTheme": "테마 설정",
+  "mineFont": "글꼴 설정",
+  "mineReminder": "알림 설정",
+  "mineData": "데이터 관리",
+  "mineImport": "데이터 가져오기",
+  "mineExport": "데이터 내보내기",
+  "mineCloud": "클라우드 서비스",
+  "mineAbout": "정보",
+  "mineVersion": "버전",
+  "mineUpdate": "업데이트 확인",
+  "mineLanguageSettings": "언어 설정",
+  "mineLanguageSettingsSubtitle": "애플리케이션 언어 전환",
+
+  "languageTitle": "언어 설정",
+  "languageChinese": "中文",
+  "languageEnglish": "English",
+  "languageSystemDefault": "시스템 따라가기",
+
+  "deleteConfirmTitle": "삭제 확인",
+  "deleteConfirmMessage": "이 기록을 삭제하시겠습니까?",
+  "logCopied": "로그가 복사되었습니다",
+  "waitingRestore": "복원 작업 시작 대기 중...",
+  "restoreTitle": "클라우드 복원",
+  "copyLog": "로그 복사",
+  "restoreProgress": "복원 중 ({current}/{total})",
+  "restorePreparing": "준비 중...",
+  "restoreLedgerProgress": "가계부: {ledger} 기록: {done}/{total}",
+  "@restoreLedgerProgress": {
+    "placeholders": {
+      "ledger": {
+        "type": "String"
+      },
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+
+  "mineSlogan": "꿀벌 가계부, 한 푼도 놓치지 않기",
+  "mineDaysCount": "일",
+  "mineTotalRecords": "기록",
+  "mineCurrentBalance": "잔액",
+  "mineCloudService": "클라우드 서비스",
+  "mineCloudServiceLoading": "로딩 중...",
+  "mineCloudServiceError": "오류: {error}",
+  "mineCloudServiceDefault": "기본 클라우드 (활성화됨)",
+  "mineCloudServiceOffline": "기본 모드 (오프라인)",
+  "mineCloudServiceCustom": "사용자 정의 Supabase",
+  "mineFirstFullUpload": "첫 번째 전체 업로드",
+  "mineFirstFullUploadSubtitle": "모든 로컬 가계부를 현재 Supabase에 업로드",
+  "mineFirstFullUploadComplete": "완료",
+  "mineFirstFullUploadMessage": "현재 가계부가 업로드되었습니다. 다른 가계부로 전환하여 업로드하세요.",
+  "mineFirstFullUploadFailed": "실패",
+  "mineSyncTitle": "동기화",
+  "mineSyncNotLoggedIn": "로그인되지 않음",
+  "mineSyncNotConfigured": "클라우드가 설정되지 않음",
+  "mineSyncNoRemote": "클라우드 백업 없음",
+  "mineSyncInSync": "동기화됨 (로컬 {count}개 기록)",
+  "mineSyncLocalNewer": "로컬이 최신 (로컬 {count}개 기록, 업로드 권장)",
+  "mineSyncCloudNewer": "클라우드가 최신 (다운로드 권장)",
+  "mineSyncDifferent": "로컬과 클라우드가 다릅니다",
+  "mineSyncError": "상태 가져오기 실패",
+  "mineSyncDetailTitle": "동기화 상태 세부정보",
+  "mineSyncLocalRecords": "로컬 기록: {count}개",
+  "mineSyncCloudRecords": "클라우드 기록: {count}개",
+  "mineSyncCloudLatest": "클라우드 최신 기록 시간: {time}",
+  "mineSyncLocalFingerprint": "로컬 지문: {fingerprint}",
+  "mineSyncCloudFingerprint": "클라우드 지문: {fingerprint}",
+  "mineSyncMessage": "메시지: {message}",
+  "mineUploadTitle": "업로드",
+  "mineUploadNeedLogin": "로그인이 필요합니다",
+  "mineUploadInProgress": "업로드 중...",
+  "mineUploadRefreshing": "새로고침 중...",
+  "mineUploadSynced": "동기화됨",
+  "mineUploadSuccess": "업로드 완료",
+  "mineUploadSuccessMessage": "현재 가계부가 클라우드에 동기화되었습니다",
+  "mineDownloadTitle": "다운로드",
+  "mineDownloadComplete": "완료",
+  "mineDownloadResult": "새로운 가져오기: {inserted}\\n기존 건너뛰기: {skipped}\\n중복 정리: {deleted}",
+  "mineLoginTitle": "로그인 / 등록",
+  "mineLoginSubtitle": "동기화에만 필요",
+  "mineLoggedInEmail": "로그인됨",
+  "mineLogoutSubtitle": "탭하여 로그아웃",
+  "mineLogoutConfirmTitle": "로그아웃",
+  "mineLogoutConfirmMessage": "로그아웃하시겠습니까?\\n로그아웃 후에는 클라우드 동기화를 사용할 수 없습니다.",
+  "mineLogoutButton": "로그아웃",
+  "mineAutoSyncTitle": "가계부 자동 동기화",
+  "mineAutoSyncSubtitle": "기록 후 자동으로 클라우드에 업로드",
+  "mineAutoSyncNeedLogin": "활성화하려면 로그인이 필요합니다",
+  "mineImportProgressTitle": "백그라운드에서 가져오는 중...",
+  "mineImportProgressSubtitle": "진행 상황: {done}/{total}, 성공 {ok}개, 실패 {fail}개",
+  "mineImportCompleteTitle": "가져오기 완료",
+  "mineImportCompleteSubtitle": "성공 {ok}개, 실패 {fail}개",
+  "mineCategoryManagement": "카테고리 관리",
+  "mineCategoryManagementSubtitle": "사용자 정의 카테고리 편집",
+  "mineCategoryMigration": "카테고리 이전",
+  "mineCategoryMigrationSubtitle": "카테고리 데이터를 다른 카테고리로 이전",
+  "mineReminderSettings": "알림 설정",
+  "mineReminderSettingsSubtitle": "일일 기록 알림 설정",
+  "minePersonalize": "개인화",
+  "mineDisplayScale": "표시 배율",
+  "mineDisplayScaleSubtitle": "텍스트 및 UI 요소 크기 조정",
+  "mineAboutTitle": "정보",
+  "mineAboutMessage": "앱: 꿀벌 가계부\\n버전: {version}\\n소스: https://github.com/TNT-Likely/BeeCount\\n라이선스: 저장소의 LICENSE 참조",
+  "mineAboutOpenGitHub": "GitHub 열기",
+  "mineCheckUpdate": "업데이트 확인",
+  "mineCheckUpdateInProgress": "업데이트 확인 중...",
+  "mineCheckUpdateSubtitle": "최신 버전 확인 중",
+  "mineUpdateDownload": "업데이트 다운로드",
+  "mineRefreshStats": "통계 새로고침 (디버그)",
+  "mineRefreshStatsSubtitle": "글로벌 통계 프로바이더 재계산 트리거",
+  "mineRefreshSync": "동기화 상태 새로고침 (디버그)",
+  "mineRefreshSyncSubtitle": "동기화 상태 프로바이더 새로고침 트리거",
+
+  "categoryEditTitle": "카테고리 편집",
+  "categoryNewTitle": "새 카테고리",
+  "categoryDetailTooltip": "카테고리 세부정보",
+  "categoryMigrationTooltip": "카테고리 이전",
+  "categoryMigrationTitle": "카테고리 이전",
+  "categoryMigrationDescription": "카테고리 이전 안내",
+  "categoryMigrationDescriptionContent": "• 한 카테고리의 모든 거래 기록을 다른 카테고리로 이전\\n• 이전 후, 원래 카테고리의 모든 거래 데이터가 대상 카테고리로 전송됩니다\\n• 이 작업은 취소할 수 없으므로 신중하게 선택하세요",
+  "categoryMigrationFromLabel": "원본 카테고리",
+  "categoryMigrationFromHint": "이전할 카테고리 선택",
+  "categoryMigrationToLabel": "대상 카테고리",
+  "categoryMigrationToHint": "대상 카테고리 선택",
+  "categoryMigrationToHintFirst": "먼저 원본 카테고리를 선택하세요",
+  "categoryMigrationStartButton": "이전 시작",
+  "categoryMigrationTransactionCount": "{count}개 기록",
+  "@categoryMigrationTransactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryMigrationCannotTitle": "이전할 수 없음",
+  "categoryMigrationCannotMessage": "선택된 카테고리는 이전할 수 없습니다. 카테고리 상태를 확인하세요.",
+  "categoryExpenseType": "지출 카테고리",
+  "categoryIncomeType": "수입 카테고리",
+  "categoryDefaultTitle": "기본 카테고리",
+  "categoryDefaultMessage": "기본 카테고리는 수정할 수 없지만 세부정보를 보고 데이터를 이전할 수 있습니다",
+
+  "categoryNameDining": "외식",
+  "categoryNameTransport": "교통",
+  "categoryNameShopping": "쇼핑",
+  "categoryNameEntertainment": "오락",
+  "categoryNameHome": "가정",
+  "categoryNameFamily": "가족",
+  "categoryNameCommunication": "통신",
+  "categoryNameUtilities": "공과금",
+  "categoryNameHousing": "주거",
+  "categoryNameMedical": "의료",
+  "categoryNameEducation": "교육",
+  "categoryNamePets": "반려동물",
+  "categoryNameSports": "스포츠",
+  "categoryNameDigital": "디지털",
+  "categoryNameTravel": "여행",
+  "categoryNameAlcoholTobacco": "주류 & 담배",
+  "categoryNameBabyCare": "육아",
+  "categoryNameBeauty": "미용",
+  "categoryNameRepair": "수리",
+  "categoryNameSocial": "사교",
+  "categoryNameLearning": "학습",
+  "categoryNameCar": "자동차",
+  "categoryNameTaxi": "택시",
+  "categoryNameSubway": "지하철",
+  "categoryNameDelivery": "배송",
+  "categoryNameProperty": "부동산",
+  "categoryNameParking": "주차",
+  "categoryNameDonation": "기부",
+  "categoryNameGift": "선물",
+  "categoryNameTax": "세금",
+  "categoryNameBeverage": "음료",
+  "categoryNameClothing": "의류",
+  "categoryNameSnacks": "간식",
+  "categoryNameRedPacket": "세뱃돈",
+  "categoryNameFruit": "과일",
+  "categoryNameGame": "게임",
+  "categoryNameBook": "도서",
+  "categoryNameLover": "연인",
+  "categoryNameDecoration": "장식",
+  "categoryNameDailyGoods": "생필품",
+  "categoryNameLottery": "복권",
+  "categoryNameStock": "주식",
+  "categoryNameSocialSecurity": "사회보장",
+  "categoryNameExpress": "택배",
+  "categoryNameWork": "업무",
+
+  "categoryNameSalary": "급여",
+  "categoryNameInvestment": "투자",
+  "categoryNameBonus": "보너스",
+  "categoryNameReimbursement": "환급",
+  "categoryNamePartTime": "아르바이트",
+  "categoryNameInterest": "이자",
+  "categoryNameRefund": "환불",
+  "categoryNameSecondHand": "중고 판매",
+  "categoryNameSocialBenefit": "사회보장급여",
+  "categoryNameTaxRefund": "세금 환급",
+  "categoryNameProvidentFund": "적립금",
+  "categoryNameLabel": "카테고리 이름",
+  "categoryNameHint": "카테고리 이름 입력",
+  "categoryNameHintDefault": "기본 카테고리 이름은 수정할 수 없습니다",
+  "categoryNameRequired": "카테고리 이름을 입력하세요",
+  "categoryNameTooLong": "카테고리 이름은 4자를 초과할 수 없습니다",
+  "categoryIconLabel": "카테고리 아이콘",
+  "categoryIconDefaultMessage": "기본 카테고리 아이콘은 수정할 수 없습니다",
+  "categoryDangerousOperations": "위험한 작업",
+  "categoryDeleteTitle": "카테고리 삭제",
+  "categoryDeleteSubtitle": "삭제 후 복구할 수 없습니다",
+  "categoryDefaultCannotSave": "기본 카테고리는 저장할 수 없습니다",
+  "categorySaveError": "저장 실패",
+  "categoryUpdated": "카테고리 \"{name}\"이(가) 업데이트되었습니다",
+  "categoryCreated": "카테고리 \"{name}\"이(가) 생성되었습니다",
+  "categoryCannotDelete": "삭제할 수 없음",
+  "categoryCannotDeleteMessage": "이 카테고리에는 {count}개의 거래 기록이 있습니다. 먼저 처리하세요.",
+  "categoryDeleteConfirmTitle": "카테고리 삭제",
+  "categoryDeleteConfirmMessage": "카테고리 \"{name}\"을(를) 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+  "categoryDeleteError": "삭제 실패",
+  "categoryDeleted": "카테고리 \"{name}\"이(가) 삭제되었습니다",
+
+  "personalizeTitle": "개인화",
+  "personalizeCustomColor": "사용자 정의 색상 선택",
+  "personalizeCustomTitle": "사용자 정의",
+  "personalizeHue": "색조 ({value}°)",
+  "personalizeSaturation": "채도 ({value}%)",
+  "personalizeBrightness": "밝기 ({value}%)",
+  "personalizeSelectColor": "이 색상 선택",
+
+  "fontSettingsTitle": "표시 배율",
+  "fontSettingsCurrentScale": "현재 배율: x{scale}",
+  "fontSettingsPreview": "실시간 미리보기",
+  "fontSettingsPreviewText": "오늘 점심에 23.50을 사용, 기록했습니다;\\n이번 달은 45일 동안 기록, 320개 항목;\\n지속이 승리!",
+  "fontSettingsCurrentLevel": "현재 레벨: {level} (배율 x{scale})",
+  "fontSettingsQuickLevel": "빠른 레벨",
+  "fontSettingsCustomAdjust": "사용자 정의 조정",
+  "fontSettingsDescription": "참고: 이 설정은 모든 기기에서 1.0x로 일관된 표시를 보장하며, 기기 차이는 자동 보정됩니다; 이 일관된 기준에서 개인화된 배율 값을 조정하세요.",
+  "fontSettingsExtraSmall": "매우 작게",
+  "fontSettingsVerySmall": "아주 작게",
+  "fontSettingsSmall": "작게",
+  "fontSettingsStandard": "표준",
+  "fontSettingsLarge": "크게",
+  "fontSettingsBig": "큰",
+  "fontSettingsVeryBig": "아주 크게",
+  "fontSettingsExtraBig": "매우 크게",
+  "fontSettingsMoreStyles": "더 많은 스타일",
+  "fontSettingsPageTitle": "페이지 제목",
+  "fontSettingsBlockTitle": "블록 제목",
+  "fontSettingsBodyExample": "본문 텍스트",
+  "fontSettingsLabelExample": "라벨 텍스트",
+  "fontSettingsStrongNumber": "강조 숫자",
+  "fontSettingsListTitle": "목록 항목 제목",
+  "fontSettingsListSubtitle": "도움말 텍스트",
+  "fontSettingsScreenInfo": "화면 적응 정보",
+  "fontSettingsScreenDensity": "화면 밀도",
+  "fontSettingsScreenWidth": "화면 너비",
+  "fontSettingsDeviceScale": "기기 배율",
+  "fontSettingsUserScale": "사용자 배율",
+  "fontSettingsFinalScale": "최종 배율",
+  "fontSettingsBaseDevice": "기준 기기",
+  "fontSettingsRecommendedScale": "권장 배율",
+  "fontSettingsYes": "네",
+  "fontSettingsNo": "아니오",
+  "fontSettingsScaleExample": "이 박스와 간격은 기기에 따라 자동 배율",
+  "fontSettingsPreciseAdjust": "정밀 조정",
+  "fontSettingsResetTo1x": "1.0x로 재설정",
+  "fontSettingsAdaptBase": "기준에 적응",
+
+  "reminderTitle": "기록 알림",
+  "reminderSubtitle": "일일 기록 알림 시간 설정",
+  "reminderDailyTitle": "일일 기록 알림",
+  "reminderDailySubtitle": "활성화하면 지정된 시간에 기록을 알리는 알림이 전송됩니다",
+  "reminderTimeTitle": "알림 시간",
+  "reminderTestNotification": "테스트 알림 전송",
+  "reminderTestSent": "테스트 알림을 전송했습니다",
+  "reminderQuickTest": "빠른 테스트 (15초 후)",
+  "reminderQuickTestMessage": "15초 후 빠른 테스트를 설정했습니다. 앱을 백그라운드에 유지하세요",
+  "reminderFlutterTest": "🔧 Flutter 알림 클릭 테스트 (개발)",
+  "reminderFlutterTestMessage": "Flutter 테스트 알림을 전송했습니다. 탭하여 앱이 열리는지 확인하세요",
+  "reminderAlarmTest": "🔧 AlarmManager 알림 클릭 테스트 (개발)",
+  "reminderAlarmTestMessage": "AlarmManager 테스트 알림을 설정했습니다 (1초 후). 탭하여 앱이 열리는지 확인하세요",
+  "reminderDirectTest": "🔧 NotificationReceiver 직접 테스트 (개발)",
+  "reminderDirectTestMessage": "NotificationReceiver를 직접 호출하여 알림을 생성했습니다. 탭이 작동하는지 확인하세요",
+  "reminderCheckStatus": "🔧 알림 상태 확인 (개발)",
+  "reminderNotificationStatus": "알림 상태",
+  "reminderPendingCount": "대기 중인 알림: {count}개",
+  "reminderNoPending": "대기 중인 알림이 없습니다",
+  "reminderCheckBattery": "배터리 최적화 상태 확인",
+  "reminderBatteryStatus": "배터리 최적화 상태",
+  "reminderManufacturer": "제조사: {value}",
+  "reminderModel": "모델: {value}",
+  "reminderAndroidVersion": "Android 버전: {value}",
+  "reminderBatteryIgnored": "배터리 최적화: 무시됨 ✅",
+  "reminderBatteryNotIgnored": "배터리 최적화: 무시되지 않음 ⚠️",
+  "reminderBatteryAdvice": "적절한 알림을 위해 배터리 최적화를 비활성화하는 것을 권장합니다",
+  "reminderGoToSettings": "설정으로 이동",
+  "reminderCheckChannel": "알림 채널 설정 확인",
+  "reminderChannelStatus": "알림 채널 상태",
+  "reminderChannelEnabled": "채널 활성화: 네 ✅",
+  "reminderChannelDisabled": "채널 활성화: 아니오 ❌",
+  "reminderChannelImportance": "중요도: {value}",
+  "reminderChannelSoundOn": "소리: 켜짐 🔊",
+  "reminderChannelSoundOff": "소리: 꺼짐 🔇",
+  "reminderChannelVibrationOn": "진동: 켜짐 📳",
+  "reminderChannelVibrationOff": "진동: 꺼짐",
+  "reminderChannelDndBypass": "방해 금지: 무시 가능",
+  "reminderChannelDndNoBypass": "방해 금지: 무시 불가",
+  "reminderChannelAdvice": "⚠️ 권장 설정:",
+  "reminderChannelAdviceImportance": "• 중요도: 긴급 또는 높음",
+  "reminderChannelAdviceSound": "• 소리와 진동 활성화",
+  "reminderChannelAdviceBanner": "• 배너 알림 허용",
+  "reminderChannelAdviceXiaomi": "• Xiaomi 폰은 개별 채널 설정이 필요",
+  "reminderChannelGood": "✅ 알림 채널이 적절히 설정되었습니다",
+  "reminderOpenAppSettings": "앱 설정 열기",
+  "reminderAppSettingsMessage": "설정에서 알림을 허용하고 배터리 최적화를 비활성화하세요",
+  "reminderIOSTest": "🍎 iOS 알림 디버그 테스트",
+  "reminderIOSTestTitle": "iOS 알림 테스트",
+  "reminderIOSTestMessage": "테스트 알림을 전송했습니다.\\n\\n🍎 iOS 시뮬레이터 제한사항:\\n• 알림 센터에 알림이 표시되지 않을 수 있습니다\\n• 배너 알림이 작동하지 않을 수 있습니다\\n• 하지만 Xcode 콘솔에 로그가 표시됩니다\\n\\n💡 디버그 방법:\\n• Xcode 콘솔 출력 확인\\n• Flutter 로그 정보 확인\\n• 완전한 경험을 위해 실제 기기 사용",
+  "reminderDescription": "팁: 기록 알림이 활성화되면 시스템이 매일 지정된 시간에 알림을 전송하여 수입과 지출 기록을 알려줍니다.",
+  "reminderIOSInstructions": "🍎 iOS 알림 설정:\\n• 설정 > 알림 > 꿀벌 가계부\\n• \"알림 허용\" 활성화\\n• 알림 스타일 설정: 배너 또는 알림\\n• 소리와 진동 활성화\\n\\n⚠️ iOS 시뮬레이터 제한사항:\\n• 시뮬레이터 알림 기능이 제한됩니다\\n• 실제 기기 사용을 권장합니다\\n• 알림 상태는 Xcode 콘솔에서 확인\\n\\n시뮬레이터에서 테스트할 때 관찰하세요:\\n• Xcode 콘솔 로그 출력\\n• Flutter 디버그 콘솔 정보\\n• 앱 내 알림 전송 확인 팝업",
+  "reminderAndroidInstructions": "알림이 제대로 작동하지 않는 경우 확인하세요:\\n• 앱이 알림 전송을 허용하는지\\n• 앱의 배터리 최적화/절전 모드 비활성화\\n• 앱의 백그라운드 실행 및 자동 시작 허용\\n• Android 12+에서는 정확한 알람 권한이 필요\\n\\n📱 Xiaomi 폰 특별 설정:\\n• 설정 > 앱 관리 > 꿀벌 가계부 > 알림 관리\\n• \"기록 알림\" 채널 탭\\n• 중요도를 \"긴급\" 또는 \"높음\"으로 설정\\n• \"배너 알림\", \"소리\", \"진동\" 활성화\\n• 보안 센터 > 앱 관리 > 권한 > 자동 시작\\n\\n🔒 백그라운드 잠금 방법:\\n• 최근 작업에서 꿀벌 가계부 찾기\\n• 앱 카드를 아래로 스와이프하여 잠금 아이콘 표시\\n• 잠금 아이콘을 탭하여 정리 방지",
+
+  "categoryDetailLoadFailed": "로딩 실패",
+  "categoryDetailSummaryTitle": "카테고리 요약",
+  "categoryDetailTotalCount": "총 개수",
+  "categoryDetailTotalAmount": "총 금액",
+  "categoryDetailAverageAmount": "평균 금액",
+  "categoryDetailSortTitle": "정렬",
+  "categoryDetailSortTimeDesc": "시간 ↓",
+  "categoryDetailSortTimeAsc": "시간 ↑",
+  "categoryDetailSortAmountDesc": "금액 ↓",
+  "categoryDetailSortAmountAsc": "금액 ↑",
+  "categoryDetailNoTransactions": "거래 없음",
+  "categoryDetailNoTransactionsSubtext": "이 카테고리에는 아직 거래가 없습니다",
+  "categoryDetailDeleteFailed": "삭제 실패",
+
+  "categoryMigrationConfirmTitle": "이전 확인",
+  "categoryMigrationConfirmMessage": "\"{fromName}\"에서 \"{toName}\"으로 {count}개의 거래를 이전하시겠습니까?\\n\\n이 작업은 취소할 수 없습니다!",
+  "categoryMigrationConfirmOk": "이전 확인",
+  "categoryMigrationCompleteTitle": "이전 완료",
+  "categoryMigrationCompleteMessage": "\"{fromName}\"에서 \"{toName}\"으로 {count}개의 거래를 성공적으로 이전했습니다.",
+  "categoryMigrationFailedTitle": "이전 실패",
+  "categoryMigrationFailedMessage": "이전 오류: {error}",
+  "categoryMigrationTransactionLabel": "{count}개 기록",
+  "@categoryMigrationTransactionLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "categoryPickerExpenseTab": "지출",
+  "categoryPickerIncomeTab": "수입",
+  "categoryPickerCancel": "취소",
+  "categoryPickerEmpty": "카테고리 없음",
+
+  "cloudBackupFound": "클라우드 백업을 찾았습니다",
+  "cloudBackupRestoreMessage": "클라우드와 로컬 가계부가 일치하지 않습니다. 클라우드에서 복원하시겠습니까?\\n(복원 진행 페이지로 이동합니다)",
+  "cloudBackupRestoreFailed": "복원 실패",
+  "mineCloudBackupRestoreTitle": "클라우드 백업을 찾았습니다",
+  "mineAutoSyncRemoteDesc": "기록 후 자동으로 클라우드에 업로드",
+  "mineAutoSyncLoginRequired": "활성화하려면 로그인이 필요합니다",
+  "mineImportCompleteAllSuccess": "모두 성공",
+  "mineImportCompleteTitleShort": "가져오기 완료",
+  "mineAboutAppName": "앱: 꿀벌 가계부",
+  "mineAboutVersion": "버전: {version}",
+  "mineAboutRepo": "소스: https://github.com/TNT-Likely/BeeCount",
+  "mineAboutLicense": "라이선스: 저장소의 LICENSE 참조",
+  "mineCheckUpdateDetecting": "업데이트 확인 중...",
+  "mineCheckUpdateSubtitleDetecting": "최신 버전 확인 중",
+  "mineUpdateDownloadTitle": "업데이트 다운로드",
+  "mineDebugRefreshStats": "통계 새로고침 (디버그)",
+  "mineDebugRefreshStatsSubtitle": "글로벌 통계 프로바이더 재계산 트리거",
+  "mineDebugRefreshSync": "동기화 상태 새로고침 (디버그)",
+  "mineDebugRefreshSyncSubtitle": "동기화 상태 프로바이더 새로고침 트리거",
+
+  "cloudCurrentService": "현재 클라우드 서비스",
+  "cloudConnected": "연결됨",
+  "cloudOfflineMode": "오프라인 모드",
+  "cloudAvailableServices": "사용 가능한 클라우드 서비스",
+  "cloudReadCustomConfigFailed": "사용자 정의 설정 읽기 실패",
+  "cloudFirstUploadNotComplete": "첫 번째 전체 업로드가 완료되지 않음",
+  "cloudFirstUploadInstruction": "로그인하고 \"마이페이지/동기화\"에서 수동으로 \"업로드\"를 실행하여 초기화를 완료하세요",
+  "cloudNotConfigured": "설정되지 않음",
+  "cloudNotTested": "테스트되지 않음",
+  "cloudConnectionNormal": "연결 정상",
+  "cloudConnectionFailed": "연결 실패",
+  "cloudAddCustomService": "사용자 정의 클라우드 서비스 추가",
+  "cloudDefaultServiceName": "기본 클라우드 서비스",
+  "cloudUseYourSupabase": "자신의 Supabase 사용",
+  "cloudTest": "테스트",
+  "cloudSwitchService": "클라우드 서비스 전환",
+  "cloudSwitchToBuiltinConfirm": "기본 클라우드 서비스로 전환하시겠습니까? 현재 세션에서 로그아웃됩니다.",
+  "cloudSwitchToCustomConfirm": "사용자 정의 클라우드 서비스로 전환하시겠습니까? 현재 세션에서 로그아웃됩니다.",
+  "cloudSwitched": "전환됨",
+  "cloudSwitchedToBuiltin": "기본 클라우드 서비스로 전환하고 로그아웃했습니다",
+  "cloudSwitchFailed": "전환 실패",
+  "cloudActivateFailed": "활성화 실패",
+  "cloudActivateFailedMessage": "저장된 설정이 유효하지 않습니다",
+  "cloudActivated": "활성화됨",
+  "cloudActivatedMessage": "사용자 정의 클라우드 서비스로 전환하고 로그아웃했습니다. 다시 로그인하세요",
+  "cloudEditCustomService": "사용자 정의 클라우드 서비스 편집",
+  "cloudAddCustomServiceTitle": "사용자 정의 클라우드 서비스 추가",
+  "cloudSupabaseUrlLabel": "Supabase URL",
+  "cloudSupabaseUrlHint": "https://xxx.supabase.co",
+  "cloudAnonKeyLabel": "Anon Key",
+  "cloudAnonKeyHint": "참고: service_role Key를 입력하지 마세요; Anon Key는 공개됩니다.",
+  "cloudInvalidInput": "잘못된 입력",
+  "cloudValidationEmptyFields": "URL과 Key는 비워둘 수 없습니다",
+  "cloudValidationHttpsRequired": "URL은 https://로 시작해야 합니다",
+  "cloudValidationKeyTooShort": "Key 길이가 너무 짧습니다. 유효하지 않을 수 있습니다",
+  "cloudValidationServiceRoleKey": "service_role Key는 허용되지 않습니다",
+  "cloudConfigUpdated": "설정이 업데이트되었습니다",
+  "cloudConfigSaved": "설정이 저장되었습니다",
+  "cloudTestComplete": "테스트 완료",
+  "cloudTestSuccess": "연결 테스트 성공!",
+  "cloudTestFailed": "연결 테스트에 실패했습니다. 설정이 올바른지 확인하세요.",
+  "cloudTestError": "테스트 실패",
+  "cloudClearConfig": "설정 지우기",
+  "cloudClearConfigConfirm": "사용자 정의 클라우드 서비스 설정을 지우시겠습니까? (개발 환경만)",
+  "cloudConfigCleared": "사용자 정의 클라우드 서비스 설정이 지워졌습니다",
+  "cloudClearFailed": "지우기 실패",
+  "cloudServiceDescription": "내장 클라우드 서비스 (무료이지만 불안정할 수 있습니다. 자신만의 서비스나 정기 백업을 권장)",
+  "cloudServiceDescriptionNotConfigured": "현재 빌드에는 내장 클라우드 서비스 설정이 없습니다",
+  "cloudServiceDescriptionCustom": "서버: {url}",
+  "@cloudServiceDescriptionCustom": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+
+  "authLogin": "로그인",
+  "authSignup": "가입",
+  "authRegister": "등록",
+  "authEmail": "이메일",
+  "authPassword": "비밀번호",
+  "authPasswordRequirement": "비밀번호 (6자 이상, 문자와 숫자 포함)",
+  "authConfirmPassword": "비밀번호 확인",
+  "authInvalidEmail": "유효한 이메일 주소를 입력하세요",
+  "authPasswordRequirementShort": "비밀번호는 문자와 숫자를 포함하여 6자 이상이어야 합니다",
+  "authPasswordMismatch": "비밀번호가 일치하지 않습니다",
+  "authResendVerification": "인증 이메일 재전송",
+  "authSignupSuccess": "등록 성공",
+  "authVerificationEmailSent": "인증 이메일을 전송했습니다. 이메일에서 인증을 완료한 후 로그인하세요.",
+  "authBackToMinePage": "마이페이지로 돌아가기",
+  "authVerificationEmailResent": "인증 이메일을 재전송했습니다.",
+  "authResendAction": "인증 재전송",
+
+  "authErrorInvalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다.",
+  "authErrorEmailNotConfirmed": "이메일이 인증되지 않았습니다. 로그인 전에 이메일에서 인증을 완료하세요.",
+  "authErrorRateLimit": "시도 횟수가 너무 많습니다. 나중에 다시 시도하세요.",
+  "authErrorNetworkIssue": "네트워크 오류입니다. 연결을 확인하고 다시 시도하세요.",
+  "authErrorLoginFailed": "로그인에 실패했습니다. 나중에 다시 시도하세요.",
+
+  "authErrorEmailInvalid": "이메일 주소가 유효하지 않습니다. 철자 오류가 없는지 확인하세요.",
+  "authErrorEmailExists": "이 이메일은 이미 등록되어 있습니다. 직접 로그인하거나 비밀번호를 재설정하세요.",
+  "authErrorWeakPassword": "비밀번호가 너무 단순합니다. 문자와 숫자를 포함하여 6자 이상으로 설정하세요.",
+  "authErrorSignupFailed": "등록에 실패했습니다. 나중에 다시 시도하세요.",
+
+  "authErrorUserNotFound": "이메일이 등록되지 않았습니다. {action}할 수 없습니다.",
+  "authErrorEmailNotVerified": "이메일이 인증되지 않았습니다. {action}할 수 없습니다.",
+  "authErrorActionFailed": "{action}에 실패했습니다. 나중에 다시 시도하세요.",
+  "@authErrorUserNotFound": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "@authErrorEmailNotVerified": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "@authErrorActionFailed": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+
+  "importTitle": "계산서 가져오기",
+  "importSelectCsvFile": "가져올 CSV/TSV 파일을 선택하세요 (기본적으로 첫 번째 행을 헤더로 사용)",
+  "importChooseFile": "파일 선택",
+  "importNoFileSelected": "파일이 선택되지 않았습니다",
+  "importHint": "팁: CSV/TSV 파일을 선택하여 가져오기를 시작하세요",
+  "importReading": "파일 읽는 중…",
+  "importPreparing": "준비 중…",
+  "importFileOpenError": "파일 선택기를 열 수 없습니다: {error}",
+  "@importFileOpenError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "exportTitle": "내보내기",
+  "exportDescription": "아래 버튼을 클릭하여 저장 위치를 선택하고 현재 가계부를 CSV 파일로 내보내세요.",
+  "exportButtonIOS": "내보내기 및 공유 (iOS)",
+  "exportButtonAndroid": "폴더 선택 및 내보내기",
+  "exportSavedTo": "저장 위치: {path}",
+  "exportSelectFolder": "내보내기 폴더 선택",
+  "exportCsvHeaderType": "유형",
+  "exportCsvHeaderCategory": "카테고리",
+  "exportCsvHeaderAmount": "금액",
+  "exportCsvHeaderNote": "메모",
+  "exportCsvHeaderTime": "시간",
+  "exportShareText": "BeeCount 내보내기 파일",
+  "exportSuccessTitle": "내보내기 성공",
+  "exportSuccessMessageIOS": "저장되었으며 공유 기록에서 사용 가능:\\n{path}",
+  "exportSuccessMessageAndroid": "저장 위치:\\n{path}",
+  "exportFailedTitle": "내보내기 실패",
+  "exportTypeIncome": "수입",
+  "exportTypeExpense": "지출",
+  "exportTypeTransfer": "이체",
+  "@exportSavedTo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "@exportSuccessMessageIOS": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "@exportSuccessMessageAndroid": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+
+  "personalizeTitle": "개인화",
+  "personalizeThemeHoney": "꿀벌 노랑",
+  "personalizeThemeOrange": "화염 오렌지",
+  "personalizeThemeGreen": "에메랄드 그린",
+  "personalizeThemePurple": "보라 연꽃",
+  "personalizeThemePink": "체리 핑크",
+  "personalizeThemeBlue": "하늘 파랑",
+  "personalizeThemeMint": "숲 달",
+  "personalizeThemeSand": "석양 모래언덕",
+  "personalizeThemeLavender": "눈과 소나무",
+  "personalizeThemeSky": "안개 원더랜드",
+  "personalizeThemeWarmOrange": "따뜻한 오렌지",
+  "personalizeThemeMintGreen": "민트 그린",
+  "personalizeThemeRoseGold": "로즈 골드",
+  "personalizeThemeDeepBlue": "딥 블루",
+  "personalizeThemeMapleRed": "단풍 빨강",
+  "personalizeThemeEmerald": "에메랄드",
+  "personalizeThemeLavenderPurple": "라벤더",
+  "personalizeThemeAmber": "호박",
+  "personalizeThemeRouge": "루즈 레드",
+  "personalizeThemeIndigo": "인디고 블루",
+  "personalizeThemeOlive": "올리브 그린",
+  "personalizeThemeCoral": "코랄 핑크",
+  "personalizeThemeDarkGreen": "다크 그린",
+  "personalizeThemeViolet": "바이올렛",
+  "personalizeThemeSunset": "석양 오렌지",
+  "personalizeThemePeacock": "공작 파랑",
+  "personalizeThemeLime": "라임 그린",
+
+  "analyticsMonthlyAvg": "월평균",
+  "analyticsDailyAvg": "일평균",
+  "analyticsOverallAvg": "전체 평균",
+  "analyticsTotalIncome": "총 수입: ",
+  "analyticsTotalExpense": "총 지출: ",
+  "analyticsBalance": "잔액: ",
+  "analyticsAvgIncome": "{avgLabel} 수입: ",
+  "@analyticsAvgIncome": {
+    "placeholders": {
+      "avgLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsAvgExpense": "{avgLabel} 지출: ",
+  "@analyticsAvgExpense": {
+    "placeholders": {
+      "avgLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsExpense": "지출",
+  "analyticsIncome": "수입",
+  "analyticsTotal": "총 {type}: ",
+  "@analyticsTotal": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsAverage": "{avgLabel}: ",
+  "@analyticsAverage": {
+    "placeholders": {
+      "avgLabel": {
+        "type": "String"
+      }
+    }
+  },
+
+  "updateCheckTitle": "업데이트 확인",
+  "updateNewVersionFound": "새 버전을 찾았습니다",
+  "updateNewVersionTitle": "새 버전 {version}을(를) 찾았습니다",
+  "@updateNewVersionTitle": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNoApkFound": "APK 다운로드 링크를 찾을 수 없습니다",
+  "updateAlreadyLatest": "이미 최신 버전입니다",
+  "updateCheckFailed": "업데이트 확인에 실패했습니다",
+  "updatePermissionDenied": "권한이 거부되었습니다",
+  "updateUserCancelled": "사용자가 취소했습니다",
+  "updateDownloadTitle": "업데이트 다운로드",
+  "updateDownloading": "다운로드 중: {percent}%",
+  "@updateDownloading": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "updateDownloadBackgroundHint": "앱을 백그라운드로 전환할 수 있습니다. 다운로드는 계속됩니다",
+  "updateCancelButton": "취소",
+  "updateBackgroundDownload": "백그라운드 다운로드",
+  "updateLaterButton": "나중에",
+  "updateDownloadButton": "다운로드",
+  "updateFoundCachedTitle": "다운로드된 버전을 찾았습니다",
+  "updateFoundCachedMessage": "이전에 다운로드한 설치 프로그램을 찾았습니다. 바로 설치하시겠습니까?\\n\\n\"확인\"을 클릭하면 즉시 설치하고, \"취소\"를 클릭하면 이 대화상자를 닫습니다.\\n\\n파일 경로: {path}",
+  "@updateFoundCachedMessage": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateInstallingCachedApk": "캐시된 APK 설치 중",
+  "updateDownloadComplete": "다운로드 완료",
+  "updateInstallStarted": "다운로드 완료, 설치 프로그램 시작됨",
+  "updateInstallFailed": "설치에 실패했습니다",
+  "updateDownloadCompleteManual": "다운로드 완료, 수동으로 설치할 수 있습니다",
+  "updateDownloadCompleteException": "다운로드 완료, 수동으로 설치하세요 (대화상자 예외)",
+  "updateDownloadCompleteManualContext": "다운로드 완료, 수동으로 설치하세요",
+  "updateDownloadFailed": "다운로드에 실패했습니다",
+  "updateInstallTitle": "다운로드 완료",
+  "updateInstallMessage": "APK 파일 다운로드가 완료되었습니다. 즉시 설치하시겠습니까?\\n\\n참고: 설치 중에 앱이 일시적으로 백그라운드로 이동하는 것은 정상입니다.",
+  "updateInstallNow": "지금 설치",
+  "updateInstallLater": "나중에 설치",
+  "updateNotificationTitle": "BeeCount 업데이트 다운로드",
+  "updateNotificationBody": "새 버전 다운로드 중...",
+  "updateNotificationComplete": "다운로드 완료, 탭하여 설치",
+  "updateNotificationPermissionTitle": "알림 권한이 거부되었습니다",
+  "updateNotificationPermissionMessage": "알림 권한을 얻을 수 없습니다. 다운로드 진행률이 알림 표시줄에 표시되지 않지만 다운로드 기능은 정상적으로 작동합니다.",
+  "updateNotificationGuideTitle": "알림을 활성화해야 하는 경우 다음 단계를 따르세요:",
+  "updateNotificationStep1": "시스템 설정 열기",
+  "updateNotificationStep2": "\"앱 관리\" 또는 \"앱 설정\" 찾기",
+  "updateNotificationStep3": "\"BeeCount\" 앱 찾기",
+  "updateNotificationStep4": "\"권한 관리\" 또는 \"알림 관리\" 클릭",
+  "updateNotificationStep5": "\"알림 권한\" 활성화",
+  "updateNotificationMiuiHint": "MIUI 사용자: Xiaomi 시스템은 엄격한 알림 권한 제어가 있어 보안 센터에서 추가 설정이 필요할 수 있습니다",
+  "updateNotificationGotIt": "알겠습니다",
+  "updateCheckFailedTitle": "업데이트 확인 실패",
+  "updateDownloadFailedTitle": "다운로드 실패",
+  "updateGoToGitHub": "GitHub로 이동",
+  "updateCannotOpenLink": "링크를 열 수 없습니다",
+  "updateManualVisit": "브라우저에서 수동으로 방문하세요:\\nhttps://github.com/TNT-Likely/BeeCount/releases",
+  "updateNoLocalApkTitle": "업데이트 패키지를 찾을 수 없습니다",
+  "updateNoLocalApkMessage": "다운로드된 업데이트 패키지 파일을 찾을 수 없습니다.\\n\\n먼저 \"업데이트 확인\"을 통해 새 버전을 다운로드하세요.",
+  "updateInstallPackageTitle": "업데이트 패키지 설치",
+  "updateMultiplePackagesTitle": "여러 업데이트 패키지를 찾았습니다",
+  "updateMultiplePackagesMessage": "{count}개의 업데이트 패키지 파일을 찾았습니다.\\n\\n최신 다운로드 버전 사용을 권장하거나 파일 관리자에서 수동으로 설치하세요.\\n\\n파일 위치: {path}",
+  "@updateMultiplePackagesMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateSearchFailedTitle": "검색 실패",
+  "updateSearchFailedMessage": "로컬 업데이트 패키지 검색 중 오류가 발생했습니다: {error}",
+  "@updateSearchFailedMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateFoundCachedPackageTitle": "다운로드된 업데이트 패키지를 찾았습니다",
+  "updateFoundCachedPackageMessage": "이전에 다운로드한 업데이트 패키지가 감지되었습니다:\\n\\n파일 이름: {fileName}\\n크기: {fileSize}MB\\n\\n즉시 설치하시겠습니까?",
+  "@updateFoundCachedPackageMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      }
+    }
+  },
+  "updateIgnoreButton": "무시",
+  "updateInstallFailedTitle": "설치 실패",
+  "updateInstallFailedMessage": "APK 설치 프로그램을 시작할 수 없습니다. 파일 권한을 확인하세요.",
+  "updateErrorTitle": "오류",
+  "updateReadCacheFailedMessage": "캐시된 업데이트 패키지 읽기에 실패했습니다: {error}",
+  "@updateReadCacheFailedMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "updateCheckingPermissions": "권한 확인 중...",
+  "updateCheckingCache": "로컬 캐시 확인 중...",
+  "updatePreparingDownload": "다운로드 준비 중...",
+  "updateInstallingCachedApk": "캐시된 APK 설치 중",
+  "updateUserCancelledDownload": "사용자가 다운로드를 취소했습니다",
+  "updateStartingInstaller": "설치 프로그램 시작 중...",
+  "updateInstallerStarted": "설치 프로그램을 시작했습니다",
+  "updateInstallationFailed": "설치에 실패했습니다",
+  "updateDownloadCompleted": "다운로드 완료",
+  "updateDownloadCompletedManual": "다운로드 완료, 수동으로 설치할 수 있습니다",
+  "updateDownloadCompletedDialog": "다운로드 완료, 수동으로 설치하세요 (대화상자 예외)",
+  "updateDownloadCompletedContext": "다운로드 완료, 수동으로 설치하세요",
+  "updateDownloadFailedGeneric": "다운로드에 실패했습니다",
+  "updateCheckingUpdate": "업데이트 확인 중...",
+  "updateCurrentLatestVersion": "이미 최신 버전입니다",
+  "updateCheckFailedGeneric": "업데이트 확인에 실패했습니다",
+  "updateDownloadProgress": "다운로드 중: {percent}%",
+  "@updateDownloadProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNoApkFoundError": "APK 다운로드 링크를 찾을 수 없습니다",
+  "updateCheckingUpdateError": "업데이트 확인에 실패했습니다: {error}",
+  "@updateCheckingUpdateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNotificationChannelName": "업데이트 다운로드",
+  "updateNotificationDownloadingIndeterminate": "새 버전 다운로드 중...",
+  "updateNotificationDownloadingProgress": "다운로드 진행률: {progress}%",
+  "@updateNotificationDownloadingProgress": {
+    "placeholders": {
+      "progress": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNotificationDownloadCompleteTitle": "다운로드 완료",
+  "updateNotificationDownloadCompleteMessage": "새 버전이 다운로드되었습니다. 탭하여 설치",
+  "updateUserCancelledDownloadDialog": "사용자가 다운로드를 취소했습니다",
+  "updateCannotOpenLinkError": "링크를 열 수 없습니다",
+  "updateNoLocalApkFoundMessage": "다운로드된 업데이트 패키지 파일을 찾을 수 없습니다.\\n\\n먼저 \"업데이트 확인\"을 통해 새 버전을 다운로드하세요.",
+  "updateInstallPackageFoundMessage": "업데이트 패키지를 찾았습니다:\\n\\n파일 이름: {fileName}\\n크기: {fileSize}MB\\n다운로드 시간: {time}\\n\\n즉시 설치하시겠습니까?",
+  "@updateInstallPackageFoundMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "updateMultiplePackagesFoundMessage": "{count}개의 업데이트 패키지 파일을 찾았습니다.\\n\\n최신 다운로드 버전 사용을 권장하거나 파일 관리자에서 수동으로 설치하세요.\\n\\n파일 위치: {path}",
+  "@updateMultiplePackagesFoundMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateSearchLocalApkError": "로컬 업데이트 패키지 검색 중 오류가 발생했습니다: {error}",
+  "@updateSearchLocalApkError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updateCachedPackageFoundMessage": "이전에 다운로드한 업데이트 패키지가 감지되었습니다:\\n\\n파일 이름: {fileName}\\n크기: {fileSize}MB\\n\\n즉시 설치하시겠습니까?",
+  "@updateCachedPackageFoundMessage": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      },
+      "fileSize": {
+        "type": "String"
+      }
+    }
+  },
+  "updateReadCachedPackageError": "캐시된 업데이트 패키지 읽기에 실패했습니다: {error}",
+  "@updateReadCachedPackageError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "reminderTitle": "기록 알림",
+  "reminderSubtitle": "일일 기록 알림 시간 설정",
+  "reminderDailyTitle": "일일 기록 알림",
+  "reminderDailySubtitle": "활성화하면 지정된 시간에 기록을 알리는 알림이 전송됩니다",
+  "reminderTimeTitle": "알림 시간",
+  "reminderTestSent": "테스트 알림을 전송했습니다",
+  "reminderTestNotification": "테스트 알림 전송",
+  "reminderQuickTestSent": "15초 후 빠른 테스트를 설정했습니다. 앱을 백그라운드에 유지하세요",
+  "reminderQuickTest": "빠른 테스트 (15초 후)",
+  "reminderFlutterTestSent": "Flutter 테스트 알림을 전송했습니다. 탭하여 앱이 열리는지 확인하세요",
+  "reminderFlutterTest": "🔧 Flutter 알림 클릭 테스트 (개발)",
+  "reminderAlarmTestSent": "AlarmManager 테스트 알림을 설정했습니다 (1초 후). 탭하여 앱이 열리는지 확인하세요",
+  "updateOk": "확인",
+  "updateCannotOpenLinkTitle": "링크를 열 수 없습니다",
+  "updateCachedVersionTitle": "다운로드된 버전을 찾았습니다",
+  "updateCachedVersionMessage": "이전에 다운로드한 설치 패키지를 찾았습니다...\"확인\"을 클릭하면 즉시 설치하고, \"취소\"를 클릭하면 닫습니다...",
+  "updateConfirmDownload": "지금 다운로드하고 설치",
+  "updateDownloadCompleteTitle": "다운로드 완료",
+  "updateInstallConfirmMessage": "새 버전이 다운로드되었습니다. 지금 설치하시겠습니까?",
+  "updateNotificationPermissionGuideText": "다운로드 진행률 알림이 비활성화되어 있지만 다운로드 기능에는 영향을 주지 않습니다. 진행률을 보려면:",
+  "updateNotificationGuideStep1": "시스템 설정 > 앱 관리로 이동",
+  "updateNotificationGuideStep2": "\"BeeCount\" 앱 찾기",
+  "updateNotificationGuideStep3": "알림 권한 활성화",
+  "updateNotificationGuideInfo": "알림이 없어도 다운로드는 백그라운드에서 정상적으로 계속됩니다",
+
+  "currencyCNY": "중국 위안",
+  "currencyUSD": "미국 달러",
+  "currencyEUR": "유로",
+  "currencyJPY": "일본 엔",
+  "currencyHKD": "홍콩 달러",
+  "currencyTWD": "신 대만 달러",
+  "currencyGBP": "영국 파운드",
+  "currencyAUD": "호주 달러",
+  "currencyCAD": "캐나다 달러",
+  "currencyKRW": "한국 원",
+  "currencySGD": "싱가포르 달러",
+  "currencyTHB": "태국 바트",
+  "currencyIDR": "인도네시아 루피아",
+  "currencyINR": "인도 루피",
+  "currencyRUB": "러시아 루블",
+
+  "cloudDefaultServiceDisplayName": "기본 클라우드 서비스",
+  "cloudNotConfiguredDisplay": "설정되지 않음",
+
+  "syncNotConfiguredMessage": "클라우드가 설정되지 않았습니다",
+  "syncNotLoggedInMessage": "로그인되지 않았습니다",
+  "syncCloudBackupCorruptedMessage": "클라우드 백업 내용이 손상되었습니다. 이전 버전의 인코딩 문제로 인한 것일 수 있습니다. '현재 가계부를 클라우드에 업로드'를 클릭하여 덮어쓰고 수정하세요.",
+  "syncNoCloudBackupMessage": "클라우드 백업 없음",
+  "syncAccessDeniedMessage": "403 액세스 거부 (스토리지 RLS 정책 및 경로 확인)"
+}

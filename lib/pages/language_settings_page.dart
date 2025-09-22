@@ -32,12 +32,21 @@ class LanguageSettingsPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
 
-                // 中文
+                // 简体中文
                 _LanguageOption(
                   title: l10n.languageChinese,
                   locale: const Locale('zh'),
                   currentLanguage: currentLanguage,
                   onTap: () => ref.read(languageProvider.notifier).setLanguage(const Locale('zh')),
+                ),
+                const SizedBox(height: 8),
+
+                // 繁體中文
+                _LanguageOption(
+                  title: '繁體中文',
+                  locale: const Locale('zh', 'TW'),
+                  currentLanguage: currentLanguage,
+                  onTap: () => ref.read(languageProvider.notifier).setLanguage(const Locale('zh', 'TW')),
                 ),
                 const SizedBox(height: 8),
 
@@ -47,6 +56,51 @@ class LanguageSettingsPage extends ConsumerWidget {
                   locale: const Locale('en'),
                   currentLanguage: currentLanguage,
                   onTap: () => ref.read(languageProvider.notifier).setLanguage(const Locale('en')),
+                ),
+                const SizedBox(height: 8),
+
+                // 日本語
+                _LanguageOption(
+                  title: '日本語',
+                  locale: const Locale('ja'),
+                  currentLanguage: currentLanguage,
+                  onTap: () => ref.read(languageProvider.notifier).setLanguage(const Locale('ja')),
+                ),
+                const SizedBox(height: 8),
+
+                // 한국어
+                _LanguageOption(
+                  title: '한국어',
+                  locale: const Locale('ko'),
+                  currentLanguage: currentLanguage,
+                  onTap: () => ref.read(languageProvider.notifier).setLanguage(const Locale('ko')),
+                ),
+                const SizedBox(height: 8),
+
+                // Español
+                _LanguageOption(
+                  title: 'Español',
+                  locale: const Locale('es'),
+                  currentLanguage: currentLanguage,
+                  onTap: () => ref.read(languageProvider.notifier).setLanguage(const Locale('es')),
+                ),
+                const SizedBox(height: 8),
+
+                // Français
+                _LanguageOption(
+                  title: 'Français',
+                  locale: const Locale('fr'),
+                  currentLanguage: currentLanguage,
+                  onTap: () => ref.read(languageProvider.notifier).setLanguage(const Locale('fr')),
+                ),
+                const SizedBox(height: 8),
+
+                // Deutsch
+                _LanguageOption(
+                  title: 'Deutsch',
+                  locale: const Locale('de'),
+                  currentLanguage: currentLanguage,
+                  onTap: () => ref.read(languageProvider.notifier).setLanguage(const Locale('de')),
                 ),
               ],
             ),
@@ -73,7 +127,9 @@ class _LanguageOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = (locale == null && currentLanguage == null) ||
-        (locale != null && currentLanguage != null && locale!.languageCode == currentLanguage!.languageCode);
+        (locale != null && currentLanguage != null &&
+         locale!.languageCode == currentLanguage!.languageCode &&
+         locale!.countryCode == currentLanguage!.countryCode);
 
     return Card(
       child: ListTile(
