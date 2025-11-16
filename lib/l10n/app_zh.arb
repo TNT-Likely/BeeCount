@@ -1,5 +1,4 @@
 {
-  "@@locale": "zh",
   "appTitle": "蜜蜂记账",
   "tabHome": "明细",
   "tabAnalytics": "图表",
@@ -82,114 +81,27 @@
   "searchResultsEmptyHint": "请尝试其他关键词或调整筛选条件",
   "searchBatchMode": "批量操作",
   "searchBatchModeWithCount": "批量操作 ({selected}/{total})",
-  "@searchBatchModeWithCount": {
-    "placeholders": {
-      "selected": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "searchExitBatchMode": "退出批量操作",
   "searchSelectAll": "全选",
   "searchDeselectAll": "取消全选",
   "searchSelectedCount": "已选择 {count} 项",
-  "@searchSelectedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "searchBatchSetNote": "设置备注",
   "searchBatchChangeCategory": "调整分类",
   "searchBatchDeleteConfirmTitle": "确认删除",
   "searchBatchDeleteConfirmMessage": "确定要删除选中的 {count} 笔记账吗?\n此操作无法撤销。",
-  "@searchBatchDeleteConfirmMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "searchBatchSetNoteTitle": "批量设置备注",
   "searchBatchSetNoteMessage": "将为选中的 {count} 笔记账设置相同的备注",
-  "@searchBatchSetNoteMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "searchBatchSetNoteHint": "输入备注内容 (留空则清空备注)",
   "searchBatchChangeCategoryTitle": "批量调整分类",
   "searchBatchChangeCategoryMessage": "将为选中的 {count} 笔记账设置新的分类",
-  "@searchBatchChangeCategoryMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "searchBatchChangeCategoryLabel": "选择分类",
   "searchBatchDeleteSuccess": "成功删除 {count} 笔记账",
-  "@searchBatchDeleteSuccess": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "searchBatchDeleteFailed": "删除失败: {error}",
-  "@searchBatchDeleteFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "searchBatchSetNoteSuccess": "成功为 {count} 笔记账设置备注",
-  "@searchBatchSetNoteSuccess": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "searchBatchSetNoteFailed": "设置备注失败: {error}",
-  "@searchBatchSetNoteFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "searchBatchChangeCategorySuccess": "成功为 {count} 笔记账调整分类",
-  "@searchBatchChangeCategorySuccess": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "searchBatchChangeCategoryFailed": "调整分类失败: {error}",
-  "@searchBatchChangeCategoryFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "searchResultsCount": "共 {count} 条结果",
-  "@searchResultsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "analyticsTitle": "分析",
   "analyticsMonth": "月",
   "analyticsYear": "年",
@@ -214,36 +126,20 @@
   "splashInitializing": "正在初始化数据...",
   "ledgersTitle": "账本管理",
   "ledgersNew": "新建账本",
-  "ledgersClear": "清空当前账本",
+  "ledgersClear": "清空账本",
   "ledgersClearConfirm": "清空当前账本？",
-  "ledgersClearMessage": "将删除该账本下所有交易记录，且不可恢复。",
+  "ledgersClearMessage": "确定要清空账本\"{name}\"的所有账单吗？此操作不可恢复。\\n账本本身会保留，仅删除账单数据。",
   "ledgersEdit": "编辑账本",
   "ledgersDelete": "删除账本",
   "ledgersDeleteConfirm": "删除账本",
   "ledgersDeleteMessage": "确定要删除该账本及其全部记录吗？此操作不可恢复。\\n若云端存在备份，也会一并删除。",
   "ledgersDeleted": "已删除",
   "ledgersDeleteFailed": "删除失败",
-  "ledgersClear": "清空账本",
   "ledgersClearTitle": "清空账本",
-  "ledgersClearMessage": "确定要清空账本\"{name}\"的所有账单吗？此操作不可恢复。\\n账本本身会保留，仅删除账单数据。",
-  "@ledgersClearMessage": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersClearSuccess": "账本已清空",
   "ledgersDeleteLocal": "仅删除本地账本",
   "ledgersDeleteLocalTitle": "删除本地账本",
   "ledgersDeleteLocalMessage": "确定要删除本地账本\"{name}\"吗？\\n云端备份会保留，您可以随时恢复。",
-  "@ledgersDeleteLocalMessage": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersDeleteLocalSuccess": "本地账本已删除",
   "ledgersRecordsDeleted": "已删除 {count} 条记录",
   "ledgersName": "名称",
@@ -777,23 +673,9 @@
   "cloudConfigInvalidMessage": "请填写完整信息",
   "cloudSaveFailed": "保存失败",
   "cloudSwitchedTo": "已切换到{type}",
-  "@cloudSwitchedTo": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
   "cloudConfigureSupabaseTitle": "配置 Supabase",
   "cloudConfigureWebdavTitle": "配置 WebDAV",
   "cloudWebdavRemotePathHelp": "数据存储的远程目录路径",
-  "@cloudServiceDescriptionCustom": {
-    "placeholders": {
-      "url": {
-        "type": "String"
-      }
-    }
-  },
   "authLogin": "登录",
   "authSignup": "注册",
   "authRegister": "注册",
@@ -822,35 +704,7 @@
   "authErrorUserNotFound": "邮箱未注册，无法{action}。",
   "authErrorEmailNotVerified": "邮箱未验证，无法{action}。",
   "authErrorActionFailed": "{action}失败，请稍后再试。",
-  "@authErrorUserNotFound": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
-  "@authErrorEmailNotVerified": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
-  "@authErrorActionFailed": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
   "importSelectCsvFile": "请选择文件进行导入（支持 CSV/TSV/XLSX 格式）",
-  "@importFileOpenError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "exportTitle": "导出",
   "exportDescription": "点击下方按钮选择保存位置，开始导出当前账本为 CSV 文件。",
   "exportButtonIOS": "导出并分享",
@@ -871,27 +725,6 @@
   "exportTypeIncome": "收入",
   "exportTypeExpense": "支出",
   "exportTypeTransfer": "转账",
-  "@exportSavedTo": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
-  "@exportSuccessMessageIOS": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
-  "@exportSuccessMessageAndroid": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "personalizeThemeHoney": "蜜蜂黄",
   "personalizeThemeOrange": "火焰橙",
   "personalizeThemeGreen": "琉璃绿",
@@ -1089,37 +922,9 @@
   "recurringTransactionEmpty": "暂无周期账单",
   "recurringTransactionEmptyHint": "点击右上角 + 按钮添加",
   "recurringTransactionEveryNDays": "每 {n} 天",
-  "@recurringTransactionEveryNDays": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNWeeks": "每 {n} 周",
-  "@recurringTransactionEveryNWeeks": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNMonths": "每 {n} 个月",
-  "@recurringTransactionEveryNMonths": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNYears": "每 {n} 年",
-  "@recurringTransactionEveryNYears": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "cloudDefaultServiceDisplayName": "默认云服务",
   "cloudNotConfiguredDisplay": "未配置",
   "syncNotConfiguredMessage": "未配置云端",
@@ -1136,32 +941,11 @@
   "cloudCannotOpenLink": "无法打开链接",
   "cloudErrorAuthFailed": "认证失败: API Key 无效",
   "cloudErrorServerStatus": "服务器返回状态码 {code}",
-  "@cloudErrorServerStatus": {
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
   "cloudErrorWebdavNotSupported": "服务器不支持 WebDAV 协议",
   "cloudErrorAuthFailedCredentials": "认证失败: 用户名或密码错误",
   "cloudErrorAccessDenied": "访问被拒绝: 请检查权限",
   "cloudErrorPathNotFound": "服务器路径不存在: {path}",
-  "@cloudErrorPathNotFound": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "cloudErrorNetwork": "网络错误: {message}",
-  "@cloudErrorNetwork": {
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
   "cloudTestSuccessTitle": "测试成功",
   "cloudTestSuccessMessage": "连接正常,配置有效",
   "cloudTestFailedTitle": "测试失败",
@@ -1192,13 +976,6 @@
   "accountInitialBalanceHint": "请输入初始资金（可选）",
   "accountDeleteWarningTitle": "确认删除",
   "accountDeleteWarningMessage": "该账户有 {count} 笔关联交易，删除后交易记录中的账户信息将被清空。确认删除吗？",
-  "@accountDeleteWarningMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "accountDeleteConfirm": "确认删除该账户吗？",
   "accountSelectTitle": "选择账户",
   "accountNone": "不选择账户",
@@ -1307,21 +1084,7 @@
   "iosAutoBackTapTitle": "💡 双击背部快速触发（推荐）",
   "iosAutoBackTapDesc": "设置 > 辅助功能 > 触控 > 轻点背面\n• 选择\"轻点两下\"或\"轻点三下\"\n• 选择刚创建的快捷指令\n• 完成后，支付时双击手机背面即可自动记账，无需截图",
   "iosAutoImportFailed": "导入失败: {error}",
-  "@iosAutoImportFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "iosAutoOpenAppFailed": "打开失败: {error}",
-  "@iosAutoOpenAppFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "iosAutoCannotOpenLink": "无法打开链接，请检查网络连接",
   "iosAutoCannotOpenShortcuts": "无法打开快捷指令App",
   "aiSettingsTitle": "AI智能识别",
@@ -1341,13 +1104,6 @@
   "aiStrategyCloudOnlyDesc": "只使用云端API，不下载模型",
   "aiStrategyUnavailable": "本地模型训练中，敬请期待",
   "aiStrategySwitched": "已切换: {strategy}",
-  "@aiStrategySwitched": {
-    "placeholders": {
-      "strategy": {
-        "type": "String"
-      }
-    }
-  },
   "aiCloudApiTitle": "智谱GLM API",
   "aiCloudApiKeyLabel": "API Key",
   "aiCloudApiKeyHint": "输入智谱AI的API Key",
@@ -1365,24 +1121,7 @@
   "aiOcrNoAmount": "未识别到有效金额，请手动记账",
   "aiOcrNoLedger": "未找到账本",
   "aiOcrSuccess": "✅ {type}账单创建成功 ¥{amount}",
-  "@aiOcrSuccess": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      },
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
   "aiOcrFailed": "识别失败: {error}",
-  "@aiOcrFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "aiOcrCreateFailed": "创建账单失败",
   "aiTypeIncome": "收入",
   "aiTypeExpense": "支出",
@@ -1462,13 +1201,6 @@
   "configExportCopyContent": "复制内容",
   "configExportContentCopied": "已复制到剪贴板",
   "configExportReadFileFailed": "读取文件失败",
-  "@configExportSavedTo": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "configIncludeSupabase": "Supabase 云服务配置",
   "configIncludeWebdav": "WebDAV 云服务配置",
   "configIncludeAI": "AI 智能识别配置",
@@ -1477,129 +1209,35 @@
   "ledgersEmpty": "暂无账本",
   "ledgersRestoreAll": "全部恢复",
   "ledgersSwitched": "已切换到账本\"{name}\"",
-  "@ledgersSwitched": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersDownloadTitle": "下载账本",
   "ledgersDownloadMessage": "确认下载账本\"{name}\"到本地？",
-  "@ledgersDownloadMessage": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersDownloading": "下载中...",
   "ledgersDownloadSuccess": "账本\"{name}\"下载成功",
-  "@ledgersDownloadSuccess": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersDownload": "下载",
   "ledgersDeleteRemote": "删除云端账本",
   "ledgersDeleteRemoteConfirm": "删除云端账本",
   "ledgersDeleteRemoteMessage": "确认删除云端账本\"{name}\"？此操作不可恢复。",
-  "@ledgersDeleteRemoteMessage": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersDeleting": "删除中...",
   "ledgersDeleteRemoteSuccess": "已删除云端账本",
   "ledgersRestoreAllTitle": "批量恢复",
   "ledgersRestoreAllMessage": "确认恢复所有云端账本？共 {count} 个。",
-  "@ledgersRestoreAllMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "ledgersRestoring": "恢复中...",
   "ledgersRestoreComplete": "恢复完成",
   "ledgersRestoreResult": "成功: {success}，失败: {failed}",
-  "@ledgersRestoreResult": {
-    "placeholders": {
-      "success": {
-        "type": "int"
-      },
-      "failed": {
-        "type": "int"
-      }
-    }
-  },
   "ledgersConflictTitle": "同步冲突",
   "ledgersConflictMessage": "本地和云端账本数据不一致，请选择操作：",
   "ledgersConflictLocalInfo": "本地：{count} 笔账单",
-  "@ledgersConflictLocalInfo": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "ledgersConflictRemoteInfo": "云端：{count} 笔账单",
-  "@ledgersConflictRemoteInfo": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "ledgersConflictLocalUpdated": "本地更新：{time}",
-  "@ledgersConflictLocalUpdated": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersConflictRemoteUpdated": "云端更新：{time}",
-  "@ledgersConflictRemoteUpdated": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersConflictLocalFingerprint": "本地指纹：{fp}",
-  "@ledgersConflictLocalFingerprint": {
-    "placeholders": {
-      "fp": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersConflictRemoteFingerprint": "云端指纹：{fp}",
-  "@ledgersConflictRemoteFingerprint": {
-    "placeholders": {
-      "fp": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersConflictUpload": "上传到云端",
   "ledgersConflictDownload": "下载到本地",
   "ledgersConflictUploading": "正在上传...",
   "ledgersConflictDownloading": "正在下载...",
   "ledgersConflictUploadSuccess": "上传成功",
   "ledgersConflictDownloadSuccess": "下载成功，已合并 {inserted} 笔账单",
-  "@ledgersConflictDownloadSuccess": {
-    "placeholders": {
-      "inserted": {
-        "type": "int"
-      }
-    }
-  },
   "storageManagementTitle": "存储空间管理",
   "storageManagementSubtitle": "清理缓存释放空间",
   "storageAIModels": "AI模型",
@@ -1609,21 +1247,7 @@
   "storageHint": "点击项目可清理对应的缓存文件",
   "storageClearConfirmTitle": "确认清理",
   "storageClearAIModelsMessage": "确定要清理所有AI模型吗？大小: {size}",
-  "@storageClearAIModelsMessage": {
-    "placeholders": {
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "storageClearAPKMessage": "确定要清理所有安装包吗？大小: {size}",
-  "@storageClearAPKMessage": {
-    "placeholders": {
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "storageClearSuccess": "清理成功",
   "accountNoTransactions": "暂无交易记录",
   "accountTransactionHistory": "交易记录",

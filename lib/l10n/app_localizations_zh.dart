@@ -1,3 +1,5 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -371,7 +373,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get analyticsSwipeHint => '左右滑动切换周期';
 
   @override
-  String get analyticsTipContent => '1) 底部左右滑动可切换收入/支出/结余\\n2) 图表区域左右滑动可切换上一/下一周期';
+  String get analyticsTipContent =>
+      '1) 底部左右滑动可切换收入/支出/结余\\n2) 图表区域左右滑动可切换上一/下一周期';
 
   @override
   String analyticsSwitchTo(String type) {
@@ -438,7 +441,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ledgersDeleteConfirm => '删除账本';
 
   @override
-  String get ledgersDeleteMessage => '确定要删除该账本及其全部记录吗？此操作不可恢复。\\n若云端存在备份，也会一并删除。';
+  String get ledgersDeleteMessage =>
+      '确定要删除该账本及其全部记录吗？此操作不可恢复。\\n若云端存在备份，也会一并删除。';
 
   @override
   String get ledgersDeleted => '已删除';
@@ -749,10 +753,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get importCategoryNotSelected => '未选择\"分类\"列，请点击\"上一步\"返回并设置\"分类\"的列，再继续。';
+  String get importCategoryNotSelected =>
+      '未选择\"分类\"列，请点击\"上一步\"返回并设置\"分类\"的列，再继续。';
 
   @override
-  String get importCategoryMappingDescription => '请将左侧\"源分类名\"映射到系统内已有分类（或保持原名自动创建/合并）';
+  String get importCategoryMappingDescription =>
+      '请将左侧\"源分类名\"映射到系统内已有分类（或保持原名自动创建/合并）';
 
   @override
   String get importKeepOriginalName => '保持原名（自动创建/合并）';
@@ -800,7 +806,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get importInProgress => '正在导入…';
 
   @override
-  String importProgressDetail(Object done, Object fail, Object ok, Object total) {
+  String importProgressDetail(
+      Object done, Object fail, Object ok, Object total) {
     return '已完成：$done/$total，成功 $ok，失败 $fail';
   }
 
@@ -1173,7 +1180,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mineImportProgressTitle => '后台导入中…';
 
   @override
-  String mineImportProgressSubtitle(Object done, Object fail, Object ok, Object total) {
+  String mineImportProgressSubtitle(
+      Object done, Object fail, Object ok, Object total) {
     return '进度：$done/$total，成功 $ok，失败 $fail';
   }
 
@@ -1290,7 +1298,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryMigrationDescription => '分类迁移说明';
 
   @override
-  String get categoryMigrationDescriptionContent => '• 将指定分类的所有交易记录迁移到另一个分类\n• 迁移后，原分类的交易数据将全部转移到目标分类\n• 此操作不可撤销，请谨慎选择';
+  String get categoryMigrationDescriptionContent =>
+      '• 将指定分类的所有交易记录迁移到另一个分类\n• 迁移后，原分类的交易数据将全部转移到目标分类\n• 此操作不可撤销，请谨慎选择';
 
   @override
   String get categoryMigrationFromLabel => '迁出分类';
@@ -1610,7 +1619,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fontSettingsPreview => '实时预览';
 
   @override
-  String get fontSettingsPreviewText => '今天吃饭花了 23.50 元，记一笔；\n本月已记账 45 天，共 320 条记录；\n坚持就是胜利！';
+  String get fontSettingsPreviewText =>
+      '今天吃饭花了 23.50 元，记一笔；\n本月已记账 45 天，共 320 条记录；\n坚持就是胜利！';
 
   @override
   String fontSettingsCurrentLevel(Object level, Object scale) {
@@ -1624,7 +1634,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fontSettingsCustomAdjust => '自定义调整';
 
   @override
-  String get fontSettingsDescription => '说明：此设置确保所有设备在1.0倍时显示效果一致，设备差异已自动补偿；调整数值可在一致基础上进行个性化缩放。';
+  String get fontSettingsDescription =>
+      '说明：此设置确保所有设备在1.0倍时显示效果一致，设备差异已自动补偿；调整数值可在一致基础上进行个性化缩放。';
 
   @override
   String get fontSettingsExtraSmall => '极小';
@@ -1768,7 +1779,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reminderDirectTest => '🔧 直接测试NotificationReceiver（开发）';
 
   @override
-  String get reminderDirectTestMessage => '已直接调用NotificationReceiver创建通知，查看点击是否有效';
+  String get reminderDirectTestMessage =>
+      '已直接调用NotificationReceiver创建通知，查看点击是否有效';
 
   @override
   String get reminderCheckStatus => '🔧 检查通知状态（开发）';
@@ -1883,16 +1895,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reminderIOSTestTitle => 'iOS通知测试';
 
   @override
-  String get reminderIOSTestMessage => '已发送测试通知。\n\n🍎 iOS模拟器限制：\n• 通知可能不会在通知中心显示\n• 横幅提醒可能不工作\n• 但Xcode控制台会显示日志\n\n💡 调试方法：\n• 查看Xcode控制台输出\n• 检查Flutter日志信息\n• 使用真机测试获得完整体验';
+  String get reminderIOSTestMessage =>
+      '已发送测试通知。\n\n🍎 iOS模拟器限制：\n• 通知可能不会在通知中心显示\n• 横幅提醒可能不工作\n• 但Xcode控制台会显示日志\n\n💡 调试方法：\n• 查看Xcode控制台输出\n• 检查Flutter日志信息\n• 使用真机测试获得完整体验';
 
   @override
   String get reminderDescription => '提示：开启记账提醒后，系统会在每天指定时间发送通知提醒您记录收支。';
 
   @override
-  String get reminderIOSInstructions => '🍎 iOS通知设置：\n• 设置 > 通知 > 蜜蜂记账\n• 开启\"允许通知\"\n• 设置通知样式：横幅或提醒\n• 开启声音和震动\n\n⚠️ 重要提示：\n• iOS本地通知依赖应用进程\n• 请勿在任务管理器中划掉应用\n• 应用在后台或前台时通知正常\n• 完全关闭应用会导致通知失效\n\n💡 使用建议：\n• 日常使用后直接按Home键退出\n• iOS会自动管理后台应用\n• 保持应用在后台即可收到提醒';
+  String get reminderIOSInstructions =>
+      '🍎 iOS通知设置：\n• 设置 > 通知 > 蜜蜂记账\n• 开启\"允许通知\"\n• 设置通知样式：横幅或提醒\n• 开启声音和震动\n\n⚠️ 重要提示：\n• iOS本地通知依赖应用进程\n• 请勿在任务管理器中划掉应用\n• 应用在后台或前台时通知正常\n• 完全关闭应用会导致通知失效\n\n💡 使用建议：\n• 日常使用后直接按Home键退出\n• iOS会自动管理后台应用\n• 保持应用在后台即可收到提醒';
 
   @override
-  String get reminderAndroidInstructions => '如果通知无法正常工作，请检查：\n• 已允许应用发送通知\n• 关闭应用的电池优化/省电模式\n• 允许应用在后台运行和自启动\n• Android 12+需要精确闹钟权限\n\n📱 小米手机特殊设置：\n• 设置 > 应用管理 > 蜜蜂记账 > 通知管理\n• 点击\"记账提醒\"渠道\n• 设置重要性为\"紧急\"或\"高\"\n• 开启\"横幅通知\"、\"声音\"、\"震动\"\n• 安全中心 > 应用管理 > 权限 > 自启动\n\n🔒 锁定后台方法：\n• 最近任务中找到蜜蜂记账\n• 向下拉动应用卡片显示锁定图标\n• 点击锁定图标防止被清理';
+  String get reminderAndroidInstructions =>
+      '如果通知无法正常工作，请检查：\n• 已允许应用发送通知\n• 关闭应用的电池优化/省电模式\n• 允许应用在后台运行和自启动\n• Android 12+需要精确闹钟权限\n\n📱 小米手机特殊设置：\n• 设置 > 应用管理 > 蜜蜂记账 > 通知管理\n• 点击\"记账提醒\"渠道\n• 设置重要性为\"紧急\"或\"高\"\n• 开启\"横幅通知\"、\"声音\"、\"震动\"\n• 安全中心 > 应用管理 > 权限 > 自启动\n\n🔒 锁定后台方法：\n• 最近任务中找到蜜蜂记账\n• 向下拉动应用卡片显示锁定图标\n• 点击锁定图标防止被清理';
 
   @override
   String get categoryDetailLoadFailed => '加载失败';
@@ -1937,7 +1952,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryMigrationConfirmTitle => '确认迁移';
 
   @override
-  String categoryMigrationConfirmMessage(Object count, Object fromName, Object toName) {
+  String categoryMigrationConfirmMessage(
+      Object count, Object fromName, Object toName) {
     return '确定要将「$fromName」的 $count 笔交易迁移到「$toName」吗？\n\n此操作不可撤销！';
   }
 
@@ -1948,7 +1964,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryMigrationCompleteTitle => '迁移完成';
 
   @override
-  String categoryMigrationCompleteMessage(Object count, Object fromName, Object toName) {
+  String categoryMigrationCompleteMessage(
+      Object count, Object fromName, Object toName) {
     return '成功将 $count 笔交易从「$fromName」迁移到「$toName」。';
   }
 
@@ -2578,7 +2595,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateInstallTitle => '下载完成';
 
   @override
-  String get updateInstallMessage => 'APK文件下载完成，是否立即安装？\\n\\n注意：安装时应用会暂时退到后台，这是正常现象。';
+  String get updateInstallMessage =>
+      'APK文件下载完成，是否立即安装？\\n\\n注意：安装时应用会暂时退到后台，这是正常现象。';
 
   @override
   String get updateInstallNow => '立即安装';
@@ -2599,7 +2617,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateNotificationPermissionTitle => '通知权限被拒绝';
 
   @override
-  String get updateNotificationPermissionMessage => '无法获得通知权限，下载进度将不会在通知栏显示，但下载功能正常。';
+  String get updateNotificationPermissionMessage =>
+      '无法获得通知权限，下载进度将不会在通知栏显示，但下载功能正常。';
 
   @override
   String get updateNotificationGuideTitle => '如需开启通知，请按以下步骤操作：';
@@ -2620,7 +2639,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateNotificationStep5 => '开启「通知权限」';
 
   @override
-  String get updateNotificationMiuiHint => 'MIUI用户：小米系统对通知权限管控较严，可能需要在安全中心中额外设置';
+  String get updateNotificationMiuiHint =>
+      'MIUI用户：小米系统对通知权限管控较严，可能需要在安全中心中额外设置';
 
   @override
   String get updateNotificationGotIt => '知道了';
@@ -2638,13 +2658,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateCannotOpenLink => '无法打开链接';
 
   @override
-  String get updateManualVisit => '请手动在浏览器中访问：\\nhttps://github.com/TNT-Likely/BeeCount/releases';
+  String get updateManualVisit =>
+      '请手动在浏览器中访问：\\nhttps://github.com/TNT-Likely/BeeCount/releases';
 
   @override
   String get updateNoLocalApkTitle => '未找到更新包';
 
   @override
-  String get updateNoLocalApkMessage => '没有找到已下载的更新包文件。\\n\\n请先通过\\\"检查更新\\\"下载新版本。';
+  String get updateNoLocalApkMessage =>
+      '没有找到已下载的更新包文件。\\n\\n请先通过\\\"检查更新\\\"下载新版本。';
 
   @override
   String get updateInstallPackageTitle => '安装更新包';
@@ -2772,10 +2794,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateCannotOpenLinkError => '无法打开链接';
 
   @override
-  String get updateNoLocalApkFoundMessage => '没有找到已下载的更新包文件。\n\n请先通过\"检查更新\"下载新版本。';
+  String get updateNoLocalApkFoundMessage =>
+      '没有找到已下载的更新包文件。\n\n请先通过\"检查更新\"下载新版本。';
 
   @override
-  String updateInstallPackageFoundMessage(String fileName, String fileSize, String time) {
+  String updateInstallPackageFoundMessage(
+      String fileName, String fileSize, String time) {
     return '找到更新包：\n\n文件名：$fileName\n大小：${fileSize}MB\n下载时间：$time\n\n是否立即安装？';
   }
 
@@ -2818,7 +2842,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateCachedVersionTitle => '发现已下载版本';
 
   @override
-  String get updateCachedVersionMessage => '已找到之前下载的安装包...点击\\\"确定\\\"立即安装，点击\\\"取消\\\"关闭...';
+  String get updateCachedVersionMessage =>
+      '已找到之前下载的安装包...点击\\\"确定\\\"立即安装，点击\\\"取消\\\"关闭...';
 
   @override
   String get updateConfirmDownload => '立即下载并安装';
@@ -2830,7 +2855,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateInstallConfirmMessage => '新版本已下载完成，是否立即安装？';
 
   @override
-  String get updateNotificationPermissionGuideText => '下载进度通知被关闭，但不影响下载功能。如需查看进度：';
+  String get updateNotificationPermissionGuideText =>
+      '下载进度通知被关闭，但不影响下载功能。如需查看进度：';
 
   @override
   String get updateNotificationGuideStep1 => '进入系统设置 > 应用管理';
@@ -3018,7 +3044,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get syncNotLoggedInMessage => '未登录';
 
   @override
-  String get syncCloudBackupCorruptedMessage => '云端备份内容无法解析，可能是早期版本编码问题造成的损坏。请点击\\\"上传当前账本到云端\\\"覆盖修复。';
+  String get syncCloudBackupCorruptedMessage =>
+      '云端备份内容无法解析，可能是早期版本编码问题造成的损坏。请点击\\\"上传当前账本到云端\\\"覆盖修复。';
 
   @override
   String get syncNoCloudBackupMessage => '云端暂无备份';
@@ -3337,7 +3364,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aboutWidget => '关于小组件';
 
   @override
-  String get widgetDescription => '小组件会自动同步显示今日和本月的收支数据，每30分钟自动刷新一次。打开应用后会立即更新数据。';
+  String get widgetDescription =>
+      '小组件会自动同步显示今日和本月的收支数据，每30分钟自动刷新一次。打开应用后会立即更新数据。';
 
   @override
   String get appName => '蜜蜂记账';
@@ -3370,7 +3398,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get featureDescription => '功能说明';
 
   @override
-  String get featureDescriptionContent => '截图支付页面后，系统会自动识别金额和商家信息，并创建支出记录。\n\n⚡ 识别速度约 1-2 秒\n🤖 智能匹配分类\n📝 自动填写备注\n\n注意：\n• 未开启无障碍服务时，识别速度会稍慢（3-5秒）\n• 开启无障碍服务后，可实现秒级识别';
+  String get featureDescriptionContent =>
+      '截图支付页面后，系统会自动识别金额和商家信息，并创建支出记录。\n\n⚡ 识别速度约 1-2 秒\n🤖 智能匹配分类\n📝 自动填写备注\n\n注意：\n• 未开启无障碍服务时，识别速度会稍慢（3-5秒）\n• 开启无障碍服务后，可实现秒级识别';
 
   @override
   String get autoBilling => '自动记账';
@@ -3448,13 +3477,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get autoBillingBatteryGuideTitle => '电池优化设置';
 
   @override
-  String get autoBillingBatteryDesc => '自动记账需要应用在后台保持运行。部分手机会在锁屏后自动清理后台应用，导致自动记账功能失效。建议关闭电池优化以确保功能正常工作。';
+  String get autoBillingBatteryDesc =>
+      '自动记账需要应用在后台保持运行。部分手机会在锁屏后自动清理后台应用，导致自动记账功能失效。建议关闭电池优化以确保功能正常工作。';
 
   @override
   String get autoBillingCheckBattery => '检查电池优化状态';
 
   @override
-  String get autoBillingBatteryWarning => '⚠️ 未关闭电池优化，应用可能会被系统自动清理，导致自动记账失效。建议点击上方\"去设置\"按钮关闭电池优化。';
+  String get autoBillingBatteryWarning =>
+      '⚠️ 未关闭电池优化，应用可能会被系统自动清理，导致自动记账失效。建议点击上方\"去设置\"按钮关闭电池优化。';
 
   @override
   String get enableFailed => '启用失败';
@@ -3484,13 +3515,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get quickActions => '快捷功能';
 
   @override
-  String get iosAutoFeatureDesc => '通过iOS\"快捷指令\"应用，实现截图后自动识别支付信息并记账。设置后，每次截图都会自动触发识别。';
+  String get iosAutoFeatureDesc =>
+      '通过iOS\"快捷指令\"应用，实现截图后自动识别支付信息并记账。设置后，每次截图都会自动触发识别。';
 
   @override
   String get iosAutoShortcutQuickAdd => '快速添加快捷指令';
 
   @override
-  String get iosAutoShortcutQuickAddDesc => '点击下方按钮可以直接导入配置好的快捷指令，或手动打开快捷指令App配置。';
+  String get iosAutoShortcutQuickAddDesc =>
+      '点击下方按钮可以直接导入配置好的快捷指令，或手动打开快捷指令App配置。';
 
   @override
   String get iosAutoShortcutImport => '一键导入快捷指令';
@@ -3514,13 +3547,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get iosAutoShortcutStep4 => '添加\"从截屏中提取文本\"操作';
 
   @override
-  String get iosAutoShortcutStep5 => '添加\"替换文本\"操作：将\"提取的文本\"中的\"\\n\"替换为\",\"（逗号）';
+  String get iosAutoShortcutStep5 =>
+      '添加\"替换文本\"操作：将\"提取的文本\"中的\"\\n\"替换为\",\"（逗号）';
 
   @override
   String get iosAutoShortcutStep6 => '添加\"URL编码\"操作：对\"替换后的文本\"进行URL编码';
 
   @override
-  String get iosAutoShortcutStep7 => '添加\"打开URL\"操作，URL填写：\nbeecount://auto-billing?text=[URL编码后的文本]';
+  String get iosAutoShortcutStep7 =>
+      '添加\"打开URL\"操作，URL填写：\nbeecount://auto-billing?text=[URL编码后的文本]';
 
   @override
   String get iosAutoShortcutStep8 => '点击快捷指令设置（右上角三点）';
@@ -3532,13 +3567,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get iosAutoShortcutStep10 => '保存并测试：截图后会自动识别';
 
   @override
-  String get iosAutoShortcutRecommendedTip => '✅ 推荐：URL参数传递，无需权限，体验最佳。关键步骤：\n• 替换文本时将换行符\\n替换为逗号,（避免URL截断）\n• 使用URL编码操作（避免中文乱码）\n• 一般截图文本不会超过2048字符限制';
+  String get iosAutoShortcutRecommendedTip =>
+      '✅ 推荐：URL参数传递，无需权限，体验最佳。关键步骤：\n• 替换文本时将换行符\\n替换为逗号,（避免URL截断）\n• 使用URL编码操作（避免中文乱码）\n• 一般截图文本不会超过2048字符限制';
 
   @override
   String get iosAutoBackTapTitle => '💡 双击背部快速触发（推荐）';
 
   @override
-  String get iosAutoBackTapDesc => '设置 > 辅助功能 > 触控 > 轻点背面\n• 选择\"轻点两下\"或\"轻点三下\"\n• 选择刚创建的快捷指令\n• 完成后，支付时双击手机背面即可自动记账，无需截图';
+  String get iosAutoBackTapDesc =>
+      '设置 > 辅助功能 > 触控 > 轻点背面\n• 选择\"轻点两下\"或\"轻点三下\"\n• 选择刚创建的快捷指令\n• 完成后，支付时双击手机背面即可自动记账，无需截图';
 
   @override
   String iosAutoImportFailed(Object error) {
@@ -3836,7 +3873,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get configImportExportInfoTitle => '功能说明';
 
   @override
-  String get configImportExportInfoMessage => '此功能用于导出和导入应用配置，包括云服务配置、AI配置等。配置文件采用YAML格式，方便查看和编辑。\n\n⚠️ 配置文件包含敏感信息（如API密钥、密码等），请妥善保管。';
+  String get configImportExportInfoMessage =>
+      '此功能用于导出和导入应用配置，包括云服务配置、AI配置等。配置文件采用YAML格式，方便查看和编辑。\n\n⚠️ 配置文件包含敏感信息（如API密钥、密码等），请妥善保管。';
 
   @override
   String get configExportTitle => '导出配置';
@@ -4032,7 +4070,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
 class AppLocalizationsZhTw extends AppLocalizationsZh {
-  AppLocalizationsZhTw(): super('zh_TW');
+  AppLocalizationsZhTw() : super('zh_TW');
 
   @override
   String get appTitle => '蜜蜂記帳';
@@ -4399,7 +4437,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get analyticsSwipeHint => '左右滑動切換週期';
 
   @override
-  String get analyticsTipContent => '1) 底部左右滑動可切換收入/支出/結餘\\n2) 圖表區域左右滑動可切換上一/下一週期';
+  String get analyticsTipContent =>
+      '1) 底部左右滑動可切換收入/支出/結餘\\n2) 圖表區域左右滑動可切換上一/下一週期';
 
   @override
   String analyticsSwitchTo(String type) {
@@ -4466,7 +4505,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get ledgersDeleteConfirm => '刪除帳本';
 
   @override
-  String get ledgersDeleteMessage => '確定要刪除該帳本及其全部記錄嗎？此操作不可復原。\\n若雲端存在備份，也會一併刪除。';
+  String get ledgersDeleteMessage =>
+      '確定要刪除該帳本及其全部記錄嗎？此操作不可復原。\\n若雲端存在備份，也會一併刪除。';
 
   @override
   String get ledgersDeleted => '已刪除';
@@ -4658,10 +4698,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   }
 
   @override
-  String get importCategoryNotSelected => '未選擇\"分類\"列，請點擊\"上一步\"返回並設定\"分類\"的列，再繼續。';
+  String get importCategoryNotSelected =>
+      '未選擇\"分類\"列，請點擊\"上一步\"返回並設定\"分類\"的列，再繼續。';
 
   @override
-  String get importCategoryMappingDescription => '請將左側\"源分類名\"對應到系統內已有分類（或保持原名自動建立/合併）';
+  String get importCategoryMappingDescription =>
+      '請將左側\"源分類名\"對應到系統內已有分類（或保持原名自動建立/合併）';
 
   @override
   String get importKeepOriginalName => '保持原名（自動建立/合併）';
@@ -4709,7 +4751,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get importInProgress => '正在匯入…';
 
   @override
-  String importProgressDetail(Object done, Object fail, Object ok, Object total) {
+  String importProgressDetail(
+      Object done, Object fail, Object ok, Object total) {
     return '已完成：$done/$total，成功 $ok，失敗 $fail';
   }
 
@@ -5007,7 +5050,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get mineImportProgressTitle => '後台匯入中…';
 
   @override
-  String mineImportProgressSubtitle(Object done, Object fail, Object ok, Object total) {
+  String mineImportProgressSubtitle(
+      Object done, Object fail, Object ok, Object total) {
     return '進度：$done/$total，成功 $ok，失敗 $fail';
   }
 
@@ -5124,7 +5168,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryMigrationDescription => '分類遷移說明';
 
   @override
-  String get categoryMigrationDescriptionContent => '• 將指定分類的所有交易記錄遷移到另一個分類\n• 遷移後，原分類的交易資料將全部轉移到目標分類\n• 此操作不可撤銷，請謹慎選擇';
+  String get categoryMigrationDescriptionContent =>
+      '• 將指定分類的所有交易記錄遷移到另一個分類\n• 遷移後，原分類的交易資料將全部轉移到目標分類\n• 此操作不可撤銷，請謹慎選擇';
 
   @override
   String get categoryMigrationFromLabel => '遷出分類';
@@ -5444,7 +5489,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get fontSettingsPreview => '即時預覽';
 
   @override
-  String get fontSettingsPreviewText => '今天吃飯花了 23.50 元，記一筆；\n本月已記帳 45 天，共 320 條記錄；\n堅持就是勝利！';
+  String get fontSettingsPreviewText =>
+      '今天吃飯花了 23.50 元，記一筆；\n本月已記帳 45 天，共 320 條記錄；\n堅持就是勝利！';
 
   @override
   String fontSettingsCurrentLevel(Object level, Object scale) {
@@ -5458,7 +5504,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get fontSettingsCustomAdjust => '自訂調整';
 
   @override
-  String get fontSettingsDescription => '說明：此設定確保所有裝置在1.0倍時顯示效果一致，裝置差異已自動補償；調整數值可在一致基礎上進行個性化縮放。';
+  String get fontSettingsDescription =>
+      '說明：此設定確保所有裝置在1.0倍時顯示效果一致，裝置差異已自動補償；調整數值可在一致基礎上進行個性化縮放。';
 
   @override
   String get fontSettingsExtraSmall => '極小';
@@ -5596,13 +5643,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get reminderAlarmTest => '🔧 測試AlarmManager通知點擊（開發）';
 
   @override
-  String get reminderAlarmTestMessage => '已設定AlarmManager測試通知（1秒後），點擊檢視是否能開啟應用程式';
+  String get reminderAlarmTestMessage =>
+      '已設定AlarmManager測試通知（1秒後），點擊檢視是否能開啟應用程式';
 
   @override
   String get reminderDirectTest => '🔧 直接測試NotificationReceiver（開發）';
 
   @override
-  String get reminderDirectTestMessage => '已直接呼叫NotificationReceiver建立通知，檢視點擊是否有效';
+  String get reminderDirectTestMessage =>
+      '已直接呼叫NotificationReceiver建立通知，檢視點擊是否有效';
 
   @override
   String get reminderCheckStatus => '🔧 檢查通知狀態（開發）';
@@ -5717,16 +5766,19 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get reminderIOSTestTitle => 'iOS通知測試';
 
   @override
-  String get reminderIOSTestMessage => '已發送測試通知。\n\n🍎 iOS模擬器限制：\n• 通知可能不會在通知中心顯示\n• 橫幅提醒可能不工作\n• 但Xcode控制台會顯示日誌\n\n💡 除錯方法：\n• 檢視Xcode控制台輸出\n• 檢查Flutter日誌資訊\n• 使用真機測試獲得完整體驗';
+  String get reminderIOSTestMessage =>
+      '已發送測試通知。\n\n🍎 iOS模擬器限制：\n• 通知可能不會在通知中心顯示\n• 橫幅提醒可能不工作\n• 但Xcode控制台會顯示日誌\n\n💡 除錯方法：\n• 檢視Xcode控制台輸出\n• 檢查Flutter日誌資訊\n• 使用真機測試獲得完整體驗';
 
   @override
   String get reminderDescription => '提示：開啟記帳提醒後，系統會在每天指定時間發送通知提醒您記錄收支。';
 
   @override
-  String get reminderIOSInstructions => '🍎 iOS通知設定：\n• 設定 > 通知 > 蜜蜂記帳\n• 開啟\"允許通知\"\n• 設定通知樣式：橫幅或提醒\n• 開啟聲音和震動\n\n⚠️ 重要提示：\n• iOS本地通知依賴應用程序進程\n• 請勿在任務管理器中划掉應用\n• 應用在後台或前台時通知正常\n• 完全關閉應用會導致通知失效\n\n💡 使用建議：\n• 日常使用後直接按Home鍵退出\n• iOS會自動管理後台應用\n• 保持應用在後台即可收到提醒';
+  String get reminderIOSInstructions =>
+      '🍎 iOS通知設定：\n• 設定 > 通知 > 蜜蜂記帳\n• 開啟\"允許通知\"\n• 設定通知樣式：橫幅或提醒\n• 開啟聲音和震動\n\n⚠️ 重要提示：\n• iOS本地通知依賴應用程序進程\n• 請勿在任務管理器中划掉應用\n• 應用在後台或前台時通知正常\n• 完全關閉應用會導致通知失效\n\n💡 使用建議：\n• 日常使用後直接按Home鍵退出\n• iOS會自動管理後台應用\n• 保持應用在後台即可收到提醒';
 
   @override
-  String get reminderAndroidInstructions => '如果通知無法正常工作，請檢查：\n• 已允許應用程式發送通知\n• 關閉應用程式的電池最佳化/省電模式\n• 允許應用程式在背景執行和自啟動\n• Android 12+需要精確鬧鐘權限\n\n📱 小米手機特殊設定：\n• 設定 > 應用程式管理 > 蜜蜂記帳 > 通知管理\n• 點擊\"記帳提醒\"頻道\n• 設定重要性為\"緊急\"或\"高\"\n• 開啟\"橫幅通知\"、\"聲音\"、\"震動\"\n• 安全中心 > 應用程式管理 > 權限 > 自啟動\n\n🔒 鎖定背景方法：\n• 最近任務中找到蜜蜂記帳\n• 向下拉動應用程式卡片顯示鎖定圖示\n• 點擊鎖定圖示防止被清理';
+  String get reminderAndroidInstructions =>
+      '如果通知無法正常工作，請檢查：\n• 已允許應用程式發送通知\n• 關閉應用程式的電池最佳化/省電模式\n• 允許應用程式在背景執行和自啟動\n• Android 12+需要精確鬧鐘權限\n\n📱 小米手機特殊設定：\n• 設定 > 應用程式管理 > 蜜蜂記帳 > 通知管理\n• 點擊\"記帳提醒\"頻道\n• 設定重要性為\"緊急\"或\"高\"\n• 開啟\"橫幅通知\"、\"聲音\"、\"震動\"\n• 安全中心 > 應用程式管理 > 權限 > 自啟動\n\n🔒 鎖定背景方法：\n• 最近任務中找到蜜蜂記帳\n• 向下拉動應用程式卡片顯示鎖定圖示\n• 點擊鎖定圖示防止被清理';
 
   @override
   String get categoryDetailLoadFailed => '載入失敗';
@@ -5771,7 +5823,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryMigrationConfirmTitle => '確認遷移';
 
   @override
-  String categoryMigrationConfirmMessage(Object count, Object fromName, Object toName) {
+  String categoryMigrationConfirmMessage(
+      Object count, Object fromName, Object toName) {
     return '確定要將「$fromName」的 $count 筆交易遷移到「$toName」嗎？\n\n此操作不可撤銷！';
   }
 
@@ -5782,7 +5835,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryMigrationCompleteTitle => '遷移完成';
 
   @override
-  String categoryMigrationCompleteMessage(Object count, Object fromName, Object toName) {
+  String categoryMigrationCompleteMessage(
+      Object count, Object fromName, Object toName) {
     return '成功將 $count 筆交易從「$fromName」遷移到「$toName」。';
   }
 
@@ -6412,7 +6466,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get updateInstallTitle => '下載完成';
 
   @override
-  String get updateInstallMessage => 'APK檔案下載完成，是否立即安裝？\\n\\n注意：安裝時應用程式會暫時退到背景，這是正常現象。';
+  String get updateInstallMessage =>
+      'APK檔案下載完成，是否立即安裝？\\n\\n注意：安裝時應用程式會暫時退到背景，這是正常現象。';
 
   @override
   String get updateInstallNow => '立即安裝';
@@ -6433,7 +6488,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get updateNotificationPermissionTitle => '通知權限被拒絕';
 
   @override
-  String get updateNotificationPermissionMessage => '無法獲得通知權限，下載進度將不會在通知欄顯示，但下載功能正常。';
+  String get updateNotificationPermissionMessage =>
+      '無法獲得通知權限，下載進度將不會在通知欄顯示，但下載功能正常。';
 
   @override
   String get updateNotificationGuideTitle => '如需開啟通知，請按以下步驟操作：';
@@ -6454,7 +6510,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get updateNotificationStep5 => '開啟「通知權限」';
 
   @override
-  String get updateNotificationMiuiHint => 'MIUI使用者：小米系統對通知權限管控較嚴，可能需要在安全中心中額外設定';
+  String get updateNotificationMiuiHint =>
+      'MIUI使用者：小米系統對通知權限管控較嚴，可能需要在安全中心中額外設定';
 
   @override
   String get updateNotificationGotIt => '知道了';
@@ -6472,13 +6529,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get updateCannotOpenLink => '無法開啟連結';
 
   @override
-  String get updateManualVisit => '請手動在瀏覽器中存取：\\nhttps://github.com/TNT-Likely/BeeCount/releases';
+  String get updateManualVisit =>
+      '請手動在瀏覽器中存取：\\nhttps://github.com/TNT-Likely/BeeCount/releases';
 
   @override
   String get updateNoLocalApkTitle => '未找到更新包';
 
   @override
-  String get updateNoLocalApkMessage => '沒有找到已下載的更新包檔案。\\n\\n請先透過\\\"檢查更新\\\"下載新版本。';
+  String get updateNoLocalApkMessage =>
+      '沒有找到已下載的更新包檔案。\\n\\n請先透過\\\"檢查更新\\\"下載新版本。';
 
   @override
   String get updateInstallPackageTitle => '安裝更新包';
@@ -6606,10 +6665,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get updateCannotOpenLinkError => '無法開啟連結';
 
   @override
-  String get updateNoLocalApkFoundMessage => '沒有找到已下載的更新包檔案。\n\n請先透過\"檢查更新\"下載新版本。';
+  String get updateNoLocalApkFoundMessage =>
+      '沒有找到已下載的更新包檔案。\n\n請先透過\"檢查更新\"下載新版本。';
 
   @override
-  String updateInstallPackageFoundMessage(String fileName, String fileSize, String time) {
+  String updateInstallPackageFoundMessage(
+      String fileName, String fileSize, String time) {
     return '找到更新包：\n\n檔案名：$fileName\n大小：${fileSize}MB\n下載時間：$time\n\n是否立即安裝？';
   }
 
@@ -6652,7 +6713,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get updateCachedVersionTitle => '發現已下載版本';
 
   @override
-  String get updateCachedVersionMessage => '已找到之前下載的安裝包...點擊\\\"確定\\\"立即安裝，點擊\\\"取消\\\"關閉...';
+  String get updateCachedVersionMessage =>
+      '已找到之前下載的安裝包...點擊\\\"確定\\\"立即安裝，點擊\\\"取消\\\"關閉...';
 
   @override
   String get updateConfirmDownload => '立即下載並安裝';
@@ -6664,7 +6726,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get updateInstallConfirmMessage => '新版本已下載完成，是否立即安裝？';
 
   @override
-  String get updateNotificationPermissionGuideText => '下載進度通知被關閉，但不影響下載功能。如需檢視進度：';
+  String get updateNotificationPermissionGuideText =>
+      '下載進度通知被關閉，但不影響下載功能。如需檢視進度：';
 
   @override
   String get updateNotificationGuideStep1 => '進入系統設定 > 應用程式管理';
@@ -6852,7 +6915,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get syncNotLoggedInMessage => '未登入';
 
   @override
-  String get syncCloudBackupCorruptedMessage => '雲端備份內容無法解析，可能是早期版本編碼問題造成的損壞。請點擊\\\"上傳當前帳本到雲端\\\"覆蓋修復。';
+  String get syncCloudBackupCorruptedMessage =>
+      '雲端備份內容無法解析，可能是早期版本編碼問題造成的損壞。請點擊\\\"上傳當前帳本到雲端\\\"覆蓋修復。';
 
   @override
   String get syncNoCloudBackupMessage => '雲端暫無備份';
@@ -7171,7 +7235,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get aboutWidget => '關于小組件';
 
   @override
-  String get widgetDescription => '小組件会自動同步顯示今日和本月的收支數據，每30分钟自動刷新一次。打開應用后会立即更新數據。';
+  String get widgetDescription =>
+      '小組件会自動同步顯示今日和本月的收支數據，每30分钟自動刷新一次。打開應用后会立即更新數據。';
 
   @override
   String get appName => '蜜蜂记帳';
@@ -7204,7 +7269,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get featureDescription => '功能說明';
 
   @override
-  String get featureDescriptionContent => '截圖支付頁面後，系統會自動識別金額和商家資訊，並建立支出記錄。\n\n⚡ 識別速度約 1-2 秒\n🤖 智慧配對分類\n📝 自動填寫備註\n\n注意：\n• 未開啟無障礙服務時，識別速度會稍慢（3-5秒）\n• 開啟無障礙服務後，可實現秒級識別';
+  String get featureDescriptionContent =>
+      '截圖支付頁面後，系統會自動識別金額和商家資訊，並建立支出記錄。\n\n⚡ 識別速度約 1-2 秒\n🤖 智慧配對分類\n📝 自動填寫備註\n\n注意：\n• 未開啟無障礙服務時，識別速度會稍慢（3-5秒）\n• 開啟無障礙服務後，可實現秒級識別';
 
   @override
   String get autoBilling => '自動記帳';
@@ -7282,13 +7348,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get autoBillingBatteryGuideTitle => '電池最佳化設定';
 
   @override
-  String get autoBillingBatteryDesc => '自動記帳需要應用程式在背景保持執行。部分手機會在鎖屏後自動清理背景應用程式，導致自動記帳功能失效。建議關閉電池最佳化以確保功能正常工作。';
+  String get autoBillingBatteryDesc =>
+      '自動記帳需要應用程式在背景保持執行。部分手機會在鎖屏後自動清理背景應用程式，導致自動記帳功能失效。建議關閉電池最佳化以確保功能正常工作。';
 
   @override
   String get autoBillingCheckBattery => '檢查電池最佳化狀態';
 
   @override
-  String get autoBillingBatteryWarning => '⚠️ 未關閉電池最佳化，應用程式可能會被系統自動清理，導致自動記帳失效。建議點擊上方「前往設定」按鈕關閉電池最佳化。';
+  String get autoBillingBatteryWarning =>
+      '⚠️ 未關閉電池最佳化，應用程式可能會被系統自動清理，導致自動記帳失效。建議點擊上方「前往設定」按鈕關閉電池最佳化。';
 
   @override
   String get enableFailed => '啟用失敗';
@@ -7318,13 +7386,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get quickActions => '快捷功能';
 
   @override
-  String get iosAutoFeatureDesc => '透過 iOS「捷徑」應用程式，實現截圖後自動識別支付資訊並記帳。設定後，每次截圖都會自動觸發識別。';
+  String get iosAutoFeatureDesc =>
+      '透過 iOS「捷徑」應用程式，實現截圖後自動識別支付資訊並記帳。設定後，每次截圖都會自動觸發識別。';
 
   @override
   String get iosAutoShortcutQuickAdd => '快速新增捷徑';
 
   @override
-  String get iosAutoShortcutQuickAddDesc => '點擊下方按鈕可以直接匯入設定好的捷徑，或手動開啟捷徑 App 設定。';
+  String get iosAutoShortcutQuickAddDesc =>
+      '點擊下方按鈕可以直接匯入設定好的捷徑，或手動開啟捷徑 App 設定。';
 
   @override
   String get iosAutoShortcutImport => '一鍵匯入捷徑';
@@ -7354,7 +7424,8 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get iosAutoShortcutStep6 => '新增「URL 編碼」操作：對「取代後的文字」進行 URL 編碼';
 
   @override
-  String get iosAutoShortcutStep7 => '新增「開啟 URL」操作，URL 填寫：\nbeecount://auto-billing?text=[URL 編碼後的文字]';
+  String get iosAutoShortcutStep7 =>
+      '新增「開啟 URL」操作，URL 填寫：\nbeecount://auto-billing?text=[URL 編碼後的文字]';
 
   @override
   String get iosAutoShortcutStep8 => '點擊捷徑設定（右上角三點）';
@@ -7366,13 +7437,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get iosAutoShortcutStep10 => '儲存並測試：截圖後會自動識別';
 
   @override
-  String get iosAutoShortcutRecommendedTip => '✅ 推薦：URL 參數傳遞，無需權限，體驗最佳。關鍵步驟：\n• 取代文字時將換行符號\\n取代為逗號,（避免 URL 截斷）\n• 使用 URL 編碼操作（避免中文亂碼）\n• 一般截圖文字不會超過 2048 字元限制';
+  String get iosAutoShortcutRecommendedTip =>
+      '✅ 推薦：URL 參數傳遞，無需權限，體驗最佳。關鍵步驟：\n• 取代文字時將換行符號\\n取代為逗號,（避免 URL 截斷）\n• 使用 URL 編碼操作（避免中文亂碼）\n• 一般截圖文字不會超過 2048 字元限制';
 
   @override
   String get iosAutoBackTapTitle => '💡 雙擊背面快速觸發（推薦）';
 
   @override
-  String get iosAutoBackTapDesc => '設定 > 輔助使用 > 觸控 > 背面輕點\n• 選擇「點兩下」或「點三下」\n• 選擇剛建立的捷徑\n• 完成後，支付時雙擊手機背面即可自動記帳，無需截圖';
+  String get iosAutoBackTapDesc =>
+      '設定 > 輔助使用 > 觸控 > 背面輕點\n• 選擇「點兩下」或「點三下」\n• 選擇剛建立的捷徑\n• 完成後，支付時雙擊手機背面即可自動記帳，無需截圖';
 
   @override
   String iosAutoImportFailed(Object error) {

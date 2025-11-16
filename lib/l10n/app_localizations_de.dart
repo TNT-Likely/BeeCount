@@ -1,3 +1,5 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -169,7 +171,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeNoRecords => 'Noch keine Einträge';
 
   @override
-  String get homeAddRecord => 'Tippen Sie auf das Plus-Symbol unten, um einen Eintrag hinzuzufügen';
+  String get homeAddRecord =>
+      'Tippen Sie auf das Plus-Symbol unten, um einen Eintrag hinzuzufügen';
 
   @override
   String get homeHideAmounts => 'Beträge ausblenden';
@@ -203,7 +206,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get homeNoRecordsSubtext => 'Tippen Sie auf das Plus-Symbol unten, um einen Eintrag hinzuzufügen';
+  String get homeNoRecordsSubtext =>
+      'Tippen Sie auf das Plus-Symbol unten, um einen Eintrag hinzuzufügen';
 
   @override
   String get widgetTodayExpense => 'Heutige Ausgaben';
@@ -239,7 +243,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get searchTo => 'bis';
 
   @override
-  String get searchNoInput => 'Suchbegriffe eingeben, um mit der Suche zu beginnen';
+  String get searchNoInput =>
+      'Suchbegriffe eingeben, um mit der Suche zu beginnen';
 
   @override
   String get searchNoResults => 'Keine passenden Ergebnisse gefunden';
@@ -248,7 +253,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get searchResultsEmpty => 'Keine passenden Ergebnisse gefunden';
 
   @override
-  String get searchResultsEmptyHint => 'Versuchen Sie andere Suchbegriffe oder passen Sie die Filterbedingungen an';
+  String get searchResultsEmptyHint =>
+      'Versuchen Sie andere Suchbegriffe oder passen Sie die Filterbedingungen an';
 
   @override
   String get searchBatchMode => 'Stapeloperationen';
@@ -295,7 +301,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get searchBatchSetNoteHint => 'Notizinhalt eingeben (leer lassen, um Notizen zu löschen)';
+  String get searchBatchSetNoteHint =>
+      'Notizinhalt eingeben (leer lassen, um Notizen zu löschen)';
 
   @override
   String get searchBatchChangeCategoryTitle => 'Stapel-Kategorie ändern';
@@ -365,13 +372,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get analyticsCurrentPeriod => 'Aktueller Zeitraum';
 
   @override
-  String get analyticsNoDataSubtext => 'Nach links/rechts wischen, um Zeiträume zu wechseln, oder Taste drücken, um Einnahmen/Ausgaben umzuschalten';
+  String get analyticsNoDataSubtext =>
+      'Nach links/rechts wischen, um Zeiträume zu wechseln, oder Taste drücken, um Einnahmen/Ausgaben umzuschalten';
 
   @override
-  String get analyticsSwipeHint => 'Links/rechts wischen, um Zeitraum zu wechseln';
+  String get analyticsSwipeHint =>
+      'Links/rechts wischen, um Zeitraum zu wechseln';
 
   @override
-  String get analyticsTipContent => '1) Unten nach links/rechts wischen, um Ausgaben/Einnahmen/Saldo zu wechseln\n2) Im Diagrammbereich nach links/rechts wischen, um vorherigen/nächsten Zeitraum zu wechseln';
+  String get analyticsTipContent =>
+      '1) Unten nach links/rechts wischen, um Ausgaben/Einnahmen/Saldo zu wechseln\n2) Im Diagrammbereich nach links/rechts wischen, um vorherigen/nächsten Zeitraum zu wechseln';
 
   @override
   String analyticsSwitchTo(String type) {
@@ -379,7 +389,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get analyticsTipHeader => 'Tipp: Obere Kapsel kann Monat/Jahr/Alle wechseln';
+  String get analyticsTipHeader =>
+      'Tipp: Obere Kapsel kann Monat/Jahr/Alle wechseln';
 
   @override
   String get analyticsSwipeToSwitch => 'Horizontal wischen';
@@ -400,13 +411,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get splashSecurityTitle => 'Open-Source-Datensicherheit';
 
   @override
-  String get splashSecurityFeature1 => '• Datenspeicherung lokal, volle Kontrolle über Ihre Privatsphäre';
+  String get splashSecurityFeature1 =>
+      '• Datenspeicherung lokal, volle Kontrolle über Ihre Privatsphäre';
 
   @override
-  String get splashSecurityFeature2 => '• Open-Source-Code transparent, vertrauenswürdige Sicherheit';
+  String get splashSecurityFeature2 =>
+      '• Open-Source-Code transparent, vertrauenswürdige Sicherheit';
 
   @override
-  String get splashSecurityFeature3 => '• Optionale Cloud-Synchronisation, einheitliche Daten auf allen Geräten';
+  String get splashSecurityFeature3 =>
+      '• Optionale Cloud-Synchronisation, einheitliche Daten auf allen Geräten';
 
   @override
   String get splashInitializing => 'Daten werden initialisiert...';
@@ -438,7 +452,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get ledgersDeleteConfirm => 'Kontenbuch löschen';
 
   @override
-  String get ledgersDeleteMessage => 'Sind Sie sicher, dass Sie dieses Kontenbuch und alle seine Datensätze löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.\nWenn eine Cloud-Sicherung vorhanden ist, wird diese ebenfalls gelöscht.';
+  String get ledgersDeleteMessage =>
+      'Sind Sie sicher, dass Sie dieses Kontenbuch und alle seine Datensätze löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.\nWenn eine Cloud-Sicherung vorhanden ist, wird diese ebenfalls gelöscht.';
 
   @override
   String get ledgersDeleted => 'Gelöscht';
@@ -629,7 +644,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get categoryCustomTag => 'Benutzerdefiniert';
 
   @override
-  String get categoryReorderTip => 'Lange drücken und ziehen, um die Reihenfolge anzupassen';
+  String get categoryReorderTip =>
+      'Lange drücken und ziehen, um die Reihenfolge anzupassen';
 
   @override
   String categoryLoadFailed(String error) {
@@ -679,7 +695,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get importTitle => 'Rechnungen importieren';
 
   @override
-  String get importSelectFile => 'Bitte wählen Sie eine Datei zum Importieren (CSV/TSV/XLSX unterstützt)';
+  String get importSelectFile =>
+      'Bitte wählen Sie eine Datei zum Importieren (CSV/TSV/XLSX unterstützt)';
 
   @override
   String get importBillType => 'Rechnungstyp';
@@ -700,7 +717,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get importNoFileSelected => 'Keine Datei ausgewählt';
 
   @override
-  String get importHint => 'Hinweis: Bitte wählen Sie eine Datei aus, um den Import zu starten (CSV/TSV/XLSX)';
+  String get importHint =>
+      'Hinweis: Bitte wählen Sie eine Datei aus, um den Import zu starten (CSV/TSV/XLSX)';
 
   @override
   String get importReading => 'Datei wird gelesen…';
@@ -720,7 +738,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get importCategoryMapping => 'Kategorienzuordnung';
 
   @override
-  String get importNoDataParsed => 'Keine Daten analysiert. Bitte kehren Sie zur vorherigen Seite zurück, um den CSV-Inhalt oder das Trennzeichen zu überprüfen.';
+  String get importNoDataParsed =>
+      'Keine Daten analysiert. Bitte kehren Sie zur vorherigen Seite zurück, um den CSV-Inhalt oder das Trennzeichen zu überprüfen.';
 
   @override
   String get importFieldDate => 'Datum';
@@ -749,13 +768,16 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get importCategoryNotSelected => '\"Kategorie\"-Spalte nicht ausgewählt. Bitte klicken Sie auf \"Zurück\" und wählen Sie die \"Kategorie\"-Spalte aus.';
+  String get importCategoryNotSelected =>
+      '\"Kategorie\"-Spalte nicht ausgewählt. Bitte klicken Sie auf \"Zurück\" und wählen Sie die \"Kategorie\"-Spalte aus.';
 
   @override
-  String get importCategoryMappingDescription => 'Bitte ordnen Sie die \"Quellkategorie\" den vorhandenen Systemkategorien zu (oder behalten Sie den Originalnamen bei, um automatisch zu erstellen/zusammenzuführen)';
+  String get importCategoryMappingDescription =>
+      'Bitte ordnen Sie die \"Quellkategorie\" den vorhandenen Systemkategorien zu (oder behalten Sie den Originalnamen bei, um automatisch zu erstellen/zusammenzuführen)';
 
   @override
-  String get importKeepOriginalName => 'Originalnamen beibehalten (automatisch erstellen/zusammenführen)';
+  String get importKeepOriginalName =>
+      'Originalnamen beibehalten (automatisch erstellen/zusammenführen)';
 
   @override
   String importProgress(Object fail, Object ok) {
@@ -782,7 +804,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get importSelectCategoryFirst => 'Bitte wählen Sie zuerst die \"Kategorie\"-Spalte aus';
+  String get importSelectCategoryFirst =>
+      'Bitte wählen Sie zuerst die \"Kategorie\"-Spalte aus';
 
   @override
   String get importNextStep => 'Nächster Schritt';
@@ -800,7 +823,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get importInProgress => 'Importiere...';
 
   @override
-  String importProgressDetail(Object done, Object fail, Object ok, Object total) {
+  String importProgressDetail(
+      Object done, Object fail, Object ok, Object total) {
     return 'Abgeschlossen: $done/$total, Erfolg $ok, Fehler $fail';
   }
 
@@ -888,7 +912,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deleteConfirmTitle => 'Löschen bestätigen';
 
   @override
-  String get deleteConfirmMessage => 'Sind Sie sicher, dass Sie diesen Datensatz löschen möchten?';
+  String get deleteConfirmMessage =>
+      'Sind Sie sicher, dass Sie diesen Datensatz löschen möchten?';
 
   @override
   String get logCopied => 'Protokoll kopiert';
@@ -934,7 +959,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineShareApp => 'Share App';
 
   @override
-  String get mineShareAppSubtitle => 'Generate share poster and save to gallery';
+  String get mineShareAppSubtitle =>
+      'Generate share poster and save to gallery';
 
   @override
   String get mineShareGenerating => 'Generating share poster...';
@@ -943,7 +969,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineShareSuccess => 'Saved Successfully';
 
   @override
-  String get mineShareSuccessMessage => 'Share poster has been saved to gallery';
+  String get mineShareSuccessMessage =>
+      'Share poster has been saved to gallery';
 
   @override
   String get mineShareFailed => 'Save failed, please check gallery permissions';
@@ -991,7 +1018,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sharePosterSaveFailed => 'Failed to save';
 
   @override
-  String get sharePosterPermissionDenied => 'Gallery permission denied, please enable in settings';
+  String get sharePosterPermissionDenied =>
+      'Gallery permission denied, please enable in settings';
 
   @override
   String get mineDaysCount => 'Buchführungstage';
@@ -1023,7 +1051,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineCloudServiceCustom => 'Benutzerdefiniertes Supabase';
 
   @override
-  String get mineCloudServiceWebDAV => 'Benutzerdefinierter Cloud-Dienst (WebDAV)';
+  String get mineCloudServiceWebDAV =>
+      'Benutzerdefinierter Cloud-Dienst (WebDAV)';
 
   @override
   String get mineSyncTitle => 'Synchronisierung';
@@ -1054,7 +1083,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineSyncLocalNewerSimple => 'Lokal neuer';
 
   @override
-  String get mineSyncCloudNewer => 'Cloud aktueller (Download und Zusammenführen empfohlen)';
+  String get mineSyncCloudNewer =>
+      'Cloud aktueller (Download und Zusammenführen empfohlen)';
 
   @override
   String get mineSyncCloudNewerSimple => 'Cloud neuer';
@@ -1105,7 +1135,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineUploadNeedLogin => 'Anmeldung erforderlich';
 
   @override
-  String get mineUploadNeedCloudService => 'Nur im Cloud-Dienst-Modus verfügbar';
+  String get mineUploadNeedCloudService =>
+      'Nur im Cloud-Dienst-Modus verfügbar';
 
   @override
   String get mineUploadInProgress => 'Lädt hoch...';
@@ -1120,13 +1151,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineUploadSuccess => 'Hochgeladen';
 
   @override
-  String get mineUploadSuccessMessage => 'Aktuelles Kontenbuch wurde mit der Cloud synchronisiert';
+  String get mineUploadSuccessMessage =>
+      'Aktuelles Kontenbuch wurde mit der Cloud synchronisiert';
 
   @override
   String get mineDownloadTitle => 'Herunterladen';
 
   @override
-  String get mineDownloadNeedCloudService => 'Nur im Cloud-Dienst-Modus verfügbar';
+  String get mineDownloadNeedCloudService =>
+      'Nur im Cloud-Dienst-Modus verfügbar';
 
   @override
   String get mineDownloadComplete => 'Abgeschlossen';
@@ -1152,7 +1185,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineLogoutConfirmTitle => 'Abmelden';
 
   @override
-  String get mineLogoutConfirmMessage => 'Sind Sie sicher, dass Sie sich abmelden möchten?\nNach dem Abmelden können Sie die Cloud-Synchronisation nicht mehr verwenden.';
+  String get mineLogoutConfirmMessage =>
+      'Sind Sie sicher, dass Sie sich abmelden möchten?\nNach dem Abmelden können Sie die Cloud-Synchronisation nicht mehr verwenden.';
 
   @override
   String get mineLogoutButton => 'Abmelden';
@@ -1161,19 +1195,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineAutoSyncTitle => 'Kontenbuch automatisch synchronisieren';
 
   @override
-  String get mineAutoSyncSubtitle => 'Nach Buchung automatisch in die Cloud hochladen';
+  String get mineAutoSyncSubtitle =>
+      'Nach Buchung automatisch in die Cloud hochladen';
 
   @override
-  String get mineAutoSyncNeedLogin => 'Anmeldung erforderlich, um zu aktivieren';
+  String get mineAutoSyncNeedLogin =>
+      'Anmeldung erforderlich, um zu aktivieren';
 
   @override
-  String get mineAutoSyncNeedCloudService => 'Nur im Cloud-Dienst-Modus verfügbar';
+  String get mineAutoSyncNeedCloudService =>
+      'Nur im Cloud-Dienst-Modus verfügbar';
 
   @override
   String get mineImportProgressTitle => 'Import läuft im Hintergrund...';
 
   @override
-  String mineImportProgressSubtitle(Object done, Object fail, Object ok, Object total) {
+  String mineImportProgressSubtitle(
+      Object done, Object fail, Object ok, Object total) {
     return 'Fortschritt: $done/$total, Erfolg $ok, Fehler $fail';
   }
 
@@ -1189,25 +1227,29 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineCategoryManagement => 'Kategorienverwaltung';
 
   @override
-  String get mineCategoryManagementSubtitle => 'Benutzerdefinierte Kategorien bearbeiten';
+  String get mineCategoryManagementSubtitle =>
+      'Benutzerdefinierte Kategorien bearbeiten';
 
   @override
   String get mineCategoryMigration => 'Kategorienmigration';
 
   @override
-  String get mineCategoryMigrationSubtitle => 'Kategoriedaten zu anderen Kategorien migrieren';
+  String get mineCategoryMigrationSubtitle =>
+      'Kategoriedaten zu anderen Kategorien migrieren';
 
   @override
   String get mineRecurringTransactions => 'Wiederkehrende Rechnungen';
 
   @override
-  String get mineRecurringTransactionsSubtitle => 'Wiederkehrende Rechnungen verwalten';
+  String get mineRecurringTransactionsSubtitle =>
+      'Wiederkehrende Rechnungen verwalten';
 
   @override
   String get mineReminderSettings => 'Buchungserinnerung';
 
   @override
-  String get mineReminderSettingsSubtitle => 'Tägliche Buchungserinnerung einstellen';
+  String get mineReminderSettingsSubtitle =>
+      'Tägliche Buchungserinnerung einstellen';
 
   @override
   String get minePersonalize => 'Personalisierung';
@@ -1216,7 +1258,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineDisplayScale => 'Anzeigeskalierung';
 
   @override
-  String get mineDisplayScaleSubtitle => 'Größe von Text und UI-Elementen anpassen';
+  String get mineDisplayScaleSubtitle =>
+      'Größe von Text und UI-Elementen anpassen';
 
   @override
   String get mineAboutTitle => 'Über';
@@ -1251,25 +1294,29 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineHelp => 'Hilfe';
 
   @override
-  String get mineHelpSubtitle => 'Dokumentation und häufig gestellte Fragen anzeigen';
+  String get mineHelpSubtitle =>
+      'Dokumentation und häufig gestellte Fragen anzeigen';
 
   @override
   String get mineSupportAuthor => 'Autor unterstützen';
 
   @override
-  String get mineSupportAuthorSubtitle => 'Projekt auf GitHub mit Stern bewerten';
+  String get mineSupportAuthorSubtitle =>
+      'Projekt auf GitHub mit Stern bewerten';
 
   @override
   String get mineRefreshStats => 'Statistiken aktualisieren (Debug)';
 
   @override
-  String get mineRefreshStatsSubtitle => 'Globale Statistikdaten-Neuberechnung auslösen';
+  String get mineRefreshStatsSubtitle =>
+      'Globale Statistikdaten-Neuberechnung auslösen';
 
   @override
   String get mineRefreshSync => 'Synchronisationsstatus aktualisieren (Debug)';
 
   @override
-  String get mineRefreshSyncSubtitle => 'Synchronisationsstatus-Aktualisierung auslösen';
+  String get mineRefreshSyncSubtitle =>
+      'Synchronisationsstatus-Aktualisierung auslösen';
 
   @override
   String get categoryEditTitle => 'Kategorie bearbeiten';
@@ -1287,10 +1334,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get categoryMigrationTitle => 'Kategorienmigration';
 
   @override
-  String get categoryMigrationDescription => 'Erläuterung zur Kategorienmigration';
+  String get categoryMigrationDescription =>
+      'Erläuterung zur Kategorienmigration';
 
   @override
-  String get categoryMigrationDescriptionContent => '• Alle Transaktionsdatensätze einer bestimmten Kategorie zu einer anderen Kategorie migrieren\n• Nach der Migration werden alle Transaktionsdaten der ursprünglichen Kategorie vollständig in die Zielkategorie übertragen\n• Dieser Vorgang kann nicht rückgängig gemacht werden, bitte wählen Sie sorgfältig';
+  String get categoryMigrationDescriptionContent =>
+      '• Alle Transaktionsdatensätze einer bestimmten Kategorie zu einer anderen Kategorie migrieren\n• Nach der Migration werden alle Transaktionsdaten der ursprünglichen Kategorie vollständig in die Zielkategorie übertragen\n• Dieser Vorgang kann nicht rückgängig gemacht werden, bitte wählen Sie sorgfältig';
 
   @override
   String get categoryMigrationFromLabel => 'Quellkategorie';
@@ -1305,7 +1354,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get categoryMigrationToHint => 'Zielkategorie auswählen';
 
   @override
-  String get categoryMigrationToHintFirst => 'Bitte wählen Sie zuerst die Quellkategorie';
+  String get categoryMigrationToHintFirst =>
+      'Bitte wählen Sie zuerst die Quellkategorie';
 
   @override
   String get categoryMigrationStartButton => 'Migration starten';
@@ -1319,7 +1369,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get categoryMigrationCannotTitle => 'Kann nicht migrieren';
 
   @override
-  String get categoryMigrationCannotMessage => 'Ausgewählte Kategorien können nicht migriert werden, bitte überprüfen Sie den Kategorienstatus.';
+  String get categoryMigrationCannotMessage =>
+      'Ausgewählte Kategorien können nicht migriert werden, bitte überprüfen Sie den Kategorienstatus.';
 
   @override
   String get categoryExpenseType => 'Ausgabenkategorie';
@@ -1331,7 +1382,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get categoryDefaultTitle => 'Standardkategorie';
 
   @override
-  String get categoryDefaultMessage => 'Standardkategorien können nicht geändert werden, aber Sie können Details anzeigen und Daten migrieren';
+  String get categoryDefaultMessage =>
+      'Standardkategorien können nicht geändert werden, aber Sie können Details anzeigen und Daten migrieren';
 
   @override
   String get categoryNameDining => 'Essen gehen';
@@ -1508,19 +1560,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get categoryNameHint => 'Kategoriename eingeben';
 
   @override
-  String get categoryNameHintDefault => 'Standard-Kategoriename kann nicht geändert werden';
+  String get categoryNameHintDefault =>
+      'Standard-Kategoriename kann nicht geändert werden';
 
   @override
   String get categoryNameRequired => 'Bitte Kategoriename eingeben';
 
   @override
-  String get categoryNameTooLong => 'Kategoriename darf nicht länger als 4 Zeichen sein';
+  String get categoryNameTooLong =>
+      'Kategoriename darf nicht länger als 4 Zeichen sein';
 
   @override
   String get categoryIconLabel => 'Kategoriesymbol';
 
   @override
-  String get categoryIconDefaultMessage => 'Standard-Kategoriesymbol kann nicht geändert werden';
+  String get categoryIconDefaultMessage =>
+      'Standard-Kategoriesymbol kann nicht geändert werden';
 
   @override
   String get categoryDangerousOperations => 'Gefährliche Operationen';
@@ -1529,10 +1584,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get categoryDeleteTitle => 'Kategorie löschen';
 
   @override
-  String get categoryDeleteSubtitle => 'Kann nach Löschen nicht wiederhergestellt werden';
+  String get categoryDeleteSubtitle =>
+      'Kann nach Löschen nicht wiederhergestellt werden';
 
   @override
-  String get categoryDefaultCannotSave => 'Standardkategorie kann nicht gespeichert werden';
+  String get categoryDefaultCannotSave =>
+      'Standardkategorie kann nicht gespeichert werden';
 
   @override
   String get categorySaveError => 'Speichern fehlgeschlagen';
@@ -1610,7 +1667,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get fontSettingsPreview => 'Echtzeit-Vorschau';
 
   @override
-  String get fontSettingsPreviewText => 'Heute 23,50 Euro für Essen ausgegeben, eintragen;\nDiesen Monat 45 Tage aufgezeichnet, insgesamt 320 Einträge;\nAusdauer führt zum Sieg!';
+  String get fontSettingsPreviewText =>
+      'Heute 23,50 Euro für Essen ausgegeben, eintragen;\nDiesen Monat 45 Tage aufgezeichnet, insgesamt 320 Einträge;\nAusdauer führt zum Sieg!';
 
   @override
   String fontSettingsCurrentLevel(Object level, Object scale) {
@@ -1624,7 +1682,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get fontSettingsCustomAdjust => 'Benutzerdefinierte Anpassung';
 
   @override
-  String get fontSettingsDescription => 'Hinweis: Diese Einstellung sorgt dafür, dass alle Geräte bei 1,0x eine einheitliche Anzeige haben, Geräteunterschiede werden automatisch ausgeglichen; durch Anpassung der Werte können Sie auf dieser einheitlichen Basis eine personalisierte Skalierung vornehmen.';
+  String get fontSettingsDescription =>
+      'Hinweis: Diese Einstellung sorgt dafür, dass alle Geräte bei 1,0x eine einheitliche Anzeige haben, Geräteunterschiede werden automatisch ausgeglichen; durch Anpassung der Werte können Sie auf dieser einheitlichen Basis eine personalisierte Skalierung vornehmen.';
 
   @override
   String get fontSettingsExtraSmall => 'Sehr klein';
@@ -1705,7 +1764,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get fontSettingsNo => 'Nein';
 
   @override
-  String get fontSettingsScaleExample => 'Dieses Feld und der Abstand skalieren automatisch basierend auf dem Gerät';
+  String get fontSettingsScaleExample =>
+      'Dieses Feld und der Abstand skalieren automatisch basierend auf dem Gerät';
 
   @override
   String get fontSettingsPreciseAdjust => 'Präzise Anpassung';
@@ -1726,7 +1786,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reminderDailyTitle => 'Tägliche Buchungserinnerung';
 
   @override
-  String get reminderDailySubtitle => 'Wenn aktiviert, erinnert Sie zur angegebenen Zeit an die Buchung';
+  String get reminderDailySubtitle =>
+      'Wenn aktiviert, erinnert Sie zur angegebenen Zeit an die Buchung';
 
   @override
   String get reminderTimeTitle => 'Erinnerungszeit';
@@ -1741,37 +1802,47 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reminderTestTitle => 'Test-Benachrichtigung';
 
   @override
-  String get reminderTestBody => 'Dies ist eine Test-Benachrichtigung, tippen Sie, um die Wirkung zu sehen';
+  String get reminderTestBody =>
+      'Dies ist eine Test-Benachrichtigung, tippen Sie, um die Wirkung zu sehen';
 
   @override
-  String get reminderTestDelayBody => 'Dies ist eine Test-Benachrichtigung mit 15 Sekunden Verzögerung';
+  String get reminderTestDelayBody =>
+      'Dies ist eine Test-Benachrichtigung mit 15 Sekunden Verzögerung';
 
   @override
   String get reminderQuickTest => 'Schnelltest (15 Sekunden später)';
 
   @override
-  String get reminderQuickTestMessage => 'Schnelltest für 15 Sekunden später eingestellt, bitte behalten Sie die App im Hintergrund';
+  String get reminderQuickTestMessage =>
+      'Schnelltest für 15 Sekunden später eingestellt, bitte behalten Sie die App im Hintergrund';
 
   @override
-  String get reminderFlutterTest => '🔧 Flutter-Benachrichtigungs-Klick testen (Entwicklung)';
+  String get reminderFlutterTest =>
+      '🔧 Flutter-Benachrichtigungs-Klick testen (Entwicklung)';
 
   @override
-  String get reminderFlutterTestMessage => 'Flutter-Test-Benachrichtigung gesendet, tippen Sie, um zu sehen, ob die App geöffnet wird';
+  String get reminderFlutterTestMessage =>
+      'Flutter-Test-Benachrichtigung gesendet, tippen Sie, um zu sehen, ob die App geöffnet wird';
 
   @override
-  String get reminderAlarmTest => '🔧 AlarmManager-Benachrichtigungs-Klick testen (Entwicklung)';
+  String get reminderAlarmTest =>
+      '🔧 AlarmManager-Benachrichtigungs-Klick testen (Entwicklung)';
 
   @override
-  String get reminderAlarmTestMessage => 'AlarmManager-Test-Benachrichtigung eingestellt (1 Sekunde später), tippen Sie, um zu sehen, ob die App geöffnet wird';
+  String get reminderAlarmTestMessage =>
+      'AlarmManager-Test-Benachrichtigung eingestellt (1 Sekunde später), tippen Sie, um zu sehen, ob die App geöffnet wird';
 
   @override
-  String get reminderDirectTest => '🔧 NotificationReceiver direkt testen (Entwicklung)';
+  String get reminderDirectTest =>
+      '🔧 NotificationReceiver direkt testen (Entwicklung)';
 
   @override
-  String get reminderDirectTestMessage => 'NotificationReceiver direkt aufgerufen, um Benachrichtigung zu erstellen, überprüfen Sie, ob Tippen funktioniert';
+  String get reminderDirectTestMessage =>
+      'NotificationReceiver direkt aufgerufen, um Benachrichtigung zu erstellen, überprüfen Sie, ob Tippen funktioniert';
 
   @override
-  String get reminderCheckStatus => '🔧 Benachrichtigungsstatus prüfen (Entwicklung)';
+  String get reminderCheckStatus =>
+      '🔧 Benachrichtigungsstatus prüfen (Entwicklung)';
 
   @override
   String get reminderNotificationStatus => 'Benachrichtigungsstatus';
@@ -1809,16 +1880,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reminderBatteryIgnored => 'Batterieoptimierung: Ignoriert ✅';
 
   @override
-  String get reminderBatteryNotIgnored => 'Batterieoptimierung: Nicht ignoriert ⚠️';
+  String get reminderBatteryNotIgnored =>
+      'Batterieoptimierung: Nicht ignoriert ⚠️';
 
   @override
-  String get reminderBatteryAdvice => 'Es wird empfohlen, die Batterieoptimierung zu deaktivieren, um Benachrichtigungen sicherzustellen';
+  String get reminderBatteryAdvice =>
+      'Es wird empfohlen, die Batterieoptimierung zu deaktivieren, um Benachrichtigungen sicherzustellen';
 
   @override
   String get reminderGoToSettings => 'Zu Einstellungen';
 
   @override
-  String get reminderCheckChannel => 'Benachrichtigungskanal-Einstellungen prüfen';
+  String get reminderCheckChannel =>
+      'Benachrichtigungskanal-Einstellungen prüfen';
 
   @override
   String get reminderChannelStatus => 'Benachrichtigungskanal-Status';
@@ -1850,22 +1924,26 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reminderChannelDndBypass => 'Nicht stören: Kann umgangen werden';
 
   @override
-  String get reminderChannelDndNoBypass => 'Nicht stören: Kann nicht umgangen werden';
+  String get reminderChannelDndNoBypass =>
+      'Nicht stören: Kann nicht umgangen werden';
 
   @override
   String get reminderChannelAdvice => '⚠️ Empfohlene Einstellungen:';
 
   @override
-  String get reminderChannelAdviceImportance => '• Wichtigkeit: Dringend oder Hoch';
+  String get reminderChannelAdviceImportance =>
+      '• Wichtigkeit: Dringend oder Hoch';
 
   @override
   String get reminderChannelAdviceSound => '• Ton und Vibration aktivieren';
 
   @override
-  String get reminderChannelAdviceBanner => '• Banner-Benachrichtigungen zulassen';
+  String get reminderChannelAdviceBanner =>
+      '• Banner-Benachrichtigungen zulassen';
 
   @override
-  String get reminderChannelAdviceXiaomi => '• Xiaomi-Telefone benötigen separate Kanal-Einstellungen';
+  String get reminderChannelAdviceXiaomi =>
+      '• Xiaomi-Telefone benötigen separate Kanal-Einstellungen';
 
   @override
   String get reminderChannelGood => '✅ Benachrichtigungskanal gut konfiguriert';
@@ -1874,7 +1952,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reminderOpenAppSettings => 'App-Einstellungen öffnen';
 
   @override
-  String get reminderAppSettingsMessage => 'Bitte erlauben Sie Benachrichtigungen in den Einstellungen und deaktivieren Sie die Batterieoptimierung';
+  String get reminderAppSettingsMessage =>
+      'Bitte erlauben Sie Benachrichtigungen in den Einstellungen und deaktivieren Sie die Batterieoptimierung';
 
   @override
   String get reminderIOSTest => '🍎 iOS-Benachrichtigungs-Debug-Test';
@@ -1883,16 +1962,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reminderIOSTestTitle => 'iOS-Benachrichtigungstest';
 
   @override
-  String get reminderIOSTestMessage => 'Test-Benachrichtigung gesendet.\n\n🍎 iOS-Simulator-Einschränkungen:\n• Benachrichtigungen werden möglicherweise nicht im Benachrichtigungscenter angezeigt\n• Banner-Warnungen funktionieren möglicherweise nicht\n• Aber Xcode-Konsole zeigt Protokolle\n\n💡 Debug-Methoden:\n• Xcode-Konsolenausgabe überprüfen\n• Flutter-Protokollinformationen prüfen\n• Echtes Gerät für volle Erfahrung verwenden';
+  String get reminderIOSTestMessage =>
+      'Test-Benachrichtigung gesendet.\n\n🍎 iOS-Simulator-Einschränkungen:\n• Benachrichtigungen werden möglicherweise nicht im Benachrichtigungscenter angezeigt\n• Banner-Warnungen funktionieren möglicherweise nicht\n• Aber Xcode-Konsole zeigt Protokolle\n\n💡 Debug-Methoden:\n• Xcode-Konsolenausgabe überprüfen\n• Flutter-Protokollinformationen prüfen\n• Echtes Gerät für volle Erfahrung verwenden';
 
   @override
-  String get reminderDescription => 'Hinweis: Wenn die Buchungserinnerung aktiviert ist, sendet das System täglich zur angegebenen Zeit eine Benachrichtigung, um Sie an die Aufzeichnung von Einnahmen und Ausgaben zu erinnern.';
+  String get reminderDescription =>
+      'Hinweis: Wenn die Buchungserinnerung aktiviert ist, sendet das System täglich zur angegebenen Zeit eine Benachrichtigung, um Sie an die Aufzeichnung von Einnahmen und Ausgaben zu erinnern.';
 
   @override
-  String get reminderIOSInstructions => '🍎 iOS-Benachrichtigungseinstellungen:\n• Einstellungen > Mitteilungen > Bienen-Buchhaltung\n• \"Mitteilungen erlauben\" aktivieren\n• Benachrichtigungsstil einstellen: Banner oder Hinweis\n• Ton und Vibration aktivieren\n\n⚠️ Wichtiger Hinweis:\n• iOS-lokale Benachrichtigungen hängen vom App-Prozess ab\n• Schließen Sie die App nicht im Task-Manager\n• Benachrichtigungen funktionieren, wenn die App im Hintergrund oder Vordergrund ist\n• Vollständiges Beenden deaktiviert Benachrichtigungen\n\n💡 Verwendungstipps:\n• Drücken Sie einfach die Home-Taste zum Beenden\n• iOS verwaltet Hintergrund-Apps automatisch\n• Behalten Sie die App im Hintergrund, um Erinnerungen zu erhalten';
+  String get reminderIOSInstructions =>
+      '🍎 iOS-Benachrichtigungseinstellungen:\n• Einstellungen > Mitteilungen > Bienen-Buchhaltung\n• \"Mitteilungen erlauben\" aktivieren\n• Benachrichtigungsstil einstellen: Banner oder Hinweis\n• Ton und Vibration aktivieren\n\n⚠️ Wichtiger Hinweis:\n• iOS-lokale Benachrichtigungen hängen vom App-Prozess ab\n• Schließen Sie die App nicht im Task-Manager\n• Benachrichtigungen funktionieren, wenn die App im Hintergrund oder Vordergrund ist\n• Vollständiges Beenden deaktiviert Benachrichtigungen\n\n💡 Verwendungstipps:\n• Drücken Sie einfach die Home-Taste zum Beenden\n• iOS verwaltet Hintergrund-Apps automatisch\n• Behalten Sie die App im Hintergrund, um Erinnerungen zu erhalten';
 
   @override
-  String get reminderAndroidInstructions => 'Wenn Benachrichtigungen nicht richtig funktionieren, überprüfen Sie:\n• App darf Benachrichtigungen senden\n• Batterieoptimierung/Stromsparmodus für App deaktivieren\n• App im Hintergrund ausführen und automatisch starten lassen\n• Android 12+ benötigt exakte Alarm-Berechtigung\n\n📱 Xiaomi-Telefon Spezialeinstellungen:\n• Einstellungen > App-Verwaltung > Bienen-Buchhaltung > Benachrichtigungsverwaltung\n• \"Buchungserinnerung\"-Kanal antippen\n• Wichtigkeit auf \"Dringend\" oder \"Hoch\" setzen\n• \"Banner-Benachrichtigungen\", \"Ton\", \"Vibration\" aktivieren\n• Sicherheitscenter > App-Verwaltung > Berechtigungen > Autostart\n\n🔒 Hintergrund sperren Methoden:\n• Bienen-Buchhaltung in aktuellen Aufgaben finden\n• App-Karte nach unten ziehen, um Sperr-Symbol anzuzeigen\n• Sperr-Symbol antippen, um Bereinigung zu verhindern';
+  String get reminderAndroidInstructions =>
+      'Wenn Benachrichtigungen nicht richtig funktionieren, überprüfen Sie:\n• App darf Benachrichtigungen senden\n• Batterieoptimierung/Stromsparmodus für App deaktivieren\n• App im Hintergrund ausführen und automatisch starten lassen\n• Android 12+ benötigt exakte Alarm-Berechtigung\n\n📱 Xiaomi-Telefon Spezialeinstellungen:\n• Einstellungen > App-Verwaltung > Bienen-Buchhaltung > Benachrichtigungsverwaltung\n• \"Buchungserinnerung\"-Kanal antippen\n• Wichtigkeit auf \"Dringend\" oder \"Hoch\" setzen\n• \"Banner-Benachrichtigungen\", \"Ton\", \"Vibration\" aktivieren\n• Sicherheitscenter > App-Verwaltung > Berechtigungen > Autostart\n\n🔒 Hintergrund sperren Methoden:\n• Bienen-Buchhaltung in aktuellen Aufgaben finden\n• App-Karte nach unten ziehen, um Sperr-Symbol anzuzeigen\n• Sperr-Symbol antippen, um Bereinigung zu verhindern';
 
   @override
   String get categoryDetailLoadFailed => 'Laden fehlgeschlagen';
@@ -1928,7 +2011,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get categoryDetailNoTransactions => 'Keine Transaktionsdatensätze';
 
   @override
-  String get categoryDetailNoTransactionsSubtext => 'Diese Kategorie enthält noch keine Transaktionsdatensätze';
+  String get categoryDetailNoTransactionsSubtext =>
+      'Diese Kategorie enthält noch keine Transaktionsdatensätze';
 
   @override
   String get categoryDetailDeleteFailed => 'Löschen fehlgeschlagen';
@@ -1937,7 +2021,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get categoryMigrationConfirmTitle => 'Migration bestätigen';
 
   @override
-  String categoryMigrationConfirmMessage(Object count, Object fromName, Object toName) {
+  String categoryMigrationConfirmMessage(
+      Object count, Object fromName, Object toName) {
     return 'Möchten Sie wirklich $count Transaktionen von \"$fromName\" zu \"$toName\" migrieren?\n\nDieser Vorgang kann nicht rückgängig gemacht werden!';
   }
 
@@ -1948,7 +2033,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get categoryMigrationCompleteTitle => 'Migration abgeschlossen';
 
   @override
-  String categoryMigrationCompleteMessage(Object count, Object fromName, Object toName) {
+  String categoryMigrationCompleteMessage(
+      Object count, Object fromName, Object toName) {
     return 'Erfolgreich $count Transaktionen von \"$fromName\" zu \"$toName\" migriert.';
   }
 
@@ -1981,7 +2067,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudBackupFound => 'Cloud-Backup gefunden';
 
   @override
-  String get cloudBackupRestoreMessage => 'Erkannt, dass Cloud- und lokale Kontenbücher nicht übereinstimmen. Aus Cloud wiederherstellen?\n(Geht zur Wiederherstellungs-Fortschrittsseite)';
+  String get cloudBackupRestoreMessage =>
+      'Erkannt, dass Cloud- und lokale Kontenbücher nicht übereinstimmen. Aus Cloud wiederherstellen?\n(Geht zur Wiederherstellungs-Fortschrittsseite)';
 
   @override
   String get cloudBackupRestoreFailed => 'Wiederherstellung fehlgeschlagen';
@@ -1990,10 +2077,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineCloudBackupRestoreTitle => 'Cloud-Backup gefunden';
 
   @override
-  String get mineAutoSyncRemoteDesc => 'Nach Buchung automatisch in die Cloud hochladen';
+  String get mineAutoSyncRemoteDesc =>
+      'Nach Buchung automatisch in die Cloud hochladen';
 
   @override
-  String get mineAutoSyncLoginRequired => 'Anmeldung erforderlich, um zu aktivieren';
+  String get mineAutoSyncLoginRequired =>
+      'Anmeldung erforderlich, um zu aktivieren';
 
   @override
   String get mineImportCompleteAllSuccess => 'Alle erfolgreich';
@@ -2010,7 +2099,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get mineAboutRepo => 'Open Source: https://github.com/TNT-Likely/BeeCount';
+  String get mineAboutRepo =>
+      'Open Source: https://github.com/TNT-Likely/BeeCount';
 
   @override
   String get mineAboutLicense => 'Lizenz: Siehe LICENSE im Repository';
@@ -2028,13 +2118,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mineDebugRefreshStats => 'Statistiken aktualisieren (temporär)';
 
   @override
-  String get mineDebugRefreshStatsSubtitle => 'Globale Statistik-Provider-Neuberechnung auslösen';
+  String get mineDebugRefreshStatsSubtitle =>
+      'Globale Statistik-Provider-Neuberechnung auslösen';
 
   @override
-  String get mineDebugRefreshSync => 'Synchronisationsstatus aktualisieren (temporär)';
+  String get mineDebugRefreshSync =>
+      'Synchronisationsstatus aktualisieren (temporär)';
 
   @override
-  String get mineDebugRefreshSyncSubtitle => 'Synchronisationsstatus-Provider-Aktualisierung auslösen';
+  String get mineDebugRefreshSyncSubtitle =>
+      'Synchronisationsstatus-Provider-Aktualisierung auslösen';
 
   @override
   String get cloudCurrentService => 'Aktueller Cloud-Dienst';
@@ -2049,7 +2142,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudAvailableServices => 'Verfügbare Cloud-Dienste';
 
   @override
-  String get cloudReadCustomConfigFailed => 'Lesen der benutzerdefinierten Konfiguration fehlgeschlagen';
+  String get cloudReadCustomConfigFailed =>
+      'Lesen der benutzerdefinierten Konfiguration fehlgeschlagen';
 
   @override
   String get cloudNotConfigured => 'Nicht konfiguriert';
@@ -2064,7 +2158,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudConnectionFailed => 'Verbindung fehlgeschlagen';
 
   @override
-  String get cloudAddCustomService => 'Benutzerdefinierten Cloud-Dienst hinzufügen';
+  String get cloudAddCustomService =>
+      'Benutzerdefinierten Cloud-Dienst hinzufügen';
 
   @override
   String get cloudCustomServiceName => 'Benutzerdefinierter Cloud-Dienst';
@@ -2082,16 +2177,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudSwitchService => 'Cloud-Dienst wechseln';
 
   @override
-  String get cloudSwitchToBuiltinConfirm => 'Sind Sie sicher, dass Sie zum Standard-Cloud-Dienst wechseln möchten? Dies meldet die aktuelle Sitzung ab.';
+  String get cloudSwitchToBuiltinConfirm =>
+      'Sind Sie sicher, dass Sie zum Standard-Cloud-Dienst wechseln möchten? Dies meldet die aktuelle Sitzung ab.';
 
   @override
-  String get cloudSwitchToCustomConfirm => 'Sind Sie sicher, dass Sie zum benutzerdefinierten Cloud-Dienst wechseln möchten? Dies meldet die aktuelle Sitzung ab.';
+  String get cloudSwitchToCustomConfirm =>
+      'Sind Sie sicher, dass Sie zum benutzerdefinierten Cloud-Dienst wechseln möchten? Dies meldet die aktuelle Sitzung ab.';
 
   @override
   String get cloudSwitched => 'Gewechselt';
 
   @override
-  String get cloudSwitchedToBuiltin => 'Zu Standard-Cloud-Dienst gewechselt und abgemeldet';
+  String get cloudSwitchedToBuiltin =>
+      'Zu Standard-Cloud-Dienst gewechselt und abgemeldet';
 
   @override
   String get cloudSwitchFailed => 'Wechsel fehlgeschlagen';
@@ -2100,19 +2198,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudActivateFailed => 'Aktivierung fehlgeschlagen';
 
   @override
-  String get cloudActivateFailedMessage => 'Gespeicherte Konfiguration ist ungültig';
+  String get cloudActivateFailedMessage =>
+      'Gespeicherte Konfiguration ist ungültig';
 
   @override
   String get cloudActivated => 'Aktiviert';
 
   @override
-  String get cloudActivatedMessage => 'Zu benutzerdefiniertem Cloud-Dienst gewechselt und abgemeldet, bitte melden Sie sich erneut an';
+  String get cloudActivatedMessage =>
+      'Zu benutzerdefiniertem Cloud-Dienst gewechselt und abgemeldet, bitte melden Sie sich erneut an';
 
   @override
-  String get cloudEditCustomService => 'Benutzerdefinierten Cloud-Dienst bearbeiten';
+  String get cloudEditCustomService =>
+      'Benutzerdefinierten Cloud-Dienst bearbeiten';
 
   @override
-  String get cloudAddCustomServiceTitle => 'Benutzerdefinierten Cloud-Dienst hinzufügen';
+  String get cloudAddCustomServiceTitle =>
+      'Benutzerdefinierten Cloud-Dienst hinzufügen';
 
   @override
   String get cloudSupabaseUrlLabel => 'Supabase-URL';
@@ -2124,7 +2226,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudAnonKeyLabel => 'Anon Key';
 
   @override
-  String get cloudAnonKeyHint => 'Hinweis: Füllen Sie nicht den service_role Key aus; Anon Key ist öffentlich verfügbar.';
+  String get cloudAnonKeyHint =>
+      'Hinweis: Füllen Sie nicht den service_role Key aus; Anon Key ist öffentlich verfügbar.';
 
   @override
   String get cloudInvalidInput => 'Ungültige Eingabe';
@@ -2136,13 +2239,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudValidationHttpsRequired => 'URL muss mit https:// beginnen';
 
   @override
-  String get cloudValidationKeyTooShort => 'Schlüssellänge ist zu kurz, möglicherweise ungültig';
+  String get cloudValidationKeyTooShort =>
+      'Schlüssellänge ist zu kurz, möglicherweise ungültig';
 
   @override
-  String get cloudValidationServiceRoleKey => 'Verwendung von service_role Key ist nicht erlaubt';
+  String get cloudValidationServiceRoleKey =>
+      'Verwendung von service_role Key ist nicht erlaubt';
 
   @override
-  String get cloudValidationHttpRequired => 'URL muss mit http:// oder https:// beginnen';
+  String get cloudValidationHttpRequired =>
+      'URL muss mit http:// oder https:// beginnen';
 
   @override
   String get cloudSelectServiceType => 'Cloud-Dienst-Typ auswählen';
@@ -2166,7 +2272,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudWebdavPathHint => '/BeeCount';
 
   @override
-  String get cloudWebdavHint => 'Unterstützt Jianguoyun, Nextcloud, Synology usw.';
+  String get cloudWebdavHint =>
+      'Unterstützt Jianguoyun, Nextcloud, Synology usw.';
 
   @override
   String get cloudConfigUpdated => 'Konfiguration aktualisiert';
@@ -2181,7 +2288,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudTestSuccess => 'Verbindungstest erfolgreich!';
 
   @override
-  String get cloudTestFailed => 'Verbindungstest fehlgeschlagen, bitte überprüfen Sie, ob die Konfiguration korrekt ist.';
+  String get cloudTestFailed =>
+      'Verbindungstest fehlgeschlagen, bitte überprüfen Sie, ob die Konfiguration korrekt ist.';
 
   @override
   String get cloudTestError => 'Test fehlgeschlagen';
@@ -2190,19 +2298,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudClearConfig => 'Konfiguration löschen';
 
   @override
-  String get cloudClearConfigConfirm => 'Sind Sie sicher, dass Sie die benutzerdefinierte Cloud-Dienst-Konfiguration löschen möchten? (Nur Entwicklungsumgebung verfügbar)';
+  String get cloudClearConfigConfirm =>
+      'Sind Sie sicher, dass Sie die benutzerdefinierte Cloud-Dienst-Konfiguration löschen möchten? (Nur Entwicklungsumgebung verfügbar)';
 
   @override
-  String get cloudConfigCleared => 'Benutzerdefinierte Cloud-Dienst-Konfiguration gelöscht';
+  String get cloudConfigCleared =>
+      'Benutzerdefinierte Cloud-Dienst-Konfiguration gelöscht';
 
   @override
   String get cloudClearFailed => 'Löschen fehlgeschlagen';
 
   @override
-  String get cloudServiceDescription => 'In App integrierter Cloud-Dienst (kostenlos, aber möglicherweise instabil, empfohlen, eigenen zu verwenden oder regelmäßig zu sichern)';
+  String get cloudServiceDescription =>
+      'In App integrierter Cloud-Dienst (kostenlos, aber möglicherweise instabil, empfohlen, eigenen zu verwenden oder regelmäßig zu sichern)';
 
   @override
-  String get cloudServiceDescriptionNotConfigured => 'Aktueller Build hat keine integrierte Cloud-Dienst-Konfiguration';
+  String get cloudServiceDescriptionNotConfigured =>
+      'Aktueller Build hat keine integrierte Cloud-Dienst-Konfiguration';
 
   @override
   String cloudServiceDescriptionCustom(String url) {
@@ -2225,19 +2337,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get authPassword => 'Passwort';
 
   @override
-  String get authPasswordRequirement => 'Passwort (mindestens 6 Zeichen, muss Buchstaben und Zahlen enthalten)';
+  String get authPasswordRequirement =>
+      'Passwort (mindestens 6 Zeichen, muss Buchstaben und Zahlen enthalten)';
 
   @override
   String get authConfirmPassword => 'Passwort bestätigen';
 
   @override
-  String get authInvalidEmail => 'Bitte geben Sie eine gültige E-Mail-Adresse ein';
+  String get authInvalidEmail =>
+      'Bitte geben Sie eine gültige E-Mail-Adresse ein';
 
   @override
-  String get authPasswordRequirementShort => 'Passwort muss Buchstaben und Zahlen enthalten, mindestens 6 Zeichen lang';
+  String get authPasswordRequirementShort =>
+      'Passwort muss Buchstaben und Zahlen enthalten, mindestens 6 Zeichen lang';
 
   @override
-  String get authPasswordMismatch => 'Die eingegebenen Passwörter stimmen nicht überein';
+  String get authPasswordMismatch =>
+      'Die eingegebenen Passwörter stimmen nicht überein';
 
   @override
   String get authResendVerification => 'Verifizierungs-E-Mail erneut senden';
@@ -2246,13 +2362,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get authSignupSuccess => 'Registrierung erfolgreich';
 
   @override
-  String get authVerificationEmailSent => 'Verifizierungs-E-Mail gesendet, bitte gehen Sie zu Ihrer E-Mail, um die Verifizierung abzuschließen, bevor Sie sich anmelden.';
+  String get authVerificationEmailSent =>
+      'Verifizierungs-E-Mail gesendet, bitte gehen Sie zu Ihrer E-Mail, um die Verifizierung abzuschließen, bevor Sie sich anmelden.';
 
   @override
   String get authBackToMinePage => 'Zurück zur Mein-Seite';
 
   @override
-  String get authVerificationEmailResent => 'Verifizierungs-E-Mail erneut gesendet.';
+  String get authVerificationEmailResent =>
+      'Verifizierungs-E-Mail erneut gesendet.';
 
   @override
   String get authResendAction => 'Verifizierung erneut senden';
@@ -2261,28 +2379,36 @@ class AppLocalizationsDe extends AppLocalizations {
   String get authErrorInvalidCredentials => 'E-Mail oder Passwort falsch.';
 
   @override
-  String get authErrorEmailNotConfirmed => 'E-Mail nicht verifiziert, bitte schließen Sie die Verifizierung in Ihrer E-Mail ab, bevor Sie sich anmelden.';
+  String get authErrorEmailNotConfirmed =>
+      'E-Mail nicht verifiziert, bitte schließen Sie die Verifizierung in Ihrer E-Mail ab, bevor Sie sich anmelden.';
 
   @override
-  String get authErrorRateLimit => 'Zu häufige Vorgänge, bitte versuchen Sie es später erneut.';
+  String get authErrorRateLimit =>
+      'Zu häufige Vorgänge, bitte versuchen Sie es später erneut.';
 
   @override
-  String get authErrorNetworkIssue => 'Netzwerkanomalie, bitte überprüfen Sie das Netzwerk und versuchen Sie es erneut.';
+  String get authErrorNetworkIssue =>
+      'Netzwerkanomalie, bitte überprüfen Sie das Netzwerk und versuchen Sie es erneut.';
 
   @override
-  String get authErrorLoginFailed => 'Anmeldung fehlgeschlagen, bitte versuchen Sie es später erneut.';
+  String get authErrorLoginFailed =>
+      'Anmeldung fehlgeschlagen, bitte versuchen Sie es später erneut.';
 
   @override
-  String get authErrorEmailInvalid => 'E-Mail-Adresse ungültig, bitte überprüfen Sie auf Rechtschreibfehler.';
+  String get authErrorEmailInvalid =>
+      'E-Mail-Adresse ungültig, bitte überprüfen Sie auf Rechtschreibfehler.';
 
   @override
-  String get authErrorEmailExists => 'Diese E-Mail ist bereits registriert, bitte melden Sie sich direkt an oder setzen Sie das Passwort zurück.';
+  String get authErrorEmailExists =>
+      'Diese E-Mail ist bereits registriert, bitte melden Sie sich direkt an oder setzen Sie das Passwort zurück.';
 
   @override
-  String get authErrorWeakPassword => 'Passwort ist zu einfach, bitte Buchstaben und Zahlen einbeziehen, mindestens 6 Zeichen lang.';
+  String get authErrorWeakPassword =>
+      'Passwort ist zu einfach, bitte Buchstaben und Zahlen einbeziehen, mindestens 6 Zeichen lang.';
 
   @override
-  String get authErrorSignupFailed => 'Registrierung fehlgeschlagen, bitte versuchen Sie es später erneut.';
+  String get authErrorSignupFailed =>
+      'Registrierung fehlgeschlagen, bitte versuchen Sie es später erneut.';
 
   @override
   String authErrorUserNotFound(String action) {
@@ -2300,13 +2426,15 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get importSelectCsvFile => 'Bitte wählen Sie eine Datei zum Importieren (CSV/TSV/XLSX unterstützt)';
+  String get importSelectCsvFile =>
+      'Bitte wählen Sie eine Datei zum Importieren (CSV/TSV/XLSX unterstützt)';
 
   @override
   String get exportTitle => 'Exportieren';
 
   @override
-  String get exportDescription => 'Klicken Sie auf die Schaltfläche unten, um den Speicherort auszuwählen und das aktuelle Kontenbuch in eine CSV-Datei zu exportieren.';
+  String get exportDescription =>
+      'Klicken Sie auf die Schaltfläche unten, um den Speicherort auszuwählen und das aktuelle Kontenbuch in eine CSV-Datei zu exportieren.';
 
   @override
   String get exportButtonIOS => 'Exportieren und teilen';
@@ -2528,7 +2656,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get updateDownloadBackgroundHint => 'Sie können die App in den Hintergrund legen, der Download wird fortgesetzt';
+  String get updateDownloadBackgroundHint =>
+      'Sie können die App in den Hintergrund legen, der Download wird fortgesetzt';
 
   @override
   String get updateCancelButton => 'Abbrechen';
@@ -2557,19 +2686,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateDownloadComplete => 'Download abgeschlossen';
 
   @override
-  String get updateInstallStarted => 'Download abgeschlossen, Installer gestartet';
+  String get updateInstallStarted =>
+      'Download abgeschlossen, Installer gestartet';
 
   @override
   String get updateInstallFailed => 'Installation fehlgeschlagen';
 
   @override
-  String get updateDownloadCompleteManual => 'Download abgeschlossen, kann manuell installiert werden';
+  String get updateDownloadCompleteManual =>
+      'Download abgeschlossen, kann manuell installiert werden';
 
   @override
-  String get updateDownloadCompleteException => 'Download abgeschlossen, bitte manuell installieren (Dialog-Ausnahme)';
+  String get updateDownloadCompleteException =>
+      'Download abgeschlossen, bitte manuell installieren (Dialog-Ausnahme)';
 
   @override
-  String get updateDownloadCompleteManualContext => 'Download abgeschlossen, bitte manuell installieren';
+  String get updateDownloadCompleteManualContext =>
+      'Download abgeschlossen, bitte manuell installieren';
 
   @override
   String get updateDownloadFailed => 'Download fehlgeschlagen';
@@ -2578,7 +2711,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateInstallTitle => 'Download abgeschlossen';
 
   @override
-  String get updateInstallMessage => 'APK-Datei-Download abgeschlossen. Sofort installieren?\n\nHinweis: Die App wird während der Installation vorübergehend in den Hintergrund gehen, das ist normal.';
+  String get updateInstallMessage =>
+      'APK-Datei-Download abgeschlossen. Sofort installieren?\n\nHinweis: Die App wird während der Installation vorübergehend in den Hintergrund gehen, das ist normal.';
 
   @override
   String get updateInstallNow => 'Jetzt installieren';
@@ -2593,34 +2727,42 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateNotificationBody => 'Neue Version wird heruntergeladen...';
 
   @override
-  String get updateNotificationComplete => 'Download abgeschlossen, tippen zum Installieren';
+  String get updateNotificationComplete =>
+      'Download abgeschlossen, tippen zum Installieren';
 
   @override
-  String get updateNotificationPermissionTitle => 'Benachrichtigungsberechtigung verweigert';
+  String get updateNotificationPermissionTitle =>
+      'Benachrichtigungsberechtigung verweigert';
 
   @override
-  String get updateNotificationPermissionMessage => 'Benachrichtigungsberechtigung kann nicht erhalten werden, Download-Fortschritt wird nicht in der Benachrichtigungsleiste angezeigt, aber die Download-Funktion funktioniert normal.';
+  String get updateNotificationPermissionMessage =>
+      'Benachrichtigungsberechtigung kann nicht erhalten werden, Download-Fortschritt wird nicht in der Benachrichtigungsleiste angezeigt, aber die Download-Funktion funktioniert normal.';
 
   @override
-  String get updateNotificationGuideTitle => 'Wenn Sie Benachrichtigungen aktivieren müssen, folgen Sie diesen Schritten:';
+  String get updateNotificationGuideTitle =>
+      'Wenn Sie Benachrichtigungen aktivieren müssen, folgen Sie diesen Schritten:';
 
   @override
   String get updateNotificationStep1 => 'Systemeinstellungen öffnen';
 
   @override
-  String get updateNotificationStep2 => '\"App-Verwaltung\" oder \"App-Einstellungen\" finden';
+  String get updateNotificationStep2 =>
+      '\"App-Verwaltung\" oder \"App-Einstellungen\" finden';
 
   @override
   String get updateNotificationStep3 => '\"Bienen-Buchhaltung\" App finden';
 
   @override
-  String get updateNotificationStep4 => '\"Berechtigungsverwaltung\" oder \"Benachrichtigungsverwaltung\" antippen';
+  String get updateNotificationStep4 =>
+      '\"Berechtigungsverwaltung\" oder \"Benachrichtigungsverwaltung\" antippen';
 
   @override
-  String get updateNotificationStep5 => '\"Benachrichtigungsberechtigung\" aktivieren';
+  String get updateNotificationStep5 =>
+      '\"Benachrichtigungsberechtigung\" aktivieren';
 
   @override
-  String get updateNotificationMiuiHint => 'MIUI-Benutzer: Xiaomi-System hat strenge Benachrichtigungsberechtigungskontrolle, könnte zusätzliche Einstellungen im Sicherheitscenter benötigen';
+  String get updateNotificationMiuiHint =>
+      'MIUI-Benutzer: Xiaomi-System hat strenge Benachrichtigungsberechtigungskontrolle, könnte zusätzliche Einstellungen im Sicherheitscenter benötigen';
 
   @override
   String get updateNotificationGotIt => 'Verstanden';
@@ -2638,13 +2780,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateCannotOpenLink => 'Link kann nicht geöffnet werden';
 
   @override
-  String get updateManualVisit => 'Bitte besuchen Sie manuell im Browser:\nhttps://github.com/TNT-Likely/BeeCount/releases';
+  String get updateManualVisit =>
+      'Bitte besuchen Sie manuell im Browser:\nhttps://github.com/TNT-Likely/BeeCount/releases';
 
   @override
   String get updateNoLocalApkTitle => 'Kein Update-Paket gefunden';
 
   @override
-  String get updateNoLocalApkMessage => 'Keine heruntergeladene Update-Paket-Datei gefunden.\n\nBitte laden Sie zuerst die neue Version über \"Nach Updates suchen\" herunter.';
+  String get updateNoLocalApkMessage =>
+      'Keine heruntergeladene Update-Paket-Datei gefunden.\n\nBitte laden Sie zuerst die neue Version über \"Nach Updates suchen\" herunter.';
 
   @override
   String get updateInstallPackageTitle => 'Update-Paket installieren';
@@ -2666,7 +2810,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get updateFoundCachedPackageTitle => 'Heruntergeladenes Update-Paket gefunden';
+  String get updateFoundCachedPackageTitle =>
+      'Heruntergeladenes Update-Paket gefunden';
 
   @override
   String updateFoundCachedPackageMessage(String fileName, String fileSize) {
@@ -2680,7 +2825,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateInstallFailedTitle => 'Installation fehlgeschlagen';
 
   @override
-  String get updateInstallFailedMessage => 'APK-Installer kann nicht gestartet werden, bitte Dateiberechtigungen überprüfen.';
+  String get updateInstallFailedMessage =>
+      'APK-Installer kann nicht gestartet werden, bitte Dateiberechtigungen überprüfen.';
 
   @override
   String get updateErrorTitle => 'Fehler';
@@ -2715,13 +2861,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateDownloadCompleted => 'Download abgeschlossen';
 
   @override
-  String get updateDownloadCompletedManual => 'Download abgeschlossen, kann manuell installiert werden';
+  String get updateDownloadCompletedManual =>
+      'Download abgeschlossen, kann manuell installiert werden';
 
   @override
-  String get updateDownloadCompletedDialog => 'Download abgeschlossen, bitte manuell installieren (Dialog-Ausnahme)';
+  String get updateDownloadCompletedDialog =>
+      'Download abgeschlossen, bitte manuell installieren (Dialog-Ausnahme)';
 
   @override
-  String get updateDownloadCompletedContext => 'Download abgeschlossen, bitte manuell installieren';
+  String get updateDownloadCompletedContext =>
+      'Download abgeschlossen, bitte manuell installieren';
 
   @override
   String get updateDownloadFailedGeneric => 'Download fehlgeschlagen';
@@ -2730,7 +2879,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateCheckingUpdate => 'Nach Updates suchen...';
 
   @override
-  String get updateCurrentLatestVersion => 'Sie haben bereits die neueste Version';
+  String get updateCurrentLatestVersion =>
+      'Sie haben bereits die neueste Version';
 
   @override
   String get updateCheckFailedGeneric => 'Update-Prüfung fehlgeschlagen';
@@ -2752,7 +2902,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateNotificationChannelName => 'Update-Download';
 
   @override
-  String get updateNotificationDownloadingIndeterminate => 'Neue Version wird heruntergeladen...';
+  String get updateNotificationDownloadingIndeterminate =>
+      'Neue Version wird heruntergeladen...';
 
   @override
   String updateNotificationDownloadingProgress(String progress) {
@@ -2760,22 +2911,27 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get updateNotificationDownloadCompleteTitle => 'Download abgeschlossen';
+  String get updateNotificationDownloadCompleteTitle =>
+      'Download abgeschlossen';
 
   @override
-  String get updateNotificationDownloadCompleteMessage => 'Neue Version heruntergeladen, tippen zum Installieren';
+  String get updateNotificationDownloadCompleteMessage =>
+      'Neue Version heruntergeladen, tippen zum Installieren';
 
   @override
-  String get updateUserCancelledDownloadDialog => 'Benutzer hat Download abgebrochen';
+  String get updateUserCancelledDownloadDialog =>
+      'Benutzer hat Download abgebrochen';
 
   @override
   String get updateCannotOpenLinkError => 'Link kann nicht geöffnet werden';
 
   @override
-  String get updateNoLocalApkFoundMessage => 'Keine heruntergeladene Update-Paket-Datei gefunden.\n\nBitte laden Sie zuerst die neue Version über \"Nach Updates suchen\" herunter.';
+  String get updateNoLocalApkFoundMessage =>
+      'Keine heruntergeladene Update-Paket-Datei gefunden.\n\nBitte laden Sie zuerst die neue Version über \"Nach Updates suchen\" herunter.';
 
   @override
-  String updateInstallPackageFoundMessage(String fileName, String fileSize, String time) {
+  String updateInstallPackageFoundMessage(
+      String fileName, String fileSize, String time) {
     return 'Update-Paket gefunden:\n\nDateiname: $fileName\nGröße: ${fileSize}MB\nDownload-Zeit: $time\n\nSofort installieren?';
   }
 
@@ -2800,13 +2956,16 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get reminderQuickTestSent => 'Schnelltest für 15 Sekunden später eingestellt, bitte behalten Sie die App im Hintergrund';
+  String get reminderQuickTestSent =>
+      'Schnelltest für 15 Sekunden später eingestellt, bitte behalten Sie die App im Hintergrund';
 
   @override
-  String get reminderFlutterTestSent => 'Flutter-Test-Benachrichtigung gesendet, tippen Sie, um zu sehen, ob die App geöffnet wird';
+  String get reminderFlutterTestSent =>
+      'Flutter-Test-Benachrichtigung gesendet, tippen Sie, um zu sehen, ob die App geöffnet wird';
 
   @override
-  String get reminderAlarmTestSent => 'AlarmManager-Test-Benachrichtigung eingestellt (1 Sekunde später), tippen Sie, um zu sehen, ob die App geöffnet wird';
+  String get reminderAlarmTestSent =>
+      'AlarmManager-Test-Benachrichtigung eingestellt (1 Sekunde später), tippen Sie, um zu sehen, ob die App geöffnet wird';
 
   @override
   String get updateOk => 'OK';
@@ -2818,7 +2977,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateCachedVersionTitle => 'Heruntergeladene Version gefunden';
 
   @override
-  String get updateCachedVersionMessage => 'Ein zuvor heruntergeladenes Installationspaket wurde gefunden... Klicken Sie auf \"OK\" um sofort zu installieren, klicken Sie auf \"Abbrechen\" um zu schließen...';
+  String get updateCachedVersionMessage =>
+      'Ein zuvor heruntergeladenes Installationspaket wurde gefunden... Klicken Sie auf \"OK\" um sofort zu installieren, klicken Sie auf \"Abbrechen\" um zu schließen...';
 
   @override
   String get updateConfirmDownload => 'Jetzt herunterladen und installieren';
@@ -2827,22 +2987,28 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateDownloadCompleteTitle => 'Download abgeschlossen';
 
   @override
-  String get updateInstallConfirmMessage => 'Neue Version heruntergeladen. Jetzt installieren?';
+  String get updateInstallConfirmMessage =>
+      'Neue Version heruntergeladen. Jetzt installieren?';
 
   @override
-  String get updateNotificationPermissionGuideText => 'Download-Fortschritt-Benachrichtigungen sind deaktiviert, aber das beeinträchtigt die Download-Funktionalität nicht. Um den Fortschritt zu sehen:';
+  String get updateNotificationPermissionGuideText =>
+      'Download-Fortschritt-Benachrichtigungen sind deaktiviert, aber das beeinträchtigt die Download-Funktionalität nicht. Um den Fortschritt zu sehen:';
 
   @override
-  String get updateNotificationGuideStep1 => 'Zu Systemeinstellungen > App-Verwaltung gehen';
+  String get updateNotificationGuideStep1 =>
+      'Zu Systemeinstellungen > App-Verwaltung gehen';
 
   @override
-  String get updateNotificationGuideStep2 => '\"Bienen-Buchhaltung\" App finden';
+  String get updateNotificationGuideStep2 =>
+      '\"Bienen-Buchhaltung\" App finden';
 
   @override
-  String get updateNotificationGuideStep3 => 'Benachrichtigungsberechtigungen aktivieren';
+  String get updateNotificationGuideStep3 =>
+      'Benachrichtigungsberechtigungen aktivieren';
 
   @override
-  String get updateNotificationGuideInfo => 'Downloads werden normal im Hintergrund fortgesetzt, auch ohne Benachrichtigungen';
+  String get updateNotificationGuideInfo =>
+      'Downloads werden normal im Hintergrund fortgesetzt, auch ohne Benachrichtigungen';
 
   @override
   String get currencyCNY => 'Chinesischer Yuan';
@@ -2926,7 +3092,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get webdavConfiguredTitle => 'WebDAV Cloud-Dienst konfiguriert';
 
   @override
-  String get webdavConfiguredMessage => 'Der WebDAV Cloud-Dienst verwendet die bei der Konfiguration bereitgestellten Anmeldedaten, es ist keine zusätzliche Anmeldung erforderlich.';
+  String get webdavConfiguredMessage =>
+      'Der WebDAV Cloud-Dienst verwendet die bei der Konfiguration bereitgestellten Anmeldedaten, es ist keine zusätzliche Anmeldung erforderlich.';
 
   @override
   String get recurringTransactionTitle => 'Wiederkehrende Rechnungen';
@@ -2977,13 +3144,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get recurringTransactionNextGeneration => 'Nächste Generierung';
 
   @override
-  String get recurringTransactionDeleteConfirm => 'Sind Sie sicher, dass Sie diese wiederkehrende Rechnung löschen möchten?';
+  String get recurringTransactionDeleteConfirm =>
+      'Sind Sie sicher, dass Sie diese wiederkehrende Rechnung löschen möchten?';
 
   @override
   String get recurringTransactionEmpty => 'Keine wiederkehrenden Rechnungen';
 
   @override
-  String get recurringTransactionEmptyHint => 'Tippen Sie auf die +-Schaltfläche oben rechts zum Hinzufügen';
+  String get recurringTransactionEmptyHint =>
+      'Tippen Sie auf die +-Schaltfläche oben rechts zum Hinzufügen';
 
   @override
   String recurringTransactionEveryNDays(int n) {
@@ -3018,13 +3187,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get syncNotLoggedInMessage => 'Nicht angemeldet';
 
   @override
-  String get syncCloudBackupCorruptedMessage => 'Cloud-Backup-Inhalt kann nicht analysiert werden, möglicherweise aufgrund von Kodierungsproblemen früherer Versionen beschädigt. Bitte klicken Sie auf \"Aktuelles Kontenbuch in Cloud hochladen\", um zu überschreiben und zu reparieren.';
+  String get syncCloudBackupCorruptedMessage =>
+      'Cloud-Backup-Inhalt kann nicht analysiert werden, möglicherweise aufgrund von Kodierungsproblemen früherer Versionen beschädigt. Bitte klicken Sie auf \"Aktuelles Kontenbuch in Cloud hochladen\", um zu überschreiben und zu reparieren.';
 
   @override
   String get syncNoCloudBackupMessage => 'Kein Cloud-Backup vorhanden';
 
   @override
-  String get syncAccessDeniedMessage => '403 Zugriff verweigert (Speicher-RLS-Richtlinie und Pfad überprüfen)';
+  String get syncAccessDeniedMessage =>
+      '403 Zugriff verweigert (Speicher-RLS-Richtlinie und Pfad überprüfen)';
 
   @override
   String get cloudTestConnection => 'Verbindung testen';
@@ -3033,19 +3204,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudLocalStorageTitle => 'Lokaler Speicher';
 
   @override
-  String get cloudLocalStorageSubtitle => 'Daten werden nur lokal auf dem Gerät gespeichert';
+  String get cloudLocalStorageSubtitle =>
+      'Daten werden nur lokal auf dem Gerät gespeichert';
 
   @override
   String get cloudCustomSupabaseTitle => 'Benutzerdefiniertes Supabase';
 
   @override
-  String get cloudCustomSupabaseSubtitle => 'Klicken, um selbst gehosteten Supabase-Dienst zu konfigurieren';
+  String get cloudCustomSupabaseSubtitle =>
+      'Klicken, um selbst gehosteten Supabase-Dienst zu konfigurieren';
 
   @override
   String get cloudCustomWebdavTitle => 'Benutzerdefiniertes WebDAV';
 
   @override
-  String get cloudCustomWebdavSubtitle => 'Klicken, um Jianguoyun/Nextcloud usw. zu konfigurieren';
+  String get cloudCustomWebdavSubtitle =>
+      'Klicken, um Jianguoyun/Nextcloud usw. zu konfigurieren';
 
   @override
   String get cloudStatusNotTested => 'Nicht getestet';
@@ -3060,7 +3234,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudCannotOpenLink => 'Link kann nicht geöffnet werden';
 
   @override
-  String get cloudErrorAuthFailed => 'Authentifizierung fehlgeschlagen: Ungültiger API-Schlüssel';
+  String get cloudErrorAuthFailed =>
+      'Authentifizierung fehlgeschlagen: Ungültiger API-Schlüssel';
 
   @override
   String cloudErrorServerStatus(String code) {
@@ -3068,13 +3243,16 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get cloudErrorWebdavNotSupported => 'Server unterstützt kein WebDAV-Protokoll';
+  String get cloudErrorWebdavNotSupported =>
+      'Server unterstützt kein WebDAV-Protokoll';
 
   @override
-  String get cloudErrorAuthFailedCredentials => 'Authentifizierung fehlgeschlagen: Benutzername oder Passwort falsch';
+  String get cloudErrorAuthFailedCredentials =>
+      'Authentifizierung fehlgeschlagen: Benutzername oder Passwort falsch';
 
   @override
-  String get cloudErrorAccessDenied => 'Zugriff verweigert: Bitte Berechtigungen prüfen';
+  String get cloudErrorAccessDenied =>
+      'Zugriff verweigert: Bitte Berechtigungen prüfen';
 
   @override
   String cloudErrorPathNotFound(String path) {
@@ -3090,7 +3268,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudTestSuccessTitle => 'Test erfolgreich';
 
   @override
-  String get cloudTestSuccessMessage => 'Verbindung normal, Konfiguration gültig';
+  String get cloudTestSuccessMessage =>
+      'Verbindung normal, Konfiguration gültig';
 
   @override
   String get cloudTestFailedTitle => 'Test fehlgeschlagen';
@@ -3105,19 +3284,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudSwitchConfirmTitle => 'Cloud-Dienst wechseln';
 
   @override
-  String get cloudSwitchConfirmMessage => 'Wechsel des Cloud-Dienstes meldet das aktuelle Konto ab. Wechsel bestätigen?';
+  String get cloudSwitchConfirmMessage =>
+      'Wechsel des Cloud-Dienstes meldet das aktuelle Konto ab. Wechsel bestätigen?';
 
   @override
   String get cloudSwitchFailedTitle => 'Wechsel fehlgeschlagen';
 
   @override
-  String get cloudSwitchFailedConfigMissing => 'Bitte konfigurieren Sie zuerst diesen Cloud-Dienst';
+  String get cloudSwitchFailedConfigMissing =>
+      'Bitte konfigurieren Sie zuerst diesen Cloud-Dienst';
 
   @override
   String get cloudConfigInvalidTitle => 'Ungültige Konfiguration';
 
   @override
-  String get cloudConfigInvalidMessage => 'Bitte vollständige Informationen eingeben';
+  String get cloudConfigInvalidMessage =>
+      'Bitte vollständige Informationen eingeben';
 
   @override
   String get cloudSaveFailed => 'Speichern fehlgeschlagen';
@@ -3137,13 +3319,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudSupabaseAnonKeyHintLong => 'Vollständigen anon key einfügen';
 
   @override
-  String get cloudWebdavRemotePathHelp => 'Remote-Verzeichnispfad für Datenspeicherung';
+  String get cloudWebdavRemotePathHelp =>
+      'Remote-Verzeichnispfad für Datenspeicherung';
 
   @override
   String get cloudWebdavRemotePathLabel => 'Remote-Pfad';
 
   @override
-  String get cloudWebdavRemotePathHelperText => 'Remote-Verzeichnispfad für Datenspeicherung';
+  String get cloudWebdavRemotePathHelperText =>
+      'Remote-Verzeichnispfad für Datenspeicherung';
 
   @override
   String get accountsTitle => 'Kontoverwaltung';
@@ -3152,7 +3336,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get accountsManageDesc => 'Zahlungskonten und Guthaben verwalten';
 
   @override
-  String get accountsEmptyMessage => 'Noch keine Konten, tippen Sie oben rechts zum Hinzufügen';
+  String get accountsEmptyMessage =>
+      'Noch keine Konten, tippen Sie oben rechts zum Hinzufügen';
 
   @override
   String get accountAddTooltip => 'Konto hinzufügen';
@@ -3226,7 +3411,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get accountsEnableFeature => 'Kontofunktion aktivieren';
 
   @override
-  String get accountsFeatureDescription => 'Nach der Aktivierung können Sie mehrere Zahlungskonten verwalten und Saldoänderungen für jedes Konto verfolgen';
+  String get accountsFeatureDescription =>
+      'Nach der Aktivierung können Sie mehrere Zahlungskonten verwalten und Saldoänderungen für jedes Konto verfolgen';
 
   @override
   String get privacyOpenSourceUrlError => 'Link kann nicht geöffnet werden';
@@ -3235,22 +3421,26 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateCorruptedFileTitle => 'Beschädigtes Installationspaket';
 
   @override
-  String get updateCorruptedFileMessage => 'Das zuvor heruntergeladene Installationspaket ist unvollständig oder beschädigt. Löschen und neu herunterladen?';
+  String get updateCorruptedFileMessage =>
+      'Das zuvor heruntergeladene Installationspaket ist unvollständig oder beschädigt. Löschen und neu herunterladen?';
 
   @override
   String get welcomeTitle => 'Willkommen bei BeeCount';
 
   @override
-  String get welcomeDescription => 'Eine Buchhaltungs-App, die Ihre Privatsphäre wirklich respektiert';
+  String get welcomeDescription =>
+      'Eine Buchhaltungs-App, die Ihre Privatsphäre wirklich respektiert';
 
   @override
   String get welcomePrivacyTitle => 'Ihre Daten, Sie entscheiden';
 
   @override
-  String get welcomePrivacyFeature1 => 'Daten werden auf Ihrem Gerät lokal gespeichert';
+  String get welcomePrivacyFeature1 =>
+      'Daten werden auf Ihrem Gerät lokal gespeichert';
 
   @override
-  String get welcomePrivacyFeature2 => 'Niemals auf Drittanbieter-Server hochgeladen';
+  String get welcomePrivacyFeature2 =>
+      'Niemals auf Drittanbieter-Server hochgeladen';
 
   @override
   String get welcomePrivacyFeature3 => 'Keine Werbung, keine Datenerfassung';
@@ -3265,10 +3455,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get welcomeOpenSourceFeature1 => '100% Open-Source-Code';
 
   @override
-  String get welcomeOpenSourceFeature2 => 'Community-Überwachung, keine Hintertüren';
+  String get welcomeOpenSourceFeature2 =>
+      'Community-Überwachung, keine Hintertüren';
 
   @override
-  String get welcomeOpenSourceFeature3 => 'Kostenlos für den persönlichen Gebrauch';
+  String get welcomeOpenSourceFeature3 =>
+      'Kostenlos für den persönlichen Gebrauch';
 
   @override
   String get welcomeViewGitHub => 'Quellcode auf GitHub ansehen';
@@ -3277,13 +3469,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get welcomeCloudSyncTitle => 'Optionale Cloud-Synchronisation';
 
   @override
-  String get welcomeCloudSyncDescription => 'Keine Lust auf kommerzielle Cloud-Dienste? BeeCount unterstützt mehrere Synchronisationsmethoden';
+  String get welcomeCloudSyncDescription =>
+      'Keine Lust auf kommerzielle Cloud-Dienste? BeeCount unterstützt mehrere Synchronisationsmethoden';
 
   @override
   String get welcomeCloudSyncFeature1 => 'Vollständig offline nutzbar';
 
   @override
-  String get welcomeCloudSyncFeature2 => 'Selbst gehostete WebDAV-Synchronisation';
+  String get welcomeCloudSyncFeature2 =>
+      'Selbst gehostete WebDAV-Synchronisation';
 
   @override
   String get welcomeCloudSyncFeature3 => 'Selbst gehosteter Supabase-Dienst';
@@ -3298,19 +3492,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get widgetManagement => 'Startbildschirm-Widget';
 
   @override
-  String get widgetManagementDesc => 'Schnellansicht von Einnahmen und Ausgaben auf dem Startbildschirm';
+  String get widgetManagementDesc =>
+      'Schnellansicht von Einnahmen und Ausgaben auf dem Startbildschirm';
 
   @override
   String get widgetPreview => 'Widget-Vorschau';
 
   @override
-  String get widgetPreviewDesc => 'Widget zeigt automatisch echte Daten aus dem aktuellen Kontenbuch an, Farbthema folgt App-Einstellungen';
+  String get widgetPreviewDesc =>
+      'Widget zeigt automatisch echte Daten aus dem aktuellen Kontenbuch an, Farbthema folgt App-Einstellungen';
 
   @override
   String get howToAddWidget => 'Widget hinzufügen';
 
   @override
-  String get iosWidgetStep1 => 'Lange auf leeren Bereich des Startbildschirms drücken, um Bearbeitungsmodus zu aktivieren';
+  String get iosWidgetStep1 =>
+      'Lange auf leeren Bereich des Startbildschirms drücken, um Bearbeitungsmodus zu aktivieren';
 
   @override
   String get iosWidgetStep2 => '\"+\"-Schaltfläche oben links antippen';
@@ -3319,25 +3516,30 @@ class AppLocalizationsDe extends AppLocalizations {
   String get iosWidgetStep3 => '\"Bienen-Buchhaltung\" suchen und auswählen';
 
   @override
-  String get iosWidgetStep4 => 'Mittleres Widget auswählen und zum Startbildschirm hinzufügen';
+  String get iosWidgetStep4 =>
+      'Mittleres Widget auswählen und zum Startbildschirm hinzufügen';
 
   @override
-  String get androidWidgetStep1 => 'Lange auf leeren Bereich des Startbildschirms drücken';
+  String get androidWidgetStep1 =>
+      'Lange auf leeren Bereich des Startbildschirms drücken';
 
   @override
   String get androidWidgetStep2 => '\"Widgets\" auswählen';
 
   @override
-  String get androidWidgetStep3 => '\"Bienen-Buchhaltung\" Widget finden und lange drücken';
+  String get androidWidgetStep3 =>
+      '\"Bienen-Buchhaltung\" Widget finden und lange drücken';
 
   @override
-  String get androidWidgetStep4 => 'An geeignete Position auf dem Startbildschirm ziehen';
+  String get androidWidgetStep4 =>
+      'An geeignete Position auf dem Startbildschirm ziehen';
 
   @override
   String get aboutWidget => 'Über Widget';
 
   @override
-  String get widgetDescription => 'Widget synchronisiert automatisch die heutigen und monatlichen Einnahmen- und Ausgabendaten und aktualisiert alle 30 Minuten. Daten werden sofort aktualisiert, wenn die App geöffnet wird.';
+  String get widgetDescription =>
+      'Widget synchronisiert automatisch die heutigen und monatlichen Einnahmen- und Ausgabendaten und aktualisiert alle 30 Minuten. Daten werden sofort aktualisiert, wenn die App geöffnet wird.';
 
   @override
   String get appName => 'Bienen-Buchhaltung';
@@ -3361,7 +3563,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get autoScreenshotBilling => 'Screenshot-Automatische-Abrechnung';
 
   @override
-  String get autoScreenshotBillingDesc => 'Nach Screenshot automatisch Zahlungsinformationen erkennen';
+  String get autoScreenshotBillingDesc =>
+      'Nach Screenshot automatisch Zahlungsinformationen erkennen';
 
   @override
   String get autoScreenshotBillingTitle => 'Screenshot-Automatische-Abrechnung';
@@ -3370,7 +3573,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get featureDescription => 'Funktionsbeschreibung';
 
   @override
-  String get featureDescriptionContent => 'Nach einem Screenshot einer Zahlungsseite erkennt das System automatisch Betrag und Händlerinformationen und erstellt einen Ausgabendatensatz.\n\n⚡ Erkennungsgeschwindigkeit: ca. 1-2 Sekunden\n🤖 Intelligente Kategorienzuordnung\n📝 Automatische Notizenausfüllung\n\nHinweis:\n• Ohne aktivierten Barrierefreiheitsdienst: etwas langsamer (3-5s)\n• Mit aktiviertem Barrierefreiheitsdienst: Sekundenschnelle Erkennung';
+  String get featureDescriptionContent =>
+      'Nach einem Screenshot einer Zahlungsseite erkennt das System automatisch Betrag und Händlerinformationen und erstellt einen Ausgabendatensatz.\n\n⚡ Erkennungsgeschwindigkeit: ca. 1-2 Sekunden\n🤖 Intelligente Kategorienzuordnung\n📝 Automatische Notizenausfüllung\n\nHinweis:\n• Ohne aktivierten Barrierefreiheitsdienst: etwas langsamer (3-5s)\n• Mit aktiviertem Barrierefreiheitsdienst: Sekundenschnelle Erkennung';
 
   @override
   String get autoBilling => 'Automatische Abrechnung';
@@ -3385,25 +3589,30 @@ class AppLocalizationsDe extends AppLocalizations {
   String get accessibilityService => 'Barrierefreiheitsdienst';
 
   @override
-  String get accessibilityServiceEnabled => 'Aktiviert - Sekundenschnelle Erkennung';
+  String get accessibilityServiceEnabled =>
+      'Aktiviert - Sekundenschnelle Erkennung';
 
   @override
-  String get accessibilityServiceDisabled => 'Nicht aktiviert - Etwas langsamer';
+  String get accessibilityServiceDisabled =>
+      'Nicht aktiviert - Etwas langsamer';
 
   @override
   String get improveRecognitionSpeed => 'Erkennungsgeschwindigkeit verbessern';
 
   @override
-  String get accessibilityGuideContent => 'Mit aktiviertem Barrierefreiheitsdienst können Screenshots sofort erkannt werden, ohne auf das Schreiben der Datei zu warten.';
+  String get accessibilityGuideContent =>
+      'Mit aktiviertem Barrierefreiheitsdienst können Screenshots sofort erkannt werden, ohne auf das Schreiben der Datei zu warten.';
 
   @override
   String get setupSteps => 'Einrichtungsschritte:';
 
   @override
-  String get accessibilityStep1 => 'Tippen Sie unten auf die Schaltfläche \"Barrierefreiheitseinstellungen öffnen\"';
+  String get accessibilityStep1 =>
+      'Tippen Sie unten auf die Schaltfläche \"Barrierefreiheitseinstellungen öffnen\"';
 
   @override
-  String get accessibilityStep2 => 'Finden Sie \"Bienen-Buchhaltung-Screenshot-Erkennung\" in der Liste';
+  String get accessibilityStep2 =>
+      'Finden Sie \"Bienen-Buchhaltung-Screenshot-Erkennung\" in der Liste';
 
   @override
   String get accessibilityStep3 => 'Dienstschalter aktivieren';
@@ -3412,10 +3621,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get accessibilityStep4 => 'Zur App zurückkehren, um zu verwenden';
 
   @override
-  String get openAccessibilitySettings => 'Barrierefreiheitseinstellungen öffnen';
+  String get openAccessibilitySettings =>
+      'Barrierefreiheitseinstellungen öffnen';
 
   @override
-  String get accessibilityServiceNote => '💡 Hinweis: Der Barrierefreiheitsdienst wird nur zur Erkennung von Screenshot-Aktionen verwendet und liest oder ändert keine anderen Daten.';
+  String get accessibilityServiceNote =>
+      '💡 Hinweis: Der Barrierefreiheitsdienst wird nur zur Erkennung von Screenshot-Aktionen verwendet und liest oder ändert keine anderen Daten.';
 
   @override
   String get supportedPayments => 'Unterstützte Zahlungsmethoden';
@@ -3430,10 +3641,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get supportedUnionpay => '✅ UnionPay';
 
   @override
-  String get supportedOthers => '⚠️ Andere Zahlungsmethoden können niedrigere Erkennungsgenauigkeit haben';
+  String get supportedOthers =>
+      '⚠️ Andere Zahlungsmethoden können niedrigere Erkennungsgenauigkeit haben';
 
   @override
-  String get photosPermissionRequired => 'Fotoberechtigung für Screenshot-Überwachung erforderlich';
+  String get photosPermissionRequired =>
+      'Fotoberechtigung für Screenshot-Überwachung erforderlich';
 
   @override
   String get enableSuccess => 'Automatische Abrechnung aktiviert';
@@ -3445,16 +3658,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get autoBillingBatteryTitle => 'Im Hintergrund ausgeführt lassen';
 
   @override
-  String get autoBillingBatteryGuideTitle => 'Batterieoptimierungseinstellungen';
+  String get autoBillingBatteryGuideTitle =>
+      'Batterieoptimierungseinstellungen';
 
   @override
-  String get autoBillingBatteryDesc => 'Automatische Abrechnung erfordert, dass die App im Hintergrund ausgeführt wird. Einige Telefone bereinigen automatisch Hintergrund-Apps beim Sperren, was zu einem Fehlschlagen der automatischen Abrechnung führen kann. Es wird empfohlen, die Batterieoptimierung zu deaktivieren, um eine ordnungsgemäße Funktion zu gewährleisten.';
+  String get autoBillingBatteryDesc =>
+      'Automatische Abrechnung erfordert, dass die App im Hintergrund ausgeführt wird. Einige Telefone bereinigen automatisch Hintergrund-Apps beim Sperren, was zu einem Fehlschlagen der automatischen Abrechnung führen kann. Es wird empfohlen, die Batterieoptimierung zu deaktivieren, um eine ordnungsgemäße Funktion zu gewährleisten.';
 
   @override
   String get autoBillingCheckBattery => 'Batterieoptimierungsstatus überprüfen';
 
   @override
-  String get autoBillingBatteryWarning => '⚠️ Batterieoptimierung ist nicht deaktiviert. Die App kann vom System automatisch bereinigt werden, was zu einem Fehlschlagen der automatischen Abrechnung führt. Bitte tippen Sie auf die Schaltfläche \"Einstellungen\" oben, um die Batterieoptimierung zu deaktivieren.';
+  String get autoBillingBatteryWarning =>
+      '⚠️ Batterieoptimierung ist nicht deaktiviert. Die App kann vom System automatisch bereinigt werden, was zu einem Fehlschlagen der automatischen Abrechnung führt. Bitte tippen Sie auf die Schaltfläche \"Einstellungen\" oben, um die Batterieoptimierung zu deaktivieren.';
 
   @override
   String get enableFailed => 'Aktivierung fehlgeschlagen';
@@ -3463,7 +3679,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get disableFailed => 'Deaktivierung fehlgeschlagen';
 
   @override
-  String get openSettingsFailed => 'Einstellungen konnten nicht geöffnet werden';
+  String get openSettingsFailed =>
+      'Einstellungen konnten nicht geöffnet werden';
 
   @override
   String get reselectImage => 'Neu auswählen';
@@ -3484,13 +3701,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get quickActions => 'Schnellaktionen';
 
   @override
-  String get iosAutoFeatureDesc => 'Verwenden Sie die iOS-App \"Kurzbefehle\", um automatisch Zahlungsinformationen aus Screenshots zu identifizieren und Buchungen zu erstellen. Nach der Einrichtung wird es bei jedem Screenshot automatisch ausgelöst.';
+  String get iosAutoFeatureDesc =>
+      'Verwenden Sie die iOS-App \"Kurzbefehle\", um automatisch Zahlungsinformationen aus Screenshots zu identifizieren und Buchungen zu erstellen. Nach der Einrichtung wird es bei jedem Screenshot automatisch ausgelöst.';
 
   @override
   String get iosAutoShortcutQuickAdd => 'Kurzbefehl schnell hinzufügen';
 
   @override
-  String get iosAutoShortcutQuickAddDesc => 'Klicken Sie auf die Schaltfläche unten, um den konfigurierten Kurzbefehl direkt zu importieren, oder öffnen Sie die Kurzbefehle-App manuell zur Konfiguration.';
+  String get iosAutoShortcutQuickAddDesc =>
+      'Klicken Sie auf die Schaltfläche unten, um den konfigurierten Kurzbefehl direkt zu importieren, oder öffnen Sie die Kurzbefehle-App manuell zur Konfiguration.';
 
   @override
   String get iosAutoShortcutImport => 'Kurzbefehl mit einem Klick importieren';
@@ -3499,46 +3718,59 @@ class AppLocalizationsDe extends AppLocalizations {
   String get iosAutoShortcutOpenApp => 'Oder Kurzbefehle-App manuell öffnen';
 
   @override
-  String get iosAutoShortcutConfigTitle => 'Konfigurationsschritte (Empfohlene Methode - URL-Parameter-Übergabe):';
+  String get iosAutoShortcutConfigTitle =>
+      'Konfigurationsschritte (Empfohlene Methode - URL-Parameter-Übergabe):';
 
   @override
   String get iosAutoShortcutStep1 => '\"Kurzbefehle\"-App öffnen';
 
   @override
-  String get iosAutoShortcutStep2 => '\"+\" oben rechts antippen, um neuen Kurzbefehl zu erstellen';
+  String get iosAutoShortcutStep2 =>
+      '\"+\" oben rechts antippen, um neuen Kurzbefehl zu erstellen';
 
   @override
-  String get iosAutoShortcutStep3 => '\"Screenshot\"-Aktion hinzufügen (neuesten Screenshot abrufen)';
+  String get iosAutoShortcutStep3 =>
+      '\"Screenshot\"-Aktion hinzufügen (neuesten Screenshot abrufen)';
 
   @override
-  String get iosAutoShortcutStep4 => '\"Text aus Screenshot extrahieren\"-Aktion hinzufügen';
+  String get iosAutoShortcutStep4 =>
+      '\"Text aus Screenshot extrahieren\"-Aktion hinzufügen';
 
   @override
-  String get iosAutoShortcutStep5 => '\"Text ersetzen\"-Aktion hinzufügen: \"\\n\" im \"Extrahierten Text\" durch \",\" (Komma) ersetzen';
+  String get iosAutoShortcutStep5 =>
+      '\"Text ersetzen\"-Aktion hinzufügen: \"\\n\" im \"Extrahierten Text\" durch \",\" (Komma) ersetzen';
 
   @override
-  String get iosAutoShortcutStep6 => '\"URL kodieren\"-Aktion hinzufügen: \"Ersetzten Text\" URL-kodieren';
+  String get iosAutoShortcutStep6 =>
+      '\"URL kodieren\"-Aktion hinzufügen: \"Ersetzten Text\" URL-kodieren';
 
   @override
-  String get iosAutoShortcutStep7 => '\"URL öffnen\"-Aktion hinzufügen, URL:\nbeecount://auto-billing?text=[URL-kodierter Text]';
+  String get iosAutoShortcutStep7 =>
+      '\"URL öffnen\"-Aktion hinzufügen, URL:\nbeecount://auto-billing?text=[URL-kodierter Text]';
 
   @override
-  String get iosAutoShortcutStep8 => 'Kurzbefehl-Einstellungen antippen (drei Punkte oben rechts)';
+  String get iosAutoShortcutStep8 =>
+      'Kurzbefehl-Einstellungen antippen (drei Punkte oben rechts)';
 
   @override
-  String get iosAutoShortcutStep9 => 'In \"Wenn...\" \"Bei Screenshot\"-Auslöser hinzufügen';
+  String get iosAutoShortcutStep9 =>
+      'In \"Wenn...\" \"Bei Screenshot\"-Auslöser hinzufügen';
 
   @override
-  String get iosAutoShortcutStep10 => 'Speichern und testen: Nach Screenshot automatisch identifizieren';
+  String get iosAutoShortcutStep10 =>
+      'Speichern und testen: Nach Screenshot automatisch identifizieren';
 
   @override
-  String get iosAutoShortcutRecommendedTip => '✅ Empfohlen: URL-Parameter-Übergabe, keine Berechtigung erforderlich, beste Erfahrung. Wichtige Schritte:\n• Beim Textersetzen Zeilenumbrüche \\n durch Komma , ersetzen (URL-Abschneiden vermeiden)\n• URL-Kodierungsvorgang verwenden (chinesische Zeichenkodierung vermeiden)\n• Screenshot-Text überschreitet normalerweise nicht die 2048-Zeichen-Grenze';
+  String get iosAutoShortcutRecommendedTip =>
+      '✅ Empfohlen: URL-Parameter-Übergabe, keine Berechtigung erforderlich, beste Erfahrung. Wichtige Schritte:\n• Beim Textersetzen Zeilenumbrüche \\n durch Komma , ersetzen (URL-Abschneiden vermeiden)\n• URL-Kodierungsvorgang verwenden (chinesische Zeichenkodierung vermeiden)\n• Screenshot-Text überschreitet normalerweise nicht die 2048-Zeichen-Grenze';
 
   @override
-  String get iosAutoBackTapTitle => '💡 Doppeltippen auf Rückseite zum schnellen Auslösen (Empfohlen)';
+  String get iosAutoBackTapTitle =>
+      '💡 Doppeltippen auf Rückseite zum schnellen Auslösen (Empfohlen)';
 
   @override
-  String get iosAutoBackTapDesc => 'Einstellungen > Bedienungshilfen > Tippen > Auf Rückseite tippen\n• \"Zweimal tippen\" oder \"Dreimal tippen\" auswählen\n• Den gerade erstellten Kurzbefehl auswählen\n• Nach der Einrichtung während der Zahlung doppelt auf die Rückseite des Telefons tippen, um automatisch aufzuzeichnen, kein Screenshot erforderlich';
+  String get iosAutoBackTapDesc =>
+      'Einstellungen > Bedienungshilfen > Tippen > Auf Rückseite tippen\n• \"Zweimal tippen\" oder \"Dreimal tippen\" auswählen\n• Den gerade erstellten Kurzbefehl auswählen\n• Nach der Einrichtung während der Zahlung doppelt auf die Rückseite des Telefons tippen, um automatisch aufzuzeichnen, kein Screenshot erforderlich';
 
   @override
   String iosAutoImportFailed(Object error) {
@@ -3551,22 +3783,26 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get iosAutoCannotOpenLink => 'Link kann nicht geöffnet werden, bitte Netzwerkverbindung überprüfen';
+  String get iosAutoCannotOpenLink =>
+      'Link kann nicht geöffnet werden, bitte Netzwerkverbindung überprüfen';
 
   @override
-  String get iosAutoCannotOpenShortcuts => 'Kurzbefehle-App kann nicht geöffnet werden';
+  String get iosAutoCannotOpenShortcuts =>
+      'Kurzbefehle-App kann nicht geöffnet werden';
 
   @override
   String get aiSettingsTitle => 'KI-Intelligente-Erkennung';
 
   @override
-  String get aiSettingsSubtitle => 'KI-Modelle und Erkennungsstrategie konfigurieren';
+  String get aiSettingsSubtitle =>
+      'KI-Modelle und Erkennungsstrategie konfigurieren';
 
   @override
   String get aiEnableTitle => 'KI-Intelligente-Erkennung aktivieren';
 
   @override
-  String get aiEnableSubtitle => 'KI verwenden, um OCR-Erkennungsgenauigkeit zu verbessern und Betrag, Händler, Zeit usw. zu extrahieren';
+  String get aiEnableSubtitle =>
+      'KI verwenden, um OCR-Erkennungsgenauigkeit zu verbessern und Betrag, Händler, Zeit usw. zu extrahieren';
 
   @override
   String get aiEnableToastOn => 'KI-Verbesserung aktiviert';
@@ -3581,28 +3817,33 @@ class AppLocalizationsDe extends AppLocalizations {
   String get aiStrategyLocalFirst => 'Lokal zuerst (Empfohlen)';
 
   @override
-  String get aiStrategyLocalFirstDesc => 'Zuerst lokales Modell verwenden, bei Fehler automatisch auf Cloud wechseln';
+  String get aiStrategyLocalFirstDesc =>
+      'Zuerst lokales Modell verwenden, bei Fehler automatisch auf Cloud wechseln';
 
   @override
   String get aiStrategyCloudFirst => 'Cloud zuerst';
 
   @override
-  String get aiStrategyCloudFirstDesc => 'Zuerst Cloud-API verwenden, bei Fehler auf lokal herabstufen';
+  String get aiStrategyCloudFirstDesc =>
+      'Zuerst Cloud-API verwenden, bei Fehler auf lokal herabstufen';
 
   @override
   String get aiStrategyLocalOnly => 'Nur lokal';
 
   @override
-  String get aiStrategyLocalOnlyDesc => 'Nur lokales Modell verwenden, vollständig offline';
+  String get aiStrategyLocalOnlyDesc =>
+      'Nur lokales Modell verwenden, vollständig offline';
 
   @override
   String get aiStrategyCloudOnly => 'Nur Cloud';
 
   @override
-  String get aiStrategyCloudOnlyDesc => 'Nur Cloud-API verwenden, kein Modell-Download';
+  String get aiStrategyCloudOnlyDesc =>
+      'Nur Cloud-API verwenden, kein Modell-Download';
 
   @override
-  String get aiStrategyUnavailable => 'Lokales Modell in Entwicklung, demnächst verfügbar';
+  String get aiStrategyUnavailable =>
+      'Lokales Modell in Entwicklung, demnächst verfügbar';
 
   @override
   String aiStrategySwitched(String strategy) {
@@ -3619,7 +3860,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get aiCloudApiKeyHint => 'Geben Sie Ihren Zhipu AI API Key ein';
 
   @override
-  String get aiCloudApiKeyHelper => 'GLM-4-Flash-Modell ist vollständig kostenlos';
+  String get aiCloudApiKeyHelper =>
+      'GLM-4-Flash-Modell ist vollständig kostenlos';
 
   @override
   String get aiCloudApiKeySaved => 'API Key gespeichert';
@@ -3637,22 +3879,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String get aiLocalModelManagement => 'Modellverwaltung';
 
   @override
-  String get aiLocalModelUnavailable => 'Lokales Modell in Entwicklung, noch nicht verfügbar';
+  String get aiLocalModelUnavailable =>
+      'Lokales Modell in Entwicklung, noch nicht verfügbar';
 
   @override
-  String get aiFabSettingTitle => 'Schnellerfassungs-Schaltfläche bevorzugt Fotografieren';
+  String get aiFabSettingTitle =>
+      'Schnellerfassungs-Schaltfläche bevorzugt Fotografieren';
 
   @override
-  String get aiFabSettingDescCamera => 'Kurz drücken für Foto, lange drücken für manuelle Erfassung';
+  String get aiFabSettingDescCamera =>
+      'Kurz drücken für Foto, lange drücken für manuelle Erfassung';
 
   @override
-  String get aiFabSettingDescManual => 'Kurz drücken für manuelle Erfassung, lange drücken für Foto';
+  String get aiFabSettingDescManual =>
+      'Kurz drücken für manuelle Erfassung, lange drücken für Foto';
 
   @override
   String get aiOcrRecognizing => 'Rechnung wird erkannt...';
 
   @override
-  String get aiOcrNoAmount => 'Kein gültiger Betrag erkannt, bitte manuell erfassen';
+  String get aiOcrNoAmount =>
+      'Kein gültiger Betrag erkannt, bitte manuell erfassen';
 
   @override
   String get aiOcrNoLedger => 'Kontenbuch nicht gefunden';
@@ -3701,37 +3948,43 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cloudSyncAndBackup => 'Cloud-Synchronisierung und Sicherung';
 
   @override
-  String get cloudSyncAndBackupDesc => 'Cloud-Dienst-Konfiguration, Datensynchronisierungsverwaltung';
+  String get cloudSyncAndBackupDesc =>
+      'Cloud-Dienst-Konfiguration, Datensynchronisierungsverwaltung';
 
   @override
   String get cloudSyncPageTitle => 'Cloud-Synchronisierung und Sicherung';
 
   @override
-  String get cloudSyncPageSubtitle => 'Cloud-Dienste und Datensynchronisierung verwalten';
+  String get cloudSyncPageSubtitle =>
+      'Cloud-Dienste und Datensynchronisierung verwalten';
 
   @override
   String get dataManagement => 'Datenverwaltung';
 
   @override
-  String get dataManagementDesc => 'Importieren, exportieren, Kategorien und Konten';
+  String get dataManagementDesc =>
+      'Importieren, exportieren, Kategorien und Konten';
 
   @override
   String get dataManagementPageTitle => 'Datenverwaltung';
 
   @override
-  String get dataManagementPageSubtitle => 'Transaktionsdaten und Kategorien verwalten';
+  String get dataManagementPageSubtitle =>
+      'Transaktionsdaten und Kategorien verwalten';
 
   @override
   String get smartBilling => 'Intelligente Buchführung';
 
   @override
-  String get smartBillingDesc => 'KI-Erkennung, OCR-Scan, automatische Buchführung';
+  String get smartBillingDesc =>
+      'KI-Erkennung, OCR-Scan, automatische Buchführung';
 
   @override
   String get smartBillingPageTitle => 'Intelligente Buchführung';
 
   @override
-  String get smartBillingPageSubtitle => 'KI- und Automatisierungsfunktionen für Buchführung';
+  String get smartBillingPageSubtitle =>
+      'KI- und Automatisierungsfunktionen für Buchführung';
 
   @override
   String get automation => 'Automatisierung';
@@ -3743,19 +3996,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get automationPageTitle => 'Automatisierungsfunktionen';
 
   @override
-  String get automationPageSubtitle => 'Einstellungen für wiederkehrende Transaktionen und Erinnerungen';
+  String get automationPageSubtitle =>
+      'Einstellungen für wiederkehrende Transaktionen und Erinnerungen';
 
   @override
   String get appearanceSettings => 'Erscheinungseinstellungen';
 
   @override
-  String get appearanceSettingsDesc => 'Theme-, Schrift- und Spracheinstellungen';
+  String get appearanceSettingsDesc =>
+      'Theme-, Schrift- und Spracheinstellungen';
 
   @override
   String get appearanceSettingsPageTitle => 'Erscheinungseinstellungen';
 
   @override
-  String get appearanceSettingsPageSubtitle => 'Erscheinungsbild und Anzeige personalisieren';
+  String get appearanceSettingsPageSubtitle =>
+      'Erscheinungsbild und Anzeige personalisieren';
 
   @override
   String get about => 'Über';
@@ -3830,13 +4086,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get configImportExportTitle => 'Config Import/Export';
 
   @override
-  String get configImportExportSubtitle => 'Backup and restore app configurations';
+  String get configImportExportSubtitle =>
+      'Backup and restore app configurations';
 
   @override
   String get configImportExportInfoTitle => 'Feature Description';
 
   @override
-  String get configImportExportInfoMessage => 'This feature is used to export and import app configurations, including cloud service settings, AI settings, etc. The config file uses YAML format for easy viewing and editing.\n\n⚠️ Config files contain sensitive information (such as API keys, passwords, etc.), please keep them safe.';
+  String get configImportExportInfoMessage =>
+      'This feature is used to export and import app configurations, including cloud service settings, AI settings, etc. The config file uses YAML format for easy viewing and editing.\n\n⚠️ Config files contain sensitive information (such as API keys, passwords, etc.), please keep them safe.';
 
   @override
   String get configExportTitle => 'Export Config';
@@ -3866,7 +4124,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get configImportConfirmTitle => 'Confirm Import';
 
   @override
-  String get configImportConfirmMessage => 'Importing config will overwrite current settings, continue?';
+  String get configImportConfirmMessage =>
+      'Importing config will overwrite current settings, continue?';
 
   @override
   String get configImportSuccess => 'Config imported successfully';
@@ -3878,7 +4137,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get configImportRestartTitle => 'Restart Required';
 
   @override
-  String get configImportRestartMessage => 'Config has been imported. Some settings will take effect after restarting the app.';
+  String get configImportRestartMessage =>
+      'Config has been imported. Some settings will take effect after restarting the app.';
 
   @override
   String get configImportExportIncludesTitle => 'Included Configurations';
@@ -3919,7 +4179,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get ledgersConflictTitle => 'Sync Conflict';
 
   @override
-  String get ledgersConflictMessage => 'Local and cloud ledger data are inconsistent, please choose an action:';
+  String get ledgersConflictMessage =>
+      'Local and cloud ledger data are inconsistent, please choose an action:';
 
   @override
   String ledgersConflictLocalInfo(int count) {
@@ -3975,7 +4236,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get storageManagementTitle => 'Speicherverwaltung';
 
   @override
-  String get storageManagementSubtitle => 'Cache löschen, um Speicherplatz freizugeben';
+  String get storageManagementSubtitle =>
+      'Cache löschen, um Speicherplatz freizugeben';
 
   @override
   String get storageAIModels => 'AI-Modelle';
@@ -3990,7 +4252,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get storageFiles => 'Dateien';
 
   @override
-  String get storageHint => 'Tippen Sie auf Elemente, um entsprechende Cache-Dateien zu löschen';
+  String get storageHint =>
+      'Tippen Sie auf Elemente, um entsprechende Cache-Dateien zu löschen';
 
   @override
   String get storageClearConfirmTitle => 'Löschen bestätigen';

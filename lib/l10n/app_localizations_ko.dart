@@ -1,3 +1,5 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -365,13 +367,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get analyticsCurrentPeriod => '현재 기간';
 
   @override
-  String get analyticsNoDataSubtext => '좌우로 스와이프하여 기간을 전환하거나, 버튼을 탭하여 수입/지출을 전환하세요';
+  String get analyticsNoDataSubtext =>
+      '좌우로 스와이프하여 기간을 전환하거나, 버튼을 탭하여 수입/지출을 전환하세요';
 
   @override
   String get analyticsSwipeHint => '좌우로 스와이프하여 기간을 변경하세요';
 
   @override
-  String get analyticsTipContent => '1) 하단을 좌우로 스와이프하여 지출/수입/잔액 전환\\n2) 차트 영역을 좌우로 스와이프하여 기간 전환';
+  String get analyticsTipContent =>
+      '1) 하단을 좌우로 스와이프하여 지출/수입/잔액 전환\\n2) 차트 영역을 좌우로 스와이프하여 기간 전환';
 
   @override
   String analyticsSwitchTo(String type) {
@@ -438,7 +442,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get ledgersDeleteConfirm => '가계부 삭제';
 
   @override
-  String get ledgersDeleteMessage => '이 가계부와 모든 기록을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.\\n클라우드에 백업이 있는 경우에도 삭제됩니다.';
+  String get ledgersDeleteMessage =>
+      '이 가계부와 모든 기록을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.\\n클라우드에 백업이 있는 경우에도 삭제됩니다.';
 
   @override
   String get ledgersDeleted => '삭제됨';
@@ -720,7 +725,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importCategoryMapping => '카테고리 매핑';
 
   @override
-  String get importNoDataParsed => '데이터가 파싱되지 않았습니다. 이전 페이지로 돌아가서 CSV 내용이나 구분자를 확인하세요.';
+  String get importNoDataParsed =>
+      '데이터가 파싱되지 않았습니다. 이전 페이지로 돌아가서 CSV 내용이나 구분자를 확인하세요.';
 
   @override
   String get importFieldDate => '날짜';
@@ -752,7 +758,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importCategoryNotSelected => '카테고리가 선택되지 않았습니다';
 
   @override
-  String get importCategoryMappingDescription => '각 카테고리 이름에 해당하는 로컬 카테고리를 선택하세요:';
+  String get importCategoryMappingDescription =>
+      '각 카테고리 이름에 해당하는 로컬 카테고리를 선택하세요:';
 
   @override
   String get importKeepOriginalName => '원래 이름 유지';
@@ -800,7 +807,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importInProgress => '가져오기 진행 중';
 
   @override
-  String importProgressDetail(Object done, Object fail, Object ok, Object total) {
+  String importProgressDetail(
+      Object done, Object fail, Object ok, Object total) {
     return '$total개 중 $done개 가져옴, 성공 $ok개, 실패 $fail개';
   }
 
@@ -934,7 +942,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mineShareApp => 'Share App';
 
   @override
-  String get mineShareAppSubtitle => 'Generate share poster and save to gallery';
+  String get mineShareAppSubtitle =>
+      'Generate share poster and save to gallery';
 
   @override
   String get mineShareGenerating => 'Generating share poster...';
@@ -943,7 +952,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mineShareSuccess => 'Saved Successfully';
 
   @override
-  String get mineShareSuccessMessage => 'Share poster has been saved to gallery';
+  String get mineShareSuccessMessage =>
+      'Share poster has been saved to gallery';
 
   @override
   String get mineShareFailed => 'Save failed, please check gallery permissions';
@@ -991,7 +1001,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sharePosterSaveFailed => 'Failed to save';
 
   @override
-  String get sharePosterPermissionDenied => 'Gallery permission denied, please enable in settings';
+  String get sharePosterPermissionDenied =>
+      'Gallery permission denied, please enable in settings';
 
   @override
   String get mineDaysCount => '일';
@@ -1152,7 +1163,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mineLogoutConfirmTitle => '로그아웃';
 
   @override
-  String get mineLogoutConfirmMessage => '로그아웃하시겠습니까?\\n로그아웃 후에는 클라우드 동기화를 사용할 수 없습니다.';
+  String get mineLogoutConfirmMessage =>
+      '로그아웃하시겠습니까?\\n로그아웃 후에는 클라우드 동기화를 사용할 수 없습니다.';
 
   @override
   String get mineLogoutButton => '로그아웃';
@@ -1173,7 +1185,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mineImportProgressTitle => '백그라운드에서 가져오는 중...';
 
   @override
-  String mineImportProgressSubtitle(Object done, Object fail, Object ok, Object total) {
+  String mineImportProgressSubtitle(
+      Object done, Object fail, Object ok, Object total) {
     return '진행 상황: $done/$total, 성공 $ok개, 실패 $fail개';
   }
 
@@ -1290,7 +1303,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryMigrationDescription => '카테고리 이전 안내';
 
   @override
-  String get categoryMigrationDescriptionContent => '• 한 카테고리의 모든 거래 기록을 다른 카테고리로 이전\\n• 이전 후, 원래 카테고리의 모든 거래 데이터가 대상 카테고리로 전송됩니다\\n• 이 작업은 취소할 수 없으므로 신중하게 선택하세요';
+  String get categoryMigrationDescriptionContent =>
+      '• 한 카테고리의 모든 거래 기록을 다른 카테고리로 이전\\n• 이전 후, 원래 카테고리의 모든 거래 데이터가 대상 카테고리로 전송됩니다\\n• 이 작업은 취소할 수 없으므로 신중하게 선택하세요';
 
   @override
   String get categoryMigrationFromLabel => '원본 카테고리';
@@ -1319,7 +1333,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryMigrationCannotTitle => '이전할 수 없음';
 
   @override
-  String get categoryMigrationCannotMessage => '선택된 카테고리는 이전할 수 없습니다. 카테고리 상태를 확인하세요.';
+  String get categoryMigrationCannotMessage =>
+      '선택된 카테고리는 이전할 수 없습니다. 카테고리 상태를 확인하세요.';
 
   @override
   String get categoryExpenseType => '지출 카테고리';
@@ -1331,7 +1346,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryDefaultTitle => '기본 카테고리';
 
   @override
-  String get categoryDefaultMessage => '기본 카테고리는 수정할 수 없지만 세부정보를 보고 데이터를 이전할 수 있습니다';
+  String get categoryDefaultMessage =>
+      '기본 카테고리는 수정할 수 없지만 세부정보를 보고 데이터를 이전할 수 있습니다';
 
   @override
   String get categoryNameDining => '외식';
@@ -1610,7 +1626,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get fontSettingsPreview => '실시간 미리보기';
 
   @override
-  String get fontSettingsPreviewText => '오늘 점심에 23.50을 사용, 기록했습니다;\\n이번 달은 45일 동안 기록, 320개 항목;\\n지속이 승리!';
+  String get fontSettingsPreviewText =>
+      '오늘 점심에 23.50을 사용, 기록했습니다;\\n이번 달은 45일 동안 기록, 320개 항목;\\n지속이 승리!';
 
   @override
   String fontSettingsCurrentLevel(Object level, Object scale) {
@@ -1624,7 +1641,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get fontSettingsCustomAdjust => '사용자 정의 조정';
 
   @override
-  String get fontSettingsDescription => '참고: 이 설정은 모든 기기에서 1.0x로 일관된 표시를 보장하며, 기기 차이는 자동 보정됩니다; 이 일관된 기준에서 개인화된 배율 값을 조정하세요.';
+  String get fontSettingsDescription =>
+      '참고: 이 설정은 모든 기기에서 1.0x로 일관된 표시를 보장하며, 기기 차이는 자동 보정됩니다; 이 일관된 기준에서 개인화된 배율 값을 조정하세요.';
 
   @override
   String get fontSettingsExtraSmall => '매우 작게';
@@ -1750,25 +1768,29 @@ class AppLocalizationsKo extends AppLocalizations {
   String get reminderQuickTest => '빠른 테스트 (15초 후)';
 
   @override
-  String get reminderQuickTestMessage => '15초 후 빠른 테스트를 설정했습니다. 앱을 백그라운드에 유지하세요';
+  String get reminderQuickTestMessage =>
+      '15초 후 빠른 테스트를 설정했습니다. 앱을 백그라운드에 유지하세요';
 
   @override
   String get reminderFlutterTest => '🔧 Flutter 알림 클릭 테스트 (개발)';
 
   @override
-  String get reminderFlutterTestMessage => 'Flutter 테스트 알림을 전송했습니다. 탭하여 앱이 열리는지 확인하세요';
+  String get reminderFlutterTestMessage =>
+      'Flutter 테스트 알림을 전송했습니다. 탭하여 앱이 열리는지 확인하세요';
 
   @override
   String get reminderAlarmTest => '🔧 AlarmManager 알림 클릭 테스트 (개발)';
 
   @override
-  String get reminderAlarmTestMessage => 'AlarmManager 테스트 알림을 설정했습니다 (1초 후). 탭하여 앱이 열리는지 확인하세요';
+  String get reminderAlarmTestMessage =>
+      'AlarmManager 테스트 알림을 설정했습니다 (1초 후). 탭하여 앱이 열리는지 확인하세요';
 
   @override
   String get reminderDirectTest => '🔧 NotificationReceiver 직접 테스트 (개발)';
 
   @override
-  String get reminderDirectTestMessage => 'NotificationReceiver를 직접 호출하여 알림을 생성했습니다. 탭이 작동하는지 확인하세요';
+  String get reminderDirectTestMessage =>
+      'NotificationReceiver를 직접 호출하여 알림을 생성했습니다. 탭이 작동하는지 확인하세요';
 
   @override
   String get reminderCheckStatus => '🔧 알림 상태 확인 (개발)';
@@ -1883,16 +1905,20 @@ class AppLocalizationsKo extends AppLocalizations {
   String get reminderIOSTestTitle => 'iOS 알림 테스트';
 
   @override
-  String get reminderIOSTestMessage => '테스트 알림을 전송했습니다.\\n\\n🍎 iOS 시뮬레이터 제한사항:\\n• 알림 센터에 알림이 표시되지 않을 수 있습니다\\n• 배너 알림이 작동하지 않을 수 있습니다\\n• 하지만 Xcode 콘솔에 로그가 표시됩니다\\n\\n💡 디버그 방법:\\n• Xcode 콘솔 출력 확인\\n• Flutter 로그 정보 확인\\n• 완전한 경험을 위해 실제 기기 사용';
+  String get reminderIOSTestMessage =>
+      '테스트 알림을 전송했습니다.\\n\\n🍎 iOS 시뮬레이터 제한사항:\\n• 알림 센터에 알림이 표시되지 않을 수 있습니다\\n• 배너 알림이 작동하지 않을 수 있습니다\\n• 하지만 Xcode 콘솔에 로그가 표시됩니다\\n\\n💡 디버그 방법:\\n• Xcode 콘솔 출력 확인\\n• Flutter 로그 정보 확인\\n• 완전한 경험을 위해 실제 기기 사용';
 
   @override
-  String get reminderDescription => '팁: 기록 알림이 활성화되면 시스템이 매일 지정된 시간에 알림을 전송하여 수입과 지출 기록을 알려줍니다.';
+  String get reminderDescription =>
+      '팁: 기록 알림이 활성화되면 시스템이 매일 지정된 시간에 알림을 전송하여 수입과 지출 기록을 알려줍니다.';
 
   @override
-  String get reminderIOSInstructions => '🍎 iOS 알림 설정:\\n• 설정 > 알림 > 꿀벌 가계부\\n• \"알림 허용\" 활성화\\n• 알림 스타일 설정: 배너 또는 알림\\n• 소리와 진동 활성화\\n\\n⚠️ iOS 시뮬레이터 제한사항:\\n• 시뮬레이터 알림 기능이 제한됩니다\\n• 실제 기기 사용을 권장합니다\\n• 알림 상태는 Xcode 콘솔에서 확인\\n\\n시뮬레이터에서 테스트할 때 관찰하세요:\\n• Xcode 콘솔 로그 출력\\n• Flutter 디버그 콘솔 정보\\n• 앱 내 알림 전송 확인 팝업';
+  String get reminderIOSInstructions =>
+      '🍎 iOS 알림 설정:\\n• 설정 > 알림 > 꿀벌 가계부\\n• \"알림 허용\" 활성화\\n• 알림 스타일 설정: 배너 또는 알림\\n• 소리와 진동 활성화\\n\\n⚠️ iOS 시뮬레이터 제한사항:\\n• 시뮬레이터 알림 기능이 제한됩니다\\n• 실제 기기 사용을 권장합니다\\n• 알림 상태는 Xcode 콘솔에서 확인\\n\\n시뮬레이터에서 테스트할 때 관찰하세요:\\n• Xcode 콘솔 로그 출력\\n• Flutter 디버그 콘솔 정보\\n• 앱 내 알림 전송 확인 팝업';
 
   @override
-  String get reminderAndroidInstructions => '알림이 제대로 작동하지 않는 경우 확인하세요:\\n• 앱이 알림 전송을 허용하는지\\n• 앱의 배터리 최적화/절전 모드 비활성화\\n• 앱의 백그라운드 실행 및 자동 시작 허용\\n• Android 12+에서는 정확한 알람 권한이 필요\\n\\n📱 Xiaomi 폰 특별 설정:\\n• 설정 > 앱 관리 > 꿀벌 가계부 > 알림 관리\\n• \"기록 알림\" 채널 탭\\n• 중요도를 \"긴급\" 또는 \"높음\"으로 설정\\n• \"배너 알림\", \"소리\", \"진동\" 활성화\\n• 보안 센터 > 앱 관리 > 권한 > 자동 시작\\n\\n🔒 백그라운드 잠금 방법:\\n• 최근 작업에서 꿀벌 가계부 찾기\\n• 앱 카드를 아래로 스와이프하여 잠금 아이콘 표시\\n• 잠금 아이콘을 탭하여 정리 방지';
+  String get reminderAndroidInstructions =>
+      '알림이 제대로 작동하지 않는 경우 확인하세요:\\n• 앱이 알림 전송을 허용하는지\\n• 앱의 배터리 최적화/절전 모드 비활성화\\n• 앱의 백그라운드 실행 및 자동 시작 허용\\n• Android 12+에서는 정확한 알람 권한이 필요\\n\\n📱 Xiaomi 폰 특별 설정:\\n• 설정 > 앱 관리 > 꿀벌 가계부 > 알림 관리\\n• \"기록 알림\" 채널 탭\\n• 중요도를 \"긴급\" 또는 \"높음\"으로 설정\\n• \"배너 알림\", \"소리\", \"진동\" 활성화\\n• 보안 센터 > 앱 관리 > 권한 > 자동 시작\\n\\n🔒 백그라운드 잠금 방법:\\n• 최근 작업에서 꿀벌 가계부 찾기\\n• 앱 카드를 아래로 스와이프하여 잠금 아이콘 표시\\n• 잠금 아이콘을 탭하여 정리 방지';
 
   @override
   String get categoryDetailLoadFailed => '로딩 실패';
@@ -1937,7 +1963,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryMigrationConfirmTitle => '이전 확인';
 
   @override
-  String categoryMigrationConfirmMessage(Object count, Object fromName, Object toName) {
+  String categoryMigrationConfirmMessage(
+      Object count, Object fromName, Object toName) {
     return '\"$fromName\"에서 \"$toName\"으로 $count개의 거래를 이전하시겠습니까?\\n\\n이 작업은 취소할 수 없습니다!';
   }
 
@@ -1948,7 +1975,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryMigrationCompleteTitle => '이전 완료';
 
   @override
-  String categoryMigrationCompleteMessage(Object count, Object fromName, Object toName) {
+  String categoryMigrationCompleteMessage(
+      Object count, Object fromName, Object toName) {
     return '\"$fromName\"에서 \"$toName\"으로 $count개의 거래를 성공적으로 이전했습니다.';
   }
 
@@ -1981,7 +2009,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudBackupFound => '클라우드 백업을 찾았습니다';
 
   @override
-  String get cloudBackupRestoreMessage => '클라우드와 로컬 가계부가 일치하지 않습니다. 클라우드에서 복원하시겠습니까?\\n(복원 진행 페이지로 이동합니다)';
+  String get cloudBackupRestoreMessage =>
+      '클라우드와 로컬 가계부가 일치하지 않습니다. 클라우드에서 복원하시겠습니까?\\n(복원 진행 페이지로 이동합니다)';
 
   @override
   String get cloudBackupRestoreFailed => '복원 실패';
@@ -2082,10 +2111,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudSwitchService => '클라우드 서비스 전환';
 
   @override
-  String get cloudSwitchToBuiltinConfirm => '기본 클라우드 서비스로 전환하시겠습니까? 현재 세션에서 로그아웃됩니다.';
+  String get cloudSwitchToBuiltinConfirm =>
+      '기본 클라우드 서비스로 전환하시겠습니까? 현재 세션에서 로그아웃됩니다.';
 
   @override
-  String get cloudSwitchToCustomConfirm => '사용자 정의 클라우드 서비스로 전환하시겠습니까? 현재 세션에서 로그아웃됩니다.';
+  String get cloudSwitchToCustomConfirm =>
+      '사용자 정의 클라우드 서비스로 전환하시겠습니까? 현재 세션에서 로그아웃됩니다.';
 
   @override
   String get cloudSwitched => '전환됨';
@@ -2106,7 +2137,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudActivated => '활성화됨';
 
   @override
-  String get cloudActivatedMessage => '사용자 정의 클라우드 서비스로 전환하고 로그아웃했습니다. 다시 로그인하세요';
+  String get cloudActivatedMessage =>
+      '사용자 정의 클라우드 서비스로 전환하고 로그아웃했습니다. 다시 로그인하세요';
 
   @override
   String get cloudEditCustomService => '사용자 정의 클라우드 서비스 편집';
@@ -2124,7 +2156,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudAnonKeyLabel => 'Anon Key';
 
   @override
-  String get cloudAnonKeyHint => '참고: service_role Key를 입력하지 마세요; Anon Key는 공개됩니다.';
+  String get cloudAnonKeyHint =>
+      '참고: service_role Key를 입력하지 마세요; Anon Key는 공개됩니다.';
 
   @override
   String get cloudInvalidInput => '잘못된 입력';
@@ -2142,7 +2175,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudValidationServiceRoleKey => 'service_role Key는 허용되지 않습니다';
 
   @override
-  String get cloudValidationHttpRequired => 'URL은 http:// 또는 https://로 시작해야 합니다';
+  String get cloudValidationHttpRequired =>
+      'URL은 http:// 또는 https://로 시작해야 합니다';
 
   @override
   String get cloudSelectServiceType => '클라우드 서비스 유형 선택';
@@ -2199,10 +2233,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudClearFailed => '지우기 실패';
 
   @override
-  String get cloudServiceDescription => '내장 클라우드 서비스 (무료이지만 불안정할 수 있습니다. 자신만의 서비스나 정기 백업을 권장)';
+  String get cloudServiceDescription =>
+      '내장 클라우드 서비스 (무료이지만 불안정할 수 있습니다. 자신만의 서비스나 정기 백업을 권장)';
 
   @override
-  String get cloudServiceDescriptionNotConfigured => '현재 빌드에는 내장 클라우드 서비스 설정이 없습니다';
+  String get cloudServiceDescriptionNotConfigured =>
+      '현재 빌드에는 내장 클라우드 서비스 설정이 없습니다';
 
   @override
   String cloudServiceDescriptionCustom(String url) {
@@ -2246,7 +2282,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get authSignupSuccess => '등록 성공';
 
   @override
-  String get authVerificationEmailSent => '인증 이메일을 전송했습니다. 이메일에서 인증을 완료한 후 로그인하세요.';
+  String get authVerificationEmailSent =>
+      '인증 이메일을 전송했습니다. 이메일에서 인증을 완료한 후 로그인하세요.';
 
   @override
   String get authBackToMinePage => '마이페이지로 돌아가기';
@@ -2261,7 +2298,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get authErrorInvalidCredentials => '이메일 또는 비밀번호가 올바르지 않습니다.';
 
   @override
-  String get authErrorEmailNotConfirmed => '이메일이 인증되지 않았습니다. 로그인 전에 이메일에서 인증을 완료하세요.';
+  String get authErrorEmailNotConfirmed =>
+      '이메일이 인증되지 않았습니다. 로그인 전에 이메일에서 인증을 완료하세요.';
 
   @override
   String get authErrorRateLimit => '시도 횟수가 너무 많습니다. 나중에 다시 시도하세요.';
@@ -2276,10 +2314,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get authErrorEmailInvalid => '이메일 주소가 유효하지 않습니다. 철자 오류가 없는지 확인하세요.';
 
   @override
-  String get authErrorEmailExists => '이 이메일은 이미 등록되어 있습니다. 직접 로그인하거나 비밀번호를 재설정하세요.';
+  String get authErrorEmailExists =>
+      '이 이메일은 이미 등록되어 있습니다. 직접 로그인하거나 비밀번호를 재설정하세요.';
 
   @override
-  String get authErrorWeakPassword => '비밀번호가 너무 단순합니다. 문자와 숫자를 포함하여 6자 이상으로 설정하세요.';
+  String get authErrorWeakPassword =>
+      '비밀번호가 너무 단순합니다. 문자와 숫자를 포함하여 6자 이상으로 설정하세요.';
 
   @override
   String get authErrorSignupFailed => '등록에 실패했습니다. 나중에 다시 시도하세요.';
@@ -2306,7 +2346,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get exportTitle => '내보내기';
 
   @override
-  String get exportDescription => '아래 버튼을 클릭하여 저장 위치를 선택하고 현재 가계부를 CSV 파일로 내보내세요.';
+  String get exportDescription =>
+      '아래 버튼을 클릭하여 저장 위치를 선택하고 현재 가계부를 CSV 파일로 내보내세요.';
 
   @override
   String get exportButtonIOS => '내보내기 및 공유';
@@ -2528,7 +2569,8 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get updateDownloadBackgroundHint => '앱을 백그라운드로 전환할 수 있습니다. 다운로드는 계속됩니다';
+  String get updateDownloadBackgroundHint =>
+      '앱을 백그라운드로 전환할 수 있습니다. 다운로드는 계속됩니다';
 
   @override
   String get updateCancelButton => '취소';
@@ -2578,7 +2620,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateInstallTitle => '다운로드 완료';
 
   @override
-  String get updateInstallMessage => 'APK 파일 다운로드가 완료되었습니다. 즉시 설치하시겠습니까?\\n\\n참고: 설치 중에 앱이 일시적으로 백그라운드로 이동하는 것은 정상입니다.';
+  String get updateInstallMessage =>
+      'APK 파일 다운로드가 완료되었습니다. 즉시 설치하시겠습니까?\\n\\n참고: 설치 중에 앱이 일시적으로 백그라운드로 이동하는 것은 정상입니다.';
 
   @override
   String get updateInstallNow => '지금 설치';
@@ -2599,7 +2642,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateNotificationPermissionTitle => '알림 권한이 거부되었습니다';
 
   @override
-  String get updateNotificationPermissionMessage => '알림 권한을 얻을 수 없습니다. 다운로드 진행률이 알림 표시줄에 표시되지 않지만 다운로드 기능은 정상적으로 작동합니다.';
+  String get updateNotificationPermissionMessage =>
+      '알림 권한을 얻을 수 없습니다. 다운로드 진행률이 알림 표시줄에 표시되지 않지만 다운로드 기능은 정상적으로 작동합니다.';
 
   @override
   String get updateNotificationGuideTitle => '알림을 활성화해야 하는 경우 다음 단계를 따르세요:';
@@ -2620,7 +2664,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateNotificationStep5 => '\"알림 권한\" 활성화';
 
   @override
-  String get updateNotificationMiuiHint => 'MIUI 사용자: Xiaomi 시스템은 엄격한 알림 권한 제어가 있어 보안 센터에서 추가 설정이 필요할 수 있습니다';
+  String get updateNotificationMiuiHint =>
+      'MIUI 사용자: Xiaomi 시스템은 엄격한 알림 권한 제어가 있어 보안 센터에서 추가 설정이 필요할 수 있습니다';
 
   @override
   String get updateNotificationGotIt => '알겠습니다';
@@ -2638,13 +2683,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateCannotOpenLink => '링크를 열 수 없습니다';
 
   @override
-  String get updateManualVisit => '브라우저에서 수동으로 방문하세요:\\nhttps://github.com/TNT-Likely/BeeCount/releases';
+  String get updateManualVisit =>
+      '브라우저에서 수동으로 방문하세요:\\nhttps://github.com/TNT-Likely/BeeCount/releases';
 
   @override
   String get updateNoLocalApkTitle => '업데이트 패키지를 찾을 수 없습니다';
 
   @override
-  String get updateNoLocalApkMessage => '다운로드된 업데이트 패키지 파일을 찾을 수 없습니다.\\n\\n먼저 \"업데이트 확인\"을 통해 새 버전을 다운로드하세요.';
+  String get updateNoLocalApkMessage =>
+      '다운로드된 업데이트 패키지 파일을 찾을 수 없습니다.\\n\\n먼저 \"업데이트 확인\"을 통해 새 버전을 다운로드하세요.';
 
   @override
   String get updateInstallPackageTitle => '업데이트 패키지 설치';
@@ -2680,7 +2727,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateInstallFailedTitle => '설치 실패';
 
   @override
-  String get updateInstallFailedMessage => 'APK 설치 프로그램을 시작할 수 없습니다. 파일 권한을 확인하세요.';
+  String get updateInstallFailedMessage =>
+      'APK 설치 프로그램을 시작할 수 없습니다. 파일 권한을 확인하세요.';
 
   @override
   String get updateErrorTitle => '오류';
@@ -2763,7 +2811,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateNotificationDownloadCompleteTitle => '다운로드 완료';
 
   @override
-  String get updateNotificationDownloadCompleteMessage => '새 버전이 다운로드되었습니다. 탭하여 설치';
+  String get updateNotificationDownloadCompleteMessage =>
+      '새 버전이 다운로드되었습니다. 탭하여 설치';
 
   @override
   String get updateUserCancelledDownloadDialog => '사용자가 다운로드를 취소했습니다';
@@ -2772,10 +2821,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateCannotOpenLinkError => '링크를 열 수 없습니다';
 
   @override
-  String get updateNoLocalApkFoundMessage => '다운로드된 업데이트 패키지 파일을 찾을 수 없습니다.\\n\\n먼저 \"업데이트 확인\"을 통해 새 버전을 다운로드하세요.';
+  String get updateNoLocalApkFoundMessage =>
+      '다운로드된 업데이트 패키지 파일을 찾을 수 없습니다.\\n\\n먼저 \"업데이트 확인\"을 통해 새 버전을 다운로드하세요.';
 
   @override
-  String updateInstallPackageFoundMessage(String fileName, String fileSize, String time) {
+  String updateInstallPackageFoundMessage(
+      String fileName, String fileSize, String time) {
     return '업데이트 패키지를 찾았습니다:\\n\\n파일 이름: $fileName\\n크기: ${fileSize}MB\\n다운로드 시간: $time\\n\\n즉시 설치하시겠습니까?';
   }
 
@@ -2803,10 +2854,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get reminderQuickTestSent => '15초 후 빠른 테스트를 설정했습니다. 앱을 백그라운드에 유지하세요';
 
   @override
-  String get reminderFlutterTestSent => 'Flutter 테스트 알림을 전송했습니다. 탭하여 앱이 열리는지 확인하세요';
+  String get reminderFlutterTestSent =>
+      'Flutter 테스트 알림을 전송했습니다. 탭하여 앱이 열리는지 확인하세요';
 
   @override
-  String get reminderAlarmTestSent => 'AlarmManager 테스트 알림을 설정했습니다 (1초 후). 탭하여 앱이 열리는지 확인하세요';
+  String get reminderAlarmTestSent =>
+      'AlarmManager 테스트 알림을 설정했습니다 (1초 후). 탭하여 앱이 열리는지 확인하세요';
 
   @override
   String get updateOk => '확인';
@@ -2818,7 +2871,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateCachedVersionTitle => '다운로드된 버전을 찾았습니다';
 
   @override
-  String get updateCachedVersionMessage => '이전에 다운로드한 설치 패키지를 찾았습니다...\"확인\"을 클릭하면 즉시 설치하고, \"취소\"를 클릭하면 닫습니다...';
+  String get updateCachedVersionMessage =>
+      '이전에 다운로드한 설치 패키지를 찾았습니다...\"확인\"을 클릭하면 즉시 설치하고, \"취소\"를 클릭하면 닫습니다...';
 
   @override
   String get updateConfirmDownload => '지금 다운로드하고 설치';
@@ -2830,7 +2884,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateInstallConfirmMessage => '새 버전이 다운로드되었습니다. 지금 설치하시겠습니까?';
 
   @override
-  String get updateNotificationPermissionGuideText => '다운로드 진행률 알림이 비활성화되어 있지만 다운로드 기능에는 영향을 주지 않습니다. 진행률을 보려면:';
+  String get updateNotificationPermissionGuideText =>
+      '다운로드 진행률 알림이 비활성화되어 있지만 다운로드 기능에는 영향을 주지 않습니다. 진행률을 보려면:';
 
   @override
   String get updateNotificationGuideStep1 => '시스템 설정 > 앱 관리로 이동';
@@ -2926,7 +2981,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get webdavConfiguredTitle => 'WebDAV 클라우드 서비스 설정 완료';
 
   @override
-  String get webdavConfiguredMessage => 'WebDAV 클라우드 서비스는 설정 시 제공된 자격 증명을 사용하므로 추가 로그인이 필요하지 않습니다.';
+  String get webdavConfiguredMessage =>
+      'WebDAV 클라우드 서비스는 설정 시 제공된 자격 증명을 사용하므로 추가 로그인이 필요하지 않습니다.';
 
   @override
   String get recurringTransactionTitle => '반복 거래';
@@ -3018,7 +3074,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get syncNotLoggedInMessage => '로그인되지 않았습니다';
 
   @override
-  String get syncCloudBackupCorruptedMessage => '클라우드 백업 내용이 손상되었습니다. 이전 버전의 인코딩 문제로 인한 것일 수 있습니다. \'현재 가계부를 클라우드에 업로드\'를 클릭하여 덮어쓰고 수정하세요.';
+  String get syncCloudBackupCorruptedMessage =>
+      '클라우드 백업 내용이 손상되었습니다. 이전 버전의 인코딩 문제로 인한 것일 수 있습니다. \'현재 가계부를 클라우드에 업로드\'를 클릭하여 덮어쓰고 수정하세요.';
 
   @override
   String get syncNoCloudBackupMessage => '클라우드 백업 없음';
@@ -3071,7 +3128,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudErrorWebdavNotSupported => '서버가 WebDAV 프로토콜을 지원하지 않습니다';
 
   @override
-  String get cloudErrorAuthFailedCredentials => '인증 실패: 사용자 이름 또는 비밀번호가 올바르지 않습니다';
+  String get cloudErrorAuthFailedCredentials =>
+      '인증 실패: 사용자 이름 또는 비밀번호가 올바르지 않습니다';
 
   @override
   String get cloudErrorAccessDenied => '액세스 거부됨: 권한을 확인하세요';
@@ -3105,7 +3163,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudSwitchConfirmTitle => '클라우드 서비스 전환';
 
   @override
-  String get cloudSwitchConfirmMessage => '클라우드 서비스를 전환하면 현재 계정이 로그아웃됩니다. 전환하시겠습니까?';
+  String get cloudSwitchConfirmMessage =>
+      '클라우드 서비스를 전환하면 현재 계정이 로그아웃됩니다. 전환하시겠습니까?';
 
   @override
   String get cloudSwitchFailedTitle => '전환 실패';
@@ -3235,7 +3294,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateCorruptedFileTitle => '설치 패키지가 손상되었습니다';
 
   @override
-  String get updateCorruptedFileMessage => '이전에 다운로드한 설치 패키지가 불완전하거나 손상된 것으로 감지되었습니다. 삭제하고 다시 다운로드하시겠습니까？';
+  String get updateCorruptedFileMessage =>
+      '이전에 다운로드한 설치 패키지가 불완전하거나 손상된 것으로 감지되었습니다. 삭제하고 다시 다운로드하시겠습니까？';
 
   @override
   String get welcomeTitle => '환영합니다사용 BeeCount';
@@ -3337,7 +3397,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aboutWidget => '정보위젯';
 
   @override
-  String get widgetDescription => '위젯자동동기화표시오늘和이번 달的수입지출데이터，매30분자동새로고침한 번。열기앱후즉시업데이트데이터。';
+  String get widgetDescription =>
+      '위젯자동동기화표시오늘和이번 달的수입지출데이터，매30분자동새로고침한 번。열기앱후즉시업데이트데이터。';
 
   @override
   String get appName => '蜜蜂记账';
@@ -3370,7 +3431,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get featureDescription => '기능 설명';
 
   @override
-  String get featureDescriptionContent => '결제 페이지의 스크린샷을 찍으면 시스템이 금액과 가맹점 정보를 자동으로 인식하고 지출 기록을 생성합니다.\n\n⚡ 인식 속도 약 1-2초\n🤖 자동으로 카테고리 매칭\n📝 자동으로 메모 입력\n\n참고:\n• 접근성 서비스가 활성화되지 않은 경우 인식 속도가 약간 느려집니다(3-5초)\n• 접근성 서비스를 활성화하면 즉시 인식할 수 있습니다';
+  String get featureDescriptionContent =>
+      '결제 페이지의 스크린샷을 찍으면 시스템이 금액과 가맹점 정보를 자동으로 인식하고 지출 기록을 생성합니다.\n\n⚡ 인식 속도 약 1-2초\n🤖 자동으로 카테고리 매칭\n📝 자동으로 메모 입력\n\n참고:\n• 접근성 서비스가 활성화되지 않은 경우 인식 속도가 약간 느려집니다(3-5초)\n• 접근성 서비스를 활성화하면 즉시 인식할 수 있습니다';
 
   @override
   String get autoBilling => '자동 기록';
@@ -3394,7 +3456,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get improveRecognitionSpeed => '인식 속도 향상';
 
   @override
-  String get accessibilityGuideContent => '접근성 서비스를 활성화하면 스크린샷 순간 인식이 가능하며 파일 쓰기를 기다릴 필요가 없습니다.';
+  String get accessibilityGuideContent =>
+      '접근성 서비스를 활성화하면 스크린샷 순간 인식이 가능하며 파일 쓰기를 기다릴 필요가 없습니다.';
 
   @override
   String get setupSteps => '설정 단계:';
@@ -3415,7 +3478,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get openAccessibilitySettings => '접근성 설정 열기';
 
   @override
-  String get accessibilityServiceNote => '💡 참고: 접근성 서비스는 스크린샷 동작 감지에만 사용되며 다른 데이터를 읽거나 수정하지 않습니다.';
+  String get accessibilityServiceNote =>
+      '💡 참고: 접근성 서비스는 스크린샷 동작 감지에만 사용되며 다른 데이터를 읽거나 수정하지 않습니다.';
 
   @override
   String get supportedPayments => '지원되는 결제 방법';
@@ -3448,13 +3512,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get autoBillingBatteryGuideTitle => '배터리 최적화 설정';
 
   @override
-  String get autoBillingBatteryDesc => '자동 기록을 위해서는 앱이 백그라운드에서 계속 실행되어야 합니다. 일부 장치에서는 화면 잠금 후 백그라운드 앱이 자동으로 정리되어 자동 기록 기능이 비활성화될 수 있습니다. 배터리 최적화를 끄는 것이 좋습니다.';
+  String get autoBillingBatteryDesc =>
+      '자동 기록을 위해서는 앱이 백그라운드에서 계속 실행되어야 합니다. 일부 장치에서는 화면 잠금 후 백그라운드 앱이 자동으로 정리되어 자동 기록 기능이 비활성화될 수 있습니다. 배터리 최적화를 끄는 것이 좋습니다.';
 
   @override
   String get autoBillingCheckBattery => '배터리 최적화 상태 확인';
 
   @override
-  String get autoBillingBatteryWarning => '⚠️ 배터리 최적화가 꺼져 있지 않습니다. 앱이 시스템에 의해 자동으로 정리되어 자동 기록이 비활성화될 수 있습니다. 위의 \"설정으로 이동\" 버튼을 탭하여 배터리 최적화를 끄는 것이 좋습니다.';
+  String get autoBillingBatteryWarning =>
+      '⚠️ 배터리 최적화가 꺼져 있지 않습니다. 앱이 시스템에 의해 자동으로 정리되어 자동 기록이 비활성화될 수 있습니다. 위의 \"설정으로 이동\" 버튼을 탭하여 배터리 최적화를 끄는 것이 좋습니다.';
 
   @override
   String get enableFailed => '활성화 실패';
@@ -3484,13 +3550,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get quickActions => '빠른 기능';
 
   @override
-  String get iosAutoFeatureDesc => 'iOS \"바로 가기\" 앱을 사용하여 스크린샷 후 결제 정보를 자동으로 인식하고 기록합니다. 설정 후 스크린샷을 찍을 때마다 자동으로 인식이 트리거됩니다.';
+  String get iosAutoFeatureDesc =>
+      'iOS \"바로 가기\" 앱을 사용하여 스크린샷 후 결제 정보를 자동으로 인식하고 기록합니다. 설정 후 스크린샷을 찍을 때마다 자동으로 인식이 트리거됩니다.';
 
   @override
   String get iosAutoShortcutQuickAdd => '바로 가기 빠르게 추가';
 
   @override
-  String get iosAutoShortcutQuickAddDesc => '아래 버튼을 탭하면 설정된 바로 가기를 직접 가져오거나 바로 가기 앱을 수동으로 열어 설정할 수 있습니다.';
+  String get iosAutoShortcutQuickAddDesc =>
+      '아래 버튼을 탭하면 설정된 바로 가기를 직접 가져오거나 바로 가기 앱을 수동으로 열어 설정할 수 있습니다.';
 
   @override
   String get iosAutoShortcutImport => '원클릭으로 바로 가기 가져오기';
@@ -3514,13 +3582,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get iosAutoShortcutStep4 => '\"스크린샷에서 텍스트 추출\" 작업 추가';
 
   @override
-  String get iosAutoShortcutStep5 => '\"텍스트 바꾸기\" 작업 추가: \"추출된 텍스트\"의 \"\\n\"을 \",\" (쉼표)로 바꿉니다';
+  String get iosAutoShortcutStep5 =>
+      '\"텍스트 바꾸기\" 작업 추가: \"추출된 텍스트\"의 \"\\n\"을 \",\" (쉼표)로 바꿉니다';
 
   @override
-  String get iosAutoShortcutStep6 => '\"URL 인코딩\" 작업 추가: \"바꾼 텍스트\"를 URL 인코딩합니다';
+  String get iosAutoShortcutStep6 =>
+      '\"URL 인코딩\" 작업 추가: \"바꾼 텍스트\"를 URL 인코딩합니다';
 
   @override
-  String get iosAutoShortcutStep7 => '\"URL 열기\" 작업 추가, URL 입력:\nbeecount://auto-billing?text=[URL 인코딩된 텍스트]';
+  String get iosAutoShortcutStep7 =>
+      '\"URL 열기\" 작업 추가, URL 입력:\nbeecount://auto-billing?text=[URL 인코딩된 텍스트]';
 
   @override
   String get iosAutoShortcutStep8 => '바로 가기 설정 (오른쪽 상단의 점 세 개) 탭';
@@ -3532,13 +3603,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get iosAutoShortcutStep10 => '저장 및 테스트: 스크린샷 후 자동으로 인식됩니다';
 
   @override
-  String get iosAutoShortcutRecommendedTip => '✅ 권장: URL 매개변수 전달, 권한 불필요, 최고의 경험. 중요한 단계:\n• 텍스트를 바꿀 때 줄바꿈 문자\\n을 쉼표,로 바꿉니다 (URL 잘림 방지)\n• URL 인코딩 작업을 사용합니다 (문자 깨짐 방지)\n• 일반적으로 스크린샷 텍스트는 2048자 제한을 초과하지 않습니다';
+  String get iosAutoShortcutRecommendedTip =>
+      '✅ 권장: URL 매개변수 전달, 권한 불필요, 최고의 경험. 중요한 단계:\n• 텍스트를 바꿀 때 줄바꿈 문자\\n을 쉼표,로 바꿉니다 (URL 잘림 방지)\n• URL 인코딩 작업을 사용합니다 (문자 깨짐 방지)\n• 일반적으로 스크린샷 텍스트는 2048자 제한을 초과하지 않습니다';
 
   @override
   String get iosAutoBackTapTitle => '💡 뒤로 두 번 탭하여 빠르게 트리거 (권장)';
 
   @override
-  String get iosAutoBackTapDesc => '설정 > 손쉬운 사용 > 터치 > 뒤로 탭하기\n• \"이중 탭\" 또는 \"삼중 탭\" 선택\n• 생성한 바로 가기 선택\n• 완료 후 결제 시 전화기 뒤쪽을 두 번 탭하면 스크린샷 없이 자동으로 기록됩니다';
+  String get iosAutoBackTapDesc =>
+      '설정 > 손쉬운 사용 > 터치 > 뒤로 탭하기\n• \"이중 탭\" 또는 \"삼중 탭\" 선택\n• 생성한 바로 가기 선택\n• 완료 후 결제 시 전화기 뒤쪽을 두 번 탭하면 스크린샷 없이 자동으로 기록됩니다';
 
   @override
   String iosAutoImportFailed(Object error) {
@@ -3566,7 +3639,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiEnableTitle => 'AI 인식 활성화';
 
   @override
-  String get aiEnableSubtitle => 'AI를 사용하여 OCR 인식 정확도를 향상시키고 금액, 가맹점, 시간 등의 정보를 추출합니다';
+  String get aiEnableSubtitle =>
+      'AI를 사용하여 OCR 인식 정확도를 향상시키고 금액, 가맹점, 시간 등의 정보를 추출합니다';
 
   @override
   String get aiEnableToastOn => 'AI 향상이 활성화되었습니다';
@@ -3830,13 +3904,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get configImportExportTitle => 'Config Import/Export';
 
   @override
-  String get configImportExportSubtitle => 'Backup and restore app configurations';
+  String get configImportExportSubtitle =>
+      'Backup and restore app configurations';
 
   @override
   String get configImportExportInfoTitle => 'Feature Description';
 
   @override
-  String get configImportExportInfoMessage => 'This feature is used to export and import app configurations, including cloud service settings, AI settings, etc. The config file uses YAML format for easy viewing and editing.\n\n⚠️ Config files contain sensitive information (such as API keys, passwords, etc.), please keep them safe.';
+  String get configImportExportInfoMessage =>
+      'This feature is used to export and import app configurations, including cloud service settings, AI settings, etc. The config file uses YAML format for easy viewing and editing.\n\n⚠️ Config files contain sensitive information (such as API keys, passwords, etc.), please keep them safe.';
 
   @override
   String get configExportTitle => 'Export Config';
@@ -3866,7 +3942,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get configImportConfirmTitle => 'Confirm Import';
 
   @override
-  String get configImportConfirmMessage => 'Importing config will overwrite current settings, continue?';
+  String get configImportConfirmMessage =>
+      'Importing config will overwrite current settings, continue?';
 
   @override
   String get configImportSuccess => 'Config imported successfully';
@@ -3878,7 +3955,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get configImportRestartTitle => 'Restart Required';
 
   @override
-  String get configImportRestartMessage => 'Config has been imported. Some settings will take effect after restarting the app.';
+  String get configImportRestartMessage =>
+      'Config has been imported. Some settings will take effect after restarting the app.';
 
   @override
   String get configImportExportIncludesTitle => 'Included Configurations';
@@ -3919,7 +3997,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get ledgersConflictTitle => 'Sync Conflict';
 
   @override
-  String get ledgersConflictMessage => 'Local and cloud ledger data are inconsistent, please choose an action:';
+  String get ledgersConflictMessage =>
+      'Local and cloud ledger data are inconsistent, please choose an action:';
 
   @override
   String ledgersConflictLocalInfo(int count) {

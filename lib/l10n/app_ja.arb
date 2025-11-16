@@ -1,9 +1,5 @@
 {
-  "@@locale": "ja",
   "appTitle": "蜜蜂家計簿",
-  "@appTitle": {
-    "description": "The application title"
-  },
   "tabHome": "ホーム",
   "tabAnalytics": "チャート",
   "tabLedgers": "家計簿",
@@ -66,21 +62,7 @@
   "homeShowAmount": "金額を表示",
   "homeHideAmount": "金額を非表示",
   "homeYear": "{year}年",
-  "@homeYear": {
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
-  },
   "homeMonth": "{month}月",
-  "@homeMonth": {
-    "placeholders": {
-      "month": {
-        "type": "String"
-      }
-    }
-  },
   "homeNoRecordsSubtext": "下のプラスボタンをタップして記録を追加してください",
   "widgetTodayExpense": "本日の支出",
   "widgetTodayIncome": "本日の収入",
@@ -131,13 +113,6 @@
   "analyticsSwipeHint": "左右にスワイプして期間を変更",
   "analyticsTipContent": "1) 下部を左右にスワイプして支出/収入/残高を切り替え\\n2) チャートエリアを左右にスワイプして期間を切り替え",
   "analyticsSwitchTo": "{type}に切り替え",
-  "@analyticsSwitchTo": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
   "analyticsTipHeader": "ヒント：上部のカプセルで月/年/すべてを切り替え可能",
   "analyticsSwipeToSwitch": "スワイプして切り替え",
   "analyticsAllYears": "すべての年",
@@ -161,13 +136,6 @@
   "ledgersDeleted": "削除済み",
   "ledgersDeleteFailed": "削除失敗",
   "ledgersRecordsDeleted": "{count}件の記録を削除しました",
-  "@ledgersRecordsDeleted": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "ledgersName": "名前",
   "ledgersDefaultLedgerName": "デフォルト家計簿",
   "ledgersDefaultAccountName": "現金",
@@ -178,21 +146,7 @@
   "ledgersCreate": "作成",
   "ledgersActions": "操作",
   "ledgersRecords": "記録：{count}件",
-  "@ledgersRecords": {
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersBalance": "残高：{balance}",
-  "@ledgersBalance": {
-    "placeholders": {
-      "balance": {
-        "type": "String"
-      }
-    }
-  },
   "categoryTitle": "カテゴリ管理",
   "categoryNew": "新しいカテゴリ",
   "categoryExpense": "支出カテゴリ",
@@ -202,13 +156,6 @@
   "categoryCustomTag": "カスタム",
   "categoryReorderTip": "長押しでドラッグして順序を変更できます",
   "categoryLoadFailed": "読み込み失敗：{error}",
-  "@categoryLoadFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "iconPickerTitle": "アイコンを選択",
   "iconCategoryFood": "食事",
   "iconCategoryTransport": "交通",
@@ -267,13 +214,6 @@
   "importSkippedNonTransactionTypes": "{count}件の非取引記録をスキップしました（振替、債務など）",
   "importTransactionFailed": "インポートに失敗しました。すべての変更がロールバックされました：{error}",
   "importFileOpenError": "ファイルピッカーを開けません：{error}",
-  "@importFileOpenError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "mineTitle": "マイページ",
   "mineSettings": "設定",
   "mineTheme": "テーマ設定",
@@ -301,19 +241,6 @@
   "restoreProgress": "復元中（{current}/{total}）",
   "restorePreparing": "準備中...",
   "restoreLedgerProgress": "家計簿：{ledger} 記録：{done}/{total}",
-  "@restoreLedgerProgress": {
-    "placeholders": {
-      "ledger": {
-        "type": "String"
-      },
-      "done": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "mineSlogan": "蜜蜂家計簿、一円も逃さない",
   "mineDaysCount": "日",
   "mineTotalRecords": "記録",
@@ -410,13 +337,6 @@
   "categoryMigrationToHintFirst": "最初に元のカテゴリを選択してください",
   "categoryMigrationStartButton": "移行開始",
   "categoryMigrationTransactionCount": "{count}件の記録",
-  "@categoryMigrationTransactionCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "categoryMigrationCannotTitle": "移行できません",
   "categoryMigrationCannotMessage": "選択されたカテゴリは移行できません、カテゴリのステータスを確認してください。",
   "categoryExpenseType": "支出カテゴリ",
@@ -621,13 +541,6 @@
   "categoryMigrationFailedTitle": "移行失敗",
   "categoryMigrationFailedMessage": "移行エラー：{error}",
   "categoryMigrationTransactionLabel": "{count}件の記録",
-  "@categoryMigrationTransactionLabel": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "categoryPickerExpenseTab": "支出",
   "categoryPickerIncomeTab": "収入",
   "categoryPickerCancel": "キャンセル",
@@ -708,13 +621,6 @@
   "cloudServiceDescription": "内蔵クラウドサービス（無料ですが不安定な場合があります、独自のサービスまたは定期バックアップを推奨）",
   "cloudServiceDescriptionNotConfigured": "現在のビルドには内蔵クラウドサービス設定がありません",
   "cloudServiceDescriptionCustom": "サーバー：{url}",
-  "@cloudServiceDescriptionCustom": {
-    "placeholders": {
-      "url": {
-        "type": "String"
-      }
-    }
-  },
   "authLogin": "ログイン",
   "authSignup": "サインアップ",
   "authRegister": "登録",
@@ -743,27 +649,6 @@
   "authErrorUserNotFound": "メールが登録されていません、{action}できません。",
   "authErrorEmailNotVerified": "メールが確認されていません、{action}できません。",
   "authErrorActionFailed": "{action}に失敗しました、しばらくしてから再試行してください。",
-  "@authErrorUserNotFound": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
-  "@authErrorEmailNotVerified": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
-  "@authErrorActionFailed": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
   "importSelectCsvFile": "インポートするファイルを選択してください（CSV/TSV/XLSX対応）",
   "exportTitle": "エクスポート",
   "exportDescription": "下のボタンをクリックして保存場所を選択し、現在の家計簿をCSVファイルにエクスポートします。",
@@ -785,27 +670,6 @@
   "exportTypeIncome": "収入",
   "exportTypeExpense": "支出",
   "exportTypeTransfer": "振替",
-  "@exportSavedTo": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
-  "@exportSuccessMessageIOS": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
-  "@exportSuccessMessageAndroid": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "personalizeThemeHoney": "蜜蜂イエロー",
   "personalizeThemeOrange": "フレームオレンジ",
   "personalizeThemeGreen": "エメラルドグリーン",
@@ -840,49 +704,14 @@
   "analyticsTotalExpense": "総支出：",
   "analyticsBalance": "残高：",
   "analyticsAvgIncome": "{avgLabel}収入：",
-  "@analyticsAvgIncome": {
-    "placeholders": {
-      "avgLabel": {
-        "type": "String"
-      }
-    }
-  },
   "analyticsAvgExpense": "{avgLabel}支出：",
-  "@analyticsAvgExpense": {
-    "placeholders": {
-      "avgLabel": {
-        "type": "String"
-      }
-    }
-  },
   "analyticsExpense": "支出",
   "analyticsIncome": "収入",
   "analyticsTotal": "総{type}：",
-  "@analyticsTotal": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
   "analyticsAverage": "{avgLabel}：",
-  "@analyticsAverage": {
-    "placeholders": {
-      "avgLabel": {
-        "type": "String"
-      }
-    }
-  },
   "updateCheckTitle": "アップデートを確認",
   "updateNewVersionFound": "新しいバージョンが見つかりました",
   "updateNewVersionTitle": "新しいバージョン{version}が見つかりました",
-  "@updateNewVersionTitle": {
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "updateNoApkFound": "APKダウンロードリンクが見つかりません",
   "updateAlreadyLatest": "既に最新バージョンです",
   "updateCheckFailed": "アップデート確認に失敗しました",
@@ -890,13 +719,6 @@
   "updateUserCancelled": "ユーザーがキャンセルしました",
   "updateDownloadTitle": "アップデートをダウンロード",
   "updateDownloading": "ダウンロード中：{percent}%",
-  "@updateDownloading": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
   "updateDownloadBackgroundHint": "アプリをバックグラウンドに切り替えることができます、ダウンロードは継続されます",
   "updateCancelButton": "キャンセル",
   "updateBackgroundDownload": "バックグラウンドダウンロード",
@@ -904,13 +726,6 @@
   "updateDownloadButton": "ダウンロード",
   "updateFoundCachedTitle": "ダウンロード済みバージョンが見つかりました",
   "updateFoundCachedMessage": "以前にダウンロードしたインストーラーが見つかりました、直接インストールしますか？\\n\\n「OK」をクリックして即座にインストール、「キャンセル」をクリックしてこのダイアログを閉じます。\\n\\nファイルパス：{path}",
-  "@updateFoundCachedMessage": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "updateInstallingCachedApk": "キャッシュされたAPKをインストール中",
   "updateDownloadComplete": "ダウンロード完了",
   "updateInstallStarted": "ダウンロード完了、インストーラーを開始しました",
@@ -946,49 +761,15 @@
   "updateInstallPackageTitle": "アップデートパッケージをインストール",
   "updateMultiplePackagesTitle": "複数のアップデートパッケージが見つかりました",
   "updateMultiplePackagesMessage": "{count}個のアップデートパッケージファイルが見つかりました。\\n\\n最新のダウンロードバージョンの使用をお勧めします、またはファイルマネージャーで手動インストールしてください。\\n\\nファイル場所：{path}",
-  "@updateMultiplePackagesMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "updateSearchFailedTitle": "検索失敗",
   "updateSearchFailedMessage": "ローカルアップデートパッケージの検索中にエラーが発生しました：{error}",
-  "@updateSearchFailedMessage": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "updateFoundCachedPackageTitle": "ダウンロード済みアップデートパッケージが見つかりました",
   "updateFoundCachedPackageMessage": "以前にダウンロードしたアップデートパッケージが検出されました：\\n\\nファイル名：{fileName}\\nサイズ：{fileSize}MB\\n\\nすぐにインストールしますか？",
-  "@updateFoundCachedPackageMessage": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      },
-      "fileSize": {
-        "type": "String"
-      }
-    }
-  },
   "updateIgnoreButton": "無視",
   "updateInstallFailedTitle": "インストール失敗",
   "updateInstallFailedMessage": "APKインストーラーを開始できません、ファイル権限を確認してください。",
   "updateErrorTitle": "エラー",
   "updateReadCacheFailedMessage": "キャッシュされたアップデートパッケージの読み込みに失敗しました：{error}",
-  "@updateReadCacheFailedMessage": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "updateCheckingPermissions": "権限を確認中...",
   "updateCheckingCache": "ローカルキャッシュを確認中...",
   "updatePreparingDownload": "ダウンロードを準備中...",
@@ -1005,89 +786,21 @@
   "updateCurrentLatestVersion": "既に最新バージョンです",
   "updateCheckFailedGeneric": "アップデート確認に失敗しました",
   "updateDownloadProgress": "ダウンロード中：{percent}%",
-  "@updateDownloadProgress": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
   "updateNoApkFoundError": "APKダウンロードリンクが見つかりません",
   "updateCheckingUpdateError": "アップデート確認に失敗しました：{error}",
-  "@updateCheckingUpdateError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "updateNotificationChannelName": "アップデートダウンロード",
   "updateNotificationDownloadingIndeterminate": "新しいバージョンをダウンロード中...",
   "updateNotificationDownloadingProgress": "ダウンロード進行状況：{progress}%",
-  "@updateNotificationDownloadingProgress": {
-    "placeholders": {
-      "progress": {
-        "type": "String"
-      }
-    }
-  },
   "updateNotificationDownloadCompleteTitle": "ダウンロード完了",
   "updateNotificationDownloadCompleteMessage": "新しいバージョンがダウンロードされました、タップしてインストール",
   "updateUserCancelledDownloadDialog": "ユーザーがダウンロードをキャンセルしました",
   "updateCannotOpenLinkError": "リンクを開けません",
   "updateNoLocalApkFoundMessage": "ダウンロードされたアップデートパッケージファイルが見つかりません。\\n\\n最初に「アップデートを確認」から新しいバージョンをダウンロードしてください。",
   "updateInstallPackageFoundMessage": "アップデートパッケージが見つかりました：\\n\\nファイル名：{fileName}\\nサイズ：{fileSize}MB\\nダウンロード時刻：{time}\\n\\nすぐにインストールしますか？",
-  "@updateInstallPackageFoundMessage": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      },
-      "fileSize": {
-        "type": "String"
-      },
-      "time": {
-        "type": "String"
-      }
-    }
-  },
   "updateMultiplePackagesFoundMessage": "{count}個のアップデートパッケージファイルが見つかりました。\\n\\n最新のダウンロードバージョンの使用をお勧めします、またはファイルマネージャーで手動インストールしてください。\\n\\nファイル場所：{path}",
-  "@updateMultiplePackagesFoundMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "updateSearchLocalApkError": "ローカルアップデートパッケージの検索中にエラーが発生しました：{error}",
-  "@updateSearchLocalApkError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "updateCachedPackageFoundMessage": "以前にダウンロードしたアップデートパッケージが検出されました：\\n\\nファイル名：{fileName}\\nサイズ：{fileSize}MB\\n\\nすぐにインストールしますか？",
-  "@updateCachedPackageFoundMessage": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      },
-      "fileSize": {
-        "type": "String"
-      }
-    }
-  },
   "updateReadCachedPackageError": "キャッシュされたアップデートパッケージの読み込みに失敗しました：{error}",
-  "@updateReadCachedPackageError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "reminderQuickTestSent": "15秒後のクイックテストを設定しました、アプリをバックグラウンドに保持してください",
   "reminderFlutterTestSent": "Flutterテスト通知を送信しました、タップしてアプリが開くか確認してください",
   "reminderAlarmTestSent": "AlarmManagerテスト通知を設定しました（1秒後）、タップしてアプリが開くか確認してください",
@@ -1151,37 +864,9 @@
   "recurringTransactionEmpty": "定期取引がありません",
   "recurringTransactionEmptyHint": "右上の + ボタンをタップして追加",
   "recurringTransactionEveryNDays": "{n} 日ごと",
-  "@recurringTransactionEveryNDays": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNWeeks": "{n} 週ごと",
-  "@recurringTransactionEveryNWeeks": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNMonths": "{n} か月ごと",
-  "@recurringTransactionEveryNMonths": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNYears": "{n} 年ごと",
-  "@recurringTransactionEveryNYears": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "cloudDefaultServiceDisplayName": "デフォルトクラウドサービス",
   "cloudNotConfiguredDisplay": "設定されていません",
   "syncNotConfiguredMessage": "クラウドが設定されていません",
@@ -1202,32 +887,11 @@
   "cloudCannotOpenLink": "リンクを開けません",
   "cloudErrorAuthFailed": "認証失敗: 無効なAPIキー",
   "cloudErrorServerStatus": "サーバーがステータスコード {code} を返しました",
-  "@cloudErrorServerStatus": {
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
   "cloudErrorWebdavNotSupported": "サーバーはWebDAVプロトコルをサポートしていません",
   "cloudErrorAuthFailedCredentials": "認証失敗: ユーザー名またはパスワードが正しくありません",
   "cloudErrorAccessDenied": "アクセス拒否: 権限を確認してください",
   "cloudErrorPathNotFound": "サーバーパスが見つかりません: {path}",
-  "@cloudErrorPathNotFound": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "cloudErrorNetwork": "ネットワークエラー: {message}",
-  "@cloudErrorNetwork": {
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
   "cloudTestSuccessTitle": "テスト成功",
   "cloudTestSuccessMessage": "接続正常、設定有効",
   "cloudTestFailedTitle": "テスト失敗",
@@ -1241,13 +905,6 @@
   "cloudConfigInvalidMessage": "完全な情報を入力してください",
   "cloudSaveFailed": "保存失敗",
   "cloudSwitchedTo": "{type} に切り替えました",
-  "@cloudSwitchedTo": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
   "cloudConfigureSupabaseTitle": "Supabase設定",
   "cloudConfigureWebdavTitle": "WebDAV設定",
   "cloudSupabaseAnonKeyHintLong": "完全な anon key を貼り付けてください",
@@ -1487,20 +1144,6 @@
   "storageHint": "項目をタップすると対応するキャッシュファイルをクリアできます",
   "storageClearConfirmTitle": "クリアの確認",
   "storageClearAIModelsMessage": "すべてのAIモデルをクリアしてもよろしいですか？サイズ: {size}",
-  "@storageClearAIModelsMessage": {
-    "placeholders": {
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "storageClearAPKMessage": "すべてのインストールパッケージをクリアしてもよろしいですか？サイズ: {size}",
-  "@storageClearAPKMessage": {
-    "placeholders": {
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "storageClearSuccess": "クリア成功"
 }

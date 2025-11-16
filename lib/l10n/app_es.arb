@@ -1,9 +1,5 @@
 {
-  "@@locale": "es",
   "appTitle": "Contabilidad Abeja",
-  "@appTitle": {
-    "description": "The application title"
-  },
   "tabHome": "Inicio",
   "tabAnalytics": "Gráficos",
   "tabLedgers": "Libros",
@@ -66,21 +62,7 @@
   "homeShowAmount": "Mostrar montos",
   "homeHideAmount": "Ocultar montos",
   "homeYear": "{year}",
-  "@homeYear": {
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
-  },
   "homeMonth": "{month}M",
-  "@homeMonth": {
-    "placeholders": {
-      "month": {
-        "type": "String"
-      }
-    }
-  },
   "homeNoRecordsSubtext": "Toca el botón más en la parte inferior para agregar un registro",
   "searchTitle": "Buscar",
   "searchHint": "Buscar notas, categorías o montos...",
@@ -168,13 +150,6 @@
   "exportButtonIOS": "Exportar y compartir",
   "exportButtonAndroid": "Exportar datos",
   "exportSavedTo": "Guardado en: {path}",
-  "@exportSavedTo": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "exportSelectFolder": "Seleccionar carpeta de exportación",
   "exportCsvHeaderType": "Tipo",
   "exportCsvHeaderCategory": "Categoría",
@@ -185,21 +160,7 @@
   "exportShareText": "Archivo de exportación de BeeCount",
   "exportSuccessTitle": "Exportación exitosa",
   "exportSuccessMessageIOS": "Guardado y disponible en el historial de compartir:\n{path}",
-  "@exportSuccessMessageIOS": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "exportSuccessMessageAndroid": "Guardado en:\n{path}",
-  "@exportSuccessMessageAndroid": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "exportFailedTitle": "Exportación fallida",
   "exportTypeIncome": "Ingreso",
   "exportTypeExpense": "Gasto",
@@ -238,45 +199,10 @@
   "analyticsTotalIncome": "Total de ingresos: ",
   "analyticsTotalExpense": "Total de gastos: ",
   "analyticsAvgIncome": "{avgLabel} ingresos: ",
-  "@analyticsAvgIncome": {
-    "placeholders": {
-      "avgLabel": {
-        "type": "String"
-      }
-    }
-  },
   "analyticsAvgExpense": "{avgLabel} gastos: ",
-  "@analyticsAvgExpense": {
-    "placeholders": {
-      "avgLabel": {
-        "type": "String"
-      }
-    }
-  },
-  "@analyticsTotal": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
-  "@analyticsAverage": {
-    "placeholders": {
-      "avgLabel": {
-        "type": "String"
-      }
-    }
-  },
   "updateCheckTitle": "Verificar actualización",
   "updateNewVersionFound": "Nueva versión encontrada",
   "updateNewVersionTitle": "Nueva versión {version} encontrada",
-  "@updateNewVersionTitle": {
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "updateNoApkFound": "Enlace de descarga APK no encontrado",
   "updateAlreadyLatest": "Ya tienes la última versión",
   "updateCheckFailed": "Error al verificar actualización",
@@ -284,13 +210,6 @@
   "updateUserCancelled": "Usuario canceló",
   "updateDownloadTitle": "Descargar actualización",
   "updateDownloading": "Descargando: {percent}%",
-  "@updateDownloading": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
   "updateDownloadBackgroundHint": "Puedes poner la aplicación en segundo plano, la descarga continuará",
   "updateCancelButton": "Cancelar",
   "updateBackgroundDownload": "Descarga en segundo plano",
@@ -298,13 +217,6 @@
   "updateDownloadButton": "Descargar",
   "updateFoundCachedTitle": "Versión descargada encontrada",
   "updateFoundCachedMessage": "Se encontró un instalador descargado previamente, ¿instalar directamente?\\n\\nHaz clic en \"OK\" para instalar inmediatamente, haz clic en \"Cancelar\" para cerrar este diálogo.\\n\\nRuta del archivo: {path}",
-  "@updateFoundCachedMessage": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "updateInstallingCachedApk": "Instalando APK en caché",
   "updateDownloadComplete": "Descarga completa",
   "updateInstallStarted": "Descarga completa, instalador iniciado",
@@ -340,49 +252,15 @@
   "updateInstallPackageTitle": "Instalar paquete de actualización",
   "updateMultiplePackagesTitle": "Se encontraron múltiples paquetes de actualización",
   "updateMultiplePackagesMessage": "Se encontraron {count} archivos de paquete de actualización.\\n\\nSe recomienda usar la versión descargada más reciente, o instalar manualmente en el administrador de archivos.\\n\\nUbicación del archivo: {path}",
-  "@updateMultiplePackagesMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "updateSearchFailedTitle": "Búsqueda fallida",
   "updateSearchFailedMessage": "Ocurrió un error al buscar paquetes de actualización locales: {error}",
-  "@updateSearchFailedMessage": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "updateFoundCachedPackageTitle": "Paquete de actualización descargado encontrado",
   "updateFoundCachedPackageMessage": "Se detectó un paquete de actualización descargado previamente:\\n\\nNombre del archivo: {fileName}\\nTamaño: {fileSize}MB\\n\\n¿Instalar inmediatamente?",
-  "@updateFoundCachedPackageMessage": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      },
-      "fileSize": {
-        "type": "String"
-      }
-    }
-  },
   "updateIgnoreButton": "Ignorar",
   "updateInstallFailedTitle": "Instalación fallida",
   "updateInstallFailedMessage": "No se puede iniciar el instalador APK, por favor verifica los permisos del archivo.",
   "updateErrorTitle": "Error",
   "updateReadCacheFailedMessage": "Error al leer el paquete de actualización en caché: {error}",
-  "@updateReadCacheFailedMessage": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "updateCheckingPermissions": "Verificando permisos...",
   "updateCheckingCache": "Verificando caché local...",
   "updatePreparingDownload": "Preparando descarga...",
@@ -399,89 +277,21 @@
   "updateCurrentLatestVersion": "Ya tienes la última versión",
   "updateCheckFailedGeneric": "Error al verificar actualización",
   "updateDownloadProgress": "Descargando: {percent}%",
-  "@updateDownloadProgress": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
   "updateNoApkFoundError": "Enlace de descarga APK no encontrado",
   "updateCheckingUpdateError": "Error al verificar actualización: {error}",
-  "@updateCheckingUpdateError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "updateNotificationChannelName": "Descarga de actualización",
   "updateNotificationDownloadingIndeterminate": "Descargando nueva versión...",
   "updateNotificationDownloadingProgress": "Progreso de descarga: {progress}%",
-  "@updateNotificationDownloadingProgress": {
-    "placeholders": {
-      "progress": {
-        "type": "String"
-      }
-    }
-  },
   "updateNotificationDownloadCompleteTitle": "Descarga completa",
   "updateNotificationDownloadCompleteMessage": "Nueva versión descargada, toca para instalar",
   "updateUserCancelledDownloadDialog": "Usuario canceló la descarga",
   "updateCannotOpenLinkError": "No se puede abrir el enlace",
   "updateNoLocalApkFoundMessage": "No se encontró archivo de paquete de actualización descargado.\\n\\nPor favor descarga primero la nueva versión a través de \"Verificar actualización\".",
   "updateInstallPackageFoundMessage": "Paquete de actualización encontrado:\\n\\nNombre del archivo: {fileName}\\nTamaño: {fileSize}MB\\nHora de descarga: {time}\\n\\n¿Instalar inmediatamente?",
-  "@updateInstallPackageFoundMessage": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      },
-      "fileSize": {
-        "type": "String"
-      },
-      "time": {
-        "type": "String"
-      }
-    }
-  },
   "updateMultiplePackagesFoundMessage": "Se encontraron {count} archivos de paquete de actualización.\\n\\nSe recomienda usar la versión descargada más reciente, o instalar manualmente en el administrador de archivos.\\n\\nUbicación del archivo: {path}",
-  "@updateMultiplePackagesFoundMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "updateSearchLocalApkError": "Ocurrió un error al buscar paquetes de actualización locales: {error}",
-  "@updateSearchLocalApkError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "updateCachedPackageFoundMessage": "Se detectó un paquete de actualización descargado previamente:\\n\\nNombre del archivo: {fileName}\\nTamaño: {fileSize}MB\\n\\n¿Instalar inmediatamente?",
-  "@updateCachedPackageFoundMessage": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      },
-      "fileSize": {
-        "type": "String"
-      }
-    }
-  },
   "updateReadCachedPackageError": "Error al leer el paquete de actualización en caché: {error}",
-  "@updateReadCachedPackageError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "reminderSubtitle": "Establecer hora de recordatorio de registro diario",
   "reminderDailyTitle": "Recordatorio de registro diario",
   "reminderDailySubtitle": "Cuando esté habilitado, te recordará registrar a la hora especificada",
@@ -546,37 +356,9 @@
   "recurringTransactionEmpty": "Sin Transacciones Recurrentes",
   "recurringTransactionEmptyHint": "Toque el botón + en la esquina superior derecha para añadir",
   "recurringTransactionEveryNDays": "Cada {n} día(s)",
-  "@recurringTransactionEveryNDays": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNWeeks": "Cada {n} semana(s)",
-  "@recurringTransactionEveryNWeeks": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNMonths": "Cada {n} mes(es)",
-  "@recurringTransactionEveryNMonths": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNYears": "Cada {n} año(s)",
-  "@recurringTransactionEveryNYears": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "cloudCustomServiceName": "Servicio de nube personalizado",
   "cloudDefaultServiceDisplayName": "Servicio de nube predeterminado",
   "cloudNotConfiguredDisplay": "No configurado",
@@ -611,32 +393,11 @@
   "cloudCannotOpenLink": "No se puede abrir el enlace",
   "cloudErrorAuthFailed": "Autenticación fallida: Clave API no válida",
   "cloudErrorServerStatus": "El servidor devolvió el código de estado {code}",
-  "@cloudErrorServerStatus": {
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
   "cloudErrorWebdavNotSupported": "El servidor no admite el protocolo WebDAV",
   "cloudErrorAuthFailedCredentials": "Autenticación fallida: Nombre de usuario o contraseña incorrectos",
   "cloudErrorAccessDenied": "Acceso denegado: Verifique los permisos",
   "cloudErrorPathNotFound": "Ruta del servidor no encontrada: {path}",
-  "@cloudErrorPathNotFound": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "cloudErrorNetwork": "Error de red: {message}",
-  "@cloudErrorNetwork": {
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
   "cloudTestSuccessTitle": "Prueba exitosa",
   "cloudTestSuccessMessage": "Conexión normal, configuración válida",
   "cloudTestFailedTitle": "Prueba fallida",
@@ -650,13 +411,6 @@
   "cloudConfigInvalidMessage": "Por favor ingrese información completa",
   "cloudSaveFailed": "Error al guardar",
   "cloudSwitchedTo": "Cambiado a {type}",
-  "@cloudSwitchedTo": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
   "cloudConfigureSupabaseTitle": "Configurar Supabase",
   "cloudConfigureWebdavTitle": "Configurar WebDAV",
   "cloudSupabaseAnonKeyHintLong": "Pegue la clave anon completa",
@@ -674,13 +428,6 @@
   "analyticsSwipeHint": "Desliza hacia izquierda/derecha para cambiar período",
   "analyticsTipContent": "1) Desliza hacia izquierda/derecha en la parte inferior para cambiar Gastos/Ingresos/Balance\\n2) Desliza hacia izquierda/derecha en el área de gráficos para cambiar períodos",
   "analyticsSwitchTo": "Cambiar a {type}",
-  "@analyticsSwitchTo": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
   "analyticsTipHeader": "Consejo: La cápsula superior puede cambiar Mes/Año/Todo",
   "analyticsSwipeToSwitch": "Desliza para cambiar",
   "analyticsAllYears": "Todos los Años",
@@ -699,13 +446,6 @@
   "ledgersDeleted": "Eliminado",
   "ledgersDeleteFailed": "Error al Eliminar",
   "ledgersRecordsDeleted": "Eliminados {count} registros",
-  "@ledgersRecordsDeleted": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "ledgersDefaultLedgerName": "Libro Predeterminado",
   "ledgersDefaultAccountName": "Efectivo",
   "ledgersCurrency": "Moneda",
@@ -714,33 +454,12 @@
   "ledgersCreate": "Crear",
   "ledgersActions": "Acciones",
   "ledgersRecords": "Registros: {count}",
-  "@ledgersRecords": {
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersBalance": "Balance: {balance}",
-  "@ledgersBalance": {
-    "placeholders": {
-      "balance": {
-        "type": "String"
-      }
-    }
-  },
   "categoryEmpty": "Sin categorías",
   "categoryDefault": "Categoría Predeterminada",
   "categoryCustomTag": "Personalizado",
   "categoryReorderTip": "Mantén presionado para arrastrar y reordenar categorías",
   "categoryLoadFailed": "Error al cargar: {error}",
-  "@categoryLoadFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "iconCategoryOther": "Otros",
   "importBillType": "Tipo de Factura",
   "importBillTypeGeneric": "CSV Genérico",
@@ -752,57 +471,16 @@
   "importReading": "Leyendo archivo…",
   "importPreparing": "Preparando…",
   "importColumnNumber": "Columna {number}",
-  "@importColumnNumber": {
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
   "importConfirmMapping": "Confirmar Mapeo",
   "importCategoryMapping": "Mapeo de Categorías",
   "importNoDataParsed": "No se analizaron datos. Por favor regrese a la página anterior para verificar el contenido CSV o el separador.",
   "importPreviewLimit": "Mostrando los primeros {shown} de {total} registros",
-  "@importPreviewLimit": {
-    "placeholders": {
-      "shown": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "importCategoryNotSelected": "Categoría no seleccionada",
   "importCategoryMappingDescription": "Por favor seleccione las categorías locales correspondientes para cada nombre de categoría:",
   "importKeepOriginalName": "Mantener nombre original",
-  "@importProgress": {
-    "placeholders": {
-      "ok": {
-        "type": "int"
-      },
-      "fail": {
-        "type": "int"
-      }
-    }
-  },
   "importCancelImport": "Cancelar Importación",
   "importCompletedCount": "Importados con éxito {count} registros",
-  "@importCompletedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "importFailedMessage": "Importación fallida: {error}",
-  "@importFailedMessage": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "importSelectCategoryFirst": "Por favor seleccione el mapeo de categorías primero",
   "importNextStep": "Siguiente Paso",
   "importPreviousStep": "Paso Anterior",
@@ -810,48 +488,12 @@
   "importAutoDetect": "Detección Automática",
   "importInProgress": "Importación en Progreso",
   "importProgressDetail": "Importados {done} / {total} registros, éxito {ok}, fallidos {fail}",
-  "@importProgressDetail": {
-    "placeholders": {
-      "done": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "ok": {
-        "type": "int"
-      },
-      "fail": {
-        "type": "int"
-      }
-    }
-  },
   "importBackgroundImport": "Importación en Segundo Plano",
   "importCancelled": "Importación Cancelada",
   "importCompleted": "Importación Completada{cancelled}, éxito {ok}, fallidos {fail}",
   "importSkippedNonTransactionTypes": "{count} registros no transaccionales omitidos (transferencias, deudas, etc.)",
   "importTransactionFailed": "Importación fallida, se han revertido todos los cambios: {error}",
-  "@importCompleted": {
-    "placeholders": {
-      "cancelled": {
-        "type": "String"
-      },
-      "ok": {
-        "type": "int"
-      },
-      "fail": {
-        "type": "int"
-      }
-    }
-  },
   "importFileOpenError": "No se puede abrir el selector de archivos: {error}",
-  "@importFileOpenError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "mineFont": "Configuración de Fuente",
   "mineReminder": "Configuración de Recordatorio",
   "mineData": "Administración de Datos",
@@ -861,44 +503,14 @@
   "mineRefreshSync": "Actualizar Estado de Sincronización (Debug)",
   "mineRefreshSyncSubtitle": "Activar actualización del proveedor de estado de sincronización",
   "restoreProgress": "Restaurando ({current}/{total})",
-  "@restoreProgress": {
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "restorePreparing": "Preparando...",
   "restoreLedgerProgress": "Libro: {ledger}  Registros: {done}/{total}",
-  "@restoreLedgerProgress": {
-    "placeholders": {
-      "ledger": {
-        "type": "String"
-      },
-      "done": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "mineSlogan": "Contabilidad Abeja, Cada Centavo Cuenta",
   "mineDaysCount": "Días",
   "mineTotalRecords": "Registros",
   "mineCurrentBalance": "Balance",
   "mineCloudServiceLoading": "Cargando...",
   "mineCloudServiceError": "Error: {error}",
-  "@mineCloudServiceError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "mineCloudServiceDefault": "Nube Predeterminada (Habilitada)",
   "mineCloudServiceOffline": "Modo Predeterminado (Sin Conexión)",
   "mineCloudServiceCustom": "Supabase Personalizado",
@@ -906,73 +518,17 @@
   "mineSyncNotConfigured": "Nube no configurada",
   "mineSyncNoRemote": "Sin copia de seguridad en la nube",
   "mineSyncInSync": "Sincronizado (local {count} registros)",
-  "@mineSyncInSync": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "mineSyncLocalNewer": "Local más reciente (local {count} registros, se recomienda cargar)",
-  "@mineSyncLocalNewer": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "mineSyncCloudNewer": "Nube más reciente (se recomienda descargar)",
   "mineSyncDifferent": "Local y nube difieren",
   "mineSyncError": "Error al obtener estado",
   "mineSyncDetailTitle": "Detalles del Estado de Sincronización",
   "mineSyncLocalRecords": "Registros locales: {count}",
-  "@mineSyncLocalRecords": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "mineSyncCloudRecords": "Registros en la nube: {count}",
-  "@mineSyncCloudRecords": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "mineSyncCloudLatest": "Hora del registro más reciente en la nube: {time}",
-  "@mineSyncCloudLatest": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
   "mineSyncLocalFingerprint": "Huella local: {fingerprint}",
-  "@mineSyncLocalFingerprint": {
-    "placeholders": {
-      "fingerprint": {
-        "type": "String"
-      }
-    }
-  },
   "mineSyncCloudFingerprint": "Huella en la nube: {fingerprint}",
-  "@mineSyncCloudFingerprint": {
-    "placeholders": {
-      "fingerprint": {
-        "type": "String"
-      }
-    }
-  },
   "mineSyncMessage": "Mensaje: {message}",
-  "@mineSyncMessage": {
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
   "mineUploadNeedLogin": "Se requiere inicio de sesión",
   "mineUploadNeedCloudService": "Disponible solo en modo de servicio en la nube",
   "mineUploadInProgress": "Cargando...",
@@ -983,19 +539,6 @@
   "mineDownloadNeedCloudService": "Disponible solo en modo de servicio en la nube",
   "mineDownloadComplete": "Completo",
   "mineDownloadResult": "Nuevas importaciones: {inserted}\nExistentes omitidos: {skipped}\nDuplicados limpiados: {deleted}",
-  "@mineDownloadResult": {
-    "placeholders": {
-      "inserted": {
-        "type": "int"
-      },
-      "skipped": {
-        "type": "int"
-      },
-      "deleted": {
-        "type": "int"
-      }
-    }
-  },
   "mineLoginSubtitle": "Solo necesario para sincronización",
   "mineLoggedInEmail": "Conectado",
   "mineLogoutSubtitle": "Toca para cerrar sesión",
@@ -1004,46 +547,13 @@
   "mineAutoSyncNeedLogin": "Se requiere inicio de sesión para habilitar",
   "mineAutoSyncNeedCloudService": "Disponible solo en modo de servicio en la nube",
   "mineImportProgressSubtitle": "Progreso: {done}/{total}, Éxito {ok}, Fallidos {fail}",
-  "@mineImportProgressSubtitle": {
-    "placeholders": {
-      "done": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "ok": {
-        "type": "int"
-      },
-      "fail": {
-        "type": "int"
-      }
-    }
-  },
   "mineImportCompleteSubtitle": "Éxito {ok}, Fallidos {fail}",
-  "@mineImportCompleteSubtitle": {
-    "placeholders": {
-      "ok": {
-        "type": "int"
-      },
-      "fail": {
-        "type": "int"
-      }
-    }
-  },
   "mineCategoryManagementSubtitle": "Editar categorías personalizadas",
   "mineCategoryMigrationSubtitle": "Migrar datos de categoría a otras categorías",
   "mineRecurringTransactionsSubtitle": "Administrar facturas recurrentes",
   "mineReminderSettingsSubtitle": "Establecer recordatorios de registro diario",
   "mineDisplayScaleSubtitle": "Ajustar tamaños de texto y elementos de UI",
   "mineAboutMessage": "Aplicación: Contabilidad Abeja\nVersión: {version}\nFuente: https://github.com/TNT-Likely/BeeCount\nLicencia: Ver LICENSE en el repositorio",
-  "@mineAboutMessage": {
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "mineAboutOpenGitHub": "Abrir GitHub",
   "mineCheckUpdateInProgress": "Verificando actualización...",
   "mineCheckUpdateSubtitle": "Verificando la última versión",
@@ -1061,13 +571,6 @@
   "categoryMigrationToHintFirst": "Por favor seleccione primero la categoría de origen",
   "categoryMigrationStartButton": "Iniciar Migración",
   "categoryMigrationTransactionCount": "{count} registros",
-  "@categoryMigrationTransactionCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "categoryMigrationCannotTitle": "No se Puede Migrar",
   "categoryMigrationCannotMessage": "Las categorías seleccionadas no se pueden migrar, por favor verifique el estado de la categoría.",
   "categoryExpenseType": "Categoría de Gastos",
@@ -1142,95 +645,22 @@
   "categoryDefaultCannotSave": "La categoría predeterminada no se puede guardar",
   "categorySaveError": "Error al guardar",
   "categoryUpdated": "Categoría \"{name}\" actualizada",
-  "@categoryUpdated": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "categoryCreated": "Categoría \"{name}\" creada",
-  "@categoryCreated": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "categoryCannotDeleteMessage": "Esta categoría tiene {count} registros de transacciones. Por favor manéjelos primero.",
-  "@categoryCannotDeleteMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "categoryDeleteConfirmMessage": "¿Estás seguro de que quieres eliminar la categoría \"{name}\"? Esta acción no se puede deshacer.",
-  "@categoryDeleteConfirmMessage": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "categoryDeleteError": "Error al eliminar",
   "categoryDeleted": "Categoría \"{name}\" eliminada",
-  "@categoryDeleted": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "personalizeCustomColor": "Elegir color personalizado",
   "personalizeCustomTitle": "Personalizado",
   "personalizeHue": "Matiz ({value}°)",
-  "@personalizeHue": {
-    "placeholders": {
-      "value": {
-        "type": "int"
-      }
-    }
-  },
   "personalizeSaturation": "Saturación ({value}%)",
-  "@personalizeSaturation": {
-    "placeholders": {
-      "value": {
-        "type": "int"
-      }
-    }
-  },
   "personalizeBrightness": "Brillo ({value}%)",
-  "@personalizeBrightness": {
-    "placeholders": {
-      "value": {
-        "type": "int"
-      }
-    }
-  },
   "personalizeSelectColor": "Seleccionar este color",
   "fontSettingsTitle": "Escala de Visualización",
   "fontSettingsCurrentScale": "Escala actual: x{scale}",
-  "@fontSettingsCurrentScale": {
-    "placeholders": {
-      "scale": {
-        "type": "String"
-      }
-    }
-  },
   "fontSettingsPreview": "Vista Previa en Vivo",
   "fontSettingsPreviewText": "Gasté 23.50 en almuerzo hoy, regístralo;\nRegistrado durante 45 días este mes, 320 entradas;\n¡La persistencia es la victoria!",
   "fontSettingsCurrentLevel": "Nivel actual: {level} (escala x{scale})",
-  "@fontSettingsCurrentLevel": {
-    "placeholders": {
-      "level": {
-        "type": "String"
-      },
-      "scale": {
-        "type": "String"
-      }
-    }
-  },
   "fontSettingsQuickLevel": "Niveles Rápidos",
   "fontSettingsCustomAdjust": "Ajuste Personalizado",
   "fontSettingsDescription": "Nota: Esta configuración garantiza una visualización consistente a 1.0x en todos los dispositivos, con diferencias de dispositivo autocompensadas; ajuste los valores para un escalado personalizado sobre esta base consistente.",
@@ -1273,40 +703,12 @@
   "reminderCheckStatus": "🔧 Verificar Estado de Notificación (Dev)",
   "reminderNotificationStatus": "Estado de Notificación",
   "reminderPendingCount": "Notificaciones pendientes: {count}",
-  "@reminderPendingCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reminderNoPending": "No hay notificaciones pendientes",
   "reminderCheckBattery": "Verificar Estado de Optimización de Batería",
   "reminderBatteryStatus": "Estado de Optimización de Batería",
   "reminderManufacturer": "Fabricante: {value}",
-  "@reminderManufacturer": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
   "reminderModel": "Modelo: {value}",
-  "@reminderModel": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
   "reminderAndroidVersion": "Versión de Android: {value}",
-  "@reminderAndroidVersion": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
   "reminderBatteryIgnored": "Optimización de batería: Ignorada ✅",
   "reminderBatteryNotIgnored": "Optimización de batería: No ignorada ⚠️",
   "reminderBatteryAdvice": "Se recomienda deshabilitar la optimización de batería para notificaciones adecuadas",
@@ -1316,13 +718,6 @@
   "reminderChannelEnabled": "Canal habilitado: Sí ✅",
   "reminderChannelDisabled": "Canal habilitado: No ❌",
   "reminderChannelImportance": "Importancia: {value}",
-  "@reminderChannelImportance": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
   "reminderChannelSoundOn": "Sonido: Activado 🔊",
   "reminderChannelSoundOff": "Sonido: Desactivado 🔇",
   "reminderChannelVibrationOn": "Vibración: Activada 📳",
@@ -1357,50 +752,10 @@
   "categoryDetailNoTransactionsSubtext": "Aún no hay transacciones en esta categoría",
   "categoryDetailDeleteFailed": "Error al eliminar",
   "categoryMigrationConfirmMessage": "¿Migrar {count} transacciones de \"{fromName}\" a \"{toName}\"?\n\n¡Esta operación no se puede deshacer!",
-  "@categoryMigrationConfirmMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "fromName": {
-        "type": "String"
-      },
-      "toName": {
-        "type": "String"
-      }
-    }
-  },
   "categoryMigrationConfirmOk": "Confirmar Migración",
   "categoryMigrationCompleteMessage": "Migradas con éxito {count} transacciones de \"{fromName}\" a \"{toName}\".",
-  "@categoryMigrationCompleteMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "fromName": {
-        "type": "String"
-      },
-      "toName": {
-        "type": "String"
-      }
-    }
-  },
   "categoryMigrationFailedMessage": "Error de migración: {error}",
-  "@categoryMigrationFailedMessage": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "categoryMigrationTransactionLabel": "{count} registros",
-  "@categoryMigrationTransactionLabel": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "categoryPickerExpenseTab": "Gasto",
   "categoryPickerIncomeTab": "Ingreso",
   "categoryPickerCancel": "Cancelar",
@@ -1410,13 +765,6 @@
   "mineImportCompleteAllSuccess": "Todo Éxito",
   "mineAboutAppName": "Aplicación: Contabilidad Abeja",
   "mineAboutVersion": "Versión: {version}",
-  "@mineAboutVersion": {
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "mineAboutRepo": "Fuente: https://github.com/TNT-Likely/BeeCount",
   "mineAboutLicense": "Licencia: Ver LICENSE en el repositorio",
   "mineCheckUpdateDetecting": "Verificando actualización...",
@@ -1468,21 +816,7 @@
   "cloudServiceDescription": "Servicio de nube integrado (gratis pero puede ser inestable, se recomienda usar el propio o hacer copias de seguridad regulares)",
   "cloudServiceDescriptionNotConfigured": "La compilación actual no tiene configuración de servicio de nube integrada",
   "cloudServiceDescriptionCustom": "Servidor: {url}",
-  "@cloudServiceDescriptionCustom": {
-    "placeholders": {
-      "url": {
-        "type": "String"
-      }
-    }
-  },
   "cloudWebdavRemotePathHelp": "Ruta del directorio remoto para almacenamiento de datos",
-  "@cloudWebdavRemotePathHelp": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "authLogin": "Iniciar Sesión",
   "authSignup": "Registrarse",
   "authRegister": "Registrarse",
@@ -1509,29 +843,8 @@
   "authErrorWeakPassword": "La contraseña es demasiado simple, por favor incluya letras y números, al menos 6 caracteres.",
   "authErrorSignupFailed": "Registro fallido, por favor inténtelo de nuevo más tarde.",
   "authErrorUserNotFound": "Correo electrónico no registrado, no se puede {action}.",
-  "@authErrorUserNotFound": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
   "authErrorEmailNotVerified": "Correo electrónico no verificado, no se puede {action}.",
-  "@authErrorEmailNotVerified": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
   "authErrorActionFailed": "{action} fallido, por favor inténtelo de nuevo más tarde.",
-  "@authErrorActionFailed": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
   "importSelectCsvFile": "Por favor seleccione un archivo para importar (CSV/TSV/XLSX compatible)",
   "currencyMYR": "Ringgit malayo",
   "currencyPHP": "Peso filipino",
@@ -1558,13 +871,6 @@
   "accountBalance": "Balance",
   "accountDeleteConfirm": "¿Confirmar la eliminación de esta cuenta?",
   "accountDeleteWarningMessage": "Esta cuenta tiene {count} transacciones relacionadas. Después de la eliminación, la información de la cuenta en los registros de transacciones se borrará. ¿Confirmar eliminación?",
-  "@accountDeleteWarningMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "accountDeleteWarningTitle": "Confirmar Eliminación",
   "accountEditTitle": "Editar Cuenta",
   "accountInitialBalance": "Balance Inicial",
@@ -1604,27 +910,10 @@
   "aiLocalModelUnavailable": "Modelo local en entrenamiento, aún no disponible",
   "aiOcrCreateFailed": "Error al crear factura",
   "aiOcrFailed": "Reconocimiento fallido: {error}",
-  "@aiOcrFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "aiOcrNoAmount": "No se reconoció un monto válido, por favor agregue manualmente",
   "aiOcrNoLedger": "Libro no encontrado",
   "aiOcrRecognizing": "Reconociendo factura...",
   "aiOcrSuccess": "✅ Factura {type} creada ¥{amount}",
-  "@aiOcrSuccess": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      },
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
   "aiSettingsSubtitle": "Configurar modelos IA y estrategia de reconocimiento",
   "aiSettingsTitle": "Reconocimiento IA",
   "aiStrategyCloudFirst": "Nube Primero",
@@ -1636,13 +925,6 @@
   "aiStrategyLocalOnly": "Solo Local",
   "aiStrategyLocalOnlyDesc": "Use solo el modelo local, completamente sin conexión",
   "aiStrategySwitched": "Cambiado a: {strategy}",
-  "@aiStrategySwitched": {
-    "placeholders": {
-      "strategy": {
-        "type": "String"
-      }
-    }
-  },
   "aiStrategyTitle": "Estrategia de Ejecución",
   "aiStrategyUnavailable": "Modelo local en entrenamiento, próximamente",
   "aiTypeExpense": "Gasto",
@@ -1707,21 +989,7 @@
   "iosAutoCannotOpenShortcuts": "No se puede abrir la aplicación Atajos",
   "iosAutoFeatureDesc": "Use la aplicación \"Atajos\" de iOS para identificar automáticamente la información de pago de las capturas de pantalla y crear transacciones. Una vez configurado, se activará automáticamente en cada captura de pantalla.",
   "iosAutoImportFailed": "Importación fallida: {error}",
-  "@iosAutoImportFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "iosAutoOpenAppFailed": "Error al abrir: {error}",
-  "@iosAutoOpenAppFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "iosAutoShortcutConfigTitle": "Pasos de Configuración (Recomendado - Parámetro URL):",
   "iosAutoShortcutImport": "Importar Atajo con Un Clic",
   "iosAutoShortcutOpenApp": "O Abrir Manualmente la Aplicación Atajos",
@@ -1876,20 +1144,6 @@
   "storageHint": "Toque los elementos para limpiar los archivos de caché correspondientes",
   "storageClearConfirmTitle": "Confirmar limpieza",
   "storageClearAIModelsMessage": "¿Está seguro de que desea limpiar todos los modelos de IA? Tamaño: {size}",
-  "@storageClearAIModelsMessage": {
-    "placeholders": {
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "storageClearAPKMessage": "¿Está seguro de que desea limpiar todos los paquetes de instalación? Tamaño: {size}",
-  "@storageClearAPKMessage": {
-    "placeholders": {
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "storageClearSuccess": "Limpieza exitosa"
 }

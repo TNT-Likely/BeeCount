@@ -1,9 +1,5 @@
 {
-  "@@locale": "ko",
   "appTitle": "꿀벌 가계부",
-  "@appTitle": {
-    "description": "The application title"
-  },
   "tabHome": "홈",
   "tabAnalytics": "차트",
   "tabLedgers": "가계부",
@@ -66,21 +62,7 @@
   "homeShowAmount": "금액 표시",
   "homeHideAmount": "금액 숨기기",
   "homeYear": "{year}년",
-  "@homeYear": {
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
-  },
   "homeMonth": "{month}월",
-  "@homeMonth": {
-    "placeholders": {
-      "month": {
-        "type": "String"
-      }
-    }
-  },
   "homeNoRecordsSubtext": "아래 플러스 버튼을 눌러 기록을 추가하세요",
   "widgetTodayExpense": "오늘 지출",
   "widgetTodayIncome": "오늘 수입",
@@ -131,13 +113,6 @@
   "analyticsSwipeHint": "좌우로 스와이프하여 기간을 변경하세요",
   "analyticsTipContent": "1) 하단을 좌우로 스와이프하여 지출/수입/잔액 전환\\n2) 차트 영역을 좌우로 스와이프하여 기간 전환",
   "analyticsSwitchTo": "{type}로 전환",
-  "@analyticsSwitchTo": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
   "analyticsTipHeader": "팁: 상단 캡슐로 월/년/전체 전환 가능",
   "analyticsSwipeToSwitch": "스와이프하여 전환",
   "analyticsAllYears": "모든 년도",
@@ -161,13 +136,6 @@
   "ledgersDeleted": "삭제됨",
   "ledgersDeleteFailed": "삭제 실패",
   "ledgersRecordsDeleted": "{count}개의 기록이 삭제되었습니다",
-  "@ledgersRecordsDeleted": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "ledgersName": "이름",
   "ledgersDefaultLedgerName": "기본 가계부",
   "ledgersDefaultAccountName": "현금",
@@ -178,21 +146,7 @@
   "ledgersCreate": "생성",
   "ledgersActions": "작업",
   "ledgersRecords": "기록: {count}개",
-  "@ledgersRecords": {
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
   "ledgersBalance": "잔액: {balance}",
-  "@ledgersBalance": {
-    "placeholders": {
-      "balance": {
-        "type": "String"
-      }
-    }
-  },
   "categoryTitle": "카테고리 관리",
   "categoryNew": "새 카테고리",
   "categoryExpense": "지출 카테고리",
@@ -202,13 +156,6 @@
   "categoryCustomTag": "사용자 정의",
   "categoryReorderTip": "길게 눌러 드래그하여 순서를 변경할 수 있습니다",
   "categoryLoadFailed": "로딩 실패: {error}",
-  "@categoryLoadFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "iconPickerTitle": "아이콘 선택",
   "iconCategoryFood": "음식",
   "iconCategoryTransport": "교통",
@@ -267,13 +214,6 @@
   "importSkippedNonTransactionTypes": "{count}개의 비거래 기록 건너뜀 (이체, 부채 등)",
   "importTransactionFailed": "가져오기 실패, 모든 변경 사항이 롤백되었습니다: {error}",
   "importFileOpenError": "파일 선택기를 열 수 없습니다: {error}",
-  "@importFileOpenError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "mineTitle": "마이페이지",
   "mineSettings": "설정",
   "mineTheme": "테마 설정",
@@ -301,19 +241,6 @@
   "restoreProgress": "복원 중 ({current}/{total})",
   "restorePreparing": "준비 중...",
   "restoreLedgerProgress": "가계부: {ledger} 기록: {done}/{total}",
-  "@restoreLedgerProgress": {
-    "placeholders": {
-      "ledger": {
-        "type": "String"
-      },
-      "done": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "mineSlogan": "꿀벌 가계부, 한 푼도 놓치지 않기",
   "mineDaysCount": "일",
   "mineTotalRecords": "기록",
@@ -410,13 +337,6 @@
   "categoryMigrationToHintFirst": "먼저 원본 카테고리를 선택하세요",
   "categoryMigrationStartButton": "이전 시작",
   "categoryMigrationTransactionCount": "{count}개 기록",
-  "@categoryMigrationTransactionCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "categoryMigrationCannotTitle": "이전할 수 없음",
   "categoryMigrationCannotMessage": "선택된 카테고리는 이전할 수 없습니다. 카테고리 상태를 확인하세요.",
   "categoryExpenseType": "지출 카테고리",
@@ -621,13 +541,6 @@
   "categoryMigrationFailedTitle": "이전 실패",
   "categoryMigrationFailedMessage": "이전 오류: {error}",
   "categoryMigrationTransactionLabel": "{count}개 기록",
-  "@categoryMigrationTransactionLabel": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "categoryPickerExpenseTab": "지출",
   "categoryPickerIncomeTab": "수입",
   "categoryPickerCancel": "취소",
@@ -708,13 +621,6 @@
   "cloudServiceDescription": "내장 클라우드 서비스 (무료이지만 불안정할 수 있습니다. 자신만의 서비스나 정기 백업을 권장)",
   "cloudServiceDescriptionNotConfigured": "현재 빌드에는 내장 클라우드 서비스 설정이 없습니다",
   "cloudServiceDescriptionCustom": "서버: {url}",
-  "@cloudServiceDescriptionCustom": {
-    "placeholders": {
-      "url": {
-        "type": "String"
-      }
-    }
-  },
   "authLogin": "로그인",
   "authSignup": "가입",
   "authRegister": "등록",
@@ -743,27 +649,6 @@
   "authErrorUserNotFound": "이메일이 등록되지 않았습니다. {action}할 수 없습니다.",
   "authErrorEmailNotVerified": "이메일이 인증되지 않았습니다. {action}할 수 없습니다.",
   "authErrorActionFailed": "{action}에 실패했습니다. 나중에 다시 시도하세요.",
-  "@authErrorUserNotFound": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
-  "@authErrorEmailNotVerified": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
-  "@authErrorActionFailed": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
   "importSelectCsvFile": "가져올 파일을 선택하세요 (CSV/TSV/XLSX 지원)",
   "exportTitle": "내보내기",
   "exportDescription": "아래 버튼을 클릭하여 저장 위치를 선택하고 현재 가계부를 CSV 파일로 내보내세요.",
@@ -785,27 +670,6 @@
   "exportTypeIncome": "수입",
   "exportTypeExpense": "지출",
   "exportTypeTransfer": "이체",
-  "@exportSavedTo": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
-  "@exportSuccessMessageIOS": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
-  "@exportSuccessMessageAndroid": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "personalizeThemeHoney": "꿀벌 노랑",
   "personalizeThemeOrange": "화염 오렌지",
   "personalizeThemeGreen": "에메랄드 그린",
@@ -840,49 +704,14 @@
   "analyticsTotalExpense": "총 지출: ",
   "analyticsBalance": "잔액: ",
   "analyticsAvgIncome": "{avgLabel} 수입: ",
-  "@analyticsAvgIncome": {
-    "placeholders": {
-      "avgLabel": {
-        "type": "String"
-      }
-    }
-  },
   "analyticsAvgExpense": "{avgLabel} 지출: ",
-  "@analyticsAvgExpense": {
-    "placeholders": {
-      "avgLabel": {
-        "type": "String"
-      }
-    }
-  },
   "analyticsExpense": "지출",
   "analyticsIncome": "수입",
   "analyticsTotal": "총 {type}: ",
-  "@analyticsTotal": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
   "analyticsAverage": "{avgLabel}: ",
-  "@analyticsAverage": {
-    "placeholders": {
-      "avgLabel": {
-        "type": "String"
-      }
-    }
-  },
   "updateCheckTitle": "업데이트 확인",
   "updateNewVersionFound": "새 버전을 찾았습니다",
   "updateNewVersionTitle": "새 버전 {version}을(를) 찾았습니다",
-  "@updateNewVersionTitle": {
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "updateNoApkFound": "APK 다운로드 링크를 찾을 수 없습니다",
   "updateAlreadyLatest": "이미 최신 버전입니다",
   "updateCheckFailed": "업데이트 확인에 실패했습니다",
@@ -890,13 +719,6 @@
   "updateUserCancelled": "사용자가 취소했습니다",
   "updateDownloadTitle": "업데이트 다운로드",
   "updateDownloading": "다운로드 중: {percent}%",
-  "@updateDownloading": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
   "updateDownloadBackgroundHint": "앱을 백그라운드로 전환할 수 있습니다. 다운로드는 계속됩니다",
   "updateCancelButton": "취소",
   "updateBackgroundDownload": "백그라운드 다운로드",
@@ -904,13 +726,6 @@
   "updateDownloadButton": "다운로드",
   "updateFoundCachedTitle": "다운로드된 버전을 찾았습니다",
   "updateFoundCachedMessage": "이전에 다운로드한 설치 프로그램을 찾았습니다. 바로 설치하시겠습니까?\\n\\n\"확인\"을 클릭하면 즉시 설치하고, \"취소\"를 클릭하면 이 대화상자를 닫습니다.\\n\\n파일 경로: {path}",
-  "@updateFoundCachedMessage": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "updateInstallingCachedApk": "캐시된 APK 설치 중",
   "updateDownloadComplete": "다운로드 완료",
   "updateInstallStarted": "다운로드 완료, 설치 프로그램 시작됨",
@@ -946,49 +761,15 @@
   "updateInstallPackageTitle": "업데이트 패키지 설치",
   "updateMultiplePackagesTitle": "여러 업데이트 패키지를 찾았습니다",
   "updateMultiplePackagesMessage": "{count}개의 업데이트 패키지 파일을 찾았습니다.\\n\\n최신 다운로드 버전 사용을 권장하거나 파일 관리자에서 수동으로 설치하세요.\\n\\n파일 위치: {path}",
-  "@updateMultiplePackagesMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "updateSearchFailedTitle": "검색 실패",
   "updateSearchFailedMessage": "로컬 업데이트 패키지 검색 중 오류가 발생했습니다: {error}",
-  "@updateSearchFailedMessage": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "updateFoundCachedPackageTitle": "다운로드된 업데이트 패키지를 찾았습니다",
   "updateFoundCachedPackageMessage": "이전에 다운로드한 업데이트 패키지가 감지되었습니다:\\n\\n파일 이름: {fileName}\\n크기: {fileSize}MB\\n\\n즉시 설치하시겠습니까?",
-  "@updateFoundCachedPackageMessage": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      },
-      "fileSize": {
-        "type": "String"
-      }
-    }
-  },
   "updateIgnoreButton": "무시",
   "updateInstallFailedTitle": "설치 실패",
   "updateInstallFailedMessage": "APK 설치 프로그램을 시작할 수 없습니다. 파일 권한을 확인하세요.",
   "updateErrorTitle": "오류",
   "updateReadCacheFailedMessage": "캐시된 업데이트 패키지 읽기에 실패했습니다: {error}",
-  "@updateReadCacheFailedMessage": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "updateCheckingPermissions": "권한 확인 중...",
   "updateCheckingCache": "로컬 캐시 확인 중...",
   "updatePreparingDownload": "다운로드 준비 중...",
@@ -1005,89 +786,21 @@
   "updateCurrentLatestVersion": "이미 최신 버전입니다",
   "updateCheckFailedGeneric": "업데이트 확인에 실패했습니다",
   "updateDownloadProgress": "다운로드 중: {percent}%",
-  "@updateDownloadProgress": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
   "updateNoApkFoundError": "APK 다운로드 링크를 찾을 수 없습니다",
   "updateCheckingUpdateError": "업데이트 확인에 실패했습니다: {error}",
-  "@updateCheckingUpdateError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "updateNotificationChannelName": "업데이트 다운로드",
   "updateNotificationDownloadingIndeterminate": "새 버전 다운로드 중...",
   "updateNotificationDownloadingProgress": "다운로드 진행률: {progress}%",
-  "@updateNotificationDownloadingProgress": {
-    "placeholders": {
-      "progress": {
-        "type": "String"
-      }
-    }
-  },
   "updateNotificationDownloadCompleteTitle": "다운로드 완료",
   "updateNotificationDownloadCompleteMessage": "새 버전이 다운로드되었습니다. 탭하여 설치",
   "updateUserCancelledDownloadDialog": "사용자가 다운로드를 취소했습니다",
   "updateCannotOpenLinkError": "링크를 열 수 없습니다",
   "updateNoLocalApkFoundMessage": "다운로드된 업데이트 패키지 파일을 찾을 수 없습니다.\\n\\n먼저 \"업데이트 확인\"을 통해 새 버전을 다운로드하세요.",
   "updateInstallPackageFoundMessage": "업데이트 패키지를 찾았습니다:\\n\\n파일 이름: {fileName}\\n크기: {fileSize}MB\\n다운로드 시간: {time}\\n\\n즉시 설치하시겠습니까?",
-  "@updateInstallPackageFoundMessage": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      },
-      "fileSize": {
-        "type": "String"
-      },
-      "time": {
-        "type": "String"
-      }
-    }
-  },
   "updateMultiplePackagesFoundMessage": "{count}개의 업데이트 패키지 파일을 찾았습니다.\\n\\n최신 다운로드 버전 사용을 권장하거나 파일 관리자에서 수동으로 설치하세요.\\n\\n파일 위치: {path}",
-  "@updateMultiplePackagesFoundMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "updateSearchLocalApkError": "로컬 업데이트 패키지 검색 중 오류가 발생했습니다: {error}",
-  "@updateSearchLocalApkError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "updateCachedPackageFoundMessage": "이전에 다운로드한 업데이트 패키지가 감지되었습니다:\\n\\n파일 이름: {fileName}\\n크기: {fileSize}MB\\n\\n즉시 설치하시겠습니까?",
-  "@updateCachedPackageFoundMessage": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      },
-      "fileSize": {
-        "type": "String"
-      }
-    }
-  },
   "updateReadCachedPackageError": "캐시된 업데이트 패키지 읽기에 실패했습니다: {error}",
-  "@updateReadCachedPackageError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "reminderQuickTestSent": "15초 후 빠른 테스트를 설정했습니다. 앱을 백그라운드에 유지하세요",
   "reminderFlutterTestSent": "Flutter 테스트 알림을 전송했습니다. 탭하여 앱이 열리는지 확인하세요",
   "reminderAlarmTestSent": "AlarmManager 테스트 알림을 설정했습니다 (1초 후). 탭하여 앱이 열리는지 확인하세요",
@@ -1151,37 +864,9 @@
   "recurringTransactionEmpty": "반복 거래가 없습니다",
   "recurringTransactionEmptyHint": "오른쪽 상단의 + 버튼을 눌러 추가하세요",
   "recurringTransactionEveryNDays": "{n}일마다",
-  "@recurringTransactionEveryNDays": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNWeeks": "{n}주마다",
-  "@recurringTransactionEveryNWeeks": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNMonths": "{n}개월마다",
-  "@recurringTransactionEveryNMonths": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNYears": "{n}년마다",
-  "@recurringTransactionEveryNYears": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "cloudDefaultServiceDisplayName": "기본 클라우드 서비스",
   "cloudNotConfiguredDisplay": "설정되지 않음",
   "syncNotConfiguredMessage": "클라우드가 설정되지 않았습니다",
@@ -1202,32 +887,11 @@
   "cloudCannotOpenLink": "링크를 열 수 없습니다",
   "cloudErrorAuthFailed": "인증 실패: 잘못된 API 키",
   "cloudErrorServerStatus": "서버가 상태 코드 {code}를 반환했습니다",
-  "@cloudErrorServerStatus": {
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
   "cloudErrorWebdavNotSupported": "서버가 WebDAV 프로토콜을 지원하지 않습니다",
   "cloudErrorAuthFailedCredentials": "인증 실패: 사용자 이름 또는 비밀번호가 올바르지 않습니다",
   "cloudErrorAccessDenied": "액세스 거부됨: 권한을 확인하세요",
   "cloudErrorPathNotFound": "서버 경로를 찾을 수 없습니다: {path}",
-  "@cloudErrorPathNotFound": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "cloudErrorNetwork": "네트워크 오류: {message}",
-  "@cloudErrorNetwork": {
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
   "cloudTestSuccessTitle": "테스트 성공",
   "cloudTestSuccessMessage": "연결 정상, 구성 유효",
   "cloudTestFailedTitle": "테스트 실패",
@@ -1241,13 +905,6 @@
   "cloudConfigInvalidMessage": "완전한 정보를 입력하세요",
   "cloudSaveFailed": "저장 실패",
   "cloudSwitchedTo": "{type}(으)로 전환했습니다",
-  "@cloudSwitchedTo": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
   "cloudConfigureSupabaseTitle": "Supabase 구성",
   "cloudConfigureWebdavTitle": "WebDAV 구성",
   "cloudSupabaseAnonKeyHintLong": "완전한 anon key를 붙여넣으세요",
@@ -1487,20 +1144,6 @@
   "storageHint": "항목을 탭하면 해당 캐시 파일을 정리할 수 있습니다",
   "storageClearConfirmTitle": "정리 확인",
   "storageClearAIModelsMessage": "모든 AI 모델을 정리하시겠습니까? 크기: {size}",
-  "@storageClearAIModelsMessage": {
-    "placeholders": {
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "storageClearAPKMessage": "모든 설치 패키지를 정리하시겠습니까? 크기: {size}",
-  "@storageClearAPKMessage": {
-    "placeholders": {
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "storageClearSuccess": "정리 성공"
 }

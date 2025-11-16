@@ -1,5 +1,4 @@
 {
-  "@@locale": "zh_TW",
   "appTitle": "蜜蜂記帳",
   "tabHome": "明細",
   "tabAnalytics": "圖表",
@@ -621,13 +620,6 @@
   "cloudServiceDescription": "應用程式內建的雲端服務（免費但可能不穩定，建議使用自己的或定期備份）",
   "cloudServiceDescriptionNotConfigured": "當前建置未內建雲服務設定",
   "cloudServiceDescriptionCustom": "伺服器: {url}",
-  "@cloudServiceDescriptionCustom": {
-    "placeholders": {
-      "url": {
-        "type": "String"
-      }
-    }
-  },
   "authLogin": "登入",
   "authSignup": "註冊",
   "authRegister": "註冊",
@@ -656,35 +648,7 @@
   "authErrorUserNotFound": "電子郵件未註冊，無法{action}。",
   "authErrorEmailNotVerified": "電子郵件未驗證，無法{action}。",
   "authErrorActionFailed": "{action}失敗，請稍後再試。",
-  "@authErrorUserNotFound": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
-  "@authErrorEmailNotVerified": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
-  "@authErrorActionFailed": {
-    "placeholders": {
-      "action": {
-        "type": "String"
-      }
-    }
-  },
   "importSelectCsvFile": "請選擇檔案進行匯入（支援 CSV/TSV/XLSX 格式）",
-  "@importFileOpenError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "exportTitle": "匯出",
   "exportDescription": "點擊下方按鈕選擇儲存位置，開始匯出當前帳本為 CSV 檔案。",
   "exportButtonIOS": "匯出並分享",
@@ -705,27 +669,6 @@
   "exportTypeIncome": "收入",
   "exportTypeExpense": "支出",
   "exportTypeTransfer": "轉帳",
-  "@exportSavedTo": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
-  "@exportSuccessMessageIOS": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
-  "@exportSuccessMessageAndroid": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "personalizeThemeHoney": "蜜蜂黃",
   "personalizeThemeOrange": "火焰橙",
   "personalizeThemeGreen": "琉璃綠",
@@ -921,37 +864,9 @@
   "recurringTransactionEmpty": "暫無週期帳單",
   "recurringTransactionEmptyHint": "點擊右上角 + 按鈕新增",
   "recurringTransactionEveryNDays": "每 {n} 天",
-  "@recurringTransactionEveryNDays": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNWeeks": "每 {n} 週",
-  "@recurringTransactionEveryNWeeks": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNMonths": "每 {n} 個月",
-  "@recurringTransactionEveryNMonths": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "recurringTransactionEveryNYears": "每 {n} 年",
-  "@recurringTransactionEveryNYears": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "cloudDefaultServiceDisplayName": "預設雲服務",
   "cloudNotConfiguredDisplay": "未設定",
   "syncNotConfiguredMessage": "未設定雲端",
@@ -972,32 +887,11 @@
   "cloudCannotOpenLink": "無法開啟連結",
   "cloudErrorAuthFailed": "認證失敗: API Key 無效",
   "cloudErrorServerStatus": "伺服器返回狀態碼 {code}",
-  "@cloudErrorServerStatus": {
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
   "cloudErrorWebdavNotSupported": "伺服器不支援 WebDAV 通訊協定",
   "cloudErrorAuthFailedCredentials": "認證失敗: 使用者名稱或密碼錯誤",
   "cloudErrorAccessDenied": "存取被拒絕: 請檢查權限",
   "cloudErrorPathNotFound": "伺服器路徑不存在: {path}",
-  "@cloudErrorPathNotFound": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "cloudErrorNetwork": "網路錯誤: {message}",
-  "@cloudErrorNetwork": {
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
   "cloudTestSuccessTitle": "測試成功",
   "cloudTestSuccessMessage": "連線正常，設定有效",
   "cloudTestFailedTitle": "測試失敗",
@@ -1011,13 +905,6 @@
   "cloudConfigInvalidMessage": "請填寫完整資訊",
   "cloudSaveFailed": "儲存失敗",
   "cloudSwitchedTo": "已切換至 {type}",
-  "@cloudSwitchedTo": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
   "cloudConfigureSupabaseTitle": "設定 Supabase",
   "cloudConfigureWebdavTitle": "設定 WebDAV",
   "cloudSupabaseAnonKeyHintLong": "貼上完整的 anon key",
@@ -1257,20 +1144,6 @@
   "storageHint": "點擊項目可清理對應的快取檔案",
   "storageClearConfirmTitle": "確認清理",
   "storageClearAIModelsMessage": "確定要清理所有AI模型嗎？大小：{size}",
-  "@storageClearAIModelsMessage": {
-    "placeholders": {
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "storageClearAPKMessage": "確定要清理所有安裝包嗎？大小：{size}",
-  "@storageClearAPKMessage": {
-    "placeholders": {
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "storageClearSuccess": "清理成功"
 }
