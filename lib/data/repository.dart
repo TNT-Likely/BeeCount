@@ -3,6 +3,7 @@ import 'package:drift/drift.dart' as d;
 import 'db.dart';
 import 'category_node.dart';
 import '../services/system/logger_service.dart';
+import '../widgets/biz/format_money.dart' show sanitizeAmount;
 
 class BeeRepository {
   final BeeDatabase db;
@@ -88,7 +89,8 @@ class BeeRepository {
   }
 
   // Aggregation: totals by category for a period and type (income/expense)
-  Future<List<({int? id, String name, String? icon, double total})>> totalsByCategory({
+  Future<List<({int? id, String name, String? icon, double total})>>
+      totalsByCategory({
     required int ledgerId,
     required String type, // 'income' or 'expense'
     required DateTime start,
@@ -118,7 +120,12 @@ class BeeRepository {
       map.update(id, (v) => v + t.amount, ifAbsent: () => t.amount);
     }
     final list = map.entries
-        .map((e) => (id: e.key, name: names[e.key] ?? '未分类', icon: icons[e.key], total: e.value))
+        .map((e) => (
+              id: e.key,
+              name: names[e.key] ?? '未分类',
+              icon: icons[e.key],
+              total: e.value
+            ))
         .toList()
       ..sort((a, b) => b.total.compareTo(a.total));
     return list;
@@ -310,9 +317,10 @@ class BeeRepository {
     List<Transaction>? transactions,
   }) async {
     // 如果没有传入 transactions，则查询
-    final rows = transactions ?? await (db.select(db.transactions)
-          ..where((t) => t.ledgerId.equals(ledgerId)))
-        .get();
+    final rows = transactions ??
+        await (db.select(db.transactions)
+              ..where((t) => t.ledgerId.equals(ledgerId)))
+            .get();
 
     // 交易数
     final transactionCount = rows.length;
@@ -343,10 +351,12 @@ class BeeRepository {
     required DateTime happenedAt,
     String? note,
   }) async {
+    // 规范化金额，消除浮点精度误差
+    final sanitizedAmount = sanitizeAmount(amount);
     return db.into(db.transactions).insert(TransactionsCompanion.insert(
           ledgerId: ledgerId,
           type: type,
-          amount: amount,
+          amount: sanitizedAmount,
           categoryId: d.Value(categoryId),
           accountId: d.Value(accountId),
           toAccountId: d.Value(toAccountId),
@@ -627,10 +637,12 @@ class BeeRepository {
     DateTime? happenedAt,
     d.Value<int?>? accountId,
   }) async {
+    // 规范化金额，消除浮点精度误差
+    final sanitizedAmount = sanitizeAmount(amount);
     await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(
         type: d.Value(type),
-        amount: d.Value(amount),
+        amount: d.Value(sanitizedAmount),
         categoryId: d.Value(categoryId),
         note: d.Value(note),
         happenedAt:
@@ -665,7 +677,7 @@ class BeeRepository {
             ))
         .toList());
   }
-  
+
   // Category CRUD operations
   Future<int> createCategory({
     required String name,
@@ -673,14 +685,14 @@ class BeeRepository {
     String? icon,
   }) async {
     return await db.into(db.categories).insert(
-      CategoriesCompanion.insert(
-        name: name,
-        kind: kind,
-        icon: d.Value(icon),
-      ),
-    );
+          CategoriesCompanion.insert(
+            name: name,
+            kind: kind,
+            icon: d.Value(icon),
+          ),
+        );
   }
-  
+
   Future<void> updateCategory(
     int id, {
     String? name,
@@ -693,11 +705,11 @@ class BeeRepository {
       ),
     );
   }
-  
+
   Future<void> deleteCategory(int id) async {
     await (db.delete(db.categories)..where((c) => c.id.equals(id))).go();
   }
-  
+
   Future<int> getTransactionCountByCategory(int categoryId) async {
     final result = await db.customSelect(
       'SELECT COUNT(*) AS count FROM transactions WHERE category_id = ?1',
@@ -747,7 +759,7 @@ class BeeRepository {
 
     return counts;
   }
-  
+
   // 分类迁移：将fromCategoryId的所有交易迁移到toCategoryId
   Future<int> migrateCategory({
     required int fromCategoryId,
@@ -755,38 +767,44 @@ class BeeRepository {
   }) async {
     // 获取迁移前的数量
     final beforeCount = await getTransactionCountByCategory(fromCategoryId);
-    
+
     // 执行迁移
     await (db.update(db.transactions)
-      ..where((t) => t.categoryId.equals(fromCategoryId))).write(
+          ..where((t) => t.categoryId.equals(fromCategoryId)))
+        .write(
       TransactionsCompanion(
         categoryId: d.Value(toCategoryId),
       ),
     );
-    
+
     // 返回迁移的交易数量
     return beforeCount;
   }
-  
+
   // 获取分类迁移信息（检查是否可以迁移）
   Future<({int transactionCount, bool canMigrate})> getCategoryMigrationInfo({
     required int fromCategoryId,
     required int toCategoryId,
   }) async {
     // 检查源分类的交易数量
-    final transactionCount = await getTransactionCountByCategory(fromCategoryId);
-    
+    final transactionCount =
+        await getTransactionCountByCategory(fromCategoryId);
+
     // 检查目标分类是否存在
     final targetCategory = await (db.select(db.categories)
-      ..where((c) => c.id.equals(toCategoryId))).getSingleOrNull();
-    
-    final canMigrate = transactionCount > 0 && targetCategory != null && fromCategoryId != toCategoryId;
-    
+          ..where((c) => c.id.equals(toCategoryId)))
+        .getSingleOrNull();
+
+    final canMigrate = transactionCount > 0 &&
+        targetCategory != null &&
+        fromCategoryId != toCategoryId;
+
     return (transactionCount: transactionCount, canMigrate: canMigrate);
   }
-  
+
   // 获取分类汇总信息
-  Future<({int totalCount, double totalAmount, double averageAmount})> getCategorySummary(int categoryId) async {
+  Future<({int totalCount, double totalAmount, double averageAmount})>
+      getCategorySummary(int categoryId) async {
     final result = await db.customSelect(
       '''
       SELECT 
@@ -799,14 +817,14 @@ class BeeRepository {
       variables: [d.Variable.withInt(categoryId)],
       readsFrom: {db.transactions},
     ).getSingle();
-    
+
     int parseCount(dynamic v) {
       if (v is int) return v;
       if (v is BigInt) return v.toInt();
       if (v is num) return v.toInt();
       return 0;
     }
-    
+
     double parseAmount(dynamic v) {
       if (v == null) return 0.0;
       if (v is double) return v;
@@ -815,28 +833,29 @@ class BeeRepository {
       if (v is num) return v.toDouble();
       return 0.0;
     }
-    
+
     final count = parseCount(result.data['count']);
     final total = parseAmount(result.data['total']);
     final average = parseAmount(result.data['average']);
-    
+
     return (
       totalCount: count,
       totalAmount: total,
       averageAmount: average,
     );
   }
-  
+
   // 获取分类下的所有交易记录（按时间倒序）
   Future<List<Transaction>> getTransactionsByCategory(int categoryId) async {
     return await (db.select(db.transactions)
-      ..where((t) => t.categoryId.equals(categoryId))
-      ..orderBy([
-        (t) => d.OrderingTerm(
-          expression: t.happenedAt,
-          mode: d.OrderingMode.desc,
-        )
-      ])).get();
+          ..where((t) => t.categoryId.equals(categoryId))
+          ..orderBy([
+            (t) => d.OrderingTerm(
+                  expression: t.happenedAt,
+                  mode: d.OrderingMode.desc,
+                )
+          ]))
+        .get();
   }
 
   // 获取分类下的所有交易记录（支持自定义排序）
@@ -845,21 +864,22 @@ class BeeRepository {
     String sortBy = 'time', // 'time' or 'amount'
     bool ascending = false,
   }) async {
-    final query = db.select(db.transactions)..where((t) => t.categoryId.equals(categoryId));
+    final query = db.select(db.transactions)
+      ..where((t) => t.categoryId.equals(categoryId));
 
     if (sortBy == 'amount') {
       query.orderBy([
         (t) => d.OrderingTerm(
-          expression: t.amount,
-          mode: ascending ? d.OrderingMode.asc : d.OrderingMode.desc,
-        )
+              expression: t.amount,
+              mode: ascending ? d.OrderingMode.asc : d.OrderingMode.desc,
+            )
       ]);
     } else {
       query.orderBy([
         (t) => d.OrderingTerm(
-          expression: t.happenedAt,
-          mode: ascending ? d.OrderingMode.asc : d.OrderingMode.desc,
-        )
+              expression: t.happenedAt,
+              mode: ascending ? d.OrderingMode.asc : d.OrderingMode.desc,
+            )
       ]);
     }
 
@@ -867,7 +887,8 @@ class BeeRepository {
   }
 
   /// 响应式监听分类下的交易变化
-  Stream<List<Transaction>> watchTransactionsByCategory(int categoryId, {int? ledgerId}) {
+  Stream<List<Transaction>> watchTransactionsByCategory(int categoryId,
+      {int? ledgerId}) {
     final query = db.select(db.transactions)
       ..where((t) => t.categoryId.equals(categoryId));
 
@@ -878,9 +899,9 @@ class BeeRepository {
 
     query.orderBy([
       (t) => d.OrderingTerm(
-        expression: t.happenedAt,
-        mode: d.OrderingMode.desc,
-      )
+            expression: t.happenedAt,
+            mode: d.OrderingMode.desc,
+          )
     ]);
 
     return query.watch();
@@ -888,13 +909,13 @@ class BeeRepository {
 
   /// 响应式监听分类信息变化
   Stream<Category?> watchCategory(int categoryId) {
-    return (db.select(db.categories)
-      ..where((c) => c.id.equals(categoryId))
-    ).watchSingleOrNull();
+    return (db.select(db.categories)..where((c) => c.id.equals(categoryId)))
+        .watchSingleOrNull();
   }
 
   /// 响应式监听所有分类及其交易数量变化
-  Stream<List<({Category category, int transactionCount})>> watchCategoriesWithCount() async* {
+  Stream<List<({Category category, int transactionCount})>>
+      watchCategoriesWithCount() async* {
     // 优化后的查询：直接统计每个分类的交易数量（不包含子分类）
     await for (final rows in db.customSelect(
       '''
@@ -933,7 +954,8 @@ class BeeRepository {
       }
 
       final totalTime = DateTime.now().difference(startTime);
-      logger.debug('CategoryQuery', '分类数据查询完成，耗时: ${totalTime.inMilliseconds}ms, 返回${results.length}条记录');
+      logger.debug('CategoryQuery',
+          '分类数据查询完成，耗时: ${totalTime.inMilliseconds}ms, 返回${results.length}条记录');
 
       yield results;
     }
@@ -943,8 +965,7 @@ class BeeRepository {
 
   /// 获取指定账本下的所有账户
   Stream<List<Account>> accountsForLedger(int ledgerId) {
-    return (db.select(db.accounts)
-          ..where((a) => a.ledgerId.equals(ledgerId)))
+    return (db.select(db.accounts)..where((a) => a.ledgerId.equals(ledgerId)))
         .watch();
   }
 
@@ -956,7 +977,8 @@ class BeeRepository {
     String currency = 'CNY',
     double initialBalance = 0.0,
   }) async {
-    logger.info('AccountCreate', '📝 开始创建账户: name=$name, ledgerId=$ledgerId, type=$type, currency=$currency, initialBalance=$initialBalance');
+    logger.info('AccountCreate',
+        '📝 开始创建账户: name=$name, ledgerId=$ledgerId, type=$type, currency=$currency, initialBalance=$initialBalance');
 
     try {
       final companion = AccountsCompanion.insert(
@@ -965,7 +987,7 @@ class BeeRepository {
         type: d.Value(type),
         currency: d.Value(currency),
         initialBalance: d.Value(initialBalance),
-        createdAt: d.Value(DateTime.now()),  // v1.15.0: 显式设置创建时间
+        createdAt: d.Value(DateTime.now()), // v1.15.0: 显式设置创建时间
       );
 
       logger.info('AccountCreate', '📦 Companion 创建成功，准备插入数据库');
@@ -993,7 +1015,9 @@ class BeeRepository {
         name: name != null ? d.Value(name) : const d.Value.absent(),
         type: type != null ? d.Value(type) : const d.Value.absent(),
         currency: currency != null ? d.Value(currency) : const d.Value.absent(),
-        initialBalance: initialBalance != null ? d.Value(initialBalance) : const d.Value.absent(),
+        initialBalance: initialBalance != null
+            ? d.Value(initialBalance)
+            : const d.Value.absent(),
       ),
     );
   }
@@ -1030,14 +1054,16 @@ class BeeRepository {
 
     // 作为转入账户的转账
     final transfersIn = await (db.select(db.transactions)
-          ..where((t) => t.toAccountId.equals(accountId) & t.type.equals('transfer')))
+          ..where((t) =>
+              t.toAccountId.equals(accountId) & t.type.equals('transfer')))
         .get();
 
     for (final t in transfersIn) {
       balance += t.amount;
     }
 
-    return balance;
+    // 规范化结果，消除累积的浮点精度误差
+    return sanitizeAmount(balance);
   }
 
   /// 批量获取所有账户余额
@@ -1077,7 +1103,8 @@ class BeeRepository {
       return 0;
     }
 
-    return parseCount(mainCount.data['count']) + parseCount(toCount.data['count']);
+    return parseCount(mainCount.data['count']) +
+        parseCount(toCount.data['count']);
   }
 
   /// 账户迁移：将fromAccountId的所有交易迁移到toAccountId
@@ -1102,8 +1129,7 @@ class BeeRepository {
 
   /// 获取单个账户信息
   Future<Account?> getAccount(int accountId) async {
-    return await (db.select(db.accounts)
-          ..where((a) => a.id.equals(accountId)))
+    return await (db.select(db.accounts)..where((a) => a.id.equals(accountId)))
         .getSingleOrNull();
   }
 
@@ -1151,7 +1177,8 @@ class BeeRepository {
 
     // 作为转入账户的转账
     final transfersIn = await (db.select(db.transactions)
-          ..where((t) => t.toAccountId.equals(accountId) & t.type.equals('transfer')))
+          ..where((t) =>
+              t.toAccountId.equals(accountId) & t.type.equals('transfer')))
         .get();
 
     for (final t in transfersIn) {
@@ -1162,7 +1189,8 @@ class BeeRepository {
   }
 
   /// 获取单个账户的统计信息（余额、消费金额、收入金额）
-  Future<({double balance, double expense, double income})> getAccountStats(int accountId) async {
+  Future<({double balance, double expense, double income})> getAccountStats(
+      int accountId) async {
     final balance = await getAccountBalance(accountId);
     final expense = await getAccountExpense(accountId);
     final income = await getAccountIncome(accountId);
@@ -1171,10 +1199,12 @@ class BeeRepository {
 
   /// 批量获取所有账户的统计信息
   /// v1.15.0: 不再限制账本，获取所有账户
-  Future<Map<int, ({double balance, double expense, double income})>> getAllAccountStats() async {
+  Future<Map<int, ({double balance, double expense, double income})>>
+      getAllAccountStats() async {
     final accounts = await db.select(db.accounts).get();
 
-    final Map<int, ({double balance, double expense, double income})> stats = {};
+    final Map<int, ({double balance, double expense, double income})> stats =
+        {};
     for (final account in accounts) {
       stats[account.id] = await getAccountStats(account.id);
     }
@@ -1185,7 +1215,8 @@ class BeeRepository {
   /// 获取所有账户的汇总统计（总余额、总支出、总收入）
   /// v1.15.0: 不再限制账本，获取所有账户
   /// 注意：总收入/支出不包含转账（转账是内部资金流转，不是真实收支）
-  Future<({double totalBalance, double totalExpense, double totalIncome})> getAllAccountsTotalStats() async {
+  Future<({double totalBalance, double totalExpense, double totalIncome})>
+      getAllAccountsTotalStats() async {
     final accounts = await db.select(db.accounts).get();
 
     // 总余额 = 所有账户余额之和（这个是正确的，转账不影响总余额）
@@ -1218,7 +1249,11 @@ class BeeRepository {
       }
     }
 
-    return (totalBalance: totalBalance, totalExpense: totalExpense, totalIncome: totalIncome);
+    return (
+      totalBalance: totalBalance,
+      totalExpense: totalExpense,
+      totalIncome: totalIncome
+    );
   }
 
   /// 获取账户相关的所有交易（包括作为主账户和作为转入账户的交易）
@@ -1226,7 +1261,8 @@ class BeeRepository {
     // 注意：这里只获取作为主账户的交易
     // 转入交易通过 toAccountId 关联，需要在UI层额外处理
     return (db.select(db.transactions)
-          ..where((t) => t.accountId.equals(accountId) | t.toAccountId.equals(accountId))
+          ..where((t) =>
+              t.accountId.equals(accountId) | t.toAccountId.equals(accountId))
           ..orderBy([
             (t) => d.OrderingTerm(
                 expression: t.happenedAt, mode: d.OrderingMode.desc)
@@ -1310,7 +1346,8 @@ class BeeRepository {
 
     // 获取所有交易
     final transactions = await (db.select(db.transactions)
-          ..where((t) => t.accountId.equals(accountId) | t.toAccountId.equals(accountId)))
+          ..where((t) =>
+              t.accountId.equals(accountId) | t.toAccountId.equals(accountId)))
         .get();
 
     double balance = account.initialBalance;
@@ -1340,7 +1377,8 @@ class BeeRepository {
   Future<double> getAccountBalanceInLedger(int accountId, int ledgerId) async {
     final transactions = await (db.select(db.transactions)
           ..where((t) =>
-              (t.accountId.equals(accountId) | t.toAccountId.equals(accountId)) &
+              (t.accountId.equals(accountId) |
+                  t.toAccountId.equals(accountId)) &
               t.ledgerId.equals(ledgerId)))
         .get();
 
@@ -1421,7 +1459,8 @@ class BeeRepository {
   /// 获取所有一级分类（level=1, parentId=null）
   Future<List<Category>> getTopLevelCategories(String kind) async {
     return await (db.select(db.categories)
-          ..where((c) => c.kind.equals(kind) & c.level.equals(1) & c.parentId.isNull())
+          ..where((c) =>
+              c.kind.equals(kind) & c.level.equals(1) & c.parentId.isNull())
           ..orderBy([(c) => d.OrderingTerm(expression: c.sortOrder)]))
         .get();
   }
@@ -1484,15 +1523,15 @@ class BeeRepository {
     int? sortOrder,
   }) async {
     return await db.into(db.categories).insert(
-      CategoriesCompanion.insert(
-        name: name,
-        kind: kind,
-        icon: d.Value(icon),
-        parentId: d.Value(parentId),
-        level: d.Value(2),
-        sortOrder: d.Value(sortOrder ?? 0),
-      ),
-    );
+          CategoriesCompanion.insert(
+            name: name,
+            kind: kind,
+            icon: d.Value(icon),
+            parentId: d.Value(parentId),
+            level: d.Value(2),
+            sortOrder: d.Value(sortOrder ?? 0),
+          ),
+        );
   }
 
   /// 检查分类是否有子分类
@@ -1527,7 +1566,8 @@ class BeeRepository {
 
   /// 迁移分类下的所有交易和子分类
   /// 返回: (迁移的交易数, 迁移的子分类数)
-  Future<({int migratedTransactions, int migratedSubCategories})> migrateCategoryTransactions({
+  Future<({int migratedTransactions, int migratedSubCategories})>
+      migrateCategoryTransactions({
     required int fromCategoryId,
     required int toCategoryId,
   }) async {
@@ -1563,10 +1603,13 @@ class BeeRepository {
               migratedTransactions += count;
 
               // 删除源子分类
-              await (db.delete(db.categories)..where((c) => c.id.equals(sub.id))).go();
+              await (db.delete(db.categories)
+                    ..where((c) => c.id.equals(sub.id)))
+                  .go();
             } else {
               // 将子分类移动到新的父分类下
-              await (db.update(db.categories)..where((c) => c.id.equals(sub.id)))
+              await (db.update(db.categories)
+                    ..where((c) => c.id.equals(sub.id)))
                   .write(CategoriesCompanion(
                 parentId: d.Value(toCategoryId),
               ));
@@ -1600,7 +1643,8 @@ class BeeRepository {
   }
 
   /// 批量更新分类排序
-  Future<void> updateCategorySortOrders(List<({int id, int sortOrder})> updates) async {
+  Future<void> updateCategorySortOrders(
+      List<({int id, int sortOrder})> updates) async {
     await db.transaction(() async {
       for (final update in updates) {
         await (db.update(db.categories)..where((c) => c.id.equals(update.id)))
@@ -1611,27 +1655,33 @@ class BeeRepository {
 
   /// 监听分类及其子分类的变化
   Stream<List<Category>> watchCategoryWithSubs(int categoryId) {
-    return db.customSelect(
-      '''
+    return db
+        .customSelect(
+          '''
       SELECT * FROM categories
       WHERE id = ? OR parent_id = ?
       ORDER BY level, sort_order
       ''',
-      variables: [d.Variable.withInt(categoryId), d.Variable.withInt(categoryId)],
-      readsFrom: {db.categories},
-    ).watch().map((rows) {
-      return rows.map((row) {
-        return Category(
-          id: row.read<int>('id'),
-          name: row.read<String>('name'),
-          kind: row.read<String>('kind'),
-          icon: row.read<String?>('icon'),
-          sortOrder: row.read<int>('sort_order'),
-          parentId: row.read<int?>('parent_id'),
-          level: row.read<int>('level'),
-        );
-      }).toList();
-    });
+          variables: [
+            d.Variable.withInt(categoryId),
+            d.Variable.withInt(categoryId)
+          ],
+          readsFrom: {db.categories},
+        )
+        .watch()
+        .map((rows) {
+          return rows.map((row) {
+            return Category(
+              id: row.read<int>('id'),
+              name: row.read<String>('name'),
+              kind: row.read<String>('kind'),
+              icon: row.read<String?>('icon'),
+              sortOrder: row.read<int>('sort_order'),
+              parentId: row.read<int?>('parent_id'),
+              level: row.read<int>('level'),
+            );
+          }).toList();
+        });
   }
 
   /// 获取分类的完整路径名称（一级/二级）
@@ -1653,7 +1703,16 @@ class BeeRepository {
 
   /// 按分类统计（支持二级分类展开）
   /// 返回: List<(分类ID, 分类名称, 图标, 父分类ID, 层级, 总额)>
-  Future<List<({int? id, String name, String? icon, int? parentId, int level, double total})>> totalsByCategoryWithHierarchy({
+  Future<
+      List<
+          ({
+            int? id,
+            String name,
+            String? icon,
+            int? parentId,
+            int level,
+            double total
+          })>> totalsByCategoryWithHierarchy({
     required int ledgerId,
     required String type,
     required DateTime start,
@@ -1671,7 +1730,8 @@ class BeeRepository {
 
     final rows = await q.get();
     final map = <int?, double>{}; // categoryId -> total
-    final categoryInfo = <int?, ({String name, String? icon, int? parentId, int level})>{};
+    final categoryInfo =
+        <int?, ({String name, String? icon, int? parentId, int level})>{};
 
     for (final r in rows) {
       final t = r.readTable(db.transactions);
