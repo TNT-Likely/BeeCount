@@ -343,6 +343,7 @@ class AutoBillingService {
   /// [text] 快捷指令传递的识别文本
   /// [showNotification] 是否显示通知（默认true）
   /// 返回：交易记录ID，失败返回null
+  /// 核心：直接处理文本并自动记账
   Future<int?> processText(
     String text, {
     bool showNotification = true,
@@ -362,8 +363,38 @@ class AutoBillingService {
         );
       }
 
-      // 直接解析文本(无需OCR)
-      final ocrResult = _ocrService.parsePaymentText(text);
+      // 🔥【核心修改】：支持结构化暗号解析 (XPOSED:金额|备注|分类)
+      OcrResult ocrResult;
+      String? manualCategory; // 记录传过来的分类名
+      String? typeStr;
+      String? manualAccount;
+      if (text.startsWith("XPOSED:")) {
+        print("🚀 [精准模式] 检测到 Xposed 结构化数据");
+        final content = text.substring(7); // 去掉 "XPOSED:"
+        final parts = content.split('|');
+        
+        // 解析格式：金额|备注|分类|收支方向|账户
+        final double? amount = parts.length > 0 ? double.tryParse(parts[0]) : null;
+        final String? note = (parts.length > 1 && parts[1].isNotEmpty) ? parts[1] : null;
+        manualCategory = (parts.length > 2 && parts[2].isNotEmpty) ? parts[2] : null;
+        typeStr = parts.length > 3 ? parts[3] : '0';
+        manualAccount = parts.length > 4 && parts[4].isNotEmpty ? parts[4] : null;
+        ocrResult = OcrResult(
+          amount: amount,
+          note: note,
+          time: DateTime.now(),
+          rawText: text,
+          allNumbers: [],
+          suggestedCategoryId: null,
+        );
+        if (typeStr == '1' || typeStr == 'income') {
+            // 这里我们可以在创建交易前做个标记，或者直接在这里把金额变成负数(如果你的底层逻辑支持)
+            print("💰 检测到收入信号，准备记入收入");
+        }
+      } else {
+        // 普通模式：走原有的正则解析逻辑
+        ocrResult = _ocrService.parsePaymentText(text);
+      }
 
       if (ocrResult.amount == null) {
         print('❌ 未能识别出金额');
@@ -379,32 +410,30 @@ class AutoBillingService {
 
       print('✅ 识别成功: 金额=${ocrResult.amount}, 备注=${ocrResult.note}');
 
-      // 更新通知状态
-      if (showNotification) {
-        await _showNotification(
-          id: notificationId,
-          title: '✅ 识别成功',
-          body: '正在创建交易记录...',
-        );
-      }
+      // 获取分类逻辑
+      // 1. 根据 typeStr 动态判定搜索方向
+      // typeStr 是前面从 parts[3] 解析出来的结果
+      final isIncome = (typeStr == '1' || typeStr == 'income');
+      final String searchDirection = isIncome ? 'income' : 'expense';
+      
+      print('🔍 [自动化判断] 记账方向: $searchDirection');
 
-      // 获取分类并创建交易
+      // 2. 获取分类逻辑 (注意：括号里改成了变量 searchDirection)
       final repo = _container.read(repositoryProvider);
-      final topLevelCategories = await repo.getTopLevelCategories('expense');
+      final topLevelCategories = await repo.getTopLevelCategories(searchDirection); 
+      
       final allCategories = <Category>[];
       allCategories.addAll(topLevelCategories);
-      // 获取所有子分类
       for (final category in topLevelCategories) {
         final subCategories = await repo.getSubCategories(category.id);
         allCategories.addAll(subCategories);
       }
 
-      // 过滤出可用分类（排除有子分类的父分类）
       final categories = CategoryHierarchy.getUsableCategories(allCategories);
-
+      // 匹配分类：优先使用传过来的分类名进行智能匹配
       final suggestedCategoryId = CategoryMatcher.smartMatch(
         merchant: ocrResult.note,
-        fullText: ocrResult.rawText,
+        fullText: manualCategory ?? ocrResult.rawText, // 如果有手动分类，优先按它匹配
         categories: categories,
       );
 
@@ -418,58 +447,52 @@ class AutoBillingService {
       );
 
       // 创建交易记录
-      final txId = await _createTransaction(resultWithCategory);
+      // 创建交易记录：多传一个 typeStr 参数
+      final txId = await _createTransaction(
+        resultWithCategory,
+        typeOverride: typeStr, // 👈 把刚才解析的 '1' 传下去
+        accountOverride: manualAccount,
+      );
 
       if (txId != null) {
-        // 刷新统计信息
         _container.read(statsRefreshProvider.notifier).state++;
-        print('✅ 交易创建成功: id=$txId');
         if (showNotification) {
           await _showNotification(
             id: notificationId,
             title: '✅ 记账成功',
-            body: '已自动创建支出记录: ¥${ocrResult.amount}',
+            body: '金额: ¥${ocrResult.amount}${ocrResult.note != null ? ' (${ocrResult.note})' : ''}',
           );
         }
         return txId;
-      } else {
-        print('❌ 交易创建失败');
-        if (showNotification) {
-          await _showNotification(
-            id: notificationId,
-            title: '❌ 创建失败',
-            body: '无法创建交易记录',
-          );
-        }
-        return null;
-      }
-    } catch (e) {
-      print('❌ [AutoBilling] 文本处理失败: $e');
-      if (showNotification) {
-        await _showNotification(
-          id: 1002,
-          title: '❌ 处理失败',
-          body: '错误: $e',
-        );
       }
       return null;
+    } catch (e) {
+      print('❌ [AutoBilling] 文本处理失败: $e');
+      return null;
     } finally {
-      final totalElapsed =
-          DateTime.now().millisecondsSinceEpoch - totalStartTime;
+      final totalElapsed = DateTime.now().millisecondsSinceEpoch - totalStartTime;
       print('⏱️ [性能] 文本处理完成, 总耗时=${totalElapsed}ms');
     }
   }
 
   /// 创建交易记录
-  /// [billingTypes] 记账方式列表，用于添加标签
-  /// [autoAddTags] 是否自动添加标签
   Future<int?> _createTransaction(
     OcrResult result, {
     List<String>? billingTypes,
     bool autoAddTags = true,
+    String? typeOverride, // 1. 接收从管道传来的类型信号
+    String? accountOverride,
   }) async {
     try {
-      // 获取当前账本ID（优先从Provider读取，失败则从SharedPreferences读取，最后从数据库获取默认账本）
+      // --- 🔥 逻辑注入：强制指定类型 ---
+      String? forceType;
+      if (typeOverride == '1' || typeOverride == 'income') {
+        forceType = 'income';
+      } else if (typeOverride == '0' || typeOverride == 'expense') {
+        forceType = 'expense';
+      }
+
+      // 2. 获取当前账本ID（保留你原有的三方案逻辑）
       int? ledgerId;
 
       // 方案1: 尝试从Provider读取
@@ -497,7 +520,6 @@ class AutoBillingService {
         if (ledgers.isNotEmpty) {
           ledgerId = ledgers.first.id;
           print('✅ 从数据库获取默认账本ID: $ledgerId');
-          // 保存到SharedPreferences供下次使用
           final prefs = await SharedPreferences.getInstance();
           await prefs.setInt(_ledgerIdKey, ledgerId!);
         }
@@ -508,22 +530,16 @@ class AutoBillingService {
         return null;
       }
 
-      print('📝 准备创建交易: ledgerId=$ledgerId');
-
-      // 使用共享的BillCreationService创建交易
+      // 3. 初始化记账核心服务
       final repo = _container.read(repositoryProvider);
       final billCreationService = BillCreationService(repo);
 
-      // 准备备注
-      String? note;
-      if (result.note != null) {
-        note = result.note!;
-      }
-
-      // 获取 l10n（使用系统语言设置）
+      // 4. 准备备注与语言环境
+      String? note = result.note;
       final systemLocale = PlatformDispatcher.instance.locale;
       final l10n = lookupAppLocalizations(systemLocale);
 
+      // 5. ⚠️ 真正执行创建（注意最后多了一个 type 参数）
       final transactionId = await billCreationService.createBillTransaction(
         result: result,
         ledgerId: ledgerId,
@@ -531,6 +547,8 @@ class AutoBillingService {
         billingTypes: billingTypes,
         l10n: l10n,
         autoAddTags: autoAddTags,
+        type: forceType, // 🔥 这里把强制指定的类型传进去，解决“反了”的问题
+        accountName: accountOverride,// 👈 核心修改 2：把解析出来的“微信/支付宝”传下去
       );
 
       if (transactionId != null) {
@@ -541,6 +559,20 @@ class AutoBillingService {
         logger.warning('AutoBilling', '创建交易记录失败');
       }
 
+  // 🌟 核心修复：记账成功后，强制失效相关的缓存和状态
+      if (transactionId != null) {
+        // 1. 刷新首页交易缓存（解决“微信/支付宝”显示不出来的关键）
+        _container.invalidate(cachedTransactionsProvider); 
+        
+        // 2. 刷新账户统计（让首页顶部的余额、资产数字立刻变动）
+        _container.invalidate(allAccountStatsProvider);
+        
+        // 3. 刷新总计统计（支出/收入总和）
+        _container.invalidate(allAccountsTotalStatsProvider);
+        
+        print('🔔 [AutoBilling] 已发出 UI 刷新指令');
+      }
+
       return transactionId;
     } catch (e) {
       print('❌ 创建交易记录失败: $e');
@@ -548,7 +580,6 @@ class AutoBillingService {
       rethrow;
     }
   }
-
   /// 显示通知
   Future<void> _showNotification({
     required int id,
