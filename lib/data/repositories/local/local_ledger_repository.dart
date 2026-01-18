@@ -118,6 +118,9 @@ class LocalLedgerRepository implements LedgerRepository {
         balance += t.amount;
       } else if (t.type == 'expense') {
         balance -= t.amount;
+      } else if (t.type == 'adjustment') {
+        // 平账交易：根据金额的正负来决定增加或减少余额
+        balance += t.amount;
       }
       // transfer 不影响总余额
     }

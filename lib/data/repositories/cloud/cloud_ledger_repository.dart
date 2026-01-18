@@ -182,6 +182,9 @@ class CloudLedgerRepository implements LedgerRepository {
         balance += amount;
       } else if (type == 'expense') {
         balance -= amount;
+      } else if (type == 'adjustment') {
+        // 平账交易：根据金额的正负来决定增加或减少余额
+        balance += amount;
       }
       // transfer 不影响总余额
     }

@@ -636,6 +636,20 @@ class LocalRepository extends BaseRepository {
       _accountRepo.watchAccountTransactions(accountId);
 
   @override
+  Future<int> createAdjustmentTransaction({
+    required int accountId,
+    required int ledgerId,
+    required double amount,
+    String? note,
+  }) =>
+      _accountRepo.createAdjustmentTransaction(
+        accountId: accountId,
+        ledgerId: ledgerId,
+        amount: amount,
+        note: note,
+      );
+
+  @override
   Future<void> batchInsertAccounts(List<AccountsCompanion> accounts) =>
       _accountRepo.batchInsertAccounts(accounts);
 

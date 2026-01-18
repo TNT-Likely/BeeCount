@@ -1499,6 +1499,9 @@
   "accountTypeOther": "Other",
   "accountInitialBalance": "Initial Balance",
   "accountInitialBalanceHint": "Enter initial balance (optional)",
+  "accountBalanceCurrent": "Current",
+  "accountBalanceTarget": "Enter target balance",
+  "accountAdjustmentHint": "Enter actual balance, system will auto-create adjustment record",
   "accountDeleteWarningTitle": "Confirm Delete",
   "accountDeleteWarningMessage": "This account has {count} related transactions. After deletion, account information in transaction records will be cleared. Confirm deletion?",
   "@accountDeleteWarningMessage": {

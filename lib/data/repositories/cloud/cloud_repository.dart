@@ -606,6 +606,20 @@ class CloudRepository extends BaseRepository {
   Stream<List<Transaction>> watchAccountTransactions(int accountId) =>
       _account.watchAccountTransactions(accountId);
 
+  @override
+  Future<int> createAdjustmentTransaction({
+    required int accountId,
+    required int ledgerId,
+    required double amount,
+    String? note,
+  }) =>
+      _account.createAdjustmentTransaction(
+        accountId: accountId,
+        ledgerId: ledgerId,
+        amount: amount,
+        note: note,
+      );
+
   // Statistics Repository 方法
   @override
   Future<List<({int? id, String name, String? icon, double total})>>
