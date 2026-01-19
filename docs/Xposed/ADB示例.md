@@ -48,7 +48,7 @@ adb shell am broadcast -a com.tntlikely.beecount.AUTO_BILLING -p com.tntlikely.b
 
 | 1. 支付宝收入测试 | 2. 支付宝支出测试 |
 | :---: | :---: |
-| ![记账结果](./示例1.png) | ![记账结果](./示例2.png) |
+| ![记账结果](./docs/Xposed/示例3.jpg) | ![记账结果](./docs/Xposed/示例3.jpg) |
 
 ### 3. 手机端最终入账展示
-![记账结果](./示例3.jpg)
+![记账结果](./docs/Xposed/示例3.jpg)
