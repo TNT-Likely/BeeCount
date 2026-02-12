@@ -20,10 +20,12 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "notification_channel"
+    private val RECORD_CHANNEL = "com.beecount.api/broadcast" 
     private val INSTALL_CHANNEL = "com.tntlikely.beecount/install"
     private val SCREENSHOT_CHANNEL = "com.tntlikely.beecount/screenshot"
     private val LOGGER_CHANNEL = "com.beecount.logger"
     private val SHARE_CHANNEL = "com.tntlikely.beecount/share"
+    private val AUTO_BILL_ACTION = "com.tntlikely.beecount.AUTO_BILLING"
 
     private var screenshotObserver: ScreenshotObserver? = null
 
@@ -136,6 +138,55 @@ class MainActivity: FlutterActivity() {
         android.util.Log.e("MainActivity", "==========================================")
         android.util.Log.e("MainActivity", "configureFlutterEngine 被调用！！！")
         android.util.Log.e("MainActivity", "==========================================")
+        
+        // 分别建立连接
+        val recordChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, RECORD_CHANNEL)
+        // 1. 定义广播接收器 (监听来自 Xposed 或 ADB 的广播)
+        val receiver = object : android.content.BroadcastReceiver() {
+            override fun onReceive(context: android.content.Context?, intent: android.content.Intent?) {
+                val action = intent?.action
+                println("📡 [Native] 收到广播: $action")
+
+                if (action == AUTO_BILL_ACTION) {
+                    
+                    // 【兼容取值】优先取 amount (BeeCount)，没有则取 money (钱迹格式)
+                    val rawAmount = intent.extras?.get("amount") ?: intent.extras?.get("money")
+                    val amount = rawAmount.toString().replace(",", "").toDoubleOrNull() ?: 0.0
+
+                    // 【兼容备注】优先取备注，备注为空则取分类名
+                    val rawRemark = intent.getStringExtra("remark") ?: ""
+                    val rawCateName = intent.getStringExtra("cateName") ?: ""
+                    val finalRemark = if (rawRemark.isNotEmpty()) rawRemark else rawCateName
+
+                    val type = intent.getIntExtra("type", 0) 
+                    val rawAccount = intent.getStringExtra("account") ?: ""
+                    
+                    val args = mapOf(
+                        "amount" to amount,
+                        "remark" to finalRemark,
+                        "category" to rawCateName,
+                        "account" to rawAccount,
+                        "type" to if (type == 1) "income" else "expense",
+                        "timestamp" to System.currentTimeMillis()
+                    )
+
+                    // 通过之前定义的 recordChannel 发送
+                    recordChannel.invokeMethod("addTransaction", args)
+                }
+            }
+        }
+
+        // 2. 注册过滤器
+        val filter = android.content.IntentFilter()
+        filter.addAction(AUTO_BILL_ACTION)
+        
+        
+        // 3. 注册接收器（适配 Android 14+ 安全要求）
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(receiver, filter, android.content.Context.RECEIVER_EXPORTED)
+        } else {
+            context.registerReceiver(receiver, filter)
+        }
 
         // 日志桥接的MethodChannel
         val loggerChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LOGGER_CHANNEL)
