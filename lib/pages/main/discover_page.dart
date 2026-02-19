@@ -498,7 +498,6 @@ class _AccountsCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final accountsAsync = ref.watch(allAccountsStreamProvider);
-    final totalStatsAsync = ref.watch(allAccountsTotalStatsProvider);
     final allStatsAsync = ref.watch(allAccountStatsProvider);
 
     return GestureDetector(
@@ -565,18 +564,13 @@ class _AccountsCard extends ConsumerWidget {
                 if (accounts.isEmpty) {
                   return _buildEmptyState(context, ref, l10n);
                 }
-                return totalStatsAsync.when(
-                  data: (totalStats) => allStatsAsync.when(
-                    data: (accountStats) => _buildAccountsContent(
-                      context,
-                      ref,
-                      accounts,
-                      totalStats,
-                      accountStats,
-                      l10n,
-                    ),
-                    loading: () => _buildLoadingState(context, ref),
-                    error: (_, __) => _buildEmptyState(context, ref, l10n),
+                return allStatsAsync.when(
+                  data: (accountStats) => _buildAccountsContent(
+                    context,
+                    ref,
+                    accounts,
+                    accountStats,
+                    l10n,
                   ),
                   loading: () => _buildLoadingState(context, ref),
                   error: (_, __) => _buildEmptyState(context, ref, l10n),
@@ -634,11 +628,11 @@ class _AccountsCard extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     List<dynamic> accounts,
-    ({double totalBalance, double totalExpense, double totalIncome}) totalStats,
     Map<int, ({double balance, double expense, double income})> accountStats,
     AppLocalizations l10n,
   ) {
     final useCompact = ref.watch(compactAmountProvider);
+    final currencyBalances = _calculateCurrencyBalances(accounts, accountStats);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -664,18 +658,10 @@ class _AccountsCard extends ConsumerWidget {
                     ),
                   ),
                   SizedBox(height: 2.0.scaled(context, ref)),
-                  AmountText(
-                    value: totalStats.totalBalance,
-                    signed: false,
-                    showCurrency: true,
-                    useCompactFormat: useCompact,
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: totalStats.totalBalance >= 0
-                          ? BeeTokens.textPrimary(context)
-                          : Colors.red,
-                    ),
+                  _buildCurrencyTotalText(
+                    context,
+                    currencyBalances,
+                    useCompact,
                   ),
                 ],
               ),
@@ -709,6 +695,67 @@ class _AccountsCard extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Map<String, double> _calculateCurrencyBalances(
+    List<dynamic> accounts,
+    Map<int, ({double balance, double expense, double income})> accountStats,
+  ) {
+    final result = <String, double>{};
+
+    for (final account in accounts) {
+      final balance = accountStats[account.id]?.balance ?? account.initialBalance ?? 0.0;
+      final currencyCode = (account.currency as String?) ?? 'CNY';
+      result[currencyCode] = (result[currencyCode] ?? 0.0) + balance;
+    }
+
+    return result;
+  }
+
+  Widget _buildCurrencyTotalText(
+    BuildContext context,
+    Map<String, double> currencyBalances,
+    bool useCompact,
+  ) {
+    if (currencyBalances.length <= 1) {
+      final entry = currencyBalances.entries.isNotEmpty
+          ? currencyBalances.entries.first
+          : const MapEntry('CNY', 0.0);
+      return AmountText(
+        value: entry.value,
+        signed: false,
+        showCurrency: true,
+        useCompactFormat: useCompact,
+        currencyCode: entry.key,
+        style: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: entry.value >= 0 ? BeeTokens.textPrimary(context) : Colors.red,
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: currencyBalances.entries
+          .map(
+            (entry) => AmountText(
+              value: entry.value,
+              signed: false,
+              showCurrency: true,
+              useCompactFormat: useCompact,
+              currencyCode: entry.key,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: entry.value >= 0
+                    ? BeeTokens.textPrimary(context)
+                    : Colors.red,
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 
