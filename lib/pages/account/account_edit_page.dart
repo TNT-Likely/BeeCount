@@ -34,6 +34,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   bool _saving = false;
   bool _isNameDuplicate = false;
   String? _nameErrorText;
+  double? _currentBalance; // 当前账户余额
 
   // 预设账户类型
   static const List<String> accountTypes = [
@@ -49,14 +50,31 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.account?.name ?? '');
-    _initialBalanceController = TextEditingController(
-      text: widget.account?.initialBalance != null &&
-              widget.account!.initialBalance != 0.0
-          ? widget.account!.initialBalance.toStringAsFixed(2)
-          : '',
-    );
     _selectedType = widget.account?.type ?? 'cash';
     _selectedCurrency = widget.account?.currency ?? 'CNY';
+
+    _initialBalanceController = TextEditingController();
+
+    // 编辑模式：加载当前余额
+    if (isEditing) {
+      _currentBalance = null;
+      _loadCurrentBalance();
+    } else {
+      _currentBalance = null;
+    }
+  }
+
+  Future<void> _loadCurrentBalance() async {
+    if (!isEditing) return;
+
+    final repo = ref.read(repositoryProvider);
+    final balance = await repo.getAccountBalance(widget.account!.id);
+    if (mounted) {
+      setState(() {
+        _currentBalance = balance;
+        _initialBalanceController.text = balance.toStringAsFixed(2);
+      });
+    }
   }
 
   @override
@@ -307,7 +325,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
 
                   SizedBox(height: 8.0.scaled(context, ref)),
 
-                  // 初始资金
+                  // 账户余额
                   SectionCard(
                     margin: EdgeInsets.zero,
                     child: Padding(
@@ -315,19 +333,36 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            l10n.accountInitialBalance,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: BeeTokens.textPrimary(context),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                isEditing
+                                    ? l10n.accountBalance
+                                    : l10n.accountInitialBalance,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: BeeTokens.textPrimary(context),
+                                ),
+                              ),
+                              if (isEditing && _currentBalance != null)
+                                Text(
+                                  '${l10n.accountBalanceCurrent}: ¥${_currentBalance!.toStringAsFixed(2)}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                            ],
                           ),
                           SizedBox(height: 12.0.scaled(context, ref)),
                           TextFormField(
                             controller: _initialBalanceController,
                             decoration: InputDecoration(
-                              hintText: l10n.accountInitialBalanceHint,
+                              hintText: isEditing
+                                  ? l10n.accountBalanceTarget
+                                  : l10n.accountInitialBalanceHint,
                               hintStyle: TextStyle(color: Colors.grey[400]),
                               prefixText: '${getCurrencySymbol(_selectedCurrency)} ',
                               prefixStyle: TextStyle(
@@ -363,6 +398,16 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                               return null;
                             },
                           ),
+                          SizedBox(height: 8.0.scaled(context, ref)),
+                          // 平账提示
+                          if (isEditing)
+                            Text(
+                              l10n.accountAdjustmentHint,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -451,6 +496,20 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           initialBalanceText.isEmpty ? 0.0 : double.parse(initialBalanceText);
 
       if (isEditing) {
+        // v1.15.0: 平账功能实现
+        // 计算当前账户余额
+        final currentBalance = await repo.getAccountBalance(widget.account!.id);
+        final difference = initialBalance - currentBalance;
+
+        // 如果有差额，创建平账交易
+        if (difference.abs() > 0.01) {
+          await repo.createAdjustmentTransaction(
+            accountId: widget.account!.id,
+            ledgerId: widget.ledgerId,
+            amount: difference,
+          );
+        }
+
         // 检查币种是否变化
         String? currencyToUpdate;
         if (_selectedCurrency != widget.account!.currency) {
@@ -471,12 +530,13 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           currencyToUpdate = _selectedCurrency;
         }
 
+        // 更新账户信息（不更新 initialBalance）
         await repo.updateAccount(
           widget.account!.id,
           name: name,
           type: _selectedType,
           currency: currencyToUpdate,
-          initialBalance: initialBalance,
+          // initialBalance 不再更新，保持原值
         );
       } else {
         await repo.createAccount(

@@ -6576,6 +6576,24 @@ abstract class AppLocalizations {
   /// **'Enter initial balance (optional)'**
   String get accountInitialBalanceHint;
 
+  /// No description provided for @accountBalanceCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get accountBalanceCurrent;
+
+  /// No description provided for @accountBalanceTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter target balance'**
+  String get accountBalanceTarget;
+
+  /// No description provided for @accountAdjustmentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter actual balance, system will auto-create adjustment record'**
+  String get accountAdjustmentHint;
+
   /// No description provided for @accountDeleteWarningTitle.
   ///
   /// In en, this message translates to:

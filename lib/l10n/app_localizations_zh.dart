@@ -3465,6 +3465,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get accountInitialBalanceHint => '请输入初始资金（可选）';
 
   @override
+  String get accountBalanceCurrent => '当前';
+
+  @override
+  String get accountBalanceTarget => '输入目标余额';
+
+  @override
+  String get accountAdjustmentHint => '输入实际余额，系统将自动创建平账记录';
+
+  @override
   String get accountDeleteWarningTitle => '确认删除';
 
   @override

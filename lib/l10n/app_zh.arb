@@ -1403,6 +1403,9 @@
   "accountTypeOther": "其他",
   "accountInitialBalance": "初始资金",
   "accountInitialBalanceHint": "请输入初始资金（可选）",
+  "accountBalanceCurrent": "当前",
+  "accountBalanceTarget": "输入目标余额",
+  "accountAdjustmentHint": "输入实际余额，系统将自动创建平账记录",
   "accountDeleteWarningTitle": "确认删除",
   "accountDeleteWarningMessage": "该账户有 {count} 笔关联交易，删除后交易记录中的账户信息将被清空。确认删除吗？",
   "@accountDeleteWarningMessage": {

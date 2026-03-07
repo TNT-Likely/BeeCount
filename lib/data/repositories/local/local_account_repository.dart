@@ -144,6 +144,9 @@ class LocalAccountRepository implements AccountRepository {
       } else if (t.type == 'transfer') {
         // 作为转出账户
         balance -= t.amount;
+      } else if (t.type == 'adjustment') {
+        // 平账交易：根据金额的正负来决定增加或减少余额
+        balance += t.amount;
       }
     }
 
@@ -181,6 +184,9 @@ class LocalAccountRepository implements AccountRepository {
           balance -= tx.amount;
         } else if (tx.type == 'transfer') {
           balance -= tx.amount;
+        } else if (tx.type == 'adjustment') {
+          // 平账交易：根据金额的正负来决定增加或减少余额
+          balance += tx.amount;
         }
       } else if (tx.toAccountId == accountId) {
         // 作为转入账户（转账）
@@ -210,6 +216,9 @@ class LocalAccountRepository implements AccountRepository {
           balance -= tx.amount;
         } else if (tx.type == 'transfer') {
           balance -= tx.amount;
+        } else if (tx.type == 'adjustment') {
+          // 平账交易：根据金额的正负来决定增加或减少余额
+          balance += tx.amount;
         }
       } else if (tx.toAccountId == accountId) {
         // 作为转入账户（转账）
@@ -462,5 +471,35 @@ class LocalAccountRepository implements AccountRepository {
     return await (db.select(db.accounts)
           ..where((a) => a.id.isIn(accountIds)))
         .get();
+  }
+
+  @override
+  Future<int> createAdjustmentTransaction({
+    required int accountId,
+    required int ledgerId,
+    required double amount,
+    String? note,
+  }) async {
+    logger.info('AccountAdjustment',
+        '📝 创建平账交易: accountId=$accountId, ledgerId=$ledgerId, amount=$amount, note=$note');
+
+    try {
+      final transactionId =
+          await db.into(db.transactions).insert(TransactionsCompanion.insert(
+                ledgerId: ledgerId,
+                type: 'adjustment',
+                amount: amount.abs(),
+                accountId: d.Value(accountId),
+                categoryId: const d.Value(null),
+                happenedAt: d.Value(DateTime.now()),
+                note: d.Value(note),
+              ));
+
+      logger.info('AccountAdjustment', '✅ 平账交易创建成功！ID=$transactionId');
+      return transactionId;
+    } catch (e, stack) {
+      logger.error('AccountAdjustment', '❌ 创建平账交易失败', e, stack);
+      rethrow;
+    }
   }
 }

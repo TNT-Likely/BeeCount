@@ -3465,6 +3465,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountInitialBalanceHint => 'Enter initial balance (optional)';
 
   @override
+  String get accountBalanceCurrent => 'Current';
+
+  @override
+  String get accountBalanceTarget => 'Enter target balance';
+
+  @override
+  String get accountAdjustmentHint =>
+      'Enter actual balance, system will auto-create adjustment record';
+
+  @override
   String get accountDeleteWarningTitle => 'Confirm Delete';
 
   @override

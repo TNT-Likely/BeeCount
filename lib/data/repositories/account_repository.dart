@@ -87,6 +87,18 @@ abstract class AccountRepository {
   /// 检查账户是否有交易记录
   Future<bool> hasTransactions(int accountId);
 
+  /// 创建账户平账交易
+  /// [accountId] 账户ID
+  /// [ledgerId] 账本ID
+  /// [amount] 平账金额（正数表示增加余额，负数表示减少余额）
+  /// [note] 备注信息
+  Future<int> createAdjustmentTransaction({
+    required int accountId,
+    required int ledgerId,
+    required double amount,
+    String? note,
+  });
+
   /// 响应式监听账户信息变化
   Stream<Account?> watchAccount(int accountId);
 

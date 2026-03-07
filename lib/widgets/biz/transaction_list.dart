@@ -353,7 +353,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
             final list = item.$3 as List<({Transaction t, Category? category})>;
             double dayIncome = 0, dayExpense = 0;
             for (final it in list) {
-              // 转账不计入收支统计
+              // 转账和平账不计入收支统计
               if (it.t.type == 'income') {
                 dayIncome += it.t.amount;
               }

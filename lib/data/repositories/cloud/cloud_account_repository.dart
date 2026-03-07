@@ -263,6 +263,11 @@ class CloudAccountRepository implements AccountRepository {
         if (toAccountId == accountId) {
           balance += amount;
         }
+      } else if (type == 'adjustment') {
+        // 平账交易：根据金额的正负来决定增加或减少余额
+        if (tx['account_id'] == accountId) {
+          balance += amount;
+        }
       }
     }
 
@@ -298,6 +303,9 @@ class CloudAccountRepository implements AccountRepository {
         balance += amount;
       } else if (type == 'expense') {
         balance -= amount;
+      } else if (type == 'adjustment') {
+        // 平账交易：根据金额的正负来决定增加或减少余额
+        balance += amount;
       }
     }
 
@@ -591,5 +599,15 @@ class CloudAccountRepository implements AccountRepository {
     );
 
     return results.map((row) => _accountFromJson(row)).toList();
+  }
+
+  @override
+  Future<int> createAdjustmentTransaction({
+    required int accountId,
+    required int ledgerId,
+    required double amount,
+    String? note,
+  }) async {
+    throw UnimplementedError('云端平账交易创建暂不支持');
   }
 }
