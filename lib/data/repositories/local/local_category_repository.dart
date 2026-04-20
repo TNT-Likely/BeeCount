@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart' as d;
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../db.dart';
@@ -76,19 +80,87 @@ class LocalCategoryRepository implements CategoryRepository {
 
   @override
   Future<void> deleteCategory(int id) async {
-    // 先删除该分类下的所有子分类
+    // 先收集要删的分类(自身 + 直接子分类)的自定义图标路径,删完后清理
+    // 本地磁盘文件 —— 以前 deleteCategory 只删 categories 行,
+    // customIconPath 指向的本地 PNG 留在 Application Documents/custom_icons/
+    // 里,长期使用会堆积孤立图标文件。云端 attachment_files 的清理由服务端
+    // sync push handler 兜底(见 src/projection.py gc_orphan_attachments)。
+    final iconPaths = await _collectIconPathsForIds([id], includeChildren: true);
+
     await (db.delete(db.categories)..where((c) => c.parentId.equals(id))).go();
-    // 再删除该分类本身
     await (db.delete(db.categories)..where((c) => c.id.equals(id))).go();
+
+    if (iconPaths.isNotEmpty) {
+      await _deleteLocalIconFiles(iconPaths);
+    }
   }
 
   @override
   Future<void> deleteCategoriesByIds(List<int> ids) async {
     if (ids.isEmpty) return;
-    // 先删除这些分类下的所有子分类
+    final iconPaths = await _collectIconPathsForIds(ids, includeChildren: true);
+
     await (db.delete(db.categories)..where((c) => c.parentId.isIn(ids))).go();
-    // 再删除这些分类本身
     await (db.delete(db.categories)..where((c) => c.id.isIn(ids))).go();
+
+    if (iconPaths.isNotEmpty) {
+      await _deleteLocalIconFiles(iconPaths);
+    }
+  }
+
+  /// 查给定分类(含其直接子分类)的 customIconPath 列表 —— 在行被 DELETE
+  /// **之前**调,删后就没法查了。
+  Future<List<String>> _collectIconPathsForIds(
+    List<int> ids, {
+    required bool includeChildren,
+  }) async {
+    if (ids.isEmpty) return const [];
+    final paths = <String>[];
+    final selfRows = await (db.select(db.categories)
+          ..where((c) => c.id.isIn(ids)))
+        .get();
+    for (final row in selfRows) {
+      final p = row.customIconPath;
+      if (p != null && p.trim().isNotEmpty) paths.add(p);
+    }
+    if (includeChildren) {
+      final childRows = await (db.select(db.categories)
+            ..where((c) => c.parentId.isIn(ids)))
+          .get();
+      for (final row in childRows) {
+        final p = row.customIconPath;
+        if (p != null && p.trim().isNotEmpty) paths.add(p);
+      }
+    }
+    return paths;
+  }
+
+  /// 清本地 custom_icons/ 目录下的图标文件。失败只 log —— 磁盘残留下次 GC
+  /// 脚本能扫出来,不 block 分类删除事务。
+  Future<void> _deleteLocalIconFiles(List<String> relativePaths) async {
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final iconDir = Directory('${appDir.path}/custom_icons');
+      var deleted = 0;
+      for (final rel in relativePaths) {
+        final fileName = p.basename(rel);
+        final file = File('${iconDir.path}/$fileName');
+        if (await file.exists()) {
+          try {
+            await file.delete();
+            deleted++;
+          } catch (e) {
+            logger.warning(
+                'LocalCategoryRepository', '删除图标失败: $fileName, error=$e');
+          }
+        }
+      }
+      if (deleted > 0) {
+        logger.info('LocalCategoryRepository', '分类删除连带清理 $deleted 个自定义图标');
+      }
+    } catch (e, st) {
+      logger.error('LocalCategoryRepository', '清理分类自定义图标异常', e, st);
+    }
   }
 
   @override
