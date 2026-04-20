@@ -8,43 +8,23 @@ import '../data/db.dart';
 import '../data/models/category_icon.dart';
 import '../providers/theme_providers.dart';
 
-/// 统一的分类名称到图标映射，供列表与分类选择共用，保证一致性
-/// 现在使用CategoryService的智能推导功能
+/// 获取分类的图标数据。**永远只读 `category.icon` 字段**,不再按名字推导。
 ///
-/// 已废弃：请使用 getCategoryIconData 函数代替
-@Deprecated('Use getCategoryIconData instead')
-IconData iconForCategory(String name) {
-  return CategoryService.getCategoryIconByName(name);
-}
-
-/// 获取分类的图标数据
+/// 历史上本函数在 icon 为空时走 `getCategoryIconByName`(40 条中文关键字正则)
+/// 模糊推导 —— 问题多(改名换图标、只认中文、web/server 必须复刻两套)。v23
+/// DB migration 已把所有 icon 为空的分类按 byName 一次性固化到 DB,此后渲染
+/// 路径只信任 icon 字段。彻底删除 byName 逻辑的毒瘤。
 ///
-/// 优先使用分类对象中存储的icon字段,如果为空则根据分类名称智能推导
-///
-/// [category] 分类对象,可以为null(用于默认分类或虚拟分类)
-/// [categoryName] 分类名称,当category为null时必须提供
-///
-/// 示例:
-/// ```dart
-/// // 使用分类对象(推荐)
-/// final icon = getCategoryIconData(category: myCategory);
-///
-/// // 仅使用分类名称(回退方案)
-/// final icon = getCategoryIconData(categoryName: '餐饮');
-/// ```
+/// [category] 分类对象
+/// [categoryName] 兼容保留:当 category 为 null 但需要提示性显示时使用(兜底
+///   永远是 `Icons.category`,不再按名字推导)
 IconData getCategoryIconData({Category? category, String? categoryName}) {
-  // 优先使用分类对象的icon字段
   if (category != null && category.icon != null && category.icon!.isNotEmpty) {
     return CategoryService.getCategoryIcon(category.icon);
   }
-
-  // 回退到名称推导
-  final name = category?.name ?? categoryName;
-  if (name == null || name.isEmpty) {
-    return CategoryService.getCategoryIcon(null); // 返回默认图标
-  }
-
-  return CategoryService.getCategoryIconByName(name);
+  // icon 空(v23 后理论上不应该发生,除非分类刚创建还没走过 migration)→
+  // 统一兜底 Icons.category,跟 getCategoryIcon(null) 行为一致。
+  return CategoryService.getCategoryIcon(null);
 }
 
 /// 分类图标组件

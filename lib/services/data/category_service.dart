@@ -4,51 +4,52 @@ import 'package:flutter/material.dart';
 class CategoryService {
   CategoryService._();
 
-  /// 根据分类名称智能推导图标 (用于动态分类名称匹配)
-  static IconData getCategoryIconByName(String categoryName) {
-    // 使用模糊匹配逻辑
-    final n = categoryName;
-    if (n.contains('餐') ||
-        n.contains('饭') ||
-        n.contains('吃') ||
-        n.contains('外卖')) {
-      return Icons.restaurant_outlined;
+  /// 按分类名字中文关键字模糊匹配推导 **icon 字符串名**(不带 `_outlined` 后缀)。
+  ///
+  /// **仅供 v23 数据库迁移** 一次性使用 —— 把老 DB 里 icon 字段为空的分类按
+  /// 名字推出一个图标固化到 DB。迁移跑完后渲染路径(`getCategoryIconData`)就
+  /// 不再调它,只读 `category.icon` 字段 + switch 渲染。
+  ///
+  /// 服务端 alembic `0002_backfill_category_icons.py` 做同样的 backfill,Python
+  /// 版 `src/services/category_icon.py::resolve_icon_by_name` 跟本函数 1:1 对应。
+  /// 两边改动要同步。
+  static String resolveIconNameByName(String name) {
+    final n = name;
+    if (n.contains('餐') || n.contains('饭') || n.contains('吃') || n.contains('外卖')) {
+      return 'restaurant';
     }
-    if (n.contains('打车')) return Icons.local_taxi_outlined;
-    if (n.contains('地铁')) return Icons.subway_outlined;
-    if (n.contains('公交')) return Icons.directions_bus_outlined;
-    if (n.contains('高铁') || n.contains('火车')) return Icons.train_outlined;
-    if (n.contains('飞机')) return Icons.flight_outlined;
-    if (n.contains('交通') || n.contains('出行')) {
-      return Icons.directions_transit_outlined;
-    }
-    // 车辆相关（未被上面交通覆盖的"车/车辆/车贷/购车/爱车"）
+    if (n.contains('打车')) return 'local_taxi';
+    if (n.contains('地铁')) return 'subway';
+    if (n.contains('公交')) return 'directions_bus';
+    if (n.contains('高铁') || n.contains('火车')) return 'train';
+    if (n.contains('飞机')) return 'flight';
+    if (n.contains('交通') || n.contains('出行')) return 'directions_transit';
     if (n == '车' ||
         n.contains('车辆') ||
         n.contains('车贷') ||
         n.contains('购车') ||
         n.contains('爱车')) {
-      return Icons.directions_car_outlined;
+      return 'directions_car';
     }
     if (n.contains('购物') ||
         n.contains('百货') ||
         n.contains('网购') ||
         n.contains('淘宝') ||
         n.contains('京东')) {
-      return Icons.shopping_bag_outlined;
+      return 'shopping_bag';
     }
     if (n.contains('社交') ||
         n.contains('聚会') ||
         n.contains('朋友') ||
         n.contains('聚餐')) {
-      return Icons.groups_outlined;
+      return 'groups';
     }
     if (n.contains('服饰') ||
         n.contains('衣') ||
         n.contains('鞋') ||
         n.contains('裤') ||
         n.contains('帽')) {
-      return Icons.checkroom_outlined;
+      return 'checkroom';
     }
     if (n.contains('超市') ||
         n.contains('生鲜') ||
@@ -56,63 +57,57 @@ class CategoryService {
         n.contains('粮油') ||
         n.contains('蔬菜') ||
         n.contains('水果')) {
-      return Icons.local_grocery_store_outlined;
+      return 'local_grocery_store';
     }
     if (n.contains('娱乐') ||
         n.contains('游戏') ||
         n.contains('电影') ||
         n.contains('影院')) {
-      return Icons.sports_esports_outlined;
+      return 'sports_esports';
     }
     if (n.contains('家庭') || n.contains('家人') || n.contains('家属')) {
-      return Icons.family_restroom_outlined;
+      return 'family_restroom';
     }
     if (n.contains('居家') ||
         n.contains('家') ||
         n.contains('家居') ||
         n.contains('物业') ||
         n.contains('维修')) {
-      return Icons.chair_outlined;
+      return 'chair';
     }
     if (n.contains('美妆') ||
         n.contains('化妆') ||
         n.contains('护肤') ||
         n.contains('美容')) {
-      return Icons.brush_outlined;
+      return 'brush';
     }
     if (n.contains('通讯') ||
         n.contains('话费') ||
         n.contains('宽带') ||
         n.contains('流量')) {
-      return Icons.network_cell_outlined;
+      return 'network_cell';
     }
     if (n.contains('订阅') || n.contains('会员') || n.contains('流媒体')) {
-      return Icons.subscriptions_outlined;
+      return 'subscriptions';
     }
     if (n.contains('礼物') ||
         n.contains('红包') ||
         n.contains('礼金') ||
         n.contains('请客') ||
         n.contains('人情')) {
-      return Icons.card_giftcard_outlined;
+      return 'card_giftcard';
     }
-    if (n.contains('水') ||
-        n.contains('电') ||
-        n.contains('煤') ||
-        n.contains('燃气')) {
-      return Icons.water_drop_outlined;
+    if (n.contains('水') || n.contains('电') || n.contains('煤') || n.contains('燃气')) {
+      return 'water_drop';
     }
     if (n.contains('房贷') ||
         n.contains('按揭') ||
         n.contains('贷款') ||
         n.contains('信用卡')) {
-      return Icons.account_balance_outlined;
+      return 'account_balance';
     }
-    if (n.contains('住房') ||
-        n.contains('房租') ||
-        n.contains('房') ||
-        n.contains('租')) {
-      return Icons.home_outlined;
+    if (n.contains('住房') || n.contains('房租') || n.contains('房') || n.contains('租')) {
+      return 'home';
     }
     if (n.contains('工资') ||
         n.contains('收入') ||
@@ -120,84 +115,66 @@ class CategoryService {
         n.contains('报销') ||
         n.contains('兼职') ||
         n.contains('转账')) {
-      return Icons.attach_money_outlined;
+      return 'attach_money';
     }
     if (n.contains('理财') ||
         n.contains('利息') ||
         n.contains('基金') ||
         n.contains('股票') ||
         n.contains('退款')) {
-      return Icons.savings_outlined;
+      return 'savings';
     }
-    if (n.contains('教育') ||
-        n.contains('学习') ||
-        n.contains('培训') ||
-        n.contains('书')) {
-      return Icons.menu_book_outlined;
+    if (n.contains('教育') || n.contains('学习') || n.contains('培训') || n.contains('书')) {
+      return 'menu_book';
     }
-    if (n.contains('医疗') ||
-        n.contains('医院') ||
-        n.contains('药') ||
-        n.contains('体检')) {
-      return Icons.medical_services_outlined;
+    if (n.contains('医疗') || n.contains('医院') || n.contains('药') || n.contains('体检')) {
+      return 'medical_services';
     }
-    if (n.contains('宠物') || n.contains('猫') || n.contains('狗')) {
-      return Icons.pets_outlined;
-    }
+    if (n.contains('宠物') || n.contains('猫') || n.contains('狗')) return 'pets';
     if (n.contains('运动') ||
         n.contains('健身') ||
         n.contains('球') ||
         n.contains('跑步')) {
-      return Icons.fitness_center_outlined;
+      return 'fitness_center';
     }
     if (n.contains('数码') ||
         n.contains('电子') ||
         n.contains('手机') ||
         n.contains('电脑')) {
-      return Icons.devices_other_outlined;
+      return 'devices_other';
     }
     if (n.contains('旅行') ||
         n.contains('旅游') ||
         n.contains('出差') ||
         n.contains('机票')) {
-      return Icons.card_travel_outlined;
+      return 'card_travel';
     }
-    if (n.contains('酒店') || n.contains('住宿') || n.contains('民宿')) {
-      return Icons.hotel_outlined;
-    }
-    if (n.contains('烟') || n.contains('酒') || n.contains('茶')) {
-      return Icons.local_bar_outlined;
-    }
+    if (n.contains('酒店') || n.contains('住宿') || n.contains('民宿')) return 'hotel';
+    if (n.contains('烟') || n.contains('酒') || n.contains('茶')) return 'local_bar';
     if (n.contains('母婴') || n.contains('孩子') || n.contains('奶粉')) {
-      return Icons.child_friendly_outlined;
+      return 'child_friendly';
     }
-    if (n.contains('停车')) return Icons.local_parking;
-    if (n.contains('加油')) return Icons.local_gas_station_outlined;
-    if (n.contains('保养') || n.contains('维修')) return Icons.build_outlined;
-    if (n.contains('汽车') || n.contains('车辆') || n == '车') {
-      return Icons.directions_car_outlined;
-    }
-    if (n.contains('过路费') || n.contains('过桥费')) return Icons.alt_route_outlined;
-    if (n.contains('快递') || n.contains('邮寄')) {
-      return Icons.local_shipping_outlined;
-    }
+    if (n.contains('停车')) return 'local_parking';
+    if (n.contains('加油')) return 'local_gas_station';
+    if (n.contains('保养') || n.contains('维修')) return 'build';
+    if (n.contains('汽车') || n.contains('车辆') || n == '车') return 'directions_car';
+    if (n.contains('过路费') || n.contains('过桥费')) return 'alt_route';
+    if (n.contains('快递') || n.contains('邮寄')) return 'local_shipping';
     if (n.contains('税') ||
         n.contains('社保') ||
         n.contains('公积金') ||
         n.contains('罚款')) {
-      return Icons.receipt_long_outlined;
+      return 'receipt_long';
     }
-    if (n.contains('捐赠') || n.contains('公益')) {
-      return Icons.volunteer_activism_outlined;
-    }
+    if (n.contains('捐赠') || n.contains('公益')) return 'volunteer_activism';
     if (n.contains('工作') ||
         n.contains('办公') ||
         n.contains('出差') ||
         n.contains('职场') ||
         n.contains('会议')) {
-      return Icons.work_outline;
+      return 'work';
     }
-    return Icons.circle_outlined;
+    return 'circle';
   }
 
   /// 获取分类图标
@@ -735,6 +712,30 @@ class CategoryService {
         return Icons.access_time;
       case 'security':
         return Icons.security;
+
+      // byName 可能产出的、上面 case 还没覆盖的 icon 名 —— v23 迁移把分类字段
+      // 从 null 回填到这些值后必须能渲染,否则 switch 走 default 返回 Icons.category
+      // 兜底,用户又看到通用问号图。跟 `resolveIconNameByName` 的 return 值对齐。
+      case 'subway':
+        return Icons.subway;
+      case 'directions_transit':
+        return Icons.directions_transit;
+      case 'groups':
+        return Icons.groups;
+      case 'network_cell':
+        return Icons.network_cell;
+      case 'devices_other':
+        return Icons.devices_other;
+      case 'card_travel':
+        return Icons.card_travel;
+      case 'hotel':
+        return Icons.hotel;
+      case 'child_friendly':
+        return Icons.child_friendly;
+      case 'alt_route':
+        return Icons.alt_route;
+      case 'build':
+        return Icons.build;
 
       default:
         return Icons.category;

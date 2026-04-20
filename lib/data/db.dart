@@ -3,6 +3,7 @@ import 'dart:ui' show Locale;
 
 import 'package:drift/drift.dart';
 import '../l10n/app_localizations.dart';
+import '../services/data/category_service.dart';
 import '../services/data/seed_service.dart';
 import '../services/system/logger_service.dart';
 import 'package:drift/native.dart';
@@ -244,7 +245,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 22; // v22: budgets 加 syncId（跨设备同步）
+  int get schemaVersion => 23; // v23: 清空分类 icon 的历史数据走 byName 一次性回填
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -781,6 +782,39 @@ class BeeDatabase extends _$BeeDatabase {
             }
 
             print('[DB Migration] v22 迁移完成');
+          }
+          if (from < 23) {
+            // v23: 清理"分类图标靠 getCategoryIconByName 运行时推导"的毒瘤代码。
+            // 历史上 `category.icon` 允许为 null/空,渲染时走 `getCategoryIconByName`
+            // 按中文关键字模糊匹配回退推导图标。这个方案:
+            //   - 改名就换图标(用户会懵)
+            //   - 只认中文,英语/繁中走不到
+            //   - web/server 必须复刻同一套 40 条正则,维护两份
+            // v23 一次性把 icon IS NULL/'' 的分类按 byName 推算出结果写回 DB,
+            // 之后渲染层 getCategoryIconData 只认 icon 字段、不再 byName 推导。
+            // 结合服务端 alembic 0002 的同名 backfill,两端同步"迁 read-time 到
+            // write-time"。
+            print('[DB Migration] 开始迁移到 v23: backfill category icons via byName');
+
+            // 取所有 icon 空的分类,按 name 推导图标字符串回填
+            final rows = await customSelect(
+              "SELECT id, name FROM categories WHERE icon IS NULL OR icon = ''",
+            ).get();
+            var updated = 0;
+            for (final row in rows) {
+              final id = row.data['id'] as int;
+              final name = row.data['name'] as String? ?? '';
+              // 用 CategoryService.resolveIconNameByName(类似原 getCategoryIconByName
+              // 但返回字符串名)一次性固化到 DB。此后渲染不再 byName。
+              final iconName = CategoryService.resolveIconNameByName(name);
+              await customStatement(
+                'UPDATE categories SET icon = ? WHERE id = ?',
+                [iconName, id],
+              );
+              updated++;
+            }
+            logger.info('DB', 'v23: backfilled $updated categories');
+            print('[DB Migration] v23 迁移完成: 回填 $updated 条分类');
           }
         },
       );
