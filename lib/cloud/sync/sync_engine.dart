@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart' as d;
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -1004,6 +1005,10 @@ class SyncEngine implements app.SyncService {
         .get();
     final localLedgerTx = ledgerTxRows.length;
     final ledgerTxIds = ledgerTxRows.map((t) => t.id).toList();
+    // 本地附件按"实际占盘数"算 —— transaction_attachments 每 tx 独立一行,
+    // 磁盘上也是每行一个物理文件(mobile 不做 sha256 dedup)。服务端那边
+    // 要对齐这个"引用条目数"口径,见 server read.py::get_ledger_stats 里
+    // attachment_count 改成按 attachments_json 条目 SUM。
     int localLedgerTxAttachments = 0;
     if (ledgerTxIds.isNotEmpty) {
       localLedgerTxAttachments = (await (db.select(db.transactionAttachments)
@@ -1241,6 +1246,12 @@ class SyncEngine implements app.SyncService {
             ..where((t) => t.syncId.equals(syncId)))
           .getSingleOrNull();
       if (existing != null) {
+        // 先清磁盘附件(原图 + 缩略图),再删 transaction_attachments 行 ——
+        // 反过来就查不到 fileName 了。历史 bug:这段只做 db.delete 不清磁盘,
+        // 设备 A 删交易时设备 B sync pull 下来只删表,attachments/*.jpg 永远
+        // 残留。跟主动删交易路径(LocalTransactionRepository.deleteTransaction)
+        // 对齐。
+        await _cleanupTxAttachmentFilesOnDisk(existing.id);
         await (db.delete(db.transactionTags)
               ..where((tt) => tt.transactionId.equals(existing.id)))
             .go();
@@ -1455,6 +1466,13 @@ class SyncEngine implements app.SyncService {
             ..where((c) => c.syncId.equals(syncId)))
           .getSingleOrNull();
       if (existing != null) {
+        // 先收集自身 + 子分类的 customIconPath 清磁盘。跟 LocalCategoryRepository
+        // .deleteCategory 路径对齐,防止 sync pull 下来的分类删除留下孤立图标。
+        await _cleanupCategoryIconFilesOnDisk([existing.id]);
+        // 先删子分类再删自身(跟 LocalCategoryRepository 一致)
+        await (db.delete(db.categories)
+              ..where((c) => c.parentId.equals(existing.id)))
+            .go();
         await (db.delete(db.categories)
               ..where((c) => c.id.equals(existing.id)))
             .go();
@@ -2565,6 +2583,92 @@ class SyncEngine implements app.SyncService {
     } catch (e) {
       logger.error('SyncEngine', '获取附件路径失败: $fileName', e);
       return null;
+    }
+  }
+
+  /// 清理给定交易的本地磁盘附件(原图 + 缩略图)。在 transaction_attachments
+  /// 行被 db.delete **之前** 调 —— 之后 fileName 就查不到了。
+  ///
+  /// 跟 `LocalTransactionRepository._deleteAttachmentsForTransaction` 几乎一样,
+  /// 但那个是 private;这里是 sync pull 路径独立使用(不想走完整 repo 接口,
+  /// 因为 repo 的 deleteTransaction 会 record changeTracker,会造成 pull →
+  /// record → push 的回环)。失败只 warn 不抛,不 block 事件 apply。
+  Future<void> _cleanupTxAttachmentFilesOnDisk(int transactionId) async {
+    try {
+      final attachments = await (db.select(db.transactionAttachments)
+            ..where((a) => a.transactionId.equals(transactionId)))
+          .get();
+      if (attachments.isEmpty) return;
+
+      final appDir = await getApplicationDocumentsDirectory();
+      final attachmentDir = Directory('${appDir.path}/attachments');
+      final cacheDir = await getTemporaryDirectory();
+      final thumbDir = Directory('${cacheDir.path}/attachment_thumbs');
+
+      for (final att in attachments) {
+        final file = File('${attachmentDir.path}/${att.fileName}');
+        if (await file.exists()) {
+          try {
+            await file.delete();
+          } catch (e) {
+            logger.warning('SyncEngine',
+                'pull delete: unlink attachment failed ${att.fileName}: $e');
+          }
+        }
+        final thumbName =
+            '${p.basenameWithoutExtension(att.fileName)}_thumb.jpg';
+        final thumbFile = File('${thumbDir.path}/$thumbName');
+        if (await thumbFile.exists()) {
+          try {
+            await thumbFile.delete();
+          } catch (_) {/* best effort */}
+        }
+      }
+    } catch (e, st) {
+      logger.warning(
+          'SyncEngine', 'pull delete: 清理附件磁盘文件异常 tx=$transactionId: $e\n$st');
+    }
+  }
+
+  /// 清理给定分类(含直接子分类)的本地自定义图标文件。
+  /// 跟 LocalCategoryRepository 的 _deleteLocalIconFiles 对齐。删 categories
+  /// 行之前调。best-effort。
+  Future<void> _cleanupCategoryIconFilesOnDisk(List<int> categoryIds) async {
+    if (categoryIds.isEmpty) return;
+    try {
+      final paths = <String>[];
+      final selfRows = await (db.select(db.categories)
+            ..where((c) => c.id.isIn(categoryIds)))
+          .get();
+      for (final r in selfRows) {
+        final cp = r.customIconPath;
+        if (cp != null && cp.trim().isNotEmpty) paths.add(cp);
+      }
+      final childRows = await (db.select(db.categories)
+            ..where((c) => c.parentId.isIn(categoryIds)))
+          .get();
+      for (final r in childRows) {
+        final cp = r.customIconPath;
+        if (cp != null && cp.trim().isNotEmpty) paths.add(cp);
+      }
+      if (paths.isEmpty) return;
+
+      final appDir = await getApplicationDocumentsDirectory();
+      final iconDir = Directory('${appDir.path}/custom_icons');
+      for (final rel in paths) {
+        final fileName = p.basename(rel);
+        final file = File('${iconDir.path}/$fileName');
+        if (await file.exists()) {
+          try {
+            await file.delete();
+          } catch (e) {
+            logger.warning(
+                'SyncEngine', 'pull delete: unlink custom icon failed $fileName: $e');
+          }
+        }
+      }
+    } catch (e, st) {
+      logger.warning('SyncEngine', 'pull delete: 清理分类图标磁盘文件异常: $e\n$st');
     }
   }
 }
