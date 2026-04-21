@@ -756,7 +756,12 @@ class LocalRepository extends BaseRepository {
           entityType: 'account',
           entityId: id,
           entitySyncId: account!.syncId!,
-          ledgerId: ledgerId,
+          // Account 跟 Category / Tag 一样是 user-global 实体,走 ledgerId=0
+          // 通道 —— sync_engine._push 里 globalChanges 会把 ledgerId=0 的
+          // 变更搭任一账本的同步链带出去。之前用 account.ledgerId 会让
+          // 变更只挂到某个具体账本上,用户在其它账本触发 sync 时 _push 拉
+          // 不到这条 orphan change,rename/create/delete 就永远卡在本地。
+          ledgerId: 0,
           action: 'create',
         );
       }
@@ -801,7 +806,8 @@ class LocalRepository extends BaseRepository {
         entityType: 'account',
         entityId: id,
         entitySyncId: account!.syncId!,
-        ledgerId: account.ledgerId,
+        // user-global,走 ledgerId=0 通道。见 createAccount 处的详细注释。
+        ledgerId: 0,
         action: 'update',
       );
     }
@@ -824,7 +830,8 @@ class LocalRepository extends BaseRepository {
           entityType: 'account',
           entityId: id,
           entitySyncId: account!.syncId!,
-          ledgerId: account.ledgerId,
+          // user-global,走 ledgerId=0 通道。见 createAccount 处的详细注释。
+          ledgerId: 0,
           action: 'delete',
         );
       }
