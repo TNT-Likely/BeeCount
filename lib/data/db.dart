@@ -244,6 +244,11 @@ class Budgets extends Table {
 class BeeDatabase extends _$BeeDatabase {
   BeeDatabase() : super(_openConnection());
 
+  /// 测试专用:直接注入 [QueryExecutor](通常是 NativeDatabase.memory()),
+  /// 跳过 [_openConnection] 的文件系统 / 平台副作用。test/ 下的 unit test
+  /// 用这个。
+  BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
+
   @override
   int get schemaVersion => 23; // v23: 清空分类 icon 的历史数据走 byName 一次性回填
 

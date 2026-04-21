@@ -102,7 +102,7 @@ class LocalRepository extends BaseRepository {
       final row =
           await (db.select(db.ledgers)..where((l) => l.id.equals(id))).getSingleOrNull();
       if (row != null && row.syncId != null && row.syncId!.isNotEmpty) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordLedgerChange(
           entityType: 'ledger',
           entityId: id,
           entitySyncId: row.syncId!,
@@ -120,7 +120,7 @@ class LocalRepository extends BaseRepository {
       // Ledger 表没有 syncId 列，mobile 向 server 推送 ledger_snapshot 时
       // 都用本地 id 的字符串形式（见 sync_engine.fullPush line 1025）作为
       // external_id / entity_sync_id，这里保持一致。
-      await changeTracker!.recordChange(
+      await changeTracker!.recordLedgerChange(
         entityType: 'ledger_snapshot',
         entityId: id,
         entitySyncId: id.toString(),
@@ -220,7 +220,7 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       final tx = await _transactionRepo.getTransactionById(id);
       if (tx != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordLedgerChange(
           entityType: 'transaction',
           entityId: id,
           entitySyncId: tx.syncId!,
@@ -254,7 +254,7 @@ class LocalRepository extends BaseRepository {
           categoryId: categoryId, note: note,
           happenedAt: happenedAt, accountId: accountId,
         );
-        await changeTracker!.recordChange(
+        await changeTracker!.recordLedgerChange(
           entityType: 'transaction',
           entityId: id,
           entitySyncId: tx!.syncId!,
@@ -276,7 +276,7 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       final tx = await _transactionRepo.getTransactionById(id);
       if (tx?.syncId != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordLedgerChange(
           entityType: 'transaction',
           entityId: id,
           entitySyncId: tx!.syncId!,
@@ -461,9 +461,9 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       final cat = await _categoryRepo.getCategoryById(id);
       if (cat?.syncId != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordUserGlobalChange(
           entityType: 'category', entityId: id,
-          entitySyncId: cat!.syncId!, ledgerId: 0, action: 'create',
+          entitySyncId: cat!.syncId!, action: 'create',
         );
       }
     }
@@ -484,9 +484,9 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       final cat = await _categoryRepo.getCategoryById(id);
       if (cat?.syncId != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordUserGlobalChange(
           entityType: 'category', entityId: id,
-          entitySyncId: cat!.syncId!, ledgerId: 0, action: 'create',
+          entitySyncId: cat!.syncId!, action: 'create',
         );
       }
     }
@@ -498,9 +498,9 @@ class LocalRepository extends BaseRepository {
     final cat = changeTracker != null ? await _categoryRepo.getCategoryById(id) : null;
     await _categoryRepo.updateCategory(id, name: name, icon: icon, parentId: parentId, level: level);
     if (cat?.syncId != null) {
-      await changeTracker!.recordChange(
+      await changeTracker!.recordUserGlobalChange(
         entityType: 'category', entityId: id,
-        entitySyncId: cat!.syncId!, ledgerId: 0, action: 'update',
+        entitySyncId: cat!.syncId!, action: 'update',
       );
     }
   }
@@ -510,9 +510,9 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       final cat = await _categoryRepo.getCategoryById(id);
       if (cat?.syncId != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordUserGlobalChange(
           entityType: 'category', entityId: id,
-          entitySyncId: cat!.syncId!, ledgerId: 0, action: 'delete',
+          entitySyncId: cat!.syncId!, action: 'delete',
         );
       }
     }
@@ -665,9 +665,9 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       final cat = await _categoryRepo.getCategoryById(id);
       if (cat?.syncId != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordUserGlobalChange(
           entityType: 'category', entityId: id,
-          entitySyncId: cat!.syncId!, ledgerId: 0, action: 'update',
+          entitySyncId: cat!.syncId!, action: 'update',
         );
       }
     }
@@ -679,9 +679,9 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       final cat = await _categoryRepo.getCategoryById(id);
       if (cat?.syncId != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordUserGlobalChange(
           entityType: 'category', entityId: id,
-          entitySyncId: cat!.syncId!, ledgerId: 0, action: 'update',
+          entitySyncId: cat!.syncId!, action: 'update',
         );
       }
     }
@@ -752,16 +752,10 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       final account = await _accountRepo.getAccount(id);
       if (account?.syncId != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordUserGlobalChange(
           entityType: 'account',
           entityId: id,
           entitySyncId: account!.syncId!,
-          // Account 跟 Category / Tag 一样是 user-global 实体,走 ledgerId=0
-          // 通道 —— sync_engine._push 里 globalChanges 会把 ledgerId=0 的
-          // 变更搭任一账本的同步链带出去。之前用 account.ledgerId 会让
-          // 变更只挂到某个具体账本上,用户在其它账本触发 sync 时 _push 拉
-          // 不到这条 orphan change,rename/create/delete 就永远卡在本地。
-          ledgerId: 0,
           action: 'create',
         );
       }
@@ -802,12 +796,10 @@ class LocalRepository extends BaseRepository {
       clearMetadataFields: clearMetadataFields,
     );
     if (account?.syncId != null) {
-      await changeTracker!.recordChange(
+      await changeTracker!.recordUserGlobalChange(
         entityType: 'account',
         entityId: id,
         entitySyncId: account!.syncId!,
-        // user-global,走 ledgerId=0 通道。见 createAccount 处的详细注释。
-        ledgerId: 0,
         action: 'update',
       );
     }
@@ -826,13 +818,11 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       final account = await _accountRepo.getAccount(id);
       if (account?.syncId != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordUserGlobalChange(
           entityType: 'account',
           entityId: id,
           entitySyncId: account!.syncId!,
-          // user-global,走 ledgerId=0 通道。见 createAccount 处的详细注释。
-          ledgerId: 0,
-          action: 'delete',
+            action: 'delete',
         );
       }
     }
@@ -1235,9 +1225,9 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       final tag = await _tagRepo.getTagById(id);
       if (tag?.syncId != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordUserGlobalChange(
           entityType: 'tag', entityId: id,
-          entitySyncId: tag!.syncId!, ledgerId: 0, action: 'create',
+          entitySyncId: tag!.syncId!, action: 'create',
         );
       }
     }
@@ -1254,9 +1244,9 @@ class LocalRepository extends BaseRepository {
     final tag = changeTracker != null ? await _tagRepo.getTagById(id) : null;
     await _tagRepo.updateTag(id, name: name, color: color, sortOrder: sortOrder);
     if (tag?.syncId != null) {
-      await changeTracker!.recordChange(
+      await changeTracker!.recordUserGlobalChange(
         entityType: 'tag', entityId: id,
-        entitySyncId: tag!.syncId!, ledgerId: 0, action: 'update',
+        entitySyncId: tag!.syncId!, action: 'update',
       );
     }
   }
@@ -1266,9 +1256,9 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       final tag = await _tagRepo.getTagById(id);
       if (tag?.syncId != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordUserGlobalChange(
           entityType: 'tag', entityId: id,
-          entitySyncId: tag!.syncId!, ledgerId: 0, action: 'delete',
+          entitySyncId: tag!.syncId!, action: 'delete',
         );
       }
     }
@@ -1411,7 +1401,7 @@ class LocalRepository extends BaseRepository {
       final row = await (db.select(db.budgets)..where((b) => b.id.equals(id)))
           .getSingleOrNull();
       if (row?.syncId != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordLedgerChange(
           entityType: 'budget',
           entityId: id,
           entitySyncId: row!.syncId!,
@@ -1440,7 +1430,7 @@ class LocalRepository extends BaseRepository {
       final row = await (db.select(db.budgets)..where((b) => b.id.equals(id)))
           .getSingleOrNull();
       if (row != null && row.syncId != null) {
-        await changeTracker!.recordChange(
+        await changeTracker!.recordLedgerChange(
           entityType: 'budget',
           entityId: id,
           entitySyncId: row.syncId!,
@@ -1473,7 +1463,7 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       for (final b in toRecord) {
         if (b.syncId == null) continue;
-        await changeTracker!.recordChange(
+        await changeTracker!.recordLedgerChange(
           entityType: 'budget',
           entityId: b.id,
           entitySyncId: b.syncId!,
@@ -1582,7 +1572,7 @@ class LocalRepository extends BaseRepository {
     if (changeTracker == null) return;
     final tx = await _transactionRepo.getTransactionById(transactionId);
     if (tx == null || tx.syncId == null) return;
-    await changeTracker!.recordChange(
+    await changeTracker!.recordLedgerChange(
       entityType: 'transaction',
       entityId: transactionId,
       entitySyncId: tx.syncId!,

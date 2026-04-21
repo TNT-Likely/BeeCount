@@ -1135,11 +1135,10 @@ class SyncEngine implements app.SyncService {
       if (tag.syncId == null || tag.syncId!.isEmpty) continue;
       if (allPushedIds.contains(tag.syncId)) continue;
       try {
-        await changeTracker.recordChange(
+        await changeTracker.recordUserGlobalChange(
           entityType: 'tag',
           entityId: tag.id,
           entitySyncId: tag.syncId!,
-          ledgerId: 0,
           action: 'create',
         );
         backfilled++;
@@ -1155,11 +1154,10 @@ class SyncEngine implements app.SyncService {
       if (acc.syncId == null || acc.syncId!.isEmpty) continue;
       if (allPushedIds.contains(acc.syncId)) continue;
       try {
-        await changeTracker.recordChange(
+        await changeTracker.recordUserGlobalChange(
           entityType: 'account',
           entityId: acc.id,
           entitySyncId: acc.syncId!,
-          ledgerId: 0,
           action: 'create',
         );
         backfilled++;
@@ -1174,11 +1172,10 @@ class SyncEngine implements app.SyncService {
       if (cat.syncId == null || cat.syncId!.isEmpty) continue;
       if (allPushedIds.contains(cat.syncId)) continue;
       try {
-        await changeTracker.recordChange(
+        await changeTracker.recordUserGlobalChange(
           entityType: 'category',
           entityId: cat.id,
           entitySyncId: cat.syncId!,
-          ledgerId: 0,
           action: 'create',
         );
         backfilled++;
