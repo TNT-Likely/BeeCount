@@ -31,6 +31,15 @@ class LedgerDisplayItem {
   /// remote-only 项的 `id` 是仅用于 UI 唯一化的占位 hashCode。
   final String? remoteSyncId;
 
+  /// v24 共享账本字段:>1 时显示 🤝 角标。
+  final bool isShared;
+
+  /// v24 共享账本字段:含 Owner 在内的成员数,UI 显示 "🤝 N人"。
+  final int memberCount;
+
+  /// v24 共享账本字段:当前用户在该账本的角色 (owner/editor)。
+  final String myRole;
+
   const LedgerDisplayItem({
     required this.id,
     required this.name,
@@ -40,6 +49,9 @@ class LedgerDisplayItem {
     required this.lastUpdated,
     this.isRemoteOnly = false,
     this.remoteSyncId,
+    this.isShared = false,
+    this.memberCount = 1,
+    this.myRole = 'owner',
   });
 
   /// 从本地账本创建
@@ -50,6 +62,9 @@ class LedgerDisplayItem {
     required DateTime createdAt,
     required int transactionCount,
     required double balance,
+    bool isShared = false,
+    int memberCount = 1,
+    String myRole = 'owner',
   }) {
     return LedgerDisplayItem(
       id: id,
@@ -59,6 +74,9 @@ class LedgerDisplayItem {
       balance: balance,
       lastUpdated: createdAt,
       isRemoteOnly: false,
+      isShared: isShared,
+      memberCount: memberCount,
+      myRole: myRole,
     );
   }
 

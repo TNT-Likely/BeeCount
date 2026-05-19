@@ -122,6 +122,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
           // ======== 主内容 ========
           Expanded(
             child: accountsAsync.when(
+              skipLoadingOnReload: true,
               data: (accounts) {
                 final groups = _reorderingGroups ?? _groupAccounts(accounts);
 
@@ -255,6 +256,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
         children: [
           // 净资产部分
           netWorthAsync.when(
+            skipLoadingOnReload: true,
             data: (nwByCurrency) => _buildNetWorthContent(context, ref, nwByCurrency),
             loading: () => SizedBox(
               height: 80.0.scaled(context, ref),
@@ -271,6 +273,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
             ),
             // 资产构成饼图部分
             compositionAsync.when(
+              skipLoadingOnReload: true,
               data: (data) => Padding(
                 padding: EdgeInsets.all(12.0.scaled(context, ref)),
                 child: AssetCompositionChart(data: data, embedded: true),
@@ -716,10 +719,10 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
       ),
     );
 
-    ref.invalidate(allAccountStatsProvider);
-    ref.invalidate(allAccountsTotalStatsProvider);
-    ref.invalidate(netWorthBreakdownByCurrencyProvider);
-    ref.invalidate(assetCompositionProvider);
+    // 只 bump tick:4 个 stats provider 都 ref.watch(statsRefreshProvider),
+    // 自动重算且保留旧值,`when` 不会闪 loading。
+    // `ref.invalidate` 会清掉 cached value 让 `.when` 走 loading 分支,资产
+    // 页 spinner 闪烁 / 整页 reload 体感的根因。
     ref.read(statsRefreshProvider.notifier).state++;
   }
 
@@ -734,10 +737,6 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
       ),
     );
 
-    ref.invalidate(allAccountStatsProvider);
-    ref.invalidate(allAccountsTotalStatsProvider);
-    ref.invalidate(netWorthBreakdownByCurrencyProvider);
-    ref.invalidate(assetCompositionProvider);
     ref.read(statsRefreshProvider.notifier).state++;
   }
 

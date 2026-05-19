@@ -151,11 +151,18 @@ final accountFeatureSetterProvider = Provider<AccountFeatureSetter>((ref) {
   return AccountFeatureSetter();
 });
 
-/// 完整的交易展示数据（含分类、标签、附件数量、账户名称）
+/// 完整的交易展示数据（含分类、账户、标签、附件数量）
 /// 用于首页列表一次性加载，避免二次查询闪烁
+///
+/// D 方案后:account / toAccount 是 watchTransactionsWithCategory* JOIN 直接
+/// 拿到的 Drift Account 对象,不再依赖 Splash 单独 getAccountsByIds 拼名字。
+/// accountName / toAccountName 保留是为了字符串路径(import / export / diff)
+/// 的向后兼容,等下游全部切到 account 对象后可以删。
 typedef TransactionDisplayItem = ({
   Transaction t,
   Category? category,
+  Account? account,
+  Account? toAccount,
   List<Tag> tags,
   int attachmentCount,
   String? accountName,
@@ -168,7 +175,7 @@ final cachedTransactionsProvider =
 
 // 缓存的交易数据Provider（仅含分类，兼容旧版本）
 final cachedTransactionsWithCategoryProvider =
-    StateProvider<List<({Transaction t, Category? category})>?>((ref) => null);
+    StateProvider<List<({Transaction t, Category? category, Account? account, Account? toAccount})>?>((ref) => null);
 
 // 应用初始化Provider - 管理数据预加载
 final appSplashInitProvider = FutureProvider<void>((ref) async {
@@ -228,7 +235,7 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
     ]);
 
     final monthlyResult = results[0] as (double, double);
-    final transactionsWithCategory = results[1] as List<({Transaction t, Category? category})>;
+    final transactionsWithCategory = results[1] as List<({Transaction t, Category? category, Account? account, Account? toAccount})>;
 
     ref.read(lastMonthlyTotalsProvider(monthlyParams).notifier).state = monthlyResult;
     // 不再预加载完整列表，让 Stream 自己加载
@@ -263,15 +270,28 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
     logger.info(tag, '详情数据加载完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms');
     stepTime = DateTime.now();
 
-    // 组装完整的交易展示数据
+    // 组装完整的交易展示数据。account / toAccount 直接用 watch 时 JOIN 拿到
+    // 的对象(D 方案);accountName 走 item.account?.name 优先,fallback 到
+    // accountNameMap(Editor 共享账本场景:主表 accountId 是 null,要走
+    // accountSyncIdOverride → SharedLedgerAccounts 反查)。
     final fullTransactions = transactionsWithCategory.map((item) {
+      final accName = item.account?.name ??
+          (item.t.accountId != null
+              ? accountNameMap[item.t.accountId!]
+              : null);
+      final toAccName = item.toAccount?.name ??
+          (item.t.toAccountId != null
+              ? accountNameMap[item.t.toAccountId!]
+              : null);
       return (
         t: item.t,
         category: item.category,
+        account: item.account,
+        toAccount: item.toAccount,
         tags: tagsMap[item.t.id] ?? <Tag>[],
         attachmentCount: attachmentCounts[item.t.id] ?? 0,
-        accountName: item.t.accountId != null ? accountNameMap[item.t.accountId!] : null,
-        toAccountName: item.t.toAccountId != null ? accountNameMap[item.t.toAccountId!] : null,
+        accountName: accName,
+        toAccountName: toAccName,
       );
     }).toList();
 

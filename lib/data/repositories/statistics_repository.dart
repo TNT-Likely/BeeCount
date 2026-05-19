@@ -1,3 +1,5 @@
+import '../db.dart' show Category;
+
 /// 统计Repository接口
 /// 定义统计相关的所有数据操作
 abstract class StatisticsRepository {
@@ -57,4 +59,11 @@ abstract class StatisticsRepository {
     required int ledgerId,
     required int year,
   });
+
+  /// §7 共享账本:返回该账本的 SharedLedgerCategories 行转 synthetic
+  /// db.Category 索引(key = syntheticIdForSyncId(syncId))。统计页拿
+  /// 这个 map 给 totalsByCategory 返回的 negative id 配上图标 / 自定义
+  /// 图标路径。单人账本返回空 map。
+  Future<Map<int, Category>> getSharedSyntheticCategoriesForLedger(
+      int ledgerId);
 }

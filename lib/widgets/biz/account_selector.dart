@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collection/collection.dart';
 import '../../data/db.dart';
+import '../../data/repositories/local/local_repository.dart';
 import '../../styles/tokens.dart';
 import '../../utils/lru_cache.dart';
 import '../../utils/account_type_utils.dart';
+import '../../utils/shared_ledger_picker_filter.dart';
 import '../../providers.dart';
+import '../../providers/shared_ledger_providers.dart';
 import '../../services/system/logger_service.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -59,8 +62,16 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
         return;
       }
 
-      // 获取所有账户，然后过滤与当前账本币种相同的可交易账户
-      final allAccounts = await repo.getAllAccounts();
+      // 获取所有账户,然后按当前账本币种 + 可交易类型筛选
+      var allAccounts = await repo.getAllAccounts();
+
+      // §7 共享账本 picker 过滤:Editor + 共享账本 → 只看 Owner mirror 账户;
+      // 单人账本 / Owner 视角 → 排除 mirror 账户(只看自己 user-global)
+      if (repo is LocalRepository) {
+        final ctx = await repo.db.loadLedgerPickerContext(widget.ledgerId);
+        allAccounts = await repo.db.filterAccountsForLedger(allAccounts, ctx);
+      }
+
       final accounts = allAccounts
           .where((a) => a.currency == ledger.currency && isTradableType(a.type))
           .toList();
@@ -132,6 +143,12 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
 
   @override
   Widget build(BuildContext context) {
+    // §7 共享账本:WS shared_resource_change 推送后 tick bump,触发 _loadAccounts
+    // 重查 SharedLedgerAccounts。否则 A 在 web/mobile 改账户名,B 的 picker
+    // 永远显示旧名,要重启 app。
+    ref.listen<int>(sharedResourceRefreshProvider, (prev, next) {
+      if (prev != next) _loadAccounts();
+    });
     if (_isLoading) {
       return const SizedBox(
         height: 32,

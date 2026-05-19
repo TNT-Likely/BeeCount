@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' hide SyncStatus;
 import '../cloud/sync_service.dart';
+import 'shared_ledger_providers.dart';
 import '../cloud/sync/sync_coordinator.dart';
 import '../cloud/sync/sync_engine.dart';
 import '../cloud/sync/sync_providers.dart' as sync_p;
@@ -163,14 +164,20 @@ final syncServiceProvider = Provider<SyncService>((ref) {
     }
     final cloudProvider = providerAsync.value!;
     final db = ref.watch(databaseProvider);
-    final tracker = ref.watch(sync_p.changeTrackerProvider);
-    final repo = ref.watch(repositoryProvider);
-    final engine = SyncEngine(
-      db: db,
-      provider: cloudProvider,
-      changeTracker: tracker,
-      repo: repo,
-    );
+    // SyncEngine 改走 family 缓存唯一实例 — 跟 shared_ledger_providers.dart
+    // / join_shared_ledger_page.dart 共享同一 engine。否则两个独立 engine
+    // 各跑各的 sync(同一 ledger 1 秒内 2-3 次)。disposal 归 family,这里
+    // 不再 ref.onDispose(engine.dispose())。
+    final engine = ref.watch(sync_p.syncEngineProvider(cloudProvider));
+
+    // 共享账本资源(分类/账户/标签)的精确刷新信号 — 跟通用 onAutoPullCompleted
+    // 分开。后者每次 auto-pull 都触发(包括自己 push 完成后的空 pull),
+    // HomePage listen sharedResourceRefreshProvider 会重建 StreamBuilder 子树
+    // → 编辑 tx 时表现为"全局刷新"。这个回调只在 WS shared_resource_change
+    // 或 fetchAndStoreSharedResources 时 fire,避免误触。
+    engine.onSharedResourceChanged = (ledgerId) {
+      ref.read(sharedResourceRefreshProvider.notifier).state++;
+    };
 
     // 开始监听 WebSocket 实时事件，自动触发 pull
     engine.onAutoPullCompleted = (ledgerId) {
@@ -179,11 +186,25 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       // syncGenerationProvider 作为总 bump，覆盖后续新增但没有单独 tick 的。
       ref.read(syncStatusRefreshProvider.notifier).state++;
       ref.read(ledgerListRefreshProvider.notifier).state++;
+      // currentLedgerProvider 是 FutureProvider，不会因为 Drift 写入而重算；
+      // 远端 sync_change(entity_type='ledger',改名 / 改币种)落库后必须显
+      // 式 invalidate 否则首页 header / 设置 / 预算等 watch 它的 widget 永远
+      // 显示旧的账本名 — 用户 A 在 web 改名,A/B 移动端 header 不刷新的根因。
+      ref.invalidate(currentLedgerProvider);
       ref.read(syncGenerationProvider.notifier).state++;
       ref.read(statsRefreshProvider.notifier).state++;
       ref.read(budgetRefreshProvider.notifier).state++;
       ref.read(tagListRefreshProvider.notifier).state++;
       ref.read(calendarRefreshProvider.notifier).state++;
+      // 注意:`sharedResourceRefreshProvider` **不在这里**无条件 bump。
+      // 它的语义是"Owner 共享资源(分类/账户/标签)变了,Editor 端 SharedLedger*
+      // 镜像表已更新,UI 应重建以显示最新分类名/图标"。HomePage 上 listen 它
+      // 触发 _streamBuilderKey++ 重建整个 StreamBuilder 子树,代价大。
+      // 如果在每次 auto-pull 后都 bump,自己 mobile push 完触发的 pull 也会
+      // bump → home 全局刷新一次,体验差。
+      // 改成只在真有共享资源变化的两个路径 bump:
+      //   - WS `shared_resource_change` → _handleSharedResourceChange
+      //   - reconnect / accept invite 重拉 → fetchAndStoreSharedResources
       // 附件计数 / 列表的 tick：TransactionList 用它重新 _loadAttachmentCounts，
       // 另一端删除 / 新增的附件就能在对端实时反映，不需要重启 app。
       ref.read(attachmentListRefreshProvider.notifier).state++;
@@ -192,8 +213,11 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       // —— UI 看起来就是"pull 到了但没刷新"。
       ref.read(homeSwitchToStreamProvider.notifier).state++;
       ref.read(cachedTransactionsProvider.notifier).state = null;
-      // SyncEngine.sync 结束时会顺带拉一次头像；这里 bump 让 Mine 页面的
-      // avatarPathProvider 重新读取本地路径，新下来的头像立刻显示。
+      // avatarRefreshProvider 现在改走 engine.onAvatarChanged 回调,只在真
+      // 下载新头像时 bump。这里不再无条件 bump — 否则冷启动 / 任意 pull
+      // 完成都会让头像组件重新读本地文件,UI 闪一次。
+    };
+    engine.onAvatarChanged = () {
       ref.read(avatarRefreshProvider.notifier).state++;
     };
     // 让 SyncEngine 在 WS 重连 / 网络恢复触发 auto sync 时能拿到当前 ledgerId
@@ -257,6 +281,17 @@ final syncServiceProvider = Provider<SyncService>((ref) {
 
     engine.startListeningRealtime();
 
+    // §7 共享账本兜底:切账本时(尤其是切回共享账本时)触发一次 sync。
+    // 用户报告"切到自己账本再切回来 WS 不同步" — 实际可能 WS 还在但
+    // pull 漏了或某次 ws 推送漏了。这里 ref.listen 切账本就主动同步,
+    // 跟 _scheduleAutoSync 的 2 秒防抖叠加可以兜住绝大多数边界。
+    ref.listen<int>(currentLedgerIdProvider, (prev, next) {
+      if (prev == next || next <= 0) return;
+      logger.info('SyncProvider',
+          'ledger switched $prev → $next, schedule auto sync as fallback');
+      engine.triggerAutoSync(reason: 'ledger_switched');
+    });
+
     // 反应式同步触发器:监听 local_changes 表,任何 mutation 写进未推送
     // 行都会自动调度 sync。把"是否触发同步"的责任完全转移到"是否记录
     // 变更"——后者是数据层的天然职责。详见 sync_coordinator.dart 的注释。
@@ -282,12 +317,12 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       });
     });
 
-    // 当 Provider 被销毁时停止监听
+    // 当 Provider 被销毁时停止监听。engine.dispose 归 syncEngineProvider
+    // (family),这里只清本 provider 自己持有的资源。
     ref.onDispose(() {
       connectivityDebounce?.cancel();
       connectivitySubscription.cancel();
       coordinator.dispose();
-      engine.dispose();
     });
 
     // Profile（含头像）同步和 ledger 同步解耦：新设备首次登录时，用户可能还
@@ -297,10 +332,10 @@ final syncServiceProvider = Provider<SyncService>((ref) {
     // 字段补推上去(theme / income / appearance / ai_config) —— 用户之前
     // 一直用 A,升级到带同步的版本时本地早就有配置,server 却是空的。
     Future(() async {
-      final changed = await engine.syncMyProfile();
-      if (changed) {
-        ref.read(avatarRefreshProvider.notifier).state++;
-      }
+      // avatar bump 走 engine.onAvatarChanged 回调,不再用 changed 兜底
+      // (changed=true 包含 theme/income/appearance/ai 等任意字段被 apply,
+      // 不只是头像,会引发头像组件无谓重渲)。
+      await engine.syncMyProfile();
       await reconcileProfileToServer(
         cloudProviderFuture: ref.read(beecountCloudProviderInstance.future),
         currentThemeColor: ref.read(primaryColorProvider),
@@ -370,7 +405,8 @@ final syncServiceProvider = Provider<SyncService>((ref) {
           ref.read(calendarRefreshProvider.notifier).state++;
           ref.read(homeSwitchToStreamProvider.notifier).state++;
           ref.read(cachedTransactionsProvider.notifier).state = null;
-          ref.read(avatarRefreshProvider.notifier).state++;
+          // 不再无条件 bump avatarRefreshProvider — engine.onAvatarChanged
+          // 只在真下载头像时触发,避免每次 bootstrap 闪一次头像。
           ref.read(lastSyncErrorProvider.notifier).state = null;
         } catch (e, st) {
           logger.error('SyncProvider', '自动同步异常', e, st);
@@ -729,6 +765,9 @@ final localLedgersProvider =
         createdAt: ledger.createdAt,
         transactionCount: stats.transactionCount,
         balance: stats.balance,
+        isShared: ledger.isShared,
+        memberCount: ledger.memberCount,
+        myRole: ledger.myRole,
       ));
     }
 
@@ -788,6 +827,11 @@ final remoteLedgersProvider =
     for (final r in remote) {
       if (r.ledgerId.isEmpty) continue;
       if (localSyncIds.contains(r.ledgerId)) continue;
+      // 共享账本不出现在"远端账本"列表 — 远端账本是单人账本的备份恢复
+      // 概念,共享账本是动态成员关系,只能通过"加入共享账本"流程进入。
+      // Editor "仅删除本地"等同于退出账本(走 DELETE /members/self),
+      // 不应再显示让用户重复"恢复",会绕开 server 的 membership 校验。
+      if (r.isShared) continue;
       out.add(LedgerDisplayItem.fromRemote(
         remoteSyncId: r.ledgerId,
         name: r.ledgerName.isEmpty ? '(unnamed)' : r.ledgerName,
@@ -827,6 +871,9 @@ final allLedgersProvider = FutureProvider<List<LedgerDisplayItem>>((ref) async {
         createdAt: ledger.createdAt,
         transactionCount: stats.transactionCount,
         balance: stats.balance,
+        isShared: ledger.isShared,
+        memberCount: ledger.memberCount,
+        myRole: ledger.myRole,
       ));
     }
 

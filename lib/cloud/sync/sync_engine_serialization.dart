@@ -48,7 +48,7 @@ extension _SyncEngineSerialization on SyncEngine {
                 .getSingleOrNull()
             : null;
 
-        // 获取标签（连同 tag.syncId，server 端按 id 反查最新名字）
+        // 获取标签(连同 tag.syncId,server 端按 id 反查最新名字)
         final txTags = await (db.select(db.transactionTags)
               ..where((tt) => tt.transactionId.equals(tx.id)))
             .get();
@@ -63,6 +63,21 @@ extension _SyncEngineSerialization on SyncEngine {
             if (tag.syncId != null && tag.syncId!.isNotEmpty) {
               tagSyncIds.add(tag.syncId!);
             }
+          }
+        }
+        // §7 共享账本:tx 可能有 TransactionTagOverrides(Editor 选了 Owner
+        // 的 tag),并入 push payload。name 走 SharedLedgerTags 反查。
+        if (tx.syncId != null) {
+          final overrides = await (db.select(db.transactionTagOverrides)
+                ..where((t) => t.transactionSyncId.equals(tx.syncId!)))
+              .get();
+          for (final ov in overrides) {
+            if (tagSyncIds.contains(ov.tagSyncId)) continue;
+            tagSyncIds.add(ov.tagSyncId);
+            final shared = await (db.select(db.sharedLedgerTags)
+                  ..where((t) => t.syncId.equals(ov.tagSyncId)))
+                .getSingleOrNull();
+            if (shared != null) tagNames.add(shared.name);
           }
         }
 
@@ -100,17 +115,62 @@ extension _SyncEngineSerialization on SyncEngine {
           }
         }
 
+        // §7 v25 共享账本:tx 有 *SyncIdOverride 字段时(Editor 在共享账本下
+        // 记的 tx),override 优先 — push 给 server 的 categoryId / accountId
+        // 走 override(Owner 的 syncId)。同时反查 SharedLedger* 拿 name/kind
+        // 用作 denormalized 文本(server LWW 名字字段)。
+        String? finalCategorySyncId = tx.categorySyncIdOverride;
+        String? finalCategoryName = cat?.name;
+        String? finalCategoryKind = cat?.kind;
+        if (finalCategorySyncId != null && finalCategorySyncId.isNotEmpty) {
+          final shared = await (db.select(db.sharedLedgerCategories)
+                ..where((t) => t.syncId.equals(finalCategorySyncId!)))
+              .getSingleOrNull();
+          if (shared != null) {
+            finalCategoryName = shared.name;
+            finalCategoryKind = shared.kind;
+          }
+        } else {
+          finalCategorySyncId = cat?.syncId;
+        }
+        String? finalAccountSyncId = tx.accountSyncIdOverride;
+        String? finalAccountName = acc?.name;
+        if (finalAccountSyncId != null && finalAccountSyncId.isNotEmpty) {
+          final shared = await (db.select(db.sharedLedgerAccounts)
+                ..where((t) => t.syncId.equals(finalAccountSyncId!)))
+              .getSingleOrNull();
+          if (shared != null) {
+            finalAccountName = shared.name;
+          }
+        } else {
+          finalAccountSyncId = acc?.syncId;
+        }
+        String? finalToAccountSyncId = tx.toAccountSyncIdOverride;
+        String? finalToAccountName = toAcc?.name;
+        if (finalToAccountSyncId != null && finalToAccountSyncId.isNotEmpty) {
+          final shared = await (db.select(db.sharedLedgerAccounts)
+                ..where((t) => t.syncId.equals(finalToAccountSyncId!)))
+              .getSingleOrNull();
+          if (shared != null) {
+            finalToAccountName = shared.name;
+          }
+        } else {
+          finalToAccountSyncId = toAcc?.syncId;
+        }
+
         return EntitySerializer.serializeTransaction(
           tx,
-          categoryName: cat?.name,
-          categoryKind: cat?.kind,
-          categorySyncId: cat?.syncId,
-          accountName: acc?.name,
-          accountSyncId: acc?.syncId,
-          fromAccountName: tx.type == 'transfer' ? acc?.name : null,
-          fromAccountSyncId: tx.type == 'transfer' ? acc?.syncId : null,
-          toAccountName: toAcc?.name,
-          toAccountSyncId: toAcc?.syncId,
+          categoryName: finalCategoryName,
+          categoryKind: finalCategoryKind,
+          categorySyncId: finalCategorySyncId,
+          accountName: finalAccountName,
+          accountSyncId: finalAccountSyncId,
+          fromAccountName:
+              tx.type == 'transfer' ? finalAccountName : null,
+          fromAccountSyncId:
+              tx.type == 'transfer' ? finalAccountSyncId : null,
+          toAccountName: finalToAccountName,
+          toAccountSyncId: finalToAccountSyncId,
           ledgerSyncId: parentLedgerSyncId,
           tagNames: tagNames.isNotEmpty ? tagNames : null,
           tagSyncIds: tagSyncIds.isNotEmpty ? tagSyncIds : null,
@@ -130,11 +190,13 @@ extension _SyncEngineSerialization on SyncEngine {
             .getSingleOrNull();
         if (category == null) return <String, dynamic>{};
         String? parentName;
+        String? parentSyncId;
         if (category.parentId != null) {
           final parent = await (db.select(db.categories)
                 ..where((c) => c.id.equals(category.parentId!)))
               .getSingleOrNull();
           parentName = parent?.name;
+          parentSyncId = parent?.syncId;
         }
         // 如果分类是自定义图标，先把图标文件上传到云端拿到 fileId/sha256，
         // 否则增量 push 的 payload 里不会带 iconCloudFileId，web 端永远没图。
@@ -166,6 +228,7 @@ extension _SyncEngineSerialization on SyncEngine {
         return EntitySerializer.serializeCategory(
           category,
           parentName: parentName,
+          parentSyncId: parentSyncId,
           iconCloudFileId: iconCloudFileId,
           iconCloudSha256: iconCloudSha256,
         );
@@ -370,11 +433,13 @@ extension _SyncEngineSerialization on SyncEngine {
             .write(CategoriesCompanion(syncId: d.Value(syncId)));
       }
       String? parentName;
+      String? parentSyncId;
       if (category.parentId != null) {
-        parentName = categories
+        final parent = categories
             .cast<Category?>()
-            .firstWhere((p) => p?.id == category.parentId, orElse: () => null)
-            ?.name;
+            .firstWhere((p) => p?.id == category.parentId, orElse: () => null);
+        parentName = parent?.name;
+        parentSyncId = parent?.syncId;
       }
       final iconRef = categoryIconCloudRefs[category.id];
       syncChanges.add({
@@ -385,6 +450,7 @@ extension _SyncEngineSerialization on SyncEngine {
         'payload': EntitySerializer.serializeCategory(
           category,
           parentName: parentName,
+          parentSyncId: parentSyncId,
           iconCloudFileId: iconRef?.fileId,
           iconCloudSha256: iconRef?.sha256,
         ),
@@ -643,13 +709,16 @@ extension _SyncEngineSerialization on SyncEngine {
           accounts.map((a) => EntitySerializer.serializeAccount(a)).toList(),
       'categories': categories.map((c) {
         String? parentName;
+        String? parentSyncId;
         if (c.parentId != null) {
-          parentName = categories
+          final parent = categories
               .cast<Category?>()
-              .firstWhere((p) => p?.id == c.parentId, orElse: () => null)
-              ?.name;
+              .firstWhere((p) => p?.id == c.parentId, orElse: () => null);
+          parentName = parent?.name;
+          parentSyncId = parent?.syncId;
         }
-        return EntitySerializer.serializeCategory(c, parentName: parentName);
+        return EntitySerializer.serializeCategory(c,
+            parentName: parentName, parentSyncId: parentSyncId);
       }).toList(),
       'tags': tags.map((t) => EntitySerializer.serializeTag(t)).toList(),
       'items': items,

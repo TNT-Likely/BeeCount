@@ -253,25 +253,25 @@ class LocalRepository extends BaseRepository {
       _transactionRepo.watchTransactionsInMonth(ledgerId: ledgerId, month: month);
 
   @override
-  Stream<List<({Transaction t, Category? category})>> watchTransactionsWithCategoryAll({int? ledgerId}) =>
+  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryAll({int? ledgerId}) =>
       _transactionRepo.watchTransactionsWithCategoryAll(ledgerId: ledgerId);
 
   @override
-  Stream<List<({Transaction t, Category? category})>> watchTransactionsWithCategoryInMonth({
+  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryInMonth({
     required int ledgerId,
     required DateTime month,
   }) =>
       _transactionRepo.watchTransactionsWithCategoryInMonth(ledgerId: ledgerId, month: month);
 
   @override
-  Stream<List<({Transaction t, Category? category})>> watchTransactionsWithCategoryInYear({
+  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryInYear({
     required int ledgerId,
     required int year,
   }) =>
       _transactionRepo.watchTransactionsWithCategoryInYear(ledgerId: ledgerId, year: year);
 
   @override
-  Stream<List<({Transaction t, Category? category})>> watchTransactionsForCategoryInRange({
+  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsForCategoryInRange({
     required int ledgerId,
     required DateTime start,
     required DateTime end,
@@ -297,6 +297,9 @@ class LocalRepository extends BaseRepository {
     required DateTime happenedAt,
     String? note,
     String? syncId,
+    String? categorySyncIdOverride,
+    String? accountSyncIdOverride,
+    String? toAccountSyncIdOverride,
   }) async {
     final id = await _transactionRepo.addTransaction(
       ledgerId: ledgerId,
@@ -308,6 +311,9 @@ class LocalRepository extends BaseRepository {
       happenedAt: happenedAt,
       note: note,
       syncId: syncId,
+      categorySyncIdOverride: categorySyncIdOverride,
+      accountSyncIdOverride: accountSyncIdOverride,
+      toAccountSyncIdOverride: toAccountSyncIdOverride,
     );
     if (changeTracker != null) {
       final tx = await _transactionRepo.getTransactionById(id);
@@ -369,6 +375,9 @@ class LocalRepository extends BaseRepository {
     String? note,
     DateTime? happenedAt,
     dynamic accountId,
+    String? categorySyncIdOverride,
+    String? accountSyncIdOverride,
+    String? toAccountSyncIdOverride,
   }) async {
     if (changeTracker != null) {
       final tx = await _transactionRepo.getTransactionById(id);
@@ -377,6 +386,9 @@ class LocalRepository extends BaseRepository {
           id: id, type: type, amount: amount,
           categoryId: categoryId, note: note,
           happenedAt: happenedAt, accountId: accountId,
+          categorySyncIdOverride: categorySyncIdOverride,
+          accountSyncIdOverride: accountSyncIdOverride,
+          toAccountSyncIdOverride: toAccountSyncIdOverride,
         );
         await changeTracker!.recordLedgerChange(
           entityType: 'transaction',
@@ -392,6 +404,9 @@ class LocalRepository extends BaseRepository {
       id: id, type: type, amount: amount,
       categoryId: categoryId, note: note,
       happenedAt: happenedAt, accountId: accountId,
+      categorySyncIdOverride: categorySyncIdOverride,
+      accountSyncIdOverride: accountSyncIdOverride,
+      toAccountSyncIdOverride: toAccountSyncIdOverride,
     );
   }
 
@@ -440,11 +455,11 @@ class LocalRepository extends BaseRepository {
   }
 
   @override
-  Stream<List<({Transaction t, Category? category})>> transactionsWithCategoryAll({int? ledgerId}) =>
+  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> transactionsWithCategoryAll({int? ledgerId}) =>
       _transactionRepo.transactionsWithCategoryAll(ledgerId: ledgerId);
 
   @override
-  Future<List<({Transaction t, Category? category})>> getRecentTransactionsWithCategory({
+  Future<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> getRecentTransactionsWithCategory({
     required int ledgerId,
     required int limit,
   }) =>
@@ -483,14 +498,37 @@ class LocalRepository extends BaseRepository {
   @override
   Future<void> updateTransactionFields({
     required int id,
-    int? accountId,
-    int? toAccountId,
-  }) =>
-      _transactionRepo.updateTransactionFields(
-        id: id,
-        accountId: accountId,
-        toAccountId: toAccountId,
-      );
+    dynamic accountId,
+    dynamic toAccountId,
+    String? accountSyncIdOverride,
+    String? toAccountSyncIdOverride,
+    bool writeAccountSyncIdOverride = false,
+    bool writeToAccountSyncIdOverride = false,
+  }) async {
+    await _transactionRepo.updateTransactionFields(
+      id: id,
+      accountId: accountId,
+      toAccountId: toAccountId,
+      accountSyncIdOverride: accountSyncIdOverride,
+      toAccountSyncIdOverride: toAccountSyncIdOverride,
+      writeAccountSyncIdOverride: writeAccountSyncIdOverride,
+      writeToAccountSyncIdOverride: writeToAccountSyncIdOverride,
+    );
+    // 历史 bug:这里之前没记 ChangeTracker,transfer 编辑模式改 toAccountId
+    // 永远不 sync。补一刀 update change,跟 updateTransaction 对齐。
+    if (changeTracker != null) {
+      final tx = await _transactionRepo.getTransactionById(id);
+      if (tx?.syncId != null) {
+        await changeTracker!.recordLedgerChange(
+          entityType: 'transaction',
+          entityId: id,
+          entitySyncId: tx!.syncId!,
+          ledgerId: tx.ledgerId,
+          action: 'update',
+        );
+      }
+    }
+  }
 
   @override
   Future<Transaction?> getFirstTransactionByLedger(int ledgerId) =>
@@ -503,6 +541,19 @@ class LocalRepository extends BaseRepository {
   @override
   Future<void> updateTransactionLedger({required int id, required int ledgerId}) =>
       _transactionRepo.updateTransactionLedger(id: id, ledgerId: ledgerId);
+
+  /// 共享账本:本地 tx 写完后回填 createdByUserId / lastEditedByUserId。
+  /// 详见 [LocalTransactionRepository.markTxAuthor]。
+  Future<void> markTxAuthor({
+    required int txId,
+    required String userId,
+    required bool isCreate,
+  }) =>
+      _transactionRepo.markTxAuthor(
+        txId: txId,
+        userId: userId,
+        isCreate: isCreate,
+      );
 
   // ==================== 日历功能相关 ====================
 
@@ -1455,6 +1506,11 @@ class LocalRepository extends BaseRepository {
         ledgerId: ledgerId,
         year: year,
       );
+
+  @override
+  Future<Map<int, Category>> getSharedSyntheticCategoriesForLedger(
+          int ledgerId) =>
+      _statisticsRepo.getSharedSyntheticCategoriesForLedger(ledgerId);
 
   // ============================================
   // RecurringTransactionRepository 接口实现 - 委托给 LocalRecurringTransactionRepository

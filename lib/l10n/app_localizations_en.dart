@@ -3959,7 +3959,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudTutorialFeature3 => '👥 Multi-user isolation: multiple users on one server, data fully separated';
 
   @override
-  String get cloudTutorialFeature4 => '🔜 Planned: shared ledgers (invite family / team to a common ledger)';
+  String get cloudTutorialFeature4 => '🤝 Shared ledgers: invite family / team into one book with seconds-level sync';
 
   @override
   String get cloudTutorialGotIt => 'Got it';
@@ -6126,4 +6126,226 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get twofaStatusOpenWeb => 'Enable on the Web app →';
+
+  @override
+  String get sharedRoleOwner => 'Owner';
+
+  @override
+  String get sharedRoleEditor => 'Editor';
+
+  @override
+  String get sharedRoleViewer => 'Viewer';
+
+  @override
+  String get commonCopied => 'Copied';
+
+  @override
+  String get commonRemove => 'Remove';
+
+  @override
+  String get sharedJoinPageTitle => 'Join shared ledger';
+
+  @override
+  String get sharedJoinPageSubtitle => 'Enter an invite code or tap a shared link';
+
+  @override
+  String get sharedJoinEnterCode => 'Enter invite code';
+
+  @override
+  String get sharedJoinEnterCodeHint => '6 uppercase letters / digits. You can also tap a share link to skip this step.';
+
+  @override
+  String get sharedJoinPreviewButton => 'Verify code';
+
+  @override
+  String get sharedJoinAcceptButton => 'Join';
+
+  @override
+  String sharedJoinInvitedBy(String name) {
+    return '$name invited you to join';
+  }
+
+  @override
+  String sharedJoinRoleLine(String role) {
+    return 'Role: $role';
+  }
+
+  @override
+  String sharedJoinExpiresInMinutes(int n) {
+    return 'Expires in $n min';
+  }
+
+  @override
+  String sharedJoinExpiresInHours(int n) {
+    return 'Expires in ${n}h';
+  }
+
+  @override
+  String sharedJoinExpiresInDays(int n) {
+    return 'Expires in ${n}d';
+  }
+
+  @override
+  String sharedJoinSuccess(String name) {
+    return 'Joined \"$name\"';
+  }
+
+  @override
+  String get sharedJoinCodeFormatError => 'Invite code must be 6 letters/digits.';
+
+  @override
+  String get sharedJoinInvalidOrExpired => 'Invite code is invalid or expired. Ask the inviter for a new one.';
+
+  @override
+  String get sharedJoinAlreadyMember => 'You are already a member of this ledger.';
+
+  @override
+  String get sharedJoinMemberLimit => 'This ledger has reached its member limit. Ask the owner.';
+
+  @override
+  String get sharedInvitePageTitle => 'Invite new member';
+
+  @override
+  String get sharedInviteFormRole => 'Role';
+
+  @override
+  String get sharedInviteFormExpiry => 'Valid for';
+
+  @override
+  String sharedInviteExpiryHours(int n) {
+    return '$n h';
+  }
+
+  @override
+  String sharedInviteExpiryDays(int n) {
+    return '$n day';
+  }
+
+  @override
+  String get sharedInviteGenerate => 'Generate invite code';
+
+  @override
+  String get sharedInviteGenerateAnother => 'Generate another code';
+
+  @override
+  String get sharedInviteCopyCode => 'Copy code';
+
+  @override
+  String get sharedInviteCopyLink => 'Copy link';
+
+  @override
+  String get sharedInviteShareLink => 'Share link';
+
+  @override
+  String sharedInviteExpiresAt(String dt) {
+    return 'Expires at $dt';
+  }
+
+  @override
+  String get sharedInviteWarning => '⚠️ Don\'t post invite codes to public groups / social. Anyone with the code can join. Revoke and regenerate from Members if leaked.';
+
+  @override
+  String get sharedInviteInstruction => 'Send the code or short link to the other person. After they install BeeCount, they can tap the link or enter the code from \"Me → Join shared ledger\".';
+
+  @override
+  String sharedInviteShareText(String ledger, String code, String url) {
+    return 'I\'m inviting you to BeeCount shared ledger \"$ledger\".\n\nCode: $code\nLink: $url\n\nTap the link, or open BeeCount → Me → Join shared ledger and enter this code.';
+  }
+
+  @override
+  String get sharedMembersPageTitle => 'Members';
+
+  @override
+  String get sharedMembersYou => 'you';
+
+  @override
+  String get sharedMembersInviteCta => 'Invite new member';
+
+  @override
+  String get sharedMembersLeaveCta => 'Leave ledger';
+
+  @override
+  String get sharedMembersLeaveTitle => 'Leave ledger';
+
+  @override
+  String sharedMembersLeaveConfirm(String name) {
+    return 'After leaving \"$name\" you won\'t be able to access its transactions. Continue?';
+  }
+
+  @override
+  String get sharedMembersLeaveDone => 'Left the ledger';
+
+  @override
+  String get sharedMembersRemoveTitle => 'Remove member';
+
+  @override
+  String get sharedMembersRemoveCta => 'Remove this member';
+
+  @override
+  String sharedMembersRemoveConfirm(String name) {
+    return 'Remove $name? They will immediately lose access to this ledger.';
+  }
+
+  @override
+  String get sharedMembersRemoved => 'Member removed';
+
+  @override
+  String get sharedMembersTransferTitle => 'Transfer ownership';
+
+  @override
+  String get sharedMembersTransferTo => 'Transfer to this member';
+
+  @override
+  String sharedMembersTransferConfirm(String name) {
+    return 'Transfer ownership to $name? You will become an editor and can no longer invite, rename, or delete the ledger.';
+  }
+
+  @override
+  String get sharedMembersTransferConfirmCta => 'Transfer';
+
+  @override
+  String get sharedMembersTransferDone => 'Ownership transferred';
+
+  @override
+  String sharedTxRecordedBy(String name) {
+    return 'recorded by $name';
+  }
+
+  @override
+  String sharedTxCreatedBy(String name) {
+    return 'Created by $name';
+  }
+
+  @override
+  String sharedTxEditedBy(String name) {
+    return 'Last edited by $name';
+  }
+
+  @override
+  String sharedTxCreatedAndEditedBy(String name) {
+    return 'Created and edited by $name';
+  }
+
+  @override
+  String get sharedRequiresCloudSync => 'Please enable cloud sync first';
+
+  @override
+  String get sharedMembersStatsTitle => 'Member balances';
+
+  @override
+  String get sharedMembersStatsEmpty => 'No transactions yet';
+
+  @override
+  String get sharedMembersStatsLoading => 'Loading…';
+
+  @override
+  String get sharedMembersStatsIncome => 'Income';
+
+  @override
+  String get sharedMembersStatsExpense => 'Expense';
+
+  @override
+  String sharedMembersStatsTxCount(int count) {
+    return '$count tx';
+  }
 }

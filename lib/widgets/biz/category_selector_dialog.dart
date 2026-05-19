@@ -1,12 +1,13 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart';
+import '../../data/repositories/local/local_repository.dart';
 import '../../providers.dart';
 import '../../styles/tokens.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/shared_ledger_providers.dart';
 import '../../utils/category_utils.dart';
+import '../../utils/shared_ledger_picker_filter.dart';
 import '../category_icon.dart';
 
 /// 分类过滤器回调类型
@@ -124,17 +125,26 @@ class _CategorySelectorDialogState extends ConsumerState<CategorySelectorDialog>
     final expenseCategories = await repo.getTopLevelCategories('expense');
 
     // 获取所有二级分类
-    final allCategories = <Category>[];
+    var allCategories = <Category>[];
     allCategories.addAll(incomeCategories);
     allCategories.addAll(expenseCategories);
 
     // 如果只显示一级分类，不加载子分类
     if (!widget.onlyTopLevel) {
-      // 为每个一级分类获取子分类
+      // 为每个一级分类获取子分类(主表路径,共享账本场景下面 filter 会替换)
       for (final category in [...incomeCategories, ...expenseCategories]) {
         final subs = await repo.getSubCategories(category.id);
         allCategories.addAll(subs);
       }
+    }
+
+    // §7 共享账本 picker 过滤:Editor + 共享账本 → 走 SharedLedger* 表(下游
+    // _buildCategoryGroups 仍按 widget.type 二次过滤,所以这里 topLevelOnly=
+    // false 返完整集合,父子关系靠 parent_sync_id 派生 synthetic parent_id)。
+    if (repo is LocalRepository) {
+      final ctx = await repo.db.loadLedgerPickerContext(widget.ledgerId);
+      allCategories = await repo.db
+          .filterCategoriesForLedger(allCategories, ctx, topLevelOnly: false);
     }
 
     // 如果有过滤器，计算每个分类的可选状态
@@ -281,6 +291,10 @@ class _CategorySelectorDialogState extends ConsumerState<CategorySelectorDialog>
 
   @override
   Widget build(BuildContext context) {
+    // §7 共享账本:WS shared_resource_change 推送后 tick bump 触发 rebuild
+    // → 下方 FutureBuilder 拿到新 Future 重查 SharedLedgerCategories。
+    // 否则 A 改分类名 B 这边 picker 显示旧名,要重启 app。
+    ref.watch(sharedResourceRefreshProvider);
     final l10n = AppLocalizations.of(context);
 
     return Dialog(

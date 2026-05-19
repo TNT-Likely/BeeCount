@@ -965,7 +965,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
               _buildBeeCloudStep('3', l10n.cloudTutorialStep3Title, l10n.cloudTutorialStep3Desc),
               _buildBeeCloudStep('4', l10n.cloudTutorialStep4Title, l10n.cloudTutorialStep4Desc),
               const SizedBox(height: 4),
-              // 特色功能 —— 强调 Web + 多设备协同 + 多用户 + 共享账本规划
+              // 特色功能 —— 强调 Web + 多设备协同 + 多用户 + 共享账本
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(

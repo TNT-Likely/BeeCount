@@ -25,8 +25,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
 
-  List<({Transaction t, Category? category})> _searchResults = [];
-  List<({Transaction t, Category? category})> _allTransactions = [];
+  List<({Transaction t, Category? category, Account? account, Account? toAccount})> _searchResults = [];
+  List<({Transaction t, Category? category, Account? account, Account? toAccount})> _allTransactions = [];
   bool _isSearching = false;
   String _searchText = '';
 
@@ -742,7 +742,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             ),
           // 搜索结果
           Expanded(
-            child: StreamBuilder<List<({Transaction t, Category? category})>>(
+            child: StreamBuilder<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>(
               stream: repo.transactionsWithCategoryAll(ledgerId: ledgerId),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {

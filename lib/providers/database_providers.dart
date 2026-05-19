@@ -6,6 +6,8 @@ import '../data/repositories/local/local_repository.dart';
 import '../data/repositories/base_repository.dart';
 import '../cloud/sync/change_tracker.dart';
 import '../services/system/logger_service.dart';
+import '../utils/shared_ledger_picker_filter.dart';
+import 'shared_ledger_providers.dart';
 import 'sync_providers.dart';
 
 // 数据库Provider
@@ -105,6 +107,8 @@ final categoriesProvider = FutureProvider<List<Category>>((ref) async {
 // 使用 autoDispose 在页面关闭时自动取消订阅
 final categoriesWithCountProvider = StreamProvider.autoDispose<List<({Category category, int transactionCount})>>((ref) {
   final repo = ref.watch(repositoryProvider);
+  // §7 决策 v25:Owner 资源不再 mirror 主表,管理页直接读主 Categories
+  // 自然只看到用户自己 user-global 行,无需过滤。
   return repo.watchCategoriesWithCount();
 });
 
@@ -140,6 +144,50 @@ final allAccountsStreamProvider = StreamProvider<List<Account>>((ref) {
   logger.info('AllAccountsStream', '使用的 Repository 类型: ${repo.runtimeType}');
   final stream = repo.watchAllAccounts();
   return stream;
+});
+
+// §7 v25:tx 反查账户 — 综合考虑 accountId int + accountSyncIdOverride。
+// Editor 在共享账本下记的 tx,accountId 是 null,override 是 Owner's syncId,
+// 走 SharedLedgerAccounts 表反查 → 转 synthetic Account 返回。
+final accountForTxProvider =
+    FutureProvider.family<Account?, ({int? accountId, String? syncIdOverride})>(
+        (ref, key) async {
+  ref.watch(syncGenerationProvider);
+  // §7 共享账本:WS shared_resource_change 推送时也强制重算,跟 picker /
+  // 洞察 等其它 widget 监听同一个 tick 一致;否则共享账户改名 tx 列表
+  // 不刷新。
+  ref.watch(sharedResourceRefreshProvider);
+  final repo = ref.watch(repositoryProvider);
+  if (key.accountId != null && key.accountId! >= 0) {
+    return await repo.getAccount(key.accountId!);
+  }
+  final ov = key.syncIdOverride;
+  if (ov == null || ov.isEmpty) return null;
+  if (repo is! LocalRepository) return null;
+  final shared = await (repo.db.select(repo.db.sharedLedgerAccounts)
+        ..where((t) => t.syncId.equals(ov)))
+      .getSingleOrNull();
+  if (shared == null) return null;
+  return Account(
+    // 用 syntheticIdForSyncId 而不是 -1 — 跟 picker / 详情页路径统一,
+    // 避免不同 syncId 全部撞到同一个 id。
+    id: syntheticIdForSyncId(shared.syncId),
+    ledgerId: 0,
+    name: shared.name,
+    type: shared.accountType,
+    currency: shared.currency,
+    initialBalance: shared.initialBalance ?? 0.0,
+    createdAt: null,
+    updatedAt: null,
+    sortOrder: 0,
+    creditLimit: shared.creditLimit,
+    billingDay: shared.billingDay,
+    paymentDueDay: shared.paymentDueDay,
+    bankName: shared.bankName,
+    cardLastFour: shared.cardLastFour,
+    note: shared.note,
+    syncId: shared.syncId,
+  );
 });
 
 // 获取单个账户信息

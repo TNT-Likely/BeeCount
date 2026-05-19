@@ -144,7 +144,7 @@ BeeCount offers 5 sync options. Your data, your control. **See [docs/cloud-setup
 
 | Option | Best For | Highlights |
 |---|---|---|
-| **BeeCount Cloud** | Real-time multi-device + self-hosted | One-click Docker, sub-second sync, built-in Web, multi-user |
+| **BeeCount Cloud** | Real-time multi-device + self-hosted + multi-user co-write | One-click Docker, sub-second sync, built-in Web, multi-user, **shared ledgers** |
 | **iCloud** | iOS-only users | Zero config, native integration |
 | **Supabase** | Cross-platform without NAS | Generous free tier, easy setup |
 | **WebDAV** | NAS users | Local data, Synology/UGREEN/Nextcloud |
@@ -163,8 +163,8 @@ BeeCount offers 5 sync options. Your data, your control. **See [docs/cloud-setup
 - 📱 **Real-time multi-device** — Phone A makes a change, Phone B and Web see it within seconds (WebSocket)
 - 🌐 **Built-in Web admin** — One Docker image = server + web; open server URL to use
 - 👥 **Multi-user isolation** — One server, many user accounts, each only sees their own data
+- 🤝 **Shared ledgers** — Owner generates an invite code; family / team join the same book. Owner / Editor roles, realtime sync, every transaction tagged with creator + last editor, plus member balance stats. iOS / Android / Web all supported.
 - 🔐 **AES-256 encrypted backup** — Multi-remote fan-out (R2 / S3 / WebDAV / B2), AES zip encryption — recoverable with standard tools even without the service
-- 🔜 **Planned**: Shared ledgers (invite family / team to share a book)
 
 ### Deploy + Full Documentation
 

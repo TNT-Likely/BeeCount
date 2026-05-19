@@ -27,7 +27,7 @@ class TransactionList extends ConsumerStatefulWidget {
   final List<TransactionDisplayItem>? transactionsWithDetails;
 
   /// 交易数据（仅含分类，需二次加载标签和附件）
-  final List<({Transaction t, Category? category})>? transactions;
+  final List<({Transaction t, Category? category, Account? account, Account? toAccount})>? transactions;
 
   /// 是否隐藏金额
   final bool hideAmounts;
@@ -74,12 +74,17 @@ class TransactionListState extends ConsumerState<TransactionList> {
   Map<int, int> _cachedAttachmentCounts = {};
   int _lastAttachmentRefreshVersion = 0;
 
+  // D 方案后:不再需要 _cachedAccountNames / _cachedToAccountNames /
+  // _lastSharedResourceRefreshVersion — 账户对象由 watchTransactionsWith*
+  // 的 LEFT JOIN 直接挂在 tx 记录,Drift 自然响应主表变化 + SharedLedger*
+  // 镜像变化。
+
   // 标记是否应使用预加载数据（当 Stream 数据与预加载数据不同时切换）
   bool _usePreloadedData = true;
 
   /// 获取统一格式的交易列表（用于内部处理）
   /// 始终使用 transactions 作为列表数据源，预加载数据只用于详情（标签、附件、账户）
-  List<({Transaction t, Category? category})> get _transactionsList {
+  List<({Transaction t, Category? category, Account? account, Account? toAccount})> get _transactionsList {
     return widget.transactions ?? [];
   }
 
@@ -202,24 +207,6 @@ class TransactionListState extends ConsumerState<TransactionList> {
     return _cachedAttachmentCounts[transactionId] ?? 0;
   }
 
-  /// 获取交易的账户名称（优先使用预加载数据）
-  String? _getAccountNameForTransaction(int transactionId) {
-    final preloaded = _getPreloadedItem(transactionId);
-    if (preloaded != null) {
-      return preloaded.accountName;
-    }
-    return null;
-  }
-
-  /// 获取交易的目标账户名称（优先使用预加载数据，用于转账）
-  String? _getToAccountNameForTransaction(int transactionId) {
-    final preloaded = _getPreloadedItem(transactionId);
-    if (preloaded != null) {
-      return preloaded.toAccountName;
-    }
-    return null;
-  }
-
   @override
   void dispose() {
     if (widget.controller == null) {
@@ -245,13 +232,33 @@ class TransactionListState extends ConsumerState<TransactionList> {
       Future.delayed(const Duration(milliseconds: 100), () {
         if (mounted && _usePreloadedData) {
           logger.info('TransactionList', '用户交互，切换到Stream模式');
-          _usePreloadedData = false;
+          // 用 setState 改 _usePreloadedData,否则后续 build 还在跑
+          // preloaded 路径,共享账本 WS 推送下来的新账户名永远不会显示
+          // (preloaded.accountName 是 Splash 阶段的快照)。
+          setState(() {
+            _usePreloadedData = false;
+          });
           // 开始加载标签和附件（异步，不阻塞）
           _loadTags();
           _loadAttachmentCounts();
         }
       });
     }
+  }
+
+  /// 共享账本 WS 推送强制切到 Stream 模式 — 没有导航动画顾虑,立即切。
+  /// 用于 sharedResourceRefreshProvider tick 触发的场景:Owner 改 tx 引用的
+  /// account/category/tag,Editor 这边需要立即丢掉 preloaded(里面挂的是
+  /// Splash 阶段的旧 accountName)走 provider 拉新值。
+  void forceStreamModeImmediate() {
+    if (!mounted) return;
+    if (!_usePreloadedData) return;
+    logger.info('TransactionList', 'WS 推送强制切 Stream 模式 (immediate)');
+    setState(() {
+      _usePreloadedData = false;
+    });
+    _loadTags();
+    _loadAttachmentCounts();
   }
 
   /// 跳转到指定月份
@@ -281,7 +288,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
     // 按天分组
     final dateFmt = DateFormat('yyyy-MM-dd');
-    final groups = <String, List<({Transaction t, Category? category})>>{};
+    final groups = <String, List<({Transaction t, Category? category, Account? account, Account? toAccount})>>{};
     for (final item in transactions) {
       final dt = item.t.happenedAt.toLocal();
       final key = dateFmt.format(DateTime(dt.year, dt.month, dt.day));
@@ -328,6 +335,10 @@ class TransactionListState extends ConsumerState<TransactionList> {
       Future.microtask(() => _loadAttachmentCounts());
     }
 
+    // D 方案后:不再 watch sharedResourceRefreshProvider 触发 _loadAccountNames
+    // —— account / toAccount 由 Drift JOIN + SharedLedger* table-watch 自动
+    // 推送,UI 直接读 it.account?.name。
+
     _buildFlatItems();
 
     // 无数据时展示空状态
@@ -357,7 +368,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
           if (type == 'header') {
             // 渲染日期头部
             final dateKey = item.$2 as String;
-            final list = item.$3 as List<({Transaction t, Category? category})>;
+            final list = item.$3 as List<({Transaction t, Category? category, Account? account, Account? toAccount})>;
             double dayIncome = 0, dayExpense = 0;
             for (final it in list) {
               // 转账不计入收支统计
@@ -401,8 +412,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
             return header;
           } else {
             // 渲染交易项
-            final it = item.$2 as ({Transaction t, Category? category});
-            final allItemsInDay = item.$3 as List<({Transaction t, Category? category})>;
+            final it = item.$2 as ({Transaction t, Category? category, Account? account, Account? toAccount});
+            final allItemsInDay = item.$3 as List<({Transaction t, Category? category, Account? account, Account? toAccount})>;
             final isTransfer = it.t.type == 'transfer';
             final isExpense = it.t.type == 'expense';
             final isAdjustment = it.t.type == 'adjustment';
@@ -417,27 +428,18 @@ class TransactionListState extends ConsumerState<TransactionList> {
             // 检查是否是当天最后一项
             final isLastInGroup = allItemsInDay.last.t.id == it.t.id;
 
-            // 获取账户名称（仅在账户功能启用且有账户ID时）
-            final accountFeatureEnabled = ref.watch(accountFeatureEnabledProvider).valueOrNull ?? true;
+            // 账户名 — D 方案:account / toAccount 已经由 watchTransactionsWith*
+            // 的 LEFT JOIN(+ SharedLedger* hydration)直接挂在 tx 记录上,
+            // 跟 category 同款。UI 只读 it.account?.name,Drift 自动响应主表
+            // accounts 行变化 + 镜像表 sharedLedgerAccounts 变化,无需任何
+            // 命令式 cache / setState / provider fallback。
+            final accountFeatureEnabled =
+                ref.watch(accountFeatureEnabledProvider).valueOrNull ?? true;
             String? accountName;
-            String? toAccountName; // 转账目标账户名称
-
-            if (accountFeatureEnabled && it.t.accountId != null) {
-              // 优先使用预加载的账户名称
-              accountName = _getAccountNameForTransaction(it.t.id);
-              if (isTransfer && it.t.toAccountId != null) {
-                toAccountName = _getToAccountNameForTransaction(it.t.id);
-              }
-
-              // 预加载数据中找不到时，通过 Provider 获取（新记录的交易不在预加载缓存中）
-              if (accountName == null) {
-                final accountAsync = ref.watch(accountByIdProvider(it.t.accountId!));
-                accountName = accountAsync.valueOrNull?.name;
-              }
-              if (isTransfer && toAccountName == null && it.t.toAccountId != null) {
-                final toAccountAsync = ref.watch(accountByIdProvider(it.t.toAccountId!));
-                toAccountName = toAccountAsync.valueOrNull?.name;
-              }
+            String? toAccountName;
+            if (accountFeatureEnabled) {
+              accountName = it.account?.name;
+              if (isTransfer) toAccountName = it.toAccount?.name;
             }
 
             return Dismissible(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:drift/drift.dart' as d;
@@ -8,6 +9,7 @@ import 'package:uuid/uuid.dart';
 import '../../db.dart';
 import '../../category_node.dart';
 import '../../../services/system/logger_service.dart';
+import '../../../utils/shared_ledger_picker_filter.dart';
 import '../category_repository.dart';
 
 /// 本地分类Repository实现
@@ -523,13 +525,75 @@ class LocalCategoryRepository implements CategoryRepository {
 
   @override
   Stream<Category?> watchCategory(int categoryId) {
+    // §7 共享账本:负 id 是 SharedLedgerCategories 的 synthetic id
+    // (syntheticIdForSyncId 派生)。分类详情页传过来时,要去 shared 表反查
+    // 转 synthetic Category 返回,跟 picker / 洞察 路径一致。
+    if (categoryId < 0) {
+      return _watchSharedCategoryBySyntheticId(categoryId);
+    }
     return (db.select(db.categories)
       ..where((c) => c.id.equals(categoryId))
     ).watchSingleOrNull();
   }
 
+  /// SharedLedgerCategories 表变化时 re-emit。用 tableUpdates 监听 + 每次
+  /// 重查找匹配的 syncId(synthetic id 是 hashCode 派生,反查只能扫表)。
+  Stream<Category?> _watchSharedCategoryBySyntheticId(int syntheticId) {
+    final ctrl = StreamController<Category?>();
+    StreamSubscription? sub;
+
+    Future<void> emit() async {
+      final rows = await db.select(db.sharedLedgerCategories).get();
+      for (final s in rows) {
+        if (syntheticIdForSyncId(s.syncId) == syntheticId) {
+          if (!ctrl.isClosed) {
+            // 跟 statistics / picker / synthetic builder 保持一致:有 parentSyncId
+            // 就转 synthetic 父 id 写入 parentId,L2 → L1 链路可正确导航。
+            final pSyncId = s.parentSyncId;
+            final parentSyntheticId = (pSyncId != null && pSyncId.isNotEmpty)
+                ? syntheticIdForSyncId(pSyncId)
+                : null;
+            ctrl.add(Category(
+              id: syntheticId,
+              name: s.name,
+              kind: s.kind,
+              icon: s.icon,
+              sortOrder: s.sortOrder,
+              parentId: parentSyntheticId,
+              level: s.level,
+              iconType: s.iconType,
+              customIconPath:
+                  s.iconType == 'custom' && s.iconCloudSha256 != null
+                      ? 'custom_icons/shared_${s.iconCloudSha256}.png'
+                      : null,
+              communityIconId: null,
+              syncId: s.syncId,
+            ));
+          }
+          return;
+        }
+      }
+      if (!ctrl.isClosed) ctrl.add(null);
+    }
+
+    ctrl.onListen = () {
+      emit();
+      sub = db
+          .tableUpdates(d.TableUpdateQuery.onTable(db.sharedLedgerCategories))
+          .listen((_) => emit());
+    };
+    ctrl.onCancel = () async {
+      await sub?.cancel();
+    };
+    return ctrl.stream;
+  }
+
   @override
   Stream<List<Transaction>> watchTransactionsByCategory(int categoryId, {int? ledgerId}) {
+    // §7 共享账本:负 id 表 SharedLedger 分类 — 走 categorySyncIdOverride 过滤。
+    if (categoryId < 0) {
+      return _watchTxByCategorySyntheticId(categoryId, ledgerId);
+    }
     final query = db.select(db.transactions)
       ..where((t) => t.categoryId.equals(categoryId));
 
@@ -545,6 +609,56 @@ class LocalCategoryRepository implements CategoryRepository {
     ]);
 
     return query.watch();
+  }
+
+  Stream<List<Transaction>> _watchTxByCategorySyntheticId(
+      int syntheticId, int? ledgerId) {
+    final ctrl = StreamController<List<Transaction>>();
+    StreamSubscription? sub;
+    String? matchedSyncId;
+
+    Future<void> resolveSyncId() async {
+      if (matchedSyncId != null) return;
+      final rows = await db.select(db.sharedLedgerCategories).get();
+      for (final s in rows) {
+        if (syntheticIdForSyncId(s.syncId) == syntheticId) {
+          matchedSyncId = s.syncId;
+          return;
+        }
+      }
+    }
+
+    Future<void> emit() async {
+      await resolveSyncId();
+      if (matchedSyncId == null) {
+        if (!ctrl.isClosed) ctrl.add(const []);
+        return;
+      }
+      final q = db.select(db.transactions)
+        ..where((t) => t.categorySyncIdOverride.equals(matchedSyncId!))
+        ..orderBy([
+          (t) => d.OrderingTerm(
+              expression: t.happenedAt, mode: d.OrderingMode.desc),
+        ]);
+      if (ledgerId != null) {
+        q.where((t) => t.ledgerId.equals(ledgerId));
+      }
+      final list = await q.get();
+      if (!ctrl.isClosed) ctrl.add(list);
+    }
+
+    ctrl.onListen = () {
+      emit();
+      // 监听 tx 表变化(新增/删除 tx)+ SharedLedgerCategories(分类被删/重命名)
+      sub = db.tableUpdates(d.TableUpdateQuery.onAllTables([
+        db.transactions,
+        db.sharedLedgerCategories,
+      ])).listen((_) => emit());
+    };
+    ctrl.onCancel = () async {
+      await sub?.cancel();
+    };
+    return ctrl.stream;
   }
 
   @override

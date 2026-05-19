@@ -297,7 +297,7 @@ class MinePage extends ConsumerWidget {
                       12.0.scaled(context, ref), 0),
                   child: Column(
                     children: [
-                      // 智能记账
+                      // 智能记账(共享账本入口已移到"账本管理"页 PrimaryHeader)
                       AppListTile(
                         leading: Icons.auto_awesome_outlined,
                         title: AppLocalizations.of(context).smartBilling,

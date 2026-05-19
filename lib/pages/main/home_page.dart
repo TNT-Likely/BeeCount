@@ -23,6 +23,7 @@ import '../report/annual_report_page.dart';
 import '../calendar/calendar_page.dart';
 import '../../widgets/biz/ledger_picker_sheet.dart';
 import '../../widgets/biz/home_budget_summary.dart';
+import '../../providers/shared_ledger_providers.dart';
 
 // 优化版首页 - 使用FlutterListView实现精准定位和丝滑跳转
 class HomePage extends ConsumerStatefulWidget {
@@ -633,6 +634,20 @@ class _HomePageState extends ConsumerState<HomePage> {
       }
     });
 
+    // D 方案后:Drift JOIN + SharedLedger* table-watch 已经在 Repository 层
+    // 自动响应共享资源变化(分类 / 账户),tx stream 会重 emit 出带新 name
+    // 的记录。不再需要在 HomePage 强制 _streamBuilderKey++ / invalidate
+    // accountForTxProvider 这种激进刷新 — 那会让 Editor 编辑 tx 的本地
+    // push-pull 循环触发整个 StreamBuilder 子树重建("首页全局刷新"症状)。
+    // 如果有 forceStreamModeImmediate 的语义需要(强制把 preloaded 切到
+    // live stream),可以单独 listen sharedResourceRefreshProvider 处理,
+    // 但 StreamBuilder key 重建保持不动。
+    ref.listen<int>(sharedResourceRefreshProvider, (previous, next) {
+      if (previous != next) {
+        _transactionListKey.currentState?.forceStreamModeImmediate();
+      }
+    });
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor, // ⭐ 自适应背景色
       body: Column(
@@ -728,6 +743,31 @@ class _HomePageState extends ConsumerState<HomePage> {
                                                   ),
                                                 ),
                                               ),
+                                              // v24 共享账本:header 也显示 🤝 角标 + 成员数
+                                              if (ledger != null && ledger.isShared) ...[
+                                                const SizedBox(width: 4),
+                                                Icon(
+                                                  Icons.handshake,
+                                                  size: 12,
+                                                  color: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium
+                                                      ?.color
+                                                      ?.withOpacity(0.7),
+                                                ),
+                                                const SizedBox(width: 1),
+                                                Text(
+                                                  '${ledger.memberCount}',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyMedium
+                                                        ?.color
+                                                        ?.withOpacity(0.7),
+                                                  ),
+                                                ),
+                                              ],
                                               const SizedBox(width: 2),
                                               Icon(
                                                 Icons.keyboard_arrow_down,
@@ -928,7 +968,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             return const SizedBox.shrink();
           }),
           Expanded(
-            child: StreamBuilder<List<({Transaction t, Category? category})>>(
+            child: StreamBuilder<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>(
               key: ValueKey('transactions_$_streamBuilderKey'), // 使用递增key强制重建
               stream: repo.transactionsWithCategoryAll(ledgerId: ledgerId),
               builder: (context, snapshot) {
@@ -941,8 +981,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                 final transactions = hasStreamData
                     ? streamData
                     : (cachedFullData
-                            ?.map(
-                                (item) => (t: item.t, category: item.category))
+                            ?.map((item) => (
+                                  t: item.t,
+                                  category: item.category,
+                                  account: item.account,
+                                  toAccount: item.toAccount,
+                                ))
                             .toList() ??
                         []);
 

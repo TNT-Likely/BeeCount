@@ -136,6 +136,24 @@ class LedgerCard extends ConsumerWidget {
                           ),
                         ),
 
+                        // v24: 共享账本 🤝 角标 + 成员数
+                        if (ledger.isShared) ...[
+                          const SizedBox(width: 6),
+                          Icon(
+                            Icons.handshake,
+                            size: 14,
+                            color: primaryColor,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            '${ledger.memberCount}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: primaryColor,
+                            ),
+                          ),
+                        ],
+
                         const SizedBox(width: 8),
 
                         // 状态图标

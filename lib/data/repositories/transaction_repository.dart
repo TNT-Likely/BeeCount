@@ -17,18 +17,18 @@ abstract class TransactionRepository {
 
   /// 获取所有交易记录（带分类信息）
   /// [ledgerId] 可选，不传则获取所有账本的交易
-  Stream<List<({Transaction t, Category? category})>> watchTransactionsWithCategoryAll({
+  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryAll({
     int? ledgerId,
   });
 
   /// 获取所有交易记录（带分类信息）- 非 Stream 版本
   /// [ledgerId] 可选，不传则获取所有账本的交易
-  Stream<List<({Transaction t, Category? category})>> transactionsWithCategoryAll({
+  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> transactionsWithCategoryAll({
     int? ledgerId,
   });
 
   /// 获取最近的交易记录（带分类信息）- 用于预加载
-  Future<List<({Transaction t, Category? category})>> getRecentTransactionsWithCategory({
+  Future<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> getRecentTransactionsWithCategory({
     required int ledgerId,
     required int limit,
   });
@@ -37,19 +37,19 @@ abstract class TransactionRepository {
   Future<Transaction?> getTransactionById(int id);
 
   /// 获取指定月份的交易记录（带分类信息）
-  Stream<List<({Transaction t, Category? category})>> watchTransactionsWithCategoryInMonth({
+  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryInMonth({
     required int ledgerId,
     required DateTime month,
   });
 
   /// 获取指定年份的交易记录（带分类信息）
-  Stream<List<({Transaction t, Category? category})>> watchTransactionsWithCategoryInYear({
+  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryInYear({
     required int ledgerId,
     required int year,
   });
 
   /// 获取指定分类和时间范围的交易记录（带分类信息）
-  Stream<List<({Transaction t, Category? category})>> watchTransactionsForCategoryInRange({
+  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsForCategoryInRange({
     required int ledgerId,
     required DateTime start,
     required DateTime end,
@@ -58,6 +58,10 @@ abstract class TransactionRepository {
   });
 
   /// 添加交易
+  ///
+  /// §7 v25 共享账本:Editor 选 Owner 的 SharedLedger* 行时,categoryId /
+  /// accountId / toAccountId 留 null,改填 *SyncIdOverride 字符串。
+  /// Owner / 单人账本场景:走 categoryId int(老路径),override 留 null。
   Future<int> addTransaction({
     required int ledgerId,
     required String type,
@@ -68,6 +72,9 @@ abstract class TransactionRepository {
     required DateTime happenedAt,
     String? note,
     String? syncId,
+    String? categorySyncIdOverride,
+    String? accountSyncIdOverride,
+    String? toAccountSyncIdOverride,
   });
 
   /// 批量新增交易，单事务内插入，返回插入条数
@@ -85,6 +92,9 @@ abstract class TransactionRepository {
     String? note,
     DateTime? happenedAt,
     dynamic accountId,
+    String? categorySyncIdOverride,
+    String? accountSyncIdOverride,
+    String? toAccountSyncIdOverride,
   });
 
   /// 删除交易
@@ -108,11 +118,19 @@ abstract class TransactionRepository {
     required DateTime end,
   });
 
-  /// 更新交易（通过ID和字段）
+  /// 更新交易(通过 ID 和字段)。
+  /// accountId / toAccountId 接 dynamic:dart `null` = absent(不更新);
+  /// `d.Value<int?>(null)` = 显式清空;`int` = 写值。共享账本 Editor 写
+  /// synthetic 账户时,accountId 写 null,通过 writeAccountSyncIdOverride
+  /// + accountSyncIdOverride 写 Owner 账户的 syncId override。
   Future<void> updateTransactionFields({
     required int id,
-    int? accountId,
-    int? toAccountId,
+    dynamic accountId,
+    dynamic toAccountId,
+    String? accountSyncIdOverride,
+    String? toAccountSyncIdOverride,
+    bool writeAccountSyncIdOverride,
+    bool writeToAccountSyncIdOverride,
   });
 
   /// 获取账本的首笔交易（按时间排序）

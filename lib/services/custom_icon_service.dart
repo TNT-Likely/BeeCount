@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
@@ -52,6 +54,37 @@ class CustomIconService {
     final dir = await getIconDirectory();
     final fileName = path.basename(relativePath);
     return path.join(dir.path, fileName);
+  }
+
+  /// §7 决策 — Editor 拉 Owner 自定义图标走 sha256 cache:
+  /// 1. 按 sha256 命名 cache 文件(`shared_<sha256>.png`),命中直接返
+  /// 2. miss 时由调用方走 `provider.downloadAttachment(fileId)` 拉二进制,
+  ///    再调 [writeCachedSharedIcon] 落地
+  /// 返回 cache 文件路径(可能不存在,调用方应检查)
+  Future<String> resolveCachedSharedIconPath(String sha256) async {
+    final dir = await getIconDirectory();
+    return path.join(dir.path, 'shared_$sha256.png');
+  }
+
+  /// 落地 Editor 拉到的自定义图标二进制 — 按 sha256 命名,
+  /// 同 sha256 反复下载会命中本地缓存(去重)。
+  /// 校验 actual sha256 跟 expected 一致(防中间人),不一致抛 [CustomIconException]。
+  Future<String> writeCachedSharedIcon({
+    required String expectedSha256,
+    required Uint8List bytes,
+  }) async {
+    final actualHex = sha256.convert(bytes).toString();
+    if (actualHex.toLowerCase() != expectedSha256.toLowerCase()) {
+      throw CustomIconException(
+        'sha256 mismatch: expected=$expectedSha256 actual=$actualHex',
+      );
+    }
+    final cachePath = await resolveCachedSharedIconPath(expectedSha256);
+    final file = File(cachePath);
+    if (!await file.exists()) {
+      await file.writeAsBytes(bytes, flush: true);
+    }
+    return cachePath;
   }
 
   /// 从相册选择图片

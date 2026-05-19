@@ -55,8 +55,9 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final allTagsAsync = ref.watch(allTagsProvider);
-    final recentTagsAsync = ref.watch(recentlyUsedTagsProvider);
+    // §7 共享账本:Editor + 共享账本 picker 只显示 Owner mirror tags
+    final allTagsAsync = ref.watch(tagsForCurrentLedgerProvider);
+    final recentTagsAsync = ref.watch(recentTagsForCurrentLedgerProvider);
 
     return Container(
       constraints: BoxConstraints(

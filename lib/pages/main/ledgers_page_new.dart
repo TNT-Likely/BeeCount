@@ -8,13 +8,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../providers.dart';
-import '../../providers/cloud_mode_providers.dart';
 import '../../models/ledger_display_item.dart';
 import '../../cloud/transactions_sync_manager.dart';
 import '../../cloud/sync_service.dart';
 import '../../cloud/sync/sync_engine.dart';
+import '../../data/repositories/local/local_repository.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/biz.dart';
+import '../cloud/member_list_page.dart';
+import '../cloud/member_stats_page.dart';
+import '../cloud/join_shared_ledger_page.dart';
+import '../../styles/tokens.dart';
 import '../../utils/currencies.dart';
 import '../../services/system/logger_service.dart';
 import '../../utils/ui_scale_extensions.dart';
@@ -59,6 +63,7 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
             actions: [
               // 新建账本
               IconButton(
+                tooltip: AppLocalizations.of(context).ledgersCreate,
                 onPressed: () => _showCreateLedgerDialog(context),
                 icon: Icon(Icons.add, color: BeeTokens.textPrimary(context)),
               ),
@@ -148,6 +153,33 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
         vertical: 8.0.scaled(context, ref),
       ),
       children: [
+        // §7 共享账本入口 — 跟 web 端 LedgersSection 顶部"加入共享账本"
+        // 按钮一致,放在列表顶部,比 header 角落 icon 显眼。
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            16.0.scaled(context, ref),
+            4.0.scaled(context, ref),
+            16.0.scaled(context, ref),
+            8.0.scaled(context, ref),
+          ),
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.group_add_outlined, size: 18),
+            label: Text(AppLocalizations.of(context).sharedJoinPageTitle),
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const JoinSharedLedgerPage(),
+                ),
+              );
+            },
+            style: OutlinedButton.styleFrom(
+              minimumSize: Size(double.infinity, 40.0.scaled(context, ref)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ),
         // 本地账本区域
         if (localLedgers.isNotEmpty) ...[
           _SectionHeader(
@@ -356,6 +388,11 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
 
   /// 显示本地账本操作菜单
   Future<void> _showLocalLedgerActions(BuildContext context, LedgerDisplayItem ledger) async {
+    // v24 共享账本权限矩阵(详见 .docs/shared-ledger/01-product-design.md §6):
+    // - Owner / 单人账本:edit / clear / deleteLocal / delete + members 全部可用
+    // - Editor(共享账本 + myRole != owner):仅 members(看成员/退出),
+    //   隐藏 edit / clear / deleteLocal / delete 4 项 owner-only 操作
+    final isOwner = ledger.myRole == 'owner';
     final action = await showDialog<String>(
       context: context,
       builder: (dctx) {
@@ -364,26 +401,66 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(AppLocalizations.of(context).ledgersActions),
           children: [
+            if (isOwner)
+              SimpleDialogOption(
+                onPressed: () => Navigator.pop(dctx, 'edit'),
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, color: primary),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context).ledgersEdit),
+                  ],
+                ),
+              ),
+            // v24 共享账本:成员管理入口(任意 member 可看,owner 可邀请 / 踢人,
+            // Editor 可看列表 + 退出账本)
             SimpleDialogOption(
-              onPressed: () => Navigator.pop(dctx, 'edit'),
+              onPressed: () => Navigator.pop(dctx, 'members'),
               child: Row(
                 children: [
-                  Icon(Icons.edit, color: primary),
+                  Icon(Icons.people, color: primary),
                   const SizedBox(width: 8),
-                  Text(AppLocalizations.of(context).ledgersEdit),
+                  Text(AppLocalizations.of(context).sharedMembersPageTitle),
+                  if (ledger.isShared) ...[
+                    const SizedBox(width: 6),
+                    Text(
+                      '(${ledger.memberCount})',
+                      style: TextStyle(
+                        color: BeeTokens.textSecondary(context),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(dctx, 'clear'),
-              child: Row(
-                children: [
-                  const Icon(Icons.clear_all, color: Colors.orange),
-                  const SizedBox(width: 8),
-                  Text(AppLocalizations.of(context).ledgersClear),
-                ],
+            // 共享账本成员收支统计(简版)— 只对已同步的共享账本展示。
+            if (ledger.isShared)
+              SimpleDialogOption(
+                onPressed: () => Navigator.pop(dctx, 'memberStats'),
+                child: Row(
+                  children: [
+                    Icon(Icons.insert_chart_outlined, color: primary),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context).sharedMembersStatsTitle),
+                  ],
+                ),
               ),
-            ),
+            if (isOwner) ...[
+              SimpleDialogOption(
+                onPressed: () => Navigator.pop(dctx, 'clear'),
+                child: Row(
+                  children: [
+                    const Icon(Icons.clear_all, color: Colors.orange),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context).ledgersClear),
+                  ],
+                ),
+              ),
+            ],
+            // "仅删除本地"对 Owner 和 Editor 都可用 — 这是本地清理动作,
+            // 不影响 server。Editor 用这个清掉 Owner 已删账本残留;Owner
+            // 用来清不想要的本地副本但保留 server 数据。
             SimpleDialogOption(
               onPressed: () => Navigator.pop(dctx, 'deleteLocal'),
               child: Row(
@@ -394,16 +471,18 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
                 ],
               ),
             ),
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(dctx, 'delete'),
-              child: Row(
-                children: [
-                  const Icon(Icons.delete_forever_outlined, color: Colors.redAccent),
-                  const SizedBox(width: 8),
-                  Text(AppLocalizations.of(context).ledgersDelete),
-                ],
+            if (isOwner) ...[
+              SimpleDialogOption(
+                onPressed: () => Navigator.pop(dctx, 'delete'),
+                child: Row(
+                  children: [
+                    const Icon(Icons.delete_forever_outlined, color: Colors.redAccent),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context).ledgersDelete),
+                  ],
+                ),
               ),
-            ),
+            ],
           ],
         );
       },
@@ -413,6 +492,63 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
 
     if (action == 'edit') {
       await _handleEditLedger(context, ledger);
+    } else if (action == 'members') {
+      // 跳转成员管理 — 需要 ledger.syncId(server external_id)。本地仅 ledger
+      // (没 syncId,从未同步过的)无成员概念,提示用户先建云账户。
+      // 拿 ledger.syncId(用 LocalRepository 直查;repositoryProvider 在 cloud
+      // 模式可能是 CloudRepository,这里需要本地)
+      final localRepo = ref.read(repositoryProvider);
+      String? syncId;
+      if (localRepo is LocalRepository) {
+        final raw = await localRepo.db.select(localRepo.db.ledgers)
+            .map((l) => (id: l.id, syncId: l.syncId))
+            .get();
+        final entry = raw.firstWhere(
+          (e) => e.id == ledger.id,
+          orElse: () => (id: 0, syncId: null),
+        );
+        syncId = entry.syncId;
+      }
+      if (syncId == null || syncId.isEmpty) {
+        if (mounted) showToast(context, AppLocalizations.of(context).sharedRequiresCloudSync);
+        return;
+      }
+      final extId = syncId;
+      if (mounted) {
+        await Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => MemberListPage(
+            ledgerExternalId: extId,
+            ledgerName: ledger.name,
+          ),
+        ));
+      }
+    } else if (action == 'memberStats') {
+      // 跟成员管理同源:取 ledger.syncId 再跳 MemberStatsPage。
+      final localRepo = ref.read(repositoryProvider);
+      String? syncId;
+      if (localRepo is LocalRepository) {
+        final raw = await localRepo.db.select(localRepo.db.ledgers)
+            .map((l) => (id: l.id, syncId: l.syncId))
+            .get();
+        final entry = raw.firstWhere(
+          (e) => e.id == ledger.id,
+          orElse: () => (id: 0, syncId: null),
+        );
+        syncId = entry.syncId;
+      }
+      if (syncId == null || syncId.isEmpty) {
+        if (mounted) showToast(context, AppLocalizations.of(context).sharedRequiresCloudSync);
+        return;
+      }
+      final extId = syncId;
+      if (mounted) {
+        await Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => MemberStatsPage(
+            ledgerExternalId: extId,
+            ledgerName: ledger.name,
+          ),
+        ));
+      }
     } else if (action == 'clear') {
       await _handleClearLedger(context, ledger);
     } else if (action == 'deleteLocal') {

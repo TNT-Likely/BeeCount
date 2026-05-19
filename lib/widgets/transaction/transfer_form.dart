@@ -1,14 +1,19 @@
+import 'package:drift/drift.dart' as d;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/db.dart';
+import '../../data/repositories/local/local_repository.dart';
 import '../../providers.dart';
+import '../../providers/shared_ledger_providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../styles/tokens.dart';
 import '../../services/billing/post_processor.dart';
 import '../../services/attachment_service.dart';
+import '../../services/data/tx_author_service.dart';
 import '../biz/amount_editor_sheet.dart';
 import '../../utils/account_type_utils.dart';
+import '../../utils/shared_ledger_picker_filter.dart';
 import '../ui/ui.dart';
 
 /// 转账表单组件
@@ -83,11 +88,38 @@ class _TransferFormState extends ConsumerState<TransferForm> {
   Future<bool> _checkSameCurrency() async {
     if (_fromAccountId == null || _toAccountId == null) return false;
 
-    final repo = ref.read(repositoryProvider);
-    final fromAccount = await repo.getAccount(_fromAccountId!);
-    final toAccount = await repo.getAccount(_toAccountId!);
-
+    final fromAccount = await _lookupAccount(_fromAccountId!);
+    final toAccount = await _lookupAccount(_toAccountId!);
     return fromAccount?.currency == toAccount?.currency;
+  }
+
+  /// 反查账户:正数 id → 主表 accounts;负数 synthetic id → 扫
+  /// SharedLedgerAccounts 找 syntheticIdForSyncId 命中(共享账本 Editor
+  /// 视角下 picker 给出的是 Owner 的 synthetic 账户)。
+  Future<Account?> _lookupAccount(int accountId) async {
+    final repo = ref.read(repositoryProvider);
+    if (accountId >= 0) return repo.getAccount(accountId);
+    if (repo is! LocalRepository) return null;
+    return repo.db.findAccountBySyntheticId(accountId);
+  }
+
+  /// 把 synthetic accountId(负数)反查回 Owner 的 syncId(正数 id 时返 null)。
+  /// 用 ledger.syncId 限定 SharedLedgerAccounts 的查询范围。
+  Future<String?> _resolveSyncIdByAccountId(int accountId, int ledgerId) async {
+    if (accountId >= 0) return null;
+    final repo = ref.read(repositoryProvider);
+    if (repo is! LocalRepository) return null;
+    final ledger = await (repo.db.select(repo.db.ledgers)
+          ..where((l) => l.id.equals(ledgerId)))
+        .getSingleOrNull();
+    if (ledger?.syncId == null) return null;
+    final rows = await (repo.db.select(repo.db.sharedLedgerAccounts)
+          ..where((t) => t.ledgerSyncId.equals(ledger!.syncId!)))
+        .get();
+    for (final r in rows) {
+      if (syntheticIdForSyncId(r.syncId) == accountId) return r.syncId;
+    }
+    return null;
   }
 
   // 当两个账户都选择后，自动弹出金额输入弹窗
@@ -129,6 +161,21 @@ class _TransferFormState extends ConsumerState<TransferForm> {
           final transferCategory = await ref.read(transferCategoryProvider.future);
           final transferCategoryId = transferCategory.id;
 
+          // §7 共享账本:Editor picker 给的是 synthetic Account(负数 id)。
+          // 写本地 Drift 时 accountId / toAccountId 留 null,override 字段
+          // 走 Owner 的 syncId;push 序列化时按 override 输出 payload。
+          final isSyntheticFrom =
+              _fromAccountId != null && _fromAccountId! < 0;
+          final isSyntheticTo = _toAccountId != null && _toAccountId! < 0;
+          final fromAccountForAdd = isSyntheticFrom ? null : _fromAccountId;
+          final toAccountForAdd = isSyntheticTo ? null : _toAccountId;
+          final fromOverride = isSyntheticFrom
+              ? await _resolveSyncIdByAccountId(_fromAccountId!, ledgerId)
+              : null;
+          final toOverride = isSyntheticTo
+              ? await _resolveSyncIdByAccountId(_toAccountId!, ledgerId)
+              : null;
+
           try {
             if (widget.editingTransactionId != null) {
               // 编辑模式：更新现有转账记录
@@ -139,13 +186,19 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                 categoryId: transferCategoryId, // 使用虚拟转账分类ID
                 note: result.note,
                 happenedAt: result.date,
-                accountId: _fromAccountId,
+                accountId: d.Value<int?>(fromAccountForAdd),
+                accountSyncIdOverride: fromOverride,
               );
-              // 更新 toAccountId（使用专用方法）
+              // 更新 toAccountId(同时写 toAccountSyncIdOverride,共享账本场景)
               await repo.updateTransactionFields(
                 id: widget.editingTransactionId!,
-                toAccountId: _toAccountId,
+                toAccountId: d.Value<int?>(toAccountForAdd),
+                toAccountSyncIdOverride: toOverride,
+                writeToAccountSyncIdOverride: true,
               );
+              // 共享账本:回填编辑人,UI 头像组立即展示
+              await TxAuthorService.markEdited(
+                  ref, widget.editingTransactionId!);
               // 更新标签
               if (result.tagIds.isNotEmpty) {
                 await repo.updateTransactionTags(
@@ -188,11 +241,15 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                 type: 'transfer',
                 amount: result.amount,
                 categoryId: transferCategoryId, // 使用虚拟转账分类ID
-                accountId: _fromAccountId,
-                toAccountId: _toAccountId,
+                accountId: fromAccountForAdd,
+                toAccountId: toAccountForAdd,
+                accountSyncIdOverride: fromOverride,
+                toAccountSyncIdOverride: toOverride,
                 note: result.note,
                 happenedAt: result.date,
               );
+              // 共享账本:本地立即标记创建人 + 编辑人
+              await TxAuthorService.markCreated(ref, txId);
 
               // 关联标签
               if (result.tagIds.isNotEmpty) {
@@ -244,16 +301,43 @@ class _TransferFormState extends ConsumerState<TransferForm> {
     );
   }
 
+  /// §7 共享账本:Editor 在共享账本下转账要选 Owner 的账户(SharedLedger
+  /// Accounts 镜像),而非自己的 user-global。跟 AccountPicker / category_selector
+  /// 一致用 filterAccountsForLedger 转 synthetic Account。
+  Future<List<Account>> _loadFilteredAccounts() async {
+    final repo = ref.read(repositoryProvider);
+    final allAccounts = await repo.getAllAccounts();
+    if (repo is! LocalRepository) return allAccounts;
+    final currentLedgerId = ref.read(currentLedgerIdProvider);
+    final ctx = await repo.db.loadLedgerPickerContext(currentLedgerId);
+    return repo.db.filterAccountsForLedger(allAccounts, ctx);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final primary = ref.watch(primaryColorProvider);
-    final allAccountsAsync = ref.watch(allAccountsStreamProvider);
     final currentLedgerAsync = ref.watch(currentLedgerProvider);
     final currentCurrency = currentLedgerAsync.asData?.value?.currency ?? 'CNY';
+    // WS shared_resource_change 推 Owner 账户更新后 rebuild,重查 SharedLedger
+    // Accounts。
+    ref.watch(sharedResourceRefreshProvider);
 
-    return allAccountsAsync.when(
-      data: (allAccounts) {
+    return FutureBuilder<List<Account>>(
+      future: _loadFilteredAccounts(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              '${l10n.commonError}: ${snapshot.error}',
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
+        final allAccounts = snapshot.data ?? const <Account>[];
         // 只显示与当前账本同币种的可交易账户
         final accounts = allAccounts
             .where((account) => account.currency == currentCurrency && isTradableType(account.type))
@@ -319,13 +403,6 @@ class _TransferFormState extends ConsumerState<TransferForm> {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Center(
-        child: Text(
-          '${l10n.commonError}: $err',
-          style: const TextStyle(color: Colors.red),
-        ),
-      ),
     );
   }
 

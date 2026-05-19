@@ -106,6 +106,13 @@ extension SyncEngineProfile on SyncEngine {
       await AvatarService.setStoredRemoteVersion(remoteVersion);
       logger.info('avatar_sync',
           'saved to local, bumped localVersion=$remoteVersion');
+      // 真下载了头像才触发回调,让外部 bump avatarRefreshProvider。
+      // up-to-date / no avatar 分支不触发,避免冷启动一次刷新。
+      try {
+        onAvatarChanged?.call();
+      } catch (e, st) {
+        logger.warning('avatar_sync', 'onAvatarChanged 回调失败: $e', st);
+      }
       return true;
     } catch (e, st) {
       logger.warning('avatar_sync', '同步失败: $e', st);

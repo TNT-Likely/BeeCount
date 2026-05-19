@@ -7563,7 +7563,7 @@ abstract class AppLocalizations {
   /// No description provided for @cloudTutorialFeature4.
   ///
   /// In en, this message translates to:
-  /// **'🔜 Planned: shared ledgers (invite family / team to a common ledger)'**
+  /// **'🤝 Shared ledgers: invite family / team into one book with seconds-level sync'**
   String get cloudTutorialFeature4;
 
   /// No description provided for @cloudTutorialGotIt.
@@ -11669,6 +11669,378 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enable on the Web app →'**
   String get twofaStatusOpenWeb;
+
+  /// No description provided for @sharedRoleOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get sharedRoleOwner;
+
+  /// No description provided for @sharedRoleEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'Editor'**
+  String get sharedRoleEditor;
+
+  /// No description provided for @sharedRoleViewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewer'**
+  String get sharedRoleViewer;
+
+  /// No description provided for @commonCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get commonCopied;
+
+  /// No description provided for @commonRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get commonRemove;
+
+  /// No description provided for @sharedJoinPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join shared ledger'**
+  String get sharedJoinPageTitle;
+
+  /// No description provided for @sharedJoinPageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an invite code or tap a shared link'**
+  String get sharedJoinPageSubtitle;
+
+  /// No description provided for @sharedJoinEnterCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter invite code'**
+  String get sharedJoinEnterCode;
+
+  /// No description provided for @sharedJoinEnterCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'6 uppercase letters / digits. You can also tap a share link to skip this step.'**
+  String get sharedJoinEnterCodeHint;
+
+  /// No description provided for @sharedJoinPreviewButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify code'**
+  String get sharedJoinPreviewButton;
+
+  /// No description provided for @sharedJoinAcceptButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get sharedJoinAcceptButton;
+
+  /// No description provided for @sharedJoinInvitedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} invited you to join'**
+  String sharedJoinInvitedBy(String name);
+
+  /// No description provided for @sharedJoinRoleLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Role: {role}'**
+  String sharedJoinRoleLine(String role);
+
+  /// No description provided for @sharedJoinExpiresInMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires in {n} min'**
+  String sharedJoinExpiresInMinutes(int n);
+
+  /// No description provided for @sharedJoinExpiresInHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires in {n}h'**
+  String sharedJoinExpiresInHours(int n);
+
+  /// No description provided for @sharedJoinExpiresInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires in {n}d'**
+  String sharedJoinExpiresInDays(int n);
+
+  /// No description provided for @sharedJoinSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined \"{name}\"'**
+  String sharedJoinSuccess(String name);
+
+  /// No description provided for @sharedJoinCodeFormatError.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite code must be 6 letters/digits.'**
+  String get sharedJoinCodeFormatError;
+
+  /// No description provided for @sharedJoinInvalidOrExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite code is invalid or expired. Ask the inviter for a new one.'**
+  String get sharedJoinInvalidOrExpired;
+
+  /// No description provided for @sharedJoinAlreadyMember.
+  ///
+  /// In en, this message translates to:
+  /// **'You are already a member of this ledger.'**
+  String get sharedJoinAlreadyMember;
+
+  /// No description provided for @sharedJoinMemberLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'This ledger has reached its member limit. Ask the owner.'**
+  String get sharedJoinMemberLimit;
+
+  /// No description provided for @sharedInvitePageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite new member'**
+  String get sharedInvitePageTitle;
+
+  /// No description provided for @sharedInviteFormRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get sharedInviteFormRole;
+
+  /// No description provided for @sharedInviteFormExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid for'**
+  String get sharedInviteFormExpiry;
+
+  /// No description provided for @sharedInviteExpiryHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} h'**
+  String sharedInviteExpiryHours(int n);
+
+  /// No description provided for @sharedInviteExpiryDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} day'**
+  String sharedInviteExpiryDays(int n);
+
+  /// No description provided for @sharedInviteGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate invite code'**
+  String get sharedInviteGenerate;
+
+  /// No description provided for @sharedInviteGenerateAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate another code'**
+  String get sharedInviteGenerateAnother;
+
+  /// No description provided for @sharedInviteCopyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy code'**
+  String get sharedInviteCopyCode;
+
+  /// No description provided for @sharedInviteCopyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get sharedInviteCopyLink;
+
+  /// No description provided for @sharedInviteShareLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Share link'**
+  String get sharedInviteShareLink;
+
+  /// No description provided for @sharedInviteExpiresAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires at {dt}'**
+  String sharedInviteExpiresAt(String dt);
+
+  /// No description provided for @sharedInviteWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Don\'t post invite codes to public groups / social. Anyone with the code can join. Revoke and regenerate from Members if leaked.'**
+  String get sharedInviteWarning;
+
+  /// No description provided for @sharedInviteInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the code or short link to the other person. After they install BeeCount, they can tap the link or enter the code from \"Me → Join shared ledger\".'**
+  String get sharedInviteInstruction;
+
+  /// No description provided for @sharedInviteShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m inviting you to BeeCount shared ledger \"{ledger}\".\n\nCode: {code}\nLink: {url}\n\nTap the link, or open BeeCount → Me → Join shared ledger and enter this code.'**
+  String sharedInviteShareText(String ledger, String code, String url);
+
+  /// No description provided for @sharedMembersPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get sharedMembersPageTitle;
+
+  /// No description provided for @sharedMembersYou.
+  ///
+  /// In en, this message translates to:
+  /// **'you'**
+  String get sharedMembersYou;
+
+  /// No description provided for @sharedMembersInviteCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite new member'**
+  String get sharedMembersInviteCta;
+
+  /// No description provided for @sharedMembersLeaveCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave ledger'**
+  String get sharedMembersLeaveCta;
+
+  /// No description provided for @sharedMembersLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave ledger'**
+  String get sharedMembersLeaveTitle;
+
+  /// No description provided for @sharedMembersLeaveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'After leaving \"{name}\" you won\'t be able to access its transactions. Continue?'**
+  String sharedMembersLeaveConfirm(String name);
+
+  /// No description provided for @sharedMembersLeaveDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Left the ledger'**
+  String get sharedMembersLeaveDone;
+
+  /// No description provided for @sharedMembersRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove member'**
+  String get sharedMembersRemoveTitle;
+
+  /// No description provided for @sharedMembersRemoveCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this member'**
+  String get sharedMembersRemoveCta;
+
+  /// No description provided for @sharedMembersRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}? They will immediately lose access to this ledger.'**
+  String sharedMembersRemoveConfirm(String name);
+
+  /// No description provided for @sharedMembersRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Member removed'**
+  String get sharedMembersRemoved;
+
+  /// No description provided for @sharedMembersTransferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer ownership'**
+  String get sharedMembersTransferTitle;
+
+  /// No description provided for @sharedMembersTransferTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer to this member'**
+  String get sharedMembersTransferTo;
+
+  /// No description provided for @sharedMembersTransferConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer ownership to {name}? You will become an editor and can no longer invite, rename, or delete the ledger.'**
+  String sharedMembersTransferConfirm(String name);
+
+  /// No description provided for @sharedMembersTransferConfirmCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get sharedMembersTransferConfirmCta;
+
+  /// No description provided for @sharedMembersTransferDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Ownership transferred'**
+  String get sharedMembersTransferDone;
+
+  /// No description provided for @sharedTxRecordedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'recorded by {name}'**
+  String sharedTxRecordedBy(String name);
+
+  /// No description provided for @sharedTxCreatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by {name}'**
+  String sharedTxCreatedBy(String name);
+
+  /// No description provided for @sharedTxEditedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Last edited by {name}'**
+  String sharedTxEditedBy(String name);
+
+  /// No description provided for @sharedTxCreatedAndEditedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created and edited by {name}'**
+  String sharedTxCreatedAndEditedBy(String name);
+
+  /// No description provided for @sharedRequiresCloudSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enable cloud sync first'**
+  String get sharedRequiresCloudSync;
+
+  /// No description provided for @sharedMembersStatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Member balances'**
+  String get sharedMembersStatsTitle;
+
+  /// No description provided for @sharedMembersStatsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get sharedMembersStatsEmpty;
+
+  /// No description provided for @sharedMembersStatsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get sharedMembersStatsLoading;
+
+  /// No description provided for @sharedMembersStatsIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get sharedMembersStatsIncome;
+
+  /// No description provided for @sharedMembersStatsExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get sharedMembersStatsExpense;
+
+  /// No description provided for @sharedMembersStatsTxCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} tx'**
+  String sharedMembersStatsTxCount(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

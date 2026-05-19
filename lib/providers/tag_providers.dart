@@ -1,6 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/db.dart';
+import '../data/repositories/local/local_repository.dart';
+import '../utils/shared_ledger_picker_filter.dart';
 import 'database_providers.dart';
+import 'shared_ledger_providers.dart';
+import 'sync_providers.dart' show currentLedgerIdProvider;
 
 /// 标签列表刷新触发器
 final tagListRefreshProvider = StateProvider<int>((ref) => 0);
@@ -19,10 +23,24 @@ final allTagsProvider = FutureProvider<List<Tag>>((ref) async {
   return await repo.getAllTags();
 });
 
+/// §7 共享账本 picker:按当前 ledger 过滤后的 tags。
+/// Editor + 共享账本 → 只看 Owner mirror tags;单人账本 / Owner → 排除 mirror。
+final tagsForCurrentLedgerProvider = FutureProvider<List<Tag>>((ref) async {
+  ref.watch(tagListRefreshProvider);
+  ref.watch(sharedResourceRefreshProvider);  // WS 推送后强制 rebuild
+  final repo = ref.watch(repositoryProvider);
+  final all = await repo.getAllTags();
+  if (repo is! LocalRepository) return all;
+  final ledgerId = ref.watch(currentLedgerIdProvider);
+  final ctx = await repo.db.loadLedgerPickerContext(ledgerId);
+  return repo.db.filterTagsForLedger(all, ctx);
+});
+
 /// 标签列表带统计信息 Provider（响应式）
 /// 返回每个标签及其关联的交易数量
 final tagsWithStatsProvider = StreamProvider<List<({Tag tag, int transactionCount})>>((ref) {
   ref.watch(tagListRefreshProvider);
+  // §7 决策 v25:Owner 资源不 mirror 主表,管理页直接读主 Tags。
   final repo = ref.watch(repositoryProvider);
   return repo.watchTagsWithStats();
 });
@@ -60,6 +78,18 @@ final batchTransactionTagsProvider = FutureProvider.family<Map<int, List<Tag>>, 
   if (transactionIds.isEmpty) return {};
   final repo = ref.watch(repositoryProvider);
   return await repo.getTagsForTransactions(transactionIds);
+});
+
+/// §7 共享账本 picker 用:最近使用 tags 按当前 ledger 过滤后的版本。
+final recentTagsForCurrentLedgerProvider = FutureProvider<List<Tag>>((ref) async {
+  ref.watch(tagListRefreshProvider);
+  ref.watch(sharedResourceRefreshProvider);
+  final repo = ref.watch(repositoryProvider);
+  final recent = await repo.getRecentlyUsedTags(limit: 10);
+  if (repo is! LocalRepository) return recent;
+  final ledgerId = ref.watch(currentLedgerIdProvider);
+  final ctx = await repo.db.loadLedgerPickerContext(ledgerId);
+  return repo.db.filterTagsForLedger(recent, ctx);
 });
 
 /// 最近使用的标签 Provider

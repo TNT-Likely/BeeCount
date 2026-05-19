@@ -44,15 +44,19 @@ class EntitySerializer {
       'categoryKind': categoryKind,
       if (categorySyncId != null && categorySyncId.isNotEmpty)
         'categoryId': categorySyncId,
-      'accountName': accountName,
-      if (accountSyncId != null && accountSyncId.isNotEmpty)
-        'accountId': accountSyncId,
-      'fromAccountName': fromAccountName,
-      if (fromAccountSyncId != null && fromAccountSyncId.isNotEmpty)
-        'fromAccountId': fromAccountSyncId,
-      'toAccountName': toAccountName,
-      if (toAccountSyncId != null && toAccountSyncId.isNotEmpty)
-        'toAccountId': toAccountSyncId,
+      // null 时用空串而不是省略字段 / null。server _merge_from_spec 过滤
+      // None 不过滤空串,空串到 upsert_tx 里 _as_str("") → None,projection
+      // 写 NULL。这是"用户在 mobile 选'不选账户'/'清空账户'"能传达给 server
+      // 的唯一路径 — 字段省略 / None 都会被 merge 视为"不更新",老 account
+      // 永远保留。account_name 也必须空串,否则会看到 account_sync_id=NULL
+      // 但 account_name="现金"的不一致状态(web 显示账户名还在 = 像没刷新)。
+      // tx 没账户的初始状态(从来没选过)等价于"清空",也走这条逻辑,无害。
+      'accountName': accountName ?? '',
+      'accountId': accountSyncId ?? '',
+      'fromAccountName': fromAccountName ?? '',
+      'fromAccountId': fromAccountSyncId ?? '',
+      'toAccountName': toAccountName ?? '',
+      'toAccountId': toAccountSyncId ?? '',
       if (tagNames != null && tagNames.isNotEmpty) 'tags': tagNames.join(','),
       if (tagSyncIds != null && tagSyncIds.isNotEmpty) 'tagIds': tagSyncIds,
       // 即使是 `[]` 也必须写出来，不能变 null 后被 if-spread 过滤掉。否则
@@ -86,6 +90,7 @@ class EntitySerializer {
   static Map<String, dynamic> serializeCategory(
     Category category, {
     String? parentName,
+    String? parentSyncId,
     String? iconCloudFileId,
     String? iconCloudSha256,
   }) {
@@ -103,6 +108,9 @@ class EntitySerializer {
       if (iconCloudFileId != null) 'iconCloudFileId': iconCloudFileId,
       if (iconCloudSha256 != null) 'iconCloudSha256': iconCloudSha256,
       if (parentName != null) 'parentName': parentName,
+      // 共享账本二级分类:parent 的稳定 syncId,server 端 projection.upsert_category
+      // 直接用,不再依赖 parent_name 反查(同名 + 重命名场景更稳)。
+      if (parentSyncId != null) 'parentSyncId': parentSyncId,
     };
   }
 

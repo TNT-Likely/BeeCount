@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/db.dart';
+import '../../data/repositories/local/local_repository.dart';
 import '../../providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/shared_ledger_providers.dart';
 import '../../utils/category_utils.dart';
+import '../../utils/shared_ledger_picker_filter.dart';
 import '../../styles/tokens.dart';
 import '../category_icon.dart';
 import '../../pages/category/category_manage_page.dart';
@@ -52,8 +55,36 @@ class _CategorySelectorState extends ConsumerState<CategorySelector> {
     if (widget.initialCategoryId == null) return;
 
     final repo = ref.read(repositoryProvider);
-    final initialCategory = await repo.getCategoryById(widget.initialCategoryId!);
+    final initialId = widget.initialCategoryId!;
 
+    // §7 共享账本:initialCategoryId 是 synthetic 负数时,主表 getCategoryById
+    // 查不到 → 走 SharedLedgerCategories 反查,通过 parent_sync_id 派生 parent
+    // 的 synthetic id,正确展开父分类。
+    if (initialId < 0 && repo is LocalRepository) {
+      final ctxLedgerId = ref.read(currentLedgerIdProvider);
+      final ctx = await repo.db.loadLedgerPickerContext(ctxLedgerId);
+      final ledgerSyncId = ctx?.ledgerSyncId;
+      if (ledgerSyncId != null) {
+        final rows = await (repo.db.select(repo.db.sharedLedgerCategories)
+              ..where((t) => t.ledgerSyncId.equals(ledgerSyncId)))
+            .get();
+        for (final s in rows) {
+          if (syntheticIdForSyncId(s.syncId) == initialId) {
+            if ((s.level) == 2 &&
+                s.parentSyncId != null &&
+                s.parentSyncId!.isNotEmpty) {
+              setState(() {
+                _expandedCategoryId = syntheticIdForSyncId(s.parentSyncId!);
+              });
+            }
+            return;
+          }
+        }
+      }
+      return;
+    }
+
+    final initialCategory = await repo.getCategoryById(initialId);
     if (initialCategory != null && initialCategory.level == 2 && initialCategory.parentId != null) {
       // 如果是二级分类，展开其父分类
       setState(() {
@@ -62,12 +93,25 @@ class _CategorySelectorState extends ConsumerState<CategorySelector> {
     }
   }
 
+  /// §7 共享账本 picker 过滤 — Editor + 共享账本 只显示 Owner 的 SharedLedger
+  /// 行,按 kind 过滤;单人账本 / Owner 视角走主表 getTopLevelCategories。
+  Future<List<Category>> _loadFilteredTopLevel() async {
+    final repo = ref.read(repositoryProvider);
+    final cats = await repo.getTopLevelCategories(widget.kind);
+    if (repo is! LocalRepository) return cats;
+    final currentLedgerId = ref.read(currentLedgerIdProvider);
+    final ctx = await repo.db.loadLedgerPickerContext(currentLedgerId);
+    return repo.db.filterCategoriesForLedger(cats, ctx, kind: widget.kind);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final repo = ref.watch(repositoryProvider);
-
+    // §7 共享账本:WS shared_resource_change 推送后 tick bump,触发 rebuild
+    // → FutureBuilder 拿到新 Future → 重查 SharedLedgerCategories。否则 A
+    // 在 web/mobile 改分类名,B 这边 picker 永远显示旧名,要重启 app。
+    ref.watch(sharedResourceRefreshProvider);
     return FutureBuilder<List<Category>>(
-      future: repo.getTopLevelCategories(widget.kind),
+      future: _loadFilteredTopLevel(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
@@ -270,8 +314,24 @@ class _CategorySelectorState extends ConsumerState<CategorySelector> {
     final repo = ref.read(repositoryProvider);
     final result = <int, List<Category>>{};
 
+    // §7 共享账本:Editor 视角下父分类 id 是 synthetic 负数,主表
+    // getSubCategories(parentInt) 查不到。改走 SharedLedgerCategories 表按
+    // parent_sync_id 反查;非共享 / Owner 走原主表路径。
+    final currentLedgerId = ref.read(currentLedgerIdProvider);
+    LedgerPickerContext? ctx;
+    if (repo is LocalRepository) {
+      ctx = await repo.db.loadLedgerPickerContext(currentLedgerId);
+    }
+    final isSharedEditor = ctx?.isEditorInShared == true;
+
     for (final cat in topLevelCategories) {
-      final children = await repo.getSubCategories(cat.id);
+      List<Category> children;
+      if (isSharedEditor && cat.id < 0 && repo is LocalRepository) {
+        children = await repo.db.getSharedSubCategoriesBySyntheticParentId(
+            cat.id, ctx!.ledgerSyncId!);
+      } else {
+        children = await repo.getSubCategories(cat.id);
+      }
       if (children.isNotEmpty) {
         result[cat.id] = children;
       }

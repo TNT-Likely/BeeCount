@@ -26,6 +26,11 @@ class Ledgers extends Table {
   // 做设备间的 ledger 匹配，而不是本地 autoIncrement id（A/B 本地 id 必然
   // 不一致）。v21 migration 里已为旧数据把 id 回填成 syncId 以兼容。
   TextColumn get syncId => text().nullable()();
+  // v24: 共享账本字段 — server 端 LedgerMember.role 同步下来
+  TextColumn get myRole => text().withDefault(const Constant('owner'))();  // owner / editor
+  IntColumn get memberCount => integer().withDefault(const Constant(1))();
+  BoolColumn get isShared => boolean().withDefault(const Constant(false))();
+  TextColumn get ownerUserId => text().nullable()();  // 当前 Owner 是谁
 }
 
 class Accounts extends Table {
@@ -80,6 +85,20 @@ class Transactions extends Table {
   TextColumn get note => text().nullable()();
   IntColumn get recurringId => integer().nullable()(); // 关联到重复交易模板
   TextColumn get syncId => text().nullable()(); // 跨设备同步唯一标识 (UUID)
+  // v24: 共享账本"谁记的"显示
+  TextColumn get createdByUserId => text().nullable()();
+  TextColumn get lastEditedByUserId => text().nullable()();
+  // v25: 共享账本 sync_id override(§7 决策)
+  // Editor 在共享账本下记 tx 时,选 Owner 的 SharedLedger{Categories,Accounts,Tags}
+  // 行,但本地 Categories/Accounts/Tags 主表没有对应 int id。这些 override
+  // 字段直接存 Owner 的 syncId 字符串,categoryId / accountId 留 null;sync push
+  // 时序列化优先用 override(server LWW key 是 syncId,主表 syncId 也是 string)。
+  // Owner / 单人账本场景:override 字段为 null,走老路径(categoryId int 反查
+  // Categories.syncId)。
+  TextColumn get categorySyncIdOverride => text().nullable()();
+  TextColumn get accountSyncIdOverride => text().nullable()();
+  TextColumn get toAccountSyncIdOverride => text().nullable()();
+  TextColumn get tagSyncIdsOverride => text().nullable()();  // JSON list
 }
 
 class RecurringTransactions extends Table {
@@ -175,6 +194,20 @@ class TransactionTags extends Table {
   IntColumn get tagId => integer()();                 // 标签ID
 }
 
+// v27: 共享账本 §7 — 交易标签 sync_id override
+// Editor 在共享账本下记 tx 选 Owner 的 tag,Tag 主表没该行(SharedLedgerTags
+// 才有),传统 transaction_tags.tag_id 没法存 (本地 int id 不存在)。这张
+// override 表按 (transaction_id, tag_sync_id) 存,sync push 时 union 进 tagIds
+// payload;tx 反查 / 编辑回显时 union 主表 transaction_tags + 本表。
+class TransactionTagOverrides extends Table {
+  TextColumn get transactionSyncId => text()();   // tx.syncId(全局唯一)
+  TextColumn get tagSyncId => text()();           // Owner tag syncId
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {transactionSyncId, tagSyncId};
+}
+
 // 交易附件表
 class TransactionAttachments extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -226,6 +259,84 @@ class Budgets extends Table {
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+// ============================================================================
+// 共享账本(v24)
+// ============================================================================
+
+/// 账本成员镜像表。server `LedgerMember` 表的本地副本,用于"X 记的"显示 +
+/// 离线渲染。`GET /api/v1/ledgers/{id}/members` 拉来后写入;`member_change`
+/// WS 事件触发增量更新。
+class LedgerMembers extends Table {
+  TextColumn get ledgerSyncId => text()();        // ledger.syncId(全 user 唯一)
+  TextColumn get userId => text()();
+  TextColumn get email => text().nullable()();
+  TextColumn get displayName => text().nullable()();
+  TextColumn get avatarUrl => text().nullable()();
+  TextColumn get role => text()();                // owner / editor
+  DateTimeColumn get joinedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();   // 本地更新时间,用于 cache 失效
+
+  @override
+  Set<Column> get primaryKey => {ledgerSyncId, userId};
+}
+
+/// 共享账本里 Owner 的 user-global 分类镜像。Editor 在共享账本下打开"选分类"
+/// 弹窗读这表(而非自己的 Categories)。`GET /api/v1/ledgers/{id}/shared-resources`
+/// 拉来落库;`shared_resource_change` WS 事件增量更新。
+class SharedLedgerCategories extends Table {
+  TextColumn get ledgerSyncId => text()();
+  TextColumn get syncId => text()();              // Owner 的 user-global category sync_id
+  TextColumn get name => text()();
+  TextColumn get kind => text()();                // expense / income
+  TextColumn get icon => text().nullable()();
+  TextColumn get iconType => text().withDefault(const Constant('material'))();
+  TextColumn get iconCloudFileId => text().nullable()();   // 自定义图标:attachment UUID
+  TextColumn get iconCloudSha256 => text().nullable()();   // 自定义图标:sha256(本地 cache 去重)
+  TextColumn get color => text().nullable()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  IntColumn get level => integer().withDefault(const Constant(1))();
+  TextColumn get parentName => text().nullable()();
+  // v25 共享账本二级分类:parent 的 syncId,用于 picker 建稳定父子链
+  // (parent_name 兜底/显示,parent_sync_id 主)。
+  TextColumn get parentSyncId => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {ledgerSyncId, syncId};
+}
+
+/// 共享账本里 Owner 的 user-global 账户镜像。
+class SharedLedgerAccounts extends Table {
+  TextColumn get ledgerSyncId => text()();
+  TextColumn get syncId => text()();
+  TextColumn get name => text()();
+  TextColumn get accountType => text().withDefault(const Constant('cash'))();
+  TextColumn get currency => text().withDefault(const Constant('CNY'))();
+  TextColumn get note => text().nullable()();
+  RealColumn get initialBalance => real().nullable()();
+  RealColumn get creditLimit => real().nullable()();
+  IntColumn get billingDay => integer().nullable()();
+  IntColumn get paymentDueDay => integer().nullable()();
+  TextColumn get bankName => text().nullable()();
+  TextColumn get cardLastFour => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {ledgerSyncId, syncId};
+}
+
+/// 共享账本里 Owner 的 user-global 标签镜像。
+class SharedLedgerTags extends Table {
+  TextColumn get ledgerSyncId => text()();
+  TextColumn get syncId => text()();
+  TextColumn get name => text()();
+  TextColumn get color => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {ledgerSyncId, syncId};
+}
+
 @DriftDatabase(tables: [
   Ledgers,
   Accounts,
@@ -240,6 +351,11 @@ class Budgets extends Table {
   TransactionAttachments,
   LocalChanges,
   SyncState,
+  LedgerMembers,
+  SharedLedgerCategories,
+  SharedLedgerAccounts,
+  SharedLedgerTags,
+  TransactionTagOverrides,
 ])
 class BeeDatabase extends _$BeeDatabase {
   BeeDatabase() : super(_openConnection());
@@ -250,7 +366,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 23; // v23: 清空分类 icon 的历史数据走 byName 一次性回填
+  int get schemaVersion => 25; // v25: SharedLedgerCategories.parent_sync_id — 共享账本二级分类父子关系
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -820,6 +936,85 @@ class BeeDatabase extends _$BeeDatabase {
             }
             logger.info('DB', 'v23: backfilled $updated categories');
             print('[DB Migration] v23 迁移完成: 回填 $updated 条分类');
+          }
+          if (from < 24) {
+            // v24: 共享账本完整 schema(合并自 v24/v25/v26/v27 的迭代,测试阶段
+            // 一次落地最终态)。
+            //
+            // Schema 变更:
+            // - Ledgers 加 my_role / member_count / is_shared / owner_user_id
+            // - Transactions 加 created_by_user_id / last_edited_by_user_id
+            //   + categorySyncIdOverride / accountSyncIdOverride /
+            //     toAccountSyncIdOverride / tagSyncIdsOverride
+            // - 新表 LedgerMembers / SharedLedger{Categories,Accounts,Tags} +
+            //   TransactionTagOverrides
+            //
+            // §7 决策:Editor 在共享账本下不 mirror Owner 资源到主表,picker /
+            // tx write 都走 SharedLedger* + *SyncIdOverride 字段。
+            print('[DB Migration] 开始迁移到 v24: 共享账本完整 schema');
+
+            await customStatement(
+                "ALTER TABLE ledgers ADD COLUMN my_role TEXT NOT NULL DEFAULT 'owner';");
+            await customStatement(
+                "ALTER TABLE ledgers ADD COLUMN member_count INTEGER NOT NULL DEFAULT 1;");
+            await customStatement(
+                "ALTER TABLE ledgers ADD COLUMN is_shared INTEGER NOT NULL DEFAULT 0;");
+            await customStatement(
+                "ALTER TABLE ledgers ADD COLUMN owner_user_id TEXT;");
+
+            await customStatement(
+                "ALTER TABLE transactions ADD COLUMN created_by_user_id TEXT;");
+            await customStatement(
+                "ALTER TABLE transactions ADD COLUMN last_edited_by_user_id TEXT;");
+            await customStatement(
+                'ALTER TABLE transactions ADD COLUMN category_sync_id_override TEXT;');
+            await customStatement(
+                'ALTER TABLE transactions ADD COLUMN account_sync_id_override TEXT;');
+            await customStatement(
+                'ALTER TABLE transactions ADD COLUMN to_account_sync_id_override TEXT;');
+            await customStatement(
+                'ALTER TABLE transactions ADD COLUMN tag_sync_ids_override TEXT;');
+
+            await migrator.createTable(ledgerMembers);
+            await migrator.createTable(sharedLedgerCategories);
+            await migrator.createTable(sharedLedgerAccounts);
+            await migrator.createTable(sharedLedgerTags);
+            await migrator.createTable(transactionTagOverrides);
+
+            // 重置 server_cursor — 强制下次启动全量重拉,确保 sync_engine_apply
+            // 用最新的 override 写入逻辑填回 *SyncIdOverride 字段。
+            await customStatement('UPDATE sync_state SET server_cursor = 0');
+
+            print('[DB Migration] v24 迁移完成');
+          }
+          if (from < 25) {
+            // v25: SharedLedgerCategories 加 parent_sync_id 列,共享账本二级
+            // 分类用稳定 FK(syncId)而非 parent_name 建父子关系。
+            // 数据回填:对每个 level=2 行,在同 ledger_sync_id + kind 内按
+            // parent_name 反查 level=1 行的 syncId,填进 parent_sync_id。
+            logger.info('DBMigration',
+                '开始迁移到 v25: SharedLedgerCategories.parent_sync_id');
+            await customStatement(
+                'ALTER TABLE shared_ledger_categories ADD COLUMN parent_sync_id TEXT;');
+            await customStatement('''
+              UPDATE shared_ledger_categories AS child
+              SET parent_sync_id = (
+                SELECT parent.sync_id
+                FROM shared_ledger_categories AS parent
+                WHERE parent.ledger_sync_id = child.ledger_sync_id
+                  AND parent.name = child.parent_name
+                  AND parent.kind = child.kind
+                  AND COALESCE(parent.level, 1) = 1
+                LIMIT 1
+              )
+              WHERE COALESCE(child.level, 1) >= 2
+                AND child.parent_name IS NOT NULL
+            ''');
+            // reset server_cursor 让后续 pull 重拉 user-global category change,
+            // server 端 0013 alembic 已经在 projection 回填 parent_sync_id,
+            // mobile 后续 fetchAndStoreSharedResources 会重新覆盖一遍。
+            await customStatement('UPDATE sync_state SET server_cursor = 0');
+            logger.info('DBMigration', 'v25 迁移完成');
           }
         },
       );

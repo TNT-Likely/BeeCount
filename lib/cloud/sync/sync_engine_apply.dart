@@ -101,7 +101,14 @@ extension _SyncEngineApply on SyncEngine {
     final note = payload['note'] as String?;
     final categoryName = payload['categoryName'] as String?;
     final categoryKind = payload['categoryKind'] as String?;
-    final accountName = payload['accountName'] as String?;
+    // web 端创建转账时 account_name/account_id 是 null,只填 from_account_*。
+    // mobile 模型用 accountId 表示 from 账户,所以转账 payload 转换:
+    //   - account_name = accountName ?? fromAccountName
+    //   - accountId = payload.accountId ?? payload.fromAccountId
+    // 否则 B 同步 A 转账 tx 时 accountId=null,picker 显示无账户。
+    final isTransfer = type == 'transfer';
+    final accountName = (payload['accountName'] as String?) ??
+        (isTransfer ? payload['fromAccountName'] as String? : null);
     final toAccountName = payload['toAccountName'] as String?;
 
     // 解析关联实体 ID —— 优先用 syncId 映射（跨设备稳定），fallback 到名字。
@@ -109,34 +116,72 @@ extension _SyncEngineApply on SyncEngine {
     // 存的远端实体 syncId，B 设备 pull 后 category/account 已经上 syncId 了
     // （P1 的 fallback 给 seed 补的，或 pull 新插入带的），按 syncId 查一定命中。
     // 名字 fallback 兜住旧 snapshot payload 没 syncId 的老数据。
+    // §7 v25:server payload.categoryId / accountId / toAccountId 是 syncId。
+    // 主表反查不到时(Editor 视角看 Owner 的 tx),检查 SharedLedger* 表 —
+    // 命中则写 *SyncIdOverride 字段(本地 int id 留 null)。
     final rawCategoryId = payload['categoryId'] as String?;
-    final categoryId =
-        await _resolveCategoryIdBySyncId(rawCategoryId) ??
-            await _resolveCategoryId(
-              categoryName: categoryName,
-              categoryKind: categoryKind,
-            );
-    final rawAccountId = payload['accountId'] as String?;
-    final accountId =
-        await _resolveAccountIdBySyncId(rawAccountId) ??
-            await _resolveAccountId(
-              accountName: accountName,
-              ledgerId: ledgerIdInt,
-            );
+    int? categoryId = await _resolveCategoryIdBySyncId(rawCategoryId) ??
+        await _resolveCategoryId(
+          categoryName: categoryName,
+          categoryKind: categoryKind,
+        );
+    String? categorySyncIdOverride;
+    if (categoryId == null && rawCategoryId != null && rawCategoryId.isNotEmpty) {
+      final shared = await (db.select(db.sharedLedgerCategories)
+            ..where((t) => t.syncId.equals(rawCategoryId)))
+          .getSingleOrNull();
+      if (shared != null) categorySyncIdOverride = shared.syncId;
+    }
+
+    final rawAccountId = (payload['accountId'] as String?) ??
+        (isTransfer ? payload['fromAccountId'] as String? : null);
+    int? accountId = await _resolveAccountIdBySyncId(rawAccountId) ??
+        await _resolveAccountId(
+          accountName: accountName,
+          ledgerId: ledgerIdInt,
+        );
+    String? accountSyncIdOverride;
+    if (accountId == null && rawAccountId != null && rawAccountId.isNotEmpty) {
+      final shared = await (db.select(db.sharedLedgerAccounts)
+            ..where((t) => t.syncId.equals(rawAccountId)))
+          .getSingleOrNull();
+      if (shared != null) accountSyncIdOverride = shared.syncId;
+    }
+
     final rawToAccountId = payload['toAccountId'] as String?;
-    final toAccountId =
-        await _resolveAccountIdBySyncId(rawToAccountId) ??
-            await _resolveAccountId(
-              accountName: toAccountName,
-              ledgerId: ledgerIdInt,
-            );
+    int? toAccountId = await _resolveAccountIdBySyncId(rawToAccountId) ??
+        await _resolveAccountId(
+          accountName: toAccountName,
+          ledgerId: ledgerIdInt,
+        );
+    String? toAccountSyncIdOverride;
+    if (toAccountId == null && rawToAccountId != null && rawToAccountId.isNotEmpty) {
+      final shared = await (db.select(db.sharedLedgerAccounts)
+            ..where((t) => t.syncId.equals(rawToAccountId)))
+          .getSingleOrNull();
+      if (shared != null) toAccountSyncIdOverride = shared.syncId;
+    }
 
     final existing = await (db.select(db.transactions)
           ..where((t) => t.syncId.equals(syncId)))
         .getSingleOrNull();
 
+    // 共享账本(v24):server 注入 createdByUserId / updatedByUserId,本地用来
+    // 在 tx 末尾显示"X 记的"。payload 用 camelCase(server snapshot_mutator 出来的
+    // 字段是 createdByUserId/updatedByUserId,跟 Drift 列名 createdByUserId /
+    // lastEditedByUserId 对齐)。
+    final createdByUserId = payload['createdByUserId'] as String?;
+    final lastEditedByUserId = (payload['updatedByUserId'] as String?) ?? createdByUserId;
+
     if (existing != null) {
-      // 更新
+      // 更新 — createdByUserId 走"本地为 null 就回填,否则保持"的策略:
+      //   - 本地已有值:不接受 server 覆盖(避免 server 数据修复路径反过来
+      //     污染本地;创建人是稳定属性,本地一旦有值就以本地为准)
+      //   - 本地为 null + payload 非 null:从 server 兜底补一次。覆盖
+      //     mobile 早期版本本地未填 created_by_user_id 列 + 服务端 SyncChange
+      //     enrichment 修复前留下的脏数据
+      final shouldBackfillCreator =
+          existing.createdByUserId == null && createdByUserId != null;
       await (db.update(db.transactions)
             ..where((t) => t.id.equals(existing.id)))
           .write(TransactionsCompanion(
@@ -147,6 +192,13 @@ extension _SyncEngineApply on SyncEngine {
         categoryId: d.Value(categoryId),
         accountId: d.Value(accountId),
         toAccountId: d.Value(toAccountId),
+        categorySyncIdOverride: d.Value(categorySyncIdOverride),
+        accountSyncIdOverride: d.Value(accountSyncIdOverride),
+        toAccountSyncIdOverride: d.Value(toAccountSyncIdOverride),
+        createdByUserId: shouldBackfillCreator
+            ? d.Value(createdByUserId)
+            : const d.Value.absent(),
+        lastEditedByUserId: d.Value(lastEditedByUserId),
       ));
       // 更新标签和附件
       await _syncTransactionTags(existing.id, payload);
@@ -165,6 +217,11 @@ extension _SyncEngineApply on SyncEngine {
               accountId: d.Value(accountId),
               toAccountId: d.Value(toAccountId),
               syncId: d.Value(syncId),
+              createdByUserId: d.Value(createdByUserId),
+              lastEditedByUserId: d.Value(lastEditedByUserId),
+              categorySyncIdOverride: d.Value(categorySyncIdOverride),
+              accountSyncIdOverride: d.Value(accountSyncIdOverride),
+              toAccountSyncIdOverride: d.Value(toAccountSyncIdOverride),
             ),
           );
       // 同步标签和附件
@@ -576,13 +633,29 @@ extension _SyncEngineApply on SyncEngine {
     final payload = change.payload;
     if (payload == null) return;
 
-    final ledger = await (db.select(db.ledgers)
+    // 用 get() 不用 getSingleOrNull(): 历史 bug 可能产生过 dup ledger 同
+    // syncId,getSingleOrNull 撞多行抛 "Too many elements" 中断 replay。
+    // 取第一行 + 清剩余 dup。
+    final ledgerList = await (db.select(db.ledgers)
           ..where((l) => l.syncId.equals(syncId)))
-        .getSingleOrNull();
-    if (ledger == null) {
+        .get();
+    if (ledgerList.isEmpty) {
       logger.info('SyncEngine',
           'pull: 账本 $syncId 本地未就绪,跳过 meta 更新(等 snapshot 路径)');
       return;
+    }
+    final ledger = ledgerList.first;
+    if (ledgerList.length > 1) {
+      final dupIds = ledgerList.skip(1).map((l) => l.id).toList();
+      logger.warning('SyncEngine',
+          'pull: ledger.syncId=$syncId 撞多行 ${ledgerList.length},清除 dup id=$dupIds');
+      await (db.delete(db.transactions)
+            ..where((t) => t.ledgerId.isIn(dupIds)))
+          .go();
+      await (db.delete(db.localChanges)
+            ..where((c) => c.ledgerId.isIn(dupIds)))
+          .go();
+      await (db.delete(db.ledgers)..where((l) => l.id.isIn(dupIds))).go();
     }
 
     final name = payload['ledgerName'] as String?;
@@ -602,13 +675,22 @@ extension _SyncEngineApply on SyncEngine {
   /// 同步交易标签关联
   Future<void> _syncTransactionTags(
       int transactionId, Map<String, dynamic> payload) async {
-    // 删除旧关联，按新 payload 重建
+    // 删除旧关联,按新 payload 重建(主表 + override)
     await (db.delete(db.transactionTags)
           ..where((tt) => tt.transactionId.equals(transactionId)))
         .go();
 
-    // 新 payload 的 `tagIds`（list 形式的 syncId）优先走 —— 跨设备稳定；
-    // 老 payload 只有 comma-name 的 `tags` 兜底。
+    // 拿 tx.syncId 用于 override 表
+    final txRow = await (db.select(db.transactions)
+          ..where((t) => t.id.equals(transactionId)))
+        .getSingleOrNull();
+    final txSyncId = txRow?.syncId;
+    if (txSyncId != null) {
+      await (db.delete(db.transactionTagOverrides)
+            ..where((t) => t.transactionSyncId.equals(txSyncId)))
+          .go();
+    }
+
     final rawTagIds = payload['tagIds'];
     final tagIds = rawTagIds is List
         ? rawTagIds.whereType<String>().toList(growable: false)
@@ -618,30 +700,42 @@ extension _SyncEngineApply on SyncEngine {
         ? const <String>[]
         : tagsStr.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
 
-    // 如果有 syncId 列表：逐个 syncId 查本地 tag，查不到的 syncId 再去 names
-    // 里找同索引的 name 做 fallback（因为 tagIds / tags 在 push 时是按相同顺序存的）。
     final linkedLocalIds = <int>{};
+    final overrideSyncIds = <String>{};
+
     if (tagIds.isNotEmpty) {
       for (var i = 0; i < tagIds.length; i++) {
         final syncId = tagIds[i];
         var tag = await (db.select(db.tags)
               ..where((t) => t.syncId.equals(syncId)))
             .getSingleOrNull();
-        if (tag == null && i < tagNamesFromStr.length) {
+        if (tag != null) {
+          linkedLocalIds.add(tag.id);
+          continue;
+        }
+        // 主表 miss → 查 SharedLedgerTags(Editor 视角看 Owner 的 tx 引用 Owner 的 tag)
+        final shared = await (db.select(db.sharedLedgerTags)
+              ..where((t) => t.syncId.equals(syncId)))
+            .getSingleOrNull();
+        if (shared != null) {
+          overrideSyncIds.add(syncId);
+          continue;
+        }
+        // 都 miss → name fallback(老协议),建本地 tag
+        if (i < tagNamesFromStr.length) {
           final name = tagNamesFromStr[i];
           tag = await (db.select(db.tags)
                 ..where((t) => t.name.equals(name)))
               .getSingleOrNull();
-          // 把 syncId 补给本地同名 tag（可能是 seed 版），避免下次还要 fallback。
           if (tag != null && (tag.syncId ?? '').isEmpty) {
             await (db.update(db.tags)..where((t) => t.id.equals(tag!.id)))
                 .write(TagsCompanion(syncId: d.Value(syncId)));
           }
+          if (tag != null) linkedLocalIds.add(tag.id);
         }
-        if (tag != null) linkedLocalIds.add(tag.id);
       }
     } else {
-      // 完全没 tagIds 的老 payload：按 name 查，没有就建个带 syncId 的新 tag。
+      // 完全没 tagIds 的老 payload:按 name 查,没有就建个带 syncId 的新 tag
       for (final name in tagNamesFromStr) {
         var tag = await (db.select(db.tags)
               ..where((t) => t.name.equals(name)))
@@ -668,6 +762,18 @@ extension _SyncEngineApply on SyncEngine {
               tagId: tagId,
             ),
           );
+    }
+    if (txSyncId != null && overrideSyncIds.isNotEmpty) {
+      final now = DateTime.now().toUtc();
+      for (final sid in overrideSyncIds) {
+        await db.into(db.transactionTagOverrides).insert(
+              TransactionTagOverridesCompanion.insert(
+                transactionSyncId: txSyncId,
+                tagSyncId: sid,
+                createdAt: now,
+              ),
+            );
+      }
     }
   }
 

@@ -16,6 +16,10 @@ extension _SyncEngineResolvers on SyncEngine {
 
   /// 按 syncId 查 category 的本地 int id。优先级比 name+kind 高：设备间
   /// category.syncId 是稳定的，name 可能被改过 / 有重名。
+  ///
+  /// §7 决策 v25:返 null 时调用方应检查 tx 是否有 categorySyncIdOverride
+  /// 字段 — 共享账本场景 Editor 选 Owner cat,本地主表没有该 row,需要走
+  /// SharedLedgerCategories 表显示。tx UI 应该按 override 优先。
   Future<int?> _resolveCategoryIdBySyncId(String? syncId) async {
     if (syncId == null || syncId.isEmpty) return null;
     final cat = await (db.select(db.categories)
@@ -25,6 +29,8 @@ extension _SyncEngineResolvers on SyncEngine {
   }
 
   /// 按 syncId 查 account 的本地 int id。同理，跨设备稳定。
+  /// §7 决策 v25:返 null 时调用方应检查 tx 是否有 accountSyncIdOverride
+  /// 字段。
   Future<int?> _resolveAccountIdBySyncId(String? syncId) async {
     if (syncId == null || syncId.isEmpty) return null;
     final acc = await (db.select(db.accounts)

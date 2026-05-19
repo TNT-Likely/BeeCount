@@ -3959,7 +3959,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cloudTutorialFeature3 => '👥 多用户独立:一个服务器可以多人注册,各自数据完全隔离';
 
   @override
-  String get cloudTutorialFeature4 => '🔜 规划中:共享账本(邀请家人 / 团队一起记同一本)';
+  String get cloudTutorialFeature4 => '🤝 共享账本:邀请家人 / 团队一起记同一本,实时秒级同步';
 
   @override
   String get cloudTutorialGotIt => '我知道了';
@@ -6126,6 +6126,228 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get twofaStatusOpenWeb => '前往 Web 端启用 →';
+
+  @override
+  String get sharedRoleOwner => '所有者';
+
+  @override
+  String get sharedRoleEditor => '编辑者';
+
+  @override
+  String get sharedRoleViewer => '查看者';
+
+  @override
+  String get commonCopied => '已复制';
+
+  @override
+  String get commonRemove => '移除';
+
+  @override
+  String get sharedJoinPageTitle => '加入共享账本';
+
+  @override
+  String get sharedJoinPageSubtitle => '输入邀请码或点击对方分享的链接';
+
+  @override
+  String get sharedJoinEnterCode => '输入邀请码';
+
+  @override
+  String get sharedJoinEnterCodeHint => '邀请码 6 位,全大写字母数字。也可直接点击邀请方分享的短链跳过此步。';
+
+  @override
+  String get sharedJoinPreviewButton => '验证邀请码';
+
+  @override
+  String get sharedJoinAcceptButton => '加入账本';
+
+  @override
+  String sharedJoinInvitedBy(String name) {
+    return '$name 邀请你加入';
+  }
+
+  @override
+  String sharedJoinRoleLine(String role) {
+    return '角色:$role';
+  }
+
+  @override
+  String sharedJoinExpiresInMinutes(int n) {
+    return '有效期还剩 $n 分钟';
+  }
+
+  @override
+  String sharedJoinExpiresInHours(int n) {
+    return '有效期还剩 $n 小时';
+  }
+
+  @override
+  String sharedJoinExpiresInDays(int n) {
+    return '有效期还剩 $n 天';
+  }
+
+  @override
+  String sharedJoinSuccess(String name) {
+    return '已加入「$name」';
+  }
+
+  @override
+  String get sharedJoinCodeFormatError => '邀请码格式不对,请输入 6 位字母数字';
+
+  @override
+  String get sharedJoinInvalidOrExpired => '邀请码无效或已过期,请向邀请人索取新码';
+
+  @override
+  String get sharedJoinAlreadyMember => '你已经是该账本成员';
+
+  @override
+  String get sharedJoinMemberLimit => '该账本成员已满,请联系账本所有者';
+
+  @override
+  String get sharedInvitePageTitle => '邀请新成员';
+
+  @override
+  String get sharedInviteFormRole => '角色';
+
+  @override
+  String get sharedInviteFormExpiry => '有效期';
+
+  @override
+  String sharedInviteExpiryHours(int n) {
+    return '$n 小时';
+  }
+
+  @override
+  String sharedInviteExpiryDays(int n) {
+    return '$n 天';
+  }
+
+  @override
+  String get sharedInviteGenerate => '生成邀请码';
+
+  @override
+  String get sharedInviteGenerateAnother => '生成另一个邀请码';
+
+  @override
+  String get sharedInviteCopyCode => '复制邀请码';
+
+  @override
+  String get sharedInviteCopyLink => '复制链接';
+
+  @override
+  String get sharedInviteShareLink => '分享给好友';
+
+  @override
+  String sharedInviteExpiresAt(String dt) {
+    return '邀请将在 $dt 失效';
+  }
+
+  @override
+  String get sharedInviteWarning => '⚠️ 不要把邀请码发到公开群 / 朋友圈。拿到码的任何人都可加入账本;泄露后请到成员管理页撤销并重新生成。';
+
+  @override
+  String get sharedInviteInstruction => '把邀请码或短链发给对方。对方装上 BeeCount 后,点击链接或在「我的 → 加入共享账本」输入码即可加入。';
+
+  @override
+  String sharedInviteShareText(String ledger, String code, String url) {
+    return '邀请你加入 BeeCount 共享账本「$ledger」\n\n邀请码:$code\n链接:$url\n\n点击链接或在 BeeCount → 我的 → 加入共享账本输入此码即可。';
+  }
+
+  @override
+  String get sharedMembersPageTitle => '成员管理';
+
+  @override
+  String get sharedMembersYou => '你';
+
+  @override
+  String get sharedMembersInviteCta => '邀请新成员';
+
+  @override
+  String get sharedMembersLeaveCta => '退出账本';
+
+  @override
+  String get sharedMembersLeaveTitle => '退出账本';
+
+  @override
+  String sharedMembersLeaveConfirm(String name) {
+    return '退出「$name」后将无法再访问其中的交易。确定继续吗?';
+  }
+
+  @override
+  String get sharedMembersLeaveDone => '已退出账本';
+
+  @override
+  String get sharedMembersRemoveTitle => '移除成员';
+
+  @override
+  String get sharedMembersRemoveCta => '移除该成员';
+
+  @override
+  String sharedMembersRemoveConfirm(String name) {
+    return '确定移除 $name?ta 将立即失去对该账本的访问。';
+  }
+
+  @override
+  String get sharedMembersRemoved => '已移除成员';
+
+  @override
+  String get sharedMembersTransferTitle => '转让所有权';
+
+  @override
+  String get sharedMembersTransferTo => '转让给该成员';
+
+  @override
+  String sharedMembersTransferConfirm(String name) {
+    return '把账本所有权转给 $name?你将变为编辑者,无法再邀请人 / 改账本名 / 删账本。';
+  }
+
+  @override
+  String get sharedMembersTransferConfirmCta => '确认转让';
+
+  @override
+  String get sharedMembersTransferDone => '已转让所有权';
+
+  @override
+  String sharedTxRecordedBy(String name) {
+    return '$name 记的';
+  }
+
+  @override
+  String sharedTxCreatedBy(String name) {
+    return '$name 创建';
+  }
+
+  @override
+  String sharedTxEditedBy(String name) {
+    return '$name 最后编辑';
+  }
+
+  @override
+  String sharedTxCreatedAndEditedBy(String name) {
+    return '$name 创建并编辑';
+  }
+
+  @override
+  String get sharedRequiresCloudSync => '请先启用云同步';
+
+  @override
+  String get sharedMembersStatsTitle => '成员收支';
+
+  @override
+  String get sharedMembersStatsEmpty => '本期暂无记账';
+
+  @override
+  String get sharedMembersStatsLoading => '加载中…';
+
+  @override
+  String get sharedMembersStatsIncome => '总收入';
+
+  @override
+  String get sharedMembersStatsExpense => '总支出';
+
+  @override
+  String sharedMembersStatsTxCount(int count) {
+    return '$count笔';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -10082,7 +10304,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get cloudTutorialFeature3 => '👥 多用戶獨立:一個伺服器可多人註冊,各自資料完全隔離';
 
   @override
-  String get cloudTutorialFeature4 => '🔜 規劃中:共享帳本(邀請家人 / 團隊一起記同一本)';
+  String get cloudTutorialFeature4 => '🤝 共享帳本:邀請家人 / 團隊一起記同一本,即時秒級同步';
 
   @override
   String get cloudTutorialGotIt => '我知道了';
@@ -12222,4 +12444,226 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get twofaStatusOpenWeb => '前往 Web 端啟用 →';
+
+  @override
+  String get sharedRoleOwner => '所有者';
+
+  @override
+  String get sharedRoleEditor => '編輯者';
+
+  @override
+  String get sharedRoleViewer => '查看者';
+
+  @override
+  String get commonCopied => '已複製';
+
+  @override
+  String get commonRemove => '移除';
+
+  @override
+  String get sharedJoinPageTitle => '加入共享帳本';
+
+  @override
+  String get sharedJoinPageSubtitle => '輸入邀請碼或點擊對方分享的連結';
+
+  @override
+  String get sharedJoinEnterCode => '輸入邀請碼';
+
+  @override
+  String get sharedJoinEnterCodeHint => '邀請碼 6 位,全大寫字母數字。也可直接點擊邀請方分享的短連結跳過此步。';
+
+  @override
+  String get sharedJoinPreviewButton => '驗證邀請碼';
+
+  @override
+  String get sharedJoinAcceptButton => '加入帳本';
+
+  @override
+  String sharedJoinInvitedBy(String name) {
+    return '$name 邀請你加入';
+  }
+
+  @override
+  String sharedJoinRoleLine(String role) {
+    return '角色:$role';
+  }
+
+  @override
+  String sharedJoinExpiresInMinutes(int n) {
+    return '有效期還剩 $n 分鐘';
+  }
+
+  @override
+  String sharedJoinExpiresInHours(int n) {
+    return '有效期還剩 $n 小時';
+  }
+
+  @override
+  String sharedJoinExpiresInDays(int n) {
+    return '有效期還剩 $n 天';
+  }
+
+  @override
+  String sharedJoinSuccess(String name) {
+    return '已加入「$name」';
+  }
+
+  @override
+  String get sharedJoinCodeFormatError => '邀請碼格式不對,請輸入 6 位字母數字';
+
+  @override
+  String get sharedJoinInvalidOrExpired => '邀請碼無效或已過期,請向邀請人索取新碼';
+
+  @override
+  String get sharedJoinAlreadyMember => '你已經是該帳本成員';
+
+  @override
+  String get sharedJoinMemberLimit => '該帳本成員已滿,請聯絡帳本所有者';
+
+  @override
+  String get sharedInvitePageTitle => '邀請新成員';
+
+  @override
+  String get sharedInviteFormRole => '角色';
+
+  @override
+  String get sharedInviteFormExpiry => '有效期';
+
+  @override
+  String sharedInviteExpiryHours(int n) {
+    return '$n 小時';
+  }
+
+  @override
+  String sharedInviteExpiryDays(int n) {
+    return '$n 天';
+  }
+
+  @override
+  String get sharedInviteGenerate => '生成邀請碼';
+
+  @override
+  String get sharedInviteGenerateAnother => '生成另一個邀請碼';
+
+  @override
+  String get sharedInviteCopyCode => '複製邀請碼';
+
+  @override
+  String get sharedInviteCopyLink => '複製連結';
+
+  @override
+  String get sharedInviteShareLink => '分享給好友';
+
+  @override
+  String sharedInviteExpiresAt(String dt) {
+    return '邀請將在 $dt 失效';
+  }
+
+  @override
+  String get sharedInviteWarning => '⚠️ 不要把邀請碼發到公開群 / 朋友圈。拿到碼的任何人都可加入帳本;洩漏後請到成員管理頁撤銷並重新生成。';
+
+  @override
+  String get sharedInviteInstruction => '把邀請碼或短連結發給對方。對方裝上 BeeCount 後,點擊連結或在「我的 → 加入共享帳本」輸入碼即可加入。';
+
+  @override
+  String sharedInviteShareText(String ledger, String code, String url) {
+    return '邀請你加入 BeeCount 共享帳本「$ledger」\n\n邀請碼:$code\n連結:$url\n\n點擊連結或在 BeeCount → 我的 → 加入共享帳本輸入此碼即可。';
+  }
+
+  @override
+  String get sharedMembersPageTitle => '成員管理';
+
+  @override
+  String get sharedMembersYou => '你';
+
+  @override
+  String get sharedMembersInviteCta => '邀請新成員';
+
+  @override
+  String get sharedMembersLeaveCta => '退出帳本';
+
+  @override
+  String get sharedMembersLeaveTitle => '退出帳本';
+
+  @override
+  String sharedMembersLeaveConfirm(String name) {
+    return '退出「$name」後將無法再訪問其中的交易。確定繼續嗎?';
+  }
+
+  @override
+  String get sharedMembersLeaveDone => '已退出帳本';
+
+  @override
+  String get sharedMembersRemoveTitle => '移除成員';
+
+  @override
+  String get sharedMembersRemoveCta => '移除該成員';
+
+  @override
+  String sharedMembersRemoveConfirm(String name) {
+    return '確定移除 $name?ta 將立即失去對該帳本的訪問。';
+  }
+
+  @override
+  String get sharedMembersRemoved => '已移除成員';
+
+  @override
+  String get sharedMembersTransferTitle => '轉讓所有權';
+
+  @override
+  String get sharedMembersTransferTo => '轉讓給該成員';
+
+  @override
+  String sharedMembersTransferConfirm(String name) {
+    return '把帳本所有權轉給 $name?你將變為編輯者,無法再邀請人 / 改帳本名 / 刪帳本。';
+  }
+
+  @override
+  String get sharedMembersTransferConfirmCta => '確認轉讓';
+
+  @override
+  String get sharedMembersTransferDone => '已轉讓所有權';
+
+  @override
+  String sharedTxRecordedBy(String name) {
+    return '$name 記的';
+  }
+
+  @override
+  String sharedTxCreatedBy(String name) {
+    return '$name 建立';
+  }
+
+  @override
+  String sharedTxEditedBy(String name) {
+    return '$name 最後編輯';
+  }
+
+  @override
+  String sharedTxCreatedAndEditedBy(String name) {
+    return '$name 建立並編輯';
+  }
+
+  @override
+  String get sharedRequiresCloudSync => '請先啟用雲端同步';
+
+  @override
+  String get sharedMembersStatsTitle => '成員收支';
+
+  @override
+  String get sharedMembersStatsEmpty => '本期暫無記帳';
+
+  @override
+  String get sharedMembersStatsLoading => '載入中…';
+
+  @override
+  String get sharedMembersStatsIncome => '總收入';
+
+  @override
+  String get sharedMembersStatsExpense => '總支出';
+
+  @override
+  String sharedMembersStatsTxCount(int count) {
+    return '$count筆';
+  }
 }
