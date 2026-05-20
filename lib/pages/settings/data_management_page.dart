@@ -19,6 +19,7 @@ import '../settings/config_import_export_page.dart';
 import '../settings/storage_management_page.dart';
 import '../settings/attachment_preview_page.dart';
 import '../settings/app_lock_settings_page.dart';
+import '../maintenance/orphan_cleanup_page.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../services/attachment_export_import_service.dart';
@@ -199,6 +200,21 @@ class _DataManagementPageState extends ConsumerState<DataManagementPage> {
                         onTap: () async {
                           await Navigator.of(context).push(
                             MaterialPageRoute(builder: (_) => const StorageManagementPage()),
+                          );
+                        },
+                      ),
+                      BeeTokens.cardDivider(context),
+                      // 数据清理(孤儿数据)
+                      AppListTile(
+                        leading: Icons.cleaning_services_outlined,
+                        title: AppLocalizations.of(context)
+                            .maintenanceOrphanCleanupTitle,
+                        subtitle: AppLocalizations.of(context)
+                            .maintenanceOrphanCleanupSubtitle,
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const OrphanCleanupPage()),
                           );
                         },
                       ),

@@ -12041,6 +12041,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} tx'**
   String sharedMembersStatsTxCount(int count);
+
+  /// No description provided for @maintenanceOrphanCleanupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Cleanup'**
+  String get maintenanceOrphanCleanupTitle;
+
+  /// No description provided for @maintenanceOrphanCleanupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Detect and clean local orphan data'**
+  String get maintenanceOrphanCleanupSubtitle;
+
+  /// No description provided for @maintenanceOrphanRescan.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescan'**
+  String get maintenanceOrphanRescan;
+
+  /// No description provided for @maintenanceOrphanEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Local data is clean, no orphan data found'**
+  String get maintenanceOrphanEmpty;
+
+  /// No description provided for @maintenanceOrphanGroupDb.
+  ///
+  /// In en, this message translates to:
+  /// **'Database orphans'**
+  String get maintenanceOrphanGroupDb;
+
+  /// No description provided for @maintenanceOrphanGroupFile.
+  ///
+  /// In en, this message translates to:
+  /// **'File orphans'**
+  String get maintenanceOrphanGroupFile;
+
+  /// No description provided for @maintenanceOrphanGroupSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync state orphans'**
+  String get maintenanceOrphanGroupSync;
+
+  /// No description provided for @maintenanceOrphanSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Found {count} issue(s)'**
+  String maintenanceOrphanSummary(int count);
+
+  /// No description provided for @maintenanceOrphanSummarySize.
+  ///
+  /// In en, this message translates to:
+  /// **'Reclaimable space ~ {size}'**
+  String maintenanceOrphanSummarySize(String size);
+
+  /// No description provided for @maintenanceOrphanSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get maintenanceOrphanSelectAll;
+
+  /// No description provided for @maintenanceOrphanDeselectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect all'**
+  String get maintenanceOrphanDeselectAll;
+
+  /// No description provided for @maintenanceOrphanDeleteOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this'**
+  String get maintenanceOrphanDeleteOne;
+
+  /// No description provided for @maintenanceOrphanSelectedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String maintenanceOrphanSelectedHint(int count);
+
+  /// No description provided for @maintenanceOrphanCleanSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean selected'**
+  String get maintenanceOrphanCleanSelected;
+
+  /// No description provided for @maintenanceOrphanConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm cleanup'**
+  String get maintenanceOrphanConfirmTitle;
+
+  /// No description provided for @maintenanceOrphanConfirmDeleteOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\"? This cannot be undone.'**
+  String maintenanceOrphanConfirmDeleteOne(String title);
+
+  /// No description provided for @maintenanceOrphanConfirmDeleteBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the {count} selected item(s)? This cannot be undone.'**
+  String maintenanceOrphanConfirmDeleteBatch(int count);
+
+  /// No description provided for @maintenanceOrphanCleanSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleaned {count} item(s)'**
+  String maintenanceOrphanCleanSuccess(int count);
+
+  /// No description provided for @maintenanceOrphanCleanPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleaned {ok} item(s), {fail} failed'**
+  String maintenanceOrphanCleanPartial(int ok, int fail);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

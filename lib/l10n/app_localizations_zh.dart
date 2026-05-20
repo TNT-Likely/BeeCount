@@ -6348,6 +6348,77 @@ class AppLocalizationsZh extends AppLocalizations {
   String sharedMembersStatsTxCount(int count) {
     return '$count笔';
   }
+
+  @override
+  String get maintenanceOrphanCleanupTitle => '数据清理';
+
+  @override
+  String get maintenanceOrphanCleanupSubtitle => '检查并清理本地孤儿数据';
+
+  @override
+  String get maintenanceOrphanRescan => '重新扫描';
+
+  @override
+  String get maintenanceOrphanEmpty => '本地数据干净,未发现孤儿数据';
+
+  @override
+  String get maintenanceOrphanGroupDb => '数据库孤儿';
+
+  @override
+  String get maintenanceOrphanGroupFile => '磁盘文件孤儿';
+
+  @override
+  String get maintenanceOrphanGroupSync => '同步状态孤儿';
+
+  @override
+  String maintenanceOrphanSummary(int count) {
+    return '发现 $count 项异常';
+  }
+
+  @override
+  String maintenanceOrphanSummarySize(String size) {
+    return '可释放空间约 $size';
+  }
+
+  @override
+  String get maintenanceOrphanSelectAll => '全选';
+
+  @override
+  String get maintenanceOrphanDeselectAll => '取消全选';
+
+  @override
+  String get maintenanceOrphanDeleteOne => '删除此项';
+
+  @override
+  String maintenanceOrphanSelectedHint(int count) {
+    return '已选 $count 项';
+  }
+
+  @override
+  String get maintenanceOrphanCleanSelected => '清理已选';
+
+  @override
+  String get maintenanceOrphanConfirmTitle => '确认清理';
+
+  @override
+  String maintenanceOrphanConfirmDeleteOne(String title) {
+    return '确定清理「$title」吗？操作不可撤销。';
+  }
+
+  @override
+  String maintenanceOrphanConfirmDeleteBatch(int count) {
+    return '确定清理选中的 $count 项吗？操作不可撤销。';
+  }
+
+  @override
+  String maintenanceOrphanCleanSuccess(int count) {
+    return '已清理 $count 项';
+  }
+
+  @override
+  String maintenanceOrphanCleanPartial(int ok, int fail) {
+    return '成功 $ok 项,失败 $fail 项';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -12665,5 +12736,76 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String sharedMembersStatsTxCount(int count) {
     return '$count筆';
+  }
+
+  @override
+  String get maintenanceOrphanCleanupTitle => '資料清理';
+
+  @override
+  String get maintenanceOrphanCleanupSubtitle => '檢查並清理本地孤兒資料';
+
+  @override
+  String get maintenanceOrphanRescan => '重新掃描';
+
+  @override
+  String get maintenanceOrphanEmpty => '本地資料乾淨,未發現孤兒資料';
+
+  @override
+  String get maintenanceOrphanGroupDb => '資料庫孤兒';
+
+  @override
+  String get maintenanceOrphanGroupFile => '磁碟檔案孤兒';
+
+  @override
+  String get maintenanceOrphanGroupSync => '同步狀態孤兒';
+
+  @override
+  String maintenanceOrphanSummary(int count) {
+    return '發現 $count 項異常';
+  }
+
+  @override
+  String maintenanceOrphanSummarySize(String size) {
+    return '可釋放空間約 $size';
+  }
+
+  @override
+  String get maintenanceOrphanSelectAll => '全選';
+
+  @override
+  String get maintenanceOrphanDeselectAll => '取消全選';
+
+  @override
+  String get maintenanceOrphanDeleteOne => '刪除此項';
+
+  @override
+  String maintenanceOrphanSelectedHint(int count) {
+    return '已選 $count 項';
+  }
+
+  @override
+  String get maintenanceOrphanCleanSelected => '清理已選';
+
+  @override
+  String get maintenanceOrphanConfirmTitle => '確認清理';
+
+  @override
+  String maintenanceOrphanConfirmDeleteOne(String title) {
+    return '確定清理「$title」嗎？操作不可撤銷。';
+  }
+
+  @override
+  String maintenanceOrphanConfirmDeleteBatch(int count) {
+    return '確定清理選中的 $count 項嗎？操作不可撤銷。';
+  }
+
+  @override
+  String maintenanceOrphanCleanSuccess(int count) {
+    return '已清理 $count 項';
+  }
+
+  @override
+  String maintenanceOrphanCleanPartial(int ok, int fail) {
+    return '成功 $ok 項,失敗 $fail 項';
   }
 }

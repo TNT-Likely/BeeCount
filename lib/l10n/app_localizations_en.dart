@@ -6348,4 +6348,75 @@ class AppLocalizationsEn extends AppLocalizations {
   String sharedMembersStatsTxCount(int count) {
     return '$count tx';
   }
+
+  @override
+  String get maintenanceOrphanCleanupTitle => 'Data Cleanup';
+
+  @override
+  String get maintenanceOrphanCleanupSubtitle => 'Detect and clean local orphan data';
+
+  @override
+  String get maintenanceOrphanRescan => 'Rescan';
+
+  @override
+  String get maintenanceOrphanEmpty => 'Local data is clean, no orphan data found';
+
+  @override
+  String get maintenanceOrphanGroupDb => 'Database orphans';
+
+  @override
+  String get maintenanceOrphanGroupFile => 'File orphans';
+
+  @override
+  String get maintenanceOrphanGroupSync => 'Sync state orphans';
+
+  @override
+  String maintenanceOrphanSummary(int count) {
+    return 'Found $count issue(s)';
+  }
+
+  @override
+  String maintenanceOrphanSummarySize(String size) {
+    return 'Reclaimable space ~ $size';
+  }
+
+  @override
+  String get maintenanceOrphanSelectAll => 'Select all';
+
+  @override
+  String get maintenanceOrphanDeselectAll => 'Deselect all';
+
+  @override
+  String get maintenanceOrphanDeleteOne => 'Delete this';
+
+  @override
+  String maintenanceOrphanSelectedHint(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get maintenanceOrphanCleanSelected => 'Clean selected';
+
+  @override
+  String get maintenanceOrphanConfirmTitle => 'Confirm cleanup';
+
+  @override
+  String maintenanceOrphanConfirmDeleteOne(String title) {
+    return 'Delete \"$title\"? This cannot be undone.';
+  }
+
+  @override
+  String maintenanceOrphanConfirmDeleteBatch(int count) {
+    return 'Delete the $count selected item(s)? This cannot be undone.';
+  }
+
+  @override
+  String maintenanceOrphanCleanSuccess(int count) {
+    return 'Cleaned $count item(s)';
+  }
+
+  @override
+  String maintenanceOrphanCleanPartial(int ok, int fail) {
+    return 'Cleaned $ok item(s), $fail failed';
+  }
 }
