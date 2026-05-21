@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart' as d;
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -871,12 +872,42 @@ class SyncEngine implements app.SyncService {
             int applied = 0;
             for (final change in batch) {
               final t0 = DateTime.now();
-              final ok = await _applyRemoteChange(change);
-              perChangeMs.add(DateTime.now().difference(t0).inMilliseconds);
-              if (ok) {
-                applied++;
-              } else {
-                pageSkipped++;
+              // P1.2: 每条 change 包一个 inner transaction(Drift 会翻译成
+              // SQLite SAVEPOINT)。inner throw 时只回滚 inner,outer 继续。
+              //
+              // release build: catch + log skip,把单条脏数据隔离掉不阻塞整批
+              // dev build: rethrow 暴露 bug,让开发者快速发现
+              //
+              // 老路径一条 throw 整页(500 条)全 rollback,1 万 tx 时
+              // 一次失败重试代价巨大 — 这是迁移期数据脏 / 跨版本兼容场景的
+              // 主要痛点。
+              try {
+                final ok = await db.transaction<bool>(
+                  () => _applyRemoteChange(change),
+                );
+                perChangeMs.add(DateTime.now().difference(t0).inMilliseconds);
+                if (ok) {
+                  applied++;
+                } else {
+                  pageSkipped++;
+                }
+              } catch (e, st) {
+                perChangeMs.add(DateTime.now().difference(t0).inMilliseconds);
+                if (kReleaseMode) {
+                  logger.error(
+                    'SyncEngine',
+                    'apply.skip entity_sync_id=${change.entitySyncId} '
+                    'type=${change.entityType} action=${change.action} '
+                    'cursor=${change.changeId} (release-build: 跳过继续)',
+                    e,
+                    st,
+                  );
+                  pageSkipped++;
+                } else {
+                  // dev / profile build: rethrow 让 outer transaction 回滚 +
+                  // 暴露 bug 给开发者
+                  rethrow;
+                }
               }
             }
             return applied;
