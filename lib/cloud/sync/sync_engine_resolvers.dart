@@ -40,6 +40,18 @@ extension _SyncEngineResolvers on SyncEngine {
   }
 
   /// 根据分类名和类型查找 categoryId
+  ///
+  /// **跟 _resolveAccountId 同样的坑**:多次同步 / seed 默认分类 + 共享账本
+  /// 拉 Owner 分类等场景下,本地 categories 表里同名行可能 > 1(同名不同
+  /// syncId,或一个有 syncId 一个没 syncId 的 seed)。原来用 `getSingleOrNull`
+  /// 一旦撞到就抛 "Too many elements",在 SyncEngine pull transaction 里
+  /// 抛 → 整批 137+ 条 changes 全回滚 → "账本下来但 categories / tx 全为 0"。
+  /// 用 limit(1).get() 兜底:正常情况(命中 1 行 / 0 行)行为不变,异常(>1 行)
+  /// 时优先取第一个不抛错。
+  ///
+  /// 注意:caller 应该先尝试 _resolveCategoryIdBySyncId(rawCategoryId)
+  /// (按 syncId 精确查),本函数只是 name fallback —— 老 payload 没 syncId
+  /// 时才走这里,允许"挑一个同名的"。
   Future<int?> _resolveCategoryId({
     String? categoryName,
     String? categoryKind,
@@ -50,8 +62,9 @@ extension _SyncEngineResolvers on SyncEngine {
     if (categoryKind != null) {
       query.where((c) => c.kind.equals(categoryKind));
     }
-    final cat = await query.getSingleOrNull();
-    return cat?.id;
+    query.limit(1);
+    final rows = await query.get();
+    return rows.isEmpty ? null : rows.first.id;
   }
 
   /// 根据账户名查找 accountId

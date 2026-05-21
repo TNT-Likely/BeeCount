@@ -79,6 +79,12 @@ class AIConfigNotifier extends StateNotifier<AIConfigData> {
         prefs.getString(AIConstants.keyAiStrategy) ?? 'cloud_first';
     final strategy = _parseStrategy(strategyStr);
 
+    // ctor 里 fire-and-forget 调本函数,await prefs 期间 notifier 可能被
+    // dispose(provider 重建 / 用户登出等场景)。直接 state= 会抛
+    // "Tried to use AIConfigNotifier after dispose was called"。
+    // StateNotifier 提供 mounted 标志,disposed 后 false。
+    if (!mounted) return;
+
     state = AIConfigData(
       enabled: prefs.getBool(AIConstants.keyAiBillExtractionEnabled) ?? false,
       useVision: prefs.getBool(AIConstants.keyAiUseVision) ?? true,
