@@ -9,6 +9,7 @@ import '../budget/budget_page.dart';
 import '../../providers.dart';
 import '../settings/personalize_page.dart' show headerStyleProvider;
 import '../../data/db.dart';
+import '../../widgets/sync_progress_banner.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/biz.dart';
 import '../../widgets/biz/bee_icon.dart';
@@ -947,6 +948,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               bottom: const HomeBudgetSummary(),
             );
           }),
+          // 同步进度浮层 — 没在同步时返回 SizedBox.shrink 不占位。
+          const SyncProgressBanner(),
           const SizedBox(height: 0),
           // 月初提醒卡片
           if (_showLastMonthReminder) _buildLastMonthReminderCard(context),

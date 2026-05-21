@@ -60,6 +60,17 @@ final syncGenerationProvider = StateProvider<int>((ref) => 0);
 /// PostProcessor / SyncEngine 的 catch 分支把错误写到这里，避免 silent swallow。
 final lastSyncErrorProvider = StateProvider<String?>((ref) => null);
 
+/// 当前同步进度(供 UI 浮层显示)。
+///
+/// SyncEngine.onProgress 回调写入这里,HomePage 顶部 banner 订阅显示。
+/// null = 当前没有 sync 在跑(或最后一次 sync finished 后被清理)。
+///
+/// 写入路径:`sync_providers.dart` 里 `engine.onProgress = (p) => state = p`,
+/// 详见同文件 ~line 220 附近。SyncEngine.sync() 完成时 emit
+/// `SyncProgressStage.finished`,UI 收到后可延迟 1-2 秒清成 null
+/// (让"完成"短暂可见后再隐藏)。
+final syncProgressProvider = StateProvider<SyncProgress?>((ref) => null);
+
 // 自动同步开关：值与设置
 final autoSyncValueProvider = FutureProvider.autoDispose<bool>((ref) async {
   final prefs = await SharedPreferences.getInstance();
@@ -217,6 +228,23 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       // 下载新头像时 bump。这里不再无条件 bump — 否则冷启动 / 任意 pull
       // 完成都会让头像组件重新读本地文件,UI 闪一次。
     };
+    // 同步进度浮层 — SyncEngine 每个 stage 切换 + 每页 apply batch 后 emit。
+    // null 表示无进行中同步;finished stage 时 UI 可延迟清空让"完成"短暂可见。
+    engine.onProgress = (progress) {
+      ref.read(syncProgressProvider.notifier).state = progress;
+      if (progress.stage == SyncProgressStage.finished) {
+        // finished 后 1.5s 自动清,让"完成"toast 短暂展示。
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          final current = ref.read(syncProgressProvider);
+          // 只在还是 finished 状态才清 — 避免清掉下一次 sync 的进度。
+          if (current?.stage == SyncProgressStage.finished &&
+              current?.elapsedMs == progress.elapsedMs) {
+            ref.read(syncProgressProvider.notifier).state = null;
+          }
+        });
+      }
+    };
+
     engine.onAvatarChanged = () {
       ref.read(avatarRefreshProvider.notifier).state++;
     };

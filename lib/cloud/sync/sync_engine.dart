@@ -60,6 +60,60 @@ class SyncResult {
 /// 同步状态
 enum SyncEngineStatus { idle, pushing, pulling, syncing, error }
 
+/// 同步进度事件(给 UI 订阅显示进度条用)
+///
+/// `_pull` 内每块小事务完成、`_push` 每批次、`syncLedgersFromServer` 完成
+/// 等时点都会 emit。UI 层(HomePage banner)订阅即可显示 "X/Y 已处理"。
+enum SyncProgressStage {
+  /// 拉账本列表(轻量,一次性)
+  fetchingLedgers,
+
+  /// 推送本地变更
+  pushing,
+
+  /// 拉远端变更(主链路,大头在这里)
+  pulling,
+
+  /// 单页 apply 内的进度(applied / total)
+  applying,
+
+  /// 整体同步流程结束(成功 / 失败都触发)
+  finished,
+}
+
+class SyncProgress {
+  final SyncProgressStage stage;
+
+  /// 当前在哪个 ledger(全局 stage 可能为空,如 fetchingLedgers)
+  final String? ledgerId;
+
+  /// 进度数:applied / total。 stage=applying 时 total = 本页 pull 的 changes 数。
+  /// 其它 stage 可能不准确(只用作 stage 切换通知)。
+  final int applied;
+  final int total;
+
+  /// 从 sync 开始到当前事件的累计毫秒。给 UI 算 ETA 用。
+  final int elapsedMs;
+
+  /// finished 时填错误信息(成功为 null)
+  final String? error;
+
+  const SyncProgress({
+    required this.stage,
+    this.ledgerId,
+    this.applied = 0,
+    this.total = 0,
+    this.elapsedMs = 0,
+    this.error,
+  });
+
+  double get fraction => total > 0 ? applied / total : 0.0;
+
+  @override
+  String toString() =>
+      'SyncProgress(stage=$stage ledger=$ledgerId applied=$applied/$total elapsedMs=$elapsedMs${error != null ? ' error=$error' : ''})';
+}
+
 /// 核心同步编排器 — 实现 SyncService 接口
 /// 负责 push 本地变更到服务端、pull 远程变更到本地
 class SyncEngine implements app.SyncService {
@@ -117,6 +171,31 @@ class SyncEngine implements app.SyncService {
   /// 如果在那里无条件 bump avatar,冷启动 / 同步触发时即使头像没变也会重
   /// 渲一次,出现"启动后头像闪一下"的体感。
   void Function()? onAvatarChanged;
+
+  /// 同步进度回调(UI 浮层订阅)。每个 stage 切换 + 每个 pull page 完成时
+  /// 触发。fire-and-forget,handler 不应抛错(SyncEngine 不 catch)。
+  void Function(SyncProgress progress)? onProgress;
+
+  /// 内部记录当前 sync 起点,给 onProgress.elapsedMs 用。
+  DateTime? _syncStartTime;
+
+  void _emitProgress(SyncProgress p) {
+    try {
+      onProgress?.call(p);
+    } catch (e, st) {
+      logger.warning('SyncEngine', 'onProgress handler 抛错(吞掉): $e', st);
+    }
+  }
+
+  int _elapsedMsFromSyncStart() {
+    final start = _syncStartTime;
+    if (start == null) return 0;
+    return DateTime.now().difference(start).inMilliseconds;
+  }
+
+  /// _pull 期间用的批量 resolver 缓存。`_pull` 入口 prewarm,结束 clear。
+  /// 详见 sync_engine_resolvers.dart PageResolverCache。
+  PageResolverCache? _pageCache;
 
   SyncEngine({
     required this.db,
@@ -297,6 +376,12 @@ class SyncEngine implements app.SyncService {
   /// 执行完整同步（先 push 后 pull）
   Future<SyncResult> sync({required String ledgerId}) async {
     logger.info('SyncEngine', '开始同步 ledger=$ledgerId');
+    _syncStartTime = DateTime.now();
+    _emitProgress(SyncProgress(
+      stage: SyncProgressStage.fetchingLedgers,
+      ledgerId: ledgerId,
+      elapsedMs: 0,
+    ));
     try {
       final ledgerIdInt = int.tryParse(ledgerId) ?? -1;
       int pushed = 0;
@@ -361,6 +446,11 @@ class SyncEngine implements app.SyncService {
         }
       }
 
+      _emitProgress(SyncProgress(
+        stage: SyncProgressStage.pushing,
+        ledgerId: ledgerId,
+        elapsedMs: _elapsedMsFromSyncStart(),
+      ));
       if (shouldFullPush) {
         // 远端没这个账本 → 首次绑定 / server 数据被清。
         // fullPush 推所有 entity + ledger 自身。
@@ -394,6 +484,11 @@ class SyncEngine implements app.SyncService {
         logger.info('SyncEngine', '增量推送: $pushed 条');
       }
 
+      _emitProgress(SyncProgress(
+        stage: SyncProgressStage.pulling,
+        ledgerId: ledgerId,
+        elapsedMs: _elapsedMsFromSyncStart(),
+      ));
       final pulled = await _pull(ledgerId);
 
       // 下载远端附件文件（上传已在 push 前完成）
@@ -408,10 +503,25 @@ class SyncEngine implements app.SyncService {
 
       final result = SyncResult(pushed: pushed, pulled: pulled);
       logger.info('SyncEngine', '同步完成: $result');
+      _emitProgress(SyncProgress(
+        stage: SyncProgressStage.finished,
+        ledgerId: ledgerId,
+        applied: pulled,
+        total: pulled,
+        elapsedMs: _elapsedMsFromSyncStart(),
+      ));
       return result;
     } catch (e, st) {
       logger.error('SyncEngine', '同步失败', e, st);
+      _emitProgress(SyncProgress(
+        stage: SyncProgressStage.finished,
+        ledgerId: ledgerId,
+        elapsedMs: _elapsedMsFromSyncStart(),
+        error: e.toString(),
+      ));
       return SyncResult(error: e.toString());
+    } finally {
+      _syncStartTime = null;
     }
   }
 
@@ -722,37 +832,95 @@ class SyncEngine implements app.SyncService {
   /// 可以强制从指定 change_id 重拉（用 0 表示从头）。BeeCount Cloud apply 是
   /// 按 entity_sync_id 做 upsert 的，所以重拉历史是幂等的，用于"cursor 推到顶
   /// 但本地状态跟实际脱节"的恢复场景。
+  /// 分块小事务的 batch size。每个 batch 一个 Drift transaction,
+  /// 期间持锁 ~30-100ms,然后释放给 UI 一帧。
+  /// - 太小:transaction overhead 占比高
+  /// - 太大:UI 卡顿明显(单事务 > 200ms 用户能感觉到)
+  /// 50 实测在 SQLite WAL 下 ~50-80ms,平衡点。
+  static const int _kPullBatchSize = 50;
+
   Future<int> _pull(String ledgerId, {int? sinceOverride}) async {
     int totalPulled = 0;
 
     bool hasMore = true;
     int? nextSince = sinceOverride;
     while (hasMore) {
+      final pullStart = DateTime.now();
       final result = await provider.pullChanges(since: nextSince, limit: 500);
       logger.info('SyncEngine',
           'pull: since=$nextSince got ${result.changes.length} changes hasMore=${result.hasMore}');
       if (result.changes.isEmpty) break;
 
-      final pageApplied = await db.transaction<int>(() async {
-        int pageCount = 0;
-        int skipped = 0;
-        for (final change in result.changes) {
-          final applied = await _applyRemoteChange(change);
-          if (applied) {
-            pageCount++;
-          } else {
-            skipped++;
-          }
+      // P0.1: 一次性批量预热 syncId → localId 映射。后续 apply 的 resolver 走 cache。
+      _pageCache = await _prewarmPageCache(result.changes);
+      try {
+        int pageApplied = 0;
+        int pageSkipped = 0;
+        final perChangeMs = <int>[];
+
+        // P0.2: 分块小事务。每 _kPullBatchSize 条一个 Drift transaction,
+        // 释放 WAL 写锁给 UI 一帧。原来一页 500 条一个事务,~10s 持锁 UI 卡死。
+        for (var batchStart = 0;
+            batchStart < result.changes.length;
+            batchStart += _kPullBatchSize) {
+          final batchEnd = (batchStart + _kPullBatchSize)
+              .clamp(0, result.changes.length);
+          final batch = result.changes.sublist(batchStart, batchEnd);
+
+          final batchApplied = await db.transaction<int>(() async {
+            int applied = 0;
+            for (final change in batch) {
+              final t0 = DateTime.now();
+              final ok = await _applyRemoteChange(change);
+              perChangeMs.add(DateTime.now().difference(t0).inMilliseconds);
+              if (ok) {
+                applied++;
+              } else {
+                pageSkipped++;
+              }
+            }
+            return applied;
+          });
+          pageApplied += batchApplied;
+          totalPulled += batchApplied;
+
+          // P0.3: 进度回调(applying stage) — UI 可在每 batch 后刷新进度条。
+          _emitProgress(SyncProgress(
+            stage: SyncProgressStage.applying,
+            ledgerId: ledgerId.isEmpty ? null : ledgerId,
+            applied: totalPulled,
+            total: totalPulled + (result.changes.length - batchEnd),
+            elapsedMs: _elapsedMsFromSyncStart(),
+          ));
+          // 让出 UI 一帧 — Future.delayed(Duration.zero) 把后续 await 排到
+          // microtask queue 末尾,event loop 有机会跑 vsync / gesture。
+          await Future<void>.delayed(Duration.zero);
         }
-        if (skipped > 0) {
-          logger.info('SyncEngine', 'pull: 应用 $pageCount / 跳过 $skipped 条 (本页)');
+
+        // P0.4: per-page p50/p95 + 累计进度日志
+        final pageElapsed = DateTime.now().difference(pullStart);
+        final cacheStats = _pageCache!;
+        int p50 = 0;
+        int p95 = 0;
+        if (perChangeMs.isNotEmpty) {
+          perChangeMs.sort();
+          p50 = perChangeMs[perChangeMs.length ~/ 2];
+          p95 = perChangeMs[
+              ((perChangeMs.length * 95) ~/ 100).clamp(0, perChangeMs.length - 1)];
         }
-        return pageCount;
-      });
-      totalPulled += pageApplied;
+        logger.info(
+          'SyncEngine',
+          'pull.page applied=$pageApplied skipped=$pageSkipped '
+          'elapsed=${pageElapsed.inMilliseconds}ms p50=${p50}ms p95=${p95}ms '
+          'cache_hits=${cacheStats.hits} cache_misses=${cacheStats.misses} '
+          'cursor=$nextSince total=$totalPulled',
+        );
+      } finally {
+        _pageCache = null;
+      }
 
       hasMore = result.hasMore;
-      // 下一页接着上一页的 cursor 往后翻；pullChanges 内部也会 save，这里
+      // 下一页接着上一页的 cursor 往后翻;pullChanges 内部也会 save,这里
       // 只是显式把下一个页面的 since 对齐到 server 返回的最新 cursor。
       if (hasMore) nextSince = result.serverCursor;
     }

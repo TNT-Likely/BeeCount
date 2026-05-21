@@ -127,10 +127,9 @@ extension _SyncEngineApply on SyncEngine {
         );
     String? categorySyncIdOverride;
     if (categoryId == null && rawCategoryId != null && rawCategoryId.isNotEmpty) {
-      final shared = await (db.select(db.sharedLedgerCategories)
-            ..where((t) => t.syncId.equals(rawCategoryId)))
-          .getSingleOrNull();
-      if (shared != null) categorySyncIdOverride = shared.syncId;
+      if (await _hasSharedCategorySyncId(rawCategoryId)) {
+        categorySyncIdOverride = rawCategoryId;
+      }
     }
 
     final rawAccountId = (payload['accountId'] as String?) ??
@@ -142,10 +141,9 @@ extension _SyncEngineApply on SyncEngine {
         );
     String? accountSyncIdOverride;
     if (accountId == null && rawAccountId != null && rawAccountId.isNotEmpty) {
-      final shared = await (db.select(db.sharedLedgerAccounts)
-            ..where((t) => t.syncId.equals(rawAccountId)))
-          .getSingleOrNull();
-      if (shared != null) accountSyncIdOverride = shared.syncId;
+      if (await _hasSharedAccountSyncId(rawAccountId)) {
+        accountSyncIdOverride = rawAccountId;
+      }
     }
 
     final rawToAccountId = payload['toAccountId'] as String?;
@@ -156,10 +154,9 @@ extension _SyncEngineApply on SyncEngine {
         );
     String? toAccountSyncIdOverride;
     if (toAccountId == null && rawToAccountId != null && rawToAccountId.isNotEmpty) {
-      final shared = await (db.select(db.sharedLedgerAccounts)
-            ..where((t) => t.syncId.equals(rawToAccountId)))
-          .getSingleOrNull();
-      if (shared != null) toAccountSyncIdOverride = shared.syncId;
+      if (await _hasSharedAccountSyncId(rawToAccountId)) {
+        toAccountSyncIdOverride = rawToAccountId;
+      }
     }
 
     final existing = await (db.select(db.transactions)
