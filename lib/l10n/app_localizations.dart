@@ -10422,6 +10422,18 @@ abstract class AppLocalizations {
   /// **'No transactions'**
   String get calendarNoTransactions;
 
+  /// No description provided for @calendarAddTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add entry on this day'**
+  String get calendarAddTransaction;
+
+  /// No description provided for @calendarAddTransactionTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a record on the selected day'**
+  String get calendarAddTransactionTooltip;
+
   /// No description provided for @commonUncategorized.
   ///
   /// In en, this message translates to:

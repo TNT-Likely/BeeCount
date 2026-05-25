@@ -15,6 +15,7 @@ import '../../utils/currencies.dart';
 import '../../providers.dart';
 import '../../providers/calendar_providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../transaction/transaction_editor_page.dart';
 
 class CalendarPage extends ConsumerStatefulWidget {
   const CalendarPage({super.key});
@@ -66,6 +67,31 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     });
     ref.read(calendarSelectedMonthProvider.notifier).state = _focusedMonth;
     ref.read(calendarSelectedDateProvider.notifier).state = _selectedDay;
+  }
+
+  Future<void> _addTransactionForSelectedDate() async {
+    // 优先使用当前选中日期，未选中时回退到今天。
+    // 把时间锁到中午,避开 UTC 边界导致跨日的问题(交易列表按日期分组,
+    // 凌晨 00:00 在某些时区可能被算作前一天)。
+    final base = _selectedDay ?? DateTime.now();
+    final initialDate = DateTime(base.year, base.month, base.day, 12, 0, 0);
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TransactionEditorPage(
+          initialKind: 'expense',
+          quickAdd: true,
+          initialDate: initialDate,
+        ),
+      ),
+    );
+
+    // 编辑器关闭后,主动刷新日历的统计与当日交易列表
+    // (FutureProvider 不会因 Drift 写入自动重算)
+    if (mounted) {
+      ref.read(calendarRefreshProvider.notifier).state++;
+    }
   }
 
   @override
@@ -129,14 +155,12 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 SectionCard(
                   margin: EdgeInsets.zero,
                   child: dailyTotalsAsync.when(
+                    // 记账等触发 calendarRefreshProvider 时不切到 loading,
+                    // 旧统计保留,等新数据来无缝替换 — 避免日历整页 spinner 闪烁
+                    skipLoadingOnReload: true,
                     data: (dailyTotals) =>
                         _buildCalendar(context, dailyTotals, primaryColor),
-                    loading: () => const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(40),
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
+                    loading: () => _buildCalendarSkeleton(context),
                     error: (err, stack) => Center(
                       child: Padding(
                         padding: const EdgeInsets.all(20),
@@ -397,17 +421,93 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     );
   }
 
-  // 构建选中日期的交易列表（不显示日期和统计）
+  // 构建选中日期的交易列表（上方含"日期 + 在该日记账"紧凑头）
   Widget _buildDateTransactionsList(BuildContext context, int ledgerId, DateTime date) {
     final l10n = AppLocalizations.of(context);
+    final primaryColor = ref.watch(primaryColorProvider);
+    final localeName = Localizations.localeOf(context).toString();
+    final dateLabel = DateFormat.MMMMd(localeName).format(date);
+    final weekdayLabel = DateFormat.E(localeName).format(date);
 
     final transactionsAsync = ref.watch(
       transactionsByDateProvider((ledgerId: ledgerId, date: date)),
     );
 
-    return SectionCard(
+    final header = Padding(
+      padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                Text(
+                  dateLabel,
+                  style: TextStyle(
+                    color: BeeTokens.textPrimary(context),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  weekdayLabel,
+                  style: TextStyle(
+                    color: BeeTokens.textTertiary(context),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: _addTransactionForSelectedDate,
+              child: Ink(
+                decoration: BoxDecoration(
+                  color: primaryColor,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withValues(alpha: 0.28),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.add_rounded,
+                          size: 18, color: Colors.white),
+                      const SizedBox(width: 4),
+                      Text(
+                        l10n.calendarAddTransaction,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final card = SectionCard(
       margin: EdgeInsets.zero,
       child: transactionsAsync.when(
+        // 同上:bump 刷新触发的 reload 不切到 loading 分支,旧列表保持显示
+        skipLoadingOnReload: true,
         data: (transactions) {
           if (transactions.isEmpty) {
             return Padding(
@@ -474,15 +574,17 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
             },
           );
         },
-        loading: () => const Padding(
-          padding: EdgeInsets.all(24),
-          child: Center(child: CircularProgressIndicator()),
-        ),
+        loading: () => _buildTransactionsSkeleton(context),
         error: (err, stack) => Padding(
           padding: const EdgeInsets.all(24),
           child: Center(child: Text('Error: $err')),
         ),
       ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [header, card],
     );
   }
 
@@ -583,5 +685,56 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
 
   String _formatDate(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  // 日历整页骨架(模拟 6 周 × 7 天 的灰格,接近真实日历高度)
+  // 占位等高:rowHeight 68 × 6 + daysOfWeekHeight 30 + header 50 ≈ 488
+  Widget _buildCalendarSkeleton(BuildContext context) {
+    return DelayedSkeleton(
+      placeholder: const SizedBox(height: 488),
+      child: PulseSkeleton(
+        child: SizedBox(
+          height: 488,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                const SkeletonBar(height: 18, widthFactor: 0.4),
+                const SizedBox(height: 14),
+                for (int row = 0; row < 6; row++)
+                  Row(
+                    children: List.generate(
+                      7,
+                      (_) => const Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 4),
+                          child: SkeletonBar(height: 56),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 当日交易列表骨架(3 条 ListTile 风格占位)
+  Widget _buildTransactionsSkeleton(BuildContext context) {
+    return const DelayedSkeleton(
+      placeholder: SizedBox(height: 200),
+      child: PulseSkeleton(
+        child: Column(
+          children: [
+            SkeletonListTile(),
+            SkeletonListTile(),
+            SkeletonListTile(),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -5454,6 +5454,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get calendarNoTransactions => '当天无交易';
 
   @override
+  String get calendarAddTransaction => '在该日记账';
+
+  @override
+  String get calendarAddTransactionTooltip => '添加该日记账';
+
+  @override
   String get commonUncategorized => '未分类';
 
   @override
@@ -11867,6 +11873,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get calendarNoTransactions => '當天無交易';
+
+  @override
+  String get calendarAddTransaction => '在該日記帳';
+
+  @override
+  String get calendarAddTransactionTooltip => '新增該日記帳';
 
   @override
   String get commonUncategorized => '未分類';

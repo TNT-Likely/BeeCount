@@ -5454,6 +5454,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarNoTransactions => 'No transactions';
 
   @override
+  String get calendarAddTransaction => 'Add entry on this day';
+
+  @override
+  String get calendarAddTransactionTooltip => 'Add a record on the selected day';
+
+  @override
   String get commonUncategorized => 'Uncategorized';
 
   @override

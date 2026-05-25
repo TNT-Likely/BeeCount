@@ -2169,6 +2169,8 @@
   "calendarTitle": "日曆",
   "calendarToday": "今天",
   "calendarNoTransactions": "當天無交易",
+  "calendarAddTransaction": "在該日記帳",
+  "calendarAddTransactionTooltip": "新增該日記帳",
   "commonUncategorized": "未分類",
   "commonSaved": "已儲存",
   "aiProviderManageTitle": "服務商管理",

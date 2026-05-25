@@ -2410,6 +2410,8 @@
   "calendarTitle": "Calendar",
   "calendarToday": "Today",
   "calendarNoTransactions": "No transactions",
+  "calendarAddTransaction": "Add entry on this day",
+  "calendarAddTransactionTooltip": "Add a record on the selected day",
   "commonUncategorized": "Uncategorized",
   "commonSaved": "Saved",
   "aiProviderManageTitle": "Provider Management",
