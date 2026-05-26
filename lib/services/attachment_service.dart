@@ -78,11 +78,20 @@ class AttachmentService {
   }
 
   /// 保存附件
-  /// 将图片压缩后保存到附件目录，并在数据库中创建记录
+  ///
+  /// 将图片压缩后保存到附件目录，并在数据库中创建记录。
+  ///
+  /// [urgent] 紧急模式:跳过 `FlutterImageCompress`,直接 sync 文件复制。
+  /// 用于 iOS 后台 launch 场景 —— `FlutterImageCompress` 是 platform channel,
+  /// 一旦 iOS 把 app 推到 background,channel 调用会被冻结,attachment 永远
+  /// 保存不完。`File.copySync()` 是纯 Dart sync 调用,几十 ms 内必返回,不会
+  /// 卡在 platform channel 上。代价是单张图占空间多(原图通常 2-3MB,压缩后
+  /// 200-500KB),自动记账场景一般可接受。
   Future<TransactionAttachment?> saveAttachment({
     required int transactionId,
     required File sourceFile,
     required int index,
+    bool urgent = false,
   }) async {
     try {
       final dir = await getAttachmentDirectory();
@@ -92,32 +101,44 @@ class AttachmentService {
       final fileName = 'tx_${transactionId}_${timestamp}_$index$finalExt';
       final destPath = '${dir.path}/$fileName';
 
-      // 压缩图片并保存
-      final compressedFile = await _compressImage(sourceFile, destPath);
-      if (compressedFile == null) {
-        logger.error('AttachmentService', '图片压缩失败');
-        return null;
+      final File savedFile;
+      int? width;
+      int? height;
+      final int fileSize;
+      if (urgent) {
+        // 跳过压缩,sync copy。iOS background launch 状态下唯一可靠的写法。
+        // 同时跳过 _getImageInfo:它走 ui.instantiateImageCodec 也是 platform
+        // channel,后台冻结时也卡。width/height 留 null 不影响主功能。
+        sourceFile.copySync(destPath);
+        savedFile = File(destPath);
+        fileSize = savedFile.lengthSync();
+      } else {
+        final compressedFile = await _compressImage(sourceFile, destPath);
+        if (compressedFile == null) {
+          logger.error('AttachmentService', '图片压缩失败');
+          return null;
+        }
+        savedFile = compressedFile;
+        final imageInfo = await _getImageInfo(savedFile.path);
+        width = imageInfo?.width;
+        height = imageInfo?.height;
+        fileSize = await savedFile.length();
       }
 
-      // 获取图片尺寸
-      final imageInfo = await _getImageInfo(compressedFile.path);
-
-      // 获取文件大小
-      final fileSize = await compressedFile.length();
-
-      // 保存到数据库
+      // 保存到数据库(Drift FFI,纯 Dart,不走 platform channel,不受冻结影响)
       final repo = ref.read(repositoryProvider);
       final id = await repo.createAttachment(
         transactionId: transactionId,
         fileName: fileName,
         originalName: path.basename(sourceFile.path),
         fileSize: fileSize,
-        width: imageInfo?.width,
-        height: imageInfo?.height,
+        width: width,
+        height: height,
         sortOrder: index,
       );
 
-      logger.info('AttachmentService', '附件保存成功: $fileName');
+      logger.info('AttachmentService',
+          '附件保存成功${urgent ? "(urgent/sync copy)" : ""}: $fileName');
       return repo.getAttachmentById(id);
     } catch (e, stackTrace) {
       logger.error('AttachmentService', '保存附件失败', e, stackTrace);

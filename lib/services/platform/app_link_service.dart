@@ -145,6 +145,10 @@ class AppLinkService {
   static const EventChannel _eventChannel =
       EventChannel('com.beecount.app_intents/events');
 
+  /// iOS AppIntents 方法通道(回调 Swift,告知后台处理已完成可以放 perform 返回)
+  static const MethodChannel _methodChannel =
+      MethodChannel('com.beecount.app_intents');
+
   /// AppIntents 事件订阅
   StreamSubscription<dynamic>? _appIntentSubscription;
 
@@ -215,6 +219,17 @@ class AppLinkService {
       logger.info('AppLink', '快捷指令截图记账完成');
     } catch (e, st) {
       logger.error('AppLink', '快捷指令截图记账失败', e, st);
+    } finally {
+      // iOS: 通知 Swift AppIntent 处理完成,可以放 perform() 返回了。
+      // 不发这个信号的话 perform() 会一直 await(直到 25s 超时),iOS 在 30s
+      // 后台窗口内会 kill 进程,「成功」通知发不出去。
+      if (Platform.isIOS) {
+        try {
+          await _methodChannel.invokeMethod('notifyBillingComplete');
+        } catch (e) {
+          logger.warning('AppLink', '通知 Swift 完成信号失败: $e');
+        }
+      }
     }
   }
 

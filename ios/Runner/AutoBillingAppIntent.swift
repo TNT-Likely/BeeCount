@@ -8,11 +8,20 @@ import AppIntents
 /// 蜜蜂记账 - 截图自动记账 AppIntent
 /// 通过iOS快捷指令触发，实现截图后自动识别并记账
 /// 仅iOS 16+可用，但App可在iOS 15+运行
+///
+/// openAppWhenRun = false:Shortcut 触发时不把 app 拉到前台。iOS 仍会
+/// background-launch app 进程把 Flutter Engine 跑起来,AI 识别 + 落库
+/// 全在后台完成,用户只感知到系统通知。
+///
+/// iOS 后台执行硬窗口 30 秒,实测 AI 视觉 + 落库 4-9 秒,留有余量。
+/// 极端情况(网络抖动)若超时被 iOS kill,这张截图不会再被 Shortcut
+/// 重试(Shortcut 已经把图传过来一次就走了),用户感知为「截图后没收到
+/// 通知」,可手动改用相册记账兜底。
 @available(iOS 16.0, *)
 struct AutoBillingAppIntent: AppIntent {
     static var title: LocalizedStringResource = "截图自动记账"
     static var description: LocalizedStringResource = "自动识别截图中的支付信息并创建账单"
-    static var openAppWhenRun: Bool = true
+    static var openAppWhenRun: Bool = false
 
     // 接收截图参数
     @Parameter(title: "截图")
@@ -61,6 +70,9 @@ struct AutoBillingAppIntent: AppIntent {
                         // 使用JSON格式传递，避免路径中的冒号问题
                         let event = "{\"action\":\"auto-billing\",\"imagePath\":\"\(imagePath.path)\"}"
                         AppIntentsBridge.sendEvent(event)
+                        // 等 Flutter 处理完(notifyBillingComplete)再返回,否则 iOS 会
+                        // 在我们发完事件后很快 kill 进程,导致「成功」通知发不出去
+                        await AppIntentsBridge.waitForBillingComplete()
                         return .result()
                     } catch {
                         print("[AppIntent] 保存图片失败: \(error)")
@@ -76,6 +88,7 @@ struct AutoBillingAppIntent: AppIntent {
         // 如果没有图片参数或处理失败，只发送事件（让Flutter端处理）
         let event = "{\"action\":\"auto-billing\"}"
         AppIntentsBridge.sendEvent(event)
+        await AppIntentsBridge.waitForBillingComplete()
         return .result()
     }
 

@@ -1542,6 +1542,43 @@
   "aiOcrCheckLog": "识别失败，请查看日志了解详情",
   "aiNotConfiguredNotificationTitle": "❌ 无法识别截图",
   "aiNotConfiguredNotificationBody": "未配置 AI 服务，点击前往设置",
+  "autoBillingNotifyDetectedTitle": "✅ 检测到截图",
+  "autoBillingNotifyWaitingFileBody": "正在等待文件写入...",
+  "autoBillingNotifyRecognizingScreenshotTitle": "正在识别截图...",
+  "autoBillingNotifyVisionAnalyzingBody": "正在调用 AI 视觉分析支付信息，请稍候",
+  "autoBillingNotifyRecognizingTextTitle": "⏳ 正在识别",
+  "autoBillingNotifyTextAnalyzingBody": "正在调用 AI 解析支付信息...",
+  "autoBillingNotifyRecognizeFailedTitle": "❌ 识别失败",
+  "autoBillingNotifyRecognizeFailedBody": "无法从截图提取账单信息，请检查 AI 配置或图片",
+  "autoBillingNotifyFileUnavailableTitle": "识别失败",
+  "autoBillingNotifyFileUnavailableBody": "截图文件不可用",
+  "autoBillingNotifyNoLedgerTitle": "❌ 自动记账失败",
+  "autoBillingNotifyNoLedgerBody": "无可用账本，请先创建账本",
+  "autoBillingNotifyNoAmountBody": "未能识别出金额信息",
+  "autoBillingNotifyCreateFailedTitle": "❌ 创建失败",
+  "autoBillingNotifyCreateFailedBody": "无法创建交易记录",
+  "autoBillingNotifyProcessFailedTitle": "❌ 处理失败",
+  "autoBillingNotifyProcessFailedBody": "错误：{error}",
+  "@autoBillingNotifyProcessFailedBody": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "autoBillingNotifySuccessSingleTitle": "✅ 自动记账成功 ¥{amount}",
+  "@autoBillingNotifySuccessSingleTitle": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "autoBillingNotifySuccessMultiTitle": "✅ 自动记账成功 {count} 笔",
+  "@autoBillingNotifySuccessMultiTitle": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "autoBillingNotifySuccessMultiBody": "合计 ¥{amount}",
+  "@autoBillingNotifySuccessMultiBody": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "autoBillingNotifySuccessSingleBodyNote": "备注：{note}",
+  "@autoBillingNotifySuccessSingleBodyNote": {
+    "placeholders": { "note": { "type": "String" } }
+  },
+  "autoBillingNotifySuccessSingleBodyDefault": "已自动创建记录",
   "aiOcrNoLedger": "未找到账本",
   "aiOcrSuccess": "✅ {type}账单创建成功 ¥{amount}",
   "@aiOcrSuccess": {

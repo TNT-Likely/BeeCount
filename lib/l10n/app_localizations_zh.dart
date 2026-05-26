@@ -3889,6 +3889,82 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiNotConfiguredNotificationBody => '未配置 AI 服务，点击前往设置';
 
   @override
+  String get autoBillingNotifyDetectedTitle => '✅ 检测到截图';
+
+  @override
+  String get autoBillingNotifyWaitingFileBody => '正在等待文件写入...';
+
+  @override
+  String get autoBillingNotifyRecognizingScreenshotTitle => '正在识别截图...';
+
+  @override
+  String get autoBillingNotifyVisionAnalyzingBody => '正在调用 AI 视觉分析支付信息，请稍候';
+
+  @override
+  String get autoBillingNotifyRecognizingTextTitle => '⏳ 正在识别';
+
+  @override
+  String get autoBillingNotifyTextAnalyzingBody => '正在调用 AI 解析支付信息...';
+
+  @override
+  String get autoBillingNotifyRecognizeFailedTitle => '❌ 识别失败';
+
+  @override
+  String get autoBillingNotifyRecognizeFailedBody => '无法从截图提取账单信息，请检查 AI 配置或图片';
+
+  @override
+  String get autoBillingNotifyFileUnavailableTitle => '识别失败';
+
+  @override
+  String get autoBillingNotifyFileUnavailableBody => '截图文件不可用';
+
+  @override
+  String get autoBillingNotifyNoLedgerTitle => '❌ 自动记账失败';
+
+  @override
+  String get autoBillingNotifyNoLedgerBody => '无可用账本，请先创建账本';
+
+  @override
+  String get autoBillingNotifyNoAmountBody => '未能识别出金额信息';
+
+  @override
+  String get autoBillingNotifyCreateFailedTitle => '❌ 创建失败';
+
+  @override
+  String get autoBillingNotifyCreateFailedBody => '无法创建交易记录';
+
+  @override
+  String get autoBillingNotifyProcessFailedTitle => '❌ 处理失败';
+
+  @override
+  String autoBillingNotifyProcessFailedBody(String error) {
+    return '错误：$error';
+  }
+
+  @override
+  String autoBillingNotifySuccessSingleTitle(String amount) {
+    return '✅ 自动记账成功 ¥$amount';
+  }
+
+  @override
+  String autoBillingNotifySuccessMultiTitle(int count) {
+    return '✅ 自动记账成功 $count 笔';
+  }
+
+  @override
+  String autoBillingNotifySuccessMultiBody(String amount) {
+    return '合计 ¥$amount';
+  }
+
+  @override
+  String autoBillingNotifySuccessSingleBodyNote(String note) {
+    return '备注：$note';
+  }
+
+  @override
+  String get autoBillingNotifySuccessSingleBodyDefault => '已自动创建记录';
+
+  @override
   String get aiOcrNoLedger => '未找到账本';
 
   @override
@@ -10308,6 +10384,82 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get aiNotConfiguredNotificationBody => '未配置 AI 服務，點選前往設定';
+
+  @override
+  String get autoBillingNotifyDetectedTitle => '✅ 偵測到截圖';
+
+  @override
+  String get autoBillingNotifyWaitingFileBody => '正在等待檔案寫入...';
+
+  @override
+  String get autoBillingNotifyRecognizingScreenshotTitle => '正在識別截圖...';
+
+  @override
+  String get autoBillingNotifyVisionAnalyzingBody => '正在呼叫 AI 視覺分析支付資訊，請稍候';
+
+  @override
+  String get autoBillingNotifyRecognizingTextTitle => '⏳ 正在識別';
+
+  @override
+  String get autoBillingNotifyTextAnalyzingBody => '正在呼叫 AI 解析支付資訊...';
+
+  @override
+  String get autoBillingNotifyRecognizeFailedTitle => '❌ 識別失敗';
+
+  @override
+  String get autoBillingNotifyRecognizeFailedBody => '無法從截圖提取帳單資訊，請檢查 AI 配置或圖片';
+
+  @override
+  String get autoBillingNotifyFileUnavailableTitle => '識別失敗';
+
+  @override
+  String get autoBillingNotifyFileUnavailableBody => '截圖檔案不可用';
+
+  @override
+  String get autoBillingNotifyNoLedgerTitle => '❌ 自動記帳失敗';
+
+  @override
+  String get autoBillingNotifyNoLedgerBody => '無可用帳本，請先建立帳本';
+
+  @override
+  String get autoBillingNotifyNoAmountBody => '未能識別出金額資訊';
+
+  @override
+  String get autoBillingNotifyCreateFailedTitle => '❌ 建立失敗';
+
+  @override
+  String get autoBillingNotifyCreateFailedBody => '無法建立交易記錄';
+
+  @override
+  String get autoBillingNotifyProcessFailedTitle => '❌ 處理失敗';
+
+  @override
+  String autoBillingNotifyProcessFailedBody(String error) {
+    return '錯誤：$error';
+  }
+
+  @override
+  String autoBillingNotifySuccessSingleTitle(String amount) {
+    return '✅ 自動記帳成功 ¥$amount';
+  }
+
+  @override
+  String autoBillingNotifySuccessMultiTitle(int count) {
+    return '✅ 自動記帳成功 $count 筆';
+  }
+
+  @override
+  String autoBillingNotifySuccessMultiBody(String amount) {
+    return '合計 ¥$amount';
+  }
+
+  @override
+  String autoBillingNotifySuccessSingleBodyNote(String note) {
+    return '備註：$note';
+  }
+
+  @override
+  String get autoBillingNotifySuccessSingleBodyDefault => '已自動建立記錄';
 
   @override
   String get aiOcrNoLedger => '未找到帳本';

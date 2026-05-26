@@ -137,6 +137,43 @@
   "aiOcrCheckLog": "識別失敗，請查看日誌瞭解詳情",
   "aiNotConfiguredNotificationTitle": "❌ 無法識別截圖",
   "aiNotConfiguredNotificationBody": "未配置 AI 服務，點選前往設定",
+  "autoBillingNotifyDetectedTitle": "✅ 偵測到截圖",
+  "autoBillingNotifyWaitingFileBody": "正在等待檔案寫入...",
+  "autoBillingNotifyRecognizingScreenshotTitle": "正在識別截圖...",
+  "autoBillingNotifyVisionAnalyzingBody": "正在呼叫 AI 視覺分析支付資訊，請稍候",
+  "autoBillingNotifyRecognizingTextTitle": "⏳ 正在識別",
+  "autoBillingNotifyTextAnalyzingBody": "正在呼叫 AI 解析支付資訊...",
+  "autoBillingNotifyRecognizeFailedTitle": "❌ 識別失敗",
+  "autoBillingNotifyRecognizeFailedBody": "無法從截圖提取帳單資訊，請檢查 AI 配置或圖片",
+  "autoBillingNotifyFileUnavailableTitle": "識別失敗",
+  "autoBillingNotifyFileUnavailableBody": "截圖檔案不可用",
+  "autoBillingNotifyNoLedgerTitle": "❌ 自動記帳失敗",
+  "autoBillingNotifyNoLedgerBody": "無可用帳本，請先建立帳本",
+  "autoBillingNotifyNoAmountBody": "未能識別出金額資訊",
+  "autoBillingNotifyCreateFailedTitle": "❌ 建立失敗",
+  "autoBillingNotifyCreateFailedBody": "無法建立交易記錄",
+  "autoBillingNotifyProcessFailedTitle": "❌ 處理失敗",
+  "autoBillingNotifyProcessFailedBody": "錯誤：{error}",
+  "@autoBillingNotifyProcessFailedBody": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "autoBillingNotifySuccessSingleTitle": "✅ 自動記帳成功 ¥{amount}",
+  "@autoBillingNotifySuccessSingleTitle": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "autoBillingNotifySuccessMultiTitle": "✅ 自動記帳成功 {count} 筆",
+  "@autoBillingNotifySuccessMultiTitle": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "autoBillingNotifySuccessMultiBody": "合計 ¥{amount}",
+  "@autoBillingNotifySuccessMultiBody": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "autoBillingNotifySuccessSingleBodyNote": "備註：{note}",
+  "@autoBillingNotifySuccessSingleBodyNote": {
+    "placeholders": { "note": { "type": "String" } }
+  },
+  "autoBillingNotifySuccessSingleBodyDefault": "已自動建立記錄",
   "aiOcrNoLedger": "未找到帳本",
   "aiOcrRecognizing": "正在識別帳單...",
   "aiOcrSuccess": "✅ {type}帳單建立成功 ¥{amount}",

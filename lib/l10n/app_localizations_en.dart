@@ -3889,6 +3889,82 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiNotConfiguredNotificationBody => 'AI service not configured. Tap to set up.';
 
   @override
+  String get autoBillingNotifyDetectedTitle => '✅ Screenshot detected';
+
+  @override
+  String get autoBillingNotifyWaitingFileBody => 'Waiting for file to be written...';
+
+  @override
+  String get autoBillingNotifyRecognizingScreenshotTitle => 'Recognizing screenshot...';
+
+  @override
+  String get autoBillingNotifyVisionAnalyzingBody => 'Calling AI vision to analyze payment info, please wait';
+
+  @override
+  String get autoBillingNotifyRecognizingTextTitle => '⏳ Recognizing';
+
+  @override
+  String get autoBillingNotifyTextAnalyzingBody => 'Calling AI to parse payment info...';
+
+  @override
+  String get autoBillingNotifyRecognizeFailedTitle => '❌ Recognition failed';
+
+  @override
+  String get autoBillingNotifyRecognizeFailedBody => 'Could not extract billing info from screenshot. Check AI config or the image.';
+
+  @override
+  String get autoBillingNotifyFileUnavailableTitle => 'Recognition failed';
+
+  @override
+  String get autoBillingNotifyFileUnavailableBody => 'Screenshot file is not available';
+
+  @override
+  String get autoBillingNotifyNoLedgerTitle => '❌ Auto billing failed';
+
+  @override
+  String get autoBillingNotifyNoLedgerBody => 'No ledger available. Please create one first.';
+
+  @override
+  String get autoBillingNotifyNoAmountBody => 'Could not recognize the amount';
+
+  @override
+  String get autoBillingNotifyCreateFailedTitle => '❌ Failed to create';
+
+  @override
+  String get autoBillingNotifyCreateFailedBody => 'Could not create transaction record';
+
+  @override
+  String get autoBillingNotifyProcessFailedTitle => '❌ Processing failed';
+
+  @override
+  String autoBillingNotifyProcessFailedBody(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String autoBillingNotifySuccessSingleTitle(String amount) {
+    return '✅ Auto billing succeeded ¥$amount';
+  }
+
+  @override
+  String autoBillingNotifySuccessMultiTitle(int count) {
+    return '✅ Auto billing succeeded ($count entries)';
+  }
+
+  @override
+  String autoBillingNotifySuccessMultiBody(String amount) {
+    return 'Total ¥$amount';
+  }
+
+  @override
+  String autoBillingNotifySuccessSingleBodyNote(String note) {
+    return 'Note: $note';
+  }
+
+  @override
+  String get autoBillingNotifySuccessSingleBodyDefault => 'Record created automatically';
+
+  @override
   String get aiOcrNoLedger => 'Ledger not found';
 
   @override

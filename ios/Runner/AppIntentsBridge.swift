@@ -13,6 +13,15 @@ class AppIntentsBridge: NSObject, FlutterPlugin {
     private static var pendingEvents: [String] = []
     private static let maxPendingEvents = 5
 
+    // openAppWhenRun=false 时,perform() 把事件丢给 Flutter 后必须**等 Flutter
+    // 处理完**再返回。否则 iOS 认为 AppIntent 已结束,会很快 kill 进程,导致
+    // 「正在识别」通知出来了但「成功」通知发不出去。
+    //
+    // Flutter 处理完 processScreenshot 后通过 MethodChannel 调
+    // `notifyBillingComplete`,触发这里的 continuation 让 perform() 返回。
+    private static var billingCompletionContinuations: [CheckedContinuation<Void, Never>] = []
+    private static let continuationLock = NSLock()
+
     static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: channelName,
@@ -39,6 +48,12 @@ class AppIntentsBridge: NSObject, FlutterPlugin {
             } else {
                 result(false)
             }
+        case "notifyBillingComplete":
+            // Flutter 端 processScreenshot 处理完(成功/失败/超时都算)后回调
+            // 唤醒所有等待的 perform() continuations
+            AppIntentsBridge.resumeAllContinuations()
+            print("[AppIntentsBridge] ✅ 收到 Flutter 处理完成信号")
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -60,6 +75,34 @@ class AppIntentsBridge: NSObject, FlutterPlugin {
                 }
                 print("[AppIntentsBridge] 📦 事件已缓存（共\(pendingEvents.count)个）: \(event)")
             }
+        }
+    }
+
+    /// AppIntent perform() 用这个方法等 Flutter 完成处理。
+    /// 默认 25 秒超时(留 5s buffer 给 iOS 的 30s 后台窗口)。
+    static func waitForBillingComplete(timeout: TimeInterval = 25.0) async {
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            continuationLock.lock()
+            billingCompletionContinuations.append(continuation)
+            continuationLock.unlock()
+            print("[AppIntentsBridge] ⏳ perform() 等待 Flutter 处理完成(超时 \(timeout)s)")
+
+            // 兜底超时:如果 Flutter 卡了/挂了,iOS 30s 窗口快到时强制返回
+            DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
+                AppIntentsBridge.resumeAllContinuations()
+            }
+        }
+    }
+
+    /// 唤醒所有等待中的 continuations。重复调用安全(已 resume 的会被跳过)。
+    private static func resumeAllContinuations() {
+        continuationLock.lock()
+        let conts = billingCompletionContinuations
+        billingCompletionContinuations.removeAll()
+        continuationLock.unlock()
+
+        for cont in conts {
+            cont.resume()
         }
     }
 }

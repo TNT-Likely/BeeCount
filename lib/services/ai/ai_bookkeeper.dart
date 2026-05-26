@@ -140,21 +140,32 @@ class AiBookkeeper {
           continue;
         }
 
-        // 查实际入库的 category / account 名称,回填到 BillInfo
-        // (UI 卡片显示用,避免显示 AI 原始名称)
-        final updated = await _enrichWithActualNames(bill, txId);
-        final index = saved.length;
-        saved.add(updated);
-        txIds.add(txId);
-
+        // 1. **优先**触发 onSaved 回调(主要用于保存图片附件)。
+        //    放在 _enrichWithActualNames 前面是为了缩短附件保存的时间窗口 ——
+        //    iOS 后台 launch 场景下,用户随时可能切走 / 关 app 导致进程被 kill。
+        //    enrich 是给 UI 卡片显示用,被 kill 影响的只是名称展示,不影响数据
+        //    完整性;附件被 kill 才是数据丢失。
         if (onSaved != null) {
           try {
-            await onSaved(txId, index);
+            await onSaved(txId, txIds.length);
           } catch (e, st) {
-            logger.error(_tag, 'onSaved 回调异常(第 ${index + 1} 笔),不影响主流程',
-                e, st);
+            logger.error(_tag, 'onSaved 回调异常,不影响主流程', e, st);
           }
         }
+
+        // 2. 查实际入库的 category / account 名称,回填到 BillInfo
+        //    (UI 卡片显示用,避免显示 AI 原始名称)。
+        //    enrich 自带兜底不会抛,但即便抛了也要保 savedBills/txIds 长度对齐。
+        BillInfo enriched;
+        try {
+          enriched = await _enrichWithActualNames(bill, txId);
+        } catch (e, st) {
+          logger.error(_tag, 'enrichWithActualNames 异常,用 AI 原始 BillInfo',
+              e, st);
+          enriched = bill;
+        }
+        saved.add(enriched);
+        txIds.add(txId);
       } catch (e, st) {
         failed++;
         logger.error(_tag, '第 ${i + 1} 笔创建异常', e, st);

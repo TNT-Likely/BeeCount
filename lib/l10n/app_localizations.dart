@@ -7428,6 +7428,138 @@ abstract class AppLocalizations {
   /// **'AI service not configured. Tap to set up.'**
   String get aiNotConfiguredNotificationBody;
 
+  /// No description provided for @autoBillingNotifyDetectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Screenshot detected'**
+  String get autoBillingNotifyDetectedTitle;
+
+  /// No description provided for @autoBillingNotifyWaitingFileBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for file to be written...'**
+  String get autoBillingNotifyWaitingFileBody;
+
+  /// No description provided for @autoBillingNotifyRecognizingScreenshotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognizing screenshot...'**
+  String get autoBillingNotifyRecognizingScreenshotTitle;
+
+  /// No description provided for @autoBillingNotifyVisionAnalyzingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Calling AI vision to analyze payment info, please wait'**
+  String get autoBillingNotifyVisionAnalyzingBody;
+
+  /// No description provided for @autoBillingNotifyRecognizingTextTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'⏳ Recognizing'**
+  String get autoBillingNotifyRecognizingTextTitle;
+
+  /// No description provided for @autoBillingNotifyTextAnalyzingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Calling AI to parse payment info...'**
+  String get autoBillingNotifyTextAnalyzingBody;
+
+  /// No description provided for @autoBillingNotifyRecognizeFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'❌ Recognition failed'**
+  String get autoBillingNotifyRecognizeFailedTitle;
+
+  /// No description provided for @autoBillingNotifyRecognizeFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not extract billing info from screenshot. Check AI config or the image.'**
+  String get autoBillingNotifyRecognizeFailedBody;
+
+  /// No description provided for @autoBillingNotifyFileUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognition failed'**
+  String get autoBillingNotifyFileUnavailableTitle;
+
+  /// No description provided for @autoBillingNotifyFileUnavailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Screenshot file is not available'**
+  String get autoBillingNotifyFileUnavailableBody;
+
+  /// No description provided for @autoBillingNotifyNoLedgerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'❌ Auto billing failed'**
+  String get autoBillingNotifyNoLedgerTitle;
+
+  /// No description provided for @autoBillingNotifyNoLedgerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No ledger available. Please create one first.'**
+  String get autoBillingNotifyNoLedgerBody;
+
+  /// No description provided for @autoBillingNotifyNoAmountBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not recognize the amount'**
+  String get autoBillingNotifyNoAmountBody;
+
+  /// No description provided for @autoBillingNotifyCreateFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'❌ Failed to create'**
+  String get autoBillingNotifyCreateFailedTitle;
+
+  /// No description provided for @autoBillingNotifyCreateFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create transaction record'**
+  String get autoBillingNotifyCreateFailedBody;
+
+  /// No description provided for @autoBillingNotifyProcessFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'❌ Processing failed'**
+  String get autoBillingNotifyProcessFailedTitle;
+
+  /// No description provided for @autoBillingNotifyProcessFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String autoBillingNotifyProcessFailedBody(String error);
+
+  /// No description provided for @autoBillingNotifySuccessSingleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Auto billing succeeded ¥{amount}'**
+  String autoBillingNotifySuccessSingleTitle(String amount);
+
+  /// No description provided for @autoBillingNotifySuccessMultiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Auto billing succeeded ({count} entries)'**
+  String autoBillingNotifySuccessMultiTitle(int count);
+
+  /// No description provided for @autoBillingNotifySuccessMultiBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Total ¥{amount}'**
+  String autoBillingNotifySuccessMultiBody(String amount);
+
+  /// No description provided for @autoBillingNotifySuccessSingleBodyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note: {note}'**
+  String autoBillingNotifySuccessSingleBodyNote(String note);
+
+  /// No description provided for @autoBillingNotifySuccessSingleBodyDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Record created automatically'**
+  String get autoBillingNotifySuccessSingleBodyDefault;
+
   /// No description provided for @aiOcrNoLedger.
   ///
   /// In en, this message translates to:

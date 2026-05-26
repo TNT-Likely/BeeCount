@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -135,6 +136,8 @@ class AutoBillingService {
 
     try {
       const notificationId = 1001;
+      // 最终结果(成功/失败)用独立 ID,避免 iOS 把它当成对 1001 的静默更新
+      const resultNotificationId = 1101;
 
       // 检查文件是否存在
       final file = File(imagePath);
@@ -142,15 +145,16 @@ class AutoBillingService {
       // 如果文件不存在,可能需要短暂等待
       // (无障碍服务直接截图时文件已就绪,ContentObserver 可能需要等待)
       if (!await file.exists()) {
-        print('⏳ 文件尚未就绪,等待最多${AutoBillingConfig.fileWaitTimeout}ms...');
         logger.info('AutoBilling', '文件尚未就绪，开始等待',
             '路径=$imagePath, 超时=${AutoBillingConfig.fileWaitTimeout}ms');
 
         if (showNotification) {
+          final l10n =
+              lookupAppLocalizations(PlatformDispatcher.instance.locale);
           await _showNotification(
             id: notificationId,
-            title: '✅ 检测到截图',
-            body: '正在等待文件写入...',
+            title: l10n.autoBillingNotifyDetectedTitle,
+            body: l10n.autoBillingNotifyWaitingFileBody,
           );
         }
 
@@ -169,14 +173,16 @@ class AutoBillingService {
         }
 
         if (!await file.exists() || await file.length() == 0) {
-          print('❌ 截图文件等待超时 (${waitTime}ms)');
           logger.error('AutoBilling', '截图文件等待超时',
               '路径=$imagePath, 等待时间=${waitTime}ms, 文件存在=${await file.exists()}');
           if (showNotification) {
-            await _showNotification(
-              id: notificationId,
-              title: '识别失败',
-              body: '截图文件不可用',
+            final l10n =
+                lookupAppLocalizations(PlatformDispatcher.instance.locale);
+            await _showFinalNotification(
+              progressId: notificationId,
+              finalId: resultNotificationId,
+              title: l10n.autoBillingNotifyFileUnavailableTitle,
+              body: l10n.autoBillingNotifyFileUnavailableBody,
             );
           }
           return null;
@@ -195,8 +201,9 @@ class AutoBillingService {
         if (showNotification) {
           final l10n = lookupAppLocalizations(
               PlatformDispatcher.instance.locale);
-          await _showNotification(
-            id: notificationId,
+          await _showFinalNotification(
+            progressId: notificationId,
+            finalId: resultNotificationId,
             title: l10n.aiNotConfiguredNotificationTitle,
             body: l10n.aiNotConfiguredNotificationBody,
           );
@@ -206,10 +213,12 @@ class AutoBillingService {
 
       // 更新通知：开始识别
       if (showNotification) {
+        final l10n =
+            lookupAppLocalizations(PlatformDispatcher.instance.locale);
         await _showNotification(
           id: notificationId,
-          title: '正在识别截图...',
-          body: '正在调用 AI 视觉分析支付信息,请稍候',
+          title: l10n.autoBillingNotifyRecognizingScreenshotTitle,
+          body: l10n.autoBillingNotifyVisionAnalyzingBody,
         );
       }
 
@@ -218,10 +227,13 @@ class AutoBillingService {
       if (ledgerId == null) {
         logger.error('AutoBilling', '无可用账本');
         if (showNotification) {
-          await _showNotification(
-            id: notificationId,
-            title: '❌ 自动记账失败',
-            body: '无可用账本,请先创建账本',
+          final l10n =
+              lookupAppLocalizations(PlatformDispatcher.instance.locale);
+          await _showFinalNotification(
+            progressId: notificationId,
+            finalId: resultNotificationId,
+            title: l10n.autoBillingNotifyNoLedgerTitle,
+            body: l10n.autoBillingNotifyNoLedgerBody,
           );
         }
         await _markAsProcessed(imagePath);
@@ -243,6 +255,10 @@ class AutoBillingService {
         l10n: lookupAppLocalizations(PlatformDispatcher.instance.locale),
         // 多笔截图(罕见,但 AI 可能识别出一张账单页里的多笔)时,每笔都挂
         // 同一张原图,与相册路径行为对齐。
+        //
+        // 走 urgent 模式:跳过 FlutterImageCompress(platform channel,后台冻
+        // 结时会卡)和 _getImageInfo,用 sync File.copy 几十 ms 内完成。
+        // 这样 attachment 在 perform() return 前就写完,不依赖用户开 app。
         onSaved: autoAddAttachment
             ? (txId, _) async {
                 try {
@@ -252,6 +268,7 @@ class AutoBillingService {
                     transactionId: txId,
                     sourceFile: file,
                     index: 0,
+                    urgent: true,
                   );
                   _container
                       .read(attachmentListRefreshProvider.notifier)
@@ -272,10 +289,13 @@ class AutoBillingService {
 
       if (!result.success) {
         if (showNotification) {
-          await _showNotification(
-            id: notificationId,
-            title: '❌ 识别失败',
-            body: '无法从截图提取账单信息,请检查 AI 配置或图片',
+          final l10n =
+              lookupAppLocalizations(PlatformDispatcher.instance.locale);
+          await _showFinalNotification(
+            progressId: notificationId,
+            finalId: resultNotificationId,
+            title: l10n.autoBillingNotifyRecognizeFailedTitle,
+            body: l10n.autoBillingNotifyRecognizeFailedBody,
           );
         }
         return null;
@@ -285,10 +305,13 @@ class AutoBillingService {
       await PostProcessor.runC(_container, ledgerId: ledgerId, tags: true);
 
       if (showNotification) {
-        await _showNotification(
-          id: notificationId,
-          title: _successTitle(result),
-          body: _successBody(result),
+        final l10n =
+            lookupAppLocalizations(PlatformDispatcher.instance.locale);
+        await _showFinalNotification(
+          progressId: notificationId,
+          finalId: resultNotificationId,
+          title: _successTitle(result, l10n),
+          body: _successBody(result, l10n),
         );
       }
       logger.info('AutoBilling', '自动记账成功',
@@ -322,14 +345,14 @@ class AutoBillingService {
 
     try {
       const notificationId = 1002;
+      const resultNotificationId = 1102;
+      final l10n = lookupAppLocalizations(PlatformDispatcher.instance.locale);
 
       // 兜底:AI text 未配置 → 系统通知,引导用户去配置
       if (!await AIProviderManager.isCapabilityConfigured(
           AICapabilityType.text)) {
         logger.warning('AutoBilling', 'AI text 未配置,跳过文本记账');
         if (showNotification) {
-          final l10n = lookupAppLocalizations(
-              PlatformDispatcher.instance.locale);
           await _showNotification(
             id: notificationId,
             title: l10n.aiNotConfiguredNotificationTitle,
@@ -343,8 +366,8 @@ class AutoBillingService {
       if (showNotification) {
         await _showNotification(
           id: notificationId,
-          title: '⏳ 正在识别',
-          body: '正在调用 AI 解析支付信息...',
+          title: l10n.autoBillingNotifyRecognizingTextTitle,
+          body: l10n.autoBillingNotifyTextAnalyzingBody,
         );
       }
 
@@ -352,10 +375,11 @@ class AutoBillingService {
       final ledgerId = await _resolveLedgerId();
       if (ledgerId == null) {
         if (showNotification) {
-          await _showNotification(
-            id: notificationId,
-            title: '❌ 自动记账失败',
-            body: '无可用账本,请先创建账本',
+          await _showFinalNotification(
+            progressId: notificationId,
+            finalId: resultNotificationId,
+            title: l10n.autoBillingNotifyNoLedgerTitle,
+            body: l10n.autoBillingNotifyNoLedgerBody,
           );
         }
         return null;
@@ -368,15 +392,16 @@ class AutoBillingService {
           TagSeedService.billingTypeImage, // 通知文本场景沿用 image 标签习惯
           TagSeedService.billingTypeAi,
         ],
-        l10n: lookupAppLocalizations(PlatformDispatcher.instance.locale),
+        l10n: l10n,
       );
 
       if (!result.success) {
         if (showNotification) {
-          await _showNotification(
-            id: notificationId,
-            title: '❌ 识别失败',
-            body: '未能识别出金额信息',
+          await _showFinalNotification(
+            progressId: notificationId,
+            finalId: resultNotificationId,
+            title: l10n.autoBillingNotifyRecognizeFailedTitle,
+            body: l10n.autoBillingNotifyNoAmountBody,
           );
         }
         return null;
@@ -386,20 +411,23 @@ class AutoBillingService {
       await PostProcessor.runC(_container, ledgerId: ledgerId, tags: true);
 
       if (showNotification) {
-        await _showNotification(
-          id: notificationId,
-          title: _successTitle(result),
-          body: _successBody(result),
+        await _showFinalNotification(
+          progressId: notificationId,
+          finalId: resultNotificationId,
+          title: _successTitle(result, l10n),
+          body: _successBody(result, l10n),
         );
       }
       return result.firstTransactionId;
     } catch (e) {
       logger.error('AutoBilling', '文本处理失败', e);
       if (showNotification) {
+        final l10n =
+            lookupAppLocalizations(PlatformDispatcher.instance.locale);
         await _showNotification(
           id: 1002,
-          title: '❌ 处理失败',
-          body: '错误: $e',
+          title: l10n.autoBillingNotifyProcessFailedTitle,
+          body: l10n.autoBillingNotifyProcessFailedBody(e.toString()),
         );
       }
       return null;
@@ -411,20 +439,24 @@ class AutoBillingService {
   }
 
   /// 通知标题统一格式
-  String _successTitle(BookkeepingResult result) {
+  String _successTitle(BookkeepingResult result, AppLocalizations l10n) {
     if (result.isMulti) {
-      return '✅ 自动记账成功 ${result.savedCount} 笔';
+      return l10n.autoBillingNotifySuccessMultiTitle(result.savedCount);
     }
-    return '✅ 自动记账成功 ¥${result.totalAbsAmount.toStringAsFixed(2)}';
+    return l10n.autoBillingNotifySuccessSingleTitle(
+        result.totalAbsAmount.toStringAsFixed(2));
   }
 
   /// 通知正文统一格式
-  String _successBody(BookkeepingResult result) {
+  String _successBody(BookkeepingResult result, AppLocalizations l10n) {
     if (result.isMulti) {
-      return '合计 ¥${result.totalAbsAmount.toStringAsFixed(2)}';
+      return l10n.autoBillingNotifySuccessMultiBody(
+          result.totalAbsAmount.toStringAsFixed(2));
     }
     final note = result.firstBill?.note;
-    return (note != null && note.isNotEmpty) ? '备注: $note' : '已自动创建记录';
+    return (note != null && note.isNotEmpty)
+        ? l10n.autoBillingNotifySuccessSingleBodyNote(note)
+        : l10n.autoBillingNotifySuccessSingleBodyDefault;
   }
 
   /// 显示通知
@@ -449,6 +481,26 @@ class AutoBillingService {
     );
 
     await _notificationsPlugin.show(id, title, body, details);
+  }
+
+  /// 显示「最终结果」通知。
+  ///
+  /// iOS 上,**用同一 ID 重复 `show()` 只会静默更新通知中心条目,不会重新弹
+  /// banner**。所以「正在识别 → 成功/失败」如果共用 ID,用户只能看到第一条
+  /// banner,直到进通知中心才看到结果。
+  ///
+  /// 这个方法用**新 ID** 发结果通知,iOS 把它当作新通知重新弹 banner。
+  /// 不 cancel 旧的「正在识别」—— 实测在 AppIntent background-launch 状态下
+  /// cancel + show 紧挨着的组合 iOS 会把它当成一次「替换」处理,banner 不弹;
+  /// 留着旧的反而能保证新的作为独立通知正常弹出(旧的在结果通知出现后用户可自
+  /// 行清理或自然过期)。
+  Future<void> _showFinalNotification({
+    required int progressId,
+    required int finalId,
+    required String title,
+    required String body,
+  }) async {
+    await _showNotification(id: finalId, title: title, body: body);
   }
 
   /// 释放资源(AI 服务无 native handle,不需要 dispose,保留方法以备后续添加)

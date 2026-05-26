@@ -1648,6 +1648,43 @@
   "aiOcrCheckLog": "Recognition failed. Check logs for details.",
   "aiNotConfiguredNotificationTitle": "❌ Cannot recognize screenshot",
   "aiNotConfiguredNotificationBody": "AI service not configured. Tap to set up.",
+  "autoBillingNotifyDetectedTitle": "✅ Screenshot detected",
+  "autoBillingNotifyWaitingFileBody": "Waiting for file to be written...",
+  "autoBillingNotifyRecognizingScreenshotTitle": "Recognizing screenshot...",
+  "autoBillingNotifyVisionAnalyzingBody": "Calling AI vision to analyze payment info, please wait",
+  "autoBillingNotifyRecognizingTextTitle": "⏳ Recognizing",
+  "autoBillingNotifyTextAnalyzingBody": "Calling AI to parse payment info...",
+  "autoBillingNotifyRecognizeFailedTitle": "❌ Recognition failed",
+  "autoBillingNotifyRecognizeFailedBody": "Could not extract billing info from screenshot. Check AI config or the image.",
+  "autoBillingNotifyFileUnavailableTitle": "Recognition failed",
+  "autoBillingNotifyFileUnavailableBody": "Screenshot file is not available",
+  "autoBillingNotifyNoLedgerTitle": "❌ Auto billing failed",
+  "autoBillingNotifyNoLedgerBody": "No ledger available. Please create one first.",
+  "autoBillingNotifyNoAmountBody": "Could not recognize the amount",
+  "autoBillingNotifyCreateFailedTitle": "❌ Failed to create",
+  "autoBillingNotifyCreateFailedBody": "Could not create transaction record",
+  "autoBillingNotifyProcessFailedTitle": "❌ Processing failed",
+  "autoBillingNotifyProcessFailedBody": "Error: {error}",
+  "@autoBillingNotifyProcessFailedBody": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "autoBillingNotifySuccessSingleTitle": "✅ Auto billing succeeded ¥{amount}",
+  "@autoBillingNotifySuccessSingleTitle": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "autoBillingNotifySuccessMultiTitle": "✅ Auto billing succeeded ({count} entries)",
+  "@autoBillingNotifySuccessMultiTitle": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "autoBillingNotifySuccessMultiBody": "Total ¥{amount}",
+  "@autoBillingNotifySuccessMultiBody": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "autoBillingNotifySuccessSingleBodyNote": "Note: {note}",
+  "@autoBillingNotifySuccessSingleBodyNote": {
+    "placeholders": { "note": { "type": "String" } }
+  },
+  "autoBillingNotifySuccessSingleBodyDefault": "Record created automatically",
   "aiOcrNoLedger": "Ledger not found",
   "aiOcrSuccess": "✅ {type} bill created ¥{amount}",
   "@aiOcrSuccess": {
