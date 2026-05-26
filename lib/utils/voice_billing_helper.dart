@@ -7,14 +7,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../l10n/app_localizations.dart';
 import '../providers.dart';
+import '../providers/ai_chat_providers.dart';
 import '../providers/ai_config_providers.dart';
 import '../services/system/logger_service.dart';
-import '../services/ai/ai_provider_manager.dart';
-import '../services/ai/ai_provider_config.dart';
-import '../services/billing/voice_billing_service.dart';
-import '../services/billing/bill_creation_service.dart';
+import '../ai/providers/ai_provider_manager.dart';
+import '../ai/providers/ai_provider_config.dart';
 import '../services/billing/post_processor.dart';
-import '../services/billing/bill_recognition_result.dart';
 import '../services/data/tag_seed_service.dart';
 import '../widgets/ui/ui.dart';
 import '../styles/tokens.dart';
@@ -307,92 +305,52 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       await widget.recorder.stop();
 
       final audioFile = File(widget.audioPath);
-      final repo = ref.read(repositoryProvider);
       final currentLedger = await ref.read(currentLedgerProvider.future);
-
       if (currentLedger == null) {
         throw Exception(l10n.voiceRecordingNoLedger);
       }
 
-      // 步骤1：语音转文字（快速）
-      logger.info('VoiceRecording', '步骤1: 语音转文字');
-      final voiceService = VoiceBillingService();
-      final recognizedText = await voiceService.convertVoiceToText(audioFile);
-
-      if (!mounted) return;
-
-      // 立即显示识别的文字
-      setState(() {
-        _recognizedText = recognizedText;
-        _status = l10n.voiceRecordingProcessing;
-      });
-
-      logger.info('VoiceRecording', '识别文字: $recognizedText');
-
-      // 步骤2：从文字提取账单信息（较慢）
-      logger.info('VoiceRecording', '步骤2: 提取账单信息');
-      setState(() {
-        _status = '正在提取账单信息...';
-      });
-
-      final db = ref.read(databaseProvider);
-      final billInfo = await voiceService.extractBillFromText(
-        recognizedText,
-        repository: repo,
-        db: db,
+      logger.info('VoiceRecording', '调用 AiBookkeeper.fromAudio');
+      final bookkeeper = ref.read(aiBookkeeperProvider);
+      final response = await bookkeeper.fromAudio(
+        audio: audioFile,
         ledgerId: currentLedger.id,
+        billingTypes: [
+          TagSeedService.billingTypeVoice,
+          TagSeedService.billingTypeAi,
+        ],
+        l10n: l10n,
       );
 
       if (!mounted) return;
 
-      // 检查是否提取到账单信息
-      if (billInfo == null) {
+      // 把识别文字立即展示出来,让用户能看到「机器听到了什么」
+      if (response.recognizedText != null) {
+        setState(() {
+          _recognizedText = response.recognizedText;
+        });
+        logger.info('VoiceRecording', '识别文字: ${response.recognizedText}');
+      }
+
+      if (!response.result.success) {
         Navigator.of(context).pop();
-        showToast(context, l10n.voiceRecordingNoInfoDetected(recognizedText));
+        // 识别有文字但没提取出账单 → 展示原文给用户;完全没识别到 → 通用失败
+        final msg = response.recognizedText != null
+            ? l10n.voiceRecordingNoInfoDetected(response.recognizedText!)
+            : l10n.voiceRecordingNoInfo;
+        showToast(context, msg);
         return;
       }
 
-      // 创建交易记录
-      final ocrResult = OcrResult(
-        amount: billInfo.amount,
-        note: billInfo.note,
-        time: billInfo.time,
-        rawText: recognizedText,
-        allNumbers: [],
-        aiCategoryName: billInfo.category,
-        aiType: billInfo.type?.toString().split('.').last,
-        aiAccountName: billInfo.account,
-        aiProvider: 'glm',
-        aiEnhanced: true,
-      );
-
-      // 读取智能记账设置
-      final autoAddTags = ref.read(smartBillingAutoTagsProvider);
-
-      final billCreationService = BillCreationService(repo);
-      final transactionId = await billCreationService.createBillTransaction(
-        result: ocrResult,
-        ledgerId: currentLedger.id,
-        billingTypes: [TagSeedService.billingTypeVoice, TagSeedService.billingTypeAi],
-        l10n: l10n,
-        autoAddTags: autoAddTags,
-      );
-
+      await PostProcessor.run(ref, ledgerId: currentLedger.id, tags: true);
       if (!mounted) return;
       Navigator.of(context).pop();
+      if (!mounted) return;
 
-      if (transactionId != null) {
-        // 统一后处理：刷新UI + 触发云同步
-        await PostProcessor.run(ref, ledgerId: currentLedger.id, tags: true);
-
-        if (mounted) {
-          showToast(context, l10n.voiceRecordingSuccess);
-        }
-      } else {
-        if (mounted) {
-          showToast(context, l10n.voiceRecordingNoInfo);
-        }
-      }
+      final toast = response.result.isMulti
+          ? '${l10n.voiceRecordingSuccess} × ${response.result.savedCount}'
+          : l10n.voiceRecordingSuccess;
+      showToast(context, toast);
     } catch (e) {
       if (!mounted) return;
       setState(() {

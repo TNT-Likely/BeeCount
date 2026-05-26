@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../services/ai/ai_constants.dart';
-import '../services/ai/ai_provider_config.dart';
-import '../services/ai/ai_provider_manager.dart';
+import '../ai/providers/ai_constants.dart';
+import '../ai/providers/ai_provider_config.dart';
+import '../ai/providers/ai_provider_manager.dart';
 
 /// AI 执行策略
 enum AIStrategy {

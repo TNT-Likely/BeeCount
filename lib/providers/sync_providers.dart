@@ -13,7 +13,7 @@ import '../cloud/sync/sync_engine.dart';
 import '../cloud/sync/sync_providers.dart' as sync_p;
 import '../cloud/transactions_sync_manager.dart';
 import '../models/ledger_display_item.dart';
-import '../services/ai/ai_provider_manager.dart';
+import '../ai/providers/ai_provider_manager.dart';
 import '../pages/ai/ai_provider_manage_page.dart' show aiProviderListRefreshProvider;
 import 'ai_config_providers.dart';
 import '../services/attachment_service.dart' show attachmentListRefreshProvider;

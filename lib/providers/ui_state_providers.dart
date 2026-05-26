@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../services/ai/ai_provider_manager.dart';
+import '../ai/providers/ai_provider_manager.dart';
 import 'database_providers.dart';
 import 'theme_providers.dart';
 import 'statistics_providers.dart';
@@ -13,7 +13,7 @@ import '../data/db.dart';
 import '../services/data/recurring_transaction_service.dart';
 import '../services/billing/post_processor.dart';
 import '../services/system/logger_service.dart';
-import '../services/ai/ai_constants.dart';
+import '../ai/providers/ai_constants.dart';
 import '../services/platform/app_link_service.dart';
 import 'security_providers.dart';
 

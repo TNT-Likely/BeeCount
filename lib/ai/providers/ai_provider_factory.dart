@@ -6,7 +6,7 @@ import 'package:flutter_ai_kit_zhipu/flutter_ai_kit_zhipu.dart';
 
 import 'ai_provider_config.dart';
 import 'ai_provider_manager.dart';
-import '../system/logger_service.dart';
+import '../../services/system/logger_service.dart';
 
 /// AI Provider 工厂类
 ///

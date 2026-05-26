@@ -8,8 +8,8 @@ import '../../utils/ui_scale_extensions.dart';
 import '../../providers/theme_providers.dart';
 import '../../providers/ai_config_providers.dart';
 import '../../l10n/app_localizations.dart';
-import '../../services/ai/ai_provider_config.dart';
-import '../../services/ai/ai_provider_manager.dart';
+import '../../ai/providers/ai_provider_config.dart';
+import '../../ai/providers/ai_provider_manager.dart';
 import 'ai_prompt_edit_page.dart';
 import 'ai_provider_manage_page.dart';
 

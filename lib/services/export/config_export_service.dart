@@ -6,9 +6,9 @@ import 'package:drift/drift.dart' as d;
 import '../../data/db.dart';
 import '../../data/repositories/base_repository.dart';
 import '../system/logger_service.dart';
-import '../ai/ai_constants.dart';
-import '../ai/ai_provider_config.dart';
-import '../ai/ai_provider_manager.dart';
+import '../../ai/providers/ai_constants.dart';
+import '../../ai/providers/ai_provider_config.dart';
+import '../../ai/providers/ai_provider_manager.dart';
 
 // 导入 OrderingTerm
 typedef OrderingTerm = d.OrderingTerm;

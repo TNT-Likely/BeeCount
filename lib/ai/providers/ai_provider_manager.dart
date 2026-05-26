@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'ai_provider_config.dart';
-import '../system/logger_service.dart';
+import '../../services/system/logger_service.dart';
 
 /// AI 服务商管理服务
 ///

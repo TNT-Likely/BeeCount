@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../ai/tasks/bill_extraction_task.dart';
+import '../../ai/core/bill_info.dart';
 import '../../widgets/biz/section_card.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';

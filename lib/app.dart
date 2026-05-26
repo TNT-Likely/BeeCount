@@ -22,7 +22,7 @@ import 'cloud/sync/sync_engine.dart';
 import 'providers/sync_providers.dart' as sp;
 import 'utils/voice_billing_helper.dart';
 import 'utils/image_billing_helper.dart';
-import 'services/ai/ai_constants.dart';
+import 'ai/providers/ai_constants.dart';
 import 'pages/ai/ai_chat_page.dart';
 import 'services/platform/app_link_service.dart';
 import 'services/platform/quick_actions_service.dart';

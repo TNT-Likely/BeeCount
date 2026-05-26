@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../styles/tokens.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/theme_providers.dart';
-import '../../services/ai/ai_constants.dart';
+import '../../ai/providers/ai_constants.dart';
 
 /// AI模型选择页
 class AIModelSelectionPage extends ConsumerStatefulWidget {

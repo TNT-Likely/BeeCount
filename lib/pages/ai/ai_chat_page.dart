@@ -16,7 +16,7 @@ import '../../utils/ui_scale_extensions.dart';
 import '../../services/billing/post_processor.dart';
 import '../../providers.dart';
 import '../../providers/ai_chat_providers.dart';
-import '../../ai/tasks/bill_extraction_task.dart';
+import '../../ai/core/bill_info.dart';
 import '../../pages/transaction/transaction_editor_page.dart';
 import '../../pages/ai/ai_settings_page.dart';
 import '../../widgets/biz/ledger_selector_dialog.dart';
@@ -338,30 +338,37 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
     // 记账卡片
     if (message.messageType == 'bill_card' && message.metadata != null) {
-      final metadata = jsonDecode(message.metadata!) as Map<String, dynamic>;
-      final isUndone = metadata['isUndone'] == true;
-      final billInfo = BillInfo.fromJson(metadata['billInfo'] ?? metadata);
+      final parsed = _parseBillMetadata(message);
 
-      return GestureDetector(
-        onLongPressStart: (details) => _showBillCardMenu(
-          details.globalPosition,
-          message,
-        ),
-        child: BillCardWidget(
-          billInfo: billInfo,
-          transactionId: message.transactionId,
-          isUndone: isUndone,
-          onUndo: message.transactionId != null && !isUndone
-              ? () => _handleUndo(message.id, message.transactionId!)
-              : null,
-          onEdit: message.transactionId != null && !isUndone
-              ? () => _handleEdit(message.transactionId!)
-              : null,
-          onChangeLedger: message.transactionId != null && !isUndone
-              ? () => _handleChangeLedger(message.id, message.transactionId!)
-              : null,
-        ),
-      );
+      // 单笔走原有 UI(保持视觉一致)
+      if (parsed.bills.length == 1) {
+        final bill = parsed.bills.first;
+        final txId = parsed.txIds.isNotEmpty ? parsed.txIds.first : null;
+        final isUndone = txId != null && parsed.undoneIds.contains(txId);
+        return GestureDetector(
+          onLongPressStart: (details) => _showBillCardMenu(
+            details.globalPosition,
+            message,
+          ),
+          child: BillCardWidget(
+            billInfo: bill,
+            transactionId: txId,
+            isUndone: isUndone,
+            onUndo: txId != null && !isUndone
+                ? () => _handleUndoOne(message.id, txId)
+                : null,
+            onEdit: txId != null && !isUndone
+                ? () => _handleEdit(message.id, txId)
+                : null,
+            onChangeLedger: txId != null && !isUndone
+                ? () => _handleChangeLedger(message.id, txId)
+                : null,
+          ),
+        );
+      }
+
+      // 多笔
+      return _buildMultiBillBubble(message, parsed);
     }
 
     // 普通文字消息 - 带头像
@@ -637,42 +644,37 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
       _scrollToBottom();
 
-      // 获取分类列表（使用 repository 过滤，排除有子分类的父分类）
-      final repository = repo;
-      final expenseCategories = await repository.getUsableCategories('expense');
-      final incomeCategories = await repository.getUsableCategories('income');
-
-      // 调用 AI 服务
+      // chat_service 内部走 BillExtractionService.forLedger,会自动查
+      // 当前账本可用分类 + 同币种账户,page 层不再预查。
       final chatService = ref.read(aiChatServiceProvider);
       final currentLocale = Localizations.localeOf(context);
       final ledgerId = ref.read(currentLedgerIdProvider);
       final l10n = AppLocalizations.of(context);
 
-      // 调试日志：确认当前账本ID
       logger.info('AIChat', '当前账本ID: $ledgerId');
 
       final response = await chatService.processMessage(
         text,
         ledgerId: ledgerId,
-        expenseCategories: expenseCategories.map((c) => c.name).toList(),
-        incomeCategories: incomeCategories.map((c) => c.name).toList(),
         languageCode: currentLocale.languageCode,
         forceChat: forceChat, // 快捷指令强制为自由对话
         l10n: l10n,
       );
 
-      // 保存 AI 回复
+      // 保存 AI 回复。多笔 metadata 用新格式 {bills, txIds, undoneIds};
+      // transactionId 列仍存第一笔 id(getMessageByTransactionId 兼容)。
       final messageId = await repo.createMessage(
         MessagesCompanion.insert(
           conversationId: _conversationId!,
           role: 'assistant',
           content: response.text,
           messageType: response.type,
-          metadata: response.billInfo != null
-              ? Value(jsonEncode({
-                  'billInfo': response.billInfo!.toJson(),
-                  'isUndone': false,
-                }))
+          metadata: response.bills.isNotEmpty
+              ? Value(_encodeBillMetadata(
+                  response.bills,
+                  response.transactionIds,
+                  const <int>{},
+                ))
               : const Value.absent(),
           transactionId: response.transactionId != null
               ? Value(response.transactionId)
@@ -778,51 +780,53 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     }
   }
 
-  Future<void> _handleUndo(int messageId, int transactionId) async {
+  /// 撤销单笔(多笔卡片里的某一笔,或单笔卡片)
+  Future<void> _handleUndoOne(int messageId, int transactionId) async {
     final chatService = ref.read(aiChatServiceProvider);
     final success = await chatService.undoTransaction(transactionId);
 
-    if (success) {
-      // 更新消息的 metadata,标记为已撤销
-      final repo = ref.read(repositoryProvider);
-      final message = await repo.getMessageById(messageId);
-
-      if (message != null && message.metadata != null) {
-        final metadata = jsonDecode(message.metadata!) as Map<String, dynamic>;
-        metadata['isUndone'] = true;
-        // 保留 billInfo,添加 isUndone 标记
-        final updatedMetadata = {
-          'billInfo': metadata['billInfo'] ?? metadata,
-          'isUndone': true,
-        };
-
-        await repo.updateMessage(message.copyWith(
-          metadata: Value(jsonEncode(updatedMetadata)),
-        ));
-
-        // 刷新统计信息（撤销记账后）
-        ref.read(statsRefreshProvider.notifier).state++;
-
-        // 触发云同步
-        final billInfo = metadata['billInfo'] as Map<String, dynamic>?;
-        if (billInfo != null && billInfo['ledgerId'] != null) {
-          final ledgerId = billInfo['ledgerId'] as int;
-          await PostProcessor.sync(ref, ledgerId: ledgerId);
-          logger.info('AIChat', '撤销记账成功,已刷新统计信息和触发云同步');
-        }
-      }
-
-      if (mounted) {
-        showToast(context, AppLocalizations.of(context).aiChatUndone);
-      }
-    } else {
+    if (!success) {
       if (mounted) {
         showToast(context, AppLocalizations.of(context).aiChatUndoFailed);
       }
+      return;
+    }
+
+    final repo = ref.read(repositoryProvider);
+    final message = await repo.getMessageById(messageId);
+    if (message == null || message.metadata == null) {
+      if (mounted) showToast(context, AppLocalizations.of(context).aiChatUndone);
+      return;
+    }
+
+    final parsed = _parseBillMetadata(message);
+    final newUndone = {...parsed.undoneIds, transactionId};
+    await repo.updateMessage(message.copyWith(
+      metadata: Value(_encodeBillMetadata(
+        parsed.bills,
+        parsed.txIds,
+        newUndone,
+      )),
+    ));
+
+    ref.read(statsRefreshProvider.notifier).state++;
+
+    // 找出这笔对应的账本触发同步
+    final idx = parsed.txIds.indexOf(transactionId);
+    if (idx >= 0 && idx < parsed.bills.length) {
+      final ledgerId = parsed.bills[idx].ledgerId;
+      if (ledgerId != null) {
+        await PostProcessor.sync(ref, ledgerId: ledgerId);
+        logger.info('AIChat', '撤销单笔成功 txId=$transactionId,已同步');
+      }
+    }
+
+    if (mounted) {
+      showToast(context, AppLocalizations.of(context).aiChatUndone);
     }
   }
 
-  Future<void> _handleEdit(int transactionId) async {
+  Future<void> _handleEdit(int messageId, int transactionId) async {
     try {
       final repo = ref.read(repositoryProvider);
 
@@ -855,8 +859,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
         // 从编辑页面返回后，无论是否保存，都刷新账单卡片
         if (mounted) {
-          logger.info('AIChat', '编辑页面返回,刷新账单卡片: transactionId=$transactionId');
-          await _refreshBillCard(transactionId);
+          logger.info('AIChat',
+              '编辑页面返回,刷新账单卡片: messageId=$messageId, txId=$transactionId');
+          await _refreshBillCard(messageId, transactionId);
         }
       }
     } catch (e) {
@@ -866,36 +871,27 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     }
   }
 
-  /// 刷新账单卡片信息
-  Future<void> _refreshBillCard(int transactionId) async {
+  /// 刷新账单卡片信息(根据 messageId 定位消息,根据 txId 在多笔里定位行)
+  Future<void> _refreshBillCard(int messageId, int transactionId) async {
     try {
       final repo = ref.read(repositoryProvider);
-
-      // 找到包含此交易ID的消息
-      final message = await repo.getMessageByTransactionId(transactionId);
-
+      final message = await repo.getMessageById(messageId);
       if (message == null || message.metadata == null) return;
 
-      // 重新加载最新的交易数据
       final transaction = await repo.getTransactionById(transactionId);
-
       if (transaction == null) return;
 
-      // 查询分类名称
       String? categoryName;
       if (transaction.categoryId != null) {
         final category = await repo.getCategoryById(transaction.categoryId!);
         categoryName = category?.name;
       }
-
-      // 查询账户名称
       String? accountName;
       if (transaction.accountId != null) {
         final account = await repo.getAccount(transaction.accountId!);
         accountName = account?.name;
       }
 
-      // 重新构建BillInfo
       final updatedBillInfo = BillInfo(
         amount: transaction.amount,
         time: transaction.happenedAt,
@@ -911,20 +907,26 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         confidence: 1.0,
       );
 
-      // 更新消息的metadata
-      final metadata = jsonDecode(message.metadata!) as Map<String, dynamic>;
-      final isUndone = metadata['isUndone'] == true;
-
-      final updatedMetadata = {
-        'billInfo': updatedBillInfo.toJson(),
-        'isUndone': isUndone,
-      };
+      final parsed = _parseBillMetadata(message);
+      final idx = parsed.txIds.indexOf(transactionId);
+      if (idx < 0 || idx >= parsed.bills.length) {
+        logger.warning('AIChat',
+            '_refreshBillCard: 在 message $messageId 中找不到 txId=$transactionId');
+        return;
+      }
+      final newBills = List<BillInfo>.from(parsed.bills);
+      newBills[idx] = updatedBillInfo;
 
       await repo.updateMessage(message.copyWith(
-        metadata: Value(jsonEncode(updatedMetadata)),
+        metadata: Value(_encodeBillMetadata(
+          newBills,
+          parsed.txIds,
+          parsed.undoneIds,
+        )),
       ));
 
-      logger.info('AIChat', '账单卡片已刷新: transactionId=$transactionId');
+      logger.info(
+          'AIChat', '账单卡片已刷新: messageId=$messageId, txId=$transactionId');
     } catch (e, st) {
       logger.error('AIChat', '刷新账单卡片失败', e, st);
     }
@@ -965,24 +967,26 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         ledgerId: selectedLedgerId,
       );
 
-      // 更新消息的 metadata
+      // 更新消息的 metadata(多笔:仅更新匹配 txId 的那一笔)
       final message = await repo.getMessageById(messageId);
 
       if (message != null && message.metadata != null) {
-        final metadata = jsonDecode(message.metadata!) as Map<String, dynamic>;
-
-        // 更新 billInfo 中的 ledgerId
-        if (metadata.containsKey('billInfo')) {
-          metadata['billInfo']['ledgerId'] = selectedLedgerId;
+        final parsed = _parseBillMetadata(message);
+        final idx = parsed.txIds.indexOf(transactionId);
+        if (idx >= 0 && idx < parsed.bills.length) {
+          final newBills = List<BillInfo>.from(parsed.bills);
+          newBills[idx] = parsed.bills[idx].copyWith(ledgerId: selectedLedgerId);
+          await repo.updateMessage(message.copyWith(
+            metadata: Value(_encodeBillMetadata(
+              newBills,
+              parsed.txIds,
+              parsed.undoneIds,
+            )),
+          ));
         } else {
-          metadata['ledgerId'] = selectedLedgerId;
+          logger.warning('AIChat',
+              '_handleChangeLedger: 在 message $messageId 中找不到 txId=$transactionId');
         }
-
-        final updatedMetadata = jsonEncode(metadata);
-
-        await repo.updateMessage(message.copyWith(
-          metadata: Value(updatedMetadata),
-        ));
 
         // 刷新统计信息（修改账本后，需要刷新旧账本和新账本的统计）
         ref.read(statsRefreshProvider.notifier).state++;
@@ -1082,6 +1086,105 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         showToast(context, l10n.commonFailed);
       }
     }
+  }
+
+  // ============================================================
+  // 多笔账单 metadata 编解码
+  //
+  // 新格式: {"bills":[...], "txIds":[...], "undoneIds":[...]}
+  // 老格式: {"billInfo":{...}, "isUndone":bool}  ← 自动转
+  //
+  // bills.length == txIds.length;undoneIds 是 txIds 的子集。
+  // ============================================================
+
+  ({List<BillInfo> bills, List<int> txIds, Set<int> undoneIds})
+      _parseBillMetadata(Message m) {
+    final raw = jsonDecode(m.metadata!) as Map<String, dynamic>;
+
+    // 新格式
+    if (raw['bills'] is List) {
+      final bills = (raw['bills'] as List)
+          .whereType<Map>()
+          .map((j) => BillInfo.fromJson(Map<String, dynamic>.from(j)))
+          .toList();
+      final txIds = ((raw['txIds'] as List?) ?? const [])
+          .whereType<int>()
+          .toList();
+      final undoneIds = ((raw['undoneIds'] as List?) ?? const [])
+          .whereType<int>()
+          .toSet();
+      return (bills: bills, txIds: txIds, undoneIds: undoneIds);
+    }
+
+    // 老格式
+    final billJson = raw['billInfo'] is Map
+        ? Map<String, dynamic>.from(raw['billInfo'] as Map)
+        : raw;
+    final bill = BillInfo.fromJson(billJson);
+    final txId = m.transactionId;
+    final isUndone = raw['isUndone'] == true;
+    return (
+      bills: [bill],
+      txIds: txId != null ? <int>[txId] : <int>[],
+      undoneIds: (isUndone && txId != null) ? <int>{txId} : <int>{},
+    );
+  }
+
+  String _encodeBillMetadata(
+    List<BillInfo> bills,
+    List<int> txIds,
+    Set<int> undoneIds,
+  ) {
+    return jsonEncode({
+      'bills': bills.map((b) => b.toJson()).toList(),
+      'txIds': txIds,
+      'undoneIds': undoneIds.toList(),
+    });
+  }
+
+  // ============================================================
+  // 多笔账单气泡: 直接渲染 N 张 BillCardWidget,无额外汇总/折叠/全部撤销。
+  // 每张卡保留单笔已有的 undo/edit/changeLedger。
+  // ============================================================
+
+  Widget _buildMultiBillBubble(
+    Message message,
+    ({List<BillInfo> bills, List<int> txIds, Set<int> undoneIds}) parsed,
+  ) {
+    final bills = parsed.bills;
+    final txIds = parsed.txIds;
+    final undoneIds = parsed.undoneIds;
+
+    return GestureDetector(
+      onLongPressStart: (details) => _showBillCardMenu(
+        details.globalPosition,
+        message,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < bills.length; i++)
+            Builder(builder: (_) {
+              final txId = i < txIds.length ? txIds[i] : null;
+              final isUndone = txId != null && undoneIds.contains(txId);
+              return BillCardWidget(
+                billInfo: bills[i],
+                transactionId: txId,
+                isUndone: isUndone,
+                onUndo: txId != null && !isUndone
+                    ? () => _handleUndoOne(message.id, txId)
+                    : null,
+                onEdit: txId != null && !isUndone
+                    ? () => _handleEdit(message.id, txId)
+                    : null,
+                onChangeLedger: txId != null && !isUndone
+                    ? () => _handleChangeLedger(message.id, txId)
+                    : null,
+              );
+            }),
+        ],
+      ),
+    );
   }
 
   @override
