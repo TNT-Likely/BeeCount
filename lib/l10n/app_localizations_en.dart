@@ -4202,6 +4202,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutDouyin => 'Douyin';
 
   @override
+  String get aboutWechatGroup => 'WeChat Group';
+
+  @override
+  String get aboutWechatGroupSubtitle => 'Scan to join, developer hangs out here';
+
+  @override
   String get aboutSupportDevelopment => 'Support Development';
 
   @override
