@@ -400,18 +400,26 @@ extension SyncEngineSerializationExt on SyncEngine {
     logger.info('SyncEngine',
         '全量推送完成 ledger=${ledger.name},markPushed ${nonDeletes.length}/${unpushed.length}(剩余 delete change 留给 _push)');
   }
-  /// 推送所有实体为个体变更（fullPush 时调用）
+  /// 推送所有实体为个体变更(fullPush 时调用)。
+  ///
+  /// **只处理 ledger-scope 实体**(ledger / budget / transaction)。user-global
+  /// 实体(account / category / tag)由调用方通过 [pushUserGlobalEntities] 统一
+  /// 推送 — 本函数入口处会调它一次,跨 ledger 并发的 fullPush 共享同一份
+  /// user-global push,避免重复(详见 .docs/concurrent-fullpush-bloat.md)。
   Future<void> _pushAllEntities(Ledger ledger) async {
-    // 跟增量 _push 保持一致：用 ledger.syncId 作为 server 认的 external_id，
-    // 跨设备时同一账本永远同一个 external_id，不会分裂成多条。
+    // 1) 先推 user-global(单飞,多账本并行 fullPush 时共享同一次推送)
+    await pushUserGlobalEntities();
+
+    // 2) 再处理本 ledger 的 ledger-scope 推送
+    // 跟增量 _push 保持一致:用 ledger.syncId 作为 server 认的 external_id,
+    // 跨设备时同一账本永远同一个 external_id,不会分裂成多条。
     final ledgerId = ledger.syncId ?? ledger.id.toString();
     final now = DateTime.now().toUtc().toIso8601String();
     final syncChanges = <Map<String, dynamic>>[];
 
-    // 先推一条 ledger:upsert,显式带 ledgerName + currency。否则:
+    // 推一条 ledger:upsert,显式带 ledgerName + currency。否则:
     //   - storage.upload 的 metadata 虽然带了 currency,但 server 端 auto-create
     //     ledger 时不一定从 metadata 读 currency(字段名可能对不上,或默认走 CNY)
-    //   - _pushAllEntities 后续推的 accounts/categories/... 都不会带账本币种
     //   - 结果:用户在 app 选 JPY 创建账本,server 端 canonical state 是 CNY
     // 推一条显式的 ledger upsert 可以兜底,server 收到后用 payload 里的 currency
     // 覆盖默认值。
@@ -424,84 +432,12 @@ extension SyncEngineSerializationExt on SyncEngine {
       'updated_at': now,
     });
 
-    // 先上传分类自定义图标，拿到每个分类对应的 cloudFileId/sha256。
-    final categoryIconCloudRefs = await _uploadCategoryIcons();
-
-    // 账户：虽然 Accounts 表有 ledgerId（历史遗留），账户在 UI 层是跨账本可选的，
-    // 所以按全局推送，避免跨账本共享账户在只属于某一账本的 fullPush 中漏推。
-    // server 端按 syncId 幂等，不会重复。
-    final accounts = await db.select(db.accounts).get();
-    for (final account in accounts) {
-      final syncId = account.syncId ?? _uuid.v4();
-      // 确保 syncId 已持久化
-      if (account.syncId == null) {
-        await (db.update(db.accounts)
-              ..where((a) => a.id.equals(account.id)))
-            .write(AccountsCompanion(syncId: d.Value(syncId)));
-      }
-      syncChanges.add({
-        'ledger_id': ledgerId,
-        'entity_type': 'account',
-        'entity_sync_id': syncId,
-        'action': 'upsert',
-        'payload': EntitySerializer.serializeAccount(account),
-        'updated_at': now,
-      });
-    }
-
-    // 分类
+    // tx push 需要查类目/账户/标签的 syncId 做 denormalize 用,这里仍要预拉。
+    // 分类自定义图标已经在 [pushUserGlobalEntities] 走 [_serializeEntityForPush]
+    // 时上传到 server(payload 里带 iconCloudFileId/sha256),这里不需要再批量传。
     final categories = await db.select(db.categories).get();
-    for (final category in categories) {
-      final syncId = category.syncId ?? _uuid.v4();
-      if (category.syncId == null) {
-        await (db.update(db.categories)
-              ..where((c) => c.id.equals(category.id)))
-            .write(CategoriesCompanion(syncId: d.Value(syncId)));
-      }
-      String? parentName;
-      String? parentSyncId;
-      if (category.parentId != null) {
-        final parent = categories
-            .cast<Category?>()
-            .firstWhere((p) => p?.id == category.parentId, orElse: () => null);
-        parentName = parent?.name;
-        parentSyncId = parent?.syncId;
-      }
-      final iconRef = categoryIconCloudRefs[category.id];
-      syncChanges.add({
-        'ledger_id': ledgerId,
-        'entity_type': 'category',
-        'entity_sync_id': syncId,
-        'action': 'upsert',
-        'payload': EntitySerializer.serializeCategory(
-          category,
-          parentName: parentName,
-          parentSyncId: parentSyncId,
-          iconCloudFileId: iconRef?.fileId,
-          iconCloudSha256: iconRef?.sha256,
-        ),
-        'updated_at': now,
-      });
-    }
-
-    // 标签
+    final accounts = await db.select(db.accounts).get();
     final tags = await db.select(db.tags).get();
-    for (final tag in tags) {
-      final syncId = tag.syncId ?? _uuid.v4();
-      if (tag.syncId == null) {
-        await (db.update(db.tags)
-              ..where((t) => t.id.equals(tag.id)))
-            .write(TagsCompanion(syncId: d.Value(syncId)));
-      }
-      syncChanges.add({
-        'ledger_id': ledgerId,
-        'entity_type': 'tag',
-        'entity_sync_id': syncId,
-        'action': 'upsert',
-        'payload': EntitySerializer.serializeTag(tag),
-        'updated_at': now,
-      });
-    }
 
     // 预算:按账本过滤推,不跨账本。分类预算带 categorySyncId。
     final budgets = await (db.select(db.budgets)

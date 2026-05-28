@@ -151,6 +151,31 @@ class SyncEngine implements app.SyncService {
   final Map<String, Completer<int>> _pushInFlight = {};
   final Map<int, Completer<void>> _fullPushInFlight = {};
 
+  /// user-global 实体(account/category/tag)推送的**全局**单飞锁。
+  ///
+  /// 用户多账本场景下,Phase 2 并发跑多个 `_push(ledgerN)` / `fullPush(ledgerN)`,
+  /// 每个 caller 各自读 user-global unpushed change → 都 push 一份 → server
+  /// sync_changes 表里 user-global 实体按 ledger 数倍数膨胀(已观察到 4 账本
+  /// 用户的 account/category/tag 4x 膨胀)。
+  ///
+  /// 解法:所有 push 路径都先 `await pushUserGlobalEntities()`,**单飞**保证
+  /// 全 session 只跑一次 user-global push,后续 caller 复用第一个的 future,
+  /// 拿到的时候 ChangeTracker 已经 markPushed,再各自处理 ledger-scoped 部分。
+  Completer<void>? _userGlobalPushInFlight;
+
+  /// legacy 数据补 ChangeTracker 记录的一次性 flag。
+  ///
+  /// 历史:v19 migration 给老 account/category/tag 回填了 syncId,但**没在
+  /// local_changes 表里登记对应的 create change**。如果某用户跨过 v19→v27 都
+  /// 没开过云同步,后面 fullPush 走 ChangeTracker 驱动就拿不到这些 legacy 实
+  /// 体 → 数据丢失。
+  ///
+  /// 解法:每个 session 第一次跑 `pushUserGlobalEntities` 时扫一遍 DB,给
+  /// `local_changes` 里没记录的 user-global 实体补一条 upsert change,后续
+  /// 正常走 ChangeTracker 流程。flag 持久存在 SyncEngine 实例上(per-session),
+  /// 实例重建时(冷启)再跑一次,代价是一次轻量 SELECT。
+  bool _userGlobalLegacyBackfilled = false;
+
   SyncEngine({
     required this.db,
     required this.provider,
@@ -642,10 +667,178 @@ class SyncEngine implements app.SyncService {
     }
   }
 
+  /// 推送 user-global 实体(account / category / tag)的未推 change。
+  ///
+  /// **全局单飞**:并发调用复用第一个的 future。多账本场景下 Phase 2 并行的
+  /// `_push(ledgerN)` / `fullPush(ledgerN)` 都先 await 这个方法,保证 user-global
+  /// 实体每个 session 只推一次。
+  ///
+  /// 注意:**不要在 `_push` / `_pushAllEntities` 内部重复推 user-global**,
+  /// 否则单飞失效。这俩内部应该只处理 ledger-scope change(transaction / budget /
+  /// ledger / ledger_snapshot)。
+  Future<int> pushUserGlobalEntities() async {
+    final inFlight = _userGlobalPushInFlight;
+    if (inFlight != null) {
+      logger.info('SyncEngine', 'pushUserGlobalEntities 已在执行,复用 in-flight');
+      await inFlight.future;
+      return 0;   // 复用不计数,只是等
+    }
+    final completer = Completer<void>();
+    completer.future.ignore();
+    _userGlobalPushInFlight = completer;
+    try {
+      final n = await _doPushUserGlobalEntities();
+      completer.complete();
+      return n;
+    } catch (e, st) {
+      completer.completeError(e, st);
+      rethrow;
+    } finally {
+      if (_userGlobalPushInFlight == completer) {
+        _userGlobalPushInFlight = null;
+      }
+    }
+  }
+
+  Future<int> _doPushUserGlobalEntities() async {
+    // Legacy backfill:v19 migration 给老 user-global 实体填了 syncId 但没登记
+    // local_changes,这里一次性补登记。每 SyncEngine 实例只跑一次。
+    if (!_userGlobalLegacyBackfilled) {
+      await _backfillLegacyUserGlobalChanges();
+      _userGlobalLegacyBackfilled = true;
+    }
+
+    final globalChanges = await changeTracker.getUnpushedChangesForLedger(0);
+    if (globalChanges.isEmpty) {
+      logger.debug('SyncEngine', 'pushUserGlobalEntities: 无未推 user-global change');
+      return 0;
+    }
+
+    final syncChanges = <Map<String, dynamic>>[];
+    for (final change in globalChanges) {
+      Map<String, dynamic> payload;
+      if (change.action == 'delete') {
+        payload = <String, dynamic>{};
+      } else {
+        // user-global 实体序列化不需要 ledger 上下文,ledgerId 传 0 占位
+        // (_serializeEntityForPush 内部用它查 parent ledger.syncId,user-global
+        // 实体不会用到 parentLedgerSyncId)。
+        payload = await _serializeEntityForPush(
+          entityType: change.entityType,
+          entityId: change.entityId,
+          ledgerId: 0,
+        );
+      }
+      syncChanges.add({
+        'ledger_id': null,
+        'scope': 'user',
+        'entity_type': change.entityType,
+        'entity_sync_id': change.entitySyncId,
+        'action': change.action == 'delete' ? 'delete' : 'upsert',
+        'payload': payload,
+        'updated_at': change.createdAt.toUtc().toIso8601String(),
+      });
+    }
+
+    await provider.pushChanges(changes: syncChanges);
+    await changeTracker.markPushed(globalChanges.map((c) => c.id).toList());
+    logger.info('SyncEngine',
+        'pushUserGlobalEntities: 推送 ${globalChanges.length} 条 user-global change');
+    return globalChanges.length;
+  }
+
+  /// 扫 accounts/categories/tags,给 local_changes 里没登记过的 legacy 实体
+  /// 补一条 upsert change。详见 [_userGlobalLegacyBackfilled] doc。
+  ///
+  /// 兼顾兜底两件事:
+  /// 1. 实体 syncId 为 NULL(v22 migration 没覆盖到的脏数据)→ 生成 v4 UUID 写回
+  /// 2. 已有 syncId 但 local_changes 表里完全没记录该实体的 change → 补 upsert
+  Future<void> _backfillLegacyUserGlobalChanges() async {
+    // 预拉:local_changes 表里所有 user-global 实体 syncId,做 in-memory dedup,
+    // 避免逐 entity SELECT。
+    final existingChanges = await (db.select(db.localChanges)
+          ..where((c) => c.entityType.isIn(['account', 'category', 'tag'])))
+        .get();
+    final knownSyncIds = existingChanges.map((c) => c.entitySyncId).toSet();
+
+    var backfilled = 0;
+
+    // accounts
+    final accounts = await db.select(db.accounts).get();
+    for (final a in accounts) {
+      var syncId = a.syncId;
+      if (syncId == null) {
+        syncId = _uuid.v4();
+        await (db.update(db.accounts)..where((row) => row.id.equals(a.id)))
+            .write(AccountsCompanion(syncId: d.Value(syncId)));
+      }
+      if (!knownSyncIds.contains(syncId)) {
+        await changeTracker.recordUserGlobalChange(
+          entityType: 'account',
+          entityId: a.id,
+          entitySyncId: syncId,
+          action: 'upsert',
+        );
+        backfilled++;
+      }
+    }
+
+    // categories
+    final categories = await db.select(db.categories).get();
+    for (final c in categories) {
+      var syncId = c.syncId;
+      if (syncId == null) {
+        syncId = _uuid.v4();
+        await (db.update(db.categories)..where((row) => row.id.equals(c.id)))
+            .write(CategoriesCompanion(syncId: d.Value(syncId)));
+      }
+      if (!knownSyncIds.contains(syncId)) {
+        await changeTracker.recordUserGlobalChange(
+          entityType: 'category',
+          entityId: c.id,
+          entitySyncId: syncId,
+          action: 'upsert',
+        );
+        backfilled++;
+      }
+    }
+
+    // tags
+    final tags = await db.select(db.tags).get();
+    for (final t in tags) {
+      var syncId = t.syncId;
+      if (syncId == null) {
+        syncId = _uuid.v4();
+        await (db.update(db.tags)..where((row) => row.id.equals(t.id)))
+            .write(TagsCompanion(syncId: d.Value(syncId)));
+      }
+      if (!knownSyncIds.contains(syncId)) {
+        await changeTracker.recordUserGlobalChange(
+          entityType: 'tag',
+          entityId: t.id,
+          entitySyncId: syncId,
+          action: 'upsert',
+        );
+        backfilled++;
+      }
+    }
+
+    if (backfilled > 0) {
+      logger.info('SyncEngine',
+          'legacy backfill: 补登记 $backfilled 条 user-global ChangeTracker entry');
+    } else {
+      logger.debug('SyncEngine', 'legacy backfill: 无需补登记');
+    }
+  }
+
   /// 推送本地未同步的变更到服务端。
   ///
   /// **in-flight 单飞**:同 ledger 的并发调用复用第一个的 future,避免双触发
   /// 在 sync_changes 表里造成重复 row。不同 ledger 并发不互相阻塞。
+  ///
+  /// 注意:**只推 ledger-scope change**(transaction / budget / ledger / ledger_snapshot)。
+  /// user-global change(account / category / tag)由 [pushUserGlobalEntities] 统一推
+  /// (在 [_doPush] 开头调用),避免多账本场景下并行 push 重复推送 user-global。
   Future<int> push(String ledgerId) async {
     final inFlight = _pushInFlight[ledgerId];
     if (inFlight != null) {
@@ -671,10 +864,23 @@ class SyncEngine implements app.SyncService {
 
   Future<int> _doPush(String ledgerId) async {
     final ledgerIdInt = int.tryParse(ledgerId) ?? -1;
+
+    // 1) 先推 user-global change(account / category / tag)。
+    //    全局单飞,Phase 2 多 ledger 并行场景下只跑一次,跨 ledger 不再各推一份。
+    //    详见 [pushUserGlobalEntities] doc + .docs/concurrent-fullpush-bloat.md。
+    final userGlobalPushed = await pushUserGlobalEntities();
+
+    // 2) ledgerId="0" / "" 语义是"只推 user-global",上面一步已经做完。
+    if (ledgerIdInt == 0) return userGlobalPushed;
+
     final ledger = await (db.select(db.ledgers)
           ..where((l) => l.id.equals(ledgerIdInt)))
         .getSingleOrNull();
 
+    // 3) 再推这个 ledger 的 ledger-scope change(transaction / budget / ledger /
+    //    ledger_snapshot)。ledger 删除路径:即使 ledger 行已没,ledger_snapshot:
+    //    delete change 还在 local_changes 里,这里照常推。
+    //
     // 关键:ledger 已被本地删除时不能直接 return 0。因为 deleteLedger 会先
     // 登记 ledger_snapshot:delete change 再 hard-delete ledger 行,这条 delete
     // change 的 ledger_id 字段就是这个本地 id。如果这里因 ledger==null 短路,
@@ -685,22 +891,16 @@ class SyncEngine implements app.SyncService {
     // 变更才安全 return。
     final ledgerChanges =
         await changeTracker.getUnpushedChangesForLedger(ledgerIdInt);
-    // 当前账本的变更 + user-scoped（ledgerId=0：tag / category）的未推变更。
-    // 后者是"账户/分类/标签属于用户而非单个账本"的对齐：LocalRepository 在
-    // create/update/deleteTag/Category 时用 ledgerId=0 记录变更，getUnpushed-
-    // ChangesForLedger(ledger.id) 永远查不到它们 → 移动端重命名标签/分类在
-    // web 永远看不到。把 ledgerId=0 的也一起捎带。
-    final globalChanges = ledgerIdInt == 0
-        ? const <LocalChange>[]
-        : await changeTracker.getUnpushedChangesForLedger(0);
-    final changes = [...ledgerChanges, ...globalChanges];
+    // 仅这个 ledger 的 ledger-scope change。user-global 已在上面统一推走。
+    final changes = ledgerChanges;
     if (changes.isEmpty) {
       if (ledger == null) {
         logger.warning('SyncEngine', 'push: 本地账本 $ledgerId 已删除且无待推送变更,跳过');
       } else {
-        logger.debug('SyncEngine', 'push: 无待推送变更');
+        logger.debug('SyncEngine',
+            'push: 无 ledger-scope 待推变更(user-global 已推 $userGlobalPushed 条)');
       }
-      return 0;
+      return userGlobalPushed;
     }
     // 当本地 ledger 行已删,从同批 changes 里捞 ledger_snapshot:delete 的
     // entity_sync_id(= 被删账本的 syncId / UUID),用它给所有相关 change 的
@@ -775,8 +975,8 @@ class SyncEngine implements app.SyncService {
     // 标记已推送
     await changeTracker.markPushed(changes.map((c) => c.id).toList());
     logger.info('SyncEngine',
-        'push: 推送 ${changes.length} 条变更 (当前账本 ${ledgerChanges.length} + 全局 ${globalChanges.length})');
-    return changes.length;
+        'push: 推送 ${changes.length} 条 ledger-scope 变更 + 本会话 user-global $userGlobalPushed 条');
+    return changes.length + userGlobalPushed;
   }
 
   /// 拉取远程变更并应用到本地。
