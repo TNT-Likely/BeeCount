@@ -163,6 +163,17 @@ class SyncEngine implements app.SyncService {
   /// 拿到的时候 ChangeTracker 已经 markPushed,再各自处理 ledger-scoped 部分。
   Completer<void>? _userGlobalPushInFlight;
 
+  /// fullPull 的 in-flight 单飞锁。**per-ledger**,跟 fullPush 同款。
+  ///
+  /// 防御性:用户连点"下载"按钮时,避免两次并发 fullPull 重复下载同一份 JSON
+  /// snapshot + 重复 apply。apply 路径是 idempotent upsert(同 syncId 不会插
+  /// 重复行),所以不会数据膨胀,但浪费带宽 + CPU。
+  ///
+  /// 跟 fullPush 不同:**不会**真的把多账本并发拉成 N 倍 —— fullPull 只在用户
+  /// 点"下载"时触发,正常单次调用;这个锁是给"快速连点"等边界场景兜底。
+  final Map<int, Completer<({int inserted, int deletedDup})>>
+      _fullPullInFlight = {};
+
   /// legacy 数据补 ChangeTracker 记录的一次性 flag。
   ///
   /// 历史:v19 migration 给老 account/category/tag 回填了 syncId,但**没在
@@ -1223,8 +1234,35 @@ class SyncEngine implements app.SyncService {
   //   downloadAttachments / _getAttachmentFile / _cleanupTxAttachmentFilesOnDisk
   //   _cleanupCategoryIconFilesOnDisk
 
-  /// 新设备全量拉取
+  /// 新设备全量拉取。
+  ///
+  /// **in-flight 单飞**:防御性,挡用户连点"下载"按钮时两次并发拉取。
   Future<({int inserted, int deletedDup})> runFullPull(
+      {required int ledgerId}) async {
+    final inFlight = _fullPullInFlight[ledgerId];
+    if (inFlight != null) {
+      logger.info('SyncEngine',
+          'runFullPull(ledger=$ledgerId) 已在执行,复用 in-flight');
+      return inFlight.future;
+    }
+    final completer = Completer<({int inserted, int deletedDup})>();
+    completer.future.ignore();
+    _fullPullInFlight[ledgerId] = completer;
+    try {
+      final result = await _doRunFullPull(ledgerId: ledgerId);
+      completer.complete(result);
+      return result;
+    } catch (e, st) {
+      completer.completeError(e, st);
+      rethrow;
+    } finally {
+      if (_fullPullInFlight[ledgerId] == completer) {
+        _fullPullInFlight.remove(ledgerId);
+      }
+    }
+  }
+
+  Future<({int inserted, int deletedDup})> _doRunFullPull(
       {required int ledgerId}) async {
     logger.info('SyncEngine', '开始全量拉取 ledger=$ledgerId');
 
