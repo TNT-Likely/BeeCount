@@ -139,6 +139,18 @@ class SyncEngine implements app.SyncService {
   /// 详见 [LookupCache](sync_engine_pull.dart)。
   LookupCache? activePullCache;
 
+  /// push / fullPush 的 in-flight 单飞锁。**per-ledger** —— 不同 ledger
+  /// 并发不互相阻塞,只阻塞同 ledger 的并发触发。
+  ///
+  /// 背景:app 启动期 `_triggerInitialCloudSync` 由 microtask + listenManual
+  /// 双入口触发,曾经导致同设备 2-3 路 fullPush 并发,服务端 sync_changes
+  /// 表 2-2.5x 膨胀。详见 `.docs/concurrent-fullpush-bloat.md`。
+  ///
+  /// `_pushInFlight` key 用 String(跟 [push] 入参一致),`_fullPushInFlight`
+  /// 用 int(跟 [fullPush] 入参一致)。
+  final Map<String, Completer<int>> _pushInFlight = {};
+  final Map<int, Completer<void>> _fullPushInFlight = {};
+
   SyncEngine({
     required this.db,
     required this.provider,
@@ -630,8 +642,34 @@ class SyncEngine implements app.SyncService {
     }
   }
 
-  /// 推送本地未同步的变更到服务端
+  /// 推送本地未同步的变更到服务端。
+  ///
+  /// **in-flight 单飞**:同 ledger 的并发调用复用第一个的 future,避免双触发
+  /// 在 sync_changes 表里造成重复 row。不同 ledger 并发不互相阻塞。
   Future<int> push(String ledgerId) async {
+    final inFlight = _pushInFlight[ledgerId];
+    if (inFlight != null) {
+      logger.info('SyncEngine', 'push(ledger=$ledgerId) 已在执行,复用 in-flight');
+      return inFlight.future;
+    }
+    final completer = Completer<int>();
+    completer.future.ignore();   // 防 unhandled async error
+    _pushInFlight[ledgerId] = completer;
+    try {
+      final result = await _doPush(ledgerId);
+      completer.complete(result);
+      return result;
+    } catch (e, st) {
+      completer.completeError(e, st);
+      rethrow;
+    } finally {
+      if (_pushInFlight[ledgerId] == completer) {
+        _pushInFlight.remove(ledgerId);
+      }
+    }
+  }
+
+  Future<int> _doPush(String ledgerId) async {
     final ledgerIdInt = int.tryParse(ledgerId) ?? -1;
     final ledger = await (db.select(db.ledgers)
           ..where((l) => l.id.equals(ledgerIdInt)))

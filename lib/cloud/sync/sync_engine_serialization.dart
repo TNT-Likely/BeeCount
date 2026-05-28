@@ -287,8 +287,34 @@ extension SyncEngineSerializationExt on SyncEngine {
 
   // ==================== 全量推送/拉取 ====================
 
-  /// 首次全量推送（将本地所有数据推送到服务端）
+  /// 首次全量推送(将本地所有数据推送到服务端)。
+  ///
+  /// **in-flight 单飞**:同 ledger 的并发调用复用第一个 future,避免 sync_changes
+  /// 表 2-3x 膨胀。详见 `.docs/concurrent-fullpush-bloat.md`。
   Future<void> fullPush({required int ledgerId}) async {
+    final inFlight = _fullPushInFlight[ledgerId];
+    if (inFlight != null) {
+      logger.info('SyncEngine',
+          'fullPush(ledger=$ledgerId) 已在执行,复用 in-flight');
+      return inFlight.future;
+    }
+    final completer = Completer<void>();
+    completer.future.ignore();   // 防 unhandled async error
+    _fullPushInFlight[ledgerId] = completer;
+    try {
+      await _doFullPush(ledgerId: ledgerId);
+      completer.complete();
+    } catch (e, st) {
+      completer.completeError(e, st);
+      rethrow;
+    } finally {
+      if (_fullPushInFlight[ledgerId] == completer) {
+        _fullPushInFlight.remove(ledgerId);
+      }
+    }
+  }
+
+  Future<void> _doFullPush({required int ledgerId}) async {
     logger.info('SyncEngine', '开始全量推送 ledger=$ledgerId');
 
     final ledger = await (db.select(db.ledgers)
