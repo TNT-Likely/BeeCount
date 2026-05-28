@@ -11,6 +11,7 @@ import '../../category_node.dart';
 import '../../../services/system/logger_service.dart';
 import '../../../utils/shared_ledger_picker_filter.dart';
 import '../category_repository.dart';
+import '../exceptions.dart';
 
 /// 本地分类Repository实现
 /// 基于 Drift 数据库实现
@@ -26,14 +27,33 @@ class LocalCategoryRepository implements CategoryRepository {
     required String kind,
     String? icon,
     int? sortOrder,
+    int level = 1,
+    int? parentId,
+    String? syncId,
   }) async {
+    // 撞同名抛 DuplicateNameException(name 全局唯一)。caller 显式 handle:
+    //   - UI 主动建 → 先过 isCategoryNameDuplicate 警告;真冲突 try/catch 弹 toast
+    //   - import / 自动记账等静默路径 → 改用 upsertCategory(get-or-create)
+    // 静默复用会把收入 tx 错挂到 expense 分类或吞掉 caller 传的 icon/sortOrder。
+    final existing = await (db.select(db.categories)
+          ..where((c) => c.name.equals(name)))
+        .get();
+    if (existing.isNotEmpty) {
+      throw DuplicateNameException(
+        entityType: 'category',
+        name: name,
+        existingId: existing.first.id,
+      );
+    }
     return await db.into(db.categories).insert(
       CategoriesCompanion.insert(
         name: name,
         kind: kind,
         icon: d.Value(icon),
         sortOrder: d.Value(sortOrder ?? 0),
-        syncId: d.Value(_uuid.v4()),
+        level: d.Value(level),
+        parentId: d.Value(parentId),
+        syncId: d.Value(syncId ?? _uuid.v4()),
       ),
     );
   }
@@ -45,7 +65,18 @@ class LocalCategoryRepository implements CategoryRepository {
     required String kind,
     String? icon,
     int? sortOrder,
+    String? syncId,
   }) async {
+    final existing = await (db.select(db.categories)
+          ..where((c) => c.name.equals(name)))
+        .get();
+    if (existing.isNotEmpty) {
+      throw DuplicateNameException(
+        entityType: 'category',
+        name: name,
+        existingId: existing.first.id,
+      );
+    }
     return await db.into(db.categories).insert(
       CategoriesCompanion.insert(
         name: name,
@@ -54,7 +85,7 @@ class LocalCategoryRepository implements CategoryRepository {
         parentId: d.Value(parentId),
         level: d.Value(2),
         sortOrder: d.Value(sortOrder ?? 0),
-        syncId: d.Value(_uuid.v4()),
+        syncId: d.Value(syncId ?? _uuid.v4()),
       ),
     );
   }
@@ -169,13 +200,21 @@ class LocalCategoryRepository implements CategoryRepository {
   Future<int> upsertCategory({
     required String name,
     required String kind,
+    String? icon,
+    int? sortOrder,
   }) async {
+    // name 全局唯一:按 name 找;有则复用,无则用给定 kind/icon/sortOrder 建。
     final existing = await (db.select(db.categories)
-          ..where((c) => c.name.equals(name) & c.kind.equals(kind)))
-        .getSingleOrNull();
-    if (existing != null) return existing.id;
+          ..where((c) => c.name.equals(name)))
+        .get();
+    if (existing.isNotEmpty) return existing.first.id;
     return db.into(db.categories).insert(CategoriesCompanion.insert(
-        name: name, kind: kind, icon: const d.Value(null), syncId: d.Value(_uuid.v4())));
+      name: name,
+      kind: kind,
+      icon: d.Value(icon),
+      sortOrder: d.Value(sortOrder ?? 0),
+      syncId: d.Value(_uuid.v4()),
+    ));
   }
 
   @override

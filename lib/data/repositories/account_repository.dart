@@ -24,7 +24,9 @@ abstract class AccountRepository {
   /// 按币种分组获取账户统计
   Future<Map<String, List<Account>>> getAccountsGroupedByCurrency();
 
-  /// 创建账户
+  /// 创建账户。撞同名抛 [DuplicateNameException](name 全局唯一)。
+  /// 静默路径(import / app-link 等)请用 [upsertAccount](get-or-create 语义)。
+  /// [syncId] 可选:seed 类路径显式塞确定性 id,UI 不传走 auto v4。
   Future<int> createAccount({
     required int ledgerId,
     required String name,
@@ -37,6 +39,20 @@ abstract class AccountRepository {
     String? bankName,
     String? cardLastFour,
     String? note,
+    String? syncId,
+  });
+
+  /// 按 name 取账户(name 全局唯一,账户跨账本可用);不存在则建一条。
+  /// 给 import / app-link 等 get-or-create 语义的静默路径用 —— 不会抛
+  /// [DuplicateNameException]。
+  ///
+  /// [ledgerId] 是 legacy 字段(早期 schema 残留),账户实际跨账本可用,默认 0。
+  Future<int> upsertAccount({
+    required String name,
+    int ledgerId = 0,
+    String type = 'cash',
+    String currency = 'CNY',
+    double initialBalance = 0.0,
   });
 
   /// 更新账户
@@ -151,4 +167,12 @@ abstract class AccountRepository {
 
   /// 更新估值账户的当前估值
   Future<void> updateAccountValuation(int accountId, double newValue);
+
+  // ============================================
+  // 共享账本(§7 / v25)— 跨设备共享的 SharedLedgerAccounts 表
+  // ============================================
+
+  /// 按 syncId 查 SharedLedgerAccounts 行;Editor 视角下 tx 的
+  /// accountSyncIdOverride 走这条反查 → 上层再映射成 synthetic Account。
+  Future<SharedLedgerAccount?> getSharedAccountBySyncId(String syncId);
 }

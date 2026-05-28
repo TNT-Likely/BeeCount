@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' as d;
 import 'package:uuid/uuid.dart';
 
 import '../../db.dart';
+import '../exceptions.dart';
 import '../tag_repository.dart';
 
 /// 本地标签Repository实现
@@ -21,12 +22,42 @@ class LocalTagRepository implements TagRepository {
     required String name,
     String? color,
     int sortOrder = 0,
+    String? syncId,
   }) async {
+    // 撞同名抛 DuplicateNameException(name 全局唯一)。静默路径(import /
+    // 自动记账等)请改用 [upsertTag]。
+    final existing =
+        await (db.select(db.tags)..where((t) => t.name.equals(name))).get();
+    if (existing.isNotEmpty) {
+      throw DuplicateNameException(
+        entityType: 'tag',
+        name: name,
+        existingId: existing.first.id,
+      );
+    }
     return await db.into(db.tags).insert(
       TagsCompanion.insert(
         name: name,
         color: d.Value(color),
         sortOrder: d.Value(sortOrder),
+        syncId: d.Value(syncId ?? _uuid.v4()),
+      ),
+    );
+  }
+
+  @override
+  Future<int> upsertTag({
+    required String name,
+    String? color,
+  }) async {
+    final existing =
+        await (db.select(db.tags)..where((t) => t.name.equals(name))).get();
+    if (existing.isNotEmpty) return existing.first.id;
+    return await db.into(db.tags).insert(
+      TagsCompanion.insert(
+        name: name,
+        color: d.Value(color),
+        sortOrder: const d.Value(0),
         syncId: d.Value(_uuid.v4()),
       ),
     );

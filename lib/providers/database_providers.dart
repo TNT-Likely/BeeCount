@@ -163,10 +163,7 @@ final accountForTxProvider =
   }
   final ov = key.syncIdOverride;
   if (ov == null || ov.isEmpty) return null;
-  if (repo is! LocalRepository) return null;
-  final shared = await (repo.db.select(repo.db.sharedLedgerAccounts)
-        ..where((t) => t.syncId.equals(ov)))
-      .getSingleOrNull();
+  final shared = await repo.getSharedAccountBySyncId(ov);
   if (shared == null) return null;
   return Account(
     // 用 syntheticIdForSyncId 而不是 -1 — 跟 picker / 详情页路径统一,

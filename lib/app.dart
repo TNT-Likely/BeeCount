@@ -209,8 +209,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
         //     a. fast skip:无 unpushed change + 已在远端 → 跳
         //     b. 否则:uploadAttachments + push + downloadAttachments
         //   并发限制由 SQLite mutex 自然控制(Drift 内部排队,不会真并发写)
-        final db = ref.read(databaseProvider);
-        final ledgers = await db.select(db.ledgers).get();
+        final ledgers = await ref.read(repositoryProvider).getAllLedgers();
         if (ledgers.isEmpty) {
           logger.info('AppStart', '本地无账本,跳过首次同步');
           return;

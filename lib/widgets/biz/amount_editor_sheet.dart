@@ -6,7 +6,6 @@ import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:beecount/widgets/ui/wheel_date_picker.dart';
 import '../../data/db.dart';
-import '../../data/repositories/local/local_repository.dart';
 import '../../providers/shared_ledger_providers.dart';
 import '../../styles/tokens.dart';
 import '../../l10n/app_localizations.dart';
@@ -46,15 +45,9 @@ class _TxAuthorInfo {
 final _txAuthorInfoProvider =
     FutureProvider.autoDispose.family<_TxAuthorInfo?, int>((ref, txId) async {
   final repo = ref.watch(repositoryProvider);
-  if (repo is! LocalRepository) return null;
-  final db = repo.db;
-  final tx = await (db.select(db.transactions)
-        ..where((t) => t.id.equals(txId)))
-      .getSingleOrNull();
+  final tx = await repo.getTransactionById(txId);
   if (tx == null) return null;
-  final ledger = await (db.select(db.ledgers)
-        ..where((l) => l.id.equals(tx.ledgerId)))
-      .getSingleOrNull();
+  final ledger = await repo.getLedgerById(tx.ledgerId);
   if (ledger == null || !ledger.isShared) return null;
   final ledgerSyncId = ledger.syncId;
   if (ledgerSyncId == null || ledgerSyncId.isEmpty) return null;

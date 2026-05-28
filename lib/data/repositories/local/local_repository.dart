@@ -794,8 +794,24 @@ class LocalRepository extends BaseRepository {
   // ============================================
 
   @override
-  Future<int> createCategory({required String name, required String kind, String? icon, int? sortOrder}) async {
-    final id = await _categoryRepo.createCategory(name: name, kind: kind, icon: icon, sortOrder: sortOrder);
+  Future<int> createCategory({
+    required String name,
+    required String kind,
+    String? icon,
+    int? sortOrder,
+    int level = 1,
+    int? parentId,
+    String? syncId,
+  }) async {
+    final id = await _categoryRepo.createCategory(
+      name: name,
+      kind: kind,
+      icon: icon,
+      sortOrder: sortOrder,
+      level: level,
+      parentId: parentId,
+      syncId: syncId,
+    );
     if (changeTracker != null) {
       final cat = await _categoryRepo.getCategoryById(id);
       if (cat?.syncId != null) {
@@ -815,9 +831,11 @@ class LocalRepository extends BaseRepository {
     required String kind,
     String? icon,
     int? sortOrder,
+    String? syncId,
   }) async {
     final id = await _categoryRepo.createSubCategory(
-      parentId: parentId, name: name, kind: kind, icon: icon, sortOrder: sortOrder,
+      parentId: parentId, name: name, kind: kind, icon: icon,
+      sortOrder: sortOrder, syncId: syncId,
     );
     if (changeTracker != null) {
       final cat = await _categoryRepo.getCategoryById(id);
@@ -894,8 +912,14 @@ class LocalRepository extends BaseRepository {
   }
 
   @override
-  Future<int> upsertCategory({required String name, required String kind}) =>
-      _categoryRepo.upsertCategory(name: name, kind: kind);
+  Future<int> upsertCategory({
+    required String name,
+    required String kind,
+    String? icon,
+    int? sortOrder,
+  }) =>
+      _categoryRepo.upsertCategory(
+          name: name, kind: kind, icon: icon, sortOrder: sortOrder);
 
   @override
   Future<Category?> getCategoryById(int categoryId) =>
@@ -1289,6 +1313,7 @@ class LocalRepository extends BaseRepository {
     String? bankName,
     String? cardLastFour,
     String? note,
+    String? syncId,
   }) async {
     final id = await _accountRepo.createAccount(
       ledgerId: ledgerId,
@@ -1302,6 +1327,7 @@ class LocalRepository extends BaseRepository {
       bankName: bankName,
       cardLastFour: cardLastFour,
       note: note,
+      syncId: syncId,
     );
     if (changeTracker != null) {
       final account = await _accountRepo.getAccount(id);
@@ -1315,6 +1341,28 @@ class LocalRepository extends BaseRepository {
       }
     }
     return id;
+  }
+
+  @override
+  Future<int> upsertAccount({
+    required String name,
+    int ledgerId = 0,
+    String type = 'cash',
+    String currency = 'CNY',
+    double initialBalance = 0.0,
+  }) async {
+    // 委托底层 upsert(同名复用)。新建分支会自动记 sync change(走 createAccount
+    // 已有逻辑);复用分支已有 syncId、不需要再记 create。
+    final existing = await _accountRepo.getAllAccounts();
+    final hit = existing.where((a) => a.name == name).toList();
+    if (hit.isNotEmpty) return hit.first.id;
+    return createAccount(
+      ledgerId: ledgerId,
+      name: name,
+      type: type,
+      currency: currency,
+      initialBalance: initialBalance,
+    );
   }
 
   @override
@@ -1548,6 +1596,10 @@ class LocalRepository extends BaseRepository {
   @override
   Future<void> updateAccountValuation(int accountId, double newValue) =>
       _accountRepo.updateAccountValuation(accountId, newValue);
+
+  @override
+  Future<SharedLedgerAccount?> getSharedAccountBySyncId(String syncId) =>
+      _accountRepo.getSharedAccountBySyncId(syncId);
 
   // ============================================
   // StatisticsRepository 接口实现 - 委托给 LocalStatisticsRepository
@@ -1832,8 +1884,10 @@ class LocalRepository extends BaseRepository {
     required String name,
     String? color,
     int sortOrder = 0,
+    String? syncId,
   }) async {
-    final id = await _tagRepo.createTag(name: name, color: color, sortOrder: sortOrder);
+    final id = await _tagRepo.createTag(
+        name: name, color: color, sortOrder: sortOrder, syncId: syncId);
     if (changeTracker != null) {
       final tag = await _tagRepo.getTagById(id);
       if (tag?.syncId != null) {
@@ -1844,6 +1898,17 @@ class LocalRepository extends BaseRepository {
       }
     }
     return id;
+  }
+
+  @override
+  Future<int> upsertTag({
+    required String name,
+    String? color,
+  }) async {
+    // 委托底层 upsert;新建分支走 createTag 自动记 sync change。
+    final existing = await _tagRepo.getTagByName(name);
+    if (existing != null) return existing.id;
+    return createTag(name: name, color: color);
   }
 
   @override

@@ -5,6 +5,7 @@ import '../../db.dart';
 import '../../../services/system/logger_service.dart';
 import '../../../utils/account_type_utils.dart';
 import '../account_repository.dart';
+import '../exceptions.dart';
 
 /// 本地账户Repository实现
 /// 基于 Drift 数据库实现
@@ -93,7 +94,19 @@ class LocalAccountRepository implements AccountRepository {
     String? bankName,
     String? cardLastFour,
     String? note,
+    String? syncId,
   }) async {
+    // 撞同名抛 DuplicateNameException(name 全局唯一)。静默路径(import /
+    // app-link 等)请改用 [upsertAccount]。
+    final existingByName =
+        await (db.select(db.accounts)..where((a) => a.name.equals(name))).get();
+    if (existingByName.isNotEmpty) {
+      throw DuplicateNameException(
+        entityType: 'account',
+        name: name,
+        existingId: existingByName.first.id,
+      );
+    }
     try {
       // 计算同类型最大 sortOrder + 1
       final maxSortOrderResult = await db.customSelect(
@@ -117,7 +130,7 @@ class LocalAccountRepository implements AccountRepository {
         bankName: d.Value(bankName),
         cardLastFour: d.Value(cardLastFour),
         note: d.Value(note),
-        syncId: d.Value(_uuid.v4()),
+        syncId: d.Value(syncId ?? _uuid.v4()),
       );
 
       final id = await db.into(db.accounts).insert(companion);
@@ -129,6 +142,28 @@ class LocalAccountRepository implements AccountRepository {
       logger.error('AccountCreate', '创建账户失败 name=$name', e, stack);
       rethrow;
     }
+  }
+
+  @override
+  Future<int> upsertAccount({
+    required String name,
+    int ledgerId = 0,
+    String type = 'cash',
+    String currency = 'CNY',
+    double initialBalance = 0.0,
+  }) async {
+    final existing = await (db.select(db.accounts)
+          ..where((a) => a.name.equals(name)))
+        .get();
+    if (existing.isNotEmpty) return existing.first.id;
+    // 复用 createAccount(此时 name 不冲突,不会抛)
+    return createAccount(
+      ledgerId: ledgerId,
+      name: name,
+      type: type,
+      currency: currency,
+      initialBalance: initialBalance,
+    );
   }
 
   @override
@@ -816,5 +851,12 @@ class LocalAccountRepository implements AccountRepository {
         updatedAt: d.Value(DateTime.now()),
       ),
     );
+  }
+
+  @override
+  Future<SharedLedgerAccount?> getSharedAccountBySyncId(String syncId) {
+    return (db.select(db.sharedLedgerAccounts)
+          ..where((t) => t.syncId.equals(syncId)))
+        .getSingleOrNull();
   }
 }

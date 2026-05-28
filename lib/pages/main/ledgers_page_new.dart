@@ -13,7 +13,6 @@ import '../../models/ledger_display_item.dart';
 import '../../cloud/transactions_sync_manager.dart';
 import '../../cloud/sync_service.dart';
 import '../../cloud/sync/sync_engine.dart';
-import '../../data/repositories/local/local_repository.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/biz.dart';
 import '../cloud/member_list_page.dart';
@@ -568,56 +567,32 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
     } else if (action == 'members') {
       // 跳转成员管理 — 需要 ledger.syncId(server external_id)。本地仅 ledger
       // (没 syncId,从未同步过的)无成员概念,提示用户先建云账户。
-      // 拿 ledger.syncId(用 LocalRepository 直查;repositoryProvider 在 cloud
-      // 模式可能是 CloudRepository,这里需要本地)
-      final localRepo = ref.read(repositoryProvider);
-      String? syncId;
-      if (localRepo is LocalRepository) {
-        final raw = await localRepo.db.select(localRepo.db.ledgers)
-            .map((l) => (id: l.id, syncId: l.syncId))
-            .get();
-        final entry = raw.firstWhere(
-          (e) => e.id == ledger.id,
-          orElse: () => (id: 0, syncId: null),
-        );
-        syncId = entry.syncId;
-      }
+      final row = await ref.read(repositoryProvider).getLedgerById(ledger.id);
+      final syncId = row?.syncId;
       if (syncId == null || syncId.isEmpty) {
         if (mounted) showToast(context, AppLocalizations.of(context).sharedRequiresCloudSync);
         return;
       }
-      final extId = syncId;
       if (mounted) {
         await Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => MemberListPage(
-            ledgerExternalId: extId,
+            ledgerExternalId: syncId,
             ledgerName: ledger.name,
           ),
         ));
       }
     } else if (action == 'memberStats') {
       // 跟成员管理同源:取 ledger.syncId 再跳 MemberStatsPage。
-      final localRepo = ref.read(repositoryProvider);
-      String? syncId;
-      if (localRepo is LocalRepository) {
-        final raw = await localRepo.db.select(localRepo.db.ledgers)
-            .map((l) => (id: l.id, syncId: l.syncId))
-            .get();
-        final entry = raw.firstWhere(
-          (e) => e.id == ledger.id,
-          orElse: () => (id: 0, syncId: null),
-        );
-        syncId = entry.syncId;
-      }
+      final row = await ref.read(repositoryProvider).getLedgerById(ledger.id);
+      final syncId = row?.syncId;
       if (syncId == null || syncId.isEmpty) {
         if (mounted) showToast(context, AppLocalizations.of(context).sharedRequiresCloudSync);
         return;
       }
-      final extId = syncId;
       if (mounted) {
         await Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => MemberStatsPage(
-            ledgerExternalId: extId,
+            ledgerExternalId: syncId,
             ledgerName: ledger.name,
           ),
         ));
