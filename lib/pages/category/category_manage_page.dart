@@ -1019,7 +1019,7 @@ class _SubcategoryDialogState extends ConsumerState<_SubcategoryDialog> {
                 child: Center(child: CircularProgressIndicator()),
               )
             else
-              GridView.builder(
+              ReorderableGridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -1028,10 +1028,29 @@ class _SubcategoryDialogState extends ConsumerState<_SubcategoryDialog> {
                   mainAxisSpacing: 10,
                   childAspectRatio: 1,
                 ),
-                itemCount: (_subCategories?.length ?? 0) + 2, // 子分类 + 添加 + 编辑
+                itemCount: (_subCategories?.length ?? 0) + 2,
+                onReorder: (oldIndex, newIndex) {
+                  final subCategories = _subCategories;
+                  if (subCategories == null) return;
+                  final subCount = subCategories.length;
+                  // Ignore drags involving the add/edit buttons
+                  if (oldIndex >= subCount || newIndex >= subCount) return;
+                  if (oldIndex < newIndex) newIndex -= 1;
+                  // Optimistic local update
+                  final reordered = List<({db.Category category, int transactionCount})>.from(subCategories);
+                  final moved = reordered.removeAt(oldIndex);
+                  reordered.insert(newIndex, moved);
+                  setState(() => _subCategories = reordered);
+                  // Persist to DB
+                  final repo = ref.read(repositoryProvider);
+                  final updates = reordered.asMap().entries.map((e) => (
+                    id: e.value.category.id,
+                    sortOrder: e.key,
+                  )).toList();
+                  repo.updateCategorySortOrders(updates);
+                },
                 itemBuilder: (context, index) {
                   final subCategories = _subCategories ?? [];
-                  // 添加按钮
                   if (index == subCategories.length) {
                     return _DialogActionButton(
                       onTap: widget.onAddSubCategory,
@@ -1039,7 +1058,6 @@ class _SubcategoryDialogState extends ConsumerState<_SubcategoryDialog> {
                       label: l10n.commonAdd,
                     );
                   }
-                  // 编辑按钮
                   if (index == subCategories.length + 1) {
                     return _DialogActionButton(
                       onTap: widget.onEditParentCategory,
@@ -1047,9 +1065,9 @@ class _SubcategoryDialogState extends ConsumerState<_SubcategoryDialog> {
                       label: l10n.commonEdit,
                     );
                   }
-                  // 子分类
                   final item = subCategories[index];
                   return _DialogSubCategoryCard(
+                    key: ValueKey(item.category.id),
                     category: item.category,
                     transactionCount: item.transactionCount,
                     onTap: () => widget.onSubCategoryTap(item.category),
@@ -1119,6 +1137,7 @@ class _DialogSubCategoryCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const _DialogSubCategoryCard({
+    super.key,
     required this.category,
     required this.transactionCount,
     required this.onTap,
