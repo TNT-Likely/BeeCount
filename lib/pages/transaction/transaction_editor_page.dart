@@ -353,20 +353,15 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
                 }
                 ref.read(tagListRefreshProvider.notifier).state++;
               }
-              // override 变化也算 tx update,登记 change 让 sync push 推走
-              // (insertOnConflictUpdate 防重复)
-              final ledgerRow = await (repo.db.select(repo.db.ledgers)
-                    ..where((l) => l.id.equals(ledgerId)))
-                  .getSingleOrNull();
-              if (ledgerRow != null) {
-                await repo.changeTracker?.recordLedgerChange(
-                  entityType: 'transaction',
-                  entityId: transactionId,
-                  entitySyncId: txSyncId,
-                  ledgerId: ledgerId,
-                  action: 'update',
-                );
-              }
+              // 这里**不再**重复 recordLedgerChange(transaction:update)。
+              // 之前为了"override 变化也走 push"专门补一条 update,但
+              // - addTransaction / updateTransaction 已经登记过一次 change
+              // - _serializeEntityForPush('transaction') 在 push 时**统一**读 DB
+              //   最新状态(包括 transaction_tag_overrides 表),payload 自然含
+              //   最新 overrides
+              // 结论:那条补登记的 update 跟前面的 create/update 推同样 payload,
+              // 服务端 sync_changes 表凭空多一条 row(已观察到共享账本 Editor
+              // 创建 tx 时 1 秒内 2 条 identical upsert)。直接砍。
             }
           }
           // 统一处理：自动/手动同步与状态刷新（后台静默）
