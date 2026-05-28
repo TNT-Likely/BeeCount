@@ -118,6 +118,46 @@ class ChangeTracker {
     logger.debug('ChangeTracker', '$action $entityType($entitySyncId)');
   }
 
+  /// 登记一个**从 server pull 拉下来**的实体在本地的状态。
+  ///
+  /// 写入一条 `local_changes` 行,**pushedAt 设为 now**(表示"server 已有此
+  /// 实体,本地不需要再推")。
+  ///
+  /// 目的:fullPush 路径上 [SyncEngine._backfillLegacyUserGlobalChanges]
+  /// 通过扫 local_changes 来识别"哪些 user-global 实体已知"。pull apply 进
+  /// 来的实体如果不登记,legacy backfill 会误判为"v18→v19 老数据"并补登记 →
+  /// 第二台设备同步时把 server 已有的 user-global 实体重新推一遍 → server
+  /// sync_changes 表 2x 膨胀。
+  ///
+  /// **幂等**:同一 (entityType, entitySyncId) 多次调用只插一次(同 entity
+  /// 通过 apply update 多次也不会挤爆表)。
+  Future<void> recordPulledFromServer({
+    required String entityType,
+    required int entityId,
+    required String entitySyncId,
+    required int ledgerId,
+  }) async {
+    final existing = await (db.select(db.localChanges)
+          ..where((c) =>
+              c.entityType.equals(entityType) &
+              c.entitySyncId.equals(entitySyncId))
+          ..limit(1))
+        .getSingleOrNull();
+    if (existing != null) return;
+
+    final now = DateTime.now();
+    await db.into(db.localChanges).insert(LocalChangesCompanion.insert(
+      entityType: entityType,
+      entityId: entityId,
+      entitySyncId: entitySyncId,
+      ledgerId: ledgerId,
+      action: 'upsert',
+      pushedAt: d.Value(now),
+    ));
+    logger.debug('ChangeTracker',
+        'pulled-from-server marker: $entityType($entitySyncId)');
+  }
+
   /// 获取所有未推送的变更
   Future<List<LocalChange>> getUnpushedChanges() async {
     return await (db.select(db.localChanges)

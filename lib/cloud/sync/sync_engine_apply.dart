@@ -294,8 +294,9 @@ extension SyncEngineApplyExt on SyncEngine {
       }
     }
 
+    final int localId;
     if (existing != null) {
-      final localId = existing.id;
+      localId = existing.id;
       await (db.update(db.accounts)
             ..where((a) => a.id.equals(localId)))
           .write(AccountsCompanion(
@@ -314,7 +315,7 @@ extension SyncEngineApplyExt on SyncEngine {
       ));
       logger.debug('SyncEngine', 'pull: 更新账户 $syncId');
     } else {
-      final newId = await db.into(db.accounts).insert(
+      localId = await db.into(db.accounts).insert(
             AccountsCompanion.insert(
               ledgerId: ledgerIdInt,
               name: name,
@@ -335,9 +336,18 @@ extension SyncEngineApplyExt on SyncEngine {
               syncId: d.Value(syncId),
             ),
           );
-      activePullCache?.putAccount(syncId, newId);
+      activePullCache?.putAccount(syncId, localId);
       logger.debug('SyncEngine', 'pull: 新增账户 $syncId');
     }
+
+    // 登记"已从 server 拉到本地"的标记,防止 _backfillLegacyUserGlobalChanges
+    // 误把 device B pull 来的实体当 legacy 重推。详见 [ChangeTracker.recordPulledFromServer]。
+    await changeTracker.recordPulledFromServer(
+      entityType: 'account',
+      entityId: localId,
+      entitySyncId: syncId,
+      ledgerId: 0,
+    );
   }
 
   Future<void> _applyCategoryChange(
@@ -494,6 +504,14 @@ extension SyncEngineApplyExt on SyncEngine {
         expectedPath: payload['customIconPath'] as String?,
       ));
     }
+
+    // 登记"已从 server 拉到本地"标记,见 [_applyAccountChange] 同款注释。
+    await changeTracker.recordPulledFromServer(
+      entityType: 'category',
+      entityId: localCategoryId,
+      entitySyncId: syncId,
+      ledgerId: 0,
+    );
   }
 
   Future<void> _applyTagChange(BeeCountCloudSyncChange change) async {
@@ -540,8 +558,9 @@ extension SyncEngineApplyExt on SyncEngine {
       }
     }
 
+    final int localId;
     if (existing != null) {
-      final localId = existing.id;
+      localId = existing.id;
       await (db.update(db.tags)..where((t) => t.id.equals(localId)))
           .write(TagsCompanion(
         name: d.Value(name),
@@ -550,7 +569,7 @@ extension SyncEngineApplyExt on SyncEngine {
       ));
       logger.debug('SyncEngine', 'pull: 更新标签 $syncId');
     } else {
-      final newId = await db.into(db.tags).insert(
+      localId = await db.into(db.tags).insert(
             TagsCompanion.insert(
               name: name,
               color: d.Value(color),
@@ -558,9 +577,17 @@ extension SyncEngineApplyExt on SyncEngine {
               syncId: d.Value(syncId),
             ),
           );
-      activePullCache?.putTag(syncId, newId);
+      activePullCache?.putTag(syncId, localId);
       logger.debug('SyncEngine', 'pull: 新增标签 $syncId');
     }
+
+    // 登记"已从 server 拉到本地"标记,见 [_applyAccountChange] 同款注释。
+    await changeTracker.recordPulledFromServer(
+      entityType: 'tag',
+      entityId: localId,
+      entitySyncId: syncId,
+      ledgerId: 0,
+    );
   }
 
   /// 应用预算变更。对齐 account/tag:按 syncId upsert,delete 走同样的路径。
