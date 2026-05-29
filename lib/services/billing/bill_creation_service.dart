@@ -91,14 +91,19 @@ class BillCreationService {
       note: bill.note,
     );
 
-    // 6. 自动标签
+    // 6. 自动标签:受「智能记账自动关联标签」开关控制(默认开启,关闭后不挂任何标签)。
+    //    与账户功能开关一致直接读 prefs;入参 autoAddTags 作为代码级强制开关,二者取「与」。
     if (autoAddTags) {
-      await _addTags(
-        transactionId,
-        billingTypes: billingTypes,
-        customTagNames: customTagNames ?? bill.tags,
-        l10n: l10n,
-      );
+      final prefs = await SharedPreferences.getInstance();
+      final autoTagsEnabled = prefs.getBool('smartBillingAutoTags') ?? true;
+      if (autoTagsEnabled) {
+        await _addTags(
+          transactionId,
+          billingTypes: billingTypes,
+          customTagNames: customTagNames ?? bill.tags,
+          l10n: l10n,
+        );
+      }
     }
 
     // 7. 汇总日志
