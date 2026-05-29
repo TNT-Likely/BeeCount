@@ -4202,6 +4202,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aboutDouyin => '抖音';
 
   @override
+  String get aboutWechatGroup => '微信交流群';
+
+  @override
+  String get aboutWechatGroupSubtitle => '扫码加群,作者常在';
+
+  @override
   String get aboutSupportDevelopment => '支持开发';
 
   @override
@@ -10697,6 +10703,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get aboutDouyin => '抖音';
+
+  @override
+  String get aboutWechatGroup => '微信交流群';
+
+  @override
+  String get aboutWechatGroupSubtitle => '掃碼加群,作者常在';
 
   @override
   String get aboutSupportDevelopment => '支持開發';

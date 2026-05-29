@@ -2,6 +2,7 @@ library;
 
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:webdav_client/webdav_client.dart' as webdav;
 
@@ -43,20 +44,57 @@ class WebDAVStorageService implements CloudStorageService {
   @override
   Future<String?> download({required String path}) async {
     try {
-      // Build full path
       final fullPath = _buildPath(path);
 
-      // Download file
-      final bytes = await _client.read(fullPath);
+      try {
+        // Try standard read (OPTIONS + GET). Some WebDAV servers
+        // (e.g. Synology NAS) return 404 for OPTIONS on individual files,
+        // so fall back to direct GET if that happens.
+        final bytes = await _client.read(fullPath);
+        return utf8.decode(bytes);
+      } catch (e) {
+        final msg = e.toString().toLowerCase();
+        final isNotFound = msg.contains('404') || msg.contains('not found');
 
-      // Convert bytes to string
-      return utf8.decode(bytes);
+        if (!isNotFound) rethrow;
+
+        // OPTIONS pre-check failed — fall back to direct GET.
+        return _directGet(fullPath);
+      }
     } catch (e) {
-      // Return null if file not found
-      if (e.toString().contains('404') || e.toString().contains('not found')) {
+      throw CloudStorageException('Download failed: $e', e);
+    }
+  }
+
+  /// Bypass OPTIONS pre-check and download file directly via GET.
+  Future<String?> _directGet(String fullPath) async {
+    try {
+      final response = await _client.c.req<List<int>>(
+        _client,
+        'GET',
+        fullPath,
+        optionsHandler: (options) {
+          options.responseType = ResponseType.bytes;
+          options.headers?['accept'] = '*/*';
+        },
+      );
+
+      if (response.statusCode == 404) return null;
+      if (response.statusCode != 200) {
+        throw CloudStorageException(
+            'Download failed: HTTP ${response.statusCode}');
+      }
+
+      final data = response.data;
+      if (data == null || data.isEmpty) return '';
+
+      return utf8.decode(data);
+    } catch (e) {
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('404') || msg.contains('not found')) {
         return null;
       }
-      throw CloudStorageException('Download failed: $e', e);
+      rethrow;
     }
   }
 

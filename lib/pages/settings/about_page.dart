@@ -159,7 +159,25 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                           await _tryOpenUrl(url);
                         },
                       ),
-                      // 小红书号（仅简体中文显示）
+                      // 微信群入口:所有语言都显示(群本身中文社区,但海外用户
+                      // 也允许加,落地页按 locale 选 ZH / EN 版)。
+                      const Divider(height: 1, thickness: 0.5),
+                      AppListTile(
+                        leading: Icons.groups_outlined,
+                        title: AppLocalizations.of(context).aboutWechatGroup,
+                        subtitle: AppLocalizations.of(context).aboutWechatGroupSubtitle,
+                        onTap: () async {
+                          // 群二维码 7 天有效,挂在 docs/community/ 下,每次过期前
+                          // 仓库里替换 wechat-group.png 就行,app 不用发版。
+                          final isZh = Localizations.localeOf(context).languageCode == 'zh';
+                          final docUrl = isZh
+                              ? 'https://github.com/TNT-Likely/BeeCount/blob/main/docs/community/README_ZH.md'
+                              : 'https://github.com/TNT-Likely/BeeCount/blob/main/docs/community/README_EN.md';
+                          final url = Uri.parse(docUrl);
+                          await _tryOpenUrl(url);
+                        },
+                      ),
+                      // 小红书号 / 抖音(仅简体中文显示 —— 国内向短视频渠道)
                       if (Localizations.localeOf(context).languageCode == 'zh') ...[
                         const Divider(height: 1, thickness: 0.5),
                         AppListTile(

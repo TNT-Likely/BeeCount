@@ -9,6 +9,7 @@ import '../../widgets/ui/ui.dart';
 import '../../styles/tokens.dart';
 import '../../utils/category_utils.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/database_providers.dart';
 import '../../utils/transaction_edit_utils.dart';
 import '../../widgets/category_icon.dart';
 import 'category_detail_page.dart';
@@ -593,6 +594,11 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final hide = ref.watch(hideAmountsProvider);
     final l10n = AppLocalizations.of(context);
+    final allCategories = ref.watch(categoriesProvider).valueOrNull ?? [];
+    final Map<int, String> categoryNameById = {
+      for (var c in allCategories)
+        c.id: CategoryUtils.getDisplayName(c.name, context, kind: c.kind),
+    };
 
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
@@ -954,6 +960,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           // 获取分类显示名称
                           final categoryName = CategoryUtils.getDisplayName(item.category?.name, context);
 
+                          // 获取父级分类名称（二级分类时显示）
+                          final parentCategoryName = (!isTransfer && item.category != null)
+                              ? (CategoryUtils.getParentDisplayName(item.category!.name, item.category!.kind, context)
+                                  ?? categoryNameById[item.category!.parentId])
+                              : null;
+
                           final subtitle = item.t.note ?? '';
                           final isSelected = _selectedIds.contains(item.t.id);
 
@@ -969,8 +981,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                 title: subtitle.isNotEmpty
                                     ? subtitle
                                     : categoryName,
-                                categoryName:
-                                    subtitle.isNotEmpty ? null : categoryName,
+                                categoryName: isTransfer ? null : categoryName,
+                                parentCategoryName: isTransfer ? null : parentCategoryName,
                                 amount: item.t.amount,
                                 isExpense: isExpense,
                                 hide: hide,

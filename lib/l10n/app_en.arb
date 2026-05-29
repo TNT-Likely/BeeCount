@@ -150,24 +150,104 @@
   "searchNoResults": "No matching results found",
   "searchBatchMode": "Batch Operations",
   "searchBatchModeWithCount": "Batch Operations ({selected}/{total})",
+  "@searchBatchModeWithCount": {
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "searchExitBatchMode": "Exit Batch Mode",
   "searchSelectAll": "Select All",
   "searchDeselectAll": "Deselect All",
   "searchSelectedCount": "{count} selected",
+  "@searchSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "searchBatchSetNote": "Set Note",
   "searchBatchChangeCategory": "Change Category",
   "searchBatchDeleteConfirmTitle": "Confirm Delete",
   "searchBatchDeleteConfirmMessage": "Are you sure you want to delete the selected {count} transactions?\nThis action cannot be undone.",
+  "@searchBatchDeleteConfirmMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "searchBatchSetNoteTitle": "Batch Set Note",
   "searchBatchSetNoteMessage": "Set the same note for the selected {count} transactions",
+  "@searchBatchSetNoteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "searchBatchSetNoteHint": "Enter note content (leave empty to clear notes)",
   "searchBatchDeleteSuccess": "Successfully deleted {count} transactions",
+  "@searchBatchDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "searchBatchDeleteFailed": "Delete failed: {error}",
+  "@searchBatchDeleteFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "searchBatchSetNoteSuccess": "Successfully set note for {count} transactions",
+  "@searchBatchSetNoteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "searchBatchSetNoteFailed": "Set note failed: {error}",
+  "@searchBatchSetNoteFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "searchBatchChangeCategorySuccess": "Successfully changed category for {count} transactions",
+  "@searchBatchChangeCategorySuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "searchBatchChangeCategoryFailed": "Change category failed: {error}",
+  "@searchBatchChangeCategoryFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "searchResultsCount": "{count} results",
+  "@searchResultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "searchFilterTitle": "Filter",
   "searchAmountFilter": "Amount Filter",
   "searchDateFilter": "Date Filter",
@@ -209,6 +289,13 @@
   "ledgersNew": "New Ledger",
   "ledgersClear": "Clear Ledger",
   "ledgersClearMessage": "Are you sure to clear all transactions in ledger \"{name}\"? This action cannot be undone.\\nThe ledger will be kept, only transaction data will be deleted.",
+  "@ledgersClearMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "ledgerDefaultName": "Default Ledger",
   "ledgersEdit": "Edit Ledger",
   "ledgersDelete": "Delete Ledger",
@@ -221,6 +308,13 @@
   "ledgersDeleteLocal": "Delete Local Ledger Only",
   "ledgersDeleteLocalTitle": "Delete Local Ledger",
   "ledgersDeleteLocalMessage": "Are you sure to delete local ledger \"{name}\"?\\nCloud backup will be kept and you can restore it anytime.",
+  "@ledgersDeleteLocalMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "ledgersDeleteLocalSuccess": "Local ledger deleted",
   "ledgersName": "Name",
   "ledgersDefaultLedgerName": "Default Ledger",
@@ -379,6 +473,13 @@
   "importCompleted": "Import Completed{cancelled}, success {ok}, failed {fail}",
   "importSkippedNonTransactionTypes": "Skipped {count} non-transaction records (debts, etc.)",
   "importTransactionFailed": "Import failed, all changes have been rolled back: {error}",
+  "@importTransactionFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "importFileOpenError": "Unable to open file picker: {error}",
   "@importFileOpenError": {
     "placeholders": {
@@ -686,15 +787,36 @@
   "categoryClearUnused": "Clear Unused Categories",
   "categoryClearUnusedTitle": "Clear Unused Categories",
   "categoryClearUnusedMessage": "Are you sure you want to delete {count} unused categories? This action cannot be undone.",
+  "@categoryClearUnusedMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "categoryClearUnusedListTitle": "Categories to be deleted:",
   "categoryClearUnusedEmpty": "No unused categories",
   "categoryClearUnusedSuccess": "Deleted {count} categories",
+  "@categoryClearUnusedSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "categoryClearUnusedFailed": "Clear failed",
   "categoryShareScopeTitle": "Select Scope",
   "categoryShareScopeExpense": "Expense categories only",
   "categoryShareScopeIncome": "Income categories only",
   "categoryShareScopeAll": "All categories",
   "categoryShareSuccess": "Saved to {path}",
+  "@categoryShareSuccess": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
   "categoryShareSubject": "BeeCount Category Configuration",
   "categoryShareFailed": "Share failed",
   "categoryImportInvalidFile": "Please select a category package file (.zip)",
@@ -895,6 +1017,13 @@
   "categoryMigrationCompleteMessage": "Successfully migrated {count} transactions from \"{fromName}\" to \"{toName}\".",
   "categoryMigrationFailedTitle": "Migration Failed",
   "categoryMigrationFailedMessage": "Migration error: {error}",
+  "@categoryMigrationFailedMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "categoryMigrationTransactionLabel": "{count} records",
   "@categoryMigrationTransactionLabel": {
     "placeholders": {
@@ -1785,6 +1914,8 @@
   "aboutGitHubRepo": "GitHub Repository",
   "aboutXiaohongshu": "Xiaohongshu",
   "aboutDouyin": "Douyin",
+  "aboutWechatGroup": "WeChat Group",
+  "aboutWechatGroupSubtitle": "Scan to join, developer hangs out here",
   "aboutSupportDevelopment": "Support Development",
   "aboutSupportDevelopmentSubtitle": "Buy me a coffee",
   "aboutDeveloperStoryTitle": "From the Developer",

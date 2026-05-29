@@ -11,6 +11,7 @@ import '../../widgets/category_icon.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../utils/transaction_edit_utils.dart';
+import '../../utils/category_utils.dart';
 import '../../utils/currencies.dart';
 import '../../providers.dart';
 import '../../providers/calendar_providers.dart';
@@ -433,6 +434,12 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
       transactionsByDateProvider((ledgerId: ledgerId, date: date)),
     );
 
+    final allCategories = ref.watch(categoriesProvider).valueOrNull ?? [];
+    final Map<int, String> categoryNameById = {
+      for (var c in allCategories)
+        c.id: CategoryUtils.getDisplayName(c.name, context, kind: c.kind),
+    };
+
     final header = Padding(
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
       child: Row(
@@ -536,7 +543,15 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               final isTransfer = item.t.type == 'transfer';
 
               // 分类名称
-              final categoryName = category?.name ?? l10n.commonUncategorized;
+              final displayName = category != null
+                  ? CategoryUtils.getDisplayName(category.name, context)
+                  : l10n.commonUncategorized;
+
+              // 父级分类名称（二级分类时显示）
+              final parentCategoryName = (!isTransfer && category != null)
+                  ? (CategoryUtils.getParentDisplayName(category.name, category.kind, context)
+                      ?? categoryNameById[category.parentId])
+                  : null;
 
               // 备注作为副标题
               final subtitle = item.t.note ?? '';
@@ -547,111 +562,13 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   .toList();
 
               return TransactionListItem(
-                icon: getCategoryIconData(category: category, categoryName: categoryName),
+                icon: getCategoryIconData(category: category, categoryName: displayName),
                 category: category,
                 title: isTransfer
                     ? (subtitle.isNotEmpty ? subtitle : l10n.transferTitle)
-                    : (subtitle.isNotEmpty ? subtitle : categoryName),
-                categoryName: isTransfer
-                    ? null
-                    : (subtitle.isNotEmpty ? categoryName : null),
-                amount: item.t.amount,
-                isExpense: isExpense,
-                isTransfer: isTransfer,
-                happenedAt: item.t.happenedAt,
-                accountName: item.account?.name,
-                tags: tagsList.isNotEmpty ? tagsList : null,
-                attachmentCount: item.attachments.length,
-                onTap: () async {
-                  await TransactionEditUtils.editTransaction(
-                    context,
-                    ref,
-                    item.t,
-                    item.category,
-                  );
-                },
-              );
-            },
-          );
-        },
-        loading: () => _buildTransactionsSkeleton(context),
-        error: (err, stack) => Padding(
-          padding: const EdgeInsets.all(24),
-          child: Center(child: Text('Error: $err')),
-        ),
-      ),
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [header, card],
-    );
-  }
-
-  // 构建当月交易列表（不显示日期和统计）
-  Widget _buildMonthTransactionsList(
-      BuildContext context, int ledgerId, DateTime month) {
-    final l10n = AppLocalizations.of(context);
-
-    // 使用 Provider 查询当月交易
-    final startDate = DateTime(month.year, month.month, 1);
-    final endDate = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
-
-    final transactionsAsync = ref.watch(
-      monthTransactionsProvider(
-          (ledgerId: ledgerId, startDate: startDate, endDate: endDate)),
-    );
-
-    return SectionCard(
-      margin: EdgeInsets.zero,
-      child: transactionsAsync.when(
-        data: (transactions) {
-          if (transactions.isEmpty) {
-            return Padding(
-              padding: EdgeInsets.all(24.0.scaled(context, ref)),
-              child: Center(
-                child: Text(
-                  l10n.calendarNoTransactions,
-                  style: TextStyle(
-                    color: BeeTokens.textTertiary(context),
-                  ),
-                ),
-              ),
-            );
-          }
-
-          // 直接显示交易列表
-          return ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.zero,
-            itemCount: transactions.length,
-            itemBuilder: (context, index) {
-              final item = transactions[index];
-              final category = item.category;
-              final isExpense = item.t.type == 'expense';
-              final isTransfer = item.t.type == 'transfer';
-
-              // 分类名称
-              final categoryName = category?.name ?? l10n.commonUncategorized;
-
-              // 备注作为副标题
-              final subtitle = item.t.note ?? '';
-
-              // 标签列表
-              final tagsList = item.tags
-                  .map((tag) => (id: tag.id, name: tag.name, color: tag.color))
-                  .toList();
-
-              return TransactionListItem(
-                icon: getCategoryIconData(category: category, categoryName: categoryName),
-                category: category,
-                title: isTransfer
-                    ? (subtitle.isNotEmpty ? subtitle : l10n.transferTitle)
-                    : (subtitle.isNotEmpty ? subtitle : categoryName),
-                categoryName: isTransfer
-                    ? null
-                    : (subtitle.isNotEmpty ? categoryName : null),
+                    : (subtitle.isNotEmpty ? subtitle : displayName),
+                categoryName: isTransfer ? null : displayName,
+                parentCategoryName: isTransfer ? null : parentCategoryName,
                 amount: item.t.amount,
                 isExpense: isExpense,
                 isTransfer: isTransfer,
@@ -680,6 +597,11 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
           child: Center(child: Text('Error: $err')),
         ),
       ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [header, card],
     );
   }
 

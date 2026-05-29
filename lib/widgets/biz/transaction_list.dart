@@ -339,6 +339,13 @@ class TransactionListState extends ConsumerState<TransactionList> {
     // —— account / toAccount 由 Drift JOIN + SharedLedger* table-watch 自动
     // 推送,UI 直接读 it.account?.name。
 
+    // 加载全部分类，构建分类名称查找表，用于通过 parentId 查找父级分类名称
+    final allCategories = ref.watch(categoriesProvider).valueOrNull ?? <Category>[];
+    final Map<int, String> categoryNameById = {
+      for (final c in allCategories)
+        c.id: CategoryUtils.getDisplayName(c.name, context, kind: c.kind),
+    };
+
     _buildFlatItems();
 
     // 无数据时展示空状态
@@ -423,6 +430,16 @@ class TransactionListState extends ConsumerState<TransactionList> {
                 ? AppLocalizations.of(context).adjustmentTransaction
                 : CategoryUtils.getDisplayName(it.category?.name, context);
 
+            // 获取父级分类名称（二级分类时显示）
+            // 优先通过名称中的下划线格式解析（内置分类如 "dining_breakfast" → "dining"）
+            // 如果解析失败且有 parentId，从全部分类表中查询
+            final parentCategoryName = (!isTransfer && !isAdjustment && it.category != null)
+                ? (CategoryUtils.getParentDisplayName(it.category!.name, it.category!.kind, context)
+                    ?? (it.category!.parentId != null
+                        ? categoryNameById[it.category!.parentId]
+                        : null))
+                : null;
+
             final subtitle = it.t.note ?? '';
 
             // 检查是否是当天最后一项
@@ -502,9 +519,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
                           : isAdjustment
                             ? categoryName
                             : (subtitle.isNotEmpty ? subtitle : categoryName),
-                        categoryName: (isTransfer || isAdjustment)
-                          ? null
-                          : (subtitle.isNotEmpty ? null : categoryName),
+                        categoryName: (isTransfer || isAdjustment) ? null : categoryName,
+                        parentCategoryName: isTransfer || isAdjustment ? null : parentCategoryName,
                         amount: it.t.amount,
                         isExpense: isExpense,
                         isTransfer: isTransfer,

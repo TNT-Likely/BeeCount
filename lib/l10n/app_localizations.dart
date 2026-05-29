@@ -8022,6 +8022,18 @@ abstract class AppLocalizations {
   /// **'Douyin'**
   String get aboutDouyin;
 
+  /// No description provided for @aboutWechatGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'WeChat Group'**
+  String get aboutWechatGroup;
+
+  /// No description provided for @aboutWechatGroupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan to join, developer hangs out here'**
+  String get aboutWechatGroupSubtitle;
+
   /// No description provided for @aboutSupportDevelopment.
   ///
   /// In en, this message translates to:
