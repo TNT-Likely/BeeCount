@@ -20,6 +20,7 @@ class TransactionListItem extends ConsumerWidget {
   final VoidCallback? onTap;
   final VoidCallback? onCategoryTap; // 点击分类图标/名称的回调
   final String? categoryName; // 分类名称，用于显示
+  final String? parentCategoryName; // 父级分类名称（二级分类时显示）
   final VoidCallback? onDelete; // 删除回调
   final String? accountName; // 账户名称，用于显示
   final DateTime? happenedAt; // 交易时间，用于显示时分
@@ -39,46 +40,51 @@ class TransactionListItem extends ConsumerWidget {
   final VoidCallback? onAttachmentTap; // 点击附件图标回调
 
   const TransactionListItem({
-      super.key,
-      required this.icon,
-      this.category,
-      required this.title,
-      required this.amount,
-      required this.isExpense,
-      this.isTransfer = false,
-      this.isAdjustment = false,
-      this.hide,
-      this.onTap,
-      this.onCategoryTap,
-      this.categoryName,
-      this.onDelete,
-      this.accountName,
-      this.happenedAt,
-      this.isSelectionMode = false,
-      this.isSelected = false,
-      this.onSelectionChanged,
-      this.showFullDate = false,
-      this.tags,
-      this.onTagTap,
-      this.attachmentCount = 0,
-      this.onAttachmentTap,
+    super.key,
+    required this.icon,
+    this.category,
+    required this.title,
+    required this.amount,
+    required this.isExpense,
+    this.isTransfer = false,
+    this.isAdjustment = false,
+    this.hide,
+    this.onTap,
+    this.onCategoryTap,
+    this.categoryName,
+    this.parentCategoryName,
+    this.onDelete,
+    this.accountName,
+    this.happenedAt,
+    this.isSelectionMode = false,
+    this.isSelected = false,
+    this.onSelectionChanged,
+    this.showFullDate = false,
+    this.tags,
+    this.onTagTap,
+    this.attachmentCount = 0,
+    this.onAttachmentTap,
   });
 
-
-  /// 检查是否有次要信息需要显示（时间、账户或附件）
+  /// 检查是否有次要信息需要显示（分类标签、时间、账户或附件）
   bool _hasSecondaryInfo(WidgetRef ref) {
+    // 有分类名时始终显示标签，保持风格一致性
+    if (categoryName != null) return true;
+
     // 显示完整日期模式
     if (showFullDate && happenedAt != null) return true;
 
     // 显示时间（设置开启 + 有数据 + 不是00:00:00）
     final showTime = ref.watch(showTransactionTimeProvider) &&
         happenedAt != null &&
-        (happenedAt!.hour != 0 || happenedAt!.minute != 0 || happenedAt!.second != 0);
+        (happenedAt!.hour != 0 ||
+            happenedAt!.minute != 0 ||
+            happenedAt!.second != 0);
 
     return showTime || accountName != null || attachmentCount > 0;
   }
 
-  /// 构建次要信息小部件（时间 · 账户 + 附件图标）
+  /// 构建次要信息小部件（分类标签 · 时间 · 账户 + 附件图标）
   Widget _buildSecondaryInfo(BuildContext context, WidgetRef ref) {
     final parts = <String>[];
 
@@ -91,7 +97,9 @@ class TransactionListItem extends ConsumerWidget {
           '${happenedAt!.hour.toString().padLeft(2, '0')}:${happenedAt!.minute.toString().padLeft(2, '0')}',
         );
       } else if (ref.watch(showTransactionTimeProvider) &&
-          (happenedAt!.hour != 0 || happenedAt!.minute != 0 || happenedAt!.second != 0)) {
+          (happenedAt!.hour != 0 ||
+              happenedAt!.minute != 0 ||
+              happenedAt!.second != 0)) {
         // 完整时间模式（HH:mm:ss）
         parts.add(
           '${happenedAt!.hour.toString().padLeft(2, '0')}:${happenedAt!.minute.toString().padLeft(2, '0')}:${happenedAt!.second.toString().padLeft(2, '0')}',
@@ -105,9 +113,9 @@ class TransactionListItem extends ConsumerWidget {
     }
 
     final textStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-      color: BeeTokens.textTertiary(context),
-      fontSize: 11,
-    );
+          color: BeeTokens.textTertiary(context),
+          fontSize: 11,
+        );
 
     // 构建附件图标部件（可点击）
     Widget buildAttachmentWidget() {
@@ -136,21 +144,208 @@ class TransactionListItem extends ConsumerWidget {
       return widget;
     }
 
-    // 如果只有附件，没有其他信息
-    if (parts.isEmpty && attachmentCount > 0) {
-      return buildAttachmentWidget();
+    // 组装行内容
+    final rowChildren = <Widget>[];
+
+    // 前置：分类标签
+    if (categoryName != null) {
+      rowChildren.add(_buildCategoryLabels(context));
     }
 
-    // 有其他信息时
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(parts.join(' · '), style: textStyle),
-        if (attachmentCount > 0) ...[
-          Text(' · ', style: textStyle),
-          buildAttachmentWidget(),
-        ],
-      ],
+    // 中间：时间 · 账户
+    if (parts.isNotEmpty) {
+      if (rowChildren.isNotEmpty) {
+        rowChildren.add(Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Text('·', style: textStyle),
+        ));
+      }
+      rowChildren.add(Text(parts.join(' · '), style: textStyle));
+    }
+
+    // 尾部：附件图标
+    if (attachmentCount > 0) {
+      if (rowChildren.isNotEmpty) {
+        rowChildren.add(Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Text('·', style: textStyle),
+        ));
+      }
+      rowChildren.add(buildAttachmentWidget());
+    }
+
+    if (rowChildren.isEmpty) return const SizedBox.shrink();
+
+    final hasCategory = categoryName != null;
+    final hasTimeOrAccount = parts.isNotEmpty;
+    final hasAttach = attachmentCount > 0;
+
+    // 用于宽度预估的分类标签样式（与 _buildCategoryLabels 保持一致）
+    final colorScheme = Theme.of(context).colorScheme;
+    final primaryColor = colorScheme.primary;
+    final labelTextStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+          fontSize: 10,
+          color: primaryColor,
+          height: 1.2,
+          fontWeight: FontWeight.w500,
+        );
+    final parentTextStyle = parentCategoryName != null
+        ? labelTextStyle?.copyWith(color: primaryColor.withValues(alpha: 0.8))
+        : null;
+
+    return LayoutBuilder(
+      builder: (ctx, constraints) {
+        final availableWidth = constraints.maxWidth;
+
+        // 预估一行总宽度
+        double totalWidth = 0;
+
+        // 分类标签宽度（Container padding 6+6=12 + 文字 + 间距）
+        if (hasCategory) {
+          totalWidth += 12;
+          if (parentCategoryName != null) {
+            totalWidth += _textWidth(parentCategoryName!, parentTextStyle, ctx);
+            totalWidth += _textWidth('>', labelTextStyle, ctx) + 2;
+          }
+          totalWidth += _textWidth(categoryName!, labelTextStyle, ctx);
+          totalWidth += 12;
+        }
+
+        // 分隔符 · 和 时间·账户
+        if (hasCategory && hasTimeOrAccount) {
+          totalWidth += _textWidth('·', textStyle, ctx) + 4;
+        }
+        if (hasTimeOrAccount) {
+          totalWidth += _textWidth(parts.join(' · '), textStyle, ctx);
+        }
+
+        // 分隔符 · 和附件图标
+        if (hasAttach) {
+          if (hasTimeOrAccount || hasCategory) {
+            totalWidth += _textWidth('·', textStyle, ctx) + 4;
+          }
+          totalWidth += 12 + 2 + _textWidth('$attachmentCount', textStyle, ctx);
+        }
+
+        // 留 8px 余量
+        if (totalWidth <= availableWidth + 8) {
+          // 一行放得下
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: rowChildren,
+          );
+        }
+
+        // 放不下 → 拆两行：分类标签一行，时间·账户·附件一行
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (hasCategory) _buildCategoryLabels(context),
+            if (hasTimeOrAccount || hasAttach)
+              Padding(
+                padding: EdgeInsets.only(top: hasCategory ? 2 : 0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (hasTimeOrAccount)
+                      Text(parts.join(' · '), style: textStyle),
+                    if (hasAttach) ...[
+                      if (hasTimeOrAccount)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2),
+                          child: Text('·', style: textStyle),
+                        ),
+                      buildAttachmentWidget(),
+                    ],
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// 测量文本宽度（TextPainter）
+  double _textWidth(String text, TextStyle? style, BuildContext context) {
+    if (text.isEmpty || style == null) return 0;
+    final tp = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: 1,
+      textDirection: Directionality.of(context),
+    )..layout();
+    return tp.width;
+  }
+
+  /// 构建分类标签小部件（用于内嵌在次要信息行中）
+  /// 风格：单一标签 + 统一样式，二级分类用「 > 」分隔
+  Widget _buildCategoryLabels(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final primaryColor = colorScheme.primary;
+
+    // 统一样式：浅底色 + 主色文字
+    final labelTextStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+          fontSize: 10,
+          color: primaryColor,
+          height: 1.2,
+          fontWeight: FontWeight.w500,
+        );
+
+    // 有二级分类时，父类文字稍淡
+    final parentTextStyle = parentCategoryName != null
+        ? labelTextStyle?.copyWith(color: primaryColor.withValues(alpha: 0.8))
+        : null;
+
+    // 构建标签文字样式
+    final TextStyle? labelStyle = labelTextStyle;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: primaryColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: primaryColor.withValues(alpha: 0.22),
+          width: 0.8,
+        ),
+      ),
+      child: parentCategoryName != null
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  parentCategoryName!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: parentTextStyle,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 1, right: 1),
+                  child: Text(
+                    '>',
+                    style: labelStyle?.copyWith(
+                      color: primaryColor.withValues(alpha: 0.45),
+                    ),
+                  ),
+                ),
+                Text(
+                  categoryName!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: labelStyle,
+                ),
+              ],
+            )
+          : ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 72),
+              child: Text(
+                categoryName!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: labelStyle,
+              ),
+            ),
     );
   }
 
@@ -191,7 +386,7 @@ class TransactionListItem extends ConsumerWidget {
                 ),
               ),
             const SizedBox(width: 12),
-            // 左侧：分类名称 + 备注 + 时间·账户
+            // 左侧：分类名称 + 备注 + 分类标签 + 时间·账户
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(right: 12),
@@ -200,27 +395,25 @@ class TransactionListItem extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // 第一行：分类名称（始终显示）
-                    Text(
-                      categoryName ?? title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: BeeTextTokens.title(context),
-                    ),
-                    // 第二行：备注（当title与categoryName不同时显示）
-                    if (categoryName != null && categoryName != title)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: BeeTokens.textSecondary(context),
-                          ),
-                        ),
+                    if (categoryName != null &&
+                        categoryName != title &&
+                        title.isNotEmpty)
+                      // 有备注时：第一行显示备注，分类名作为标签显示在下面
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: BeeTextTokens.title(context),
+                      )
+                    else
+                      // 无备注时：显示分类名称（或transfer等标题）
+                      Text(
+                        categoryName ?? title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: BeeTextTokens.title(context),
                       ),
-                    // 第三行：时间 · 账户 · 附件
+                    // 时间 · 账户 · 附件 · 分类标签
                     if (_hasSecondaryInfo(ref))
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
@@ -240,7 +433,9 @@ class TransactionListItem extends ConsumerWidget {
                 AmountText(
                     value: isAdjustment
                         ? amount // adjustment 直接显示原始值（含正负）
-                        : isExpense ? -amount : amount,
+                        : isExpense
+                            ? -amount
+                            : amount,
                     hide: hide,
                     signed: !isTransfer, // 转账不显示正负号
                     decimals: 2,
@@ -292,10 +487,11 @@ class TransactionListItem extends ConsumerWidget {
         confirmDismiss: (direction) async {
           // 显示确认对话框
           return await AppDialog.confirm<bool>(
-            context,
-            title: '确认删除',
-            message: '确定要删除这笔交易吗？此操作无法撤销。',
-          ) ?? false;
+                context,
+                title: '确认删除',
+                message: '确定要删除这笔交易吗？此操作无法撤销。',
+              ) ??
+              false;
         },
         onDismissed: (direction) {
           onDelete!();

@@ -303,13 +303,19 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
               final categoryName = CategoryUtils.getDisplayName(category?.name, context);
               final isTransfer = transaction.type == 'transfer';
 
+              // 获取父级分类名称（二级分类时显示）
+              final parentCategoryName = (!isTransfer && category != null)
+                  ? CategoryUtils.getParentDisplayName(category.name, category.kind, context)
+                  : null;
+
               // 和首页保持一致：有备注显示备注，无备注显示分类名称
               final hasNote = transaction.note?.isNotEmpty == true;
               return TransactionListItem(
                 icon: getCategoryIconData(category: category, categoryName: categoryName),
                 category: category,
                 title: hasNote ? transaction.note! : categoryName,
-                categoryName: hasNote ? null : categoryName,
+                categoryName: isTransfer ? null : categoryName,
+                parentCategoryName: isTransfer ? null : parentCategoryName,
                 amount: transaction.amount,
                 isExpense: transaction.type == 'expense',
                 happenedAt: transaction.happenedAt,

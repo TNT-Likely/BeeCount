@@ -196,4 +196,15 @@ class CategoryUtils {
 
     return translationString.split(separator).map((e) => e.trim()).toList();
   }
+
+  /// 获取父级分类的显示名称
+  ///
+  /// 对于二级分类的key格式（如 "dining_breakfast"），提取父级key（"dining"）
+  /// 并返回其翻译后的显示名称（"餐饮"）。
+  /// 如果是一级分类，返回null。
+  static String? getParentDisplayName(String? categoryName, String kind, BuildContext context) {
+    if (categoryName == null || !categoryName.contains('_')) return null;
+    final parentKey = categoryName.split('_').first;
+    return getDisplayName(parentKey, context, kind: kind);
+  }
 }
