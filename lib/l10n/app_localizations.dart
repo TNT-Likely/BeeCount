@@ -7254,6 +7254,42 @@ abstract class AppLocalizations {
   /// **'Watch detailed setup video tutorial'**
   String get iosAutoTutorialDesc;
 
+  /// No description provided for @iosAutoImportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Shortcut in One Tap'**
+  String get iosAutoImportTitle;
+
+  /// No description provided for @iosAutoImportDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the button below to import the ready-made \"Screenshot → Auto Billing\" shortcut — no need to add the \"Take Screenshot\" action or connect parameters manually. After importing, binding it to \"Back Tap\" is recommended.'**
+  String get iosAutoImportDesc;
+
+  /// No description provided for @iosAutoImportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Shortcut'**
+  String get iosAutoImportButton;
+
+  /// No description provided for @iosAutoImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the shortcut link. Check your connection and try again.'**
+  String get iosAutoImportFailed;
+
+  /// No description provided for @iosAutoManualConfigTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual Setup (Advanced)'**
+  String get iosAutoManualConfigTitle;
+
+  /// No description provided for @iosAutoManualConfigDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'If one-tap import isn\'t available, follow these steps to create the shortcut manually.'**
+  String get iosAutoManualConfigDesc;
+
   /// No description provided for @aiSettingsTitle.
   ///
   /// In en, this message translates to:
@@ -7830,11 +7866,11 @@ abstract class AppLocalizations {
   /// **'Long press the + button at the bottom center of the home page and select \'Gallery\' to use image billing. Requires AI service configured under \"Me → AI Settings\"; the vision model will extract amount, merchant, time, etc. from the screenshot.'**
   String get smartBillingImageBillingGuide;
 
-  /// No description provided for @smartBillingAIOptional.
+  /// No description provided for @smartBillingVisionAIRequired.
   ///
   /// In en, this message translates to:
-  /// **'AI recognition is optional, configuration can improve recognition accuracy'**
-  String get smartBillingAIOptional;
+  /// **'Image recognition requires an AI vision service. Set it up in \"Me → AI Settings\" first.'**
+  String get smartBillingVisionAIRequired;
 
   /// No description provided for @smartBillingCameraBilling.
   ///
@@ -7875,7 +7911,7 @@ abstract class AppLocalizations {
   /// No description provided for @smartBillingAIRequired.
   ///
   /// In en, this message translates to:
-  /// **'Voice billing requires AI configuration (Zhipu GLM API), please configure AI settings above first'**
+  /// **'Voice billing requires an AI speech service. Set it up in \"Me → AI Settings\" first.'**
   String get smartBillingAIRequired;
 
   /// No description provided for @smartBillingAutoTags.
@@ -7902,11 +7938,41 @@ abstract class AppLocalizations {
   /// **'Automatically add original image as attachment for photo billing'**
   String get smartBillingAutoAttachmentDesc;
 
+  /// No description provided for @autoScreenshotBillingIosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto Billing'**
+  String get autoScreenshotBillingIosTitle;
+
   /// No description provided for @autoScreenshotBillingIosDesc.
   ///
   /// In en, this message translates to:
-  /// **'Auto-recognize payment screenshots via Shortcuts'**
+  /// **'Auto-recognize payments via Shortcuts'**
   String get autoScreenshotBillingIosDesc;
+
+  /// No description provided for @shareBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Share to Bill'**
+  String get shareBilling;
+
+  /// No description provided for @shareBillingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a payment screenshot from Alipay/WeChat to bill it'**
+  String get shareBillingDesc;
+
+  /// No description provided for @shareBillingGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'When you see a payment screenshot in Alipay, WeChat, Photos, etc., tap \"Share\" and choose \"BeeCount\" to auto-recognize the amount, merchant, and time and create a transaction — no need to save the screenshot first.'**
+  String get shareBillingGuide;
+
+  /// No description provided for @shareBillingActionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognized automatically in the background after sharing — no need to open BeeCount'**
+  String get shareBillingActionHint;
 
   /// No description provided for @automation.
   ///

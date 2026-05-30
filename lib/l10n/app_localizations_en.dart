@@ -3800,6 +3800,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iosAutoTutorialDesc => 'Watch detailed setup video tutorial';
 
   @override
+  String get iosAutoImportTitle => 'Get Shortcut in One Tap';
+
+  @override
+  String get iosAutoImportDesc => 'Tap the button below to import the ready-made \"Screenshot → Auto Billing\" shortcut — no need to add the \"Take Screenshot\" action or connect parameters manually. After importing, binding it to \"Back Tap\" is recommended.';
+
+  @override
+  String get iosAutoImportButton => 'Get Shortcut';
+
+  @override
+  String get iosAutoImportFailed => 'Couldn\'t open the shortcut link. Check your connection and try again.';
+
+  @override
+  String get iosAutoManualConfigTitle => 'Manual Setup (Advanced)';
+
+  @override
+  String get iosAutoManualConfigDesc => 'If one-tap import isn\'t available, follow these steps to create the shortcut manually.';
+
+  @override
   String get aiSettingsTitle => 'AI Assistant';
 
   @override
@@ -4106,7 +4124,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smartBillingImageBillingGuide => 'Long press the + button at the bottom center of the home page and select \'Gallery\' to use image billing. Requires AI service configured under \"Me → AI Settings\"; the vision model will extract amount, merchant, time, etc. from the screenshot.';
 
   @override
-  String get smartBillingAIOptional => 'AI recognition is optional, configuration can improve recognition accuracy';
+  String get smartBillingVisionAIRequired => 'Image recognition requires an AI vision service. Set it up in \"Me → AI Settings\" first.';
 
   @override
   String get smartBillingCameraBilling => 'Camera Billing';
@@ -4127,7 +4145,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smartBillingVoiceBillingGuide => 'Long press the + button at the bottom center of the home page and select \'Voice\' to use voice billing. Voice billing requires AI to convert speech to text and extract bill information.';
 
   @override
-  String get smartBillingAIRequired => 'Voice billing requires AI configuration (Zhipu GLM API), please configure AI settings above first';
+  String get smartBillingAIRequired => 'Voice billing requires an AI speech service. Set it up in \"Me → AI Settings\" first.';
 
   @override
   String get smartBillingAutoTags => 'Auto-associate Tags';
@@ -4142,7 +4160,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smartBillingAutoAttachmentDesc => 'Automatically add original image as attachment for photo billing';
 
   @override
-  String get autoScreenshotBillingIosDesc => 'Auto-recognize payment screenshots via Shortcuts';
+  String get autoScreenshotBillingIosTitle => 'Auto Billing';
+
+  @override
+  String get autoScreenshotBillingIosDesc => 'Auto-recognize payments via Shortcuts';
+
+  @override
+  String get shareBilling => 'Share to Bill';
+
+  @override
+  String get shareBillingDesc => 'Share a payment screenshot from Alipay/WeChat to bill it';
+
+  @override
+  String get shareBillingGuide => 'When you see a payment screenshot in Alipay, WeChat, Photos, etc., tap \"Share\" and choose \"BeeCount\" to auto-recognize the amount, merchant, and time and create a transaction — no need to save the screenshot first.';
+
+  @override
+  String get shareBillingActionHint => 'Recognized automatically in the background after sharing — no need to open BeeCount';
 
   @override
   String get automation => 'Automation';

@@ -3800,6 +3800,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get iosAutoTutorialDesc => '查看详细配置视频教程';
 
   @override
+  String get iosAutoImportTitle => '一键获取快捷指令';
+
+  @override
+  String get iosAutoImportDesc => '点击下方按钮，自动导入已配置好的「截屏 → 自动记账」快捷指令，无需手动添加“截屏”操作和连接参数。导入后建议在「轻点背面」中绑定它。';
+
+  @override
+  String get iosAutoImportButton => '获取快捷指令';
+
+  @override
+  String get iosAutoImportFailed => '无法打开快捷指令链接，请检查网络后重试';
+
+  @override
+  String get iosAutoManualConfigTitle => '手动配置（高级）';
+
+  @override
+  String get iosAutoManualConfigDesc => '若一键导入不可用，可按以下步骤手动创建快捷指令。';
+
+  @override
   String get aiSettingsTitle => 'AI小助手';
 
   @override
@@ -4106,7 +4124,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get smartBillingImageBillingGuide => '在首页长按底部中间的 + 按钮,选择「相册」即可使用图片记账功能。需先在「我的 → AI 设置」配置 AI 服务,AI 视觉模型会自动识别金额、商家、时间等账单信息。';
 
   @override
-  String get smartBillingAIOptional => 'AI 识别为可选功能，配置后可提高识别准确度';
+  String get smartBillingVisionAIRequired => '图片识别必须配置 AI 视觉服务，请先在「我的 → AI 设置」中配置';
 
   @override
   String get smartBillingCameraBilling => '拍照记账';
@@ -4127,7 +4145,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get smartBillingVoiceBillingGuide => '在首页长按底部中间的 + 按钮，选择「语音」即可使用语音记账功能。语音记账需要通过AI将语音转为文字并提取账单信息。';
 
   @override
-  String get smartBillingAIRequired => '语音记账必须配置 AI（智谱 GLM API），请先在上方配置 AI 设置';
+  String get smartBillingAIRequired => '语音记账必须配置 AI 语音识别服务，请先在「我的 → AI 设置」中配置';
 
   @override
   String get smartBillingAutoTags => '自动关联标签';
@@ -4142,7 +4160,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get smartBillingAutoAttachmentDesc => '图片/拍照记账时自动将原图添加为附件';
 
   @override
-  String get autoScreenshotBillingIosDesc => '通过快捷指令实现截图自动识别记账';
+  String get autoScreenshotBillingIosTitle => '自动记账';
+
+  @override
+  String get autoScreenshotBillingIosDesc => '通过快捷指令自动识别支付信息记账';
+
+  @override
+  String get shareBilling => '分享记账';
+
+  @override
+  String get shareBillingDesc => '从支付宝/微信分享支付截图即可记账';
+
+  @override
+  String get shareBillingGuide => '在支付宝、微信、相册等应用中看到支付截图时，点击「分享」并选择「蜜蜂记账」，即可自动识别金额、商家、时间等信息并记账，无需先保存截图。';
+
+  @override
+  String get shareBillingActionHint => '分享后会在后台自动识别记账，无需手动打开蜜蜂记账';
 
   @override
   String get automation => '自动化';
@@ -10297,6 +10330,24 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get iosAutoTutorialDesc => '查看詳細設定影片教學';
 
   @override
+  String get iosAutoImportTitle => '一鍵取得捷徑';
+
+  @override
+  String get iosAutoImportDesc => '點擊下方按鈕，自動匯入已設定好的「截圖 → 自動記帳」捷徑，無需手動新增“截圖”操作和連接參數。匯入後建議在「輕點背面」中綁定它。';
+
+  @override
+  String get iosAutoImportButton => '取得捷徑';
+
+  @override
+  String get iosAutoImportFailed => '無法開啟捷徑連結，請檢查網路後重試';
+
+  @override
+  String get iosAutoManualConfigTitle => '手動設定（進階）';
+
+  @override
+  String get iosAutoManualConfigDesc => '若一鍵匯入無法使用，可依照以下步驟手動建立捷徑。';
+
+  @override
   String get aiSettingsTitle => 'AI 小助手';
 
   @override
@@ -10603,7 +10654,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get smartBillingImageBillingGuide => '在首頁長按底部中間的 + 按鈕,選擇「相簿」即可使用圖片記帳功能。需先在「我的 → AI 設定」配置 AI 服務,AI 視覺模型會自動識別金額、商家、時間等帳單資訊。';
 
   @override
-  String get smartBillingAIOptional => 'AI 識別為可選功能，配置後可提高識別準確度';
+  String get smartBillingVisionAIRequired => '圖片辨識必須配置 AI 視覺服務，請先在「我的 → AI 設定」中配置';
 
   @override
   String get smartBillingCameraBilling => '拍照記帳';
@@ -10624,7 +10675,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get smartBillingVoiceBillingGuide => '在首頁長按底部中間的 + 按鈕，選擇「語音」即可使用語音記帳功能。語音記帳需要透過AI將語音轉為文字並提取帳單資訊。';
 
   @override
-  String get smartBillingAIRequired => '語音記帳必須配置 AI（智譜 GLM API），請先在上方配置 AI 設定';
+  String get smartBillingAIRequired => '語音記帳必須配置 AI 語音辨識服務，請先在「我的 → AI 設定」中配置';
 
   @override
   String get smartBillingAutoTags => '自動關聯標籤';
@@ -10639,7 +10690,22 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get smartBillingAutoAttachmentDesc => '圖片/拍照記帳時自動將原圖新增為附件';
 
   @override
-  String get autoScreenshotBillingIosDesc => '透過快捷指令實現截圖自動識別記帳';
+  String get autoScreenshotBillingIosTitle => '自動記帳';
+
+  @override
+  String get autoScreenshotBillingIosDesc => '透過快捷指令自動識別支付資訊記帳';
+
+  @override
+  String get shareBilling => '分享記帳';
+
+  @override
+  String get shareBillingDesc => '從支付寶/微信分享支付截圖即可記帳';
+
+  @override
+  String get shareBillingGuide => '在支付寶、微信、相簿等應用中看到支付截圖時，點擊「分享」並選擇「蜜蜂記帳」，即可自動識別金額、商家、時間等資訊並記帳，無需先儲存截圖。';
+
+  @override
+  String get shareBillingActionHint => '分享後會在背景自動識別記帳，無需手動開啟蜜蜂記帳';
 
   @override
   String get automation => '自動化';

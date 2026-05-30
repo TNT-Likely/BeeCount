@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../widgets/ui/primary_header.dart';
 import '../../providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/platform_info.dart';
+import '../../widgets/ui/ui.dart';
 
 /// iOS自动记账配置页面
 /// 通过快捷指令实现截图自动识别
@@ -29,7 +29,7 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
       body: Column(
         children: [
           PrimaryHeader(
-            title: l10n.autoScreenshotBillingTitle,
+            title: l10n.autoScreenshotBillingIosTitle,
             showBack: true,
           ),
           Expanded(
@@ -44,6 +44,12 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
                 // iOS 15版本提示
                 if (!supportsAppIntents) _buildVersionWarning(context, primaryColor),
                 if (!supportsAppIntents) const SizedBox(height: 16),
+
+                // 一键获取快捷指令（主推路径）
+                _buildImportCard(context, primaryColor, l10n),
+
+                const SizedBox(height: 16),
+
                 // 功能说明
                 _buildInfoCard(
                   context,
@@ -67,6 +73,79 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// iCloud 上预制好的「截屏 → 自动记账」快捷指令，用户点一下即可导入，
+  /// 无需手动添加“截屏”操作和连接参数（手动 6 步降级为折叠兜底）。
+  static const String _shortcutImportUrl =
+      'https://www.icloud.com/shortcuts/fda5016c98eb474f840f2f91396bd241';
+
+  Future<void> _openShortcut(BuildContext context, AppLocalizations l10n) async {
+    final url = Uri.parse(_shortcutImportUrl);
+    var ok = false;
+    if (await canLaunchUrl(url)) {
+      ok = await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+    if (!ok && context.mounted) {
+      showToast(context, l10n.iosAutoImportFailed);
+    }
+  }
+
+  Widget _buildImportCard(
+    BuildContext context,
+    Color primaryColor,
+    AppLocalizations l10n,
+  ) {
+    final theme = Theme.of(context);
+
+    return Card(
+      color: primaryColor.withValues(alpha: 0.12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.bolt, color: primaryColor, size: 24),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.iosAutoImportTitle,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: primaryColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.iosAutoImportDesc,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () => _openShortcut(context, l10n),
+                icon: const Icon(Icons.download_rounded, size: 20),
+                label: Text(l10n.iosAutoImportButton),
+                style: FilledButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -162,26 +241,23 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
 
     return Card(
       color: primaryColor.withValues(alpha: 0.05),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.auto_awesome, color: primaryColor, size: 24),
-                const SizedBox(width: 8),
-                Text(
-                  '快捷指令配置指南',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+      // 一键导入是主推路径，手动 6 步默认折叠，作为导入不可用时的兜底
+      child: Theme(
+        data: theme.copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          leading: Icon(Icons.tune, color: primaryColor, size: 24),
+          title: Text(
+            l10n.iosAutoManualConfigTitle,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
             ),
-            const SizedBox(height: 12),
+          ),
+          children: [
             Text(
-              'iOS通过"快捷指令"应用实现截图自动识别记账。设置后，每次截图都会自动识别并记录交易。',
+              l10n.iosAutoManualConfigDesc,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
