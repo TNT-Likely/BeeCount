@@ -9,6 +9,7 @@ import '../../providers/smart_billing_providers.dart';
 import '../../providers/theme_providers.dart';
 import '../ai/ai_settings_page.dart';
 import '../automation/auto_billing_settings_page.dart';
+import '../automation/shake_billing_page.dart';
 import 'shortcuts_guide_page.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -259,6 +260,20 @@ class SmartBillingPage extends ConsumerWidget {
                           onTap: () async {
                             await Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => const AutoBillingSettingsPage()),
+                            );
+                          },
+                        ),
+                        BeeTokens.cardDivider(context),
+                      ],
+                      // 摇一摇自动记账（Android）
+                      if (Platform.isAndroid && !_isGooglePlayBuild) ...[
+                        AppListTile(
+                          leading: Icons.sensors,
+                          title: '摇一摇自动记账',
+                          subtitle: '摇动手机，无障碍截屏并记账',
+                          onTap: () async {
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const ShakeBillingPage()),
                             );
                           },
                         ),

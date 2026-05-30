@@ -26,13 +26,20 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Required for foreground service notifications -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Required for foreground service with specialUse type on Android 14+ -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <!-- Required for apps targeting Android 14+ -->
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <!-- Required for requesting battery optimization exemption -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <!-- Required for biometric authentication -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
-    
+    <!-- Required for heads-up notification (fullScreenIntent) on Android 12+ -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+
+    <!-- AccessibilityService 权限由系统通过 <service android:permission="..."> 授予，
+         不需要也不应该声明为 <uses-permission>（它是 signature 级权限，只能系统赋予） -->
+
     <application
         android:label="@string/app_name"
         android:name="${applicationName}"
@@ -104,7 +111,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-                <action android:name="android.intent.action.PACKAGE_REPLACED" />
                 <data android:scheme="package" />
             </intent-filter>
             <intent-filter>
@@ -130,6 +136,48 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/beecount_widget_info" />
+        </receiver>
+
+        <!-- 摇一摇自动记账无障碍服务 -->
+        <service
+            android:name=".BillingAccessibilityService"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:label="@string/accessibility_service_label"
+            android:description="@string/accessibility_service_description"
+            android:foregroundServiceType="specialUse">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- 保活前台服务 -->
+        <service
+            android:name=".KeepAliveService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+        </service>
+
+        <!-- 保活心跳检测 JobService -->
+        <service
+            android:name=".KeepAliveJobService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+
+        <!-- 开机自启接收器 -->
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
 
     </application>

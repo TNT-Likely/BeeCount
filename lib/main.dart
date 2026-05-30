@@ -20,6 +20,7 @@ import 'providers/security_providers.dart';
 import 'services/system/reminder_monitor_service.dart';
 import 'providers/credit_card_reminder_providers.dart';
 import 'services/platform/screenshot_monitor_service.dart';
+import 'services/platform/shake_billing_service.dart';
 import 'services/platform/image_share_handler_service.dart';
 import 'services/platform/app_link_service.dart';
 import 'services/system/logger_service.dart';
@@ -115,6 +116,9 @@ Future<void> main() async {
   // 恢复截图自动识别设置（Android专属），传入container
   await _restoreScreenshotMonitor(container);
 
+  // 恢复摇一摇自动记账状态（Android专属）
+  await _restoreShakeBilling(container);
+
   // 初始化图片分享处理服务（Android专属）
   if (Platform.isAndroid) {
     _setupImageShareHandler(container);
@@ -140,11 +144,23 @@ Future<void> main() async {
   // 执行,失败不致命。
   unawaited(_runOrphanFileGcOnce(container));
 
-  runApp(ProviderScope(
-    parent: container,
-    observers: const [_WidgetUpdateObserver()],
-    child: const MainApp(),
-  ));
+  // 全局错误捕获 — 未捕获的 Flutter/Dart 异常
+  FlutterError.onError = (FlutterErrorDetails details) {
+    logger.error('FlutterError', '未捕获的 Flutter 错误', details.exception.toString(), details.stack);
+  };
+
+  runZonedGuarded(
+    () {
+      runApp(ProviderScope(
+        parent: container,
+        observers: const [_WidgetUpdateObserver()],
+        child: const MainApp(),
+      ));
+    },
+    (Object error, StackTrace stack) {
+      logger.error('ZONE', '未捕获的区域错误', error, stack);
+    },
+  );
 }
 
 /// Provider observer to update widget on app start
@@ -256,7 +272,31 @@ Future<void> _restoreScreenshotMonitor(ProviderContainer container) async {
     }
   } catch (e) {
     print('❌ 恢复截图监听失败: $e');
-    // 不抛出异常，避免影响应用启动
+  }
+
+}
+
+/// 恢复摇一摇自动记账状态（仅Android）
+///
+/// 应用崩溃/重启后 Dart 内存状态丢失，从 SharedPreferences 恢复。
+Future<void> _restoreShakeBilling(ProviderContainer container) async {
+  if (!Platform.isAndroid) return;
+
+  try {
+    print('📳 检查并恢复摇一摇自动记账...');
+    final shakeBilling = ShakeBillingService(container);
+    final shakeEnabled = await shakeBilling.isShakeBillingEnabled();
+
+    if (shakeEnabled) {
+      print('✅ 发现用户已启用摇一摇自动记账');
+      print('🔄 正在重新启用摇一摇检测...');
+      await shakeBilling.enableShakeBilling();
+      print('✅ 摇一摇自动记账已成功恢复');
+    } else {
+      print('ℹ️  用户未启用摇一摇自动记账，跳过恢复');
+    }
+  } catch (e) {
+    print('📳 恢复摇一摇自动记账失败: $e');
   }
 }
 
