@@ -501,10 +501,10 @@ class TransactionListState extends ConsumerState<TransactionList> {
                           ? (subtitle.isNotEmpty ? subtitle : AppLocalizations.of(context).transferTitle)
                           : isAdjustment
                             ? categoryName
-                            : (subtitle.isNotEmpty ? subtitle : categoryName),
+                            : subtitle,
                         categoryName: (isTransfer || isAdjustment)
                           ? null
-                          : (subtitle.isNotEmpty ? null : categoryName),
+                          : categoryName,
                         amount: it.t.amount,
                         isExpense: isExpense,
                         isTransfer: isTransfer,

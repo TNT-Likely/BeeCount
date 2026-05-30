@@ -200,26 +200,24 @@ class TransactionListItem extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // 第一行：分类名称（始终显示）
-                    Text(
-                      categoryName ?? title,
+                    // 第一行：分类名（常驻）+ 备注接在后面（括号、次要色、整体单行省略，对齐 web 端）
+                    Text.rich(
+                      TextSpan(
+                        text: categoryName ?? title,
+                        style: BeeTextTokens.title(context),
+                        children: [
+                          if (categoryName != null && title.isNotEmpty && title != categoryName)
+                            TextSpan(
+                              text: '  ($title)',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: BeeTokens.textSecondary(context),
+                              ),
+                            ),
+                        ],
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: BeeTextTokens.title(context),
                     ),
-                    // 第二行：备注（当title与categoryName不同时显示）
-                    if (categoryName != null && categoryName != title)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: BeeTokens.textSecondary(context),
-                          ),
-                        ),
-                      ),
                     // 第三行：时间 · 账户 · 附件
                     if (_hasSecondaryInfo(ref))
                       Padding(

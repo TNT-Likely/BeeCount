@@ -1208,6 +1208,7 @@ class _TransactionTile extends ConsumerWidget {
 
     String displayTitle;
     String? displaySubtitle;
+    String? noteSuffix; // 非转账时，备注接在分类名后面（对齐首页）
 
     if (transaction.type == 'transfer') {
       if (transaction.note?.isNotEmpty == true) {
@@ -1232,14 +1233,12 @@ class _TransactionTile extends ConsumerWidget {
         }
       }
     } else {
-      if (transaction.note?.isNotEmpty == true) {
-        displayTitle = transaction.note!;
-      } else if (category != null) {
-        displayTitle = category.name;
-      } else {
-        displayTitle = transaction.type == 'income'
-            ? l10n.homeIncome
-            : l10n.homeExpense;
+      // 分类名常驻，备注接在分类名后面（对齐首页 / TransactionListItem）
+      displayTitle = category != null
+          ? category.name
+          : (transaction.type == 'income' ? l10n.homeIncome : l10n.homeExpense);
+      if (transaction.note?.isNotEmpty == true && transaction.note != displayTitle) {
+        noteSuffix = transaction.note;
       }
     }
 
@@ -1281,12 +1280,24 @@ class _TransactionTile extends ConsumerWidget {
                   Row(
                     children: [
                       Flexible(
-                        child: Text(
-                          displayTitle,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: BeeTokens.textPrimary(context),
+                        child: Text.rich(
+                          TextSpan(
+                            text: displayTitle,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: BeeTokens.textPrimary(context),
+                            ),
+                            children: [
+                              if (noteSuffix != null)
+                                TextSpan(
+                                  text: '  ($noteSuffix)',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: BeeTokens.textSecondary(context),
+                                  ),
+                                ),
+                            ],
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

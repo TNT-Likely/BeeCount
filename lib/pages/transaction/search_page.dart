@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart' as d;
 import '../../data/db.dart';
 import '../../providers.dart';
 import '../../providers/budget_providers.dart';
@@ -966,11 +965,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                               TransactionListItem(
                                 icon: iconData,
                                 category: item.category,
-                                title: subtitle.isNotEmpty
-                                    ? subtitle
-                                    : categoryName,
-                                categoryName:
-                                    subtitle.isNotEmpty ? null : categoryName,
+                                title: subtitle,
+                                categoryName: categoryName,
                                 amount: item.t.amount,
                                 isExpense: isExpense,
                                 hide: hide,

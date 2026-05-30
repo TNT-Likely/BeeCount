@@ -373,7 +373,8 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
             return TransactionListItem(
               icon: _getTransactionIcon(transaction),
               category: category,
-              title: _getTransactionTitle(transaction),
+              title: transaction.note ?? '',
+              categoryName: CategoryUtils.getDisplayName(category?.name ?? widget.categoryName, context),
               amount: transaction.amount,
               isExpense: transaction.type == 'expense',
               happenedAt: transaction.happenedAt,
@@ -451,7 +452,8 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
               return TransactionListItem(
               icon: _getTransactionIcon(transaction),
               category: category,
-              title: _getTransactionTitle(transaction),
+              title: transaction.note ?? '',
+              categoryName: CategoryUtils.getDisplayName(category?.name ?? widget.categoryName, context),
               amount: transaction.amount,
               isExpense: transaction.type == 'expense',
               happenedAt: transaction.happenedAt,
@@ -509,14 +511,6 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
     return getCategoryIconData(category: category, categoryName: categoryName);
   }
 
-  String _getTransactionTitle(db.Transaction transaction) {
-    final categoryAsync = ref.read(_categoryStreamProvider(widget.categoryId));
-    final categoryName = categoryAsync.value?.name ?? widget.categoryName;
-    // 优先显示备注，无备注时显示翻译后的分类名
-    return transaction.note?.isNotEmpty == true
-      ? transaction.note!
-      : CategoryUtils.getDisplayName(categoryName, context);
-  }
 }
 
 class _SummaryItem extends ConsumerWidget {

@@ -301,15 +301,13 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
             ...dayTransactions.map((transaction) {
               final category = _categoryCache[transaction.categoryId];
               final categoryName = CategoryUtils.getDisplayName(category?.name, context);
-              final isTransfer = transaction.type == 'transfer';
 
-              // 和首页保持一致：有备注显示备注，无备注显示分类名称
-              final hasNote = transaction.note?.isNotEmpty == true;
+              // 和首页保持一致：分类名常驻，备注接在后面
               return TransactionListItem(
                 icon: getCategoryIconData(category: category, categoryName: categoryName),
                 category: category,
-                title: hasNote ? transaction.note! : categoryName,
-                categoryName: hasNote ? null : categoryName,
+                title: transaction.note ?? '',
+                categoryName: categoryName,
                 amount: transaction.amount,
                 isExpense: transaction.type == 'expense',
                 happenedAt: transaction.happenedAt,
