@@ -103,15 +103,18 @@ class BillInfo {
   /// 从 AI 返回的 JSON 对象构造。
   ///
   /// 容错:
+  /// - `amount` / `confidence` 兼容字符串数值(部分模型吐 `"-800.00"`,
+  ///   甚至带千分位 `"1,234.50"`),无法解析时按缺失处理
   /// - `note` 兼容老字段名 `merchant`
   /// - `from_account` / `to_account` 兼容 camelCase
   /// - `tag` / `tags` 兼容单字符串和字符串数组
   /// - `time` 字符串内嵌空格会自动 strip 再 parse(应对 AI 偶发吐
-  ///   `"2222 2-1-26T18:08:00"` 这类格式),仍不可解析时返回 null,
+  ///   `"2222 2-1-26T18:08:00"` 这类格式),并支持中文格式
+  ///   `"2026年5月29日 23:35:16"`;仍不可解析时返回 null,
   ///   由 [JsonResponseParser._sanitize] 兜底成当前时间。
   factory BillInfo.fromJson(Map<String, dynamic> json) {
     return BillInfo(
-      amount: (json['amount'] as num?)?.toDouble(),
+      amount: _parseDouble(json['amount']),
       time: _parseTime(json['time']),
       note: json['note'] as String? ?? json['merchant'] as String?,
       category: json['category'] as String?,
@@ -122,7 +125,7 @@ class BillInfo {
       toAccount: json['to_account'] as String? ?? json['toAccount'] as String?,
       tags: _parseTags(json['tags'] ?? json['tag']),
       ledgerId: json['ledgerId'] as int?,
-      confidence: (json['confidence'] as num?)?.toDouble() ?? 0.8,
+      confidence: _parseDouble(json['confidence']) ?? 0.8,
     );
   }
 
@@ -140,6 +143,20 @@ class BillInfo {
         'confidence': confidence,
       };
 
+  /// 解析数值字段,兼容 `num` 与字符串(部分模型把 amount 输出成 `"-800.00"`,
+  /// 甚至带千分位 `"1,234.50"`)。无法解析返回 null,交由上层兜底/丢弃。
+  static double? _parseDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      // 去掉千分位逗号(半/全角)与空白;负号、小数点保留交给 tryParse。
+      final cleaned = value.replaceAll(RegExp(r'[,，\s]'), '');
+      if (cleaned.isEmpty) return null;
+      return double.tryParse(cleaned);
+    }
+    return null;
+  }
+
   static DateTime? _parseTime(dynamic value) {
     if (value is! String) return null;
     final raw = value.trim();
@@ -147,7 +164,19 @@ class BillInfo {
     final direct = DateTime.tryParse(raw);
     if (direct != null) return direct;
     // AI 偶发会在 ISO8601 里夹空格(如 `"2222 2-1-26T18:08:00"`),strip 重试
-    return DateTime.tryParse(raw.replaceAll(RegExp(r'\s+'), ''));
+    final stripped = DateTime.tryParse(raw.replaceAll(RegExp(r'\s+'), ''));
+    if (stripped != null) return stripped;
+    // 本地化 / 中文格式(如 `"2026年5月29日 23:35:16"`):正则提取年月日时分秒。
+    final m = RegExp(
+      r'(\d{4})\s*[年./-]\s*(\d{1,2})\s*[月./-]\s*(\d{1,2})\s*日?'
+      r'(?:[\sT]+(\d{1,2})\s*[:时点]\s*(\d{1,2})(?:\s*[:分]\s*(\d{1,2}))?)?',
+    ).firstMatch(raw);
+    if (m == null) return null;
+    int g(int i) => int.tryParse(m.group(i) ?? '') ?? 0;
+    final month = g(2);
+    final day = g(3);
+    if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+    return DateTime(g(1), month, day, g(4), g(5), g(6));
   }
 
   static BillType? _parseBillType(dynamic value) {

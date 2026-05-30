@@ -149,5 +149,28 @@ void main() {
       expect(bills[1].type, BillType.income);
       expect(bills[2].type, BillType.transfer);
     });
+
+    test('字符串金额 + 中文时间不再被跳过(回归 issue #297)', () {
+      // issue #297 原始响应:qwen-vl-ocr 把 amount 输出成字符串、time 用中文,
+      // 还带 ```json 包裹。旧实现 amount `as num?` 强转抛 CastError → 整笔被
+      // 跳过、记账失败。
+      const raw = '```json\n'
+          '[\n'
+          '    {\n'
+          '        "amount": "-800.00",\n'
+          '        "time": "2026年5月29日 23:35:16",\n'
+          '        "note": "转账-xxxxx",\n'
+          '        "category": "转账",\n'
+          '        "type": "expense",\n'
+          '        "tag": []\n'
+          '    }\n'
+          ']\n'
+          '```';
+      final bills = parser.parse(raw);
+      expect(bills, hasLength(1));
+      expect(bills.first.amount, -800.0);
+      expect(bills.first.time, DateTime(2026, 5, 29, 23, 35, 16));
+      expect(bills.first.category, '转账');
+    });
   });
 }

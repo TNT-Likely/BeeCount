@@ -108,6 +108,47 @@ void main() {
       final bill = BillInfo.fromJson({'amount': -30, 'merchant': '星巴克'});
       expect(bill.note, '星巴克');
     });
+
+    test('amount 字符串数值 → 正确解析(issue #297)', () {
+      // AI(如 qwen-vl-ocr)把金额输出成字符串 "-800.00",旧实现 `as num?`
+      // 强转抛 CastError,整笔被 JsonResponseParser 跳过、记账失败。
+      final bill = BillInfo.fromJson({
+        'amount': '-800.00',
+        'time': '2026-05-29T23:35:16',
+      });
+      expect(bill.amount, -800.0);
+    });
+
+    test('amount 带千分位字符串 → 去逗号解析', () {
+      expect(BillInfo.fromJson({'amount': '1,234.50'}).amount, 1234.5);
+    });
+
+    test('amount 数字仍正常 / 空串 / 非数值 → null', () {
+      expect(BillInfo.fromJson({'amount': -30.5}).amount, -30.5);
+      expect(BillInfo.fromJson({'amount': ''}).amount, isNull);
+      expect(BillInfo.fromJson({'amount': '无'}).amount, isNull);
+    });
+
+    test('confidence 字符串数值兼容,缺失回落 0.8', () {
+      expect(
+        BillInfo.fromJson({'amount': -1, 'confidence': '0.9'}).confidence,
+        0.9,
+      );
+      expect(BillInfo.fromJson({'amount': -1}).confidence, 0.8);
+    });
+
+    test('time 中文格式解析(issue #297)', () {
+      final bill = BillInfo.fromJson({
+        'amount': -800,
+        'time': '2026年5月29日 23:35:16',
+      });
+      expect(bill.time, DateTime(2026, 5, 29, 23, 35, 16));
+    });
+
+    test('time 中文格式仅日期(无时分秒)', () {
+      final bill = BillInfo.fromJson({'amount': -1, 'time': '2026年5月29日'});
+      expect(bill.time, DateTime(2026, 5, 29));
+    });
   });
 
   group('BillInfo.copyWith', () {
