@@ -21,6 +21,7 @@ import '../cloud/join_shared_ledger_page.dart';
 import '../budget/budget_page.dart';
 import '../../styles/tokens.dart';
 import '../../utils/currencies.dart';
+import '../../services/attachment_service.dart';
 import '../../services/system/logger_service.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../utils/format_utils.dart';
@@ -683,6 +684,21 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
     ref.invalidate(currentLedgerProvider);
   }
 
+  /// 清空 / 删除账本后,精准清理该账本关联的附件物理文件(best-effort)。
+  /// 清空(clearLedgerTransactions)和删账本(deleteLedger)走批量 SQL 删行,
+  /// 只删 DB 行不删物理文件;调用方在删除前先收集该账本的 fileName 传入。
+  /// 按引用计数删除:其他账本/交易仍引用同一 fileName 的不会被误删。
+  Future<void> _cleanupLedgerAttachmentFiles(List<String> fileNames) async {
+    if (fileNames.isEmpty) return;
+    try {
+      await ref
+          .read(attachmentServiceProvider)
+          .deletePhysicalFilesIfUnreferenced(fileNames);
+    } catch (e) {
+      logger.warning('ledger', '清理账本附件文件失败（忽略）：$e');
+    }
+  }
+
   /// 清空账本（删除所有账单，保留账本）
   Future<void> _handleClearLedger(BuildContext context, LedgerDisplayItem ledger) async {
     final l10n = AppLocalizations.of(context);
@@ -697,8 +713,13 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
     try {
       final repo = ref.read(repositoryProvider);
 
-      // 删除该账本的所有账单
+      // 删账单前先收集该账本附件 fileName(删行后就查不到了)
+      final attachmentFiles =
+          await repo.getAttachmentFileNamesByLedger(ledger.id);
+      // 删除该账本的所有账单(批量删行不删物理文件)
       await repo.clearLedgerTransactions(ledger.id);
+      // 删行后精准清理这些附件的物理文件(引用计数)
+      await _cleanupLedgerAttachmentFiles(attachmentFiles);
 
       if (!mounted) return;
 
@@ -752,8 +773,12 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
         }
       }
 
+      // 删账本前先收集其附件 fileName(删行后查不到)
+      final attachmentFiles =
+          await repo.getAttachmentFileNamesByLedger(ledger.id);
       // 只删除本地账本，不删除云端备份
       await repo.deleteLedger(ledger.id);
+      await _cleanupLedgerAttachmentFiles(attachmentFiles);
 
       if (!mounted) return;
 
@@ -818,7 +843,11 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
 
       // 删除本地账本(repo.deleteLedger 内部会捕获 syncId,登记
       // ledger_snapshot:delete + 级联 transaction:delete + budget:delete change)
+      // 删账本前先收集其附件 fileName(删行后查不到)
+      final attachmentFiles =
+          await repo.getAttachmentFileNamesByLedger(deletedLedgerId);
       await repo.deleteLedger(deletedLedgerId);
+      await _cleanupLedgerAttachmentFiles(attachmentFiles);
 
       // 显式触发对被删账本的 sync,把 delete change 推到 server 清掉 canonical
       // state。SyncCoordinator 的 ledgerIdResolver 拿的是新切换的 currentLedger,

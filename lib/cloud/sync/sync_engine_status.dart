@@ -41,12 +41,16 @@ extension SyncEngineHealthChecks on SyncEngine {
     // 本地交易附件:transaction_attachments 每 tx 一行 = server 端
     // attachment_kind='transaction' 的物理文件数。分类自定义图标独立统计
     // (见下面 localCategoryAttachments)。
+    // 多笔交易可共享同一附件:已上传的按 cloudSha256 去重(server 端同样按
+    // sha256 去重存 1 行)，未上传的按 fileName(各行独立)。避免把共享同一张图
+    // 的 N 笔交易算成 N 个附件。
     int localLedgerAttachments = 0;
     if (ledgerTxIds.isNotEmpty) {
-      localLedgerAttachments = (await (db.select(db.transactionAttachments)
-                ..where((a) => a.transactionId.isIn(ledgerTxIds)))
-              .get())
-          .length;
+      final atts = await (db.select(db.transactionAttachments)
+            ..where((a) => a.transactionId.isIn(ledgerTxIds)))
+          .get();
+      localLedgerAttachments =
+          atts.map((a) => a.cloudSha256 ?? a.fileName).toSet().length;
     }
     final localLedgerBudgets = (await (db.select(db.budgets)
               ..where((b) => b.ledgerId.equals(ledgerId))
@@ -59,9 +63,12 @@ extension SyncEngineHealthChecks on SyncEngine {
               ..where((t) => t.syncId.isNotNull()))
             .get())
         .length;
-    // 全量交易附件 = 所有 tx 附件(分类图标不算)
+    // 全量交易附件 = 所有 tx 附件(分类图标不算)，同样按 cloudSha256 去重
     final localTotalAttachments =
-        (await db.select(db.transactionAttachments).get()).length;
+        (await db.select(db.transactionAttachments).get())
+            .map((a) => a.cloudSha256 ?? a.fileName)
+            .toSet()
+            .length;
     final localTotalBudgets = (await (db.select(db.budgets)
               ..where((b) => b.syncId.isNotNull()))
             .get())
@@ -84,10 +91,9 @@ extension SyncEngineHealthChecks on SyncEngine {
               ..where((c) => c.syncId.isNotNull()))
             .get())
         .length;
-    final localTags = (await (db.select(db.tags)
-              ..where((t) => t.syncId.isNotNull()))
-            .get())
-        .length;
+    final localTags =
+        (await (db.select(db.tags)..where((t) => t.syncId.isNotNull())).get())
+            .length;
 
     final unpushed =
         (await changeTracker.getUnpushedChangesForLedger(ledgerId)).length;
@@ -96,14 +102,14 @@ extension SyncEngineHealthChecks on SyncEngine {
     try {
       final stats = await provider.readLedgerStats(ledgerId: serverLedgerId);
       return SyncHealthReport(
-        ledgerTx: SyncCountPair(
-            local: localLedgerTx, remote: stats.transactionCount),
+        ledgerTx:
+            SyncCountPair(local: localLedgerTx, remote: stats.transactionCount),
         ledgerAttachments: SyncCountPair(
             local: localLedgerAttachments, remote: stats.attachmentCount),
         ledgerBudgets:
             SyncCountPair(local: localLedgerBudgets, remote: stats.budgetCount),
-        totalTx: SyncCountPair(
-            local: localTotalTx, remote: stats.transactionTotal),
+        totalTx:
+            SyncCountPair(local: localTotalTx, remote: stats.transactionTotal),
         totalAttachments: SyncCountPair(
             local: localTotalAttachments, remote: stats.attachmentTotal),
         totalBudgets:
@@ -111,7 +117,8 @@ extension SyncEngineHealthChecks on SyncEngine {
         categoryAttachments: SyncCountPair(
             local: localCategoryAttachments,
             remote: stats.categoryAttachmentTotal),
-        accounts: SyncCountPair(local: localAccounts, remote: stats.accountTotal),
+        accounts:
+            SyncCountPair(local: localAccounts, remote: stats.accountTotal),
         categories:
             SyncCountPair(local: localCategories, remote: stats.categoryTotal),
         tags: SyncCountPair(local: localTags, remote: stats.tagTotal),
@@ -125,7 +132,8 @@ extension SyncEngineHealthChecks on SyncEngine {
             SyncCountPair(local: localLedgerAttachments, remote: -1),
         ledgerBudgets: SyncCountPair(local: localLedgerBudgets, remote: -1),
         totalTx: SyncCountPair(local: localTotalTx, remote: -1),
-        totalAttachments: SyncCountPair(local: localTotalAttachments, remote: -1),
+        totalAttachments:
+            SyncCountPair(local: localTotalAttachments, remote: -1),
         totalBudgets: SyncCountPair(local: localTotalBudgets, remote: -1),
         categoryAttachments:
             SyncCountPair(local: localCategoryAttachments, remote: -1),
@@ -148,8 +156,10 @@ extension SyncEngineHealthChecks on SyncEngine {
   ///
   /// 幂等:只对没有对应 sync_change 记录的实体补写 create。重复调用是安全的。
   Future<int> backfillUntrackedEntities({required int ledgerId}) async {
-    final allUnpushed = await changeTracker.getUnpushedChangesForLedger(ledgerId);
-    final allPushedIds = <String>{};  // syncId 集合 —— unpushed 的先留着,判断"从未写过 change"用的是下面的专用查询
+    final allUnpushed =
+        await changeTracker.getUnpushedChangesForLedger(ledgerId);
+    final allPushedIds =
+        <String>{}; // syncId 集合 —— unpushed 的先留着,判断"从未写过 change"用的是下面的专用查询
     for (final c in allUnpushed) {
       allPushedIds.add(c.entitySyncId);
     }

@@ -106,6 +106,35 @@ class LocalAttachmentRepository implements AttachmentRepository {
   }
 
   @override
+  Future<int> countAttachmentsByFileName(String fileName) async {
+    final result = await db.customSelect(
+      'SELECT COUNT(*) AS count FROM transaction_attachments WHERE file_name = ?',
+      variables: [d.Variable.withString(fileName)],
+      readsFrom: {db.transactionAttachments},
+    ).getSingle();
+    final count = result.data['count'];
+    if (count is int) return count;
+    if (count is BigInt) return count.toInt();
+    if (count is num) return count.toInt();
+    return 0;
+  }
+
+  @override
+  Future<List<String>> getAttachmentFileNamesByLedger(int ledgerId) async {
+    final rows = await db.customSelect(
+      '''
+      SELECT DISTINCT ta.file_name AS file_name
+      FROM transaction_attachments ta
+      INNER JOIN transactions t ON ta.transaction_id = t.id
+      WHERE t.ledger_id = ?
+      ''',
+      variables: [d.Variable.withInt(ledgerId)],
+      readsFrom: {db.transactionAttachments, db.transactions},
+    ).get();
+    return rows.map((r) => r.data['file_name'] as String).toList();
+  }
+
+  @override
   Future<int> getAttachmentCountByTransaction(int transactionId) async {
     final result = await db.customSelect(
       'SELECT COUNT(*) AS count FROM transaction_attachments WHERE transaction_id = ?',

@@ -2315,6 +2315,14 @@ class LocalRepository extends BaseRepository {
       _attachmentRepo.attachmentExistsByFileName(fileName);
 
   @override
+  Future<int> countAttachmentsByFileName(String fileName) =>
+      _attachmentRepo.countAttachmentsByFileName(fileName);
+
+  @override
+  Future<List<String>> getAttachmentFileNamesByLedger(int ledgerId) =>
+      _attachmentRepo.getAttachmentFileNamesByLedger(ledgerId);
+
+  @override
   Future<int> getAttachmentCountByTransaction(int transactionId) =>
       _attachmentRepo.getAttachmentCountByTransaction(transactionId);
 

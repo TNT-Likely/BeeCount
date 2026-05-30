@@ -48,6 +48,12 @@ abstract class AttachmentRepository {
   /// 根据文件名检查附件是否存在
   Future<bool> attachmentExistsByFileName(String fileName);
 
+  /// 统计某 fileName 被多少行引用(多笔/多次共享同一物理文件时的引用计数)
+  Future<int> countAttachmentsByFileName(String fileName);
+
+  /// 获取某账本所有交易关联的附件 fileName(去重)。用于清空/删账本后精准清理物理文件。
+  Future<List<String>> getAttachmentFileNamesByLedger(int ledgerId);
+
   /// 获取交易的附件数量
   Future<int> getAttachmentCountByTransaction(int transactionId);
 

@@ -552,27 +552,32 @@ class LocalTransactionRepository implements TransactionRepository {
       final cacheDir = await getTemporaryDirectory();
       final thumbDir = Directory('${cacheDir.path}/attachment_thumbs');
 
-      // 删除每个附件的文件
-      for (final attachment in attachments) {
-        // 删除原图
-        final file = File('${attachmentDir.path}/${attachment.fileName}');
+      final fileNames = attachments.map((a) => a.fileName).toSet();
+
+      // 先删数据库记录,再按引用计数删物理文件:多笔共享同一文件时,仅当没有
+      // 其他行引用该 fileName 才删物理文件,避免误删别笔还在用的图。
+      await (db.delete(db.transactionAttachments)
+            ..where((a) => a.transactionId.equals(transactionId)))
+          .go();
+
+      for (final fileName in fileNames) {
+        final stillRef = await (db.select(db.transactionAttachments)
+              ..where((a) => a.fileName.equals(fileName)))
+            .getSingleOrNull();
+        if (stillRef != null) continue; // 仍有其他行引用,保留物理文件
+
+        final file = File('${attachmentDir.path}/$fileName');
         if (await file.exists()) {
           await file.delete();
-          logger.debug('LocalTransactionRepository', '删除附件文件: ${attachment.fileName}');
+          logger.debug('LocalTransactionRepository', '删除附件文件: $fileName');
         }
-
-        // 删除缩略图
-        final thumbName = '${path.basenameWithoutExtension(attachment.fileName)}_thumb.jpg';
+        final thumbName =
+            '${path.basenameWithoutExtension(fileName)}_thumb.jpg';
         final thumbFile = File('${thumbDir.path}/$thumbName');
         if (await thumbFile.exists()) {
           await thumbFile.delete();
         }
       }
-
-      // 删除数据库记录
-      await (db.delete(db.transactionAttachments)
-            ..where((a) => a.transactionId.equals(transactionId)))
-          .go();
 
       logger.info('LocalTransactionRepository', '已删除交易 $transactionId 的 ${attachments.length} 个附件');
     } catch (e, stackTrace) {

@@ -314,6 +314,14 @@ extension SyncEngineAttachmentsExt on SyncEngine {
       final thumbDir = Directory('${cacheDir.path}/attachment_thumbs');
 
       for (final att in attachments) {
+        // 多笔共享同一物理文件:此处 DB 行尚未删(apply 在本函数之后才删行)，
+        // 故排除本交易,看是否还有其他交易的行引用同 fileName,有就保留文件。
+        final others = await (db.select(db.transactionAttachments)
+              ..where((a) => a.fileName.equals(att.fileName))
+              ..where((a) => a.transactionId.equals(transactionId).not()))
+            .get();
+        if (others.isNotEmpty) continue;
+
         final file = File('${attachmentDir.path}/${att.fileName}');
         if (await file.exists()) {
           try {
