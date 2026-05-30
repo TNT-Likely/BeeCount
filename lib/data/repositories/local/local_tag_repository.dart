@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/drift.dart' as d;
 import 'package:uuid/uuid.dart';
 
@@ -355,6 +357,8 @@ class LocalTagRepository implements TagRepository {
 
   @override
   Future<({int count, double expense, double income})> getTagStats(int tagId, {int? ledgerId}) async {
+    // §7 共享账本:负 id 是 synthetic tag，经 TransactionTagOverrides 反查统计
+    if (tagId < 0) return _sharedTagStatsBySyntheticId(tagId, ledgerId);
     final ledgerFilter = ledgerId != null ? 'AND tx.ledger_id = ?' : '';
     final vars = <d.Variable>[d.Variable.withInt(tagId)];
     if (ledgerId != null) vars.add(d.Variable.withInt(ledgerId));
@@ -482,8 +486,145 @@ class LocalTagRepository implements TagRepository {
 
   @override
   Stream<Tag?> watchTag(int tagId) {
+    // §7 共享账本:负 id 是 SharedLedgerTags 的 synthetic id（_syntheticIdForSyncId
+    // 派生）。标签详情页传过来时去 shared 表反查转 synthetic Tag，跟
+    // getTagsForTransaction 路径一致。
+    if (tagId < 0) return _watchSharedTagBySyntheticId(tagId);
     return (db.select(db.tags)
       ..where((t) => t.id.equals(tagId))).watchSingleOrNull();
+  }
+
+  /// SharedLedgerTags 表变化时 re-emit。synthetic id 是派生，反查只能扫表。
+  Stream<Tag?> _watchSharedTagBySyntheticId(int syntheticId) {
+    final ctrl = StreamController<Tag?>();
+    StreamSubscription? sub;
+
+    Future<void> emit() async {
+      final rows = await db.select(db.sharedLedgerTags).get();
+      for (final s in rows) {
+        if (_syntheticIdForSyncId(s.syncId) == syntheticId) {
+          if (!ctrl.isClosed) {
+            ctrl.add(Tag(
+              id: syntheticId,
+              name: s.name,
+              color: s.color,
+              sortOrder: 0,
+              createdAt: DateTime.now(),
+              syncId: s.syncId,
+            ));
+          }
+          return;
+        }
+      }
+      if (!ctrl.isClosed) ctrl.add(null);
+    }
+
+    ctrl.onListen = () {
+      emit();
+      sub = db
+          .tableUpdates(d.TableUpdateQuery.onTable(db.sharedLedgerTags))
+          .listen((_) => emit());
+    };
+    ctrl.onCancel = () async {
+      await sub?.cancel();
+    };
+    return ctrl.stream;
+  }
+
+  /// 共享账本:synthetic tag 下的交易 — 经 TransactionTagOverrides(tagSyncId)反查。
+  Stream<List<Transaction>> _watchSharedTxByTagSyntheticId(
+      int syntheticId, int? ledgerId) {
+    final ctrl = StreamController<List<Transaction>>();
+    StreamSubscription? sub;
+    String? matchedSyncId;
+
+    Future<void> resolveSyncId() async {
+      if (matchedSyncId != null) return;
+      final rows = await db.select(db.sharedLedgerTags).get();
+      for (final s in rows) {
+        if (_syntheticIdForSyncId(s.syncId) == syntheticId) {
+          matchedSyncId = s.syncId;
+          return;
+        }
+      }
+    }
+
+    Future<void> emit() async {
+      await resolveSyncId();
+      if (matchedSyncId == null) {
+        if (!ctrl.isClosed) ctrl.add(const []);
+        return;
+      }
+      final overrides = await (db.select(db.transactionTagOverrides)
+            ..where((o) => o.tagSyncId.equals(matchedSyncId!)))
+          .get();
+      final txSyncIds = overrides.map((o) => o.transactionSyncId).toList();
+      if (txSyncIds.isEmpty) {
+        if (!ctrl.isClosed) ctrl.add(const []);
+        return;
+      }
+      final q = db.select(db.transactions)
+        ..where((t) => t.syncId.isIn(txSyncIds))
+        ..orderBy([
+          (t) => d.OrderingTerm(
+              expression: t.happenedAt, mode: d.OrderingMode.desc),
+        ]);
+      if (ledgerId != null) {
+        q.where((t) => t.ledgerId.equals(ledgerId));
+      }
+      final list = await q.get();
+      if (!ctrl.isClosed) ctrl.add(list);
+    }
+
+    ctrl.onListen = () {
+      emit();
+      sub = db.tableUpdates(d.TableUpdateQuery.onAllTables([
+        db.transactions,
+        db.transactionTagOverrides,
+        db.sharedLedgerTags,
+      ])).listen((_) => emit());
+    };
+    ctrl.onCancel = () async {
+      await sub?.cancel();
+    };
+    return ctrl.stream;
+  }
+
+  /// 共享账本:synthetic tag 的统计 — 基于 override 关联的交易聚合。
+  Future<({int count, double expense, double income})>
+      _sharedTagStatsBySyntheticId(int syntheticId, int? ledgerId) async {
+    String? matchedSyncId;
+    final rows = await db.select(db.sharedLedgerTags).get();
+    for (final s in rows) {
+      if (_syntheticIdForSyncId(s.syncId) == syntheticId) {
+        matchedSyncId = s.syncId;
+        break;
+      }
+    }
+    if (matchedSyncId == null) return (count: 0, expense: 0.0, income: 0.0);
+    final overrides = await (db.select(db.transactionTagOverrides)
+          ..where((o) => o.tagSyncId.equals(matchedSyncId!)))
+        .get();
+    final txSyncIds = overrides.map((o) => o.transactionSyncId).toList();
+    if (txSyncIds.isEmpty) return (count: 0, expense: 0.0, income: 0.0);
+    final q = db.select(db.transactions)
+      ..where((t) => t.syncId.isIn(txSyncIds));
+    if (ledgerId != null) {
+      q.where((t) => t.ledgerId.equals(ledgerId));
+    }
+    final txs = await q.get();
+    var count = 0;
+    var expense = 0.0;
+    var income = 0.0;
+    for (final t in txs) {
+      count++;
+      if (t.type == 'expense') {
+        expense += t.amount;
+      } else if (t.type == 'income') {
+        income += t.amount;
+      }
+    }
+    return (count: count, expense: expense, income: income);
   }
 
   @override
@@ -513,6 +654,8 @@ class LocalTagRepository implements TagRepository {
 
   @override
   Stream<List<Transaction>> watchTransactionsByTag(int tagId, {int? ledgerId}) {
+    // §7 共享账本:负 id 是 synthetic tag，经 TransactionTagOverrides 反查交易
+    if (tagId < 0) return _watchSharedTxByTagSyntheticId(tagId, ledgerId);
     final ledgerFilter = ledgerId != null ? 'AND tx.ledger_id = ?' : '';
     final vars = <d.Variable>[d.Variable.withInt(tagId)];
     if (ledgerId != null) vars.add(d.Variable.withInt(ledgerId));

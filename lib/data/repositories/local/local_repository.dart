@@ -1115,6 +1115,10 @@ class LocalRepository extends BaseRepository {
   Future<List<Category>> getAllCategories() => _categoryRepo.getAllCategories();
 
   @override
+  Future<List<Category>> getAllCategoriesIncludingShared() =>
+      _categoryRepo.getAllCategoriesIncludingShared();
+
+  @override
   Future<void> batchInsertCategories(List<CategoriesCompanion> categories) async {
     if (changeTracker == null || categories.isEmpty) {
       return _categoryRepo.batchInsertCategories(categories);

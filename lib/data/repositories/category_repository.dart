@@ -63,6 +63,9 @@ abstract class CategoryRepository {
   /// 获取所有分类
   Future<List<Category>> getAllCategories();
 
+  /// 获取所有分类(本地 + 共享账本的 synthetic 分类)，用于跨账本列表按 id 映射分类
+  Future<List<Category>> getAllCategoriesIncludingShared();
+
   /// 获取所有一级分类
   Future<List<Category>> getTopLevelCategories(String kind);
 

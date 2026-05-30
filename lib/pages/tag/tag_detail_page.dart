@@ -11,6 +11,7 @@ import '../../styles/tokens.dart';
 import '../../utils/transaction_edit_utils.dart';
 import '../../services/billing/post_processor.dart';
 import '../../utils/category_utils.dart';
+import '../../utils/shared_ledger_picker_filter.dart';
 import '../../l10n/app_localizations.dart';
 import 'tag_edit_page.dart';
 
@@ -44,7 +45,7 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
 
   Future<void> _loadCategories() async {
     final repo = ref.read(repositoryProvider);
-    final categories = await repo.getAllCategories();
+    final categories = await repo.getAllCategoriesIncludingShared();
     if (mounted) {
       setState(() {
         _categoryCache = {for (var c in categories) c.id: c};
@@ -307,7 +308,13 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
                   .fold(0.0, (sum, t) => sum + t.amount),
             ),
             ...dayTransactions.map((transaction) {
-              final category = _categoryCache[transaction.categoryId];
+              // 共享账本交易的分类挂在 categorySyncIdOverride(syncId)，转 synthetic id 查；
+              // 本地交易用 categoryId。两类 id 不重叠(本地正 / synthetic 负)。
+              final catKey = (transaction.categorySyncIdOverride != null &&
+                      transaction.categorySyncIdOverride!.isNotEmpty)
+                  ? syntheticIdForSyncId(transaction.categorySyncIdOverride!)
+                  : transaction.categoryId;
+              final category = catKey == null ? null : _categoryCache[catKey];
               final categoryName = CategoryUtils.getDisplayName(category?.name, context);
 
               // 和首页保持一致：分类名常驻，备注接在后面

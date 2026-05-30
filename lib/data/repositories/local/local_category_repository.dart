@@ -806,6 +806,39 @@ class LocalCategoryRepository implements CategoryRepository {
   }
 
   @override
+  Future<List<Category>> getAllCategoriesIncludingShared() async {
+    final result = [...await getAllCategories()];
+    // §7 共享账本:并入 SharedLedgerCategories 的 synthetic 分类(按 synthetic id 去重，
+    // 同一 owner 分类可能镜像到多个账本)。供标签详情等跨账本列表按 categoryId 映射。
+    final seen = <int>{};
+    final shared = await db.select(db.sharedLedgerCategories).get();
+    for (final s in shared) {
+      final synthId = syntheticIdForSyncId(s.syncId);
+      if (!seen.add(synthId)) continue;
+      final pSyncId = s.parentSyncId;
+      final parentSyntheticId = (pSyncId != null && pSyncId.isNotEmpty)
+          ? syntheticIdForSyncId(pSyncId)
+          : null;
+      result.add(Category(
+        id: synthId,
+        name: s.name,
+        kind: s.kind,
+        icon: s.icon,
+        sortOrder: s.sortOrder,
+        parentId: parentSyntheticId,
+        level: s.level,
+        iconType: s.iconType,
+        customIconPath: s.iconType == 'custom' && s.iconCloudSha256 != null
+            ? 'custom_icons/shared_${s.iconCloudSha256}.png'
+            : null,
+        communityIconId: null,
+        syncId: s.syncId,
+      ));
+    }
+    return result;
+  }
+
+  @override
   Future<void> batchInsertCategories(List<CategoriesCompanion> categories) async {
     await db.batch((batch) {
       batch.insertAll(db.categories, categories);
