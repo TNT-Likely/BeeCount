@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="250dp"
+    android:minWidth="320dp"
     android:minHeight="110dp"
-    android:targetCellWidth="4"
-    android:targetCellHeight="2"
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/beecount_widget"
     android:previewImage="@mipmap/ic_launcher"
