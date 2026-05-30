@@ -23,6 +23,7 @@ class CategoryDetailPage extends ConsumerStatefulWidget {
   final DateTime? startDate; // 周期开始时间（可选）
   final DateTime? endDate;   // 周期结束时间（可选）
   final String? periodLabel; // 周期标签（如"2024年11月"）
+  final bool allLedgers; // true=全部账本(从分类管理进入)，false=当前账本(从明细进入)
 
   const CategoryDetailPage({
     super.key,
@@ -31,6 +32,7 @@ class CategoryDetailPage extends ConsumerStatefulWidget {
     this.startDate,
     this.endDate,
     this.periodLabel,
+    this.allLedgers = false,
   });
 
   @override
@@ -43,7 +45,8 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
   @override
   Widget build(BuildContext context) {
     final categoryAsync = ref.watch(_categoryStreamProvider(widget.categoryId));
-    final transactionsAsync = ref.watch(_categoryTransactionsWithSortProvider(widget.categoryId));
+    final ledgerScope = widget.allLedgers ? null : ref.watch(currentLedgerIdProvider);
+    final transactionsAsync = ref.watch(_categoryTransactionsWithSortProvider((categoryId: widget.categoryId, ledgerId: ledgerScope)));
     final currentSortType = ref.watch(_categorySortTypeProvider(widget.categoryId));
 
     // 如果有周期限制，需要筛选交易数据
@@ -325,6 +328,11 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
       );
     }
 
+    // 全部账本模式下，构建账本名映射，用于在交易项展示账本标签
+    final ledgerNames = widget.allLedgers
+        ? {for (final l in (ref.watch(ledgersStreamProvider).valueOrNull ?? [])) l.id: l.name}
+        : const <int, String>{};
+
     // 金额排序时：预计算UI列表，避免动态插入导致卡顿
     if (currentSortType == SortType.amountDesc || currentSortType == SortType.amountAsc) {
       // 先计算每个日期的统计数据（避免重复计算）
@@ -375,6 +383,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
               category: category,
               title: transaction.note ?? '',
               categoryName: CategoryUtils.getDisplayName(category?.name ?? widget.categoryName, context),
+              ledgerName: ledgerNames[transaction.ledgerId],
               amount: transaction.amount,
               isExpense: transaction.type == 'expense',
               happenedAt: transaction.happenedAt,
@@ -454,6 +463,7 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
               category: category,
               title: transaction.note ?? '',
               categoryName: CategoryUtils.getDisplayName(category?.name ?? widget.categoryName, context),
+              ledgerName: ledgerNames[transaction.ledgerId],
               amount: transaction.amount,
               isExpense: transaction.type == 'expense',
               happenedAt: transaction.happenedAt,
@@ -574,10 +584,9 @@ final _categoryStreamProvider = StreamProvider.family<db.Category?, int>((ref, c
 });
 
 // 基础数据流：监听分类下交易变化（仅当前账本）
-final _categoryTransactionsStreamProvider = StreamProvider.family<List<db.Transaction>, int>((ref, categoryId) {
+final _categoryTransactionsStreamProvider = StreamProvider.family<List<db.Transaction>, ({int categoryId, int? ledgerId})>((ref, params) {
   final repo = ref.watch(repositoryProvider);
-  final ledgerId = ref.watch(currentLedgerIdProvider);
-  return repo.watchTransactionsByCategory(categoryId, ledgerId: ledgerId);
+  return repo.watchTransactionsByCategory(params.categoryId, ledgerId: params.ledgerId);
 });
 
 // 排序状态管理
@@ -586,9 +595,9 @@ final _categorySortTypeProvider = StateProvider.family<SortType, int>((ref, cate
 });
 
 // 派生数据：排序后的交易列表（自动响应排序状态变化）
-final _categoryTransactionsWithSortProvider = Provider.family<AsyncValue<List<db.Transaction>>, int>((ref, categoryId) {
-  final transactionsAsync = ref.watch(_categoryTransactionsStreamProvider(categoryId));
-  final sortType = ref.watch(_categorySortTypeProvider(categoryId));
+final _categoryTransactionsWithSortProvider = Provider.family<AsyncValue<List<db.Transaction>>, ({int categoryId, int? ledgerId})>((ref, params) {
+  final transactionsAsync = ref.watch(_categoryTransactionsStreamProvider(params));
+  final sortType = ref.watch(_categorySortTypeProvider(params.categoryId));
 
   return transactionsAsync.when(
     loading: () => const AsyncValue.loading(),
@@ -612,27 +621,6 @@ final _categoryTransactionsWithSortProvider = Provider.family<AsyncValue<List<db
       }
 
       return AsyncValue.data(sorted);
-    },
-  );
-});
-
-// 派生数据：汇总统计（自动基于交易数据计算）
-final _categorySummaryProvider = Provider.family<AsyncValue<({int totalCount, double totalAmount, double averageAmount})>, int>((ref, categoryId) {
-  final transactionsAsync = ref.watch(_categoryTransactionsStreamProvider(categoryId));
-
-  return transactionsAsync.when(
-    loading: () => const AsyncValue.loading(),
-    error: (error, stack) => AsyncValue.error(error, stack),
-    data: (transactions) {
-      final totalCount = transactions.length;
-      final totalAmount = transactions.fold(0.0, (sum, t) => sum + t.amount);
-      final averageAmount = totalCount > 0 ? totalAmount / totalCount : 0.0;
-
-      return AsyncValue.data((
-        totalCount: totalCount,
-        totalAmount: totalAmount,
-        averageAmount: averageAmount,
-      ));
     },
   );
 });

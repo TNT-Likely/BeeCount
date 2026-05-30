@@ -19,11 +19,13 @@ import 'tag_edit_page.dart';
 class TagDetailPage extends ConsumerStatefulWidget {
   final int tagId;
   final String tagName;
+  final bool allLedgers; // true=全部账本(从标签管理进入)，false=当前账本(从明细进入)
 
   const TagDetailPage({
     super.key,
     required this.tagId,
     required this.tagName,
+    this.allLedgers = false,
   });
 
   @override
@@ -72,8 +74,9 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final tagAsync = ref.watch(_tagStreamProvider(widget.tagId));
-    final statsAsync = ref.watch(_tagStatsProvider(widget.tagId));
-    final transactionsAsync = ref.watch(_tagTransactionsStreamProvider(widget.tagId));
+    final ledgerScope = widget.allLedgers ? null : ref.watch(currentLedgerIdProvider);
+    final statsAsync = ref.watch(_tagStatsProvider((tagId: widget.tagId, ledgerId: ledgerScope)));
+    final transactionsAsync = ref.watch(_tagTransactionsStreamProvider((tagId: widget.tagId, ledgerId: ledgerScope)));
 
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
@@ -270,6 +273,11 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
       );
     }
 
+    // 全部账本模式下，构建账本名映射，用于在交易项展示账本标签
+    final ledgerNames = widget.allLedgers
+        ? {for (final l in (ref.watch(ledgersStreamProvider).valueOrNull ?? [])) l.id: l.name}
+        : const <int, String>{};
+
     // 按日期分组
     final Map<String, List<db.Transaction>> groupedTransactions = {};
     for (final transaction in transactions) {
@@ -308,6 +316,7 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
                 category: category,
                 title: transaction.note ?? '',
                 categoryName: categoryName,
+                ledgerName: ledgerNames[transaction.ledgerId],
                 amount: transaction.amount,
                 isExpense: transaction.type == 'expense',
                 happenedAt: transaction.happenedAt,
@@ -429,14 +438,14 @@ final _tagStreamProvider = StreamProvider.family<db.Tag?, int>((ref, tagId) {
 });
 
 /// 获取标签统计信息
-final _tagStatsProvider = FutureProvider.family<({int count, double expense, double income}), int>((ref, tagId) async {
+final _tagStatsProvider = FutureProvider.family<({int count, double expense, double income}), ({int tagId, int? ledgerId})>((ref, params) async {
   ref.watch(tagListRefreshProvider);
   final repo = ref.watch(repositoryProvider);
-  return await repo.getTagStats(tagId);
+  return await repo.getTagStats(params.tagId, ledgerId: params.ledgerId);
 });
 
 /// 监听标签下的交易
-final _tagTransactionsStreamProvider = StreamProvider.family<List<db.Transaction>, int>((ref, tagId) {
+final _tagTransactionsStreamProvider = StreamProvider.family<List<db.Transaction>, ({int tagId, int? ledgerId})>((ref, params) {
   final repo = ref.watch(repositoryProvider);
-  return repo.watchTransactionsByTag(tagId);
+  return repo.watchTransactionsByTag(params.tagId, ledgerId: params.ledgerId);
 });

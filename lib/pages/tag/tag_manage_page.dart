@@ -144,6 +144,7 @@ class _TagManagePageState extends ConsumerState<TagManagePage> {
         builder: (_) => TagDetailPage(
           tagId: tag.id,
           tagName: tag.name,
+          allLedgers: true,
         ),
       ),
     );

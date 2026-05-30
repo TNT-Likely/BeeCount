@@ -20,6 +20,7 @@ class TransactionListItem extends ConsumerWidget {
   final VoidCallback? onTap;
   final VoidCallback? onCategoryTap; // 点击分类图标/名称的回调
   final String? categoryName; // 分类名称，用于显示
+  final String? ledgerName; // 账本名称（仅"全部账本"模式下显示标签）
   final VoidCallback? onDelete; // 删除回调
   final String? accountName; // 账户名称，用于显示
   final DateTime? happenedAt; // 交易时间，用于显示时分
@@ -51,6 +52,7 @@ class TransactionListItem extends ConsumerWidget {
       this.onTap,
       this.onCategoryTap,
       this.categoryName,
+      this.ledgerName,
       this.onDelete,
       this.accountName,
       this.happenedAt,
@@ -201,22 +203,47 @@ class TransactionListItem extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // 第一行：分类名（常驻）+ 备注接在后面（括号、次要色、整体单行省略，对齐 web 端）
-                    Text.rich(
-                      TextSpan(
-                        text: categoryName ?? title,
-                        style: BeeTextTokens.title(context),
-                        children: [
-                          if (categoryName != null && title.isNotEmpty && title != categoryName)
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text.rich(
                             TextSpan(
-                              text: '  ($title)',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: BeeTokens.textSecondary(context),
+                              text: categoryName ?? title,
+                              style: BeeTextTokens.title(context),
+                              children: [
+                                if (categoryName != null && title.isNotEmpty && title != categoryName)
+                                  TextSpan(
+                                    text: '  ($title)',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: BeeTokens.textSecondary(context),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        // 全部账本模式：展示账本名标签（参考账户详情页）
+                        if (ledgerName != null && ledgerName!.isNotEmpty) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: ref.watch(primaryColorProvider).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              ledgerName!,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: ref.watch(primaryColorProvider),
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
+                          ),
                         ],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      ],
                     ),
                     // 第三行：时间 · 账户 · 附件
                     if (_hasSecondaryInfo(ref))

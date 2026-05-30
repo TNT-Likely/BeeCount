@@ -201,6 +201,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
                             builder: (context) => CategoryDetailPage(
                               categoryId: widget.category!.id,
                               categoryName: widget.category!.name,
+                              allLedgers: true,
                             ),
                           ),
                         );

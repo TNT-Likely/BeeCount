@@ -354,7 +354,10 @@ class LocalTagRepository implements TagRepository {
   }
 
   @override
-  Future<({int count, double expense, double income})> getTagStats(int tagId) async {
+  Future<({int count, double expense, double income})> getTagStats(int tagId, {int? ledgerId}) async {
+    final ledgerFilter = ledgerId != null ? 'AND tx.ledger_id = ?' : '';
+    final vars = <d.Variable>[d.Variable.withInt(tagId)];
+    if (ledgerId != null) vars.add(d.Variable.withInt(ledgerId));
     final result = await db.customSelect(
       '''
       SELECT
@@ -363,9 +366,9 @@ class LocalTagRepository implements TagRepository {
         COALESCE(SUM(CASE WHEN tx.type = 'income' THEN tx.amount ELSE 0 END), 0) as income
       FROM transaction_tags tt
       INNER JOIN transactions tx ON tt.transaction_id = tx.id
-      WHERE tt.tag_id = ?
+      WHERE tt.tag_id = ? $ledgerFilter
       ''',
-      variables: [d.Variable.withInt(tagId)],
+      variables: vars,
       readsFrom: {db.transactionTags, db.transactions},
     ).getSingle();
 
@@ -509,16 +512,19 @@ class LocalTagRepository implements TagRepository {
   }
 
   @override
-  Stream<List<Transaction>> watchTransactionsByTag(int tagId) {
+  Stream<List<Transaction>> watchTransactionsByTag(int tagId, {int? ledgerId}) {
+    final ledgerFilter = ledgerId != null ? 'AND tx.ledger_id = ?' : '';
+    final vars = <d.Variable>[d.Variable.withInt(tagId)];
+    if (ledgerId != null) vars.add(d.Variable.withInt(ledgerId));
     return db.customSelect(
       '''
       SELECT tx.*
       FROM transactions tx
       INNER JOIN transaction_tags tt ON tx.id = tt.transaction_id
-      WHERE tt.tag_id = ?
+      WHERE tt.tag_id = ? $ledgerFilter
       ORDER BY tx.happened_at DESC
       ''',
-      variables: [d.Variable.withInt(tagId)],
+      variables: vars,
       readsFrom: {db.transactions, db.transactionTags},
     ).watch().map((rows) {
       return rows.map((row) {
