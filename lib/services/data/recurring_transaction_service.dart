@@ -84,8 +84,14 @@ class RecurringTransactionService {
       return null;
     }
 
-    // 基准日期：最后生成日期 或 开始日期
-    final baseDate = lastGenerated ?? recurring.startDate;
+    // 基准日期：最后生成日期 或 开始日期。
+    // 防止历史开始日期回溯补生成脏数据(issue #135):从未生成过(lastGenerated
+    // 为 null)的周期账单,基准不早于今天零点,只面向未来生成,不补创建之前的历史。
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final rawBase = lastGenerated ?? recurring.startDate;
+    final baseDate = lastGenerated == null && rawBase.isBefore(todayStart)
+        ? todayStart
+        : rawBase;
 
     DateTime nextDate;
     switch (frequency) {

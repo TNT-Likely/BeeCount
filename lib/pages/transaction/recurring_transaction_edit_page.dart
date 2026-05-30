@@ -601,10 +601,18 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    // 开始日期最早只能是今天:禁止历史开始日期,避免回溯生成脏数据(issue #135);
+    // 结束日期不早于开始日期。
+    final minDate = isStartDate ? todayStart : _startDate;
+    var initial = isStartDate ? _startDate : (_endDate ?? _startDate);
+    if (initial.isBefore(minDate)) initial = minDate;
+
     final date = await showWheelDatePicker(
       context,
-      initial: isStartDate ? _startDate : (_endDate ?? DateTime.now()),
-      minDate: DateTime(2000),
+      initial: initial,
+      minDate: minDate,
       maxDate: DateTime(2100),
     );
 
