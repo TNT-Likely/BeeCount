@@ -482,6 +482,10 @@ class _BeeAppState extends ConsumerState<BeeApp>
       }
     }
 
+    _dismissOverlay();
+  }
+
+  void _dismissOverlay() {
     _hoveredIndex = null;
     _expandController.reverse();
     _removeOverlay();
@@ -519,6 +523,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
         animation: _expandAnimation,
         hoveredIndex: _hoveredIndex,
         backgroundColor: ref.read(primaryColorProvider),
+        onDismiss: _dismissOverlay,
       ),
     );
 
@@ -612,6 +617,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
         ref.read(showPrivacyScreenProvider.notifier).state = true;
       }
     } else if (state == AppLifecycleState.paused) {
+      // 系统拖拽/侧边栏弹出时，强制关闭扇形菜单
+      _dismissOverlay();
       // 记录进入后台时间
       AppLockService.recordBackgroundTime();
     } else if (state == AppLifecycleState.resumed) {
@@ -981,6 +988,7 @@ class _SpeedDialOverlay extends StatelessWidget {
   final Animation<double> animation;
   final int? hoveredIndex;
   final Color backgroundColor;
+  final VoidCallback? onDismiss;
 
   const _SpeedDialOverlay({
     required this.buttonPosition,
@@ -989,6 +997,7 @@ class _SpeedDialOverlay extends StatelessWidget {
     required this.animation,
     required this.hoveredIndex,
     required this.backgroundColor,
+    this.onDismiss,
   });
 
   @override
@@ -1012,7 +1021,8 @@ class _SpeedDialOverlay extends StatelessWidget {
         return Stack(
           children: [
             Positioned.fill(
-              child: IgnorePointer(
+              child: GestureDetector(
+                onTap: onDismiss,
                 child: Container(
                   color: Colors.black.withValues(alpha: 0.3 * animation.value),
                 ),
