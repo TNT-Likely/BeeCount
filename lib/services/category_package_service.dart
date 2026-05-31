@@ -184,7 +184,10 @@ class CategoryPackageService {
 
     // 3. 获取现有分类
     final existingCategories = await repository.getAllCategories();
-    final existingNames = existingCategories.map((c) => c.name.toLowerCase()).toSet();
+    // 按 (name, kind) 判重,允许跨 kind 同名(收入「红包」+ 支出「红包」)
+    final existingKeys = existingCategories
+        .map((c) => '${c.name.toLowerCase()}|${c.kind}')
+        .toSet();
 
     // 4. 处理图标文件：复制到正式目录
     final appDir = await getApplicationDocumentsDirectory();
@@ -235,7 +238,8 @@ class CategoryPackageService {
     // 导入一级分类
     for (final item in level1Items) {
       final name = item['name'] as String;
-      if (existingNames.contains(name.toLowerCase())) {
+      final kind = item['kind'] as String? ?? 'expense';
+      if (existingKeys.contains('${name.toLowerCase()}|$kind')) {
         skipped++;
         continue;
       }
@@ -247,7 +251,7 @@ class CategoryPackageService {
 
       await repository.insertCategory(CategoriesCompanion.insert(
         name: name,
-        kind: item['kind'] as String? ?? 'expense',
+        kind: kind,
         icon: Value(item['icon'] as String?),
         sortOrder: Value(item['sort_order'] as int? ?? 0),
         parentId: const Value(null),
@@ -257,23 +261,28 @@ class CategoryPackageService {
         communityIconId: Value(item['community_icon_id'] as String?),
       ));
       imported++;
-      existingNames.add(name.toLowerCase());
+      existingKeys.add('${name.toLowerCase()}|$kind');
     }
 
     // 重新获取分类列表（包含刚导入的）
     final updatedCategories = await repository.getAllCategories();
-    final nameToId = {for (var c in updatedCategories) c.name.toLowerCase(): c.id};
+    final keyToId = {
+      for (var c in updatedCategories) '${c.name.toLowerCase()}|${c.kind}': c.id
+    };
 
     // 导入二级分类
     for (final item in level2Items) {
       final name = item['name'] as String;
-      if (existingNames.contains(name.toLowerCase())) {
+      final kind = item['kind'] as String? ?? 'expense';
+      if (existingKeys.contains('${name.toLowerCase()}|$kind')) {
         skipped++;
         continue;
       }
 
+      // 父分类与子分类同 kind,按 (parentName, kind) 查父 id
       final parentName = item['parent_name'] as String?;
-      final parentId = parentName != null ? nameToId[parentName.toLowerCase()] : null;
+      final parentId =
+          parentName != null ? keyToId['${parentName.toLowerCase()}|$kind'] : null;
 
       if (parentId == null) {
         logger.warning(_tag, '找不到父分类: $parentName, 跳过 $name');
@@ -288,7 +297,7 @@ class CategoryPackageService {
 
       await repository.insertCategory(CategoriesCompanion.insert(
         name: name,
-        kind: item['kind'] as String? ?? 'expense',
+        kind: kind,
         icon: Value(item['icon'] as String?),
         sortOrder: Value(item['sort_order'] as int? ?? 0),
         parentId: Value(parentId),
@@ -298,7 +307,7 @@ class CategoryPackageService {
         communityIconId: Value(item['community_icon_id'] as String?),
       ));
       imported++;
-      existingNames.add(name.toLowerCase());
+      existingKeys.add('${name.toLowerCase()}|$kind');
     }
 
     // 6. 清理临时目录
