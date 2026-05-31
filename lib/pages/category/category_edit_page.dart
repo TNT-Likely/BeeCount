@@ -150,6 +150,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
 
     final isDuplicate = await repo.isCategoryNameDuplicate(
       name: name,
+      kind: widget.kind,
       excludeId: excludeId,
     );
 
@@ -452,6 +453,7 @@ class _CategoryEditPageState extends ConsumerState<CategoryEditPage> {
     final excludeId = isEditing ? widget.category!.id : null;
     final isDuplicate = await repo.isCategoryNameDuplicate(
       name: name,
+      kind: widget.kind,
       excludeId: excludeId,
     );
 

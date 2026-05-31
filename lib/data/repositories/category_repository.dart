@@ -75,9 +75,10 @@ abstract class CategoryRepository {
   /// 获取可用于记账的分类（叶子分类）
   Future<List<Category>> getUsableCategories(String kind);
 
-  /// 检查分类名称是否重复
+  /// 检查分类名称是否重复(同 kind 内判重,跨 kind 允许同名)
   Future<bool> isCategoryNameDuplicate({
     required String name,
+    required String kind,
     int? excludeId,
   });
 
