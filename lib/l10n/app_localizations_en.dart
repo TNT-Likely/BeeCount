@@ -1716,13 +1716,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryExpenseList => 'Dining-Transport-Shopping-Entertainment-Home-Family-Communication-Utilities-Housing-Medical-Education-Pets-Sports-Digital-Travel-Alcohol & Tobacco-Baby Care-Beauty-Repair-Social-Learning-Car-Taxi-Subway-Delivery-Property-Parking-Donation-Give Gift-Tax-Beverage-Clothing-Snacks-Send Red Packet-Fruit-Game-Book-Lover-Decoration-Daily Goods-Lottery-Stock-Social Security-Express-Work';
 
   @override
-  String get categoryIncomeList => 'Salary-Investment-Receive Red Packet-Bonus-Reimbursement-Part-time-Receive Gift-Interest-Refund-Investment Income-Second-hand-Social Benefit-Tax Refund-Provident Fund';
+  String get categoryIncomeList => 'Salary-Investment-Receive Red Packet-Bonus-Reimbursement-Part time-Receive Gift-Interest-Refund-Investment Income-Second hand-Social Benefit-Tax Refund-Provident Fund';
 
   @override
   String get categoryExpenseDining => 'Dining-Breakfast-Lunch-Dinner-Meituan Delivery-Ele.me Delivery-JD Delivery-Restaurant-Food';
 
   @override
-  String get categoryExpenseSnacks => 'Cookies-Chips-Candy-Chocolate-Nuts';
+  String get categoryExpenseSnacks => 'Snacks-Cookies-Chips-Candy-Chocolate-Nuts';
 
   @override
   String get categoryExpenseFruit => 'Fruit-Apple-Banana-Orange-Grape-Watermelon-Other Fruits';
@@ -1731,31 +1731,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryExpenseBeverage => 'Beverage-Milk Tea-Coffee-Juice-Soda-Mineral Water';
 
   @override
-  String get categoryExpensePastry => 'Pastry-Cake-Bread-Dessert-Pastry';
+  String get categoryExpensePastry => 'Pastry-Cake-Bread-Dessert-Baked Goods';
 
   @override
   String get categoryExpenseCooking => 'Cooking Ingredients-Vegetables-Meat-Seafood-Seasoning-Grain & Oil';
 
   @override
-  String get categoryExpenseShopping => 'Clothing-Shoes & Hats-Bags-Accessories-Daily Necessities';
+  String get categoryExpenseShopping => 'Shopping-Clothing-Shoes & Hats-Bags-Accessories-Daily Necessities';
 
   @override
   String get categoryExpensePets => 'Pets-Pet Food-Pet Supplies-Pet Medical-Pet Grooming';
 
   @override
-  String get categoryExpenseTransport => 'Transport-Subway-Bus-Taxi-Ride-hailing-Parking Fee-Fuel';
+  String get categoryExpenseTransport => 'Transport-Subway-Bus-Taxi-Ride hailing-Parking Fee-Fuel';
 
   @override
   String get categoryExpenseCar => 'Car-Car Maintenance-Car Repair-Car Insurance-Car Wash-Traffic Fine';
 
   @override
-  String get categoryExpenseClothing => 'Top-Pants-Dress-Shoes-Accessories';
+  String get categoryExpenseClothing => 'Apparel-Top-Pants-Dress-Shoes-Apparel Accessories';
 
   @override
   String get categoryExpenseDailyGoods => 'Daily Goods-Personal Care-Paper Products-Cleaning Supplies-Kitchen Supplies';
 
   @override
-  String get categoryExpenseEducation => 'Tuition-Training Fee-Books-Stationery-Office Supplies';
+  String get categoryExpenseEducation => 'Education-Tuition-Training Fee-Books-Stationery-Office Supplies';
 
   @override
   String get categoryExpenseInvestLoss => 'Investment Loss-Stock Loss-Fund Loss-Other Investment Loss';
@@ -1764,7 +1764,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryExpenseEntertainment => 'Entertainment-Movie-KTV-Amusement Park-Bar-Other Entertainment';
 
   @override
-  String get categoryExpenseGame => 'Game-Game Top-up-Game Equipment-Game Membership';
+  String get categoryExpenseGame => 'Game-Game Top up-Game Equipment-Game Membership';
 
   @override
   String get categoryExpenseHealthProducts => 'Health Products-Vitamins-Health Food-Nutritional Supplements';
@@ -1785,22 +1785,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryExpenseBeauty => 'Beauty-Skincare-Cosmetics-Beauty Salon-Nail Care';
 
   @override
-  String get categoryIncomeSalary => 'Base Salary-Performance Bonus-Year-end Bonus-Overtime Pay';
+  String get categoryIncomeSalary => 'Salary-Base Salary-Performance Bonus-Year end Bonus-Overtime Pay';
 
   @override
-  String get categoryIncomeInvestment => 'Fund Earnings-Stock Dividend-Wealth Management-Other Wealth Management';
+  String get categoryIncomeInvestment => 'Investment-Fund Earnings-Stock Dividend-Wealth Management-Other Wealth Management';
 
   @override
   String get categoryIncomeRedPacket => 'Red Packet-Holiday Red Packet-Birthday Red Packet-Return Gift';
 
   @override
-  String get categoryIncomeBonus => 'Bonus-Year-end Bonus-Quarterly Bonus-Project Bonus-Other Bonus';
+  String get categoryIncomeBonus => 'Bonus-Annual Bonus-Quarterly Bonus-Project Bonus-Other Bonus';
 
   @override
   String get categoryIncomeReimbursement => 'Reimbursement-Travel Reimbursement-Meal Reimbursement-Other Reimbursement';
 
   @override
-  String get categoryIncomePartTime => 'Part-time-Part-time Income-Side Income';
+  String get categoryIncomePartTime => 'Part time-Part time Income-Side Income';
 
   @override
   String get categoryIncomeGift => 'Gift-Wedding Gift-Birthday Gift-Other Gift';
@@ -1812,16 +1812,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryIncomeRefund => 'Refund-Shopping Refund-Service Refund-Other Refund';
 
   @override
-  String get categoryIncomeInvestIncome => 'Investment Income-Stock Earnings-Fund Earnings-Other Investment Income';
+  String get categoryIncomeInvestIncome => 'Investment Income-Stock Earnings-Fund Investment-Other Investment Income';
 
   @override
-  String get categoryIncomeSecondHand => 'Second-hand-Idle Items-Second-hand Goods';
+  String get categoryIncomeSecondHand => 'Second hand-Idle Items-Second hand Goods';
 
   @override
   String get categoryIncomeSocialBenefit => 'Social Benefit-Unemployment Insurance-Maternity Subsidy-Other Subsidy';
 
   @override
-  String get categoryIncomeTaxRefund => 'Tax Refund-Individual Tax Refund-Other Refund';
+  String get categoryIncomeTaxRefund => 'Tax Refund-Individual Tax Refund-Other Tax Refund';
 
   @override
   String get categoryIncomeProvidentFund => 'Provident Fund-Provident Fund Withdrawal-Provident Fund Interest';

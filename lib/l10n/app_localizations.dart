@@ -3249,7 +3249,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryIncomeList.
   ///
   /// In en, this message translates to:
-  /// **'Salary-Investment-Receive Red Packet-Bonus-Reimbursement-Part-time-Receive Gift-Interest-Refund-Investment Income-Second-hand-Social Benefit-Tax Refund-Provident Fund'**
+  /// **'Salary-Investment-Receive Red Packet-Bonus-Reimbursement-Part time-Receive Gift-Interest-Refund-Investment Income-Second hand-Social Benefit-Tax Refund-Provident Fund'**
   String get categoryIncomeList;
 
   /// No description provided for @categoryExpenseDining.
@@ -3261,7 +3261,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryExpenseSnacks.
   ///
   /// In en, this message translates to:
-  /// **'Cookies-Chips-Candy-Chocolate-Nuts'**
+  /// **'Snacks-Cookies-Chips-Candy-Chocolate-Nuts'**
   String get categoryExpenseSnacks;
 
   /// No description provided for @categoryExpenseFruit.
@@ -3279,7 +3279,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryExpensePastry.
   ///
   /// In en, this message translates to:
-  /// **'Pastry-Cake-Bread-Dessert-Pastry'**
+  /// **'Pastry-Cake-Bread-Dessert-Baked Goods'**
   String get categoryExpensePastry;
 
   /// No description provided for @categoryExpenseCooking.
@@ -3291,7 +3291,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryExpenseShopping.
   ///
   /// In en, this message translates to:
-  /// **'Clothing-Shoes & Hats-Bags-Accessories-Daily Necessities'**
+  /// **'Shopping-Clothing-Shoes & Hats-Bags-Accessories-Daily Necessities'**
   String get categoryExpenseShopping;
 
   /// No description provided for @categoryExpensePets.
@@ -3303,7 +3303,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryExpenseTransport.
   ///
   /// In en, this message translates to:
-  /// **'Transport-Subway-Bus-Taxi-Ride-hailing-Parking Fee-Fuel'**
+  /// **'Transport-Subway-Bus-Taxi-Ride hailing-Parking Fee-Fuel'**
   String get categoryExpenseTransport;
 
   /// No description provided for @categoryExpenseCar.
@@ -3315,7 +3315,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryExpenseClothing.
   ///
   /// In en, this message translates to:
-  /// **'Top-Pants-Dress-Shoes-Accessories'**
+  /// **'Apparel-Top-Pants-Dress-Shoes-Apparel Accessories'**
   String get categoryExpenseClothing;
 
   /// No description provided for @categoryExpenseDailyGoods.
@@ -3327,7 +3327,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryExpenseEducation.
   ///
   /// In en, this message translates to:
-  /// **'Tuition-Training Fee-Books-Stationery-Office Supplies'**
+  /// **'Education-Tuition-Training Fee-Books-Stationery-Office Supplies'**
   String get categoryExpenseEducation;
 
   /// No description provided for @categoryExpenseInvestLoss.
@@ -3345,7 +3345,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryExpenseGame.
   ///
   /// In en, this message translates to:
-  /// **'Game-Game Top-up-Game Equipment-Game Membership'**
+  /// **'Game-Game Top up-Game Equipment-Game Membership'**
   String get categoryExpenseGame;
 
   /// No description provided for @categoryExpenseHealthProducts.
@@ -3387,13 +3387,13 @@ abstract class AppLocalizations {
   /// No description provided for @categoryIncomeSalary.
   ///
   /// In en, this message translates to:
-  /// **'Base Salary-Performance Bonus-Year-end Bonus-Overtime Pay'**
+  /// **'Salary-Base Salary-Performance Bonus-Year end Bonus-Overtime Pay'**
   String get categoryIncomeSalary;
 
   /// No description provided for @categoryIncomeInvestment.
   ///
   /// In en, this message translates to:
-  /// **'Fund Earnings-Stock Dividend-Wealth Management-Other Wealth Management'**
+  /// **'Investment-Fund Earnings-Stock Dividend-Wealth Management-Other Wealth Management'**
   String get categoryIncomeInvestment;
 
   /// No description provided for @categoryIncomeRedPacket.
@@ -3405,7 +3405,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryIncomeBonus.
   ///
   /// In en, this message translates to:
-  /// **'Bonus-Year-end Bonus-Quarterly Bonus-Project Bonus-Other Bonus'**
+  /// **'Bonus-Annual Bonus-Quarterly Bonus-Project Bonus-Other Bonus'**
   String get categoryIncomeBonus;
 
   /// No description provided for @categoryIncomeReimbursement.
@@ -3417,7 +3417,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryIncomePartTime.
   ///
   /// In en, this message translates to:
-  /// **'Part-time-Part-time Income-Side Income'**
+  /// **'Part time-Part time Income-Side Income'**
   String get categoryIncomePartTime;
 
   /// No description provided for @categoryIncomeGift.
@@ -3441,13 +3441,13 @@ abstract class AppLocalizations {
   /// No description provided for @categoryIncomeInvestIncome.
   ///
   /// In en, this message translates to:
-  /// **'Investment Income-Stock Earnings-Fund Earnings-Other Investment Income'**
+  /// **'Investment Income-Stock Earnings-Fund Investment-Other Investment Income'**
   String get categoryIncomeInvestIncome;
 
   /// No description provided for @categoryIncomeSecondHand.
   ///
   /// In en, this message translates to:
-  /// **'Second-hand-Idle Items-Second-hand Goods'**
+  /// **'Second hand-Idle Items-Second hand Goods'**
   String get categoryIncomeSecondHand;
 
   /// No description provided for @categoryIncomeSocialBenefit.
@@ -3459,7 +3459,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryIncomeTaxRefund.
   ///
   /// In en, this message translates to:
-  /// **'Tax Refund-Individual Tax Refund-Other Refund'**
+  /// **'Tax Refund-Individual Tax Refund-Other Tax Refund'**
   String get categoryIncomeTaxRefund;
 
   /// No description provided for @categoryIncomeProvidentFund.

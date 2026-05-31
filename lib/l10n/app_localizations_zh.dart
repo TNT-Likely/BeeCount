@@ -1731,7 +1731,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryExpenseBeverage => '饮品-奶茶-咖啡-果汁-汽水-矿泉水';
 
   @override
-  String get categoryExpensePastry => '糕点-蛋糕-面包-甜点-饼干';
+  String get categoryExpensePastry => '糕点-蛋糕-面包-甜点-曲奇';
 
   @override
   String get categoryExpenseCooking => '做饭食材-蔬菜-肉类-水产-调料-粮油';
@@ -1749,7 +1749,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryExpenseCar => '汽车-汽车保养-汽车维修-汽车保险-洗车-违章罚款';
 
   @override
-  String get categoryExpenseClothing => '服饰-上衣-裤子-裙子-鞋子-配饰';
+  String get categoryExpenseClothing => '服饰-上衣-裤子-裙子-鞋子-服饰配件';
 
   @override
   String get categoryExpenseDailyGoods => '日用品-洗护用品-纸品-清洁用品-厨房用品';
@@ -1794,7 +1794,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryIncomeRedPacket => '红包-节日红包-生日红包-随礼回礼';
 
   @override
-  String get categoryIncomeBonus => '奖金-年终奖-季度奖-项目奖金-其他奖金';
+  String get categoryIncomeBonus => '奖金-年度奖金-季度奖-项目奖金-其他奖金';
 
   @override
   String get categoryIncomeReimbursement => '报销-差旅报销-餐费报销-其他报销';
@@ -1803,7 +1803,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryIncomePartTime => '兼职-兼职收入-外快';
 
   @override
-  String get categoryIncomeGift => '结婚礼金-生日礼金-其他礼金';
+  String get categoryIncomeGift => '礼金-结婚礼金-生日礼金-其他礼金';
 
   @override
   String get categoryIncomeInterest => '利息-银行利息-其他利息';
@@ -1812,7 +1812,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryIncomeRefund => '退款-购物退款-服务退款-其他退款';
 
   @override
-  String get categoryIncomeInvestIncome => '投资收益-股票收益-基金收益-其他投资收益';
+  String get categoryIncomeInvestIncome => '投资收益-股票收益-基金投资-其他投资收益';
 
   @override
   String get categoryIncomeSecondHand => '二手交易-闲置物品-二手商品';
@@ -8261,7 +8261,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryExpenseBeverage => '飲品-奶茶-咖啡-果汁-汽水-礦泉水';
 
   @override
-  String get categoryExpensePastry => '糕點-蛋糕-麵包-甜點-餅乾';
+  String get categoryExpensePastry => '糕點-蛋糕-麵包-甜點-曲奇';
 
   @override
   String get categoryExpenseCooking => '做飯食材-蔬菜-肉類-水產-調料-糧油';
@@ -8279,7 +8279,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryExpenseCar => '汽車-汽車保養-汽車維修-汽車保險-洗車-違章罰款';
 
   @override
-  String get categoryExpenseClothing => '服飾-上衣-褲子-裙子-鞋子-配飾';
+  String get categoryExpenseClothing => '服飾-上衣-褲子-裙子-鞋子-服飾配件';
 
   @override
   String get categoryExpenseDailyGoods => '日用品-洗護用品-紙品-清潔用品-廚房用品';
@@ -8294,7 +8294,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryExpenseEntertainment => '娛樂-電影-KTV-遊樂場-酒吧-其他娛樂';
 
   @override
-  String get categoryExpenseGame => '遊戲儲值-遊戲裝備-遊戲會員';
+  String get categoryExpenseGame => '遊戲-遊戲儲值-遊戲裝備-遊戲會員';
 
   @override
   String get categoryExpenseHealthProducts => '保健品-維生素-保健食品-營養品';
@@ -8309,7 +8309,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryExpenseHousing => '住房-房租-物業費-房貸-裝修';
 
   @override
-  String get categoryExpenseHome => '傢俱-家電-裝飾品-床上用品';
+  String get categoryExpenseHome => '居家-傢俱-家電-裝飾品-床上用品';
 
   @override
   String get categoryExpenseBeauty => '美容-護膚品-化妝品-美容美髮-美甲';
@@ -8324,7 +8324,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryIncomeRedPacket => '紅包-節日紅包-生日紅包-隨禮回禮';
 
   @override
-  String get categoryIncomeBonus => '獎金-年終獎-季度獎-項目獎金-其他獎金';
+  String get categoryIncomeBonus => '獎金-年度獎金-季度獎-項目獎金-其他獎金';
 
   @override
   String get categoryIncomeReimbursement => '報銷-差旅報銷-餐費報銷-其他報銷';
@@ -8333,7 +8333,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryIncomePartTime => '兼職-兼職收入-外快';
 
   @override
-  String get categoryIncomeGift => '結婚禮金-生日禮金-其他禮金';
+  String get categoryIncomeGift => '禮金-結婚禮金-生日禮金-其他禮金';
 
   @override
   String get categoryIncomeInterest => '利息-銀行利息-其他利息';
@@ -8342,7 +8342,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryIncomeRefund => '退款-購物退款-服務退款-其他退款';
 
   @override
-  String get categoryIncomeInvestIncome => '投資收益-股票收益-基金收益-其他投資收益';
+  String get categoryIncomeInvestIncome => '投資收益-股票收益-基金投資-其他投資收益';
 
   @override
   String get categoryIncomeSecondHand => '二手交易-閒置物品-二手商品';
