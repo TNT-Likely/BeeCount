@@ -31,7 +31,7 @@ class LocalCategoryRepository implements CategoryRepository {
     int? parentId,
     String? syncId,
   }) async {
-    // 撞同名抛 DuplicateNameException(name 全局唯一)。caller 显式 handle:
+    // 撞同名抛 DuplicateNameException((name,kind) 联合唯一,跨 kind 可同名)。caller 显式 handle:
     //   - UI 主动建 → 先过 isCategoryNameDuplicate 警告;真冲突 try/catch 弹 toast
     //   - import / 自动记账等静默路径 → 改用 upsertCategory(get-or-create)
     // 静默复用会把收入 tx 错挂到 expense 分类或吞掉 caller 传的 icon/sortOrder。
@@ -203,7 +203,7 @@ class LocalCategoryRepository implements CategoryRepository {
     String? icon,
     int? sortOrder,
   }) async {
-    // name 全局唯一:按 name 找;有则复用,无则用给定 kind/icon/sortOrder 建。
+    // (name,kind) 联合唯一:按 (name,kind) 找;有则复用,无则用给定 icon/sortOrder 建。
     final existing = await (db.select(db.categories)
           ..where((c) => c.name.equals(name) & c.kind.equals(kind)))
         .get();

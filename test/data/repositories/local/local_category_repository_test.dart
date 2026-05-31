@@ -58,5 +58,25 @@ void main() {
       final aAgain = await repo.upsertCategory(name: '红包', kind: 'income');
       expect(aAgain, a); // 同 kind → 复用
     });
+
+    test('createSubCategory 跨 kind 同名子分类可共存', () async {
+      final pInc = await repo.createCategory(name: '工资', kind: 'income');
+      final pExp = await repo.createCategory(name: '餐饮', kind: 'expense');
+      final subInc =
+          await repo.createSubCategory(parentId: pInc, name: '红包', kind: 'income');
+      final subExp =
+          await repo.createSubCategory(parentId: pExp, name: '红包', kind: 'expense');
+      expect(subInc, isNot(subExp));
+    });
+
+    test('createSubCategory 同 kind 重名抛 DuplicateNameException(二级也按 name+kind 全局唯一)',
+        () async {
+      final p = await repo.createCategory(name: '餐饮', kind: 'expense');
+      await repo.createSubCategory(parentId: p, name: '午餐', kind: 'expense');
+      expect(
+        () => repo.createSubCategory(parentId: p, name: '午餐', kind: 'expense'),
+        throwsA(isA<DuplicateNameException>()),
+      );
+    });
   });
 }

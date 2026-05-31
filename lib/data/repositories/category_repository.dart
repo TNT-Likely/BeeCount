@@ -3,9 +3,10 @@ import '../db.dart';
 /// 分类Repository接口
 /// 定义分类相关的所有数据操作
 abstract class CategoryRepository {
-  /// 创建分类。撞同名抛 [DuplicateNameException](name 全局唯一)—— UI 主动
-  /// 建应已先过 [isCategoryNameDuplicate];import / 自动记账等静默路径要 get-or-
-  /// create 语义请用 [upsertCategory]。
+  /// 创建分类。撞同名抛 [DuplicateNameException]((name,kind) 联合唯一:同 kind
+  /// 内不重名、跨 kind 可同名,如收入「红包」+ 支出「红包」)—— UI 主动建应已先过
+  /// [isCategoryNameDuplicate];import / 自动记账等静默路径要 get-or-create 语义
+  /// 请用 [upsertCategory]。
   ///
   /// 可选 [syncId] / [level] / [parentId]:给 seed 这种需要显式塞确定性
   /// syncId / 指定层级和父级的路径用;UI 主动建一般不传(走默认 L1 + auto v4 id)。
@@ -47,9 +48,10 @@ abstract class CategoryRepository {
   /// 批量删除分类
   Future<void> deleteCategoriesByIds(List<int> ids);
 
-  /// 按 name 取分类(name 全局唯一);不存在则按给定 kind/icon/sortOrder 建一条。
-  /// 命中已存在时,icon/sortOrder 参数被忽略 —— 保留已有那条的元数据(在 name
-  /// 全局唯一模型下,"X" 是同一个分类,不该被外部 import 覆盖图标/排序)。
+  /// 按 (name,kind) 取分类(同 kind 内唯一,跨 kind 可同名);不存在则按给定
+  /// kind/icon/sortOrder 建一条。命中已存在时,icon/sortOrder 参数被忽略 —— 保留
+  /// 已有那条的元数据((name,kind) 唯一模型下,同 kind 的 "X" 是同一个分类,不该
+  /// 被外部 import 覆盖图标/排序)。
   Future<int> upsertCategory({
     required String name,
     required String kind,
