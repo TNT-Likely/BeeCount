@@ -203,9 +203,10 @@ class LocalCategoryRepository implements CategoryRepository {
     String? icon,
     int? sortOrder,
   }) async {
-    // name 全局唯一:按 name 找;有则复用,无则用给定 kind/icon/sortOrder 建。
+    // Match by name + kind to prevent same-name categories across
+    // expense/income from being incorrectly reused (e.g. 'transfer').
     final existing = await (db.select(db.categories)
-          ..where((c) => c.name.equals(name)))
+          ..where((c) => c.name.equals(name) & c.kind.equals(kind)))
         .get();
     if (existing.isNotEmpty) return existing.first.id;
     return db.into(db.categories).insert(CategoriesCompanion.insert(
