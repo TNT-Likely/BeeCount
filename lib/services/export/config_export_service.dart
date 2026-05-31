@@ -2410,7 +2410,9 @@ class ConfigExportService {
 
         // 获取现有分类名称集合（用于去重）
         final existingCategories = await repository.getAllCategories();
-        final existingNames = existingCategories.map((c) => c.name.toLowerCase()).toSet();
+        // 按 (name, kind) 去重,允许跨 kind 同名(收入/支出可同名)
+        final existingKeys =
+            existingCategories.map((c) => '${c.name.toLowerCase()}|${c.kind}').toSet();
 
         // 特殊处理：更新虚拟转账分类（如果存在）
         final transferItem = items.firstWhere(
@@ -2441,7 +2443,7 @@ class ConfigExportService {
         // 第一步：过滤并批量插入一级分类
         final level1Items = items.where((item) => item.parentName == null).toList();
         final newLevel1Items = level1Items.where((item) =>
-          !existingNames.contains(item.name.toLowerCase())
+          !existingKeys.contains('${item.name.toLowerCase()}|${item.kind}')
         ).toList();
 
         if (newLevel1Items.isNotEmpty) {
@@ -2462,22 +2464,23 @@ class ConfigExportService {
 
         // 第二步：查询所有分类，构建名称到ID的映射
         final allCategories = await repository.getAllCategories();
-        final nameToIdMap = <String, int>{
-          for (var cat in allCategories) cat.name: cat.id
+        final keyToId = <String, int>{
+          for (var cat in allCategories) '${cat.name.toLowerCase()}|${cat.kind}': cat.id
         };
 
-        // 更新现有分类名称集合（包含刚插入的一级分类）
-        final updatedExistingNames = allCategories.map((c) => c.name.toLowerCase()).toSet();
+        // 更新现有分类集合（包含刚插入的一级分类），按 (name, kind)
+        final updatedKeys = allCategories.map((c) => '${c.name.toLowerCase()}|${c.kind}').toSet();
 
         // 第三步：过滤并批量插入二级分类
         final level2Items = items.where((item) => item.parentName != null).toList();
         final newLevel2Items = level2Items.where((item) =>
-          !updatedExistingNames.contains(item.name.toLowerCase())
+          !updatedKeys.contains('${item.name.toLowerCase()}|${item.kind}')
         ).toList();
         final level2Companions = <CategoriesCompanion>[];
 
         for (final item in newLevel2Items) {
-          final parentId = nameToIdMap[item.parentName];
+          // 父分类与子分类同 kind,按 (parentName, kind) 查父 id
+          final parentId = keyToId['${item.parentName?.toLowerCase()}|${item.kind}'];
           if (parentId != null) {
             level2Companions.add(CategoriesCompanion.insert(
               name: item.name,
@@ -2597,7 +2600,8 @@ class ConfigExportService {
         final ledgerNameToId = {for (var l in ledgers) l.name: l.id};
 
         final categories = await repository.getAllCategories();
-        final categoryNameToId = {for (var c in categories) c.name: c.id};
+        // 按 (name, kind) 映射,跨 kind 同名各自命中
+        final catKeyToId = {for (var c in categories) '${c.name.toLowerCase()}|${c.kind}': c.id};
 
         final accounts = await repository.getAllAccounts();
         final accountNameToId = {for (var a in accounts) a.name: a.id};
@@ -2617,7 +2621,8 @@ class ConfigExportService {
           // 通过名称查找分类ID
           int? categoryId;
           if (item.categoryName != null) {
-            categoryId = categoryNameToId[item.categoryName];
+            // 周期账单 type(expense/income/transfer)即分类 kind
+            categoryId = catKeyToId['${item.categoryName!.toLowerCase()}|${item.type}'];
             if (categoryId == null) {
               logger.warning('ConfigImport', '找不到分类: ${item.categoryName}，跳过周期账单');
               skippedCount++;
@@ -2685,7 +2690,8 @@ class ConfigExportService {
         final ledgerNameToId = {for (var l in ledgers) l.name: l.id};
 
         final categories = await repository.getAllCategories();
-        final categoryNameToId = {for (var c in categories) c.name: c.id};
+        // 分类预算只针对支出一级分类,按 (name, kind) 映射
+        final catKeyToId = {for (var c in categories) '${c.name.toLowerCase()}|${c.kind}': c.id};
 
         for (final item in items) {
           // 通过名称查找账本 ID
@@ -2702,7 +2708,8 @@ class ConfigExportService {
           // 通过名称查找分类 ID（仅分类预算需要）
           int? categoryId;
           if (item.type == 'category' && item.categoryName != null) {
-            categoryId = categoryNameToId[item.categoryName];
+            // 分类预算针对支出分类
+            categoryId = catKeyToId['${item.categoryName!.toLowerCase()}|expense'];
             if (categoryId == null) {
               logger.warning('ConfigImport', '找不到分类: ${item.categoryName}，跳过此预算');
               skippedCount++;
