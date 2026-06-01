@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/repositories/base_repository.dart';
 import '../../providers/database_providers.dart';
@@ -316,16 +317,49 @@ class AppLinkService {
   /// 处理自动记账（带参数）
   Future<AppLinkResult> _handleAddTransaction(Map<String, String> params) async {
     try {
-      final txParams = AddTransactionParams.fromQueryParams(params);
-
       final repo = _container.read(repositoryProvider);
-      final currentLedger = _container.read(currentLedgerProvider).valueOrNull;
+
+      // 冷启动早期 _currentLedgerPersist 可能还没把上次选中的账本从
+      // SharedPreferences 恢复出来,currentLedgerId 还是默认值 1 —— 先显式
+      // 校准一次,避免 deep-link 把交易记到错误账本。
+      await _restoreCurrentLedgerId();
+
+      // 必须 await .future:冷启动时 currentLedgerProvider 还在 loading,
+      // 用 .valueOrNull 会拿到 null 而误判"无账本"导致静默失败(issue #162)。
+      final currentLedger = await _container.read(currentLedgerProvider.future);
 
       if (currentLedger == null) {
+        logger.warning('AppLink',
+            '自动记账失败:未找到当前账本 (ledgerId=${_container.read(currentLedgerIdProvider)})');
         return AppLinkResult.failure('请先选择账本');
       }
 
       final ledgerId = currentLedger.id;
+      final type = params['type'] ?? 'expense';
+
+      // —— 完整性校验 —— 金额无效 / 缺分类 / 分类不存在 → 不记账,返回具体原因
+      // (由上层用 toast 提醒用户)。转账没有分类概念,只校验金额。
+      final parsedAmount = double.tryParse(params['amount'] ?? '');
+      if (parsedAmount == null || parsedAmount <= 0) {
+        logger.warning('AppLink', '已拦截:金额无效 (amount=${params['amount']})');
+        return AppLinkResult.failure('未记账:请填写有效金额');
+      }
+      if (type != 'transfer') {
+        final categoryName = params['category'];
+        if (categoryName == null || categoryName.isEmpty) {
+          logger.warning('AppLink', '已拦截:缺少分类');
+          return AppLinkResult.failure('未记账:请指定分类');
+        }
+        final matched = await _findCategoryId(
+            repo, categoryName, type == 'income' ? 'income' : 'expense');
+        if (matched == null) {
+          logger.warning('AppLink', '已拦截:分类「$categoryName」不存在');
+          return AppLinkResult.failure('未记账:分类「$categoryName」不存在');
+        }
+      }
+
+      // —— 参数齐全:自动记账(原逻辑)——
+      final txParams = AddTransactionParams.fromQueryParams(params);
 
       // 解析分类
       int? categoryId;
@@ -403,6 +437,24 @@ class AppLinkService {
     } catch (e, st) {
       logger.error('AppLink', '自动记账失败', e, st);
       return AppLinkResult.failure('记账失败: $e');
+    }
+  }
+
+  /// 从持久化恢复上次选中的账本 id。
+  ///
+  /// 冷启动通过 deep-link 触发记账时,Splash 的 `_currentLedgerPersist` 恢复
+  /// 逻辑可能还没跑完(它是 fire-and-forget,不被 await),currentLedgerId 还
+  /// 停在默认值 1。这里显式、幂等地校准一次,确保记到用户真正选中的账本。
+  Future<void> _restoreCurrentLedgerId() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getInt('current_ledger_id');
+      if (saved != null &&
+          _container.read(currentLedgerIdProvider) != saved) {
+        _container.read(currentLedgerIdProvider.notifier).state = saved;
+      }
+    } catch (_) {
+      // 恢复失败不致命,退回当前(可能为默认)账本。
     }
   }
 

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
 import 'widgets/biz/login_2fa_challenge_view.dart';
+import 'widgets/ui/toast.dart';
 import 'theme.dart';
 import 'providers.dart';
 import 'providers/font_scale_provider.dart';
@@ -330,10 +331,70 @@ void _setupUrlListener(ProviderContainer container) {
       container.read(pendingAppLinkActionProvider.notifier).state = action;
     };
 
-    // 监听URL（应用在后台时）
+    // 用 Navigator 的 OverlayState 直接弹 toast —— deep-link 在冷启动/任意页面
+    // 处理,没有就近 BuildContext;不能用 globalNavigatorKey.currentContext
+    // (它在 Overlay 之上,Overlay.of 找不到祖先 Overlay)。overlay 没就绪时退
+    // 回日志(用 deep-link 的多是极客,日志中心也能看到)。
+    void showAppLinkToast(String message) {
+      final overlay = globalNavigatorKey.currentState?.overlay;
+      if (overlay != null) {
+        showToastOnOverlay(overlay, message);
+      } else {
+        logger.warning('AppLink', 'overlay 未就绪,toast 改记日志: $message');
+      }
+    }
+
+    // 自动记账成功提示("已记录 xx 元")
+    appLinkService.onShowToast = showAppLinkToast;
+
+    // 冷启动时 uriLinkStream 会在 app 还在 Splash 预加载、provider 尚未就绪时
+    // 立即吐出启动 URL。此时直接 handleUrl 会因 currentLedgerProvider 还在
+    // loading 而误判"无账本"静默失败(issue #162)。因此:未 ready 先暂存,等
+    // appInitState 变 ready(Splash 完成、账本已恢复、navigator 已 attach)后
+    // 再统一处理。
+    final pendingUris = <Uri>[];
+
+    bool isAppReady() =>
+        container.read(appInitStateProvider) == AppInitState.ready;
+
+    Future<void> dispatch(Uri uri) async {
+      try {
+        final result = await appLinkService.handleUrl(uri);
+        // 失败/拦截(参数不全、分类不存在等)→ toast 提醒用户。具体原因
+        // _handleAddTransaction 里已记 warning 日志,这里再弹一层。
+        if (!result.success && result.message != null) {
+          logger.warning('AppLink', '处理URL未成功: $uri -> ${result.message}');
+          showAppLinkToast(result.message!);
+        }
+      } catch (e, st) {
+        logger.error('AppLink', '处理URL异常: $uri', e, st);
+      }
+    }
+
+    void flushPendingUris() {
+      if (pendingUris.isEmpty) return;
+      final uris = List<Uri>.from(pendingUris);
+      pendingUris.clear();
+      logger.info('AppLink', '应用已就绪,处理暂存的 ${uris.length} 个URL');
+      for (final uri in uris) {
+        dispatch(uri);
+      }
+    }
+
+    // app 变 ready 时,flush 冷启动期间暂存的 URL
+    container.listen<AppInitState>(appInitStateProvider, (prev, next) {
+      if (next == AppInitState.ready) flushPendingUris();
+    });
+
+    // 监听URL(冷启动初始链接 + 应用在后台时的后续链接都走这里)
     appLinks.uriLinkStream.listen((uri) {
       logger.info('AppLink', '收到URL: $uri');
-      appLinkService.handleUrl(uri);
+      if (isAppReady()) {
+        dispatch(uri);
+      } else {
+        logger.info('AppLink', '应用未就绪,暂存冷启动URL: $uri');
+        pendingUris.add(uri);
+      }
     }, onError: (err) {
       logger.error('AppLink', 'URL监听错误', err);
     });
