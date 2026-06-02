@@ -2559,6 +2559,8 @@
   "appLockTimeout5Min": "5分钟后",
   "appLockTimeout15Min": "15分钟后",
   "creditCardSettings": "信用卡设置",
+  "accountTabValuation": "估值账户",
+  "creditCardDaysRequired": "请选择账单日和还款日",
   "creditLimit": "信用额度",
   "creditLimitHint": "请输入信用额度",
   "billingDay": "账单日",

@@ -2599,6 +2599,8 @@
   "appLockTimeout5Min": "After 5 minutes",
   "appLockTimeout15Min": "After 15 minutes",
   "creditCardSettings": "Credit Card Settings",
+  "accountTabValuation": "Valuation",
+  "creditCardDaysRequired": "Please select billing & due dates",
   "creditLimit": "Credit Limit",
   "creditLimitHint": "Enter credit limit",
   "billingDay": "Billing Day",

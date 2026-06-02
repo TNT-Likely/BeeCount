@@ -11214,6 +11214,18 @@ abstract class AppLocalizations {
   /// **'Credit Card Settings'**
   String get creditCardSettings;
 
+  /// No description provided for @accountTabValuation.
+  ///
+  /// In en, this message translates to:
+  /// **'Valuation'**
+  String get accountTabValuation;
+
+  /// No description provided for @creditCardDaysRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select billing & due dates'**
+  String get creditCardDaysRequired;
+
   /// No description provided for @creditLimit.
   ///
   /// In en, this message translates to:

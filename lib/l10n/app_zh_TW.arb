@@ -2338,6 +2338,8 @@
   "appLockTimeout5Min": "5分鐘後",
   "appLockTimeout15Min": "15分鐘後",
   "creditCardSettings": "信用卡設定",
+  "accountTabValuation": "估值帳戶",
+  "creditCardDaysRequired": "請選擇帳單日和還款日",
   "creditLimit": "信用額度",
   "creditLimitHint": "請輸入信用額度",
   "billingDay": "帳單日",

@@ -5872,6 +5872,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get creditCardSettings => '信用卡设置';
 
   @override
+  String get accountTabValuation => '估值账户';
+
+  @override
+  String get creditCardDaysRequired => '请选择账单日和还款日';
+
+  @override
   String get creditLimit => '信用额度';
 
   @override
@@ -12394,6 +12400,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get creditCardSettings => '信用卡設定';
+
+  @override
+  String get accountTabValuation => '估值帳戶';
+
+  @override
+  String get creditCardDaysRequired => '請選擇帳單日和還款日';
 
   @override
   String get creditLimit => '信用額度';

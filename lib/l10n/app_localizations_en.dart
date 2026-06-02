@@ -5872,6 +5872,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get creditCardSettings => 'Credit Card Settings';
 
   @override
+  String get accountTabValuation => 'Valuation';
+
+  @override
+  String get creditCardDaysRequired => 'Please select billing & due dates';
+
+  @override
   String get creditLimit => 'Credit Limit';
 
   @override
