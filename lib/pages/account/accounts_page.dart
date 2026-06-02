@@ -85,7 +85,6 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     final primaryColor = ref.watch(primaryColorProvider);
     final allStatsAsync = ref.watch(allAccountStatsProvider);
     final netWorthByCurrencyAsync = ref.watch(netWorthBreakdownByCurrencyProvider);
-    final isDark = BeeTokens.isDark(context);
 
     // 资产构成数据
     final compositionAsync = ref.watch(assetCompositionProvider);
@@ -1062,7 +1061,7 @@ class _AccountCard extends ConsumerWidget {
                     ),
                     SizedBox(height: 10.0.scaled(context, ref)),
                     // 信用卡：进度条 + 额度信息
-                    if (account.type == 'credit_card' && account.creditLimit != null && stats != null)
+                    if (account.type == 'credit_card' && stats != null)
                       _buildCreditCardStats(context, ref, l10n, isDark)
                     // 估值账户：仅显示当前估值
                     else if (isValuationOnlyType(account.type) && stats != null)
@@ -1205,12 +1204,27 @@ class _AccountCard extends ConsumerWidget {
   }
 
   Widget _buildCreditCardStats(BuildContext context, WidgetRef ref, AppLocalizations l10n, bool isDark) {
-    final creditLimit = account.creditLimit!;
     final used = stats!.balance < 0 ? -stats!.balance : 0.0;
-    final usageRate = creditLimit > 0 ? (used / creditLimit).clamp(0.0, 1.0) : 0.0;
     final textColor = isDark ? Colors.white.withValues(alpha: 0.9) : Colors.white;
     final labelColor = isDark ? Colors.white.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.8);
 
+    // 信用卡按 type 判定;无额度时仅显示当前欠款,不再 fallthrough 到收入/支出卡
+    final creditLimit = account.creditLimit;
+    if (creditLimit == null) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: _CardStat(
+          label: l10n.creditCardOwed,
+          value: used,
+          textColor: textColor,
+          labelColor: labelColor,
+          ref: ref,
+          currencyCode: account.currency,
+        ),
+      );
+    }
+
+    final usageRate = creditLimit > 0 ? (used / creditLimit).clamp(0.0, 1.0) : 0.0;
     return Column(
       children: [
         // 进度条
