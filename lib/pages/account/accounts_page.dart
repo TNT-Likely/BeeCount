@@ -184,7 +184,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                         iconColor: BeeTokens.incomeColor(context, ref),
                         typeOrder: assetTypeOrder,
                         groups: groups,
-                        allStats: allStatsAsync.asData?.value,
+                        allStats: allStatsAsync.valueOrNull,
                         primaryColor: primaryColor,
                         ledgerId: ledgerId,
                       ),
@@ -198,7 +198,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                         iconColor: BeeTokens.expenseColor(context, ref),
                         typeOrder: liabilityTypeOrder,
                         groups: groups,
-                        allStats: allStatsAsync.asData?.value,
+                        allStats: allStatsAsync.valueOrNull,
                         primaryColor: primaryColor,
                         ledgerId: ledgerId,
                       ),
@@ -212,7 +212,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                           type: type,
                           accounts: groupList,
                           primaryColor: primaryColor,
-                          allStats: allStatsAsync.asData?.value,
+                          allStats: allStatsAsync.valueOrNull,
                           onReorder: (oldIndex, newIndex) =>
                               _onReorder(type, groupList, oldIndex, newIndex),
                           onTap: (account) =>
@@ -244,9 +244,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     AsyncValue<List<({String type, double totalBalance})>> compositionAsync,
     Color primaryColor,
   ) {
-    final isSingleCurrency = netWorthAsync.asData?.value != null
-        ? netWorthAsync.asData!.value.length <= 1
-        : true;
+    // reload 时 asData 会短暂变 null 致布局闪动,用 valueOrNull 保留上次结果
+    final isSingleCurrency = (netWorthAsync.valueOrNull?.length ?? 1) <= 1;
 
     return SectionCard(
       margin: EdgeInsets.zero,
