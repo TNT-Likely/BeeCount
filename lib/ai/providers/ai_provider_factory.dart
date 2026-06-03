@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_ai_kit/flutter_ai_kit.dart';
 import 'package:flutter_ai_kit_zhipu/flutter_ai_kit_zhipu.dart';
 
@@ -446,6 +447,56 @@ class AIProviderFactory {
   // OpenAI 兼容实现
   // ============================================================
 
+  // 结构上必须保留的键;其余键(temperature 等)被上游拒绝时可摘掉重发。
+  static const _requiredChatKeys = {'model', 'messages', 'stream'};
+  static const _maxParamStrips = 3;
+
+  /// 上游因「参数不合法」报 4xx 时,返回它点名的那个可丢键(候选只来自我们发出去的键)。
+  ///
+  /// 推理模型(Moonshot kimi-k2.5 / OpenAI o1·o3 / DeepSeek-R1)把 temperature 锁死成 1,
+  /// 发其他值返回 400「invalid temperature: only 1 is allowed for this model」即走这里。
+  /// 不写死参数名/模型名,而是看错误文案点了我们发出去的哪个键。
+  @visibleForTesting
+  static String? rejectedChatParam(
+    Map<String, dynamic> payload,
+    int? statusCode,
+    String errorBody,
+  ) {
+    if (statusCode == null || statusCode < 400) return null;
+    final low = errorBody.toLowerCase();
+    for (final key in payload.keys) {
+      if (!_requiredChatKeys.contains(key) && low.contains(key.toLowerCase())) {
+        return key;
+      }
+    }
+    return null;
+  }
+
+  /// POST /chat/completions;被某个可选参数拒就摘掉重发,最多 [_maxParamStrips] 次。
+  ///
+  /// 普通模型:参数都合法 → 一次成功,行为不变(只有 4xx 才会进摘参数逻辑)。
+  /// 推理模型:temperature 等被锁 → 摘掉 → 用模型默认值,通过。
+  static Future<Response<dynamic>> _postChatCompletions(
+    Dio dio,
+    Map<String, dynamic> body,
+  ) async {
+    var payload = Map<String, dynamic>.of(body);
+    for (var attempt = 0;; attempt++) {
+      try {
+        return await dio.post('/chat/completions', data: payload);
+      } on DioException catch (e) {
+        final param = rejectedChatParam(
+          payload,
+          e.response?.statusCode,
+          e.response?.data?.toString() ?? '',
+        );
+        if (param == null || attempt >= _maxParamStrips) rethrow;
+        logger.warning('AIFactory', '上游拒绝参数 $param,去掉重发');
+        payload = Map<String, dynamic>.of(payload)..remove(param);
+      }
+    }
+  }
+
   static Future<String> _chatOpenAI(
     AIServiceProviderConfig config,
     String prompt,
@@ -463,14 +514,11 @@ class AIProviderFactory {
     logger.debug('AIFactory', '请求: ${config.baseUrl}/chat/completions');
 
     try {
-      final response = await dio.post(
-        '/chat/completions',
-        data: {
-          'model': config.textModel,
-          'messages': messages,
-          'temperature': temperature,
-        },
-      );
+      final response = await _postChatCompletions(dio, {
+        'model': config.textModel,
+        'messages': messages,
+        'temperature': temperature,
+      });
 
       final data = response.data as Map<String, dynamic>;
       final choices = data['choices'] as List;
