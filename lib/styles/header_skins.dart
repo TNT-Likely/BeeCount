@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../l10n/app_localizations.dart';
 
 /// 头部皮肤系统(PoC):皮肤 = 叠在「主题色底」之上的装饰层。
@@ -76,6 +77,26 @@ final List<HeaderSkin> kHeaderSkins = [
       id: 'clouds',
       nameOf: (l) => l.headerSkinClouds,
       builder: (p, d) => _CloudsSkin(p, d)),
+  // 插画皮肤(图片素材,illlustrations.co/MIT,已内联 CSS 兼容 flutter_svg;
+  // 见 assets/header_skins/ATTRIBUTION.md)
+  HeaderSkin(
+      id: 'illl_sweet_home',
+      nameOf: (l) => l.headerSkinSweetHome,
+      builder: (p, d) =>
+          _ImageSkin('assets/header_skins/illl_sweet_home.svg', p, d)),
+  HeaderSkin(
+      id: 'illl_cafe',
+      nameOf: (l) => l.headerSkinCafe,
+      builder: (p, d) => _ImageSkin('assets/header_skins/illl_cafe.svg', p, d)),
+  HeaderSkin(
+      id: 'illl_rainbow',
+      nameOf: (l) => l.headerSkinRainbow,
+      builder: (p, d) =>
+          _ImageSkin('assets/header_skins/illl_rainbow.svg', p, d)),
+  HeaderSkin(
+      id: 'illl_owl',
+      nameOf: (l) => l.headerSkinOwl,
+      builder: (p, d) => _ImageSkin('assets/header_skins/illl_owl.svg', p, d)),
   HeaderSkin(
       id: 'honeycomb',
       nameOf: (l) => l.headerSkinHoneycomb,
@@ -653,4 +674,35 @@ class _CloudsPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _CloudsPainter old) =>
       old.primary != primary || old.isDark != isDark;
+}
+
+// ====== 插画皮肤(SVG 图片素材,已内联 CSS 兼容 flutter_svg)======
+// 固定配色插画放右下角(避开头部居中的头像/标题/统计),底色亮=主题色浅染、暗=纯黑。
+class _ImageSkin extends StatelessWidget {
+  const _ImageSkin(this.asset, this.primary, this.isDark);
+  final String asset;
+  final Color primary;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: isDark ? Colors.black : _lighten(primary, 0.20),
+      child: Align(
+        alignment: Alignment.bottomRight,
+        child: FractionallySizedBox(
+          widthFactor: 0.46,
+          heightFactor: 0.92,
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: SvgPicture.asset(
+              asset,
+              fit: BoxFit.contain,
+              alignment: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
