@@ -871,6 +871,38 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mineSlogan => '蜜蜂记账，一笔一蜜';
 
   @override
+  String get mineDisplayNameEditTitle => '设置昵称';
+
+  @override
+  String get mineDisplayNameHint => '输入昵称';
+
+  @override
+  String get mineDisplayNameSaved => '昵称已更新';
+
+  @override
+  String get mineGreetingMorning => '早上好';
+
+  @override
+  String get mineGreetingNoon => '中午好';
+
+  @override
+  String get mineGreetingAfternoon => '下午好';
+
+  @override
+  String get mineGreetingEvening => '晚上好';
+
+  @override
+  String get mineGreetingNight => '夜深了';
+
+  @override
+  String mineGreetingNamed(String greeting, String name) {
+    return '$greeting，$name';
+  }
+
+  @override
+  String get mineProfileEditTitle => '编辑资料';
+
+  @override
   String get mineAvatarTitle => '头像设置';
 
   @override
@@ -7405,6 +7437,38 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get mineSlogan => '蜜蜂記帳，一筆一蜜';
+
+  @override
+  String get mineDisplayNameEditTitle => '設定暱稱';
+
+  @override
+  String get mineDisplayNameHint => '輸入暱稱';
+
+  @override
+  String get mineDisplayNameSaved => '暱稱已更新';
+
+  @override
+  String get mineGreetingMorning => '早安';
+
+  @override
+  String get mineGreetingNoon => '中午好';
+
+  @override
+  String get mineGreetingAfternoon => '午安';
+
+  @override
+  String get mineGreetingEvening => '晚安';
+
+  @override
+  String get mineGreetingNight => '夜深了';
+
+  @override
+  String mineGreetingNamed(String greeting, String name) {
+    return '$greeting，$name';
+  }
+
+  @override
+  String get mineProfileEditTitle => '編輯資料';
 
   @override
   String get mineAvatarTitle => '頭像設定';

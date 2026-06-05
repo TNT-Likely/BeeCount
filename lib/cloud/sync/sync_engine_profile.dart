@@ -29,6 +29,13 @@ extension SyncEngineProfile on SyncEngine {
         anyChanged = true;
       }
 
+      // === display_name === (v1 只在 server 有值时下行;不下空,故对端不会被清空)
+      final displayName = profile.displayName;
+      if (displayName != null && displayName.isNotEmpty) {
+        _emit(ProfileFieldApplied.displayName(displayName));
+        anyChanged = true;
+      }
+
       // === income_is_red ===
       final incomeIsRed = profile.incomeIsRed;
       if (incomeIsRed != null) {

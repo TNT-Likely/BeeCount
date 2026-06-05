@@ -270,3 +270,42 @@ final incomeExpenseColorSchemeInitProvider = FutureProvider<void>((ref) async {
     }());
   });
 });
+
+// 用户显示名(昵称)。本地真值存 prefs 'displayName';BeeCount Cloud 模式下改动
+// 会推到 server,其余云模式 / 纯本地只存本地。空串 = 未设置。v1 不支持"清空已设
+// 昵称"——不会推空串给 server,因此无需改后端 / 包层(包层对空串本就 throw)。
+final displayNameProvider = StateProvider<String>((ref) => '');
+
+// 显示名持久化初始化:启动加载 prefs + 监听变化写回本地,并在 cloud 模式下推送。
+// 完全照搬 themeMode / compactAmount 的写法。
+final displayNameInitProvider = FutureProvider<void>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  final saved = prefs.getString('displayName');
+  if (saved != null) {
+    ref.read(displayNameProvider.notifier).state = saved;
+  }
+  ref.listen<String>(displayNameProvider, (prev, next) async {
+    await prefs.setString('displayName', next);
+    _pushDisplayNameToCloud(ref, next);
+  });
+});
+
+/// 把显示名推给 server 的 /profile/me(仅 BeeCount Cloud 模式)。非 cloud 模式
+/// provider 返回 null 直接跳过;空串不推(v1 不支持清空,且包层对空串会 throw)。
+/// fire-and-forget,失败只打 warning。
+void _pushDisplayNameToCloud(Ref ref, String name) {
+  final trimmed = name.trim();
+  if (trimmed.isEmpty) return;
+  unawaited(() async {
+    try {
+      final cloudProvider =
+          await ref.read(beecountCloudProviderInstance.future);
+      if (cloudProvider == null) return;
+      await cloudProvider.updateMyProfileDisplayName(displayName: trimmed);
+      logger.info('theme_providers', 'display name pushed to server: $trimmed');
+    } catch (e, st) {
+      logger.warning('theme_providers',
+          'push display name failed (non-blocking): $e', st);
+    }
+  }());
+}

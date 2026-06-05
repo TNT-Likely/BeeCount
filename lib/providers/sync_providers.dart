@@ -253,6 +253,8 @@ final syncServiceProvider = Provider<SyncService>((ref) {
             case ProfileField.appearance:
               _applyAppearanceFromServer(
                   ref, value as Map<String, dynamic>);
+            case ProfileField.displayName:
+              _applyDisplayNameFromServer(ref, value as String);
             case ProfileField.aiConfig:
               unawaited(() async {
                 await AIProviderManager.applyFromServer(
@@ -364,6 +366,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
         currentHeaderStyle: ref.read(headerDecorationStyleProvider),
         currentCompactAmount: ref.read(compactAmountProvider),
         currentShowTransactionTime: ref.read(showTransactionTimeProvider),
+        currentDisplayName: ref.read(displayNameProvider),
       );
     });
 
@@ -560,6 +563,7 @@ Future<void> reconcileProfileToServer({
   required String currentHeaderStyle,
   required bool currentCompactAmount,
   required bool currentShowTransactionTime,
+  required String currentDisplayName,
 }) async {
   try {
     final cloud = await cloudProviderFuture;
@@ -604,6 +608,20 @@ Future<void> reconcileProfileToServer({
         logger.info('CloudSync', 'reconcile: pushed appearance=$appearance');
       } catch (e, st) {
         logger.warning('CloudSync', 'reconcile appearance 推送失败: $e', st);
+      }
+    }
+
+    // display_name：server 没有但本地已设 → 补推(首次绑定 cloud 时本地昵称
+    // 不会因 value 未变而触发 listener push，靠这里兜底)。
+    if ((profile.displayName == null || profile.displayName!.isEmpty) &&
+        currentDisplayName.trim().isNotEmpty) {
+      try {
+        await cloud.updateMyProfileDisplayName(
+            displayName: currentDisplayName.trim());
+        logger.info('CloudSync',
+            'reconcile: pushed display_name=${currentDisplayName.trim()}');
+      } catch (e, st) {
+        logger.warning('CloudSync', 'reconcile display_name 推送失败: $e', st);
       }
     }
 
@@ -688,6 +706,15 @@ void _applyIncomeColorFromServer(Ref ref, bool incomeIsRed) {
   if (current == incomeIsRed) return;
   ref.read(incomeExpenseColorSchemeProvider.notifier).state = incomeIsRed;
   logger.info('profile_sync', 'applied income_is_red from server: $incomeIsRed');
+}
+
+void _applyDisplayNameFromServer(Ref ref, String name) {
+  final trimmed = name.trim();
+  if (trimmed.isEmpty) return; // v1 不下空,避免清空对端本地昵称
+  final current = ref.read(displayNameProvider);
+  if (current == trimmed) return; // 相同值不写,StateProvider 不 notify → 无 echo
+  ref.read(displayNameProvider.notifier).state = trimmed;
+  logger.info('profile_sync', 'applied display_name from server: $trimmed');
 }
 
 void _applyAppearanceFromServer(Ref ref, Map<String, dynamic> appearance) {

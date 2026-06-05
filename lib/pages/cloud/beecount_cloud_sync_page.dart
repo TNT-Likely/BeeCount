@@ -70,6 +70,7 @@ class _BeeCountCloudSyncPageState extends ConsumerState<BeeCountCloudSyncPage> {
         currentHeaderStyle: ref.read(headerDecorationStyleProvider),
         currentCompactAmount: ref.read(compactAmountProvider),
         currentShowTransactionTime: ref.read(showTransactionTimeProvider),
+        currentDisplayName: ref.read(displayNameProvider),
       );
       if (!mounted) return;
       await engine.syncMyProfile();

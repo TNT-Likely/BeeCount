@@ -871,6 +871,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mineSlogan => 'Bee Accounting, Every Penny Counts';
 
   @override
+  String get mineDisplayNameEditTitle => 'Set nickname';
+
+  @override
+  String get mineDisplayNameHint => 'Enter a nickname';
+
+  @override
+  String get mineDisplayNameSaved => 'Nickname updated';
+
+  @override
+  String get mineGreetingMorning => 'Good morning';
+
+  @override
+  String get mineGreetingNoon => 'Good noon';
+
+  @override
+  String get mineGreetingAfternoon => 'Good afternoon';
+
+  @override
+  String get mineGreetingEvening => 'Good evening';
+
+  @override
+  String get mineGreetingNight => 'Good night';
+
+  @override
+  String mineGreetingNamed(String greeting, String name) {
+    return '$greeting, $name';
+  }
+
+  @override
+  String get mineProfileEditTitle => 'Edit profile';
+
+  @override
   String get mineAvatarTitle => 'Avatar Settings';
 
   @override

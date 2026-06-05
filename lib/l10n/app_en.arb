@@ -401,6 +401,22 @@
   "deleteConfirmTitle": "Delete Confirmation",
   "deleteConfirmMessage": "Are you sure you want to delete this record?",
   "mineSlogan": "Bee Accounting, Every Penny Counts",
+  "mineDisplayNameEditTitle": "Set nickname",
+  "mineDisplayNameHint": "Enter a nickname",
+  "mineDisplayNameSaved": "Nickname updated",
+  "mineGreetingMorning": "Good morning",
+  "mineGreetingNoon": "Good noon",
+  "mineGreetingAfternoon": "Good afternoon",
+  "mineGreetingEvening": "Good evening",
+  "mineGreetingNight": "Good night",
+  "mineGreetingNamed": "{greeting}, {name}",
+  "@mineGreetingNamed": {
+    "placeholders": {
+      "greeting": { "type": "String" },
+      "name": { "type": "String" }
+    }
+  },
+  "mineProfileEditTitle": "Edit profile",
   "mineAvatarTitle": "Avatar Settings",
   "mineAvatarFromGallery": "Choose from Gallery",
   "mineAvatarFromCamera": "Take Photo",

@@ -1668,6 +1668,66 @@ abstract class AppLocalizations {
   /// **'Bee Accounting, Every Penny Counts'**
   String get mineSlogan;
 
+  /// No description provided for @mineDisplayNameEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set nickname'**
+  String get mineDisplayNameEditTitle;
+
+  /// No description provided for @mineDisplayNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a nickname'**
+  String get mineDisplayNameHint;
+
+  /// No description provided for @mineDisplayNameSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname updated'**
+  String get mineDisplayNameSaved;
+
+  /// No description provided for @mineGreetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get mineGreetingMorning;
+
+  /// No description provided for @mineGreetingNoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good noon'**
+  String get mineGreetingNoon;
+
+  /// No description provided for @mineGreetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get mineGreetingAfternoon;
+
+  /// No description provided for @mineGreetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get mineGreetingEvening;
+
+  /// No description provided for @mineGreetingNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Good night'**
+  String get mineGreetingNight;
+
+  /// No description provided for @mineGreetingNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{greeting}, {name}'**
+  String mineGreetingNamed(String greeting, String name);
+
+  /// No description provided for @mineProfileEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get mineProfileEditTitle;
+
   /// No description provided for @mineAvatarTitle.
   ///
   /// In en, this message translates to:
