@@ -56,8 +56,11 @@ class PrimaryHeader extends ConsumerWidget {
     // ⭐ 使用 Token 系统
     final isDark = BeeTokens.isDark(context);
 
-    // ⭐ 头部皮肤(主题色之上的装饰层);'none' → null = 纯主题色 / 纯黑
-    final skin = headerSkinById(ref.watch(headerSkinProvider));
+    // ⭐ 头部皮肤:亮色用「头部皮肤」;暗色优先用「暗黑头部皮肤」(若单独选了),
+    // 否则暗色回退到「头部皮肤」。'none' → null = 纯主题色 / 纯黑。
+    final lightSkin = headerSkinById(ref.watch(headerSkinProvider));
+    final darkSkin = headerSkinById(ref.watch(headerSkinDarkProvider));
+    final skin = (isDark && darkSkin != null) ? darkSkin : lightSkin;
 
     // ⭐ Header 背景颜色：亮色模式用主题色，暗黑模式用纯黑
     final headerBg = isDark ? Colors.black : primary;

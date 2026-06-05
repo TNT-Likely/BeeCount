@@ -1503,6 +1503,9 @@
   "headerSkinHoneycomb": "蜂巢",
   "headerSkinStarry": "星河",
   "headerSkinStripes": "斜紋",
+  "headerSkinFollow": "跟隨頁首皮膚",
+  "headerSkinModeLight": "亮色",
+  "headerSkinModeDark": "暗黑",
   "mineSupportAuthor": "給專案 Star ⭐️",
   "mineSupportAuthorSubtitle": "開源免費，已有 {count} 人 Star",
   "@mineSupportAuthorSubtitle": {

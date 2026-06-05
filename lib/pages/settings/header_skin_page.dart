@@ -7,27 +7,50 @@ import '../../styles/header_skins.dart';
 import '../../styles/tokens.dart';
 import '../../widgets/ui/ui.dart';
 
-/// 头部皮肤选择(PoC)。网格预览,点击即应用。皮肤跟随当前主题色实时渲染。
-/// 文案暂硬编码中文,后续接 l10n。
-class HeaderSkinPage extends ConsumerWidget {
+/// 头部皮肤选择。顶部「亮色 / 暗黑」切换:亮色编辑「头部皮肤」,暗黑编辑「暗黑头部皮肤」;
+/// 预览也按所选模式渲染(暗黑用黑底,正好看图案皮肤真实效果)。
+///
+/// 渲染优先级(见 PrimaryHeader):亮色 → 头部皮肤;暗色 → 优先暗黑皮肤,未单独设置则
+/// 回退到头部皮肤。所以暗黑那栏选「跟随头部皮肤」即代表两个模式共用一款。
+class HeaderSkinPage extends ConsumerStatefulWidget {
   const HeaderSkinPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HeaderSkinPage> createState() => _HeaderSkinPageState();
+}
+
+class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
+  bool? _editDark; // null = 默认跟随当前系统模式
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final primary = ref.watch(primaryColorProvider);
-    final isDark = BeeTokens.isDark(context);
-    final current = ref.watch(headerSkinProvider);
+    final modeIsDark = BeeTokens.isDark(context);
+    final editDark = _editDark ?? modeIsDark;
 
+    final current = editDark
+        ? ref.watch(headerSkinDarkProvider)
+        : ref.watch(headerSkinProvider);
+
+    // none:亮色 = 纯色;暗黑 = 跟随头部皮肤。其余皮肤按编辑模式渲染预览。
     final items = <({String id, String name, Widget preview})>[
       (
         id: kHeaderSkinNone,
-        name: l10n.headerSkinNone,
-        preview: ColoredBox(color: isDark ? Colors.black : primary),
+        name: editDark ? l10n.headerSkinFollow : l10n.headerSkinNone,
+        preview: ColoredBox(color: editDark ? Colors.black : primary),
       ),
       for (final s in kHeaderSkins)
-        (id: s.id, name: s.nameOf(l10n), preview: s.builder(primary, isDark)),
+        (id: s.id, name: s.nameOf(l10n), preview: s.builder(primary, editDark)),
     ];
+
+    void select(String id) {
+      if (editDark) {
+        ref.read(headerSkinDarkProvider.notifier).state = id;
+      } else {
+        ref.read(headerSkinProvider.notifier).state = id;
+      }
+    }
 
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
@@ -37,6 +60,28 @@ class HeaderSkinPage extends ConsumerWidget {
             title: l10n.headerSkinTitle,
             subtitle: l10n.headerSkinSubtitle,
             showBack: true,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<bool>(
+                segments: [
+                  ButtonSegment(
+                    value: false,
+                    label: Text(l10n.headerSkinModeLight),
+                    icon: const Icon(Icons.light_mode_outlined),
+                  ),
+                  ButtonSegment(
+                    value: true,
+                    label: Text(l10n.headerSkinModeDark),
+                    icon: const Icon(Icons.dark_mode_outlined),
+                  ),
+                ],
+                selected: {editDark},
+                onSelectionChanged: (s) => setState(() => _editDark = s.first),
+              ),
+            ),
           ),
           Expanded(
             child: GridView.count(
@@ -52,9 +97,7 @@ class HeaderSkinPage extends ConsumerWidget {
                     preview: it.preview,
                     selected: it.id == current,
                     primary: primary,
-                    onTap: () {
-                      ref.read(headerSkinProvider.notifier).state = it.id;
-                    },
+                    onTap: () => select(it.id),
                   ),
               ],
             ),

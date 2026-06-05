@@ -85,18 +85,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         onTap: () => _showThemeModeDialog(context, ref, l10n),
                       ),
                       BeeTokens.cardDivider(context),
-                      // 头部皮肤(主题色 + 皮肤)
-                      AppListTile(
-                        leading: Icons.wallpaper_outlined,
-                        title: l10n.headerSkinTitle,
-                        subtitle: skinDisplay,
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const HeaderSkinPage()),
-                          );
-                        },
-                      ),
-                      BeeTokens.cardDivider(context),
                       // 金额显示格式
                       AppListTile(
                         leading: Icons.money_outlined,
@@ -154,13 +142,25 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         },
                       ),
                       BeeTokens.cardDivider(context),
-                      // 个性化
+                      // 主题色设置
                       AppListTile(
                         leading: Icons.brush_outlined,
                         title: l10n.personalizeTitle,
                         onTap: () async {
                           await Navigator.of(context).push(
                             MaterialPageRoute(builder: (_) => const PersonalizePage()),
+                          );
+                        },
+                      ),
+                      BeeTokens.cardDivider(context),
+                      // 头部皮肤(放在主题色设置下面)
+                      AppListTile(
+                        leading: Icons.wallpaper_outlined,
+                        title: l10n.headerSkinTitle,
+                        subtitle: skinDisplay,
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const HeaderSkinPage()),
                           );
                         },
                       ),

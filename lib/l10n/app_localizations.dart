@@ -1788,6 +1788,24 @@ abstract class AppLocalizations {
   /// **'Stripes'**
   String get headerSkinStripes;
 
+  /// No description provided for @headerSkinFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow light skin'**
+  String get headerSkinFollow;
+
+  /// No description provided for @headerSkinModeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get headerSkinModeLight;
+
+  /// No description provided for @headerSkinModeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get headerSkinModeDark;
+
   /// No description provided for @mineAvatarTitle.
   ///
   /// In en, this message translates to:

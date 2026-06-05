@@ -319,6 +319,11 @@ class _ConfigImportExportPageState
         ref.read(headerSkinProvider.notifier).state = headerSkin;
         logger.info('ConfigImport', '头部皮肤已刷新: $headerSkin');
       }
+      final headerSkinDark = prefs.getString('headerSkinDark');
+      if (headerSkinDark != null) {
+        ref.read(headerSkinDarkProvider.notifier).state = headerSkinDark;
+        logger.info('ConfigImport', '暗黑头部皮肤已刷新: $headerSkinDark');
+      }
 
       logger.info('ConfigImport', 'Provider 状态刷新完成');
     } catch (e) {

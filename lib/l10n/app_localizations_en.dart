@@ -933,6 +933,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get headerSkinStripes => 'Stripes';
 
   @override
+  String get headerSkinFollow => 'Follow light skin';
+
+  @override
+  String get headerSkinModeLight => 'Light';
+
+  @override
+  String get headerSkinModeDark => 'Dark';
+
+  @override
   String get mineAvatarTitle => 'Avatar Settings';
 
   @override
