@@ -190,7 +190,6 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
     await Future.wait([
       ref.watch(primaryColorInitProvider.future),
       ref.watch(themeModeInitProvider.future),
-      ref.watch(darkModePatternStyleInitProvider.future),
       ref.watch(appInitProvider.future),
       ref.watch(fontScaleInitProvider.future),
       ref.watch(hideAmountsInitProvider.future),

@@ -832,7 +832,6 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
       // 刷新所有配置相关的 providers，使导入的配置立即生效
       ref.invalidate(primaryColorInitProvider);
       ref.invalidate(themeModeInitProvider);
-      ref.invalidate(darkModePatternStyleInitProvider);
       ref.invalidate(compactAmountInitProvider);
       ref.invalidate(showTransactionTimeInitProvider);
       ref.invalidate(fontScaleInitProvider);

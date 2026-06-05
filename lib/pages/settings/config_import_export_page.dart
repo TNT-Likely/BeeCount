@@ -286,13 +286,6 @@ class _ConfigImportExportPageState
         logger.info('ConfigImport', '主题模式已刷新: $themeMode');
       }
 
-      // 刷新暗黑模式图案样式
-      final darkModePatternStyle = prefs.getString('darkModePatternStyle');
-      if (darkModePatternStyle != null) {
-        ref.read(darkModePatternStyleProvider.notifier).state = darkModePatternStyle;
-        logger.info('ConfigImport', '暗黑模式图案已刷新: $darkModePatternStyle');
-      }
-
       // 刷新字体缩放
       final fontScaleLevel = prefs.getInt('fontScaleLevel');
       if (fontScaleLevel != null) {

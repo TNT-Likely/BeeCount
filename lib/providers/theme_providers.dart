@@ -43,22 +43,6 @@ final themeModeInitProvider = FutureProvider<void>((ref) async {
   });
 });
 
-// 暗黑模式下头部图案样式Provider
-// 可选值：'none'（无图案）、'icons'（图标平铺）、'particles'（粒子星星）、'honeycomb'（蜂巢六边形）
-final darkModePatternStyleProvider = StateProvider<String>((ref) => 'icons');
-
-// 暗黑模式图案样式持久化初始化
-final darkModePatternStyleInitProvider = FutureProvider<void>((ref) async {
-  final prefs = await SharedPreferences.getInstance();
-  final saved = prefs.getString('darkModePatternStyle');
-  if (saved != null) {
-    ref.read(darkModePatternStyleProvider.notifier).state = saved;
-  }
-  ref.listen<String>(darkModePatternStyleProvider, (prev, next) async {
-    await prefs.setString('darkModePatternStyle', next);
-  });
-});
-
 // 可变主色（个性化换装使用）
 final primaryColorProvider = StateProvider<Color>((ref) => BeeTheme.honeyGold);
 

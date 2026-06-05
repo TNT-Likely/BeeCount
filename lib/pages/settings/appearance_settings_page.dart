@@ -22,8 +22,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLanguage = ref.watch(languageProvider);
     final themeMode = ref.watch(themeModeProvider);
-    final patternStyle = ref.watch(darkModePatternStyleProvider);
-    final isDark = BeeTokens.isDark(context);
     final l10n = AppLocalizations.of(context);
 
     String languageDisplay;
@@ -53,22 +51,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
         break;
       default:
         themeModeDisplay = l10n.appearanceThemeModeSystem;
-    }
-
-    // 图案样式显示文本
-    String patternDisplay;
-    switch (patternStyle) {
-      case 'none':
-        patternDisplay = l10n.appearancePatternNone;
-        break;
-      case 'particles':
-        patternDisplay = l10n.appearancePatternParticles;
-        break;
-      case 'honeycomb':
-        patternDisplay = l10n.appearancePatternHoneycomb;
-        break;
-      default:
-        patternDisplay = l10n.appearancePatternIcons;
     }
 
     // 头部皮肤显示名
@@ -101,15 +83,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         title: l10n.appearanceThemeMode,
                         subtitle: themeModeDisplay,
                         onTap: () => _showThemeModeDialog(context, ref, l10n),
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 暗黑模式头部图案（仅暗黑模式下可用）
-                      AppListTile(
-                        leading: Icons.auto_awesome_outlined,
-                        title: l10n.appearanceDarkModePattern,
-                        subtitle: patternDisplay,
-                        enabled: isDark,
-                        onTap: isDark ? () => _showPatternStyleDialog(context, ref, l10n) : null,
                       ),
                       BeeTokens.cardDivider(context),
                       // 头部皮肤(主题色 + 皮肤)
@@ -310,88 +283,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
           : null,
       onTap: () {
         ref.read(themeModeProvider.notifier).state = value;
-        Navigator.pop(context);
-      },
-    );
-  }
-
-  /// 显示图案样式选择对话框
-  void _showPatternStyleDialog(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
-    final currentPattern = ref.read(darkModePatternStyleProvider);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: BeeTokens.surfaceElevated(context),
-        title: Text(
-          l10n.appearanceDarkModePattern,
-          style: TextStyle(color: BeeTokens.textPrimary(context)),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildPatternOption(
-              context, ref,
-              title: l10n.appearancePatternNone,
-              value: 'none',
-              currentValue: currentPattern,
-              icon: Icons.block_outlined,
-            ),
-            _buildPatternOption(
-              context, ref,
-              title: l10n.appearancePatternIcons,
-              value: 'icons',
-              currentValue: currentPattern,
-              icon: Icons.grid_view_outlined,
-            ),
-            _buildPatternOption(
-              context, ref,
-              title: l10n.appearancePatternParticles,
-              value: 'particles',
-              currentValue: currentPattern,
-              icon: Icons.auto_awesome_outlined,
-            ),
-            _buildPatternOption(
-              context, ref,
-              title: l10n.appearancePatternHoneycomb,
-              value: 'honeycomb',
-              currentValue: currentPattern,
-              icon: Icons.hive_outlined,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPatternOption(
-    BuildContext context,
-    WidgetRef ref, {
-    required String title,
-    required String value,
-    required String currentValue,
-    required IconData icon,
-  }) {
-    final isSelected = value == currentValue;
-    final primaryColor = ref.watch(primaryColorProvider);
-
-    return ListTile(
-      leading: Icon(
-        icon,
-        color: isSelected ? primaryColor : BeeTokens.iconSecondary(context),
-      ),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: isSelected ? primaryColor : BeeTokens.textPrimary(context),
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        ),
-      ),
-      trailing: isSelected
-          ? Icon(Icons.check, color: primaryColor)
-          : null,
-      onTap: () {
-        ref.read(darkModePatternStyleProvider.notifier).state = value;
         Navigator.pop(context);
       },
     );
