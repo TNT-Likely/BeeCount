@@ -10,8 +10,8 @@ import '../l10n/app_localizations.dart';
 /// - 亮色模式:整体保持在主题色的明度区间(偏亮),让 header 现有的深色文字仍可读。
 /// - 暗色模式:在纯黑底上低透明叠主题色调,保持白色文字可读。
 ///
-/// 角色插画类皮肤(猫/狗/雪人)需要真·插画素材,本文件只做纯代码可画的
-/// 渐变 / 几何 / 低多边形 / 光斑 等;后续可再加「图片皮肤」类型。
+/// 两类皮肤:**代码皮肤**(渐变/几何/光斑,跟随主题色)与 **图片皮肤**
+/// (`_ImageSkin`,SVG 全幅铺满,固定配色)。新增图片皮肤见 assets/header_skins/README.md。
 
 const String kHeaderSkinNone = 'none';
 
@@ -77,26 +77,12 @@ final List<HeaderSkin> kHeaderSkins = [
       id: 'clouds',
       nameOf: (l) => l.headerSkinClouds,
       builder: (p, d) => _CloudsSkin(p, d)),
-  // 插画皮肤(图片素材,illlustrations.co/MIT,已内联 CSS 兼容 flutter_svg;
-  // 见 assets/header_skins/ATTRIBUTION.md)
+  // 图片皮肤(SVG,全幅铺满;创作规范见 assets/header_skins/README.md)
   HeaderSkin(
-      id: 'illl_sweet_home',
-      nameOf: (l) => l.headerSkinSweetHome,
+      id: 'example',
+      nameOf: (l) => l.headerSkinExample,
       builder: (p, d) =>
-          _ImageSkin('assets/header_skins/illl_sweet_home.svg', p, d)),
-  HeaderSkin(
-      id: 'illl_cafe',
-      nameOf: (l) => l.headerSkinCafe,
-      builder: (p, d) => _ImageSkin('assets/header_skins/illl_cafe.svg', p, d)),
-  HeaderSkin(
-      id: 'illl_rainbow',
-      nameOf: (l) => l.headerSkinRainbow,
-      builder: (p, d) =>
-          _ImageSkin('assets/header_skins/illl_rainbow.svg', p, d)),
-  HeaderSkin(
-      id: 'illl_owl',
-      nameOf: (l) => l.headerSkinOwl,
-      builder: (p, d) => _ImageSkin('assets/header_skins/illl_owl.svg', p, d)),
+          _ImageSkin('assets/header_skins/example_skin.svg', p, d)),
   HeaderSkin(
       id: 'honeycomb',
       nameOf: (l) => l.headerSkinHoneycomb,
@@ -676,8 +662,9 @@ class _CloudsPainter extends CustomPainter {
       old.primary != primary || old.isDark != isDark;
 }
 
-// ====== 插画皮肤(SVG 图片素材,已内联 CSS 兼容 flutter_svg)======
-// 固定配色插画放右下角(避开头部居中的头像/标题/统计),底色亮=主题色浅染、暗=纯黑。
+// ====== 图片皮肤(SVG 素材,全幅铺满)======
+// 整幅 BoxFit.cover 铺满 header,与代码皮肤尺寸一致;底色仅作 SVG 透明区兜底
+// (亮=主题色浅染 / 暗=纯黑)。固定配色,不随主题色变化。
 class _ImageSkin extends StatelessWidget {
   const _ImageSkin(this.asset, this.primary, this.isDark);
   final String asset;
@@ -687,21 +674,11 @@ class _ImageSkin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: isDark ? Colors.black : _lighten(primary, 0.20),
-      child: Align(
-        alignment: Alignment.bottomRight,
-        child: FractionallySizedBox(
-          widthFactor: 0.46,
-          heightFactor: 0.92,
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: SvgPicture.asset(
-              asset,
-              fit: BoxFit.contain,
-              alignment: Alignment.bottomRight,
-            ),
-          ),
-        ),
+      color: isDark ? Colors.black : _lighten(primary, 0.16),
+      child: SvgPicture.asset(
+        asset,
+        fit: BoxFit.cover,
+        alignment: Alignment.center,
       ),
     );
   }

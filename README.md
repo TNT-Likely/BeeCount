@@ -250,6 +250,43 @@ flutter build apk --flavor prod --release
 
 ---
 
+## 🎨 头部皮肤创作指引
+
+「主题色 + 皮肤 = 顶部头图」。皮肤是叠在头部主题色底之上的一层装饰,欢迎贡献新皮肤。皮肤分两类:
+
+- **代码皮肤**(跟随主题色):在 `lib/styles/header_skins.dart` 里用 `CustomPainter` 画渐变 / 几何 / 光斑,会自动随用户主题色与明暗模式变化(极光 / 山峦 / 波浪 / 蜂巢 等)。
+- **图片皮肤**(固定配色):放一张 SVG,渲染时按 `BoxFit.cover` 铺满整个头部,适合插画 / 场景。门槛最低,下面重点讲这类。
+
+### SVG 皮肤规范
+
+模板见 [`assets/header_skins/example_skin.svg`](assets/header_skins/example_skin.svg):
+
+- **全幅设计**:皮肤会被 `BoxFit.cover` 铺满头部(与代码皮肤同尺寸)。不同页面头部高矮不一,会按比例裁切 —— 重要元素放中间,别贴边。
+- **推荐 viewBox**:宽幅横图,参考示例的 `400 × 200`。
+- **只用内联 `fill`**:颜色写成元素属性,如 `fill="#RRGGBB"` / `fill-opacity="0.5"`。**不要用 `<style>` CSS 类**(`.cls1{fill:…}`)—— flutter_svg 不解析 `<style>`,会把整块渲染成黑色。
+- **渐变可用**:`<defs>` 里的 `<linearGradient>` / `<radialGradient>` 正常支持。
+- **不要 `<text>`**:设备字体不确定,文字请在矢量软件里转成路径。
+- **不要签名 / 水印**:别让作者签名等元素出现在角落。
+- **保持纯矢量**:不要内嵌位图 `<image>`,文件尽量小。
+- **许可**:使用第三方素材必须是 CC0 / MIT 等可商用许可,并在 PR 中注明出处。
+
+### 接入三步
+
+1. 把 SVG 放进 `assets/header_skins/`(目录已整体注册,**无需改 `pubspec.yaml`**)。
+2. 在 `lib/styles/header_skins.dart` 的 `kHeaderSkins` 列表里注册一条:
+   ```dart
+   HeaderSkin(
+     id: 'my_skin',
+     nameOf: (l) => l.headerSkinMySkin,
+     builder: (p, d) => _ImageSkin('assets/header_skins/my_skin.svg', p, d),
+   ),
+   ```
+3. 在 `lib/l10n/app_zh.arb` / `app_en.arb` / `app_zh_TW.arb` 各加一个显示名 `headerSkinMySkin`,然后跑 `flutter gen-l10n`。
+
+完成后跑一遍 `flutter analyze`,真机看一眼:无黑块、裁切合理即可提 PR。
+
+---
+
 ## 💬 常见问题
 
 <details>

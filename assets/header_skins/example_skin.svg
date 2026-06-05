@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  头部皮肤示例 / Example header skin.
+  规范见同目录 README.md。本文件为 BeeCount 项目原创,CC0 / 公共领域,可自由参考。
+  要点:全幅设计(会被 BoxFit.cover 铺满头部)、仅用内联 fill / defs 渐变(勿用 <style> CSS)、
+  勿放签名水印 / <text>。
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" width="400" height="200">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE3B3"/>
+      <stop offset="1" stop-color="#FF9E7A"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="200" fill="url(#sky)"/>
+  <circle cx="200" cy="80" r="46" fill="#FFF4D6"/>
+  <path d="M0 150 Q100 118 200 150 T400 144 L400 200 L0 200 Z" fill="#F2774E" fill-opacity="0.5"/>
+  <path d="M0 176 Q120 146 240 176 T400 168 L400 200 L0 200 Z" fill="#C0395E" fill-opacity="0.5"/>
+</svg>
