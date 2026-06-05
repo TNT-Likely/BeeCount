@@ -11,7 +11,8 @@ import '../l10n/app_localizations.dart';
 /// - 暗色模式:在纯黑底上低透明叠主题色调,保持白色文字可读。
 ///
 /// 两类皮肤:**代码皮肤**(渐变/几何/光斑,跟随主题色)与 **图片皮肤**
-/// (`_ImageSkin`,SVG 全幅铺满,固定配色)。新增图片皮肤见 assets/header_skins/README.md。
+/// (`_ImageSkin`,SVG 全幅铺满;fill="currentColor" 部分跟随主题色,或写死配色)。
+/// 新增图片皮肤见 assets/header_skins/README.md。
 
 const String kHeaderSkinNone = 'none';
 
@@ -664,7 +665,8 @@ class _CloudsPainter extends CustomPainter {
 
 // ====== 图片皮肤(SVG 素材,全幅铺满)======
 // 整幅 BoxFit.cover 铺满 header,与代码皮肤尺寸一致;底色仅作 SVG 透明区兜底
-// (亮=主题色浅染 / 暗=纯黑)。固定配色,不随主题色变化。
+// (亮=主题色浅染 / 暗=纯黑)。SVG 里 fill="currentColor" 的部分用下方 tint 上色
+// → 跟随主题色;写死的 fill="#hex" 不受影响。
 class _ImageSkin extends StatelessWidget {
   const _ImageSkin(this.asset, this.primary, this.isDark);
   final String asset;
@@ -673,12 +675,15 @@ class _ImageSkin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 暗色稍提亮让主题色在黑底上更跳;亮色用 primary(比浅染底色深,可读)。
+    final tint = isDark ? _lighten(primary, 0.10) : primary;
     return Container(
       color: isDark ? Colors.black : _lighten(primary, 0.16),
       child: SvgPicture.asset(
         asset,
         fit: BoxFit.cover,
         alignment: Alignment.center,
+        theme: SvgTheme(currentColor: tint),
       ),
     );
   }
