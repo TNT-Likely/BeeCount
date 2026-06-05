@@ -255,11 +255,11 @@ flutter build apk --flavor prod --release
 <details>
 <summary>贡献一款顶部皮肤</summary>
 
-「主题色 + 皮肤 = 顶部头图」。皮肤分**代码皮肤**(`CustomPainter` 画渐变 / 几何,跟随主题色)和**图片皮肤**(SVG,`BoxFit.cover` 铺满头部,可用 `currentColor` 跟随主题色)两类。
+「主题色 + 皮肤 = 顶部头图」。皮肤分**代码皮肤**(`CustomPainter` 画渐变 / 几何,跟随主题色)和**图片皮肤**(SVG,`BoxFit.cover` 铺满头部,可整幅染成主题色)两类。
 
 最简单的方式:照着 [`example_skin.svg`](assets/header_skins/example_skin.svg) 画一张 SVG → 丢进 `assets/header_skins/` → 在 `lib/styles/header_skins.dart` 注册一条 → 加 i18n 名跑 `flutter gen-l10n`。
 
-**完整规范(SVG 要求 + `currentColor` 主题色 + 接入步骤)见 [assets/header_skins/README.md](assets/header_skins/README.md)。**
+**完整规范(SVG 要求 + 主题色着色 + 接入步骤)见 [assets/header_skins/README.md](assets/header_skins/README.md)。**
 
 </details>
 

@@ -11,7 +11,7 @@ import '../l10n/app_localizations.dart';
 /// - 暗色模式:在纯黑底上低透明叠主题色调,保持白色文字可读。
 ///
 /// 两类皮肤:**代码皮肤**(渐变/几何/光斑,跟随主题色)与 **图片皮肤**
-/// (`_ImageSkin`,SVG 全幅铺满;fill="currentColor" 部分跟随主题色,或写死配色)。
+/// (`_ImageSkin`,SVG 全幅铺满;themed=true 整幅染成主题色,否则用 SVG 自带配色)。
 /// 新增图片皮肤见 assets/header_skins/README.md。
 
 const String kHeaderSkinNone = 'none';
@@ -82,8 +82,9 @@ final List<HeaderSkin> kHeaderSkins = [
   HeaderSkin(
       id: 'example',
       nameOf: (l) => l.headerSkinExample,
-      builder: (p, d) =>
-          _ImageSkin('assets/header_skins/example_skin.svg', p, d)),
+      builder: (p, d) => _ImageSkin(
+          'assets/header_skins/example_skin.svg', p, d,
+          themed: true)),
   HeaderSkin(
       id: 'honeycomb',
       nameOf: (l) => l.headerSkinHoneycomb,
@@ -665,13 +666,16 @@ class _CloudsPainter extends CustomPainter {
 
 // ====== 图片皮肤(SVG 素材,全幅铺满)======
 // 整幅 BoxFit.cover 铺满 header,与代码皮肤尺寸一致;底色仅作 SVG 透明区兜底
-// (亮=主题色浅染 / 暗=纯黑)。SVG 里 fill="currentColor" 的部分用下方 tint 上色
-// → 跟随主题色;写死的 fill="#hex" 不受影响。
+// (亮=主题色浅染 / 暗=纯黑)。
+// themed=true:用 colorFilter(srcIn)把整幅 SVG 重新着色成主题色,明暗层次靠
+//   SVG 自身的 fill-opacity 表现,适合单色调插画;themed=false(默认):按 SVG
+//   自带的内联 fill 渲染(固定配色)。
 class _ImageSkin extends StatelessWidget {
-  const _ImageSkin(this.asset, this.primary, this.isDark);
+  const _ImageSkin(this.asset, this.primary, this.isDark, {this.themed = false});
   final String asset;
   final Color primary;
   final bool isDark;
+  final bool themed;
 
   @override
   Widget build(BuildContext context) {
@@ -683,7 +687,7 @@ class _ImageSkin extends StatelessWidget {
         asset,
         fit: BoxFit.cover,
         alignment: Alignment.center,
-        theme: SvgTheme(currentColor: tint),
+        colorFilter: themed ? ColorFilter.mode(tint, BlendMode.srcIn) : null,
       ),
     );
   }

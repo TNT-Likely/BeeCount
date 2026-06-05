@@ -7,7 +7,7 @@
 | 类型 | 怎么做 | 跟随主题色 | 适合 |
 |---|---|---|---|
 | **代码皮肤** | 在 `lib/styles/header_skins.dart` 用 `CustomPainter` 画 | ✅ 自动(从 primary 用 HSL 派生) | 渐变 / 几何 / 光斑 / 低多边形 |
-| **图片皮肤** | 放一张 SVG,`_ImageSkin` 用 `BoxFit.cover` 铺满 | ✅ 可选(`currentColor`) | 插画 / 场景 |
+| **图片皮肤** | 放一张 SVG,`_ImageSkin` 用 `BoxFit.cover` 铺满 | ✅ 可选(`themed: true`) | 插画 / 场景 |
 
 下面重点讲门槛最低的**图片皮肤(SVG)**。
 
@@ -19,14 +19,17 @@
 - **全幅设计**:皮肤会被 `BoxFit.cover` 铺满整个头部,和代码皮肤一样大。不同页面头部高矮不一(首页高、子页矮),会按比例**居中裁切** —— 重要元素放中间,别贴边。
 - **推荐 viewBox**:宽幅横图,参考示例的 `400 × 200`(2:1)。
 
-### 跟随主题色(currentColor)
-- 想随用户主题色变化的部分,fill 写成 **`fill="currentColor"`**,再用 **`fill-opacity`** 拉出明暗层次(示例里天空 0.08 / 太阳 0.28 / 远山 0.42 / 近山 0.66)。
-- 渲染时 `currentColor` 会被替换成用户主题色(亮色 = primary、暗色 = 略提亮的 primary);底色由 `_ImageSkin` 兜底(亮 = 主题色浅染 / 暗 = 纯黑)。
-- 不想跟随的部分,直接写死 `fill="#RRGGBB"` 即可,两者可混用。
+### 跟随主题色(themed)
+- 注册皮肤时传 **`themed: true`** → 整幅 SVG 会被**重新着色**成用户主题色;明暗层次只靠 **`fill-opacity`**(示例里天空 0.08 / 太阳 0.28 / 远山 0.42 / 近山 0.66)。这种皮肤是**单色调**(同色相、用透明度分明暗)。
+- 此时 SVG 自身的 fill 颜色会被忽略,占位用 `fill="currentColor"` 即可(浏览器里看是黑白稿,进 App 才染成主题色)。
+- 着色:亮色 = primary、暗色 = 略提亮的 primary;底色由 `_ImageSkin` 兜底(亮 = 主题色浅染 / 暗 = 纯黑)。
+
+### 固定配色
+- 注册时**不传 `themed`**(默认),SVG 按自身的内联 fill 颜色渲染,适合多色插画(仍需遵守下面的兼容性红线)。
 
 ### 兼容性红线
 - **只用内联 `fill`**:颜色写成元素属性。**不要用 `<style>` CSS 类**(`.cls1{fill:…}`)—— flutter_svg 不解析 `<style>`,会把整块渲染成**黑色**。
-- **渐变可用**:`<defs>` 里的 `<linearGradient>` / `<radialGradient>` 正常支持。
+- **渐变可用**:`<defs>` 里的 `<linearGradient>` / `<radialGradient>` 正常支持(仅对固定配色皮肤有意义;themed 皮肤整幅同色)。
 - **不要 `<text>`**:设备字体不确定,文字请在矢量软件里**转成路径**。
 - **不要签名 / 水印**:别让作者签名等元素出现在角落。
 - **保持纯矢量**:不要内嵌位图 `<image>`,文件尽量小。
@@ -40,7 +43,8 @@
    HeaderSkin(
      id: 'my_skin',
      nameOf: (l) => l.headerSkinMySkin,
-     builder: (p, d) => _ImageSkin('assets/header_skins/my_skin.svg', p, d),
+     // themed: true → 整幅染成主题色(单色调);去掉则用 SVG 自带配色
+     builder: (p, d) => _ImageSkin('assets/header_skins/my_skin.svg', p, d, themed: true),
    ),
    ```
    (代码皮肤则让 `builder` 返回自己的 `CustomPaint`,可参考同文件的 `_AuroraSkin` 等。)

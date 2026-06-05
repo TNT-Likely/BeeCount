@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   头部皮肤示例 / Example header skin. CC0(本项目原创),可自由参考。
-  规范见同目录 README.md 或项目根 README「头部皮肤创作指引」。
-  要点:
-   - fill="currentColor" 的部分会跟随用户主题色;配合 fill-opacity 做明暗层次。
-   - 想用固定颜色,直接写 fill="#RRGGBB"(不跟随主题)。
+  规范见同目录 README.md 或项目根 README「头部皮肤」。
+  本示例注册时 themed: true → 整幅会被重新着色成用户主题色:
+   - 明暗层次只靠 fill-opacity;fill 颜色本身会被忽略(用 currentColor 占位即可)。
+   - 若想固定配色,注册时去掉 themed,并改用各自的 fill="#RRGGBB"。
    - 全幅设计(BoxFit.cover 铺满)、勿用 <style> CSS、勿放 <text> / 签名。
 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" width="400" height="200">
-  <!-- 天空薄雾(跟随主题色,低透明) -->
+  <!-- 天空薄雾 -->
   <rect width="400" height="200" fill="currentColor" fill-opacity="0.08"/>
   <!-- 太阳 -->
   <circle cx="200" cy="78" r="46" fill="currentColor" fill-opacity="0.28"/>
