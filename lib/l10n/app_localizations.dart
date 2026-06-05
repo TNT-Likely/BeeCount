@@ -1731,7 +1731,7 @@ abstract class AppLocalizations {
   /// No description provided for @headerSkinTitle.
   ///
   /// In en, this message translates to:
-  /// **'Header skin'**
+  /// **'Skin'**
   String get headerSkinTitle;
 
   /// No description provided for @headerSkinSubtitle.

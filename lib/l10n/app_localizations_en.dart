@@ -903,7 +903,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mineProfileEditTitle => 'Edit profile';
 
   @override
-  String get headerSkinTitle => 'Header skin';
+  String get headerSkinTitle => 'Skin';
 
   @override
   String get headerSkinSubtitle => 'Follows your theme color, layered over the header';

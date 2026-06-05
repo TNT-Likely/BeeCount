@@ -903,7 +903,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mineProfileEditTitle => '编辑资料';
 
   @override
-  String get headerSkinTitle => '头部皮肤';
+  String get headerSkinTitle => '皮肤';
 
   @override
   String get headerSkinSubtitle => '跟随主题色,叠在头部之上';
@@ -7513,7 +7513,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get mineProfileEditTitle => '編輯資料';
 
   @override
-  String get headerSkinTitle => '頁首皮膚';
+  String get headerSkinTitle => '皮膚';
 
   @override
   String get headerSkinSubtitle => '跟隨主題色,疊在頁首之上';

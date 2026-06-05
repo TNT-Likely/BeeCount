@@ -1493,7 +1493,7 @@
   "mineGreetingNight": "夜深了",
   "mineGreetingNamed": "{greeting}，{name}",
   "mineProfileEditTitle": "編輯資料",
-  "headerSkinTitle": "頁首皮膚",
+  "headerSkinTitle": "皮膚",
   "headerSkinSubtitle": "跟隨主題色,疊在頁首之上",
   "headerSkinNone": "純色",
   "headerSkinAurora": "極光",
