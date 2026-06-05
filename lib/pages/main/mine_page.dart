@@ -756,16 +756,26 @@ class _EditDisplayNameDialogState extends State<_EditDisplayNameDialog> {
         maxLength: 20,
         textInputAction: TextInputAction.done,
         decoration: InputDecoration(hintText: l10n.mineDisplayNameHint),
-        onSubmitted: (v) => Navigator.pop(context, v),
+        onSubmitted: (v) {
+          if (v.trim().isNotEmpty) Navigator.pop(context, v);
+        },
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: Text(l10n.commonCancel),
         ),
-        TextButton(
-          onPressed: () => Navigator.pop(context, _controller.text),
-          child: Text(l10n.commonSave),
+        ValueListenableBuilder<TextEditingValue>(
+          valueListenable: _controller,
+          builder: (context, value, _) {
+            final canSave = value.text.trim().isNotEmpty;
+            return TextButton(
+              onPressed: canSave
+                  ? () => Navigator.pop(context, _controller.text)
+                  : null,
+              child: Text(l10n.commonSave),
+            );
+          },
         ),
       ],
     );
@@ -916,9 +926,9 @@ class _MinePageHeaderState extends ConsumerState<_MinePageHeader> {
     }
   }
 
-  /// 按本地时段返回问候语 + 配图(太阳/月亮)+ 图标色,与 web 端 pickGreeting
-  /// 一致:5-11 / 11-13 / 13-18 / 18-23 / 23-5。图标色沿用 web 的暖/冷色调
-  /// (amber / orange / rose / indigo),不随主题变 —— 太阳本就该是暖色。
+  /// 按本地时段返回问候语 + 配图(太阳/月亮)+ 图标色:5-11 早 / 11-13 午 /
+  /// 13-18 下午 / 18-23 晚 / 23-5 夜。白天用太阳(暖色 amber→orange),晚上 / 夜里
+  /// 用月亮(violet / indigo);图标色不随主题变。
   ({String text, IconData icon, Color color}) _greeting(AppLocalizations l10n) {
     final h = DateTime.now().hour;
     if (h >= 5 && h < 11) {
@@ -945,8 +955,8 @@ class _MinePageHeaderState extends ConsumerState<_MinePageHeader> {
     if (h >= 18 && h < 23) {
       return (
         text: l10n.mineGreetingEvening,
-        icon: Icons.wb_twilight,
-        color: const Color(0xFFF43F5E),
+        icon: Icons.nights_stay,
+        color: const Color(0xFF8B5CF6),
       );
     }
     return (
