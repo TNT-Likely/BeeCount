@@ -492,16 +492,15 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () => applyOp(activeOp),
+            // 双击 / 长按都是「切到另一组运算符并直接应用」(一步用上另一个);
+            // applyOp 内部已带触感/声音。
             onDoubleTap: () {
-              // 双击 = 切到「另一组」运算符并直接应用(一步用上另一个);applyOp 已带触感/声音。
-              final altOp = isMul ? addSubOp : mulDivOp;
               onToggle();
-              applyOp(altOp);
+              applyOp(isMul ? addSubOp : mulDivOp);
             },
             onLongPress: () {
               onToggle();
-              HapticFeedback.mediumImpact();
-              SystemSound.play(SystemSoundType.click);
+              applyOp(isMul ? addSubOp : mulDivOp);
             },
             child: SizedBox(
               height: 60,
