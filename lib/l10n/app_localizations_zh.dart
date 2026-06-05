@@ -847,7 +847,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mineUpdate => '检查更新';
 
   @override
-  String get mineLanguageSettings => '语言设置';
+  String get mineLanguageSettings => '语言';
 
   @override
   String get languageTitle => '语言设置';
@@ -1898,7 +1898,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryIncomeProvidentFund => '公积金-公积金提取-公积金利息';
 
   @override
-  String get personalizeTitle => '主题色设置';
+  String get personalizeTitle => '主题色';
 
   @override
   String get personalizeSubtitle => '选择或自定义应用主题色';
@@ -7457,7 +7457,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get mineUpdate => '檢查更新';
 
   @override
-  String get mineLanguageSettings => '語言設定';
+  String get mineLanguageSettings => '語言';
 
   @override
   String get languageTitle => '語言設定';
@@ -8508,7 +8508,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryIncomeProvidentFund => '公積金-公積金提取-公積金利息';
 
   @override
-  String get personalizeTitle => '主題色設定';
+  String get personalizeTitle => '主題色';
 
   @override
   String get personalizeSubtitle => '選擇或自訂應用主題色';

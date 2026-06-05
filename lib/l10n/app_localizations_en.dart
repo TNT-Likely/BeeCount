@@ -847,7 +847,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mineUpdate => 'Check for Updates';
 
   @override
-  String get mineLanguageSettings => 'Language Settings';
+  String get mineLanguageSettings => 'Language';
 
   @override
   String get languageTitle => 'Language Settings';

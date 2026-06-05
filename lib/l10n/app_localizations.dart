@@ -1623,7 +1623,7 @@ abstract class AppLocalizations {
   /// No description provided for @mineLanguageSettings.
   ///
   /// In en, this message translates to:
-  /// **'Language Settings'**
+  /// **'Language'**
   String get mineLanguageSettings;
 
   /// No description provided for @languageTitle.
