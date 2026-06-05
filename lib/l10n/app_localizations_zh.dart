@@ -924,16 +924,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get headerSkinWaves => '波浪';
 
   @override
-  String get headerSkinSweetHome => '温馨小屋';
+  String get headerSkinSunset => '日落';
 
   @override
-  String get headerSkinCafe => '咖啡馆';
-
-  @override
-  String get headerSkinRainbow => '彩虹';
-
-  @override
-  String get headerSkinOwl => '猫头鹰';
+  String get headerSkinClouds => '云朵';
 
   @override
   String get headerSkinHoneycomb => '蜂巢';
@@ -7543,16 +7537,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get headerSkinWaves => '波浪';
 
   @override
-  String get headerSkinSweetHome => '溫馨小屋';
+  String get headerSkinSunset => '日落';
 
   @override
-  String get headerSkinCafe => '咖啡館';
-
-  @override
-  String get headerSkinRainbow => '彩虹';
-
-  @override
-  String get headerSkinOwl => '貓頭鷹';
+  String get headerSkinClouds => '雲朵';
 
   @override
   String get headerSkinHoneycomb => '蜂巢';

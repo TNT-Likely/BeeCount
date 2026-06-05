@@ -1770,29 +1770,17 @@ abstract class AppLocalizations {
   /// **'Waves'**
   String get headerSkinWaves;
 
-  /// No description provided for @headerSkinSweetHome.
+  /// No description provided for @headerSkinSunset.
   ///
   /// In en, this message translates to:
-  /// **'Sweet home'**
-  String get headerSkinSweetHome;
+  /// **'Sunset'**
+  String get headerSkinSunset;
 
-  /// No description provided for @headerSkinCafe.
+  /// No description provided for @headerSkinClouds.
   ///
   /// In en, this message translates to:
-  /// **'Cafe'**
-  String get headerSkinCafe;
-
-  /// No description provided for @headerSkinRainbow.
-  ///
-  /// In en, this message translates to:
-  /// **'Rainbow'**
-  String get headerSkinRainbow;
-
-  /// No description provided for @headerSkinOwl.
-  ///
-  /// In en, this message translates to:
-  /// **'Owl'**
-  String get headerSkinOwl;
+  /// **'Clouds'**
+  String get headerSkinClouds;
 
   /// No description provided for @headerSkinHoneycomb.
   ///

@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../l10n/app_localizations.dart';
 
 /// 头部皮肤系统(PoC):皮肤 = 叠在「主题色底」之上的装饰层。
@@ -68,25 +67,15 @@ final List<HeaderSkin> kHeaderSkins = [
       id: 'waves',
       nameOf: (l) => l.headerSkinWaves,
       builder: (p, d) => _WavesSkin(p, d)),
-  // 插画皮肤(图片素材,illlustrations.co / MIT,见 assets/header_skins/ATTRIBUTION.md)
+  // 场景皮肤(代码绘制,跟随主题色)
   HeaderSkin(
-      id: 'illl_sweet_home',
-      nameOf: (l) => l.headerSkinSweetHome,
-      builder: (p, d) =>
-          _ImageSkin('assets/header_skins/illl_sweet_home.svg', p, d)),
+      id: 'sunset',
+      nameOf: (l) => l.headerSkinSunset,
+      builder: (p, d) => _SunsetSkin(p, d)),
   HeaderSkin(
-      id: 'illl_cafe',
-      nameOf: (l) => l.headerSkinCafe,
-      builder: (p, d) => _ImageSkin('assets/header_skins/illl_cafe.svg', p, d)),
-  HeaderSkin(
-      id: 'illl_rainbow',
-      nameOf: (l) => l.headerSkinRainbow,
-      builder: (p, d) =>
-          _ImageSkin('assets/header_skins/illl_rainbow.svg', p, d)),
-  HeaderSkin(
-      id: 'illl_owl',
-      nameOf: (l) => l.headerSkinOwl,
-      builder: (p, d) => _ImageSkin('assets/header_skins/illl_owl.svg', p, d)),
+      id: 'clouds',
+      nameOf: (l) => l.headerSkinClouds,
+      builder: (p, d) => _CloudsSkin(p, d)),
   HeaderSkin(
       id: 'honeycomb',
       nameOf: (l) => l.headerSkinHoneycomb,
@@ -527,34 +516,141 @@ class _StripesPainter extends CustomPainter {
   bool shouldRepaint(covariant _StripesPainter old) => old.color != color;
 }
 
-// ====== 插画皮肤(SVG 图片素材)======
-// 固定配色的插画放在右下角(避开头部居中的头像/标题/统计),底色亮=主题色浅染、
-// 暗=纯黑。素材来自 illlustrations.co(MIT),见 assets/header_skins/ATTRIBUTION.md。
-class _ImageSkin extends StatelessWidget {
-  const _ImageSkin(this.asset, this.primary, this.isDark);
-  final String asset;
+// ====== 场景皮肤(代码绘制,跟随主题色)======
+
+class _SunsetSkin extends StatelessWidget {
+  const _SunsetSkin(this.primary, this.isDark);
   final Color primary;
   final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: isDark ? Colors.black : _lighten(primary, 0.20),
-      child: Align(
-        alignment: Alignment.bottomRight,
-        child: FractionallySizedBox(
-          widthFactor: 0.46,
-          heightFactor: 0.92,
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: SvgPicture.asset(
-              asset,
-              fit: BoxFit.contain,
-              alignment: Alignment.bottomRight,
-            ),
-          ),
+    final colors = isDark
+        ? [Colors.black, _onBlack(primary, 0.22)]
+        : [_lighten(_hueShift(primary, 18), 0.22), _lighten(primary, 0.04)];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: colors,
         ),
+      ),
+      child: CustomPaint(
+        painter: _SunsetPainter(primary, isDark),
+        child: const SizedBox.expand(),
       ),
     );
   }
+}
+
+class _SunsetPainter extends CustomPainter {
+  _SunsetPainter(this.primary, this.isDark);
+  final Color primary;
+  final bool isDark;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    // 落日
+    canvas.drawCircle(
+      Offset(w * 0.5, h * 0.66),
+      h * 0.3,
+      Paint()
+        ..color = (isDark ? _onBlack(primary, 0.55) : Colors.white)
+            .withValues(alpha: isDark ? 0.32 : 0.6),
+    );
+    // 远山
+    final back = Paint()
+      ..color = (isDark ? _onBlack(primary, 0.32) : _lighten(primary, -0.02))
+          .withValues(alpha: isDark ? 0.55 : 0.45);
+    final p1 = Path()
+      ..moveTo(0, h)
+      ..lineTo(0, h * 0.82);
+    p1.quadraticBezierTo(w * 0.28, h * 0.66, w * 0.55, h * 0.8);
+    p1.quadraticBezierTo(w * 0.8, h * 0.92, w, h * 0.74);
+    p1
+      ..lineTo(w, h)
+      ..close();
+    canvas.drawPath(p1, back);
+    // 近山
+    final front = Paint()
+      ..color = (isDark ? _onBlack(primary, 0.48) : _lighten(primary, -0.1))
+          .withValues(alpha: isDark ? 0.85 : 0.66);
+    final p2 = Path()
+      ..moveTo(0, h)
+      ..lineTo(0, h * 0.9);
+    p2.quadraticBezierTo(w * 0.35, h * 0.78, w * 0.62, h * 0.92);
+    p2.quadraticBezierTo(w * 0.85, h, w, h * 0.88);
+    p2
+      ..lineTo(w, h)
+      ..close();
+    canvas.drawPath(p2, front);
+  }
+
+  @override
+  bool shouldRepaint(covariant _SunsetPainter old) =>
+      old.primary != primary || old.isDark != isDark;
+}
+
+class _CloudsSkin extends StatelessWidget {
+  const _CloudsSkin(this.primary, this.isDark);
+  final Color primary;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = isDark
+        ? [Colors.black, _onBlack(primary, 0.16)]
+        : [_lighten(primary, 0.22), _lighten(primary, 0.08)];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: colors,
+        ),
+      ),
+      child: CustomPaint(
+        painter: _CloudsPainter(primary, isDark),
+        child: const SizedBox.expand(),
+      ),
+    );
+  }
+}
+
+class _CloudsPainter extends CustomPainter {
+  _CloudsPainter(this.primary, this.isDark);
+  final Color primary;
+  final bool isDark;
+
+  void _cloud(Canvas canvas, Offset c, double s, Paint paint) {
+    canvas.drawCircle(Offset(c.dx, c.dy), s, paint);
+    canvas.drawCircle(Offset(c.dx + s * 0.9, c.dy + s * 0.15), s * 0.8, paint);
+    canvas.drawCircle(Offset(c.dx - s * 0.9, c.dy + s * 0.2), s * 0.7, paint);
+    canvas.drawCircle(Offset(c.dx + s * 0.1, c.dy + s * 0.5), s * 0.85, paint);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTRB(
+            c.dx - s * 1.6, c.dy + s * 0.2, c.dx + s * 1.7, c.dy + s * 0.95),
+        Radius.circular(s),
+      ),
+      paint,
+    );
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    final paint = Paint()
+      ..color = (isDark ? primary : Colors.white)
+          .withValues(alpha: isDark ? 0.12 : 0.6);
+    _cloud(canvas, Offset(w * 0.22, h * 0.34), h * 0.12, paint);
+    _cloud(canvas, Offset(w * 0.72, h * 0.22), h * 0.16, paint);
+    _cloud(canvas, Offset(w * 0.85, h * 0.66), h * 0.1, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _CloudsPainter old) =>
+      old.primary != primary || old.isDark != isDark;
 }

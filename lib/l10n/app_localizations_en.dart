@@ -924,16 +924,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get headerSkinWaves => 'Waves';
 
   @override
-  String get headerSkinSweetHome => 'Sweet home';
+  String get headerSkinSunset => 'Sunset';
 
   @override
-  String get headerSkinCafe => 'Cafe';
-
-  @override
-  String get headerSkinRainbow => 'Rainbow';
-
-  @override
-  String get headerSkinOwl => 'Owl';
+  String get headerSkinClouds => 'Clouds';
 
   @override
   String get headerSkinHoneycomb => 'Honeycomb';
