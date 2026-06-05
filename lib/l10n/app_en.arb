@@ -800,6 +800,7 @@
   "categoryIncomeTaxRefund": "Tax Refund-Individual Tax Refund-Other Tax Refund",
   "categoryIncomeProvidentFund": "Provident Fund-Provident Fund Withdrawal-Provident Fund Interest",
   "personalizeTitle": "Theme color",
+  "personalizeSubtitle": "Pick or customize the app accent color",
   "personalizeCustomColor": "Choose custom color",
   "personalizeCustomTitle": "Custom",
   "personalizeHue": "Hue ({value}°)",

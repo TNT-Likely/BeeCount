@@ -72,7 +72,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // 显示设置 SectionCard
+                // 主题与外观:明暗模式 / 主题色 / 头部皮肤 / 收支配色
                 SectionCard(
                   margin: EdgeInsets.zero,
                   child: Column(
@@ -85,6 +85,48 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         onTap: () => _showThemeModeDialog(context, ref, l10n),
                       ),
                       BeeTokens.cardDivider(context),
+                      // 主题色设置
+                      AppListTile(
+                        leading: Icons.brush_outlined,
+                        title: l10n.personalizeTitle,
+                        subtitle: l10n.personalizeSubtitle,
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const PersonalizePage()),
+                          );
+                        },
+                      ),
+                      BeeTokens.cardDivider(context),
+                      // 头部皮肤
+                      AppListTile(
+                        leading: Icons.wallpaper_outlined,
+                        title: l10n.headerSkinTitle,
+                        subtitle: skinDisplay,
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const HeaderSkinPage()),
+                          );
+                        },
+                      ),
+                      BeeTokens.cardDivider(context),
+                      // 收支颜色方案
+                      AppListTile(
+                        leading: Icons.palette_outlined,
+                        title: l10n.appearanceColorScheme,
+                        subtitle: ref.watch(incomeExpenseColorSchemeProvider)
+                            ? l10n.appearanceColorSchemeOn
+                            : l10n.appearanceColorSchemeOff,
+                        onTap: () => _showColorSchemeDialog(context, ref, l10n),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // 显示:金额格式 / 交易时间 / 显示缩放
+                SectionCard(
+                  margin: EdgeInsets.zero,
+                  child: Column(
+                    children: [
                       // 金额显示格式
                       AppListTile(
                         leading: Icons.money_outlined,
@@ -113,58 +155,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         },
                       ),
                       BeeTokens.cardDivider(context),
-                      // 收支颜色方案
-                      AppListTile(
-                        leading: Icons.palette_outlined,
-                        title: l10n.appearanceColorScheme,
-                        subtitle: ref.watch(incomeExpenseColorSchemeProvider)
-                            ? l10n.appearanceColorSchemeOn
-                            : l10n.appearanceColorSchemeOff,
-                        onTap: () => _showColorSchemeDialog(context, ref, l10n),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SectionCard(
-                  margin: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      // 桌面小组件
-                      AppListTile(
-                        leading: Icons.widgets_outlined,
-                        title: l10n.widgetManagement,
-                        subtitle: l10n.widgetManagementDesc,
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const WidgetManagementPage()),
-                          );
-                        },
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 主题色设置
-                      AppListTile(
-                        leading: Icons.brush_outlined,
-                        title: l10n.personalizeTitle,
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const PersonalizePage()),
-                          );
-                        },
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 头部皮肤(放在主题色设置下面)
-                      AppListTile(
-                        leading: Icons.wallpaper_outlined,
-                        title: l10n.headerSkinTitle,
-                        subtitle: skinDisplay,
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const HeaderSkinPage()),
-                          );
-                        },
-                      ),
-                      BeeTokens.cardDivider(context),
                       // 显示缩放
                       AppListTile(
                         leading: Icons.zoom_out_map_outlined,
@@ -176,7 +166,15 @@ class AppearanceSettingsPage extends ConsumerWidget {
                           );
                         },
                       ),
-                      BeeTokens.cardDivider(context),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // 通用:语言 / 桌面小组件 / 应用锁
+                SectionCard(
+                  margin: EdgeInsets.zero,
+                  child: Column(
+                    children: [
                       // 语言设置
                       AppListTile(
                         leading: Icons.language_outlined,
@@ -189,9 +187,19 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         },
                       ),
                       BeeTokens.cardDivider(context),
-                      // 应用锁 — 之前在「数据管理」页面底部独占一个 section,
-                      // 跟"导入导出/清理"语义不搭。挪到个性化设置里作为应用
-                      // 偏好之一。
+                      // 桌面小组件
+                      AppListTile(
+                        leading: Icons.widgets_outlined,
+                        title: l10n.widgetManagement,
+                        subtitle: l10n.widgetManagementDesc,
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const WidgetManagementPage()),
+                          );
+                        },
+                      ),
+                      BeeTokens.cardDivider(context),
+                      // 应用锁
                       AppListTile(
                         leading: Icons.lock_outline,
                         title: l10n.appLockTitle,

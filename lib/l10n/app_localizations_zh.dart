@@ -1901,6 +1901,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get personalizeTitle => '主题色设置';
 
   @override
+  String get personalizeSubtitle => '选择或自定义应用主题色';
+
+  @override
   String get personalizeCustomColor => '选择自定义颜色';
 
   @override
@@ -8506,6 +8509,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get personalizeTitle => '主題色設定';
+
+  @override
+  String get personalizeSubtitle => '選擇或自訂應用主題色';
 
   @override
   String get personalizeCustomColor => '選擇自訂顏色';

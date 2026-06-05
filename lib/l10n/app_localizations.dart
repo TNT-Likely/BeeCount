@@ -3612,6 +3612,12 @@ abstract class AppLocalizations {
   /// **'Theme color'**
   String get personalizeTitle;
 
+  /// No description provided for @personalizeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick or customize the app accent color'**
+  String get personalizeSubtitle;
+
   /// No description provided for @personalizeCustomColor.
   ///
   /// In en, this message translates to:

@@ -1901,6 +1901,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get personalizeTitle => 'Theme color';
 
   @override
+  String get personalizeSubtitle => 'Pick or customize the app accent color';
+
+  @override
   String get personalizeCustomColor => 'Choose custom color';
 
   @override
