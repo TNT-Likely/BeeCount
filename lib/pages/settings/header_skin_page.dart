@@ -6,6 +6,7 @@ import '../../providers/theme_providers.dart';
 import '../../styles/header_skins.dart';
 import '../../styles/tokens.dart';
 import '../../widgets/ui/ui.dart';
+import '../../widgets/ui/capsule_switcher.dart';
 
 /// 头部皮肤选择。顶部「亮色 / 暗黑」切换:亮色编辑「头部皮肤」,暗黑编辑「暗黑头部皮肤」;
 /// 预览也按所选模式渲染(暗黑用黑底,正好看图案皮肤真实效果)。
@@ -33,16 +34,24 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
         ? ref.watch(headerSkinDarkProvider)
         : ref.watch(headerSkinProvider);
 
-    // none:亮色 = 纯色;暗黑 = 跟随头部皮肤。其余皮肤按编辑模式渲染预览。
+    // 预览底色:亮色=主题色,暗黑=纯黑(与真实 header 基础色一致)。图案皮肤是
+    // 透明叠加,必须垫底色才看得见(尤其暗黑图案,否则透明=看不到)。
+    final base = editDark ? Colors.black : primary;
+
+    // none:亮色 = 纯色;暗黑 = 跟随头部皮肤。其余按编辑模式只显对应取向的皮肤
+    //(亮色=渐变,暗黑=图案),都垫上底色渲染预览。
     final items = <({String id, String name, Widget preview})>[
       (
         id: kHeaderSkinNone,
         name: editDark ? l10n.headerSkinFollow : l10n.headerSkinNone,
-        preview: ColoredBox(color: editDark ? Colors.black : primary),
+        preview: ColoredBox(color: base),
       ),
-      // 按当前编辑模式只展示对应取向的皮肤:亮色=渐变,暗黑=图案。
       for (final s in kHeaderSkins.where((s) => s.forDark == editDark))
-        (id: s.id, name: s.nameOf(l10n), preview: s.builder(primary, editDark)),
+        (
+          id: s.id,
+          name: s.nameOf(l10n),
+          preview: ColoredBox(color: base, child: s.builder(primary, editDark)),
+        ),
     ];
 
     void select(String id) {
@@ -64,24 +73,13 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: SizedBox(
-              width: double.infinity,
-              child: SegmentedButton<bool>(
-                segments: [
-                  ButtonSegment(
-                    value: false,
-                    label: Text(l10n.headerSkinModeLight),
-                    icon: const Icon(Icons.light_mode_outlined),
-                  ),
-                  ButtonSegment(
-                    value: true,
-                    label: Text(l10n.headerSkinModeDark),
-                    icon: const Icon(Icons.dark_mode_outlined),
-                  ),
-                ],
-                selected: {editDark},
-                onSelectionChanged: (s) => setState(() => _editDark = s.first),
-              ),
+            child: CapsuleSwitcher<bool>(
+              selectedValue: editDark,
+              options: [
+                CapsuleOption(value: false, label: l10n.headerSkinModeLight),
+                CapsuleOption(value: true, label: l10n.headerSkinModeDark),
+              ],
+              onChanged: (v) => setState(() => _editDark = v),
             ),
           ),
           Expanded(
