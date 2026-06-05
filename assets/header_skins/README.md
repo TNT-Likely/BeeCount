@@ -1,4 +1,4 @@
-# 头部皮肤创作指引 / Header skins
+# 头部皮肤创作指引 &nbsp; [English](README_EN.md)
 
 > BeeCount 顶部 `PrimaryHeader` 的「主题色 + 皮肤」装饰层。本文是完整创作规范;两个主 README 只放了折叠摘要。
 
