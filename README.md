@@ -250,7 +250,7 @@ flutter build apk --flavor prod --release
 
 ---
 
-## 🎨 头部皮肤
+## 🎨 皮肤
 
 <details>
 <summary>贡献一款顶部皮肤</summary>

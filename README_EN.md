@@ -250,10 +250,10 @@ See [docs/contributing/CONTRIBUTING.md](docs/contributing/CONTRIBUTING.md) for d
 
 ---
 
-## 🎨 Header Skins
+## 🎨 Skins
 
 <details>
-<summary>Contribute a header skin</summary>
+<summary>Contribute a skin</summary>
 
 "Theme color + skin = the header banner." Skins come in two kinds: **code skins** (`CustomPainter` drawing gradients / shapes, auto-following the theme color) and **image skins** (an SVG painted edge-to-edge with `BoxFit.cover`, optionally recolored to the theme color via `themed: true`).
 
