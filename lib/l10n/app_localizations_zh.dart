@@ -903,6 +903,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mineProfileEditTitle => '编辑资料';
 
   @override
+  String get headerSkinTitle => '头部皮肤';
+
+  @override
+  String get headerSkinSubtitle => '跟随主题色,叠在头部之上';
+
+  @override
+  String get headerSkinNone => '纯色';
+
+  @override
+  String get headerSkinAurora => '极光';
+
+  @override
+  String get headerSkinMountains => '山峦';
+
+  @override
+  String get headerSkinBokeh => '光斑';
+
+  @override
+  String get headerSkinWaves => '波浪';
+
+  @override
   String get mineAvatarTitle => '头像设置';
 
   @override
@@ -7469,6 +7490,27 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get mineProfileEditTitle => '編輯資料';
+
+  @override
+  String get headerSkinTitle => '頁首皮膚';
+
+  @override
+  String get headerSkinSubtitle => '跟隨主題色,疊在頁首之上';
+
+  @override
+  String get headerSkinNone => '純色';
+
+  @override
+  String get headerSkinAurora => '極光';
+
+  @override
+  String get headerSkinMountains => '山巒';
+
+  @override
+  String get headerSkinBokeh => '光斑';
+
+  @override
+  String get headerSkinWaves => '波浪';
 
   @override
   String get mineAvatarTitle => '頭像設定';

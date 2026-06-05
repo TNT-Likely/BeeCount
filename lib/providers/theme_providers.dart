@@ -194,6 +194,21 @@ final headerDecorationStyleInitProvider = FutureProvider<void>((ref) async {
   });
 });
 
+// 头部皮肤(PoC):跟随主题色的装饰层 id;'none' = 纯主题色。
+// 见 lib/styles/header_skins.dart。本地持久化(暂未接云同步,后续可并入 appearance 包)。
+final headerSkinProvider = StateProvider<String>((ref) => 'none');
+
+final headerSkinInitProvider = FutureProvider<void>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  final saved = prefs.getString('headerSkin');
+  if (saved != null) {
+    ref.read(headerSkinProvider.notifier).state = saved;
+  }
+  ref.listen<String>(headerSkinProvider, (prev, next) async {
+    await prefs.setString('headerSkin', next);
+  });
+});
+
 /// 把 header_decoration_style / compact_amount / show_transaction_time
 /// 的当前值打包推给 server 的 /profile/me。非 BeeCount Cloud 模式 provider
 /// 返回 null 直接跳过。fire-and-forget,失败只打 warning。

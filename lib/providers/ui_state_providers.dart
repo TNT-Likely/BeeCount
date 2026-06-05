@@ -200,6 +200,7 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
       ref.watch(smartBillingAutoAttachmentInitProvider.future),
       ref.watch(incomeExpenseColorSchemeInitProvider.future),
       ref.watch(displayNameInitProvider.future),
+      ref.watch(headerSkinInitProvider.future),
       ref.watch(securityInitProvider.future),
     ]);
     logger.info(tag, '基础配置初始化完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms');

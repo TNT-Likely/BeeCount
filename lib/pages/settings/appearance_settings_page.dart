@@ -10,6 +10,8 @@ import './font_settings_page.dart';
 import './language_settings_page.dart';
 import './widget_management_page.dart';
 import './app_lock_settings_page.dart';
+import './header_skin_page.dart';
+import '../../styles/header_skins.dart';
 import '../../l10n/app_localizations.dart';
 
 /// 外观设置二级页面
@@ -69,6 +71,12 @@ class AppearanceSettingsPage extends ConsumerWidget {
         patternDisplay = l10n.appearancePatternIcons;
     }
 
+    // 头部皮肤显示名
+    final headerSkin = ref.watch(headerSkinProvider);
+    final skinDisplay = headerSkin == kHeaderSkinNone
+        ? l10n.headerSkinNone
+        : (headerSkinById(headerSkin)?.nameOf(l10n) ?? l10n.headerSkinNone);
+
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
       body: Column(
@@ -102,6 +110,18 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         subtitle: patternDisplay,
                         enabled: isDark,
                         onTap: isDark ? () => _showPatternStyleDialog(context, ref, l10n) : null,
+                      ),
+                      BeeTokens.cardDivider(context),
+                      // 头部皮肤(主题色 + 皮肤)
+                      AppListTile(
+                        leading: Icons.wallpaper_outlined,
+                        title: l10n.headerSkinTitle,
+                        subtitle: skinDisplay,
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const HeaderSkinPage()),
+                          );
+                        },
                       ),
                       BeeTokens.cardDivider(context),
                       // 金额显示格式

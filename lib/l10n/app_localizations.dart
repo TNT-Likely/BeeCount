@@ -1728,6 +1728,48 @@ abstract class AppLocalizations {
   /// **'Edit profile'**
   String get mineProfileEditTitle;
 
+  /// No description provided for @headerSkinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Header skin'**
+  String get headerSkinTitle;
+
+  /// No description provided for @headerSkinSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Follows your theme color, layered over the header'**
+  String get headerSkinSubtitle;
+
+  /// No description provided for @headerSkinNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Solid'**
+  String get headerSkinNone;
+
+  /// No description provided for @headerSkinAurora.
+  ///
+  /// In en, this message translates to:
+  /// **'Aurora'**
+  String get headerSkinAurora;
+
+  /// No description provided for @headerSkinMountains.
+  ///
+  /// In en, this message translates to:
+  /// **'Mountains'**
+  String get headerSkinMountains;
+
+  /// No description provided for @headerSkinBokeh.
+  ///
+  /// In en, this message translates to:
+  /// **'Bokeh'**
+  String get headerSkinBokeh;
+
+  /// No description provided for @headerSkinWaves.
+  ///
+  /// In en, this message translates to:
+  /// **'Waves'**
+  String get headerSkinWaves;
+
   /// No description provided for @mineAvatarTitle.
   ///
   /// In en, this message translates to:

@@ -1493,6 +1493,13 @@
   "mineGreetingNight": "夜深了",
   "mineGreetingNamed": "{greeting}，{name}",
   "mineProfileEditTitle": "編輯資料",
+  "headerSkinTitle": "頁首皮膚",
+  "headerSkinSubtitle": "跟隨主題色,疊在頁首之上",
+  "headerSkinNone": "純色",
+  "headerSkinAurora": "極光",
+  "headerSkinMountains": "山巒",
+  "headerSkinBokeh": "光斑",
+  "headerSkinWaves": "波浪",
   "mineSupportAuthor": "給專案 Star ⭐️",
   "mineSupportAuthorSubtitle": "開源免費，已有 {count} 人 Star",
   "@mineSupportAuthorSubtitle": {

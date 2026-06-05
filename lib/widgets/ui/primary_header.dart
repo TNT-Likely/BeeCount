@@ -5,7 +5,7 @@ import 'dart:math' as Math;
 import '../../providers.dart';
 import '../../providers/theme_providers.dart';
 import '../../styles/tokens.dart';
-import '../../theme.dart'; // ⭐ 导入 BeeTheme
+import '../../styles/header_skins.dart';
 
 class PrimaryHeader extends ConsumerWidget {
   final String title;
@@ -60,6 +60,9 @@ class PrimaryHeader extends ConsumerWidget {
     // ⭐ 获取暗黑模式图案样式：none/icons/particles/honeycomb
     final patternStyle = ref.watch(darkModePatternStyleProvider);
 
+    // ⭐ 头部皮肤(主题色之上的装饰层);'none' → null,回退到暗黑模式图案
+    final skin = headerSkinById(ref.watch(headerSkinProvider));
+
     // ⭐ Header 背景颜色：亮色模式用主题色，暗黑模式用纯黑
     final headerBg = isDark ? Colors.black : primary;
 
@@ -83,8 +86,10 @@ class PrimaryHeader extends ConsumerWidget {
           decoration: decoration ?? BoxDecoration(color: headerBg), // ⭐ 根据设置决定背景色
           child: Stack(
             children: [
-              // ⭐ 暗黑模式下根据用户设置显示装饰图案（none 时不显示）
-              if (isDark && patternStyle != 'none')
+              // ⭐ 头部皮肤层(主题色之上的装饰);未选皮肤时回退到暗黑模式装饰图案
+              if (skin != null)
+                Positioned.fill(child: skin.builder(primary, isDark))
+              else if (isDark && patternStyle != 'none')
                 Positioned.fill(
                   child: patternStyle == 'icons'
                       ? _IconTilingPattern(primary)
