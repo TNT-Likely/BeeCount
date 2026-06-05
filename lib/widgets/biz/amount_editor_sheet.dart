@@ -224,6 +224,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   // 运算缓存：支持简单 + / - 键入累计
   double _acc = 0;
   String? _op; // 最近一次运算符，null 表示尚未进入运算模式
+  // 运算符键模式:false=加减(默认),true=乘除。长按运算符键切换两组。
+  bool _multiplyMode = false;
 
   // 高频备注列表（包含使用次数）
   List<({String note, int count})> _frequentNotes = [];
@@ -353,6 +355,36 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     }
   }
 
+  /// 左到右运算(无运算符优先级,与原 +/- 累加器一致),除零做保护(返回被除数)。
+  double _compute(double a, String op, double b) {
+    switch (op) {
+      case '+':
+        return a + b;
+      case '-':
+        return a - b;
+      case '×':
+        return a * b;
+      case '÷':
+        return b == 0 ? a : a / b;
+      default:
+        return b;
+    }
+  }
+
+  /// 运算符显示字形(减号用真减号 −,而非连字符 -)。
+  String _opGlyph(String op) {
+    switch (op) {
+      case '-':
+        return '−';
+      case '×':
+        return '×';
+      case '÷':
+        return '÷';
+      default:
+        return '+';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
@@ -369,10 +401,9 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       if (_op == null) {
         // 首次点击运算符，将当前值存入累加器
         _acc = cur;
-      } else if (_op == '+') {
-        _acc += cur;
-      } else if (_op == '-') {
-        _acc -= cur;
+      } else {
+        // 左到右:先把上一个运算符算掉
+        _acc = _compute(_acc, _op!, cur);
       }
       _op = op;
       _amountStr = '0';
@@ -385,12 +416,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     void applyEquals() {
       if (_op == null) return; // 没有运算符，不执行
       final cur = parsed();
-      double total = _acc;
-      if (_op == '+') {
-        total += cur;
-      } else if (_op == '-') {
-        total -= cur;
-      }
+      final total = _compute(_acc, _op!, cur);
       // 格式化结果
       final s = total.abs().toStringAsFixed(2);
       final trimmed = s.contains('.')
@@ -422,6 +448,50 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                   color: fg ?? BeeTokens.textPrimary(context),
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // 运算符键:同时显示「加减」与「乘除」两组运算符;当前激活的一组用主色高亮、
+    // 另一组用次级色弱化(主次区分,也作为"长按可切到乘除"的提示)。单击应用激活
+    // 运算符,长按切换加减 ↔ 乘除。
+    Widget opKey(String addSubOp, String mulDivOp) {
+      final activeOp = _multiplyMode ? mulDivOp : addSubOp;
+      Widget glyph(String op, bool active) => Text(
+            _opGlyph(op),
+            style: text.titleMedium?.copyWith(
+              color: active ? primary : BeeTokens.textTertiary(context),
+              fontSize: active ? 20 : 13,
+              fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+            ),
+          );
+      return Padding(
+        padding: const EdgeInsets.all(6),
+        child: Material(
+          color: BeeTokens.surfaceKeySecondary(context),
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => applyOp(activeOp),
+            onLongPress: () {
+              setState(() => _multiplyMode = !_multiplyMode);
+              HapticFeedback.mediumImpact();
+              SystemSound.play(SystemSoundType.click);
+            },
+            child: SizedBox(
+              height: 60,
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    glyph(addSubOp, !_multiplyMode),
+                    const SizedBox(width: 6),
+                    glyph(mulDivOp, _multiplyMode),
+                  ],
                 ),
               ),
             ),
@@ -479,7 +549,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: Text(
-                          _op == '-' ? '−' : '+',
+                          _opGlyph(_op!),
                           style: text.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                             color: primary,
@@ -514,7 +584,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                       Text(
                         (() {
                           final cur = parsed();
-                          final total = _op == '+' ? _acc + cur : _acc - cur;
+                          final total = _compute(_acc, _op!, cur);
                           final s = total.abs().toStringAsFixed(2);
                           final r1 = s.contains('.')
                               ? s.replaceFirst(RegExp(r'0+$'), '')
@@ -684,14 +754,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
               Widget doneKey() {
                 // 计算当前总额以判断是否启用完成按钮
                 final cur = parsed();
-                double total;
-                if (_op == '+') {
-                  total = _acc + cur;
-                } else if (_op == '-') {
-                  total = _acc - cur;
-                } else {
-                  total = cur;
-                }
+                final total = _op == null ? cur : _compute(_acc, _op!, cur);
 
                 // 判断是否处于运算模式
                 final isInCalcMode = _op != null;
@@ -785,10 +848,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                     SizedBox(
                         width: w,
                         child: keyBtn('6', onTap: () => _append('6'))),
-                    SizedBox(
-                        width: w,
-                        child: keyBtn('+',
-                            bg: BeeTokens.surfaceKeySecondary(context), onTap: () => applyOp('+'))),
+                    SizedBox(width: w, child: opKey('+', '×')),
                   ]),
                   const SizedBox(height: 2),
                   Row(children: [
@@ -801,10 +861,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                     SizedBox(
                         width: w,
                         child: keyBtn('3', onTap: () => _append('3'))),
-                    SizedBox(
-                        width: w,
-                        child: keyBtn('-',
-                            bg: BeeTokens.surfaceKeySecondary(context), onTap: () => applyOp('-'))),
+                    SizedBox(width: w, child: opKey('-', '÷')),
                   ]),
                   const SizedBox(height: 2),
                   Row(children: [
