@@ -15,7 +15,12 @@ import '../l10n/app_localizations.dart';
 const String kHeaderSkinNone = 'none';
 
 class HeaderSkin {
-  const HeaderSkin({required this.id, required this.nameOf, required this.builder});
+  const HeaderSkin({
+    required this.id,
+    required this.nameOf,
+    required this.builder,
+    this.forDark = false,
+  });
 
   final String id;
 
@@ -24,6 +29,10 @@ class HeaderSkin {
 
   /// 返回铺满 header 的装饰层(放进 Positioned.fill)。
   final Widget Function(Color primary, bool isDark) builder;
+
+  /// true = 暗黑取向(图案皮肤,黑底上效果好);false = 亮色取向(渐变皮肤)。
+  /// 选择器按当前编辑模式只展示对应取向的皮肤(亮色不显示图案、暗黑不显示渐变)。
+  final bool forDark;
 }
 
 // ---- HSL 派生工具 ----
@@ -61,15 +70,18 @@ final List<HeaderSkin> kHeaderSkins = [
   HeaderSkin(
       id: 'honeycomb',
       nameOf: (l) => l.headerSkinHoneycomb,
-      builder: (p, d) => _PatternSkin(p, d, (c) => _HoneycombPainter(c))),
+      builder: (p, d) => _PatternSkin(p, d, (c) => _HoneycombPainter(c)),
+      forDark: true),
   HeaderSkin(
       id: 'starry',
       nameOf: (l) => l.headerSkinStarry,
-      builder: (p, d) => _PatternSkin(p, d, (c) => _StarryPainter(c))),
+      builder: (p, d) => _PatternSkin(p, d, (c) => _StarryPainter(c)),
+      forDark: true),
   HeaderSkin(
       id: 'stripes',
       nameOf: (l) => l.headerSkinStripes,
-      builder: (p, d) => _PatternSkin(p, d, (c) => _StripesPainter(c))),
+      builder: (p, d) => _PatternSkin(p, d, (c) => _StripesPainter(c)),
+      forDark: true),
 ];
 
 HeaderSkin? headerSkinById(String id) {

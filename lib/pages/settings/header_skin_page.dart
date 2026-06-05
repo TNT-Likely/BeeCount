@@ -40,7 +40,8 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
         name: editDark ? l10n.headerSkinFollow : l10n.headerSkinNone,
         preview: ColoredBox(color: editDark ? Colors.black : primary),
       ),
-      for (final s in kHeaderSkins)
+      // 按当前编辑模式只展示对应取向的皮肤:亮色=渐变,暗黑=图案。
+      for (final s in kHeaderSkins.where((s) => s.forDark == editDark))
         (id: s.id, name: s.nameOf(l10n), preview: s.builder(primary, editDark)),
     ];
 
