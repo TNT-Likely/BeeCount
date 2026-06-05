@@ -194,8 +194,8 @@ final headerDecorationStyleInitProvider = FutureProvider<void>((ref) async {
   });
 });
 
-// 头部皮肤(PoC):跟随主题色的装饰层 id;'none' = 纯主题色。
-// 见 lib/styles/header_skins.dart。本地持久化(暂未接云同步,后续可并入 appearance 包)。
+// 头部皮肤:跟随主题色的装饰层 id;'none' = 纯主题色。见 lib/styles/header_skins.dart。
+// 本地持久化 + 并入 appearance 包,随 BeeCount Cloud 多设备同步。
 final headerSkinProvider = StateProvider<String>((ref) => 'none');
 
 final headerSkinInitProvider = FutureProvider<void>((ref) async {
@@ -206,6 +206,7 @@ final headerSkinInitProvider = FutureProvider<void>((ref) async {
   }
   ref.listen<String>(headerSkinProvider, (prev, next) async {
     await prefs.setString('headerSkin', next);
+    _pushAppearanceToCloud(ref);
   });
 });
 
@@ -226,6 +227,7 @@ void _pushAppearanceToCloud(Ref ref) {
         'header_decoration_style': ref.read(headerDecorationStyleProvider),
         'compact_amount': ref.read(compactAmountProvider),
         'show_transaction_time': ref.read(showTransactionTimeProvider),
+        'header_skin': ref.read(headerSkinProvider),
       };
       await cloudProvider.updateMyProfileAppearance(appearance: appearance);
       logger.info('theme_providers',

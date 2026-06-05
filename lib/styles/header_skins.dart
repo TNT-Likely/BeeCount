@@ -58,6 +58,18 @@ final List<HeaderSkin> kHeaderSkins = [
       id: 'waves',
       nameOf: (l) => l.headerSkinWaves,
       builder: (p, d) => _WavesSkin(p, d)),
+  HeaderSkin(
+      id: 'honeycomb',
+      nameOf: (l) => l.headerSkinHoneycomb,
+      builder: (p, d) => _PatternSkin(p, d, (c) => _HoneycombPainter(c))),
+  HeaderSkin(
+      id: 'starry',
+      nameOf: (l) => l.headerSkinStarry,
+      builder: (p, d) => _PatternSkin(p, d, (c) => _StarryPainter(c))),
+  HeaderSkin(
+      id: 'stripes',
+      nameOf: (l) => l.headerSkinStripes,
+      builder: (p, d) => _PatternSkin(p, d, (c) => _StripesPainter(c))),
 ];
 
 HeaderSkin? headerSkinById(String id) {
@@ -320,4 +332,163 @@ class _WavesPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _WavesPainter old) =>
       old.primary != primary || old.isDark != isDark;
+}
+
+// ====== 几何图案皮肤(由原暗黑模式装饰图案改造而来:两种模式都可用) ======
+// 共用一个渐变底 + 图案画笔:亮色用白色图案叠在主题色渐变上,暗色用主题色图案叠在黑底上。
+
+class _PatternSkin extends StatelessWidget {
+  const _PatternSkin(this.primary, this.isDark, this.painterFor);
+  final Color primary;
+  final bool isDark;
+  final CustomPainter Function(Color patternColor) painterFor;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = isDark
+        ? [Colors.black, _onBlack(primary, 0.18)]
+        : [_lighten(primary, 0.16), primary];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: colors,
+        ),
+      ),
+      child: CustomPaint(
+        painter: painterFor(isDark ? primary : Colors.white),
+        child: const SizedBox.expand(),
+      ),
+    );
+  }
+}
+
+/// 蜂巢六边形
+class _HoneycombPainter extends CustomPainter {
+  _HoneycombPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withValues(alpha: 0.16)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    const hexSize = 28.0;
+    final hexHeight = hexSize * math.sqrt(3);
+    final hexWidth = hexSize * 2;
+    final rows = (size.height / hexHeight * 1.5).ceil() + 2;
+    final cols = (size.width / (hexWidth * 0.75)).ceil() + 2;
+    for (int row = -1; row < rows; row++) {
+      for (int col = -1; col < cols; col++) {
+        final x = col * hexWidth * 0.75;
+        final y = row * hexHeight + (col.isOdd ? hexHeight / 2 : 0);
+        final random = math.Random((row * 1000 + col).hashCode);
+        if (random.nextDouble() > 0.3) {
+          final path = Path();
+          for (int i = 0; i < 6; i++) {
+            final a = (math.pi / 3) * i;
+            final px = x + hexSize * math.cos(a);
+            final py = y + hexSize * math.sin(a);
+            if (i == 0) {
+              path.moveTo(px, py);
+            } else {
+              path.lineTo(px, py);
+            }
+          }
+          path.close();
+          canvas.drawPath(path, paint);
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _HoneycombPainter old) => old.color != color;
+}
+
+/// 星河(粒子 + 五角星)
+class _StarryPainter extends CustomPainter {
+  _StarryPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final random = math.Random(42); // 固定种子,保持稳定
+    for (int i = 0; i < 36; i++) {
+      final x = random.nextDouble() * size.width;
+      final y = random.nextDouble() * size.height;
+      final r = 2.0 + random.nextDouble() * 4;
+      final opacity = 0.12 + random.nextDouble() * 0.18;
+      canvas.drawCircle(
+          Offset(x, y), r, Paint()..color = color.withValues(alpha: opacity));
+    }
+    for (int i = 0; i < 10; i++) {
+      final x = random.nextDouble() * size.width;
+      final y = random.nextDouble() * size.height;
+      final s = 8.0 + random.nextDouble() * 8;
+      final opacity = 0.15 + random.nextDouble() * 0.12;
+      canvas.drawPath(_star(x, y, s, s * 0.4),
+          Paint()..color = color.withValues(alpha: opacity));
+    }
+  }
+
+  Path _star(double cx, double cy, double outer, double inner) {
+    final path = Path();
+    const points = 5;
+    const angle = math.pi / points;
+    for (int i = 0; i < points * 2; i++) {
+      final radius = i.isEven ? outer : inner;
+      final a = angle * i - math.pi / 2;
+      final x = cx + radius * math.cos(a);
+      final y = cy + radius * math.sin(a);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldRepaint(covariant _StarryPainter old) => old.color != color;
+}
+
+/// 斜纹(三组不同粗细的对角线)
+class _StripesPainter extends CustomPainter {
+  _StripesPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const spacing = 30.0;
+    final paints = [
+      Paint()
+        ..color = color.withValues(alpha: 0.14)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+      Paint()
+        ..color = color.withValues(alpha: 0.09)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+      Paint()
+        ..color = color.withValues(alpha: 0.06)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1,
+    ];
+    for (int g = 0; g < 3; g++) {
+      for (double i = -size.height + spacing * g;
+          i < size.width + size.height;
+          i += spacing * 3) {
+        canvas.drawLine(
+            Offset(i, 0), Offset(i + size.height, size.height), paints[g]);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _StripesPainter old) => old.color != color;
 }

@@ -367,6 +367,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
         currentCompactAmount: ref.read(compactAmountProvider),
         currentShowTransactionTime: ref.read(showTransactionTimeProvider),
         currentDisplayName: ref.read(displayNameProvider),
+        currentHeaderSkin: ref.read(headerSkinProvider),
       );
     });
 
@@ -564,6 +565,7 @@ Future<void> reconcileProfileToServer({
   required bool currentCompactAmount,
   required bool currentShowTransactionTime,
   required String currentDisplayName,
+  required String currentHeaderSkin,
 }) async {
   try {
     final cloud = await cloudProviderFuture;
@@ -737,6 +739,13 @@ void _applyAppearanceFromServer(Ref ref, Map<String, dynamic> appearance) {
     final current = ref.read(showTransactionTimeProvider);
     if (current != showTime) {
       ref.read(showTransactionTimeProvider.notifier).state = showTime;
+    }
+  }
+  final skin = appearance['header_skin'] as String?;
+  if (skin != null && skin.isNotEmpty) {
+    final current = ref.read(headerSkinProvider);
+    if (current != skin) {
+      ref.read(headerSkinProvider.notifier).state = skin;
     }
   }
   logger.info('profile_sync', 'applied appearance from server: $appearance');

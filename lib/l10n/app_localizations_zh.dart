@@ -924,6 +924,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get headerSkinWaves => '波浪';
 
   @override
+  String get headerSkinHoneycomb => '蜂巢';
+
+  @override
+  String get headerSkinStarry => '星河';
+
+  @override
+  String get headerSkinStripes => '斜纹';
+
+  @override
   String get mineAvatarTitle => '头像设置';
 
   @override
@@ -7511,6 +7520,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get headerSkinWaves => '波浪';
+
+  @override
+  String get headerSkinHoneycomb => '蜂巢';
+
+  @override
+  String get headerSkinStarry => '星河';
+
+  @override
+  String get headerSkinStripes => '斜紋';
 
   @override
   String get mineAvatarTitle => '頭像設定';

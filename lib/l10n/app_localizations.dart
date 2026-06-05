@@ -1770,6 +1770,24 @@ abstract class AppLocalizations {
   /// **'Waves'**
   String get headerSkinWaves;
 
+  /// No description provided for @headerSkinHoneycomb.
+  ///
+  /// In en, this message translates to:
+  /// **'Honeycomb'**
+  String get headerSkinHoneycomb;
+
+  /// No description provided for @headerSkinStarry.
+  ///
+  /// In en, this message translates to:
+  /// **'Starry'**
+  String get headerSkinStarry;
+
+  /// No description provided for @headerSkinStripes.
+  ///
+  /// In en, this message translates to:
+  /// **'Stripes'**
+  String get headerSkinStripes;
+
   /// No description provided for @mineAvatarTitle.
   ///
   /// In en, this message translates to:

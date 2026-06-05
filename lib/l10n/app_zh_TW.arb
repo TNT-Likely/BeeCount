@@ -1500,6 +1500,9 @@
   "headerSkinMountains": "山巒",
   "headerSkinBokeh": "光斑",
   "headerSkinWaves": "波浪",
+  "headerSkinHoneycomb": "蜂巢",
+  "headerSkinStarry": "星河",
+  "headerSkinStripes": "斜紋",
   "mineSupportAuthor": "給專案 Star ⭐️",
   "mineSupportAuthorSubtitle": "開源免費，已有 {count} 人 Star",
   "@mineSupportAuthorSubtitle": {
