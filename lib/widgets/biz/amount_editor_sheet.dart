@@ -475,13 +475,13 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     Widget opKey(String addSubOp, String mulDivOp, bool isMul,
         VoidCallback onToggle) {
       final activeOp = isMul ? mulDivOp : addSubOp;
-      // 激活=主文字色(亮=黑/暗=白)且更大;未激活=次级灰色且更小。粗细与旁边
-      // 数字键保持一致(w600),仅靠字号大小 + 颜色分主次。
+      // 激活的运算符与数字键完全一致(字号 18 / w600),保证视觉粗细相同 —— 字号
+      // 更大即使同 weight 笔画也会更粗。未激活更小(14)+ 灰色以分主次。
       TextStyle opStyle(bool active) => text.titleMedium!.copyWith(
             color: active
                 ? BeeTokens.textPrimary(context)
                 : BeeTokens.textTertiary(context),
-            fontSize: active ? 24 : 16,
+            fontSize: active ? 18 : 14,
             fontWeight: FontWeight.w600,
           );
       return Padding(
@@ -508,7 +508,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                       text: '/',
                       style: text.titleMedium!.copyWith(
                         color: BeeTokens.textTertiary(context),
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
