@@ -1889,7 +1889,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryIncomeProvidentFund => '公积金-公积金提取-公积金利息';
 
   @override
-  String get personalizeTitle => '个性化';
+  String get personalizeTitle => '主题色设置';
 
   @override
   String get personalizeCustomColor => '选择自定义颜色';
@@ -8487,7 +8487,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryIncomeProvidentFund => '公積金-公積金提取-公積金利息';
 
   @override
-  String get personalizeTitle => '個性裝扮';
+  String get personalizeTitle => '主題色設定';
 
   @override
   String get personalizeCustomColor => '選擇自訂顏色';

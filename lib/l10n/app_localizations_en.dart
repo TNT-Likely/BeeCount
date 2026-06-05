@@ -1889,7 +1889,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryIncomeProvidentFund => 'Provident Fund-Provident Fund Withdrawal-Provident Fund Interest';
 
   @override
-  String get personalizeTitle => 'Personalize';
+  String get personalizeTitle => 'Theme color';
 
   @override
   String get personalizeCustomColor => 'Choose custom color';

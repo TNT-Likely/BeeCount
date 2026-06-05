@@ -3591,7 +3591,7 @@ abstract class AppLocalizations {
   /// No description provided for @personalizeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Personalize'**
+  /// **'Theme color'**
   String get personalizeTitle;
 
   /// No description provided for @personalizeCustomColor.

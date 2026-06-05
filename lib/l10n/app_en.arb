@@ -796,7 +796,7 @@
   "categoryIncomeSocialBenefit": "Social Benefit-Unemployment Insurance-Maternity Subsidy-Other Subsidy",
   "categoryIncomeTaxRefund": "Tax Refund-Individual Tax Refund-Other Tax Refund",
   "categoryIncomeProvidentFund": "Provident Fund-Provident Fund Withdrawal-Provident Fund Interest",
-  "personalizeTitle": "Personalize",
+  "personalizeTitle": "Theme color",
   "personalizeCustomColor": "Choose custom color",
   "personalizeCustomTitle": "Custom",
   "personalizeHue": "Hue ({value}°)",

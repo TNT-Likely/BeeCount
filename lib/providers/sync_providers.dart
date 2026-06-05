@@ -605,6 +605,7 @@ Future<void> reconcileProfileToServer({
           'header_decoration_style': currentHeaderStyle,
           'compact_amount': currentCompactAmount,
           'show_transaction_time': currentShowTransactionTime,
+          'header_skin': currentHeaderSkin,
         };
         await cloud.updateMyProfileAppearance(appearance: appearance);
         logger.info('CloudSync', 'reconcile: pushed appearance=$appearance');

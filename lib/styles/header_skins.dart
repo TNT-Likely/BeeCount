@@ -345,21 +345,11 @@ class _PatternSkin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = isDark
-        ? [Colors.black, _onBlack(primary, 0.18)]
-        : [_lighten(primary, 0.16), primary];
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: colors,
-        ),
-      ),
-      child: CustomPaint(
-        painter: painterFor(isDark ? primary : Colors.white),
-        child: const SizedBox.expand(),
-      ),
+    // 透明底:让 header 基础色透出(亮=主题色 / 暗=纯黑)。暗色模式下图案用主题色,
+    // 与原「暗黑模式头部图案」**完全一致**;亮色模式用白色让图案在主题色底上可见。
+    return CustomPaint(
+      painter: painterFor(isDark ? primary : Colors.white),
+      child: const SizedBox.expand(),
     );
   }
 }
@@ -372,10 +362,10 @@ class _HoneycombPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withValues(alpha: 0.16)
+      ..color = color.withValues(alpha: 0.15)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
-    const hexSize = 28.0;
+    const hexSize = 30.0;
     final hexHeight = hexSize * math.sqrt(3);
     final hexWidth = hexSize * 2;
     final rows = (size.height / hexHeight * 1.5).ceil() + 2;
@@ -415,22 +405,34 @@ class _StarryPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final random = math.Random(42); // 固定种子,保持稳定
-    for (int i = 0; i < 36; i++) {
+    final random = math.Random(42); // 固定种子,保持一致性
+    for (int i = 0; i < 35; i++) {
       final x = random.nextDouble() * size.width;
       final y = random.nextDouble() * size.height;
-      final r = 2.0 + random.nextDouble() * 4;
-      final opacity = 0.12 + random.nextDouble() * 0.18;
-      canvas.drawCircle(
-          Offset(x, y), r, Paint()..color = color.withValues(alpha: opacity));
+      final particleSize = 2.0 + random.nextDouble() * 4; // 2-6 px
+      final opacity = 0.1 + random.nextDouble() * 0.15; // 10%-25%
+      final paint = Paint()
+        ..color = color.withValues(alpha: opacity)
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(Offset(x, y), particleSize, paint);
+      // 20% 的粒子带光晕(与原暗黑装饰一致)
+      if (i % 5 == 0) {
+        final glowPaint = Paint()
+          ..color = color.withValues(alpha: opacity * 0.3)
+          ..style = PaintingStyle.fill
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
+        canvas.drawCircle(Offset(x, y), particleSize * 2, glowPaint);
+      }
     }
     for (int i = 0; i < 10; i++) {
       final x = random.nextDouble() * size.width;
       final y = random.nextDouble() * size.height;
-      final s = 8.0 + random.nextDouble() * 8;
-      final opacity = 0.15 + random.nextDouble() * 0.12;
-      canvas.drawPath(_star(x, y, s, s * 0.4),
-          Paint()..color = color.withValues(alpha: opacity));
+      final starSize = 8.0 + random.nextDouble() * 8; // 8-16px
+      final opacity = 0.15 + random.nextDouble() * 0.1;
+      final paint = Paint()
+        ..color = color.withValues(alpha: opacity)
+        ..style = PaintingStyle.fill;
+      canvas.drawPath(_star(x, y, starSize, starSize * 0.4), paint);
     }
   }
 
@@ -467,15 +469,15 @@ class _StripesPainter extends CustomPainter {
     const spacing = 30.0;
     final paints = [
       Paint()
-        ..color = color.withValues(alpha: 0.14)
+        ..color = color.withValues(alpha: 0.12)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2,
       Paint()
-        ..color = color.withValues(alpha: 0.09)
+        ..color = color.withValues(alpha: 0.08)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5,
       Paint()
-        ..color = color.withValues(alpha: 0.06)
+        ..color = color.withValues(alpha: 0.05)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1,
     ];

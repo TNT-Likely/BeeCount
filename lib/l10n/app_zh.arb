@@ -756,7 +756,7 @@
   "categoryIncomeSocialBenefit": "社会福利-失业保险-生育津贴-其他补贴",
   "categoryIncomeTaxRefund": "退税-个税退税-其他退费",
   "categoryIncomeProvidentFund": "公积金-公积金提取-公积金利息",
-  "personalizeTitle": "个性化",
+  "personalizeTitle": "主题色设置",
   "personalizeCustomColor": "选择自定义颜色",
   "personalizeCustomTitle": "自定义",
   "personalizeHue": "色相 ({value}°)",

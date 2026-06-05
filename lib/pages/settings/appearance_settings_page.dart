@@ -184,7 +184,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
                       // 个性化
                       AppListTile(
                         leading: Icons.brush_outlined,
-                        title: l10n.minePersonalize,
+                        title: l10n.personalizeTitle,
                         onTap: () async {
                           await Navigator.of(context).push(
                             MaterialPageRoute(builder: (_) => const PersonalizePage()),

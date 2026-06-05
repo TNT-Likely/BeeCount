@@ -320,6 +320,13 @@ class _ConfigImportExportPageState
         logger.info('ConfigImport', '交易时间显示已刷新: $showTransactionTime');
       }
 
+      // 刷新头部皮肤
+      final headerSkin = prefs.getString('headerSkin');
+      if (headerSkin != null) {
+        ref.read(headerSkinProvider.notifier).state = headerSkin;
+        logger.info('ConfigImport', '头部皮肤已刷新: $headerSkin');
+      }
+
       logger.info('ConfigImport', 'Provider 状态刷新完成');
     } catch (e) {
       logger.error('ConfigImport', '刷新 Provider 状态失败: $e');

@@ -512,6 +512,7 @@ class AppSettingsConfig {
   // 外观设置
   final String? themeMode;
   final String? darkModePatternStyle;
+  final String? headerSkin; // 头部皮肤
   final bool? compactAmount;
   final bool? showTransactionTime;
   final bool? incomeExpenseColorScheme; // 收支颜色方案：true=红色收入/绿色支出，false=红色支出/绿色收入
@@ -538,6 +539,7 @@ class AppSettingsConfig {
     this.customFontScale,
     this.themeMode,
     this.darkModePatternStyle,
+    this.headerSkin,
     this.compactAmount,
     this.showTransactionTime,
     this.incomeExpenseColorScheme,
@@ -589,6 +591,9 @@ class AppSettingsConfig {
     if (darkModePatternStyle != null && darkModePatternStyle!.isNotEmpty) {
       map['dark_mode_pattern_style'] = darkModePatternStyle;
     }
+    if (headerSkin != null && headerSkin!.isNotEmpty) {
+      map['header_skin'] = headerSkin;
+    }
     if (compactAmount != null) {
       map['compact_amount'] = compactAmount;
     }
@@ -631,6 +636,7 @@ class AppSettingsConfig {
             : null,
         themeMode: map['theme_mode'] as String?,
         darkModePatternStyle: map['dark_mode_pattern_style'] as String?,
+        headerSkin: map['header_skin'] as String?,
         compactAmount: map['compact_amount'] as bool?,
         showTransactionTime: map['show_transaction_time'] as bool?,
         incomeExpenseColorScheme: map['income_expense_color_scheme'] as bool?,
@@ -1380,6 +1386,7 @@ class ConfigExportService {
     final customFontScale = prefs.getDouble('customFontScale');
     final themeMode = prefs.getString('themeMode');
     final darkModePatternStyle = prefs.getString('darkModePatternStyle');
+    final headerSkin = prefs.getString('headerSkin');
     final compactAmount = prefs.getBool('compactAmount');
     final showTransactionTime = prefs.getBool('showTransactionTime');
     final incomeExpenseColorScheme = prefs.getBool('incomeExpenseColorScheme');
@@ -1418,6 +1425,7 @@ class ConfigExportService {
         customFontScale != null ||
         themeMode != null ||
         darkModePatternStyle != null ||
+        headerSkin != null ||
         compactAmount != null ||
         showTransactionTime != null ||
         incomeExpenseColorScheme != null ||
@@ -1439,6 +1447,7 @@ class ConfigExportService {
         customFontScale: customFontScale,
         themeMode: themeMode,
         darkModePatternStyle: darkModePatternStyle,
+        headerSkin: headerSkin,
         compactAmount: compactAmount,
         showTransactionTime: showTransactionTime,
         incomeExpenseColorScheme: incomeExpenseColorScheme,
@@ -2342,6 +2351,9 @@ class ConfigExportService {
       }
       if (settings.darkModePatternStyle != null) {
         await prefs.setString('darkModePatternStyle', settings.darkModePatternStyle!);
+      }
+      if (settings.headerSkin != null) {
+        await prefs.setString('headerSkin', settings.headerSkin!);
       }
       if (settings.compactAmount != null) {
         await prefs.setBool('compactAmount', settings.compactAmount!);
