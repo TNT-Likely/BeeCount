@@ -72,7 +72,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // 主题与外观:明暗模式 / 主题色 / 头部皮肤 / 收支配色
+                // 纯样式:外观模式 / 主题色 / 皮肤 / 显示缩放
                 SectionCard(
                   margin: EdgeInsets.zero,
                   child: Column(
@@ -97,7 +97,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         },
                       ),
                       BeeTokens.cardDivider(context),
-                      // 头部皮肤
+                      // 皮肤
                       AppListTile(
                         leading: Icons.wallpaper_outlined,
                         title: l10n.headerSkinTitle,
@@ -109,20 +109,22 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         },
                       ),
                       BeeTokens.cardDivider(context),
-                      // 收支颜色方案
+                      // 显示缩放
                       AppListTile(
-                        leading: Icons.palette_outlined,
-                        title: l10n.appearanceColorScheme,
-                        subtitle: ref.watch(incomeExpenseColorSchemeProvider)
-                            ? l10n.appearanceColorSchemeOn
-                            : l10n.appearanceColorSchemeOff,
-                        onTap: () => _showColorSchemeDialog(context, ref, l10n),
+                        leading: Icons.zoom_out_map_outlined,
+                        title: l10n.mineDisplayScale,
+                        subtitle: l10n.mineDisplayScaleSubtitle,
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const FontSettingsPage()),
+                          );
+                        },
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
-                // 显示:金额格式 / 交易时间 / 显示缩放
+                // 功能:金额格式 / 交易时间 / 收支配色(影响数据呈现,非纯外观)
                 SectionCard(
                   margin: EdgeInsets.zero,
                   child: Column(
@@ -155,16 +157,14 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         },
                       ),
                       BeeTokens.cardDivider(context),
-                      // 显示缩放
+                      // 收支颜色方案
                       AppListTile(
-                        leading: Icons.zoom_out_map_outlined,
-                        title: l10n.mineDisplayScale,
-                        subtitle: l10n.mineDisplayScaleSubtitle,
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const FontSettingsPage()),
-                          );
-                        },
+                        leading: Icons.palette_outlined,
+                        title: l10n.appearanceColorScheme,
+                        subtitle: ref.watch(incomeExpenseColorSchemeProvider)
+                            ? l10n.appearanceColorSchemeOn
+                            : l10n.appearanceColorSchemeOff,
+                        onTap: () => _showColorSchemeDialog(context, ref, l10n),
                       ),
                     ],
                   ),
