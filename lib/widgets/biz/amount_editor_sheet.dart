@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:beecount/widgets/ui/wheel_date_picker.dart';
@@ -224,8 +225,9 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   // 运算缓存：支持简单 + / - 键入累计
   double _acc = 0;
   String? _op; // 最近一次运算符，null 表示尚未进入运算模式
-  // 运算符键模式:false=加减(默认),true=乘除。长按运算符键切换两组。
-  bool _multiplyMode = false;
+  // 两个运算符键各自独立的模式(false=加/减,true=乘/除),长按各自切换,互不影响。
+  bool _mulKey1 = false; // 键1:+ ↔ ×
+  bool _mulKey2 = false; // 键2:− ↔ ÷
 
   // 高频备注列表（包含使用次数）
   List<({String note, int count})> _frequentNotes = [];
@@ -355,20 +357,31 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     }
   }
 
-  /// 左到右运算(无运算符优先级,与原 +/- 累加器一致),除零做保护(返回被除数)。
+  /// 用 Decimal 精确运算(避免浮点漂移,如 0.1+0.2),左到右无运算符优先级,
+  /// 除零保护;结果四舍五入到最多两位小数(金额精度)。
   double _compute(double a, String op, double b) {
+    final da = Decimal.parse(a.toStringAsFixed(2));
+    final db = Decimal.parse(b.toStringAsFixed(2));
+    final Decimal r;
     switch (op) {
       case '+':
-        return a + b;
+        r = da + db;
+        break;
       case '-':
-        return a - b;
+        r = da - db;
+        break;
       case '×':
-        return a * b;
+        r = da * db;
+        break;
       case '÷':
-        return b == 0 ? a : a / b;
+        if (db == Decimal.zero) return a; // 除零保护:保持被除数不变
+        r = (da.toRational() / db.toRational())
+            .toDecimal(scaleOnInfinitePrecision: 12);
+        break;
       default:
         return b;
     }
+    return r.round(scale: 2).toDouble();
   }
 
   /// 运算符显示字形(减号用真减号 −,而非连字符 -)。
@@ -459,15 +472,16 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     // 运算符键:同时显示「加减」与「乘除」两组运算符;当前激活的一组用主色高亮、
     // 另一组用次级色弱化(主次区分,也作为"长按可切到乘除"的提示)。单击应用激活
     // 运算符,长按切换加减 ↔ 乘除。
-    Widget opKey(String addSubOp, String mulDivOp) {
-      final activeOp = _multiplyMode ? mulDivOp : addSubOp;
-      Widget glyph(String op, bool active) => Text(
-            _opGlyph(op),
-            style: text.titleMedium?.copyWith(
-              color: active ? primary : BeeTokens.textTertiary(context),
-              fontSize: active ? 20 : 13,
-              fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-            ),
+    Widget opKey(String addSubOp, String mulDivOp, bool isMul,
+        VoidCallback onToggle) {
+      final activeOp = isMul ? mulDivOp : addSubOp;
+      // 激活=主文字色(亮=黑/暗=白)且更大;未激活=次级灰色且更小 —— 大小+颜色双重主次。
+      TextStyle opStyle(bool active) => text.titleMedium!.copyWith(
+            color: active
+                ? BeeTokens.textPrimary(context)
+                : BeeTokens.textTertiary(context),
+            fontSize: active ? 22 : 15,
+            fontWeight: active ? FontWeight.w700 : FontWeight.w500,
           );
       return Padding(
         padding: const EdgeInsets.all(6),
@@ -478,20 +492,27 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
             borderRadius: BorderRadius.circular(12),
             onTap: () => applyOp(activeOp),
             onLongPress: () {
-              setState(() => _multiplyMode = !_multiplyMode);
+              onToggle();
               HapticFeedback.mediumImpact();
               SystemSound.play(SystemSoundType.click);
             },
             child: SizedBox(
               height: 60,
+              // 「加减/乘除」中间一个斜杠分隔;单击用激活运算符,长按只切换本键(两键独立)。
               child: Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    glyph(addSubOp, !_multiplyMode),
-                    const SizedBox(width: 6),
-                    glyph(mulDivOp, _multiplyMode),
-                  ],
+                child: Text.rich(
+                  TextSpan(children: [
+                    TextSpan(text: _opGlyph(addSubOp), style: opStyle(!isMul)),
+                    TextSpan(
+                      text: '/',
+                      style: text.titleMedium!.copyWith(
+                        color: BeeTokens.textTertiary(context),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    TextSpan(text: _opGlyph(mulDivOp), style: opStyle(isMul)),
+                  ]),
                 ),
               ),
             ),
@@ -848,7 +869,10 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                     SizedBox(
                         width: w,
                         child: keyBtn('6', onTap: () => _append('6'))),
-                    SizedBox(width: w, child: opKey('+', '×')),
+                    SizedBox(
+                        width: w,
+                        child: opKey('+', '×', _mulKey1,
+                            () => setState(() => _mulKey1 = !_mulKey1))),
                   ]),
                   const SizedBox(height: 2),
                   Row(children: [
@@ -861,7 +885,10 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                     SizedBox(
                         width: w,
                         child: keyBtn('3', onTap: () => _append('3'))),
-                    SizedBox(width: w, child: opKey('-', '÷')),
+                    SizedBox(
+                        width: w,
+                        child: opKey('-', '÷', _mulKey2,
+                            () => setState(() => _mulKey2 = !_mulKey2))),
                   ]),
                   const SizedBox(height: 2),
                   Row(children: [

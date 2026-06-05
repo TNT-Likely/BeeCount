@@ -289,6 +289,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.12"
+  decimal:
+    dependency: "direct main"
+    description:
+      name: decimal
+      sha256: fc706a5618b81e5b367b01dd62621def37abc096f2b46a9bd9068b64c1fa36d0
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.4"
   device_info_plus:
     dependency: transitive
     description:
@@ -1332,6 +1340,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  rational:
+    dependency: transitive
+    description:
+      name: rational
+      sha256: cb808fb6f1a839e6fc5f7d8cb3b0a10e1db48b3be102de73938c627f0b636336
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.3"
   realtime_client:
     dependency: transitive
     description:
