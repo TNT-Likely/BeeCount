@@ -194,22 +194,6 @@ final headerSkinInitProvider = FutureProvider<void>((ref) async {
   });
 });
 
-// 暗黑模式专用头部皮肤:'none' = 跟随上面的「头部皮肤」。仅在暗色模式 + 非 none 时生效,
-// 否则暗色也用「头部皮肤」。这样渐变皮肤可留给亮色、图案皮肤留给暗色,各取所长。
-final headerSkinDarkProvider = StateProvider<String>((ref) => 'none');
-
-final headerSkinDarkInitProvider = FutureProvider<void>((ref) async {
-  final prefs = await SharedPreferences.getInstance();
-  final saved = prefs.getString('headerSkinDark');
-  if (saved != null) {
-    ref.read(headerSkinDarkProvider.notifier).state = saved;
-  }
-  ref.listen<String>(headerSkinDarkProvider, (prev, next) async {
-    await prefs.setString('headerSkinDark', next);
-    _pushAppearanceToCloud(ref);
-  });
-});
-
 /// 把 header_decoration_style / compact_amount / show_transaction_time
 /// 的当前值打包推给 server 的 /profile/me。非 BeeCount Cloud 模式 provider
 /// 返回 null 直接跳过。fire-and-forget,失败只打 warning。
@@ -228,7 +212,6 @@ void _pushAppearanceToCloud(Ref ref) {
         'compact_amount': ref.read(compactAmountProvider),
         'show_transaction_time': ref.read(showTransactionTimeProvider),
         'header_skin': ref.read(headerSkinProvider),
-        'header_skin_dark': ref.read(headerSkinDarkProvider),
       };
       await cloudProvider.updateMyProfileAppearance(appearance: appearance);
       logger.info('theme_providers',

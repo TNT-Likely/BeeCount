@@ -6,61 +6,37 @@ import '../../providers/theme_providers.dart';
 import '../../styles/header_skins.dart';
 import '../../styles/tokens.dart';
 import '../../widgets/ui/ui.dart';
-import '../../widgets/ui/capsule_switcher.dart';
 
-/// 头部皮肤选择。顶部「亮色 / 暗黑」切换:亮色编辑「头部皮肤」,暗黑编辑「暗黑头部皮肤」;
-/// 预览也按所选模式渲染(暗黑用黑底,正好看图案皮肤真实效果)。
-///
-/// 渲染优先级(见 PrimaryHeader):亮色 → 头部皮肤;暗色 → 优先暗黑皮肤,未单独设置则
-/// 回退到头部皮肤。所以暗黑那栏选「跟随头部皮肤」即代表两个模式共用一款。
-class HeaderSkinPage extends ConsumerStatefulWidget {
+/// 头部皮肤选择。所有皮肤亮暗通用(亮=主题色底 + 白/渐变图形;暗=纯黑底 + 偏淡的
+/// 主题色图形),预览按当前系统模式渲染。
+class HeaderSkinPage extends ConsumerWidget {
   const HeaderSkinPage({super.key});
 
   @override
-  ConsumerState<HeaderSkinPage> createState() => _HeaderSkinPageState();
-}
-
-class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
-  bool? _editDark; // null = 默认跟随当前系统模式
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final primary = ref.watch(primaryColorProvider);
+    final current = ref.watch(headerSkinProvider);
     final modeIsDark = BeeTokens.isDark(context);
-    final editDark = _editDark ?? modeIsDark;
 
-    final current = editDark
-        ? ref.watch(headerSkinDarkProvider)
-        : ref.watch(headerSkinProvider);
+    // 预览底色与真实 header 基础色一致:亮=主题色,暗=纯黑。图案皮肤是透明叠加,
+    // 必须垫底色才看得见。
+    final base = modeIsDark ? Colors.black : primary;
 
-    // 预览底色:亮色=主题色,暗黑=纯黑(与真实 header 基础色一致)。图案皮肤是
-    // 透明叠加,必须垫底色才看得见(尤其暗黑图案,否则透明=看不到)。
-    final base = editDark ? Colors.black : primary;
-
-    // none:亮色 = 纯色;暗黑 = 跟随头部皮肤。其余按编辑模式只显对应取向的皮肤
-    //(亮色=渐变,暗黑=图案),都垫上底色渲染预览。
     final items = <({String id, String name, Widget preview})>[
       (
         id: kHeaderSkinNone,
-        name: editDark ? l10n.headerSkinFollow : l10n.headerSkinNone,
+        name: l10n.headerSkinNone,
         preview: ColoredBox(color: base),
       ),
-      for (final s in kHeaderSkins.where((s) => s.forDark == editDark))
+      for (final s in kHeaderSkins)
         (
           id: s.id,
           name: s.nameOf(l10n),
-          preview: ColoredBox(color: base, child: s.builder(primary, editDark)),
+          preview:
+              ColoredBox(color: base, child: s.builder(primary, modeIsDark)),
         ),
     ];
-
-    void select(String id) {
-      if (editDark) {
-        ref.read(headerSkinDarkProvider.notifier).state = id;
-      } else {
-        ref.read(headerSkinProvider.notifier).state = id;
-      }
-    }
 
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
@@ -70,17 +46,6 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
             title: l10n.headerSkinTitle,
             subtitle: l10n.headerSkinSubtitle,
             showBack: true,
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: CapsuleSwitcher<bool>(
-              selectedValue: editDark,
-              options: [
-                CapsuleOption(value: false, label: l10n.headerSkinModeLight),
-                CapsuleOption(value: true, label: l10n.headerSkinModeDark),
-              ],
-              onChanged: (v) => setState(() => _editDark = v),
-            ),
           ),
           Expanded(
             child: GridView.count(
@@ -96,7 +61,8 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
                     preview: it.preview,
                     selected: it.id == current,
                     primary: primary,
-                    onTap: () => select(it.id),
+                    onTap: () =>
+                        ref.read(headerSkinProvider.notifier).state = it.id,
                   ),
               ],
             ),

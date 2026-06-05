@@ -942,15 +942,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get headerSkinStripes => '斜纹';
 
   @override
-  String get headerSkinFollow => '跟随头部皮肤';
-
-  @override
-  String get headerSkinModeLight => '亮色';
-
-  @override
-  String get headerSkinModeDark => '暗黑';
-
-  @override
   String get mineAvatarTitle => '头像设置';
 
   @override
@@ -7556,15 +7547,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get headerSkinStripes => '斜紋';
-
-  @override
-  String get headerSkinFollow => '跟隨頁首皮膚';
-
-  @override
-  String get headerSkinModeLight => '亮色';
-
-  @override
-  String get headerSkinModeDark => '暗黑';
 
   @override
   String get mineAvatarTitle => '頭像設定';

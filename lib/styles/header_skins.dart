@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../l10n/app_localizations.dart';
@@ -8,7 +9,7 @@ import '../l10n/app_localizations.dart';
 /// 设计原则:**皮肤跟随用户主题色(theme-tinted)** —— 用 HSL 从 primary 派生出
 /// 渐变 / 图形,所以任何主题色都成立(「主题色 + 皮肤 = PrimaryHeader」)。
 /// - 亮色模式:整体保持在主题色的明度区间(偏亮),让 header 现有的深色文字仍可读。
-/// - 暗色模式:在纯黑底上低透明叠主题色调,保持白色文字可读。
+/// - 暗色模式:纯黑底(不叠主题色底),图形仍用主题色但更淡,保持白色文字可读。
 ///
 /// 两类皮肤:**代码皮肤**(渐变/几何/光斑,跟随主题色)与 **图片皮肤**
 /// (`_ImageSkin`,SVG 全幅铺满;themed=true 整幅染成主题色,否则用 SVG 自带配色)。
@@ -21,7 +22,6 @@ class HeaderSkin {
     required this.id,
     required this.nameOf,
     required this.builder,
-    this.forDark = false,
   });
 
   final String id;
@@ -31,10 +31,6 @@ class HeaderSkin {
 
   /// 返回铺满 header 的装饰层(放进 Positioned.fill)。
   final Widget Function(Color primary, bool isDark) builder;
-
-  /// true = 暗黑取向(图案皮肤,黑底上效果好);false = 亮色取向(渐变皮肤)。
-  /// 选择器按当前编辑模式只展示对应取向的皮肤(亮色不显示图案、暗黑不显示渐变)。
-  final bool forDark;
 }
 
 // ---- HSL 派生工具 ----
@@ -47,9 +43,6 @@ Color _hueShift(Color c, double deg) {
   final h = HSLColor.fromColor(c);
   return h.withHue((h.hue + deg) % 360).toColor();
 }
-
-/// 纯黑 → primary 插值(暗色模式底色用)
-Color _onBlack(Color primary, double t) => Color.lerp(Colors.black, primary, t)!;
 
 /// 已注册皮肤(不含「无」)。
 final List<HeaderSkin> kHeaderSkins = [
@@ -78,28 +71,27 @@ final List<HeaderSkin> kHeaderSkins = [
       id: 'clouds',
       nameOf: (l) => l.headerSkinClouds,
       builder: (p, d) => _CloudsSkin(p, d)),
-  // 图片皮肤(SVG,全幅铺满;创作规范见 assets/header_skins/README.md)
-  HeaderSkin(
-      id: 'example',
-      nameOf: (l) => l.headerSkinExample,
-      builder: (p, d) => _ImageSkin(
-          'assets/header_skins/example_skin.svg', p, d,
-          themed: true)),
+  // 几何图案皮肤(亮=白色图案叠主题色底 / 暗=偏淡主题色图案叠纯黑)
   HeaderSkin(
       id: 'honeycomb',
       nameOf: (l) => l.headerSkinHoneycomb,
-      builder: (p, d) => _PatternSkin(p, d, (c) => _HoneycombPainter(c)),
-      forDark: true),
+      builder: (p, d) => _PatternSkin(p, d, (c) => _HoneycombPainter(c))),
   HeaderSkin(
       id: 'starry',
       nameOf: (l) => l.headerSkinStarry,
-      builder: (p, d) => _PatternSkin(p, d, (c) => _StarryPainter(c)),
-      forDark: true),
+      builder: (p, d) => _PatternSkin(p, d, (c) => _StarryPainter(c))),
   HeaderSkin(
       id: 'stripes',
       nameOf: (l) => l.headerSkinStripes,
-      builder: (p, d) => _PatternSkin(p, d, (c) => _StripesPainter(c)),
-      forDark: true),
+      builder: (p, d) => _PatternSkin(p, d, (c) => _StripesPainter(c))),
+  // 图片皮肤(SVG 示例,仅 debug 可见;创作规范见 assets/header_skins/README.md)
+  if (kDebugMode)
+    HeaderSkin(
+        id: 'example',
+        nameOf: (l) => l.headerSkinExample,
+        builder: (p, d) => _ImageSkin(
+            'assets/header_skins/example_skin.svg', p, d,
+            themed: true)),
 ];
 
 HeaderSkin? headerSkinById(String id) {
@@ -119,7 +111,7 @@ class _AuroraSkin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = isDark
-        ? [Colors.black, _onBlack(primary, 0.28)]
+        ? [Colors.black, Colors.black]
         : [_lighten(primary, 0.20), primary, _lighten(_hueShift(primary, 30), 0.12)];
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -152,7 +144,7 @@ class _AuroraPainter extends CustomPainter {
     for (final (center, r) in blobs) {
       final paint = Paint()
         ..color = (isDark ? primary : Colors.white)
-            .withValues(alpha: isDark ? 0.12 : 0.22)
+            .withValues(alpha: isDark ? 0.13 : 0.22)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 26);
       canvas.drawCircle(center, r, paint);
     }
@@ -173,7 +165,7 @@ class _MountainsSkin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = isDark
-        ? [Colors.black, _onBlack(primary, 0.18)]
+        ? [Colors.black, Colors.black]
         : [_lighten(primary, 0.24), _lighten(primary, 0.06)];
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -202,14 +194,14 @@ class _MountainsPainter extends CustomPainter {
 
     // 日 / 月
     final orb = Paint()
-      ..color = (isDark ? _onBlack(primary, 0.6) : Colors.white)
-          .withValues(alpha: isDark ? 0.30 : 0.5);
+      ..color = (isDark ? primary : Colors.white)
+          .withValues(alpha: isDark ? 0.22 : 0.5);
     canvas.drawCircle(Offset(w * 0.78, h * 0.30), h * 0.16, orb);
 
     // 远山
     final back = Paint()
-      ..color = (isDark ? _onBlack(primary, 0.30) : _lighten(primary, -0.02))
-          .withValues(alpha: isDark ? 0.55 : 0.45);
+      ..color = (isDark ? primary : _lighten(primary, -0.02))
+          .withValues(alpha: isDark ? 0.15 : 0.45);
     final p1 = Path()
       ..moveTo(0, h)
       ..lineTo(0, h * 0.72)
@@ -223,8 +215,8 @@ class _MountainsPainter extends CustomPainter {
 
     // 近山
     final front = Paint()
-      ..color = (isDark ? _onBlack(primary, 0.48) : _lighten(primary, -0.10))
-          .withValues(alpha: isDark ? 0.85 : 0.62);
+      ..color = (isDark ? primary : _lighten(primary, -0.10))
+          .withValues(alpha: isDark ? 0.26 : 0.62);
     final p2 = Path()
       ..moveTo(0, h)
       ..lineTo(0, h * 0.88)
@@ -253,7 +245,7 @@ class _BokehSkin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = isDark
-        ? [Colors.black, _onBlack(primary, 0.24)]
+        ? [Colors.black, Colors.black]
         : [
             _lighten(_hueShift(primary, -25), 0.12),
             primary,
@@ -292,7 +284,8 @@ class _BokehPainter extends CustomPainter {
       final r = size.width * (0.04 + rnd.nextDouble() * 0.14);
       final color = palette[rnd.nextInt(palette.length)];
       final paint = Paint()
-        ..color = color.withValues(alpha: 0.08 + rnd.nextDouble() * 0.14);
+        ..color = color.withValues(
+            alpha: (isDark ? 0.06 : 0.08) + rnd.nextDouble() * 0.12);
       if (i % 3 == 0) {
         paint.maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
       }
@@ -315,7 +308,7 @@ class _WavesSkin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = isDark
-        ? [Colors.black, _onBlack(primary, 0.16)]
+        ? [Colors.black, Colors.black]
         : [_lighten(primary, 0.18), primary];
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -346,7 +339,7 @@ class _WavesPainter extends CustomPainter {
       final amp = h * 0.07;
       final phase = i * 1.1;
       final color = (isDark ? primary : Colors.white)
-          .withValues(alpha: isDark ? 0.08 + i * 0.03 : 0.10 + i * 0.05);
+          .withValues(alpha: isDark ? 0.07 + i * 0.03 : 0.10 + i * 0.05);
       final path = Path()..moveTo(0, baseY);
       for (double x = 0; x <= w; x += w / 48) {
         path.lineTo(x, baseY + amp * math.sin((x / w) * 2 * math.pi * 1.4 + phase));
@@ -535,7 +528,7 @@ class _SunsetSkin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = isDark
-        ? [Colors.black, _onBlack(primary, 0.22)]
+        ? [Colors.black, Colors.black]
         : [_lighten(_hueShift(primary, 18), 0.22), _lighten(primary, 0.04)];
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -566,13 +559,13 @@ class _SunsetPainter extends CustomPainter {
       Offset(w * 0.5, h * 0.66),
       h * 0.3,
       Paint()
-        ..color = (isDark ? _onBlack(primary, 0.55) : Colors.white)
-            .withValues(alpha: isDark ? 0.32 : 0.6),
+        ..color = (isDark ? primary : Colors.white)
+            .withValues(alpha: isDark ? 0.22 : 0.6),
     );
     // 远山
     final back = Paint()
-      ..color = (isDark ? _onBlack(primary, 0.32) : _lighten(primary, -0.02))
-          .withValues(alpha: isDark ? 0.55 : 0.45);
+      ..color = (isDark ? primary : _lighten(primary, -0.02))
+          .withValues(alpha: isDark ? 0.15 : 0.45);
     final p1 = Path()
       ..moveTo(0, h)
       ..lineTo(0, h * 0.82);
@@ -584,8 +577,8 @@ class _SunsetPainter extends CustomPainter {
     canvas.drawPath(p1, back);
     // 近山
     final front = Paint()
-      ..color = (isDark ? _onBlack(primary, 0.48) : _lighten(primary, -0.1))
-          .withValues(alpha: isDark ? 0.85 : 0.66);
+      ..color = (isDark ? primary : _lighten(primary, -0.1))
+          .withValues(alpha: isDark ? 0.26 : 0.66);
     final p2 = Path()
       ..moveTo(0, h)
       ..lineTo(0, h * 0.9);
@@ -610,7 +603,7 @@ class _CloudsSkin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = isDark
-        ? [Colors.black, _onBlack(primary, 0.16)]
+        ? [Colors.black, Colors.black]
         : [_lighten(primary, 0.22), _lighten(primary, 0.08)];
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -653,7 +646,7 @@ class _CloudsPainter extends CustomPainter {
     final w = size.width, h = size.height;
     final paint = Paint()
       ..color = (isDark ? primary : Colors.white)
-          .withValues(alpha: isDark ? 0.12 : 0.6);
+          .withValues(alpha: isDark ? 0.13 : 0.6);
     _cloud(canvas, Offset(w * 0.22, h * 0.34), h * 0.12, paint);
     _cloud(canvas, Offset(w * 0.72, h * 0.22), h * 0.16, paint);
     _cloud(canvas, Offset(w * 0.85, h * 0.66), h * 0.1, paint);
@@ -667,9 +660,9 @@ class _CloudsPainter extends CustomPainter {
 // ====== 图片皮肤(SVG 素材,全幅铺满)======
 // 整幅 BoxFit.cover 铺满 header,与代码皮肤尺寸一致;底色仅作 SVG 透明区兜底
 // (亮=主题色浅染 / 暗=纯黑)。
-// themed=true:用 colorFilter(srcIn)把整幅 SVG 重新着色成主题色,明暗层次靠
-//   SVG 自身的 fill-opacity 表现,适合单色调插画;themed=false(默认):按 SVG
-//   自带的内联 fill 渲染(固定配色)。
+// themed=true:用 colorFilter(srcIn)把整幅 SVG 重新着色成主题色,明暗层次靠 SVG
+//   自身的 fill-opacity 表现(暗黑底为纯黑,主题色自然偏淡);themed=false(默认):
+//   按 SVG 自带的内联 fill 渲染(固定配色)。
 class _ImageSkin extends StatelessWidget {
   const _ImageSkin(this.asset, this.primary, this.isDark, {this.themed = false});
   final String asset;
@@ -679,15 +672,13 @@ class _ImageSkin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 暗色稍提亮让主题色在黑底上更跳;亮色用 primary(比浅染底色深,可读)。
-    final tint = isDark ? _lighten(primary, 0.10) : primary;
     return Container(
       color: isDark ? Colors.black : _lighten(primary, 0.16),
       child: SvgPicture.asset(
         asset,
         fit: BoxFit.cover,
         alignment: Alignment.center,
-        colorFilter: themed ? ColorFilter.mode(tint, BlendMode.srcIn) : null,
+        colorFilter: themed ? ColorFilter.mode(primary, BlendMode.srcIn) : null,
       ),
     );
   }
