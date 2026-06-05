@@ -107,6 +107,7 @@ flutter:
     - assets/logo2.png
     - assets/icons/
     - assets/images/
+    - assets/header_skins/
   # 字体已移动到可选依赖，使用系统字体以减少应用体积
   # fonts:
   #   - family: Inter
