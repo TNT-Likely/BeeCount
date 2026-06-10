@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 
 import '../../providers.dart';
 import '../../services/billing/post_processor.dart';
+import '../../services/currency/rate_math.dart';
 import '../../services/marketing/product_promos.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/amount_text.dart';
@@ -18,6 +19,7 @@ import '../../utils/ui_scale_extensions.dart';
 import '../../utils/account_type_utils.dart';
 import '../../utils/currencies.dart';
 import '../../widgets/charts/asset_composition_chart.dart';
+import '../currency/exchange_rate_page.dart';
 import 'account_edit_page.dart';
 import 'account_detail_page.dart';
 
@@ -32,6 +34,15 @@ class AccountsPage extends ConsumerStatefulWidget {
 class _AccountsPageState extends ConsumerState<AccountsPage> {
   /// 拖拽后临时保持本地排序，防止 stream rebuild 闪烁
   Map<String, List<db.Account>>? _reorderingGroups;
+
+  @override
+  void initState() {
+    super.initState();
+    // 进页静默刷新汇率:内部自带多币种总闸(D6)+ 24h 节流,单币种零请求。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      refreshExchangeRatesFromUi(ref);
+    });
+  }
 
   Map<String, List<db.Account>> _groupAccounts(List<db.Account> accounts) {
     final Map<String, List<db.Account>> grouped = {};
@@ -297,6 +308,13 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     final l10n = AppLocalizations.of(context);
     final useCompact = ref.watch(compactAmountProvider);
 
+    // 多币种态总闸开启且折算结果就绪 → 走折算视图;否则原 per-currency 渲染原样回退。
+    final multiCurrencyActive = ref.watch(multiCurrencyActiveProvider);
+    final converted = ref.watch(convertedNetWorthProvider).valueOrNull;
+    if (multiCurrencyActive && converted != null) {
+      return _buildConvertedNetWorthContent(context, ref, converted, useCompact);
+    }
+
     final isSingleCurrency = nwByCurrency.length <= 1;
     final singleNw = nwByCurrency.isEmpty
         ? (totalAssets: 0.0, totalLiabilities: 0.0, netWorth: 0.0)
@@ -441,6 +459,173 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
         // 总资产/总负债数字跟下面的 Divider 之间留出呼吸空间,不然视觉上紧贴着
         // 横线很挤。
         SizedBox(height: 20.0.scaled(context, ref)),
+      ],
+    );
+  }
+
+  /// 折算视图：净资产折算总额 + 每币种折算行 + 缺失标示 + 脚注入口 + 折算总资产/总负债。
+  /// 仅在多币种总闸开启且 [convertedNetWorthProvider] 就绪时渲染（见 _buildNetWorthContent）。
+  Widget _buildConvertedNetWorthContent(
+    BuildContext context,
+    WidgetRef ref,
+    ConvertedNetWorth converted,
+    bool useCompact,
+  ) {
+    final l10n = AppLocalizations.of(context);
+    final base = ref.watch(baseCurrencyProvider).toUpperCase();
+    final nwByCurrency = ref.watch(netWorthBreakdownByCurrencyProvider).valueOrNull ?? const {};
+    final hasMissing = converted.missingCurrencies.isNotEmpty;
+    final baseSymbol = getCurrencySymbol(base);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // 净资产标签
+        Text(
+          l10n.accountTotalBalance,
+          style: TextStyle(
+            fontSize: 12,
+            color: BeeTokens.textTertiary(context),
+          ),
+        ),
+        SizedBox(height: 4.0.scaled(context, ref)),
+        // 折算总额：≈(灰) + 折算净资产(主币种符号, 收支色)
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              '≈ ',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: BeeTokens.textTertiary(context),
+              ),
+            ),
+            Flexible(
+              child: AmountText(
+                value: converted.netWorth,
+                signed: false,
+                showCurrency: true,
+                currencyCode: base,
+                useCompactFormat: useCompact,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: converted.netWorth >= 0
+                      ? BeeTokens.incomeColor(context, ref)
+                      : BeeTokens.expenseColor(context, ref),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 8.0.scaled(context, ref)),
+        // 每币种行：原币净值 + 折算后/未折算标示
+        ...nwByCurrency.entries.toList().asMap().entries.map((mapEntry) {
+          final isFirst = mapEntry.key == 0;
+          final code = mapEntry.value.key.toUpperCase();
+          final nw = mapEntry.value.value;
+          final isBase = code == base;
+          final convertedValue = converted.netByCurrency[code];
+          final isMissing = converted.missingCurrencies.contains(code);
+          return Padding(
+            padding: EdgeInsets.only(top: isFirst ? 0 : 4.0.scaled(context, ref)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                AmountText(
+                  value: nw.netWorth,
+                  signed: false,
+                  showCurrency: true,
+                  currencyCode: code,
+                  useCompactFormat: useCompact,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: BeeTokens.textSecondary(context),
+                  ),
+                ),
+                // base 自身无后缀;缺失 → 橙色 badge;可折算 → 灰小字 ≈ 折算值
+                if (!isBase) ...[
+                  SizedBox(width: 6.0.scaled(context, ref)),
+                  if (isMissing)
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.0.scaled(context, ref),
+                        vertical: 1.0.scaled(context, ref),
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.orange, width: 1),
+                        borderRadius: BorderRadius.circular(4.0.scaled(context, ref)),
+                      ),
+                      child: Text(
+                        l10n.unconvertedBadge,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    )
+                  else if (convertedValue != null)
+                    _ApproxConvertedText(
+                      text: '≈ $baseSymbol${convertedValue.toStringAsFixed(2)}',
+                    ),
+                ],
+              ],
+            ),
+          );
+        }),
+        SizedBox(height: 12.0.scaled(context, ref)),
+        // 折算总资产 | 折算总负债(单行折算版)
+        Row(
+          children: [
+            Expanded(
+              child: _ConvertedStatCell(
+                label: l10n.totalAssets,
+                value: converted.totalAssets,
+                currencyCode: base,
+                valueColor: BeeTokens.incomeColor(context, ref),
+                useCompact: useCompact,
+              ),
+            ),
+            Container(
+              width: 1,
+              height: 28.0.scaled(context, ref),
+              color: BeeTokens.divider(context),
+            ),
+            Expanded(
+              child: _ConvertedStatCell(
+                label: l10n.totalLiabilities,
+                value: converted.totalLiabilities.abs(),
+                currencyCode: base,
+                valueColor: BeeTokens.expenseColor(context, ref),
+                useCompact: useCompact,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12.0.scaled(context, ref)),
+        // 脚注:无缺失 → 折算日期(tertiary);有缺失 → 缺失提示(橙)。点击进汇率页。
+        InkWell(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ExchangeRatePage()),
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 4.0.scaled(context, ref)),
+            child: Text(
+              hasMissing
+                  ? l10n.convertedPartialWarning(converted.missingCurrencies.join('/'))
+                  : l10n.convertedFootnote(converted.oldestRateDate ?? '-'),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11,
+                color: hasMissing ? Colors.orange : BeeTokens.textTertiary(context),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 8.0.scaled(context, ref)),
       ],
     );
   }
@@ -676,6 +861,72 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                       },
                     ),
                   ),
+                  // 多币种折算开关 + 汇率管理入口:仅在使用中币种 ≥2 时出现。
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final used = ref.watch(usedCurrenciesProvider).valueOrNull;
+                      if (used == null || used.length < 2) {
+                        return const SizedBox.shrink();
+                      }
+                      final convertEnabled =
+                          ref.watch(assetConversionEnabledProvider);
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Divider(
+                            height: 1,
+                            indent: 16,
+                            endIndent: 16,
+                            color: BeeTokens.divider(context),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: SwitchListTile(
+                              dense: true,
+                              visualDensity: VisualDensity.compact,
+                              title: Text(
+                                l10n.assetConversionToggle,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: BeeTokens.textPrimary(context),
+                                ),
+                              ),
+                              value: convertEnabled,
+                              activeColor: primaryColor,
+                              onChanged: (value) {
+                                ref
+                                    .read(assetConversionEnabledProvider.notifier)
+                                    .state = value;
+                              },
+                            ),
+                          ),
+                          ListTile(
+                            dense: true,
+                            visualDensity: VisualDensity.compact,
+                            title: Text(
+                              l10n.exchangeRatePageTitle,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: BeeTokens.textPrimary(context),
+                              ),
+                            ),
+                            trailing: Icon(
+                              Icons.chevron_right,
+                              size: 18.0.scaled(context, ref),
+                              color: BeeTokens.iconTertiary(context),
+                            ),
+                            onTap: () {
+                              Navigator.pop(sheetContext);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) => const ExchangeRatePage()),
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                   if (enabled && accounts.isNotEmpty) ...[
                     Divider(
                       height: 1,
@@ -782,6 +1033,86 @@ class _StatCell extends ConsumerWidget {
             fontWeight: FontWeight.w600,
             color: valueColor ?? BeeTokens.textPrimary(context),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 折算视图里「≈ 符号+数值」的灰色小字（每币种折算行尾随）。
+/// 这是派生金额文本，需跟 AmountText 一样响应隐藏金额开关。
+class _ApproxConvertedText extends ConsumerWidget {
+  final String text;
+
+  const _ApproxConvertedText({required this.text});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hide = ref.watch(hideAmountsProvider);
+    return Text(
+      hide ? '≈ ****' : text,
+      style: TextStyle(
+        fontSize: 12,
+        color: BeeTokens.textTertiary(context),
+      ),
+    );
+  }
+}
+
+/// 折算视图的总资产/总负债单元格：≈(灰) 前缀 + 折算后金额(主币种)。
+class _ConvertedStatCell extends ConsumerWidget {
+  final String label;
+  final double value;
+  final String currencyCode;
+  final Color valueColor;
+  final bool useCompact;
+
+  const _ConvertedStatCell({
+    required this.label,
+    required this.value,
+    required this.currencyCode,
+    required this.valueColor,
+    required this.useCompact,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: BeeTokens.textTertiary(context),
+          ),
+        ),
+        SizedBox(height: 2.0.scaled(context, ref)),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '≈ ',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: BeeTokens.textTertiary(context),
+              ),
+            ),
+            Flexible(
+              child: AmountText(
+                value: value,
+                signed: false,
+                showCurrency: true,
+                currencyCode: currencyCode,
+                useCompactFormat: useCompact,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: valueColor,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
