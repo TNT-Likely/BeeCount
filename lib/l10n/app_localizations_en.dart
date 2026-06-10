@@ -6627,4 +6627,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String syncProgressCount(int applied, int total) {
     return '$applied / $total';
   }
+
+  @override
+  String get exchangeRatePageTitle => 'Exchange Rates';
+
+  @override
+  String get baseCurrencyLabel => 'Primary Currency';
+
+  @override
+  String get rateSourceAuto => 'Auto';
+
+  @override
+  String get rateSourceManual => 'Manual';
+
+  @override
+  String rateUpdatedAt(String date) {
+    return 'Updated $date';
+  }
+
+  @override
+  String get rateNotFetched => 'Not fetched';
+
+  @override
+  String get rateTapToSet => 'Tap to set manually';
+
+  @override
+  String get rateEditTitle => 'Edit Rate';
+
+  @override
+  String rateInverseHint(String base, String rate, String quote) {
+    return 'Inverse: 1 $base ≈ $rate $quote';
+  }
+
+  @override
+  String get rateResetToAuto => 'Reset to auto';
+
+  @override
+  String get rateRefreshSuccess => 'Rates updated';
+
+  @override
+  String get rateRefreshFailed => 'Fetch failed, you can set rates manually';
+
+  @override
+  String get ratesEmptyHint => 'Rates appear here once your accounts use different currencies';
+
+  @override
+  String get rateDisclaimer => 'Source: open exchange-rate data, updated daily. Conversion is for reference only and may differ from bank rates.';
+
+  @override
+  String convertedNetWorth(String currency) {
+    return 'Net worth (in $currency)';
+  }
+
+  @override
+  String convertedFootnote(String date) {
+    return 'Converted at $date rates, tap to manage';
+  }
+
+  @override
+  String convertedPartialWarning(String currencies) {
+    return '$currencies not converted, tap to set rates';
+  }
+
+  @override
+  String get unconvertedBadge => 'Not converted';
+
+  @override
+  String get assetConversionToggle => 'Convert to primary currency';
+
+  @override
+  String rateManualApplied(int count) {
+    return 'Applied $count manual rates';
+  }
 }

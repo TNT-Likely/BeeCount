@@ -12539,6 +12539,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{applied} / {total}'**
   String syncProgressCount(int applied, int total);
+
+  /// No description provided for @exchangeRatePageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange Rates'**
+  String get exchangeRatePageTitle;
+
+  /// No description provided for @baseCurrencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary Currency'**
+  String get baseCurrencyLabel;
+
+  /// No description provided for @rateSourceAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get rateSourceAuto;
+
+  /// No description provided for @rateSourceManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get rateSourceManual;
+
+  /// No description provided for @rateUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {date}'**
+  String rateUpdatedAt(String date);
+
+  /// No description provided for @rateNotFetched.
+  ///
+  /// In en, this message translates to:
+  /// **'Not fetched'**
+  String get rateNotFetched;
+
+  /// No description provided for @rateTapToSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to set manually'**
+  String get rateTapToSet;
+
+  /// No description provided for @rateEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Rate'**
+  String get rateEditTitle;
+
+  /// No description provided for @rateInverseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Inverse: 1 {base} ≈ {rate} {quote}'**
+  String rateInverseHint(String base, String rate, String quote);
+
+  /// No description provided for @rateResetToAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to auto'**
+  String get rateResetToAuto;
+
+  /// No description provided for @rateRefreshSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Rates updated'**
+  String get rateRefreshSuccess;
+
+  /// No description provided for @rateRefreshFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch failed, you can set rates manually'**
+  String get rateRefreshFailed;
+
+  /// No description provided for @ratesEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Rates appear here once your accounts use different currencies'**
+  String get ratesEmptyHint;
+
+  /// No description provided for @rateDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Source: open exchange-rate data, updated daily. Conversion is for reference only and may differ from bank rates.'**
+  String get rateDisclaimer;
+
+  /// No description provided for @convertedNetWorth.
+  ///
+  /// In en, this message translates to:
+  /// **'Net worth (in {currency})'**
+  String convertedNetWorth(String currency);
+
+  /// No description provided for @convertedFootnote.
+  ///
+  /// In en, this message translates to:
+  /// **'Converted at {date} rates, tap to manage'**
+  String convertedFootnote(String date);
+
+  /// No description provided for @convertedPartialWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'{currencies} not converted, tap to set rates'**
+  String convertedPartialWarning(String currencies);
+
+  /// No description provided for @unconvertedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Not converted'**
+  String get unconvertedBadge;
+
+  /// No description provided for @assetConversionToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert to primary currency'**
+  String get assetConversionToggle;
+
+  /// No description provided for @rateManualApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied {count} manual rates'**
+  String rateManualApplied(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -6627,6 +6627,78 @@ class AppLocalizationsZh extends AppLocalizations {
   String syncProgressCount(int applied, int total) {
     return '$applied / $total 条';
   }
+
+  @override
+  String get exchangeRatePageTitle => '汇率管理';
+
+  @override
+  String get baseCurrencyLabel => '主币种';
+
+  @override
+  String get rateSourceAuto => '自动';
+
+  @override
+  String get rateSourceManual => '手动';
+
+  @override
+  String rateUpdatedAt(String date) {
+    return '$date 更新';
+  }
+
+  @override
+  String get rateNotFetched => '未获取';
+
+  @override
+  String get rateTapToSet => '点击手动设置';
+
+  @override
+  String get rateEditTitle => '编辑汇率';
+
+  @override
+  String rateInverseHint(String base, String rate, String quote) {
+    return '反向参考:1 $base ≈ $rate $quote';
+  }
+
+  @override
+  String get rateResetToAuto => '恢复自动';
+
+  @override
+  String get rateRefreshSuccess => '汇率已更新';
+
+  @override
+  String get rateRefreshFailed => '获取失败,可手动设置汇率';
+
+  @override
+  String get ratesEmptyHint => '给账户设置不同币种后,这里会出现可管理的汇率';
+
+  @override
+  String get rateDisclaimer => '数据来源:开源汇率数据,每日更新;折算仅供参考,可能与银行实际牌价有差异。';
+
+  @override
+  String convertedNetWorth(String currency) {
+    return '净资产(折$currency)';
+  }
+
+  @override
+  String convertedFootnote(String date) {
+    return '按 $date 汇率折算,点击管理汇率';
+  }
+
+  @override
+  String convertedPartialWarning(String currencies) {
+    return '$currencies 未折算,点击设置汇率';
+  }
+
+  @override
+  String get unconvertedBadge => '未折算';
+
+  @override
+  String get assetConversionToggle => '按主币种折算';
+
+  @override
+  String rateManualApplied(int count) {
+    return '已应用 $count 条手动汇率';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -13223,5 +13295,77 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String syncProgressCount(int applied, int total) {
     return '$applied / $total 條';
+  }
+
+  @override
+  String get exchangeRatePageTitle => '匯率管理';
+
+  @override
+  String get baseCurrencyLabel => '主幣種';
+
+  @override
+  String get rateSourceAuto => '自動';
+
+  @override
+  String get rateSourceManual => '手動';
+
+  @override
+  String rateUpdatedAt(String date) {
+    return '$date 更新';
+  }
+
+  @override
+  String get rateNotFetched => '未取得';
+
+  @override
+  String get rateTapToSet => '點擊手動設定';
+
+  @override
+  String get rateEditTitle => '編輯匯率';
+
+  @override
+  String rateInverseHint(String base, String rate, String quote) {
+    return '反向參考:1 $base ≈ $rate $quote';
+  }
+
+  @override
+  String get rateResetToAuto => '恢復自動';
+
+  @override
+  String get rateRefreshSuccess => '匯率已更新';
+
+  @override
+  String get rateRefreshFailed => '取得失敗,可手動設定匯率';
+
+  @override
+  String get ratesEmptyHint => '給帳戶設定不同幣種後,這裡會出現可管理的匯率';
+
+  @override
+  String get rateDisclaimer => '資料來源:開源匯率資料,每日更新;折算僅供參考,可能與銀行實際牌價有差異。';
+
+  @override
+  String convertedNetWorth(String currency) {
+    return '淨資產(折$currency)';
+  }
+
+  @override
+  String convertedFootnote(String date) {
+    return '按 $date 匯率折算,點擊管理匯率';
+  }
+
+  @override
+  String convertedPartialWarning(String currencies) {
+    return '$currencies 未折算,點擊設定匯率';
+  }
+
+  @override
+  String get unconvertedBadge => '未折算';
+
+  @override
+  String get assetConversionToggle => '按主幣種折算';
+
+  @override
+  String rateManualApplied(int count) {
+    return '已套用 $count 條手動匯率';
   }
 }

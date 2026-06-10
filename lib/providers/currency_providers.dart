@@ -123,11 +123,32 @@ final convertedNetWorthProvider =
 
 /// 拉取协调:server 源(云模式)→ 公网链;倒数后只落「使用中币种」;成功 bump tick。
 /// force=false 时 24h 节流 + 多币种总闸(D6/D7)。失败返回 false(资产页静默、汇率页 Toast)。
-Future<bool> refreshExchangeRates(Ref ref, {bool force = false}) async {
+Future<bool> refreshExchangeRates(Ref ref, {bool force = false}) =>
+    _refreshExchangeRatesImpl(
+      read: ref.read,
+      readFuture: <T>(p) => ref.read(p.future),
+      force: force,
+    );
+
+/// UI 层薄封装:`WidgetRef` 与 `Ref` 的 read 能力等价,直接转发到同一实现。
+/// ConsumerState 里只有 `WidgetRef`,无法 cast 成 `Ref`,故单开此入口。
+Future<bool> refreshExchangeRatesFromUi(WidgetRef ref, {bool force = false}) =>
+    _refreshExchangeRatesImpl(
+      read: ref.read,
+      readFuture: <T>(p) => ref.read(p.future),
+      force: force,
+    );
+
+/// 真正的实现:只依赖 read / readFuture 两个能力,与 Ref / WidgetRef 解耦。
+Future<bool> _refreshExchangeRatesImpl({
+  required T Function<T>(ProviderListenable<T>) read,
+  required Future<T> Function<T>(FutureProvider<T>) readFuture,
+  required bool force,
+}) async {
   try {
-    if (!force && !ref.read(multiCurrencyActiveProvider)) return false;
-    final repo = ref.read(repositoryProvider);
-    final base = ref.read(baseCurrencyProvider).toUpperCase();
+    if (!force && !read(multiCurrencyActiveProvider)) return false;
+    final repo = read(repositoryProvider);
+    final base = read(baseCurrencyProvider).toUpperCase();
     if (!force) {
       final last = await repo.getLastFetchedAt(base);
       if (last != null &&
@@ -135,7 +156,7 @@ Future<bool> refreshExchangeRates(Ref ref, {bool force = false}) async {
         return true; // 未过期,无需拉取
       }
     }
-    final used = (await ref.read(usedCurrenciesProvider.future)).toSet()
+    final used = (await readFuture(usedCurrenciesProvider)).toSet()
       ..remove(base);
     if (used.isEmpty) return false;
 
@@ -143,8 +164,7 @@ Future<bool> refreshExchangeRates(Ref ref, {bool force = false}) async {
     Map<String, String> baseToQuote;
     Map<String, dynamic>? serverBody;
     try {
-      final cloudProvider =
-          await ref.read(beecountCloudProviderInstance.future);
+      final cloudProvider = await readFuture(beecountCloudProviderInstance);
       serverBody = cloudProvider == null
           ? null
           : await cloudProvider.fetchExchangeRates(base: base);
@@ -163,7 +183,7 @@ Future<bool> refreshExchangeRates(Ref ref, {bool force = false}) async {
           e.key.toString().toUpperCase(): e.value.toString(),
       };
     } else {
-      final result = await ref.read(exchangeRateServiceProvider).fetch(base);
+      final result = await read(exchangeRateServiceProvider).fetch(base);
       rateDate = result.rateDate;
       source = result.source;
       baseToQuote = result.ratesBaseToQuote;
@@ -183,7 +203,7 @@ Future<bool> refreshExchangeRates(Ref ref, {bool force = false}) async {
       source: source,
       fetchedAt: DateTime.now().toUtc(),
     );
-    ref.read(rateRefreshTickProvider.notifier).state++;
+    read(rateRefreshTickProvider.notifier).state++;
     return true;
   } catch (e, st) {
     logger.warning('currency_providers', '汇率刷新失败: $e', st);
