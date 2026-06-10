@@ -36,12 +36,19 @@ final repositoryProvider = Provider<BaseRepository>((ref) {
 // 记住当前账本：启动时加载，切换时持久化
 final currentLedgerIdProvider = StateProvider<int>((ref) => 1);
 
-// 获取当前账本的详细信息
-final currentLedgerProvider = FutureProvider<Ledger?>((ref) async {
+// 获取当前账本的详细信息。
+// StreamProvider:sync pull / 本地编辑改了 ledger 行(如 monthStartDay)会自动
+// 重建 watcher,B 端改设置 A 端自动刷新,无需手动 invalidate。
+final currentLedgerProvider = StreamProvider<Ledger?>((ref) {
   final ledgerId = ref.watch(currentLedgerIdProvider);
   final repo = ref.watch(repositoryProvider);
+  return repo.watchLedger(ledgerId);
+});
 
-  return await repo.getLedgerById(ledgerId);
+/// 当前账本的每月起始日(1-28);未加载完成时按 1(自然月)兜底。
+final currentMonthStartDayProvider = Provider<int>((ref) {
+  final ledger = ref.watch(currentLedgerProvider).valueOrNull;
+  return (ledger?.monthStartDay ?? 1).clamp(1, 28);
 });
 
 // 获取指定账本的详细信息

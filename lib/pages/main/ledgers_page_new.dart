@@ -677,10 +677,8 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
     await PostProcessor.sync(ref, ledgerId: ledger.id);
 
     ref.read(ledgerListRefreshProvider.notifier).state++;
-    // 同时 invalidate currentLedgerProvider —— 它是 FutureProvider,只看
-    // currentLedgerIdProvider 变不变,名字改了但 id 没变 → 不会自动重跑,
-    // home 页 header 会继续显示旧名字。手动 invalidate 让 FutureProvider
-    // 下次读取时重取 Ledger row。
+    // currentLedgerProvider 已是 StreamProvider(Drift watch 自动推送),
+    // 此 invalidate 仅作防御性重订阅(如流曾进入 error 态),正常路径冗余无害。
     ref.invalidate(currentLedgerProvider);
   }
 
@@ -782,9 +780,8 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
 
       if (!mounted) return;
 
-      // currentLedgerProvider 是 FutureProvider,Drift 删行不会自动重算;
-      // 即便 ledgerId 没变(没其他账本可切的场景)也得显式 invalidate,否则
-      // 它一直 cache 旧 Ledger 对象,首页胶囊还显示已被删的账本名。
+      // currentLedgerProvider 已是 StreamProvider(Drift watch 自动推送),
+      // 此 invalidate 仅作防御性重订阅(如流曾进入 error 态),正常路径冗余无害。
       ref.invalidate(currentLedgerProvider);
       ref.read(ledgerListRefreshProvider.notifier).state++;
       ref.read(statsRefreshProvider.notifier).state++;

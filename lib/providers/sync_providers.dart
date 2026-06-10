@@ -225,9 +225,8 @@ final syncServiceProvider = Provider<SyncService>((ref) {
           // 帧的同一次 rebuild,不会跨帧 cascade。
           ref.read(syncStatusRefreshProvider.notifier).state++;
           ref.read(ledgerListRefreshProvider.notifier).state++;
-          // currentLedgerProvider 是 FutureProvider,Drift 写入不会自动重算,
-          // 远端改名 / 改币种落库后必须显式 invalidate,否则首页 header
-          // 等 watch 它的 widget 永远显示旧账本名。
+          // currentLedgerProvider 已是 StreamProvider(Drift watch 自动推送),
+          // 此 invalidate 仅作防御性重订阅(如流曾进入 error 态),正常路径冗余无害。
           ref.invalidate(currentLedgerProvider);
           ref.read(syncGenerationProvider.notifier).state++;
           ref.read(statsRefreshProvider.notifier).state++;

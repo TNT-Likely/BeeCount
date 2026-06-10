@@ -10,6 +10,7 @@ import 'font_scale_provider.dart';
 import 'update_providers.dart';
 import 'smart_billing_providers.dart';
 import '../data/db.dart';
+import '../utils/month_range.dart';
 import '../services/data/recurring_transaction_service.dart';
 import '../services/billing/post_processor.dart';
 import '../services/system/logger_service.dart';
@@ -211,7 +212,11 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
     // 预加载当前账本的关键数据
     final ledgerId = ref.read(currentLedgerIdProvider);
     final now = DateTime.now();
-    final currentMonth = DateTime(now.year, now.month, 1);
+    // 月份周期标签:startDay>1 时今天可能属于「上个标签月」(如 6月5日属 5月周期)
+    final ledgerRow = await repo.getLedgerById(ledgerId);
+    final startDay = (ledgerRow?.monthStartDay ?? 1).clamp(1, 28);
+    final currentMonth = labelForDate(now, startDay);
+    ref.read(selectedMonthProvider.notifier).state = currentMonth;
 
     // 并行预加载：月度统计 + 交易列表（分别计时）
     final monthlyParams = (ledgerId: ledgerId, month: currentMonth);
