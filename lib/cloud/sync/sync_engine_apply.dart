@@ -36,6 +36,9 @@ extension SyncEngineApplyExt on SyncEngine {
       case 'budget':
         await _applyBudgetChange(change);
         return true;
+      case 'exchange_rate_override':
+        await _applyExchangeRateOverrideChange(change);
+        return true;
       case 'ledger':
         await _applyLedgerChange(change);
         return true;
@@ -43,16 +46,14 @@ extension SyncEngineApplyExt on SyncEngine {
         // 全量快照在 fullPull 中处理，这里跳过
         return false;
       default:
-        logger.warning(
-            'SyncEngine', '未知 entityType: ${change.entityType}');
+        logger.warning('SyncEngine', '未知 entityType: ${change.entityType}');
         return false;
     }
   }
 
   // ==================== Apply 方法 ====================
 
-  Future<void> _applyTransactionChange(
-      BeeCountCloudSyncChange change) async {
+  Future<void> _applyTransactionChange(BeeCountCloudSyncChange change) async {
     final syncId = change.entitySyncId;
 
     if (change.action == 'delete') {
@@ -90,10 +91,9 @@ extension SyncEngineApplyExt on SyncEngine {
     // increment int id 跟 server 不一致，必须按 syncId 查本地 int id。
     // 只有没命中时才 fallback 到直接 parse（向后兼容老数据 ledger_id 就是
     // int 字符串的场景）。
-    final ledgerIdInt =
-        await _resolveLedgerIdBySyncId(change.ledgerId) ??
-            int.tryParse(change.ledgerId) ??
-            -1;
+    final ledgerIdInt = await _resolveLedgerIdBySyncId(change.ledgerId) ??
+        int.tryParse(change.ledgerId) ??
+        -1;
 
     // 解析 payload 字段
     final type = payload['type'] as String? ?? 'expense';
@@ -130,7 +130,9 @@ extension SyncEngineApplyExt on SyncEngine {
           categoryKind: categoryKind,
         );
     String? categorySyncIdOverride;
-    if (categoryId == null && rawCategoryId != null && rawCategoryId.isNotEmpty) {
+    if (categoryId == null &&
+        rawCategoryId != null &&
+        rawCategoryId.isNotEmpty) {
       final shared = await (db.select(db.sharedLedgerCategories)
             ..where((t) => t.syncId.equals(rawCategoryId)))
           .getSingleOrNull();
@@ -159,7 +161,9 @@ extension SyncEngineApplyExt on SyncEngine {
           ledgerId: ledgerIdInt,
         );
     String? toAccountSyncIdOverride;
-    if (toAccountId == null && rawToAccountId != null && rawToAccountId.isNotEmpty) {
+    if (toAccountId == null &&
+        rawToAccountId != null &&
+        rawToAccountId.isNotEmpty) {
       final shared = await (db.select(db.sharedLedgerAccounts)
             ..where((t) => t.syncId.equals(rawToAccountId)))
           .getSingleOrNull();
@@ -185,14 +189,14 @@ extension SyncEngineApplyExt on SyncEngine {
     // 字段是 createdByUserId/updatedByUserId,跟 Drift 列名 createdByUserId /
     // lastEditedByUserId 对齐)。
     final createdByUserId = payload['createdByUserId'] as String?;
-    final lastEditedByUserId = (payload['updatedByUserId'] as String?) ?? createdByUserId;
+    final lastEditedByUserId =
+        (payload['updatedByUserId'] as String?) ?? createdByUserId;
 
     if (existingId != null) {
       // 更新 — createdByUserId 走"本地为 null 就回填,否则保持"的策略。
       final shouldBackfillCreator =
           existingCreatedByUserId == null && createdByUserId != null;
-      await (db.update(db.transactions)
-            ..where((t) => t.id.equals(existingId!)))
+      await (db.update(db.transactions)..where((t) => t.id.equals(existingId!)))
           .write(TransactionsCompanion(
         type: d.Value(type),
         amount: d.Value(amount),
@@ -246,18 +250,16 @@ extension SyncEngineApplyExt on SyncEngine {
     final syncId = change.entitySyncId;
     // ledger_id 也按 syncId 映射到本地 int。account 表 ledgerId 是 legacy
     // 字段，但 insert 时仍需填个有效值；映射失败再 fallback 到旧格式。
-    final ledgerIdInt =
-        await _resolveLedgerIdBySyncId(change.ledgerId) ??
-            int.tryParse(change.ledgerId) ??
-            -1;
+    final ledgerIdInt = await _resolveLedgerIdBySyncId(change.ledgerId) ??
+        int.tryParse(change.ledgerId) ??
+        -1;
 
     if (change.action == 'delete') {
       final existing = await (db.select(db.accounts)
             ..where((a) => a.syncId.equals(syncId)))
           .getSingleOrNull();
       if (existing != null) {
-        await (db.delete(db.accounts)
-              ..where((a) => a.id.equals(existing.id)))
+        await (db.delete(db.accounts)..where((a) => a.id.equals(existing.id)))
             .go();
         logger.debug('SyncEngine', 'pull: 删除账户 $syncId');
       }
@@ -289,16 +291,15 @@ extension SyncEngineApplyExt on SyncEngine {
         await (db.update(db.accounts)..where((a) => a.id.equals(seeded.id)))
             .write(AccountsCompanion(syncId: d.Value(syncId)));
         existing = seeded;
-        logger.info('SyncEngine',
-            'pull: 收编本地 seed 账户 name="$name" → syncId=$syncId');
+        logger.info(
+            'SyncEngine', 'pull: 收编本地 seed 账户 name="$name" → syncId=$syncId');
       }
     }
 
     final int localId;
     if (existing != null) {
       localId = existing.id;
-      await (db.update(db.accounts)
-            ..where((a) => a.id.equals(localId)))
+      await (db.update(db.accounts)..where((a) => a.id.equals(localId)))
           .write(AccountsCompanion(
         name: d.Value(name),
         type: d.Value(type),
@@ -307,8 +308,7 @@ extension SyncEngineApplyExt on SyncEngine {
         sortOrder: d.Value(sortOrder),
         creditLimit: d.Value((payload['creditLimit'] as num?)?.toDouble()),
         billingDay: d.Value((payload['billingDay'] as num?)?.toInt()),
-        paymentDueDay:
-            d.Value((payload['paymentDueDay'] as num?)?.toInt()),
+        paymentDueDay: d.Value((payload['paymentDueDay'] as num?)?.toInt()),
         bankName: d.Value(payload['bankName'] as String?),
         cardLastFour: d.Value(payload['cardLastFour'] as String?),
         note: d.Value(payload['note'] as String?),
@@ -325,13 +325,11 @@ extension SyncEngineApplyExt on SyncEngine {
               sortOrder: d.Value(sortOrder),
               creditLimit:
                   d.Value((payload['creditLimit'] as num?)?.toDouble()),
-              billingDay:
-                  d.Value((payload['billingDay'] as num?)?.toInt()),
+              billingDay: d.Value((payload['billingDay'] as num?)?.toInt()),
               paymentDueDay:
                   d.Value((payload['paymentDueDay'] as num?)?.toInt()),
               bankName: d.Value(payload['bankName'] as String?),
-              cardLastFour:
-                  d.Value(payload['cardLastFour'] as String?),
+              cardLastFour: d.Value(payload['cardLastFour'] as String?),
               note: d.Value(payload['note'] as String?),
               syncId: d.Value(syncId),
             ),
@@ -350,8 +348,7 @@ extension SyncEngineApplyExt on SyncEngine {
     );
   }
 
-  Future<void> _applyCategoryChange(
-      BeeCountCloudSyncChange change) async {
+  Future<void> _applyCategoryChange(BeeCountCloudSyncChange change) async {
     final syncId = change.entitySyncId;
 
     if (change.action == 'delete') {
@@ -366,8 +363,7 @@ extension SyncEngineApplyExt on SyncEngine {
         await (db.delete(db.categories)
               ..where((c) => c.parentId.equals(existing.id)))
             .go();
-        await (db.delete(db.categories)
-              ..where((c) => c.id.equals(existing.id)))
+        await (db.delete(db.categories)..where((c) => c.id.equals(existing.id)))
             .go();
         logger.debug('SyncEngine', 'pull: 删除分类 $syncId');
       }
@@ -436,9 +432,7 @@ extension SyncEngineApplyExt on SyncEngine {
     final cloudFileId = payload['iconCloudFileId'] as String?;
     String? resolvedCustomIconPath;
     bool needIconDownload = false;
-    if (iconType == 'custom' &&
-        cloudFileId != null &&
-        cloudFileId.isNotEmpty) {
+    if (iconType == 'custom' && cloudFileId != null && cloudFileId.isNotEmpty) {
       if (existing != null &&
           (existing.customIconPath ?? '').contains(cloudFileId)) {
         // 本地已下载,保留路径,不重新下
@@ -469,8 +463,7 @@ extension SyncEngineApplyExt on SyncEngine {
         icon: d.Value(icon),
         iconType: d.Value(iconType),
         customIconPath: d.Value(resolvedCustomIconPath),
-        communityIconId:
-            d.Value(payload['communityIconId'] as String?),
+        communityIconId: d.Value(payload['communityIconId'] as String?),
         parentId: d.Value(parentId),
       ));
       logger.debug('SyncEngine', 'pull: 更新分类 $syncId');
@@ -484,8 +477,7 @@ extension SyncEngineApplyExt on SyncEngine {
               icon: d.Value(icon),
               iconType: d.Value(iconType),
               customIconPath: d.Value(resolvedCustomIconPath),
-              communityIconId:
-                  d.Value(payload['communityIconId'] as String?),
+              communityIconId: d.Value(payload['communityIconId'] as String?),
               parentId: d.Value(parentId),
               syncId: d.Value(syncId),
             ),
@@ -526,8 +518,7 @@ extension SyncEngineApplyExt on SyncEngine {
         await (db.delete(db.transactionTags)
               ..where((tt) => tt.tagId.equals(existing.id)))
             .go();
-        await (db.delete(db.tags)..where((t) => t.id.equals(existing.id)))
-            .go();
+        await (db.delete(db.tags)..where((t) => t.id.equals(existing.id))).go();
         logger.debug('SyncEngine', 'pull: 删除标签 $syncId');
       }
       return;
@@ -553,8 +544,8 @@ extension SyncEngineApplyExt on SyncEngine {
         await (db.update(db.tags)..where((t) => t.id.equals(seeded.id)))
             .write(TagsCompanion(syncId: d.Value(syncId)));
         existing = seeded;
-        logger.info('SyncEngine',
-            'pull: 收编本地 seed 标签 name="$name" → syncId=$syncId');
+        logger.info(
+            'SyncEngine', 'pull: 收编本地 seed 标签 name="$name" → syncId=$syncId');
       }
     }
 
@@ -659,6 +650,60 @@ extension SyncEngineApplyExt on SyncEngine {
     }
   }
 
+  /// 按币对收敛:双端离线各建同币对会产生两个 syncId,按 syncId insert 会撞
+  /// idx_rate_override_pair 唯一索引;按币对 upsert + 吸收来包 syncId/updatedAt
+  /// 实现收敛。
+  ///
+  /// 按币对收敛 + 依赖 pull 的 change_id 递增顺序实现 LWW(updatedAt 仅落库,
+  /// 不参与决胜 —— 不要加 "incoming.updatedAt < existing.updatedAt 则跳过" 的
+  /// 守卫,那会破坏 replayAllChanges 从 since=0 的重放)。
+  ///
+  /// apply 直写 db(本文件是 CLAUDE.md 白名单例外),不走 repo → 不记 change,
+  /// 防反向 push。
+  Future<void> _applyExchangeRateOverrideChange(
+      BeeCountCloudSyncChange change) async {
+    if (change.action == 'delete') {
+      // delete 按 syncId 精确匹配:币对收敛把行的 syncId 换成新值后,
+      // 针对旧 syncId 的 delete 是有意的 no-op(该币对已有更新的 override 存活)。
+      await (db.delete(db.exchangeRateOverrides)
+            ..where((t) => t.syncId.equals(change.entitySyncId)))
+          .go();
+      return;
+    }
+    final p = change.payload!;
+    final base = (p['baseCurrency'] as String?)?.toUpperCase();
+    final quote = (p['quoteCurrency'] as String?)?.toUpperCase();
+    final rate = p['rate']?.toString();
+    if (base == null || quote == null || rate == null || rate.isEmpty) {
+      logger.warning('SyncEngine', 'exchange_rate_override payload 缺字段,跳过');
+      return;
+    }
+    final updatedAt = DateTime.tryParse(p['updatedAt']?.toString() ?? '');
+    final existing = await (db.select(db.exchangeRateOverrides)
+          ..where((t) =>
+              t.baseCurrency.equals(base) & t.quoteCurrency.equals(quote)))
+        .getSingleOrNull();
+    if (existing == null) {
+      await db
+          .into(db.exchangeRateOverrides)
+          .insert(ExchangeRateOverridesCompanion.insert(
+            baseCurrency: base,
+            quoteCurrency: quote,
+            rate: rate,
+            syncId: d.Value(change.entitySyncId),
+            updatedAt: d.Value(updatedAt),
+          ));
+    } else {
+      await (db.update(db.exchangeRateOverrides)
+            ..where((t) => t.id.equals(existing.id)))
+          .write(ExchangeRateOverridesCompanion(
+        rate: d.Value(rate),
+        syncId: d.Value(change.entitySyncId),
+        updatedAt: d.Value(updatedAt),
+      ));
+    }
+  }
+
   /// 应用远程下发的账本元数据变更(名字 / 币种)。
   ///
   /// 跟其他 entity 不同:不在本地"新建"账本 —— 账本的创建走 fullPush /
@@ -708,7 +753,11 @@ extension SyncEngineApplyExt on SyncEngine {
           ));
       logger.info('SyncEngine',
           'pull: 新增账本 syncId=$syncId name=$name currency=${currency ?? "CNY"}');
-      activePullCache?.putLedger(syncId, (await (db.select(db.ledgers)..where((l) => l.syncId.equals(syncId))).getSingle()).id);
+      activePullCache?.putLedger(
+          syncId,
+          (await (db.select(db.ledgers)..where((l) => l.syncId.equals(syncId)))
+                  .getSingle())
+              .id);
       return;
     }
     final ledger = ledgerList.first;
@@ -716,11 +765,9 @@ extension SyncEngineApplyExt on SyncEngine {
       final dupIds = ledgerList.skip(1).map((l) => l.id).toList();
       logger.warning('SyncEngine',
           'pull: ledger.syncId=$syncId 撞多行 ${ledgerList.length},清除 dup id=$dupIds');
-      await (db.delete(db.transactions)
-            ..where((t) => t.ledgerId.isIn(dupIds)))
+      await (db.delete(db.transactions)..where((t) => t.ledgerId.isIn(dupIds)))
           .go();
-      await (db.delete(db.localChanges)
-            ..where((c) => c.ledgerId.isIn(dupIds)))
+      await (db.delete(db.localChanges)..where((c) => c.ledgerId.isIn(dupIds)))
           .go();
       await (db.delete(db.ledgers)..where((l) => l.id.isIn(dupIds))).go();
     }
@@ -770,7 +817,11 @@ extension SyncEngineApplyExt on SyncEngine {
     final tagsStr = payload['tags'] as String?;
     final tagNamesFromStr = (tagsStr == null || tagsStr.isEmpty)
         ? const <String>[]
-        : tagsStr.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+        : tagsStr
+            .split(',')
+            .map((s) => s.trim())
+            .where((s) => s.isNotEmpty)
+            .toList();
 
     final linkedLocalIds = <int>{};
     final overrideSyncIds = <String>{};
@@ -803,8 +854,7 @@ extension SyncEngineApplyExt on SyncEngine {
         // 都 miss → name fallback(老协议),建本地 tag
         if (i < tagNamesFromStr.length) {
           final name = tagNamesFromStr[i];
-          tag = await (db.select(db.tags)
-                ..where((t) => t.name.equals(name)))
+          tag = await (db.select(db.tags)..where((t) => t.name.equals(name)))
               .getSingleOrNull();
           if (tag != null && (tag.syncId ?? '').isEmpty) {
             await (db.update(db.tags)..where((t) => t.id.equals(tag!.id)))
@@ -819,8 +869,7 @@ extension SyncEngineApplyExt on SyncEngine {
     } else {
       // 完全没 tagIds 的老 payload:按 name 查,没有就建个带 syncId 的新 tag
       for (final name in tagNamesFromStr) {
-        var tag = await (db.select(db.tags)
-              ..where((t) => t.name.equals(name)))
+        var tag = await (db.select(db.tags)..where((t) => t.name.equals(name)))
             .getSingleOrNull();
         if (tag == null) {
           final newSyncId = _uuid.v4();
@@ -831,8 +880,7 @@ extension SyncEngineApplyExt on SyncEngine {
                 ),
               );
           activePullCache?.putTag(newSyncId, id);
-          tag = await (db.select(db.tags)
-                ..where((t) => t.id.equals(id)))
+          tag = await (db.select(db.tags)..where((t) => t.id.equals(id)))
               .getSingle();
         }
         linkedLocalIds.add(tag.id);
@@ -900,7 +948,7 @@ extension SyncEngineApplyExt on SyncEngine {
     final remoteFileNames = <String>{};
 
     // 收集 attachment 增/改/删的操作,统一用 db.batch 一次写,替代逐条
-     /// db.into().insert / db.update().write / db.delete().go(N 次小 fsync)。
+    /// db.into().insert / db.update().write / db.delete().go(N 次小 fsync)。
     final inserts = <TransactionAttachmentsCompanion>[];
     final updates = <({int id, TransactionAttachmentsCompanion data})>[];
     final attachmentsToDeleteFromDisk = <String>[];
@@ -960,8 +1008,7 @@ extension SyncEngineApplyExt on SyncEngine {
           );
         }
         if (deleteIds.isNotEmpty) {
-          b.deleteWhere(
-              db.transactionAttachments, ($) => $.id.isIn(deleteIds));
+          b.deleteWhere(db.transactionAttachments, ($) => $.id.isIn(deleteIds));
         }
       });
     }

@@ -701,7 +701,7 @@ class SyncEngine implements app.SyncService {
     if (inFlight != null) {
       logger.info('SyncEngine', 'pushUserGlobalEntities 已在执行,复用 in-flight');
       await inFlight.future;
-      return 0;   // 复用不计数,只是等
+      return 0; // 复用不计数,只是等
     }
     final completer = Completer<void>();
     completer.future.ignore();
@@ -730,11 +730,16 @@ class SyncEngine implements app.SyncService {
 
     final globalChanges = await changeTracker.getUnpushedChangesForLedger(0);
     if (globalChanges.isEmpty) {
-      logger.debug('SyncEngine', 'pushUserGlobalEntities: 无未推 user-global change');
+      logger.debug(
+          'SyncEngine', 'pushUserGlobalEntities: 无未推 user-global change');
       return 0;
     }
 
-    final syncChanges = <Map<String, dynamic>>[];
+    // change ↔ 序列化字典配对(后面按 entity_type 拆批时要凭 change.id 标记已推)。
+    final mainChanges = <LocalChange>[];
+    final mainSyncChanges = <Map<String, dynamic>>[];
+    final overrideChanges = <LocalChange>[];
+    final overrideSyncChanges = <Map<String, dynamic>>[];
     for (final change in globalChanges) {
       Map<String, dynamic> payload;
       if (change.action == 'delete') {
@@ -749,7 +754,7 @@ class SyncEngine implements app.SyncService {
           ledgerId: 0,
         );
       }
-      syncChanges.add({
+      final syncChange = {
         'ledger_id': null,
         'scope': 'user',
         'entity_type': change.entityType,
@@ -757,13 +762,38 @@ class SyncEngine implements app.SyncService {
         'action': change.action == 'delete' ? 'delete' : 'upsert',
         'payload': payload,
         'updated_at': change.createdAt.toUtc().toIso8601String(),
-      });
+      };
+      if (change.entityType == 'exchange_rate_override') {
+        overrideChanges.add(change);
+        overrideSyncChanges.add(syncChange);
+      } else {
+        mainChanges.add(change);
+        mainSyncChanges.add(syncChange);
+      }
     }
 
-    await provider.pushChanges(changes: syncChanges);
-    await changeTracker.markPushed(globalChanges.map((c) => c.id).toList());
+    // 主批(account/category/tag):照原逻辑推送 + 标记已推。
+    if (mainSyncChanges.isNotEmpty) {
+      await provider.pushChanges(changes: mainSyncChanges);
+      await changeTracker.markPushed(mainChanges.map((c) => c.id).toList());
+    }
+
+    // exchange_rate_override 独立批:旧服务器白名单会拒绝该 entity_type,
+    // 混在主批会整批失败、阻塞 account/category/tag 同步(README D10)。
+    // 失败只 warning、不标记已推 → 留在 local_changes 下次重试。
+    if (overrideSyncChanges.isNotEmpty) {
+      try {
+        await provider.pushChanges(changes: overrideSyncChanges);
+        await changeTracker
+            .markPushed(overrideChanges.map((c) => c.id).toList());
+      } catch (e, st) {
+        logger.warning(
+            'SyncEngine', 'override 批推送失败(server 可能未升级),跳过本轮不阻塞: $e', st);
+      }
+    }
+
     logger.info('SyncEngine',
-        'pushUserGlobalEntities: 推送 ${globalChanges.length} 条 user-global change');
+        'pushUserGlobalEntities: 推送 ${mainChanges.length} 条主批 + ${overrideChanges.length} 条 override 批 user-global change');
     return globalChanges.length;
   }
 
@@ -866,7 +896,7 @@ class SyncEngine implements app.SyncService {
       return inFlight.future;
     }
     final completer = Completer<int>();
-    completer.future.ignore();   // 防 unhandled async error
+    completer.future.ignore(); // 防 unhandled async error
     _pushInFlight[ledgerId] = completer;
     try {
       final result = await _doPush(ledgerId);
@@ -1078,8 +1108,8 @@ class SyncEngine implements app.SyncService {
       persistCursor: false,
     );
     if (probe.changes.isEmpty) {
-      logger.info('SyncEngine',
-          'pull: since=$nextSince 无新变更,跳过 LookupCache prime');
+      logger.info(
+          'SyncEngine', 'pull: since=$nextSince 无新变更,跳过 LookupCache prime');
       return 0;
     }
 
@@ -1134,8 +1164,8 @@ class SyncEngine implements app.SyncService {
           'pull #$pageIndex: applied ${outcome.applied}/${result.changes.length} (apply ${applyMs}ms, page total ${DateTime.now().difference(pageStart).inMilliseconds}ms)');
       totalApplied += outcome.applied;
       if (outcome.blocked) {
-        logger.warning('SyncEngine',
-            'pull 被错误阻塞 cursor 停在 $nextSince — UI 应显示同步异常');
+        logger.warning(
+            'SyncEngine', 'pull 被错误阻塞 cursor 停在 $nextSince — UI 应显示同步异常');
         break;
       }
 
@@ -1217,8 +1247,9 @@ class SyncEngine implements app.SyncService {
         return await applyRemoteChange(ch);
       } catch (e) {
         final msg = e.toString().toLowerCase();
-        final transient = (msg.contains('sqlite') || msg.contains('database'))
-            && (msg.contains('busy') || msg.contains('locked'));
+        final transient =
+            (msg.contains('sqlite') || msg.contains('database')) &&
+                (msg.contains('busy') || msg.contains('locked'));
         if (transient && attempts < 2) {
           attempts++;
           await Future.delayed(Duration(milliseconds: 50 * (1 << attempts)));
@@ -1250,8 +1281,8 @@ class SyncEngine implements app.SyncService {
       {required int ledgerId}) async {
     final inFlight = _fullPullInFlight[ledgerId];
     if (inFlight != null) {
-      logger.info('SyncEngine',
-          'runFullPull(ledger=$ledgerId) 已在执行,复用 in-flight');
+      logger.info(
+          'SyncEngine', 'runFullPull(ledger=$ledgerId) 已在执行,复用 in-flight');
       return inFlight.future;
     }
     final completer = Completer<({int inserted, int deletedDup})>();

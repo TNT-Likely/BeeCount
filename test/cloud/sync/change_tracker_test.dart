@@ -74,6 +74,18 @@ void main() {
       expect(changes.first.ledgerId, 0);
     });
 
+    test('exchange_rate_override 走 user-global 通道', () async {
+      await tracker.recordUserGlobalChange(
+        entityType: 'exchange_rate_override',
+        entityId: 4,
+        entitySyncId: 'rate-sync-id',
+        action: 'create',
+      );
+      final changes = await tracker.getUnpushedChangesForLedger(0);
+      expect(changes.length, 1);
+      expect(changes.first.ledgerId, 0);
+    });
+
     test('user-global 变更不会出现在具体账本查询里', () async {
       await tracker.recordUserGlobalChange(
         entityType: 'account',

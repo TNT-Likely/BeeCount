@@ -102,15 +102,14 @@ extension SyncEngineSerializationExt on SyncEngine {
         // upload → push 应该让这里永远不触发;触发了说明 upload 跨 sync 边界
         // 出过 race(参考 sync_engine_attachments.dart::uploadAttachments 注释)。
         if (attMaps.isNotEmpty) {
-          final withCloud = attMaps
-              .where((a) => a['cloudFileId'] != null)
-              .length;
+          final withCloud =
+              attMaps.where((a) => a['cloudFileId'] != null).length;
           if (withCloud < attMaps.length) {
             logger.warning(
               'SyncEngine',
               'push tx=$entityId(syncId=${tx.syncId}) attachments=${attMaps.length} '
-              'cloud_ready=$withCloud — 部分附件缺 cloudFileId,server 端会报"仅元数据"。'
-              '若 uploadAttachments 这轮上传了新附件应已重登记 tx update,此条不应再出现。',
+                  'cloud_ready=$withCloud — 部分附件缺 cloudFileId,server 端会报"仅元数据"。'
+                  '若 uploadAttachments 这轮上传了新附件应已重登记 tx update,此条不应再出现。',
             );
           }
         }
@@ -165,10 +164,8 @@ extension SyncEngineSerializationExt on SyncEngine {
           categorySyncId: finalCategorySyncId,
           accountName: finalAccountName,
           accountSyncId: finalAccountSyncId,
-          fromAccountName:
-              tx.type == 'transfer' ? finalAccountName : null,
-          fromAccountSyncId:
-              tx.type == 'transfer' ? finalAccountSyncId : null,
+          fromAccountName: tx.type == 'transfer' ? finalAccountName : null,
+          fromAccountSyncId: tx.type == 'transfer' ? finalAccountSyncId : null,
           toAccountName: finalToAccountName,
           toAccountSyncId: finalToAccountSyncId,
           ledgerSyncId: parentLedgerSyncId,
@@ -183,6 +180,17 @@ extension SyncEngineSerializationExt on SyncEngine {
             .getSingleOrNull();
         if (account == null) return <String, dynamic>{};
         return EntitySerializer.serializeAccount(account);
+
+      case 'exchange_rate_override':
+        // 按 entityId 反查行,跟 account 分支同款;行已删(delete change)
+        // 返回空 payload(delete 路径 server 只看 action,不读 payload)。
+        // server 端 projection.upsert_exchange_rate_override 对缺字段静默 return
+        // (BeeCount-Cloud Task 3 防御分支),空 payload upsert 无害。
+        final override = await (db.select(db.exchangeRateOverrides)
+              ..where((o) => o.id.equals(entityId)))
+            .getSingleOrNull();
+        if (override == null) return <String, dynamic>{};
+        return EntitySerializer.serializeExchangeRateOverride(override);
 
       case 'category':
         final category = await (db.select(db.categories)
@@ -221,8 +229,7 @@ extension SyncEngineSerializationExt on SyncEngine {
               iconCloudSha256 = uploaded.sha256;
             }
           } catch (e, st) {
-            logger.warning(
-                'SyncEngine', '分类图标增量上传失败: ${category.name} $e', st);
+            logger.warning('SyncEngine', '分类图标增量上传失败: ${category.name} $e', st);
           }
         }
         return EntitySerializer.serializeCategory(
@@ -277,9 +284,6 @@ extension SyncEngineSerializationExt on SyncEngine {
     }
   }
 
-
-
-
   // 跨设备 ID 解析方法搬到 sync_engine_resolvers.dart 这个 part 文件:
   //   _resolveLedgerIdBySyncId / _resolveCategoryIdBySyncId
   //   _resolveAccountIdBySyncId / _resolveCategoryId / _resolveAccountId
@@ -294,12 +298,11 @@ extension SyncEngineSerializationExt on SyncEngine {
   Future<void> fullPush({required int ledgerId}) async {
     final inFlight = _fullPushInFlight[ledgerId];
     if (inFlight != null) {
-      logger.info('SyncEngine',
-          'fullPush(ledger=$ledgerId) 已在执行,复用 in-flight');
+      logger.info('SyncEngine', 'fullPush(ledger=$ledgerId) 已在执行,复用 in-flight');
       return inFlight.future;
     }
     final completer = Completer<void>();
-    completer.future.ignore();   // 防 unhandled async error
+    completer.future.ignore(); // 防 unhandled async error
     _fullPushInFlight[ledgerId] = completer;
     try {
       await _doFullPush(ledgerId: ledgerId);
@@ -389,10 +392,8 @@ extension SyncEngineSerializationExt on SyncEngine {
     //
     // 修复:把 delete change 留作未推送,sync() 在 fullPush 之后会再调一次
     // _push 把它们推上去 + markPushed。
-    final unpushed =
-        await changeTracker.getUnpushedChangesForLedger(ledgerId);
-    final nonDeletes =
-        unpushed.where((c) => c.action != 'delete').toList();
+    final unpushed = await changeTracker.getUnpushedChangesForLedger(ledgerId);
+    final nonDeletes = unpushed.where((c) => c.action != 'delete').toList();
     if (nonDeletes.isNotEmpty) {
       await changeTracker.markPushed(nonDeletes.map((c) => c.id).toList());
     }
@@ -400,6 +401,7 @@ extension SyncEngineSerializationExt on SyncEngine {
     logger.info('SyncEngine',
         '全量推送完成 ledger=${ledger.name},markPushed ${nonDeletes.length}/${unpushed.length}(剩余 delete change 留给 _push)');
   }
+
   /// 推送所有实体为个体变更(fullPush 时调用)。
   ///
   /// **只处理 ledger-scope 实体**(ledger / budget / transaction)。user-global
@@ -446,16 +448,14 @@ extension SyncEngineSerializationExt on SyncEngine {
     for (final budget in budgets) {
       final syncId = budget.syncId ?? _uuid.v4();
       if (budget.syncId == null) {
-        await (db.update(db.budgets)
-              ..where((b) => b.id.equals(budget.id)))
+        await (db.update(db.budgets)..where((b) => b.id.equals(budget.id)))
             .write(BudgetsCompanion(syncId: d.Value(syncId)));
       }
       String? catSyncId;
       if (budget.categoryId != null) {
         final cat = categories
             .cast<Category?>()
-            .firstWhere((c) => c?.id == budget.categoryId,
-                orElse: () => null);
+            .firstWhere((c) => c?.id == budget.categoryId, orElse: () => null);
         catSyncId = cat?.syncId;
       }
       syncChanges.add({
@@ -479,8 +479,8 @@ extension SyncEngineSerializationExt on SyncEngine {
 
     // 预加载所有附件，按 transactionId 分组
     final allAttachments = await (db.select(db.transactionAttachments)
-          ..where((a) => a.transactionId
-              .isIn(transactions.map((t) => t.id).toList())))
+          ..where((a) =>
+              a.transactionId.isIn(transactions.map((t) => t.id).toList())))
         .get();
     final attachmentsByTx = <int, List<TransactionAttachment>>{};
     for (final a in allAttachments) {
@@ -490,8 +490,7 @@ extension SyncEngineSerializationExt on SyncEngine {
     for (final tx in transactions) {
       final syncId = tx.syncId ?? _uuid.v4();
       if (tx.syncId == null) {
-        await (db.update(db.transactions)
-              ..where((t) => t.id.equals(tx.id)))
+        await (db.update(db.transactions)..where((t) => t.id.equals(tx.id)))
             .write(TransactionsCompanion(syncId: d.Value(syncId)));
       }
 
@@ -573,19 +572,23 @@ extension SyncEngineSerializationExt on SyncEngine {
     final categoryCount = categories.length;
     final tagCount = tags.length;
     final txCount = transactions.length;
-    logger.info('SyncEngine',
+    logger.info(
+        'SyncEngine',
         '开始推送个体变更 共${syncChanges.length}条 '
-        '(accounts=$accountCount, categories=$categoryCount, tags=$tagCount, transactions=$txCount)');
+            '(accounts=$accountCount, categories=$categoryCount, tags=$tagCount, transactions=$txCount)');
 
     // 分批推送:每条 change 平均 ~500 字节,500 条 ≈ 250KB,远低于网关限制,
     // 但单次请求内 server 事务处理时间 ~100ms 可接受。
     // 5 倍原先 100 的吞吐,3 万条交易上传从 300 批降到 60 批,耗时约 1/5。
     const batchSize = 500;
     for (var i = 0; i < syncChanges.length; i += batchSize) {
-      final end = (i + batchSize > syncChanges.length) ? syncChanges.length : i + batchSize;
+      final end = (i + batchSize > syncChanges.length)
+          ? syncChanges.length
+          : i + batchSize;
       final batch = syncChanges.sublist(i, end);
       try {
-        logger.info('SyncEngine', '推送批次 ${i ~/ batchSize + 1}: ${batch.length}条 (${i+1}-$end)');
+        logger.info('SyncEngine',
+            '推送批次 ${i ~/ batchSize + 1}: ${batch.length}条 (${i + 1}-$end)');
         await provider.pushChanges(changes: batch);
         logger.info('SyncEngine', '批次 ${i ~/ batchSize + 1} 推送成功');
       } catch (e, st) {
@@ -596,6 +599,7 @@ extension SyncEngineSerializationExt on SyncEngine {
 
     logger.info('SyncEngine', '全量推送个体变更完成 ${syncChanges.length} 条');
   }
+
   Future<String> _exportLedgerJson(Ledger ledger) async {
     final transactions = await (db.select(db.transactions)
           ..where((t) => t.ledgerId.equals(ledger.id))
