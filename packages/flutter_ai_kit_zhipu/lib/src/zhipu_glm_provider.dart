@@ -42,7 +42,10 @@ class ZhipuGLMProvider implements AIProvider<String, String> {
   /// 音频文件（可选，用于GLM-4语音识别）
   final File? audioFile;
 
-  final Dio _dio = Dio();
+  final Dio _dio = Dio(BaseOptions(
+    connectTimeout: const Duration(seconds: 20),
+    receiveTimeout: const Duration(seconds: 20),
+  ));
 
   ZhipuGLMProvider({
     required this.apiKey,

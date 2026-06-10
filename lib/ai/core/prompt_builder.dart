@@ -8,9 +8,20 @@ import 'ai_extraction_context.dart';
 class PromptBuilder {
   const PromptBuilder();
 
-  /// 默认模板。强制 JSON 数组 + 完整字段说明 + 多笔示例。
+  /// 默认模板。先判断是否为账单，再强制 JSON 数组 + 完整字段说明 + 多笔示例。
   static const String defaultTemplate =
-      '''{{INPUT_SOURCE}}提取记账信息，返回JSON数组。
+      '''严格判断以下内容是否为支付账单、收据或交易凭证。
+
+以下情况不属于账单，必须返回空数组 []：
+- 电脑/手机桌面截图
+- 聊天记录、朋友圈、微博等社交页面
+- 新闻、文章、网页浏览页
+- 照片、自拍、风景图
+- 应用主界面、设置页面
+- 任何不包含具体消费金额、商家名称、交易时间的图片或文字
+
+只有在确定是真实的支付账单、收据（含电子发票、支付凭证截图）时，才{{INPUT_SOURCE}}提取记账信息，返回JSON数组。
+如果不确定，也返回空数组 []。
 
 当前时间：{{CURRENT_TIME}}
 
