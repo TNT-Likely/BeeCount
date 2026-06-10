@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
 import '../data/repositories/base_repository.dart';
+import '../utils/month_range.dart';
 import 'home_widget_view.dart';
 
 class WidgetManager {
@@ -33,8 +34,12 @@ class WidgetManager {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
       final tomorrow = today.add(const Duration(days: 1));
-      final monthStart = DateTime(now.year, now.month, 1);
-      final monthEnd = DateTime(now.year, now.month + 1, 1);
+      // 「本月」= 账本自定义记账周期(包含今天的 [起始日, 次月起始日))
+      final ledger = await repository.getLedgerById(ledgerId);
+      final sd = (ledger?.monthStartDay ?? 1).clamp(1, 28);
+      final range = periodContaining(now, sd);
+      final monthStart = range.start;
+      final monthEnd = range.end;
 
       // Get today's totals
       final todayExpenseCategories = await repository.totalsByCategory(

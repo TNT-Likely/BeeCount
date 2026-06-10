@@ -4,6 +4,7 @@ import '../../data/db.dart';
 import '../../models/ai_quick_command.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import '../../utils/month_range.dart';
 import 'package:drift/drift.dart' as drift;
 import '../../data/repositories/local/local_repository.dart';
 
@@ -11,11 +12,14 @@ import '../../data/repositories/local/local_repository.dart';
 class AIQuickCommandService {
   final BeeDatabase db;
   final int ledgerId;
+  /// 读取账本每月起始日(走 repo 注入,不在本文件再扩 db 直查)
+  final Future<int> Function() monthStartDayLoader;
 
   AIQuickCommandService({
     required this.db,
     required this.ledgerId,
-  });
+    Future<int> Function()? monthStartDayLoader,
+  }) : monthStartDayLoader = monthStartDayLoader ?? (() async => 1);
 
   /// 简单格式化金额（保留2位小数）
   String _formatAmount(double amount) {
@@ -45,15 +49,17 @@ class AIQuickCommandService {
   Future<String> _getMonthlyStatsText(BuildContext context) async {
     try {
       final now = DateTime.now();
-      final startOfMonth = DateTime(now.year, now.month, 1);
-      final endOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+      final sd = await monthStartDayLoader();
+      final range = periodContaining(now, sd);
+      final startOfMonth = range.start;
+      final endOfMonth = range.end;
 
       // 获取本月交易记录
       final transactions = await (db.select(db.transactions)
             ..where((t) =>
                 t.ledgerId.equals(ledgerId) &
                 t.happenedAt.isBiggerOrEqualValue(startOfMonth) &
-                t.happenedAt.isSmallerOrEqualValue(endOfMonth)))
+                t.happenedAt.isSmallerThanValue(endOfMonth)))
           .get();
 
       if (transactions.isEmpty) {
@@ -91,8 +97,10 @@ class AIQuickCommandService {
   Future<String> _getCategoryStatsText(BuildContext context) async {
     try {
       final now = DateTime.now();
-      final startOfMonth = DateTime(now.year, now.month, 1);
-      final endOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+      final sd = await monthStartDayLoader();
+      final range = periodContaining(now, sd);
+      final startOfMonth = range.start;
+      final endOfMonth = range.end;
 
       // 获取本月支出交易
       final transactions = await (db.select(db.transactions)
@@ -100,7 +108,7 @@ class AIQuickCommandService {
                 t.ledgerId.equals(ledgerId) &
                 t.type.equals('expense') &
                 t.happenedAt.isBiggerOrEqualValue(startOfMonth) &
-                t.happenedAt.isSmallerOrEqualValue(endOfMonth)))
+                t.happenedAt.isSmallerThanValue(endOfMonth)))
           .get();
 
       if (transactions.isEmpty) {
@@ -192,12 +200,16 @@ ${list.join('\n')}
   Future<String> _getRecentTrendsText(BuildContext context) async {
     try {
       final now = DateTime.now();
+      final sd = await monthStartDayLoader();
       final trends = <String>[];
+      final nowLabel = labelForDate(now, sd);
 
-      // 获取最近3个月的数据
+      // 获取最近3个记账周期的数据
       for (int i = 0; i < 3; i++) {
-        final month = DateTime(now.year, now.month - i, 1);
-        final nextMonth = DateTime(now.year, now.month - i + 1, 1);
+        final label = DateTime(nowLabel.year, nowLabel.month - i, 1);
+        final r = periodForLabel(label.year, label.month, sd);
+        final month = r.start;
+        final nextMonth = r.end;
 
         final transactions = await (db.select(db.transactions)
               ..where((t) =>
@@ -287,5 +299,9 @@ final aiQuickCommandServiceProvider = Provider.family<AIQuickCommandService, int
   return AIQuickCommandService(
     db: (repo as LocalRepository).db,
     ledgerId: ledgerId,
+    monthStartDayLoader: () async {
+      final l = await repo.getLedgerById(ledgerId);
+      return (l?.monthStartDay ?? 1).clamp(1, 28);
+    },
   );
 });
