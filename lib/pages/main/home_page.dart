@@ -993,29 +993,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       ),
                               ],
                             ),
-                            Builder(builder: (context) {
-                              final sd =
-                                  ref.watch(currentMonthStartDayProvider);
-                              if (sd <= 1) return const SizedBox.shrink();
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 2),
-                                child: Text(
-                                  periodRangeText(
-                                          month.year, month.month, sd) ??
-                                      '',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelSmall
-                                      ?.copyWith(
-                                          fontSize: 10,
-                                          color: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.color
-                                              ?.withValues(alpha: 0.5)),
-                                ),
-                              );
-                            }),
                           ],
                         ),
                       ),
