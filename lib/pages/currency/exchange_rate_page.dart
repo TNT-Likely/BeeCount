@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import '../../services/billing/post_processor.dart';
 import '../../services/currency/rate_math.dart';
 import '../../styles/tokens.dart';
 import '../../utils/currencies.dart';
@@ -396,6 +399,10 @@ class _ExchangeRatePageState extends ConsumerState<ExchangeRatePage> {
                   onPressed: () async {
                     await repo.removeOverride(base: base, quote: quote);
                     ref.read(rateRefreshTickProvider.notifier).state++;
+                    final activeLedgerId = ref.read(currentLedgerIdProvider);
+                    if (activeLedgerId > 0) {
+                      unawaited(PostProcessor.sync(ref, ledgerId: activeLedgerId));
+                    }
                     if (dctx.mounted) Navigator.pop(dctx);
                   },
                   child: Text(
@@ -421,6 +428,10 @@ class _ExchangeRatePageState extends ConsumerState<ExchangeRatePage> {
                   // rate 字符串原样存用户输入(trim),不二次格式化。
                   await repo.setOverride(base: base, quote: quote, rate: raw);
                   ref.read(rateRefreshTickProvider.notifier).state++;
+                  final activeLedgerId = ref.read(currentLedgerIdProvider);
+                  if (activeLedgerId > 0) {
+                    unawaited(PostProcessor.sync(ref, ledgerId: activeLedgerId));
+                  }
                   if (dctx.mounted) Navigator.pop(dctx);
                 },
                 child: Text(

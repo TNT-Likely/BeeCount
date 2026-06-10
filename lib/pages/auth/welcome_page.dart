@@ -11,6 +11,7 @@ import '../../providers/language_provider.dart';
 import '../../providers/database_providers.dart';
 import '../../providers/theme_providers.dart';
 import '../../providers/font_scale_provider.dart';
+import '../../providers/currency_providers.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/export/config_export_service.dart';
 import '../../services/attachment_export_import_service.dart';
@@ -727,6 +728,8 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
       await prefs.setString('selected_currency', _selectedCurrency);
       // 多币种 MVP:主币种随初始化选币一并落定,新装用户开箱即正确
       await prefs.setString('baseCurrency', _selectedCurrency);
+      // 同步 provider:splash init 已先行兜底 CNY,这里用用户所选币种即时纠正(首会话即正确)
+      ref.read(baseCurrencyProvider.notifier).state = _selectedCurrency.toUpperCase();
 
       // 初始化数据库（使用用户选择的语言和设置）
       if (context.mounted) {

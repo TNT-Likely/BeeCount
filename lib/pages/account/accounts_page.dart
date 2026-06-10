@@ -606,25 +606,36 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
           ],
         ),
         SizedBox(height: 12.0.scaled(context, ref)),
-        // 脚注:无缺失 → 折算日期(tertiary);有缺失 → 缺失提示(橙)。点击进汇率页。
-        InkWell(
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const ExchangeRatePage()),
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 4.0.scaled(context, ref)),
-            child: Text(
-              hasMissing
-                  ? l10n.convertedPartialWarning(converted.missingCurrencies.join('/'))
-                  : l10n.convertedFootnote(converted.oldestRateDate ?? '-'),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 11,
-                color: hasMissing ? Colors.orange : BeeTokens.textTertiary(context),
+        // 脚注:无缺失 → 折算日期(tertiary,若 >7 天变橙);有缺失 → 缺失提示(橙)。点击进汇率页。
+        Builder(builder: (context) {
+          bool isStale = false;
+          if (!hasMissing) {
+            final d = DateTime.tryParse(converted.oldestRateDate ?? '');
+            if (d != null) {
+              isStale = DateTime.now().difference(d) > const Duration(days: 7);
+            }
+          }
+          return InkWell(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ExchangeRatePage()),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 4.0.scaled(context, ref)),
+              child: Text(
+                hasMissing
+                    ? l10n.convertedPartialWarning(converted.missingCurrencies.join('/'))
+                    : l10n.convertedFootnote(converted.oldestRateDate ?? '-'),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: (hasMissing || isStale)
+                      ? Colors.orange
+                      : BeeTokens.textTertiary(context),
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        }),
         SizedBox(height: 8.0.scaled(context, ref)),
       ],
     );
