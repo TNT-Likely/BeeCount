@@ -59,6 +59,32 @@ class Accounts extends Table {
   TextColumn get syncId => text().nullable()(); // 跨设备同步唯一标识 (UUID)
 }
 
+/// 自动汇率本地缓存。日期键 append-only;可随时整表重建 → **不进同步**(README D2)。
+/// 方向:1 quote = rate base(rate 为 decimal 字符串)。
+class ExchangeRates extends Table {
+  TextColumn get baseCurrency => text()();
+  TextColumn get quoteCurrency => text()();
+  TextColumn get rateDate => text()(); // 'YYYY-MM-DD',取源数据自带日期
+  TextColumn get rate => text()();
+  TextColumn get source => text()(); // 'server'|'fawazahmed0'|'frankfurter'
+  DateTimeColumn get fetchedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {baseCurrency, quoteCurrency, rateDate};
+}
+
+/// 手动汇率覆盖:固定生效直到删除(README D9)。user-global 同步实体,
+/// 字段约定对齐 Accounts(syncId UUID)。方向同 ExchangeRates:1 quote = rate base。
+/// 业务唯一键 (baseCurrency, quoteCurrency),唯一索引在 v28 迁移建。
+class ExchangeRateOverrides extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get syncId => text().nullable()();
+  TextColumn get baseCurrency => text()();
+  TextColumn get quoteCurrency => text()();
+  TextColumn get rate => text()();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+}
+
 class Categories extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
@@ -382,6 +408,8 @@ class SharedLedgerTags extends Table {
   SharedLedgerTags,
   TransactionTagOverrides,
   SyncPullErrors,
+  ExchangeRates,
+  ExchangeRateOverrides,
 ])
 class BeeDatabase extends _$BeeDatabase {
   BeeDatabase() : super(_openConnection());
@@ -392,7 +420,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 27; // v27: ledgers.month_start_day — 自定义每月起始日(1-28)
+  int get schemaVersion => 28; // v28: 多币种 MVP — exchange_rates / exchange_rate_overrides
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1065,6 +1093,21 @@ class BeeDatabase extends _$BeeDatabase {
                 'ALTER TABLE ledgers ADD COLUMN month_start_day INTEGER NOT NULL DEFAULT 1;');
             logger.info('DBMigration', 'v27 迁移完成');
           }
+          if (from < 28) {
+            logger.info('DBMigration', '开始迁移到 v28: 多币种 MVP(exchange_rates / exchange_rate_overrides)');
+            await _createTableIfMissing(migrator, 'exchange_rates', exchangeRates);
+            await _createTableIfMissing(migrator, 'exchange_rate_overrides', exchangeRateOverrides);
+            await customStatement(
+                'CREATE UNIQUE INDEX IF NOT EXISTS idx_rate_override_pair '
+                'ON exchange_rate_overrides (base_currency, quote_currency);');
+            logger.info('DBMigration', 'v28 迁移完成');
+          }
+        },
+        onCreate: (m) async {
+          await m.createAll();
+          await customStatement(
+              'CREATE UNIQUE INDEX IF NOT EXISTS idx_rate_override_pair '
+              'ON exchange_rate_overrides (base_currency, quote_currency);');
         },
       );
 

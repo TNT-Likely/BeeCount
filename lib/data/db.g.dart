@@ -9866,6 +9866,709 @@ class SyncPullErrorsCompanion extends UpdateCompanion<SyncPullError> {
   }
 }
 
+class $ExchangeRatesTable extends ExchangeRates
+    with TableInfo<$ExchangeRatesTable, ExchangeRate> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExchangeRatesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _baseCurrencyMeta =
+      const VerificationMeta('baseCurrency');
+  @override
+  late final GeneratedColumn<String> baseCurrency = GeneratedColumn<String>(
+      'base_currency', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _quoteCurrencyMeta =
+      const VerificationMeta('quoteCurrency');
+  @override
+  late final GeneratedColumn<String> quoteCurrency = GeneratedColumn<String>(
+      'quote_currency', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _rateDateMeta =
+      const VerificationMeta('rateDate');
+  @override
+  late final GeneratedColumn<String> rateDate = GeneratedColumn<String>(
+      'rate_date', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _rateMeta = const VerificationMeta('rate');
+  @override
+  late final GeneratedColumn<String> rate = GeneratedColumn<String>(
+      'rate', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+      'source', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _fetchedAtMeta =
+      const VerificationMeta('fetchedAt');
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+      'fetched_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [baseCurrency, quoteCurrency, rateDate, rate, source, fetchedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'exchange_rates';
+  @override
+  VerificationContext validateIntegrity(Insertable<ExchangeRate> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('base_currency')) {
+      context.handle(
+          _baseCurrencyMeta,
+          baseCurrency.isAcceptableOrUnknown(
+              data['base_currency']!, _baseCurrencyMeta));
+    } else if (isInserting) {
+      context.missing(_baseCurrencyMeta);
+    }
+    if (data.containsKey('quote_currency')) {
+      context.handle(
+          _quoteCurrencyMeta,
+          quoteCurrency.isAcceptableOrUnknown(
+              data['quote_currency']!, _quoteCurrencyMeta));
+    } else if (isInserting) {
+      context.missing(_quoteCurrencyMeta);
+    }
+    if (data.containsKey('rate_date')) {
+      context.handle(_rateDateMeta,
+          rateDate.isAcceptableOrUnknown(data['rate_date']!, _rateDateMeta));
+    } else if (isInserting) {
+      context.missing(_rateDateMeta);
+    }
+    if (data.containsKey('rate')) {
+      context.handle(
+          _rateMeta, rate.isAcceptableOrUnknown(data['rate']!, _rateMeta));
+    } else if (isInserting) {
+      context.missing(_rateMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(_sourceMeta,
+          source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(_fetchedAtMeta,
+          fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta));
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey =>
+      {baseCurrency, quoteCurrency, rateDate};
+  @override
+  ExchangeRate map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExchangeRate(
+      baseCurrency: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}base_currency'])!,
+      quoteCurrency: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}quote_currency'])!,
+      rateDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}rate_date'])!,
+      rate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}rate'])!,
+      source: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source'])!,
+      fetchedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}fetched_at'])!,
+    );
+  }
+
+  @override
+  $ExchangeRatesTable createAlias(String alias) {
+    return $ExchangeRatesTable(attachedDatabase, alias);
+  }
+}
+
+class ExchangeRate extends DataClass implements Insertable<ExchangeRate> {
+  final String baseCurrency;
+  final String quoteCurrency;
+  final String rateDate;
+  final String rate;
+  final String source;
+  final DateTime fetchedAt;
+  const ExchangeRate(
+      {required this.baseCurrency,
+      required this.quoteCurrency,
+      required this.rateDate,
+      required this.rate,
+      required this.source,
+      required this.fetchedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['base_currency'] = Variable<String>(baseCurrency);
+    map['quote_currency'] = Variable<String>(quoteCurrency);
+    map['rate_date'] = Variable<String>(rateDate);
+    map['rate'] = Variable<String>(rate);
+    map['source'] = Variable<String>(source);
+    map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    return map;
+  }
+
+  ExchangeRatesCompanion toCompanion(bool nullToAbsent) {
+    return ExchangeRatesCompanion(
+      baseCurrency: Value(baseCurrency),
+      quoteCurrency: Value(quoteCurrency),
+      rateDate: Value(rateDate),
+      rate: Value(rate),
+      source: Value(source),
+      fetchedAt: Value(fetchedAt),
+    );
+  }
+
+  factory ExchangeRate.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExchangeRate(
+      baseCurrency: serializer.fromJson<String>(json['baseCurrency']),
+      quoteCurrency: serializer.fromJson<String>(json['quoteCurrency']),
+      rateDate: serializer.fromJson<String>(json['rateDate']),
+      rate: serializer.fromJson<String>(json['rate']),
+      source: serializer.fromJson<String>(json['source']),
+      fetchedAt: serializer.fromJson<DateTime>(json['fetchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'baseCurrency': serializer.toJson<String>(baseCurrency),
+      'quoteCurrency': serializer.toJson<String>(quoteCurrency),
+      'rateDate': serializer.toJson<String>(rateDate),
+      'rate': serializer.toJson<String>(rate),
+      'source': serializer.toJson<String>(source),
+      'fetchedAt': serializer.toJson<DateTime>(fetchedAt),
+    };
+  }
+
+  ExchangeRate copyWith(
+          {String? baseCurrency,
+          String? quoteCurrency,
+          String? rateDate,
+          String? rate,
+          String? source,
+          DateTime? fetchedAt}) =>
+      ExchangeRate(
+        baseCurrency: baseCurrency ?? this.baseCurrency,
+        quoteCurrency: quoteCurrency ?? this.quoteCurrency,
+        rateDate: rateDate ?? this.rateDate,
+        rate: rate ?? this.rate,
+        source: source ?? this.source,
+        fetchedAt: fetchedAt ?? this.fetchedAt,
+      );
+  ExchangeRate copyWithCompanion(ExchangeRatesCompanion data) {
+    return ExchangeRate(
+      baseCurrency: data.baseCurrency.present
+          ? data.baseCurrency.value
+          : this.baseCurrency,
+      quoteCurrency: data.quoteCurrency.present
+          ? data.quoteCurrency.value
+          : this.quoteCurrency,
+      rateDate: data.rateDate.present ? data.rateDate.value : this.rateDate,
+      rate: data.rate.present ? data.rate.value : this.rate,
+      source: data.source.present ? data.source.value : this.source,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExchangeRate(')
+          ..write('baseCurrency: $baseCurrency, ')
+          ..write('quoteCurrency: $quoteCurrency, ')
+          ..write('rateDate: $rateDate, ')
+          ..write('rate: $rate, ')
+          ..write('source: $source, ')
+          ..write('fetchedAt: $fetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      baseCurrency, quoteCurrency, rateDate, rate, source, fetchedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExchangeRate &&
+          other.baseCurrency == this.baseCurrency &&
+          other.quoteCurrency == this.quoteCurrency &&
+          other.rateDate == this.rateDate &&
+          other.rate == this.rate &&
+          other.source == this.source &&
+          other.fetchedAt == this.fetchedAt);
+}
+
+class ExchangeRatesCompanion extends UpdateCompanion<ExchangeRate> {
+  final Value<String> baseCurrency;
+  final Value<String> quoteCurrency;
+  final Value<String> rateDate;
+  final Value<String> rate;
+  final Value<String> source;
+  final Value<DateTime> fetchedAt;
+  final Value<int> rowid;
+  const ExchangeRatesCompanion({
+    this.baseCurrency = const Value.absent(),
+    this.quoteCurrency = const Value.absent(),
+    this.rateDate = const Value.absent(),
+    this.rate = const Value.absent(),
+    this.source = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExchangeRatesCompanion.insert({
+    required String baseCurrency,
+    required String quoteCurrency,
+    required String rateDate,
+    required String rate,
+    required String source,
+    required DateTime fetchedAt,
+    this.rowid = const Value.absent(),
+  })  : baseCurrency = Value(baseCurrency),
+        quoteCurrency = Value(quoteCurrency),
+        rateDate = Value(rateDate),
+        rate = Value(rate),
+        source = Value(source),
+        fetchedAt = Value(fetchedAt);
+  static Insertable<ExchangeRate> custom({
+    Expression<String>? baseCurrency,
+    Expression<String>? quoteCurrency,
+    Expression<String>? rateDate,
+    Expression<String>? rate,
+    Expression<String>? source,
+    Expression<DateTime>? fetchedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (baseCurrency != null) 'base_currency': baseCurrency,
+      if (quoteCurrency != null) 'quote_currency': quoteCurrency,
+      if (rateDate != null) 'rate_date': rateDate,
+      if (rate != null) 'rate': rate,
+      if (source != null) 'source': source,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExchangeRatesCompanion copyWith(
+      {Value<String>? baseCurrency,
+      Value<String>? quoteCurrency,
+      Value<String>? rateDate,
+      Value<String>? rate,
+      Value<String>? source,
+      Value<DateTime>? fetchedAt,
+      Value<int>? rowid}) {
+    return ExchangeRatesCompanion(
+      baseCurrency: baseCurrency ?? this.baseCurrency,
+      quoteCurrency: quoteCurrency ?? this.quoteCurrency,
+      rateDate: rateDate ?? this.rateDate,
+      rate: rate ?? this.rate,
+      source: source ?? this.source,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (baseCurrency.present) {
+      map['base_currency'] = Variable<String>(baseCurrency.value);
+    }
+    if (quoteCurrency.present) {
+      map['quote_currency'] = Variable<String>(quoteCurrency.value);
+    }
+    if (rateDate.present) {
+      map['rate_date'] = Variable<String>(rateDate.value);
+    }
+    if (rate.present) {
+      map['rate'] = Variable<String>(rate.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExchangeRatesCompanion(')
+          ..write('baseCurrency: $baseCurrency, ')
+          ..write('quoteCurrency: $quoteCurrency, ')
+          ..write('rateDate: $rateDate, ')
+          ..write('rate: $rate, ')
+          ..write('source: $source, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ExchangeRateOverridesTable extends ExchangeRateOverrides
+    with TableInfo<$ExchangeRateOverridesTable, ExchangeRateOverride> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExchangeRateOverridesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _baseCurrencyMeta =
+      const VerificationMeta('baseCurrency');
+  @override
+  late final GeneratedColumn<String> baseCurrency = GeneratedColumn<String>(
+      'base_currency', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _quoteCurrencyMeta =
+      const VerificationMeta('quoteCurrency');
+  @override
+  late final GeneratedColumn<String> quoteCurrency = GeneratedColumn<String>(
+      'quote_currency', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _rateMeta = const VerificationMeta('rate');
+  @override
+  late final GeneratedColumn<String> rate = GeneratedColumn<String>(
+      'rate', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, syncId, baseCurrency, quoteCurrency, rate, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'exchange_rate_overrides';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ExchangeRateOverride> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    }
+    if (data.containsKey('base_currency')) {
+      context.handle(
+          _baseCurrencyMeta,
+          baseCurrency.isAcceptableOrUnknown(
+              data['base_currency']!, _baseCurrencyMeta));
+    } else if (isInserting) {
+      context.missing(_baseCurrencyMeta);
+    }
+    if (data.containsKey('quote_currency')) {
+      context.handle(
+          _quoteCurrencyMeta,
+          quoteCurrency.isAcceptableOrUnknown(
+              data['quote_currency']!, _quoteCurrencyMeta));
+    } else if (isInserting) {
+      context.missing(_quoteCurrencyMeta);
+    }
+    if (data.containsKey('rate')) {
+      context.handle(
+          _rateMeta, rate.isAcceptableOrUnknown(data['rate']!, _rateMeta));
+    } else if (isInserting) {
+      context.missing(_rateMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ExchangeRateOverride map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExchangeRateOverride(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id']),
+      baseCurrency: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}base_currency'])!,
+      quoteCurrency: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}quote_currency'])!,
+      rate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}rate'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+    );
+  }
+
+  @override
+  $ExchangeRateOverridesTable createAlias(String alias) {
+    return $ExchangeRateOverridesTable(attachedDatabase, alias);
+  }
+}
+
+class ExchangeRateOverride extends DataClass
+    implements Insertable<ExchangeRateOverride> {
+  final int id;
+  final String? syncId;
+  final String baseCurrency;
+  final String quoteCurrency;
+  final String rate;
+  final DateTime? updatedAt;
+  const ExchangeRateOverride(
+      {required this.id,
+      this.syncId,
+      required this.baseCurrency,
+      required this.quoteCurrency,
+      required this.rate,
+      this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || syncId != null) {
+      map['sync_id'] = Variable<String>(syncId);
+    }
+    map['base_currency'] = Variable<String>(baseCurrency);
+    map['quote_currency'] = Variable<String>(quoteCurrency);
+    map['rate'] = Variable<String>(rate);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    return map;
+  }
+
+  ExchangeRateOverridesCompanion toCompanion(bool nullToAbsent) {
+    return ExchangeRateOverridesCompanion(
+      id: Value(id),
+      syncId:
+          syncId == null && nullToAbsent ? const Value.absent() : Value(syncId),
+      baseCurrency: Value(baseCurrency),
+      quoteCurrency: Value(quoteCurrency),
+      rate: Value(rate),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  factory ExchangeRateOverride.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExchangeRateOverride(
+      id: serializer.fromJson<int>(json['id']),
+      syncId: serializer.fromJson<String?>(json['syncId']),
+      baseCurrency: serializer.fromJson<String>(json['baseCurrency']),
+      quoteCurrency: serializer.fromJson<String>(json['quoteCurrency']),
+      rate: serializer.fromJson<String>(json['rate']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'syncId': serializer.toJson<String?>(syncId),
+      'baseCurrency': serializer.toJson<String>(baseCurrency),
+      'quoteCurrency': serializer.toJson<String>(quoteCurrency),
+      'rate': serializer.toJson<String>(rate),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+    };
+  }
+
+  ExchangeRateOverride copyWith(
+          {int? id,
+          Value<String?> syncId = const Value.absent(),
+          String? baseCurrency,
+          String? quoteCurrency,
+          String? rate,
+          Value<DateTime?> updatedAt = const Value.absent()}) =>
+      ExchangeRateOverride(
+        id: id ?? this.id,
+        syncId: syncId.present ? syncId.value : this.syncId,
+        baseCurrency: baseCurrency ?? this.baseCurrency,
+        quoteCurrency: quoteCurrency ?? this.quoteCurrency,
+        rate: rate ?? this.rate,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+      );
+  ExchangeRateOverride copyWithCompanion(ExchangeRateOverridesCompanion data) {
+    return ExchangeRateOverride(
+      id: data.id.present ? data.id.value : this.id,
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      baseCurrency: data.baseCurrency.present
+          ? data.baseCurrency.value
+          : this.baseCurrency,
+      quoteCurrency: data.quoteCurrency.present
+          ? data.quoteCurrency.value
+          : this.quoteCurrency,
+      rate: data.rate.present ? data.rate.value : this.rate,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExchangeRateOverride(')
+          ..write('id: $id, ')
+          ..write('syncId: $syncId, ')
+          ..write('baseCurrency: $baseCurrency, ')
+          ..write('quoteCurrency: $quoteCurrency, ')
+          ..write('rate: $rate, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, syncId, baseCurrency, quoteCurrency, rate, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExchangeRateOverride &&
+          other.id == this.id &&
+          other.syncId == this.syncId &&
+          other.baseCurrency == this.baseCurrency &&
+          other.quoteCurrency == this.quoteCurrency &&
+          other.rate == this.rate &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ExchangeRateOverridesCompanion
+    extends UpdateCompanion<ExchangeRateOverride> {
+  final Value<int> id;
+  final Value<String?> syncId;
+  final Value<String> baseCurrency;
+  final Value<String> quoteCurrency;
+  final Value<String> rate;
+  final Value<DateTime?> updatedAt;
+  const ExchangeRateOverridesCompanion({
+    this.id = const Value.absent(),
+    this.syncId = const Value.absent(),
+    this.baseCurrency = const Value.absent(),
+    this.quoteCurrency = const Value.absent(),
+    this.rate = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  ExchangeRateOverridesCompanion.insert({
+    this.id = const Value.absent(),
+    this.syncId = const Value.absent(),
+    required String baseCurrency,
+    required String quoteCurrency,
+    required String rate,
+    this.updatedAt = const Value.absent(),
+  })  : baseCurrency = Value(baseCurrency),
+        quoteCurrency = Value(quoteCurrency),
+        rate = Value(rate);
+  static Insertable<ExchangeRateOverride> custom({
+    Expression<int>? id,
+    Expression<String>? syncId,
+    Expression<String>? baseCurrency,
+    Expression<String>? quoteCurrency,
+    Expression<String>? rate,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (syncId != null) 'sync_id': syncId,
+      if (baseCurrency != null) 'base_currency': baseCurrency,
+      if (quoteCurrency != null) 'quote_currency': quoteCurrency,
+      if (rate != null) 'rate': rate,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  ExchangeRateOverridesCompanion copyWith(
+      {Value<int>? id,
+      Value<String?>? syncId,
+      Value<String>? baseCurrency,
+      Value<String>? quoteCurrency,
+      Value<String>? rate,
+      Value<DateTime?>? updatedAt}) {
+    return ExchangeRateOverridesCompanion(
+      id: id ?? this.id,
+      syncId: syncId ?? this.syncId,
+      baseCurrency: baseCurrency ?? this.baseCurrency,
+      quoteCurrency: quoteCurrency ?? this.quoteCurrency,
+      rate: rate ?? this.rate,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (baseCurrency.present) {
+      map['base_currency'] = Variable<String>(baseCurrency.value);
+    }
+    if (quoteCurrency.present) {
+      map['quote_currency'] = Variable<String>(quoteCurrency.value);
+    }
+    if (rate.present) {
+      map['rate'] = Variable<String>(rate.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExchangeRateOverridesCompanion(')
+          ..write('id: $id, ')
+          ..write('syncId: $syncId, ')
+          ..write('baseCurrency: $baseCurrency, ')
+          ..write('quoteCurrency: $quoteCurrency, ')
+          ..write('rate: $rate, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$BeeDatabase extends GeneratedDatabase {
   _$BeeDatabase(QueryExecutor e) : super(e);
   $BeeDatabaseManager get managers => $BeeDatabaseManager(this);
@@ -9895,6 +10598,9 @@ abstract class _$BeeDatabase extends GeneratedDatabase {
   late final $TransactionTagOverridesTable transactionTagOverrides =
       $TransactionTagOverridesTable(this);
   late final $SyncPullErrorsTable syncPullErrors = $SyncPullErrorsTable(this);
+  late final $ExchangeRatesTable exchangeRates = $ExchangeRatesTable(this);
+  late final $ExchangeRateOverridesTable exchangeRateOverrides =
+      $ExchangeRateOverridesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9918,7 +10624,9 @@ abstract class _$BeeDatabase extends GeneratedDatabase {
         sharedLedgerAccounts,
         sharedLedgerTags,
         transactionTagOverrides,
-        syncPullErrors
+        syncPullErrors,
+        exchangeRates,
+        exchangeRateOverrides
       ];
 }
 
@@ -14604,6 +15312,387 @@ typedef $$SyncPullErrorsTableProcessedTableManager = ProcessedTableManager<
     ),
     SyncPullError,
     PrefetchHooks Function()>;
+typedef $$ExchangeRatesTableCreateCompanionBuilder = ExchangeRatesCompanion
+    Function({
+  required String baseCurrency,
+  required String quoteCurrency,
+  required String rateDate,
+  required String rate,
+  required String source,
+  required DateTime fetchedAt,
+  Value<int> rowid,
+});
+typedef $$ExchangeRatesTableUpdateCompanionBuilder = ExchangeRatesCompanion
+    Function({
+  Value<String> baseCurrency,
+  Value<String> quoteCurrency,
+  Value<String> rateDate,
+  Value<String> rate,
+  Value<String> source,
+  Value<DateTime> fetchedAt,
+  Value<int> rowid,
+});
+
+class $$ExchangeRatesTableFilterComposer
+    extends Composer<_$BeeDatabase, $ExchangeRatesTable> {
+  $$ExchangeRatesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get baseCurrency => $composableBuilder(
+      column: $table.baseCurrency, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get quoteCurrency => $composableBuilder(
+      column: $table.quoteCurrency, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rateDate => $composableBuilder(
+      column: $table.rateDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rate => $composableBuilder(
+      column: $table.rate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get source => $composableBuilder(
+      column: $table.source, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+      column: $table.fetchedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$ExchangeRatesTableOrderingComposer
+    extends Composer<_$BeeDatabase, $ExchangeRatesTable> {
+  $$ExchangeRatesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get baseCurrency => $composableBuilder(
+      column: $table.baseCurrency,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get quoteCurrency => $composableBuilder(
+      column: $table.quoteCurrency,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rateDate => $composableBuilder(
+      column: $table.rateDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rate => $composableBuilder(
+      column: $table.rate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get source => $composableBuilder(
+      column: $table.source, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+      column: $table.fetchedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ExchangeRatesTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $ExchangeRatesTable> {
+  $$ExchangeRatesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get baseCurrency => $composableBuilder(
+      column: $table.baseCurrency, builder: (column) => column);
+
+  GeneratedColumn<String> get quoteCurrency => $composableBuilder(
+      column: $table.quoteCurrency, builder: (column) => column);
+
+  GeneratedColumn<String> get rateDate =>
+      $composableBuilder(column: $table.rateDate, builder: (column) => column);
+
+  GeneratedColumn<String> get rate =>
+      $composableBuilder(column: $table.rate, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+}
+
+class $$ExchangeRatesTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $ExchangeRatesTable,
+    ExchangeRate,
+    $$ExchangeRatesTableFilterComposer,
+    $$ExchangeRatesTableOrderingComposer,
+    $$ExchangeRatesTableAnnotationComposer,
+    $$ExchangeRatesTableCreateCompanionBuilder,
+    $$ExchangeRatesTableUpdateCompanionBuilder,
+    (
+      ExchangeRate,
+      BaseReferences<_$BeeDatabase, $ExchangeRatesTable, ExchangeRate>
+    ),
+    ExchangeRate,
+    PrefetchHooks Function()> {
+  $$ExchangeRatesTableTableManager(_$BeeDatabase db, $ExchangeRatesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExchangeRatesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExchangeRatesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExchangeRatesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> baseCurrency = const Value.absent(),
+            Value<String> quoteCurrency = const Value.absent(),
+            Value<String> rateDate = const Value.absent(),
+            Value<String> rate = const Value.absent(),
+            Value<String> source = const Value.absent(),
+            Value<DateTime> fetchedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ExchangeRatesCompanion(
+            baseCurrency: baseCurrency,
+            quoteCurrency: quoteCurrency,
+            rateDate: rateDate,
+            rate: rate,
+            source: source,
+            fetchedAt: fetchedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String baseCurrency,
+            required String quoteCurrency,
+            required String rateDate,
+            required String rate,
+            required String source,
+            required DateTime fetchedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ExchangeRatesCompanion.insert(
+            baseCurrency: baseCurrency,
+            quoteCurrency: quoteCurrency,
+            rateDate: rateDate,
+            rate: rate,
+            source: source,
+            fetchedAt: fetchedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ExchangeRatesTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $ExchangeRatesTable,
+    ExchangeRate,
+    $$ExchangeRatesTableFilterComposer,
+    $$ExchangeRatesTableOrderingComposer,
+    $$ExchangeRatesTableAnnotationComposer,
+    $$ExchangeRatesTableCreateCompanionBuilder,
+    $$ExchangeRatesTableUpdateCompanionBuilder,
+    (
+      ExchangeRate,
+      BaseReferences<_$BeeDatabase, $ExchangeRatesTable, ExchangeRate>
+    ),
+    ExchangeRate,
+    PrefetchHooks Function()>;
+typedef $$ExchangeRateOverridesTableCreateCompanionBuilder
+    = ExchangeRateOverridesCompanion Function({
+  Value<int> id,
+  Value<String?> syncId,
+  required String baseCurrency,
+  required String quoteCurrency,
+  required String rate,
+  Value<DateTime?> updatedAt,
+});
+typedef $$ExchangeRateOverridesTableUpdateCompanionBuilder
+    = ExchangeRateOverridesCompanion Function({
+  Value<int> id,
+  Value<String?> syncId,
+  Value<String> baseCurrency,
+  Value<String> quoteCurrency,
+  Value<String> rate,
+  Value<DateTime?> updatedAt,
+});
+
+class $$ExchangeRateOverridesTableFilterComposer
+    extends Composer<_$BeeDatabase, $ExchangeRateOverridesTable> {
+  $$ExchangeRateOverridesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get baseCurrency => $composableBuilder(
+      column: $table.baseCurrency, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get quoteCurrency => $composableBuilder(
+      column: $table.quoteCurrency, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rate => $composableBuilder(
+      column: $table.rate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$ExchangeRateOverridesTableOrderingComposer
+    extends Composer<_$BeeDatabase, $ExchangeRateOverridesTable> {
+  $$ExchangeRateOverridesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get baseCurrency => $composableBuilder(
+      column: $table.baseCurrency,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get quoteCurrency => $composableBuilder(
+      column: $table.quoteCurrency,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rate => $composableBuilder(
+      column: $table.rate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ExchangeRateOverridesTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $ExchangeRateOverridesTable> {
+  $$ExchangeRateOverridesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get baseCurrency => $composableBuilder(
+      column: $table.baseCurrency, builder: (column) => column);
+
+  GeneratedColumn<String> get quoteCurrency => $composableBuilder(
+      column: $table.quoteCurrency, builder: (column) => column);
+
+  GeneratedColumn<String> get rate =>
+      $composableBuilder(column: $table.rate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$ExchangeRateOverridesTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $ExchangeRateOverridesTable,
+    ExchangeRateOverride,
+    $$ExchangeRateOverridesTableFilterComposer,
+    $$ExchangeRateOverridesTableOrderingComposer,
+    $$ExchangeRateOverridesTableAnnotationComposer,
+    $$ExchangeRateOverridesTableCreateCompanionBuilder,
+    $$ExchangeRateOverridesTableUpdateCompanionBuilder,
+    (
+      ExchangeRateOverride,
+      BaseReferences<_$BeeDatabase, $ExchangeRateOverridesTable,
+          ExchangeRateOverride>
+    ),
+    ExchangeRateOverride,
+    PrefetchHooks Function()> {
+  $$ExchangeRateOverridesTableTableManager(
+      _$BeeDatabase db, $ExchangeRateOverridesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExchangeRateOverridesTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExchangeRateOverridesTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExchangeRateOverridesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String?> syncId = const Value.absent(),
+            Value<String> baseCurrency = const Value.absent(),
+            Value<String> quoteCurrency = const Value.absent(),
+            Value<String> rate = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+          }) =>
+              ExchangeRateOverridesCompanion(
+            id: id,
+            syncId: syncId,
+            baseCurrency: baseCurrency,
+            quoteCurrency: quoteCurrency,
+            rate: rate,
+            updatedAt: updatedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String?> syncId = const Value.absent(),
+            required String baseCurrency,
+            required String quoteCurrency,
+            required String rate,
+            Value<DateTime?> updatedAt = const Value.absent(),
+          }) =>
+              ExchangeRateOverridesCompanion.insert(
+            id: id,
+            syncId: syncId,
+            baseCurrency: baseCurrency,
+            quoteCurrency: quoteCurrency,
+            rate: rate,
+            updatedAt: updatedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ExchangeRateOverridesTableProcessedTableManager
+    = ProcessedTableManager<
+        _$BeeDatabase,
+        $ExchangeRateOverridesTable,
+        ExchangeRateOverride,
+        $$ExchangeRateOverridesTableFilterComposer,
+        $$ExchangeRateOverridesTableOrderingComposer,
+        $$ExchangeRateOverridesTableAnnotationComposer,
+        $$ExchangeRateOverridesTableCreateCompanionBuilder,
+        $$ExchangeRateOverridesTableUpdateCompanionBuilder,
+        (
+          ExchangeRateOverride,
+          BaseReferences<_$BeeDatabase, $ExchangeRateOverridesTable,
+              ExchangeRateOverride>
+        ),
+        ExchangeRateOverride,
+        PrefetchHooks Function()>;
 
 class $BeeDatabaseManager {
   final _$BeeDatabase _db;
@@ -14648,4 +15737,8 @@ class $BeeDatabaseManager {
           _db, _db.transactionTagOverrides);
   $$SyncPullErrorsTableTableManager get syncPullErrors =>
       $$SyncPullErrorsTableTableManager(_db, _db.syncPullErrors);
+  $$ExchangeRatesTableTableManager get exchangeRates =>
+      $$ExchangeRatesTableTableManager(_db, _db.exchangeRates);
+  $$ExchangeRateOverridesTableTableManager get exchangeRateOverrides =>
+      $$ExchangeRateOverridesTableTableManager(_db, _db.exchangeRateOverrides);
 }
