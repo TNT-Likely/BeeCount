@@ -7,6 +7,7 @@ import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
 
 import '../../db.dart';
+import '../../../utils/month_range.dart';
 import '../../../utils/shared_ledger_picker_filter.dart';
 import '../transaction_repository.dart';
 import '../../../services/system/logger_service.dart';
@@ -33,22 +34,37 @@ class LocalTransactionRepository implements TransactionRepository {
         .watch();
   }
 
+  /// 读取账本的自定义每月起始日(1-28);账本缺失或查询异常时按 1(自然月)降级
+  /// —— watch 流经 Stream.fromFuture 包裹,这里抛错会让流永久进 error 态。
+  Future<int> _monthStartDayOf(int ledgerId) async {
+    try {
+      final row = await (db.select(db.ledgers)
+            ..where((l) => l.id.equals(ledgerId)))
+          .getSingleOrNull();
+      return (row?.monthStartDay ?? 1).clamp(1, 28);
+    } catch (_) {
+      return 1;
+    }
+  }
+
   @override
   Stream<List<Transaction>> watchTransactionsInMonth({
     required int ledgerId,
     required DateTime month,
   }) {
-    final start = DateTime(month.year, month.month, 1);
-    final end = DateTime(month.year, month.month + 1, 1);
-    return (db.select(db.transactions)
-          ..where((t) =>
-              t.ledgerId.equals(ledgerId) &
-              t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end))
-          ..orderBy([
-            (t) => d.OrderingTerm(
-                expression: t.happenedAt, mode: d.OrderingMode.desc)
-          ]))
-        .watch();
+    return Stream.fromFuture(_monthStartDayOf(ledgerId)).asyncExpand((sd) {
+      final range = periodForLabel(month.year, month.month, sd);
+      return (db.select(db.transactions)
+            ..where((t) =>
+                t.ledgerId.equals(ledgerId) &
+                t.happenedAt.isBiggerOrEqualValue(range.start) &
+                t.happenedAt.isSmallerThanValue(range.end))
+            ..orderBy([
+              (t) => d.OrderingTerm(
+                  expression: t.happenedAt, mode: d.OrderingMode.desc)
+            ]))
+          .watch();
+    });
   }
 
   /// Drift `accounts` 表的两个 alias —— from 账户(`transactions.account_id`)
@@ -269,18 +285,20 @@ class LocalTransactionRepository implements TransactionRepository {
     required int ledgerId,
     required DateTime month,
   }) {
-    final start = DateTime(month.year, month.month, 1);
-    final end = DateTime(month.year, month.month + 1, 1);
-    final q = (db.select(db.transactions)
-          ..where((t) =>
-              t.ledgerId.equals(ledgerId) &
-              t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end))
-          ..orderBy([
-            (t) => d.OrderingTerm(
-                expression: t.happenedAt, mode: d.OrderingMode.desc)
-          ]))
-        .join(_txJoins());
-    return _watchTxJoinWithSharedHydration(q);
+    return Stream.fromFuture(_monthStartDayOf(ledgerId)).asyncExpand((sd) {
+      final range = periodForLabel(month.year, month.month, sd);
+      final q = (db.select(db.transactions)
+            ..where((t) =>
+                t.ledgerId.equals(ledgerId) &
+                t.happenedAt.isBiggerOrEqualValue(range.start) &
+                t.happenedAt.isSmallerThanValue(range.end))
+            ..orderBy([
+              (t) => d.OrderingTerm(
+                  expression: t.happenedAt, mode: d.OrderingMode.desc)
+            ]))
+          .join(_txJoins());
+      return _watchTxJoinWithSharedHydration(q);
+    });
   }
 
   @override

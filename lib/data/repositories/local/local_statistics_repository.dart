@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' as d;
 
 import '../../db.dart';
+import '../../../utils/month_range.dart';
 import '../../../utils/shared_ledger_picker_filter.dart';
 import '../statistics_repository.dart';
 
@@ -221,18 +222,20 @@ class LocalStatisticsRepository implements StatisticsRepository {
     required String type,
     required int year,
   }) async {
-    final start = DateTime(year, 1, 1);
-    final end = DateTime(year + 1, 1, 1);
+    final sd = await _monthStartDayOf(ledgerId);
+    final yr = yearRangeFor(year, sd);
     final rows = await (db.select(db.transactions)
           ..where((t) =>
               t.ledgerId.equals(ledgerId) &
               t.type.equals(type) &
-              t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end)))
+              t.happenedAt.isBiggerOrEqualValue(yr.start) &
+              t.happenedAt.isSmallerThanValue(yr.end)))
         .get();
     final map = <int, double>{};
     for (final t in rows) {
-      final dt = t.happenedAt.toLocal();
-      map.update(dt.month, (v) => v + t.amount, ifAbsent: () => t.amount);
+      // 年范围 [当年1月周期起点, 次年1月周期起点) 内的标签必属 year,直接取 month
+      final label = labelForDate(t.happenedAt.toLocal(), sd);
+      map.update(label.month, (v) => v + t.amount, ifAbsent: () => t.amount);
     }
     final result = <({DateTime month, double total})>[];
     for (int m = 1; m <= 12; m++) {
@@ -250,10 +253,11 @@ class LocalStatisticsRepository implements StatisticsRepository {
           ..where((t) => t.ledgerId.equals(ledgerId) & t.type.equals(type)))
         .get();
     if (rows.isEmpty) return const [];
+    final sd = await _monthStartDayOf(ledgerId);
     final map = <int, double>{};
     int minYear = 9999, maxYear = 0;
     for (final t in rows) {
-      final y = t.happenedAt.toLocal().year;
+      final y = labelForDate(t.happenedAt.toLocal(), sd).year;
       if (y < minYear) minYear = y;
       if (y > maxYear) maxYear = y;
       map.update(y, (v) => v + t.amount, ifAbsent: () => t.amount);
@@ -293,13 +297,28 @@ class LocalStatisticsRepository implements StatisticsRepository {
     return (income, expense);
   }
 
+  /// 读取账本的自定义每月起始日(1-28);账本缺失或查询异常时按 1(自然月)降级
+  /// —— watch 流经 Stream.fromFuture 包裹,这里抛错会让流永久进 error 态。
+  Future<int> _monthStartDayOf(int ledgerId) async {
+    try {
+      final row = await (db.select(db.ledgers)
+            ..where((l) => l.id.equals(ledgerId)))
+          .getSingleOrNull();
+      return (row?.monthStartDay ?? 1).clamp(1, 28);
+    } catch (_) {
+      return 1;
+    }
+  }
+
   @override
   Future<(double income, double expense)> monthlyTotals({
     required int ledgerId,
     required DateTime month,
   }) async {
-    final start = DateTime(month.year, month.month, 1);
-    final end = DateTime(month.year, month.month + 1, 1);
+    final sd = await _monthStartDayOf(ledgerId);
+    final range = periodForLabel(month.year, month.month, sd);
+    final start = range.start;
+    final end = range.end;
 
     // 使用 SQL 聚合查询，比查出全部数据再累加快得多
     final result = await db.customSelect(
@@ -328,8 +347,10 @@ class LocalStatisticsRepository implements StatisticsRepository {
     required int ledgerId,
     required int year,
   }) async {
-    final start = DateTime(year, 1, 1);
-    final end = DateTime(year + 1, 1, 1);
+    final sd = await _monthStartDayOf(ledgerId);
+    final range = yearRangeFor(year, sd);
+    final start = range.start;
+    final end = range.end;
 
     // 使用 SQL 聚合查询，比查出全部数据再累加快得多
     final result = await db.customSelect(

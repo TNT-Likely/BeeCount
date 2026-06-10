@@ -57,6 +57,9 @@ abstract class TransactionRepository {
   });
 
   /// 获取指定月份的交易记录
+  ///
+  /// [month] 为周期标签,约定传 DateTime(year, month, 1);实际范围由账本
+  /// monthStartDay 决定:[y-m-起始日, y-(m+1)-起始日)。
   Stream<List<Transaction>> watchTransactionsInMonth({
     required int ledgerId,
     required DateTime month,
@@ -84,6 +87,9 @@ abstract class TransactionRepository {
   Future<Transaction?> getTransactionById(int id);
 
   /// 获取指定月份的交易记录（带分类信息）
+  ///
+  /// [month] 为周期标签,约定传 DateTime(year, month, 1);实际范围由账本
+  /// monthStartDay 决定:[y-m-起始日, y-(m+1)-起始日)。
   Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryInMonth({
     required int ledgerId,
     required DateTime month,

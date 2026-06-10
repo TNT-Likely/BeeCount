@@ -29,6 +29,11 @@ abstract class StatisticsRepository {
   });
 
   /// 按月统计（指定年份和类型）
+  ///
+  /// [month] 为周期标签,约定传 DateTime(year, month, 1);实际范围由账本
+  /// monthStartDay 决定:[y-m-起始日, y-(m+1)-起始日)。
+  /// 返回的 12 桶为周期标签月,范围 = 账本起始日定义的
+  /// [当年1月周期起点, 次年1月周期起点)。
   Future<List<({DateTime month, double total})>> totalsByMonth({
     required int ledgerId,
     required String type,
@@ -49,6 +54,9 @@ abstract class StatisticsRepository {
   });
 
   /// 获取指定月份的收支总额
+  ///
+  /// [month] 为周期标签,约定传 DateTime(year, month, 1);实际范围由账本
+  /// monthStartDay 决定:[y-m-起始日, y-(m+1)-起始日)。
   Future<(double income, double expense)> monthlyTotals({
     required int ledgerId,
     required DateTime month,
