@@ -224,17 +224,8 @@ class _BudgetEditPageState extends ConsumerState<BudgetEditPage> {
                     ],
                   ),
                 ),
-                // TODO: 起始日设置暂时隐藏，后期与周期开始日期一起调整
-                // SizedBox(height: 12.0.scaled(context, ref)),
-                // SectionCard(
-                //   child: Column(
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     children: [
-                //       Text(l10n.budgetStartDayLabel, ...),
-                //       _buildStartDaySelector(context),
-                //     ],
-                //   ),
-                // ),
+                // 预算周期跟随「账本设置 → 每月起始日」(period-start-date 设计 D5),
+                // 不再提供 per-budget 起始日;独立覆盖若有需求走二期新列。
               ],
             ),
           ),
@@ -356,43 +347,6 @@ class _BudgetEditPageState extends ConsumerState<BudgetEditPage> {
       ),
     );
   }
-
-  // TODO: 起始日选择器暂时隐藏，后期与周期开始日期一起调整
-  // Widget _buildStartDaySelector(BuildContext context) {
-  //   return Wrap(
-  //     spacing: 8.0.scaled(context, ref),
-  //     runSpacing: 8.0.scaled(context, ref),
-  //     children: List.generate(28, (index) {
-  //       final day = index + 1;
-  //       final isSelected = _startDay == day;
-  //       final primary = Theme.of(context).colorScheme.primary;
-  //       return InkWell(
-  //         onTap: () => setState(() => _startDay = day),
-  //         borderRadius: BorderRadius.circular(8),
-  //         child: Container(
-  //           width: 40.0.scaled(context, ref),
-  //           height: 40.0.scaled(context, ref),
-  //           decoration: BoxDecoration(
-  //             color: isSelected ? primary : BeeTokens.surface(context),
-  //             borderRadius: BorderRadius.circular(8),
-  //             border: Border.all(
-  //               color: isSelected ? primary : BeeTokens.border(context),
-  //             ),
-  //           ),
-  //           alignment: Alignment.center,
-  //           child: Text(
-  //             '$day',
-  //             style: TextStyle(
-  //               fontSize: 14,
-  //               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-  //               color: isSelected ? Colors.white : BeeTokens.textPrimary(context),
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     }),
-  //   );
-  // }
 
   Future<void> _selectCategory() async {
     final repo = ref.read(repositoryProvider);

@@ -81,4 +81,27 @@ void main() {
     expect(txs.length, 1);
     expect(txs.single.amount, 20);
   });
+
+  test('预算周期跟随账本起始日,无视 budget.startDay', () async {
+    final lid = await seedLedger(monthStartDay: 25);
+    final now = DateTime.now();
+    // 手算包含 now 的 [25日, 次月25日) 周期起点(不引工具函数,独立交叉验证)
+    const day = 25;
+    final periodStart = now.day >= day
+        ? DateTime(now.year, now.month, day)
+        : DateTime(now.year, now.month - 1, day);
+    await addTx(lid, 'expense', 50, periodStart.add(const Duration(hours: 1)));
+    await addTx(
+        lid, 'expense', 70, periodStart.subtract(const Duration(hours: 1)));
+
+    await repo.createBudget(
+        ledgerId: lid, type: 'total', amount: 1000, startDay: 1);
+    final budget = await repo.getTotalBudget(lid);
+    final usage = await repo.getBudgetUsage(budget!.id, now);
+    expect(usage.used, 50); // 只算当前周期,budget.startDay=1 被忽略
+
+    final overview = await repo.getBudgetOverview(lid, now);
+    final periodEnd = DateTime(periodStart.year, periodStart.month + 1, day);
+    expect(overview.daysRemaining, periodEnd.difference(now).inDays);
+  });
 }
