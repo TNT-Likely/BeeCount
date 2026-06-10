@@ -2,6 +2,7 @@
 library;
 
 import '../../data/repositories/base_repository.dart';
+import '../../utils/month_range.dart';
 import '../ui/avatar_service.dart';
 import 'share_poster_types.dart';
 
@@ -16,16 +17,19 @@ class SharePosterDataService {
     required int ledgerId,
     required int year,
   }) async {
-    // 时间范围: 1月1日 00:00 - 12月31日 23:59:59
-    final startDate = DateTime(year, 1, 1);
-    final endDate = DateTime(year + 1, 1, 1);
+    // 时间范围:年 = 12 个自定义周期(design D4),[start, end) 半开
+    final ledger = await repository.getLedgerById(ledgerId);
+    final sd = (ledger?.monthStartDay ?? 1).clamp(1, 28);
+    final yr = yearRangeFor(year, sd);
+    final startDate = yr.start;
+    final endDate = yr.end;
 
     // 1. 获取指定年份的所有交易记录(用于计算天数和笔数)
     final yearTransactions = await repository.getTransactionsByLedger(ledgerId);
 
-    // 筛选出当年的交易
+    // 筛选出当年(周期口径)的交易
     final yearTxs = yearTransactions.where((tx) {
-      return tx.happenedAt.year == year;
+      return !tx.happenedAt.isBefore(startDate) && tx.happenedAt.isBefore(endDate);
     }).toList();
 
     // 计算记账天数(按日期去重)
@@ -121,11 +125,15 @@ class SharePosterDataService {
     required int year,
     required int month,
   }) async {
-    // 时间范围: 本月1日 00:00 - 下月1日 00:00
-    final startDate = DateTime(year, month, 1);
-    final endDate = DateTime(year, month + 1, 1);
+    // 时间范围:按账本起始日的记账周期 [当月sd日, 次月sd日)。
+    // startDate 的 year/month 与标签一致,可直接作 monthlyTotals 的标签参数。
+    final ledger = await repository.getLedgerById(ledgerId);
+    final sd = (ledger?.monthStartDay ?? 1).clamp(1, 28);
+    final range = periodForLabel(year, month, sd);
+    final startDate = range.start;
+    final endDate = range.end;
 
-    // 上月时间范围(用于计算环比)
+    // 上月标签(用于计算环比,monthlyTotals 标签语义)
     final prevMonthStart = DateTime(year, month - 1, 1);
 
     // 1. 计算本月收入和支出

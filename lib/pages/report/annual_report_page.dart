@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import '../../utils/month_range.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/posters/annual_report_poster.dart';
 import '../../data/db.dart';
@@ -64,9 +65,12 @@ final annualReportDataProvider =
     return null; // 无数据
   }
 
-  // 获取年度交易记录
-  final startDate = DateTime(year, 1, 1);
-  final endDate = DateTime(year, 12, 31, 23, 59, 59);
+  // 获取年度交易记录(年 = 12 个自定义周期,design D4;[start, end) 半开)
+  final ledger = await repo.getLedgerById(ledgerId);
+  final sd = (ledger?.monthStartDay ?? 1).clamp(1, 28);
+  final yr = yearRangeFor(year, sd);
+  final startDate = yr.start;
+  final endDate = yr.end;
   final transactions = await repo.getTransactionsByLedgerInRange(
     ledgerId: ledgerId,
     start: startDate,
@@ -733,9 +737,13 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
 
     // 计算年度总天数：过去年份用全年天数，当前年份用截至今天的天数
     final now = DateTime.now();
-    final isCurrentYear = data.year == now.year;
-    final yearEnd = isCurrentYear ? now : DateTime(data.year, 12, 31);
-    final yearStart = DateTime(data.year, 1, 1);
+    final sd = ref.watch(currentMonthStartDayProvider);
+    final yr = yearRangeFor(data.year, sd);
+    final isCurrentYear =
+        !now.isBefore(yr.start) && now.isBefore(yr.end);
+    final yearEnd =
+        isCurrentYear ? now : yr.end.subtract(const Duration(days: 1));
+    final yearStart = yr.start;
     final totalCalendarDays = yearEnd.difference(yearStart).inDays + 1;
 
     final dailyAvg = totalCalendarDays > 0 ? data.totalExpense / totalCalendarDays : 0;
