@@ -1050,6 +1050,30 @@ abstract class AppLocalizations {
   /// **'Currency'**
   String get ledgersCurrency;
 
+  /// No description provided for @ledgersMonthStartDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Month start day'**
+  String get ledgersMonthStartDay;
+
+  /// No description provided for @ledgersMonthStartDayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics and budgets use this day (1-28) as the start of each monthly period'**
+  String get ledgersMonthStartDayHint;
+
+  /// No description provided for @ledgersMonthStartDayNatural.
+  ///
+  /// In en, this message translates to:
+  /// **'1st (calendar month)'**
+  String get ledgersMonthStartDayNatural;
+
+  /// No description provided for @ledgersMonthStartDayValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} of each month'**
+  String ledgersMonthStartDayValue(int day);
+
   /// No description provided for @ledgersSelectCurrency.
   ///
   /// In en, this message translates to:

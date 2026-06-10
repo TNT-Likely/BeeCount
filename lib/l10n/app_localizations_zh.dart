@@ -528,6 +528,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ledgersCurrency => '币种';
 
   @override
+  String get ledgersMonthStartDay => '每月起始日';
+
+  @override
+  String get ledgersMonthStartDayHint => '统计与预算按该日作为每月周期起点（1-28）';
+
+  @override
+  String get ledgersMonthStartDayNatural => '1日（自然月）';
+
+  @override
+  String ledgersMonthStartDayValue(int day) {
+    return '每月$day日';
+  }
+
+  @override
   String get ledgersSelectCurrency => '选择币种';
 
   @override
@@ -7136,6 +7150,20 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get ledgersCurrency => '幣種';
+
+  @override
+  String get ledgersMonthStartDay => '每月起始日';
+
+  @override
+  String get ledgersMonthStartDayHint => '統計與預算按該日作為每月週期起點（1-28）';
+
+  @override
+  String get ledgersMonthStartDayNatural => '1日（自然月）';
+
+  @override
+  String ledgersMonthStartDayValue(int day) {
+    return '每月$day日';
+  }
 
   @override
   String get ledgersSelectCurrency => '選擇幣種';

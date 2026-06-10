@@ -27,7 +27,8 @@ import '../../utils/ui_scale_extensions.dart';
 import '../../utils/format_utils.dart';
 import '../../services/billing/post_processor.dart';
 import '../../l10n/app_localizations.dart';
-import '../../styles/tokens.dart';
+import '../../providers/budget_providers.dart';
+import '../../widget/widget_manager.dart';
 
 class LedgersPageNew extends ConsumerStatefulWidget {
   /// 进入页面后自动弹出「创建账本」对话框。用于首页账本胶囊在没账本时直接
@@ -663,6 +664,7 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
       title: AppLocalizations.of(context).ledgersEdit,
       initialName: ledgerData.name,
       initialCurrency: ledgerData.currency,
+      initialMonthStartDay: ledgerData.monthStartDay,
     );
 
     if (result == null || !mounted) return;
@@ -671,15 +673,30 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
       id: ledger.id,
       name: result.name.trim(),
       currency: result.currency,
+      monthStartDay: result.monthStartDay,
     );
 
-    // 修改账本名称/币种后，需要触发同步以更新云端账本文件
+    // 修改账本元数据后,触发同步以更新云端(本地非 tx 写入不会自动 push)
     await PostProcessor.sync(ref, ledgerId: ledger.id);
 
     ref.read(ledgerListRefreshProvider.notifier).state++;
     // currentLedgerProvider 已是 StreamProvider(Drift watch 自动推送),
     // 此 invalidate 仅作防御性重订阅(如流曾进入 error 态),正常路径冗余无害。
     ref.invalidate(currentLedgerProvider);
+    ref.read(statsRefreshProvider.notifier).state++;
+    ref.read(budgetRefreshProvider.notifier).state++;
+
+    // 起始日影响小部件「本月」口径,立即刷新
+    try {
+      final repository = ref.read(repositoryProvider);
+      final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
+      await WidgetManager().updateWidget(
+        repository,
+        ledger.id,
+        ref.read(primaryColorProvider),
+        redForIncome: redForIncome,
+      );
+    } catch (_) {}
   }
 
   /// 清空 / 删除账本后,精准清理该账本关联的附件物理文件(best-effort)。
@@ -1001,6 +1018,12 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
         currency: result.currency,
       );
 
+      // 创建弹窗里也能选起始日:createLedger 不收该参数,创建后补写
+      if (result.monthStartDay != 1) {
+        await repo.updateLedger(
+            id: newLedgerId, monthStartDay: result.monthStartDay);
+      }
+
       // 空账本场景(welcome 未勾默认账本 / 老用户导入配置不含账本)进入此页
       // 创建第一个账本时,currentLedgerIdProvider 还指向默认值 1(无效),
       // 必须切到新账本 id 否则首页 header 胶囊继续显示「新建账本」、列表为
@@ -1032,14 +1055,16 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
   }
 
   /// 账本编辑对话框
-  Future<({String name, String currency})?> _showLedgerEditorDialog(
+  Future<({String name, String currency, int monthStartDay})?> _showLedgerEditorDialog(
     BuildContext context, {
     String? title,
     String? initialName,
     String? initialCurrency,
+    int? initialMonthStartDay,
   }) async {
     String name = initialName ?? '';
     String currency = initialCurrency ?? 'CNY';
+    int monthStartDay = initialMonthStartDay ?? 1;
     final nameCtrl = TextEditingController(text: name);
 
     final ok = await showDialog<bool>(
@@ -1080,6 +1105,22 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
                     }
                   },
                 ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(AppLocalizations.of(ctx).ledgersMonthStartDay),
+                  subtitle: Text(monthStartDay <= 1
+                      ? AppLocalizations.of(ctx).ledgersMonthStartDayNatural
+                      : AppLocalizations.of(ctx)
+                          .ledgersMonthStartDayValue(monthStartDay)),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    final picked = await _showMonthStartDayPicker(ctx,
+                        initial: monthStartDay);
+                    if (picked != null) {
+                      setState(() => monthStartDay = picked);
+                    }
+                  },
+                ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1112,10 +1153,76 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
     );
 
     if (ok == true && nameCtrl.text.trim().isNotEmpty) {
-      return (name: nameCtrl.text.trim(), currency: currency);
+      return (name: nameCtrl.text.trim(), currency: currency, monthStartDay: monthStartDay);
     }
 
     return null;
+  }
+
+  /// 28宫格月起始日选择器
+  Future<int?> _showMonthStartDayPicker(BuildContext context,
+      {required int initial}) {
+    return showModalBottomSheet<int>(
+      context: context,
+      backgroundColor: BeeTokens.surfaceElevated(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        final primary = Theme.of(ctx).colorScheme.primary;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(AppLocalizations.of(ctx).ledgersMonthStartDay,
+                    style: Theme.of(ctx).textTheme.titleMedium),
+                const SizedBox(height: 4),
+                Text(AppLocalizations.of(ctx).ledgersMonthStartDayHint,
+                    style: Theme.of(ctx)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: BeeTokens.textTertiary(ctx))),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: List.generate(28, (index) {
+                    final day = index + 1;
+                    final isSelected = initial == day;
+                    return InkWell(
+                      onTap: () => Navigator.pop(ctx, day),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: isSelected
+                              ? primary.withValues(alpha: 0.12)
+                              : Colors.transparent,
+                          border: Border.all(
+                              color:
+                                  isSelected ? primary : BeeTokens.divider(ctx)),
+                        ),
+                        child: Text('$day',
+                            style: TextStyle(
+                                color: isSelected
+                                    ? primary
+                                    : BeeTokens.textPrimary(ctx))),
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   /// 货币选择器

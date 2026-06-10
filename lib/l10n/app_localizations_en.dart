@@ -528,6 +528,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ledgersCurrency => 'Currency';
 
   @override
+  String get ledgersMonthStartDay => 'Month start day';
+
+  @override
+  String get ledgersMonthStartDayHint => 'Statistics and budgets use this day (1-28) as the start of each monthly period';
+
+  @override
+  String get ledgersMonthStartDayNatural => '1st (calendar month)';
+
+  @override
+  String ledgersMonthStartDayValue(int day) {
+    return 'Day $day of each month';
+  }
+
+  @override
   String get ledgersSelectCurrency => 'Select Currency';
 
   @override

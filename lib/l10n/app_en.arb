@@ -225,6 +225,17 @@
   "ledgersName": "Name",
   "ledgersDefaultLedgerName": "Default Ledger",
   "ledgersCurrency": "Currency",
+  "ledgersMonthStartDay": "Month start day",
+  "ledgersMonthStartDayHint": "Statistics and budgets use this day (1-28) as the start of each monthly period",
+  "ledgersMonthStartDayNatural": "1st (calendar month)",
+  "ledgersMonthStartDayValue": "Day {day} of each month",
+  "@ledgersMonthStartDayValue": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
   "ledgersSelectCurrency": "Select Currency",
   "ledgersSearchCurrency": "Search: Chinese or code",
   "ledgersCreate": "Create",
