@@ -81,6 +81,14 @@ class $LedgersTable extends Ledgers with TableInfo<$LedgersTable, Ledger> {
   late final GeneratedColumn<String> ownerUserId = GeneratedColumn<String>(
       'owner_user_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _monthStartDayMeta =
+      const VerificationMeta('monthStartDay');
+  @override
+  late final GeneratedColumn<int> monthStartDay = GeneratedColumn<int>(
+      'month_start_day', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -92,7 +100,8 @@ class $LedgersTable extends Ledgers with TableInfo<$LedgersTable, Ledger> {
         myRole,
         memberCount,
         isShared,
-        ownerUserId
+        ownerUserId,
+        monthStartDay
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -149,6 +158,12 @@ class $LedgersTable extends Ledgers with TableInfo<$LedgersTable, Ledger> {
           ownerUserId.isAcceptableOrUnknown(
               data['owner_user_id']!, _ownerUserIdMeta));
     }
+    if (data.containsKey('month_start_day')) {
+      context.handle(
+          _monthStartDayMeta,
+          monthStartDay.isAcceptableOrUnknown(
+              data['month_start_day']!, _monthStartDayMeta));
+    }
     return context;
   }
 
@@ -178,6 +193,8 @@ class $LedgersTable extends Ledgers with TableInfo<$LedgersTable, Ledger> {
           .read(DriftSqlType.bool, data['${effectivePrefix}is_shared'])!,
       ownerUserId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}owner_user_id']),
+      monthStartDay: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}month_start_day'])!,
     );
   }
 
@@ -198,6 +215,7 @@ class Ledger extends DataClass implements Insertable<Ledger> {
   final int memberCount;
   final bool isShared;
   final String? ownerUserId;
+  final int monthStartDay;
   const Ledger(
       {required this.id,
       required this.name,
@@ -208,7 +226,8 @@ class Ledger extends DataClass implements Insertable<Ledger> {
       required this.myRole,
       required this.memberCount,
       required this.isShared,
-      this.ownerUserId});
+      this.ownerUserId,
+      required this.monthStartDay});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -226,6 +245,7 @@ class Ledger extends DataClass implements Insertable<Ledger> {
     if (!nullToAbsent || ownerUserId != null) {
       map['owner_user_id'] = Variable<String>(ownerUserId);
     }
+    map['month_start_day'] = Variable<int>(monthStartDay);
     return map;
   }
 
@@ -244,6 +264,7 @@ class Ledger extends DataClass implements Insertable<Ledger> {
       ownerUserId: ownerUserId == null && nullToAbsent
           ? const Value.absent()
           : Value(ownerUserId),
+      monthStartDay: Value(monthStartDay),
     );
   }
 
@@ -261,6 +282,7 @@ class Ledger extends DataClass implements Insertable<Ledger> {
       memberCount: serializer.fromJson<int>(json['memberCount']),
       isShared: serializer.fromJson<bool>(json['isShared']),
       ownerUserId: serializer.fromJson<String?>(json['ownerUserId']),
+      monthStartDay: serializer.fromJson<int>(json['monthStartDay']),
     );
   }
   @override
@@ -277,6 +299,7 @@ class Ledger extends DataClass implements Insertable<Ledger> {
       'memberCount': serializer.toJson<int>(memberCount),
       'isShared': serializer.toJson<bool>(isShared),
       'ownerUserId': serializer.toJson<String?>(ownerUserId),
+      'monthStartDay': serializer.toJson<int>(monthStartDay),
     };
   }
 
@@ -290,7 +313,8 @@ class Ledger extends DataClass implements Insertable<Ledger> {
           String? myRole,
           int? memberCount,
           bool? isShared,
-          Value<String?> ownerUserId = const Value.absent()}) =>
+          Value<String?> ownerUserId = const Value.absent(),
+          int? monthStartDay}) =>
       Ledger(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -302,6 +326,7 @@ class Ledger extends DataClass implements Insertable<Ledger> {
         memberCount: memberCount ?? this.memberCount,
         isShared: isShared ?? this.isShared,
         ownerUserId: ownerUserId.present ? ownerUserId.value : this.ownerUserId,
+        monthStartDay: monthStartDay ?? this.monthStartDay,
       );
   Ledger copyWithCompanion(LedgersCompanion data) {
     return Ledger(
@@ -317,6 +342,9 @@ class Ledger extends DataClass implements Insertable<Ledger> {
       isShared: data.isShared.present ? data.isShared.value : this.isShared,
       ownerUserId:
           data.ownerUserId.present ? data.ownerUserId.value : this.ownerUserId,
+      monthStartDay: data.monthStartDay.present
+          ? data.monthStartDay.value
+          : this.monthStartDay,
     );
   }
 
@@ -332,14 +360,15 @@ class Ledger extends DataClass implements Insertable<Ledger> {
           ..write('myRole: $myRole, ')
           ..write('memberCount: $memberCount, ')
           ..write('isShared: $isShared, ')
-          ..write('ownerUserId: $ownerUserId')
+          ..write('ownerUserId: $ownerUserId, ')
+          ..write('monthStartDay: $monthStartDay')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(id, name, currency, type, createdAt, syncId,
-      myRole, memberCount, isShared, ownerUserId);
+      myRole, memberCount, isShared, ownerUserId, monthStartDay);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -353,7 +382,8 @@ class Ledger extends DataClass implements Insertable<Ledger> {
           other.myRole == this.myRole &&
           other.memberCount == this.memberCount &&
           other.isShared == this.isShared &&
-          other.ownerUserId == this.ownerUserId);
+          other.ownerUserId == this.ownerUserId &&
+          other.monthStartDay == this.monthStartDay);
 }
 
 class LedgersCompanion extends UpdateCompanion<Ledger> {
@@ -367,6 +397,7 @@ class LedgersCompanion extends UpdateCompanion<Ledger> {
   final Value<int> memberCount;
   final Value<bool> isShared;
   final Value<String?> ownerUserId;
+  final Value<int> monthStartDay;
   const LedgersCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -378,6 +409,7 @@ class LedgersCompanion extends UpdateCompanion<Ledger> {
     this.memberCount = const Value.absent(),
     this.isShared = const Value.absent(),
     this.ownerUserId = const Value.absent(),
+    this.monthStartDay = const Value.absent(),
   });
   LedgersCompanion.insert({
     this.id = const Value.absent(),
@@ -390,6 +422,7 @@ class LedgersCompanion extends UpdateCompanion<Ledger> {
     this.memberCount = const Value.absent(),
     this.isShared = const Value.absent(),
     this.ownerUserId = const Value.absent(),
+    this.monthStartDay = const Value.absent(),
   }) : name = Value(name);
   static Insertable<Ledger> custom({
     Expression<int>? id,
@@ -402,6 +435,7 @@ class LedgersCompanion extends UpdateCompanion<Ledger> {
     Expression<int>? memberCount,
     Expression<bool>? isShared,
     Expression<String>? ownerUserId,
+    Expression<int>? monthStartDay,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -414,6 +448,7 @@ class LedgersCompanion extends UpdateCompanion<Ledger> {
       if (memberCount != null) 'member_count': memberCount,
       if (isShared != null) 'is_shared': isShared,
       if (ownerUserId != null) 'owner_user_id': ownerUserId,
+      if (monthStartDay != null) 'month_start_day': monthStartDay,
     });
   }
 
@@ -427,7 +462,8 @@ class LedgersCompanion extends UpdateCompanion<Ledger> {
       Value<String>? myRole,
       Value<int>? memberCount,
       Value<bool>? isShared,
-      Value<String?>? ownerUserId}) {
+      Value<String?>? ownerUserId,
+      Value<int>? monthStartDay}) {
     return LedgersCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -439,6 +475,7 @@ class LedgersCompanion extends UpdateCompanion<Ledger> {
       memberCount: memberCount ?? this.memberCount,
       isShared: isShared ?? this.isShared,
       ownerUserId: ownerUserId ?? this.ownerUserId,
+      monthStartDay: monthStartDay ?? this.monthStartDay,
     );
   }
 
@@ -475,6 +512,9 @@ class LedgersCompanion extends UpdateCompanion<Ledger> {
     if (ownerUserId.present) {
       map['owner_user_id'] = Variable<String>(ownerUserId.value);
     }
+    if (monthStartDay.present) {
+      map['month_start_day'] = Variable<int>(monthStartDay.value);
+    }
     return map;
   }
 
@@ -490,7 +530,8 @@ class LedgersCompanion extends UpdateCompanion<Ledger> {
           ..write('myRole: $myRole, ')
           ..write('memberCount: $memberCount, ')
           ..write('isShared: $isShared, ')
-          ..write('ownerUserId: $ownerUserId')
+          ..write('ownerUserId: $ownerUserId, ')
+          ..write('monthStartDay: $monthStartDay')
           ..write(')'))
         .toString();
   }
@@ -9892,6 +9933,7 @@ typedef $$LedgersTableCreateCompanionBuilder = LedgersCompanion Function({
   Value<int> memberCount,
   Value<bool> isShared,
   Value<String?> ownerUserId,
+  Value<int> monthStartDay,
 });
 typedef $$LedgersTableUpdateCompanionBuilder = LedgersCompanion Function({
   Value<int> id,
@@ -9904,6 +9946,7 @@ typedef $$LedgersTableUpdateCompanionBuilder = LedgersCompanion Function({
   Value<int> memberCount,
   Value<bool> isShared,
   Value<String?> ownerUserId,
+  Value<int> monthStartDay,
 });
 
 class $$LedgersTableFilterComposer
@@ -9944,6 +9987,9 @@ class $$LedgersTableFilterComposer
 
   ColumnFilters<String> get ownerUserId => $composableBuilder(
       column: $table.ownerUserId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get monthStartDay => $composableBuilder(
+      column: $table.monthStartDay, builder: (column) => ColumnFilters(column));
 }
 
 class $$LedgersTableOrderingComposer
@@ -9984,6 +10030,10 @@ class $$LedgersTableOrderingComposer
 
   ColumnOrderings<String> get ownerUserId => $composableBuilder(
       column: $table.ownerUserId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get monthStartDay => $composableBuilder(
+      column: $table.monthStartDay,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$LedgersTableAnnotationComposer
@@ -10024,6 +10074,9 @@ class $$LedgersTableAnnotationComposer
 
   GeneratedColumn<String> get ownerUserId => $composableBuilder(
       column: $table.ownerUserId, builder: (column) => column);
+
+  GeneratedColumn<int> get monthStartDay => $composableBuilder(
+      column: $table.monthStartDay, builder: (column) => column);
 }
 
 class $$LedgersTableTableManager extends RootTableManager<
@@ -10059,6 +10112,7 @@ class $$LedgersTableTableManager extends RootTableManager<
             Value<int> memberCount = const Value.absent(),
             Value<bool> isShared = const Value.absent(),
             Value<String?> ownerUserId = const Value.absent(),
+            Value<int> monthStartDay = const Value.absent(),
           }) =>
               LedgersCompanion(
             id: id,
@@ -10071,6 +10125,7 @@ class $$LedgersTableTableManager extends RootTableManager<
             memberCount: memberCount,
             isShared: isShared,
             ownerUserId: ownerUserId,
+            monthStartDay: monthStartDay,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -10083,6 +10138,7 @@ class $$LedgersTableTableManager extends RootTableManager<
             Value<int> memberCount = const Value.absent(),
             Value<bool> isShared = const Value.absent(),
             Value<String?> ownerUserId = const Value.absent(),
+            Value<int> monthStartDay = const Value.absent(),
           }) =>
               LedgersCompanion.insert(
             id: id,
@@ -10095,6 +10151,7 @@ class $$LedgersTableTableManager extends RootTableManager<
             memberCount: memberCount,
             isShared: isShared,
             ownerUserId: ownerUserId,
+            monthStartDay: monthStartDay,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

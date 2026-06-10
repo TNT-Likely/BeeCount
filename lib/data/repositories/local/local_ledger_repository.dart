@@ -158,13 +158,23 @@ class LocalLedgerRepository implements LedgerRepository {
     required int id,
     String? name,
     String? currency,
+    int? monthStartDay,
   }) async {
     final comp = LedgersCompanion(
       name: name != null ? d.Value(name) : const d.Value.absent(),
       currency: currency != null ? d.Value(currency) : const d.Value.absent(),
+      monthStartDay: monthStartDay != null
+          ? d.Value(monthStartDay.clamp(1, 28))
+          : const d.Value.absent(),
     );
     await (db.update(db.ledgers)..where((tbl) => tbl.id.equals(id)))
         .write(comp);
+  }
+
+  @override
+  Stream<Ledger?> watchLedger(int id) {
+    return (db.select(db.ledgers)..where((l) => l.id.equals(id)))
+        .watchSingleOrNull();
   }
 
   @override

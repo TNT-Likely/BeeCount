@@ -50,7 +50,11 @@ abstract class LedgerRepository {
     required int id,
     String? name,
     String? currency,
+    int? monthStartDay,
   });
+
+  /// 监听单个账本(sync pull 改了 ledger 行时自动通知 watcher)
+  Stream<Ledger?> watchLedger(int id);
 
   /// 删除账本（同时删除关联的所有交易）
   Future<void> deleteLedger(int id);

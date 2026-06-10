@@ -66,6 +66,9 @@ class LocalRepository extends BaseRepository {
   Stream<List<Ledger>> watchLedgers() => _ledgerRepo.watchLedgers();
 
   @override
+  Stream<Ledger?> watchLedger(int id) => _ledgerRepo.watchLedger(id);
+
+  @override
   Future<List<Ledger>> getAllLedgers() => _ledgerRepo.getAllLedgers();
 
   @override
@@ -105,8 +108,10 @@ class LocalRepository extends BaseRepository {
       _ledgerRepo.updateLedgerName(id: id, name: name);
 
   @override
-  Future<void> updateLedger({required int id, String? name, String? currency}) async {
-    await _ledgerRepo.updateLedger(id: id, name: name, currency: currency);
+  Future<void> updateLedger(
+      {required int id, String? name, String? currency, int? monthStartDay}) async {
+    await _ledgerRepo.updateLedger(
+        id: id, name: name, currency: currency, monthStartDay: monthStartDay);
     if (changeTracker != null) {
       final row =
           await (db.select(db.ledgers)..where((l) => l.id.equals(id))).getSingleOrNull();

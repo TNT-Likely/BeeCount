@@ -31,6 +31,10 @@ class Ledgers extends Table {
   IntColumn get memberCount => integer().withDefault(const Constant(1))();
   BoolColumn get isShared => boolean().withDefault(const Constant(false))();
   TextColumn get ownerUserId => text().nullable()();  // 当前 Owner 是谁
+  // v27: 自定义每月起始日(1-28),统计/预算/小部件按 [当月N日, 次月N日) 聚合,
+  // 1=自然月。随 sync 跨设备(payload key `monthStartDay`,server 列
+  // ledgers.month_start_day)。见 .docs/period-start-date/design.md。
+  IntColumn get monthStartDay => integer().withDefault(const Constant(1))();
 }
 
 class Accounts extends Table {
@@ -388,7 +392,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 26; // v26: sync_pull_errors — pull 失败 change 持久化(供 UI 暴露 + 用户重试/跳过)
+  int get schemaVersion => 27; // v27: ledgers.month_start_day — 自定义每月起始日(1-28)
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1053,6 +1057,13 @@ class BeeDatabase extends _$BeeDatabase {
             logger.info('DBMigration', '开始迁移到 v26: sync_pull_errors');
             await _createTableIfMissing(migrator, 'sync_pull_errors', syncPullErrors);
             logger.info('DBMigration', 'v26 迁移完成');
+          }
+          if (from < 27) {
+            logger.info('DBMigration', '开始迁移到 v27: ledgers.month_start_day');
+            // v27: 账本自定义每月起始日(1-28),默认 1=自然月
+            await customStatement(
+                'ALTER TABLE ledgers ADD COLUMN month_start_day INTEGER NOT NULL DEFAULT 1;');
+            logger.info('DBMigration', 'v27 迁移完成');
           }
         },
       );
