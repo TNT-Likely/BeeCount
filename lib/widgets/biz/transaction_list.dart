@@ -19,6 +19,7 @@ import '../../pages/tag/tag_detail_page.dart';
 import '../../pages/attachment/attachment_preview_page.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/attachment_service.dart';
+import '../../utils/month_range.dart';
 
 /// 可复用的交易列表组件
 /// 支持显示分组的交易列表，包含日期头部和交易项
@@ -261,14 +262,17 @@ class TransactionListState extends ConsumerState<TransactionList> {
     _loadAttachmentCounts();
   }
 
-  /// 跳转到指定月份
-  bool jumpToMonth(DateTime targetMonth) {
-    final monthKey =
-        '${targetMonth.year}-${targetMonth.month.toString().padLeft(2, '0')}';
+  /// 跳转到指定周期标签月(按账本起始日的周期范围匹配,而非 yyyy-MM 前缀)
+  bool jumpToMonth(DateTime targetMonth, {int startDay = 1}) {
+    final range = periodForLabel(targetMonth.year, targetMonth.month, startDay);
 
-    // 查找该月份的任意一天
+    // 查找该周期内的任意一天
     for (final entry in _dateIndexMap.entries) {
-      if (entry.key.startsWith(monthKey)) {
+      final parts = entry.key.split('-');
+      if (parts.length != 3) continue;
+      final d = DateTime(
+          int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+      if (!d.isBefore(range.start) && d.isBefore(range.end)) {
         try {
           _controller.sliverController.jumpToIndex(entry.value);
           return true;

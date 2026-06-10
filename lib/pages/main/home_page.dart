@@ -18,6 +18,7 @@ import '../ai/ai_chat_page.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/system/logger_service.dart';
 import '../../utils/format_utils.dart';
+import '../../utils/month_range.dart';
 import '../../services/export/share_poster_service.dart';
 import '../report/annual_report_page.dart';
 import '../calendar/calendar_page.dart';
@@ -199,7 +200,10 @@ class _HomePageState extends ConsumerState<HomePage> {
       // 使用TransactionList组件的跳转方法
       final transactionListState = _transactionListKey.currentState;
       if (transactionListState != null && mounted) {
-        transactionListState.jumpToMonth(targetMonth);
+        transactionListState.jumpToMonth(
+          targetMonth,
+          startDay: ref.read(currentMonthStartDayProvider),
+        );
       }
     } finally {
       if (mounted) {
@@ -242,7 +246,10 @@ class _HomePageState extends ConsumerState<HomePage> {
 
       final year = int.parse(dateParts[0]);
       final month = int.parse(dateParts[1]);
-      final detectedMonth = DateTime(year, month, 1);
+      final day = int.parse(dateParts[2]);
+      // 交易日期 → 它所属周期的标签月(startDay>1 时月初几天属上个标签月)
+      final sd = ref.read(currentMonthStartDayProvider);
+      final detectedMonth = labelForDate(DateTime(year, month, day), sd);
 
       // 更新选中月份
       final currentSelected = ref.read(selectedMonthProvider);
@@ -280,7 +287,9 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _buildLastMonthReminderCard(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final now = DateTime.now();
-    final lastMonth = DateTime(now.year, now.month - 1, 1);
+    final sd = ref.watch(currentMonthStartDayProvider);
+    final currentLabel = labelForDate(now, sd);
+    final lastMonth = DateTime(currentLabel.year, currentLabel.month - 1, 1);
     final monthFormat = DateFormat.MMMM(l10n.localeName);
     final primaryColor = ref.watch(primaryColorProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -984,6 +993,29 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       ),
                               ],
                             ),
+                            Builder(builder: (context) {
+                              final sd =
+                                  ref.watch(currentMonthStartDayProvider);
+                              if (sd <= 1) return const SizedBox.shrink();
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  periodRangeText(
+                                          month.year, month.month, sd) ??
+                                      '',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(
+                                          fontSize: 10,
+                                          color: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.color
+                                              ?.withValues(alpha: 0.5)),
+                                ),
+                              );
+                            }),
                           ],
                         ),
                       ),
