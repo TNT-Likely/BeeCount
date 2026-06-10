@@ -165,6 +165,10 @@ abstract class AccountRepository {
   /// 获取资产构成（按账户类型分组的余额汇总）
   Future<List<({String type, double totalBalance})>> getAssetCompositionByType();
 
+  /// 按 (账户类型, 币种) 聚合的资产构成(多币种折算用)。currency 已大写归一。
+  Future<List<({String type, String currency, double totalBalance})>>
+      getAssetCompositionByTypeAndCurrency();
+
   /// 更新估值账户的当前估值
   Future<void> updateAccountValuation(int accountId, double newValue);
 

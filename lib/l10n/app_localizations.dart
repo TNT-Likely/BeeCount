@@ -12648,6 +12648,18 @@ abstract class AppLocalizations {
   /// **'Not converted'**
   String get unconvertedBadge;
 
+  /// No description provided for @commonDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Detail'**
+  String get commonDetail;
+
+  /// No description provided for @conversionDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversion Details'**
+  String get conversionDetailTitle;
+
   /// No description provided for @assetConversionToggle.
   ///
   /// In en, this message translates to:

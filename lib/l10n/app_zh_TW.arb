@@ -2646,6 +2646,8 @@
   "convertedFootnote": "按 {date} 匯率折算,點擊管理匯率",
   "convertedPartialWarning": "{currencies} 未折算,點擊設定匯率",
   "unconvertedBadge": "未折算",
+  "commonDetail": "詳情",
+  "conversionDetailTitle": "折算詳情",
   "assetConversionToggle": "按主幣種折算",
   "rateManualApplied": "已套用 {count} 條手動匯率"
 }

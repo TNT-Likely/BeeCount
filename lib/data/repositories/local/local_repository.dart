@@ -1609,6 +1609,11 @@ class LocalRepository extends BaseRepository {
       _accountRepo.getAssetCompositionByType();
 
   @override
+  Future<List<({String type, String currency, double totalBalance})>>
+          getAssetCompositionByTypeAndCurrency() =>
+      _accountRepo.getAssetCompositionByTypeAndCurrency();
+
+  @override
   Future<void> updateAccountValuation(int accountId, double newValue) =>
       _accountRepo.updateAccountValuation(accountId, newValue);
 

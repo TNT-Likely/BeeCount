@@ -51,6 +51,40 @@ class ConvertedNetWorth {
   });
 }
 
+/// 通用折算:按币种金额表折到 base。供净资产明细/分组小计/构成图复用。
+/// base 自身 rate=1;某币种缺有效汇率(rate 解析失败 / 非正)→ 剔除并列入 missing,
+/// 绝不静默按 1.0 折入(README D5)。missing 已排序便于 UI 稳定展示。
+({double total, Map<String, double> convertedByCurrency, List<String> missingCurrencies})
+    convertAmountsToBase({
+  required Map<String, double> amounts, // 币种(任意大小写) -> 原币金额
+  required Map<String, EffectiveRate> rates,
+  required String base,
+}) {
+  var total = 0.0;
+  final convertedByCurrency = <String, double>{};
+  final missing = <String>[];
+  final baseUp = base.toUpperCase();
+  for (final e in amounts.entries) {
+    final code = e.key.toUpperCase();
+    double? rate;
+    if (code == baseUp) {
+      rate = 1.0;
+    } else {
+      final eff = rates[code];
+      if (eff != null) rate = double.tryParse(eff.rate);
+    }
+    if (rate == null || rate <= 0) {
+      missing.add(code);
+      continue;
+    }
+    final converted = e.value * rate;
+    convertedByCurrency[code] = converted;
+    total += converted;
+  }
+  missing.sort();
+  return (total: total, convertedByCurrency: convertedByCurrency, missingCurrencies: missing);
+}
+
 /// 折算聚合(double 仅展示用,不落库 —— README D8)。
 ConvertedNetWorth computeConvertedNetWorth({
   required Map<String, ({double totalAssets, double totalLiabilities, double netWorth})> breakdown,

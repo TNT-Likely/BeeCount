@@ -4,7 +4,10 @@ import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/section_card.dart';
+import '../../widgets/currency/currency_picker_sheet.dart';
 import '../../styles/tokens.dart';
+import '../../utils/currencies.dart';
+import '../../utils/ui_scale_extensions.dart';
 import '../currency/exchange_rate_page.dart';
 
 // 兼容旧引用
@@ -99,28 +102,72 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
                   },
                 ),
                 const SizedBox(height: 16),
-                // 主题色之后:汇率管理入口(多币种)
+                // 主题色之后:主币种直达 + 汇率管理入口(多币种,同卡两行)
                 SectionCard(
                   margin: EdgeInsets.zero,
                   padding: EdgeInsets.zero,
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.currency_exchange,
-                      color: BeeTokens.iconPrimary(context),
-                    ),
-                    title: Text(
-                      l10n.exchangeRatePageTitle,
-                      style: TextStyle(color: BeeTokens.textPrimary(context)),
-                    ),
-                    trailing: Icon(
-                      Icons.chevron_right,
-                      color: BeeTokens.iconTertiary(context),
-                    ),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const ExchangeRatePage(),
+                  child: Column(
+                    children: [
+                      // 主币种:点击直接弹币种选择器,选完即应用
+                      ListTile(
+                        leading: Icon(
+                          Icons.payments_outlined,
+                          color: BeeTokens.iconPrimary(context),
+                        ),
+                        title: Text(
+                          l10n.baseCurrencyLabel,
+                          style:
+                              TextStyle(color: BeeTokens.textPrimary(context)),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              displayCurrency(
+                                  ref.watch(baseCurrencyProvider).toUpperCase(),
+                                  context),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: BeeTokens.textSecondary(context),
+                              ),
+                            ),
+                            SizedBox(width: 2.0.scaled(context, ref)),
+                            Icon(
+                              Icons.chevron_right,
+                              color: BeeTokens.iconTertiary(context),
+                            ),
+                          ],
+                        ),
+                        onTap: () => _pickBaseCurrency(context),
                       ),
-                    ),
+                      Divider(
+                        height: 1,
+                        indent: 16,
+                        endIndent: 16,
+                        color: BeeTokens.divider(context),
+                      ),
+                      // 汇率管理入口
+                      ListTile(
+                        leading: Icon(
+                          Icons.currency_exchange,
+                          color: BeeTokens.iconPrimary(context),
+                        ),
+                        title: Text(
+                          l10n.exchangeRatePageTitle,
+                          style:
+                              TextStyle(color: BeeTokens.textPrimary(context)),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          color: BeeTokens.iconTertiary(context),
+                        ),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ExchangeRatePage(),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -129,6 +176,19 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
         ],
       ),
     );
+  }
+
+  /// 主币种选择 —— 复用公用 sheet + 应用逻辑(与汇率页同一条收尾)。
+  Future<void> _pickBaseCurrency(BuildContext context) async {
+    final current = ref.read(baseCurrencyProvider).toUpperCase();
+    final primary = ref.read(primaryColorProvider);
+    final picked = await showCurrencyPickerSheet(
+      context,
+      selected: current,
+      primaryColor: primary,
+    );
+    if (picked == null || !context.mounted) return;
+    await applyBaseCurrencySelection(context, ref, picked);
   }
 
   void _showColorPicker(BuildContext context, WidgetRef ref) {

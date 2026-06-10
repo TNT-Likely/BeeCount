@@ -6693,6 +6693,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unconvertedBadge => 'Not converted';
 
   @override
+  String get commonDetail => 'Detail';
+
+  @override
+  String get conversionDetailTitle => 'Conversion Details';
+
+  @override
   String get assetConversionToggle => 'Convert to primary currency';
 
   @override

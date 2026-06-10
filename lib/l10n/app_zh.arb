@@ -2944,6 +2944,8 @@
   "convertedFootnote": "按 {date} 汇率折算,点击管理汇率",
   "convertedPartialWarning": "{currencies} 未折算,点击设置汇率",
   "unconvertedBadge": "未折算",
+  "commonDetail": "详情",
+  "conversionDetailTitle": "折算详情",
   "assetConversionToggle": "按主币种折算",
   "rateManualApplied": "已应用 {count} 条手动汇率"
 }

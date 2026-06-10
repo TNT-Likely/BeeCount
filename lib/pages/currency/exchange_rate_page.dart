@@ -12,6 +12,7 @@ import '../../styles/tokens.dart';
 import '../../utils/currencies.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../widgets/biz/section_card.dart';
+import '../../widgets/currency/currency_picker_sheet.dart';
 import '../../widgets/ui/ui.dart';
 
 /// 汇率管理页(多币种 MVP Task 8)。
@@ -221,111 +222,17 @@ class _ExchangeRatePageState extends ConsumerState<ExchangeRatePage> {
     );
   }
 
-  /// 主币种选择底部弹窗(全币种列表 + 搜索)。
+  /// 主币种选择底部弹窗(全币种列表 + 搜索)。复用公用 sheet + 应用逻辑。
   Future<void> _pickBaseCurrency(BuildContext context) async {
-    final l10n = AppLocalizations.of(context);
     final current = ref.read(baseCurrencyProvider).toUpperCase();
     final primary = ref.read(primaryColorProvider);
-
-    final picked = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: BeeTokens.surfaceSheet(context),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (bctx) {
-        String query = '';
-        return StatefulBuilder(builder: (sctx, setSheetState) {
-          final filtered = getCurrencies(bctx).where((c) {
-            final q = query.trim();
-            if (q.isEmpty) return true;
-            final uq = q.toUpperCase();
-            return c.code.contains(uq) || c.name.contains(q);
-          }).toList();
-
-          return Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 12,
-              bottom: 16 + MediaQuery.of(bctx).viewInsets.bottom,
-            ),
-            child: SizedBox(
-              height: 440,
-              child: Column(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 8),
-                    decoration: BoxDecoration(
-                      color: BeeTokens.textTertiary(bctx).withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  Text(
-                    l10n.baseCurrencyLabel,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: BeeTokens.textPrimary(bctx),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search),
-                      hintText: AppLocalizations.of(bctx).ledgersSearchCurrency,
-                    ),
-                    onChanged: (v) => setSheetState(() => query = v),
-                  ),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: filtered.length,
-                      itemBuilder: (_, i) {
-                        final c = filtered[i];
-                        final sel = c.code == current;
-                        return ListTile(
-                          title: Text(
-                            '${c.name} (${c.code})',
-                            style: TextStyle(
-                              color: sel
-                                  ? primary
-                                  : BeeTokens.textPrimary(bctx),
-                              fontWeight:
-                                  sel ? FontWeight.w600 : FontWeight.normal,
-                            ),
-                          ),
-                          trailing:
-                              sel ? Icon(Icons.check, color: primary) : null,
-                          onTap: () => Navigator.pop(bctx, c.code),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-      },
+    final picked = await showCurrencyPickerSheet(
+      context,
+      selected: current,
+      primaryColor: primary,
     );
-
-    if (picked == null || !mounted) return;
-    final next = picked.toUpperCase();
-    if (next == current) return;
-
-    ref.read(baseCurrencyProvider.notifier).state = next;
-    // 新主币种若已有手动汇率,提示并立即生效;随后 force 重拉自动汇率。
-    final repo = ref.read(repositoryProvider);
-    final overrides = await repo.getOverrides(next);
-    if (!context.mounted) return;
-    if (overrides.isNotEmpty) {
-      showToast(context, l10n.rateManualApplied(overrides.length));
-    }
-    await refreshExchangeRatesFromUi(ref, force: true);
+    if (picked == null || !context.mounted) return;
+    await applyBaseCurrencySelection(context, ref, picked);
   }
 
   /// 编辑某币种的手动汇率。

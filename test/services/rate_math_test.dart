@@ -46,6 +46,33 @@ void main() {
     expect(r.oldestRateDate, '2026-06-10');
   });
 
+  test('convertAmountsToBase 混合:可折算累加 + 缺失剔除并列名', () {
+    final r = convertAmountsToBase(
+      amounts: {'CNY': 5800.0, 'USD': 1000.0, 'KRW': 500000.0},
+      rates: {
+        'USD': const EffectiveRate(rate: '7.20', manual: false, rateDate: '2026-06-10'),
+      },
+      base: 'CNY',
+    );
+    // CNY 自身 1.0 + USD 7200,KRW 无汇率被剔除
+    expect(r.total, closeTo(5800 + 7200, 0.001));
+    expect(r.convertedByCurrency['CNY'], closeTo(5800, 0.001));
+    expect(r.convertedByCurrency['USD'], closeTo(7200, 0.001));
+    expect(r.convertedByCurrency.containsKey('KRW'), isFalse);
+    expect(r.missingCurrencies, ['KRW']); // 绝不按 1.0 折算
+  });
+
+  test('convertAmountsToBase base 自身 rate=1,大小写归一', () {
+    final r = convertAmountsToBase(
+      amounts: {'usd': 100.0},
+      rates: const {},
+      base: 'usd',
+    );
+    expect(r.total, closeTo(100, 0.001));
+    expect(r.convertedByCurrency['USD'], closeTo(100, 0.001));
+    expect(r.missingCurrencies, isEmpty);
+  });
+
   test('rate 解析失败的币种进 missing,且其日期不计入 oldest', () {
     final r = computeConvertedNetWorth(
       breakdown: {

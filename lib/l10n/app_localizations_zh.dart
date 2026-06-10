@@ -6693,6 +6693,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get unconvertedBadge => '未折算';
 
   @override
+  String get commonDetail => '详情';
+
+  @override
+  String get conversionDetailTitle => '折算详情';
+
+  @override
   String get assetConversionToggle => '按主币种折算';
 
   @override
@@ -13360,6 +13366,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get unconvertedBadge => '未折算';
+
+  @override
+  String get commonDetail => '詳情';
+
+  @override
+  String get conversionDetailTitle => '折算詳情';
 
   @override
   String get assetConversionToggle => '按主幣種折算';

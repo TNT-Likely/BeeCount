@@ -121,6 +121,37 @@ final convertedNetWorthProvider =
   return computeConvertedNetWorth(breakdown: breakdown, rates: rates, base: base);
 });
 
+/// 折算后的资产构成:每 (type, currency) 原币余额 × 汇率 → 按 type 聚合(主币种值)。
+/// 缺汇率的币种整条剔除(绝不按 1.0,与净资产/分组小计一致,README D5)。
+/// 多币种折算态喂给 [AssetCompositionChart](入参类型与 [assetCompositionProvider] 相同)。
+final convertedAssetCompositionProvider =
+    FutureProvider<List<({String type, double totalBalance})>>((ref) async {
+  final rates = await ref.watch(effectiveRatesProvider.future);
+  final base = ref.watch(baseCurrencyProvider).toUpperCase();
+  ref.watch(statsRefreshProvider);
+  ref.watch(rateRefreshTickProvider);
+  final repo = ref.watch(repositoryProvider);
+  final rows = await repo.getAssetCompositionByTypeAndCurrency();
+
+  final byType = <String, double>{};
+  for (final r in rows) {
+    final code = r.currency.toUpperCase();
+    double? rate;
+    if (code == base) {
+      rate = 1.0;
+    } else {
+      final eff = rates[code];
+      if (eff != null) rate = double.tryParse(eff.rate);
+    }
+    if (rate == null || rate <= 0) continue; // 缺汇率剔除
+    byType.update(r.type, (v) => v + r.totalBalance * rate!,
+        ifAbsent: () => r.totalBalance * rate!);
+  }
+  return byType.entries
+      .map((e) => (type: e.key, totalBalance: e.value))
+      .toList();
+});
+
 /// 拉取协调:server 源(云模式)→ 公网链;倒数后只落「使用中币种」;成功 bump tick。
 /// force=false 时 24h 节流 + 多币种总闸(D6/D7)。失败返回 false(资产页静默、汇率页 Toast)。
 ///

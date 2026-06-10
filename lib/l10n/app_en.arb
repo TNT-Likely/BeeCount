@@ -3002,6 +3002,8 @@
   "convertedPartialWarning": "{currencies} not converted, tap to set rates",
   "@convertedPartialWarning": {"placeholders": {"currencies": {"type": "String"}}},
   "unconvertedBadge": "Not converted",
+  "commonDetail": "Detail",
+  "conversionDetailTitle": "Conversion Details",
   "assetConversionToggle": "Convert to primary currency",
   "rateManualApplied": "Applied {count} manual rates",
   "@rateManualApplied": {"placeholders": {"count": {"type": "int"}}}
