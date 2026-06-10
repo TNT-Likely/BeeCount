@@ -725,6 +725,8 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
       await prefs.setString('category_mode', _categoryMode);
       // 保存用户选择的货币
       await prefs.setString('selected_currency', _selectedCurrency);
+      // 多币种 MVP:主币种随初始化选币一并落定,新装用户开箱即正确
+      await prefs.setString('baseCurrency', _selectedCurrency);
 
       // 初始化数据库（使用用户选择的语言和设置）
       if (context.mounted) {

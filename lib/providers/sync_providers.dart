@@ -724,16 +724,20 @@ void _applyDisplayNameFromServer(Ref ref, String name) {
 }
 
 Future<void> _applyBaseCurrencyFromServer(Ref ref, String code) async {
-  final normalized = code.trim().toUpperCase();
-  if (normalized.isEmpty) return; // server 不下空,这里再兜一层
-  final current = ref.read(baseCurrencyProvider);
-  if (current == normalized) return; // 相同值不写,StateProvider 不 notify → 无 echo
-  // primaryCurrency 回流:写 provider + prefs。StateProvider 同值赋值不触发
-  // listener,不会造成 推送→广播→回流→再推送 的循环。
-  ref.read(baseCurrencyProvider.notifier).state = normalized;
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('baseCurrency', normalized);
-  logger.info('profile_sync', 'applied primary_currency from server: $normalized');
+  try {
+    final normalized = code.trim().toUpperCase();
+    if (normalized.isEmpty) return; // server 不下空,这里再兜一层
+    final current = ref.read(baseCurrencyProvider);
+    if (current == normalized) return; // 相同值不写,StateProvider 不 notify → 无 echo
+    // primaryCurrency 回流:写 provider + prefs。StateProvider 同值赋值不触发
+    // listener,不会造成 推送→广播→回流→再推送 的循环。
+    ref.read(baseCurrencyProvider.notifier).state = normalized;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('baseCurrency', normalized);
+    logger.info('profile_sync', 'applied primary_currency from server: $normalized');
+  } catch (e, st) {
+    logger.warning('profile_sync', 'apply primary currency failed: $e', st);
+  }
 }
 
 void _applyAppearanceFromServer(Ref ref, Map<String, dynamic> appearance) {

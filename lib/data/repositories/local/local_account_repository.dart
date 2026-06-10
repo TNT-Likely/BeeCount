@@ -767,7 +767,7 @@ class LocalAccountRepository implements AccountRepository {
 
     for (final account in accounts) {
       final balance = await getAccountBalance(account.id);
-      final currency = account.currency;
+      final currency = account.currency.toUpperCase();
       final prev = result[currency] ?? (totalAssets: 0.0, totalLiabilities: 0.0, netWorth: 0.0);
 
       if (isAssetType(account.type)) {

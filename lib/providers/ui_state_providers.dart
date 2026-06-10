@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../ai/providers/ai_provider_manager.dart';
 import 'database_providers.dart';
 import 'theme_providers.dart';
+import 'currency_providers.dart';
 import 'statistics_providers.dart';
 import 'budget_providers.dart';
 import 'font_scale_provider.dart';
@@ -200,6 +201,7 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
       ref.watch(smartBillingAutoAttachmentInitProvider.future),
       ref.watch(incomeExpenseColorSchemeInitProvider.future),
       ref.watch(displayNameInitProvider.future),
+      ref.watch(baseCurrencyInitProvider.future),
       ref.watch(headerSkinInitProvider.future),
       ref.watch(securityInitProvider.future),
     ]);
