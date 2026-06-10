@@ -13,6 +13,7 @@ import '../../widgets/ui/capsule_switcher.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/export/share_poster_service.dart';
 import '../../data/db.dart' as db;
+import '../../utils/month_range.dart';
 
 class AnalyticsPage extends ConsumerStatefulWidget {
   const AnalyticsPage({super.key});
@@ -298,19 +299,23 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
+    final sd = ref.watch(currentMonthStartDayProvider);
     if (_scope == 'month') {
-      start = DateTime(selMonth.year, selMonth.month, 1);
-      final monthEnd = DateTime(selMonth.year, selMonth.month + 1, 1);
-      // 当前月份：只到今天；历史月份：到月末
-      final isCurrentMonth =
-          selMonth.year == now.year && selMonth.month == now.month;
-      end = isCurrentMonth ? today.add(const Duration(days: 1)) : monthEnd;
+      final range = periodForLabel(selMonth.year, selMonth.month, sd);
+      start = range.start;
+      // 「当前周期」判定用周期标签，不能用自然月相等(6月5日属5月周期)
+      final nowLabel = labelForDate(now, sd);
+      final isCurrentPeriod =
+          selMonth.year == nowLabel.year && selMonth.month == nowLabel.month;
+      // 当前周期：只到今天；历史周期：到周期末
+      end = isCurrentPeriod ? today.add(const Duration(days: 1)) : range.end;
     } else if (_scope == 'year') {
-      start = DateTime(selMonth.year, 1, 1);
-      final yearEnd = DateTime(selMonth.year + 1, 1, 1);
-      // 当前年份：只到今天；历史年份：到年末
-      final isCurrentYear = selMonth.year == now.year;
-      end = isCurrentYear ? today.add(const Duration(days: 1)) : yearEnd;
+      final range = yearRangeFor(selMonth.year, sd);
+      start = range.start;
+      // 当前年度周期：只到今天；历史：到年度周期末
+      final isCurrentYear =
+          !now.isBefore(range.start) && now.isBefore(range.end);
+      end = isCurrentYear ? today.add(const Duration(days: 1)) : range.end;
     } else {
       start = DateTime(1970, 1, 1);
       end = today.add(const Duration(days: 1));
@@ -662,10 +667,13 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                   }
                   if (seriesRaw is List<({DateTime month, double total})>) {
                     // 月数据：过滤到当前月份
-                    final isCurrentYear = selMonth.year == now.year;
+                    // 用周期标签判定，避免 sd≠1 时把尚未开始的周期画成零柱
+                    // （如 sd=10、6月5日时 June 桶尚未开始但自然月已是6月）
+                    final nowLabel = labelForDate(now, sd);
+                    final isCurrentYear = selMonth.year == nowLabel.year;
                     if (isCurrentYear) {
                       return seriesRaw
-                          .where((e) => e.month.month <= now.month)
+                          .where((e) => e.month.month <= nowLabel.month)
                           .toList();
                     }
                     return seriesRaw;
