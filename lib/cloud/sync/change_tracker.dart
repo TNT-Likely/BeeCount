@@ -33,7 +33,7 @@ class ChangeTracker {
 
   /// 已知的 user-global 实体类型。recordUserGlobalChange 用白名单校验防止
   /// 调用方误用(把 transaction 之类传进来也能通过,但被 assert 拦住)。
-  static const Set<String> _userGlobalEntityTypes = {'account', 'category', 'tag'};
+  static const Set<String> _userGlobalEntityTypes = {'account', 'category', 'tag', 'exchange_rate_override'};
 
   /// 公开 read-only 视图给 sync_engine 的 push 路径用,判断"这条 change 是否
   /// 是 user-global 类型",决定 push 时 scope 字段。

@@ -18,6 +18,7 @@ import 'local_ai_repository.dart';
 import 'local_tag_repository.dart';
 import 'local_budget_repository.dart';
 import 'local_attachment_repository.dart';
+import 'local_exchange_rate_repository.dart';
 
 /// LocalRepository 本地数据库实现
 /// 基于 Drift 本地数据库实现所有 Repository 接口
@@ -44,6 +45,7 @@ class LocalRepository extends BaseRepository {
   late final LocalTagRepository _tagRepo;
   late final LocalBudgetRepository _budgetRepo;
   late final LocalAttachmentRepository _attachmentRepo;
+  late final LocalExchangeRateRepository _exchangeRateRepo;
 
   LocalRepository(this.db, {this.changeTracker}) {
     _ledgerRepo = LocalLedgerRepository(db);
@@ -56,6 +58,7 @@ class LocalRepository extends BaseRepository {
     _tagRepo = LocalTagRepository(db);
     _budgetRepo = LocalBudgetRepository(db);
     _attachmentRepo = LocalAttachmentRepository(db);
+    _exchangeRateRepo = LocalExchangeRateRepository(db, trackerGetter: () => changeTracker);
   }
 
   // ============================================
@@ -1569,6 +1572,9 @@ class LocalRepository extends BaseRepository {
       _accountRepo.updateAccountSortOrders(updates);
 
   @override
+  Future<Set<String>> getUsedCurrencies() => _accountRepo.getUsedCurrencies();
+
+  @override
   Future<List<Transaction>> getAccountTransactions(
     int accountId, {int limit = 50, int offset = 0}) =>
       _accountRepo.getAccountTransactions(accountId, limit: limit, offset: offset);
@@ -2358,4 +2364,49 @@ class LocalRepository extends BaseRepository {
   @override
   Stream<int> watchAttachmentCountByTransaction(int transactionId) =>
       _attachmentRepo.watchAttachmentCountByTransaction(transactionId);
+
+  // ============================================
+  // ExchangeRateRepository 接口实现 - 委托给 LocalExchangeRateRepository
+  // ============================================
+
+  @override
+  Future<void> upsertAutoRates({
+    required String base,
+    required String rateDate,
+    required Map<String, String> rates,
+    required String source,
+    required DateTime fetchedAt,
+  }) =>
+      _exchangeRateRepo.upsertAutoRates(
+        base: base, rateDate: rateDate, rates: rates,
+        source: source, fetchedAt: fetchedAt,
+      );
+
+  @override
+  Future<List<ExchangeRate>> getLatestAutoRates(String base) =>
+      _exchangeRateRepo.getLatestAutoRates(base);
+
+  @override
+  Future<DateTime?> getLastFetchedAt(String base) =>
+      _exchangeRateRepo.getLastFetchedAt(base);
+
+  @override
+  Future<List<ExchangeRateOverride>> getOverrides(String base) =>
+      _exchangeRateRepo.getOverrides(base);
+
+  @override
+  Stream<List<ExchangeRateOverride>> watchOverrides(String base) =>
+      _exchangeRateRepo.watchOverrides(base);
+
+  @override
+  Future<void> setOverride({
+    required String base,
+    required String quote,
+    required String rate,
+  }) =>
+      _exchangeRateRepo.setOverride(base: base, quote: quote, rate: rate);
+
+  @override
+  Future<void> removeOverride({required String base, required String quote}) =>
+      _exchangeRateRepo.removeOverride(base: base, quote: quote);
 }

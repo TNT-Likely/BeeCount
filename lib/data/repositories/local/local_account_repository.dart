@@ -859,4 +859,14 @@ class LocalAccountRepository implements AccountRepository {
           ..where((t) => t.syncId.equals(syncId)))
         .getSingleOrNull();
   }
+
+  @override
+  Future<Set<String>> getUsedCurrencies() async {
+    final rows = await db
+        .customSelect('SELECT DISTINCT currency FROM accounts')
+        .get();
+    return rows
+        .map((r) => (r.read<String>('currency')).toUpperCase())
+        .toSet();
+  }
 }
