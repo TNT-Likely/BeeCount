@@ -64,7 +64,12 @@ class AutoBillingService {
       iOS: iosSettings,
     );
 
-    await _notificationsPlugin.initialize(initSettings);
+    // 同 _showNotification:通知子系统任何异常都不允许影响记账主流程
+    try {
+      await _notificationsPlugin.initialize(initSettings);
+    } catch (e) {
+      logger.warning('AutoBilling', '通知初始化失败(仅影响进度通知,不影响记账): $e');
+    }
   }
 
   /// 加载已处理的截图列表
@@ -459,7 +464,12 @@ class AutoBillingService {
         : l10n.autoBillingNotifySuccessSingleBodyDefault;
   }
 
-  /// 显示通知
+  /// 显示通知。
+  ///
+  /// 通知失败**绝不向外抛**:通知只是进度提示,记账主流程不能因它中断。
+  /// iOS 27 起对未授权通知的应用调 show() 会抛 PlatformException(Error 2003,
+  /// "Source is not authorized"),而 iOS ≤26 同场景是静默不弹 —— 不隔离的话
+  /// 截图还没进 AI 识别就在"开始识别"通知处整链失败(#322)。
   Future<void> _showNotification({
     required int id,
     required String title,
@@ -480,7 +490,12 @@ class AutoBillingService {
       iOS: iosDetails,
     );
 
-    await _notificationsPlugin.show(id, title, body, details);
+    try {
+      await _notificationsPlugin.show(id, title, body, details);
+    } catch (e) {
+      logger.warning('AutoBilling',
+          '通知发送失败(未授权通知时属预期,不中断记账流程): $e');
+    }
   }
 
   /// 显示「最终结果」通知。
