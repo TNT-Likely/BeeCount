@@ -123,6 +123,9 @@ final convertedNetWorthProvider =
 
 /// 拉取协调:server 源(云模式)→ 公网链;倒数后只落「使用中币种」;成功 bump tick。
 /// force=false 时 24h 节流 + 多币种总闸(D6/D7)。失败返回 false(资产页静默、汇率页 Toast)。
+///
+/// Ref 版入口当前无调用方,保留给后台/provider 语境的未来调用
+/// (如周期刷新、启动预拉);UI 层用 [refreshExchangeRatesFromUi]。
 Future<bool> refreshExchangeRates(Ref ref, {bool force = false}) =>
     _refreshExchangeRatesImpl(
       read: ref.read,

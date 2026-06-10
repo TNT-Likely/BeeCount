@@ -482,7 +482,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
       children: [
         // 净资产标签
         Text(
-          l10n.accountTotalBalance,
+          l10n.convertedNetWorth(base),
           style: TextStyle(
             fontSize: 12,
             color: BeeTokens.textTertiary(context),

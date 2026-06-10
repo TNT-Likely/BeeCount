@@ -336,9 +336,12 @@ class _ExchangeRatePageState extends ConsumerState<ExchangeRatePage> {
     final primary = ref.read(primaryColorProvider);
     final repo = ref.read(repositoryProvider);
     final hadManual = eff?.manual ?? false;
-    // 预填:已有有效汇率取其值,否则空。
+    // 预填:手动值回填原始字符串(保留用户精度);自动值用 _fmt6 展示(6 位有效,
+    // 编辑后会被新输入覆盖,截断无妨);无汇率则留空。
     final controller = TextEditingController(
-      text: eff != null ? _fmt6(eff.rate) : '',
+      text: eff == null
+          ? ''
+          : (eff.manual ? eff.rate : _fmt6(eff.rate)),
     );
 
     await showDialog<void>(
