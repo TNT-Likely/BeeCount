@@ -27,6 +27,7 @@ import 'avatar_providers.dart';
 import 'tag_providers.dart';
 import 'ui_state_providers.dart';
 import 'statistics_providers.dart';
+import 'currency_providers.dart';
 
 /// SyncEngine 对外广播事件流(PR 1 引入)。
 ///
@@ -254,6 +255,9 @@ final syncServiceProvider = Provider<SyncService>((ref) {
                   ref, value as Map<String, dynamic>);
             case ProfileField.displayName:
               _applyDisplayNameFromServer(ref, value as String);
+            case ProfileField.primaryCurrency:
+              unawaited(
+                  _applyBaseCurrencyFromServer(ref, value as String));
             case ProfileField.aiConfig:
               unawaited(() async {
                 await AIProviderManager.applyFromServer(
@@ -717,6 +721,19 @@ void _applyDisplayNameFromServer(Ref ref, String name) {
   if (current == trimmed) return; // 相同值不写,StateProvider 不 notify → 无 echo
   ref.read(displayNameProvider.notifier).state = trimmed;
   logger.info('profile_sync', 'applied display_name from server: $trimmed');
+}
+
+Future<void> _applyBaseCurrencyFromServer(Ref ref, String code) async {
+  final normalized = code.trim().toUpperCase();
+  if (normalized.isEmpty) return; // server 不下空,这里再兜一层
+  final current = ref.read(baseCurrencyProvider);
+  if (current == normalized) return; // 相同值不写,StateProvider 不 notify → 无 echo
+  // primaryCurrency 回流:写 provider + prefs。StateProvider 同值赋值不触发
+  // listener,不会造成 推送→广播→回流→再推送 的循环。
+  ref.read(baseCurrencyProvider.notifier).state = normalized;
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('baseCurrency', normalized);
+  logger.info('profile_sync', 'applied primary_currency from server: $normalized');
 }
 
 void _applyAppearanceFromServer(Ref ref, Map<String, dynamic> appearance) {

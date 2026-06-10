@@ -59,6 +59,9 @@ class ProfileFieldApplied extends SyncEvent {
   const ProfileFieldApplied.displayName(String name)
       : this._(field: ProfileField.displayName, value: name);
 
+  const ProfileFieldApplied.primaryCurrency(String code)
+      : this._(field: ProfileField.primaryCurrency, value: code);
+
   final ProfileField field;
   /// 类型由 [field] 决定:
   /// - `themeColor` → `String`(hex)
@@ -66,7 +69,15 @@ class ProfileFieldApplied extends SyncEvent {
   /// - `appearance` → `Map<String, dynamic>`
   /// - `aiConfig` → `Map<String, dynamic>`
   /// - `displayName` → `String`
+  /// - `primaryCurrency` → `String`(ISO code)
   final Object value;
 }
 
-enum ProfileField { themeColor, incomeColor, appearance, aiConfig, displayName }
+enum ProfileField {
+  themeColor,
+  incomeColor,
+  appearance,
+  aiConfig,
+  displayName,
+  primaryCurrency,
+}

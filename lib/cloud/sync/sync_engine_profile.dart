@@ -36,6 +36,13 @@ extension SyncEngineProfile on SyncEngine {
         anyChanged = true;
       }
 
+      // === primary_currency === (同 display_name:server 有值才下行,不下空)
+      final primaryCurrency = profile.primaryCurrency;
+      if (primaryCurrency != null && primaryCurrency.isNotEmpty) {
+        _emit(ProfileFieldApplied.primaryCurrency(primaryCurrency));
+        anyChanged = true;
+      }
+
       // === income_is_red ===
       final incomeIsRed = profile.incomeIsRed;
       if (incomeIsRed != null) {

@@ -217,6 +217,32 @@ class BeeCountCloudProvider implements CloudProvider {
     return storage.updateMyProfileDisplayName(displayName: displayName);
   }
 
+  /// 更新主币种(ISO code,如 `CNY`)。单向 mobile → server → web,多币种 MVP
+  /// user-level 字段。
+  Future<BeeCountCloudProfile> updateMyProfileBaseCurrency({
+    required String primaryCurrency,
+  }) async {
+    final storage = _storage;
+    if (storage == null) {
+      throw CloudConfigurationException(
+          'BeeCount Cloud storage is not initialized.');
+    }
+    return storage.updateMyProfileBaseCurrency(
+        primaryCurrency: primaryCurrency);
+  }
+
+  /// 拉取 server 汇率代理(GET /read/exchange-rates?base=XXX)。server 未开
+  /// 代理返回 null,调用方下滑公网源链。
+  Future<Map<String, dynamic>?> fetchExchangeRates(
+      {required String base}) async {
+    final storage = _storage;
+    if (storage == null) {
+      throw CloudConfigurationException(
+          'BeeCount Cloud storage is not initialized.');
+    }
+    return storage.fetchExchangeRates(base: base);
+  }
+
   Future<BeeCountCloudAvatarUploadResult> uploadMyAvatar({
     required Uint8List bytes,
     required String fileName,
@@ -2193,6 +2219,40 @@ class BeeCountCloudStorageService implements CloudStorageService {
     return _patchMyProfile(body: {'display_name': normalized});
   }
 
+  /// 推送主币种到服务端。`primaryCurrency` 形如 `CNY`(归一为大写)。
+  /// 同 display_name:mobile → server → web 单向同步。
+  Future<BeeCountCloudProfile> updateMyProfileBaseCurrency({
+    required String primaryCurrency,
+  }) async {
+    final normalized = primaryCurrency.trim().toUpperCase();
+    if (normalized.isEmpty) {
+      throw CloudStorageException(
+          'Update profile failed: empty primary currency');
+    }
+    return _patchMyProfile(body: {'primary_currency': normalized});
+  }
+
+  /// GET /read/exchange-rates?base=XXX(server 汇率代理)。
+  /// server 未开代理(404)返回 null,App 源链下滑公网;其它错误按本类惯例抛出。
+  /// 返回 body 原样:{base, rate_date, source, fetched_at, stale, rates:{USD:"0.1477"}}。
+  Future<Map<String, dynamic>?> fetchExchangeRates(
+      {required String base}) async {
+    final response = await _authedRequest(
+      method: 'GET',
+      path: '/read/exchange-rates',
+      query: {'base': base.trim().toUpperCase()},
+    );
+    if (response.statusCode == 404) {
+      // server 未开代理,交给调用方下滑公网源链。
+      return null;
+    }
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw CloudStorageException(
+          'Fetch exchange rates failed: ${_extractErrorMessage(response)}');
+    }
+    return _decodeJsonObject(response.body);
+  }
+
   /// 推送收支颜色方案偏好到服务端。mobile 端 `incomeExpenseColorSchemeProvider`
   /// 切换时 fire-and-forget 调一下，让 web 端通过 WS profile_change 同步。
   /// `incomeIsRed` true = 红色收入 / 绿色支出（mobile 默认）。
@@ -3849,6 +3909,7 @@ class BeeCountCloudProfile {
     this.themePrimaryColor,
     this.appearance,
     this.aiConfig,
+    this.primaryCurrency,
   });
 
   final String userId;
@@ -3858,6 +3919,8 @@ class BeeCountCloudProfile {
   final int avatarVersion;
   final bool? incomeIsRed;
   final String? themePrimaryColor;
+  /// 用户主币种(ISO code,如 `CNY`)。多币种 MVP user-level 字段,跨设备同步。
+  final String? primaryCurrency;
   /// 外观类设置(header_decoration_style / compact_amount /
   /// show_transaction_time …)的 dict,跨设备同步的 user-level JSON。
   final Map<String, dynamic>? appearance;
@@ -3881,6 +3944,7 @@ class BeeCountCloudProfile {
       aiConfig: aiConfigRaw is Map<String, dynamic>
           ? Map<String, dynamic>.from(aiConfigRaw)
           : null,
+      primaryCurrency: _trimOrNull(json['primary_currency'] as String?),
     );
   }
 }
