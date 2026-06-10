@@ -576,6 +576,9 @@ class SyncEngine implements app.SyncService {
             myRole: d.Value(r.role),
             isShared: d.Value(r.isShared),
             memberCount: d.Value(r.memberCount),
+            monthStartDay: r.monthStartDay != null
+                ? d.Value(r.monthStartDay!.clamp(1, 28))
+                : const d.Value.absent(),
           ));
           // 删 dup 行(及其关联 tx/local_changes,虽然 dup 行还没有这些)
           if (existingList.length > 1) {
@@ -606,6 +609,9 @@ class SyncEngine implements app.SyncService {
             myRole: d.Value(r.role),
             isShared: d.Value(r.isShared),
             memberCount: d.Value(r.memberCount),
+            monthStartDay: r.monthStartDay != null
+                ? d.Value(r.monthStartDay!.clamp(1, 28))
+                : const d.Value.absent(),
           ));
           upserted++;
           continue;
@@ -618,6 +624,9 @@ class SyncEngine implements app.SyncService {
               myRole: d.Value(r.role),
               isShared: d.Value(r.isShared),
               memberCount: d.Value(r.memberCount),
+              monthStartDay: r.monthStartDay != null
+                  ? d.Value(r.monthStartDay!.clamp(1, 28))
+                  : const d.Value.absent(),
             ));
         inserted++;
         // 新设备登录:Editor 的共享账本需要拉 /shared-resources 才能在

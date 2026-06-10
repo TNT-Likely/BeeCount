@@ -285,6 +285,7 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
     'ledgerId': ledgerId,
     'ledgerName': ledger.name,
     'currency': ledger.currency,
+    'monthStartDay': ledger.monthStartDay,
     'count': items.length,
     'accounts': accountItems,
     'categories': categoryItems,
@@ -396,6 +397,8 @@ ImportData parseJsonToImportData(String jsonStr) {
     }
   }
 
+  // monthStartDay 在导出 payload 里有,但这里刻意不读 —— 恢复路径由
+  // syncLedgersFromServer 收敛(见 .docs/period-start-date/design.md §4)。
   return ImportData(
     accounts: accounts,
     categories: categories,

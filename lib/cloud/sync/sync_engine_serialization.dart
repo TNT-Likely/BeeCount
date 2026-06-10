@@ -666,6 +666,7 @@ extension SyncEngineSerializationExt on SyncEngine {
       'ledgerId': ledger.id,
       'ledgerName': ledger.name,
       'currency': ledger.currency,
+      'monthStartDay': ledger.monthStartDay,
       'count': items.length,
       'accounts':
           accounts.map((a) => EntitySerializer.serializeAccount(a)).toList(),

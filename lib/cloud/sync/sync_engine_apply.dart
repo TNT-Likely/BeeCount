@@ -682,6 +682,10 @@ extension SyncEngineApplyExt on SyncEngine {
         .get();
     final name = payload['ledgerName'] as String?;
     final currency = payload['currency'] as String?;
+    // bool 不是 num,as num? 天然挡掉;越界 clamp。key 缺失 → null →
+    // update 路径 Value.absent 不动原值(老 server payload 兼容)。
+    final monthStartDay =
+        ((payload['monthStartDay'] as num?)?.toInt())?.clamp(1, 28);
     if (ledgerList.isEmpty) {
       // 本地未就绪 — 之前的"跳过等 snapshot 路径"会导致 web 端新建账本时
       // app 拉到 ledger change 但永远不 insert,新账本永远不出现。
@@ -694,10 +698,13 @@ extension SyncEngineApplyExt on SyncEngine {
             'pull: 账本 $syncId 本地未就绪 + payload 无 name,跳过(等 snapshot)');
         return;
       }
+      // insert 必须给值:payload 缺 key 时取列默认 1(与 update 路径的
+      // absent 语义不同 —— 新建行没有"原值"可保)。
       await db.into(db.ledgers).insert(LedgersCompanion.insert(
             name: name,
             currency: d.Value(currency ?? 'CNY'),
             syncId: d.Value(syncId),
+            monthStartDay: d.Value(monthStartDay ?? 1),
           ));
       logger.info('SyncEngine',
           'pull: 新增账本 syncId=$syncId name=$name currency=${currency ?? "CNY"}');
@@ -721,6 +728,9 @@ extension SyncEngineApplyExt on SyncEngine {
     final comp = LedgersCompanion(
       name: name != null ? d.Value(name) : const d.Value.absent(),
       currency: currency != null ? d.Value(currency) : const d.Value.absent(),
+      monthStartDay: monthStartDay != null
+          ? d.Value(monthStartDay)
+          : const d.Value.absent(),
     );
     await (db.update(db.ledgers)..where((l) => l.id.equals(ledger.id)))
         .write(comp);

@@ -3573,6 +3573,7 @@ class BeeCountCloudReadLedger {
     required this.role,
     this.isShared = false,
     this.memberCount = 1,
+    this.monthStartDay,
     this.exportedAt,
     this.updatedAt,
   });
@@ -3587,6 +3588,11 @@ class BeeCountCloudReadLedger {
   final String role;
   final bool isShared;
   final int memberCount;
+
+  /// server ReadLedgerOut.month_start_day;null = 老 server 未返回该字段
+  /// (调用方应保持本地值不动,勿当 1 处理 —— 防版本偏斜时覆盖用户设置)。
+  final int? monthStartDay;
+
   final DateTime? exportedAt;
   final DateTime? updatedAt;
 
@@ -3602,6 +3608,7 @@ class BeeCountCloudReadLedger {
       role: json['role'] as String? ?? 'viewer',
       isShared: json['is_shared'] as bool? ?? false,
       memberCount: (json['member_count'] as num?)?.toInt() ?? 1,
+      monthStartDay: (json['month_start_day'] as num?)?.toInt(),
       exportedAt: DateTime.tryParse(json['exported_at'] as String? ?? ''),
       updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),
     );
@@ -3701,6 +3708,7 @@ class BeeCountCloudReadLedgerDetail extends BeeCountCloudReadLedger {
     required super.isShared,
     required super.memberCount,
     required this.sourceChangeId,
+    super.monthStartDay,
     super.exportedAt,
     super.updatedAt,
   });
@@ -3720,6 +3728,7 @@ class BeeCountCloudReadLedgerDetail extends BeeCountCloudReadLedger {
       role: base.role,
       isShared: base.isShared,
       memberCount: base.memberCount,
+      monthStartDay: base.monthStartDay,
       exportedAt: base.exportedAt,
       updatedAt: base.updatedAt,
       sourceChangeId: (json['source_change_id'] as num?)?.toInt() ?? 0,

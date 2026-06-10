@@ -127,14 +127,16 @@ class EntitySerializer {
 
   // ==================== Ledger ====================
 
-  /// 账本元数据(名字 / 币种)的跨设备 payload。字段名对齐 server
+  /// 账本元数据(名字 / 币种 / 月度起始日)的跨设备 payload。字段名对齐 server
   /// `WriteLedgerMetaUpdateRequest`,server materialize 时会用这些字段
   /// 更新 `ledger_snapshot` 的 top-level `ledgerName` / `currency`。
+  /// `monthStartDay` 对齐 server `ReadLedgerOut.month_start_day`(1-28)。
   static Map<String, dynamic> serializeLedger(Ledger ledger) {
     return {
       'syncId': ledger.syncId,
       'ledgerName': ledger.name,
       'currency': ledger.currency,
+      'monthStartDay': ledger.monthStartDay,
     };
   }
 

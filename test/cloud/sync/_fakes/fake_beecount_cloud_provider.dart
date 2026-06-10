@@ -244,6 +244,7 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
   }
 
   /// 模拟 server 端的账本列表(`/sync/ledgers` 返)。
+  /// [monthStartDay] 不传模拟老 server 未返该字段(null 哨兵)。
   void pushFakeLedger({
     required String ledgerId,
     String ledgerName = 'Fake Ledger',
@@ -251,6 +252,7 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
     String role = 'owner',
     bool isShared = false,
     int memberCount = 1,
+    int? monthStartDay,
     DateTime? updatedAt,
   }) {
     _serverLedgers.add(BeeCountCloudReadLedger(
@@ -260,6 +262,7 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
       role: role,
       isShared: isShared,
       memberCount: memberCount,
+      monthStartDay: monthStartDay,
       updatedAt: updatedAt ?? DateTime.now(),
       transactionCount: 0,
       incomeTotal: 0,
