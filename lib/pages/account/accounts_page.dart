@@ -1153,15 +1153,14 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                       },
                     ),
                   ),
-                  // 多币种折算开关 + 汇率管理入口:仅在使用中币种 ≥2 时出现。
+                  // 汇率管理入口:仅在使用中币种 ≥2 时出现。折算开关已下线
+                  // (多币种恒折算,与 Web 端对齐),这里只保留汇率管理入口。
                   Consumer(
                     builder: (context, ref, _) {
                       final used = ref.watch(usedCurrenciesProvider).valueOrNull;
                       if (used == null || used.length < 2) {
                         return const SizedBox.shrink();
                       }
-                      final convertEnabled =
-                          ref.watch(assetConversionEnabledProvider);
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -1170,27 +1169,6 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                             indent: 16,
                             endIndent: 16,
                             color: BeeTokens.divider(context),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: SwitchListTile(
-                              dense: true,
-                              visualDensity: VisualDensity.compact,
-                              title: Text(
-                                l10n.assetConversionToggle,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: BeeTokens.textPrimary(context),
-                                ),
-                              ),
-                              value: convertEnabled,
-                              activeColor: primaryColor,
-                              onChanged: (value) {
-                                ref
-                                    .read(assetConversionEnabledProvider.notifier)
-                                    .state = value;
-                              },
-                            ),
                           ),
                           ListTile(
                             dense: true,

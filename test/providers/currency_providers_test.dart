@@ -1,7 +1,7 @@
 // 多币种 provider 层纯逻辑单测(不打网络)。
 // 覆盖两个纯逻辑触点:
 //   ① baseCurrencyInitProvider 的初始化优先级(prefs 兜底链 selected_currency)
-//   ② multiCurrencyActiveProvider 的总闸(币种数 × 折算开关)
+//   ② multiCurrencyActiveProvider 的总闸(币种数 ≥2 即恒折算,折算开关已下线)
 //
 // 拉取链 refreshExchangeRates / effectiveRates 走 IO,不在这里测(由 service /
 // repository 层各自的测试覆盖)。
@@ -55,34 +55,27 @@ void main() {
     });
   });
 
-  group('multiCurrencyActiveProvider 总闸', () {
-    Future<bool> evaluate({
-      required Set<String> used,
-      required bool conversionEnabled,
-    }) async {
+  group('multiCurrencyActiveProvider 总闸(折算开关已下线,≥2 币种恒折算)', () {
+    Future<bool> evaluate({required Set<String> used}) async {
       final container = ProviderContainer(overrides: [
         usedCurrenciesProvider.overrideWith((ref) => Future.value(used)),
       ]);
       addTearDown(container.dispose);
-      container.read(assetConversionEnabledProvider.notifier).state =
-          conversionEnabled;
       // 等 FutureProvider 解析完成,multiCurrencyActiveProvider 才能读到 valueOrNull
       await container.read(usedCurrenciesProvider.future);
       return container.read(multiCurrencyActiveProvider);
     }
 
     test('单币种 → false', () async {
-      expect(await evaluate(used: {'CNY'}, conversionEnabled: true), isFalse);
+      expect(await evaluate(used: {'CNY'}), isFalse);
     });
 
-    test('双币种 + 折算开关开 → true', () async {
-      expect(
-          await evaluate(used: {'CNY', 'USD'}, conversionEnabled: true), isTrue);
+    test('双币种 → 恒为 true(无需开关)', () async {
+      expect(await evaluate(used: {'CNY', 'USD'}), isTrue);
     });
 
-    test('双币种 + 折算开关关 → false', () async {
-      expect(await evaluate(used: {'CNY', 'USD'}, conversionEnabled: false),
-          isFalse);
+    test('三币种 → true', () async {
+      expect(await evaluate(used: {'CNY', 'USD', 'JPY'}), isTrue);
     });
   });
 }

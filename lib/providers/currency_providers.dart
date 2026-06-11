@@ -17,9 +17,6 @@ import 'sync_providers.dart';
 /// 模式下改动会推到 server,其余云模式 / 纯本地只存本地。
 final baseCurrencyProvider = StateProvider<String>((ref) => 'CNY');
 
-/// 资产页「按主币种折算」开关(设备级 prefs,不同步)。
-final assetConversionEnabledProvider = StateProvider<bool>((ref) => true);
-
 /// 汇率数据变更信号:拉取成功 / 手动编辑后 bump,触发 effectiveRates 重算。
 final rateRefreshTickProvider = StateProvider<int>((ref) => 0);
 
@@ -42,15 +39,10 @@ final baseCurrencyInitProvider = FutureProvider<void>((ref) async {
     await prefs.setString('baseCurrency', saved);
   }
   ref.read(baseCurrencyProvider.notifier).state = saved.toUpperCase();
-  ref.read(assetConversionEnabledProvider.notifier).state =
-      prefs.getBool('assetConversionEnabled') ?? true;
 
   ref.listen<String>(baseCurrencyProvider, (prev, next) async {
     await prefs.setString('baseCurrency', next);
     _pushBaseCurrencyToCloud(ref, next);
-  });
-  ref.listen<bool>(assetConversionEnabledProvider, (prev, next) async {
-    await prefs.setBool('assetConversionEnabled', next);
   });
 });
 
@@ -85,11 +77,11 @@ final usedCurrenciesProvider = FutureProvider<Set<String>>((ref) async {
   return used;
 });
 
-/// 多币种态总闸(README D6):≥2 种币种 且 折算开关开。
+/// 多币种态总闸(README D6):使用中币种 ≥2 即恒为折算态,与 Web 端对齐。
+/// 原「按主币种折算」开关已下线(默认折算),不再有「非折算多币种」态。
 final multiCurrencyActiveProvider = Provider<bool>((ref) {
   final used = ref.watch(usedCurrenciesProvider).valueOrNull;
-  if (used == null || used.length < 2) return false;
-  return ref.watch(assetConversionEnabledProvider);
+  return used != null && used.length >= 2;
 });
 
 /// 有效汇率:手动 > 最新自动;缺失显式缺失(D5)。
