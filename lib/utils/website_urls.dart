@@ -35,9 +35,6 @@ class WebsiteUrls {
       '$baseUrl${_langPrefix(locale)}/docs/intro'
       '?embed=1&theme=${dark ? 'dark' : 'light'}&primary=$primaryHex';
 
-  /// App 远程配置(静态 JSON,随官网部署;改动后 CF Pages 分钟级生效)
-  static String appConfig() => '$baseUrl/app-config.json';
-
   /// 功能介绍
   static String docsFeature(String feature, [Locale? locale]) =>
       '$baseUrl${_langPrefix(locale)}/docs/features/$feature';
