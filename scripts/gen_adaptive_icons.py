@@ -127,30 +127,34 @@ def gen_foreground():
 
 
 def gen_monochrome():
-    """单色版:themed icon 只取 alpha 通道,结构与彩色 logo 完全同构:
-    - 头:实心圆 + 镂空眼睛(logo 即实心黑头 + 白眼)
-    - 身体:描边椭圆 + 实心条纹线(logo 即描边黄肚 + 黑条纹)
-    - 翅膀:描边椭圆
+    """单色版(选型 C「实心剪影」,2026-06-11 拍板):themed icon 只取 alpha 通道,
+    特征全部用实心形 + 透明镂空表达,最接近 Google 官方 glyph 的粗壮风格:
+    - 翅膀:实心椭圆,与头/身体之间留**负空间缝**(对应彩色版翅膀与身体的颜色分界)
+    - 头:实心圆 + 镂空眼睛
+    - 身体:实心椭圆 + 镂空条纹缝
     - 触角:粗线
-    画布占比 0.90:launcher 渲染 themed icon 时自带大 inset,glyph 必须近乎铺满
-    (留白太多会显得特别小);铺满后线宽在小尺寸下也足够清晰。
+    画布占比 0.75:留白对齐 Gmail/Photos 等官方图标(0.90 太满,显得拥挤)。
     """
-    set_content_ratio(0.90)
-    # 用 L 模式画 alpha 蒙版:255=笔画,0=透明(可表达镂空)
+    set_content_ratio(0.75)
+    # 用 L 模式画 alpha 蒙版:255=形状,0=透明(可表达镂空)
     mask = Image.new("L", (CANVAS * SS, CANVAS * SS), 0)
     dr = ImageDraw.Draw(mask)
+    # 翅膀(实心,先画;比彩色版外移并加大一号 —— 负空间缝会吃掉贴近主体的部分)
+    dr.ellipse(ellipse_box(84, 128, 31, 20), fill=255)
+    dr.ellipse(ellipse_box(172, 128, 31, 20), fill=255)
+    # 负空间缝:用放大的头/身体轮廓挖掉翅膀贴近主体的部分,留出分隔
+    dr.ellipse(ellipse_box(128, 106, 42, 42), fill=0)
+    dr.ellipse(ellipse_box(128, 174, 61, 47), fill=0)
     # 触角
     draw_antennae(dr, d(12), 255)
-    # 翅膀描边
-    dr.ellipse(ellipse_box(92, 126, 28, 18), outline=255, width=int(d(11)))
-    dr.ellipse(ellipse_box(164, 126, 28, 18), outline=255, width=int(d(11)))
-    # 头:实心圆
+    # 头(实心)
     dr.ellipse(ellipse_box(128, 106, 36, 36), fill=255)
-    # 身体:描边椭圆 + 实心条纹(端点收进轮廓内,圆头不戳出描边)
-    dr.ellipse(ellipse_box(128, 174, 54, 40), outline=255, width=int(d(13)))
-    thick_line(dr, pt(82, 174), pt(174, 174), d(11), 255)
-    thick_line(dr, pt(92, 190), pt(164, 190), d(11), 255)
-    # 眼睛:镂空(对应 logo 的白眼睛)
+    # 身体(实心)
+    dr.ellipse(ellipse_box(128, 174, 54, 40), fill=255)
+    # 条纹:镂空缝(横穿身体,缝间留足实心带,小尺寸不糊)
+    thick_line(dr, pt(66, 172), pt(190, 172), d(9), 0)
+    thick_line(dr, pt(66, 191), pt(190, 191), d(9), 0)
+    # 眼睛:镂空(透出背景色成为"眼睛")
     dr.ellipse(ellipse_box(116, 102, 8, 8), fill=0)
     dr.ellipse(ellipse_box(140, 102, 8, 8), fill=0)
 
