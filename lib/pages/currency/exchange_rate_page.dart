@@ -242,119 +242,155 @@ class _ExchangeRatePageState extends ConsumerState<ExchangeRatePage> {
     String base,
     EffectiveRate? eff,
   ) async {
-    final l10n = AppLocalizations.of(context);
-    final primary = ref.read(primaryColorProvider);
-    final repo = ref.read(repositoryProvider);
-    final hadManual = eff?.manual ?? false;
-    // 预填:手动值回填原始字符串(保留用户精度);自动值用 _fmt6 展示(6 位有效,
-    // 编辑后会被新输入覆盖,截断无妨);无汇率则留空。
-    final controller = TextEditingController(
-      text: eff == null
-          ? ''
-          : (eff.manual ? eff.rate : _fmt6(eff.rate)),
-    );
-
-    await showDialog<void>(
+    // 弹窗自持 TextEditingController(State.dispose 在路由完全移除后才被调用)。
+    // 不要在 await showDialog 返回后立刻 dispose —— 退场动画期间 TextField
+    // 仍引用 controller,会 use-after-dispose 红屏。
+    final result = await showDialog<({bool reset, String rate})>(
       context: context,
-      builder: (dctx) {
-        String? errorText;
-        return StatefulBuilder(builder: (sctx, setDlgState) {
-          // 实时反向参考:1 base ≈ (1/rate) quote
-          final parsed = double.tryParse(controller.text.trim());
-          final inverseText = (parsed != null && parsed > 0)
-              ? (1 / parsed).toStringAsPrecision(6)
-              : '—';
-
-          return AlertDialog(
-            backgroundColor: BeeTokens.surfaceElevated(dctx),
-            title: Text(
-              l10n.rateEditTitle,
-              style: TextStyle(color: BeeTokens.textPrimary(dctx)),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: controller,
-                  autofocus: true,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-                  ],
-                  decoration: InputDecoration(
-                    prefixText: '1 $quote = ',
-                    suffixText: base,
-                    errorText: errorText,
-                  ),
-                  onChanged: (_) => setDlgState(() => errorText = null),
-                ),
-                SizedBox(height: 10.0.scaled(context, ref)),
-                Text(
-                  l10n.rateInverseHint(base, inverseText, quote),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: BeeTokens.textTertiary(dctx),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              if (hadManual)
-                TextButton(
-                  onPressed: () async {
-                    await repo.removeOverride(base: base, quote: quote);
-                    ref.read(rateRefreshTickProvider.notifier).state++;
-                    final activeLedgerId = ref.read(currentLedgerIdProvider);
-                    if (activeLedgerId > 0) {
-                      unawaited(PostProcessor.sync(ref, ledgerId: activeLedgerId));
-                    }
-                    if (dctx.mounted) Navigator.pop(dctx);
-                  },
-                  child: Text(
-                    l10n.rateResetToAuto,
-                    style: TextStyle(color: BeeTokens.textSecondary(dctx)),
-                  ),
-                ),
-              TextButton(
-                onPressed: () => Navigator.pop(dctx),
-                child: Text(
-                  l10n.commonCancel,
-                  style: TextStyle(color: BeeTokens.textSecondary(dctx)),
-                ),
-              ),
-              TextButton(
-                onPressed: () async {
-                  final raw = controller.text.trim();
-                  final v = double.tryParse(raw);
-                  if (v == null || v <= 1e-6 || v >= 1e9) {
-                    setDlgState(() => errorText = l10n.commonError);
-                    return;
-                  }
-                  // rate 字符串原样存用户输入(trim),不二次格式化。
-                  await repo.setOverride(base: base, quote: quote, rate: raw);
-                  ref.read(rateRefreshTickProvider.notifier).state++;
-                  final activeLedgerId = ref.read(currentLedgerIdProvider);
-                  if (activeLedgerId > 0) {
-                    unawaited(PostProcessor.sync(ref, ledgerId: activeLedgerId));
-                  }
-                  if (dctx.mounted) Navigator.pop(dctx);
-                },
-                child: Text(
-                  l10n.commonSave,
-                  style: TextStyle(
-                    color: primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          );
-        });
-      },
+      builder: (_) => _RateEditDialog(
+        quote: quote,
+        base: base,
+        hadManual: eff?.manual ?? false,
+        // 预填:手动值回填原始字符串(保留用户精度);自动值用 _fmt6 展示(6 位有效,
+        // 编辑后会被新输入覆盖,截断无妨);无汇率则留空。
+        initialText: eff == null
+            ? ''
+            : (eff.manual ? eff.rate : _fmt6(eff.rate)),
+      ),
     );
-    controller.dispose();
+    if (result == null || !mounted) return; // 取消/遮罩关闭
+
+    final repo = ref.read(repositoryProvider);
+    if (result.reset) {
+      await repo.removeOverride(base: base, quote: quote);
+    } else {
+      // rate 字符串原样存用户输入(trim),不二次格式化。
+      await repo.setOverride(base: base, quote: quote, rate: result.rate);
+    }
+    ref.read(rateRefreshTickProvider.notifier).state++;
+    final activeLedgerId = ref.read(currentLedgerIdProvider);
+    if (activeLedgerId > 0) {
+      unawaited(PostProcessor.sync(ref, ledgerId: activeLedgerId));
+    }
+  }
+}
+
+/// 汇率编辑弹窗:自持 controller,关闭时通过返回值告知动作
+/// (reset=true 恢复自动;reset=false 保存 rate;null=取消)。
+class _RateEditDialog extends ConsumerStatefulWidget {
+  final String quote;
+  final String base;
+  final bool hadManual;
+  final String initialText;
+
+  const _RateEditDialog({
+    required this.quote,
+    required this.base,
+    required this.hadManual,
+    required this.initialText,
+  });
+
+  @override
+  ConsumerState<_RateEditDialog> createState() => _RateEditDialogState();
+}
+
+class _RateEditDialogState extends ConsumerState<_RateEditDialog> {
+  late final TextEditingController _controller;
+  String? _errorText;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialText);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final primary = ref.watch(primaryColorProvider);
+    // 实时反向参考:1 base ≈ (1/rate) quote
+    final parsed = double.tryParse(_controller.text.trim());
+    final inverseText = (parsed != null && parsed > 0)
+        ? (1 / parsed).toStringAsPrecision(6)
+        : '—';
+
+    return AlertDialog(
+      backgroundColor: BeeTokens.surfaceElevated(context),
+      title: Text(
+        l10n.rateEditTitle,
+        style: TextStyle(color: BeeTokens.textPrimary(context)),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _controller,
+            autofocus: true,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+            ],
+            decoration: InputDecoration(
+              prefixText: '1 ${widget.quote} = ',
+              suffixText: widget.base,
+              errorText: _errorText,
+            ),
+            onChanged: (_) => setState(() => _errorText = null),
+          ),
+          SizedBox(height: 10.0.scaled(context, ref)),
+          Text(
+            l10n.rateInverseHint(widget.base, inverseText, widget.quote),
+            style: TextStyle(
+              fontSize: 12,
+              color: BeeTokens.textTertiary(context),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        if (widget.hadManual)
+          TextButton(
+            onPressed: () =>
+                Navigator.pop(context, (reset: true, rate: '')),
+            child: Text(
+              l10n.rateResetToAuto,
+              style: TextStyle(color: BeeTokens.textSecondary(context)),
+            ),
+          ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(
+            l10n.commonCancel,
+            style: TextStyle(color: BeeTokens.textSecondary(context)),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            final raw = _controller.text.trim();
+            final v = double.tryParse(raw);
+            if (v == null || v <= 1e-6 || v >= 1e9) {
+              setState(() => _errorText = l10n.commonError);
+              return;
+            }
+            Navigator.pop(context, (reset: false, rate: raw));
+          },
+          child: Text(
+            l10n.commonSave,
+            style: TextStyle(
+              color: primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
