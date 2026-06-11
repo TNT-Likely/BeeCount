@@ -3011,5 +3011,14 @@
   "conversionDetailTitle": "Conversion Details",
   "assetConversionToggle": "Convert to primary currency",
   "rateManualApplied": "Applied {count} manual rates",
-  "@rateManualApplied": {"placeholders": {"count": {"type": "int"}}}
+  "@rateManualApplied": {"placeholders": {"count": {"type": "int"}}},
+  "netWorthTrendTitle": "Net Worth Trend",
+  "netWorthTrend3M": "3M",
+  "netWorthTrend6M": "6M",
+  "netWorthTrend12M": "12M",
+  "netWorthTrendAll": "All",
+  "netWorthTrendLineNet": "Net Worth",
+  "netWorthTrendLineAssets": "Total Assets",
+  "netWorthTrendLineLiabilities": "Total Liabilities",
+  "netWorthTrendMultiCurrencyNote": "Historical net worth is the raw sum of each currency, not converted"
 }

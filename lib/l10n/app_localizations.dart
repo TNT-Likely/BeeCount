@@ -12701,6 +12701,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Applied {count} manual rates'**
   String rateManualApplied(int count);
+
+  /// No description provided for @netWorthTrendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Worth Trend'**
+  String get netWorthTrendTitle;
+
+  /// No description provided for @netWorthTrend3M.
+  ///
+  /// In en, this message translates to:
+  /// **'3M'**
+  String get netWorthTrend3M;
+
+  /// No description provided for @netWorthTrend6M.
+  ///
+  /// In en, this message translates to:
+  /// **'6M'**
+  String get netWorthTrend6M;
+
+  /// No description provided for @netWorthTrend12M.
+  ///
+  /// In en, this message translates to:
+  /// **'12M'**
+  String get netWorthTrend12M;
+
+  /// No description provided for @netWorthTrendAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get netWorthTrendAll;
+
+  /// No description provided for @netWorthTrendLineNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Worth'**
+  String get netWorthTrendLineNet;
+
+  /// No description provided for @netWorthTrendLineAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Assets'**
+  String get netWorthTrendLineAssets;
+
+  /// No description provided for @netWorthTrendLineLiabilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Liabilities'**
+  String get netWorthTrendLineLiabilities;
+
+  /// No description provided for @netWorthTrendMultiCurrencyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Historical net worth is the raw sum of each currency, not converted'**
+  String get netWorthTrendMultiCurrencyNote;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

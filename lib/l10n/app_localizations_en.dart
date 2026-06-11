@@ -6720,4 +6720,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String rateManualApplied(int count) {
     return 'Applied $count manual rates';
   }
+
+  @override
+  String get netWorthTrendTitle => 'Net Worth Trend';
+
+  @override
+  String get netWorthTrend3M => '3M';
+
+  @override
+  String get netWorthTrend6M => '6M';
+
+  @override
+  String get netWorthTrend12M => '12M';
+
+  @override
+  String get netWorthTrendAll => 'All';
+
+  @override
+  String get netWorthTrendLineNet => 'Net Worth';
+
+  @override
+  String get netWorthTrendLineAssets => 'Total Assets';
+
+  @override
+  String get netWorthTrendLineLiabilities => 'Total Liabilities';
+
+  @override
+  String get netWorthTrendMultiCurrencyNote => 'Historical net worth is the raw sum of each currency, not converted';
 }

@@ -2654,5 +2654,14 @@
   "commonDetail": "詳情",
   "conversionDetailTitle": "折算詳情",
   "assetConversionToggle": "按主幣種折算",
-  "rateManualApplied": "已套用 {count} 條手動匯率"
+  "rateManualApplied": "已套用 {count} 條手動匯率",
+  "netWorthTrendTitle": "淨值趨勢",
+  "netWorthTrend3M": "3個月",
+  "netWorthTrend6M": "6個月",
+  "netWorthTrend12M": "12個月",
+  "netWorthTrendAll": "全部",
+  "netWorthTrendLineNet": "淨資產",
+  "netWorthTrendLineAssets": "總資產",
+  "netWorthTrendLineLiabilities": "總負債",
+  "netWorthTrendMultiCurrencyNote": "歷史淨值為各幣種原值相加,未折算"
 }

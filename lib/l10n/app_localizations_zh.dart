@@ -6720,6 +6720,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String rateManualApplied(int count) {
     return '已应用 $count 条手动汇率';
   }
+
+  @override
+  String get netWorthTrendTitle => '净值趋势';
+
+  @override
+  String get netWorthTrend3M => '3个月';
+
+  @override
+  String get netWorthTrend6M => '6个月';
+
+  @override
+  String get netWorthTrend12M => '12个月';
+
+  @override
+  String get netWorthTrendAll => '全部';
+
+  @override
+  String get netWorthTrendLineNet => '净资产';
+
+  @override
+  String get netWorthTrendLineAssets => '总资产';
+
+  @override
+  String get netWorthTrendLineLiabilities => '总负债';
+
+  @override
+  String get netWorthTrendMultiCurrencyNote => '历史净值为各币种原值相加,未折算';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -13410,4 +13437,31 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String rateManualApplied(int count) {
     return '已套用 $count 條手動匯率';
   }
+
+  @override
+  String get netWorthTrendTitle => '淨值趨勢';
+
+  @override
+  String get netWorthTrend3M => '3個月';
+
+  @override
+  String get netWorthTrend6M => '6個月';
+
+  @override
+  String get netWorthTrend12M => '12個月';
+
+  @override
+  String get netWorthTrendAll => '全部';
+
+  @override
+  String get netWorthTrendLineNet => '淨資產';
+
+  @override
+  String get netWorthTrendLineAssets => '總資產';
+
+  @override
+  String get netWorthTrendLineLiabilities => '總負債';
+
+  @override
+  String get netWorthTrendMultiCurrencyNote => '歷史淨值為各幣種原值相加,未折算';
 }

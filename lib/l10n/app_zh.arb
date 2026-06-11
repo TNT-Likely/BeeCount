@@ -2952,5 +2952,14 @@
   "commonDetail": "详情",
   "conversionDetailTitle": "折算详情",
   "assetConversionToggle": "按主币种折算",
-  "rateManualApplied": "已应用 {count} 条手动汇率"
+  "rateManualApplied": "已应用 {count} 条手动汇率",
+  "netWorthTrendTitle": "净值趋势",
+  "netWorthTrend3M": "3个月",
+  "netWorthTrend6M": "6个月",
+  "netWorthTrend12M": "12个月",
+  "netWorthTrendAll": "全部",
+  "netWorthTrendLineNet": "净资产",
+  "netWorthTrendLineAssets": "总资产",
+  "netWorthTrendLineLiabilities": "总负债",
+  "netWorthTrendMultiCurrencyNote": "历史净值为各币种原值相加,未折算"
 }

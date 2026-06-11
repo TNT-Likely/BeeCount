@@ -19,9 +19,12 @@ import '../../utils/ui_scale_extensions.dart';
 import '../../utils/account_type_utils.dart';
 import '../../utils/currencies.dart';
 import '../../widgets/charts/asset_composition_chart.dart';
+import '../../widgets/charts/line_chart.dart';
+import '../../utils/net_worth_trend_utils.dart';
 import '../currency/exchange_rate_page.dart';
 import 'account_edit_page.dart';
 import 'account_detail_page.dart';
+import 'net_worth_trend_page.dart';
 
 class AccountsPage extends ConsumerStatefulWidget {
   final bool asTab;
@@ -377,6 +380,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
             );
           }),
         ],
+        // 净值走势 sparkline:净资产数字下方,近 12 月净值缩略图;点击进全屏趋势页。
+        _buildNetWorthSparkline(context, ref),
         SizedBox(height: 12.0.scaled(context, ref)),
         // 总资产 | 总负债
         if (isSingleCurrency)
@@ -468,6 +473,54 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
         SizedBox(height: 20.0.scaled(context, ref)),
       ],
     );
+  }
+
+  /// 净值走势 sparkline:净资产数字下方,近 12 月净值缩略图;点击进全屏趋势页。
+  /// 非折算 / 折算两个视图共用此组件,体验一致(数据同源,minimal 模式去背景/轴线)。
+  Widget _buildNetWorthSparkline(BuildContext context, WidgetRef ref) {
+    return Consumer(builder: (context, ref, _) {
+      final now = DateTime.now();
+      final start = DateTime(now.year, now.month - 11, 1);
+      final seriesAsync = ref.watch(
+          netWorthTrendSeriesProvider((startDate: start, endDate: now)));
+      final hide = ref.watch(hideAmountsProvider);
+      return seriesAsync.maybeWhen(
+        data: (series) {
+          if (series.length < 2) return const SizedBox.shrink();
+          // 按月降采样(取每月末值),避免日级点数拥挤。
+          final monthly = downsampleMonthly(series);
+          if (monthly.length < 2) return const SizedBox.shrink();
+          return Padding(
+            padding: EdgeInsets.only(top: 8.0.scaled(context, ref)),
+            child: InkWell(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const NetWorthTrendPage()),
+              ),
+              child: SizedBox(
+                height: 48.0.scaled(context, ref),
+                child: LineChart(
+                  values: monthly.map((e) => e.net).toList(),
+                  xLabels: const [], // sparkline 不显标签
+                  highlightIndex: null,
+                  onSwipeLeft: () {},
+                  onSwipeRight: () {},
+                  showHint: false,
+                  hideAmounts: hide,
+                  themeColor: ref.watch(primaryColorProvider),
+                  whiteBg: !BeeTokens.isDark(context),
+                  isDark: BeeTokens.isDark(context),
+                  showGrid: false,
+                  showDots: false,
+                  annotate: false,
+                  minimal: true,
+                ),
+              ),
+            ),
+          );
+        },
+        orElse: () => const SizedBox.shrink(),
+      );
+    });
   }
 
   /// 折算视图：净资产折算总额 + 每币种折算行 + 缺失标示 + 脚注入口 + 折算总资产/总负债。
@@ -564,6 +617,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
             ),
           ],
         ),
+        // 净值走势 sparkline:与非折算视图体验一致(共用 _buildNetWorthSparkline)。
+        _buildNetWorthSparkline(context, ref),
         SizedBox(height: 12.0.scaled(context, ref)),
         // 折算总资产 | 折算总负债(单行折算版)
         Row(
