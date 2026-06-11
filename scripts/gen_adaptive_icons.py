@@ -144,8 +144,9 @@ def gen_monochrome():
     dr.ellipse(ellipse_box(84, 128, 31, 20), fill=255)
     dr.ellipse(ellipse_box(172, 128, 31, 20), fill=255)
     # 负空间缝:用放大的头/身体轮廓挖掉翅膀贴近主体的部分,留出分隔
-    dr.ellipse(ellipse_box(128, 106, 42, 42), fill=0)
-    dr.ellipse(ellipse_box(128, 174, 61, 47), fill=0)
+    # (缝宽 3/3.5 单位:大尺寸有分界,小尺寸近乎连体 —— 试过 6/7 嫌宽、连体嫌糊)
+    dr.ellipse(ellipse_box(128, 106, 39, 39), fill=0)
+    dr.ellipse(ellipse_box(128, 174, 57.5, 43.5), fill=0)
     # 触角
     draw_antennae(dr, d(12), 255)
     # 头(实心)
