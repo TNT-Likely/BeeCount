@@ -20,6 +20,11 @@ class LedgerCard extends ConsumerWidget {
   final LedgerDisplayItem ledger;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+
+  /// 右下角「⋯」按钮回调 —— 与 [onLongPress] 调同一个操作菜单。
+  /// 长按是不可发现的手势,预算管理等入口藏在里面没人找得到,
+  /// 必须有一个可见的等价入口。
+  final VoidCallback? onMore;
   final bool selected;
 
   const LedgerCard({
@@ -27,6 +32,7 @@ class LedgerCard extends ConsumerWidget {
     required this.ledger,
     this.onTap,
     this.onLongPress,
+    this.onMore,
     this.selected = false,
   });
 
@@ -243,6 +249,23 @@ class LedgerCard extends ConsumerWidget {
                         ),
                       ],
                     ),
+                  ),
+                ),
+
+              // 右下角操作按钮(长按菜单的可见等价入口;放蒙层之后保证远程账本也可点)
+              if (onMore != null)
+                Positioned(
+                  right: 4,
+                  bottom: 4,
+                  child: IconButton(
+                    onPressed: onMore,
+                    tooltip: l10n.ledgersActions,
+                    icon: Icon(
+                      Icons.more_horiz,
+                      size: 20,
+                      color: BeeTokens.iconSecondary(context),
+                    ),
+                    visualDensity: VisualDensity.compact,
                   ),
                 ),
             ],

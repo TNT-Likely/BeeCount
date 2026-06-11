@@ -232,6 +232,7 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
                 selected: !ledger.isRemoteOnly && ledger.id == currentId,
                 onTap: () => _handleLocalLedgerTap(ledger),
                 onLongPress: () => _showLocalLedgerActions(context, ledger),
+                onMore: () => _showLocalLedgerActions(context, ledger),
               )),
         ],
 
@@ -275,6 +276,7 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
                   ledger: ledger,
                   onTap: () => _handleRemoteLedgerTap(context, ledger),
                   onLongPress: () => _showRemoteLedgerActions(context, ledger),
+                  onMore: () => _showRemoteLedgerActions(context, ledger),
                 )),
         ],
 
@@ -313,6 +315,7 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
                             selected: !ledger.isRemoteOnly && ledger.id == currentId,
                             onTap: () => _handleLocalLedgerTap(ledger),
                             onLongPress: () => _showLocalLedgerActions(context, ledger),
+                            onMore: () => _showLocalLedgerActions(context, ledger),
                           )),
                     ],
 
@@ -332,6 +335,7 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
                             ledger: ledger,
                             onTap: () => _handleRemoteLedgerTap(context, ledger),
                             onLongPress: () => _showRemoteLedgerActions(context, ledger),
+                            onMore: () => _showRemoteLedgerActions(context, ledger),
                           )),
                     ],
 
