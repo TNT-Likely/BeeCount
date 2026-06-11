@@ -29,7 +29,7 @@ class _NetWorthTrendPageState extends ConsumerState<NetWorthTrendPage> {
   _TrendRange _range = _TrendRange.m12;
 
   ({DateTime start, DateTime end}) _rangeDates() {
-    final now = DateTime.now();
+    final now = trendTodayAnchor();
     switch (_range) {
       case _TrendRange.m3:
         return (start: DateTime(now.year, now.month - 2, 1), end: now);

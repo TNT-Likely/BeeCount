@@ -18,3 +18,15 @@ List<({DateTime date, double assets, double liabilities, double net})>
     ..sort((a, b) => a.date.compareTo(b.date));
   return list;
 }
+
+/// 净值趋势查询的 endDate 锚点:当天 0 点(去掉时分秒微秒)。
+///
+/// netWorthTrendSeriesProvider 是 FutureProvider.family.autoDispose,family key 是
+/// (startDate, endDate) record,按值比较。若直接用 DateTime.now() 当 endDate,每次
+/// widget build 微秒都不同 → key 每次变 → 永远新建实例、永远 loading、UI 永不显示
+/// (sparkline 一直 shrink、全屏页一直空白)。规整到「日」后同一天内 key 稳定,
+/// provider 正常缓存命中。repo 内部本就把 endDate 截断到日级,锚点用 0 点无副作用。
+DateTime trendTodayAnchor() {
+  final now = DateTime.now();
+  return DateTime(now.year, now.month, now.day);
+}

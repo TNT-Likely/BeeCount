@@ -479,7 +479,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
   /// 非折算 / 折算两个视图共用此组件,体验一致(数据同源,minimal 模式去背景/轴线)。
   Widget _buildNetWorthSparkline(BuildContext context, WidgetRef ref) {
     return Consumer(builder: (context, ref, _) {
-      final now = DateTime.now();
+      final now = trendTodayAnchor();
       final start = DateTime(now.year, now.month - 11, 1);
       final seriesAsync = ref.watch(
           netWorthTrendSeriesProvider((startDate: start, endDate: now)));
