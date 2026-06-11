@@ -65,14 +65,19 @@ class LineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (details) {
-        // 如果有点击回调，处理点击事件
-        if (onPrimaryLineTap != null || onSecondaryLineTap != null) {
-          _handleTap(details.localPosition, context);
-        }
-      },
-      onHorizontalDragEnd: (details) {
+      // minimal(sparkline 等嵌入场景)不自带手势:tap/swipe 全部让位给外层
+      // (如包裹 sparkline 的 InkWell 点击进全屏页)。否则内部 opaque
+      // GestureDetector 会赢得手势竞技场、吞掉外层的点击。
+      behavior: minimal ? HitTestBehavior.translucent : HitTestBehavior.opaque,
+      onTapDown: minimal
+          ? null
+          : (details) {
+              // 如果有点击回调，处理点击事件
+              if (onPrimaryLineTap != null || onSecondaryLineTap != null) {
+                _handleTap(details.localPosition, context);
+              }
+            },
+      onHorizontalDragEnd: minimal ? null : (details) {
         final v = details.primaryVelocity ?? 0;
         if (v < 0) {
           onSwipeLeft();
