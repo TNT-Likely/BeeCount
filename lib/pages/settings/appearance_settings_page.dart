@@ -5,6 +5,8 @@ import '../../providers.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/biz.dart';
 import '../../styles/tokens.dart';
+import '../../utils/currencies.dart';
+import '../../widgets/currency/currency_picker_sheet.dart';
 import './personalize_page.dart';
 import './font_settings_page.dart';
 import './language_settings_page.dart';
@@ -13,6 +15,7 @@ import './app_lock_settings_page.dart';
 import './header_skin_page.dart';
 import '../../styles/header_skins.dart';
 import '../../l10n/app_localizations.dart';
+import '../currency/exchange_rate_page.dart';
 
 /// 外观设置二级页面
 class AppearanceSettingsPage extends ConsumerWidget {
@@ -170,6 +173,36 @@ class AppearanceSettingsPage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
+                // 多币种:主币种 / 汇率管理
+                SectionCard(
+                  margin: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      // 主币种
+                      AppListTile(
+                        leading: Icons.payments_outlined,
+                        title: l10n.baseCurrencyLabel,
+                        subtitle: displayCurrency(
+                            ref.watch(baseCurrencyProvider).toUpperCase(),
+                            context),
+                        onTap: () => _pickBaseCurrency(context, ref),
+                      ),
+                      BeeTokens.cardDivider(context),
+                      // 汇率管理
+                      AppListTile(
+                        leading: Icons.currency_exchange,
+                        title: l10n.exchangeRatePageTitle,
+                        subtitle: l10n.exchangeRateEntrySubtitle,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ExchangeRatePage(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
                 // 通用:语言 / 桌面小组件 / 应用锁
                 SectionCard(
                   margin: EdgeInsets.zero,
@@ -219,6 +252,19 @@ class AppearanceSettingsPage extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// 主币种选择 —— 弹 sheet 选完后应用
+  Future<void> _pickBaseCurrency(BuildContext context, WidgetRef ref) async {
+    final current = ref.read(baseCurrencyProvider).toUpperCase();
+    final primary = ref.read(primaryColorProvider);
+    final picked = await showCurrencyPickerSheet(
+      context,
+      selected: current,
+      primaryColor: primary,
+    );
+    if (picked == null || !context.mounted) return;
+    await applyBaseCurrencySelection(context, ref, picked);
   }
 
   /// 显示主题模式选择对话框

@@ -2980,6 +2980,7 @@
   "syncProgressCount": "{applied} / {total}",
   "@syncProgressCount": { "placeholders": { "applied": { "type": "int" }, "total": { "type": "int" } } },
   "exchangeRatePageTitle": "Exchange Rates",
+  "exchangeRateEntrySubtitle": "Auto-fetched rates with manual override",
   "baseCurrencyLabel": "Primary Currency",
   "rateSourceAuto": "Auto",
   "rateSourceManual": "Manual",

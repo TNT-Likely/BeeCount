@@ -2927,6 +2927,7 @@
   "syncProgressCount": "{applied} / {total} 条",
   "@syncProgressCount": { "placeholders": { "applied": { "type": "int" }, "total": { "type": "int" } } },
   "exchangeRatePageTitle": "汇率管理",
+  "exchangeRateEntrySubtitle": "自动获取汇率，支持手动修正",
   "baseCurrencyLabel": "主币种",
   "rateSourceAuto": "自动",
   "rateSourceManual": "手动",

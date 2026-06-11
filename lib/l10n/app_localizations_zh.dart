@@ -6632,6 +6632,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get exchangeRatePageTitle => '汇率管理';
 
   @override
+  String get exchangeRateEntrySubtitle => '自动获取汇率，支持手动修正';
+
+  @override
   String get baseCurrencyLabel => '主币种';
 
   @override
@@ -13305,6 +13308,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get exchangeRatePageTitle => '匯率管理';
+
+  @override
+  String get exchangeRateEntrySubtitle => '自動取得匯率，支援手動修正';
 
   @override
   String get baseCurrencyLabel => '主幣種';

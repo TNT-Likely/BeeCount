@@ -6632,6 +6632,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exchangeRatePageTitle => 'Exchange Rates';
 
   @override
+  String get exchangeRateEntrySubtitle => 'Auto-fetched rates with manual override';
+
+  @override
   String get baseCurrencyLabel => 'Primary Currency';
 
   @override

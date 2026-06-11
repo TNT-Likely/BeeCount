@@ -12546,6 +12546,12 @@ abstract class AppLocalizations {
   /// **'Exchange Rates'**
   String get exchangeRatePageTitle;
 
+  /// No description provided for @exchangeRateEntrySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-fetched rates with manual override'**
+  String get exchangeRateEntrySubtitle;
+
   /// No description provided for @baseCurrencyLabel.
   ///
   /// In en, this message translates to:
