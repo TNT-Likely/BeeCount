@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../providers/theme_providers.dart';
@@ -69,6 +70,13 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
             });
           }
         },
+        // 关键:文档站是 SPA,站内跳转走 pushState **不触发 onPageFinished**,
+        // 只有 onUrlChange 能跟踪到 —— 否则 _canGoBack 永远是 false,
+        // 返回手势会直接退出整个页面而不是回退上一个网页
+        onUrlChange: (_) async {
+          final canBack = await _controller?.canGoBack() ?? false;
+          if (mounted) setState(() => _canGoBack = canBack);
+        },
         onWebResourceError: (error) {
           // 只有主文档加载失败才算失败(子资源 404 不影响阅读)
           if (error.isForMainFrame == true && mounted) {
@@ -89,6 +97,12 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
         },
       ))
       ..loadRequest(Uri.parse(_url));
+    // iOS:开启 WKWebView 原生左滑回退手势(在网页历史内回退;
+    // 历史到底后 PopScope 的 canPop 才放行路由级返回)
+    final platform = controller.platform;
+    if (platform is WebKitWebViewController) {
+      platform.setAllowsBackForwardNavigationGestures(true);
+    }
     _controller = controller;
   }
 
