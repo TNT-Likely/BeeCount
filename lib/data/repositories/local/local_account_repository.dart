@@ -218,6 +218,25 @@ class LocalAccountRepository implements AccountRepository {
     await (db.delete(db.accounts)..where((a) => a.id.equals(id))).go();
   }
 
+  /// 「以成员身份加入的共享账本」ledger id 集合 —— **个人资产统计一律排除
+  /// 这些账本的交易**。加入他人共享账本时,Owner 的历史流水会同步到本机并
+  /// 挂在本地账户行上,若计入会把别人账本的收支算进自己的净资产,且与
+  /// Web/服务端口径(成员侧不计共享账本)永久不一致。
+  /// 注意:**自己 Own 的共享账本不排除** —— 那是自己的账本分享给别人,
+  /// 服务端也记在 Owner 名下。SQL 版条件见 _kExcludeJoinedSharedLedgerSql。
+  Future<Set<int>> _sharedLedgerIds() async {
+    final rows = await (db.selectOnly(db.ledgers)
+          ..addColumns([db.ledgers.id])
+          ..where(db.ledgers.isShared.equals(true) &
+              db.ledgers.myRole.equals('owner').not()))
+        .get();
+    return rows.map((r) => r.read(db.ledgers.id)!).toSet();
+  }
+
+  /// customSelect 用的排除条件(语义同 [_sharedLedgerIds])
+  static const String _kExcludeJoinedSharedLedgerSql =
+      "ledger_id NOT IN (SELECT id FROM ledgers WHERE is_shared = 1 AND my_role != 'owner')";
+
   @override
   Future<double> getAccountBalance(int accountId) async {
     // 获取账户初始资金
@@ -233,10 +252,12 @@ class LocalAccountRepository implements AccountRepository {
     }
 
     double balance = account.initialBalance;
+    final sharedIds = await _sharedLedgerIds();
 
-    // 收入和支出
+    // 收入和支出(排除共享账本)
     final normalTxs = await (db.select(db.transactions)
-          ..where((t) => t.accountId.equals(accountId)))
+          ..where((t) =>
+              t.accountId.equals(accountId) & t.ledgerId.isNotIn(sharedIds)))
         .get();
 
     for (final t in normalTxs) {
@@ -252,9 +273,12 @@ class LocalAccountRepository implements AccountRepository {
       }
     }
 
-    // 作为转入账户的转账
+    // 作为转入账户的转账(排除共享账本)
     final transfersIn = await (db.select(db.transactions)
-          ..where((t) => t.toAccountId.equals(accountId) & t.type.equals('transfer')))
+          ..where((t) =>
+              t.toAccountId.equals(accountId) &
+              t.type.equals('transfer') &
+              t.ledgerId.isNotIn(sharedIds)))
         .get();
 
     for (final t in transfersIn) {
@@ -275,9 +299,12 @@ class LocalAccountRepository implements AccountRepository {
       return account.initialBalance;
     }
 
-    // 获取所有交易
+    // 获取所有交易(排除共享账本)
+    final sharedIds = await _sharedLedgerIds();
     final transactions = await (db.select(db.transactions)
-          ..where((t) => t.accountId.equals(accountId) | t.toAccountId.equals(accountId)))
+          ..where((t) =>
+              (t.accountId.equals(accountId) | t.toAccountId.equals(accountId)) &
+              t.ledgerId.isNotIn(sharedIds)))
         .get();
 
     double balance = account.initialBalance;
@@ -378,9 +405,11 @@ class LocalAccountRepository implements AccountRepository {
   Future<double> getAccountExpense(int accountId) async {
     double expense = 0.0;
 
-    // 获取作为主账户的支出和转出
+    // 获取作为主账户的支出和转出(排除共享账本)
+    final sharedIds = await _sharedLedgerIds();
     final normalTxs = await (db.select(db.transactions)
-          ..where((t) => t.accountId.equals(accountId)))
+          ..where((t) =>
+              t.accountId.equals(accountId) & t.ledgerId.isNotIn(sharedIds)))
         .get();
 
     for (final t in normalTxs) {
@@ -399,9 +428,11 @@ class LocalAccountRepository implements AccountRepository {
   Future<double> getAccountIncome(int accountId) async {
     double income = 0.0;
 
-    // 获取作为主账户的收入
+    // 获取作为主账户的收入(排除共享账本)
+    final sharedIds = await _sharedLedgerIds();
     final normalTxs = await (db.select(db.transactions)
-          ..where((t) => t.accountId.equals(accountId)))
+          ..where((t) =>
+              t.accountId.equals(accountId) & t.ledgerId.isNotIn(sharedIds)))
         .get();
 
     for (final t in normalTxs) {
@@ -410,9 +441,12 @@ class LocalAccountRepository implements AccountRepository {
       }
     }
 
-    // 作为转入账户的转账
+    // 作为转入账户的转账(排除共享账本)
     final transfersIn = await (db.select(db.transactions)
-          ..where((t) => t.toAccountId.equals(accountId) & t.type.equals('transfer')))
+          ..where((t) =>
+              t.toAccountId.equals(accountId) &
+              t.type.equals('transfer') &
+              t.ledgerId.isNotIn(sharedIds)))
         .get();
 
     for (final t in transfersIn) {
@@ -456,8 +490,10 @@ class LocalAccountRepository implements AccountRepository {
     // 总收入/支出：直接从交易表查询，排除转账类型
     final accountIds = accounts.map((a) => a.id).toSet();
 
+    final sharedIds = await _sharedLedgerIds();
     final allTxs = await (db.select(db.transactions)
-          ..where((t) => t.accountId.isNotNull()))
+          ..where((t) =>
+              t.accountId.isNotNull() & t.ledgerId.isNotIn(sharedIds)))
         .get();
 
     double totalIncome = 0.0;
@@ -602,7 +638,7 @@ class LocalAccountRepository implements AccountRepository {
     final results = await db.customSelect(
       '''
       SELECT * FROM transactions
-      WHERE $where
+      WHERE ($where) AND $_kExcludeJoinedSharedLedgerSql
       ORDER BY happened_at DESC
       LIMIT ?2 OFFSET ?3
       ''',
@@ -650,10 +686,17 @@ class LocalAccountRepository implements AccountRepository {
       return result;
     }
 
-    // 获取 endDate 之前的所有交易（按日期升序）
+    // 获取 endDate **当天结束**之前的所有交易(按日期升序,排除共享账本)。
+    // endDate 语义是「含当天」:调用方(trendTodayAnchor)传当天 0 点,若用
+    // <= endDate 会把当天发生的交易全部截掉 —— 趋势终点永远停在"昨晚为止",
+    // 今天记的账不进趋势线。
+    final endExclusive = DateTime(endDate.year, endDate.month, endDate.day)
+        .add(const Duration(days: 1));
+    final sharedIds = await _sharedLedgerIds();
     final allTxs = await (db.select(db.transactions)
           ..where((t) => t.accountId.equals(accountId) | t.toAccountId.equals(accountId))
-          ..where((t) => t.happenedAt.isSmallerOrEqualValue(endDate))
+          ..where((t) => t.happenedAt.isSmallerThanValue(endExclusive))
+          ..where((t) => t.ledgerId.isNotIn(sharedIds))
           ..orderBy([(t) => d.OrderingTerm(expression: t.happenedAt)]))
         .get();
 
@@ -725,6 +768,7 @@ class LocalAccountRepository implements AccountRepository {
       FROM transactions t
       LEFT JOIN categories c ON t.category_id = c.id
       WHERE t.account_id = ?1 AND t.type = ?2
+        AND t.$_kExcludeJoinedSharedLedgerSql
       GROUP BY c.id
       ORDER BY total DESC
       ''',
