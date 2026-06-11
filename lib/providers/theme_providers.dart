@@ -123,6 +123,35 @@ final hideAmountsInitProvider = FutureProvider<void>((ref) async {
   });
 });
 
+/// 资产页「净值走势 / 资产构成」视图选择，持久化记住用户偏好（跨会话）。
+enum AssetTrendView { trend, composition }
+
+final assetTrendViewProvider =
+    StateNotifierProvider<AssetTrendViewNotifier, AssetTrendView>(
+        (ref) => AssetTrendViewNotifier());
+
+class AssetTrendViewNotifier extends StateNotifier<AssetTrendView> {
+  static const _key = 'assetTrendView';
+  AssetTrendViewNotifier() : super(AssetTrendView.trend) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getString(_key) == 'composition') {
+      state = AssetTrendView.composition;
+    }
+  }
+
+  Future<void> select(AssetTrendView v) async {
+    if (state == v) return;
+    state = v;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        _key, v == AssetTrendView.composition ? 'composition' : 'trend');
+  }
+}
+
 // 字体持久化初始化 - 已移除，仅使用系统默认字体
 
 // Header装饰样式Provider

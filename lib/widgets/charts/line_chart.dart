@@ -33,6 +33,10 @@ class LineChart extends StatelessWidget {
   // 避免卡中卡(白底套白底 + 轴线)的视觉污染。默认 false,旧调用方零变化。
   final bool minimal;
 
+  /// 是否启用内部手势(点击高亮 / 横滑切周期)。资产卡内嵌图等设 false,把 tap
+  /// 让给外层 InkWell(点击进全屏页);否则内部 opaque GestureDetector 会吞掉 tap。
+  final bool interactive;
+
   const LineChart({
     super.key,
     required this.values,
@@ -60,16 +64,18 @@ class LineChart extends StatelessWidget {
     this.yLabelFontSize = 10,
     this.isDark = false,
     this.minimal = false,
+    this.interactive = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // minimal(sparkline 等嵌入场景)不自带手势:tap/swipe 全部让位给外层
-      // (如包裹 sparkline 的 InkWell 点击进全屏页)。否则内部 opaque
-      // GestureDetector 会赢得手势竞技场、吞掉外层的点击。
-      behavior: minimal ? HitTestBehavior.translucent : HitTestBehavior.opaque,
-      onTapDown: minimal
+      // interactive=false(资产卡内嵌图等)不自带手势:tap/swipe 让位给外层
+      // (如外层 InkWell 点击进全屏页)。否则内部 opaque GestureDetector 会
+      // 赢得手势竞技场、吞掉外层的点击。
+      behavior:
+          interactive ? HitTestBehavior.opaque : HitTestBehavior.translucent,
+      onTapDown: !interactive
           ? null
           : (details) {
               // 如果有点击回调，处理点击事件
@@ -77,7 +83,7 @@ class LineChart extends StatelessWidget {
                 _handleTap(details.localPosition, context);
               }
             },
-      onHorizontalDragEnd: minimal ? null : (details) {
+      onHorizontalDragEnd: !interactive ? null : (details) {
         final v = details.primaryVelocity ?? 0;
         if (v < 0) {
           onSwipeLeft();

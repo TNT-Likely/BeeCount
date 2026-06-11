@@ -283,27 +283,45 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
             ),
             error: (_, __) => const SizedBox.shrink(),
           ),
-          // 饼图:单货币 或 折算态显示(折算态用折算后聚合数据)
-          if (showComposition) ...[
-            // 分割线
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.0.scaled(context, ref)),
-              child: Divider(height: 1, color: BeeTokens.divider(context)),
-            ),
-            // 资产构成饼图部分
-            effectiveCompositionAsync.when(
-              skipLoadingOnReload: true,
-              data: (data) => Padding(
-                padding: EdgeInsets.all(12.0.scaled(context, ref)),
-                child: AssetCompositionChart(data: data, embedded: true),
-              ),
-              loading: () => SizedBox(
-                height: 180.0.scaled(context, ref),
-                child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-              ),
-              error: (_, __) => const SizedBox.shrink(),
-            ),
-          ],
+          // 走势 / 构成 切换区:
+          // - showComposition=true（单币种 或 折算态）：可在「净值走势」「资产构成」间切换，记住偏好；
+          // - showComposition=false（多币种非折算，构成无法合并）：只展示走势（净值裸加）。
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.0.scaled(context, ref)),
+            child: Divider(height: 1, color: BeeTokens.divider(context)),
+          ),
+          Builder(builder: (context) {
+            final view = showComposition
+                ? ref.watch(assetTrendViewProvider)
+                : AssetTrendView.trend;
+            return Column(
+              children: [
+                if (showComposition)
+                  Padding(
+                    padding: EdgeInsets.only(top: 10.0.scaled(context, ref)),
+                    child:
+                        _trendCompositionToggle(context, ref, view, primaryColor),
+                  ),
+                Padding(
+                  padding: EdgeInsets.all(12.0.scaled(context, ref)),
+                  child: view == AssetTrendView.composition
+                      ? effectiveCompositionAsync.when(
+                          skipLoadingOnReload: true,
+                          data: (data) =>
+                              AssetCompositionChart(data: data, embedded: true),
+                          loading: () => SizedBox(
+                            height: 180.0.scaled(context, ref),
+                            child: const Center(
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2)),
+                          ),
+                          error: (_, __) => const SizedBox.shrink(),
+                        )
+                      : _buildNetWorthChartInline(context, ref),
+                ),
+              ],
+            );
+          }),
         ],
       ),
     );
@@ -380,8 +398,6 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
             );
           }),
         ],
-        // 净值走势 sparkline:净资产数字下方,近 12 月净值缩略图;点击进全屏趋势页。
-        _buildNetWorthSparkline(context, ref),
         SizedBox(height: 12.0.scaled(context, ref)),
         // 总资产 | 总负债
         if (isSingleCurrency)
@@ -475,52 +491,104 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     );
   }
 
-  /// 净值走势 sparkline:净资产数字下方,近 12 月净值缩略图;点击进全屏趋势页。
-  /// 非折算 / 折算两个视图共用此组件,体验一致(数据同源,minimal 模式去背景/轴线)。
-  Widget _buildNetWorthSparkline(BuildContext context, WidgetRef ref) {
-    return Consumer(builder: (context, ref, _) {
-      final now = trendTodayAnchor();
-      final start = DateTime(now.year, now.month - 11, 1);
-      final seriesAsync = ref.watch(
-          netWorthTrendSeriesProvider((startDate: start, endDate: now)));
-      final hide = ref.watch(hideAmountsProvider);
-      return seriesAsync.maybeWhen(
-        data: (series) {
-          if (series.length < 2) return const SizedBox.shrink();
-          // 按月降采样(取每月末值),避免日级点数拥挤。
-          final monthly = downsampleMonthly(series);
-          if (monthly.length < 2) return const SizedBox.shrink();
-          return Padding(
-            padding: EdgeInsets.only(top: 8.0.scaled(context, ref)),
-            child: InkWell(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const NetWorthTrendPage()),
-              ),
-              child: SizedBox(
-                height: 48.0.scaled(context, ref),
-                child: LineChart(
-                  values: monthly.map((e) => e.net).toList(),
-                  xLabels: const [], // sparkline 不显标签
-                  highlightIndex: null,
-                  onSwipeLeft: () {},
-                  onSwipeRight: () {},
-                  showHint: false,
-                  hideAmounts: hide,
-                  themeColor: ref.watch(primaryColorProvider),
-                  whiteBg: !BeeTokens.isDark(context),
-                  isDark: BeeTokens.isDark(context),
-                  showGrid: false,
-                  showDots: false,
-                  annotate: false,
-                  minimal: true,
-                ),
-              ),
-            ),
+  /// 资产卡内嵌净值走势图（完整版：带网格 + 月份标签，非缩略 sparkline），点击进全屏
+  /// 趋势页。interactive:false → LineChart 不吞 tap，把点击交给外层 InkWell。
+  Widget _buildNetWorthChartInline(BuildContext context, WidgetRef ref) {
+    final now = trendTodayAnchor();
+    final start = DateTime(now.year, now.month - 11, 1);
+    final seriesAsync = ref.watch(
+        netWorthTrendSeriesProvider((startDate: start, endDate: now)));
+    final hide = ref.watch(hideAmountsProvider);
+    final primary = ref.watch(primaryColorProvider);
+    final l10n = AppLocalizations.of(context);
+    return seriesAsync.maybeWhen(
+      data: (series) {
+        final monthly = downsampleMonthly(series);
+        if (monthly.length < 2) {
+          return _inlineChartBox(
+            context,
+            ref,
+            Text(l10n.commonEmpty,
+                style: TextStyle(
+                    fontSize: 12, color: BeeTokens.textTertiary(context))),
           );
-        },
-        orElse: () => const SizedBox.shrink(),
+        }
+        return InkWell(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const NetWorthTrendPage()),
+          ),
+          borderRadius: BorderRadius.circular(8),
+          child: SizedBox(
+            height: 180.0.scaled(context, ref),
+            child: LineChart(
+              values: monthly.map((e) => e.net).toList(),
+              xLabels: monthly
+                  .map((e) => '${e.date.year % 100}/${e.date.month}')
+                  .toList(),
+              highlightIndex: monthly.length - 1,
+              onSwipeLeft: () {},
+              onSwipeRight: () {},
+              showHint: false,
+              hideAmounts: hide,
+              themeColor: primary,
+              whiteBg: !BeeTokens.isDark(context),
+              isDark: BeeTokens.isDark(context),
+              showGrid: true,
+              showDots: false,
+              annotate: true,
+              interactive: false, // 点击交给外层 InkWell 进全屏页
+            ),
+          ),
+        );
+      },
+      orElse: () => _inlineChartBox(context, ref,
+          const Center(child: CircularProgressIndicator(strokeWidth: 2))),
+    );
+  }
+
+  Widget _inlineChartBox(BuildContext context, WidgetRef ref, Widget child) =>
+      SizedBox(
+        height: 180.0.scaled(context, ref),
+        child: Center(child: child),
       );
-    });
+
+  /// 走势 / 构成 切换控件（主题色分段胶囊）。
+  Widget _trendCompositionToggle(BuildContext context, WidgetRef ref,
+      AssetTrendView view, Color primary) {
+    final l10n = AppLocalizations.of(context);
+    Widget seg(AssetTrendView v, String label) {
+      final on = view == v;
+      return GestureDetector(
+        onTap: () => ref.read(assetTrendViewProvider.notifier).select(v),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: EdgeInsets.symmetric(
+              horizontal: 14.0.scaled(context, ref),
+              vertical: 6.0.scaled(context, ref)),
+          decoration: BoxDecoration(
+            color: on ? primary.withValues(alpha: 0.15) : Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+                color: on ? primary : BeeTokens.border(context), width: 1),
+          ),
+          child: Text(label,
+              style: TextStyle(
+                fontSize: 12,
+                color: on ? primary : BeeTokens.textSecondary(context),
+                fontWeight: on ? FontWeight.w600 : FontWeight.normal,
+              )),
+        ),
+      );
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        seg(AssetTrendView.trend, l10n.netWorthTrendTitle),
+        SizedBox(width: 8.0.scaled(context, ref)),
+        seg(AssetTrendView.composition, l10n.assetComposition),
+      ],
+    );
   }
 
   /// 折算视图：净资产折算总额 + 每币种折算行 + 缺失标示 + 脚注入口 + 折算总资产/总负债。
@@ -617,8 +685,6 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
             ),
           ],
         ),
-        // 净值走势 sparkline:与非折算视图体验一致(共用 _buildNetWorthSparkline)。
-        _buildNetWorthSparkline(context, ref),
         SizedBox(height: 12.0.scaled(context, ref)),
         // 折算总资产 | 折算总负债(单行折算版)
         Row(
