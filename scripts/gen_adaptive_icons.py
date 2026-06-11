@@ -26,12 +26,22 @@ OUT_DIR = ROOT / "assets" / "icon"
 CANVAS = 1024  # adaptive 图层画布
 SS = 4  # 超采样倍数
 
-# 256 viewBox → 画布的缩放/平移:内容 bbox 约 x[60,196] y[24,214],
-# 缩放后内容高 ~614px(60% 画布),落在 adaptive 安全区(66/108≈61%)内。
+# 256 viewBox → 画布的缩放/平移。内容 bbox 约 x[60,196] y[24,214](高 ~190)。
+# 前景与 monochrome 各用一套占比:
+# - 前景 60%:再叠 ic_launcher.xml 的 16% inset 后,落在 adaptive 安全区内
+# - monochrome 90%:launcher 渲染 themed icon 时还会再加一层自己的 inset,
+#   glyph 留白太多会显得特别小(Google 官方 mono 素材也是几乎铺满画布)
 SCALE = 3.3
-# 内容 bbox 中心 (128, 119) 对齐画布中心
 OFF_X = CANVAS / 2 - 128 * SCALE
 OFF_Y = CANVAS / 2 - 119 * SCALE
+
+
+def set_content_ratio(ratio):
+    """设置内容(高 190 单位)占画布的比例,居中。"""
+    global SCALE, OFF_X, OFF_Y
+    SCALE = CANVAS * ratio / 190
+    OFF_X = CANVAS / 2 - 128 * SCALE
+    OFF_Y = CANVAS / 2 - 119 * SCALE
 
 # logo.svg 的配色
 YELLOW = (255, 193, 7, 255)  # #FFC107 身体
@@ -90,6 +100,7 @@ def draw_antennae(draw, width, fill):
 
 def gen_foreground():
     """全彩前景:与 logo.svg 同构"""
+    set_content_ratio(0.60)
     im = Image.new("RGBA", (CANVAS * SS, CANVAS * SS), (0, 0, 0, 0))
     dr = ImageDraw.Draw(im)
     # 触角(画在头后面)
@@ -118,20 +129,26 @@ def gen_foreground():
 def gen_monochrome():
     """单色镂空版:themed icon 只取 alpha 通道,特征全部用实心形 + 透明镂空表达
     (Google 官方 glyph 风格:实心主体缩小时优雅退化,纯细线版小尺寸会发虚):
+    - 翅膀:实心椭圆,与头/身体之间留**负空间缝**(对应彩色版翅膀与身体的颜色分界)
     - 头:实心圆 + 镂空眼睛
     - 身体:实心椭圆 + 镂空条纹缝
-    - 翅膀:描边椭圆(伸出主体轮廓,保持"翅膀"辨识)
     - 触角:粗线
+    画布占比 0.90:launcher 渲染 themed icon 时自带大 inset,glyph 必须近乎铺满。
     """
+    set_content_ratio(0.90)
     # 用 L 模式画 alpha 蒙版:255=形状,0=透明(可表达镂空)
     mask = Image.new("L", (CANVAS * SS, CANVAS * SS), 0)
     dr = ImageDraw.Draw(mask)
+    # 翅膀(实心,先画;比彩色版外移并加大一号 —— 负空间缝会吃掉贴近主体的部分)
+    dr.ellipse(ellipse_box(84, 128, 31, 20), fill=255)
+    dr.ellipse(ellipse_box(172, 128, 31, 20), fill=255)
+    # 负空间缝:用放大的头/身体轮廓挖掉翅膀贴近主体的部分,留出分隔
+    dr.ellipse(ellipse_box(128, 106, 42, 42), fill=0)
+    dr.ellipse(ellipse_box(128, 174, 61, 47), fill=0)
+    # 触角
     draw_antennae(dr, d(13), 255)
     # 头(实心)
     dr.ellipse(ellipse_box(128, 106, 36, 36), fill=255)
-    # 翅膀描边(画在身体之前,与头/身体融为一体,只有伸出的部分显形)
-    dr.ellipse(ellipse_box(92, 126, 28, 18), outline=255, width=int(d(11)))
-    dr.ellipse(ellipse_box(164, 126, 28, 18), outline=255, width=int(d(11)))
     # 身体(实心)
     dr.ellipse(ellipse_box(128, 174, 54, 40), fill=255)
     # 条纹:镂空缝(横穿身体,缝间留足实心带,小尺寸不糊)
