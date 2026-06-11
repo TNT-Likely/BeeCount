@@ -243,7 +243,22 @@ class _TrendChipSelector<T> extends StatelessWidget {
             ChoiceChip(
               label: Text(labelOf(v)),
               selected: selected == v,
-              selectedColor: primaryColor.withValues(alpha: 0.2),
+              // 彻底主题色化：去掉 Material 默认的紫色 checkmark 与选中底色，
+              // 未选中＝透明底/灰边/灰字，选中＝主题色边+淡主题色底+主题色字。
+              showCheckmark: false,
+              backgroundColor: Colors.transparent,
+              selectedColor: primaryColor.withValues(alpha: 0.15),
+              labelStyle: TextStyle(
+                fontSize: 13,
+                color: selected == v
+                    ? primaryColor
+                    : BeeTokens.textSecondary(context),
+                fontWeight: selected == v ? FontWeight.w600 : FontWeight.normal,
+              ),
+              side: BorderSide(
+                color:
+                    selected == v ? primaryColor : BeeTokens.border(context),
+              ),
               onSelected: (_) => onSelected(v),
             ),
         ],
