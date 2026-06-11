@@ -1576,8 +1576,9 @@ class LocalRepository extends BaseRepository {
 
   @override
   Future<List<Transaction>> getAccountTransactions(
-    int accountId, {int limit = 50, int offset = 0}) =>
-      _accountRepo.getAccountTransactions(accountId, limit: limit, offset: offset);
+    int accountId, {int limit = 50, int offset = 0, String? flow}) =>
+      _accountRepo.getAccountTransactions(
+          accountId, limit: limit, offset: offset, flow: flow);
 
   @override
   Future<List<({DateTime date, double balance})>> getAccountDailyBalances(

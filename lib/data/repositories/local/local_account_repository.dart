@@ -591,11 +591,18 @@ class LocalAccountRepository implements AccountRepository {
 
   @override
   Future<List<Transaction>> getAccountTransactions(
-    int accountId, {int limit = 50, int offset = 0}) async {
+    int accountId, {int limit = 50, int offset = 0, String? flow}) async {
+    // flow 过滤按资金流向:支出视图含转出,收入视图含转入,null 为全部
+    final where = switch (flow) {
+      'expense' => "account_id = ?1 AND type IN ('expense', 'transfer')",
+      'income' =>
+        "(type = 'income' AND account_id = ?1) OR (type = 'transfer' AND to_account_id = ?1)",
+      _ => 'account_id = ?1 OR to_account_id = ?1',
+    };
     final results = await db.customSelect(
       '''
       SELECT * FROM transactions
-      WHERE account_id = ?1 OR to_account_id = ?1
+      WHERE $where
       ORDER BY happened_at DESC
       LIMIT ?2 OFFSET ?3
       ''',

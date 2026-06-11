@@ -49,9 +49,11 @@ class AccountTransactionsPaginationNotifier
     extends StateNotifier<AccountTransactionsPaginationState> {
   final Ref ref;
   final int accountId;
+  /// 资金流向过滤:'expense'=支出+转出,'income'=收入+转入,null=全部
+  final String? flow;
   static const _pageSize = 50;
 
-  AccountTransactionsPaginationNotifier(this.ref, this.accountId)
+  AccountTransactionsPaginationNotifier(this.ref, this.accountId, this.flow)
       : super(const AccountTransactionsPaginationState()) {
     _loadInitial();
   }
@@ -60,8 +62,8 @@ class AccountTransactionsPaginationNotifier
     state = state.copyWith(isLoading: true);
     try {
       final repo = ref.read(repositoryProvider);
-      final transactions =
-          await repo.getAccountTransactions(accountId, limit: _pageSize, offset: 0);
+      final transactions = await repo.getAccountTransactions(
+          accountId, limit: _pageSize, offset: 0, flow: flow);
       state = AccountTransactionsPaginationState(
         transactions: transactions,
         isLoading: false,
@@ -81,6 +83,7 @@ class AccountTransactionsPaginationNotifier
         accountId,
         limit: _pageSize,
         offset: state.transactions.length,
+        flow: flow,
       );
       state = state.copyWith(
         transactions: [...state.transactions, ...transactions],
@@ -96,8 +99,8 @@ class AccountTransactionsPaginationNotifier
     state = const AccountTransactionsPaginationState(isLoading: true);
     try {
       final repo = ref.read(repositoryProvider);
-      final transactions =
-          await repo.getAccountTransactions(accountId, limit: _pageSize, offset: 0);
+      final transactions = await repo.getAccountTransactions(
+          accountId, limit: _pageSize, offset: 0, flow: flow);
       state = AccountTransactionsPaginationState(
         transactions: transactions,
         isLoading: false,
@@ -111,8 +114,9 @@ class AccountTransactionsPaginationNotifier
 
 final accountTransactionsPaginatedProvider = StateNotifierProvider.family
     .autoDispose<AccountTransactionsPaginationNotifier,
-        AccountTransactionsPaginationState, int>(
-  (ref, accountId) => AccountTransactionsPaginationNotifier(ref, accountId),
+        AccountTransactionsPaginationState, ({int accountId, String? flow})>(
+  (ref, params) =>
+      AccountTransactionsPaginationNotifier(ref, params.accountId, params.flow),
 );
 
 /// 分类统计 Provider
@@ -158,11 +162,20 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
     super.dispose();
   }
 
+  /// 列表的资金流向过滤,跟随图表 tab:支出=支出+转出,收入=收入+转入。
+  /// 信用卡没有 tab 切换,保持展示全部交易(消费+还款转账)。
+  String? get _listFlow {
+    if (widget.account.type == 'credit_card') return null;
+    return _detailChartTab == 0 ? 'expense' : 'income';
+  }
+
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       ref
-          .read(accountTransactionsPaginatedProvider(widget.account.id).notifier)
+          .read(accountTransactionsPaginatedProvider(
+                  (accountId: widget.account.id, flow: _listFlow))
+              .notifier)
           .loadMore();
     }
   }
@@ -172,8 +185,8 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
     final l10n = AppLocalizations.of(context);
     final primaryColor = ref.watch(primaryColorProvider);
     final statsAsync = ref.watch(accountStatsProvider(widget.account.id));
-    final paginationState =
-        ref.watch(accountTransactionsPaginatedProvider(widget.account.id));
+    final paginationState = ref.watch(accountTransactionsPaginatedProvider(
+        (accountId: widget.account.id, flow: _listFlow)));
     // 货币符号跟随账户(每个账户有自己的 currency 字段),不是账本 —
     // 用户在一个 CNY 账本里可能有 USD 账户,详情页应显示账户自己的 $。
     final currencyCode = widget.account.currency;
@@ -826,6 +839,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
                       incomeData: const [],
                       accentColor: primaryColor,
                       embedded: true,
+                      type: 'expense',
                     );
                   },
                   loading: () => const SizedBox(
@@ -850,6 +864,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
                       incomeData: data,
                       accentColor: primaryColor,
                       embedded: true,
+                      type: 'income',
                     );
                   },
                   loading: () => const SizedBox(
@@ -1016,8 +1031,9 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
     // 刷新数据
     ref.invalidate(accountStatsProvider(widget.account.id));
     ref
-        .read(
-            accountTransactionsPaginatedProvider(widget.account.id).notifier)
+        .read(accountTransactionsPaginatedProvider(
+                (accountId: widget.account.id, flow: _listFlow))
+            .notifier)
         .refresh();
     ref.invalidate(accountCategoryStatsProvider(
         (accountId: widget.account.id, type: 'expense')));

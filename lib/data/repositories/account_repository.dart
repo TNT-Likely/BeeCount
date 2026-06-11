@@ -139,8 +139,13 @@ abstract class AccountRepository {
   Future<void> updateAccountSortOrders(List<({int id, int sortOrder})> updates);
 
   /// 分页获取账户交易
+  ///
+  /// [flow] 按资金流向过滤:
+  /// - 'expense':支出 + 转出(资金流出该账户)
+  /// - 'income':收入 + 转入(资金流入该账户)
+  /// - null:全部交易
   Future<List<Transaction>> getAccountTransactions(
-    int accountId, {int limit = 50, int offset = 0});
+    int accountId, {int limit = 50, int offset = 0, String? flow});
 
   /// 获取账户每日余额快照（用于余额趋势图）
   Future<List<({DateTime date, double balance})>> getAccountDailyBalances(
