@@ -156,6 +156,17 @@ final netWorthTrendProvider = FutureProvider.family
   return repo.getNetWorthDailyBalances(startDate: params.startDate, endDate: params.endDate);
 });
 
+/// 净值趋势序列(资产/负债/净资产每日),范围参数化。
+final netWorthTrendSeriesProvider = FutureProvider.family.autoDispose<
+    List<({DateTime date, double assets, double liabilities, double net})>,
+    ({DateTime startDate, DateTime endDate})>((ref, params) async {
+  final repo = ref.watch(repositoryProvider);
+  ref.watch(statsRefreshProvider);
+  final link = ref.keepAlive();
+  ref.onDispose(() => link.close());
+  return repo.getNetWorthTrendSeries(startDate: params.startDate, endDate: params.endDate);
+});
+
 // 统计：资产构成（按账户类型分组）
 final assetCompositionProvider = FutureProvider.autoDispose<List<({String type, double totalBalance})>>(
         (ref) async {
