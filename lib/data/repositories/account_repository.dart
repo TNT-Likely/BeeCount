@@ -167,6 +167,11 @@ abstract class AccountRepository {
     required DateTime endDate,
   });
 
+  /// 净值趋势序列:每日 (资产合计, 负债合计, 净资产)。
+  /// 多币种裸加(未折算);负债类(credit_card/loan)计入 liabilities。
+  Future<List<({DateTime date, double assets, double liabilities, double net})>>
+      getNetWorthTrendSeries({required DateTime startDate, required DateTime endDate});
+
   /// 获取资产构成（按账户类型分组的余额汇总）
   Future<List<({String type, double totalBalance})>> getAssetCompositionByType();
 

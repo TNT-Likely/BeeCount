@@ -836,6 +836,42 @@ class LocalAccountRepository implements AccountRepository {
   }
 
   @override
+  Future<List<({DateTime date, double assets, double liabilities, double net})>>
+      getNetWorthTrendSeries({required DateTime startDate, required DateTime endDate}) async {
+    final accounts = await getAllAccounts();
+    if (accounts.isEmpty) return [];
+
+    final allBalances = <int, List<({DateTime date, double balance})>>{};
+    for (final account in accounts) {
+      allBalances[account.id] =
+          await getAccountDailyBalances(account.id, startDate: startDate, endDate: endDate);
+    }
+
+    final result = <({DateTime date, double assets, double liabilities, double net})>[];
+    var currentDate = DateTime(startDate.year, startDate.month, startDate.day);
+    final end = DateTime(endDate.year, endDate.month, endDate.day);
+    int dayIndex = 0;
+    while (!currentDate.isAfter(end)) {
+      double assets = 0.0, liabilities = 0.0;
+      for (final account in accounts) {
+        final balances = allBalances[account.id]!;
+        if (dayIndex < balances.length) {
+          final bal = balances[dayIndex].balance;
+          if (isAssetType(account.type)) {
+            assets += bal;
+          } else {
+            liabilities += bal;
+          }
+        }
+      }
+      result.add((date: currentDate, assets: assets, liabilities: liabilities, net: assets + liabilities));
+      currentDate = currentDate.add(const Duration(days: 1));
+      dayIndex++;
+    }
+    return result;
+  }
+
+  @override
   Future<List<({String type, double totalBalance})>> getAssetCompositionByType() async {
     final accounts = await getAllAccounts();
     final Map<String, double> typeBalances = {};

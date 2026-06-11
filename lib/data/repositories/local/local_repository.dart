@@ -1606,6 +1606,11 @@ class LocalRepository extends BaseRepository {
       _accountRepo.getNetWorthDailyBalances(startDate: startDate, endDate: endDate);
 
   @override
+  Future<List<({DateTime date, double assets, double liabilities, double net})>>
+      getNetWorthTrendSeries({required DateTime startDate, required DateTime endDate}) =>
+          _accountRepo.getNetWorthTrendSeries(startDate: startDate, endDate: endDate);
+
+  @override
   Future<List<({String type, double totalBalance})>> getAssetCompositionByType() =>
       _accountRepo.getAssetCompositionByType();
 
