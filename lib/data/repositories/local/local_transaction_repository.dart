@@ -778,6 +778,18 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
+  Future<DateTime?> getEarliestTransactionDate() async {
+    final row = await (db.select(db.transactions)
+          ..orderBy([
+            (t) => d.OrderingTerm(
+                expression: t.happenedAt, mode: d.OrderingMode.asc)
+          ])
+          ..limit(1))
+        .getSingleOrNull();
+    return row?.happenedAt;
+  }
+
+  @override
   Future<void> updateTransactionLedger({
     required int id,
     required int ledgerId,

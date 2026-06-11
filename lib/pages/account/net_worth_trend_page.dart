@@ -28,7 +28,7 @@ class _NetWorthTrendPageState extends ConsumerState<NetWorthTrendPage> {
   _TrendLine _line = _TrendLine.net;
   _TrendRange _range = _TrendRange.m12;
 
-  ({DateTime start, DateTime end}) _rangeDates() {
+  ({DateTime start, DateTime end}) _rangeDates(DateTime? earliest) {
     final now = trendTodayAnchor();
     switch (_range) {
       case _TrendRange.m3:
@@ -38,7 +38,9 @@ class _NetWorthTrendPageState extends ConsumerState<NetWorthTrendPage> {
       case _TrendRange.m12:
         return (start: DateTime(now.year, now.month - 11, 1), end: now);
       case _TrendRange.all:
-        return (start: DateTime(2000), end: now);
+        // 「全部」从第一笔交易当月初算起；无交易时退回近 12 月（避免空区间把图拉乱）。
+        final base = earliest ?? DateTime(now.year, now.month - 11, 1);
+        return (start: DateTime(base.year, base.month, 1), end: now);
     }
   }
 
@@ -59,7 +61,8 @@ class _NetWorthTrendPageState extends ConsumerState<NetWorthTrendPage> {
     final l10n = AppLocalizations.of(context);
     final primary = ref.watch(primaryColorProvider);
     final hide = ref.watch(hideAmountsProvider);
-    final dates = _rangeDates();
+    final earliest = ref.watch(earliestTransactionDateProvider).valueOrNull;
+    final dates = _rangeDates(earliest);
     final seriesAsync = ref.watch(
         netWorthTrendSeriesProvider((startDate: dates.start, endDate: dates.end)));
     final multi =
@@ -92,7 +95,7 @@ class _NetWorthTrendPageState extends ConsumerState<NetWorthTrendPage> {
                 return ListView(
                   padding: EdgeInsets.all(12.0.scaled(context, ref)),
                   children: [
-                    _rangeSelector(l10n),
+                    _rangeSelector(l10n, primary),
                     SizedBox(height: 8.0.scaled(context, ref)),
                     _lineSelector(l10n, primary),
                     SizedBox(height: 12.0.scaled(context, ref)),
@@ -188,36 +191,60 @@ class _NetWorthTrendPageState extends ConsumerState<NetWorthTrendPage> {
     );
   }
 
-  Widget _rangeSelector(AppLocalizations l10n) => Wrap(
-        spacing: 8,
-        children: [
-          for (final r in _TrendRange.values)
-            ChoiceChip(
-              label: Text(switch (r) {
-                _TrendRange.m3 => l10n.netWorthTrend3M,
-                _TrendRange.m6 => l10n.netWorthTrend6M,
-                _TrendRange.m12 => l10n.netWorthTrend12M,
-                _TrendRange.all => l10n.netWorthTrendAll,
-              }),
-              selected: _range == r,
-              onSelected: (_) => setState(() => _range = r),
-            ),
-        ],
+  Widget _rangeSelector(AppLocalizations l10n, Color primary) =>
+      _TrendChipSelector<_TrendRange>(
+        values: _TrendRange.values,
+        selected: _range,
+        primaryColor: primary,
+        labelOf: (r) => switch (r) {
+          _TrendRange.m3 => l10n.netWorthTrend3M,
+          _TrendRange.m6 => l10n.netWorthTrend6M,
+          _TrendRange.m12 => l10n.netWorthTrend12M,
+          _TrendRange.all => l10n.netWorthTrendAll,
+        },
+        onSelected: (r) => setState(() => _range = r),
       );
 
-  Widget _lineSelector(AppLocalizations l10n, Color primary) => Wrap(
+  Widget _lineSelector(AppLocalizations l10n, Color primary) =>
+      _TrendChipSelector<_TrendLine>(
+        values: _TrendLine.values,
+        selected: _line,
+        primaryColor: primary,
+        labelOf: (ln) => switch (ln) {
+          _TrendLine.net => l10n.netWorthTrendLineNet,
+          _TrendLine.assets => l10n.netWorthTrendLineAssets,
+          _TrendLine.liabilities => l10n.netWorthTrendLineLiabilities,
+        },
+        onSelected: (ln) => setState(() => _line = ln),
+      );
+}
+
+/// 净值趋势页的标签选择器（范围维度 / 线维度共用）：主题色高亮选中，泛型适配不同枚举。
+class _TrendChipSelector<T> extends StatelessWidget {
+  final List<T> values;
+  final T selected;
+  final String Function(T) labelOf;
+  final ValueChanged<T> onSelected;
+  final Color primaryColor;
+
+  const _TrendChipSelector({
+    required this.values,
+    required this.selected,
+    required this.labelOf,
+    required this.onSelected,
+    required this.primaryColor,
+  });
+
+  @override
+  Widget build(BuildContext context) => Wrap(
         spacing: 8,
         children: [
-          for (final ln in _TrendLine.values)
+          for (final v in values)
             ChoiceChip(
-              label: Text(switch (ln) {
-                _TrendLine.net => l10n.netWorthTrendLineNet,
-                _TrendLine.assets => l10n.netWorthTrendLineAssets,
-                _TrendLine.liabilities => l10n.netWorthTrendLineLiabilities,
-              }),
-              selected: _line == ln,
-              selectedColor: primary.withValues(alpha: 0.2),
-              onSelected: (_) => setState(() => _line = ln),
+              label: Text(labelOf(v)),
+              selected: selected == v,
+              selectedColor: primaryColor.withValues(alpha: 0.2),
+              onSelected: (_) => onSelected(v),
             ),
         ],
       );
