@@ -34,7 +34,6 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
   String _url = '';
   int _progress = 0;
   bool _failed = false;
-  bool _canGoBack = false;
 
   static String _hex(Color c) => [c.r, c.g, c.b]
       .map((v) => ((v * 255).round() & 0xff).toRadixString(16).padLeft(2, '0'))
@@ -61,21 +60,8 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
         onPageStarted: (_) {
           if (mounted) setState(() => _failed = false);
         },
-        onPageFinished: (_) async {
-          final canBack = await _controller?.canGoBack() ?? false;
-          if (mounted) {
-            setState(() {
-              _progress = 100;
-              _canGoBack = canBack;
-            });
-          }
-        },
-        // 关键:文档站是 SPA,站内跳转走 pushState **不触发 onPageFinished**,
-        // 只有 onUrlChange 能跟踪到 —— 否则 _canGoBack 永远是 false,
-        // 返回手势会直接退出整个页面而不是回退上一个网页
-        onUrlChange: (_) async {
-          final canBack = await _controller?.canGoBack() ?? false;
-          if (mounted) setState(() => _canGoBack = canBack);
+        onPageFinished: (_) {
+          if (mounted) setState(() => _progress = 100);
         },
         onWebResourceError: (error) {
           // 只有主文档加载失败才算失败(子资源 404 不影响阅读)
@@ -122,15 +108,15 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
     final primary = ref.watch(primaryColorProvider);
 
     return PopScope(
-      // WebView 有历史时,系统返回先回退网页,而不是直接关页面
-      canPop: !_canGoBack,
+      // 常开拦截 + 回调里**实时**查询网页历史。不能用 canPop: !_canGoBack 的
+      // 状态同步方案:文档站是 SPA(pushState),状态更新和手势读取 canPop 之间
+      // 有竞态,手势开始那刻 canPop 仍为 true 就会直接退出整个页面
+      canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         final controller = _controller;
         if (controller != null && await controller.canGoBack()) {
           await controller.goBack();
-          final canBack = await controller.canGoBack();
-          if (mounted) setState(() => _canGoBack = canBack);
           return;
         }
         if (!context.mounted) return;
