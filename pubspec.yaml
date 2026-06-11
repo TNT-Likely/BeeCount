@@ -98,6 +98,8 @@ dependency_overrides:
 flutter_launcher_icons:
   android: true
   ios: false  # iOS 图标手工维护,0.14.x 会重写 Contents.json 格式,不要让它碰
+  # ⚠️ legacy mipmap ic_launcher.png 已钉死为线上版本(担心影响存量用户),
+  # 重跑本工具后务必恢复:git checkout main -- android/app/src/main/res/mipmap-*/ic_launcher.png
   image_path: assets/icon/launcher_legacy.png  # 不透明白底!透明 legacy 图标在部分设备表现差
   adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: assets/icon/adaptive_foreground.png
