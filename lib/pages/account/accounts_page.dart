@@ -889,15 +889,20 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
             const Spacer(),
             if (convertActive)
               // 折算小计:≈ {symbol}{折算和}(有缺失加橙色警示),整块点击进详情。
-              Flexible(
-                child: _buildGroupConvertedSubtotal(
-                  context, ref,
-                  groupTitle: title,
-                  subtotalByCurrency: subtotalByCurrency,
-                  rates: rates,
-                  base: base,
-                  iconColor: iconColor,
-                  useCompact: useCompact,
+              // Expanded+Align 保证贴右(Spacer+Flexible 会让内容在右半槽内左对齐,
+              // 表头右侧出现空白),内部 Text 仍有 Flexible/ellipsis 兜长文本。
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: _buildGroupConvertedSubtotal(
+                    context, ref,
+                    groupTitle: title,
+                    subtotalByCurrency: subtotalByCurrency,
+                    rates: rates,
+                    base: base,
+                    iconColor: iconColor,
+                    useCompact: useCompact,
+                  ),
                 ),
               )
             else if (isSingleCurrency)
