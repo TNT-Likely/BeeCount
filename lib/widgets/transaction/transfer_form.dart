@@ -349,7 +349,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
               padding: const EdgeInsets.all(32),
               child: Text(
                 l10n.transferSelectAccount,
-                style: TextStyle(color: Colors.grey[600]),
+                style: TextStyle(color: BeeTokens.textSecondary(context)),
               ),
             ),
           );
@@ -371,7 +371,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
+                  color: BeeTokens.textSecondary(context),
                 ),
               ),
               const SizedBox(height: 12),
@@ -393,7 +393,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
+                  color: BeeTokens.textSecondary(context),
                 ),
               ),
               const SizedBox(height: 12),
@@ -456,9 +456,12 @@ class _TransferFormState extends ConsumerState<TransferForm> {
       borderRadius: BorderRadius.circular(8),
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected ? primary.withValues(alpha: 0.1) : Colors.white,
+          // 未选中跟随页面底色(亮色白/暗黑纯黑),避免暗黑模式下突兀的白卡片
+          color: isSelected
+              ? primary.withValues(alpha: 0.1)
+              : BeeTokens.surfaceSheet(context),
           border: Border.all(
-            color: isSelected ? primary : Colors.grey[300]!,
+            color: isSelected ? primary : BeeTokens.borderStrong(context),
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
@@ -478,7 +481,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: isSelected ? primary : Colors.grey[800],
+                  color: isSelected ? primary : BeeTokens.textPrimary(context),
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
