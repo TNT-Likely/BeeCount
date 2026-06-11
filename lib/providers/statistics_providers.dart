@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'database_providers.dart';
 import 'ui_state_providers.dart';
+import 'currency_providers.dart';
 import '../services/system/logger_service.dart';
 
 // 统计：账本数量
@@ -162,9 +163,19 @@ final netWorthTrendSeriesProvider = FutureProvider.family.autoDispose<
     ({DateTime startDate, DateTime endDate})>((ref, params) async {
   final repo = ref.watch(repositoryProvider);
   ref.watch(statsRefreshProvider);
+  // 折算到主币种,与净资产卡(convertedNetWorthProvider)同口径:各币种 → base 汇率,
+  // base 自身 1.0;缺汇率的币种在 repo 内整条剔除。这样趋势末点 = 当前净资产。
+  final base = ref.watch(baseCurrencyProvider).toUpperCase();
+  final rates = await ref.watch(effectiveRatesProvider.future);
+  final ratesToBase = <String, double>{base: 1.0};
+  for (final e in rates.entries) {
+    final r = double.tryParse(e.value.rate);
+    if (r != null && r > 0) ratesToBase[e.key.toUpperCase()] = r;
+  }
   final link = ref.keepAlive();
   ref.onDispose(() => link.close());
-  return repo.getNetWorthTrendSeries(startDate: params.startDate, endDate: params.endDate);
+  return repo.getNetWorthTrendSeries(
+      startDate: params.startDate, endDate: params.endDate, ratesToBase: ratesToBase);
 });
 
 /// 全局最早一笔交易的发生时间（净值趋势「全部」范围的起点）。无交易返回 null。

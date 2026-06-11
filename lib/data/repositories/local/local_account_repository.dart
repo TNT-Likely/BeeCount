@@ -881,7 +881,11 @@ class LocalAccountRepository implements AccountRepository {
 
   @override
   Future<List<({DateTime date, double assets, double liabilities, double net})>>
-      getNetWorthTrendSeries({required DateTime startDate, required DateTime endDate}) async {
+      getNetWorthTrendSeries({
+    required DateTime startDate,
+    required DateTime endDate,
+    required Map<String, double> ratesToBase,
+  }) async {
     final accounts = await getAllAccounts();
     if (accounts.isEmpty) return [];
 
@@ -900,7 +904,10 @@ class LocalAccountRepository implements AccountRepository {
       for (final account in accounts) {
         final balances = allBalances[account.id]!;
         if (dayIndex < balances.length) {
-          final bal = balances[dayIndex].balance;
+          // 折算到主币种:缺汇率的币种整条剔除(与净资产卡同口径,绝不按 1.0 裸加)。
+          final rate = ratesToBase[account.currency.toUpperCase()];
+          if (rate == null) continue;
+          final bal = balances[dayIndex].balance * rate;
           if (isAssetType(account.type)) {
             assets += bal;
           } else {

@@ -1611,8 +1611,13 @@ class LocalRepository extends BaseRepository {
 
   @override
   Future<List<({DateTime date, double assets, double liabilities, double net})>>
-      getNetWorthTrendSeries({required DateTime startDate, required DateTime endDate}) =>
-          _accountRepo.getNetWorthTrendSeries(startDate: startDate, endDate: endDate);
+      getNetWorthTrendSeries({
+    required DateTime startDate,
+    required DateTime endDate,
+    required Map<String, double> ratesToBase,
+  }) =>
+          _accountRepo.getNetWorthTrendSeries(
+              startDate: startDate, endDate: endDate, ratesToBase: ratesToBase);
 
   @override
   Future<List<({String type, double totalBalance})>> getAssetCompositionByType() =>
