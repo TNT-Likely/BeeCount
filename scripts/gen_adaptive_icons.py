@@ -181,14 +181,29 @@ def gen_preview(mono):
     return canvas
 
 
+def gen_legacy(fg):
+    """legacy 启动图标(Android 8 以下 / 不支持 adaptive 的 launcher):
+    必须**不透明**——透明底在部分设备上表现很差(旧版用 0.13.1 生成时被拍平成
+    白底,0.14.4 会保留 alpha,故这里显式给不透明底)。底色与 adaptive 背景一致。
+    """
+    bg = Image.new("RGBA", (CANVAS, CANVAS), (255, 255, 255, 255))  # 白底,与 adaptive 背景一致
+    # 前景占比 0.60 留白偏多,legacy 无系统蒙版裁切,放大一些(0.60×1.3=0.78)
+    big = int(CANVAS * 1.3)
+    scaled = fg.resize((big, big), Image.LANCZOS)
+    crop = (big - CANVAS) // 2
+    bg.alpha_composite(scaled.crop((crop, crop, crop + CANVAS, crop + CANVAS)))
+    return bg
+
+
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     fg = gen_foreground()
     fg.save(OUT_DIR / "adaptive_foreground.png")
+    gen_legacy(fg).save(OUT_DIR / "launcher_legacy.png")
     mono = gen_monochrome()
     mono.save(OUT_DIR / "adaptive_monochrome.png")
     gen_preview(mono).save(OUT_DIR / "preview_themed.png")
-    print("✓ adaptive_foreground.png / adaptive_monochrome.png / preview_themed.png →", OUT_DIR)
+    print("✓ adaptive_foreground / launcher_legacy / adaptive_monochrome / preview_themed →", OUT_DIR)
 
 
 if __name__ == "__main__":

@@ -97,9 +97,9 @@ dependency_overrides:
 # monochrome 是 Android 13+ themed icon(Pixel 动态图标)的单色镂空层,见 issue #186。
 flutter_launcher_icons:
   android: true
-  ios: true
-  image_path: assets/logo2.png
-  adaptive_icon_background: "#FFF8E1"
+  ios: false  # iOS 图标手工维护,0.14.x 会重写 Contents.json 格式,不要让它碰
+  image_path: assets/icon/launcher_legacy.png  # 不透明白底!透明 legacy 图标在部分设备表现差
+  adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: assets/icon/adaptive_foreground.png
   adaptive_icon_monochrome: assets/icon/adaptive_monochrome.png
 
