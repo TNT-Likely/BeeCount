@@ -129,7 +129,7 @@ def gen_foreground():
 def gen_monochrome():
     """单色版(选型 C「实心剪影」,2026-06-11 拍板):themed icon 只取 alpha 通道,
     特征全部用实心形 + 透明镂空表达,最接近 Google 官方 glyph 的粗壮风格:
-    - 翅膀:实心椭圆,与头/身体之间留**负空间缝**(对应彩色版翅膀与身体的颜色分界)
+    - 翅膀:实心椭圆,与头/身体直接连体(试过负空间缝,拍板去掉)
     - 头:实心圆 + 镂空眼睛
     - 身体:实心椭圆 + 镂空条纹缝
     - 触角:粗线
@@ -139,12 +139,9 @@ def gen_monochrome():
     # 用 L 模式画 alpha 蒙版:255=形状,0=透明(可表达镂空)
     mask = Image.new("L", (CANVAS * SS, CANVAS * SS), 0)
     dr = ImageDraw.Draw(mask)
-    # 翅膀(实心,先画;比彩色版外移并加大一号 —— 负空间缝会吃掉贴近主体的部分)
-    dr.ellipse(ellipse_box(84, 128, 31, 20), fill=255)
-    dr.ellipse(ellipse_box(172, 128, 31, 20), fill=255)
-    # 负空间缝:用放大的头/身体轮廓挖掉翅膀贴近主体的部分,留出分隔
-    dr.ellipse(ellipse_box(128, 106, 42, 42), fill=0)
-    dr.ellipse(ellipse_box(128, 174, 61, 47), fill=0)
+    # 翅膀(实心连体,与彩色版同位)
+    dr.ellipse(ellipse_box(92, 126, 28, 18), fill=255)
+    dr.ellipse(ellipse_box(164, 126, 28, 18), fill=255)
     # 触角
     draw_antennae(dr, d(12), 255)
     # 头(实心)
