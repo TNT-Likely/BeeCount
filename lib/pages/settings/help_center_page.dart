@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -34,6 +36,9 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
   String _url = '';
   int _progress = 0;
   bool _failed = false;
+  // 仅 iOS 用:网页是否可回退(驱动动态 canPop)。SPA 的 pushState 跳转
+  // 由 onUrlChange 跟踪(iOS 端经 WKWebView.URL 的 KVO,pushState 也触发)
+  bool _webCanGoBack = false;
 
   static String _hex(Color c) => [c.r, c.g, c.b]
       .map((v) => ((v * 255).round() & 0xff).toRadixString(16).padLeft(2, '0'))
@@ -60,8 +65,18 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
         onPageStarted: (_) {
           if (mounted) setState(() => _failed = false);
         },
-        onPageFinished: (_) {
-          if (mounted) setState(() => _progress = 100);
+        onPageFinished: (_) async {
+          final canBack = await _controller?.canGoBack() ?? false;
+          if (mounted) {
+            setState(() {
+              _progress = 100;
+              _webCanGoBack = canBack;
+            });
+          }
+        },
+        onUrlChange: (_) async {
+          final canBack = await _controller?.canGoBack() ?? false;
+          if (mounted) setState(() => _webCanGoBack = canBack);
         },
         onWebResourceError: (error) {
           // 只有主文档加载失败才算失败(子资源 404 不影响阅读)
@@ -108,10 +123,15 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
     final primary = ref.watch(primaryColorProvider);
 
     return PopScope(
-      // 常开拦截 + 回调里**实时**查询网页历史。不能用 canPop: !_canGoBack 的
-      // 状态同步方案:文档站是 SPA(pushState),状态更新和手势读取 canPop 之间
-      // 有竞态,手势开始那刻 canPop 仍为 true 就会直接退出整个页面
-      canPop: false,
+      // 平台分流(都是真机踩坑后的结论):
+      // - Android:canPop 常 false + 回调里**实时**查询网页历史。不能用状态
+      //   同步方案 —— 手势开始那刻读 canPop 有竞态,会直接退出整页
+      // - iOS:动态 canPop。canPop=false 时 Flutter 路由手势让位,边缘左滑
+      //   落到 WKWebView 的原生回退手势上(网页历史内回退);历史空时
+      //   canPop=true,左滑正常退出页面。注意 Flutter 路由手势优先级高于
+      //   WKWebView 手势,所以 iOS 不能像 Android 一样常开拦截(左滑退不出页),
+      //   也不能常不拦截(左滑直接退整页)
+      canPop: Platform.isIOS ? !_webCanGoBack : false,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         final controller = _controller;
