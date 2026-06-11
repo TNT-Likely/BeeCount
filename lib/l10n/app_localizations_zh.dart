@@ -1539,6 +1539,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mineHelp => '使用帮助';
 
   @override
+  String get helpCenterOpenInBrowser => '在浏览器中打开';
+
+  @override
+  String get helpCenterLoadFailed => '加载失败，请检查网络';
+
+  @override
+  String get helpCenterRetry => '重试';
+
+  @override
   String get mineHelpSubtitle => '查看使用文档和常见问题';
 
   @override
@@ -8281,6 +8290,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get mineHelp => '使用說明';
+
+  @override
+  String get helpCenterOpenInBrowser => '在瀏覽器中開啟';
+
+  @override
+  String get helpCenterLoadFailed => '載入失敗，請檢查網路';
+
+  @override
+  String get helpCenterRetry => '重試';
 
   @override
   String get mineHelpSubtitle => '查看使用文件和常見問題';

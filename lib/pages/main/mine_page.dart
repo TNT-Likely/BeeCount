@@ -18,6 +18,7 @@ import '../cloud/cloud_service_page.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/ui/avatar_service.dart';
 import '../../providers/avatar_providers.dart';
+import '../settings/help_center_page.dart';
 import '../../providers/sync_providers.dart' as sp;
 import '../../services/export/share_poster_service.dart';
 import '../../l10n/app_localizations.dart';
@@ -387,15 +388,21 @@ class MinePage extends ConsumerWidget {
                         },
                       ),
                       BeeTokens.cardDivider(context),
-                      // 使用帮助
+                      // 使用帮助:默认 App 内嵌 WebView(embed 模式)。
+                      // 审核兜底:kHelpCenterInApp 改 false 重新打包即回退外部浏览器
                       AppListTile(
                         leading: Icons.help_outline,
                         title: AppLocalizations.of(context).mineHelp,
                         subtitle: AppLocalizations.of(context).mineHelpSubtitle,
                         onTap: () async {
-                          final locale = Localizations.localeOf(context);
-                          final url = Uri.parse(WebsiteUrls.docs(locale));
-                          await _tryOpenUrl(url);
+                          if (kHelpCenterInApp) {
+                            await Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => const HelpCenterPage()));
+                          } else {
+                            final locale = Localizations.localeOf(context);
+                            await _tryOpenUrl(
+                                Uri.parse(WebsiteUrls.docs(locale)));
+                          }
                         },
                       ),
                     ],

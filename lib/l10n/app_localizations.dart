@@ -2928,6 +2928,24 @@ abstract class AppLocalizations {
   /// **'Help'**
   String get mineHelp;
 
+  /// No description provided for @helpCenterOpenInBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in browser'**
+  String get helpCenterOpenInBrowser;
+
+  /// No description provided for @helpCenterLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load. Please check your network.'**
+  String get helpCenterLoadFailed;
+
+  /// No description provided for @helpCenterRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get helpCenterRetry;
+
   /// No description provided for @mineHelpSubtitle.
   ///
   /// In en, this message translates to:

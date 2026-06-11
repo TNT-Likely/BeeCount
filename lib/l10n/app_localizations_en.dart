@@ -1539,6 +1539,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mineHelp => 'Help';
 
   @override
+  String get helpCenterOpenInBrowser => 'Open in browser';
+
+  @override
+  String get helpCenterLoadFailed => 'Failed to load. Please check your network.';
+
+  @override
+  String get helpCenterRetry => 'Retry';
+
+  @override
   String get mineHelpSubtitle => 'View documentation and FAQ';
 
   @override

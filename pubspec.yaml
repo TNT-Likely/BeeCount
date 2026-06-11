@@ -74,6 +74,7 @@ dependencies:
   quick_actions: ^1.1.0
   table_calendar: ^3.1.0
   local_auth: ^2.3.0
+  webview_flutter: ^4.13.0
 
 dev_dependencies:
   flutter_test:
