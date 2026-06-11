@@ -537,10 +537,18 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
               showDots: false,
               annotate: true,
               interactive: false, // 点击交给外层 InkWell 进全屏页
+              minimal: true, // 去背景/Y轴/均线，避免嵌在 SectionCard 内暗黑模式「卡中卡」
             ),
           ),
         );
       },
+      error: (_, __) => _inlineChartBox(
+        context,
+        ref,
+        Text(l10n.commonError,
+            style: TextStyle(
+                fontSize: 12, color: BeeTokens.textTertiary(context))),
+      ),
       orElse: () => _inlineChartBox(context, ref,
           const Center(child: CircularProgressIndicator(strokeWidth: 2))),
     );
@@ -602,7 +610,6 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     final l10n = AppLocalizations.of(context);
     final base = ref.watch(baseCurrencyProvider).toUpperCase();
     final nwByCurrency = ref.watch(netWorthBreakdownByCurrencyProvider).valueOrNull ?? const {};
-    final hasMissing = converted.missingCurrencies.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -714,37 +721,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
             ),
           ],
         ),
-        SizedBox(height: 12.0.scaled(context, ref)),
-        // 脚注:无缺失 → 折算日期(tertiary,若 >7 天变橙);有缺失 → 缺失提示(橙)。点击进汇率页。
-        Builder(builder: (context) {
-          bool isStale = false;
-          if (!hasMissing) {
-            final d = DateTime.tryParse(converted.oldestRateDate ?? '');
-            if (d != null) {
-              isStale = DateTime.now().difference(d) > const Duration(days: 7);
-            }
-          }
-          return InkWell(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ExchangeRatePage()),
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 4.0.scaled(context, ref)),
-              child: Text(
-                hasMissing
-                    ? l10n.convertedPartialWarning(converted.missingCurrencies.join('/'))
-                    : l10n.convertedFootnote(converted.oldestRateDate ?? '-'),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: (hasMissing || isStale)
-                      ? Colors.orange
-                      : BeeTokens.textTertiary(context),
-                ),
-              ),
-            ),
-          );
-        }),
+        // 汇率折算脚注已折叠进「详情」弹窗(见 _showNetWorthConversionDetail），首屏不再展示。
         SizedBox(height: 8.0.scaled(context, ref)),
       ],
     );
@@ -772,6 +749,36 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
         isMissing: converted.missingCurrencies.contains(code),
       );
     }).toList();
+    // 汇率折算脚注（原在资产页首屏）折叠到这里:无缺失→折算日期(>7 天变橙),有缺失→
+    // 缺失提示(橙),点击进汇率页管理。
+    final hasMissing = converted.missingCurrencies.isNotEmpty;
+    final rd = converted.oldestRateDate != null
+        ? DateTime.tryParse(converted.oldestRateDate!)
+        : null;
+    final isStale = !hasMissing &&
+        rd != null &&
+        DateTime.now().difference(rd) > const Duration(days: 7);
+    final footer = InkWell(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const ExchangeRatePage()),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+        child: Text(
+          hasMissing
+              ? l10n.convertedPartialWarning(
+                  converted.missingCurrencies.join('/'))
+              : l10n.convertedFootnote(converted.oldestRateDate ?? '-'),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 11,
+            color: (hasMissing || isStale)
+                ? Colors.orange
+                : BeeTokens.textTertiary(context),
+          ),
+        ),
+      ),
+    );
     _showConversionDetailSheet(
       context,
       ref,
@@ -779,6 +786,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
       entries: entries,
       baseSymbol: baseSymbol,
       useCompact: useCompact,
+      footer: footer,
     );
   }
 
@@ -1461,6 +1469,7 @@ void _showConversionDetailSheet(
   required List<_ConversionDetailEntry> entries,
   required String baseSymbol,
   required bool useCompact,
+  Widget? footer,
 }) {
   showModalBottomSheet(
     context: context,
@@ -1507,6 +1516,7 @@ void _showConversionDetailSheet(
                         baseSymbol: baseSymbol,
                         useCompact: useCompact,
                       ),
+                    if (footer != null) footer,
                   ],
                 ),
               ),
