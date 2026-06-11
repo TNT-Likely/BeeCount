@@ -73,7 +73,11 @@ class PrimaryHeader extends ConsumerWidget {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-        statusBarColor: headerBg,
+        // edge-to-edge 模式(main.dart 开启)下 header 自己画到状态栏底下,
+        // 状态栏保持透明即可 —— 不再依赖 OEM 响应 setStatusBarColor
+        // (华为 EMUI/鸿蒙会无视它,导致背景渗透不到状态栏)。
+        statusBarColor: Colors.transparent,
+        systemStatusBarContrastEnforced: false,
         statusBarIconBrightness: statusBarBrightness,
         statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
