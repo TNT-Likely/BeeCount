@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,8 +9,12 @@ part 'header_skins/aurora_skin.dart';
 part 'header_skins/bokeh_skin.dart';
 part 'header_skins/clouds_skin.dart';
 part 'header_skins/image_skin.dart';
+part 'header_skins/memphis_skin.dart';
+part 'header_skins/meteor_skin.dart';
 part 'header_skins/mountains_skin.dart';
 part 'header_skins/pattern_skins.dart';
+part 'header_skins/sakura_skin.dart';
+part 'header_skins/skyline_skin.dart';
 part 'header_skins/sunset_skin.dart';
 part 'header_skins/waves_skin.dart';
 
@@ -80,6 +85,10 @@ final List<HeaderSkin> kHeaderSkins = [
       id: 'clouds',
       nameOf: (l) => l.headerSkinClouds,
       builder: (p, d) => _CloudsSkin(p, d)),
+  HeaderSkin(
+      id: 'skyline',
+      nameOf: (l) => l.headerSkinSkyline,
+      builder: (p, d) => _SkylineSkin(p, d)),
   // 几何图案皮肤(亮=白色图案叠主题色底 / 暗=偏淡主题色图案叠纯黑)
   HeaderSkin(
       id: 'honeycomb',
@@ -93,6 +102,18 @@ final List<HeaderSkin> kHeaderSkins = [
       id: 'stripes',
       nameOf: (l) => l.headerSkinStripes,
       builder: (p, d) => _PatternSkin(p, d, (c) => _StripesPainter(c))),
+  HeaderSkin(
+      id: 'sakura',
+      nameOf: (l) => l.headerSkinSakura,
+      builder: (p, d) => _PatternSkin(p, d, (c) => _SakuraPainter(c))),
+  HeaderSkin(
+      id: 'meteor',
+      nameOf: (l) => l.headerSkinMeteor,
+      builder: (p, d) => _PatternSkin(p, d, (c) => _MeteorPainter(c))),
+  HeaderSkin(
+      id: 'memphis',
+      nameOf: (l) => l.headerSkinMemphis,
+      builder: (p, d) => _PatternSkin(p, d, (c) => _MemphisPainter(c))),
   // 图片皮肤(SVG 示例,仅 debug 可见;创作规范见 assets/header_skins/README.md)
   if (kDebugMode)
     HeaderSkin(

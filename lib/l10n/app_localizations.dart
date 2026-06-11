@@ -1830,6 +1830,30 @@ abstract class AppLocalizations {
   /// **'Stripes'**
   String get headerSkinStripes;
 
+  /// No description provided for @headerSkinSkyline.
+  ///
+  /// In en, this message translates to:
+  /// **'Skyline'**
+  String get headerSkinSkyline;
+
+  /// No description provided for @headerSkinSakura.
+  ///
+  /// In en, this message translates to:
+  /// **'Sakura'**
+  String get headerSkinSakura;
+
+  /// No description provided for @headerSkinMeteor.
+  ///
+  /// In en, this message translates to:
+  /// **'Meteor'**
+  String get headerSkinMeteor;
+
+  /// No description provided for @headerSkinMemphis.
+  ///
+  /// In en, this message translates to:
+  /// **'Memphis'**
+  String get headerSkinMemphis;
+
   /// No description provided for @mineAvatarTitle.
   ///
   /// In en, this message translates to:

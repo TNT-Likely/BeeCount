@@ -956,6 +956,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get headerSkinStripes => '斜纹';
 
   @override
+  String get headerSkinSkyline => '城市';
+
+  @override
+  String get headerSkinSakura => '樱花';
+
+  @override
+  String get headerSkinMeteor => '流星';
+
+  @override
+  String get headerSkinMemphis => '孟菲斯';
+
+  @override
   String get mineAvatarTitle => '头像设置';
 
   @override
@@ -7659,6 +7671,18 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get headerSkinStripes => '斜紋';
+
+  @override
+  String get headerSkinSkyline => '城市';
+
+  @override
+  String get headerSkinSakura => '櫻花';
+
+  @override
+  String get headerSkinMeteor => '流星';
+
+  @override
+  String get headerSkinMemphis => '孟菲斯';
 
   @override
   String get mineAvatarTitle => '頭像設定';

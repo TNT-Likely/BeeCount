@@ -956,6 +956,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get headerSkinStripes => 'Stripes';
 
   @override
+  String get headerSkinSkyline => 'Skyline';
+
+  @override
+  String get headerSkinSakura => 'Sakura';
+
+  @override
+  String get headerSkinMeteor => 'Meteor';
+
+  @override
+  String get headerSkinMemphis => 'Memphis';
+
+  @override
   String get mineAvatarTitle => 'Avatar Settings';
 
   @override
