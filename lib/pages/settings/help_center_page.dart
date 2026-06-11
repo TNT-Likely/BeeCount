@@ -36,13 +36,26 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
   String _url = '';
   int _progress = 0;
   bool _failed = false;
-  // 仅 iOS 用:网页是否可回退(驱动动态 canPop)。SPA 的 pushState 跳转
-  // 由 onUrlChange 跟踪(iOS 端经 WKWebView.URL 的 KVO,pushState 也触发)
-  bool _webCanGoBack = false;
+  // 仅 iOS 用:当前是否离开了文档首页(驱动动态 canPop)。
+  // 不能用 canGoBack() 判断 —— 真机实测回到文档首页后 WKWebView 历史栈里
+  // 仍有冗余条目(重定向/replaceState 噪音),canGoBack 永远 true,页面退不出去。
+  // 改为直接对比 URL 路径:人在文档首页 → 放行左滑退出;不在 → 让位网页回退。
+  bool _awayFromHome = false;
 
   static String _hex(Color c) => [c.r, c.g, c.b]
       .map((v) => ((v * 255).round() & 0xff).toRadixString(16).padLeft(2, '0'))
       .join();
+
+  static String _normPath(String url) {
+    final path = Uri.tryParse(url)?.path ?? '';
+    return path.endsWith('/') ? path.substring(0, path.length - 1) : path;
+  }
+
+  void _trackAwayFromHome(String? url) {
+    if (url == null || !mounted) return;
+    final away = _normPath(url) != _normPath(_url);
+    if (away != _awayFromHome) setState(() => _awayFromHome = away);
+  }
 
   @override
   void didChangeDependencies() {
@@ -65,19 +78,13 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
         onPageStarted: (_) {
           if (mounted) setState(() => _failed = false);
         },
-        onPageFinished: (_) async {
-          final canBack = await _controller?.canGoBack() ?? false;
-          if (mounted) {
-            setState(() {
-              _progress = 100;
-              _webCanGoBack = canBack;
-            });
-          }
+        onPageFinished: (url) {
+          if (mounted) setState(() => _progress = 100);
+          _trackAwayFromHome(url);
         },
-        onUrlChange: (_) async {
-          final canBack = await _controller?.canGoBack() ?? false;
-          if (mounted) setState(() => _webCanGoBack = canBack);
-        },
+        // SPA 的 pushState 跳转只有 onUrlChange 能跟踪到
+        // (iOS 端经 WKWebView.URL 的 KVO,原生左滑回退也触发)
+        onUrlChange: (change) => _trackAwayFromHome(change.url),
         onWebResourceError: (error) {
           // 只有主文档加载失败才算失败(子资源 404 不影响阅读)
           if (error.isForMainFrame == true && mounted) {
@@ -131,7 +138,7 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
       //   canPop=true,左滑正常退出页面。注意 Flutter 路由手势优先级高于
       //   WKWebView 手势,所以 iOS 不能像 Android 一样常开拦截(左滑退不出页),
       //   也不能常不拦截(左滑直接退整页)
-      canPop: Platform.isIOS ? !_webCanGoBack : false,
+      canPop: Platform.isIOS ? !_awayFromHome : false,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         final controller = _controller;
