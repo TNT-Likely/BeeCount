@@ -410,7 +410,10 @@ def build_yaml(lang: str, exported_at: str) -> str:
 def build_csv_rows(count: int, lang: str):
     """生成 count 行 CSV 数据。返回 (header, rows)。"""
     idx_lang = 0 if lang == "zh" else 1
-    accounts = [a[0] for a in (ACCOUNTS_ZH if lang == "zh" else ACCOUNTS_EN)]
+    account_pairs = ACCOUNTS_ZH if lang == "zh" else ACCOUNTS_EN
+    accounts = [a[0] for a in account_pairs]
+    # 收入只落资产账户 —— 工资/股息打到信用卡会把负债账户余额顶成正数,污染净资产口径。
+    asset_accounts = [a[0] for a in account_pairs if a[1] != "credit_card"]
 
     # 可选分类池(一级 + 二级 混合,30% 用二级)
     expense_l1_names = [c[idx_lang] for c in EXPENSE_L1]
@@ -456,6 +459,7 @@ def build_csv_rows(count: int, lang: str):
             else:
                 category = random.choice(income_l1_names)
             note = random.choice(income_notes)
+            account = random.choice(asset_accounts)
         else:
             type_label = expense_label
             if random.random() < 0.8:
@@ -468,6 +472,7 @@ def build_csv_rows(count: int, lang: str):
             else:
                 category = random.choice(expense_l1_names)
             note = random.choice(expense_notes)
+            account = random.choice(accounts)
 
         # 30% 概率带 1-2 标签
         tags = ""
@@ -475,7 +480,6 @@ def build_csv_rows(count: int, lang: str):
             n = random.choice([1, 1, 1, 2])
             tags = ",".join(random.sample(tags_pool, n))
 
-        account = random.choice(accounts)
         rows.append([
             ts.strftime("%Y-%m-%d %H:%M:%S"),
             type_label,
