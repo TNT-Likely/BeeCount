@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../ai/core/prompt_builder.dart';
 import '../ai/providers/ai_provider_config.dart';
 import '../ai/providers/ai_provider_manager.dart';
 import '../l10n/app_localizations.dart';
@@ -102,6 +103,7 @@ class ImageBillingHelper {
       final result = await bookkeeper.fromImage(
         image: imageFile,
         ledgerId: currentLedger.id,
+        billGuard: PromptBuilder.billGuardForImage,
         billingTypes: billingTypes,
         l10n: l10n,
         // 多笔时每笔都挂同一张原图,方便后续从任意一笔溯源

@@ -4,24 +4,16 @@ import 'ai_extraction_context.dart';
 ///
 /// 默认模板要求 AI 返回 JSON 数组(单笔也包成 `[{...}]`),通过占位符
 /// `{{INPUT_SOURCE}}` / `{{CURRENT_TIME}}` / `{{OCR_TEXT}}` /
-/// `{{CATEGORIES}}` / `{{ACCOUNTS}}` 注入运行时变量。
+/// `{{BILL_GUARD}}` / `{{CATEGORIES}}` / `{{ACCOUNTS}}` 注入运行时变量。
 class PromptBuilder {
   const PromptBuilder();
 
-  /// 默认模板。先判断是否为账单，再强制 JSON 数组 + 完整字段说明 + 多笔示例。
+  /// 默认模板。强制 JSON 数组 + 完整字段说明 + 多笔示例。
+  ///
+  /// 调用方可通过 [build] 的 [billGuard] 参数决定是否注入前置过滤段
+  /// （如 `[billGuardForImage]`），避免误伤聊天记账等主动输入路径。
   static const String defaultTemplate =
-      '''严格判断以下内容是否为支付账单、收据或交易凭证。
-
-以下情况不属于账单，必须返回空数组 []：
-- 电脑/手机桌面截图
-- 聊天记录、朋友圈、微博等社交页面
-- 新闻、文章、网页浏览页
-- 照片、自拍、风景图
-- 应用主界面、设置页面
-- 任何不包含具体消费金额、商家名称、交易时间的图片或文字
-
-只有在确定是真实的支付账单、收据（含电子发票、支付凭证截图）时，才{{INPUT_SOURCE}}提取记账信息，返回JSON数组。
-如果不确定，也返回空数组 []。
+      '''{{BILL_GUARD}}{{INPUT_SOURCE}}提取记账信息，返回JSON数组。
 
 当前时间：{{CURRENT_TIME}}
 
@@ -63,6 +55,20 @@ class PromptBuilder {
 
 注意：只返回 JSON 数组（即使只有一笔也用数组包裹），尽量推断时间不要返回 null，note 必须 ≤15 字（长标题要精简）''';
 
+  /// 截图/自动路径使用的账单过滤段。
+  ///
+  /// 拼在默认模板最前面，让 AI 先判断输入是否为真实账单，非账单直接返回 []。
+  /// 聊天记账、语音记账等主动输入路径不应注入此段（传空字符串即可）。
+  static const String billGuardForImage = '请先判断输入图片是否为账单。'
+      '以下情况通常不属于账单（仅供参考，不仅限于此）：\n'
+      '- 电脑/手机桌面截图\n'
+      '- 聊天记录、朋友圈、微博等社交页面\n'
+      '- 新闻、文章、网页浏览页\n'
+      '- 照片、自拍、风景图\n'
+      '- 应用主界面、设置页面\n'
+      '\n'
+      '判断后，不是账单则返回JSON空数组[]，是账单则继续。\n';
+
   /// Hardcoded fallback 分类(context 不提供时使用)
   static const String _hardcodedCategoryHint = '分类列表：\n'
       '支出：餐饮、交通、购物、娱乐、居家、通讯、水电、医疗、教育\n'
@@ -71,11 +77,13 @@ class PromptBuilder {
   /// 拼装最终 prompt。
   ///
   /// [inputSource] 输入源描述(如 "从以下支付账单文本中" / "分析支付账单截图，从中")
+  /// [billGuard] 前置过滤段，截图/自动路径传入 [billGuardForImage]，聊天等主动输入传空字符串。
   /// [ocrText] 文本输入(图片场景留空)
   /// [now] 时间锚点,默认 `DateTime.now()` (测试可注入固定时间)
   String build({
     required AiExtractionContext context,
     required String inputSource,
+    String billGuard = '',
     String ocrText = '',
     DateTime? now,
   }) {
@@ -89,6 +97,7 @@ class PromptBuilder {
         : defaultTemplate;
 
     return template
+        .replaceAll('{{BILL_GUARD}}', billGuard)
         .replaceAll('{{INPUT_SOURCE}}', inputSource)
         .replaceAll('{{CURRENT_TIME}}', currentTime)
         .replaceAll('{{CURRENT_DATE}}', currentDate)

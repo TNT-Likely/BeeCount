@@ -3,6 +3,7 @@ import 'dart:io';
 import '../../ai/core/ai_extraction_context.dart';
 import '../../ai/core/ai_extraction_engine.dart';
 import '../../ai/core/bill_info.dart';
+import '../../ai/core/prompt_builder.dart';
 import '../../data/repositories/base_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../billing/bill_creation_service.dart';
@@ -36,17 +37,21 @@ class AiBookkeeper {
         _persister = persister;
 
   /// 文本记账(对话 / 自动通知文本)
+  ///
+  /// [billGuard] 前置过滤段，截图/自动路径传入 [PromptBuilder.billGuardForImage]，
+  /// 聊天等主动输入传空字符串。
   Future<BookkeepingResult> fromText({
     required String text,
     required int ledgerId,
     required List<String> billingTypes,
+    String billGuard = '',
     AppLocalizations? l10n,
   }) async {
     final context = await AiExtractionContext.forLedger(
       repository: _repo,
       ledgerId: ledgerId,
     );
-    final bills = await _engine.extractFromText(text, context);
+    final bills = await _engine.extractFromText(text, context, billGuard: billGuard);
     return _persistAll(
       bills: bills,
       ledgerId: ledgerId,
@@ -57,6 +62,8 @@ class AiBookkeeper {
 
   /// 图片记账(相册 / 相机 / 自动截图)
   ///
+  /// [billGuard] 前置过滤段，截图/自动路径传入 [PromptBuilder.billGuardForImage]，
+  /// 手动选图等主动输入传空字符串。
   /// [onSaved] 每成功保存一笔就回调一次(传入 txId 和这笔在结果中的序号),
   /// 常用于给每笔挂图片附件 — 用户期望多笔记账时每笔都能溯源到原图,所以
   /// 默认行为是「**每笔都挂**」,而非只挂首笔。
@@ -64,6 +71,7 @@ class AiBookkeeper {
     required File image,
     required int ledgerId,
     required List<String> billingTypes,
+    String billGuard = '',
     AppLocalizations? l10n,
     Future<void> Function(int txId, int index)? onSaved,
   }) async {
@@ -71,7 +79,7 @@ class AiBookkeeper {
       repository: _repo,
       ledgerId: ledgerId,
     );
-    final bills = await _engine.extractFromImage(image, context);
+    final bills = await _engine.extractFromImage(image, context, billGuard: billGuard);
     return _persistAll(
       bills: bills,
       ledgerId: ledgerId,

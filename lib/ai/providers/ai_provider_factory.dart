@@ -410,6 +410,9 @@ class AIProviderFactory {
       model: config.visionModel,
       imageFile: image,
       temperature: 0.3,
+      // 视觉模型处理大图更慢，给 120s 避免误超时
+      receiveTimeout: const Duration(seconds: 120),
+      sendTimeout: const Duration(seconds: 120),
     );
 
     final task = _SimpleTask(prompt);
@@ -430,6 +433,9 @@ class AIProviderFactory {
       apiKey: config.apiKey,
       model: config.audioModel,
       audioFile: audio,
+      // 语音需上传音频文件，给更长的发送和接收超时
+      receiveTimeout: const Duration(seconds: 120),
+      sendTimeout: const Duration(seconds: 120),
     );
 
     final task = _SimpleTask('请将语音内容转换为文字，只返回识别的文字内容，不要添加任何解释或标点修饰。');

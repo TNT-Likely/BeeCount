@@ -14,16 +14,24 @@ import 'prompt_builder.dart';
 /// Riverpod / UI,可以独立单测。
 abstract class AiExtractionEngine {
   /// 从文本提取账单信息。空 list 表示失败或无有效账单。
+  ///
+  /// [billGuard] 前置过滤段，截图/自动路径传入 [PromptBuilder.billGuardForImage]，
+  /// 聊天等主动输入传空字符串。
   Future<List<BillInfo>> extractFromText(
     String text,
-    AiExtractionContext context,
-  );
+    AiExtractionContext context, {
+    String billGuard = '',
+  });
 
   /// 从图片提取账单信息。空 list 表示失败或无有效账单。
+  ///
+  /// [billGuard] 前置过滤段，截图/自动路径传入 [PromptBuilder.billGuardForImage]，
+  /// 手动选图等主动输入传空字符串。
   Future<List<BillInfo>> extractFromImage(
     File image,
-    AiExtractionContext context,
-  );
+    AiExtractionContext context, {
+    String billGuard = '',
+  });
 
   /// 从音频提取账单信息(语音转文字 → 文本提取)。
   Future<AudioExtractionResult> extractFromAudio(
@@ -62,8 +70,9 @@ class DefaultAiExtractionEngine implements AiExtractionEngine {
   @override
   Future<List<BillInfo>> extractFromText(
     String text,
-    AiExtractionContext context,
-  ) async {
+    AiExtractionContext context, {
+    String billGuard = '',
+  }) async {
     if (text.trim().isEmpty) {
       logger.warning(_tag, '输入文本为空');
       return const [];
@@ -72,6 +81,7 @@ class DefaultAiExtractionEngine implements AiExtractionEngine {
       final prompt = _promptBuilder.build(
         context: context,
         inputSource: '从以下支付账单文本中',
+        billGuard: billGuard,
         ocrText: text,
       );
       logger.debug(_tag, '文本 prompt 长度: ${prompt.length}');
@@ -95,8 +105,9 @@ class DefaultAiExtractionEngine implements AiExtractionEngine {
   @override
   Future<List<BillInfo>> extractFromImage(
     File image,
-    AiExtractionContext context,
-  ) async {
+    AiExtractionContext context, {
+    String billGuard = '',
+  }) async {
     if (!await image.exists()) {
       logger.warning(_tag, '图片文件不存在');
       return const [];
@@ -105,6 +116,7 @@ class DefaultAiExtractionEngine implements AiExtractionEngine {
       final prompt = _promptBuilder.build(
         context: context,
         inputSource: '分析支付账单截图，从中',
+        billGuard: billGuard,
       );
       logger.debug(_tag, '图片 prompt 长度: ${prompt.length}');
       logger.debug(_tag, '完整 prompt:\n$prompt');

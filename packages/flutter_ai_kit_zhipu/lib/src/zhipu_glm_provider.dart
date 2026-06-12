@@ -42,10 +42,16 @@ class ZhipuGLMProvider implements AIProvider<String, String> {
   /// 音频文件（可选，用于GLM-4语音识别）
   final File? audioFile;
 
-  final Dio _dio = Dio(BaseOptions(
-    connectTimeout: const Duration(seconds: 20),
-    receiveTimeout: const Duration(seconds: 20),
-  ));
+  late final Dio _dio;
+
+  /// 连接超时（默认 30s）
+  final Duration connectTimeout;
+
+  /// 接收超时（默认 60s，对齐 app 层 OpenAI 兼容路径）
+  final Duration receiveTimeout;
+
+  /// 发送超时（默认 60s，上传 base64 大图/音频时有用）
+  final Duration sendTimeout;
 
   ZhipuGLMProvider({
     required this.apiKey,
@@ -53,7 +59,16 @@ class ZhipuGLMProvider implements AIProvider<String, String> {
     this.temperature = 0.1,
     this.imageFile,
     this.audioFile,
-  });
+    this.connectTimeout = const Duration(seconds: 30),
+    this.receiveTimeout = const Duration(seconds: 60),
+    this.sendTimeout = const Duration(seconds: 60),
+  }) {
+    _dio = Dio(BaseOptions(
+      connectTimeout: connectTimeout,
+      receiveTimeout: receiveTimeout,
+      sendTimeout: sendTimeout,
+    ));
+  }
 
   @override
   bool supportsTask(String taskType) {
