@@ -779,7 +779,17 @@ class LocalTransactionRepository implements TransactionRepository {
 
   @override
   Future<DateTime?> getEarliestTransactionDate() async {
+    // 排除以成员身份加入的共享账本(is_shared=1 且 my_role!='owner')——与资产统计 /
+    // getAccountDailyBalances 同口径(#333),否则趋势「全部」起点会被别人账本的
+    // 早期流水拉前。自己 Own 的共享账本不排除。
+    final sharedRows = await (db.selectOnly(db.ledgers)
+          ..addColumns([db.ledgers.id])
+          ..where(db.ledgers.isShared.equals(true) &
+              db.ledgers.myRole.equals('owner').not()))
+        .get();
+    final sharedIds = sharedRows.map((r) => r.read(db.ledgers.id)!).toList();
     final row = await (db.select(db.transactions)
+          ..where((t) => t.ledgerId.isNotIn(sharedIds))
           ..orderBy([
             (t) => d.OrderingTerm(
                 expression: t.happenedAt, mode: d.OrderingMode.asc)
