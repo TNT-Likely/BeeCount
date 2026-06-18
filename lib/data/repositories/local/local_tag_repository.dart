@@ -682,6 +682,8 @@ class LocalTagRepository implements TagRepository {
           happenedAt: row.read<DateTime>('happened_at'),
           note: row.read<String?>('note'),
           recurringId: row.read<int?>('recurring_id'),
+          excludeFromStats: row.read<bool>('exclude_from_stats'),
+          excludeFromBudget: row.read<bool>('exclude_from_budget'),
         );
       }).toList();
     });

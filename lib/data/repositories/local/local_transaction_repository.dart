@@ -364,6 +364,8 @@ class LocalTransactionRepository implements TransactionRepository {
     String? categorySyncIdOverride,
     String? accountSyncIdOverride,
     String? toAccountSyncIdOverride,
+    bool excludeFromStats = false,
+    bool excludeFromBudget = false,
   }) async {
     return db.into(db.transactions).insert(TransactionsCompanion.insert(
           ledgerId: ledgerId,
@@ -378,6 +380,8 @@ class LocalTransactionRepository implements TransactionRepository {
           categorySyncIdOverride: d.Value(categorySyncIdOverride),
           accountSyncIdOverride: d.Value(accountSyncIdOverride),
           toAccountSyncIdOverride: d.Value(toAccountSyncIdOverride),
+          excludeFromStats: d.Value(excludeFromStats),
+          excludeFromBudget: d.Value(excludeFromBudget),
         ));
   }
 
@@ -492,6 +496,8 @@ class LocalTransactionRepository implements TransactionRepository {
     String? categorySyncIdOverride,
     String? accountSyncIdOverride,
     String? toAccountSyncIdOverride,
+    bool? excludeFromStats,
+    bool? excludeFromBudget,
   }) async {
     // 处理 accountId 参数
     final d.Value<int?> accountIdValue;
@@ -515,6 +521,13 @@ class LocalTransactionRepository implements TransactionRepository {
         categorySyncIdOverride: d.Value(categorySyncIdOverride),
         accountSyncIdOverride: d.Value(accountSyncIdOverride),
         toAccountSyncIdOverride: d.Value(toAccountSyncIdOverride),
+        // null = 不更新(保持原值);非 null = 显式写入
+        excludeFromStats: excludeFromStats == null
+            ? const d.Value.absent()
+            : d.Value(excludeFromStats),
+        excludeFromBudget: excludeFromBudget == null
+            ? const d.Value.absent()
+            : d.Value(excludeFromBudget),
       ),
     );
   }

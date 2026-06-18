@@ -664,6 +664,8 @@ class LocalAccountRepository implements AccountRepository {
         note: row.data['note'] as String?,
         recurringId: row.data['recurring_id'] as int?,
         syncId: row.data['sync_id'] as String?,
+        excludeFromStats: (row.data['exclude_from_stats'] as int? ?? 0) != 0,
+        excludeFromBudget: (row.data['exclude_from_budget'] as int? ?? 0) != 0,
       );
     }).toList();
   }

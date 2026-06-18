@@ -128,6 +128,8 @@ abstract class TransactionRepository {
     String? categorySyncIdOverride,
     String? accountSyncIdOverride,
     String? toAccountSyncIdOverride,
+    bool excludeFromStats = false,
+    bool excludeFromBudget = false,
   });
 
   /// 批量新增交易，单事务内插入，返回插入条数。
@@ -179,6 +181,8 @@ abstract class TransactionRepository {
     String? categorySyncIdOverride,
     String? accountSyncIdOverride,
     String? toAccountSyncIdOverride,
+    bool? excludeFromStats,
+    bool? excludeFromBudget,
   });
 
   /// 删除交易

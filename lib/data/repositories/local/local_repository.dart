@@ -310,6 +310,8 @@ class LocalRepository extends BaseRepository {
     String? categorySyncIdOverride,
     String? accountSyncIdOverride,
     String? toAccountSyncIdOverride,
+    bool excludeFromStats = false,
+    bool excludeFromBudget = false,
   }) async {
     final id = await _transactionRepo.addTransaction(
       ledgerId: ledgerId,
@@ -324,6 +326,8 @@ class LocalRepository extends BaseRepository {
       categorySyncIdOverride: categorySyncIdOverride,
       accountSyncIdOverride: accountSyncIdOverride,
       toAccountSyncIdOverride: toAccountSyncIdOverride,
+      excludeFromStats: excludeFromStats,
+      excludeFromBudget: excludeFromBudget,
     );
     if (changeTracker != null) {
       final tx = await _transactionRepo.getTransactionById(id);
@@ -394,6 +398,8 @@ class LocalRepository extends BaseRepository {
     String? categorySyncIdOverride,
     String? accountSyncIdOverride,
     String? toAccountSyncIdOverride,
+    bool? excludeFromStats,
+    bool? excludeFromBudget,
   }) async {
     if (changeTracker != null) {
       final tx = await _transactionRepo.getTransactionById(id);
@@ -405,6 +411,8 @@ class LocalRepository extends BaseRepository {
           categorySyncIdOverride: categorySyncIdOverride,
           accountSyncIdOverride: accountSyncIdOverride,
           toAccountSyncIdOverride: toAccountSyncIdOverride,
+          excludeFromStats: excludeFromStats,
+          excludeFromBudget: excludeFromBudget,
         );
         await changeTracker!.recordLedgerChange(
           entityType: 'transaction',
@@ -423,6 +431,8 @@ class LocalRepository extends BaseRepository {
       categorySyncIdOverride: categorySyncIdOverride,
       accountSyncIdOverride: accountSyncIdOverride,
       toAccountSyncIdOverride: toAccountSyncIdOverride,
+      excludeFromStats: excludeFromStats,
+      excludeFromBudget: excludeFromBudget,
     );
   }
 
