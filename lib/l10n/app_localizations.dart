@@ -12792,6 +12792,12 @@ abstract class AppLocalizations {
   /// **'More options'**
   String get txFlagMoreOptions;
 
+  /// No description provided for @txFlagDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction flags'**
+  String get txFlagDialogTitle;
+
   /// No description provided for @txFlagExcludeFromStatsHint.
   ///
   /// In en, this message translates to:

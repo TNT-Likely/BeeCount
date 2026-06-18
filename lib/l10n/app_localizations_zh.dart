@@ -6767,6 +6767,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txFlagMoreOptions => '更多选项';
 
   @override
+  String get txFlagDialogTitle => '账单标记';
+
+  @override
   String get txFlagExcludeFromStatsHint => '不计入收支统计,但仍计入账户余额';
 
   @override
@@ -13512,6 +13515,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get txFlagMoreOptions => '更多選項';
+
+  @override
+  String get txFlagDialogTitle => '帳單標記';
 
   @override
   String get txFlagExcludeFromStatsHint => '不計入收支統計,但仍計入帳戶餘額';

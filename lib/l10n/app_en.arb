@@ -3027,6 +3027,7 @@
   "txFlagExcludeFromStats": "Exclude from income/expense",
   "txFlagExcludeFromBudget": "Exclude from budget",
   "txFlagMoreOptions": "More options",
+  "txFlagDialogTitle": "Transaction flags",
   "txFlagExcludeFromStatsHint": "Excluded from stats, still counts toward balance",
   "txFlagExcludeFromBudgetHint": "Doesn't count against your budget",
   "txFlagExcludedTag": "Excluded",

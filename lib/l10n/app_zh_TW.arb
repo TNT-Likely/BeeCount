@@ -2670,6 +2670,7 @@
   "txFlagExcludeFromStats": "不計入收支",
   "txFlagExcludeFromBudget": "不計入預算",
   "txFlagMoreOptions": "更多選項",
+  "txFlagDialogTitle": "帳單標記",
   "txFlagExcludeFromStatsHint": "不計入收支統計,但仍計入帳戶餘額",
   "txFlagExcludeFromBudgetHint": "不佔用預算額度",
   "txFlagExcludedTag": "不計收支",

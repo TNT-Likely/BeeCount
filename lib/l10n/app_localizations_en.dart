@@ -6767,6 +6767,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txFlagMoreOptions => 'More options';
 
   @override
+  String get txFlagDialogTitle => 'Transaction flags';
+
+  @override
   String get txFlagExcludeFromStatsHint => 'Excluded from stats, still counts toward balance';
 
   @override
