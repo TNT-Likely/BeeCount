@@ -383,7 +383,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
           // 刷新：预算数据
           ref.read(budgetRefreshProvider.notifier).state++;
           // 更新小组件数据（后台执行，不阻塞UI）
-          if (mounted) {
+          if (context.mounted) {
             updateAppWidget(ref, context);
           }
           // 先关闭页面，再播放反馈

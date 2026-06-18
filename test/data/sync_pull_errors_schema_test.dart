@@ -2,7 +2,7 @@
 //
 // v25 → v26 migration 是所有用户启动必跑的关键路径,出错 = 整体崩盘。
 // 本测试验证:
-//   1. schemaVersion 在最新版本(当前为 28,v28 加了 exchange_rates / exchange_rate_overrides)
+//   1. schemaVersion 在最新版本(当前为 29,v29 加了 exclude_from_stats / exclude_from_budget)
 //   2. sync_pull_errors 表完整 schema,所有列存在 + 默认值正确
 //   3. UNIQUE(change_id) 约束生效
 //   4. CRUD 基本操作正常
@@ -31,8 +31,8 @@ void main() {
     await db.close();
   });
 
-  test('schemaVersion = 28(确保 sync_pull_errors 表已纳入 schema)', () {
-    expect(db.schemaVersion, 28);
+  test('schemaVersion = 29(确保 sync_pull_errors 表已纳入 schema)', () {
+    expect(db.schemaVersion, 29);
   });
 
   test('sync_pull_errors 表存在,所有列就位', () async {
