@@ -1,29 +1,49 @@
 package com.tntlikely.beecount
 
 import android.app.AlarmManager
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInstaller
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.content.FileProvider
 import java.io.File
-import java.io.FileInputStream
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterFragmentActivity() {
+
+    companion object {
+        private const val TAG = "MainActivity"
+
+        /** 缓存的 FlutterEngine，在 Activity 销毁后仍存活。
+         * 通过 [provideFlutterEngine] 返回给 Fragment 宿主，
+         * [shouldDestroyEngineWithHost]=false 禁止宿主销毁它。
+         *
+         * internal 可见性，允许 [KeepAliveService] 在进程重启后初始化。
+         */
+        @JvmField
+        internal var cachedEngine: FlutterEngine? = null
+
+        /**
+         * Engine 是否已被 Fragment 配置并使用过。
+         * Fragment 重建时 [configureFlutterEngine] 会被第二次调用，
+         * 此时老 Fragment detach 可能已断开 FlutterJNI，但 Dart isolate 还活着。
+         * 此标志让 [provideFlutterEngine] 检测到复用场景并重建 Engine。
+         */
+        private var engineHasBeenUsed = false
+    }
+
     private val CHANNEL = "notification_channel"
     private val INSTALL_CHANNEL = "com.tntlikely.beecount/install"
     private val SCREENSHOT_CHANNEL = "com.tntlikely.beecount/screenshot"
     private val LOGGER_CHANNEL = "com.beecount.logger"
     private val SHARE_CHANNEL = "com.tntlikely.beecount/share"
+    private val KEEP_ALIVE_CHANNEL = "com.tntlikely.beecount/keep_alive"
 
     private var screenshotObserver: ScreenshotObserver? = null
 
@@ -38,6 +58,92 @@ class MainActivity: FlutterFragmentActivity() {
         setIntent(intent) // 重要：更新当前intent
         handleNotificationIntent(intent)
         handleSharedImage(intent)
+    }
+
+    /**
+     * 提供缓存的 FlutterEngine，避免 Activity 销毁后 Dart 隔离区随之消亡。
+     *
+     * 首次调用时创建 Engine，后续一直返回同一个实例。
+     * [FlutterActivityAndFragmentDelegate] 在 Activity 重建时仍会
+     * 调用此方法获取同一个 Engine，并重新 [configureFlutterEngine]。
+     *
+     * 配合 [shouldDestroyEngineWithHost]=false 让 Engine 存活于整个进程。
+     */
+    override fun provideFlutterEngine(context: Context): FlutterEngine? {
+        val existing = cachedEngine
+        if (existing != null) {
+            if (existing.dartExecutor.isExecutingDart) {
+                // 检查 Engine 是否已被之前的 Fragment 配置并使用过。
+                // Activity/Fragment 重建（如主题切换或第二次启动 Intent）会二次调用
+                // provideFlutterEngine，老 Fragment detach 可能断开了 FlutterJNI，
+                // 但 Dart isolate 还活着。此时复用老 Engine 会在渲染时崩溃。
+                if (!engineHasBeenUsed) {
+                    return existing
+                }
+                android.util.Log.w(TAG, "⚠️ Engine 已被使用过，销毁并重建避免 JNI 断开")
+                LoggerPlugin.warning(TAG, "Engine 已被使用过，销毁并重建避免 JNI 断开")
+            } else {
+                android.util.Log.w(TAG, "⚠️ Dart isolate 已死亡，销毁并重建 FlutterEngine")
+                LoggerPlugin.warning(TAG, "Dart isolate 已死亡，销毁并重建 FlutterEngine")
+            }
+            try {
+                existing.destroy()
+            } catch (_: Exception) {}
+        }
+        engineHasBeenUsed = false
+        // 在创建 Engine 前检查 SharedPreferences 文件健康，防止 OOM
+        checkFlutterSharedPreferencesHealth()
+
+        android.util.Log.e(TAG, "🚀 创建全局缓存的 FlutterEngine")
+        cachedEngine = FlutterEngine(context)
+        return cachedEngine
+    }
+
+    /** 禁止 Fragment 宿主在 Activity 销毁时一并销毁 Engine */
+    override fun shouldDestroyEngineWithHost(): Boolean = false
+
+    /**
+     * 检查并修复 SharedPreferences 文件大小异常。
+     *
+     * 在 Flutter Engine 初始化前检查 [FlutterSharedPreferences.xml] 和
+     * [flutter.shared_preferences.xml] 文件大小。如果超过 1MB，
+     * 说明存储了异常数据（如早期崩溃导致大量路径/损坏累积），
+     * 直接删除文件。Flutter 插件/BootReceiver 读取时会自动创建新的空文件。
+     *
+     * 此操作仅丢失应用设置（主题、摇晃开关等），不涉及 SQLite 中的交易、账户等财务数据。
+     */
+    private fun checkFlutterSharedPreferencesHealth() {
+        try {
+            val sharedPrefsDir = File(filesDir.parentFile, "shared_prefs")
+            if (!sharedPrefsDir.exists()) return
+
+            val targets = listOf(
+                "FlutterSharedPreferences" to "LegacySharedPreferencesPlugin",
+                "flutter.shared_preferences" to "BootReceiver"
+            )
+
+            for ((name, description) in targets) {
+                val file = File(sharedPrefsDir, "$name.xml")
+                if (!file.exists()) continue
+
+                val size = file.length()
+                if (size > 1024 * 1024) { // > 1MB, 正常 SharedPreferences 不应这么大
+                    android.util.Log.w(TAG,
+                        "⚠️ $name.xml 异常过大 (${size / 1024 / 1024}MB) — " +
+                        "由 $description 读取，已删除")
+                    LoggerPlugin.warning(TAG,
+                        "SharedPreferences $name.xml 过大 (${size / 1024 / 1024}MB)，已删除修复")
+
+                    file.delete()
+
+                    // 同时清理备份文件
+                    val bakFile = File(sharedPrefsDir, "$name.xml.bak")
+                    if (bakFile.exists()) bakFile.delete()
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "SharedPreferences 健康检查失败: ${e.message}")
+        }
     }
 
     private fun handleSharedImage(intent: Intent?) {
@@ -133,6 +239,13 @@ class MainActivity: FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
+        // 标记 Engine 已被 Fragment 配置和使用过。
+        // 如果 Activity/Fragment 重建导致二次调用，provideFlutterEngine 会据此重建 Engine。
+        engineHasBeenUsed = true
+
+        // 预创建摇一摇相关的通知渠道，确保首次显示通知时 importance 正确
+        initBillingNotificationChannels()
+
         android.util.Log.e("MainActivity", "==========================================")
         android.util.Log.e("MainActivity", "configureFlutterEngine 被调用！！！")
         android.util.Log.e("MainActivity", "==========================================")
@@ -165,6 +278,13 @@ class MainActivity: FlutterFragmentActivity() {
                     stopScreenshotObserver()
                     result.success(true)
                 }
+                "openAccessibilitySettings" -> {
+                    openAccessibilitySettings()
+                    result.success(true)
+                }
+                "isAccessibilityServiceEnabled" -> {
+                    result.success(isAccessibilityServiceEnabled())
+                }
                 else -> result.notImplemented()
             }
         }
@@ -184,6 +304,10 @@ class MainActivity: FlutterFragmentActivity() {
                 else -> result.notImplemented()
             }
         }
+
+        // 将全局 FlutterEngine 注册到 AccessibilityBridge
+        // Engine 由 provideFlutterEngine 缓存，Activity 销毁后仍存活
+        AccessibilityBridge.setEngine(flutterEngine)
 
         // 通知相关的MethodChannel
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
@@ -217,11 +341,13 @@ class MainActivity: FlutterFragmentActivity() {
                     result.success(getBatteryOptimizationInfo())
                 }
                 "openNotificationChannelSettings" -> {
-                    openNotificationChannelSettings()
+                    val channelId = call.argument<String>("channelId") ?: "accounting_reminder"
+                    openNotificationChannelSettings(channelId)
                     result.success(true)
                 }
                 "getNotificationChannelInfo" -> {
-                    result.success(getNotificationChannelInfo())
+                    val channelId = call.argument<String>("channelId") ?: "accounting_reminder"
+                    result.success(getNotificationChannelInfo(channelId))
                 }
                 "testDirectNotification" -> {
                     val title = call.argument<String>("title") ?: "直接测试通知"
@@ -233,6 +359,148 @@ class MainActivity: FlutterFragmentActivity() {
                 }
                 else -> result.notImplemented()
             }
+        }
+
+        // 保活前台服务的MethodChannel
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, KEEP_ALIVE_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "startKeepAlive" -> {
+                    try {
+                        val intent = Intent(this, KeepAliveService::class.java).apply {
+                            action = KeepAliveService.ACTION_START
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startForegroundService(intent)
+                        } else {
+                            startService(intent)
+                        }
+                        android.util.Log.d("MainActivity", "✅ 保活服务已启动")
+                        LoggerPlugin.info("MainActivity", "保活服务已启动")
+                        result.success(true)
+                    } catch (e: Exception) {
+                        android.util.Log.e("MainActivity", "启动保活服务失败: $e")
+                        result.error("START_FAILED", e.message ?: "启动保活服务失败", null)
+                    }
+                }
+                "stopKeepAlive" -> {
+                    try {
+                        val intent = Intent(this, KeepAliveService::class.java).apply {
+                            action = KeepAliveService.ACTION_STOP
+                        }
+                        startService(intent)
+                        android.util.Log.d("MainActivity", "✅ 保活服务已停止")
+                        LoggerPlugin.info("MainActivity", "保活服务已停止")
+                        result.success(true)
+                    } catch (e: Exception) {
+                        android.util.Log.e("MainActivity", "停止保活服务失败: $e")
+                        result.error("STOP_FAILED", e.message ?: "停止保活服务失败", null)
+                    }
+                }
+                "isKeepAliveRunning" -> {
+                    val running = KeepAliveService.isRunning || BillingAccessibilityService.isRunning
+                    result.success(running)
+                }
+                "isIgnoringBatteryOptimizations" -> {
+                    result.success(isIgnoringBatteryOptimizations())
+                }
+                "openBatteryOptimizationSettings" -> {
+                    try {
+                        val intent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                        startActivity(intent)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("INTENT_FAILED", e.message, null)
+                    }
+                }
+                "cancelProgressNotification" -> {
+                    try {
+                        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                        manager.cancel(9101)
+                        android.util.Log.d("MainActivity", "✅ 进度通知已取消 (ID=9101)")
+                        result.success(true)
+                    } catch (e: Exception) {
+                        android.util.Log.e("MainActivity", "❌ 取消进度通知失败: ${e.message}")
+                        result.error("CANCEL_FAILED", e.message, null)
+                    }
+                }
+                "openAutoStartSettings" -> {
+                    try {
+                        val result2 = openAutoStartSettings()
+                        result.success(result2)
+                    } catch (e: Exception) {
+                        result.error("INTENT_FAILED", e.message, null)
+                    }
+                }
+                "requestIgnoreBatteryOptimizations" -> {
+                    requestIgnoreBatteryOptimizations()
+                    result.success(true)
+                }
+                "getKeepAliveStatus" -> {
+                    val map = mapOf(
+                        "keepAliveServiceRunning" to KeepAliveService.isRunning,
+                        "accessibilityServiceRunning" to BillingAccessibilityService.isRunning,
+                        "isIgnoringBatteryOptimizations" to isIgnoringBatteryOptimizations()
+                    )
+                    result.success(map)
+                }
+                "getNotificationChannelInfo" -> {
+                    val channelId = call.argument<String>("channelId") ?: "shake_result"
+                    result.success(getNotificationChannelInfo(channelId))
+                }
+                "openNotificationChannelSettings" -> {
+                    val channelId = call.argument<String>("channelId") ?: "shake_result"
+                    openNotificationChannelSettings(channelId)
+                    result.success(true)
+                }
+                else -> result.notImplemented()
+            }
+        }
+
+        // 摇一摇自动记账控制方法绑定到 Engine 生命周期，不因 Activity 销毁而丢失
+    }
+
+    /**
+     * 预创建摇一摇记账相关的通知渠道，确保 importance 正确。
+     * 如果渠道已存在但 importance 不是 HIGH，则删除重建（仅在 DEBUG 构建或渠道重要性不达标时触发）。
+     */
+    private fun initBillingNotificationChannels() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        // 需要确保 importance >= HIGH 的渠道列表
+        data class ChannelDef(val id: String, val name: String, val desc: String)
+        val channels = listOf(
+            ChannelDef("shake_result", "摇一摇记账结果", "摇一摇自动记账最终结果通知"),
+            ChannelDef("screenshot_ocr", "截图识别", "截图自动识别通知"),
+        )
+
+        for (ch in channels) {
+            val existing = manager.getNotificationChannel(ch.id)
+            if (existing != null && existing.importance >= NotificationManager.IMPORTANCE_HIGH) {
+                // 已有渠道且 importance 达标 — 跳过
+                android.util.Log.d(TAG, "通知渠道 '${ch.id}' 已存在且 importance 达标 (${existing.importance})")
+                continue
+            }
+            if (existing != null) {
+                // 渠道 importance 太低 — 删除重建（会丢失用户对该渠道的个性化设置）
+                android.util.Log.w(TAG, "通知渠道 '${ch.id}' importance 过低 (${existing.importance})，删除重建")
+                manager.deleteNotificationChannel(ch.id)
+            }
+            val channel = android.app.NotificationChannel(
+                ch.id,
+                ch.name,
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = ch.desc
+                enableVibration(true)
+                enableLights(true)
+                setShowBadge(true)
+                lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
+                // 允许绕过勿扰模式（提升国产 ROM 弹出横幅几率）
+                setBypassDnd(true)
+            }
+            manager.createNotificationChannel(channel)
+            android.util.Log.d(TAG, "✅ 已创建通知渠道 '${ch.id}' (IMPORTANCE_HIGH)")
         }
     }
 
@@ -360,6 +628,75 @@ class MainActivity: FlutterFragmentActivity() {
         startActivity(intent)
     }
 
+
+    /**
+     * 打开各 ROM 自启动管理页面。
+     * 根据设备制造商跳转到对应的自启动设置页，不支持的 ROM 返回 false。
+     */
+    private fun openAutoStartSettings(): Boolean {
+        val manufacturer = Build.MANUFACTURER.lowercase()
+
+        // 荣耀/华为：有多条路径，逐一尝试
+        if (manufacturer.contains("huawei") || manufacturer.contains("honor")) {
+            val honorPkg = "com.hihonor.systemmanager"
+            val honorCls = "$honorPkg.optimize.process.ProtectActivity"
+            val huaweiPkg = "com.huawei.systemmanager"
+            val huaweiCls = "$huaweiPkg.optimize.process.ProtectActivity"
+            // 按优先级尝试各路径
+            val candidates = listOf(
+                Intent().apply { component = android.content.ComponentName(honorPkg, honorCls) },
+                Intent().apply { component = android.content.ComponentName(huaweiPkg, huaweiCls) },
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.parse("package:$packageName")
+                },
+            )
+            for (intent in candidates) {
+                try {
+                    startActivity(intent)
+                    return true
+                } catch (_: Exception) { }
+            }
+            return false
+        }
+
+        val intent = when {
+            manufacturer.contains("xiaomi") || manufacturer.contains("redmi") -> {
+                Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.miui.securitycenter",
+                        "com.miui.permcenter.autostart.AutoStartManagementActivity"
+                    )
+                }
+            }
+            manufacturer.contains("oppo") || manufacturer.contains("oneplus") -> {
+                Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.oppo.safe",
+                        "com.oppo.safe.permission.startup.StartupAppListActivity"
+                    )
+                }
+            }
+            manufacturer.contains("meizu") -> {
+                Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.meizu.safe",
+                        "com.meizu.safe.permission.SmartPermissionActivity"
+                    )
+                }
+            }
+            else -> null
+        }
+        if (intent != null) {
+            try {
+                startActivity(intent)
+                return true
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "打开自启动设置失败: ${e.message}")
+            }
+        }
+        return false
+    }
+
     private fun getBatteryOptimizationInfo(): Map<String, Any> {
         val isIgnoring = isIgnoringBatteryOptimizations()
         val canRequest = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
@@ -374,31 +711,31 @@ class MainActivity: FlutterFragmentActivity() {
         )
     }
 
-    private fun openNotificationChannelSettings() {
+    private fun openNotificationChannelSettings(channelId: String = "accounting_reminder") {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
                     putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-                    putExtra(Settings.EXTRA_CHANNEL_ID, "accounting_reminder")
+                    putExtra(Settings.EXTRA_CHANNEL_ID, channelId)
                 }
                 startActivity(intent)
-                android.util.Log.d("MainActivity", "打开通知渠道设置页面")
+                android.util.Log.d(TAG, "打开通知渠道设置页面: $channelId")
             } else {
                 // Android 8.0以下版本打开应用通知设置
                 openAppSettings()
             }
         } catch (e: Exception) {
-            android.util.Log.e("MainActivity", "打开通知渠道设置失败: $e")
+            android.util.Log.e(TAG, "打开通知渠道设置失败: $e")
             // fallback到应用设置
             openAppSettings()
         }
     }
 
-    private fun getNotificationChannelInfo(): Map<String, Any> {
+    private fun getNotificationChannelInfo(channelId: String = "accounting_reminder"): Map<String, Any> {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                val channel = notificationManager.getNotificationChannel("accounting_reminder")
+                val channel = notificationManager.getNotificationChannel(channelId)
 
                 if (channel != null) {
                     val importanceLevel = when (channel.importance) {
@@ -481,6 +818,28 @@ class MainActivity: FlutterFragmentActivity() {
         }
     }
 
+    private fun openAccessibilitySettings() {
+        try {
+            val intent = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
+            startActivity(intent)
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "无法打开无障碍设置: $e")
+            openAppSettings()
+        }
+    }
+
+    private fun isAccessibilityServiceEnabled(): Boolean {
+        return try {
+            val enabledServices = android.provider.Settings.Secure.getString(
+                contentResolver,
+                android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            )
+            enabledServices?.contains(packageName + "/" + BillingAccessibilityService::class.java.name) == true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     private fun startScreenshotObserver(flutterEngine: FlutterEngine) {
         try {
             android.util.Log.d("MainActivity", "========== 开始启动截图监听服务 ==========")
@@ -550,6 +909,8 @@ class MainActivity: FlutterFragmentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopScreenshotObserver()
+        // 不释放 Bridge 中的 Engine 引用——Engine 由 provideFlutterEngine 缓存，
+        // 跨 Activity 生命周期存活，Dart 隔离区继续处理 MethodChannel 消息。
     }
 
     private fun installApkWithIntent(filePath: String): Boolean {
