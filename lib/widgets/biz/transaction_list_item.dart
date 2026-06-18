@@ -90,6 +90,27 @@ class TransactionListItem extends ConsumerWidget {
         excludeFromBudget;
   }
 
+  /// 「不计收支 / 不计预算」标记的小 pill（中性灰底，de-emphasis）
+  /// 视觉对齐 TagChip(small)：pill 圆角 + 低透明度填充 + fontSize 11
+  Widget _flagChip(BuildContext context, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: BeeTokens.isDark(context)
+            ? Colors.white.withValues(alpha: 0.1)
+            : Colors.black.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          color: BeeTokens.textTertiary(context),
+        ),
+      ),
+    );
+  }
+
   /// 构建次要信息小部件（时间 · 账户 + 附件图标）
   Widget _buildSecondaryInfo(BuildContext context, WidgetRef ref) {
     final parts = <String>[];
@@ -148,13 +169,13 @@ class TransactionListItem extends ConsumerWidget {
       return widget;
     }
 
-    // 「不计收支 / 不计预算」标签:第二行末尾的次要灰色文字标签（01 §4.2）
+    // 「不计收支 / 不计预算」标签:第二行末尾的次要标签，改为与标签 chip 一致的
+    // 中性 pill 样式（de-emphasis，沿用 TagChip 的中性灰底 + pill 圆角）
     final flagTags = <Widget>[
       if (excludeFromStats)
-        Text(AppLocalizations.of(context).txFlagExcludedTag, style: textStyle),
+        _flagChip(context, AppLocalizations.of(context).txFlagExcludedTag),
       if (excludeFromBudget)
-        Text(AppLocalizations.of(context).txFlagBudgetExcludedTag,
-            style: textStyle),
+        _flagChip(context, AppLocalizations.of(context).txFlagBudgetExcludedTag),
     ];
 
     // 如果只有附件 / 标签，没有时间·账户文字
