@@ -6771,4 +6771,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txFlagExcludeFromBudgetHint => 'Doesn\'t count against your budget';
+
+  @override
+  String get txFlagExcludedTag => 'Excluded';
+
+  @override
+  String get txFlagBudgetExcludedTag => 'No budget';
 }

@@ -12803,6 +12803,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Doesn\'t count against your budget'**
   String get txFlagExcludeFromBudgetHint;
+
+  /// No description provided for @txFlagExcludedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Excluded'**
+  String get txFlagExcludedTag;
+
+  /// No description provided for @txFlagBudgetExcludedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'No budget'**
+  String get txFlagBudgetExcludedTag;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

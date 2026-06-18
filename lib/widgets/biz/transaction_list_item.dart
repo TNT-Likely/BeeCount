@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart' as db;
+import '../../l10n/app_localizations.dart';
 import '../../styles/tokens.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/category_icon.dart';
@@ -39,6 +40,9 @@ class TransactionListItem extends ConsumerWidget {
   final int attachmentCount; // 附件数量
   final VoidCallback? onAttachmentTap; // 点击附件图标回调
 
+  final bool excludeFromStats; // 不计入收支:第二行显示「不计收支」标签
+  final bool excludeFromBudget; // 不计入预算:第二行显示「不计预算」标签
+
   const TransactionListItem({
       super.key,
       required this.icon,
@@ -64,6 +68,8 @@ class TransactionListItem extends ConsumerWidget {
       this.onTagTap,
       this.attachmentCount = 0,
       this.onAttachmentTap,
+      this.excludeFromStats = false,
+      this.excludeFromBudget = false,
   });
 
 
@@ -77,7 +83,11 @@ class TransactionListItem extends ConsumerWidget {
         happenedAt != null &&
         (happenedAt!.hour != 0 || happenedAt!.minute != 0 || happenedAt!.second != 0);
 
-    return showTime || accountName != null || attachmentCount > 0;
+    return showTime ||
+        accountName != null ||
+        attachmentCount > 0 ||
+        excludeFromStats ||
+        excludeFromBudget;
   }
 
   /// 构建次要信息小部件（时间 · 账户 + 附件图标）
@@ -138,20 +148,47 @@ class TransactionListItem extends ConsumerWidget {
       return widget;
     }
 
-    // 如果只有附件，没有其他信息
-    if (parts.isEmpty && attachmentCount > 0) {
-      return buildAttachmentWidget();
+    // 「不计收支 / 不计预算」标签:第二行末尾的次要灰色文字标签（01 §4.2）
+    final flagTags = <Widget>[
+      if (excludeFromStats)
+        Text(AppLocalizations.of(context).txFlagExcludedTag, style: textStyle),
+      if (excludeFromBudget)
+        Text(AppLocalizations.of(context).txFlagBudgetExcludedTag,
+            style: textStyle),
+    ];
+
+    // 如果只有附件 / 标签，没有时间·账户文字
+    if (parts.isEmpty) {
+      final children = <Widget>[
+        if (attachmentCount > 0) buildAttachmentWidget(),
+        ...flagTags,
+      ];
+      // 用 Wrap 避免次要行溢出（标签可能与附件并排）
+      return Wrap(
+        spacing: 6,
+        runSpacing: 2,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: children,
+      );
     }
 
-    // 有其他信息时
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    // 有时间·账户文字时:文字 + 附件保持原有 ' · ' 风格，标签紧随其后
+    return Wrap(
+      spacing: 6,
+      runSpacing: 2,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text(parts.join(' · '), style: textStyle),
-        if (attachmentCount > 0) ...[
-          Text(' · ', style: textStyle),
-          buildAttachmentWidget(),
-        ],
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(parts.join(' · '), style: textStyle),
+            if (attachmentCount > 0) ...[
+              Text(' · ', style: textStyle),
+              buildAttachmentWidget(),
+            ],
+          ],
+        ),
+        ...flagTags,
       ],
     );
   }

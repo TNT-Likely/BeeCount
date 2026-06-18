@@ -3028,5 +3028,7 @@
   "txFlagExcludeFromBudget": "Exclude from budget",
   "txFlagMoreOptions": "More options",
   "txFlagExcludeFromStatsHint": "Excluded from stats, still counts toward balance",
-  "txFlagExcludeFromBudgetHint": "Doesn't count against your budget"
+  "txFlagExcludeFromBudgetHint": "Doesn't count against your budget",
+  "txFlagExcludedTag": "Excluded",
+  "txFlagBudgetExcludedTag": "No budget"
 }

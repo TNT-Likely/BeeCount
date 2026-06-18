@@ -6771,6 +6771,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txFlagExcludeFromBudgetHint => '不占用预算额度';
+
+  @override
+  String get txFlagExcludedTag => '不计收支';
+
+  @override
+  String get txFlagBudgetExcludedTag => '不计预算';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -13512,4 +13518,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get txFlagExcludeFromBudgetHint => '不佔用預算額度';
+
+  @override
+  String get txFlagExcludedTag => '不計收支';
+
+  @override
+  String get txFlagBudgetExcludedTag => '不計預算';
 }

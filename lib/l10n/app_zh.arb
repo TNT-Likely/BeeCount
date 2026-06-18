@@ -2969,5 +2969,7 @@
   "txFlagExcludeFromBudget": "不计入预算",
   "txFlagMoreOptions": "更多选项",
   "txFlagExcludeFromStatsHint": "不计入收支统计,但仍计入账户余额",
-  "txFlagExcludeFromBudgetHint": "不占用预算额度"
+  "txFlagExcludeFromBudgetHint": "不占用预算额度",
+  "txFlagExcludedTag": "不计收支",
+  "txFlagBudgetExcludedTag": "不计预算"
 }
