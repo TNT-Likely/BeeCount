@@ -155,6 +155,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
         showAccountPicker: false,
         ledgerId: ledgerId,
         editingTransactionId: widget.editingTransactionId,
+        transactionKind: 'transfer',
         onSubmit: (result) async {
           final attachmentService = ref.read(attachmentServiceProvider);
           // 获取虚拟转账分类ID

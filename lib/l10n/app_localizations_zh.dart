@@ -6756,6 +6756,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get netWorthTrendMultiCurrencyNote => '历史净值为各币种原值相加,未折算';
+
+  @override
+  String get txFlagExcludeFromStats => '不计入收支';
+
+  @override
+  String get txFlagExcludeFromBudget => '不计入预算';
+
+  @override
+  String get txFlagMoreOptions => '更多选项';
+
+  @override
+  String get txFlagExcludeFromStatsHint => '不计入收支统计,但仍计入账户余额';
+
+  @override
+  String get txFlagExcludeFromBudgetHint => '不占用预算额度';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -13482,4 +13497,19 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get netWorthTrendMultiCurrencyNote => '歷史淨值為各幣種原值相加,未折算';
+
+  @override
+  String get txFlagExcludeFromStats => '不計入收支';
+
+  @override
+  String get txFlagExcludeFromBudget => '不計入預算';
+
+  @override
+  String get txFlagMoreOptions => '更多選項';
+
+  @override
+  String get txFlagExcludeFromStatsHint => '不計入收支統計,但仍計入帳戶餘額';
+
+  @override
+  String get txFlagExcludeFromBudgetHint => '不佔用預算額度';
 }

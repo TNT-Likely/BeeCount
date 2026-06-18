@@ -2964,5 +2964,10 @@
   "netWorthTrendLineNet": "净资产",
   "netWorthTrendLineAssets": "总资产",
   "netWorthTrendLineLiabilities": "总负债",
-  "netWorthTrendMultiCurrencyNote": "历史净值为各币种原值相加,未折算"
+  "netWorthTrendMultiCurrencyNote": "历史净值为各币种原值相加,未折算",
+  "txFlagExcludeFromStats": "不计入收支",
+  "txFlagExcludeFromBudget": "不计入预算",
+  "txFlagMoreOptions": "更多选项",
+  "txFlagExcludeFromStatsHint": "不计入收支统计,但仍计入账户余额",
+  "txFlagExcludeFromBudgetHint": "不占用预算额度"
 }

@@ -32,6 +32,8 @@ class TransactionEditorPage extends ConsumerStatefulWidget {
   final int? initialAccountId;
   final int? initialToAccountId; // 转账时的目标账户
   final List<int>? initialTagIds; // 初始标签ID列表
+  final bool initialExcludeFromStats; // 不计入收支，编辑模式回显
+  final bool initialExcludeFromBudget; // 不计入预算，编辑模式回显
 
   const TransactionEditorPage({
     super.key,
@@ -45,6 +47,8 @@ class TransactionEditorPage extends ConsumerStatefulWidget {
     this.initialAccountId,
     this.initialToAccountId,
     this.initialTagIds,
+    this.initialExcludeFromStats = false,
+    this.initialExcludeFromBudget = false,
   });
 
   @override
@@ -237,6 +241,9 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
         showAccountPicker: true,
         ledgerId: ledgerId,
         editingTransactionId: widget.editingTransactionId,
+        transactionKind: kind,
+        initialExcludeFromStats: widget.initialExcludeFromStats,
+        initialExcludeFromBudget: widget.initialExcludeFromBudget,
         onSubmit: (res) async {
           final repo = ref.read(repositoryProvider);
           final attachmentService = ref.read(attachmentServiceProvider);
@@ -270,6 +277,8 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
               accountId: accountIdForUpdate,
               categorySyncIdOverride: categoryOverride,
               accountSyncIdOverride: accountOverride,
+              excludeFromStats: res.excludeFromStats,
+              excludeFromBudget: res.excludeFromBudget,
             );
             transactionId = widget.editingTransactionId!;
             // 共享账本:本地 lastEditedByUserId 立即回填,UI 头像组直接展示
@@ -286,6 +295,8 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
               accountId: accountIdForAdd,
               categorySyncIdOverride: categoryOverride,
               accountSyncIdOverride: accountOverride,
+              excludeFromStats: res.excludeFromStats,
+              excludeFromBudget: res.excludeFromBudget,
             );
             // 共享账本:新建本地 tx 也回填创建人 + 编辑人(同一个 user)
             await TxAuthorService.markCreated(ref, transactionId);

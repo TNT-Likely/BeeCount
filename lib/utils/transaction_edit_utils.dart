@@ -62,6 +62,9 @@ class TransactionEditUtils {
           initialToAccountId: initialToAccountId,
           // 标签
           initialTagIds: tagIds,
+          // 账单标记（不计入收支/预算）回显
+          initialExcludeFromStats: transaction.excludeFromStats,
+          initialExcludeFromBudget: transaction.excludeFromBudget,
         ),
       ),
     );

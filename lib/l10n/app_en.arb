@@ -3023,5 +3023,10 @@
   "netWorthTrendLineNet": "Net Worth",
   "netWorthTrendLineAssets": "Total Assets",
   "netWorthTrendLineLiabilities": "Total Liabilities",
-  "netWorthTrendMultiCurrencyNote": "Historical net worth is the raw sum of each currency, not converted"
+  "netWorthTrendMultiCurrencyNote": "Historical net worth is the raw sum of each currency, not converted",
+  "txFlagExcludeFromStats": "Exclude from income/expense",
+  "txFlagExcludeFromBudget": "Exclude from budget",
+  "txFlagMoreOptions": "More options",
+  "txFlagExcludeFromStatsHint": "Excluded from stats, still counts toward balance",
+  "txFlagExcludeFromBudgetHint": "Doesn't count against your budget"
 }

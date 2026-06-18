@@ -13,6 +13,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/data/note_history_service.dart';
 import '../../services/attachment_service.dart';
 import '../../providers.dart';
+import '../../utils/ui_scale_extensions.dart';
 import '../../pages/tag/widgets/tag_selector.dart';
 import 'note_picker_dialog.dart';
 import 'account_selector.dart';
@@ -184,6 +185,8 @@ typedef AmountEditorResult = ({
   int? accountId,
   List<int> tagIds,
   List<File> pendingAttachments,
+  bool excludeFromStats,
+  bool excludeFromBudget,
 });
 
 class AmountEditorSheet extends ConsumerStatefulWidget {
@@ -197,6 +200,9 @@ class AmountEditorSheet extends ConsumerStatefulWidget {
   final ValueChanged<AmountEditorResult> onSubmit;
   final int ledgerId;
   final int? editingTransactionId; // 编辑模式时的交易ID，用于显示已有附件
+  final String transactionKind; // 'expense' / 'income' / 'transfer'，决定标记开关可见性
+  final bool initialExcludeFromStats; // 不计入收支，编辑模式回显
+  final bool initialExcludeFromBudget; // 不计入预算，编辑模式回显
 
   const AmountEditorSheet({
     super.key,
@@ -210,6 +216,9 @@ class AmountEditorSheet extends ConsumerStatefulWidget {
     required this.onSubmit,
     required this.ledgerId,
     this.editingTransactionId,
+    this.transactionKind = 'expense',
+    this.initialExcludeFromStats = false,
+    this.initialExcludeFromBudget = false,
   });
 
   @override
@@ -245,10 +254,19 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   // 待上传的附件列表（新建交易时）
   List<File> _pendingAttachments = [];
 
+  // 交易标记（更多选项区）
+  bool _excludeFromStats = false;
+  bool _excludeFromBudget = false;
+  bool _moreExpanded = false;
+
   @override
   void initState() {
     super.initState();
     _date = widget.initialDate;
+    _excludeFromStats = widget.initialExcludeFromStats;
+    _excludeFromBudget = widget.initialExcludeFromBudget;
+    // 编辑已有交易且任一标记非默认时，默认展开“更多选项”，避免用户看不到
+    _moreExpanded = _excludeFromStats || _excludeFromBudget;
     _selectedAccountId = widget.initialAccountId;
     _selectedTagIds = List.from(widget.initialTagIds ?? []);
     // 保留原始小数（最多两位），避免编辑已有记录时小数被截断为整数
@@ -713,6 +731,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
             // 标签和附件选择区域（一行）
             const SizedBox(height: 8),
             _buildTagAndAttachmentRow(),
+            // 更多选项（不计入收支/预算）——按交易类型条件显示
+            _buildMoreOptionsSection(),
             const SizedBox(height: 10),
             // 数字键盘
             LayoutBuilder(builder: (ctx, c) {
@@ -818,6 +838,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                                 accountId: _selectedAccountId,
                                 tagIds: _selectedTagIds,
                                 pendingAttachments: _pendingAttachments,
+                                excludeFromStats: _excludeFromStats,
+                                excludeFromBudget: _excludeFromBudget,
                               ));
 
                               // 注意：不需要在这里重置 _isSubmitting
@@ -938,6 +960,123 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       return _buildRowContent(selectedTags, totalCount, attachments);
     }
     return _buildRowContent(selectedTags, _pendingAttachments.length, []);
+  }
+
+  /// 更多选项区：可展开折叠头 + 两个标记开关。
+  /// 可见性(01 §三):不计入收支 对 income/expense 显示;不计入预算 仅 expense。
+  /// 转账两个开关都不显示 → 整个区域不渲染。
+  Widget _buildMoreOptionsSection() {
+    final l10n = AppLocalizations.of(context);
+    final primary = ref.watch(primaryColorProvider);
+    final kind = widget.transactionKind;
+    final showStats = kind != 'transfer';
+    final showBudget = kind == 'expense';
+    // 两个开关都不该显示(转账)→ 不渲染更多选项区
+    if (!showStats && !showBudget) return const SizedBox.shrink();
+
+    final hasNonDefault = _excludeFromStats || _excludeFromBudget;
+
+    Widget switchTile({
+      required String title,
+      required String hint,
+      required bool value,
+      required ValueChanged<bool> onChanged,
+    }) {
+      return SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        dense: true,
+        title: Text(
+          title,
+          style: TextStyle(
+            color: BeeTokens.textPrimary(context),
+            fontSize: 15.0.scaled(context, ref),
+          ),
+        ),
+        subtitle: Text(
+          hint,
+          style: TextStyle(
+            color: BeeTokens.textTertiary(context),
+            fontSize: 12.0.scaled(context, ref),
+          ),
+        ),
+        value: value,
+        activeColor: primary,
+        onChanged: onChanged,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 4),
+        // 折叠头
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () => setState(() => _moreExpanded = !_moreExpanded),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 6.0.scaled(context, ref)),
+            child: Row(
+              children: [
+                Text(
+                  l10n.txFlagMoreOptions,
+                  style: TextStyle(
+                    color: BeeTokens.textSecondary(context),
+                    fontSize: 14.0.scaled(context, ref),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                // 折叠态有非默认标记 → 小圆点提示
+                if (hasNonDefault && !_moreExpanded) ...[
+                  SizedBox(width: 6.0.scaled(context, ref)),
+                  Container(
+                    width: 6.0.scaled(context, ref),
+                    height: 6.0.scaled(context, ref),
+                    decoration: BoxDecoration(
+                      color: primary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
+                const Spacer(),
+                Icon(
+                  _moreExpanded ? Icons.expand_less : Icons.expand_more,
+                  size: 20.0.scaled(context, ref),
+                  color: BeeTokens.iconSecondary(context),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // 展开区
+        AnimatedSize(
+          duration: const Duration(milliseconds: 150),
+          alignment: Alignment.topCenter,
+          child: _moreExpanded
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (showStats)
+                      switchTile(
+                        title: l10n.txFlagExcludeFromStats,
+                        hint: l10n.txFlagExcludeFromStatsHint,
+                        value: _excludeFromStats,
+                        onChanged: (v) =>
+                            setState(() => _excludeFromStats = v),
+                      ),
+                    if (showBudget)
+                      switchTile(
+                        title: l10n.txFlagExcludeFromBudget,
+                        hint: l10n.txFlagExcludeFromBudgetHint,
+                        value: _excludeFromBudget,
+                        onChanged: (v) =>
+                            setState(() => _excludeFromBudget = v),
+                      ),
+                  ],
+                )
+              : const SizedBox.shrink(),
+        ),
+      ],
+    );
   }
 
   Widget _buildRowContent(List<Tag> selectedTags, int attachmentCount, List<TransactionAttachment> savedAttachments) {

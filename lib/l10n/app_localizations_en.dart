@@ -6756,4 +6756,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get netWorthTrendMultiCurrencyNote => 'Historical net worth is the raw sum of each currency, not converted';
+
+  @override
+  String get txFlagExcludeFromStats => 'Exclude from income/expense';
+
+  @override
+  String get txFlagExcludeFromBudget => 'Exclude from budget';
+
+  @override
+  String get txFlagMoreOptions => 'More options';
+
+  @override
+  String get txFlagExcludeFromStatsHint => 'Excluded from stats, still counts toward balance';
+
+  @override
+  String get txFlagExcludeFromBudgetHint => 'Doesn\'t count against your budget';
 }
