@@ -58,3 +58,5 @@ android/app/*.keystore
 .docs
 .tmp
 tmp
+# Playwright MCP capture artifacts
+.playwright-mcp/
