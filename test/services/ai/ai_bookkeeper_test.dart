@@ -23,11 +23,13 @@ class _FakeEngine implements AiExtractionEngine {
   });
 
   @override
-  Future<List<BillInfo>> extractFromText(String text, AiExtractionContext ctx) async =>
+  Future<List<BillInfo>> extractFromText(String text, AiExtractionContext ctx,
+          {String billGuard = ''}) async =>
       bills;
 
   @override
-  Future<List<BillInfo>> extractFromImage(File image, AiExtractionContext ctx) async =>
+  Future<List<BillInfo>> extractFromImage(File image, AiExtractionContext ctx,
+          {String billGuard = ''}) async =>
       bills;
 
   @override
