@@ -23,6 +23,7 @@ class LocalStatisticsRepository implements StatisticsRepository {
           ..where((t) =>
               t.ledgerId.equals(ledgerId) &
               t.type.equals(type) &
+              t.excludeFromStats.equals(false) &
               t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end)))
         .join([
       d.leftOuterJoin(db.categories,
@@ -116,6 +117,7 @@ class LocalStatisticsRepository implements StatisticsRepository {
           ..where((t) =>
               t.ledgerId.equals(ledgerId) &
               t.type.equals(type) &
+              t.excludeFromStats.equals(false) &
               t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end)))
         .join([
       d.leftOuterJoin(db.categories,
@@ -198,6 +200,7 @@ class LocalStatisticsRepository implements StatisticsRepository {
           ..where((t) =>
               t.ledgerId.equals(ledgerId) &
               t.type.equals(type) &
+              t.excludeFromStats.equals(false) &
               t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end)))
         .get();
     final map = <DateTime, double>{};
@@ -228,6 +231,7 @@ class LocalStatisticsRepository implements StatisticsRepository {
           ..where((t) =>
               t.ledgerId.equals(ledgerId) &
               t.type.equals(type) &
+              t.excludeFromStats.equals(false) &
               t.happenedAt.isBiggerOrEqualValue(yr.start) &
               t.happenedAt.isSmallerThanValue(yr.end)))
         .get();
@@ -250,7 +254,10 @@ class LocalStatisticsRepository implements StatisticsRepository {
     required String type,
   }) async {
     final rows = await (db.select(db.transactions)
-          ..where((t) => t.ledgerId.equals(ledgerId) & t.type.equals(type)))
+          ..where((t) =>
+              t.ledgerId.equals(ledgerId) &
+              t.type.equals(type) &
+              t.excludeFromStats.equals(false)))
         .get();
     if (rows.isEmpty) return const [];
     final sd = await _monthStartDayOf(ledgerId);
@@ -283,6 +290,7 @@ class LocalStatisticsRepository implements StatisticsRepository {
         COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS expense
       FROM transactions
       WHERE ledger_id = ?1 AND happened_at >= ?2 AND happened_at < ?3
+        AND exclude_from_stats = 0
       ''',
       variables: [
         d.Variable<int>(ledgerId),
@@ -328,6 +336,7 @@ class LocalStatisticsRepository implements StatisticsRepository {
         COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS expense
       FROM transactions
       WHERE ledger_id = ?1 AND happened_at >= ?2 AND happened_at < ?3
+        AND exclude_from_stats = 0
       ''',
       variables: [
         d.Variable<int>(ledgerId),
@@ -360,6 +369,7 @@ class LocalStatisticsRepository implements StatisticsRepository {
         COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS expense
       FROM transactions
       WHERE ledger_id = ?1 AND happened_at >= ?2 AND happened_at < ?3
+        AND exclude_from_stats = 0
       ''',
       variables: [
         d.Variable<int>(ledgerId),
