@@ -43,14 +43,30 @@
         .voice .icon { background: #FF9500; }
         .image .icon { background: #34C759; }
         .camera .icon { background: #007AFF; }
+        .ai .icon { background: #5856D6; }
+        .new .icon { background: #FF3B30; }
         .add .icon { background: #AF52DE; }
         .content { flex: 1; }
         .title { font-weight: 600; }
-        .desc { font-size: 13px; color: #8e8e93; margin-top: 2px; }
+        .desc { font-size: 13px; color: #8e8e93; margin-top: 2px; word-break: break-all; }
+        .note {
+            font-size: 13px; color: #6c6c70; line-height: 1.5;
+            background: white; border-radius: 12px; padding: 12px 14px; margin: 0 0 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .hint {
+            font-size: 13px; color: #8a6d00; line-height: 1.5;
+            background: #fff7e0; border-radius: 10px; padding: 10px 12px; margin: 0 0 8px;
+        }
     </style>
 </head>
 <body>
     <h1>BeeCount 快捷指令</h1>
+
+    <p class="note">
+        在<b>已安装 App 的手机</b>上打开本页（手机浏览器 / MacroDroid / iOS 快捷指令均可），
+        点击下方任意条目即触发对应的 <code>beecount://</code> 链接。每条下方为实际链接，可直接复制到自动化工具。
+    </p>
 
     <h2>快捷记账</h2>
 
@@ -75,6 +91,45 @@
         <div class="content">
             <div class="title">拍照记账</div>
             <div class="desc">拍摄账单自动识别</div>
+        </div>
+    </a>
+
+    <a class="shortcut ai" href="beecount://ai-chat">
+        <div class="icon">🤖</div>
+        <div class="content">
+            <div class="title">AI 小助手</div>
+            <div class="desc">beecount://ai-chat</div>
+        </div>
+    </a>
+
+    <h2>打开记账页（手动 · 选分类 → 输入金额）</h2>
+
+    <p class="hint">
+        预期行为：点开后<b>选择一个分类</b> → 弹出金额输入框 → 输入金额保存即完成记账。<br>
+        若选分类后<b>直接退回上一页</b>、无法输入金额，即为用户反馈的问题（macrodroid 用 <code>beecount://new?type=expense</code> 复现）。
+    </p>
+
+    <a class="shortcut new" href="beecount://new?type=expense">
+        <div class="icon">➖</div>
+        <div class="content">
+            <div class="title">记一笔支出</div>
+            <div class="desc">beecount://new?type=expense</div>
+        </div>
+    </a>
+
+    <a class="shortcut new" href="beecount://new?type=income">
+        <div class="icon">➕</div>
+        <div class="content">
+            <div class="title">记一笔收入</div>
+            <div class="desc">beecount://new?type=income</div>
+        </div>
+    </a>
+
+    <a class="shortcut new" href="beecount://new?type=transfer">
+        <div class="icon">🔄</div>
+        <div class="content">
+            <div class="title">转账</div>
+            <div class="desc">beecount://new?type=transfer</div>
         </div>
     </a>
 
@@ -109,6 +164,24 @@
         <div class="content">
             <div class="title">交通支出</div>
             <div class="desc">35元 交通 打车 支付宝</div>
+        </div>
+    </a>
+
+    <h2>其他（兼容旧版 / 异常验证）</h2>
+
+    <a class="shortcut add" href="beecount://auto-billing?text=星巴克咖啡 35,打车 18">
+        <div class="icon">📝</div>
+        <div class="content">
+            <div class="title">文本自动记账（旧版）</div>
+            <div class="desc">beecount://auto-billing?text=…（需开启 AI 识别）</div>
+        </div>
+    </a>
+
+    <a class="shortcut new" href="beecount://unknown-xyz">
+        <div class="icon">⚠️</div>
+        <div class="content">
+            <div class="title">未知操作（应弹「未知的操作」提示）</div>
+            <div class="desc">beecount://unknown-xyz</div>
         </div>
     </a>
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,6 @@ import 'cloud/sync/sync_engine.dart';
 import 'providers/sync_providers.dart' as sp;
 import 'utils/voice_billing_helper.dart';
 import 'utils/image_billing_helper.dart';
-import 'ai/providers/ai_constants.dart';
 import 'pages/ai/ai_chat_page.dart';
 import 'services/platform/app_link_service.dart';
 import 'services/platform/quick_actions_service.dart';
@@ -111,7 +111,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
     _quickActionsService.onNavigate = (action) {
       if (mounted) {
         logger.info('QuickActions', 'BeeApp: 执行快捷操作 $action');
-        _handleAppLinkAction(context, action);
+        _handleAppLinkAction(action);
       }
     };
     _quickActionsService.initialize();
@@ -129,10 +129,12 @@ class _BeeAppState extends ConsumerState<BeeApp>
         logger.info('AppLink',
             'BeeApp: 监听触发 previous=$previous, next=$next, mounted=$mounted');
         if (next != null && mounted) {
-          logger.info('AppLink', 'BeeApp: 执行动作 $next');
-          _handleAppLinkAction(context, next);
-          // 清除待处理动作
+          // 不在此处直接 push：冷启动 / 厂商主题变更(themeChanged)会重建页面树,
+          // 此刻多半处于 inactive/hidden,push 的路由会被丢弃(deep-link「没打开」根因)。
+          // 改为持久化待处理深链,等 ready + 前台 resumed 后在最终页面树上认领打开。
+          _persistPendingDeepLink(next, ref.read(pendingNewTransactionTypeProvider));
           ref.read(pendingAppLinkActionProvider.notifier).state = null;
+          _drainPendingDeepLink(trigger: 'listener');
         }
       },
       fireImmediately: true,
@@ -366,8 +368,10 @@ class _BeeAppState extends ConsumerState<BeeApp>
     });
   }
 
-  /// 处理 AppLink 动作
-  void _handleAppLinkAction(BuildContext context, AppLinkAction action) {
+  /// 处理「桌面长按图标快捷项」的动作:立即执行,带 1s 防抖去重。
+  /// (URL deep-link / 桌面小组件走 _persistPendingDeepLink → _drainPendingDeepLink
+  ///  的「重建可恢复」路径;两条路径最终都汇到 [_openDeepLink] 统一派发。)
+  void _handleAppLinkAction(AppLinkAction action) {
     // 防止重复执行（使用时间戳和标志双重检查）
     final now = DateTime.now();
     if (_isHandlingAppLink ||
@@ -385,56 +389,132 @@ class _BeeAppState extends ConsumerState<BeeApp>
       _isHandlingAppLink = false;
     });
 
+    String? type;
+    if (action == AppLinkAction.newTransaction) {
+      type = ref.read(pendingNewTransactionTypeProvider) ?? 'expense';
+      ref.read(pendingNewTransactionTypeProvider.notifier).state = null;
+    }
+    _openDeepLink(action, type);
+  }
+
+  // ——— 深链「重建可恢复」打开 ———
+  // 背景:部分厂商(如 ColorOS)在浏览器→App 拉起 deep-link 时会触发主题变更
+  // (onConfigurationChanged: themeChanged),导致页面树/Activity 重建;若在重建前就
+  // push,路由会被丢弃,用户看到「没打开」。做法:把待打开的深链持久化(跨重建/重置
+  // 存活),等 appInitState==ready 且生命周期 resumed(前台稳定)后,在最终页面树上认领
+  // 打开,认领即清除并去重,确保只打开一次。
+  static const String _kPendingDeepLink = 'pending_deeplink_action';
+  int? _lastDrainedDeepLinkTs;
+  Timer? _drainTimer;
+
+  void _persistPendingDeepLink(AppLinkAction action, String? type) {
+    SharedPreferences.getInstance().then((p) {
+      p.setString(_kPendingDeepLink, jsonEncode({
+        'action': action.name,
+        'type': type,
+        'ts': DateTime.now().millisecondsSinceEpoch,
+      }));
+    }).catchError((_) {});
+  }
+
+  void _drainPendingDeepLink({String trigger = ''}) {
+    if (!mounted) return;
+    if (ref.read(appInitStateProvider) != AppInitState.ready) return;
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) return;
+    // 重建有时在 resumed 之后还会再发生一次:延迟一拍再认领,只在「存活过这段缓冲期」的
+    // 最终页面树上打开。若本页在缓冲期内被销毁(重建),timer 随 dispose 取消,新页面会
+    // 重新排程,自然落到稳定的页面树上。
+    _drainTimer?.cancel();
+    _drainTimer =
+        Timer(const Duration(milliseconds: 700), () => _executeDrain(trigger));
+  }
+
+  Future<void> _executeDrain(String trigger) async {
+    if (!mounted) return;
+    // 必须就绪 + 前台稳定:冷启动/主题变更的重建窗口(inactive/hidden)里打开会被丢弃
+    if (ref.read(appInitStateProvider) != AppInitState.ready) return;
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) return;
+
+    SharedPreferences prefs;
+    try {
+      prefs = await SharedPreferences.getInstance();
+    } catch (_) {
+      return;
+    }
+    if (!mounted) return;
+    final raw = prefs.getString(_kPendingDeepLink);
+    if (raw == null) return;
+
+    Map<String, dynamic> data;
+    try {
+      data = jsonDecode(raw) as Map<String, dynamic>;
+    } catch (_) {
+      await prefs.remove(_kPendingDeepLink);
+      return;
+    }
+    final ts = (data['ts'] as num?)?.toInt() ?? 0;
+    final ageMs = DateTime.now().millisecondsSinceEpoch - ts;
+    // 过期(>20s)或时间异常 → 丢弃,避免历史深链在普通启动时误触发
+    if (ageMs < 0 || ageMs > 20000) {
+      await prefs.remove(_kPendingDeepLink);
+      return;
+    }
+    // 同一条只认领一次(listener / resumed 多次触发去重)
+    if (_lastDrainedDeepLinkTs == ts) return;
+
+    AppLinkAction? action;
+    final actionName = data['action'] as String?;
+    for (final a in AppLinkAction.values) {
+      if (a.name == actionName) {
+        action = a;
+        break;
+      }
+    }
+    if (action == null) {
+      await prefs.remove(_kPendingDeepLink);
+      return;
+    }
+
+    // 认领成功:打标 + 清持久化,再打开(用根 Navigator,落在最终稳定的页面树上)
+    _lastDrainedDeepLinkTs = ts;
+    await prefs.remove(_kPendingDeepLink);
+    if (!mounted) return;
+    final type = data['type'] as String?;
+    logger.info('AppLink', 'BeeApp: drain($trigger) 打开深链 $action type=$type');
+    _openDeepLink(action, type);
+  }
+
+  /// AppLink 动作的唯一派发出口:快捷项([_handleAppLinkAction])与
+  /// URL deep-link / 小组件([_executeDrain])两条路径共用,避免分叉。
+  void _openDeepLink(AppLinkAction action, String? type) {
+    final nav = Navigator.of(context, rootNavigator: true);
     switch (action) {
       case AppLinkAction.voice:
-        // 打开语音记账
         VoiceBillingHelper.startVoiceBilling(context, ref);
         break;
       case AppLinkAction.image:
-        // 打开图片记账（从相册）
         ImageBillingHelper.pickImageForBilling(context, ref);
         break;
       case AppLinkAction.camera:
-        // 打开拍照记账
         ImageBillingHelper.openCameraForBilling(context, ref);
         break;
       case AppLinkAction.aiChat:
-        // 打开 AI 小助手
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const AIChatPage()),
-        );
+        nav.push(MaterialPageRoute(builder: (_) => const AIChatPage()));
         break;
       case AppLinkAction.newTransaction:
-        // 打开手动记账页面（从小组件快捷入口）
-        final type = ref.read(pendingNewTransactionTypeProvider) ?? 'expense';
-        ref.read(pendingNewTransactionTypeProvider.notifier).state = null;
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => TransactionEditorPage(initialKind: type),
-          ),
-        );
+        nav.push(MaterialPageRoute(
+          builder: (_) =>
+              TransactionEditorPage(initialKind: type ?? 'expense', quickAdd: true),
+        ));
         break;
       default:
-        // 其他动作在 AppLinkService 中已处理
         break;
-    }
-  }
-
-  /// 检查语音识别是否可用（需要开启AI智能识别并配置GLM API Key）
-  Future<bool> _checkGlmApiKeyConfigured() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final aiEnabled =
-          prefs.getBool(AIConstants.keyAiBillExtractionEnabled) ?? false;
-      final apiKey = prefs.getString(AIConstants.keyGlmApiKey) ?? '';
-      return aiEnabled && apiKey.isNotEmpty;
-    } catch (e) {
-      return false;
     }
   }
 
   @override
   void dispose() {
+    _drainTimer?.cancel();
     _appLinkSubscription?.close();
     _removeOverlay();
     _expandController.dispose();
@@ -628,6 +708,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
       _checkAppLockOnResume();
       // 当app从后台恢复到前台时，更新小组件数据
       _updateWidget();
+      // 前台稳定后认领待处理深链(冷启动/主题变更重建后,在最终页面树上打开)
+      _drainPendingDeepLink(trigger: 'resumed');
     }
   }
 
