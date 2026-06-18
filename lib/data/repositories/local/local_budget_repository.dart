@@ -177,6 +177,7 @@ class LocalBudgetRepository implements BudgetRepository {
         FROM transactions
         WHERE ledger_id = ?
           AND type = 'expense'
+          AND exclude_from_budget = 0
           AND happened_at >= ?
           AND happened_at < ?
         ''',
@@ -197,6 +198,7 @@ class LocalBudgetRepository implements BudgetRepository {
         LEFT JOIN categories c ON t.category_id = c.id
         WHERE t.ledger_id = ?
           AND t.type = 'expense'
+          AND t.exclude_from_budget = 0
           AND t.happened_at >= ?
           AND t.happened_at < ?
           AND (t.category_id = ? OR c.parent_id = ?)
