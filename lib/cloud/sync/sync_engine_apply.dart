@@ -192,6 +192,16 @@ extension SyncEngineApplyExt on SyncEngine {
     final lastEditedByUserId =
         (payload['updatedByUserId'] as String?) ?? createdByUserId;
 
+    // 账单标记(D6 缺键保留):payload 不含该键 → null → update 走
+    // Value.absent() 不覆盖本地;含键(包括显式 false)→ 覆盖。insert 路径
+    // null 落默认 false。键名 camelCase 与 server 契约对齐。
+    final excludeStats = payload.containsKey('excludeFromStats')
+        ? (payload['excludeFromStats'] as bool? ?? false)
+        : null;
+    final excludeBudget = payload.containsKey('excludeFromBudget')
+        ? (payload['excludeFromBudget'] as bool? ?? false)
+        : null;
+
     if (existingId != null) {
       // 更新 — createdByUserId 走"本地为 null 就回填,否则保持"的策略。
       final shouldBackfillCreator =
@@ -212,6 +222,12 @@ extension SyncEngineApplyExt on SyncEngine {
             ? d.Value(createdByUserId)
             : const d.Value.absent(),
         lastEditedByUserId: d.Value(lastEditedByUserId),
+        excludeFromStats: excludeStats == null
+            ? const d.Value.absent()
+            : d.Value(excludeStats),
+        excludeFromBudget: excludeBudget == null
+            ? const d.Value.absent()
+            : d.Value(excludeBudget),
       ));
       // 更新标签和附件(existing 路径)
       await _syncTransactionTags(existingId, syncId, payload);
@@ -235,6 +251,8 @@ extension SyncEngineApplyExt on SyncEngine {
               categorySyncIdOverride: d.Value(categorySyncIdOverride),
               accountSyncIdOverride: d.Value(accountSyncIdOverride),
               toAccountSyncIdOverride: d.Value(toAccountSyncIdOverride),
+              excludeFromStats: d.Value(excludeStats ?? false),
+              excludeFromBudget: d.Value(excludeBudget ?? false),
             ),
           );
       // 写回 cache,后续同 syncId 的 update change 能命中
