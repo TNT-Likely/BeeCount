@@ -1939,6 +1939,26 @@ class $TransactionsTable extends Transactions
   late final GeneratedColumn<String> tagSyncIdsOverride =
       GeneratedColumn<String>('tag_sync_ids_override', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _excludeFromStatsMeta =
+      const VerificationMeta('excludeFromStats');
+  @override
+  late final GeneratedColumn<bool> excludeFromStats = GeneratedColumn<bool>(
+      'exclude_from_stats', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("exclude_from_stats" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _excludeFromBudgetMeta =
+      const VerificationMeta('excludeFromBudget');
+  @override
+  late final GeneratedColumn<bool> excludeFromBudget = GeneratedColumn<bool>(
+      'exclude_from_budget', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("exclude_from_budget" IN (0, 1))'),
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -1957,7 +1977,9 @@ class $TransactionsTable extends Transactions
         categorySyncIdOverride,
         accountSyncIdOverride,
         toAccountSyncIdOverride,
-        tagSyncIdsOverride
+        tagSyncIdsOverride,
+        excludeFromStats,
+        excludeFromBudget
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2063,6 +2085,18 @@ class $TransactionsTable extends Transactions
           tagSyncIdsOverride.isAcceptableOrUnknown(
               data['tag_sync_ids_override']!, _tagSyncIdsOverrideMeta));
     }
+    if (data.containsKey('exclude_from_stats')) {
+      context.handle(
+          _excludeFromStatsMeta,
+          excludeFromStats.isAcceptableOrUnknown(
+              data['exclude_from_stats']!, _excludeFromStatsMeta));
+    }
+    if (data.containsKey('exclude_from_budget')) {
+      context.handle(
+          _excludeFromBudgetMeta,
+          excludeFromBudget.isAcceptableOrUnknown(
+              data['exclude_from_budget']!, _excludeFromBudgetMeta));
+    }
     return context;
   }
 
@@ -2109,6 +2143,10 @@ class $TransactionsTable extends Transactions
           data['${effectivePrefix}to_account_sync_id_override']),
       tagSyncIdsOverride: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tag_sync_ids_override']),
+      excludeFromStats: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}exclude_from_stats'])!,
+      excludeFromBudget: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}exclude_from_budget'])!,
     );
   }
 
@@ -2136,6 +2174,13 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   final String? accountSyncIdOverride;
   final String? toAccountSyncIdOverride;
   final String? tagSyncIdsOverride;
+
+  /// 不计入收支:true 时从收支统计/图表/月年汇总剔除,但仍计入账户余额、净资产、
+  /// 账单列表(.docs/transaction-flags/01 §二 D1)。
+  final bool excludeFromStats;
+
+  /// 不计入预算:true 时从预算用量剔除。与 excludeFromStats 完全独立(D2)。
+  final bool excludeFromBudget;
   const Transaction(
       {required this.id,
       required this.ledgerId,
@@ -2153,7 +2198,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       this.categorySyncIdOverride,
       this.accountSyncIdOverride,
       this.toAccountSyncIdOverride,
-      this.tagSyncIdsOverride});
+      this.tagSyncIdsOverride,
+      required this.excludeFromStats,
+      required this.excludeFromBudget});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2200,6 +2247,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     if (!nullToAbsent || tagSyncIdsOverride != null) {
       map['tag_sync_ids_override'] = Variable<String>(tagSyncIdsOverride);
     }
+    map['exclude_from_stats'] = Variable<bool>(excludeFromStats);
+    map['exclude_from_budget'] = Variable<bool>(excludeFromBudget);
     return map;
   }
 
@@ -2243,6 +2292,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       tagSyncIdsOverride: tagSyncIdsOverride == null && nullToAbsent
           ? const Value.absent()
           : Value(tagSyncIdsOverride),
+      excludeFromStats: Value(excludeFromStats),
+      excludeFromBudget: Value(excludeFromBudget),
     );
   }
 
@@ -2272,6 +2323,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           serializer.fromJson<String?>(json['toAccountSyncIdOverride']),
       tagSyncIdsOverride:
           serializer.fromJson<String?>(json['tagSyncIdsOverride']),
+      excludeFromStats: serializer.fromJson<bool>(json['excludeFromStats']),
+      excludeFromBudget: serializer.fromJson<bool>(json['excludeFromBudget']),
     );
   }
   @override
@@ -2298,6 +2351,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'toAccountSyncIdOverride':
           serializer.toJson<String?>(toAccountSyncIdOverride),
       'tagSyncIdsOverride': serializer.toJson<String?>(tagSyncIdsOverride),
+      'excludeFromStats': serializer.toJson<bool>(excludeFromStats),
+      'excludeFromBudget': serializer.toJson<bool>(excludeFromBudget),
     };
   }
 
@@ -2318,7 +2373,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           Value<String?> categorySyncIdOverride = const Value.absent(),
           Value<String?> accountSyncIdOverride = const Value.absent(),
           Value<String?> toAccountSyncIdOverride = const Value.absent(),
-          Value<String?> tagSyncIdsOverride = const Value.absent()}) =>
+          Value<String?> tagSyncIdsOverride = const Value.absent(),
+          bool? excludeFromStats,
+          bool? excludeFromBudget}) =>
       Transaction(
         id: id ?? this.id,
         ledgerId: ledgerId ?? this.ledgerId,
@@ -2349,6 +2406,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
         tagSyncIdsOverride: tagSyncIdsOverride.present
             ? tagSyncIdsOverride.value
             : this.tagSyncIdsOverride,
+        excludeFromStats: excludeFromStats ?? this.excludeFromStats,
+        excludeFromBudget: excludeFromBudget ?? this.excludeFromBudget,
       );
   Transaction copyWithCompanion(TransactionsCompanion data) {
     return Transaction(
@@ -2385,6 +2444,12 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       tagSyncIdsOverride: data.tagSyncIdsOverride.present
           ? data.tagSyncIdsOverride.value
           : this.tagSyncIdsOverride,
+      excludeFromStats: data.excludeFromStats.present
+          ? data.excludeFromStats.value
+          : this.excludeFromStats,
+      excludeFromBudget: data.excludeFromBudget.present
+          ? data.excludeFromBudget.value
+          : this.excludeFromBudget,
     );
   }
 
@@ -2407,7 +2472,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('categorySyncIdOverride: $categorySyncIdOverride, ')
           ..write('accountSyncIdOverride: $accountSyncIdOverride, ')
           ..write('toAccountSyncIdOverride: $toAccountSyncIdOverride, ')
-          ..write('tagSyncIdsOverride: $tagSyncIdsOverride')
+          ..write('tagSyncIdsOverride: $tagSyncIdsOverride, ')
+          ..write('excludeFromStats: $excludeFromStats, ')
+          ..write('excludeFromBudget: $excludeFromBudget')
           ..write(')'))
         .toString();
   }
@@ -2430,7 +2497,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       categorySyncIdOverride,
       accountSyncIdOverride,
       toAccountSyncIdOverride,
-      tagSyncIdsOverride);
+      tagSyncIdsOverride,
+      excludeFromStats,
+      excludeFromBudget);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2451,7 +2520,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.categorySyncIdOverride == this.categorySyncIdOverride &&
           other.accountSyncIdOverride == this.accountSyncIdOverride &&
           other.toAccountSyncIdOverride == this.toAccountSyncIdOverride &&
-          other.tagSyncIdsOverride == this.tagSyncIdsOverride);
+          other.tagSyncIdsOverride == this.tagSyncIdsOverride &&
+          other.excludeFromStats == this.excludeFromStats &&
+          other.excludeFromBudget == this.excludeFromBudget);
 }
 
 class TransactionsCompanion extends UpdateCompanion<Transaction> {
@@ -2472,6 +2543,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<String?> accountSyncIdOverride;
   final Value<String?> toAccountSyncIdOverride;
   final Value<String?> tagSyncIdsOverride;
+  final Value<bool> excludeFromStats;
+  final Value<bool> excludeFromBudget;
   const TransactionsCompanion({
     this.id = const Value.absent(),
     this.ledgerId = const Value.absent(),
@@ -2490,6 +2563,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.accountSyncIdOverride = const Value.absent(),
     this.toAccountSyncIdOverride = const Value.absent(),
     this.tagSyncIdsOverride = const Value.absent(),
+    this.excludeFromStats = const Value.absent(),
+    this.excludeFromBudget = const Value.absent(),
   });
   TransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -2509,6 +2584,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.accountSyncIdOverride = const Value.absent(),
     this.toAccountSyncIdOverride = const Value.absent(),
     this.tagSyncIdsOverride = const Value.absent(),
+    this.excludeFromStats = const Value.absent(),
+    this.excludeFromBudget = const Value.absent(),
   })  : ledgerId = Value(ledgerId),
         type = Value(type),
         amount = Value(amount);
@@ -2530,6 +2607,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<String>? accountSyncIdOverride,
     Expression<String>? toAccountSyncIdOverride,
     Expression<String>? tagSyncIdsOverride,
+    Expression<bool>? excludeFromStats,
+    Expression<bool>? excludeFromBudget,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2554,6 +2633,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
         'to_account_sync_id_override': toAccountSyncIdOverride,
       if (tagSyncIdsOverride != null)
         'tag_sync_ids_override': tagSyncIdsOverride,
+      if (excludeFromStats != null) 'exclude_from_stats': excludeFromStats,
+      if (excludeFromBudget != null) 'exclude_from_budget': excludeFromBudget,
     });
   }
 
@@ -2574,7 +2655,9 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       Value<String?>? categorySyncIdOverride,
       Value<String?>? accountSyncIdOverride,
       Value<String?>? toAccountSyncIdOverride,
-      Value<String?>? tagSyncIdsOverride}) {
+      Value<String?>? tagSyncIdsOverride,
+      Value<bool>? excludeFromStats,
+      Value<bool>? excludeFromBudget}) {
     return TransactionsCompanion(
       id: id ?? this.id,
       ledgerId: ledgerId ?? this.ledgerId,
@@ -2596,6 +2679,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       toAccountSyncIdOverride:
           toAccountSyncIdOverride ?? this.toAccountSyncIdOverride,
       tagSyncIdsOverride: tagSyncIdsOverride ?? this.tagSyncIdsOverride,
+      excludeFromStats: excludeFromStats ?? this.excludeFromStats,
+      excludeFromBudget: excludeFromBudget ?? this.excludeFromBudget,
     );
   }
 
@@ -2657,6 +2742,12 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (tagSyncIdsOverride.present) {
       map['tag_sync_ids_override'] = Variable<String>(tagSyncIdsOverride.value);
     }
+    if (excludeFromStats.present) {
+      map['exclude_from_stats'] = Variable<bool>(excludeFromStats.value);
+    }
+    if (excludeFromBudget.present) {
+      map['exclude_from_budget'] = Variable<bool>(excludeFromBudget.value);
+    }
     return map;
   }
 
@@ -2679,7 +2770,9 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('categorySyncIdOverride: $categorySyncIdOverride, ')
           ..write('accountSyncIdOverride: $accountSyncIdOverride, ')
           ..write('toAccountSyncIdOverride: $toAccountSyncIdOverride, ')
-          ..write('tagSyncIdsOverride: $tagSyncIdsOverride')
+          ..write('tagSyncIdsOverride: $tagSyncIdsOverride, ')
+          ..write('excludeFromStats: $excludeFromStats, ')
+          ..write('excludeFromBudget: $excludeFromBudget')
           ..write(')'))
         .toString();
   }
@@ -11480,6 +11573,8 @@ typedef $$TransactionsTableCreateCompanionBuilder = TransactionsCompanion
   Value<String?> accountSyncIdOverride,
   Value<String?> toAccountSyncIdOverride,
   Value<String?> tagSyncIdsOverride,
+  Value<bool> excludeFromStats,
+  Value<bool> excludeFromBudget,
 });
 typedef $$TransactionsTableUpdateCompanionBuilder = TransactionsCompanion
     Function({
@@ -11500,6 +11595,8 @@ typedef $$TransactionsTableUpdateCompanionBuilder = TransactionsCompanion
   Value<String?> accountSyncIdOverride,
   Value<String?> toAccountSyncIdOverride,
   Value<String?> tagSyncIdsOverride,
+  Value<bool> excludeFromStats,
+  Value<bool> excludeFromBudget,
 });
 
 class $$TransactionsTableFilterComposer
@@ -11566,6 +11663,14 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<String> get tagSyncIdsOverride => $composableBuilder(
       column: $table.tagSyncIdsOverride,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get excludeFromStats => $composableBuilder(
+      column: $table.excludeFromStats,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get excludeFromBudget => $composableBuilder(
+      column: $table.excludeFromBudget,
       builder: (column) => ColumnFilters(column));
 }
 
@@ -11634,6 +11739,14 @@ class $$TransactionsTableOrderingComposer
   ColumnOrderings<String> get tagSyncIdsOverride => $composableBuilder(
       column: $table.tagSyncIdsOverride,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get excludeFromStats => $composableBuilder(
+      column: $table.excludeFromStats,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get excludeFromBudget => $composableBuilder(
+      column: $table.excludeFromBudget,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$TransactionsTableAnnotationComposer
@@ -11695,6 +11808,12 @@ class $$TransactionsTableAnnotationComposer
 
   GeneratedColumn<String> get tagSyncIdsOverride => $composableBuilder(
       column: $table.tagSyncIdsOverride, builder: (column) => column);
+
+  GeneratedColumn<bool> get excludeFromStats => $composableBuilder(
+      column: $table.excludeFromStats, builder: (column) => column);
+
+  GeneratedColumn<bool> get excludeFromBudget => $composableBuilder(
+      column: $table.excludeFromBudget, builder: (column) => column);
 }
 
 class $$TransactionsTableTableManager extends RootTableManager<
@@ -11740,6 +11859,8 @@ class $$TransactionsTableTableManager extends RootTableManager<
             Value<String?> accountSyncIdOverride = const Value.absent(),
             Value<String?> toAccountSyncIdOverride = const Value.absent(),
             Value<String?> tagSyncIdsOverride = const Value.absent(),
+            Value<bool> excludeFromStats = const Value.absent(),
+            Value<bool> excludeFromBudget = const Value.absent(),
           }) =>
               TransactionsCompanion(
             id: id,
@@ -11759,6 +11880,8 @@ class $$TransactionsTableTableManager extends RootTableManager<
             accountSyncIdOverride: accountSyncIdOverride,
             toAccountSyncIdOverride: toAccountSyncIdOverride,
             tagSyncIdsOverride: tagSyncIdsOverride,
+            excludeFromStats: excludeFromStats,
+            excludeFromBudget: excludeFromBudget,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -11778,6 +11901,8 @@ class $$TransactionsTableTableManager extends RootTableManager<
             Value<String?> accountSyncIdOverride = const Value.absent(),
             Value<String?> toAccountSyncIdOverride = const Value.absent(),
             Value<String?> tagSyncIdsOverride = const Value.absent(),
+            Value<bool> excludeFromStats = const Value.absent(),
+            Value<bool> excludeFromBudget = const Value.absent(),
           }) =>
               TransactionsCompanion.insert(
             id: id,
@@ -11797,6 +11922,8 @@ class $$TransactionsTableTableManager extends RootTableManager<
             accountSyncIdOverride: accountSyncIdOverride,
             toAccountSyncIdOverride: toAccountSyncIdOverride,
             tagSyncIdsOverride: tagSyncIdsOverride,
+            excludeFromStats: excludeFromStats,
+            excludeFromBudget: excludeFromBudget,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

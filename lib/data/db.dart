@@ -129,6 +129,15 @@ class Transactions extends Table {
   TextColumn get accountSyncIdOverride => text().nullable()();
   TextColumn get toAccountSyncIdOverride => text().nullable()();
   TextColumn get tagSyncIdsOverride => text().nullable()();  // JSON list
+
+  /// 不计入收支:true 时从收支统计/图表/月年汇总剔除,但仍计入账户余额、净资产、
+  /// 账单列表(.docs/transaction-flags/01 §二 D1)。
+  BoolColumn get excludeFromStats =>
+      boolean().withDefault(const Constant(false))();
+
+  /// 不计入预算:true 时从预算用量剔除。与 excludeFromStats 完全独立(D2)。
+  BoolColumn get excludeFromBudget =>
+      boolean().withDefault(const Constant(false))();
 }
 
 class RecurringTransactions extends Table {
@@ -420,7 +429,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 28; // v28: 多币种 MVP — exchange_rates / exchange_rate_overrides
+  int get schemaVersion => 29; // v29: 账单标记 — exclude_from_stats / exclude_from_budget
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1101,6 +1110,14 @@ class BeeDatabase extends _$BeeDatabase {
                 'CREATE UNIQUE INDEX IF NOT EXISTS idx_rate_override_pair '
                 'ON exchange_rate_overrides (base_currency, quote_currency);');
             logger.info('DBMigration', 'v28 迁移完成');
+          }
+          if (from < 29) {
+            logger.info('DBMigration', '开始迁移到 v29: 账单标记(不计入收支/不计入预算)');
+            await _addColumnIfMissing('transactions', 'exclude_from_stats',
+                'ALTER TABLE transactions ADD COLUMN exclude_from_stats INTEGER NOT NULL DEFAULT 0;');
+            await _addColumnIfMissing('transactions', 'exclude_from_budget',
+                'ALTER TABLE transactions ADD COLUMN exclude_from_budget INTEGER NOT NULL DEFAULT 0;');
+            logger.info('DBMigration', 'v29 迁移完成');
           }
         },
         onCreate: (m) async {
