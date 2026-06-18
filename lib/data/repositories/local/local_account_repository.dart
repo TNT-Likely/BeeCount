@@ -405,11 +405,13 @@ class LocalAccountRepository implements AccountRepository {
   Future<double> getAccountExpense(int accountId) async {
     double expense = 0.0;
 
-    // 获取作为主账户的支出和转出(排除共享账本)
+    // 获取作为主账户的支出和转出(排除共享账本;不计入收支的交易也排除)
     final sharedIds = await _sharedLedgerIds();
     final normalTxs = await (db.select(db.transactions)
           ..where((t) =>
-              t.accountId.equals(accountId) & t.ledgerId.isNotIn(sharedIds)))
+              t.accountId.equals(accountId) &
+              t.ledgerId.isNotIn(sharedIds) &
+              t.excludeFromStats.equals(false)))
         .get();
 
     for (final t in normalTxs) {
@@ -428,11 +430,13 @@ class LocalAccountRepository implements AccountRepository {
   Future<double> getAccountIncome(int accountId) async {
     double income = 0.0;
 
-    // 获取作为主账户的收入(排除共享账本)
+    // 获取作为主账户的收入(排除共享账本;不计入收支的交易也排除)
     final sharedIds = await _sharedLedgerIds();
     final normalTxs = await (db.select(db.transactions)
           ..where((t) =>
-              t.accountId.equals(accountId) & t.ledgerId.isNotIn(sharedIds)))
+              t.accountId.equals(accountId) &
+              t.ledgerId.isNotIn(sharedIds) &
+              t.excludeFromStats.equals(false)))
         .get();
 
     for (final t in normalTxs) {
@@ -441,12 +445,13 @@ class LocalAccountRepository implements AccountRepository {
       }
     }
 
-    // 作为转入账户的转账(排除共享账本)
+    // 作为转入账户的转账(排除共享账本;不计入收支的交易也排除)
     final transfersIn = await (db.select(db.transactions)
           ..where((t) =>
               t.toAccountId.equals(accountId) &
               t.type.equals('transfer') &
-              t.ledgerId.isNotIn(sharedIds)))
+              t.ledgerId.isNotIn(sharedIds) &
+              t.excludeFromStats.equals(false)))
         .get();
 
     for (final t in transfersIn) {
@@ -490,10 +495,13 @@ class LocalAccountRepository implements AccountRepository {
     // 总收入/支出：直接从交易表查询，排除转账类型
     final accountIds = accounts.map((a) => a.id).toSet();
 
+    // 收入/支出排除不计入收支的交易(余额不受影响,见上方 totalBalance)
     final sharedIds = await _sharedLedgerIds();
     final allTxs = await (db.select(db.transactions)
           ..where((t) =>
-              t.accountId.isNotNull() & t.ledgerId.isNotIn(sharedIds)))
+              t.accountId.isNotNull() &
+              t.ledgerId.isNotIn(sharedIds) &
+              t.excludeFromStats.equals(false)))
         .get();
 
     double totalIncome = 0.0;
