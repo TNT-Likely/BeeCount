@@ -1711,6 +1711,8 @@
   "autoBillingNotifyTextAnalyzingBody": "Calling AI to parse payment info...",
   "autoBillingNotifyRecognizeFailedTitle": "❌ Recognition failed",
   "autoBillingNotifyRecognizeFailedBody": "Could not extract billing info from screenshot. Check AI config or the image.",
+  "autoBillingNotifyNoBillTitle": "No bill found",
+  "autoBillingNotifyNoBillBody": "No billing info found in this screenshot — it may not be a bill.",
   "autoBillingNotifyFileUnavailableTitle": "Recognition failed",
   "autoBillingNotifyFileUnavailableBody": "Screenshot file is not available",
   "autoBillingNotifyNoLedgerTitle": "❌ Auto billing failed",

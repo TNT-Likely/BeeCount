@@ -1592,6 +1592,8 @@
   "autoBillingNotifyTextAnalyzingBody": "正在调用 AI 解析支付信息...",
   "autoBillingNotifyRecognizeFailedTitle": "❌ 识别失败",
   "autoBillingNotifyRecognizeFailedBody": "无法从截图提取账单信息，请检查 AI 配置或图片",
+  "autoBillingNotifyNoBillTitle": "未识别到账单",
+  "autoBillingNotifyNoBillBody": "这张截图未识别到账单信息，可能不是账单",
   "autoBillingNotifyFileUnavailableTitle": "识别失败",
   "autoBillingNotifyFileUnavailableBody": "截图文件不可用",
   "autoBillingNotifyNoLedgerTitle": "❌ 自动记账失败",

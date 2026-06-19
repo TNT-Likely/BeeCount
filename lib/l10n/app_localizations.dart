@@ -7728,6 +7728,18 @@ abstract class AppLocalizations {
   /// **'Could not extract billing info from screenshot. Check AI config or the image.'**
   String get autoBillingNotifyRecognizeFailedBody;
 
+  /// No description provided for @autoBillingNotifyNoBillTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No bill found'**
+  String get autoBillingNotifyNoBillTitle;
+
+  /// No description provided for @autoBillingNotifyNoBillBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No billing info found in this screenshot — it may not be a bill.'**
+  String get autoBillingNotifyNoBillBody;
+
   /// No description provided for @autoBillingNotifyFileUnavailableTitle.
   ///
   /// In en, this message translates to:

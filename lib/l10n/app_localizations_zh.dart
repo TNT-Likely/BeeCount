@@ -4043,6 +4043,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get autoBillingNotifyRecognizeFailedBody => '无法从截图提取账单信息，请检查 AI 配置或图片';
 
   @override
+  String get autoBillingNotifyNoBillTitle => '未识别到账单';
+
+  @override
+  String get autoBillingNotifyNoBillBody => '这张截图未识别到账单信息，可能不是账单';
+
+  @override
   String get autoBillingNotifyFileUnavailableTitle => '识别失败';
 
   @override
@@ -10821,6 +10827,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get autoBillingNotifyRecognizeFailedBody => '無法從截圖提取帳單資訊，請檢查 AI 配置或圖片';
+
+  @override
+  String get autoBillingNotifyNoBillTitle => '未識別到帳單';
+
+  @override
+  String get autoBillingNotifyNoBillBody => '這張截圖未識別到帳單資訊，可能不是帳單';
 
   @override
   String get autoBillingNotifyFileUnavailableTitle => '識別失敗';

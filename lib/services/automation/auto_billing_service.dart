@@ -298,11 +298,17 @@ class AutoBillingService {
         if (showNotification) {
           final l10n =
               lookupAppLocalizations(PlatformDispatcher.instance.locale);
+          // failedCount>0:提取到账单但入库失败(真·错误);否则=AI 判定不是账单
+          final isNoBill = result.failedCount == 0;
           await _showFinalNotification(
             progressId: notificationId,
             finalId: resultNotificationId,
-            title: l10n.autoBillingNotifyRecognizeFailedTitle,
-            body: l10n.autoBillingNotifyRecognizeFailedBody,
+            title: isNoBill
+                ? l10n.autoBillingNotifyNoBillTitle
+                : l10n.autoBillingNotifyRecognizeFailedTitle,
+            body: isNoBill
+                ? l10n.autoBillingNotifyNoBillBody
+                : l10n.autoBillingNotifyRecognizeFailedBody,
           );
         }
         return null;

@@ -146,6 +146,8 @@
   "autoBillingNotifyTextAnalyzingBody": "正在呼叫 AI 解析支付資訊...",
   "autoBillingNotifyRecognizeFailedTitle": "❌ 識別失敗",
   "autoBillingNotifyRecognizeFailedBody": "無法從截圖提取帳單資訊，請檢查 AI 配置或圖片",
+  "autoBillingNotifyNoBillTitle": "未識別到帳單",
+  "autoBillingNotifyNoBillBody": "這張截圖未識別到帳單資訊，可能不是帳單",
   "autoBillingNotifyFileUnavailableTitle": "識別失敗",
   "autoBillingNotifyFileUnavailableBody": "截圖檔案不可用",
   "autoBillingNotifyNoLedgerTitle": "❌ 自動記帳失敗",
