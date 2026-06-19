@@ -4010,6 +4010,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiOcrCheckLog => 'Recognition failed. Check logs for details.';
 
   @override
+  String get aiOcrNoBill => 'No bill recognized. Make sure the image is a bill, then try again.';
+
+  @override
   String get aiNotConfiguredNotificationTitle => '❌ Cannot recognize screenshot';
 
   @override

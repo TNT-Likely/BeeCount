@@ -121,7 +121,9 @@ class ImageBillingHelper {
 
       // 6. 提示用户
       if (!result.success) {
-        showToast(context, l10n.aiOcrCheckLog);
+        // failedCount>0:提取到账单但入库失败(真·错误);否则=AI 判定不是账单/没提取到
+        showToast(context,
+            result.failedCount > 0 ? l10n.aiOcrCheckLog : l10n.aiOcrNoBill);
         return;
       }
 

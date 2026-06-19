@@ -7662,6 +7662,12 @@ abstract class AppLocalizations {
   /// **'Recognition failed. Check logs for details.'**
   String get aiOcrCheckLog;
 
+  /// No description provided for @aiOcrNoBill.
+  ///
+  /// In en, this message translates to:
+  /// **'No bill recognized. Make sure the image is a bill, then try again.'**
+  String get aiOcrNoBill;
+
   /// No description provided for @aiNotConfiguredNotificationTitle.
   ///
   /// In en, this message translates to:

@@ -129,10 +129,10 @@ class DefaultAiExtractionEngine implements AiExtractionEngine {
       return _parser.parse(response);
     } on AIException catch (e) {
       logger.warning(_tag, '图片账单提取失败: ${e.message}');
-      return const [];
+      rethrow;
     } catch (e, st) {
       logger.error(_tag, '图片账单提取异常', e, st);
-      return const [];
+      rethrow;
     }
   }
 

@@ -1581,6 +1581,7 @@
   "aiOcrNoAmount": "未识别到有效金额，请手动记账",
   "aiNotConfiguredHint": "未配置 AI 服务，请前往「我的 → AI 设置」配置",
   "aiOcrCheckLog": "识别失败，请查看日志了解详情",
+  "aiOcrNoBill": "未识别到账单信息，请确认图片是账单后重试",
   "aiNotConfiguredNotificationTitle": "❌ 无法识别截图",
   "aiNotConfiguredNotificationBody": "未配置 AI 服务，点击前往设置",
   "autoBillingNotifyDetectedTitle": "✅ 检测到截图",

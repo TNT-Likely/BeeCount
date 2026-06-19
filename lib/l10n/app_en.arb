@@ -1700,6 +1700,7 @@
   "aiOcrNoAmount": "No valid amount recognized, please add manually",
   "aiNotConfiguredHint": "AI service not configured. Go to \"Me → AI Settings\" to set up.",
   "aiOcrCheckLog": "Recognition failed. Check logs for details.",
+  "aiOcrNoBill": "No bill recognized. Make sure the image is a bill, then try again.",
   "aiNotConfiguredNotificationTitle": "❌ Cannot recognize screenshot",
   "aiNotConfiguredNotificationBody": "AI service not configured. Tap to set up.",
   "autoBillingNotifyDetectedTitle": "✅ Screenshot detected",

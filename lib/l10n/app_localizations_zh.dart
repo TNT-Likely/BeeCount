@@ -4010,6 +4010,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiOcrCheckLog => '识别失败，请查看日志了解详情';
 
   @override
+  String get aiOcrNoBill => '未识别到账单信息，请确认图片是账单后重试';
+
+  @override
   String get aiNotConfiguredNotificationTitle => '❌ 无法识别截图';
 
   @override
@@ -10785,6 +10788,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get aiOcrCheckLog => '識別失敗，請查看日誌瞭解詳情';
+
+  @override
+  String get aiOcrNoBill => '未識別到帳單資訊，請確認圖片是帳單後重試';
 
   @override
   String get aiNotConfiguredNotificationTitle => '❌ 無法識別截圖';
