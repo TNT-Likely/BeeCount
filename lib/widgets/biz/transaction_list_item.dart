@@ -8,6 +8,7 @@ import '../../widgets/category_icon.dart';
 import '../../providers/theme_providers.dart';
 import 'amount_text.dart';
 import 'tag_chip.dart';
+import 'transaction_row_title.dart';
 
 class TransactionListItem extends ConsumerWidget {
   final IconData icon;
@@ -264,23 +265,30 @@ class TransactionListItem extends ConsumerWidget {
                     Row(
                       children: [
                         Flexible(
-                          child: Text.rich(
-                            TextSpan(
-                              text: categoryName ?? title,
-                              style: BeeTextTokens.title(context),
-                              children: [
-                                if (categoryName != null && title.isNotEmpty && title != categoryName)
-                                  TextSpan(
-                                    text: '  ($title)',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: BeeTokens.textSecondary(context),
+                          child: Consumer(builder: (context, ref, _) {
+                            final composed = composeTransactionRowTitle(
+                              mode: ref.watch(noteDisplayModeProvider),
+                              categoryName: categoryName,
+                              title: title,
+                            );
+                            return Text.rich(
+                              TextSpan(
+                                text: composed.primary,
+                                style: BeeTextTokens.title(context),
+                                children: [
+                                  if (composed.parenNote != null)
+                                    TextSpan(
+                                      text: '  (${composed.parenNote})',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: BeeTokens.textSecondary(context),
+                                      ),
                                     ),
-                                  ),
-                              ],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                                ],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          }),
                         ),
                         // 全部账本模式：展示账本名标签（参考账户详情页）
                         if (ledgerName != null && ledgerName!.isNotEmpty) ...[
