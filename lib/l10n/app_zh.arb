@@ -2769,6 +2769,16 @@
   "cloudCollabScopeDeniedAction": "请在服务端 .env 或部署环境中设置 ALLOW_APP_RW_SCOPES=true，重启服务后重新登录 App。",
 
   "syncHealthTitle": "同步状态",
+  "cloudSyncHelpTitle": "同步说明 · 为什么有时同步不动？",
+  "cloudSyncHelpModesTitle": "三种同步方式",
+  "cloudSyncHelpModesBody": "• 增量同步（日常自动）：记一笔 / 改一笔后，只把这条变化自动上传下载，快、无需手动操作 —— 平时一直在跑的就是它。\n• 全量上传：首次开启云同步、或云端还没有这个账本的数据时，把本地全部数据一次性推上云。\n• 全量下载：换新设备、重装、或本地为空时，从云端把全部数据拉下来。",
+  "cloudSyncHelpWhenFullTitle": "什么时候才会走全量？",
+  "cloudSyncHelpWhenFullBody": "全量只在某一端数据为空时才会自动触发（首次开启云同步 / 换新设备 / 重装 / 清空了本地或云端数据）。只要两端都有数据，之后一直走增量，不会无故重来。想强制重新全量同步，得先清空对应端的数据。",
+  "cloudSyncHelpStuckTitle": "为什么有时同步不动 / 卡住",
+  "cloudSyncHelpStuckBody": "• 全量上传 / 下载不支持断点续传：中途断网、或 App 被切到后台被系统杀掉，会从头重来，不会接着传。数据多时请用稳定网络（建议 Wi-Fi）耐心等它跑完，别中途切走。\n• 增量同步是断点安全的，日常同步不受影响。",
+  "cloudSyncHelpTroubleshootTitle": "排查办法",
+  "cloudSyncHelpTroubleshootBody": "• 先在本页下拉做一次「深度检测」，对比本地与云端差异。\n• 仍有问题，去「日志中心」查看同步日志（含失败原因），方便反馈。",
+  "cloudSyncHelpOpenLogCenter": "打开日志中心",
   "syncHealthCheckFailed": "检测失败：{msg}",
   "@syncHealthCheckFailed": {
     "placeholders": {

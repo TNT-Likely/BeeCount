@@ -12,6 +12,7 @@ import '../../l10n/app_localizations.dart';
 import '../../cloud/sync/sync_engine.dart';
 import '../../services/system/logger_service.dart';
 import '../auth/login_page.dart';
+import '../settings/log_center_page.dart';
 
 /// BeeCount Cloud 专属同步页
 ///
@@ -193,6 +194,11 @@ class _BeeCountCloudSyncPageState extends ConsumerState<BeeCountCloudSyncPage> {
                         SectionCard(
                           child: _buildHealthSection(context),
                         ),
+                        const SizedBox(height: 8),
+                        // Section 3: 同步说明(折叠) — 解释增量/全量、断点续传、排查
+                        SectionCard(
+                          child: _buildSyncHelpSection(context),
+                        ),
                         // BeeCount Cloud server 版本号,底部弱展示。
                         // 跟 web header 的 vX.Y.Z 对齐,方便确认 server 哪版。
                         // 通过 provider 监听,server 升级后跟着 sync ticker 自
@@ -284,6 +290,85 @@ class _BeeCountCloudSyncPageState extends ConsumerState<BeeCountCloudSyncPage> {
         );
         ref.read(syncStatusRefreshProvider.notifier).state++;
       },
+    );
+  }
+
+  /// 同步说明(可折叠):增量/全量、何时走全量、断点续传、排查入口。
+  Widget _buildSyncHelpSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Theme(
+      // 去掉 ExpansionTile 默认的上下分割线,贴合 SectionCard 风格
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        childrenPadding: const EdgeInsets.only(bottom: 4),
+        leading: Icon(Icons.help_outline,
+            color: BeeTokens.iconSecondary(context)),
+        title: Text(
+          l10n.cloudSyncHelpTitle,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: BeeTokens.textPrimary(context),
+          ),
+        ),
+        children: [
+          _helpBlock(context, l10n.cloudSyncHelpModesTitle,
+              l10n.cloudSyncHelpModesBody),
+          _helpBlock(context, l10n.cloudSyncHelpWhenFullTitle,
+              l10n.cloudSyncHelpWhenFullBody),
+          _helpBlock(context, l10n.cloudSyncHelpStuckTitle,
+              l10n.cloudSyncHelpStuckBody),
+          _helpBlock(context, l10n.cloudSyncHelpTroubleshootTitle,
+              l10n.cloudSyncHelpTroubleshootBody),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const LogCenterPage()),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: ref.watch(primaryColorProvider),
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(0, 36),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              icon: const Icon(Icons.article_outlined, size: 18),
+              label: Text(l10n.cloudSyncHelpOpenLogCenter),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 同步说明里的一段:加粗小标题 + 正文(正文里用 \n 分条)。
+  Widget _helpBlock(BuildContext context, String title, String body) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: BeeTokens.textPrimary(context),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            body,
+            style: TextStyle(
+              fontSize: 12.5,
+              height: 1.5,
+              color: BeeTokens.textSecondary(context),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

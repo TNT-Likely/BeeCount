@@ -11952,6 +11952,66 @@ abstract class AppLocalizations {
   /// **'Sync status'**
   String get syncHealthTitle;
 
+  /// No description provided for @cloudSyncHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How sync works · Why it sometimes stalls'**
+  String get cloudSyncHelpTitle;
+
+  /// No description provided for @cloudSyncHelpModesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Three sync modes'**
+  String get cloudSyncHelpModesTitle;
+
+  /// No description provided for @cloudSyncHelpModesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Incremental (automatic, everyday): after you add or edit an entry, only that change is uploaded/downloaded automatically — fast, no manual action. This is what runs all the time.\n• Full upload: the first time you enable cloud sync, or when the cloud has no data for this ledger yet, all local data is pushed to the cloud at once.\n• Full download: on a new device, after a reinstall, or when local is empty, all data is pulled down from the cloud.'**
+  String get cloudSyncHelpModesBody;
+
+  /// No description provided for @cloudSyncHelpWhenFullTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When does a full sync happen?'**
+  String get cloudSyncHelpWhenFullTitle;
+
+  /// No description provided for @cloudSyncHelpWhenFullBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A full sync only triggers automatically when one side is empty (first enabling cloud sync / new device / reinstall / after clearing local or cloud data). As long as both sides have data, sync stays incremental and never restarts on its own. To force a full re-sync, you must first clear the data on the corresponding side.'**
+  String get cloudSyncHelpWhenFullBody;
+
+  /// No description provided for @cloudSyncHelpStuckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why sync sometimes stalls'**
+  String get cloudSyncHelpStuckTitle;
+
+  /// No description provided for @cloudSyncHelpStuckBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Full upload/download does NOT support resume: if the network drops or the app is killed in the background, it starts over from scratch instead of continuing. For large data, use a stable network (Wi-Fi recommended) and let it finish without switching away.\n• Incremental sync is resume-safe and unaffected in everyday use.'**
+  String get cloudSyncHelpStuckBody;
+
+  /// No description provided for @cloudSyncHelpTroubleshootTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Troubleshooting'**
+  String get cloudSyncHelpTroubleshootTitle;
+
+  /// No description provided for @cloudSyncHelpTroubleshootBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• First, pull down on this page to run a Deep Check and compare local vs cloud.\n• Still stuck? Open the Log Center to view sync logs (including failure reasons) for reporting.'**
+  String get cloudSyncHelpTroubleshootBody;
+
+  /// No description provided for @cloudSyncHelpOpenLogCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Log Center'**
+  String get cloudSyncHelpOpenLogCenter;
+
   /// No description provided for @syncHealthCheckFailed.
   ///
   /// In en, this message translates to:

@@ -6273,6 +6273,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncHealthTitle => 'Sync status';
 
   @override
+  String get cloudSyncHelpTitle => 'How sync works · Why it sometimes stalls';
+
+  @override
+  String get cloudSyncHelpModesTitle => 'Three sync modes';
+
+  @override
+  String get cloudSyncHelpModesBody => '• Incremental (automatic, everyday): after you add or edit an entry, only that change is uploaded/downloaded automatically — fast, no manual action. This is what runs all the time.\n• Full upload: the first time you enable cloud sync, or when the cloud has no data for this ledger yet, all local data is pushed to the cloud at once.\n• Full download: on a new device, after a reinstall, or when local is empty, all data is pulled down from the cloud.';
+
+  @override
+  String get cloudSyncHelpWhenFullTitle => 'When does a full sync happen?';
+
+  @override
+  String get cloudSyncHelpWhenFullBody => 'A full sync only triggers automatically when one side is empty (first enabling cloud sync / new device / reinstall / after clearing local or cloud data). As long as both sides have data, sync stays incremental and never restarts on its own. To force a full re-sync, you must first clear the data on the corresponding side.';
+
+  @override
+  String get cloudSyncHelpStuckTitle => 'Why sync sometimes stalls';
+
+  @override
+  String get cloudSyncHelpStuckBody => '• Full upload/download does NOT support resume: if the network drops or the app is killed in the background, it starts over from scratch instead of continuing. For large data, use a stable network (Wi-Fi recommended) and let it finish without switching away.\n• Incremental sync is resume-safe and unaffected in everyday use.';
+
+  @override
+  String get cloudSyncHelpTroubleshootTitle => 'Troubleshooting';
+
+  @override
+  String get cloudSyncHelpTroubleshootBody => '• First, pull down on this page to run a Deep Check and compare local vs cloud.\n• Still stuck? Open the Log Center to view sync logs (including failure reasons) for reporting.';
+
+  @override
+  String get cloudSyncHelpOpenLogCenter => 'Open Log Center';
+
+  @override
   String syncHealthCheckFailed(String msg) {
     return 'Check failed: $msg';
   }

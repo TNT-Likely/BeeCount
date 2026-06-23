@@ -6273,6 +6273,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get syncHealthTitle => '同步状态';
 
   @override
+  String get cloudSyncHelpTitle => '同步说明 · 为什么有时同步不动？';
+
+  @override
+  String get cloudSyncHelpModesTitle => '三种同步方式';
+
+  @override
+  String get cloudSyncHelpModesBody => '• 增量同步（日常自动）：记一笔 / 改一笔后，只把这条变化自动上传下载，快、无需手动操作 —— 平时一直在跑的就是它。\n• 全量上传：首次开启云同步、或云端还没有这个账本的数据时，把本地全部数据一次性推上云。\n• 全量下载：换新设备、重装、或本地为空时，从云端把全部数据拉下来。';
+
+  @override
+  String get cloudSyncHelpWhenFullTitle => '什么时候才会走全量？';
+
+  @override
+  String get cloudSyncHelpWhenFullBody => '全量只在某一端数据为空时才会自动触发（首次开启云同步 / 换新设备 / 重装 / 清空了本地或云端数据）。只要两端都有数据，之后一直走增量，不会无故重来。想强制重新全量同步，得先清空对应端的数据。';
+
+  @override
+  String get cloudSyncHelpStuckTitle => '为什么有时同步不动 / 卡住';
+
+  @override
+  String get cloudSyncHelpStuckBody => '• 全量上传 / 下载不支持断点续传：中途断网、或 App 被切到后台被系统杀掉，会从头重来，不会接着传。数据多时请用稳定网络（建议 Wi-Fi）耐心等它跑完，别中途切走。\n• 增量同步是断点安全的，日常同步不受影响。';
+
+  @override
+  String get cloudSyncHelpTroubleshootTitle => '排查办法';
+
+  @override
+  String get cloudSyncHelpTroubleshootBody => '• 先在本页下拉做一次「深度检测」，对比本地与云端差异。\n• 仍有问题，去「日志中心」查看同步日志（含失败原因），方便反馈。';
+
+  @override
+  String get cloudSyncHelpOpenLogCenter => '打开日志中心';
+
+  @override
   String syncHealthCheckFailed(String msg) {
     return '检测失败：$msg';
   }
@@ -13048,6 +13078,36 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get syncHealthTitle => '同步狀態';
+
+  @override
+  String get cloudSyncHelpTitle => '同步說明 · 為什麼有時同步不動？';
+
+  @override
+  String get cloudSyncHelpModesTitle => '三種同步方式';
+
+  @override
+  String get cloudSyncHelpModesBody => '• 增量同步（日常自動）：記一筆 / 改一筆後，只把這條變化自動上傳下載，快、無需手動操作 —— 平時一直在跑的就是它。\n• 全量上傳：首次開啟雲同步、或雲端還沒有這個帳本的資料時，把本機全部資料一次性推上雲。\n• 全量下載：換新裝置、重裝、或本機為空時，從雲端把全部資料拉下來。';
+
+  @override
+  String get cloudSyncHelpWhenFullTitle => '什麼時候才會走全量？';
+
+  @override
+  String get cloudSyncHelpWhenFullBody => '全量只在某一端資料為空時才會自動觸發（首次開啟雲同步 / 換新裝置 / 重裝 / 清空了本機或雲端資料）。只要兩端都有資料，之後一直走增量，不會無故重來。想強制重新全量同步，得先清空對應端的資料。';
+
+  @override
+  String get cloudSyncHelpStuckTitle => '為什麼有時同步不動 / 卡住';
+
+  @override
+  String get cloudSyncHelpStuckBody => '• 全量上傳 / 下載不支援斷點續傳：中途斷網、或 App 被切到背景被系統清掉，會從頭重來，不會接著傳。資料多時請用穩定網路（建議 Wi-Fi）耐心等它跑完，別中途切走。\n• 增量同步是斷點安全的，日常同步不受影響。';
+
+  @override
+  String get cloudSyncHelpTroubleshootTitle => '排查辦法';
+
+  @override
+  String get cloudSyncHelpTroubleshootBody => '• 先在本頁下拉做一次「深度檢測」，對比本機與雲端差異。\n• 仍有問題，去「日誌中心」查看同步日誌（含失敗原因），方便回報。';
+
+  @override
+  String get cloudSyncHelpOpenLogCenter => '開啟日誌中心';
 
   @override
   String syncHealthCheckFailed(String msg) {

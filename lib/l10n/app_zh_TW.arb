@@ -2472,6 +2472,16 @@
   "cloudCollabScopeDeniedAction": "請在伺服器 .env 或部署環境設定 ALLOW_APP_RW_SCOPES=true，重啟服務後重新登入 App。",
 
   "syncHealthTitle": "同步狀態",
+  "cloudSyncHelpTitle": "同步說明 · 為什麼有時同步不動？",
+  "cloudSyncHelpModesTitle": "三種同步方式",
+  "cloudSyncHelpModesBody": "• 增量同步（日常自動）：記一筆 / 改一筆後，只把這條變化自動上傳下載，快、無需手動操作 —— 平時一直在跑的就是它。\n• 全量上傳：首次開啟雲同步、或雲端還沒有這個帳本的資料時，把本機全部資料一次性推上雲。\n• 全量下載：換新裝置、重裝、或本機為空時，從雲端把全部資料拉下來。",
+  "cloudSyncHelpWhenFullTitle": "什麼時候才會走全量？",
+  "cloudSyncHelpWhenFullBody": "全量只在某一端資料為空時才會自動觸發（首次開啟雲同步 / 換新裝置 / 重裝 / 清空了本機或雲端資料）。只要兩端都有資料，之後一直走增量，不會無故重來。想強制重新全量同步，得先清空對應端的資料。",
+  "cloudSyncHelpStuckTitle": "為什麼有時同步不動 / 卡住",
+  "cloudSyncHelpStuckBody": "• 全量上傳 / 下載不支援斷點續傳：中途斷網、或 App 被切到背景被系統清掉，會從頭重來，不會接著傳。資料多時請用穩定網路（建議 Wi-Fi）耐心等它跑完，別中途切走。\n• 增量同步是斷點安全的，日常同步不受影響。",
+  "cloudSyncHelpTroubleshootTitle": "排查辦法",
+  "cloudSyncHelpTroubleshootBody": "• 先在本頁下拉做一次「深度檢測」，對比本機與雲端差異。\n• 仍有問題，去「日誌中心」查看同步日誌（含失敗原因），方便回報。",
+  "cloudSyncHelpOpenLogCenter": "開啟日誌中心",
   "syncHealthCheckFailed": "檢測失敗：{msg}",
   "@syncHealthCheckFailed": {
     "placeholders": {
