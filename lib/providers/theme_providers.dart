@@ -194,6 +194,24 @@ final showTransactionTimeInitProvider = FutureProvider<void>((ref) async {
   });
 });
 
+// 备注显示方式 Provider(默认分类优先)
+// 'category' = 分类名为主,备注挂括号小灰字(当前样式)
+// 'note'     = 备注优先,有备注显示备注、无备注显示分类名
+final noteDisplayModeProvider = StateProvider<String>((ref) => 'category');
+
+// 备注显示方式持久化初始化
+final noteDisplayModeInitProvider = FutureProvider<void>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  final saved = prefs.getString('noteDisplayMode');
+  if (saved != null) {
+    ref.read(noteDisplayModeProvider.notifier).state = saved;
+  }
+  ref.listen<String>(noteDisplayModeProvider, (prev, next) async {
+    await prefs.setString('noteDisplayMode', next);
+    _pushAppearanceToCloud(ref);
+  });
+});
+
 // Header装饰样式持久化初始化
 final headerDecorationStyleInitProvider = FutureProvider<void>((ref) async {
   final prefs = await SharedPreferences.getInstance();
@@ -241,6 +259,7 @@ void _pushAppearanceToCloud(Ref ref) {
         'compact_amount': ref.read(compactAmountProvider),
         'show_transaction_time': ref.read(showTransactionTimeProvider),
         'header_skin': ref.read(headerSkinProvider),
+        'note_display_mode': ref.read(noteDisplayModeProvider),
       };
       await cloudProvider.updateMyProfileAppearance(appearance: appearance);
       logger.info('theme_providers',

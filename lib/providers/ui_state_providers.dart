@@ -197,6 +197,7 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
       ref.watch(hideAmountsInitProvider.future),
       ref.watch(compactAmountInitProvider.future),
       ref.watch(showTransactionTimeInitProvider.future),
+      ref.watch(noteDisplayModeInitProvider.future),
       ref.watch(smartBillingAutoTagsInitProvider.future),
       ref.watch(smartBillingAutoAttachmentInitProvider.future),
       ref.watch(incomeExpenseColorSchemeInitProvider.future),
