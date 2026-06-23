@@ -2011,6 +2011,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appearanceShowTransactionTimeDesc => '在账单列表显示时分，编辑时可选择时间';
 
   @override
+  String get appearanceNoteDisplay => '备注显示方式';
+
+  @override
+  String get appearanceNoteDisplayCategory => '分类优先';
+
+  @override
+  String get appearanceNoteDisplayCategoryDesc => '显示分类名,备注以括号附在后面';
+
+  @override
+  String get appearanceNoteDisplayNote => '备注优先';
+
+  @override
+  String get appearanceNoteDisplayNoteDesc => '有备注时显示备注,无备注时显示分类名';
+
+  @override
   String get appearanceColorScheme => '收支颜色方案';
 
   @override
@@ -8795,6 +8810,21 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get appearanceShowTransactionTimeDesc => '在帳單列表顯示時分，編輯時可選擇時間';
+
+  @override
+  String get appearanceNoteDisplay => '備註顯示方式';
+
+  @override
+  String get appearanceNoteDisplayCategory => '分類優先';
+
+  @override
+  String get appearanceNoteDisplayCategoryDesc => '顯示分類名,備註以括號附在後面';
+
+  @override
+  String get appearanceNoteDisplayNote => '備註優先';
+
+  @override
+  String get appearanceNoteDisplayNoteDesc => '有備註時顯示備註,無備註時顯示分類名';
 
   @override
   String get appearanceColorScheme => '收支顏色方案';

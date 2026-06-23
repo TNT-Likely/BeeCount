@@ -2011,6 +2011,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceShowTransactionTimeDesc => 'Display time in transaction list, allow time selection when editing';
 
   @override
+  String get appearanceNoteDisplay => 'Note display';
+
+  @override
+  String get appearanceNoteDisplayCategory => 'Category first';
+
+  @override
+  String get appearanceNoteDisplayCategoryDesc => 'Show category, note in parentheses';
+
+  @override
+  String get appearanceNoteDisplayNote => 'Note first';
+
+  @override
+  String get appearanceNoteDisplayNoteDesc => 'Show note when present, else category';
+
+  @override
   String get appearanceColorScheme => 'Income/Expense Color Scheme';
 
   @override

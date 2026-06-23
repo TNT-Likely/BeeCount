@@ -160,6 +160,16 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         },
                       ),
                       BeeTokens.cardDivider(context),
+                      // 备注显示方式
+                      AppListTile(
+                        leading: Icons.notes_outlined,
+                        title: l10n.appearanceNoteDisplay,
+                        subtitle: ref.watch(noteDisplayModeProvider) == 'note'
+                            ? l10n.appearanceNoteDisplayNote
+                            : l10n.appearanceNoteDisplayCategory,
+                        onTap: () => _showNoteDisplayDialog(context, ref, l10n),
+                      ),
+                      BeeTokens.cardDivider(context),
                       // 收支颜色方案
                       AppListTile(
                         leading: Icons.palette_outlined,
@@ -415,6 +425,74 @@ class AppearanceSettingsPage extends ConsumerWidget {
           : null,
       onTap: () {
         ref.read(compactAmountProvider.notifier).state = value;
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  /// 显示备注显示方式选择对话框
+  void _showNoteDisplayDialog(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+    final current = ref.read(noteDisplayModeProvider);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: BeeTokens.surfaceElevated(context),
+        title: Text(
+          l10n.appearanceNoteDisplay,
+          style: TextStyle(color: BeeTokens.textPrimary(context)),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildNoteDisplayOption(
+              context, ref,
+              title: l10n.appearanceNoteDisplayCategory,
+              subtitle: l10n.appearanceNoteDisplayCategoryDesc,
+              value: 'category',
+              currentValue: current,
+              icon: Icons.label_outline,
+            ),
+            _buildNoteDisplayOption(
+              context, ref,
+              title: l10n.appearanceNoteDisplayNote,
+              subtitle: l10n.appearanceNoteDisplayNoteDesc,
+              value: 'note',
+              currentValue: current,
+              icon: Icons.notes_outlined,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoteDisplayOption(
+    BuildContext context,
+    WidgetRef ref, {
+    required String title,
+    required String subtitle,
+    required String value,
+    required String currentValue,
+    required IconData icon,
+  }) {
+    final isSelected = value == currentValue;
+    final primaryColor = ref.watch(primaryColorProvider);
+    return ListTile(
+      leading: Icon(icon, color: isSelected ? primaryColor : BeeTokens.iconSecondary(context)),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: isSelected ? primaryColor : BeeTokens.textPrimary(context),
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(color: BeeTokens.textSecondary(context), fontSize: 12),
+      ),
+      trailing: isSelected ? Icon(Icons.check, color: primaryColor) : null,
+      onTap: () {
+        ref.read(noteDisplayModeProvider.notifier).state = value;
         Navigator.pop(context);
       },
     );

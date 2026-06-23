@@ -3816,6 +3816,36 @@ abstract class AppLocalizations {
   /// **'Display time in transaction list, allow time selection when editing'**
   String get appearanceShowTransactionTimeDesc;
 
+  /// No description provided for @appearanceNoteDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Note display'**
+  String get appearanceNoteDisplay;
+
+  /// No description provided for @appearanceNoteDisplayCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category first'**
+  String get appearanceNoteDisplayCategory;
+
+  /// No description provided for @appearanceNoteDisplayCategoryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show category, note in parentheses'**
+  String get appearanceNoteDisplayCategoryDesc;
+
+  /// No description provided for @appearanceNoteDisplayNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note first'**
+  String get appearanceNoteDisplayNote;
+
+  /// No description provided for @appearanceNoteDisplayNoteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show note when present, else category'**
+  String get appearanceNoteDisplayNoteDesc;
+
   /// No description provided for @appearanceColorScheme.
   ///
   /// In en, this message translates to:
