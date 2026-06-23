@@ -515,6 +515,7 @@ class AppSettingsConfig {
   final String? headerSkin; // 头部皮肤
   final bool? compactAmount;
   final bool? showTransactionTime;
+  final String? noteDisplayMode; // 备注显示方式:'category' | 'note'
   final bool? incomeExpenseColorScheme; // 收支颜色方案：true=红色收入/绿色支出，false=红色支出/绿色收入
 
   // 云服务选择
@@ -542,6 +543,7 @@ class AppSettingsConfig {
     this.headerSkin,
     this.compactAmount,
     this.showTransactionTime,
+    this.noteDisplayMode,
     this.incomeExpenseColorScheme,
     this.cloudServiceType,
     this.autoSync,
@@ -600,6 +602,9 @@ class AppSettingsConfig {
     if (showTransactionTime != null) {
       map['show_transaction_time'] = showTransactionTime;
     }
+    if (noteDisplayMode != null && noteDisplayMode!.isNotEmpty) {
+      map['note_display_mode'] = noteDisplayMode;
+    }
     if (incomeExpenseColorScheme != null) {
       map['income_expense_color_scheme'] = incomeExpenseColorScheme;
     }
@@ -639,6 +644,7 @@ class AppSettingsConfig {
         headerSkin: map['header_skin'] as String?,
         compactAmount: map['compact_amount'] as bool?,
         showTransactionTime: map['show_transaction_time'] as bool?,
+        noteDisplayMode: map['note_display_mode'] as String?,
         incomeExpenseColorScheme: map['income_expense_color_scheme'] as bool?,
         cloudServiceType: map['cloud_service_type'] as String?,
         autoSync: map['auto_sync'] as bool?,
@@ -1389,6 +1395,7 @@ class ConfigExportService {
     final headerSkin = prefs.getString('headerSkin');
     final compactAmount = prefs.getBool('compactAmount');
     final showTransactionTime = prefs.getBool('showTransactionTime');
+    final noteDisplayMode = prefs.getString('noteDisplayMode');
     final incomeExpenseColorScheme = prefs.getBool('incomeExpenseColorScheme');
     final cloudServiceType = prefs.getString('cloud_active_type');
     final autoSync = prefs.getBool('auto_sync');
@@ -1428,6 +1435,7 @@ class ConfigExportService {
         headerSkin != null ||
         compactAmount != null ||
         showTransactionTime != null ||
+        noteDisplayMode != null ||
         incomeExpenseColorScheme != null ||
         cloudServiceType != null ||
         autoSync != null ||
@@ -1450,6 +1458,7 @@ class ConfigExportService {
         headerSkin: headerSkin,
         compactAmount: compactAmount,
         showTransactionTime: showTransactionTime,
+        noteDisplayMode: noteDisplayMode,
         incomeExpenseColorScheme: incomeExpenseColorScheme,
         cloudServiceType: cloudServiceType,
         autoSync: autoSync,
@@ -1904,7 +1913,8 @@ class ConfigExportService {
       if (settings.containsKey('theme_mode') ||
           settings.containsKey('dark_mode_pattern_style') ||
           settings.containsKey('compact_amount') ||
-          settings.containsKey('show_transaction_time')) {
+          settings.containsKey('show_transaction_time') ||
+          settings.containsKey('note_display_mode')) {
         buffer.writeln('  # 外观设置');
         if (settings.containsKey('theme_mode')) {
           buffer.writeln('  theme_mode: "${settings['theme_mode']}"');
@@ -1917,6 +1927,9 @@ class ConfigExportService {
         }
         if (settings.containsKey('show_transaction_time')) {
           buffer.writeln('  show_transaction_time: ${settings['show_transaction_time']}');
+        }
+        if (settings.containsKey('note_display_mode')) {
+          buffer.writeln('  note_display_mode: "${settings['note_display_mode']}"');
         }
       }
 
@@ -2360,6 +2373,9 @@ class ConfigExportService {
       }
       if (settings.showTransactionTime != null) {
         await prefs.setBool('showTransactionTime', settings.showTransactionTime!);
+      }
+      if (settings.noteDisplayMode != null) {
+        await prefs.setString('noteDisplayMode', settings.noteDisplayMode!);
       }
       if (settings.incomeExpenseColorScheme != null) {
         await prefs.setBool('incomeExpenseColorScheme', settings.incomeExpenseColorScheme!);
