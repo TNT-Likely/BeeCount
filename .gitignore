@@ -56,6 +56,7 @@ android/*.keystore
 android/app/*.keystore
 
 .docs
+docs/superpowers/
 .tmp
 tmp
 # Playwright MCP capture artifacts
