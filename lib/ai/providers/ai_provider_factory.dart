@@ -7,6 +7,7 @@ import 'package:flutter_ai_kit_zhipu/flutter_ai_kit_zhipu.dart';
 
 import 'ai_provider_config.dart';
 import 'ai_provider_manager.dart';
+import '../privacy/ai_privacy_consent.dart';
 import '../../services/system/logger_service.dart';
 
 /// AI Provider 工厂类
@@ -36,6 +37,15 @@ class AIProviderFactory {
   // 基础能力接口
   // ============================================================
 
+  /// 隐私合规二道关:任何 AI 网络请求前都必须已取得用户对"第三方数据共享"的同意。
+  /// 正常流程下 UI 在开启 AI 时已硬门拦截;此处兜底,确保任何调用路径都无法在
+  /// 未同意时把数据外发给第三方服务商。
+  static Future<void> _ensureConsent() async {
+    if (!await AiPrivacyConsentStore.isConsented()) {
+      throw AIException('请先在「我的 → AI 设置」中阅读并同意 AI 数据共享说明后再使用');
+    }
+  }
+
   /// 文本对话
   ///
   /// [prompt] 用户输入
@@ -48,6 +58,7 @@ class AIProviderFactory {
     double temperature = 0.7,
     String? logTag,
   }) async {
+    await _ensureConsent();
     final tag = logTag ?? 'AIFactory';
 
     // 获取文本能力对应的服务商
@@ -82,6 +93,7 @@ class AIProviderFactory {
     String prompt, {
     String? logTag,
   }) async {
+    await _ensureConsent();
     final tag = logTag ?? 'AIFactory';
 
     // 获取视觉能力对应的服务商
@@ -114,6 +126,7 @@ class AIProviderFactory {
     File audio, {
     String? logTag,
   }) async {
+    await _ensureConsent();
     final tag = logTag ?? 'AIFactory';
 
     // 获取语音能力对应的服务商
