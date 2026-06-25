@@ -17,6 +17,7 @@ import '../../utils/ui_scale_extensions.dart';
 import '../../utils/website_urls.dart';
 import '../../services/marketing/product_promos.dart';
 import 'log_center_page.dart';
+import 'privacy_policy_page.dart';
 
 /// 是否为 Google Play 版本（通过 CI 构建时 --dart-define=GOOGLE_PLAY=true 注入）
 const _isGooglePlayBuild = bool.fromEnvironment('GOOGLE_PLAY', defaultValue: false);
@@ -147,6 +148,18 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                           final locale = Localizations.localeOf(context);
                           final url = Uri.parse(WebsiteUrls.home(locale));
                           await _tryOpenUrl(url);
+                        },
+                      ),
+                      const Divider(height: 1, thickness: 0.5),
+                      AppListTile(
+                        leading: Icons.privacy_tip_outlined,
+                        title: AppLocalizations.of(context).aboutPrivacyPolicy,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const PrivacyPolicyPage()),
+                          );
                         },
                       ),
                       const Divider(height: 1, thickness: 0.5),
