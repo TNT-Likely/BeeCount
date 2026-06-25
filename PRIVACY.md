@@ -1,15 +1,15 @@
 # Privacy Policy for BeeCount
 
-**Last updated**: 2025-10-26
+**Last updated**: 2026-06-25
 
 BeeCount ("we", "our", or "the app") is committed to protecting your privacy. This Privacy Policy explains how we handle your data when you use our application.
 
 ## TL;DR (Summary)
 
-- **We do NOT collect any personal data**
+- **BeeCount itself does NOT collect your data and does NOT operate any servers**
 - **We do NOT use any analytics or tracking**
-- **Your data stays on YOUR device or YOUR server**
-- **We do NOT have access to your financial records**
+- **By default your data stays on your device; nothing is sent off-device**
+- **Only when you actively enable and configure AI features, the relevant data is sent to the third-party AI provider you choose**
 
 ---
 
@@ -50,12 +50,12 @@ If you choose to enable cloud synchronization, your data is stored in:
 
 ## 3. Data Sharing
 
-We do NOT share your data with anyone because we don't have access to your data in the first place.
+BeeCount itself does not collect or sell your data, and we do not operate servers that receive it.
 
-- No data is sent to our servers (we don't have any)
-- No data is shared with third parties
-- No data is used for advertising or analytics
-- No data is sold to anyone
+- By default, no data leaves your device.
+- If you enable **cloud sync**, data goes only to the server YOU configure (your own Supabase / WebDAV).
+- If you enable **AI features**, the data needed for your request is sent to the third-party AI provider YOU configure (see Section 10).
+- We never sell your data, and we do not use it for advertising or analytics.
 
 ## 4. Permissions We Request
 
@@ -78,6 +78,11 @@ The app requests the following Android permissions:
 ### Reminder Permission (SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM)
 - **Purpose**: To send accounting reminders at the time you set
 - **Optional**: Only requested if you enable the reminder feature
+
+### iOS Permissions
+- **Camera**: to capture payment receipts for AI recognition (only when you use it)
+- **Microphone**: for voice bookkeeping (only when you use it)
+- **Photo Library**: to import/share bill data files you select
 
 ## 5. Data Security
 
@@ -119,13 +124,20 @@ We may update this Privacy Policy from time to time. We will notify you of any c
 
 ## 10. Third-Party Services
 
-The app does NOT integrate with any third-party services for analytics, advertising, or crash reporting.
+BeeCount does NOT integrate any analytics, advertising, or crash-reporting SDKs.
 
-If you configure cloud sync:
-- **Supabase**: Subject to [Supabase Privacy Policy](https://supabase.com/privacy)
-- **WebDAV**: Subject to your own server's privacy policy
+The following third parties are involved **only if you explicitly enable and configure the corresponding optional feature**, and each is controlled by YOU:
 
-These services are configured and controlled entirely by YOU.
+### AI features (optional, off by default)
+When you enable AI features and configure a provider, BeeCount sends — for the request you initiate — receipt/screenshot images, voice recordings, text you type, and the category names, account names and transaction records needed to complete recognition or analysis, to the AI provider you configured:
+- **Zhipu GLM** (default, `open.bigmodel.cn`, operated by Zhipu) — subject to Zhipu's privacy policy.
+- **Any OpenAI-compatible service you configure** (e.g. OpenAI, SiliconFlow, DeepSeek) — subject to that provider's privacy policy.
+
+AI is OFF by default and requires your own API key. The app shows an in-app notice naming the provider and the data involved, and asks for your consent, before any data is sent. BeeCount itself neither stores nor receives this data.
+
+### Cloud sync (optional)
+- **Supabase**: subject to [Supabase Privacy Policy](https://supabase.com/privacy)
+- **WebDAV**: subject to your own server's privacy policy
 
 ## 11. Contact Us
 
@@ -147,14 +159,14 @@ Since we don't collect any data, there's actually nothing to consent to - your p
 
 **蜜蜂记账隐私政策**
 
-**最后更新时间**: 2025-10-26
+**最后更新时间**: 2026-06-25
 
 ### 简要说明
 
-- **我们不收集任何个人数据**
+- **蜜蜂记账自身不收集你的数据,也不运营任何服务器**
 - **我们不使用任何分析或追踪服务**
-- **您的数据保存在您的设备或您的服务器上**
-- **我们无法访问您的财务记录**
+- **默认情况下,数据只保存在你的设备,不会外发**
+- **仅当你主动开启并配置 AI 功能时,相关数据才会发送给你选择的第三方 AI 服务商**
 
 ### 1. 信息收集
 
@@ -184,7 +196,13 @@ Since we don't collect any data, there's actually nothing to consent to - your p
 
 ### 3. 数据共享
 
-我们不与任何人共享您的数据，因为我们首先无法访问您的数据。
+蜜蜂记账自身不收集、不出售你的数据,也不运营任何接收数据的服务器。
+
+- 默认情况下,数据不会离开你的设备。
+- 若你开启**云同步**,数据只发送到你自己配置的服务器(你的 Supabase / WebDAV)。
+- 若你开启 **AI 功能**,完成你发起的请求所需的数据,会发送给你配置的第三方 AI 服务商。
+
+**AI 功能(可选,默认关闭)**:开启并配置服务商后,蜜蜂记账会就你发起的请求,把账单/截图图片、语音录音、你输入的文字,以及完成识别/分析所需的分类名称、账户名称和相关交易记录,发送给你配置的服务商 —— 默认「智谱 GLM」(open.bigmodel.cn,智谱华章运营),或你自配的任意 OpenAI 兼容服务(如 OpenAI、硅基流动、DeepSeek);各自适用其隐私政策。AI 默认关闭、需你自带 API Key;发送前 App 会以应用内提示点名服务商与所涉数据并征得你的同意。蜜蜂记账自身既不接收也不存储这些数据。
 
 ### 4. 权限请求
 
