@@ -10,6 +10,8 @@ import '../../providers/ai_config_providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ai/providers/ai_provider_config.dart';
 import '../../ai/providers/ai_provider_manager.dart';
+import '../../ai/privacy/ai_privacy_consent.dart';
+import '../../widgets/ai/ai_privacy_consent_dialog.dart';
 import 'ai_prompt_edit_page.dart';
 import 'ai_provider_manage_page.dart';
 
@@ -23,6 +25,24 @@ class AISettingsPage extends ConsumerStatefulWidget {
 
 class _AISettingsPageState extends ConsumerState<AISettingsPage> {
   bool _advancedExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // 存量用户:升级前已开启 AI 但从未同意第三方数据共享 → 进入设置页补弹一次。
+    // 其它直接使用 AI 的入口由 AIProviderFactory 的二道关兜底(未同意即中止)。
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final enabled = ref.read(aiConfigProvider).enabled;
+      if (!enabled) return;
+      if (await AiPrivacyConsentStore.isConsented()) return;
+      if (!mounted) return;
+      final agreed = await ensureAiPrivacyConsent(context, ref);
+      if (!agreed && mounted) {
+        await ref.read(aiConfigProvider.notifier).setEnabled(false);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +102,10 @@ class _AISettingsPageState extends ConsumerState<AISettingsPage> {
           SwitchListTile(
             value: config.enabled,
             onChanged: (value) async {
+              if (value) {
+                final agreed = await ensureAiPrivacyConsent(context, ref);
+                if (!agreed) return; // 未同意:保持关闭
+              }
               await notifier.setEnabled(value);
               if (mounted) {
                 showToast(
