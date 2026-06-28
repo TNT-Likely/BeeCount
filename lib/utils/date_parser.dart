@@ -78,7 +78,12 @@ class DateParser {
     }
   }
 
-  /// 尝试使用常见日期格式解析
+  /// 尝试使用常见日期格式解析。
+  ///
+  /// 这些格式都是**无时区信息的裸墙钟时间**(斜杠分隔、单数字月份、MM/dd/yyyy 等,
+  /// 过不了 DateTime.parse),按口径一律解析为**本地时间**(`parse` 默认 utc=false)。
+  /// 切勿用 `parse(str, /*utc=*/true)` 强标 UTC —— 那会让 CSV 导入的本地时间在
+  /// 本地(如 UTC+8)展示时整体 +8 小时(历史 bug)。
   static DateTime? _tryParseCommonFormats(String dateStr) {
     final formats = [
       'yyyy-MM-dd HH:mm:ss',
@@ -99,7 +104,8 @@ class DateParser {
 
     for (final format in formats) {
       try {
-        return DateFormat(format).parse(dateStr, true);
+        // utc=false(默认):按本地墙钟解析,不做时区偏移。
+        return DateFormat(format).parse(dateStr);
       } catch (_) {
         // 继续尝试下一个格式
       }
