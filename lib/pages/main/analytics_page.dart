@@ -14,6 +14,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/export/share_poster_service.dart';
 import '../../data/db.dart' as db;
 import '../../utils/month_range.dart';
+import '../../utils/analytics_average.dart';
 
 class AnalyticsPage extends ConsumerStatefulWidget {
   const AnalyticsPage({super.key});
@@ -774,7 +775,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                         isExpense: _type == 'expense',
                         isBalance: _type == 'balance',
                         total: sum,
-                        avg: _computeAverage(filteredSeriesRaw, _scope),
+                        avg: computeSeriesAverage(filteredSeriesRaw),
                         expenseColor: Theme.of(context).colorScheme.primary,
                         incomeColor: Theme.of(context).colorScheme.primary,
                       ),
@@ -933,46 +934,6 @@ String _currentPeriodLabel(
     default:
       return '${selMonth.year}-${selMonth.month.toString().padLeft(2, '0')}';
   }
-}
-
-double _computeAverage(dynamic seriesRaw, String scope) {
-  if (seriesRaw is List<({DateTime day, double total})>) {
-    if (seriesRaw.isEmpty) return 0;
-
-    // 过滤出有数据的天数(金额>0)
-    final nonZeroDays = seriesRaw.where((e) => e.total > 0).toList();
-    if (nonZeroDays.isEmpty) return 0;
-
-    final sum = seriesRaw.fold<double>(0, (a, b) => a + b.total);
-    // 月度视角：按实际有记账的天数计算平均值
-    return sum / nonZeroDays.length;
-  }
-
-  if (seriesRaw is List<({DateTime month, double total})>) {
-    if (seriesRaw.isEmpty) return 0;
-
-    // 过滤出有数据的月份(金额>0)
-    final nonZeroMonths = seriesRaw.where((e) => e.total > 0).toList();
-    if (nonZeroMonths.isEmpty) return 0;
-
-    final sum = seriesRaw.fold<double>(0, (a, b) => a + b.total);
-    // 年度视角：按实际有记账的月份计算平均值
-    return sum / nonZeroMonths.length;
-  }
-
-  if (seriesRaw is List<({int year, double total})>) {
-    if (seriesRaw.isEmpty) return 0;
-
-    // 过滤出有数据的年份(金额>0)
-    final nonZeroYears = seriesRaw.where((e) => e.total > 0).toList();
-    if (nonZeroYears.isEmpty) return 0;
-
-    final sum = seriesRaw.fold<double>(0, (a, b) => a + b.total);
-    // 全部视角：按实际有记账的年份计算平均值
-    return sum / nonZeroYears.length;
-  }
-
-  return 0;
 }
 
 // 加载分类数据并聚合
