@@ -1195,19 +1195,27 @@ class SyncEngine implements app.SyncService {
     return totalApplied;
   }
 
-  /// 单页 apply。整页事务 try/catch:
-  /// - 不可恢复异常 → rollback + 错误入 [pullErrors] + return blocked
-  /// - SQLite busy/locked → 单条 retry 2 次
+  /// 单页 apply。两阶段策略:
+  ///
+  /// 1. **批量事务(快路径)**:所有 change 放一个事务,一起 commit。99% 的页
+  ///    走这条路径,性能最优。
+  /// 2. **逐条隔离(降级路径)**:批量事务失败时,一条坏 change 会导致整页
+  ///    rollback。降级到每条 change 独立事务,好 change 正常入库,坏 change
+  ///    记入 [pullErrors] 并跳过。cursor 照常推进,打破死循环。
+  ///
+  /// **为什么不能 blocked=true**:旧实现在整页失败时 return blocked=true,cursor
+  /// 不推进。下次 pull 仍用 since=0,拉到同样的 500 条,同一条坏 change 再次
+  /// 失败 → 死循环,数据永远同步不完。降级后坏 change 隔离跳过,cursor 推进,
+  /// 同步继续。
   Future<_PullPageOutcome> _applyPullPage(
       List<BeeCountCloudSyncChange> changes) async {
     int applied = 0;
     int skipped = 0;
-    BeeCountCloudSyncChange? failingChange;
 
+    // ── 快路径:整页批量事务 ──
     try {
       await db.transaction(() async {
         for (final ch in changes) {
-          failingChange = ch;
           final ok = await _applyOneWithBusyRetry(ch);
           if (ok) {
             applied++;
@@ -1220,19 +1228,45 @@ class SyncEngine implements app.SyncService {
         logger.info('SyncEngine', 'pull: 应用 $applied / 跳过 $skipped (本页)');
       }
       return _PullPageOutcome(applied: applied, blocked: false);
-    } catch (e, st) {
+    } catch (batchError, batchSt) {
       // 整页 rollback 已自动完成(Drift transaction 抛错回滚)
-      logger.error(
+      logger.warning(
           'SyncEngine',
-          '本页 apply 抛错 change_id=${failingChange?.changeId} '
-              'type=${failingChange?.entityType}',
-          e,
-          st);
-      final ch = failingChange;
-      if (ch != null) {
-        await pullErrors.record(change: ch, error: e, stackTrace: st);
+          '本页批量 apply 失败,降级到逐条隔离 apply (batch error: $batchError)',
+          batchError,
+          batchSt);
+
+      // ── 降级路径:逐条独立事务,隔离坏 change ──
+      applied = 0;
+      skipped = 0;
+      int failedCount = 0;
+
+      for (final ch in changes) {
+        try {
+          await db.transaction(() async {
+            final ok = await _applyOneWithBusyRetry(ch);
+            if (ok) {
+              applied++;
+            } else {
+              skipped++;
+            }
+          });
+        } catch (e, st) {
+          failedCount++;
+          logger.error(
+              'SyncEngine',
+              '逐条 apply 失败(已隔离) change_id=${ch.changeId} '
+                  'type=${ch.entityType}',
+              e,
+              st);
+          await pullErrors.record(change: ch, error: e, stackTrace: st);
+        }
       }
-      return const _PullPageOutcome(applied: 0, blocked: true);
+
+      logger.info('SyncEngine',
+          '逐条隔离 apply 完成: applied=$applied skipped=$skipped failed=$failedCount');
+      // 坏 change 已入 pullErrors,cursor 推进打破死循环
+      return _PullPageOutcome(applied: applied, blocked: false);
     }
   }
 
