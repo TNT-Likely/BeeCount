@@ -25,7 +25,11 @@ const bool kHelpCenterInApp = true;
 /// - 域名白名单:仅放行官网域名,外链一律转系统浏览器(审核第二道防线)
 /// - 离线:加载失败显示兜底页,可重试或跳浏览器
 class HelpCenterPage extends ConsumerStatefulWidget {
-  const HelpCenterPage({super.key});
+  const HelpCenterPage({super.key, this.initialUrl});
+
+  /// 可选:指定初始打开的文档 URL(应为本站 embed 模式链接)。不传则打开文档
+  /// 首页(intro)。登录页「注册指引」用它按当前云后端直达对应文档。
+  final String? initialUrl;
 
   @override
   ConsumerState<HelpCenterPage> createState() => _HelpCenterPageState();
@@ -63,11 +67,12 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
     // 初始化需要 context(locale / 暗黑 / 主题色),放 didChangeDependencies 首跑
     if (_controller != null) return;
     final locale = Localizations.localeOf(context);
-    _url = WebsiteUrls.docsEmbed(
-      locale,
-      dark: BeeTokens.isDark(context),
-      primaryHex: _hex(ref.read(primaryColorProvider)),
-    );
+    _url = widget.initialUrl ??
+        WebsiteUrls.docsEmbed(
+          locale,
+          dark: BeeTokens.isDark(context),
+          primaryHex: _hex(ref.read(primaryColorProvider)),
+        );
     final controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(BeeTokens.scaffoldBackground(context))
@@ -116,11 +121,17 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
 
   Future<void> _openInBrowser() async {
     final locale = Localizations.localeOf(context);
-    // 外部打开用非 embed 的正常文档页
     final current = await _controller?.currentUrl();
-    final url = (current != null && !current.contains('embed=1'))
-        ? current
-        : WebsiteUrls.docs(locale);
+    // 外部打开用非 embed 的正常文档页:当前是 embed 链接(初始页或站内跳转)就
+    // 去掉 query 还原正常文档 URL;拿不到当前 URL 才兜底文档首页。
+    final String url;
+    if (current == null) {
+      url = WebsiteUrls.docs(locale);
+    } else if (current.contains('embed=1')) {
+      url = current.split('?').first;
+    } else {
+      url = current;
+    }
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 

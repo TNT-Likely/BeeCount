@@ -7,6 +7,8 @@ import '../../widgets/ui/ui.dart';
 import '../../styles/tokens.dart';
 import '../../services/system/logger_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../utils/website_urls.dart';
+import '../settings/help_center_page.dart';
 
 class AuthPage extends ConsumerStatefulWidget {
   const AuthPage({super.key});
@@ -123,13 +125,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     return emailRe.hasMatch(t);
   }
 
-  bool isValidPassword(String s) {
-    if (s.length < 6) return false;
-    final hasAlpha = RegExp(r'[A-Za-z]').hasMatch(s);
-    final hasDigit = RegExp(r'\d').hasMatch(s);
-    return hasAlpha && hasDigit;
-  }
-
   String? _supabaseCode(Object e) {
     try {
       if (e is s.AuthApiException) return e.code;
@@ -174,11 +169,44 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     return AppLocalizations.of(context).authErrorLoginFailed;
   }
 
+  /// 按当前云后端选注册指引文档的 topic:Supabase / BeeCount Cloud 各跳自己的
+  /// 配置文档,其它(含加载中)兜底到云同步概览。
+  static String _registerDocTopic(CloudBackendType? type) {
+    switch (type) {
+      case CloudBackendType.supabase:
+        return 'supabase';
+      case CloudBackendType.beecountCloud:
+        return 'beecount-cloud';
+      default:
+        return 'overview';
+    }
+  }
+
+  static String _hex(Color c) => [c.r, c.g, c.b]
+      .map((v) => ((v * 255).round() & 0xff).toRadixString(16).padLeft(2, '0'))
+      .join();
+
+  /// 打开「注册指引」:按当前云后端拼 embed 文档 URL,复用帮助中心内嵌 WebView
+  /// 打开(隐藏外链、跟随暗黑与主题色、域名白名单、离线兜底)。
+  void _openRegisterGuide() {
+    final type = ref.read(activeCloudConfigProvider).value?.type;
+    final url = WebsiteUrls.docsCloudSyncEmbed(
+      _registerDocTopic(type),
+      Localizations.localeOf(context),
+      dark: BeeTokens.isDark(context),
+      primaryHex: _hex(ref.read(primaryColorProvider)),
+    );
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => HelpCenterPage(initialUrl: url)),
+    );
+  }
+
   // 恢复流程改为登录后回到“我的”页由其触发，不再在登录页内执行
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final primary = ref.watch(primaryColorProvider);
     final radius = BorderRadius.circular(12);
 
     // 检测云服务类型
@@ -360,15 +388,14 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                           final pwd = pwdCtrl.text;
                                           logger.info('auth', '开始登录：邮箱=$email');
                                           if (!isValidEmail(email)) {
-                                            setState(
-                                                () => errorText = 'AppLocalizations.of(context).authInvalidEmail');
-                                            return;
-                                          }
-                                          if (!isValidPassword(pwd)) {
                                             setState(() => errorText =
-                                                'AppLocalizations.of(context).authPasswordRequirementShort');
+                                                AppLocalizations.of(context)
+                                                    .authInvalidEmail);
                                             return;
                                           }
+                                          // 不再本地校验密码强度:密码规则由服务端决定,
+                                          // App 不二次猜测(否则会把服务端能登录的合法
+                                          // 密码挡在门外,见 issue #358)。
                                           setState(() {
                                             busy = true;
                                             errorText = null;
@@ -429,6 +456,38 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                         )
                                       : Text(AppLocalizations.of(context).authLogin),
                                 ),
+                        ),
+                        const SizedBox(height: 16),
+                        Center(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: _openRegisterGuide,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 4),
+                              child: Text.rich(
+                                TextSpan(children: [
+                                  TextSpan(
+                                    text: AppLocalizations.of(context)
+                                        .authNoAccountYet,
+                                    style:
+                                        theme.textTheme.bodyMedium?.copyWith(
+                                      color: BeeTokens.textSecondary(context),
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: AppLocalizations.of(context)
+                                        .authViewRegisterGuide,
+                                    style:
+                                        theme.textTheme.bodyMedium?.copyWith(
+                                      color: primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ]),
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),

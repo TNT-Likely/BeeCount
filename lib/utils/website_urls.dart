@@ -51,6 +51,15 @@ class WebsiteUrls {
   static String docsCloudSync(String topic, [Locale? locale]) =>
       '$baseUrl${_langPrefix(locale)}/docs/cloud-sync/$topic';
 
+  /// 云同步文档 — App 内嵌(embed)模式。
+  /// 用于登录页「注册指引」按当前云后端跳对应文档(supabase / beecount-cloud /
+  /// overview 兜底),复用帮助中心同款 embed 体验(隐藏外链 chrome、跟随暗黑与
+  /// 主题色),站点侧实现见 BeeCount-Website docusaurus.config.ts。
+  static String docsCloudSyncEmbed(String topic, Locale? locale,
+          {required bool dark, required String primaryHex}) =>
+      '$baseUrl${_langPrefix(locale)}/docs/cloud-sync/$topic'
+      '?embed=1&theme=${dark ? 'dark' : 'light'}&primary=$primaryHex';
+
   /// FAQ
   static String faq([Locale? locale]) =>
       '$baseUrl${_langPrefix(locale)}/docs/faq';

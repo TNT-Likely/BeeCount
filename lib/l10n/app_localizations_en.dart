@@ -2496,7 +2496,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authInvalidEmail => 'Please enter a valid email address';
 
   @override
-  String get authPasswordRequirementShort => 'Password must contain letters and numbers, at least 6 characters';
+  String get authNoAccountYet => 'No account yet? ';
+
+  @override
+  String get authViewRegisterGuide => 'See how to register';
 
   @override
   String get authErrorInvalidCredentials => 'Email or password is incorrect.';

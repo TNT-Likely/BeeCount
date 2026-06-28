@@ -2496,7 +2496,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get authInvalidEmail => '请输入有效的邮箱地址';
 
   @override
-  String get authPasswordRequirementShort => '密码需包含字母和数字，长度至少 6 位';
+  String get authNoAccountYet => '还没有账号？';
+
+  @override
+  String get authViewRegisterGuide => '查看注册指引';
 
   @override
   String get authErrorInvalidCredentials => '邮箱或密码不正确。';
@@ -9339,7 +9342,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get authInvalidEmail => '請輸入有效的電子郵件地址';
 
   @override
-  String get authPasswordRequirementShort => '密碼需包含字母和數字，長度至少 6 位';
+  String get authNoAccountYet => '還沒有帳號？';
+
+  @override
+  String get authViewRegisterGuide => '查看註冊指引';
 
   @override
   String get authErrorInvalidCredentials => '電子郵件或密碼不正確。';

@@ -4746,11 +4746,17 @@ abstract class AppLocalizations {
   /// **'Please enter a valid email address'**
   String get authInvalidEmail;
 
-  /// No description provided for @authPasswordRequirementShort.
+  /// No description provided for @authNoAccountYet.
   ///
   /// In en, this message translates to:
-  /// **'Password must contain letters and numbers, at least 6 characters'**
-  String get authPasswordRequirementShort;
+  /// **'No account yet? '**
+  String get authNoAccountYet;
+
+  /// No description provided for @authViewRegisterGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'See how to register'**
+  String get authViewRegisterGuide;
 
   /// No description provided for @authErrorInvalidCredentials.
   ///
