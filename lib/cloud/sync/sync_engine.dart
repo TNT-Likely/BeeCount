@@ -1164,8 +1164,11 @@ class SyncEngine implements app.SyncService {
           'pull #$pageIndex: applied ${outcome.applied}/${result.changes.length} (apply ${applyMs}ms, page total ${DateTime.now().difference(pageStart).inMilliseconds}ms)');
       totalApplied += outcome.applied;
       if (outcome.blocked) {
+        // 瞬时错误:降级路径中某条 change 重试耗尽后仍 busy/locked。
+        // applied=0 是因为我们保守地不计数(已 commit 的 change 靠幂等性
+        // 保证安全,下次重试不会重复入库)。日志可能误导调试,但数据正确。
         logger.warning(
-            'SyncEngine', 'pull 被错误阻塞 cursor 停在 $nextSince — UI 应显示同步异常');
+            'SyncEngine', 'pull 被瞬时错误阻塞 cursor 停在 $nextSince — UI 应显示同步异常');
         break;
       }
 
@@ -1174,9 +1177,13 @@ class SyncEngine implements app.SyncService {
       nextSince = result.serverCursor;
 
       // 同 change_id 之前如果有未 resolved 错误(server 修了脏数据 + 推新
-      // change → apply 通过)→ markResolved 让 UI 不再显示
+      // change → apply 通过)→ markResolved 让 UI 不再显示。
+      // 注意:失败的 changeId 不要 markResolved,否则 UI 永远看不到这条错误。
+      final failedSet = outcome.failedChangeIds.toSet();
       for (final ch in result.changes) {
-        await pullErrors.markResolved(ch.changeId);
+        if (!failedSet.contains(ch.changeId)) {
+          await pullErrors.markResolved(ch.changeId);
+        }
       }
 
       // 主事务已 commit,fire-and-forget 并发处理图标 queue,不阻塞下一页
@@ -1207,6 +1214,10 @@ class SyncEngine implements app.SyncService {
   /// 不推进。下次 pull 仍用 since=0,拉到同样的 500 条,同一条坏 change 再次
   /// 失败 → 死循环,数据永远同步不完。降级后坏 change 隔离跳过,cursor 推进,
   /// 同步继续。
+  ///
+  /// **瞬时 vs 持久错误**:降级路径中,瞬时错误(busy/locked 重试耗尽)会立即
+  /// abort 本页(cursor 不进,下次重试整页),避免好 change 被永久跳过。只有
+  /// 持久错误(applyRemoteChange 自身缺陷/脏数据)才会被隔离跳过。
   Future<_PullPageOutcome> _applyPullPage(
       List<BeeCountCloudSyncChange> changes) async {
     int applied = 0;
@@ -1227,19 +1238,19 @@ class SyncEngine implements app.SyncService {
       if (skipped > 0) {
         logger.info('SyncEngine', 'pull: 应用 $applied / 跳过 $skipped (本页)');
       }
-      return _PullPageOutcome(applied: applied, blocked: false);
+      return _PullPageOutcome(applied: applied, blocked: false, failedChangeIds: []);
     } catch (batchError, batchSt) {
       // 整页 rollback 已自动完成(Drift transaction 抛错回滚)
-      logger.warning(
+      logger.error(
           'SyncEngine',
           '本页批量 apply 失败,降级到逐条隔离 apply (batch error: $batchError)',
           batchError,
           batchSt);
 
-      // ── 降级路径:逐条独立事务,隔离坏 change ──
+      // ── 降级路径:逐条独立事务,区分瞬时/持久错误 ──
       applied = 0;
       skipped = 0;
-      int failedCount = 0;
+      final failedIds = <int>[];
 
       for (final ch in changes) {
         try {
@@ -1252,11 +1263,23 @@ class SyncEngine implements app.SyncService {
             }
           });
         } catch (e, st) {
-          failedCount++;
+          if (_isTransientError(e)) {
+            // 瞬时错误:中止本页,cursor 不进,下次重试整页。
+            // 已应用的 change 安全(applyRemoteChange 幂等)。
+            logger.error(
+                'SyncEngine',
+                '降级路径中遇瞬时错误,中止本页重试 change_id=${ch.changeId} '
+                    'type=${ch.entityType}',
+                e,
+                st);
+            return _PullPageOutcome(applied: 0, blocked: true, failedChangeIds: []);
+          }
+          // 持久错误:隔离跳过,记录错误,继续下一条
+          failedIds.add(ch.changeId);
           logger.error(
               'SyncEngine',
               '逐条 apply 失败(已隔离) change_id=${ch.changeId} '
-                  'type=${ch.entityType}',
+                  'type=${ch.entityType} err=${e.runtimeType}',
               e,
               st);
           await pullErrors.record(change: ch, error: e, stackTrace: st);
@@ -1264,10 +1287,21 @@ class SyncEngine implements app.SyncService {
       }
 
       logger.info('SyncEngine',
-          '逐条隔离 apply 完成: applied=$applied skipped=$skipped failed=$failedCount');
+          '逐条隔离 apply 完成: applied=$applied skipped=$skipped failed=${failedIds.length}');
       // 坏 change 已入 pullErrors,cursor 推进打破死循环
-      return _PullPageOutcome(applied: applied, blocked: false);
+      return _PullPageOutcome(
+          applied: applied, blocked: false, failedChangeIds: failedIds);
     }
+  }
+
+  /// 判断异常是否为瞬时错误(SQLite busy/locked)。
+  ///
+  /// 复用 [_applyOneWithBusyRetry] 中的探测逻辑,让降级路径和重试路径使用
+  /// 同一套判定,避免不一致。
+  static bool _isTransientError(Object e) {
+    final msg = e.toString().toLowerCase();
+    return (msg.contains('sqlite') || msg.contains('database')) &&
+        (msg.contains('busy') || msg.contains('locked'));
   }
 
   /// 单条 apply 带 SQLite busy/locked retry。其它异常直接抛,让外层整页 rollback。
@@ -1280,11 +1314,7 @@ class SyncEngine implements app.SyncService {
       try {
         return await applyRemoteChange(ch);
       } catch (e) {
-        final msg = e.toString().toLowerCase();
-        final transient =
-            (msg.contains('sqlite') || msg.contains('database')) &&
-                (msg.contains('busy') || msg.contains('locked'));
-        if (transient && attempts < 2) {
+        if (_isTransientError(e) && attempts < 2) {
           attempts++;
           await Future.delayed(Duration(milliseconds: 50 * (1 << attempts)));
           continue;
@@ -1490,11 +1520,16 @@ class SyncHealthReport {
 
 /// pull 单页处理结果。详见 [SyncEngine._applyPullPage]。
 class _PullPageOutcome {
-  const _PullPageOutcome({required this.applied, required this.blocked});
+  const _PullPageOutcome(
+      {required this.applied, required this.blocked, required this.failedChangeIds});
 
   /// 本页成功 apply 的条数。整页 rollback 时为 0。
   final int applied;
 
-  /// 是否被错误阻塞(整页 rollback,cursor 不推进)。
+  /// 是否被阻塞(瞬时错误导致本页中止,cursor 不推进,下次重试整页)。
   final bool blocked;
+
+  /// 降级路径中失败的 changeId 集合。这些 change 已入 pullErrors,调用方
+  /// 不应 markResolved,否则 UI 永远看不到。
+  final List<int> failedChangeIds;
 }
