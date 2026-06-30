@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -629,18 +630,16 @@ class _BeeAppState extends ConsumerState<BeeApp>
     int? newHoveredIndex;
     for (int i = 0; i < 3 && i < angles.length; i++) {
       final angle = angles[i];
-      final radians = angle * 3.14159265359 / 180;
-      final offsetX = distance * _cos(radians);
-      final offsetY = distance * _sin(radians);
+      final radians = angle * math.pi / 180;
+      final offsetX = distance * math.cos(radians);
+      final offsetY = distance * math.sin(radians);
 
       final actionCenter = Offset(
         buttonCenter.dx + offsetX,
         buttonCenter.dy + offsetY,
       );
 
-      final dx = globalPosition.dx - actionCenter.dx;
-      final dy = globalPosition.dy - actionCenter.dy;
-      final distanceToButton = _sqrt(dx * dx + dy * dy);
+      final distanceToButton = (globalPosition - actionCenter).distance;
 
       if (distanceToButton <= buttonRadius) {
         newHoveredIndex = i;
@@ -654,38 +653,6 @@ class _BeeAppState extends ConsumerState<BeeApp>
       });
       _overlayEntry?.markNeedsBuild();
     }
-  }
-
-  static double _cos(double x) {
-    x = x % (2 * 3.14159265359);
-    double result = 1.0;
-    double term = 1.0;
-    for (int i = 1; i <= 10; i++) {
-      term *= -x * x / ((2 * i - 1) * (2 * i));
-      result += term;
-    }
-    return result;
-  }
-
-  static double _sin(double x) {
-    x = x % (2 * 3.14159265359);
-    double result = x;
-    double term = x;
-    for (int i = 1; i <= 10; i++) {
-      term *= -x * x / ((2 * i) * (2 * i + 1));
-      result += term;
-    }
-    return result;
-  }
-
-  static double _sqrt(double x) {
-    if (x < 0) return double.nan;
-    if (x == 0) return 0;
-    double guess = x / 2;
-    for (int i = 0; i < 20; i++) {
-      guess = (guess + x / guess) / 2;
-    }
-    return guess;
   }
 
   @override
@@ -1091,7 +1058,6 @@ class _SpeedDialOverlay extends StatelessWidget {
 
     final angles = [210.0, 270.0, 330.0];
     const distance = 85.0;
-    const pi = 3.14159265359;
 
     return AnimatedBuilder(
       animation: animation,
@@ -1113,10 +1079,10 @@ class _SpeedDialOverlay extends StatelessWidget {
             for (int i = 0; i < actions.length && i < angles.length; i++)
               Builder(builder: (context) {
                 final angle = angles[i];
-                final radians = angle * pi / 180;
+                final radians = angle * math.pi / 180;
                 final progress = animation.value;
-                final offsetX = progress * distance * _cos(radians);
-                final offsetY = progress * distance * _sin(radians);
+                final offsetX = progress * distance * math.cos(radians);
+                final offsetY = progress * distance * math.sin(radians);
 
                 const btnSize = 48.0;
                 final left = buttonCenter.dx + offsetX - btnSize / 2;
@@ -1166,28 +1132,6 @@ class _SpeedDialOverlay extends StatelessWidget {
         );
       },
     );
-  }
-
-  static double _cos(double x) {
-    x = x % (2 * 3.14159265359);
-    double result = 1.0;
-    double term = 1.0;
-    for (int i = 1; i <= 10; i++) {
-      term *= -x * x / ((2 * i - 1) * (2 * i));
-      result += term;
-    }
-    return result;
-  }
-
-  static double _sin(double x) {
-    x = x % (2 * 3.14159265359);
-    double result = x;
-    double term = x;
-    for (int i = 1; i <= 10; i++) {
-      term *= -x * x / ((2 * i) * (2 * i + 1));
-      result += term;
-    }
-    return result;
   }
 }
 
