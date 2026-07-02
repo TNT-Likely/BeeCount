@@ -6880,6 +6880,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get tabAssets => '資產';
 
   @override
+  String get tabRecord => '記帳';
+
+  @override
   String get tabMine => '我的';
 
   @override
@@ -10495,7 +10498,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get accountsTitle => '資產管理';
 
   @override
-  String get accountsEmptyMessage => '還没有帳戶，点击右上角添加';
+  String get accountsEmptyMessage => '還沒有帳戶，點擊右上角添加';
 
   @override
   String get accountAddTooltip => '添加帳戶';
@@ -10504,7 +10507,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get accountAddButton => '添加帳戶';
 
   @override
-  String get accountBalance => '余額';
+  String get accountBalance => '餘額';
 
   @override
   String get accountEditTitle => '編輯帳戶';
@@ -10513,13 +10516,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get accountNewTitle => '新建帳戶';
 
   @override
-  String get accountNameLabel => '帳戶名称';
+  String get accountNameLabel => '帳戶名稱';
 
   @override
-  String get accountNameHint => '例如：工商银行、支付宝等';
+  String get accountNameHint => '例如：工商銀行、支付寶等';
 
   @override
-  String get accountNameRequired => '請輸入帳戶名称';
+  String get accountNameRequired => '請輸入帳戶名稱';
 
   @override
   String get accountNameDuplicate => '帳戶名稱已存在，請使用其他名稱';
@@ -10531,13 +10534,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get accountTypeCash => '現金';
 
   @override
-  String get accountTypeBankCard => '银行卡';
+  String get accountTypeBankCard => '銀行卡';
 
   @override
   String get accountTypeCreditCard => '信用卡';
 
   @override
-  String get accountTypeAlipay => '支付宝';
+  String get accountTypeAlipay => '支付寶';
 
   @override
   String get accountTypeWechat => '微信';
@@ -10556,11 +10559,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String accountDeleteWarningMessage(int count) {
-    return '該帳戶有 $count 筆關聯交易，刪除后交易记錄中的帳戶信息將被清空。確認刪除吗？';
+    return '該帳戶有 $count 筆關聯交易，刪除後交易記錄中的帳戶信息將被清空。確認刪除嗎？';
   }
 
   @override
-  String get accountDeleteConfirm => '確認刪除該帳戶吗？';
+  String get accountDeleteConfirm => '確認刪除該帳戶嗎？';
 
   @override
   String get accountSelectTitle => '選擇帳戶';
@@ -10581,10 +10584,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get updateCorruptedFileMessage => '檢測到之前下載的安裝包不完整或已損壞，是否刪除並重新下載？';
 
   @override
-  String get welcomeTitle => '欢迎使用 BeeCount';
+  String get welcomeTitle => '歡迎使用 BeeCount';
 
   @override
-  String get welcomeDescription => '一个真正尊重您隐私的记帳應用';
+  String get welcomeDescription => '一個真正尊重您隱私的記帳應用';
 
   @override
   String get welcomeCurrencyDescription => '選擇您常用的貨幣，之後可以隨時在設定中更改';
@@ -10632,31 +10635,31 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get widgetPreview => '小組件預覽';
 
   @override
-  String get widgetPreviewDesc => '小組件会自動顯示當前帳本的實際數據，主題色跟隨應用設置';
+  String get widgetPreviewDesc => '小組件會自動顯示當前帳本的實際數據，主題色跟隨應用設置';
 
   @override
   String get howToAddWidget => '如何添加小組件';
 
   @override
-  String get iosWidgetStep1 => '长按主屏幕空白區域，進入編輯模式';
+  String get iosWidgetStep1 => '長按主屏幕空白區域，進入編輯模式';
 
   @override
-  String get iosWidgetStep2 => '点击左上角的\"+\"按钮';
+  String get iosWidgetStep2 => '點擊左上角的\"+\"按鈕';
 
   @override
-  String get iosWidgetStep3 => '搜索并選擇\"蜜蜂记帳\"';
+  String get iosWidgetStep3 => '搜索並選擇\"蜜蜂記帳\"';
 
   @override
   String get iosWidgetStep4 => '選擇中型小組件，添加到主屏幕';
 
   @override
-  String get androidWidgetStep1 => '长按主屏幕空白區域';
+  String get androidWidgetStep1 => '長按主屏幕空白區域';
 
   @override
   String get androidWidgetStep2 => '選擇\"小組件\"或\"Widgets\"';
 
   @override
-  String get androidWidgetStep3 => '找到并长按\"蜜蜂记帳\"小組件';
+  String get androidWidgetStep3 => '找到並長按\"蜜蜂記帳\"小組件';
 
   @override
   String get androidWidgetStep4 => '拖動到主屏幕合适位置';
@@ -10665,7 +10668,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get aboutWidget => '關于小組件';
 
   @override
-  String get widgetDescription => '小組件会自動同步顯示今日和本月的收支數據，每30分钟自動刷新一次。打開應用后会立即更新數據。';
+  String get widgetDescription => '小組件會自動同步顯示今日和本月的收支數據，每30分鐘自動刷新一次。打開應用後會立即更新數據。';
 
   @override
   String get widgetQuickEntryTitle => '快捷記帳';
@@ -10674,7 +10677,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get widgetQuickEntryDesc => '點擊小組件左側區域可快速新建支出，點擊右側區域可快速新建收入。也可透過捷徑使用 beecount://new?type=transfer 快速發起轉帳。';
 
   @override
-  String get appName => '蜜蜂记帳';
+  String get appName => '蜜蜂記帳';
 
   @override
   String get monthSuffix => '月';
@@ -12794,6 +12797,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get cloudSyncGuideLimitItem4 => '不含附件：交易的圖片附件不參與同步，需透過資料管理單獨匯出';
 
   @override
+  String get mineMultiDeviceSyncTitle => '多裝置同步';
+
+  @override
+  String get mineMultiDeviceSyncSubtitle => '進入頁面時自動檢查雲端變更';
+
+  @override
   String get appLockTitle => '應用鎖';
 
   @override
@@ -12945,6 +12954,21 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get accountNoMoreData => '沒有更多資料了';
 
   @override
+  String get totalAssets => '總資產';
+
+  @override
+  String get totalLiabilities => '總負債';
+
+  @override
+  String get assetAccounts => '資產帳戶';
+
+  @override
+  String get liabilityAccounts => '負債帳戶';
+
+  @override
+  String get assetComposition => '資產構成';
+
+  @override
   String get accountTypeInvestment => '投資理財';
 
   @override
@@ -12993,6 +13017,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get accountGroupValuation => '資產/負債';
+
+  @override
+  String get adjustmentTransaction => '估值調整';
 
   @override
   String creditCardBillingInfo(int billingDay, int paymentDueDay) {
@@ -13161,6 +13188,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get syncHealthRowAttachment => '附件';
+
+  @override
+  String get syncHealthRowCategoryIcon => '分類圖示';
 
   @override
   String get syncHealthRowBudget => '預算';
