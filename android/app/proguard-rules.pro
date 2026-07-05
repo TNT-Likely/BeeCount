@@ -122,3 +122,7 @@
 # TensorFlow Lite - 暂时注释掉本地模型依赖，只使用云端API
 -dontwarn org.tensorflow.lite.**
 -dontwarn org.tensorflow.lite.gpu.**
+
+# OkHttp - required by uCrop 2.2.11 (image_cropper 10.0.0)
+-dontwarn okhttp3.**
+-keep class okhttp3.** { *; }

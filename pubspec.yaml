@@ -45,7 +45,7 @@ dependencies:
   home_widget: ^0.7.0
   image_picker: ^1.1.2
   flutter_image_compress: ^2.3.0
-  image_cropper: 8.0.2
+  image_cropper: ^10.0.0
   gbk_codec: ^0.4.0
   app_links: ^6.4.1
   record: ^5.1.2
@@ -92,7 +92,7 @@ dev_dependencies:
 dependency_overrides:
   # Fix record_linux compatibility issue (we target iOS/Android only)
   record_platform_interface: 1.2.0
-  # Fix image_cropper compatibility with Flutter 3.27.3
+  # Pin to 7.1.0 because 7.2.0 requires Flutter >= 3.27.6 (Color.toARGB32)
   image_cropper_platform_interface: 7.1.0
 
 # adaptive_* 三个素材由 scripts/gen_adaptive_icons.py 生成(几何取自 assets/logo.svg);

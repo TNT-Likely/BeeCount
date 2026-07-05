@@ -14,7 +14,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.tntlikely.beecount"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     // Keep in sync with plugins' required NDK to avoid build warnings/errors.
     ndkVersion = "27.0.12077973"
 
@@ -208,4 +208,7 @@ flutter {
 dependencies {
     // Java language desugaring support for older Android devices.
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+
+    // Required by uCrop 2.2.11 (bundled with image_cropper 10.0.0) for downloading image URIs
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 }
