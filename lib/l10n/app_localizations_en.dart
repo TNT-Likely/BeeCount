@@ -425,6 +425,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get searchSummaryIncome => 'Income';
+
+  @override
+  String get searchSummaryExpense => 'Expense';
+
+  @override
   String get searchFilterTitle => 'Filter';
 
   @override

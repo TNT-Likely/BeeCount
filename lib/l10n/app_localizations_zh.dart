@@ -425,6 +425,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get searchSummaryIncome => '收入';
+
+  @override
+  String get searchSummaryExpense => '支出';
+
+  @override
   String get searchFilterTitle => '筛选';
 
   @override
@@ -7313,6 +7319,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String searchResultsCount(Object count) {
     return '共 $count 條結果';
   }
+
+  @override
+  String get searchSummaryIncome => '收入';
+
+  @override
+  String get searchSummaryExpense => '支出';
 
   @override
   String get searchFilterTitle => '篩選';

@@ -586,6 +586,21 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     }
   }
 
+  /// 构建收入/支出汇总标签
+  Widget _buildSummaryChip({
+    required String label,
+    required double amount,
+    required Color color,
+  }) {
+    return Text(
+      '$label ${amount.toStringAsFixed(2)}',
+      style: TextStyle(
+        fontSize: 12,
+        color: color,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final repo = ref.watch(repositoryProvider);
@@ -827,6 +842,24 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                   ?.copyWith(
                                     color: BeeTokens.textTertiary(context),
                                   ),
+                            ),
+                            const SizedBox(width: 8),
+                            // 支出汇总
+                            _buildSummaryChip(
+                              label: l10n.searchSummaryExpense,
+                              amount: _searchResults
+                                  .where((e) => e.t.type == 'expense')
+                                  .fold(0.0, (sum, e) => sum + e.t.amount.abs()),
+                              color: BeeTokens.expenseColor(context, ref),
+                            ),
+                            const SizedBox(width: 6),
+                            // 收入汇总
+                            _buildSummaryChip(
+                              label: l10n.searchSummaryIncome,
+                              amount: _searchResults
+                                  .where((e) => e.t.type == 'income')
+                                  .fold(0.0, (sum, e) => sum + e.t.amount),
+                              color: BeeTokens.incomeColor(context, ref),
                             ),
                             const Spacer(),
                             TextButton(

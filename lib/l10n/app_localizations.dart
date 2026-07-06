@@ -852,6 +852,18 @@ abstract class AppLocalizations {
   /// **'{count} results'**
   String searchResultsCount(Object count);
 
+  /// No description provided for @searchSummaryIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get searchSummaryIncome;
+
+  /// No description provided for @searchSummaryExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get searchSummaryExpense;
+
   /// No description provided for @searchFilterTitle.
   ///
   /// In en, this message translates to:

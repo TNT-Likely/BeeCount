@@ -192,6 +192,8 @@
   "searchBatchChangeCategorySuccess": "Successfully changed category for {count} transactions",
   "searchBatchChangeCategoryFailed": "Change category failed: {error}",
   "searchResultsCount": "{count} results",
+  "searchSummaryIncome": "Income",
+  "searchSummaryExpense": "Expense",
   "searchFilterTitle": "Filter",
   "searchAmountFilter": "Amount Filter",
   "searchDateFilter": "Date Filter",

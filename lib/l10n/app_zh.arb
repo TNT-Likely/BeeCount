@@ -255,6 +255,8 @@
       }
     }
   },
+  "searchSummaryIncome": "收入",
+  "searchSummaryExpense": "支出",
   "searchFilterTitle": "筛选",
   "searchAmountFilter": "金额筛选",
   "searchDateFilter": "时间筛选",

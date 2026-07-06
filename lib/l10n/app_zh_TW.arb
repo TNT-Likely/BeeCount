@@ -1744,6 +1744,8 @@
   "searchNoResults": "未找到符合的結果",
   "searchNotSet": "未設定",
   "searchResultsCount": "共 {count} 條結果",
+  "searchSummaryIncome": "收入",
+  "searchSummaryExpense": "支出",
   "searchSelectAll": "全選",
   "searchSelectedCount": "已選擇 {count} 項",
   "searchStartDate": "開始日期",
