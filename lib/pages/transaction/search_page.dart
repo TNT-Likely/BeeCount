@@ -10,6 +10,7 @@ import '../../utils/category_utils.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/transaction_edit_utils.dart';
 import '../../utils/format_utils.dart';
+import '../../utils/ui_scale_extensions.dart';
 import '../../providers/database_providers.dart';
 import '../../widgets/category_icon.dart';
 import 'category_detail_page.dart';
@@ -37,6 +38,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   DateTime? _startDate;
   DateTime? _endDate;
   bool _hasScheduledSearch = false; // 防止重复调度搜索
+
+  // 缓存汇总金额，避免每次 build() 重复计算
+  double _totalExpense = 0.0;
+  double _totalIncome = 0.0;
 
   // 批量操作相关
   bool _isBatchMode = false;
@@ -69,6 +74,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         _startDate == null && _endDate == null) {
       setState(() {
         _searchResults = [];
+        _totalExpense = 0.0;
+        _totalIncome = 0.0;
         _isSearching = false;
         _hasScheduledSearch = false;
       });
@@ -133,6 +140,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
     setState(() {
       _searchResults = results;
+      _totalExpense = results
+          .where((e) => e.t.type == 'expense')
+          .fold(0.0, (sum, e) => sum + e.t.amount.abs());
+      _totalIncome = results
+          .where((e) => e.t.type == 'income')
+          .fold(0.0, (sum, e) => sum + e.t.amount.abs());
       _isSearching = false;
     });
   }
@@ -598,7 +611,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     return Text(
       '$label ${formatBalance(amount, currencyCode)}',
       style: TextStyle(
-        fontSize: 12,
+        fontSize: 12.0.scaled(context, ref),
         color: color,
       ),
       maxLines: 1,
@@ -850,31 +863,35 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                     color: BeeTokens.textTertiary(context),
                                   ),
                             ),
-                            const SizedBox(width: 8),
-                            // 支出汇总
-                            Flexible(
-                              child: _buildSummaryChip(
-                                label: l10n.searchSummaryExpense,
-                                amount: _searchResults
-                                    .where((e) => e.t.type == 'expense')
-                                    .fold(0.0, (sum, e) => sum + e.t.amount.abs()),
-                                color: BeeTokens.expenseColor(context, ref),
-                                currencyCode: currencyCode,
+                            SizedBox(width: 8.0.scaled(context, ref)),
+                            // 支出/收入汇总：Expanded 占满剩余空间，内层 Flexible(loose) 让 chip 正常取自然宽度，超长时截断而非溢出
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  // 支出汇总
+                                  Flexible(
+                                    fit: FlexFit.loose,
+                                    child: _buildSummaryChip(
+                                      label: l10n.searchSummaryExpense,
+                                      amount: _totalExpense,
+                                      color: BeeTokens.expenseColor(context, ref),
+                                      currencyCode: currencyCode,
+                                    ),
+                                  ),
+                                  SizedBox(width: 6.0.scaled(context, ref)),
+                                  // 收入汇总
+                                  Flexible(
+                                    fit: FlexFit.loose,
+                                    child: _buildSummaryChip(
+                                      label: l10n.searchSummaryIncome,
+                                      amount: _totalIncome,
+                                      color: BeeTokens.incomeColor(context, ref),
+                                      currencyCode: currencyCode,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(width: 6),
-                            // 收入汇总
-                            Flexible(
-                              child: _buildSummaryChip(
-                                label: l10n.searchSummaryIncome,
-                                amount: _searchResults
-                                    .where((e) => e.t.type == 'income')
-                                    .fold(0.0, (sum, e) => sum + e.t.amount),
-                                color: BeeTokens.incomeColor(context, ref),
-                                currencyCode: currencyCode,
-                              ),
-                            ),
-                            const Spacer(),
                             TextButton(
                               onPressed: _toggleBatchMode,
                               style: TextButton.styleFrom(
