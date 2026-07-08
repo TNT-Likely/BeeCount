@@ -61,7 +61,10 @@ final primaryColorInitProvider = FutureProvider<void>((ref) async {
     ref.read(primaryColorProvider.notifier).state = Color(saved);
   }
   ref.listen<Color>(primaryColorProvider, (prev, next) async {
-    final colorValue = (next.a * 255).toInt() << 24 | (next.r * 255).toInt() << 16 | (next.g * 255).toInt() << 8 | (next.b * 255).toInt();
+    final colorValue = (next.a * 255).toInt() << 24 |
+        (next.r * 255).toInt() << 16 |
+        (next.g * 255).toInt() << 8 |
+        (next.b * 255).toInt();
     await prefs.setInt('primaryColor', colorValue);
     // Update widget with new theme color
     try {
@@ -88,8 +91,7 @@ final primaryColorInitProvider = FutureProvider<void>((ref) async {
         if (cloudProvider == null) return;
         final hex = _colorToHex(next);
         await cloudProvider.updateMyProfileThemeColor(hex: hex);
-        logger.info(
-            'theme_providers', 'primary color pushed to server: $hex');
+        logger.info('theme_providers', 'primary color pushed to server: $hex');
       } catch (e) {
         logger.warning(
             'theme_providers', 'push primary color failed (non-blocking): $e');
@@ -176,10 +178,10 @@ final compactAmountInitProvider = FutureProvider<void>((ref) async {
   });
 });
 
-// 显示交易时间Provider（默认不显示）
+// 显示交易时间Provider（默认显示到秒）
 // false = 只显示日期
-// true = 显示日期和时间（时:分）
-final showTransactionTimeProvider = StateProvider<bool>((ref) => false);
+// true = 在明细行显示交易时间（时:分:秒）
+final showTransactionTimeProvider = StateProvider<bool>((ref) => true);
 
 // 显示交易时间持久化初始化
 final showTransactionTimeInitProvider = FutureProvider<void>((ref) async {
@@ -262,11 +264,11 @@ void _pushAppearanceToCloud(Ref ref) {
         'note_display_mode': ref.read(noteDisplayModeProvider),
       };
       await cloudProvider.updateMyProfileAppearance(appearance: appearance);
-      logger.info('theme_providers',
-          'pushed appearance to server: $appearance');
+      logger.info(
+          'theme_providers', 'pushed appearance to server: $appearance');
     } catch (e, st) {
-      logger.warning('theme_providers',
-          'push appearance failed (non-blocking): $e', st);
+      logger.warning(
+          'theme_providers', 'push appearance failed (non-blocking): $e', st);
     }
   }());
 }
@@ -353,8 +355,8 @@ void _pushDisplayNameToCloud(Ref ref, String name) {
       await cloudProvider.updateMyProfileDisplayName(displayName: trimmed);
       logger.info('theme_providers', 'display name pushed to server: $trimmed');
     } catch (e, st) {
-      logger.warning('theme_providers',
-          'push display name failed (non-blocking): $e', st);
+      logger.warning(
+          'theme_providers', 'push display name failed (non-blocking): $e', st);
     }
   }());
 }

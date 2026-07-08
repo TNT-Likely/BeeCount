@@ -91,10 +91,11 @@ class WidgetManager {
       // iOS uses 364x169 (2.15:1), Android needs 2:1 ratio
       // For Android, we'll render at 364x169 then add padding to make it 364x182 (2:1)
       final widgetSize = Platform.isIOS
-          ? const Size(364, 169)  // iOS systemMedium
+          ? const Size(364, 169) // iOS systemMedium
           : const Size(364, 182); // Android 2:1 ratio (364/2=182)
 
-      print('📱 Widget rendering - Platform: ${Platform.isIOS ? "iOS" : "Android"}, Size: ${widgetSize.width}x${widgetSize.height}, Ratio: ${(widgetSize.width / widgetSize.height).toStringAsFixed(2)}:1');
+      print(
+          '📱 Widget rendering - Platform: ${Platform.isIOS ? "iOS" : "Android"}, Size: ${widgetSize.width}x${widgetSize.height}, Ratio: ${(widgetSize.width / widgetSize.height).toStringAsFixed(2)}:1');
 
       print('🎨 开始渲染小组件...');
       await HomeWidget.renderFlutterWidget(
@@ -116,7 +117,9 @@ class WidgetManager {
         ),
         key: 'widgetImage',
         logicalSize: widgetSize,
-        pixelRatio: 4.0, // @4x for high resolution
+        // RemoteViews 会通过 Binder 传递位图；过大的 @4x 图在部分小米桌面上会更新失败，
+        // 表现为小部件占位但透明。1.5x 保持清晰度，同时把位图控制在安全大小内。
+        pixelRatio: 1.5,
       );
       print('✅ 小组件渲染完成');
 
