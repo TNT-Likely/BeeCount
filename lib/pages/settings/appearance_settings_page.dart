@@ -38,6 +38,9 @@ class AppearanceSettingsPage extends ConsumerWidget {
         case 'en':
           languageDisplay = l10n.languageEnglish;
           break;
+        case 'ko':
+          languageDisplay = '한국어';
+          break;
         default:
           languageDisplay = currentLanguage.languageCode;
       }

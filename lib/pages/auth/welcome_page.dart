@@ -178,6 +178,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
       const Locale('zh'),
       const Locale('zh', 'TW'),
       const Locale('en'),
+      const Locale('ko'),
     ];
 
     return SingleChildScrollView(
