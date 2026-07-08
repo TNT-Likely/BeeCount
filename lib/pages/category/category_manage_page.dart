@@ -651,33 +651,26 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
       );
     }
 
-    return ListView(
+    return ReorderableGridView.builder(
       padding: const EdgeInsets.all(16),
-      children: [
-        ReorderableGridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1,
-          ),
-          itemCount: topLevelCategories.length,
-          onReorder: (oldIndex, newIndex) {
-            _onReorderTopLevel(oldIndex, newIndex, topLevelCategories);
-          },
-          itemBuilder: (context, index) {
-            final item = topLevelCategories[index];
-            return _CategoryCard(
-              key: ValueKey(item.category.id),
-              item: item,
-              onTap: () => _onCategoryTap(item),
-            );
-          },
-        ),
-      ],
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1,
+      ),
+      itemCount: topLevelCategories.length,
+      onReorder: (oldIndex, newIndex) {
+        _onReorderTopLevel(oldIndex, newIndex, topLevelCategories);
+      },
+      itemBuilder: (context, index) {
+        final item = topLevelCategories[index];
+        return _CategoryCard(
+          key: ValueKey(item.category.id),
+          item: item,
+          onTap: () => _onCategoryTap(item),
+        );
+      },
     );
   }
 
