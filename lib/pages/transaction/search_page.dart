@@ -9,7 +9,6 @@ import '../../styles/tokens.dart';
 import '../../utils/category_utils.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/transaction_edit_utils.dart';
-import '../../utils/format_utils.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../providers/database_providers.dart';
 import '../../widgets/category_icon.dart';
@@ -606,17 +605,23 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     required String label,
     required double amount,
     required Color color,
-    required String currencyCode,
   }) {
-    return Text(
-      '$label ${formatBalance(amount, currencyCode)}',
-      style: TextStyle(
-        fontSize: 12.0.scaled(context, ref),
-        color: color,
-      ),
-      maxLines: 1,
-      softWrap: false,
-      overflow: TextOverflow.ellipsis,
+    final style = TextStyle(fontSize: 12.0.scaled(context, ref), color: color);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // label 固定展示，金额部分由 AmountText 处理隐藏/单位/币种
+        Text('$label ', style: style),
+        Flexible(
+          child: AmountText(
+            value: amount,
+            signed: false,
+            showCurrency: true,
+            useCompactFormat: true,
+            style: style,
+          ),
+        ),
+      ],
     );
   }
 
@@ -626,7 +631,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final hide = ref.watch(hideAmountsProvider);
     final l10n = AppLocalizations.of(context);
-    final currencyCode = ref.watch(currentLedgerProvider).valueOrNull?.currency ?? 'CNY';
 
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
@@ -875,7 +879,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                       label: l10n.searchSummaryExpense,
                                       amount: _totalExpense,
                                       color: BeeTokens.expenseColor(context, ref),
-                                      currencyCode: currencyCode,
                                     ),
                                   ),
                                   SizedBox(width: 6.0.scaled(context, ref)),
@@ -886,7 +889,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                       label: l10n.searchSummaryIncome,
                                       amount: _totalIncome,
                                       color: BeeTokens.incomeColor(context, ref),
-                                      currencyCode: currencyCode,
                                     ),
                                   ),
                                 ],
