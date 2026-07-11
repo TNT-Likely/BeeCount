@@ -178,7 +178,7 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
               ],
             ),
             Expanded(
-              child: Stack(
+              child: SafeArea(top: false, child:  Stack(
                 children: [
                   if (_controller != null && !_failed)
                     WebViewWidget(controller: _controller!),
@@ -229,7 +229,7 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
                       ),
                     ),
                 ],
-              ),
+              )),
             ),
           ],
         ),
