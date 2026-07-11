@@ -53,7 +53,8 @@ class DaySectionHeader extends ConsumerWidget {
     final week = getWeekday(dateText);
     final l10n = AppLocalizations.of(context);
     return Container(
-      color: BeeTokens.surface(context),
+      // 不设背景色:与交易行一样透明,显示同一外层列表背景。否则暗黑下 header
+      // 是 surface 深灰(#1C1C1E)、交易行是纯黑 scaffold 底,两者不协调。
       padding: const EdgeInsets.symmetric(
           horizontal: 12, vertical: BeeDimens.listHeaderVertical),
       child: Row(
