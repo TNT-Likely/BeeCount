@@ -48,7 +48,7 @@ class HeaderSkinPage extends ConsumerWidget {
             showBack: true,
           ),
           Expanded(
-            child: GridView.count(
+            child: SafeArea(top: false, child: GridView.count(
               crossAxisCount: 2,
               padding: const EdgeInsets.all(16),
               mainAxisSpacing: 16,
@@ -65,7 +65,7 @@ class HeaderSkinPage extends ConsumerWidget {
                         ref.read(headerSkinProvider.notifier).state = it.id,
                   ),
               ],
-            ),
+            ),)
           ),
         ],
       ),
