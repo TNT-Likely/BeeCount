@@ -88,7 +88,7 @@ class _AboutPageState extends ConsumerState<AboutPage> {
             showBack: true,
           ),
           Expanded(
-            child: ListView(
+            child: SafeArea(top: false, child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 // 顶部：图标 + 应用名称 + 版本号
@@ -344,8 +344,8 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                   SizedBox(height: 16.0.scaled(context, ref)),
                 ],
               ],
-            ),
           ),
+          )),
         ],
       ),
     );
