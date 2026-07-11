@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:beecount/cloud/sync/change_tracker.dart';
 import 'package:beecount/cloud/sync/sync_engine.dart';
+import 'package:beecount/cloud/sync_service.dart' show SyncDiff;
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 
@@ -738,6 +739,49 @@ void main() {
       expect(pullEvents, isNotEmpty);
       expect(pullEvents.last.ledgerId, 'L1');
       expect(pullEvents.last.applied, greaterThan(0));
+    });
+
+    test('sync push 后清缓存 + emit,getStatus 从 localNewer 刷新为 inSync'
+        '(修复:同步完成后「我的」页状态自动更新,不用手动下拉)', () async {
+      final ledgerId = await db.into(db.ledgers).insert(
+            LedgersCompanion.insert(
+              name: 'L',
+              syncId: const Value('existing-uuid'),
+            ),
+          );
+      // 远端已有此账本 → 走增量 push,避开 fullPush 复杂路径
+      provider.pushFakeLedgerSnapshot(ledgerId: 'existing-uuid');
+      // 本地写一条 tx → 产生 unpushed local_change
+      await repo.insertTransactionsBatch([
+        TransactionsCompanion.insert(
+          ledgerId: ledgerId,
+          type: 'expense',
+          amount: 8.0,
+          syncId: const Value('tx-push-event'),
+        ),
+      ]);
+
+      // 同步前:有未推送变更 → getStatus = localNewer,并把结果写进 _statusCache
+      final before = await engine.getStatus(ledgerId: ledgerId);
+      expect(before.diff, SyncDiff.localNewer,
+          reason: '本地有未推送变更,同步前应为 localNewer(并落入缓存)');
+
+      final received = <SyncEvent>[];
+      final sub = engine.events.listen(received.add);
+      final result = await engine.sync(ledgerId: ledgerId.toString());
+      await Future<void>.delayed(Duration.zero);
+      await sub.cancel();
+
+      expect(result.pushed, greaterThan(0));
+      // 修复点 1:push 完成 emit PushCompleted,通知 UI 重新读同步状态
+      expect(received.whereType<PushCompleted>(), isNotEmpty,
+          reason: 'push 上传本地变更后必须 emit PushCompleted');
+      // 修复点 2(真正根因):push 后清了 _statusCache,getStatus 不再吃旧缓存。
+      // 若仍命中缓存返回 localNewer,「我的」页就得手动下拉才更新 —— 本 bug。
+      final after = await engine.getStatus(ledgerId: ledgerId);
+      expect(after.diff, SyncDiff.inSync,
+          reason: 'push 成功后 getStatus 必须刷新为 inSync;'
+              '命中旧缓存返回 localNewer 即是本 bug 复现');
     });
 
     test('多种事件类型 dispatch:PullCompleted / ProfileFieldApplied 等', () async {

@@ -241,6 +241,15 @@ final syncServiceProvider = Provider<SyncService>((ref) {
           // 切到 stream 模式后 cache 不再被读取,留旧值给到 stream 推送之前
           // 平滑过渡。
           ref.read(homeSwitchToStreamProvider.notifier).state++;
+        case PushCompleted(:final pushed):
+          // 本地变更已上传到 server:同步状态从「本地有更新」→「已同步」。
+          // 只 bump syncStatusRefresh —— 「我的」页和账本卡片的同步状态都走
+          // syncStatusProvider 单独获取(见 ledger_card 注释),它 watch
+          // syncStatusRefresh 即会重算。push 不改本地展示数据,不需要账本列表
+          // /统计等全域 cascade。
+          if (pushed > 0) {
+            ref.read(syncStatusRefreshProvider.notifier).state++;
+          }
         case SharedResourceChanged():
           ref.read(sharedResourceRefreshProvider.notifier).state++;
         case AvatarChanged():
