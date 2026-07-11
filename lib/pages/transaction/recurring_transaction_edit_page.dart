@@ -114,7 +114,7 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
             ] : null,
           ),
           Expanded(
-            child: Form(
+            child:SafeArea(top: false, child: Form(
               key: _formKey,
               child: ListView(
                 padding: const EdgeInsets.all(16),
@@ -205,21 +205,19 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
                       border: const OutlineInputBorder(),
                     ),
                     maxLines: 3,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // 底部保存按钮
+                  ),// 底部保存按钮
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.only(top: 16),
             child: FilledButton(
               onPressed: _isFormValid() ? _saveRecurringTransaction : null,
               child: Text(l10n.commonSave),
             ),
           ),
+                ],
+              ),
+            ),
+          )),
         ],
       ),
     );
