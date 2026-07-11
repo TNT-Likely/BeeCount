@@ -1537,6 +1537,12 @@
   "headerSkinSakura": "櫻花",
   "headerSkinMeteor": "流星",
   "headerSkinMemphis": "孟菲斯",
+  "headerSkinSilk": "絲帶",
+  "headerSkinBubbles": "氣泡",
+  "headerSkinGalaxy": "星系",
+  "headerSkinLowPoly": "低多邊形",
+  "headerSkinPrism": "稜鏡",
+  "headerSkinTerrazzo": "水磨石",
   "mineSupportAuthor": "給專案 Star ⭐️",
   "mineSupportAuthorSubtitle": "開源免費，已有 {count} 人 Star",
   "@mineSupportAuthorSubtitle": {

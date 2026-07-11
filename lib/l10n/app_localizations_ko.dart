@@ -1027,6 +1027,24 @@ class AppLocalizationsKo extends AppLocalizations {
   String get headerSkinMemphis => '멤피스';
 
   @override
+  String get headerSkinSilk => 'Silk';
+
+  @override
+  String get headerSkinBubbles => 'Bubbles';
+
+  @override
+  String get headerSkinGalaxy => 'Galaxy';
+
+  @override
+  String get headerSkinLowPoly => 'Low-poly';
+
+  @override
+  String get headerSkinPrism => 'Prism';
+
+  @override
+  String get headerSkinTerrazzo => 'Terrazzo';
+
+  @override
   String get mineAvatarTitle => '아바타 설정';
 
   @override

@@ -1970,6 +1970,42 @@ abstract class AppLocalizations {
   /// **'Memphis'**
   String get headerSkinMemphis;
 
+  /// No description provided for @headerSkinSilk.
+  ///
+  /// In en, this message translates to:
+  /// **'Silk'**
+  String get headerSkinSilk;
+
+  /// No description provided for @headerSkinBubbles.
+  ///
+  /// In en, this message translates to:
+  /// **'Bubbles'**
+  String get headerSkinBubbles;
+
+  /// No description provided for @headerSkinGalaxy.
+  ///
+  /// In en, this message translates to:
+  /// **'Galaxy'**
+  String get headerSkinGalaxy;
+
+  /// No description provided for @headerSkinLowPoly.
+  ///
+  /// In en, this message translates to:
+  /// **'Low-poly'**
+  String get headerSkinLowPoly;
+
+  /// No description provided for @headerSkinPrism.
+  ///
+  /// In en, this message translates to:
+  /// **'Prism'**
+  String get headerSkinPrism;
+
+  /// No description provided for @headerSkinTerrazzo.
+  ///
+  /// In en, this message translates to:
+  /// **'Terrazzo'**
+  String get headerSkinTerrazzo;
+
   /// No description provided for @mineAvatarTitle.
   ///
   /// In en, this message translates to:
