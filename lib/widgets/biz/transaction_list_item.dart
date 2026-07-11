@@ -25,13 +25,13 @@ class TransactionListItem extends ConsumerWidget {
   final String? ledgerName; // 账本名称（仅"全部账本"模式下显示标签）
   final VoidCallback? onDelete; // 删除回调
   final String? accountName; // 账户名称，用于显示
-  final DateTime? happenedAt; // 交易时间，用于显示时分
+  final DateTime? happenedAt; // 交易时间，用于显示时分秒
 
   // 批量选择模式相关
   final bool isSelectionMode; // 是否处于选择模式
   final bool isSelected; // 是否被选中
   final VoidCallback? onSelectionChanged; // 选中状态改变回调
-  final bool showFullDate; // 是否显示完整日期（年-月-日 时:分）
+  final bool showFullDate; // 是否显示完整日期（年-月-日 时:分:秒）
 
   // 标签相关
   final List<({int id, String name, String? color})>? tags; // 关联的标签
@@ -122,7 +122,7 @@ class TransactionListItem extends ConsumerWidget {
         // 完整日期模式
         parts.add(
           '${happenedAt!.year}-${happenedAt!.month.toString().padLeft(2, '0')}-${happenedAt!.day.toString().padLeft(2, '0')} '
-          '${happenedAt!.hour.toString().padLeft(2, '0')}:${happenedAt!.minute.toString().padLeft(2, '0')}',
+          '${happenedAt!.hour.toString().padLeft(2, '0')}:${happenedAt!.minute.toString().padLeft(2, '0')}:${happenedAt!.second.toString().padLeft(2, '0')}',
         );
       } else if (ref.watch(showTransactionTimeProvider) &&
           (happenedAt!.hour != 0 || happenedAt!.minute != 0 || happenedAt!.second != 0)) {
