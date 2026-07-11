@@ -4430,6 +4430,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aboutDouyin => '도우인';
 
   @override
+  String get aboutTelegram => 'Telegram';
+
+  @override
   String get aboutSupportDevelopment => '개발 후원하기';
 
   @override

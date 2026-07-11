@@ -4430,6 +4430,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutDouyin => 'Douyin';
 
   @override
+  String get aboutTelegram => 'Telegram';
+
+  @override
   String get aboutSupportDevelopment => 'Support Development';
 
   @override
