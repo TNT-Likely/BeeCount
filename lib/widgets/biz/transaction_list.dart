@@ -387,10 +387,10 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
             Widget header = Column(
               children: [
-                if (!isFirst && BeeTokens.cardInnerDividerHeight(context) > 0)
+                if (!isFirst)
                   Divider(
-                    height: BeeTokens.cardInnerDividerHeight(context),
-                    color: BeeTokens.cardInnerDividerColor(context),
+                    height: BeeTokens.listDayDividerHeight(context),
+                    color: BeeTokens.listDayDividerColor(context),
                   ),
                 DaySectionHeader(
                   dateText: dateKey,

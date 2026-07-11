@@ -273,20 +273,32 @@ class BeeTokens {
   /// - 暗黑模式：transparent（去掉分割线）
   static Color cardInnerDividerColor(BuildContext context) =>
       isDark(context)
-          ? Colors.white.withValues(alpha: 0.08)
+          ? Colors.transparent
           : Colors.black.withValues(alpha: 0.06);
 
   /// 卡片内部分割线高度
   /// - 亮色模式：1
   /// - 暗黑模式：0（去掉分割线）
-  static double cardInnerDividerHeight(BuildContext context) => 1;
+  static double cardInnerDividerHeight(BuildContext context) =>
+      isDark(context) ? 0 : 1;
+
+  /// 明细列表「天」之间的分隔线。区别于卡片内 item 分隔(cardInnerDivider
+  /// 暗黑不显示):明细 day 分隔亮暗都显示细线(暗黑 white 8% / 亮 black 6%)。
+  static double listDayDividerHeight(BuildContext context) => 1;
+  static Color listDayDividerColor(BuildContext context) => isDark(context)
+      ? Colors.white.withValues(alpha: 0.08)
+      : Colors.black.withValues(alpha: 0.06);
 
   /// 卡片内部分割线组件
   /// 封装了 height、thickness、color 三个属性
-  static Widget cardDivider(BuildContext context) => Divider(
+  /// 设置项分割线。默认左缩进 48(对齐 AppListTile 内容:icon 容器 36 + 间距 12),
+  /// 让线避开左侧 icon。section 顶部 / 卡片外等需要全宽的场景传 indent: 0。
+  static Widget cardDivider(BuildContext context, {double indent = 48}) =>
+      Divider(
         height: cardInnerDividerHeight(context),
         thickness: cardInnerDividerHeight(context),
         color: cardInnerDividerColor(context),
+        indent: indent,
       );
 
   // ========== 主题色 Token (Theme) ==========

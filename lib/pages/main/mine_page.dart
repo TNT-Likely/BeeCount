@@ -71,7 +71,7 @@ class MinePage extends ConsumerWidget {
               padding: EdgeInsets.zero,
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
-                BeeTokens.cardDivider(context),
+                BeeTokens.cardDivider(context, indent: 0),
                 SizedBox(height: 8.0.scaled(context, ref)),
                 // 云同步与备份
                 Consumer(builder: (sectionContext, sectionRef, _) {
