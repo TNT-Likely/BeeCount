@@ -31,7 +31,9 @@ class FontSettingsPage extends ConsumerWidget {
         children: [
           PrimaryHeader(title: AppLocalizations.of(context)!.mineDisplayScale, showBack: true, compact: true),
           Expanded(
-            child: ListView(
+            child: SafeArea(
+              top: false,
+              child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               children: [
                 // 显示缩放设置部分
@@ -73,7 +75,7 @@ class FontSettingsPage extends ConsumerWidget {
                         .bodySmall
                         ?.copyWith(color: BeeTokens.textSecondary(context))),
               ],
-            ),
+            ),)
           ),
         ],
       ),
