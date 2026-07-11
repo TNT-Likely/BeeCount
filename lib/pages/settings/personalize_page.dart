@@ -64,7 +64,7 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
             compact: true,
           ),
           Expanded(
-            child: ListView(
+            child: SafeArea(top: false, child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 GridView.builder(
@@ -97,7 +97,7 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
                   },
                 ),
               ],
-            ),
+            )),
           ),
         ],
       ),
