@@ -72,192 +72,214 @@ class AppearanceSettingsPage extends ConsumerWidget {
             showBack: true,
           ),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // 纯样式:外观模式 / 主题色 / 皮肤 / 显示缩放
-                SectionCard(
-                  margin: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      // 外观模式
-                      AppListTile(
-                        leading: Icons.brightness_6_outlined,
-                        title: l10n.appearanceThemeMode,
-                        subtitle: themeModeDisplay,
-                        onTap: () => _showThemeModeDialog(context, ref, l10n),
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 主题色设置
-                      AppListTile(
-                        leading: Icons.brush_outlined,
-                        title: l10n.personalizeTitle,
-                        subtitle: l10n.personalizeSubtitle,
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const PersonalizePage()),
-                          );
-                        },
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 皮肤
-                      AppListTile(
-                        leading: Icons.wallpaper_outlined,
-                        title: l10n.headerSkinTitle,
-                        subtitle: skinDisplay,
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const HeaderSkinPage()),
-                          );
-                        },
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 显示缩放
-                      AppListTile(
-                        leading: Icons.zoom_out_map_outlined,
-                        title: l10n.mineDisplayScale,
-                        subtitle: l10n.mineDisplayScaleSubtitle,
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const FontSettingsPage()),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // 功能:金额格式 / 交易时间 / 收支配色(影响数据呈现,非纯外观)
-                SectionCard(
-                  margin: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      // 金额显示格式
-                      AppListTile(
-                        leading: Icons.money_outlined,
-                        title: l10n.appearanceAmountFormat,
-                        subtitle: ref.watch(compactAmountProvider)
-                            ? l10n.appearanceAmountFormatCompact
-                            : l10n.appearanceAmountFormatFull,
-                        onTap: () => _showAmountFormatDialog(context, ref, l10n),
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 显示交易时间
-                      AppListTile(
-                        leading: Icons.schedule_outlined,
-                        title: l10n.appearanceShowTransactionTime,
-                        subtitle: l10n.appearanceShowTransactionTimeDesc,
-                        trailing: Switch.adaptive(
-                          value: ref.watch(showTransactionTimeProvider),
-                          onChanged: (value) {
-                            ref.read(showTransactionTimeProvider.notifier).state = value;
-                          },
-                          activeColor: ref.watch(primaryColorProvider),
-                        ),
-                        onTap: () {
-                          final current = ref.read(showTransactionTimeProvider);
-                          ref.read(showTransactionTimeProvider.notifier).state = !current;
-                        },
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 备注显示方式
-                      AppListTile(
-                        leading: Icons.notes_outlined,
-                        title: l10n.appearanceNoteDisplay,
-                        subtitle: ref.watch(noteDisplayModeProvider) == 'note'
-                            ? l10n.appearanceNoteDisplayNote
-                            : l10n.appearanceNoteDisplayCategory,
-                        onTap: () => _showNoteDisplayDialog(context, ref, l10n),
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 收支颜色方案
-                      AppListTile(
-                        leading: Icons.palette_outlined,
-                        title: l10n.appearanceColorScheme,
-                        subtitle: ref.watch(incomeExpenseColorSchemeProvider)
-                            ? l10n.appearanceColorSchemeOn
-                            : l10n.appearanceColorSchemeOff,
-                        onTap: () => _showColorSchemeDialog(context, ref, l10n),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // 多币种:主币种 / 汇率管理
-                SectionCard(
-                  margin: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      // 主币种
-                      AppListTile(
-                        leading: Icons.payments_outlined,
-                        title: l10n.baseCurrencyLabel,
-                        subtitle: displayCurrency(
-                            ref.watch(baseCurrencyProvider).toUpperCase(),
-                            context),
-                        onTap: () => _pickBaseCurrency(context, ref),
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 汇率管理
-                      AppListTile(
-                        leading: Icons.currency_exchange,
-                        title: l10n.exchangeRatePageTitle,
-                        subtitle: l10n.exchangeRateEntrySubtitle,
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const ExchangeRatePage(),
+            child: SafeArea(
+                top: false,
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    // 纯样式:外观模式 / 主题色 / 皮肤 / 显示缩放
+                    SectionCard(
+                      margin: EdgeInsets.zero,
+                      child: Column(
+                        children: [
+                          // 外观模式
+                          AppListTile(
+                            leading: Icons.brightness_6_outlined,
+                            title: l10n.appearanceThemeMode,
+                            subtitle: themeModeDisplay,
+                            onTap: () =>
+                                _showThemeModeDialog(context, ref, l10n),
                           ),
-                        ),
+                          BeeTokens.cardDivider(context),
+                          // 主题色设置
+                          AppListTile(
+                            leading: Icons.brush_outlined,
+                            title: l10n.personalizeTitle,
+                            subtitle: l10n.personalizeSubtitle,
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) => const PersonalizePage()),
+                              );
+                            },
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 皮肤
+                          AppListTile(
+                            leading: Icons.wallpaper_outlined,
+                            title: l10n.headerSkinTitle,
+                            subtitle: skinDisplay,
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) => const HeaderSkinPage()),
+                              );
+                            },
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 显示缩放
+                          AppListTile(
+                            leading: Icons.zoom_out_map_outlined,
+                            title: l10n.mineDisplayScale,
+                            subtitle: l10n.mineDisplayScaleSubtitle,
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) => const FontSettingsPage()),
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // 通用:语言 / 桌面小组件 / 应用锁
-                SectionCard(
-                  margin: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      // 语言设置
-                      AppListTile(
-                        leading: Icons.language_outlined,
-                        title: l10n.mineLanguageSettings,
-                        subtitle: languageDisplay,
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const LanguageSettingsPage()),
-                          );
-                        },
+                    ),
+                    const SizedBox(height: 16),
+                    // 功能:金额格式 / 交易时间 / 收支配色(影响数据呈现,非纯外观)
+                    SectionCard(
+                      margin: EdgeInsets.zero,
+                      child: Column(
+                        children: [
+                          // 金额显示格式
+                          AppListTile(
+                            leading: Icons.money_outlined,
+                            title: l10n.appearanceAmountFormat,
+                            subtitle: ref.watch(compactAmountProvider)
+                                ? l10n.appearanceAmountFormatCompact
+                                : l10n.appearanceAmountFormatFull,
+                            onTap: () =>
+                                _showAmountFormatDialog(context, ref, l10n),
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 显示交易时间
+                          AppListTile(
+                            leading: Icons.schedule_outlined,
+                            title: l10n.appearanceShowTransactionTime,
+                            subtitle: l10n.appearanceShowTransactionTimeDesc,
+                            trailing: Switch.adaptive(
+                              value: ref.watch(showTransactionTimeProvider),
+                              onChanged: (value) {
+                                ref
+                                    .read(showTransactionTimeProvider.notifier)
+                                    .state = value;
+                              },
+                              activeColor: ref.watch(primaryColorProvider),
+                            ),
+                            onTap: () {
+                              final current =
+                                  ref.read(showTransactionTimeProvider);
+                              ref
+                                  .read(showTransactionTimeProvider.notifier)
+                                  .state = !current;
+                            },
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 备注显示方式
+                          AppListTile(
+                            leading: Icons.notes_outlined,
+                            title: l10n.appearanceNoteDisplay,
+                            subtitle:
+                                ref.watch(noteDisplayModeProvider) == 'note'
+                                    ? l10n.appearanceNoteDisplayNote
+                                    : l10n.appearanceNoteDisplayCategory,
+                            onTap: () =>
+                                _showNoteDisplayDialog(context, ref, l10n),
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 收支颜色方案
+                          AppListTile(
+                            leading: Icons.palette_outlined,
+                            title: l10n.appearanceColorScheme,
+                            subtitle:
+                                ref.watch(incomeExpenseColorSchemeProvider)
+                                    ? l10n.appearanceColorSchemeOn
+                                    : l10n.appearanceColorSchemeOff,
+                            onTap: () =>
+                                _showColorSchemeDialog(context, ref, l10n),
+                          ),
+                        ],
                       ),
-                      BeeTokens.cardDivider(context),
-                      // 桌面小组件
-                      AppListTile(
-                        leading: Icons.widgets_outlined,
-                        title: l10n.widgetManagement,
-                        subtitle: l10n.widgetManagementDesc,
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const WidgetManagementPage()),
-                          );
-                        },
+                    ),
+                    const SizedBox(height: 16),
+                    // 多币种:主币种 / 汇率管理
+                    SectionCard(
+                      margin: EdgeInsets.zero,
+                      child: Column(
+                        children: [
+                          // 主币种
+                          AppListTile(
+                            leading: Icons.payments_outlined,
+                            title: l10n.baseCurrencyLabel,
+                            subtitle: displayCurrency(
+                                ref.watch(baseCurrencyProvider).toUpperCase(),
+                                context),
+                            onTap: () => _pickBaseCurrency(context, ref),
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 汇率管理
+                          AppListTile(
+                            leading: Icons.currency_exchange,
+                            title: l10n.exchangeRatePageTitle,
+                            subtitle: l10n.exchangeRateEntrySubtitle,
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const ExchangeRatePage(),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      BeeTokens.cardDivider(context),
-                      // 应用锁
-                      AppListTile(
-                        leading: Icons.lock_outline,
-                        title: l10n.appLockTitle,
-                        subtitle: l10n.appLockDesc,
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const AppLockSettingsPage()),
-                          );
-                        },
+                    ),
+                    const SizedBox(height: 16),
+                    // 通用:语言 / 桌面小组件 / 应用锁
+                    SectionCard(
+                      margin: EdgeInsets.zero,
+                      child: Column(
+                        children: [
+                          // 语言设置
+                          AppListTile(
+                            leading: Icons.language_outlined,
+                            title: l10n.mineLanguageSettings,
+                            subtitle: languageDisplay,
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        const LanguageSettingsPage()),
+                              );
+                            },
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 桌面小组件
+                          AppListTile(
+                            leading: Icons.widgets_outlined,
+                            title: l10n.widgetManagement,
+                            subtitle: l10n.widgetManagementDesc,
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        const WidgetManagementPage()),
+                              );
+                            },
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 应用锁
+                          AppListTile(
+                            leading: Icons.lock_outline,
+                            title: l10n.appLockTitle,
+                            subtitle: l10n.appLockDesc,
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        const AppLockSettingsPage()),
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+                    ),
+                  ],
+                )),
           ),
         ],
       ),
@@ -278,7 +300,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
   }
 
   /// 显示主题模式选择对话框
-  void _showThemeModeDialog(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+  void _showThemeModeDialog(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     final currentMode = ref.read(themeModeProvider);
 
     showDialog(
@@ -293,21 +316,24 @@ class AppearanceSettingsPage extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildModeOption(
-              context, ref,
+              context,
+              ref,
               title: l10n.appearanceThemeModeSystem,
               value: ThemeMode.system,
               currentValue: currentMode,
               icon: Icons.settings_suggest_outlined,
             ),
             _buildModeOption(
-              context, ref,
+              context,
+              ref,
               title: l10n.appearanceThemeModeLight,
               value: ThemeMode.light,
               currentValue: currentMode,
               icon: Icons.light_mode_outlined,
             ),
             _buildModeOption(
-              context, ref,
+              context,
+              ref,
               title: l10n.appearanceThemeModeDark,
               value: ThemeMode.dark,
               currentValue: currentMode,
@@ -342,9 +368,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
         ),
       ),
-      trailing: isSelected
-          ? Icon(Icons.check, color: primaryColor)
-          : null,
+      trailing: isSelected ? Icon(Icons.check, color: primaryColor) : null,
       onTap: () {
         ref.read(themeModeProvider.notifier).state = value;
         Navigator.pop(context);
@@ -353,7 +377,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
   }
 
   /// 显示金额显示格式选择对话框
-  void _showAmountFormatDialog(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+  void _showAmountFormatDialog(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     final isCompact = ref.read(compactAmountProvider);
 
     showDialog(
@@ -368,7 +393,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildAmountFormatOption(
-              context, ref,
+              context,
+              ref,
               title: l10n.appearanceAmountFormatFull,
               subtitle: l10n.appearanceAmountFormatFullDesc,
               value: false,
@@ -376,7 +402,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
               icon: Icons.format_list_numbered_outlined,
             ),
             _buildAmountFormatOption(
-              context, ref,
+              context,
+              ref,
               title: l10n.appearanceAmountFormatCompact,
               subtitle: l10n.appearanceAmountFormatCompactDesc,
               value: true,
@@ -420,9 +447,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
           fontSize: 12,
         ),
       ),
-      trailing: isSelected
-          ? Icon(Icons.check, color: primaryColor)
-          : null,
+      trailing: isSelected ? Icon(Icons.check, color: primaryColor) : null,
       onTap: () {
         ref.read(compactAmountProvider.notifier).state = value;
         Navigator.pop(context);
@@ -431,7 +456,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
   }
 
   /// 显示备注显示方式选择对话框
-  void _showNoteDisplayDialog(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+  void _showNoteDisplayDialog(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     final current = ref.read(noteDisplayModeProvider);
     showDialog(
       context: context,
@@ -445,7 +471,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildNoteDisplayOption(
-              context, ref,
+              context,
+              ref,
               title: l10n.appearanceNoteDisplayCategory,
               subtitle: l10n.appearanceNoteDisplayCategoryDesc,
               value: 'category',
@@ -453,7 +480,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
               icon: Icons.label_outline,
             ),
             _buildNoteDisplayOption(
-              context, ref,
+              context,
+              ref,
               title: l10n.appearanceNoteDisplayNote,
               subtitle: l10n.appearanceNoteDisplayNoteDesc,
               value: 'note',
@@ -478,7 +506,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
     final isSelected = value == currentValue;
     final primaryColor = ref.watch(primaryColorProvider);
     return ListTile(
-      leading: Icon(icon, color: isSelected ? primaryColor : BeeTokens.iconSecondary(context)),
+      leading: Icon(icon,
+          color: isSelected ? primaryColor : BeeTokens.iconSecondary(context)),
       title: Text(
         title,
         style: TextStyle(
@@ -499,7 +528,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
   }
 
   /// 显示收支颜色方案选择对话框
-  void _showColorSchemeDialog(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+  void _showColorSchemeDialog(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     final currentScheme = ref.read(incomeExpenseColorSchemeProvider);
 
     showDialog(
@@ -514,7 +544,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildColorSchemeOption(
-              context, ref,
+              context,
+              ref,
               title: l10n.appearanceColorSchemeOn,
               subtitle: l10n.appearanceColorSchemeOnDesc,
               value: true,
@@ -522,7 +553,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
               icon: Icons.trending_up,
             ),
             _buildColorSchemeOption(
-              context, ref,
+              context,
+              ref,
               title: l10n.appearanceColorSchemeOff,
               subtitle: l10n.appearanceColorSchemeOffDesc,
               value: false,
@@ -566,9 +598,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
           fontSize: 12,
         ),
       ),
-      trailing: isSelected
-          ? Icon(Icons.check, color: primaryColor)
-          : null,
+      trailing: isSelected ? Icon(Icons.check, color: primaryColor) : null,
       onTap: () {
         ref.read(incomeExpenseColorSchemeProvider.notifier).state = value;
         Navigator.pop(context);
