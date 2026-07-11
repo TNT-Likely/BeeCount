@@ -2,22 +2,21 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background">
 
     <!--
-        scaleType=fitCenter:
-          按 Flutter 渲染图(364x182, 2:1) 的原比例完整显示,不裁减。用户在
-          桌面把 widget 横向拉宽后,view 宽高比偏离 2:1,fitCenter 会让图片
-          居中 + 留透明空白(letterbox),而不是像 centerCrop 那样切顶/底
-          内容。
-        曾经用过 fitXY(变形拉伸) 和 centerCrop(裁减),前者难看后者切内容,
-        都不如 fitCenter 直观。
+        scaleType=fitXY:
+          Android 各桌面给同一个小部件的实际宽高比并不完全一致。fitCenter
+          会在小米桌面等偏高的容器里留下上下空白；centerCrop 又会裁掉内容。
+          这里让渲染图完整填满宿主区域，避免白边或透明占位。
     -->
     <ImageView
         android:id="@+id/widget_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitCenter"
+        android:background="@drawable/widget_background"
+        android:scaleType="fitXY"
         android:contentDescription="Widget content" />
 
     <!-- 透明点击层：左右各半，左侧支出，右侧收入 -->

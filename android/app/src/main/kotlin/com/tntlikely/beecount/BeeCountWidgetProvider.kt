@@ -5,9 +5,9 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.util.Log
 import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetProvider
@@ -38,7 +38,7 @@ class BeeCountWidgetProvider : HomeWidgetProvider() {
                         val file = File(imagePath)
                         Log.d(TAG, "File exists: ${file.exists()}, size: ${if(file.exists()) file.length() else 0}")
 
-                        val bitmap = BitmapFactory.decodeFile(imagePath)
+                        val bitmap = loadWidgetBitmap(imagePath)
                         if (bitmap != null) {
                             Log.d(TAG, "Bitmap decoded successfully: ${bitmap.width}x${bitmap.height}")
                             setImageViewBitmap(R.id.widget_image, bitmap)
@@ -95,5 +95,27 @@ class BeeCountWidgetProvider : HomeWidgetProvider() {
         intent.data = Uri.parse(url)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         return intent
+    }
+
+    private fun loadWidgetBitmap(imagePath: String): Bitmap? {
+        val bounds = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        BitmapFactory.decodeFile(imagePath, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+
+        val maxWidth = 600
+        val maxHeight = 300
+        var sampleSize = 1
+        while (bounds.outWidth / sampleSize > maxWidth ||
+            bounds.outHeight / sampleSize > maxHeight
+        ) {
+            sampleSize *= 2
+        }
+
+        val options = BitmapFactory.Options().apply {
+            inSampleSize = sampleSize
+        }
+        return BitmapFactory.decodeFile(imagePath, options)
     }
 }

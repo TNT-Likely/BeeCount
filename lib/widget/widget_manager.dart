@@ -116,7 +116,9 @@ class WidgetManager {
         ),
         key: 'widgetImage',
         logicalSize: widgetSize,
-        pixelRatio: 4.0, // @4x for high resolution
+        // RemoteViews 会通过 Binder 传递位图；过大的 @4x 图在部分小米桌面上会更新失败，
+        // 表现为小部件占位但透明。1.5x 保持清晰度，同时把位图控制在安全大小内。
+        pixelRatio: 1.5,
       );
       print('✅ 小组件渲染完成');
 

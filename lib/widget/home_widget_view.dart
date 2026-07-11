@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 
 /// Flutter widget that will be rendered as the home screen widget
@@ -44,32 +43,22 @@ class HomeWidgetView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // For Android, add top/bottom padding to achieve 2:1 ratio (364x182)
-    // iOS uses natural 364x169 size
-    final isAndroid = Platform.isAndroid;
-    final verticalPadding = isAndroid ? (182 - 169) / 2 : 0.0; // 6.5 pixels top and bottom
-
     return Container(
       width: width,
       height: height,
-      color: Colors.transparent, // Transparent background for padding area
-      padding: EdgeInsets.symmetric(vertical: verticalPadding),
-      child: Container(
-        width: 364,
-        height: 169, // Always render content at 364x169
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              themeColor,
-              Color.lerp(themeColor, Colors.black, 0.15)!,
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            themeColor,
+            Color.lerp(themeColor, Colors.black, 0.15)!,
+          ],
         ),
-        padding: const EdgeInsets.all(12),
-        child: Column(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
         children: [
           // Header
           Row(
@@ -172,7 +161,6 @@ class HomeWidgetView extends StatelessWidget {
             ),
           ),
         ],
-        ),
       ),
     );
   }
@@ -258,5 +246,4 @@ class HomeWidgetView extends StatelessWidget {
       ),
     );
   }
-
 }
