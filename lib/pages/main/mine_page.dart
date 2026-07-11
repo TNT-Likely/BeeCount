@@ -67,474 +67,503 @@ class MinePage extends ConsumerWidget {
             content: _MinePageHeader(),
           ),
           Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              physics: const AlwaysScrollableScrollPhysics(),
-              children: [
-                BeeTokens.cardDivider(context),
-                SizedBox(height: 8.0.scaled(context, ref)),
-                // 云同步与备份
-                Consumer(builder: (sectionContext, sectionRef, _) {
-                  final activeCfg = sectionRef.watch(activeCloudConfigProvider);
+            child: SafeArea(
+                top: false,
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    BeeTokens.cardDivider(context),
+                    SizedBox(height: 8.0.scaled(context, ref)),
+                    // 云同步与备份
+                    Consumer(builder: (sectionContext, sectionRef, _) {
+                      final activeCfg =
+                          sectionRef.watch(activeCloudConfigProvider);
 
-                  return SectionCard(
-                    margin: EdgeInsets.fromLTRB(
-                        12.0.scaled(sectionContext, sectionRef),
-                        0,
-                        12.0.scaled(sectionContext, sectionRef),
-                        0),
-                    child: Column(
-                      children: [
-                        // 云服务 —— BeeCount Cloud 模式下 subtitle 带上
-                        // server 版本号(从 fetchServerVersion 拉的 FutureProvider),
-                        // 一眼看到 cloud 哪版。其它模式没版本概念,保留原文案。
-                        Consumer(builder: (ctx, r, _) {
-                          final cloudVersion = r
-                              .watch(beecountCloudServerVersionProvider)
-                              .valueOrNull;
-                          return AppListTile(
-                            leading: Icons.cloud_queue_outlined,
-                            title: AppLocalizations.of(sectionContext)
-                                .mineCloudService,
-                            subtitle: activeCfg.when(
-                              loading: () => AppLocalizations.of(sectionContext)
-                                  .mineCloudServiceLoading,
-                              error: (e, _) =>
-                                  '${AppLocalizations.of(sectionContext).commonError}: $e',
-                              data: (cfg) {
-                                switch (cfg.type) {
-                                  case CloudBackendType.local:
-                                    return AppLocalizations.of(sectionContext)
-                                        .mineCloudServiceOffline;
-                                  case CloudBackendType.webdav:
-                                    return AppLocalizations.of(sectionContext)
-                                        .mineCloudServiceWebDAV;
-                                  case CloudBackendType.icloud:
-                                    return 'iCloud';
-                                  case CloudBackendType.supabase:
-                                    return AppLocalizations.of(sectionContext)
-                                        .mineCloudServiceCustom;
-                                  case CloudBackendType.s3:
-                                    return 'S3';
-                                  case CloudBackendType.beecountCloud:
-                                    return cloudVersion != null &&
-                                            cloudVersion.isNotEmpty
-                                        ? 'BeeCount Cloud v$cloudVersion'
-                                        : 'BeeCount Cloud';
-                                }
-                              },
-                            ),
-                            onTap: () async {
-                              await Navigator.of(sectionContext).push(
-                                MaterialPageRoute(
-                                    builder: (_) => const CloudServicePage()),
-                              );
-                            },
-                          );
-                        }),
-                        // 同步状态
-                        Builder(
-                          builder: (ctx) {
-                            return authAsync.when(
-                              loading: () => const Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child:
-                                    Center(child: CircularProgressIndicator()),
-                              ),
-                              error: (e, _) => Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Text(
-                                  '${AppLocalizations.of(sectionContext).commonError}: $e',
-                                  style: const TextStyle(color: Colors.red),
-                                ),
-                              ),
-                              data: (auth) => FutureBuilder<CloudUser?>(
-                                future: auth.currentUser,
-                                builder: (ctx, snap) {
-                                  if (snap.hasError) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Text(
-                                        '${AppLocalizations.of(sectionContext).commonError}: ${snap.error}',
-                                        style:
-                                            const TextStyle(color: Colors.red),
-                                      ),
-                                    );
-                                  }
-
-                                  final user = snap.data;
-                                  final cloudConfig = sectionRef
-                                      .watch(activeCloudConfigProvider);
-                                  final isLocalMode = cloudConfig.hasValue &&
-                                      cloudConfig.value!.type ==
-                                          CloudBackendType.local;
-                                  final isICloudMode = cloudConfig.hasValue &&
-                                      cloudConfig.value!.type ==
-                                          CloudBackendType.icloud;
-                                  // iCloud 使用系统账号，不需要登录；其他云服务需要登录
-                                  final canUseCloud = !isLocalMode &&
-                                      (isICloudMode || user != null);
-                                  final asyncSt = sectionRef
-                                      .watch(syncStatusProvider(ledgerId));
-                                  final cached = sectionRef
-                                      .watch(lastSyncStatusProvider(ledgerId));
-                                  final st = asyncSt.asData?.value ?? cached;
-
-                                  // 计算简化的同步状态显示
-                                  String subtitle = '';
-                                  bool showCheckIcon = false;
-                                  final isFirstLoad = st == null;
-                                  final refreshing = asyncSt.isLoading;
-
-                                  if (!isFirstLoad) {
-                                    switch (st.diff) {
-                                      case SyncDiff.notLoggedIn:
-                                        subtitle =
-                                            AppLocalizations.of(sectionContext)
-                                                .mineSyncNotLoggedIn;
-                                        break;
-                                      case SyncDiff.notConfigured:
-                                        subtitle =
-                                            AppLocalizations.of(sectionContext)
-                                                .mineSyncNotConfigured;
-                                        break;
-                                      case SyncDiff.noRemote:
-                                        subtitle =
-                                            AppLocalizations.of(sectionContext)
-                                                .mineSyncNoRemote;
-                                        break;
-                                      case SyncDiff.inSync:
-                                        subtitle =
-                                            AppLocalizations.of(sectionContext)
-                                                .mineSyncInSyncSimple;
-                                        showCheckIcon = true;
-                                        break;
-                                      case SyncDiff.localNewer:
-                                        subtitle =
-                                            AppLocalizations.of(sectionContext)
-                                                .mineSyncLocalNewerSimple;
-                                        break;
-                                      case SyncDiff.cloudNewer:
-                                        subtitle =
-                                            AppLocalizations.of(sectionContext)
-                                                .mineSyncCloudNewerSimple;
-                                        break;
-                                      case SyncDiff.different:
-                                        subtitle =
-                                            AppLocalizations.of(sectionContext)
-                                                .mineSyncDifferent;
-                                        break;
-                                      case SyncDiff.error:
-                                        subtitle =
-                                            AppLocalizations.of(sectionContext)
-                                                .mineSyncError;
-                                        break;
+                      return SectionCard(
+                        margin: EdgeInsets.fromLTRB(
+                            12.0.scaled(sectionContext, sectionRef),
+                            0,
+                            12.0.scaled(sectionContext, sectionRef),
+                            0),
+                        child: Column(
+                          children: [
+                            // 云服务 —— BeeCount Cloud 模式下 subtitle 带上
+                            // server 版本号(从 fetchServerVersion 拉的 FutureProvider),
+                            // 一眼看到 cloud 哪版。其它模式没版本概念,保留原文案。
+                            Consumer(builder: (ctx, r, _) {
+                              final cloudVersion = r
+                                  .watch(beecountCloudServerVersionProvider)
+                                  .valueOrNull;
+                              return AppListTile(
+                                leading: Icons.cloud_queue_outlined,
+                                title: AppLocalizations.of(sectionContext)
+                                    .mineCloudService,
+                                subtitle: activeCfg.when(
+                                  loading: () =>
+                                      AppLocalizations.of(sectionContext)
+                                          .mineCloudServiceLoading,
+                                  error: (e, _) =>
+                                      '${AppLocalizations.of(sectionContext).commonError}: $e',
+                                  data: (cfg) {
+                                    switch (cfg.type) {
+                                      case CloudBackendType.local:
+                                        return AppLocalizations.of(
+                                                sectionContext)
+                                            .mineCloudServiceOffline;
+                                      case CloudBackendType.webdav:
+                                        return AppLocalizations.of(
+                                                sectionContext)
+                                            .mineCloudServiceWebDAV;
+                                      case CloudBackendType.icloud:
+                                        return 'iCloud';
+                                      case CloudBackendType.supabase:
+                                        return AppLocalizations.of(
+                                                sectionContext)
+                                            .mineCloudServiceCustom;
+                                      case CloudBackendType.s3:
+                                        return 'S3';
+                                      case CloudBackendType.beecountCloud:
+                                        return cloudVersion != null &&
+                                                cloudVersion.isNotEmpty
+                                            ? 'BeeCount Cloud v$cloudVersion'
+                                            : 'BeeCount Cloud';
                                     }
-                                  }
-
-                                  return Column(
-                                    children: [
-                                      BeeTokens.cardDivider(sectionContext),
-                                      AppListTile(
-                                        leading: Icons.cloud_sync_outlined,
-                                        title:
-                                            AppLocalizations.of(sectionContext)
-                                                .mineSyncTitle,
-                                        subtitle: isFirstLoad ? null : subtitle,
-                                        enabled: !isLocalMode,
-                                        trailing: (canUseCloud &&
-                                                (isFirstLoad || refreshing))
-                                            ? const SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                        strokeWidth: 2))
-                                            : showCheckIcon
-                                                ? Icon(Icons.check_circle,
-                                                    color: sectionRef.watch(
-                                                        primaryColorProvider),
-                                                    size: 20)
-                                                : Icon(Icons.chevron_right,
-                                                    color: BeeTokens.iconTertiary(
-                                                        context), // ⭐ 使用 Token
-                                                    size: 20),
-                                        onTap: () async {
-                                          // BeeCount Cloud 专属页跟老的
-                                          // iCloud/WebDAV/Supabase 页语义完全不同,
-                                          // 路由按 config.type 分叉,避免 UI 里
-                                          // 大段 if-else 分支。
-                                          final cfg = ref
-                                              .read(activeCloudConfigProvider)
-                                              .valueOrNull;
-                                          final isBeeCount = cfg != null &&
-                                              cfg.type ==
-                                                  CloudBackendType.beecountCloud;
-                                          await Navigator.of(sectionContext)
-                                              .push(
-                                            MaterialPageRoute(
-                                                builder: (_) => isBeeCount
-                                                    ? const BeeCountCloudSyncPage()
-                                                    : const CloudSyncPage()),
-                                          );
-                                        },
-                                      ),
-                                    ],
+                                  },
+                                ),
+                                onTap: () async {
+                                  await Navigator.of(sectionContext).push(
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            const CloudServicePage()),
                                   );
                                 },
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-                // 功能管理
-                SizedBox(height: 8.0.scaled(context, ref)),
-                SectionCard(
-                  margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0,
-                      12.0.scaled(context, ref), 0),
-                  child: Column(
-                    children: [
-                      // 智能记账(共享账本入口已移到"账本管理"页 PrimaryHeader)
-                      AppListTile(
-                        leading: Icons.auto_awesome_outlined,
-                        title: AppLocalizations.of(context).smartBilling,
-                        subtitle: AppLocalizations.of(context).smartBillingDesc,
-                        trailing: Icon(Icons.chevron_right,
-                            color: BeeTokens.iconTertiary(context),
-                            size: 20), // ⭐ 使用 Token
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const SmartBillingPage()),
-                          );
-                        },
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 数据管理
-                      AppListTile(
-                        leading: Icons.storage_outlined,
-                        title: AppLocalizations.of(context).dataManagement,
-                        subtitle:
-                            AppLocalizations.of(context).dataManagementDesc,
-                        trailing: Icon(Icons.chevron_right,
-                            color: BeeTokens.iconTertiary(context),
-                            size: 20), // ⭐ 使用 Token
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const DataManagementPage()),
-                          );
-                        },
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 预算管理 已挪到「账本管理 → 长按某账本 → 预算管理」
-                      // (每个账本独立预算,放在账本菜单内语义更匹配)。
-                      // 自动化功能
-                      AppListTile(
-                        leading: Icons.schedule_outlined,
-                        title: AppLocalizations.of(context).automation,
-                        subtitle: AppLocalizations.of(context).automationDesc,
-                        trailing: Icon(Icons.chevron_right,
-                            color: BeeTokens.iconTertiary(context),
-                            size: 20), // ⭐ 使用 Token
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const AutomationPage()),
-                          );
-                        },
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 外观设置
-                      AppListTile(
-                        leading: Icons.palette_outlined,
-                        title: AppLocalizations.of(context).appearanceSettings,
-                        subtitle:
-                            AppLocalizations.of(context).appearanceSettingsDesc,
-                        trailing: Icon(Icons.chevron_right,
-                            color: BeeTokens.iconTertiary(context),
-                            size: 20), // ⭐ 使用 Token
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const AppearanceSettingsPage()),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                // 帮助与信息
-                SizedBox(height: 8.0.scaled(context, ref)),
-                SectionCard(
-                  margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0,
-                      12.0.scaled(context, ref), 0),
-                  child: Column(
-                    children: [
-                      AppListTile(
-                        leading: Icons.info_outline,
-                        title: AppLocalizations.of(context).about,
-                        subtitle: AppLocalizations.of(context).aboutDesc,
-                        trailing: Icon(Icons.chevron_right,
-                            color: BeeTokens.iconTertiary(context), size: 20),
-                        onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const AboutPage()),
-                          );
-                        },
-                      ),
-                      BeeTokens.cardDivider(context),
-                      // 使用帮助:默认 App 内嵌 WebView(embed 模式)。
-                      // 审核兜底:kHelpCenterInApp 改 false 重新打包即回退外部浏览器
-                      AppListTile(
-                        leading: Icons.help_outline,
-                        title: AppLocalizations.of(context).mineHelp,
-                        subtitle: AppLocalizations.of(context).mineHelpSubtitle,
-                        onTap: () async {
-                          if (kHelpCenterInApp) {
-                            await Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => const HelpCenterPage()));
-                          } else {
-                            final locale = Localizations.localeOf(context);
-                            await _tryOpenUrl(
-                                Uri.parse(WebsiteUrls.docs(locale)));
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                // 支持我们
-                SizedBox(height: 8.0.scaled(context, ref)),
-                SectionCard(
-                  margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0,
-                      12.0.scaled(context, ref), 0),
-                  child: Column(
-                    children: [
-                      // 仅在iOS显示打赏入口
-                      if (Platform.isIOS) ...[
-                        Consumer(
-                          builder: (context, ref, _) {
-                            final primaryColor =
-                                ref.watch(primaryColorProvider);
-                            return AppListTile(
-                              leading: Icons.favorite,
-                              leadingWidget: Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: primaryColor.withValues(alpha: 0.12),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.favorite_border,
-                                  color: primaryColor,
-                                ),
-                              ),
-                              title: AppLocalizations.of(context).donationTitle,
-                              subtitle: AppLocalizations.of(context)
-                                  .donationEntrySubtitle,
-                              trailing: Icon(Icons.chevron_right,
-                                  color: BeeTokens.iconTertiary(context),
-                                  size: 20),
-                              onTap: () async {
-                                await Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (_) => const DonationPage()),
+                              );
+                            }),
+                            // 同步状态
+                            Builder(
+                              builder: (ctx) {
+                                return authAsync.when(
+                                  loading: () => const Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Center(
+                                        child: CircularProgressIndicator()),
+                                  ),
+                                  error: (e, _) => Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      '${AppLocalizations.of(sectionContext).commonError}: $e',
+                                      style: const TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                  data: (auth) => FutureBuilder<CloudUser?>(
+                                    future: auth.currentUser,
+                                    builder: (ctx, snap) {
+                                      if (snap.hasError) {
+                                        return Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Text(
+                                            '${AppLocalizations.of(sectionContext).commonError}: ${snap.error}',
+                                            style: const TextStyle(
+                                                color: Colors.red),
+                                          ),
+                                        );
+                                      }
+
+                                      final user = snap.data;
+                                      final cloudConfig = sectionRef
+                                          .watch(activeCloudConfigProvider);
+                                      final isLocalMode =
+                                          cloudConfig.hasValue &&
+                                              cloudConfig.value!.type ==
+                                                  CloudBackendType.local;
+                                      final isICloudMode =
+                                          cloudConfig.hasValue &&
+                                              cloudConfig.value!.type ==
+                                                  CloudBackendType.icloud;
+                                      // iCloud 使用系统账号，不需要登录；其他云服务需要登录
+                                      final canUseCloud = !isLocalMode &&
+                                          (isICloudMode || user != null);
+                                      final asyncSt = sectionRef
+                                          .watch(syncStatusProvider(ledgerId));
+                                      final cached = sectionRef.watch(
+                                          lastSyncStatusProvider(ledgerId));
+                                      final st =
+                                          asyncSt.asData?.value ?? cached;
+
+                                      // 计算简化的同步状态显示
+                                      String subtitle = '';
+                                      bool showCheckIcon = false;
+                                      final isFirstLoad = st == null;
+                                      final refreshing = asyncSt.isLoading;
+
+                                      if (!isFirstLoad) {
+                                        switch (st.diff) {
+                                          case SyncDiff.notLoggedIn:
+                                            subtitle = AppLocalizations.of(
+                                                    sectionContext)
+                                                .mineSyncNotLoggedIn;
+                                            break;
+                                          case SyncDiff.notConfigured:
+                                            subtitle = AppLocalizations.of(
+                                                    sectionContext)
+                                                .mineSyncNotConfigured;
+                                            break;
+                                          case SyncDiff.noRemote:
+                                            subtitle = AppLocalizations.of(
+                                                    sectionContext)
+                                                .mineSyncNoRemote;
+                                            break;
+                                          case SyncDiff.inSync:
+                                            subtitle = AppLocalizations.of(
+                                                    sectionContext)
+                                                .mineSyncInSyncSimple;
+                                            showCheckIcon = true;
+                                            break;
+                                          case SyncDiff.localNewer:
+                                            subtitle = AppLocalizations.of(
+                                                    sectionContext)
+                                                .mineSyncLocalNewerSimple;
+                                            break;
+                                          case SyncDiff.cloudNewer:
+                                            subtitle = AppLocalizations.of(
+                                                    sectionContext)
+                                                .mineSyncCloudNewerSimple;
+                                            break;
+                                          case SyncDiff.different:
+                                            subtitle = AppLocalizations.of(
+                                                    sectionContext)
+                                                .mineSyncDifferent;
+                                            break;
+                                          case SyncDiff.error:
+                                            subtitle = AppLocalizations.of(
+                                                    sectionContext)
+                                                .mineSyncError;
+                                            break;
+                                        }
+                                      }
+
+                                      return Column(
+                                        children: [
+                                          BeeTokens.cardDivider(sectionContext),
+                                          AppListTile(
+                                            leading: Icons.cloud_sync_outlined,
+                                            title: AppLocalizations.of(
+                                                    sectionContext)
+                                                .mineSyncTitle,
+                                            subtitle:
+                                                isFirstLoad ? null : subtitle,
+                                            enabled: !isLocalMode,
+                                            trailing: (canUseCloud &&
+                                                    (isFirstLoad || refreshing))
+                                                ? const SizedBox(
+                                                    width: 20,
+                                                    height: 20,
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                            strokeWidth: 2))
+                                                : showCheckIcon
+                                                    ? Icon(Icons.check_circle,
+                                                        color: sectionRef.watch(
+                                                            primaryColorProvider),
+                                                        size: 20)
+                                                    : Icon(Icons.chevron_right,
+                                                        color: BeeTokens
+                                                            .iconTertiary(
+                                                                context), // ⭐ 使用 Token
+                                                        size: 20),
+                                            onTap: () async {
+                                              // BeeCount Cloud 专属页跟老的
+                                              // iCloud/WebDAV/Supabase 页语义完全不同,
+                                              // 路由按 config.type 分叉,避免 UI 里
+                                              // 大段 if-else 分支。
+                                              final cfg = ref
+                                                  .read(
+                                                      activeCloudConfigProvider)
+                                                  .valueOrNull;
+                                              final isBeeCount = cfg != null &&
+                                                  cfg.type ==
+                                                      CloudBackendType
+                                                          .beecountCloud;
+                                              await Navigator.of(sectionContext)
+                                                  .push(
+                                                MaterialPageRoute(
+                                                    builder: (_) => isBeeCount
+                                                        ? const BeeCountCloudSyncPage()
+                                                        : const CloudSyncPage()),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
                                 );
                               },
-                            );
-                          },
+                            ),
+                          ],
                         ),
-                        BeeTokens.cardDivider(context),
-                      ],
-                      // GitHub Star
-                      Consumer(
-                        builder: (context, ref, _) {
-                          final starCountAsync =
-                              ref.watch(githubStarCountProvider);
-                          final starCount = starCountAsync.valueOrNull ?? 999;
-                          return AppListTile(
-                            leading: Icons.star_outline,
+                      );
+                    }),
+                    // 功能管理
+                    SizedBox(height: 8.0.scaled(context, ref)),
+                    SectionCard(
+                      margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0,
+                          12.0.scaled(context, ref), 0),
+                      child: Column(
+                        children: [
+                          // 智能记账(共享账本入口已移到"账本管理"页 PrimaryHeader)
+                          AppListTile(
+                            leading: Icons.auto_awesome_outlined,
+                            title: AppLocalizations.of(context).smartBilling,
+                            subtitle:
+                                AppLocalizations.of(context).smartBillingDesc,
+                            trailing: Icon(Icons.chevron_right,
+                                color: BeeTokens.iconTertiary(context),
+                                size: 20), // ⭐ 使用 Token
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) => const SmartBillingPage()),
+                              );
+                            },
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 数据管理
+                          AppListTile(
+                            leading: Icons.storage_outlined,
+                            title: AppLocalizations.of(context).dataManagement,
+                            subtitle:
+                                AppLocalizations.of(context).dataManagementDesc,
+                            trailing: Icon(Icons.chevron_right,
+                                color: BeeTokens.iconTertiary(context),
+                                size: 20), // ⭐ 使用 Token
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) => const DataManagementPage()),
+                              );
+                            },
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 预算管理 已挪到「账本管理 → 长按某账本 → 预算管理」
+                          // (每个账本独立预算,放在账本菜单内语义更匹配)。
+                          // 自动化功能
+                          AppListTile(
+                            leading: Icons.schedule_outlined,
+                            title: AppLocalizations.of(context).automation,
+                            subtitle:
+                                AppLocalizations.of(context).automationDesc,
+                            trailing: Icon(Icons.chevron_right,
+                                color: BeeTokens.iconTertiary(context),
+                                size: 20), // ⭐ 使用 Token
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) => const AutomationPage()),
+                              );
+                            },
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 外观设置
+                          AppListTile(
+                            leading: Icons.palette_outlined,
                             title:
-                                AppLocalizations.of(context).mineSupportAuthor,
+                                AppLocalizations.of(context).appearanceSettings,
                             subtitle: AppLocalizations.of(context)
-                                .mineSupportAuthorSubtitle(
-                                    starCount.toString()),
-                            onTap: () => _showGitHubStarGuide(context),
-                          );
-                        },
+                                .appearanceSettingsDesc,
+                            trailing: Icon(Icons.chevron_right,
+                                color: BeeTokens.iconTertiary(context),
+                                size: 20), // ⭐ 使用 Token
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        const AppearanceSettingsPage()),
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                      BeeTokens.cardDivider(context),
-                      // 年度账单
-                      AppListTile(
-                        leading: Icons.auto_graph_rounded,
-                        title: AppLocalizations.of(context).annualReportTitle,
-                        subtitle: AppLocalizations.of(context)
-                            .annualReportEntrySubtitle,
-                        trailing: Icon(Icons.chevron_right,
-                            color: BeeTokens.iconTertiary(context), size: 20),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const AnnualReportPage()),
-                          );
-                        },
+                    ),
+                    // 帮助与信息
+                    SizedBox(height: 8.0.scaled(context, ref)),
+                    SectionCard(
+                      margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0,
+                          12.0.scaled(context, ref), 0),
+                      child: Column(
+                        children: [
+                          AppListTile(
+                            leading: Icons.info_outline,
+                            title: AppLocalizations.of(context).about,
+                            subtitle: AppLocalizations.of(context).aboutDesc,
+                            trailing: Icon(Icons.chevron_right,
+                                color: BeeTokens.iconTertiary(context),
+                                size: 20),
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) => const AboutPage()),
+                              );
+                            },
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 使用帮助:默认 App 内嵌 WebView(embed 模式)。
+                          // 审核兜底:kHelpCenterInApp 改 false 重新打包即回退外部浏览器
+                          AppListTile(
+                            leading: Icons.help_outline,
+                            title: AppLocalizations.of(context).mineHelp,
+                            subtitle:
+                                AppLocalizations.of(context).mineHelpSubtitle,
+                            onTap: () async {
+                              if (kHelpCenterInApp) {
+                                await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            const HelpCenterPage()));
+                              } else {
+                                final locale = Localizations.localeOf(context);
+                                await _tryOpenUrl(
+                                    Uri.parse(WebsiteUrls.docs(locale)));
+                              }
+                            },
+                          ),
+                        ],
                       ),
-                      BeeTokens.cardDivider(context),
-                      // 分享海报
-                      AppListTile(
-                        leading: Icons.ios_share_rounded,
-                        title: AppLocalizations.of(context).mineShareApp,
-                        subtitle:
-                            AppLocalizations.of(context).mineShareWithFriends,
-                        trailing: Icon(Icons.chevron_right,
-                            color: BeeTokens.iconTertiary(context), size: 20),
-                        onTap: () {
-                          // 打开海报轮播预览对话框（支持年度、月度、总览3种海报）
-                          SharePosterService.showPosterCarouselPreview(context);
-                        },
+                    ),
+                    // 支持我们
+                    SizedBox(height: 8.0.scaled(context, ref)),
+                    SectionCard(
+                      margin: EdgeInsets.fromLTRB(12.0.scaled(context, ref), 0,
+                          12.0.scaled(context, ref), 0),
+                      child: Column(
+                        children: [
+                          // 仅在iOS显示打赏入口
+                          if (Platform.isIOS) ...[
+                            Consumer(
+                              builder: (context, ref, _) {
+                                final primaryColor =
+                                    ref.watch(primaryColorProvider);
+                                return AppListTile(
+                                  leading: Icons.favorite,
+                                  leadingWidget: Container(
+                                    width: 36,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          primaryColor.withValues(alpha: 0.12),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.favorite_border,
+                                      color: primaryColor,
+                                    ),
+                                  ),
+                                  title: AppLocalizations.of(context)
+                                      .donationTitle,
+                                  subtitle: AppLocalizations.of(context)
+                                      .donationEntrySubtitle,
+                                  trailing: Icon(Icons.chevron_right,
+                                      color: BeeTokens.iconTertiary(context),
+                                      size: 20),
+                                  onTap: () async {
+                                    await Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (_) => const DonationPage()),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                            BeeTokens.cardDivider(context),
+                          ],
+                          // GitHub Star
+                          Consumer(
+                            builder: (context, ref, _) {
+                              final starCountAsync =
+                                  ref.watch(githubStarCountProvider);
+                              final starCount =
+                                  starCountAsync.valueOrNull ?? 999;
+                              return AppListTile(
+                                leading: Icons.star_outline,
+                                title: AppLocalizations.of(context)
+                                    .mineSupportAuthor,
+                                subtitle: AppLocalizations.of(context)
+                                    .mineSupportAuthorSubtitle(
+                                        starCount.toString()),
+                                onTap: () => _showGitHubStarGuide(context),
+                              );
+                            },
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 年度账单
+                          AppListTile(
+                            leading: Icons.auto_graph_rounded,
+                            title:
+                                AppLocalizations.of(context).annualReportTitle,
+                            subtitle: AppLocalizations.of(context)
+                                .annualReportEntrySubtitle,
+                            trailing: Icon(Icons.chevron_right,
+                                color: BeeTokens.iconTertiary(context),
+                                size: 20),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) => const AnnualReportPage()),
+                              );
+                            },
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 分享海报
+                          AppListTile(
+                            leading: Icons.ios_share_rounded,
+                            title: AppLocalizations.of(context).mineShareApp,
+                            subtitle: AppLocalizations.of(context)
+                                .mineShareWithFriends,
+                            trailing: Icon(Icons.chevron_right,
+                                color: BeeTokens.iconTertiary(context),
+                                size: 20),
+                            onTap: () {
+                              // 打开海报轮播预览对话框（支持年度、月度、总览3种海报）
+                              SharePosterService.showPosterCarouselPreview(
+                                  context);
+                            },
+                          ),
+                          BeeTokens.cardDivider(context),
+                          // 复制推广文案
+                          AppListTile(
+                            leading: Icons.content_copy_rounded,
+                            title:
+                                AppLocalizations.of(context).mineCopyPromoText,
+                            subtitle: AppLocalizations.of(context)
+                                .mineCopyPromoSubtitle,
+                            onTap: () async {
+                              final l10n = AppLocalizations.of(context);
+                              await Clipboard.setData(
+                                ClipboardData(text: l10n.shareGuidanceCopyText),
+                              );
+                              if (context.mounted) {
+                                showToast(context, l10n.shareGuidanceCopied);
+                              }
+                            },
+                          ),
+                          // 只在iOS上显示评分入口（Android还未上架）
+                          if (Platform.isIOS) ...[
+                            BeeTokens.cardDivider(context),
+                            AppListTile(
+                              leading: Icons.star_border_rounded,
+                              title: AppLocalizations.of(context).mineRateApp,
+                              subtitle: AppLocalizations.of(context)
+                                  .mineRateAppSubtitle,
+                              onTap: () => _rateApp(context),
+                            ),
+                          ],
+                        ],
                       ),
-                      BeeTokens.cardDivider(context),
-                      // 复制推广文案
-                      AppListTile(
-                        leading: Icons.content_copy_rounded,
-                        title: AppLocalizations.of(context).mineCopyPromoText,
-                        subtitle:
-                            AppLocalizations.of(context).mineCopyPromoSubtitle,
-                        onTap: () async {
-                          final l10n = AppLocalizations.of(context);
-                          await Clipboard.setData(
-                            ClipboardData(text: l10n.shareGuidanceCopyText),
-                          );
-                          if (context.mounted) {
-                            showToast(context, l10n.shareGuidanceCopied);
-                          }
-                        },
-                      ),
-                      // 只在iOS上显示评分入口（Android还未上架）
-                      if (Platform.isIOS) ...[
-                        BeeTokens.cardDivider(context),
-                        AppListTile(
-                          leading: Icons.star_border_rounded,
-                          title: AppLocalizations.of(context).mineRateApp,
-                          subtitle:
-                              AppLocalizations.of(context).mineRateAppSubtitle,
-                          onTap: () => _rateApp(context),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                SizedBox(height: BeeDimens.p16.scaled(context, ref)),
-                // 底部留白，避免被悬浮 Tab 栏遮挡
-                SizedBox(height: 56 + 12 + MediaQuery.of(context).viewPadding.bottom + 16),
-              ],
-            ),
+                    ),
+                    SizedBox(height: BeeDimens.p16.scaled(context, ref)),
+                  ],
+                )),
           ),
         ],
       ),
@@ -902,14 +931,16 @@ class _MinePageHeaderState extends ConsumerState<_MinePageHeader> {
   /// 失败仅记日志，不阻塞用户使用本地头像；iCloud/WebDAV/Supabase 场景跳过。
   Future<void> _syncAvatarToCloud(String absolutePath) async {
     try {
-      final providerInstance = await ref.read(sp.beecountCloudProviderInstance.future);
+      final providerInstance =
+          await ref.read(sp.beecountCloudProviderInstance.future);
       if (providerInstance == null) {
         logger.debug('avatar_sync', '非 BeeCount Cloud 模式，跳过头像云同步');
         return;
       }
       final file = File(absolutePath);
       if (!file.existsSync()) {
-        logger.warning('avatar_sync', 'upload skipped: file missing $absolutePath');
+        logger.warning(
+            'avatar_sync', 'upload skipped: file missing $absolutePath');
         return;
       }
       final bytes = await file.readAsBytes();
@@ -919,9 +950,8 @@ class _MinePageHeaderState extends ConsumerState<_MinePageHeader> {
       final result = await providerInstance.uploadMyAvatar(
         bytes: bytes,
         fileName: name,
-        mimeType: name.toLowerCase().endsWith('.png')
-            ? 'image/png'
-            : 'image/jpeg',
+        mimeType:
+            name.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg',
       );
       // 上传成功后把本地 remoteVersion 立刻推到 server 的新版本，避免下一次
       // bootstrap 再触发一次重新下载自己刚传的头像。
