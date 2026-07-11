@@ -359,19 +359,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
         initial: _date,
         maxDate: DateTime.now(),
       );
-      if (res != null) {
-        final merged = DateTime(
-          res.year,
-          res.month,
-          res.day,
-          _date.hour,
-          _date.minute,
-          _date.second,
-        );
-        final now = DateTime.now();
-        // 只改日期时保留原来的时分秒；如果新日期是今天且时间超过当前时间，回退到现在。
-        setState(() => _date = merged.isAfter(now) ? now : merged);
-      }
+      // res（选择结果）已经包含用户选定的年、月、日、时、分、秒。
+      if (res != null) setState(() => _date = res);
     } else {
       // 普通模式，只选择日期
       final res = await showWheelDatePicker(

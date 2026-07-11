@@ -176,10 +176,10 @@ final compactAmountInitProvider = FutureProvider<void>((ref) async {
   });
 });
 
-// 显示交易时间Provider（默认显示到秒）
+// 显示交易时间Provider（默认不显示）
 // false = 只显示日期
 // true = 在明细行显示交易时间（时:分:秒）
-final showTransactionTimeProvider = StateProvider<bool>((ref) => true);
+final showTransactionTimeProvider = StateProvider<bool>((ref) => false);
 
 // 显示交易时间持久化初始化
 final showTransactionTimeInitProvider = FutureProvider<void>((ref) async {
