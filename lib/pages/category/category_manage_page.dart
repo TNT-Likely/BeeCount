@@ -30,7 +30,8 @@ class CategoryManagePage extends ConsumerStatefulWidget {
   ConsumerState<CategoryManagePage> createState() => _CategoryManagePageState();
 }
 
-class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with TickerProviderStateMixin {
+class _CategoryManagePageState extends ConsumerState<CategoryManagePage>
+    with TickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -84,9 +85,12 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
           ),
           _buildTransferIconSetting(context, l10n, primaryColor),
           Expanded(
+              child: SafeArea(
+            top: false,
             child: categoriesWithCountAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(child: Text(l10n.categoryLoadFailed(error.toString()))),
+              error: (error, stack) => Center(
+                  child: Text(l10n.categoryLoadFailed(error.toString()))),
               data: (categoriesWithCount) {
                 return TabBarView(
                   controller: _tabController,
@@ -103,7 +107,7 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
                 );
               },
             ),
-          ),
+          )),
         ],
       ),
     );
@@ -120,7 +124,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
   }
 
   /// 构建美化的更多菜单
-  Widget _buildMoreMenu(BuildContext context, AppLocalizations l10n, Color primaryColor) {
+  Widget _buildMoreMenu(
+      BuildContext context, AppLocalizations l10n, Color primaryColor) {
     return BeePopupMenu(
       tooltip: l10n.commonMore,
       primaryColor: primaryColor,
@@ -208,7 +213,11 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
       }
 
       // 生成文件名
-      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').split('.').first;
+      final timestamp = DateTime.now()
+          .toIso8601String()
+          .replaceAll(':', '-')
+          .split('.')
+          .first;
       final fileName = 'beecount_categories_$timestamp.zip';
 
       String outputPath;
@@ -234,7 +243,10 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
       if (!mounted) return;
 
       if (Platform.isAndroid) {
-        showToast(context, l10n.categoryShareSuccess(outputPath.replaceAll('/storage/emulated/0/', '')));
+        showToast(
+            context,
+            l10n.categoryShareSuccess(
+                outputPath.replaceAll('/storage/emulated/0/', '')));
       } else {
         await Share.shareXFiles(
           [XFile(outputPath)],
@@ -349,7 +361,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
   /// 清空未使用的分类
   Future<void> _clearUnusedCategories() async {
     final l10n = AppLocalizations.of(context);
-    final categoriesWithCount = ref.read(categoriesWithCountProvider).valueOrNull ?? [];
+    final categoriesWithCount =
+        ref.read(categoriesWithCountProvider).valueOrNull ?? [];
 
     // 找出交易数为0的分类（统计已包含子分类交易数）
     final unusedCategories = categoriesWithCount
@@ -364,7 +377,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
     // 收集将被删除的分类信息（包括子分类）
     final toDeleteList = <String>[];
     for (final item in unusedCategories) {
-      final categoryName = CategoryUtils.getDisplayName(item.category.name, context);
+      final categoryName =
+          CategoryUtils.getDisplayName(item.category.name, context);
       toDeleteList.add(categoryName);
 
       // 如果是父分类，添加其所有将被删除的子分类
@@ -373,7 +387,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
             .where((c) => c.category.parentId == item.category.id)
             .toList();
         for (final child in children) {
-          final childName = CategoryUtils.getDisplayName(child.category.name, context);
+          final childName =
+              CategoryUtils.getDisplayName(child.category.name, context);
           toDeleteList.add('  ├─ $childName');
         }
       }
@@ -440,7 +455,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
 
   /// 静默清空未使用的分类（用于覆盖导入）
   Future<void> _clearUnusedCategoriesSilent() async {
-    final categoriesWithCount = ref.read(categoriesWithCountProvider).valueOrNull ?? [];
+    final categoriesWithCount =
+        ref.read(categoriesWithCountProvider).valueOrNull ?? [];
     final unusedCategories = categoriesWithCount
         .where((item) => item.transactionCount == 0)
         .toList();
@@ -461,7 +477,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
   }
 
   /// 构建转账图标设置区域
-  Widget _buildTransferIconSetting(BuildContext context, AppLocalizations l10n, Color primaryColor) {
+  Widget _buildTransferIconSetting(
+      BuildContext context, AppLocalizations l10n, Color primaryColor) {
     return FutureBuilder<db.Category>(
       future: ref.read(repositoryProvider).getTransferCategory(),
       builder: (context, snapshot) {
@@ -477,8 +494,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
             color: BeeTokens.surface(context),
             border: Border.all(
               color: BeeTokens.isDark(context)
-                ? primaryColor.withValues(alpha: 0.3)
-                : BeeTokens.border(context),
+                  ? primaryColor.withValues(alpha: 0.3)
+                  : BeeTokens.border(context),
             ),
             borderRadius: BorderRadius.circular(12),
           ),
@@ -546,7 +563,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
 }
 
 class _CategoryGridView extends ConsumerStatefulWidget {
-  final List<({db.Category category, int transactionCount})> categoriesWithCount;
+  final List<({db.Category category, int transactionCount})>
+      categoriesWithCount;
   final String kind;
 
   const _CategoryGridView({
@@ -582,12 +600,12 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
     // 获取当前类型的一级分类
     final topLevelCategories = widget.categoriesWithCount
         .where((item) =>
-            item.category.kind == widget.kind &&
-            item.category.level == 1)
+            item.category.kind == widget.kind && item.category.level == 1)
         .toList();
 
     // 按 sortOrder 排序
-    topLevelCategories.sort((a, b) => a.category.sortOrder.compareTo(b.category.sortOrder));
+    topLevelCategories
+        .sort((a, b) => a.category.sortOrder.compareTo(b.category.sortOrder));
 
     // 构建父分类ID集合，用于快速判断是否有子分类
     final parentIds = widget.categoriesWithCount
@@ -643,8 +661,8 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
             Text(
               AppLocalizations.of(context).categoryEmpty,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: BeeTokens.textSecondary(context),
-              ),
+                    color: BeeTokens.textSecondary(context),
+                  ),
             ),
           ],
         ),
@@ -674,7 +692,8 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
     );
   }
 
-  Future<void> _onReorderTopLevel(int oldIndex, int newIndex, List<_CategoryItem> topLevelCategories) async {
+  Future<void> _onReorderTopLevel(int oldIndex, int newIndex,
+      List<_CategoryItem> topLevelCategories) async {
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
@@ -705,7 +724,6 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
     // 3. 刷新 provider 以同步其他地方的数据
     ref.invalidate(categoriesWithCountProvider);
   }
-
 
   void _onCategoryTap(_CategoryItem item) async {
     if (item.isSubCategory) {
@@ -798,7 +816,6 @@ class _CategoryCard extends ConsumerWidget {
     required this.onTap,
   });
 
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // 二级分类：使用浅色背景
@@ -834,7 +851,10 @@ class _CategoryCard extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: item.isSubCategory
                           ? Colors.orange.withValues(alpha: 0.2)
-                          : Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                          : Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: CategoryIconWidget(
@@ -853,7 +873,8 @@ class _CategoryCard extends ConsumerWidget {
                       CategoryUtils.getDisplayName(item.category.name, context),
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             fontSize: item.isSubCategory ? 10 : 12,
-                            color: item.isSubCategory ? Colors.orange[900] : null,
+                            color:
+                                item.isSubCategory ? Colors.orange[900] : null,
                           ),
                       textAlign: TextAlign.center,
                       maxLines: 1,
@@ -862,7 +883,9 @@ class _CategoryCard extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    AppLocalizations.of(context).categoryMigrationTransactionLabel(item.transactionCount),
+                    AppLocalizations.of(context)
+                        .categoryMigrationTransactionLabel(
+                            item.transactionCount),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: item.isSubCategory
                               ? Colors.orange[700]
@@ -903,7 +926,8 @@ class _CategoryCard extends ConsumerWidget {
 /// 子分类对话框
 class _SubcategoryDialog extends ConsumerStatefulWidget {
   final db.Category parentCategory;
-  final List<({db.Category category, int transactionCount})> categoriesWithCount;
+  final List<({db.Category category, int transactionCount})>
+      categoriesWithCount;
   final Function(db.Category) onSubCategoryTap;
   final VoidCallback onAddSubCategory;
   final VoidCallback onEditParentCategory;
@@ -923,7 +947,6 @@ class _SubcategoryDialog extends ConsumerStatefulWidget {
 class _SubcategoryDialogState extends ConsumerState<_SubcategoryDialog> {
   List<({db.Category category, int transactionCount})>? _subCategories;
   bool _isLoading = true;
-
 
   @override
   void initState() {
@@ -989,10 +1012,11 @@ class _SubcategoryDialogState extends ConsumerState<_SubcategoryDialog> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    CategoryUtils.getDisplayName(widget.parentCategory.name, context),
+                    CategoryUtils.getDisplayName(
+                        widget.parentCategory.name, context),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                 ),
                 IconButton(
@@ -1000,7 +1024,8 @@ class _SubcategoryDialogState extends ConsumerState<_SubcategoryDialog> {
                   icon: const Icon(Icons.close),
                   iconSize: 20,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  constraints:
+                      const BoxConstraints(minWidth: 32, minHeight: 32),
                 ),
               ],
             ),
@@ -1117,7 +1142,6 @@ class _DialogSubCategoryCard extends StatelessWidget {
     required this.onTap,
   });
 
-
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
@@ -1157,18 +1181,22 @@ class _DialogSubCategoryCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Text(
                 CategoryUtils.getDisplayName(category.name, context),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 10),
+                style: Theme.of(context)
+                    .textTheme
+                    .labelSmall
+                    ?.copyWith(fontSize: 10),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             Text(
-              AppLocalizations.of(context).categoryMigrationTransactionLabel(transactionCount),
+              AppLocalizations.of(context)
+                  .categoryMigrationTransactionLabel(transactionCount),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context).colorScheme.outline,
-                fontSize: 9,
-              ),
+                    color: Theme.of(context).colorScheme.outline,
+                    fontSize: 9,
+                  ),
             ),
           ],
         ),
@@ -1176,4 +1204,3 @@ class _DialogSubCategoryCard extends StatelessWidget {
     );
   }
 }
-
