@@ -409,7 +409,7 @@ class _ConfigImportExportPageState
                       ),
                       // Android平台显示导出路径和打开按钮
                       if (Platform.isAndroid && _lastExportedFilePath != null) ...[
-                        const Divider(height: 1, thickness: 0.5),
+                        BeeTokens.cardDivider(context),
                         Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 16.0.scaled(context, ref),
@@ -456,7 +456,7 @@ class _ConfigImportExportPageState
                           ),
                         ),
                       ],
-                      const Divider(height: 1, thickness: 0.5),
+                      BeeTokens.cardDivider(context),
                       // 导入配置
                       AppListTile(
                         leading: Icons.download_outlined,

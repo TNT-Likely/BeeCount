@@ -281,7 +281,7 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                                           );
                                         },
                                 ),
-                                const Divider(height: 1, thickness: 0.5),
+                                BeeTokens.cardDivider(context),
                               ],
                             );
                           }),
@@ -298,7 +298,7 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                             await _tryOpenUrl(Uri.parse(docUrl));
                           },
                         ),
-                        const Divider(height: 1, thickness: 0.5),
+                        BeeTokens.cardDivider(context),
                         AppListTile(
                           leading: Icons.feedback_outlined,
                           title: l10n.mineFeedback,
@@ -306,7 +306,7 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                           onTap: () => _tryOpenUrl(Uri.parse(
                               'https://github.com/TNT-Likely/BeeCount/issues')),
                         ),
-                        const Divider(height: 1, thickness: 0.5),
+                        BeeTokens.cardDivider(context),
                         AppListTile(
                           leading: Icons.bug_report_outlined,
                           title: l10n.logCenterTitle,
