@@ -19,6 +19,8 @@ class TransactionListItem extends ConsumerWidget {
   /// v30 多币种:交易原币种(null/等于账本本位币 → 维持无符号纯数字;
   /// 外币 → 金额前显示其币种符号,如 JP¥/US$,一眼区分原币)。
   final String? currencyCode;
+  /// v30 多币种:折账本本位币快照。外币交易在金额右下角显示 ≈ 折算小字(反馈13)。
+  final double? nativeAmount;
   final bool isExpense; // 决定正负号
   final bool isTransfer; // 是否为转账（转账不显示正负号）
   final bool isAdjustment; // 是否为估值调整
@@ -55,6 +57,7 @@ class TransactionListItem extends ConsumerWidget {
       required this.title,
       required this.amount,
       this.currencyCode,
+      this.nativeAmount,
       required this.isExpense,
       this.isTransfer = false,
       this.isAdjustment = false,
@@ -362,6 +365,19 @@ class TransactionListItem extends ConsumerWidget {
                                   ? BeeTokens.expenseColor(context, ref)
                                   : BeeTokens.incomeColor(context, ref),
                     )),
+                // v30 折算小字:外币交易金额右下角 ≈ 折本位币(与 Web 一致);
+                // 隐藏金额开关开启时同样遮蔽(不显示)。
+                if (_isForeign(ref) &&
+                    nativeAmount != null &&
+                    nativeAmount != amount &&
+                    hide != true)
+                  Text(
+                    '≈${nativeAmount!.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: BeeTokens.textTertiary(context),
+                    ),
+                  ),
                 // 标签（显示在金额下方）
                 if (tags != null && tags!.isNotEmpty)
                   Padding(
