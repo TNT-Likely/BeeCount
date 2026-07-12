@@ -70,7 +70,7 @@ class MinePage extends ConsumerWidget {
             child: SafeArea(
                 top: false,
                 child: ListView(
-                  padding: EdgeInsets.zero,
+                  padding: const EdgeInsets.only(bottom: 16),
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: [
                     BeeTokens.cardDivider(context),
