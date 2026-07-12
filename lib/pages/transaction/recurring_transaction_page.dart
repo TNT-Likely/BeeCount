@@ -74,24 +74,26 @@ class RecurringTransactionPage extends ConsumerWidget {
                   );
                 }
 
-                return ListView.builder(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                  itemCount: recurringTransactions.length +
-                      1, // +1 for usage guide card
-                  itemBuilder: (context, index) {
-                    // 第一个显示使用说明卡片
-                    if (index == 0) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _UsageGuideCard(),
-                      );
-                    }
-                    // 后续显示周期记账卡片
-                    final recurring = recurringTransactions[index - 1];
-                    return _RecurringTransactionCard(recurring: recurring);
-                  },
-                );
+                return SafeArea(
+                    top: false,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 16),
+                      itemCount: recurringTransactions.length +
+                          1, // +1 for usage guide card
+                      itemBuilder: (context, index) {
+                        // 第一个显示使用说明卡片
+                        if (index == 0) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _UsageGuideCard(),
+                          );
+                        }
+                        // 后续显示周期记账卡片
+                        final recurring = recurringTransactions[index - 1];
+                        return _RecurringTransactionCard(recurring: recurring);
+                      },
+                    ));
               },
             ),
           ),
