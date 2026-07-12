@@ -194,6 +194,24 @@ final Map<String, String> _symbolMap = {
   for (final d in _kCurrencyDefs) d.code: d.symbol,
 };
 
+/// 币种码 → ISO 3166 国家码(国旗用)。ISO 4217 前两位基本即国家码
+/// (USD→US、JPY→JP);区域/特殊货币无单一国旗,返回 null 由 UI 兜底。
+const Map<String, String?> _currencyCountryOverride = {
+  'EUR': 'EU', // 欧盟旗
+  'XAF': null, 'XOF': null, 'XCD': null, 'XPF': null, // 区域法郎/元
+  'XDR': null, 'XAU': null, 'XAG': null, 'XPT': null, 'XPD': null, // SDR/贵金属
+};
+
+/// 取币种对应国家码(大写);无国旗的区域货币返回 null。
+String? countryCodeForCurrency(String currencyCode) {
+  final code = currencyCode.trim().toUpperCase();
+  if (_currencyCountryOverride.containsKey(code)) {
+    return _currencyCountryOverride[code];
+  }
+  if (code.length < 2) return null;
+  return code.substring(0, 2);
+}
+
 /// 英文名查找表（自动派生,长尾币种的兜底显示名）
 final Map<String, String> _enNameMap = {
   for (final d in _kCurrencyDefs) d.code: d.enName,

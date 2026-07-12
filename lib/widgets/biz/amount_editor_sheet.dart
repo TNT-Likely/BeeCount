@@ -14,7 +14,9 @@ import '../../services/data/note_history_service.dart';
 import '../../services/attachment_service.dart';
 import '../../providers.dart';
 import '../../utils/ui_scale_extensions.dart';
+import '../../utils/currencies.dart';
 import '../../pages/tag/widgets/tag_selector.dart';
+import 'package:country_flags/country_flags.dart';
 import 'note_picker_dialog.dart';
 import 'account_selector.dart';
 import '../currency/currency_picker_sheet.dart';
@@ -399,6 +401,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       selected: _pickedCurrency ?? base,
       primaryColor: Theme.of(context).colorScheme.primary,
       title: l10n.txCurrencyPickerTitle,
+      rateBase: base, // 展示各币种对账本主币种的汇率
     );
     if (picked == null || !mounted) return;
     setState(() {
@@ -457,23 +460,37 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     final text = Theme.of(context).textTheme;
     ref.watch(currentLedgerCurrencyProvider); // 账本切换时重建
     final txCurrency = _txCurrency();
+    final country = countryCodeForCurrency(txCurrency);
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: _pickCurrency,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        decoration: BoxDecoration(
+          color: BeeTokens.surfaceKeySecondary(context),
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // 小国旗(区域货币无 → 省略,只留 code)
+            if (country != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: CountryFlag.fromCountryCode(country,
+                    height: 14, width: 19),
+              ),
+              const SizedBox(width: 5),
+            ],
             Text(
               txCurrency,
               style: text.bodySmall?.copyWith(
-                color: BeeTokens.textTertiary(context),
+                color: BeeTokens.textSecondary(context),
                 fontWeight: FontWeight.w600,
               ),
             ),
             Icon(Icons.arrow_drop_down,
-                size: 14, color: BeeTokens.iconTertiary(context)),
+                size: 16, color: BeeTokens.iconSecondary(context)),
           ],
         ),
       ),

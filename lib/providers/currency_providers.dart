@@ -105,6 +105,33 @@ final effectiveRatesProvider =
   );
 });
 
+/// 币种选择弹窗的展示汇率:1 该币种 ≈ ? base。拉一次全量(fawaz base→quote
+/// 全量返回),手动 override 优先。仅展示用,不落库。family key = base(大写)。
+/// 值 = 「1 quote 币种 = value base」(便于 UI 显示 1 JPY ≈ 0.048 CNY)。
+final currencyPickerRatesProvider =
+    FutureProvider.family<Map<String, double>, String>((ref, base) async {
+  ref.watch(rateRefreshTickProvider);
+  final baseUp = base.toUpperCase();
+  final repo = ref.watch(repositoryProvider);
+  final out = <String, double>{};
+  // 先公网/服务端全量(1 base = y quote → 1 quote = 1/y base)
+  try {
+    final result = await ref.read(exchangeRateServiceProvider).fetch(baseUp);
+    for (final e in result.ratesBaseToQuote.entries) {
+      final y = double.tryParse(e.value);
+      if (y != null && y > 0) out[e.key.toUpperCase()] = 1 / y;
+    }
+  } catch (_) {/* 拉不到就只用本地 override,下方覆盖 */}
+  // 手动 override 覆盖(1 quote = rate base,直接用)
+  try {
+    for (final o in await repo.getOverrides(baseUp)) {
+      final r = double.tryParse(o.rate);
+      if (r != null && r > 0) out[o.quoteCurrency.toUpperCase()] = r;
+    }
+  } catch (_) {}
+  return out;
+});
+
 /// 当前账本本位币(ISO 大写)。`ledger.currency` 的语义化别名——交易级多币种后
 /// 它的语义是「账本统计折算的目标币种」(.docs/multi-currency-ledger L1)。
 final currentLedgerCurrencyProvider = Provider<String>((ref) {
