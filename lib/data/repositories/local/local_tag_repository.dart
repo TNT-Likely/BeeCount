@@ -378,8 +378,8 @@ class LocalTagRepository implements TagRepository {
           '''
       SELECT
         COUNT(*) as count,
-        COALESCE(SUM(CASE WHEN tx.type = 'expense' THEN tx.amount ELSE 0 END), 0) as expense,
-        COALESCE(SUM(CASE WHEN tx.type = 'income' THEN tx.amount ELSE 0 END), 0) as income
+        COALESCE(SUM(CASE WHEN tx.type = 'expense' AND tx.exclude_from_stats = 0 THEN COALESCE(tx.native_amount, tx.amount) ELSE 0 END), 0) as expense,
+        COALESCE(SUM(CASE WHEN tx.type = 'income' AND tx.exclude_from_stats = 0 THEN COALESCE(tx.native_amount, tx.amount) ELSE 0 END), 0) as income
       FROM transaction_tags tt
       INNER JOIN transactions tx ON tt.transaction_id = tx.id
       WHERE tt.tag_id = ? $ledgerFilter
@@ -641,9 +641,9 @@ class LocalTagRepository implements TagRepository {
     for (final t in txs) {
       count++;
       if (t.type == 'expense') {
-        expense += t.amount;
+        expense += t.nativeAmount ?? t.amount;
       } else if (t.type == 'income') {
-        income += t.amount;
+        income += t.nativeAmount ?? t.amount;
       }
     }
     return (count: count, expense: expense, income: income);

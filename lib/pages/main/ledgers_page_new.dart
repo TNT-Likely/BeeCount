@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../providers.dart';
+import '../../providers/currency_providers.dart';
 import '../../models/ledger_display_item.dart';
 import '../../cloud/transactions_sync_manager.dart';
 import '../../cloud/sync_service.dart';
@@ -700,6 +701,40 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
 
     if (result == null || !mounted) return;
 
+    // v30 本位币变更:存量交易的 nativeAmount 快照是按旧本位币算的,需按新
+    // 本位币全量重算(边界 5,.docs/multi-currency-ledger 02 §八)。先确认再改。
+    final currencyChanged =
+        result.currency.toUpperCase() != ledgerData.currency.toUpperCase();
+    if (currencyChanged) {
+      final stats = await repo.getLedgerStats(ledgerId: ledger.id);
+      final txCount = stats.transactionCount;
+      // 用 State 的 mounted/this.context:传入的参数 context 可能随编辑入口
+      // 弹层一起销毁(mounted=false → 静默 return 会把整个保存吞掉)。
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(this.context);
+      final confirmed = await showDialog<bool>(
+        context: this.context,
+        builder: (dctx) => AlertDialog(
+          title: Text(l10n.ledgerBaseCurrencyLabel),
+          content: Text(
+            '${l10n.ledgerCurrencyChangeRecalcHint}\n'
+            '${l10n.recalcSyncCountHint(txCount)}',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dctx, false),
+              child: Text(AppLocalizations.of(dctx).commonCancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(dctx, true),
+              child: Text(AppLocalizations.of(dctx).commonConfirm),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+
     await repo.updateLedger(
       id: ledger.id,
       name: result.name.trim(),
@@ -707,15 +742,41 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
       monthStartDay: result.monthStartDay,
     );
 
-    // 修改账本元数据后,触发同步以更新云端(本地非 tx 写入不会自动 push)
-    await PostProcessor.sync(ref, ledgerId: ledger.id);
+    if (currencyChanged) {
+      // 先强制拉一次「以新主币种为 base」的汇率:改币种瞬间本地通常还没有
+      // 这一组(汇率按本位币基准存),不拉的话重算会因缺汇率整体跳过
+      // (反馈17:CNY→JPY 后旧交易折算不动)。extraQuotes 带上账本实际涉及
+      // 的全部外币(无账户币种不在 usedCurrencies 里)。拉取失败也继续——
+      // 缺汇率的笔退化 =amount,由 L11 横幅兜底,绝不保留旧口径错值。
+      final foreign = await repo.getLedgerForeignCurrencies(ledger.id);
+      await refreshExchangeRatesFromUi(ref,
+          force: true, extraQuotes: {...foreign, ledgerData.currency.toUpperCase()});
+      // 全量重算(逐笔记 change,L13);缺汇率的笔留待 L11 横幅
+      final n = await repo.recalcNativeAmountsForLedger(
+          ledger.id, result.currency);
+      if (mounted && n > 0) {
+        showToast(this.context,
+            AppLocalizations.of(this.context).recalcForeignTxDone(n));
+      }
+    }
 
+    // 刷新信号必须在 sync 之前发(反馈19):改主币种重算产生几百条 change,
+    // push 可能耗时数十秒甚至失败,原先信号排在 await sync 之后导致首页/
+    // 账本页统计长时间(或永远)显示旧数据。本地数据此刻已就绪,立即刷新。
     ref.read(ledgerListRefreshProvider.notifier).state++;
     // currentLedgerProvider 已是 StreamProvider(Drift watch 自动推送),
     // 此 invalidate 仅作防御性重订阅(如流曾进入 error 态),正常路径冗余无害。
     ref.invalidate(currentLedgerProvider);
     ref.read(statsRefreshProvider.notifier).state++;
     ref.read(budgetRefreshProvider.notifier).state++;
+
+    // 修改账本元数据后,触发同步以更新云端(本地非 tx 写入不会自动 push)。
+    // 放刷新信号之后:UI 不等 push 完成;失败也不影响本地展示(下次同步兜底)。
+    try {
+      await PostProcessor.sync(ref, ledgerId: ledger.id);
+    } catch (e) {
+      logger.warning('LedgersPage', '改账本元数据后同步失败(本地已生效,下次同步重试): $e');
+    }
 
     // 起始日影响小部件「本月」口径,立即刷新
     try {
@@ -1138,7 +1199,9 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
                 const SizedBox(height: 12),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(AppLocalizations.of(ctx).ledgersCurrency),
+                  // v30 语义升级:账本 currency = 「账本本位币」(统计折算目标),
+                  // 与资产页的用户级「主币种」是两个概念,label 用本位币避免混淆。
+                  title: Text(AppLocalizations.of(ctx).ledgerBaseCurrencyLabel),
                   subtitle: Text(displayCurrency(currency, context)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {

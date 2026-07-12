@@ -77,7 +77,8 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
       error: (error, stack) => AsyncValue.error(error, stack),
       data: (transactions) {
         final totalCount = transactions.length;
-        final totalAmount = transactions.fold(0.0, (sum, t) => sum + t.amount);
+        final totalAmount = transactions.fold(
+            0.0, (sum, t) => sum + (t.nativeAmount ?? t.amount));
         final averageAmount = totalCount > 0 ? totalAmount / totalCount : 0.0;
         return AsyncValue.data((
           totalCount: totalCount,
@@ -386,15 +387,12 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
         final dateKey =
             DateFormat('yyyy-MM-dd').format(transaction.happenedAt.toLocal());
         final current = dateStats[dateKey] ?? (expense: 0.0, income: 0.0);
+        // 账本维度日小计:折 nativeAmount(与时间排序分支 448/458、顶部汇总 77
+        // 一致;此前金额排序分支裸加 amount → 同页两套口径,多币种下不一致)。
+        final v = transaction.nativeAmount ?? transaction.amount;
         dateStats[dateKey] = transaction.type == 'expense'
-            ? (
-                expense: current.expense + transaction.amount,
-                income: current.income
-              )
-            : (
-                expense: current.expense,
-                income: current.income + transaction.amount
-              );
+          ? (expense: current.expense + v, income: current.income)
+          : (expense: current.expense, income: current.income + v);
       }
 
       // 预构建显示项列表
@@ -443,6 +441,8 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
                   category?.name ?? widget.categoryName, context),
               ledgerName: ledgerNames[transaction.ledgerId],
               amount: transaction.amount,
+              currencyCode: transaction.currencyCode,
+              nativeAmount: transaction.nativeAmount,
               isExpense: transaction.type == 'expense',
               happenedAt: transaction.happenedAt,
               onTap: () async {
@@ -513,38 +513,38 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
               dateText: dateKey,
               expense: dayTransactions
                   .where((t) => t.type == 'expense')
-                  .fold(0.0, (sum, t) => sum + t.amount),
+                  .fold(0.0, (sum, t) => sum + (t.nativeAmount ?? t.amount)),
               income: dayTransactions
                   .where((t) => t.type == 'income')
-                  .fold(0.0, (sum, t) => sum + t.amount),
+                  .fold(0.0, (sum, t) => sum + (t.nativeAmount ?? t.amount)),
             ),
             ...dayTransactions.map((transaction) {
               final category = _getTransactionCategory();
               return TransactionListItem(
-                icon: _getTransactionIcon(transaction),
-                category: category,
-                title: transaction.note ?? '',
-                categoryName: CategoryUtils.getDisplayName(
-                    category?.name ?? widget.categoryName, context),
-                ledgerName: ledgerNames[transaction.ledgerId],
-                amount: transaction.amount,
-                isExpense: transaction.type == 'expense',
-                happenedAt: transaction.happenedAt,
-                onTap: () async {
-                  final categoryData =
-                      ref.read(_categoryStreamProvider(widget.categoryId));
-                  await TransactionEditUtils.editTransaction(
-                    context,
-                    ref,
-                    transaction,
-                    categoryData.value,
-                  );
-                  // 注意：现在无需手动刷新！
-                  // 数据库变化会自动通过Stream推送到UI
-                },
-                onDelete: () async {
-                  final repo = ref.read(repositoryProvider);
-                  final ledgerId = ref.read(currentLedgerIdProvider);
+              icon: _getTransactionIcon(transaction),
+              category: category,
+              title: transaction.note ?? '',
+              categoryName: CategoryUtils.getDisplayName(category?.name ?? widget.categoryName, context),
+              ledgerName: ledgerNames[transaction.ledgerId],
+              amount: transaction.amount,
+              currencyCode: transaction.currencyCode,
+              nativeAmount: transaction.nativeAmount,
+              isExpense: transaction.type == 'expense',
+              happenedAt: transaction.happenedAt,
+              onTap: () async {
+                final categoryData = ref.read(_categoryStreamProvider(widget.categoryId));
+                await TransactionEditUtils.editTransaction(
+                  context,
+                  ref,
+                  transaction,
+                  categoryData.value,
+                );
+                // 注意：现在无需手动刷新！
+                // 数据库变化会自动通过Stream推送到UI
+              },
+              onDelete: () async {
+                final repo = ref.read(repositoryProvider);
+                final ledgerId = ref.read(currentLedgerIdProvider);
 
                   try {
                     await repo.deleteTransaction(transaction.id);

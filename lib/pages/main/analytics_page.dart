@@ -61,6 +61,99 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
   }
 
   // 显示类型选择菜单
+  /// v30 补折算横幅(01 §六):currencyCode≠本位币 且 nativeAmount==amount 的
+  /// 存量外币交易 >0 时出现;确认后按当前有效汇率重算(逐笔记 change,L13)。
+  Widget _buildRecalcForeignBanner(BuildContext context) {
+    final count =
+        ref.watch(ledgerUnconvertedForeignTxCountProvider).valueOrNull ?? 0;
+    if (count <= 0) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
+      child: Material(
+        color: BeeTokens.surface(context),
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            children: [
+              Icon(Icons.currency_exchange,
+                  size: 16, color: ref.watch(primaryColorProvider)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.recalcForeignTxBanner,
+                  style: BeeTextTokens.label(context),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              TextButton(
+                onPressed: () => _runRecalcForeignTx(count),
+                child: Text(l10n.recalcForeignTxAction,
+                    style: TextStyle(fontSize: 12)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 折算脚注:账本存在外币交易(含已折算)时,提示统计数字已折本位币。
+  Widget _buildConvertedFootnote(BuildContext context) {
+    final count = ref.watch(ledgerForeignTxCountProvider).valueOrNull ?? 0;
+    if (count <= 0) return const SizedBox.shrink();
+    final base = ref.watch(currentLedgerCurrencyProvider);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          AppLocalizations.of(context).statsConvertedFootnote(base),
+          style: TextStyle(
+            fontSize: 11,
+            color: BeeTokens.textTertiary(context),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _runRecalcForeignTx(int count) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dctx) => AlertDialog(
+        title: Text(l10n.recalcForeignTxAction),
+        content: Text(l10n.recalcSyncCountHint(count)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dctx, false),
+            child: Text(AppLocalizations.of(dctx).commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dctx, true),
+            child: Text(AppLocalizations.of(dctx).commonConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final repo = ref.read(repositoryProvider);
+    final ledgerId = ref.read(currentLedgerIdProvider);
+    // 补折算前先确保本位币汇率组是新鲜的(反馈17 同款根因:缺组则整体跳过);
+    // extraQuotes 带上账本交易实际涉及的外币 —— 无对应账户的币种(CSV 导入/
+    // 手选)不在 usedCurrencies 里,不带的话这些币种永远补不上(审查发现)。
+    final foreign = await repo.getLedgerForeignCurrencies(ledgerId);
+    await refreshExchangeRatesFromUi(ref, force: true, extraQuotes: foreign);
+    final n = await repo.recomputeForeignTxForLedger(ledgerId);
+    if (!mounted) return;
+    showToast(context, l10n.recalcForeignTxDone(n));
+    // bump 统计刷新:横幅重查消失 + 各统计图表按新折算重算
+    ref.read(statsRefreshProvider.notifier).state++;
+  }
+
   void _showTypeMenu() async {
     final l10n = AppLocalizations.of(context);
     final result = await showDialog<String>(
@@ -530,6 +623,10 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
               ),
             ),
           ),
+          // v30 L11:检测到未折算外币交易 → 补折算横幅(用户确认后按当前汇率重算)
+          _buildRecalcForeignBanner(context),
+          // v30 折算脚注(01 §五):账本含外币交易时说明统计口径
+          _buildConvertedFootnote(context),
           Expanded(
             child: FutureBuilder(
               key: ValueKey('analytics_$_type'),

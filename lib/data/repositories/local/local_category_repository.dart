@@ -356,8 +356,8 @@ class LocalCategoryRepository implements CategoryRepository {
       '''
       SELECT
         COUNT(*) as count,
-        SUM(amount) as total,
-        AVG(amount) as average
+        SUM(CASE WHEN exclude_from_stats = 0 THEN COALESCE(native_amount, amount) ELSE 0 END) as total,
+        AVG(CASE WHEN exclude_from_stats = 0 THEN COALESCE(native_amount, amount) END) as average
       FROM transactions
       WHERE category_id = ?1
       ''',
@@ -417,9 +417,11 @@ class LocalCategoryRepository implements CategoryRepository {
     if (sortBy == 'amount') {
       query.orderBy([
         (t) => d.OrderingTerm(
-              expression: t.amount,
-              mode: ascending ? d.OrderingMode.asc : d.OrderingMode.desc,
-            )
+          // 账本维度「金额排序」按折算值:多币种下 5000 JPY(≈250 CNY)不应
+          // 因原币面值大而排在 300 CNY 之前(与年报 largest 比较同口径)。
+          expression: d.coalesce([t.nativeAmount, t.amount]),
+          mode: ascending ? d.OrderingMode.asc : d.OrderingMode.desc,
+        )
       ]);
     } else {
       query.orderBy([

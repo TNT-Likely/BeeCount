@@ -42,6 +42,11 @@ class EntitySerializer {
       // _LEDGER_MERGE_SPECS / projection upsert 对齐 —— 改键名会让标记跨设备静默丢失。
       'excludeFromStats': tx.excludeFromStats,
       'excludeFromBudget': tx.excludeFromBudget,
+      // v30 交易级多币种:原币种 + 折账本本位币快照(与 server 0018 两列对齐)。
+      // 有值才发:NULL 发出去会被 server merge 视为"不更新"(None 被过滤),
+      // 语义等价;省略保持 payload 干净。
+      if (tx.currencyCode != null) 'currencyCode': tx.currencyCode,
+      if (tx.nativeAmount != null) 'nativeAmount': tx.nativeAmount,
       if (ledgerSyncId != null && ledgerSyncId.isNotEmpty)
         'ledgerSyncId': ledgerSyncId,
       'categoryName': categoryName,

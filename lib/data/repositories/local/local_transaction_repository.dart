@@ -424,7 +424,11 @@ class LocalTransactionRepository implements TransactionRepository {
     String? toAccountSyncIdOverride,
     bool excludeFromStats = false,
     bool excludeFromBudget = false,
+    String? currencyCode,
+    double? nativeAmount,
   }) async {
+    // v30:子仓收「已定值」直写;带折算的兜底(查账户/汇率)在聚合
+    // LocalRepository 包装层(子仓拿不到汇率)。
     return db.into(db.transactions).insert(TransactionsCompanion.insert(
           ledgerId: ledgerId,
           type: type,
@@ -440,6 +444,8 @@ class LocalTransactionRepository implements TransactionRepository {
           toAccountSyncIdOverride: d.Value(toAccountSyncIdOverride),
           excludeFromStats: d.Value(excludeFromStats),
           excludeFromBudget: d.Value(excludeFromBudget),
+          currencyCode: d.Value(currencyCode),
+          nativeAmount: d.Value(nativeAmount),
         ));
   }
 
@@ -556,6 +562,8 @@ class LocalTransactionRepository implements TransactionRepository {
     String? toAccountSyncIdOverride,
     bool? excludeFromStats,
     bool? excludeFromBudget,
+    String? currencyCode,
+    double? nativeAmount,
   }) async {
     // 处理 accountId 参数
     final d.Value<int?> accountIdValue;
@@ -586,6 +594,13 @@ class LocalTransactionRepository implements TransactionRepository {
         excludeFromBudget: excludeFromBudget == null
             ? const d.Value.absent()
             : d.Value(excludeFromBudget),
+        // v30:null = 不更新(保持原快照);非 null = 显式写入
+        currencyCode: currencyCode == null
+            ? const d.Value.absent()
+            : d.Value(currencyCode),
+        nativeAmount: nativeAmount == null
+            ? const d.Value.absent()
+            : d.Value(nativeAmount),
       ),
     );
   }
@@ -948,8 +963,8 @@ class LocalTransactionRepository implements TransactionRepository {
     final query = '''
       SELECT
         strftime('%Y-%m-%d', happened_at, 'unixepoch', 'localtime') as date,
-        SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income,
-        SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expense
+        SUM(CASE WHEN type = 'income' AND exclude_from_stats = 0 THEN COALESCE(native_amount, amount) ELSE 0 END) as income,
+        SUM(CASE WHEN type = 'expense' AND exclude_from_stats = 0 THEN COALESCE(native_amount, amount) ELSE 0 END) as expense
       FROM transactions
       WHERE ledger_id = ?
         AND happened_at >= ?

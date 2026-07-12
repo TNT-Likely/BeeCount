@@ -3,18 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import '../../providers/currency_providers.dart';
 import '../../styles/tokens.dart';
 import '../../utils/currencies.dart';
+import 'currency_flag.dart';
 import '../ui/ui.dart';
 
-/// 币种选择 bottom sheet(搜索 + 列表 + 选中勾)。返回选中的 code,取消返回 null。
+/// 币种选择 bottom sheet(搜索 + 国旗 + 汇率 + 选中勾)。返回选中的 code,取消返回 null。
 ///
-/// 从 exchange_rate_page._pickBaseCurrency 抽出,汇率页 / 个性化页共用。
+/// 从 exchange_rate_page._pickBaseCurrency 抽出,汇率页 / 个性化页 / 记账弹窗共用。
+/// [rateBase] 传入(大写 ISO)时,每行右侧展示「1 该币种 ≈ x rateBase」的汇率
+/// (弹窗内拉一次全量,缺失显示占位)。
 Future<String?> showCurrencyPickerSheet(
   BuildContext context, {
   required String selected,
   required Color primaryColor,
   String? title,
+  String? rateBase,
 }) {
   final current = selected.toUpperCase();
   return showModalBottomSheet<String>(
@@ -28,7 +33,16 @@ Future<String?> showCurrencyPickerSheet(
       String query = '';
       final sheetTitle = title ?? AppLocalizations.of(bctx).baseCurrencyLabel;
       return StatefulBuilder(builder: (sctx, setSheetState) {
-        final filtered = getCurrencies(bctx).where((c) {
+        // 常用币种置顶(kCommonCurrencyCodes 顺序),其余按地区原顺序。
+        final allCur = getCurrencies(bctx);
+        final ordered = <CurrencyInfo>[];
+        for (final code in kCommonCurrencyCodes) {
+          final hit = allCur.where((c) => c.code == code);
+          if (hit.isNotEmpty) ordered.add(hit.first);
+        }
+        ordered.addAll(
+            allCur.where((c) => !kCommonCurrencyCodes.contains(c.code)));
+        final filtered = ordered.where((c) {
           final q = query.trim();
           if (q.isEmpty) return true;
           final uq = q.toUpperCase();
@@ -73,28 +87,59 @@ Future<String?> showCurrencyPickerSheet(
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: filtered.length,
-                    itemBuilder: (_, i) {
-                      final c = filtered[i];
-                      final sel = c.code == current;
-                      return ListTile(
-                        title: Text(
-                          '${c.name} (${c.code})',
-                          style: TextStyle(
-                            color: sel
-                                ? primaryColor
-                                : BeeTokens.textPrimary(bctx),
-                            fontWeight:
-                                sel ? FontWeight.w600 : FontWeight.normal,
+                  // 汇率展示:rateBase 传入时用 Consumer 拿全量汇率;否则空 map。
+                  child: Consumer(builder: (cctx, ref, _) {
+                    final rates = rateBase == null
+                        ? const <String, double>{}
+                        : (ref
+                                .watch(currencyPickerRatesProvider(
+                                    rateBase.toUpperCase()))
+                                .valueOrNull ??
+                            const <String, double>{});
+                    return ListView.builder(
+                      itemCount: filtered.length,
+                      itemBuilder: (_, i) {
+                        final c = filtered[i];
+                        final sel = c.code == current;
+                        // 汇率行:1 该币种 ≈ x rateBase(base 自身/缺失不显示)
+                        String? rateText;
+                        if (rateBase != null &&
+                            c.code != rateBase!.toUpperCase()) {
+                          final r = rates[c.code];
+                          if (r != null) {
+                            rateText =
+                                '1 ${c.code} ≈ ${r.toStringAsPrecision(4)} ${rateBase!.toUpperCase()}';
+                          }
+                        }
+                        return ListTile(
+                          leading: currencyFlag(cctx, c.code),
+                          title: Text(
+                            '${c.name} (${c.code})',
+                            style: TextStyle(
+                              color: sel
+                                  ? primaryColor
+                                  : BeeTokens.textPrimary(bctx),
+                              fontWeight:
+                                  sel ? FontWeight.w600 : FontWeight.normal,
+                            ),
                           ),
-                        ),
-                        trailing:
-                            sel ? Icon(Icons.check, color: primaryColor) : null,
-                        onTap: () => Navigator.pop(bctx, c.code),
-                      );
-                    },
-                  ),
+                          subtitle: rateText == null
+                              ? null
+                              : Text(
+                                  rateText,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: BeeTokens.textTertiary(cctx),
+                                  ),
+                                ),
+                          trailing: sel
+                              ? Icon(Icons.check, color: primaryColor)
+                              : null,
+                          onTap: () => Navigator.pop(bctx, c.code),
+                        );
+                      },
+                    );
+                  }),
                 ),
               ],
             ),

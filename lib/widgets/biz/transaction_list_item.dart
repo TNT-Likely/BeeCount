@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../styles/tokens.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/category_icon.dart';
+import '../../providers/database_providers.dart';
 import '../../providers/theme_providers.dart';
 import 'amount_text.dart';
 import 'tag_chip.dart';
@@ -15,6 +16,11 @@ class TransactionListItem extends ConsumerWidget {
   final db.Category? category; // 可选的分类对象，用于显示自定义图标
   final String title;
   final double amount;
+  /// v30 多币种:交易原币种(null/等于账本本位币 → 维持无符号纯数字;
+  /// 外币 → 金额前显示其币种符号,如 JP¥/US$,一眼区分原币)。
+  final String? currencyCode;
+  /// v30 多币种:折账本本位币快照。外币交易在金额右下角显示 ≈ 折算小字(反馈13)。
+  final double? nativeAmount;
   final bool isExpense; // 决定正负号
   final bool isTransfer; // 是否为转账（转账不显示正负号）
   final bool isAdjustment; // 是否为估值调整
@@ -45,32 +51,34 @@ class TransactionListItem extends ConsumerWidget {
   final bool excludeFromBudget; // 不计入预算:第二行显示「不计预算」标签
 
   const TransactionListItem({
-    super.key,
-    required this.icon,
-    this.category,
-    required this.title,
-    required this.amount,
-    required this.isExpense,
-    this.isTransfer = false,
-    this.isAdjustment = false,
-    this.hide,
-    this.onTap,
-    this.onCategoryTap,
-    this.categoryName,
-    this.ledgerName,
-    this.onDelete,
-    this.accountName,
-    this.happenedAt,
-    this.isSelectionMode = false,
-    this.isSelected = false,
-    this.onSelectionChanged,
-    this.showFullDate = false,
-    this.tags,
-    this.onTagTap,
-    this.attachmentCount = 0,
-    this.onAttachmentTap,
-    this.excludeFromStats = false,
-    this.excludeFromBudget = false,
+      super.key,
+      required this.icon,
+      this.category,
+      required this.title,
+      required this.amount,
+      this.currencyCode,
+      this.nativeAmount,
+      required this.isExpense,
+      this.isTransfer = false,
+      this.isAdjustment = false,
+      this.hide,
+      this.onTap,
+      this.onCategoryTap,
+      this.categoryName,
+      this.ledgerName,
+      this.onDelete,
+      this.accountName,
+      this.happenedAt,
+      this.isSelectionMode = false,
+      this.isSelected = false,
+      this.onSelectionChanged,
+      this.showFullDate = false,
+      this.tags,
+      this.onTagTap,
+      this.attachmentCount = 0,
+      this.onAttachmentTap,
+      this.excludeFromStats = false,
+      this.excludeFromBudget = false,
   });
 
   /// 检查是否有次要信息需要显示（时间、账户或附件）
@@ -219,6 +227,14 @@ class TransactionListItem extends ConsumerWidget {
     );
   }
 
+  bool _isForeign(WidgetRef ref) {
+    final cc = currencyCode;
+    if (cc == null || cc.isEmpty) return false;
+    final base =
+        ref.watch(currentLedgerProvider).asData?.value?.currency ?? 'CNY';
+    return cc.toUpperCase() != base.toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Widget child = InkWell(
@@ -347,6 +363,9 @@ class TransactionListItem extends ConsumerWidget {
                             : amount,
                     hide: hide,
                     signed: !isTransfer, // 转账不显示正负号
+                    // v30:外币交易显示其币种符号(原币语义);本位币维持纯数字
+                    showCurrency: _isForeign(ref),
+                    currencyCode: currencyCode,
                     decimals: 2,
                     style: BeeTextTokens.title(context).copyWith(
                       color: isAdjustment
@@ -359,18 +378,45 @@ class TransactionListItem extends ConsumerWidget {
                                   ? BeeTokens.expenseColor(context, ref)
                                   : BeeTokens.incomeColor(context, ref),
                     )),
-                // 标签（显示在金额下方）
-                if (tags != null && tags!.isNotEmpty)
-                  Padding(
+                // 标签行 + ≈折算小字(反馈15:折算放标签右边,同一行;无标签时
+                // 折算独占该行)。隐藏金额开关开启时折算同样遮蔽。
+                // 反馈16:有折算时标签最多展示 1 个(挤位),无折算保持 2 个。
+                Builder(builder: (context) {
+                  final showConverted = _isForeign(ref) &&
+                      nativeAmount != null &&
+                      nativeAmount != amount &&
+                      hide != true;
+                  final hasTags = tags != null && tags!.isNotEmpty;
+                  if (!showConverted && !hasTags) {
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: TagChipList(
-                      tags: tags!,
-                      maxDisplay: 2,
-                      size: TagChipSize.small,
-                      spacing: 4,
-                      onTagTap: onTagTap,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (hasTags)
+                          TagChipList(
+                            tags: tags!,
+                            maxDisplay: showConverted ? 1 : 2,
+                            size: TagChipSize.small,
+                            spacing: 4,
+                            onTagTap: onTagTap,
+                          ),
+                        if (hasTags && showConverted)
+                          const SizedBox(width: 6),
+                        if (showConverted)
+                          Text(
+                            '≈${nativeAmount!.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: BeeTokens.textTertiary(context),
+                            ),
+                          ),
+                      ],
                     ),
-                  ),
+                  );
+                }),
               ],
             ),
           ],

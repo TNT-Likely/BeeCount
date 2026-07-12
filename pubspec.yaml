@@ -76,6 +76,8 @@ dependencies:
   local_auth: ^2.3.0
   webview_flutter: ^4.13.0
   webview_flutter_wkwebview: ^3.23.0
+  country_flags: ^3.2.0
+  jovial_svg: ^1.1.29
 
 dev_dependencies:
   flutter_test:
