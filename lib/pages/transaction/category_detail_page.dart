@@ -389,6 +389,8 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
               categoryName: CategoryUtils.getDisplayName(category?.name ?? widget.categoryName, context),
               ledgerName: ledgerNames[transaction.ledgerId],
               amount: transaction.amount,
+              currencyCode: transaction.currencyCode,
+              nativeAmount: transaction.nativeAmount,
               isExpense: transaction.type == 'expense',
               happenedAt: transaction.happenedAt,
               onTap: () async {
@@ -469,6 +471,8 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
               categoryName: CategoryUtils.getDisplayName(category?.name ?? widget.categoryName, context),
               ledgerName: ledgerNames[transaction.ledgerId],
               amount: transaction.amount,
+              currencyCode: transaction.currencyCode,
+              nativeAmount: transaction.nativeAmount,
               isExpense: transaction.type == 'expense',
               happenedAt: transaction.happenedAt,
               onTap: () async {

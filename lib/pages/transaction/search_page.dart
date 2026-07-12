@@ -1032,6 +1032,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                 title: subtitle,
                                 categoryName: categoryName,
                                 amount: item.t.amount,
+                                currencyCode: item.t.currencyCode,
+                                nativeAmount: item.t.nativeAmount,
                                 isExpense: isExpense,
                                 hide: hide,
                                 happenedAt: item.t.happenedAt,

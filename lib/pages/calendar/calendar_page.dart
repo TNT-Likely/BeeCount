@@ -556,6 +556,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     ? null
                     : (subtitle.isNotEmpty ? categoryName : null),
                 amount: item.t.amount,
+                currencyCode: item.t.currencyCode,
+                nativeAmount: item.t.nativeAmount,
                 isExpense: isExpense,
                 isTransfer: isTransfer,
                 happenedAt: item.t.happenedAt,
@@ -653,6 +655,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     ? null
                     : (subtitle.isNotEmpty ? categoryName : null),
                 amount: item.t.amount,
+                currencyCode: item.t.currencyCode,
+                nativeAmount: item.t.nativeAmount,
                 isExpense: isExpense,
                 isTransfer: isTransfer,
                 happenedAt: item.t.happenedAt,

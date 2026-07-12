@@ -325,6 +325,8 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
                 categoryName: categoryName,
                 ledgerName: ledgerNames[transaction.ledgerId],
                 amount: transaction.amount,
+                currencyCode: transaction.currencyCode,
+                nativeAmount: transaction.nativeAmount,
                 isExpense: transaction.type == 'expense',
                 happenedAt: transaction.happenedAt,
                 onTap: () async {
