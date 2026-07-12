@@ -449,7 +449,9 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   }
 
   /// 币种标(金额旁小字):点开选币种;有账户时点了提示「由账户决定」。
+  /// 转账不显示:转账币种恒=账户币种(守卫保证同币种),选了也会被忽略,纯误导。
   Widget _buildCurrencyChip(BuildContext context) {
+    if (widget.transactionKind == 'transfer') return const SizedBox.shrink();
     final text = Theme.of(context).textTheme;
     ref.watch(currentLedgerCurrencyProvider); // 账本切换时重建
     final txCurrency = _txCurrency();
@@ -479,6 +481,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   /// 折算预览(仅外币时出现,金额下方右对齐一行,反馈9):`≈ 86.40 CNY`。
   /// 汇率数字不展示(自动拉取内部使用);获取失败时本行变错误提示,可点手填(L8)。
   Widget _buildCurrencySection(BuildContext context) {
+    if (widget.transactionKind == 'transfer') return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final ledgerBase = ref.watch(currentLedgerCurrencyProvider);
