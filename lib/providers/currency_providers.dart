@@ -201,20 +201,24 @@ final convertedAssetCompositionProvider =
 ///
 /// Ref 版入口当前无调用方,保留给后台/provider 语境的未来调用
 /// (如周期刷新、启动预拉);UI 层用 [refreshExchangeRatesFromUi]。
-Future<bool> refreshExchangeRates(Ref ref, {bool force = false}) =>
+Future<bool> refreshExchangeRates(Ref ref,
+        {bool force = false, Set<String>? extraQuotes}) =>
     _refreshExchangeRatesImpl(
       read: ref.read,
       readFuture: <T>(p) => ref.read(p.future),
       force: force,
+      extraQuotes: extraQuotes,
     );
 
 /// UI 层薄封装:`WidgetRef` 与 `Ref` 的 read 能力等价,直接转发到同一实现。
 /// ConsumerState 里只有 `WidgetRef`,无法 cast 成 `Ref`,故单开此入口。
-Future<bool> refreshExchangeRatesFromUi(WidgetRef ref, {bool force = false}) =>
+Future<bool> refreshExchangeRatesFromUi(WidgetRef ref,
+        {bool force = false, Set<String>? extraQuotes}) =>
     _refreshExchangeRatesImpl(
       read: ref.read,
       readFuture: <T>(p) => ref.read(p.future),
       force: force,
+      extraQuotes: extraQuotes,
     );
 
 /// 真正的实现:只依赖 read / readFuture 两个能力,与 Ref / WidgetRef 解耦。
@@ -222,10 +226,13 @@ Future<bool> refreshExchangeRatesFromUi(WidgetRef ref, {bool force = false}) =>
 /// 交易级多币种(Q1):base 集合 = {用户主币种} ∪ {各账本本位币}——账本本位币
 /// ≠ 主币种时(如「美漂生活」账本用 USD),记账折算需要以该本位币为 base 的
 /// 汇率组。默认所有账本本位币 == 主币种 → 集合仅一个,行为与 MVP 完全一致。
+/// [extraQuotes]:额外要拉的币种(v30 记账页手选币种,L12)——手选币种不在
+/// usedCurrencies(账户币种∪主币种)里,不带上它拉回来的组里永远没有它。
 Future<bool> _refreshExchangeRatesImpl({
   required T Function<T>(ProviderListenable<T>) read,
   required Future<T> Function<T>(FutureProvider<T>) readFuture,
   required bool force,
+  Set<String>? extraQuotes,
 }) async {
   try {
     final repo = read(repositoryProvider);
@@ -244,7 +251,8 @@ Future<bool> _refreshExchangeRatesImpl({
     // 需要折算的币种全集:使用中币种 ∪ 各 base(外币本位币账本即使还没有
     // 外币账户,也要能把使用中币种折过去)。
     final usedAll = (await readFuture(usedCurrenciesProvider)).toSet()
-      ..addAll(bases);
+      ..addAll(bases)
+      ..addAll((extraQuotes ?? const {}).map((c) => c.toUpperCase()));
     // 总闸(D6 扩展):全集 <2 说明纯单币种(账本本位币也全一致),无需汇率。
     if (!force && usedAll.length < 2) return false;
 

@@ -275,6 +275,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   String? _selectedAccountCurrency; // 所选账户的币种(异步查,null = 未选/未知)
   String? _rateStr; // 本笔汇率(字符串);编辑模式初值=隐含汇率,用户可改
   bool _rateManuallySet = false; // 手改/隐含汇率后不再被有效汇率覆盖
+  bool _fetchingRate = false; // 正在自动拉取汇率(汇率行显示获取中)
+  String? _rateFetchAttemptedFor; // 已自动拉过的币种(防循环重试)
 
   @override
   void initState() {
@@ -363,6 +365,27 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     return er == null ? null : double.tryParse(er.rate);
   }
 
+  /// 外币且本地无该币种汇率时,自动拉一次(v30:记账页是汇率的新消费场景,
+  /// 用户可能从没进过资产页/汇率页 → exchange_rates 表为空;且手选币种不在
+  //// usedCurrencies 里,常规 refresh 不会带上它 → extraQuotes 显式传入)。
+  /// 同一币种只自动试一次,失败后由用户手填(L8 缺失阻断仍兜底)。
+  void _maybeAutoFetchRate() {
+    final base = ref.read(currentLedgerCurrencyProvider);
+    final txCurrency = _txCurrency();
+    if (txCurrency == base || _rateManuallySet || _fetchingRate) return;
+    if (_rateFetchAttemptedFor == txCurrency) return;
+    final ratesAsync = ref.read(effectiveRatesForLedgerProvider);
+    final rates = ratesAsync.valueOrNull;
+    if (rates == null) return; // provider 尚未解析,等它先出结果
+    if (rates.containsKey(txCurrency)) return; // 已有汇率
+    _rateFetchAttemptedFor = txCurrency;
+    setState(() => _fetchingRate = true);
+    refreshExchangeRatesFromUi(ref, force: true, extraQuotes: {txCurrency})
+        .whenComplete(() {
+      if (mounted) setState(() => _fetchingRate = false);
+    });
+  }
+
   Future<void> _pickCurrency() async {
     final l10n = AppLocalizations.of(context);
     if (_selectedAccountId != null) {
@@ -436,6 +459,12 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     if (!showChip) return const SizedBox.shrink();
 
     final rate = isForeign ? _currentRate() : null;
+    if (isForeign && rate == null && !_fetchingRate) {
+      // 外币无汇率 → 自动拉一次(post-frame 防 build 中副作用;方法内幂等防重)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _maybeAutoFetchRate();
+      });
+    }
     final amount = double.tryParse(_amountStr) ?? 0.0;
     final preview = (isForeign && rate != null && rate > 0)
         ? (amount * rate)
@@ -486,10 +515,12 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                       child: Text(
                         rate != null
                             ? '1 $txCurrency = ${rate.toStringAsPrecision(6)} $ledgerBase'
-                            : l10n.txRateMissingTitle,
+                            : _fetchingRate
+                                ? '1 $txCurrency = … $ledgerBase'
+                                : l10n.txRateMissingTitle,
                         overflow: TextOverflow.ellipsis,
                         style: text.bodySmall?.copyWith(
-                          color: rate != null
+                          color: rate != null || _fetchingRate
                               ? BeeTokens.textSecondary(context)
                               : Theme.of(context).colorScheme.error,
                         ),
