@@ -392,11 +392,9 @@ class _AboutPageState extends ConsumerState<AboutPage> {
     final size = 46.0.scaled(context, ref);
     final glyph = 22.0.scaled(context, ref);
     return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(size / 2),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(size / 2),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
           Container(
             width: size,
             height: size,
@@ -421,10 +419,8 @@ class _AboutPageState extends ConsumerState<AboutPage> {
               fontSize: 10.5.scaled(context, ref),
               color: BeeTokens.textTertiary(context),
             ),
-          )),
-        ],
-      ),
-    );
+          )
+        ]));
   }
 }
 
