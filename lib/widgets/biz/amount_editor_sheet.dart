@@ -473,7 +473,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // 小国旗(欧元→欧盟旗;区域货币→符号占位)
-            currencyFlag(context, txCurrency, width: 19, height: 14, radius: 3),
+            currencyFlag(context, txCurrency, width: 19, height: 14, radius: 4),
             const SizedBox(width: 5),
             Text(
               txCurrency,
