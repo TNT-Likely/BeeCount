@@ -189,6 +189,11 @@ const List<_Cur> _kCurrencyDefs = [
 final List<String> kCurrencyCodes =
     _kCurrencyDefs.map((d) => d.code).toList();
 
+/// 常用币种(置顶显示;顺序即展示顺序)。中国用户 + 出境/外贸高频币种。
+const List<String> kCommonCurrencyCodes = [
+  'CNY', 'USD', 'EUR', 'JPY', 'HKD', 'GBP', 'KRW', 'AUD', 'CAD', 'SGD', 'THB',
+];
+
 /// symbol 查找表（自动派生）
 final Map<String, String> _symbolMap = {
   for (final d in _kCurrencyDefs) d.code: d.symbol,

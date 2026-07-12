@@ -68,7 +68,16 @@ Future<String?> showCurrencyPickerSheet(
       String query = '';
       final sheetTitle = title ?? AppLocalizations.of(bctx).baseCurrencyLabel;
       return StatefulBuilder(builder: (sctx, setSheetState) {
-        final filtered = getCurrencies(bctx).where((c) {
+        // 常用币种置顶(kCommonCurrencyCodes 顺序),其余按地区原顺序。
+        final allCur = getCurrencies(bctx);
+        final ordered = <CurrencyInfo>[];
+        for (final code in kCommonCurrencyCodes) {
+          final hit = allCur.where((c) => c.code == code);
+          if (hit.isNotEmpty) ordered.add(hit.first);
+        }
+        ordered.addAll(
+            allCur.where((c) => !kCommonCurrencyCodes.contains(c.code)));
+        final filtered = ordered.where((c) {
           final q = query.trim();
           if (q.isEmpty) return true;
           final uq = q.toUpperCase();
