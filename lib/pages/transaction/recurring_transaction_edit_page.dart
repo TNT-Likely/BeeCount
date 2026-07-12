@@ -18,10 +18,12 @@ class RecurringTransactionEditPage extends ConsumerStatefulWidget {
   const RecurringTransactionEditPage({super.key, this.recurring});
 
   @override
-  ConsumerState<RecurringTransactionEditPage> createState() => _RecurringTransactionEditPageState();
+  ConsumerState<RecurringTransactionEditPage> createState() =>
+      _RecurringTransactionEditPageState();
 }
 
-class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransactionEditPage> {
+class _RecurringTransactionEditPageState
+    extends ConsumerState<RecurringTransactionEditPage> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
@@ -79,7 +81,8 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
     if (_isEditing && widget.recurring!.categoryId != null) {
       final repo = ref.read(repositoryProvider);
 
-      final category = await repo.getCategoryById(widget.recurring!.categoryId!);
+      final category =
+          await repo.getCategoryById(widget.recurring!.categoryId!);
 
       setState(() {
         _selectedCategory = category;
@@ -106,23 +109,27 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
                 ? l10n.recurringTransactionEdit
                 : l10n.recurringTransactionAdd,
             showBack: true,
-            actions: _isEditing ? [
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: _deleteRecurringTransaction,
-              ),
-            ] : null,
+            actions: _isEditing
+                ? [
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: _deleteRecurringTransaction,
+                    ),
+                  ]
+                : null,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: _buildTypeSelector(l10n),
           ),
           Expanded(
-            child:SafeArea(top: false, child: Form(
+              child: SafeArea(
+            top: false,
+            child: Form(
               key: _formKey,
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  // Type selection
-                  _buildTypeSelector(l10n),
-                  const SizedBox(height: 16),
-
                   // Ledger selection
                   _buildLedgerSelector(l10n),
                   const SizedBox(height: 16),
@@ -134,7 +141,8 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
                       labelText: l10n.importFieldAmount,
                       border: const OutlineInputBorder(),
                     ),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return l10n.commonError;
@@ -205,20 +213,22 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
                       border: const OutlineInputBorder(),
                     ),
                     maxLines: 3,
-                  ),// 底部保存按钮
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.only(top: 16),
-            child: FilledButton(
-              onPressed: _isFormValid() ? _saveRecurringTransaction : null,
-              child: Text(l10n.commonSave),
-            ),
-          ),
+                  ), // 底部保存按钮
                 ],
               ),
             ),
           )),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: FilledButton(
+            onPressed: _isFormValid() ? _saveRecurringTransaction : null,
+            child: Text(l10n.commonSave),
+          ),
+        ),
       ),
     );
   }
@@ -228,7 +238,8 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
       children: [
         Expanded(
           child: RadioListTile<String>(
-            title: Text(l10n.categoryExpense, style: const TextStyle(fontSize: 14)),
+            title: Text(l10n.categoryExpense,
+                style: const TextStyle(fontSize: 14)),
             value: 'expense',
             groupValue: _type,
             contentPadding: EdgeInsets.zero,
@@ -244,7 +255,8 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
         ),
         Expanded(
           child: RadioListTile<String>(
-            title: Text(l10n.categoryIncome, style: const TextStyle(fontSize: 14)),
+            title:
+                Text(l10n.categoryIncome, style: const TextStyle(fontSize: 14)),
             value: 'income',
             groupValue: _type,
             contentPadding: EdgeInsets.zero,
@@ -260,7 +272,8 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
         ),
         Expanded(
           child: RadioListTile<String>(
-            title: Text(l10n.transferTitle, style: const TextStyle(fontSize: 14)),
+            title:
+                Text(l10n.transferTitle, style: const TextStyle(fontSize: 14)),
             value: 'transfer',
             groupValue: _type,
             contentPadding: EdgeInsets.zero,
@@ -317,10 +330,13 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
     );
   }
 
-  Widget _buildAccountSelector(AppLocalizations l10n, {required bool isFromAccount}) {
+  Widget _buildAccountSelector(AppLocalizations l10n,
+      {required bool isFromAccount}) {
     final accountId = isFromAccount ? _selectedAccountId : _selectedToAccountId;
     final label = isFromAccount
-        ? (_type == 'transfer' ? l10n.transferFromAccount : l10n.accountSelectTitle)
+        ? (_type == 'transfer'
+            ? l10n.transferFromAccount
+            : l10n.accountSelectTitle)
         : l10n.transferToAccount;
 
     return InkWell(
@@ -386,7 +402,8 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
 
   bool _isFormValid() {
     // 检查金额
-    if (_amountController.text.isEmpty || double.tryParse(_amountController.text) == null) {
+    if (_amountController.text.isEmpty ||
+        double.tryParse(_amountController.text) == null) {
       return false;
     }
 
@@ -665,7 +682,8 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
 
     // 获取所有账户，然后过滤与当前账本币种相同的账户
     final allAccounts = await repo.getAllAccounts();
-    var accounts = allAccounts.where((a) => a.currency == ledger.currency).toList();
+    var accounts =
+        allAccounts.where((a) => a.currency == ledger.currency).toList();
 
     // 如果是选择转入账户，排除已选择的转出账户
     if (!isFromAccount && _selectedAccountId != null) {
@@ -675,7 +693,9 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
     if (!mounted) return;
 
     final title = isFromAccount
-        ? (_type == 'transfer' ? AppLocalizations.of(context)!.transferFromAccount : AppLocalizations.of(context)!.accountSelectTitle)
+        ? (_type == 'transfer'
+            ? AppLocalizations.of(context)!.transferFromAccount
+            : AppLocalizations.of(context)!.accountSelectTitle)
         : AppLocalizations.of(context)!.transferToAccount;
 
     final selected = await showDialog<int?>(
@@ -686,7 +706,8 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
           width: double.maxFinite,
           child: ListView.builder(
             shrinkWrap: true,
-            itemCount: accounts.length + (_type == 'transfer' && !isFromAccount ? 0 : 1), // 转入账户不显示"无账户"
+            itemCount: accounts.length +
+                (_type == 'transfer' && !isFromAccount ? 0 : 1), // 转入账户不显示"无账户"
             itemBuilder: (context, index) {
               if (index == 0 && (_type != 'transfer' || isFromAccount)) {
                 return ListTile(
@@ -694,7 +715,8 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
                   onTap: () => Navigator.of(context).pop(null),
                 );
               }
-              final accountIndex = _type == 'transfer' && !isFromAccount ? index : index - 1;
+              final accountIndex =
+                  _type == 'transfer' && !isFromAccount ? index : index - 1;
               final account = accounts[accountIndex];
               return ListTile(
                 title: Text(account.name),
@@ -810,7 +832,8 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.commonDelete),
-        content: Text(AppLocalizations.of(context)!.recurringTransactionDeleteConfirm),
+        content: Text(
+            AppLocalizations.of(context)!.recurringTransactionDeleteConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
