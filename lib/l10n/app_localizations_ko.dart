@@ -6939,7 +6939,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get txCrossCurrencyTransferBlocked => 'Cross-currency transfers are not supported yet. Record two entries or use same-currency accounts.';
 
   @override
-  String get ledgerBaseCurrencyLabel => 'Ledger base currency';
+  String get ledgerBaseCurrencyLabel => 'Primary currency';
 
   @override
   String statsConvertedFootnote(Object currency) {

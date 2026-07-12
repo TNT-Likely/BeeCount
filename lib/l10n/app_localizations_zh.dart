@@ -6939,7 +6939,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txCrossCurrencyTransferBlocked => '暂不支持跨币种转账,请分别记两笔或使用同币种账户';
 
   @override
-  String get ledgerBaseCurrencyLabel => '账本本位币';
+  String get ledgerBaseCurrencyLabel => '主币种';
 
   @override
   String statsConvertedFootnote(Object currency) {
@@ -13915,7 +13915,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get txCrossCurrencyTransferBlocked => '暫不支援跨幣種轉帳,請分別記兩筆或使用同幣種帳戶';
 
   @override
-  String get ledgerBaseCurrencyLabel => '帳本本位幣';
+  String get ledgerBaseCurrencyLabel => '主幣種';
 
   @override
   String statsConvertedFootnote(Object currency) {

@@ -2744,7 +2744,7 @@
   "txRateMissingTitle": "匯率取得失敗",
   "txRateMissingHint": "請手動填寫本筆匯率後儲存",
   "txCrossCurrencyTransferBlocked": "暫不支援跨幣種轉帳,請分別記兩筆或使用同幣種帳戶",
-  "ledgerBaseCurrencyLabel": "帳本本位幣",
+  "ledgerBaseCurrencyLabel": "主幣種",
   "statsConvertedFootnote": "含外幣,已按各筆記帳時匯率折算為 {currency}",
   "@statsConvertedFootnote": { "placeholders": { "currency": {} } },
   "ledgerCurrencyChangeRecalcHint": "修改本位幣將按當前匯率重算全部歷史交易的折算值",

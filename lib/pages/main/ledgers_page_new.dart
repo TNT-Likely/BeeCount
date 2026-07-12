@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../providers.dart';
+import '../../providers/currency_providers.dart';
 import '../../models/ledger_display_item.dart';
 import '../../cloud/transactions_sync_manager.dart';
 import '../../cloud/sync_service.dart';
@@ -715,6 +716,11 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
     );
 
     if (currencyChanged) {
+      // 先强制拉一次「以新主币种为 base」的汇率:改币种瞬间本地通常还没有
+      // 这一组(汇率按本位币基准存),不拉的话重算会因缺汇率整体跳过
+      // (反馈17:CNY→JPY 后旧交易折算不动)。拉取失败也继续——缺汇率的笔
+      // 由 L11 横幅兜底,绝不 1:1 硬折。
+      await refreshExchangeRatesFromUi(ref, force: true);
       // 全量重算(逐笔记 change,L13);缺汇率的笔留待 L11 横幅
       final n = await repo.recalcNativeAmountsForLedger(
           ledger.id, result.currency);

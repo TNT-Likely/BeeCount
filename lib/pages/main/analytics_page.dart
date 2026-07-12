@@ -140,6 +140,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
       ),
     );
     if (confirmed != true || !mounted) return;
+    // 补折算前先确保本位币汇率组是新鲜的(反馈17 同款根因:缺组则整体跳过)
+    await refreshExchangeRatesFromUi(ref, force: true);
     final repo = ref.read(repositoryProvider);
     final ledgerId = ref.read(currentLedgerIdProvider);
     final n = await repo.recomputeForeignTxForLedger(ledgerId);

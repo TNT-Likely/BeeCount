@@ -13133,7 +13133,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledgerBaseCurrencyLabel.
   ///
   /// In en, this message translates to:
-  /// **'Ledger base currency'**
+  /// **'Primary currency'**
   String get ledgerBaseCurrencyLabel;
 
   /// No description provided for @statsConvertedFootnote.

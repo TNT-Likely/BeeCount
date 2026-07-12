@@ -3091,7 +3091,7 @@
   "txRateMissingTitle": "Failed to get exchange rate",
   "txRateMissingHint": "Please enter the rate for this entry before saving",
   "txCrossCurrencyTransferBlocked": "Cross-currency transfers are not supported yet. Record two entries or use same-currency accounts.",
-  "ledgerBaseCurrencyLabel": "Ledger base currency",
+  "ledgerBaseCurrencyLabel": "Primary currency",
   "statsConvertedFootnote": "Includes foreign currency, converted to {currency} at entry-time rates",
   "@statsConvertedFootnote": { "placeholders": { "currency": {} } },
   "ledgerCurrencyChangeRecalcHint": "Changing the base currency will reconvert all history at current rates",

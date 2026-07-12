@@ -3032,7 +3032,7 @@
   "txRateMissingTitle": "汇率获取失败",
   "txRateMissingHint": "请手动填写本笔汇率后保存",
   "txCrossCurrencyTransferBlocked": "暂不支持跨币种转账,请分别记两笔或使用同币种账户",
-  "ledgerBaseCurrencyLabel": "账本本位币",
+  "ledgerBaseCurrencyLabel": "主币种",
   "statsConvertedFootnote": "含外币,已按各笔记账时汇率折算为 {currency}",
   "@statsConvertedFootnote": { "placeholders": { "currency": {} } },
   "ledgerCurrencyChangeRecalcHint": "修改本位币将按当前汇率重算全部历史交易的折算值",
