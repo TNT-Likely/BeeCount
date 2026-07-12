@@ -94,8 +94,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('USD'), findsOneWidget); // 币种标=该笔币种
-    expect(find.textContaining('1 USD = 7.20000 CNY'), findsOneWidget,
-        reason: '汇率行初值应为隐含汇率 86.4/12=7.2,而非当前有效汇率');
-    expect(find.textContaining('≈ 86.40 CNY'), findsOneWidget); // 预览
+    // 反馈9:不展示汇率行,只展示折算预览(按隐含汇率 86.4/12=7.2 计算,
+    // 而非当前有效汇率 —— 只改备注折算基准不漂移)
+    expect(find.textContaining('1 USD ='), findsNothing);
+    expect(find.textContaining('≈ 86.40 CNY'), findsOneWidget);
   });
 }

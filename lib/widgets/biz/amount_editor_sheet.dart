@@ -476,8 +476,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     );
   }
 
-  /// 汇率行 + 折算预览(仅外币时出现)。汇率常态纯展示(自动拉取);
-  /// 仅在「获取失败」时可点手填(L8 兜底)。
+  /// 折算预览(仅外币时出现,金额下方右对齐一行,反馈9):`≈ 86.40 CNY`。
+  /// 汇率数字不展示(自动拉取内部使用);获取失败时本行变错误提示,可点手填(L8)。
   Widget _buildCurrencySection(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
@@ -499,35 +499,27 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     final rateMissing = rate == null && !_fetchingRate;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.only(top: 2),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Expanded(
-            child: InkWell(
-              // 常态不可编辑;仅缺失时点击手填(L8 兜底)
-              onTap: rateMissing ? _editRate : null,
-              child: Text(
-                rate != null
-                    ? '1 $txCurrency = ${rate.toStringAsPrecision(6)} $ledgerBase'
-                    : _fetchingRate
-                        ? '1 $txCurrency = … $ledgerBase'
-                        : l10n.txRateMissingHint,
-                overflow: TextOverflow.ellipsis,
-                style: text.bodySmall?.copyWith(
-                  color: rateMissing
-                      ? Theme.of(context).colorScheme.error
-                      : BeeTokens.textTertiary(context),
-                ),
+          InkWell(
+            // 常态纯展示;仅获取失败时点击手填汇率(L8 兜底)
+            onTap: rateMissing ? _editRate : null,
+            child: Text(
+              preview != null
+                  ? l10n.txConvertedPreview(
+                      preview.toStringAsFixed(2), ledgerBase)
+                  : _fetchingRate
+                      ? '≈ … $ledgerBase'
+                      : l10n.txRateMissingHint,
+              style: text.bodySmall?.copyWith(
+                color: rateMissing
+                    ? Theme.of(context).colorScheme.error
+                    : BeeTokens.textTertiary(context),
               ),
             ),
           ),
-          if (preview != null)
-            Text(
-              l10n.txConvertedPreview(preview.toStringAsFixed(2), ledgerBase),
-              style: text.bodySmall?.copyWith(
-                color: BeeTokens.textTertiary(context),
-              ),
-            ),
         ],
       ),
     );
@@ -827,6 +819,10 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                         ),
                       ),
                     ],
+                    // v30 币种标:金额左侧小字,点开选币种(反馈9)。
+                    // 常显本位币也只是淡淡一枚小标,单币种用户零打扰(L12)。
+                    _buildCurrencyChip(context),
+                    const SizedBox(width: 6),
                     // 当前输入值
                     Text(
                       _amountStr,
@@ -836,10 +832,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                         color: BeeTokens.textPrimary(context),
                       ),
                     ),
-                    // v30 币种标:金额旁小字,点开选币种(有账户时提示锁定)。
-                    // 常显本位币也只是淡淡一枚小标,单币种用户零打扰(L12)。
-                    const SizedBox(width: 6),
-                    _buildCurrencyChip(context),
                   ],
                 ),
                 // 等号行：仅在有运算符时显示
