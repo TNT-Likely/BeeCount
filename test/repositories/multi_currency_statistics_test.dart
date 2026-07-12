@@ -93,6 +93,14 @@ void main() {
     expect(expense, 42.0);
   });
 
+  test('getLedgerStats 账本余额折 nativeAmount(账本维度,反馈:改主币种要更新)', () async {
+    final (lid, _) = await seedMixed();
+    // CNY 账本 + USD $12(native 86.4) + 本位币支出 100 → 结余 = -(86.4+100)
+    final stats = await repo.getLedgerStats(ledgerId: lid);
+    expect(stats.balance, closeTo(-186.4, 1e-9),
+        reason: '账本余额是账本维度,须折本位币;裸加原币会得 -112');
+  });
+
   test('账户维度回归锁:USD 账户余额仍 Σamount 原币,不折算', () async {
     final (_, usdAccId) = await seedMixed();
     final balance = await repo.getAccountBalance(usdAccId);

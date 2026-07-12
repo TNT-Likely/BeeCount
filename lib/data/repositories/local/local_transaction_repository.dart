@@ -890,8 +890,8 @@ class LocalTransactionRepository implements TransactionRepository {
     final query = '''
       SELECT
         strftime('%Y-%m-%d', happened_at, 'unixepoch', 'localtime') as date,
-        SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income,
-        SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expense
+        SUM(CASE WHEN type = 'income' AND exclude_from_stats = 0 THEN COALESCE(native_amount, amount) ELSE 0 END) as income,
+        SUM(CASE WHEN type = 'expense' AND exclude_from_stats = 0 THEN COALESCE(native_amount, amount) ELSE 0 END) as expense
       FROM transactions
       WHERE ledger_id = ?
         AND happened_at >= ?

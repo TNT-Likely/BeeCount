@@ -121,13 +121,16 @@ final annualReportDataProvider =
   Transaction? largestIncome;
   Transaction? firstRecord;
 
+  // 「最大单笔」按折算值(nativeAmount)比较,否则多币种下 5000 JPY(≈250 CNY)
+  // 会因原币数字大被误判为比 300 CNY 更大的支出。展示仍是各笔原币金额。
+  double conv(Transaction t) => t.nativeAmount ?? t.amount;
   for (final tx in transactions) {
     if (tx.type == 'expense') {
-      if (largestExpense == null || tx.amount > largestExpense.amount) {
+      if (largestExpense == null || conv(tx) > conv(largestExpense)) {
         largestExpense = tx;
       }
     } else if (tx.type == 'income') {
-      if (largestIncome == null || tx.amount > largestIncome.amount) {
+      if (largestIncome == null || conv(tx) > conv(largestIncome)) {
         largestIncome = tx;
       }
     }

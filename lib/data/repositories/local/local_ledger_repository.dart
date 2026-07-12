@@ -115,12 +115,15 @@ class LocalLedgerRepository implements LedgerRepository {
     // v1.15.0: 账户独立后，账本余额仅计算交易收支，不再叠加账户初始余额
     double balance = 0.0;
 
-    // 加上所有交易的收支
+    // 账本余额 = 跨账户收支汇总 → 账本维度,读折算值 nativeAmount(?? amount
+    // 兜底,单币种账本 native==amount 结果不变)。原先裸加 t.amount 在多币种
+    // 账本下把不同币种原值直接相加(CNY+JPY),且改主币种后不随折算更新。
     for (final t in rows) {
+      final v = t.nativeAmount ?? t.amount;
       if (t.type == 'income') {
-        balance += t.amount;
+        balance += v;
       } else if (t.type == 'expense') {
-        balance -= t.amount;
+        balance -= v;
       }
       // transfer 不影响总余额
     }
