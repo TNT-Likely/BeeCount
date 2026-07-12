@@ -63,8 +63,8 @@ class _NetWorthTrendPageState extends ConsumerState<NetWorthTrendPage> {
     final hide = ref.watch(hideAmountsProvider);
     final earliest = ref.watch(earliestTransactionDateProvider).valueOrNull;
     final dates = _rangeDates(earliest);
-    final seriesAsync = ref.watch(
-        netWorthTrendSeriesProvider((startDate: dates.start, endDate: dates.end)));
+    final seriesAsync = ref.watch(netWorthTrendSeriesProvider(
+        (startDate: dates.start, endDate: dates.end)));
     final multi =
         (ref.watch(usedCurrenciesProvider).valueOrNull?.length ?? 1) > 1;
 
@@ -81,8 +81,7 @@ class _NetWorthTrendPageState extends ConsumerState<NetWorthTrendPage> {
                   return Center(
                     child: Text(
                       l10n.commonEmpty,
-                      style:
-                          TextStyle(color: BeeTokens.textTertiary(context)),
+                      style: TextStyle(color: BeeTokens.textTertiary(context)),
                     ),
                   );
                 }
@@ -114,8 +113,7 @@ class _NetWorthTrendPageState extends ConsumerState<NetWorthTrendPage> {
                           padding: EdgeInsets.symmetric(
                               horizontal: 6.0.scaled(context, ref)),
                           child: Icon(Icons.arrow_forward,
-                              size: 14,
-                              color: BeeTokens.iconTertiary(context)),
+                              size: 14, color: BeeTokens.iconTertiary(context)),
                         ),
                         AmountText(
                           value: last,
@@ -146,8 +144,7 @@ class _NetWorthTrendPageState extends ConsumerState<NetWorthTrendPage> {
                       child: LineChart(
                         values: values,
                         xLabels: monthly
-                            .map((e) =>
-                                '${e.date.year % 100}/${e.date.month}')
+                            .map((e) => '${e.date.year % 100}/${e.date.month}')
                             .toList(),
                         highlightIndex: values.length - 1,
                         onSwipeLeft: () {},
@@ -176,8 +173,7 @@ class _NetWorthTrendPageState extends ConsumerState<NetWorthTrendPage> {
                   ],
                 );
               },
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (_, __) => Center(
                 child: Text(
                   l10n.commonError,
@@ -256,8 +252,7 @@ class _TrendChipSelector<T> extends StatelessWidget {
                 fontWeight: selected == v ? FontWeight.w600 : FontWeight.normal,
               ),
               side: BorderSide(
-                color:
-                    selected == v ? primaryColor : BeeTokens.border(context),
+                color: selected == v ? primaryColor : BeeTokens.border(context),
               ),
               onSelected: (_) => onSelected(v),
             ),

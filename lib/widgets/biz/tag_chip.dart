@@ -213,23 +213,31 @@ class TagChipList extends StatelessWidget {
           GestureDetector(
             onTap: onMoreTap,
             child: Container(
-              height: size == TagChipSize.small ? 20 : (size == TagChipSize.medium ? 28 : 36),
+              height: size == TagChipSize.small
+                  ? 20
+                  : (size == TagChipSize.medium ? 28 : 36),
               padding: EdgeInsets.symmetric(
-                horizontal: size == TagChipSize.small ? 8 : (size == TagChipSize.medium ? 12 : 16),
+                horizontal: size == TagChipSize.small
+                    ? 8
+                    : (size == TagChipSize.medium ? 12 : 16),
               ),
               decoration: BoxDecoration(
                 color: BeeTokens.isDark(context)
                     ? Colors.white.withValues(alpha: 0.1)
                     : Colors.black.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(
-                  size == TagChipSize.small ? 10 : (size == TagChipSize.medium ? 14 : 18),
+                  size == TagChipSize.small
+                      ? 10
+                      : (size == TagChipSize.medium ? 14 : 18),
                 ),
               ),
               child: Center(
                 child: Text(
                   '+$moreCount',
                   style: TextStyle(
-                    fontSize: size == TagChipSize.small ? 11 : (size == TagChipSize.medium ? 13 : 15),
+                    fontSize: size == TagChipSize.small
+                        ? 11
+                        : (size == TagChipSize.medium ? 13 : 15),
                     color: BeeTokens.textSecondary(context),
                   ),
                 ),

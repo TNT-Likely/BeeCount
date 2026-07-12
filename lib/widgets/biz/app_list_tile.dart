@@ -65,7 +65,8 @@ class AppListTile extends StatelessWidget {
           if (trailing != null)
             trailing!
           else if (enabled)
-            Icon(Icons.chevron_right, color: BeeTokens.iconTertiary(context)), // ⭐ 使用 Token
+            Icon(Icons.chevron_right,
+                color: BeeTokens.iconTertiary(context)), // ⭐ 使用 Token
         ],
       ),
     );

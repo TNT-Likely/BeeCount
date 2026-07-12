@@ -44,7 +44,8 @@ class LedgerSelectorDialog extends ConsumerWidget {
         final ledgers = snapshot.data!;
         if (ledgers.isEmpty) {
           return SimpleDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             title: Text(l10n.ledgerSelectTitle),
             children: [
               Padding(
@@ -56,7 +57,8 @@ class LedgerSelectorDialog extends ConsumerWidget {
         }
 
         return SimpleDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(l10n.ledgerSelectTitle),
           children: ledgers.map((ledger) {
             final isSelected = ledger.id == currentLedgerId;
@@ -65,7 +67,9 @@ class LedgerSelectorDialog extends ConsumerWidget {
               child: Row(
                 children: [
                   Icon(
-                    isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+                    isSelected
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked,
                     color: isSelected ? primaryColor : null,
                   ),
                   const SizedBox(width: 8),
@@ -73,7 +77,8 @@ class LedgerSelectorDialog extends ConsumerWidget {
                     child: Text(
                       ledger.name,
                       style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
                         color: isSelected ? primaryColor : null,
                       ),
                     ),

@@ -97,8 +97,8 @@ abstract class CategoryRepository {
   Future<Map<int, int>> getAllCategoryTransactionCounts();
 
   /// 获取分类汇总信息（总笔数、总金额、平均金额）
-  Future<({int totalCount, double totalAmount, double averageAmount})> getCategorySummary(
-      int categoryId);
+  Future<({int totalCount, double totalAmount, double averageAmount})>
+      getCategorySummary(int categoryId);
 
   /// 获取分类下的所有交易记录
   Future<List<Transaction>> getTransactionsByCategory(int categoryId);
@@ -117,7 +117,8 @@ abstract class CategoryRepository {
   });
 
   /// 迁移分类下的所有交易和子分类
-  Future<({int migratedTransactions, int migratedSubCategories})> migrateCategoryTransactions({
+  Future<({int migratedTransactions, int migratedSubCategories})>
+      migrateCategoryTransactions({
     required int fromCategoryId,
     required int toCategoryId,
   });
@@ -129,7 +130,8 @@ abstract class CategoryRepository {
   });
 
   /// 批量更新分类排序
-  Future<void> updateCategorySortOrders(List<({int id, int sortOrder})> updates);
+  Future<void> updateCategorySortOrders(
+      List<({int id, int sortOrder})> updates);
 
   /// 获取分类的完整路径名称（一级/二级）
   Future<String> getCategoryFullName(int categoryId);
@@ -138,13 +140,15 @@ abstract class CategoryRepository {
   Stream<Category?> watchCategory(int categoryId);
 
   /// 响应式监听分类下的交易变化
-  Stream<List<Transaction>> watchTransactionsByCategory(int categoryId, {int? ledgerId});
+  Stream<List<Transaction>> watchTransactionsByCategory(int categoryId,
+      {int? ledgerId});
 
   /// 响应式监听分类及其子分类的变化
   Stream<List<Category>> watchCategoryWithSubs(int categoryId);
 
   /// 响应式监听所有分类及其交易数量变化
-  Stream<List<({Category category, int transactionCount})>> watchCategoriesWithCount();
+  Stream<List<({Category category, int transactionCount})>>
+      watchCategoriesWithCount();
 
   /// 批量插入分类
   Future<void> batchInsertCategories(List<CategoriesCompanion> categories);

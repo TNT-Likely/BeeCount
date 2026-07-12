@@ -27,6 +27,7 @@ final creditCardAvailableAmountProvider =
   final account = await repo.getAccount(accountId);
   if (account == null || account.creditLimit == null) return null;
 
-  final usedAmount = await ref.watch(creditCardUsedAmountProvider(accountId).future);
+  final usedAmount =
+      await ref.watch(creditCardUsedAmountProvider(accountId).future);
   return account.creditLimit! - usedAmount;
 });

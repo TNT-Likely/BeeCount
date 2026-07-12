@@ -24,7 +24,8 @@ abstract class ExchangeRateRepository {
   Stream<List<ExchangeRateOverride>> watchOverrides(String base);
 
   /// 币对 upsert:已存在则更新并复用 syncId;记 user-global change。
-  Future<void> setOverride({required String base, required String quote, required String rate});
+  Future<void> setOverride(
+      {required String base, required String quote, required String rate});
 
   /// 删除并记 delete change;不存在则 no-op。
   Future<void> removeOverride({required String base, required String quote});

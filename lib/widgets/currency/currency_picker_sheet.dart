@@ -82,15 +82,15 @@ Future<String?> showCurrencyPickerSheet(
                         title: Text(
                           '${c.name} (${c.code})',
                           style: TextStyle(
-                            color:
-                                sel ? primaryColor : BeeTokens.textPrimary(bctx),
+                            color: sel
+                                ? primaryColor
+                                : BeeTokens.textPrimary(bctx),
                             fontWeight:
                                 sel ? FontWeight.w600 : FontWeight.normal,
                           ),
                         ),
-                        trailing: sel
-                            ? Icon(Icons.check, color: primaryColor)
-                            : null,
+                        trailing:
+                            sel ? Icon(Icons.check, color: primaryColor) : null,
                         onTap: () => Navigator.pop(bctx, c.code),
                       );
                     },

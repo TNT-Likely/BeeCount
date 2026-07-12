@@ -159,14 +159,14 @@ class _TransferFormState extends ConsumerState<TransferForm> {
         onSubmit: (result) async {
           final attachmentService = ref.read(attachmentServiceProvider);
           // 获取虚拟转账分类ID
-          final transferCategory = await ref.read(transferCategoryProvider.future);
+          final transferCategory =
+              await ref.read(transferCategoryProvider.future);
           final transferCategoryId = transferCategory.id;
 
           // §7 共享账本:Editor picker 给的是 synthetic Account(负数 id)。
           // 写本地 Drift 时 accountId / toAccountId 留 null,override 字段
           // 走 Owner 的 syncId;push 序列化时按 override 输出 payload。
-          final isSyntheticFrom =
-              _fromAccountId != null && _fromAccountId! < 0;
+          final isSyntheticFrom = _fromAccountId != null && _fromAccountId! < 0;
           final isSyntheticTo = _toAccountId != null && _toAccountId! < 0;
           final fromAccountForAdd = isSyntheticFrom ? null : _fromAccountId;
           final toAccountForAdd = isSyntheticTo ? null : _toAccountId;
@@ -210,7 +210,8 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                 ref.read(tagListRefreshProvider.notifier).state++;
               } else {
                 // 编辑模式：如果没有选择标签，清除原有标签
-                await repo.removeAllTagsFromTransaction(widget.editingTransactionId!);
+                await repo
+                    .removeAllTagsFromTransaction(widget.editingTransactionId!);
                 ref.read(tagListRefreshProvider.notifier).state++;
               }
 
@@ -341,7 +342,9 @@ class _TransferFormState extends ConsumerState<TransferForm> {
         final allAccounts = snapshot.data ?? const <Account>[];
         // 只显示与当前账本同币种的可交易账户
         final accounts = allAccounts
-            .where((account) => account.currency == currentCurrency && isTradableType(account.type))
+            .where((account) =>
+                account.currency == currentCurrency &&
+                isTradableType(account.type))
             .toList();
 
         if (accounts.isEmpty) {
@@ -420,9 +423,8 @@ class _TransferFormState extends ConsumerState<TransferForm> {
       itemCount: accounts.length,
       itemBuilder: (context, index) {
         final account = accounts[index];
-        final isSelected = isFrom
-            ? _fromAccountId == account.id
-            : _toAccountId == account.id;
+        final isSelected =
+            isFrom ? _fromAccountId == account.id : _toAccountId == account.id;
 
         return _buildAccountCard(account, isSelected, isFrom, primary);
       },
@@ -494,5 +496,4 @@ class _TransferFormState extends ConsumerState<TransferForm> {
       ),
     );
   }
-
 }

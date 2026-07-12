@@ -258,7 +258,8 @@ class CloudSyncManager<T> {
           // Not JSON or doesn't have count field, ignore
         }
 
-        logger?.debug('Local fingerprint: $localFingerprint, count: $localCount');
+        logger
+            ?.debug('Local fingerprint: $localFingerprint, count: $localCount');
       }
 
       // 4. Check if cloud file exists

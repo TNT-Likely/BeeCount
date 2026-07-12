@@ -28,7 +28,8 @@ ProductPromo beeAssetsPromo(BuildContext context) {
     // App Store 审核期间走 TestFlight,审过后两个并存(App Store 主、TestFlight
     // 次)— TestFlight 永远是"最新构建"通道,重度用户喜欢用
     testFlightUrl: 'https://testflight.apple.com/join/49vTpmDA',
-    googlePlayUrl: 'https://play.google.com/store/apps/details?id=com.tntlikely.beeassets',
+    googlePlayUrl:
+        'https://play.google.com/store/apps/details?id=com.tntlikely.beeassets',
     websiteUrl: 'https://assets.beejz.com',
     contactEmail: 'sunxiaoyes@outlook.com',
     screenshotAssets: [

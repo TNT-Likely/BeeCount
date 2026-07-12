@@ -23,7 +23,8 @@ class AvatarService {
     // 兼容旧版本存储的绝对路径
     if (relativePath.startsWith('/')) {
       // 尝试从绝对路径中提取相对路径并迁移
-      final match = RegExp(r'avatars/avatar_\d+\.\w+$').firstMatch(relativePath);
+      final match =
+          RegExp(r'avatars/avatar_\d+\.\w+$').firstMatch(relativePath);
       if (match != null) {
         final extracted = match.group(0)!;
         // 检查文件是否在新位置存在

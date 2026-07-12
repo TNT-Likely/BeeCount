@@ -51,8 +51,7 @@ class SyncCoordinator {
 
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 250), () {
-      logger.info('SyncCoordinator',
-          '检测到 ${rows.length} 条未推送变更,触发自动同步');
+      logger.info('SyncCoordinator', '检测到 ${rows.length} 条未推送变更,触发自动同步');
       engine.triggerAutoSync(reason: 'local_change_detected');
     });
   }

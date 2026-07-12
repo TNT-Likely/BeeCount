@@ -47,7 +47,8 @@ class FakeBeeCountCloudAuthService extends BeeCountCloudAuthService {
       _userId == null ? null : CloudUser(id: _userId!);
 
   /// 测试入口:模拟用户登录 / 登出
-  void setLoggedIn({String? userId = 'test-user-id', String? deviceId = 'test-device-id'}) {
+  void setLoggedIn(
+      {String? userId = 'test-user-id', String? deviceId = 'test-device-id'}) {
     _userId = userId;
     _deviceId = deviceId;
   }
@@ -190,8 +191,7 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
     final slice = unread.take(limit).toList();
     return BeeCountCloudPullResult(
       changes: slice,
-      serverCursor:
-          slice.isEmpty ? from : slice.last.changeId,
+      serverCursor: slice.isEmpty ? from : slice.last.changeId,
       hasMore: unread.length > slice.length,
     );
   }
@@ -301,8 +301,10 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
 
   /// in-memory 附件 store:fileId → bytes
   final Map<String, Uint8List> uploadedAttachments = {};
+
   /// 测试可塞预定义内容供 download
   final Map<String, Uint8List> downloadableAttachments = {};
+
   /// 记录每次 uploadAttachment 调用(并发场景断言用)
   final List<String> uploadAttachmentCalls = [];
 
@@ -329,10 +331,10 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
 
   @override
   Future<Uint8List> downloadAttachment({required String fileId}) async {
-    final bytes = downloadableAttachments[fileId] ?? uploadedAttachments[fileId];
+    final bytes =
+        downloadableAttachments[fileId] ?? uploadedAttachments[fileId];
     if (bytes == null) {
-      throw CloudStorageException(
-          'Fake: attachment not found: $fileId');
+      throw CloudStorageException('Fake: attachment not found: $fileId');
     }
     return bytes;
   }

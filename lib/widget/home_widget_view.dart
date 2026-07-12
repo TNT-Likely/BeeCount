@@ -47,7 +47,8 @@ class HomeWidgetView extends StatelessWidget {
     // For Android, add top/bottom padding to achieve 2:1 ratio (364x182)
     // iOS uses natural 364x169 size
     final isAndroid = Platform.isAndroid;
-    final verticalPadding = isAndroid ? (182 - 169) / 2 : 0.0; // 6.5 pixels top and bottom
+    final verticalPadding =
+        isAndroid ? (182 - 169) / 2 : 0.0; // 6.5 pixels top and bottom
 
     return Container(
       width: width,
@@ -70,108 +71,109 @@ class HomeWidgetView extends StatelessWidget {
         ),
         padding: const EdgeInsets.all(12),
         child: Column(
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                appName,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                  letterSpacing: 0.3,
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  appName,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    letterSpacing: 0.3,
+                  ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(38),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.calendar_today,
-                      size: 11,
-                      color: Colors.white,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${DateTime.now().month}$monthSuffix',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(38),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.calendar_today,
+                        size: 11,
                         color: Colors.white,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 4),
+                      Text(
+                        '${DateTime.now().month}$monthSuffix',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
+              ],
+            ),
+            const SizedBox(height: 10),
 
-          // Main content - 2x2 grid
-          Expanded(
-            child: Row(
-              children: [
-                // Today's expense
-                Expanded(
-                  child: _buildStatCard(
-                    todayExpenseLabel,
-                    todayExpense,
-                    _expenseColor,
-                    Icons.arrow_upward,
-                    true,
+            // Main content - 2x2 grid
+            Expanded(
+              child: Row(
+                children: [
+                  // Today's expense
+                  Expanded(
+                    child: _buildStatCard(
+                      todayExpenseLabel,
+                      todayExpense,
+                      _expenseColor,
+                      Icons.arrow_upward,
+                      true,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                // Today's income
-                Expanded(
-                  child: _buildStatCard(
-                    todayIncomeLabel,
-                    todayIncome,
-                    _incomeColor,
-                    Icons.arrow_downward,
-                    true,
+                  const SizedBox(width: 10),
+                  // Today's income
+                  Expanded(
+                    child: _buildStatCard(
+                      todayIncomeLabel,
+                      todayIncome,
+                      _incomeColor,
+                      Icons.arrow_downward,
+                      true,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: Row(
-              children: [
-                // Month's expense
-                Expanded(
-                  child: _buildStatCard(
-                    monthExpenseLabel,
-                    monthExpense,
-                    _expenseColor,
-                    Icons.trending_up,
-                    false,
+            const SizedBox(height: 10),
+            Expanded(
+              child: Row(
+                children: [
+                  // Month's expense
+                  Expanded(
+                    child: _buildStatCard(
+                      monthExpenseLabel,
+                      monthExpense,
+                      _expenseColor,
+                      Icons.trending_up,
+                      false,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                // Month's income
-                Expanded(
-                  child: _buildStatCard(
-                    monthIncomeLabel,
-                    monthIncome,
-                    _incomeColor,
-                    Icons.trending_down,
-                    false,
+                  const SizedBox(width: 10),
+                  // Month's income
+                  Expanded(
+                    child: _buildStatCard(
+                      monthIncomeLabel,
+                      monthIncome,
+                      _incomeColor,
+                      Icons.trending_down,
+                      false,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );
@@ -258,5 +260,4 @@ class HomeWidgetView extends StatelessWidget {
       ),
     );
   }
-
 }

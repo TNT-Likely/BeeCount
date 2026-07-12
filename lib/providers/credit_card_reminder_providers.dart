@@ -23,7 +23,8 @@ class CreditCardReminderService {
     // 如果 reminderDay <= 0，回到上月
     if (reminderDay <= 0) {
       final prevMonth = DateTime(now.year, now.month - 1, 1);
-      final daysInPrevMonth = DateTime(prevMonth.year, prevMonth.month + 1, 0).day;
+      final daysInPrevMonth =
+          DateTime(prevMonth.year, prevMonth.month + 1, 0).day;
       reminderDate = DateTime(
         prevMonth.year,
         prevMonth.month,
@@ -38,10 +39,12 @@ class CreditCardReminderService {
       final nextMonth = DateTime(now.year, now.month + 1, 1);
       final nextReminderDay = paymentDueDay - daysBefore;
       if (nextReminderDay > 0) {
-        reminderDate = DateTime(nextMonth.year, nextMonth.month, nextReminderDay, hour, minute);
+        reminderDate = DateTime(
+            nextMonth.year, nextMonth.month, nextReminderDay, hour, minute);
       } else {
         // 跨月情况
-        final daysInNextMonth = DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
+        final daysInNextMonth =
+            DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
         reminderDate = DateTime(
           nextMonth.year,
           nextMonth.month,
@@ -81,7 +84,8 @@ class CreditCardReminderService {
         scheduledDate: scheduledDate,
       );
 
-      logger.info('CreditCardReminder', '已调度提醒: accountId=$accountId, 时间=$scheduledDate');
+      logger.info('CreditCardReminder',
+          '已调度提醒: accountId=$accountId, 时间=$scheduledDate');
     } catch (e, stack) {
       logger.error('CreditCardReminder', '调度提醒失败', e, stack);
     }
@@ -109,7 +113,8 @@ class CreditCardReminderService {
 
       for (final account in accounts) {
         final accountId = account.id as int;
-        final enabled = prefs.getBool('cc_reminder_enabled_$accountId') ?? false;
+        final enabled =
+            prefs.getBool('cc_reminder_enabled_$accountId') ?? false;
         if (!enabled) continue;
 
         final paymentDueDay = account.paymentDueDay as int?;

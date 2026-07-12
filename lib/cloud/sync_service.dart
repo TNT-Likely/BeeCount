@@ -9,8 +9,8 @@ abstract class SyncService {
   /// 返回 (inserted, deletedDup) 二元组：
   /// - inserted: 新增条数
   /// - deletedDup: 保留字段（目前始终为0）
-  Future<({int inserted, int deletedDup})>
-      downloadAndRestoreToCurrentLedger({required int ledgerId});
+  Future<({int inserted, int deletedDup})> downloadAndRestoreToCurrentLedger(
+      {required int ledgerId});
 
   Future<SyncStatus> getStatus({required int ledgerId});
 
@@ -33,8 +33,8 @@ abstract class SyncService {
 
 class LocalOnlySyncService implements SyncService {
   @override
-  Future<({int inserted, int deletedDup})>
-      downloadAndRestoreToCurrentLedger({required int ledgerId}) async {
+  Future<({int inserted, int deletedDup})> downloadAndRestoreToCurrentLedger(
+      {required int ledgerId}) async {
     throw UnsupportedError('Cloud sync not configured');
   }
 

@@ -70,10 +70,11 @@ class S3SignatureV4 {
 
     // 5. 添加 Authorization Header
     final signedHeaders = mutableHeaders.keys
-        .where((k) => k.toLowerCase().startsWith('x-amz-') ||
-                      k.toLowerCase() == 'host' ||
-                      k.toLowerCase() == 'content-type' ||
-                      k.toLowerCase() == 'content-length')
+        .where((k) =>
+            k.toLowerCase().startsWith('x-amz-') ||
+            k.toLowerCase() == 'host' ||
+            k.toLowerCase() == 'content-type' ||
+            k.toLowerCase() == 'content-length')
         .map((k) => k.toLowerCase())
         .toList()
       ..sort();
@@ -101,27 +102,26 @@ class S3SignatureV4 {
       ..sort((a, b) => a.key.compareTo(b.key));
     final canonicalQuery = sortedParams
         .map((e) => '${Uri.encodeComponent(e.key)}='
-                    '${Uri.encodeComponent(e.value)}')
+            '${Uri.encodeComponent(e.value)}')
         .join('&');
 
     // Canonical Headers (只包含签名相关的 headers)
     final signedHeaderKeys = headers.keys
-        .where((k) => k.toLowerCase().startsWith('x-amz-') ||
-                      k.toLowerCase() == 'host' ||
-                      k.toLowerCase() == 'content-type' ||
-                      k.toLowerCase() == 'content-length')
+        .where((k) =>
+            k.toLowerCase().startsWith('x-amz-') ||
+            k.toLowerCase() == 'host' ||
+            k.toLowerCase() == 'content-type' ||
+            k.toLowerCase() == 'content-length')
         .map((k) => k.toLowerCase())
         .toList()
       ..sort();
 
-    final canonicalHeaders = signedHeaderKeys
-        .map((key) {
-          final originalKey = headers.keys.firstWhere(
-            (k) => k.toLowerCase() == key,
-          );
-          return '$key:${headers[originalKey]!.trim()}\n';
-        })
-        .join();
+    final canonicalHeaders = signedHeaderKeys.map((key) {
+      final originalKey = headers.keys.firstWhere(
+        (k) => k.toLowerCase() == key,
+      );
+      return '$key:${headers[originalKey]!.trim()}\n';
+    }).join();
 
     // Signed Headers
     final signedHeaders = signedHeaderKeys.join(';');

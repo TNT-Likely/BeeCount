@@ -112,8 +112,7 @@ void main() {
       ]);
 
       final changes = await tracker.getUnpushedChangesForLedger(ledgerId);
-      final txChange =
-          changes.firstWhere((c) => c.entityType == 'transaction');
+      final txChange = changes.firstWhere((c) => c.entityType == 'transaction');
       expect(txChange.entitySyncId, presetSyncId);
     });
   });
@@ -132,9 +131,8 @@ void main() {
           ),
       ]);
       // 清掉之前的 create change,只看 clear 产生的 delete change
-      final beforeIds = (await tracker.getUnpushedChanges())
-          .map((c) => c.id)
-          .toList();
+      final beforeIds =
+          (await tracker.getUnpushedChanges()).map((c) => c.id).toList();
       await tracker.markPushed(beforeIds);
 
       final n = await repo.clearLedgerTransactions(ledgerId);
@@ -186,9 +184,8 @@ void main() {
         ),
       ]);
       // 清掉 create change,只看 delete 后产生的
-      final beforeIds = (await tracker.getUnpushedChanges())
-          .map((c) => c.id)
-          .toList();
+      final beforeIds =
+          (await tracker.getUnpushedChanges()).map((c) => c.id).toList();
       await tracker.markPushed(beforeIds);
 
       await repo.deleteLedger(ledgerId);
@@ -198,12 +195,11 @@ void main() {
           .where((c) => c.entityType == 'transaction' && c.action == 'delete')
           .toList();
       final snapshotDeletes = changes
-          .where((c) =>
-              c.entityType == 'ledger_snapshot' && c.action == 'delete')
+          .where(
+              (c) => c.entityType == 'ledger_snapshot' && c.action == 'delete')
           .toList();
 
-      expect(txDeletes.length, 2,
-          reason: '级联删除的 2 条交易需要登记 transaction:delete');
+      expect(txDeletes.length, 2, reason: '级联删除的 2 条交易需要登记 transaction:delete');
       expect(snapshotDeletes.length, 1,
           reason: '账本本身需要登记 1 条 ledger_snapshot:delete');
       // 关键修复:必须用 ledger.syncId 作为 entity_sync_id,server 才能按
@@ -230,8 +226,7 @@ void main() {
           .where((c) => c.entityType == 'transaction' && c.action == 'create')
           .toList();
       expect(creates.length, 1,
-          reason:
-              'data_import_service 给带标签/附件的交易走这条单条插入路径,'
+          reason: 'data_import_service 给带标签/附件的交易走这条单条插入路径,'
               '必须登记 transaction:create change 才能同步到云端');
     });
 

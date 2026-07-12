@@ -82,10 +82,12 @@ class S3Client {
         _handleError('PutObject', response);
       }
     } on SocketException catch (e) {
-      throw S3NetworkException('Network error: ${e.message}', originalException: e);
+      throw S3NetworkException('Network error: ${e.message}',
+          originalException: e);
     } catch (e) {
       if (e is S3Exception) rethrow;
-      throw S3Exception('PutObject failed: $e', originalException: e as Exception?);
+      throw S3Exception('PutObject failed: $e',
+          originalException: e as Exception?);
     }
   }
 
@@ -118,10 +120,12 @@ class S3Client {
         throw S3Exception('GetObject failed');
       }
     } on SocketException catch (e) {
-      throw S3NetworkException('Network error: ${e.message}', originalException: e);
+      throw S3NetworkException('Network error: ${e.message}',
+          originalException: e);
     } catch (e) {
       if (e is S3Exception) rethrow;
-      throw S3Exception('GetObject failed: $e', originalException: e as Exception?);
+      throw S3Exception('GetObject failed: $e',
+          originalException: e as Exception?);
     }
   }
 
@@ -152,10 +156,12 @@ class S3Client {
         }
       }
     } on SocketException catch (e) {
-      throw S3NetworkException('Network error: ${e.message}', originalException: e);
+      throw S3NetworkException('Network error: ${e.message}',
+          originalException: e);
     } catch (e) {
       if (e is S3Exception) rethrow;
-      throw S3Exception('DeleteObject failed: $e', originalException: e as Exception?);
+      throw S3Exception('DeleteObject failed: $e',
+          originalException: e as Exception?);
     }
   }
 
@@ -180,7 +186,8 @@ class S3Client {
       final response = await _httpClient.head(uri, headers: headers);
       return response.statusCode == 200;
     } on SocketException catch (e) {
-      throw S3NetworkException('Network error: ${e.message}', originalException: e);
+      throw S3NetworkException('Network error: ${e.message}',
+          originalException: e);
     } catch (e) {
       // HEAD 请求失败返回 false 而不抛出异常
       return false;
@@ -199,7 +206,8 @@ class S3Client {
       queryParams['prefix'] = prefix;
     }
 
-    final uri = Uri.parse('$_baseUrl/$bucket').replace(queryParameters: queryParams);
+    final uri =
+        Uri.parse('$_baseUrl/$bucket').replace(queryParameters: queryParams);
 
     var headers = <String, String>{
       'Host': endpoint,
@@ -223,10 +231,12 @@ class S3Client {
         return [];
       }
     } on SocketException catch (e) {
-      throw S3NetworkException('Network error: ${e.message}', originalException: e);
+      throw S3NetworkException('Network error: ${e.message}',
+          originalException: e);
     } catch (e) {
       if (e is S3Exception) rethrow;
-      throw S3Exception('ListObjects failed: $e', originalException: e as Exception?);
+      throw S3Exception('ListObjects failed: $e',
+          originalException: e as Exception?);
     }
   }
 
@@ -273,7 +283,8 @@ class S3Client {
     final message = errorMessage ?? body;
 
     if (statusCode == 403) {
-      if (errorCode == 'InvalidAccessKeyId' || errorCode == 'SignatureDoesNotMatch') {
+      if (errorCode == 'InvalidAccessKeyId' ||
+          errorCode == 'SignatureDoesNotMatch') {
         throw S3AuthException('Authentication failed: $message');
       } else {
         throw S3PermissionDeniedException('Permission denied: $message');

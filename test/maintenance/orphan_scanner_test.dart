@@ -38,8 +38,9 @@ void main() {
   });
 
   Future<int> _insertLedger({String name = 'L1', String? syncId}) async {
-    return db.into(db.ledgers).insert(LedgersCompanion.insert(
-        name: name, syncId: d.Value(syncId)));
+    return db
+        .into(db.ledgers)
+        .insert(LedgersCompanion.insert(name: name, syncId: d.Value(syncId)));
   }
 
   Future<int> _insertCategory({
@@ -87,8 +88,11 @@ void main() {
       await (db.delete(db.ledgers)..where((t) => t.id.equals(lid))).go();
 
       final report = await scanner.scanAll();
-      expect(report.dbOrphans.where((r) => r.type == OrphanType.budgetMissingLedger)
-          .length, 1);
+      expect(
+          report.dbOrphans
+              .where((r) => r.type == OrphanType.budgetMissingLedger)
+              .length,
+          1);
     });
 
     test('A2 附件行指向已删交易', () async {
@@ -103,9 +107,11 @@ void main() {
       await (db.delete(db.transactions)..where((t) => t.id.equals(tid))).go();
 
       final report = await scanner.scanAll();
-      expect(report.dbOrphans
-          .where((r) => r.type == OrphanType.attachmentMissingTx)
-          .length, 1);
+      expect(
+          report.dbOrphans
+              .where((r) => r.type == OrphanType.attachmentMissingTx)
+              .length,
+          1);
     });
 
     test('A5 tx 失主 account', () async {
@@ -132,8 +138,11 @@ void main() {
       await (db.delete(db.categories)..where((t) => t.id.equals(cid))).go();
 
       final report = await scanner.scanAll();
-      expect(report.dbOrphans.where((r) => r.type == OrphanType.txMissingCategory)
-          .length, 1);
+      expect(
+          report.dbOrphans
+              .where((r) => r.type == OrphanType.txMissingCategory)
+              .length,
+          1);
     });
 
     test('A7 二级分类失父', () async {
@@ -142,9 +151,11 @@ void main() {
       await (db.delete(db.categories)..where((t) => t.id.equals(parent))).go();
 
       final report = await scanner.scanAll();
-      expect(report.dbOrphans
-          .where((r) => r.type == OrphanType.categoryMissingParent)
-          .length, 1);
+      expect(
+          report.dbOrphans
+              .where((r) => r.type == OrphanType.categoryMissingParent)
+              .length,
+          1);
     });
 
     test('A8 预算分类失主', () async {
@@ -159,9 +170,11 @@ void main() {
       await (db.delete(db.categories)..where((t) => t.id.equals(cid))).go();
 
       final report = await scanner.scanAll();
-      expect(report.dbOrphans
-          .where((r) => r.type == OrphanType.budgetMissingCategory)
-          .length, 1);
+      expect(
+          report.dbOrphans
+              .where((r) => r.type == OrphanType.budgetMissingCategory)
+              .length,
+          1);
     });
   });
 
@@ -195,9 +208,11 @@ void main() {
       await File('${dir.path}/used.jpg').writeAsBytes([1]);
 
       final report = await scanner.scanAll();
-      expect(report.fileOrphans
-          .where((r) => r.type == OrphanType.fileOrphanAttachment)
-          .length, 0);
+      expect(
+          report.fileOrphans
+              .where((r) => r.type == OrphanType.fileOrphanAttachment)
+              .length,
+          0);
     });
 
     test('B3 共享分类图标缓存无引用', () async {
@@ -206,9 +221,11 @@ void main() {
       await File('${dir.path}/shared_abc123.png').writeAsBytes([1]);
 
       final report = await scanner.scanAll();
-      expect(report.fileOrphans
-          .where((r) => r.type == OrphanType.fileOrphanSharedIcon)
-          .length, 1);
+      expect(
+          report.fileOrphans
+              .where((r) => r.type == OrphanType.fileOrphanSharedIcon)
+              .length,
+          1);
     });
   });
 
@@ -224,9 +241,11 @@ void main() {
           ));
 
       final report = await scanner.scanAll();
-      expect(report.syncOrphans
-          .where((r) => r.type == OrphanType.localChangeMissingEntity)
-          .length, 1);
+      expect(
+          report.syncOrphans
+              .where((r) => r.type == OrphanType.localChangeMissingEntity)
+              .length,
+          1);
     });
 
     test('delete action 不算孤儿', () async {

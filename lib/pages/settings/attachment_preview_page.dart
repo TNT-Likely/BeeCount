@@ -27,7 +27,8 @@ class AttachmentPreviewPage extends ConsumerStatefulWidget {
         );
 
   @override
-  ConsumerState<AttachmentPreviewPage> createState() => _AttachmentPreviewPageState();
+  ConsumerState<AttachmentPreviewPage> createState() =>
+      _AttachmentPreviewPageState();
 }
 
 class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage>
@@ -35,11 +36,13 @@ class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage>
   late TabController _tabController;
   int? _selectedIndex;
 
-  int get attachmentCount => widget.exportData?.attachments.length ??
+  int get attachmentCount =>
+      widget.exportData?.attachments.length ??
       widget.archiveData?.attachments.length ??
       0;
 
-  int get customIconCount => widget.exportData?.customIcons.length ??
+  int get customIconCount =>
+      widget.exportData?.customIcons.length ??
       widget.archiveData?.customIcons.length ??
       0;
 

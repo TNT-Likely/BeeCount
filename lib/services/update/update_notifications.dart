@@ -94,7 +94,9 @@ class UpdateNotifications {
           NotificationDetails(android: androidDetails, iOS: iosDetails);
 
       final title = 'BeeCount Update Download';
-      final body = indeterminate ? 'Downloading new version...' : 'Download progress: $progress%';
+      final body = indeterminate
+          ? 'Downloading new version...'
+          : 'Download progress: $progress%';
 
       logger.info('UpdateNotifications',
           '开始显示通知 - 标题: $title, 内容: $body, 进度: $progress, 不确定: $indeterminate');
@@ -134,7 +136,8 @@ class UpdateNotifications {
       );
 
       const iosDetails = DarwinNotificationDetails();
-      const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+      const details =
+          NotificationDetails(android: androidDetails, iOS: iosDetails);
 
       await _notificationsPlugin.show(
         0,

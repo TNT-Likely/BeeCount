@@ -35,11 +35,15 @@ class AutomationPage extends ConsumerWidget {
                       // 周期记账
                       AppListTile(
                         leading: Icons.repeat,
-                        title: AppLocalizations.of(context).mineRecurringTransactions,
-                        subtitle: AppLocalizations.of(context).mineRecurringTransactionsSubtitle,
+                        title: AppLocalizations.of(context)
+                            .mineRecurringTransactions,
+                        subtitle: AppLocalizations.of(context)
+                            .mineRecurringTransactionsSubtitle,
                         onTap: () async {
                           await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const RecurringTransactionPage()),
+                            MaterialPageRoute(
+                                builder: (_) =>
+                                    const RecurringTransactionPage()),
                           );
                         },
                       ),
@@ -47,11 +51,14 @@ class AutomationPage extends ConsumerWidget {
                       // 记账提醒
                       AppListTile(
                         leading: Icons.notifications_outlined,
-                        title: AppLocalizations.of(context).mineReminderSettings,
-                        subtitle: AppLocalizations.of(context).mineReminderSettingsSubtitle,
+                        title:
+                            AppLocalizations.of(context).mineReminderSettings,
+                        subtitle: AppLocalizations.of(context)
+                            .mineReminderSettingsSubtitle,
                         onTap: () async {
                           await Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const ReminderSettingsPage()),
+                            MaterialPageRoute(
+                                builder: (_) => const ReminderSettingsPage()),
                           );
                         },
                       ),

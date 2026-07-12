@@ -91,10 +91,11 @@ class WidgetManager {
       // iOS uses 364x169 (2.15:1), Android needs 2:1 ratio
       // For Android, we'll render at 364x169 then add padding to make it 364x182 (2:1)
       final widgetSize = Platform.isIOS
-          ? const Size(364, 169)  // iOS systemMedium
+          ? const Size(364, 169) // iOS systemMedium
           : const Size(364, 182); // Android 2:1 ratio (364/2=182)
 
-      print('📱 Widget rendering - Platform: ${Platform.isIOS ? "iOS" : "Android"}, Size: ${widgetSize.width}x${widgetSize.height}, Ratio: ${(widgetSize.width / widgetSize.height).toStringAsFixed(2)}:1');
+      print(
+          '📱 Widget rendering - Platform: ${Platform.isIOS ? "iOS" : "Android"}, Size: ${widgetSize.width}x${widgetSize.height}, Ratio: ${(widgetSize.width / widgetSize.height).toStringAsFixed(2)}:1');
 
       print('🎨 开始渲染小组件...');
       await HomeWidget.renderFlutterWidget(

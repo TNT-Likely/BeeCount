@@ -9,7 +9,8 @@ import '../../utils/notification_factory.dart';
 /// 2. 应用从后台恢复到前台时，检查提醒是否仍然有效
 /// 3. 如果提醒丢失，自动重新设置
 class ReminderMonitorService with WidgetsBindingObserver {
-  static final ReminderMonitorService _instance = ReminderMonitorService._internal();
+  static final ReminderMonitorService _instance =
+      ReminderMonitorService._internal();
   factory ReminderMonitorService() => _instance;
   ReminderMonitorService._internal();
 

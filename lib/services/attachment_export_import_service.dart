@@ -59,7 +59,10 @@ class AttachmentExportImportService {
       if (await customIconDir.exists()) {
         final entities = customIconDir.listSync();
         for (final entity in entities) {
-          if (entity is File && (entity.path.endsWith('.png') || entity.path.endsWith('.jpg') || entity.path.endsWith('.jpeg'))) {
+          if (entity is File &&
+              (entity.path.endsWith('.png') ||
+                  entity.path.endsWith('.jpg') ||
+                  entity.path.endsWith('.jpeg'))) {
             customIconFiles.add(entity);
           }
         }
@@ -76,8 +79,11 @@ class AttachmentExportImportService {
       }
 
       // 如果没有实际文件、头像和自定义图标，则无需导出
-      if (existingAttachmentFiles.isEmpty && avatarFile == null && customIconFiles.isEmpty) {
-        logger.info('AttachmentExportImport', '没有实际文件需要导出（数据库记录: ${allAttachments.length}，实际文件: 0）');
+      if (existingAttachmentFiles.isEmpty &&
+          avatarFile == null &&
+          customIconFiles.isEmpty) {
+        logger.info('AttachmentExportImport',
+            '没有实际文件需要导出（数据库记录: ${allAttachments.length}，实际文件: 0）');
         return null;
       }
 
@@ -104,7 +110,8 @@ class AttachmentExportImportService {
         }
       }
 
-      logger.info('AttachmentExportImport', '数据库中有 ${allAttachments.length} 条附件记录，实际存在 ${existingAttachments.length} 个文件，自定义图标 ${customIconFiles.length} 个');
+      logger.info('AttachmentExportImport',
+          '数据库中有 ${allAttachments.length} 条附件记录，实际存在 ${existingAttachments.length} 个文件，自定义图标 ${customIconFiles.length} 个');
 
       // 添加元数据文件（先构建，但稍后再填充自定义图标列表）
       final customIconFileNames = <String>[];
@@ -133,7 +140,8 @@ class AttachmentExportImportService {
       final metadata = _buildMetadata(
         existingAttachments,
         avatarFileName: avatarFileName,
-        customIconFileNames: customIconFileNames.isEmpty ? null : customIconFileNames,
+        customIconFileNames:
+            customIconFileNames.isEmpty ? null : customIconFileNames,
       );
       final metadataBytes = utf8.encode(jsonEncode(metadata));
       archive.addFile(ArchiveFile(
@@ -169,7 +177,8 @@ class AttachmentExportImportService {
       // 保存到临时目录
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final exportDir = await _getExportDirectory();
-      final exportPath = '${exportDir.path}/beecount_attachments_$timestamp.tar.gz';
+      final exportPath =
+          '${exportDir.path}/beecount_attachments_$timestamp.tar.gz';
 
       final exportFile = File(exportPath);
       await exportFile.writeAsBytes(gzData);
@@ -192,17 +201,19 @@ class AttachmentExportImportService {
       'version': 3, // 升级版本号以支持自定义图标
       'exportedAt': DateTime.now().toIso8601String(),
       'count': attachments.length,
-      'attachments': attachments.map((a) => {
-        'id': a.id,
-        'transactionId': a.transactionId,
-        'fileName': a.fileName,
-        'originalName': a.originalName,
-        'fileSize': a.fileSize,
-        'width': a.width,
-        'height': a.height,
-        'sortOrder': a.sortOrder,
-        'createdAt': a.createdAt.toIso8601String(),
-      }).toList(),
+      'attachments': attachments
+          .map((a) => {
+                'id': a.id,
+                'transactionId': a.transactionId,
+                'fileName': a.fileName,
+                'originalName': a.originalName,
+                'fileSize': a.fileSize,
+                'width': a.width,
+                'height': a.height,
+                'sortOrder': a.sortOrder,
+                'createdAt': a.createdAt.toIso8601String(),
+              })
+          .toList(),
     };
 
     // 添加头像信息（如果存在）
@@ -407,23 +418,27 @@ class AttachmentExportImportService {
               if (conflictStrategy == conflictOverwrite) {
                 await localAvatarFile.delete();
               } else {
-                logger.debug('AttachmentExportImport', '跳过已存在的头像: $avatarFileName');
+                logger.debug(
+                    'AttachmentExportImport', '跳过已存在的头像: $avatarFileName');
               }
             }
 
             // 保存头像文件
             if (!await localAvatarFile.exists()) {
-              await localAvatarFile.writeAsBytes(avatarFile.content as List<int>);
+              await localAvatarFile
+                  .writeAsBytes(avatarFile.content as List<int>);
 
               // 更新 SharedPreferences 中的头像路径
               final prefs = await SharedPreferences.getInstance();
-              await prefs.setString('user_avatar_path', 'avatars/$avatarFileName');
+              await prefs.setString(
+                  'user_avatar_path', 'avatars/$avatarFileName');
 
               avatarImported = true;
               logger.info('AttachmentExportImport', '头像已导入: $avatarFileName');
             }
           } catch (e) {
-            logger.error('AttachmentExportImport', '导入头像失败: $avatarFileName', e);
+            logger.error(
+                'AttachmentExportImport', '导入头像失败: $avatarFileName', e);
           }
         }
       }
@@ -456,7 +471,8 @@ class AttachmentExportImportService {
             final archiveFile = customIconArchiveFiles[fileName];
 
             if (archiveFile == null) {
-              logger.warning('AttachmentExportImport', '归档中没有找到自定义图标: $fileName');
+              logger.warning(
+                  'AttachmentExportImport', '归档中没有找到自定义图标: $fileName');
               continue;
             }
 
@@ -467,20 +483,24 @@ class AttachmentExportImportService {
             if (await localIconFile.exists()) {
               if (conflictStrategy == conflictOverwrite) {
                 await localIconFile.delete();
-                await localIconFile.writeAsBytes(archiveFile.content as List<int>);
+                await localIconFile
+                    .writeAsBytes(archiveFile.content as List<int>);
                 customIconsImported++;
                 logger.debug('AttachmentExportImport', '覆盖自定义图标: $fileName');
               } else {
                 customIconsSkipped++;
-                logger.debug('AttachmentExportImport', '跳过已存在的自定义图标: $fileName');
+                logger.debug(
+                    'AttachmentExportImport', '跳过已存在的自定义图标: $fileName');
               }
             } else {
-              await localIconFile.writeAsBytes(archiveFile.content as List<int>);
+              await localIconFile
+                  .writeAsBytes(archiveFile.content as List<int>);
               customIconsImported++;
               logger.debug('AttachmentExportImport', '导入自定义图标: $fileName');
             }
           } catch (e) {
-            logger.error('AttachmentExportImport', '导入自定义图标失败: $iconFileName', e);
+            logger.error(
+                'AttachmentExportImport', '导入自定义图标失败: $iconFileName', e);
           }
         }
       }
@@ -521,17 +541,20 @@ class AttachmentExportImportService {
       final repo = ref.read(repositoryProvider);
       final allAttachments = await repo.getAllAttachments();
 
-      logger.debug('AttachmentExportImport', '获取预览：附件目录=${attachmentDir.path}, 数据库附件数=${allAttachments.length}');
+      logger.debug('AttachmentExportImport',
+          '获取预览：附件目录=${attachmentDir.path}, 数据库附件数=${allAttachments.length}');
 
       // 1. 获取附件文件
       final attachmentFiles = <File>[];
       if (await attachmentDir.exists()) {
         final actualFiles = attachmentDir.listSync();
-        logger.debug('AttachmentExportImport', '附件目录中实际有 ${actualFiles.length} 个文件/文件夹');
+        logger.debug(
+            'AttachmentExportImport', '附件目录中实际有 ${actualFiles.length} 个文件/文件夹');
         for (final entity in actualFiles) {
           if (entity is File && _isImageFile(entity.path)) {
             attachmentFiles.add(entity);
-            logger.debug('AttachmentExportImport', '附件文件: ${path.basename(entity.path)}');
+            logger.debug('AttachmentExportImport',
+                '附件文件: ${path.basename(entity.path)}');
           }
         }
       } else {
@@ -545,26 +568,33 @@ class AttachmentExportImportService {
 
       if (await customIconDir.exists()) {
         final iconEntities = customIconDir.listSync();
-        logger.debug('AttachmentExportImport', '自定义图标目录中有 ${iconEntities.length} 个文件/文件夹');
+        logger.debug('AttachmentExportImport',
+            '自定义图标目录中有 ${iconEntities.length} 个文件/文件夹');
         for (final entity in iconEntities) {
           if (entity is File && _isImageFile(entity.path)) {
             customIconFiles.add(entity);
-            logger.debug('AttachmentExportImport', '自定义图标: ${path.basename(entity.path)}');
+            logger.debug('AttachmentExportImport',
+                '自定义图标: ${path.basename(entity.path)}');
           }
         }
       }
 
-      logger.info('AttachmentExportImport', '导出预览找到 ${attachmentFiles.length} 个附件，${customIconFiles.length} 个自定义图标');
+      logger.info('AttachmentExportImport',
+          '导出预览找到 ${attachmentFiles.length} 个附件，${customIconFiles.length} 个自定义图标');
 
       // 打印所有将要导出的文件
       logger.info('AttachmentExportImport', '===== 导出文件列表 =====');
-      logger.info('AttachmentExportImport', '附件文件 (${attachmentFiles.length} 个):');
+      logger.info(
+          'AttachmentExportImport', '附件文件 (${attachmentFiles.length} 个):');
       for (final file in attachmentFiles) {
-        logger.info('AttachmentExportImport', '  - ${path.basename(file.path)}');
+        logger.info(
+            'AttachmentExportImport', '  - ${path.basename(file.path)}');
       }
-      logger.info('AttachmentExportImport', '自定义图标 (${customIconFiles.length} 个):');
+      logger.info(
+          'AttachmentExportImport', '自定义图标 (${customIconFiles.length} 个):');
       for (final file in customIconFiles) {
-        logger.info('AttachmentExportImport', '  - ${path.basename(file.path)}');
+        logger.info(
+            'AttachmentExportImport', '  - ${path.basename(file.path)}');
       }
       logger.info('AttachmentExportImport', '========================');
 
@@ -581,7 +611,11 @@ class AttachmentExportImportService {
   /// 判断是否为图片文件
   bool _isImageFile(String filePath) {
     final ext = path.extension(filePath).toLowerCase();
-    return ext == '.jpg' || ext == '.jpeg' || ext == '.png' || ext == '.gif' || ext == '.webp';
+    return ext == '.jpg' ||
+        ext == '.jpeg' ||
+        ext == '.png' ||
+        ext == '.gif' ||
+        ext == '.webp';
   }
 
   /// 从归档中提取图片用于预览（包括附件和自定义图标）
@@ -630,7 +664,8 @@ class AttachmentExportImportService {
         }
       }
 
-      logger.info('AttachmentExportImport', '导入预览找到 ${attachmentItems.length} 个附件，${customIconItems.length} 个自定义图标');
+      logger.info('AttachmentExportImport',
+          '导入预览找到 ${attachmentItems.length} 个附件，${customIconItems.length} 个自定义图标');
       return ArchivePreviewData(
         attachments: attachmentItems,
         customIcons: customIconItems,
@@ -664,7 +699,8 @@ class AttachmentExportImportService {
 
           return AttachmentArchiveInfo(
             version: metadata['version'] as int? ?? 1,
-            exportedAt: DateTime.tryParse(metadata['exportedAt'] as String? ?? ''),
+            exportedAt:
+                DateTime.tryParse(metadata['exportedAt'] as String? ?? ''),
             count: metadata['count'] as int? ?? 0,
             fileSize: await archiveFile.length(),
             hasAvatar: metadata['avatar'] != null,
@@ -787,6 +823,7 @@ class ArchivePreviewData {
 }
 
 /// Provider
-final attachmentExportImportServiceProvider = Provider<AttachmentExportImportService>((ref) {
+final attachmentExportImportServiceProvider =
+    Provider<AttachmentExportImportService>((ref) {
   return AttachmentExportImportService(ref);
 });

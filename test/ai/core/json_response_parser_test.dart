@@ -13,7 +13,8 @@ void main() {
     const parser = JsonResponseParser();
 
     test('数组格式:N 笔正确解析', () {
-      const raw = '[{"amount":-30,"time":"2026-05-26T12:00:00","category":"餐饮","type":"expense"},'
+      const raw =
+          '[{"amount":-30,"time":"2026-05-26T12:00:00","category":"餐饮","type":"expense"},'
           '{"amount":-50,"time":"2026-05-26T18:00:00","note":"水果","type":"expense"}]';
       final bills = parser.parse(raw);
       expect(bills, hasLength(2));
@@ -51,7 +52,8 @@ void main() {
     });
 
     test('字符串字面量内的逗号保留', () {
-      const raw = '[{"amount":-30,"time":"2026-05-26T12:00:00","note":"苹果, 香蕉"}]';
+      const raw =
+          '[{"amount":-30,"time":"2026-05-26T12:00:00","note":"苹果, 香蕉"}]';
       final bills = parser.parse(raw);
       expect(bills, hasLength(1));
       expect(bills.first.note, '苹果, 香蕉');
@@ -120,7 +122,8 @@ void main() {
     });
 
     test('JSON 前后有解释文字 → 仍能提取', () {
-      const raw = '好的,识别结果如下:[{"amount":-30,"time":"2026-05-26T12:00:00"}] 共 1 笔。';
+      const raw =
+          '好的,识别结果如下:[{"amount":-30,"time":"2026-05-26T12:00:00"}] 共 1 笔。';
       final bills = parser.parse(raw);
       expect(bills, hasLength(1));
       expect(bills.first.amount, -30);

@@ -32,7 +32,8 @@ enum SavePosterResult {
 /// 分享海报生成服务
 class SharePosterService {
   /// 生成分享海报图片数据
-  static Future<Uint8List?> generatePoster(BuildContext context, Color primaryColor) async {
+  static Future<Uint8List?> generatePoster(
+      BuildContext context, Color primaryColor) async {
     try {
       final l10n = AppLocalizations.of(context);
 
@@ -87,7 +88,8 @@ class SharePosterService {
   }
 
   /// 保存海报到相册
-  static Future<SavePosterResult> savePosterToGallery(Uint8List imageBytes) async {
+  static Future<SavePosterResult> savePosterToGallery(
+      Uint8List imageBytes) async {
     try {
       // 使用 Gal 保存图片，会自动处理权限
       await Gal.putImageBytes(imageBytes);
@@ -108,7 +110,8 @@ class SharePosterService {
     try {
       // 获取临时目录
       final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/beecount_share_${DateTime.now().millisecondsSinceEpoch}.png');
+      final file = File(
+          '${tempDir.path}/beecount_share_${DateTime.now().millisecondsSinceEpoch}.png');
 
       // 写入文件
       await file.writeAsBytes(imageBytes);
@@ -143,7 +146,8 @@ class SharePosterService {
 
       return await _generatePosterFromWidgetStatic(
         context,
-        YearSummaryPoster(data: data, primaryColor: primaryColor, hideIncome: hideIncome),
+        YearSummaryPoster(
+            data: data, primaryColor: primaryColor, hideIncome: hideIncome),
       );
     } catch (e) {
       return null;
@@ -172,7 +176,8 @@ class SharePosterService {
 
       return await _generatePosterFromWidgetStatic(
         context,
-        MonthSummaryPoster(data: data, primaryColor: primaryColor, hideIncome: hideIncome),
+        MonthSummaryPoster(
+            data: data, primaryColor: primaryColor, hideIncome: hideIncome),
       );
     } catch (e) {
       return null;
@@ -197,7 +202,8 @@ class SharePosterService {
 
       return await _generatePosterFromWidgetStatic(
         context,
-        LedgerSummaryPoster(data: data, primaryColor: primaryColor, hideIncome: hideIncome),
+        LedgerSummaryPoster(
+            data: data, primaryColor: primaryColor, hideIncome: hideIncome),
       );
     } catch (e) {
       return null;
@@ -274,7 +280,8 @@ class SharePosterService {
   }
 
   /// 显示海报预览对话框
-  static Future<void> showPosterPreview(BuildContext context, Uint8List imageBytes) async {
+  static Future<void> showPosterPreview(
+      BuildContext context, Uint8List imageBytes) async {
     final l10n = AppLocalizations.of(context);
 
     await showDialog(
@@ -306,7 +313,6 @@ class SharePosterService {
       ),
     );
   }
-
 }
 
 /// 海报预览对话框
@@ -329,7 +335,8 @@ class _PosterPreviewDialogState extends State<_PosterPreviewDialog> {
   Future<void> _savePoster() async {
     setState(() => _isSaving = true);
 
-    final result = await SharePosterService.savePosterToGallery(widget.imageBytes);
+    final result =
+        await SharePosterService.savePosterToGallery(widget.imageBytes);
 
     if (!mounted) return;
 
@@ -363,86 +370,92 @@ class _PosterPreviewDialogState extends State<_PosterPreviewDialog> {
         final isDark = BeeTokens.isDark(context);
 
         // 按钮背景色：暗黑模式用深灰卡片色，亮色模式用白色
-        final secondaryButtonBg = isDark ? BeeTokens.surface(context) : Colors.white;
-        final secondaryButtonFg = isDark ? BeeTokens.textPrimary(context) : primaryColor;
+        final secondaryButtonBg =
+            isDark ? BeeTokens.surface(context) : Colors.white;
+        final secondaryButtonFg =
+            isDark ? BeeTokens.textPrimary(context) : primaryColor;
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
-      elevation: 0,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 海报预览 - 占据大部分空间
-          Flexible(
-            child: Container(
-              constraints: const BoxConstraints(maxHeight: 600),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(28),
-                child: Image.memory(
-                  widget.imageBytes,
-                  fit: BoxFit.contain,
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+          elevation: 0,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 海报预览 - 占据大部分空间
+              Flexible(
+                child: Container(
+                  constraints: const BoxConstraints(maxHeight: 600),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(28),
+                    child: Image.memory(
+                      widget.imageBytes,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          // 操作按钮
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _isSaving ? null : _sharePoster,
-                    icon: Icon(Icons.share_outlined, color: secondaryButtonFg),
-                    label: Text(widget.l10n.sharePosterShare),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: secondaryButtonFg,
-                      backgroundColor: secondaryButtonBg,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: isDark
-                            ? BorderSide(color: BeeTokens.border(context))
-                            : BorderSide.none,
+              const SizedBox(height: 16),
+              // 操作按钮
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isSaving ? null : _sharePoster,
+                        icon: Icon(Icons.share_outlined,
+                            color: secondaryButtonFg),
+                        label: Text(widget.l10n.sharePosterShare),
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: secondaryButtonFg,
+                          backgroundColor: secondaryButtonBg,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: isDark
+                                ? BorderSide(color: BeeTokens.border(context))
+                                : BorderSide.none,
+                          ),
+                          elevation: 0,
+                        ),
                       ),
-                      elevation: 0,
                     ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _isSaving ? null : _savePoster,
-                    icon: _isSaving
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation(Colors.white),
-                            ),
-                          )
-                        : const Icon(Icons.download_outlined, color: Colors.white),
-                    label: Text(widget.l10n.sharePosterSave),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isSaving ? null : _savePoster,
+                        icon: _isSaving
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor:
+                                      AlwaysStoppedAnimation(Colors.white),
+                                ),
+                              )
+                            : const Icon(Icons.download_outlined,
+                                color: Colors.white),
+                        label: Text(widget.l10n.sharePosterSave),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
                       ),
-                      elevation: 0,
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
       },
     );
   }
@@ -570,7 +583,8 @@ class _PosterCarouselPreviewDialogState
   }
 
   /// 生成年度总结海报
-  Future<Uint8List?> _generateYearSummary(Color primaryColor, bool hideIncome) async {
+  Future<Uint8List?> _generateYearSummary(
+      Color primaryColor, bool hideIncome) async {
     final ledgerId = ref.read(currentLedgerIdProvider);
     if (ledgerId == 0) {
       final l10n = AppLocalizations.of(context);
@@ -591,12 +605,14 @@ class _PosterCarouselPreviewDialogState
     );
 
     return await _generatePosterFromWidget(
-      YearSummaryPoster(data: data, primaryColor: primaryColor, hideIncome: hideIncome),
+      YearSummaryPoster(
+          data: data, primaryColor: primaryColor, hideIncome: hideIncome),
     );
   }
 
   /// 生成月度总结海报
-  Future<Uint8List?> _generateMonthSummary(Color primaryColor, bool hideIncome) async {
+  Future<Uint8List?> _generateMonthSummary(
+      Color primaryColor, bool hideIncome) async {
     final ledgerId = ref.read(currentLedgerIdProvider);
     if (ledgerId == 0) {
       final l10n = AppLocalizations.of(context);
@@ -619,12 +635,14 @@ class _PosterCarouselPreviewDialogState
     );
 
     return await _generatePosterFromWidget(
-      MonthSummaryPoster(data: data, primaryColor: primaryColor, hideIncome: hideIncome),
+      MonthSummaryPoster(
+          data: data, primaryColor: primaryColor, hideIncome: hideIncome),
     );
   }
 
   /// 生成账本总结海报
-  Future<Uint8List?> _generateLedgerSummary(Color primaryColor, bool hideIncome) async {
+  Future<Uint8List?> _generateLedgerSummary(
+      Color primaryColor, bool hideIncome) async {
     final ledgerId = ref.read(currentLedgerIdProvider);
     if (ledgerId == 0) {
       final l10n = AppLocalizations.of(context);
@@ -640,7 +658,8 @@ class _PosterCarouselPreviewDialogState
     );
 
     return await _generatePosterFromWidget(
-      LedgerSummaryPoster(data: data, primaryColor: primaryColor, hideIncome: hideIncome),
+      LedgerSummaryPoster(
+          data: data, primaryColor: primaryColor, hideIncome: hideIncome),
     );
   }
 
@@ -754,8 +773,10 @@ class _PosterCarouselPreviewDialogState
     final primaryColor = ref.watch(primaryColorProvider);
     final isDark = BeeTokens.isDark(context);
 
-    final secondaryButtonBg = isDark ? BeeTokens.surface(context) : Colors.white;
-    final secondaryButtonFg = isDark ? BeeTokens.textPrimary(context) : primaryColor;
+    final secondaryButtonBg =
+        isDark ? BeeTokens.surface(context) : Colors.white;
+    final secondaryButtonFg =
+        isDark ? BeeTokens.textPrimary(context) : primaryColor;
 
     final cachedPoster = _posterCache[_currentPage];
     final isGenerating = _generating.contains(_currentPage);
@@ -840,15 +861,16 @@ class _PosterCarouselPreviewDialogState
                                   color: Colors.black.withValues(alpha: 0.3),
                                   child: Center(
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         const SizedBox(
                                           width: 50,
                                           height: 50,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 3,
-                                            valueColor:
-                                                AlwaysStoppedAnimation(Colors.white),
+                                            valueColor: AlwaysStoppedAnimation(
+                                                Colors.white),
                                           ),
                                         ),
                                         const SizedBox(height: 20),
@@ -867,7 +889,8 @@ class _PosterCarouselPreviewDialogState
 
                               // 隐藏收入按钮（只在年度/月度/账本总结海报显示）
                               if (_posterTypes[index] != PosterType.appPromo &&
-                                  _posterTypes[index] != PosterType.userProfile &&
+                                  _posterTypes[index] !=
+                                      PosterType.userProfile &&
                                   !generating)
                                 Positioned(
                                   top: 16,
@@ -891,8 +914,10 @@ class _PosterCarouselPreviewDialogState
                                           vertical: 8,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.black.withValues(alpha: 0.5),
-                                          borderRadius: BorderRadius.circular(20),
+                                          color: Colors.black
+                                              .withValues(alpha: 0.5),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -906,7 +931,9 @@ class _PosterCarouselPreviewDialogState
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
-                                              _hideIncome ? l10n.sharePosterShowIncome : l10n.sharePosterHideIncome,
+                                              _hideIncome
+                                                  ? l10n.sharePosterShowIncome
+                                                  : l10n.sharePosterHideIncome,
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 13,
@@ -945,7 +972,9 @@ class _PosterCarouselPreviewDialogState
                   width: isActive ? 24 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: isActive ? primaryColor : Colors.white.withValues(alpha: 0.5),
+                    color: isActive
+                        ? primaryColor
+                        : Colors.white.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 );
@@ -962,9 +991,10 @@ class _PosterCarouselPreviewDialogState
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: (cachedPoster == null || isGenerating || _isSaving)
-                        ? null
-                        : _sharePoster,
+                    onPressed:
+                        (cachedPoster == null || isGenerating || _isSaving)
+                            ? null
+                            : _sharePoster,
                     icon: Icon(Icons.share_outlined, color: secondaryButtonFg),
                     label: Text(l10n.sharePosterShare),
                     style: ElevatedButton.styleFrom(
@@ -984,9 +1014,10 @@ class _PosterCarouselPreviewDialogState
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: (cachedPoster == null || isGenerating || _isSaving)
-                        ? null
-                        : _savePoster,
+                    onPressed:
+                        (cachedPoster == null || isGenerating || _isSaving)
+                            ? null
+                            : _savePoster,
                     icon: _isSaving
                         ? const SizedBox(
                             width: 16,
@@ -996,7 +1027,8 @@ class _PosterCarouselPreviewDialogState
                               valueColor: AlwaysStoppedAnimation(Colors.white),
                             ),
                           )
-                        : const Icon(Icons.download_outlined, color: Colors.white),
+                        : const Icon(Icons.download_outlined,
+                            color: Colors.white),
                     label: Text(l10n.sharePosterSave),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
@@ -1149,8 +1181,10 @@ class _DynamicPosterPreviewDialogState
     final primaryColor = ref.watch(primaryColorProvider);
     final isDark = BeeTokens.isDark(context);
 
-    final secondaryButtonBg = isDark ? BeeTokens.surface(context) : Colors.white;
-    final secondaryButtonFg = isDark ? BeeTokens.textPrimary(context) : primaryColor;
+    final secondaryButtonBg =
+        isDark ? BeeTokens.surface(context) : Colors.white;
+    final secondaryButtonFg =
+        isDark ? BeeTokens.textPrimary(context) : primaryColor;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -1198,7 +1232,8 @@ class _DynamicPosterPreviewDialogState
                                 height: 50,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 3,
-                                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                                  valueColor:
+                                      AlwaysStoppedAnimation(Colors.white),
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -1246,7 +1281,9 @@ class _DynamicPosterPreviewDialogState
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    _hideIncome ? l10n.sharePosterShowIncome : l10n.sharePosterHideIncome,
+                                    _hideIncome
+                                        ? l10n.sharePosterShowIncome
+                                        : l10n.sharePosterHideIncome,
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 13,
@@ -1272,9 +1309,10 @@ class _DynamicPosterPreviewDialogState
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: (_posterImage == null || _isGenerating || _isSaving)
-                        ? null
-                        : _sharePoster,
+                    onPressed:
+                        (_posterImage == null || _isGenerating || _isSaving)
+                            ? null
+                            : _sharePoster,
                     icon: Icon(Icons.share_outlined, color: secondaryButtonFg),
                     label: Text(l10n.sharePosterShare),
                     style: ElevatedButton.styleFrom(
@@ -1294,9 +1332,10 @@ class _DynamicPosterPreviewDialogState
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: (_posterImage == null || _isGenerating || _isSaving)
-                        ? null
-                        : _savePoster,
+                    onPressed:
+                        (_posterImage == null || _isGenerating || _isSaving)
+                            ? null
+                            : _savePoster,
                     icon: _isSaving
                         ? const SizedBox(
                             width: 16,
@@ -1306,7 +1345,8 @@ class _DynamicPosterPreviewDialogState
                               valueColor: AlwaysStoppedAnimation(Colors.white),
                             ),
                           )
-                        : const Icon(Icons.download_outlined, color: Colors.white),
+                        : const Icon(Icons.download_outlined,
+                            color: Colors.white),
                     label: Text(l10n.sharePosterSave),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,

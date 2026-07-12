@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_cloud_sync/flutter_cloud_sync.dart'
-    hide SyncStatus;
+import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' hide SyncStatus;
 
 import '../../providers/database_providers.dart';
 import 'change_tracker.dart';

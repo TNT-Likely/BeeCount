@@ -39,10 +39,9 @@ class TransactionEditUtils {
     final int? initialAccountId = transaction.accountSyncIdOverride != null
         ? syntheticIdForSyncId(transaction.accountSyncIdOverride!)
         : transaction.accountId;
-    final int? initialToAccountId =
-        transaction.toAccountSyncIdOverride != null
-            ? syntheticIdForSyncId(transaction.toAccountSyncIdOverride!)
-            : transaction.toAccountId;
+    final int? initialToAccountId = transaction.toAccountSyncIdOverride != null
+        ? syntheticIdForSyncId(transaction.toAccountSyncIdOverride!)
+        : transaction.toAccountId;
 
     if (!context.mounted) return;
 

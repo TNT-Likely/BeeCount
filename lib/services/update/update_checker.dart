@@ -32,7 +32,8 @@ class UpdateChecker {
 
       // 移除 commit hash 和链接部分：匹配 ([hash](url)) 格式
       // 使用正则表达式匹配 ([任意字符](任意字符)) 的模式
-      final regex = RegExp(r'\s*\(\[[a-f0-9]{7}\]\(https://github\.com/[^\)]+\)\)');
+      final regex =
+          RegExp(r'\s*\(\[[a-f0-9]{7}\]\(https://github\.com/[^\)]+\)\)');
       if (regex.hasMatch(line)) {
         line = line.replaceAll(regex, '');
         logger.info('UpdateChecker', '  -> 移除 commit 链接后: "$line"');
@@ -74,7 +75,8 @@ class UpdateChecker {
     final random = (DateTime.now().millisecondsSinceEpoch % userAgents.length);
     final selectedUA = userAgents[random];
 
-    logger.info('UpdateChecker', '使用User-Agent: ${selectedUA.substring(0, 50)}...');
+    logger.info(
+        'UpdateChecker', '使用User-Agent: ${selectedUA.substring(0, 50)}...');
     return selectedUA;
   }
 
@@ -116,7 +118,8 @@ class UpdateChecker {
             logger.info('UpdateChecker', 'GitHub API请求成功');
             break;
           } else {
-            logger.warning('UpdateChecker', '第$attempts次请求返回错误状态码: ${resp.statusCode}');
+            logger.warning(
+                'UpdateChecker', '第$attempts次请求返回错误状态码: ${resp.statusCode}');
             if (attempts == maxAttempts) {
               break; // 最后一次尝试，不再重试
             }

@@ -33,8 +33,8 @@ class IOSNotificationUtil implements util.NotificationUtil {
 
   @override
   Future<bool> requestPermissions() async {
-    final iosPlugin = _plugin
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+    final iosPlugin = _plugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
 
     if (iosPlugin == null) return false;
 
@@ -165,8 +165,8 @@ class IOSNotificationUtil implements util.NotificationUtil {
 
   @override
   Future<bool> checkPermissionStatus() async {
-    final iosPlugin = _plugin
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+    final iosPlugin = _plugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
 
     if (iosPlugin == null) return false;
 

@@ -9,8 +9,8 @@ List<({DateTime date, double assets, double liabilities, double net})>
     downsampleMonthly(
   List<({DateTime date, double assets, double liabilities, double net})> daily,
 ) {
-  final byMonth =
-      <String, ({DateTime date, double assets, double liabilities, double net})>{};
+  final byMonth = <String,
+      ({DateTime date, double assets, double liabilities, double net})>{};
   for (final d in daily) {
     byMonth['${d.date.year}-${d.date.month}'] = d; // 同月后值覆盖 → 月末值
   }

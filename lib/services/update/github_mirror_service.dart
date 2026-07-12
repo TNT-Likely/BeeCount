@@ -116,15 +116,15 @@ class GitHubMirrorService {
       logger.info('GitHubMirror', '开始测试镜像: ${mirror.name}');
 
       // 对于直连，测试 GitHub API
-      final testUrl = mirror.isDefault
-          ? 'https://api.github.com'
-          : mirror.testUrl;
+      final testUrl =
+          mirror.isDefault ? 'https://api.github.com' : mirror.testUrl;
 
       final response = await dio.head(
         testUrl,
         options: Options(
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
           },
         ),
       );
@@ -132,7 +132,9 @@ class GitHubMirrorService {
       stopwatch.stop();
       final latency = stopwatch.elapsedMilliseconds;
 
-      if (response.statusCode == 200 || response.statusCode == 301 || response.statusCode == 302) {
+      if (response.statusCode == 200 ||
+          response.statusCode == 301 ||
+          response.statusCode == 302) {
         logger.info('GitHubMirror', '镜像 ${mirror.name} 测试成功，延迟: ${latency}ms');
         return MirrorTestResult(
           mirror: mirror,
@@ -140,7 +142,8 @@ class GitHubMirrorService {
           isAvailable: true,
         );
       } else {
-        logger.warning('GitHubMirror', '镜像 ${mirror.name} 响应异常: ${response.statusCode}');
+        logger.warning(
+            'GitHubMirror', '镜像 ${mirror.name} 响应异常: ${response.statusCode}');
         return MirrorTestResult(
           mirror: mirror,
           latency: -1,
@@ -187,7 +190,8 @@ class GitHubMirrorService {
       return a.latency.compareTo(b.latency);
     });
 
-    logger.info('GitHubMirror', '所有镜像测试完成，可用数量: ${results.where((r) => r.isAvailable).length}');
+    logger.info('GitHubMirror',
+        '所有镜像测试完成，可用数量: ${results.where((r) => r.isAvailable).length}');
     return results;
   }
 
@@ -202,7 +206,8 @@ class GitHubMirrorService {
     }
 
     final fastest = availableResults.first;
-    logger.info('GitHubMirror', '自动选择最快镜像: ${fastest.mirror.name} (${fastest.latency}ms)');
+    logger.info('GitHubMirror',
+        '自动选择最快镜像: ${fastest.mirror.name} (${fastest.latency}ms)');
     await setSelectedMirrorId(fastest.mirror.id);
     return fastest.mirror;
   }

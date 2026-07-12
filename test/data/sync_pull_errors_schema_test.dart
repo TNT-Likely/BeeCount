@@ -37,31 +37,32 @@ void main() {
 
   test('sync_pull_errors 表存在,所有列就位', () async {
     // PRAGMA table_info 查表结构 — 如果表没建会抛或返空
-    final cols = await db
-        .customSelect("PRAGMA table_info(sync_pull_errors)")
-        .get();
+    final cols =
+        await db.customSelect("PRAGMA table_info(sync_pull_errors)").get();
     expect(cols, isNotEmpty,
         reason: 'sync_pull_errors 表必须存在(v26 onCreate / onUpgrade 创建)');
 
     // 所有列名
     final columnNames = cols.map((r) => r.read<String>('name')).toSet();
-    expect(columnNames, containsAll([
-      'id',
-      'change_id',
-      'ledger_external_id',
-      'entity_type',
-      'entity_sync_id',
-      'action',
-      'raw_change_json',
-      'error_class',
-      'error_message',
-      'stack_trace',
-      'first_seen_at',
-      'last_attempt_at',
-      'attempt_count',
-      'user_action',
-      'resolved_at',
-    ]));
+    expect(
+        columnNames,
+        containsAll([
+          'id',
+          'change_id',
+          'ledger_external_id',
+          'entity_type',
+          'entity_sync_id',
+          'action',
+          'raw_change_json',
+          'error_class',
+          'error_message',
+          'stack_trace',
+          'first_seen_at',
+          'last_attempt_at',
+          'attempt_count',
+          'user_action',
+          'resolved_at',
+        ]));
   });
 
   test('INSERT + SELECT 正常 + 默认值 attempt_count=1', () async {
@@ -80,8 +81,7 @@ void main() {
           ..where((t) => t.changeId.equals(100)))
         .getSingle();
     expect(row.changeId, 100);
-    expect(row.attemptCount, 1,
-        reason: 'attempt_count 默认值应为 1');
+    expect(row.attemptCount, 1, reason: 'attempt_count 默认值应为 1');
     expect(row.userAction, isNull);
     expect(row.resolvedAt, isNull);
     expect(row.ledgerExternalId, isNull,
@@ -114,7 +114,8 @@ void main() {
     );
   });
 
-  test('UPDATE attempt_count + last_attempt_at 正常(SyncErrorStore update-first 路径)',
+  test(
+      'UPDATE attempt_count + last_attempt_at 正常(SyncErrorStore update-first 路径)',
       () async {
     final now = DateTime.now().toUtc();
     await db.into(db.syncPullErrors).insert(SyncPullErrorsCompanion.insert(
@@ -158,8 +159,7 @@ void main() {
           lastAttemptAt: now,
         ));
 
-    await (db.update(db.syncPullErrors)
-          ..where((t) => t.changeId.equals(400)))
+    await (db.update(db.syncPullErrors)..where((t) => t.changeId.equals(400)))
         .write(SyncPullErrorsCompanion(
       resolvedAt: Value(DateTime.now().toUtc()),
       userAction: const Value('skip'),

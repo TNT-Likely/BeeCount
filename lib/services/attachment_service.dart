@@ -218,7 +218,8 @@ class AttachmentService {
 
   /// 对一组 fileName 逐个按引用计数删物理文件(清空/删账本后,精准清理该账本
   /// 关联的附件文件;其他账本/交易仍引用同一 fileName 的不会被删)。
-  Future<void> deletePhysicalFilesIfUnreferenced(Iterable<String> fileNames) async {
+  Future<void> deletePhysicalFilesIfUnreferenced(
+      Iterable<String> fileNames) async {
     for (final fileName in fileNames) {
       await _deletePhysicalFileIfUnreferenced(fileName);
     }
@@ -415,7 +416,8 @@ final attachmentServiceProvider = Provider<AttachmentService>((ref) {
 });
 
 /// 交易附件列表 Provider
-final transactionAttachmentsProvider = StreamProvider.family<List<TransactionAttachment>, int>(
+final transactionAttachmentsProvider =
+    StreamProvider.family<List<TransactionAttachment>, int>(
   (ref, transactionId) {
     final repo = ref.watch(repositoryProvider);
     return repo.watchAttachmentsByTransaction(transactionId);
@@ -435,7 +437,8 @@ final attachmentCountProvider = FutureProvider.family<int, int>(
 );
 
 /// 批量获取交易附件数量 Provider
-final attachmentCountsProvider = FutureProvider.family<Map<int, int>, List<int>>(
+final attachmentCountsProvider =
+    FutureProvider.family<Map<int, int>, List<int>>(
   (ref, transactionIds) async {
     if (transactionIds.isEmpty) return {};
     final repo = ref.read(repositoryProvider);

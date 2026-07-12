@@ -4,7 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
 
 // 语言设置提供者
-final languageProvider = StateNotifierProvider<LanguageNotifier, Locale?>((ref) {
+final languageProvider =
+    StateNotifierProvider<LanguageNotifier, Locale?>((ref) {
   return LanguageNotifier();
 });
 

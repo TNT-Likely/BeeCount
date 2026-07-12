@@ -68,14 +68,18 @@ void main() {
       );
     });
 
-    test('should throw CloudConfigurationException when accessing auth before initialization', () {
+    test(
+        'should throw CloudConfigurationException when accessing auth before initialization',
+        () {
       expect(
         () => provider.auth,
         throwsA(isA<CloudConfigurationException>()),
       );
     });
 
-    test('should throw CloudConfigurationException when accessing storage before initialization', () {
+    test(
+        'should throw CloudConfigurationException when accessing storage before initialization',
+        () {
       expect(
         () => provider.storage,
         throwsA(isA<CloudConfigurationException>()),

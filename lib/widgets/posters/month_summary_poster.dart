@@ -142,7 +142,8 @@ class MonthSummaryPoster extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
                     decoration: BoxDecoration(
                       color: primaryColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(16),
@@ -158,7 +159,8 @@ class MonthSummaryPoster extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
                     decoration: BoxDecoration(
                       color: primaryColor,
                       borderRadius: BorderRadius.circular(16),
@@ -399,7 +401,12 @@ class MonthSummaryPoster extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         // 分类列表
-        ...data.topExpenseCategories.take(3).toList().asMap().entries.map((entry) {
+        ...data.topExpenseCategories
+            .take(3)
+            .toList()
+            .asMap()
+            .entries
+            .map((entry) {
           final index = entry.key;
           final category = entry.value;
           return Padding(
@@ -511,7 +518,8 @@ class MonthSummaryPoster extends StatelessWidget {
       child: Column(
         children: [
           // 日均支出
-          _buildInfoRow(context, 
+          _buildInfoRow(
+            context,
             l10n.sharePosterAvgDailyExpense,
             '¥${formatter.format(data.avgDailyExpense)}',
             Icons.calendar_today_outlined,
@@ -531,9 +539,12 @@ class MonthSummaryPoster extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final rate = data.expenseChangeRate!;
     final isIncrease = rate > 0;
-    final color = isIncrease ? const Color(0xFFFF6B6B) : const Color(0xFF51CF66);
+    final color =
+        isIncrease ? const Color(0xFFFF6B6B) : const Color(0xFF51CF66);
     final icon = isIncrease ? Icons.trending_up : Icons.trending_down;
-    final text = isIncrease ? l10n.sharePosterIncreaseRate : l10n.sharePosterDecreaseRate;
+    final text = isIncrease
+        ? l10n.sharePosterIncreaseRate
+        : l10n.sharePosterDecreaseRate;
     final percentText = '${(rate.abs() * 100).toStringAsFixed(1)}%';
 
     return Row(
@@ -574,7 +585,8 @@ class MonthSummaryPoster extends StatelessWidget {
   }
 
   /// 构建信息行
-  Widget _buildInfoRow(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildInfoRow(
+      BuildContext context, String label, String value, IconData icon) {
     return Row(
       children: [
         Icon(icon, color: primaryColor, size: 22),

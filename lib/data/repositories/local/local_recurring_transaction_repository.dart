@@ -5,7 +5,8 @@ import '../recurring_transaction_repository.dart';
 
 /// 本地周期记账Repository实现
 /// 基于 Drift 数据库实现
-class LocalRecurringTransactionRepository implements RecurringTransactionRepository {
+class LocalRecurringTransactionRepository
+    implements RecurringTransactionRepository {
   final BeeDatabase db;
 
   LocalRecurringTransactionRepository(this.db);
@@ -16,14 +17,16 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
   }
 
   @override
-  Future<List<RecurringTransaction>> getRecurringTransactionsByLedger(int ledgerId) async {
+  Future<List<RecurringTransaction>> getRecurringTransactionsByLedger(
+      int ledgerId) async {
     return await (db.select(db.recurringTransactions)
           ..where((t) => t.ledgerId.equals(ledgerId)))
         .get();
   }
 
   @override
-  Future<List<RecurringTransaction>> getEnabledRecurringTransactions(int ledgerId) async {
+  Future<List<RecurringTransaction>> getEnabledRecurringTransactions(
+      int ledgerId) async {
     return await (db.select(db.recurringTransactions)
           ..where((t) => t.ledgerId.equals(ledgerId) & t.enabled.equals(true)))
         .get();
@@ -48,24 +51,24 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
     bool enabled = true,
   }) async {
     return await db.into(db.recurringTransactions).insert(
-      RecurringTransactionsCompanion.insert(
-        ledgerId: ledgerId,
-        type: type,
-        amount: amount,
-        categoryId: d.Value(categoryId),
-        accountId: d.Value(accountId),
-        toAccountId: d.Value(toAccountId),
-        note: d.Value(note),
-        frequency: frequency,
-        interval: d.Value(interval),
-        dayOfMonth: d.Value(dayOfMonth),
-        dayOfWeek: d.Value(dayOfWeek),
-        monthOfYear: d.Value(monthOfYear),
-        startDate: startDate,
-        endDate: d.Value(endDate),
-        enabled: d.Value(enabled),
-      ),
-    );
+          RecurringTransactionsCompanion.insert(
+            ledgerId: ledgerId,
+            type: type,
+            amount: amount,
+            categoryId: d.Value(categoryId),
+            accountId: d.Value(accountId),
+            toAccountId: d.Value(toAccountId),
+            note: d.Value(note),
+            frequency: frequency,
+            interval: d.Value(interval),
+            dayOfMonth: d.Value(dayOfMonth),
+            dayOfWeek: d.Value(dayOfWeek),
+            monthOfYear: d.Value(monthOfYear),
+            startDate: startDate,
+            endDate: d.Value(endDate),
+            enabled: d.Value(enabled),
+          ),
+        );
   }
 
   @override
@@ -142,7 +145,8 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
   }
 
   @override
-  Stream<List<RecurringTransaction>> watchRecurringTransactionsByLedger(int ledgerId) {
+  Stream<List<RecurringTransaction>> watchRecurringTransactionsByLedger(
+      int ledgerId) {
     return (db.select(db.recurringTransactions)
           ..where((t) => t.ledgerId.equals(ledgerId)))
         .watch();

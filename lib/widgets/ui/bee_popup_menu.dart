@@ -5,8 +5,10 @@ import '../../styles/tokens.dart';
 enum BeeMenuItemType {
   /// 普通操作项
   action,
+
   /// 提示信息（禁用状态）
   tip,
+
   /// 分隔线
   divider,
 }
@@ -87,10 +89,11 @@ class BeePopupMenu extends StatelessWidget {
     final themeColor = primaryColor ?? Theme.of(context).colorScheme.primary;
 
     return PopupMenuButton<String>(
-      icon: icon ?? Icon(
-        Icons.more_vert,
-        color: BeeTokens.textPrimary(context),
-      ),
+      icon: icon ??
+          Icon(
+            Icons.more_vert,
+            color: BeeTokens.textPrimary(context),
+          ),
       tooltip: tooltip,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -145,7 +148,8 @@ class BeePopupMenu extends StatelessWidget {
             item.label ?? '',
             style: TextStyle(
               fontSize: 15,
-              color: item.isDanger ? Colors.red : BeeTokens.textPrimary(context),
+              color:
+                  item.isDanger ? Colors.red : BeeTokens.textPrimary(context),
               fontWeight: FontWeight.w500,
             ),
           ),

@@ -32,7 +32,8 @@ class _MemphisPainter extends CustomPainter {
       canvas.drawCircle(
         pos(),
         2.0 + rnd.nextDouble() * 2.5,
-        Paint()..color = color.withValues(alpha: 0.12 + rnd.nextDouble() * 0.10),
+        Paint()
+          ..color = color.withValues(alpha: 0.12 + rnd.nextDouble() * 0.10),
       );
     }
     // 空心三角

@@ -83,14 +83,16 @@ class LineChart extends StatelessWidget {
                 _handleTap(details.localPosition, context);
               }
             },
-      onHorizontalDragEnd: !interactive ? null : (details) {
-        final v = details.primaryVelocity ?? 0;
-        if (v < 0) {
-          onSwipeLeft();
-        } else if (v > 0) {
-          onSwipeRight();
-        }
-      },
+      onHorizontalDragEnd: !interactive
+          ? null
+          : (details) {
+              final v = details.primaryVelocity ?? 0;
+              if (v < 0) {
+                onSwipeLeft();
+              } else if (v > 0) {
+                onSwipeRight();
+              }
+            },
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -134,7 +136,8 @@ class LineChart extends StatelessWidget {
                           size: 14, color: BeeTokens.textSecondary(context)),
                       const SizedBox(width: 4),
                       Text(
-                        hintText ?? AppLocalizations.of(context)!.analyticsSwipeHint,
+                        hintText ??
+                            AppLocalizations.of(context)!.analyticsSwipeHint,
                         style: Theme.of(context)
                             .textTheme
                             .labelSmall
@@ -268,20 +271,23 @@ class _LinePainter extends CustomPainter {
   });
 
   // 获取主文字颜色（暗黑模式感知）
-  Color get primaryTextColor => isDark ? Colors.white : BeeTokens.primaryTextStatic;
+  Color get primaryTextColor =>
+      isDark ? Colors.white : BeeTokens.primaryTextStatic;
 
   // 获取次要文字颜色（暗黑模式感知）
-  Color get secondaryTextColor => isDark ? Colors.white70 : BeeTokens.secondaryTextStatic;
+  Color get secondaryTextColor =>
+      isDark ? Colors.white70 : BeeTokens.secondaryTextStatic;
 
   @override
   void paint(Canvas canvas, Size size) {
     // 背景:minimal 模式不画(sparkline 嵌入卡片内,避免卡中卡)
     if (!minimal) {
       final rect = Offset.zero & size;
-      final bgPaint =
-          Paint()..color = whiteBg ? Colors.white : BeeTokens.dividerStatic;
+      final bgPaint = Paint()
+        ..color = whiteBg ? Colors.white : BeeTokens.dividerStatic;
       canvas.drawRRect(
-          RRect.fromRectAndRadius(rect, Radius.circular(cornerRadius)), bgPaint);
+          RRect.fromRectAndRadius(rect, Radius.circular(cornerRadius)),
+          bgPaint);
     }
 
     // 网格（可选）

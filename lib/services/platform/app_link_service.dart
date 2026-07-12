@@ -87,7 +87,11 @@ class AddTransactionParams {
     List<String>? tags;
     final tagsStr = params['tags'];
     if (tagsStr != null && tagsStr.isNotEmpty) {
-      tags = tagsStr.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
+      tags = tagsStr
+          .split(',')
+          .map((t) => t.trim())
+          .where((t) => t.isNotEmpty)
+          .toList();
     }
 
     return AddTransactionParams(
@@ -117,7 +121,8 @@ class AppLinkResult {
   });
 
   factory AppLinkResult.success({String? message, int? transactionId}) =>
-      AppLinkResult(success: true, message: message, transactionId: transactionId);
+      AppLinkResult(
+          success: true, message: message, transactionId: transactionId);
 
   factory AppLinkResult.failure(String message) =>
       AppLinkResult(success: false, message: message);
@@ -154,7 +159,8 @@ class AppLinkService {
   StreamSubscription<dynamic>? _appIntentSubscription;
 
   /// 导航回调，由外部设置
-  void Function(AppLinkAction action, {AddTransactionParams? params})? onNavigate;
+  void Function(AppLinkAction action, {AddTransactionParams? params})?
+      onNavigate;
 
   /// Toast 回调，由外部设置
   void Function(String message)? onShowToast;
@@ -296,7 +302,8 @@ class AppLinkService {
       case AppLinkAction.newTransaction:
         final type = queryParams['type'] ?? 'expense';
         logger.info('AppLink', '打开手动记账: type=$type');
-        onNavigate?.call(AppLinkAction.newTransaction, params: AddTransactionParams(amount: 0, type: type));
+        onNavigate?.call(AppLinkAction.newTransaction,
+            params: AddTransactionParams(amount: 0, type: type));
         return AppLinkResult.success(message: '打开手动记账');
 
       case AppLinkAction.autoBilling:
@@ -315,7 +322,8 @@ class AppLinkService {
   }
 
   /// 处理自动记账（带参数）
-  Future<AppLinkResult> _handleAddTransaction(Map<String, String> params) async {
+  Future<AppLinkResult> _handleAddTransaction(
+      Map<String, String> params) async {
     try {
       final repo = _container.read(repositoryProvider);
 
@@ -374,13 +382,15 @@ class AppLinkService {
       // 解析账户（不存在则自动创建）
       int? accountId;
       if (txParams.account != null) {
-        accountId = await _findOrCreateAccountId(repo, txParams.account!, ledgerId);
+        accountId =
+            await _findOrCreateAccountId(repo, txParams.account!, ledgerId);
       }
 
       // 解析转入账户（不存在则自动创建）
       int? toAccountId;
       if (txParams.type == 'transfer' && txParams.toAccount != null) {
-        toAccountId = await _findOrCreateAccountId(repo, txParams.toAccount!, ledgerId);
+        toAccountId =
+            await _findOrCreateAccountId(repo, txParams.toAccount!, ledgerId);
       }
 
       // 创建交易
@@ -416,15 +426,19 @@ class AppLinkService {
         }
       }
 
-      logger.info('AppLink', '自动记账成功: id=$transactionId, amount=${txParams.amount}');
+      logger.info(
+          'AppLink', '自动记账成功: id=$transactionId, amount=${txParams.amount}');
 
       // 统一后处理：刷新UI + 触发云同步
       final hasTags = txParams.tags != null && txParams.tags!.isNotEmpty;
       await PostProcessor.runC(_container, ledgerId: ledgerId, tags: hasTags);
 
       if (!txParams.silent) {
-        final typeText = txParams.type == 'income' ? '收入' : (txParams.type == 'transfer' ? '转账' : '支出');
-        onShowToast?.call('已记录 $typeText ${txParams.amount.toStringAsFixed(2)} 元');
+        final typeText = txParams.type == 'income'
+            ? '收入'
+            : (txParams.type == 'transfer' ? '转账' : '支出');
+        onShowToast
+            ?.call('已记录 $typeText ${txParams.amount.toStringAsFixed(2)} 元');
       }
 
       return AppLinkResult.success(
@@ -449,8 +463,7 @@ class AppLinkService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final saved = prefs.getInt('current_ledger_id');
-      if (saved != null &&
-          _container.read(currentLedgerIdProvider) != saved) {
+      if (saved != null && _container.read(currentLedgerIdProvider) != saved) {
         _container.read(currentLedgerIdProvider.notifier).state = saved;
       }
     } catch (_) {
@@ -484,7 +497,8 @@ class AppLinkService {
   }
 
   /// 根据名称查找分类ID
-  Future<int?> _findCategoryId(BaseRepository repo, String name, String kind) async {
+  Future<int?> _findCategoryId(
+      BaseRepository repo, String name, String kind) async {
     final categories = kind == 'income'
         ? await repo.getTopLevelCategories('income')
         : await repo.getTopLevelCategories('expense');
@@ -505,7 +519,8 @@ class AppLinkService {
   }
 
   /// 根据名称查找账户ID，不存在则创建
-  Future<int?> _findOrCreateAccountId(BaseRepository repo, String name, int ledgerId) async {
+  Future<int?> _findOrCreateAccountId(
+      BaseRepository repo, String name, int ledgerId) async {
     final accounts = await repo.getAllAccounts();
     for (final acc in accounts) {
       if (acc.name == name) {
@@ -579,7 +594,9 @@ class AppLinkBuilder {
     if (date != null) params['date'] = date.toIso8601String();
     if (silent) params['silent'] = '1';
 
-    final query = params.entries.map((e) => '${e.key}=${Uri.encodeComponent(e.value)}').join('&');
+    final query = params.entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+        .join('&');
     return '$scheme://add?$query';
   }
 }

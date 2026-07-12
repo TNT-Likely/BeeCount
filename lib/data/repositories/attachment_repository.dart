@@ -24,7 +24,8 @@ abstract class AttachmentRepository {
   Future<TransactionAttachment?> getAttachmentById(int id);
 
   /// 获取交易的所有附件
-  Future<List<TransactionAttachment>> getAttachmentsByTransaction(int transactionId);
+  Future<List<TransactionAttachment>> getAttachmentsByTransaction(
+      int transactionId);
 
   /// 删除附件记录
   Future<void> deleteAttachment(int id);
@@ -36,10 +37,12 @@ abstract class AttachmentRepository {
   Future<void> updateAttachmentSortOrder(int id, int sortOrder);
 
   /// 批量更新附件排序
-  Future<void> updateAttachmentSortOrders(List<({int id, int sortOrder})> updates);
+  Future<void> updateAttachmentSortOrders(
+      List<({int id, int sortOrder})> updates);
 
   /// 更新附件云端引用（上传后回填）
-  Future<void> updateAttachmentCloudRef(int id, {String? cloudFileId, String? cloudSha256});
+  Future<void> updateAttachmentCloudRef(int id,
+      {String? cloudFileId, String? cloudSha256});
 
   // ============================================
   // 查询操作
@@ -58,10 +61,12 @@ abstract class AttachmentRepository {
   Future<int> getAttachmentCountByTransaction(int transactionId);
 
   /// 批量获取多个交易的附件数量
-  Future<Map<int, int>> getAttachmentCountsForTransactions(List<int> transactionIds);
+  Future<Map<int, int>> getAttachmentCountsForTransactions(
+      List<int> transactionIds);
 
   /// 批量获取多个交易的附件
-  Future<Map<int, List<TransactionAttachment>>> getAttachmentsForTransactions(List<int> transactionIds);
+  Future<Map<int, List<TransactionAttachment>>> getAttachmentsForTransactions(
+      List<int> transactionIds);
 
   /// 获取所有有附件的交易ID
   Future<List<int>> getTransactionIdsWithAttachments();
@@ -77,7 +82,8 @@ abstract class AttachmentRepository {
   // ============================================
 
   /// 监听交易的附件
-  Stream<List<TransactionAttachment>> watchAttachmentsByTransaction(int transactionId);
+  Stream<List<TransactionAttachment>> watchAttachmentsByTransaction(
+      int transactionId);
 
   /// 监听交易的附件数量
   Stream<int> watchAttachmentCountByTransaction(int transactionId);

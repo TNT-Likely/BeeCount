@@ -26,7 +26,7 @@ class SyncConflictResolver {
     logger.warning(
       'SyncConflict',
       '冲突: $entityType($entitySyncId) '
-      'remote=$remoteAction local=$localStatus — 使用远程版本(LWW)',
+          'remote=$remoteAction local=$localStatus — 使用远程版本(LWW)',
     );
   }
 }

@@ -5,7 +5,7 @@ import '../utils/notification_factory.dart';
 /// 记账提醒设置
 class ReminderSettings {
   final bool isEnabled;
-  final int hour;  // 0-23
+  final int hour; // 0-23
   final int minute; // 0-59
 
   const ReminderSettings({
@@ -151,6 +151,7 @@ class ReminderSettingsNotifier extends StateNotifier<ReminderSettings> {
 }
 
 /// 记账提醒设置Provider
-final reminderSettingsProvider = StateNotifierProvider<ReminderSettingsNotifier, ReminderSettings>((ref) {
+final reminderSettingsProvider =
+    StateNotifierProvider<ReminderSettingsNotifier, ReminderSettings>((ref) {
   return ReminderSettingsNotifier();
 });

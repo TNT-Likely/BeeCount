@@ -92,8 +92,9 @@ void main() {
   test('A5 tx 失主 account → 不删 tx,只把 account_id 置 null', () async {
     final lid = await db.into(db.ledgers).insert(
         LedgersCompanion.insert(name: 'L', syncId: const d.Value('l-sync')));
-    final accId = await db.into(db.accounts).insert(
-        AccountsCompanion.insert(ledgerId: lid, name: 'A'));
+    final accId = await db
+        .into(db.accounts)
+        .insert(AccountsCompanion.insert(ledgerId: lid, name: 'A'));
     final tid = await db.into(db.transactions).insert(
           TransactionsCompanion.insert(
             ledgerId: lid,

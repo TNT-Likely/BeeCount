@@ -79,7 +79,8 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
       // 获取 LRU 排序
       final lruOrder = await _lruCache.getOrderedIds();
 
-      logger.debug('AccountSelector', '加载账户完成，初始选中: $_initialSelectedAccountId, LRU顺序: $lruOrder');
+      logger.debug('AccountSelector',
+          '加载账户完成，初始选中: $_initialSelectedAccountId, LRU顺序: $lruOrder');
 
       if (mounted) {
         setState(() {
@@ -106,7 +107,8 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
 
     // 将初始选中的账户放在第一个（如果存在）
     if (_initialSelectedAccountId != null) {
-      final selected = _accounts.where((a) => a.id == _initialSelectedAccountId).firstOrNull;
+      final selected =
+          _accounts.where((a) => a.id == _initialSelectedAccountId).firstOrNull;
       if (selected != null) {
         sorted.add(selected);
       }
@@ -114,7 +116,9 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
 
     // 按 LRU 顺序添加其他账户
     for (final id in _lruOrder) {
-      final account = _accounts.where((a) => a.id == id && a.id != _initialSelectedAccountId).firstOrNull;
+      final account = _accounts
+          .where((a) => a.id == id && a.id != _initialSelectedAccountId)
+          .firstOrNull;
       if (account != null && !sorted.contains(account)) {
         sorted.add(account);
       }
@@ -218,7 +222,8 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected ? Colors.white : BeeTokens.textSecondary(context),
+              color:
+                  isSelected ? Colors.white : BeeTokens.textSecondary(context),
               height: 1.2,
             ),
           ),

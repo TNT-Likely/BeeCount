@@ -4,7 +4,8 @@ import '../db.dart' show Category;
 /// 定义统计相关的所有数据操作
 abstract class StatisticsRepository {
   /// 按分类统计（指定时间范围和类型）
-  Future<List<({int? id, String name, String? icon, double total})>> totalsByCategory({
+  Future<List<({int? id, String name, String? icon, double total})>>
+      totalsByCategory({
     required int ledgerId,
     required String type,
     required DateTime start,
@@ -12,8 +13,16 @@ abstract class StatisticsRepository {
   });
 
   /// 按分类统计（支持二级分类展开）
-  Future<List<({int? id, String name, String? icon, int? parentId, int level, double total})>>
-      totalsByCategoryWithHierarchy({
+  Future<
+      List<
+          ({
+            int? id,
+            String name,
+            String? icon,
+            int? parentId,
+            int level,
+            double total
+          })>> totalsByCategoryWithHierarchy({
     required int ledgerId,
     required String type,
     required DateTime start,

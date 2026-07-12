@@ -190,7 +190,8 @@ class UserProfilePoster extends StatelessWidget {
                   const SizedBox(width: 12),
                   // 标签
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
@@ -223,7 +224,8 @@ class UserProfilePoster extends StatelessWidget {
               ],
             ),
             child: QrImageView(
-              data: 'https://github.com/TNT-Likely/BeeCount?utm_source=share_poster&utm_medium=qr_code&utm_campaign=user_profile',
+              data:
+                  'https://github.com/TNT-Likely/BeeCount?utm_source=share_poster&utm_medium=qr_code&utm_campaign=user_profile',
               version: QrVersions.auto,
               size: 98,
               backgroundColor: Colors.white,
@@ -499,7 +501,9 @@ class UserProfilePoster extends StatelessWidget {
   String _getJourneyMessage() {
     if (data.recordDays >= 365) {
       final years = (data.recordDays / 365).floor();
-      return years >= 2 ? l10n.userProfileJourneyYears(years) : l10n.userProfileJourneyOneYear;
+      return years >= 2
+          ? l10n.userProfileJourneyYears(years)
+          : l10n.userProfileJourneyOneYear;
     } else if (data.recordDays >= 180) {
       return l10n.userProfileJourneyHalfYear;
     } else if (data.recordDays >= 90) {

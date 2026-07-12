@@ -13,7 +13,8 @@ library;
 
 typedef DateRange = ({DateTime start, DateTime end});
 
-int _clampDay(int startDay) => startDay < 1 ? 1 : (startDay > 28 ? 28 : startDay);
+int _clampDay(int startDay) =>
+    startDay < 1 ? 1 : (startDay > 28 ? 28 : startDay);
 
 /// 标签 (year, month) 对应的周期范围:[y-m-startDay, y-(m+1)-startDay)。
 DateRange periodForLabel(int year, int month, int startDay) {

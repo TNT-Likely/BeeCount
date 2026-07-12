@@ -354,7 +354,8 @@ class DatabaseSyncManager {
       return 0;
     }
 
-    logger?.info('Processing offline queue: ${_offlineQueue.length} operations');
+    logger
+        ?.info('Processing offline queue: ${_offlineQueue.length} operations');
     _updateStatus(DatabaseSyncStatus.syncing);
 
     int successCount = 0;
@@ -443,7 +444,8 @@ class DatabaseSyncManager {
 
     final effectiveChannelName = channelName ?? 'sync:$table';
 
-    logger?.info('Subscribing to table: $table (channel: $effectiveChannelName)');
+    logger
+        ?.info('Subscribing to table: $table (channel: $effectiveChannelName)');
 
     // Create or get existing channel
     final channel = realtimeService!.channel(effectiveChannelName);
@@ -452,9 +454,8 @@ class DatabaseSyncManager {
     String? filterString;
     if (filters != null && filters.isNotEmpty) {
       // Example: "ledger_id=eq.123"
-      filterString = filters
-          .map((f) => '${f.column}=${f.operator}.${f.value}')
-          .join(',');
+      filterString =
+          filters.map((f) => '${f.column}=${f.operator}.${f.value}').join(',');
     }
 
     // Subscribe to PostgreSQL changes
@@ -464,7 +465,8 @@ class DatabaseSyncManager {
       table: table,
       filter: filterString,
       callback: (payload) async {
-        logger?.debug('Realtime event received: $table - ${payload['eventType']}');
+        logger?.debug(
+            'Realtime event received: $table - ${payload['eventType']}');
 
         // Convert payload to DatabaseEvent
         final eventType = _parseEventType(payload['eventType'] as String?);
@@ -653,7 +655,8 @@ class DatabaseSyncManager {
 
       case SyncOperationType.update:
         if (operation.recordId == null || operation.data == null) {
-          throw CloudSyncException('Update operation requires recordId and data');
+          throw CloudSyncException(
+              'Update operation requires recordId and data');
         }
         await databaseService.update(
           table: operation.table,

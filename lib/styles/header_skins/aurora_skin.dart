@@ -11,7 +11,11 @@ class _AuroraSkin extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = isDark
         ? [Colors.black, Colors.black]
-        : [_lighten(primary, 0.20), primary, _lighten(_hueShift(primary, 30), 0.12)];
+        : [
+            _lighten(primary, 0.20),
+            primary,
+            _lighten(_hueShift(primary, 30), 0.12)
+          ];
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(

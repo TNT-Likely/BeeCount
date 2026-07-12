@@ -131,7 +131,8 @@ class GenericBillParser implements BillParser {
     }
     // 先匹配"交易类型"等更具体的分类字段（避免被"类型"匹配为type）
     // 优先匹配二级分类相关字段（注意：必须先匹配更长的字符串，避免被短字符串提前匹配）
-    if (_containsAny(s, ['二级分类', '子分类', '次分类', 'Subcategory', 'Sub Category'])) {
+    if (_containsAny(
+        s, ['二级分类', '子分类', '次分类', 'Subcategory', 'Sub Category'])) {
       return 'sub_category';
     }
     if (_containsAny(s, ['分类', '类别', '账目名称', '科目', '交易分类', '交易类型'])) {
@@ -166,17 +167,8 @@ class GenericBillParser implements BillParser {
     }
 
     // 明确忽略的字段
-    if (_containsAny(s, [
-      '账目编号',
-      '编号',
-      '单号',
-      '流水号',
-      '交易号',
-      '相关图片',
-      '图片',
-      '交易单号',
-      '订单号'
-    ])) {
+    if (_containsAny(
+        s, ['账目编号', '编号', '单号', '流水号', '交易号', '相关图片', '图片', '交易单号', '订单号'])) {
       return null;
     }
 

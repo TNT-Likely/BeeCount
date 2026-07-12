@@ -59,8 +59,8 @@ void _pushBaseCurrencyToCloud(Ref ref, String code) {
       if (cloudProvider == null) return;
       await cloudProvider.updateMyProfileBaseCurrency(
           primaryCurrency: normalized);
-      logger.info(
-          'currency_providers', 'primary currency pushed to server: $normalized');
+      logger.info('currency_providers',
+          'primary currency pushed to server: $normalized');
     } catch (e, st) {
       logger.warning('currency_providers',
           'push primary currency failed (non-blocking): $e', st);
@@ -110,7 +110,8 @@ final convertedNetWorthProvider =
   final breakdown = await ref.watch(netWorthBreakdownByCurrencyProvider.future);
   final rates = await ref.watch(effectiveRatesProvider.future);
   final base = ref.watch(baseCurrencyProvider).toUpperCase();
-  return computeConvertedNetWorth(breakdown: breakdown, rates: rates, base: base);
+  return computeConvertedNetWorth(
+      breakdown: breakdown, rates: rates, base: base);
 });
 
 /// 折算后的资产构成:每 (type, currency) 原币余额 × 汇率 → 按 type 聚合(主币种值)。
@@ -201,7 +202,9 @@ Future<bool> _refreshExchangeRatesImpl({
     // serverBody['stale'] 有意不消费:rateDate 如实落库(UI 日期不撒谎),代价是
     // stale 数据会被 24h 节流当新鲜缓存一天;有 force 刷新兜底,MVP 接受。
     final rawRateDate = serverBody?['rate_date']?.toString() ?? '';
-    if (serverBody != null && serverBody['rates'] is Map && rawRateDate.isNotEmpty) {
+    if (serverBody != null &&
+        serverBody['rates'] is Map &&
+        rawRateDate.isNotEmpty) {
       rateDate = rawRateDate;
       source = 'server';
       baseToQuote = {

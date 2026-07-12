@@ -15,7 +15,8 @@ class AndroidNotificationUtil implements util.NotificationUtil {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     const initSettings = InitializationSettings(android: androidSettings);
 
     await _plugin.initialize(initSettings);
@@ -30,8 +31,8 @@ class AndroidNotificationUtil implements util.NotificationUtil {
 
   @override
   Future<bool> requestPermissions() async {
-    final androidPlugin = _plugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin == null) return false;
 
@@ -42,7 +43,8 @@ class AndroidNotificationUtil implements util.NotificationUtil {
     // 请求精确闹钟权限 (Android 12+)
     try {
       await androidPlugin.requestExactAlarmsPermission();
-      final canScheduleExact = await androidPlugin.canScheduleExactNotifications();
+      final canScheduleExact =
+          await androidPlugin.canScheduleExactNotifications();
       print('[Android] 精确闹钟权限: ${canScheduleExact ?? false}');
     } catch (e) {
       print('[Android] 请求精确闹钟权限失败: $e');
@@ -231,8 +233,8 @@ class AndroidNotificationUtil implements util.NotificationUtil {
 
   @override
   Future<bool> checkPermissionStatus() async {
-    final androidPlugin = _plugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin == null) return false;
 
@@ -253,7 +255,8 @@ class AndroidNotificationUtil implements util.NotificationUtil {
 
       // 调度未来7天的单独提醒作为备用
       for (int i = 1; i <= 7; i++) {
-        final backupDate = DateTime(now.year, now.month, now.day + i, hour, minute);
+        final backupDate =
+            DateTime(now.year, now.month, now.day + i, hour, minute);
         final tzBackupDate = tz.TZDateTime.from(backupDate, tz.local);
         final backupId = id + i;
 
@@ -274,7 +277,8 @@ class AndroidNotificationUtil implements util.NotificationUtil {
           visibility: NotificationVisibility.public,
         );
 
-        const notificationDetails = NotificationDetails(android: androidDetails);
+        const notificationDetails =
+            NotificationDetails(android: androidDetails);
 
         await _plugin.zonedSchedule(
           backupId,
@@ -317,7 +321,8 @@ class AndroidNotificationUtil implements util.NotificationUtil {
   /// 检查电池优化状态（Android 特有）
   Future<bool> isIgnoringBatteryOptimizations() async {
     try {
-      final result = await _channel.invokeMethod('isIgnoringBatteryOptimizations');
+      final result =
+          await _channel.invokeMethod('isIgnoringBatteryOptimizations');
       return result ?? false;
     } catch (e) {
       print('[Android] 检查电池优化状态失败: $e');
@@ -328,7 +333,8 @@ class AndroidNotificationUtil implements util.NotificationUtil {
   /// 请求忽略电池优化（Android 特有）
   Future<bool> requestIgnoreBatteryOptimizations() async {
     try {
-      final result = await _channel.invokeMethod('requestIgnoreBatteryOptimizations');
+      final result =
+          await _channel.invokeMethod('requestIgnoreBatteryOptimizations');
       return result ?? false;
     } catch (e) {
       print('[Android] 请求忽略电池优化失败: $e');

@@ -103,13 +103,16 @@ abstract class AccountRepository {
   Future<double> getAccountIncome(int accountId);
 
   /// 获取单个账户的统计信息（余额、消费金额、收入金额）
-  Future<({double balance, double expense, double income})> getAccountStats(int accountId);
+  Future<({double balance, double expense, double income})> getAccountStats(
+      int accountId);
 
   /// 批量获取所有账户的统计信息
-  Future<Map<int, ({double balance, double expense, double income})>> getAllAccountStats();
+  Future<Map<int, ({double balance, double expense, double income})>>
+      getAllAccountStats();
 
   /// 获取所有账户的汇总统计（总余额、总支出、总收入）
-  Future<({double totalBalance, double totalExpense, double totalIncome})> getAllAccountsTotalStats();
+  Future<({double totalBalance, double totalExpense, double totalIncome})>
+      getAllAccountsTotalStats();
 
   /// 获取账户在多个账本中的使用情况
   Future<Map<int, int>> getAccountUsageInLedgers(int accountId);
@@ -144,22 +147,28 @@ abstract class AccountRepository {
   /// - 'expense':支出 + 转出(资金流出该账户)
   /// - 'income':收入 + 转入(资金流入该账户)
   /// - null:全部交易
-  Future<List<Transaction>> getAccountTransactions(
-    int accountId, {int limit = 50, int offset = 0, String? flow});
+  Future<List<Transaction>> getAccountTransactions(int accountId,
+      {int limit = 50, int offset = 0, String? flow});
 
   /// 获取账户每日余额快照（用于余额趋势图）
   Future<List<({DateTime date, double balance})>> getAccountDailyBalances(
-    int accountId, {required DateTime startDate, required DateTime endDate});
+      int accountId,
+      {required DateTime startDate,
+      required DateTime endDate});
 
   /// 获取账户级分类统计（用于分类饼图）
   Future<List<({int? id, String name, String? icon, double total})>>
       getAccountCategoryStats(int accountId, {required String type});
 
   /// 获取净资产分解（总资产、总负债、净资产）
-  Future<({double totalAssets, double totalLiabilities, double netWorth})> getNetWorthBreakdown();
+  Future<({double totalAssets, double totalLiabilities, double netWorth})>
+      getNetWorthBreakdown();
 
   /// 按币种分组的净资产分解
-  Future<Map<String, ({double totalAssets, double totalLiabilities, double netWorth})>> getNetWorthBreakdownByCurrency();
+  Future<
+          Map<String,
+              ({double totalAssets, double totalLiabilities, double netWorth})>>
+      getNetWorthBreakdownByCurrency();
 
   /// 获取净资产每日余额快照（用于净资产趋势图）
   Future<List<({DateTime date, double balance})>> getNetWorthDailyBalances({
@@ -178,7 +187,8 @@ abstract class AccountRepository {
   });
 
   /// 获取资产构成（按账户类型分组的余额汇总）
-  Future<List<({String type, double totalBalance})>> getAssetCompositionByType();
+  Future<List<({String type, double totalBalance})>>
+      getAssetCompositionByType();
 
   /// 按 (账户类型, 币种) 聚合的资产构成(多币种折算用)。currency 已大写归一。
   Future<List<({String type, String currency, double totalBalance})>>

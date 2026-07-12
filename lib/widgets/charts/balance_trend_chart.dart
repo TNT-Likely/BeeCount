@@ -11,6 +11,7 @@ import 'line_chart.dart';
 /// 余额趋势图（账户详情页用）
 class BalanceTrendChart extends ConsumerStatefulWidget {
   final List<({DateTime date, double balance})> data;
+
   /// embedded 模式下不渲染外层 SectionCard 和标题
   final bool showCard;
 
@@ -40,7 +41,9 @@ class _BalanceTrendChartState extends ConsumerState<BalanceTrendChart> {
 
     // 对于长数据，仅显示部分标签
     final displayLabels = <String>[];
-    final step = widget.data.length > 14 ? (widget.data.length ~/ 7) : (widget.data.length > 7 ? 2 : 1);
+    final step = widget.data.length > 14
+        ? (widget.data.length ~/ 7)
+        : (widget.data.length > 7 ? 2 : 1);
     for (int i = 0; i < xLabels.length; i++) {
       if (i % step == 0 || i == xLabels.length - 1) {
         displayLabels.add(xLabels[i]);

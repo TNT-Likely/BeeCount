@@ -15,7 +15,10 @@ class CategoryService {
   /// 两边改动要同步。
   static String resolveIconNameByName(String name) {
     final n = name;
-    if (n.contains('餐') || n.contains('饭') || n.contains('吃') || n.contains('外卖')) {
+    if (n.contains('餐') ||
+        n.contains('饭') ||
+        n.contains('吃') ||
+        n.contains('外卖')) {
       return 'restaurant';
     }
     if (n.contains('打车')) return 'local_taxi';
@@ -97,7 +100,10 @@ class CategoryService {
         n.contains('人情')) {
       return 'card_giftcard';
     }
-    if (n.contains('水') || n.contains('电') || n.contains('煤') || n.contains('燃气')) {
+    if (n.contains('水') ||
+        n.contains('电') ||
+        n.contains('煤') ||
+        n.contains('燃气')) {
       return 'water_drop';
     }
     if (n.contains('房贷') ||
@@ -106,7 +112,10 @@ class CategoryService {
         n.contains('信用卡')) {
       return 'account_balance';
     }
-    if (n.contains('住房') || n.contains('房租') || n.contains('房') || n.contains('租')) {
+    if (n.contains('住房') ||
+        n.contains('房租') ||
+        n.contains('房') ||
+        n.contains('租')) {
       return 'home';
     }
     if (n.contains('工资') ||
@@ -124,10 +133,16 @@ class CategoryService {
         n.contains('退款')) {
       return 'savings';
     }
-    if (n.contains('教育') || n.contains('学习') || n.contains('培训') || n.contains('书')) {
+    if (n.contains('教育') ||
+        n.contains('学习') ||
+        n.contains('培训') ||
+        n.contains('书')) {
       return 'menu_book';
     }
-    if (n.contains('医疗') || n.contains('医院') || n.contains('药') || n.contains('体检')) {
+    if (n.contains('医疗') ||
+        n.contains('医院') ||
+        n.contains('药') ||
+        n.contains('体检')) {
       return 'medical_services';
     }
     if (n.contains('宠物') || n.contains('猫') || n.contains('狗')) return 'pets';
@@ -149,15 +164,18 @@ class CategoryService {
         n.contains('机票')) {
       return 'card_travel';
     }
-    if (n.contains('酒店') || n.contains('住宿') || n.contains('民宿')) return 'hotel';
-    if (n.contains('烟') || n.contains('酒') || n.contains('茶')) return 'local_bar';
+    if (n.contains('酒店') || n.contains('住宿') || n.contains('民宿'))
+      return 'hotel';
+    if (n.contains('烟') || n.contains('酒') || n.contains('茶'))
+      return 'local_bar';
     if (n.contains('母婴') || n.contains('孩子') || n.contains('奶粉')) {
       return 'child_friendly';
     }
     if (n.contains('停车')) return 'local_parking';
     if (n.contains('加油')) return 'local_gas_station';
     if (n.contains('保养') || n.contains('维修')) return 'build';
-    if (n.contains('汽车') || n.contains('车辆') || n == '车') return 'directions_car';
+    if (n.contains('汽车') || n.contains('车辆') || n == '车')
+      return 'directions_car';
     if (n.contains('过路费') || n.contains('过桥费')) return 'alt_route';
     if (n.contains('快递') || n.contains('邮寄')) return 'local_shipping';
     if (n.contains('税') ||

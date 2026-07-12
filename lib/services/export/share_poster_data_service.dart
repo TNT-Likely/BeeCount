@@ -29,14 +29,18 @@ class SharePosterDataService {
 
     // 筛选出当年(周期口径)的交易
     final yearTxs = yearTransactions.where((tx) {
-      return !tx.happenedAt.isBefore(startDate) && tx.happenedAt.isBefore(endDate);
+      return !tx.happenedAt.isBefore(startDate) &&
+          tx.happenedAt.isBefore(endDate);
     }).toList();
 
     // 计算记账天数(按日期去重)
-    final recordDays = yearTxs.map((tx) {
-      final date = tx.happenedAt;
-      return DateTime(date.year, date.month, date.day);
-    }).toSet().length;
+    final recordDays = yearTxs
+        .map((tx) {
+          final date = tx.happenedAt;
+          return DateTime(date.year, date.month, date.day);
+        })
+        .toSet()
+        .length;
 
     final recordCount = yearTxs.length;
 
@@ -267,7 +271,8 @@ class SharePosterDataService {
     DateTime? firstRecordDate;
     DateTime? lastRecordDate;
 
-    final countsResult = await repository.getCountsForLedger(ledgerId: ledgerId);
+    final countsResult =
+        await repository.getCountsForLedger(ledgerId: ledgerId);
     recordDays = countsResult.dayCount;
 
     // 获取第一笔和最后一笔交易的时间
@@ -345,7 +350,8 @@ class SharePosterDataService {
     final ledgerCount = allLedgers.length;
 
     // 获取当前账本的统计数据
-    final countsResult = await repository.getCountsForLedger(ledgerId: ledgerId);
+    final countsResult =
+        await repository.getCountsForLedger(ledgerId: ledgerId);
     final recordDays = countsResult.dayCount;
 
     // 获取当前账本的交易总数

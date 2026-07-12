@@ -109,8 +109,7 @@ class VoiceBillingSettingsNotifier extends StateNotifier<VoiceBillingSettings> {
   Future<void> setTriggerMode(VoiceTriggerMode mode) async {
     state = state.copyWith(triggerMode: mode);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-        AIConstants.keyVoiceTriggerMode, mode.storageValue);
+    await prefs.setString(AIConstants.keyVoiceTriggerMode, mode.storageValue);
     _notifyConfigChanged();
   }
 

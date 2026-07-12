@@ -119,10 +119,14 @@ class S3Provider implements CloudProvider {
     final secretKey = config['secretKey'] as String?;
     final bucket = config['bucket'] as String?;
 
-    return endpoint != null && endpoint.isNotEmpty &&
-           accessKey != null && accessKey.isNotEmpty &&
-           secretKey != null && secretKey.isNotEmpty &&
-           bucket != null && bucket.isNotEmpty;
+    return endpoint != null &&
+        endpoint.isNotEmpty &&
+        accessKey != null &&
+        accessKey.isNotEmpty &&
+        secretKey != null &&
+        secretKey.isNotEmpty &&
+        bucket != null &&
+        bucket.isNotEmpty;
   }
 
   @override

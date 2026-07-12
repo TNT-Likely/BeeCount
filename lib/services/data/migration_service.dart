@@ -25,7 +25,8 @@ class AccountMigrationService {
 
       // 没有迁移记录，需要执行迁移
       // 注意：即使currency字段已存在，也可能数据不正确（Drift自动填充的默认值）
-      logger.info('MigrationService', '检测到需要执行v1.15.0迁移（schema_migrations未记录version=2）');
+      logger.info('MigrationService',
+          '检测到需要执行v1.15.0迁移（schema_migrations未记录version=2）');
       return true;
     } catch (e) {
       logger.error('MigrationService', '检查迁移状态失败', e);
@@ -37,9 +38,11 @@ class AccountMigrationService {
   /// 获取当前迁移版本
   Future<int> _getMigrationVersion() async {
     try {
-      final result = await db.customSelect(
-        'SELECT MAX(version) as version FROM schema_migrations',
-      ).getSingle();
+      final result = await db
+          .customSelect(
+            'SELECT MAX(version) as version FROM schema_migrations',
+          )
+          .getSingle();
 
       final version = result.data['version'];
       if (version == null) return 0;
@@ -56,9 +59,11 @@ class AccountMigrationService {
   /// 检查 accounts 表是否有 currency 字段
   Future<bool> _checkAccountsTableHasCurrency() async {
     try {
-      final tableInfo = await db.customSelect(
-        "PRAGMA table_info(accounts)",
-      ).get();
+      final tableInfo = await db
+          .customSelect(
+            "PRAGMA table_info(accounts)",
+          )
+          .get();
 
       return tableInfo.any((row) => row.data['name'] == 'currency');
     } catch (e) {
@@ -76,9 +81,11 @@ class AccountMigrationService {
       }
 
       // 检查是否有 currency 为 null 的账户
-      final result = await db.customSelect(
-        'SELECT COUNT(*) as count FROM accounts WHERE currency IS NULL',
-      ).getSingle();
+      final result = await db
+          .customSelect(
+            'SELECT COUNT(*) as count FROM accounts WHERE currency IS NULL',
+          )
+          .getSingle();
 
       final count = result.data['count'];
       if (count == null) return false;
@@ -162,17 +169,17 @@ class AccountMigrationService {
     logger.info('MigrationService', '📦 执行完整迁移（重建表）...');
 
     await db.transaction(() async {
-        // Step 1: 备份原始表
-        logger.info('MigrationService', '📦 Step 1: 备份 accounts 表...');
-        // 先删除旧备份（如果存在）
-        await db.customStatement('DROP TABLE IF EXISTS accounts_backup');
-        await db.customStatement(
-          'CREATE TABLE accounts_backup AS SELECT * FROM accounts',
-        );
+      // Step 1: 备份原始表
+      logger.info('MigrationService', '📦 Step 1: 备份 accounts 表...');
+      // 先删除旧备份（如果存在）
+      await db.customStatement('DROP TABLE IF EXISTS accounts_backup');
+      await db.customStatement(
+        'CREATE TABLE accounts_backup AS SELECT * FROM accounts',
+      );
 
-        // Step 2: 创建新的 accounts 表
-        logger.info('MigrationService', '🔨 Step 2: 创建新的 accounts 表...');
-        await db.customStatement('''
+      // Step 2: 创建新的 accounts 表
+      logger.info('MigrationService', '🔨 Step 2: 创建新的 accounts 表...');
+      await db.customStatement('''
           CREATE TABLE accounts_new (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             ledger_id INTEGER,
@@ -185,16 +192,19 @@ class AccountMigrationService {
           )
         ''');
 
-        // Step 3: 迁移数据（从账本继承币种，确保created_at非空）
-        logger.info('MigrationService', '📊 Step 3: 迁移数据（从账本继承币种，确保created_at非空）...');
+      // Step 3: 迁移数据（从账本继承币种，确保created_at非空）
+      logger.info(
+          'MigrationService', '📊 Step 3: 迁移数据（从账本继承币种，确保created_at非空）...');
 
-        // 检查原表是否有 created_at 字段
-        final backupTableInfo = await db.customSelect('PRAGMA table_info(accounts_backup)').get();
-        final hasCreatedAtInBackup = backupTableInfo.any((row) => row.data['name'] == 'created_at');
+      // 检查原表是否有 created_at 字段
+      final backupTableInfo =
+          await db.customSelect('PRAGMA table_info(accounts_backup)').get();
+      final hasCreatedAtInBackup =
+          backupTableInfo.any((row) => row.data['name'] == 'created_at');
 
-        if (hasCreatedAtInBackup) {
-          // 保留原有的 created_at，如果为null则用当前时间
-          await db.customStatement('''
+      if (hasCreatedAtInBackup) {
+        // 保留原有的 created_at，如果为null则用当前时间
+        await db.customStatement('''
             INSERT INTO accounts_new (id, ledger_id, name, type, currency, initial_balance, created_at)
             SELECT
               a.id,
@@ -207,9 +217,9 @@ class AccountMigrationService {
             FROM accounts_backup a
             LEFT JOIN ledgers l ON a.ledger_id = l.id
           ''');
-        } else {
-          // 设置新的创建时间
-          await db.customStatement('''
+      } else {
+        // 设置新的创建时间
+        await db.customStatement('''
             INSERT INTO accounts_new (id, ledger_id, name, type, currency, initial_balance, created_at)
             SELECT
               a.id,
@@ -222,55 +232,59 @@ class AccountMigrationService {
             FROM accounts_backup a
             LEFT JOIN ledgers l ON a.ledger_id = l.id
           ''');
-        }
+      }
 
-        // Step 4: 替换旧表
-        logger.info('MigrationService', '🔄 Step 4: 替换旧表...');
-        await db.customStatement('DROP TABLE accounts');
-        await db.customStatement('ALTER TABLE accounts_new RENAME TO accounts');
+      // Step 4: 替换旧表
+      logger.info('MigrationService', '🔄 Step 4: 替换旧表...');
+      await db.customStatement('DROP TABLE accounts');
+      await db.customStatement('ALTER TABLE accounts_new RENAME TO accounts');
 
-        // Step 5: 创建索引
-        logger.info('MigrationService', '📇 Step 5: 创建索引...');
-        await db.customStatement(
-          'CREATE INDEX idx_accounts_currency ON accounts(currency)',
-        );
+      // Step 5: 创建索引
+      logger.info('MigrationService', '📇 Step 5: 创建索引...');
+      await db.customStatement(
+        'CREATE INDEX idx_accounts_currency ON accounts(currency)',
+      );
 
-        // Step 6: 验证数据完整性
-        logger.info('MigrationService', '✅ Step 6: 验证数据完整性...');
-        final accountCount = await db.customSelect(
-          'SELECT COUNT(*) as count FROM accounts',
-        ).getSingle();
-        final backupCount = await db.customSelect(
-          'SELECT COUNT(*) as count FROM accounts_backup',
-        ).getSingle();
+      // Step 6: 验证数据完整性
+      logger.info('MigrationService', '✅ Step 6: 验证数据完整性...');
+      final accountCount = await db
+          .customSelect(
+            'SELECT COUNT(*) as count FROM accounts',
+          )
+          .getSingle();
+      final backupCount = await db
+          .customSelect(
+            'SELECT COUNT(*) as count FROM accounts_backup',
+          )
+          .getSingle();
 
-        final accountNum = accountCount.data['count'] as int;
-        final backupNum = backupCount.data['count'] as int;
+      final accountNum = accountCount.data['count'] as int;
+      final backupNum = backupCount.data['count'] as int;
 
-        if (accountNum != backupNum) {
-          throw Exception('账户数量不匹配: $accountNum != $backupNum');
-        }
+      if (accountNum != backupNum) {
+        throw Exception('账户数量不匹配: $accountNum != $backupNum');
+      }
 
-        // Step 7: 记录迁移版本
-        logger.info('MigrationService', '📝 Step 7: 记录迁移版本...');
-        await db.customStatement('''
+      // Step 7: 记录迁移版本
+      logger.info('MigrationService', '📝 Step 7: 记录迁移版本...');
+      await db.customStatement('''
           CREATE TABLE IF NOT EXISTS schema_migrations (
             version INTEGER PRIMARY KEY,
             applied_at TEXT NOT NULL
           )
         ''');
 
-        await db.customStatement('''
+      await db.customStatement('''
           INSERT OR REPLACE INTO schema_migrations (version, applied_at)
           VALUES (2, datetime('now'))
         ''');
 
-        // Step 8: 自动清理备份表（迁移成功后）
-        logger.info('MigrationService', '🗑️  Step 8: 清理备份表...');
-        await db.customStatement('DROP TABLE IF EXISTS accounts_backup');
+      // Step 8: 自动清理备份表（迁移成功后）
+      logger.info('MigrationService', '🗑️  Step 8: 清理备份表...');
+      await db.customStatement('DROP TABLE IF EXISTS accounts_backup');
 
-        logger.info('MigrationService', '✅ 完整迁移完成！账户数量: $accountNum');
-      });
+      logger.info('MigrationService', '✅ 完整迁移完成！账户数量: $accountNum');
+    });
   }
 
   /// 回滚 v1.15.0 迁移
@@ -281,9 +295,11 @@ class AccountMigrationService {
 
     try {
       // 检查备份表是否存在
-      final result = await db.customSelect(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_backup'",
-      ).get();
+      final result = await db
+          .customSelect(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_backup'",
+          )
+          .get();
 
       if (result.isEmpty) {
         return MigrationResult(
@@ -299,11 +315,13 @@ class AccountMigrationService {
 
         // 恢复备份
         logger.info('MigrationService', '📦 恢复备份表...');
-        await db.customStatement('ALTER TABLE accounts_backup RENAME TO accounts');
+        await db
+            .customStatement('ALTER TABLE accounts_backup RENAME TO accounts');
 
         // 删除迁移记录
         logger.info('MigrationService', '📝 删除迁移记录...');
-        await db.customStatement('DELETE FROM schema_migrations WHERE version = 2');
+        await db
+            .customStatement('DELETE FROM schema_migrations WHERE version = 2');
 
         logger.info('MigrationService', '✅ 回滚完成！');
       });
@@ -340,25 +358,32 @@ class AccountMigrationService {
       final migrationVersion = await _getMigrationVersion();
 
       // 检查备份表（仅用于显示，不用于判断迁移状态）
-      final backupExists = await db.customSelect(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_backup'",
-      ).get();
+      final backupExists = await db
+          .customSelect(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_backup'",
+          )
+          .get();
 
       // 检查 accounts 表结构
       final hasCurrencyField = await _checkAccountsTableHasCurrency();
 
-      final tableInfo = await db.customSelect(
-        "PRAGMA table_info(accounts)",
-      ).get();
-      final hasCreatedAtField = tableInfo.any((row) => row.data['name'] == 'created_at');
+      final tableInfo = await db
+          .customSelect(
+            "PRAGMA table_info(accounts)",
+          )
+          .get();
+      final hasCreatedAtField =
+          tableInfo.any((row) => row.data['name'] == 'created_at');
 
       // 统计账户数量
-      final accountCount = await db.customSelect(
-        'SELECT COUNT(*) as count FROM accounts',
-      ).getSingle();
+      final accountCount = await db
+          .customSelect(
+            'SELECT COUNT(*) as count FROM accounts',
+          )
+          .getSingle();
 
       return MigrationStatus(
-        hasMigrated: migrationVersion >= 2,  // 使用版本号判断
+        hasMigrated: migrationVersion >= 2, // 使用版本号判断
         migrationVersion: migrationVersion,
         hasCurrencyField: hasCurrencyField,
         hasCreatedAtField: hasCreatedAtField,
@@ -427,4 +452,3 @@ class MigrationStatus {
         ')';
   }
 }
-

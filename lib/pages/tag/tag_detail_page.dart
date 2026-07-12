@@ -75,9 +75,12 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final tagAsync = ref.watch(_tagStreamProvider(widget.tagId));
-    final ledgerScope = widget.allLedgers ? null : ref.watch(currentLedgerIdProvider);
-    final statsAsync = ref.watch(_tagStatsProvider((tagId: widget.tagId, ledgerId: ledgerScope)));
-    final transactionsAsync = ref.watch(_tagTransactionsStreamProvider((tagId: widget.tagId, ledgerId: ledgerScope)));
+    final ledgerScope =
+        widget.allLedgers ? null : ref.watch(currentLedgerIdProvider);
+    final statsAsync = ref
+        .watch(_tagStatsProvider((tagId: widget.tagId, ledgerId: ledgerScope)));
+    final transactionsAsync = ref.watch(_tagTransactionsStreamProvider(
+        (tagId: widget.tagId, ledgerId: ledgerScope)));
 
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
@@ -113,9 +116,8 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
                 IconButton(
                   icon: const Icon(Icons.delete_outline),
                   tooltip: l10n.commonDelete,
-                  onPressed: tag != null
-                      ? () => _confirmDelete(tag, l10n)
-                      : null,
+                  onPressed:
+                      tag != null ? () => _confirmDelete(tag, l10n) : null,
                 ),
               ],
             ),
@@ -144,14 +146,16 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
                     }
                     return statsAsync.when(
                       loading: () => _buildSummaryCard(tag, null, l10n),
-                      error: (error, stack) => _buildSummaryCard(tag, null, l10n),
+                      error: (error, stack) =>
+                          _buildSummaryCard(tag, null, l10n),
                       data: (stats) => _buildSummaryCard(tag, stats, l10n),
                     );
                   },
                 ),
                 // 交易列表标题
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Row(
                     children: [
                       Icon(
@@ -172,11 +176,13 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
                 // 交易列表
                 Expanded(
                   child: transactionsAsync.when(
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (error, stack) => Center(
                       child: Text('${l10n.commonError}: $error'),
                     ),
-                    data: (transactions) => _buildTransactionsList(transactions, l10n),
+                    data: (transactions) =>
+                        _buildTransactionsList(transactions, l10n),
                   ),
                 ),
               ],
@@ -276,17 +282,23 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
 
     // 全部账本模式下，构建账本名映射，用于在交易项展示账本标签
     final ledgerNames = widget.allLedgers
-        ? {for (final l in (ref.watch(ledgersStreamProvider).valueOrNull ?? [])) l.id: l.name}
+        ? {
+            for (final l
+                in (ref.watch(ledgersStreamProvider).valueOrNull ?? []))
+              l.id: l.name
+          }
         : const <int, String>{};
 
     // 按日期分组
     final Map<String, List<db.Transaction>> groupedTransactions = {};
     for (final transaction in transactions) {
-      final dateKey = DateFormat('yyyy-MM-dd').format(transaction.happenedAt.toLocal());
+      final dateKey =
+          DateFormat('yyyy-MM-dd').format(transaction.happenedAt.toLocal());
       groupedTransactions.putIfAbsent(dateKey, () => []).add(transaction);
     }
 
-    final sortedKeys = groupedTransactions.keys.toList()..sort((a, b) => b.compareTo(a));
+    final sortedKeys = groupedTransactions.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -315,11 +327,13 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
                   ? syntheticIdForSyncId(transaction.categorySyncIdOverride!)
                   : transaction.categoryId;
               final category = catKey == null ? null : _categoryCache[catKey];
-              final categoryName = CategoryUtils.getDisplayName(category?.name, context);
+              final categoryName =
+                  CategoryUtils.getDisplayName(category?.name, context);
 
               // 和首页保持一致：分类名常驻，备注接在后面
               return TransactionListItem(
-                icon: getCategoryIconData(category: category, categoryName: categoryName),
+                icon: getCategoryIconData(
+                    category: category, categoryName: categoryName),
                 category: category,
                 title: transaction.note ?? '',
                 categoryName: categoryName,
@@ -346,7 +360,8 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
     );
   }
 
-  Future<void> _deleteTransaction(db.Transaction transaction, AppLocalizations l10n) async {
+  Future<void> _deleteTransaction(
+      db.Transaction transaction, AppLocalizations l10n) async {
     final repo = ref.read(repositoryProvider);
     final ledgerId = ref.read(currentLedgerIdProvider);
 
@@ -445,14 +460,18 @@ final _tagStreamProvider = StreamProvider.family<db.Tag?, int>((ref, tagId) {
 });
 
 /// 获取标签统计信息
-final _tagStatsProvider = FutureProvider.family<({int count, double expense, double income}), ({int tagId, int? ledgerId})>((ref, params) async {
+final _tagStatsProvider = FutureProvider.family<
+    ({int count, double expense, double income}),
+    ({int tagId, int? ledgerId})>((ref, params) async {
   ref.watch(tagListRefreshProvider);
   final repo = ref.watch(repositoryProvider);
   return await repo.getTagStats(params.tagId, ledgerId: params.ledgerId);
 });
 
 /// 监听标签下的交易
-final _tagTransactionsStreamProvider = StreamProvider.family<List<db.Transaction>, ({int tagId, int? ledgerId})>((ref, params) {
+final _tagTransactionsStreamProvider =
+    StreamProvider.family<List<db.Transaction>, ({int tagId, int? ledgerId})>(
+        (ref, params) {
   final repo = ref.watch(repositoryProvider);
   return repo.watchTransactionsByTag(params.tagId, ledgerId: params.ledgerId);
 });

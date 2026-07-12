@@ -198,8 +198,7 @@ class AIResponse {
   int? get transactionId =>
       transactionIds.isNotEmpty ? transactionIds.first : null;
 
-  factory AIResponse.text(String text) =>
-      AIResponse(type: 'text', text: text);
+  factory AIResponse.text(String text) => AIResponse(type: 'text', text: text);
 
   /// 多笔/单笔统一入口。bills 与 txIds 必须等长且非空。
   factory AIResponse.billCards(List<BillInfo> bills, List<int> txIds) {

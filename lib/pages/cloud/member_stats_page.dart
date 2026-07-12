@@ -68,8 +68,7 @@ class _MemberStatsPageState extends ConsumerState<MemberStatsPage> {
           ),
           Expanded(
             child: statsAsync.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -289,9 +288,8 @@ class _StatsAvatar extends ConsumerWidget {
     if (base == null || base.isEmpty) {
       return CircleAvatar(child: Text(letter));
     }
-    final absoluteUrl = relativeUrl.startsWith('http')
-        ? relativeUrl
-        : '$base$relativeUrl';
+    final absoluteUrl =
+        relativeUrl.startsWith('http') ? relativeUrl : '$base$relativeUrl';
     return CircleAvatar(
       backgroundImage: NetworkImage(absoluteUrl),
       onBackgroundImageError: (_, __) {},

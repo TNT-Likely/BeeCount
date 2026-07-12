@@ -48,7 +48,9 @@ class HeaderSkinPage extends ConsumerWidget {
             showBack: true,
           ),
           Expanded(
-            child: SafeArea(top: false, child: GridView.count(
+              child: SafeArea(
+            top: false,
+            child: GridView.count(
               crossAxisCount: 2,
               padding: const EdgeInsets.all(16),
               mainAxisSpacing: 16,
@@ -65,8 +67,8 @@ class HeaderSkinPage extends ConsumerWidget {
                         ref.read(headerSkinProvider.notifier).state = it.id,
                   ),
               ],
-            ),)
-          ),
+            ),
+          )),
         ],
       ),
     );
@@ -117,10 +119,10 @@ class _SkinCard extends StatelessWidget {
                         top: 6,
                         child: Container(
                           padding: const EdgeInsets.all(2),
-                          decoration:
-                              BoxDecoration(color: primary, shape: BoxShape.circle),
-                          child:
-                              const Icon(Icons.check, size: 14, color: Colors.white),
+                          decoration: BoxDecoration(
+                              color: primary, shape: BoxShape.circle),
+                          child: const Icon(Icons.check,
+                              size: 14, color: Colors.white),
                         ),
                       ),
                   ],

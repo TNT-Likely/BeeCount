@@ -46,7 +46,8 @@ class CategoryPackageService {
 
     for (final category in categories) {
       String? parentName;
-      if (category.parentId != null && categoryMap.containsKey(category.parentId)) {
+      if (category.parentId != null &&
+          categoryMap.containsKey(category.parentId)) {
         parentName = categoryMap[category.parentId]!.name;
       }
 
@@ -63,7 +64,8 @@ class CategoryPackageService {
         item['parent_name'] = parentName;
       }
 
-      if (category.customIconPath != null && category.customIconPath!.isNotEmpty) {
+      if (category.customIconPath != null &&
+          category.customIconPath!.isNotEmpty) {
         item['custom_icon_path'] = category.customIconPath;
         // 提取文件名
         final fileName = path.basename(category.customIconPath!);
@@ -72,7 +74,8 @@ class CategoryPackageService {
         }
       }
 
-      if (category.communityIconId != null && category.communityIconId!.isNotEmpty) {
+      if (category.communityIconId != null &&
+          category.communityIconId!.isNotEmpty) {
         item['community_icon_id'] = category.communityIconId;
       }
 
@@ -88,7 +91,8 @@ class CategoryPackageService {
 
     final yamlContent = _toYaml(config);
     final yamlBytes = utf8.encode(yamlContent);
-    archive.addFile(ArchiveFile('categories.yaml', yamlBytes.length, yamlBytes));
+    archive
+        .addFile(ArchiveFile('categories.yaml', yamlBytes.length, yamlBytes));
 
     logger.info(_tag, '已添加配置文件: ${categories.length} 个分类');
 
@@ -101,7 +105,8 @@ class CategoryPackageService {
         final file = File('${iconDir.path}/$fileName');
         if (await file.exists()) {
           final bytes = await file.readAsBytes();
-          archive.addFile(ArchiveFile('custom_icons/$fileName', bytes.length, bytes));
+          archive.addFile(
+              ArchiveFile('custom_icons/$fileName', bytes.length, bytes));
           logger.debug(_tag, '已添加图标: $fileName');
         } else {
           logger.warning(_tag, '图标文件不存在: $fileName');
@@ -164,7 +169,8 @@ class CategoryPackageService {
 
     // 2. 解压自定义图标到临时目录
     final tempDir = await getTemporaryDirectory();
-    final extractDir = Directory('${tempDir.path}/category_import_${DateTime.now().millisecondsSinceEpoch}');
+    final extractDir = Directory(
+        '${tempDir.path}/category_import_${DateTime.now().millisecondsSinceEpoch}');
     await extractDir.create(recursive: true);
 
     final iconMapping = <String, String>{}; // 旧路径 -> 新路径
@@ -245,7 +251,8 @@ class CategoryPackageService {
       }
 
       String? customIconPath = item['custom_icon_path'] as String?;
-      if (customIconPath != null && newIconMapping.containsKey(customIconPath)) {
+      if (customIconPath != null &&
+          newIconMapping.containsKey(customIconPath)) {
         customIconPath = newIconMapping[customIconPath];
       }
 
@@ -281,8 +288,9 @@ class CategoryPackageService {
 
       // 父分类与子分类同 kind,按 (parentName, kind) 查父 id
       final parentName = item['parent_name'] as String?;
-      final parentId =
-          parentName != null ? keyToId['${parentName.toLowerCase()}|$kind'] : null;
+      final parentId = parentName != null
+          ? keyToId['${parentName.toLowerCase()}|$kind']
+          : null;
 
       if (parentId == null) {
         logger.warning(_tag, '找不到父分类: $parentName, 跳过 $name');
@@ -291,7 +299,8 @@ class CategoryPackageService {
       }
 
       String? customIconPath = item['custom_icon_path'] as String?;
-      if (customIconPath != null && newIconMapping.containsKey(customIconPath)) {
+      if (customIconPath != null &&
+          newIconMapping.containsKey(customIconPath)) {
         customIconPath = newIconMapping[customIconPath];
       }
 
@@ -317,7 +326,8 @@ class CategoryPackageService {
       logger.warning(_tag, '清理临时目录失败: $e');
     }
 
-    logger.info(_tag, '导入完成: imported=$imported, skipped=$skipped, icons=$iconsImported');
+    logger.info(_tag,
+        '导入完成: imported=$imported, skipped=$skipped, icons=$iconsImported');
 
     return CategoryImportResult(
       imported: imported,

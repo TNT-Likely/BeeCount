@@ -80,7 +80,8 @@ class S3StorageService implements CloudStorageService {
         key: _normalizePath(remotePath),
       );
     } on S3Exception catch (e) {
-      throw CloudStorageException('Failed to check file existence: ${e.message}');
+      throw CloudStorageException(
+          'Failed to check file existence: ${e.message}');
     } catch (e) {
       // 其他错误返回 false
       return false;
@@ -172,12 +173,14 @@ class S3StorageService implements CloudStorageService {
   @override
   Future<List<CloudFile>> list({required String path}) async {
     final files = await listFiles(path);
-    return files.map((name) => CloudFile(
-      name: name,
-      path: name,
-      size: 0, // Size not available in list operation
-      lastModified: DateTime.now(), // Not available
-    )).toList();
+    return files
+        .map((name) => CloudFile(
+              name: name,
+              path: name,
+              size: 0, // Size not available in list operation
+              lastModified: DateTime.now(), // Not available
+            ))
+        .toList();
   }
 
   @override

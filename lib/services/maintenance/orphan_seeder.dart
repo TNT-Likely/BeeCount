@@ -120,8 +120,9 @@ class OrphanSeeder {
 
   Future<int> _seedTxMissingAccount() async {
     final lid = await _ensureLedger();
-    final accId = await db.into(db.accounts).insert(
-        AccountsCompanion.insert(ledgerId: lid, name: '_seed_acc'));
+    final accId = await db
+        .into(db.accounts)
+        .insert(AccountsCompanion.insert(ledgerId: lid, name: '_seed_acc'));
     await db.into(db.transactions).insert(TransactionsCompanion.insert(
           ledgerId: lid,
           type: 'expense',
@@ -136,9 +137,8 @@ class OrphanSeeder {
 
   Future<int> _seedTxMissingCategory() async {
     final lid = await _ensureLedger();
-    final cid = await db.into(db.categories).insert(
-        CategoriesCompanion.insert(
-            name: '_seed_cat_${_rand.nextInt(99999)}', kind: 'expense'));
+    final cid = await db.into(db.categories).insert(CategoriesCompanion.insert(
+        name: '_seed_cat_${_rand.nextInt(99999)}', kind: 'expense'));
     await db.into(db.transactions).insert(TransactionsCompanion.insert(
           ledgerId: lid,
           type: 'expense',
@@ -167,9 +167,8 @@ class OrphanSeeder {
 
   Future<int> _seedBudgetMissingCategory() async {
     final lid = await _ensureLedger();
-    final cid = await db.into(db.categories).insert(
-        CategoriesCompanion.insert(
-            name: '_seed_cat_${_rand.nextInt(99999)}', kind: 'expense'));
+    final cid = await db.into(db.categories).insert(CategoriesCompanion.insert(
+        name: '_seed_cat_${_rand.nextInt(99999)}', kind: 'expense'));
     await db.into(db.budgets).insert(BudgetsCompanion.insert(
           ledgerId: lid,
           amount: 555,

@@ -51,7 +51,8 @@ class AiBookkeeper {
       repository: _repo,
       ledgerId: ledgerId,
     );
-    final bills = await _engine.extractFromText(text, context, billGuard: billGuard);
+    final bills =
+        await _engine.extractFromText(text, context, billGuard: billGuard);
     return _persistAll(
       bills: bills,
       ledgerId: ledgerId,
@@ -79,7 +80,8 @@ class AiBookkeeper {
       repository: _repo,
       ledgerId: ledgerId,
     );
-    final bills = await _engine.extractFromImage(image, context, billGuard: billGuard);
+    final bills =
+        await _engine.extractFromImage(image, context, billGuard: billGuard);
     return _persistAll(
       bills: bills,
       ledgerId: ledgerId,
@@ -168,8 +170,8 @@ class AiBookkeeper {
         try {
           enriched = await _enrichWithActualNames(bill, txId);
         } catch (e, st) {
-          logger.error(_tag, 'enrichWithActualNames 异常,用 AI 原始 BillInfo',
-              e, st);
+          logger.error(
+              _tag, 'enrichWithActualNames 异常,用 AI 原始 BillInfo', e, st);
           enriched = bill;
         }
         saved.add(enriched);

@@ -44,7 +44,8 @@ class _WavesPainter extends CustomPainter {
           .withValues(alpha: isDark ? 0.07 + i * 0.03 : 0.10 + i * 0.05);
       final path = Path()..moveTo(0, baseY);
       for (double x = 0; x <= w; x += w / 48) {
-        path.lineTo(x, baseY + amp * math.sin((x / w) * 2 * math.pi * 1.4 + phase));
+        path.lineTo(
+            x, baseY + amp * math.sin((x / w) * 2 * math.pi * 1.4 + phase));
       }
       path
         ..lineTo(w, h)

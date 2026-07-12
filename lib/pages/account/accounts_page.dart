@@ -145,11 +145,10 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                     top: false,
                     child: ListView(
                       padding: EdgeInsets.only(
-                        left: 12.0.scaled(context, ref),
-                        right: 12.0.scaled(context, ref),
-                        top: 8.0.scaled(context, ref),
-                        bottom: 16
-                      ),
+                          left: 12.0.scaled(context, ref),
+                          right: 12.0.scaled(context, ref),
+                          top: 8.0.scaled(context, ref),
+                          bottom: 16),
                       children: [
                         if (accounts.isEmpty)
                           SizedBox(

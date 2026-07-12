@@ -14,8 +14,10 @@ class AccountCategoryPieChart extends ConsumerStatefulWidget {
   final List<({int? id, String name, String? icon, double total})> expenseData;
   final List<({int? id, String name, String? icon, double total})> incomeData;
   final Color? accentColor;
+
   /// embedded 模式下不渲染外层 SectionCard、标题和类型切换
   final bool embedded;
+
   /// embedded 模式下由父级指定展示类型('expense'/'income'),
   /// 否则组件内部 _selectedType 永远是默认的 expense,收入数据显示不出来
   final String? type;
@@ -41,14 +43,17 @@ class _AccountCategoryPieChartState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final Color primaryColor = widget.accentColor ?? ref.watch(primaryColorProvider);
+    final Color primaryColor =
+        widget.accentColor ?? ref.watch(primaryColorProvider);
 
     // embedded 模式由父级 tab 决定类型;独立模式用内部切换状态
     final selectedType =
         widget.embedded ? (widget.type ?? 'expense') : _selectedType;
     final data =
         selectedType == 'expense' ? widget.expenseData : widget.incomeData;
-    if (data.isEmpty && widget.expenseData.isEmpty && widget.incomeData.isEmpty) {
+    if (data.isEmpty &&
+        widget.expenseData.isEmpty &&
+        widget.incomeData.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -59,8 +64,12 @@ class _AccountCategoryPieChartState
         name: item.name,
         category: null as db.Category?,
         total: item.total,
-        subCategories:
-            <({int id, db.Category category, String name, double total})>[],
+        subCategories: <({
+          int id,
+          db.Category category,
+          String name,
+          double total
+        })>[],
       );
     }).toList();
 

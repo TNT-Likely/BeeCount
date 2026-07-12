@@ -599,8 +599,7 @@ void main() {
         customTagNames: const ['朋友聚餐', '商务'],
       );
       final tags = await repo.getTagsForTransaction(txId!);
-      expect(tags.map((t) => t.name).toSet(),
-          containsAll({'朋友聚餐', '商务'}));
+      expect(tags.map((t) => t.name).toSet(), containsAll({'朋友聚餐', '商务'}));
     });
 
     test('BillInfo.tags 也会被作为标签挂上', () async {

@@ -60,7 +60,8 @@ void main() {
       await engine.pull('');
       final prefs = await SharedPreferences.getInstance();
       // 应该还没有 app cursor key
-      final keys = prefs.getKeys().where((k) => k.startsWith('app_pull_cursor_'));
+      final keys =
+          prefs.getKeys().where((k) => k.startsWith('app_pull_cursor_'));
       expect(keys, isEmpty, reason: '空 pull 不应推进 cursor');
     });
   });
@@ -111,8 +112,8 @@ void main() {
     });
 
     test('apply 成功后 cursor 推进到本页末尾', () async {
-      await db.into(db.ledgers).insert(LedgersCompanion.insert(
-          name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(
+          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
       await db.into(db.categories).insert(CategoriesCompanion.insert(
           name: 'C', kind: 'expense', syncId: const Value('C1')));
 
@@ -219,12 +220,13 @@ void main() {
       expect(cursor, 0);
     });
 
-    test('apply 时单条 change payload 异常 → 整页 rollback + 错误入 sync_pull_errors + cursor 不推进',
+    test(
+        'apply 时单条 change payload 异常 → 整页 rollback + 错误入 sync_pull_errors + cursor 不推进',
         () async {
       // 推 5 条 change,第 3 条 payload 用错误类型(categoryId 传 int 而不是 string)
       // 让 _applyTransactionChange 内 `payload['categoryId'] as String?` 抛 TypeError
-      await db.into(db.ledgers).insert(LedgersCompanion.insert(
-          name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(
+          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
 
       for (var i = 0; i < 5; i++) {
         final payload = <String, dynamic>{
@@ -251,8 +253,7 @@ void main() {
 
       // 本地 transactions 表应该是空(rollback 生效,不是只插了前两条)
       final txs = await db.select(db.transactions).get();
-      expect(txs, isEmpty,
-          reason: 'apply 抛错时整页 rollback,前面已 INSERT 的也应回滚');
+      expect(txs, isEmpty, reason: 'apply 抛错时整页 rollback,前面已 INSERT 的也应回滚');
 
       // cursor 不推进(读 0)
       expect(await engine.appCursor.read(), 0);
@@ -267,8 +268,8 @@ void main() {
     });
 
     test('修复后 server 推同 change_id 新版本 → markResolved', () async {
-      await db.into(db.ledgers).insert(LedgersCompanion.insert(
-          name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(
+          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
 
       // 先推一条会抛错的
       provider.pushFakeChange(
@@ -293,8 +294,8 @@ void main() {
 
   group('cursor 持久化', () {
     test('apply 成功后 cursor 写入 SharedPreferences,跨 SyncEngine 实例可读', () async {
-      await db.into(db.ledgers).insert(LedgersCompanion.insert(
-          name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(
+          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
       await db.into(db.categories).insert(CategoriesCompanion.insert(
           name: 'C', kind: 'expense', syncId: const Value('C1')));
 
@@ -327,7 +328,8 @@ void main() {
         repo: repo,
       );
       final cursor2 = await engine2.appCursor.read();
-      expect(cursor2, 3, reason: '新 SyncEngine 实例应从 SharedPreferences 读到上次 cursor');
+      expect(cursor2, 3,
+          reason: '新 SyncEngine 实例应从 SharedPreferences 读到上次 cursor');
 
       // 第二个 engine pull 应该看到"无变更"(空 pull)
       final applied = await engine2.pull('');
@@ -339,8 +341,8 @@ void main() {
 
   group('replay (sinceOverride=0)', () {
     test('replay 从头拉所有 change,即使 cursor 已推进', () async {
-      await db.into(db.ledgers).insert(LedgersCompanion.insert(
-          name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(
+          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
       await db.into(db.categories).insert(CategoriesCompanion.insert(
           name: 'C', kind: 'expense', syncId: const Value('C1')));
 
@@ -369,8 +371,7 @@ void main() {
       provider.pullCalls.clear();
       final applied = await engine.pull('', sinceOverride: 0);
       expect(applied, 3, reason: 'replay 应重新 apply 3 条');
-      expect(provider.pullCalls.first.since, 0,
-          reason: 'replay 必须从 since=0 拉');
+      expect(provider.pullCalls.first.since, 0, reason: 'replay 必须从 since=0 拉');
 
       // 本地 transactions 仍是 3 条(没 dup)
       final txs = await db.select(db.transactions).get();
@@ -383,7 +384,8 @@ void main() {
       // 本地通过 repo 写一条 tx(会触发 changeTracker.recordLedgerChange)
       final ledgerId = await db.into(db.ledgers).insert(
             LedgersCompanion.insert(
-              name: 'L', syncId: const Value('L1'),
+              name: 'L',
+              syncId: const Value('L1'),
             ),
           );
       await repo.insertTransactionsBatch([
@@ -412,7 +414,8 @@ void main() {
       expect(provider.pushedBatches.first.first['action'], 'upsert');
 
       // local_changes 已 markPushed
-      final remaining = await changeTracker.getUnpushedChangesForLedger(ledgerId);
+      final remaining =
+          await changeTracker.getUnpushedChangesForLedger(ledgerId);
       expect(remaining, isEmpty);
     });
 
@@ -437,7 +440,8 @@ void main() {
   });
 
   group('recordChanges=false:fullPull 不反向回流', () {
-    test('LocalRepository.insertTransactionsBatch(recordChanges: false) → 不写 local_changes',
+    test(
+        'LocalRepository.insertTransactionsBatch(recordChanges: false) → 不写 local_changes',
         () async {
       final ledgerId = await db.into(db.ledgers).insert(
           LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
@@ -458,8 +462,7 @@ void main() {
       // 本地有 50 条 tx,但 local_changes 表为空(不会反向 push)
       final txs = await db.select(db.transactions).get();
       expect(txs, hasLength(50));
-      final changes =
-          await changeTracker.getUnpushedChangesForLedger(ledgerId);
+      final changes = await changeTracker.getUnpushedChangesForLedger(ledgerId);
       expect(changes, isEmpty,
           reason: 'fullPull 写入不应触发 changeTracker.recordLedgerChange');
     });
@@ -474,8 +477,7 @@ void main() {
             amount: 1.0,
             syncId: const Value('normal-tx')),
       ]); // 不传 recordChanges,走默认 true
-      final changes =
-          await changeTracker.getUnpushedChangesForLedger(ledgerId);
+      final changes = await changeTracker.getUnpushedChangesForLedger(ledgerId);
       expect(changes, hasLength(1));
     });
   });
@@ -484,8 +486,7 @@ void main() {
     test('uploadAttachments 上传未同步附件 → 回填 cloudFileId + 登记 update change',
         () async {
       final ledgerId = await db.into(db.ledgers).insert(
-            LedgersCompanion.insert(
-                name: 'L', syncId: const Value('L1')),
+            LedgersCompanion.insert(name: 'L', syncId: const Value('L1')),
           );
       // 插一条 tx + 一个未上传的 attachment
       final txId = await db.into(db.transactions).insert(
@@ -698,8 +699,8 @@ void main() {
 
   group('SyncEvent stream(PR 1 解耦改造)', () {
     test('WS pull 完成 emit PullCompleted 到 events stream', () async {
-      await db.into(db.ledgers).insert(LedgersCompanion.insert(
-          name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(
+          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
       await db.into(db.categories).insert(CategoriesCompanion.insert(
           name: 'C', kind: 'expense', syncId: const Value('C1')));
 
@@ -747,8 +748,8 @@ void main() {
       // 直接调 _emit 不容易(私有),但 syncMyProfile / pull 路径会 emit。
       // 这里用 syncMyProfile 路径:fake provider 抛 UnimplementedError →
       // 整个流程进 catch 不 emit。我们改测 pull → PullCompleted
-      await db.into(db.ledgers).insert(LedgersCompanion.insert(
-          name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(
+          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
       engine.startListeningRealtime();
       provider.emitRealtimeEvent(BeeCountCloudRealtimeEvent(
         type: 'sync_change',
@@ -766,8 +767,8 @@ void main() {
   group('WS realtime', () {
     test('startListeningRealtime + 模拟 WS sync_change → 1s debounce 后触发 pull',
         () async {
-      await db.into(db.ledgers).insert(LedgersCompanion.insert(
-          name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(
+          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
       await db.into(db.categories).insert(CategoriesCompanion.insert(
           name: 'C', kind: 'expense', syncId: const Value('C1')));
 
@@ -807,4 +808,3 @@ void main() {
     });
   });
 }
-

@@ -85,7 +85,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         await store.saveOnly(updatedConfig);
         ref.invalidate(supabaseConfigProvider);
         ref.invalidate(activeCloudConfigProvider);
-        logger.info('auth', 'Supabase 账号密码保存状态：${_rememberAccount ? "已保存" : "已清除"}');
+        logger.info(
+            'auth', 'Supabase 账号密码保存状态：${_rememberAccount ? "已保存" : "已清除"}');
         return;
       }
 
@@ -211,13 +212,15 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
     // 检测云服务类型
     final cloudConfig = ref.watch(activeCloudConfigProvider);
-    if (cloudConfig.hasValue && cloudConfig.value!.type == CloudBackendType.webdav) {
+    if (cloudConfig.hasValue &&
+        cloudConfig.value!.type == CloudBackendType.webdav) {
       // WebDAV 不需要登录页面
       return Scaffold(
         backgroundColor: BeeTokens.scaffoldBackground(context),
         body: Column(
           children: [
-            PrimaryHeader(title: AppLocalizations.of(context).authLogin, showBack: true),
+            PrimaryHeader(
+                title: AppLocalizations.of(context).authLogin, showBack: true),
             Expanded(
               child: Center(
                 child: Padding(
@@ -229,13 +232,15 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     decoration: BoxDecoration(
                       color: BeeTokens.surface(context),
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: BeeTokens.isDark(context) ? null : [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        )
-                      ],
+                      boxShadow: BeeTokens.isDark(context)
+                          ? null
+                          : [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              )
+                            ],
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -281,7 +286,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
       backgroundColor: BeeTokens.scaffoldBackground(context),
       body: Column(
         children: [
-          PrimaryHeader(title: AppLocalizations.of(context).authLogin, showBack: true),
+          PrimaryHeader(
+              title: AppLocalizations.of(context).authLogin, showBack: true),
           Expanded(
             child: Center(
               child: Padding(
@@ -294,13 +300,15 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     decoration: BoxDecoration(
                       color: BeeTokens.surface(context),
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: BeeTokens.isDark(context) ? null : [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        )
-                      ],
+                      boxShadow: BeeTokens.isDark(context)
+                          ? null
+                          : [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              )
+                            ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -308,14 +316,17 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                         TextField(
                           controller: emailCtrl,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(labelText: AppLocalizations.of(context).authEmail),
+                          decoration: InputDecoration(
+                              labelText:
+                                  AppLocalizations.of(context).authEmail),
                         ),
                         const SizedBox(height: 8),
                         TextField(
                           controller: pwdCtrl,
                           obscureText: !_showPwd,
                           decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context).authPassword,
+                            labelText:
+                                AppLocalizations.of(context).authPassword,
                             suffixIcon: IconButton(
                               icon: Icon(_showPwd
                                   ? Icons.visibility_off_outlined
@@ -347,14 +358,18 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      AppLocalizations.of(context).authRememberAccount,
-                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                      AppLocalizations.of(context)
+                                          .authRememberAccount,
+                                      style:
+                                          theme.textTheme.bodyMedium?.copyWith(
                                         color: BeeTokens.textPrimary(context),
                                       ),
                                     ),
                                     Text(
-                                      AppLocalizations.of(context).authRememberAccountHint,
-                                      style: theme.textTheme.bodySmall?.copyWith(
+                                      AppLocalizations.of(context)
+                                          .authRememberAccountHint,
+                                      style:
+                                          theme.textTheme.bodySmall?.copyWith(
                                         color: BeeTokens.textSecondary(context),
                                         fontSize: 11,
                                       ),
@@ -377,85 +392,86 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                         SizedBox(
                           width: double.infinity,
                           child: FilledButton(
-                                  style: FilledButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: radius),
-                                  ),
-                                  onPressed: busy
-                                      ? null
-                                      : () async {
-                                          final email = emailCtrl.text.trim();
-                                          final pwd = pwdCtrl.text;
-                                          logger.info('auth', '开始登录：邮箱=$email');
-                                          if (!isValidEmail(email)) {
-                                            setState(() => errorText =
-                                                AppLocalizations.of(context)
-                                                    .authInvalidEmail);
-                                            return;
-                                          }
-                                          // 不再本地校验密码强度:密码规则由服务端决定,
-                                          // App 不二次猜测(否则会把服务端能登录的合法
-                                          // 密码挡在门外,见 issue #358)。
-                                          setState(() {
-                                            busy = true;
-                                            errorText = null;
-                                          });
-                                          try {
-                                            final auth = await ref.read(authServiceProvider.future);
-                                            await auth.signInWithEmail(
-                                                email: email, password: pwd);
-                                            if (!context.mounted) return;
-                                            logger.info('auth', '登录成功：邮箱=$email');
+                            style: FilledButton.styleFrom(
+                              shape:
+                                  RoundedRectangleBorder(borderRadius: radius),
+                            ),
+                            onPressed: busy
+                                ? null
+                                : () async {
+                                    final email = emailCtrl.text.trim();
+                                    final pwd = pwdCtrl.text;
+                                    logger.info('auth', '开始登录：邮箱=$email');
+                                    if (!isValidEmail(email)) {
+                                      setState(() => errorText =
+                                          AppLocalizations.of(context)
+                                              .authInvalidEmail);
+                                      return;
+                                    }
+                                    // 不再本地校验密码强度:密码规则由服务端决定,
+                                    // App 不二次猜测(否则会把服务端能登录的合法
+                                    // 密码挡在门外,见 issue #358)。
+                                    setState(() {
+                                      busy = true;
+                                      errorText = null;
+                                    });
+                                    try {
+                                      final auth = await ref
+                                          .read(authServiceProvider.future);
+                                      await auth.signInWithEmail(
+                                          email: email, password: pwd);
+                                      if (!context.mounted) return;
+                                      logger.info('auth', '登录成功：邮箱=$email');
 
-                                            // Save credentials if "remember account" is checked
-                                            await _saveCredentials(email, pwd);
+                                      // Save credentials if "remember account" is checked
+                                      await _saveCredentials(email, pwd);
 
-                                            // 刷新认证服务和同步服务以触发状态更新
-                                            ref.invalidate(authServiceProvider);
-                                            ref.invalidate(syncServiceProvider);
+                                      // 刷新认证服务和同步服务以触发状态更新
+                                      ref.invalidate(authServiceProvider);
+                                      ref.invalidate(syncServiceProvider);
 
-                                            // 刷新同步状态
-                                            ref
-                                                .read(syncStatusRefreshProvider
-                                                    .notifier)
-                                                .state++;
-                                            // 直接切到"我的"页并关闭登录页
-                                            ref
-                                                .read(bottomTabIndexProvider
-                                                    .notifier)
-                                                .state = 3; // Mine tab index
-                                            final can = Navigator.of(context)
-                                                .canPop();
-                                            logger.info('nav',
-                                                'login: success -> switch tab to Mine, canPop=$can; pop login');
-                                            if (can) {
-                                              Navigator.of(context).pop();
-                                            }
-                                          } catch (e, st) {
-                                            final msg = friendlyAuthError(e);
-                                            final detailedMsg = 'Type: ${e.runtimeType}, Message: $e';
-                                            logger.error(
-                                                'auth',
-                                                '登录失败：邮箱=$email，用户友好信息=$msg，详细错误=$detailedMsg',
-                                                e,
-                                                st);
-                                            setState(() => errorText = '$msg\n\n调试信息: $detailedMsg');
-                                          } finally {
-                                            if (mounted) {
-                                              setState(() => busy = false);
-                                            }
-                                          }
-                                        },
-                                  child: busy
-                                      ? const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white),
-                                        )
-                                      : Text(AppLocalizations.of(context).authLogin),
-                                ),
+                                      // 刷新同步状态
+                                      ref
+                                          .read(syncStatusRefreshProvider
+                                              .notifier)
+                                          .state++;
+                                      // 直接切到"我的"页并关闭登录页
+                                      ref
+                                          .read(bottomTabIndexProvider.notifier)
+                                          .state = 3; // Mine tab index
+                                      final can =
+                                          Navigator.of(context).canPop();
+                                      logger.info('nav',
+                                          'login: success -> switch tab to Mine, canPop=$can; pop login');
+                                      if (can) {
+                                        Navigator.of(context).pop();
+                                      }
+                                    } catch (e, st) {
+                                      final msg = friendlyAuthError(e);
+                                      final detailedMsg =
+                                          'Type: ${e.runtimeType}, Message: $e';
+                                      logger.error(
+                                          'auth',
+                                          '登录失败：邮箱=$email，用户友好信息=$msg，详细错误=$detailedMsg',
+                                          e,
+                                          st);
+                                      setState(() => errorText =
+                                          '$msg\n\n调试信息: $detailedMsg');
+                                    } finally {
+                                      if (mounted) {
+                                        setState(() => busy = false);
+                                      }
+                                    }
+                                  },
+                            child: busy
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2, color: Colors.white),
+                                  )
+                                : Text(AppLocalizations.of(context).authLogin),
+                          ),
                         ),
                         const SizedBox(height: 16),
                         Center(
@@ -463,23 +479,20 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                             behavior: HitTestBehavior.opaque,
                             onTap: _openRegisterGuide,
                             child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 4),
+                              padding: const EdgeInsets.symmetric(vertical: 4),
                               child: Text.rich(
                                 TextSpan(children: [
                                   TextSpan(
                                     text: AppLocalizations.of(context)
                                         .authNoAccountYet,
-                                    style:
-                                        theme.textTheme.bodyMedium?.copyWith(
+                                    style: theme.textTheme.bodyMedium?.copyWith(
                                       color: BeeTokens.textSecondary(context),
                                     ),
                                   ),
                                   TextSpan(
                                     text: AppLocalizations.of(context)
                                         .authViewRegisterGuide,
-                                    style:
-                                        theme.textTheme.bodyMedium?.copyWith(
+                                    style: theme.textTheme.bodyMedium?.copyWith(
                                       color: primary,
                                       fontWeight: FontWeight.w600,
                                     ),

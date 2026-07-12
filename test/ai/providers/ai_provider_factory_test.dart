@@ -25,7 +25,7 @@ void main() {
         {'model': 'o1', 'messages': <dynamic>[], 'temperature': 0.2},
         400,
         "Unsupported value: 'temperature' does not support 0.2 with this model. "
-            'Only the default (1) value is supported.',
+        'Only the default (1) value is supported.',
       );
       expect(param, 'temperature');
     });

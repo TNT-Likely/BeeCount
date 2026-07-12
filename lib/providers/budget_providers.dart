@@ -65,7 +65,8 @@ final budgetOverviewProvider = FutureProvider<BudgetOverview?>((ref) async {
 });
 
 /// 分类预算列表
-final categoryBudgetsProvider = FutureProvider<List<CategoryBudgetUsage>>((ref) async {
+final categoryBudgetsProvider =
+    FutureProvider<List<CategoryBudgetUsage>>((ref) async {
   ref.watch(budgetRefreshProvider);
 
   final ledgerId = ref.watch(currentLedgerIdProvider);
@@ -84,7 +85,8 @@ final budgetsStreamProvider = StreamProvider<List<Budget>>((ref) {
 });
 
 /// 指定分类的预算使用情况
-final categoryBudgetUsageProvider = FutureProvider.family<CategoryBudgetUsage?, int>((ref, categoryId) async {
+final categoryBudgetUsageProvider =
+    FutureProvider.family<CategoryBudgetUsage?, int>((ref, categoryId) async {
   ref.watch(budgetRefreshProvider);
 
   final ledgerId = ref.watch(currentLedgerIdProvider);

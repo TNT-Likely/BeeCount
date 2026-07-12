@@ -31,15 +31,19 @@ class UpdateInstaller {
 
       // 检查文件大小
       final fileSize = await file.length();
-      logger.info('UpdateInstaller', 'UPDATE_CRASH: APK文件大小: ${(fileSize / 1024 / 1024).toStringAsFixed(2)}MB');
+      logger.info('UpdateInstaller',
+          'UPDATE_CRASH: APK文件大小: ${(fileSize / 1024 / 1024).toStringAsFixed(2)}MB');
 
       // 检查平台
-      logger.info('UpdateInstaller', 'UPDATE_CRASH: 运行平台: ${Platform.operatingSystem}');
+      logger.info(
+          'UpdateInstaller', 'UPDATE_CRASH: 运行平台: ${Platform.operatingSystem}');
       logger.info('UpdateInstaller', 'UPDATE_CRASH: 平台版本: ${Platform.version}');
 
       // 检查权限状态
-      final installPermission = await UpdatePermissions.checkAndRequestPermissions();
-      logger.info('UpdateInstaller', 'UPDATE_CRASH: 安装权限状态: $installPermission');
+      final installPermission =
+          await UpdatePermissions.checkAndRequestPermissions();
+      logger.info(
+          'UpdateInstaller', 'UPDATE_CRASH: 安装权限状态: $installPermission');
 
       logger.info('UpdateInstaller', 'UPDATE_CRASH: 准备调用OpenFilex.open...');
 
@@ -50,20 +54,24 @@ class UpdateInstaller {
         try {
           success = await _installApkWithIntent(filePath);
         } catch (intentException) {
-          logger.error('UpdateInstaller', 'UPDATE_CRASH: Intent安装失败，尝试OpenFilex备用方案', intentException);
+          logger.error('UpdateInstaller',
+              'UPDATE_CRASH: Intent安装失败，尝试OpenFilex备用方案', intentException);
           try {
             final result = await OpenFilex.open(filePath);
-            logger.info('UpdateInstaller', 'UPDATE_CRASH: === OpenFilex.open备用调用完成 ===');
+            logger.info('UpdateInstaller',
+                'UPDATE_CRASH: === OpenFilex.open备用调用完成 ===');
             success = result.type == ResultType.done;
           } catch (openFileException) {
-            logger.error('UpdateInstaller', 'UPDATE_CRASH: OpenFilex备用方案也失败', openFileException);
+            logger.error('UpdateInstaller', 'UPDATE_CRASH: OpenFilex备用方案也失败',
+                openFileException);
             success = false;
           }
         }
       } else {
         // 开发环境使用原来的方式
         final result = await OpenFilex.open(filePath);
-        logger.info('UpdateInstaller', 'UPDATE_CRASH: === OpenFilex.open调用完成 ===');
+        logger.info(
+            'UpdateInstaller', 'UPDATE_CRASH: === OpenFilex.open调用完成 ===');
         logger.info('UpdateInstaller', 'UPDATE_CRASH: 返回类型: ${result.type}');
         logger.info('UpdateInstaller', 'UPDATE_CRASH: 返回消息: ${result.message}');
         success = result.type == ResultType.done;
@@ -85,9 +93,12 @@ class UpdateInstaller {
       // 记录异常类型
       logger.error('UpdateInstaller', 'UPDATE_CRASH: 异常类型: ${e.runtimeType}');
       if (e is PlatformException) {
-        logger.error('UpdateInstaller', 'UPDATE_CRASH: PlatformException code: ${e.code}');
-        logger.error('UpdateInstaller', 'UPDATE_CRASH: PlatformException message: ${e.message}');
-        logger.error('UpdateInstaller', 'UPDATE_CRASH: PlatformException details: ${e.details}');
+        logger.error('UpdateInstaller',
+            'UPDATE_CRASH: PlatformException code: ${e.code}');
+        logger.error('UpdateInstaller',
+            'UPDATE_CRASH: PlatformException message: ${e.message}');
+        logger.error('UpdateInstaller',
+            'UPDATE_CRASH: PlatformException details: ${e.details}');
       }
 
       return false;
@@ -100,7 +111,8 @@ class UpdateInstaller {
       logger.info('UpdateInstaller', 'UPDATE_CRASH: 开始使用Intent安装APK');
 
       if (!Platform.isAndroid) {
-        logger.error('UpdateInstaller', 'UPDATE_CRASH: 非Android平台，无法使用Intent安装');
+        logger.error(
+            'UpdateInstaller', 'UPDATE_CRASH: 非Android平台，无法使用Intent安装');
         return false;
       }
 
@@ -174,8 +186,7 @@ class UpdateInstaller {
           message: AppLocalizations.of(context).updateInstallPackageFoundMessage(
               fileName,
               fileSize,
-              '${modifiedTime.year}-${modifiedTime.month.toString().padLeft(2, '0')}-${modifiedTime.day.toString().padLeft(2, '0')} ${modifiedTime.hour.toString().padLeft(2, '0')}:${modifiedTime.minute.toString().padLeft(2, '0')}'
-          ),
+              '${modifiedTime.year}-${modifiedTime.month.toString().padLeft(2, '0')}-${modifiedTime.day.toString().padLeft(2, '0')} ${modifiedTime.hour.toString().padLeft(2, '0')}:${modifiedTime.minute.toString().padLeft(2, '0')}'),
           cancelLabel: AppLocalizations.of(context).commonCancel,
           okLabel: AppLocalizations.of(context).updateInstallNow,
         );
@@ -191,7 +202,8 @@ class UpdateInstaller {
               await AppDialog.error(
                 context,
                 title: AppLocalizations.of(context).updateInstallFailedTitle,
-                message: AppLocalizations.of(context).updateInstallFailedMessage,
+                message:
+                    AppLocalizations.of(context).updateInstallFailedMessage,
               );
             }
           }
@@ -202,10 +214,9 @@ class UpdateInstaller {
           await AppDialog.info(
             context,
             title: AppLocalizations.of(context).updateMultiplePackagesTitle,
-            message: AppLocalizations.of(context).updateMultiplePackagesFoundMessage(
-                apkFiles.length,
-                downloadDir.path
-            ),
+            message: AppLocalizations.of(context)
+                .updateMultiplePackagesFoundMessage(
+                    apkFiles.length, downloadDir.path),
           );
         }
       }
@@ -242,7 +253,8 @@ class UpdateInstaller {
       final shouldInstall = await AppDialog.confirm<bool>(
         context,
         title: AppLocalizations.of(context).updateFoundCachedPackageTitle,
-        message: AppLocalizations.of(context).updateCachedPackageFoundMessage(fileName, fileSize),
+        message: AppLocalizations.of(context)
+            .updateCachedPackageFoundMessage(fileName, fileSize),
         cancelLabel: AppLocalizations.of(context).updateIgnoreButton,
         okLabel: AppLocalizations.of(context).updateInstallNow,
       );
@@ -271,7 +283,8 @@ class UpdateInstaller {
         await AppDialog.error(
           context,
           title: AppLocalizations.of(context).updateErrorTitle,
-          message: AppLocalizations.of(context).updateReadCachedPackageError('$e'),
+          message:
+              AppLocalizations.of(context).updateReadCachedPackageError('$e'),
         );
       }
     }

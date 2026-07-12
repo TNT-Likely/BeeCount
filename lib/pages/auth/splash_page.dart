@@ -9,7 +9,7 @@ class SplashPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
-    
+
     return Scaffold(
       backgroundColor: primaryColor,
       body: SafeArea(
@@ -18,7 +18,7 @@ class SplashPage extends ConsumerWidget {
           child: Column(
             children: [
               const Spacer(flex: 2),
-              
+
               // Logo区域
               Container(
                 width: 120,
@@ -42,9 +42,9 @@ class SplashPage extends ConsumerWidget {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // 应用名称
               Text(
                 AppLocalizations.of(context).splashAppName,
@@ -54,9 +54,9 @@ class SplashPage extends ConsumerWidget {
                   letterSpacing: 2,
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Slogan
               Text(
                 AppLocalizations.of(context).splashSlogan,
@@ -65,9 +65,9 @@ class SplashPage extends ConsumerWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              
+
               const Spacer(flex: 3),
-              
+
               // 数据安全说明
               Container(
                 padding: const EdgeInsets.all(20),
@@ -112,9 +112,9 @@ class SplashPage extends ConsumerWidget {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // 加载指示器
               SizedBox(
                 width: 24,
@@ -124,16 +124,16 @@ class SplashPage extends ConsumerWidget {
                   strokeWidth: 2,
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               Text(
                 AppLocalizations.of(context).splashInitializing,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: Colors.white.withOpacity(0.8),
                 ),
               ),
-              
+
               const Spacer(flex: 1),
             ],
           ),

@@ -37,10 +37,10 @@ class LocalExchangeRateRepository implements ExchangeRateRepository {
             fetchedAt: fetchedAt,
           ),
           onConflict: d.DoUpdate((_) => ExchangeRatesCompanion(
-            rate: d.Value(e.value),
-            source: d.Value(source),
-            fetchedAt: d.Value(fetchedAt),
-          )),
+                rate: d.Value(e.value),
+                source: d.Value(source),
+                fetchedAt: d.Value(fetchedAt),
+              )),
         );
       }
     });
@@ -138,7 +138,8 @@ class LocalExchangeRateRepository implements ExchangeRateRepository {
   }
 
   @override
-  Future<void> removeOverride({required String base, required String quote}) async {
+  Future<void> removeOverride(
+      {required String base, required String quote}) async {
     final existing = await (db.select(db.exchangeRateOverrides)
           ..where((t) =>
               t.baseCurrency.equals(base.toUpperCase()) &

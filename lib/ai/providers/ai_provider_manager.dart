@@ -62,11 +62,13 @@ class AIProviderManager {
   }
 
   /// 解析服务商配置 JSON
-  static Future<List<AIServiceProviderConfig>> _parseProviders(String jsonStr) async {
+  static Future<List<AIServiceProviderConfig>> _parseProviders(
+      String jsonStr) async {
     try {
       final jsonList = jsonDecode(jsonStr) as List;
       var providers = jsonList
-          .map((e) => AIServiceProviderConfig.fromJson(e as Map<String, dynamic>))
+          .map((e) =>
+              AIServiceProviderConfig.fromJson(e as Map<String, dynamic>))
           .toList();
 
       // 确保智谱GLM始终存在
@@ -84,9 +86,12 @@ class AIProviderManager {
           logger.info(_tag, '从旧配置恢复智谱API Key');
           providers[zhipuIndex] = providers[zhipuIndex].copyWith(
             apiKey: oldApiKey,
-            textModel: prefs.getString('ai_glm_model') ?? providers[zhipuIndex].textModel,
-            visionModel: prefs.getString('ai_glm_vision_model') ?? providers[zhipuIndex].visionModel,
-            audioModel: prefs.getString('ai_glm_audio_model') ?? providers[zhipuIndex].audioModel,
+            textModel: prefs.getString('ai_glm_model') ??
+                providers[zhipuIndex].textModel,
+            visionModel: prefs.getString('ai_glm_vision_model') ??
+                providers[zhipuIndex].visionModel,
+            audioModel: prefs.getString('ai_glm_audio_model') ??
+                providers[zhipuIndex].audioModel,
           );
           await _saveProviders(providers);
         }
@@ -140,7 +145,8 @@ class AIProviderManager {
   }
 
   /// 直接添加服务商配置（保留原始 ID，用于配置导入）
-  static Future<void> addProviderWithConfig(AIServiceProviderConfig provider) async {
+  static Future<void> addProviderWithConfig(
+      AIServiceProviderConfig provider) async {
     final providers = await getProviders();
     providers.add(provider);
     await _saveProviders(providers);
@@ -203,7 +209,8 @@ class AIProviderManager {
   }
 
   /// 保存服务商列表
-  static Future<void> _saveProviders(List<AIServiceProviderConfig> providers) async {
+  static Future<void> _saveProviders(
+      List<AIServiceProviderConfig> providers) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonStr = jsonEncode(providers.map((p) => p.toJson()).toList());
     await prefs.setString(_keyProviders, jsonStr);
@@ -237,7 +244,8 @@ class AIProviderManager {
     final prefs = await SharedPreferences.getInstance();
     final jsonStr = jsonEncode(binding.toJson());
     await prefs.setString(_keyBinding, jsonStr);
-    logger.info(_tag, '保存能力绑定: text=${binding.textProviderId}, vision=${binding.visionProviderId}, speech=${binding.speechProviderId}');
+    logger.info(_tag,
+        '保存能力绑定: text=${binding.textProviderId}, vision=${binding.visionProviderId}, speech=${binding.speechProviderId}');
     try {
       onConfigChanged?.call();
     } catch (e, st) {
@@ -301,7 +309,8 @@ class AIProviderManager {
     }
 
     final strategy = config['strategy'] as String?;
-    if (strategy != null && strategy.isNotEmpty &&
+    if (strategy != null &&
+        strategy.isNotEmpty &&
         prefs.getString('ai_strategy') != strategy) {
       await prefs.setString('ai_strategy', strategy);
     }
@@ -410,8 +419,10 @@ class AIProviderManager {
     // 读取智谱 GLM 配置（使用正确的 key）
     final glmApiKey = prefs.getString('ai_glm_api_key') ?? '';
     final glmTextModel = prefs.getString('ai_glm_model') ?? 'glm-4-flash';
-    final glmVisionModel = prefs.getString('ai_glm_vision_model') ?? 'glm-4v-flash';
-    final glmAudioModel = prefs.getString('ai_glm_audio_model') ?? 'glm-4-voice';
+    final glmVisionModel =
+        prefs.getString('ai_glm_vision_model') ?? 'glm-4v-flash';
+    final glmAudioModel =
+        prefs.getString('ai_glm_audio_model') ?? 'glm-4-voice';
 
     logger.info(_tag, '迁移智谱配置: apiKey=${glmApiKey.isNotEmpty ? "已配置" : "未配置"}');
 
@@ -445,9 +456,8 @@ class AIProviderManager {
     await _saveProviders(providers);
 
     // 设置能力绑定
-    final defaultProviderId = isCustom && customApiKey.isNotEmpty
-        ? 'custom_migrated'
-        : 'zhipu_glm';
+    final defaultProviderId =
+        isCustom && customApiKey.isNotEmpty ? 'custom_migrated' : 'zhipu_glm';
 
     await saveCapabilityBinding(AICapabilityBinding(
       textProviderId: defaultProviderId,

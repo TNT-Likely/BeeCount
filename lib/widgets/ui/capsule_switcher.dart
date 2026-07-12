@@ -45,7 +45,8 @@ class CapsuleSwitcher<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = BeeTokens.isDark(context);
     final bg = backgroundColor ?? BeeTokens.surfaceCapsule(context);
-    final selectedBg = selectedBackgroundColor ?? (isDark ? BeeTokens.primary(context) : Colors.black);
+    final selectedBg = selectedBackgroundColor ??
+        (isDark ? BeeTokens.primary(context) : Colors.black);
     final selectedFg = selectedTextColor ?? Colors.white;
     final unselectedFg = unselectedTextColor ?? BeeTokens.textPrimary(context);
     final radius = borderRadius ?? BorderRadius.circular(20);

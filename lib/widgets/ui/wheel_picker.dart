@@ -34,7 +34,8 @@ class _WheelPickerState<T> extends State<WheelPicker<T>> {
     super.initState();
     selected = widget.initial;
     final index = widget.items.indexOf(selected);
-    _controller = FixedExtentScrollController(initialItem: index >= 0 ? index : 0);
+    _controller =
+        FixedExtentScrollController(initialItem: index >= 0 ? index : 0);
   }
 
   @override
@@ -55,20 +56,27 @@ class _WheelPickerState<T> extends State<WheelPicker<T>> {
                   onPressed: () => Navigator.pop(context),
                   child: Text(
                     AppLocalizations.of(context)!.commonCancel,
-                    style: TextStyle(fontSize: 16, color: _textTertiary(context)),
+                    style:
+                        TextStyle(fontSize: 16, color: _textTertiary(context)),
                   ),
                 ),
                 const Spacer(),
                 Text(
                   widget.title,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: _textPrimary(context)),
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: _textPrimary(context)),
                 ),
                 const Spacer(),
                 TextButton(
                   onPressed: () => Navigator.pop(context, selected),
                   child: Text(
                     AppLocalizations.of(context)!.commonOk,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Theme.of(context).primaryColor),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).primaryColor),
                   ),
                 ),
               ],
@@ -87,7 +95,8 @@ class _WheelPickerState<T> extends State<WheelPicker<T>> {
                   Center(
                     child: Text(
                       widget.labelBuilder(item),
-                      style: TextStyle(fontSize: 18, color: _textPrimary(context)),
+                      style:
+                          TextStyle(fontSize: 18, color: _textPrimary(context)),
                     ),
                   ),
               ],

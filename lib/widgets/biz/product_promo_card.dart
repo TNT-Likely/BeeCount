@@ -76,20 +76,28 @@ class ProductPromo {
 class ProductPromoTexts {
   /// 内测申请的标题(用于 Android 未上架场景的副段落标题)
   final String betaDialogTitle;
+
   /// 内测申请的说明(用于未上架场景下展开的内测说明 + 申请条件)
   final String betaDialogMessage;
+
   /// 「申请邮箱」label
   final String emailLabel;
+
   /// 复制成功 toast
   final String copiedToast;
+
   /// 邮件 app 不可用时的 toast
   final String mailUnavailableToast;
+
   /// 「申请内测」按钮(Android 未上架时显示)
   final String emailButton;
+
   /// 「前往官网」按钮(始终显示)
   final String websiteButton;
+
   /// 「前往应用商店」按钮(已上架平台显示,主行动)
   final String openStoreButton;
+
   /// 「TestFlight 内测」按钮(iOS + testFlightUrl 非空时显示;App Store 跟
   /// TestFlight 并存,前者主行动后者次要)
   final String testFlightButton;
@@ -175,167 +183,170 @@ class ProductPromoLauncher {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                // 产品标题区:logo + 标题 + 副标
-                Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.asset(
-                        info.logoAsset,
-                        width: 44,
-                        height: 44,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Icon(
-                          Icons.apps_rounded,
-                          color: info.brandColor,
-                          size: 28,
+                  // 产品标题区:logo + 标题 + 副标
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.asset(
+                          info.logoAsset,
+                          width: 44,
+                          height: 44,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Icon(
+                            Icons.apps_rounded,
+                            color: info.brandColor,
+                            size: 28,
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              info.title,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              info.subtitle,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: BeeTokens.textSecondary(ctx),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // 产品介绍正文
+                  Text(
+                    info.introBody,
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.55,
+                      color: BeeTokens.textPrimary(ctx),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
+                  ),
+                  // 产品截图缩略图(横向 Row,9:16 手机比例),点击全屏预览。
+                  if (info.screenshotAssets.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        for (var i = 0;
+                            i < info.screenshotAssets.length;
+                            i++) ...[
+                          if (i > 0) const SizedBox(width: 10),
+                          Expanded(
+                            child: _ScreenshotThumb(
+                              asset: info.screenshotAssets[i],
+                              allAssets: info.screenshotAssets,
+                              initialIndex: i,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                  // 未上架时:展开内测说明 + 邮箱卡
+                  if (!hasStore) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: BeeTokens.surface(ctx).withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: themeColor.withValues(alpha: 0.15),
+                        ),
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            info.title,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                            texts.betaDialogTitle,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: themeColor,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 8),
                           Text(
-                            info.subtitle,
+                            texts.betaDialogMessage,
                             style: TextStyle(
                               fontSize: 12,
+                              height: 1.5,
                               color: BeeTokens.textSecondary(ctx),
                             ),
                           ),
                         ],
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    _CopyableEmailRow(
+                      email: info.contactEmail,
+                      label: texts.emailLabel,
+                      accentColor: themeColor,
+                      onCopied: () {
+                        Clipboard.setData(
+                            ClipboardData(text: info.contactEmail));
+                        if (ctx.mounted) showToast(ctx, texts.copiedToast);
+                      },
+                    ),
                   ],
-                ),
-                const SizedBox(height: 16),
-                // 产品介绍正文
-                Text(
-                  info.introBody,
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.55,
-                    color: BeeTokens.textPrimary(ctx),
-                  ),
-                ),
-                // 产品截图缩略图(横向 Row,9:16 手机比例),点击全屏预览。
-                if (info.screenshotAssets.isNotEmpty) ...[
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      for (var i = 0; i < info.screenshotAssets.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 10),
-                        Expanded(
-                          child: _ScreenshotThumb(
-                            asset: info.screenshotAssets[i],
-                            allAssets: info.screenshotAssets,
-                            initialIndex: i,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-                // 未上架时:展开内测说明 + 邮箱卡
-                if (!hasStore) ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: BeeTokens.surface(ctx).withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: themeColor.withValues(alpha: 0.15),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  // iOS + 有 TestFlight URL + 已上架:把 [TestFlight 内测] 和
+                  // [前往应用商店] 并排放进 content 顶部第一排;[前往官网] 落到
+                  // 下面的 actions 区单独成第二排。
+                  // 视觉上"两个分发渠道"同权,官网作为可选辅助。
+                  if (_showTestFlightRow(info, hasStore)) ...[
+                    const SizedBox(height: 18),
+                    Row(
                       children: [
-                        Text(
-                          texts.betaDialogTitle,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: themeColor,
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () async {
+                              Navigator.of(ctx).pop();
+                              await _tryOpenUrl(Uri.parse(info.testFlightUrl!));
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: themeColor,
+                              side: BorderSide(color: themeColor),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: Text(texts.testFlightButton),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          texts.betaDialogMessage,
-                          style: TextStyle(
-                            fontSize: 12,
-                            height: 1.5,
-                            color: BeeTokens.textSecondary(ctx),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: () async {
+                              Navigator.of(ctx).pop();
+                              await _tryOpenUrl(storeUri!);
+                            },
+                            style: FilledButton.styleFrom(
+                              backgroundColor: themeColor,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: Text(texts.openStoreButton),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  _CopyableEmailRow(
-                    email: info.contactEmail,
-                    label: texts.emailLabel,
-                    accentColor: themeColor,
-                    onCopied: () {
-                      Clipboard.setData(ClipboardData(text: info.contactEmail));
-                      if (ctx.mounted) showToast(ctx, texts.copiedToast);
-                    },
-                  ),
-                ],
-                // iOS + 有 TestFlight URL + 已上架:把 [TestFlight 内测] 和
-                // [前往应用商店] 并排放进 content 顶部第一排;[前往官网] 落到
-                // 下面的 actions 区单独成第二排。
-                // 视觉上"两个分发渠道"同权,官网作为可选辅助。
-                if (_showTestFlightRow(info, hasStore)) ...[
-                  const SizedBox(height: 18),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () async {
-                            Navigator.of(ctx).pop();
-                            await _tryOpenUrl(Uri.parse(info.testFlightUrl!));
-                          },
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: themeColor,
-                            side: BorderSide(color: themeColor),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: Text(texts.testFlightButton),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: () async {
-                            Navigator.of(ctx).pop();
-                            await _tryOpenUrl(storeUri!);
-                          },
-                          style: FilledButton.styleFrom(
-                            backgroundColor: themeColor,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: Text(texts.openStoreButton),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
                 ],
               ),
             ),
@@ -366,7 +377,8 @@ class ProductPromoLauncher {
                 FilledButton(
                   onPressed: () async {
                     // 双保险:先 clipboard 兜底,再 launchUrl,失败 toast 提示
-                    await Clipboard.setData(ClipboardData(text: info.contactEmail));
+                    await Clipboard.setData(
+                        ClipboardData(text: info.contactEmail));
                     final uri = Uri(
                       scheme: 'mailto',
                       path: info.contactEmail,
@@ -429,8 +441,8 @@ class _ScreenshotThumb extends StatelessWidget {
             opaque: false,
             barrierColor: Colors.black87,
             transitionDuration: const Duration(milliseconds: 200),
-            pageBuilder: (_, __, ___) =>
-                _ScreenshotGalleryPage(assets: allAssets, initialIndex: initialIndex),
+            pageBuilder: (_, __, ___) => _ScreenshotGalleryPage(
+                assets: allAssets, initialIndex: initialIndex),
             transitionsBuilder: (_, anim, __, child) =>
                 FadeTransition(opacity: anim, child: child),
           ),
@@ -534,17 +546,20 @@ class _ScreenshotGalleryPageState extends State<_ScreenshotGalleryPage> {
                       listenable: _ctrl,
                       builder: (_, __) {
                         final page = _ctrl.hasClients
-                            ? (_ctrl.page ?? widget.initialIndex.toDouble()).round()
+                            ? (_ctrl.page ?? widget.initialIndex.toDouble())
+                                .round()
                             : widget.initialIndex;
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             '${page + 1} / ${widget.assets.length}',
-                            style: const TextStyle(color: Colors.white, fontSize: 13),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 13),
                           ),
                         );
                       },
@@ -584,7 +599,8 @@ class _CopyableEmailRow extends StatelessWidget {
         decoration: BoxDecoration(
           color: accentColor.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: accentColor.withValues(alpha: 0.25), width: 1),
+          border:
+              Border.all(color: accentColor.withValues(alpha: 0.25), width: 1),
         ),
         child: Row(
           children: [
@@ -688,7 +704,8 @@ class _ProductPromoCardState extends State<ProductPromoCard>
         onTapDown: (_) => setState(() => _isPressed = true),
         onTapUp: (_) => setState(() => _isPressed = false),
         onTapCancel: () => setState(() => _isPressed = false),
-        onTap: () => ProductPromoLauncher.open(context, widget.info, widget.texts),
+        onTap: () =>
+            ProductPromoLauncher.open(context, widget.info, widget.texts),
         child: AnimatedScale(
           scale: _isPressed ? 0.98 : 1.0,
           duration: const Duration(milliseconds: 100),
@@ -708,7 +725,11 @@ class _ProductPromoCardState extends State<ProductPromoCard>
             ),
             child: Row(
               children: [
-                _ProductLogo(asset: widget.info.logoAsset, color: color, size: 52, radius: 12),
+                _ProductLogo(
+                    asset: widget.info.logoAsset,
+                    color: color,
+                    size: 52,
+                    radius: 12),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
@@ -776,7 +797,8 @@ class _ProductPromoCompactState extends State<ProductPromoCompact> {
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
-      onTap: () => ProductPromoLauncher.open(context, widget.info, widget.texts),
+      onTap: () =>
+          ProductPromoLauncher.open(context, widget.info, widget.texts),
       child: AnimatedScale(
         scale: _isPressed ? 0.97 : 1.0,
         duration: const Duration(milliseconds: 100),
@@ -797,7 +819,11 @@ class _ProductPromoCompactState extends State<ProductPromoCompact> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _ProductLogo(asset: widget.info.logoAsset, color: color, size: 40, radius: 10),
+              _ProductLogo(
+                  asset: widget.info.logoAsset,
+                  color: color,
+                  size: 40,
+                  radius: 10),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -812,7 +838,10 @@ class _ProductPromoCompactState extends State<ProductPromoCompact> {
                             widget.info.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: color,
                                 ),

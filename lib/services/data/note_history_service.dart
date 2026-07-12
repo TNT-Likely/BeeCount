@@ -16,7 +16,8 @@ class NoteHistoryService {
     int limit = 10,
   }) async {
     // 查询当前账本的所有交易
-    final transactionsWithCategory = await repository.transactionsWithCategoryAll(ledgerId: ledgerId).first;
+    final transactionsWithCategory =
+        await repository.transactionsWithCategoryAll(ledgerId: ledgerId).first;
     final transactions = transactionsWithCategory.map((e) => e.t).toList();
 
     // 统计备注使用频率

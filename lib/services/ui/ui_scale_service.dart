@@ -22,7 +22,8 @@ class UIScaleService {
     final widthCompensation = screenWidth / baseScreenWidth;
 
     // 组合补偿系数，密度占80%权重，宽度占20%权重
-    final deviceCompensation = (densityCompensation * 0.8) + (widthCompensation * 0.2);
+    final deviceCompensation =
+        (densityCompensation * 0.8) + (widthCompensation * 0.2);
 
     // 直接返回设备补偿，不再额外调整
     // 让用户自己选择合适的缩放档位
@@ -34,7 +35,6 @@ class UIScaleService {
     // 新策略：设备缩放总是显示1.0，设备差异通过补偿系数处理
     return 1.0;
   }
-
 
   /// 获取最终的UI缩放因子 (设备差异已内置，用户缩放直接应用)
   static double getFinalScaleFactor(BuildContext context, double userScale) {
@@ -53,8 +53,10 @@ class UIScaleService {
   }
 
   /// 缩放EdgeInsets
-  static EdgeInsets scaleEdgeInsets(BuildContext context, EdgeInsets insets, double userScale) {
-    final scale = getFinalScaleFactor(context, userScale) * getEffectCompensation(context);
+  static EdgeInsets scaleEdgeInsets(
+      BuildContext context, EdgeInsets insets, double userScale) {
+    final scale = getFinalScaleFactor(context, userScale) *
+        getEffectCompensation(context);
     return EdgeInsets.only(
       left: insets.left * scale,
       top: insets.top * scale,
@@ -64,8 +66,10 @@ class UIScaleService {
   }
 
   /// 缩放BorderRadius
-  static BorderRadius scaleBorderRadius(BuildContext context, BorderRadius radius, double userScale) {
-    final scale = getFinalScaleFactor(context, userScale) * getEffectCompensation(context);
+  static BorderRadius scaleBorderRadius(
+      BuildContext context, BorderRadius radius, double userScale) {
+    final scale = getFinalScaleFactor(context, userScale) *
+        getEffectCompensation(context);
     return BorderRadius.only(
       topLeft: radius.topLeft * scale,
       topRight: radius.topRight * scale,
@@ -81,8 +85,11 @@ class UIScaleService {
     final screenWidth = mediaQuery.size.width;
 
     // 允许5%的误差
-    final densityMatch = (devicePixelRatio - baseDevicePixelRatio).abs() / baseDevicePixelRatio < 0.05;
-    final widthMatch = (screenWidth - baseScreenWidth).abs() / baseScreenWidth < 0.05;
+    final densityMatch =
+        (devicePixelRatio - baseDevicePixelRatio).abs() / baseDevicePixelRatio <
+            0.05;
+    final widthMatch =
+        (screenWidth - baseScreenWidth).abs() / baseScreenWidth < 0.05;
 
     return densityMatch && widthMatch;
   }
@@ -94,7 +101,8 @@ class UIScaleService {
   }
 
   /// 获取调试信息
-  static Map<String, double> getDebugInfo(BuildContext context, double userScale) {
+  static Map<String, double> getDebugInfo(
+      BuildContext context, double userScale) {
     final mediaQuery = MediaQuery.of(context);
     final deviceScale = getDeviceScaleFactor(context);
     final finalScale = getFinalScaleFactor(context, userScale);

@@ -16,7 +16,6 @@ class IOSAutoBillingPage extends ConsumerStatefulWidget {
 }
 
 class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -42,7 +41,8 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
                 const SizedBox(height: 16),
 
                 // iOS 15版本提示
-                if (!supportsAppIntents) _buildVersionWarning(context, primaryColor),
+                if (!supportsAppIntents)
+                  _buildVersionWarning(context, primaryColor),
                 if (!supportsAppIntents) const SizedBox(height: 16),
 
                 // 一键获取快捷指令（主推路径）
@@ -68,7 +68,6 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
 
                 // 快捷指令配置指南
                 _buildShortcutsGuide(context, primaryColor),
-
               ],
             ),
           ),
@@ -82,7 +81,8 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
   static const String _shortcutImportUrl =
       'https://www.icloud.com/shortcuts/fda5016c98eb474f840f2f91396bd241';
 
-  Future<void> _openShortcut(BuildContext context, AppLocalizations l10n) async {
+  Future<void> _openShortcut(
+      BuildContext context, AppLocalizations l10n) async {
     final url = Uri.parse(_shortcutImportUrl);
     var ok = false;
     if (await canLaunchUrl(url)) {
@@ -149,7 +149,6 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
       ),
     );
   }
-
 
   Widget _buildBackTapCard(
     BuildContext context,
@@ -288,7 +287,8 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.check_circle_outline, color: Colors.green, size: 20),
+                  Icon(Icons.check_circle_outline,
+                      color: Colors.green, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -347,7 +347,6 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
     );
   }
 
-
   Widget _buildTutorialCard(
     BuildContext context,
     Color primaryColor,
@@ -396,7 +395,8 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
                     Text(
                       l10n.iosAutoTutorialDesc,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],

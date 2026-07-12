@@ -170,7 +170,8 @@ class _ConfigImportExportPageState
     } catch (e) {
       logger.error('ConfigExport', '读取配置文件失败: $e');
       if (!mounted) return;
-      showToast(context, AppLocalizations.of(context).configExportReadFileFailed);
+      showToast(
+          context, AppLocalizations.of(context).configExportReadFileFailed);
     }
   }
 
@@ -289,13 +290,15 @@ class _ConfigImportExportPageState
       // 刷新字体缩放
       final fontScaleLevel = prefs.getInt('fontScaleLevel');
       if (fontScaleLevel != null) {
-        ref.read(fontScaleLevelProvider.notifier).state = fontScaleLevel.clamp(-3, 4);
+        ref.read(fontScaleLevelProvider.notifier).state =
+            fontScaleLevel.clamp(-3, 4);
         logger.info('ConfigImport', '字体缩放档位已刷新: $fontScaleLevel');
       }
 
       final customFontScale = prefs.getDouble('customFontScale');
       if (customFontScale != null) {
-        ref.read(customFontScaleProvider.notifier).state = customFontScale.clamp(0.7, 1.5);
+        ref.read(customFontScaleProvider.notifier).state =
+            customFontScale.clamp(0.7, 1.5);
         logger.info('ConfigImport', '自定义字体缩放已刷新: $customFontScale');
       }
 
@@ -309,7 +312,8 @@ class _ConfigImportExportPageState
       // 刷新交易时间显示
       final showTransactionTime = prefs.getBool('showTransactionTime');
       if (showTransactionTime != null) {
-        ref.read(showTransactionTimeProvider.notifier).state = showTransactionTime;
+        ref.read(showTransactionTimeProvider.notifier).state =
+            showTransactionTime;
         logger.info('ConfigImport', '交易时间显示已刷新: $showTransactionTime');
       }
 
@@ -408,7 +412,8 @@ class _ConfigImportExportPageState
                         onTap: _isExporting ? null : _exportConfig,
                       ),
                       // Android平台显示导出路径和打开按钮
-                      if (Platform.isAndroid && _lastExportedFilePath != null) ...[
+                      if (Platform.isAndroid &&
+                          _lastExportedFilePath != null) ...[
                         const Divider(height: 1, thickness: 0.5),
                         Container(
                           padding: EdgeInsets.symmetric(
@@ -428,7 +433,9 @@ class _ConfigImportExportPageState
                                   SizedBox(width: 8.0.scaled(context, ref)),
                                   Expanded(
                                     child: Text(
-                                      l10n.configExportSavedTo(_lastExportedFilePath!.replaceAll('/storage/emulated/0/', '')),
+                                      l10n.configExportSavedTo(
+                                          _lastExportedFilePath!.replaceAll(
+                                              '/storage/emulated/0/', '')),
                                       style: TextStyle(
                                         fontSize: 13.0.scaled(context, ref),
                                         color: BeeTokens.textSecondary(context),
@@ -442,12 +449,16 @@ class _ConfigImportExportPageState
                                 width: double.infinity,
                                 child: OutlinedButton.icon(
                                   onPressed: _viewExportedContent,
-                                  icon: const Icon(Icons.visibility_outlined, size: 18),
+                                  icon: const Icon(Icons.visibility_outlined,
+                                      size: 18),
                                   label: Text(l10n.configExportViewContent),
                                   style: OutlinedButton.styleFrom(
-                                    foregroundColor: ref.watch(primaryColorProvider),
+                                    foregroundColor:
+                                        ref.watch(primaryColorProvider),
                                     side: BorderSide(
-                                      color: ref.watch(primaryColorProvider).withValues(alpha: 0.5),
+                                      color: ref
+                                          .watch(primaryColorProvider)
+                                          .withValues(alpha: 0.5),
                                     ),
                                   ),
                                 ),
@@ -937,7 +948,8 @@ class _ExportOptionsDialogState extends State<_ExportOptionsDialog> {
                   value: _accounts,
                   onChanged: (v) => setState(() => _accounts = v ?? true),
                   title: Text(l10n.configIncludeAccounts),
-                  secondary: Icon(Icons.account_balance_wallet_outlined, color: primary),
+                  secondary: Icon(Icons.account_balance_wallet_outlined,
+                      color: primary),
                   controlAffinity: ListTileControlAffinity.trailing,
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -953,13 +965,15 @@ class _ExportOptionsDialogState extends State<_ExportOptionsDialog> {
                   value: _budgets,
                   onChanged: (v) => setState(() => _budgets = v ?? true),
                   title: Text(l10n.configIncludeBudgets),
-                  secondary: Icon(Icons.account_balance_outlined, color: primary),
+                  secondary:
+                      Icon(Icons.account_balance_outlined, color: primary),
                   controlAffinity: ListTileControlAffinity.trailing,
                   contentPadding: EdgeInsets.zero,
                 ),
                 CheckboxListTile(
                   value: _recurringTransactions,
-                  onChanged: (v) => setState(() => _recurringTransactions = v ?? true),
+                  onChanged: (v) =>
+                      setState(() => _recurringTransactions = v ?? true),
                   title: Text(l10n.configIncludeRecurringTransactions),
                   secondary: Icon(Icons.repeat, color: primary),
                   controlAffinity: ListTileControlAffinity.trailing,
@@ -1313,7 +1327,8 @@ class _ImportPreviewDialogState extends State<_ImportPreviewDialog> {
                       value: _accounts,
                       onChanged: (v) => setState(() => _accounts = v ?? true),
                       title: Text(l10n.configIncludeAccounts),
-                      secondary: Icon(Icons.account_balance_wallet_outlined, color: primary),
+                      secondary: Icon(Icons.account_balance_wallet_outlined,
+                          color: primary),
                       controlAffinity: ListTileControlAffinity.trailing,
                       contentPadding: EdgeInsets.zero,
                       dense: true,
@@ -1333,7 +1348,8 @@ class _ImportPreviewDialogState extends State<_ImportPreviewDialog> {
                       value: _budgets,
                       onChanged: (v) => setState(() => _budgets = v ?? true),
                       title: Text(l10n.configIncludeBudgets),
-                      secondary: Icon(Icons.account_balance_outlined, color: primary),
+                      secondary:
+                          Icon(Icons.account_balance_outlined, color: primary),
                       controlAffinity: ListTileControlAffinity.trailing,
                       contentPadding: EdgeInsets.zero,
                       dense: true,
@@ -1341,7 +1357,8 @@ class _ImportPreviewDialogState extends State<_ImportPreviewDialog> {
                   if (info.hasRecurringTransactions)
                     CheckboxListTile(
                       value: _recurringTransactions,
-                      onChanged: (v) => setState(() => _recurringTransactions = v ?? true),
+                      onChanged: (v) =>
+                          setState(() => _recurringTransactions = v ?? true),
                       title: Text(l10n.configIncludeRecurringTransactions),
                       secondary: Icon(Icons.repeat, color: primary),
                       controlAffinity: ListTileControlAffinity.trailing,
@@ -1368,7 +1385,8 @@ class _ImportPreviewDialogState extends State<_ImportPreviewDialog> {
                   if (info.hasAppSettings)
                     CheckboxListTile(
                       value: _appSettings,
-                      onChanged: (v) => setState(() => _appSettings = v ?? true),
+                      onChanged: (v) =>
+                          setState(() => _appSettings = v ?? true),
                       title: Text(l10n.configIncludeOtherSettings),
                       subtitle: Text(
                         l10n.configIncludeOtherSettingsSubtitle,

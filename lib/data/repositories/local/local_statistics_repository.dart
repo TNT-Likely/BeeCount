@@ -13,7 +13,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
   LocalStatisticsRepository(this.db);
 
   @override
-  Future<List<({int? id, String name, String? icon, double total})>> totalsByCategory({
+  Future<List<({int? id, String name, String? icon, double total})>>
+      totalsByCategory({
     required int ledgerId,
     required String type,
     required DateTime start,
@@ -24,7 +25,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
               t.ledgerId.equals(ledgerId) &
               t.type.equals(type) &
               t.excludeFromStats.equals(false) &
-              t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end)))
+              t.happenedAt.isBiggerOrEqualValue(start) &
+              t.happenedAt.isSmallerThanValue(end)))
         .join([
       d.leftOuterJoin(db.categories,
           db.categories.id.equalsExp(db.transactions.categoryId)),
@@ -55,7 +57,12 @@ class LocalStatisticsRepository implements StatisticsRepository {
       map.update(id, (v) => v + t.amount, ifAbsent: () => t.amount);
     }
     final list = map.entries
-        .map((e) => (id: e.key, name: names[e.key] ?? '未分类', icon: icons[e.key], total: e.value))
+        .map((e) => (
+              id: e.key,
+              name: names[e.key] ?? '未分类',
+              icon: icons[e.key],
+              total: e.value
+            ))
         .toList()
       ..sort((a, b) => b.total.compareTo(a.total));
     return list;
@@ -106,8 +113,16 @@ class LocalStatisticsRepository implements StatisticsRepository {
   }
 
   @override
-  Future<List<({int? id, String name, String? icon, int? parentId, int level, double total})>>
-      totalsByCategoryWithHierarchy({
+  Future<
+      List<
+          ({
+            int? id,
+            String name,
+            String? icon,
+            int? parentId,
+            int level,
+            double total
+          })>> totalsByCategoryWithHierarchy({
     required int ledgerId,
     required String type,
     required DateTime start,
@@ -118,7 +133,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
               t.ledgerId.equals(ledgerId) &
               t.type.equals(type) &
               t.excludeFromStats.equals(false) &
-              t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end)))
+              t.happenedAt.isBiggerOrEqualValue(start) &
+              t.happenedAt.isSmallerThanValue(end)))
         .join([
       d.leftOuterJoin(db.categories,
           db.categories.id.equalsExp(db.transactions.categoryId)),
@@ -127,7 +143,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
     final rows = await q.get();
     final shared = await _loadSharedCategoriesForLedger(ledgerId);
     final map = <int?, double>{};
-    final categoryInfo = <int?, ({String name, String? icon, int? parentId, int level})>{};
+    final categoryInfo =
+        <int?, ({String name, String? icon, int? parentId, int level})>{};
 
     for (final r in rows) {
       final t = r.readTable(db.transactions);
@@ -201,7 +218,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
               t.ledgerId.equals(ledgerId) &
               t.type.equals(type) &
               t.excludeFromStats.equals(false) &
-              t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end)))
+              t.happenedAt.isBiggerOrEqualValue(start) &
+              t.happenedAt.isSmallerThanValue(end)))
         .get();
     final map = <DateTime, double>{};
     for (final t in rows) {

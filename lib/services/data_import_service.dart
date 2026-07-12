@@ -1,7 +1,8 @@
 import 'package:drift/drift.dart' as d;
 import '../data/db.dart';
 import '../data/repositories/base_repository.dart';
-import '../data/repositories/transaction_repository.dart' show BatchAttachmentData;
+import '../data/repositories/transaction_repository.dart'
+    show BatchAttachmentData;
 import 'system/logger_service.dart';
 
 /// 统一的数据导入服务
@@ -126,6 +127,7 @@ class ImportData {
 
   /// 账本名称（可选，用于更新账本信息）
   final String? ledgerName;
+
   /// 货币（可选，用于更新账本信息）
   final String? currency;
 
@@ -220,10 +222,8 @@ class DataImportService {
 
   /// 导入账户(全局按名称去重)。public — sync_diff_service 也复用,避免维护两套。
   Future<Map<String, int>> importAccounts(
-    BaseRepository repo,
-    List<ImportAccount> accounts,
-    {String defaultCurrency = 'CNY'}
-  ) async {
+      BaseRepository repo, List<ImportAccount> accounts,
+      {String defaultCurrency = 'CNY'}) async {
     final accountNameToId = <String, int>{};
 
     if (accounts.isEmpty) return accountNameToId;
@@ -287,8 +287,12 @@ class DataImportService {
       }
 
       // 分离一级和二级分类
-      final level1 = categories.where((c) => c.level == 1 || c.parentName == null).toList();
-      final level2 = categories.where((c) => c.level == 2 && c.parentName != null).toList();
+      final level1 = categories
+          .where((c) => c.level == 1 || c.parentName == null)
+          .toList();
+      final level2 = categories
+          .where((c) => c.level == 2 && c.parentName != null)
+          .toList();
 
       // 导入一级分类
       for (final cat in level1) {
@@ -432,8 +436,7 @@ class DataImportService {
     int failed = 0;
     int processed = 0;
     final total = transactions.length;
-    logger.info('TxImport',
-        '开始导入交易: $total 条 (recordChanges=$recordChanges)');
+    logger.info('TxImport', '开始导入交易: $total 条 (recordChanges=$recordChanges)');
     final overallSw = Stopwatch()..start();
 
     const batchSize = 500;

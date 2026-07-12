@@ -46,8 +46,7 @@ extension SyncEngineAttachmentsExt on SyncEngine {
         final abs = await iconSvc.resolveIconPath(rel);
         final file = File(abs);
         if (!file.existsSync()) {
-          logger.debug('SyncEngine',
-              '分类 ${cat.name} 的自定义图标文件不存在: $abs');
+          logger.debug('SyncEngine', '分类 ${cat.name} 的自定义图标文件不存在: $abs');
           continue;
         }
         final bytes = await file.readAsBytes();
@@ -57,8 +56,7 @@ extension SyncEngineAttachmentsExt on SyncEngine {
         );
         out[cat.id] = (fileId: result.fileId, sha256: result.sha256);
       } catch (e, st) {
-        logger.error(
-            'SyncEngine', '分类 ${cat.name} 自定义图标上传失败', e, st);
+        logger.error('SyncEngine', '分类 ${cat.name} 自定义图标上传失败', e, st);
       }
     }
     if (out.isNotEmpty) {
@@ -99,8 +97,7 @@ extension SyncEngineAttachmentsExt on SyncEngine {
     }));
     final uploaded = results.where((r) => r).length;
     if (uploaded > 0) {
-      logger.info('SyncEngine',
-          '附件上传完成: $uploaded/${atts.length} (并发 4)');
+      logger.info('SyncEngine', '附件上传完成: $uploaded/${atts.length} (并发 4)');
     }
     return uploaded;
   }
@@ -149,8 +146,8 @@ extension SyncEngineAttachmentsExt on SyncEngine {
         }
       }
     }
-    logger.warning('SyncEngine',
-        '附件上传失败 ${att.fileName} after 3 attempts: $lastError');
+    logger.warning(
+        'SyncEngine', '附件上传失败 ${att.fileName} after 3 attempts: $lastError');
     return false;
   }
 
@@ -178,8 +175,7 @@ extension SyncEngineAttachmentsExt on SyncEngine {
     }));
     final downloaded = results.where((r) => r).length;
     if (downloaded > 0) {
-      logger.info('SyncEngine',
-          '附件下载完成: $downloaded/${atts.length} (并发 4)');
+      logger.info('SyncEngine', '附件下载完成: $downloaded/${atts.length} (并发 4)');
     }
     return downloaded;
   }
@@ -259,7 +255,8 @@ extension SyncEngineAttachmentsExt on SyncEngine {
             if (await File(abs).exists()) return true;
           } catch (_) {}
         }
-        final bytes = await provider.downloadAttachment(fileId: job.cloudFileId);
+        final bytes =
+            await provider.downloadAttachment(fileId: job.cloudFileId);
         final ext = _detectIconExtension(bytes, originalPath: job.expectedPath);
         final iconDir = await iconSvc.getIconDirectory();
         final safeName = '${job.cloudFileId.replaceAll('/', '_')}$ext';
@@ -277,8 +274,8 @@ extension SyncEngineAttachmentsExt on SyncEngine {
         }
       }
     }
-    logger.warning('SyncEngine',
-        '自定义图标下载失败 fileId=${job.cloudFileId}: $lastError');
+    logger.warning(
+        'SyncEngine', '自定义图标下载失败 fileId=${job.cloudFileId}: $lastError');
     return false;
   }
 
@@ -378,8 +375,8 @@ extension SyncEngineAttachmentsExt on SyncEngine {
           try {
             await file.delete();
           } catch (e) {
-            logger.warning(
-                'SyncEngine', 'pull delete: unlink custom icon failed $fileName: $e');
+            logger.warning('SyncEngine',
+                'pull delete: unlink custom icon failed $fileName: $e');
           }
         }
       }

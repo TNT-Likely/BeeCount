@@ -16,8 +16,8 @@ extension SyncEngineProfile on SyncEngine {
   /// `ProfileFieldApplied` 事件,UI 通过 syncEventStreamProvider 订阅处理。
   Future<bool> syncMyProfile() async {
     final localVersion = await AvatarService.getStoredRemoteVersion();
-    logger.info('avatar_sync',
-        'syncMyProfile start, localVersion=$localVersion');
+    logger.info(
+        'avatar_sync', 'syncMyProfile start, localVersion=$localVersion');
     bool anyChanged = false;
     try {
       final profile = await provider.getMyProfile();
@@ -67,8 +67,8 @@ extension SyncEngineProfile on SyncEngine {
       // === avatar ===
       final url = profile.avatarUrl;
       final remoteVersion = profile.avatarVersion;
-      logger.info('avatar_sync',
-          'got profile url=$url remoteVersion=$remoteVersion');
+      logger.info(
+          'avatar_sync', 'got profile url=$url remoteVersion=$remoteVersion');
       if (url == null || url.isEmpty) {
         logger.info('avatar_sync', 'server has no avatar, skip download');
         return anyChanged;
@@ -90,8 +90,8 @@ extension SyncEngineProfile on SyncEngine {
       logger.info('avatar_sync', 'downloaded size=${bytes.length}B');
       await AvatarService.saveAvatarFromBytes(bytes);
       await AvatarService.setStoredRemoteVersion(remoteVersion);
-      logger.info('avatar_sync',
-          'saved to local, bumped localVersion=$remoteVersion');
+      logger.info(
+          'avatar_sync', 'saved to local, bumped localVersion=$remoteVersion');
       // 真下载了头像才 emit AvatarChanged,让 UI bump avatarRefreshProvider。
       // up-to-date / no avatar 分支不触发,避免冷启动一次刷新。
       _emit(const AvatarChanged());

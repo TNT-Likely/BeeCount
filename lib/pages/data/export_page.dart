@@ -32,7 +32,8 @@ class _ExportPageState extends ConsumerState<ExportPage> {
     return Scaffold(
       body: Column(
         children: [
-          PrimaryHeader(title: AppLocalizations.of(context).exportTitle, showBack: true),
+          PrimaryHeader(
+              title: AppLocalizations.of(context).exportTitle, showBack: true),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -44,7 +45,9 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                   FilledButton.icon(
                     onPressed: exporting ? null : () => _export(repo, ledgerId),
                     icon: const Icon(Icons.save_alt_outlined),
-                    label: Text(Platform.isIOS ? AppLocalizations.of(context).exportButtonIOS : AppLocalizations.of(context).exportButtonAndroid),
+                    label: Text(Platform.isIOS
+                        ? AppLocalizations.of(context).exportButtonIOS
+                        : AppLocalizations.of(context).exportButtonAndroid),
                   ),
                   const SizedBox(height: 16),
                   if (exporting)
@@ -64,7 +67,8 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                     ),
                   if (savedPath != null) ...[
                     const SizedBox(height: 12),
-                    Text(AppLocalizations.of(context).exportSavedTo(savedPath!)),
+                    Text(
+                        AppLocalizations.of(context).exportSavedTo(savedPath!)),
                   ],
                 ],
               ),
@@ -100,7 +104,8 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       }
 
       // 获取交易和分类数据
-      final transactionsWithCategory = await repo.transactionsWithCategoryAll(ledgerId: ledgerId).first;
+      final transactionsWithCategory =
+          await repo.transactionsWithCategoryAll(ledgerId: ledgerId).first;
       final total = transactionsWithCategory.length;
       final rows = <List<dynamic>>[];
       final l10n = AppLocalizations.of(context);
@@ -111,7 +116,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
         l10n.exportCsvHeaderAmount,
         l10n.exportCsvHeaderAccount,
         l10n.exportCsvHeaderFromAccount, // 转出账户
-        l10n.exportCsvHeaderToAccount,   // 转入账户
+        l10n.exportCsvHeaderToAccount, // 转入账户
         l10n.exportCsvHeaderNote,
         l10n.exportCsvHeaderTime,
         l10n.exportCsvHeaderTags,
@@ -119,11 +124,13 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       ]);
 
       // 批量获取所有交易的标签
-      final transactionIds = transactionsWithCategory.map((tx) => tx.t.id).toList();
+      final transactionIds =
+          transactionsWithCategory.map((tx) => tx.t.id).toList();
       final tagsMap = await repo.getTagsForTransactions(transactionIds);
 
       // 批量获取所有交易的附件
-      final attachmentsMap = await repo.getAttachmentsForTransactions(transactionIds);
+      final attachmentsMap =
+          await repo.getAttachmentsForTransactions(transactionIds);
 
       // 缓存所有账户信息，避免重复查询
       final allAccounts = await repo.getAllAccounts();
@@ -186,7 +193,8 @@ class _ExportPageState extends ConsumerState<ExportPage> {
             if (c.level == 2 && c.parentId != null) {
               // 二级分类：分类列填一级分类名称，二级分类列填当前分类名称
               final parentCategory = allCategories[c.parentId];
-              categoryName = CategoryUtils.getDisplayName(parentCategory?.name, context);
+              categoryName =
+                  CategoryUtils.getDisplayName(parentCategory?.name, context);
               subCategoryName = CategoryUtils.getDisplayName(c.name, context);
             } else {
               // 一级分类：分类列填当前分类，二级分类列留空
@@ -205,7 +213,8 @@ class _ExportPageState extends ConsumerState<ExportPage> {
 
         // 获取该交易的附件，用逗号分隔文件名
         final transactionAttachments = attachmentsMap[t.id] ?? [];
-        final attachmentsStr = transactionAttachments.map((a) => a.fileName).join(',');
+        final attachmentsStr =
+            transactionAttachments.map((a) => a.fileName).join(',');
 
         rows.add([
           typeStr,
@@ -228,10 +237,11 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       final csvStr = const ListToCsvConverter(eol: '\n').convert(rows);
       final ts = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
       final path = p.join(directory, 'beecount_$ts.csv');
-      
+
       // 添加UTF-8 BOM标记，确保Excel正确识别中文编码
       const utf8Bom = '\uFEFF';
-      await File(path).writeAsString(utf8Bom + csvStr, encoding: Encoding.getByName('utf-8')!);
+      await File(path).writeAsString(utf8Bom + csvStr,
+          encoding: Encoding.getByName('utf-8')!);
       setState(() {
         savedPath = path;
         exporting = false;
@@ -241,17 +251,22 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       final l10nDialog = AppLocalizations.of(context);
       if (shareAfter) {
         // 触发分享面板
-        await Share.shareXFiles([XFile(path)], text: l10nDialog.exportShareText);
+        await Share.shareXFiles([XFile(path)],
+            text: l10nDialog.exportShareText);
         await AppDialog.info(context,
-            title: l10nDialog.exportSuccessTitle, message: l10nDialog.exportSuccessMessageIOS(path));
+            title: l10nDialog.exportSuccessTitle,
+            message: l10nDialog.exportSuccessMessageIOS(path));
       } else {
-        await AppDialog.info(context, title: l10nDialog.exportSuccessTitle, message: l10nDialog.exportSuccessMessageAndroid(path));
+        await AppDialog.info(context,
+            title: l10nDialog.exportSuccessTitle,
+            message: l10nDialog.exportSuccessMessageAndroid(path));
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => exporting = false);
       final l10nError = AppLocalizations.of(context);
-      await AppDialog.error(context, title: l10nError.exportFailedTitle, message: e.toString());
+      await AppDialog.error(context,
+          title: l10nError.exportFailedTitle, message: e.toString());
     }
   }
 

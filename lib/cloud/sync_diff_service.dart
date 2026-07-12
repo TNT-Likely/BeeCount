@@ -92,8 +92,8 @@ class SyncDiffService {
     }
 
     // 获取本地交易
-    final local = localTransactions ??
-        await repo.getTransactionsByLedger(ledgerId);
+    final local =
+        localTransactions ?? await repo.getTransactionsByLedger(ledgerId);
 
     // 批量获取本地交易的标签
     final localTxIds = local.map((t) => t.id).toList();
@@ -146,10 +146,8 @@ class SyncDiffService {
         ));
       } else {
         // 都有，检查是否有差异
-        final localTagNames = (tagsMap[localTx.id] ?? [])
-            .map((t) => t.name)
-            .toList()
-          ..sort();
+        final localTagNames =
+            (tagsMap[localTx.id] ?? []).map((t) => t.name).toList()..sort();
         final localAccountName = localTx.accountId != null
             ? accountIdToName[localTx.accountId]
             : null;
@@ -190,10 +188,11 @@ class SyncDiffService {
     // 按类型排序：新增 → 修改 → 删除
     changes.sort((a, b) => a.type.index.compareTo(b.type.index));
 
-    logger.info('SyncDiff',
+    logger.info(
+        'SyncDiff',
         '差异计算完成: 新增=${changes.where((c) => c.type == SyncChangeType.added).length}, '
-        '修改=${changes.where((c) => c.type == SyncChangeType.modified).length}, '
-        '删除=${changes.where((c) => c.type == SyncChangeType.deleted).length}');
+            '修改=${changes.where((c) => c.type == SyncChangeType.modified).length}, '
+            '删除=${changes.where((c) => c.type == SyncChangeType.deleted).length}');
 
     return SyncPreview(changes: changes);
   }
@@ -326,9 +325,8 @@ class SyncDiffService {
     // 批,一个 db.transaction 内 batch insert tx + tag + attachment + local_changes,
     // 把 N 次单条 await(WebDAV 1 万条全 added 要几十分钟)折叠成 N/500 批。
     if (addedChanges.isNotEmpty) {
-      final addedTxs = addedChanges
-          .map((c) => c.cloudTransaction!)
-          .toList(growable: false);
+      final addedTxs =
+          addedChanges.map((c) => c.cloudTransaction!).toList(growable: false);
       final result = await dataImportService.importTransactions(
         repo,
         ledgerId,
@@ -407,11 +405,10 @@ class SyncDiffService {
       }
       if (withSyncIds.isNotEmpty) {
         try {
-          final n =
-              await repo.deleteTransactionsBatchBySyncIds(withSyncIds);
+          final n = await repo.deleteTransactionsBatchBySyncIds(withSyncIds);
           deletedCount += n;
-          logger.info('SyncDiff',
-              '批量删除: syncId 路径 size=${withSyncIds.length} 实删=$n');
+          logger.info(
+              'SyncDiff', '批量删除: syncId 路径 size=${withSyncIds.length} 实删=$n');
         } catch (e, st) {
           logger.error('SyncDiff', '批量删除失败', e, st);
         }
@@ -469,8 +466,7 @@ class SyncDiffService {
     return null;
   }
 
-  List<int> _resolveTagIds(
-      ImportTransaction tx, Map<String, int> tagNameToId) {
+  List<int> _resolveTagIds(ImportTransaction tx, Map<String, int> tagNameToId) {
     if (tx.tagNames == null || tx.tagNames!.isEmpty) return [];
     return tx.tagNames!
         .map((name) => tagNameToId[name])

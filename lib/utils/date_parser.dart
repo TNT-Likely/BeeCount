@@ -58,8 +58,7 @@ class DateParser {
 
     // 匹配 "YYYY年MM月DD日 [HH:mm[:ss]]" 格式
     final regex = RegExp(
-      r'(\d{4})年(\d{1,2})月(\d{1,2})日(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?'
-    );
+        r'(\d{4})年(\d{1,2})月(\d{1,2})日(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?');
 
     final match = regex.firstMatch(trimmed);
     if (match == null) return null;

@@ -73,7 +73,8 @@ class _NotePickerDialogState extends ConsumerState<NotePickerDialog> {
               '历史备注',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600, color: BeeTokens.textPrimary(context)),
+                  fontWeight: FontWeight.w600,
+                  color: BeeTokens.textPrimary(context)),
             ),
             const SizedBox(height: 12),
             // 备注列表

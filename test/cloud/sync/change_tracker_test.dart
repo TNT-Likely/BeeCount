@@ -177,8 +177,7 @@ void main() {
   });
 
   group('综合:多账本场景下 user-global 变更被所有账本的 sync 链可见', () {
-    test('在任一具体账本触发 sync 时,user-global 变更应通过 getUnpushed(0) 一起带出',
-        () async {
+    test('在任一具体账本触发 sync 时,user-global 变更应通过 getUnpushed(0) 一起带出', () async {
       // 模拟真实场景:用户在 mobile 重命名 account(user-global 变更)+
       // 当前账本 5 又改了一笔交易(ledger-scoped 变更)。
       await tracker.recordUserGlobalChange(

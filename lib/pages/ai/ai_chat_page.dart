@@ -795,7 +795,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     final repo = ref.read(repositoryProvider);
     final message = await repo.getMessageById(messageId);
     if (message == null || message.metadata == null) {
-      if (mounted) showToast(context, AppLocalizations.of(context).aiChatUndone);
+      if (mounted)
+        showToast(context, AppLocalizations.of(context).aiChatUndone);
       return;
     }
 
@@ -975,7 +976,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         final idx = parsed.txIds.indexOf(transactionId);
         if (idx >= 0 && idx < parsed.bills.length) {
           final newBills = List<BillInfo>.from(parsed.bills);
-          newBills[idx] = parsed.bills[idx].copyWith(ledgerId: selectedLedgerId);
+          newBills[idx] =
+              parsed.bills[idx].copyWith(ledgerId: selectedLedgerId);
           await repo.updateMessage(message.copyWith(
             metadata: Value(_encodeBillMetadata(
               newBills,
@@ -1107,12 +1109,10 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           .whereType<Map>()
           .map((j) => BillInfo.fromJson(Map<String, dynamic>.from(j)))
           .toList();
-      final txIds = ((raw['txIds'] as List?) ?? const [])
-          .whereType<int>()
-          .toList();
-      final undoneIds = ((raw['undoneIds'] as List?) ?? const [])
-          .whereType<int>()
-          .toSet();
+      final txIds =
+          ((raw['txIds'] as List?) ?? const []).whereType<int>().toList();
+      final undoneIds =
+          ((raw['undoneIds'] as List?) ?? const []).whereType<int>().toSet();
       return (bills: bills, txIds: txIds, undoneIds: undoneIds);
     }
 

@@ -54,8 +54,8 @@ class AppCursorStore {
     final providerCursor = prefs.getInt(providerKey);
     if (providerCursor != null && providerCursor > 0) {
       await prefs.setInt(appKey, providerCursor);
-      logger.info('AppCursorStore',
-          '复制 provider cursor → app cursor: $providerCursor');
+      logger.info(
+          'AppCursorStore', '复制 provider cursor → app cursor: $providerCursor');
     }
   }
 
@@ -268,9 +268,10 @@ class LookupCache {
         _tx[s] = _TxCacheEntry(id: t.id, createdByUserId: t.createdByUserId);
       }
     }
-    logger.info('LookupCache',
+    logger.info(
+        'LookupCache',
         'prime: ledgers=${_ledger.length} categories=${_category.length} '
-        'accounts=${_account.length} tags=${_tag.length} transactions=${_tx.length}');
+            'accounts=${_account.length} tags=${_tag.length} transactions=${_tx.length}');
   }
 
   int? ledgerId(String? syncId) =>
@@ -281,6 +282,7 @@ class LookupCache {
       (syncId == null || syncId.isEmpty) ? null : _account[syncId];
   int? tagId(String? syncId) =>
       (syncId == null || syncId.isEmpty) ? null : _tag[syncId];
+
   /// `_TxCacheEntry` 是 part 内私有,仅供 apply 路径用,所以 ignore lint。
   // ignore: library_private_types_in_public_api
   _TxCacheEntry? transaction(String? syncId) =>

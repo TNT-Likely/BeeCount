@@ -109,139 +109,139 @@ class _InvitePageState extends ConsumerState<InvitePage> {
   Widget _buildForm(AppLocalizations l10n) {
     return SectionCard(
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l10n.sharedInviteFormRole,
-                style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: [
-                ChoiceChip(
-                  label: Text(l10n.sharedRoleEditor),
-                  selected: true,
-                  onSelected: (_) {},
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(l10n.sharedInviteFormExpiry,
-                style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: [
-                for (final h in _expiryOptions)
-                  ChoiceChip(
-                    label: Text(_expiryLabel(h, l10n)),
-                    selected: _expiresInHours == h,
-                    onSelected: _busy
-                        ? null
-                        : (sel) {
-                            if (sel) setState(() => _expiresInHours = h);
-                          },
-                  ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: _busy ? null : _generate,
-              icon: const Icon(Icons.qr_code_2_outlined),
-              label: _busy
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l10n.sharedInviteGenerate),
-            ),
-            if (_error != null) ...[
-              const SizedBox(height: 12),
-              Text(_error!,
-                  style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
-            ],
-            const SizedBox(height: 16),
-            Text(
-              l10n.sharedInviteWarning,
-              style: TextStyle(
-                color: BeeTokens.textTertiary(context),
-                fontSize: 12,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.sharedInviteFormRole,
+              style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              ChoiceChip(
+                label: Text(l10n.sharedRoleEditor),
+                selected: true,
+                onSelected: (_) {},
               ),
-            ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(l10n.sharedInviteFormExpiry,
+              style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              for (final h in _expiryOptions)
+                ChoiceChip(
+                  label: Text(_expiryLabel(h, l10n)),
+                  selected: _expiresInHours == h,
+                  onSelected: _busy
+                      ? null
+                      : (sel) {
+                          if (sel) setState(() => _expiresInHours = h);
+                        },
+                ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          FilledButton.icon(
+            onPressed: _busy ? null : _generate,
+            icon: const Icon(Icons.qr_code_2_outlined),
+            label: _busy
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.sharedInviteGenerate),
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: 12),
+            Text(_error!,
+                style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
           ],
-        ),
+          const SizedBox(height: 16),
+          Text(
+            l10n.sharedInviteWarning,
+            style: TextStyle(
+              color: BeeTokens.textTertiary(context),
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildShareView(BeeCountCloudInvite invite, AppLocalizations l10n) {
     return SectionCard(
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: SelectableText(
-                invite.formattedCode,
-                style: const TextStyle(
-                  fontSize: 36,
-                  letterSpacing: 6,
-                  fontFamily: 'monospace',
-                  fontWeight: FontWeight.w700,
-                ),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: SelectableText(
+              invite.formattedCode,
+              style: const TextStyle(
+                fontSize: 36,
+                letterSpacing: 6,
+                fontFamily: 'monospace',
+                fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 8),
-            Center(
-              child: Text(
-                l10n.sharedInviteExpiresAt(
-                  invite.expiresAt.toLocal().toString().split('.').first,
-                ),
-                style: TextStyle(
-                    color: BeeTokens.textTertiary(context), fontSize: 12),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: Text(
+              l10n.sharedInviteExpiresAt(
+                invite.expiresAt.toLocal().toString().split('.').first,
               ),
+              style: TextStyle(
+                  color: BeeTokens.textTertiary(context), fontSize: 12),
             ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.copy_outlined),
-                    label: Text(l10n.sharedInviteCopyCode),
-                    onPressed: () => _copy(invite.code, l10n),
-                  ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.copy_outlined),
+                  label: Text(l10n.sharedInviteCopyCode),
+                  onPressed: () => _copy(invite.code, l10n),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton.icon(
-                    icon: const Icon(Icons.share_outlined),
-                    label: Text(l10n.sharedInviteShareLink),
-                    onPressed: () => _share(invite, l10n),
-                  ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton.icon(
+                  icon: const Icon(Icons.share_outlined),
+                  label: Text(l10n.sharedInviteShareLink),
+                  onPressed: () => _share(invite, l10n),
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.link),
-              label: Text(l10n.sharedInviteCopyLink),
-              onPressed: () => _copy(invite.shareUrl, l10n),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              l10n.sharedInviteInstruction,
-              style: TextStyle(color: BeeTokens.textSecondary(context)),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _generated = null;
-                  _error = null;
-                });
-              },
-              child: Text(l10n.sharedInviteGenerateAnother),
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            icon: const Icon(Icons.link),
+            label: Text(l10n.sharedInviteCopyLink),
+            onPressed: () => _copy(invite.shareUrl, l10n),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            l10n.sharedInviteInstruction,
+            style: TextStyle(color: BeeTokens.textSecondary(context)),
+          ),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _generated = null;
+                _error = null;
+              });
+            },
+            child: Text(l10n.sharedInviteGenerateAnother),
+          ),
+        ],
+      ),
     );
   }
 }

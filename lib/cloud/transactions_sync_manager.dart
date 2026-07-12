@@ -189,8 +189,8 @@ class TransactionsSyncManager implements SyncService {
   }
 
   @override
-  Future<({int inserted, int deletedDup})>
-      downloadAndRestoreToCurrentLedger({required int ledgerId}) async {
+  Future<({int inserted, int deletedDup})> downloadAndRestoreToCurrentLedger(
+      {required int ledgerId}) async {
     await _ensureInitialized();
 
     if (_provider == null) {
@@ -212,8 +212,7 @@ class TransactionsSyncManager implements SyncService {
       // 导入数据
       final result = await importTransactionsJson(repo, ledgerId, jsonStr);
 
-      logger.info('CloudSync',
-          '下载完成: inserted=${result.inserted}');
+      logger.info('CloudSync', '下载完成: inserted=${result.inserted}');
 
       // 清除缓存
       _statusCache.remove(ledgerId);
@@ -242,7 +241,8 @@ class TransactionsSyncManager implements SyncService {
   /// 返回 (preview, importData, jsonVersion) 或 null（云端无数据）
   /// - preview 为 null 表示无法计算 diff（旧格式），应走全量替换
   /// - preview 不为 null 表示可以预览
-  Future<({SyncPreview? preview, ImportData importData, int version})?> downloadAndPreview({
+  Future<({SyncPreview? preview, ImportData importData, int version})?>
+      downloadAndPreview({
     required int ledgerId,
   }) async {
     await _ensureInitialized();
@@ -369,7 +369,8 @@ class TransactionsSyncManager implements SyncService {
       logger.info('CloudSync', '同步状态: $ledgerId -> ${status.diff}');
       logger.debug('CloudSync', '本地指纹: ${status.localFingerprint}');
       logger.debug('CloudSync', '云端指纹: ${status.cloudFingerprint ?? "无"}');
-      logger.debug('CloudSync', '本地数量: ${status.localCount}, 云端数量: ${status.cloudCount ?? "无"}');
+      logger.debug('CloudSync',
+          '本地数量: ${status.localCount}, 云端数量: ${status.cloudCount ?? "无"}');
 
       return status;
     } catch (e, stack) {
@@ -478,35 +479,32 @@ class TransactionsSyncManager implements SyncService {
   /// 从 JSON payload 计算内容指纹
   String _contentFingerprintFromMap(Map<String, dynamic> payload) {
     final items = (payload['items'] as List).cast<Map<String, dynamic>>();
-    final canon = items
-        .map((it) {
-          // 标签：排序后拼接，确保顺序一致
-          final tags = (it['tags'] as String?) ?? '';
-          final sortedTags = tags.isNotEmpty
-              ? (tags.split(',')..sort()).join(',')
-              : '';
-          // 账户：区分转账和普通交易
-          final accountName = it['accountName'] as String? ?? '';
-          final fromAccountName = it['fromAccountName'] as String? ?? '';
-          final toAccountName = it['toAccountName'] as String? ?? '';
-          // 转账交易不依赖分类，忽略 categoryName/categoryKind 避免跨设备分类缺失导致指纹不一致
-          final type = it['type'] as String? ?? '';
-          final isTransfer = type == 'transfer';
+    final canon = items.map((it) {
+      // 标签：排序后拼接，确保顺序一致
+      final tags = (it['tags'] as String?) ?? '';
+      final sortedTags =
+          tags.isNotEmpty ? (tags.split(',')..sort()).join(',') : '';
+      // 账户：区分转账和普通交易
+      final accountName = it['accountName'] as String? ?? '';
+      final fromAccountName = it['fromAccountName'] as String? ?? '';
+      final toAccountName = it['toAccountName'] as String? ?? '';
+      // 转账交易不依赖分类，忽略 categoryName/categoryKind 避免跨设备分类缺失导致指纹不一致
+      final type = it['type'] as String? ?? '';
+      final isTransfer = type == 'transfer';
 
-          return {
-            'happenedAt': it['happenedAt'] as String? ?? '',
-            'type': type,
-            'amount': (it['amount'] as num?)?.toDouble().toString() ?? '0.0',
-            'categoryName': isTransfer ? '' : (it['categoryName'] as String? ?? ''),
-            'categoryKind': isTransfer ? '' : (it['categoryKind'] as String? ?? ''),
-            'note': it['note'] as String? ?? '',
-            'tags': sortedTags,
-            'accountName': accountName,
-            'fromAccountName': fromAccountName,
-            'toAccountName': toAccountName,
-          };
-        })
-        .toList();
+      return {
+        'happenedAt': it['happenedAt'] as String? ?? '',
+        'type': type,
+        'amount': (it['amount'] as num?)?.toDouble().toString() ?? '0.0',
+        'categoryName': isTransfer ? '' : (it['categoryName'] as String? ?? ''),
+        'categoryKind': isTransfer ? '' : (it['categoryKind'] as String? ?? ''),
+        'note': it['note'] as String? ?? '',
+        'tags': sortedTags,
+        'accountName': accountName,
+        'fromAccountName': fromAccountName,
+        'toAccountName': toAccountName,
+      };
+    }).toList();
     canon.sort((a, b) {
       final c1 =
           (a['happenedAt'] as String).compareTo(b['happenedAt'] as String);
@@ -525,7 +523,8 @@ class TransactionsSyncManager implements SyncService {
     });
     final bytes = utf8.encode(jsonEncode(canon));
     final fp = sha256.convert(bytes).toString();
-    logger.debug('Fingerprint', '交易数: ${canon.length}, 指纹: ${fp.substring(0, 16)}...');
+    logger.debug(
+        'Fingerprint', '交易数: ${canon.length}, 指纹: ${fp.substring(0, 16)}...');
     return fp;
   }
 
@@ -561,7 +560,8 @@ class TransactionsSyncManager implements SyncService {
   }
 
   /// 获取本地账本列表
-  Future<List<LedgerDisplayItem>> getLocalLedgers({bool accountFeatureEnabled = true}) async {
+  Future<List<LedgerDisplayItem>> getLocalLedgers(
+      {bool accountFeatureEnabled = true}) async {
     await _ensureInitialized();
 
     final localLedgers = await db.select(db.ledgers).get();
@@ -705,7 +705,8 @@ class TransactionsSyncManager implements SyncService {
     // 组合结果
     final allLedgers = [...localLedgers, ...remoteLedgers];
 
-    logger.info('CloudSync', '已加载所有账本: 本地=${localLedgers.length}, 远程=${remoteLedgers.length}, 总计=${allLedgers.length}');
+    logger.info('CloudSync',
+        '已加载所有账本: 本地=${localLedgers.length}, 远程=${remoteLedgers.length}, 总计=${allLedgers.length}');
 
     return allLedgers;
   }
@@ -804,7 +805,8 @@ class TransactionsSyncManager implements SyncService {
         logger.warning('CloudSync', '云端账本不存在: $remotePath');
         // 只有新创建的账本才需要删除
         if (!reuseExistingByName) {
-          await (db.delete(db.ledgers)..where((t) => t.id.equals(ledgerId))).go();
+          await (db.delete(db.ledgers)..where((t) => t.id.equals(ledgerId)))
+              .go();
         }
         return null;
       }
@@ -812,8 +814,8 @@ class TransactionsSyncManager implements SyncService {
       // 导入数据
       final result = await importTransactionsJson(repo, ledgerId, jsonStr);
 
-      logger.info('CloudSync',
-          '下载完成: ledgerId=$ledgerId, inserted=${result.inserted}');
+      logger.info(
+          'CloudSync', '下载完成: ledgerId=$ledgerId, inserted=${result.inserted}');
 
       // 处理云端文件更新
       if (reuseExistingByName) {
@@ -822,7 +824,8 @@ class TransactionsSyncManager implements SyncService {
         if (remoteId != null && remoteId != ledgerId) {
           try {
             await _provider!.storage.delete(path: remotePath);
-            logger.info('CloudSync', '旧远程文件已删除: $remotePath (远程ID: $remoteId != 本地ID: $ledgerId)');
+            logger.info('CloudSync',
+                '旧远程文件已删除: $remotePath (远程ID: $remoteId != 本地ID: $ledgerId)');
           } catch (e) {
             logger.warning('CloudSync', '删除旧远程文件失败（忽略）: $e');
           }
@@ -949,7 +952,8 @@ class TransactionsSyncManager implements SyncService {
             );
 
             if (ledgerId != null) {
-              logger.info('CloudSync', '恢复成功: ${file.name} -> ledgerId=$ledgerId');
+              logger.info(
+                  'CloudSync', '恢复成功: ${file.name} -> ledgerId=$ledgerId');
               return true;
             } else {
               logger.warning('CloudSync', '恢复失败: ${file.name}');
@@ -1002,35 +1006,32 @@ class _TransactionSerializer implements fcs.DataSerializer<int> {
   /// 从 payload 计算内容指纹（Serializer 版本）
   String _contentFingerprintFromMap(Map<String, dynamic> payload) {
     final items = (payload['items'] as List).cast<Map<String, dynamic>>();
-    final canon = items
-        .map((it) {
-          // 标签：排序后拼接，确保顺序一致
-          final tags = (it['tags'] as String?) ?? '';
-          final sortedTags = tags.isNotEmpty
-              ? (tags.split(',')..sort()).join(',')
-              : '';
-          // 账户：区分转账和普通交易
-          final accountName = it['accountName'] as String? ?? '';
-          final fromAccountName = it['fromAccountName'] as String? ?? '';
-          final toAccountName = it['toAccountName'] as String? ?? '';
-          // 转账交易不依赖分类，忽略 categoryName/categoryKind 避免跨设备分类缺失导致指纹不一致
-          final type = it['type'] as String? ?? '';
-          final isTransfer = type == 'transfer';
+    final canon = items.map((it) {
+      // 标签：排序后拼接，确保顺序一致
+      final tags = (it['tags'] as String?) ?? '';
+      final sortedTags =
+          tags.isNotEmpty ? (tags.split(',')..sort()).join(',') : '';
+      // 账户：区分转账和普通交易
+      final accountName = it['accountName'] as String? ?? '';
+      final fromAccountName = it['fromAccountName'] as String? ?? '';
+      final toAccountName = it['toAccountName'] as String? ?? '';
+      // 转账交易不依赖分类，忽略 categoryName/categoryKind 避免跨设备分类缺失导致指纹不一致
+      final type = it['type'] as String? ?? '';
+      final isTransfer = type == 'transfer';
 
-          return {
-            'happenedAt': it['happenedAt'] as String? ?? '',
-            'type': type,
-            'amount': (it['amount'] as num?)?.toDouble().toString() ?? '0.0',
-            'categoryName': isTransfer ? '' : (it['categoryName'] as String? ?? ''),
-            'categoryKind': isTransfer ? '' : (it['categoryKind'] as String? ?? ''),
-            'note': it['note'] as String? ?? '',
-            'tags': sortedTags,
-            'accountName': accountName,
-            'fromAccountName': fromAccountName,
-            'toAccountName': toAccountName,
-          };
-        })
-        .toList();
+      return {
+        'happenedAt': it['happenedAt'] as String? ?? '',
+        'type': type,
+        'amount': (it['amount'] as num?)?.toDouble().toString() ?? '0.0',
+        'categoryName': isTransfer ? '' : (it['categoryName'] as String? ?? ''),
+        'categoryKind': isTransfer ? '' : (it['categoryKind'] as String? ?? ''),
+        'note': it['note'] as String? ?? '',
+        'tags': sortedTags,
+        'accountName': accountName,
+        'fromAccountName': fromAccountName,
+        'toAccountName': toAccountName,
+      };
+    }).toList();
     canon.sort((a, b) {
       final c1 =
           (a['happenedAt'] as String).compareTo(b['happenedAt'] as String);
@@ -1049,7 +1050,8 @@ class _TransactionSerializer implements fcs.DataSerializer<int> {
     });
     final bytes = utf8.encode(jsonEncode(canon));
     final fp = sha256.convert(bytes).toString();
-    logger.debug('Fingerprint-Serializer', '交易数: ${canon.length}, 指纹: ${fp.substring(0, 16)}...');
+    logger.debug('Fingerprint-Serializer',
+        '交易数: ${canon.length}, 指纹: ${fp.substring(0, 16)}...');
     return fp;
   }
 }

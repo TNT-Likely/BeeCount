@@ -7,7 +7,8 @@ part of '../header_skins.dart';
 //   自身的 fill-opacity 表现(暗黑底为纯黑,主题色自然偏淡);themed=false(默认):
 //   按 SVG 自带的内联 fill 渲染(固定配色)。
 class _ImageSkin extends StatelessWidget {
-  const _ImageSkin(this.asset, this.primary, this.isDark, {this.themed = false});
+  const _ImageSkin(this.asset, this.primary, this.isDark,
+      {this.themed = false});
   final String asset;
   final Color primary;
   final bool isDark;

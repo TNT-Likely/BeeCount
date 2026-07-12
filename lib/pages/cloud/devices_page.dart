@@ -88,7 +88,8 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
           AppLocalizations.of(context).cloudCollabUnavailableMessage);
     }
     final services = await createCloudServices(config);
-    if (services.provider == null || services.provider is! BeeCountCloudProvider) {
+    if (services.provider == null ||
+        services.provider is! BeeCountCloudProvider) {
       throw StateError(
           AppLocalizations.of(context).cloudCollabUnavailableMessage);
     }

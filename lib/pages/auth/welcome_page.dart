@@ -98,7 +98,9 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
             Expanded(
               child: PageView(
                 controller: _pageController,
-                physics: _isExistingUserFlow ? const NeverScrollableScrollPhysics() : null,
+                physics: _isExistingUserFlow
+                    ? const NeverScrollableScrollPhysics()
+                    : null,
                 onPageChanged: (index) {
                   setState(() {
                     _currentPage = index;
@@ -144,7 +146,9 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                       )
                     else
                       FilledButton(
-                        onPressed: _isInitializing ? null : () => _finishWelcome(context),
+                        onPressed: _isInitializing
+                            ? null
+                            : () => _finishWelcome(context),
                         style: FilledButton.styleFrom(
                           backgroundColor: Colors.white,
                           foregroundColor: theme.primaryColor,
@@ -153,13 +157,14 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
                             : Text(l10n.commonFinish),
                       ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -253,14 +258,16 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
               itemBuilder: (context, index) {
                 final locale = availableLocales[index];
                 final isSelected = currentLocale == locale;
-                final displayName = languageNotifier.getLanguageDisplayName(context, locale);
+                final displayName =
+                    languageNotifier.getLanguageDisplayName(context, locale);
 
                 return InkWell(
                   onTap: () {
                     languageNotifier.setLanguage(locale);
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     child: Row(
                       children: [
                         Expanded(
@@ -268,7 +275,9 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                             displayName,
                             style: theme.textTheme.bodyLarge?.copyWith(
                               color: Colors.white,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                             ),
                           ),
                         ),
@@ -469,8 +478,8 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                 });
               },
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
                     Icon(
@@ -702,12 +711,14 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
         await launchUrl(url, mode: LaunchMode.externalApplication);
       } else {
         if (context.mounted) {
-          showToast(context, AppLocalizations.of(context).privacyOpenSourceUrlError);
+          showToast(
+              context, AppLocalizations.of(context).privacyOpenSourceUrlError);
         }
       }
     } catch (e) {
       if (context.mounted) {
-        showToast(context, AppLocalizations.of(context).privacyOpenSourceUrlError);
+        showToast(
+            context, AppLocalizations.of(context).privacyOpenSourceUrlError);
       }
     }
   }
@@ -729,7 +740,8 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
       // 多币种 MVP:主币种随初始化选币一并落定,新装用户开箱即正确
       await prefs.setString('baseCurrency', _selectedCurrency);
       // 同步 provider:splash init 已先行兜底 CNY,这里用用户所选币种即时纠正(首会话即正确)
-      ref.read(baseCurrencyProvider.notifier).state = _selectedCurrency.toUpperCase();
+      ref.read(baseCurrencyProvider.notifier).state =
+          _selectedCurrency.toUpperCase();
 
       // 初始化数据库（使用用户选择的语言和设置）
       if (context.mounted) {
@@ -912,7 +924,9 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
 
           // 导入按钮
           FilledButton.icon(
-            onPressed: _isImportingAttachment ? null : () => _importAttachments(context),
+            onPressed: _isImportingAttachment
+                ? null
+                : () => _importAttachments(context),
             icon: _isImportingAttachment
                 ? const SizedBox(
                     width: 18,
@@ -992,11 +1006,13 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
       if (!context.mounted) return;
 
       if (importResult.success) {
-        showToast(context, l10n.welcomeImportAttachmentSuccess(importResult.imported));
+        showToast(context,
+            l10n.welcomeImportAttachmentSuccess(importResult.imported));
         // 导入成功，完成流程
         _finishExistingUserFlow();
       } else {
-        showToast(context, l10n.welcomeImportAttachmentFailed(importResult.message ?? ''));
+        showToast(context,
+            l10n.welcomeImportAttachmentFailed(importResult.message ?? ''));
       }
     } catch (e, st) {
       logger.error('welcome', '导入附件失败', e, st);
@@ -1136,7 +1152,8 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
               : Colors.white.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.3),
+            color:
+                isSelected ? Colors.white : Colors.white.withValues(alpha: 0.3),
             width: 2,
           ),
         ),
@@ -1146,7 +1163,9 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
             Row(
               children: [
                 Icon(
-                  isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                  isSelected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
                   color: Colors.white,
                   size: 24,
                 ),
@@ -1176,27 +1195,27 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
             ),
             const SizedBox(height: 12),
             ...features.map((feature) => Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.check_circle_outline,
-                    color: Colors.white.withValues(alpha: 0.8),
-                    size: 16,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      feature,
-                      style: theme.textTheme.bodySmall?.copyWith(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.check_circle_outline,
                         color: Colors.white.withValues(alpha: 0.8),
+                        size: 16,
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          feature,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            )),
+                )),
           ],
         ),
       ),

@@ -6,7 +6,8 @@ import '../automation/auto_billing_service.dart';
 
 /// Google Play 版本(CI 注入)。Photo & Video Permissions 政策禁止记账类 app
 /// 长期持有 READ_MEDIA_IMAGES,所以 Google Play 版本砍掉截屏自动记账功能。
-const _isGooglePlayBuild = bool.fromEnvironment('GOOGLE_PLAY', defaultValue: false);
+const _isGooglePlayBuild =
+    bool.fromEnvironment('GOOGLE_PLAY', defaultValue: false);
 
 /// 截图监听服务（Android专用）
 /// 监听系统截图事件，并调用通用的AutoBillingService进行OCR识别和记账
@@ -60,7 +61,8 @@ class ScreenshotMonitorService {
       print('📸 [ScreenshotMonitor] 开始启用截图监听...');
 
       if (_isGooglePlayBuild) {
-        throw UnsupportedError('Screenshot monitoring is not available in Google Play builds');
+        throw UnsupportedError(
+            'Screenshot monitoring is not available in Google Play builds');
       }
 
       // 只在 Android 平台启用
@@ -76,7 +78,8 @@ class ScreenshotMonitorService {
       _isEnabled = true;
       _isMonitoring = true;
 
-      print('✅ [ScreenshotMonitor] 截图监听已启用，_isEnabled=$_isEnabled, _isMonitoring=$_isMonitoring');
+      print(
+          '✅ [ScreenshotMonitor] 截图监听已启用，_isEnabled=$_isEnabled, _isMonitoring=$_isMonitoring');
     } catch (e) {
       print('❌ [ScreenshotMonitor] 启用截图监听失败: $e');
       rethrow;
@@ -105,7 +108,8 @@ class ScreenshotMonitorService {
   /// 处理截图
   Future<void> _handleScreenshot(String path) async {
     print('📸 [ScreenshotMonitor] _handleScreenshot 被调用，path=$path');
-    print('📸 [ScreenshotMonitor] 当前状态: _isEnabled=$_isEnabled, _isMonitoring=$_isMonitoring');
+    print(
+        '📸 [ScreenshotMonitor] 当前状态: _isEnabled=$_isEnabled, _isMonitoring=$_isMonitoring');
 
     if (!_isEnabled || !_isMonitoring) {
       print('⚠️ [ScreenshotMonitor] 截图监听未启用或未监控，跳过处理');

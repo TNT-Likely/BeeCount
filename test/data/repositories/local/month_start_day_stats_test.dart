@@ -30,9 +30,9 @@ void main() {
   test('monthlyTotals 按起始日聚合: 6月标签 = [6.15, 7.15)', () async {
     final lid = await seedLedger(monthStartDay: 15);
     await addTx(lid, 'expense', 10, DateTime(2026, 6, 14, 23, 59)); // 5月周期
-    await addTx(lid, 'expense', 20, DateTime(2026, 6, 15));          // 6月周期
+    await addTx(lid, 'expense', 20, DateTime(2026, 6, 15)); // 6月周期
     await addTx(lid, 'expense', 40, DateTime(2026, 7, 14, 23, 59)); // 6月周期
-    await addTx(lid, 'expense', 80, DateTime(2026, 7, 15));          // 7月周期
+    await addTx(lid, 'expense', 80, DateTime(2026, 7, 15)); // 7月周期
 
     final (_, expense) =
         await repo.monthlyTotals(ledgerId: lid, month: DateTime(2026, 6, 1));

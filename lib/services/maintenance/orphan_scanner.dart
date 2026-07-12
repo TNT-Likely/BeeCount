@@ -86,7 +86,8 @@ class OrphanScanner {
         localId: budgetId,
         syncId: row.readNullable<String>('sync_id'),
         title: '预算 #$budgetId',
-        subtitle: '$budgetType · ¥${amount.toStringAsFixed(0)} · 账本已删 (ledgerId=$ledgerId)',
+        subtitle:
+            '$budgetType · ¥${amount.toStringAsFixed(0)} · 账本已删 (ledgerId=$ledgerId)',
       );
     }).toList();
   }
@@ -229,7 +230,8 @@ class OrphanScanner {
         type: OrphanType.txMissingCategory,
         localId: txId,
         title: '交易 #$txId',
-        subtitle: '$txType · ¥${amount.toStringAsFixed(2)} · 分类已删 (categoryId=$catId)',
+        subtitle:
+            '$txType · ¥${amount.toStringAsFixed(2)} · 分类已删 (categoryId=$catId)',
       );
     }).toList();
   }
@@ -279,7 +281,8 @@ class OrphanScanner {
         type: OrphanType.budgetMissingCategory,
         localId: budgetId,
         title: '预算 #$budgetId',
-        subtitle: '$budgetType · ¥${amount.toStringAsFixed(0)} · 分类已删 (categoryId=$catId)',
+        subtitle:
+            '$budgetType · ¥${amount.toStringAsFixed(0)} · 分类已删 (categoryId=$catId)',
       );
     }).toList();
   }
@@ -354,12 +357,10 @@ class OrphanScanner {
         .cast<File>()
         .toList();
     if (filesOnDisk.isEmpty) return const [];
-    final referenced = (await db
-            .customSelect(
-              'SELECT DISTINCT file_name FROM transaction_attachments',
-              readsFrom: {db.transactionAttachments},
-            )
-            .get())
+    final referenced = (await db.customSelect(
+      'SELECT DISTINCT file_name FROM transaction_attachments',
+      readsFrom: {db.transactionAttachments},
+    ).get())
         .map((r) => r.read<String>('file_name'))
         .toSet();
     final result = <OrphanRecord>[];
@@ -398,13 +399,11 @@ class OrphanScanner {
         .where((f) => !p.basename(f.path).startsWith('shared_'))
         .toList();
     if (filesOnDisk.isEmpty) return const [];
-    final referenced = (await db
-            .customSelect(
-              "SELECT DISTINCT custom_icon_path FROM categories "
-              "WHERE custom_icon_path IS NOT NULL AND custom_icon_path != ''",
-              readsFrom: {db.categories},
-            )
-            .get())
+    final referenced = (await db.customSelect(
+      "SELECT DISTINCT custom_icon_path FROM categories "
+      "WHERE custom_icon_path IS NOT NULL AND custom_icon_path != ''",
+      readsFrom: {db.categories},
+    ).get())
         .map((r) => p.basename(r.read<String>('custom_icon_path')))
         .toSet();
     final result = <OrphanRecord>[];
@@ -440,13 +439,11 @@ class OrphanScanner {
         .where((f) => p.basename(f.path).startsWith('shared_'))
         .toList();
     if (filesOnDisk.isEmpty) return const [];
-    final referenced = (await db
-            .customSelect(
-              "SELECT DISTINCT icon_cloud_sha256 FROM shared_ledger_categories "
-              "WHERE icon_cloud_sha256 IS NOT NULL AND icon_cloud_sha256 != ''",
-              readsFrom: {db.sharedLedgerCategories},
-            )
-            .get())
+    final referenced = (await db.customSelect(
+      "SELECT DISTINCT icon_cloud_sha256 FROM shared_ledger_categories "
+      "WHERE icon_cloud_sha256 IS NOT NULL AND icon_cloud_sha256 != ''",
+      readsFrom: {db.sharedLedgerCategories},
+    ).get())
         .map((r) => r.read<String>('icon_cloud_sha256'))
         .toSet();
     final result = <OrphanRecord>[];

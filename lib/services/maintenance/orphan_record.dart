@@ -120,8 +120,8 @@ class OrphanScanReport {
   int get totalCount =>
       dbOrphans.length + fileOrphans.length + syncOrphans.length;
 
-  int get totalSizeBytes => fileOrphans.fold<int>(
-      0, (sum, r) => sum + (r.sizeBytes ?? 0));
+  int get totalSizeBytes =>
+      fileOrphans.fold<int>(0, (sum, r) => sum + (r.sizeBytes ?? 0));
 
   Iterable<OrphanRecord> get all sync* {
     yield* dbOrphans;
@@ -151,6 +151,6 @@ class OrphanCleanResult {
   bool get hasFailure => failures.isNotEmpty;
   int get totalAttempted => successCount + failures.length;
 
-  static const empty =
-      OrphanCleanResult(successCount: 0, failures: <({OrphanRecord record, String error})>[]);
+  static const empty = OrphanCleanResult(
+      successCount: 0, failures: <({OrphanRecord record, String error})>[]);
 }

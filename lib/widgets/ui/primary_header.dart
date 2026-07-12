@@ -84,7 +84,8 @@ class PrimaryHeader extends ConsumerWidget {
       child: Material(
         color: Colors.transparent,
         child: Container(
-          decoration: decoration ?? BoxDecoration(color: headerBg), // ⭐ 根据设置决定背景色
+          decoration:
+              decoration ?? BoxDecoration(color: headerBg), // ⭐ 根据设置决定背景色
           child: Stack(
             children: [
               // ⭐ 头部皮肤层(主题色之上的装饰);未选皮肤时为纯主题色 / 纯黑
@@ -96,105 +97,116 @@ class PrimaryHeader extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                if (showTitleSection)
-                  Padding(
-                    padding: effectivePadding,
-                    child: Row(
-                      children: [
-                        if (showBack) ...[
-                          IconButton(
-                            icon: Icon(Icons.arrow_back, color: iconColor), // ⭐ 自适应颜色
-                            onPressed: () => Navigator.of(context).maybePop(),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            style: IconButton.styleFrom(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                        ],
-                        if (leadingIcon != null) ...[
-                          leadingPlain
-                              ? Icon(leadingIcon, color: iconColor)
-                              : Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.2),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(leadingIcon, color: iconColor),
+                    if (showTitleSection)
+                      Padding(
+                        padding: effectivePadding,
+                        child: Row(
+                          children: [
+                            if (showBack) ...[
+                              IconButton(
+                                icon: Icon(Icons.arrow_back,
+                                    color: iconColor), // ⭐ 自适应颜色
+                                onPressed: () =>
+                                    Navigator.of(context).maybePop(),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                style: IconButton.styleFrom(
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
-                          const SizedBox(width: 8),
-                        ],
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      title,
-                                      style: titleStyle.copyWith(color: textColor), // ⭐ 自适应颜色
-                                      overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            if (leadingIcon != null) ...[
+                              leadingPlain
+                                  ? Icon(leadingIcon, color: iconColor)
+                                  : Container(
+                                      width: 36,
+                                      height: 36,
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Colors.white.withValues(alpha: 0.2),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child:
+                                          Icon(leadingIcon, color: iconColor),
                                     ),
+                              const SizedBox(width: 8),
+                            ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          title,
+                                          style: titleStyle.copyWith(
+                                              color: textColor), // ⭐ 自适应颜色
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      if (titleTrailing != null) ...[
+                                        const SizedBox(width: 6),
+                                        titleTrailing!,
+                                      ],
+                                    ],
                                   ),
-                                  if (titleTrailing != null) ...[
-                                    const SizedBox(width: 6),
-                                    titleTrailing!,
-                                  ],
+                                  if (subtitle != null)
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            subtitle!,
+                                            style: subStyle.copyWith(
+                                              color: BeeTokens.textSecondary(
+                                                  context),
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        if (subtitleTrailing != null) ...[
+                                          const SizedBox(width: 6),
+                                          subtitleTrailing!,
+                                        ]
+                                      ],
+                                    ),
                                 ],
                               ),
-                              if (subtitle != null)
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        subtitle!,
-                                        style: subStyle.copyWith(
-                                          color: BeeTokens.textSecondary(context),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    if (subtitleTrailing != null) ...[
-                                      const SizedBox(width: 6),
-                                      subtitleTrailing!,
-                                    ]
-                                  ],
-                                ),
+                            ),
+                            if (center != null) ...[
+                              const SizedBox(width: 6),
+                              DefaultTextStyle(
+                                style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium
+                                        ?.copyWith(
+                                          color: iconColor, // ⭐ 自适应颜色
+                                        ) ??
+                                    TextStyle(fontSize: 12, color: iconColor),
+                                child: center!,
+                              ),
                             ],
+                            if (actions != null) ...actions!,
+                          ],
+                        ),
+                      ),
+                    if (content != null)
+                      Padding(
+                        padding: effectivePadding,
+                        child: DefaultTextStyle(
+                          style: DefaultTextStyle.of(context).style.copyWith(
+                                color: textColor, // ⭐ 自适应颜色
+                              ),
+                          child: IconTheme(
+                            data: IconThemeData(color: iconColor), // ⭐ 自适应颜色
+                            child: content!,
                           ),
                         ),
-                        if (center != null) ...[
-                          const SizedBox(width: 6),
-                          DefaultTextStyle(
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: iconColor, // ⭐ 自适应颜色
-                            ) ?? TextStyle(fontSize: 12, color: iconColor),
-                            child: center!,
-                          ),
-                        ],
-                        if (actions != null) ...actions!,
-                      ],
-                    ),
-                  ),
-                if (content != null)
-                  Padding(
-                    padding: effectivePadding,
-                    child: DefaultTextStyle(
-                      style: DefaultTextStyle.of(context).style.copyWith(
-                        color: textColor, // ⭐ 自适应颜色
                       ),
-                      child: IconTheme(
-                        data: IconThemeData(color: iconColor), // ⭐ 自适应颜色
-                        child: content!,
-                      ),
-                    ),
-                  ),
                     if (bottom != null) bottom!,
                   ],
                 ),

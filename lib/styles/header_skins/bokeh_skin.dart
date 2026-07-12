@@ -42,7 +42,11 @@ class _BokehPainter extends CustomPainter {
     final rnd = math.Random(7); // 固定种子,保持稳定
     final palette = isDark
         ? [primary, _hueShift(primary, 30), _lighten(primary, 0.2)]
-        : [Colors.white, _lighten(primary, 0.25), _lighten(_hueShift(primary, 35), 0.15)];
+        : [
+            Colors.white,
+            _lighten(primary, 0.25),
+            _lighten(_hueShift(primary, 35), 0.15)
+          ];
     for (int i = 0; i < 9; i++) {
       final x = rnd.nextDouble() * size.width;
       final y = rnd.nextDouble() * size.height;

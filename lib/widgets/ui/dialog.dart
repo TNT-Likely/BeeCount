@@ -127,10 +127,17 @@ class AppDialog {
   }) {
     final l10n = AppLocalizations.of(context);
     actions ??= [
-      (label: l10n.commonCancel, onTap: () => Navigator.pop(context), primary: false),
-      (label: l10n.commonConfirm, onTap: () => Navigator.pop(context), primary: true),
+      (
+        label: l10n.commonCancel,
+        onTap: () => Navigator.pop(context),
+        primary: false
+      ),
+      (
+        label: l10n.commonConfirm,
+        onTap: () => Navigator.pop(context),
+        primary: true
+      ),
     ];
-
 
     return showDialog<T>(
       context: context,
@@ -150,17 +157,18 @@ class AppDialog {
                 title,
                 textAlign: TextAlign.center,
                 style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600, color: BeeTokens.textPrimary(ctx)),
+                    fontWeight: FontWeight.w600,
+                    color: BeeTokens.textPrimary(ctx)),
               ),
               const SizedBox(height: 12),
               Flexible(
                 child: SingleChildScrollView(
                   child: Text(
-                    message.replaceAll('\\n', '\n'),  // 处理转义的换行符
+                    message.replaceAll('\\n', '\n'), // 处理转义的换行符
                     textAlign: TextAlign.left,
                     style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                      color: BeeTokens.textSecondary(ctx),
-                    ),
+                          color: BeeTokens.textSecondary(ctx),
+                        ),
                   ),
                 ),
               ),
@@ -202,5 +210,4 @@ class AppDialog {
       ),
     );
   }
-
 }

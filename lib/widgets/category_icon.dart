@@ -55,12 +55,15 @@ class CategoryIconWidget extends ConsumerWidget {
     final iconColor = color ?? primaryColor;
 
     // 检查是否有自定义图标
-    if (category != null && category!.iconType == 'custom' && category!.customIconPath != null) {
+    if (category != null &&
+        category!.iconType == 'custom' &&
+        category!.customIconPath != null) {
       return _buildCustomIcon(category!.customIconPath!, iconColor);
     }
 
     // 使用 Material Icon
-    final iconData = getCategoryIconData(category: category, categoryName: categoryName);
+    final iconData =
+        getCategoryIconData(category: category, categoryName: categoryName);
 
     if (showBackground) {
       return Container(

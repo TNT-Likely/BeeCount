@@ -256,8 +256,7 @@ class _BeeCountCloudSyncPageState extends ConsumerState<BeeCountCloudSyncPage> {
         title: l10n.cloudReloginTitle,
         subtitle: cachedEmail,
         onTap: () async {
-          final provider =
-              ref.read(beecountCloudProviderInstance).valueOrNull;
+          final provider = ref.read(beecountCloudProviderInstance).valueOrNull;
           if (provider == null) {
             if (mounted) showToast(context, l10n.cloudReloginFailed);
             return;
@@ -302,8 +301,8 @@ class _BeeCountCloudSyncPageState extends ConsumerState<BeeCountCloudSyncPage> {
       child: ExpansionTile(
         tilePadding: EdgeInsets.zero,
         childrenPadding: const EdgeInsets.only(bottom: 4),
-        leading: Icon(Icons.help_outline,
-            color: BeeTokens.iconSecondary(context)),
+        leading:
+            Icon(Icons.help_outline, color: BeeTokens.iconSecondary(context)),
         title: Text(
           l10n.cloudSyncHelpTitle,
           style: TextStyle(
@@ -426,9 +425,8 @@ class _BeeCountCloudSyncPageState extends ConsumerState<BeeCountCloudSyncPage> {
       );
     }
 
-    final summary = effective.hasDiff
-        ? l10n.syncHealthHasDiff
-        : l10n.syncHealthInSync;
+    final summary =
+        effective.hasDiff ? l10n.syncHealthHasDiff : l10n.syncHealthInSync;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -447,14 +445,17 @@ class _BeeCountCloudSyncPageState extends ConsumerState<BeeCountCloudSyncPage> {
         // 当前账本口径:tx / 附件 / 预算随 ledger 走
         _groupHeader(context, l10n.syncHealthGroupCurrentLedger),
         _pairRow(context, l10n.syncHealthRowTx, effective.ledgerTx),
-        _pairRow(context, l10n.syncHealthRowAttachment, effective.ledgerAttachments),
+        _pairRow(
+            context, l10n.syncHealthRowAttachment, effective.ledgerAttachments),
         _pairRow(context, l10n.syncHealthRowBudget, effective.ledgerBudgets),
         const SizedBox(height: 8),
         // 全部账本口径:tx/附件/预算 合计 + 用户级的 account/category/tag
         _groupHeader(context, l10n.syncHealthGroupAll),
         _pairRow(context, l10n.syncHealthRowTx, effective.totalTx),
-        _pairRow(context, l10n.syncHealthRowAttachment, effective.totalAttachments),
-        _pairRow(context, l10n.syncHealthRowCategoryIcon, effective.categoryAttachments),
+        _pairRow(
+            context, l10n.syncHealthRowAttachment, effective.totalAttachments),
+        _pairRow(context, l10n.syncHealthRowCategoryIcon,
+            effective.categoryAttachments),
         _pairRow(context, l10n.syncHealthRowBudget, effective.totalBudgets),
         _pairRow(context, l10n.syncHealthRowAccount, effective.accounts),
         _pairRow(context, l10n.syncHealthRowCategory, effective.categories),
@@ -499,13 +500,14 @@ class _BeeCountCloudSyncPageState extends ConsumerState<BeeCountCloudSyncPage> {
           Expanded(
             child: Text(
               pair.remote < 0
-                  ? AppLocalizations.of(context).syncHealthValueRemoteMissing(pair.local)
-                  : AppLocalizations.of(context).syncHealthValue(pair.local, pair.remote),
+                  ? AppLocalizations.of(context)
+                      .syncHealthValueRemoteMissing(pair.local)
+                  : AppLocalizations.of(context)
+                      .syncHealthValue(pair.local, pair.remote),
               style: TextStyle(
                 fontSize: 13,
-                color: mismatch
-                    ? Colors.orange
-                    : BeeTokens.textPrimary(context),
+                color:
+                    mismatch ? Colors.orange : BeeTokens.textPrimary(context),
                 fontWeight: mismatch ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
@@ -536,9 +538,8 @@ class _BeeCountCloudSyncPageState extends ConsumerState<BeeCountCloudSyncPage> {
               '$count',
               style: TextStyle(
                 fontSize: 13,
-                color: highlight
-                    ? Colors.orange
-                    : BeeTokens.textPrimary(context),
+                color:
+                    highlight ? Colors.orange : BeeTokens.textPrimary(context),
                 fontWeight: highlight ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
@@ -578,8 +579,7 @@ class _TwoFactorStatusRowState extends ConsumerState<_TwoFactorStatusRow> {
 
   Future<void> _load() async {
     try {
-      final provider =
-          await ref.read(beecountCloudProviderInstance.future);
+      final provider = await ref.read(beecountCloudProviderInstance.future);
       if (provider == null) {
         if (mounted) {
           setState(() {

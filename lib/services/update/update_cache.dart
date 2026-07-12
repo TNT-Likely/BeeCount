@@ -149,12 +149,14 @@ class UpdateCache {
       const maxValidSize = 200 * 1024 * 1024; // 200MB
 
       if (fileSize < minValidSize) {
-        logger.warning('UpdateCache', 'APK文件太小，可能不完整: $fileSize字节 (最小$minValidSize字节)');
+        logger.warning(
+            'UpdateCache', 'APK文件太小，可能不完整: $fileSize字节 (最小$minValidSize字节)');
         return false;
       }
 
       if (fileSize > maxValidSize) {
-        logger.warning('UpdateCache', 'APK文件太大，可能异常: $fileSize字节 (最大$maxValidSize字节)');
+        logger.warning(
+            'UpdateCache', 'APK文件太大，可能异常: $fileSize字节 (最大$maxValidSize字节)');
         return false;
       }
 

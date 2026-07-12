@@ -12,6 +12,7 @@ import '../../data/repositories/local/local_repository.dart';
 class AIQuickCommandService {
   final BeeDatabase db;
   final int ledgerId;
+
   /// 读取账本每月起始日(走 repo 注入,不在本文件再扩 db 直查)
   final Future<int> Function() monthStartDayLoader;
 
@@ -119,13 +120,15 @@ class AIQuickCommandService {
       final categoryTotals = <int, double>{};
       for (final t in transactions) {
         if (t.categoryId != null) {
-          categoryTotals[t.categoryId!] = (categoryTotals[t.categoryId!] ?? 0) + t.amount;
+          categoryTotals[t.categoryId!] =
+              (categoryTotals[t.categoryId!] ?? 0) + t.amount;
         }
       }
 
       // 获取分类名称并排序
       final categoryList = <String>[];
-      final totalExpense = transactions.fold<double>(0, (sum, t) => sum + t.amount);
+      final totalExpense =
+          transactions.fold<double>(0, (sum, t) => sum + t.amount);
 
       final sortedEntries = categoryTotals.entries.toList()
         ..sort((a, b) => b.value.compareTo(a.value));
@@ -136,8 +139,10 @@ class AIQuickCommandService {
             .getSingleOrNull();
 
         if (category != null) {
-          final percentage = (entry.value / totalExpense * 100).toStringAsFixed(1);
-          categoryList.add('- ${category.name}: ${_formatAmount(entry.value)} ($percentage%)');
+          final percentage =
+              (entry.value / totalExpense * 100).toStringAsFixed(1);
+          categoryList.add(
+              '- ${category.name}: ${_formatAmount(entry.value)} ($percentage%)');
         }
       }
 
@@ -182,7 +187,8 @@ ${categoryList.join('\n')}
         final date = t.happenedAt.toString().substring(0, 10);
         final typeStr = t.type == 'income' ? '收入' : '支出';
         final amountStr = _formatAmount(t.amount);
-        final noteStr = t.note != null && t.note!.isNotEmpty ? ' (${t.note})' : '';
+        final noteStr =
+            t.note != null && t.note!.isNotEmpty ? ' (${t.note})' : '';
 
         list.add('- $date $typeStr $amountStr ${categoryName ?? ""}$noteStr');
       }
@@ -229,7 +235,8 @@ ${list.join('\n')}
         }
 
         final monthStr = '${month.year}年${month.month}月';
-        trends.add('- $monthStr: 收入${_formatAmount(income)}, 支出${_formatAmount(expense)}');
+        trends.add(
+            '- $monthStr: 收入${_formatAmount(income)}, 支出${_formatAmount(expense)}');
       }
 
       return '''
@@ -293,7 +300,8 @@ ${trends.join('\n')}
 }
 
 /// Provider for AIQuickCommandService
-final aiQuickCommandServiceProvider = Provider.family<AIQuickCommandService, int>((ref, ledgerId) {
+final aiQuickCommandServiceProvider =
+    Provider.family<AIQuickCommandService, int>((ref, ledgerId) {
   final repo = ref.watch(repositoryProvider);
   // 注意: AIQuickCommandService 需要直接访问 BeeDatabase 实例进行查询
   return AIQuickCommandService(

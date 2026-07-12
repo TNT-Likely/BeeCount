@@ -211,8 +211,7 @@ class _SyncPreviewDialogState extends State<_SyncPreviewDialog> {
     );
   }
 
-  Widget _buildSectionHeader(
-      BuildContext context, String title, Color color) {
+  Widget _buildSectionHeader(BuildContext context, String title, Color color) {
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 4),
       child: Row(

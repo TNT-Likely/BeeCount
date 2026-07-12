@@ -7,13 +7,15 @@ class EffectiveRate {
   final String rate;
   final bool manual;
   final String? rateDate; // 自动来源的数据日期;手动为 null
-  const EffectiveRate({required this.rate, required this.manual, this.rateDate});
+  const EffectiveRate(
+      {required this.rate, required this.manual, this.rateDate});
 }
 
 /// 倒数:输入「1 base = x quote」,输出「1 quote = ? base」字符串(12 位有效数字)。
 String invertRate(num oneBaseEqualsXQuote) {
   if (oneBaseEqualsXQuote <= 0) {
-    throw ArgumentError.value(oneBaseEqualsXQuote, 'oneBaseEqualsXQuote', '必须为正数');
+    throw ArgumentError.value(
+        oneBaseEqualsXQuote, 'oneBaseEqualsXQuote', '必须为正数');
   }
   return (1 / oneBaseEqualsXQuote).toStringAsPrecision(12);
 }
@@ -54,8 +56,11 @@ class ConvertedNetWorth {
 /// 通用折算:按币种金额表折到 base。供净资产明细/分组小计/构成图复用。
 /// base 自身 rate=1;某币种缺有效汇率(rate 解析失败 / 非正)→ 剔除并列入 missing,
 /// 绝不静默按 1.0 折入(README D5)。missing 已排序便于 UI 稳定展示。
-({double total, Map<String, double> convertedByCurrency, List<String> missingCurrencies})
-    convertAmountsToBase({
+({
+  double total,
+  Map<String, double> convertedByCurrency,
+  List<String> missingCurrencies
+}) convertAmountsToBase({
   required Map<String, double> amounts, // 币种(任意大小写) -> 原币金额
   required Map<String, EffectiveRate> rates,
   required String base,
@@ -82,12 +87,18 @@ class ConvertedNetWorth {
     total += converted;
   }
   missing.sort();
-  return (total: total, convertedByCurrency: convertedByCurrency, missingCurrencies: missing);
+  return (
+    total: total,
+    convertedByCurrency: convertedByCurrency,
+    missingCurrencies: missing
+  );
 }
 
 /// 折算聚合(double 仅展示用,不落库 —— README D8)。
 ConvertedNetWorth computeConvertedNetWorth({
-  required Map<String, ({double totalAssets, double totalLiabilities, double netWorth})> breakdown,
+  required Map<String,
+          ({double totalAssets, double totalLiabilities, double netWorth})>
+      breakdown,
   required Map<String, EffectiveRate> rates,
   required String base,
 }) {
@@ -114,7 +125,8 @@ ConvertedNetWorth computeConvertedNetWorth({
       continue;
     }
     // 仅参与折算的币种才计入最旧日期(spec:参与折算的最旧自动日期)
-    if (rateDate != null && (oldest == null || rateDate.compareTo(oldest) < 0)) {
+    if (rateDate != null &&
+        (oldest == null || rateDate.compareTo(oldest) < 0)) {
       oldest = rateDate;
     }
     assets += e.value.totalAssets * rate;

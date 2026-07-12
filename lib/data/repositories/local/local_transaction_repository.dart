@@ -87,8 +87,14 @@ class LocalTransactionRepository implements TransactionRepository {
       ];
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      watchTransactionsWithCategoryAll({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryAll({
     int? ledgerId,
   }) {
     final select = db.select(db.transactions);
@@ -96,8 +102,7 @@ class LocalTransactionRepository implements TransactionRepository {
       select.where((t) => t.ledgerId.equals(ledgerId));
     }
     select.orderBy([
-      (t) => d.OrderingTerm(
-          expression: t.happenedAt, mode: d.OrderingMode.desc)
+      (t) => d.OrderingTerm(expression: t.happenedAt, mode: d.OrderingMode.desc)
     ]);
     final q = select.join(_txJoins());
     return _watchTxJoinWithSharedHydration(q);
@@ -111,9 +116,22 @@ class LocalTransactionRepository implements TransactionRepository {
   /// re-emit → tx tile 显示旧名字/图标,跟 picker 不一致。这里手动加两路
   /// db.tableUpdates(SharedLedger{Categories,Accounts}) 监听,触发时拿上一次
   /// Drift 结果重 hydrate 再 emit。
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      _watchTxJoinWithSharedHydration(d.JoinedSelectStatement q) {
-    late StreamController<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> ctrl;
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> _watchTxJoinWithSharedHydration(d.JoinedSelectStatement q) {
+    late StreamController<
+        List<
+            ({
+              Transaction t,
+              Category? category,
+              Account? account,
+              Account? toAccount
+            })>> ctrl;
     StreamSubscription? txSub;
     StreamSubscription? sharedCatSub;
     StreamSubscription? sharedAccSub;
@@ -133,7 +151,14 @@ class LocalTransactionRepository implements TransactionRepository {
       if (!ctrl.isClosed) ctrl.add(hydrated);
     }
 
-    ctrl = StreamController<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>(
+    ctrl = StreamController<
+        List<
+            ({
+              Transaction t,
+              Category? category,
+              Account? account,
+              Account? toAccount
+            })>>(
       onListen: () {
         txSub = q.watch().listen((rows) {
           lastRows = rows;
@@ -161,9 +186,22 @@ class LocalTransactionRepository implements TransactionRepository {
   ///
   /// 合并 category + from-account + to-account 三类 hydration:共用同一遍 rows
   /// 扫描;每类各一个 batch query。
-  Future<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      _hydrateSharedOverrides(
-    List<({Transaction t, Category? category, Account? account, Account? toAccount})> rows,
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> _hydrateSharedOverrides(
+    List<
+            ({
+              Transaction t,
+              Category? category,
+              Account? account,
+              Account? toAccount
+            })>
+        rows,
   ) async {
     // 1. 收集所有需要反查的 syncId(分类 / from 账户 / to 账户)
     final catSyncIds = <String>{};
@@ -280,8 +318,14 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      watchTransactionsWithCategoryInMonth({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryInMonth({
     required int ledgerId,
     required DateTime month,
   }) {
@@ -302,8 +346,14 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      watchTransactionsWithCategoryInYear({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryInYear({
     required int ledgerId,
     required int year,
   }) {
@@ -312,7 +362,8 @@ class LocalTransactionRepository implements TransactionRepository {
     final q = (db.select(db.transactions)
           ..where((t) =>
               t.ledgerId.equals(ledgerId) &
-              t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end))
+              t.happenedAt.isBiggerOrEqualValue(start) &
+              t.happenedAt.isSmallerThanValue(end))
           ..orderBy([
             (t) => d.OrderingTerm(
                 expression: t.happenedAt, mode: d.OrderingMode.desc)
@@ -322,8 +373,14 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      watchTransactionsForCategoryInRange({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsForCategoryInRange({
     required int ledgerId,
     required DateTime start,
     required DateTime end,
@@ -334,7 +391,8 @@ class LocalTransactionRepository implements TransactionRepository {
           ..where((t) =>
               t.ledgerId.equals(ledgerId) &
               t.type.equals(type) &
-              t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end))
+              t.happenedAt.isBiggerOrEqualValue(start) &
+              t.happenedAt.isSmallerThanValue(end))
           ..orderBy([
             (t) => d.OrderingTerm(
                 expression: t.happenedAt, mode: d.OrderingMode.desc)
@@ -546,8 +604,7 @@ class LocalTransactionRepository implements TransactionRepository {
   }) async {
     await (db.update(db.transactions)..where((t) => t.id.equals(txId))).write(
       TransactionsCompanion(
-        createdByUserId:
-            isCreate ? d.Value(userId) : const d.Value.absent(),
+        createdByUserId: isCreate ? d.Value(userId) : const d.Value.absent(),
         lastEditedByUserId: d.Value(userId),
       ),
     );
@@ -610,7 +667,8 @@ class LocalTransactionRepository implements TransactionRepository {
         }
       }
 
-      logger.info('LocalTransactionRepository', '已删除交易 $transactionId 的 ${attachments.length} 个附件');
+      logger.info('LocalTransactionRepository',
+          '已删除交易 $transactionId 的 ${attachments.length} 个附件');
     } catch (e, stackTrace) {
       logger.error('LocalTransactionRepository', '删除交易附件失败', e, stackTrace);
       // 不抛出异常，继续删除交易
@@ -629,22 +687,35 @@ class LocalTransactionRepository implements TransactionRepository {
     bool recordChanges = true,
   }) async {
     // 子仓库不挂 changeTracker,recordChanges 仅为接口一致保留。
-    final effective = item.syncId == const d.Value.absent() || item.syncId.value == null
-        ? item.copyWith(syncId: d.Value(_uuid.v4()))
-        : item;
+    final effective =
+        item.syncId == const d.Value.absent() || item.syncId.value == null
+            ? item.copyWith(syncId: d.Value(_uuid.v4()))
+            : item;
     return await db.into(db.transactions).insert(effective);
   }
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      transactionsWithCategoryAll({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> transactionsWithCategoryAll({
     int? ledgerId,
   }) =>
-          watchTransactionsWithCategoryAll(ledgerId: ledgerId);
+      watchTransactionsWithCategoryAll(ledgerId: ledgerId);
 
   @override
-  Future<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      getRecentTransactionsWithCategory({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> getRecentTransactionsWithCategory({
     required int ledgerId,
     required int limit,
   }) async {
@@ -697,8 +768,8 @@ class LocalTransactionRepository implements TransactionRepository {
     return await (db.select(db.transactions)
           ..where((t) => t.ledgerId.equals(ledgerId))
           ..orderBy([
-            (t) =>
-                d.OrderingTerm(expression: t.happenedAt, mode: d.OrderingMode.desc)
+            (t) => d.OrderingTerm(
+                expression: t.happenedAt, mode: d.OrderingMode.desc)
           ]))
         .get();
   }
@@ -715,8 +786,8 @@ class LocalTransactionRepository implements TransactionRepository {
               t.happenedAt.isBiggerOrEqualValue(start) &
               t.happenedAt.isSmallerThanValue(end))
           ..orderBy([
-            (t) =>
-                d.OrderingTerm(expression: t.happenedAt, mode: d.OrderingMode.desc)
+            (t) => d.OrderingTerm(
+                expression: t.happenedAt, mode: d.OrderingMode.desc)
           ]))
         .get();
   }
@@ -771,8 +842,8 @@ class LocalTransactionRepository implements TransactionRepository {
     return await (db.select(db.transactions)
           ..where((t) => t.ledgerId.equals(ledgerId))
           ..orderBy([
-            (t) =>
-                d.OrderingTerm(expression: t.happenedAt, mode: d.OrderingMode.asc)
+            (t) => d.OrderingTerm(
+                expression: t.happenedAt, mode: d.OrderingMode.asc)
           ])
           ..limit(1))
         .getSingleOrNull();
@@ -783,8 +854,8 @@ class LocalTransactionRepository implements TransactionRepository {
     return await (db.select(db.transactions)
           ..where((t) => t.ledgerId.equals(ledgerId))
           ..orderBy([
-            (t) =>
-                d.OrderingTerm(expression: t.happenedAt, mode: d.OrderingMode.desc)
+            (t) => d.OrderingTerm(
+                expression: t.happenedAt, mode: d.OrderingMode.desc)
           ])
           ..limit(1))
         .getSingleOrNull();
@@ -857,7 +928,8 @@ class LocalTransactionRepository implements TransactionRepository {
 
     // 查看一条交易的 happened_at 值
     if (totalCount > 0) {
-      final sampleQuery = 'SELECT happened_at FROM transactions WHERE ledger_id = ? LIMIT 1';
+      final sampleQuery =
+          'SELECT happened_at FROM transactions WHERE ledger_id = ? LIMIT 1';
       final sample = await db.customSelect(
         sampleQuery,
         variables: [d.Variable.withInt(ledgerId)],
@@ -866,7 +938,8 @@ class LocalTransactionRepository implements TransactionRepository {
       print('🔍 样例 happened_at 值(int): $happenedAtValue');
 
       // 尝试转换为 DateTime 看看
-      final asDateTime = DateTime.fromMillisecondsSinceEpoch(happenedAtValue * 1000);
+      final asDateTime =
+          DateTime.fromMillisecondsSinceEpoch(happenedAtValue * 1000);
       print('🔍 转换为 DateTime (假设是秒): $asDateTime');
     }
 
@@ -911,13 +984,15 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Future<List<({
-    Transaction t,
-    Category? category,
-    List<Tag> tags,
-    List<TransactionAttachment> attachments,
-    Account? account,
-  })>> getTransactionsByDate({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            List<Tag> tags,
+            List<TransactionAttachment> attachments,
+            Account? account,
+          })>> getTransactionsByDate({
     required int ledgerId,
     required DateTime date,
   }) async {
@@ -1025,20 +1100,24 @@ class LocalTransactionRepository implements TransactionRepository {
   /// 日历页 / 详情页等任何返回 tx + category + tags + account 完整 tuple 的查询
   /// 都用这个 helper 兜底,跟 transaction_list 走 _hydrateSharedCategoryOverrides
   /// 一致。
-  Future<List<({
-    Transaction t,
-    Category? category,
-    List<Tag> tags,
-    List<TransactionAttachment> attachments,
-    Account? account,
-  })>> _hydrateSharedOverridesFull(
-    List<({
-      Transaction t,
-      Category? category,
-      List<Tag> tags,
-      List<TransactionAttachment> attachments,
-      Account? account,
-    })> rows,
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            List<Tag> tags,
+            List<TransactionAttachment> attachments,
+            Account? account,
+          })>> _hydrateSharedOverridesFull(
+    List<
+            ({
+              Transaction t,
+              Category? category,
+              List<Tag> tags,
+              List<TransactionAttachment> attachments,
+              Account? account,
+            })>
+        rows,
   ) async {
     if (rows.isEmpty) return rows;
 
@@ -1186,13 +1265,15 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Future<List<({
-    Transaction t,
-    Category? category,
-    List<Tag> tags,
-    List<TransactionAttachment> attachments,
-    Account? account,
-  })>> getTransactionsByDateRange({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            List<Tag> tags,
+            List<TransactionAttachment> attachments,
+            Account? account,
+          })>> getTransactionsByDateRange({
     required int ledgerId,
     required DateTime startDate,
     required DateTime endDate,

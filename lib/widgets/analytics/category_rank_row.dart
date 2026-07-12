@@ -19,7 +19,8 @@ class CategoryRankRow extends ConsumerStatefulWidget {
   final DateTime end; // 统计结束时间
   final String scope; // 周期范围
   final DateTime selMonth; // 选中的月份
-  final List<({int id, db.Category category, String name, double total})>? subCategories; // 预计算的子分类明细
+  final List<({int id, db.Category category, String name, double total})>?
+      subCategories; // 预计算的子分类明细
 
   const CategoryRankRow({
     super.key,
@@ -42,14 +43,22 @@ class CategoryRankRow extends ConsumerStatefulWidget {
 
 class _CategoryRankRowState extends ConsumerState<CategoryRankRow> {
   bool _expanded = false;
-  List<({int id, db.Category category, String name, double total, double percent})>? _subCategories;
+  List<
+      ({
+        int id,
+        db.Category category,
+        String name,
+        double total,
+        double percent
+      })>? _subCategories;
   bool _hasCheckedSubCategories = false;
 
   @override
   void didUpdateWidget(CategoryRankRow oldWidget) {
     super.didUpdateWidget(oldWidget);
     // 当一级分类的金额或占比发生变化时，重置二级分类缓存
-    if (oldWidget.value != widget.value || oldWidget.percent != widget.percent) {
+    if (oldWidget.value != widget.value ||
+        oldWidget.percent != widget.percent) {
       _hasCheckedSubCategories = false;
       _subCategories = null;
       // 如果当前是展开状态，重新加载数据
@@ -58,7 +67,6 @@ class _CategoryRankRowState extends ConsumerState<CategoryRankRow> {
       }
     }
   }
-
 
   Future<void> _loadSubCategories() async {
     if (widget.categoryId == null) return;
@@ -115,7 +123,8 @@ class _CategoryRankRowState extends ConsumerState<CategoryRankRow> {
     );
   }
 
-  String _currentPeriodLabel(String scope, DateTime selMonth, BuildContext context) {
+  String _currentPeriodLabel(
+      String scope, DateTime selMonth, BuildContext context) {
     switch (scope) {
       case 'year':
         return '${selMonth.year}';
@@ -160,9 +169,8 @@ class _CategoryRankRowState extends ConsumerState<CategoryRankRow> {
     );
 
     return InkWell(
-      onTap: isTopLevel
-          ? _handleTopLevelTap
-          : () => _handleTap(categoryId, name),
+      onTap:
+          isTopLevel ? _handleTopLevelTap : () => _handleTap(categoryId, name),
       splashColor: isTopLevel ? Colors.transparent : null, // 一级分类无水波纹
       highlightColor: isTopLevel ? Colors.transparent : null, // 一级分类无高亮
       child: Padding(
@@ -179,7 +187,10 @@ class _CategoryRankRowState extends ConsumerState<CategoryRankRow> {
               height: isTopLevel ? 44 : 38,
               decoration: BoxDecoration(
                 color: isTopLevel
-                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
+                    ? Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.12)
                     : widget.color.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
@@ -197,9 +208,10 @@ class _CategoryRankRowState extends ConsumerState<CategoryRankRow> {
                           CategoryUtils.getDisplayName(name, context),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: isTopLevel ? 14 : 13,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontSize: isTopLevel ? 14 : 13,
+                                  ),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -216,10 +228,11 @@ class _CategoryRankRowState extends ConsumerState<CategoryRankRow> {
                     children: [
                       Text(
                         '${(percent * 100).toStringAsFixed(1)}%',
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: BeeTokens.textTertiary(context),
-                          fontSize: isTopLevel ? 12 : 11,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: BeeTokens.textTertiary(context),
+                                  fontSize: isTopLevel ? 12 : 11,
+                                ),
                       ),
                     ],
                   ),

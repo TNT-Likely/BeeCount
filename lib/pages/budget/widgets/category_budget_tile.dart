@@ -43,7 +43,10 @@ class CategoryBudgetTile extends ConsumerWidget {
               width: 36.0.scaled(context, ref),
               height: 36.0.scaled(context, ref),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8.0.scaled(context, ref)),
               ),
               alignment: Alignment.center,

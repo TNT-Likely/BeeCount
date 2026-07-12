@@ -124,7 +124,8 @@ class LedgerSummaryPoster extends StatelessWidget {
             children: [
               // 账本名称标签
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                 decoration: BoxDecoration(
                   color: primaryColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
@@ -279,8 +280,12 @@ class LedgerSummaryPoster extends StatelessWidget {
             context,
             label: l10n.sharePosterBalance,
             value: hideIncome ? '**' : formatter.format(data.balance),
-            color: data.balance >= 0 ? const Color(0xFF51CF66) : const Color(0xFFFF6B6B),
-            icon: data.balance >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+            color: data.balance >= 0
+                ? const Color(0xFF51CF66)
+                : const Color(0xFFFF6B6B),
+            icon: data.balance >= 0
+                ? Icons.trending_up_rounded
+                : Icons.trending_down_rounded,
             showSign: !hideIncome,
           ),
         ],
@@ -427,7 +432,12 @@ class LedgerSummaryPoster extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         // 分类列表
-        ...data.topExpenseCategories.take(3).toList().asMap().entries.map((entry) {
+        ...data.topExpenseCategories
+            .take(3)
+            .toList()
+            .asMap()
+            .entries
+            .map((entry) {
           final index = entry.key;
           final category = entry.value;
           return Padding(
@@ -536,7 +546,8 @@ class LedgerSummaryPoster extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildInfoRow(context, 
+          _buildInfoRow(
+            context,
             l10n.sharePosterLedgerName,
             data.ledgerName,
             Icons.account_balance_wallet_outlined,
@@ -547,7 +558,8 @@ class LedgerSummaryPoster extends StatelessWidget {
   }
 
   /// 构建信息行
-  Widget _buildInfoRow(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildInfoRow(
+      BuildContext context, String label, String value, IconData icon) {
     return Row(
       children: [
         Icon(icon, color: primaryColor, size: 22),

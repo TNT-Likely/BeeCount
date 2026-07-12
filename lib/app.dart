@@ -133,7 +133,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
           // 不在此处直接 push：冷启动 / 厂商主题变更(themeChanged)会重建页面树,
           // 此刻多半处于 inactive/hidden,push 的路由会被丢弃(deep-link「没打开」根因)。
           // 改为持久化待处理深链,等 ready + 前台 resumed 后在最终页面树上认领打开。
-          _persistPendingDeepLink(next, ref.read(pendingNewTransactionTypeProvider));
+          _persistPendingDeepLink(
+              next, ref.read(pendingNewTransactionTypeProvider));
           ref.read(pendingAppLinkActionProvider.notifier).state = null;
           _drainPendingDeepLink(trigger: 'listener');
         }
@@ -237,8 +238,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
           logger.info('AppStart', '本地无账本,跳过首次同步');
           return;
         }
-        logger.info('AppStart',
-            'BeeCount Cloud 首次同步: 本地账本数=${ledgers.length}');
+        logger.info('AppStart', 'BeeCount Cloud 首次同步: 本地账本数=${ledgers.length}');
         final overallStart = DateTime.now();
 
         // ========== Phase 1: 用户级一次性 ==========
@@ -256,10 +256,10 @@ class _BeeAppState extends ConsumerState<BeeApp>
         List<dynamic>? remoteLedgers;
         try {
           remoteLedgers = await engine.provider.storage.list(path: '');
-          logger.info(
-              'AppStart', 'Phase1: 远端账本=${remoteLedgers.length}');
+          logger.info('AppStart', 'Phase1: 远端账本=${remoteLedgers.length}');
         } catch (e, st) {
-          logger.warning('AppStart', 'Phase1: 拉 remote_ledgers 失败,fallback', st);
+          logger.warning(
+              'AppStart', 'Phase1: 拉 remote_ledgers 失败,fallback', st);
           logger.warning('AppStart', 'error: $e');
         }
 
@@ -279,7 +279,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
         //       user-global 的新增/重命名也能推上去(原来 Phase 2 skip 时会漏)
         try {
           final pushed = await engine.pushUserGlobalEntities();
-          logger.info('AppStart', 'Phase1: pushUserGlobalEntities pushed=$pushed');
+          logger.info(
+              'AppStart', 'Phase1: pushUserGlobalEntities pushed=$pushed');
         } catch (e, st) {
           logger.error('AppStart', 'Phase1: pushUserGlobalEntities 失败', e, st);
         }
@@ -357,8 +358,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
 
         final totalPushed = results.fold<int>(0, (a, b) => a + b.pushed);
         final skipped = results.where((r) => r.skipped).length;
-        final totalMs =
-            DateTime.now().difference(overallStart).inMilliseconds;
+        final totalMs = DateTime.now().difference(overallStart).inMilliseconds;
         logger.info('AppStart',
             'BeeCount Cloud 首次同步完成: synced=${ledgers.length - skipped} skipped=$skipped pushed=$totalPushed 总耗时 ${totalMs}ms');
         ref.read(syncStatusRefreshProvider.notifier).state++;
@@ -410,18 +410,21 @@ class _BeeAppState extends ConsumerState<BeeApp>
 
   void _persistPendingDeepLink(AppLinkAction action, String? type) {
     SharedPreferences.getInstance().then((p) {
-      p.setString(_kPendingDeepLink, jsonEncode({
-        'action': action.name,
-        'type': type,
-        'ts': DateTime.now().millisecondsSinceEpoch,
-      }));
+      p.setString(
+          _kPendingDeepLink,
+          jsonEncode({
+            'action': action.name,
+            'type': type,
+            'ts': DateTime.now().millisecondsSinceEpoch,
+          }));
     }).catchError((_) {});
   }
 
   void _drainPendingDeepLink({String trigger = ''}) {
     if (!mounted) return;
     if (ref.read(appInitStateProvider) != AppInitState.ready) return;
-    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) return;
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed)
+      return;
     // 重建有时在 resumed 之后还会再发生一次:延迟一拍再认领,只在「存活过这段缓冲期」的
     // 最终页面树上打开。若本页在缓冲期内被销毁(重建),timer 随 dispose 取消,新页面会
     // 重新排程,自然落到稳定的页面树上。
@@ -434,7 +437,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
     if (!mounted) return;
     // 必须就绪 + 前台稳定:冷启动/主题变更的重建窗口(inactive/hidden)里打开会被丢弃
     if (ref.read(appInitStateProvider) != AppInitState.ready) return;
-    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) return;
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed)
+      return;
 
     SharedPreferences prefs;
     try {
@@ -504,8 +508,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
         break;
       case AppLinkAction.newTransaction:
         nav.push(MaterialPageRoute(
-          builder: (_) =>
-              TransactionEditorPage(initialKind: type ?? 'expense', quickAdd: true),
+          builder: (_) => TransactionEditorPage(
+              initialKind: type ?? 'expense', quickAdd: true),
         ));
         break;
       default:
@@ -868,14 +872,18 @@ class _BeeBottomBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(28),
             child: Row(
               children: [
-                _buildTabItem(
-                    0, Icons.receipt_long_outlined, Icons.receipt_long, l10n.tabHome, inactiveColor),
+                _buildTabItem(0, Icons.receipt_long_outlined,
+                    Icons.receipt_long, l10n.tabHome, inactiveColor),
                 _buildTabItem(1, Icons.pie_chart_outline_rounded,
                     Icons.pie_chart_rounded, l10n.tabInsights, inactiveColor),
                 // 中间记账按钮（作为 Tab 样式）
                 _buildCenterTabItem(inactiveColor),
-                _buildTabItem(2, Icons.account_balance_wallet_outlined,
-                    Icons.account_balance_wallet, l10n.tabAssets, inactiveColor),
+                _buildTabItem(
+                    2,
+                    Icons.account_balance_wallet_outlined,
+                    Icons.account_balance_wallet,
+                    l10n.tabAssets,
+                    inactiveColor),
                 _buildAvatarTabItem(3, l10n.tabMine, inactiveColor),
               ],
             ),
@@ -885,8 +893,8 @@ class _BeeBottomBar extends StatelessWidget {
     );
   }
 
-  Widget _buildTabItem(
-      int index, IconData icon, IconData activeIcon, String label, Color inactiveColor) {
+  Widget _buildTabItem(int index, IconData icon, IconData activeIcon,
+      String label, Color inactiveColor) {
     final isActive = index == currentIndex;
     final iconColor = isActive ? primaryColor : inactiveColor;
 
@@ -984,8 +992,10 @@ class _BeeBottomBar extends StatelessWidget {
         ),
       );
     } else {
-      iconWidget = Icon(isActive ? Icons.person_rounded : Icons.person_outline_rounded,
-          color: isActive ? primaryColor : inactiveColor, size: 24);
+      iconWidget = Icon(
+          isActive ? Icons.person_rounded : Icons.person_outline_rounded,
+          color: isActive ? primaryColor : inactiveColor,
+          size: 24);
     }
 
     return Expanded(

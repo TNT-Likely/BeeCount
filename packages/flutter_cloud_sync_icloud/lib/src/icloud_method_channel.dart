@@ -13,7 +13,8 @@ class ICloudMethodChannel {
       final result = await _channel.invokeMethod<bool>('isICloudAvailable');
       return result ?? false;
     } on PlatformException catch (e) {
-      debugPrint('iCloud: PlatformException in isICloudAvailable: ${e.message}');
+      debugPrint(
+          'iCloud: PlatformException in isICloudAvailable: ${e.message}');
       return false;
     } on MissingPluginException catch (e) {
       debugPrint('iCloud: Plugin not registered: ${e.message}');
@@ -30,7 +31,8 @@ class ICloudMethodChannel {
     try {
       await _channel.invokeMethod('initializeContainer');
     } on PlatformException catch (e) {
-      debugPrint('iCloud: PlatformException in initializeContainer: ${e.message}');
+      debugPrint(
+          'iCloud: PlatformException in initializeContainer: ${e.message}');
       throw Exception('iCloud container initialization failed: ${e.message}');
     } on MissingPluginException catch (e) {
       debugPrint('iCloud: Plugin not registered: ${e.message}');
@@ -105,7 +107,8 @@ class ICloudMethodChannel {
       final result = await _channel.invokeMethod<Map>('getICloudDiagnostics');
       return result != null ? Map<String, dynamic>.from(result) : {};
     } on PlatformException catch (e) {
-      debugPrint('iCloud: PlatformException in getICloudDiagnostics: ${e.message}');
+      debugPrint(
+          'iCloud: PlatformException in getICloudDiagnostics: ${e.message}');
       return {'error': e.message};
     } on MissingPluginException catch (e) {
       debugPrint('iCloud: Plugin not registered: ${e.message}');

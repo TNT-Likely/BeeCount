@@ -118,9 +118,15 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
               children: [
                 TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text(AppLocalizations.of(context).commonCancel, style: TextStyle(fontSize: 16, color: _textTertiary(context)))),
+                    child: Text(AppLocalizations.of(context).commonCancel,
+                        style: TextStyle(
+                            fontSize: 16, color: _textTertiary(context)))),
                 const Spacer(),
-                Text(AppLocalizations.of(context).homeSelectDate, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: _textPrimary(context))),
+                Text(AppLocalizations.of(context).homeSelectDate,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: _textPrimary(context))),
                 const Spacer(),
                 TextButton(
                     onPressed: () {
@@ -138,7 +144,11 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                       }
                       Navigator.pop(context, result);
                     },
-                    child: Text(AppLocalizations.of(context).commonOk, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Theme.of(context).primaryColor))),
+                    child: Text(AppLocalizations.of(context).commonOk,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).primaryColor))),
               ],
             ),
           ),
@@ -190,7 +200,9 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                       for (final y in years)
                         Center(
                             child: Text('$y',
-                                style: TextStyle(fontSize: 18, color: _textPrimary(context)))),
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: _textPrimary(context)))),
                     ],
                   ),
                 ),
@@ -228,7 +240,9 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                         for (final m in months)
                           Center(
                               child: Text('$m',
-                                  style: TextStyle(fontSize: 18, color: _textPrimary(context)))),
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: _textPrimary(context)))),
                       ],
                     ),
                   ),
@@ -244,7 +258,9 @@ class _WheelDatePickerState extends State<WheelDatePicker> {
                         for (final d in days)
                           Center(
                               child: Text('$d',
-                                  style: TextStyle(fontSize: 18, color: _textPrimary(context)))),
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: _textPrimary(context)))),
                       ],
                     ),
                   ),
@@ -281,7 +297,8 @@ Future<DateTime?> showWheelDateTimePicker(
   if (dateResult == null || !context.mounted) return null;
 
   // 第二步：选择时间（时分秒）
-  final timeResult = await showModalBottomSheet<({int hour, int minute, int second})>(
+  final timeResult =
+      await showModalBottomSheet<({int hour, int minute, int second})>(
     context: context,
     backgroundColor: BeeTokens.surfaceElevated(context),
     shape: const RoundedRectangleBorder(
@@ -372,9 +389,11 @@ class _DateStepPickerState extends State<_DateStepPicker> {
     if (year == max.year && month == max.month) endDay = max.day;
     final days = [for (int d = startDay; d <= endDay; d++) d];
 
-    _monthCtrl ??= FixedExtentScrollController(initialItem: months.indexOf(month));
+    _monthCtrl ??=
+        FixedExtentScrollController(initialItem: months.indexOf(month));
     final dayIndex = days.indexOf(day);
-    _dayCtrl ??= FixedExtentScrollController(initialItem: dayIndex < 0 ? 0 : dayIndex);
+    _dayCtrl ??=
+        FixedExtentScrollController(initialItem: dayIndex < 0 ? 0 : dayIndex);
 
     return SafeArea(
       top: false,
@@ -389,11 +408,16 @@ class _DateStepPickerState extends State<_DateStepPicker> {
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(l10n.commonCancel,
-                    style: TextStyle(fontSize: 16, color: BeeTokens.textTertiary(context))),
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: BeeTokens.textTertiary(context))),
                 ),
                 const Spacer(),
                 Text(l10n.homeSelectDate,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: BeeTokens.textPrimary(context))),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: BeeTokens.textPrimary(context))),
                 const Spacer(),
                 TextButton(
                   onPressed: () {
@@ -401,7 +425,10 @@ class _DateStepPickerState extends State<_DateStepPicker> {
                     Navigator.pop(context, result);
                   },
                   child: Text(l10n.commonNext,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Theme.of(context).primaryColor)),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).primaryColor)),
                 ),
               ],
             ),
@@ -430,7 +457,8 @@ class _DateStepPickerState extends State<_DateStepPicker> {
                       final monthsNow = [for (int m = sm; m <= em; m++) m];
                       final mi = monthsNow.indexOf(month);
                       if (_monthCtrl == null) {
-                        _monthCtrl = FixedExtentScrollController(initialItem: mi);
+                        _monthCtrl =
+                            FixedExtentScrollController(initialItem: mi);
                       } else {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           _monthCtrl!.jumpToItem(mi);
@@ -439,7 +467,8 @@ class _DateStepPickerState extends State<_DateStepPicker> {
                       final daysNow = [for (int d = sd; d <= ed; d++) d];
                       final di = daysNow.indexOf(day);
                       if (_dayCtrl == null) {
-                        _dayCtrl = FixedExtentScrollController(initialItem: di < 0 ? 0 : di);
+                        _dayCtrl = FixedExtentScrollController(
+                            initialItem: di < 0 ? 0 : di);
                       } else {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           _dayCtrl!.jumpToItem(di < 0 ? 0 : di);
@@ -448,7 +477,11 @@ class _DateStepPickerState extends State<_DateStepPicker> {
                     }),
                     children: [
                       for (final y in years)
-                        Center(child: Text('$y', style: TextStyle(fontSize: 18, color: BeeTokens.textPrimary(context)))),
+                        Center(
+                            child: Text('$y',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: BeeTokens.textPrimary(context)))),
                     ],
                   ),
                 ),
@@ -467,7 +500,8 @@ class _DateStepPickerState extends State<_DateStepPicker> {
                       final daysNow = [for (int d = sd; d <= ed; d++) d];
                       final di = daysNow.indexOf(day);
                       if (_dayCtrl == null) {
-                        _dayCtrl = FixedExtentScrollController(initialItem: di < 0 ? 0 : di);
+                        _dayCtrl = FixedExtentScrollController(
+                            initialItem: di < 0 ? 0 : di);
                       } else {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           _dayCtrl!.jumpToItem(di < 0 ? 0 : di);
@@ -476,7 +510,11 @@ class _DateStepPickerState extends State<_DateStepPicker> {
                     }),
                     children: [
                       for (final m in months)
-                        Center(child: Text('$m', style: TextStyle(fontSize: 18, color: BeeTokens.textPrimary(context)))),
+                        Center(
+                            child: Text('$m',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: BeeTokens.textPrimary(context)))),
                     ],
                   ),
                 ),
@@ -489,7 +527,11 @@ class _DateStepPickerState extends State<_DateStepPicker> {
                     }),
                     children: [
                       for (final d in days)
-                        Center(child: Text('$d', style: TextStyle(fontSize: 18, color: BeeTokens.textPrimary(context)))),
+                        Center(
+                            child: Text('$d',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: BeeTokens.textPrimary(context)))),
                     ],
                   ),
                 ),
@@ -564,7 +606,9 @@ class _TimeStepPickerState extends State<_TimeStepPicker> {
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: isDark ? BeeTokens.border(context) : const Color(0xFFE5E5E5),
+                    color: isDark
+                        ? BeeTokens.border(context)
+                        : const Color(0xFFE5E5E5),
                     width: 0.5,
                   ),
                 ),
@@ -575,16 +619,25 @@ class _TimeStepPickerState extends State<_TimeStepPicker> {
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(l10n.commonCancel,
-                      style: TextStyle(fontSize: 16, color: BeeTokens.textTertiary(context))),
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: BeeTokens.textTertiary(context))),
                   ),
                   Text(l10n.commonSelectTime,
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: BeeTokens.textPrimary(context))),
+                      style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          color: BeeTokens.textPrimary(context))),
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop((hour: hour, minute: minute, second: second));
+                      Navigator.of(context)
+                          .pop((hour: hour, minute: minute, second: second));
                     },
                     child: Text(l10n.commonOk,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Theme.of(context).primaryColor)),
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).primaryColor)),
                   ),
                 ],
               ),
@@ -597,35 +650,58 @@ class _TimeStepPickerState extends State<_TimeStepPicker> {
                     child: CupertinoPicker(
                       scrollController: _hourCtrl,
                       itemExtent: 40,
-                      onSelectedItemChanged: (index) => setState(() => hour = index),
-                      children: List.generate(24, (index) => Center(
-                        child: Text(index.toString().padLeft(2, '0'),
-                          style: TextStyle(fontSize: 20, color: BeeTokens.textPrimary(context))),
-                      )),
+                      onSelectedItemChanged: (index) =>
+                          setState(() => hour = index),
+                      children: List.generate(
+                          24,
+                          (index) => Center(
+                                child: Text(index.toString().padLeft(2, '0'),
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        color: BeeTokens.textPrimary(context))),
+                              )),
                     ),
                   ),
-                  Text(':', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: BeeTokens.textPrimary(context))),
+                  Text(':',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: BeeTokens.textPrimary(context))),
                   Expanded(
                     child: CupertinoPicker(
                       scrollController: _minuteCtrl,
                       itemExtent: 40,
-                      onSelectedItemChanged: (index) => setState(() => minute = index),
-                      children: List.generate(60, (index) => Center(
-                        child: Text(index.toString().padLeft(2, '0'),
-                          style: TextStyle(fontSize: 20, color: BeeTokens.textPrimary(context))),
-                      )),
+                      onSelectedItemChanged: (index) =>
+                          setState(() => minute = index),
+                      children: List.generate(
+                          60,
+                          (index) => Center(
+                                child: Text(index.toString().padLeft(2, '0'),
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        color: BeeTokens.textPrimary(context))),
+                              )),
                     ),
                   ),
-                  Text(':', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: BeeTokens.textPrimary(context))),
+                  Text(':',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: BeeTokens.textPrimary(context))),
                   Expanded(
                     child: CupertinoPicker(
                       scrollController: _secondCtrl,
                       itemExtent: 40,
-                      onSelectedItemChanged: (index) => setState(() => second = index),
-                      children: List.generate(60, (index) => Center(
-                        child: Text(index.toString().padLeft(2, '0'),
-                          style: TextStyle(fontSize: 20, color: BeeTokens.textPrimary(context))),
-                      )),
+                      onSelectedItemChanged: (index) =>
+                          setState(() => second = index),
+                      children: List.generate(
+                          60,
+                          (index) => Center(
+                                child: Text(index.toString().padLeft(2, '0'),
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        color: BeeTokens.textPrimary(context))),
+                              )),
                     ),
                   ),
                 ],

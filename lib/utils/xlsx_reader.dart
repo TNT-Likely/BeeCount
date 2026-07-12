@@ -56,7 +56,8 @@ class XlsxReader {
           } else if (value is DateCellValue) {
             // 日期格式化为 YYYY-MM-DD
             final date = value.asDateTimeLocal();
-            text = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+            text =
+                '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
           } else if (value is TimeCellValue) {
             // TimeCellValue 直接转字符串
             text = value.toString();

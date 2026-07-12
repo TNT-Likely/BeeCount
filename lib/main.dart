@@ -35,10 +35,10 @@ import 'dart:ui';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-
 /// 全局 navigator key — 给 service 层(没有 BuildContext)push 路由使用。
 /// 当前用途:BeeCount Cloud 登录拿到 requires_2fa 时弹出 [Login2FAChallengeView]。
-final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> globalNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -210,7 +210,8 @@ Future<void> _restoreUserReminder() async {
     if (isEnabled) {
       final hour = prefs.getInt('reminder_hour') ?? 21;
       final minute = prefs.getInt('reminder_minute') ?? 0;
-      print('✅ 发现用户已启用记账提醒: ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}');
+      print(
+          '✅ 发现用户已启用记账提醒: ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}');
       print('🔔 正在重新设置提醒任务...');
 
       try {
@@ -291,7 +292,6 @@ Future<void> _initializeAppMode(ProviderContainer container) async {
   }
 }
 
-
 /// 设置图片分享处理（Android专属）
 ///
 /// 初始化 ImageShareHandlerService 以接收从相册或其他应用分享的图片
@@ -332,7 +332,8 @@ void _setupUrlListener(ProviderContainer container) {
     appLinkService.onNavigate = (action, {params}) {
       logger.info('AppLink', '触发导航: $action');
       if (action == AppLinkAction.newTransaction && params != null) {
-        container.read(pendingNewTransactionTypeProvider.notifier).state = params.type;
+        container.read(pendingNewTransactionTypeProvider.notifier).state =
+            params.type;
       }
       container.read(pendingAppLinkActionProvider.notifier).state = action;
     };
@@ -539,10 +540,12 @@ class MainApp extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         theme: theme,
         darkTheme: BeeTheme.darkTheme(platform: platform).copyWith(
-          colorScheme: BeeTheme.darkTheme(platform: platform).colorScheme.copyWith(primary: primary),
+          colorScheme: BeeTheme.darkTheme(platform: platform)
+              .colorScheme
+              .copyWith(primary: primary),
           primaryColor: primary,
-        ),                                                // ⭐ 暗黑主题（使用动态主题色）
-        themeMode: ref.watch(themeModeProvider),         // ⭐ 使用 provider 支持手动切换
+        ), // ⭐ 暗黑主题（使用动态主题色）
+        themeMode: ref.watch(themeModeProvider), // ⭐ 使用 provider 支持手动切换
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,

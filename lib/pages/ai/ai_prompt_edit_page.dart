@@ -33,13 +33,13 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
 
   /// 获取变量说明列表（使用国际化文案）
   List<Map<String, String>> _getVariables(AppLocalizations l10n) => [
-    {'name': '{{INPUT_SOURCE}}', 'desc': l10n.aiPromptVarInputSource},
-    {'name': '{{CURRENT_TIME}}', 'desc': l10n.aiPromptVarCurrentTime},
-    {'name': '{{CURRENT_DATE}}', 'desc': l10n.aiPromptVarCurrentDate},
-    {'name': '{{OCR_TEXT}}', 'desc': l10n.aiPromptVarOcrText},
-    {'name': '{{CATEGORIES}}', 'desc': l10n.aiPromptVarCategories},
-    {'name': '{{ACCOUNTS}}', 'desc': l10n.aiPromptVarAccounts},
-  ];
+        {'name': '{{INPUT_SOURCE}}', 'desc': l10n.aiPromptVarInputSource},
+        {'name': '{{CURRENT_TIME}}', 'desc': l10n.aiPromptVarCurrentTime},
+        {'name': '{{CURRENT_DATE}}', 'desc': l10n.aiPromptVarCurrentDate},
+        {'name': '{{OCR_TEXT}}', 'desc': l10n.aiPromptVarOcrText},
+        {'name': '{{CATEGORIES}}', 'desc': l10n.aiPromptVarCategories},
+        {'name': '{{ACCOUNTS}}', 'desc': l10n.aiPromptVarAccounts},
+      ];
 
   @override
   void initState() {
@@ -338,7 +338,8 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
           l10n.aiPromptVariables,
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
-        subtitle: Text(l10n.aiPromptVariablesHint, style: const TextStyle(fontSize: 12)),
+        subtitle: Text(l10n.aiPromptVariablesHint,
+            style: const TextStyle(fontSize: 12)),
         children: [
           const Divider(height: 1),
           Padding(
@@ -353,7 +354,8 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: primaryColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
@@ -405,12 +407,14 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
                 const SizedBox(width: 8),
                 Text(
                   l10n.aiPromptContent,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
                 if (_hasChanges)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
                       color: Colors.orange.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),

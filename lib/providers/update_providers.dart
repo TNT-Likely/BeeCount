@@ -13,16 +13,17 @@ class UpdateProgress {
   });
 
   factory UpdateProgress.idle() => const UpdateProgress(
-    progress: 0.0,
-    status: '',
-    isActive: false,
-  );
+        progress: 0.0,
+        status: '',
+        isActive: false,
+      );
 
-  factory UpdateProgress.active(double progress, String status) => UpdateProgress(
-    progress: progress,
-    status: status,
-    isActive: true,
-  );
+  factory UpdateProgress.active(double progress, String status) =>
+      UpdateProgress(
+        progress: progress,
+        status: status,
+        isActive: true,
+      );
 
   UpdateProgress copyWith({
     double? progress,
@@ -38,4 +39,5 @@ class UpdateProgress {
 }
 
 /// 更新进度Provider
-final updateProgressProvider = StateProvider<UpdateProgress>((ref) => UpdateProgress.idle());
+final updateProgressProvider =
+    StateProvider<UpdateProgress>((ref) => UpdateProgress.idle());

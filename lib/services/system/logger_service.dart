@@ -311,7 +311,8 @@ class LoggerService {
   }
 
   /// Error 日志
-  void error(String tag, String message, [dynamic error, StackTrace? stackTrace]) {
+  void error(String tag, String message,
+      [dynamic error, StackTrace? stackTrace]) {
     _addLog(LogEntry(
       timestamp: DateTime.now(),
       level: LogLevel.error,

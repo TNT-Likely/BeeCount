@@ -12,14 +12,15 @@ import '../../styles/tokens.dart';
 
 class CategoryMigrationPage extends ConsumerStatefulWidget {
   final db.Category? preselectedFromCategory; // 预填充的来源分类
-  
+
   const CategoryMigrationPage({
     super.key,
     this.preselectedFromCategory,
   });
-  
+
   @override
-  ConsumerState<CategoryMigrationPage> createState() => _CategoryMigrationPageState();
+  ConsumerState<CategoryMigrationPage> createState() =>
+      _CategoryMigrationPageState();
 }
 
 class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
@@ -40,11 +41,11 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
       _selectedType = 'expense';
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final categoriesWithCountAsync = ref.watch(categoriesWithCountProvider);
-    
+
     return Scaffold(
       body: Column(
         children: [
@@ -55,7 +56,9 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
           Expanded(
             child: categoriesWithCountAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(child: Text(AppLocalizations.of(context).categoryLoadFailed(error.toString()))),
+              error: (error, stack) => Center(
+                  child: Text(AppLocalizations.of(context)
+                      .categoryLoadFailed(error.toString()))),
               data: (categoriesWithCount) {
                 return _buildMigrationForm(categoriesWithCount);
               },
@@ -65,8 +68,10 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
       ),
     );
   }
-  
-  Widget _buildMigrationForm(List<({db.Category category, int transactionCount})> categoriesWithCount) {
+
+  Widget _buildMigrationForm(
+      List<({db.Category category, int transactionCount})>
+          categoriesWithCount) {
     final l10n = AppLocalizations.of(context);
 
     return Padding(
@@ -196,14 +201,15 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: _canMigrate() && !_isLoading ? _performMigration : null,
+              onPressed:
+                  _canMigrate() && !_isLoading ? _performMigration : null,
               child: _isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(l10n.categoryMigrationStartButton),
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(l10n.categoryMigrationStartButton),
             ),
           ),
           const SizedBox(height: 16),
@@ -254,26 +260,26 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
       });
     }
   }
-  
+
   bool _canMigrate() {
-    return _fromCategory != null && 
-           _toCategory != null && 
-           _fromCategory!.id != _toCategory!.id;
+    return _fromCategory != null &&
+        _toCategory != null &&
+        _fromCategory!.id != _toCategory!.id;
   }
-  
+
   Future<void> _performMigration() async {
     if (!_canMigrate()) return;
-    
+
     final fromCategory = _fromCategory!;
     final toCategory = _toCategory!;
-    
+
     // 获取迁移信息
     final repo = ref.read(repositoryProvider);
     final migrationInfo = await repo.getCategoryMigrationInfo(
       fromCategoryId: fromCategory.id,
       toCategoryId: toCategory.id,
     );
-    
+
     if (!migrationInfo.canMigrate) {
       if (!mounted) return;
       await AppDialog.error(
@@ -283,36 +289,38 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
       );
       return;
     }
-    
+
     // 确认迁移
     if (!mounted) return;
     final confirmed = await AppDialog.confirm<bool>(
-      context,
-      title: AppLocalizations.of(context).categoryMigrationConfirmTitle,
-      message: AppLocalizations.of(context).categoryMigrationConfirmMessage(
-        migrationInfo.transactionCount.toString(),  // count
-        CategoryUtils.getDisplayName(fromCategory.name, context),  // fromName
-        CategoryUtils.getDisplayName(toCategory.name, context),  // toName
-      ),
-      okLabel: AppLocalizations.of(context).categoryMigrationConfirmOk,
-      cancelLabel: AppLocalizations.of(context).commonCancel,
-    ) ?? false;
-    
+          context,
+          title: AppLocalizations.of(context).categoryMigrationConfirmTitle,
+          message: AppLocalizations.of(context).categoryMigrationConfirmMessage(
+            migrationInfo.transactionCount.toString(), // count
+            CategoryUtils.getDisplayName(
+                fromCategory.name, context), // fromName
+            CategoryUtils.getDisplayName(toCategory.name, context), // toName
+          ),
+          okLabel: AppLocalizations.of(context).categoryMigrationConfirmOk,
+          cancelLabel: AppLocalizations.of(context).commonCancel,
+        ) ??
+        false;
+
     if (!confirmed) return;
-    
+
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       // 执行迁移
       final migratedCount = await repo.migrateCategory(
         fromCategoryId: fromCategory.id,
         toCategoryId: toCategory.id,
       );
-      
+
       if (!mounted) return;
-      
+
       // 显示结果
       await AppDialog.info(
         context,
@@ -331,13 +339,13 @@ class _CategoryMigrationPageState extends ConsumerState<CategoryMigrationPage> {
 
       // 返回上一页
       Navigator.of(context).pop(true);
-      
     } catch (e) {
       if (!mounted) return;
       await AppDialog.error(
         context,
         title: AppLocalizations.of(context).categoryMigrationFailedTitle,
-        message: AppLocalizations.of(context).categoryMigrationFailedMessage(e.toString()),
+        message: AppLocalizations.of(context)
+            .categoryMigrationFailedMessage(e.toString()),
       );
     } finally {
       if (mounted) {
@@ -377,9 +385,7 @@ class _TypeButton extends ConsumerWidget {
               ? primaryColor.withValues(alpha: 0.1)
               : BeeTokens.surface(context),
           border: Border.all(
-            color: isSelected
-                ? primaryColor
-                : BeeTokens.border(context),
+            color: isSelected ? primaryColor : BeeTokens.border(context),
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -389,9 +395,8 @@ class _TypeButton extends ConsumerWidget {
           children: [
             Icon(
               icon,
-              color: isSelected
-                  ? primaryColor
-                  : BeeTokens.iconSecondary(context),
+              color:
+                  isSelected ? primaryColor : BeeTokens.iconSecondary(context),
               size: 20,
             ),
             const SizedBox(width: 8),
@@ -400,9 +405,8 @@ class _TypeButton extends ConsumerWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected
-                    ? primaryColor
-                    : BeeTokens.textPrimary(context),
+                color:
+                    isSelected ? primaryColor : BeeTokens.textPrimary(context),
               ),
             ),
           ],
@@ -440,9 +444,7 @@ class _CategorySelectorButton extends ConsumerWidget {
         decoration: BoxDecoration(
           color: BeeTokens.surface(context),
           border: Border.all(
-            color: category != null
-                ? primaryColor
-                : BeeTokens.border(context),
+            color: category != null ? primaryColor : BeeTokens.border(context),
             width: category != null ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -487,7 +489,8 @@ class _CategorySelectorButton extends ConsumerWidget {
                         fontSize: 16,
                         color: enabled
                             ? BeeTokens.textTertiary(context)
-                            : BeeTokens.textTertiary(context).withValues(alpha: 0.5),
+                            : BeeTokens.textTertiary(context)
+                                .withValues(alpha: 0.5),
                       ),
                     ),
             ),

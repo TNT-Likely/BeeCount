@@ -23,8 +23,9 @@ TransactionRowTitle composeTransactionRowTitle({
   }
   // 分类优先(默认),以及转账/调整(categoryName == null)—— 保持原有行为。
   final primary = categoryName ?? title;
-  final paren = (categoryName != null && title.isNotEmpty && title != categoryName)
-      ? title
-      : null;
+  final paren =
+      (categoryName != null && title.isNotEmpty && title != categoryName)
+          ? title
+          : null;
   return TransactionRowTitle(primary, paren);
 }

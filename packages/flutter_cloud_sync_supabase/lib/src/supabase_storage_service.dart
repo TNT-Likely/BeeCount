@@ -244,8 +244,7 @@ class SupabaseStorageService implements CloudStorageService {
   /// Stores custom metadata in a separate database table.
   /// Since Supabase Storage doesn't support custom metadata directly,
   /// we store it in a metadata table.
-  Future<void> _storeMetadata(
-      String path, Map<String, String> metadata) async {
+  Future<void> _storeMetadata(String path, Map<String, String> metadata) async {
     try {
       await _client.from('file_metadata').upsert({
         'path': path,

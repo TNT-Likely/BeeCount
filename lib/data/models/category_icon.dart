@@ -59,9 +59,7 @@ class CategoryIconData {
   }
 
   /// 是否有有效图标
-  bool get hasIcon =>
-      materialIcon != null ||
-      customIconPath != null;
+  bool get hasIcon => materialIcon != null || customIconPath != null;
 
   /// 是否为自定义图标
   bool get isCustom => type == CategoryIconType.custom;
@@ -73,7 +71,8 @@ class CategoryIconData {
   /// 注意：customIconPath 现在是相对路径，需要解析为绝对路径
   Future<File?> getCustomIconFile() async {
     if (customIconPath == null) return null;
-    final absolutePath = await CustomIconService().resolveIconPath(customIconPath!);
+    final absolutePath =
+        await CustomIconService().resolveIconPath(customIconPath!);
     return File(absolutePath);
   }
 

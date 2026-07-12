@@ -136,8 +136,8 @@ class MemberListPage extends ConsumerWidget {
       context: context,
       builder: (_) => AlertDialog(
         title: Text(l10n.sharedMembersRemoveTitle),
-        content: Text(l10n.sharedMembersRemoveConfirm(
-            target.displayName ?? target.email)),
+        content: Text(l10n
+            .sharedMembersRemoveConfirm(target.displayName ?? target.email)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -174,8 +174,8 @@ class MemberListPage extends ConsumerWidget {
       context: context,
       builder: (_) => AlertDialog(
         title: Text(l10n.sharedMembersTransferTitle),
-        content: Text(l10n.sharedMembersTransferConfirm(
-            target.displayName ?? target.email)),
+        content: Text(l10n
+            .sharedMembersTransferConfirm(target.displayName ?? target.email)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -330,9 +330,8 @@ class _MemberAvatar extends ConsumerWidget {
     if (base == null || base.isEmpty) {
       return CircleAvatar(child: Text(letter));
     }
-    final absoluteUrl = relativeUrl.startsWith('http')
-        ? relativeUrl
-        : '$base$relativeUrl';
+    final absoluteUrl =
+        relativeUrl.startsWith('http') ? relativeUrl : '$base$relativeUrl';
     return CircleAvatar(
       backgroundImage: NetworkImage(absoluteUrl),
       onBackgroundImageError: (_, __) {/* fallback child 显示 */},

@@ -30,7 +30,8 @@ class CsvParser {
     if (delimiter == 'space') {
       parsed = processedLines.map((l) => _splitSpaceSeparatedLine(l)).toList();
     } else {
-      parsed = processedLines.map((l) => _splitDelimitedLine(l, delimiter)).toList();
+      parsed =
+          processedLines.map((l) => _splitDelimitedLine(l, delimiter)).toList();
     }
 
     // 2. 如果仍然全部只有 1 列（说明可能不是上述分隔符），且文本出现了连续双空格/制表符，再次尝试空白分隔

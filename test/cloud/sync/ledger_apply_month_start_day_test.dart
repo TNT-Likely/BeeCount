@@ -93,7 +93,8 @@ void main() {
           reason: '不含 monthStartDay 的 change 不应覆盖本地值');
     });
 
-    test('(c) syncLedgersFromServer: server 返 monthStartDay=99 → clamp 28', () async {
+    test('(c) syncLedgersFromServer: server 返 monthStartDay=99 → clamp 28',
+        () async {
       provider.pushFakeLedger(
         ledgerId: 'ledger-clamp',
         ledgerName: 'Clamp Test',
@@ -104,8 +105,7 @@ void main() {
 
       final rows = await db.select(db.ledgers).get();
       expect(rows, hasLength(1));
-      expect(rows.first.monthStartDay, 28,
-          reason: '超出范围的值应 clamp 到 28');
+      expect(rows.first.monthStartDay, 28, reason: '超出范围的值应 clamp 到 28');
     });
   });
 }

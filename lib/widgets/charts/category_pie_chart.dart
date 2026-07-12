@@ -30,8 +30,13 @@ typedef PieCategoryItem = ({
   String name,
   db.Category? category,
   double total,
-  List<({int id, db.Category category, String name, double total})>
-      subCategories,
+  List<
+      ({
+        int id,
+        db.Category category,
+        String name,
+        double total
+      })> subCategories,
 });
 
 /// 分类占比饼图

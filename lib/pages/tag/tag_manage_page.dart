@@ -196,7 +196,8 @@ class _TagManagePageState extends ConsumerState<TagManagePage> {
   }
 
   /// 构建更多菜单
-  Widget _buildMoreMenu(BuildContext context, AppLocalizations l10n, Color primaryColor) {
+  Widget _buildMoreMenu(
+      BuildContext context, AppLocalizations l10n, Color primaryColor) {
     return BeePopupMenu(
       tooltip: l10n.commonMore,
       primaryColor: primaryColor,
@@ -270,7 +271,11 @@ class _TagManagePageState extends ConsumerState<TagManagePage> {
       if (!mounted) return;
 
       // 生成文件并分享
-      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').split('.').first;
+      final timestamp = DateTime.now()
+          .toIso8601String()
+          .replaceAll(':', '-')
+          .split('.')
+          .first;
       final fileName = 'beecount_tags_$timestamp.yml';
 
       if (Platform.isAndroid) {
@@ -284,7 +289,10 @@ class _TagManagePageState extends ConsumerState<TagManagePage> {
         await file.writeAsString(yamlContent);
 
         if (!mounted) return;
-        showToast(context, l10n.tagShareSuccess(filePath.replaceAll('/storage/emulated/0/', '')));
+        showToast(
+            context,
+            l10n.tagShareSuccess(
+                filePath.replaceAll('/storage/emulated/0/', '')));
       } else {
         final tempDir = await getTemporaryDirectory();
         final filePath = '${tempDir.path}/$fileName';
@@ -423,9 +431,8 @@ class _TagManagePageState extends ConsumerState<TagManagePage> {
     final tagsWithStats = ref.read(tagsWithStatsProvider).valueOrNull ?? [];
 
     // 找出交易数为0的标签
-    final unusedTags = tagsWithStats
-        .where((item) => item.transactionCount == 0)
-        .toList();
+    final unusedTags =
+        tagsWithStats.where((item) => item.transactionCount == 0).toList();
 
     if (unusedTags.isEmpty) {
       showToast(context, l10n.tagClearUnusedEmpty);
@@ -482,9 +489,8 @@ class _TagManagePageState extends ConsumerState<TagManagePage> {
   /// 静默清空未使用的标签（用于覆盖导入）
   Future<void> _clearUnusedTagsSilent() async {
     final tagsWithStats = ref.read(tagsWithStatsProvider).valueOrNull ?? [];
-    final unusedTags = tagsWithStats
-        .where((item) => item.transactionCount == 0)
-        .toList();
+    final unusedTags =
+        tagsWithStats.where((item) => item.transactionCount == 0).toList();
 
     if (unusedTags.isEmpty) return;
 

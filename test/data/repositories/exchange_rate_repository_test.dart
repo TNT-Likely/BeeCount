@@ -32,14 +32,18 @@ void main() {
 
   test('upsertAutoRates 同日覆盖 + getLatestAutoRates 取最新日期,且不记 change', () async {
     await repo.upsertAutoRates(
-      base: 'CNY', rateDate: '2026-06-09',
+      base: 'CNY',
+      rateDate: '2026-06-09',
       rates: {'USD': '7.10', 'JPY': '0.047'},
-      source: 'fawazahmed0', fetchedAt: DateTime.utc(2026, 6, 9),
+      source: 'fawazahmed0',
+      fetchedAt: DateTime.utc(2026, 6, 9),
     );
     await repo.upsertAutoRates(
-      base: 'CNY', rateDate: '2026-06-10',
+      base: 'CNY',
+      rateDate: '2026-06-10',
       rates: {'USD': '7.20'},
-      source: 'frankfurter', fetchedAt: DateTime.utc(2026, 6, 10),
+      source: 'frankfurter',
+      fetchedAt: DateTime.utc(2026, 6, 10),
     );
     final latest = await repo.getLatestAutoRates('CNY');
     final usd = latest.firstWhere((r) => r.quoteCurrency == 'USD');
@@ -69,8 +73,10 @@ void main() {
     expect(await repo.getOverrides('CNY'), isEmpty);
 
     final changes = await tracker.getUnpushedChangesForLedger(0);
-    expect(changes.map((c) => c.action).toList(), ['create', 'update', 'delete']);
-    expect(changes.every((c) => c.entityType == 'exchange_rate_override'), isTrue);
+    expect(
+        changes.map((c) => c.action).toList(), ['create', 'update', 'delete']);
+    expect(
+        changes.every((c) => c.entityType == 'exchange_rate_override'), isTrue);
     expect(changes.every((c) => c.ledgerId == 0), isTrue);
   });
 

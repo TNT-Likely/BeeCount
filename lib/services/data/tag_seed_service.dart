@@ -31,7 +31,8 @@ class TagSeedService {
 
   /// 获取预设标签定义
   /// 返回标签列表，包含名称和颜色
-  static List<({String name, String? color})> getDefaultTags(AppLocalizations l10n) {
+  static List<({String name, String? color})> getDefaultTags(
+      AppLocalizations l10n) {
     return [
       // 常用商家类
       (name: l10n.tagDefaultMeituan, color: '#FF5722'),
@@ -144,7 +145,8 @@ class TagSeedService {
 
   /// 获取记账方式对应的所有标签名称列表
   /// [billingTypes] 记账方式列表，如 ['image', 'ai'] 表示开启AI的图片记账
-  static List<String> getBillingTagNames(List<String> billingTypes, AppLocalizations l10n) {
+  static List<String> getBillingTagNames(
+      List<String> billingTypes, AppLocalizations l10n) {
     final tagNames = <String>[];
     for (final type in billingTypes) {
       final tagName = getBillingTagName(type, l10n);

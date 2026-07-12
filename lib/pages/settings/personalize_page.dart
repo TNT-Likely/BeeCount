@@ -39,7 +39,8 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
       _ThemeOption(l10n.personalizeThemeDeepBlue, const Color(0xFF1565C0)),
       _ThemeOption(l10n.personalizeThemeMapleRed, const Color(0xFFD32F2F)),
       _ThemeOption(l10n.personalizeThemeEmerald, const Color(0xFF388E3C)),
-      _ThemeOption(l10n.personalizeThemeLavenderPurple, const Color(0xFF9575CD)),
+      _ThemeOption(
+          l10n.personalizeThemeLavenderPurple, const Color(0xFF9575CD)),
       _ThemeOption(l10n.personalizeThemeAmber, const Color(0xFFFFA726)),
       _ThemeOption(l10n.personalizeThemeRouge, const Color(0xFFC2185B)),
       _ThemeOption(l10n.personalizeThemeIndigo, const Color(0xFF3F51B5)),
@@ -64,40 +65,43 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
             compact: true,
           ),
           Expanded(
-            child: SafeArea(top: false, child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1.4,
-                  ),
-                  itemCount: options.length + 1, // +1 for custom color picker
-                  itemBuilder: (_, i) {
-                    if (i == options.length) {
-                      // Custom color picker card
-                      return _CustomColorCard(
-                        onTap: () => _showColorPicker(context, ref),
-                      );
-                    }
-                    final o = options[i];
-                    final selected = o.color == primary;
-                    return _ThemeCard(
-                      option: o,
-                      selected: selected,
-                      onTap: () => ref
-                          .read(primaryColorProvider.notifier)
-                          .state = o.color,
-                    );
-                  },
-                ),
-              ],
-            )),
+            child: SafeArea(
+                top: false,
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 1.4,
+                      ),
+                      itemCount:
+                          options.length + 1, // +1 for custom color picker
+                      itemBuilder: (_, i) {
+                        if (i == options.length) {
+                          // Custom color picker card
+                          return _CustomColorCard(
+                            onTap: () => _showColorPicker(context, ref),
+                          );
+                        }
+                        final o = options[i];
+                        final selected = o.color == primary;
+                        return _ThemeCard(
+                          option: o,
+                          selected: selected,
+                          onTap: () => ref
+                              .read(primaryColorProvider.notifier)
+                              .state = o.color,
+                        );
+                      },
+                    ),
+                  ],
+                )),
           ),
         ],
       ),
@@ -284,11 +288,13 @@ class _ColorPickerState extends State<_ColorPicker> {
             decoration: BoxDecoration(
               color: currentColor.toColor(),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: BeeTokens.borderStrong(context), width: 1),
+              border:
+                  Border.all(color: BeeTokens.borderStrong(context), width: 1),
             ),
             child: Center(
               child: Text(
-                '#${currentColor.toColor().r.round().toRadixString(16).padLeft(2, '0')}${currentColor.toColor().g.round().toRadixString(16).padLeft(2, '0')}${currentColor.toColor().b.round().toRadixString(16).padLeft(2, '0')}'.toUpperCase(),
+                '#${currentColor.toColor().r.round().toRadixString(16).padLeft(2, '0')}${currentColor.toColor().g.round().toRadixString(16).padLeft(2, '0')}${currentColor.toColor().b.round().toRadixString(16).padLeft(2, '0')}'
+                    .toUpperCase(),
                 style: TextStyle(
                   color: currentColor.value > 0.5 ? Colors.black : Colors.white,
                   fontWeight: FontWeight.bold,
@@ -300,13 +306,21 @@ class _ColorPickerState extends State<_ColorPicker> {
           const SizedBox(height: 20),
 
           // 色相滑块
-          Text(AppLocalizations.of(context)!.personalizeHue(currentColor.hue.round()), style: TextStyle(fontWeight: FontWeight.w500, color: BeeTokens.textPrimary(context))),
+          Text(
+              AppLocalizations.of(context)!
+                  .personalizeHue(currentColor.hue.round()),
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: BeeTokens.textPrimary(context))),
           Container(
             height: 40,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               gradient: LinearGradient(
-                colors: List.generate(7, (index) => HSVColor.fromAHSV(1.0, index * 60.0, 1.0, 1.0).toColor()),
+                colors: List.generate(
+                    7,
+                    (index) => HSVColor.fromAHSV(1.0, index * 60.0, 1.0, 1.0)
+                        .toColor()),
               ),
             ),
             child: SliderTheme(
@@ -332,15 +346,24 @@ class _ColorPickerState extends State<_ColorPicker> {
           const SizedBox(height: 10),
 
           // 饱和度滑块
-          Text(AppLocalizations.of(context)!.personalizeSaturation((currentColor.saturation * 100).round()), style: TextStyle(fontWeight: FontWeight.w500, color: BeeTokens.textPrimary(context))),
+          Text(
+              AppLocalizations.of(context)!.personalizeSaturation(
+                  (currentColor.saturation * 100).round()),
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: BeeTokens.textPrimary(context))),
           Container(
             height: 40,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               gradient: LinearGradient(
                 colors: [
-                  HSVColor.fromAHSV(1.0, currentColor.hue, 0.0, currentColor.value).toColor(),
-                  HSVColor.fromAHSV(1.0, currentColor.hue, 1.0, currentColor.value).toColor(),
+                  HSVColor.fromAHSV(
+                          1.0, currentColor.hue, 0.0, currentColor.value)
+                      .toColor(),
+                  HSVColor.fromAHSV(
+                          1.0, currentColor.hue, 1.0, currentColor.value)
+                      .toColor(),
                 ],
               ),
             ),
@@ -367,15 +390,24 @@ class _ColorPickerState extends State<_ColorPicker> {
           const SizedBox(height: 10),
 
           // 亮度滑块
-          Text(AppLocalizations.of(context)!.personalizeBrightness((currentColor.value * 100).round()), style: TextStyle(fontWeight: FontWeight.w500, color: BeeTokens.textPrimary(context))),
+          Text(
+              AppLocalizations.of(context)!
+                  .personalizeBrightness((currentColor.value * 100).round()),
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: BeeTokens.textPrimary(context))),
           Container(
             height: 40,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               gradient: LinearGradient(
                 colors: [
-                  HSVColor.fromAHSV(1.0, currentColor.hue, currentColor.saturation, 0.0).toColor(),
-                  HSVColor.fromAHSV(1.0, currentColor.hue, currentColor.saturation, 1.0).toColor(),
+                  HSVColor.fromAHSV(
+                          1.0, currentColor.hue, currentColor.saturation, 0.0)
+                      .toColor(),
+                  HSVColor.fromAHSV(
+                          1.0, currentColor.hue, currentColor.saturation, 1.0)
+                      .toColor(),
                 ],
               ),
             ),
@@ -408,13 +440,15 @@ class _ColorPickerState extends State<_ColorPicker> {
               onPressed: () => widget.onColorSelected(currentColor.toColor()),
               style: ElevatedButton.styleFrom(
                 backgroundColor: currentColor.toColor(),
-                foregroundColor: currentColor.value > 0.5 ? Colors.black : Colors.white,
+                foregroundColor:
+                    currentColor.value > 0.5 ? Colors.black : Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(AppLocalizations.of(context)!.personalizeSelectColor, style: const TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(AppLocalizations.of(context)!.personalizeSelectColor,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
         ],

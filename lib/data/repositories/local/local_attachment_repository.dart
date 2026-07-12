@@ -27,57 +27,62 @@ class LocalAttachmentRepository implements AttachmentRepository {
     String? cloudSha256,
   }) async {
     return await db.into(db.transactionAttachments).insert(
-      TransactionAttachmentsCompanion.insert(
-        transactionId: transactionId,
-        fileName: fileName,
-        originalName: d.Value(originalName),
-        fileSize: d.Value(fileSize),
-        width: d.Value(width),
-        height: d.Value(height),
-        sortOrder: d.Value(sortOrder),
-        cloudFileId: d.Value(cloudFileId),
-        cloudSha256: d.Value(cloudSha256),
-      ),
-    );
+          TransactionAttachmentsCompanion.insert(
+            transactionId: transactionId,
+            fileName: fileName,
+            originalName: d.Value(originalName),
+            fileSize: d.Value(fileSize),
+            width: d.Value(width),
+            height: d.Value(height),
+            sortOrder: d.Value(sortOrder),
+            cloudFileId: d.Value(cloudFileId),
+            cloudSha256: d.Value(cloudSha256),
+          ),
+        );
   }
 
   @override
   Future<TransactionAttachment?> getAttachmentById(int id) async {
     return await (db.select(db.transactionAttachments)
-      ..where((t) => t.id.equals(id))).getSingleOrNull();
+          ..where((t) => t.id.equals(id)))
+        .getSingleOrNull();
   }
 
   @override
-  Future<List<TransactionAttachment>> getAttachmentsByTransaction(int transactionId) async {
+  Future<List<TransactionAttachment>> getAttachmentsByTransaction(
+      int transactionId) async {
     return await (db.select(db.transactionAttachments)
-      ..where((t) => t.transactionId.equals(transactionId))
-      ..orderBy([(t) => d.OrderingTerm(expression: t.sortOrder)])).get();
+          ..where((t) => t.transactionId.equals(transactionId))
+          ..orderBy([(t) => d.OrderingTerm(expression: t.sortOrder)]))
+        .get();
   }
 
   @override
   Future<void> deleteAttachment(int id) async {
-    await (db.delete(db.transactionAttachments)
-      ..where((t) => t.id.equals(id))).go();
+    await (db.delete(db.transactionAttachments)..where((t) => t.id.equals(id)))
+        .go();
   }
 
   @override
   Future<void> deleteAttachmentsByTransaction(int transactionId) async {
     await (db.delete(db.transactionAttachments)
-      ..where((t) => t.transactionId.equals(transactionId))).go();
+          ..where((t) => t.transactionId.equals(transactionId)))
+        .go();
   }
 
   @override
   Future<void> updateAttachmentSortOrder(int id, int sortOrder) async {
-    await (db.update(db.transactionAttachments)
-      ..where((t) => t.id.equals(id))).write(
+    await (db.update(db.transactionAttachments)..where((t) => t.id.equals(id)))
+        .write(
       TransactionAttachmentsCompanion(sortOrder: d.Value(sortOrder)),
     );
   }
 
   @override
-  Future<void> updateAttachmentCloudRef(int id, {String? cloudFileId, String? cloudSha256}) async {
-    await (db.update(db.transactionAttachments)
-      ..where((t) => t.id.equals(id))).write(
+  Future<void> updateAttachmentCloudRef(int id,
+      {String? cloudFileId, String? cloudSha256}) async {
+    await (db.update(db.transactionAttachments)..where((t) => t.id.equals(id)))
+        .write(
       TransactionAttachmentsCompanion(
         cloudFileId: d.Value(cloudFileId),
         cloudSha256: d.Value(cloudSha256),
@@ -86,7 +91,8 @@ class LocalAttachmentRepository implements AttachmentRepository {
   }
 
   @override
-  Future<void> updateAttachmentSortOrders(List<({int id, int sortOrder})> updates) async {
+  Future<void> updateAttachmentSortOrders(
+      List<({int id, int sortOrder})> updates) async {
     await db.transaction(() async {
       for (final update in updates) {
         await updateAttachmentSortOrder(update.id, update.sortOrder);
@@ -101,7 +107,8 @@ class LocalAttachmentRepository implements AttachmentRepository {
   @override
   Future<bool> attachmentExistsByFileName(String fileName) async {
     final result = await (db.select(db.transactionAttachments)
-      ..where((t) => t.fileName.equals(fileName))).getSingleOrNull();
+          ..where((t) => t.fileName.equals(fileName)))
+        .getSingleOrNull();
     return result != null;
   }
 
@@ -150,20 +157,24 @@ class LocalAttachmentRepository implements AttachmentRepository {
   }
 
   @override
-  Future<Map<int, int>> getAttachmentCountsForTransactions(List<int> transactionIds) async {
+  Future<Map<int, int>> getAttachmentCountsForTransactions(
+      List<int> transactionIds) async {
     if (transactionIds.isEmpty) return {};
 
     final placeholders = transactionIds.map((_) => '?').join(',');
-    final result = await db.customSelect(
-      '''
+    final result = await db
+        .customSelect(
+          '''
       SELECT transaction_id, COUNT(*) AS count
       FROM transaction_attachments
       WHERE transaction_id IN ($placeholders)
       GROUP BY transaction_id
       ''',
-      variables: transactionIds.map((id) => d.Variable.withInt(id)).toList(),
-      readsFrom: {db.transactionAttachments},
-    ).get();
+          variables:
+              transactionIds.map((id) => d.Variable.withInt(id)).toList(),
+          readsFrom: {db.transactionAttachments},
+        )
+        .get();
 
     final Map<int, int> counts = {};
     for (final row in result) {
@@ -187,12 +198,14 @@ class LocalAttachmentRepository implements AttachmentRepository {
   }
 
   @override
-  Future<Map<int, List<TransactionAttachment>>> getAttachmentsForTransactions(List<int> transactionIds) async {
+  Future<Map<int, List<TransactionAttachment>>> getAttachmentsForTransactions(
+      List<int> transactionIds) async {
     if (transactionIds.isEmpty) return {};
 
     final attachments = await (db.select(db.transactionAttachments)
-      ..where((t) => t.transactionId.isIn(transactionIds))
-      ..orderBy([(t) => d.OrderingTerm(expression: t.sortOrder)])).get();
+          ..where((t) => t.transactionId.isIn(transactionIds))
+          ..orderBy([(t) => d.OrderingTerm(expression: t.sortOrder)]))
+        .get();
 
     final Map<int, List<TransactionAttachment>> result = {};
     for (final attachment in attachments) {
@@ -209,24 +222,32 @@ class LocalAttachmentRepository implements AttachmentRepository {
       readsFrom: {db.transactionAttachments},
     ).get();
 
-    return result.map((row) {
-      final id = row.data['transaction_id'];
-      if (id is int) return id;
-      if (id is BigInt) return id.toInt();
-      return 0;
-    }).where((id) => id > 0).toList();
+    return result
+        .map((row) {
+          final id = row.data['transaction_id'];
+          if (id is int) return id;
+          if (id is BigInt) return id.toInt();
+          return 0;
+        })
+        .where((id) => id > 0)
+        .toList();
   }
 
   @override
   Future<List<TransactionAttachment>> getAllAttachments() async {
     return await (db.select(db.transactionAttachments)
-      ..orderBy([(t) => d.OrderingTerm(expression: t.createdAt, mode: d.OrderingMode.desc)])).get();
+          ..orderBy([
+            (t) => d.OrderingTerm(
+                expression: t.createdAt, mode: d.OrderingMode.desc)
+          ]))
+        .get();
   }
 
   @override
   Future<void> deleteAttachmentByFileName(String fileName) async {
     await (db.delete(db.transactionAttachments)
-      ..where((t) => t.fileName.equals(fileName))).go();
+          ..where((t) => t.fileName.equals(fileName)))
+        .go();
   }
 
   // ============================================
@@ -234,25 +255,30 @@ class LocalAttachmentRepository implements AttachmentRepository {
   // ============================================
 
   @override
-  Stream<List<TransactionAttachment>> watchAttachmentsByTransaction(int transactionId) {
+  Stream<List<TransactionAttachment>> watchAttachmentsByTransaction(
+      int transactionId) {
     return (db.select(db.transactionAttachments)
-      ..where((t) => t.transactionId.equals(transactionId))
-      ..orderBy([(t) => d.OrderingTerm(expression: t.sortOrder)])).watch();
+          ..where((t) => t.transactionId.equals(transactionId))
+          ..orderBy([(t) => d.OrderingTerm(expression: t.sortOrder)]))
+        .watch();
   }
 
   @override
   Stream<int> watchAttachmentCountByTransaction(int transactionId) {
-    return db.customSelect(
-      'SELECT COUNT(*) AS count FROM transaction_attachments WHERE transaction_id = ?',
-      variables: [d.Variable.withInt(transactionId)],
-      readsFrom: {db.transactionAttachments},
-    ).watch().map((rows) {
-      if (rows.isEmpty) return 0;
-      final count = rows.first.data['count'];
-      if (count is int) return count;
-      if (count is BigInt) return count.toInt();
-      if (count is num) return count.toInt();
-      return 0;
-    });
+    return db
+        .customSelect(
+          'SELECT COUNT(*) AS count FROM transaction_attachments WHERE transaction_id = ?',
+          variables: [d.Variable.withInt(transactionId)],
+          readsFrom: {db.transactionAttachments},
+        )
+        .watch()
+        .map((rows) {
+          if (rows.isEmpty) return 0;
+          final count = rows.first.data['count'];
+          if (count is int) return count;
+          if (count is BigInt) return count.toInt();
+          if (count is num) return count.toInt();
+          return 0;
+        });
   }
 }

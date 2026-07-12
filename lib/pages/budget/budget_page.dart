@@ -89,7 +89,6 @@ class BudgetPage extends ConsumerWidget {
     );
   }
 
-
   Widget _buildEmptyState(
       BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     // §7 共享账本 Editor 视角:预算空时不显示"添加"CTA(owner-only)
@@ -118,8 +117,8 @@ class BudgetPage extends ConsumerWidget {
           if (!isEditorInShared)
             ElevatedButton.icon(
               onPressed: () => _addBudget(context),
-              icon: Icon(Icons.add,
-                  color: BeeTokens.buttonPrimaryText(context)),
+              icon:
+                  Icon(Icons.add, color: BeeTokens.buttonPrimaryText(context)),
               label: Text(l10n.budgetAddTotal),
               style: ElevatedButton.styleFrom(
                 backgroundColor: BeeTokens.buttonPrimary(context),

@@ -118,8 +118,7 @@ class AppLockService {
     final timeoutSeconds = prefs.getInt(_keyTimeoutSeconds) ?? 0;
     if (timeoutSeconds == 0) return true; // 立即锁定
 
-    final elapsed =
-        DateTime.now().millisecondsSinceEpoch - lastBgTime;
+    final elapsed = DateTime.now().millisecondsSinceEpoch - lastBgTime;
     return elapsed >= timeoutSeconds * 1000;
   }
 

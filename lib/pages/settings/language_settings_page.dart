@@ -47,7 +47,9 @@ class LanguageSettingsPage extends ConsumerWidget {
                   locale: const Locale('zh'),
                   currentLanguage: currentLanguage,
                   onTap: () {
-                    ref.read(languageProvider.notifier).setLanguage(const Locale('zh'));
+                    ref
+                        .read(languageProvider.notifier)
+                        .setLanguage(const Locale('zh'));
                     Future.delayed(const Duration(milliseconds: 100), () {
                       updateAppWidget(ref, context);
                     });
@@ -61,7 +63,9 @@ class LanguageSettingsPage extends ConsumerWidget {
                   locale: const Locale('zh', 'TW'),
                   currentLanguage: currentLanguage,
                   onTap: () {
-                    ref.read(languageProvider.notifier).setLanguage(const Locale('zh', 'TW'));
+                    ref
+                        .read(languageProvider.notifier)
+                        .setLanguage(const Locale('zh', 'TW'));
                     Future.delayed(const Duration(milliseconds: 100), () {
                       updateAppWidget(ref, context);
                     });
@@ -75,7 +79,9 @@ class LanguageSettingsPage extends ConsumerWidget {
                   locale: const Locale('en'),
                   currentLanguage: currentLanguage,
                   onTap: () {
-                    ref.read(languageProvider.notifier).setLanguage(const Locale('en'));
+                    ref
+                        .read(languageProvider.notifier)
+                        .setLanguage(const Locale('en'));
                     Future.delayed(const Duration(milliseconds: 100), () {
                       updateAppWidget(ref, context);
                     });
@@ -106,9 +112,10 @@ class _LanguageOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = (locale == null && currentLanguage == null) ||
-        (locale != null && currentLanguage != null &&
-         locale!.languageCode == currentLanguage!.languageCode &&
-         locale!.countryCode == currentLanguage!.countryCode);
+        (locale != null &&
+            currentLanguage != null &&
+            locale!.languageCode == currentLanguage!.languageCode &&
+            locale!.countryCode == currentLanguage!.countryCode);
 
     return ListTile(
       title: Text(

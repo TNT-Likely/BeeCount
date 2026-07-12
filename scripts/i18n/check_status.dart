@@ -1,4 +1,5 @@
 #!/usr/bin/env dart
+
 /// BeeCount 国际化翻译状态检查工具
 ///
 /// 功能：
@@ -225,8 +226,7 @@ Future<void> checkTranslationCompleteness() async {
   print('📈 总结:');
   print('  基准语言: 简体中文 (zh) - $zhCount 个键');
 
-  final complete =
-      languages.where((l) => (keyCount[l] ?? 0) >= zhCount).length;
+  final complete = languages.where((l) => (keyCount[l] ?? 0) >= zhCount).length;
   final incomplete = languages.length - complete;
 
   print('  完整翻译: $complete/${languages.length} 个语言');
@@ -374,8 +374,7 @@ Future<List<String>> checkUnusedKeys() async {
   final arbData = json.decode(arbContent) as Map<String, dynamic>;
 
   // 获取所有非元数据的 keys
-  final allKeys =
-      arbData.keys.where((key) => !key.startsWith('@')).toList();
+  final allKeys = arbData.keys.where((key) => !key.startsWith('@')).toList();
 
   print('📊 总共有 ${allKeys.length} 个翻译 keys');
 

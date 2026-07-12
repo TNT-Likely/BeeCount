@@ -356,7 +356,9 @@ class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage> {
           decoration: BoxDecoration(
             color: isActive
                 ? Colors.white
-                : (isPending ? Colors.orange.withValues(alpha: 0.7) : Colors.white54),
+                : (isPending
+                    ? Colors.orange.withValues(alpha: 0.7)
+                    : Colors.white54),
             shape: BoxShape.circle,
           ),
         );

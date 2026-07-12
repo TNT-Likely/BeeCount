@@ -17,8 +17,7 @@ class LocalAccountRepository implements AccountRepository {
 
   @override
   Stream<List<Account>> watchAccountsForLedger(int ledgerId) {
-    return (db.select(db.accounts)
-          ..where((a) => a.ledgerId.equals(ledgerId)))
+    return (db.select(db.accounts)..where((a) => a.ledgerId.equals(ledgerId)))
         .watch();
   }
 
@@ -44,8 +43,7 @@ class LocalAccountRepository implements AccountRepository {
 
   @override
   Future<Account?> getAccount(int accountId) async {
-    return await (db.select(db.accounts)
-          ..where((a) => a.id.equals(accountId)))
+    return await (db.select(db.accounts)..where((a) => a.id.equals(accountId)))
         .getSingleOrNull();
   }
 
@@ -152,9 +150,8 @@ class LocalAccountRepository implements AccountRepository {
     String currency = 'CNY',
     double initialBalance = 0.0,
   }) async {
-    final existing = await (db.select(db.accounts)
-          ..where((a) => a.name.equals(name)))
-        .get();
+    final existing =
+        await (db.select(db.accounts)..where((a) => a.name.equals(name))).get();
     if (existing.isNotEmpty) return existing.first.id;
     // 复用 createAccount(此时 name 不冲突,不会抛)
     return createAccount(
@@ -187,13 +184,35 @@ class LocalAccountRepository implements AccountRepository {
         name: name != null ? d.Value(name) : const d.Value.absent(),
         type: type != null ? d.Value(type) : const d.Value.absent(),
         currency: currency != null ? d.Value(currency) : const d.Value.absent(),
-        initialBalance: initialBalance != null ? d.Value(initialBalance) : const d.Value.absent(),
-        creditLimit: clearCreditCardFields ? const d.Value(null) : (creditLimit != null ? d.Value(creditLimit) : const d.Value.absent()),
-        billingDay: clearCreditCardFields ? const d.Value(null) : (billingDay != null ? d.Value(billingDay) : const d.Value.absent()),
-        paymentDueDay: clearCreditCardFields ? const d.Value(null) : (paymentDueDay != null ? d.Value(paymentDueDay) : const d.Value.absent()),
-        bankName: clearMetadataFields ? const d.Value(null) : (bankName != null ? d.Value(bankName) : const d.Value.absent()),
-        cardLastFour: clearMetadataFields ? const d.Value(null) : (cardLastFour != null ? d.Value(cardLastFour) : const d.Value.absent()),
-        note: clearMetadataFields ? const d.Value(null) : (note != null ? d.Value(note) : const d.Value.absent()),
+        initialBalance: initialBalance != null
+            ? d.Value(initialBalance)
+            : const d.Value.absent(),
+        creditLimit: clearCreditCardFields
+            ? const d.Value(null)
+            : (creditLimit != null
+                ? d.Value(creditLimit)
+                : const d.Value.absent()),
+        billingDay: clearCreditCardFields
+            ? const d.Value(null)
+            : (billingDay != null
+                ? d.Value(billingDay)
+                : const d.Value.absent()),
+        paymentDueDay: clearCreditCardFields
+            ? const d.Value(null)
+            : (paymentDueDay != null
+                ? d.Value(paymentDueDay)
+                : const d.Value.absent()),
+        bankName: clearMetadataFields
+            ? const d.Value(null)
+            : (bankName != null ? d.Value(bankName) : const d.Value.absent()),
+        cardLastFour: clearMetadataFields
+            ? const d.Value(null)
+            : (cardLastFour != null
+                ? d.Value(cardLastFour)
+                : const d.Value.absent()),
+        note: clearMetadataFields
+            ? const d.Value(null)
+            : (note != null ? d.Value(note) : const d.Value.absent()),
       ),
     );
   }
@@ -303,7 +322,8 @@ class LocalAccountRepository implements AccountRepository {
     final sharedIds = await _sharedLedgerIds();
     final transactions = await (db.select(db.transactions)
           ..where((t) =>
-              (t.accountId.equals(accountId) | t.toAccountId.equals(accountId)) &
+              (t.accountId.equals(accountId) |
+                  t.toAccountId.equals(accountId)) &
               t.ledgerId.isNotIn(sharedIds)))
         .get();
 
@@ -334,7 +354,8 @@ class LocalAccountRepository implements AccountRepository {
   Future<double> getAccountBalanceInLedger(int accountId, int ledgerId) async {
     final transactions = await (db.select(db.transactions)
           ..where((t) =>
-              (t.accountId.equals(accountId) | t.toAccountId.equals(accountId)) &
+              (t.accountId.equals(accountId) |
+                  t.toAccountId.equals(accountId)) &
               t.ledgerId.equals(ledgerId)))
         .get();
 
@@ -398,7 +419,8 @@ class LocalAccountRepository implements AccountRepository {
       return 0;
     }
 
-    return parseCount(mainCount.data['count']) + parseCount(toCount.data['count']);
+    return parseCount(mainCount.data['count']) +
+        parseCount(toCount.data['count']);
   }
 
   @override
@@ -462,7 +484,8 @@ class LocalAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<({double balance, double expense, double income})> getAccountStats(int accountId) async {
+  Future<({double balance, double expense, double income})> getAccountStats(
+      int accountId) async {
     final balance = await getAccountBalance(accountId);
     final expense = await getAccountExpense(accountId);
     final income = await getAccountIncome(accountId);
@@ -470,10 +493,12 @@ class LocalAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<Map<int, ({double balance, double expense, double income})>> getAllAccountStats() async {
+  Future<Map<int, ({double balance, double expense, double income})>>
+      getAllAccountStats() async {
     final accounts = await db.select(db.accounts).get();
 
-    final Map<int, ({double balance, double expense, double income})> stats = {};
+    final Map<int, ({double balance, double expense, double income})> stats =
+        {};
     for (final account in accounts) {
       stats[account.id] = await getAccountStats(account.id);
     }
@@ -482,7 +507,8 @@ class LocalAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<({double totalBalance, double totalExpense, double totalIncome})> getAllAccountsTotalStats() async {
+  Future<({double totalBalance, double totalExpense, double totalIncome})>
+      getAllAccountsTotalStats() async {
     final accounts = await db.select(db.accounts).get();
 
     // 总余额 = 所有账户余额之和（转账不影响总余额）
@@ -519,7 +545,11 @@ class LocalAccountRepository implements AccountRepository {
       }
     }
 
-    return (totalBalance: totalBalance, totalExpense: totalExpense, totalIncome: totalIncome);
+    return (
+      totalBalance: totalBalance,
+      totalExpense: totalExpense,
+      totalIncome: totalIncome
+    );
   }
 
   @override
@@ -599,7 +629,8 @@ class LocalAccountRepository implements AccountRepository {
   @override
   Stream<List<Transaction>> watchAccountTransactions(int accountId) {
     return (db.select(db.transactions)
-          ..where((t) => t.accountId.equals(accountId) | t.toAccountId.equals(accountId))
+          ..where((t) =>
+              t.accountId.equals(accountId) | t.toAccountId.equals(accountId))
           ..orderBy([
             (t) => d.OrderingTerm(
                 expression: t.happenedAt, mode: d.OrderingMode.desc)
@@ -617,8 +648,7 @@ class LocalAccountRepository implements AccountRepository {
   @override
   Future<List<Account>> getAccountsByIds(List<int> accountIds) async {
     if (accountIds.isEmpty) return [];
-    return await (db.select(db.accounts)
-          ..where((a) => a.id.isIn(accountIds)))
+    return await (db.select(db.accounts)..where((a) => a.id.isIn(accountIds)))
         .get();
   }
 
@@ -634,8 +664,8 @@ class LocalAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<List<Transaction>> getAccountTransactions(
-    int accountId, {int limit = 50, int offset = 0, String? flow}) async {
+  Future<List<Transaction>> getAccountTransactions(int accountId,
+      {int limit = 50, int offset = 0, String? flow}) async {
     // flow 过滤按资金流向:支出视图含转出,收入视图含转入,null 为全部
     final where = switch (flow) {
       'expense' => "account_id = ?1 AND type IN ('expense', 'transfer')",
@@ -680,14 +710,17 @@ class LocalAccountRepository implements AccountRepository {
 
   @override
   Future<List<({DateTime date, double balance})>> getAccountDailyBalances(
-    int accountId, {required DateTime startDate, required DateTime endDate}) async {
+      int accountId,
+      {required DateTime startDate,
+      required DateTime endDate}) async {
     final account = await getAccount(accountId);
     if (account == null) return [];
 
     // 估值账户：每天返回固定估值
     if (isValuationOnlyType(account.type)) {
       final result = <({DateTime date, double balance})>[];
-      var currentDate = DateTime(startDate.year, startDate.month, startDate.day);
+      var currentDate =
+          DateTime(startDate.year, startDate.month, startDate.day);
       final end = DateTime(endDate.year, endDate.month, endDate.day);
       while (!currentDate.isAfter(end)) {
         result.add((date: currentDate, balance: account.initialBalance));
@@ -704,7 +737,8 @@ class LocalAccountRepository implements AccountRepository {
         .add(const Duration(days: 1));
     final sharedIds = await _sharedLedgerIds();
     final allTxs = await (db.select(db.transactions)
-          ..where((t) => t.accountId.equals(accountId) | t.toAccountId.equals(accountId))
+          ..where((t) =>
+              t.accountId.equals(accountId) | t.toAccountId.equals(accountId))
           ..where((t) => t.happenedAt.isSmallerThanValue(endExclusive))
           ..where((t) => t.ledgerId.isNotIn(sharedIds))
           ..orderBy([(t) => d.OrderingTerm(expression: t.happenedAt)]))
@@ -715,7 +749,8 @@ class LocalAccountRepository implements AccountRepository {
     int txIndex = 0;
 
     // 先累加 startDate 之前的交易
-    while (txIndex < allTxs.length && allTxs[txIndex].happenedAt.isBefore(startDate)) {
+    while (txIndex < allTxs.length &&
+        allTxs[txIndex].happenedAt.isBefore(startDate)) {
       final tx = allTxs[txIndex];
       if (tx.accountId == accountId) {
         if (tx.type == 'income') {
@@ -743,7 +778,8 @@ class LocalAccountRepository implements AccountRepository {
       final nextDate = currentDate.add(const Duration(days: 1));
 
       // 累加当天的交易
-      while (txIndex < allTxs.length && allTxs[txIndex].happenedAt.isBefore(nextDate)) {
+      while (txIndex < allTxs.length &&
+          allTxs[txIndex].happenedAt.isBefore(nextDate)) {
         final tx = allTxs[txIndex];
         if (tx.accountId == accountId) {
           if (tx.type == 'income') {
@@ -800,7 +836,8 @@ class LocalAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<({double totalAssets, double totalLiabilities, double netWorth})> getNetWorthBreakdown() async {
+  Future<({double totalAssets, double totalLiabilities, double netWorth})>
+      getNetWorthBreakdown() async {
     final accounts = await getAllAccounts();
     double totalAssets = 0.0;
     double totalLiabilities = 0.0;
@@ -822,14 +859,20 @@ class LocalAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<Map<String, ({double totalAssets, double totalLiabilities, double netWorth})>> getNetWorthBreakdownByCurrency() async {
+  Future<
+          Map<String,
+              ({double totalAssets, double totalLiabilities, double netWorth})>>
+      getNetWorthBreakdownByCurrency() async {
     final accounts = await getAllAccounts();
-    final Map<String, ({double totalAssets, double totalLiabilities, double netWorth})> result = {};
+    final Map<String,
+            ({double totalAssets, double totalLiabilities, double netWorth})>
+        result = {};
 
     for (final account in accounts) {
       final balance = await getAccountBalance(account.id);
       final currency = account.currency.toUpperCase();
-      final prev = result[currency] ?? (totalAssets: 0.0, totalLiabilities: 0.0, netWorth: 0.0);
+      final prev = result[currency] ??
+          (totalAssets: 0.0, totalLiabilities: 0.0, netWorth: 0.0);
 
       if (isAssetType(account.type)) {
         result[currency] = (
@@ -901,11 +944,12 @@ class LocalAccountRepository implements AccountRepository {
 
     final allBalances = <int, List<({DateTime date, double balance})>>{};
     for (final account in accounts) {
-      allBalances[account.id] =
-          await getAccountDailyBalances(account.id, startDate: startDate, endDate: endDate);
+      allBalances[account.id] = await getAccountDailyBalances(account.id,
+          startDate: startDate, endDate: endDate);
     }
 
-    final result = <({DateTime date, double assets, double liabilities, double net})>[];
+    final result =
+        <({DateTime date, double assets, double liabilities, double net})>[];
     var currentDate = DateTime(startDate.year, startDate.month, startDate.day);
     final end = DateTime(endDate.year, endDate.month, endDate.day);
     int dayIndex = 0;
@@ -925,7 +969,12 @@ class LocalAccountRepository implements AccountRepository {
           }
         }
       }
-      result.add((date: currentDate, assets: assets, liabilities: liabilities, net: assets + liabilities));
+      result.add((
+        date: currentDate,
+        assets: assets,
+        liabilities: liabilities,
+        net: assets + liabilities
+      ));
       currentDate = currentDate.add(const Duration(days: 1));
       dayIndex++;
     }
@@ -933,13 +982,15 @@ class LocalAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<List<({String type, double totalBalance})>> getAssetCompositionByType() async {
+  Future<List<({String type, double totalBalance})>>
+      getAssetCompositionByType() async {
     final accounts = await getAllAccounts();
     final Map<String, double> typeBalances = {};
 
     for (final account in accounts) {
       final balance = await getAccountBalance(account.id);
-      typeBalances.update(account.type, (v) => v + balance, ifAbsent: () => balance);
+      typeBalances.update(account.type, (v) => v + balance,
+          ifAbsent: () => balance);
     }
 
     return typeBalances.entries
@@ -956,7 +1007,8 @@ class LocalAccountRepository implements AccountRepository {
 
     for (final account in accounts) {
       final balance = await getAccountBalance(account.id);
-      final key = (type: account.type, currency: account.currency.toUpperCase());
+      final key =
+          (type: account.type, currency: account.currency.toUpperCase());
       balances.update(key, (v) => v + balance, ifAbsent: () => balance);
     }
 
@@ -988,11 +1040,8 @@ class LocalAccountRepository implements AccountRepository {
 
   @override
   Future<Set<String>> getUsedCurrencies() async {
-    final rows = await db
-        .customSelect('SELECT DISTINCT currency FROM accounts')
-        .get();
-    return rows
-        .map((r) => (r.read<String>('currency')).toUpperCase())
-        .toSet();
+    final rows =
+        await db.customSelect('SELECT DISTINCT currency FROM accounts').get();
+    return rows.map((r) => (r.read<String>('currency')).toUpperCase()).toSet();
   }
 }

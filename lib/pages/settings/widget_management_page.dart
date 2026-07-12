@@ -113,7 +113,8 @@ class WidgetManagementPage extends ConsumerWidget {
                             monthExpense: '¥15,671.82',
                             monthIncome: '¥26,638.57',
                             themeColor: primaryColor,
-                            redForIncome: ref.watch(incomeExpenseColorSchemeProvider),
+                            redForIncome:
+                                ref.watch(incomeExpenseColorSchemeProvider),
                             appName: l10n.appName,
                             monthSuffix: l10n.monthSuffix,
                             todayExpenseLabel: l10n.todayExpense,

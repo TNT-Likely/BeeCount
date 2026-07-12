@@ -128,9 +128,7 @@ void main() {
       expect(rows, isEmpty);
     });
 
-    test(
-        '(4) 币对收敛后针对旧 syncId 的 delete 是 no-op — 行仍存活且为新值',
-        () async {
+    test('(4) 币对收敛后针对旧 syncId 的 delete 是 no-op — 行仍存活且为新值', () async {
       // step1: upsert rate-x(CNY/USD = 7.5)
       provider.pushFakeChange(
         entityType: 'exchange_rate_override',

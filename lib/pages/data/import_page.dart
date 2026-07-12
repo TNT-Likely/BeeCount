@@ -59,8 +59,9 @@ class _ImportPageState extends ConsumerState<ImportPage> {
                       const SizedBox(height: 16),
                       // 账单类型选择器
                       Text(AppLocalizations.of(context)!.importBillType,
-                          style:
-                              TextStyle(fontSize: 14, color: BeeTokens.textSecondary(context))),
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: BeeTokens.textSecondary(context))),
                       const SizedBox(height: 8),
                       CapsuleSwitcher<BillSourceType>(
                         selectedValue: _billType,
@@ -111,7 +112,8 @@ class _ImportPageState extends ConsumerState<ImportPage> {
                       const Spacer(),
                       if (_picked == null)
                         Text(AppLocalizations.of(context)!.importHint,
-                            style: TextStyle(color: BeeTokens.textTertiary(context))),
+                            style: TextStyle(
+                                color: BeeTokens.textTertiary(context))),
                     ],
                   ),
                 ),

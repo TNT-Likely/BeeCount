@@ -108,7 +108,8 @@ class PostProcessor {
         try {
           await sync.sync(ledgerId: ledgerId.toString());
           refresh.state++;
-          logger.info('PostProcessor', 'BeeCount Cloud 自动同步完成', 'ledgerId=$ledgerId');
+          logger.info(
+              'PostProcessor', 'BeeCount Cloud 自动同步完成', 'ledgerId=$ledgerId');
         } catch (e) {
           logger.error('PostProcessor', 'BeeCount Cloud 自动同步失败', e);
         }
@@ -148,7 +149,8 @@ class PostProcessor {
         try {
           await sync.sync(ledgerId: ledgerId.toString());
           refresh.state++;
-          logger.info('PostProcessor', 'BeeCount Cloud 自动同步完成', 'ledgerId=$ledgerId');
+          logger.info(
+              'PostProcessor', 'BeeCount Cloud 自动同步完成', 'ledgerId=$ledgerId');
         } catch (e) {
           logger.error('PostProcessor', 'BeeCount Cloud 自动同步失败', e);
         }
@@ -188,7 +190,8 @@ class PostProcessor {
         try {
           await sync.sync(ledgerId: ledgerId.toString());
           refresh.state++;
-          logger.info('PostProcessor', 'BeeCount Cloud 自动同步完成', 'ledgerId=$ledgerId');
+          logger.info(
+              'PostProcessor', 'BeeCount Cloud 自动同步完成', 'ledgerId=$ledgerId');
         } catch (e) {
           logger.error('PostProcessor', 'BeeCount Cloud 自动同步失败', e);
         }

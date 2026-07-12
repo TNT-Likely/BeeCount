@@ -72,8 +72,10 @@ class UpdateService {
   }) async {
     try {
       // 检查权限
-      onProgress?.call(0.0, AppLocalizations.of(context).updateCheckingPermissions);
-      final hasPermission = await UpdatePermissions.checkAndRequestPermissions();
+      onProgress?.call(
+          0.0, AppLocalizations.of(context).updateCheckingPermissions);
+      final hasPermission =
+          await UpdatePermissions.checkAndRequestPermissions();
       if (!hasPermission) {
         return UpdateResult(
           hasUpdate: false,
@@ -155,7 +157,8 @@ class UpdateService {
       }
 
       // 开始下载
-      onProgress?.call(0.0, AppLocalizations.of(context).updatePreparingDownload);
+      onProgress?.call(
+          0.0, AppLocalizations.of(context).updatePreparingDownload);
       if (!context.mounted) {
         return UpdateResult(
           hasUpdate: false,
@@ -204,9 +207,12 @@ class UpdateService {
             if (shouldInstall == true) {
               // 在安装前提供进度回调
               logger.info('UpdateService', 'UPDATE_CRASH: 🚀 用户确认安装，开始启动安装程序');
-              logger.info('UpdateService', 'UPDATE_CRASH: 当前构建模式: ${const bool.fromEnvironment('dart.vm.product') ? "生产模式" : "开发模式"}');
-              logger.info('UpdateService', 'UPDATE_CRASH: 当前flavor: ${const String.fromEnvironment('flavor', defaultValue: 'unknown')}');
-              onProgress?.call(0.95, AppLocalizations.of(context).updateStartingInstaller);
+              logger.info('UpdateService',
+                  'UPDATE_CRASH: 当前构建模式: ${const bool.fromEnvironment('dart.vm.product') ? "生产模式" : "开发模式"}');
+              logger.info('UpdateService',
+                  'UPDATE_CRASH: 当前flavor: ${const String.fromEnvironment('flavor', defaultValue: 'unknown')}');
+              onProgress?.call(
+                  0.95, AppLocalizations.of(context).updateStartingInstaller);
 
               // 确保在启动安装器之前，界面状态是正确的
               await Future.delayed(const Duration(milliseconds: 300));
@@ -216,26 +222,34 @@ class UpdateService {
 
               // 在生产环境中添加额外的预检查
               if (const bool.fromEnvironment('dart.vm.product')) {
-                logger.info('UpdateService', 'UPDATE_CRASH: 🏭 生产环境，执行额外预检查...');
+                logger.info(
+                    'UpdateService', 'UPDATE_CRASH: 🏭 生产环境，执行额外预检查...');
                 try {
                   final preCheck = File(downloadResult.filePath!);
                   final preCheckExists = await preCheck.exists();
-                  final preCheckSize = preCheckExists ? await preCheck.length() : 0;
-                  logger.info('UpdateService', 'UPDATE_CRASH: 生产环境预检查 - 文件存在: $preCheckExists, 大小: $preCheckSize');
+                  final preCheckSize =
+                      preCheckExists ? await preCheck.length() : 0;
+                  logger.info('UpdateService',
+                      'UPDATE_CRASH: 生产环境预检查 - 文件存在: $preCheckExists, 大小: $preCheckSize');
                 } catch (preCheckError) {
-                  logger.error('UpdateService', 'UPDATE_CRASH: 生产环境预检查失败', preCheckError);
+                  logger.error('UpdateService', 'UPDATE_CRASH: 生产环境预检查失败',
+                      preCheckError);
                 }
               }
 
-              final installed = await UpdateInstaller.installApk(downloadResult.filePath!);
-              logger.info('UpdateService', 'UPDATE_CRASH: 🎯 UpdateInstaller.installApk返回结果: $installed');
+              final installed =
+                  await UpdateInstaller.installApk(downloadResult.filePath!);
+              logger.info('UpdateService',
+                  'UPDATE_CRASH: 🎯 UpdateInstaller.installApk返回结果: $installed');
 
               if (const bool.fromEnvironment('dart.vm.product')) {
-                logger.info('UpdateService', 'UPDATE_CRASH: 🏭 生产环境安装调用完成，应用即将进入后台或退出');
+                logger.info(
+                    'UpdateService', 'UPDATE_CRASH: 🏭 生产环境安装调用完成，应用即将进入后台或退出');
               }
 
               if (installed) {
-                onProgress?.call(1.0, AppLocalizations.of(context).updateInstallerStarted);
+                onProgress?.call(
+                    1.0, AppLocalizations.of(context).updateInstallerStarted);
                 return UpdateResult(
                   hasUpdate: true,
                   success: true,
@@ -243,7 +257,8 @@ class UpdateService {
                   filePath: downloadResult.filePath,
                 );
               } else {
-                onProgress?.call(1.0, AppLocalizations.of(context).updateInstallationFailed);
+                onProgress?.call(
+                    1.0, AppLocalizations.of(context).updateInstallationFailed);
                 return UpdateResult(
                   hasUpdate: true,
                   success: false,
@@ -254,48 +269,57 @@ class UpdateService {
             } else {
               // 用户选择稍后安装或弹窗被取消
               logger.info('UpdateService', '用户选择稍后安装或操作被取消');
-              onProgress?.call(1.0, AppLocalizations.of(context).updateDownloadCompleted);
+              onProgress?.call(
+                  1.0, AppLocalizations.of(context).updateDownloadCompleted);
               return UpdateResult(
                 hasUpdate: true,
                 success: true,
-                message: AppLocalizations.of(context).updateDownloadCompletedManual,
+                message:
+                    AppLocalizations.of(context).updateDownloadCompletedManual,
                 filePath: downloadResult.filePath,
               );
             }
           } catch (e) {
             logger.error('UpdateService', '显示安装确认弹窗过程中发生异常', e);
-            onProgress?.call(1.0, AppLocalizations.of(context).updateDownloadCompleted);
+            onProgress?.call(
+                1.0, AppLocalizations.of(context).updateDownloadCompleted);
             return UpdateResult(
               hasUpdate: true,
               success: true,
-              message: AppLocalizations.of(context).updateDownloadCompletedDialog,
+              message:
+                  AppLocalizations.of(context).updateDownloadCompletedDialog,
               filePath: downloadResult.filePath,
             );
           }
         } else {
           // context未挂载，无法显示对话框
           logger.warning('UpdateService', 'Context未挂载，无法显示安装确认弹窗');
-          onProgress?.call(1.0, AppLocalizations.of(context).updateDownloadCompleted);
+          onProgress?.call(
+              1.0, AppLocalizations.of(context).updateDownloadCompleted);
           return UpdateResult(
             hasUpdate: true,
             success: true,
-            message: AppLocalizations.of(context).updateDownloadCompletedContext,
+            message:
+                AppLocalizations.of(context).updateDownloadCompletedContext,
             filePath: downloadResult.filePath,
           );
         }
       } else {
-        onProgress?.call(1.0, AppLocalizations.of(context).updateDownloadFailedGeneric);
+        onProgress?.call(
+            1.0, AppLocalizations.of(context).updateDownloadFailedGeneric);
         return UpdateResult(
           hasUpdate: false,
           success: false,
-          message: _localizeUpdateMessage(context, downloadResult.message).isNotEmpty ?
-              _localizeUpdateMessage(context, downloadResult.message) :
-              AppLocalizations.of(context).updateDownloadFailedGeneric,
+          message:
+              _localizeUpdateMessage(context, downloadResult.message).isNotEmpty
+                  ? _localizeUpdateMessage(context, downloadResult.message)
+                  : AppLocalizations.of(context).updateDownloadFailedGeneric,
         );
       }
     } catch (e) {
       logger.error('UpdateService', '下载更新失败', e);
-      onProgress?.call(1.0, AppLocalizations.of(context).updateDownloadFailedGeneric);
+      onProgress?.call(
+          1.0, AppLocalizations.of(context).updateDownloadFailedGeneric);
       return UpdateResult(
         hasUpdate: false,
         success: false,
@@ -323,9 +347,13 @@ class UpdateService {
 
         if (!checkResult.hasUpdate) {
           // 检查是否是网络错误或API错误，提供兜底方案
-          final localizedMessage = _localizeUpdateMessage(context, checkResult.message);
-          final message = localizedMessage.isEmpty ? AppLocalizations.of(context).updateCurrentLatestVersion : localizedMessage;
-          final isNetworkError = message.contains(AppLocalizations.of(context).updateCheckFailedGeneric) ||
+          final localizedMessage =
+              _localizeUpdateMessage(context, checkResult.message);
+          final message = localizedMessage.isEmpty
+              ? AppLocalizations.of(context).updateCurrentLatestVersion
+              : localizedMessage;
+          final isNetworkError = message.contains(
+                  AppLocalizations.of(context).updateCheckFailedGeneric) ||
               message.contains('HTTP') ||
               checkResult.message?.startsWith('__UPDATE_CHECK') == true;
           if (isNetworkError) {
@@ -369,10 +397,12 @@ class UpdateService {
 
         if (!context.mounted) return;
 
-        logger.info('UpdateService', 'UPDATE_CRASH: 📊 downloadResult检查 - success: ${downloadResult.success}, message: ${downloadResult.message}, type: ${downloadResult.type}');
+        logger.info('UpdateService',
+            'UPDATE_CRASH: 📊 downloadResult检查 - success: ${downloadResult.success}, message: ${downloadResult.message}, type: ${downloadResult.type}');
 
         if (!downloadResult.success && downloadResult.message != null) {
-          logger.warning('UpdateService', 'UPDATE_CRASH: ⚠️ 检测到下载结果为失败，准备显示错误弹窗');
+          logger.warning(
+              'UpdateService', 'UPDATE_CRASH: ⚠️ 检测到下载结果为失败，准备显示错误弹窗');
 
           // 检查是否是用户取消，如果是则不显示错误弹窗
           if (downloadResult.type == UpdateResultType.userCancelled) {
@@ -389,16 +419,21 @@ class UpdateService {
 
           // 显示下载错误信息，并提供GitHub fallback
           logger.warning('UpdateService', 'UPDATE_CRASH: 🚨 即将显示下载失败弹窗');
-          final localizedError = _localizeUpdateMessage(context, downloadResult.message!);
+          final localizedError =
+              _localizeUpdateMessage(context, downloadResult.message!);
           await UpdateDialogs.showDownloadErrorWithFallback(
-              context, localizedError.isNotEmpty ? localizedError : downloadResult.message!);
+              context,
+              localizedError.isNotEmpty
+                  ? localizedError
+                  : downloadResult.message!);
         } else if (downloadResult.success) {
           logger.info('UpdateService', 'UPDATE_CRASH: ✅ 下载和安装流程成功完成');
         }
         // 成功下载的情况不需要额外提示，UpdateService内部已处理
       } catch (e) {
         if (context.mounted) {
-          await UpdateDialogs.showUpdateErrorWithFallback(context, AppLocalizations.of(context).updateCheckingUpdateError('$e'));
+          await UpdateDialogs.showUpdateErrorWithFallback(context,
+              AppLocalizations.of(context).updateCheckingUpdateError('$e'));
         }
       } finally {
         setLoading(false);

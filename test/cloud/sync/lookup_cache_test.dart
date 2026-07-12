@@ -175,7 +175,8 @@ void main() {
           type: 'expense',
           amount: 10.0 + i,
           syncId: Value('tx-$i'),
-          createdByUserId: i.isEven ? const Value('user-A') : const Value.absent(),
+          createdByUserId:
+              i.isEven ? const Value('user-A') : const Value.absent(),
         ));
       }
       await db.batch((b) => b.insertAll(db.transactions, batch));
@@ -185,7 +186,8 @@ void main() {
       sw.stop();
       // 输出基准 — 改 LookupCache 后看是否退化
       // ignore: avoid_print
-      print('[Benchmark] LookupCache.prime 10k tx: ${sw.elapsedMilliseconds}ms');
+      print(
+          '[Benchmark] LookupCache.prime 10k tx: ${sw.elapsedMilliseconds}ms');
 
       // assert 不退化太多。Debug 模式应该 < 2s。Release 应 < 200ms。
       expect(sw.elapsedMilliseconds, lessThan(2000),
@@ -219,7 +221,8 @@ void main() {
       }
       sw.stop();
       // ignore: avoid_print
-      print('[Benchmark] LookupCache 10k lookup: ${sw.elapsedMilliseconds}ms ($hits hits)');
+      print(
+          '[Benchmark] LookupCache 10k lookup: ${sw.elapsedMilliseconds}ms ($hits hits)');
 
       expect(hits, 10000);
       expect(sw.elapsedMilliseconds, lessThan(100),

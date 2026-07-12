@@ -29,12 +29,21 @@ void main() {
   test('computeConvertedNetWorth 折算 + 缺失剔除 + 最旧日期', () {
     final r = computeConvertedNetWorth(
       breakdown: {
-        'CNY': (totalAssets: 8000.0, totalLiabilities: 2200.0, netWorth: 5800.0),
+        'CNY': (
+          totalAssets: 8000.0,
+          totalLiabilities: 2200.0,
+          netWorth: 5800.0
+        ),
         'USD': (totalAssets: 1000.0, totalLiabilities: 0.0, netWorth: 1000.0),
-        'KRW': (totalAssets: 500000.0, totalLiabilities: 0.0, netWorth: 500000.0),
+        'KRW': (
+          totalAssets: 500000.0,
+          totalLiabilities: 0.0,
+          netWorth: 500000.0
+        ),
       },
       rates: {
-        'USD': const EffectiveRate(rate: '7.20', manual: false, rateDate: '2026-06-10'),
+        'USD': const EffectiveRate(
+            rate: '7.20', manual: false, rateDate: '2026-06-10'),
       },
       base: 'CNY',
     );
@@ -50,7 +59,8 @@ void main() {
     final r = convertAmountsToBase(
       amounts: {'CNY': 5800.0, 'USD': 1000.0, 'KRW': 500000.0},
       rates: {
-        'USD': const EffectiveRate(rate: '7.20', manual: false, rateDate: '2026-06-10'),
+        'USD': const EffectiveRate(
+            rate: '7.20', manual: false, rateDate: '2026-06-10'),
       },
       base: 'CNY',
     );
@@ -79,7 +89,8 @@ void main() {
         'USD': (totalAssets: 100.0, totalLiabilities: 0.0, netWorth: 100.0),
       },
       rates: {
-        'USD': const EffectiveRate(rate: 'bad', manual: false, rateDate: '2020-01-01'),
+        'USD': const EffectiveRate(
+            rate: 'bad', manual: false, rateDate: '2020-01-01'),
       },
       base: 'CNY',
     );

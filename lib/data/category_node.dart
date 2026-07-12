@@ -61,9 +61,7 @@ class CategoryHierarchy {
     List<Category> allCategories,
     int parentId,
   ) {
-    return allCategories
-        .where((c) => c.parentId == parentId)
-        .toList()
+    return allCategories.where((c) => c.parentId == parentId).toList()
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
   }
 
@@ -86,9 +84,7 @@ class CategoryHierarchy {
         .toSet();
 
     // 过滤出可用分类：不是父分类的分类
-    return allCategories
-        .where((c) => !parentIds.contains(c.id))
-        .toList()
+    return allCategories.where((c) => !parentIds.contains(c.id)).toList()
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
   }
 

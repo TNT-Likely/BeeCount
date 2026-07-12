@@ -4,7 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/ui/ui_scale_service.dart';
 
 /// 字体缩放档位：-3~4 八档调整
-final fontScaleLevelProvider = StateProvider<int>((ref) => 0); // 允许 -3,-2,-1,0,1,2,3,4
+final fontScaleLevelProvider =
+    StateProvider<int>((ref) => 0); // 允许 -3,-2,-1,0,1,2,3,4
 
 /// 自定义缩放系数 (0.7~1.5)
 final customFontScaleProvider = StateProvider<double>((ref) => 1.0);
@@ -47,7 +48,8 @@ final uiScaleProvider = Provider.family<double, BuildContext>((ref, context) {
 });
 
 /// UI缩放调试信息Provider
-final uiScaleDebugProvider = Provider.family<Map<String, double>, BuildContext>((ref, context) {
+final uiScaleDebugProvider =
+    Provider.family<Map<String, double>, BuildContext>((ref, context) {
   final userScale = ref.watch(effectiveFontScaleProvider);
   return UIScaleService.getDebugInfo(context, userScale);
 });
@@ -65,7 +67,8 @@ final fontScaleInitProvider = FutureProvider<void>((ref) async {
   // 读取自定义缩放设置
   final savedCustom = prefs.getDouble('customFontScale');
   if (savedCustom != null) {
-    ref.read(customFontScaleProvider.notifier).state = savedCustom.clamp(0.7, 1.5);
+    ref.read(customFontScaleProvider.notifier).state =
+        savedCustom.clamp(0.7, 1.5);
   }
 
   // 监听档位变化并保存

@@ -207,7 +207,8 @@ class _SubCategoryCard extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    AppLocalizations.of(context).categoryMigrationTransactionLabel(transactionCount),
+                    AppLocalizations.of(context)
+                        .categoryMigrationTransactionLabel(transactionCount),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: Theme.of(context).colorScheme.outline,
                           fontSize: 9, // 略小 (9 vs 10)
@@ -223,4 +224,3 @@ class _SubCategoryCard extends ConsumerWidget {
     );
   }
 }
-

@@ -3,10 +3,10 @@ import '../system/logger_service.dart';
 
 /// 重复交易频率枚举
 enum RecurringFrequency {
-  daily('daily'),      // 每天
-  weekly('weekly'),    // 每周
-  monthly('monthly'),  // 每月
-  yearly('yearly');    // 每年
+  daily('daily'), // 每天
+  weekly('weekly'), // 每周
+  monthly('monthly'), // 每月
+  yearly('yearly'); // 每年
 
   final String value;
   const RecurringFrequency(this.value);
@@ -101,8 +101,7 @@ class RecurringTransactionService {
     switch (frequency) {
       case RecurringFrequency.daily:
         // 首笔=基准日(含今天);之后=上次+interval 天
-        nextDate =
-            firstGen ? baseDate : baseDate.add(Duration(days: interval));
+        nextDate = firstGen ? baseDate : baseDate.add(Duration(days: interval));
         break;
 
       case RecurringFrequency.weekly:
@@ -124,7 +123,8 @@ class RecurringTransactionService {
           return DateTime(year, month, day);
         }
 
-        nextDate = buildMonthly(baseDate.year, baseDate.month + (firstGen ? 0 : interval));
+        nextDate = buildMonthly(
+            baseDate.year, baseDate.month + (firstGen ? 0 : interval));
         // 首笔:若当月目标日早于基准(本月已过)→ 顺延一个 interval 月,避免回溯
         if (firstGen && nextDate.isBefore(baseDate)) {
           nextDate = buildMonthly(baseDate.year, baseDate.month + interval);
@@ -198,8 +198,8 @@ class RecurringTransactionService {
         while (true) {
           // 防御:任何情况下单条周期交易一次扫描不应生成上千笔 —— 拦截死循环
           if (++loopGuard > 1000) {
-            logger.warning(_tag,
-                '周期交易 id=${recurring.id} 单次生成超过 1000 笔,强制中止以防死循环');
+            logger.warning(
+                _tag, '周期交易 id=${recurring.id} 单次生成超过 1000 笔,强制中止以防死循环');
             break;
           }
           final nextDate = calculateNextDate(currentRecurring);
@@ -227,8 +227,9 @@ class RecurringTransactionService {
           );
 
           // 使用流式查询获取生成的交易（取第一个）
-          final transactionsWithCategory =
-              await repository.transactionsWithCategoryAll(ledgerId: ledger.id).first;
+          final transactionsWithCategory = await repository
+              .transactionsWithCategoryAll(ledgerId: ledger.id)
+              .first;
           final matchedTransactions = transactionsWithCategory
               .where((e) => e.t.id == transactionId)
               .toList();

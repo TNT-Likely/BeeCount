@@ -46,16 +46,16 @@ class LocalBudgetRepository implements BudgetRepository {
     // 每条新建预算分配一个 UUID,跨设备 LWW 用。syncId 在 DB schema 上允许
     // NULL,只是为了 v22 migration 对老数据兼容;新建走这里永远填。
     return await db.into(db.budgets).insert(
-      BudgetsCompanion.insert(
-        ledgerId: ledgerId,
-        type: d.Value(type),
-        categoryId: d.Value(categoryId),
-        amount: amount,
-        period: d.Value(period),
-        startDay: d.Value(startDay),
-        syncId: d.Value(_uuid.v4()),
-      ),
-    );
+          BudgetsCompanion.insert(
+            ledgerId: ledgerId,
+            type: d.Value(type),
+            categoryId: d.Value(categoryId),
+            amount: amount,
+            period: d.Value(period),
+            startDay: d.Value(startDay),
+            syncId: d.Value(_uuid.v4()),
+          ),
+        );
   }
 
   @override
@@ -78,8 +78,7 @@ class LocalBudgetRepository implements BudgetRepository {
   @override
   Future<void> deleteBudget(int id) async {
     // 先获取预算信息，判断是否为总预算
-    final budget = await (db.select(db.budgets)
-          ..where((b) => b.id.equals(id)))
+    final budget = await (db.select(db.budgets)..where((b) => b.id.equals(id)))
         .getSingleOrNull();
 
     if (budget == null) return;
@@ -99,7 +98,10 @@ class LocalBudgetRepository implements BudgetRepository {
   Future<Budget?> getTotalBudget(int ledgerId) async {
     // 使用 .get() 然后取第一个，避免多条脏数据时报错
     final budgets = await (db.select(db.budgets)
-          ..where((b) => b.ledgerId.equals(ledgerId) & b.type.equals('total') & b.enabled.equals(true))
+          ..where((b) =>
+              b.ledgerId.equals(ledgerId) &
+              b.type.equals('total') &
+              b.enabled.equals(true))
           ..orderBy([(b) => d.OrderingTerm(expression: b.createdAt)]))
         .get();
     return budgets.firstOrNull;
@@ -108,7 +110,10 @@ class LocalBudgetRepository implements BudgetRepository {
   @override
   Future<List<Budget>> getCategoryBudgets(int ledgerId) async {
     return await (db.select(db.budgets)
-          ..where((b) => b.ledgerId.equals(ledgerId) & b.type.equals('category') & b.enabled.equals(true)))
+          ..where((b) =>
+              b.ledgerId.equals(ledgerId) &
+              b.type.equals('category') &
+              b.enabled.equals(true)))
         .get();
   }
 

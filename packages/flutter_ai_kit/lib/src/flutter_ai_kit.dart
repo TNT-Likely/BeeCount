@@ -99,14 +99,14 @@ class FlutterAIKit {
 
       try {
         // 执行任务（带超时）
-        final result = await provider
-            .execute(task as AITask<dynamic, dynamic>)
-            .timeout(
-              ctx.timeout ?? const Duration(seconds: 30),
-            ) as AIResult<TOutput>;
+        final result =
+            await provider.execute(task as AITask<dynamic, dynamic>).timeout(
+                  ctx.timeout ?? const Duration(seconds: 30),
+                ) as AIResult<TOutput>;
 
         if (result.success) {
-          print('✅ [FlutterAIKit] Success with ${provider.name} in ${result.duration.inMilliseconds}ms');
+          print(
+              '✅ [FlutterAIKit] Success with ${provider.name} in ${result.duration.inMilliseconds}ms');
           return result;
         }
 

@@ -49,11 +49,8 @@ class SupabaseDatabaseService implements CloudDatabaseService {
       }
 
       // Insert and return the created record
-      final response = await _client
-          .from(table)
-          .insert(insertData)
-          .select()
-          .single();
+      final response =
+          await _client.from(table).insert(insertData).select().single();
 
       return response as Map<String, dynamic>;
     } on supabase.PostgrestException catch (e) {
@@ -77,10 +74,7 @@ class SupabaseDatabaseService implements CloudDatabaseService {
       }
 
       // Batch insert and return created records
-      final response = await _client
-          .from(table)
-          .insert(data)
-          .select();
+      final response = await _client.from(table).insert(data).select();
 
       return (response as List).cast<Map<String, dynamic>>();
     } on supabase.PostgrestException catch (e) {
@@ -106,10 +100,7 @@ class SupabaseDatabaseService implements CloudDatabaseService {
       }
 
       // Build query
-      var query = _client
-          .from(table)
-          .update(data)
-          .eq('id', id);
+      var query = _client.from(table).update(data).eq('id', id);
 
       // 自动添加用户过滤
       if (autoFilterByUser) {
@@ -142,10 +133,7 @@ class SupabaseDatabaseService implements CloudDatabaseService {
       }
 
       // Build query
-      var query = _client
-          .from(table)
-          .delete()
-          .eq('id', id);
+      var query = _client.from(table).delete().eq('id', id);
 
       // 自动添加用户过滤
       if (autoFilterByUser) {
@@ -232,11 +220,8 @@ class SupabaseDatabaseService implements CloudDatabaseService {
       }
 
       // Get single record
-      final response = await _client
-          .from(table)
-          .select()
-          .eq('id', id)
-          .maybeSingle();
+      final response =
+          await _client.from(table).select().eq('id', id).maybeSingle();
 
       return response as Map<String, dynamic>?;
     } on supabase.PostgrestException catch (e) {
@@ -273,10 +258,7 @@ class SupabaseDatabaseService implements CloudDatabaseService {
       }
 
       // Batch insert
-      final response = await _client
-          .from(table)
-          .insert(data)
-          .select();
+      final response = await _client.from(table).insert(data).select();
 
       return List<Map<String, dynamic>>.from(response as List);
     } on supabase.PostgrestException catch (e) {
@@ -308,10 +290,7 @@ class SupabaseDatabaseService implements CloudDatabaseService {
           throw CloudStorageException('Record missing $idField field');
         }
 
-        await _client
-            .from(table)
-            .update(record)
-            .eq(idField, id);
+        await _client.from(table).update(record).eq(idField, id);
       }
     } on supabase.PostgrestException catch (e) {
       throw CloudStorageException('Batch update failed: ${e.message}', e);
@@ -403,7 +382,8 @@ class SupabaseDatabaseService implements CloudDatabaseService {
       case 'overlaps':
         return query.overlaps(filter.column, filter.value as List);
       default:
-        throw CloudStorageException('Unsupported filter operator: ${filter.operator}');
+        throw CloudStorageException(
+            'Unsupported filter operator: ${filter.operator}');
     }
   }
 }

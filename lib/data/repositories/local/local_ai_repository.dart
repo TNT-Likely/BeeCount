@@ -20,8 +20,7 @@ class LocalAIRepository implements AIRepository {
 
   @override
   Future<Conversation?> getConversationById(int id) async {
-    return await (db.select(db.conversations)
-          ..where((c) => c.id.equals(id)))
+    return await (db.select(db.conversations)..where((c) => c.id.equals(id)))
         .getSingleOrNull();
   }
 

@@ -23,8 +23,11 @@ class _StubAdapter implements HttpClientAdapter {
 }
 
 ResponseBody _json(Map<String, dynamic> body) => ResponseBody.fromString(
-      jsonEncode(body), 200,
-      headers: {Headers.contentTypeHeader: [Headers.jsonContentType]},
+      jsonEncode(body),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType]
+      },
     );
 
 void main() {
@@ -77,7 +80,10 @@ void main() {
     final dio = Dio();
     dio.httpClientAdapter = _StubAdapter((o) {
       hitHosts.add(o.uri.host);
-      return _json({'date': '2026-06-10', 'cny': {'usd': 0.1477}});
+      return _json({
+        'date': '2026-06-10',
+        'cny': {'usd': 0.1477}
+      });
     });
     final svc = ExchangeRateService(dio: dio);
     final r = await svc.fetch('CNY');

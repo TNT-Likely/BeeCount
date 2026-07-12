@@ -2,16 +2,16 @@ import '../db.dart';
 
 /// 预算使用情况
 class BudgetUsage {
-  final double used;      // 已用金额
-  final double budget;    // 预算金额
+  final double used; // 已用金额
+  final double budget; // 预算金额
   final double remaining; // 剩余金额
-  final double rate;      // 使用率 (0-1)
+  final double rate; // 使用率 (0-1)
 
   BudgetUsage({
     required this.used,
     required this.budget,
-  }) : remaining = budget - used,
-       rate = budget > 0 ? (used / budget).clamp(0.0, double.infinity) : 0;
+  })  : remaining = budget - used,
+        rate = budget > 0 ? (used / budget).clamp(0.0, double.infinity) : 0;
 
   /// 状态：normal, warning, danger, exceeded
   String get status {
@@ -43,6 +43,7 @@ class CategoryBudgetUsage {
   final int categoryId;
   final String categoryName;
   final String? categoryIcon;
+
   /// 完整的 Category 对象 —— 让 UI 走 CategoryIconWidget 拿 iconType /
   /// customIconPath / iconCloudFileId,自定义图片预算也能正常渲染图标。
   /// 老调用方还在读 categoryIcon 字段,这里两边并存。

@@ -198,7 +198,8 @@ class ShortcutsGuidePage extends ConsumerWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            color: theme.colorScheme.surfaceContainerHighest
+                .withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: theme.colorScheme.outline.withValues(alpha: 0.2),
@@ -234,7 +235,8 @@ class ShortcutsGuidePage extends ConsumerWidget {
                     Text(
                       shortcut.description,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -300,7 +302,8 @@ class ShortcutsGuidePage extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                color: theme.colorScheme.surfaceContainerHighest
+                    .withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -335,7 +338,8 @@ class ShortcutsGuidePage extends ConsumerWidget {
             const SizedBox(height: 8),
             _buildParamRow(theme, 'amount', l10n.shortcutParamAmount, true),
             _buildParamRow(theme, 'type', l10n.shortcutParamType, false),
-            _buildParamRow(theme, 'category', l10n.shortcutParamCategory, false),
+            _buildParamRow(
+                theme, 'category', l10n.shortcutParamCategory, false),
             _buildParamRow(theme, 'note', l10n.shortcutParamNote, false),
             _buildParamRow(theme, 'account', l10n.shortcutParamAccount, false),
             _buildParamRow(theme, 'tags', l10n.shortcutParamTags, false),
@@ -346,7 +350,8 @@ class ShortcutsGuidePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildParamRow(ThemeData theme, String param, String desc, bool required) {
+  Widget _buildParamRow(
+      ThemeData theme, String param, String desc, bool required) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(

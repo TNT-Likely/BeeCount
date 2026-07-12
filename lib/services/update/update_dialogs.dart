@@ -42,22 +42,27 @@ class UpdateDialogs {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context).updateNotificationPermissionTitle),
+        title: Text(
+            AppLocalizations.of(context).updateNotificationPermissionTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppLocalizations.of(context).updateNotificationPermissionGuideText,
+                AppLocalizations.of(context)
+                    .updateNotificationPermissionGuideText,
                 style: TextStyle(fontSize: 14),
               ),
               const SizedBox(height: 12),
-              _buildGuideStep('1', AppLocalizations.of(context).updateNotificationGuideStep1),
+              _buildGuideStep('1',
+                  AppLocalizations.of(context).updateNotificationGuideStep1),
               const SizedBox(height: 8),
-              _buildGuideStep('2', AppLocalizations.of(context).updateNotificationGuideStep2),
+              _buildGuideStep('2',
+                  AppLocalizations.of(context).updateNotificationGuideStep2),
               const SizedBox(height: 8),
-              _buildGuideStep('3', AppLocalizations.of(context).updateNotificationGuideStep3),
+              _buildGuideStep('3',
+                  AppLocalizations.of(context).updateNotificationGuideStep3),
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -75,7 +80,8 @@ class UpdateDialogs {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        AppLocalizations.of(context).updateNotificationGuideInfo,
+                        AppLocalizations.of(context)
+                            .updateNotificationGuideInfo,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.blue[700],
@@ -362,7 +368,8 @@ class _MirrorSelectDialogState extends State<_MirrorSelectDialog> {
                 child: Column(
                   children: [
                     LinearProgressIndicator(
-                      value: _testTotal > 0 ? _testCompleted / _testTotal : null,
+                      value:
+                          _testTotal > 0 ? _testCompleted / _testTotal : null,
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -398,12 +405,15 @@ class _MirrorSelectDialogState extends State<_MirrorSelectDialog> {
                     title: Text(
                       isZh ? mirror.name : mirror.nameEn,
                       style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                     subtitle: testResult != null
                         ? Text(
-                            isZh ? testResult.latencyText : testResult.latencyTextEn,
+                            isZh
+                                ? testResult.latencyText
+                                : testResult.latencyTextEn,
                             style: TextStyle(
                               fontSize: 12,
                               color: testResult.isAvailable
@@ -426,8 +436,12 @@ class _MirrorSelectDialogState extends State<_MirrorSelectDialog> {
                             : null),
                     secondary: testResult != null
                         ? Icon(
-                            testResult.isAvailable ? Icons.check_circle : Icons.error,
-                            color: testResult.isAvailable ? Colors.green : Colors.red,
+                            testResult.isAvailable
+                                ? Icons.check_circle
+                                : Icons.error,
+                            color: testResult.isAvailable
+                                ? Colors.green
+                                : Colors.red,
                             size: 20,
                           )
                         : null,
@@ -461,7 +475,8 @@ class _MirrorSelectDialogState extends State<_MirrorSelectDialog> {
           onPressed: _isTesting || _selectedMirrorId == null
               ? null
               : () async {
-                  final mirror = GitHubMirrorService.getMirrorById(_selectedMirrorId!);
+                  final mirror =
+                      GitHubMirrorService.getMirrorById(_selectedMirrorId!);
                   if (mirror != null) {
                     await GitHubMirrorService.setSelectedMirrorId(mirror.id);
                     if (context.mounted) {
@@ -528,7 +543,9 @@ class _DownloadConfirmDialogState extends State<_DownloadConfirmDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.releaseNotes.isEmpty ? l10n.updateConfirmDownload : widget.releaseNotes),
+            Text(widget.releaseNotes.isEmpty
+                ? l10n.updateConfirmDownload
+                : widget.releaseNotes),
             const SizedBox(height: 16),
             // 镜像选择入口
             Material(
@@ -541,15 +558,24 @@ class _DownloadConfirmDialogState extends State<_DownloadConfirmDialog> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.03),
+                        Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withValues(alpha: 0.08),
+                        Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withValues(alpha: 0.03),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.2),
                       width: 1,
                     ),
                   ),
@@ -560,7 +586,10 @@ class _DownloadConfirmDialogState extends State<_DownloadConfirmDialog> {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
@@ -601,7 +630,10 @@ class _DownloadConfirmDialogState extends State<_DownloadConfirmDialog> {
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Icon(

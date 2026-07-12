@@ -99,11 +99,16 @@ void main() {
       // 实际 race 难精确复现,但 N 次并发 record 不抛即可。
       final ch = _change(changeId: 300);
       await Future.wait([
-        store.record(change: ch, error: Exception('a'), stackTrace: StackTrace.current),
-        store.record(change: ch, error: Exception('b'), stackTrace: StackTrace.current),
-        store.record(change: ch, error: Exception('c'), stackTrace: StackTrace.current),
-        store.record(change: ch, error: Exception('d'), stackTrace: StackTrace.current),
-        store.record(change: ch, error: Exception('e'), stackTrace: StackTrace.current),
+        store.record(
+            change: ch, error: Exception('a'), stackTrace: StackTrace.current),
+        store.record(
+            change: ch, error: Exception('b'), stackTrace: StackTrace.current),
+        store.record(
+            change: ch, error: Exception('c'), stackTrace: StackTrace.current),
+        store.record(
+            change: ch, error: Exception('d'), stackTrace: StackTrace.current),
+        store.record(
+            change: ch, error: Exception('e'), stackTrace: StackTrace.current),
       ]);
 
       final rows = await store.watchUnresolved().first;

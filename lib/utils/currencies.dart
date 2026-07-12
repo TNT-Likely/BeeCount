@@ -186,8 +186,7 @@ const List<_Cur> _kCurrencyDefs = [
 ];
 
 /// 货币代码列表（自动派生,无需手动维护）
-final List<String> kCurrencyCodes =
-    _kCurrencyDefs.map((d) => d.code).toList();
+final List<String> kCurrencyCodes = _kCurrencyDefs.map((d) => d.code).toList();
 
 /// symbol 查找表（自动派生）
 final Map<String, String> _symbolMap = {

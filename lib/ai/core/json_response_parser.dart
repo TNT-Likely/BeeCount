@@ -41,8 +41,7 @@ class JsonResponseParser {
               final raw = BillInfo.fromJson(item);
               final sanitized = _sanitize(raw);
               if (sanitized == null) {
-                logger
-                    .warning(_tag, '数组第 ${i + 1} 项金额无效,跳过: ${raw.toJson()}');
+                logger.warning(_tag, '数组第 ${i + 1} 项金额无效,跳过: ${raw.toJson()}');
                 continue;
               }
               bills.add(sanitized);
@@ -69,7 +68,8 @@ class JsonResponseParser {
       return const [];
     }
     try {
-      final json = jsonDecode(_cleanupJson(objectBlock)) as Map<String, dynamic>;
+      final json =
+          jsonDecode(_cleanupJson(objectBlock)) as Map<String, dynamic>;
       final raw = BillInfo.fromJson(json);
       final sanitized = _sanitize(raw);
       if (sanitized == null) {

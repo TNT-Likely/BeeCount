@@ -63,8 +63,7 @@ class _Login2FAChallengeDialogState
 
   Future<void> _onSubmit() async {
     if (_verifying) return;
-    final raw =
-        _codeController.text.trim().replaceAll(RegExp(r'\s+'), '');
+    final raw = _codeController.text.trim().replaceAll(RegExp(r'\s+'), '');
     if (raw.isEmpty) return;
     setState(() {
       _verifying = true;
@@ -99,8 +98,7 @@ class _Login2FAChallengeDialogState
 
   bool get _canSubmit {
     if (_verifying) return false;
-    final raw =
-        _codeController.text.trim().replaceAll(RegExp(r'\s+'), '');
+    final raw = _codeController.text.trim().replaceAll(RegExp(r'\s+'), '');
     if (_method == 'totp') return raw.length == 6;
     final stripped = raw.replaceAll('-', '');
     return stripped.length >= 6;
@@ -178,9 +176,8 @@ class _Login2FAChallengeDialogState
               autofocus: true,
               enabled: !_verifying,
               textAlign: TextAlign.center,
-              keyboardType: _method == 'totp'
-                  ? TextInputType.number
-                  : TextInputType.text,
+              keyboardType:
+                  _method == 'totp' ? TextInputType.number : TextInputType.text,
               inputFormatters: _method == 'totp'
                   ? [
                       FilteringTextInputFormatter.digitsOnly,
@@ -201,8 +198,8 @@ class _Login2FAChallengeDialogState
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 14),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
               ),
               onChanged: (_) {
                 if (_errorMessage != null) {
@@ -218,8 +215,7 @@ class _Login2FAChallengeDialogState
             if (_errorMessage != null) ...[
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 8, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.error.withValues(
                         alpha: 0.08,
@@ -230,8 +226,7 @@ class _Login2FAChallengeDialogState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(Icons.error_outline,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.error),
+                        size: 16, color: Theme.of(context).colorScheme.error),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -274,7 +269,6 @@ class _Login2FAChallengeDialogState
       ],
     );
   }
-
 }
 
 class _MethodTab extends StatelessWidget {

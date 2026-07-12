@@ -231,4 +231,3 @@ extension SharedLedgerPickerFilter on BeeDatabase {
     return null;
   }
 }
-

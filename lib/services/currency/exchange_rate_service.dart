@@ -52,17 +52,15 @@ class ExchangeRateService {
         'fastly.jsdelivr.net', (b) => _fawazPath('fastly.jsdelivr.net', b)),
     RateSource(
         'gcore.jsdelivr.net', (b) => _fawazPath('gcore.jsdelivr.net', b)),
-    RateSource(
-        'testingcf.jsdelivr.net', (b) => _fawazPath('testingcf.jsdelivr.net', b)),
+    RateSource('testingcf.jsdelivr.net',
+        (b) => _fawazPath('testingcf.jsdelivr.net', b)),
     RateSource('cdn.jsdelivr.net', (b) => _fawazPath('cdn.jsdelivr.net', b)),
     RateSource(
         'currency-api.pages.dev',
         (b) =>
             'https://latest.currency-api.pages.dev/v1/currencies/${b.toLowerCase()}.min.json'),
-    RateSource(
-        'api.frankfurter.dev',
-        (b) =>
-            'https://api.frankfurter.dev/v1/latest?base=${b.toUpperCase()}',
+    RateSource('api.frankfurter.dev',
+        (b) => 'https://api.frankfurter.dev/v1/latest?base=${b.toUpperCase()}',
         isFrankfurter: true),
   ];
 
@@ -84,7 +82,8 @@ class ExchangeRateService {
     final inflight = _inflight[key];
     if (inflight != null) return inflight;
     final f = _fetchChain(base).whenComplete(() {
-      _inflight.remove(key); // 丢弃返回值;Map.remove 返回 Future<V?>,若作为 whenComplete 返回值会造成循环等待。
+      _inflight.remove(
+          key); // 丢弃返回值;Map.remove 返回 Future<V?>,若作为 whenComplete 返回值会造成循环等待。
     });
     _inflight[key] = f;
     return f;
@@ -132,7 +131,8 @@ class ExchangeRateService {
         if (e.value is num && (e.value as num) > 0)
           e.key.toString().toUpperCase(): e.value.toString(),
     };
-    return RateFetchResult(rateDate: date, source: source, ratesBaseToQuote: rates);
+    return RateFetchResult(
+        rateDate: date, source: source, ratesBaseToQuote: rates);
   }
 
   /// frankfurter v1:{"base":"USD","date":"...","rates":{"CNY":6.77,...}} —— 键大写。
@@ -149,8 +149,6 @@ class ExchangeRateService {
           e.key.toString().toUpperCase(): e.value.toString(),
     };
     return RateFetchResult(
-        rateDate: date,
-        source: 'api.frankfurter.dev',
-        ratesBaseToQuote: rates);
+        rateDate: date, source: 'api.frankfurter.dev', ratesBaseToQuote: rates);
   }
 }

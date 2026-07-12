@@ -195,7 +195,8 @@ class _DonationPageState extends ConsumerState<DonationPage> {
                           // 说明卡片
                           SectionCard(
                             child: Padding(
-                              padding: EdgeInsets.all(16.0.scaled(context, ref)),
+                              padding:
+                                  EdgeInsets.all(16.0.scaled(context, ref)),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -246,12 +247,13 @@ class _DonationPageState extends ConsumerState<DonationPage> {
                               children: _products.asMap().entries.map((entry) {
                                 final index = entry.key;
                                 final product = entry.value;
-                                final isPurchasing =
-                                    _purchasing && _purchasingProductId == product.id;
+                                final isPurchasing = _purchasing &&
+                                    _purchasingProductId == product.id;
 
                                 return Column(
                                   children: [
-                                    if (index > 0) BeeTokens.cardDivider(context),
+                                    if (index > 0)
+                                      BeeTokens.cardDivider(context),
                                     _ProductTile(
                                       product: product,
                                       isPurchasing: isPurchasing,
@@ -287,7 +289,8 @@ class _ProductTile extends ConsumerWidget {
   String _getProductEmoji(String productId) {
     if (productId.contains('small')) return '☕';
     if (productId.contains('medium')) return '🥤';
-    if (productId.contains('large') && !productId.contains('xlarge')) return '🍺';
+    if (productId.contains('large') && !productId.contains('xlarge'))
+      return '🍺';
     if (productId.contains('xlarge')) return '🎉';
     if (productId.contains('premium')) return '💎';
     if (productId.contains('ultimate')) return '👑';

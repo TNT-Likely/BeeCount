@@ -10,7 +10,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiConsentTitle => 'Before enabling AI features';
 
   @override
-  String get aiConsentBody => 'AI features need to send related data to the third-party AI provider you configure:\n\n• Who it goes to: by default Zhipu GLM (open.bigmodel.cn, operated by Zhipu); if you configure another third-party AI service, it goes to the provider you entered.\n• What is sent: the content you actively use for recognition/chat — receipt images, voice recordings, text you type, plus the category names, account names and relevant transaction records needed to complete recognition/analysis.\n• Purpose: only for bill recognition, bookkeeping and chats you initiate; BeeCount itself does not collect or store this data.\n\nThe data is processed by that third-party provider under its own privacy policy. Enabling means you consent to the data sharing above.';
+  String get aiConsentBody =>
+      'AI features need to send related data to the third-party AI provider you configure:\n\n• Who it goes to: by default Zhipu GLM (open.bigmodel.cn, operated by Zhipu); if you configure another third-party AI service, it goes to the provider you entered.\n• What is sent: the content you actively use for recognition/chat — receipt images, voice recordings, text you type, plus the category names, account names and relevant transaction records needed to complete recognition/analysis.\n• Purpose: only for bill recognition, bookkeeping and chats you initiate; BeeCount itself does not collect or store this data.\n\nThe data is processed by that third-party provider under its own privacy policy. Enabling means you consent to the data sharing above.';
 
   @override
   String get aiConsentAgree => 'Agree & enable';
@@ -126,10 +127,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get voiceRecordingPermissionDenied => 'Microphone permission required';
 
   @override
-  String get voiceRecordingPermissionDeniedTitle => 'Microphone Permission Required';
+  String get voiceRecordingPermissionDeniedTitle =>
+      'Microphone Permission Required';
 
   @override
-  String get voiceRecordingPermissionDeniedMessage => 'Voice billing requires microphone permission. Please allow BeeCount to access the microphone in System Settings.';
+  String get voiceRecordingPermissionDeniedMessage =>
+      'Voice billing requires microphone permission. Please allow BeeCount to access the microphone in System Settings.';
 
   @override
   String voiceRecordingStartFailed(String error) {
@@ -167,7 +170,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get voiceRecordingResultLabel => 'Recognition result:';
 
   @override
-  String get voiceRecordingAutoHintSpoken => 'Pause when done to auto-recognize';
+  String get voiceRecordingAutoHintSpoken =>
+      'Pause when done to auto-recognize';
 
   @override
   String get voiceRecordingAutoHintWaiting => 'Please start speaking...';
@@ -179,13 +183,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get voiceTriggerModeAuto => 'Auto-detect pause';
 
   @override
-  String get voiceTriggerModeAutoDesc => 'Stops automatically after a pause; best for short entries';
+  String get voiceTriggerModeAutoDesc =>
+      'Stops automatically after a pause; best for short entries';
 
   @override
   String get voiceTriggerModeHold => 'Hold to talk';
 
   @override
-  String get voiceTriggerModeHoldDesc => 'Hold to record, release to stop; best for longer input';
+  String get voiceTriggerModeHoldDesc =>
+      'Hold to record, release to stop; best for longer input';
 
   @override
   String get smartBillingVoiceSilenceTimeout => 'Pause to finish';
@@ -290,10 +296,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get homeNoRecordsSubtext => 'Tap the plus button at the bottom to add a record';
+  String get homeNoRecordsSubtext =>
+      'Tap the plus button at the bottom to add a record';
 
   @override
-  String get homeLastMonthReportSubtitle => 'View and share last month\'s report';
+  String get homeLastMonthReportSubtitle =>
+      'View and share last month\'s report';
 
   @override
   String get homeLastMonthReportView => 'View';
@@ -387,7 +395,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get searchBatchSetNoteHint => 'Enter note content (leave empty to clear notes)';
+  String get searchBatchSetNoteHint =>
+      'Enter note content (leave empty to clear notes)';
 
   @override
   String searchBatchDeleteSuccess(Object count) {
@@ -452,10 +461,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchClearFilter => 'Clear Filter';
 
   @override
-  String get searchBatchCategoryTransferError => 'Selected transactions contain transfers, cannot change category';
+  String get searchBatchCategoryTransferError =>
+      'Selected transactions contain transfers, cannot change category';
 
   @override
-  String get searchBatchCategoryTypeError => 'Selected transactions have different types, please select all income or all expense';
+  String get searchBatchCategoryTypeError =>
+      'Selected transactions have different types, please select all income or all expense';
 
   @override
   String get searchDateStart => 'Start';
@@ -479,7 +490,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analyticsTotalAmount => 'Total';
 
   @override
-  String get analyticsNoDataSubtext => 'Swipe left/right to switch periods, or tap button to toggle income/expense';
+  String get analyticsNoDataSubtext =>
+      'Swipe left/right to switch periods, or tap button to toggle income/expense';
 
   @override
   String get analyticsSwipeHint => 'Swipe left/right to change period';
@@ -511,13 +523,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get splashSecurityTitle => 'Open Source Data Security';
 
   @override
-  String get splashSecurityFeature1 => '• Local data storage, complete privacy control';
+  String get splashSecurityFeature1 =>
+      '• Local data storage, complete privacy control';
 
   @override
-  String get splashSecurityFeature2 => '• Open source code transparency, trustworthy security';
+  String get splashSecurityFeature2 =>
+      '• Open source code transparency, trustworthy security';
 
   @override
-  String get splashSecurityFeature3 => '• Optional cloud sync, consistent data across devices';
+  String get splashSecurityFeature3 =>
+      '• Optional cloud sync, consistent data across devices';
 
   @override
   String get splashInitializing => 'Initializing data...';
@@ -549,7 +564,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ledgersDeleteConfirm => 'Delete Ledger';
 
   @override
-  String get ledgersDeleteMessage => 'Are you sure you want to delete this ledger and all its records? This action cannot be undone.\\nIf there is a backup in the cloud, it will also be deleted.';
+  String get ledgersDeleteMessage =>
+      'Are you sure you want to delete this ledger and all its records? This action cannot be undone.\\nIf there is a backup in the cloud, it will also be deleted.';
 
   @override
   String get ledgersDeleted => 'Deleted';
@@ -590,7 +606,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ledgersMonthStartDay => 'Month start day';
 
   @override
-  String get ledgersMonthStartDayHint => 'Statistics and budgets use this day (1-28) as the start of each monthly period';
+  String get ledgersMonthStartDayHint =>
+      'Statistics and budgets use this day (1-28) as the start of each monthly period';
 
   @override
   String get ledgersMonthStartDayNatural => '1st (calendar month)';
@@ -784,7 +801,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importNoFileSelected => 'No file selected';
 
   @override
-  String get importHint => 'Tip: Please select a file to start importing (CSV/TSV/XLSX)';
+  String get importHint =>
+      'Tip: Please select a file to start importing (CSV/TSV/XLSX)';
 
   @override
   String get importReading => 'Reading file…';
@@ -804,7 +822,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importCategoryMapping => 'Category Mapping';
 
   @override
-  String get importNoDataParsed => 'No data parsed. Please return to previous page to check CSV content or separator.';
+  String get importNoDataParsed =>
+      'No data parsed. Please return to previous page to check CSV content or separator.';
 
   @override
   String get importFieldDate => 'Date';
@@ -836,7 +855,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importCategoryNotSelected => 'Category not selected';
 
   @override
-  String get importCategoryMappingDescription => 'Please select corresponding local categories for each category name:';
+  String get importCategoryMappingDescription =>
+      'Please select corresponding local categories for each category name:';
 
   @override
   String get importKeepOriginalName => 'Keep original name';
@@ -853,7 +873,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importCompleteTitle => 'Import Complete';
 
   @override
-  String get importSelectCategoryFirst => 'Please select category mapping first';
+  String get importSelectCategoryFirst =>
+      'Please select category mapping first';
 
   @override
   String get importNextStep => 'Next Step';
@@ -871,7 +892,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importInProgress => 'Import in Progress';
 
   @override
-  String importProgressDetail(Object done, Object fail, Object ok, Object total) {
+  String importProgressDetail(
+      Object done, Object fail, Object ok, Object total) {
     return 'Imported $done / $total records, success $ok, failed $fail';
   }
 
@@ -938,7 +960,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteConfirmTitle => 'Delete Confirmation';
 
   @override
-  String get deleteConfirmMessage => 'Are you sure you want to delete this record?';
+  String get deleteConfirmMessage =>
+      'Are you sure you want to delete this record?';
 
   @override
   String get mineSlogan => 'Bee Accounting, Every Penny Counts';
@@ -979,7 +1002,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get headerSkinTitle => 'Skin';
 
   @override
-  String get headerSkinSubtitle => 'Follows your theme color, layered over the header';
+  String get headerSkinSubtitle =>
+      'Follows your theme color, layered over the header';
 
   @override
   String get headerSkinNone => 'Solid';
@@ -1047,7 +1071,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get annualReportEntrySubtitle => 'Create your personalized annual report to share';
+  String get annualReportEntrySubtitle =>
+      'Create your personalized annual report to share';
 
   @override
   String annualReportNoData(int year) {
@@ -1128,7 +1153,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get annualReportAchievementSaver => 'Saver';
 
   @override
-  String get annualReportAchievementSaverDesc => 'Positive net savings this year';
+  String get annualReportAchievementSaverDesc =>
+      'Positive net savings this year';
 
   @override
   String get annualReportAchievementDetail => 'Detail-Oriented';
@@ -1240,7 +1266,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharePosterSaveSuccess => 'Saved to gallery';
 
   @override
-  String get shareGuidanceCopyText => 'Track my expenses with BeeCount - open source, free & ad-free! 🐝 Download: https://github.com/TNT-Likely/BeeCount';
+  String get shareGuidanceCopyText =>
+      'Track my expenses with BeeCount - open source, free & ad-free! 🐝 Download: https://github.com/TNT-Likely/BeeCount';
 
   @override
   String get shareGuidanceCopied => 'Text copied';
@@ -1249,13 +1276,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharePosterSaveFailed => 'Failed to save';
 
   @override
-  String get sharePosterPermissionDenied => 'Gallery permission denied, please enable in settings';
+  String get sharePosterPermissionDenied =>
+      'Gallery permission denied, please enable in settings';
 
   @override
   String get sharePosterGenerating => 'Generating...';
 
   @override
-  String get sharePosterGenerateFailed => 'Failed to generate poster, please try again';
+  String get sharePosterGenerateFailed =>
+      'Failed to generate poster, please try again';
 
   @override
   String get sharePosterNoLedger => 'Please select a ledger first';
@@ -1264,7 +1293,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharePosterYearTitle => 'My Annual Bookkeeping Report';
 
   @override
-  String get sharePosterYearSubtitle => 'Record life with data, plan future with reason';
+  String get sharePosterYearSubtitle =>
+      'Record life with data, plan future with reason';
 
   @override
   String get sharePosterMonthTitle => 'Monthly Bill Report';
@@ -1465,7 +1495,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mineUploadNeedLogin => 'Login required';
 
   @override
-  String get mineUploadNeedCloudService => 'Available in cloud service mode only';
+  String get mineUploadNeedCloudService =>
+      'Available in cloud service mode only';
 
   @override
   String get mineUploadInProgress => 'Uploading...';
@@ -1486,7 +1517,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mineDownloadTitle => 'Download & Sync';
 
   @override
-  String get mineDownloadNeedCloudService => 'Available in cloud service mode only';
+  String get mineDownloadNeedCloudService =>
+      'Available in cloud service mode only';
 
   @override
   String get mineDownloadComplete => 'Sync Complete';
@@ -1521,7 +1553,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mineLogoutConfirmTitle => 'Logout';
 
   @override
-  String get mineLogoutConfirmMessage => 'Are you sure you want to logout?\nYou won\'t be able to use cloud sync after logout.';
+  String get mineLogoutConfirmMessage =>
+      'Are you sure you want to logout?\nYou won\'t be able to use cloud sync after logout.';
 
   @override
   String get mineLogoutButton => 'Logout';
@@ -1539,7 +1572,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mineImportProgressTitle => 'Importing in background...';
 
   @override
-  String mineImportProgressSubtitle(Object done, Object fail, Object ok, Object total) {
+  String mineImportProgressSubtitle(
+      Object done, Object fail, Object ok, Object total) {
     return 'Progress: $done/$total, Success $ok, Failed $fail';
   }
 
@@ -1556,7 +1590,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mineCategoryMigration => 'Category Migration';
 
   @override
-  String get mineCategoryMigrationSubtitle => 'Migrate category data to other categories';
+  String get mineCategoryMigrationSubtitle =>
+      'Migrate category data to other categories';
 
   @override
   String get mineRecurringTransactions => 'Recurring Bills';
@@ -1601,7 +1636,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpCenterOpenInBrowser => 'Open in browser';
 
   @override
-  String get helpCenterLoadFailed => 'Failed to load. Please check your network.';
+  String get helpCenterLoadFailed =>
+      'Failed to load. Please check your network.';
 
   @override
   String get helpCenterRetry => 'Retry';
@@ -1621,7 +1657,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get githubStarGuideTitle => 'How to Star the Project';
 
   @override
-  String get githubStarGuideContent => 'After tapping the button below to open GitHub, tap the area marked in the image to complete the Star';
+  String get githubStarGuideContent =>
+      'After tapping the button below to open GitHub, tap the area marked in the image to complete the Star';
 
   @override
   String get githubStarGuideButton => 'Go to GitHub';
@@ -1645,7 +1682,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryMigrationDescription => 'Category Migration Instructions';
 
   @override
-  String get categoryMigrationDescriptionContent => '• Migrate all transaction records from one category to another\n• After migration, all transaction data from the source category will be transferred to the target category\n• This operation cannot be undone, please choose carefully';
+  String get categoryMigrationDescriptionContent =>
+      '• Migrate all transaction records from one category to another\n• After migration, all transaction data from the source category will be transferred to the target category\n• This operation cannot be undone, please choose carefully';
 
   @override
   String get categoryMigrationTypeLabel => 'Select Type';
@@ -1663,7 +1701,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryMigrationToHint => 'Select target category';
 
   @override
-  String get categoryMigrationToHintFirst => 'Please select source category first';
+  String get categoryMigrationToHintFirst =>
+      'Please select source category first';
 
   @override
   String get categoryMigrationStartButton => 'Start Migration';
@@ -1672,7 +1711,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryMigrationCannotTitle => 'Cannot Migrate';
 
   @override
-  String get categoryMigrationCannotMessage => 'Selected categories cannot be migrated, please check category status.';
+  String get categoryMigrationCannotMessage =>
+      'Selected categories cannot be migrated, please check category status.';
 
   @override
   String get categoryExpenseType => 'Expense Category';
@@ -1804,7 +1844,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryShareFailed => 'Share failed';
 
   @override
-  String get categoryImportInvalidFile => 'Please select a category package file (.zip)';
+  String get categoryImportInvalidFile =>
+      'Please select a category package file (.zip)';
 
   @override
   String get categoryImportModeTitle => 'Select Import Mode';
@@ -1819,7 +1860,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryImportModeOverwrite => 'Overwrite';
 
   @override
-  String get categoryImportModeOverwriteDesc => 'Clear unused categories then import';
+  String get categoryImportModeOverwriteDesc =>
+      'Clear unused categories then import';
 
   @override
   String get categoryImportSuccess => 'Import successful';
@@ -1852,10 +1894,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categorySubCategoryTitle => 'Subcategory';
 
   @override
-  String get categorySubCategoryDescriptionEnabled => 'This category belongs to a parent category';
+  String get categorySubCategoryDescriptionEnabled =>
+      'This category belongs to a parent category';
 
   @override
-  String get categorySubCategoryDescriptionDisabled => 'This is an independent top-level category';
+  String get categorySubCategoryDescriptionDisabled =>
+      'This is an independent top-level category';
 
   @override
   String get categoryParentCategoryTitle => 'Parent Category';
@@ -1878,91 +1922,119 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryParentRequiredTitle => 'Error';
 
   @override
-  String get categoryExpenseList => 'Dining-Transport-Shopping-Entertainment-Home-Family-Communication-Utilities-Housing-Medical-Education-Pets-Sports-Digital-Travel-Alcohol & Tobacco-Baby Care-Beauty-Repair-Social-Learning-Car-Taxi-Subway-Delivery-Property-Parking-Donation-Give Gift-Tax-Beverage-Clothing-Snacks-Send Red Packet-Fruit-Game-Book-Lover-Decoration-Daily Goods-Lottery-Stock-Social Security-Express-Work';
+  String get categoryExpenseList =>
+      'Dining-Transport-Shopping-Entertainment-Home-Family-Communication-Utilities-Housing-Medical-Education-Pets-Sports-Digital-Travel-Alcohol & Tobacco-Baby Care-Beauty-Repair-Social-Learning-Car-Taxi-Subway-Delivery-Property-Parking-Donation-Give Gift-Tax-Beverage-Clothing-Snacks-Send Red Packet-Fruit-Game-Book-Lover-Decoration-Daily Goods-Lottery-Stock-Social Security-Express-Work';
 
   @override
-  String get categoryIncomeList => 'Salary-Investment-Receive Red Packet-Bonus-Reimbursement-Part time-Receive Gift-Interest-Refund-Investment Income-Second hand-Social Benefit-Tax Refund-Provident Fund';
+  String get categoryIncomeList =>
+      'Salary-Investment-Receive Red Packet-Bonus-Reimbursement-Part time-Receive Gift-Interest-Refund-Investment Income-Second hand-Social Benefit-Tax Refund-Provident Fund';
 
   @override
-  String get categoryExpenseDining => 'Dining-Breakfast-Lunch-Dinner-Meituan Delivery-Ele.me Delivery-JD Delivery-Restaurant-Food';
+  String get categoryExpenseDining =>
+      'Dining-Breakfast-Lunch-Dinner-Meituan Delivery-Ele.me Delivery-JD Delivery-Restaurant-Food';
 
   @override
-  String get categoryExpenseSnacks => 'Snacks-Cookies-Chips-Candy-Chocolate-Nuts';
+  String get categoryExpenseSnacks =>
+      'Snacks-Cookies-Chips-Candy-Chocolate-Nuts';
 
   @override
-  String get categoryExpenseFruit => 'Fruit-Apple-Banana-Orange-Grape-Watermelon-Other Fruits';
+  String get categoryExpenseFruit =>
+      'Fruit-Apple-Banana-Orange-Grape-Watermelon-Other Fruits';
 
   @override
-  String get categoryExpenseBeverage => 'Beverage-Milk Tea-Coffee-Juice-Soda-Mineral Water';
+  String get categoryExpenseBeverage =>
+      'Beverage-Milk Tea-Coffee-Juice-Soda-Mineral Water';
 
   @override
   String get categoryExpensePastry => 'Pastry-Cake-Bread-Dessert-Baked Goods';
 
   @override
-  String get categoryExpenseCooking => 'Cooking Ingredients-Vegetables-Meat-Seafood-Seasoning-Grain & Oil';
+  String get categoryExpenseCooking =>
+      'Cooking Ingredients-Vegetables-Meat-Seafood-Seasoning-Grain & Oil';
 
   @override
-  String get categoryExpenseShopping => 'Shopping-Clothing-Shoes & Hats-Bags-Accessories-Daily Necessities';
+  String get categoryExpenseShopping =>
+      'Shopping-Clothing-Shoes & Hats-Bags-Accessories-Daily Necessities';
 
   @override
-  String get categoryExpensePets => 'Pets-Pet Food-Pet Supplies-Pet Medical-Pet Grooming';
+  String get categoryExpensePets =>
+      'Pets-Pet Food-Pet Supplies-Pet Medical-Pet Grooming';
 
   @override
-  String get categoryExpenseTransport => 'Transport-Subway-Bus-Taxi-Ride hailing-Parking Fee-Fuel';
+  String get categoryExpenseTransport =>
+      'Transport-Subway-Bus-Taxi-Ride hailing-Parking Fee-Fuel';
 
   @override
-  String get categoryExpenseCar => 'Car-Car Maintenance-Car Repair-Car Insurance-Car Wash-Traffic Fine';
+  String get categoryExpenseCar =>
+      'Car-Car Maintenance-Car Repair-Car Insurance-Car Wash-Traffic Fine';
 
   @override
-  String get categoryExpenseClothing => 'Apparel-Top-Pants-Dress-Shoes-Apparel Accessories';
+  String get categoryExpenseClothing =>
+      'Apparel-Top-Pants-Dress-Shoes-Apparel Accessories';
 
   @override
-  String get categoryExpenseDailyGoods => 'Daily Goods-Personal Care-Paper Products-Cleaning Supplies-Kitchen Supplies';
+  String get categoryExpenseDailyGoods =>
+      'Daily Goods-Personal Care-Paper Products-Cleaning Supplies-Kitchen Supplies';
 
   @override
-  String get categoryExpenseEducation => 'Education-Tuition-Training Fee-Books-Stationery-Office Supplies';
+  String get categoryExpenseEducation =>
+      'Education-Tuition-Training Fee-Books-Stationery-Office Supplies';
 
   @override
-  String get categoryExpenseInvestLoss => 'Investment Loss-Stock Loss-Fund Loss-Other Investment Loss';
+  String get categoryExpenseInvestLoss =>
+      'Investment Loss-Stock Loss-Fund Loss-Other Investment Loss';
 
   @override
-  String get categoryExpenseEntertainment => 'Entertainment-Movie-KTV-Amusement Park-Bar-Other Entertainment';
+  String get categoryExpenseEntertainment =>
+      'Entertainment-Movie-KTV-Amusement Park-Bar-Other Entertainment';
 
   @override
-  String get categoryExpenseGame => 'Game-Game Top up-Game Equipment-Game Membership';
+  String get categoryExpenseGame =>
+      'Game-Game Top up-Game Equipment-Game Membership';
 
   @override
-  String get categoryExpenseHealthProducts => 'Health Products-Vitamins-Health Food-Nutritional Supplements';
+  String get categoryExpenseHealthProducts =>
+      'Health Products-Vitamins-Health Food-Nutritional Supplements';
 
   @override
-  String get categoryExpenseSubscription => 'Subscription-Video Membership-Music Membership-Cloud Storage-Other Subscription';
+  String get categoryExpenseSubscription =>
+      'Subscription-Video Membership-Music Membership-Cloud Storage-Other Subscription';
 
   @override
-  String get categoryExpenseSports => 'Sports-Gym-Sports Equipment-Sports Course-Outdoor Activity';
+  String get categoryExpenseSports =>
+      'Sports-Gym-Sports Equipment-Sports Course-Outdoor Activity';
 
   @override
-  String get categoryExpenseHousing => 'Housing-Rent-Property Fee-Mortgage-Renovation';
+  String get categoryExpenseHousing =>
+      'Housing-Rent-Property Fee-Mortgage-Renovation';
 
   @override
-  String get categoryExpenseHome => 'Home-Furniture-Appliances-Decorations-Bedding';
+  String get categoryExpenseHome =>
+      'Home-Furniture-Appliances-Decorations-Bedding';
 
   @override
-  String get categoryExpenseBeauty => 'Beauty-Skincare-Cosmetics-Beauty Salon-Nail Care';
+  String get categoryExpenseBeauty =>
+      'Beauty-Skincare-Cosmetics-Beauty Salon-Nail Care';
 
   @override
-  String get categoryIncomeSalary => 'Salary-Base Salary-Performance Bonus-Year end Bonus-Overtime Pay';
+  String get categoryIncomeSalary =>
+      'Salary-Base Salary-Performance Bonus-Year end Bonus-Overtime Pay';
 
   @override
-  String get categoryIncomeInvestment => 'Investment-Fund Earnings-Stock Dividend-Wealth Management-Other Wealth Management';
+  String get categoryIncomeInvestment =>
+      'Investment-Fund Earnings-Stock Dividend-Wealth Management-Other Wealth Management';
 
   @override
-  String get categoryIncomeRedPacket => 'Red Packet-Holiday Red Packet-Birthday Red Packet-Return Gift';
+  String get categoryIncomeRedPacket =>
+      'Red Packet-Holiday Red Packet-Birthday Red Packet-Return Gift';
 
   @override
-  String get categoryIncomeBonus => 'Bonus-Annual Bonus-Quarterly Bonus-Project Bonus-Other Bonus';
+  String get categoryIncomeBonus =>
+      'Bonus-Annual Bonus-Quarterly Bonus-Project Bonus-Other Bonus';
 
   @override
-  String get categoryIncomeReimbursement => 'Reimbursement-Travel Reimbursement-Meal Reimbursement-Other Reimbursement';
+  String get categoryIncomeReimbursement =>
+      'Reimbursement-Travel Reimbursement-Meal Reimbursement-Other Reimbursement';
 
   @override
   String get categoryIncomePartTime => 'Part time-Part time Income-Side Income';
@@ -1974,22 +2046,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryIncomeInterest => 'Interest-Bank Interest-Other Interest';
 
   @override
-  String get categoryIncomeRefund => 'Refund-Shopping Refund-Service Refund-Other Refund';
+  String get categoryIncomeRefund =>
+      'Refund-Shopping Refund-Service Refund-Other Refund';
 
   @override
-  String get categoryIncomeInvestIncome => 'Investment Income-Stock Earnings-Fund Investment-Other Investment Income';
+  String get categoryIncomeInvestIncome =>
+      'Investment Income-Stock Earnings-Fund Investment-Other Investment Income';
 
   @override
-  String get categoryIncomeSecondHand => 'Second hand-Idle Items-Second hand Goods';
+  String get categoryIncomeSecondHand =>
+      'Second hand-Idle Items-Second hand Goods';
 
   @override
-  String get categoryIncomeSocialBenefit => 'Social Benefit-Unemployment Insurance-Maternity Subsidy-Other Subsidy';
+  String get categoryIncomeSocialBenefit =>
+      'Social Benefit-Unemployment Insurance-Maternity Subsidy-Other Subsidy';
 
   @override
-  String get categoryIncomeTaxRefund => 'Tax Refund-Individual Tax Refund-Other Tax Refund';
+  String get categoryIncomeTaxRefund =>
+      'Tax Refund-Individual Tax Refund-Other Tax Refund';
 
   @override
-  String get categoryIncomeProvidentFund => 'Provident Fund-Provident Fund Withdrawal-Provident Fund Interest';
+  String get categoryIncomeProvidentFund =>
+      'Provident Fund-Provident Fund Withdrawal-Provident Fund Interest';
 
   @override
   String get personalizeTitle => 'Theme color';
@@ -2055,19 +2133,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceAmountFormatFull => 'Full Amount';
 
   @override
-  String get appearanceAmountFormatFullDesc => 'Show full amount, e.g. 123,456.78';
+  String get appearanceAmountFormatFullDesc =>
+      'Show full amount, e.g. 123,456.78';
 
   @override
   String get appearanceAmountFormatCompact => 'Compact';
 
   @override
-  String get appearanceAmountFormatCompactDesc => 'Abbreviate large amounts, e.g. 12.3K (only affects account balance)';
+  String get appearanceAmountFormatCompactDesc =>
+      'Abbreviate large amounts, e.g. 12.3K (only affects account balance)';
 
   @override
   String get appearanceShowTransactionTime => 'Show Transaction Time';
 
   @override
-  String get appearanceShowTransactionTimeDesc => 'Display time in transaction list, allow time selection when editing';
+  String get appearanceShowTransactionTimeDesc =>
+      'Display time in transaction list, allow time selection when editing';
 
   @override
   String get appearanceNoteDisplay => 'Note display';
@@ -2076,13 +2157,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceNoteDisplayCategory => 'Category first';
 
   @override
-  String get appearanceNoteDisplayCategoryDesc => 'Show category, note in parentheses';
+  String get appearanceNoteDisplayCategoryDesc =>
+      'Show category, note in parentheses';
 
   @override
   String get appearanceNoteDisplayNote => 'Note first';
 
   @override
-  String get appearanceNoteDisplayNoteDesc => 'Show note when present, else category';
+  String get appearanceNoteDisplayNoteDesc =>
+      'Show note when present, else category';
 
   @override
   String get appearanceColorScheme => 'Income/Expense Color Scheme';
@@ -2094,10 +2177,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceColorSchemeOff => 'Red for expense · Green for income';
 
   @override
-  String get appearanceColorSchemeOnDesc => 'Red represents income, green represents expense';
+  String get appearanceColorSchemeOnDesc =>
+      'Red represents income, green represents expense';
 
   @override
-  String get appearanceColorSchemeOffDesc => 'Red represents expense, green represents income';
+  String get appearanceColorSchemeOffDesc =>
+      'Red represents expense, green represents income';
 
   @override
   String fontSettingsCurrentScale(Object scale) {
@@ -2108,7 +2193,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fontSettingsPreview => 'Live Preview';
 
   @override
-  String get fontSettingsPreviewText => 'Spent 23.50 on lunch today, record it;\nRecorded for 45 days this month, 320 entries;\nPersistence is victory!';
+  String get fontSettingsPreviewText =>
+      'Spent 23.50 on lunch today, record it;\nRecorded for 45 days this month, 320 entries;\nPersistence is victory!';
 
   @override
   String fontSettingsCurrentLevel(Object level, Object scale) {
@@ -2122,7 +2208,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fontSettingsCustomAdjust => 'Custom Adjustment';
 
   @override
-  String get fontSettingsDescription => 'Note: This setting ensures consistent display at 1.0x across all devices, with device differences auto-compensated; adjust values for personalized scaling on this consistent base.';
+  String get fontSettingsDescription =>
+      'Note: This setting ensures consistent display at 1.0x across all devices, with device differences auto-compensated; adjust values for personalized scaling on this consistent base.';
 
   @override
   String get fontSettingsExtraSmall => 'Extra Small';
@@ -2203,7 +2290,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fontSettingsNo => 'No';
 
   @override
-  String get fontSettingsScaleExample => 'This box and spacing auto-scale based on device';
+  String get fontSettingsScaleExample =>
+      'This box and spacing auto-scale based on device';
 
   @override
   String get fontSettingsPreciseAdjust => 'Precise Adjustment';
@@ -2224,7 +2312,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderDailyTitle => 'Daily Recording Reminder';
 
   @override
-  String get reminderDailySubtitle => 'When enabled, will remind you to record at specified time';
+  String get reminderDailySubtitle =>
+      'When enabled, will remind you to record at specified time';
 
   @override
   String get reminderTimeTitle => 'Reminder Time';
@@ -2242,7 +2331,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderTestTitle => 'Test Notification';
 
   @override
-  String get reminderTestBody => 'This is a test notification, tap to see the effect';
+  String get reminderTestBody =>
+      'This is a test notification, tap to see the effect';
 
   @override
   String get reminderCheckBattery => 'Check Battery Optimization Status';
@@ -2269,10 +2359,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderBatteryIgnored => 'Battery optimization: Ignored ✅';
 
   @override
-  String get reminderBatteryNotIgnored => 'Battery optimization: Not ignored ⚠️';
+  String get reminderBatteryNotIgnored =>
+      'Battery optimization: Not ignored ⚠️';
 
   @override
-  String get reminderBatteryAdvice => 'Recommend disabling battery optimization for proper notifications';
+  String get reminderBatteryAdvice =>
+      'Recommend disabling battery optimization for proper notifications';
 
   @override
   String get reminderCheckChannel => 'Check Notification Channel Settings';
@@ -2322,7 +2414,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderChannelAdviceBanner => '• Allow banner notifications';
 
   @override
-  String get reminderChannelAdviceXiaomi => '• Xiaomi phones need individual channel setup';
+  String get reminderChannelAdviceXiaomi =>
+      '• Xiaomi phones need individual channel setup';
 
   @override
   String get reminderChannelGood => '✅ Notification channel well configured';
@@ -2331,16 +2424,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderOpenAppSettings => 'Open App Settings';
 
   @override
-  String get reminderAppSettingsMessage => 'Please allow notifications and disable battery optimization in settings';
+  String get reminderAppSettingsMessage =>
+      'Please allow notifications and disable battery optimization in settings';
 
   @override
-  String get reminderDescription => 'Tip: When recording reminder is enabled, the system will send notifications at the specified time daily to remind you to record income and expenses.';
+  String get reminderDescription =>
+      'Tip: When recording reminder is enabled, the system will send notifications at the specified time daily to remind you to record income and expenses.';
 
   @override
-  String get reminderIOSInstructions => '🍎 iOS notification settings:\n• Settings > Notifications > Bee Accounting\n• Enable \"Allow Notifications\"\n• Set notification style: Banner or Alert\n• Enable sound and vibration\n\n⚠️ Important Note:\n• iOS local notifications depend on app process\n• Do not force quit app from task manager\n• Notifications work when app is in background or foreground\n• Force quitting will disable notifications\n\n💡 Usage Tips:\n• Simply press Home button to exit app\n• iOS will manage background apps automatically\n• Keep app in background to receive reminders';
+  String get reminderIOSInstructions =>
+      '🍎 iOS notification settings:\n• Settings > Notifications > Bee Accounting\n• Enable \"Allow Notifications\"\n• Set notification style: Banner or Alert\n• Enable sound and vibration\n\n⚠️ Important Note:\n• iOS local notifications depend on app process\n• Do not force quit app from task manager\n• Notifications work when app is in background or foreground\n• Force quitting will disable notifications\n\n💡 Usage Tips:\n• Simply press Home button to exit app\n• iOS will manage background apps automatically\n• Keep app in background to receive reminders';
 
   @override
-  String get reminderAndroidInstructions => 'If notifications don\'t work properly, check:\n• App is allowed to send notifications\n• Disable battery optimization/power saving for app\n• Allow app to run in background and auto-start\n• Android 12+ needs exact alarm permission\n\n📱 Xiaomi phone special settings:\n• Settings > App Management > Bee Accounting > Notification Management\n• Tap \"Recording Reminder\" channel\n• Set importance to \"Urgent\" or \"High\"\n• Enable \"Banner notifications\", \"Sound\", \"Vibration\"\n• Security Center > App Management > Permissions > Auto-start\n\n🔒 Lock background methods:\n• Find Bee Accounting in recent tasks\n• Pull down app card to show lock icon\n• Tap lock icon to prevent cleanup';
+  String get reminderAndroidInstructions =>
+      'If notifications don\'t work properly, check:\n• App is allowed to send notifications\n• Disable battery optimization/power saving for app\n• Allow app to run in background and auto-start\n• Android 12+ needs exact alarm permission\n\n📱 Xiaomi phone special settings:\n• Settings > App Management > Bee Accounting > Notification Management\n• Tap \"Recording Reminder\" channel\n• Set importance to \"Urgent\" or \"High\"\n• Enable \"Banner notifications\", \"Sound\", \"Vibration\"\n• Security Center > App Management > Permissions > Auto-start\n\n🔒 Lock background methods:\n• Find Bee Accounting in recent tasks\n• Pull down app card to show lock icon\n• Tap lock icon to prevent cleanup';
 
   @override
   String get categoryDetailLoadFailed => 'Load failed';
@@ -2376,7 +2473,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryDetailNoTransactions => 'No transactions';
 
   @override
-  String get categoryDetailNoTransactionsSubtext => 'No transactions in this category yet';
+  String get categoryDetailNoTransactionsSubtext =>
+      'No transactions in this category yet';
 
   @override
   String get categoryDetailDeleteFailed => 'Delete failed';
@@ -2385,7 +2483,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryMigrationConfirmTitle => 'Confirm Migration';
 
   @override
-  String categoryMigrationConfirmMessage(Object count, Object fromName, Object toName) {
+  String categoryMigrationConfirmMessage(
+      Object count, Object fromName, Object toName) {
     return 'Migrate $count transactions from \"$fromName\" to \"$toName\"?\n\nThis operation cannot be undone!';
   }
 
@@ -2396,7 +2495,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryMigrationCompleteTitle => 'Migration Complete';
 
   @override
-  String categoryMigrationCompleteMessage(Object count, Object fromName, Object toName) {
+  String categoryMigrationCompleteMessage(
+      Object count, Object fromName, Object toName) {
     return 'Successfully migrated $count transactions from \"$fromName\" to \"$toName\".';
   }
 
@@ -2450,7 +2550,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudMultiDeviceWarningTitle => 'Multi-Device Tips';
 
   @override
-  String get cloudMultiDeviceWarningMessage => 'Upload before switching devices, download on the new device before editing. Don\'t edit the same ledger on two devices at once. Tap for details →';
+  String get cloudMultiDeviceWarningMessage =>
+      'Upload before switching devices, download on the new device before editing. Don\'t edit the same ledger on two devices at once. Tap for details →';
 
   @override
   String get cloudWebdavUrlLabel => 'WebDAV Server URL';
@@ -2510,13 +2611,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudSupabaseBucketLabel => 'Storage Bucket Name';
 
   @override
-  String get cloudSupabaseBucketHint => 'Leave blank for default: beecount-backups';
+  String get cloudSupabaseBucketHint =>
+      'Leave blank for default: beecount-backups';
 
   @override
   String get authRememberAccount => 'Remember account';
 
   @override
-  String get authRememberAccountHint => 'Auto-fill on next login (Supabase only)';
+  String get authRememberAccountHint =>
+      'Auto-fill on next login (Supabase only)';
 
   @override
   String get cloudConfigSaved => 'Configuration saved';
@@ -2525,7 +2628,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudTestSuccess => 'Connection test successful!';
 
   @override
-  String get cloudTestFailed => 'Connection test failed, please check if the configuration is correct.';
+  String get cloudTestFailed =>
+      'Connection test failed, please check if the configuration is correct.';
 
   @override
   String get cloudTestError => 'Test failed';
@@ -2552,31 +2656,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authErrorInvalidCredentials => 'Email or password is incorrect.';
 
   @override
-  String get authErrorEmailNotConfirmed => 'Email not verified, please complete verification in your email before logging in.';
+  String get authErrorEmailNotConfirmed =>
+      'Email not verified, please complete verification in your email before logging in.';
 
   @override
   String get authErrorRateLimit => 'Too many attempts, please try again later.';
 
   @override
-  String get authErrorNetworkIssue => 'Network error, please check your connection and try again.';
+  String get authErrorNetworkIssue =>
+      'Network error, please check your connection and try again.';
 
   @override
   String get authErrorLoginFailed => 'Login failed, please try again later.';
 
   @override
-  String get authErrorEmailInvalid => 'Email address is invalid, please check for spelling errors.';
+  String get authErrorEmailInvalid =>
+      'Email address is invalid, please check for spelling errors.';
 
   @override
-  String get authErrorWeakPassword => 'Password is too simple, please include letters and numbers, at least 6 characters.';
+  String get authErrorWeakPassword =>
+      'Password is too simple, please include letters and numbers, at least 6 characters.';
 
   @override
-  String get importSelectCsvFile => 'Please select a file to import (CSV/TSV/XLSX supported)';
+  String get importSelectCsvFile =>
+      'Please select a file to import (CSV/TSV/XLSX supported)';
 
   @override
   String get exportTitle => 'Export';
 
   @override
-  String get exportDescription => 'Supported export types:\n• Transactions (Income/Expense/Transfer)\n• Categories\n• Accounts\n\nClick the button below to select save location and export current ledger to CSV file.';
+  String get exportDescription =>
+      'Supported export types:\n• Transactions (Income/Expense/Transfer)\n• Categories\n• Accounts\n\nClick the button below to select save location and export current ledger to CSV file.';
 
   @override
   String get exportButtonIOS => 'Export and Share';
@@ -2807,7 +2917,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get updateDownloadBackgroundHint => 'You can switch the app to background, download will continue';
+  String get updateDownloadBackgroundHint =>
+      'You can switch the app to background, download will continue';
 
   @override
   String get updateCancelButton => 'Cancel';
@@ -2840,7 +2951,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateInstallNow => 'Install Now';
 
   @override
-  String get updateNotificationPermissionTitle => 'Notification Permission Denied';
+  String get updateNotificationPermissionTitle =>
+      'Notification Permission Denied';
 
   @override
   String get updateCheckFailedTitle => 'Update Check Failed';
@@ -2855,7 +2967,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateCannotOpenLink => 'Cannot open link';
 
   @override
-  String get updateManualVisit => 'Please manually visit in browser:\\nhttps://github.com/TNT-Likely/BeeCount/releases';
+  String get updateManualVisit =>
+      'Please manually visit in browser:\\nhttps://github.com/TNT-Likely/BeeCount/releases';
 
   @override
   String get updateNoLocalApkTitle => 'No Update Package Found';
@@ -2879,7 +2992,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateInstallFailedTitle => 'Installation Failed';
 
   @override
-  String get updateInstallFailedMessage => 'Cannot start APK installer, please check file permissions.';
+  String get updateInstallFailedMessage =>
+      'Cannot start APK installer, please check file permissions.';
 
   @override
   String get updateErrorTitle => 'Error';
@@ -2909,13 +3023,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateDownloadCompleted => 'Download completed';
 
   @override
-  String get updateDownloadCompletedManual => 'Download completed, can install manually';
+  String get updateDownloadCompletedManual =>
+      'Download completed, can install manually';
 
   @override
-  String get updateDownloadCompletedDialog => 'Download completed, please install manually (dialog exception)';
+  String get updateDownloadCompletedDialog =>
+      'Download completed, please install manually (dialog exception)';
 
   @override
-  String get updateDownloadCompletedContext => 'Download completed, please install manually';
+  String get updateDownloadCompletedContext =>
+      'Download completed, please install manually';
 
   @override
   String get updateDownloadFailedGeneric => 'Download failed';
@@ -2940,10 +3057,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get updateNoLocalApkFoundMessage => 'No downloaded update package file found.\\n\\nPlease first download new version through \"Check Update\".';
+  String get updateNoLocalApkFoundMessage =>
+      'No downloaded update package file found.\\n\\nPlease first download new version through \"Check Update\".';
 
   @override
-  String updateInstallPackageFoundMessage(String fileName, String fileSize, String time) {
+  String updateInstallPackageFoundMessage(
+      String fileName, String fileSize, String time) {
     return 'Found update package:\\n\\nFile name: $fileName\\nSize: ${fileSize}MB\\nDownload time: $time\\n\\nInstall immediately?';
   }
 
@@ -2977,7 +3096,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateCachedVersionTitle => 'Found Downloaded Version';
 
   @override
-  String get updateCachedVersionMessage => 'Found previously downloaded installation package... Click \\\"OK\\\" to install immediately, click \\\"Cancel\\\" to close...';
+  String get updateCachedVersionMessage =>
+      'Found previously downloaded installation package... Click \\\"OK\\\" to install immediately, click \\\"Cancel\\\" to close...';
 
   @override
   String get updateConfirmDownload => 'Download and Install Now';
@@ -2986,13 +3106,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateDownloadCompleteTitle => 'Download Complete';
 
   @override
-  String get updateInstallConfirmMessage => 'New version has been downloaded. Install now?';
+  String get updateInstallConfirmMessage =>
+      'New version has been downloaded. Install now?';
 
   @override
   String get updateMirrorSelectTitle => 'Select Download Accelerator';
 
   @override
-  String get updateMirrorSelectHint => 'If download is slow, select an accelerated mirror. Click \"Test\" to check latency.';
+  String get updateMirrorSelectHint =>
+      'If download is slow, select an accelerated mirror. Click \"Test\" to check latency.';
 
   @override
   String get updateMirrorTestButton => 'Test';
@@ -3014,10 +3136,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateMirrorSettingTitle => 'Download Accelerator';
 
   @override
-  String get updateNotificationPermissionGuideText => 'Download progress notifications are disabled, but this doesn\'t affect download functionality. To view progress:';
+  String get updateNotificationPermissionGuideText =>
+      'Download progress notifications are disabled, but this doesn\'t affect download functionality. To view progress:';
 
   @override
-  String get updateNotificationGuideStep1 => 'Go to System Settings > App Management';
+  String get updateNotificationGuideStep1 =>
+      'Go to System Settings > App Management';
 
   @override
   String get updateNotificationGuideStep2 => 'Find \\\"BeeCount\\\" app';
@@ -3026,7 +3150,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateNotificationGuideStep3 => 'Enable notification permissions';
 
   @override
-  String get updateNotificationGuideInfo => 'Downloads will continue normally in the background even without notifications';
+  String get updateNotificationGuideInfo =>
+      'Downloads will continue normally in the background even without notifications';
 
   @override
   String get currencyCNY => 'Chinese Yuan';
@@ -3170,7 +3295,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get webdavConfiguredTitle => 'WebDAV Cloud Service Configured';
 
   @override
-  String get webdavConfiguredMessage => 'WebDAV cloud service uses the credentials provided during configuration, no additional login required.';
+  String get webdavConfiguredMessage =>
+      'WebDAV cloud service uses the credentials provided during configuration, no additional login required.';
 
   @override
   String get recurringTransactionTitle => 'Recurring Bills';
@@ -3212,13 +3338,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recurringTransactionNoEndDate => 'Perpetual';
 
   @override
-  String get recurringTransactionDeleteConfirm => 'Are you sure you want to delete this recurring bill?';
+  String get recurringTransactionDeleteConfirm =>
+      'Are you sure you want to delete this recurring bill?';
 
   @override
   String get recurringTransactionEmpty => 'No Recurring Bills';
 
   @override
-  String get recurringTransactionEmptyHint => 'Tap the + button in the top right corner to add';
+  String get recurringTransactionEmptyHint =>
+      'Tap the + button in the top right corner to add';
 
   @override
   String recurringTransactionEveryNDays(int n) {
@@ -3244,7 +3372,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recurringTransactionUsageTitle => 'Usage Guide';
 
   @override
-  String get recurringTransactionUsageContent => 'Recurring transactions are automatically scanned and generated when the app cold starts. After setting a date, the system will create corresponding bills on the first startup after that date. For example: if set to Nov 27, bills will be auto-recorded on the first launch after Nov 27.';
+  String get recurringTransactionUsageContent =>
+      'Recurring transactions are automatically scanned and generated when the app cold starts. After setting a date, the system will create corresponding bills on the first startup after that date. For example: if set to Nov 27, bills will be auto-recorded on the first launch after Nov 27.';
 
   @override
   String get ledgerSelectTitle => 'Select Ledger';
@@ -3259,13 +3388,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncNotLoggedInMessage => 'Not logged in';
 
   @override
-  String get syncCloudBackupCorruptedMessage => 'Cloud backup content is corrupted, possibly due to encoding issues from earlier versions. Please click \'Upload Current Ledger to Cloud\' to overwrite and fix.';
+  String get syncCloudBackupCorruptedMessage =>
+      'Cloud backup content is corrupted, possibly due to encoding issues from earlier versions. Please click \'Upload Current Ledger to Cloud\' to overwrite and fix.';
 
   @override
   String get syncNoCloudBackupMessage => 'No cloud backup';
 
   @override
-  String get syncAccessDeniedMessage => '403 Access denied (check storage RLS policy and path)';
+  String get syncAccessDeniedMessage =>
+      '403 Access denied (check storage RLS policy and path)';
 
   @override
   String get cloudTestConnection => 'Test Connection';
@@ -3280,13 +3411,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudCustomSupabaseTitle => 'Custom Supabase';
 
   @override
-  String get cloudCustomSupabaseSubtitle => 'Click to configure self-hosted Supabase';
+  String get cloudCustomSupabaseSubtitle =>
+      'Click to configure self-hosted Supabase';
 
   @override
   String get cloudCustomWebdavTitle => 'Custom WebDAV';
 
   @override
-  String get cloudCustomWebdavSubtitle => 'Click to configure Nutstore/Nextcloud etc.';
+  String get cloudCustomWebdavSubtitle =>
+      'Click to configure Nutstore/Nextcloud etc.';
 
   @override
   String get cloudCustomS3Title => 'S3 Protocol Storage';
@@ -3298,7 +3431,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudBeeCountCloudTitle => 'BeeCount Cloud';
 
   @override
-  String get cloudBeeCountCloudSubtitle => 'Self-hosted · Incremental sync · Multi-device';
+  String get cloudBeeCountCloudSubtitle =>
+      'Self-hosted · Incremental sync · Multi-device';
 
   @override
   String get cloudConfigureBeeCountCloudTitle => 'Configure BeeCount Cloud';
@@ -3334,7 +3468,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudBeeCountCloudLoginFailed => 'Login failed';
 
   @override
-  String get cloudBeeCountCloudSyncSubtitle => 'Incremental sync · Multi-device';
+  String get cloudBeeCountCloudSyncSubtitle =>
+      'Incremental sync · Multi-device';
 
   @override
   String get cloudBeeCountCloudConnected => 'Connected';
@@ -3343,25 +3478,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudBeeCountCloudNotConnected => 'Not connected';
 
   @override
-  String get cloudBeeCountCloudNotConnectedHint => 'Configure and login in cloud service settings';
+  String get cloudBeeCountCloudNotConnectedHint =>
+      'Configure and login in cloud service settings';
 
   @override
   String get cloudBeeCountCloudAutoSync => 'Incremental Sync';
 
   @override
-  String get cloudBeeCountCloudAutoSyncHint => 'Changes sync to cloud automatically';
+  String get cloudBeeCountCloudAutoSyncHint =>
+      'Changes sync to cloud automatically';
 
   @override
   String get cloudBeeCountCloudMultiDevice => 'Multi-device Sync';
 
   @override
-  String get cloudBeeCountCloudMultiDeviceHint => 'Keep data consistent across devices';
+  String get cloudBeeCountCloudMultiDeviceHint =>
+      'Keep data consistent across devices';
 
   @override
   String get cloudBeeCountCloudAttachment => 'Attachment Sync';
 
   @override
-  String get cloudBeeCountCloudAttachmentHint => 'Receipt images backed up to cloud automatically';
+  String get cloudBeeCountCloudAttachmentHint =>
+      'Receipt images backed up to cloud automatically';
 
   @override
   String get cloudTabOffline => 'Offline';
@@ -3379,7 +3518,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudIcloudNotAvailableTitle => 'iCloud Not Available';
 
   @override
-  String get cloudIcloudNotAvailableMessage => 'Please sign in to iCloud in Settings and try again';
+  String get cloudIcloudNotAvailableMessage =>
+      'Please sign in to iCloud in Settings and try again';
 
   @override
   String get cloudIcloudHelpTitle => 'iCloud Instructions';
@@ -3415,19 +3555,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudIcloudHelpFaqTitle => 'FAQ';
 
   @override
-  String get cloudIcloudHelpFaq1 => 'If not available, check if iCloud Drive is enabled';
+  String get cloudIcloudHelpFaq1 =>
+      'If not available, check if iCloud Drive is enabled';
 
   @override
-  String get cloudIcloudHelpFaq2 => 'First time use may take a few seconds to initialize';
+  String get cloudIcloudHelpFaq2 =>
+      'First time use may take a few seconds to initialize';
 
   @override
-  String get cloudIcloudHelpFaq3 => 'Data is stored in your private iCloud space';
+  String get cloudIcloudHelpFaq3 =>
+      'Data is stored in your private iCloud space';
 
   @override
-  String get cloudIcloudHelpFaq4 => 'Devices with same Apple ID sync automatically';
+  String get cloudIcloudHelpFaq4 =>
+      'Devices with same Apple ID sync automatically';
 
   @override
-  String get cloudIcloudHelpNote => 'iCloud sync uses your Apple ID, no extra configuration needed';
+  String get cloudIcloudHelpNote =>
+      'iCloud sync uses your Apple ID, no extra configuration needed';
 
   @override
   String get cloudSupabaseHelpTitle => 'Supabase Setup Guide';
@@ -3436,10 +3581,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudSupabaseHelpIntro => 'What is Supabase';
 
   @override
-  String get cloudSupabaseHelpIntro1 => 'Supabase is an open-source backend-as-a-service platform';
+  String get cloudSupabaseHelpIntro1 =>
+      'Supabase is an open-source backend-as-a-service platform';
 
   @override
-  String get cloudSupabaseHelpIntro2 => 'Offers a free tier, sufficient for personal use';
+  String get cloudSupabaseHelpIntro2 =>
+      'Offers a free tier, sufficient for personal use';
 
   @override
   String get cloudSupabaseHelpIntro3 => 'You have full control over your data';
@@ -3448,10 +3595,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudSupabaseHelpSteps => 'Setup Steps';
 
   @override
-  String get cloudSupabaseHelpStep1 => '1. Visit supabase.com to create an account';
+  String get cloudSupabaseHelpStep1 =>
+      '1. Visit supabase.com to create an account';
 
   @override
-  String get cloudSupabaseHelpStep2 => '2. Create a new project (select free tier)';
+  String get cloudSupabaseHelpStep2 =>
+      '2. Create a new project (select free tier)';
 
   @override
   String get cloudSupabaseHelpStep3 => '3. Go to Project Settings > API';
@@ -3460,7 +3609,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudSupabaseHelpStep4 => '4. Copy Project URL and anon key';
 
   @override
-  String get cloudSupabaseHelpStep5 => '5. Paste them into the app configuration';
+  String get cloudSupabaseHelpStep5 =>
+      '5. Paste them into the app configuration';
 
   @override
   String get cloudSupabaseHelpFaq => 'FAQ';
@@ -3475,7 +3625,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudSupabaseHelpFaq3 => 'Supports multi-device sync';
 
   @override
-  String get cloudSupabaseHelpNote => 'After configuration, you need to register/login to use sync';
+  String get cloudSupabaseHelpNote =>
+      'After configuration, you need to register/login to use sync';
 
   @override
   String get cloudDetailedTutorial => 'Detailed Tutorial';
@@ -3490,7 +3641,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudWebdavHelpIntro1 => 'WebDAV is a network file protocol';
 
   @override
-  String get cloudWebdavHelpIntro2 => 'Supported by many cloud storage and NAS devices';
+  String get cloudWebdavHelpIntro2 =>
+      'Supported by many cloud storage and NAS devices';
 
   @override
   String get cloudWebdavHelpIntro3 => 'Data is stored on your own server';
@@ -3499,7 +3651,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudWebdavHelpProviders => 'Supported Providers';
 
   @override
-  String get cloudWebdavHelpProvider1 => '- Nutstore (recommended for China users)';
+  String get cloudWebdavHelpProvider1 =>
+      '- Nutstore (recommended for China users)';
 
   @override
   String get cloudWebdavHelpProvider2 => '- Nextcloud / ownCloud';
@@ -3523,13 +3676,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudWebdavHelpStep3 => '3. Select Security Options tab';
 
   @override
-  String get cloudWebdavHelpStep4 => '4. Add application password (for third-party apps)';
+  String get cloudWebdavHelpStep4 =>
+      '4. Add application password (for third-party apps)';
 
   @override
-  String get cloudWebdavHelpStep5 => '5. Copy server address, account, and app password';
+  String get cloudWebdavHelpStep5 =>
+      '5. Copy server address, account, and app password';
 
   @override
-  String get cloudWebdavHelpNote => 'Use an app-specific password instead of your account password';
+  String get cloudWebdavHelpNote =>
+      'Use an app-specific password instead of your account password';
 
   @override
   String get cloudS3HelpTitle => 'S3 Storage Setup Guide';
@@ -3586,10 +3742,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudS3HelpStep4 => '4. Create API Token and copy credentials';
 
   @override
-  String get cloudS3HelpStep5 => '5. Paste endpoint, access key, secret key, and bucket name';
+  String get cloudS3HelpStep5 =>
+      '5. Paste endpoint, access key, secret key, and bucket name';
 
   @override
-  String get cloudS3HelpNote => 'Recommended: Cloudflare R2 offers 10GB free storage without egress fees';
+  String get cloudS3HelpNote =>
+      'Recommended: Cloudflare R2 offers 10GB free storage without egress fees';
 
   @override
   String get cloudStatusNotTested => 'Not tested';
@@ -3612,13 +3770,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get cloudErrorWebdavNotSupported => 'Server does not support WebDAV protocol';
+  String get cloudErrorWebdavNotSupported =>
+      'Server does not support WebDAV protocol';
 
   @override
-  String get cloudErrorAuthFailedCredentials => 'Authentication failed: Incorrect username or password';
+  String get cloudErrorAuthFailedCredentials =>
+      'Authentication failed: Incorrect username or password';
 
   @override
-  String get cloudErrorAccessDenied => 'Access denied: Please check permissions';
+  String get cloudErrorAccessDenied =>
+      'Access denied: Please check permissions';
 
   @override
   String cloudErrorPathNotFound(String path) {
@@ -3634,7 +3795,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudTestSuccessTitle => 'Test Successful';
 
   @override
-  String get cloudTestSuccessMessage => 'Connection normal, configuration valid';
+  String get cloudTestSuccessMessage =>
+      'Connection normal, configuration valid';
 
   @override
   String get cloudTestFailedTitle => 'Test Failed';
@@ -3649,13 +3811,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudSwitchConfirmTitle => 'Switch Cloud Service';
 
   @override
-  String get cloudSwitchConfirmMessage => 'Switching cloud service will log out current account. Confirm switch?';
+  String get cloudSwitchConfirmMessage =>
+      'Switching cloud service will log out current account. Confirm switch?';
 
   @override
   String get cloudSwitchFailedTitle => 'Switch Failed';
 
   @override
-  String get cloudSwitchFailedConfigMissing => 'Please configure this cloud service first';
+  String get cloudSwitchFailedConfigMissing =>
+      'Please configure this cloud service first';
 
   @override
   String get cloudConfigInvalidTitle => 'Invalid Configuration';
@@ -3684,19 +3848,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudSupabaseAnonKeyHintLong => 'Paste complete anon key';
 
   @override
-  String get cloudWebdavRemotePathHelp => 'Remote directory path for data storage';
+  String get cloudWebdavRemotePathHelp =>
+      'Remote directory path for data storage';
 
   @override
   String get cloudWebdavRemotePathLabel => 'Remote Path';
 
   @override
-  String get cloudWebdavRemotePathHelperText => 'Remote directory path for data storage';
+  String get cloudWebdavRemotePathHelperText =>
+      'Remote directory path for data storage';
 
   @override
   String get accountsTitle => 'Asset Management';
 
   @override
-  String get accountsEmptyMessage => 'No accounts yet, tap the top right to add';
+  String get accountsEmptyMessage =>
+      'No accounts yet, tap the top right to add';
 
   @override
   String get accountAddTooltip => 'Add Account';
@@ -3723,7 +3890,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountNameRequired => 'Please enter account name';
 
   @override
-  String get accountNameDuplicate => 'Account name already exists, please use a different name';
+  String get accountNameDuplicate =>
+      'Account name already exists, please use a different name';
 
   @override
   String get accountTypeLabel => 'Account Type';
@@ -3779,16 +3947,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateCorruptedFileTitle => 'Corrupted Installation Package';
 
   @override
-  String get updateCorruptedFileMessage => 'The previously downloaded installation package is incomplete or corrupted. Delete and re-download?';
+  String get updateCorruptedFileMessage =>
+      'The previously downloaded installation package is incomplete or corrupted. Delete and re-download?';
 
   @override
   String get welcomeTitle => 'Welcome to BeeCount';
 
   @override
-  String get welcomeDescription => 'An accounting app that truly respects your privacy';
+  String get welcomeDescription =>
+      'An accounting app that truly respects your privacy';
 
   @override
-  String get welcomeCurrencyDescription => 'Choose your preferred currency, you can change it anytime in settings';
+  String get welcomeCurrencyDescription =>
+      'Choose your preferred currency, you can change it anytime in settings';
 
   @override
   String get welcomeCreateDefaultLedger => 'Create a default ledger';
@@ -3797,13 +3968,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomePrivacyTitle => 'Open Source · Community Driven';
 
   @override
-  String get welcomePrivacyFeature1 => '100% open source code, supervised by community';
+  String get welcomePrivacyFeature1 =>
+      '100% open source code, supervised by community';
 
   @override
-  String get welcomePrivacyFeature2 => 'No privacy concerns, data stored locally';
+  String get welcomePrivacyFeature2 =>
+      'No privacy concerns, data stored locally';
 
   @override
-  String get welcomeOpenSourceFeature1 => 'Active developer community, continuous improvement';
+  String get welcomeOpenSourceFeature1 =>
+      'Active developer community, continuous improvement';
 
   @override
   String get welcomeViewGitHub => 'Visit GitHub Repository';
@@ -3812,34 +3986,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeCloudSyncTitle => 'Optional Cloud Sync';
 
   @override
-  String get welcomeCloudSyncDescription => 'BeeCount supports multiple sync methods - your data, your control';
+  String get welcomeCloudSyncDescription =>
+      'BeeCount supports multiple sync methods - your data, your control';
 
   @override
-  String get welcomeCloudSyncFeature1 => 'Completely offline usage, no cloud needed';
+  String get welcomeCloudSyncFeature1 =>
+      'Completely offline usage, no cloud needed';
 
   @override
-  String get welcomeCloudSyncFeature2 => 'BeeCount Cloud self-hosted (real-time multi-device + Web UI)';
+  String get welcomeCloudSyncFeature2 =>
+      'BeeCount Cloud self-hosted (real-time multi-device + Web UI)';
 
   @override
-  String get welcomeCloudSyncFeature3 => 'Or pick iCloud / WebDAV / Supabase / S3';
+  String get welcomeCloudSyncFeature3 =>
+      'Or pick iCloud / WebDAV / Supabase / S3';
 
   @override
   String get widgetManagement => 'Home Screen Widget';
 
   @override
-  String get widgetManagementDesc => 'Quick view of income and expenses on home screen';
+  String get widgetManagementDesc =>
+      'Quick view of income and expenses on home screen';
 
   @override
   String get widgetPreview => 'Widget Preview';
 
   @override
-  String get widgetPreviewDesc => 'Widget automatically displays actual data from current ledger, theme color follows app settings';
+  String get widgetPreviewDesc =>
+      'Widget automatically displays actual data from current ledger, theme color follows app settings';
 
   @override
   String get howToAddWidget => 'How to Add Widget';
 
   @override
-  String get iosWidgetStep1 => 'Long press on home screen blank area to enter edit mode';
+  String get iosWidgetStep1 =>
+      'Long press on home screen blank area to enter edit mode';
 
   @override
   String get iosWidgetStep2 => 'Tap the \"+\" button in upper left corner';
@@ -3866,13 +4047,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutWidget => 'About Widget';
 
   @override
-  String get widgetDescription => 'Widget automatically syncs to display today\'s and this month\'s income and expense data, refreshing every 30 minutes. Data updates immediately when app is opened.';
+  String get widgetDescription =>
+      'Widget automatically syncs to display today\'s and this month\'s income and expense data, refreshing every 30 minutes. Data updates immediately when app is opened.';
 
   @override
   String get widgetQuickEntryTitle => 'Quick Entry';
 
   @override
-  String get widgetQuickEntryDesc => 'Tap the left side of the widget to quickly add an expense, or tap the right side to add an income. You can also use beecount://new?type=transfer via Shortcuts to quickly start a transfer.';
+  String get widgetQuickEntryDesc =>
+      'Tap the left side of the widget to quickly add an expense, or tap the right side to add an income. You can also use beecount://new?type=transfer via Shortcuts to quickly start a transfer.';
 
   @override
   String get appName => 'BeeCount';
@@ -3896,7 +4079,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autoScreenshotBilling => 'Auto Screenshot Billing';
 
   @override
-  String get autoScreenshotBillingDesc => 'Auto-recognize payment info from screenshots';
+  String get autoScreenshotBillingDesc =>
+      'Auto-recognize payment info from screenshots';
 
   @override
   String get autoScreenshotBillingTitle => 'Auto Screenshot Billing';
@@ -3905,7 +4089,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get featureDescription => 'Feature Description';
 
   @override
-  String get featureDescriptionContent => 'After taking a screenshot of payment page, the system will automatically recognize amount and merchant info, and create expense record.\n\n⚡ Recognition speed: 2-3 seconds (may be longer on some devices)\n🤖 Smart category matching\n📝 Auto-fill notes\n\n⚠️ Note:\n• Different devices have different screenshot save speeds, delay may be 5-10 seconds\n• May not work on some devices, depending on system implementation\n• Recognized screenshots will be skipped automatically\n• Due to Android Scoped Storage restrictions (Android 10+), apps cannot delete system screenshots. Manual cleanup required';
+  String get featureDescriptionContent =>
+      'After taking a screenshot of payment page, the system will automatically recognize amount and merchant info, and create expense record.\n\n⚡ Recognition speed: 2-3 seconds (may be longer on some devices)\n🤖 Smart category matching\n📝 Auto-fill notes\n\n⚠️ Note:\n• Different devices have different screenshot save speeds, delay may be 5-10 seconds\n• May not work on some devices, depending on system implementation\n• Recognized screenshots will be skipped automatically\n• Due to Android Scoped Storage restrictions (Android 10+), apps cannot delete system screenshots. Manual cleanup required';
 
   @override
   String get autoBilling => 'Auto Billing';
@@ -3917,7 +4102,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get disabled => 'Disabled';
 
   @override
-  String get photosPermissionRequired => 'Photos permission required for screenshot monitoring';
+  String get photosPermissionRequired =>
+      'Photos permission required for screenshot monitoring';
 
   @override
   String get enableSuccess => 'Auto billing enabled';
@@ -3932,13 +4118,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autoBillingBatteryGuideTitle => 'Battery Optimization Settings';
 
   @override
-  String get autoBillingBatteryDesc => 'Auto billing requires the app to keep running in the background. Some phones automatically clean background apps when locked, which may cause auto billing to fail. It is recommended to disable battery optimization to ensure proper functionality.';
+  String get autoBillingBatteryDesc =>
+      'Auto billing requires the app to keep running in the background. Some phones automatically clean background apps when locked, which may cause auto billing to fail. It is recommended to disable battery optimization to ensure proper functionality.';
 
   @override
   String get autoBillingCheckBattery => 'Check Battery Optimization';
 
   @override
-  String get autoBillingBatteryWarning => '⚠️ Battery optimization is not disabled. The app may be automatically cleaned by the system, causing auto billing to fail. Please tap the \"Settings\" button above to disable battery optimization.';
+  String get autoBillingBatteryWarning =>
+      '⚠️ Battery optimization is not disabled. The app may be automatically cleaned by the system, causing auto billing to fail. Please tap the \"Settings\" button above to disable battery optimization.';
 
   @override
   String get enableFailed => 'Enable failed';
@@ -3947,37 +4135,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get disableFailed => 'Disable failed';
 
   @override
-  String get iosAutoFeatureDesc => 'Use iOS \"Shortcuts\" app to automatically identify payment information from screenshots and create transactions. Once set up, it will automatically trigger on every screenshot.';
+  String get iosAutoFeatureDesc =>
+      'Use iOS \"Shortcuts\" app to automatically identify payment information from screenshots and create transactions. Once set up, it will automatically trigger on every screenshot.';
 
   @override
   String get iosAutoShortcutConfigTitle => 'Configuration Steps:';
 
   @override
-  String get iosAutoShortcutStep1 => 'Open \"Shortcuts\" app, tap \"+\" in top right to create new shortcut';
+  String get iosAutoShortcutStep1 =>
+      'Open \"Shortcuts\" app, tap \"+\" in top right to create new shortcut';
 
   @override
   String get iosAutoShortcutStep2 => 'Add \"Take Screenshot\" action';
 
   @override
-  String get iosAutoShortcutStep3 => 'Search and add \"BeeCount - Auto Billing\" action';
+  String get iosAutoShortcutStep3 =>
+      'Search and add \"BeeCount - Auto Billing\" action';
 
   @override
-  String get iosAutoShortcutStep4 => 'Set the screenshot parameter of \"BeeCount\" to the previous \"Screenshot\"';
+  String get iosAutoShortcutStep4 =>
+      'Set the screenshot parameter of \"BeeCount\" to the previous \"Screenshot\"';
 
   @override
-  String get iosAutoShortcutStep5 => '(Optional) Go to Settings > Accessibility > Touch > Back Tap, bind this shortcut';
+  String get iosAutoShortcutStep5 =>
+      '(Optional) Go to Settings > Accessibility > Touch > Back Tap, bind this shortcut';
 
   @override
-  String get iosAutoShortcutStep6 => 'Done! Double tap phone back during payment for quick billing';
+  String get iosAutoShortcutStep6 =>
+      'Done! Double tap phone back during payment for quick billing';
 
   @override
-  String get iosAutoShortcutRecommendedTip => '✅ Recommended: After binding the shortcut to \"Back Tap\", double tap phone back during payment to auto-screenshot and recognize billing, no manual screenshot needed.';
+  String get iosAutoShortcutRecommendedTip =>
+      '✅ Recommended: After binding the shortcut to \"Back Tap\", double tap phone back during payment to auto-screenshot and recognize billing, no manual screenshot needed.';
 
   @override
-  String get iosAutoBackTapTitle => '💡 Double Tap Back to Trigger (Recommended)';
+  String get iosAutoBackTapTitle =>
+      '💡 Double Tap Back to Trigger (Recommended)';
 
   @override
-  String get iosAutoBackTapDesc => 'Settings > Accessibility > Touch > Back Tap\n• Select \"Double Tap\" or \"Triple Tap\"\n• Choose the shortcut you just created\n• After setup, double tap phone back during payment to auto-record, no screenshot needed';
+  String get iosAutoBackTapDesc =>
+      'Settings > Accessibility > Touch > Back Tap\n• Select \"Double Tap\" or \"Triple Tap\"\n• Choose the shortcut you just created\n• After setup, double tap phone back during payment to auto-record, no screenshot needed';
 
   @override
   String get iosAutoTutorialTitle => 'Video Tutorial';
@@ -3989,31 +4186,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iosAutoImportTitle => 'Get Shortcut in One Tap';
 
   @override
-  String get iosAutoImportDesc => 'Tap the button below to import the ready-made \"Screenshot → Auto Billing\" shortcut — no need to add the \"Take Screenshot\" action or connect parameters manually. After importing, binding it to \"Back Tap\" is recommended.';
+  String get iosAutoImportDesc =>
+      'Tap the button below to import the ready-made \"Screenshot → Auto Billing\" shortcut — no need to add the \"Take Screenshot\" action or connect parameters manually. After importing, binding it to \"Back Tap\" is recommended.';
 
   @override
   String get iosAutoImportButton => 'Get Shortcut';
 
   @override
-  String get iosAutoImportFailed => 'Couldn\'t open the shortcut link. Check your connection and try again.';
+  String get iosAutoImportFailed =>
+      'Couldn\'t open the shortcut link. Check your connection and try again.';
 
   @override
   String get iosAutoManualConfigTitle => 'Manual Setup (Advanced)';
 
   @override
-  String get iosAutoManualConfigDesc => 'If one-tap import isn\'t available, follow these steps to create the shortcut manually.';
+  String get iosAutoManualConfigDesc =>
+      'If one-tap import isn\'t available, follow these steps to create the shortcut manually.';
 
   @override
   String get aiSettingsTitle => 'AI Assistant';
 
   @override
-  String get aiSettingsSubtitle => 'Configure AI models and recognition strategy';
+  String get aiSettingsSubtitle =>
+      'Configure AI models and recognition strategy';
 
   @override
   String get aiEnableTitle => 'Enable AI Assistant';
 
   @override
-  String get aiEnableSubtitle => 'Use AI vision to recognize bill screenshots, extract amount, merchant, time, and support natural language conversation';
+  String get aiEnableSubtitle =>
+      'Use AI vision to recognize bill screenshots, extract amount, merchant, time, and support natural language conversation';
 
   @override
   String get aiEnableToastOn => 'AI Assistant enabled';
@@ -4031,7 +4233,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiStrategyCloudFirst => 'Cloud First';
 
   @override
-  String get aiStrategyCloudFirstDesc => 'Use cloud API first, downgrade to local if failed';
+  String get aiStrategyCloudFirstDesc =>
+      'Use cloud API first, downgrade to local if failed';
 
   @override
   String get aiStrategyLocalOnly => 'Local Only';
@@ -4069,7 +4272,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiCloudApiTestKey => 'Test Connection';
 
   @override
-  String get aiChatConfigWarning => 'AI provider not configured. Please add and bind one in Settings';
+  String get aiChatConfigWarning =>
+      'AI provider not configured. Please add and bind one in Settings';
 
   @override
   String get aiChatGoToSettings => 'Go to Settings';
@@ -4081,61 +4285,73 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiOcrNoAmount => 'No valid amount recognized, please add manually';
 
   @override
-  String get aiNotConfiguredHint => 'AI service not configured. Go to \"Me → AI Settings\" to set up.';
+  String get aiNotConfiguredHint =>
+      'AI service not configured. Go to \"Me → AI Settings\" to set up.';
 
   @override
   String get aiOcrCheckLog => 'Recognition failed. Check logs for details.';
 
   @override
-  String get aiOcrNoBill => 'No bill recognized. Make sure the image is a bill, then try again.';
+  String get aiOcrNoBill =>
+      'No bill recognized. Make sure the image is a bill, then try again.';
 
   @override
-  String get aiNotConfiguredNotificationTitle => '❌ Cannot recognize screenshot';
+  String get aiNotConfiguredNotificationTitle =>
+      '❌ Cannot recognize screenshot';
 
   @override
-  String get aiNotConfiguredNotificationBody => 'AI service not configured. Tap to set up.';
+  String get aiNotConfiguredNotificationBody =>
+      'AI service not configured. Tap to set up.';
 
   @override
   String get autoBillingNotifyDetectedTitle => '✅ Screenshot detected';
 
   @override
-  String get autoBillingNotifyWaitingFileBody => 'Waiting for file to be written...';
+  String get autoBillingNotifyWaitingFileBody =>
+      'Waiting for file to be written...';
 
   @override
-  String get autoBillingNotifyRecognizingScreenshotTitle => 'Recognizing screenshot...';
+  String get autoBillingNotifyRecognizingScreenshotTitle =>
+      'Recognizing screenshot...';
 
   @override
-  String get autoBillingNotifyVisionAnalyzingBody => 'Calling AI vision to analyze payment info, please wait';
+  String get autoBillingNotifyVisionAnalyzingBody =>
+      'Calling AI vision to analyze payment info, please wait';
 
   @override
   String get autoBillingNotifyRecognizingTextTitle => '⏳ Recognizing';
 
   @override
-  String get autoBillingNotifyTextAnalyzingBody => 'Calling AI to parse payment info...';
+  String get autoBillingNotifyTextAnalyzingBody =>
+      'Calling AI to parse payment info...';
 
   @override
   String get autoBillingNotifyRecognizeFailedTitle => '❌ Recognition failed';
 
   @override
-  String get autoBillingNotifyRecognizeFailedBody => 'Could not extract billing info from screenshot. Check AI config or the image.';
+  String get autoBillingNotifyRecognizeFailedBody =>
+      'Could not extract billing info from screenshot. Check AI config or the image.';
 
   @override
   String get autoBillingNotifyNoBillTitle => 'No bill found';
 
   @override
-  String get autoBillingNotifyNoBillBody => 'No billing info found in this screenshot — it may not be a bill.';
+  String get autoBillingNotifyNoBillBody =>
+      'No billing info found in this screenshot — it may not be a bill.';
 
   @override
   String get autoBillingNotifyFileUnavailableTitle => 'Recognition failed';
 
   @override
-  String get autoBillingNotifyFileUnavailableBody => 'Screenshot file is not available';
+  String get autoBillingNotifyFileUnavailableBody =>
+      'Screenshot file is not available';
 
   @override
   String get autoBillingNotifyNoLedgerTitle => '❌ Auto billing failed';
 
   @override
-  String get autoBillingNotifyNoLedgerBody => 'No ledger available. Please create one first.';
+  String get autoBillingNotifyNoLedgerBody =>
+      'No ledger available. Please create one first.';
 
   @override
   String get autoBillingNotifyNoAmountBody => 'Could not recognize the amount';
@@ -4144,7 +4360,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autoBillingNotifyCreateFailedTitle => '❌ Failed to create';
 
   @override
-  String get autoBillingNotifyCreateFailedBody => 'Could not create transaction record';
+  String get autoBillingNotifyCreateFailedBody =>
+      'Could not create transaction record';
 
   @override
   String get autoBillingNotifyProcessFailedTitle => '❌ Processing failed';
@@ -4175,7 +4392,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get autoBillingNotifySuccessSingleBodyDefault => 'Record created automatically';
+  String get autoBillingNotifySuccessSingleBodyDefault =>
+      'Record created automatically';
 
   @override
   String get aiOcrNoLedger => 'Ledger not found';
@@ -4209,58 +4427,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudTutorialTitle => 'Getting Started';
 
   @override
-  String get cloudTutorialIntro => 'BeeCount Cloud is a self-hosted sync server that supports real-time multi-device collaboration. The flow is simple:';
+  String get cloudTutorialIntro =>
+      'BeeCount Cloud is a self-hosted sync server that supports real-time multi-device collaboration. The flow is simple:';
 
   @override
   String get cloudTutorialStep1Title => 'Step 1: Deploy or join a server';
 
   @override
-  String get cloudTutorialStep1Desc => 'Self-host with one Docker command (see the Docker guide in GitHub README). Or join an existing BeeCount Cloud server run by a friend / team.';
+  String get cloudTutorialStep1Desc =>
+      'Self-host with one Docker command (see the Docker guide in GitHub README). Or join an existing BeeCount Cloud server run by a friend / team.';
 
   @override
   String get cloudTutorialStep2Title => 'Step 2: Get an account';
 
   @override
-  String get cloudTutorialStep2Desc => 'BeeCount Cloud does NOT offer self-registration (to prevent abuse on public servers). If you self-host: the first Docker boot prints a random admin email + password to the logs — use that. Joining someone else\'s server: ask the admin to create an account for you in Web → Users.';
+  String get cloudTutorialStep2Desc =>
+      'BeeCount Cloud does NOT offer self-registration (to prevent abuse on public servers). If you self-host: the first Docker boot prints a random admin email + password to the logs — use that. Joining someone else\'s server: ask the admin to create an account for you in Web → Users.';
 
   @override
   String get cloudTutorialStep3Title => 'Step 3: Login + enable sync';
 
   @override
-  String get cloudTutorialStep3Desc => 'In the app, pick BeeCount Cloud, enter the server URL and the account you got in step 2. First login uploads your entire local ledger; every subsequent edit is pushed in real time.';
+  String get cloudTutorialStep3Desc =>
+      'In the app, pick BeeCount Cloud, enter the server URL and the account you got in step 2. First login uploads your entire local ledger; every subsequent edit is pushed in real time.';
 
   @override
   String get cloudTutorialStep4Title => 'Step 4: Login from other devices';
 
   @override
-  String get cloudTutorialStep4Desc => 'Phone / tablet / Web — same account, instant shared state. Edits propagate within seconds.';
+  String get cloudTutorialStep4Desc =>
+      'Phone / tablet / Web — same account, instant shared state. Edits propagate within seconds.';
 
   @override
   String get cloudTutorialTipTitle => 'Tip';
 
   @override
-  String get cloudTutorialTipDesc => 'The Web UI lives at the server URL. Open it in a browser to manage ledgers, members, and view logs.';
+  String get cloudTutorialTipDesc =>
+      'The Web UI lives at the server URL. Open it in a browser to manage ledgers, members, and view logs.';
 
   @override
   String get cloudTutorialFeaturesTitle => 'Features';
 
   @override
-  String get cloudTutorialFeature1 => '📱 Real-time multi-device: phone A + phone B + Web on one account, sub-second sync';
+  String get cloudTutorialFeature1 =>
+      '📱 Real-time multi-device: phone A + phone B + Web on one account, sub-second sync';
 
   @override
-  String get cloudTutorialFeature2 => '🌐 Web UI included: one Docker image ships server + Web, browser ready';
+  String get cloudTutorialFeature2 =>
+      '🌐 Web UI included: one Docker image ships server + Web, browser ready';
 
   @override
-  String get cloudTutorialFeature3 => '👥 Multi-user isolation: multiple users on one server, data fully separated';
+  String get cloudTutorialFeature3 =>
+      '👥 Multi-user isolation: multiple users on one server, data fully separated';
 
   @override
-  String get cloudTutorialFeature4 => '🤝 Shared ledgers: invite family / team into one book with seconds-level sync';
+  String get cloudTutorialFeature4 =>
+      '🤝 Shared ledgers: invite family / team into one book with seconds-level sync';
 
   @override
   String get cloudTutorialGotIt => 'Got it';
 
   @override
-  String get cloudSyncHint => 'Downloads automatically compare differences for selective preview. Not real-time — avoid editing the same ledger on multiple devices simultaneously. Sync scope covers ledger data (including associated accounts, categories, and tags), excluding attachments.';
+  String get cloudSyncHint =>
+      'Downloads automatically compare differences for selective preview. Not real-time — avoid editing the same ledger on multiple devices simultaneously. Sync scope covers ledger data (including associated accounts, categories, and tags), excluding attachments.';
 
   @override
   String get cloudSyncNow => 'Sync Now';
@@ -4289,16 +4518,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dataManagementPageTitle => 'Data Management';
 
   @override
-  String get dataManagementPageSubtitle => 'Manage transaction data and categories';
+  String get dataManagementPageSubtitle =>
+      'Manage transaction data and categories';
 
   @override
-  String get dataManagementAttachmentHint => 'When restoring data, please import the attachment package first, then import ledger data (CSV or cloud sync) to ensure attachments are correctly associated.';
+  String get dataManagementAttachmentHint =>
+      'When restoring data, please import the attachment package first, then import ledger data (CSV or cloud sync) to ensure attachments are correctly associated.';
 
   @override
   String get smartBilling => 'Smart Billing';
 
   @override
-  String get smartBillingDesc => 'AI Assistant, smart recognition, auto billing';
+  String get smartBillingDesc =>
+      'AI Assistant, smart recognition, auto billing';
 
   @override
   String get smartBillingPageTitle => 'Smart Billing';
@@ -4307,70 +4539,85 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smartBillingPageSubtitle => 'AI and automation billing features';
 
   @override
-  String get smartBillingGuideHint => 'Long press the + button at the bottom center of the home page to quickly access these features';
+  String get smartBillingGuideHint =>
+      'Long press the + button at the bottom center of the home page to quickly access these features';
 
   @override
   String get smartBillingImageBilling => 'Image Billing';
 
   @override
-  String get smartBillingImageBillingDesc => 'Select payment screenshots from gallery for recognition';
+  String get smartBillingImageBillingDesc =>
+      'Select payment screenshots from gallery for recognition';
 
   @override
-  String get smartBillingImageBillingGuide => 'Long press the + button at the bottom center of the home page and select \'Gallery\' to use image billing. Requires AI service configured under \"Me → AI Settings\"; the vision model will extract amount, merchant, time, etc. from the screenshot.';
+  String get smartBillingImageBillingGuide =>
+      'Long press the + button at the bottom center of the home page and select \'Gallery\' to use image billing. Requires AI service configured under \"Me → AI Settings\"; the vision model will extract amount, merchant, time, etc. from the screenshot.';
 
   @override
-  String get smartBillingVisionAIRequired => 'Image recognition requires an AI vision service. Set it up in \"Me → AI Settings\" first.';
+  String get smartBillingVisionAIRequired =>
+      'Image recognition requires an AI vision service. Set it up in \"Me → AI Settings\" first.';
 
   @override
   String get smartBillingCameraBilling => 'Camera Billing';
 
   @override
-  String get smartBillingCameraBillingDesc => 'Capture payment screenshots for recognition';
+  String get smartBillingCameraBillingDesc =>
+      'Capture payment screenshots for recognition';
 
   @override
-  String get smartBillingCameraBillingGuide => 'Long press the + button at the bottom center of the home page and select \'Camera\' to use camera billing. Requires AI service configured under \"Me → AI Settings\"; the vision model will extract amount, merchant, time, etc. from the photo.';
+  String get smartBillingCameraBillingGuide =>
+      'Long press the + button at the bottom center of the home page and select \'Camera\' to use camera billing. Requires AI service configured under \"Me → AI Settings\"; the vision model will extract amount, merchant, time, etc. from the photo.';
 
   @override
   String get smartBillingVoiceBilling => 'Voice Billing';
 
   @override
-  String get smartBillingVoiceBillingDesc => 'Quick billing through voice input';
+  String get smartBillingVoiceBillingDesc =>
+      'Quick billing through voice input';
 
   @override
-  String get smartBillingVoiceBillingGuide => 'Long press the + button at the bottom center of the home page and select \'Voice\' to use voice billing. Voice billing requires AI to convert speech to text and extract bill information.';
+  String get smartBillingVoiceBillingGuide =>
+      'Long press the + button at the bottom center of the home page and select \'Voice\' to use voice billing. Voice billing requires AI to convert speech to text and extract bill information.';
 
   @override
-  String get smartBillingAIRequired => 'Voice billing requires an AI speech service. Set it up in \"Me → AI Settings\" first.';
+  String get smartBillingAIRequired =>
+      'Voice billing requires an AI speech service. Set it up in \"Me → AI Settings\" first.';
 
   @override
   String get smartBillingAutoTags => 'Auto-associate Tags';
 
   @override
-  String get smartBillingAutoTagsDesc => 'Automatically associate frequently used tags based on category';
+  String get smartBillingAutoTagsDesc =>
+      'Automatically associate frequently used tags based on category';
 
   @override
   String get smartBillingAutoAttachment => 'Auto-add Attachment';
 
   @override
-  String get smartBillingAutoAttachmentDesc => 'Automatically add original image as attachment for photo billing';
+  String get smartBillingAutoAttachmentDesc =>
+      'Automatically add original image as attachment for photo billing';
 
   @override
   String get autoScreenshotBillingIosTitle => 'Auto Billing';
 
   @override
-  String get autoScreenshotBillingIosDesc => 'Auto-recognize payments via Shortcuts';
+  String get autoScreenshotBillingIosDesc =>
+      'Auto-recognize payments via Shortcuts';
 
   @override
   String get shareBilling => 'Share to Bill';
 
   @override
-  String get shareBillingDesc => 'Share a payment screenshot from Alipay/WeChat to bill it';
+  String get shareBillingDesc =>
+      'Share a payment screenshot from Alipay/WeChat to bill it';
 
   @override
-  String get shareBillingGuide => 'When you see a payment screenshot in Alipay, WeChat, Photos, etc., tap \"Share\" and choose \"BeeCount\" to auto-recognize the amount, merchant, and time and create a transaction — no need to save the screenshot first.';
+  String get shareBillingGuide =>
+      'When you see a payment screenshot in Alipay, WeChat, Photos, etc., tap \"Share\" and choose \"BeeCount\" to auto-recognize the amount, merchant, and time and create a transaction — no need to save the screenshot first.';
 
   @override
-  String get shareBillingActionHint => 'Recognized automatically in the background after sharing — no need to open BeeCount';
+  String get shareBillingActionHint =>
+      'Recognized automatically in the background after sharing — no need to open BeeCount';
 
   @override
   String get automation => 'Automation';
@@ -4382,7 +4629,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get automationPageTitle => 'Automation';
 
   @override
-  String get automationPageSubtitle => 'Recurring transactions and reminder settings';
+  String get automationPageSubtitle =>
+      'Recurring transactions and reminder settings';
 
   @override
   String get appearanceSettings => 'Personalization';
@@ -4394,7 +4642,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceSettingsPageTitle => 'Personalization';
 
   @override
-  String get appearanceSettingsPageSubtitle => 'Appearance, display, security and other app preferences';
+  String get appearanceSettingsPageSubtitle =>
+      'Appearance, display, security and other app preferences';
 
   @override
   String get about => 'About';
@@ -4439,7 +4688,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutDeveloperStoryTitle => 'From the Developer';
 
   @override
-  String get aboutDeveloperStory => 'I started tracking my expenses in 2015 as an intern, and I\'ve kept the habit for over a decade. Concerned about ads, paywalls, privacy risks, and apps shutting down, I decided to build my own — first as a small tool for myself and my family.\n\nIn September 2025, BeeCount launched its first version. Honestly, I had no idea if anyone would use it. But gradually, feedback started coming in — someone said they finally found a clean budgeting app, others offered great suggestions, and some quietly left five-star reviews. Every single message reminded me this was worth continuing.\n\nBeeCount is ad-free, subscription-free, and fully open source. All your data stays on your device and is never uploaded to any third-party server. But publishing and maintaining an app isn\'t free — developer accounts, servers, and other costs are currently covered by community donations, and every system update, bug fix, and new feature is built outside of my day job.\n\nIf BeeCount has been helpful to you, a rating, a share, or a donation would help this little project go further. Thank you for your trust.';
+  String get aboutDeveloperStory =>
+      'I started tracking my expenses in 2015 as an intern, and I\'ve kept the habit for over a decade. Concerned about ads, paywalls, privacy risks, and apps shutting down, I decided to build my own — first as a small tool for myself and my family.\n\nIn September 2025, BeeCount launched its first version. Honestly, I had no idea if anyone would use it. But gradually, feedback started coming in — someone said they finally found a clean budgeting app, others offered great suggestions, and some quietly left five-star reviews. Every single message reminded me this was worth continuing.\n\nBeeCount is ad-free, subscription-free, and fully open source. All your data stays on your device and is never uploaded to any third-party server. But publishing and maintaining an app isn\'t free — developer accounts, servers, and other costs are currently covered by community donations, and every system update, bug fix, and new feature is built outside of my day job.\n\nIf BeeCount has been helpful to you, a rating, a share, or a donation would help this little project go further. Thank you for your trust.';
 
   @override
   String get aboutRelatedProducts => 'More Products';
@@ -4451,7 +4701,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutBeeAssetsSubtitle => 'Visualize your full asset portfolio';
 
   @override
-  String get aboutBeeAssetsIntro => 'BeeCount focuses on daily cash flow; BeeAssets is its sibling product, focused on asset portfolio visualization: net worth trends across accounts, property / investment / crypto classification, returns, holding period, and allocation breakdown.';
+  String get aboutBeeAssetsIntro =>
+      'BeeCount focuses on daily cash flow; BeeAssets is its sibling product, focused on asset portfolio visualization: net worth trends across accounts, property / investment / crypto classification, returns, holding period, and allocation breakdown.';
 
   @override
   String get aboutBeeDNS => 'BeeDNS';
@@ -4460,13 +4711,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutBeeDNSSubtitle => 'Simple and efficient DNS management tool';
 
   @override
-  String get aboutBeeDNSIntro => 'Got domains across Cloudflare and Aliyun? BeeDNS unifies them in one place: batch edit records, A/AAAA toggles, resolution migration, subdomain bulk management — no more switching between provider consoles.';
+  String get aboutBeeDNSIntro =>
+      'Got domains across Cloudflare and Aliyun? BeeDNS unifies them in one place: batch edit records, A/AAAA toggles, resolution migration, subdomain bulk management — no more switching between provider consoles.';
 
   @override
   String get productPromoAndroidTitle => 'Request Beta Access';
 
   @override
-  String get productPromoAndroidMessage => 'This app is still in closed testing on Google Play — invitation only.\n\nHow to apply: email us with your Google account address (required) and a brief use case (optional). We\'ll reply within 1-3 days and add you to the beta whitelist.';
+  String get productPromoAndroidMessage =>
+      'This app is still in closed testing on Google Play — invitation only.\n\nHow to apply: email us with your Google account address (required) and a brief use case (optional). We\'ll reply within 1-3 days and add you to the beta whitelist.';
 
   @override
   String get productPromoOpenStore => 'Open in App Store';
@@ -4484,7 +4737,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productPromoCopiedToast => 'Email copied to clipboard';
 
   @override
-  String get productPromoMailUnavailable => 'No email app detected. The address has been copied — paste it into any mail app to send.';
+  String get productPromoMailUnavailable =>
+      'No email app detected. The address has been copied — paste it into any mail app to send.';
 
   @override
   String get productPromoEmailButton => 'Send Email';
@@ -4539,7 +4793,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logCenterClearConfirmTitle => 'Clear Logs';
 
   @override
-  String get logCenterClearConfirmMessage => 'Are you sure you want to clear all logs? This action cannot be undone.';
+  String get logCenterClearConfirmMessage =>
+      'Are you sure you want to clear all logs? This action cannot be undone.';
 
   @override
   String get logCenterCleared => 'Logs cleared';
@@ -4551,13 +4806,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get configImportExportTitle => 'Config Import/Export';
 
   @override
-  String get configImportExportSubtitle => 'Backup and restore app configurations';
+  String get configImportExportSubtitle =>
+      'Backup and restore app configurations';
 
   @override
   String get configImportExportInfoTitle => 'Feature Description';
 
   @override
-  String get configImportExportInfoMessage => 'This feature is used to export and import app configurations, including cloud service settings, AI settings, etc. The config file uses YAML format for easy viewing and editing.\n\n⚠️ Config files contain sensitive information (such as API keys, passwords, etc.), please keep them safe.';
+  String get configImportExportInfoMessage =>
+      'This feature is used to export and import app configurations, including cloud service settings, AI settings, etc. The config file uses YAML format for easy viewing and editing.\n\n⚠️ Config files contain sensitive information (such as API keys, passwords, etc.), please keep them safe.';
 
   @override
   String get configExportTitle => 'Export Config';
@@ -4596,7 +4853,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get configImportRestartTitle => 'Restart Required';
 
   @override
-  String get configImportRestartMessage => 'Config has been imported. Some settings will take effect after restarting the app.';
+  String get configImportRestartMessage =>
+      'Config has been imported. Some settings will take effect after restarting the app.';
 
   @override
   String get configImportExportIncludesTitle => 'Included Configurations';
@@ -4634,10 +4892,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get configIncludeAI => 'AI smart recognition config';
 
   @override
-  String get configIncludeAISubtitle => 'Providers, capability binding, model settings, etc.';
+  String get configIncludeAISubtitle =>
+      'Providers, capability binding, model settings, etc.';
 
   @override
-  String get configIncludeAppSettings => 'App settings (language, appearance, reminder, default account, etc.)';
+  String get configIncludeAppSettings =>
+      'App settings (language, appearance, reminder, default account, etc.)';
 
   @override
   String get configIncludeRecurringTransactions => 'Recurring transactions';
@@ -4658,7 +4918,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get configIncludeOtherSettings => 'Other Settings';
 
   @override
-  String get configIncludeOtherSettingsSubtitle => 'Including cloud service, AI config, app settings, etc.';
+  String get configIncludeOtherSettingsSubtitle =>
+      'Including cloud service, AI config, app settings, etc.';
 
   @override
   String get configExportSelectTitle => 'Select Export Content';
@@ -4679,7 +4940,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ledgersConflictTitle => 'Sync Conflict';
 
   @override
-  String get ledgersConflictMessage => 'Local and cloud ledger data are inconsistent, please choose an action:';
+  String get ledgersConflictMessage =>
+      'Local and cloud ledger data are inconsistent, please choose an action:';
 
   @override
   String ledgersConflictLocalInfo(int count) {
@@ -4773,7 +5035,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountTotalBalance => 'Net Assets';
 
   @override
-  String get accountCurrencyLocked => 'This account has transactions and cannot change currency';
+  String get accountCurrencyLocked =>
+      'This account has transactions and cannot change currency';
 
   @override
   String get accountDefaultIncomeTitle => 'Default Income Account';
@@ -4794,7 +5057,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transferIconSettings => 'Transfer Icon Settings';
 
   @override
-  String get transferIconSettingsDesc => 'Customize the display icon for transfer records';
+  String get transferIconSettingsDesc =>
+      'Customize the display icon for transfer records';
 
   @override
   String get transferFromAccount => 'From Account';
@@ -4812,7 +5076,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transferUpdateSuccess => 'Transfer updated successfully';
 
   @override
-  String get transferDifferentCurrencyError => 'Transfer only supports accounts with the same currency';
+  String get transferDifferentCurrencyError =>
+      'Transfer only supports accounts with the same currency';
 
   @override
   String get transferToPrefix => 'To';
@@ -4824,7 +5089,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeCategoryModeTitle => 'Choose Category Mode';
 
   @override
-  String get welcomeCategoryModeDescription => 'Select the category structure that suits your needs';
+  String get welcomeCategoryModeDescription =>
+      'Select the category structure that suits your needs';
 
   @override
   String get welcomeCategoryModeFlatTitle => 'Flat Categories';
@@ -4836,40 +5102,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeCategoryModeFlatFeature1 => 'Flat structure, easy to use';
 
   @override
-  String get welcomeCategoryModeFlatFeature2 => 'Perfect for simple categorization';
+  String get welcomeCategoryModeFlatFeature2 =>
+      'Perfect for simple categorization';
 
   @override
-  String get welcomeCategoryModeFlatFeature3 => 'Quick selection, efficient tracking';
+  String get welcomeCategoryModeFlatFeature3 =>
+      'Quick selection, efficient tracking';
 
   @override
   String get welcomeCategoryModeHierarchicalTitle => 'Hierarchical Categories';
 
   @override
-  String get welcomeCategoryModeHierarchicalDescription => 'Detailed management';
+  String get welcomeCategoryModeHierarchicalDescription =>
+      'Detailed management';
 
   @override
-  String get welcomeCategoryModeHierarchicalFeature1 => 'Support parent-child category levels';
+  String get welcomeCategoryModeHierarchicalFeature1 =>
+      'Support parent-child category levels';
 
   @override
-  String get welcomeCategoryModeHierarchicalFeature2 => 'More detailed transaction classification';
+  String get welcomeCategoryModeHierarchicalFeature2 =>
+      'More detailed transaction classification';
 
   @override
-  String get welcomeCategoryModeHierarchicalFeature3 => 'Perfect for detailed management';
+  String get welcomeCategoryModeHierarchicalFeature3 =>
+      'Perfect for detailed management';
 
   @override
   String get welcomeCategoryModeNoneTitle => 'No Categories';
 
   @override
-  String get welcomeCategoryModeNoneDescription => 'Fully customizable, add as needed';
+  String get welcomeCategoryModeNoneDescription =>
+      'Fully customizable, add as needed';
 
   @override
   String get welcomeCategoryModeNoneFeature1 => 'No preset categories';
 
   @override
-  String get welcomeCategoryModeNoneFeature2 => 'Create categories based on your needs';
+  String get welcomeCategoryModeNoneFeature2 =>
+      'Create categories based on your needs';
 
   @override
-  String get welcomeCategoryModeNoneFeature3 => 'Perfect for custom classification needs';
+  String get welcomeCategoryModeNoneFeature3 =>
+      'Perfect for custom classification needs';
 
   @override
   String get welcomeExistingUserTitle => 'Existing User?';
@@ -4895,7 +5170,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeImportAttachmentTitle => 'Import Attachments';
 
   @override
-  String get welcomeImportAttachmentDesc => 'Would you like to import attachment files as well?';
+  String get welcomeImportAttachmentDesc =>
+      'Would you like to import attachment files as well?';
 
   @override
   String get welcomeImportAttachmentButton => 'Select Attachment File';
@@ -4920,7 +5196,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iosVersionWarningTitle => 'Requires iOS 16.0 or later';
 
   @override
-  String get iosVersionWarningDesc => 'Screenshot auto-billing feature uses the App Intents framework introduced in iOS 16. Your device is running an older version and does not support this feature.\n\nPlease upgrade to iOS 16 or later to use this feature.';
+  String get iosVersionWarningDesc =>
+      'Screenshot auto-billing feature uses the App Intents framework introduced in iOS 16. Your device is running an older version and does not support this feature.\n\nPlease upgrade to iOS 16 or later to use this feature.';
 
   @override
   String get aiChatTitle => 'AI Assistant';
@@ -4932,7 +5209,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiChatClearHistoryDialogTitle => 'Clear Conversation History';
 
   @override
-  String get aiChatClearHistoryDialogContent => 'Are you sure you want to clear all conversation records? This action cannot be undone.';
+  String get aiChatClearHistoryDialogContent =>
+      'Are you sure you want to clear all conversation records? This action cannot be undone.';
 
   @override
   String get aiChatInputHint => 'e.g.: Bought a coffee for \$35';
@@ -4950,7 +5228,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiChatCopied => 'Copied to clipboard';
 
   @override
-  String get aiChatDeleteMessageConfirm => 'Are you sure you want to delete this message?';
+  String get aiChatDeleteMessageConfirm =>
+      'Are you sure you want to delete this message?';
 
   @override
   String get aiChatMessageDeleted => 'Message deleted';
@@ -5010,10 +5289,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get donationDescription => 'Description';
 
   @override
-  String get donationDescriptionDetail => 'Thank you for using BeeCount! If this app helps you, feel free to buy the developer a coffee as encouragement. Your support is my motivation to keep improving.';
+  String get donationDescriptionDetail =>
+      'Thank you for using BeeCount! If this app helps you, feel free to buy the developer a coffee as encouragement. Your support is my motivation to keep improving.';
 
   @override
-  String get donationNoFeatures => 'Note: Donations will not unlock any features. All features remain completely free.';
+  String get donationNoFeatures =>
+      'Note: Donations will not unlock any features. All features remain completely free.';
 
   @override
   String get donationNoProducts => 'No products available';
@@ -5030,28 +5311,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiQuickCommandFinancialHealthTitle => 'Financial Health Analysis';
 
   @override
-  String get aiQuickCommandFinancialHealthDesc => 'Analyze income-expense balance and savings rate';
+  String get aiQuickCommandFinancialHealthDesc =>
+      'Analyze income-expense balance and savings rate';
 
   @override
-  String get aiQuickCommandFinancialHealthPrompt => 'Please analyze my financial health based on the following data:\n\n[monthlyStats]\n\n[recentTrends]\n\nPlease provide professional analysis and suggestions from the perspectives of income-expense balance, savings rate, and spending trends. Please respond in English.';
+  String get aiQuickCommandFinancialHealthPrompt =>
+      'Please analyze my financial health based on the following data:\n\n[monthlyStats]\n\n[recentTrends]\n\nPlease provide professional analysis and suggestions from the perspectives of income-expense balance, savings rate, and spending trends. Please respond in English.';
 
   @override
   String get aiQuickCommandMonthlyExpenseTitle => 'Monthly Expense Summary';
 
   @override
-  String get aiQuickCommandMonthlyExpenseDesc => 'Monthly expense analysis and recommendations';
+  String get aiQuickCommandMonthlyExpenseDesc =>
+      'Monthly expense analysis and recommendations';
 
   @override
-  String get aiQuickCommandMonthlyExpensePrompt => 'Please summarize my monthly expenses based on the following data:\n\n[monthlyStats]\n\n[categoryStats]\n\nPlease analyze which categories account for the highest proportion and provide optimization suggestions. Please respond in English.';
+  String get aiQuickCommandMonthlyExpensePrompt =>
+      'Please summarize my monthly expenses based on the following data:\n\n[monthlyStats]\n\n[categoryStats]\n\nPlease analyze which categories account for the highest proportion and provide optimization suggestions. Please respond in English.';
 
   @override
   String get aiQuickCommandCategoryAnalysisTitle => 'Category Analysis';
 
   @override
-  String get aiQuickCommandCategoryAnalysisDesc => 'Analyze spending distribution by category';
+  String get aiQuickCommandCategoryAnalysisDesc =>
+      'Analyze spending distribution by category';
 
   @override
-  String get aiQuickCommandCategoryAnalysisPrompt => 'Please analyze my spending by category based on the following data:\n\n[categoryStats]\n\nPlease point out whether there are unreasonable spending ratios and provide optimization suggestions. Please respond in English.';
+  String get aiQuickCommandCategoryAnalysisPrompt =>
+      'Please analyze my spending by category based on the following data:\n\n[categoryStats]\n\nPlease point out whether there are unreasonable spending ratios and provide optimization suggestions. Please respond in English.';
 
   @override
   String get aiQuickCommandBudgetPlanningTitle => 'Budget Planning';
@@ -5060,7 +5347,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiQuickCommandBudgetPlanningDesc => 'Smart budget recommendations';
 
   @override
-  String get aiQuickCommandBudgetPlanningPrompt => 'Please help me plan a reasonable budget based on the following data:\n\n[monthlyStats]\n\n[recentTrends]\n\nPlease provide specific budget amounts and execution suggestions for each category. Please respond in English.';
+  String get aiQuickCommandBudgetPlanningPrompt =>
+      'Please help me plan a reasonable budget based on the following data:\n\n[monthlyStats]\n\n[recentTrends]\n\nPlease provide specific budget amounts and execution suggestions for each category. Please respond in English.';
 
   @override
   String get aiQuickCommandAbnormalExpenseTitle => 'Abnormal Expense Alert';
@@ -5069,16 +5357,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiQuickCommandAbnormalExpenseDesc => 'Identify unusual spending';
 
   @override
-  String get aiQuickCommandAbnormalExpensePrompt => 'Please check if there are any abnormal expenses based on the following data:\n\n[recentTransactions]\n\n[monthlyStats]\n\nPlease identify significantly higher expenses than usual and provide analysis. Please respond in English.';
+  String get aiQuickCommandAbnormalExpensePrompt =>
+      'Please check if there are any abnormal expenses based on the following data:\n\n[recentTransactions]\n\n[monthlyStats]\n\nPlease identify significantly higher expenses than usual and provide analysis. Please respond in English.';
 
   @override
   String get aiQuickCommandSavingTipsTitle => 'Saving Tips';
 
   @override
-  String get aiQuickCommandSavingTipsDesc => 'Personalized money-saving suggestions';
+  String get aiQuickCommandSavingTipsDesc =>
+      'Personalized money-saving suggestions';
 
   @override
-  String get aiQuickCommandSavingTipsPrompt => 'Please provide practical money-saving suggestions based on the following data:\n\n[categoryStats]\n\n[recentTrends]\n\nPlease give 3-5 specific and actionable suggestions. Please respond in English.';
+  String get aiQuickCommandSavingTipsPrompt =>
+      'Please provide practical money-saving suggestions based on the following data:\n\n[categoryStats]\n\n[recentTrends]\n\nPlease give 3-5 specific and actionable suggestions. Please respond in English.';
 
   @override
   String get billCardUnknownLedger => 'Unknown Ledger';
@@ -5093,13 +5384,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiPromptAdvancedSettings => 'Advanced Settings';
 
   @override
-  String get aiAdvancedSettingsDesc => 'Model selection, strategy, local model, prompt';
+  String get aiAdvancedSettingsDesc =>
+      'Model selection, strategy, local model, prompt';
 
   @override
   String get aiPromptEditEntry => 'Prompt Editor';
 
   @override
-  String get aiPromptEditEntryDesc => 'Customize AI bill recognition prompt, shareable with others';
+  String get aiPromptEditEntryDesc =>
+      'Customize AI bill recognition prompt, shareable with others';
 
   @override
   String get aiPromptVariables => 'Variables';
@@ -5132,7 +5425,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiPromptResetConfirmTitle => 'Reset to Default';
 
   @override
-  String get aiPromptResetConfirmMessage => 'Are you sure you want to reset to default prompt? Your custom content will be lost.';
+  String get aiPromptResetConfirmMessage =>
+      'Are you sure you want to reset to default prompt? Your custom content will be lost.';
 
   @override
   String get aiPromptPasted => 'Pasted';
@@ -5141,13 +5435,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiPromptPreviewTitle => 'Prompt Preview';
 
   @override
-  String get aiPromptPreviewNote => 'Preview uses sample data for variables. Real data will be used at runtime.';
+  String get aiPromptPreviewNote =>
+      'Preview uses sample data for variables. Real data will be used at runtime.';
 
   @override
-  String get aiPromptVarInputSource => 'Input source description, e.g. \"From the following payment bill text\"';
+  String get aiPromptVarInputSource =>
+      'Input source description, e.g. \"From the following payment bill text\"';
 
   @override
-  String get aiPromptVarCurrentTime => 'Current date and time, e.g. \"2025-01-15 14:30\"';
+  String get aiPromptVarCurrentTime =>
+      'Current date and time, e.g. \"2025-01-15 14:30\"';
 
   @override
   String get aiPromptVarCurrentDate => 'Current date, e.g. \"2025-01-15\"';
@@ -5179,7 +5476,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get aiCustomBaseUrlHelper => 'Standard chat completion API URL, e.g. https://api.example.com/v1';
+  String get aiCustomBaseUrlHelper =>
+      'Standard chat completion API URL, e.g. https://api.example.com/v1';
 
   @override
   String get aiTextModelTitle => 'Text Model';
@@ -5203,7 +5501,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tagManageGenerateDefault => 'Generate Default Tags';
 
   @override
-  String get tagManageGenerateDefaultConfirm => 'Generate default tags? Existing tags with the same name will not be overwritten.';
+  String get tagManageGenerateDefaultConfirm =>
+      'Generate default tags? Existing tags with the same name will not be overwritten.';
 
   @override
   String get tagManageGenerateDefaultSuccess => 'Default tags generated';
@@ -5285,7 +5584,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tagDetailNoTransactions => 'No related transactions';
 
   @override
-  String get tagDetailNoTransactionsHint => 'Transactions with this tag will appear here';
+  String get tagDetailNoTransactionsHint =>
+      'Transactions with this tag will appear here';
 
   @override
   String get tagNotFound => 'Tag not found';
@@ -5534,13 +5834,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get attachmentExportTitle => 'Export Attachments';
 
   @override
-  String get attachmentExportSubtitle => 'Export all attachments as a compressed file';
+  String get attachmentExportSubtitle =>
+      'Export all attachments as a compressed file';
 
   @override
   String get attachmentImportTitle => 'Import Attachments';
 
   @override
-  String get attachmentImportSubtitle => 'Import attachments from a compressed file';
+  String get attachmentImportSubtitle =>
+      'Import attachments from a compressed file';
 
   @override
   String get attachmentExportEmpty => 'No attachments to export';
@@ -5551,7 +5853,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String attachmentExportProgressDetail(int attachmentCount, int iconCount, int current, int total) {
+  String attachmentExportProgressDetail(
+      int attachmentCount, int iconCount, int current, int total) {
     return 'Exporting $attachmentCount attachment(s) + $iconCount icon(s) ($current/$total)';
   }
 
@@ -5570,7 +5873,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get attachmentImportConflictSkip => 'Skip existing attachments';
 
   @override
-  String get attachmentImportConflictOverwrite => 'Overwrite existing attachments';
+  String get attachmentImportConflictOverwrite =>
+      'Overwrite existing attachments';
 
   @override
   String attachmentImportProgress(int current, int total) {
@@ -5578,7 +5882,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String attachmentImportResult(int imported, int skipped, int overwritten, int failed) {
+  String attachmentImportResult(
+      int imported, int skipped, int overwritten, int failed) {
     return 'Imported $imported, Skipped $skipped, Overwritten $overwritten, Failed $failed';
   }
 
@@ -5614,13 +5919,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shortcutsGuide => 'Shortcuts';
 
   @override
-  String get shortcutsGuideDesc => 'Quick access to voice, camera billing, etc.';
+  String get shortcutsGuideDesc =>
+      'Quick access to voice, camera billing, etc.';
 
   @override
   String get shortcutsIntroTitle => 'Quick Billing';
 
   @override
-  String get shortcutsIntroDesc => 'Use shortcuts to directly open voice billing, camera billing, and other features from your home screen without opening the app first.';
+  String get shortcutsIntroDesc =>
+      'Use shortcuts to directly open voice billing, camera billing, and other features from your home screen without opening the app first.';
 
   @override
   String get availableShortcuts => 'Available Shortcuts';
@@ -5671,34 +5978,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iosShortcutStep1 => 'Open the Shortcuts app';
 
   @override
-  String get iosShortcutStep2 => 'Tap + in the upper right to create a new shortcut';
+  String get iosShortcutStep2 =>
+      'Tap + in the upper right to create a new shortcut';
 
   @override
   String get iosShortcutStep3 => 'Add \'Open URL\' action';
 
   @override
-  String get iosShortcutStep4 => 'Paste the copied URL (e.g., beecount://voice)';
+  String get iosShortcutStep4 =>
+      'Paste the copied URL (e.g., beecount://voice)';
 
   @override
   String get iosShortcutStep5 => 'Save and add to home screen';
 
   @override
-  String get androidShortcutStep1 => 'Download a shortcut creator app (e.g., Shortcut Maker)';
+  String get androidShortcutStep1 =>
+      'Download a shortcut creator app (e.g., Shortcut Maker)';
 
   @override
   String get androidShortcutStep2 => 'Select \'URL Shortcut\'';
 
   @override
-  String get androidShortcutStep3 => 'Paste the copied URL (e.g., beecount://voice)';
+  String get androidShortcutStep3 =>
+      'Paste the copied URL (e.g., beecount://voice)';
 
   @override
-  String get androidShortcutStep4 => 'Set icon and name, then add to home screen';
+  String get androidShortcutStep4 =>
+      'Set icon and name, then add to home screen';
 
   @override
   String get shortcutsTip => 'Tips';
 
   @override
-  String get shortcutsTipDesc => 'Shortcuts require AI features. Make sure AI is enabled and API Key is configured.';
+  String get shortcutsTipDesc =>
+      'Shortcuts require AI features. Make sure AI is enabled and API Key is configured.';
 
   @override
   String get shortcutOpenShortcutsApp => 'Open Shortcuts App';
@@ -5707,7 +6020,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shortcutAutoAdd => 'Auto Billing API';
 
   @override
-  String get shortcutAutoAddDesc => 'Automatically create bills via URL parameters. Works great with Shortcuts and automation tools.';
+  String get shortcutAutoAddDesc =>
+      'Automatically create bills via URL parameters. Works great with Shortcuts and automation tools.';
 
   @override
   String get shortcutAutoAddExample => 'Example URL:';
@@ -5722,13 +6036,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shortcutParamType => 'Type: expense / income / transfer';
 
   @override
-  String get shortcutParamCategory => 'Category name (must match existing category)';
+  String get shortcutParamCategory =>
+      'Category name (must match existing category)';
 
   @override
   String get shortcutParamNote => 'Note';
 
   @override
-  String get shortcutParamAccount => 'Account name (must match existing account)';
+  String get shortcutParamAccount =>
+      'Account name (must match existing account)';
 
   @override
   String get shortcutParamTags => 'Tags (comma separated)';
@@ -5761,7 +6077,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarAddTransaction => 'Add entry on this day';
 
   @override
-  String get calendarAddTransactionTooltip => 'Add a record on the selected day';
+  String get calendarAddTransactionTooltip =>
+      'Add a record on the selected day';
 
   @override
   String get commonUncategorized => 'Uncategorized';
@@ -5826,7 +6143,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiProviderModels => 'Model Configuration';
 
   @override
-  String get aiProviderModelsHint => 'Empty capabilities cannot use this provider';
+  String get aiProviderModelsHint =>
+      'Empty capabilities cannot use this provider';
 
   @override
   String get aiCapabilityText => 'Text';
@@ -5841,7 +6159,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiCapabilitySelectTitle => 'Capability Binding';
 
   @override
-  String get aiCapabilitySelectSubtitle => 'Select provider for each AI capability';
+  String get aiCapabilitySelectSubtitle =>
+      'Select provider for each AI capability';
 
   @override
   String get aiCapabilityTextChat => 'Text Chat';
@@ -5927,7 +6246,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncPreviewOldFormat => 'Old cloud format, full replace required';
 
   @override
-  String get syncPreviewOldFormatMessage => 'Cloud data does not contain sync IDs. Local data will be cleared and re-imported from cloud.';
+  String get syncPreviewOldFormatMessage =>
+      'Cloud data does not contain sync IDs. Local data will be cleared and re-imported from cloud.';
 
   @override
   String syncPreviewApplied(int count) {
@@ -5944,61 +6264,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudSyncGuideHowItWorks => 'How it works';
 
   @override
-  String get cloudSyncGuideHowItem1 => 'Upload: packages all current ledger data and uploads to cloud, replacing old cloud data';
+  String get cloudSyncGuideHowItem1 =>
+      'Upload: packages all current ledger data and uploads to cloud, replacing old cloud data';
 
   @override
-  String get cloudSyncGuideHowItem2 => 'Download: fetches cloud data and compares with local records one by one — you choose which changes to apply';
+  String get cloudSyncGuideHowItem2 =>
+      'Download: fetches cloud data and compares with local records one by one — you choose which changes to apply';
 
   @override
-  String get cloudSyncGuideHowItem3 => 'The cloud always stores only the last uploaded snapshot, no version history';
+  String get cloudSyncGuideHowItem3 =>
+      'The cloud always stores only the last uploaded snapshot, no version history';
 
   @override
   String get cloudSyncGuideCorrect => 'Correct usage';
 
   @override
-  String get cloudSyncGuideCorrectItem1 => 'Edit on one device at a time, upload when done';
+  String get cloudSyncGuideCorrectItem1 =>
+      'Edit on one device at a time, upload when done';
 
   @override
-  String get cloudSyncGuideCorrectItem2 => 'Download on the new device before starting to edit';
+  String get cloudSyncGuideCorrectItem2 =>
+      'Download on the new device before starting to edit';
 
   @override
-  String get cloudSyncGuideCorrectItem3 => 'Review the preview carefully before applying changes';
+  String get cloudSyncGuideCorrectItem3 =>
+      'Review the preview carefully before applying changes';
 
   @override
-  String get cloudSyncGuideCorrectItem4 => 'Follow the pattern: edit → upload → switch device → download → edit';
+  String get cloudSyncGuideCorrectItem4 =>
+      'Follow the pattern: edit → upload → switch device → download → edit';
 
   @override
   String get cloudSyncGuideWrong => 'What to avoid';
 
   @override
-  String get cloudSyncGuideWrongItem1 => 'Editing the same ledger on two devices simultaneously — the later upload overwrites the earlier one';
+  String get cloudSyncGuideWrongItem1 =>
+      'Editing the same ledger on two devices simultaneously — the later upload overwrites the earlier one';
 
   @override
-  String get cloudSyncGuideWrongItem2 => 'Downloading immediately after upload — cloud services may have seconds to minutes of sync delay, wait a moment';
+  String get cloudSyncGuideWrongItem2 =>
+      'Downloading immediately after upload — cloud services may have seconds to minutes of sync delay, wait a moment';
 
   @override
-  String get cloudSyncGuideWrongItem3 => 'Going long periods without syncing then downloading many changes at once — easy to miss important differences';
+  String get cloudSyncGuideWrongItem3 =>
+      'Going long periods without syncing then downloading many changes at once — easy to miss important differences';
 
   @override
   String get cloudSyncGuideLimitations => 'Known limitations';
 
   @override
-  String get cloudSyncGuideLimitItem1 => 'Not real-time: requires manually tapping upload and download';
+  String get cloudSyncGuideLimitItem1 =>
+      'Not real-time: requires manually tapping upload and download';
 
   @override
-  String get cloudSyncGuideLimitItem2 => 'No conflict merging: does not auto-merge edits from both sides — last upload wins';
+  String get cloudSyncGuideLimitItem2 =>
+      'No conflict merging: does not auto-merge edits from both sides — last upload wins';
 
   @override
-  String get cloudSyncGuideLimitItem3 => 'Cloud service delay: uploaded files may take seconds to minutes before other devices can read them, depending on your cloud provider';
+  String get cloudSyncGuideLimitItem3 =>
+      'Cloud service delay: uploaded files may take seconds to minutes before other devices can read them, depending on your cloud provider';
 
   @override
-  String get cloudSyncGuideLimitItem4 => 'Excludes attachments: transaction image attachments are not synced — export separately via Data Management';
+  String get cloudSyncGuideLimitItem4 =>
+      'Excludes attachments: transaction image attachments are not synced — export separately via Data Management';
 
   @override
   String get mineMultiDeviceSyncTitle => 'Multi-device Sync';
 
   @override
-  String get mineMultiDeviceSyncSubtitle => 'Auto-check cloud changes when entering page';
+  String get mineMultiDeviceSyncSubtitle =>
+      'Auto-check cloud changes when entering page';
 
   @override
   String get appLockTitle => 'App Lock';
@@ -6046,7 +6381,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appLockBiometricDesc => 'Use Face ID or fingerprint to unlock';
 
   @override
-  String get appLockBiometricReason => 'Verify identity to unlock Bee Accounting';
+  String get appLockBiometricReason =>
+      'Verify identity to unlock Bee Accounting';
 
   @override
   String get appLockTimeout => 'Auto-lock Timeout';
@@ -6257,7 +6593,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudCollabDevicesViewAllSessions => 'Show all sessions';
 
   @override
-  String get cloudCollabDevicesViewModeHint => 'Default view shows deduped devices active in the last 30 days.';
+  String get cloudCollabDevicesViewModeHint =>
+      'Default view shows deduped devices active in the last 30 days.';
 
   @override
   String get cloudCollabNoDevices => 'No active devices';
@@ -6269,7 +6606,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudCollabDeviceCurrentTag => 'Current Device';
 
   @override
-  String get cloudCollabCurrentDeviceCannotRevoke => 'Current device cannot be revoked.';
+  String get cloudCollabCurrentDeviceCannotRevoke =>
+      'Current device cannot be revoked.';
 
   @override
   String cloudCollabDeviceAppVersion(String version) {
@@ -6326,10 +6664,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudCollabUnavailableMessage => 'Cloud sync is unavailable.';
 
   @override
-  String get cloudCollabScopeDeniedHint => 'Server has not enabled ALLOW_APP_RW_SCOPES, so device sessions are unavailable.';
+  String get cloudCollabScopeDeniedHint =>
+      'Server has not enabled ALLOW_APP_RW_SCOPES, so device sessions are unavailable.';
 
   @override
-  String get cloudCollabScopeDeniedAction => 'Set ALLOW_APP_RW_SCOPES=true in server .env, restart the service, then sign in again.';
+  String get cloudCollabScopeDeniedAction =>
+      'Set ALLOW_APP_RW_SCOPES=true in server .env, restart the service, then sign in again.';
 
   @override
   String get syncHealthTitle => 'Sync status';
@@ -6341,25 +6681,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudSyncHelpModesTitle => 'Three sync modes';
 
   @override
-  String get cloudSyncHelpModesBody => '• Incremental (automatic, everyday): after you add or edit an entry, only that change is uploaded/downloaded automatically — fast, no manual action. This is what runs all the time.\n• Full upload: the first time you enable cloud sync, or when the cloud has no data for this ledger yet, all local data is pushed to the cloud at once.\n• Full download: on a new device, after a reinstall, or when local is empty, all data is pulled down from the cloud.';
+  String get cloudSyncHelpModesBody =>
+      '• Incremental (automatic, everyday): after you add or edit an entry, only that change is uploaded/downloaded automatically — fast, no manual action. This is what runs all the time.\n• Full upload: the first time you enable cloud sync, or when the cloud has no data for this ledger yet, all local data is pushed to the cloud at once.\n• Full download: on a new device, after a reinstall, or when local is empty, all data is pulled down from the cloud.';
 
   @override
   String get cloudSyncHelpWhenFullTitle => 'When does a full sync happen?';
 
   @override
-  String get cloudSyncHelpWhenFullBody => 'A full sync only triggers automatically when one side is empty (first enabling cloud sync / new device / reinstall / after clearing local or cloud data). As long as both sides have data, sync stays incremental and never restarts on its own. To force a full re-sync, you must first clear the data on the corresponding side.';
+  String get cloudSyncHelpWhenFullBody =>
+      'A full sync only triggers automatically when one side is empty (first enabling cloud sync / new device / reinstall / after clearing local or cloud data). As long as both sides have data, sync stays incremental and never restarts on its own. To force a full re-sync, you must first clear the data on the corresponding side.';
 
   @override
   String get cloudSyncHelpStuckTitle => 'Why sync sometimes stalls';
 
   @override
-  String get cloudSyncHelpStuckBody => '• Full upload/download does NOT support resume: if the network drops or the app is killed in the background, it starts over from scratch instead of continuing. For large data, use a stable network (Wi-Fi recommended) and let it finish without switching away.\n• Incremental sync is resume-safe and unaffected in everyday use.';
+  String get cloudSyncHelpStuckBody =>
+      '• Full upload/download does NOT support resume: if the network drops or the app is killed in the background, it starts over from scratch instead of continuing. For large data, use a stable network (Wi-Fi recommended) and let it finish without switching away.\n• Incremental sync is resume-safe and unaffected in everyday use.';
 
   @override
   String get cloudSyncHelpTroubleshootTitle => 'Troubleshooting';
 
   @override
-  String get cloudSyncHelpTroubleshootBody => '• First, pull down on this page to run a Deep Check and compare local vs cloud.\n• Still stuck? Open the Log Center to view sync logs (including failure reasons) for reporting.';
+  String get cloudSyncHelpTroubleshootBody =>
+      '• First, pull down on this page to run a Deep Check and compare local vs cloud.\n• Still stuck? Open the Log Center to view sync logs (including failure reasons) for reporting.';
 
   @override
   String get cloudSyncHelpOpenLogCenter => 'Open Log Center';
@@ -6425,10 +6769,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get twofaMethodRecovery => 'Recovery code';
 
   @override
-  String get twofaTotpHint => 'Enter the 6-digit code from your authenticator app (Google Authenticator / 1Password / Authy / etc).';
+  String get twofaTotpHint =>
+      'Enter the 6-digit code from your authenticator app (Google Authenticator / 1Password / Authy / etc).';
 
   @override
-  String get twofaRecoveryHint => 'Enter a recovery code saved when you enabled 2FA (e.g. abcd-efgh). Each code works once.';
+  String get twofaRecoveryHint =>
+      'Enter a recovery code saved when you enabled 2FA (e.g. abcd-efgh). Each code works once.';
 
   @override
   String get twofaTotpInputPlaceholder => '6-digit code';
@@ -6459,7 +6805,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get twofaStatusManageHint => 'Manage from the Web app (enable / disable / regenerate recovery codes)';
+  String get twofaStatusManageHint =>
+      'Manage from the Web app (enable / disable / regenerate recovery codes)';
 
   @override
   String get twofaStatusOpenWeb => 'Enable on the Web app →';
@@ -6483,13 +6830,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharedJoinPageTitle => 'Join shared ledger';
 
   @override
-  String get sharedJoinPageSubtitle => 'Enter an invite code or tap a shared link';
+  String get sharedJoinPageSubtitle =>
+      'Enter an invite code or tap a shared link';
 
   @override
   String get sharedJoinEnterCode => 'Enter invite code';
 
   @override
-  String get sharedJoinEnterCodeHint => '6 uppercase letters / digits. You can also tap a share link to skip this step.';
+  String get sharedJoinEnterCodeHint =>
+      '6 uppercase letters / digits. You can also tap a share link to skip this step.';
 
   @override
   String get sharedJoinPreviewButton => 'Verify code';
@@ -6528,16 +6877,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get sharedJoinCodeFormatError => 'Invite code must be 6 letters/digits.';
+  String get sharedJoinCodeFormatError =>
+      'Invite code must be 6 letters/digits.';
 
   @override
-  String get sharedJoinInvalidOrExpired => 'Invite code is invalid or expired. Ask the inviter for a new one.';
+  String get sharedJoinInvalidOrExpired =>
+      'Invite code is invalid or expired. Ask the inviter for a new one.';
 
   @override
-  String get sharedJoinAlreadyMember => 'You are already a member of this ledger.';
+  String get sharedJoinAlreadyMember =>
+      'You are already a member of this ledger.';
 
   @override
-  String get sharedJoinMemberLimit => 'This ledger has reached its member limit. Ask the owner.';
+  String get sharedJoinMemberLimit =>
+      'This ledger has reached its member limit. Ask the owner.';
 
   @override
   String get sharedInvitePageTitle => 'Invite new member';
@@ -6579,10 +6932,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get sharedInviteWarning => '⚠️ Don\'t post invite codes to public groups / social. Anyone with the code can join. Revoke and regenerate from Members if leaked.';
+  String get sharedInviteWarning =>
+      '⚠️ Don\'t post invite codes to public groups / social. Anyone with the code can join. Revoke and regenerate from Members if leaked.';
 
   @override
-  String get sharedInviteInstruction => 'Send the code or short link to the other person. After they install BeeCount, they can tap the link or enter the code from \"Me → Join shared ledger\".';
+  String get sharedInviteInstruction =>
+      'Send the code or short link to the other person. After they install BeeCount, they can tap the link or enter the code from \"Me → Join shared ledger\".';
 
   @override
   String sharedInviteShareText(String ledger, String code, String url) {
@@ -6690,13 +7045,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maintenanceOrphanCleanupTitle => 'Data Cleanup';
 
   @override
-  String get maintenanceOrphanCleanupSubtitle => 'Detect and clean local orphan data';
+  String get maintenanceOrphanCleanupSubtitle =>
+      'Detect and clean local orphan data';
 
   @override
   String get maintenanceOrphanRescan => 'Rescan';
 
   @override
-  String get maintenanceOrphanEmpty => 'Local data is clean, no orphan data found';
+  String get maintenanceOrphanEmpty =>
+      'Local data is clean, no orphan data found';
 
   @override
   String get maintenanceOrphanGroupDb => 'Database orphans';
@@ -6769,7 +7126,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exchangeRatePageTitle => 'Exchange Rates';
 
   @override
-  String get exchangeRateEntrySubtitle => 'Auto-fetched rates with manual override';
+  String get exchangeRateEntrySubtitle =>
+      'Auto-fetched rates with manual override';
 
   @override
   String get baseCurrencyLabel => 'Primary Currency';
@@ -6809,10 +7167,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rateRefreshFailed => 'Fetch failed, you can set rates manually';
 
   @override
-  String get ratesEmptyHint => 'Rates appear here once your accounts use different currencies';
+  String get ratesEmptyHint =>
+      'Rates appear here once your accounts use different currencies';
 
   @override
-  String get rateDisclaimer => 'Source: open exchange-rate data, updated daily. Conversion is for reference only and may differ from bank rates.';
+  String get rateDisclaimer =>
+      'Source: open exchange-rate data, updated daily. Conversion is for reference only and may differ from bank rates.';
 
   @override
   String convertedNetWorth(String currency) {
@@ -6871,7 +7231,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get netWorthTrendLineLiabilities => 'Total Liabilities';
 
   @override
-  String get netWorthTrendMultiCurrencyNote => 'Historical net worth is the raw sum of each currency, not converted';
+  String get netWorthTrendMultiCurrencyNote =>
+      'Historical net worth is the raw sum of each currency, not converted';
 
   @override
   String get txFlagExcludeFromStats => 'Exclude from income/expense';
@@ -6886,10 +7247,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txFlagDialogTitle => 'Transaction flags';
 
   @override
-  String get txFlagExcludeFromStatsHint => 'Excluded from stats, still counts toward balance';
+  String get txFlagExcludeFromStatsHint =>
+      'Excluded from stats, still counts toward balance';
 
   @override
-  String get txFlagExcludeFromBudgetHint => 'Doesn\'t count against your budget';
+  String get txFlagExcludeFromBudgetHint =>
+      'Doesn\'t count against your budget';
 
   @override
   String get txFlagExcludedTag => 'Excluded';

@@ -58,7 +58,8 @@ class VoiceBillingHelper {
       logger.info('VoiceBilling', '权限详情:');
       logger.info('VoiceBilling', '  - isGranted: ${status.isGranted}');
       logger.info('VoiceBilling', '  - isDenied: ${status.isDenied}');
-      logger.info('VoiceBilling', '  - isPermanentlyDenied: ${status.isPermanentlyDenied}');
+      logger.info('VoiceBilling',
+          '  - isPermanentlyDenied: ${status.isPermanentlyDenied}');
       logger.info('VoiceBilling', '  - isRestricted: ${status.isRestricted}');
       logger.info('VoiceBilling', '  - isLimited: ${status.isLimited}');
       logger.info('VoiceBilling', '  - isProvisional: ${status.isProvisional}');
@@ -115,7 +116,8 @@ class VoiceBillingHelper {
 
       // 3. 准备录音文件路径（WAV，兼容传统 STT /audio/transcriptions）
       final tempDir = await getTemporaryDirectory();
-      final audioPath = '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.wav';
+      final audioPath =
+          '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.wav';
 
       // 4. 显示录音对话框（按用户配置的触发方式：自动检测 / 按住说话）
       if (!context.mounted) return;
@@ -156,7 +158,8 @@ class _VoiceRecordingDialog extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<_VoiceRecordingDialog> createState() => _VoiceRecordingDialogState();
+  ConsumerState<_VoiceRecordingDialog> createState() =>
+      _VoiceRecordingDialogState();
 }
 
 class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
@@ -279,7 +282,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
   }
 
   void _startAmplitudeMonitoring() {
-    _amplitudeTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) async {
+    _amplitudeTimer =
+        Timer.periodic(const Duration(milliseconds: 100), (timer) async {
       if (!mounted || !_isRecording) {
         timer.cancel();
         return;
@@ -348,7 +352,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       } else {
         final lastSound = _lastSoundTime;
         if (lastSound != null &&
-            now.difference(lastSound).inMilliseconds >= widget.silenceTimeoutMs) {
+            now.difference(lastSound).inMilliseconds >=
+                widget.silenceTimeoutMs) {
           timer.cancel();
           _stopAndProcess();
         }
@@ -596,7 +601,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
         const SizedBox(height: 8),
         Text(
           l10n.voiceRecordingDuration(_duration),
-          style: TextStyle(fontSize: 12, color: BeeTokens.textSecondary(context)),
+          style:
+              TextStyle(fontSize: 12, color: BeeTokens.textSecondary(context)),
         ),
         const SizedBox(height: 16),
       ] else

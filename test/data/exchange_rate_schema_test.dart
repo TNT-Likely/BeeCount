@@ -26,8 +26,9 @@ void main() {
       fetchedAt: DateTime.utc(2026, 6, 10),
     );
     await db.into(db.exchangeRates).insertOnConflictUpdate(row);
-    await db.into(db.exchangeRates).insertOnConflictUpdate(
-        row.copyWith(rate: const d.Value('7.30')));
+    await db
+        .into(db.exchangeRates)
+        .insertOnConflictUpdate(row.copyWith(rate: const d.Value('7.30')));
     final all = await db.select(db.exchangeRates).get();
     expect(all.length, 1);
     expect(all.first.rate, '7.30');

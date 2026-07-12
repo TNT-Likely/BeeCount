@@ -117,7 +117,8 @@ class SupabaseProvider implements CloudProvider {
 
       // Create service instances
       _authService = SupabaseAuthService(_client!);
-      _storageService = SupabaseStorageService(_client!, _bucketName, _pathPrefix);
+      _storageService =
+          SupabaseStorageService(_client!, _bucketName, _pathPrefix);
       _databaseService = SupabaseDatabaseService(_client!);
       _realtimeService = SupabaseRealtimeService(_client!);
     } catch (e) {
@@ -126,7 +127,8 @@ class SupabaseProvider implements CloudProvider {
           e.toString().contains('LateInitializationError')) {
         _client = supabase.Supabase.instance.client;
         _authService = SupabaseAuthService(_client!);
-        _storageService = SupabaseStorageService(_client!, _bucketName, _pathPrefix);
+        _storageService =
+            SupabaseStorageService(_client!, _bucketName, _pathPrefix);
         _databaseService = SupabaseDatabaseService(_client!);
         _realtimeService = SupabaseRealtimeService(_client!);
         _isInitialized = true;

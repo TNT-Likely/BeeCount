@@ -3,7 +3,7 @@
 // 主题相关
 export 'theme_providers.dart';
 
-// 数据库相关  
+// 数据库相关
 export 'database_providers.dart';
 
 // 统计相关

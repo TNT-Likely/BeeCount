@@ -88,10 +88,12 @@ class CategorySelectorDialog extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CategorySelectorDialog> createState() => _CategorySelectorDialogState();
+  ConsumerState<CategorySelectorDialog> createState() =>
+      _CategorySelectorDialogState();
 }
 
-class _CategorySelectorDialogState extends ConsumerState<CategorySelectorDialog> {
+class _CategorySelectorDialogState
+    extends ConsumerState<CategorySelectorDialog> {
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
   Map<int, int> _transactionCounts = {};
@@ -169,7 +171,9 @@ class _CategorySelectorDialogState extends ConsumerState<CategorySelectorDialog>
       final repo = ref.read(repositoryProvider);
 
       // 获取交易（ledgerId 可选，不传则获取所有账本）
-      final transactions = await repo.transactionsWithCategoryAll(ledgerId: widget.ledgerId).first;
+      final transactions = await repo
+          .transactionsWithCategoryAll(ledgerId: widget.ledgerId)
+          .first;
 
       // 统计每个分类的笔数
       final counts = <int, int>{};
@@ -192,7 +196,8 @@ class _CategorySelectorDialogState extends ConsumerState<CategorySelectorDialog>
   /// 构建分类分组数据
   List<_CategoryGroup> _buildCategoryGroups(List<Category> allCategories) {
     // 按类型筛选
-    final typedCategories = allCategories.where((c) => c.kind == widget.type).toList();
+    final typedCategories =
+        allCategories.where((c) => c.kind == widget.type).toList();
 
     // 应用排除规则
     final filteredCategories = typedCategories.where((c) {
@@ -230,24 +235,27 @@ class _CategorySelectorDialogState extends ConsumerState<CategorySelectorDialog>
 
     for (final parent in parentCategories) {
       final hasChildren = parentIds.contains(parent.id);
-      final children = childCategories
-          .where((c) => c.parentId == parent.id)
-          .toList();
+      final children =
+          childCategories.where((c) => c.parentId == parent.id).toList();
 
       // 判断父分类是否可选
       bool isParentSelectable = !hasChildren || widget.includeParentCategories;
       // 如果有过滤器，应用过滤器结果
-      if (widget.categoryFilter != null && _categoryFilterResults.containsKey(parent.id)) {
-        isParentSelectable = isParentSelectable && _categoryFilterResults[parent.id]!;
+      if (widget.categoryFilter != null &&
+          _categoryFilterResults.containsKey(parent.id)) {
+        isParentSelectable =
+            isParentSelectable && _categoryFilterResults[parent.id]!;
       }
 
       // 应用搜索过滤
       if (_searchText.isNotEmpty) {
-        final parentName = CategoryUtils.getDisplayName(parent.name, context).toLowerCase();
+        final parentName =
+            CategoryUtils.getDisplayName(parent.name, context).toLowerCase();
         final parentMatches = parentName.contains(_searchText);
 
         final matchedChildren = children.where((c) {
-          final childName = CategoryUtils.getDisplayName(c.name, context).toLowerCase();
+          final childName =
+              CategoryUtils.getDisplayName(c.name, context).toLowerCase();
           return childName.contains(_searchText);
         }).toList();
 
@@ -310,29 +318,31 @@ class _CategorySelectorDialogState extends ConsumerState<CategorySelectorDialog>
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
-        children: [
-          // 顶部栏
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: BeeTokens.surfaceElevated(context),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              border: Border(
-                bottom: BorderSide(
-                  color: BeeTokens.divider(context),
-                  width: 0.5,
+          children: [
+            // 顶部栏
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: BeeTokens.surfaceElevated(context),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
+                border: Border(
+                  bottom: BorderSide(
+                    color: BeeTokens.divider(context),
+                    width: 0.5,
+                  ),
                 ),
               ),
-            ),
-            child: Column(
+              child: Column(
                 children: [
                   Row(
                     children: [
                       Expanded(
                         child: Text(
-                          widget.title ?? (widget.type == 'income'
-                              ? l10n.categoryIncome
-                              : l10n.categoryExpense),
+                          widget.title ??
+                              (widget.type == 'income'
+                                  ? l10n.categoryIncome
+                                  : l10n.categoryExpense),
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -391,63 +401,63 @@ class _CategorySelectorDialogState extends ConsumerState<CategorySelectorDialog>
                 ],
               ),
             ),
-          // 分类列表
-          Expanded(
-            child: FutureBuilder<List<Category>>(
-              future: _loadAllCategories(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+            // 分类列表
+            Expanded(
+              child: FutureBuilder<List<Category>>(
+                future: _loadAllCategories(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                final groups = _buildCategoryGroups(snapshot.data!);
+                  final groups = _buildCategoryGroups(snapshot.data!);
 
-                if (groups.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.search_off,
-                          size: 64,
-                          color: BeeTokens.textTertiary(context),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _searchText.isNotEmpty
-                              ? l10n.searchNoResults
-                              : l10n.categoryEmpty,
-                          style: TextStyle(
+                  if (groups.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
                             color: BeeTokens.textTertiary(context),
-                            fontSize: 16,
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: groups.length,
-                  itemBuilder: (context, index) {
-                    final group = groups[index];
-                    return _CategoryGroupItem(
-                      group: group,
-                      currentCategoryId: widget.currentCategoryId,
-                      showTransactionCount: widget.showTransactionCount,
-                      transactionCounts: _transactionCounts,
-                      primaryColor: ref.watch(primaryColorProvider),
-                      onCategorySelected: (category) {
-                        Navigator.pop(context, category);
-                      },
+                          const SizedBox(height: 16),
+                          Text(
+                            _searchText.isNotEmpty
+                                ? l10n.searchNoResults
+                                : l10n.categoryEmpty,
+                            style: TextStyle(
+                              color: BeeTokens.textTertiary(context),
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
                     );
-                  },
-                );
-              },
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: groups.length,
+                    itemBuilder: (context, index) {
+                      final group = groups[index];
+                      return _CategoryGroupItem(
+                        group: group,
+                        currentCategoryId: widget.currentCategoryId,
+                        showTransactionCount: widget.showTransactionCount,
+                        transactionCounts: _transactionCounts,
+                        primaryColor: ref.watch(primaryColorProvider),
+                        onCategorySelected: (category) {
+                          Navigator.pop(context, category);
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );
@@ -512,7 +522,8 @@ class _CategoryGroupItemState extends State<_CategoryGroupItem> {
           category: widget.group.parent,
           isSelected: widget.currentCategoryId == widget.group.parent.id,
           showTransactionCount: widget.showTransactionCount,
-          transactionCount: widget.transactionCounts[widget.group.parent.id] ?? 0,
+          transactionCount:
+              widget.transactionCounts[widget.group.parent.id] ?? 0,
           primaryColor: widget.primaryColor,
           isParent: hasChildren,
           isExpanded: _isExpanded,
@@ -587,9 +598,7 @@ class _CategoryTile extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             // 选中状态背景色（通栏）
-            color: isSelected
-                ? primaryColor.withValues(alpha: 0.08)
-                : null,
+            color: isSelected ? primaryColor.withValues(alpha: 0.08) : null,
             border: Border(
               bottom: BorderSide(
                 color: BeeTokens.divider(context),
@@ -600,7 +609,7 @@ class _CategoryTile extends StatelessWidget {
           child: Padding(
             // 子分类添加左边距，父分类正常边距
             padding: EdgeInsets.fromLTRB(
-              isChild ? 56 : 16,  // 左边距：子分类56，父分类16
+              isChild ? 56 : 16, // 左边距：子分类56，父分类16
               12,
               16,
               12,
@@ -646,13 +655,15 @@ class _CategoryTile extends StatelessWidget {
                 // 交易笔数
                 if (showTransactionCount && transactionCount > 0)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: BeeTokens.surface(context),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      AppLocalizations.of(context).tagTransactionCount(transactionCount),
+                      AppLocalizations.of(context)
+                          .tagTransactionCount(transactionCount),
                       style: TextStyle(
                         fontSize: 12,
                         color: BeeTokens.textSecondary(context),

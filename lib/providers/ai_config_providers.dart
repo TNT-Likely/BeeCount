@@ -183,16 +183,19 @@ final aiEnabledProvider = Provider<bool>((ref) {
 final aiCapabilityBindingRefreshProvider = StateProvider<int>((ref) => 0);
 
 /// 能力绑定数据 Provider
-final aiCapabilityBindingProvider = FutureProvider<AICapabilityBinding>((ref) async {
+final aiCapabilityBindingProvider =
+    FutureProvider<AICapabilityBinding>((ref) async {
   ref.watch(aiCapabilityBindingRefreshProvider);
   return AIProviderManager.getCapabilityBinding();
 });
 
 /// 服务商列表刷新 Provider (供能力选择使用)
-final aiProviderListForCapabilityRefreshProvider = StateProvider<int>((ref) => 0);
+final aiProviderListForCapabilityRefreshProvider =
+    StateProvider<int>((ref) => 0);
 
 /// 服务商列表 Provider (供能力选择使用)
-final aiProviderListForCapabilityProvider = FutureProvider<List<AIServiceProviderConfig>>((ref) async {
+final aiProviderListForCapabilityProvider =
+    FutureProvider<List<AIServiceProviderConfig>>((ref) async {
   ref.watch(aiProviderListForCapabilityRefreshProvider);
   return AIProviderManager.getProviders();
 });

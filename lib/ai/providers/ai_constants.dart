@@ -59,7 +59,8 @@ class AIConstants {
   ];
 
   /// 获取模型显示名称
-  static String getModelDisplayName(String modelId, {String? fastLabel, String? accurateLabel}) {
+  static String getModelDisplayName(String modelId,
+      {String? fastLabel, String? accurateLabel}) {
     final fast = fastLabel ?? '快速';
     final accurate = accurateLabel ?? '精准';
 

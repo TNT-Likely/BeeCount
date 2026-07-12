@@ -32,7 +32,8 @@ class AttachmentPicker extends ConsumerStatefulWidget {
   final bool readOnly;
 
   /// 点击附件的回调
-  final Function(List<TransactionAttachment> attachments, int index)? onAttachmentTap;
+  final Function(List<TransactionAttachment> attachments, int index)?
+      onAttachmentTap;
 
   const AttachmentPicker({
     super.key,
@@ -71,10 +72,12 @@ class _AttachmentPickerState extends ConsumerState<AttachmentPicker> {
 
     // 如果有transactionId，从数据库获取附件
     if (widget.transactionId != null) {
-      final attachmentsAsync = ref.watch(transactionAttachmentsProvider(widget.transactionId!));
+      final attachmentsAsync =
+          ref.watch(transactionAttachmentsProvider(widget.transactionId!));
 
       return attachmentsAsync.when(
-        data: (attachments) => _buildContent(context, attachments, _pendingFiles),
+        data: (attachments) =>
+            _buildContent(context, attachments, _pendingFiles),
         loading: () => _buildLoading(),
         error: (e, s) => _buildError(l10n),
       );
@@ -148,7 +151,9 @@ class _AttachmentPickerState extends ConsumerState<AttachmentPicker> {
               attachment: attachments[index],
               size: itemSize,
               onTap: () => _openPreview(attachments, index),
-              onDelete: widget.readOnly ? null : () => _deleteAttachment(attachments[index]),
+              onDelete: widget.readOnly
+                  ? null
+                  : () => _deleteAttachment(attachments[index]),
             );
           }
           // 待上传的文件
@@ -157,7 +162,9 @@ class _AttachmentPickerState extends ConsumerState<AttachmentPicker> {
             return _PendingFileThumbnail(
               file: pendingFiles[pendingIndex],
               size: itemSize,
-              onDelete: widget.readOnly ? null : () => _removePendingFile(pendingIndex),
+              onDelete: widget.readOnly
+                  ? null
+                  : () => _removePendingFile(pendingIndex),
             );
           }
           // 添加按钮
@@ -262,7 +269,10 @@ class _AttachmentPickerState extends ConsumerState<AttachmentPicker> {
   Future<void> _pickFromGallery() async {
     final service = ref.read(attachmentServiceProvider);
     final currentCount = widget.transactionId != null
-        ? (await ref.read(repositoryProvider).getAttachmentsByTransaction(widget.transactionId!)).length
+        ? (await ref
+                .read(repositoryProvider)
+                .getAttachmentsByTransaction(widget.transactionId!))
+            .length
         : 0;
     final pendingCount = _pendingFiles.length;
     final remaining = widget.maxCount - currentCount - pendingCount;
@@ -364,7 +374,9 @@ class _AttachmentThumbnail extends ConsumerWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(borderRadius),
               child: FutureBuilder<String?>(
-                future: ref.read(attachmentServiceProvider).getThumbnailPath(attachment.fileName),
+                future: ref
+                    .read(attachmentServiceProvider)
+                    .getThumbnailPath(attachment.fileName),
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data != null) {
                     return Image.file(

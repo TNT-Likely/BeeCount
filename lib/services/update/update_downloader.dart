@@ -37,7 +37,8 @@ class UpdateDownloader {
     final random = (DateTime.now().millisecondsSinceEpoch % userAgents.length);
     final selectedUA = userAgents[random];
 
-    logger.info('UpdateDownloader', '使用User-Agent: ${selectedUA.substring(0, 50)}...');
+    logger.info(
+        'UpdateDownloader', '使用User-Agent: ${selectedUA.substring(0, 50)}...');
     return selectedUA;
   }
 
@@ -86,7 +87,8 @@ class UpdateDownloader {
       final cancelToken = CancelToken();
 
       // 显示初始通知 - 从确定进度0%开始
-      await UpdateNotifications.showProgressNotification(0, indeterminate: false);
+      await UpdateNotifications.showProgressNotification(0,
+          indeterminate: false);
 
       if (context.mounted) {
         showDialog(
@@ -100,17 +102,21 @@ class UpdateDownloader {
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(AppLocalizations.of(context).updateDownloading((progress * 100).toStringAsFixed(1))),
+                    Text(AppLocalizations.of(context).updateDownloading(
+                        (progress * 100).toStringAsFixed(1))),
                     const SizedBox(height: 16),
                     LinearProgressIndicator(value: progress),
                     const SizedBox(height: 8),
                     // 显示当前使用的镜像
                     Text(
-                      AppLocalizations.of(context).updateDownloadMirror(currentMirrorName),
+                      AppLocalizations.of(context)
+                          .updateDownloadMirror(currentMirrorName),
                       style: TextStyle(fontSize: 11, color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 8),
-                    Text(AppLocalizations.of(context).updateDownloadBackgroundHint,
+                    Text(
+                        AppLocalizations.of(context)
+                            .updateDownloadBackgroundHint,
                         style: TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
                 ),
@@ -121,13 +127,15 @@ class UpdateDownloader {
                       cancelToken.cancel('User cancelled download');
                       Navigator.of(context).pop();
                     },
-                    child: Text(AppLocalizations.of(context).updateCancelButton),
+                    child:
+                        Text(AppLocalizations.of(context).updateCancelButton),
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text(AppLocalizations.of(context).updateBackgroundDownload),
+                    child: Text(
+                        AppLocalizations.of(context).updateBackgroundDownload),
                   ),
                 ],
               );
@@ -158,7 +166,12 @@ class UpdateDownloader {
             final progressPercent = (progress * 100).round();
 
             // 调用外部进度回调
-            onProgress?.call(newProgress, context.mounted ? AppLocalizations.of(context).updateDownloadProgress('$progressPercent') : 'Downloading: $progressPercent%');
+            onProgress?.call(
+                newProgress,
+                context.mounted
+                    ? AppLocalizations.of(context)
+                        .updateDownloadProgress('$progressPercent')
+                    : 'Downloading: $progressPercent%');
 
             // 更新UI进度（如果对话框还在显示）
             try {
@@ -173,7 +186,8 @@ class UpdateDownloader {
             if (UpdateNotifications.shouldUpdateProgress(progressPercent)) {
               UpdateNotifications.recordProgress(progressPercent);
               // 异步更新通知进度，不阻塞下载
-              UpdateNotifications.showProgressNotification(progressPercent, indeterminate: false)
+              UpdateNotifications.showProgressNotification(progressPercent,
+                      indeterminate: false)
                   .catchError((e) {
                 logger.error('UpdateDownloader', '更新通知进度失败', e);
               });

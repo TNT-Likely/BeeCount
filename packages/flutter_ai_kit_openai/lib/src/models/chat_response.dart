@@ -58,8 +58,7 @@ class Choice {
     required this.finishReason,
   });
 
-  factory Choice.fromJson(Map<String, dynamic> json) =>
-      _$ChoiceFromJson(json);
+  factory Choice.fromJson(Map<String, dynamic> json) => _$ChoiceFromJson(json);
 
   Map<String, dynamic> toJson() => _$ChoiceToJson(this);
 }

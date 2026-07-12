@@ -233,9 +233,7 @@ class _LedgerItem extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: isSelected ? primaryColor : Colors.transparent,
                 border: Border.all(
-                  color: isSelected
-                      ? primaryColor
-                      : BeeTokens.border(context),
+                  color: isSelected ? primaryColor : BeeTokens.border(context),
                   width: 2,
                 ),
               ),
@@ -257,7 +255,8 @@ class _LedgerItem extends StatelessWidget {
                     ledger.name,
                     style: TextStyle(
                       fontSize: 15,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
                       color: isSelected
                           ? primaryColor
                           : BeeTokens.textPrimary(context),

@@ -20,7 +20,8 @@ final smartBillingAutoTagsInitProvider = FutureProvider<void>((ref) async {
 });
 
 /// 智能记账自动添加附件持久化初始化
-final smartBillingAutoAttachmentInitProvider = FutureProvider<void>((ref) async {
+final smartBillingAutoAttachmentInitProvider =
+    FutureProvider<void>((ref) async {
   final prefs = await SharedPreferences.getInstance();
   final saved = prefs.getBool('smartBillingAutoAttachment');
   if (saved != null) {

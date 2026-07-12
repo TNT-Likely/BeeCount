@@ -25,7 +25,8 @@ void main() {
       final container = ProviderContainer(overrides: [
         // baseCurrencyInitProvider 在 selected_currency 命中时不会读 ledger,
         // 但 currentLedgerProvider 依赖真实 db,这里 stub 掉防止实例化。
-        currentLedgerProvider.overrideWith((ref) => Stream<Ledger?>.value(null)),
+        currentLedgerProvider
+            .overrideWith((ref) => Stream<Ledger?>.value(null)),
       ]);
       addTearDown(container.dispose);
 
@@ -45,7 +46,8 @@ void main() {
         'selected_currency': 'USD', // 应被忽略
       });
       final container = ProviderContainer(overrides: [
-        currentLedgerProvider.overrideWith((ref) => Stream<Ledger?>.value(null)),
+        currentLedgerProvider
+            .overrideWith((ref) => Stream<Ledger?>.value(null)),
       ]);
       addTearDown(container.dispose);
 

@@ -39,9 +39,10 @@ class _SkylinePainter extends CustomPainter {
     final w = size.width, h = size.height;
 
     // 月亮 + 光晕(左上,与山峦的右上日月区分)
-    final moonColor =
-        (isDark ? primary : Colors.white).withValues(alpha: isDark ? 0.25 : 0.5);
-    canvas.drawCircle(Offset(w * 0.15, h * 0.26), h * 0.11, Paint()..color = moonColor);
+    final moonColor = (isDark ? primary : Colors.white)
+        .withValues(alpha: isDark ? 0.25 : 0.5);
+    canvas.drawCircle(
+        Offset(w * 0.15, h * 0.26), h * 0.11, Paint()..color = moonColor);
     canvas.drawCircle(
       Offset(w * 0.15, h * 0.26),
       h * 0.18,
@@ -68,8 +69,8 @@ class _SkylinePainter extends CustomPainter {
       ..color = (isDark ? primary : _lighten(primary, -0.10))
           .withValues(alpha: isDark ? 0.26 : 0.62);
     final window = Paint()
-      ..color =
-          (isDark ? primary : Colors.white).withValues(alpha: isDark ? 0.45 : 0.55);
+      ..color = (isDark ? primary : Colors.white)
+          .withValues(alpha: isDark ? 0.45 : 0.55);
     final frontRnd = math.Random(17);
     x = -12;
     while (x < w) {

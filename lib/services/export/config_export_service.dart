@@ -21,12 +21,14 @@ Map<String, dynamic> _convertToStringDynamicMap(Map map) {
     if (value is Map) {
       return MapEntry(stringKey, _convertToStringDynamicMap(value));
     } else if (value is List) {
-      return MapEntry(stringKey, value.map((item) {
-        if (item is Map) {
-          return _convertToStringDynamicMap(item);
-        }
-        return item;
-      }).toList());
+      return MapEntry(
+          stringKey,
+          value.map((item) {
+            if (item is Map) {
+              return _convertToStringDynamicMap(item);
+            }
+            return item;
+          }).toList());
     }
     return MapEntry(stringKey, value);
   });
@@ -170,8 +172,7 @@ class AppConfig {
               Map<String, dynamic>.from(yaml['webdav'] as Map))
           : null,
       s3: yaml.containsKey('s3')
-          ? S3Config.fromMap(
-              Map<String, dynamic>.from(yaml['s3'] as Map))
+          ? S3Config.fromMap(Map<String, dynamic>.from(yaml['s3'] as Map))
           : null,
       beecountCloud: yaml.containsKey('beecount_cloud')
           ? BeeCountCloudConfig.fromMap(
@@ -201,8 +202,7 @@ class AppConfig {
               Map<String, dynamic>.from(yaml['categories'] as Map))
           : null,
       tags: yaml.containsKey('tags')
-          ? TagsConfig.fromMap(
-              Map<String, dynamic>.from(yaml['tags'] as Map))
+          ? TagsConfig.fromMap(Map<String, dynamic>.from(yaml['tags'] as Map))
           : null,
       budgets: yaml.containsKey('budgets')
           ? BudgetsConfig.fromMap(
@@ -458,7 +458,8 @@ class AIConfig {
     if (map['providers'] != null) {
       final providersList = map['providers'] as List;
       providers = providersList
-          .map((p) => AIServiceProviderConfig.fromJson(_convertToStringDynamicMap(p as Map)))
+          .map((p) => AIServiceProviderConfig.fromJson(
+              _convertToStringDynamicMap(p as Map)))
           .toList();
       logger.debug('AIConfig', '解析到 ${providers.length} 个服务商');
     }
@@ -466,11 +467,14 @@ class AIConfig {
     // 解析能力绑定
     AICapabilityBinding? capabilityBinding;
     if (map['capability_binding'] != null) {
-      logger.debug('AIConfig', 'capability_binding raw: ${map['capability_binding']}');
-      final bindingMap = _convertToStringDynamicMap(map['capability_binding'] as Map);
+      logger.debug(
+          'AIConfig', 'capability_binding raw: ${map['capability_binding']}');
+      final bindingMap =
+          _convertToStringDynamicMap(map['capability_binding'] as Map);
       logger.debug('AIConfig', 'capability_binding converted: $bindingMap');
       capabilityBinding = AICapabilityBinding.fromJson(bindingMap);
-      logger.debug('AIConfig', '解析到能力绑定: text=${capabilityBinding.textProviderId}, vision=${capabilityBinding.visionProviderId}');
+      logger.debug('AIConfig',
+          '解析到能力绑定: text=${capabilityBinding.textProviderId}, vision=${capabilityBinding.visionProviderId}');
     } else {
       logger.debug('AIConfig', 'capability_binding 为 null');
     }
@@ -628,7 +632,8 @@ class AppSettingsConfig {
       AppSettingsConfig(
         accountFeatureEnabled: map['account_feature_enabled'] as bool?,
         defaultIncomeAccountName: map['default_income_account_name'] as String?,
-        defaultExpenseAccountName: map['default_expense_account_name'] as String?,
+        defaultExpenseAccountName:
+            map['default_expense_account_name'] as String?,
         reminderEnabled: map['reminder_enabled'] as bool?,
         reminderHour: map['reminder_hour'] as int?,
         reminderMinute: map['reminder_minute'] as int?,
@@ -735,8 +740,8 @@ class RecurringTransactionsConfig {
     final itemsList = map['items'] as List<dynamic>? ?? [];
     return RecurringTransactionsConfig(
       items: itemsList
-          .map((item) =>
-              RecurringTransactionItem.fromMap(Map<String, dynamic>.from(item as Map)))
+          .map((item) => RecurringTransactionItem.fromMap(
+              Map<String, dynamic>.from(item as Map)))
           .toList(),
     );
   }
@@ -830,9 +835,11 @@ class RecurringTransactionItem {
       ledgerName: ledgerIdToName[rt.ledgerId] ?? 'Unknown',
       type: rt.type,
       amount: rt.amount,
-      categoryName: rt.categoryId != null ? categoryIdToName[rt.categoryId] : null,
+      categoryName:
+          rt.categoryId != null ? categoryIdToName[rt.categoryId] : null,
       accountName: rt.accountId != null ? accountIdToName[rt.accountId] : null,
-      toAccountName: rt.toAccountId != null ? accountIdToName[rt.toAccountId] : null,
+      toAccountName:
+          rt.toAccountId != null ? accountIdToName[rt.toAccountId] : null,
       note: rt.note,
       frequency: rt.frequency,
       interval: rt.interval,
@@ -1054,8 +1061,8 @@ class TagsConfig {
     final itemsList = map['items'] as List<dynamic>? ?? [];
     return TagsConfig(
       items: itemsList
-          .map((item) =>
-              TagItem.fromMap(Map<String, dynamic>.from(item as Map)))
+          .map(
+              (item) => TagItem.fromMap(Map<String, dynamic>.from(item as Map)))
           .toList(),
     );
   }
@@ -1330,16 +1337,23 @@ class ConfigExportService {
       aiCapabilityBinding = await AIProviderManager.getCapabilityBinding();
       logger.info('ConfigExport', 'AI服务商数量: ${aiProviders.length}');
       for (final p in aiProviders) {
-        logger.info('ConfigExport', '  服务商: ${p.name} (${p.id}), isBuiltIn=${p.isBuiltIn}');
+        logger.info('ConfigExport',
+            '  服务商: ${p.name} (${p.id}), isBuiltIn=${p.isBuiltIn}');
       }
-      logger.info('ConfigExport', 'AI能力绑定: text=${aiCapabilityBinding.textProviderId}, vision=${aiCapabilityBinding.visionProviderId}, speech=${aiCapabilityBinding.speechProviderId}');
+      logger.info('ConfigExport',
+          'AI能力绑定: text=${aiCapabilityBinding.textProviderId}, vision=${aiCapabilityBinding.visionProviderId}, speech=${aiCapabilityBinding.speechProviderId}');
     } catch (e) {
       logger.warning('ConfigExport', '读取AI服务商配置失败: $e');
     }
 
-    if (glmApiKey != null || aiStrategy != null || aiEnabled != null ||
-        aiUseVision != null || glmModel != null || glmVisionModel != null ||
-        aiProviders != null || aiCapabilityBinding != null) {
+    if (glmApiKey != null ||
+        aiStrategy != null ||
+        aiEnabled != null ||
+        aiUseVision != null ||
+        glmModel != null ||
+        glmVisionModel != null ||
+        aiProviders != null ||
+        aiCapabilityBinding != null) {
       aiConfig = AIConfig(
         glmApiKey: glmApiKey,
         glmModel: glmModel,
@@ -1399,7 +1413,8 @@ class ConfigExportService {
     final incomeExpenseColorScheme = prefs.getBool('incomeExpenseColorScheme');
     final cloudServiceType = prefs.getString('cloud_active_type');
     final autoSync = prefs.getBool('auto_sync');
-    final autoScreenshotEnabled = prefs.getBool('auto_screenshot_billing_enabled');
+    final autoScreenshotEnabled =
+        prefs.getBool('auto_screenshot_billing_enabled');
     final shortcutPreferCamera = prefs.getBool('shortcut_prefer_camera');
 
     // 获取默认账户名称并收集需要强制导出的账户
@@ -1506,7 +1521,8 @@ class ConfigExportService {
 
     // 读取账本配置（导出全部账本，或强制导出关联的账本）
     LedgersConfig? ledgersConfig;
-    if (repository != null && (options.ledgers || requiredLedgerIds.isNotEmpty)) {
+    if (repository != null &&
+        (options.ledgers || requiredLedgerIds.isNotEmpty)) {
       try {
         final ledgersList = await repository.getAllLedgers();
 
@@ -1515,7 +1531,9 @@ class ConfigExportService {
           // 如果用户没有选择但有关联数据需要账本，则只导出关联的账本
           final itemsToExport = options.ledgers
               ? ledgersList
-              : ledgersList.where((l) => requiredLedgerIds.contains(l.id)).toList();
+              : ledgersList
+                  .where((l) => requiredLedgerIds.contains(l.id))
+                  .toList();
 
           if (itemsToExport.isNotEmpty) {
             ledgersConfig = LedgersConfig(
@@ -1532,7 +1550,8 @@ class ConfigExportService {
 
     // 读取账户配置（导出全部账户，或强制导出关联的账户）
     AccountsConfig? accountsConfig;
-    if (repository != null && (options.accounts || requiredAccountIds.isNotEmpty)) {
+    if (repository != null &&
+        (options.accounts || requiredAccountIds.isNotEmpty)) {
       try {
         final accountsList = await repository.getAllAccounts();
 
@@ -1541,7 +1560,9 @@ class ConfigExportService {
           // 如果用户没有选择但有关联数据需要账户，则只导出关联的账户
           final itemsToExport = options.accounts
               ? accountsList
-              : accountsList.where((a) => requiredAccountIds.contains(a.id)).toList();
+              : accountsList
+                  .where((a) => requiredAccountIds.contains(a.id))
+                  .toList();
 
           if (itemsToExport.isNotEmpty) {
             accountsConfig = AccountsConfig(
@@ -1558,11 +1579,14 @@ class ConfigExportService {
 
     // 读取分类配置（导出全部分类，或强制导出关联的分类）
     CategoriesConfig? categoriesConfig;
-    if (repository != null && (options.categories || requiredCategoryIds.isNotEmpty)) {
+    if (repository != null &&
+        (options.categories || requiredCategoryIds.isNotEmpty)) {
       try {
         // 获取所有分类（收入、支出和转账）
-        final expenseCategories = await repository.getTopLevelCategories('expense');
-        final incomeCategories = await repository.getTopLevelCategories('income');
+        final expenseCategories =
+            await repository.getTopLevelCategories('expense');
+        final incomeCategories =
+            await repository.getTopLevelCategories('income');
         final categoriesList = <Category>[];
         categoriesList.addAll(expenseCategories);
         categoriesList.addAll(incomeCategories);
@@ -1605,7 +1629,9 @@ class ConfigExportService {
                 }
               }
             }
-            itemsToExport = categoriesList.where((c) => idsToExport.contains(c.id)).toList();
+            itemsToExport = categoriesList
+                .where((c) => idsToExport.contains(c.id))
+                .toList();
           }
 
           if (itemsToExport.isNotEmpty) {
@@ -1613,7 +1639,8 @@ class ConfigExportService {
               items: itemsToExport.map((category) {
                 // 查找父分类名称
                 String? parentName;
-                if (category.parentId != null && categoryMap.containsKey(category.parentId)) {
+                if (category.parentId != null &&
+                    categoryMap.containsKey(category.parentId)) {
                   parentName = categoryMap[category.parentId]!.name;
                 }
                 return CategoryItem.fromDb(category, parentName);
@@ -1657,15 +1684,17 @@ class ConfigExportService {
           final categoryMap = {for (var c in categories) c.id: c.name};
 
           budgetsConfig = BudgetsConfig(
-            items: budgetsList.map((budget) => BudgetItem(
-              ledgerName: ledgerMap[budget.ledgerId] ?? 'Unknown',
-              type: budget.type,
-              categoryName: budget.categoryId != null
-                  ? categoryMap[budget.categoryId]
-                  : null,
-              amount: budget.amount,
-              startDay: budget.startDay,
-            )).toList(),
+            items: budgetsList
+                .map((budget) => BudgetItem(
+                      ledgerName: ledgerMap[budget.ledgerId] ?? 'Unknown',
+                      type: budget.type,
+                      categoryName: budget.categoryId != null
+                          ? categoryMap[budget.categoryId]
+                          : null,
+                      amount: budget.amount,
+                      startDay: budget.startDay,
+                    ))
+                .toList(),
           );
         }
       } catch (e) {
@@ -1682,9 +1711,11 @@ class ConfigExportService {
     final exportAi = options.ai ? aiConfig : null;
     final exportAppSettings = options.appSettings ? appSettings : null;
 
-    logger.info('ConfigExport', '导出选项: ai=${options.ai}, aiConfig是否存在=${aiConfig != null}');
+    logger.info('ConfigExport',
+        '导出选项: ai=${options.ai}, aiConfig是否存在=${aiConfig != null}');
     if (exportAi != null) {
-      logger.info('ConfigExport', '导出AI配置: providers数量=${exportAi.providers?.length ?? 0}');
+      logger.info('ConfigExport',
+          '导出AI配置: providers数量=${exportAi.providers?.length ?? 0}');
     }
 
     final config = AppConfig(
@@ -1791,22 +1822,28 @@ class ConfigExportService {
       buffer.writeln('ai:');
       final ai = yamlMap['ai'] as Map<String, dynamic>;
       if (ai.containsKey(AIConstants.keyGlmApiKey)) {
-        buffer.writeln('  ${AIConstants.keyGlmApiKey}: "${ai[AIConstants.keyGlmApiKey]}"');
+        buffer.writeln(
+            '  ${AIConstants.keyGlmApiKey}: "${ai[AIConstants.keyGlmApiKey]}"');
       }
       if (ai.containsKey(AIConstants.keyGlmModel)) {
-        buffer.writeln('  ${AIConstants.keyGlmModel}: "${ai[AIConstants.keyGlmModel]}"');
+        buffer.writeln(
+            '  ${AIConstants.keyGlmModel}: "${ai[AIConstants.keyGlmModel]}"');
       }
       if (ai.containsKey(AIConstants.keyGlmVisionModel)) {
-        buffer.writeln('  ${AIConstants.keyGlmVisionModel}: "${ai[AIConstants.keyGlmVisionModel]}"');
+        buffer.writeln(
+            '  ${AIConstants.keyGlmVisionModel}: "${ai[AIConstants.keyGlmVisionModel]}"');
       }
       if (ai.containsKey(AIConstants.keyAiStrategy)) {
-        buffer.writeln('  ${AIConstants.keyAiStrategy}: "${ai[AIConstants.keyAiStrategy]}"');
+        buffer.writeln(
+            '  ${AIConstants.keyAiStrategy}: "${ai[AIConstants.keyAiStrategy]}"');
       }
       if (ai.containsKey(AIConstants.keyAiBillExtractionEnabled)) {
-        buffer.writeln('  ${AIConstants.keyAiBillExtractionEnabled}: ${ai[AIConstants.keyAiBillExtractionEnabled]}');
+        buffer.writeln(
+            '  ${AIConstants.keyAiBillExtractionEnabled}: ${ai[AIConstants.keyAiBillExtractionEnabled]}');
       }
       if (ai.containsKey(AIConstants.keyAiUseVision)) {
-        buffer.writeln('  ${AIConstants.keyAiUseVision}: ${ai[AIConstants.keyAiUseVision]}');
+        buffer.writeln(
+            '  ${AIConstants.keyAiUseVision}: ${ai[AIConstants.keyAiUseVision]}');
       }
       // 服务商列表
       if (ai.containsKey('providers')) {
@@ -1817,19 +1854,24 @@ class ConfigExportService {
           buffer.writeln('    - id: "${provider['id']}"');
           buffer.writeln('      name: "${provider['name']}"');
           buffer.writeln('      isBuiltIn: ${provider['isBuiltIn']}');
-          if (provider['apiKey'] != null && (provider['apiKey'] as String).isNotEmpty) {
+          if (provider['apiKey'] != null &&
+              (provider['apiKey'] as String).isNotEmpty) {
             buffer.writeln('      apiKey: "${provider['apiKey']}"');
           }
-          if (provider['baseUrl'] != null && (provider['baseUrl'] as String).isNotEmpty) {
+          if (provider['baseUrl'] != null &&
+              (provider['baseUrl'] as String).isNotEmpty) {
             buffer.writeln('      baseUrl: "${provider['baseUrl']}"');
           }
-          if (provider['textModel'] != null && (provider['textModel'] as String).isNotEmpty) {
+          if (provider['textModel'] != null &&
+              (provider['textModel'] as String).isNotEmpty) {
             buffer.writeln('      textModel: "${provider['textModel']}"');
           }
-          if (provider['visionModel'] != null && (provider['visionModel'] as String).isNotEmpty) {
+          if (provider['visionModel'] != null &&
+              (provider['visionModel'] as String).isNotEmpty) {
             buffer.writeln('      visionModel: "${provider['visionModel']}"');
           }
-          if (provider['audioModel'] != null && (provider['audioModel'] as String).isNotEmpty) {
+          if (provider['audioModel'] != null &&
+              (provider['audioModel'] as String).isNotEmpty) {
             buffer.writeln('      audioModel: "${provider['audioModel']}"');
           }
         }
@@ -1842,10 +1884,12 @@ class ConfigExportService {
           buffer.writeln('    textProviderId: "${binding['textProviderId']}"');
         }
         if (binding['visionProviderId'] != null) {
-          buffer.writeln('    visionProviderId: "${binding['visionProviderId']}"');
+          buffer.writeln(
+              '    visionProviderId: "${binding['visionProviderId']}"');
         }
         if (binding['speechProviderId'] != null) {
-          buffer.writeln('    speechProviderId: "${binding['speechProviderId']}"');
+          buffer.writeln(
+              '    speechProviderId: "${binding['speechProviderId']}"');
         }
       }
       buffer.writeln();
@@ -1860,13 +1904,16 @@ class ConfigExportService {
           settings.containsKey('default_expense_account_name')) {
         buffer.writeln('  # 账户管理');
         if (settings.containsKey('account_feature_enabled')) {
-          buffer.writeln('  account_feature_enabled: ${settings['account_feature_enabled']}');
+          buffer.writeln(
+              '  account_feature_enabled: ${settings['account_feature_enabled']}');
         }
         if (settings.containsKey('default_income_account_name')) {
-          buffer.writeln('  default_income_account_name: "${settings['default_income_account_name']}"');
+          buffer.writeln(
+              '  default_income_account_name: "${settings['default_income_account_name']}"');
         }
         if (settings.containsKey('default_expense_account_name')) {
-          buffer.writeln('  default_expense_account_name: "${settings['default_expense_account_name']}"');
+          buffer.writeln(
+              '  default_expense_account_name: "${settings['default_expense_account_name']}"');
         }
       }
 
@@ -1885,7 +1932,8 @@ class ConfigExportService {
         }
       }
 
-      if (settings.containsKey('language_code') || settings.containsKey('country_code')) {
+      if (settings.containsKey('language_code') ||
+          settings.containsKey('country_code')) {
         buffer.writeln('  # 语言设置');
         if (settings.containsKey('language_code')) {
           buffer.writeln('  language_code: "${settings['language_code']}"');
@@ -1906,7 +1954,8 @@ class ConfigExportService {
           buffer.writeln('  font_scale_level: ${settings['font_scale_level']}');
         }
         if (settings.containsKey('custom_font_scale')) {
-          buffer.writeln('  custom_font_scale: ${settings['custom_font_scale']}');
+          buffer
+              .writeln('  custom_font_scale: ${settings['custom_font_scale']}');
         }
       }
 
@@ -1920,16 +1969,19 @@ class ConfigExportService {
           buffer.writeln('  theme_mode: "${settings['theme_mode']}"');
         }
         if (settings.containsKey('dark_mode_pattern_style')) {
-          buffer.writeln('  dark_mode_pattern_style: "${settings['dark_mode_pattern_style']}"');
+          buffer.writeln(
+              '  dark_mode_pattern_style: "${settings['dark_mode_pattern_style']}"');
         }
         if (settings.containsKey('compact_amount')) {
           buffer.writeln('  compact_amount: ${settings['compact_amount']}');
         }
         if (settings.containsKey('show_transaction_time')) {
-          buffer.writeln('  show_transaction_time: ${settings['show_transaction_time']}');
+          buffer.writeln(
+              '  show_transaction_time: ${settings['show_transaction_time']}');
         }
         if (settings.containsKey('note_display_mode')) {
-          buffer.writeln('  note_display_mode: "${settings['note_display_mode']}"');
+          buffer.writeln(
+              '  note_display_mode: "${settings['note_display_mode']}"');
         }
       }
 
@@ -1937,7 +1989,8 @@ class ConfigExportService {
           settings.containsKey('auto_sync')) {
         buffer.writeln('  # 云服务');
         if (settings.containsKey('cloud_service_type')) {
-          buffer.writeln('  cloud_service_type: "${settings['cloud_service_type']}"');
+          buffer.writeln(
+              '  cloud_service_type: "${settings['cloud_service_type']}"');
         }
         if (settings.containsKey('auto_sync')) {
           buffer.writeln('  auto_sync: ${settings['auto_sync']}');
@@ -1948,10 +2001,12 @@ class ConfigExportService {
           settings.containsKey('shortcut_prefer_camera')) {
         buffer.writeln('  # 自动记账');
         if (settings.containsKey('auto_screenshot_enabled')) {
-          buffer.writeln('  auto_screenshot_enabled: ${settings['auto_screenshot_enabled']}');
+          buffer.writeln(
+              '  auto_screenshot_enabled: ${settings['auto_screenshot_enabled']}');
         }
         if (settings.containsKey('shortcut_prefer_camera')) {
-          buffer.writeln('  shortcut_prefer_camera: ${settings['shortcut_prefer_camera']}');
+          buffer.writeln(
+              '  shortcut_prefer_camera: ${settings['shortcut_prefer_camera']}');
         }
       }
     }
@@ -1972,7 +2027,8 @@ class ConfigExportService {
           if (itemMap.containsKey('type') && itemMap['type'] != null) {
             buffer.writeln('      type: "${itemMap['type']}"');
           }
-          if (itemMap.containsKey('created_at') && itemMap['created_at'] != null) {
+          if (itemMap.containsKey('created_at') &&
+              itemMap['created_at'] != null) {
             buffer.writeln('      created_at: "${itemMap['created_at']}"');
           }
         }
@@ -1984,7 +2040,8 @@ class ConfigExportService {
     if (yamlMap.containsKey('recurring_transactions')) {
       buffer.writeln('# 周期账单');
       buffer.writeln('recurring_transactions:');
-      final recurring = yamlMap['recurring_transactions'] as Map<String, dynamic>;
+      final recurring =
+          yamlMap['recurring_transactions'] as Map<String, dynamic>;
       final items = recurring['items'] as List;
 
       if (items.isNotEmpty) {
@@ -1995,14 +2052,19 @@ class ConfigExportService {
           buffer.writeln('      type: "${itemMap['type']}"');
           buffer.writeln('      amount: ${itemMap['amount']}');
 
-          if (itemMap.containsKey('category_name') && itemMap['category_name'] != null) {
-            buffer.writeln('      category_name: "${itemMap['category_name']}"');
+          if (itemMap.containsKey('category_name') &&
+              itemMap['category_name'] != null) {
+            buffer
+                .writeln('      category_name: "${itemMap['category_name']}"');
           }
-          if (itemMap.containsKey('account_name') && itemMap['account_name'] != null) {
+          if (itemMap.containsKey('account_name') &&
+              itemMap['account_name'] != null) {
             buffer.writeln('      account_name: "${itemMap['account_name']}"');
           }
-          if (itemMap.containsKey('to_account_name') && itemMap['to_account_name'] != null) {
-            buffer.writeln('      to_account_name: "${itemMap['to_account_name']}"');
+          if (itemMap.containsKey('to_account_name') &&
+              itemMap['to_account_name'] != null) {
+            buffer.writeln(
+                '      to_account_name: "${itemMap['to_account_name']}"');
           }
           if (itemMap.containsKey('note') && itemMap['note'] != null) {
             buffer.writeln('      note: "${itemMap['note']}"');
@@ -2045,24 +2107,33 @@ class ConfigExportService {
           buffer.writeln('    - name: "${itemMap['name']}"');
           buffer.writeln('      type: "${itemMap['type']}"');
           buffer.writeln('      currency: "${itemMap['currency']}"');
-          buffer.writeln('      initial_balance: ${itemMap['initial_balance']}');
-          if (itemMap.containsKey('created_at') && itemMap['created_at'] != null) {
+          buffer
+              .writeln('      initial_balance: ${itemMap['initial_balance']}');
+          if (itemMap.containsKey('created_at') &&
+              itemMap['created_at'] != null) {
             buffer.writeln('      created_at: "${itemMap['created_at']}"');
           }
-          if (itemMap.containsKey('credit_limit') && itemMap['credit_limit'] != null) {
+          if (itemMap.containsKey('credit_limit') &&
+              itemMap['credit_limit'] != null) {
             buffer.writeln('      credit_limit: ${itemMap['credit_limit']}');
           }
-          if (itemMap.containsKey('billing_day') && itemMap['billing_day'] != null) {
+          if (itemMap.containsKey('billing_day') &&
+              itemMap['billing_day'] != null) {
             buffer.writeln('      billing_day: ${itemMap['billing_day']}');
           }
-          if (itemMap.containsKey('payment_due_day') && itemMap['payment_due_day'] != null) {
-            buffer.writeln('      payment_due_day: ${itemMap['payment_due_day']}');
+          if (itemMap.containsKey('payment_due_day') &&
+              itemMap['payment_due_day'] != null) {
+            buffer.writeln(
+                '      payment_due_day: ${itemMap['payment_due_day']}');
           }
-          if (itemMap.containsKey('bank_name') && itemMap['bank_name'] != null) {
+          if (itemMap.containsKey('bank_name') &&
+              itemMap['bank_name'] != null) {
             buffer.writeln('      bank_name: "${itemMap['bank_name']}"');
           }
-          if (itemMap.containsKey('card_last_four') && itemMap['card_last_four'] != null) {
-            buffer.writeln('      card_last_four: "${itemMap['card_last_four']}"');
+          if (itemMap.containsKey('card_last_four') &&
+              itemMap['card_last_four'] != null) {
+            buffer.writeln(
+                '      card_last_four: "${itemMap['card_last_four']}"');
           }
           if (itemMap.containsKey('note') && itemMap['note'] != null) {
             buffer.writeln('      note: "${itemMap['note']}"');
@@ -2089,19 +2160,25 @@ class ConfigExportService {
             buffer.writeln('      icon: "${itemMap['icon']}"');
           }
           buffer.writeln('      sort_order: ${itemMap['sort_order']}');
-          if (itemMap.containsKey('parent_name') && itemMap['parent_name'] != null) {
+          if (itemMap.containsKey('parent_name') &&
+              itemMap['parent_name'] != null) {
             buffer.writeln('      parent_name: "${itemMap['parent_name']}"');
           }
           buffer.writeln('      level: ${itemMap['level']}');
           // 自定义图标字段
-          if (itemMap.containsKey('icon_type') && itemMap['icon_type'] != null) {
+          if (itemMap.containsKey('icon_type') &&
+              itemMap['icon_type'] != null) {
             buffer.writeln('      icon_type: "${itemMap['icon_type']}"');
           }
-          if (itemMap.containsKey('custom_icon_path') && itemMap['custom_icon_path'] != null) {
-            buffer.writeln('      custom_icon_path: "${itemMap['custom_icon_path']}"');
+          if (itemMap.containsKey('custom_icon_path') &&
+              itemMap['custom_icon_path'] != null) {
+            buffer.writeln(
+                '      custom_icon_path: "${itemMap['custom_icon_path']}"');
           }
-          if (itemMap.containsKey('community_icon_id') && itemMap['community_icon_id'] != null) {
-            buffer.writeln('      community_icon_id: "${itemMap['community_icon_id']}"');
+          if (itemMap.containsKey('community_icon_id') &&
+              itemMap['community_icon_id'] != null) {
+            buffer.writeln(
+                '      community_icon_id: "${itemMap['community_icon_id']}"');
           }
         }
       }
@@ -2141,8 +2218,10 @@ class ConfigExportService {
           final itemMap = item as Map<String, dynamic>;
           buffer.writeln('    - ledger_name: "${itemMap['ledger_name']}"');
           buffer.writeln('      type: "${itemMap['type']}"');
-          if (itemMap.containsKey('category_name') && itemMap['category_name'] != null) {
-            buffer.writeln('      category_name: "${itemMap['category_name']}"');
+          if (itemMap.containsKey('category_name') &&
+              itemMap['category_name'] != null) {
+            buffer
+                .writeln('      category_name: "${itemMap['category_name']}"');
           }
           buffer.writeln('      amount: ${itemMap['amount']}');
           buffer.writeln('      start_day: ${itemMap['start_day']}');
@@ -2181,7 +2260,8 @@ class ConfigExportService {
         name: 'Supabase',
         supabaseUrl: config.supabase!.url,
         supabaseAnonKey: config.supabase!.anonKey,
-        supabaseBucket: config.supabase!.bucket ?? 'beecount-backups',  // 导入时也提供默认值
+        supabaseBucket:
+            config.supabase!.bucket ?? 'beecount-backups', // 导入时也提供默认值
         supabaseEmail: config.supabase!.email,
         supabasePassword: config.supabase!.password,
       );
@@ -2251,13 +2331,15 @@ class ConfigExportService {
         await prefs.setString(AIConstants.keyGlmModel, config.ai!.glmModel!);
       }
       if (config.ai!.glmVisionModel != null) {
-        await prefs.setString(AIConstants.keyGlmVisionModel, config.ai!.glmVisionModel!);
+        await prefs.setString(
+            AIConstants.keyGlmVisionModel, config.ai!.glmVisionModel!);
       }
       if (config.ai!.strategy != null) {
         await prefs.setString(AIConstants.keyAiStrategy, config.ai!.strategy!);
       }
       if (config.ai!.enabled != null) {
-        await prefs.setBool(AIConstants.keyAiBillExtractionEnabled, config.ai!.enabled!);
+        await prefs.setBool(
+            AIConstants.keyAiBillExtractionEnabled, config.ai!.enabled!);
       }
       if (config.ai!.useVision != null) {
         await prefs.setBool(AIConstants.keyAiUseVision, config.ai!.useVision!);
@@ -2273,13 +2355,18 @@ class ConfigExportService {
         for (final provider in config.ai!.providers!) {
           if (provider.isBuiltIn) {
             // 内置服务商：更新配置（如API Key）
-            final existingIndex = existingProviders.indexWhere((p) => p.id == provider.id);
+            final existingIndex =
+                existingProviders.indexWhere((p) => p.id == provider.id);
             if (existingIndex >= 0) {
               final updated = existingProviders[existingIndex].copyWith(
                 apiKey: provider.apiKey.isNotEmpty ? provider.apiKey : null,
-                textModel: provider.textModel.isNotEmpty ? provider.textModel : null,
-                visionModel: provider.visionModel.isNotEmpty ? provider.visionModel : null,
-                audioModel: provider.audioModel.isNotEmpty ? provider.audioModel : null,
+                textModel:
+                    provider.textModel.isNotEmpty ? provider.textModel : null,
+                visionModel: provider.visionModel.isNotEmpty
+                    ? provider.visionModel
+                    : null,
+                audioModel:
+                    provider.audioModel.isNotEmpty ? provider.audioModel : null,
               );
               await AIProviderManager.updateProvider(updated);
             }
@@ -2297,13 +2384,15 @@ class ConfigExportService {
             }
           }
         }
-        logger.info('ConfigImport', 'AI服务商配置已导入 (${config.ai!.providers!.length}个)');
+        logger.info(
+            'ConfigImport', 'AI服务商配置已导入 (${config.ai!.providers!.length}个)');
       }
 
       // 导入能力绑定
       if (config.ai!.capabilityBinding != null) {
         final binding = config.ai!.capabilityBinding!;
-        logger.info('ConfigImport', '准备导入AI能力绑定: text=${binding.textProviderId}, vision=${binding.visionProviderId}, speech=${binding.speechProviderId}');
+        logger.info('ConfigImport',
+            '准备导入AI能力绑定: text=${binding.textProviderId}, vision=${binding.visionProviderId}, speech=${binding.speechProviderId}');
         await AIProviderManager.saveCapabilityBinding(binding);
         logger.info('ConfigImport', 'AI能力绑定已导入');
       } else {
@@ -2322,7 +2411,8 @@ class ConfigExportService {
 
       // 账户管理
       if (settings.accountFeatureEnabled != null) {
-        await prefs.setBool('account_feature_enabled', settings.accountFeatureEnabled!);
+        await prefs.setBool(
+            'account_feature_enabled', settings.accountFeatureEnabled!);
       }
       // 默认账户通过名称查找ID（需要先导入账户再处理此配置）
       pendingDefaultIncomeAccountName = settings.defaultIncomeAccountName;
@@ -2344,7 +2434,8 @@ class ConfigExportService {
         await prefs.setString('selected_language', settings.languageCode!);
       }
       if (settings.countryCode != null) {
-        await prefs.setString('selected_language_country', settings.countryCode!);
+        await prefs.setString(
+            'selected_language_country', settings.countryCode!);
       }
 
       // 个性化设置
@@ -2363,7 +2454,8 @@ class ConfigExportService {
         await prefs.setString('themeMode', settings.themeMode!);
       }
       if (settings.darkModePatternStyle != null) {
-        await prefs.setString('darkModePatternStyle', settings.darkModePatternStyle!);
+        await prefs.setString(
+            'darkModePatternStyle', settings.darkModePatternStyle!);
       }
       if (settings.headerSkin != null) {
         await prefs.setString('headerSkin', settings.headerSkin!);
@@ -2372,13 +2464,15 @@ class ConfigExportService {
         await prefs.setBool('compactAmount', settings.compactAmount!);
       }
       if (settings.showTransactionTime != null) {
-        await prefs.setBool('showTransactionTime', settings.showTransactionTime!);
+        await prefs.setBool(
+            'showTransactionTime', settings.showTransactionTime!);
       }
       if (settings.noteDisplayMode != null) {
         await prefs.setString('noteDisplayMode', settings.noteDisplayMode!);
       }
       if (settings.incomeExpenseColorScheme != null) {
-        await prefs.setBool('incomeExpenseColorScheme', settings.incomeExpenseColorScheme!);
+        await prefs.setBool(
+            'incomeExpenseColorScheme', settings.incomeExpenseColorScheme!);
       }
 
       // 云服务
@@ -2391,10 +2485,12 @@ class ConfigExportService {
 
       // 自动记账
       if (settings.autoScreenshotEnabled != null) {
-        await prefs.setBool('auto_screenshot_billing_enabled', settings.autoScreenshotEnabled!);
+        await prefs.setBool(
+            'auto_screenshot_billing_enabled', settings.autoScreenshotEnabled!);
       }
       if (settings.shortcutPreferCamera != null) {
-        await prefs.setBool('shortcut_prefer_camera', settings.shortcutPreferCamera!);
+        await prefs.setBool(
+            'shortcut_prefer_camera', settings.shortcutPreferCamera!);
       }
 
       logger.info('ConfigImport', '应用设置已导入（默认账户待处理）');
@@ -2408,12 +2504,13 @@ class ConfigExportService {
 
         // 获取现有账本名称集合
         final existingLedgers = await repository.getAllLedgers();
-        final existingNames = existingLedgers.map((l) => l.name.toLowerCase()).toSet();
+        final existingNames =
+            existingLedgers.map((l) => l.name.toLowerCase()).toSet();
 
         // 过滤掉已存在的账本（按名称去重）
-        final newItems = items.where((item) =>
-          !existingNames.contains(item.name.toLowerCase())
-        ).toList();
+        final newItems = items
+            .where((item) => !existingNames.contains(item.name.toLowerCase()))
+            .toList();
 
         if (newItems.isNotEmpty) {
           for (final item in newItems) {
@@ -2422,7 +2519,8 @@ class ConfigExportService {
               currency: item.currency,
             );
           }
-          logger.info('ConfigImport', '账本已导入: ${newItems.length}条 (跳过已存在: ${items.length - newItems.length}条)');
+          logger.info('ConfigImport',
+              '账本已导入: ${newItems.length}条 (跳过已存在: ${items.length - newItems.length}条)');
         } else {
           logger.info('ConfigImport', '账本全部已存在，跳过导入');
         }
@@ -2439,13 +2537,15 @@ class ConfigExportService {
         // 获取现有分类名称集合（用于去重）
         final existingCategories = await repository.getAllCategories();
         // 按 (name, kind) 去重,允许跨 kind 同名(收入/支出可同名)
-        final existingKeys =
-            existingCategories.map((c) => '${c.name.toLowerCase()}|${c.kind}').toSet();
+        final existingKeys = existingCategories
+            .map((c) => '${c.name.toLowerCase()}|${c.kind}')
+            .toSet();
 
         // 特殊处理：更新虚拟转账分类（如果存在）
         final transferItem = items.firstWhere(
           (item) => item.kind == 'transfer',
-          orElse: () => CategoryItem(name: '', kind: '', sortOrder: 0, level: 1),
+          orElse: () =>
+              CategoryItem(name: '', kind: '', sortOrder: 0, level: 1),
         );
         if (transferItem.name.isNotEmpty) {
           try {
@@ -2469,23 +2569,27 @@ class ConfigExportService {
         }
 
         // 第一步：过滤并批量插入一级分类
-        final level1Items = items.where((item) => item.parentName == null).toList();
-        final newLevel1Items = level1Items.where((item) =>
-          !existingKeys.contains('${item.name.toLowerCase()}|${item.kind}')
-        ).toList();
+        final level1Items =
+            items.where((item) => item.parentName == null).toList();
+        final newLevel1Items = level1Items
+            .where((item) => !existingKeys
+                .contains('${item.name.toLowerCase()}|${item.kind}'))
+            .toList();
 
         if (newLevel1Items.isNotEmpty) {
-          final level1Companions = newLevel1Items.map((item) => CategoriesCompanion.insert(
-            name: item.name,
-            kind: item.kind,
-            icon: d.Value(item.icon),
-            sortOrder: d.Value(item.sortOrder),
-            parentId: const d.Value(null),
-            level: d.Value(item.level),
-            iconType: d.Value(item.iconType ?? 'material'),
-            customIconPath: d.Value(item.customIconPath),
-            communityIconId: d.Value(item.communityIconId),
-          )).toList();
+          final level1Companions = newLevel1Items
+              .map((item) => CategoriesCompanion.insert(
+                    name: item.name,
+                    kind: item.kind,
+                    icon: d.Value(item.icon),
+                    sortOrder: d.Value(item.sortOrder),
+                    parentId: const d.Value(null),
+                    level: d.Value(item.level),
+                    iconType: d.Value(item.iconType ?? 'material'),
+                    customIconPath: d.Value(item.customIconPath),
+                    communityIconId: d.Value(item.communityIconId),
+                  ))
+              .toList();
 
           await repository.batchInsertCategories(level1Companions);
         }
@@ -2493,22 +2597,28 @@ class ConfigExportService {
         // 第二步：查询所有分类，构建名称到ID的映射
         final allCategories = await repository.getAllCategories();
         final keyToId = <String, int>{
-          for (var cat in allCategories) '${cat.name.toLowerCase()}|${cat.kind}': cat.id
+          for (var cat in allCategories)
+            '${cat.name.toLowerCase()}|${cat.kind}': cat.id
         };
 
         // 更新现有分类集合（包含刚插入的一级分类），按 (name, kind)
-        final updatedKeys = allCategories.map((c) => '${c.name.toLowerCase()}|${c.kind}').toSet();
+        final updatedKeys = allCategories
+            .map((c) => '${c.name.toLowerCase()}|${c.kind}')
+            .toSet();
 
         // 第三步：过滤并批量插入二级分类
-        final level2Items = items.where((item) => item.parentName != null).toList();
-        final newLevel2Items = level2Items.where((item) =>
-          !updatedKeys.contains('${item.name.toLowerCase()}|${item.kind}')
-        ).toList();
+        final level2Items =
+            items.where((item) => item.parentName != null).toList();
+        final newLevel2Items = level2Items
+            .where((item) => !updatedKeys
+                .contains('${item.name.toLowerCase()}|${item.kind}'))
+            .toList();
         final level2Companions = <CategoriesCompanion>[];
 
         for (final item in newLevel2Items) {
           // 父分类与子分类同 kind,按 (parentName, kind) 查父 id
-          final parentId = keyToId['${item.parentName?.toLowerCase()}|${item.kind}'];
+          final parentId =
+              keyToId['${item.parentName?.toLowerCase()}|${item.kind}'];
           if (parentId != null) {
             level2Companions.add(CategoriesCompanion.insert(
               name: item.name,
@@ -2522,7 +2632,8 @@ class ConfigExportService {
               communityIconId: d.Value(item.communityIconId),
             ));
           } else {
-            logger.warning('ConfigImport', '找不到父分类 "${item.parentName}"，跳过二级分类: ${item.name}');
+            logger.warning('ConfigImport',
+                '找不到父分类 "${item.parentName}"，跳过二级分类: ${item.name}');
           }
         }
 
@@ -2531,10 +2642,11 @@ class ConfigExportService {
         }
 
         final skippedCount = (level1Items.length - newLevel1Items.length) +
-                             (level2Items.length - newLevel2Items.length);
-        logger.info('ConfigImport',
-          '分类已批量导入: 一级${newLevel1Items.length}条, 二级${level2Companions.length}条'
-          '${skippedCount > 0 ? ' (跳过已存在: $skippedCount条)' : ''}');
+            (level2Items.length - newLevel2Items.length);
+        logger.info(
+            'ConfigImport',
+            '分类已批量导入: 一级${newLevel1Items.length}条, 二级${level2Companions.length}条'
+                '${skippedCount > 0 ? ' (跳过已存在: $skippedCount条)' : ''}');
       } catch (e) {
         logger.error('ConfigImport', '导入分类失败: $e');
       }
@@ -2547,36 +2659,41 @@ class ConfigExportService {
 
         // 获取现有账户名称集合
         final existingAccounts = await repository.getAllAccounts();
-        final existingNames = existingAccounts.map((a) => a.name.toLowerCase()).toSet();
+        final existingNames =
+            existingAccounts.map((a) => a.name.toLowerCase()).toSet();
 
         // 过滤掉已存在的账户（按名称去重）
-        final newItems = items.where((item) =>
-          !existingNames.contains(item.name.toLowerCase())
-        ).toList();
+        final newItems = items
+            .where((item) => !existingNames.contains(item.name.toLowerCase()))
+            .toList();
 
         if (newItems.isNotEmpty) {
           // 准备批量插入的数据
-          final accountsToInsert = newItems.map((item) => AccountsCompanion.insert(
-            ledgerId: 0, // 保留字段，但不再使用（v2迁移后会移除）
-            name: item.name,
-            type: d.Value(item.type),
-            currency: d.Value(item.currency),
-            initialBalance: d.Value(item.initialBalance),
-            createdAt: d.Value(
-                item.createdAt != null ? DateTime.parse(item.createdAt!) : null),
-            updatedAt: d.Value(DateTime.now()),
-            creditLimit: d.Value(item.creditLimit),
-            billingDay: d.Value(item.billingDay),
-            paymentDueDay: d.Value(item.paymentDueDay),
-            bankName: d.Value(item.bankName),
-            cardLastFour: d.Value(item.cardLastFour),
-            note: d.Value(item.note),
-          )).toList();
+          final accountsToInsert = newItems
+              .map((item) => AccountsCompanion.insert(
+                    ledgerId: 0, // 保留字段，但不再使用（v2迁移后会移除）
+                    name: item.name,
+                    type: d.Value(item.type),
+                    currency: d.Value(item.currency),
+                    initialBalance: d.Value(item.initialBalance),
+                    createdAt: d.Value(item.createdAt != null
+                        ? DateTime.parse(item.createdAt!)
+                        : null),
+                    updatedAt: d.Value(DateTime.now()),
+                    creditLimit: d.Value(item.creditLimit),
+                    billingDay: d.Value(item.billingDay),
+                    paymentDueDay: d.Value(item.paymentDueDay),
+                    bankName: d.Value(item.bankName),
+                    cardLastFour: d.Value(item.cardLastFour),
+                    note: d.Value(item.note),
+                  ))
+              .toList();
 
           // 使用 repository 方法进行批量插入
           await repository.batchInsertAccounts(accountsToInsert);
 
-          logger.info('ConfigImport', '账户已导入: ${newItems.length}条 (跳过已存在: ${items.length - newItems.length}条)');
+          logger.info('ConfigImport',
+              '账户已导入: ${newItems.length}条 (跳过已存在: ${items.length - newItems.length}条)');
         } else {
           logger.info('ConfigImport', '账户全部已存在，跳过导入');
         }
@@ -2592,24 +2709,28 @@ class ConfigExportService {
 
         // 获取现有标签名称集合
         final existingTags = await repository.getAllTags();
-        final existingNames = existingTags.map((t) => t.name.toLowerCase()).toSet();
+        final existingNames =
+            existingTags.map((t) => t.name.toLowerCase()).toSet();
 
         // 过滤掉已存在的标签（按名称去重）
-        final newItems = items.where((item) =>
-          !existingNames.contains(item.name.toLowerCase())
-        ).toList();
+        final newItems = items
+            .where((item) => !existingNames.contains(item.name.toLowerCase()))
+            .toList();
 
         if (newItems.isNotEmpty) {
           // 准备批量插入的数据
-          final tagsToInsert = newItems.map((item) => TagsCompanion.insert(
-            name: item.name,
-            color: d.Value(item.color),
-          )).toList();
+          final tagsToInsert = newItems
+              .map((item) => TagsCompanion.insert(
+                    name: item.name,
+                    color: d.Value(item.color),
+                  ))
+              .toList();
 
           // 使用 repository 方法进行批量插入
           await repository.batchInsertTags(tagsToInsert);
 
-          logger.info('ConfigImport', '标签已导入: ${newItems.length}条 (跳过已存在: ${items.length - newItems.length}条)');
+          logger.info('ConfigImport',
+              '标签已导入: ${newItems.length}条 (跳过已存在: ${items.length - newItems.length}条)');
         } else {
           logger.info('ConfigImport', '标签全部已存在，跳过导入');
         }
@@ -2619,7 +2740,9 @@ class ConfigExportService {
     }
 
     // 5. 导入周期账单（依赖账本、分类、账户）
-    if (options.recurringTransactions && config.recurringTransactions != null && repository != null) {
+    if (options.recurringTransactions &&
+        config.recurringTransactions != null &&
+        repository != null) {
       try {
         final items = config.recurringTransactions!.items;
 
@@ -2629,7 +2752,9 @@ class ConfigExportService {
 
         final categories = await repository.getAllCategories();
         // 按 (name, kind) 映射,跨 kind 同名各自命中
-        final catKeyToId = {for (var c in categories) '${c.name.toLowerCase()}|${c.kind}': c.id};
+        final catKeyToId = {
+          for (var c in categories) '${c.name.toLowerCase()}|${c.kind}': c.id
+        };
 
         final accounts = await repository.getAllAccounts();
         final accountNameToId = {for (var a in accounts) a.name: a.id};
@@ -2650,9 +2775,11 @@ class ConfigExportService {
           int? categoryId;
           if (item.categoryName != null) {
             // 周期账单 type(expense/income/transfer)即分类 kind
-            categoryId = catKeyToId['${item.categoryName!.toLowerCase()}|${item.type}'];
+            categoryId =
+                catKeyToId['${item.categoryName!.toLowerCase()}|${item.type}'];
             if (categoryId == null) {
-              logger.warning('ConfigImport', '找不到分类: ${item.categoryName}，跳过周期账单');
+              logger.warning(
+                  'ConfigImport', '找不到分类: ${item.categoryName}，跳过周期账单');
               skippedCount++;
               continue;
             }
@@ -2663,7 +2790,8 @@ class ConfigExportService {
           if (item.accountName != null) {
             accountId = accountNameToId[item.accountName];
             if (accountId == null) {
-              logger.warning('ConfigImport', '找不到账户: ${item.accountName}，跳过周期账单');
+              logger.warning(
+                  'ConfigImport', '找不到账户: ${item.accountName}，跳过周期账单');
               skippedCount++;
               continue;
             }
@@ -2674,7 +2802,8 @@ class ConfigExportService {
           if (item.toAccountName != null) {
             toAccountId = accountNameToId[item.toAccountName];
             if (toAccountId == null) {
-              logger.warning('ConfigImport', '找不到转账目标账户: ${item.toAccountName}，跳过周期账单');
+              logger.warning(
+                  'ConfigImport', '找不到转账目标账户: ${item.toAccountName}，跳过周期账单');
               skippedCount++;
               continue;
             }
@@ -2694,13 +2823,15 @@ class ConfigExportService {
             dayOfWeek: item.dayOfWeek,
             monthOfYear: item.monthOfYear,
             startDate: DateTime.parse(item.startDate),
-            endDate: item.endDate != null ? DateTime.parse(item.endDate!) : null,
+            endDate:
+                item.endDate != null ? DateTime.parse(item.endDate!) : null,
             enabled: item.enabled,
           );
           importedCount++;
         }
 
-        logger.info('ConfigImport', '周期账单已导入: $importedCount条${skippedCount > 0 ? '，跳过: $skippedCount条' : ''}');
+        logger.info('ConfigImport',
+            '周期账单已导入: $importedCount条${skippedCount > 0 ? '，跳过: $skippedCount条' : ''}');
       } catch (e) {
         logger.error('ConfigImport', '导入周期账单失败: $e');
       }
@@ -2719,7 +2850,9 @@ class ConfigExportService {
 
         final categories = await repository.getAllCategories();
         // 分类预算只针对支出一级分类,按 (name, kind) 映射
-        final catKeyToId = {for (var c in categories) '${c.name.toLowerCase()}|${c.kind}': c.id};
+        final catKeyToId = {
+          for (var c in categories) '${c.name.toLowerCase()}|${c.kind}': c.id
+        };
 
         for (final item in items) {
           // 通过名称查找账本 ID
@@ -2737,9 +2870,11 @@ class ConfigExportService {
           int? categoryId;
           if (item.type == 'category' && item.categoryName != null) {
             // 分类预算针对支出分类
-            categoryId = catKeyToId['${item.categoryName!.toLowerCase()}|expense'];
+            categoryId =
+                catKeyToId['${item.categoryName!.toLowerCase()}|expense'];
             if (categoryId == null) {
-              logger.warning('ConfigImport', '找不到分类: ${item.categoryName}，跳过此预算');
+              logger.warning(
+                  'ConfigImport', '找不到分类: ${item.categoryName}，跳过此预算');
               skippedCount++;
               continue;
             }
@@ -2755,14 +2890,17 @@ class ConfigExportService {
           importedCount++;
         }
 
-        logger.info('ConfigImport', '预算已导入: $importedCount条${skippedCount > 0 ? '，跳过: $skippedCount条' : ''}');
+        logger.info('ConfigImport',
+            '预算已导入: $importedCount条${skippedCount > 0 ? '，跳过: $skippedCount条' : ''}');
       } catch (e) {
         logger.error('ConfigImport', '导入预算失败: $e');
       }
     }
 
     // 7. 处理默认账户设置（所有数据导入完成后）
-    if (repository != null && (pendingDefaultIncomeAccountName != null || pendingDefaultExpenseAccountName != null)) {
+    if (repository != null &&
+        (pendingDefaultIncomeAccountName != null ||
+            pendingDefaultExpenseAccountName != null)) {
       try {
         final accounts = await repository.getAllAccounts();
         final accountNameToId = {for (var a in accounts) a.name: a.id};
@@ -2771,9 +2909,11 @@ class ConfigExportService {
           final accountId = accountNameToId[pendingDefaultIncomeAccountName];
           if (accountId != null) {
             await prefs.setInt('default_income_account_id', accountId);
-            logger.info('ConfigImport', '默认收入账户已设置: $pendingDefaultIncomeAccountName');
+            logger.info(
+                'ConfigImport', '默认收入账户已设置: $pendingDefaultIncomeAccountName');
           } else {
-            logger.warning('ConfigImport', '找不到默认收入账户: $pendingDefaultIncomeAccountName');
+            logger.warning(
+                'ConfigImport', '找不到默认收入账户: $pendingDefaultIncomeAccountName');
           }
         }
 
@@ -2781,9 +2921,11 @@ class ConfigExportService {
           final accountId = accountNameToId[pendingDefaultExpenseAccountName];
           if (accountId != null) {
             await prefs.setInt('default_expense_account_id', accountId);
-            logger.info('ConfigImport', '默认支出账户已设置: $pendingDefaultExpenseAccountName');
+            logger.info(
+                'ConfigImport', '默认支出账户已设置: $pendingDefaultExpenseAccountName');
           } else {
-            logger.warning('ConfigImport', '找不到默认支出账户: $pendingDefaultExpenseAccountName');
+            logger.warning(
+                'ConfigImport', '找不到默认支出账户: $pendingDefaultExpenseAccountName');
           }
         }
       } catch (e) {
@@ -2822,7 +2964,8 @@ class ConfigExportService {
     }
 
     final yamlContent = await file.readAsString();
-    await importFromYaml(yamlContent, repository: repository, ledgerId: ledgerId, options: options);
+    await importFromYaml(yamlContent,
+        repository: repository, ledgerId: ledgerId, options: options);
     logger.info('ConfigImport', '配置已从文件导入: $filePath');
   }
 }

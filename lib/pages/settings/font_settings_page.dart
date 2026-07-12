@@ -15,25 +15,52 @@ class FontSettingsPage extends ConsumerWidget {
     final level = ref.watch(fontScaleLevelProvider);
     final eff = ref.watch(effectiveFontScaleProvider);
     final options = [
-      _FontOption(label: AppLocalizations.of(context)!.fontSettingsExtraSmall, value: -3, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
-      _FontOption(label: AppLocalizations.of(context)!.fontSettingsVerySmall, value: -2, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
-      _FontOption(label: AppLocalizations.of(context)!.fontSettingsSmall, value: -1, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
-      _FontOption(label: AppLocalizations.of(context)!.fontSettingsStandard, value: 0, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
-      _FontOption(label: AppLocalizations.of(context)!.fontSettingsLarge, value: 1, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
-      _FontOption(label: AppLocalizations.of(context)!.fontSettingsBig, value: 2, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
-      _FontOption(label: AppLocalizations.of(context)!.fontSettingsVeryBig, value: 3, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
-      _FontOption(label: AppLocalizations.of(context)!.fontSettingsExtraBig, value: 4, preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(
+          label: AppLocalizations.of(context)!.fontSettingsExtraSmall,
+          value: -3,
+          preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(
+          label: AppLocalizations.of(context)!.fontSettingsVerySmall,
+          value: -2,
+          preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(
+          label: AppLocalizations.of(context)!.fontSettingsSmall,
+          value: -1,
+          preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(
+          label: AppLocalizations.of(context)!.fontSettingsStandard,
+          value: 0,
+          preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(
+          label: AppLocalizations.of(context)!.fontSettingsLarge,
+          value: 1,
+          preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(
+          label: AppLocalizations.of(context)!.fontSettingsBig,
+          value: 2,
+          preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(
+          label: AppLocalizations.of(context)!.fontSettingsVeryBig,
+          value: 3,
+          preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
+      _FontOption(
+          label: AppLocalizations.of(context)!.fontSettingsExtraBig,
+          value: 4,
+          preview: AppLocalizations.of(context)!.fontSettingsScaleExample),
     ];
 
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
       body: Column(
         children: [
-          PrimaryHeader(title: AppLocalizations.of(context)!.mineDisplayScale, showBack: true, compact: true),
+          PrimaryHeader(
+              title: AppLocalizations.of(context)!.mineDisplayScale,
+              showBack: true,
+              compact: true),
           Expanded(
-            child: SafeArea(
-              top: false,
-              child: ListView(
+              child: SafeArea(
+            top: false,
+            child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               children: [
                 // 显示缩放设置部分
@@ -43,7 +70,9 @@ class FontSettingsPage extends ConsumerWidget {
                         .labelLarge
                         ?.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
-                Text(AppLocalizations.of(context)!.fontSettingsCurrentScale(eff.toStringAsFixed(2)),
+                Text(
+                    AppLocalizations.of(context)!
+                        .fontSettingsCurrentScale(eff.toStringAsFixed(2)),
                     style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: 12),
                 _PreviewParagraph(level: level),
@@ -68,15 +97,14 @@ class FontSettingsPage extends ConsumerWidget {
                 const SizedBox(height: 8),
                 _CustomScaleSlider(),
                 const SizedBox(height: 24),
-                Text(
-                    AppLocalizations.of(context)!.fontSettingsDescription,
+                Text(AppLocalizations.of(context)!.fontSettingsDescription,
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall
                         ?.copyWith(color: BeeTokens.textSecondary(context))),
               ],
-            ),)
-          ),
+            ),
+          )),
         ],
       ),
     );
@@ -95,13 +123,20 @@ class FontSettingsPage extends ConsumerWidget {
       color: BeeTokens.surface(context),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: isDark ? BorderSide(color: BeeTokens.border(context)) : BorderSide.none,
+        side: isDark
+            ? BorderSide(color: BeeTokens.border(context))
+            : BorderSide.none,
       ),
       child: ListTile(
         title: Text(o.label, style: style),
-        subtitle: Text(o.preview, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: BeeTokens.textSecondary(context))),
-        trailing:
-            active ? Icon(Icons.check_circle, color: BeeTokens.success(context)) : null,
+        subtitle: Text(o.preview,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: BeeTokens.textSecondary(context))),
+        trailing: active
+            ? Icon(Icons.check_circle, color: BeeTokens.success(context))
+            : null,
         onTap: () => ref.read(fontScaleLevelProvider.notifier).state = o.value,
       ),
     );
@@ -133,7 +168,8 @@ class _PreviewParagraph extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(AppLocalizations.of(context)!.fontSettingsPreview, style: theme.titleMedium),
+            Text(AppLocalizations.of(context)!.fontSettingsPreview,
+                style: theme.titleMedium),
             const SizedBox(height: 8),
             Transform.scale(
               scale: 1.0, // 视觉不再二次放大，仅展示换档后真实文本
@@ -141,8 +177,11 @@ class _PreviewParagraph extends ConsumerWidget {
                   style: lineStyle, textAlign: TextAlign.left, softWrap: true),
             ),
             const SizedBox(height: 8),
-            Text(AppLocalizations.of(context)!.fontSettingsCurrentLevel(_levelName(context, level), scale.toStringAsFixed(2)),
-                style: theme.bodySmall?.copyWith(color: BeeTokens.textSecondary(context))),
+            Text(
+                AppLocalizations.of(context)!.fontSettingsCurrentLevel(
+                    _levelName(context, level), scale.toStringAsFixed(2)),
+                style: theme.bodySmall
+                    ?.copyWith(color: BeeTokens.textSecondary(context))),
           ],
         ),
       ),
@@ -183,17 +222,25 @@ class _MultiStylePreview extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(AppLocalizations.of(context)!.fontSettingsMoreStyles, style: theme.titleMedium),
+            Text(AppLocalizations.of(context)!.fontSettingsMoreStyles,
+                style: theme.titleMedium),
             const SizedBox(height: 10),
-            _kv(context, AppLocalizations.of(context)!.fontSettingsPageTitle, '月度统计与分析', theme.titleLarge),
+            _kv(context, AppLocalizations.of(context)!.fontSettingsPageTitle,
+                '月度统计与分析', theme.titleLarge),
             const SizedBox(height: 6),
-            _kv(context, AppLocalizations.of(context)!.fontSettingsBlockTitle, '最近记账', theme.titleMedium),
+            _kv(context, AppLocalizations.of(context)!.fontSettingsBlockTitle,
+                '最近记账', theme.titleMedium),
             const SizedBox(height: 6),
-            _kv(context, AppLocalizations.of(context)!.fontSettingsBodyExample, '今天早餐：豆浆 + 包子 6.50 元', theme.bodyMedium),
+            _kv(context, AppLocalizations.of(context)!.fontSettingsBodyExample,
+                '今天早餐：豆浆 + 包子 6.50 元', theme.bodyMedium),
             const SizedBox(height: 6),
-            _kv(context, AppLocalizations.of(context)!.fontSettingsLabelExample, '隐藏金额已开启', theme.labelMedium),
+            _kv(context, AppLocalizations.of(context)!.fontSettingsLabelExample,
+                '隐藏金额已开启', theme.labelMedium),
             const SizedBox(height: 6),
-            _kv(context, AppLocalizations.of(context)!.fontSettingsStrongNumber, '1234.56',
+            _kv(
+                context,
+                AppLocalizations.of(context)!.fontSettingsStrongNumber,
+                '1234.56',
                 BeeTextTokens.strongTitle(context).copyWith(fontSize: 18)),
             const Divider(height: 20),
             _ListTileMock(),
@@ -215,7 +262,8 @@ class _MultiStylePreview extends ConsumerWidget {
                       fontSize: (style.fontSize ?? 14) - 1,
                       color: BeeTokens.textSecondary(context),
                     )
-                  : TextStyle(fontSize: 12, color: BeeTokens.textSecondary(context))),
+                  : TextStyle(
+                      fontSize: 12, color: BeeTokens.textSecondary(context))),
         ),
         const SizedBox(width: 4),
         Expanded(
@@ -223,7 +271,8 @@ class _MultiStylePreview extends ConsumerWidget {
             v,
             style: style != null
                 ? style.copyWith(color: BeeTokens.textPrimary(context))
-                : TextStyle(fontSize: 14, color: BeeTokens.textPrimary(context)),
+                : TextStyle(
+                    fontSize: 14, color: BeeTokens.textPrimary(context)),
           ),
         )
       ],
@@ -285,15 +334,39 @@ class _UIScaleInfo extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(AppLocalizations.of(context)!.fontSettingsScreenInfo, style: theme.titleMedium),
+            Text(AppLocalizations.of(context)!.fontSettingsScreenInfo,
+                style: theme.titleMedium),
             SizedBox(height: 8.0.scaled(context, ref)),
-            _infoRow(context, AppLocalizations.of(context)!.fontSettingsScreenDensity, debugInfo['devicePixelRatio']!.toStringAsFixed(2)),
-            _infoRow(context, AppLocalizations.of(context)!.fontSettingsScreenWidth, '${debugInfo['screenWidth']!.toStringAsFixed(0)}dp'),
-            _infoRow(context, AppLocalizations.of(context)!.fontSettingsDeviceScale, 'x${debugInfo['deviceScaleFactor']!.toStringAsFixed(2)}'),
-            _infoRow(context, AppLocalizations.of(context)!.fontSettingsUserScale, 'x${debugInfo['userScaleFactor']!.toStringAsFixed(2)}'),
-            _infoRow(context, AppLocalizations.of(context)!.fontSettingsFinalScale, 'x${debugInfo['finalScaleFactor']!.toStringAsFixed(2)}'),
-            _infoRow(context, AppLocalizations.of(context)!.fontSettingsBaseDevice, debugInfo['isBaseDevice']! > 0.5 ? AppLocalizations.of(context)!.fontSettingsYes : AppLocalizations.of(context)!.fontSettingsNo),
-            _infoRow(context, AppLocalizations.of(context)!.fontSettingsRecommendedScale, 'x${debugInfo['recommendedUserScale']!.toStringAsFixed(2)}'),
+            _infoRow(
+                context,
+                AppLocalizations.of(context)!.fontSettingsScreenDensity,
+                debugInfo['devicePixelRatio']!.toStringAsFixed(2)),
+            _infoRow(
+                context,
+                AppLocalizations.of(context)!.fontSettingsScreenWidth,
+                '${debugInfo['screenWidth']!.toStringAsFixed(0)}dp'),
+            _infoRow(
+                context,
+                AppLocalizations.of(context)!.fontSettingsDeviceScale,
+                'x${debugInfo['deviceScaleFactor']!.toStringAsFixed(2)}'),
+            _infoRow(
+                context,
+                AppLocalizations.of(context)!.fontSettingsUserScale,
+                'x${debugInfo['userScaleFactor']!.toStringAsFixed(2)}'),
+            _infoRow(
+                context,
+                AppLocalizations.of(context)!.fontSettingsFinalScale,
+                'x${debugInfo['finalScaleFactor']!.toStringAsFixed(2)}'),
+            _infoRow(
+                context,
+                AppLocalizations.of(context)!.fontSettingsBaseDevice,
+                debugInfo['isBaseDevice']! > 0.5
+                    ? AppLocalizations.of(context)!.fontSettingsYes
+                    : AppLocalizations.of(context)!.fontSettingsNo),
+            _infoRow(
+                context,
+                AppLocalizations.of(context)!.fontSettingsRecommendedScale,
+                'x${debugInfo['recommendedUserScale']!.toStringAsFixed(2)}'),
             SizedBox(height: 8.0.scaled(context, ref)),
             Container(
               padding: EdgeInsets.all(8.0.scaled(context, ref)),
@@ -333,8 +406,14 @@ class _UIScaleInfo extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: 12, color: BeeTokens.textTertiary(context))),
-          Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: BeeTokens.textPrimary(context))),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 12, color: BeeTokens.textTertiary(context))),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: BeeTokens.textPrimary(context))),
         ],
       ),
     );
@@ -359,9 +438,11 @@ class _CustomScaleSlider extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(AppLocalizations.of(context)!.fontSettingsPreciseAdjust, style: theme.titleMedium),
+                Text(AppLocalizations.of(context)!.fontSettingsPreciseAdjust,
+                    style: theme.titleMedium),
                 Text('x${effectiveScale.toStringAsFixed(2)}',
-                    style: theme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    style: theme.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w600)),
               ],
             ),
             const SizedBox(height: 12),
@@ -370,7 +451,10 @@ class _CustomScaleSlider extends ConsumerWidget {
                 activeTrackColor: Theme.of(context).colorScheme.primary,
                 inactiveTrackColor: Colors.grey.withValues(alpha: 0.3),
                 thumbColor: Theme.of(context).colorScheme.primary,
-                overlayColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                overlayColor: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.2),
                 trackHeight: 6,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
               ),
@@ -401,17 +485,21 @@ class _CustomScaleSlider extends ConsumerWidget {
                     onPressed: () {
                       ref.read(customFontScaleProvider.notifier).state = 1.0;
                     },
-                    child: Text(AppLocalizations.of(context)!.fontSettingsResetTo1x),
+                    child: Text(
+                        AppLocalizations.of(context)!.fontSettingsResetTo1x),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
-                      final recommendedScale = UIScaleService.getRecommendedUserScale(context);
-                      ref.read(customFontScaleProvider.notifier).state = recommendedScale;
+                      final recommendedScale =
+                          UIScaleService.getRecommendedUserScale(context);
+                      ref.read(customFontScaleProvider.notifier).state =
+                          recommendedScale;
                     },
-                    child: Text(AppLocalizations.of(context)!.fontSettingsAdaptBase),
+                    child: Text(
+                        AppLocalizations.of(context)!.fontSettingsAdaptBase),
                   ),
                 ),
               ],

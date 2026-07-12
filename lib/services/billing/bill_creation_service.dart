@@ -110,7 +110,8 @@ class BillCreationService {
     String? categoryName;
     String? accountName;
     if (categoryId != null) {
-      categoryName = categories.firstWhereOrNull((c) => c.id == categoryId)?.name;
+      categoryName =
+          categories.firstWhereOrNull((c) => c.id == categoryId)?.name;
     }
     if (accountId != null) {
       accountName = (await repo.getAccount(accountId))?.name;
@@ -276,8 +277,7 @@ class BillCreationService {
     // 完全匹配
     for (final a in pool) {
       if (a.name.toLowerCase().trim() == target) {
-        logger.debug(_tag,
-            '[账户匹配-完全] "$accountName" → ${a.name}(ID:${a.id})');
+        logger.debug(_tag, '[账户匹配-完全] "$accountName" → ${a.name}(ID:${a.id})');
         return a.id;
       }
     }
@@ -285,8 +285,7 @@ class BillCreationService {
     for (final a in pool) {
       final n = a.name.toLowerCase().trim();
       if (n.contains(target) || target.contains(n)) {
-        logger.debug(_tag,
-            '[账户匹配-模糊] "$accountName" → ${a.name}(ID:${a.id})');
+        logger.debug(_tag, '[账户匹配-模糊] "$accountName" → ${a.name}(ID:${a.id})');
         return a.id;
       }
     }
@@ -304,8 +303,8 @@ class BillCreationService {
       final n = a.name.toLowerCase().trim();
       for (final r in related) {
         if (n.contains(r.toLowerCase())) {
-          logger.debug(_tag,
-              '[账户匹配-类型] "$accountName" → ${a.name}(ID:${a.id})');
+          logger.debug(
+              _tag, '[账户匹配-类型] "$accountName" → ${a.name}(ID:${a.id})');
           return a.id;
         }
       }
@@ -330,8 +329,8 @@ class BillCreationService {
     final account = await repo.getAccount(defaultId);
     if (account == null) return null;
     if (account.currency != ledger.currency) {
-      logger.debug(_tag,
-          '[默认账户] 币种不匹配: ${account.currency} vs ${ledger.currency}');
+      logger.debug(
+          _tag, '[默认账户] 币种不匹配: ${account.currency} vs ${ledger.currency}');
       return null;
     }
     logger.debug(_tag, '[默认账户] → ${account.name}(ID:${account.id})');
@@ -351,9 +350,8 @@ class BillCreationService {
         names.addAll(TagSeedService.getBillingTagNames(billingTypes, l10n));
       }
       if (customTagNames != null && customTagNames.isNotEmpty) {
-        names.addAll(customTagNames
-            .map((n) => n.trim())
-            .where((n) => n.isNotEmpty));
+        names.addAll(
+            customTagNames.map((n) => n.trim()).where((n) => n.isNotEmpty));
       }
       if (names.isEmpty) return;
 

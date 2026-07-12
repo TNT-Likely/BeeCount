@@ -48,13 +48,15 @@ mixin UIScaleMixin {
   }
 
   /// 缩放边距
-  EdgeInsets scaleEdgeInsets(BuildContext context, WidgetRef ref, EdgeInsets insets) {
+  EdgeInsets scaleEdgeInsets(
+      BuildContext context, WidgetRef ref, EdgeInsets insets) {
     final userScale = ref.watch(effectiveFontScaleProvider);
     return UIScaleService.scaleEdgeInsets(context, insets, userScale);
   }
 
   /// 缩放圆角
-  BorderRadius scaleBorderRadius(BuildContext context, WidgetRef ref, BorderRadius radius) {
+  BorderRadius scaleBorderRadius(
+      BuildContext context, WidgetRef ref, BorderRadius radius) {
     final userScale = ref.watch(effectiveFontScaleProvider);
     return UIScaleService.scaleBorderRadius(context, radius, userScale);
   }

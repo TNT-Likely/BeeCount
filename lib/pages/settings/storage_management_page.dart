@@ -66,8 +66,8 @@ class _StorageManagementPageState extends ConsumerState<StorageManagementPage> {
       if (await modelsDir.exists()) {
         final files = modelsDir
             .listSync()
-            .where((entity) =>
-                entity is File && entity.path.endsWith('.tflite'))
+            .where(
+                (entity) => entity is File && entity.path.endsWith('.tflite'))
             .toList();
 
         int totalSize = 0;

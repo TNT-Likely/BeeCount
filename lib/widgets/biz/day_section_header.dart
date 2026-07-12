@@ -81,7 +81,8 @@ class DaySectionHeader extends ConsumerWidget {
                       .textTheme
                       .labelMedium
                       ?.copyWith(color: grey, fontSize: 12)),
-            if (shouldHide == false && fmt(income).isNotEmpty) const SizedBox(width: 12),
+            if (shouldHide == false && fmt(income).isNotEmpty)
+              const SizedBox(width: 12),
             if (shouldHide == false && fmt(income).isNotEmpty)
               Text('${l10n.homeIncome} ${fmt(income)}',
                   style: Theme.of(context)

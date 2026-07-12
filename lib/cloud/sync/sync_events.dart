@@ -63,6 +63,7 @@ class ProfileFieldApplied extends SyncEvent {
       : this._(field: ProfileField.primaryCurrency, value: code);
 
   final ProfileField field;
+
   /// 类型由 [field] 决定:
   /// - `themeColor` → `String`(hex)
   /// - `incomeColor` → `bool`

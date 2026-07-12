@@ -12,6 +12,7 @@ import '../biz/biz.dart';
 /// 资产构成饼图
 class AssetCompositionChart extends ConsumerStatefulWidget {
   final List<({String type, double totalBalance})> data;
+
   /// embedded 模式下不渲染外层 SectionCard 和标题
   final bool embedded;
 
@@ -22,7 +23,8 @@ class AssetCompositionChart extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AssetCompositionChart> createState() => _AssetCompositionChartState();
+  ConsumerState<AssetCompositionChart> createState() =>
+      _AssetCompositionChartState();
 }
 
 class _AssetCompositionChartState extends ConsumerState<AssetCompositionChart> {
@@ -32,9 +34,7 @@ class _AssetCompositionChartState extends ConsumerState<AssetCompositionChart> {
   List<({String type, double value, Color color})> _buildSlices() {
     final primaryColor = ref.watch(primaryColorProvider);
     // 过滤出正值项（资产构成只看正余额）
-    final positiveItems = widget.data
-        .where((d) => d.totalBalance > 0)
-        .toList()
+    final positiveItems = widget.data.where((d) => d.totalBalance > 0).toList()
       ..sort((a, b) => b.totalBalance.compareTo(a.totalBalance));
 
     final slices = <({String type, double value, Color color})>[];

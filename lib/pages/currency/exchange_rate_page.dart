@@ -113,7 +113,8 @@ class _ExchangeRatePageState extends ConsumerState<ExchangeRatePage> {
                   margin: EdgeInsets.zero,
                   child: InkWell(
                     onTap: () => _pickBaseCurrency(context),
-                    borderRadius: BorderRadius.circular(8.0.scaled(context, ref)),
+                    borderRadius:
+                        BorderRadius.circular(8.0.scaled(context, ref)),
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         vertical: 8.0.scaled(context, ref),
@@ -190,8 +191,8 @@ class _ExchangeRatePageState extends ConsumerState<ExchangeRatePage> {
                             eff: rates[quotes[i]],
                             primary: primary,
                             fmt6: _fmt6,
-                            onTap: () =>
-                                _editRate(context, quotes[i], base, rates[quotes[i]]),
+                            onTap: () => _editRate(
+                                context, quotes[i], base, rates[quotes[i]]),
                           ),
                         ],
                       ],
@@ -253,9 +254,8 @@ class _ExchangeRatePageState extends ConsumerState<ExchangeRatePage> {
         hadManual: eff?.manual ?? false,
         // 预填:手动值回填原始字符串(保留用户精度);自动值用 _fmt6 展示(6 位有效,
         // 编辑后会被新输入覆盖,截断无妨);无汇率则留空。
-        initialText: eff == null
-            ? ''
-            : (eff.manual ? eff.rate : _fmt6(eff.rate)),
+        initialText:
+            eff == null ? '' : (eff.manual ? eff.rate : _fmt6(eff.rate)),
       ),
     );
     if (result == null || !mounted) return; // 取消/遮罩关闭
@@ -357,8 +357,7 @@ class _RateEditDialogState extends ConsumerState<_RateEditDialog> {
       actions: [
         if (widget.hadManual)
           TextButton(
-            onPressed: () =>
-                Navigator.pop(context, (reset: true, rate: '')),
+            onPressed: () => Navigator.pop(context, (reset: true, rate: '')),
             child: Text(
               l10n.rateResetToAuto,
               style: TextStyle(color: BeeTokens.textSecondary(context)),
@@ -430,7 +429,8 @@ class _RateRow extends ConsumerWidget {
     if (eff == null) {
       subtitle = Text.rich(
         TextSpan(
-          style: TextStyle(fontSize: 12, color: BeeTokens.textTertiary(context)),
+          style:
+              TextStyle(fontSize: 12, color: BeeTokens.textTertiary(context)),
           children: [
             TextSpan(text: l10n.rateNotFetched),
             const TextSpan(text: ' · '),
@@ -503,9 +503,7 @@ class _RateRow extends ConsumerWidget {
             SizedBox(width: 8.0.scaled(context, ref)),
             // 右:汇率值
             Text(
-              eff == null
-                  ? '—'
-                  : '1 $quote = ${fmt6(eff!.rate)} $base',
+              eff == null ? '—' : '1 $quote = ${fmt6(eff!.rate)} $base',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,

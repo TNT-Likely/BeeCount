@@ -52,8 +52,7 @@ class AiPrivacyConsentDialog extends ConsumerWidget {
                 ),
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => const PrivacyPolicyPage()),
+                  MaterialPageRoute(builder: (_) => const PrivacyPolicyPage()),
                 ),
                 child: Text(l10n.aboutPrivacyPolicy,
                     style: TextStyle(color: primary)),

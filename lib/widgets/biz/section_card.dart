@@ -30,7 +30,7 @@ class SectionCard extends StatelessWidget {
                 width: borderWidth,
               )
             : null,
-        boxShadow: isDark ? null : BeeShadows.card,  // ⭐ 暗黑模式：无阴影，亮色模式：有阴影
+        boxShadow: isDark ? null : BeeShadows.card, // ⭐ 暗黑模式：无阴影，亮色模式：有阴影
       ),
       child: Padding(
         padding: padding,

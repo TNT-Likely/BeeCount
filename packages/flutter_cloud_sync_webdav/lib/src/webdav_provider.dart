@@ -90,8 +90,7 @@ class WebDAVProvider implements CloudProvider {
 
       _storageService = WebDAVStorageService(_client!, remotePath);
     } catch (e) {
-      throw CloudConfigurationException(
-          'Failed to initialize WebDAV: $e', e);
+      throw CloudConfigurationException('Failed to initialize WebDAV: $e', e);
     }
   }
 
@@ -107,8 +106,7 @@ class WebDAVProvider implements CloudProvider {
       return false;
     }
     // remotePath is optional
-    if (config.containsKey('remotePath') &&
-        config['remotePath'] is! String) {
+    if (config.containsKey('remotePath') && config['remotePath'] is! String) {
       return false;
     }
     return true;

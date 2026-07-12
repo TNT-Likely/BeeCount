@@ -176,7 +176,8 @@ class YearSummaryPoster extends StatelessWidget {
                   const SizedBox(width: 12),
                   // 年份标签
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
@@ -434,8 +435,10 @@ class YearSummaryPoster extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final formatter = NumberFormat('#,##0.00', 'zh_CN');
     final isPositive = data.balance >= 0;
-    final balanceColor = isPositive ? const Color(0xFF51CF66) : const Color(0xFFFF6B6B);
-    final balanceIcon = isPositive ? Icons.savings_rounded : Icons.warning_rounded;
+    final balanceColor =
+        isPositive ? const Color(0xFF51CF66) : const Color(0xFFFF6B6B);
+    final balanceIcon =
+        isPositive ? Icons.savings_rounded : Icons.warning_rounded;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -448,7 +451,9 @@ class YearSummaryPoster extends StatelessWidget {
           Icon(balanceIcon, color: balanceColor, size: 28),
           const SizedBox(width: 12),
           Text(
-            isPositive ? l10n.sharePosterYearBalance : l10n.sharePosterYearDeficit,
+            isPositive
+                ? l10n.sharePosterYearBalance
+                : l10n.sharePosterYearDeficit,
             style: TextStyle(
               fontSize: 20,
               color: balanceColor,
@@ -457,7 +462,9 @@ class YearSummaryPoster extends StatelessWidget {
           ),
           const Spacer(),
           Text(
-            hideIncome ? '**' : '${isPositive ? '+' : ''}${formatter.format(data.balance)}',
+            hideIncome
+                ? '**'
+                : '${isPositive ? '+' : ''}${formatter.format(data.balance)}',
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,

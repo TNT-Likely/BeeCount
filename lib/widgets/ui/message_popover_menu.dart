@@ -141,7 +141,8 @@ class _PopoverOverlayState extends State<_PopoverOverlay>
 
   @override
   void dispose() {
-    widget.route?.animation?.removeStatusListener(_routeAnimationStatusListener);
+    widget.route?.animation
+        ?.removeStatusListener(_routeAnimationStatusListener);
     WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     super.dispose();
@@ -178,19 +179,19 @@ class _PopoverOverlayState extends State<_PopoverOverlay>
     final topPadding = MediaQuery.of(context).padding.top + 56;
 
     return Stack(
-        children: [
-          // 背景遮罩（点击关闭），但不覆盖顶部 Header 区域
-          Positioned(
-            top: topPadding,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: GestureDetector(
-              onTap: _dismiss,
-              behavior: HitTestBehavior.opaque,
-              child: Container(color: Colors.transparent),
-            ),
+      children: [
+        // 背景遮罩（点击关闭），但不覆盖顶部 Header 区域
+        Positioned(
+          top: topPadding,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: GestureDetector(
+            onTap: _dismiss,
+            behavior: HitTestBehavior.opaque,
+            child: Container(color: Colors.transparent),
           ),
+        ),
         // 弹出菜单
         Positioned(
           left: widget.left,
@@ -259,8 +260,7 @@ class _PopoverOverlayState extends State<_PopoverOverlay>
     PopoverMenuItem item,
     bool isDark,
   ) {
-    final color = item.color ??
-        (isDark ? Colors.white : Colors.black87);
+    final color = item.color ?? (isDark ? Colors.white : Colors.black87);
 
     return InkWell(
       onTap: () async {

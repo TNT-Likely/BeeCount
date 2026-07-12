@@ -108,8 +108,8 @@ class _AISettingsPageState extends ConsumerState<AISettingsPage> {
               }
               await notifier.setEnabled(value);
               if (mounted) {
-                showToast(
-                    context, value ? l10n.aiEnableToastOn : l10n.aiEnableToastOff);
+                showToast(context,
+                    value ? l10n.aiEnableToastOn : l10n.aiEnableToastOff);
               }
             },
             title: Text(
@@ -175,7 +175,8 @@ class _AISettingsPageState extends ConsumerState<AISettingsPage> {
                 const SizedBox(width: 8),
                 Text(
                   l10n.aiCapabilitySelectTitle,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -337,13 +338,18 @@ class _AISettingsPageState extends ConsumerState<AISettingsPage> {
               return ListTile(
                 leading: Icon(
                   isSelected ? Icons.check_circle : Icons.circle_outlined,
-                  color: isSelected ? primaryColor : BeeTokens.textTertiary(context),
+                  color: isSelected
+                      ? primaryColor
+                      : BeeTokens.textTertiary(context),
                 ),
                 title: Text(
                   provider.name,
                   style: TextStyle(
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    color: isSelected ? primaryColor : BeeTokens.textPrimary(context),
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.normal,
+                    color: isSelected
+                        ? primaryColor
+                        : BeeTokens.textPrimary(context),
                   ),
                 ),
                 subtitle: provider.isValid
