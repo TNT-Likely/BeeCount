@@ -95,7 +95,9 @@ class LanguageSettingsPage extends ConsumerWidget {
                   locale: const Locale('ko'),
                   currentLanguage: currentLanguage,
                   onTap: () {
-                    ref.read(languageProvider.notifier).setLanguage(const Locale('ko'));
+                    ref
+                        .read(languageProvider.notifier)
+                        .setLanguage(const Locale('ko'));
                     Future.delayed(const Duration(milliseconds: 100), () {
                       updateAppWidget(ref, context);
                     });

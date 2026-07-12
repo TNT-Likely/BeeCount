@@ -38,8 +38,9 @@ class _GalaxyPainter extends CustomPainter {
     final w = size.width, h = size.height;
     final center = Offset(w * 0.5, h * 0.5);
     // 中心径向光晕
-    final glowColor =
-        isDark ? _lighten(primary, 0.1) : _lighten(_hueShift(primary, 30), 0.28);
+    final glowColor = isDark
+        ? _lighten(primary, 0.1)
+        : _lighten(_hueShift(primary, 30), 0.28);
     final glow = Paint()
       ..shader = RadialGradient(
         colors: [

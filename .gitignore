@@ -18,7 +18,6 @@ PROJECT_IMPROVEMENTS.md
 assets/config.json
 /marketing/
 
-
 # IntelliJ related
 *.iml
 *.ipr
@@ -64,3 +63,6 @@ tmp
 
 # visual brainstorm 临时文件
 .superpowers/
+
+# FVM Version Cache
+.fvm/

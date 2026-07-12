@@ -9,7 +9,14 @@ void main() {
   });
 
   // 本次新增的 6 款(纯 CustomPainter 绘制,不依赖 asset)。
-  const newSkins = ['silk', 'bubbles', 'galaxy', 'lowpoly', 'prism', 'terrazzo'];
+  const newSkins = [
+    'silk',
+    'bubbles',
+    'galaxy',
+    'lowpoly',
+    'prism',
+    'terrazzo'
+  ];
 
   test('新增 6 款皮肤都已注册', () {
     for (final id in newSkins) {

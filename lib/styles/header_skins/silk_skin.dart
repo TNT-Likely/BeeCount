@@ -40,7 +40,8 @@ class _SilkPainter extends CustomPainter {
     for (int i = 0; i < 5; i++) {
       final c = _hueShift(primary, i * 14.0 - 20);
       final color = isDark ? c : _lighten(c, 0.2);
-      final paint = Paint()..color = color.withValues(alpha: isDark ? 0.16 : 0.5);
+      final paint = Paint()
+        ..color = color.withValues(alpha: isDark ? 0.16 : 0.5);
       final path = Path()..moveTo(-20, h);
       for (double x = -20; x <= w + 20; x += 8) {
         final y = h * 0.5 + math.sin(x / 60 + i * 1.3) * h * 0.28 + i * 6 - 14;

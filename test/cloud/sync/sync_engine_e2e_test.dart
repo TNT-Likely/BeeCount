@@ -742,7 +742,8 @@ void main() {
       expect(pullEvents.last.applied, greaterThan(0));
     });
 
-    test('sync push 后清缓存 + emit,getStatus 从 localNewer 刷新为 inSync'
+    test(
+        'sync push 后清缓存 + emit,getStatus 从 localNewer 刷新为 inSync'
         '(修复:同步完成后「我的」页状态自动更新,不用手动下拉)', () async {
       final ledgerId = await db.into(db.ledgers).insert(
             LedgersCompanion.insert(

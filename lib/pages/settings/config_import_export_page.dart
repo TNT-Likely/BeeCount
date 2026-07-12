@@ -412,7 +412,8 @@ class _ConfigImportExportPageState
                         onTap: _isExporting ? null : _exportConfig,
                       ),
                       // Android平台显示导出路径和打开按钮
-                      if (Platform.isAndroid && _lastExportedFilePath != null) ...[
+                      if (Platform.isAndroid &&
+                          _lastExportedFilePath != null) ...[
                         BeeTokens.cardDivider(context),
                         Container(
                           padding: EdgeInsets.symmetric(

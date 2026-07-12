@@ -10,7 +10,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiConsentTitle => 'AI 기능을 켜기 전에';
 
   @override
-  String get aiConsentBody => 'AI 기능을 사용하면 관련 데이터가 사용자가 설정한 제3자 AI 제공업체로 전송됩니다:\n\n• 전송 대상: 기본값은 즈푸 GLM(open.bigmodel.cn, 즈푸 운영)이며, 다른 제3자 AI 서비스를 설정한 경우 해당 제공업체로 전송됩니다.\n• 전송 내용: 인식/대화를 위해 직접 사용하는 콘텐츠 — 영수증 이미지, 음성 녹음, 입력한 텍스트, 그리고 인식/분석을 완료하는 데 필요한 카테고리 이름, 계정 이름 및 관련 거래 기록.\n• 목적: 사용자가 직접 시작한 영수증 인식, 기록, 대화에만 사용되며 BeeCount 자체는 이 데이터를 수집하거나 저장하지 않습니다.\n\n해당 데이터는 제3자 제공업체의 자체 개인정보 처리방침에 따라 처리됩니다. 켜면 위와 같은 데이터 공유에 동의하는 것입니다.';
+  String get aiConsentBody =>
+      'AI 기능을 사용하면 관련 데이터가 사용자가 설정한 제3자 AI 제공업체로 전송됩니다:\n\n• 전송 대상: 기본값은 즈푸 GLM(open.bigmodel.cn, 즈푸 운영)이며, 다른 제3자 AI 서비스를 설정한 경우 해당 제공업체로 전송됩니다.\n• 전송 내용: 인식/대화를 위해 직접 사용하는 콘텐츠 — 영수증 이미지, 음성 녹음, 입력한 텍스트, 그리고 인식/분석을 완료하는 데 필요한 카테고리 이름, 계정 이름 및 관련 거래 기록.\n• 목적: 사용자가 직접 시작한 영수증 인식, 기록, 대화에만 사용되며 BeeCount 자체는 이 데이터를 수집하거나 저장하지 않습니다.\n\n해당 데이터는 제3자 제공업체의 자체 개인정보 처리방침에 따라 처리됩니다. 켜면 위와 같은 데이터 공유에 동의하는 것입니다.';
 
   @override
   String get aiConsentAgree => '동의하고 켜기';
@@ -129,7 +130,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get voiceRecordingPermissionDeniedTitle => '마이크 권한 필요';
 
   @override
-  String get voiceRecordingPermissionDeniedMessage => '음성 기록에는 마이크 권한이 필요합니다. 시스템 설정에서 BeeCount의 마이크 접근을 허용해 주세요.';
+  String get voiceRecordingPermissionDeniedMessage =>
+      '음성 기록에는 마이크 권한이 필요합니다. 시스템 설정에서 BeeCount의 마이크 접근을 허용해 주세요.';
 
   @override
   String voiceRecordingStartFailed(String error) {
@@ -452,10 +454,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchClearFilter => '필터 지우기';
 
   @override
-  String get searchBatchCategoryTransferError => '선택한 거래에 이체가 포함되어 있어 카테고리를 변경할 수 없습니다';
+  String get searchBatchCategoryTransferError =>
+      '선택한 거래에 이체가 포함되어 있어 카테고리를 변경할 수 없습니다';
 
   @override
-  String get searchBatchCategoryTypeError => '선택한 거래의 유형이 다릅니다. 수입 또는 지출 중 하나만 선택해 주세요';
+  String get searchBatchCategoryTypeError =>
+      '선택한 거래의 유형이 다릅니다. 수입 또는 지출 중 하나만 선택해 주세요';
 
   @override
   String get searchDateStart => '시작';
@@ -479,7 +483,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get analyticsTotalAmount => '합계';
 
   @override
-  String get analyticsNoDataSubtext => '좌우로 스와이프해 기간을 전환하거나 버튼을 눌러 수입/지출을 전환하세요';
+  String get analyticsNoDataSubtext =>
+      '좌우로 스와이프해 기간을 전환하거나 버튼을 눌러 수입/지출을 전환하세요';
 
   @override
   String get analyticsSwipeHint => '좌우로 스와이프해 기간 전환';
@@ -549,7 +554,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get ledgersDeleteConfirm => '가계부 삭제';
 
   @override
-  String get ledgersDeleteMessage => '이 가계부와 모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.\\n클라우드에 백업이 있는 경우 함께 삭제됩니다.';
+  String get ledgersDeleteMessage =>
+      '이 가계부와 모든 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.\\n클라우드에 백업이 있는 경우 함께 삭제됩니다.';
 
   @override
   String get ledgersDeleted => '삭제됨';
@@ -590,7 +596,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get ledgersMonthStartDay => '월 시작일';
 
   @override
-  String get ledgersMonthStartDayHint => '통계와 예산은 이 날짜(1~28)를 매월 기간의 시작으로 사용합니다';
+  String get ledgersMonthStartDayHint =>
+      '통계와 예산은 이 날짜(1~28)를 매월 기간의 시작으로 사용합니다';
 
   @override
   String get ledgersMonthStartDayNatural => '1일 (달력 기준)';
@@ -804,7 +811,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importCategoryMapping => '카테고리 매핑';
 
   @override
-  String get importNoDataParsed => '파싱된 데이터가 없습니다. 이전 페이지로 돌아가 CSV 내용이나 구분자를 확인해 주세요.';
+  String get importNoDataParsed =>
+      '파싱된 데이터가 없습니다. 이전 페이지로 돌아가 CSV 내용이나 구분자를 확인해 주세요.';
 
   @override
   String get importFieldDate => '날짜';
@@ -836,7 +844,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importCategoryNotSelected => '카테고리가 선택되지 않았습니다';
 
   @override
-  String get importCategoryMappingDescription => '각 카테고리 이름에 해당하는 로컬 카테고리를 선택하세요:';
+  String get importCategoryMappingDescription =>
+      '각 카테고리 이름에 해당하는 로컬 카테고리를 선택하세요:';
 
   @override
   String get importKeepOriginalName => '원래 이름 유지';
@@ -871,7 +880,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importInProgress => '가져오는 중';
 
   @override
-  String importProgressDetail(Object done, Object fail, Object ok, Object total) {
+  String importProgressDetail(
+      Object done, Object fail, Object ok, Object total) {
     return '$total건 중 $done건 가져옴, 성공 $ok, 실패 $fail';
   }
 
@@ -1258,7 +1268,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sharePosterSaveSuccess => '갤러리에 저장되었습니다';
 
   @override
-  String get shareGuidanceCopyText => 'BeeCount로 지출을 기록하세요 - 오픈소스, 무료, 광고 없음! 🐝 다운로드: https://github.com/TNT-Likely/BeeCount';
+  String get shareGuidanceCopyText =>
+      'BeeCount로 지출을 기록하세요 - 오픈소스, 무료, 광고 없음! 🐝 다운로드: https://github.com/TNT-Likely/BeeCount';
 
   @override
   String get shareGuidanceCopied => '텍스트가 복사되었습니다';
@@ -1539,7 +1550,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mineLogoutConfirmTitle => '로그아웃';
 
   @override
-  String get mineLogoutConfirmMessage => '로그아웃하시겠습니까?\n로그아웃하면 클라우드 동기화를 사용할 수 없습니다.';
+  String get mineLogoutConfirmMessage =>
+      '로그아웃하시겠습니까?\n로그아웃하면 클라우드 동기화를 사용할 수 없습니다.';
 
   @override
   String get mineLogoutButton => '로그아웃';
@@ -1557,7 +1569,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mineImportProgressTitle => '백그라운드에서 가져오는 중...';
 
   @override
-  String mineImportProgressSubtitle(Object done, Object fail, Object ok, Object total) {
+  String mineImportProgressSubtitle(
+      Object done, Object fail, Object ok, Object total) {
     return '진행: $done/$total, 성공 $ok, 실패 $fail';
   }
 
@@ -1639,7 +1652,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get githubStarGuideTitle => '프로젝트에 스타를 남기는 방법';
 
   @override
-  String get githubStarGuideContent => '아래 버튼을 눌러 GitHub를 연 후, 이미지에 표시된 영역을 눌러 스타를 완료하세요';
+  String get githubStarGuideContent =>
+      '아래 버튼을 눌러 GitHub를 연 후, 이미지에 표시된 영역을 눌러 스타를 완료하세요';
 
   @override
   String get githubStarGuideButton => 'GitHub로 이동';
@@ -1663,7 +1677,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryMigrationDescription => '카테고리 마이그레이션 안내';
 
   @override
-  String get categoryMigrationDescriptionContent => '• 한 카테고리의 모든 거래 기록을 다른 카테고리로 이전합니다\n• 마이그레이션 후 원본 카테고리의 모든 거래 데이터가 대상 카테고리로 옮겨집니다\n• 이 작업은 되돌릴 수 없으니 신중하게 선택해 주세요';
+  String get categoryMigrationDescriptionContent =>
+      '• 한 카테고리의 모든 거래 기록을 다른 카테고리로 이전합니다\n• 마이그레이션 후 원본 카테고리의 모든 거래 데이터가 대상 카테고리로 옮겨집니다\n• 이 작업은 되돌릴 수 없으니 신중하게 선택해 주세요';
 
   @override
   String get categoryMigrationTypeLabel => '유형 선택';
@@ -1690,7 +1705,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryMigrationCannotTitle => '마이그레이션 불가';
 
   @override
-  String get categoryMigrationCannotMessage => '선택한 카테고리는 마이그레이션할 수 없습니다. 카테고리 상태를 확인해 주세요.';
+  String get categoryMigrationCannotMessage =>
+      '선택한 카테고리는 마이그레이션할 수 없습니다. 카테고리 상태를 확인해 주세요.';
 
   @override
   String get categoryExpenseType => '지출 카테고리';
@@ -1873,7 +1889,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categorySubCategoryDescriptionEnabled => '이 카테고리는 상위 카테고리에 속합니다';
 
   @override
-  String get categorySubCategoryDescriptionDisabled => '이 카테고리는 독립적인 최상위 카테고리입니다';
+  String get categorySubCategoryDescriptionDisabled =>
+      '이 카테고리는 독립적인 최상위 카테고리입니다';
 
   @override
   String get categoryParentCategoryTitle => '상위 카테고리';
@@ -1896,10 +1913,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryParentRequiredTitle => '오류';
 
   @override
-  String get categoryExpenseList => '식사-교통-쇼핑-오락-홈리빙-가족-통신비-공과금-주거-의료-교육-반려동물-운동-디지털-여행-술담배-육아-미용-수리-인간관계-학습-자동차-택시-지하철-배달음식-관리비-주차-기부-선물-세금-음료-의류-간식-축의금-과일-게임-도서-데이트-인테리어-생활용품-복권-주식-사회보험-택배-업무';
+  String get categoryExpenseList =>
+      '식사-교통-쇼핑-오락-홈리빙-가족-통신비-공과금-주거-의료-교육-반려동물-운동-디지털-여행-술담배-육아-미용-수리-인간관계-학습-자동차-택시-지하철-배달음식-관리비-주차-기부-선물-세금-음료-의류-간식-축의금-과일-게임-도서-데이트-인테리어-생활용품-복권-주식-사회보험-택배-업무';
 
   @override
-  String get categoryIncomeList => '급여-투자-세뱃돈-보너스-환급-아르바이트-선물받음-이자-환불-투자수익-중고거래-사회복지-세금환급-주택공적금';
+  String get categoryIncomeList =>
+      '급여-투자-세뱃돈-보너스-환급-아르바이트-선물받음-이자-환불-투자수익-중고거래-사회복지-세금환급-주택공적금';
 
   @override
   String get categoryExpenseDining => '식사-아침-점심-저녁-배달의민족-쿠팡이츠-요기요-외식-식비';
@@ -2079,13 +2098,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appearanceAmountFormatCompact => '간략 표시';
 
   @override
-  String get appearanceAmountFormatCompactDesc => '큰 금액을 축약합니다. 예: 12.3K (계좌 잔액에만 적용)';
+  String get appearanceAmountFormatCompactDesc =>
+      '큰 금액을 축약합니다. 예: 12.3K (계좌 잔액에만 적용)';
 
   @override
   String get appearanceShowTransactionTime => '거래 시간 표시';
 
   @override
-  String get appearanceShowTransactionTimeDesc => '거래 목록에 시간을 표시하고, 편집 시 시간 선택을 허용합니다';
+  String get appearanceShowTransactionTimeDesc =>
+      '거래 목록에 시간을 표시하고, 편집 시 시간 선택을 허용합니다';
 
   @override
   String get appearanceNoteDisplay => '메모 표시';
@@ -2126,7 +2147,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get fontSettingsPreview => '실시간 미리보기';
 
   @override
-  String get fontSettingsPreviewText => '오늘 점심으로 23.50을 지출해서 기록했습니다;\n이번 달 45일 동안 320건 기록했습니다;\n꾸준함이 곧 성공입니다!';
+  String get fontSettingsPreviewText =>
+      '오늘 점심으로 23.50을 지출해서 기록했습니다;\n이번 달 45일 동안 320건 기록했습니다;\n꾸준함이 곧 성공입니다!';
 
   @override
   String fontSettingsCurrentLevel(Object level, Object scale) {
@@ -2140,7 +2162,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get fontSettingsCustomAdjust => '사용자 지정 조정';
 
   @override
-  String get fontSettingsDescription => '안내: 이 설정은 모든 기기에서 1.0배 기준으로 일관된 화면을 보장하며, 기기 간 차이는 자동으로 보정됩니다. 이 기준을 바탕으로 값을 조정해 개인화된 배율을 적용하세요.';
+  String get fontSettingsDescription =>
+      '안내: 이 설정은 모든 기기에서 1.0배 기준으로 일관된 화면을 보장하며, 기기 간 차이는 자동으로 보정됩니다. 이 기준을 바탕으로 값을 조정해 개인화된 배율을 적용하세요.';
 
   @override
   String get fontSettingsExtraSmall => '매우 작게';
@@ -2340,7 +2363,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get reminderChannelAdviceBanner => '• 배너 알림을 허용하세요';
 
   @override
-  String get reminderChannelAdviceXiaomi => '• 샤오미(Xiaomi) 기기는 채널을 개별적으로 설정해야 합니다';
+  String get reminderChannelAdviceXiaomi =>
+      '• 샤오미(Xiaomi) 기기는 채널을 개별적으로 설정해야 합니다';
 
   @override
   String get reminderChannelGood => '✅ 알림 채널이 잘 설정되어 있습니다';
@@ -2352,13 +2376,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get reminderAppSettingsMessage => '설정에서 알림을 허용하고 배터리 최적화를 꺼주세요';
 
   @override
-  String get reminderDescription => '팁: 기록 알림을 활성화하면 시스템이 매일 지정한 시간에 알림을 보내 수입과 지출 기록을 상기시켜 줍니다.';
+  String get reminderDescription =>
+      '팁: 기록 알림을 활성화하면 시스템이 매일 지정한 시간에 알림을 보내 수입과 지출 기록을 상기시켜 줍니다.';
 
   @override
-  String get reminderIOSInstructions => '🍎 iOS 알림 설정:\n• 설정 > 알림 > 꿀벌 가계부\n• \"알림 허용\" 활성화\n• 알림 스타일 설정: 배너 또는 알림창\n• 소리와 진동 활성화\n\n⚠️ 중요 안내:\n• iOS 로컬 알림은 앱 프로세스에 의존합니다\n• 작업 관리자에서 앱을 강제 종료하지 마세요\n• 앱이 백그라운드나 포그라운드에 있을 때 알림이 작동합니다\n• 강제 종료하면 알림이 작동하지 않습니다\n\n💡 사용 팁:\n• 홈 버튼을 눌러 앱을 종료하기만 하면 됩니다\n• iOS가 백그라운드 앱을 자동으로 관리합니다\n• 알림을 받으려면 앱을 백그라운드에 유지하세요';
+  String get reminderIOSInstructions =>
+      '🍎 iOS 알림 설정:\n• 설정 > 알림 > 꿀벌 가계부\n• \"알림 허용\" 활성화\n• 알림 스타일 설정: 배너 또는 알림창\n• 소리와 진동 활성화\n\n⚠️ 중요 안내:\n• iOS 로컬 알림은 앱 프로세스에 의존합니다\n• 작업 관리자에서 앱을 강제 종료하지 마세요\n• 앱이 백그라운드나 포그라운드에 있을 때 알림이 작동합니다\n• 강제 종료하면 알림이 작동하지 않습니다\n\n💡 사용 팁:\n• 홈 버튼을 눌러 앱을 종료하기만 하면 됩니다\n• iOS가 백그라운드 앱을 자동으로 관리합니다\n• 알림을 받으려면 앱을 백그라운드에 유지하세요';
 
   @override
-  String get reminderAndroidInstructions => '알림이 제대로 오지 않는다면 다음을 확인하세요:\n• 앱의 알림 전송이 허용되어 있는지\n• 앱의 배터리 최적화/절전 모드를 꺼두었는지\n• 앱의 백그라운드 실행과 자동 시작이 허용되어 있는지\n• Android 12 이상은 정확한 알람 권한이 필요합니다\n\n📱 샤오미(Xiaomi) 기기 특별 설정:\n• 설정 > 앱 관리 > 꿀벌 가계부 > 알림 관리\n• \"기록 알림\" 채널을 누르세요\n• 중요도를 \"긴급\" 또는 \"높음\"으로 설정하세요\n• \"배너 알림\", \"소리\", \"진동\"을 활성화하세요\n• 보안센터 > 앱 관리 > 권한 > 자동 실행\n\n🔒 백그라운드 고정 방법:\n• 최근 작업 목록에서 꿀벌 가계부를 찾으세요\n• 앱 카드를 아래로 당겨 잠금 아이콘을 표시하세요\n• 잠금 아이콘을 눌러 정리되지 않도록 하세요';
+  String get reminderAndroidInstructions =>
+      '알림이 제대로 오지 않는다면 다음을 확인하세요:\n• 앱의 알림 전송이 허용되어 있는지\n• 앱의 배터리 최적화/절전 모드를 꺼두었는지\n• 앱의 백그라운드 실행과 자동 시작이 허용되어 있는지\n• Android 12 이상은 정확한 알람 권한이 필요합니다\n\n📱 샤오미(Xiaomi) 기기 특별 설정:\n• 설정 > 앱 관리 > 꿀벌 가계부 > 알림 관리\n• \"기록 알림\" 채널을 누르세요\n• 중요도를 \"긴급\" 또는 \"높음\"으로 설정하세요\n• \"배너 알림\", \"소리\", \"진동\"을 활성화하세요\n• 보안센터 > 앱 관리 > 권한 > 자동 실행\n\n🔒 백그라운드 고정 방법:\n• 최근 작업 목록에서 꿀벌 가계부를 찾으세요\n• 앱 카드를 아래로 당겨 잠금 아이콘을 표시하세요\n• 잠금 아이콘을 눌러 정리되지 않도록 하세요';
 
   @override
   String get categoryDetailLoadFailed => '불러오기 실패';
@@ -2403,7 +2430,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryMigrationConfirmTitle => '마이그레이션 확인';
 
   @override
-  String categoryMigrationConfirmMessage(Object count, Object fromName, Object toName) {
+  String categoryMigrationConfirmMessage(
+      Object count, Object fromName, Object toName) {
     return '\"$fromName\"의 거래 $count건을 \"$toName\"(으)로 마이그레이션하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!';
   }
 
@@ -2414,7 +2442,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryMigrationCompleteTitle => '마이그레이션 완료';
 
   @override
-  String categoryMigrationCompleteMessage(Object count, Object fromName, Object toName) {
+  String categoryMigrationCompleteMessage(
+      Object count, Object fromName, Object toName) {
     return '\"$fromName\"의 거래 $count건을 \"$toName\"(으)로 마이그레이션했습니다.';
   }
 
@@ -2468,7 +2497,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudMultiDeviceWarningTitle => '여러 기기 사용 팁';
 
   @override
-  String get cloudMultiDeviceWarningMessage => '기기를 전환하기 전에 업로드하고, 새 기기에서는 편집 전에 다운로드하세요. 같은 가계부를 두 기기에서 동시에 편집하지 마세요. 자세히 보려면 눌러주세요 →';
+  String get cloudMultiDeviceWarningMessage =>
+      '기기를 전환하기 전에 업로드하고, 새 기기에서는 편집 전에 다운로드하세요. 같은 가계부를 두 기기에서 동시에 편집하지 마세요. 자세히 보려면 눌러주세요 →';
 
   @override
   String get cloudWebdavUrlLabel => 'WebDAV 서버 URL';
@@ -2570,7 +2600,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get authErrorInvalidCredentials => '이메일 또는 비밀번호가 올바르지 않습니다.';
 
   @override
-  String get authErrorEmailNotConfirmed => '이메일이 인증되지 않았습니다. 로그인하기 전에 이메일에서 인증을 완료해 주세요.';
+  String get authErrorEmailNotConfirmed =>
+      '이메일이 인증되지 않았습니다. 로그인하기 전에 이메일에서 인증을 완료해 주세요.';
 
   @override
   String get authErrorRateLimit => '시도 횟수가 너무 많습니다. 잠시 후 다시 시도해 주세요.';
@@ -2585,7 +2616,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get authErrorEmailInvalid => '이메일 주소가 올바르지 않습니다. 철자를 확인해 주세요.';
 
   @override
-  String get authErrorWeakPassword => '비밀번호가 너무 단순합니다. 영문과 숫자를 포함해 6자 이상 입력해 주세요.';
+  String get authErrorWeakPassword =>
+      '비밀번호가 너무 단순합니다. 영문과 숫자를 포함해 6자 이상 입력해 주세요.';
 
   @override
   String get importSelectCsvFile => '가져올 파일을 선택하세요 (CSV/TSV/XLSX 지원)';
@@ -2594,7 +2626,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get exportTitle => '내보내기';
 
   @override
-  String get exportDescription => '지원되는 내보내기 유형:\n• 거래 (수입/지출/이체)\n• 카테고리\n• 계정\n\n아래 버튼을 눌러 저장 위치를 선택하면 현재 가계부를 CSV 파일로 내보냅니다.';
+  String get exportDescription =>
+      '지원되는 내보내기 유형:\n• 거래 (수입/지출/이체)\n• 카테고리\n• 계정\n\n아래 버튼을 눌러 저장 위치를 선택하면 현재 가계부를 CSV 파일로 내보냅니다.';
 
   @override
   String get exportButtonIOS => '내보내기 및 공유';
@@ -2873,7 +2906,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateCannotOpenLink => '링크를 열 수 없습니다';
 
   @override
-  String get updateManualVisit => '브라우저에서 직접 방문해 주세요:\\nhttps://github.com/TNT-Likely/BeeCount/releases';
+  String get updateManualVisit =>
+      '브라우저에서 직접 방문해 주세요:\\nhttps://github.com/TNT-Likely/BeeCount/releases';
 
   @override
   String get updateNoLocalApkTitle => '업데이트 패키지를 찾을 수 없습니다';
@@ -2897,7 +2931,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateInstallFailedTitle => '설치 실패';
 
   @override
-  String get updateInstallFailedMessage => 'APK 설치 프로그램을 시작할 수 없습니다. 파일 권한을 확인해 주세요.';
+  String get updateInstallFailedMessage =>
+      'APK 설치 프로그램을 시작할 수 없습니다. 파일 권한을 확인해 주세요.';
 
   @override
   String get updateErrorTitle => '오류';
@@ -2930,7 +2965,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateDownloadCompletedManual => '다운로드가 완료되었습니다. 수동으로 설치할 수 있습니다';
 
   @override
-  String get updateDownloadCompletedDialog => '다운로드가 완료되었습니다. 수동으로 설치해 주세요 (대화상자 예외)';
+  String get updateDownloadCompletedDialog =>
+      '다운로드가 완료되었습니다. 수동으로 설치해 주세요 (대화상자 예외)';
 
   @override
   String get updateDownloadCompletedContext => '다운로드가 완료되었습니다. 수동으로 설치해 주세요';
@@ -2958,10 +2994,12 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get updateNoLocalApkFoundMessage => '다운로드된 업데이트 패키지 파일을 찾을 수 없습니다.\\n\\n먼저 \"업데이트 확인\"을 통해 새 버전을 다운로드해 주세요.';
+  String get updateNoLocalApkFoundMessage =>
+      '다운로드된 업데이트 패키지 파일을 찾을 수 없습니다.\\n\\n먼저 \"업데이트 확인\"을 통해 새 버전을 다운로드해 주세요.';
 
   @override
-  String updateInstallPackageFoundMessage(String fileName, String fileSize, String time) {
+  String updateInstallPackageFoundMessage(
+      String fileName, String fileSize, String time) {
     return '업데이트 패키지를 발견했습니다:\\n\\n파일명: $fileName\\n크기: ${fileSize}MB\\n다운로드 시각: $time\\n\\n지금 설치하시겠습니까?';
   }
 
@@ -2995,7 +3033,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateCachedVersionTitle => '다운로드된 버전을 발견했습니다';
 
   @override
-  String get updateCachedVersionMessage => '이전에 다운로드한 설치 패키지를 발견했습니다... \\\"확인\\\"을 눌러 지금 설치하거나, \\\"취소\\\"를 눌러 닫으세요...';
+  String get updateCachedVersionMessage =>
+      '이전에 다운로드한 설치 패키지를 발견했습니다... \\\"확인\\\"을 눌러 지금 설치하거나, \\\"취소\\\"를 눌러 닫으세요...';
 
   @override
   String get updateConfirmDownload => '지금 다운로드 및 설치';
@@ -3010,7 +3049,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateMirrorSelectTitle => '다운로드 가속 서버 선택';
 
   @override
-  String get updateMirrorSelectHint => '다운로드가 느리다면 가속 미러 서버를 선택하세요. \"테스트\"를 눌러 지연 시간을 확인할 수 있습니다.';
+  String get updateMirrorSelectHint =>
+      '다운로드가 느리다면 가속 미러 서버를 선택하세요. \"테스트\"를 눌러 지연 시간을 확인할 수 있습니다.';
 
   @override
   String get updateMirrorTestButton => '테스트';
@@ -3032,7 +3072,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateMirrorSettingTitle => '다운로드 가속 서버';
 
   @override
-  String get updateNotificationPermissionGuideText => '다운로드 진행 알림이 꺼져 있지만 다운로드 기능에는 영향이 없습니다. 진행 상황을 보려면:';
+  String get updateNotificationPermissionGuideText =>
+      '다운로드 진행 알림이 꺼져 있지만 다운로드 기능에는 영향이 없습니다. 진행 상황을 보려면:';
 
   @override
   String get updateNotificationGuideStep1 => '시스템 설정 > 앱 관리로 이동';
@@ -3188,7 +3229,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get webdavConfiguredTitle => 'WebDAV 클라우드 서비스가 설정되었습니다';
 
   @override
-  String get webdavConfiguredMessage => 'WebDAV 클라우드 서비스는 설정 시 입력한 인증 정보를 사용하므로 추가 로그인이 필요하지 않습니다.';
+  String get webdavConfiguredMessage =>
+      'WebDAV 클라우드 서비스는 설정 시 입력한 인증 정보를 사용하므로 추가 로그인이 필요하지 않습니다.';
 
   @override
   String get recurringTransactionTitle => '정기 결제';
@@ -3262,7 +3304,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get recurringTransactionUsageTitle => '사용 안내';
 
   @override
-  String get recurringTransactionUsageContent => '정기 결제는 앱을 완전히 새로 시작할 때 자동으로 스캔되어 생성됩니다. 날짜를 설정하면 해당 날짜 이후 처음 실행될 때 시스템이 관련 거래를 생성합니다. 예를 들어 11월 27일로 설정하면 11월 27일 이후 첫 실행 시 자동으로 거래가 기록됩니다.';
+  String get recurringTransactionUsageContent =>
+      '정기 결제는 앱을 완전히 새로 시작할 때 자동으로 스캔되어 생성됩니다. 날짜를 설정하면 해당 날짜 이후 처음 실행될 때 시스템이 관련 거래를 생성합니다. 예를 들어 11월 27일로 설정하면 11월 27일 이후 첫 실행 시 자동으로 거래가 기록됩니다.';
 
   @override
   String get ledgerSelectTitle => '가계부 선택';
@@ -3277,7 +3320,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get syncNotLoggedInMessage => '로그인하지 않음';
 
   @override
-  String get syncCloudBackupCorruptedMessage => '클라우드 백업 내용이 손상되었습니다. 이전 버전의 인코딩 문제일 수 있습니다. \'현재 가계부를 클라우드에 업로드\'를 눌러 덮어써 복구해 주세요.';
+  String get syncCloudBackupCorruptedMessage =>
+      '클라우드 백업 내용이 손상되었습니다. 이전 버전의 인코딩 문제일 수 있습니다. \'현재 가계부를 클라우드에 업로드\'를 눌러 덮어써 복구해 주세요.';
 
   @override
   String get syncNoCloudBackupMessage => '클라우드 백업이 없음';
@@ -3445,7 +3489,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudIcloudHelpFaq4 => '동일한 Apple ID를 사용하는 기기끼리 자동으로 동기화됩니다';
 
   @override
-  String get cloudIcloudHelpNote => 'iCloud 동기화는 Apple ID를 사용하므로 별도의 설정이 필요하지 않습니다';
+  String get cloudIcloudHelpNote =>
+      'iCloud 동기화는 Apple ID를 사용하므로 별도의 설정이 필요하지 않습니다';
 
   @override
   String get cloudSupabaseHelpTitle => 'Supabase 설정 가이드';
@@ -3607,7 +3652,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudS3HelpStep5 => '5. 엔드포인트, 액세스 키, 시크릿 키, 버킷 이름을 붙여넣으세요';
 
   @override
-  String get cloudS3HelpNote => '권장: Cloudflare R2는 10GB의 무료 저장 공간을 제공하며 트래픽 비용이 없습니다';
+  String get cloudS3HelpNote =>
+      '권장: Cloudflare R2는 10GB의 무료 저장 공간을 제공하며 트래픽 비용이 없습니다';
 
   @override
   String get cloudStatusNotTested => '테스트하지 않음';
@@ -3633,7 +3679,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudErrorWebdavNotSupported => '서버가 WebDAV 프로토콜을 지원하지 않습니다';
 
   @override
-  String get cloudErrorAuthFailedCredentials => '인증 실패: 사용자 이름 또는 비밀번호가 올바르지 않습니다';
+  String get cloudErrorAuthFailedCredentials =>
+      '인증 실패: 사용자 이름 또는 비밀번호가 올바르지 않습니다';
 
   @override
   String get cloudErrorAccessDenied => '접근 거부: 권한을 확인해 주세요';
@@ -3667,7 +3714,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudSwitchConfirmTitle => '클라우드 서비스 전환';
 
   @override
-  String get cloudSwitchConfirmMessage => '클라우드 서비스를 전환하면 현재 계정이 로그아웃됩니다. 전환하시겠습니까?';
+  String get cloudSwitchConfirmMessage =>
+      '클라우드 서비스를 전환하면 현재 계정이 로그아웃됩니다. 전환하시겠습니까?';
 
   @override
   String get cloudSwitchFailedTitle => '전환 실패';
@@ -3797,7 +3845,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateCorruptedFileTitle => '손상된 설치 패키지';
 
   @override
-  String get updateCorruptedFileMessage => '이전에 다운로드한 설치 패키지가 불완전하거나 손상되었습니다. 삭제하고 다시 다운로드하시겠습니까?';
+  String get updateCorruptedFileMessage =>
+      '이전에 다운로드한 설치 패키지가 불완전하거나 손상되었습니다. 삭제하고 다시 다운로드하시겠습니까?';
 
   @override
   String get welcomeTitle => 'BeeCount에 오신 것을 환영합니다';
@@ -3806,7 +3855,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get welcomeDescription => '사용자의 개인정보를 진심으로 존중하는 가계부 앱';
 
   @override
-  String get welcomeCurrencyDescription => '선호하는 통화를 선택하세요. 설정에서 언제든지 변경할 수 있습니다';
+  String get welcomeCurrencyDescription =>
+      '선호하는 통화를 선택하세요. 설정에서 언제든지 변경할 수 있습니다';
 
   @override
   String get welcomeCreateDefaultLedger => '기본 가계부 만들기';
@@ -3830,16 +3880,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get welcomeCloudSyncTitle => '선택적 클라우드 동기화';
 
   @override
-  String get welcomeCloudSyncDescription => 'BeeCount는 다양한 동기화 방식을 지원합니다 - 내 데이터는 내가 관리합니다';
+  String get welcomeCloudSyncDescription =>
+      'BeeCount는 다양한 동기화 방식을 지원합니다 - 내 데이터는 내가 관리합니다';
 
   @override
   String get welcomeCloudSyncFeature1 => '클라우드 없이 완전히 오프라인으로 사용 가능';
 
   @override
-  String get welcomeCloudSyncFeature2 => 'BeeCount 클라우드 셀프 호스팅 (실시간 다중 기기 + 웹 UI)';
+  String get welcomeCloudSyncFeature2 =>
+      'BeeCount 클라우드 셀프 호스팅 (실시간 다중 기기 + 웹 UI)';
 
   @override
-  String get welcomeCloudSyncFeature3 => '또는 iCloud / WebDAV / Supabase / S3 중 선택';
+  String get welcomeCloudSyncFeature3 =>
+      '또는 iCloud / WebDAV / Supabase / S3 중 선택';
 
   @override
   String get widgetManagement => '홈 화면 위젯';
@@ -3851,7 +3904,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get widgetPreview => '위젯 미리보기';
 
   @override
-  String get widgetPreviewDesc => '위젯은 현재 가계부의 실제 데이터를 자동으로 표시하며, 테마 색상은 앱 설정을 따릅니다';
+  String get widgetPreviewDesc =>
+      '위젯은 현재 가계부의 실제 데이터를 자동으로 표시하며, 테마 색상은 앱 설정을 따릅니다';
 
   @override
   String get howToAddWidget => '위젯 추가 방법';
@@ -3884,13 +3938,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aboutWidget => '위젯 정보';
 
   @override
-  String get widgetDescription => '위젯은 오늘과 이번 달의 수입/지출 데이터를 자동으로 동기화해 표시하며, 30분마다 새로고침됩니다. 앱을 열면 즉시 업데이트됩니다.';
+  String get widgetDescription =>
+      '위젯은 오늘과 이번 달의 수입/지출 데이터를 자동으로 동기화해 표시하며, 30분마다 새로고침됩니다. 앱을 열면 즉시 업데이트됩니다.';
 
   @override
   String get widgetQuickEntryTitle => '빠른 입력';
 
   @override
-  String get widgetQuickEntryDesc => '위젯의 왼쪽을 누르면 지출을 빠르게 추가하고, 오른쪽을 누르면 수입을 추가합니다. 단축어에서 beecount://new?type=transfer 를 사용해 이체를 빠르게 시작할 수도 있습니다.';
+  String get widgetQuickEntryDesc =>
+      '위젯의 왼쪽을 누르면 지출을 빠르게 추가하고, 오른쪽을 누르면 수입을 추가합니다. 단축어에서 beecount://new?type=transfer 를 사용해 이체를 빠르게 시작할 수도 있습니다.';
 
   @override
   String get appName => 'BeeCount';
@@ -3923,7 +3979,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get featureDescription => '기능 설명';
 
   @override
-  String get featureDescriptionContent => '결제 페이지를 스크린샷으로 찍으면 시스템이 자동으로 금액과 가맹점 정보를 인식해 지출 기록을 생성합니다.\n\n⚡ 인식 속도: 2~3초 (일부 기기에서는 더 걸릴 수 있음)\n🤖 스마트 카테고리 매칭\n📝 메모 자동 입력\n\n⚠️ 참고:\n• 기기마다 스크린샷 저장 속도가 달라 5~10초 정도 지연될 수 있습니다\n• 시스템 구현 방식에 따라 일부 기기에서는 작동하지 않을 수 있습니다\n• 이미 인식한 스크린샷은 자동으로 건너뜁니다\n• Android의 범위 지정 저장소 제한(Android 10 이상)으로 인해 앱이 시스템 스크린샷을 삭제할 수 없습니다. 수동으로 정리해야 합니다';
+  String get featureDescriptionContent =>
+      '결제 페이지를 스크린샷으로 찍으면 시스템이 자동으로 금액과 가맹점 정보를 인식해 지출 기록을 생성합니다.\n\n⚡ 인식 속도: 2~3초 (일부 기기에서는 더 걸릴 수 있음)\n🤖 스마트 카테고리 매칭\n📝 메모 자동 입력\n\n⚠️ 참고:\n• 기기마다 스크린샷 저장 속도가 달라 5~10초 정도 지연될 수 있습니다\n• 시스템 구현 방식에 따라 일부 기기에서는 작동하지 않을 수 있습니다\n• 이미 인식한 스크린샷은 자동으로 건너뜁니다\n• Android의 범위 지정 저장소 제한(Android 10 이상)으로 인해 앱이 시스템 스크린샷을 삭제할 수 없습니다. 수동으로 정리해야 합니다';
 
   @override
   String get autoBilling => '자동 기록';
@@ -3950,13 +4007,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get autoBillingBatteryGuideTitle => '배터리 최적화 설정';
 
   @override
-  String get autoBillingBatteryDesc => '자동 기록을 사용하려면 앱이 백그라운드에서 계속 실행되어야 합니다. 일부 기기는 화면이 꺼지면 백그라운드 앱을 자동으로 정리해 자동 기록이 실패할 수 있습니다. 정상 작동을 위해 배터리 최적화를 꺼두는 것을 권장합니다.';
+  String get autoBillingBatteryDesc =>
+      '자동 기록을 사용하려면 앱이 백그라운드에서 계속 실행되어야 합니다. 일부 기기는 화면이 꺼지면 백그라운드 앱을 자동으로 정리해 자동 기록이 실패할 수 있습니다. 정상 작동을 위해 배터리 최적화를 꺼두는 것을 권장합니다.';
 
   @override
   String get autoBillingCheckBattery => '배터리 최적화 확인';
 
   @override
-  String get autoBillingBatteryWarning => '⚠️ 배터리 최적화가 꺼져 있지 않습니다. 시스템이 앱을 자동으로 정리해 자동 기록이 실패할 수 있습니다. 위의 \"설정\" 버튼을 눌러 배터리 최적화를 꺼주세요.';
+  String get autoBillingBatteryWarning =>
+      '⚠️ 배터리 최적화가 꺼져 있지 않습니다. 시스템이 앱을 자동으로 정리해 자동 기록이 실패할 수 있습니다. 위의 \"설정\" 버튼을 눌러 배터리 최적화를 꺼주세요.';
 
   @override
   String get enableFailed => '활성화 실패';
@@ -3965,13 +4024,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get disableFailed => '비활성화 실패';
 
   @override
-  String get iosAutoFeatureDesc => 'iOS \"단축어\" 앱을 사용해 스크린샷에서 결제 정보를 자동으로 인식하고 거래를 생성합니다. 설정을 완료하면 스크린샷을 찍을 때마다 자동으로 실행됩니다.';
+  String get iosAutoFeatureDesc =>
+      'iOS \"단축어\" 앱을 사용해 스크린샷에서 결제 정보를 자동으로 인식하고 거래를 생성합니다. 설정을 완료하면 스크린샷을 찍을 때마다 자동으로 실행됩니다.';
 
   @override
   String get iosAutoShortcutConfigTitle => '설정 단계:';
 
   @override
-  String get iosAutoShortcutStep1 => '\"단축어\" 앱을 열고 오른쪽 상단의 \"+\"를 눌러 새 단축어를 만드세요';
+  String get iosAutoShortcutStep1 =>
+      '\"단축어\" 앱을 열고 오른쪽 상단의 \"+\"를 눌러 새 단축어를 만드세요';
 
   @override
   String get iosAutoShortcutStep2 => '\"스크린샷 찍기\" 동작을 추가하세요';
@@ -3980,22 +4041,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get iosAutoShortcutStep3 => '\"BeeCount - 자동 기록\" 동작을 검색해 추가하세요';
 
   @override
-  String get iosAutoShortcutStep4 => '\"BeeCount\"의 스크린샷 매개변수를 이전 단계의 \"스크린샷\"으로 설정하세요';
+  String get iosAutoShortcutStep4 =>
+      '\"BeeCount\"의 스크린샷 매개변수를 이전 단계의 \"스크린샷\"으로 설정하세요';
 
   @override
-  String get iosAutoShortcutStep5 => '(선택 사항) 설정 > 손쉬운 사용 > 터치 > 뒷면 탭으로 이동해 이 단축어를 연결하세요';
+  String get iosAutoShortcutStep5 =>
+      '(선택 사항) 설정 > 손쉬운 사용 > 터치 > 뒷면 탭으로 이동해 이 단축어를 연결하세요';
 
   @override
-  String get iosAutoShortcutStep6 => '완료! 결제할 때 휴대폰 뒷면을 두 번 두드리면 빠르게 기록할 수 있습니다';
+  String get iosAutoShortcutStep6 =>
+      '완료! 결제할 때 휴대폰 뒷면을 두 번 두드리면 빠르게 기록할 수 있습니다';
 
   @override
-  String get iosAutoShortcutRecommendedTip => '✅ 권장: 단축어를 \"뒷면 탭\"에 연결하면 결제 시 휴대폰 뒷면을 두 번 두드리는 것만으로 자동으로 스크린샷을 찍고 결제 내역을 인식합니다. 수동 스크린샷이 필요 없습니다.';
+  String get iosAutoShortcutRecommendedTip =>
+      '✅ 권장: 단축어를 \"뒷면 탭\"에 연결하면 결제 시 휴대폰 뒷면을 두 번 두드리는 것만으로 자동으로 스크린샷을 찍고 결제 내역을 인식합니다. 수동 스크린샷이 필요 없습니다.';
 
   @override
   String get iosAutoBackTapTitle => '💡 뒷면 두 번 탭으로 실행 (권장)';
 
   @override
-  String get iosAutoBackTapDesc => '설정 > 손쉬운 사용 > 터치 > 뒷면 탭\n• \"두 번 탭\" 또는 \"세 번 탭\"을 선택하세요\n• 방금 만든 단축어를 선택하세요\n• 설정 후에는 결제 시 휴대폰 뒷면을 두 번 두드리면 스크린샷 없이 자동으로 기록됩니다';
+  String get iosAutoBackTapDesc =>
+      '설정 > 손쉬운 사용 > 터치 > 뒷면 탭\n• \"두 번 탭\" 또는 \"세 번 탭\"을 선택하세요\n• 방금 만든 단축어를 선택하세요\n• 설정 후에는 결제 시 휴대폰 뒷면을 두 번 두드리면 스크린샷 없이 자동으로 기록됩니다';
 
   @override
   String get iosAutoTutorialTitle => '동영상 튜토리얼';
@@ -4007,7 +4073,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get iosAutoImportTitle => '한 번에 단축어 받기';
 
   @override
-  String get iosAutoImportDesc => '아래 버튼을 눌러 미리 만들어진 \"스크린샷 → 자동 기록\" 단축어를 가져오세요 — \"스크린샷 찍기\" 동작을 추가하거나 매개변수를 수동으로 연결할 필요가 없습니다. 가져온 후에는 \"뒷면 탭\"에 연결하는 것을 권장합니다.';
+  String get iosAutoImportDesc =>
+      '아래 버튼을 눌러 미리 만들어진 \"스크린샷 → 자동 기록\" 단축어를 가져오세요 — \"스크린샷 찍기\" 동작을 추가하거나 매개변수를 수동으로 연결할 필요가 없습니다. 가져온 후에는 \"뒷면 탭\"에 연결하는 것을 권장합니다.';
 
   @override
   String get iosAutoImportButton => '단축어 받기';
@@ -4019,7 +4086,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get iosAutoManualConfigTitle => '수동 설정 (고급)';
 
   @override
-  String get iosAutoManualConfigDesc => '한 번에 가져오기를 사용할 수 없다면 아래 단계를 따라 직접 단축어를 만드세요.';
+  String get iosAutoManualConfigDesc =>
+      '한 번에 가져오기를 사용할 수 없다면 아래 단계를 따라 직접 단축어를 만드세요.';
 
   @override
   String get aiSettingsTitle => 'AI 어시스턴트';
@@ -4031,7 +4099,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiEnableTitle => 'AI 어시스턴트 활성화';
 
   @override
-  String get aiEnableSubtitle => 'AI 비전으로 영수증 스크린샷을 인식해 금액, 가맹점, 시간을 추출하고 자연어 대화를 지원합니다';
+  String get aiEnableSubtitle =>
+      'AI 비전으로 영수증 스크린샷을 인식해 금액, 가맹점, 시간을 추출하고 자연어 대화를 지원합니다';
 
   @override
   String get aiEnableToastOn => 'AI 어시스턴트가 활성화되었습니다';
@@ -4099,7 +4168,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiOcrNoAmount => '유효한 금액을 인식하지 못했습니다. 직접 추가해 주세요';
 
   @override
-  String get aiNotConfiguredHint => 'AI 서비스가 설정되지 않았습니다. \"내 정보 → AI 설정\"에서 설정해 주세요.';
+  String get aiNotConfiguredHint =>
+      'AI 서비스가 설정되지 않았습니다. \"내 정보 → AI 설정\"에서 설정해 주세요.';
 
   @override
   String get aiOcrCheckLog => '인식에 실패했습니다. 자세한 내용은 로그를 확인해 주세요.';
@@ -4111,7 +4181,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiNotConfiguredNotificationTitle => '❌ 스크린샷을 인식할 수 없습니다';
 
   @override
-  String get aiNotConfiguredNotificationBody => 'AI 서비스가 설정되지 않았습니다. 눌러서 설정하세요.';
+  String get aiNotConfiguredNotificationBody =>
+      'AI 서비스가 설정되지 않았습니다. 눌러서 설정하세요.';
 
   @override
   String get autoBillingNotifyDetectedTitle => '✅ 스크린샷이 감지되었습니다';
@@ -4123,7 +4194,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get autoBillingNotifyRecognizingScreenshotTitle => '스크린샷 인식 중...';
 
   @override
-  String get autoBillingNotifyVisionAnalyzingBody => 'AI 비전으로 결제 정보를 분석하고 있습니다. 잠시만 기다려 주세요';
+  String get autoBillingNotifyVisionAnalyzingBody =>
+      'AI 비전으로 결제 정보를 분석하고 있습니다. 잠시만 기다려 주세요';
 
   @override
   String get autoBillingNotifyRecognizingTextTitle => '⏳ 인식 중';
@@ -4135,13 +4207,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get autoBillingNotifyRecognizeFailedTitle => '❌ 인식 실패';
 
   @override
-  String get autoBillingNotifyRecognizeFailedBody => '스크린샷에서 결제 정보를 추출하지 못했습니다. AI 설정이나 이미지를 확인해 주세요.';
+  String get autoBillingNotifyRecognizeFailedBody =>
+      '스크린샷에서 결제 정보를 추출하지 못했습니다. AI 설정이나 이미지를 확인해 주세요.';
 
   @override
   String get autoBillingNotifyNoBillTitle => '영수증을 찾을 수 없습니다';
 
   @override
-  String get autoBillingNotifyNoBillBody => '이 스크린샷에서 결제 정보를 찾지 못했습니다 — 영수증이 아닐 수 있습니다.';
+  String get autoBillingNotifyNoBillBody =>
+      '이 스크린샷에서 결제 정보를 찾지 못했습니다 — 영수증이 아닐 수 있습니다.';
 
   @override
   String get autoBillingNotifyFileUnavailableTitle => '인식 실패';
@@ -4153,7 +4227,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get autoBillingNotifyNoLedgerTitle => '❌ 자동 기록 실패';
 
   @override
-  String get autoBillingNotifyNoLedgerBody => '사용 가능한 가계부가 없습니다. 먼저 가계부를 만들어 주세요.';
+  String get autoBillingNotifyNoLedgerBody =>
+      '사용 가능한 가계부가 없습니다. 먼저 가계부를 만들어 주세요.';
 
   @override
   String get autoBillingNotifyNoAmountBody => '금액을 인식하지 못했습니다';
@@ -4227,58 +4302,69 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudTutorialTitle => '시작하기';
 
   @override
-  String get cloudTutorialIntro => 'BeeCount 클라우드는 실시간 다중 기기 협업을 지원하는 셀프 호스팅 동기화 서버입니다. 사용 방법은 간단합니다:';
+  String get cloudTutorialIntro =>
+      'BeeCount 클라우드는 실시간 다중 기기 협업을 지원하는 셀프 호스팅 동기화 서버입니다. 사용 방법은 간단합니다:';
 
   @override
   String get cloudTutorialStep1Title => '1단계: 서버 배포 또는 참여';
 
   @override
-  String get cloudTutorialStep1Desc => 'Docker 명령어 한 줄로 셀프 호스팅할 수 있습니다 (GitHub README의 Docker 가이드 참고). 또는 지인/팀이 운영하는 기존 BeeCount 클라우드 서버에 참여하세요.';
+  String get cloudTutorialStep1Desc =>
+      'Docker 명령어 한 줄로 셀프 호스팅할 수 있습니다 (GitHub README의 Docker 가이드 참고). 또는 지인/팀이 운영하는 기존 BeeCount 클라우드 서버에 참여하세요.';
 
   @override
   String get cloudTutorialStep2Title => '2단계: 계정 받기';
 
   @override
-  String get cloudTutorialStep2Desc => 'BeeCount 클라우드는 (공개 서버 악용을 막기 위해) 자체 가입 기능을 제공하지 않습니다. 직접 호스팅하는 경우: Docker를 처음 실행하면 로그에 무작위 관리자 이메일과 비밀번호가 출력되니 이를 사용하세요. 다른 사람의 서버에 참여하는 경우: 관리자에게 웹 → 사용자에서 계정을 만들어 달라고 요청하세요.';
+  String get cloudTutorialStep2Desc =>
+      'BeeCount 클라우드는 (공개 서버 악용을 막기 위해) 자체 가입 기능을 제공하지 않습니다. 직접 호스팅하는 경우: Docker를 처음 실행하면 로그에 무작위 관리자 이메일과 비밀번호가 출력되니 이를 사용하세요. 다른 사람의 서버에 참여하는 경우: 관리자에게 웹 → 사용자에서 계정을 만들어 달라고 요청하세요.';
 
   @override
   String get cloudTutorialStep3Title => '3단계: 로그인 및 동기화 활성화';
 
   @override
-  String get cloudTutorialStep3Desc => '앱에서 BeeCount 클라우드를 선택하고 서버 URL과 2단계에서 받은 계정을 입력하세요. 첫 로그인 시 로컬 가계부 전체가 업로드되며, 이후의 모든 변경 사항은 실시간으로 전송됩니다.';
+  String get cloudTutorialStep3Desc =>
+      '앱에서 BeeCount 클라우드를 선택하고 서버 URL과 2단계에서 받은 계정을 입력하세요. 첫 로그인 시 로컬 가계부 전체가 업로드되며, 이후의 모든 변경 사항은 실시간으로 전송됩니다.';
 
   @override
   String get cloudTutorialStep4Title => '4단계: 다른 기기에서 로그인';
 
   @override
-  String get cloudTutorialStep4Desc => '휴대폰 / 태블릿 / 웹 — 같은 계정으로 즉시 상태를 공유합니다. 변경 사항은 몇 초 안에 전파됩니다.';
+  String get cloudTutorialStep4Desc =>
+      '휴대폰 / 태블릿 / 웹 — 같은 계정으로 즉시 상태를 공유합니다. 변경 사항은 몇 초 안에 전파됩니다.';
 
   @override
   String get cloudTutorialTipTitle => '팁';
 
   @override
-  String get cloudTutorialTipDesc => '웹 UI는 서버 URL에 있습니다. 브라우저에서 열어 가계부와 멤버를 관리하고 로그를 확인하세요.';
+  String get cloudTutorialTipDesc =>
+      '웹 UI는 서버 URL에 있습니다. 브라우저에서 열어 가계부와 멤버를 관리하고 로그를 확인하세요.';
 
   @override
   String get cloudTutorialFeaturesTitle => '기능';
 
   @override
-  String get cloudTutorialFeature1 => '📱 실시간 다중 기기: 휴대폰 A + 휴대폰 B + 웹을 하나의 계정으로, 1초 이내 동기화';
+  String get cloudTutorialFeature1 =>
+      '📱 실시간 다중 기기: 휴대폰 A + 휴대폰 B + 웹을 하나의 계정으로, 1초 이내 동기화';
 
   @override
-  String get cloudTutorialFeature2 => '🌐 웹 UI 내장: Docker 이미지 하나에 서버와 웹이 모두 포함되어 바로 브라우저로 사용 가능';
+  String get cloudTutorialFeature2 =>
+      '🌐 웹 UI 내장: Docker 이미지 하나에 서버와 웹이 모두 포함되어 바로 브라우저로 사용 가능';
 
   @override
-  String get cloudTutorialFeature3 => '👥 다중 사용자 분리: 하나의 서버에 여러 사용자, 데이터는 완전히 분리';
+  String get cloudTutorialFeature3 =>
+      '👥 다중 사용자 분리: 하나의 서버에 여러 사용자, 데이터는 완전히 분리';
 
   @override
-  String get cloudTutorialFeature4 => '🤝 공유 가계부: 가족/팀을 초대해 하나의 가계부를 몇 초 단위로 동기화';
+  String get cloudTutorialFeature4 =>
+      '🤝 공유 가계부: 가족/팀을 초대해 하나의 가계부를 몇 초 단위로 동기화';
 
   @override
   String get cloudTutorialGotIt => '확인했습니다';
 
   @override
-  String get cloudSyncHint => '다운로드 시 차이점을 자동으로 비교해 선택적으로 미리 볼 수 있습니다. 실시간이 아니므로 여러 기기에서 동시에 같은 가계부를 편집하지 마세요. 동기화 범위는 가계부 데이터(연결된 계정, 카테고리, 태그 포함)이며 첨부파일은 제외됩니다.';
+  String get cloudSyncHint =>
+      '다운로드 시 차이점을 자동으로 비교해 선택적으로 미리 볼 수 있습니다. 실시간이 아니므로 여러 기기에서 동시에 같은 가계부를 편집하지 마세요. 동기화 범위는 가계부 데이터(연결된 계정, 카테고리, 태그 포함)이며 첨부파일은 제외됩니다.';
 
   @override
   String get cloudSyncNow => '지금 동기화';
@@ -4310,7 +4396,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dataManagementPageSubtitle => '거래 데이터와 카테고리를 관리하세요';
 
   @override
-  String get dataManagementAttachmentHint => '데이터를 복원할 때는 먼저 첨부파일 패키지를 가져온 후 가계부 데이터(CSV 또는 클라우드 동기화)를 가져와야 첨부파일이 올바르게 연결됩니다.';
+  String get dataManagementAttachmentHint =>
+      '데이터를 복원할 때는 먼저 첨부파일 패키지를 가져온 후 가계부 데이터(CSV 또는 클라우드 동기화)를 가져와야 첨부파일이 올바르게 연결됩니다.';
 
   @override
   String get smartBilling => '스마트 기록';
@@ -4325,7 +4412,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smartBillingPageSubtitle => 'AI 및 자동화 기록 기능';
 
   @override
-  String get smartBillingGuideHint => '홈 화면 하단 중앙의 + 버튼을 길게 눌러 이 기능들을 빠르게 사용할 수 있습니다';
+  String get smartBillingGuideHint =>
+      '홈 화면 하단 중앙의 + 버튼을 길게 눌러 이 기능들을 빠르게 사용할 수 있습니다';
 
   @override
   String get smartBillingImageBilling => '이미지로 기록';
@@ -4334,10 +4422,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smartBillingImageBillingDesc => '갤러리에서 결제 스크린샷을 선택해 인식합니다';
 
   @override
-  String get smartBillingImageBillingGuide => '홈 화면 하단 중앙의 + 버튼을 길게 누르고 \'갤러리\'를 선택하면 이미지로 기록할 수 있습니다. \"내 정보 → AI 설정\"에서 AI 서비스를 설정해야 하며, 비전 모델이 스크린샷에서 금액, 가맹점, 시간 등을 추출합니다.';
+  String get smartBillingImageBillingGuide =>
+      '홈 화면 하단 중앙의 + 버튼을 길게 누르고 \'갤러리\'를 선택하면 이미지로 기록할 수 있습니다. \"내 정보 → AI 설정\"에서 AI 서비스를 설정해야 하며, 비전 모델이 스크린샷에서 금액, 가맹점, 시간 등을 추출합니다.';
 
   @override
-  String get smartBillingVisionAIRequired => '이미지 인식에는 AI 비전 서비스가 필요합니다. 먼저 \"내 정보 → AI 설정\"에서 설정해 주세요.';
+  String get smartBillingVisionAIRequired =>
+      '이미지 인식에는 AI 비전 서비스가 필요합니다. 먼저 \"내 정보 → AI 설정\"에서 설정해 주세요.';
 
   @override
   String get smartBillingCameraBilling => '카메라로 기록';
@@ -4346,7 +4436,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smartBillingCameraBillingDesc => '결제 화면을 촬영해 인식합니다';
 
   @override
-  String get smartBillingCameraBillingGuide => '홈 화면 하단 중앙의 + 버튼을 길게 누르고 \'카메라\'를 선택하면 카메라로 기록할 수 있습니다. \"내 정보 → AI 설정\"에서 AI 서비스를 설정해야 하며, 비전 모델이 사진에서 금액, 가맹점, 시간 등을 추출합니다.';
+  String get smartBillingCameraBillingGuide =>
+      '홈 화면 하단 중앙의 + 버튼을 길게 누르고 \'카메라\'를 선택하면 카메라로 기록할 수 있습니다. \"내 정보 → AI 설정\"에서 AI 서비스를 설정해야 하며, 비전 모델이 사진에서 금액, 가맹점, 시간 등을 추출합니다.';
 
   @override
   String get smartBillingVoiceBilling => '음성으로 기록';
@@ -4355,10 +4446,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smartBillingVoiceBillingDesc => '음성 입력으로 빠르게 기록합니다';
 
   @override
-  String get smartBillingVoiceBillingGuide => '홈 화면 하단 중앙의 + 버튼을 길게 누르고 \'음성\'을 선택하면 음성으로 기록할 수 있습니다. 음성 기록에는 음성을 텍스트로 변환하고 영수증 정보를 추출하는 AI가 필요합니다.';
+  String get smartBillingVoiceBillingGuide =>
+      '홈 화면 하단 중앙의 + 버튼을 길게 누르고 \'음성\'을 선택하면 음성으로 기록할 수 있습니다. 음성 기록에는 음성을 텍스트로 변환하고 영수증 정보를 추출하는 AI가 필요합니다.';
 
   @override
-  String get smartBillingAIRequired => '음성 기록에는 AI 음성 서비스가 필요합니다. 먼저 \"내 정보 → AI 설정\"에서 설정해 주세요.';
+  String get smartBillingAIRequired =>
+      '음성 기록에는 AI 음성 서비스가 필요합니다. 먼저 \"내 정보 → AI 설정\"에서 설정해 주세요.';
 
   @override
   String get smartBillingAutoTags => '태그 자동 연결';
@@ -4370,7 +4463,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smartBillingAutoAttachment => '첨부파일 자동 추가';
 
   @override
-  String get smartBillingAutoAttachmentDesc => '사진으로 기록할 때 원본 이미지를 자동으로 첨부파일로 추가합니다';
+  String get smartBillingAutoAttachmentDesc =>
+      '사진으로 기록할 때 원본 이미지를 자동으로 첨부파일로 추가합니다';
 
   @override
   String get autoScreenshotBillingIosTitle => '자동 기록';
@@ -4385,10 +4479,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get shareBillingDesc => '알리페이/위챗의 결제 스크린샷을 공유해 기록합니다';
 
   @override
-  String get shareBillingGuide => '알리페이, 위챗, 사진 앱 등에서 결제 스크린샷을 보면 \"공유\"를 누르고 \"BeeCount\"를 선택하세요. 금액, 가맹점, 시간을 자동으로 인식해 거래를 생성합니다 — 스크린샷을 먼저 저장할 필요가 없습니다.';
+  String get shareBillingGuide =>
+      '알리페이, 위챗, 사진 앱 등에서 결제 스크린샷을 보면 \"공유\"를 누르고 \"BeeCount\"를 선택하세요. 금액, 가맹점, 시간을 자동으로 인식해 거래를 생성합니다 — 스크린샷을 먼저 저장할 필요가 없습니다.';
 
   @override
-  String get shareBillingActionHint => '공유 후 백그라운드에서 자동으로 인식됩니다 — BeeCount를 열 필요가 없습니다';
+  String get shareBillingActionHint =>
+      '공유 후 백그라운드에서 자동으로 인식됩니다 — BeeCount를 열 필요가 없습니다';
 
   @override
   String get automation => '자동화';
@@ -4460,7 +4556,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aboutDeveloperStoryTitle => '개발자로부터';
 
   @override
-  String get aboutDeveloperStory => '저는 2015년 인턴 시절부터 가계부를 쓰기 시작해서 10년 넘게 그 습관을 이어오고 있습니다. 광고, 유료 결제, 개인정보 유출 위험, 그리고 앱 서비스 종료에 대한 걱정 때문에 직접 만들어보기로 했습니다 — 처음에는 저와 가족을 위한 작은 도구로 시작했죠.\n\n2025년 9월, BeeCount의 첫 버전을 출시했습니다. 솔직히 누가 써줄지 전혀 알 수 없었습니다. 하지만 점차 피드백이 들어오기 시작했습니다 — 드디어 깔끔한 가계부 앱을 찾았다는 분도 있었고, 좋은 제안을 해주신 분도 있었고, 조용히 별점 5개를 남겨주신 분도 있었습니다. 그 하나하나의 메시지가 계속할 가치가 있다는 걸 일깨워 주었습니다.\n\nBeeCount는 광고도, 구독료도 없는 완전한 오픈소스입니다. 모든 데이터는 사용자의 기기에만 저장되며 어떤 제3자 서버로도 업로드되지 않습니다. 하지만 앱을 출시하고 유지하는 데는 비용이 듭니다 — 개발자 계정, 서버 등의 비용은 현재 커뮤니티 후원으로 충당하고 있으며, 모든 시스템 업데이트와 버그 수정, 신규 기능은 본업 외 시간에 만들고 있습니다.\n\nBeeCount가 도움이 되셨다면, 평점이나 공유, 후원 한 번이 이 작은 프로젝트가 더 멀리 나아가는 데 큰 힘이 됩니다. 믿어주셔서 감사합니다.';
+  String get aboutDeveloperStory =>
+      '저는 2015년 인턴 시절부터 가계부를 쓰기 시작해서 10년 넘게 그 습관을 이어오고 있습니다. 광고, 유료 결제, 개인정보 유출 위험, 그리고 앱 서비스 종료에 대한 걱정 때문에 직접 만들어보기로 했습니다 — 처음에는 저와 가족을 위한 작은 도구로 시작했죠.\n\n2025년 9월, BeeCount의 첫 버전을 출시했습니다. 솔직히 누가 써줄지 전혀 알 수 없었습니다. 하지만 점차 피드백이 들어오기 시작했습니다 — 드디어 깔끔한 가계부 앱을 찾았다는 분도 있었고, 좋은 제안을 해주신 분도 있었고, 조용히 별점 5개를 남겨주신 분도 있었습니다. 그 하나하나의 메시지가 계속할 가치가 있다는 걸 일깨워 주었습니다.\n\nBeeCount는 광고도, 구독료도 없는 완전한 오픈소스입니다. 모든 데이터는 사용자의 기기에만 저장되며 어떤 제3자 서버로도 업로드되지 않습니다. 하지만 앱을 출시하고 유지하는 데는 비용이 듭니다 — 개발자 계정, 서버 등의 비용은 현재 커뮤니티 후원으로 충당하고 있으며, 모든 시스템 업데이트와 버그 수정, 신규 기능은 본업 외 시간에 만들고 있습니다.\n\nBeeCount가 도움이 되셨다면, 평점이나 공유, 후원 한 번이 이 작은 프로젝트가 더 멀리 나아가는 데 큰 힘이 됩니다. 믿어주셔서 감사합니다.';
 
   @override
   String get aboutRelatedProducts => '더 많은 제품';
@@ -4472,7 +4569,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aboutBeeAssetsSubtitle => '전체 자산 포트폴리오를 시각화하세요';
 
   @override
-  String get aboutBeeAssetsIntro => 'BeeCount가 일상적인 현금 흐름에 집중한다면, BeeAssets는 그 자매 제품으로 자산 포트폴리오 시각화에 집중합니다: 계좌별 순자산 추이, 부동산/투자/암호화폐 분류, 수익률, 보유 기간, 자산 배분 분석까지 확인할 수 있습니다.';
+  String get aboutBeeAssetsIntro =>
+      'BeeCount가 일상적인 현금 흐름에 집중한다면, BeeAssets는 그 자매 제품으로 자산 포트폴리오 시각화에 집중합니다: 계좌별 순자산 추이, 부동산/투자/암호화폐 분류, 수익률, 보유 기간, 자산 배분 분석까지 확인할 수 있습니다.';
 
   @override
   String get aboutBeeDNS => 'BeeDNS';
@@ -4481,13 +4579,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aboutBeeDNSSubtitle => '간단하고 효율적인 DNS 관리 도구';
 
   @override
-  String get aboutBeeDNSIntro => 'Cloudflare와 Aliyun에 도메인이 흩어져 있나요? BeeDNS는 이를 한곳에 모아줍니다: 레코드 일괄 편집, A/AAAA 전환, 리졸루션 이전, 서브도메인 일괄 관리까지 — 더 이상 여러 제공업체 콘솔을 오갈 필요가 없습니다.';
+  String get aboutBeeDNSIntro =>
+      'Cloudflare와 Aliyun에 도메인이 흩어져 있나요? BeeDNS는 이를 한곳에 모아줍니다: 레코드 일괄 편집, A/AAAA 전환, 리졸루션 이전, 서브도메인 일괄 관리까지 — 더 이상 여러 제공업체 콘솔을 오갈 필요가 없습니다.';
 
   @override
   String get productPromoAndroidTitle => '베타 접근 요청';
 
   @override
-  String get productPromoAndroidMessage => '이 앱은 현재 Google Play에서 비공개 테스트 중이며 초대를 통해서만 이용할 수 있습니다.\n\n신청 방법: Google 계정 이메일(필수)과 간단한 사용 목적(선택)을 적어 이메일을 보내주세요. 1~3일 내로 답변드리고 베타 화이트리스트에 추가해 드립니다.';
+  String get productPromoAndroidMessage =>
+      '이 앱은 현재 Google Play에서 비공개 테스트 중이며 초대를 통해서만 이용할 수 있습니다.\n\n신청 방법: Google 계정 이메일(필수)과 간단한 사용 목적(선택)을 적어 이메일을 보내주세요. 1~3일 내로 답변드리고 베타 화이트리스트에 추가해 드립니다.';
 
   @override
   String get productPromoOpenStore => '앱스토어에서 열기';
@@ -4505,7 +4605,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get productPromoCopiedToast => '이메일 주소가 클립보드에 복사되었습니다';
 
   @override
-  String get productPromoMailUnavailable => '메일 앱을 찾을 수 없습니다. 주소가 복사되었으니 아무 메일 앱에나 붙여넣어 보내주세요.';
+  String get productPromoMailUnavailable =>
+      '메일 앱을 찾을 수 없습니다. 주소가 복사되었으니 아무 메일 앱에나 붙여넣어 보내주세요.';
 
   @override
   String get productPromoEmailButton => '이메일 보내기';
@@ -4560,7 +4661,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get logCenterClearConfirmTitle => '로그 지우기';
 
   @override
-  String get logCenterClearConfirmMessage => '모든 로그를 지우시겠습니까? 이 작업은 되돌릴 수 없습니다.';
+  String get logCenterClearConfirmMessage =>
+      '모든 로그를 지우시겠습니까? 이 작업은 되돌릴 수 없습니다.';
 
   @override
   String get logCenterCleared => '로그가 지워졌습니다';
@@ -4578,7 +4680,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get configImportExportInfoTitle => '기능 설명';
 
   @override
-  String get configImportExportInfoMessage => '이 기능은 클라우드 서비스 설정, AI 설정 등 앱 설정을 내보내고 가져오는 데 사용됩니다. 설정 파일은 확인과 편집이 쉬운 YAML 형식을 사용합니다.\n\n⚠️ 설정 파일에는 API 키, 비밀번호 등 민감한 정보가 포함되어 있으니 안전하게 보관해 주세요.';
+  String get configImportExportInfoMessage =>
+      '이 기능은 클라우드 서비스 설정, AI 설정 등 앱 설정을 내보내고 가져오는 데 사용됩니다. 설정 파일은 확인과 편집이 쉬운 YAML 형식을 사용합니다.\n\n⚠️ 설정 파일에는 API 키, 비밀번호 등 민감한 정보가 포함되어 있으니 안전하게 보관해 주세요.';
 
   @override
   String get configExportTitle => '설정 내보내기';
@@ -4700,7 +4803,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get ledgersConflictTitle => '동기화 충돌';
 
   @override
-  String get ledgersConflictMessage => '로컬과 클라우드 가계부 데이터가 일치하지 않습니다. 처리 방법을 선택해 주세요:';
+  String get ledgersConflictMessage =>
+      '로컬과 클라우드 가계부 데이터가 일치하지 않습니다. 처리 방법을 선택해 주세요:';
 
   @override
   String ledgersConflictLocalInfo(int count) {
@@ -4941,7 +5045,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get iosVersionWarningTitle => 'iOS 16.0 이상이 필요합니다';
 
   @override
-  String get iosVersionWarningDesc => '스크린샷 자동 기록 기능은 iOS 16에서 도입된 App Intents 프레임워크를 사용합니다. 사용 중인 기기는 이전 버전이라 이 기능을 지원하지 않습니다.\n\n이 기능을 사용하려면 iOS 16 이상으로 업그레이드해 주세요.';
+  String get iosVersionWarningDesc =>
+      '스크린샷 자동 기록 기능은 iOS 16에서 도입된 App Intents 프레임워크를 사용합니다. 사용 중인 기기는 이전 버전이라 이 기능을 지원하지 않습니다.\n\n이 기능을 사용하려면 iOS 16 이상으로 업그레이드해 주세요.';
 
   @override
   String get aiChatTitle => 'AI 어시스턴트';
@@ -4953,7 +5058,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiChatClearHistoryDialogTitle => '대화 기록 지우기';
 
   @override
-  String get aiChatClearHistoryDialogContent => '모든 대화 기록을 지우시겠습니까? 이 작업은 되돌릴 수 없습니다.';
+  String get aiChatClearHistoryDialogContent =>
+      '모든 대화 기록을 지우시겠습니까? 이 작업은 되돌릴 수 없습니다.';
 
   @override
   String get aiChatInputHint => '예: 커피 한 잔에 3,500원 썼어';
@@ -5031,10 +5137,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get donationDescription => '설명';
 
   @override
-  String get donationDescriptionDetail => 'BeeCount를 사용해 주셔서 감사합니다! 이 앱이 도움이 되었다면 개발자에게 커피 한 잔을 사주는 것으로 응원해 주세요. 여러분의 후원이 계속 발전할 수 있는 원동력이 됩니다.';
+  String get donationDescriptionDetail =>
+      'BeeCount를 사용해 주셔서 감사합니다! 이 앱이 도움이 되었다면 개발자에게 커피 한 잔을 사주는 것으로 응원해 주세요. 여러분의 후원이 계속 발전할 수 있는 원동력이 됩니다.';
 
   @override
-  String get donationNoFeatures => '안내: 후원해도 별도 기능이 잠금 해제되지 않습니다. 모든 기능은 완전히 무료로 유지됩니다.';
+  String get donationNoFeatures =>
+      '안내: 후원해도 별도 기능이 잠금 해제되지 않습니다. 모든 기능은 완전히 무료로 유지됩니다.';
 
   @override
   String get donationNoProducts => '이용 가능한 상품이 없습니다';
@@ -5054,7 +5162,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiQuickCommandFinancialHealthDesc => '수입-지출 균형과 저축률을 분석합니다';
 
   @override
-  String get aiQuickCommandFinancialHealthPrompt => '다음 데이터를 바탕으로 제 재정 건강 상태를 분석해 주세요:\n\n[monthlyStats]\n\n[recentTrends]\n\n수입-지출 균형, 저축률, 소비 추세 관점에서 전문적인 분석과 제안을 제공해 주세요. 한국어로 답변해 주세요.';
+  String get aiQuickCommandFinancialHealthPrompt =>
+      '다음 데이터를 바탕으로 제 재정 건강 상태를 분석해 주세요:\n\n[monthlyStats]\n\n[recentTrends]\n\n수입-지출 균형, 저축률, 소비 추세 관점에서 전문적인 분석과 제안을 제공해 주세요. 한국어로 답변해 주세요.';
 
   @override
   String get aiQuickCommandMonthlyExpenseTitle => '월간 지출 요약';
@@ -5063,7 +5172,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiQuickCommandMonthlyExpenseDesc => '월간 지출 분석과 제안';
 
   @override
-  String get aiQuickCommandMonthlyExpensePrompt => '다음 데이터를 바탕으로 제 월간 지출을 요약해 주세요:\n\n[monthlyStats]\n\n[categoryStats]\n\n어느 카테고리의 비중이 가장 높은지 분석하고 개선 제안을 제공해 주세요. 한국어로 답변해 주세요.';
+  String get aiQuickCommandMonthlyExpensePrompt =>
+      '다음 데이터를 바탕으로 제 월간 지출을 요약해 주세요:\n\n[monthlyStats]\n\n[categoryStats]\n\n어느 카테고리의 비중이 가장 높은지 분석하고 개선 제안을 제공해 주세요. 한국어로 답변해 주세요.';
 
   @override
   String get aiQuickCommandCategoryAnalysisTitle => '카테고리 분석';
@@ -5072,7 +5182,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiQuickCommandCategoryAnalysisDesc => '카테고리별 지출 분포를 분석합니다';
 
   @override
-  String get aiQuickCommandCategoryAnalysisPrompt => '다음 데이터를 바탕으로 카테고리별 지출을 분석해 주세요:\n\n[categoryStats]\n\n불합리한 지출 비율이 있는지 짚어주고 개선 제안을 제공해 주세요. 한국어로 답변해 주세요.';
+  String get aiQuickCommandCategoryAnalysisPrompt =>
+      '다음 데이터를 바탕으로 카테고리별 지출을 분석해 주세요:\n\n[categoryStats]\n\n불합리한 지출 비율이 있는지 짚어주고 개선 제안을 제공해 주세요. 한국어로 답변해 주세요.';
 
   @override
   String get aiQuickCommandBudgetPlanningTitle => '예산 계획';
@@ -5081,7 +5192,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiQuickCommandBudgetPlanningDesc => '스마트 예산 제안';
 
   @override
-  String get aiQuickCommandBudgetPlanningPrompt => '다음 데이터를 바탕으로 합리적인 예산을 계획하도록 도와주세요:\n\n[monthlyStats]\n\n[recentTrends]\n\n카테고리별 구체적인 예산 금액과 실행 제안을 제공해 주세요. 한국어로 답변해 주세요.';
+  String get aiQuickCommandBudgetPlanningPrompt =>
+      '다음 데이터를 바탕으로 합리적인 예산을 계획하도록 도와주세요:\n\n[monthlyStats]\n\n[recentTrends]\n\n카테고리별 구체적인 예산 금액과 실행 제안을 제공해 주세요. 한국어로 답변해 주세요.';
 
   @override
   String get aiQuickCommandAbnormalExpenseTitle => '이상 지출 알림';
@@ -5090,7 +5202,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiQuickCommandAbnormalExpenseDesc => '특이한 지출을 찾아냅니다';
 
   @override
-  String get aiQuickCommandAbnormalExpensePrompt => '다음 데이터를 바탕으로 이상한 지출이 있는지 확인해 주세요:\n\n[recentTransactions]\n\n[monthlyStats]\n\n평소보다 눈에 띄게 높은 지출을 찾아 분석해 주세요. 한국어로 답변해 주세요.';
+  String get aiQuickCommandAbnormalExpensePrompt =>
+      '다음 데이터를 바탕으로 이상한 지출이 있는지 확인해 주세요:\n\n[recentTransactions]\n\n[monthlyStats]\n\n평소보다 눈에 띄게 높은 지출을 찾아 분석해 주세요. 한국어로 답변해 주세요.';
 
   @override
   String get aiQuickCommandSavingTipsTitle => '절약 팁';
@@ -5099,7 +5212,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiQuickCommandSavingTipsDesc => '개인 맞춤형 절약 제안';
 
   @override
-  String get aiQuickCommandSavingTipsPrompt => '다음 데이터를 바탕으로 실용적인 절약 제안을 제공해 주세요:\n\n[categoryStats]\n\n[recentTrends]\n\n구체적이고 실천 가능한 제안을 3~5가지 제공해 주세요. 한국어로 답변해 주세요.';
+  String get aiQuickCommandSavingTipsPrompt =>
+      '다음 데이터를 바탕으로 실용적인 절약 제안을 제공해 주세요:\n\n[categoryStats]\n\n[recentTrends]\n\n구체적이고 실천 가능한 제안을 3~5가지 제공해 주세요. 한국어로 답변해 주세요.';
 
   @override
   String get billCardUnknownLedger => '알 수 없는 가계부';
@@ -5120,7 +5234,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiPromptEditEntry => '프롬프트 편집기';
 
   @override
-  String get aiPromptEditEntryDesc => 'AI 영수증 인식 프롬프트를 사용자 지정하고 다른 사람과 공유할 수 있습니다';
+  String get aiPromptEditEntryDesc =>
+      'AI 영수증 인식 프롬프트를 사용자 지정하고 다른 사람과 공유할 수 있습니다';
 
   @override
   String get aiPromptVariables => '변수';
@@ -5153,7 +5268,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiPromptResetConfirmTitle => '기본값으로 재설정';
 
   @override
-  String get aiPromptResetConfirmMessage => '기본 프롬프트로 재설정하시겠습니까? 사용자 지정 내용이 사라집니다.';
+  String get aiPromptResetConfirmMessage =>
+      '기본 프롬프트로 재설정하시겠습니까? 사용자 지정 내용이 사라집니다.';
 
   @override
   String get aiPromptPasted => '붙여넣기 완료';
@@ -5162,7 +5278,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiPromptPreviewTitle => '프롬프트 미리보기';
 
   @override
-  String get aiPromptPreviewNote => '미리보기는 변수에 예시 데이터를 사용합니다. 실행 시에는 실제 데이터가 사용됩니다.';
+  String get aiPromptPreviewNote =>
+      '미리보기는 변수에 예시 데이터를 사용합니다. 실행 시에는 실제 데이터가 사용됩니다.';
 
   @override
   String get aiPromptVarInputSource => '입력 소스 설명, 예: \"다음 결제 영수증 텍스트로부터\"';
@@ -5200,7 +5317,8 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get aiCustomBaseUrlHelper => '표준 채팅 완성 API URL, 예: https://api.example.com/v1';
+  String get aiCustomBaseUrlHelper =>
+      '표준 채팅 완성 API URL, 예: https://api.example.com/v1';
 
   @override
   String get aiTextModelTitle => '텍스트 모델';
@@ -5224,7 +5342,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tagManageGenerateDefault => '기본 태그 생성';
 
   @override
-  String get tagManageGenerateDefaultConfirm => '기본 태그를 생성하시겠습니까? 이름이 같은 기존 태그는 덮어쓰지 않습니다.';
+  String get tagManageGenerateDefaultConfirm =>
+      '기본 태그를 생성하시겠습니까? 이름이 같은 기존 태그는 덮어쓰지 않습니다.';
 
   @override
   String get tagManageGenerateDefaultSuccess => '기본 태그가 생성되었습니다';
@@ -5572,7 +5691,8 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String attachmentExportProgressDetail(int attachmentCount, int iconCount, int current, int total) {
+  String attachmentExportProgressDetail(
+      int attachmentCount, int iconCount, int current, int total) {
     return '첨부파일 $attachmentCount개 + 아이콘 $iconCount개 내보내는 중 ($current/$total)';
   }
 
@@ -5599,7 +5719,8 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String attachmentImportResult(int imported, int skipped, int overwritten, int failed) {
+  String attachmentImportResult(
+      int imported, int skipped, int overwritten, int failed) {
     return '가져옴 $imported개, 건너뜀 $skipped개, 덮어씀 $overwritten개, 실패 $failed개';
   }
 
@@ -5641,7 +5762,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get shortcutsIntroTitle => '빠른 기록';
 
   @override
-  String get shortcutsIntroDesc => '단축어를 사용하면 앱을 먼저 열지 않고도 홈 화면에서 음성 기록, 카메라 기록 등 기능을 바로 실행할 수 있습니다.';
+  String get shortcutsIntroDesc =>
+      '단축어를 사용하면 앱을 먼저 열지 않고도 홈 화면에서 음성 기록, 카메라 기록 등 기능을 바로 실행할 수 있습니다.';
 
   @override
   String get availableShortcuts => '사용 가능한 단축어';
@@ -5719,7 +5841,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get shortcutsTip => '팁';
 
   @override
-  String get shortcutsTipDesc => '단축어를 사용하려면 AI 기능이 필요합니다. AI가 활성화되어 있고 API 키가 설정되어 있는지 확인하세요.';
+  String get shortcutsTipDesc =>
+      '단축어를 사용하려면 AI 기능이 필요합니다. AI가 활성화되어 있고 API 키가 설정되어 있는지 확인하세요.';
 
   @override
   String get shortcutOpenShortcutsApp => '단축어 앱 열기';
@@ -5728,7 +5851,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get shortcutAutoAdd => '자동 기록 API';
 
   @override
-  String get shortcutAutoAddDesc => 'URL 매개변수로 영수증을 자동으로 생성합니다. 단축어 및 자동화 도구와 함께 사용하면 편리합니다.';
+  String get shortcutAutoAddDesc =>
+      'URL 매개변수로 영수증을 자동으로 생성합니다. 단축어 및 자동화 도구와 함께 사용하면 편리합니다.';
 
   @override
   String get shortcutAutoAddExample => 'URL 예시:';
@@ -5948,7 +6072,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get syncPreviewOldFormat => '이전 클라우드 형식, 전체 교체가 필요합니다';
 
   @override
-  String get syncPreviewOldFormatMessage => '클라우드 데이터에 동기화 ID가 없습니다. 로컬 데이터를 지우고 클라우드에서 다시 가져옵니다.';
+  String get syncPreviewOldFormatMessage =>
+      '클라우드 데이터에 동기화 ID가 없습니다. 로컬 데이터를 지우고 클라우드에서 다시 가져옵니다.';
 
   @override
   String syncPreviewApplied(int count) {
@@ -5965,13 +6090,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudSyncGuideHowItWorks => '작동 방식';
 
   @override
-  String get cloudSyncGuideHowItem1 => '업로드: 현재 가계부의 모든 데이터를 묶어 클라우드에 업로드하고 기존 클라우드 데이터를 대체합니다';
+  String get cloudSyncGuideHowItem1 =>
+      '업로드: 현재 가계부의 모든 데이터를 묶어 클라우드에 업로드하고 기존 클라우드 데이터를 대체합니다';
 
   @override
-  String get cloudSyncGuideHowItem2 => '다운로드: 클라우드 데이터를 가져와 로컬 기록과 하나씩 비교합니다 — 적용할 변경 사항을 직접 선택할 수 있습니다';
+  String get cloudSyncGuideHowItem2 =>
+      '다운로드: 클라우드 데이터를 가져와 로컬 기록과 하나씩 비교합니다 — 적용할 변경 사항을 직접 선택할 수 있습니다';
 
   @override
-  String get cloudSyncGuideHowItem3 => '클라우드에는 항상 가장 최근에 업로드된 스냅샷만 저장되며 버전 기록은 없습니다';
+  String get cloudSyncGuideHowItem3 =>
+      '클라우드에는 항상 가장 최근에 업로드된 스냅샷만 저장되며 버전 기록은 없습니다';
 
   @override
   String get cloudSyncGuideCorrect => '올바른 사용법';
@@ -5986,19 +6114,23 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudSyncGuideCorrectItem3 => '변경 사항을 적용하기 전에 미리보기를 꼼꼼히 확인하세요';
 
   @override
-  String get cloudSyncGuideCorrectItem4 => '편집 → 업로드 → 기기 전환 → 다운로드 → 편집 순서를 따르세요';
+  String get cloudSyncGuideCorrectItem4 =>
+      '편집 → 업로드 → 기기 전환 → 다운로드 → 편집 순서를 따르세요';
 
   @override
   String get cloudSyncGuideWrong => '피해야 할 사용법';
 
   @override
-  String get cloudSyncGuideWrongItem1 => '두 기기에서 동시에 같은 가계부를 편집하는 것 — 나중에 업로드한 쪽이 이전 것을 덮어씁니다';
+  String get cloudSyncGuideWrongItem1 =>
+      '두 기기에서 동시에 같은 가계부를 편집하는 것 — 나중에 업로드한 쪽이 이전 것을 덮어씁니다';
 
   @override
-  String get cloudSyncGuideWrongItem2 => '업로드 직후 바로 다운로드하는 것 — 클라우드 서비스는 수 초에서 수 분의 동기화 지연이 있을 수 있으니 잠시 기다려 주세요';
+  String get cloudSyncGuideWrongItem2 =>
+      '업로드 직후 바로 다운로드하는 것 — 클라우드 서비스는 수 초에서 수 분의 동기화 지연이 있을 수 있으니 잠시 기다려 주세요';
 
   @override
-  String get cloudSyncGuideWrongItem3 => '오랫동안 동기화하지 않다가 한 번에 많은 변경 사항을 다운로드하는 것 — 중요한 차이를 놓치기 쉽습니다';
+  String get cloudSyncGuideWrongItem3 =>
+      '오랫동안 동기화하지 않다가 한 번에 많은 변경 사항을 다운로드하는 것 — 중요한 차이를 놓치기 쉽습니다';
 
   @override
   String get cloudSyncGuideLimitations => '알려진 제한 사항';
@@ -6007,13 +6139,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudSyncGuideLimitItem1 => '실시간이 아닙니다: 업로드와 다운로드를 수동으로 눌러야 합니다';
 
   @override
-  String get cloudSyncGuideLimitItem2 => '충돌 병합이 없습니다: 양쪽의 편집을 자동으로 병합하지 않으며 마지막 업로드가 우선합니다';
+  String get cloudSyncGuideLimitItem2 =>
+      '충돌 병합이 없습니다: 양쪽의 편집을 자동으로 병합하지 않으며 마지막 업로드가 우선합니다';
 
   @override
-  String get cloudSyncGuideLimitItem3 => '클라우드 서비스 지연: 업로드된 파일을 다른 기기가 읽을 수 있게 되기까지 사용하는 클라우드 제공업체에 따라 수 초에서 수 분이 걸릴 수 있습니다';
+  String get cloudSyncGuideLimitItem3 =>
+      '클라우드 서비스 지연: 업로드된 파일을 다른 기기가 읽을 수 있게 되기까지 사용하는 클라우드 제공업체에 따라 수 초에서 수 분이 걸릴 수 있습니다';
 
   @override
-  String get cloudSyncGuideLimitItem4 => '첨부파일은 제외됩니다: 거래의 이미지 첨부파일은 동기화되지 않으므로 데이터 관리에서 별도로 내보내세요';
+  String get cloudSyncGuideLimitItem4 =>
+      '첨부파일은 제외됩니다: 거래의 이미지 첨부파일은 동기화되지 않으므로 데이터 관리에서 별도로 내보내세요';
 
   @override
   String get mineMultiDeviceSyncTitle => '다중 기기 동기화';
@@ -6278,7 +6413,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudCollabDevicesViewAllSessions => '모든 세션 표시';
 
   @override
-  String get cloudCollabDevicesViewModeHint => '기본 화면은 최근 30일 이내 활성화된 기기를 중복 제거해 표시합니다.';
+  String get cloudCollabDevicesViewModeHint =>
+      '기본 화면은 최근 30일 이내 활성화된 기기를 중복 제거해 표시합니다.';
 
   @override
   String get cloudCollabNoDevices => '활성 기기가 없습니다';
@@ -6347,10 +6483,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudCollabUnavailableMessage => '클라우드 동기화를 사용할 수 없습니다.';
 
   @override
-  String get cloudCollabScopeDeniedHint => '서버에서 ALLOW_APP_RW_SCOPES가 활성화되어 있지 않아 기기 세션을 사용할 수 없습니다.';
+  String get cloudCollabScopeDeniedHint =>
+      '서버에서 ALLOW_APP_RW_SCOPES가 활성화되어 있지 않아 기기 세션을 사용할 수 없습니다.';
 
   @override
-  String get cloudCollabScopeDeniedAction => '서버 .env에서 ALLOW_APP_RW_SCOPES=true로 설정하고 서비스를 재시작한 후 다시 로그인하세요.';
+  String get cloudCollabScopeDeniedAction =>
+      '서버 .env에서 ALLOW_APP_RW_SCOPES=true로 설정하고 서비스를 재시작한 후 다시 로그인하세요.';
 
   @override
   String get syncHealthTitle => '동기화 상태';
@@ -6362,25 +6500,29 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cloudSyncHelpModesTitle => '세 가지 동기화 모드';
 
   @override
-  String get cloudSyncHelpModesBody => '• 증분 동기화 (자동, 매일): 항목을 추가하거나 편집하면 해당 변경 사항만 자동으로 업로드/다운로드됩니다 — 빠르고 수동 작업이 필요 없습니다. 항상 실행되는 방식입니다.\n• 전체 업로드: 클라우드 동기화를 처음 활성화하거나 이 가계부에 대한 클라우드 데이터가 아직 없을 때, 로컬 데이터 전체가 한 번에 클라우드로 전송됩니다.\n• 전체 다운로드: 새 기기, 재설치 후, 또는 로컬이 비어 있을 때 클라우드에서 모든 데이터를 가져옵니다.';
+  String get cloudSyncHelpModesBody =>
+      '• 증분 동기화 (자동, 매일): 항목을 추가하거나 편집하면 해당 변경 사항만 자동으로 업로드/다운로드됩니다 — 빠르고 수동 작업이 필요 없습니다. 항상 실행되는 방식입니다.\n• 전체 업로드: 클라우드 동기화를 처음 활성화하거나 이 가계부에 대한 클라우드 데이터가 아직 없을 때, 로컬 데이터 전체가 한 번에 클라우드로 전송됩니다.\n• 전체 다운로드: 새 기기, 재설치 후, 또는 로컬이 비어 있을 때 클라우드에서 모든 데이터를 가져옵니다.';
 
   @override
   String get cloudSyncHelpWhenFullTitle => '전체 동기화는 언제 발생하나요?';
 
   @override
-  String get cloudSyncHelpWhenFullBody => '전체 동기화는 한쪽이 비어 있을 때만 자동으로 실행됩니다 (클라우드 동기화 최초 활성화 / 새 기기 / 재설치 / 로컬 또는 클라우드 데이터 삭제 후). 양쪽 모두 데이터가 있는 한 동기화는 증분 방식을 유지하며 스스로 다시 시작하지 않습니다. 강제로 전체 재동기화를 하려면 먼저 해당 쪽의 데이터를 지워야 합니다.';
+  String get cloudSyncHelpWhenFullBody =>
+      '전체 동기화는 한쪽이 비어 있을 때만 자동으로 실행됩니다 (클라우드 동기화 최초 활성화 / 새 기기 / 재설치 / 로컬 또는 클라우드 데이터 삭제 후). 양쪽 모두 데이터가 있는 한 동기화는 증분 방식을 유지하며 스스로 다시 시작하지 않습니다. 강제로 전체 재동기화를 하려면 먼저 해당 쪽의 데이터를 지워야 합니다.';
 
   @override
   String get cloudSyncHelpStuckTitle => '동기화가 가끔 멈추는 이유';
 
   @override
-  String get cloudSyncHelpStuckBody => '• 전체 업로드/다운로드는 이어받기를 지원하지 않습니다: 네트워크가 끊기거나 앱이 백그라운드에서 종료되면 이어서 진행하지 않고 처음부터 다시 시작합니다. 데이터가 클 경우 안정적인 네트워크(Wi-Fi 권장)를 사용하고 완료될 때까지 다른 곳으로 전환하지 마세요.\n• 증분 동기화는 이어받기가 안전하며 일상적인 사용에서는 영향을 받지 않습니다.';
+  String get cloudSyncHelpStuckBody =>
+      '• 전체 업로드/다운로드는 이어받기를 지원하지 않습니다: 네트워크가 끊기거나 앱이 백그라운드에서 종료되면 이어서 진행하지 않고 처음부터 다시 시작합니다. 데이터가 클 경우 안정적인 네트워크(Wi-Fi 권장)를 사용하고 완료될 때까지 다른 곳으로 전환하지 마세요.\n• 증분 동기화는 이어받기가 안전하며 일상적인 사용에서는 영향을 받지 않습니다.';
 
   @override
   String get cloudSyncHelpTroubleshootTitle => '문제 해결';
 
   @override
-  String get cloudSyncHelpTroubleshootBody => '• 먼저 이 페이지를 아래로 당겨 정밀 검사를 실행하고 로컬과 클라우드를 비교하세요.\n• 그래도 해결되지 않으면 로그 센터를 열어 동기화 로그(실패 원인 포함)를 확인하고 신고해 주세요.';
+  String get cloudSyncHelpTroubleshootBody =>
+      '• 먼저 이 페이지를 아래로 당겨 정밀 검사를 실행하고 로컬과 클라우드를 비교하세요.\n• 그래도 해결되지 않으면 로그 센터를 열어 동기화 로그(실패 원인 포함)를 확인하고 신고해 주세요.';
 
   @override
   String get cloudSyncHelpOpenLogCenter => '로그 센터 열기';
@@ -6446,10 +6588,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get twofaMethodRecovery => '복구 코드';
 
   @override
-  String get twofaTotpHint => '인증 앱(Google Authenticator / 1Password / Authy 등)에 표시된 6자리 코드를 입력하세요.';
+  String get twofaTotpHint =>
+      '인증 앱(Google Authenticator / 1Password / Authy 등)에 표시된 6자리 코드를 입력하세요.';
 
   @override
-  String get twofaRecoveryHint => '2단계 인증을 활성화할 때 저장한 복구 코드를 입력하세요 (예: abcd-efgh). 각 코드는 한 번만 사용할 수 있습니다.';
+  String get twofaRecoveryHint =>
+      '2단계 인증을 활성화할 때 저장한 복구 코드를 입력하세요 (예: abcd-efgh). 각 코드는 한 번만 사용할 수 있습니다.';
 
   @override
   String get twofaTotpInputPlaceholder => '6자리 코드';
@@ -6510,7 +6654,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sharedJoinEnterCode => '초대 코드 입력';
 
   @override
-  String get sharedJoinEnterCodeHint => '대문자와 숫자 6자리입니다. 공유 링크를 누르면 이 단계를 건너뛸 수 있습니다.';
+  String get sharedJoinEnterCodeHint =>
+      '대문자와 숫자 6자리입니다. 공유 링크를 누르면 이 단계를 건너뛸 수 있습니다.';
 
   @override
   String get sharedJoinPreviewButton => '코드 확인';
@@ -6552,7 +6697,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sharedJoinCodeFormatError => '초대 코드는 6자리 문자/숫자여야 합니다.';
 
   @override
-  String get sharedJoinInvalidOrExpired => '초대 코드가 유효하지 않거나 만료되었습니다. 초대한 사람에게 새 코드를 요청하세요.';
+  String get sharedJoinInvalidOrExpired =>
+      '초대 코드가 유효하지 않거나 만료되었습니다. 초대한 사람에게 새 코드를 요청하세요.';
 
   @override
   String get sharedJoinAlreadyMember => '이미 이 가계부의 멤버입니다.';
@@ -6600,10 +6746,12 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get sharedInviteWarning => '⚠️ 초대 코드를 공개 그룹이나 SNS에 게시하지 마세요. 코드를 가진 사람은 누구나 참여할 수 있습니다. 유출되었다면 멤버 화면에서 취소하고 다시 생성하세요.';
+  String get sharedInviteWarning =>
+      '⚠️ 초대 코드를 공개 그룹이나 SNS에 게시하지 마세요. 코드를 가진 사람은 누구나 참여할 수 있습니다. 유출되었다면 멤버 화면에서 취소하고 다시 생성하세요.';
 
   @override
-  String get sharedInviteInstruction => '코드나 짧은 링크를 상대방에게 전달하세요. BeeCount를 설치한 후 링크를 누르거나 \"내 정보 → 공유 가계부 참여\"에서 코드를 입력하면 됩니다.';
+  String get sharedInviteInstruction =>
+      '코드나 짧은 링크를 상대방에게 전달하세요. BeeCount를 설치한 후 링크를 누르거나 \"내 정보 → 공유 가계부 참여\"에서 코드를 입력하면 됩니다.';
 
   @override
   String sharedInviteShareText(String ledger, String code, String url) {
@@ -6833,7 +6981,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get ratesEmptyHint => '계정에서 서로 다른 통화를 사용하면 여기에 환율이 표시됩니다';
 
   @override
-  String get rateDisclaimer => '출처: 공개 환율 데이터, 매일 업데이트됩니다. 환산은 참고용이며 은행 환율과 다를 수 있습니다.';
+  String get rateDisclaimer =>
+      '출처: 공개 환율 데이터, 매일 업데이트됩니다. 환산은 참고용이며 은행 환율과 다를 수 있습니다.';
 
   @override
   String convertedNetWorth(String currency) {
@@ -6892,7 +7041,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get netWorthTrendLineLiabilities => '총 부채';
 
   @override
-  String get netWorthTrendMultiCurrencyNote => '과거 순자산은 통화별 원 금액의 합계이며 환산되지 않았습니다';
+  String get netWorthTrendMultiCurrencyNote =>
+      '과거 순자산은 통화별 원 금액의 합계이며 환산되지 않았습니다';
 
   @override
   String get txFlagExcludeFromStats => '수입/지출 통계에서 제외';

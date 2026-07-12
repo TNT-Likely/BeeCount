@@ -98,8 +98,9 @@ class BeeTokens {
   /// 胶囊切换器背景色
   /// - 亮色模式：rgba(0,0,0,0.06) (浅灰透明)
   /// - 暗黑模式：#2C2C2E (深灰)
-  static Color surfaceCapsule(BuildContext context) =>
-      isDark(context) ? const Color(0xFF2C2C2E) : Colors.black.withValues(alpha: 0.06);
+  static Color surfaceCapsule(BuildContext context) => isDark(context)
+      ? const Color(0xFF2C2C2E)
+      : Colors.black.withValues(alpha: 0.06);
 
   /// 弹出层/浮层内卡片背景色（如二级分类选择）
   /// - 亮色模式：#FFFFFF (白色)
@@ -128,18 +129,16 @@ class BeeTokens {
   /// 选中状态背景色（列表项选中、高亮）
   /// - 亮色模式：主题色 8% 透明度
   /// - 暗黑模式：主题色 15% 透明度
-  static Color surfaceSelected(BuildContext context) =>
-      isDark(context)
-          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
-          : Theme.of(context).colorScheme.primary.withValues(alpha: 0.08);
+  static Color surfaceSelected(BuildContext context) => isDark(context)
+      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
+      : Theme.of(context).colorScheme.primary.withValues(alpha: 0.08);
 
   /// 悬停/按压状态背景色
   /// - 亮色模式：rgba(0,0,0,0.04)
   /// - 暗黑模式：rgba(255,255,255,0.08)
-  static Color surfaceHover(BuildContext context) =>
-      isDark(context)
-          ? Colors.white.withValues(alpha: 0.08)
-          : Colors.black.withValues(alpha: 0.04);
+  static Color surfaceHover(BuildContext context) => isDark(context)
+      ? Colors.white.withValues(alpha: 0.08)
+      : Colors.black.withValues(alpha: 0.04);
 
   // ========== 文字颜色 Token (Text) ==========
 
@@ -152,26 +151,23 @@ class BeeTokens {
   /// 次要文字颜色（副标题、说明文字）
   /// - 亮色模式：rgba(0,0,0,0.54) 即 Colors.black54
   /// - 暗黑模式：rgba(255,255,255,0.7)
-  static Color textSecondary(BuildContext context) =>
-      isDark(context)
-          ? Colors.white.withValues(alpha: 0.7)
-          : const Color(0x8A000000);
+  static Color textSecondary(BuildContext context) => isDark(context)
+      ? Colors.white.withValues(alpha: 0.7)
+      : const Color(0x8A000000);
 
   /// 提示文字颜色（placeholder、hint、辅助说明）
   /// - 亮色模式：#9CA3AF (灰400)
   /// - 暗黑模式：rgba(255,255,255,0.54)
-  static Color textTertiary(BuildContext context) =>
-      isDark(context)
-          ? Colors.white.withValues(alpha: 0.54)
-          : const Color(0xFF9CA3AF);
+  static Color textTertiary(BuildContext context) => isDark(context)
+      ? Colors.white.withValues(alpha: 0.54)
+      : const Color(0xFF9CA3AF);
 
   /// 禁用文字颜色
   /// - 亮色模式：rgba(0,0,0,0.26)
   /// - 暗黑模式：rgba(255,255,255,0.38)
-  static Color textDisabled(BuildContext context) =>
-      isDark(context)
-          ? Colors.white.withValues(alpha: 0.38)
-          : Colors.black.withValues(alpha: 0.26);
+  static Color textDisabled(BuildContext context) => isDark(context)
+      ? Colors.white.withValues(alpha: 0.38)
+      : Colors.black.withValues(alpha: 0.26);
 
   /// 反色文字（用于深色背景上的白色文字）
   /// - 亮色模式：#FFFFFF
@@ -192,10 +188,9 @@ class BeeTokens {
   /// Header 内次要文字颜色（用于 PrimaryHeader 内的副标题）
   /// - 亮色模式：rgba(255,255,255,0.8)（在主题色背景上）
   /// - 暗黑模式：rgba(255,255,255,0.7)（在黑色背景上）
-  static Color textOnHeaderSecondary(BuildContext context) =>
-      isDark(context)
-          ? Colors.white.withValues(alpha: 0.7)
-          : Colors.white.withValues(alpha: 0.8);
+  static Color textOnHeaderSecondary(BuildContext context) => isDark(context)
+      ? Colors.white.withValues(alpha: 0.7)
+      : Colors.white.withValues(alpha: 0.8);
 
   // ========== 图标颜色 Token (Icon) ==========
 
@@ -208,52 +203,46 @@ class BeeTokens {
   /// 次要图标颜色
   /// - 亮色模式：rgba(0,0,0,0.54)
   /// - 暗黑模式：rgba(255,255,255,0.7)
-  static Color iconSecondary(BuildContext context) =>
-      isDark(context)
-          ? Colors.white.withValues(alpha: 0.7)
-          : Colors.black.withValues(alpha: 0.54);
+  static Color iconSecondary(BuildContext context) => isDark(context)
+      ? Colors.white.withValues(alpha: 0.7)
+      : Colors.black.withValues(alpha: 0.54);
 
   /// 提示图标颜色
   /// - 亮色模式：rgba(0,0,0,0.38)
   /// - 暗黑模式：rgba(255,255,255,0.54)
-  static Color iconTertiary(BuildContext context) =>
-      isDark(context)
-          ? Colors.white.withValues(alpha: 0.54)
-          : Colors.black.withValues(alpha: 0.38);
+  static Color iconTertiary(BuildContext context) => isDark(context)
+      ? Colors.white.withValues(alpha: 0.54)
+      : Colors.black.withValues(alpha: 0.38);
 
   // ========== 边框/分割线 Token (Border) ==========
 
   /// 分割线颜色
   /// - 亮色模式：rgba(0,0,0,0.06)
   /// - 暗黑模式：主题色 30% 透明度
-  static Color divider(BuildContext context) =>
-      isDark(context)
-          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
-          : Colors.black.withValues(alpha: 0.06);
+  static Color divider(BuildContext context) => isDark(context)
+      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
+      : Colors.black.withValues(alpha: 0.06);
 
   /// 边框颜色（卡片边框）
   /// - 亮色模式：transparent（使用阴影）
   /// - 暗黑模式：主题色 30% 透明度
-  static Color border(BuildContext context) =>
-      isDark(context)
-          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
-          : Colors.transparent;
+  static Color border(BuildContext context) => isDark(context)
+      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
+      : Colors.transparent;
 
   /// 强调边框颜色
   /// - 亮色模式：rgba(0,0,0,0.12)
   /// - 暗黑模式：主题色 30% 透明度
-  static Color borderStrong(BuildContext context) =>
-      isDark(context)
-          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
-          : Colors.black.withValues(alpha: 0.12);
+  static Color borderStrong(BuildContext context) => isDark(context)
+      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
+      : Colors.black.withValues(alpha: 0.12);
 
   /// 主题色边框（用于卡片等）
   /// - 亮色模式：transparent
   /// - 暗黑模式：主题色 30% 透明度
-  static Color borderThemed(BuildContext context) =>
-      isDark(context)
-          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
-          : Colors.transparent;
+  static Color borderThemed(BuildContext context) => isDark(context)
+      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
+      : Colors.transparent;
 
   // ========== 卡片边框 Token (Card Border) ==========
 
@@ -270,10 +259,9 @@ class BeeTokens {
   /// 卡片内部分割线颜色
   /// - 亮色模式：rgba(0,0,0,0.06)
   /// - 暗黑模式：transparent（去掉分割线）
-  static Color cardInnerDividerColor(BuildContext context) =>
-      isDark(context)
-          ? Colors.transparent
-          : Colors.black.withValues(alpha: 0.06);
+  static Color cardInnerDividerColor(BuildContext context) => isDark(context)
+      ? Colors.transparent
+      : Colors.black.withValues(alpha: 0.06);
 
   /// 卡片内部分割线高度
   /// - 亮色模式：1
@@ -411,8 +399,9 @@ class BeeTokens {
   /// 离线/断开连接指示色
   /// - 亮色模式：#9CA3AF
   /// - 暗黑模式：rgba(255,255,255,0.38)
-  static Color statusOffline(BuildContext context) =>
-      isDark(context) ? Colors.white.withValues(alpha: 0.38) : const Color(0xFF9CA3AF);
+  static Color statusOffline(BuildContext context) => isDark(context)
+      ? Colors.white.withValues(alpha: 0.38)
+      : const Color(0xFF9CA3AF);
 
   /// 待处理/等待中指示色
   /// - 亮色模式：#F59E0B
@@ -457,18 +446,16 @@ class BeeTokens {
   /// 模态遮罩层颜色
   /// - 亮色模式：rgba(0,0,0,0.5)
   /// - 暗黑模式：rgba(0,0,0,0.7)
-  static Color overlay(BuildContext context) =>
-      isDark(context)
-          ? Colors.black.withValues(alpha: 0.7)
-          : Colors.black.withValues(alpha: 0.5);
+  static Color overlay(BuildContext context) => isDark(context)
+      ? Colors.black.withValues(alpha: 0.7)
+      : Colors.black.withValues(alpha: 0.5);
 
   /// 轻量遮罩层颜色（用于下拉刷新等）
   /// - 亮色模式：rgba(0,0,0,0.05)
   /// - 暗黑模式：rgba(255,255,255,0.05)
-  static Color overlayLight(BuildContext context) =>
-      isDark(context)
-          ? Colors.white.withValues(alpha: 0.05)
-          : Colors.black.withValues(alpha: 0.05);
+  static Color overlayLight(BuildContext context) => isDark(context)
+      ? Colors.white.withValues(alpha: 0.05)
+      : Colors.black.withValues(alpha: 0.05);
 
   // ========== 悬浮 Tab 栏 Token (Floating Tab Bar) ==========
 
