@@ -733,15 +733,23 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
       }
     }
 
-    // 修改账本元数据后,触发同步以更新云端(本地非 tx 写入不会自动 push)
-    await PostProcessor.sync(ref, ledgerId: ledger.id);
-
+    // 刷新信号必须在 sync 之前发(反馈19):改主币种重算产生几百条 change,
+    // push 可能耗时数十秒甚至失败,原先信号排在 await sync 之后导致首页/
+    // 账本页统计长时间(或永远)显示旧数据。本地数据此刻已就绪,立即刷新。
     ref.read(ledgerListRefreshProvider.notifier).state++;
     // currentLedgerProvider 已是 StreamProvider(Drift watch 自动推送),
     // 此 invalidate 仅作防御性重订阅(如流曾进入 error 态),正常路径冗余无害。
     ref.invalidate(currentLedgerProvider);
     ref.read(statsRefreshProvider.notifier).state++;
     ref.read(budgetRefreshProvider.notifier).state++;
+
+    // 修改账本元数据后,触发同步以更新云端(本地非 tx 写入不会自动 push)。
+    // 放刷新信号之后:UI 不等 push 完成;失败也不影响本地展示(下次同步兜底)。
+    try {
+      await PostProcessor.sync(ref, ledgerId: ledger.id);
+    } catch (e) {
+      logger.warning('LedgersPage', '改账本元数据后同步失败(本地已生效,下次同步重试): $e');
+    }
 
     // 起始日影响小部件「本月」口径,立即刷新
     try {
