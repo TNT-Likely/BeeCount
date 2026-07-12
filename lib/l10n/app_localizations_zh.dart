@@ -6970,6 +6970,321 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get importFieldCurrency => '币种';
+
+  @override
+  String get currencyMOP => '澳门元';
+
+  @override
+  String get currencyMNT => '蒙古图格里克';
+
+  @override
+  String get currencyKPW => '朝鲜元';
+
+  @override
+  String get currencyKHR => '柬埔寨瑞尔';
+
+  @override
+  String get currencyLAK => '老挝基普';
+
+  @override
+  String get currencyBND => '文莱元';
+
+  @override
+  String get currencyNPR => '尼泊尔卢比';
+
+  @override
+  String get currencyBTN => '不丹努尔特鲁姆';
+
+  @override
+  String get currencyMVR => '马尔代夫拉菲亚';
+
+  @override
+  String get currencyAFN => '阿富汗尼';
+
+  @override
+  String get currencyUZS => '乌兹别克斯坦索姆';
+
+  @override
+  String get currencyTJS => '塔吉克斯坦索莫尼';
+
+  @override
+  String get currencyTMT => '土库曼斯坦马纳特';
+
+  @override
+  String get currencyKGS => '吉尔吉斯斯坦索姆';
+
+  @override
+  String get currencyQAR => '卡塔尔里亚尔';
+
+  @override
+  String get currencyKWD => '科威特第纳尔';
+
+  @override
+  String get currencyBHD => '巴林第纳尔';
+
+  @override
+  String get currencyOMR => '阿曼里亚尔';
+
+  @override
+  String get currencyJOD => '约旦第纳尔';
+
+  @override
+  String get currencyLBP => '黎巴嫩镑';
+
+  @override
+  String get currencyIQD => '伊拉克第纳尔';
+
+  @override
+  String get currencyIRR => '伊朗里亚尔';
+
+  @override
+  String get currencyYER => '也门里亚尔';
+
+  @override
+  String get currencySYP => '叙利亚镑';
+
+  @override
+  String get currencyGEL => '格鲁吉亚拉里';
+
+  @override
+  String get currencyAMD => '亚美尼亚德拉姆';
+
+  @override
+  String get currencyAZN => '阿塞拜疆马纳特';
+
+  @override
+  String get currencyRON => '罗马尼亚列伊';
+
+  @override
+  String get currencyBGN => '保加利亚列弗';
+
+  @override
+  String get currencyRSD => '塞尔维亚第纳尔';
+
+  @override
+  String get currencyISK => '冰岛克朗';
+
+  @override
+  String get currencyMDL => '摩尔多瓦列伊';
+
+  @override
+  String get currencyALL => '阿尔巴尼亚列克';
+
+  @override
+  String get currencyMKD => '北马其顿第纳尔';
+
+  @override
+  String get currencyBAM => '波黑可兑换马克';
+
+  @override
+  String get currencyGIP => '直布罗陀镑';
+
+  @override
+  String get currencyGTQ => '危地马拉格查尔';
+
+  @override
+  String get currencyHNL => '洪都拉斯伦皮拉';
+
+  @override
+  String get currencyNIO => '尼加拉瓜科多巴';
+
+  @override
+  String get currencyCRC => '哥斯达黎加科朗';
+
+  @override
+  String get currencyPAB => '巴拿马巴波亚';
+
+  @override
+  String get currencyDOP => '多米尼加比索';
+
+  @override
+  String get currencyCUP => '古巴比索';
+
+  @override
+  String get currencyJMD => '牙买加元';
+
+  @override
+  String get currencyTTD => '特立尼达和多巴哥元';
+
+  @override
+  String get currencyBSD => '巴哈马元';
+
+  @override
+  String get currencyBBD => '巴巴多斯元';
+
+  @override
+  String get currencyBZD => '伯利兹元';
+
+  @override
+  String get currencyHTG => '海地古德';
+
+  @override
+  String get currencyXCD => '东加勒比元';
+
+  @override
+  String get currencyKYD => '开曼群岛元';
+
+  @override
+  String get currencyAWG => '阿鲁巴弗罗林';
+
+  @override
+  String get currencyANG => '荷属安的列斯盾';
+
+  @override
+  String get currencyBMD => '百慕大元';
+
+  @override
+  String get currencyUYU => '乌拉圭比索';
+
+  @override
+  String get currencyPYG => '巴拉圭瓜拉尼';
+
+  @override
+  String get currencyBOB => '玻利维亚诺';
+
+  @override
+  String get currencyVES => '委内瑞拉玻利瓦尔';
+
+  @override
+  String get currencyGYD => '圭亚那元';
+
+  @override
+  String get currencySRD => '苏里南元';
+
+  @override
+  String get currencyFJD => '斐济元';
+
+  @override
+  String get currencyPGK => '巴布亚新几内亚基那';
+
+  @override
+  String get currencySBD => '所罗门群岛元';
+
+  @override
+  String get currencyTOP => '汤加潘加';
+
+  @override
+  String get currencyVUV => '瓦努阿图瓦图';
+
+  @override
+  String get currencyWST => '萨摩亚塔拉';
+
+  @override
+  String get currencyXPF => '太平洋法郎';
+
+  @override
+  String get currencyKES => '肯尼亚先令';
+
+  @override
+  String get currencyGHS => '加纳塞地';
+
+  @override
+  String get currencyMAD => '摩洛哥迪拉姆';
+
+  @override
+  String get currencyDZD => '阿尔及利亚第纳尔';
+
+  @override
+  String get currencyTND => '突尼斯第纳尔';
+
+  @override
+  String get currencyLYD => '利比亚第纳尔';
+
+  @override
+  String get currencyETB => '埃塞俄比亚比尔';
+
+  @override
+  String get currencyUGX => '乌干达先令';
+
+  @override
+  String get currencyTZS => '坦桑尼亚先令';
+
+  @override
+  String get currencyRWF => '卢旺达法郎';
+
+  @override
+  String get currencyXAF => '中非法郎';
+
+  @override
+  String get currencyXOF => '西非法郎';
+
+  @override
+  String get currencyMUR => '毛里求斯卢比';
+
+  @override
+  String get currencyBWP => '博茨瓦纳普拉';
+
+  @override
+  String get currencyNAD => '纳米比亚元';
+
+  @override
+  String get currencyZMW => '赞比亚克瓦查';
+
+  @override
+  String get currencyMWK => '马拉维克瓦查';
+
+  @override
+  String get currencyMZN => '莫桑比克梅蒂卡尔';
+
+  @override
+  String get currencyAOA => '安哥拉宽扎';
+
+  @override
+  String get currencyCDF => '刚果法郎';
+
+  @override
+  String get currencyGMD => '冈比亚达拉西';
+
+  @override
+  String get currencyGNF => '几内亚法郎';
+
+  @override
+  String get currencyLRD => '利比里亚元';
+
+  @override
+  String get currencySLE => '塞拉利昂利昂';
+
+  @override
+  String get currencySDG => '苏丹镑';
+
+  @override
+  String get currencySSP => '南苏丹镑';
+
+  @override
+  String get currencySOS => '索马里先令';
+
+  @override
+  String get currencyDJF => '吉布提法郎';
+
+  @override
+  String get currencyERN => '厄立特里亚纳克法';
+
+  @override
+  String get currencyBIF => '布隆迪法郎';
+
+  @override
+  String get currencyCVE => '佛得角埃斯库多';
+
+  @override
+  String get currencySTN => '圣多美多布拉';
+
+  @override
+  String get currencySCR => '塞舌尔卢比';
+
+  @override
+  String get currencyKMF => '科摩罗法郎';
+
+  @override
+  String get currencyLSL => '莱索托洛蒂';
+
+  @override
+  String get currencySZL => '斯威士兰里兰吉尼';
+
+  @override
+  String get currencyMGA => '马达加斯加阿里亚里';
+
+  @override
+  String get currencyMRU => '毛里塔尼亚乌吉亚';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -13940,4 +14255,319 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get importFieldCurrency => '幣種';
+
+  @override
+  String get currencyMOP => '澳門元';
+
+  @override
+  String get currencyMNT => '蒙古圖格里克';
+
+  @override
+  String get currencyKPW => '朝鲜元';
+
+  @override
+  String get currencyKHR => '柬埔寨瑞爾';
+
+  @override
+  String get currencyLAK => '老撾基普';
+
+  @override
+  String get currencyBND => '文萊元';
+
+  @override
+  String get currencyNPR => '尼泊爾盧比';
+
+  @override
+  String get currencyBTN => '不丹努爾特魯姆';
+
+  @override
+  String get currencyMVR => '马爾代夫拉菲亞';
+
+  @override
+  String get currencyAFN => '阿富汗尼';
+
+  @override
+  String get currencyUZS => '烏茲別克斯坦索姆';
+
+  @override
+  String get currencyTJS => '塔吉克斯坦索莫尼';
+
+  @override
+  String get currencyTMT => '土庫曼斯坦马納特';
+
+  @override
+  String get currencyKGS => '吉爾吉斯斯坦索姆';
+
+  @override
+  String get currencyQAR => '卡塔爾里亞爾';
+
+  @override
+  String get currencyKWD => '科威特第納爾';
+
+  @override
+  String get currencyBHD => '巴林第納爾';
+
+  @override
+  String get currencyOMR => '阿曼里亞爾';
+
+  @override
+  String get currencyJOD => '约旦第納爾';
+
+  @override
+  String get currencyLBP => '黎巴嫩鎊';
+
+  @override
+  String get currencyIQD => '伊拉克第納爾';
+
+  @override
+  String get currencyIRR => '伊朗里亞爾';
+
+  @override
+  String get currencyYER => '也門里亞爾';
+
+  @override
+  String get currencySYP => '敘利亞鎊';
+
+  @override
+  String get currencyGEL => '格魯吉亞拉里';
+
+  @override
+  String get currencyAMD => '亞美尼亞德拉姆';
+
+  @override
+  String get currencyAZN => '阿塞拜疆马納特';
+
+  @override
+  String get currencyRON => '羅马尼亞列伊';
+
+  @override
+  String get currencyBGN => '保加利亞列弗';
+
+  @override
+  String get currencyRSD => '塞爾維亞第納爾';
+
+  @override
+  String get currencyISK => '冰岛克朗';
+
+  @override
+  String get currencyMDL => '摩爾多瓦列伊';
+
+  @override
+  String get currencyALL => '阿爾巴尼亞列克';
+
+  @override
+  String get currencyMKD => '北马其顿第納爾';
+
+  @override
+  String get currencyBAM => '波黑可兑換马克';
+
+  @override
+  String get currencyGIP => '直布羅陀鎊';
+
+  @override
+  String get currencyGTQ => '危地马拉格查爾';
+
+  @override
+  String get currencyHNL => '洪都拉斯伦皮拉';
+
+  @override
+  String get currencyNIO => '尼加拉瓜科多巴';
+
+  @override
+  String get currencyCRC => '哥斯達黎加科朗';
+
+  @override
+  String get currencyPAB => '巴拿马巴波亞';
+
+  @override
+  String get currencyDOP => '多米尼加比索';
+
+  @override
+  String get currencyCUP => '古巴比索';
+
+  @override
+  String get currencyJMD => '牙買加元';
+
+  @override
+  String get currencyTTD => '特立尼達和多巴哥元';
+
+  @override
+  String get currencyBSD => '巴哈马元';
+
+  @override
+  String get currencyBBD => '巴巴多斯元';
+
+  @override
+  String get currencyBZD => '伯利茲元';
+
+  @override
+  String get currencyHTG => '海地古德';
+
+  @override
+  String get currencyXCD => '东加勒比元';
+
+  @override
+  String get currencyKYD => '开曼群岛元';
+
+  @override
+  String get currencyAWG => '阿魯巴弗羅林';
+
+  @override
+  String get currencyANG => '荷屬安的列斯盾';
+
+  @override
+  String get currencyBMD => '百慕大元';
+
+  @override
+  String get currencyUYU => '烏拉圭比索';
+
+  @override
+  String get currencyPYG => '巴拉圭瓜拉尼';
+
+  @override
+  String get currencyBOB => '玻利維亞诺';
+
+  @override
+  String get currencyVES => '委內瑞拉玻利瓦爾';
+
+  @override
+  String get currencyGYD => '圭亞那元';
+
+  @override
+  String get currencySRD => '蘇里南元';
+
+  @override
+  String get currencyFJD => '斐濟元';
+
+  @override
+  String get currencyPGK => '巴布亞新幾內亞基那';
+
+  @override
+  String get currencySBD => '所羅門群岛元';
+
+  @override
+  String get currencyTOP => '湯加潘加';
+
+  @override
+  String get currencyVUV => '瓦努阿圖瓦圖';
+
+  @override
+  String get currencyWST => '薩摩亞塔拉';
+
+  @override
+  String get currencyXPF => '太平洋法郎';
+
+  @override
+  String get currencyKES => '肯尼亞先令';
+
+  @override
+  String get currencyGHS => '加納塞地';
+
+  @override
+  String get currencyMAD => '摩洛哥迪拉姆';
+
+  @override
+  String get currencyDZD => '阿爾及利亞第納爾';
+
+  @override
+  String get currencyTND => '突尼斯第納爾';
+
+  @override
+  String get currencyLYD => '利比亞第納爾';
+
+  @override
+  String get currencyETB => '埃塞俄比亞比爾';
+
+  @override
+  String get currencyUGX => '烏干達先令';
+
+  @override
+  String get currencyTZS => '坦桑尼亞先令';
+
+  @override
+  String get currencyRWF => '盧旺達法郎';
+
+  @override
+  String get currencyXAF => '中非法郎';
+
+  @override
+  String get currencyXOF => '西非法郎';
+
+  @override
+  String get currencyMUR => '毛里求斯盧比';
+
+  @override
+  String get currencyBWP => '博茨瓦納普拉';
+
+  @override
+  String get currencyNAD => '納米比亞元';
+
+  @override
+  String get currencyZMW => '贊比亞克瓦查';
+
+  @override
+  String get currencyMWK => '马拉維克瓦查';
+
+  @override
+  String get currencyMZN => '莫桑比克梅蒂卡爾';
+
+  @override
+  String get currencyAOA => '安哥拉宽扎';
+
+  @override
+  String get currencyCDF => '剛果法郎';
+
+  @override
+  String get currencyGMD => '岡比亞達拉西';
+
+  @override
+  String get currencyGNF => '幾內亞法郎';
+
+  @override
+  String get currencyLRD => '利比里亞元';
+
+  @override
+  String get currencySLE => '塞拉利昂利昂';
+
+  @override
+  String get currencySDG => '蘇丹鎊';
+
+  @override
+  String get currencySSP => '南蘇丹鎊';
+
+  @override
+  String get currencySOS => '索马里先令';
+
+  @override
+  String get currencyDJF => '吉布提法郎';
+
+  @override
+  String get currencyERN => '厄立特里亞納克法';
+
+  @override
+  String get currencyBIF => '布隆迪法郎';
+
+  @override
+  String get currencyCVE => '佛得角埃斯庫多';
+
+  @override
+  String get currencySTN => '聖多美多布拉';
+
+  @override
+  String get currencySCR => '塞舌爾盧比';
+
+  @override
+  String get currencyKMF => '科摩羅法郎';
+
+  @override
+  String get currencyLSL => '萊索托洛蒂';
+
+  @override
+  String get currencySZL => '斯威士蘭里蘭吉尼';
+
+  @override
+  String get currencyMGA => '马達加斯加阿里亞里';
+
+  @override
+  String get currencyMRU => '毛里塔尼亞烏吉亞';
 }

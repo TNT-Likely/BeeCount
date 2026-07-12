@@ -16,10 +16,10 @@ import '../../providers.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../utils/currencies.dart';
 import '../../pages/tag/widgets/tag_selector.dart';
-import 'package:country_flags/country_flags.dart';
 import 'note_picker_dialog.dart';
 import 'account_selector.dart';
 import '../currency/currency_picker_sheet.dart';
+import '../currency/currency_flag.dart';
 import '../ui/toast.dart';
 import 'tag_chip.dart';
 import '../../pages/attachment/attachment_preview_page.dart';
@@ -460,7 +460,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     final text = Theme.of(context).textTheme;
     ref.watch(currentLedgerCurrencyProvider); // 账本切换时重建
     final txCurrency = _txCurrency();
-    final country = countryCodeForCurrency(txCurrency);
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: _pickCurrency,
@@ -473,15 +472,9 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 小国旗(区域货币无 → 省略,只留 code)
-            if (country != null) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(3),
-                child: CountryFlag.fromCountryCode(country,
-                    height: 14, width: 19),
-              ),
-              const SizedBox(width: 5),
-            ],
+            // 小国旗(欧元→欧盟旗;区域货币→符号占位)
+            currencyFlag(context, txCurrency, width: 19, height: 14, radius: 3),
+            const SizedBox(width: 5),
             Text(
               txCurrency,
               style: text.bodySmall?.copyWith(

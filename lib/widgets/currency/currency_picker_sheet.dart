@@ -1,4 +1,3 @@
-import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,42 +6,8 @@ import '../../providers.dart';
 import '../../providers/currency_providers.dart';
 import '../../styles/tokens.dart';
 import '../../utils/currencies.dart';
+import 'currency_flag.dart';
 import '../ui/ui.dart';
-
-/// 币种行首的国旗(区域货币无国旗 → 币种符号占位圆)。
-Widget _currencyLeading(BuildContext context, String code) {
-  final country = countryCodeForCurrency(code);
-  if (country != null) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: CountryFlag.fromCountryCode(
-        country,
-        height: 22,
-        width: 30,
-      ),
-    );
-  }
-  // 无国旗:圆底 + 币种符号(如 XAF/XDR)
-  return Container(
-    width: 30,
-    height: 22,
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      color: BeeTokens.surfaceKeySecondary(context),
-      borderRadius: BorderRadius.circular(4),
-    ),
-    child: Text(
-      getCurrencySymbol(code),
-      style: TextStyle(
-        fontSize: 10,
-        color: BeeTokens.textSecondary(context),
-        fontWeight: FontWeight.w600,
-      ),
-      overflow: TextOverflow.clip,
-      maxLines: 1,
-    ),
-  );
-}
 
 /// 币种选择 bottom sheet(搜索 + 国旗 + 汇率 + 选中勾)。返回选中的 code,取消返回 null。
 ///
@@ -147,7 +112,7 @@ Future<String?> showCurrencyPickerSheet(
                           }
                         }
                         return ListTile(
-                          leading: _currencyLeading(cctx, c.code),
+                          leading: currencyFlag(cctx, c.code),
                           title: Text(
                             '${c.name} (${c.code})',
                             style: TextStyle(
