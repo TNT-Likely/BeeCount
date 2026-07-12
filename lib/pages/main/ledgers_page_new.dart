@@ -680,10 +680,12 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
     if (currencyChanged) {
       final stats = await repo.getLedgerStats(ledgerId: ledger.id);
       final txCount = stats.transactionCount;
-      if (!context.mounted) return;
-      final l10n = AppLocalizations.of(context);
+      // 用 State 的 mounted/this.context:传入的参数 context 可能随编辑入口
+      // 弹层一起销毁(mounted=false → 静默 return 会把整个保存吞掉)。
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(this.context);
       final confirmed = await showDialog<bool>(
-        context: context,
+        context: this.context,
         builder: (dctx) => AlertDialog(
           title: Text(l10n.ledgerBaseCurrencyLabel),
           content: Text(
@@ -716,9 +718,9 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
       // 全量重算(逐笔记 change,L13);缺汇率的笔留待 L11 横幅
       final n = await repo.recalcNativeAmountsForLedger(
           ledger.id, result.currency);
-      if (context.mounted && n > 0) {
-        showToast(context,
-            AppLocalizations.of(context).recalcForeignTxDone(n));
+      if (mounted && n > 0) {
+        showToast(this.context,
+            AppLocalizations.of(this.context).recalcForeignTxDone(n));
       }
     }
 
@@ -1141,7 +1143,9 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
                 const SizedBox(height: 12),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(AppLocalizations.of(ctx).ledgersCurrency),
+                  // v30 语义升级:账本 currency = 「账本本位币」(统计折算目标),
+                  // 与资产页的用户级「主币种」是两个概念,label 用本位币避免混淆。
+                  title: Text(AppLocalizations.of(ctx).ledgerBaseCurrencyLabel),
                   subtitle: Text(displayCurrency(currency, context)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
