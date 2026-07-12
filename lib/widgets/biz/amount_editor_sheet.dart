@@ -17,6 +17,8 @@ import '../../utils/ui_scale_extensions.dart';
 import '../../pages/tag/widgets/tag_selector.dart';
 import 'note_picker_dialog.dart';
 import 'account_selector.dart';
+import '../currency/currency_picker_sheet.dart';
+import '../ui/toast.dart';
 import 'tag_chip.dart';
 import '../../pages/attachment/attachment_preview_page.dart';
 
@@ -187,6 +189,10 @@ typedef AmountEditorResult = ({
   List<File> pendingAttachments,
   bool excludeFromStats,
   bool excludeFromBudget,
+  // v30 交易级多币种:交易币种(有账户=账户币种;无账户=手选,默认本位币)
+  // 与折本位币快照(同币种 == amount;外币 = amount × 汇率,缺汇率已在提交前阻断)。
+  String? currencyCode,
+  double? nativeAmount,
 });
 
 class AmountEditorSheet extends ConsumerStatefulWidget {
@@ -203,6 +209,10 @@ class AmountEditorSheet extends ConsumerStatefulWidget {
   final String transactionKind; // 'expense' / 'income' / 'transfer'，决定标记开关可见性
   final bool initialExcludeFromStats; // 不计入收支，编辑模式回显
   final bool initialExcludeFromBudget; // 不计入预算，编辑模式回显
+  // v30 编辑模式回显:该笔的原币种与折算快照(用于推隐含汇率,只改备注时
+  // 折算基准不漂移,.docs/multi-currency-ledger 01 §4.2)。
+  final String? initialCurrencyCode;
+  final double? initialNativeAmount;
 
   const AmountEditorSheet({
     super.key,
@@ -219,6 +229,8 @@ class AmountEditorSheet extends ConsumerStatefulWidget {
     this.transactionKind = 'expense',
     this.initialExcludeFromStats = false,
     this.initialExcludeFromBudget = false,
+    this.initialCurrencyCode,
+    this.initialNativeAmount,
   });
 
   @override
@@ -258,6 +270,12 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   bool _excludeFromStats = false;
   bool _excludeFromBudget = false;
 
+  // v30 交易级多币种(L7 自动探测 + L12 无账户手选)
+  String? _pickedCurrency; // 无账户时手选的币种;null = 本位币
+  String? _selectedAccountCurrency; // 所选账户的币种(异步查,null = 未选/未知)
+  String? _rateStr; // 本笔汇率(字符串);编辑模式初值=隐含汇率,用户可改
+  bool _rateManuallySet = false; // 手改/隐含汇率后不再被有效汇率覆盖
+
   @override
   void initState() {
     super.initState();
@@ -266,6 +284,18 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     _excludeFromBudget = widget.initialExcludeFromBudget;
     _selectedAccountId = widget.initialAccountId;
     _selectedTagIds = List.from(widget.initialTagIds ?? []);
+    _pickedCurrency = widget.initialCurrencyCode?.toUpperCase();
+    // 编辑外币交易:汇率行初值 = 该笔隐含汇率(nativeAmount / amount),
+    // 只改备注/分类时折算基准不漂移(01 §4.2)。
+    final initAmount = widget.initialAmount ?? 0;
+    final initNative = widget.initialNativeAmount;
+    if (initNative != null && initAmount > 0 && initNative != initAmount) {
+      _rateStr = (initNative / initAmount).toStringAsPrecision(6);
+      _rateManuallySet = true;
+    }
+    if (widget.initialAccountId != null) {
+      _loadAccountCurrency(widget.initialAccountId!);
+    }
     // 保留原始小数（最多两位），避免编辑已有记录时小数被截断为整数
     final init = widget.initialAmount ?? 0;
     final s = init.toStringAsFixed(2);
@@ -300,9 +330,190 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       widget.ledgerId,
       limit: 20,
     );
+    if (!mounted) return; // 弹窗已关时不再 setState(widget 测试暴露的既有问题)
     setState(() {
       _frequentNotes = notes;
     });
+  }
+
+  Future<void> _loadAccountCurrency(int accountId) async {
+    final repo = ref.read(repositoryProvider);
+    final acc = await repo.getAccount(accountId);
+    if (!mounted) return;
+    setState(() {
+      _selectedAccountCurrency =
+          (acc?.currency.isNotEmpty ?? false) ? acc!.currency.toUpperCase() : null;
+    });
+  }
+
+  /// 交易币种(01 §4.5 规则):有账户 → 账户币种(锁定);无账户 → 手选 ?? 本位币。
+  String _txCurrency() {
+    if (_selectedAccountId != null) {
+      return _selectedAccountCurrency ??
+          ref.read(currentLedgerCurrencyProvider);
+    }
+    return _pickedCurrency ?? ref.read(currentLedgerCurrencyProvider);
+  }
+
+  /// 本笔汇率:手改/隐含 > 有效汇率(effectiveRatesForLedgerProvider)。
+  double? _currentRate() {
+    if (_rateManuallySet) return double.tryParse(_rateStr ?? '');
+    final rates = ref.read(effectiveRatesForLedgerProvider).valueOrNull;
+    final er = rates?[_txCurrency()];
+    return er == null ? null : double.tryParse(er.rate);
+  }
+
+  Future<void> _pickCurrency() async {
+    final l10n = AppLocalizations.of(context);
+    if (_selectedAccountId != null) {
+      // 有账户:币种锁定(01 §4.5)
+      showToast(context, l10n.txCurrencyLockedByAccount);
+      return;
+    }
+    final base = ref.read(currentLedgerCurrencyProvider);
+    final picked = await showCurrencyPickerSheet(
+      context,
+      selected: _pickedCurrency ?? base,
+      primaryColor: Theme.of(context).colorScheme.primary,
+      title: l10n.txCurrencyPickerTitle,
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _pickedCurrency = picked.toUpperCase() == base ? null : picked.toUpperCase();
+      // 换币种后隐含/手改汇率作废,重新带有效汇率
+      _rateStr = null;
+      _rateManuallySet = false;
+    });
+  }
+
+  Future<void> _editRate() async {
+    final l10n = AppLocalizations.of(context);
+    final ctrl = TextEditingController(
+        text: _rateStr ?? _currentRate()?.toStringAsPrecision(6) ?? '');
+    final entered = await showDialog<String>(
+      context: context,
+      builder: (dctx) => AlertDialog(
+        title: Text(l10n.txRateLabel),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            hintText: '1 ${_txCurrency()} = ? ${ref.read(currentLedgerCurrencyProvider)}',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dctx),
+            child: Text(AppLocalizations.of(dctx).commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dctx, ctrl.text.trim()),
+            child: Text(AppLocalizations.of(dctx).commonConfirm),
+          ),
+        ],
+      ),
+    );
+    if (entered == null || !mounted) return;
+    final v = double.tryParse(entered);
+    if (v == null || v <= 0) return;
+    setState(() {
+      _rateStr = entered;
+      _rateManuallySet = true;
+    });
+  }
+
+  /// 币种标 + 汇率行 + 折算预览。单币种态(有账户且==本位币)整块 shrink。
+  Widget _buildCurrencySection(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    // watch:账本切换 / 汇率刷新时重建
+    final ledgerBase = ref.watch(currentLedgerCurrencyProvider);
+    ref.watch(effectiveRatesForLedgerProvider);
+    final txCurrency = _txCurrency();
+    final isForeign = txCurrency != ledgerBase;
+    final showChip = _selectedAccountId == null || isForeign;
+    if (!showChip) return const SizedBox.shrink();
+
+    final rate = isForeign ? _currentRate() : null;
+    final amount = double.tryParse(_amountStr) ?? 0.0;
+    final preview = (isForeign && rate != null && rate > 0)
+        ? (amount * rate)
+        : null;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        children: [
+          // 币种标:无账户可点开选;有账户点了提示锁定
+          InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: _pickCurrency,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: BeeTokens.surfaceKeySecondary(context),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    txCurrency,
+                    style: text.bodySmall?.copyWith(
+                      color: BeeTokens.textSecondary(context),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (_selectedAccountId == null) ...[
+                    const SizedBox(width: 2),
+                    Icon(Icons.arrow_drop_down,
+                        size: 14, color: BeeTokens.iconTertiary(context)),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          if (isForeign) ...[
+            const SizedBox(width: 10),
+            // 汇率行:1 USD = 7.2000 CNY ✎(可点改,快照仅本笔)
+            Expanded(
+              child: InkWell(
+                onTap: _editRate,
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        rate != null
+                            ? '1 $txCurrency = ${rate.toStringAsPrecision(6)} $ledgerBase'
+                            : l10n.txRateMissingTitle,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          color: rate != null
+                              ? BeeTokens.textSecondary(context)
+                              : Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(Icons.edit_outlined,
+                        size: 13, color: BeeTokens.iconTertiary(context)),
+                  ],
+                ),
+              ),
+            ),
+            if (preview != null)
+              Text(
+                l10n.txConvertedPreview(
+                    preview.toStringAsFixed(2), ledgerBase),
+                style: text.bodySmall?.copyWith(
+                  color: BeeTokens.textTertiary(context),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
   }
 
   void _append(String s) {
@@ -696,6 +907,10 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                     : null,
               ),
             ),
+            // v30 交易级多币种:币种标(L12)+ 汇率行 + 折算预览(L7 自动探测)。
+            // 有账户 → 币种锁定=账户币种;无账户 → 小字标可点开选(默认本位币)。
+            // 交易币种 ≠ 账本本位币时出现汇率行,否则整块不可见(单币种零打扰)。
+            _buildCurrencySection(context),
             // 账户选择（仅在启用时显示）
             if (widget.showAccountPicker) ...[
               const SizedBox(height: 8),
@@ -715,7 +930,11 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                         onAccountSelected: (accountId) {
                           setState(() {
                             _selectedAccountId = accountId;
+                            _selectedAccountCurrency = null; // 异步刷新
                           });
+                          if (accountId != null) {
+                            _loadAccountCurrency(accountId);
+                          }
                         },
                       );
                     },
@@ -822,6 +1041,26 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                               if (_isSubmitting) return;
                               setState(() => _isSubmitting = true);
 
+                              // v30:折本位币快照。外币且汇率无效 → 阻断(L8)。
+                              final txCurrency = _txCurrency();
+                              final ledgerBase =
+                                  ref.read(currentLedgerCurrencyProvider);
+                              double? nativeAmount;
+                              if (txCurrency == ledgerBase) {
+                                nativeAmount = total.abs();
+                              } else {
+                                final r = _currentRate();
+                                if (r == null || r <= 0) {
+                                  setState(() => _isSubmitting = false);
+                                  showToast(
+                                      context,
+                                      AppLocalizations.of(context)
+                                          .txRateMissingHint);
+                                  return;
+                                }
+                                nativeAmount = total.abs() * r;
+                              }
+
                               HapticFeedback.lightImpact();
                               SystemSound.play(SystemSoundType.click);
                               widget.onSubmit((
@@ -835,6 +1074,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                                 pendingAttachments: _pendingAttachments,
                                 excludeFromStats: _excludeFromStats,
                                 excludeFromBudget: _excludeFromBudget,
+                                currencyCode: txCurrency,
+                                nativeAmount: nativeAmount,
                               ));
 
                               // 注意：不需要在这里重置 _isSubmitting

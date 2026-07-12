@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' as d;
 import '../data/db.dart';
 import '../data/repositories/base_repository.dart';
 import '../data/repositories/transaction_repository.dart' show BatchAttachmentData;
+import 'currency/rate_math.dart';
 import 'system/logger_service.dart';
 
 /// 统一的数据导入服务
@@ -434,6 +435,35 @@ class DataImportService {
     final total = transactions.length;
     logger.info('TxImport',
         '开始导入交易: $total 条 (recordChanges=$recordChanges)');
+
+    // v30 交易级多币种(02 §六导入修补):批量预取本位币/账户币种/有效汇率,
+    // 逐条填 currencyCode + nativeAmount,不再落 NULL(NULL 行 L11 检测
+    // 需 join 兜底,且外币账户导入折算会静默 1:1)。
+    final ledger = await repo.getLedgerById(ledgerId);
+    final ledgerBase = ((ledger?.currency.isNotEmpty ?? false)
+            ? ledger!.currency
+            : 'CNY')
+        .toUpperCase();
+    final accountCurrencyById = <int, String>{
+      for (final a in await repo.getAllAccounts())
+        a.id: (a.currency.isNotEmpty ? a.currency : ledgerBase).toUpperCase(),
+    };
+    Map<String, EffectiveRate> importRates = const {};
+    try {
+      final autos = await repo.getLatestAutoRates(ledgerBase);
+      final overrides = await repo.getOverrides(ledgerBase);
+      importRates = mergeEffectiveRates(
+        autoRates: [
+          for (final r in autos)
+            (quote: r.quoteCurrency, rate: r.rate, rateDate: r.rateDate)
+        ],
+        overrides: [
+          for (final o in overrides) (quote: o.quoteCurrency, rate: o.rate)
+        ],
+      );
+    } catch (e) {
+      logger.warning('TxImport', '导入取汇率失败,外币交易将按 1:1 待 L11 捞回: $e');
+    }
     final overallSw = Stopwatch()..start();
 
     const batchSize = 500;
@@ -538,6 +568,20 @@ class DataImportService {
       }
       final uniqueTagIds = tagIds.toSet().toList();
 
+      // v30:交易币种 = 账户币种(无账户 → 本位币);折算快照同币种 = amount,
+      // 外币按有效汇率,取不到 = amount(命中 L11 检测可捞回)。
+      final txCurrency =
+          (accountId != null ? accountCurrencyById[accountId] : null) ??
+              ledgerBase;
+      final txNative = txCurrency == ledgerBase
+          ? tx.amount
+          : (computeNativeAmount(
+                  amount: tx.amount,
+                  accountCurrency: txCurrency,
+                  ledgerBase: ledgerBase,
+                  rates: importRates) ??
+              tx.amount);
+
       // 构建交易记录
       final txCompanion = TransactionsCompanion.insert(
         ledgerId: ledgerId,
@@ -549,6 +593,8 @@ class DataImportService {
         happenedAt: d.Value(tx.happenedAt),
         note: d.Value(tx.note),
         syncId: d.Value(tx.syncId),
+        currencyCode: d.Value(txCurrency),
+        nativeAmount: d.Value(txNative),
       );
 
       final indexInBatch = batchTx.length;

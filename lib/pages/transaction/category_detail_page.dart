@@ -73,7 +73,8 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
       error: (error, stack) => AsyncValue.error(error, stack),
       data: (transactions) {
         final totalCount = transactions.length;
-        final totalAmount = transactions.fold(0.0, (sum, t) => sum + t.amount);
+        final totalAmount = transactions.fold(
+            0.0, (sum, t) => sum + (t.nativeAmount ?? t.amount));
         final averageAmount = totalCount > 0 ? totalAmount / totalCount : 0.0;
         return AsyncValue.data((
           totalCount: totalCount,
@@ -451,10 +452,10 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
               dateText: dateKey,
               expense: dayTransactions
                   .where((t) => t.type == 'expense')
-                  .fold(0.0, (sum, t) => sum + t.amount),
+                  .fold(0.0, (sum, t) => sum + (t.nativeAmount ?? t.amount)),
               income: dayTransactions
                   .where((t) => t.type == 'income')
-                  .fold(0.0, (sum, t) => sum + t.amount),
+                  .fold(0.0, (sum, t) => sum + (t.nativeAmount ?? t.amount)),
             ),
             ...dayTransactions.map((transaction) {
               final category = _getTransactionCategory();

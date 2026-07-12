@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../db.dart';
 import '../../../cloud/sync/change_tracker.dart';
+import '../../../services/currency/rate_math.dart';
 import '../../../services/system/logger_service.dart';
 import '../base_repository.dart';
 import '../budget_repository.dart';
@@ -312,7 +313,18 @@ class LocalRepository extends BaseRepository {
     String? toAccountSyncIdOverride,
     bool excludeFromStats = false,
     bool excludeFromBudget = false,
+    String? currencyCode,
+    double? nativeAmount,
   }) async {
+    // v30 带折算兜底(02 §六):任何调用方(单币种记账/AI/周期模板)未传两字段
+    // 时在此补齐 —— 外币先查有效汇率,取不到才 =amount(命中 L11 检测可捞回)。
+    final (cc, na) = await _resolveTxCurrency(
+      ledgerId: ledgerId,
+      accountId: accountId,
+      amount: amount,
+      currencyCode: currencyCode,
+      nativeAmount: nativeAmount,
+    );
     final id = await _transactionRepo.addTransaction(
       ledgerId: ledgerId,
       type: type,
@@ -328,6 +340,8 @@ class LocalRepository extends BaseRepository {
       toAccountSyncIdOverride: toAccountSyncIdOverride,
       excludeFromStats: excludeFromStats,
       excludeFromBudget: excludeFromBudget,
+      currencyCode: cc,
+      nativeAmount: na,
     );
     if (changeTracker != null) {
       final tx = await _transactionRepo.getTransactionById(id);
@@ -400,10 +414,26 @@ class LocalRepository extends BaseRepository {
     String? toAccountSyncIdOverride,
     bool? excludeFromStats,
     bool? excludeFromBudget,
+    String? currencyCode,
+    double? nativeAmount,
   }) async {
+    final old = await _transactionRepo.getTransactionById(id);
+    // v30 联动兜底(与 Cloud merge/mutator 的 L14 同规则):调用方不传两字段
+    // 且 amount 变了 → 旧快照会失配,按该笔隐含汇率联动;amount 未变 → 不动。
+    var effNative = nativeAmount;
+    if (currencyCode == null &&
+        nativeAmount == null &&
+        old?.nativeAmount != null &&
+        old!.amount != amount) {
+      final oldNative = old.nativeAmount!;
+      if (old.amount == 0 || oldNative == old.amount) {
+        effNative = amount; // 同币种/未折算(隐含汇率 1)→ 跟随
+      } else {
+        effNative = oldNative / old.amount * amount; // 外币按隐含汇率缩放
+      }
+    }
     if (changeTracker != null) {
-      final tx = await _transactionRepo.getTransactionById(id);
-      if (tx?.syncId != null) {
+      if (old?.syncId != null) {
         await _transactionRepo.updateTransaction(
           id: id, type: type, amount: amount,
           categoryId: categoryId, note: note,
@@ -413,12 +443,14 @@ class LocalRepository extends BaseRepository {
           toAccountSyncIdOverride: toAccountSyncIdOverride,
           excludeFromStats: excludeFromStats,
           excludeFromBudget: excludeFromBudget,
+          currencyCode: currencyCode,
+          nativeAmount: effNative,
         );
         await changeTracker!.recordLedgerChange(
           entityType: 'transaction',
           entityId: id,
-          entitySyncId: tx!.syncId!,
-          ledgerId: tx.ledgerId,
+          entitySyncId: old!.syncId!,
+          ledgerId: old.ledgerId,
           action: 'update',
         );
         return;
@@ -433,6 +465,8 @@ class LocalRepository extends BaseRepository {
       toAccountSyncIdOverride: toAccountSyncIdOverride,
       excludeFromStats: excludeFromStats,
       excludeFromBudget: excludeFromBudget,
+      currencyCode: currencyCode,
+      nativeAmount: effNative,
     );
   }
 
@@ -455,6 +489,187 @@ class LocalRepository extends BaseRepository {
 
   @override
   Future<Transaction?> getTransactionById(int id) => _transactionRepo.getTransactionById(id);
+
+  // ---------------------------------------------------------------------
+  // v30 交易级多币种:折算兜底 + 重算/检测(.docs/multi-currency-ledger)
+  // ---------------------------------------------------------------------
+
+  /// 以 [base] 为本位币合成有效汇率(手动 > 最新自动)。repo 层不读 provider,
+  /// 聚合层自身实现 ExchangeRateRepository,直接查表合成。
+  Future<Map<String, EffectiveRate>> _effectiveRatesFor(String base) async {
+    final autos = await getLatestAutoRates(base);
+    final overrides = await getOverrides(base);
+    return mergeEffectiveRates(
+      autoRates: [
+        for (final r in autos)
+          (quote: r.quoteCurrency, rate: r.rate, rateDate: r.rateDate)
+      ],
+      overrides: [
+        for (final o in overrides) (quote: o.quoteCurrency, rate: o.rate)
+      ],
+    );
+  }
+
+  /// 兜底解析 (currencyCode, nativeAmount):
+  /// currencyCode ??= 账户币种 ?? 账本本位币;
+  /// nativeAmount ??= 同币种 → amount;外币 → 有效汇率折算,取不到 → amount
+  /// (恰命中 L11 检测条件 currencyCode≠base && native==amount,横幅可捞回)。
+  Future<(String, double)> _resolveTxCurrency({
+    required int ledgerId,
+    required int? accountId,
+    required double amount,
+    String? currencyCode,
+    double? nativeAmount,
+  }) async {
+    final ledger = await getLedgerById(ledgerId);
+    final base = ((ledger?.currency.isNotEmpty ?? false)
+            ? ledger!.currency
+            : 'CNY')
+        .toUpperCase();
+    var cc = currencyCode?.toUpperCase();
+    if (cc == null || cc.isEmpty) {
+      final acc = accountId == null ? null : await getAccount(accountId);
+      cc = ((acc?.currency.isNotEmpty ?? false) ? acc!.currency : base)
+          .toUpperCase();
+    }
+    var na = nativeAmount;
+    if (na == null) {
+      if (cc == base) {
+        na = amount;
+      } else {
+        final rates = await _effectiveRatesFor(base);
+        na = computeNativeAmount(
+                amount: amount,
+                accountCurrency: cc,
+                ledgerBase: base,
+                rates: rates) ??
+            amount;
+      }
+    }
+    return (cc, na);
+  }
+
+  /// 重算核心:遍历该账本交易按 [base] 重算 nativeAmount。
+  /// [onlyUnconverted]=true → 只补「currencyCode≠base 且 native==amount」的
+  /// 存量外币交易(L11);false → 全量(改本位币,§八)。
+  /// 每笔改动**必须**逐笔记 change(L13:changeTracker 挂本层,直接 db.update
+  /// 不产 change → 云端投影永远旧值、full_pull 会把重算成果冲回)。
+  Future<int> _recalcNativeAmounts(
+    int ledgerId,
+    String base, {
+    required bool onlyUnconverted,
+  }) async {
+    final baseUp = base.toUpperCase();
+    final rates = await _effectiveRatesFor(baseUp);
+    final txs = await (db.select(db.transactions)
+          ..where((t) => t.ledgerId.equals(ledgerId)))
+        .get();
+    // 预取账户币种 map,兜底 currency_code IS NULL 的行(绕过 repo 的历史写入)
+    final accounts = await (db.select(db.accounts)).get();
+    final accCurrency = {
+      for (final a in accounts) a.id: a.currency.toUpperCase()
+    };
+    var n = 0;
+    for (final t in txs) {
+      final cc = (t.currencyCode ??
+              (t.accountId != null ? accCurrency[t.accountId!] : null) ??
+              baseUp)
+          .toUpperCase();
+      if (cc == baseUp) {
+        // 本位币交易:全量重算时对齐 native=amount(改本位币后旧快照失效);
+        // 补折算模式跳过(非外币)。
+        if (onlyUnconverted || t.nativeAmount == t.amount) continue;
+        await (db.update(db.transactions)..where((x) => x.id.equals(t.id)))
+            .write(TransactionsCompanion(nativeAmount: d.Value(t.amount)));
+      } else {
+        if (onlyUnconverted &&
+            t.nativeAmount != null &&
+            t.nativeAmount != t.amount) {
+          continue; // 已折算过,不动(L11 只补从没折算的)
+        }
+        final na = computeNativeAmount(
+            amount: t.amount,
+            accountCurrency: cc,
+            ledgerBase: baseUp,
+            rates: rates);
+        if (na == null) continue; // 缺汇率,留待用户(绝不 1.0 硬折)
+        if (t.nativeAmount == na && t.currencyCode != null) continue; // 无变化
+        await (db.update(db.transactions)..where((x) => x.id.equals(t.id)))
+            .write(TransactionsCompanion(
+          nativeAmount: d.Value(na),
+          // 顺手补齐 NULL currencyCode(历史绕过写入)
+          currencyCode: d.Value(cc),
+        ));
+      }
+      if (changeTracker != null && t.syncId != null) {
+        await changeTracker!.recordLedgerChange(
+          entityType: 'transaction',
+          entityId: t.id,
+          entitySyncId: t.syncId!,
+          ledgerId: ledgerId,
+          action: 'update',
+        );
+      }
+      n++;
+    }
+    if (n > 0) {
+      logger.info('LocalRepository',
+          '多币种重算完成 ledger=$ledgerId base=$baseUp onlyUnconverted=$onlyUnconverted 改动 $n 笔');
+    }
+    return n;
+  }
+
+  @override
+  Future<int> recalcNativeAmountsForLedger(int ledgerId, String newBase) =>
+      _recalcNativeAmounts(ledgerId, newBase, onlyUnconverted: false);
+
+  @override
+  Future<int> recomputeForeignTxForLedger(int ledgerId) async {
+    final ledger = await getLedgerById(ledgerId);
+    final base = ((ledger?.currency.isNotEmpty ?? false)
+            ? ledger!.currency
+            : 'CNY')
+        .toUpperCase();
+    return _recalcNativeAmounts(ledgerId, base, onlyUnconverted: true);
+  }
+
+  @override
+  Future<int> countUnconvertedForeignTx(int ledgerId) async {
+    final ledger = await getLedgerById(ledgerId);
+    final base = ((ledger?.currency.isNotEmpty ?? false)
+            ? ledger!.currency
+            : 'CNY')
+        .toUpperCase();
+    // currency_code IS NULL 的行(绕过 repo 的历史写入)LEFT JOIN 账户币种兜底
+    final row = await db.customSelect(
+      'SELECT COUNT(*) AS cnt FROM transactions t '
+      'LEFT JOIN accounts a ON a.id = t.account_id '
+      'WHERE t.ledger_id = ?1 '
+      "AND UPPER(COALESCE(t.currency_code, a.currency, ?2)) != ?2 "
+      'AND t.native_amount = t.amount',
+      variables: [d.Variable.withInt(ledgerId), d.Variable.withString(base)],
+      readsFrom: {db.transactions, db.accounts},
+    ).getSingle();
+    return row.read<int>('cnt');
+  }
+
+  @override
+  Future<int> countForeignCurrencyTx(int ledgerId) async {
+    final ledger = await getLedgerById(ledgerId);
+    final base = ((ledger?.currency.isNotEmpty ?? false)
+            ? ledger!.currency
+            : 'CNY')
+        .toUpperCase();
+    final row = await db.customSelect(
+      'SELECT COUNT(*) AS cnt FROM transactions t '
+      'LEFT JOIN accounts a ON a.id = t.account_id '
+      'WHERE t.ledger_id = ?1 '
+      "AND UPPER(COALESCE(t.currency_code, a.currency, ?2)) != ?2",
+      variables: [d.Variable.withInt(ledgerId), d.Variable.withString(base)],
+      readsFrom: {db.transactions, db.accounts},
+    ).getSingle();
+    return row.read<int>('cnt');
+  }
 
   @override
   Future<List<int>> insertTransactionsBatchWithRelations({

@@ -173,7 +173,7 @@ class LocalBudgetRepository implements BudgetRepository {
       // 总预算：统计所有支出
       final result = await db.customSelect(
         '''
-        SELECT COALESCE(SUM(amount), 0) as total
+        SELECT COALESCE(SUM(COALESCE(native_amount, amount)), 0) as total
         FROM transactions
         WHERE ledger_id = ?
           AND type = 'expense'
@@ -193,7 +193,7 @@ class LocalBudgetRepository implements BudgetRepository {
       // 分类预算：统计该分类支出（包含子分类）
       final result = await db.customSelect(
         '''
-        SELECT COALESCE(SUM(t.amount), 0) as total
+        SELECT COALESCE(SUM(COALESCE(t.native_amount, t.amount)), 0) as total
         FROM transactions t
         LEFT JOIN categories c ON t.category_id = c.id
         WHERE t.ledger_id = ?

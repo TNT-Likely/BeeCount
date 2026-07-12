@@ -65,6 +65,9 @@ class TransactionEditUtils {
           // 账单标记（不计入收支/预算）回显
           initialExcludeFromStats: transaction.excludeFromStats,
           initialExcludeFromBudget: transaction.excludeFromBudget,
+          // v30 多币种:编辑外币交易时汇率行按隐含汇率回显
+          initialCurrencyCode: transaction.currencyCode,
+          initialNativeAmount: transaction.nativeAmount,
         ),
       ),
     );

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/repositories/base_repository.dart';
 import '../services/system/logger_service.dart';
 import '../services/currency/rate_math.dart';
 import '../services/currency/exchange_rate_service.dart';
@@ -104,6 +105,57 @@ final effectiveRatesProvider =
   );
 });
 
+/// 当前账本本位币(ISO 大写)。`ledger.currency` 的语义化别名——交易级多币种后
+/// 它的语义是「账本统计折算的目标币种」(.docs/multi-currency-ledger L1)。
+final currentLedgerCurrencyProvider = Provider<String>((ref) {
+  final ledger = ref.watch(currentLedgerProvider).valueOrNull;
+  final c = ledger?.currency;
+  return (c == null || c.isEmpty) ? 'CNY' : c.toUpperCase();
+});
+
+/// 以**账本本位币**为 base 的有效汇率(账户/交易币种 → 账本本位币)。
+/// 结构同 [effectiveRatesProvider],仅 base 从用户主币种换成账本本位币;
+/// 两者默认相同(新账本本位币默认=主币种),不同账本切换时自动重算。
+/// 记账折算(computeNativeAmount)用这组。
+final effectiveRatesForLedgerProvider =
+    FutureProvider<Map<String, EffectiveRate>>((ref) async {
+  ref.watch(rateRefreshTickProvider);
+  ref.watch(statsRefreshProvider);
+  final base = ref.watch(currentLedgerCurrencyProvider);
+  final repo = ref.watch(repositoryProvider);
+  final autos = await repo.getLatestAutoRates(base);
+  final overrides = await repo.getOverrides(base);
+  return mergeEffectiveRates(
+    autoRates: [
+      for (final r in autos)
+        (quote: r.quoteCurrency, rate: r.rate, rateDate: r.rateDate)
+    ],
+    overrides: [
+      for (final o in overrides) (quote: o.quoteCurrency, rate: o.rate)
+    ],
+  );
+});
+
+/// 当前账本「未折算外币交易」条数(L11 检测):>0 时统计页显示补折算横幅。
+/// watch statsRefresh(重算完成/交易变动后重查)。
+final ledgerUnconvertedForeignTxCountProvider = FutureProvider<int>((ref) async {
+  ref.watch(statsRefreshProvider);
+  ref.watch(rateRefreshTickProvider);
+  final ledger = ref.watch(currentLedgerProvider).valueOrNull;
+  if (ledger == null) return 0;
+  final repo = ref.watch(repositoryProvider);
+  return repo.countUnconvertedForeignTx(ledger.id);
+});
+
+/// 当前账本外币交易条数(含已折算):>0 时账本统计页显示折算脚注(01 §五)。
+final ledgerForeignTxCountProvider = FutureProvider<int>((ref) async {
+  ref.watch(statsRefreshProvider);
+  final ledger = ref.watch(currentLedgerProvider).valueOrNull;
+  if (ledger == null) return 0;
+  final repo = ref.watch(repositoryProvider);
+  return repo.countForeignCurrencyTx(ledger.id);
+});
+
 /// 资产页折算结果。
 final convertedNetWorthProvider =
     FutureProvider<ConvertedNetWorth>((ref) async {
@@ -166,26 +218,75 @@ Future<bool> refreshExchangeRatesFromUi(WidgetRef ref, {bool force = false}) =>
     );
 
 /// 真正的实现:只依赖 read / readFuture 两个能力,与 Ref / WidgetRef 解耦。
+///
+/// 交易级多币种(Q1):base 集合 = {用户主币种} ∪ {各账本本位币}——账本本位币
+/// ≠ 主币种时(如「美漂生活」账本用 USD),记账折算需要以该本位币为 base 的
+/// 汇率组。默认所有账本本位币 == 主币种 → 集合仅一个,行为与 MVP 完全一致。
 Future<bool> _refreshExchangeRatesImpl({
   required T Function<T>(ProviderListenable<T>) read,
   required Future<T> Function<T>(FutureProvider<T>) readFuture,
   required bool force,
 }) async {
   try {
-    if (!force && !read(multiCurrencyActiveProvider)) return false;
     final repo = read(repositoryProvider);
-    final base = read(baseCurrencyProvider).toUpperCase();
-    if (!force) {
-      final last = await repo.getLastFetchedAt(base);
-      if (last != null &&
-          DateTime.now().toUtc().difference(last) < const Duration(hours: 24)) {
-        return true; // 未过期,无需拉取
+
+    // base 集合:主币种 ∪ 各账本本位币(大写)
+    final bases = <String>{read(baseCurrencyProvider).toUpperCase()};
+    try {
+      final ledgers = await repo.getAllLedgers();
+      bases.addAll(ledgers
+          .map((l) => l.currency.toUpperCase())
+          .where((c) => c.isNotEmpty));
+    } catch (e) {
+      logger.warning('currency_providers', '读取账本本位币集合失败(仅拉主币种): $e');
+    }
+
+    // 需要折算的币种全集:使用中币种 ∪ 各 base(外币本位币账本即使还没有
+    // 外币账户,也要能把使用中币种折过去)。
+    final usedAll = (await readFuture(usedCurrenciesProvider)).toSet()
+      ..addAll(bases);
+    // 总闸(D6 扩展):全集 <2 说明纯单币种(账本本位币也全一致),无需汇率。
+    if (!force && usedAll.length < 2) return false;
+
+    var anySuccess = false;
+    for (final base in bases) {
+      final quotes = usedAll.toSet()..remove(base);
+      if (quotes.isEmpty) continue;
+      if (!force) {
+        final last = await repo.getLastFetchedAt(base);
+        if (last != null &&
+            DateTime.now().toUtc().difference(last) <
+                const Duration(hours: 24)) {
+          anySuccess = true; // 未过期视作成功,无需拉取
+          continue;
+        }
+      }
+      if (await _fetchAndStoreRatesForBase(
+          read: read,
+          readFuture: readFuture,
+          repo: repo,
+          base: base,
+          quotes: quotes)) {
+        anySuccess = true;
       }
     }
-    final used = (await readFuture(usedCurrenciesProvider)).toSet()
-      ..remove(base);
-    if (used.isEmpty) return false;
+    if (anySuccess) read(rateRefreshTickProvider.notifier).state++;
+    return anySuccess;
+  } catch (e, st) {
+    logger.warning('currency_providers', '汇率刷新失败: $e', st);
+    return false;
+  }
+}
 
+/// 拉取并落库单个 base 的汇率(原单 base 实现拆出,循环体复用)。
+Future<bool> _fetchAndStoreRatesForBase({
+  required T Function<T>(ProviderListenable<T>) read,
+  required Future<T> Function<T>(FutureProvider<T>) readFuture,
+  required BaseRepository repo,
+  required String base,
+  required Set<String> quotes,
+}) async {
+  try {
     String rateDate, source;
     Map<String, String> baseToQuote;
     Map<String, dynamic>? serverBody;
@@ -201,7 +302,9 @@ Future<bool> _refreshExchangeRatesImpl({
     // serverBody['stale'] 有意不消费:rateDate 如实落库(UI 日期不撒谎),代价是
     // stale 数据会被 24h 节流当新鲜缓存一天;有 force 刷新兜底,MVP 接受。
     final rawRateDate = serverBody?['rate_date']?.toString() ?? '';
-    if (serverBody != null && serverBody['rates'] is Map && rawRateDate.isNotEmpty) {
+    if (serverBody != null &&
+        serverBody['rates'] is Map &&
+        rawRateDate.isNotEmpty) {
       rateDate = rawRateDate;
       source = 'server';
       baseToQuote = {
@@ -215,9 +318,9 @@ Future<bool> _refreshExchangeRatesImpl({
       baseToQuote = result.ratesBaseToQuote;
     }
 
-    // 倒数成「1 quote = x base」,只保留使用中币种
+    // 倒数成「1 quote = x base」,只保留需要的币种
     final inverted = <String, String>{};
-    for (final code in used) {
+    for (final code in quotes) {
       final raw = double.tryParse(baseToQuote[code] ?? '');
       if (raw != null && raw > 0) inverted[code] = invertRate(raw);
     }
@@ -229,10 +332,9 @@ Future<bool> _refreshExchangeRatesImpl({
       source: source,
       fetchedAt: DateTime.now().toUtc(),
     );
-    read(rateRefreshTickProvider.notifier).state++;
     return true;
   } catch (e, st) {
-    logger.warning('currency_providers', '汇率刷新失败: $e', st);
+    logger.warning('currency_providers', 'base=$base 汇率拉取失败: $e', st);
     return false;
   }
 }

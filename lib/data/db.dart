@@ -138,6 +138,16 @@ class Transactions extends Table {
   /// 不计入预算:true 时从预算用量剔除。与 excludeFromStats 完全独立(D2)。
   BoolColumn get excludeFromBudget =>
       boolean().withDefault(const Constant(false))();
+
+  /// v30 交易级多币种(.docs/multi-currency-ledger):交易币种(ISO 大写)。
+  /// 有账户 → 恒等于账户 currency(账户内不混币);无账户 → 用户所选(L12,
+  /// 默认账本本位币)。显式存让交易自包含(同步/统计不必每次 join 账户)。
+  TextColumn get currencyCode => text().nullable()();
+
+  /// v30:折算到账本本位币的金额快照(按记账时汇率,保存即定,不随汇率重算)。
+  /// 单币种/未折算 == amount(隐含汇率 1.0)。账本维度统计读本列(?? amount),
+  /// 账户维度(余额等)仍读 amount。
+  RealColumn get nativeAmount => real().nullable()();
 }
 
 class RecurringTransactions extends Table {
@@ -429,7 +439,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 29; // v29: 账单标记 — exclude_from_stats / exclude_from_budget
+  int get schemaVersion => 30; // v30: 交易级多币种 — currency_code / native_amount
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1118,6 +1128,25 @@ class BeeDatabase extends _$BeeDatabase {
             await _addColumnIfMissing('transactions', 'exclude_from_budget',
                 'ALTER TABLE transactions ADD COLUMN exclude_from_budget INTEGER NOT NULL DEFAULT 0;');
             logger.info('DBMigration', 'v29 迁移完成');
+          }
+          if (from < 30) {
+            logger.info('DBMigration', '开始迁移到 v30: 交易级多币种(currency_code + native_amount)');
+            await _addColumnIfMissing('transactions', 'currency_code',
+                'ALTER TABLE transactions ADD COLUMN currency_code TEXT;');
+            await _addColumnIfMissing('transactions', 'native_amount',
+                'ALTER TABLE transactions ADD COLUMN native_amount REAL;');
+            // 回填:currency_code = 账户币种(无账户 → 账本本位币);
+            // native_amount = amount(隐含汇率 1.0)→ 单币种账本统计结果不变。
+            // ⚠️ SQL 与 test/data/migration_v30_test.dart 的常量保持一字不差。
+            await customStatement('''
+    UPDATE transactions SET currency_code = COALESCE(
+      (SELECT a.currency FROM accounts a WHERE a.id = transactions.account_id),
+      (SELECT l.currency FROM ledgers l WHERE l.id = transactions.ledger_id),
+      'CNY')
+    WHERE currency_code IS NULL;''');
+            await customStatement(
+                'UPDATE transactions SET native_amount = amount WHERE native_amount IS NULL;');
+            logger.info('DBMigration', 'v30 迁移完成');
           }
         },
         onCreate: (m) async {

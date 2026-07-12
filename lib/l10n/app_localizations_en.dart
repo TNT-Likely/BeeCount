@@ -6917,4 +6917,57 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txFlagBudgetExcludedTag => 'No budget';
+
+  @override
+  String get txCurrencyLabel => 'Currency';
+
+  @override
+  String get txRateLabel => 'Rate';
+
+  @override
+  String txConvertedPreview(Object amount, Object currency) {
+    return '≈ $amount $currency';
+  }
+
+  @override
+  String get txRateMissingTitle => 'Failed to get exchange rate';
+
+  @override
+  String get txRateMissingHint => 'Please enter the rate for this entry before saving';
+
+  @override
+  String get txCrossCurrencyTransferBlocked => 'Cross-currency transfers are not supported yet. Record two entries or use same-currency accounts.';
+
+  @override
+  String get ledgerBaseCurrencyLabel => 'Ledger base currency';
+
+  @override
+  String statsConvertedFootnote(Object currency) {
+    return 'Includes foreign currency, converted to $currency at entry-time rates';
+  }
+
+  @override
+  String get ledgerCurrencyChangeRecalcHint => 'Changing the base currency will reconvert all history at current rates';
+
+  @override
+  String get recalcForeignTxBanner => 'Unconverted foreign-currency transactions detected in this ledger';
+
+  @override
+  String get recalcForeignTxAction => 'Reconvert at current rates';
+
+  @override
+  String recalcForeignTxDone(Object count) {
+    return 'Reconverted $count foreign-currency transactions';
+  }
+
+  @override
+  String get txCurrencyPickerTitle => 'Select currency';
+
+  @override
+  String get txCurrencyLockedByAccount => 'Currency follows the selected account';
+
+  @override
+  String recalcSyncCountHint(Object count) {
+    return '$count transactions will be reconverted and synced';
+  }
 }

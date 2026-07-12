@@ -130,6 +130,10 @@ abstract class TransactionRepository {
     String? toAccountSyncIdOverride,
     bool excludeFromStats = false,
     bool excludeFromBudget = false,
+    // v30 交易级多币种:未传时聚合层兜底(currencyCode=账户币种/本位币;
+    // nativeAmount 外币先按有效汇率折算,取不到才 =amount,详设计 02 §六)。
+    String? currencyCode,
+    double? nativeAmount,
   });
 
   /// 批量新增交易，单事务内插入，返回插入条数。
@@ -183,6 +187,10 @@ abstract class TransactionRepository {
     String? toAccountSyncIdOverride,
     bool? excludeFromStats,
     bool? excludeFromBudget,
+    // v30 交易级多币种:未传(null)= 不改动既有值;聚合层对 amount/账户变化
+    // 做折算兜底。
+    String? currencyCode,
+    double? nativeAmount,
   });
 
   /// 删除交易

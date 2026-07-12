@@ -126,15 +126,22 @@ class _TransferFormState extends ConsumerState<TransferForm> {
   Future<void> _openAmountSheet() async {
     final l10n = AppLocalizations.of(context);
 
-    // 检查币种是否一致
+    // 检查币种是否一致(跨币种转账守卫,.docs/multi-currency-ledger 01 §4.4)
     final sameCurrency = await _checkSameCurrency();
     if (!sameCurrency) {
-      if (mounted) {
-        showToast(context, l10n.transferDifferentCurrencyError);
-        // 重置转入账户
-        setState(() => _toAccountId = null);
+      // 存量数据放行(2026-07-12 细则):编辑模式且账户对未改动(老数据在
+      // 守卫上线前就是跨币种)→ 放行让用户能改备注/日期等,不强迫重选账户。
+      final isOriginalPair = widget.editingTransactionId != null &&
+          _fromAccountId == widget.initialFromAccountId &&
+          _toAccountId == widget.initialToAccountId;
+      if (!isOriginalPair) {
+        if (mounted) {
+          showToast(context, l10n.transferDifferentCurrencyError);
+          // 重置转入账户
+          setState(() => _toAccountId = null);
+        }
+        return;
       }
-      return;
     }
 
     final repo = ref.read(repositoryProvider);

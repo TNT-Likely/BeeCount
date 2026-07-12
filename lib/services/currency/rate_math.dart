@@ -34,6 +34,24 @@ Map<String, EffectiveRate> mergeEffectiveRates({
   return result;
 }
 
+/// 交易级多币种(v30):nativeAmount = amount × rate(1 账户币种 = rate 账本本位币)。
+/// 账户币种 == 本位币 → 直接 amount(rate 1,不查表);
+/// 缺失 / 非法 / 非正 rate → 返回 null(L8:要求手填,绝不静默按 1.0 入账)。
+/// 方向复用本文件约定(1 quote = rate base;quote=账户币种,base=本位币)。
+double? computeNativeAmount({
+  required double amount,
+  required String accountCurrency,
+  required String ledgerBase,
+  required Map<String, EffectiveRate> rates,
+}) {
+  if (accountCurrency.toUpperCase() == ledgerBase.toUpperCase()) return amount;
+  final er = rates[accountCurrency.toUpperCase()];
+  if (er == null) return null;
+  final r = double.tryParse(er.rate);
+  if (r == null || r <= 0) return null;
+  return amount * r;
+}
+
 class ConvertedNetWorth {
   final double totalAssets;
   final double totalLiabilities;

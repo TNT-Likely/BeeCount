@@ -6917,6 +6917,59 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txFlagBudgetExcludedTag => '不计预算';
+
+  @override
+  String get txCurrencyLabel => '币种';
+
+  @override
+  String get txRateLabel => '汇率';
+
+  @override
+  String txConvertedPreview(Object amount, Object currency) {
+    return '≈ $amount $currency';
+  }
+
+  @override
+  String get txRateMissingTitle => '汇率获取失败';
+
+  @override
+  String get txRateMissingHint => '请手动填写本笔汇率后保存';
+
+  @override
+  String get txCrossCurrencyTransferBlocked => '暂不支持跨币种转账,请分别记两笔或使用同币种账户';
+
+  @override
+  String get ledgerBaseCurrencyLabel => '账本本位币';
+
+  @override
+  String statsConvertedFootnote(Object currency) {
+    return '含外币,已按各笔记账时汇率折算为 $currency';
+  }
+
+  @override
+  String get ledgerCurrencyChangeRecalcHint => '修改本位币将按当前汇率重算全部历史交易的折算值';
+
+  @override
+  String get recalcForeignTxBanner => '检测到该账本有未折算的外币交易';
+
+  @override
+  String get recalcForeignTxAction => '按当前汇率重算折算';
+
+  @override
+  String recalcForeignTxDone(Object count) {
+    return '已重算 $count 笔外币交易的折算值';
+  }
+
+  @override
+  String get txCurrencyPickerTitle => '选择币种';
+
+  @override
+  String get txCurrencyLockedByAccount => '币种由所选账户决定';
+
+  @override
+  String recalcSyncCountHint(Object count) {
+    return '将重算并同步 $count 笔交易';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -13834,4 +13887,57 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get txFlagBudgetExcludedTag => '不計預算';
+
+  @override
+  String get txCurrencyLabel => '幣種';
+
+  @override
+  String get txRateLabel => '匯率';
+
+  @override
+  String txConvertedPreview(Object amount, Object currency) {
+    return '≈ $amount $currency';
+  }
+
+  @override
+  String get txRateMissingTitle => '匯率取得失敗';
+
+  @override
+  String get txRateMissingHint => '請手動填寫本筆匯率後儲存';
+
+  @override
+  String get txCrossCurrencyTransferBlocked => '暫不支援跨幣種轉帳,請分別記兩筆或使用同幣種帳戶';
+
+  @override
+  String get ledgerBaseCurrencyLabel => '帳本本位幣';
+
+  @override
+  String statsConvertedFootnote(Object currency) {
+    return '含外幣,已按各筆記帳時匯率折算為 $currency';
+  }
+
+  @override
+  String get ledgerCurrencyChangeRecalcHint => '修改本位幣將按當前匯率重算全部歷史交易的折算值';
+
+  @override
+  String get recalcForeignTxBanner => '偵測到該帳本有未折算的外幣交易';
+
+  @override
+  String get recalcForeignTxAction => '按當前匯率重算折算';
+
+  @override
+  String recalcForeignTxDone(Object count) {
+    return '已重算 $count 筆外幣交易的折算值';
+  }
+
+  @override
+  String get txCurrencyPickerTitle => '選擇幣種';
+
+  @override
+  String get txCurrencyLockedByAccount => '幣種由所選帳戶決定';
+
+  @override
+  String recalcSyncCountHint(Object count) {
+    return '將重算並同步 $count 筆交易';
+  }
 }

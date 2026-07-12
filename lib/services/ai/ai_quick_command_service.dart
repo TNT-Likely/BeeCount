@@ -71,9 +71,9 @@ class AIQuickCommandService {
       double totalExpense = 0;
       for (final t in transactions) {
         if (t.type == 'income') {
-          totalIncome += t.amount;
+          totalIncome += t.nativeAmount ?? t.amount;
         } else if (t.type == 'expense') {
-          totalExpense += t.amount;
+          totalExpense += t.nativeAmount ?? t.amount;
         }
       }
 
@@ -119,13 +119,15 @@ class AIQuickCommandService {
       final categoryTotals = <int, double>{};
       for (final t in transactions) {
         if (t.categoryId != null) {
-          categoryTotals[t.categoryId!] = (categoryTotals[t.categoryId!] ?? 0) + t.amount;
+          categoryTotals[t.categoryId!] =
+          (categoryTotals[t.categoryId!] ?? 0) + (t.nativeAmount ?? t.amount);
         }
       }
 
       // 获取分类名称并排序
       final categoryList = <String>[];
-      final totalExpense = transactions.fold<double>(0, (sum, t) => sum + t.amount);
+      final totalExpense = transactions.fold<double>(
+          0, (sum, t) => sum + (t.nativeAmount ?? t.amount));
 
       final sortedEntries = categoryTotals.entries.toList()
         ..sort((a, b) => b.value.compareTo(a.value));
@@ -222,9 +224,9 @@ ${list.join('\n')}
         double expense = 0;
         for (final t in transactions) {
           if (t.type == 'income') {
-            income += t.amount;
+            income += t.nativeAmount ?? t.amount;
           } else if (t.type == 'expense') {
-            expense += t.amount;
+            expense += t.nativeAmount ?? t.amount;
           }
         }
 

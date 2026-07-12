@@ -13093,6 +13093,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No budget'**
   String get txFlagBudgetExcludedTag;
+
+  /// No description provided for @txCurrencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get txCurrencyLabel;
+
+  /// No description provided for @txRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate'**
+  String get txRateLabel;
+
+  /// No description provided for @txConvertedPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {amount} {currency}'**
+  String txConvertedPreview(Object amount, Object currency);
+
+  /// No description provided for @txRateMissingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to get exchange rate'**
+  String get txRateMissingTitle;
+
+  /// No description provided for @txRateMissingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the rate for this entry before saving'**
+  String get txRateMissingHint;
+
+  /// No description provided for @txCrossCurrencyTransferBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Cross-currency transfers are not supported yet. Record two entries or use same-currency accounts.'**
+  String get txCrossCurrencyTransferBlocked;
+
+  /// No description provided for @ledgerBaseCurrencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger base currency'**
+  String get ledgerBaseCurrencyLabel;
+
+  /// No description provided for @statsConvertedFootnote.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes foreign currency, converted to {currency} at entry-time rates'**
+  String statsConvertedFootnote(Object currency);
+
+  /// No description provided for @ledgerCurrencyChangeRecalcHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing the base currency will reconvert all history at current rates'**
+  String get ledgerCurrencyChangeRecalcHint;
+
+  /// No description provided for @recalcForeignTxBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Unconverted foreign-currency transactions detected in this ledger'**
+  String get recalcForeignTxBanner;
+
+  /// No description provided for @recalcForeignTxAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconvert at current rates'**
+  String get recalcForeignTxAction;
+
+  /// No description provided for @recalcForeignTxDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconverted {count} foreign-currency transactions'**
+  String recalcForeignTxDone(Object count);
+
+  /// No description provided for @txCurrencyPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select currency'**
+  String get txCurrencyPickerTitle;
+
+  /// No description provided for @txCurrencyLockedByAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency follows the selected account'**
+  String get txCurrencyLockedByAccount;
+
+  /// No description provided for @recalcSyncCountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} transactions will be reconverted and synced'**
+  String recalcSyncCountHint(Object count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

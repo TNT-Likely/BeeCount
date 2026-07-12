@@ -377,10 +377,10 @@ class TransactionListState extends ConsumerState<TransactionList> {
             for (final it in list) {
               // 转账不计入收支统计
               if (it.t.type == 'income') {
-                dayIncome += it.t.amount;
+                dayIncome += it.t.nativeAmount ?? it.t.amount;
               }
               if (it.t.type == 'expense') {
-                dayExpense += it.t.amount;
+                dayExpense += it.t.nativeAmount ?? it.t.amount;
               }
             }
             final isFirst = index == 0;

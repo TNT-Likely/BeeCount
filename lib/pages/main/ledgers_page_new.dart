@@ -673,12 +673,54 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
 
     if (result == null || !mounted) return;
 
+    // v30 本位币变更:存量交易的 nativeAmount 快照是按旧本位币算的,需按新
+    // 本位币全量重算(边界 5,.docs/multi-currency-ledger 02 §八)。先确认再改。
+    final currencyChanged =
+        result.currency.toUpperCase() != ledgerData.currency.toUpperCase();
+    if (currencyChanged) {
+      final stats = await repo.getLedgerStats(ledgerId: ledger.id);
+      final txCount = stats.transactionCount;
+      if (!context.mounted) return;
+      final l10n = AppLocalizations.of(context);
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dctx) => AlertDialog(
+          title: Text(l10n.ledgerBaseCurrencyLabel),
+          content: Text(
+            '${l10n.ledgerCurrencyChangeRecalcHint}\n'
+            '${l10n.recalcSyncCountHint(txCount)}',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dctx, false),
+              child: Text(AppLocalizations.of(dctx).commonCancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(dctx, true),
+              child: Text(AppLocalizations.of(dctx).commonConfirm),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+
     await repo.updateLedger(
       id: ledger.id,
       name: result.name.trim(),
       currency: result.currency,
       monthStartDay: result.monthStartDay,
     );
+
+    if (currencyChanged) {
+      // 全量重算(逐笔记 change,L13);缺汇率的笔留待 L11 横幅
+      final n = await repo.recalcNativeAmountsForLedger(
+          ledger.id, result.currency);
+      if (context.mounted && n > 0) {
+        showToast(context,
+            AppLocalizations.of(context).recalcForeignTxDone(n));
+      }
+    }
 
     // 修改账本元数据后,触发同步以更新云端(本地非 tx 写入不会自动 push)
     await PostProcessor.sync(ref, ledgerId: ledger.id);

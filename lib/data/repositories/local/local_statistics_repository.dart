@@ -52,7 +52,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
       }
       names[id] = name;
       icons[id] = icon;
-      map.update(id, (v) => v + t.amount, ifAbsent: () => t.amount);
+      map.update(id, (v) => v + (t.nativeAmount ?? t.amount),
+          ifAbsent: () => t.nativeAmount ?? t.amount);
     }
     final list = map.entries
         .map((e) => (id: e.key, name: names[e.key] ?? '未分类', icon: icons[e.key], total: e.value))
@@ -170,7 +171,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
         );
       }
 
-      map.update(id, (v) => v + t.amount, ifAbsent: () => t.amount);
+      map.update(id, (v) => v + (t.nativeAmount ?? t.amount),
+          ifAbsent: () => t.nativeAmount ?? t.amount);
     }
 
     final list = map.entries.map((e) {
@@ -207,7 +209,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
     for (final t in rows) {
       final dt = t.happenedAt.toLocal();
       final day = DateTime(dt.year, dt.month, dt.day);
-      map.update(day, (v) => v + t.amount, ifAbsent: () => t.amount);
+      map.update(day, (v) => v + (t.nativeAmount ?? t.amount),
+          ifAbsent: () => t.nativeAmount ?? t.amount);
     }
     // ensure full range continuity
     final result = <({DateTime day, double total})>[];
@@ -239,7 +242,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
     for (final t in rows) {
       // 年范围 [当年1月周期起点, 次年1月周期起点) 内的标签必属 year,直接取 month
       final label = labelForDate(t.happenedAt.toLocal(), sd);
-      map.update(label.month, (v) => v + t.amount, ifAbsent: () => t.amount);
+      map.update(label.month, (v) => v + (t.nativeAmount ?? t.amount),
+          ifAbsent: () => t.nativeAmount ?? t.amount);
     }
     final result = <({DateTime month, double total})>[];
     for (int m = 1; m <= 12; m++) {
@@ -267,7 +271,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
       final y = labelForDate(t.happenedAt.toLocal(), sd).year;
       if (y < minYear) minYear = y;
       if (y > maxYear) maxYear = y;
-      map.update(y, (v) => v + t.amount, ifAbsent: () => t.amount);
+      map.update(y, (v) => v + (t.nativeAmount ?? t.amount),
+          ifAbsent: () => t.nativeAmount ?? t.amount);
     }
     final out = <({int year, double total})>[];
     for (int y = minYear; y <= maxYear; y++) {
@@ -286,8 +291,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
     final result = await db.customSelect(
       '''
       SELECT
-        COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS income,
-        COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS expense
+        COALESCE(SUM(CASE WHEN type = 'income' THEN COALESCE(native_amount, amount) ELSE 0 END), 0) AS income,
+        COALESCE(SUM(CASE WHEN type = 'expense' THEN COALESCE(native_amount, amount) ELSE 0 END), 0) AS expense
       FROM transactions
       WHERE ledger_id = ?1 AND happened_at >= ?2 AND happened_at < ?3
         AND exclude_from_stats = 0
@@ -332,8 +337,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
     final result = await db.customSelect(
       '''
       SELECT
-        COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS income,
-        COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS expense
+        COALESCE(SUM(CASE WHEN type = 'income' THEN COALESCE(native_amount, amount) ELSE 0 END), 0) AS income,
+        COALESCE(SUM(CASE WHEN type = 'expense' THEN COALESCE(native_amount, amount) ELSE 0 END), 0) AS expense
       FROM transactions
       WHERE ledger_id = ?1 AND happened_at >= ?2 AND happened_at < ?3
         AND exclude_from_stats = 0
@@ -365,8 +370,8 @@ class LocalStatisticsRepository implements StatisticsRepository {
     final result = await db.customSelect(
       '''
       SELECT
-        COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS income,
-        COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS expense
+        COALESCE(SUM(CASE WHEN type = 'income' THEN COALESCE(native_amount, amount) ELSE 0 END), 0) AS income,
+        COALESCE(SUM(CASE WHEN type = 'expense' THEN COALESCE(native_amount, amount) ELSE 0 END), 0) AS expense
       FROM transactions
       WHERE ledger_id = ?1 AND happened_at >= ?2 AND happened_at < ?3
         AND exclude_from_stats = 0

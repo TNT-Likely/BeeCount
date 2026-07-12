@@ -202,10 +202,36 @@ extension SyncEngineApplyExt on SyncEngine {
         ? (payload['excludeFromBudget'] as bool? ?? false)
         : null;
 
+    // v30 交易级多币种:payload 带键 → 用 payload 值;缺键(旧 App 的 change,
+    // sync_changes 存的是原始 push payload,不经 server merge)→ 快照保护
+    // (02 §七):update 时本地已有折算且 amount 未变 → 保留本地;amount 变了 →
+    // 退化 =amount(1:1,L11 横幅可按当前汇率捞回,好过错值)。
+    final hasCurrencyKey = payload.containsKey('currencyCode');
+    final hasNativeKey = payload.containsKey('nativeAmount');
+    final payloadCurrency =
+        hasCurrencyKey ? (payload['currencyCode'] as String?) : null;
+    final payloadNative =
+        hasNativeKey ? (payload['nativeAmount'] as num?)?.toDouble() : null;
+
     if (existingId != null) {
       // 更新 — createdByUserId 走"本地为 null 就回填,否则保持"的策略。
       final shouldBackfillCreator =
           existingCreatedByUserId == null && createdByUserId != null;
+      // 快照保护:缺 nativeAmount 键时查本地旧行判断 amount 是否变化。
+      d.Value<double?> nativeValue;
+      if (hasNativeKey) {
+        nativeValue = d.Value(payloadNative);
+      } else {
+        final oldTx = await (db.select(db.transactions)
+              ..where((t) => t.id.equals(existingId!)))
+            .getSingleOrNull();
+        final oldNative = oldTx?.nativeAmount;
+        if (oldNative != null && oldTx!.amount != amount) {
+          nativeValue = d.Value(amount); // 旧客户端改了金额 → 退化 1:1
+        } else {
+          nativeValue = const d.Value.absent(); // 金额未变 → 保留本地折算
+        }
+      }
       await (db.update(db.transactions)..where((t) => t.id.equals(existingId!)))
           .write(TransactionsCompanion(
         type: d.Value(type),
@@ -228,6 +254,10 @@ extension SyncEngineApplyExt on SyncEngine {
         excludeFromBudget: excludeBudget == null
             ? const d.Value.absent()
             : d.Value(excludeBudget),
+        currencyCode: hasCurrencyKey
+            ? d.Value(payloadCurrency)
+            : const d.Value.absent(), // 缺键保留本地币种
+        nativeAmount: nativeValue,
       ));
       // 更新标签和附件(existing 路径)
       await _syncTransactionTags(existingId, syncId, payload);
@@ -253,6 +283,11 @@ extension SyncEngineApplyExt on SyncEngine {
               toAccountSyncIdOverride: d.Value(toAccountSyncIdOverride),
               excludeFromStats: d.Value(excludeStats ?? false),
               excludeFromBudget: d.Value(excludeBudget ?? false),
+              // 缺键的旧 payload:nativeAmount = amount(隐含汇率 1,与 v30
+              // 迁移回填同口径,外币账户交易由 L11 检测捞回);currencyCode
+              // 留 NULL(检测端 LEFT JOIN 账户币种兜底)。
+              currencyCode: d.Value(payloadCurrency),
+              nativeAmount: d.Value(hasNativeKey ? payloadNative : amount),
             ),
           );
       // 写回 cache,后续同 syncId 的 update change 能命中
