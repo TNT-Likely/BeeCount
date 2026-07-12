@@ -365,37 +365,34 @@ class TransactionListItem extends ConsumerWidget {
                                   ? BeeTokens.expenseColor(context, ref)
                                   : BeeTokens.incomeColor(context, ref),
                     )),
-                // 标签行 + ≈折算小字(反馈15:折算放标签右边,同一行;
-                // 无标签时折算独占该行)。隐藏金额开关开启时折算同样遮蔽。
-                if ((tags != null && tags!.isNotEmpty) ||
-                    (_isForeign(ref) &&
-                        nativeAmount != null &&
-                        nativeAmount != amount &&
-                        hide != true))
-                  Padding(
+                // 标签行 + ≈折算小字(反馈15:折算放标签右边,同一行;无标签时
+                // 折算独占该行)。隐藏金额开关开启时折算同样遮蔽。
+                // 反馈16:有折算时标签最多展示 1 个(挤位),无折算保持 2 个。
+                Builder(builder: (context) {
+                  final showConverted = _isForeign(ref) &&
+                      nativeAmount != null &&
+                      nativeAmount != amount &&
+                      hide != true;
+                  final hasTags = tags != null && tags!.isNotEmpty;
+                  if (!showConverted && !hasTags) {
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (tags != null && tags!.isNotEmpty)
+                        if (hasTags)
                           TagChipList(
                             tags: tags!,
-                            maxDisplay: 2,
+                            maxDisplay: showConverted ? 1 : 2,
                             size: TagChipSize.small,
                             spacing: 4,
                             onTagTap: onTagTap,
                           ),
-                        if (tags != null &&
-                            tags!.isNotEmpty &&
-                            _isForeign(ref) &&
-                            nativeAmount != null &&
-                            nativeAmount != amount &&
-                            hide != true)
+                        if (hasTags && showConverted)
                           const SizedBox(width: 6),
-                        if (_isForeign(ref) &&
-                            nativeAmount != null &&
-                            nativeAmount != amount &&
-                            hide != true)
+                        if (showConverted)
                           Text(
                             '≈${nativeAmount!.toStringAsFixed(2)}',
                             style: TextStyle(
@@ -405,7 +402,8 @@ class TransactionListItem extends ConsumerWidget {
                           ),
                       ],
                     ),
-                  ),
+                  );
+                }),
               ],
             ),
           ],
