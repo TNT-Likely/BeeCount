@@ -718,9 +718,12 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
     if (currencyChanged) {
       // 先强制拉一次「以新主币种为 base」的汇率:改币种瞬间本地通常还没有
       // 这一组(汇率按本位币基准存),不拉的话重算会因缺汇率整体跳过
-      // (反馈17:CNY→JPY 后旧交易折算不动)。拉取失败也继续——缺汇率的笔
-      // 由 L11 横幅兜底,绝不 1:1 硬折。
-      await refreshExchangeRatesFromUi(ref, force: true);
+      // (反馈17:CNY→JPY 后旧交易折算不动)。extraQuotes 带上账本实际涉及
+      // 的全部外币(无账户币种不在 usedCurrencies 里)。拉取失败也继续——
+      // 缺汇率的笔退化 =amount,由 L11 横幅兜底,绝不保留旧口径错值。
+      final foreign = await repo.getLedgerForeignCurrencies(ledger.id);
+      await refreshExchangeRatesFromUi(ref,
+          force: true, extraQuotes: {...foreign, ledgerData.currency.toUpperCase()});
       // 全量重算(逐笔记 change,L13);缺汇率的笔留待 L11 横幅
       final n = await repo.recalcNativeAmountsForLedger(
           ledger.id, result.currency);

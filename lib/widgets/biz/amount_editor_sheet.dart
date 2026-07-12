@@ -340,11 +340,13 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
 
   Future<void> _loadAccountCurrency(int accountId) async {
     final repo = ref.read(repositoryProvider);
-    final acc = await repo.getAccount(accountId);
+    // getAccountCurrencyByAnyId:正数查主表;负数是共享账本 Owner 资源的
+    // synthetic id(§7),查镜像表 —— 否则成员选 Owner 外币账户会被静默
+    // 解析成本位币(审查发现)。
+    final currency = await repo.getAccountCurrencyByAnyId(accountId);
     if (!mounted) return;
     setState(() {
-      _selectedAccountCurrency =
-          (acc?.currency.isNotEmpty ?? false) ? acc!.currency.toUpperCase() : null;
+      _selectedAccountCurrency = currency;
     });
   }
 
@@ -448,8 +450,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     });
   }
 
-  /// 币种标(金额旁小字):点开选币种;有账户时点了提示「由账户决定」。
-  /// 转账不显示:转账币种恒=账户币种(守卫保证同币种),选了也会被忽略,纯误导。
+  /// 币种标(金额表达式最左):点开即选(币种优先联动:选后账户重置、账户
+  /// 列表按新币种过滤)。转账不显示:转账币种恒=账户币种,选了也会被忽略。
   Widget _buildCurrencyChip(BuildContext context) {
     if (widget.transactionKind == 'transfer') return const SizedBox.shrink();
     final text = Theme.of(context).textTheme;

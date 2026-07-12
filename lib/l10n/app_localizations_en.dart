@@ -6930,9 +6930,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get txRateMissingTitle => 'Failed to get exchange rate';
-
-  @override
   String get txRateMissingHint => 'Please enter the rate for this entry before saving';
 
   @override
@@ -6962,9 +6959,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txCurrencyPickerTitle => 'Select currency';
-
-  @override
-  String get txCurrencyLockedByAccount => 'Currency follows the selected account';
 
   @override
   String recalcSyncCountHint(Object count) {

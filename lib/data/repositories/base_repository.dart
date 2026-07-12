@@ -55,4 +55,10 @@ abstract class BaseRepository
   /// 该账本外币交易条数(currencyCode≠本位币,含已折算)。统计页折算脚注
   /// 按 >0 显示(01 §五:「含外币,已按各笔记账时汇率折算为 {本位币}」)。
   Future<int> countForeignCurrencyTx(int ledgerId);
+
+  /// 该账本交易涉及的全部外币币种集合(重算前并入汇率拉取 extraQuotes)。
+  Future<Set<String>> getLedgerForeignCurrencies(int ledgerId);
+
+  /// 按 picker 账户 id 解析币种:正数=主表账户;负数=共享账本 synthetic id。
+  Future<String?> getAccountCurrencyByAnyId(int accountId);
 }

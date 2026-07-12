@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../../db.dart';
 import '../../../cloud/sync/change_tracker.dart';
 import '../../../services/currency/rate_math.dart';
+import '../../../utils/shared_ledger_picker_filter.dart';
 import '../../../services/system/logger_service.dart';
 import '../base_repository.dart';
 import '../budget_repository.dart';
@@ -418,18 +419,35 @@ class LocalRepository extends BaseRepository {
     double? nativeAmount,
   }) async {
     final old = await _transactionRepo.getTransactionById(id);
-    // v30 联动兜底(与 Cloud merge/mutator 的 L14 同规则):调用方不传两字段
-    // 且 amount 变了 → 旧快照会失配,按该笔隐含汇率联动;amount 未变 → 不动。
+    // v30 联动兜底(与 Cloud merge/mutator 的 L14 同规则):调用方不传两字段时——
+    //   a) 账户变了(如转账换账户对,transfer_form 不传币种)→ 币种应跟随新
+    //      账户,按新币种重新解析+折算(审查发现:原只联动 amount,换账户后
+    //      currencyCode 残留旧币种);
+    //   b) 仅 amount 变了 → 按该笔隐含汇率联动缩放;amount 未变 → 不动。
+    var effCurrency = currencyCode;
     var effNative = nativeAmount;
-    if (currencyCode == null &&
-        nativeAmount == null &&
-        old?.nativeAmount != null &&
-        old!.amount != amount) {
-      final oldNative = old.nativeAmount!;
-      if (old.amount == 0 || oldNative == old.amount) {
-        effNative = amount; // 同币种/未折算(隐含汇率 1)→ 跟随
-      } else {
-        effNative = oldNative / old.amount * amount; // 外币按隐含汇率缩放
+    if (currencyCode == null && nativeAmount == null && old != null) {
+      final int? newAccountId = accountId is d.Value<int?>
+          ? accountId.value
+          : (accountId is int ? accountId : old.accountId);
+      final accountChanged =
+          (accountId is d.Value<int?> || accountId is int) &&
+              newAccountId != old.accountId;
+      if (accountChanged) {
+        final (cc, na) = await _resolveTxCurrency(
+          ledgerId: old.ledgerId,
+          accountId: newAccountId,
+          amount: amount,
+        );
+        effCurrency = cc;
+        effNative = na;
+      } else if (old.nativeAmount != null && old.amount != amount) {
+        final oldNative = old.nativeAmount!;
+        if (old.amount == 0 || oldNative == old.amount) {
+          effNative = amount; // 同币种/未折算(隐含汇率 1)→ 跟随
+        } else {
+          effNative = oldNative / old.amount * amount; // 外币按隐含汇率缩放
+        }
       }
     }
     if (changeTracker != null) {
@@ -443,7 +461,7 @@ class LocalRepository extends BaseRepository {
           toAccountSyncIdOverride: toAccountSyncIdOverride,
           excludeFromStats: excludeFromStats,
           excludeFromBudget: excludeFromBudget,
-          currencyCode: currencyCode,
+          currencyCode: effCurrency,
           nativeAmount: effNative,
         );
         await changeTracker!.recordLedgerChange(
@@ -465,7 +483,7 @@ class LocalRepository extends BaseRepository {
       toAccountSyncIdOverride: toAccountSyncIdOverride,
       excludeFromStats: excludeFromStats,
       excludeFromBudget: excludeFromBudget,
-      currencyCode: currencyCode,
+      currencyCode: effCurrency,
       nativeAmount: effNative,
     );
   }
@@ -521,6 +539,10 @@ class LocalRepository extends BaseRepository {
     String? currencyCode,
     double? nativeAmount,
   }) async {
+    // 两字段都显式传入(UI 记账主路径)→ 零查询直通,批量调用不放大 I/O
+    if (currencyCode != null && currencyCode.isNotEmpty && nativeAmount != null) {
+      return (currencyCode.toUpperCase(), nativeAmount);
+    }
     final ledger = await getLedgerById(ledgerId);
     final base = ((ledger?.currency.isNotEmpty ?? false)
             ? ledger!.currency
@@ -558,6 +580,16 @@ class LocalRepository extends BaseRepository {
     int ledgerId,
     String base, {
     required bool onlyUnconverted,
+  }) =>
+      // 单事务包裹:逐笔 UPDATE + change INSERT 不再各自 commit/fsync
+      // (万笔账本从 ~2 万次独立 commit 降到 1 次)
+      db.transaction(() => _recalcNativeAmountsInner(ledgerId, base,
+          onlyUnconverted: onlyUnconverted));
+
+  Future<int> _recalcNativeAmountsInner(
+    int ledgerId,
+    String base, {
+    required bool onlyUnconverted,
   }) async {
     final baseUp = base.toUpperCase();
     final rates = await _effectiveRatesFor(baseUp);
@@ -587,12 +619,21 @@ class LocalRepository extends BaseRepository {
             t.nativeAmount != t.amount) {
           continue; // 已折算过,不动(L11 只补从没折算的)
         }
-        final na = computeNativeAmount(
+        var na = computeNativeAmount(
             amount: t.amount,
             accountCurrency: cc,
             ledgerBase: baseUp,
             rates: rates);
-        if (na == null) continue; // 缺汇率,留待用户(绝不 1.0 硬折)
+        if (na == null) {
+          if (onlyUnconverted) {
+            // 补折算模式:native==amount 原样保留,横幅继续亮,下次有汇率再补
+            continue;
+          }
+          // 全量重算(改本位币):旧 native 是按【旧本位币】折算的,保留它比
+          // 1:1 更错且 native≠amount 使 L11 永远检测不到 → 退化 =amount,
+          // 让 L11 横幅能捞回(审查发现:原 continue 会留下永久静默错值)。
+          na = t.amount;
+        }
         if (t.nativeAmount == na && t.currencyCode != null) continue; // 无变化
         await (db.update(db.transactions)..where((x) => x.id.equals(t.id)))
             .write(TransactionsCompanion(
@@ -844,8 +885,83 @@ class LocalRepository extends BaseRepository {
       _transactionRepo.getEarliestTransactionDate();
 
   @override
-  Future<void> updateTransactionLedger({required int id, required int ledgerId}) =>
-      _transactionRepo.updateTransactionLedger(id: id, ledgerId: ledgerId);
+  Future<void> updateTransactionLedger({required int id, required int ledgerId}) async {
+    await _transactionRepo.updateTransactionLedger(id: id, ledgerId: ledgerId);
+    // v30:nativeAmount 是按【原账本】本位币折算的快照,跨账本移动后必须按
+    // 新账本本位币重算;缺汇率退化 =amount(L11 可捞),绝不保留旧口径错值
+    // (审查发现:已折算外币移动后 native≠amount,L11 永远检测不到)。
+    final tx = await _transactionRepo.getTransactionById(id);
+    if (tx == null) return;
+    final ledger = await getLedgerById(ledgerId);
+    final base = ((ledger?.currency.isNotEmpty ?? false)
+            ? ledger!.currency
+            : 'CNY')
+        .toUpperCase();
+    final cc = (tx.currencyCode ?? base).toUpperCase();
+    double na;
+    if (cc == base) {
+      na = tx.amount;
+    } else {
+      final rates = await _effectiveRatesFor(base);
+      na = computeNativeAmount(
+              amount: tx.amount,
+              accountCurrency: cc,
+              ledgerBase: base,
+              rates: rates) ??
+          tx.amount;
+    }
+    if (na != tx.nativeAmount) {
+      await (db.update(db.transactions)..where((x) => x.id.equals(id)))
+          .write(TransactionsCompanion(nativeAmount: d.Value(na)));
+    }
+    if (changeTracker != null && tx.syncId != null) {
+      await changeTracker!.recordLedgerChange(
+        entityType: 'transaction',
+        entityId: id,
+        entitySyncId: tx.syncId!,
+        ledgerId: ledgerId,
+        action: 'update',
+      );
+    }
+  }
+
+  /// v30:该账本交易涉及的全部外币币种(≠本位币,含 NULL 列按账户币种兜底后
+  /// 的判定)。补折算/改本位币重算前把它们并入汇率拉取(extraQuotes),否则
+  /// 无对应账户的币种(CSV 导入/手选)拉不到汇率,重算永远补不上。
+  Future<Set<String>> getLedgerForeignCurrencies(int ledgerId) async {
+    final ledger = await getLedgerById(ledgerId);
+    final base = ((ledger?.currency.isNotEmpty ?? false)
+            ? ledger!.currency
+            : 'CNY')
+        .toUpperCase();
+    final rows = await db.customSelect(
+      'SELECT DISTINCT UPPER(COALESCE(t.currency_code, a.currency, ?2)) AS cc '
+      'FROM transactions t LEFT JOIN accounts a ON a.id = t.account_id '
+      'WHERE t.ledger_id = ?1',
+      variables: [d.Variable.withInt(ledgerId), d.Variable.withString(base)],
+      readsFrom: {db.transactions, db.accounts},
+    ).get();
+    return {
+      for (final r in rows)
+        if (r.read<String>('cc') != base) r.read<String>('cc')
+    };
+  }
+
+  /// v30:按 picker 给的账户 id 解析币种 —— 正数查主表;负数是共享账本
+  /// Owner 资源的 synthetic id(§7),查 SharedLedgerAccounts 镜像。
+  /// (审查发现:金额弹窗对 synthetic 账户解析不到币种,外币被静默按本位币。)
+  Future<String?> getAccountCurrencyByAnyId(int accountId) async {
+    if (accountId >= 0) {
+      final acc = await getAccount(accountId);
+      return (acc?.currency.isNotEmpty ?? false)
+          ? acc!.currency.toUpperCase()
+          : null;
+    }
+    final acc = await db.findAccountBySyntheticId(accountId);
+    return (acc?.currency.isNotEmpty ?? false)
+        ? acc!.currency.toUpperCase()
+        : null;
+  }
 
   /// 共享账本:本地 tx 写完后回填 createdByUserId / lastEditedByUserId。
   /// 详见 [LocalTransactionRepository.markTxAuthor]。

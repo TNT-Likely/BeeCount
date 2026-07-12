@@ -6930,9 +6930,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get txRateMissingTitle => '汇率获取失败';
-
-  @override
   String get txRateMissingHint => '请手动填写本笔汇率后保存';
 
   @override
@@ -6962,9 +6959,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txCurrencyPickerTitle => '选择币种';
-
-  @override
-  String get txCurrencyLockedByAccount => '币种由所选账户决定';
 
   @override
   String recalcSyncCountHint(Object count) {
@@ -13906,9 +13900,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   }
 
   @override
-  String get txRateMissingTitle => '匯率取得失敗';
-
-  @override
   String get txRateMissingHint => '請手動填寫本筆匯率後儲存';
 
   @override
@@ -13938,9 +13929,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get txCurrencyPickerTitle => '選擇幣種';
-
-  @override
-  String get txCurrencyLockedByAccount => '幣種由所選帳戶決定';
 
   @override
   String recalcSyncCountHint(Object count) {

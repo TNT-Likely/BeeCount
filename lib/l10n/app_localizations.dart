@@ -13112,12 +13112,6 @@ abstract class AppLocalizations {
   /// **'≈ {amount} {currency}'**
   String txConvertedPreview(Object amount, Object currency);
 
-  /// No description provided for @txRateMissingTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to get exchange rate'**
-  String get txRateMissingTitle;
-
   /// No description provided for @txRateMissingHint.
   ///
   /// In en, this message translates to:
@@ -13171,12 +13165,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select currency'**
   String get txCurrencyPickerTitle;
-
-  /// No description provided for @txCurrencyLockedByAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Currency follows the selected account'**
-  String get txCurrencyLockedByAccount;
 
   /// No description provided for @recalcSyncCountHint.
   ///

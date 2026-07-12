@@ -355,8 +355,8 @@ class LocalCategoryRepository implements CategoryRepository {
       '''
       SELECT
         COUNT(*) as count,
-        SUM(COALESCE(native_amount, amount)) as total,
-        AVG(amount) as average
+        SUM(CASE WHEN exclude_from_stats = 0 THEN COALESCE(native_amount, amount) ELSE 0 END) as total,
+        AVG(CASE WHEN exclude_from_stats = 0 THEN COALESCE(native_amount, amount) END) as average
       FROM transactions
       WHERE category_id = ?1
       ''',
