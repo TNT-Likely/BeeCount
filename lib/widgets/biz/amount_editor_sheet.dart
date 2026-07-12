@@ -348,10 +348,13 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     });
   }
 
-  /// 交易币种(01 §4.5 规则):有账户 → 账户币种(锁定);无账户 → 手选 ?? 本位币。
+  /// 交易币种(币种优先联动,第 6 条):手选币种 → 账户列表按它过滤,所选账户
+  /// 币种必然一致。有账户但其币种尚在异步加载时,fallback 手选币种(而非本位
+  /// 币,避免加载窗口内汇率行闪没)。
   String _txCurrency() {
     if (_selectedAccountId != null) {
       return _selectedAccountCurrency ??
+          _pickedCurrency ??
           ref.read(currentLedgerCurrencyProvider);
     }
     return _pickedCurrency ?? ref.read(currentLedgerCurrencyProvider);
@@ -388,11 +391,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
 
   Future<void> _pickCurrency() async {
     final l10n = AppLocalizations.of(context);
-    if (_selectedAccountId != null) {
-      // 有账户:币种锁定(01 §4.5)
-      showToast(context, l10n.txCurrencyLockedByAccount);
-      return;
-    }
     final base = ref.read(currentLedgerCurrencyProvider);
     final picked = await showCurrencyPickerSheet(
       context,
@@ -406,6 +404,10 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       // 换币种后隐含/手改汇率作废,重新带有效汇率
       _rateStr = null;
       _rateManuallySet = false;
+      // 币种优先联动(第 6 条):切币种 → 账户重置为不选,账户列表按新币种刷新
+      // (AccountSelector.filterCurrency 变化触发重载)
+      _selectedAccountId = null;
+      _selectedAccountCurrency = null;
     });
   }
 
@@ -446,102 +448,86 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     });
   }
 
-  /// 币种标 + 汇率行 + 折算预览。单币种态(有账户且==本位币)整块 shrink。
+  /// 币种标(金额旁小字):点开选币种;有账户时点了提示「由账户决定」。
+  Widget _buildCurrencyChip(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    ref.watch(currentLedgerCurrencyProvider); // 账本切换时重建
+    final txCurrency = _txCurrency();
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: _pickCurrency,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              txCurrency,
+              style: text.bodySmall?.copyWith(
+                color: BeeTokens.textTertiary(context),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Icon(Icons.arrow_drop_down,
+                size: 14, color: BeeTokens.iconTertiary(context)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 汇率行 + 折算预览(仅外币时出现)。汇率常态纯展示(自动拉取);
+  /// 仅在「获取失败」时可点手填(L8 兜底)。
   Widget _buildCurrencySection(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    // watch:账本切换 / 汇率刷新时重建
     final ledgerBase = ref.watch(currentLedgerCurrencyProvider);
     ref.watch(effectiveRatesForLedgerProvider);
     final txCurrency = _txCurrency();
     final isForeign = txCurrency != ledgerBase;
-    final showChip = _selectedAccountId == null || isForeign;
-    if (!showChip) return const SizedBox.shrink();
+    if (!isForeign) return const SizedBox.shrink();
 
-    final rate = isForeign ? _currentRate() : null;
-    if (isForeign && rate == null && !_fetchingRate) {
+    final rate = _currentRate();
+    if (rate == null && !_fetchingRate) {
       // 外币无汇率 → 自动拉一次(post-frame 防 build 中副作用;方法内幂等防重)
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _maybeAutoFetchRate();
       });
     }
     final amount = double.tryParse(_amountStr) ?? 0.0;
-    final preview = (isForeign && rate != null && rate > 0)
-        ? (amount * rate)
-        : null;
+    final preview = (rate != null && rate > 0) ? (amount * rate) : null;
+    final rateMissing = rate == null && !_fetchingRate;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 6),
+      padding: const EdgeInsets.only(top: 4),
       child: Row(
         children: [
-          // 币种标:无账户可点开选;有账户点了提示锁定
-          InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap: _pickCurrency,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: BeeTokens.surfaceKeySecondary(context),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    txCurrency,
-                    style: text.bodySmall?.copyWith(
-                      color: BeeTokens.textSecondary(context),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (_selectedAccountId == null) ...[
-                    const SizedBox(width: 2),
-                    Icon(Icons.arrow_drop_down,
-                        size: 14, color: BeeTokens.iconTertiary(context)),
-                  ],
-                ],
+          Expanded(
+            child: InkWell(
+              // 常态不可编辑;仅缺失时点击手填(L8 兜底)
+              onTap: rateMissing ? _editRate : null,
+              child: Text(
+                rate != null
+                    ? '1 $txCurrency = ${rate.toStringAsPrecision(6)} $ledgerBase'
+                    : _fetchingRate
+                        ? '1 $txCurrency = … $ledgerBase'
+                        : l10n.txRateMissingHint,
+                overflow: TextOverflow.ellipsis,
+                style: text.bodySmall?.copyWith(
+                  color: rateMissing
+                      ? Theme.of(context).colorScheme.error
+                      : BeeTokens.textTertiary(context),
+                ),
               ),
             ),
           ),
-          if (isForeign) ...[
-            const SizedBox(width: 10),
-            // 汇率行:1 USD = 7.2000 CNY ✎(可点改,快照仅本笔)
-            Expanded(
-              child: InkWell(
-                onTap: _editRate,
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        rate != null
-                            ? '1 $txCurrency = ${rate.toStringAsPrecision(6)} $ledgerBase'
-                            : _fetchingRate
-                                ? '1 $txCurrency = … $ledgerBase'
-                                : l10n.txRateMissingTitle,
-                        overflow: TextOverflow.ellipsis,
-                        style: text.bodySmall?.copyWith(
-                          color: rate != null || _fetchingRate
-                              ? BeeTokens.textSecondary(context)
-                              : Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(Icons.edit_outlined,
-                        size: 13, color: BeeTokens.iconTertiary(context)),
-                  ],
-                ),
+          if (preview != null)
+            Text(
+              l10n.txConvertedPreview(preview.toStringAsFixed(2), ledgerBase),
+              style: text.bodySmall?.copyWith(
+                color: BeeTokens.textTertiary(context),
               ),
             ),
-            if (preview != null)
-              Text(
-                l10n.txConvertedPreview(
-                    preview.toStringAsFixed(2), ledgerBase),
-                style: text.bodySmall?.copyWith(
-                  color: BeeTokens.textTertiary(context),
-                ),
-              ),
-          ],
         ],
       ),
     );
@@ -850,6 +836,10 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                         color: BeeTokens.textPrimary(context),
                       ),
                     ),
+                    // v30 币种标:金额旁小字,点开选币种(有账户时提示锁定)。
+                    // 常显本位币也只是淡淡一枚小标,单币种用户零打扰(L12)。
+                    const SizedBox(width: 6),
+                    _buildCurrencyChip(context),
                   ],
                 ),
                 // 等号行：仅在有运算符时显示
@@ -958,6 +948,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                       return AccountSelector(
                         selectedAccountId: _selectedAccountId,
                         ledgerId: widget.ledgerId,
+                        // 币种优先联动:账户列表只显示当前所选币种的账户
+                        filterCurrency: _txCurrency(),
                         onAccountSelected: (accountId) {
                           setState(() {
                             _selectedAccountId = accountId;

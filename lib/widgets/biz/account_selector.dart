@@ -18,12 +18,16 @@ class AccountSelector extends ConsumerStatefulWidget {
   final int? selectedAccountId;
   final ValueChanged<int?> onAccountSelected;
   final int ledgerId;
+  /// v30 多币种:按币种过滤可选账户(记账币种优先联动,选 JPY → 只显示 JPY
+  /// 账户)。null = 账本本位币(旧行为)。变更时列表自动重载。
+  final String? filterCurrency;
 
   const AccountSelector({
     super.key,
     required this.selectedAccountId,
     required this.onAccountSelected,
     required this.ledgerId,
+    this.filterCurrency,
   });
 
   @override
@@ -45,6 +49,15 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
     _initialSelectedAccountId = widget.selectedAccountId;
     _lruCache = LRUCache(key: 'account_lru_${widget.ledgerId}', maxSize: 20);
     _loadAccounts();
+  }
+
+  @override
+  void didUpdateWidget(covariant AccountSelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // v30:记账切换币种 → 账户列表按新币种重载
+    if (oldWidget.filterCurrency != widget.filterCurrency) {
+      _loadAccounts();
+    }
   }
 
   Future<void> _loadAccounts() async {
@@ -72,8 +85,12 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
         allAccounts = await repo.db.filterAccountsForLedger(allAccounts, ctx);
       }
 
+      // v30:过滤币种 = 显式传入(记账所选币种)?? 账本本位币(旧行为)
+      final wanted =
+          (widget.filterCurrency ?? ledger.currency).toUpperCase();
       final accounts = allAccounts
-          .where((a) => a.currency == ledger.currency && isTradableType(a.type))
+          .where((a) =>
+              a.currency.toUpperCase() == wanted && isTradableType(a.type))
           .toList();
 
       // 获取 LRU 排序

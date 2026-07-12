@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../styles/tokens.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/category_icon.dart';
+import '../../providers/database_providers.dart';
 import '../../providers/theme_providers.dart';
 import 'amount_text.dart';
 import 'tag_chip.dart';
@@ -15,6 +16,9 @@ class TransactionListItem extends ConsumerWidget {
   final db.Category? category; // 可选的分类对象，用于显示自定义图标
   final String title;
   final double amount;
+  /// v30 多币种:交易原币种(null/等于账本本位币 → 维持无符号纯数字;
+  /// 外币 → 金额前显示其币种符号,如 JP¥/US$,一眼区分原币)。
+  final String? currencyCode;
   final bool isExpense; // 决定正负号
   final bool isTransfer; // 是否为转账（转账不显示正负号）
   final bool isAdjustment; // 是否为估值调整
@@ -50,6 +54,7 @@ class TransactionListItem extends ConsumerWidget {
       this.category,
       required this.title,
       required this.amount,
+      this.currencyCode,
       required this.isExpense,
       this.isTransfer = false,
       this.isAdjustment = false,
@@ -215,6 +220,14 @@ class TransactionListItem extends ConsumerWidget {
     );
   }
 
+  bool _isForeign(WidgetRef ref) {
+    final cc = currencyCode;
+    if (cc == null || cc.isEmpty) return false;
+    final base =
+        ref.watch(currentLedgerProvider).asData?.value?.currency ?? 'CNY';
+    return cc.toUpperCase() != base.toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Widget child = InkWell(
@@ -334,6 +347,9 @@ class TransactionListItem extends ConsumerWidget {
                         : isExpense ? -amount : amount,
                     hide: hide,
                     signed: !isTransfer, // 转账不显示正负号
+                    // v30:外币交易显示其币种符号(原币语义);本位币维持纯数字
+                    showCurrency: _isForeign(ref),
+                    currencyCode: currencyCode,
                     decimals: 2,
                     style: BeeTextTokens.title(context).copyWith(
                       color: isAdjustment

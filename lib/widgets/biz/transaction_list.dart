@@ -510,6 +510,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
                           ? null
                           : categoryName,
                         amount: it.t.amount,
+                        currencyCode: it.t.currencyCode,
                         isExpense: isExpense,
                         isTransfer: isTransfer,
                         isAdjustment: isAdjustment,
