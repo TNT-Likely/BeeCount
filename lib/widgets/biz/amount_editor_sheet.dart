@@ -792,6 +792,10 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                       _TxAuthorAvatars(
                           editingTransactionId: widget.editingTransactionId!),
                     const Spacer(),
+                    // v30 币种标:整个金额表达式的最左侧(反馈11:运算模式下
+                    // 不能夹在「10 + 20」中间),点开选币种。
+                    _buildCurrencyChip(context),
+                    const SizedBox(width: 6),
                     if (_op != null) ...[
                       // 显示累加值
                       Text(
@@ -819,10 +823,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                         ),
                       ),
                     ],
-                    // v30 币种标:金额左侧小字,点开选币种(反馈9)。
-                    // 常显本位币也只是淡淡一枚小标,单币种用户零打扰(L12)。
-                    _buildCurrencyChip(context),
-                    const SizedBox(width: 6),
                     // 当前输入值
                     Text(
                       _amountStr,
@@ -865,6 +865,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                     ],
                   ),
                 ],
+                // v30 折算预览:金额模块区域内、金额/等号下方(反馈11)。
+                _buildCurrencySection(context),
               ],
             ),
             const SizedBox(height: 10),
@@ -920,10 +922,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                     : null,
               ),
             ),
-            // v30 交易级多币种:币种标(L12)+ 汇率行 + 折算预览(L7 自动探测)。
-            // 有账户 → 币种锁定=账户币种;无账户 → 小字标可点开选(默认本位币)。
-            // 交易币种 ≠ 账本本位币时出现汇率行,否则整块不可见(单币种零打扰)。
-            _buildCurrencySection(context),
             // 账户选择（仅在启用时显示）
             if (widget.showAccountPicker) ...[
               const SizedBox(height: 8),
