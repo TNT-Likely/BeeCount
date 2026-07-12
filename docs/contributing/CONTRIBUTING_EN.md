@@ -566,19 +566,19 @@ Closes #123
 
 ## Translation Contributions
 
-BeeCount supports 9 languages. We welcome contributions of new language translations or improvements to existing ones.
+BeeCount officially maintains 3 languages (Simplified Chinese, Traditional Chinese, English), plus additional community-contributed translations. We welcome contributions of new languages or improvements to existing ones.
 
 ### Currently Supported Languages
+
+**Officially maintained:**
 
 - Simplified Chinese (zh)
 - Traditional Chinese (zh_Hant)
 - English (en)
-- 日本語 (ja)
-- 한국어 (ko)
-- Español (es)
-- Français (fr)
-- Deutsch (de)
-- Português (pt)
+
+**Community-contributed:**
+
+- 한국어 / Korean (ko)
 
 ### Adding a New Language
 

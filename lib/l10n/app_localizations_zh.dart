@@ -1033,6 +1033,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get headerSkinMemphis => '孟菲斯';
 
   @override
+  String get headerSkinSilk => '丝带';
+
+  @override
+  String get headerSkinBubbles => '气泡';
+
+  @override
+  String get headerSkinGalaxy => '星系';
+
+  @override
+  String get headerSkinLowPoly => '低多边形';
+
+  @override
+  String get headerSkinPrism => '棱镜';
+
+  @override
+  String get headerSkinTerrazzo => '水磨石';
+
+  @override
   String get mineAvatarTitle => '头像设置';
 
   @override
@@ -4477,6 +4495,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aboutDouyin => '抖音';
+
+  @override
+  String get aboutTelegram => 'Telegram 群';
 
   @override
   String get aboutSupportDevelopment => '支持开发';
@@ -8006,6 +8027,24 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get headerSkinMemphis => '孟菲斯';
 
   @override
+  String get headerSkinSilk => '絲帶';
+
+  @override
+  String get headerSkinBubbles => '氣泡';
+
+  @override
+  String get headerSkinGalaxy => '星系';
+
+  @override
+  String get headerSkinLowPoly => '低多邊形';
+
+  @override
+  String get headerSkinPrism => '稜鏡';
+
+  @override
+  String get headerSkinTerrazzo => '水磨石';
+
+  @override
   String get mineAvatarTitle => '頭像設定';
 
   @override
@@ -11450,6 +11489,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get aboutDouyin => '抖音';
+
+  @override
+  String get aboutTelegram => 'Telegram 群';
 
   @override
   String get aboutSupportDevelopment => '支持開發';

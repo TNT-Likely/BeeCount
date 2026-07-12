@@ -7,15 +7,21 @@ import '../l10n/app_localizations.dart';
 
 part 'header_skins/aurora_skin.dart';
 part 'header_skins/bokeh_skin.dart';
+part 'header_skins/bubbles_skin.dart';
 part 'header_skins/clouds_skin.dart';
+part 'header_skins/galaxy_skin.dart';
 part 'header_skins/image_skin.dart';
+part 'header_skins/lowpoly_skin.dart';
 part 'header_skins/memphis_skin.dart';
 part 'header_skins/meteor_skin.dart';
 part 'header_skins/mountains_skin.dart';
 part 'header_skins/pattern_skins.dart';
+part 'header_skins/prism_skin.dart';
 part 'header_skins/sakura_skin.dart';
+part 'header_skins/silk_skin.dart';
 part 'header_skins/skyline_skin.dart';
 part 'header_skins/sunset_skin.dart';
+part 'header_skins/terrazzo_skin.dart';
 part 'header_skins/waves_skin.dart';
 
 /// 皮肤系统:皮肤 = 叠在「主题色底」之上的装饰层(渲染在 PrimaryHeader)。
@@ -76,6 +82,14 @@ final List<HeaderSkin> kHeaderSkins = [
       id: 'waves',
       nameOf: (l) => l.headerSkinWaves,
       builder: (p, d) => _WavesSkin(p, d)),
+  HeaderSkin(
+      id: 'silk',
+      nameOf: (l) => l.headerSkinSilk,
+      builder: (p, d) => _SilkSkin(p, d)),
+  HeaderSkin(
+      id: 'bubbles',
+      nameOf: (l) => l.headerSkinBubbles,
+      builder: (p, d) => _BubblesSkin(p, d)),
   // 场景皮肤(代码绘制,跟随主题色)
   HeaderSkin(
       id: 'sunset',
@@ -89,6 +103,10 @@ final List<HeaderSkin> kHeaderSkins = [
       id: 'skyline',
       nameOf: (l) => l.headerSkinSkyline,
       builder: (p, d) => _SkylineSkin(p, d)),
+  HeaderSkin(
+      id: 'galaxy',
+      nameOf: (l) => l.headerSkinGalaxy,
+      builder: (p, d) => _GalaxySkin(p, d)),
   // 几何图案皮肤(亮=白色图案叠主题色底 / 暗=偏淡主题色图案叠纯黑)
   HeaderSkin(
       id: 'honeycomb',
@@ -114,6 +132,19 @@ final List<HeaderSkin> kHeaderSkins = [
       id: 'memphis',
       nameOf: (l) => l.headerSkinMemphis,
       builder: (p, d) => _PatternSkin(p, d, (c) => _MemphisPainter(c))),
+  // 几何 / 艺术(代码绘制,自定义底,跟随主题色)
+  HeaderSkin(
+      id: 'lowpoly',
+      nameOf: (l) => l.headerSkinLowPoly,
+      builder: (p, d) => _LowPolySkin(p, d)),
+  HeaderSkin(
+      id: 'prism',
+      nameOf: (l) => l.headerSkinPrism,
+      builder: (p, d) => _PrismSkin(p, d)),
+  HeaderSkin(
+      id: 'terrazzo',
+      nameOf: (l) => l.headerSkinTerrazzo,
+      builder: (p, d) => _TerrazzoSkin(p, d)),
   // 图片皮肤(SVG 示例,仅 debug 可见;创作规范见 assets/header_skins/README.md)
   if (kDebugMode)
     HeaderSkin(

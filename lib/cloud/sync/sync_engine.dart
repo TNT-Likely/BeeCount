@@ -480,6 +480,20 @@ class SyncEngine implements app.SyncService {
       await syncMyProfile();
 
       final result = SyncResult(pushed: pushed, pulled: pulled);
+      // 【根因修复】同步完成后清掉本账本 getStatus 的 _statusCache,跟手动上传/
+      // 下载路径(uploadToCloudFromCurrentLedger / downloadAndRestoreToCurrentLedger
+      // 里的 _statusCache.remove)保持一致。否则 push 后 unpushedCount 已归零,但
+      // 「我的」页 syncStatus 仍命中旧缓存(localNewer),用户必须手动去详情页下拉
+      // 刷新(那条路径清了缓存)状态才更新 —— 这正是本 bug 的根因。
+      if (ledgerIdInt > 0) {
+        clearStatusCache(ledgerId: ledgerIdInt);
+      }
+      // 缓存清掉只是让下次 getStatus 会重算;还得有人触发 syncStatusProvider 去重读。
+      // push 上传了本地变更时 emit PushCompleted,listener 收到后 bump
+      // syncStatusRefresh → 重读 getStatus(缓存已清 → 重算为 inSync)。
+      if (pushed > 0) {
+        _emit(PushCompleted(ledgerId: ledgerId, pushed: pushed));
+      }
       logger.info('SyncEngine', '同步完成: $result');
       return result;
     } catch (e, st) {

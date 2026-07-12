@@ -69,16 +69,8 @@ class LanguageNotifier extends StateNotifier<Locale?> {
         return l10n.languageChinese;
       case 'en':
         return l10n.languageEnglish;
-      case 'ja':
-        return '日本語';
       case 'ko':
         return '한국어';
-      case 'es':
-        return 'Español';
-      case 'fr':
-        return 'Français';
-      case 'de':
-        return 'Deutsch';
       default:
         return locale.languageCode;
     }

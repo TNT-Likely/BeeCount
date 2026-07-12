@@ -83,10 +83,10 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 </details>
 
 <details>
-<summary><b>🎨 Experience</b> — dark mode / 3 languages / home widgets / theming</summary>
+<summary><b>🎨 Experience</b> — dark mode / multi-language / home widgets / theming</summary>
 
 - **Dark mode** — Pure black + theme accent borders, OLED-friendly
-- **3 languages** — Simplified/Traditional Chinese, English, with localized formatting
+- **Multi-language** — official Simplified/Traditional Chinese & English, community-contributed Korean, with localized formatting
 - **Home widgets** — iOS / Android quick-record widgets
 - **Theme customization** — Multiple primary colors
 

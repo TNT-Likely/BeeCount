@@ -27,6 +27,19 @@ class PullCompleted extends SyncEvent {
   final int applied;
 }
 
+/// push 完成(本地变更已上传到 server)。UI 收到后把「本地有更新」刷回
+/// 「已同步」。与 [PullCompleted] 对称 —— 本地写触发的 auto sync 以 push 为主,
+/// pull 回来自我回声被过滤 applied=0,不能靠 PullCompleted 触发状态刷新。
+class PushCompleted extends SyncEvent {
+  const PushCompleted({required this.ledgerId, this.pushed = 0});
+
+  /// 本次同步涉及的 ledgerId(external_id / syncId),可能为空。
+  final String ledgerId;
+
+  /// 本次 push 上传的 change 数。>0 表示本地确有变更被同步。
+  final int pushed;
+}
+
 /// 共享账本资源(分类 / 账户 / 标签)变化。比 PullCompleted 精确 — 只在
 /// 真有 SharedLedger* 镜像表更新时 fire,避免 HomePage 全局刷新。
 class SharedResourceChanged extends SyncEvent {

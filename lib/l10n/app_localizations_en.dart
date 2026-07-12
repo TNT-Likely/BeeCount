@@ -1051,6 +1051,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get headerSkinMemphis => 'Memphis';
 
   @override
+  String get headerSkinSilk => 'Silk';
+
+  @override
+  String get headerSkinBubbles => 'Bubbles';
+
+  @override
+  String get headerSkinGalaxy => 'Galaxy';
+
+  @override
+  String get headerSkinLowPoly => 'Low-poly';
+
+  @override
+  String get headerSkinPrism => 'Prism';
+
+  @override
+  String get headerSkinTerrazzo => 'Terrazzo';
+
+  @override
   String get mineAvatarTitle => 'Avatar Settings';
 
   @override
@@ -4677,6 +4695,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutDouyin => 'Douyin';
+
+  @override
+  String get aboutTelegram => 'Telegram';
 
   @override
   String get aboutSupportDevelopment => 'Support Development';
