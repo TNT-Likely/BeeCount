@@ -41,6 +41,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
     'date': null,
     'type': null,
     'amount': null,
+    'currency': null,            // v30 多币种:币种列(反馈10)
     'category': null,
     'sub_category': null,       // 二级分类
     'account': null,
@@ -171,6 +172,8 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
                           'type', items()),
                       _mapRow(AppLocalizations.of(context)!.importFieldAmount,
                           'amount', items()),
+                      _mapRow(AppLocalizations.of(context)!.importFieldCurrency,
+                          'currency', items()),
                       _mapRow(AppLocalizations.of(context)!.importFieldCategory,
                           'category', items()),
                       _mapRow(AppLocalizations.of(context)!.exportCsvHeaderSubCategory,
@@ -820,6 +823,7 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
       final dateStr = getBy('date');
       final typeRaw = getBy('type') ?? 'expense';
       final amountStr = getBy('amount');
+      final currencyStr = getBy('currency')?.trim().toUpperCase();
       final categoryName = getBy('category');
       final subCategoryName = getBy('sub_category');
       final accountName = getBy('account');
@@ -901,6 +905,11 @@ class _ImportConfirmPageState extends ConsumerState<ImportConfirmPage> {
       transactions.add(ImportTransaction(
         type: type,
         amount: amount,
+        // 币种列有值且像 ISO code(3-8 位字母)才采纳,脏值回退兜底链
+        currencyCode: (currencyStr != null &&
+                RegExp(r'^[A-Z]{3,8}$').hasMatch(currencyStr))
+            ? currencyStr
+            : null,
         categoryName: finalCategoryName,
         categoryKind: categoryKind,
         categoryId: categoryId,

@@ -109,6 +109,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
         l10n.exportCsvHeaderCategory,
         l10n.exportCsvHeaderSubCategory, // 二级分类名称
         l10n.exportCsvHeaderAmount,
+        l10n.exportCsvHeaderCurrency, // v30 多币种:交易原币种(反馈10)
         l10n.exportCsvHeaderAccount,
         l10n.exportCsvHeaderFromAccount, // 转出账户
         l10n.exportCsvHeaderToAccount,   // 转入账户
@@ -128,6 +129,13 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       // 缓存所有账户信息，避免重复查询
       final allAccounts = await repo.getAllAccounts();
       final accountMap = {for (var acc in allAccounts) acc.id: acc};
+
+      // v30 多币种:账本本位币(currencyCode 为 NULL 的历史行按账户/本位币兜底,
+      // 与统计读取端同语义 —— 导出自包含,回导不丢币种)
+      final ledgerData = await repo.getLedgerById(ledgerId);
+      final ledgerBase =
+          ((ledgerData?.currency.isNotEmpty ?? false) ? ledgerData!.currency : 'CNY')
+              .toUpperCase();
 
       // 缓存所有分类信息（包括父分类）
       final incomeCategories = await repo.getTopLevelCategories('income');
@@ -207,11 +215,17 @@ class _ExportPageState extends ConsumerState<ExportPage> {
         final transactionAttachments = attachmentsMap[t.id] ?? [];
         final attachmentsStr = transactionAttachments.map((a) => a.fileName).join(',');
 
+        final currencyStr = (t.currencyCode ??
+                (a?.currency.isNotEmpty ?? false ? a!.currency : null) ??
+                ledgerBase)
+            .toUpperCase();
+
         rows.add([
           typeStr,
           categoryName,
           subCategoryName,
           t.amount.toStringAsFixed(2),
+          currencyStr,
           accountName,
           fromAccountName,
           toAccountName,

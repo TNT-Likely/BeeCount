@@ -3043,5 +3043,7 @@
   "txCurrencyPickerTitle": "选择币种",
   "txCurrencyLockedByAccount": "币种由所选账户决定",
   "recalcSyncCountHint": "将重算并同步 {count} 笔交易",
-  "@recalcSyncCountHint": { "placeholders": { "count": {} } }
+  "@recalcSyncCountHint": { "placeholders": { "count": {} } },
+  "exportCsvHeaderCurrency": "币种",
+  "importFieldCurrency": "币种"
 }

@@ -6970,4 +6970,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String recalcSyncCountHint(Object count) {
     return '$count transactions will be reconverted and synced';
   }
+
+  @override
+  String get exportCsvHeaderCurrency => 'Currency';
+
+  @override
+  String get importFieldCurrency => 'Currency';
 }

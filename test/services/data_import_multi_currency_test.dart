@@ -84,6 +84,36 @@ void main() {
     expect(txs[2].nativeAmount, closeTo(86.4, 1e-9));
   });
 
+  test('导入:CSV 币种列显式指定(反馈10)→ 优先于账户币种/本位币兜底', () async {
+    await seed();
+    await repo.upsertAutoRates(
+      base: 'CNY',
+      rateDate: '2026-07-10',
+      rates: {'JPY': '0.0488'},
+      source: 'test',
+      fetchedAt: DateTime.utc(2026, 7, 10),
+    );
+    final result = await service.importTransactions(
+      repo,
+      1,
+      [
+        // 无账户但 CSV 带币种列 JPY → 按 JPY 折算
+        ImportTransaction(
+            type: 'expense',
+            amount: 1000,
+            currencyCode: 'JPY',
+            happenedAt: DateTime(2026, 7, 1)),
+      ],
+      accountNameToId: {},
+      categoryCache: {},
+      tagNameToId: {},
+    );
+    expect(result.inserted, 1);
+    final txs = await allTx();
+    expect(txs[0].currencyCode, 'JPY');
+    expect(txs[0].nativeAmount, closeTo(48.8, 1e-9)); // 1000 × 0.0488
+  });
+
   test('导入:外币账户无汇率 → native=amount(非 NULL),L11 检测能捞到', () async {
     await seed();
     final result = await service.importTransactions(

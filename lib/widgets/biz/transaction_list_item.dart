@@ -365,29 +365,45 @@ class TransactionListItem extends ConsumerWidget {
                                   ? BeeTokens.expenseColor(context, ref)
                                   : BeeTokens.incomeColor(context, ref),
                     )),
-                // v30 折算小字:外币交易金额右下角 ≈ 折本位币(与 Web 一致);
-                // 隐藏金额开关开启时同样遮蔽(不显示)。
-                if (_isForeign(ref) &&
-                    nativeAmount != null &&
-                    nativeAmount != amount &&
-                    hide != true)
-                  Text(
-                    '≈${nativeAmount!.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: BeeTokens.textTertiary(context),
-                    ),
-                  ),
-                // 标签（显示在金额下方）
-                if (tags != null && tags!.isNotEmpty)
+                // 标签行 + ≈折算小字(反馈15:折算放标签右边,同一行;
+                // 无标签时折算独占该行)。隐藏金额开关开启时折算同样遮蔽。
+                if ((tags != null && tags!.isNotEmpty) ||
+                    (_isForeign(ref) &&
+                        nativeAmount != null &&
+                        nativeAmount != amount &&
+                        hide != true))
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: TagChipList(
-                      tags: tags!,
-                      maxDisplay: 2,
-                      size: TagChipSize.small,
-                      spacing: 4,
-                      onTagTap: onTagTap,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (tags != null && tags!.isNotEmpty)
+                          TagChipList(
+                            tags: tags!,
+                            maxDisplay: 2,
+                            size: TagChipSize.small,
+                            spacing: 4,
+                            onTagTap: onTagTap,
+                          ),
+                        if (tags != null &&
+                            tags!.isNotEmpty &&
+                            _isForeign(ref) &&
+                            nativeAmount != null &&
+                            nativeAmount != amount &&
+                            hide != true)
+                          const SizedBox(width: 6),
+                        if (_isForeign(ref) &&
+                            nativeAmount != null &&
+                            nativeAmount != amount &&
+                            hide != true)
+                          Text(
+                            '≈${nativeAmount!.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: BeeTokens.textTertiary(context),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
               ],

@@ -100,10 +100,13 @@ class ImportTransaction {
   final int? categoryId; // 预解析的分类ID（优先于categoryName）
   final List<ImportAttachment>? attachments; // 附件元数据列表
   final String? syncId; // 跨设备同步唯一标识
+  /// v30 多币种:CSV 币种列(反馈10)。null → 账户币种/账本本位币兜底。
+  final String? currencyCode;
 
   const ImportTransaction({
     required this.type,
     required this.amount,
+    this.currencyCode,
     this.categoryName,
     this.categoryKind,
     required this.happenedAt,
@@ -568,11 +571,13 @@ class DataImportService {
       }
       final uniqueTagIds = tagIds.toSet().toList();
 
-      // v30:交易币种 = 账户币种(无账户 → 本位币);折算快照同币种 = amount,
-      // 外币按有效汇率,取不到 = amount(命中 L11 检测可捞回)。
-      final txCurrency =
+      // v30:交易币种 = CSV 币种列(显式,反馈10)?? 账户币种 ?? 本位币;
+      // 折算快照同币种 = amount,外币按有效汇率,取不到 = amount(L11 可捞回)。
+      final txCurrency = ((tx.currencyCode?.isNotEmpty ?? false)
+              ? tx.currencyCode!
+              : null) ??
           (accountId != null ? accountCurrencyById[accountId] : null) ??
-              ledgerBase;
+          ledgerBase;
       final txNative = txCurrency == ledgerBase
           ? tx.amount
           : (computeNativeAmount(

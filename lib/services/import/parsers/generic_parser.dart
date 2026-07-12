@@ -107,6 +107,9 @@ class GenericBillParser implements BillParser {
         noSpace == 'value') {
       return 'amount';
     }
+    if (noSpace == 'currency' || noSpace == 'currencycode') {
+      return 'currency';
+    }
     if (noSpace == 'category' ||
         noSpace == 'cate' ||
         noSpace == 'subject' ||
@@ -128,6 +131,11 @@ class GenericBillParser implements BillParser {
     }
     if (_containsAny(s, ['金额', '金额(元)', '交易金额', '变动金额', '收支金额'])) {
       return 'amount';
+    }
+    // v30 多币种:币种列(反馈10)。注意在「分类/类型」等之前匹配,
+    // 「币种」不含歧义字,顺序无冲突。
+    if (_containsAny(s, ['币种', '幣種', '货币', '貨幣'])) {
+      return 'currency';
     }
     // 先匹配"交易类型"等更具体的分类字段（避免被"类型"匹配为type）
     // 优先匹配二级分类相关字段（注意：必须先匹配更长的字符串，避免被短字符串提前匹配）

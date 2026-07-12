@@ -3102,5 +3102,7 @@
   "txCurrencyPickerTitle": "Select currency",
   "txCurrencyLockedByAccount": "Currency follows the selected account",
   "recalcSyncCountHint": "{count} transactions will be reconverted and synced",
-  "@recalcSyncCountHint": { "placeholders": { "count": {} } }
+  "@recalcSyncCountHint": { "placeholders": { "count": {} } },
+  "exportCsvHeaderCurrency": "Currency",
+  "importFieldCurrency": "Currency"
 }

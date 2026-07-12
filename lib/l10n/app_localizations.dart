@@ -13183,6 +13183,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} transactions will be reconverted and synced'**
   String recalcSyncCountHint(Object count);
+
+  /// No description provided for @exportCsvHeaderCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get exportCsvHeaderCurrency;
+
+  /// No description provided for @importFieldCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get importFieldCurrency;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

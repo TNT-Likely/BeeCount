@@ -6970,6 +6970,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String recalcSyncCountHint(Object count) {
     return '将重算并同步 $count 笔交易';
   }
+
+  @override
+  String get exportCsvHeaderCurrency => '币种';
+
+  @override
+  String get importFieldCurrency => '币种';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -13940,4 +13946,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String recalcSyncCountHint(Object count) {
     return '將重算並同步 $count 筆交易';
   }
+
+  @override
+  String get exportCsvHeaderCurrency => '幣種';
+
+  @override
+  String get importFieldCurrency => '幣種';
 }
