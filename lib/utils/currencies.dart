@@ -198,6 +198,7 @@ final Map<String, String> _symbolMap = {
 /// (USD→US、JPY→JP);区域/特殊货币无单一国旗,返回 null 由 UI 兜底。
 const Map<String, String?> _currencyCountryOverride = {
   'EUR': 'EU', // 欧盟旗
+  'TWD': 'CN', // 新台币显示中国国旗(中国大陆市场合规要求)
   'XAF': null, 'XOF': null, 'XCD': null, 'XPF': null, // 区域法郎/元
   'XDR': null, 'XAU': null, 'XAG': null, 'XPT': null, 'XPD': null, // SDR/贵金属
 };
