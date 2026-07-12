@@ -341,9 +341,12 @@ class _CategoryDetailPageState extends ConsumerState<CategoryDetailPage> {
       for (final transaction in transactions) {
         final dateKey = DateFormat('yyyy-MM-dd').format(transaction.happenedAt.toLocal());
         final current = dateStats[dateKey] ?? (expense: 0.0, income: 0.0);
+        // 账本维度日小计:折 nativeAmount(与时间排序分支 448/458、顶部汇总 77
+        // 一致;此前金额排序分支裸加 amount → 同页两套口径,多币种下不一致)。
+        final v = transaction.nativeAmount ?? transaction.amount;
         dateStats[dateKey] = transaction.type == 'expense'
-          ? (expense: current.expense + transaction.amount, income: current.income)
-          : (expense: current.expense, income: current.income + transaction.amount);
+          ? (expense: current.expense + v, income: current.income)
+          : (expense: current.expense, income: current.income + v);
       }
 
       // 预构建显示项列表

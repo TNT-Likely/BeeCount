@@ -482,6 +482,12 @@ class LocalAccountRepository implements AccountRepository {
   }
 
   @override
+  /// ⚠️ 多币种口径未处理:本方法跨所有账本/账户按 type 裸加 amount。当前
+  /// 无 UI 消费(allAccountsTotalStatsProvider 是死代码),故不影响任何界面。
+  /// 若将来接「全局总收支」卡片:这是跨账本汇总,正确口径是按各账户币种
+  /// rate 折算到用户主币种(同净值卡 convertedNetWorth),**不是** nativeAmount
+  /// (各账本本位币可能不同,nativeAmount 相加无意义)。届时须重写,勿直接
+  /// 套账本维度的 nativeAmount 折算。
   Future<({double totalBalance, double totalExpense, double totalIncome})> getAllAccountsTotalStats() async {
     final accounts = await db.select(db.accounts).get();
 

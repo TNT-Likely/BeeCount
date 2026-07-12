@@ -414,7 +414,9 @@ class LocalCategoryRepository implements CategoryRepository {
     if (sortBy == 'amount') {
       query.orderBy([
         (t) => d.OrderingTerm(
-          expression: t.amount,
+          // 账本维度「金额排序」按折算值:多币种下 5000 JPY(≈250 CNY)不应
+          // 因原币面值大而排在 300 CNY 之前(与年报 largest 比较同口径)。
+          expression: d.coalesce([t.nativeAmount, t.amount]),
           mode: ascending ? d.OrderingMode.asc : d.OrderingMode.desc,
         )
       ]);
