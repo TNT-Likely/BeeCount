@@ -76,7 +76,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
           ),
           Expanded(
               child: SafeArea(
-            top: true,
+            top: false,
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
