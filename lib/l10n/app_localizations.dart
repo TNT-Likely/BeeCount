@@ -3998,6 +3998,66 @@ abstract class AppLocalizations {
   /// **'Show note when present, else category'**
   String get appearanceNoteDisplayNoteDesc;
 
+  /// No description provided for @appearanceNoteHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Note history'**
+  String get appearanceNoteHistory;
+
+  /// No description provided for @appearanceNoteHistoryScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get appearanceNoteHistoryScope;
+
+  /// No description provided for @appearanceNoteHistoryScopeAllCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get appearanceNoteHistoryScopeAllCategories;
+
+  /// No description provided for @appearanceNoteHistoryScopeCurrentCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Current category'**
+  String get appearanceNoteHistoryScopeCurrentCategory;
+
+  /// No description provided for @appearanceNoteHistorySort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get appearanceNoteHistorySort;
+
+  /// No description provided for @appearanceNoteHistorySortFrequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage frequency'**
+  String get appearanceNoteHistorySortFrequency;
+
+  /// No description provided for @appearanceNoteHistorySortRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Most recent'**
+  String get appearanceNoteHistorySortRecent;
+
+  /// No description provided for @appearanceNoteHistoryLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Display limit'**
+  String get appearanceNoteHistoryLimit;
+
+  /// No description provided for @appearanceNoteHistoryLimitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a value from 1 to 100'**
+  String get appearanceNoteHistoryLimitHint;
+
+  /// No description provided for @appearanceNoteHistoryLimitInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an integer from 1 to 100'**
+  String get appearanceNoteHistoryLimitInvalid;
+
   /// No description provided for @appearanceColorScheme.
   ///
   /// In en, this message translates to:

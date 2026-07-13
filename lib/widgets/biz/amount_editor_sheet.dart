@@ -11,6 +11,7 @@ import '../../providers/shared_ledger_providers.dart';
 import '../../styles/tokens.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/data/note_history_service.dart';
+import '../../data/repositories/transaction_repository.dart';
 import '../../services/attachment_service.dart';
 import '../../providers.dart';
 import '../../utils/ui_scale_extensions.dart';
@@ -199,6 +200,8 @@ typedef AmountEditorResult = ({
 
 class AmountEditorSheet extends ConsumerStatefulWidget {
   final String categoryName; // 仅用于上层提交，不在UI展示
+  final int? categoryId; // 当前本地分类ID，用于筛选历史备注
+  final String? categorySyncId; // 共享账本分类同步ID，用于筛选历史备注
   final DateTime initialDate;
   final double? initialAmount;
   final String? initialNote;
@@ -219,6 +222,8 @@ class AmountEditorSheet extends ConsumerStatefulWidget {
   const AmountEditorSheet({
     super.key,
     required this.categoryName,
+    this.categoryId,
+    this.categorySyncId,
     required this.initialDate,
     this.initialAmount,
     this.initialNote,
@@ -253,7 +258,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   bool _mulKey2 = false; // 键2:− ↔ ÷
 
   // 高频备注列表（包含使用次数）
-  List<({String note, int count})> _frequentNotes = [];
+  List<NoteHistoryEntry> _frequentNotes = [];
 
   // 备注框焦点节点
   final FocusNode _noteFocusNode = FocusNode();
@@ -329,10 +334,14 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
 
   Future<void> _loadRecentNotes() async {
     final repo = ref.read(repositoryProvider);
-    final notes = await NoteHistoryService.getFrequentNotes(
-      repo,
-      widget.ledgerId,
-      limit: 20,
+    final notes = await NoteHistoryService.getHistoryNotes(
+      repository: repo,
+      ledgerId: widget.ledgerId,
+      scope: ref.read(noteHistoryScopeProvider),
+      sort: ref.read(noteHistorySortProvider),
+      categoryId: widget.categoryId,
+      categorySyncId: widget.categorySyncId,
+      limit: ref.read(noteHistoryLimitProvider),
     );
     if (!mounted) return; // 弹窗已关时不再 setState(widget 测试暴露的既有问题)
     setState(() {
@@ -910,11 +919,13 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                             context: context,
                             builder: (context) => NotePickerDialog(
                               ledgerId: widget.ledgerId,
-                              categoryId: null,
+                              categoryId: widget.categoryId,
+                              categorySyncId: widget.categorySyncId,
                               onNotePicked: (note) {
                                 setState(() {
                                   _noteCtrl.text = note;
-                                  _noteCtrl.selection = TextSelection.fromPosition(
+                                  _noteCtrl.selection =
+                                      TextSelection.fromPosition(
                                     TextPosition(offset: note.length),
                                   );
                                 });

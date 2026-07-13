@@ -238,6 +238,8 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
       ),
       builder: (ctx) => AmountEditorSheet(
         categoryName: c.name,
+        categoryId: c.id,
+        categorySyncId: c.id < 0 ? c.syncId : null,
         initialDate: widget.initialDate ?? DateTime.now(),
         initialAmount: widget.initialAmount,
         initialNote: widget.initialNote,

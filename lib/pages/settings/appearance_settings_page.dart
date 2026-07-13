@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers.dart';
+import '../../data/repositories/transaction_repository.dart';
+import '../../services/data/note_history_service.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/biz.dart';
 import '../../styles/tokens.dart';
@@ -171,6 +174,14 @@ class AppearanceSettingsPage extends ConsumerWidget {
                             ? l10n.appearanceNoteDisplayNote
                             : l10n.appearanceNoteDisplayCategory,
                         onTap: () => _showNoteDisplayDialog(context, ref, l10n),
+                      ),
+                      BeeTokens.cardDivider(context),
+                      // 历史备注偏好
+                      AppListTile(
+                        leading: Icons.history_outlined,
+                        title: l10n.appearanceNoteHistory,
+                        subtitle: _noteHistorySummary(ref, l10n),
+                        onTap: () => _showNoteHistoryDialog(context, ref, l10n),
                       ),
                       BeeTokens.cardDivider(context),
                       // 收支颜色方案
@@ -501,8 +512,188 @@ class AppearanceSettingsPage extends ConsumerWidget {
     );
   }
 
+  /// 返回历史备注范围和排序方式的摘要文本。
+  String _noteHistorySummary(WidgetRef ref, AppLocalizations l10n) {
+    final scope = ref.watch(noteHistoryScopeProvider);
+    final sort = ref.watch(noteHistorySortProvider);
+    final scopeText = scope == NoteHistoryScope.currentCategory
+        ? l10n.appearanceNoteHistoryScopeCurrentCategory
+        : l10n.appearanceNoteHistoryScopeAllCategories;
+    final sortText = sort == NoteHistorySort.recent
+        ? l10n.appearanceNoteHistorySortRecent
+        : l10n.appearanceNoteHistorySortFrequency;
+    final limit = ref.watch(noteHistoryLimitProvider);
+    return '$scopeText · $sortText · ${l10n.appearanceNoteHistoryLimit} $limit';
+  }
+
+  /// 显示历史备注范围和排序方式的个性化设置对话框。
+  void _showNoteHistoryDialog(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+    var selectedScope = ref.read(noteHistoryScopeProvider);
+    var selectedSort = ref.read(noteHistorySortProvider);
+    var limitError = false;
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: BeeTokens.surfaceElevated(context),
+          title: Text(
+            l10n.appearanceNoteHistory,
+            style: TextStyle(color: BeeTokens.textPrimary(context)),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.appearanceNoteHistoryScope,
+                  style: TextStyle(
+                    color: BeeTokens.textSecondary(context),
+                    fontSize: 13,
+                  ),
+                ),
+                RadioListTile<NoteHistoryScope>(
+                  value: NoteHistoryScope.allCategories,
+                  groupValue: selectedScope,
+                  title: Text(l10n.appearanceNoteHistoryScopeAllCategories),
+                  contentPadding: EdgeInsets.zero,
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setDialogState(() => selectedScope = value);
+                    ref.read(noteHistoryScopeProvider.notifier).state = value;
+                  },
+                ),
+                RadioListTile<NoteHistoryScope>(
+                  value: NoteHistoryScope.currentCategory,
+                  groupValue: selectedScope,
+                  title: Text(l10n.appearanceNoteHistoryScopeCurrentCategory),
+                  contentPadding: EdgeInsets.zero,
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setDialogState(() => selectedScope = value);
+                    ref.read(noteHistoryScopeProvider.notifier).state = value;
+                  },
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.appearanceNoteHistorySort,
+                  style: TextStyle(
+                    color: BeeTokens.textSecondary(context),
+                    fontSize: 13,
+                  ),
+                ),
+                RadioListTile<NoteHistorySort>(
+                  value: NoteHistorySort.frequency,
+                  groupValue: selectedSort,
+                  title: Text(l10n.appearanceNoteHistorySortFrequency),
+                  contentPadding: EdgeInsets.zero,
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setDialogState(() => selectedSort = value);
+                    ref.read(noteHistorySortProvider.notifier).state = value;
+                  },
+                ),
+                RadioListTile<NoteHistorySort>(
+                  value: NoteHistorySort.recent,
+                  groupValue: selectedSort,
+                  title: Text(l10n.appearanceNoteHistorySortRecent),
+                  contentPadding: EdgeInsets.zero,
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setDialogState(() => selectedSort = value);
+                    ref.read(noteHistorySortProvider.notifier).state = value;
+                  },
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.appearanceNoteHistoryLimit,
+                            style: TextStyle(
+                              color: BeeTokens.textPrimary(context),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            l10n.appearanceNoteHistoryLimitHint,
+                            style: TextStyle(
+                              color: BeeTokens.textSecondary(context),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: 72,
+                      child: TextFormField(
+                        initialValue:
+                            ref.read(noteHistoryLimitProvider).toString(),
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 10,
+                          ),
+                        ),
+                        onChanged: (value) {
+                          final limit = int.tryParse(value);
+                          final isValid = limit != null &&
+                              limit >= noteHistoryMinLimit &&
+                              limit <= noteHistoryMaxLimit;
+                          setDialogState(() => limitError = !isValid);
+                          if (isValid) {
+                            ref.read(noteHistoryLimitProvider.notifier).state =
+                                limit!;
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                if (limitError)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        l10n.appearanceNoteHistoryLimitInvalid,
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.commonClose),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// 显示收支颜色方案选择对话框
-  void _showColorSchemeDialog(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+  void _showColorSchemeDialog(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     final currentScheme = ref.read(incomeExpenseColorSchemeProvider);
 
     showDialog(
