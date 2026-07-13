@@ -139,7 +139,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
               data: (accounts) {
                 final groups = _reorderingGroups ?? _groupAccounts(accounts);
 
-                return ListView(
+                return SafeArea(
+                    child: ListView(
                   padding: EdgeInsets.only(
                     left: 12.0.scaled(context, ref),
                     right: 12.0.scaled(context, ref),
@@ -237,7 +238,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                       }),
                     ],
                   ],
-                );
+                ));
               },
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(
