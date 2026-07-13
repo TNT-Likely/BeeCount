@@ -84,6 +84,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
           ),
           _buildTransferIconSetting(context, l10n, primaryColor),
           Expanded(
+              child: SafeArea(
+            top: false,
             child: categoriesWithCountAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) => Center(child: Text(l10n.categoryLoadFailed(error.toString()))),
@@ -103,7 +105,7 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
                 );
               },
             ),
-          ),
+          )),
         ],
       ),
     );
