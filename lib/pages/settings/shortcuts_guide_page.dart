@@ -22,7 +22,9 @@ class ShortcutsGuidePage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
-      body: Column(
+      body: SafeArea(
+          top: false,
+          child: Column(
         children: [
           PrimaryHeader(
             title: l10n.shortcutsGuide,
@@ -56,7 +58,7 @@ class ShortcutsGuidePage extends ConsumerWidget {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 
