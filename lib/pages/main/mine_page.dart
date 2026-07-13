@@ -67,6 +67,8 @@ class MinePage extends ConsumerWidget {
             content: _MinePageHeader(),
           ),
           Expanded(
+              child: SafeArea(
+            top: false,
             child: ListView(
               padding: EdgeInsets.zero,
               physics: const AlwaysScrollableScrollPhysics(),
@@ -535,7 +537,7 @@ class MinePage extends ConsumerWidget {
                 SizedBox(height: 56 + 12 + MediaQuery.of(context).viewPadding.bottom + 16),
               ],
             ),
-          ),
+          )),
         ],
       ),
     );
