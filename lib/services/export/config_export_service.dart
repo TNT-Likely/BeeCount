@@ -1414,9 +1414,12 @@ class ConfigExportService {
     final compactAmount = prefs.getBool('compactAmount');
     final showTransactionTime = prefs.getBool('showTransactionTime');
     final noteDisplayMode = prefs.getString('noteDisplayMode');
-    final noteHistoryScope = prefs.getString('noteHistoryScope');
-    final noteHistorySort = prefs.getString('noteHistorySort');
-    final noteHistoryLimit = prefs.getInt('noteHistoryLimit');
+    // 兼容尚未完成首次偏好初始化的旧安装，导出时始终写入历史备注默认配置。
+    final noteHistoryScope =
+        prefs.getString('noteHistoryScope') ?? 'allCategories';
+    final noteHistorySort = prefs.getString('noteHistorySort') ?? 'frequency';
+    final noteHistoryLimit =
+        prefs.getInt('noteHistoryLimit') ?? 20;
     final incomeExpenseColorScheme = prefs.getBool('incomeExpenseColorScheme');
     final cloudServiceType = prefs.getString('cloud_active_type');
     final autoSync = prefs.getBool('auto_sync');
@@ -1942,7 +1945,10 @@ class ConfigExportService {
           settings.containsKey('dark_mode_pattern_style') ||
           settings.containsKey('compact_amount') ||
           settings.containsKey('show_transaction_time') ||
-          settings.containsKey('note_display_mode')) {
+          settings.containsKey('note_display_mode') ||
+          settings.containsKey('note_history_scope') ||
+          settings.containsKey('note_history_sort') ||
+          settings.containsKey('note_history_limit')) {
         buffer.writeln('  # 外观设置');
         if (settings.containsKey('theme_mode')) {
           buffer.writeln('  theme_mode: "${settings['theme_mode']}"');
@@ -1958,6 +1964,15 @@ class ConfigExportService {
         }
         if (settings.containsKey('note_display_mode')) {
           buffer.writeln('  note_display_mode: "${settings['note_display_mode']}"');
+        }
+        if (settings.containsKey('note_history_scope')) {
+          buffer.writeln('  note_history_scope: "${settings['note_history_scope']}"');
+        }
+        if (settings.containsKey('note_history_sort')) {
+          buffer.writeln('  note_history_sort: "${settings['note_history_sort']}"');
+        }
+        if (settings.containsKey('note_history_limit')) {
+          buffer.writeln('  note_history_limit: ${settings['note_history_limit']}');
         }
       }
 

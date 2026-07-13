@@ -242,30 +242,39 @@ final noteHistoryPreferencesInitProvider = FutureProvider<void>((ref) async {
   final savedSort = prefs.getString('noteHistorySort');
   final savedLimit = prefs.getInt('noteHistoryLimit');
 
-  // 旧版本没有偏好时保留默认值；未知值按默认值降级，避免配置损坏阻断启动。
+  // 旧版本缺失或配置异常时使用默认值，并回写规范值保证后续导出完整。
+  var scope = NoteHistoryScope.allCategories;
   if (savedScope != null) {
     try {
-      ref.read(noteHistoryScopeProvider.notifier).state =
-          NoteHistoryScope.values.byName(savedScope);
+      scope = NoteHistoryScope.values.byName(savedScope);
     } on ArgumentError {
-      ref.read(noteHistoryScopeProvider.notifier).state =
-          NoteHistoryScope.allCategories;
+      scope = NoteHistoryScope.allCategories;
     }
   }
+  ref.read(noteHistoryScopeProvider.notifier).state = scope;
+
+  var sort = NoteHistorySort.frequency;
   if (savedSort != null) {
     try {
-      ref.read(noteHistorySortProvider.notifier).state =
-          NoteHistorySort.values.byName(savedSort);
+      sort = NoteHistorySort.values.byName(savedSort);
     } on ArgumentError {
-      ref.read(noteHistorySortProvider.notifier).state =
-          NoteHistorySort.frequency;
+      sort = NoteHistorySort.frequency;
     }
   }
+  ref.read(noteHistorySortProvider.notifier).state = sort;
+
+  var limit = noteHistoryDefaultLimit;
   if (savedLimit != null &&
       savedLimit >= noteHistoryMinLimit &&
       savedLimit <= noteHistoryMaxLimit) {
-    ref.read(noteHistoryLimitProvider.notifier).state = savedLimit;
+    limit = savedLimit;
   }
+  ref.read(noteHistoryLimitProvider.notifier).state = limit;
+
+  // ref.listen 不会为初始值触发回调，首次启动时主动落库供配置导出使用。
+  await prefs.setString('noteHistoryScope', scope.name);
+  await prefs.setString('noteHistorySort', sort.name);
+  await prefs.setInt('noteHistoryLimit', limit);
 
   ref.listen<NoteHistoryScope>(noteHistoryScopeProvider, (prev, next) async {
     // 用户选择变化后写本机偏好，并在 BeeCount Cloud 模式下同步。
