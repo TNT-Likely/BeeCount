@@ -69,8 +69,10 @@ class RecurringTransactionPage extends ConsumerWidget {
                   );
                 }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                return SafeArea(
+                    child: ListView.builder(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                   itemCount: recurringTransactions.length + 1, // +1 for usage guide card
                   itemBuilder: (context, index) {
                     // 第一个显示使用说明卡片
@@ -84,7 +86,7 @@ class RecurringTransactionPage extends ConsumerWidget {
                     final recurring = recurringTransactions[index - 1];
                     return _RecurringTransactionCard(recurring: recurring);
                   },
-                );
+                ));
               },
             ),
           ),
