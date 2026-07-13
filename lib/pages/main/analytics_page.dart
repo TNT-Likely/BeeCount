@@ -864,7 +864,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                       _cycleTypeForward();
                     }
                   },
-                  child: ListView(
+                  child: SafeArea(
+                      top: false,
+                      child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
                       AnalyticsSummary(
@@ -1005,7 +1007,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
                       SizedBox(height: 56 + 12 + MediaQuery.of(context).viewPadding.bottom + 16),
                     ],
                   ),
-                );
+                ));
               },
             ),
           )
