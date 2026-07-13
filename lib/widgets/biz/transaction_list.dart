@@ -364,9 +364,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
           final type = item.$1 as String;
 
           if (type == 'bottomSpacer') {
-            // 悬浮 Tab 栏高度(56) + 浮动间距(12) + 安全区 + 额外间距
-            final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
-            return SizedBox(height: 56 + 12 + bottomPadding + 16);
+            return SizedBox(height: 16);
           }
 
           if (type == 'header') {
