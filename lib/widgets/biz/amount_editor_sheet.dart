@@ -11,7 +11,7 @@ import '../../providers/shared_ledger_providers.dart';
 import '../../styles/tokens.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/data/note_history_service.dart';
-import '../../data/repositories/transaction_repository.dart';
+import '../../models/note_history.dart';
 import '../../services/attachment_service.dart';
 import '../../providers.dart';
 import '../../utils/ui_scale_extensions.dart';

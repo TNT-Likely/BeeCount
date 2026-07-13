@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
-import '../../data/repositories/transaction_repository.dart';
+import '../../models/note_history.dart';
 import '../../services/data/note_history_service.dart';
 import '../../styles/tokens.dart';
 import '../../providers.dart';

@@ -1,27 +1,5 @@
 import '../db.dart';
-
-/// 历史备注的排序规则。
-enum NoteHistorySort {
-  /// 按累计使用次数排序。
-  frequency,
-
-  /// 按最近一次使用时间排序。
-  recent,
-}
-
-/// 历史备注聚合结果。
-class NoteHistoryEntry {
-  /// 去除首尾空白后的备注文本。
-  final String note;
-
-  /// 当前查询范围内的累计使用次数。
-  final int usageCount;
-
-  const NoteHistoryEntry({
-    required this.note,
-    required this.usageCount,
-  });
-}
+import '../../models/note_history.dart';
 
 /// 批量按 syncId 更新交易时的单条 update payload。
 class TransactionUpdateBySyncIdData {

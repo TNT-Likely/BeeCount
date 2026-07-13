@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 import '../../db.dart';
 import '../../../utils/month_range.dart';
 import '../../../utils/shared_ledger_picker_filter.dart';
+import '../../../models/note_history.dart';
 import '../transaction_repository.dart';
 import '../../../services/system/logger_service.dart';
 

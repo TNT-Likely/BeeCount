@@ -1,14 +1,6 @@
 import '../../data/repositories/base_repository.dart';
 import '../../data/repositories/transaction_repository.dart';
-
-/// 历史备注的查询范围。
-enum NoteHistoryScope {
-  /// 查询当前账本全部分类。
-  allCategories,
-
-  /// 仅查询当前选中的具体分类。
-  currentCategory,
-}
+import '../../models/note_history.dart';
 
 /// 备注历史记录服务
 /// 从交易记录聚合备注，提供可按范围和排序规则筛选的历史列表。

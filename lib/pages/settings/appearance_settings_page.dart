@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers.dart';
-import '../../data/repositories/transaction_repository.dart';
-import '../../services/data/note_history_service.dart';
+import '../../models/note_history.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/biz.dart';
 import '../../styles/tokens.dart';
@@ -19,6 +18,7 @@ import './header_skin_page.dart';
 import '../../styles/header_skins.dart';
 import '../../l10n/app_localizations.dart';
 import '../currency/exchange_rate_page.dart';
+import '../../utils/ui_scale_extensions.dart';
 
 /// 外观设置二级页面
 class AppearanceSettingsPage extends ConsumerWidget {
@@ -550,7 +550,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
                   l10n.appearanceNoteHistoryScope,
                   style: TextStyle(
                     color: BeeTokens.textSecondary(context),
-                    fontSize: 13,
+                    fontSize: 13.scaled(context, ref),
                   ),
                 ),
                 RadioListTile<NoteHistoryScope>(
@@ -575,12 +575,12 @@ class AppearanceSettingsPage extends ConsumerWidget {
                     ref.read(noteHistoryScopeProvider.notifier).state = value;
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.scaled(context, ref)),
                 Text(
                   l10n.appearanceNoteHistorySort,
                   style: TextStyle(
                     color: BeeTokens.textSecondary(context),
-                    fontSize: 13,
+                    fontSize: 13.scaled(context, ref),
                   ),
                 ),
                 RadioListTile<NoteHistorySort>(
@@ -605,7 +605,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
                     ref.read(noteHistorySortProvider.notifier).state = value;
                   },
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.scaled(context, ref)),
                 Row(
                   children: [
                     Expanded(
@@ -618,20 +618,20 @@ class AppearanceSettingsPage extends ConsumerWidget {
                               color: BeeTokens.textPrimary(context),
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2.scaled(context, ref)),
                           Text(
                             l10n.appearanceNoteHistoryLimitHint,
                             style: TextStyle(
                               color: BeeTokens.textSecondary(context),
-                              fontSize: 12,
+                              fontSize: 12.scaled(context, ref),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.scaled(context, ref)),
                     SizedBox(
-                      width: 72,
+                      width: 72.scaled(context, ref),
                       child: TextFormField(
                         initialValue:
                             ref.read(noteHistoryLimitProvider).toString(),
@@ -645,7 +645,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 10,
-                          ),
+                          ).scaled(context, ref),
                         ),
                         onChanged: (value) {
                           final limit = int.tryParse(value);
@@ -664,7 +664,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
                 ),
                 if (limitError)
                   Padding(
-                    padding: const EdgeInsets.only(top: 4),
+                    padding:
+                        const EdgeInsets.only(top: 4).scaled(context, ref),
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: Text(
@@ -672,7 +673,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         textAlign: TextAlign.right,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.error,
-                          fontSize: 12,
+                          fontSize: 12.scaled(context, ref),
                         ),
                       ),
                     ),
