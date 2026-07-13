@@ -145,9 +145,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                     left: 12.0.scaled(context, ref),
                     right: 12.0.scaled(context, ref),
                     top: 8.0.scaled(context, ref),
-                    bottom: widget.asTab
-                        ? 8.0.scaled(context, ref) + 56 + MediaQuery.of(context).padding.bottom + 24
-                        : 8.0.scaled(context, ref),
+                    bottom: 16.scaled(context, ref)
                   ),
                   children: [
                     if (accounts.isEmpty)
