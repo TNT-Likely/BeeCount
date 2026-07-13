@@ -710,6 +710,12 @@ abstract class AppLocalizations {
   /// **'Search category name...'**
   String get searchCategoryHint;
 
+  /// No description provided for @searchCategoryFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Category Filter'**
+  String get searchCategoryFilter;
+
   /// No description provided for @searchMinAmount.
   ///
   /// In en, this message translates to:

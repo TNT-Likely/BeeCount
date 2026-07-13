@@ -151,6 +151,7 @@
   "searchTitle": "搜索",
   "searchHint": "搜索备注、分类或金额...",
   "searchCategoryHint": "搜索分类名称...",
+  "searchCategoryFilter": "分类筛选",
   "searchMinAmount": "最小金额",
   "searchMaxAmount": "最大金额",
   "searchNoInput": "输入关键词开始搜索",

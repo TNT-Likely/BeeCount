@@ -331,6 +331,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get searchCategoryHint => '搜索分类名称...';
 
   @override
+  String get searchCategoryFilter => '分类筛选';
+
+  @override
   String get searchMinAmount => '最小金额';
 
   @override
@@ -7614,6 +7617,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get searchCategoryHint => '搜尋分類名稱...';
+
+  @override
+  String get searchCategoryFilter => '分類篩選';
 
   @override
   String get searchMinAmount => '最小金額';

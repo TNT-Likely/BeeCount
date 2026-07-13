@@ -331,6 +331,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchCategoryHint => 'Search category name...';
 
   @override
+  String get searchCategoryFilter => 'Category Filter';
+
+  @override
   String get searchMinAmount => 'Min amount';
 
   @override

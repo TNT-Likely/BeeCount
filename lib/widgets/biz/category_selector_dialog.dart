@@ -16,7 +16,7 @@ typedef CategoryFilterCallback = Future<bool> Function(Category category);
 
 /// 显示分类选择器
 ///
-/// [type] 分类类型：'income' 或 'expense'
+/// [type] 分类类型：'income'、'expense' 或 'all'
 /// [currentCategoryId] 当前选中的分类ID（用于高亮显示）
 /// [includeParentCategories] 是否包含有子分类的一级分类
 /// [excludeNames] 排除的分类名称列表
@@ -191,8 +191,10 @@ class _CategorySelectorDialogState extends ConsumerState<CategorySelectorDialog>
 
   /// 构建分类分组数据
   List<_CategoryGroup> _buildCategoryGroups(List<Category> allCategories) {
-    // 按类型筛选
-    final typedCategories = allCategories.where((c) => c.kind == widget.type).toList();
+    // all 模式用于跨收支类型的分类筛选，其他模式保持按类型筛选。
+    final typedCategories = widget.type == 'all'
+        ? allCategories
+        : allCategories.where((c) => c.kind == widget.type).toList();
 
     // 应用排除规则
     final filteredCategories = typedCategories.where((c) {

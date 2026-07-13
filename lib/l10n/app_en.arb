@@ -168,6 +168,7 @@
   "searchTitle": "Search",
   "searchHint": "Search notes, categories or amounts...",
   "searchCategoryHint": "Search category name...",
+  "searchCategoryFilter": "Category Filter",
   "searchMinAmount": "Min amount",
   "searchMaxAmount": "Max amount",
   "searchNoInput": "Enter keywords to start searching",

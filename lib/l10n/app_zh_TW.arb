@@ -1736,6 +1736,7 @@
   "searchBatchSetNoteSuccess": "成功為 {count} 筆記帳設定備註",
   "searchBatchSetNoteTitle": "批次設定備註",
   "searchCategoryHint": "搜尋分類名稱...",
+  "searchCategoryFilter": "分類篩選",
   "searchClearFilter": "清空篩選",
   "searchDateEnd": "結束",
   "searchDateFilter": "時間篩選",

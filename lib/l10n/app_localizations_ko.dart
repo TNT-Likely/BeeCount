@@ -331,6 +331,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchCategoryHint => '카테고리 이름 검색...';
 
   @override
+  String get searchCategoryFilter => '카테고리 필터';
+
+  @override
   String get searchMinAmount => '최소 금액';
 
   @override

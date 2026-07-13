@@ -102,6 +102,7 @@
   "searchTitle": "검색",
   "searchHint": "메모, 카테고리 또는 금액 검색...",
   "searchCategoryHint": "카테고리 이름 검색...",
+  "searchCategoryFilter": "카테고리 필터",
   "searchMinAmount": "최소 금액",
   "searchMaxAmount": "최대 금액",
   "searchNoInput": "키워드를 입력해 검색을 시작하세요",
