@@ -671,7 +671,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor, // ⭐ 自适应背景色
-      body: Column(
+      body: SafeArea(
+          child: Column(
         children: [
           Consumer(builder: (context, ref, _) {
             ref.watch(headerStyleProvider);
@@ -1081,7 +1082,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 }
