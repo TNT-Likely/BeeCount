@@ -75,6 +75,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
             showBack: true,
           ),
           Expanded(
+              child: SafeArea(
+            top: true,
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -261,7 +263,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
                 ),
               ],
             ),
-          ),
+          )),
         ],
       ),
     );
