@@ -140,6 +140,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                 final groups = _reorderingGroups ?? _groupAccounts(accounts);
 
                 return SafeArea(
+                    top: false,
                     child: ListView(
                   padding: EdgeInsets.only(
                     left: 12.0.scaled(context, ref),
