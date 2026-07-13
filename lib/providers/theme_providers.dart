@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../data/repositories/transaction_repository.dart';
+import '../services/data/note_history_service.dart';
 import '../services/system/logger_service.dart';
 import '../theme.dart';
 import '../widget/widget_manager.dart';
@@ -212,6 +214,76 @@ final noteDisplayModeInitProvider = FutureProvider<void>((ref) async {
   });
 });
 
+/// 历史备注的默认查询范围，保持原有全账本行为。
+final noteHistoryScopeProvider =
+    StateProvider<NoteHistoryScope>((ref) => NoteHistoryScope.allCategories);
+
+/// 历史备注的默认排序规则，保持原有按使用次数排序行为。
+final noteHistorySortProvider =
+    StateProvider<NoteHistorySort>((ref) => NoteHistorySort.frequency);
+
+/// 历史备注展示数量的默认值，保持原有最多展示 20 条的行为。
+const noteHistoryDefaultLimit = 20;
+
+/// 历史备注展示数量允许的最小值，避免空列表配置。
+const noteHistoryMinLimit = 1;
+
+/// 历史备注展示数量允许的最大值，避免单次加载过多候选。
+const noteHistoryMaxLimit = 100;
+
+/// 历史备注当前展示数量。
+final noteHistoryLimitProvider =
+    StateProvider<int>((ref) => noteHistoryDefaultLimit);
+
+/// 初始化历史备注偏好，并在用户修改时持久化及同步外观配置。
+final noteHistoryPreferencesInitProvider = FutureProvider<void>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  final savedScope = prefs.getString('noteHistoryScope');
+  final savedSort = prefs.getString('noteHistorySort');
+  final savedLimit = prefs.getInt('noteHistoryLimit');
+
+  // 旧版本没有偏好时保留默认值；未知值按默认值降级，避免配置损坏阻断启动。
+  if (savedScope != null) {
+    try {
+      ref.read(noteHistoryScopeProvider.notifier).state =
+          NoteHistoryScope.values.byName(savedScope);
+    } on ArgumentError {
+      ref.read(noteHistoryScopeProvider.notifier).state =
+          NoteHistoryScope.allCategories;
+    }
+  }
+  if (savedSort != null) {
+    try {
+      ref.read(noteHistorySortProvider.notifier).state =
+          NoteHistorySort.values.byName(savedSort);
+    } on ArgumentError {
+      ref.read(noteHistorySortProvider.notifier).state =
+          NoteHistorySort.frequency;
+    }
+  }
+  if (savedLimit != null &&
+      savedLimit >= noteHistoryMinLimit &&
+      savedLimit <= noteHistoryMaxLimit) {
+    ref.read(noteHistoryLimitProvider.notifier).state = savedLimit;
+  }
+
+  ref.listen<NoteHistoryScope>(noteHistoryScopeProvider, (prev, next) async {
+    // 用户选择变化后写本机偏好，并在 BeeCount Cloud 模式下同步。
+    await prefs.setString('noteHistoryScope', next.name);
+    _pushAppearanceToCloud(ref);
+  });
+  ref.listen<NoteHistorySort>(noteHistorySortProvider, (prev, next) async {
+    // 用户选择变化后写本机偏好，并在 BeeCount Cloud 模式下同步。
+    await prefs.setString('noteHistorySort', next.name);
+    _pushAppearanceToCloud(ref);
+  });
+  ref.listen<int>(noteHistoryLimitProvider, (prev, next) async {
+    // 用户修改数量后写本机偏好，并在 BeeCount Cloud 模式下同步。
+    await prefs.setInt('noteHistoryLimit', next);
+    _pushAppearanceToCloud(ref);
+  });
+});
+
 // Header装饰样式持久化初始化
 final headerDecorationStyleInitProvider = FutureProvider<void>((ref) async {
   final prefs = await SharedPreferences.getInstance();
@@ -260,13 +332,16 @@ void _pushAppearanceToCloud(Ref ref) {
         'show_transaction_time': ref.read(showTransactionTimeProvider),
         'header_skin': ref.read(headerSkinProvider),
         'note_display_mode': ref.read(noteDisplayModeProvider),
+        'note_history_scope': ref.read(noteHistoryScopeProvider).name,
+        'note_history_sort': ref.read(noteHistorySortProvider).name,
+        'note_history_limit': ref.read(noteHistoryLimitProvider),
       };
       await cloudProvider.updateMyProfileAppearance(appearance: appearance);
-      logger.info('theme_providers',
-          'pushed appearance to server: $appearance');
+      logger.info(
+          'theme_providers', 'pushed appearance to server: $appearance');
     } catch (e, st) {
-      logger.warning('theme_providers',
-          'push appearance failed (non-blocking): $e', st);
+      logger.warning(
+          'theme_providers', 'push appearance failed (non-blocking): $e', st);
     }
   }());
 }
