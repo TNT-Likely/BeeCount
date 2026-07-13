@@ -1,42 +1,46 @@
 import '../../data/repositories/base_repository.dart';
+import '../../data/repositories/transaction_repository.dart';
 
-/// 备注频率数据
-typedef NoteFrequency = ({String note, int count});
+/// 历史备注的查询范围。
+enum NoteHistoryScope {
+  /// 查询当前账本全部分类。
+  allCategories,
+
+  /// 仅查询当前选中的具体分类。
+  currentCategory,
+}
 
 /// 备注历史记录服务
-/// 从交易记录中统计备注使用频率，提供高频备注列表
+/// 从交易记录聚合备注，提供可按范围和排序规则筛选的历史列表。
 class NoteHistoryService {
-  /// 获取高频备注列表（按使用次数从高到低排序）
+  /// 获取历史备注列表。
+  ///
   /// [repository] 仓库实例
   /// [ledgerId] 账本ID
-  /// [limit] 限制返回数量，默认10条
-  static Future<List<NoteFrequency>> getFrequentNotes(
-    BaseRepository repository,
-    int ledgerId, {
-    int limit = 10,
+  /// [scope] 查询范围
+  /// [sort] 排序规则
+  /// [categoryId] 当前本地分类ID
+  /// [categorySyncId] 当前共享账本分类的同步ID
+  /// [limit] 限制返回数量
+  static Future<List<NoteHistoryEntry>> getHistoryNotes({
+    required BaseRepository repository,
+    required int ledgerId,
+    required NoteHistoryScope scope,
+    required NoteHistorySort sort,
+    int? categoryId,
+    String? categorySyncId,
+    int limit = 20,
   }) async {
-    // 查询当前账本的所有交易
-    final transactionsWithCategory = await repository.transactionsWithCategoryAll(ledgerId: ledgerId).first;
-    final transactions = transactionsWithCategory.map((e) => e.t).toList();
-
-    // 统计备注使用频率
-    final Map<String, int> noteFrequency = {};
-    for (final transaction in transactions) {
-      final note = transaction.note?.trim();
-      if (note != null && note.isNotEmpty) {
-        noteFrequency[note] = (noteFrequency[note] ?? 0) + 1;
-      }
-    }
-
-    // 按频率排序（从高到低）
-    final sortedNotes = noteFrequency.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    // 返回前N个备注及其使用次数
-    return sortedNotes
-        .take(limit)
-        .map((e) => (note: e.key, count: e.value))
-        .toList();
+    // 当前分类模式没有有效分类时退回全部分类，避免转账等场景得到空结果。
+    final shouldFilterByCategory = scope == NoteHistoryScope.currentCategory &&
+        (categoryId != null || (categorySyncId?.isNotEmpty ?? false));
+    return repository.getNoteHistory(
+      ledgerId: ledgerId,
+      categoryId: shouldFilterByCategory ? categoryId : null,
+      categorySyncId: shouldFilterByCategory ? categorySyncId : null,
+      sort: sort,
+      limit: limit,
+    );
   }
 
   /// 保存备注到历史记录（兼容旧代码，实际不再需要）
