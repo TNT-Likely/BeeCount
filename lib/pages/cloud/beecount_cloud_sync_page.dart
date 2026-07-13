@@ -74,6 +74,9 @@ class _BeeCountCloudSyncPageState extends ConsumerState<BeeCountCloudSyncPage> {
         currentDisplayName: ref.read(displayNameProvider),
         currentHeaderSkin: ref.read(headerSkinProvider),
         currentNoteDisplayMode: ref.read(noteDisplayModeProvider),
+        currentNoteHistoryScope: ref.read(noteHistoryScopeProvider).name,
+        currentNoteHistorySort: ref.read(noteHistorySortProvider).name,
+        currentNoteHistoryLimit: ref.read(noteHistoryLimitProvider),
       );
       if (!mounted) return;
       await engine.syncMyProfile();
