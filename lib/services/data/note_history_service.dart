@@ -1,5 +1,4 @@
 import '../../data/repositories/base_repository.dart';
-import '../../data/repositories/transaction_repository.dart';
 import '../../models/note_history.dart';
 
 /// 备注历史记录服务

@@ -655,7 +655,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
                           setDialogState(() => limitError = !isValid);
                           if (isValid) {
                             ref.read(noteHistoryLimitProvider.notifier).state =
-                                limit!;
+                                limit;
                           }
                         },
                       ),
