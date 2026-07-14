@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 import '../../db.dart';
 import '../../../utils/month_range.dart';
 import '../../../utils/shared_ledger_picker_filter.dart';
+import '../../../models/note_history.dart';
 import '../transaction_repository.dart';
 import '../../../services/system/logger_service.dart';
 
@@ -681,6 +682,70 @@ class LocalTransactionRepository implements TransactionRepository {
             ))
         .toList();
     return _hydrateSharedOverrides(out);
+  }
+
+  @override
+  Future<List<NoteHistoryEntry>> getNoteHistory({
+    required int ledgerId,
+    int? categoryId,
+    String? categorySyncId,
+    required NoteHistorySort sort,
+    int limit = 20,
+  }) async {
+    // 备注历史直接基于已保存交易聚合，避免维护会与同步数据脱节的缓存副本。
+    final effectiveLimit = limit.clamp(1, 100).toInt();
+    final whereClauses = <String>[
+      'ledger_id = ?',
+      'note IS NOT NULL',
+      "TRIM(note) <> ''",
+    ];
+    final variables = <d.Variable>[d.Variable.withInt(ledgerId)];
+
+    // 共享账本 Owner 分类以 syncId override 落库，优先使用它过滤。
+    if (categorySyncId != null && categorySyncId.isNotEmpty) {
+      whereClauses.add('category_sync_id_override = ?');
+      variables.add(d.Variable.withString(categorySyncId));
+    } else if (categoryId != null) {
+      whereClauses.add('category_id = ?');
+      variables.add(d.Variable.withInt(categoryId));
+    }
+
+    final orderBy = sort == NoteHistorySort.frequency
+        ? 'usage_count DESC, last_used_at DESC, normalized_note ASC'
+        : 'last_used_at DESC, usage_count DESC, normalized_note ASC';
+    variables.add(d.Variable.withInt(effectiveLimit));
+
+    final rows = await db
+        .customSelect(
+          '''
+      SELECT
+        TRIM(note) AS normalized_note,
+        COUNT(*) AS usage_count,
+        MAX(happened_at) AS last_used_at
+      FROM transactions
+      WHERE ${whereClauses.join(' AND ')}
+      GROUP BY TRIM(note)
+      ORDER BY $orderBy
+      LIMIT ?
+      ''',
+          variables: variables,
+          readsFrom: {db.transactions},
+        )
+        .get();
+
+    return rows.map((row) {
+      // 聚合列来自 SQLite，统一转换保证 Android、iOS 与桌面端返回类型一致。
+      final usageCount = row.data['usage_count'];
+      final count = usageCount is BigInt
+          ? usageCount.toInt()
+          : usageCount is num
+              ? usageCount.toInt()
+              : 0;
+      return NoteHistoryEntry(
+        note: row.read<String>('normalized_note'),
+        usageCount: count,
+      );
+    }).toList();
   }
 
   @override

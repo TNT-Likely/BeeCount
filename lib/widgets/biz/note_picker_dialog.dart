@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
+import '../../models/note_history.dart';
 import '../../services/data/note_history_service.dart';
 import '../../styles/tokens.dart';
 import '../../providers.dart';
 
 /// 备注选择弹窗
-/// 支持可选的分类ID和账本ID参数,用于筛选历史备注
+/// 支持本地与共享账本分类标识，用于筛选历史备注。
 class NotePickerDialog extends ConsumerStatefulWidget {
   final int ledgerId;
-  final int? categoryId; // 可选：分类ID
+  final int? categoryId; // 可选：本地分类ID
+  final String? categorySyncId; // 可选：共享账本分类同步ID
   final ValueChanged<String> onNotePicked;
 
   const NotePickerDialog({
     super.key,
     required this.ledgerId,
     this.categoryId,
+    this.categorySyncId,
     required this.onNotePicked,
   });
 
@@ -24,7 +27,7 @@ class NotePickerDialog extends ConsumerStatefulWidget {
 }
 
 class _NotePickerDialogState extends ConsumerState<NotePickerDialog> {
-  List<({String note, int count})> _notes = [];
+  List<NoteHistoryEntry> _notes = [];
   bool _isLoading = true;
 
   @override
@@ -36,16 +39,22 @@ class _NotePickerDialogState extends ConsumerState<NotePickerDialog> {
   Future<void> _loadNotes() async {
     try {
       final repo = ref.read(repositoryProvider);
-      final notes = await NoteHistoryService.getFrequentNotes(
-        repo,
-        widget.ledgerId,
-        limit: 20,
+      final notes = await NoteHistoryService.getHistoryNotes(
+        repository: repo,
+        ledgerId: widget.ledgerId,
+        scope: ref.read(noteHistoryScopeProvider),
+        sort: ref.read(noteHistorySortProvider),
+        categoryId: widget.categoryId,
+        categorySyncId: widget.categorySyncId,
+        limit: ref.read(noteHistoryLimitProvider),
       );
+      if (!mounted) return;
       setState(() {
         _notes = notes;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -70,10 +79,11 @@ class _NotePickerDialogState extends ConsumerState<NotePickerDialog> {
           children: [
             // 标题
             Text(
-              '历史备注',
+              l10n.appearanceNoteHistory,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600, color: BeeTokens.textPrimary(context)),
+                  fontWeight: FontWeight.w600,
+                  color: BeeTokens.textPrimary(context)),
             ),
             const SizedBox(height: 12),
             // 备注列表
@@ -136,7 +146,7 @@ class _NotePickerDialogState extends ConsumerState<NotePickerDialog> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  '${item.count}',
+                                  '${item.usageCount}',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 9,

@@ -2106,6 +2106,36 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appearanceNoteDisplayNoteDesc => '메모가 있으면 메모를, 없으면 카테고리를 표시합니다';
 
   @override
+  String get appearanceNoteHistory => '메모 기록';
+
+  @override
+  String get appearanceNoteHistoryScope => '표시 범위';
+
+  @override
+  String get appearanceNoteHistoryScopeAllCategories => '모든 카테고리';
+
+  @override
+  String get appearanceNoteHistoryScopeCurrentCategory => '현재 카테고리';
+
+  @override
+  String get appearanceNoteHistorySort => '정렬 기준';
+
+  @override
+  String get appearanceNoteHistorySortFrequency => '사용 빈도';
+
+  @override
+  String get appearanceNoteHistorySortRecent => '최근 사용';
+
+  @override
+  String get appearanceNoteHistoryLimit => '표시 개수';
+
+  @override
+  String get appearanceNoteHistoryLimitHint => '1에서 100 사이로 설정하세요';
+
+  @override
+  String get appearanceNoteHistoryLimitInvalid => '1에서 100 사이의 정수를 입력하세요';
+
+  @override
   String get appearanceColorScheme => '수입/지출 색상 구성';
 
   @override

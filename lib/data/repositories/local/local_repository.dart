@@ -6,10 +6,13 @@ import '../../../cloud/sync/change_tracker.dart';
 import '../../../services/currency/rate_math.dart';
 import '../../../utils/shared_ledger_picker_filter.dart';
 import '../../../services/system/logger_service.dart';
+import '../../../models/note_history.dart';
 import '../base_repository.dart';
 import '../budget_repository.dart';
 import '../transaction_repository.dart'
-    show BatchAttachmentData, TransactionUpdateBySyncIdData;
+    show
+        BatchAttachmentData,
+        TransactionUpdateBySyncIdData;
 import 'local_ledger_repository.dart';
 import 'local_transaction_repository.dart';
 import 'local_category_repository.dart';
@@ -799,6 +802,23 @@ class LocalRepository extends BaseRepository {
   @override
   Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> transactionsWithCategoryAll({int? ledgerId}) =>
       _transactionRepo.transactionsWithCategoryAll(ledgerId: ledgerId);
+
+  /// 转发历史备注聚合查询，保持交易数据访问统一由子仓储处理。
+  @override
+  Future<List<NoteHistoryEntry>> getNoteHistory({
+    required int ledgerId,
+    int? categoryId,
+    String? categorySyncId,
+    required NoteHistorySort sort,
+    int limit = 20,
+  }) =>
+      _transactionRepo.getNoteHistory(
+        ledgerId: ledgerId,
+        categoryId: categoryId,
+        categorySyncId: categorySyncId,
+        sort: sort,
+        limit: limit,
+      );
 
   @override
   Future<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> getRecentTransactionsWithCategory({

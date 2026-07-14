@@ -516,6 +516,9 @@ class AppSettingsConfig {
   final bool? compactAmount;
   final bool? showTransactionTime;
   final String? noteDisplayMode; // 备注显示方式:'category' | 'note'
+  final String? noteHistoryScope; // 历史备注范围:'allCategories' | 'currentCategory'
+  final String? noteHistorySort; // 历史备注排序:'frequency' | 'recent'
+  final int? noteHistoryLimit; // 历史备注展示数量
   final bool? incomeExpenseColorScheme; // 收支颜色方案：true=红色收入/绿色支出，false=红色支出/绿色收入
 
   // 云服务选择
@@ -544,6 +547,9 @@ class AppSettingsConfig {
     this.compactAmount,
     this.showTransactionTime,
     this.noteDisplayMode,
+    this.noteHistoryScope,
+    this.noteHistorySort,
+    this.noteHistoryLimit,
     this.incomeExpenseColorScheme,
     this.cloudServiceType,
     this.autoSync,
@@ -605,6 +611,15 @@ class AppSettingsConfig {
     if (noteDisplayMode != null && noteDisplayMode!.isNotEmpty) {
       map['note_display_mode'] = noteDisplayMode;
     }
+    if (noteHistoryScope != null && noteHistoryScope!.isNotEmpty) {
+      map['note_history_scope'] = noteHistoryScope;
+    }
+    if (noteHistorySort != null && noteHistorySort!.isNotEmpty) {
+      map['note_history_sort'] = noteHistorySort;
+    }
+    if (noteHistoryLimit != null) {
+      map['note_history_limit'] = noteHistoryLimit;
+    }
     if (incomeExpenseColorScheme != null) {
       map['income_expense_color_scheme'] = incomeExpenseColorScheme;
     }
@@ -645,6 +660,9 @@ class AppSettingsConfig {
         compactAmount: map['compact_amount'] as bool?,
         showTransactionTime: map['show_transaction_time'] as bool?,
         noteDisplayMode: map['note_display_mode'] as String?,
+        noteHistoryScope: map['note_history_scope'] as String?,
+        noteHistorySort: map['note_history_sort'] as String?,
+        noteHistoryLimit: map['note_history_limit'] as int?,
         incomeExpenseColorScheme: map['income_expense_color_scheme'] as bool?,
         cloudServiceType: map['cloud_service_type'] as String?,
         autoSync: map['auto_sync'] as bool?,
@@ -1396,10 +1414,17 @@ class ConfigExportService {
     final compactAmount = prefs.getBool('compactAmount');
     final showTransactionTime = prefs.getBool('showTransactionTime');
     final noteDisplayMode = prefs.getString('noteDisplayMode');
+    // 兼容尚未完成首次偏好初始化的旧安装，导出时始终写入历史备注默认配置。
+    final noteHistoryScope =
+        prefs.getString('noteHistoryScope') ?? 'allCategories';
+    final noteHistorySort = prefs.getString('noteHistorySort') ?? 'frequency';
+    final noteHistoryLimit =
+        prefs.getInt('noteHistoryLimit') ?? 20;
     final incomeExpenseColorScheme = prefs.getBool('incomeExpenseColorScheme');
     final cloudServiceType = prefs.getString('cloud_active_type');
     final autoSync = prefs.getBool('auto_sync');
-    final autoScreenshotEnabled = prefs.getBool('auto_screenshot_billing_enabled');
+    final autoScreenshotEnabled =
+        prefs.getBool('auto_screenshot_billing_enabled');
     final shortcutPreferCamera = prefs.getBool('shortcut_prefer_camera');
 
     // 获取默认账户名称并收集需要强制导出的账户
@@ -1436,6 +1461,9 @@ class ConfigExportService {
         compactAmount != null ||
         showTransactionTime != null ||
         noteDisplayMode != null ||
+        noteHistoryScope != null ||
+        noteHistorySort != null ||
+        noteHistoryLimit != null ||
         incomeExpenseColorScheme != null ||
         cloudServiceType != null ||
         autoSync != null ||
@@ -1459,6 +1487,9 @@ class ConfigExportService {
         compactAmount: compactAmount,
         showTransactionTime: showTransactionTime,
         noteDisplayMode: noteDisplayMode,
+        noteHistoryScope: noteHistoryScope,
+        noteHistorySort: noteHistorySort,
+        noteHistoryLimit: noteHistoryLimit,
         incomeExpenseColorScheme: incomeExpenseColorScheme,
         cloudServiceType: cloudServiceType,
         autoSync: autoSync,
@@ -1914,7 +1945,10 @@ class ConfigExportService {
           settings.containsKey('dark_mode_pattern_style') ||
           settings.containsKey('compact_amount') ||
           settings.containsKey('show_transaction_time') ||
-          settings.containsKey('note_display_mode')) {
+          settings.containsKey('note_display_mode') ||
+          settings.containsKey('note_history_scope') ||
+          settings.containsKey('note_history_sort') ||
+          settings.containsKey('note_history_limit')) {
         buffer.writeln('  # 外观设置');
         if (settings.containsKey('theme_mode')) {
           buffer.writeln('  theme_mode: "${settings['theme_mode']}"');
@@ -1930,6 +1964,15 @@ class ConfigExportService {
         }
         if (settings.containsKey('note_display_mode')) {
           buffer.writeln('  note_display_mode: "${settings['note_display_mode']}"');
+        }
+        if (settings.containsKey('note_history_scope')) {
+          buffer.writeln('  note_history_scope: "${settings['note_history_scope']}"');
+        }
+        if (settings.containsKey('note_history_sort')) {
+          buffer.writeln('  note_history_sort: "${settings['note_history_sort']}"');
+        }
+        if (settings.containsKey('note_history_limit')) {
+          buffer.writeln('  note_history_limit: ${settings['note_history_limit']}');
         }
       }
 
@@ -2372,13 +2415,26 @@ class ConfigExportService {
         await prefs.setBool('compactAmount', settings.compactAmount!);
       }
       if (settings.showTransactionTime != null) {
-        await prefs.setBool('showTransactionTime', settings.showTransactionTime!);
+        await prefs.setBool(
+            'showTransactionTime', settings.showTransactionTime!);
       }
       if (settings.noteDisplayMode != null) {
         await prefs.setString('noteDisplayMode', settings.noteDisplayMode!);
       }
+      if (settings.noteHistoryScope != null) {
+        await prefs.setString('noteHistoryScope', settings.noteHistoryScope!);
+      }
+      if (settings.noteHistorySort != null) {
+        await prefs.setString('noteHistorySort', settings.noteHistorySort!);
+      }
+      if (settings.noteHistoryLimit != null &&
+          settings.noteHistoryLimit! >= 1 &&
+          settings.noteHistoryLimit! <= 100) {
+        await prefs.setInt('noteHistoryLimit', settings.noteHistoryLimit!);
+      }
       if (settings.incomeExpenseColorScheme != null) {
-        await prefs.setBool('incomeExpenseColorScheme', settings.incomeExpenseColorScheme!);
+        await prefs.setBool(
+            'incomeExpenseColorScheme', settings.incomeExpenseColorScheme!);
       }
 
       // 云服务

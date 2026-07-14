@@ -1,4 +1,5 @@
 import '../db.dart';
+import '../../models/note_history.dart';
 
 /// 批量按 syncId 更新交易时的单条 update payload。
 class TransactionUpdateBySyncIdData {
@@ -67,20 +68,53 @@ abstract class TransactionRepository {
 
   /// 获取所有交易记录（带分类信息）
   /// [ledgerId] 可选，不传则获取所有账本的交易
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryAll({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryAll({
     int? ledgerId,
   });
 
   /// 获取所有交易记录（带分类信息）- 非 Stream 版本
   /// [ledgerId] 可选，不传则获取所有账本的交易
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> transactionsWithCategoryAll({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> transactionsWithCategoryAll({
     int? ledgerId,
   });
 
   /// 获取最近的交易记录（带分类信息）- 用于预加载
-  Future<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> getRecentTransactionsWithCategory({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> getRecentTransactionsWithCategory({
     required int ledgerId,
     required int limit,
+  });
+
+  /// 聚合指定账本的历史备注。
+  ///
+  /// [categoryId] 和 [categorySyncId] 都为空时查询账本全部分类；共享账本中
+  /// Owner 分类没有本地 ID 时，调用方传入 [categorySyncId] 精确匹配 override。
+  Future<List<NoteHistoryEntry>> getNoteHistory({
+    required int ledgerId,
+    int? categoryId,
+    String? categorySyncId,
+    required NoteHistorySort sort,
+    int limit = 20,
   });
 
   /// 根据ID获取单条交易

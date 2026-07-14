@@ -2106,6 +2106,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appearanceNoteDisplayNoteDesc => '有备注时显示备注,无备注时显示分类名';
 
   @override
+  String get appearanceNoteHistory => '历史备注';
+
+  @override
+  String get appearanceNoteHistoryScope => '展示范围';
+
+  @override
+  String get appearanceNoteHistoryScopeAllCategories => '全部分类';
+
+  @override
+  String get appearanceNoteHistoryScopeCurrentCategory => '当前分类';
+
+  @override
+  String get appearanceNoteHistorySort => '排序方式';
+
+  @override
+  String get appearanceNoteHistorySortFrequency => '使用频次';
+
+  @override
+  String get appearanceNoteHistorySortRecent => '最近使用';
+
+  @override
+  String get appearanceNoteHistoryLimit => '显示数量';
+
+  @override
+  String get appearanceNoteHistoryLimitHint => '可设置 1 至 100 条';
+
+  @override
+  String get appearanceNoteHistoryLimitInvalid => '请输入 1 至 100 的整数';
+
+  @override
   String get appearanceColorScheme => '收支颜色方案';
 
   @override
@@ -9392,6 +9422,36 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get appearanceNoteDisplayNoteDesc => '有備註時顯示備註,無備註時顯示分類名';
+
+  @override
+  String get appearanceNoteHistory => '歷史備註';
+
+  @override
+  String get appearanceNoteHistoryScope => '顯示範圍';
+
+  @override
+  String get appearanceNoteHistoryScopeAllCategories => '全部分類';
+
+  @override
+  String get appearanceNoteHistoryScopeCurrentCategory => '目前分類';
+
+  @override
+  String get appearanceNoteHistorySort => '排序方式';
+
+  @override
+  String get appearanceNoteHistorySortFrequency => '使用頻次';
+
+  @override
+  String get appearanceNoteHistorySortRecent => '最近使用';
+
+  @override
+  String get appearanceNoteHistoryLimit => '顯示數量';
+
+  @override
+  String get appearanceNoteHistoryLimitHint => '可設定 1 至 100 筆';
+
+  @override
+  String get appearanceNoteHistoryLimitInvalid => '請輸入 1 至 100 的整數';
 
   @override
   String get appearanceColorScheme => '收支顏色方案';

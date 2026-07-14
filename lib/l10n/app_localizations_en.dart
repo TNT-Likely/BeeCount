@@ -2106,6 +2106,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceNoteDisplayNoteDesc => 'Show note when present, else category';
 
   @override
+  String get appearanceNoteHistory => 'Note history';
+
+  @override
+  String get appearanceNoteHistoryScope => 'Show';
+
+  @override
+  String get appearanceNoteHistoryScopeAllCategories => 'All categories';
+
+  @override
+  String get appearanceNoteHistoryScopeCurrentCategory => 'Current category';
+
+  @override
+  String get appearanceNoteHistorySort => 'Sort by';
+
+  @override
+  String get appearanceNoteHistorySortFrequency => 'Usage frequency';
+
+  @override
+  String get appearanceNoteHistorySortRecent => 'Most recent';
+
+  @override
+  String get appearanceNoteHistoryLimit => 'Display limit';
+
+  @override
+  String get appearanceNoteHistoryLimitHint => 'Enter a value from 1 to 100';
+
+  @override
+  String get appearanceNoteHistoryLimitInvalid => 'Enter an integer from 1 to 100';
+
+  @override
   String get appearanceColorScheme => 'Income/Expense Color Scheme';
 
   @override

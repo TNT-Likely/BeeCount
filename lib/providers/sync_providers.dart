@@ -14,12 +14,14 @@ import '../cloud/sync/sync_providers.dart' as sync_p;
 import '../cloud/transactions_sync_manager.dart';
 import '../models/ledger_display_item.dart';
 import '../ai/providers/ai_provider_manager.dart';
-import '../pages/ai/ai_provider_manage_page.dart' show aiProviderListRefreshProvider;
+import '../pages/ai/ai_provider_manage_page.dart'
+    show aiProviderListRefreshProvider;
 import 'ai_config_providers.dart';
 import 'voice_billing_providers.dart';
 import '../services/attachment_service.dart' show attachmentListRefreshProvider;
 import '../services/system/logger_service.dart';
 import '../services/ui/avatar_service.dart';
+import '../models/note_history.dart';
 import 'theme_providers.dart';
 import 'budget_providers.dart';
 import 'calendar_providers.dart';
@@ -261,32 +263,25 @@ final syncServiceProvider = Provider<SyncService>((ref) {
             case ProfileField.incomeColor:
               _applyIncomeColorFromServer(ref, value as bool);
             case ProfileField.appearance:
-              _applyAppearanceFromServer(
-                  ref, value as Map<String, dynamic>);
+              _applyAppearanceFromServer(ref, value as Map<String, dynamic>);
             case ProfileField.displayName:
               _applyDisplayNameFromServer(ref, value as String);
             case ProfileField.primaryCurrency:
-              unawaited(
-                  _applyBaseCurrencyFromServer(ref, value as String));
+              unawaited(_applyBaseCurrencyFromServer(ref, value as String));
             case ProfileField.aiConfig:
               unawaited(() async {
                 await AIProviderManager.applyFromServer(
                     value as Map<String, dynamic>);
                 try {
+                  ref.read(aiCapabilityBindingRefreshProvider.notifier).state++;
                   ref
-                      .read(aiCapabilityBindingRefreshProvider.notifier)
-                      .state++;
-                  ref
-                      .read(aiProviderListForCapabilityRefreshProvider
-                          .notifier)
+                      .read(aiProviderListForCapabilityRefreshProvider.notifier)
                       .state++;
                   ref.read(aiProviderListRefreshProvider.notifier).state++;
                   ref.invalidate(aiConfigProvider);
                   // 用 reload() 重读本地 prefs 而非 invalidate：后者会重建 notifier,
                   // 期间设置页会短暂闪回默认值；reload 原地刷新更平滑。
-                  ref
-                      .read(voiceBillingSettingsProvider.notifier)
-                      .reload();
+                  ref.read(voiceBillingSettingsProvider.notifier).reload();
                 } catch (e, st) {
                   logger.warning(
                       'CloudSync', 'AI 配置 apply 后 UI bump 失败: $e', st);
@@ -387,6 +382,9 @@ final syncServiceProvider = Provider<SyncService>((ref) {
         currentDisplayName: ref.read(displayNameProvider),
         currentHeaderSkin: ref.read(headerSkinProvider),
         currentNoteDisplayMode: ref.read(noteDisplayModeProvider),
+        currentNoteHistoryScope: ref.read(noteHistoryScopeProvider).name,
+        currentNoteHistorySort: ref.read(noteHistorySortProvider).name,
+        currentNoteHistoryLimit: ref.read(noteHistoryLimitProvider),
       );
     });
 
@@ -586,6 +584,9 @@ Future<void> reconcileProfileToServer({
   required String currentDisplayName,
   required String currentHeaderSkin,
   required String currentNoteDisplayMode,
+  required String currentNoteHistoryScope,
+  required String currentNoteHistorySort,
+  required int currentNoteHistoryLimit,
 }) async {
   try {
     final cloud = await cloudProviderFuture;
@@ -627,6 +628,9 @@ Future<void> reconcileProfileToServer({
           'show_transaction_time': currentShowTransactionTime,
           'header_skin': currentHeaderSkin,
           'note_display_mode': currentNoteDisplayMode,
+          'note_history_scope': currentNoteHistoryScope,
+          'note_history_sort': currentNoteHistorySort,
+          'note_history_limit': currentNoteHistoryLimit,
         };
         await cloud.updateMyProfileAppearance(appearance: appearance);
         logger.info('CloudSync', 'reconcile: pushed appearance=$appearance');
@@ -792,6 +796,41 @@ void _applyAppearanceFromServer(Ref ref, Map<String, dynamic> appearance) {
     final current = ref.read(noteDisplayModeProvider);
     if (current != noteMode) {
       ref.read(noteDisplayModeProvider.notifier).state = noteMode;
+    }
+  }
+  final noteHistoryScope = appearance['note_history_scope'] as String?;
+  if (noteHistoryScope != null && noteHistoryScope.isNotEmpty) {
+    try {
+      final current = ref.read(noteHistoryScopeProvider);
+      final next = NoteHistoryScope.values.byName(noteHistoryScope);
+      if (current != next) {
+        ref.read(noteHistoryScopeProvider.notifier).state = next;
+      }
+    } on ArgumentError {
+      logger.warning('profile_sync',
+          'ignored unknown note_history_scope=$noteHistoryScope');
+    }
+  }
+  final noteHistorySort = appearance['note_history_sort'] as String?;
+  if (noteHistorySort != null && noteHistorySort.isNotEmpty) {
+    try {
+      final current = ref.read(noteHistorySortProvider);
+      final next = NoteHistorySort.values.byName(noteHistorySort);
+      if (current != next) {
+        ref.read(noteHistorySortProvider.notifier).state = next;
+      }
+    } on ArgumentError {
+      logger.warning(
+          'profile_sync', 'ignored unknown note_history_sort=$noteHistorySort');
+    }
+  }
+  final noteHistoryLimit = appearance['note_history_limit'];
+  if (noteHistoryLimit is int &&
+      noteHistoryLimit >= noteHistoryMinLimit &&
+      noteHistoryLimit <= noteHistoryMaxLimit) {
+    final current = ref.read(noteHistoryLimitProvider);
+    if (current != noteHistoryLimit) {
+      ref.read(noteHistoryLimitProvider.notifier).state = noteHistoryLimit;
     }
   }
   logger.info('profile_sync', 'applied appearance from server: $appearance');
