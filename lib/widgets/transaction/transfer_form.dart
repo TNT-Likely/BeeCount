@@ -312,13 +312,37 @@ class _TransferFormState extends ConsumerState<TransferForm> {
   /// §7 共享账本:Editor 在共享账本下转账要选 Owner 的账户(SharedLedger
   /// Accounts 镜像),而非自己的 user-global。跟 AccountPicker / category_selector
   /// 一致用 filterAccountsForLedger 转 synthetic Account。
+  ///
+  /// 账户隐藏(#240)E1 钉住:编辑历史转账(editingTransactionId != null)时,
+  /// 若转出/转入账户当前已被隐藏(因而被上面 filterAccountsForLedger 排
+  /// 除),补回候选(hidden=true,build() 渲染网格时打「已隐藏」灰标),让用
+  /// 户能原样保存;其余隐藏账户仍不出现。新建转账场景不钉住。跟
+  /// AccountSelector.pinnedAccountId 同一范式(见 account_selector.dart)。
   Future<List<Account>> _loadFilteredAccounts() async {
     final repo = ref.read(repositoryProvider);
     final allAccounts = await repo.getAllAccounts();
-    if (repo is! LocalRepository) return allAccounts;
-    final currentLedgerId = ref.read(currentLedgerIdProvider);
-    final ctx = await repo.db.loadLedgerPickerContext(currentLedgerId);
-    return repo.db.filterAccountsForLedger(allAccounts, ctx);
+    var accounts = allAccounts;
+    if (repo is LocalRepository) {
+      final currentLedgerId = ref.read(currentLedgerIdProvider);
+      final ctx = await repo.db.loadLedgerPickerContext(currentLedgerId);
+      accounts = await repo.db.filterAccountsForLedger(allAccounts, ctx);
+    }
+
+    if (widget.editingTransactionId != null) {
+      for (final pinnedId in {
+        widget.initialFromAccountId,
+        widget.initialToAccountId,
+      }) {
+        if (pinnedId == null) continue;
+        if (accounts.any((a) => a.id == pinnedId)) continue;
+        final pinned = await _lookupAccount(pinnedId);
+        if (pinned != null && pinned.hidden) {
+          accounts = [...accounts, pinned];
+        }
+      }
+    }
+
+    return accounts;
   }
 
   @override
@@ -346,9 +370,14 @@ class _TransferFormState extends ConsumerState<TransferForm> {
           );
         }
         final allAccounts = snapshot.data ?? const <Account>[];
-        // 只显示与当前账本同币种的可交易账户
+        // 只显示与当前账本同币种的可交易账户;E1 钉住的隐藏账户(hidden==true,
+        // 见 _loadFilteredAccounts)直接放行,不重复校验币种/类型,避免刚补回
+        // 又被这里的过滤吃掉(跟 AccountSelector 的钉住语义一致)。
         final accounts = allAccounts
-            .where((account) => account.currency == currentCurrency && isTradableType(account.type))
+            .where((account) =>
+                account.hidden ||
+                (account.currency == currentCurrency &&
+                    isTradableType(account.type)))
             .toList();
 
         if (accounts.isEmpty) {
@@ -484,16 +513,37 @@ class _TransferFormState extends ConsumerState<TransferForm> {
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Text(
-                account.name,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: isSelected ? primary : BeeTokens.textPrimary(context),
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // 账户隐藏(#240)E1 钉住:account.hidden 只可能在编辑历史
+                  // 转账、该账户被补回候选时为 true(其余隐藏账户已被过滤,
+                  // 不会出现在候选里),借该字段直接打灰标。
+                  if (account.hidden) ...[
+                    Icon(
+                      Icons.visibility_off,
+                      size: 10,
+                      color: BeeTokens.textTertiary(context),
+                    ),
+                    const SizedBox(width: 2),
+                  ],
+                  Flexible(
+                    child: Text(
+                      account.name,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color: isSelected
+                            ? primary
+                            : BeeTokens.textPrimary(context),
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
