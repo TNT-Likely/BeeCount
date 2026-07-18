@@ -97,4 +97,101 @@ void main() {
     expect(filtered.map((a) => a.id), contains(visibleId));
     expect(filtered.map((a) => a.id), isNot(contains(hiddenId)));
   });
+
+  // ==========================================================================
+  // D1 反向断言(账户隐藏 #240 统计层不动红线):隐藏账户仍计入净资产/资产构成。
+  // 对齐 02-tech-design-app.md §七 / 账单标记 plan 的同类反向断言。
+  // ==========================================================================
+
+  test('隐藏账户后 getNetWorthBreakdown 数值不变 (D1)', () async {
+    final lid = await repo.createLedger(name: 'L');
+    await repo.createAccount(ledgerId: lid, name: 'A', initialBalance: 1000);
+    final hiddenId = await repo.createAccount(
+        ledgerId: lid, name: 'B', initialBalance: 500);
+
+    final before = await repo.getNetWorthBreakdown();
+
+    await repo.setAccountHidden(hiddenId, true);
+    final after = await repo.getNetWorthBreakdown();
+
+    expect(after.totalAssets, before.totalAssets,
+        reason: '隐藏不是删除,总资产不应变化(D1)');
+    expect(after.netWorth, before.netWorth,
+        reason: '隐藏账户仍计入净资产(D1)');
+  });
+
+  test('隐藏账户后 getAssetCompositionByType 数值不变 (D1)', () async {
+    final lid = await repo.createLedger(name: 'L');
+    await repo.createAccount(
+        ledgerId: lid, name: 'A', type: 'cash', initialBalance: 1000);
+    final hiddenId = await repo.createAccount(
+        ledgerId: lid, name: 'B', type: 'cash', initialBalance: 500);
+
+    final before = await repo.getAssetCompositionByType();
+    final beforeCash =
+        before.firstWhere((e) => e.type == 'cash').totalBalance;
+
+    await repo.setAccountHidden(hiddenId, true);
+    final after = await repo.getAssetCompositionByType();
+    final afterCash = after.firstWhere((e) => e.type == 'cash').totalBalance;
+
+    expect(afterCash, beforeCash, reason: '隐藏账户仍计入资产构成(D1)');
+  });
+
+  // ==========================================================================
+  // getActiveRecurringCountByAccount(账户隐藏 #240 E2):隐藏确认框计数依赖。
+  // ==========================================================================
+
+  test('getActiveRecurringCountByAccount 统计引用该账户的活跃周期(转出/转入任一端)',
+      () async {
+    final lid = await repo.createLedger(name: 'L');
+    final aid = await repo.createAccount(ledgerId: lid, name: 'A');
+    final bid = await repo.createAccount(ledgerId: lid, name: 'B');
+
+    // 命中:accountId = aid,启用
+    await repo.addRecurringTransaction(
+      ledgerId: lid,
+      type: 'expense',
+      amount: 10,
+      accountId: aid,
+      frequency: 'monthly',
+      interval: 1,
+      startDate: DateTime.now(),
+    );
+    // 命中:toAccountId = aid(转账转入端),启用
+    await repo.addRecurringTransaction(
+      ledgerId: lid,
+      type: 'transfer',
+      amount: 10,
+      accountId: bid,
+      toAccountId: aid,
+      frequency: 'monthly',
+      interval: 1,
+      startDate: DateTime.now(),
+    );
+    // 不命中:关联账户是 bid,与 aid 无关
+    await repo.addRecurringTransaction(
+      ledgerId: lid,
+      type: 'expense',
+      amount: 10,
+      accountId: bid,
+      frequency: 'monthly',
+      interval: 1,
+      startDate: DateTime.now(),
+    );
+    // 不命中:关联 aid 但已禁用(enabled=false 不算"活跃")
+    final disabledId = await repo.addRecurringTransaction(
+      ledgerId: lid,
+      type: 'expense',
+      amount: 10,
+      accountId: aid,
+      frequency: 'monthly',
+      interval: 1,
+      startDate: DateTime.now(),
+    );
+    await repo.toggleRecurringTransaction(disabledId, false);
+
+    final count = await repo.getActiveRecurringCountByAccount(aid);
+    expect(count, 2);
+  });
 }

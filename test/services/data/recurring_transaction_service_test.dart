@@ -137,4 +137,78 @@ void main() {
 
     expect(generated, isEmpty); // 未来开始,首笔在明天
   });
+
+  // ==========================================================================
+  // 账户隐藏(#240)E2:关联账户被隐藏 → 生成器跳过该周期账单,不推进
+  // lastGeneratedDate;账户恢复后自动补上遗漏周期。
+  // ==========================================================================
+
+  test('关联账户(accountId)已隐藏 → 本次扫描跳过生成,不推进 lastGeneratedDate (E2)',
+      () async {
+    final accountId = await repo.createAccount(ledgerId: ledgerId, name: 'A');
+    final id = await repo.addRecurringTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 10,
+      accountId: accountId,
+      frequency: 'daily',
+      interval: 1,
+      startDate: DateTime.now().subtract(const Duration(days: 30)),
+    );
+    await repo.setAccountHidden(accountId, true);
+
+    final service = RecurringTransactionService(repo);
+    final generated = await service.generatePendingTransactions();
+
+    expect(generated, isEmpty, reason: '隐藏账户本次扫描应跳过生成(E2)');
+    final all = await repo.getAllRecurringTransactions();
+    final r = all.firstWhere((r) => r.id == id);
+    expect(r.lastGeneratedDate, isNull,
+        reason: '跳过时不应推进 lastGeneratedDate,否则恢复后无法补生成遗漏周期');
+  });
+
+  test('转账周期:转入账户(toAccountId)已隐藏 → 同样跳过 (E2)', () async {
+    final fromId = await repo.createAccount(ledgerId: ledgerId, name: 'From');
+    final toId = await repo.createAccount(ledgerId: ledgerId, name: 'To');
+    await repo.setAccountHidden(toId, true);
+    await repo.addRecurringTransaction(
+      ledgerId: ledgerId,
+      type: 'transfer',
+      amount: 10,
+      accountId: fromId,
+      toAccountId: toId,
+      frequency: 'daily',
+      interval: 1,
+      startDate: DateTime.now().subtract(const Duration(days: 30)),
+    );
+
+    final service = RecurringTransactionService(repo);
+    final generated = await service.generatePendingTransactions();
+
+    expect(generated, isEmpty, reason: '转入账户隐藏也应跳过生成(E2)');
+  });
+
+  test('恢复隐藏账户后 → 周期生成恢复正常,补上遗漏的一笔', () async {
+    final accountId = await repo.createAccount(ledgerId: ledgerId, name: 'A');
+    await repo.addRecurringTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 10,
+      accountId: accountId,
+      frequency: 'daily',
+      interval: 1,
+      startDate: DateTime.now().subtract(const Duration(days: 30)),
+    );
+    await repo.setAccountHidden(accountId, true);
+
+    final service = RecurringTransactionService(repo);
+    var generated = await service.generatePendingTransactions();
+    expect(generated, isEmpty);
+
+    await repo.setAccountHidden(accountId, false);
+    generated = await service.generatePendingTransactions();
+
+    expect(generated, hasLength(1));
+    expectIsToday(generated.first.happenedAt);
+  });
 }
