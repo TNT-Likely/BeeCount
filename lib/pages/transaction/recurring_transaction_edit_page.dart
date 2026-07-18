@@ -665,9 +665,12 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
 
     if (ledger == null) return;
 
-    // 获取所有账户，然后过滤与当前账本币种相同的账户
+    // 获取所有账户，然后过滤与当前账本币种相同的账户;排除已隐藏账户
+    // (账户隐藏 #240 E2:该处历史上也缺 isTradableType,本期只补 hidden,不扩范围)
     final allAccounts = await repo.getAllAccounts();
-    var accounts = allAccounts.where((a) => a.currency == ledger.currency).toList();
+    var accounts = allAccounts
+        .where((a) => a.currency == ledger.currency && !a.hidden)
+        .toList();
 
     // 如果是选择转入账户，排除已选择的转出账户
     if (!isFromAccount && _selectedAccountId != null) {

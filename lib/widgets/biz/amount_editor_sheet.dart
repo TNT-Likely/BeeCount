@@ -966,6 +966,9 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                         ledgerId: widget.ledgerId,
                         // 币种优先联动:账户列表只显示当前所选币种的账户
                         filterCurrency: _txCurrency(),
+                        // 账户隐藏(#240)E1 钉住:该笔交易本来挂的账户(编辑
+                        // 态)若已被隐藏,选择器补回并打灰标,可原样保存。
+                        pinnedAccountId: widget.initialAccountId,
                         onAccountSelected: (accountId) {
                           setState(() {
                             _selectedAccountId = accountId;

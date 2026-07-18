@@ -206,6 +206,10 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
       final account = await ref.read(accountByIdProvider(defaultAccountId).future);
       if (account == null) return null;
 
+      // 账户隐藏 #240 E3:默认账户已被隐藏时按「无默认」处理(defensive 兜底,
+      // 正常路径下隐藏时已清 pref,这里防同步竞态等边缘情况)
+      if (account.hidden) return null;
+
       // 4. 验证币种匹配
       if (account.currency != ledger.currency) return null;
 

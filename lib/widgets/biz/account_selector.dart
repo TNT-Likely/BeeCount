@@ -21,6 +21,10 @@ class AccountSelector extends ConsumerStatefulWidget {
   /// v30 多币种:按币种过滤可选账户(记账币种优先联动,选 JPY → 只显示 JPY
   /// 账户)。null = 账本本位币(旧行为)。变更时列表自动重载。
   final String? filterCurrency;
+  /// 账户隐藏(#240)E1 钉住:编辑历史交易时传入该交易当前挂的账户 id。若该
+  /// 账户已被隐藏(因而被下方过滤排除),补回候选并打「已隐藏」灰标,让用户
+  /// 能原样保存;其余隐藏账户仍不出现。null = 不钉住(新建交易场景)。
+  final int? pinnedAccountId;
 
   const AccountSelector({
     super.key,
@@ -28,6 +32,7 @@ class AccountSelector extends ConsumerStatefulWidget {
     required this.onAccountSelected,
     required this.ledgerId,
     this.filterCurrency,
+    this.pinnedAccountId,
   });
 
   @override
@@ -88,10 +93,21 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
       // v30:过滤币种 = 显式传入(记账所选币种)?? 账本本位币(旧行为)
       final wanted =
           (widget.filterCurrency ?? ledger.currency).toUpperCase();
-      final accounts = allAccounts
+      var accounts = allAccounts
           .where((a) =>
               a.currency.toUpperCase() == wanted && isTradableType(a.type))
           .toList();
+
+      // 账户隐藏(#240)E1 钉住:above 的 filterAccountsForLedger 已排除隐藏
+      // 账户;若调用方传了 pinnedAccountId 且它因隐藏被排除,补回候选(带
+      // hidden=true,chip 渲染时打灰标)。账户不存在或本就未隐藏则不处理。
+      final pinnedId = widget.pinnedAccountId;
+      if (pinnedId != null && !accounts.any((a) => a.id == pinnedId)) {
+        final pinned = await repo.getAccount(pinnedId);
+        if (pinned != null && pinned.hidden) {
+          accounts = [...accounts, pinned];
+        }
+      }
 
       // 获取 LRU 排序
       final lruOrder = await _lruCache.getOrderedIds();
@@ -207,6 +223,9 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
           return _buildAccountChip(
             label: account.name,
             isSelected: isSelected,
+            // account.hidden 只可能在 E1 钉住场景为 true(其余隐藏账户已被
+            // 过滤,不会出现在 sortedAccounts 里),借该字段直接打灰标。
+            isHidden: account.hidden,
             onTap: () => _onAccountTap(account.id),
           );
         },
@@ -218,6 +237,7 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
+    bool isHidden = false,
   }) {
     final primaryColor = ref.watch(primaryColorProvider);
 
@@ -230,14 +250,29 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
           borderRadius: BorderRadius.circular(16),
         ),
         child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected ? Colors.white : BeeTokens.textSecondary(context),
-              height: 1.2,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isHidden) ...[
+                Icon(
+                  Icons.visibility_off,
+                  size: 12,
+                  color: isSelected
+                      ? Colors.white70
+                      : BeeTokens.textTertiary(context),
+                ),
+                const SizedBox(width: 4),
+              ],
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected ? Colors.white : BeeTokens.textSecondary(context),
+                  height: 1.2,
+                ),
+              ),
+            ],
           ),
         ),
       ),
