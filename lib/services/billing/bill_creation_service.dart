@@ -269,8 +269,11 @@ class BillCreationService {
     if (ledger == null) return null;
 
     final allAccounts = await repo.getAllAccounts();
-    final pool =
-        allAccounts.where((a) => a.currency == ledger.currency).toList();
+    // 账户隐藏(#240):AI 自动记账不匹配隐藏账户(隐藏 = 不再作为新交易记账
+    // 目标,与手动选择器 / Web AI 候选一致);未匹配则回落默认账户。
+    final pool = allAccounts
+        .where((a) => a.currency == ledger.currency && !a.hidden)
+        .toList();
     final target = accountName.toLowerCase().trim();
 
     // 完全匹配
