@@ -13,6 +13,8 @@
 /// 渲染内 `dark` 参数对应的颜色是对的。
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../services/data/category_service.dart' show CategoryService;
@@ -89,4 +91,106 @@ Widget widgetCategoryIcon({
     return Text(icon, style: TextStyle(fontSize: size * 0.9));
   }
   return Icon(CategoryService.getCategoryIcon(icon), size: size, color: color);
+}
+
+/// 趋势折线图(`CustomPainter`,不依赖任何图表三方库)。画法与
+/// `NetWorthView` 内部原有的同名私有实现(`_Sparkline`/`_SparklinePainter`)
+/// 完全一致——这里是给 dashboard 综合仪表盘(`DashboardView`,Phase B2b 新增)
+/// 开的公开版本;`NetWorthView` 自身继续使用它原有的私有实现,不做改动
+/// (避免触碰已上线/已测试的 Phase B2a 文件)。[filled] 为 true 时叠一层由深
+/// 到透明的面积渐变。
+class WidgetSparkline extends StatelessWidget {
+  final List<double> values;
+  final Color color;
+  final bool filled;
+  final double strokeWidth;
+
+  const WidgetSparkline({
+    super.key,
+    required this.values,
+    required this.color,
+    this.filled = false,
+    this.strokeWidth = 2,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _WidgetSparklinePainter(
+        values: values,
+        color: color,
+        filled: filled,
+        strokeWidth: strokeWidth,
+      ),
+      size: Size.infinite,
+    );
+  }
+}
+
+class _WidgetSparklinePainter extends CustomPainter {
+  final List<double> values;
+  final Color color;
+  final bool filled;
+  final double strokeWidth;
+
+  _WidgetSparklinePainter({
+    required this.values,
+    required this.color,
+    required this.filled,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // 数据不足 2 个点画不出折线,或画布尺寸为 0(布局挤压到极限)时直接跳过
+    // ——不是异常,静默留白即可。
+    if (values.length < 2 || size.width <= 0 || size.height <= 0) return;
+
+    final minV = values.reduce(math.min);
+    final maxV = values.reduce(math.max);
+    final range = (maxV - minV).abs() < 1e-9 ? 1.0 : (maxV - minV);
+    final dx = size.width / (values.length - 1);
+
+    final points = <Offset>[
+      for (var i = 0; i < values.length; i++)
+        Offset(dx * i, size.height - ((values[i] - minV) / range) * size.height),
+    ];
+
+    final linePath = Path()..moveTo(points.first.dx, points.first.dy);
+    for (final p in points.skip(1)) {
+      linePath.lineTo(p.dx, p.dy);
+    }
+
+    if (filled) {
+      final fillPath = Path()..moveTo(points.first.dx, size.height);
+      for (final p in points) {
+        fillPath.lineTo(p.dx, p.dy);
+      }
+      fillPath
+        ..lineTo(points.last.dx, size.height)
+        ..close();
+      final fillPaint = Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [color.withValues(alpha: 0.35), color.withValues(alpha: 0.0)],
+        ).createShader(Offset.zero & size);
+      canvas.drawPath(fillPath, fillPaint);
+    }
+
+    final linePaint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(linePath, linePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _WidgetSparklinePainter oldDelegate) =>
+      oldDelegate.values != values ||
+      oldDelegate.color != color ||
+      oldDelegate.filled != filled ||
+      oldDelegate.strokeWidth != strokeWidth;
 }
