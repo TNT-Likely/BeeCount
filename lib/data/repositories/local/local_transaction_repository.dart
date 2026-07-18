@@ -805,6 +805,21 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
+  Future<List<Transaction>> getRecentTransactions(
+    int ledgerId, {
+    int limit = 10,
+  }) async {
+    return await (db.select(db.transactions)
+          ..where((t) => t.ledgerId.equals(ledgerId))
+          ..orderBy([
+            (t) => d.OrderingTerm(
+                expression: t.happenedAt, mode: d.OrderingMode.desc)
+          ])
+          ..limit(limit))
+        .get();
+  }
+
+  @override
   Future<void> updateTransactionFields({
     required int id,
     dynamic accountId,

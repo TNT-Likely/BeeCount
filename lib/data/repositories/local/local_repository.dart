@@ -858,6 +858,13 @@ class LocalRepository extends BaseRepository {
       );
 
   @override
+  Future<List<Transaction>> getRecentTransactions(
+    int ledgerId, {
+    int limit = 10,
+  }) =>
+      _transactionRepo.getRecentTransactions(ledgerId, limit: limit);
+
+  @override
   Future<void> updateTransactionFields({
     required int id,
     dynamic accountId,
