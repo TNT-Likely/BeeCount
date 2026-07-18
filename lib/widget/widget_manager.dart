@@ -6,7 +6,9 @@ import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
 import '../data/repositories/base_repository.dart';
 import '../services/system/logger_service.dart';
+import '../utils/net_worth_trend_utils.dart' show trendTodayAnchor;
 import 'views/glance_view.dart';
+import 'views/net_worth_view.dart';
 import 'widget_data_service.dart';
 import 'widget_spec.dart';
 
@@ -90,6 +92,14 @@ class WidgetManager {
     // 净资产系列(netWorth/dashboard)折算用的主币种,默认 'CNY' 兜底旧调用方
     // (见 currency_providers.dart 的 baseCurrencyProvider)。
     String baseCurrency = 'CNY',
+    // 净资产视图文案。三个 key 均已有对应 arb(accountTotalBalance/
+    // totalAssets/totalLiabilities),默认值与其中文文案保持一致——本函数
+    // 不依赖 BuildContext/l10n,取不到真正的 AppLocalizations,只能靠调用方
+    // (如 widget_provider.dart 的 updateAppWidget)显式传入;其余调用点沿用
+    // 这里的默认值兜底(与 appName 等现有参数同一套约定)。
+    String netWorthLabel = '净资产',
+    String totalAssetsLabel = '总资产',
+    String totalLiabilitiesLabel = '总负债',
   }) async {
     try {
       final specs = await _resolveSpecsToRender();
@@ -122,6 +132,9 @@ class WidgetManager {
             monthExpenseLabel: monthExpenseLabel,
             monthIncomeLabel: monthIncomeLabel,
             baseCurrency: baseCurrency,
+            netWorthLabel: netWorthLabel,
+            totalAssetsLabel: totalAssetsLabel,
+            totalLiabilitiesLabel: totalLiabilitiesLabel,
           );
         } catch (e, st) {
           // 单个 spec 渲染失败不应阻断其余 spec。
@@ -180,6 +193,9 @@ class WidgetManager {
     required String monthExpenseLabel,
     required String monthIncomeLabel,
     required String baseCurrency,
+    required String netWorthLabel,
+    required String totalAssetsLabel,
+    required String totalLiabilitiesLabel,
   }) async {
     switch (spec.type) {
       case HWType.glance:
@@ -200,14 +216,26 @@ class WidgetManager {
         );
         return;
       case HWType.netWorth:
+        await _renderNetWorth(
+          spec,
+          repository: repository,
+          themeColor: themeColor,
+          redForIncome: redForIncome,
+          dark: dark,
+          baseCurrency: baseCurrency,
+          netWorthLabel: netWorthLabel,
+          totalAssetsLabel: totalAssetsLabel,
+          totalLiabilitiesLabel: totalLiabilitiesLabel,
+        );
+        return;
       case HWType.quickAdd:
       case HWType.budget:
       case HWType.recent:
       case HWType.dashboard:
-        // 视图待 Phase B2b(netWorth/quickAdd 已有数据层,budget/recent/
-        // dashboard 同样已在 Phase B1 打通取数);这里只把取数链路跑一遍
-        // 验证可用,不做渲染。异常会被 updateAllWidgets 调用处的 try/catch
-        // 捕获,不影响其它 spec。
+        // 视图待 Phase B2b(quickAdd 已有数据层,budget/recent/dashboard
+        // 同样已在 Phase B1 打通取数);这里只把取数链路跑一遍验证可用,不做
+        // 渲染。异常会被 updateAllWidgets 调用处的 try/catch 捕获,不影响
+        // 其它 spec。
         await _gatherAndSkip(
           spec,
           repository: repository,
@@ -297,7 +325,66 @@ class WidgetManager {
     await _renderView(view, spec: spec, logicalSize: renderSize);
   }
 
-  /// 除 glance 外其余类型(P2 起会逐个补 View)的"取数但不渲染"占位路径。
+  /// 渲染净资产(netWorth):小/中/大三档,均已接 [NetWorthView] 真实视图。
+  Future<void> _renderNetWorth(
+    WidgetSpec spec, {
+    required BaseRepository repository,
+    required Color themeColor,
+    required bool redForIncome,
+    required bool dark,
+    required String baseCurrency,
+    required String netWorthLabel,
+    required String totalAssetsLabel,
+    required String totalLiabilitiesLabel,
+  }) async {
+    final breakdown = await WidgetDataService.gatherNetWorthBreakdown(
+      repository: repository,
+      baseCurrency: baseCurrency,
+    );
+
+    // 趋势统一取近 30 天(含今天),小/中/大三档共用同一条口径——首尾两点
+    // 近似"当前 vs 一个月前",给 NetWorthView 的环比 chip 用;取数窗口与
+    // WidgetDataService.gatherDashboard 的 30 日趋势口径一致。
+    final end = trendTodayAnchor();
+    final start = end.subtract(const Duration(days: 29));
+    final trend = await WidgetDataService.gatherNetWorthTrend(
+      repository: repository,
+      baseCurrency: baseCurrency,
+      start: start,
+      end: end,
+    );
+
+    // 账户明细只有大号才展示,小/中号不取这份数据,省一次查询。
+    final topAccounts = spec.size == HWSize.large
+        ? await WidgetDataService.gatherNetWorthTopAccounts(
+            repository: repository,
+            baseCurrency: baseCurrency,
+            limit: 4,
+          )
+        : const <NetWorthAccountItem>[];
+
+    final view = NetWorthView(
+      size: spec.size,
+      netWorth: breakdown.netWorth,
+      totalAssets: breakdown.totalAssets,
+      totalLiabilities: breakdown.totalLiabilities,
+      baseCurrency: baseCurrency,
+      trend: trend,
+      topAccounts: topAccounts,
+      themeColor: themeColor,
+      redForIncome: redForIncome,
+      dark: dark,
+      netWorthLabel: netWorthLabel,
+      totalAssetsLabel: totalAssetsLabel,
+      totalLiabilitiesLabel: totalLiabilitiesLabel,
+      width: spec.logicalSize.width,
+      height: spec.logicalSize.height,
+    );
+
+    await _renderView(view, spec: spec, logicalSize: spec.logicalSize);
+  }
+
+  /// 除 glance/netWorth 外其余类型(P2 起会逐个补 View)的"取数但不渲染"占位路径。
   Future<void> _gatherAndSkip(
     WidgetSpec spec, {
     required BaseRepository repository,
@@ -309,10 +396,7 @@ class WidgetManager {
         // 不会走到这里(glance 已在 _renderSpec 分派到 _renderGlance)。
         return;
       case HWType.netWorth:
-        await WidgetDataService.gatherNetWorthBreakdown(
-          repository: repository,
-          baseCurrency: baseCurrency,
-        );
+        // 不会走到这里(netWorth 已在 _renderSpec 分派到 _renderNetWorth)。
         return;
       case HWType.quickAdd:
         await WidgetDataService.gatherQuickAddCategories(
