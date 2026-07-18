@@ -328,6 +328,16 @@ extension SyncEngineApplyExt on SyncEngine {
         (payload['initialBalance'] as num?)?.toDouble() ?? 0.0;
     final sortOrder = (payload['sortOrder'] as num?)?.toInt() ?? 0;
 
+    // 账户隐藏(#240,D6 缺键保留):payload 不含该键 → null → update 走
+    // Value.absent() 不覆盖本地;含键(包括显式 false)→ 覆盖。insert 路径
+    // 缺键落默认 false。⚠️ 账户 apply 其它字段(name/type/currency 等)是
+    // 无条件覆盖,hidden **必须**走这条 containsKey 保护 —— 否则一条"只改
+    // 名字、payload 不带 hidden"的远端 partial 更新会把本地已隐藏抹成 false
+    // (照抄交易 flags 的 containsKey 范式,见 _applyTransactionChange)。
+    final hidden = payload.containsKey('hidden')
+        ? (payload['hidden'] as bool? ?? false)
+        : null;
+
     var existing = await (db.select(db.accounts)
           ..where((a) => a.syncId.equals(syncId)))
         .getSingleOrNull();
@@ -365,6 +375,7 @@ extension SyncEngineApplyExt on SyncEngine {
         bankName: d.Value(payload['bankName'] as String?),
         cardLastFour: d.Value(payload['cardLastFour'] as String?),
         note: d.Value(payload['note'] as String?),
+        hidden: hidden == null ? const d.Value.absent() : d.Value(hidden),
       ));
       logger.debug('SyncEngine', 'pull: 更新账户 $syncId');
     } else {
@@ -385,6 +396,7 @@ extension SyncEngineApplyExt on SyncEngine {
               cardLastFour: d.Value(payload['cardLastFour'] as String?),
               note: d.Value(payload['note'] as String?),
               syncId: d.Value(syncId),
+              hidden: d.Value(hidden ?? false),
             ),
           );
       activePullCache?.putAccount(syncId, localId);

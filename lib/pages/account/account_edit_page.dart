@@ -681,8 +681,33 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                     ),
                   ),
 
-                  // 删除按钮（仅编辑时显示）
+                  // 隐藏/恢复 + 删除按钮（仅编辑时显示；账户隐藏 #240,产品设计
+                  // 01 §3.2:隐藏=留数据、可恢复、仍计资产,删除=硬删除且不可逆;
+                  // 二者并列,删除按钮样式保持原样不变）
                   if (isEditing) ...[
+                    SizedBox(height: 12.0.scaled(context, ref)),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48.0.scaled(context, ref),
+                      child: OutlinedButton(
+                        onPressed: _saving ? null : _toggleHidden,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: primaryColor,
+                          side: BorderSide(color: primaryColor, width: 1.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                8.0.scaled(context, ref)),
+                          ),
+                        ),
+                        child: Text(
+                          widget.account!.hidden ? l10n.accountUnhide : l10n.accountHide,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
                     SizedBox(height: 12.0.scaled(context, ref)),
                     SizedBox(
                       width: double.infinity,
@@ -915,6 +940,101 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
       if (mounted) {
         setState(() => _saving = false);
       }
+    }
+  }
+
+  /// 隐藏 / 恢复账户（账户隐藏 #240,产品设计 01 §3.2/§五）。
+  /// - 恢复:低风险、可逆,不弹确认,即时生效(同管理页「已隐藏」分区的恢复按钮)。
+  /// - 隐藏:弹确认框,若该账户被活跃周期模板引用(E2)追加提示;隐藏后若它是
+  ///   默认收/支账户则清空该设置(E3)。
+  Future<void> _toggleHidden() async {
+    final l10n = AppLocalizations.of(context);
+    final account = widget.account!;
+    final repo = ref.read(repositoryProvider);
+
+    if (account.hidden) {
+      setState(() => _saving = true);
+      try {
+        await repo.setAccountHidden(account.id, false);
+        if (mounted) {
+          PostProcessor.sync(ref, ledgerId: widget.ledgerId);
+          showToast(context, l10n.accountRestoredToast);
+          Navigator.of(context).pop(true);
+        }
+      } catch (e) {
+        if (mounted) showToast(context, '${l10n.commonError}: $e');
+      } finally {
+        if (mounted) setState(() => _saving = false);
+      }
+      return;
+    }
+
+    // E2:隐藏前查活跃周期模板数,>0 则确认框追加提示。
+    final recurringCount =
+        await repo.getActiveRecurringCountByAccount(account.id);
+
+    if (!mounted) return;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.accountHideConfirmTitle),
+        content: Text(recurringCount > 0
+            ? '${l10n.accountHideConfirmBody}\n${l10n.accountHideRecurringWarn(recurringCount)}'
+            : l10n.accountHideConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.accountHide),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    setState(() => _saving = true);
+    try {
+      await repo.setAccountHidden(account.id, true);
+
+      // E3:隐藏的是默认收/支账户 → 清空该设置 + toast。
+      final defaultIncomeId =
+          await ref.read(defaultIncomeAccountIdProvider.future);
+      final defaultExpenseId =
+          await ref.read(defaultExpenseAccountIdProvider.future);
+      var clearedDefault = false;
+      if (defaultIncomeId == account.id) {
+        await ref
+            .read(defaultAccountSetterProvider)
+            .setDefaultIncomeAccountId(null);
+        ref.invalidate(defaultIncomeAccountIdProvider);
+        clearedDefault = true;
+      }
+      if (defaultExpenseId == account.id) {
+        await ref
+            .read(defaultAccountSetterProvider)
+            .setDefaultExpenseAccountId(null);
+        ref.invalidate(defaultExpenseAccountIdProvider);
+        clearedDefault = true;
+      }
+
+      if (mounted) {
+        PostProcessor.sync(ref, ledgerId: widget.ledgerId);
+        showToast(
+          context,
+          clearedDefault
+              ? '${l10n.accountHiddenToast} · ${l10n.accountHideClearedDefault}'
+              : l10n.accountHiddenToast,
+        );
+        Navigator.of(context).pop(true);
+      }
+    } catch (e) {
+      if (mounted) showToast(context, '${l10n.commonError}: $e');
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
   }
 

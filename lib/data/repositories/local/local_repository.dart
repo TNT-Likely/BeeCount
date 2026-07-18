@@ -1757,6 +1757,7 @@ class LocalRepository extends BaseRepository {
     String? cardLastFour,
     String? note,
     bool clearMetadataFields = false,
+    bool? hidden,
   }) async {
     final account = changeTracker != null ? await _accountRepo.getAccount(id) : null;
     await _accountRepo.updateAccount(
@@ -1773,6 +1774,7 @@ class LocalRepository extends BaseRepository {
       cardLastFour: cardLastFour,
       note: note,
       clearMetadataFields: clearMetadataFields,
+      hidden: hidden,
     );
     if (account?.syncId != null) {
       await changeTracker!.recordUserGlobalChange(
@@ -1783,6 +1785,15 @@ class LocalRepository extends BaseRepository {
       );
     }
   }
+
+  /// 隐藏 / 恢复账户(账户隐藏 #240)。**必须**走 [updateAccount](本类上面这个
+  /// 已带 change 追踪的版本),不能直接委托 `_accountRepo.setAccountHidden` ——
+  /// 后者(LocalAccountRepository 的裸实现)不知道 changeTracker,直接调用会
+  /// 让隐藏状态不同步到云端(同 `updateAccountSortOrders` / `updateAccountValuation`
+  /// 的教训)。
+  @override
+  Future<void> setAccountHidden(int id, bool hidden) =>
+      updateAccount(id, hidden: hidden);
 
   @override
   Future<List<Account>> getCreditCardAccounts() =>
@@ -2206,6 +2217,10 @@ class LocalRepository extends BaseRepository {
   @override
   Future<void> updateLastGeneratedDate(int id, DateTime date) =>
       _recurringTransactionRepo.updateLastGeneratedDate(id, date);
+
+  @override
+  Future<int> getActiveRecurringCountByAccount(int accountId) =>
+      _recurringTransactionRepo.getActiveRecurringCountByAccount(accountId);
 
   @override
   Stream<List<RecurringTransaction>> watchAllRecurringTransactions() =>

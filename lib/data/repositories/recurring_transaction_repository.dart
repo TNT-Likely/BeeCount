@@ -61,6 +61,10 @@ abstract class RecurringTransactionRepository {
   /// 更新最后生成日期
   Future<void> updateLastGeneratedDate(int id, DateTime date);
 
+  /// 引用该账户的**活跃**(enabled=true)周期记账数量(转出/转入任一端命中即算)。
+  /// 账户隐藏 #240 E2:隐藏确认框用此数提示「有 N 个周期账单在用此账户」。
+  Future<int> getActiveRecurringCountByAccount(int accountId);
+
   /// 监听所有周期记账变化
   Stream<List<RecurringTransaction>> watchAllRecurringTransactions();
 

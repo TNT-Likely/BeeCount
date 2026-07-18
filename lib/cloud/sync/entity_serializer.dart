@@ -91,6 +91,9 @@ class EntitySerializer {
       if (account.bankName != null) 'bankName': account.bankName,
       if (account.cardLastFour != null) 'cardLastFour': account.cardLastFour,
       if (account.note != null) 'note': account.note,
+      // 账户隐藏(#240)。非空 bool + 默认 false,同账单标记的
+      // excludeFromStats/excludeFromBudget 无条件发送(不用 if-null 省略)。
+      'hidden': account.hidden,
     };
   }
 

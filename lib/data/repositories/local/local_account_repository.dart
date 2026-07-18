@@ -181,6 +181,7 @@ class LocalAccountRepository implements AccountRepository {
     String? cardLastFour,
     String? note,
     bool clearMetadataFields = false,
+    bool? hidden,
   }) async {
     await (db.update(db.accounts)..where((a) => a.id.equals(id))).write(
       AccountsCompanion(
@@ -194,9 +195,14 @@ class LocalAccountRepository implements AccountRepository {
         bankName: clearMetadataFields ? const d.Value(null) : (bankName != null ? d.Value(bankName) : const d.Value.absent()),
         cardLastFour: clearMetadataFields ? const d.Value(null) : (cardLastFour != null ? d.Value(cardLastFour) : const d.Value.absent()),
         note: clearMetadataFields ? const d.Value(null) : (note != null ? d.Value(note) : const d.Value.absent()),
+        hidden: hidden == null ? const d.Value.absent() : d.Value(hidden),
       ),
     );
   }
+
+  @override
+  Future<void> setAccountHidden(int id, bool hidden) =>
+      updateAccount(id, hidden: hidden);
 
   @override
   Future<List<Account>> getCreditCardAccounts() async {

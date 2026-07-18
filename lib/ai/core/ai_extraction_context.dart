@@ -47,8 +47,10 @@ class AiExtractionContext {
     final ledger = await repository.getLedgerById(ledgerId);
     if (ledger != null) {
       final allAccounts = await repository.getAllAccounts();
+      // 账户隐藏(#240):不把隐藏账户喂给 AI 作候选 —— 隐藏账户不再作为新交易
+      // 的记账目标,与手动选择器 / Web AI 候选一致。
       accountNames.addAll(allAccounts
-          .where((a) => a.currency == ledger.currency)
+          .where((a) => a.currency == ledger.currency && !a.hidden)
           .map((a) => a.name));
     }
 

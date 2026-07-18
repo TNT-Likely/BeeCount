@@ -192,6 +192,22 @@ class RecurringTransactionService {
       for (final recurring in recurringList) {
         logger.info(_tag,
             '处理周期交易 id=${recurring.id} freq=${recurring.frequency} interval=${recurring.interval} start=${recurring.startDate} end=${recurring.endDate} lastGen=${recurring.lastGeneratedDate}');
+
+        // 账户隐藏(#240 E2):关联账户(转账含转出/转入两端)任一被隐藏,本次
+        // 扫描整体跳过 —— 不推进 lastGeneratedDate,账户恢复后靠现有"补生成"
+        // 机制(calculateNextDate 按 lastGeneratedDate 续算)自动追上遗漏周期。
+        final fromAccount = recurring.accountId != null
+            ? await repository.getAccount(recurring.accountId)
+            : null;
+        final toAccount = recurring.toAccountId != null
+            ? await repository.getAccount(recurring.toAccountId)
+            : null;
+        if ((fromAccount?.hidden ?? false) || (toAccount?.hidden ?? false)) {
+          logger.info(_tag,
+              '周期交易 id=${recurring.id} 跳过:关联账户已隐藏(accountId=${recurring.accountId}, toAccountId=${recurring.toAccountId})');
+          continue;
+        }
+
         // 循环生成所有缺失的交易记录
         var currentRecurring = recurring;
         var loopGuard = 0;
