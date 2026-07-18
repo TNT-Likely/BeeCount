@@ -70,7 +70,7 @@ final primaryColorInitProvider = FutureProvider<void>((ref) async {
       final currentLedgerId = ref.read(currentLedgerIdProvider);
       final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
       final widgetManager = WidgetManager();
-      await widgetManager.updateWidget(
+      await widgetManager.updateAllWidgets(
         repository,
         currentLedgerId,
         next,
@@ -373,7 +373,7 @@ final incomeExpenseColorSchemeInitProvider = FutureProvider<void>((ref) async {
       final currentLedgerId = ref.read(currentLedgerIdProvider);
       final primaryColor = ref.read(primaryColorProvider);
       final widgetManager = WidgetManager();
-      await widgetManager.updateWidget(
+      await widgetManager.updateAllWidgets(
         repository,
         currentLedgerId,
         primaryColor,

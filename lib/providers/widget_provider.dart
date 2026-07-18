@@ -20,7 +20,7 @@ Future<void> updateAppWidget(WidgetRef ref, BuildContext context) async {
     final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
 
     final widgetManager = ref.read(widgetManagerProvider);
-    await widgetManager.updateWidget(
+    await widgetManager.updateAllWidgets(
       repository,
       currentLedgerId,
       primaryColor,

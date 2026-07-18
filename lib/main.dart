@@ -115,7 +115,7 @@ Future<void> main() async {
   try {
     await WidgetManager.registerCallback();
   } catch (e) {
-    print('⚠️  小组件回调注册失败（可能在不支持的平台上运行）: $e');
+    logger.warning('App', '小组件回调注册失败（可能在不支持的平台上运行）: $e');
   }
 
   // 恢复截图自动识别设置（Android专属），传入container
@@ -177,16 +177,16 @@ class _WidgetUpdateObserver extends ProviderObserver {
       final redForIncome = container.read(incomeExpenseColorSchemeProvider);
 
       final widgetManager = WidgetManager();
-      await widgetManager.updateWidget(
+      await widgetManager.updateAllWidgets(
         repository,
         ledgerId,
         primaryColor,
         redForIncome: redForIncome,
       );
 
-      print('✅ 小组件数据已更新');
+      logger.info('App', '小组件数据已更新');
     } catch (e) {
-      print('❌ 更新小组件失败（可能在不支持的平台上运行）: $e');
+      logger.warning('App', '更新小组件失败（可能在不支持的平台上运行）: $e');
     }
   }
 }

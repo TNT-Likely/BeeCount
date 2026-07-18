@@ -695,15 +695,15 @@ class _BeeAppState extends ConsumerState<BeeApp>
       final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
 
       final widgetManager = WidgetManager();
-      await widgetManager.updateWidget(
+      await widgetManager.updateAllWidgets(
         repository,
         ledgerId,
         primaryColor,
         redForIncome: redForIncome,
       );
-      print('✅ App恢复前台，小组件数据已更新');
+      logger.info('App', 'App恢复前台，小组件数据已更新');
     } catch (e) {
-      print('❌ 更新小组件失败: $e');
+      logger.warning('App', '更新小组件失败: $e');
     }
   }
 

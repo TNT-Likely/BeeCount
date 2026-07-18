@@ -755,7 +755,7 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
     try {
       final repository = ref.read(repositoryProvider);
       final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
-      await WidgetManager().updateWidget(
+      await WidgetManager().updateAllWidgets(
         repository,
         ledger.id,
         ref.read(primaryColorProvider),
