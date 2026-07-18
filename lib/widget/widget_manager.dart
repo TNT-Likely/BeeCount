@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../data/repositories/base_repository.dart';
 import '../services/system/logger_service.dart';
 import '../utils/net_worth_trend_utils.dart' show trendTodayAnchor;
+import 'views/budget_view.dart';
 import 'views/glance_view.dart';
 import 'views/net_worth_view.dart';
 import 'views/quick_add_view.dart';
@@ -71,10 +72,9 @@ class WidgetManager {
   /// 渲染管线入口:按 [WidgetSpec] 目录逐个处理,只渲染用户"已安装"(已放置
   /// 到桌面)的组件,再统一触发原生刷新。
   ///
-  /// **Phase B2a 现状**:glance(小/中)已接真实视图([GlanceView]);
-  /// netWorth/quickAdd/budget/recent/dashboard 的取数链路已就绪
-  /// (Phase B1),但视图仍留给后续阶段(Phase B2b),遇到时直接跳过渲染,
-  /// 不是回归。
+  /// **Phase B2b 现状**:glance/netWorth/quickAdd/budget 均已接真实视图;
+  /// recent/dashboard 的取数链路已就绪(Phase B1),但视图仍留给本阶段后续
+  /// 提交,遇到时直接跳过渲染,不是回归。
   Future<void> updateAllWidgets(
     BaseRepository repository,
     int ledgerId,
@@ -104,6 +104,14 @@ class WidgetManager {
     // 快速记账「记一笔」按钮文案。l10n 暂无独立 key。
     // TODO(i18n): Phase C 补三语 arb key。
     String quickAddLabel = '记一笔',
+    // 预算进度(budget)视图文案。l10n 暂无独立 key(budget_page.dart 的文案是
+    // 完整句子,这里需要的是卡片专用短词,不能直接借用)。
+    // TODO(i18n): Phase C 补三语 arb key。
+    String budgetLabel = '本月预算',
+    String budgetUsedLabel = '已用',
+    String budgetTotalLabel = '总额',
+    String budgetRemainingLabel = '剩',
+    String noBudgetLabel = '未设预算',
   }) async {
     try {
       final specs = await _resolveSpecsToRender();
@@ -140,6 +148,11 @@ class WidgetManager {
             totalAssetsLabel: totalAssetsLabel,
             totalLiabilitiesLabel: totalLiabilitiesLabel,
             quickAddLabel: quickAddLabel,
+            budgetLabel: budgetLabel,
+            budgetUsedLabel: budgetUsedLabel,
+            budgetTotalLabel: budgetTotalLabel,
+            budgetRemainingLabel: budgetRemainingLabel,
+            noBudgetLabel: noBudgetLabel,
           );
         } catch (e, st) {
           // 单个 spec 渲染失败不应阻断其余 spec。
@@ -202,6 +215,11 @@ class WidgetManager {
     required String totalAssetsLabel,
     required String totalLiabilitiesLabel,
     required String quickAddLabel,
+    required String budgetLabel,
+    required String budgetUsedLabel,
+    required String budgetTotalLabel,
+    required String budgetRemainingLabel,
+    required String noBudgetLabel,
   }) async {
     switch (spec.type) {
       case HWType.glance:
@@ -245,11 +263,26 @@ class WidgetManager {
         );
         return;
       case HWType.budget:
+        await _renderBudget(
+          spec,
+          repository: repository,
+          ledgerId: ledgerId,
+          themeColor: themeColor,
+          redForIncome: redForIncome,
+          dark: dark,
+          budgetLabel: budgetLabel,
+          usedLabel: budgetUsedLabel,
+          totalLabel: budgetTotalLabel,
+          remainingLabel: budgetRemainingLabel,
+          noBudgetLabel: noBudgetLabel,
+        );
+        return;
       case HWType.recent:
       case HWType.dashboard:
-        // 视图待 Phase B2b(budget/recent/dashboard 已在 Phase B1 打通
-        // 取数);这里只把取数链路跑一遍验证可用,不做渲染。异常会被
-        // updateAllWidgets 调用处的 try/catch 捕获,不影响其它 spec。
+        // 视图待 Phase B2b 后续提交(recent/dashboard 已在 Phase B1 打通
+        // 取数,budget 已在本提交接入真实渲染);这里只把取数链路跑一遍验证
+        // 可用,不做渲染。异常会被 updateAllWidgets 调用处的 try/catch 捕获,
+        // 不影响其它 spec。
         await _gatherAndSkip(
           spec,
           repository: repository,
@@ -258,7 +291,7 @@ class WidgetManager {
         );
         logger.debug(
           _tag,
-          '${spec.imageKey} 数据已就绪,视图待 Phase B2b,跳过渲染',
+          '${spec.imageKey} 数据已就绪,视图待后续提交,跳过渲染',
         );
         return;
     }
@@ -429,8 +462,52 @@ class WidgetManager {
     await _renderView(view, spec: spec, logicalSize: spec.logicalSize);
   }
 
-  /// 除 glance/netWorth/quickAdd 外其余类型(P2 起会逐个补 View)的"取数但不
-  /// 渲染"占位路径。
+  /// 渲染预算进度(budget):小/中两档,均已接 [BudgetView] 真实视图。
+  Future<void> _renderBudget(
+    WidgetSpec spec, {
+    required BaseRepository repository,
+    required int ledgerId,
+    required Color themeColor,
+    required bool redForIncome,
+    required bool dark,
+    required String budgetLabel,
+    required String usedLabel,
+    required String totalLabel,
+    required String remainingLabel,
+    required String noBudgetLabel,
+  }) async {
+    final overview = await WidgetDataService.gatherBudget(
+      repository: repository,
+      ledgerId: ledgerId,
+    );
+    // 预算金额没有独立币种列,固定跟随账本自身币种(与全局本位币
+    // baseCurrency 是两个不同概念,见 gatherLedgerCurrency 文档)。
+    final currencyCode = await WidgetDataService.gatherLedgerCurrency(
+      repository: repository,
+      ledgerId: ledgerId,
+    );
+
+    final view = BudgetView(
+      size: spec.size,
+      overview: overview,
+      currencyCode: currencyCode,
+      themeColor: themeColor,
+      redForIncome: redForIncome,
+      dark: dark,
+      budgetLabel: budgetLabel,
+      usedLabel: usedLabel,
+      totalLabel: totalLabel,
+      remainingLabel: remainingLabel,
+      noBudgetLabel: noBudgetLabel,
+      width: spec.logicalSize.width,
+      height: spec.logicalSize.height,
+    );
+
+    await _renderView(view, spec: spec, logicalSize: spec.logicalSize);
+  }
+
+  /// 除 glance/netWorth/quickAdd/budget 外其余类型(recent/dashboard,待后续
+  /// 提交逐个补 View)的"取数但不渲染"占位路径。
   Future<void> _gatherAndSkip(
     WidgetSpec spec, {
     required BaseRepository repository,
@@ -448,10 +525,7 @@ class WidgetManager {
         // 不会走到这里(quickAdd 已在 _renderSpec 分派到 _renderQuickAdd)。
         return;
       case HWType.budget:
-        await WidgetDataService.gatherBudget(
-          repository: repository,
-          ledgerId: ledgerId,
-        );
+        // 不会走到这里(budget 已在 _renderSpec 分派到 _renderBudget)。
         return;
       case HWType.recent:
         await WidgetDataService.gatherRecent(

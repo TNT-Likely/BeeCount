@@ -327,6 +327,27 @@ class WidgetDataService {
   }
 
   // ---------------------------------------------------------------------
+  // 账本自身币种(单一账本视角的简单金额格式化用)
+  // ---------------------------------------------------------------------
+
+  /// 账本自身币种(`Ledger.currency`),供 budget/recent/dashboard 三个
+  /// Phase B2b 新增 View 做简单金额格式化用——区别于 netWorth 系列跨账户/
+  /// 跨币种折算用的 [gatherNetWorthBreakdown] 的 `baseCurrency` 参数(那是
+  /// 用户可选的全局本位币,可能与当前账本自身币种不同)。预算/最近交易都是
+  /// "单一账本视角"的数据(预算金额本就没有独立币种列,交易金额格式化取交易
+  /// 自身 currencyCode,缺失时兜底到这里),因此用账本自身币种而非全局本位币。
+  ///
+  /// 取不到账本(理论不应发生)兜底 'CNY',与 [gatherGlance] 的
+  /// `monthStartDay` 兜底同一套保守策略。
+  static Future<String> gatherLedgerCurrency({
+    required BaseRepository repository,
+    required int ledgerId,
+  }) async {
+    final ledger = await repository.getLedgerById(ledgerId);
+    return ledger?.currency ?? 'CNY';
+  }
+
+  // ---------------------------------------------------------------------
   // 最近交易(recent)
   // ---------------------------------------------------------------------
 
