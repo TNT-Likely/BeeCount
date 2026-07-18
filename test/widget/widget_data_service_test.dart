@@ -2,6 +2,8 @@
 /// `WidgetManager.updateWidget()` 迁移而来,P1 渲染管线参数化的一部分)。
 /// 用内存 Drift 库验证:自然月 + 账本自定义 monthStartDay 两种口径下,
 /// 求和范围与既有 `totalsByCategory` 语义一致。
+library;
+
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';

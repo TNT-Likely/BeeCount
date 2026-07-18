@@ -4,6 +4,8 @@
 /// 覆盖 .docs/home-widget/plan.md D5:只渲已安装的 spec、拿不到已安装列表时
 /// 退化为默认集(至少 glance-medium)。这两个函数均为纯函数,不触碰平台
 /// 通道(不调用 `HomeWidget.getInstalledWidgets()`),因此可以直接单测。
+library;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:home_widget/home_widget.dart';
 

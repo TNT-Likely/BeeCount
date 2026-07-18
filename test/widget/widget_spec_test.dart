@@ -2,7 +2,8 @@
 ///
 /// 覆盖 .docs/home-widget/plan.md §二「逐组件 spec」的全部合法组合,以及
 /// D2 back-compat(glance-medium 沿用旧 key `widgetImage`)。
-import 'package:flutter/material.dart';
+library;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:home_widget/home_widget.dart';
 
