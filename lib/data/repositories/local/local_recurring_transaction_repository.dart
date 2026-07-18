@@ -137,6 +137,16 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
   }
 
   @override
+  Future<int> getActiveRecurringCountByAccount(int accountId) async {
+    final rows = await (db.select(db.recurringTransactions)
+          ..where((t) =>
+              t.enabled.equals(true) &
+              (t.accountId.equals(accountId) | t.toAccountId.equals(accountId))))
+        .get();
+    return rows.length;
+  }
+
+  @override
   Stream<List<RecurringTransaction>> watchAllRecurringTransactions() {
     return (db.select(db.recurringTransactions)).watch();
   }

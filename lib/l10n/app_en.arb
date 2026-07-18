@@ -1638,6 +1638,35 @@
   "accountSelectTitle": "Select Account",
   "accountNone": "No Account",
   "accountsEnableFeature": "Enable Account Feature",
+  "accountHide": "Hide account",
+  "accountUnhide": "Restore account",
+  "accountRestore": "Restore",
+  "accountHiddenTag": "Hidden",
+  "accountHiddenSection": "Hidden",
+  "accountHiddenSectionSummary": "{count} hidden · {total}",
+  "@accountHiddenSectionSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "accountHideConfirmTitle": "Hide this account?",
+  "accountHideConfirmBody": "It won't be selectable for new records; history and balance are kept and you can restore it anytime.",
+  "accountHideRecurringWarn": "{count} recurring bills use this account; they'll be skipped while hidden.",
+  "@accountHideRecurringWarn": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountHideClearedDefault": "Cleared its default-account setting",
+  "accountHiddenToast": "Hidden",
+  "accountRestoredToast": "Restored",
   "privacyOpenSourceUrlError": "Cannot open link",
   "updateCorruptedFileTitle": "Corrupted Installation Package",
   "updateCorruptedFileMessage": "The previously downloaded installation package is incomplete or corrupted. Delete and re-download?",

@@ -2219,6 +2219,10 @@ class LocalRepository extends BaseRepository {
       _recurringTransactionRepo.updateLastGeneratedDate(id, date);
 
   @override
+  Future<int> getActiveRecurringCountByAccount(int accountId) =>
+      _recurringTransactionRepo.getActiveRecurringCountByAccount(accountId);
+
+  @override
   Stream<List<RecurringTransaction>> watchAllRecurringTransactions() =>
       _recurringTransactionRepo.watchAllRecurringTransactions();
 

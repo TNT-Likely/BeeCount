@@ -10,6 +10,7 @@ import '../../services/currency/rate_math.dart';
 import '../../services/marketing/product_promos.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/amount_text.dart';
+import '../../widgets/biz/format_money.dart';
 import '../../widgets/biz/section_card.dart';
 import '../../widgets/biz/product_promo_card.dart';
 import '../../data/db.dart' as db;
@@ -217,11 +218,14 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                         ledgerId: ledgerId,
                       ),
 
-                      // 4. 其他未知类型
+                      // 4. 其他未知类型(排除隐藏账户,账户隐藏 #240)
                       ...groups.keys
-                          .where((type) => !accountTypeOrder.contains(type) && groups[type]!.isNotEmpty)
+                          .where((type) =>
+                              !accountTypeOrder.contains(type) &&
+                              groups[type]!.any((a) => !a.hidden))
                           .map((type) {
-                        final groupList = groups[type]!;
+                        final groupList =
+                            groups[type]!.where((a) => !a.hidden).toList();
                         return _AccountTypeGroup(
                           type: type,
                           accounts: groupList,
@@ -235,6 +239,20 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                               _editAccount(context, ref, account, ledgerId),
                         );
                       }),
+
+                      // 5. 已隐藏账户分区(账户隐藏 #240,D2:主列表退场,
+                      // 分区头小计与净资产卡差额对账)
+                      _HiddenAccountsSection(
+                        accounts: accounts.where((a) => a.hidden).toList(),
+                        allStats: allStatsAsync.valueOrNull,
+                        primaryColor: primaryColor,
+                        onTap: (account) =>
+                            _viewAccountDetail(context, ref, account),
+                        onEdit: (account) =>
+                            _editAccount(context, ref, account, ledgerId),
+                        onRestore: (account) =>
+                            _restoreAccount(context, ref, account),
+                      ),
                     ],
                   ],
                 );
@@ -965,16 +983,19 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     required Color primaryColor,
     required int ledgerId,
   }) {
-    // 检查此分类下是否有账户
+    // 检查此分类下是否有在用(非隐藏)账户 —— 账户隐藏 #240:隐藏账户移入
+    // 底部「已隐藏」分区(_HiddenAccountsSection),此处只看在用账户。
     final hasAccounts = typeOrder.any((type) =>
-        groups.containsKey(type) && groups[type]!.isNotEmpty);
+        groups.containsKey(type) && groups[type]!.any((a) => !a.hidden));
     if (!hasAccounts) return [];
 
-    // 按币种分组计算小计
+    // 按币种分组计算小计(仅在用账户;隐藏账户的小计在「已隐藏」分区单独
+    // 展示,两者相加与净资产汇总卡对账 —— 01 §4.1)
     final Map<String, double> subtotalByCurrency = {};
     for (final type in typeOrder) {
       if (groups.containsKey(type)) {
         for (final account in groups[type]!) {
+          if (account.hidden) continue;
           final balance = allStats?[account.id]?.balance ?? 0;
           subtotalByCurrency.update(
             account.currency,
@@ -1060,11 +1081,12 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
           ],
         ),
       ),
-      // 类型分组
+      // 类型分组(排除隐藏账户,账户隐藏 #240)
       ...typeOrder
-          .where((type) => groups.containsKey(type) && groups[type]!.isNotEmpty)
+          .where((type) =>
+              groups.containsKey(type) && groups[type]!.any((a) => !a.hidden))
           .map((type) {
-        final groupList = groups[type]!;
+        final groupList = groups[type]!.where((a) => !a.hidden).toList();
         return _AccountTypeGroup(
           type: type,
           accounts: groupList,
@@ -1090,7 +1112,13 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
   ) {
     final l10n = AppLocalizations.of(context);
     final primaryColor = ref.read(primaryColorProvider);
-    final accounts = accountsAsync.asData?.value ?? [];
+    // 默认收/支账户选择器排除隐藏账户(账户隐藏 #240 §四):列表本身不出现,
+    // 且若当前默认恰好指向隐藏账户,下方 _CompactDefaultAccount 找不到匹配项
+    // 会自动显示「不设置」,兜底 E3。
+    final accounts =
+        (accountsAsync.asData?.value ?? const <db.Account>[])
+            .where((a) => !a.hidden)
+            .toList();
 
     showModalBottomSheet(
       context: context,
@@ -1266,6 +1294,25 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
         builder: (context) => AccountDetailPage(account: account),
       ),
     );
+  }
+
+  /// 「已隐藏」分区卡片上的「恢复」快捷入口(账户隐藏 #240)。恢复无需确认
+  /// (低风险、可逆,产品设计 01 §3.2),即时生效并推送同步。
+  Future<void> _restoreAccount(
+      BuildContext context, WidgetRef ref, db.Account account) async {
+    final l10n = AppLocalizations.of(context);
+    await ref.read(repositoryProvider).setAccountHidden(account.id, false);
+
+    // 账户变更推同步,同 _onReorder 的写法。
+    final activeLedgerId = ref.read(currentLedgerIdProvider);
+    if (activeLedgerId > 0) {
+      unawaited(PostProcessor.sync(ref, ledgerId: activeLedgerId));
+    }
+
+    // 只 bump tick,不 invalidate,避免资产页整页 loading 闪烁(同 _addAccount)。
+    ref.read(statsRefreshProvider.notifier).state++;
+
+    if (context.mounted) showToast(context, l10n.accountRestoredToast);
   }
 }
 
@@ -1688,6 +1735,149 @@ class _AccountTypeGroupState extends ConsumerState<_AccountTypeGroup> {
   }
 }
 
+/// 「已隐藏」账户分区(账户隐藏 #240,产品设计 01 §4.1)。置于所有在用分组
+/// 之后,默认折叠;分区头显示「已隐藏(N)· 合计 ¥x」(小计口径同净资产卡:
+/// 多币种折算跳过缺汇率币种,复用 [convertAmountsToBase],与资产/负债分组
+/// 小计同一函数,保证与净资产汇总卡的差额天然对上账)。隐藏卡复用
+/// [_AccountCard],传入中性灰 typeColor 弱化视觉权重 + onRestore 回调。
+class _HiddenAccountsSection extends ConsumerStatefulWidget {
+  final List<db.Account> accounts;
+  final Map<int, ({double balance, double expense, double income})>? allStats;
+  final Color primaryColor;
+  final void Function(db.Account account) onTap;
+  final void Function(db.Account account) onEdit;
+  final void Function(db.Account account) onRestore;
+
+  const _HiddenAccountsSection({
+    required this.accounts,
+    required this.allStats,
+    required this.primaryColor,
+    required this.onTap,
+    required this.onEdit,
+    required this.onRestore,
+  });
+
+  @override
+  ConsumerState<_HiddenAccountsSection> createState() =>
+      _HiddenAccountsSectionState();
+}
+
+class _HiddenAccountsSectionState
+    extends ConsumerState<_HiddenAccountsSection> {
+  // 默认折叠(产品设计 01 §4.1)。
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.accounts.isEmpty) return const SizedBox.shrink();
+
+    final l10n = AppLocalizations.of(context);
+    final isDark = BeeTokens.isDark(context);
+    // 中性灰(暗黑/明亮各一档),弱化隐藏卡视觉权重,不用账户类型主题色
+    // (0xFF48484A 沿用 tokens.dart 里同款暗黑中性灰,见 surfaceCategoryIcon)。
+    final mutedColor = isDark ? const Color(0xFF48484A) : Colors.grey.shade400;
+
+    // 按币种分组计算小计,口径同 _buildClassificationSection(仅隐藏账户)。
+    final Map<String, double> subtotalByCurrency = {};
+    for (final account in widget.accounts) {
+      final balance = widget.allStats?[account.id]?.balance ?? 0;
+      subtotalByCurrency.update(
+        account.currency,
+        (v) => v + balance,
+        ifAbsent: () => balance,
+      );
+    }
+    final multiCurrencyActive = ref.watch(multiCurrencyActiveProvider);
+    final rates = ref.watch(effectiveRatesProvider).valueOrNull;
+    final base = ref.watch(baseCurrencyProvider).toUpperCase();
+    final hide = ref.watch(hideAmountsProvider);
+
+    final totalText = hide
+        ? '****'
+        : _subtotalText(subtotalByCurrency, multiCurrencyActive, rates, base);
+    final summary =
+        l10n.accountHiddenSectionSummary(widget.accounts.length, totalText);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () => setState(() => _expanded = !_expanded),
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: 16.0.scaled(context, ref),
+              bottom: 4.0.scaled(context, ref),
+              left: 4.0.scaled(context, ref),
+              right: 4.0.scaled(context, ref),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.visibility_off_outlined,
+                    size: 18.0.scaled(context, ref),
+                    color: BeeTokens.textTertiary(context)),
+                SizedBox(width: 6.0.scaled(context, ref)),
+                Expanded(
+                  child: Text(
+                    summary,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: BeeTokens.textSecondary(context),
+                    ),
+                  ),
+                ),
+                AnimatedRotation(
+                  turns: _expanded ? 0.25 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(Icons.chevron_right,
+                      size: 18.0.scaled(context, ref),
+                      color: BeeTokens.iconTertiary(context)),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_expanded)
+          ...widget.accounts.map((account) => _AccountCard(
+                key: ValueKey('hidden_${account.id}'),
+                account: account,
+                primaryColor: widget.primaryColor,
+                typeColor: mutedColor,
+                stats: widget.allStats?[account.id],
+                onTap: () => widget.onTap(account),
+                onEdit: () => widget.onEdit(account),
+                onRestore: () => widget.onRestore(account),
+              )),
+      ],
+    );
+  }
+
+  /// 小计文本:与净资产卡同口径。单币种直接格式化;跨币种且折算态就绪时,
+  /// 折到主币种(与 _buildGroupConvertedSubtotal 同一个 convertAmountsToBase)。
+  String _subtotalText(
+    Map<String, double> subtotalByCurrency,
+    bool multiCurrencyActive,
+    Map<String, EffectiveRate>? rates,
+    String base,
+  ) {
+    final isSingleCurrency = subtotalByCurrency.length <= 1;
+    if (multiCurrencyActive && rates != null && !isSingleCurrency) {
+      final result = convertAmountsToBase(
+        amounts: subtotalByCurrency,
+        rates: rates,
+        base: base,
+      );
+      return '${getCurrencySymbol(base)}${result.total.abs().toStringAsFixed(2)}';
+    }
+    final currency = subtotalByCurrency.keys.firstOrNull ?? base;
+    final value = subtotalByCurrency.values.firstOrNull ?? 0;
+    return '${getCurrencySymbol(currency)}${formatMoneyCompact(value, maxDecimals: 2, signed: false)}';
+  }
+}
+
 /// 账户卡片
 class _AccountCard extends ConsumerWidget {
   final db.Account account;
@@ -1696,6 +1886,9 @@ class _AccountCard extends ConsumerWidget {
   final ({double balance, double expense, double income})? stats;
   final VoidCallback onTap;
   final VoidCallback onEdit;
+  /// 「已隐藏」分区卡片的恢复回调(账户隐藏 #240)。非空时才渲染「已隐藏」
+  /// 灰标 + 恢复按钮;在用卡片(account.hidden==false)不受影响。
+  final VoidCallback? onRestore;
 
   const _AccountCard({
     super.key,
@@ -1705,6 +1898,7 @@ class _AccountCard extends ConsumerWidget {
     this.stats,
     required this.onTap,
     required this.onEdit,
+    this.onRestore,
   });
 
   @override
@@ -1838,6 +2032,11 @@ class _AccountCard extends ConsumerWidget {
                       ],
                     ),
                     SizedBox(height: 10.0.scaled(context, ref)),
+                    // 已隐藏标签 + 恢复按钮(账户隐藏 #240,D2)
+                    if (account.hidden) ...[
+                      _buildHiddenBadgeRow(context, ref, l10n, isDark),
+                      SizedBox(height: 8.0.scaled(context, ref)),
+                    ],
                     // 信用卡：进度条 + 额度信息
                     if (account.type == 'credit_card' && stats != null)
                       _buildCreditCardStats(context, ref, l10n, isDark)
@@ -1868,6 +2067,65 @@ class _AccountCard extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  /// 「已隐藏」灰标 + 恢复按钮(账户隐藏 #240)。仅 account.hidden==true 时被调用。
+  Widget _buildHiddenBadgeRow(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n, bool isDark) {
+    final textColor = isDark ? Colors.white.withValues(alpha: 0.9) : Colors.white;
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 6.0.scaled(context, ref),
+            vertical: 2.0.scaled(context, ref),
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.18),
+            borderRadius: BorderRadius.circular(4.0.scaled(context, ref)),
+          ),
+          child: Text(
+            l10n.accountHiddenTag,
+            style: TextStyle(
+              fontSize: 11,
+              color: textColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        const Spacer(),
+        if (onRestore != null)
+          GestureDetector(
+            onTap: onRestore,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 10.0.scaled(context, ref),
+                vertical: 4.0.scaled(context, ref),
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.25),
+                borderRadius: BorderRadius.circular(12.0.scaled(context, ref)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.replay,
+                      size: 12.0.scaled(context, ref), color: textColor),
+                  SizedBox(width: 4.0.scaled(context, ref)),
+                  Text(
+                    l10n.accountRestore,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: textColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
     );
   }
 

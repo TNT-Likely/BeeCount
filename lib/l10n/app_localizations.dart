@@ -7292,6 +7292,78 @@ abstract class AppLocalizations {
   /// **'Enable Account Feature'**
   String get accountsEnableFeature;
 
+  /// No description provided for @accountHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide account'**
+  String get accountHide;
+
+  /// No description provided for @accountUnhide.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore account'**
+  String get accountUnhide;
+
+  /// No description provided for @accountRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get accountRestore;
+
+  /// No description provided for @accountHiddenTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get accountHiddenTag;
+
+  /// No description provided for @accountHiddenSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get accountHiddenSection;
+
+  /// No description provided for @accountHiddenSectionSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hidden · {total}'**
+  String accountHiddenSectionSummary(int count, String total);
+
+  /// No description provided for @accountHideConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide this account?'**
+  String get accountHideConfirmTitle;
+
+  /// No description provided for @accountHideConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It won\'t be selectable for new records; history and balance are kept and you can restore it anytime.'**
+  String get accountHideConfirmBody;
+
+  /// No description provided for @accountHideRecurringWarn.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recurring bills use this account; they\'ll be skipped while hidden.'**
+  String accountHideRecurringWarn(int count);
+
+  /// No description provided for @accountHideClearedDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleared its default-account setting'**
+  String get accountHideClearedDefault;
+
+  /// No description provided for @accountHiddenToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get accountHiddenToast;
+
+  /// No description provided for @accountRestoredToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored'**
+  String get accountRestoredToast;
+
   /// No description provided for @privacyOpenSourceUrlError.
   ///
   /// In en, this message translates to:

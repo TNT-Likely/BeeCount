@@ -3824,6 +3824,46 @@ class AppLocalizationsZh extends AppLocalizations {
   String get accountsEnableFeature => '启用账户功能';
 
   @override
+  String get accountHide => '隐藏账户';
+
+  @override
+  String get accountUnhide => '恢复账户';
+
+  @override
+  String get accountRestore => '恢复';
+
+  @override
+  String get accountHiddenTag => '已隐藏';
+
+  @override
+  String get accountHiddenSection => '已隐藏';
+
+  @override
+  String accountHiddenSectionSummary(int count, String total) {
+    return '已隐藏 $count · 合计 $total';
+  }
+
+  @override
+  String get accountHideConfirmTitle => '隐藏此账户？';
+
+  @override
+  String get accountHideConfirmBody => '隐藏后无法再记账到它，新增记账时也不再显示；历史交易与余额保留，可随时恢复。';
+
+  @override
+  String accountHideRecurringWarn(int count) {
+    return '有 $count 个周期账单在用此账户，隐藏后这些账单将跳过生成，建议先改到其他账户。';
+  }
+
+  @override
+  String get accountHideClearedDefault => '已取消其默认账户设置';
+
+  @override
+  String get accountHiddenToast => '已隐藏';
+
+  @override
+  String get accountRestoredToast => '已恢复';
+
+  @override
   String get privacyOpenSourceUrlError => '无法打开链接';
 
   @override
@@ -11140,6 +11180,46 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get accountsEnableFeature => '啟用帳戶功能';
+
+  @override
+  String get accountHide => '隱藏帳戶';
+
+  @override
+  String get accountUnhide => '恢復帳戶';
+
+  @override
+  String get accountRestore => '恢復';
+
+  @override
+  String get accountHiddenTag => '已隱藏';
+
+  @override
+  String get accountHiddenSection => '已隱藏';
+
+  @override
+  String accountHiddenSectionSummary(int count, String total) {
+    return '已隱藏 $count · 合計 $total';
+  }
+
+  @override
+  String get accountHideConfirmTitle => '隱藏此帳戶？';
+
+  @override
+  String get accountHideConfirmBody => '隱藏後無法再記帳到它，新增記帳時也不再顯示；歷史交易與餘額保留，可隨時恢復。';
+
+  @override
+  String accountHideRecurringWarn(int count) {
+    return '有 $count 個週期帳單在用此帳戶，隱藏後這些帳單將跳過產生，建議先改到其他帳戶。';
+  }
+
+  @override
+  String get accountHideClearedDefault => '已取消其預設帳戶設定';
+
+  @override
+  String get accountHiddenToast => '已隱藏';
+
+  @override
+  String get accountRestoredToast => '已恢復';
 
   @override
   String get privacyOpenSourceUrlError => '無法打開鏈接';

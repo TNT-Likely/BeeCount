@@ -3824,6 +3824,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountsEnableFeature => 'Enable Account Feature';
 
   @override
+  String get accountHide => 'Hide account';
+
+  @override
+  String get accountUnhide => 'Restore account';
+
+  @override
+  String get accountRestore => 'Restore';
+
+  @override
+  String get accountHiddenTag => 'Hidden';
+
+  @override
+  String get accountHiddenSection => 'Hidden';
+
+  @override
+  String accountHiddenSectionSummary(int count, String total) {
+    return '$count hidden · $total';
+  }
+
+  @override
+  String get accountHideConfirmTitle => 'Hide this account?';
+
+  @override
+  String get accountHideConfirmBody => 'It won\'t be selectable for new records; history and balance are kept and you can restore it anytime.';
+
+  @override
+  String accountHideRecurringWarn(int count) {
+    return '$count recurring bills use this account; they\'ll be skipped while hidden.';
+  }
+
+  @override
+  String get accountHideClearedDefault => 'Cleared its default-account setting';
+
+  @override
+  String get accountHiddenToast => 'Hidden';
+
+  @override
+  String get accountRestoredToast => 'Restored';
+
+  @override
   String get privacyOpenSourceUrlError => 'Cannot open link';
 
   @override
