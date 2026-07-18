@@ -57,6 +57,9 @@ class Accounts extends Table {
   TextColumn get cardLastFour => text().nullable()(); // 卡号后四位
   TextColumn get note => text().nullable()(); // 备注
   TextColumn get syncId => text().nullable()(); // 跨设备同步唯一标识 (UUID)
+  /// 隐藏:true 时该账户不再出现在记账/转账/周期选择器,账户管理页移入「已隐藏」分区。
+  /// 仍计入账户余额、净资产、资产构成、净值趋势(.docs/account-archive/01 §二 D1)。
+  BoolColumn get hidden => boolean().withDefault(const Constant(false))();
 }
 
 /// 自动汇率本地缓存。日期键 append-only;可随时整表重建 → **不进同步**(README D2)。
@@ -439,7 +442,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 30; // v30: 交易级多币种 — currency_code / native_amount
+  int get schemaVersion => 31; // v31: 账户隐藏 — accounts.hidden
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1147,6 +1150,12 @@ class BeeDatabase extends _$BeeDatabase {
             await customStatement(
                 'UPDATE transactions SET native_amount = amount WHERE native_amount IS NULL;');
             logger.info('DBMigration', 'v30 迁移完成');
+          }
+          if (from < 31) {
+            logger.info('DBMigration', '开始迁移到 v31: 账户隐藏(hidden)');
+            await _addColumnIfMissing('accounts', 'hidden',
+                'ALTER TABLE accounts ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0;');
+            logger.info('DBMigration', 'v31 迁移完成');
           }
         },
         onCreate: (m) async {
