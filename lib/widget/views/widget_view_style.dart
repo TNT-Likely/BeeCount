@@ -15,6 +15,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../services/data/category_service.dart' show CategoryService;
+
 /// 蜜蜂主题强调色(品牌色)。多数场景下和用户可自定义的 `themeColor` 一致
 /// (`primaryColorProvider` 默认值就是它),这里单独留一个常量供不想跟随
 /// 用户个性化、需要固定"蜜蜂感"的强调元素使用。
@@ -59,3 +61,32 @@ Color widgetTextTertiary(bool dark) =>
 
 Color widgetDivider(bool dark) =>
     dark ? Colors.white12 : const Color(0xFFEDEDED);
+
+/// 分类图标 key 是否"看起来像 emoji"(而非 `CategoryService` 认识的英文标识
+/// 符)。已知 key 都是较长的纯 ASCII 标识符(如 'restaurant'),emoji 通常
+/// 1~2 个 grapheme 且码点落在 ASCII 之外很远的区域——启发式,不追求 100%
+/// 精确,只需对已有数据集合用。
+///
+/// `QuickAddView` 独立维护着同一算法的私有实现(未改动,避免触碰已上线/
+/// 已测试的 Phase B2a 文件);这里是 Phase B2b 新增的 recent/dashboard 两个
+/// View 共用的公开版本,彼此并非互相调用,只是同一套算法。
+bool widgetLooksLikeEmoji(String s) {
+  if (s.length > 4) return false;
+  final codePoint = s.runes.isEmpty ? 0 : s.runes.first;
+  return codePoint > 0x2100;
+}
+
+/// 分类图标兜底解析:`icon` 是 emoji 就直接画文字,否则交给
+/// `CategoryService.getCategoryIcon`(内部对不认识的 key / null 已兜底
+/// `Icons.category`,不会是空)。供 recent/dashboard 复用,见
+/// [widgetLooksLikeEmoji] 文档。
+Widget widgetCategoryIcon({
+  required String? icon,
+  required Color color,
+  double size = 18,
+}) {
+  if (icon != null && icon.isNotEmpty && widgetLooksLikeEmoji(icon)) {
+    return Text(icon, style: TextStyle(fontSize: size * 0.9));
+  }
+  return Icon(CategoryService.getCategoryIcon(icon), size: size, color: color);
+}

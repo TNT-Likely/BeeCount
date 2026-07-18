@@ -11,6 +11,7 @@ import 'views/budget_view.dart';
 import 'views/glance_view.dart';
 import 'views/net_worth_view.dart';
 import 'views/quick_add_view.dart';
+import 'views/recent_view.dart';
 import 'widget_data_service.dart';
 import 'widget_spec.dart';
 
@@ -72,8 +73,8 @@ class WidgetManager {
   /// 渲染管线入口:按 [WidgetSpec] 目录逐个处理,只渲染用户"已安装"(已放置
   /// 到桌面)的组件,再统一触发原生刷新。
   ///
-  /// **Phase B2b 现状**:glance/netWorth/quickAdd/budget 均已接真实视图;
-  /// recent/dashboard 的取数链路已就绪(Phase B1),但视图仍留给本阶段后续
+  /// **Phase B2b 现状**:glance/netWorth/quickAdd/budget/recent 均已接真实
+  /// 视图;dashboard 的取数链路已就绪(Phase B1),但视图仍留给本阶段后续
   /// 提交,遇到时直接跳过渲染,不是回归。
   Future<void> updateAllWidgets(
     BaseRepository repository,
@@ -112,6 +113,12 @@ class WidgetManager {
     String budgetTotalLabel = '总额',
     String budgetRemainingLabel = '剩',
     String noBudgetLabel = '未设预算',
+    // 最近交易(recent)视图文案。l10n 已有语义相近的 key(如
+    // commonUncategorized/accountNoTransactions),但措辞与本卡片场景不完全
+    // 一致,先用默认值占位。
+    // TODO(i18n): Phase C 补三语 arb key(或直接复用/新增对应 key)。
+    String uncategorizedLabel = '未分类',
+    String noTransactionsLabel = '暂无交易',
   }) async {
     try {
       final specs = await _resolveSpecsToRender();
@@ -153,6 +160,8 @@ class WidgetManager {
             budgetTotalLabel: budgetTotalLabel,
             budgetRemainingLabel: budgetRemainingLabel,
             noBudgetLabel: noBudgetLabel,
+            uncategorizedLabel: uncategorizedLabel,
+            noTransactionsLabel: noTransactionsLabel,
           );
         } catch (e, st) {
           // 单个 spec 渲染失败不应阻断其余 spec。
@@ -220,6 +229,8 @@ class WidgetManager {
     required String budgetTotalLabel,
     required String budgetRemainingLabel,
     required String noBudgetLabel,
+    required String uncategorizedLabel,
+    required String noTransactionsLabel,
   }) async {
     switch (spec.type) {
       case HWType.glance:
@@ -278,11 +289,22 @@ class WidgetManager {
         );
         return;
       case HWType.recent:
+        await _renderRecent(
+          spec,
+          repository: repository,
+          ledgerId: ledgerId,
+          themeColor: themeColor,
+          redForIncome: redForIncome,
+          dark: dark,
+          uncategorizedLabel: uncategorizedLabel,
+          emptyLabel: noTransactionsLabel,
+        );
+        return;
       case HWType.dashboard:
-        // 视图待 Phase B2b 后续提交(recent/dashboard 已在 Phase B1 打通
-        // 取数,budget 已在本提交接入真实渲染);这里只把取数链路跑一遍验证
-        // 可用,不做渲染。异常会被 updateAllWidgets 调用处的 try/catch 捕获,
-        // 不影响其它 spec。
+        // 视图待 Phase B2b 后续提交(dashboard 已在 Phase B1 打通取数,
+        // budget/recent 已在本阶段前面的提交接入真实渲染);这里只把取数链路
+        // 跑一遍验证可用,不做渲染。异常会被 updateAllWidgets 调用处的
+        // try/catch 捕获,不影响其它 spec。
         await _gatherAndSkip(
           spec,
           repository: repository,
@@ -506,8 +528,50 @@ class WidgetManager {
     await _renderView(view, spec: spec, logicalSize: spec.logicalSize);
   }
 
-  /// 除 glance/netWorth/quickAdd/budget 外其余类型(recent/dashboard,待后续
-  /// 提交逐个补 View)的"取数但不渲染"占位路径。
+  /// 渲染最近交易(recent):中/大两档,均已接 [RecentView] 真实视图。
+  Future<void> _renderRecent(
+    WidgetSpec spec, {
+    required BaseRepository repository,
+    required int ledgerId,
+    required Color themeColor,
+    required bool redForIncome,
+    required bool dark,
+    required String uncategorizedLabel,
+    required String emptyLabel,
+  }) async {
+    // large 更高,多展示几笔(见 RecentView 文档:medium 前 3 笔,large 前
+    // 6 笔)。
+    final limit = spec.size == HWSize.large ? 6 : 3;
+    final items = await WidgetDataService.gatherRecent(
+      repository: repository,
+      ledgerId: ledgerId,
+      limit: limit,
+    );
+    // 交易金额格式化优先用交易自身 currencyCode,这里只是缺失时的兜底
+    // (账本自身币种,与 budget 用同一个 gatherLedgerCurrency)。
+    final defaultCurrency = await WidgetDataService.gatherLedgerCurrency(
+      repository: repository,
+      ledgerId: ledgerId,
+    );
+
+    final view = RecentView(
+      size: spec.size,
+      items: items,
+      defaultCurrency: defaultCurrency,
+      themeColor: themeColor,
+      redForIncome: redForIncome,
+      dark: dark,
+      uncategorizedLabel: uncategorizedLabel,
+      emptyLabel: emptyLabel,
+      width: spec.logicalSize.width,
+      height: spec.logicalSize.height,
+    );
+
+    await _renderView(view, spec: spec, logicalSize: spec.logicalSize);
+  }
+
+  /// 除 glance/netWorth/quickAdd/budget/recent 外其余类型(dashboard,待后续
+  /// 提交补 View)的"取数但不渲染"占位路径。
   Future<void> _gatherAndSkip(
     WidgetSpec spec, {
     required BaseRepository repository,
@@ -528,10 +592,7 @@ class WidgetManager {
         // 不会走到这里(budget 已在 _renderSpec 分派到 _renderBudget)。
         return;
       case HWType.recent:
-        await WidgetDataService.gatherRecent(
-          repository: repository,
-          ledgerId: ledgerId,
-        );
+        // 不会走到这里(recent 已在 _renderSpec 分派到 _renderRecent)。
         return;
       case HWType.dashboard:
         await WidgetDataService.gatherDashboard(
