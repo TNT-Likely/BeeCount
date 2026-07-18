@@ -9,6 +9,7 @@ import '../services/system/logger_service.dart';
 import '../utils/net_worth_trend_utils.dart' show trendTodayAnchor;
 import 'views/glance_view.dart';
 import 'views/net_worth_view.dart';
+import 'views/quick_add_view.dart';
 import 'widget_data_service.dart';
 import 'widget_spec.dart';
 
@@ -100,6 +101,9 @@ class WidgetManager {
     String netWorthLabel = '净资产',
     String totalAssetsLabel = '总资产',
     String totalLiabilitiesLabel = '总负债',
+    // 快速记账「记一笔」按钮文案。l10n 暂无独立 key。
+    // TODO(i18n): Phase C 补三语 arb key。
+    String quickAddLabel = '记一笔',
   }) async {
     try {
       final specs = await _resolveSpecsToRender();
@@ -135,6 +139,7 @@ class WidgetManager {
             netWorthLabel: netWorthLabel,
             totalAssetsLabel: totalAssetsLabel,
             totalLiabilitiesLabel: totalLiabilitiesLabel,
+            quickAddLabel: quickAddLabel,
           );
         } catch (e, st) {
           // 单个 spec 渲染失败不应阻断其余 spec。
@@ -196,6 +201,7 @@ class WidgetManager {
     required String netWorthLabel,
     required String totalAssetsLabel,
     required String totalLiabilitiesLabel,
+    required String quickAddLabel,
   }) async {
     switch (spec.type) {
       case HWType.glance:
@@ -229,13 +235,21 @@ class WidgetManager {
         );
         return;
       case HWType.quickAdd:
+        await _renderQuickAdd(
+          spec,
+          repository: repository,
+          ledgerId: ledgerId,
+          themeColor: themeColor,
+          dark: dark,
+          addLabel: quickAddLabel,
+        );
+        return;
       case HWType.budget:
       case HWType.recent:
       case HWType.dashboard:
-        // 视图待 Phase B2b(quickAdd 已有数据层,budget/recent/dashboard
-        // 同样已在 Phase B1 打通取数);这里只把取数链路跑一遍验证可用,不做
-        // 渲染。异常会被 updateAllWidgets 调用处的 try/catch 捕获,不影响
-        // 其它 spec。
+        // 视图待 Phase B2b(budget/recent/dashboard 已在 Phase B1 打通
+        // 取数);这里只把取数链路跑一遍验证可用,不做渲染。异常会被
+        // updateAllWidgets 调用处的 try/catch 捕获,不影响其它 spec。
         await _gatherAndSkip(
           spec,
           repository: repository,
@@ -384,7 +398,39 @@ class WidgetManager {
     await _renderView(view, spec: spec, logicalSize: spec.logicalSize);
   }
 
-  /// 除 glance/netWorth 外其余类型(P2 起会逐个补 View)的"取数但不渲染"占位路径。
+  /// 渲染快速记账(quickAdd):小/中两档,均已接 [QuickAddView] 真实视图。
+  Future<void> _renderQuickAdd(
+    WidgetSpec spec, {
+    required BaseRepository repository,
+    required int ledgerId,
+    required Color themeColor,
+    required bool dark,
+    required String addLabel,
+  }) async {
+    // medium 更宽,多展示一个分类格(见 QuickAddView 文档:small 前 3 个 +
+    // 记一笔,medium 前 4 个 + 记一笔)。
+    final limit = spec.size == HWSize.medium ? 4 : 3;
+    final categories = await WidgetDataService.gatherQuickAddCategories(
+      repository: repository,
+      ledgerId: ledgerId,
+      limit: limit,
+    );
+
+    final view = QuickAddView(
+      size: spec.size,
+      categories: categories,
+      themeColor: themeColor,
+      dark: dark,
+      addLabel: addLabel,
+      width: spec.logicalSize.width,
+      height: spec.logicalSize.height,
+    );
+
+    await _renderView(view, spec: spec, logicalSize: spec.logicalSize);
+  }
+
+  /// 除 glance/netWorth/quickAdd 外其余类型(P2 起会逐个补 View)的"取数但不
+  /// 渲染"占位路径。
   Future<void> _gatherAndSkip(
     WidgetSpec spec, {
     required BaseRepository repository,
@@ -399,10 +445,7 @@ class WidgetManager {
         // 不会走到这里(netWorth 已在 _renderSpec 分派到 _renderNetWorth)。
         return;
       case HWType.quickAdd:
-        await WidgetDataService.gatherQuickAddCategories(
-          repository: repository,
-          ledgerId: ledgerId,
-        );
+        // 不会走到这里(quickAdd 已在 _renderSpec 分派到 _renderQuickAdd)。
         return;
       case HWType.budget:
         await WidgetDataService.gatherBudget(
