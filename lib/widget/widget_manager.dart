@@ -83,6 +83,11 @@ class WidgetManager {
     String todayIncomeLabel = '今日收入',
     String monthExpenseLabel = '本月支出',
     String monthIncomeLabel = '本月收入',
+    // 净资产系列(netWorth/dashboard)折算用的主币种,默认 'CNY' 兜底旧调用方
+    // (见 currency_providers.dart 的 baseCurrencyProvider)。本阶段(Phase B1)
+    // 调用处尚未逐个接入真实值——取到的数据当前只用于验证取数链路(见
+    // _gatherForType),真正显示给用户要等 Phase B2 补 View 时一并接上。
+    String baseCurrency = 'CNY',
   }) async {
     try {
       final specs = await _resolveSpecsToRender();
@@ -105,6 +110,7 @@ class WidgetManager {
             todayIncomeLabel: todayIncomeLabel,
             monthExpenseLabel: monthExpenseLabel,
             monthIncomeLabel: monthIncomeLabel,
+            baseCurrency: baseCurrency,
           );
         } catch (e, st) {
           // 单个 spec 渲染失败不应阻断其余 spec(P2 起会有多个真实类型)。
@@ -159,14 +165,23 @@ class WidgetManager {
     required String todayIncomeLabel,
     required String monthExpenseLabel,
     required String monthIncomeLabel,
+    required String baseCurrency,
   }) async {
     if (spec != WidgetSpec.glanceMedium) {
-      // 本阶段(P1)只有现有的收支速览中号(glance-medium)接了真实取数与
-      // 视图;其余类型(含 glance-small)留给 Phase B(P2)统一落地,见
-      // .docs/home-widget/plan.md §三 P2。
+      // 其余类型(含 glance-small)尚无 View 实现,渲染留给 Phase B2(见
+      // .docs/home-widget/plan.md §三 P2)。数据层(gather* + repo 方法)已在
+      // Phase B1 落地——这里按 spec.type 把对应数据取一遍,验证取数链路可用;
+      // 取到的数据目前用不上(没有 View 消费),不接渲染。异常会被
+      // updateAllWidgets 调用处的 try/catch 捕获,不影响其它 spec。
+      await _gatherForType(
+        spec,
+        repository: repository,
+        ledgerId: ledgerId,
+        baseCurrency: baseCurrency,
+      );
       logger.debug(
         _tag,
-        '${spec.imageKey} 对应类型/尺寸尚未实现取数与视图(见 Phase B/P2),跳过渲染',
+        '${spec.imageKey} 数据已就绪(Phase B1),视图待 Phase B2,跳过渲染',
       );
       return;
     }
@@ -216,6 +231,58 @@ class WidgetManager {
 
     final savedPath = await HomeWidget.getWidgetData<String>(spec.imageKey);
     logger.debug(_tag, '${spec.imageKey} 渲染完成,保存路径: $savedPath');
+  }
+
+  /// 按 [spec] 的 [HWType] 分派到对应的 `WidgetDataService.gather*`(Phase B1
+  /// 落地的数据层,见 `.docs/home-widget/plan.md` §一.3)。除
+  /// [WidgetSpec.glanceMedium] 外目前都还没有 View 消费这份数据——这里只是把
+  /// 取数链路跑通,为 Phase B2 补 View 时铺路,不做任何渲染或返回值处理。
+  Future<void> _gatherForType(
+    WidgetSpec spec, {
+    required BaseRepository repository,
+    required int ledgerId,
+    required String baseCurrency,
+  }) async {
+    switch (spec.type) {
+      case HWType.glance:
+        // glance-small:取数逻辑与 glance-medium 相同,View 待 Phase B2。
+        await WidgetDataService.gatherGlance(
+          repository: repository,
+          ledgerId: ledgerId,
+        );
+        return;
+      case HWType.netWorth:
+        await WidgetDataService.gatherNetWorthBreakdown(
+          repository: repository,
+          baseCurrency: baseCurrency,
+        );
+        return;
+      case HWType.quickAdd:
+        await WidgetDataService.gatherQuickAddCategories(
+          repository: repository,
+          ledgerId: ledgerId,
+        );
+        return;
+      case HWType.budget:
+        await WidgetDataService.gatherBudget(
+          repository: repository,
+          ledgerId: ledgerId,
+        );
+        return;
+      case HWType.recent:
+        await WidgetDataService.gatherRecent(
+          repository: repository,
+          ledgerId: ledgerId,
+        );
+        return;
+      case HWType.dashboard:
+        await WidgetDataService.gatherDashboard(
+          repository: repository,
+          ledgerId: ledgerId,
+          baseCurrency: baseCurrency,
+        );
+        return;
+    }
   }
 
   /// Register widget update callback
