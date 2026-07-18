@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
 import '../data/repositories/base_repository.dart';
 import '../services/system/logger_service.dart';
-import 'home_widget_view.dart';
+import 'views/glance_view.dart';
 import 'widget_data_service.dart';
 import 'widget_spec.dart';
 
@@ -63,15 +65,13 @@ class WidgetManager {
     decimalDigits: 2,
   );
 
-  /// 渲染管线入口(P1 重构):以前的 `updateWidget()` 固定只渲一张
-  /// `widgetImage`;现在按 [WidgetSpec] 目录逐个处理,只渲染用户"已安装"
-  /// (已放置到桌面)的组件,再统一触发原生刷新。
+  /// 渲染管线入口:按 [WidgetSpec] 目录逐个处理,只渲染用户"已安装"(已放置
+  /// 到桌面)的组件,再统一触发原生刷新。
   ///
-  /// **本阶段(P1)只有 glance-medium 接了真实取数/视图**(从旧
-  /// `updateWidget()` 迁移到 [WidgetDataService.gatherGlance] +
-  /// [HomeWidgetView]);其余类型(netWorth/quickAdd/budget/recent/
-  /// dashboard,含 glance-small)的取数与视图留给 Phase B(P2),遇到时会
-  /// 直接跳过渲染,不是本阶段的回归。
+  /// **Phase B2a 现状**:glance(小/中)已接真实视图([GlanceView]);
+  /// netWorth/quickAdd/budget/recent/dashboard 的取数链路已就绪
+  /// (Phase B1),但视图仍留给后续阶段(Phase B2b),遇到时直接跳过渲染,
+  /// 不是回归。
   Future<void> updateAllWidgets(
     BaseRepository repository,
     int ledgerId,
@@ -83,10 +83,12 @@ class WidgetManager {
     String todayIncomeLabel = '今日收入',
     String monthExpenseLabel = '本月支出',
     String monthIncomeLabel = '本月收入',
+    // GlanceView.small 专用的"今日"徽章文案。l10n 暂无独立"今日"key(只有
+    // "今日支出"/"今日收入"整词),先用中文默认值占位。
+    // TODO(i18n): Phase C 补三语 arb key。
+    String todayLabel = '今日',
     // 净资产系列(netWorth/dashboard)折算用的主币种,默认 'CNY' 兜底旧调用方
-    // (见 currency_providers.dart 的 baseCurrencyProvider)。本阶段(Phase B1)
-    // 调用处尚未逐个接入真实值——取到的数据当前只用于验证取数链路(见
-    // _gatherForType),真正显示给用户要等 Phase B2 补 View 时一并接上。
+    // (见 currency_providers.dart 的 baseCurrencyProvider)。
     String baseCurrency = 'CNY',
   }) async {
     try {
@@ -96,6 +98,13 @@ class WidgetManager {
         return;
       }
 
+      // 图片渲染方案不会随系统明暗切换自动重绘(见 widget_view_style.dart
+      // 顶部注释);这里在一次渲染批次开始时取一次当前系统明暗,批次内所有
+      // spec 共用同一个值,避免逐个 spec 重复读取平台通道。"更及时跟随系统
+      // 切换"的触发时机留 Phase C。
+      final dark =
+          PlatformDispatcher.instance.platformBrightness == Brightness.dark;
+
       for (final spec in specs) {
         try {
           await _renderSpec(
@@ -104,8 +113,10 @@ class WidgetManager {
             ledgerId: ledgerId,
             themeColor: themeColor,
             redForIncome: redForIncome,
+            dark: dark,
             appName: appName,
             monthSuffix: monthSuffix,
+            todayLabel: todayLabel,
             todayExpenseLabel: todayExpenseLabel,
             todayIncomeLabel: todayIncomeLabel,
             monthExpenseLabel: monthExpenseLabel,
@@ -113,7 +124,7 @@ class WidgetManager {
             baseCurrency: baseCurrency,
           );
         } catch (e, st) {
-          // 单个 spec 渲染失败不应阻断其余 spec(P2 起会有多个真实类型)。
+          // 单个 spec 渲染失败不应阻断其余 spec。
           logger.error(_tag, '渲染 ${spec.imageKey} 失败,跳过', e, st);
         }
       }
@@ -153,91 +164,141 @@ class WidgetManager {
     return selectSpecsToRender(matchInstalledSpecs(infos));
   }
 
+  /// 按 [spec] 的 [HWType] 分派到对应的取数 + 渲染。
   Future<void> _renderSpec(
     WidgetSpec spec, {
     required BaseRepository repository,
     required int ledgerId,
     required Color themeColor,
     required bool redForIncome,
+    required bool dark,
     required String appName,
     required String monthSuffix,
+    required String todayLabel,
     required String todayExpenseLabel,
     required String todayIncomeLabel,
     required String monthExpenseLabel,
     required String monthIncomeLabel,
     required String baseCurrency,
   }) async {
-    if (spec != WidgetSpec.glanceMedium) {
-      // 其余类型(含 glance-small)尚无 View 实现,渲染留给 Phase B2(见
-      // .docs/home-widget/plan.md §三 P2)。数据层(gather* + repo 方法)已在
-      // Phase B1 落地——这里按 spec.type 把对应数据取一遍,验证取数链路可用;
-      // 取到的数据目前用不上(没有 View 消费),不接渲染。异常会被
-      // updateAllWidgets 调用处的 try/catch 捕获,不影响其它 spec。
-      await _gatherForType(
-        spec,
-        repository: repository,
-        ledgerId: ledgerId,
-        baseCurrency: baseCurrency,
-      );
-      logger.debug(
-        _tag,
-        '${spec.imageKey} 数据已就绪(Phase B1),视图待 Phase B2,跳过渲染',
-      );
-      return;
+    switch (spec.type) {
+      case HWType.glance:
+        await _renderGlance(
+          spec,
+          repository: repository,
+          ledgerId: ledgerId,
+          themeColor: themeColor,
+          redForIncome: redForIncome,
+          dark: dark,
+          appName: appName,
+          monthSuffix: monthSuffix,
+          todayLabel: todayLabel,
+          todayExpenseLabel: todayExpenseLabel,
+          todayIncomeLabel: todayIncomeLabel,
+          monthExpenseLabel: monthExpenseLabel,
+          monthIncomeLabel: monthIncomeLabel,
+        );
+        return;
+      case HWType.netWorth:
+      case HWType.quickAdd:
+      case HWType.budget:
+      case HWType.recent:
+      case HWType.dashboard:
+        // 视图待 Phase B2b(netWorth/quickAdd 已有数据层,budget/recent/
+        // dashboard 同样已在 Phase B1 打通取数);这里只把取数链路跑一遍
+        // 验证可用,不做渲染。异常会被 updateAllWidgets 调用处的 try/catch
+        // 捕获,不影响其它 spec。
+        await _gatherAndSkip(
+          spec,
+          repository: repository,
+          ledgerId: ledgerId,
+          baseCurrency: baseCurrency,
+        );
+        logger.debug(
+          _tag,
+          '${spec.imageKey} 数据已就绪,视图待 Phase B2b,跳过渲染',
+        );
+        return;
     }
+  }
 
+  /// 渲染收支速览(glance):小/中两档,均已接 [GlanceView] 真实视图。
+  Future<void> _renderGlance(
+    WidgetSpec spec, {
+    required BaseRepository repository,
+    required int ledgerId,
+    required Color themeColor,
+    required bool redForIncome,
+    required bool dark,
+    required String appName,
+    required String monthSuffix,
+    required String todayLabel,
+    required String todayExpenseLabel,
+    required String todayIncomeLabel,
+    required String monthExpenseLabel,
+    required String monthIncomeLabel,
+  }) async {
     final data = await WidgetDataService.gatherGlance(
       repository: repository,
       ledgerId: ledgerId,
     );
 
-    // iOS systemMedium 与 Android 2:1 网格的宽高比不同,渲染尺寸沿用升级前
-    // 的平台分叉逻辑,不直接使用 spec.logicalSize——避免改变现有原生壳对
-    // 图片像素尺寸的假设,属 D2 back-compat 的一部分。
-    final widgetSize = Platform.isIOS
-        ? const Size(364, 169) // iOS systemMedium
-        : const Size(364, 182); // Android 2:1 比例(364/2=182)
+    final todayExpense = _currencyFormat.format(data.todayExpenseTotal);
+    final todayIncome = _currencyFormat.format(data.todayIncomeTotal);
+    final monthExpense = _currencyFormat.format(data.monthExpenseTotal);
+    final monthIncome = _currencyFormat.format(data.monthIncomeTotal);
 
-    logger.debug(
-      _tag,
-      '渲染 ${spec.imageKey} - Platform: ${Platform.isIOS ? "iOS" : "Android"}, '
-      'Size: ${widgetSize.width}x${widgetSize.height}',
-    );
+    late final Widget view;
+    late final Size renderSize;
 
-    await HomeWidget.renderFlutterWidget(
-      HomeWidgetView(
-        todayExpense: _currencyFormat.format(data.todayExpenseTotal),
-        todayIncome: _currencyFormat.format(data.todayIncomeTotal),
-        monthExpense: _currencyFormat.format(data.monthExpenseTotal),
-        monthIncome: _currencyFormat.format(data.monthIncomeTotal),
+    if (spec.size == HWSize.small) {
+      // 小号两平台同一个方形尺寸,不需要 iOS/Android 分叉。
+      renderSize = spec.logicalSize;
+      view = GlanceView.small(
+        todayExpense: todayExpense,
+        monthExpense: monthExpense,
+        monthIncome: monthIncome,
         themeColor: themeColor,
         redForIncome: redForIncome,
+        dark: dark,
+        todayLabel: todayLabel,
+        todayExpenseLabel: todayExpenseLabel,
+        monthExpenseLabel: monthExpenseLabel,
+        monthIncomeLabel: monthIncomeLabel,
+        width: renderSize.width,
+        height: renderSize.height,
+      );
+    } else {
+      // iOS systemMedium 与 Android 2:1 网格的宽高比不同,渲染尺寸沿用
+      // 升级前的平台分叉逻辑,不直接使用 spec.logicalSize——避免改变现有
+      // 原生壳对图片像素尺寸的假设,属 D2 back-compat 的一部分。
+      renderSize = Platform.isIOS
+          ? const Size(364, 169) // iOS systemMedium
+          : const Size(364, 182); // Android 2:1 比例(364/2=182)
+      view = GlanceView.medium(
+        todayExpense: todayExpense,
+        todayIncome: todayIncome,
+        monthExpense: monthExpense,
+        monthIncome: monthIncome,
+        themeColor: themeColor,
+        redForIncome: redForIncome,
+        dark: dark,
         appName: appName,
         monthSuffix: monthSuffix,
         todayExpenseLabel: todayExpenseLabel,
         todayIncomeLabel: todayIncomeLabel,
         monthExpenseLabel: monthExpenseLabel,
         monthIncomeLabel: monthIncomeLabel,
-        width: widgetSize.width,
-        height: widgetSize.height,
-      ),
-      // spec.imageKey 对 glance-medium 特判为 'widgetImage'(D2 back-compat,
-      // 详见 WidgetSpec.imageKey 注释),其余新 spec 才是 'widget_<type>_<size>'。
-      key: spec.imageKey,
-      logicalSize: widgetSize,
-      // 由 4.0 降为 3.0:更省内存,对 iOS 30MB widget 进程内存上限更友好。
-      pixelRatio: 3.0,
-    );
+        width: renderSize.width,
+        height: renderSize.height,
+      );
+    }
 
-    final savedPath = await HomeWidget.getWidgetData<String>(spec.imageKey);
-    logger.debug(_tag, '${spec.imageKey} 渲染完成,保存路径: $savedPath');
+    await _renderView(view, spec: spec, logicalSize: renderSize);
   }
 
-  /// 按 [spec] 的 [HWType] 分派到对应的 `WidgetDataService.gather*`(Phase B1
-  /// 落地的数据层,见 `.docs/home-widget/plan.md` §一.3)。除
-  /// [WidgetSpec.glanceMedium] 外目前都还没有 View 消费这份数据——这里只是把
-  /// 取数链路跑通,为 Phase B2 补 View 时铺路,不做任何渲染或返回值处理。
-  Future<void> _gatherForType(
+  /// 除 glance 外其余类型(P2 起会逐个补 View)的"取数但不渲染"占位路径。
+  Future<void> _gatherAndSkip(
     WidgetSpec spec, {
     required BaseRepository repository,
     required int ledgerId,
@@ -245,11 +306,7 @@ class WidgetManager {
   }) async {
     switch (spec.type) {
       case HWType.glance:
-        // glance-small:取数逻辑与 glance-medium 相同,View 待 Phase B2。
-        await WidgetDataService.gatherGlance(
-          repository: repository,
-          ledgerId: ledgerId,
-        );
+        // 不会走到这里(glance 已在 _renderSpec 分派到 _renderGlance)。
         return;
       case HWType.netWorth:
         await WidgetDataService.gatherNetWorthBreakdown(
@@ -283,6 +340,32 @@ class WidgetManager {
         );
         return;
     }
+  }
+
+  /// 统一的"渲染 + 落盘日志"收尾,供各类型渲染方法复用。
+  Future<void> _renderView(
+    Widget view, {
+    required WidgetSpec spec,
+    required Size logicalSize,
+  }) async {
+    logger.debug(
+      _tag,
+      '渲染 ${spec.imageKey} - Platform: ${Platform.isIOS ? "iOS" : "Android"}, '
+      'Size: ${logicalSize.width}x${logicalSize.height}',
+    );
+
+    await HomeWidget.renderFlutterWidget(
+      view,
+      // spec.imageKey 对 glance-medium 特判为 'widgetImage'(D2 back-compat,
+      // 详见 WidgetSpec.imageKey 注释),其余新 spec 才是 'widget_<type>_<size>'。
+      key: spec.imageKey,
+      logicalSize: logicalSize,
+      // 由 4.0 降为 3.0:更省内存,对 iOS 30MB widget 进程内存上限更友好。
+      pixelRatio: 3.0,
+    );
+
+    final savedPath = await HomeWidget.getWidgetData<String>(spec.imageKey);
+    logger.debug(_tag, '${spec.imageKey} 渲染完成,保存路径: $savedPath');
   }
 
   /// Register widget update callback
