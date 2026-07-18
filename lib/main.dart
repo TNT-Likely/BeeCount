@@ -175,6 +175,7 @@ class _WidgetUpdateObserver extends ProviderObserver {
       final ledgerId = container.read(currentLedgerIdProvider);
       final primaryColor = container.read(primaryColorProvider);
       final redForIncome = container.read(incomeExpenseColorSchemeProvider);
+      final baseCurrency = container.read(baseCurrencyProvider);
 
       final widgetManager = WidgetManager();
       await widgetManager.updateAllWidgets(
@@ -182,6 +183,7 @@ class _WidgetUpdateObserver extends ProviderObserver {
         ledgerId,
         primaryColor,
         redForIncome: redForIncome,
+        baseCurrency: baseCurrency,
       );
 
       logger.info('App', '小组件数据已更新');

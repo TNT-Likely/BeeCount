@@ -18,6 +18,7 @@ Future<void> updateAppWidget(WidgetRef ref, BuildContext context) async {
     final currentLedgerId = ref.read(currentLedgerIdProvider);
     final primaryColor = ref.read(primaryColorProvider);
     final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
+    final baseCurrency = ref.read(baseCurrencyProvider);
 
     final widgetManager = ref.read(widgetManagerProvider);
     await widgetManager.updateAllWidgets(
@@ -31,6 +32,13 @@ Future<void> updateAppWidget(WidgetRef ref, BuildContext context) async {
       todayIncomeLabel: l10n.widgetTodayIncome,
       monthExpenseLabel: l10n.widgetMonthExpense,
       monthIncomeLabel: l10n.widgetMonthIncome,
+      baseCurrency: baseCurrency,
+      // 净资产视图文案:三个 key 均已有对应 arb,这里是唯一有 l10n 可用的
+      // 调用点,其余调用点(app.dart/main.dart/theme_providers.dart/
+      // ledgers_page_new.dart)沿用 WidgetManager 默认值兜底。
+      netWorthLabel: l10n.accountTotalBalance,
+      totalAssetsLabel: l10n.totalAssets,
+      totalLiabilitiesLabel: l10n.totalLiabilities,
     );
   } catch (e) {
     // Silently fail to avoid disrupting the app

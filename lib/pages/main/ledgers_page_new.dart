@@ -760,6 +760,7 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
         ledger.id,
         ref.read(primaryColorProvider),
         redForIncome: redForIncome,
+        baseCurrency: ref.read(baseCurrencyProvider),
       );
     } catch (_) {}
   }

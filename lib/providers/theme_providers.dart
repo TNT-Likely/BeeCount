@@ -69,12 +69,14 @@ final primaryColorInitProvider = FutureProvider<void>((ref) async {
       final repository = ref.read(repositoryProvider);
       final currentLedgerId = ref.read(currentLedgerIdProvider);
       final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
+      final baseCurrency = ref.read(baseCurrencyProvider);
       final widgetManager = WidgetManager();
       await widgetManager.updateAllWidgets(
         repository,
         currentLedgerId,
         next,
         redForIncome: redForIncome,
+        baseCurrency: baseCurrency,
       );
     } catch (e) {
       // Silently fail
@@ -372,12 +374,14 @@ final incomeExpenseColorSchemeInitProvider = FutureProvider<void>((ref) async {
       final repository = ref.read(repositoryProvider);
       final currentLedgerId = ref.read(currentLedgerIdProvider);
       final primaryColor = ref.read(primaryColorProvider);
+      final baseCurrency = ref.read(baseCurrencyProvider);
       final widgetManager = WidgetManager();
       await widgetManager.updateAllWidgets(
         repository,
         currentLedgerId,
         primaryColor,
         redForIncome: next,
+        baseCurrency: baseCurrency,
       );
     } catch (e) {
       // Silently fail

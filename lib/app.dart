@@ -693,6 +693,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
       final ledgerId = ref.read(currentLedgerIdProvider);
       final primaryColor = ref.read(primaryColorProvider);
       final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
+      final baseCurrency = ref.read(baseCurrencyProvider);
 
       final widgetManager = WidgetManager();
       await widgetManager.updateAllWidgets(
@@ -700,6 +701,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
         ledgerId,
         primaryColor,
         redForIncome: redForIncome,
+        baseCurrency: baseCurrency,
       );
       logger.info('App', 'App恢复前台，小组件数据已更新');
     } catch (e) {
