@@ -117,12 +117,19 @@ extension SharedLedgerPickerFilter on BeeDatabase {
   }
 
   /// 拿 picker 用的 accounts。规则同 categories。
+  ///
+  /// 账户隐藏(#240):单人账本 / Owner 视角(早退分支)排除 `hidden` 账户 ——
+  /// 该分支返回的是主表 raw 账户,记账 [AccountSelector] 与转账 [transfer_form]
+  /// 共用本方法,一处生效两处。共享账本 Editor 分支(SharedLedgerAccounts 镜像)
+  /// 没有 hidden 概念(隐藏是 Owner 侧个人状态,不随镜像同步),不过滤。
+  /// 编辑历史交易时"钉住"已隐藏账户(E1)留给调用方在拿到结果后自行补回,本
+  /// 方法不感知调用场景。
   Future<List<Account>> filterAccountsForLedger(
     List<Account> all,
     LedgerPickerContext? ctx,
   ) async {
     if (ctx == null || !ctx.isEditorInShared || ctx.ledgerSyncId == null) {
-      return all;
+      return all.where((a) => !a.hidden).toList();
     }
     final shared = await (select(sharedLedgerAccounts)
           ..where((t) => t.ledgerSyncId.equals(ctx.ledgerSyncId!)))
