@@ -755,10 +755,14 @@ class _BeeAppState extends ConsumerState<BeeApp>
       final baseCurrency = ref.read(baseCurrencyProvider);
 
       final widgetManager = WidgetManager();
-      await widgetManager.updateAllWidgets(
+      // 前台恢复路径也走本地化封装,让小组件文案跟随 App 语言(与
+      // main.dart / theme_providers 等无 context 调用点一致,靠 languageProvider
+      // 还原 locale,不依赖 async 后可能失效的 BuildContext)。
+      await widgetManager.updateAllWidgetsLocalized(
         repository,
         ledgerId,
         primaryColor,
+        explicitLocale: ref.read(languageProvider),
         redForIncome: redForIncome,
         baseCurrency: baseCurrency,
       );
