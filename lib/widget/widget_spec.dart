@@ -51,6 +51,21 @@ class WidgetSpec {
 
   /// Android `AppWidgetProvider` 完整类名(对应
   /// [HomeWidgetInfo.androidClassName]),仅已注册类型有值。
+  ///
+  /// **已知局限(Phase E)**:Android 原生壳没有 iOS WidgetKit 那种按
+  /// family 自动分发的机制,`netWorth`/`quickAdd`/`budget`/`recent` 四个
+  /// 多尺寸类型在 Android 上是"一个 provider 类名对应多个尺寸 spec"
+  /// (如 `netWorthSmall`/`netWorthMedium`/`netWorthLarge` 三个 spec 共用
+  /// `BeeCountNetWorthWidgetProvider`)。而 [matchInstalled] 目前只按
+  /// `androidClassName` 精确匹配、不感知实际尺寸,同一类名命中时永远返回
+  /// [catalog] 里排在最前的那个尺寸(即该类型的 small,或 `recent` 的
+  /// medium)。也就是说 Android 侧「渲染管线只渲已安装 spec」这一步,对这
+  /// 四个类型目前可能只会渲染出最小档尺寸的图片,即使用户桌面上实际把
+  /// widget 拉到了更大的尺寸——原生壳(`BeeCountXxxWidgetProvider.kt`)自身
+  /// 会按 `AppWidgetManager.getAppWidgetOptions` 读到的真实尺寸选图片 key,
+  /// 但前提是 Dart 渲染管线得先把对应尺寸的图渲染出来并写入共享存储。
+  /// 修复需要让 [matchInstalled] 感知 Android 的实际尺寸(如通过
+  /// `HomeWidgetInfo` 携带尺寸信息按 provider 类名分桶),不在本阶段范围。
   final String? androidClassName;
 
   const WidgetSpec._({
@@ -105,6 +120,7 @@ class WidgetSpec {
     logicalSize: Size(155, 155),
     iosKind: 'BeeCountNetWorthWidget',
     iosFamily: 'systemSmall',
+    androidClassName: 'com.tntlikely.beecount.BeeCountNetWorthWidgetProvider',
   );
   static const netWorthMedium = WidgetSpec._(
     type: HWType.netWorth,
@@ -112,6 +128,7 @@ class WidgetSpec {
     logicalSize: Size(364, 169),
     iosKind: 'BeeCountNetWorthWidget',
     iosFamily: 'systemMedium',
+    androidClassName: 'com.tntlikely.beecount.BeeCountNetWorthWidgetProvider',
   );
   static const netWorthLarge = WidgetSpec._(
     type: HWType.netWorth,
@@ -119,6 +136,7 @@ class WidgetSpec {
     logicalSize: Size(364, 382),
     iosKind: 'BeeCountNetWorthWidget',
     iosFamily: 'systemLarge',
+    androidClassName: 'com.tntlikely.beecount.BeeCountNetWorthWidgetProvider',
   );
 
   // ---- 快速记账(quickAdd):小/中 ----
@@ -130,6 +148,7 @@ class WidgetSpec {
     logicalSize: Size(155, 155),
     iosKind: 'BeeCountQuickAddWidget',
     iosFamily: 'systemSmall',
+    androidClassName: 'com.tntlikely.beecount.BeeCountQuickAddWidgetProvider',
   );
   static const quickAddMedium = WidgetSpec._(
     type: HWType.quickAdd,
@@ -137,6 +156,7 @@ class WidgetSpec {
     logicalSize: Size(364, 169),
     iosKind: 'BeeCountQuickAddWidget',
     iosFamily: 'systemMedium',
+    androidClassName: 'com.tntlikely.beecount.BeeCountQuickAddWidgetProvider',
   );
 
   // ---- 预算进度(budget):小/中 ----
@@ -148,6 +168,7 @@ class WidgetSpec {
     logicalSize: Size(155, 155),
     iosKind: 'BeeCountBudgetWidget',
     iosFamily: 'systemSmall',
+    androidClassName: 'com.tntlikely.beecount.BeeCountBudgetWidgetProvider',
   );
   static const budgetMedium = WidgetSpec._(
     type: HWType.budget,
@@ -155,6 +176,7 @@ class WidgetSpec {
     logicalSize: Size(364, 169),
     iosKind: 'BeeCountBudgetWidget',
     iosFamily: 'systemMedium',
+    androidClassName: 'com.tntlikely.beecount.BeeCountBudgetWidgetProvider',
   );
 
   // ---- 最近交易(recent):中/大 ----
@@ -166,6 +188,7 @@ class WidgetSpec {
     logicalSize: Size(364, 169),
     iosKind: 'BeeCountRecentWidget',
     iosFamily: 'systemMedium',
+    androidClassName: 'com.tntlikely.beecount.BeeCountRecentWidgetProvider',
   );
   static const recentLarge = WidgetSpec._(
     type: HWType.recent,
@@ -173,6 +196,7 @@ class WidgetSpec {
     logicalSize: Size(364, 382),
     iosKind: 'BeeCountRecentWidget',
     iosFamily: 'systemLarge',
+    androidClassName: 'com.tntlikely.beecount.BeeCountRecentWidgetProvider',
   );
 
   // ---- 综合仪表盘(dashboard):仅大 ----
@@ -184,6 +208,7 @@ class WidgetSpec {
     logicalSize: Size(364, 382),
     iosKind: 'BeeCountDashboardWidget',
     iosFamily: 'systemLarge',
+    androidClassName: 'com.tntlikely.beecount.BeeCountDashboardWidgetProvider',
   );
 
   /// 全部合法 (type, size) 组合的目录(见 plan.md §二逐组件 spec)。
