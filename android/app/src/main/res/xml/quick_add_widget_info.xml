@@ -2,8 +2,6 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="155dp"
     android:minHeight="155dp"
-    android:targetCellWidth="2"
-    android:targetCellHeight="2"
     android:maxResizeWidth="364dp"
     android:maxResizeHeight="169dp"
     android:updatePeriodMillis="1800000"
