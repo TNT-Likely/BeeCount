@@ -250,6 +250,31 @@ class WidgetSpec {
     return null;
   }
 
+  /// 把平台已安装信息映射到 catalog 里**所有应为它渲染**的 spec。
+  ///
+  /// - **iOS**:kind + family 精确匹配(通常一条)——WidgetKit 的
+  ///   `getInstalledWidgets` 带 family,能定位确切尺寸。
+  /// - **Android**:AppWidget 可被用户自由缩放,`getInstalledWidgets` 不带当前
+  ///   尺寸信息,故按 `androidClassName` 命中的类型**返回其全部尺寸 spec**——
+  ///   这样无论用户把组件拉到哪个尺寸,对应尺寸的图都已被渲染管线写入共享
+  ///   存储,原生壳 `resolveImageKey` 按真实尺寸选 key 时不会落空(否则大尺寸
+  ///   会因没渲染出对应图而只显示占位)。代价是 Android 多渲该类型其它尺寸图,
+  ///   可接受。
+  static List<WidgetSpec> matchInstalledAll(HomeWidgetInfo info) {
+    final matched = <WidgetSpec>[];
+    for (final spec in catalog) {
+      final iosHit = spec.iosKind != null &&
+          spec.iosKind == info.iOSKind &&
+          (spec.iosFamily == null || spec.iosFamily == info.iOSFamily);
+      final androidHit = spec.androidClassName != null &&
+          spec.androidClassName == info.androidClassName;
+      if (iosHit || androidHit) {
+        matched.add(spec);
+      }
+    }
+    return matched;
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

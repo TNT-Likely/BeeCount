@@ -86,5 +86,37 @@ void main() {
 
       expect(result, [WidgetSpec.glanceMedium]);
     });
+
+    test('Android 多尺寸类型:一个 provider 类名返回该类型全部尺寸 spec', () {
+      // netWorth 的 Android provider 一个类名对应 small/medium/large 三档;
+      // getInstalledWidgets 不带尺寸,渲染管线要渲全尺寸,保证用户缩放到任意
+      // 尺寸都有对应图(否则大尺寸没渲染出图,原生壳只显示占位)。
+      final infos = [
+        HomeWidgetInfo(
+          androidClassName:
+              'com.tntlikely.beecount.BeeCountNetWorthWidgetProvider',
+          androidWidgetId: 7,
+        ),
+      ];
+
+      final result = matchInstalledSpecs(infos);
+
+      expect(result.toSet(), {
+        WidgetSpec.netWorthSmall,
+        WidgetSpec.netWorthMedium,
+        WidgetSpec.netWorthLarge,
+      });
+    });
+
+    test('iOS 多尺寸类型:kind+family 仍只精确命中单一尺寸(对照 Android)', () {
+      final infos = [
+        HomeWidgetInfo(
+          iOSKind: 'BeeCountNetWorthWidget',
+          iOSFamily: 'systemLarge',
+        ),
+      ];
+
+      expect(matchInstalledSpecs(infos), [WidgetSpec.netWorthLarge]);
+    });
   });
 }

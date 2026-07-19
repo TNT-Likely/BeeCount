@@ -27,8 +27,9 @@ const _tag = 'WidgetManager';
 List<WidgetSpec> matchInstalledSpecs(List<HomeWidgetInfo> infos) {
   final result = <WidgetSpec>[];
   for (final info in infos) {
-    final spec = WidgetSpec.matchInstalled(info);
-    if (spec != null) result.add(spec);
+    // 用 matchInstalledAll:Android 上一个 provider 类名对应多尺寸,返回其全部
+    // 尺寸 spec,保证用户缩放到任意尺寸都有对应图(去重在 selectSpecsToRender)。
+    result.addAll(WidgetSpec.matchInstalledAll(info));
   }
   return result;
 }
