@@ -3951,6 +3951,48 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetPreviewDesc => '小组件会自动显示当前账本的实际数据，主题色跟随应用设置';
 
   @override
+  String get widgetGalleryTitle => '组件库';
+
+  @override
+  String get widgetGalleryDesc => '以下为示例效果，实际将显示当前账本的真实数据，主题色跟随 App 设置';
+
+  @override
+  String get widgetGalleryGlanceTitle => '收支速览';
+
+  @override
+  String get widgetGalleryGlanceDesc => '今日和本月收支一目了然';
+
+  @override
+  String get widgetGalleryNetWorthDesc => '总资产、总负债与净值趋势';
+
+  @override
+  String get widgetGalleryQuickAddTitle => '快速记账';
+
+  @override
+  String get widgetGalleryQuickAddDesc => '常用分类一键速记';
+
+  @override
+  String get widgetGalleryBudgetDesc => '预算进度实时掌握';
+
+  @override
+  String get widgetGalleryRecentDesc => '快速查看最近几笔账单';
+
+  @override
+  String get widgetGalleryDashboardTitle => '综合仪表盘';
+
+  @override
+  String get widgetGalleryDashboardDesc => '收支、趋势与最近交易一屏看尽';
+
+  @override
+  String get widgetSizeSmall => '小号';
+
+  @override
+  String get widgetSizeMedium => '中号';
+
+  @override
+  String get widgetSizeLarge => '大号';
+
+  @override
   String get howToAddWidget => '如何添加小组件';
 
   @override
@@ -11331,6 +11373,48 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get widgetPreviewDesc => '小組件會自動顯示當前帳本的實際數據，主題色跟隨應用設置';
+
+  @override
+  String get widgetGalleryTitle => '組件庫';
+
+  @override
+  String get widgetGalleryDesc => '以下為示例效果，實際將顯示目前帳本的真實資料，主題色跟隨 App 設定';
+
+  @override
+  String get widgetGalleryGlanceTitle => '收支速覽';
+
+  @override
+  String get widgetGalleryGlanceDesc => '今日和本月收支一目了然';
+
+  @override
+  String get widgetGalleryNetWorthDesc => '總資產、總負債與淨值趨勢';
+
+  @override
+  String get widgetGalleryQuickAddTitle => '快速記帳';
+
+  @override
+  String get widgetGalleryQuickAddDesc => '常用分類一鍵速記';
+
+  @override
+  String get widgetGalleryBudgetDesc => '預算進度即時掌握';
+
+  @override
+  String get widgetGalleryRecentDesc => '快速查看最近幾筆帳單';
+
+  @override
+  String get widgetGalleryDashboardTitle => '綜合儀表盤';
+
+  @override
+  String get widgetGalleryDashboardDesc => '收支、趨勢與最近交易一屏看盡';
+
+  @override
+  String get widgetSizeSmall => '小號';
+
+  @override
+  String get widgetSizeMedium => '中號';
+
+  @override
+  String get widgetSizeLarge => '大號';
 
   @override
   String get howToAddWidget => '如何添加小組件';
