@@ -165,6 +165,17 @@
                 android:resource="@xml/budget_widget_info" />
         </receiver>
 
+        <!-- 桌面小组件:最近交易 -->
+        <receiver android:name=".BeeCountRecentWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/recent_widget_info" />
+        </receiver>
+
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
