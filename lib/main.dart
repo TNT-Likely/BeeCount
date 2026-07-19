@@ -176,12 +176,16 @@ class _WidgetUpdateObserver extends ProviderObserver {
       final primaryColor = container.read(primaryColorProvider);
       final redForIncome = container.read(incomeExpenseColorSchemeProvider);
       final baseCurrency = container.read(baseCurrencyProvider);
+      // 没有 BuildContext,靠 languageProvider 还原当前 App 语言(见
+      // widget_manager.dart resolveWidgetLocalizations 文档)。
+      final locale = container.read(languageProvider);
 
       final widgetManager = WidgetManager();
-      await widgetManager.updateAllWidgets(
+      await widgetManager.updateAllWidgetsLocalized(
         repository,
         ledgerId,
         primaryColor,
+        explicitLocale: locale,
         redForIncome: redForIncome,
         baseCurrency: baseCurrency,
       );

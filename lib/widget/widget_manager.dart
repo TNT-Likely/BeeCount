@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
 import '../data/repositories/base_repository.dart';
+import '../l10n/app_localizations.dart';
 import '../services/system/logger_service.dart';
 import '../utils/net_worth_trend_utils.dart' show trendTodayAnchor;
 import 'views/budget_view.dart';
@@ -60,6 +61,46 @@ List<WidgetSpec> selectSpecsToRender(List<WidgetSpec>? installed) {
   return result;
 }
 
+/// 供没有 [BuildContext] 的调用点(`main.dart` 的 `_WidgetUpdateObserver`、
+/// `providers/theme_providers.dart` 的主题色/收支配色监听、
+/// `pages/main/ledgers_page_new.dart` 改账本起始日后的即时刷新)解析当前 App
+/// 语言,拿到与真正 `AppLocalizations.of(context)` 尽量一致的文案实例——
+/// 这些场景改的是主题色/记账周期起始日等与语言无关的东西,但仍应让小组件
+/// 文案跟随 App 当前语言,而不是永远显示 [WidgetManager.updateAllWidgets]
+/// 参数默认值的中文兜底。
+///
+/// [explicitLocale] 应传入 `languageProvider`(`providers/language_provider
+/// .dart`)的当前状态:非 null 表示用户在语言设置页手动选择过语言,直接采用
+/// ——与 `main.dart` `MaterialApp(locale: ref.watch(languageProvider))` 是
+/// 同一个值,选项本身就是 [AppLocalizations.supportedLocales] 的成员,这里
+/// 必然命中下面的精确匹配分支。为 null 表示"跟随系统",退化为只看
+/// `PlatformDispatcher.instance.locale`(系统当前首选 locale)一层匹配——
+/// **已知局限**:不是 Flutter `basicLocaleListResolution` 的完整多候选算法
+/// (不会遍历 `PlatformDispatcher.instance.locales` 整个偏好列表),但已覆盖
+/// 绝大多数真实场景(单一系统语言 UI)。
+///
+/// 匹配不到任何已支持语言时(如系统语言是法语)兜底
+/// `AppLocalizations.supportedLocales.first`(`en`),与 `MaterialApp` 未显式
+/// 提供 `localeListResolutionCallback` 时 Flutter 默认解析算法的兜底结果
+/// 一致,不会抛异常(`lookupAppLocalizations` 对不在 `isSupported` 列表里的
+/// locale 会直接 throw,这里的逐级匹配保证传给它的一定是受支持的 locale)。
+AppLocalizations resolveWidgetLocalizations(Locale? explicitLocale) {
+  final candidate = explicitLocale ?? PlatformDispatcher.instance.locale;
+
+  for (final supported in AppLocalizations.supportedLocales) {
+    if (supported.languageCode == candidate.languageCode &&
+        supported.countryCode == candidate.countryCode) {
+      return lookupAppLocalizations(supported);
+    }
+  }
+  for (final supported in AppLocalizations.supportedLocales) {
+    if (supported.languageCode == candidate.languageCode) {
+      return lookupAppLocalizations(supported);
+    }
+  }
+  return lookupAppLocalizations(AppLocalizations.supportedLocales.first);
+}
+
 class WidgetManager {
   static final WidgetManager _instance = WidgetManager._internal();
   factory WidgetManager() => _instance;
@@ -76,6 +117,18 @@ class WidgetManager {
   ///
   /// **Phase B2b 完成**:[HWType] 全部 6 种内容类型(glance/netWorth/
   /// quickAdd/budget/recent/dashboard)均已接真实视图并接入本渲染管线。
+  ///
+  /// **i18n(Phase C)**:本函数不依赖 BuildContext/Riverpod `ref`,下面每个
+  /// 文案参数的默认值都只是中文兜底——真正跟随 App 语言靠调用方显式传入:
+  /// - 有 `BuildContext` 的调用点(`providers/widget_provider.dart` 的
+  ///   `updateAppWidget`)直接用 `AppLocalizations.of(context)`,最准确。
+  /// - 没有的调用点(`main.dart`/`providers/theme_providers.dart`/
+  ///   `pages/main/ledgers_page_new.dart`)改用
+  ///   [WidgetManager.updateAllWidgetsLocalized],内部靠
+  ///   [resolveWidgetLocalizations] 还原 `languageProvider` 对应的
+  ///   `AppLocalizations`。
+  /// - `app.dart` 前台恢复的调用点是本阶段唯一未接入的历史遗留,固定显示
+  ///   下面的中文默认值(该文件本次改动范围之外,见 Phase C 任务说明)。
   Future<void> updateAllWidgets(
     BaseRepository repository,
     int ledgerId,
@@ -87,42 +140,40 @@ class WidgetManager {
     String todayIncomeLabel = '今日收入',
     String monthExpenseLabel = '本月支出',
     String monthIncomeLabel = '本月收入',
-    // GlanceView.small 专用的"今日"徽章文案。l10n 暂无独立"今日"key(只有
-    // "今日支出"/"今日收入"整词),先用中文默认值占位。
-    // TODO(i18n): Phase C 补三语 arb key。
+    // GlanceView.small 专用的"今日"徽章文案,对应 arb key `widgetToday`。
     String todayLabel = '今日',
     // 净资产系列(netWorth/dashboard)折算用的主币种,默认 'CNY' 兜底旧调用方
     // (见 currency_providers.dart 的 baseCurrencyProvider)。
     String baseCurrency = 'CNY',
-    // 净资产视图文案。三个 key 均已有对应 arb(accountTotalBalance/
-    // totalAssets/totalLiabilities),默认值与其中文文案保持一致——本函数
-    // 不依赖 BuildContext/l10n,取不到真正的 AppLocalizations,只能靠调用方
-    // (如 widget_provider.dart 的 updateAppWidget)显式传入;其余调用点沿用
-    // 这里的默认值兜底(与 appName 等现有参数同一套约定)。
+    // 净资产视图文案,分别对应 arb key accountTotalBalance/totalAssets/
+    // totalLiabilities/widgetNoAccounts(最后一个是大号账户明细列表为空时的
+    // 占位文案)。
     String netWorthLabel = '净资产',
     String totalAssetsLabel = '总资产',
     String totalLiabilitiesLabel = '总负债',
-    // 快速记账「记一笔」按钮文案。l10n 暂无独立 key。
-    // TODO(i18n): Phase C 补三语 arb key。
+    String noAccountsLabel = '暂无账户',
+    // 快速记账「记一笔」按钮文案,对应 arb key `widgetQuickAddLabel`。
     String quickAddLabel = '记一笔',
-    // 预算进度(budget)视图文案。l10n 暂无独立 key(budget_page.dart 的文案是
-    // 完整句子,这里需要的是卡片专用短词,不能直接借用)。
-    // TODO(i18n): Phase C 补三语 arb key。
+    // 预算进度(budget)视图文案。budgetLabel/budgetUsedLabel 文本与语义都
+    // 和预算页已有的 budgetMonthlyBudget/budgetUsed 完全一致,直接复用;
+    // budgetTotalLabel/budgetRemainingLabel 是卡片专用短词(budget_page.dart
+    // 的 budgetRemaining 是"剩余"这样的完整词,小组件空间紧张需要"剩"这样的
+    // 单字),对应新增 arb key widgetBudgetTotal/widgetBudgetRemaining;
+    // noBudgetLabel 对应新增 arb key widgetNoBudget。
     String budgetLabel = '本月预算',
     String budgetUsedLabel = '已用',
     String budgetTotalLabel = '总额',
     String budgetRemainingLabel = '剩',
     String noBudgetLabel = '未设预算',
-    // 最近交易(recent)视图文案。l10n 已有语义相近的 key(如
-    // commonUncategorized/accountNoTransactions),但措辞与本卡片场景不完全
-    // 一致,先用默认值占位。
-    // TODO(i18n): Phase C 补三语 arb key(或直接复用/新增对应 key)。
+    // 最近交易(recent)视图文案。uncategorizedLabel 直接复用
+    // commonUncategorized;noTransactionsLabel 比已有的 accountNoTransactions
+    // ("暂无交易记录")更短(卡片空间紧张),对应新增 arb key
+    // widgetNoTransactions。
     String uncategorizedLabel = '未分类',
     String noTransactionsLabel = '暂无交易',
-    // 综合仪表盘(dashboard)"最近交易"区块标题。其余文案(本月支出/收入、
-    // 未分类、暂无交易、记一笔)全部复用上面 glance/recent/quickAdd 已有的
-    // 同名参数,不重复造词。
-    // TODO(i18n): Phase C 补三语 arb key。
+    // 综合仪表盘(dashboard)"最近交易"区块标题,对应新增 arb key
+    // `widgetRecentTransactions`。其余文案(本月支出/收入、未分类、暂无交易、
+    // 记一笔)全部复用上面 glance/recent/quickAdd 已有的同名参数,不重复造词。
     String dashboardRecentLabel = '最近交易',
   }) async {
     try {
@@ -159,6 +210,7 @@ class WidgetManager {
             netWorthLabel: netWorthLabel,
             totalAssetsLabel: totalAssetsLabel,
             totalLiabilitiesLabel: totalLiabilitiesLabel,
+            noAccountsLabel: noAccountsLabel,
             quickAddLabel: quickAddLabel,
             budgetLabel: budgetLabel,
             budgetUsedLabel: budgetUsedLabel,
@@ -192,6 +244,54 @@ class WidgetManager {
     } catch (e, st) {
       logger.error(_tag, '更新小组件失败', e, st);
     }
+  }
+
+  /// [updateAllWidgets] 的语言感知封装,供没有 [BuildContext] 的调用点使用
+  /// (`main.dart` 的 `_WidgetUpdateObserver`、`providers/theme_providers
+  /// .dart` 的主题色/收支配色监听、`pages/main/ledgers_page_new.dart` 改
+  /// 账本起始日后的即时刷新)——内部靠 [resolveWidgetLocalizations] 把
+  /// [explicitLocale] 还原成 [AppLocalizations],再逐个填入
+  /// [updateAllWidgets] 对应的文案参数,取代它们各自的中文默认值。
+  ///
+  /// 唯一真正有 [BuildContext]、能用 `AppLocalizations.of(context)` 的调用点
+  /// 是 `providers/widget_provider.dart` 的 `updateAppWidget`,那里更准确
+  /// (与当前 widget 树完全一致),不经过这个封装。
+  Future<void> updateAllWidgetsLocalized(
+    BaseRepository repository,
+    int ledgerId,
+    Color themeColor, {
+    required Locale? explicitLocale,
+    bool redForIncome = true,
+    String baseCurrency = 'CNY',
+  }) {
+    final l10n = resolveWidgetLocalizations(explicitLocale);
+    return updateAllWidgets(
+      repository,
+      ledgerId,
+      themeColor,
+      redForIncome: redForIncome,
+      appName: l10n.appTitle,
+      monthSuffix: l10n.widgetMonthSuffix,
+      todayLabel: l10n.widgetToday,
+      todayExpenseLabel: l10n.widgetTodayExpense,
+      todayIncomeLabel: l10n.widgetTodayIncome,
+      monthExpenseLabel: l10n.widgetMonthExpense,
+      monthIncomeLabel: l10n.widgetMonthIncome,
+      baseCurrency: baseCurrency,
+      netWorthLabel: l10n.accountTotalBalance,
+      totalAssetsLabel: l10n.totalAssets,
+      totalLiabilitiesLabel: l10n.totalLiabilities,
+      noAccountsLabel: l10n.widgetNoAccounts,
+      quickAddLabel: l10n.widgetQuickAddLabel,
+      budgetLabel: l10n.budgetMonthlyBudget,
+      budgetUsedLabel: l10n.budgetUsed,
+      budgetTotalLabel: l10n.widgetBudgetTotal,
+      budgetRemainingLabel: l10n.widgetBudgetRemaining,
+      noBudgetLabel: l10n.widgetNoBudget,
+      uncategorizedLabel: l10n.commonUncategorized,
+      noTransactionsLabel: l10n.widgetNoTransactions,
+      dashboardRecentLabel: l10n.widgetRecentTransactions,
+    );
   }
 
   /// 获取平台"已安装组件"列表并映射为 spec;调用失败时返回按 `null` 触发
@@ -229,6 +329,7 @@ class WidgetManager {
     required String netWorthLabel,
     required String totalAssetsLabel,
     required String totalLiabilitiesLabel,
+    required String noAccountsLabel,
     required String quickAddLabel,
     required String budgetLabel,
     required String budgetUsedLabel,
@@ -268,6 +369,7 @@ class WidgetManager {
           netWorthLabel: netWorthLabel,
           totalAssetsLabel: totalAssetsLabel,
           totalLiabilitiesLabel: totalLiabilitiesLabel,
+          noAccountsLabel: noAccountsLabel,
         );
         return;
       case HWType.quickAdd:
@@ -413,6 +515,7 @@ class WidgetManager {
     required String netWorthLabel,
     required String totalAssetsLabel,
     required String totalLiabilitiesLabel,
+    required String noAccountsLabel,
   }) async {
     final breakdown = await WidgetDataService.gatherNetWorthBreakdown(
       repository: repository,
@@ -454,6 +557,7 @@ class WidgetManager {
       netWorthLabel: netWorthLabel,
       totalAssetsLabel: totalAssetsLabel,
       totalLiabilitiesLabel: totalLiabilitiesLabel,
+      noAccountsLabel: noAccountsLabel,
       width: spec.logicalSize.width,
       height: spec.logicalSize.height,
     );
@@ -674,6 +778,17 @@ class WidgetManager {
     // Handle widget tap events
     // Could be used to navigate to specific pages
     // 图片方案下点击目前靠深链跳转(services/platform/app_link_service.dart),
-    // 这个交互回调暂时留空占位;补齐属 D8/P5 范围,这里先保证异常不崩溃。
+    // 真正的交互入口是各原生壳拼的 beecount:// 深链,不经过这里。这个回调
+    // 只是 `home_widget` 交互式组件 API 的注册要求,当前阶段先落一条日志
+    // 占位,预留给未来"组件内即时记账"(不在本阶段范围,见 D8/P5)。
+    //
+    // 可能在纯后台 isolate 中触发(`@pragma('vm:entry-point')`),`logger`
+    // 依赖的插件通道不一定已就绪,这里包一层 try/catch 保证回调本身绝不
+    // 因日志失败而抛异常。
+    try {
+      logger.debug(_tag, '收到小组件交互回调: uri=$uri');
+    } catch (_) {
+      // 静默忽略,见上方注释。
+    }
   }
 }

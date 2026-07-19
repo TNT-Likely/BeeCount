@@ -322,6 +322,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetMonthSuffix => '月';
 
   @override
+  String get widgetToday => '今日';
+
+  @override
+  String get widgetQuickAddLabel => '记一笔';
+
+  @override
+  String get widgetBudgetTotal => '总额';
+
+  @override
+  String get widgetBudgetRemaining => '剩';
+
+  @override
+  String get widgetNoBudget => '未设预算';
+
+  @override
+  String get widgetNoTransactions => '暂无交易';
+
+  @override
+  String get widgetRecentTransactions => '最近交易';
+
+  @override
+  String get widgetNoAccounts => '暂无账户';
+
+  @override
   String get searchTitle => '搜索';
 
   @override
@@ -7678,6 +7702,30 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get widgetMonthSuffix => '月';
+
+  @override
+  String get widgetToday => '今日';
+
+  @override
+  String get widgetQuickAddLabel => '記一筆';
+
+  @override
+  String get widgetBudgetTotal => '總額';
+
+  @override
+  String get widgetBudgetRemaining => '剩';
+
+  @override
+  String get widgetNoBudget => '未設預算';
+
+  @override
+  String get widgetNoTransactions => '暫無交易';
+
+  @override
+  String get widgetRecentTransactions => '最近交易';
+
+  @override
+  String get widgetNoAccounts => '暫無帳戶';
 
   @override
   String get searchTitle => '搜尋';

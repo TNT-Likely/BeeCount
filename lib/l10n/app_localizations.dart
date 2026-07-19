@@ -692,6 +692,54 @@ abstract class AppLocalizations {
   /// **''**
   String get widgetMonthSuffix;
 
+  /// No description provided for @widgetToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get widgetToday;
+
+  /// No description provided for @widgetQuickAddLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get widgetQuickAddLabel;
+
+  /// No description provided for @widgetBudgetTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get widgetBudgetTotal;
+
+  /// No description provided for @widgetBudgetRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get widgetBudgetRemaining;
+
+  /// No description provided for @widgetNoBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'No Budget'**
+  String get widgetNoBudget;
+
+  /// No description provided for @widgetNoTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No Transactions'**
+  String get widgetNoTransactions;
+
+  /// No description provided for @widgetRecentTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Transactions'**
+  String get widgetRecentTransactions;
+
+  /// No description provided for @widgetNoAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'No Accounts'**
+  String get widgetNoAccounts;
+
   /// No description provided for @searchTitle.
   ///
   /// In en, this message translates to:

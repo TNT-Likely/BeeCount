@@ -755,10 +755,13 @@ class _LedgersPageNewState extends ConsumerState<LedgersPageNew> {
     try {
       final repository = ref.read(repositoryProvider);
       final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
-      await WidgetManager().updateAllWidgets(
+      // 没有 BuildContext,靠 languageProvider 还原当前 App 语言(见
+      // widget_manager.dart resolveWidgetLocalizations 文档)。
+      await WidgetManager().updateAllWidgetsLocalized(
         repository,
         ledger.id,
         ref.read(primaryColorProvider),
+        explicitLocale: ref.read(languageProvider),
         redForIncome: redForIncome,
         baseCurrency: ref.read(baseCurrencyProvider),
       );

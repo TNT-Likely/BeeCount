@@ -28,17 +28,31 @@ Future<void> updateAppWidget(WidgetRef ref, BuildContext context) async {
       redForIncome: redForIncome,
       appName: l10n.appTitle,
       monthSuffix: l10n.widgetMonthSuffix,
+      todayLabel: l10n.widgetToday,
       todayExpenseLabel: l10n.widgetTodayExpense,
       todayIncomeLabel: l10n.widgetTodayIncome,
       monthExpenseLabel: l10n.widgetMonthExpense,
       monthIncomeLabel: l10n.widgetMonthIncome,
       baseCurrency: baseCurrency,
-      // 净资产视图文案:三个 key 均已有对应 arb,这里是唯一有 l10n 可用的
-      // 调用点,其余调用点(app.dart/main.dart/theme_providers.dart/
-      // ledgers_page_new.dart)沿用 WidgetManager 默认值兜底。
+      // 净资产视图文案:这里是唯一真正有 BuildContext 的调用点,直接用
+      // AppLocalizations.of(context) 最准确;其余调用点(main.dart/
+      // providers/theme_providers.dart/pages/main/ledgers_page_new.dart)
+      // 改用 WidgetManager.updateAllWidgetsLocalized(靠 languageProvider
+      // 还原 locale),app.dart 前台恢复的调用点仍沿用 WidgetManager 默认值
+      // 兜底(见 widget_manager.dart updateAllWidgets 文档)。
       netWorthLabel: l10n.accountTotalBalance,
       totalAssetsLabel: l10n.totalAssets,
       totalLiabilitiesLabel: l10n.totalLiabilities,
+      noAccountsLabel: l10n.widgetNoAccounts,
+      quickAddLabel: l10n.widgetQuickAddLabel,
+      budgetLabel: l10n.budgetMonthlyBudget,
+      budgetUsedLabel: l10n.budgetUsed,
+      budgetTotalLabel: l10n.widgetBudgetTotal,
+      budgetRemainingLabel: l10n.widgetBudgetRemaining,
+      noBudgetLabel: l10n.widgetNoBudget,
+      uncategorizedLabel: l10n.commonUncategorized,
+      noTransactionsLabel: l10n.widgetNoTransactions,
+      dashboardRecentLabel: l10n.widgetRecentTransactions,
     );
   } catch (e) {
     // Silently fail to avoid disrupting the app

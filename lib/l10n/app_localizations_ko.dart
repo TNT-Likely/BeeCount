@@ -322,6 +322,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String get widgetMonthSuffix => '';
 
   @override
+  String get widgetToday => 'Today';
+
+  @override
+  String get widgetQuickAddLabel => 'Add';
+
+  @override
+  String get widgetBudgetTotal => 'Total';
+
+  @override
+  String get widgetBudgetRemaining => 'Left';
+
+  @override
+  String get widgetNoBudget => 'No Budget';
+
+  @override
+  String get widgetNoTransactions => 'No Transactions';
+
+  @override
+  String get widgetRecentTransactions => 'Recent Transactions';
+
+  @override
+  String get widgetNoAccounts => 'No Accounts';
+
+  @override
   String get searchTitle => '검색';
 
   @override

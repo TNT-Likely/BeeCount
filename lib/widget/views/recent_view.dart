@@ -35,9 +35,10 @@ class RecentView extends StatelessWidget {
   final bool redForIncome;
   final bool dark;
 
-  /// 分类/转账账户都缺失时的兜底名称。l10n 已有 `commonUncategorized` key,
-  /// 但本文件不依赖 BuildContext,取不到真正的 l10n,只能用默认值占位。
-  /// TODO(i18n): Phase C 由调用方显式传入 l10n 值。
+  /// 分类/转账账户都缺失时的兜底名称。对应 arb key `commonUncategorized`——
+  /// 本文件不依赖 BuildContext,取不到真正的 l10n,由调用方(`WidgetManager`,
+  /// 见其 `resolveWidgetLocalizations`/`updateAllWidgetsLocalized`)显式传入
+  /// 真实文案;这里的默认值只是彻底拿不到 locale 时的兜底。
   final String uncategorizedLabel;
 
   /// 空列表占位文案。

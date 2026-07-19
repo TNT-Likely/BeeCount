@@ -70,11 +70,15 @@ final primaryColorInitProvider = FutureProvider<void>((ref) async {
       final currentLedgerId = ref.read(currentLedgerIdProvider);
       final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
       final baseCurrency = ref.read(baseCurrencyProvider);
+      // 没有 BuildContext,靠 languageProvider 还原当前 App 语言(见
+      // widget_manager.dart resolveWidgetLocalizations 文档)。
+      final locale = ref.read(languageProvider);
       final widgetManager = WidgetManager();
-      await widgetManager.updateAllWidgets(
+      await widgetManager.updateAllWidgetsLocalized(
         repository,
         currentLedgerId,
         next,
+        explicitLocale: locale,
         redForIncome: redForIncome,
         baseCurrency: baseCurrency,
       );
@@ -375,11 +379,15 @@ final incomeExpenseColorSchemeInitProvider = FutureProvider<void>((ref) async {
       final currentLedgerId = ref.read(currentLedgerIdProvider);
       final primaryColor = ref.read(primaryColorProvider);
       final baseCurrency = ref.read(baseCurrencyProvider);
+      // 没有 BuildContext,靠 languageProvider 还原当前 App 语言(见
+      // widget_manager.dart resolveWidgetLocalizations 文档)。
+      final locale = ref.read(languageProvider);
       final widgetManager = WidgetManager();
-      await widgetManager.updateAllWidgets(
+      await widgetManager.updateAllWidgetsLocalized(
         repository,
         currentLedgerId,
         primaryColor,
+        explicitLocale: locale,
         redForIncome: next,
         baseCurrency: baseCurrency,
       );

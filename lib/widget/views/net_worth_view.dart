@@ -54,6 +54,9 @@ class NetWorthView extends StatelessWidget {
   final String totalAssetsLabel;
   final String totalLiabilitiesLabel;
 
+  /// large 账户明细列表为空时的占位文案,对应 arb key `widgetNoAccounts`。
+  final String noAccountsLabel;
+
   final double width;
   final double height;
 
@@ -72,6 +75,7 @@ class NetWorthView extends StatelessWidget {
     required this.netWorthLabel,
     required this.totalAssetsLabel,
     required this.totalLiabilitiesLabel,
+    this.noAccountsLabel = '暂无账户',
     required this.width,
     required this.height,
   });
@@ -349,9 +353,7 @@ class NetWorthView extends StatelessWidget {
             child: topAccounts.isEmpty
                 ? Center(
                     child: Text(
-                      // l10n 暂无独立"暂无账户"key,先用中文默认值占位。
-                      // TODO(i18n): Phase C 补三语 arb key。
-                      '暂无账户',
+                      noAccountsLabel,
                       style: TextStyle(fontSize: 11, color: widgetTextTertiary(dark)),
                     ),
                   )
