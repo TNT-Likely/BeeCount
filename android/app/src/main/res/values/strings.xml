@@ -5,6 +5,7 @@
     <string name="widget_description">查看今日和本月的收支情况</string>
     <string name="widget_networth_description">总资产、总负债与净值趋势</string>
     <string name="widget_quickadd_description">常用分类一键速记</string>
+    <string name="widget_budget_description">预算进度实时掌握</string>
 
     <!-- 无障碍服务相关字符串由 flavor 特定的 strings.xml 定义 -->
     <!-- dev: android/app/src/dev/res/values/strings.xml -->
