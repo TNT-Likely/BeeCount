@@ -335,6 +335,11 @@ void _setupUrlListener(ProviderContainer container) {
       logger.info('AppLink', '触发导航: $action');
       if (action == AppLinkAction.newTransaction && params != null) {
         container.read(pendingNewTransactionTypeProvider.notifier).state = params.type;
+        container.read(pendingNewTransactionCategoryIdProvider.notifier).state =
+            params.categoryId;
+      }
+      if (action == AppLinkAction.open && params != null) {
+        container.read(pendingOpenPageProvider.notifier).state = params.page;
       }
       container.read(pendingAppLinkActionProvider.notifier).state = action;
     };
