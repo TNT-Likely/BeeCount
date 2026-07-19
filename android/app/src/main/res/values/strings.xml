@@ -7,6 +7,7 @@
     <string name="widget_quickadd_description">常用分类一键速记</string>
     <string name="widget_budget_description">预算进度实时掌握</string>
     <string name="widget_recent_description">快速查看最近几笔账单</string>
+    <string name="widget_dashboard_description">收支、趋势与最近交易一屏看尽</string>
 
     <!-- 无障碍服务相关字符串由 flavor 特定的 strings.xml 定义 -->
     <!-- dev: android/app/src/dev/res/values/strings.xml -->
