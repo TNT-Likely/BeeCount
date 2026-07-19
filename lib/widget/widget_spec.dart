@@ -97,63 +97,93 @@ class WidgetSpec {
   );
 
   // ---- 净资产(netWorth):小/中/大 ----
+  // iOS 原生壳见 ios/BeeCountWidget/BeeCountNetWorthWidget.swift
+  // (kind BeeCountNetWorthWidget,supportedFamilies 小/中/大)。
   static const netWorthSmall = WidgetSpec._(
     type: HWType.netWorth,
     size: HWSize.small,
     logicalSize: Size(155, 155),
+    iosKind: 'BeeCountNetWorthWidget',
+    iosFamily: 'systemSmall',
   );
   static const netWorthMedium = WidgetSpec._(
     type: HWType.netWorth,
     size: HWSize.medium,
     logicalSize: Size(364, 169),
+    iosKind: 'BeeCountNetWorthWidget',
+    iosFamily: 'systemMedium',
   );
   static const netWorthLarge = WidgetSpec._(
     type: HWType.netWorth,
     size: HWSize.large,
     logicalSize: Size(364, 382),
+    iosKind: 'BeeCountNetWorthWidget',
+    iosFamily: 'systemLarge',
   );
 
   // ---- 快速记账(quickAdd):小/中 ----
+  // iOS 原生壳见 ios/BeeCountWidget/BeeCountQuickAddWidget.swift
+  // (kind BeeCountQuickAddWidget,supportedFamilies 小/中)。
   static const quickAddSmall = WidgetSpec._(
     type: HWType.quickAdd,
     size: HWSize.small,
     logicalSize: Size(155, 155),
+    iosKind: 'BeeCountQuickAddWidget',
+    iosFamily: 'systemSmall',
   );
   static const quickAddMedium = WidgetSpec._(
     type: HWType.quickAdd,
     size: HWSize.medium,
     logicalSize: Size(364, 169),
+    iosKind: 'BeeCountQuickAddWidget',
+    iosFamily: 'systemMedium',
   );
 
   // ---- 预算进度(budget):小/中 ----
+  // iOS 原生壳见 ios/BeeCountWidget/BeeCountBudgetWidget.swift
+  // (kind BeeCountBudgetWidget,supportedFamilies 小/中)。
   static const budgetSmall = WidgetSpec._(
     type: HWType.budget,
     size: HWSize.small,
     logicalSize: Size(155, 155),
+    iosKind: 'BeeCountBudgetWidget',
+    iosFamily: 'systemSmall',
   );
   static const budgetMedium = WidgetSpec._(
     type: HWType.budget,
     size: HWSize.medium,
     logicalSize: Size(364, 169),
+    iosKind: 'BeeCountBudgetWidget',
+    iosFamily: 'systemMedium',
   );
 
   // ---- 最近交易(recent):中/大 ----
+  // iOS 原生壳见 ios/BeeCountWidget/BeeCountRecentWidget.swift
+  // (kind BeeCountRecentWidget,supportedFamilies 中/大)。
   static const recentMedium = WidgetSpec._(
     type: HWType.recent,
     size: HWSize.medium,
     logicalSize: Size(364, 169),
+    iosKind: 'BeeCountRecentWidget',
+    iosFamily: 'systemMedium',
   );
   static const recentLarge = WidgetSpec._(
     type: HWType.recent,
     size: HWSize.large,
     logicalSize: Size(364, 382),
+    iosKind: 'BeeCountRecentWidget',
+    iosFamily: 'systemLarge',
   );
 
   // ---- 综合仪表盘(dashboard):仅大 ----
+  // iOS 原生壳见 ios/BeeCountWidget/BeeCountDashboardWidget.swift
+  // (kind BeeCountDashboardWidget,supportedFamilies 仅大)。
   static const dashboardLarge = WidgetSpec._(
     type: HWType.dashboard,
     size: HWSize.large,
     logicalSize: Size(364, 382),
+    iosKind: 'BeeCountDashboardWidget',
+    iosFamily: 'systemLarge',
   );
 
   /// 全部合法 (type, size) 组合的目录(见 plan.md §二逐组件 spec)。
