@@ -227,15 +227,21 @@ class WidgetManager {
         }
       }
 
-      // 触发原生壳刷新。
-      // 注意(D2 back-compat):iOS kind `BeeCountWidget` / Android provider
-      // 类名 `BeeCountWidgetProvider` 保持不变,本阶段仍只有这一个原生组件
-      // 需要触发;P3/P4 新增原生壳注册后,需按已渲染的 spec 逐个触发对应
-      // kind/provider。
-      await HomeWidget.updateWidget(
-        qualifiedAndroidName: 'com.tntlikely.beecount.BeeCountWidgetProvider',
-        iOSName: 'BeeCountWidget',
-      );
+      // 触发原生壳刷新:按已渲染 spec 去重出各自的 (iOS kind, Android provider
+      // 类名) 逐个触发,让新组件也能像现有 glance 一样在数据变化后即时刷新
+      // (否则新 kind 只能等 WidgetKit/AppWidget 自己的 timeline,可能几十分钟)。
+      // glance-medium 沿用旧 kind `BeeCountWidget` / 旧 provider 类名(D2);
+      // 新组件用各自标识(iosKind/androidClassName 由 P3/P4 回填到 WidgetSpec)。
+      final triggered = <String>{};
+      for (final spec in specs) {
+        if (spec.iosKind == null && spec.androidClassName == null) continue;
+        // 同一内容类型的多个尺寸共享同一 kind/provider,去重避免重复触发。
+        if (!triggered.add('${spec.iosKind}|${spec.androidClassName}')) continue;
+        await HomeWidget.updateWidget(
+          qualifiedAndroidName: spec.androidClassName,
+          iOSName: spec.iosKind,
+        );
+      }
       logger.info(
         _tag,
         '小组件更新完成,已渲染 ${specs.length} 个 spec: '

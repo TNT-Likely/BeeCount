@@ -7,6 +7,7 @@
 
 import WidgetKit
 import SwiftUI
+import UIKit
 
 struct BeeCountQuickAddEntry: TimelineEntry {
     let date: Date
