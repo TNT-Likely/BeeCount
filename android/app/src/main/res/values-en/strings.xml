@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 桌面小组件名称 / 描述(英文)。Android 桌面选择器按「系统语言」取,
+         走此资源目录;简体见 values/、繁体见 values-zh-rTW/。app_name 等未在此
+         覆盖的字符串按 Android 机制回退到 values/ 默认值。 -->
+    <!-- Widget names (android:label in the launcher picker) -->
+    <string name="widget_name">Overview</string>
+    <string name="widget_networth_name">Net Worth</string>
+    <string name="widget_quickadd_name">Quick Add</string>
+    <string name="widget_budget_name">Budget</string>
+    <string name="widget_recent_name">Recent</string>
+    <string name="widget_dashboard_name">Dashboard</string>
+
+    <!-- Widget descriptions (android:description) -->
+    <string name="widget_description">Today\'s and this month\'s income &amp; expenses</string>
+    <string name="widget_networth_description">Assets, liabilities, and net-worth trend</string>
+    <string name="widget_quickadd_description">One-tap entry for your top categories</string>
+    <string name="widget_budget_description">Track budget progress at a glance</string>
+    <string name="widget_recent_description">A quick look at your latest transactions</string>
+    <string name="widget_dashboard_description">Income, trend, and recent activity in one view</string>
+</resources>

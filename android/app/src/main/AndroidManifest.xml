@@ -123,6 +123,7 @@
 
         <!-- 桌面小组件 -->
         <receiver android:name="com.tntlikely.beecount.BeeCountWidgetProvider"
+            android:label="@string/widget_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -134,6 +135,7 @@
 
         <!-- 桌面小组件:净资产 -->
         <receiver android:name=".BeeCountNetWorthWidgetProvider"
+            android:label="@string/widget_networth_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -145,6 +147,7 @@
 
         <!-- 桌面小组件:快速记账 -->
         <receiver android:name=".BeeCountQuickAddWidgetProvider"
+            android:label="@string/widget_quickadd_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -156,6 +159,7 @@
 
         <!-- 桌面小组件:预算进度 -->
         <receiver android:name=".BeeCountBudgetWidgetProvider"
+            android:label="@string/widget_budget_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -167,6 +171,7 @@
 
         <!-- 桌面小组件:最近交易 -->
         <receiver android:name=".BeeCountRecentWidgetProvider"
+            android:label="@string/widget_recent_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -178,6 +183,7 @@
 
         <!-- 桌面小组件:综合仪表盘 -->
         <receiver android:name=".BeeCountDashboardWidgetProvider"
+            android:label="@string/widget_dashboard_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

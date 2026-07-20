@@ -5,7 +5,7 @@
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/dashboard_widget"
     android:previewImage="@mipmap/ic_launcher"
-    android:previewLayout="@layout/dashboard_widget"
+    android:previewLayout="@layout/widget_preview_dashboard"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:description="@string/widget_dashboard_description" />

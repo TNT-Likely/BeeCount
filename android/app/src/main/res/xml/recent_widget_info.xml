@@ -6,7 +6,7 @@
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/recent_widget"
     android:previewImage="@mipmap/ic_launcher"
-    android:previewLayout="@layout/recent_widget"
+    android:previewLayout="@layout/widget_preview_recent"
     android:resizeMode="vertical"
     android:widgetCategory="home_screen"
     android:description="@string/widget_recent_description" />
