@@ -3,7 +3,7 @@ package com.tntlikely.beecount
 /**
  * 各内容类型的「按尺寸拆分的选择器入口」——全部是**空子类**,完整复用父类
  * 的按尺寸选图(`getAppWidgetOptions`)与点击逻辑,只靠各自独立的
- * `appwidget-provider` info(minWidth/minHeight,见 `res/xml/*_widget_info.xml`)
+ * `appwidget-provider` info(minWidth/minHeight,见 `res/xml` 下的 `*_widget_info.xml`)
  * 让 Android 选择器里直接出现"中号/大号"入口、添加即为对应默认大小。
  *
  * 背景(2026-07 真机反馈):Android 选择器不像 iOS 的 widget family 会按
