@@ -60,6 +60,13 @@ class BudgetView extends StatelessWidget {
   /// 未设总预算时的占位文案。
   final String noBudgetLabel;
 
+  /// medium 下半排的兜底数据:本月支出 Top3 分类**占比**(分类支出/总支出,
+  /// `WidgetDataService.gatherTopSpendingShares`)。[overview.categoryBudgets]
+  /// 只包含设置过分类预算的分类,多数用户只设总预算 → 为空 → 下半排消失
+  /// (真机反馈);此时用这份占比填充。设了分类预算则优先显示预算用量,
+  /// 本列表被忽略。
+  final List<({String name, double share})> fallbackShares;
+
   final double width;
   final double height;
 
@@ -76,6 +83,7 @@ class BudgetView extends StatelessWidget {
     this.totalLabel = '总额',
     this.remainingLabel = '剩',
     this.noBudgetLabel = '未设预算',
+    this.fallbackShares = const [],
     required this.width,
     required this.height,
   });
@@ -222,8 +230,9 @@ class BudgetView extends StatelessWidget {
     // topCategoryCount 默认 3),这里再 take(3) 属于防御性重复(同
     // QuickAddView 即便拿到已限量的数据也再 take 一次的约定)。
     final categories = overview.categoryBudgets.take(3).toList();
+    final shares = fallbackShares.take(3).toList();
 
-    if (total == null && categories.isEmpty) {
+    if (total == null && categories.isEmpty && shares.isEmpty) {
       return _card(child: _noBudgetPlaceholder());
     }
 
@@ -278,6 +287,19 @@ class BudgetView extends StatelessWidget {
           if (categories.isNotEmpty)
             Row(
               children: [for (final c in categories) _categoryChip(c)],
+            )
+          else if (shares.isNotEmpty)
+            // 无分类预算的兜底:本月支出 Top3 分类占比(统一主题色——占比
+            // 没有"超支/预警"的预算状态语义,不套三色阶梯)。
+            Row(
+              children: [
+                for (final s in shares)
+                  _chip(
+                    name: s.name,
+                    pct: (s.share * 100).round(),
+                    color: themeColor,
+                  ),
+              ],
             ),
         ],
       ),
@@ -307,9 +329,14 @@ class BudgetView extends StatelessWidget {
     );
   }
 
-  Widget _categoryChip(CategoryBudgetUsage c) {
-    final pct = (c.usage.rate * 100).round();
-    final color = _statusColor(c.usage.status);
+  Widget _categoryChip(CategoryBudgetUsage c) => _chip(
+        name: c.categoryName,
+        pct: (c.usage.rate * 100).round(),
+        color: _statusColor(c.usage.status),
+      );
+
+  /// 分类小卡通用样式:预算用量([_categoryChip])与支出占比兜底共用。
+  Widget _chip({required String name, required int pct, required Color color}) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 3),
@@ -323,7 +350,7 @@ class BudgetView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              c.categoryName,
+              name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 10, color: widgetTextSecondary(dark)),

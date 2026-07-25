@@ -648,6 +648,11 @@ class WidgetManager {
     // 预算金额没有独立币种列,固定跟随账本自身币种(与全局本位币
     // baseCurrency 是两个不同概念,见 gatherLedgerCurrency 文档)。
     final currencyCode = await batch.ledgerCurrency();
+    // 中号下半排兜底:没设分类预算时用本月支出 Top3 分类占比填充(惰性,
+    // 有分类预算就不触发这次查询;见 BudgetView.fallbackShares 文档)。
+    final fallbackShares = overview.categoryBudgets.isEmpty
+        ? await batch.topSpendingShares()
+        : const <({String name, double share})>[];
 
     final view = BudgetView(
       size: spec.size,
@@ -661,6 +666,7 @@ class WidgetManager {
       totalLabel: totalLabel,
       remainingLabel: remainingLabel,
       noBudgetLabel: noBudgetLabel,
+      fallbackShares: fallbackShares,
       width: spec.logicalSize.width,
       height: spec.logicalSize.height,
     );

@@ -537,4 +537,45 @@ void main() {
       expect(data.quickAdd.any((q) => q.categoryId == cat), isTrue);
     });
   });
+
+  group('gatherTopSpendingShares(预算中号卡分类占比兜底)', () {
+    test('按支出降序取 Top3,占比 = 分类支出/周期总支出', () async {
+      await db.customStatement(
+          "INSERT INTO ledgers (id, name, currency) VALUES (61, 'L', 'CNY')");
+      final food = await repo.createCategory(name: '餐饮', kind: 'expense');
+      final shop = await repo.createCategory(name: '购物', kind: 'expense');
+      final ride = await repo.createCategory(name: '交通', kind: 'expense');
+      final fun = await repo.createCategory(name: '娱乐', kind: 'expense');
+      final now = DateTime.now();
+      Future<void> tx(int cat, double amt) => repo.addTransaction(
+          ledgerId: 61,
+          type: 'expense',
+          amount: amt,
+          categoryId: cat,
+          happenedAt: now);
+      await tx(food, 500);
+      await tx(shop, 300);
+      await tx(ride, 150);
+      await tx(fun, 50); // 第 4 名,应被 Top3 截断
+
+      final shares = await WidgetDataService.gatherTopSpendingShares(
+          repository: repo, ledgerId: 61);
+
+      expect(shares.length, 3);
+      expect(shares[0].name, '餐饮');
+      expect(shares[0].share, closeTo(0.5, 1e-9));
+      expect(shares[1].name, '购物');
+      expect(shares[1].share, closeTo(0.3, 1e-9));
+      expect(shares[2].name, '交通');
+      expect(shares[2].share, closeTo(0.15, 1e-9));
+    });
+
+    test('周期内无支出返回空列表(View 侧自然不渲染兜底排)', () async {
+      await db.customStatement(
+          "INSERT INTO ledgers (id, name, currency) VALUES (62, 'E', 'CNY')");
+      final shares = await WidgetDataService.gatherTopSpendingShares(
+          repository: repo, ledgerId: 62);
+      expect(shares, isEmpty);
+    });
+  });
 }

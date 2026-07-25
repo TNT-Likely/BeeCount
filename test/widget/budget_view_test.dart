@@ -19,6 +19,44 @@ void main() {
     );
   }
 
+  // 兜底占比排(无分类预算时):见 BudgetView.fallbackShares 文档。
+  testWidgets('medium:无分类预算但有支出占比兜底 → 渲染占比小卡', (tester) async {
+    const size = Size(364, 169);
+    await tester.pumpWidget(Directionality(
+      textDirection: TextDirection.ltr,
+      child: SizedBox(
+        width: size.width,
+        height: size.height,
+        child: BudgetView(
+          size: HWSize.medium,
+          overview: BudgetOverview(
+            totalBudget: BudgetUsage(used: 3200, budget: 5000),
+            categoryBudgets: const [], // 用户只设了总预算
+            daysRemaining: 10,
+            dailyAvailable: 180,
+          ),
+          currencyCode: 'CNY',
+          themeColor: const Color(0xFFF5A623),
+          redForIncome: true,
+          dark: false,
+          fallbackShares: const [
+            (name: '餐饮', share: 0.52),
+            (name: '购物', share: 0.31),
+            (name: '交通', share: 0.17),
+          ],
+          width: size.width,
+          height: size.height,
+        ),
+      ),
+    ));
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('餐饮'), findsOneWidget);
+    expect(find.text('52%'), findsOneWidget);
+    expect(find.text('17%'), findsOneWidget);
+  });
+
   CategoryBudgetUsage category(String name, double used, double budget) {
     return CategoryBudgetUsage(
       budgetId: name.hashCode,

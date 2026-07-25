@@ -326,6 +326,41 @@ class WidgetDataService {
     );
   }
 
+  /// 本月(账本自定义周期)支出 Top-N 分类的**占比**(分类支出 / 周期总支出)。
+  ///
+  /// 预算中号卡下半排的兜底数据:[gatherBudget] 的 `categoryBudgets` 只包含
+  /// **设置过分类预算**的分类,大多数用户只设总预算 → 列表为空 → 下半排整个
+  /// 消失(真机反馈"分类占比没渲染出来")。没有分类预算时改用这份"支出
+  /// 占比"填充,人人有数据;设了分类预算仍优先显示预算用量(语义更强)。
+  ///
+  /// 周期口径与 [gatherGlance] 的「本月」一致(账本 monthStartDay);无支出
+  /// 返回空列表(View 侧自然不渲染)。
+  static Future<List<({String name, double share})>> gatherTopSpendingShares({
+    required BaseRepository repository,
+    required int ledgerId,
+    int top = 3,
+  }) async {
+    final now = DateTime.now();
+    final ledger = await repository.getLedgerById(ledgerId);
+    final startDay = (ledger?.monthStartDay ?? 1).clamp(1, 28);
+    final range = periodContaining(now, startDay);
+
+    final items = await repository.totalsByCategory(
+      ledgerId: ledgerId,
+      type: 'expense',
+      start: range.start,
+      end: range.end,
+    );
+    final sum = _sumTotals(items);
+    if (sum <= 0) return const [];
+
+    final sorted = [...items]..sort((a, b) => b.total.compareTo(a.total));
+    return [
+      for (final item in sorted.take(top))
+        (name: item.name, share: item.total / sum),
+    ];
+  }
+
   // ---------------------------------------------------------------------
   // 账本自身币种(单一账本视角的简单金额格式化用)
   // ---------------------------------------------------------------------
@@ -538,6 +573,13 @@ class WidgetGatherBatch {
   Future<BudgetOverview>? _budget;
   Future<BudgetOverview> budget() => _budget ??=
       WidgetDataService.gatherBudget(repository: repository, ledgerId: ledgerId);
+
+  Future<List<({String name, double share})>>? _topShares;
+
+  /// 本月支出 Top3 分类占比(预算中号卡无分类预算时的兜底,惰性)。
+  Future<List<({String name, double share})>> topSpendingShares() =>
+      _topShares ??= WidgetDataService.gatherTopSpendingShares(
+          repository: repository, ledgerId: ledgerId);
 
   Future<String>? _ledgerCurrency;
   Future<String> ledgerCurrency() => _ledgerCurrency ??=
