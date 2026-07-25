@@ -91,6 +91,10 @@ class BudgetView extends StatelessWidget {
   String _money(double v) =>
       '${getCurrencySymbol(currencyCode)}${formatMoneyCompact(v)}';
 
+  /// 去小数点的金额(小卡底部一排空间紧张,分位精度在这里没有信息价值)。
+  String _moneyCompact(double v) =>
+      '${getCurrencySymbol(currencyCode)}${formatMoneyCompact(v, maxDecimals: 0)}';
+
   /// 按用量状态挑颜色,见类文档"弧/条颜色"一节。
   Color _statusColor(String status) {
     switch (status) {
@@ -206,21 +210,12 @@ class BudgetView extends StatelessWidget {
               ),
             ),
           ),
-          // 底部拆两行:155dp 小卡放不下「剩 ¥x / 总额 ¥y」一行千位金额
-          // (真机反馈被 ellipsis 截断),两行各自短、基本不会再截。
+          // 底部保持一排(用户拍板:两行不好看),靠压缩字数放下千位金额:
+          // 去「总额」二字、金额去小数点(¥1,158 而非 ¥1,158.00),保留「剩」
+          // 的语义 —— `剩 ¥1,158 / ¥8,000`。十万级金额也放得下,极端仍
+          // ellipsis 兜底。
           Text(
-            '$remainingLabel ${_money(total.remaining)}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 11,
-              color: widgetTextSecondary(dark),
-              fontFeatures: const [kWidgetTabularFeature],
-            ),
-          ),
-          const SizedBox(height: 1),
-          Text(
-            '$totalLabel ${_money(total.budget)}',
+            '$remainingLabel ${_moneyCompact(total.remaining)} / ${_moneyCompact(total.budget)}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(

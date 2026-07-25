@@ -57,8 +57,9 @@ void main() {
     expect(find.text('17%'), findsOneWidget);
   });
 
-  // 小卡底部拆两行:千位金额也放得下(真机反馈单行被 ellipsis 截断)。
-  testWidgets('small:千位金额底部两行完整显示,不截断', (tester) async {
+  // 小卡底部一排 + 压缩字数(用户拍板:两行不好):去「总额」、金额去小数,
+  // `剩 ¥1,158 / ¥8,000` 千位金额放得下。
+  testWidgets('small:底部一排压缩格式,千位金额完整显示', (tester) async {
     const size = Size(155, 155);
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
@@ -85,8 +86,7 @@ void main() {
     await tester.pump();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('剩 ¥1,158'), findsOneWidget);
-    expect(find.text('总额 ¥8,000'), findsOneWidget);
+    expect(find.text('剩 ¥1,158 / ¥8,000'), findsOneWidget);
   });
 
   CategoryBudgetUsage category(String name, double used, double budget) {
