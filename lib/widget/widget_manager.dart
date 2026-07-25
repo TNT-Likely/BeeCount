@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import '../data/repositories/base_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../services/system/logger_service.dart';
-import '../utils/net_worth_trend_utils.dart' show trendTodayAnchor;
 import 'views/budget_view.dart';
 import 'views/dashboard_view.dart';
 import 'views/glance_view.dart';
@@ -68,6 +67,19 @@ List<WidgetSpec> selectSpecsToRender(
     }
   }
   return result;
+}
+
+/// 预热批次的渲染顺序:整个 [WidgetSpec.catalog],但把 [installedFirst]
+/// (用户桌面上已放置的组件)排到最前——预热要渲全目录,已安装的先出图,
+/// 缩短"打开 App 后桌面组件才刷新"的感知等待。
+///
+/// [installedFirst] 应来自 `getInstalledWidgets` 的匹配结果(拿不到时退化的
+/// 默认集也可,只影响排序不影响覆盖面);纯函数,便于单测。
+List<WidgetSpec> orderCatalogForWarmUp(List<WidgetSpec> installedFirst) {
+  return [
+    ...installedFirst,
+    ...WidgetSpec.catalog.where((s) => !installedFirst.contains(s)),
+  ];
 }
 
 /// 供没有 [BuildContext] 的调用点(`main.dart` 的 `_WidgetUpdateObserver`、
@@ -193,13 +205,27 @@ class WidgetManager {
     bool warmUpAllSpecs = false,
   }) async {
     try {
-      final specs = warmUpAllSpecs
-          ? selectSpecsToRender(null, warmUpAll: true)
-          : await _resolveSpecsToRender();
+      List<WidgetSpec> specs;
+      if (warmUpAllSpecs) {
+        // 预热渲全目录,但**已安装的组件排前面先出图**:dashboard/netWorth 的
+        // 30 天趋势即使有批次缓存也仍是最重的查询,若目录顺序恰好把用户桌面上
+        // 已放置的组件排在后面,会拖长"打开 App 后组件才刷新"的感知等待。
+        specs = orderCatalogForWarmUp(await _resolveSpecsToRender());
+      } else {
+        specs = await _resolveSpecsToRender();
+      }
       if (specs.isEmpty) {
         logger.debug(_tag, '没有已安装的桌面组件,跳过本次渲染');
         return;
       }
+
+      // 批次取数缓存:同类型多尺寸 + dashboard 复用,一批只查一次(尤其 30 天
+      // 净值趋势从 4 次压到 1 次,见 WidgetGatherBatch 文档)。
+      final batch = WidgetGatherBatch(
+        repository: repository,
+        ledgerId: ledgerId,
+        baseCurrency: baseCurrency,
+      );
 
       // 图片渲染方案不会随系统明暗切换自动重绘(见 widget_view_style.dart
       // 顶部注释);这里在一次渲染批次开始时取一次当前系统明暗,批次内所有
@@ -212,8 +238,7 @@ class WidgetManager {
         try {
           await _renderSpec(
             spec,
-            repository: repository,
-            ledgerId: ledgerId,
+            batch: batch,
             themeColor: themeColor,
             redForIncome: redForIncome,
             dark: dark,
@@ -224,7 +249,6 @@ class WidgetManager {
             todayIncomeLabel: todayIncomeLabel,
             monthExpenseLabel: monthExpenseLabel,
             monthIncomeLabel: monthIncomeLabel,
-            baseCurrency: baseCurrency,
             netWorthLabel: netWorthLabel,
             totalAssetsLabel: totalAssetsLabel,
             totalLiabilitiesLabel: totalLiabilitiesLabel,
@@ -339,8 +363,7 @@ class WidgetManager {
   /// 按 [spec] 的 [HWType] 分派到对应的取数 + 渲染。
   Future<void> _renderSpec(
     WidgetSpec spec, {
-    required BaseRepository repository,
-    required int ledgerId,
+    required WidgetGatherBatch batch,
     required Color themeColor,
     required bool redForIncome,
     required bool dark,
@@ -351,7 +374,6 @@ class WidgetManager {
     required String todayIncomeLabel,
     required String monthExpenseLabel,
     required String monthIncomeLabel,
-    required String baseCurrency,
     required String netWorthLabel,
     required String totalAssetsLabel,
     required String totalLiabilitiesLabel,
@@ -370,8 +392,7 @@ class WidgetManager {
       case HWType.glance:
         await _renderGlance(
           spec,
-          repository: repository,
-          ledgerId: ledgerId,
+          batch: batch,
           themeColor: themeColor,
           redForIncome: redForIncome,
           dark: dark,
@@ -387,11 +408,10 @@ class WidgetManager {
       case HWType.netWorth:
         await _renderNetWorth(
           spec,
-          repository: repository,
+          batch: batch,
           themeColor: themeColor,
           redForIncome: redForIncome,
           dark: dark,
-          baseCurrency: baseCurrency,
           netWorthLabel: netWorthLabel,
           totalAssetsLabel: totalAssetsLabel,
           totalLiabilitiesLabel: totalLiabilitiesLabel,
@@ -401,8 +421,7 @@ class WidgetManager {
       case HWType.quickAdd:
         await _renderQuickAdd(
           spec,
-          repository: repository,
-          ledgerId: ledgerId,
+          batch: batch,
           themeColor: themeColor,
           dark: dark,
           addLabel: quickAddLabel,
@@ -411,8 +430,7 @@ class WidgetManager {
       case HWType.budget:
         await _renderBudget(
           spec,
-          repository: repository,
-          ledgerId: ledgerId,
+          batch: batch,
           themeColor: themeColor,
           redForIncome: redForIncome,
           dark: dark,
@@ -426,8 +444,7 @@ class WidgetManager {
       case HWType.recent:
         await _renderRecent(
           spec,
-          repository: repository,
-          ledgerId: ledgerId,
+          batch: batch,
           themeColor: themeColor,
           redForIncome: redForIncome,
           dark: dark,
@@ -438,12 +455,10 @@ class WidgetManager {
       case HWType.dashboard:
         await _renderDashboard(
           spec,
-          repository: repository,
-          ledgerId: ledgerId,
+          batch: batch,
           themeColor: themeColor,
           redForIncome: redForIncome,
           dark: dark,
-          baseCurrency: baseCurrency,
           monthExpenseLabel: monthExpenseLabel,
           monthIncomeLabel: monthIncomeLabel,
           recentLabel: dashboardRecentLabel,
@@ -458,8 +473,7 @@ class WidgetManager {
   /// 渲染收支速览(glance):小/中两档,均已接 [GlanceView] 真实视图。
   Future<void> _renderGlance(
     WidgetSpec spec, {
-    required BaseRepository repository,
-    required int ledgerId,
+    required WidgetGatherBatch batch,
     required Color themeColor,
     required bool redForIncome,
     required bool dark,
@@ -471,10 +485,7 @@ class WidgetManager {
     required String monthExpenseLabel,
     required String monthIncomeLabel,
   }) async {
-    final data = await WidgetDataService.gatherGlance(
-      repository: repository,
-      ledgerId: ledgerId,
-    );
+    final data = await batch.glance();
 
     final todayExpense = _currencyFormat.format(data.todayExpenseTotal);
     final todayIncome = _currencyFormat.format(data.todayIncomeTotal);
@@ -527,47 +538,36 @@ class WidgetManager {
       );
     }
 
-    await _renderView(view, spec: spec, logicalSize: renderSize);
+    await _renderView(view,
+        spec: spec,
+        logicalSize: renderSize,
+        themeColor: themeColor,
+        dark: dark);
   }
 
   /// 渲染净资产(netWorth):小/中/大三档,均已接 [NetWorthView] 真实视图。
   Future<void> _renderNetWorth(
     WidgetSpec spec, {
-    required BaseRepository repository,
+    required WidgetGatherBatch batch,
     required Color themeColor,
     required bool redForIncome,
     required bool dark,
-    required String baseCurrency,
     required String netWorthLabel,
     required String totalAssetsLabel,
     required String totalLiabilitiesLabel,
     required String noAccountsLabel,
   }) async {
-    final breakdown = await WidgetDataService.gatherNetWorthBreakdown(
-      repository: repository,
-      baseCurrency: baseCurrency,
-    );
+    final breakdown = await batch.netWorthBreakdown();
 
-    // 趋势统一取近 30 天(含今天),小/中/大三档共用同一条口径——首尾两点
-    // 近似"当前 vs 一个月前",给 NetWorthView 的环比 chip 用;取数窗口与
-    // WidgetDataService.gatherDashboard 的 30 日趋势口径一致。
-    final end = trendTodayAnchor();
-    final start = end.subtract(const Duration(days: 29));
-    final trend = await WidgetDataService.gatherNetWorthTrend(
-      repository: repository,
-      baseCurrency: baseCurrency,
-      start: start,
-      end: end,
-    );
+    // 趋势统一取近 30 天(含今天),小/中/大三档与 dashboard 共用批次内同一份
+    // (重查询只算一次,见 WidgetGatherBatch.netWorthTrend30 文档)。
+    final trend = await batch.netWorthTrend30();
 
-    // 账户明细只有大号才展示,小/中号不取这份数据,省一次查询。
+    // 账户明细只有大号才展示,小/中号不触发这份数据的查询(batch 惰性)。
     final topAccounts = spec.size == HWSize.large
-        ? await WidgetDataService.gatherNetWorthTopAccounts(
-            repository: repository,
-            baseCurrency: baseCurrency,
-            limit: 4,
-          )
+        ? await batch.netWorthTopAccounts()
         : const <NetWorthAccountItem>[];
+    final baseCurrency = batch.baseCurrency;
 
     final view = NetWorthView(
       size: spec.size,
@@ -588,26 +588,24 @@ class WidgetManager {
       height: spec.logicalSize.height,
     );
 
-    await _renderView(view, spec: spec, logicalSize: spec.logicalSize);
+    await _renderView(view,
+        spec: spec,
+        logicalSize: spec.logicalSize,
+        themeColor: themeColor,
+        dark: dark);
   }
 
   /// 渲染快速记账(quickAdd):小/中两档,均已接 [QuickAddView] 真实视图。
   Future<void> _renderQuickAdd(
     WidgetSpec spec, {
-    required BaseRepository repository,
-    required int ledgerId,
+    required WidgetGatherBatch batch,
     required Color themeColor,
     required bool dark,
     required String addLabel,
   }) async {
-    // medium 更宽,多展示一个分类格(见 QuickAddView 文档:small 前 3 个 +
-    // 记一笔,medium 前 4 个 + 记一笔)。
-    final limit = spec.size == HWSize.medium ? 4 : 3;
-    final categories = await WidgetDataService.gatherQuickAddCategories(
-      repository: repository,
-      ledgerId: ledgerId,
-      limit: limit,
-    );
+    // 批次内按最大需求取 4 个(medium 用满);small 由 QuickAddView 内部
+    // 截断到 3 个 + 补位(见 WidgetGatherBatch.quickAddCategories 文档)。
+    final categories = await batch.quickAddCategories();
 
     final view = QuickAddView(
       size: spec.size,
@@ -619,14 +617,17 @@ class WidgetManager {
       height: spec.logicalSize.height,
     );
 
-    await _renderView(view, spec: spec, logicalSize: spec.logicalSize);
+    await _renderView(view,
+        spec: spec,
+        logicalSize: spec.logicalSize,
+        themeColor: themeColor,
+        dark: dark);
   }
 
   /// 渲染预算进度(budget):小/中两档,均已接 [BudgetView] 真实视图。
   Future<void> _renderBudget(
     WidgetSpec spec, {
-    required BaseRepository repository,
-    required int ledgerId,
+    required WidgetGatherBatch batch,
     required Color themeColor,
     required bool redForIncome,
     required bool dark,
@@ -636,16 +637,10 @@ class WidgetManager {
     required String remainingLabel,
     required String noBudgetLabel,
   }) async {
-    final overview = await WidgetDataService.gatherBudget(
-      repository: repository,
-      ledgerId: ledgerId,
-    );
+    final overview = await batch.budget();
     // 预算金额没有独立币种列,固定跟随账本自身币种(与全局本位币
     // baseCurrency 是两个不同概念,见 gatherLedgerCurrency 文档)。
-    final currencyCode = await WidgetDataService.gatherLedgerCurrency(
-      repository: repository,
-      ledgerId: ledgerId,
-    );
+    final currencyCode = await batch.ledgerCurrency();
 
     final view = BudgetView(
       size: spec.size,
@@ -663,34 +658,29 @@ class WidgetManager {
       height: spec.logicalSize.height,
     );
 
-    await _renderView(view, spec: spec, logicalSize: spec.logicalSize);
+    await _renderView(view,
+        spec: spec,
+        logicalSize: spec.logicalSize,
+        themeColor: themeColor,
+        dark: dark);
   }
 
   /// 渲染最近交易(recent):中/大两档,均已接 [RecentView] 真实视图。
   Future<void> _renderRecent(
     WidgetSpec spec, {
-    required BaseRepository repository,
-    required int ledgerId,
+    required WidgetGatherBatch batch,
     required Color themeColor,
     required bool redForIncome,
     required bool dark,
     required String uncategorizedLabel,
     required String emptyLabel,
   }) async {
-    // large 更高,多展示几笔(见 RecentView 文档:medium 前 3 笔,large 前
-    // 6 笔)。
-    final limit = spec.size == HWSize.large ? 6 : 3;
-    final items = await WidgetDataService.gatherRecent(
-      repository: repository,
-      ledgerId: ledgerId,
-      limit: limit,
-    );
+    // 批次内按最大需求取 6 笔;medium 由 RecentView 内部截断到 3 笔
+    // (见 WidgetGatherBatch.recent 文档)。
+    final items = await batch.recent();
     // 交易金额格式化优先用交易自身 currencyCode,这里只是缺失时的兜底
-    // (账本自身币种,与 budget 用同一个 gatherLedgerCurrency)。
-    final defaultCurrency = await WidgetDataService.gatherLedgerCurrency(
-      repository: repository,
-      ledgerId: ledgerId,
-    );
+    // (账本自身币种,与 budget 共用批次内同一份 ledgerCurrency)。
+    final defaultCurrency = await batch.ledgerCurrency();
 
     final view = RecentView(
       size: spec.size,
@@ -705,7 +695,11 @@ class WidgetManager {
       height: spec.logicalSize.height,
     );
 
-    await _renderView(view, spec: spec, logicalSize: spec.logicalSize);
+    await _renderView(view,
+        spec: spec,
+        logicalSize: spec.logicalSize,
+        themeColor: themeColor,
+        dark: dark);
   }
 
   /// 渲染综合仪表盘(dashboard):仅大号一档,已接 [DashboardView] 真实视图。
@@ -714,12 +708,10 @@ class WidgetManager {
   /// (取数链路早在 Phase B1 就已就绪,本阶段只是逐个补上视图)。
   Future<void> _renderDashboard(
     WidgetSpec spec, {
-    required BaseRepository repository,
-    required int ledgerId,
+    required WidgetGatherBatch batch,
     required Color themeColor,
     required bool redForIncome,
     required bool dark,
-    required String baseCurrency,
     required String monthExpenseLabel,
     required String monthIncomeLabel,
     required String recentLabel,
@@ -727,19 +719,14 @@ class WidgetManager {
     required String noTransactionsLabel,
     required String quickAddLabel,
   }) async {
-    final data = await WidgetDataService.gatherDashboard(
-      repository: repository,
-      ledgerId: ledgerId,
-      baseCurrency: baseCurrency,
-    );
+    // 组合数据全部来自批次缓存(glance/趋势/最近交易/常用分类若已被其它 spec
+    // 取过则直接复用,见 WidgetGatherBatch.dashboard 文档)。
+    final data = await batch.dashboard();
     // 顶部本月支出/收入 + 内嵌最近交易行的金额格式化都是"单一账本视角",跟随
     // 账本自身币种,不是净值趋势用的全局本位币 baseCurrency(两者语义不同,
     // 见 gatherLedgerCurrency 文档;dashboard 是唯一同时需要这两种币种概念
     // 的 spec)。
-    final defaultCurrency = await WidgetDataService.gatherLedgerCurrency(
-      repository: repository,
-      ledgerId: ledgerId,
-    );
+    final defaultCurrency = await batch.ledgerCurrency();
 
     final view = DashboardView(
       data: data,
@@ -757,14 +744,34 @@ class WidgetManager {
       height: spec.logicalSize.height,
     );
 
-    await _renderView(view, spec: spec, logicalSize: spec.logicalSize);
+    await _renderView(view,
+        spec: spec,
+        logicalSize: spec.logicalSize,
+        themeColor: themeColor,
+        dark: dark);
   }
 
   /// 统一的"渲染 + 落盘日志"收尾,供各类型渲染方法复用。
+  ///
+  /// **红屏防护(2026-07 真机问题)**:home_widget 的 `renderFlutterWidget`
+  /// 用独立 BuildOwner 离屏渲染,视图 build 阶段抛异常不会向外传播为 Dart
+  /// 异常,而是被 Flutter 替换成 `ErrorWidget`——debug 构建下就是「整卡红屏」
+  /// 被原样渲进 PNG 显示在桌面上(release 下是灰卡),且真实异常堆栈被吞掉,
+  /// 无从排查。这里在渲染窗口内临时接管两个全局 hook:
+  ///
+  /// 1. [FlutterError.onError]:把真实异常 + 堆栈写进日志中心(持久化 48h,
+  ///    设置 → 日志中心可导出),这是定位真机红屏根因的关键线索;
+  /// 2. [ErrorWidget.builder]:换成透明占位,防止红屏内容进图;渲染结束后若
+  ///    确实捕获到异常,补渲一张干净的兜底卡(主题色刷新图标)覆盖落盘。
+  ///
+  /// 两个 hook 都是全局的,接管窗口仅限单次离屏渲染(毫秒级)并在 finally
+  /// 恢复;主应用树恰好同时报错的概率极低,可接受。
   Future<void> _renderView(
     Widget view, {
     required WidgetSpec spec,
     required Size logicalSize,
+    required Color themeColor,
+    required bool dark,
   }) async {
     logger.debug(
       _tag,
@@ -772,15 +779,48 @@ class WidgetManager {
       'Size: ${logicalSize.width}x${logicalSize.height}',
     );
 
-    await HomeWidget.renderFlutterWidget(
-      view,
-      // spec.imageKey 对 glance-medium 特判为 'widgetImage'(D2 back-compat,
-      // 详见 WidgetSpec.imageKey 注释),其余新 spec 才是 'widget_<type>_<size>'。
-      key: spec.imageKey,
-      logicalSize: logicalSize,
-      // 由 4.0 降为 3.0:更省内存,对 iOS 30MB widget 进程内存上限更友好。
-      pixelRatio: 3.0,
-    );
+    final prevOnError = FlutterError.onError;
+    final prevErrorBuilder = ErrorWidget.builder;
+    Object? captured;
+    FlutterError.onError = (details) {
+      captured ??= details.exception;
+      logger.error(_tag, '渲染 ${spec.imageKey} 视图内部异常(将改渲兜底卡)',
+          details.exception, details.stack);
+    };
+    ErrorWidget.builder = (details) => const SizedBox.shrink();
+    try {
+      await HomeWidget.renderFlutterWidget(
+        view,
+        // spec.imageKey 对 glance-medium 特判为 'widgetImage'(D2 back-compat,
+        // 详见 WidgetSpec.imageKey 注释),其余新 spec 才是 'widget_<type>_<size>'。
+        key: spec.imageKey,
+        logicalSize: logicalSize,
+        // 由 4.0 降为 3.0:更省内存,对 iOS 30MB widget 进程内存上限更友好。
+        pixelRatio: 3.0,
+      );
+    } finally {
+      FlutterError.onError = prevOnError;
+      ErrorWidget.builder = prevErrorBuilder;
+    }
+
+    if (captured != null) {
+      // 首次渲染已把(残缺的)图落盘,这里补渲一张干净的兜底卡覆盖——组件上
+      // 显示"主题色刷新图标卡"而非红屏/空白;真实根因见上面的 error 日志。
+      await HomeWidget.renderFlutterWidget(
+        _WidgetRenderFallbackCard(
+          themeColor: themeColor,
+          dark: dark,
+          width: logicalSize.width,
+          height: logicalSize.height,
+        ),
+        key: spec.imageKey,
+        logicalSize: logicalSize,
+        pixelRatio: 3.0,
+      );
+      logger.warning(
+          _tag, '${spec.imageKey} 渲染出错,已用兜底卡覆盖(根因见上条 error 日志)');
+      return;
+    }
 
     final savedPath = await HomeWidget.getWidgetData<String>(spec.imageKey);
     logger.debug(_tag, '${spec.imageKey} 渲染完成,保存路径: $savedPath');
@@ -816,5 +856,36 @@ class WidgetManager {
     } catch (_) {
       // 静默忽略,见上方注释。
     }
+  }
+}
+
+/// 视图渲染出错时的兜底卡(见 [WidgetManager._renderView] 红屏防护注释):
+/// 与正常卡片同底色圆角,中央一个主题色刷新图标——语言无关(纯图标,不需要
+/// 文案 i18n),点击组件仍走原生壳深链打开 App,打开后下一次渲染自动重试。
+class _WidgetRenderFallbackCard extends StatelessWidget {
+  final Color themeColor;
+  final bool dark;
+  final double width;
+  final double height;
+
+  const _WidgetRenderFallbackCard({
+    required this.themeColor,
+    required this.dark,
+    required this.width,
+    required this.height,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: dark ? const Color(0xFF1A1712) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Icon(Icons.refresh, size: 28, color: themeColor),
+    );
   }
 }

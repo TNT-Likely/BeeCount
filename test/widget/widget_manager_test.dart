@@ -135,5 +135,19 @@ void main() {
     test('warmUpAll=false 保持原有行为(null→默认集)', () {
       expect(selectSpecsToRender(null), WidgetSpec.defaultSet);
     });
+
+    test('orderCatalogForWarmUp:已安装的排最前,其余目录项跟后,总覆盖=全目录', () {
+      final ordered = orderCatalogForWarmUp(
+          const [WidgetSpec.dashboardLarge, WidgetSpec.recentMedium]);
+
+      expect(ordered.take(2),
+          [WidgetSpec.dashboardLarge, WidgetSpec.recentMedium]);
+      expect(ordered.toSet(), WidgetSpec.catalog.toSet());
+      expect(ordered.length, WidgetSpec.catalog.length);
+    });
+
+    test('orderCatalogForWarmUp:空安装列表退化为目录原序', () {
+      expect(orderCatalogForWarmUp(const []), WidgetSpec.catalog);
+    });
   });
 }

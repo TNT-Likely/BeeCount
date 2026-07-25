@@ -470,3 +470,95 @@ class WidgetDataService {
     return items.fold<double>(0.0, (sum, item) => sum + item.total);
   }
 }
+
+/// 一次渲染批次(`WidgetManager.updateAllWidgets` 单次调用)内的取数缓存。
+///
+/// 同一类型多个尺寸的 spec、以及 dashboard 对 glance/趋势/最近交易/常用分类
+/// 的复用,原本各自独立调用 `WidgetDataService.gather*`——预热(warm-up)
+/// 批次里 12 个 spec 会把 **30 天净值趋势(逐日余额,重查询)重复算 4 遍**
+/// (netWorth 小/中/大 + dashboard),是「添加小组件后隔很久才出来」的主要
+/// 耗时来源。本类把每种数据在一个批次内压到只查一次:memoize 的是 Future
+/// 本身——首个调用者触发查询,后续调用共享同一个 Future,天然并发安全。
+///
+/// 生命周期 = 一个批次:每次 `updateAllWidgets` 新建一个,批次结束即丢弃,
+/// 不做跨批次缓存(数据新鲜度优先,批次间数据本来就可能已变化)。
+class WidgetGatherBatch {
+  final BaseRepository repository;
+  final int ledgerId;
+  final String baseCurrency;
+
+  WidgetGatherBatch({
+    required this.repository,
+    required this.ledgerId,
+    required this.baseCurrency,
+  });
+
+  Future<GlanceWidgetData>? _glance;
+  Future<GlanceWidgetData> glance() => _glance ??=
+      WidgetDataService.gatherGlance(repository: repository, ledgerId: ledgerId);
+
+  Future<NetWorthBreakdownData>? _netWorthBreakdown;
+  Future<NetWorthBreakdownData> netWorthBreakdown() =>
+      _netWorthBreakdown ??= WidgetDataService.gatherNetWorthBreakdown(
+          repository: repository, baseCurrency: baseCurrency);
+
+  Future<List<({DateTime date, double assets, double liabilities, double net})>>?
+      _trend30;
+
+  /// 近 30 天(含今天)净值趋势,netWorth 三档与 dashboard 共用同一份。
+  Future<List<({DateTime date, double assets, double liabilities, double net})>>
+      netWorthTrend30() {
+    if (_trend30 != null) return _trend30!;
+    final end = trendTodayAnchor();
+    final start = end.subtract(const Duration(days: 29));
+    return _trend30 = WidgetDataService.gatherNetWorthTrend(
+        repository: repository,
+        baseCurrency: baseCurrency,
+        start: start,
+        end: end);
+  }
+
+  Future<List<NetWorthAccountItem>>? _topAccounts;
+
+  /// 账户明细(净资产大号专用,limit 4);惰性——只有大号 spec 在批次内出现
+  /// 时才触发这次查询。
+  Future<List<NetWorthAccountItem>> netWorthTopAccounts() =>
+      _topAccounts ??= WidgetDataService.gatherNetWorthTopAccounts(
+          repository: repository, baseCurrency: baseCurrency, limit: 4);
+
+  Future<List<QuickAddCategoryItem>>? _quickAdd;
+
+  /// 常用支出分类,按批次内最大需求(medium 的 4 个)取一次;small(3)与
+  /// dashboard(3)由 View 自行截断/补位(QuickAddView / DashboardView 内部
+  /// 都有 take)。
+  Future<List<QuickAddCategoryItem>> quickAddCategories() =>
+      _quickAdd ??= WidgetDataService.gatherQuickAddCategories(
+          repository: repository, ledgerId: ledgerId, limit: 4);
+
+  Future<BudgetOverview>? _budget;
+  Future<BudgetOverview> budget() => _budget ??=
+      WidgetDataService.gatherBudget(repository: repository, ledgerId: ledgerId);
+
+  Future<String>? _ledgerCurrency;
+  Future<String> ledgerCurrency() => _ledgerCurrency ??=
+      WidgetDataService.gatherLedgerCurrency(
+          repository: repository, ledgerId: ledgerId);
+
+  Future<List<RecentTransactionItem>>? _recent;
+
+  /// 最近交易,按批次内最大需求(large 的 6 笔)取一次;medium(3)与
+  /// dashboard(2)由 View 内部 take 截断。
+  Future<List<RecentTransactionItem>> recent() => _recent ??=
+      WidgetDataService.gatherRecent(
+          repository: repository, ledgerId: ledgerId, limit: 6);
+
+  /// dashboard 组合数据:全部由本批次已 memo 的各份数据拼装,不再走
+  /// [WidgetDataService.gatherDashboard](那会绕过缓存重复取数,尤其重复算
+  /// 30 天趋势)。
+  Future<DashboardWidgetData> dashboard() async => DashboardWidgetData(
+        glance: await glance(),
+        netWorthTrend: await netWorthTrend30(),
+        recent: await recent(),
+        quickAdd: await quickAddCategories(),
+      );
+}
