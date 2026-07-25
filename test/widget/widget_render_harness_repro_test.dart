@@ -18,8 +18,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:beecount/data/db.dart';
+import 'package:beecount/data/repositories/budget_repository.dart'
+    show BudgetOverview, BudgetUsage;
 import 'package:beecount/data/repositories/local/local_repository.dart';
+import 'package:beecount/widget/views/budget_view.dart';
 import 'package:beecount/widget/views/dashboard_view.dart';
+import 'package:beecount/widget/views/glance_view.dart';
+import 'package:beecount/widget/views/net_worth_view.dart';
+import 'package:beecount/widget/views/quick_add_view.dart';
 import 'package:beecount/widget/views/recent_view.dart';
 import 'package:beecount/widget/widget_data_service.dart';
 import 'package:beecount/widget/widget_spec.dart' show HWSize;
@@ -205,5 +211,108 @@ void main() {
     )));
     await tester.pump();
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('结构断言:所有小组件视图树内禁用 Scrollable(离屏树无 View 会炸,红屏根因)',
+      (tester) async {
+    // ScrollableState.didChangeDependencies 会调 View.of(context),而
+    // home_widget renderFlutterWidget 的离屏树没有 View 祖先 → 必抛
+    // "View.of() was called with a context that does not contain a View"
+    // (2026-07 真机 recent/dashboard 红屏根因;宿主测试树自带 View,
+    // takeException 复现不出,故用结构断言防回归)。防溢出兜底一律用
+    // WidgetOverflowClip(ClipRect+OverflowBox),不用 SingleChildScrollView。
+    const honey = Color(0xFFF5A623);
+    final now = DateTime(2026, 7, 20, 9, 30);
+    Transaction tx(int id) => Transaction(
+          id: id,
+          ledgerId: 1,
+          type: 'expense',
+          amount: 32,
+          categoryId: 1,
+          accountId: 1,
+          happenedAt: now,
+          excludeFromStats: false,
+          excludeFromBudget: false,
+        );
+    const cat = Category(
+        id: 1, name: '餐饮', kind: 'expense', icon: 'restaurant',
+        sortOrder: 1, level: 1, iconType: 'material');
+    const acc = Account(
+        id: 1, ledgerId: 1, name: '招商银行', type: 'bank', currency: 'CNY',
+        initialBalance: 0, sortOrder: 1, hidden: false);
+    final items = [
+      for (var i = 1; i <= 6; i++)
+        RecentTransactionItem(transaction: tx(i), category: cat, account: acc),
+    ];
+    final trend = [
+      for (var i = 0; i < 10; i++)
+        (
+          date: DateTime(2026, 7, 1 + i),
+          assets: 1000.0 + i,
+          liabilities: 100.0,
+          net: 900.0 + i,
+        ),
+    ];
+    final quickAdd = const [
+      QuickAddCategoryItem(categoryId: 1, name: '餐饮', icon: 'restaurant', total: 10),
+      QuickAddCategoryItem(categoryId: 2, name: '交通', icon: 'directions_car', total: 8),
+      QuickAddCategoryItem(categoryId: 3, name: '购物', icon: 'shopping_cart', total: 6),
+    ];
+
+    final views = <String, Widget>{
+      'GlanceView.medium': const GlanceView.medium(
+        todayExpense: '¥1', todayIncome: '¥2', monthExpense: '¥3',
+        monthIncome: '¥4', themeColor: honey, redForIncome: true, dark: false,
+        appName: 'B', monthSuffix: '月', todayExpenseLabel: 'a',
+        todayIncomeLabel: 'b', monthExpenseLabel: 'c', monthIncomeLabel: 'd',
+        width: 364, height: 169,
+      ),
+      'NetWorthView.large(含账户明细)': NetWorthView(
+        size: HWSize.large, netWorth: 900, totalAssets: 1000,
+        totalLiabilities: 100, baseCurrency: 'CNY', trend: trend,
+        topAccounts: [
+          const NetWorthAccountItem(account: acc, balance: 10, convertedBalance: 10),
+        ],
+        themeColor: honey, redForIncome: true, dark: false,
+        netWorthLabel: 'n', totalAssetsLabel: 'a', totalLiabilitiesLabel: 'l',
+        width: 364, height: 382,
+      ),
+      'QuickAddView.small': QuickAddView(
+        size: HWSize.small, categories: quickAdd, themeColor: honey,
+        dark: false, addLabel: '+', width: 155, height: 155,
+      ),
+      'BudgetView.medium': BudgetView(
+        size: HWSize.medium,
+        overview: BudgetOverview(
+            totalBudget: BudgetUsage(used: 5, budget: 10),
+            categoryBudgets: const [], daysRemaining: 1, dailyAvailable: 1),
+        currencyCode: 'CNY', themeColor: honey, redForIncome: true,
+        dark: false, width: 364, height: 169,
+      ),
+      'RecentView.large(6 行)': RecentView(
+        size: HWSize.large, items: items, defaultCurrency: 'CNY',
+        themeColor: honey, redForIncome: true, dark: false,
+        width: 364, height: 382,
+      ),
+      'DashboardView': DashboardView(
+        data: DashboardWidgetData(
+            glance: const GlanceWidgetData(
+                todayExpenseTotal: 1, todayIncomeTotal: 2,
+                monthExpenseTotal: 3, monthIncomeTotal: 4),
+            netWorthTrend: trend, recent: items.take(2).toList(),
+            quickAdd: quickAdd),
+        defaultCurrency: 'CNY', themeColor: honey, redForIncome: true,
+        dark: false, width: 364, height: 382,
+      ),
+    };
+
+    for (final entry in views.entries) {
+      await tester.pumpWidget(harnessWrap(entry.value));
+      await tester.pump();
+      expect(tester.takeException(), isNull, reason: '${entry.key} 渲染抛异常');
+      expect(find.byType(Scrollable), findsNothing,
+          reason: '${entry.key} 树内出现 Scrollable——离屏渲染(无 View 祖先)必炸,'
+              '防溢出请改用 WidgetOverflowClip');
+    }
   });
 }

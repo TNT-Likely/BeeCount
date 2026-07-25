@@ -31,8 +31,8 @@ import 'widget_view_style.dart';
 /// `Expanded` 吸收剩余空间、按自然高度排布其余定长区块,不给任何区块写死
 /// 高度——这是 `NetWorthView` medium/large 踩过 `RenderFlex` 溢出后总结的
 /// 教训(见该文件文档),这里从一开始就照此原则实现。最近交易列表额外包一层
-/// 不可滚动的 `SingleChildScrollView` 兜底(同 `RecentView` 的技术),双重
-/// 保险防止真实设备字体度量差异导致溢出。
+/// [WidgetOverflowClip] 裁切兜底(同 `RecentView` 的技术;**禁用 Scrollable**,
+/// 离屏树无 View 会炸,见其文档),双重保险防止真实设备字体度量差异导致溢出。
 class DashboardView extends StatelessWidget {
   /// dashboard 目前只有大号一档(见 `WidgetSpec.catalog`),这里保留字段是
   /// 为了与其它 View 的构造参数风格保持一致(便于未来若新增中号档位时不用
@@ -138,8 +138,7 @@ class DashboardView extends StatelessWidget {
                       style: TextStyle(fontSize: 11, color: widgetTextTertiary(dark)),
                     ),
                   )
-                : SingleChildScrollView(
-                    physics: const NeverScrollableScrollPhysics(),
+                : WidgetOverflowClip(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

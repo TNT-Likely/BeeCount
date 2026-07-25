@@ -83,11 +83,12 @@ class RecentView extends StatelessWidget {
                 style: TextStyle(fontSize: 12, color: widgetTextTertiary(dark)),
               ),
             )
-          : SingleChildScrollView(
-              // 行数理论上已被 _limit 控制在 3/6,这里仍防御性禁用滚动 + 裁切
-              // 兜底(同 NetWorthView 大号账户列表的技术):即便真实设备字体
-              // 度量比预期更高,也只是裁切而不是抛 RenderFlex 溢出异常。
-              physics: const NeverScrollableScrollPhysics(),
+          : WidgetOverflowClip(
+              // 行数理论上已被 _limit 控制在 3/6,这里仍防御性裁切兜底(同
+              // NetWorthView 大号账户列表):即便真实设备字体度量比预期更高,
+              // 也只是裁切而不是抛 RenderFlex 溢出。注意**不能**用
+              // SingleChildScrollView——离屏树无 View 会炸,见
+              // WidgetOverflowClip 文档(真机红屏根因)。
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

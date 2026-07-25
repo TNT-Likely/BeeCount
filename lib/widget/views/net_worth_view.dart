@@ -24,8 +24,9 @@ import 'widget_view_style.dart';
 ///
 /// 为避免固定尺寸(iOS/Android 网格档位)下出现 `RenderFlex` 溢出,可变长度
 /// 的区块(sparkline / 账户列表)一律用 `Expanded` 吸收剩余空间,账户列表
-/// 额外包一层不可滚动的 `SingleChildScrollView` 兜底——即便数据行数多于
-/// 预期空间,也只是裁切而不是抛异常(桌面小组件图本来就不能真的滚动)。
+/// 额外包一层 [WidgetOverflowClip] 裁切兜底——即便数据行数多于预期空间,
+/// 也只是裁切而不是抛异常(**禁用 Scrollable**:离屏树无 View 会炸,见
+/// WidgetOverflowClip 文档;桌面小组件图本来就不能真的滚动)。
 class NetWorthView extends StatelessWidget {
   final HWSize size;
 
@@ -357,8 +358,7 @@ class NetWorthView extends StatelessWidget {
                       style: TextStyle(fontSize: 11, color: widgetTextTertiary(dark)),
                     ),
                   )
-                : SingleChildScrollView(
-                    physics: const NeverScrollableScrollPhysics(),
+                : WidgetOverflowClip(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: topAccounts.take(4).map(_accountRow).toList(),

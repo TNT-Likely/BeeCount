@@ -194,3 +194,34 @@ class _WidgetSparklinePainter extends CustomPainter {
       oldDelegate.filled != filled ||
       oldDelegate.strokeWidth != strokeWidth;
 }
+
+/// 离屏渲染安全的「内容超高裁切」兜底,替代
+/// `SingleChildScrollView(physics: NeverScrollableScrollPhysics())`:
+/// child 按自然高度布局,超出可用高度时静默裁切,不抛 RenderFlex 溢出。
+///
+/// **为什么不能用 SingleChildScrollView(2026-07 真机红屏根因)**:
+/// `ScrollableState.didChangeDependencies` 会调 `View.of(context)`,而
+/// home_widget `renderFlutterWidget` 的离屏树是手工 `attachToRenderTree`
+/// 的,树里**没有 View 祖先** → 一 build 就抛
+/// "View.of() was called with a context that does not contain a View",
+/// debug 构建下整卡被替换成红屏渲进 PNG(recent/dashboard/netWorth-large
+/// 真机红屏的根因)。宿主 flutter_test 的树自带 View,复现不出,只在真机
+/// 离屏渲染触发。**小组件视图一律禁用任何 Scrollable**——有结构断言测试
+/// 守着(见 `test/widget/widget_render_harness_repro_test.dart`)。
+class WidgetOverflowClip extends StatelessWidget {
+  final Widget child;
+
+  const WidgetOverflowClip({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRect(
+      child: OverflowBox(
+        minHeight: 0,
+        maxHeight: double.infinity,
+        alignment: Alignment.topCenter,
+        child: child,
+      ),
+    );
+  }
+}
