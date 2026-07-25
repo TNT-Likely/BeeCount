@@ -206,8 +206,21 @@ class BudgetView extends StatelessWidget {
               ),
             ),
           ),
+          // 底部拆两行:155dp 小卡放不下「剩 ¥x / 总额 ¥y」一行千位金额
+          // (真机反馈被 ellipsis 截断),两行各自短、基本不会再截。
           Text(
-            '$remainingLabel ${_money(total.remaining)} / $totalLabel ${_money(total.budget)}',
+            '$remainingLabel ${_money(total.remaining)}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 11,
+              color: widgetTextSecondary(dark),
+              fontFeatures: const [kWidgetTabularFeature],
+            ),
+          ),
+          const SizedBox(height: 1),
+          Text(
+            '$totalLabel ${_money(total.budget)}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(

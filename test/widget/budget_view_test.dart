@@ -57,6 +57,38 @@ void main() {
     expect(find.text('17%'), findsOneWidget);
   });
 
+  // 小卡底部拆两行:千位金额也放得下(真机反馈单行被 ellipsis 截断)。
+  testWidgets('small:千位金额底部两行完整显示,不截断', (tester) async {
+    const size = Size(155, 155);
+    await tester.pumpWidget(Directionality(
+      textDirection: TextDirection.ltr,
+      child: SizedBox(
+        width: size.width,
+        height: size.height,
+        child: BudgetView(
+          size: HWSize.small,
+          overview: BudgetOverview(
+            totalBudget: BudgetUsage(used: 6842, budget: 8000),
+            categoryBudgets: const [],
+            daysRemaining: 11,
+            dailyAvailable: 105.3,
+          ),
+          currencyCode: 'CNY',
+          themeColor: const Color(0xFFF5A623),
+          redForIncome: true,
+          dark: false,
+          width: size.width,
+          height: size.height,
+        ),
+      ),
+    ));
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('剩 ¥1,158'), findsOneWidget);
+    expect(find.text('总额 ¥8,000'), findsOneWidget);
+  });
+
   CategoryBudgetUsage category(String name, double used, double budget) {
     return CategoryBudgetUsage(
       budgetId: name.hashCode,

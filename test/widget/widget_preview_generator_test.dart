@@ -531,9 +531,9 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
     BudgetView(
       size: HWSize.small,
       overview: BudgetOverview(
-        // 数字刻意取小:155dp 小卡底部一行「剩 ¥x / 总额 ¥y」要能完整放下,
-        // 大金额会被 ellipsis 截断,预览图不好看。
-        totalBudget: BudgetUsage(used: 684, budget: 800),
+        // 真实典型金额:底部已拆两行(剩 ¥x / 总额 ¥y 各一行),千位金额也
+        // 放得下——预览同时验证两行布局不截断。
+        totalBudget: BudgetUsage(used: 6842, budget: 8000),
         categoryBudgets: [
           CategoryBudgetUsage(
             budgetId: 1,
@@ -692,6 +692,26 @@ void main() {
     (tester) async {
       await _generatePack(tester, _zh);
       await _generatePack(tester, _en);
+
+      // 同步一份到 iOS 扩展 bundle(添加页静态预览,见 WidgetPreviewAssets):
+      // Android 语言目录 → ios/BeeCountWidget/Previews/<base>_{zh,en}.png,
+      // 避免双份资产漂移(iOS 那份最初是手工拷的快照,现在随生成器自动同步)。
+      const iosDir = 'ios/BeeCountWidget/Previews';
+      Directory(iosDir).createSync(recursive: true);
+      var synced = 0;
+      for (final pack in [_zh, _en]) {
+        for (final f in Directory(pack.outDir).listSync().whereType<File>()) {
+          final base = f.uri.pathSegments.last;
+          if (!base.startsWith('widget_preview_') || !base.endsWith('.png')) {
+            continue;
+          }
+          final name = base.substring(0, base.length - 4);
+          f.copySync('$iosDir/${name}_${pack.name}.png');
+          synced++;
+        }
+      }
+      // ignore: avoid_print
+      print('已同步 $synced 个预览到 $iosDir');
     },
     // 预览图生成器:GEN_WIDGET_PREVIEWS=1 手动运行,CI 上自动跳过。
     skip: !_enabled,
