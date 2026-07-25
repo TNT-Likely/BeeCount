@@ -31,11 +31,21 @@ struct BeeCountProvider: TimelineProvider {
     func placeholder(in context: Context) -> BeeCountEntry {
         BeeCountEntry(
             date: Date(),
-            widgetImagePath: ""
+            // 添加页预览:用 bundle 内静态资产(见 WidgetPreviewAssets 注释)。
+            widgetImagePath: WidgetPreviewAssets.path(forImageKey: imageKey(for: context.family))
         )
     }
 
     func getSnapshot(in context: Context, completion: @escaping (BeeCountEntry) -> ()) {
+        // 添加页预览(isPreview):运行时图片在预览上下文读不到(App
+        // Group 访问受限,添加页只会显示占位色块),改用 bundle 内静态
+        // 预览资产,详见 WidgetPreviewAssets。
+        if context.isPreview {
+            completion(BeeCountEntry(
+                date: Date(),
+                widgetImagePath: WidgetPreviewAssets.path(forImageKey: imageKey(for: context.family))))
+            return
+        }
         let userDefaults = UserDefaults(suiteName: "group.com.tntlikely.beecount")
         let imagePath = userDefaults?.string(forKey: imageKey(for: context.family)) ?? ""
         let entry = BeeCountEntry(date: Date(), widgetImagePath: imagePath)

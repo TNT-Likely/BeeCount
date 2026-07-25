@@ -564,7 +564,11 @@ class _BeeAppState extends ConsumerState<BeeApp>
         nav.push(MaterialPageRoute(builder: (_) => const BudgetPage()));
         break;
       case 'detail':
-        nav.push(MaterialPageRoute(builder: (_) => const AnalyticsPage()));
+        // 最近交易 / 仪表盘主体 → 首页明细列表:App 没有独立的明细页,首页
+        // 就是完整账单流,切回主壳首页 tab 而不是 push 页面。(此前误映射到
+        // 洞察/统计页,真机反馈"点小组件进了洞察页"。)
+        nav.popUntil((route) => route.isFirst);
+        ref.read(bottomTabIndexProvider.notifier).state = 0;
         break;
       default:
         logger.warning('AppLink', 'open 未知 page: $page');

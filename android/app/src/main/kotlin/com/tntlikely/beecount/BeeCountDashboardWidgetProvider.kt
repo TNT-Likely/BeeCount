@@ -57,18 +57,24 @@ class BeeCountDashboardWidgetProvider : HomeWidgetProvider() {
                         setImageViewResource(R.id.widget_image, R.mipmap.ic_launcher)
                     }
 
-                    // 整块点击 → 明细页。第一版不分区。
-                    // TODO: 各分区(本月收支/趋势/最近交易/快捷记账行)分区深链是
-                    // 后续细化,例如最近交易区域跳 open?page=detail、快捷记账行跳
-                    // new?type=expense,届时参考 BeeCountWidgetProvider 的分区写法。
+                    // 分区点击(2026-07 真机反馈:底部画着「记一笔」却整块跳
+                    // 明细,点记一笔进了洞察页):上部主体 → 明细,底部快捷
+                    // 记账行 → 记支出。
                     try {
-                        val intent = createLaunchIntentWithDeepLink(context, "beecount://open?page=detail")
-                        val pending = PendingIntent.getActivity(
-                            context, widgetId, intent,
+                        val detailIntent = createLaunchIntentWithDeepLink(context, "beecount://open?page=detail")
+                        val detailPending = PendingIntent.getActivity(
+                            context, widgetId * 10 + 1, detailIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                         )
-                        setOnClickPendingIntent(R.id.widget_click, pending)
-                        Log.d(TAG, "Set click handler")
+                        setOnClickPendingIntent(R.id.widget_click, detailPending)
+
+                        val expenseIntent = createLaunchIntentWithDeepLink(context, "beecount://new?type=expense")
+                        val expensePending = PendingIntent.getActivity(
+                            context, widgetId * 10 + 2, expenseIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        )
+                        setOnClickPendingIntent(R.id.click_quick_add, expensePending)
+                        Log.d(TAG, "Set click handlers (detail + quick add)")
                     } catch (e: Exception) {
                         Log.e(TAG, "Failed to set click", e)
                     }

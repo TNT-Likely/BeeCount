@@ -22,11 +22,21 @@ struct BeeCountDashboardProvider: TimelineProvider {
     func placeholder(in context: Context) -> BeeCountDashboardEntry {
         BeeCountDashboardEntry(
             date: Date(),
-            widgetImagePath: ""
+            // 添加页预览:用 bundle 内静态资产(见 WidgetPreviewAssets 注释)。
+            widgetImagePath: WidgetPreviewAssets.path(forImageKey: imageKey)
         )
     }
 
     func getSnapshot(in context: Context, completion: @escaping (BeeCountDashboardEntry) -> ()) {
+        // 添加页预览(isPreview):运行时图片在预览上下文读不到(App
+        // Group 访问受限,添加页只会显示占位色块),改用 bundle 内静态
+        // 预览资产,详见 WidgetPreviewAssets。
+        if context.isPreview {
+            completion(BeeCountDashboardEntry(
+                date: Date(),
+                widgetImagePath: WidgetPreviewAssets.path(forImageKey: imageKey)))
+            return
+        }
         let userDefaults = UserDefaults(suiteName: "group.com.tntlikely.beecount")
         let imagePath = userDefaults?.string(forKey: imageKey) ?? ""
         let entry = BeeCountDashboardEntry(date: Date(), widgetImagePath: imagePath)
@@ -49,21 +59,33 @@ struct BeeCountDashboardWidgetEntryView : View {
     var entry: BeeCountDashboardProvider.Entry
     @Environment(\.widgetFamily) var widgetFamily
 
-    // 综合仪表盘卡片点击 → 明细页。第一版整块点击、不分区。
-    // TODO: 各分区（本月收支/趋势/最近交易/快捷记账行）分区深链是后续细化，
-    // 例如最近交易区域跳 `open?page=detail`、快捷记账行跳
-    // `new?type=expense`，届时参考 BeeCountWidget.swift 的
-    // GeometryReader 分区写法。
+    // 分区点击(2026-07 真机反馈:底部画着「记一笔」却整块跳明细,点记一笔
+    // 进了洞察页):上部主体 → 明细,底部快捷记账行 → 记支出。
     private let detailURL = URL(string: "beecount://open?page=detail")!
+    private let expenseURL = URL(string: "beecount://new?type=expense")!
 
     var body: some View {
         if let uiImage = UIImage(contentsOfFile: entry.widgetImagePath) {
-            Link(destination: detailURL) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
+            GeometryReader { geometry in
+                ZStack {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+
+                    // 透明点击层:底部快捷记账行约占卡片高度 18%
+                    // (与 DashboardView 底部按钮行的布局比例对齐)。
+                    VStack(spacing: 0) {
+                        Link(destination: detailURL) {
+                            Color.clear
+                        }
+                        .frame(height: geometry.size.height * 0.82)
+                        Link(destination: expenseURL) {
+                            Color.clear
+                        }
+                    }
+                }
             }
         } else {
             // Placeholder view when image is not available

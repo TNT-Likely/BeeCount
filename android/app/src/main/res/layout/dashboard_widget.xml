@@ -18,13 +18,27 @@
         android:contentDescription="Widget content" />
 
     <!--
-        整块点击层:第一版不分区,点击任意位置都跳同一深链。
-        TODO: 分区点击(本月收支/趋势/最近交易/快捷记账行)见
-        BeeCountDashboardWidgetProvider 注释。
+        分区点击层(2026-07 真机反馈:底部画着「记一笔」却整块跳明细):
+        上部主体(82%)→ 明细;底部快捷记账行(18%,与 DashboardView 底部
+        按钮行的布局比例对齐)→ 记支出。比例分区与老 glance(28% header)
+        同一套近似技术。
     -->
-    <FrameLayout
-        android:id="@+id/widget_click"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/widget_click"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="82" />
+
+        <FrameLayout
+            android:id="@+id/click_quick_add"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="18" />
+    </LinearLayout>
 
 </FrameLayout>
