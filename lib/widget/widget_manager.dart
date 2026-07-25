@@ -45,7 +45,15 @@ List<WidgetSpec> matchInstalledSpecs(List<HomeWidgetInfo> infos) {
 /// - 其余情况原样返回(按 (type,size) 去重),不做进一步过滤。
 ///
 /// 纯函数,不依赖平台通道,便于单测。
-List<WidgetSpec> selectSpecsToRender(List<WidgetSpec>? installed) {
+List<WidgetSpec> selectSpecsToRender(
+  List<WidgetSpec>? installed, {
+  bool warmUpAll = false,
+}) {
+  // 预热模式:无视"已安装"列表,渲染整个目录(D5「只渲已安装」的显式例外,
+  // 动机见 updateAllWidgets 的 warmUpAllSpecs 参数文档)。
+  if (warmUpAll) {
+    return WidgetSpec.catalog;
+  }
   if (installed == null) {
     return WidgetSpec.defaultSet;
   }
@@ -176,9 +184,18 @@ class WidgetManager {
     // `widgetRecentTransactions`。其余文案(本月支出/收入、未分类、暂无交易、
     // 记一笔)全部复用上面 glance/recent/quickAdd 已有的同名参数,不重复造词。
     String dashboardRecentLabel = '最近交易',
+    // 预热:true 时渲染整个 [WidgetSpec.catalog] 而非仅"已安装"(D5 的显式
+    // 例外)。用于 App 启动 / 切账本这类低频时机,把全部类型×尺寸的图先备好
+    // ——否则用户添加一个从未渲染过的组件类型时,共享存储里没有对应图片,
+    // 原生壳只能显示占位,要等下一次 App 内触发渲染才有内容("添加小组件后
+    // 得等一会才渲染好"的根因)。改主题色 / 记一笔等高频数据变化触发仍走
+    // "只渲已安装"的快路径,不受影响。
+    bool warmUpAllSpecs = false,
   }) async {
     try {
-      final specs = await _resolveSpecsToRender();
+      final specs = warmUpAllSpecs
+          ? selectSpecsToRender(null, warmUpAll: true)
+          : await _resolveSpecsToRender();
       if (specs.isEmpty) {
         logger.debug(_tag, '没有已安装的桌面组件,跳过本次渲染');
         return;
@@ -270,6 +287,7 @@ class WidgetManager {
     required Locale? explicitLocale,
     bool redForIncome = true,
     String baseCurrency = 'CNY',
+    bool warmUpAllSpecs = false,
   }) {
     final l10n = resolveWidgetLocalizations(explicitLocale);
     return updateAllWidgets(
@@ -277,6 +295,7 @@ class WidgetManager {
       ledgerId,
       themeColor,
       redForIncome: redForIncome,
+      warmUpAllSpecs: warmUpAllSpecs,
       appName: l10n.appTitle,
       monthSuffix: l10n.widgetMonthSuffix,
       todayLabel: l10n.widgetToday,

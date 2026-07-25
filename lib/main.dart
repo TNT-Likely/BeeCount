@@ -188,9 +188,13 @@ class _WidgetUpdateObserver extends ProviderObserver {
         explicitLocale: locale,
         redForIncome: redForIncome,
         baseCurrency: baseCurrency,
+        // 预热:启动 / 切账本时把全部类型×尺寸的图渲染齐,这样用户随后往桌面
+        // 添加任何一种小组件都立刻有图可显,不用等下一次 App 内触发渲染
+        // (「添加小组件后得等一会」的修复;高频数据变化触发仍只渲已安装)。
+        warmUpAllSpecs: true,
       );
 
-      logger.info('App', '小组件数据已更新');
+      logger.info('App', '小组件数据已更新(全目录预热)');
     } catch (e) {
       logger.warning('App', '更新小组件失败（可能在不支持的平台上运行）: $e');
     }

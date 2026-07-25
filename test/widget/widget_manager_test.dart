@@ -119,4 +119,21 @@ void main() {
       expect(matchInstalledSpecs(infos), [WidgetSpec.netWorthLarge]);
     });
   });
+
+  group('selectSpecsToRender warmUpAll(预热)', () {
+    test('warmUpAll 渲染整个目录,与"已安装"入参无关', () {
+      // 预热是 D5「只渲已安装」的显式例外:App 启动/切账本时把全部类型×尺寸的
+      // 图备好,用户随后添加任何组件都立刻有图(修「添加后要等一会」)。
+      expect(selectSpecsToRender(null, warmUpAll: true), WidgetSpec.catalog);
+      expect(selectSpecsToRender(const [], warmUpAll: true), WidgetSpec.catalog);
+      expect(
+        selectSpecsToRender(const [WidgetSpec.glanceMedium], warmUpAll: true),
+        WidgetSpec.catalog,
+      );
+    });
+
+    test('warmUpAll=false 保持原有行为(null→默认集)', () {
+      expect(selectSpecsToRender(null), WidgetSpec.defaultSet);
+    });
+  });
 }
