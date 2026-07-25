@@ -93,10 +93,17 @@ class WidgetSpec {
   }
 
   // ---- 收支速览(glance):小/中 ----
+  /// 小号(补全新增):iOS 挂在**现有** kind `BeeCountWidget` 的 systemSmall
+  /// family 下(增量注册,存量中号放置不受影响);Android 因老 provider 不可
+  /// 改动(D2),用独立的 GlanceSmall provider 承载。
   static const glanceSmall = WidgetSpec._(
     type: HWType.glance,
     size: HWSize.small,
     logicalSize: Size(155, 155),
+    iosKind: 'BeeCountWidget',
+    iosFamily: 'systemSmall',
+    androidClassName:
+        'com.tntlikely.beecount.BeeCountGlanceSmallWidgetProvider',
   );
 
   /// 现有唯一已上线的组件:中号收支速览。原生标识与升级前完全一致

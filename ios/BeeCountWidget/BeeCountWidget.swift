@@ -7,6 +7,7 @@
 
 import WidgetKit
 import SwiftUI
+import UIKit
 
 struct BeeCountEntry: TimelineEntry {
     let date: Date
@@ -14,6 +15,19 @@ struct BeeCountEntry: TimelineEntry {
 }
 
 struct BeeCountProvider: TimelineProvider {
+    /// 按 widget family 选渲染管线写入的图片 key。中号沿用历史 key
+    /// `widgetImage`(D2 back-compat:存量已放置的中号组件依赖它,不可改名),
+    /// 小号是补全新增(对应 `lib/widget/widget_spec.dart` 的 `glanceSmall`,
+    /// key `widget_glance_small`)。
+    private func imageKey(for family: WidgetFamily) -> String {
+        switch family {
+        case .systemSmall:
+            return "widget_glance_small"
+        default:
+            return "widgetImage"
+        }
+    }
+
     func placeholder(in context: Context) -> BeeCountEntry {
         BeeCountEntry(
             date: Date(),
@@ -23,14 +37,14 @@ struct BeeCountProvider: TimelineProvider {
 
     func getSnapshot(in context: Context, completion: @escaping (BeeCountEntry) -> ()) {
         let userDefaults = UserDefaults(suiteName: "group.com.tntlikely.beecount")
-        let imagePath = userDefaults?.string(forKey: "widgetImage") ?? ""
+        let imagePath = userDefaults?.string(forKey: imageKey(for: context.family)) ?? ""
         let entry = BeeCountEntry(date: Date(), widgetImagePath: imagePath)
         completion(entry)
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
         let userDefaults = UserDefaults(suiteName: "group.com.tntlikely.beecount")
-        let imagePath = userDefaults?.string(forKey: "widgetImage") ?? ""
+        let imagePath = userDefaults?.string(forKey: imageKey(for: context.family)) ?? ""
         let entry = BeeCountEntry(date: Date(), widgetImagePath: imagePath)
 
         // 设置30分钟后刷新
@@ -49,6 +63,19 @@ struct BeeCountWidgetEntryView : View {
 
     var body: some View {
         if let uiImage = UIImage(contentsOfFile: entry.widgetImagePath) {
+            // 小号(补全新增):整卡点击 → 记支出(小号主视觉就是今日支出大数,
+            // 没有中号的左右分区语义)。中号保持原有左右分区点击不变。
+            if widgetFamily == .systemSmall {
+                return AnyView(
+                    Link(destination: expenseURL) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .clipped()
+                    }
+                )
+            }
             return AnyView(
                 GeometryReader { geometry in
                     ZStack {
@@ -114,7 +141,7 @@ struct BeeCountWidget: Widget {
         }
         .configurationDisplayName("蜜蜂记账")
         .description("显示今日和本月的收支情况")
-        .supportedFamilies([.systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabled()  // Remove default padding/margins in iOS 17+
     }
 }

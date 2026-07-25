@@ -5,6 +5,7 @@
          機制回退到 values/ 預設值。 -->
     <!-- 小組件名稱(選擇器 android:label) -->
     <string name="widget_name">收支速覽</string>
+    <string name="widget_glance_small_name">收支速覽·小</string>
     <string name="widget_networth_name">淨資產</string>
     <string name="widget_quickadd_name">快速記帳</string>
     <string name="widget_budget_name">預算進度</string>
@@ -13,6 +14,7 @@
 
     <!-- 小組件描述(android:description) -->
     <string name="widget_description">查看今日和本月的收支情況</string>
+    <string name="widget_glance_small_description">今日支出一眼可見,點按直接記一筆</string>
     <string name="widget_networth_description">總資產、總負債與淨值趨勢</string>
     <string name="widget_quickadd_description">常用分類一鍵速記</string>
     <string name="widget_budget_description">預算進度即時掌握</string>

@@ -97,6 +97,33 @@ class WidgetManagementPage extends ConsumerWidget {
                 ),
                 SizedBox(height: 12.0.scaled(context, ref)),
 
+                // 1.5 收支速览·小号(独立可添加档位:Android 是单独的
+                // provider、iOS 是同 kind 的 systemSmall family,画廊里单独
+                // 露出一卡,让用户知道有这个小方块可加)
+                _buildGalleryCard(
+                  context,
+                  ref,
+                  title: l10n.widgetGalleryGlanceTitle,
+                  subtitle: l10n.widgetGalleryGlanceDesc,
+                  sizeLabel: l10n.widgetSizeSmall,
+                  previewSize: const Size(155, 155),
+                  preview: GlanceView.small(
+                    todayExpense: '¥88.50',
+                    monthExpense: '¥3,200.50',
+                    monthIncome: '¥8,000.00',
+                    themeColor: primaryColor,
+                    redForIncome: redForIncome,
+                    dark: dark,
+                    todayLabel: l10n.widgetToday,
+                    todayExpenseLabel: l10n.widgetTodayExpense,
+                    monthExpenseLabel: l10n.widgetMonthExpense,
+                    monthIncomeLabel: l10n.widgetMonthIncome,
+                    width: 155,
+                    height: 155,
+                  ),
+                ),
+                SizedBox(height: 12.0.scaled(context, ref)),
+
                 // 2. 净资产
                 _buildGalleryCard(
                   context,

@@ -68,6 +68,7 @@ class _Pack {
   final String sym; // glance 预格式化金额用的符号
   // glance
   final String appName, monthSuffix;
+  final String todayLabel; // GlanceView.small「今日」徽章(widgetToday)
   final String todayExpenseLabel, todayIncomeLabel;
   final String monthExpenseLabel, monthIncomeLabel;
   // netWorth
@@ -87,6 +88,7 @@ class _Pack {
     required this.sym,
     required this.appName,
     required this.monthSuffix,
+    required this.todayLabel,
     required this.todayExpenseLabel,
     required this.todayIncomeLabel,
     required this.monthExpenseLabel,
@@ -114,6 +116,7 @@ const _zh = _Pack(
   sym: '¥',
   appName: '蜜蜂记账',
   monthSuffix: '月',
+  todayLabel: '今日',
   todayExpenseLabel: '今日支出',
   todayIncomeLabel: '今日收入',
   monthExpenseLabel: '本月支出',
@@ -140,6 +143,7 @@ const _en = _Pack(
   sym: '\$',
   appName: 'Bee Accounting', // appTitle
   monthSuffix: '', // widgetMonthSuffix(en 为空,徽章只显示月份数字)
+  todayLabel: 'Today', // widgetToday
   todayExpenseLabel: "Today's Expense", // widgetTodayExpense
   todayIncomeLabel: "Today's Income", // widgetTodayIncome
   monthExpenseLabel: "Month's Expense", // widgetMonthExpense
@@ -355,6 +359,30 @@ List<RecentTransactionItem> _recentItems(_Pack p) {
 }
 
 Future<void> _generatePack(WidgetTester tester, _Pack p) async {
+  // 0) 收支速览·小号(Android 独立 provider 的选择器预览;iOS 走 placeholder
+  // 不用它,但同名资源两语都备齐)
+  await _capture(
+    tester,
+    GlanceView.small(
+      todayExpense: '${p.sym}128.50',
+      // 155dp 小卡底部双栏放不下千位金额(会 ellipsis),预览样本刻意取短。
+      monthExpense: '${p.sym}842.30',
+      monthIncome: '${p.sym}1,850',
+      themeColor: _honey,
+      redForIncome: false,
+      dark: false,
+      todayLabel: p.todayLabel,
+      todayExpenseLabel: p.todayExpenseLabel,
+      monthExpenseLabel: p.monthExpenseLabel,
+      monthIncomeLabel: p.monthIncomeLabel,
+      width: 155,
+      height: 155,
+    ),
+    const Size(155, 155),
+    p.outDir,
+    'widget_preview_glance_small',
+  );
+
   // 1) 收支速览(中号,Android 2:1)
   await _capture(
     tester,

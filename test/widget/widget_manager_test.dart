@@ -118,6 +118,36 @@ void main() {
 
       expect(matchInstalledSpecs(infos), [WidgetSpec.netWorthLarge]);
     });
+
+    test('glance 小号补全:iOS 同 kind 的 systemSmall family 命中 glanceSmall,'
+        '不影响中号', () {
+      expect(
+        matchInstalledSpecs([
+          HomeWidgetInfo(iOSKind: 'BeeCountWidget', iOSFamily: 'systemSmall'),
+        ]),
+        [WidgetSpec.glanceSmall],
+      );
+      // 存量中号仍精确命中 glanceMedium(D2 back-compat 不受小号补全影响)。
+      expect(
+        matchInstalledSpecs([
+          HomeWidgetInfo(iOSKind: 'BeeCountWidget', iOSFamily: 'systemMedium'),
+        ]),
+        [WidgetSpec.glanceMedium],
+      );
+    });
+
+    test('glance 小号补全:Android 独立 provider 类名只命中 glanceSmall', () {
+      expect(
+        matchInstalledSpecs([
+          HomeWidgetInfo(
+            androidClassName:
+                'com.tntlikely.beecount.BeeCountGlanceSmallWidgetProvider',
+            androidWidgetId: 9,
+          ),
+        ]),
+        [WidgetSpec.glanceSmall],
+      );
+    });
   });
 
   group('selectSpecsToRender warmUpAll(预热)', () {

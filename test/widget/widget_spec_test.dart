@@ -89,11 +89,21 @@ void main() {
     });
 
     test('iOS kind 匹配但 family 不符,不匹配', () {
+      // glance kind 只注册了 small/medium 两个 family(small 是补全新增,
+      // 见 glanceSmall 文档),large 对该 kind 不存在,应匹配不到任何 spec。
+      final info = HomeWidgetInfo(
+        iOSKind: 'BeeCountWidget',
+        iOSFamily: 'systemLarge',
+      );
+      expect(WidgetSpec.matchInstalled(info), isNull);
+    });
+
+    test('iOS glance systemSmall(补全新增)匹配 glanceSmall', () {
       final info = HomeWidgetInfo(
         iOSKind: 'BeeCountWidget',
         iOSFamily: 'systemSmall',
       );
-      expect(WidgetSpec.matchInstalled(info), isNull);
+      expect(WidgetSpec.matchInstalled(info), WidgetSpec.glanceSmall);
     });
 
     test('Android class name 匹配 glance-medium', () {

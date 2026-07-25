@@ -5,6 +5,7 @@
     <!-- 桌面小组件:选择器里显示的名称(android:label)。每个 receiver 各用一个,
          否则都继承 app_name「蜜蜂记账」、无法区分。 -->
     <string name="widget_name">收支速览</string>
+    <string name="widget_glance_small_name">收支速览·小</string>
     <string name="widget_networth_name">净资产</string>
     <string name="widget_quickadd_name">快速记账</string>
     <string name="widget_budget_name">预算进度</string>
@@ -13,6 +14,7 @@
 
     <!-- 桌面小组件:选择器里名称下方的一句描述(android:description)。 -->
     <string name="widget_description">查看今日和本月的收支情况</string>
+    <string name="widget_glance_small_description">今日支出一眼可见,点按直接记一笔</string>
     <string name="widget_networth_description">总资产、总负债与净值趋势</string>
     <string name="widget_quickadd_description">常用分类一键速记</string>
     <string name="widget_budget_description">预算进度实时掌握</string>

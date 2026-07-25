@@ -133,6 +133,19 @@
                 android:resource="@xml/beecount_widget_info" />
         </receiver>
 
+        <!-- 桌面小组件:收支速览·小号(补全:老 provider 只有中号且不可改动,
+             小号独立成类,见 BeeCountGlanceSmallWidgetProvider 注释) -->
+        <receiver android:name=".BeeCountGlanceSmallWidgetProvider"
+            android:label="@string/widget_glance_small_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/glance_small_widget_info" />
+        </receiver>
+
         <!-- 桌面小组件:净资产 -->
         <receiver android:name=".BeeCountNetWorthWidgetProvider"
             android:label="@string/widget_networth_name"
