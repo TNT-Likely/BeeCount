@@ -6,8 +6,7 @@
     android:maxResizeHeight="169dp"
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/budget_widget"
-    android:previewImage="@mipmap/ic_launcher"
-    android:previewLayout="@layout/widget_preview_budget"
+    android:previewImage="@drawable/widget_preview_budget"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:description="@string/widget_budget_description" />
