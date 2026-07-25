@@ -25,7 +25,7 @@ import java.io.File
  * 只会匹配到 catalog 里排在最前的 `quickAddSmall`,渲染管线在 Android 上
  * 对本类型可能只渲染 small 档的图片。
  */
-class BeeCountQuickAddWidgetProvider : HomeWidgetProvider() {
+open class BeeCountQuickAddWidgetProvider : HomeWidgetProvider() {
     companion object {
         private const val TAG = "BeeCountQuickAddWidget"
 

@@ -25,7 +25,7 @@ import java.io.File
  * 只会匹配到 catalog 里排在最前的 `budgetSmall`,渲染管线在 Android 上对
  * 本类型可能只渲染 small 档的图片。
  */
-class BeeCountBudgetWidgetProvider : HomeWidgetProvider() {
+open class BeeCountBudgetWidgetProvider : HomeWidgetProvider() {
     companion object {
         private const val TAG = "BeeCountBudgetWidget"
 

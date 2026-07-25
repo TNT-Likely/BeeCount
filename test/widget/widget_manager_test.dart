@@ -148,6 +148,35 @@ void main() {
         [WidgetSpec.glanceSmall],
       );
     });
+
+    test('Android 尺寸入口子类:任一入口安装即渲该类型全部尺寸(可自由拉伸)', () {
+      // 用户从选择器加的是「净资产·大」子类入口 —— 子类继承父类按实际尺寸
+      // 选图的逻辑、可被拉伸到任何档,故仍要渲全类型三档图。
+      expect(
+        matchInstalledSpecs([
+          HomeWidgetInfo(
+            androidClassName:
+                'com.tntlikely.beecount.BeeCountNetWorthLargeWidgetProvider',
+            androidWidgetId: 11,
+          ),
+        ]).toSet(),
+        {
+          WidgetSpec.netWorthSmall,
+          WidgetSpec.netWorthMedium,
+          WidgetSpec.netWorthLarge,
+        },
+      );
+      expect(
+        matchInstalledSpecs([
+          HomeWidgetInfo(
+            androidClassName:
+                'com.tntlikely.beecount.BeeCountBudgetMediumWidgetProvider',
+            androidWidgetId: 12,
+          ),
+        ]).toSet(),
+        {WidgetSpec.budgetSmall, WidgetSpec.budgetMedium},
+      );
+    });
   });
 
   group('selectSpecsToRender warmUpAll(预热)', () {

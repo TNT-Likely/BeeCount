@@ -33,7 +33,7 @@ import java.io.File
  * key、为后续修复 `matchInstalled` 做好准备,但在修复前,用户拉大尺寸后
  * 桌面上显示的可能还是 small 档渲染出的图片内容。
  */
-class BeeCountNetWorthWidgetProvider : HomeWidgetProvider() {
+open class BeeCountNetWorthWidgetProvider : HomeWidgetProvider() {
     companion object {
         private const val TAG = "BeeCountNetWorthWidget"
 

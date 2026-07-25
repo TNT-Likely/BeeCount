@@ -49,6 +49,7 @@ import 'package:beecount/widget/widget_data_service.dart'
     show
         DashboardWidgetData,
         GlanceWidgetData,
+        NetWorthAccountItem,
         QuickAddCategoryItem,
         RecentTransactionItem;
 import 'package:beecount/widget/widget_spec.dart' show HWSize;
@@ -408,6 +409,30 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
     'widget_preview_glance',
   );
 
+  // 1.5) 净资产·小(Android 小号入口的选择器预览)
+  await _capture(
+    tester,
+    NetWorthView(
+      size: HWSize.small,
+      netWorth: 86420,
+      totalAssets: 92100,
+      totalLiabilities: 5680,
+      baseCurrency: p.currency,
+      trend: _trend(),
+      themeColor: _honey,
+      redForIncome: false,
+      dark: false,
+      netWorthLabel: p.netWorthLabel,
+      totalAssetsLabel: p.totalAssetsLabel,
+      totalLiabilitiesLabel: p.totalLiabilitiesLabel,
+      width: 155,
+      height: 155,
+    ),
+    const Size(155, 155),
+    p.outDir,
+    'widget_preview_networth_small',
+  );
+
   // 2) 净资产(中号)
   await _capture(
     tester,
@@ -432,6 +457,40 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
     'widget_preview_networth',
   );
 
+  // 2.5) 净资产·大(Android 大号入口的选择器预览:趋势 + 资产负债 + 账户明细)
+  await _capture(
+    tester,
+    NetWorthView(
+      size: HWSize.large,
+      netWorth: 86420,
+      totalAssets: 92100,
+      totalLiabilities: 5680,
+      baseCurrency: p.currency,
+      trend: _trend(),
+      topAccounts: [
+        NetWorthAccountItem(
+            account: _account(1, p.accountNames[0]),
+            balance: 48200,
+            convertedBalance: 48200),
+        NetWorthAccountItem(
+            account: _account(2, p.accountNames[1], type: 'cash'),
+            balance: 12650,
+            convertedBalance: 12650),
+      ],
+      themeColor: _honey,
+      redForIncome: false,
+      dark: false,
+      netWorthLabel: p.netWorthLabel,
+      totalAssetsLabel: p.totalAssetsLabel,
+      totalLiabilitiesLabel: p.totalLiabilitiesLabel,
+      width: 364,
+      height: 382,
+    ),
+    const Size(364, 382),
+    p.outDir,
+    'widget_preview_networth_large',
+  );
+
   // 3) 快速记账(小号 2×2)
   await _capture(
     tester,
@@ -447,6 +506,23 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
     const Size(155, 155),
     p.outDir,
     'widget_preview_quickadd',
+  );
+
+  // 3.5) 快速记账·中(Android 中号入口的选择器预览:4 分类一排)
+  await _capture(
+    tester,
+    QuickAddView(
+      size: HWSize.medium,
+      categories: _quickAddCategories(p),
+      themeColor: _honey,
+      dark: false,
+      addLabel: p.addLabel,
+      width: 364,
+      height: 169,
+    ),
+    const Size(364, 169),
+    p.outDir,
+    'widget_preview_quickadd_medium',
   );
 
   // 4) 预算进度(小号环形)
@@ -485,6 +561,52 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
     'widget_preview_budget',
   );
 
+  // 4.5) 预算进度·中(Android 中号入口的选择器预览:总预算条 + 分类用量)
+  await _capture(
+    tester,
+    BudgetView(
+      size: HWSize.medium,
+      overview: BudgetOverview(
+        totalBudget: BudgetUsage(used: 6842, budget: 8000),
+        categoryBudgets: [
+          CategoryBudgetUsage(
+            budgetId: 1,
+            categoryId: 1,
+            categoryName: p.categoryNames[0],
+            usage: BudgetUsage(used: 1620, budget: 1800),
+          ),
+          CategoryBudgetUsage(
+            budgetId: 2,
+            categoryId: 2,
+            categoryName: p.categoryNames[1],
+            usage: BudgetUsage(used: 480, budget: 1000),
+          ),
+          CategoryBudgetUsage(
+            budgetId: 3,
+            categoryId: 3,
+            categoryName: p.categoryNames[2],
+            usage: BudgetUsage(used: 2350, budget: 3000),
+          ),
+        ],
+        daysRemaining: 11,
+        dailyAvailable: 105.3,
+      ),
+      currencyCode: p.currency,
+      themeColor: _honey,
+      redForIncome: false,
+      dark: false,
+      budgetLabel: p.budgetLabel,
+      usedLabel: p.usedLabel,
+      totalLabel: p.totalLabel,
+      remainingLabel: p.remainingLabel,
+      width: 364,
+      height: 169,
+    ),
+    const Size(364, 169),
+    p.outDir,
+    'widget_preview_budget_medium',
+  );
+
   // 5) 最近交易(中号)
   await _capture(
     tester,
@@ -501,6 +623,24 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
     const Size(364, 169),
     p.outDir,
     'widget_preview_recent',
+  );
+
+  // 5.5) 最近交易·大(Android 大号入口的选择器预览:6 笔)
+  await _capture(
+    tester,
+    RecentView(
+      size: HWSize.large,
+      items: [..._recentItems(p), ..._recentItems(p)],
+      defaultCurrency: p.currency,
+      themeColor: _honey,
+      redForIncome: false,
+      dark: false,
+      width: 364,
+      height: 382,
+    ),
+    const Size(364, 382),
+    p.outDir,
+    'widget_preview_recent_large',
   );
 
   // 6) 综合仪表盘(大号)

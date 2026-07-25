@@ -25,7 +25,7 @@ import java.io.File
  * 只会匹配到 catalog 里排在最前的 `recentMedium`,渲染管线在 Android 上对
  * 本类型可能只渲染 medium 档的图片。
  */
-class BeeCountRecentWidgetProvider : HomeWidgetProvider() {
+open class BeeCountRecentWidgetProvider : HomeWidgetProvider() {
     companion object {
         private const val TAG = "BeeCountRecentWidget"
 

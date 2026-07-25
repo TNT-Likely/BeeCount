@@ -194,6 +194,60 @@
                 android:resource="@xml/recent_widget_info" />
         </receiver>
 
+        <!-- 桌面小组件:按尺寸拆分的入口(空子类复用父类逻辑,见
+             BeeCountSizedWidgetProviders.kt 注释——Android 选择器不按尺寸
+             分档,不拆 provider 中/大档位对用户形同不存在) -->
+        <receiver android:name=".BeeCountNetWorthMediumWidgetProvider"
+            android:label="@string/widget_networth_medium_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/net_worth_medium_widget_info" />
+        </receiver>
+        <receiver android:name=".BeeCountNetWorthLargeWidgetProvider"
+            android:label="@string/widget_networth_large_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/net_worth_large_widget_info" />
+        </receiver>
+        <receiver android:name=".BeeCountBudgetMediumWidgetProvider"
+            android:label="@string/widget_budget_medium_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/budget_medium_widget_info" />
+        </receiver>
+        <receiver android:name=".BeeCountQuickAddMediumWidgetProvider"
+            android:label="@string/widget_quickadd_medium_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/quick_add_medium_widget_info" />
+        </receiver>
+        <receiver android:name=".BeeCountRecentLargeWidgetProvider"
+            android:label="@string/widget_recent_large_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/recent_large_widget_info" />
+        </receiver>
+
         <!-- 桌面小组件:综合仪表盘 -->
         <receiver android:name=".BeeCountDashboardWidgetProvider"
             android:label="@string/widget_dashboard_name"

@@ -4,12 +4,17 @@
     <string name="app_name">蜜蜂记账</string>
     <!-- 桌面小组件:选择器里显示的名称(android:label)。每个 receiver 各用一个,
          否则都继承 app_name「蜜蜂记账」、无法区分。 -->
-    <string name="widget_name">收支速览</string>
+    <string name="widget_name">收支速览·中</string>
     <string name="widget_glance_small_name">收支速览·小</string>
-    <string name="widget_networth_name">净资产</string>
-    <string name="widget_quickadd_name">快速记账</string>
-    <string name="widget_budget_name">预算进度</string>
-    <string name="widget_recent_name">最近交易</string>
+    <string name="widget_networth_name">净资产·小</string>
+    <string name="widget_networth_medium_name">净资产·中</string>
+    <string name="widget_networth_large_name">净资产·大</string>
+    <string name="widget_quickadd_name">快速记账·小</string>
+    <string name="widget_quickadd_medium_name">快速记账·中</string>
+    <string name="widget_budget_name">预算进度·小</string>
+    <string name="widget_budget_medium_name">预算进度·中</string>
+    <string name="widget_recent_name">最近交易·中</string>
+    <string name="widget_recent_large_name">最近交易·大</string>
     <string name="widget_dashboard_name">综合仪表盘</string>
 
     <!-- 桌面小组件:选择器里名称下方的一句描述(android:description)。 -->

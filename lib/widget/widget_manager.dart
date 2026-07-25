@@ -269,20 +269,27 @@ class WidgetManager {
         }
       }
 
-      // 触发原生壳刷新:按已渲染 spec 去重出各自的 (iOS kind, Android provider
-      // 类名) 逐个触发,让新组件也能像现有 glance 一样在数据变化后即时刷新
-      // (否则新 kind 只能等 WidgetKit/AppWidget 自己的 timeline,可能几十分钟)。
-      // glance-medium 沿用旧 kind `BeeCountWidget` / 旧 provider 类名(D2);
-      // 新组件用各自标识(iosKind/androidClassName 由 P3/P4 回填到 WidgetSpec)。
-      final triggered = <String>{};
-      for (final spec in specs) {
-        if (spec.iosKind == null && spec.androidClassName == null) continue;
-        // 同一内容类型的多个尺寸共享同一 kind/provider,去重避免重复触发。
-        if (!triggered.add('${spec.iosKind}|${spec.androidClassName}')) continue;
-        await HomeWidget.updateWidget(
-          qualifiedAndroidName: spec.androidClassName,
-          iOSName: spec.iosKind,
-        );
+      // 触发原生壳刷新:按已渲染 spec 去重出全部 iOS kind / Android provider
+      // 类名逐个触发,让组件在数据变化后即时刷新(否则只能等 WidgetKit/
+      // AppWidget 自己的 timeline,可能几十分钟)。Android 侧要覆盖**全部**
+      // 宿主类名(主类 + 按尺寸拆分的入口子类,见 WidgetSpec.
+      // androidExtraClassNames)——用户可能装的是"净资产·大"这类子类入口。
+      // 无实例的 kind/provider 触发是无害 no-op。
+      if (Platform.isIOS) {
+        final kinds = <String>{
+          for (final spec in specs)
+            if (spec.iosKind != null) spec.iosKind!,
+        };
+        for (final kind in kinds) {
+          await HomeWidget.updateWidget(iOSName: kind);
+        }
+      } else {
+        final names = <String>{
+          for (final spec in specs) ...spec.androidAllClassNames,
+        };
+        for (final name in names) {
+          await HomeWidget.updateWidget(qualifiedAndroidName: name);
+        }
       }
       logger.info(
         _tag,
