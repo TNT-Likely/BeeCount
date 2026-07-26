@@ -743,6 +743,18 @@ class _BeeAppState extends ConsumerState<BeeApp>
     }
   }
 
+  @override
+  void didChangePlatformBrightness() {
+    super.didChangePlatformBrightness();
+    // 系统明暗切换时重渲小组件:图片渲染方案不会随系统主题自动重绘(原生壳
+    // 只是展示一张静态 PNG),渲染时机全靠 App 侧触发。小组件明暗跟随**系统**
+    // 而非 App 内主题设置(行业惯例,桌面是系统的地盘;widget_manager 渲染
+    // 批次内取 PlatformDispatcher.platformBrightness),这里监听的正是系统
+    // 明暗变化——App 在前台/存活时系统切换明暗,桌面组件立刻换肤,而不是
+    // 等下一次记账/前台恢复才刷新。
+    _updateWidget();
+  }
+
   Future<void> _checkAppLockOnResume() async {
     final shouldLock = await AppLockService.shouldLockOnResume();
     if (shouldLock && mounted) {
