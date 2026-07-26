@@ -135,7 +135,7 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                               ),
                               SizedBox(width: 4.0.scaled(context, ref)),
                               Icon(
-                                Icons.help_outline_rounded,
+                                Icons.auto_stories_outlined,
                                 size: 18.0.scaled(context, ref),
                                 color: BeeTokens.textTertiary(context),
                               ),
