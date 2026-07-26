@@ -122,6 +122,12 @@ abstract class AppLocalizations {
   /// **'Privacy Policy'**
   String get aboutPrivacyPolicy;
 
+  /// No description provided for @aboutChangelog.
+  ///
+  /// In en, this message translates to:
+  /// **'Changelog'**
+  String get aboutChangelog;
+
   /// The application title
   ///
   /// In en, this message translates to:
@@ -2717,7 +2723,7 @@ abstract class AppLocalizations {
   /// No description provided for @mineCurrentBalance.
   ///
   /// In en, this message translates to:
-  /// **'Balance'**
+  /// **'Ledger balance'**
   String get mineCurrentBalance;
 
   /// No description provided for @mineCloudService.

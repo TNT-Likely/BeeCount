@@ -25,11 +25,15 @@ const bool kHelpCenterInApp = true;
 /// - 域名白名单:仅放行官网域名,外链一律转系统浏览器(审核第二道防线)
 /// - 离线:加载失败显示兜底页,可重试或跳浏览器
 class HelpCenterPage extends ConsumerStatefulWidget {
-  const HelpCenterPage({super.key, this.initialUrl});
+  const HelpCenterPage({super.key, this.initialUrl, this.title});
 
   /// 可选:指定初始打开的文档 URL(应为本站 embed 模式链接)。不传则打开文档
   /// 首页(intro)。登录页「注册指引」用它按当前云后端直达对应文档。
   final String? initialUrl;
+
+  /// 可选:自定义页面标题(不传用「使用帮助」)。复用本页打开其它文档(如更新
+  /// 日志)时传对应标题。
+  final String? title;
 
   @override
   ConsumerState<HelpCenterPage> createState() => _HelpCenterPageState();
@@ -165,7 +169,7 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
         body: Column(
           children: [
             PrimaryHeader(
-              title: l10n.mineHelp,
+              title: widget.title ?? l10n.mineHelp,
               showBack: true,
               compact: true,
               actions: [

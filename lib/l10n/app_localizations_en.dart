@@ -19,6 +19,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutPrivacyPolicy => 'Privacy Policy';
 
   @override
+  String get aboutChangelog => 'Changelog';
+
+  @override
   String get appTitle => 'Bee Accounting';
 
   @override
@@ -1413,7 +1416,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mineTotalRecords => 'Records';
 
   @override
-  String get mineCurrentBalance => 'Balance';
+  String get mineCurrentBalance => 'Ledger balance';
 
   @override
   String get mineCloudService => 'Cloud Service';
