@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--
+        scaleType=fitCenter:
+          按 Flutter 渲染图的原比例完整显示,不裁减,道理同 beecount_widget.xml
+          ——用户把 widget 拉到跟渲染图比例不一致的尺寸时,居中留白(letterbox)
+          而不是切内容或变形拉伸。
+    -->
+    <ImageView
+        android:id="@+id/widget_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:contentDescription="Widget content" />
+
+    <!--
+        整块点击层:第一版不分区,点击任意位置都跳同一深链。
+        TODO: 分区点击(如按单笔交易跳详情)见 BeeCountRecentWidgetProvider 注释。
+    -->
+    <FrameLayout
+        android:id="@+id/widget_click"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>

@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/main/home_page.dart';
 import 'pages/main/analytics_page.dart';
 import 'pages/account/accounts_page.dart';
+import 'pages/budget/budget_page.dart';
 import 'pages/main/mine_page.dart';
 import 'pages/transaction/transaction_editor_page.dart';
 import 'providers.dart';
@@ -133,7 +134,12 @@ class _BeeAppState extends ConsumerState<BeeApp>
           // 不在此处直接 push：冷启动 / 厂商主题变更(themeChanged)会重建页面树,
           // 此刻多半处于 inactive/hidden,push 的路由会被丢弃(deep-link「没打开」根因)。
           // 改为持久化待处理深链,等 ready + 前台 resumed 后在最终页面树上认领打开。
-          _persistPendingDeepLink(next, ref.read(pendingNewTransactionTypeProvider));
+          _persistPendingDeepLink(
+            next,
+            ref.read(pendingNewTransactionTypeProvider),
+            categoryId: ref.read(pendingNewTransactionCategoryIdProvider),
+            page: ref.read(pendingOpenPageProvider),
+          );
           ref.read(pendingAppLinkActionProvider.notifier).state = null;
           _drainPendingDeepLink(trigger: 'listener');
         }
@@ -391,11 +397,18 @@ class _BeeAppState extends ConsumerState<BeeApp>
     });
 
     String? type;
+    int? categoryId;
+    String? page;
     if (action == AppLinkAction.newTransaction) {
       type = ref.read(pendingNewTransactionTypeProvider) ?? 'expense';
+      categoryId = ref.read(pendingNewTransactionCategoryIdProvider);
       ref.read(pendingNewTransactionTypeProvider.notifier).state = null;
+      ref.read(pendingNewTransactionCategoryIdProvider.notifier).state = null;
+    } else if (action == AppLinkAction.open) {
+      page = ref.read(pendingOpenPageProvider);
+      ref.read(pendingOpenPageProvider.notifier).state = null;
     }
-    _openDeepLink(action, type);
+    _openDeepLink(action, type, categoryId: categoryId, page: page);
   }
 
   // ——— 深链「重建可恢复」打开 ———
@@ -408,11 +421,18 @@ class _BeeAppState extends ConsumerState<BeeApp>
   int? _lastDrainedDeepLinkTs;
   Timer? _drainTimer;
 
-  void _persistPendingDeepLink(AppLinkAction action, String? type) {
+  void _persistPendingDeepLink(
+    AppLinkAction action,
+    String? type, {
+    int? categoryId,
+    String? page,
+  }) {
     SharedPreferences.getInstance().then((p) {
       p.setString(_kPendingDeepLink, jsonEncode({
         'action': action.name,
         'type': type,
+        if (categoryId != null) 'categoryId': categoryId,
+        if (page != null) 'page': page,
         'ts': DateTime.now().millisecondsSinceEpoch,
       }));
     }).catchError((_) {});
@@ -481,13 +501,25 @@ class _BeeAppState extends ConsumerState<BeeApp>
     await prefs.remove(_kPendingDeepLink);
     if (!mounted) return;
     final type = data['type'] as String?;
-    logger.info('AppLink', 'BeeApp: drain($trigger) 打开深链 $action type=$type');
-    _openDeepLink(action, type);
+    final categoryId = (data['categoryId'] as num?)?.toInt();
+    final page = data['page'] as String?;
+    logger.info('AppLink',
+        'BeeApp: drain($trigger) 打开深链 $action type=$type categoryId=$categoryId page=$page');
+    _openDeepLink(action, type, categoryId: categoryId, page: page);
   }
 
   /// AppLink 动作的唯一派发出口:快捷项([_handleAppLinkAction])与
   /// URL deep-link / 小组件([_executeDrain])两条路径共用,避免分叉。
-  void _openDeepLink(AppLinkAction action, String? type) {
+  ///
+  /// [categoryId] 仅 [AppLinkAction.newTransaction] 使用(小组件「快速记账」
+  /// 预填分类);[page] 仅 [AppLinkAction.open] 使用(小组件「净资产/预算/
+  /// 最近交易」卡片点击落地页,见 [_openPageForDeepLink])。
+  void _openDeepLink(
+    AppLinkAction action,
+    String? type, {
+    int? categoryId,
+    String? page,
+  }) {
     final nav = Navigator.of(context, rootNavigator: true);
     switch (action) {
       case AppLinkAction.voice:
@@ -503,12 +535,43 @@ class _BeeAppState extends ConsumerState<BeeApp>
         nav.push(MaterialPageRoute(builder: (_) => const AIChatPage()));
         break;
       case AppLinkAction.newTransaction:
+        // 小组件「快速记账」点分类格携带 categoryId 时,预填该分类(见
+        // TransactionEditorPage.initialCategoryId);普通「记一笔」categoryId 为 null。
         nav.push(MaterialPageRoute(
-          builder: (_) =>
-              TransactionEditorPage(initialKind: type ?? 'expense', quickAdd: true),
+          builder: (_) => TransactionEditorPage(
+            initialKind: type ?? 'expense',
+            quickAdd: true,
+            initialCategoryId: categoryId,
+          ),
         ));
         break;
+      case AppLinkAction.open:
+        _openPageForDeepLink(nav, page);
+        break;
       default:
+        break;
+    }
+  }
+
+  /// 小组件「净资产 / 预算 / 最近交易」卡片点击 → `beecount://open?page=` 的
+  /// 落地页路由。detail(最近交易)先落统计页,后续可按需换成专门的明细列表页。
+  void _openPageForDeepLink(NavigatorState nav, String? page) {
+    switch (page) {
+      case 'assets':
+        nav.push(MaterialPageRoute(builder: (_) => const AccountsPage()));
+        break;
+      case 'budget':
+        nav.push(MaterialPageRoute(builder: (_) => const BudgetPage()));
+        break;
+      case 'detail':
+        // 最近交易 / 仪表盘主体 → 首页明细列表:App 没有独立的明细页,首页
+        // 就是完整账单流,切回主壳首页 tab 而不是 push 页面。(此前误映射到
+        // 洞察/统计页,真机反馈"点小组件进了洞察页"。)
+        nav.popUntil((route) => route.isFirst);
+        ref.read(bottomTabIndexProvider.notifier).state = 0;
+        break;
+      default:
+        logger.warning('AppLink', 'open 未知 page: $page');
         break;
     }
   }
@@ -680,6 +743,18 @@ class _BeeAppState extends ConsumerState<BeeApp>
     }
   }
 
+  @override
+  void didChangePlatformBrightness() {
+    super.didChangePlatformBrightness();
+    // 系统明暗切换时重渲小组件:图片渲染方案不会随系统主题自动重绘(原生壳
+    // 只是展示一张静态 PNG),渲染时机全靠 App 侧触发。小组件明暗跟随**系统**
+    // 而非 App 内主题设置(行业惯例,桌面是系统的地盘;widget_manager 渲染
+    // 批次内取 PlatformDispatcher.platformBrightness),这里监听的正是系统
+    // 明暗变化——App 在前台/存活时系统切换明暗,桌面组件立刻换肤,而不是
+    // 等下一次记账/前台恢复才刷新。
+    _updateWidget();
+  }
+
   Future<void> _checkAppLockOnResume() async {
     final shouldLock = await AppLockService.shouldLockOnResume();
     if (shouldLock && mounted) {
@@ -693,17 +768,23 @@ class _BeeAppState extends ConsumerState<BeeApp>
       final ledgerId = ref.read(currentLedgerIdProvider);
       final primaryColor = ref.read(primaryColorProvider);
       final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
+      final baseCurrency = ref.read(baseCurrencyProvider);
 
       final widgetManager = WidgetManager();
-      await widgetManager.updateWidget(
+      // 前台恢复路径也走本地化封装,让小组件文案跟随 App 语言(与
+      // main.dart / theme_providers 等无 context 调用点一致,靠 languageProvider
+      // 还原 locale,不依赖 async 后可能失效的 BuildContext)。
+      await widgetManager.updateAllWidgetsLocalized(
         repository,
         ledgerId,
         primaryColor,
+        explicitLocale: ref.read(languageProvider),
         redForIncome: redForIncome,
+        baseCurrency: baseCurrency,
       );
-      print('✅ App恢复前台，小组件数据已更新');
+      logger.info('App', 'App恢复前台，小组件数据已更新');
     } catch (e) {
-      print('❌ 更新小组件失败: $e');
+      logger.warning('App', '更新小组件失败: $e');
     }
   }
 

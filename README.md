@@ -87,7 +87,7 @@
 
 - **暗黑模式** — 纯黑 + 主题色边框,OLED 友好
 - **多语言** — 官方简中 / 繁中 / English,社区贡献韩语,本地化日期/数字格式
-- **桌面小组件** — iOS / Android 桌面快速记账
+- **桌面小组件** — 6 类 × 12 种规格(收支速览/净资产/快速记账/预算/最近交易/仪表盘),暗黑/多语言/主题色全跟随,[全家福预览](#桌面小组件)
 - **主题装扮** — 多主题色
 
 </details>
@@ -100,6 +100,14 @@
   <img src="demo/videos/zh/01-add-transaction.gif" alt="快速记账" width="200" />
   <img src="demo/videos/zh/02-ocr-recognition.gif" alt="AI OCR 智能识别" width="200" />
   <img src="demo/videos/zh/04-data-analysis.gif" alt="数据分析" width="200" />
+</div>
+
+### 桌面小组件
+
+6 类内容 × 12 种规格,不打开 App 也能看账、一点直达记账:
+
+<div align="center">
+  <img src="demo/widgets/widgets-showcase-zh.png" alt="桌面小组件全家福:收支速览 / 净资产 / 快速记账 / 预算进度 / 最近交易 / 综合仪表盘" width="820" />
 </div>
 
 <details>

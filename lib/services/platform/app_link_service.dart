@@ -37,11 +37,20 @@ enum AppLinkAction {
   /// 手动记账（从小组件快捷入口）
   newTransaction,
 
+  /// 打开指定页面（净资产/预算/最近交易明细），配合小组件点击深链使用：
+  /// `beecount://open?page=assets|budget|detail`
+  open,
+
   /// 未知
   unknown,
 }
 
 /// 自动记账参数
+///
+/// 同时也是 [AppLinkService.onNavigate] 回调的通用参数载体——
+/// [AppLinkAction.newTransaction] / [AppLinkAction.open] 两个 action 复用本类
+/// 只取用其中与自己相关的字段（前者用 [type]/[categoryId]，后者用 [page]），
+/// 不为它们各开一个专门的参数类。
 class AddTransactionParams {
   final double amount;
   final String type; // expense, income, transfer
@@ -53,6 +62,19 @@ class AddTransactionParams {
   final DateTime? date;
   final bool silent;
 
+  /// 快速记账预填的分类 id（仅 [AppLinkAction.newTransaction] 使用，来自
+  /// `beecount://new?type=...&category=<id>` 中的 int id）。
+  ///
+  /// 与上面的 [category] 字段语义不同——那个是 [AppLinkAction.add] 自动记账
+  /// 场景下按分类**名称**匹配用的字符串，这里是小组件「快速记账」点击某个
+  /// 分类格后直接携带的分类 **id**，两者不复用同一字段，避免 int id 与 name
+  /// 混淆。
+  final int? categoryId;
+
+  /// [AppLinkAction.open] 深链的目标页面标识（`assets`/`budget`/`detail`），
+  /// 仅该 action 使用。
+  final String? page;
+
   const AddTransactionParams({
     required this.amount,
     this.type = 'expense',
@@ -63,6 +85,8 @@ class AddTransactionParams {
     this.tags,
     this.date,
     this.silent = false,
+    this.categoryId,
+    this.page,
   });
 
   factory AddTransactionParams.fromQueryParams(Map<String, String> params) {
@@ -133,7 +157,11 @@ class AppLinkResult {
 /// - beecount://camera - 拍照记账
 /// - beecount://ai-chat - AI 小助手
 /// - beecount://new?type=expense - 手动记账（支出/收入）
+/// - beecount://new?type=expense&category=12 - 手动记账并预填分类（小组件
+///   「快速记账」点分类格用，category 为分类 id）
 /// - beecount://add?amount=100&type=expense&category=餐饮 - 自动记账
+/// - beecount://open?page=assets|budget|detail - 打开指定页面（小组件点击
+///   净资产/预算/最近交易卡片用）
 /// - beecount://auto-billing?text=... - 文本自动记账（兼容旧版）
 /// - beecount://quick-billing - 快速记账（兼容旧版）
 ///
@@ -252,6 +280,8 @@ class AppLinkService {
         return AppLinkAction.add;
       case 'new':
         return AppLinkAction.newTransaction;
+      case 'open':
+        return AppLinkAction.open;
       case 'auto-billing':
         return AppLinkAction.autoBilling;
       case 'quick-billing':
@@ -295,9 +325,27 @@ class AppLinkService {
 
       case AppLinkAction.newTransaction:
         final type = queryParams['type'] ?? 'expense';
-        logger.info('AppLink', '打开手动记账: type=$type');
-        onNavigate?.call(AppLinkAction.newTransaction, params: AddTransactionParams(amount: 0, type: type));
+        // 小组件「快速记账」点分类格携带的分类 id（int），与 add action 的
+        // 分类名称参数是两个不同概念，见 AddTransactionParams.categoryId 文档。
+        final categoryIdStr = queryParams['category'];
+        final categoryId = categoryIdStr != null ? int.tryParse(categoryIdStr) : null;
+        logger.info('AppLink',
+            '打开手动记账: type=$type${categoryId != null ? ', categoryId=$categoryId' : ''}');
+        onNavigate?.call(
+          AppLinkAction.newTransaction,
+          params: AddTransactionParams(amount: 0, type: type, categoryId: categoryId),
+        );
         return AppLinkResult.success(message: '打开手动记账');
+
+      case AppLinkAction.open:
+        final page = queryParams['page'] ?? '';
+        logger.info('AppLink', '打开页面: page=$page');
+        if (page.isEmpty) {
+          logger.warning('AppLink', 'open 未提供 page 参数');
+          return AppLinkResult.failure('未提供目标页面');
+        }
+        onNavigate?.call(AppLinkAction.open, params: AddTransactionParams(amount: 0, page: page));
+        return AppLinkResult.success(message: '打开页面: $page');
 
       case AppLinkAction.autoBilling:
         // 兼容旧版
@@ -553,6 +601,19 @@ class AppLinkBuilder {
 
   /// 新建转账记账链接
   static String newTransfer() => '$scheme://new?type=transfer';
+
+  /// 新建支出记账并预填分类链接（小组件「快速记账」点分类格用）
+  static String newExpenseWithCategory(int categoryId) =>
+      '$scheme://new?type=expense&category=$categoryId';
+
+  /// 打开净资产（资产页）链接（小组件「净资产」卡片点击用）
+  static String openAssets() => '$scheme://open?page=assets';
+
+  /// 打开预算页链接（小组件「预算进度」卡片点击用）
+  static String openBudget() => '$scheme://open?page=budget';
+
+  /// 打开明细页链接（小组件「最近交易」卡片点击用）
+  static String openDetail() => '$scheme://open?page=detail';
 
   /// 自动记账链接
   static String add({

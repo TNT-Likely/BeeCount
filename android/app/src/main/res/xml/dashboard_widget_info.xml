@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="364dp"
+    android:minHeight="382dp"
+    android:updatePeriodMillis="1800000"
+    android:initialLayout="@layout/dashboard_widget"
+    android:previewImage="@drawable/widget_preview_dashboard"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:description="@string/widget_dashboard_description" />

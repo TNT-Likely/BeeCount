@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 桌面小組件名稱 / 描述(繁體中文)。Android 桌面選擇器按「系統語言」取,
+         走此資源目錄;簡體見 values/、英文見 values-en/。未覆蓋的字串按 Android
+         機制回退到 values/ 預設值。 -->
+    <!-- 小組件名稱(選擇器 android:label) -->
+    <string name="widget_name">收支速覽·中</string>
+    <string name="widget_glance_small_name">收支速覽·小</string>
+    <string name="widget_networth_name">淨資產·小</string>
+    <string name="widget_networth_medium_name">淨資產·中</string>
+    <string name="widget_networth_large_name">淨資產·大</string>
+    <string name="widget_quickadd_name">快速記帳·小</string>
+    <string name="widget_quickadd_medium_name">快速記帳·中</string>
+    <string name="widget_budget_name">預算進度·小</string>
+    <string name="widget_budget_medium_name">預算進度·中</string>
+    <string name="widget_recent_name">最近交易·中</string>
+    <string name="widget_recent_large_name">最近交易·大</string>
+    <string name="widget_dashboard_name">綜合儀表盤</string>
+
+    <!-- 小組件描述(android:description) -->
+    <string name="widget_description">查看今日和本月的收支情況</string>
+    <string name="widget_glance_small_description">今日支出一眼可見,點按直接記一筆</string>
+    <string name="widget_networth_description">總資產、總負債與淨值趨勢</string>
+    <string name="widget_quickadd_description">常用分類一鍵速記</string>
+    <string name="widget_budget_description">預算進度即時掌握</string>
+    <string name="widget_recent_description">快速查看最近幾筆帳單</string>
+    <string name="widget_dashboard_description">收支、趨勢與最近交易一屏看盡</string>
+</resources>

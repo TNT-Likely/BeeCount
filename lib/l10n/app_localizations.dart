@@ -692,6 +692,54 @@ abstract class AppLocalizations {
   /// **''**
   String get widgetMonthSuffix;
 
+  /// No description provided for @widgetToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get widgetToday;
+
+  /// No description provided for @widgetQuickAddLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get widgetQuickAddLabel;
+
+  /// No description provided for @widgetBudgetTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get widgetBudgetTotal;
+
+  /// No description provided for @widgetBudgetRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get widgetBudgetRemaining;
+
+  /// No description provided for @widgetNoBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'No Budget'**
+  String get widgetNoBudget;
+
+  /// No description provided for @widgetNoTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No Transactions'**
+  String get widgetNoTransactions;
+
+  /// No description provided for @widgetRecentTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Transactions'**
+  String get widgetRecentTransactions;
+
+  /// No description provided for @widgetNoAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'No Accounts'**
+  String get widgetNoAccounts;
+
   /// No description provided for @searchTitle.
   ///
   /// In en, this message translates to:
@@ -7489,6 +7537,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Widget automatically displays actual data from current ledger, theme color follows app settings'**
   String get widgetPreviewDesc;
+
+  /// No description provided for @widgetGalleryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Widget Gallery'**
+  String get widgetGalleryTitle;
+
+  /// No description provided for @widgetGalleryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Previews use sample data — the real widget shows your current ledger and follows your theme color.'**
+  String get widgetGalleryDesc;
+
+  /// No description provided for @widgetGalleryGlanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get widgetGalleryGlanceTitle;
+
+  /// No description provided for @widgetGalleryGlanceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s and this month\'s income and expenses at a glance'**
+  String get widgetGalleryGlanceDesc;
+
+  /// No description provided for @widgetGalleryNetWorthDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Total assets, liabilities and net worth trend'**
+  String get widgetGalleryNetWorthDesc;
+
+  /// No description provided for @widgetGalleryQuickAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Add'**
+  String get widgetGalleryQuickAddTitle;
+
+  /// No description provided for @widgetGalleryQuickAddDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'One-tap entry for your frequent categories'**
+  String get widgetGalleryQuickAddDesc;
+
+  /// No description provided for @widgetGalleryBudgetDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Track your budget progress at a glance'**
+  String get widgetGalleryBudgetDesc;
+
+  /// No description provided for @widgetGalleryRecentDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'See your latest transactions'**
+  String get widgetGalleryRecentDesc;
+
+  /// No description provided for @widgetGalleryDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get widgetGalleryDashboardTitle;
+
+  /// No description provided for @widgetDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get widgetDashboardTitle;
+
+  /// No description provided for @widgetGalleryDashboardDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Income, trend and recent transactions in one view'**
+  String get widgetGalleryDashboardDesc;
+
+  /// No description provided for @widgetSizeSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Small'**
+  String get widgetSizeSmall;
+
+  /// No description provided for @widgetSizeMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get widgetSizeMedium;
+
+  /// No description provided for @widgetSizeLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Large'**
+  String get widgetSizeLarge;
 
   /// No description provided for @howToAddWidget.
   ///

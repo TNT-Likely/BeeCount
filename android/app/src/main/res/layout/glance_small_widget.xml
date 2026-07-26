@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--
+        scaleType=fitCenter:
+          按 Flutter 渲染图的原比例完整显示,不裁减,道理同 beecount_widget.xml
+          ——用户把 widget 放到跟渲染图比例不一致的格子时,居中留白(letterbox)
+          而不是切内容或变形拉伸。
+    -->
+    <ImageView
+        android:id="@+id/widget_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:contentDescription="Widget content" />
+
+    <!-- 整块点击层:点击任意位置 → 记支出(见 provider 注释)。 -->
+    <FrameLayout
+        android:id="@+id/widget_click"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>

@@ -322,6 +322,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String get widgetMonthSuffix => '';
 
   @override
+  String get widgetToday => 'Today';
+
+  @override
+  String get widgetQuickAddLabel => 'Add';
+
+  @override
+  String get widgetBudgetTotal => 'Total';
+
+  @override
+  String get widgetBudgetRemaining => 'Left';
+
+  @override
+  String get widgetNoBudget => 'No Budget';
+
+  @override
+  String get widgetNoTransactions => 'No Transactions';
+
+  @override
+  String get widgetRecentTransactions => 'Recent Transactions';
+
+  @override
+  String get widgetNoAccounts => 'No Accounts';
+
+  @override
   String get searchTitle => '검색';
 
   @override
@@ -3925,6 +3949,51 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get widgetPreviewDesc => '위젯은 현재 가계부의 실제 데이터를 자동으로 표시하며, 테마 색상은 앱 설정을 따릅니다';
+
+  @override
+  String get widgetGalleryTitle => 'Widget Gallery';
+
+  @override
+  String get widgetGalleryDesc => 'Previews use sample data — the real widget shows your current ledger and follows your theme color.';
+
+  @override
+  String get widgetGalleryGlanceTitle => 'Overview';
+
+  @override
+  String get widgetGalleryGlanceDesc => 'Today\'s and this month\'s income and expenses at a glance';
+
+  @override
+  String get widgetGalleryNetWorthDesc => 'Total assets, liabilities and net worth trend';
+
+  @override
+  String get widgetGalleryQuickAddTitle => 'Quick Add';
+
+  @override
+  String get widgetGalleryQuickAddDesc => 'One-tap entry for your frequent categories';
+
+  @override
+  String get widgetGalleryBudgetDesc => 'Track your budget progress at a glance';
+
+  @override
+  String get widgetGalleryRecentDesc => 'See your latest transactions';
+
+  @override
+  String get widgetGalleryDashboardTitle => 'Dashboard';
+
+  @override
+  String get widgetDashboardTitle => 'This Month';
+
+  @override
+  String get widgetGalleryDashboardDesc => 'Income, trend and recent transactions in one view';
+
+  @override
+  String get widgetSizeSmall => 'Small';
+
+  @override
+  String get widgetSizeMedium => 'Medium';
+
+  @override
+  String get widgetSizeLarge => 'Large';
 
   @override
   String get howToAddWidget => '위젯 추가 방법';

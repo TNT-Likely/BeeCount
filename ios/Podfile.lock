@@ -250,7 +250,7 @@ SPEC CHECKSUMS:
   flutter_image_compress_common: ec1d45c362c9d30a3f6a0426c297f47c52007e3e
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
   gal: 6a522c75909f1244732d4596d11d6a2f86ff37a5
-  home_widget: 0434835a4c9a75704264feff6be17ea40e0f0d57
+  home_widget: fdbbfaa90f06f3022cb57f79678d4d58b9c5e140
   image_cropper: e0bb0042e4404ff2ef134e5cf0492cbd892156cd
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   in_app_purchase_storekit: a1ce04056e23eecc666b086040239da7619cd783

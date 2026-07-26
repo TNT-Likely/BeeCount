@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--
+        scaleType=fitCenter:
+          按 Flutter 渲染图的原比例完整显示,不裁减,道理同 beecount_widget.xml
+          ——用户把 widget 拉到跟渲染图比例不一致的尺寸时,居中留白(letterbox)
+          而不是切内容或变形拉伸。
+    -->
+    <ImageView
+        android:id="@+id/widget_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:contentDescription="Widget content" />
+
+    <!--
+        分区点击层(2026-07 真机反馈:底部画着「记一笔」却整块跳明细):
+        上部主体(82%)→ 明细;底部快捷记账行(18%,与 DashboardView 底部
+        按钮行的布局比例对齐)→ 记支出。比例分区与老 glance(28% header)
+        同一套近似技术。
+    -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/widget_click"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="82" />
+
+        <FrameLayout
+            android:id="@+id/click_quick_add"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="18" />
+    </LinearLayout>
+
+</FrameLayout>

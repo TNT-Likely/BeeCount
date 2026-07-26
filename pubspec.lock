@@ -731,10 +731,10 @@ packages:
     dependency: "direct main"
     description:
       name: home_widget
-      sha256: "7430f7549d42cef2e729bd3c779de748b93f1eb78b1abfe6bca8fffd1cfce3e9"
+      sha256: bd6889c9e91475c8f5e957e8a2dd7d5458937e8b9f2e68004935636aca537ff4
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.0+1"
+    version: "0.9.2+1"
   html:
     dependency: transitive
     description:

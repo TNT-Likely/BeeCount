@@ -87,7 +87,7 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 
 - **Dark mode** — Pure black + theme accent borders, OLED-friendly
 - **Multi-language** — official Simplified/Traditional Chinese & English, community-contributed Korean, with localized formatting
-- **Home widgets** — iOS / Android quick-record widgets
+- **Home widgets** — 6 types × 12 variants (overview / net assets / quick add / budget / recent / dashboard), dark-mode, multi-language & theme-color aware, [see the full lineup](#home-widgets)
 - **Theme customization** — Multiple primary colors
 
 </details>
@@ -100,6 +100,14 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
   <img src="demo/videos/en/01-add-transaction.gif" alt="Add transaction" width="200" />
   <img src="demo/videos/en/02-ocr-recognition.gif" alt="AI OCR" width="200" />
   <img src="demo/videos/en/04-data-analysis.gif" alt="Analytics" width="200" />
+</div>
+
+### Home Widgets
+
+6 content types × 12 variants — check your books and add records right from the home screen:
+
+<div align="center">
+  <img src="demo/widgets/widgets-showcase-en.png" alt="Home widget lineup: overview / net assets / quick add / budget / recent transactions / dashboard" width="820" />
 </div>
 
 <details>

@@ -1,0 +1,212 @@
+/// 桌面小组件渲染管线的「选哪些 spec 渲染」逻辑([selectSpecsToRender] /
+/// [matchInstalledSpecs])单测。
+///
+/// 覆盖 .docs/home-widget/plan.md D5:只渲已安装的 spec、拿不到已安装列表时
+/// 退化为默认集(至少 glance-medium)。这两个函数均为纯函数,不触碰平台
+/// 通道(不调用 `HomeWidget.getInstalledWidgets()`),因此可以直接单测。
+library;
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:home_widget/home_widget.dart';
+
+import 'package:beecount/widget/widget_manager.dart';
+import 'package:beecount/widget/widget_spec.dart';
+
+void main() {
+  group('selectSpecsToRender', () {
+    test('installed 为 null(拿不到列表)时退化为默认集', () {
+      expect(selectSpecsToRender(null), WidgetSpec.defaultSet);
+      expect(selectSpecsToRender(null), [WidgetSpec.glanceMedium]);
+    });
+
+    test('installed 为空列表(确实一个都没装)时不渲染任何内容', () {
+      expect(selectSpecsToRender(const []), isEmpty);
+    });
+
+    test('只渲染已安装的 spec,不盲渲目录里的其它类型', () {
+      // 场景对应 plan.md P1:已安装 {glance-medium, netWorth-medium} →
+      // 只应对这两个 spec 渲染,目录里其余 10 个 spec(如 dashboard-large、
+      // budget-small)不应出现在结果里。
+      final installed = [WidgetSpec.glanceMedium, WidgetSpec.netWorthMedium];
+      final result = selectSpecsToRender(installed);
+
+      expect(result, [WidgetSpec.glanceMedium, WidgetSpec.netWorthMedium]);
+      expect(result, isNot(contains(WidgetSpec.dashboardLarge)));
+      expect(result, isNot(contains(WidgetSpec.budgetSmall)));
+      expect(result.length, 2);
+    });
+
+    test('按 (type,size) 去重(如 Android 同一 provider 多个实例)', () {
+      final installed = [
+        WidgetSpec.glanceMedium,
+        WidgetSpec.glanceMedium,
+        WidgetSpec.netWorthSmall,
+      ];
+      final result = selectSpecsToRender(installed);
+      expect(result, [WidgetSpec.glanceMedium, WidgetSpec.netWorthSmall]);
+    });
+  });
+
+  group('matchInstalledSpecs', () {
+    test('把平台已安装信息映射为目录 spec,丢弃匹配不到的条目', () {
+      final infos = [
+        HomeWidgetInfo(
+          iOSKind: 'BeeCountWidget',
+          iOSFamily: 'systemMedium',
+        ),
+        HomeWidgetInfo(iOSKind: '尚未注册的未来类型'),
+        HomeWidgetInfo(
+          androidClassName: 'com.tntlikely.beecount.BeeCountWidgetProvider',
+          androidWidgetId: 42,
+        ),
+      ];
+
+      final result = matchInstalledSpecs(infos);
+
+      expect(result, [WidgetSpec.glanceMedium, WidgetSpec.glanceMedium]);
+    });
+
+    test('空列表映射为空列表', () {
+      expect(matchInstalledSpecs(const []), isEmpty);
+    });
+
+    test('与 selectSpecsToRender 组合:Android 同 provider 多实例只渲一次', () {
+      final infos = [
+        HomeWidgetInfo(
+          androidClassName: 'com.tntlikely.beecount.BeeCountWidgetProvider',
+          androidWidgetId: 1,
+        ),
+        HomeWidgetInfo(
+          androidClassName: 'com.tntlikely.beecount.BeeCountWidgetProvider',
+          androidWidgetId: 2,
+        ),
+      ];
+
+      final result = selectSpecsToRender(matchInstalledSpecs(infos));
+
+      expect(result, [WidgetSpec.glanceMedium]);
+    });
+
+    test('Android 多尺寸类型:一个 provider 类名返回该类型全部尺寸 spec', () {
+      // netWorth 的 Android provider 一个类名对应 small/medium/large 三档;
+      // getInstalledWidgets 不带尺寸,渲染管线要渲全尺寸,保证用户缩放到任意
+      // 尺寸都有对应图(否则大尺寸没渲染出图,原生壳只显示占位)。
+      final infos = [
+        HomeWidgetInfo(
+          androidClassName:
+              'com.tntlikely.beecount.BeeCountNetWorthWidgetProvider',
+          androidWidgetId: 7,
+        ),
+      ];
+
+      final result = matchInstalledSpecs(infos);
+
+      expect(result.toSet(), {
+        WidgetSpec.netWorthSmall,
+        WidgetSpec.netWorthMedium,
+        WidgetSpec.netWorthLarge,
+      });
+    });
+
+    test('iOS 多尺寸类型:kind+family 仍只精确命中单一尺寸(对照 Android)', () {
+      final infos = [
+        HomeWidgetInfo(
+          iOSKind: 'BeeCountNetWorthWidget',
+          iOSFamily: 'systemLarge',
+        ),
+      ];
+
+      expect(matchInstalledSpecs(infos), [WidgetSpec.netWorthLarge]);
+    });
+
+    test('glance 小号补全:iOS 同 kind 的 systemSmall family 命中 glanceSmall,'
+        '不影响中号', () {
+      expect(
+        matchInstalledSpecs([
+          HomeWidgetInfo(iOSKind: 'BeeCountWidget', iOSFamily: 'systemSmall'),
+        ]),
+        [WidgetSpec.glanceSmall],
+      );
+      // 存量中号仍精确命中 glanceMedium(D2 back-compat 不受小号补全影响)。
+      expect(
+        matchInstalledSpecs([
+          HomeWidgetInfo(iOSKind: 'BeeCountWidget', iOSFamily: 'systemMedium'),
+        ]),
+        [WidgetSpec.glanceMedium],
+      );
+    });
+
+    test('glance 小号补全:Android 独立 provider 类名只命中 glanceSmall', () {
+      expect(
+        matchInstalledSpecs([
+          HomeWidgetInfo(
+            androidClassName:
+                'com.tntlikely.beecount.BeeCountGlanceSmallWidgetProvider',
+            androidWidgetId: 9,
+          ),
+        ]),
+        [WidgetSpec.glanceSmall],
+      );
+    });
+
+    test('Android 尺寸入口子类:任一入口安装即渲该类型全部尺寸(可自由拉伸)', () {
+      // 用户从选择器加的是「净资产·大」子类入口 —— 子类继承父类按实际尺寸
+      // 选图的逻辑、可被拉伸到任何档,故仍要渲全类型三档图。
+      expect(
+        matchInstalledSpecs([
+          HomeWidgetInfo(
+            androidClassName:
+                'com.tntlikely.beecount.BeeCountNetWorthLargeWidgetProvider',
+            androidWidgetId: 11,
+          ),
+        ]).toSet(),
+        {
+          WidgetSpec.netWorthSmall,
+          WidgetSpec.netWorthMedium,
+          WidgetSpec.netWorthLarge,
+        },
+      );
+      expect(
+        matchInstalledSpecs([
+          HomeWidgetInfo(
+            androidClassName:
+                'com.tntlikely.beecount.BeeCountBudgetMediumWidgetProvider',
+            androidWidgetId: 12,
+          ),
+        ]).toSet(),
+        {WidgetSpec.budgetSmall, WidgetSpec.budgetMedium},
+      );
+    });
+  });
+
+  group('selectSpecsToRender warmUpAll(预热)', () {
+    test('warmUpAll 渲染整个目录,与"已安装"入参无关', () {
+      // 预热是 D5「只渲已安装」的显式例外:App 启动/切账本时把全部类型×尺寸的
+      // 图备好,用户随后添加任何组件都立刻有图(修「添加后要等一会」)。
+      expect(selectSpecsToRender(null, warmUpAll: true), WidgetSpec.catalog);
+      expect(selectSpecsToRender(const [], warmUpAll: true), WidgetSpec.catalog);
+      expect(
+        selectSpecsToRender(const [WidgetSpec.glanceMedium], warmUpAll: true),
+        WidgetSpec.catalog,
+      );
+    });
+
+    test('warmUpAll=false 保持原有行为(null→默认集)', () {
+      expect(selectSpecsToRender(null), WidgetSpec.defaultSet);
+    });
+
+    test('orderCatalogForWarmUp:已安装的排最前,其余目录项跟后,总覆盖=全目录', () {
+      final ordered = orderCatalogForWarmUp(
+          const [WidgetSpec.dashboardLarge, WidgetSpec.recentMedium]);
+
+      expect(ordered.take(2),
+          [WidgetSpec.dashboardLarge, WidgetSpec.recentMedium]);
+      expect(ordered.toSet(), WidgetSpec.catalog.toSet());
+      expect(ordered.length, WidgetSpec.catalog.length);
+    });
+
+    test('orderCatalogForWarmUp:空安装列表退化为目录原序', () {
+      expect(orderCatalogForWarmUp(const []), WidgetSpec.catalog);
+    });
+  });
+}
