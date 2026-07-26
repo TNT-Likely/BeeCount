@@ -358,7 +358,7 @@ This project uses the **Business Source License (BSL)**.
 - Building commercial products on top of this software
 - Offering paid cloud services based on this software
 
-For commercial licensing, please contact via [GitHub Issues](https://github.com/TNT-Likely/BeeCount/issues). See [LICENSE](LICENSE) for details.
+For commercial licensing pricing and process, see [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) or contact **sunxiaoyes@outlook.com**. See [LICENSE_EN](LICENSE_EN) for details.
 
 </details>
 
