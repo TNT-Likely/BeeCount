@@ -19,6 +19,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aboutPrivacyPolicy => '隐私政策';
 
   @override
+  String get aboutChangelog => '更新日志';
+
+  @override
   String get appTitle => '蜜蜂记账';
 
   @override
@@ -7444,6 +7447,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get aboutPrivacyPolicy => '隱私政策';
+
+  @override
+  String get aboutChangelog => '更新日誌';
 
   @override
   String get appTitle => '蜜蜂記帳';

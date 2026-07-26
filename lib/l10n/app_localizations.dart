@@ -122,6 +122,12 @@ abstract class AppLocalizations {
   /// **'Privacy Policy'**
   String get aboutPrivacyPolicy;
 
+  /// No description provided for @aboutChangelog.
+  ///
+  /// In en, this message translates to:
+  /// **'Changelog'**
+  String get aboutChangelog;
+
   /// The application title
   ///
   /// In en, this message translates to:

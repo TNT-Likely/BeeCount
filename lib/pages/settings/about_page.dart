@@ -16,6 +16,7 @@ import '../../l10n/app_localizations.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../utils/website_urls.dart';
 import '../../services/marketing/product_promos.dart';
+import 'help_center_page.dart';
 import 'log_center_page.dart';
 import 'privacy_policy_page.dart';
 
@@ -336,26 +337,53 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                     ),
                   ),
                   _buildProductPromos(context),
-                  // ===== 底部:隐私政策文字链接 + 备案号 =====
+                  // ===== 底部:更新日志 · 隐私政策 文字链接 + 备案号 =====
                   SizedBox(height: 24.0.scaled(context, ref)),
-                  Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const PrivacyPolicyPage()),
-                        );
-                      },
-                      child: Text(
-                        l10n.aboutPrivacyPolicy,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: primary,
-                              decoration: TextDecoration.underline,
-                              decorationColor: primary,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _footerLink(
+                        context,
+                        label: l10n.aboutChangelog,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => HelpCenterPage(
+                                title: l10n.aboutChangelog,
+                                initialUrl: WebsiteUrls.changelogEmbed(
+                                  locale,
+                                  dark: BeeTokens.isDark(context),
+                                  primaryHex: _hex(primary),
+                                ),
+                              ),
                             ),
+                          );
+                        },
                       ),
-                    ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.0.scaled(context, ref)),
+                        child: Text(
+                          '·',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: BeeTokens.textTertiary(context),
+                                  ),
+                        ),
+                      ),
+                      _footerLink(
+                        context,
+                        label: l10n.aboutPrivacyPolicy,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const PrivacyPolicyPage()),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   if (isSimplifiedZh) ...[
                     SizedBox(height: 12.0.scaled(context, ref)),
@@ -426,6 +454,32 @@ class _AboutPageState extends ConsumerState<AboutPage> {
       ),
     );
   }
+
+  /// 底部文字链接(下划线 + 主题色),更新日志 / 隐私政策共用。
+  Widget _footerLink(
+    BuildContext context, {
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final primary = ref.watch(primaryColorProvider);
+    return GestureDetector(
+      onTap: onTap,
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: primary,
+              decoration: TextDecoration.underline,
+              decorationColor: primary,
+            ),
+      ),
+    );
+  }
+
+  /// 主题色转 6 位 hex(用于文档 embed 链接的 primary 参数),与帮助中心 / 隐私
+  /// 政策页同款实现。
+  static String _hex(Color c) => [c.r, c.g, c.b]
+      .map((v) => ((v * 255).round() & 0xff).toRadixString(16).padLeft(2, '0'))
+      .join();
 }
 
 /// 「更多产品」section — 单列大卡。蜜蜂家当前置。

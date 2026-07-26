@@ -19,6 +19,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutPrivacyPolicy => 'Privacy Policy';
 
   @override
+  String get aboutChangelog => 'Changelog';
+
+  @override
   String get appTitle => 'Bee Accounting';
 
   @override

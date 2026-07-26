@@ -19,6 +19,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aboutPrivacyPolicy => '개인정보 처리방침';
 
   @override
+  String get aboutChangelog => 'Changelog';
+
+  @override
   String get appTitle => '꿀벌 가계부';
 
   @override
