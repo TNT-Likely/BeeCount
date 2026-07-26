@@ -38,11 +38,10 @@ Future<void> updateAppWidget(WidgetRef ref, BuildContext context) async {
       monthIncomeLabel: l10n.widgetMonthIncome,
       baseCurrency: baseCurrency,
       // 净资产视图文案:这里是唯一真正有 BuildContext 的调用点,直接用
-      // AppLocalizations.of(context) 最准确;其余调用点(main.dart/
+      // AppLocalizations.of(context) 最准确;其余调用点(main.dart/app.dart/
       // providers/theme_providers.dart/pages/main/ledgers_page_new.dart)
-      // 改用 WidgetManager.updateAllWidgetsLocalized(靠 languageProvider
-      // 还原 locale),app.dart 前台恢复的调用点仍沿用 WidgetManager 默认值
-      // 兜底(见 widget_manager.dart updateAllWidgets 文档)。
+      // 均走 WidgetManager.updateAllWidgetsLocalized(靠 languageProvider
+      // 还原 locale),见 widget_manager.dart updateAllWidgets 文档。
       netWorthLabel: l10n.accountTotalBalance,
       totalAssetsLabel: l10n.totalAssets,
       totalLiabilitiesLabel: l10n.totalLiabilities,

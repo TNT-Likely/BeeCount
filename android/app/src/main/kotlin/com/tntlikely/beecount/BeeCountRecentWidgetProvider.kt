@@ -19,11 +19,9 @@ import java.io.File
  * 图片分别写入 `widget_recent_medium` / `widget_recent_large` 两个 key。
  *
  * 两档宽度相同(364dp)、高度不同(169dp/382dp),因此只按高度分档,详见
- * [resolveImageKey]。尺寸判定机制与已知局限同
- * [BeeCountNetWorthWidgetProvider]:`widget_spec.dart` 的
- * `WidgetSpec.matchInstalled` 目前按 androidClassName 匹配、不感知尺寸,
- * 只会匹配到 catalog 里排在最前的 `recentMedium`,渲染管线在 Android 上对
- * 本类型可能只渲染 medium 档的图片。
+ * [resolveImageKey]。尺寸判定机制同 [BeeCountNetWorthWidgetProvider]:
+ * Dart 侧 `matchInstalledAll` 为命中类名渲染该类型全部尺寸的图,任意缩放
+ * 档位都有现成图可显。
  */
 open class BeeCountRecentWidgetProvider : HomeWidgetProvider() {
     companion object {

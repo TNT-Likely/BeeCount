@@ -33,11 +33,10 @@ class WidgetSpec {
   /// 渲染时使用的逻辑尺寸(pt/dp,对应 `HomeWidget.renderFlutterWidget` 的
   /// `logicalSize`)。
   ///
-  /// 仅 [glanceMedium] 有真实渲染实现,且其渲染尺寸实际按平台(iOS/Android)
-  /// 分叉、不直接取用这里的值(见 `WidgetManager._renderSpec` 注释,属 D2
-  /// back-compat)。其余类型此阶段(P1)尚无 View 实现,这里的取值只是 P2
-  /// 落地各类型视图前的占位标准尺寸(接近 iOS systemSmall/Medium/Large 的
-  /// 常见尺寸),渲染时会重新校准。
+  /// 全部 12 个 spec 均按此尺寸渲染;唯一例外是 [glanceMedium]——其渲染
+  /// 尺寸按平台(iOS 364×169 / Android 364×182)分叉、不直接取用这里的值
+  /// (见 `WidgetManager._renderGlance` 注释,属 D2 back-compat)。取值接近
+  /// iOS systemSmall/Medium/Large 的常见尺寸。
   final Size logicalSize;
 
   /// iOS Widget `kind` 标识(对应 [HomeWidgetInfo.iOSKind])。只有已在原生壳
@@ -274,6 +273,27 @@ class WidgetSpec {
   /// 而断更(D5)。
   static const List<WidgetSpec> defaultSet = [glanceMedium];
 
+  /// Android 已安装类名比对,兼容 home_widget 透传的**短类名**形式。
+  ///
+  /// home_widget(0.9.x `HomeWidgetPlugin.kt` getInstalledWidgets)返回的是
+  /// `ComponentName.shortClassName`:当 applicationId 与类所在包名相同时
+  /// (**prod 商店包** `com.tntlikely.beecount` 正是如此),它是带前导点的
+  /// 短名 `.BeeCountWidgetProvider` 而**不是**全限定名;dev/debug 因
+  /// applicationIdSuffix(`.dev`/`.debug`)与类包名不同才返回全名。此前只按
+  /// 全限定名精确比对,商店包上所有条目都匹配不到 → 被当成"一个组件都没装"
+  /// → 全部不渲染(dev 真机永远复现不了的发布级缺陷,2026-07 review 发现)。
+  ///
+  /// 短名以 `.` 开头,`candidate.endsWith(installed)` 自带点号边界,不会把
+  /// `XxxBeeCountWidgetProvider` 误匹配成 `BeeCountWidgetProvider`。
+  static bool _androidClassMatches(String? installed, List<String> candidates) {
+    if (installed == null || installed.isEmpty) return false;
+    for (final c in candidates) {
+      if (installed == c) return true;
+      if (installed.startsWith('.') && c.endsWith(installed)) return true;
+    }
+    return false;
+  }
+
   /// 把平台 `HomeWidget.getInstalledWidgets()` 返回的单条 [HomeWidgetInfo]
   /// 匹配到 [catalog] 中的 spec;匹配不到(如尚未注册原生壳的新类型,或
   /// 无法识别的 family/class)返回 null,调用方应丢弃该条目。
@@ -285,7 +305,8 @@ class WidgetSpec {
         }
       }
       if (spec.androidClassName != null &&
-          spec.androidClassName == info.androidClassName) {
+          _androidClassMatches(
+              info.androidClassName, [spec.androidClassName!])) {
         return spec;
       }
     }
@@ -308,8 +329,8 @@ class WidgetSpec {
       final iosHit = spec.iosKind != null &&
           spec.iosKind == info.iOSKind &&
           (spec.iosFamily == null || spec.iosFamily == info.iOSFamily);
-      final androidHit = info.androidClassName != null &&
-          spec.androidAllClassNames.contains(info.androidClassName);
+      final androidHit =
+          _androidClassMatches(info.androidClassName, spec.androidAllClassNames);
       if (iosHit || androidHit) {
         matched.add(spec);
       }

@@ -122,6 +122,51 @@ void main() {
       expect(WidgetSpec.matchInstalled(iosInfo), isNull);
       expect(WidgetSpec.matchInstalled(androidInfo), isNull);
     });
+
+    // home_widget 透传 ComponentName.shortClassName:applicationId 与类包名
+    // 相同时(prod 商店包)是带前导点的短名而非全限定名——dev/debug 因
+    // applicationIdSuffix 不同才返回全名,dev 真机永远复现不了。这组 case
+    // 是"商店包上所有组件被判未安装→全部空白"发布级缺陷的回归守卫(2026-07
+    // review 发现)。
+    group('Android shortClassName(prod 商店包形态)', () {
+      test('前导点短名匹配 glance-medium', () {
+        final info = HomeWidgetInfo(
+          androidClassName: '.BeeCountWidgetProvider',
+          androidWidgetId: 1,
+        );
+        expect(WidgetSpec.matchInstalled(info), WidgetSpec.glanceMedium);
+      });
+
+      test('前导点短名 matchInstalledAll 返回该类型全部尺寸(含子类入口)', () {
+        final main = HomeWidgetInfo(
+          androidClassName: '.BeeCountNetWorthWidgetProvider',
+          androidWidgetId: 2,
+        );
+        expect(
+          WidgetSpec.matchInstalledAll(main),
+          containsAll([
+            WidgetSpec.netWorthSmall,
+            WidgetSpec.netWorthMedium,
+            WidgetSpec.netWorthLarge,
+          ]),
+        );
+        final sized = HomeWidgetInfo(
+          androidClassName: '.BeeCountNetWorthLargeWidgetProvider',
+          androidWidgetId: 3,
+        );
+        expect(WidgetSpec.matchInstalledAll(sized), isNotEmpty);
+      });
+
+      test('短名后缀比对有点号边界,不误匹配前缀撞名类', () {
+        final info = HomeWidgetInfo(
+          // 全限定候选都以 .BeeCountWidgetProvider 结尾才算命中,这里的
+          // .FakeBeeCountWidgetProvider 不应命中任何 spec。
+          androidClassName: '.FakeBeeCountWidgetProvider',
+        );
+        expect(WidgetSpec.matchInstalled(info), isNull);
+        expect(WidgetSpec.matchInstalledAll(info), isEmpty);
+      });
+    });
   });
 
   group('WidgetSpec 相等性', () {

@@ -15,7 +15,7 @@
     <string name="widget_budget_medium_name">預算進度·中</string>
     <string name="widget_recent_name">最近交易·中</string>
     <string name="widget_recent_large_name">最近交易·大</string>
-    <string name="widget_dashboard_name">綜合儀表板</string>
+    <string name="widget_dashboard_name">綜合儀表盤</string>
 
     <!-- 小組件描述(android:description) -->
     <string name="widget_description">查看今日和本月的收支情況</string>

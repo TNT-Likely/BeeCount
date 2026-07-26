@@ -18,12 +18,10 @@ import java.io.File
  * 对应 `lib/widget/widget_spec.dart` 的 `quickAddSmall/Medium`,渲染管线把
  * 图片分别写入 `widget_quickAdd_small` / `widget_quickAdd_medium` 两个 key。
  *
- * 尺寸判定机制与已知局限同 [BeeCountNetWorthWidgetProvider]:本 provider
- * 类名同时覆盖两档尺寸,`onUpdate` 按 `AppWidgetManager.getAppWidgetOptions`
- * 读到的实际尺寸选择图片 key(见 [resolveImageKey]);但 `widget_spec.dart`
- * 的 `WidgetSpec.matchInstalled` 目前按 androidClassName 匹配、不感知尺寸,
- * 只会匹配到 catalog 里排在最前的 `quickAddSmall`,渲染管线在 Android 上
- * 对本类型可能只渲染 small 档的图片。
+ * 尺寸判定机制同 [BeeCountNetWorthWidgetProvider]:本 provider 类名覆盖
+ * 两档尺寸,`onUpdate` 按 `AppWidgetManager.getAppWidgetOptions` 读到的实际
+ * 尺寸选择图片 key(见 [resolveImageKey]);Dart 侧 `matchInstalledAll` 为
+ * 命中类名渲染该类型全部尺寸的图,任意缩放档位都有现成图可显。
  */
 open class BeeCountQuickAddWidgetProvider : HomeWidgetProvider() {
     companion object {

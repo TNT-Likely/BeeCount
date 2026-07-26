@@ -24,14 +24,10 @@ import java.io.File
  * `AppWidgetManager.getAppWidgetOptions` 读到的当前实际尺寸,自行判定该用
  * 哪个图片 key(见 [resolveImageKey])。
  *
- * 已知局限(见 `widget_spec.dart` `WidgetSpec.matchInstalled` 文档):目前
- * `matchInstalled` 按 androidClassName 匹配、不感知具体尺寸,同一 provider
- * 类名对应多个 spec 时只会匹配到 catalog 里排在最前的那个尺寸
- * (`netWorthSmall`)。也就是说 Dart 侧「渲染管线只渲已安装 spec」这一步,
- * 在 Android 上目前对本类型可能只会渲染 small 这一档的图片,即便用户实际
- * 把 widget 拉到了 medium/large 尺寸——`resolveImageKey` 仍按真实尺寸取
- * key、为后续修复 `matchInstalled` 做好准备,但在修复前,用户拉大尺寸后
- * 桌面上显示的可能还是 small 档渲染出的图片内容。
+ * 尺寸分发:Dart 侧 `WidgetSpec.matchInstalledAll` 会为命中的类名渲染该类型
+ * **全部尺寸**的图片,本类 `resolveImageKey` 按
+ * `AppWidgetManager.getAppWidgetOptions` 读到的真实尺寸选取对应 key,任意
+ * 缩放档位都有现成图可显。
  */
 open class BeeCountNetWorthWidgetProvider : HomeWidgetProvider() {
     companion object {

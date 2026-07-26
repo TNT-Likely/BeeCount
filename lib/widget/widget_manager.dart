@@ -1,3 +1,4 @@
+import 'dart:async' show Completer;
 import 'dart:io';
 import 'dart:ui' show PlatformDispatcher;
 
@@ -128,6 +129,16 @@ class WidgetManager {
   factory WidgetManager() => _instance;
   WidgetManager._internal();
 
+  /// 渲染批次串行门:任意时刻只允许一个 [updateAllWidgets] 批次在跑。
+  ///
+  /// [_renderView] 在渲染窗口内全局接管 FlutterError.onError /
+  /// ErrorWidget.builder,两个批次并发时(各触发点之间没有互斥:记账后、
+  /// 前台恢复、系统明暗切换、主题色修改都可能同时到来)交错的 finally 会把
+  /// **对方批次的 hook** 当"原值"恢复,主应用的错误处理从此永久指向渲染态
+  /// (ErrorWidget 永久透明、onError 永久打小组件日志)。串行化后各批次的
+  /// 接管窗口天然不重叠;顺带避免多批次同时离屏渲染的内存峰值。
+  Future<void> _renderGate = Future.value();
+
   /// 渲染管线入口:按 [WidgetSpec] 目录逐个处理,只渲染用户"已安装"(已放置
   /// 到桌面)的组件,再统一触发原生刷新。
   ///
@@ -143,8 +154,8 @@ class WidgetManager {
   ///   [WidgetManager.updateAllWidgetsLocalized],内部靠
   ///   [resolveWidgetLocalizations] 还原 `languageProvider` 对应的
   ///   `AppLocalizations`。
-  /// - `app.dart` 前台恢复的调用点是本阶段唯一未接入的历史遗留,固定显示
-  ///   下面的中文默认值(该文件本次改动范围之外,见 Phase C 任务说明)。
+  /// - `app.dart` 前台恢复的调用点也已走 [updateAllWidgetsLocalized],至此
+  ///   全部触发路径均跟随 App 语言,下面的中文默认值只是最后的兜底。
   Future<void> updateAllWidgets(
     BaseRepository repository,
     int ledgerId,
@@ -206,6 +217,12 @@ class WidgetManager {
     // "只渲已安装"的快路径,不受影响。
     bool warmUpAllSpecs = false,
   }) async {
+    // 排队进串行门(动机见 _renderGate 文档);gate 在 finally 里必然放行,
+    // 前一批次即使异常也不会卡死队列。
+    final prev = _renderGate;
+    final gate = Completer<void>();
+    _renderGate = gate.future;
+    await prev;
     try {
       List<WidgetSpec> specs;
       if (warmUpAllSpecs) {
@@ -303,6 +320,8 @@ class WidgetManager {
       );
     } catch (e, st) {
       logger.error(_tag, '更新小组件失败', e, st);
+    } finally {
+      gate.complete();
     }
   }
 
