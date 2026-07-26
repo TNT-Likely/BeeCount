@@ -18,9 +18,10 @@ import 'widget_view_style.dart';
 /// dashboard 综合仪表盘(`DashboardView`,Phase B2b 同批次新增)直接复用,
 /// 避免"最近交易一行长什么样"在两个文件里各写一遍。
 ///
-/// - medium:最近 3 笔;large:最近 6 笔(`WidgetDataService.gatherRecent` 的
-///   `limit` 已按此截断,这里 `take(_limit)` 属防御性重复,同 QuickAddView/
-///   BudgetView 的约定)。
+/// - medium:最近 2 笔(原为 3 笔,顶部加统一内容标签后 169 高度只装得下
+///   2 行,3 行会被 [WidgetOverflowClip] 裁掉半行);large:最近 6 笔。取数
+///   (`WidgetDataService.gatherRecent`)按最大需求给,这里 `take(_limit)`
+///   截断,同 QuickAddView/BudgetView 的约定。
 /// - 空列表(全新账本还没有任何交易)显示 [emptyLabel] 占位文案。
 class RecentView extends StatelessWidget {
   final HWSize size;
@@ -44,6 +45,10 @@ class RecentView extends StatelessWidget {
   /// 空列表占位文案。
   final String emptyLabel;
 
+  /// 左上内容标签(「最近交易」,复用 arb `widgetRecentTransactions`)——
+  /// 六款组件统一的内容标签制(2026-07 用户拍板 A 方案)。
+  final String titleLabel;
+
   final double width;
   final double height;
 
@@ -57,12 +62,13 @@ class RecentView extends StatelessWidget {
     required this.dark,
     this.uncategorizedLabel = '未分类',
     this.emptyLabel = '暂无交易',
+    this.titleLabel = '最近交易',
     required this.width,
     required this.height,
   });
 
-  /// medium 展示最近 3 笔,large 展示最近 6 笔(见类文档)。
-  int get _limit => size == HWSize.large ? 6 : 3;
+  /// medium 展示最近 2 笔,large 展示最近 6 笔(见类文档)。
+  int get _limit => size == HWSize.large ? 6 : 2;
 
   @override
   Widget build(BuildContext context) {
@@ -76,14 +82,28 @@ class RecentView extends StatelessWidget {
         color: widgetCardBackground(dark),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: take.isEmpty
-          ? Center(
-              child: Text(
-                emptyLabel,
-                style: TextStyle(fontSize: 12, color: widgetTextTertiary(dark)),
-              ),
-            )
-          : WidgetOverflowClip(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            titleLabel,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: widgetTextSecondary(dark),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Expanded(
+            child: take.isEmpty
+                ? Center(
+                    child: Text(
+                      emptyLabel,
+                      style:
+                          TextStyle(fontSize: 12, color: widgetTextTertiary(dark)),
+                    ),
+                  )
+                : WidgetOverflowClip(
               // 行数理论上已被 _limit 控制在 3/6,这里仍防御性裁切兜底(同
               // NetWorthView 大号账户列表):即便真实设备字体度量比预期更高,
               // 也只是裁切而不是抛 RenderFlex 溢出。注意**不能**用
@@ -104,6 +124,9 @@ class RecentView extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
     );
   }
 }

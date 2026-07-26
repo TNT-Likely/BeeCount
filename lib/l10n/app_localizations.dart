@@ -7598,6 +7598,12 @@ abstract class AppLocalizations {
   /// **'Dashboard'**
   String get widgetGalleryDashboardTitle;
 
+  /// No description provided for @widgetDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get widgetDashboardTitle;
+
   /// No description provided for @widgetGalleryDashboardDesc.
   ///
   /// In en, this message translates to:

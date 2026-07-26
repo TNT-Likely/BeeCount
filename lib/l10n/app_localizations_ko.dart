@@ -3981,6 +3981,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get widgetGalleryDashboardTitle => 'Dashboard';
 
   @override
+  String get widgetDashboardTitle => 'This Month';
+
+  @override
   String get widgetGalleryDashboardDesc => 'Income, trend and recent transactions in one view';
 
   @override

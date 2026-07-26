@@ -155,7 +155,14 @@ class WidgetManager {
     int ledgerId,
     Color themeColor, {
     bool redForIncome = true,
-    String appName = '蜜蜂记账',
+    // 六款组件统一内容标签(2026-07 A 方案):glance 中号从「App 名 header」
+    // 改为内容标签(iOS HIG:widget 内不放 App 名),其余三款新增标签。
+    // 分别对应 arb widgetGalleryGlanceTitle / widgetGalleryQuickAddTitle /
+    // widgetRecentTransactions / widgetDashboardTitle。
+    String glanceTitleLabel = '收支速览',
+    String quickAddTitleLabel = '快速记账',
+    String recentTitleLabel = '最近交易',
+    String dashboardTitleLabel = '本月概览',
     String monthSuffix = '月',
     String todayExpenseLabel = '今日支出',
     String todayIncomeLabel = '今日收入',
@@ -242,7 +249,10 @@ class WidgetManager {
             themeColor: themeColor,
             redForIncome: redForIncome,
             dark: dark,
-            appName: appName,
+            glanceTitleLabel: glanceTitleLabel,
+            quickAddTitleLabel: quickAddTitleLabel,
+            recentTitleLabel: recentTitleLabel,
+            dashboardTitleLabel: dashboardTitleLabel,
             monthSuffix: monthSuffix,
             todayLabel: todayLabel,
             todayExpenseLabel: todayExpenseLabel,
@@ -327,7 +337,10 @@ class WidgetManager {
       themeColor,
       redForIncome: redForIncome,
       warmUpAllSpecs: warmUpAllSpecs,
-      appName: l10n.appTitle,
+      glanceTitleLabel: l10n.widgetGalleryGlanceTitle,
+      quickAddTitleLabel: l10n.widgetGalleryQuickAddTitle,
+      recentTitleLabel: l10n.widgetRecentTransactions,
+      dashboardTitleLabel: l10n.widgetDashboardTitle,
       monthSuffix: l10n.widgetMonthSuffix,
       todayLabel: l10n.widgetToday,
       todayExpenseLabel: l10n.widgetTodayExpense,
@@ -374,7 +387,10 @@ class WidgetManager {
     required Color themeColor,
     required bool redForIncome,
     required bool dark,
-    required String appName,
+    required String glanceTitleLabel,
+    required String quickAddTitleLabel,
+    required String recentTitleLabel,
+    required String dashboardTitleLabel,
     required String monthSuffix,
     required String todayLabel,
     required String todayExpenseLabel,
@@ -403,7 +419,7 @@ class WidgetManager {
           themeColor: themeColor,
           redForIncome: redForIncome,
           dark: dark,
-          appName: appName,
+          titleLabel: glanceTitleLabel,
           monthSuffix: monthSuffix,
           todayLabel: todayLabel,
           todayExpenseLabel: todayExpenseLabel,
@@ -432,6 +448,7 @@ class WidgetManager {
           themeColor: themeColor,
           dark: dark,
           addLabel: quickAddLabel,
+          titleLabel: quickAddTitleLabel,
         );
         return;
       case HWType.budget:
@@ -457,6 +474,7 @@ class WidgetManager {
           dark: dark,
           uncategorizedLabel: uncategorizedLabel,
           emptyLabel: noTransactionsLabel,
+          titleLabel: recentTitleLabel,
         );
         return;
       case HWType.dashboard:
@@ -472,6 +490,7 @@ class WidgetManager {
           uncategorizedLabel: uncategorizedLabel,
           noTransactionsLabel: noTransactionsLabel,
           quickAddLabel: quickAddLabel,
+          titleLabel: dashboardTitleLabel,
         );
         return;
     }
@@ -484,7 +503,7 @@ class WidgetManager {
     required Color themeColor,
     required bool redForIncome,
     required bool dark,
-    required String appName,
+    required String titleLabel,
     required String monthSuffix,
     required String todayLabel,
     required String todayExpenseLabel,
@@ -534,8 +553,9 @@ class WidgetManager {
         themeColor: themeColor,
         redForIncome: redForIncome,
         dark: dark,
-        appName: appName,
+        titleLabel: titleLabel,
         monthSuffix: monthSuffix,
+        todayLabel: todayLabel,
         todayExpenseLabel: todayExpenseLabel,
         todayIncomeLabel: todayIncomeLabel,
         monthExpenseLabel: monthExpenseLabel,
@@ -609,6 +629,7 @@ class WidgetManager {
     required Color themeColor,
     required bool dark,
     required String addLabel,
+    required String titleLabel,
   }) async {
     // 批次内按最大需求取 4 个(medium 用满);small 由 QuickAddView 内部
     // 截断到 3 个 + 补位(见 WidgetGatherBatch.quickAddCategories 文档)。
@@ -620,6 +641,7 @@ class WidgetManager {
       themeColor: themeColor,
       dark: dark,
       addLabel: addLabel,
+      titleLabel: titleLabel,
       width: spec.logicalSize.width,
       height: spec.logicalSize.height,
     );
@@ -687,8 +709,9 @@ class WidgetManager {
     required bool dark,
     required String uncategorizedLabel,
     required String emptyLabel,
+    required String titleLabel,
   }) async {
-    // 批次内按最大需求取 6 笔;medium 由 RecentView 内部截断到 3 笔
+    // 批次内按最大需求取 6 笔;medium 由 RecentView 内部截断到 2 笔
     // (见 WidgetGatherBatch.recent 文档)。
     final items = await batch.recent();
     // 交易金额格式化优先用交易自身 currencyCode,这里只是缺失时的兜底
@@ -704,6 +727,7 @@ class WidgetManager {
       dark: dark,
       uncategorizedLabel: uncategorizedLabel,
       emptyLabel: emptyLabel,
+      titleLabel: titleLabel,
       width: spec.logicalSize.width,
       height: spec.logicalSize.height,
     );
@@ -731,6 +755,7 @@ class WidgetManager {
     required String uncategorizedLabel,
     required String noTransactionsLabel,
     required String quickAddLabel,
+    required String titleLabel,
   }) async {
     // 组合数据全部来自批次缓存(glance/趋势/最近交易/常用分类若已被其它 spec
     // 取过则直接复用,见 WidgetGatherBatch.dashboard 文档)。
@@ -753,6 +778,7 @@ class WidgetManager {
       uncategorizedLabel: uncategorizedLabel,
       noTransactionsLabel: noTransactionsLabel,
       quickAddLabel: quickAddLabel,
+      titleLabel: titleLabel,
       width: spec.logicalSize.width,
       height: spec.logicalSize.height,
     );

@@ -1570,6 +1570,7 @@
   "widgetGalleryBudgetDesc": "预算进度实时掌握",
   "widgetGalleryRecentDesc": "快速查看最近几笔账单",
   "widgetGalleryDashboardTitle": "综合仪表盘",
+  "widgetDashboardTitle": "本月概览",
   "widgetGalleryDashboardDesc": "收支、趋势与最近交易一屏看尽",
   "widgetSizeSmall": "小号",
   "widgetSizeMedium": "中号",

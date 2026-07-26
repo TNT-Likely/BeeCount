@@ -1706,6 +1706,7 @@
   "widgetGalleryBudgetDesc": "Track your budget progress at a glance",
   "widgetGalleryRecentDesc": "See your latest transactions",
   "widgetGalleryDashboardTitle": "Dashboard",
+  "widgetDashboardTitle": "This Month",
   "widgetGalleryDashboardDesc": "Income, trend and recent transactions in one view",
   "widgetSizeSmall": "Small",
   "widgetSizeMedium": "Medium",

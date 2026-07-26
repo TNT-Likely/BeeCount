@@ -28,7 +28,7 @@ void main() {
           themeColor: Color(0xFFF5A623),
           redForIncome: true,
           dark: false,
-          appName: '蜜蜂记账',
+          titleLabel: '收支速览',
           monthSuffix: '月',
           todayExpenseLabel: '今日支出',
           todayIncomeLabel: '今日收入',
@@ -42,7 +42,7 @@ void main() {
       await tester.pump();
 
       expect(tester.takeException(), isNull);
-      expect(find.text('蜜蜂记账'), findsOneWidget);
+      expect(find.text('收支速览'), findsOneWidget);
     });
 
     testWidgets('364x182(Android 2:1)暗色下正常渲染,不抛异常', (tester) async {
@@ -56,7 +56,7 @@ void main() {
           themeColor: Color(0xFFF5A623),
           redForIncome: false,
           dark: true,
-          appName: '蜜蜂记账',
+          titleLabel: '收支速览',
           monthSuffix: '月',
           todayExpenseLabel: '今日支出',
           todayIncomeLabel: '今日收入',

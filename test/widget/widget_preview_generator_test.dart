@@ -67,9 +67,12 @@ class _Pack {
   final String outDir; // Android 资源目录(语言限定符)
   final String currency; // 传给 View 的币种码(决定符号)
   final String sym; // glance 预格式化金额用的符号
+  // 统一内容标签(A 方案,2026-07):glance/quickAdd/dashboard 各自的左上
+  // 标题;recent 的标题直接复用下面的 recentLabel(同一个 arb key)。
+  final String glanceTitleLabel, quickAddTitleLabel, dashboardTitleLabel;
   // glance
-  final String appName, monthSuffix;
-  final String todayLabel; // GlanceView.small「今日」徽章(widgetToday)
+  final String monthSuffix;
+  final String todayLabel; // 「今日」徽章/前缀(widgetToday)
   final String todayExpenseLabel, todayIncomeLabel;
   final String monthExpenseLabel, monthIncomeLabel;
   // netWorth
@@ -87,7 +90,9 @@ class _Pack {
     required this.outDir,
     required this.currency,
     required this.sym,
-    required this.appName,
+    required this.glanceTitleLabel,
+    required this.quickAddTitleLabel,
+    required this.dashboardTitleLabel,
     required this.monthSuffix,
     required this.todayLabel,
     required this.todayExpenseLabel,
@@ -115,7 +120,9 @@ const _zh = _Pack(
   outDir: 'android/app/src/main/res/drawable-nodpi',
   currency: 'CNY',
   sym: '¥',
-  appName: '蜜蜂记账',
+  glanceTitleLabel: '收支速览', // widgetGalleryGlanceTitle
+  quickAddTitleLabel: '快速记账', // widgetGalleryQuickAddTitle
+  dashboardTitleLabel: '本月概览', // widgetDashboardTitle
   monthSuffix: '月',
   todayLabel: '今日',
   todayExpenseLabel: '今日支出',
@@ -142,7 +149,9 @@ const _en = _Pack(
   outDir: 'android/app/src/main/res/drawable-en-nodpi',
   currency: 'USD',
   sym: '\$',
-  appName: 'Bee Accounting', // appTitle
+  glanceTitleLabel: 'Overview', // widgetGalleryGlanceTitle
+  quickAddTitleLabel: 'Quick Add', // widgetGalleryQuickAddTitle
+  dashboardTitleLabel: 'This Month', // widgetDashboardTitle
   monthSuffix: '', // widgetMonthSuffix(en 为空,徽章只显示月份数字)
   todayLabel: 'Today', // widgetToday
   todayExpenseLabel: "Today's Expense", // widgetTodayExpense
@@ -395,8 +404,9 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
       themeColor: _honey,
       redForIncome: false,
       dark: false,
-      appName: p.appName,
+      titleLabel: p.glanceTitleLabel,
       monthSuffix: p.monthSuffix,
+      todayLabel: p.todayLabel,
       todayExpenseLabel: p.todayExpenseLabel,
       todayIncomeLabel: p.todayIncomeLabel,
       monthExpenseLabel: p.monthExpenseLabel,
@@ -500,6 +510,7 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
       themeColor: _honey,
       dark: false,
       addLabel: p.addLabel,
+      titleLabel: p.quickAddTitleLabel,
       width: 155,
       height: 155,
     ),
@@ -517,6 +528,7 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
       themeColor: _honey,
       dark: false,
       addLabel: p.addLabel,
+      titleLabel: p.quickAddTitleLabel,
       width: 364,
       height: 169,
     ),
@@ -531,8 +543,8 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
     BudgetView(
       size: HWSize.small,
       overview: BudgetOverview(
-        // 真实典型金额:底部已拆两行(剩 ¥x / 总额 ¥y 各一行),千位金额也
-        // 放得下——预览同时验证两行布局不截断。
+        // 真实典型金额:底部单行压缩格式(剩 ¥x / ¥y,金额去小数),千位
+        // 金额也放得下——预览同时验证单行不被省略号截断。
         totalBudget: BudgetUsage(used: 6842, budget: 8000),
         categoryBudgets: [
           CategoryBudgetUsage(
@@ -617,6 +629,7 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
       themeColor: _honey,
       redForIncome: false,
       dark: false,
+      titleLabel: p.recentLabel,
       width: 364,
       height: 169,
     ),
@@ -635,6 +648,7 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
       themeColor: _honey,
       redForIncome: false,
       dark: false,
+      titleLabel: p.recentLabel,
       width: 364,
       height: 382,
     ),
@@ -666,6 +680,7 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
       monthIncomeLabel: p.monthIncomeLabel,
       recentLabel: p.recentLabel,
       quickAddLabel: p.addLabel,
+      titleLabel: p.dashboardTitleLabel,
       width: 364,
       height: 382,
     ),

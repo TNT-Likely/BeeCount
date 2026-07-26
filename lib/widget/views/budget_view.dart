@@ -280,18 +280,20 @@ class BudgetView extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             _progressBar(total),
-            const SizedBox(height: 10),
+            // Spacer 把分类排推到贴底,medium 卡不留底部空白
+            // (2026-07 真机反馈"预算中号下面有空白")。
+            const Spacer(),
           ] else
             // 有分类预算但没有总预算:总览行退化为一句提示,分类用量照常展示
             // (见类文档"优雅降级"一节——分类预算是真实数据,不因缺总预算而
             // 一并隐藏)。
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Text(
+            ...[
+              Text(
                 noBudgetLabel,
                 style: TextStyle(fontSize: 12, color: widgetTextTertiary(dark)),
               ),
-            ),
+              const Spacer(),
+            ],
           if (categories.isNotEmpty)
             Row(
               children: [for (final c in categories) _categoryChip(c)],

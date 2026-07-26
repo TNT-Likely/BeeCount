@@ -263,7 +263,7 @@ void main() {
       'GlanceView.medium': const GlanceView.medium(
         todayExpense: '¥1', todayIncome: '¥2', monthExpense: '¥3',
         monthIncome: '¥4', themeColor: honey, redForIncome: true, dark: false,
-        appName: 'B', monthSuffix: '月', todayExpenseLabel: 'a',
+        titleLabel: 'B', monthSuffix: '月', todayExpenseLabel: 'a',
         todayIncomeLabel: 'b', monthExpenseLabel: 'c', monthIncomeLabel: 'd',
         width: 364, height: 169,
       ),

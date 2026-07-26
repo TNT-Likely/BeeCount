@@ -3981,6 +3981,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetGalleryDashboardTitle => '综合仪表盘';
 
   @override
+  String get widgetDashboardTitle => '本月概览';
+
+  @override
   String get widgetGalleryDashboardDesc => '收支、趋势与最近交易一屏看尽';
 
   @override
@@ -11403,6 +11406,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get widgetGalleryDashboardTitle => '綜合儀表盤';
+
+  @override
+  String get widgetDashboardTitle => '本月概覽';
 
   @override
   String get widgetGalleryDashboardDesc => '收支、趨勢與最近交易一屏看盡';

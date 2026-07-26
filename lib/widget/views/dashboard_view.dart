@@ -83,9 +83,14 @@ class DashboardView extends StatelessWidget {
     this.uncategorizedLabel = '未分类',
     this.noTransactionsLabel = '暂无交易',
     this.quickAddLabel = '记一笔',
+    this.titleLabel = '本月概览',
     required this.width,
     required this.height,
   });
+
+  /// 左上内容标签(「本月概览」,对应新增 arb `widgetDashboardTitle`)——
+  /// 六款组件统一的内容标签制(2026-07 用户拍板 A 方案)。
+  final String titleLabel;
 
   String _money(double v) =>
       '${getCurrencySymbol(defaultCurrency)}${formatMoneyCompact(v)}';
@@ -107,6 +112,16 @@ class DashboardView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 统一内容标签(六款组件一致,2026-07 用户拍板 A 方案)。
+          Text(
+            titleLabel,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: widgetTextSecondary(dark),
+            ),
+          ),
+          const SizedBox(height: 6),
           _statsRow(data.glance),
           const SizedBox(height: 8),
           Expanded(

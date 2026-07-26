@@ -28,6 +28,10 @@ class QuickAddView extends StatelessWidget {
   /// 「记一笔」按钮文案。l10n 暂无独立 key。
   final String addLabel;
 
+  /// 左上内容标签(「快速记账」,对应 arb `widgetGalleryQuickAddTitle`)——
+  /// 六款组件统一的内容标签制(2026-07 用户拍板 A 方案)。
+  final String titleLabel;
+
   final double width;
   final double height;
 
@@ -40,6 +44,7 @@ class QuickAddView extends StatelessWidget {
     required this.addLabel,
     required this.width,
     required this.height,
+    this.titleLabel = '快速记账',
   });
 
   @override
@@ -88,7 +93,9 @@ class QuickAddView extends StatelessWidget {
 
     return _cardContainer(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _title(),
           Expanded(
             child: Row(children: [gridCell(cells[0]), gridCell(cells[1])]),
           ),
@@ -96,6 +103,22 @@ class QuickAddView extends StatelessWidget {
             child: Row(children: [gridCell(cells[2]), gridCell(cells[3])]),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 统一内容标签行(样式与 budget/netWorth 的小标题一致)。bottom 只留 2:
+  /// small 155×155 里标题 + 2×2 网格垂直空间紧张,多 2px 就会把格子内容挤溢出。
+  Widget _title() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, top: 2, bottom: 2),
+      child: Text(
+        titleLabel,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: widgetTextSecondary(dark),
+        ),
       ),
     );
   }
@@ -110,15 +133,28 @@ class QuickAddView extends StatelessWidget {
     ];
 
     return _cardContainer(
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (final cell in cells)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: cell,
-              ),
+          _title(),
+          Expanded(
+            child: Row(
+              // stretch 让格子撑满标题下的整个剩余高度(格子 Column 自身
+              // mainAxisAlignment.center 保证内容仍居中)——否则格子按内容
+              // 自然高度垂直居中,卡片上下留大片空白(2026-07 用户点名的
+              // "中尺寸空白"问题,budget medium 同批修复)。
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final cell in cells)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: cell,
+                    ),
+                  ),
+              ],
             ),
+          ),
         ],
       ),
     );
@@ -130,13 +166,13 @@ class QuickAddView extends StatelessWidget {
         color: themeColor.withValues(alpha: dark ? 0.2 : 0.1),
         borderRadius: BorderRadius.circular(14),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           _categoryGlyph(item.icon),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             item.name,
             maxLines: 1,
@@ -171,12 +207,14 @@ class QuickAddView extends StatelessWidget {
         color: themeColor,
         borderRadius: BorderRadius.circular(14),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.add, color: Colors.white, size: 22),
+          // 20 与 _categoryGlyph 一致(曾是 22,加统一标题后 small 网格垂直
+          // 溢出 3.5px,统一到 20 顺带对称)。
+          const Icon(Icons.add, color: Colors.white, size: 20),
           const SizedBox(height: 2),
           Text(
             addLabel,

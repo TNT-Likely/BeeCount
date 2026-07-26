@@ -248,49 +248,63 @@ class NetWorthView extends StatelessWidget {
       // 56/78 高度在真实字体行高下会溢出几像素)。
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       radius: 16,
+      // 布局对齐设计稿(2026-07 用户点名与 Artifact 样式稿不一致):
+      // 行1 标题 + 右上趋势线;行2 大数 + ▲环比 chip(右对齐);
+      // 行3 资产/负债**并排两栏**(各自 label+金额 一行 + 进度条)。
+      // Spacer 弹性撑满,medium 卡不留底部空白。
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      netWorthLabel,
-                      style: TextStyle(fontSize: 12, color: widgetTextSecondary(dark)),
-                    ),
-                    const SizedBox(height: 4),
-                    SizedBox(height: 26, child: _bigNumber(22)),
-                    const SizedBox(height: 4),
-                    _changeChip(),
-                  ],
+              Text(
+                netWorthLabel,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: widgetTextSecondary(dark),
                 ),
               ),
-              const SizedBox(width: 8),
+              const Spacer(),
               SizedBox(
-                width: 92,
-                height: 40,
+                width: 110,
+                height: 34,
                 child: _Sparkline(values: _netSeries, color: themeColor),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          _progressRow(
-            label: totalAssetsLabel,
-            value: totalAssets,
-            ratio: totalAssets.abs() / _progressMax,
-            color: widgetIncomeColor(redForIncome),
+          const Spacer(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: _bigNumber(24)),
+              const SizedBox(width: 8),
+              _changeChip(),
+            ],
           ),
-          const SizedBox(height: 2),
-          _progressRow(
-            label: totalLiabilitiesLabel,
-            value: totalLiabilities,
-            ratio: totalLiabilities.abs() / _progressMax,
-            color: widgetExpenseColor(redForIncome),
+          const Spacer(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _progressRow(
+                  label: totalAssetsLabel,
+                  value: totalAssets,
+                  ratio: totalAssets.abs() / _progressMax,
+                  color: widgetIncomeColor(redForIncome),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _progressRow(
+                  label: totalLiabilitiesLabel,
+                  value: totalLiabilities,
+                  ratio: totalLiabilities.abs() / _progressMax,
+                  color: widgetExpenseColor(redForIncome),
+                ),
+              ),
+            ],
           ),
         ],
       ),
