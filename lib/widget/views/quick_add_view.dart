@@ -139,11 +139,10 @@ class QuickAddView extends StatelessWidget {
           _title(),
           Expanded(
             child: Row(
-              // stretch 让格子撑满标题下的整个剩余高度(格子 Column 自身
-              // mainAxisAlignment.center 保证内容仍居中)——否则格子按内容
-              // 自然高度垂直居中,卡片上下留大片空白(2026-07 用户点名的
-              // "中尺寸空白"问题,budget medium 同批修复)。
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              // 格子按自然高度垂直居中(Row 默认 cross center),**不要**
+              // stretch 撑满——撑满会把格子拉成又高又瘦的长条(2026-07 用户
+              // 点名"太丑");格子的饱满度靠下面 _cellGlyph/_cellVPad 的
+              // medium 舒展档,留白均匀分布在上下,不是堆在底部。
               children: [
                 for (final cell in cells)
                   Expanded(
@@ -160,19 +159,27 @@ class QuickAddView extends StatelessWidget {
     );
   }
 
+  /// 格子内容尺寸按档分级:small 里 2×2 网格被 Expanded 严格约束、标题又
+  /// 占掉一截,必须用紧凑档(超 1~2px 就 RenderFlex 溢出);medium 格子按
+  /// 自然高度居中、空间充裕,用舒展档让格子接近正方形、不显得干瘪。
+  bool get _isSmall => size == HWSize.small;
+  double get _cellGlyph => _isSmall ? 20 : 24;
+  double get _cellGap => _isSmall ? 2 : 4;
+  double get _cellVPad => _isSmall ? 5 : 10;
+
   Widget _categoryCell(QuickAddCategoryItem item) {
     return Container(
       decoration: BoxDecoration(
         color: themeColor.withValues(alpha: dark ? 0.2 : 0.1),
         borderRadius: BorderRadius.circular(14),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: 4, vertical: _cellVPad),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           _categoryGlyph(item.icon),
-          const SizedBox(height: 2),
+          SizedBox(height: _cellGap),
           Text(
             item.name,
             maxLines: 1,
@@ -207,15 +214,14 @@ class QuickAddView extends StatelessWidget {
         color: themeColor,
         borderRadius: BorderRadius.circular(14),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: 4, vertical: _cellVPad),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 20 与 _categoryGlyph 一致(曾是 22,加统一标题后 small 网格垂直
-          // 溢出 3.5px,统一到 20 顺带对称)。
-          const Icon(Icons.add, color: Colors.white, size: 20),
-          const SizedBox(height: 2),
+          // 与 _categoryGlyph 同尺寸(small 紧凑档曾因 22 溢出 3.5px)。
+          Icon(Icons.add, color: Colors.white, size: _cellGlyph),
+          SizedBox(height: _cellGap),
           Text(
             addLabel,
             maxLines: 1,
@@ -241,9 +247,10 @@ class QuickAddView extends StatelessWidget {
   /// `Icons.category`,不会是空)。
   Widget _categoryGlyph(String? icon) {
     if (icon != null && icon.isNotEmpty && _looksLikeEmoji(icon)) {
-      return Text(icon, style: const TextStyle(fontSize: 20));
+      return Text(icon, style: TextStyle(fontSize: _cellGlyph));
     }
-    return Icon(CategoryService.getCategoryIcon(icon), size: 20, color: themeColor);
+    return Icon(CategoryService.getCategoryIcon(icon),
+        size: _cellGlyph, color: themeColor);
   }
 
   static bool _looksLikeEmoji(String s) {

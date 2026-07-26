@@ -103,27 +103,31 @@ class RecentView extends StatelessWidget {
                           TextStyle(fontSize: 12, color: widgetTextTertiary(dark)),
                     ),
                   )
-                : WidgetOverflowClip(
-              // 行数理论上已被 _limit 控制在 3/6,这里仍防御性裁切兜底(同
-              // NetWorthView 大号账户列表):即便真实设备字体度量比预期更高,
-              // 也只是裁切而不是抛 RenderFlex 溢出。注意**不能**用
-              // SingleChildScrollView——离屏树无 View 会炸,见
-              // WidgetOverflowClip 文档(真机红屏根因)。
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (final item in take)
-                    RecentTransactionRow(
-                      item: item,
-                      defaultCurrency: defaultCurrency,
-                      uncategorizedLabel: uncategorizedLabel,
-                      themeColor: themeColor,
-                      redForIncome: redForIncome,
-                      dark: dark,
-                    ),
-                ],
-              ),
-            ),
+                // 每行一个 Expanded 等分槽:2/6 行的自然高度小于卡片可用
+                // 高度,若按自然高度顶对齐排,底部会剩一大块空白(2026-07
+                // 用户点名);等分后多余空间摊进行间,列表撑满整卡。行内容
+                // 在自己的槽内垂直居中,槽比内容矮时(真实设备字体度量偏大)
+                // 由 WidgetOverflowClip 裁切兜底而不是抛 RenderFlex 溢出。
+                // 注意**不能**用 SingleChildScrollView——离屏树无 View 会
+                // 炸,见 WidgetOverflowClip 文档(真机红屏根因)。
+                : Column(
+                    children: [
+                      for (final item in take)
+                        Expanded(
+                          child: WidgetOverflowClip(
+                            alignment: Alignment.center,
+                            child: RecentTransactionRow(
+                              item: item,
+                              defaultCurrency: defaultCurrency,
+                              uncategorizedLabel: uncategorizedLabel,
+                              themeColor: themeColor,
+                              redForIncome: redForIncome,
+                              dark: dark,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
           ),
         ],
       ),

@@ -211,7 +211,16 @@ class _WidgetSparklinePainter extends CustomPainter {
 class WidgetOverflowClip extends StatelessWidget {
   final Widget child;
 
-  const WidgetOverflowClip({super.key, required this.child});
+  /// 内容小于可用高度时的对齐位置。默认顶对齐(整列列表从上往下排);
+  /// "行槽等分"场景(如 RecentView 每行一个 Expanded 槽、槽比行的自然
+  /// 高度更高)用 [Alignment.center],让行内容垂直居中于自己的槽。
+  final Alignment alignment;
+
+  const WidgetOverflowClip({
+    super.key,
+    required this.child,
+    this.alignment = Alignment.topCenter,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +228,7 @@ class WidgetOverflowClip extends StatelessWidget {
       child: OverflowBox(
         minHeight: 0,
         maxHeight: double.infinity,
-        alignment: Alignment.topCenter,
+        alignment: alignment,
         child: child,
       ),
     );
