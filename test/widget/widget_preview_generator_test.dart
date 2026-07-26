@@ -256,8 +256,10 @@ Future<void> _capture(
   await tester.runAsync(() async {
     final boundary =
         key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-    // @2x:预览图不需要 @3x 那么大,launcher 会缩放;2x 已足够清晰。
-    final image = await boundary.toImage(pixelRatio: 2.0);
+    // @3x:主流手机物理密度是 3x(xxhdpi / iPhone Retina 3x),2x 源图在
+    // 选择器里被放大显示会糊(2026-07 用户实机反馈);3x 起渲染,launcher/
+    // 添加页缩放方向只会是缩小,不再失真。
+    final image = await boundary.toImage(pixelRatio: 3.0);
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
     final out = File('$outDir/$outName.png');
     out.createSync(recursive: true);
