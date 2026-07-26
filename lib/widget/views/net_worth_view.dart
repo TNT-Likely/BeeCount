@@ -373,11 +373,20 @@ class NetWorthView extends StatelessWidget {
                       style: TextStyle(fontSize: 11, color: widgetTextTertiary(dark)),
                     ),
                   )
-                : WidgetOverflowClip(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: topAccounts.take(4).map(_accountRow).toList(),
-                    ),
+                // 每行一个 Expanded 等分槽(同 RecentView 的做法):账户只有
+                // 2 条时按自然高度顶对齐会在区块底部剩一截空白(2026-07 用户
+                // 点名),等分后行距摊开撑满;槽过矮(账户 4 条 + 真机字体
+                // 度量偏大)由 WidgetOverflowClip 裁切兜底。
+                : Column(
+                    children: [
+                      for (final item in topAccounts.take(4))
+                        Expanded(
+                          child: WidgetOverflowClip(
+                            alignment: Alignment.center,
+                            child: _accountRow(item),
+                          ),
+                        ),
+                    ],
                   ),
           ),
         ],

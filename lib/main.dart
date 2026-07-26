@@ -10,6 +10,7 @@ import 'widgets/biz/login_2fa_challenge_view.dart';
 import 'widgets/ui/toast.dart';
 import 'theme.dart';
 import 'providers.dart';
+import 'providers/currency_providers.dart';
 import 'providers/font_scale_provider.dart';
 import 'providers/cloud_mode_providers.dart';
 import 'providers/ui_state_providers.dart';
@@ -171,6 +172,11 @@ class _WidgetUpdateObserver extends ProviderObserver {
 
   void _updateWidgetOnStart(ProviderContainer container) async {
     try {
+      // 先等主币种从 prefs 恢复完成再取值:本回调由 currentLedgerIdProvider
+      // 首次赋值触发,与 baseCurrencyInitProvider 的异步恢复是并行的两条链,
+      // 不等的话可能读到 StateProvider 的默认 'CNY',把净资产系列首轮渲成
+      // 错误的 ¥ 符号,要到下一次触发才纠正(2026-07 用户实机反馈)。
+      await container.read(baseCurrencyInitProvider.future);
       final repository = container.read(repositoryProvider);
       final ledgerId = container.read(currentLedgerIdProvider);
       final primaryColor = container.read(primaryColorProvider);

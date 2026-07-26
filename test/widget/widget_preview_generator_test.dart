@@ -376,9 +376,9 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
   await _capture(
     tester,
     GlanceView.small(
-      todayExpense: '${p.sym}128.50',
+      todayExpense: '${p.sym}128.5',
       // 155dp 小卡底部双栏放不下千位金额(会 ellipsis),预览样本刻意取短。
-      monthExpense: '${p.sym}842.30',
+      monthExpense: '${p.sym}842.3',
       monthIncome: '${p.sym}1,850',
       themeColor: _honey,
       redForIncome: false,
@@ -399,10 +399,10 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
   await _capture(
     tester,
     GlanceView.medium(
-      todayExpense: '${p.sym}128.50',
-      todayIncome: '${p.sym}0.00',
-      monthExpense: '${p.sym}6,842.30',
-      monthIncome: '${p.sym}18,500.00',
+      todayExpense: '${p.sym}128.5',
+      todayIncome: '${p.sym}0',
+      monthExpense: '${p.sym}6,842.3',
+      monthIncome: '${p.sym}18,500',
       themeColor: _honey,
       redForIncome: false,
       dark: false,

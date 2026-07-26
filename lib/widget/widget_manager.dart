@@ -3,10 +3,11 @@ import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
-import 'package:intl/intl.dart';
 import '../data/repositories/base_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../services/system/logger_service.dart';
+import '../utils/currencies.dart' show getCurrencySymbol;
+import '../widgets/biz/format_money.dart' show formatMoneyCompact;
 import 'views/budget_view.dart';
 import 'views/dashboard_view.dart';
 import 'views/glance_view.dart';
@@ -126,12 +127,6 @@ class WidgetManager {
   static final WidgetManager _instance = WidgetManager._internal();
   factory WidgetManager() => _instance;
   WidgetManager._internal();
-
-  final NumberFormat _currencyFormat = NumberFormat.currency(
-    locale: 'zh_CN',
-    symbol: '¥',
-    decimalDigits: 2,
-  );
 
   /// 渲染管线入口:按 [WidgetSpec] 目录逐个处理,只渲染用户"已安装"(已放置
   /// 到桌面)的组件,再统一触发原生刷新。
@@ -513,10 +508,17 @@ class WidgetManager {
   }) async {
     final data = await batch.glance();
 
-    final todayExpense = _currencyFormat.format(data.todayExpenseTotal);
-    final todayIncome = _currencyFormat.format(data.todayIncomeTotal);
-    final monthExpense = _currencyFormat.format(data.monthExpenseTotal);
-    final monthIncome = _currencyFormat.format(data.monthIncomeTotal);
+    // 金额符号跟随账本自身币种(v30 多币种后账本各有币种),与 budget/
+    // recent/dashboard 同一套 getCurrencySymbol + formatMoneyCompact——
+    // 历史版这里硬编码 NumberFormat(symbol: '¥'),非 CNY 账本符号错误
+    // (2026-07 用户实机反馈),glance 是六款里最后一个接上币种链路的。
+    final currency = await batch.ledgerCurrency();
+    String fmt(double v) =>
+        '${getCurrencySymbol(currency)}${formatMoneyCompact(v)}';
+    final todayExpense = fmt(data.todayExpenseTotal);
+    final todayIncome = fmt(data.todayIncomeTotal);
+    final monthExpense = fmt(data.monthExpenseTotal);
+    final monthIncome = fmt(data.monthIncomeTotal);
 
     late final Widget view;
     late final Size renderSize;
