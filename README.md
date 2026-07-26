@@ -358,7 +358,7 @@ A: 使用自己的服务器 / Storage / Bucket,WebDAV 和 S3 建议 HTTPS 加密
 - 基于本软件开发商业产品
 - 提供基于本软件的付费云服务
 
-如需商业授权,请通过 [GitHub Issues](https://github.com/TNT-Likely/BeeCount/issues) 联系。详见 [LICENSE](LICENSE)。
+商业授权价格与购买流程见 [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md)，或邮件联系 **sunxiaoyes@outlook.com**。详见 [LICENSE](LICENSE)。
 
 </details>
 

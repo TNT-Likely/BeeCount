@@ -703,9 +703,9 @@ git push origin docs/improve-supabase-guide
 
 所有贡献者都会被记录在项目的贡献者列表中。重大贡献会在 Release Notes 中特别感谢。
 
-## 许可证
+## 许可证与贡献者许可条款
 
-通过贡献代码，你同意你的贡献将按照项目的 [MIT License](../../LICENSE) 进行许可。
+本项目采用「个人免费、商业付费」的双许可模式（见 [LICENSE](../../LICENSE)）。通过提交贡献（代码/翻译/文档等），你同意根目录 [CONTRIBUTING.md 中的贡献者许可条款](../../CONTRIBUTING.md#贡献者许可条款contributor-license-terms)：你的贡献以仓库 LICENSE 授权，同时授予项目维护者含商业许可在内的再许可权利；你保留自己贡献的著作权。
 
 ---
 
