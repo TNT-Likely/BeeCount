@@ -2723,7 +2723,7 @@ abstract class AppLocalizations {
   /// No description provided for @mineCurrentBalance.
   ///
   /// In en, this message translates to:
-  /// **'Balance'**
+  /// **'Ledger balance'**
   String get mineCurrentBalance;
 
   /// No description provided for @mineCloudService.

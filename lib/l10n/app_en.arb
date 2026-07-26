@@ -645,7 +645,7 @@
   "userProfilePosterLedgerUnit": "",
   "mineDaysCount": "Days",
   "mineTotalRecords": "Records",
-  "mineCurrentBalance": "Balance",
+  "mineCurrentBalance": "Ledger balance",
   "mineCloudService": "Cloud Service",
   "mineCloudServiceLoading": "Loading...",
   "mineCloudServiceOffline": "Default Mode (Offline)",

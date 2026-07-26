@@ -577,7 +577,7 @@
   "userProfilePosterLedgerUnit": "本",
   "mineDaysCount": "记账天数",
   "mineTotalRecords": "总笔数",
-  "mineCurrentBalance": "当前余额",
+  "mineCurrentBalance": "账本结余",
   "mineCloudService": "云服务",
   "mineCloudServiceLoading": "加载中…",
   "mineCloudServiceOffline": "默认模式 (离线)",

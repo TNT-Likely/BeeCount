@@ -1416,7 +1416,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mineTotalRecords => '总笔数';
 
   @override
-  String get mineCurrentBalance => '当前余额';
+  String get mineCurrentBalance => '账本结余';
 
   @override
   String get mineCloudService => '云服务';
@@ -8846,7 +8846,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get mineTotalRecords => '總筆數';
 
   @override
-  String get mineCurrentBalance => '當前餘額';
+  String get mineCurrentBalance => '帳本結餘';
 
   @override
   String get mineCloudService => '雲服務';

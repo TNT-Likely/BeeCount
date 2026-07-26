@@ -1416,7 +1416,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mineTotalRecords => 'Records';
 
   @override
-  String get mineCurrentBalance => 'Balance';
+  String get mineCurrentBalance => 'Ledger balance';
 
   @override
   String get mineCloudService => 'Cloud Service';
