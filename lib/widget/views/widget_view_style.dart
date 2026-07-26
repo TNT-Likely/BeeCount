@@ -151,9 +151,15 @@ class _WidgetSparklinePainter extends CustomPainter {
     final range = (maxV - minV).abs() < 1e-9 ? 1.0 : (maxV - minV);
     final dx = size.width / (values.length - 1);
 
+    // 极值点垂直方向留 strokeWidth 的内缩:折线映射满 [0, height] 时最高/
+    // 最低点的圆头笔触(向外画半个线宽)会被画布裁掉、视觉上"顶到边",
+    // 小画布(netWorth medium 右上角 110×34)尤其明显(2026-07 用户反馈)。
+    final vInset = strokeWidth;
+    final drawH = math.max(size.height - vInset * 2, 1.0);
+
     final points = <Offset>[
       for (var i = 0; i < values.length; i++)
-        Offset(dx * i, size.height - ((values[i] - minV) / range) * size.height),
+        Offset(dx * i, vInset + drawH - ((values[i] - minV) / range) * drawH),
     ];
 
     final linePath = Path()..moveTo(points.first.dx, points.first.dy);

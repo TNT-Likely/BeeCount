@@ -230,7 +230,7 @@ class NetWorthView extends StatelessWidget {
           _changeChip(),
           const Spacer(),
           Expanded(
-            child: _Sparkline(values: _netSeries, color: themeColor),
+            child: WidgetSparkline(values: _netSeries, color: themeColor),
           ),
         ],
       ),
@@ -242,11 +242,12 @@ class NetWorthView extends StatelessWidget {
   // -------------------------------------------------------------------
   Widget _buildMedium() {
     return _card(
-      // 上下 padding 比左右小一点:169 高度本就紧凑,给内容多留一点可用高度
-      // (下方两条进度条 + hero 区不套死高 SizedBox,按自然高度排列,避免
-      // 不同字体度量下的 RenderFlex 溢出——教训见本文件早期版本,固定死
-      // 56/78 高度在真实字体行高下会溢出几像素)。
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      // 上下 12 是"不贴边"与"不溢出"之间实测的平衡点(2026-07 用户反馈
+      // vertical 8 时文字/折线离卡片边太近):三行内容自然高度 ~92,169 里
+      // 富余 ~53 由两个 Spacer 弹性吸收,内容区不套死高 SizedBox,避免不同
+      // 字体度量下的 RenderFlex 溢出(教训见本文件早期版本,固定死 56/78
+      // 高度在真实字体行高下会溢出几像素)。
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       radius: 16,
       // 布局对齐设计稿(2026-07 用户点名与 Artifact 样式稿不一致):
       // 行1 标题 + 右上趋势线;行2 大数 + ▲环比 chip(右对齐);
@@ -270,7 +271,7 @@ class NetWorthView extends StatelessWidget {
               SizedBox(
                 width: 110,
                 height: 34,
-                child: _Sparkline(values: _netSeries, color: themeColor),
+                child: WidgetSparkline(values: _netSeries, color: themeColor),
               ),
             ],
           ),
@@ -339,7 +340,7 @@ class NetWorthView extends StatelessWidget {
           const SizedBox(height: 10),
           Expanded(
             flex: 3,
-            child: _Sparkline(
+            child: WidgetSparkline(
               values: _netSeries,
               color: themeColor,
               filled: true,
@@ -423,94 +424,6 @@ class NetWorthView extends StatelessWidget {
   }
 }
 
-/// 净值趋势折线图(CustomPainter,不依赖任何图表三方库)。[filled] 为 true
-/// 时叠一层由深到透明的面积渐变(large 用),否则只画线(small/medium 用)。
-class _Sparkline extends StatelessWidget {
-  final List<double> values;
-  final Color color;
-  final bool filled;
-  final double strokeWidth;
-
-  const _Sparkline({
-    required this.values,
-    required this.color,
-    this.filled = false,
-    this.strokeWidth = 2,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _SparklinePainter(values: values, color: color, filled: filled, strokeWidth: strokeWidth),
-      size: Size.infinite,
-    );
-  }
-}
-
-class _SparklinePainter extends CustomPainter {
-  final List<double> values;
-  final Color color;
-  final bool filled;
-  final double strokeWidth;
-
-  _SparklinePainter({
-    required this.values,
-    required this.color,
-    required this.filled,
-    required this.strokeWidth,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // 数据不足 2 个点画不出折线,或画布尺寸为 0(布局挤压到极限)时直接跳过
-    // ——不是异常,静默留白即可。
-    if (values.length < 2 || size.width <= 0 || size.height <= 0) return;
-
-    final minV = values.reduce(math.min);
-    final maxV = values.reduce(math.max);
-    final range = (maxV - minV).abs() < 1e-9 ? 1.0 : (maxV - minV);
-    final dx = size.width / (values.length - 1);
-
-    final points = <Offset>[
-      for (var i = 0; i < values.length; i++)
-        Offset(dx * i, size.height - ((values[i] - minV) / range) * size.height),
-    ];
-
-    final linePath = Path()..moveTo(points.first.dx, points.first.dy);
-    for (final p in points.skip(1)) {
-      linePath.lineTo(p.dx, p.dy);
-    }
-
-    if (filled) {
-      final fillPath = Path()..moveTo(points.first.dx, size.height);
-      for (final p in points) {
-        fillPath.lineTo(p.dx, p.dy);
-      }
-      fillPath
-        ..lineTo(points.last.dx, size.height)
-        ..close();
-      final fillPaint = Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [color.withValues(alpha: 0.35), color.withValues(alpha: 0.0)],
-        ).createShader(Offset.zero & size);
-      canvas.drawPath(fillPath, fillPaint);
-    }
-
-    final linePaint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    canvas.drawPath(linePath, linePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _SparklinePainter oldDelegate) =>
-      oldDelegate.values != values ||
-      oldDelegate.color != color ||
-      oldDelegate.filled != filled ||
-      oldDelegate.strokeWidth != strokeWidth;
-}
+// 净值趋势折线图直接使用共享的 [WidgetSparkline](widget_view_style.dart,
+// 与 dashboard 同一实现)——本文件早期有一份私有复制版,极值点贴边的内缩
+// 修复(2026-07)时合并进共享版,避免两处 painter 漂移。
