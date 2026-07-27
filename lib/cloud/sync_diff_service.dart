@@ -1,7 +1,14 @@
+import 'dart:convert';
+
+import 'package:drift/drift.dart' as d;
+
 import '../data/db.dart';
 import '../data/repositories/base_repository.dart';
 import '../data/repositories/transaction_repository.dart'
-    show TransactionUpdateBySyncIdData;
+    show
+        BatchAttachmentData,
+        TransactionRelationsUpdateBySyncIdData,
+        TransactionUpdateBySyncIdData;
 import '../services/data_import_service.dart';
 import '../services/system/logger_service.dart';
 
@@ -92,14 +99,18 @@ class SyncDiffService {
     }
 
     // 获取本地交易
-    final local = localTransactions ??
-        await repo.getTransactionsByLedger(ledgerId);
+    final local =
+        localTransactions ?? await repo.getTransactionsByLedger(ledgerId);
 
     // 批量获取本地交易的标签
     final localTxIds = local.map((t) => t.id).toList();
     final tagsMap = localTxIds.isNotEmpty
         ? await repo.getTagsForTransactions(localTxIds)
         : <int, List<Tag>>{};
+    final attachmentsMap = localTxIds.isNotEmpty &&
+            cloudTransactions.any((tx) => tx.attachmentsPresent)
+        ? await repo.getAttachmentsForTransactions(localTxIds)
+        : <int, List<TransactionAttachment>>{};
 
     // 批量获取本地交易涉及的账户名称
     final accountIds = <int>{};
@@ -146,22 +157,24 @@ class SyncDiffService {
         ));
       } else {
         // 都有，检查是否有差异
-        final localTagNames = (tagsMap[localTx.id] ?? [])
-            .map((t) => t.name)
-            .toList()
-          ..sort();
+        final localTagNames =
+            (tagsMap[localTx.id] ?? []).map((t) => t.name).toList()..sort();
         final localAccountName = localTx.accountId != null
             ? accountIdToName[localTx.accountId]
             : null;
         final localToAccountName = localTx.toAccountId != null
             ? accountIdToName[localTx.toAccountId]
             : null;
+        final localAttachments = cloudTx.attachmentsPresent
+            ? attachmentsMap[localTx.id] ?? const <TransactionAttachment>[]
+            : const <TransactionAttachment>[];
         final diffs = _compareTx(
           localTx,
           cloudTx,
           localTagNames: localTagNames,
           localAccountName: localAccountName,
           localToAccountName: localToAccountName,
+          localAttachments: localAttachments,
         );
         if (diffs.isNotEmpty) {
           changes.add(SyncChange(
@@ -190,10 +203,11 @@ class SyncDiffService {
     // 按类型排序：新增 → 修改 → 删除
     changes.sort((a, b) => a.type.index.compareTo(b.type.index));
 
-    logger.info('SyncDiff',
+    logger.info(
+        'SyncDiff',
         '差异计算完成: 新增=${changes.where((c) => c.type == SyncChangeType.added).length}, '
-        '修改=${changes.where((c) => c.type == SyncChangeType.modified).length}, '
-        '删除=${changes.where((c) => c.type == SyncChangeType.deleted).length}');
+            '修改=${changes.where((c) => c.type == SyncChangeType.modified).length}, '
+            '删除=${changes.where((c) => c.type == SyncChangeType.deleted).length}');
 
     return SyncPreview(changes: changes);
   }
@@ -205,6 +219,7 @@ class SyncDiffService {
     List<String> localTagNames = const [],
     String? localAccountName,
     String? localToAccountName,
+    List<TransactionAttachment> localAttachments = const [],
   }) {
     final diffs = <String>[];
 
@@ -258,16 +273,96 @@ class SyncDiffService {
       }
     }
 
-    // 比较标签
-    final cloudTagNames = List<String>.from(cloud.tagNames ?? [])..sort();
-    if (localTagNames.join(',') != cloudTagNames.join(',')) {
-      final from = localTagNames.isEmpty ? '无' : localTagNames.join(', ');
-      final to = cloudTagNames.isEmpty ? '无' : cloudTagNames.join(', ');
-      diffs.add('标签: $from → $to');
+    // 比较标签（缺席表示保留本地关系）
+    if (cloud.tagNamesPresent) {
+      final cloudTagNames = List<String>.from(cloud.tagNames ?? [])..sort();
+      if (localTagNames.join(',') != cloudTagNames.join(',')) {
+        final from = localTagNames.isEmpty ? '无' : localTagNames.join(', ');
+        final to = cloudTagNames.isEmpty ? '无' : cloudTagNames.join(', ');
+        diffs.add('标签: $from → $to');
+      }
+    }
+
+    // v31: 项目预算关联。仅当 payload 显式带键时(v7+)才比较,否则视为"未
+    // 提供,保留本地"(避免 v6 备份被误判为清除)。**清除**(local 有 → cloud
+    // null)和**关联**(local != cloud)都需报为差异,让 modified 分支进入
+    // batch update 路径把关联同步过去。
+    if (cloud.projectBudgetSyncIdPresent) {
+      final localLink = local.projectBudgetSyncId ?? '';
+      final cloudLink = cloud.projectBudgetSyncId ?? '';
+      if (localLink != cloudLink) {
+        final from = localLink.isEmpty ? '无' : localLink;
+        final to = cloudLink.isEmpty ? '无' : cloudLink;
+        diffs.add('专项预算: $from → $to');
+      }
+    }
+
+    if (cloud.attachmentsPresent &&
+        !_sameCanonicalAttachments(
+            localAttachments, cloud.attachments ?? const [])) {
+      diffs.add('附件变更');
     }
 
     return diffs;
   }
+
+  bool _sameCanonicalAttachments(
+    List<TransactionAttachment> local,
+    List<ImportAttachment> cloud,
+  ) {
+    final localTuples = local.map(_canonicalLocalAttachment).toList()..sort();
+    final cloudTuples = cloud.map(_canonicalCloudAttachment).toList()..sort();
+    if (localTuples.length != cloudTuples.length) return false;
+    for (var i = 0; i < localTuples.length; i++) {
+      if (localTuples[i] != cloudTuples[i]) return false;
+    }
+    return true;
+  }
+
+  String _canonicalLocalAttachment(TransactionAttachment attachment) =>
+      _canonicalAttachment(
+        fileName: attachment.fileName,
+        originalName: attachment.originalName,
+        fileSize: attachment.fileSize,
+        width: attachment.width,
+        height: attachment.height,
+        sortOrder: attachment.sortOrder,
+        cloudFileId: attachment.cloudFileId,
+        cloudSha256: attachment.cloudSha256,
+      );
+
+  String _canonicalCloudAttachment(ImportAttachment attachment) =>
+      _canonicalAttachment(
+        fileName: attachment.fileName,
+        originalName: attachment.originalName,
+        fileSize: attachment.fileSize,
+        width: attachment.width,
+        height: attachment.height,
+        sortOrder: attachment.sortOrder,
+        cloudFileId: attachment.cloudFileId,
+        cloudSha256: attachment.cloudSha256,
+      );
+
+  String _canonicalAttachment({
+    required String fileName,
+    required String? originalName,
+    required int? fileSize,
+    required int? width,
+    required int? height,
+    required int sortOrder,
+    required String? cloudFileId,
+    required String? cloudSha256,
+  }) =>
+      jsonEncode({
+        'fileName': fileName,
+        'originalName': originalName,
+        'fileSize': fileSize,
+        'width': width,
+        'height': height,
+        'sortOrder': sortOrder,
+        'cloudFileId': cloudFileId,
+        'cloudSha256': cloudSha256,
+      });
 
   /// 应用选中的变更
   ///
@@ -288,6 +383,35 @@ class SyncDiffService {
     // 分类/账户/标签:复用 DataImportService(同一份 batch 优化只在一处维护)
     final categoryCache =
         await dataImportService.importCategories(repo, importData.categories);
+    // v7:仅恢复“选中 added/modified transaction 实际引用且本地缺失”的
+    // project budget。已有 project 不覆盖(其 budget 变更并未被用户选择)，无关
+    // budget 也不得因 transaction diff apply 被隐式写入。
+    final requiredProjectSyncIds = selectedChanges
+        .where((c) =>
+            c.type == SyncChangeType.added || c.type == SyncChangeType.modified)
+        .map((c) => c.cloudTransaction?.projectBudgetSyncId)
+        .whereType<String>()
+        .where((id) => id.isNotEmpty)
+        .toSet();
+    final missingProjectBudgets = <ImportBudget>[];
+    for (final syncId in requiredProjectSyncIds) {
+      if (await repo.getBudgetBySyncId(syncId) != null) continue;
+      for (final budget in importData.budgets) {
+        if (budget.syncId == syncId && budget.type == 'project') {
+          missingProjectBudgets.add(budget);
+          break;
+        }
+      }
+    }
+    if (missingProjectBudgets.isNotEmpty) {
+      await dataImportService.importBudgets(
+        repo,
+        ledgerId,
+        missingProjectBudgets,
+        categoryCache: categoryCache,
+        recordChanges: false,
+      );
+    }
     final accountNameToId = await dataImportService.importAccounts(
       repo,
       importData.accounts,
@@ -326,9 +450,8 @@ class SyncDiffService {
     // 批,一个 db.transaction 内 batch insert tx + tag + attachment + local_changes,
     // 把 N 次单条 await(WebDAV 1 万条全 added 要几十分钟)折叠成 N/500 批。
     if (addedChanges.isNotEmpty) {
-      final addedTxs = addedChanges
-          .map((c) => c.cloudTransaction!)
-          .toList(growable: false);
+      final addedTxs =
+          addedChanges.map((c) => c.cloudTransaction!).toList(growable: false);
       final result = await dataImportService.importTransactions(
         repo,
         ledgerId,
@@ -340,56 +463,69 @@ class SyncDiffService {
       addedCount = result.inserted;
     }
 
-    // ============ modified: 主表用批量 UPDATE,tag 关联单条 await ============
-    // 主表 update 跨 isolate boundary 是 N 次但 BEGIN/COMMIT 一次。tag 更新仍
-    // 是 N 次单条(每条 tx 的 tagIds 不同,需要先 DELETE WHERE tx_id = ? 再
-    // INSERT 新关联);如果 modified 量大到 tag update 也成瓶颈,后续可加专
-    // 门的 batch tag-update 接口。
+    // ============ modified: 每条主表 + 关系集合原子更新 ============
     if (modifiedChanges.isNotEmpty) {
       final sw = Stopwatch()..start();
-      final updates = <TransactionUpdateBySyncIdData>[];
-      final tagIdsBySyncId = <String, List<int>>{};
       for (final change in modifiedChanges) {
         final cloud = change.cloudTransaction!;
-        final syncId = cloud.syncId!;
-        final categoryId = _resolveCategoryId(cloud, categoryCache);
-        final accountId = _resolveAccountId(cloud, accountNameToId);
-        final toAccountId = _resolveToAccountId(cloud, accountNameToId);
-        final tagIds = _resolveTagIds(cloud, tagNameToId).toSet().toList();
-        updates.add(TransactionUpdateBySyncIdData(
-          syncId: syncId,
-          type: cloud.type,
-          amount: cloud.amount,
-          categoryId: cloud.type == 'transfer' ? null : categoryId,
-          accountId: accountId,
-          toAccountId: toAccountId,
-          happenedAt: cloud.happenedAt,
-          note: cloud.note,
-        ));
-        tagIdsBySyncId[syncId] = tagIds;
-      }
-      try {
-        final syncIdToTxId =
-            await repo.updateTransactionsBatchBySyncId(updates);
-        modifiedCount = syncIdToTxId.length;
-        // tag 关联逐条 update(tag 数量通常很小,这里没批量接口)
-        for (final entry in tagIdsBySyncId.entries) {
-          final txId = syncIdToTxId[entry.key];
-          if (txId == null) continue;
-          try {
-            await repo.updateTransactionTags(
-              transactionId: txId,
-              tagIds: entry.value,
-            );
-          } catch (e, st) {
-            logger.error('SyncDiff', 'tag 关联更新失败 syncId=${entry.key}', e, st);
+        try {
+          if (cloud.projectBudgetSyncId != null) {
+            final project =
+                await repo.getProjectBudgetBySyncId(cloud.projectBudgetSyncId!);
+            if (project == null || project.ledgerId != ledgerId) {
+              logger.warning('SyncDiff',
+                  '跳过 ${cloud.syncId}: projectBudgetSyncId 未解析为同账本 project');
+              continue;
+            }
           }
+          final categoryId = _resolveCategoryId(cloud, categoryCache);
+          final accountId = _resolveAccountId(cloud, accountNameToId);
+          final toAccountId = _resolveToAccountId(cloud, accountNameToId);
+          final tagIds = cloud.tagNamesPresent
+              ? _resolveTagIds(cloud, tagNameToId).toSet().toList()
+              : null;
+          final attachments = cloud.attachmentsPresent
+              ? (cloud.attachments ?? const <ImportAttachment>[])
+                  .map((attachment) => BatchAttachmentData(
+                        fileName: attachment.fileName,
+                        originalName: attachment.originalName,
+                        fileSize: attachment.fileSize,
+                        width: attachment.width,
+                        height: attachment.height,
+                        sortOrder: attachment.sortOrder,
+                        cloudFileId: attachment.cloudFileId,
+                        cloudSha256: attachment.cloudSha256,
+                      ))
+                  .toList(growable: false)
+              : null;
+          final transactionId =
+              await repo.updateTransactionWithRelationsBySyncId(
+            TransactionRelationsUpdateBySyncIdData(
+              transaction: TransactionUpdateBySyncIdData(
+                syncId: cloud.syncId!,
+                type: cloud.type,
+                amount: cloud.amount,
+                categoryId: cloud.type == 'transfer' ? null : categoryId,
+                accountId: accountId,
+                toAccountId: toAccountId,
+                happenedAt: cloud.happenedAt,
+                note: cloud.note,
+                projectBudgetSyncId: cloud.projectBudgetSyncIdPresent
+                    ? d.Value<String?>(cloud.projectBudgetSyncId)
+                    : const d.Value<String?>.absent(),
+              ),
+              tagIds: tagIds,
+              attachments: attachments,
+            ),
+            recordChanges: true,
+          );
+          if (transactionId != null) modifiedCount++;
+        } catch (e, st) {
+          logger.error('SyncDiff', '修改交易失败 syncId=${cloud.syncId}', e, st);
         }
-        logger.info('SyncDiff',
-            '批量更新: size=${updates.length} 成功=$modifiedCount 耗时=${sw.elapsedMilliseconds}ms');
-      } catch (e, st) {
-        logger.error('SyncDiff', '批量更新失败', e, st);
       }
+      logger.info('SyncDiff',
+          '原子更新: size=${modifiedChanges.length} 成功=$modifiedCount 耗时=${sw.elapsedMilliseconds}ms');
     }
 
     // ============ deleted: 批量按 syncId 删除 ============
@@ -407,11 +543,10 @@ class SyncDiffService {
       }
       if (withSyncIds.isNotEmpty) {
         try {
-          final n =
-              await repo.deleteTransactionsBatchBySyncIds(withSyncIds);
+          final n = await repo.deleteTransactionsBatchBySyncIds(withSyncIds);
           deletedCount += n;
-          logger.info('SyncDiff',
-              '批量删除: syncId 路径 size=${withSyncIds.length} 实删=$n');
+          logger.info(
+              'SyncDiff', '批量删除: syncId 路径 size=${withSyncIds.length} 实删=$n');
         } catch (e, st) {
           logger.error('SyncDiff', '批量删除失败', e, st);
         }
@@ -469,8 +604,7 @@ class SyncDiffService {
     return null;
   }
 
-  List<int> _resolveTagIds(
-      ImportTransaction tx, Map<String, int> tagNameToId) {
+  List<int> _resolveTagIds(ImportTransaction tx, Map<String, int> tagNameToId) {
     if (tx.tagNames == null || tx.tagNames!.isEmpty) return [];
     return tx.tagNames!
         .map((name) => tagNameToId[name])

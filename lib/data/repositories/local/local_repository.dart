@@ -9,7 +9,10 @@ import '../../../services/system/logger_service.dart';
 import '../base_repository.dart';
 import '../budget_repository.dart';
 import '../transaction_repository.dart'
-    show BatchAttachmentData, TransactionUpdateBySyncIdData;
+    show
+        BatchAttachmentData,
+        TransactionRelationsUpdateBySyncIdData,
+        TransactionUpdateBySyncIdData;
 import 'local_ledger_repository.dart';
 import 'local_transaction_repository.dart';
 import 'local_category_repository.dart';
@@ -60,7 +63,8 @@ class LocalRepository extends BaseRepository {
     _tagRepo = LocalTagRepository(db);
     _budgetRepo = LocalBudgetRepository(db);
     _attachmentRepo = LocalAttachmentRepository(db);
-    _exchangeRateRepo = LocalExchangeRateRepository(db, trackerGetter: () => changeTracker);
+    _exchangeRateRepo =
+        LocalExchangeRateRepository(db, trackerGetter: () => changeTracker);
   }
 
   // ============================================
@@ -86,11 +90,13 @@ class LocalRepository extends BaseRepository {
   Future<int> ledgerCount() => _ledgerRepo.ledgerCount();
 
   @override
-  Future<({int dayCount, int txCount})> getCountsForLedger({required int ledgerId}) =>
+  Future<({int dayCount, int txCount})> getCountsForLedger(
+          {required int ledgerId}) =>
       _ledgerRepo.getCountsForLedger(ledgerId: ledgerId);
 
   @override
-  Future<({int dayCount, int txCount})> getCountsAll() => _ledgerRepo.getCountsAll();
+  Future<({int dayCount, int txCount})> getCountsAll() =>
+      _ledgerRepo.getCountsAll();
 
   @override
   Future<({double balance, int transactionCount})> getLedgerStats({
@@ -114,12 +120,15 @@ class LocalRepository extends BaseRepository {
 
   @override
   Future<void> updateLedger(
-      {required int id, String? name, String? currency, int? monthStartDay}) async {
+      {required int id,
+      String? name,
+      String? currency,
+      int? monthStartDay}) async {
     await _ledgerRepo.updateLedger(
         id: id, name: name, currency: currency, monthStartDay: monthStartDay);
     if (changeTracker != null) {
-      final row =
-          await (db.select(db.ledgers)..where((l) => l.id.equals(id))).getSingleOrNull();
+      final row = await (db.select(db.ledgers)..where((l) => l.id.equals(id)))
+          .getSingleOrNull();
       if (row != null && row.syncId != null && row.syncId!.isNotEmpty) {
         await changeTracker!.recordLedgerChange(
           entityType: 'ledger',
@@ -168,8 +177,7 @@ class LocalRepository extends BaseRepository {
       await _ledgerRepo.deleteLedger(id);
       // 顺便把残留的 budgets 一起清,见上面注释。
       if (budgets.isNotEmpty) {
-        await (db.delete(db.budgets)..where((b) => b.ledgerId.equals(id)))
-            .go();
+        await (db.delete(db.budgets)..where((b) => b.ledgerId.equals(id))).go();
       }
 
       for (final tx in txs) {
@@ -204,10 +212,11 @@ class LocalRepository extends BaseRepository {
         ledgerId: id,
         action: 'delete',
       );
-      logger.info('LocalRepository',
+      logger.info(
+          'LocalRepository',
           'deleteLedger($id) 已登记 ${txs.length} 条 transaction:delete + '
-          '${budgets.length} 条 budget:delete + 1 条 ledger_snapshot:delete '
-          '(ledgerSyncId=$ledgerSyncId)');
+              '${budgets.length} 条 budget:delete + 1 条 ledger_snapshot:delete '
+              '(ledgerSyncId=$ledgerSyncId)');
     });
   }
 
@@ -257,33 +266,67 @@ class LocalRepository extends BaseRepository {
   // ============================================
 
   @override
-  Stream<List<Transaction>> watchRecentTransactions({required int ledgerId, int limit = 20}) =>
-      _transactionRepo.watchRecentTransactions(ledgerId: ledgerId, limit: limit);
+  Stream<List<Transaction>> watchRecentTransactions(
+          {required int ledgerId, int limit = 20}) =>
+      _transactionRepo.watchRecentTransactions(
+          ledgerId: ledgerId, limit: limit);
 
   @override
-  Stream<List<Transaction>> watchTransactionsInMonth({required int ledgerId, required DateTime month}) =>
-      _transactionRepo.watchTransactionsInMonth(ledgerId: ledgerId, month: month);
+  Stream<List<Transaction>> watchTransactionsInMonth(
+          {required int ledgerId, required DateTime month}) =>
+      _transactionRepo.watchTransactionsInMonth(
+          ledgerId: ledgerId, month: month);
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryAll({int? ledgerId}) =>
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryAll({int? ledgerId}) =>
       _transactionRepo.watchTransactionsWithCategoryAll(ledgerId: ledgerId);
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryInMonth({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryInMonth({
     required int ledgerId,
     required DateTime month,
   }) =>
-      _transactionRepo.watchTransactionsWithCategoryInMonth(ledgerId: ledgerId, month: month);
+      _transactionRepo.watchTransactionsWithCategoryInMonth(
+          ledgerId: ledgerId, month: month);
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryInYear({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryInYear({
     required int ledgerId,
     required int year,
   }) =>
-      _transactionRepo.watchTransactionsWithCategoryInYear(ledgerId: ledgerId, year: year);
+      _transactionRepo.watchTransactionsWithCategoryInYear(
+          ledgerId: ledgerId, year: year);
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsForCategoryInRange({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsForCategoryInRange({
     required int ledgerId,
     required DateTime start,
     required DateTime end,
@@ -316,7 +359,19 @@ class LocalRepository extends BaseRepository {
     bool excludeFromBudget = false,
     String? currencyCode,
     double? nativeAmount,
+    String? projectBudgetSyncId,
   }) async {
+    if (projectBudgetSyncId != null) {
+      final project = await (db.select(db.budgets)
+            ..where((b) =>
+                b.syncId.equals(projectBudgetSyncId) &
+                b.ledgerId.equals(ledgerId) &
+                b.type.equals('project')))
+          .getSingleOrNull();
+      if (project == null) {
+        throw StateError('projectBudgetSyncId 必须引用同账本且 type=project 的预算');
+      }
+    }
     // v30 带折算兜底(02 §六):任何调用方(单币种记账/AI/周期模板)未传两字段
     // 时在此补齐 —— 外币先查有效汇率,取不到才 =amount(命中 L11 检测可捞回)。
     final (cc, na) = await _resolveTxCurrency(
@@ -343,6 +398,7 @@ class LocalRepository extends BaseRepository {
       excludeFromBudget: excludeFromBudget,
       currencyCode: cc,
       nativeAmount: na,
+      projectBudgetSyncId: projectBudgetSyncId,
     );
     if (changeTracker != null) {
       final tx = await _transactionRepo.getTransactionById(id);
@@ -417,8 +473,29 @@ class LocalRepository extends BaseRepository {
     bool? excludeFromBudget,
     String? currencyCode,
     double? nativeAmount,
+    dynamic projectBudgetSyncId,
   }) async {
     final old = await _transactionRepo.getTransactionById(id);
+    final String? requestedProjectSyncId;
+    if (projectBudgetSyncId is String) {
+      requestedProjectSyncId = projectBudgetSyncId;
+    } else if (projectBudgetSyncId is d.Value<String?>) {
+      requestedProjectSyncId = projectBudgetSyncId.value;
+    } else {
+      requestedProjectSyncId = null;
+    }
+    if (requestedProjectSyncId != null) {
+      if (old == null) throw StateError('transaction 不存在');
+      final project = await (db.select(db.budgets)
+            ..where((b) =>
+                b.syncId.equals(requestedProjectSyncId!) &
+                b.ledgerId.equals(old.ledgerId) &
+                b.type.equals('project')))
+          .getSingleOrNull();
+      if (project == null) {
+        throw StateError('projectBudgetSyncId 必须引用同账本且 type=project 的预算');
+      }
+    }
     // v30 联动兜底(与 Cloud merge/mutator 的 L14 同规则):调用方不传两字段时——
     //   a) 账户变了(如转账换账户对,transfer_form 不传币种)→ 币种应跟随新
     //      账户,按新币种重新解析+折算(审查发现:原只联动 amount,换账户后
@@ -430,9 +507,8 @@ class LocalRepository extends BaseRepository {
       final int? newAccountId = accountId is d.Value<int?>
           ? accountId.value
           : (accountId is int ? accountId : old.accountId);
-      final accountChanged =
-          (accountId is d.Value<int?> || accountId is int) &&
-              newAccountId != old.accountId;
+      final accountChanged = (accountId is d.Value<int?> || accountId is int) &&
+          newAccountId != old.accountId;
       if (accountChanged) {
         final (cc, na) = await _resolveTxCurrency(
           ledgerId: old.ledgerId,
@@ -453,9 +529,13 @@ class LocalRepository extends BaseRepository {
     if (changeTracker != null) {
       if (old?.syncId != null) {
         await _transactionRepo.updateTransaction(
-          id: id, type: type, amount: amount,
-          categoryId: categoryId, note: note,
-          happenedAt: happenedAt, accountId: accountId,
+          id: id,
+          type: type,
+          amount: amount,
+          categoryId: categoryId,
+          note: note,
+          happenedAt: happenedAt,
+          accountId: accountId,
           categorySyncIdOverride: categorySyncIdOverride,
           accountSyncIdOverride: accountSyncIdOverride,
           toAccountSyncIdOverride: toAccountSyncIdOverride,
@@ -463,6 +543,7 @@ class LocalRepository extends BaseRepository {
           excludeFromBudget: excludeFromBudget,
           currencyCode: effCurrency,
           nativeAmount: effNative,
+          projectBudgetSyncId: projectBudgetSyncId,
         );
         await changeTracker!.recordLedgerChange(
           entityType: 'transaction',
@@ -475,9 +556,13 @@ class LocalRepository extends BaseRepository {
       }
     }
     await _transactionRepo.updateTransaction(
-      id: id, type: type, amount: amount,
-      categoryId: categoryId, note: note,
-      happenedAt: happenedAt, accountId: accountId,
+      id: id,
+      type: type,
+      amount: amount,
+      categoryId: categoryId,
+      note: note,
+      happenedAt: happenedAt,
+      accountId: accountId,
       categorySyncIdOverride: categorySyncIdOverride,
       accountSyncIdOverride: accountSyncIdOverride,
       toAccountSyncIdOverride: toAccountSyncIdOverride,
@@ -485,6 +570,7 @@ class LocalRepository extends BaseRepository {
       excludeFromBudget: excludeFromBudget,
       currencyCode: effCurrency,
       nativeAmount: effNative,
+      projectBudgetSyncId: projectBudgetSyncId,
     );
   }
 
@@ -506,7 +592,8 @@ class LocalRepository extends BaseRepository {
   }
 
   @override
-  Future<Transaction?> getTransactionById(int id) => _transactionRepo.getTransactionById(id);
+  Future<Transaction?> getTransactionById(int id) =>
+      _transactionRepo.getTransactionById(id);
 
   // ---------------------------------------------------------------------
   // v30 交易级多币种:折算兜底 + 重算/检测(.docs/multi-currency-ledger)
@@ -540,14 +627,15 @@ class LocalRepository extends BaseRepository {
     double? nativeAmount,
   }) async {
     // 两字段都显式传入(UI 记账主路径)→ 零查询直通,批量调用不放大 I/O
-    if (currencyCode != null && currencyCode.isNotEmpty && nativeAmount != null) {
+    if (currencyCode != null &&
+        currencyCode.isNotEmpty &&
+        nativeAmount != null) {
       return (currencyCode.toUpperCase(), nativeAmount);
     }
     final ledger = await getLedgerById(ledgerId);
-    final base = ((ledger?.currency.isNotEmpty ?? false)
-            ? ledger!.currency
-            : 'CNY')
-        .toUpperCase();
+    final base =
+        ((ledger?.currency.isNotEmpty ?? false) ? ledger!.currency : 'CNY')
+            .toUpperCase();
     var cc = currencyCode?.toUpperCase();
     if (cc == null || cc.isEmpty) {
       final acc = accountId == null ? null : await getAccount(accountId);
@@ -667,20 +755,18 @@ class LocalRepository extends BaseRepository {
   @override
   Future<int> recomputeForeignTxForLedger(int ledgerId) async {
     final ledger = await getLedgerById(ledgerId);
-    final base = ((ledger?.currency.isNotEmpty ?? false)
-            ? ledger!.currency
-            : 'CNY')
-        .toUpperCase();
+    final base =
+        ((ledger?.currency.isNotEmpty ?? false) ? ledger!.currency : 'CNY')
+            .toUpperCase();
     return _recalcNativeAmounts(ledgerId, base, onlyUnconverted: true);
   }
 
   @override
   Future<int> countUnconvertedForeignTx(int ledgerId) async {
     final ledger = await getLedgerById(ledgerId);
-    final base = ((ledger?.currency.isNotEmpty ?? false)
-            ? ledger!.currency
-            : 'CNY')
-        .toUpperCase();
+    final base =
+        ((ledger?.currency.isNotEmpty ?? false) ? ledger!.currency : 'CNY')
+            .toUpperCase();
     // currency_code IS NULL 的行(绕过 repo 的历史写入)LEFT JOIN 账户币种兜底
     final row = await db.customSelect(
       'SELECT COUNT(*) AS cnt FROM transactions t '
@@ -697,10 +783,9 @@ class LocalRepository extends BaseRepository {
   @override
   Future<int> countForeignCurrencyTx(int ledgerId) async {
     final ledger = await getLedgerById(ledgerId);
-    final base = ((ledger?.currency.isNotEmpty ?? false)
-            ? ledger!.currency
-            : 'CNY')
-        .toUpperCase();
+    final base =
+        ((ledger?.currency.isNotEmpty ?? false) ? ledger!.currency : 'CNY')
+            .toUpperCase();
     final row = await db.customSelect(
       'SELECT COUNT(*) AS cnt FROM transactions t '
       'LEFT JOIN accounts a ON a.id = t.account_id '
@@ -797,15 +882,30 @@ class LocalRepository extends BaseRepository {
   }
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> transactionsWithCategoryAll({int? ledgerId}) =>
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> transactionsWithCategoryAll({int? ledgerId}) =>
       _transactionRepo.transactionsWithCategoryAll(ledgerId: ledgerId);
 
   @override
-  Future<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> getRecentTransactionsWithCategory({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> getRecentTransactionsWithCategory({
     required int ledgerId,
     required int limit,
   }) =>
-      _transactionRepo.getRecentTransactionsWithCategory(ledgerId: ledgerId, limit: limit);
+      _transactionRepo.getRecentTransactionsWithCategory(
+          ledgerId: ledgerId, limit: limit);
 
   @override
   Future<int> countByTypeInRange({
@@ -885,7 +985,8 @@ class LocalRepository extends BaseRepository {
       _transactionRepo.getEarliestTransactionDate();
 
   @override
-  Future<void> updateTransactionLedger({required int id, required int ledgerId}) async {
+  Future<void> updateTransactionLedger(
+      {required int id, required int ledgerId}) async {
     await _transactionRepo.updateTransactionLedger(id: id, ledgerId: ledgerId);
     // v30:nativeAmount 是按【原账本】本位币折算的快照,跨账本移动后必须按
     // 新账本本位币重算;缺汇率退化 =amount(L11 可捞),绝不保留旧口径错值
@@ -893,10 +994,9 @@ class LocalRepository extends BaseRepository {
     final tx = await _transactionRepo.getTransactionById(id);
     if (tx == null) return;
     final ledger = await getLedgerById(ledgerId);
-    final base = ((ledger?.currency.isNotEmpty ?? false)
-            ? ledger!.currency
-            : 'CNY')
-        .toUpperCase();
+    final base =
+        ((ledger?.currency.isNotEmpty ?? false) ? ledger!.currency : 'CNY')
+            .toUpperCase();
     final cc = (tx.currencyCode ?? base).toUpperCase();
     double na;
     if (cc == base) {
@@ -930,10 +1030,9 @@ class LocalRepository extends BaseRepository {
   /// 无对应账户的币种(CSV 导入/手选)拉不到汇率,重算永远补不上。
   Future<Set<String>> getLedgerForeignCurrencies(int ledgerId) async {
     final ledger = await getLedgerById(ledgerId);
-    final base = ((ledger?.currency.isNotEmpty ?? false)
-            ? ledger!.currency
-            : 'CNY')
-        .toUpperCase();
+    final base =
+        ((ledger?.currency.isNotEmpty ?? false) ? ledger!.currency : 'CNY')
+            .toUpperCase();
     final rows = await db.customSelect(
       'SELECT DISTINCT UPPER(COALESCE(t.currency_code, a.currency, ?2)) AS cc '
       'FROM transactions t LEFT JOIN accounts a ON a.id = t.account_id '
@@ -986,26 +1085,30 @@ class LocalRepository extends BaseRepository {
       _transactionRepo.getDailyTotalsByMonth(ledgerId: ledgerId, month: month);
 
   @override
-  Future<List<({
-    Transaction t,
-    Category? category,
-    List<Tag> tags,
-    List<TransactionAttachment> attachments,
-    Account? account,
-  })>> getTransactionsByDate({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            List<Tag> tags,
+            List<TransactionAttachment> attachments,
+            Account? account,
+          })>> getTransactionsByDate({
     required int ledgerId,
     required DateTime date,
   }) =>
       _transactionRepo.getTransactionsByDate(ledgerId: ledgerId, date: date);
 
   @override
-  Future<List<({
-    Transaction t,
-    Category? category,
-    List<Tag> tags,
-    List<TransactionAttachment> attachments,
-    Account? account,
-  })>> getTransactionsByDateRange({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            List<Tag> tags,
+            List<TransactionAttachment> attachments,
+            Account? account,
+          })>> getTransactionsByDateRange({
     required int ledgerId,
     required DateTime startDate,
     required DateTime endDate,
@@ -1084,6 +1187,42 @@ class LocalRepository extends BaseRepository {
         }
       });
       return syncIdToTxId;
+    });
+  }
+
+  @override
+  Future<int?> updateTransactionWithRelationsBySyncId(
+    TransactionRelationsUpdateBySyncIdData update, {
+    bool recordChanges = true,
+  }) async {
+    if (!recordChanges || changeTracker == null) {
+      return _transactionRepo.updateTransactionWithRelationsBySyncId(
+        update,
+        recordChanges: false,
+      );
+    }
+    return db.transaction(() async {
+      final txId =
+          await _transactionRepo.updateTransactionWithRelationsBySyncId(
+        update,
+        recordChanges: false,
+      );
+      if (txId == null) return null;
+      final tx = await (db.select(db.transactions)
+            ..where((row) => row.id.equals(txId)))
+          .getSingle();
+      if (tx.syncId != null) {
+        await db.into(db.localChanges).insert(
+              LocalChangesCompanion.insert(
+                entityType: 'transaction',
+                entityId: tx.id,
+                entitySyncId: tx.syncId!,
+                ledgerId: tx.ledgerId,
+                action: 'update',
+              ),
+            );
+      }
+      return txId;
     });
   }
 
@@ -1169,8 +1308,10 @@ class LocalRepository extends BaseRepository {
       final cat = await _categoryRepo.getCategoryById(id);
       if (cat?.syncId != null) {
         await changeTracker!.recordUserGlobalChange(
-          entityType: 'category', entityId: id,
-          entitySyncId: cat!.syncId!, action: 'create',
+          entityType: 'category',
+          entityId: id,
+          entitySyncId: cat!.syncId!,
+          action: 'create',
         );
       }
     }
@@ -1187,15 +1328,21 @@ class LocalRepository extends BaseRepository {
     String? syncId,
   }) async {
     final id = await _categoryRepo.createSubCategory(
-      parentId: parentId, name: name, kind: kind, icon: icon,
-      sortOrder: sortOrder, syncId: syncId,
+      parentId: parentId,
+      name: name,
+      kind: kind,
+      icon: icon,
+      sortOrder: sortOrder,
+      syncId: syncId,
     );
     if (changeTracker != null) {
       final cat = await _categoryRepo.getCategoryById(id);
       if (cat?.syncId != null) {
         await changeTracker!.recordUserGlobalChange(
-          entityType: 'category', entityId: id,
-          entitySyncId: cat!.syncId!, action: 'create',
+          entityType: 'category',
+          entityId: id,
+          entitySyncId: cat!.syncId!,
+          action: 'create',
         );
       }
     }
@@ -1203,13 +1350,18 @@ class LocalRepository extends BaseRepository {
   }
 
   @override
-  Future<void> updateCategory(int id, {String? name, String? icon, int? parentId, int? level}) async {
-    final cat = changeTracker != null ? await _categoryRepo.getCategoryById(id) : null;
-    await _categoryRepo.updateCategory(id, name: name, icon: icon, parentId: parentId, level: level);
+  Future<void> updateCategory(int id,
+      {String? name, String? icon, int? parentId, int? level}) async {
+    final cat =
+        changeTracker != null ? await _categoryRepo.getCategoryById(id) : null;
+    await _categoryRepo.updateCategory(id,
+        name: name, icon: icon, parentId: parentId, level: level);
     if (cat?.syncId != null) {
       await changeTracker!.recordUserGlobalChange(
-        entityType: 'category', entityId: id,
-        entitySyncId: cat!.syncId!, action: 'update',
+        entityType: 'category',
+        entityId: id,
+        entitySyncId: cat!.syncId!,
+        action: 'update',
       );
     }
   }
@@ -1220,8 +1372,10 @@ class LocalRepository extends BaseRepository {
       final cat = await _categoryRepo.getCategoryById(id);
       if (cat?.syncId != null) {
         await changeTracker!.recordUserGlobalChange(
-          entityType: 'category', entityId: id,
-          entitySyncId: cat!.syncId!, action: 'delete',
+          entityType: 'category',
+          entityId: id,
+          entitySyncId: cat!.syncId!,
+          action: 'delete',
         );
       }
     }
@@ -1257,10 +1411,11 @@ class LocalRepository extends BaseRepository {
         );
         recorded++;
       }
-      logger.info('LocalRepository',
+      logger.info(
+          'LocalRepository',
           'deleteCategoriesByIds(${ids.length}): 预查到 ${cats.length} 行,'
-          '登记 $recorded 条 category:delete change'
-          '${skippedNoSyncId > 0 ? ", $skippedNoSyncId 条因 syncId=null 跳过(本地未同步过的种子分类)" : ""}');
+              '登记 $recorded 条 category:delete change'
+              '${skippedNoSyncId > 0 ? ", $skippedNoSyncId 条因 syncId=null 跳过(本地未同步过的种子分类)" : ""}');
     });
   }
 
@@ -1291,8 +1446,10 @@ class LocalRepository extends BaseRepository {
       _categoryRepo.getUsableCategories(kind);
 
   @override
-  Future<bool> isCategoryNameDuplicate({required String name, required String kind, int? excludeId}) =>
-      _categoryRepo.isCategoryNameDuplicate(name: name, kind: kind, excludeId: excludeId);
+  Future<bool> isCategoryNameDuplicate(
+          {required String name, required String kind, int? excludeId}) =>
+      _categoryRepo.isCategoryNameDuplicate(
+          name: name, kind: kind, excludeId: excludeId);
 
   @override
   Future<bool> hasSubCategories(int categoryId) =>
@@ -1311,8 +1468,9 @@ class LocalRepository extends BaseRepository {
       _categoryRepo.getAllCategoryTransactionCounts();
 
   @override
-  Future<({int totalCount, double totalAmount, double averageAmount})> getCategorySummary(int categoryId) =>
-      _categoryRepo.getCategorySummary(categoryId);
+  Future<({int totalCount, double totalAmount, double averageAmount})>
+      getCategorySummary(int categoryId) =>
+          _categoryRepo.getCategorySummary(categoryId);
 
   @override
   Future<List<Transaction>> getTransactionsByCategory(int categoryId) =>
@@ -1331,7 +1489,8 @@ class LocalRepository extends BaseRepository {
       );
 
   @override
-  Future<int> migrateCategory({required int fromCategoryId, required int toCategoryId}) async {
+  Future<int> migrateCategory(
+      {required int fromCategoryId, required int toCategoryId}) async {
     if (changeTracker == null) {
       return _categoryRepo.migrateCategory(
         fromCategoryId: fromCategoryId,
@@ -1362,7 +1521,8 @@ class LocalRepository extends BaseRepository {
   }
 
   @override
-  Future<({int migratedTransactions, int migratedSubCategories})> migrateCategoryTransactions({
+  Future<({int migratedTransactions, int migratedSubCategories})>
+      migrateCategoryTransactions({
     required int fromCategoryId,
     required int toCategoryId,
   }) async {
@@ -1441,7 +1601,8 @@ class LocalRepository extends BaseRepository {
       );
 
   @override
-  Future<void> updateCategorySortOrders(List<({int id, int sortOrder})> updates) =>
+  Future<void> updateCategorySortOrders(
+          List<({int id, int sortOrder})> updates) =>
       _categoryRepo.updateCategorySortOrders(updates);
 
   @override
@@ -1453,7 +1614,8 @@ class LocalRepository extends BaseRepository {
       _categoryRepo.watchCategory(categoryId);
 
   @override
-  Stream<List<Transaction>> watchTransactionsByCategory(int categoryId, {int? ledgerId}) =>
+  Stream<List<Transaction>> watchTransactionsByCategory(int categoryId,
+          {int? ledgerId}) =>
       _categoryRepo.watchTransactionsByCategory(categoryId, ledgerId: ledgerId);
 
   @override
@@ -1461,8 +1623,8 @@ class LocalRepository extends BaseRepository {
       _categoryRepo.watchCategoryWithSubs(categoryId);
 
   @override
-  Stream<List<({Category category, int transactionCount})>> watchCategoriesWithCount() =>
-      _categoryRepo.watchCategoriesWithCount();
+  Stream<List<({Category category, int transactionCount})>>
+      watchCategoriesWithCount() => _categoryRepo.watchCategoriesWithCount();
 
   @override
   Future<List<Category>> getAllCategories() => _categoryRepo.getAllCategories();
@@ -1472,7 +1634,8 @@ class LocalRepository extends BaseRepository {
       _categoryRepo.getAllCategoriesIncludingShared();
 
   @override
-  Future<void> batchInsertCategories(List<CategoriesCompanion> categories) async {
+  Future<void> batchInsertCategories(
+      List<CategoriesCompanion> categories) async {
     if (changeTracker == null || categories.isEmpty) {
       return _categoryRepo.batchInsertCategories(categories);
     }
@@ -1529,8 +1692,10 @@ class LocalRepository extends BaseRepository {
       final cat = await _categoryRepo.getCategoryById(id);
       if (cat?.syncId != null) {
         await changeTracker!.recordUserGlobalChange(
-          entityType: 'category', entityId: id,
-          entitySyncId: cat!.syncId!, action: 'update',
+          entityType: 'category',
+          entityId: id,
+          entitySyncId: cat!.syncId!,
+          action: 'update',
         );
       }
     }
@@ -1543,15 +1708,18 @@ class LocalRepository extends BaseRepository {
       final cat = await _categoryRepo.getCategoryById(id);
       if (cat?.syncId != null) {
         await changeTracker!.recordUserGlobalChange(
-          entityType: 'category', entityId: id,
-          entitySyncId: cat!.syncId!, action: 'update',
+          entityType: 'category',
+          entityId: id,
+          entitySyncId: cat!.syncId!,
+          action: 'update',
         );
       }
     }
   }
 
   @override
-  Future<List<String>> getCustomIconPaths() => _categoryRepo.getCustomIconPaths();
+  Future<List<String>> getCustomIconPaths() =>
+      _categoryRepo.getCustomIconPaths();
 
   @override
   Future<Category> getTransferCategory() async {
@@ -1589,17 +1757,15 @@ class LocalRepository extends BaseRepository {
           .write(TransactionsCompanion(categoryId: d.Value(keeper.id)));
 
       // 2) 同步把 budgets / recurring_transactions 上引用的 dupe 也搬到 keeper
-      await (db.update(db.budgets)
-            ..where((b) => b.categoryId.isIn(dupeIds)))
+      await (db.update(db.budgets)..where((b) => b.categoryId.isIn(dupeIds)))
           .write(BudgetsCompanion(categoryId: d.Value(keeper.id)));
       await (db.update(db.recurringTransactions)
             ..where((r) => r.categoryId.isIn(dupeIds)))
-          .write(RecurringTransactionsCompanion(categoryId: d.Value(keeper.id)));
+          .write(
+              RecurringTransactionsCompanion(categoryId: d.Value(keeper.id)));
 
       // 3) 删 dupe categories
-      await (db.delete(db.categories)
-            ..where((c) => c.id.isIn(dupeIds)))
-          .go();
+      await (db.delete(db.categories)..where((c) => c.id.isIn(dupeIds))).go();
     });
 
     // ChangeTracker 记录:受影响 transactions 的 update + dupe categories 的 delete
@@ -1643,7 +1809,8 @@ class LocalRepository extends BaseRepository {
   Future<List<Account>> getAllAccounts() => _accountRepo.getAllAccounts();
 
   @override
-  Future<Account?> getAccount(int accountId) => _accountRepo.getAccount(accountId);
+  Future<Account?> getAccount(int accountId) =>
+      _accountRepo.getAccount(accountId);
 
   @override
   Future<List<Account>> getAvailableAccountsForLedger(int ledgerId) =>
@@ -1738,7 +1905,8 @@ class LocalRepository extends BaseRepository {
     String? note,
     bool clearMetadataFields = false,
   }) async {
-    final account = changeTracker != null ? await _accountRepo.getAccount(id) : null;
+    final account =
+        changeTracker != null ? await _accountRepo.getAccount(id) : null;
     await _accountRepo.updateAccount(
       id,
       name: name,
@@ -1781,7 +1949,7 @@ class LocalRepository extends BaseRepository {
           entityType: 'account',
           entityId: id,
           entitySyncId: account!.syncId!,
-            action: 'delete',
+          action: 'delete',
         );
       }
     }
@@ -1817,23 +1985,25 @@ class LocalRepository extends BaseRepository {
       _accountRepo.getAccountIncome(accountId);
 
   @override
-  Future<({double balance, double expense, double income})> getAccountStats(int accountId) =>
+  Future<({double balance, double expense, double income})> getAccountStats(
+          int accountId) =>
       _accountRepo.getAccountStats(accountId);
 
   @override
-  Future<Map<int, ({double balance, double expense, double income})>> getAllAccountStats() =>
-      _accountRepo.getAllAccountStats();
+  Future<Map<int, ({double balance, double expense, double income})>>
+      getAllAccountStats() => _accountRepo.getAllAccountStats();
 
   @override
-  Future<({double totalBalance, double totalExpense, double totalIncome})> getAllAccountsTotalStats() =>
-      _accountRepo.getAllAccountsTotalStats();
+  Future<({double totalBalance, double totalExpense, double totalIncome})>
+      getAllAccountsTotalStats() => _accountRepo.getAllAccountsTotalStats();
 
   @override
   Future<Map<int, int>> getAccountUsageInLedgers(int accountId) =>
       _accountRepo.getAccountUsageInLedgers(accountId);
 
   @override
-  Future<int> migrateAccount({required int fromAccountId, required int toAccountId}) async {
+  Future<int> migrateAccount(
+      {required int fromAccountId, required int toAccountId}) async {
     if (changeTracker == null) {
       return _accountRepo.migrateAccount(
         fromAccountId: fromAccountId,
@@ -1913,42 +2083,50 @@ class LocalRepository extends BaseRepository {
       _accountRepo.getAccountsByIds(accountIds);
 
   @override
-  Future<void> updateAccountSortOrders(List<({int id, int sortOrder})> updates) =>
+  Future<void> updateAccountSortOrders(
+          List<({int id, int sortOrder})> updates) =>
       _accountRepo.updateAccountSortOrders(updates);
 
   @override
   Future<Set<String>> getUsedCurrencies() => _accountRepo.getUsedCurrencies();
 
   @override
-  Future<List<Transaction>> getAccountTransactions(
-    int accountId, {int limit = 50, int offset = 0, String? flow}) =>
-      _accountRepo.getAccountTransactions(
-          accountId, limit: limit, offset: offset, flow: flow);
+  Future<List<Transaction>> getAccountTransactions(int accountId,
+          {int limit = 50, int offset = 0, String? flow}) =>
+      _accountRepo.getAccountTransactions(accountId,
+          limit: limit, offset: offset, flow: flow);
 
   @override
   Future<List<({DateTime date, double balance})>> getAccountDailyBalances(
-    int accountId, {required DateTime startDate, required DateTime endDate}) =>
-      _accountRepo.getAccountDailyBalances(accountId, startDate: startDate, endDate: endDate);
+          int accountId,
+          {required DateTime startDate,
+          required DateTime endDate}) =>
+      _accountRepo.getAccountDailyBalances(accountId,
+          startDate: startDate, endDate: endDate);
 
   @override
   Future<List<({int? id, String name, String? icon, double total})>>
       getAccountCategoryStats(int accountId, {required String type}) =>
-      _accountRepo.getAccountCategoryStats(accountId, type: type);
+          _accountRepo.getAccountCategoryStats(accountId, type: type);
 
   @override
-  Future<({double totalAssets, double totalLiabilities, double netWorth})> getNetWorthBreakdown() =>
-      _accountRepo.getNetWorthBreakdown();
+  Future<({double totalAssets, double totalLiabilities, double netWorth})>
+      getNetWorthBreakdown() => _accountRepo.getNetWorthBreakdown();
 
   @override
-  Future<Map<String, ({double totalAssets, double totalLiabilities, double netWorth})>> getNetWorthBreakdownByCurrency() =>
-      _accountRepo.getNetWorthBreakdownByCurrency();
+  Future<
+          Map<String,
+              ({double totalAssets, double totalLiabilities, double netWorth})>>
+      getNetWorthBreakdownByCurrency() =>
+          _accountRepo.getNetWorthBreakdownByCurrency();
 
   @override
   Future<List<({DateTime date, double balance})>> getNetWorthDailyBalances({
     required DateTime startDate,
     required DateTime endDate,
   }) =>
-      _accountRepo.getNetWorthDailyBalances(startDate: startDate, endDate: endDate);
+      _accountRepo.getNetWorthDailyBalances(
+          startDate: startDate, endDate: endDate);
 
   @override
   Future<List<({DateTime date, double assets, double liabilities, double net})>>
@@ -1961,13 +2139,13 @@ class LocalRepository extends BaseRepository {
               startDate: startDate, endDate: endDate, ratesToBase: ratesToBase);
 
   @override
-  Future<List<({String type, double totalBalance})>> getAssetCompositionByType() =>
-      _accountRepo.getAssetCompositionByType();
+  Future<List<({String type, double totalBalance})>>
+      getAssetCompositionByType() => _accountRepo.getAssetCompositionByType();
 
   @override
   Future<List<({String type, String currency, double totalBalance})>>
-          getAssetCompositionByTypeAndCurrency() =>
-      _accountRepo.getAssetCompositionByTypeAndCurrency();
+      getAssetCompositionByTypeAndCurrency() =>
+          _accountRepo.getAssetCompositionByTypeAndCurrency();
 
   @override
   Future<void> updateAccountValuation(int accountId, double newValue) =>
@@ -1982,33 +2160,42 @@ class LocalRepository extends BaseRepository {
   // ============================================
 
   @override
-  Future<List<({int? id, String name, String? icon, double total})>> totalsByCategory({
+  Future<List<({int? id, String name, String? icon, double total})>>
+      totalsByCategory({
     required int ledgerId,
     required String type,
     required DateTime start,
     required DateTime end,
   }) =>
-      _statisticsRepo.totalsByCategory(
-        ledgerId: ledgerId,
-        type: type,
-        start: start,
-        end: end,
-      );
-
-  @override
-  Future<List<({int? id, String name, String? icon, int? parentId, int level, double total})>>
-      totalsByCategoryWithHierarchy({
-    required int ledgerId,
-    required String type,
-    required DateTime start,
-    required DateTime end,
-  }) =>
-          _statisticsRepo.totalsByCategoryWithHierarchy(
+          _statisticsRepo.totalsByCategory(
             ledgerId: ledgerId,
             type: type,
             start: start,
             end: end,
           );
+
+  @override
+  Future<
+      List<
+          ({
+            int? id,
+            String name,
+            String? icon,
+            int? parentId,
+            int level,
+            double total
+          })>> totalsByCategoryWithHierarchy({
+    required int ledgerId,
+    required String type,
+    required DateTime start,
+    required DateTime end,
+  }) =>
+      _statisticsRepo.totalsByCategoryWithHierarchy(
+        ledgerId: ledgerId,
+        type: type,
+        start: start,
+        end: end,
+      );
 
   @override
   Future<List<({DateTime day, double total})>> totalsByDay({
@@ -2092,11 +2279,13 @@ class LocalRepository extends BaseRepository {
       _recurringTransactionRepo.getAllRecurringTransactions();
 
   @override
-  Future<List<RecurringTransaction>> getRecurringTransactionsByLedger(int ledgerId) =>
+  Future<List<RecurringTransaction>> getRecurringTransactionsByLedger(
+          int ledgerId) =>
       _recurringTransactionRepo.getRecurringTransactionsByLedger(ledgerId);
 
   @override
-  Future<List<RecurringTransaction>> getEnabledRecurringTransactions(int ledgerId) =>
+  Future<List<RecurringTransaction>> getEnabledRecurringTransactions(
+          int ledgerId) =>
       _recurringTransactionRepo.getEnabledRecurringTransactions(ledgerId);
 
   @override
@@ -2192,11 +2381,13 @@ class LocalRepository extends BaseRepository {
       _recurringTransactionRepo.watchAllRecurringTransactions();
 
   @override
-  Stream<List<RecurringTransaction>> watchRecurringTransactionsByLedger(int ledgerId) =>
+  Stream<List<RecurringTransaction>> watchRecurringTransactionsByLedger(
+          int ledgerId) =>
       _recurringTransactionRepo.watchRecurringTransactionsByLedger(ledgerId);
 
   @override
-  Future<void> batchInsertRecurringTransactions(List<RecurringTransactionsCompanion> items) =>
+  Future<void> batchInsertRecurringTransactions(
+          List<RecurringTransactionsCompanion> items) =>
       _recurringTransactionRepo.batchInsertRecurringTransactions(items);
 
   // ============================================
@@ -2220,32 +2411,28 @@ class LocalRepository extends BaseRepository {
       _aiRepo.updateConversation(conversation);
 
   @override
-  Future<void> deleteConversation(int id) =>
-      _aiRepo.deleteConversation(id);
+  Future<void> deleteConversation(int id) => _aiRepo.deleteConversation(id);
 
   @override
   Stream<List<Message>> watchMessages(int conversationId) =>
       _aiRepo.watchMessages(conversationId);
 
   @override
-  Future<Message?> getMessageById(int id) =>
-      _aiRepo.getMessageById(id);
+  Future<Message?> getMessageById(int id) => _aiRepo.getMessageById(id);
 
   @override
   Future<int> createMessage(MessagesCompanion message) =>
       _aiRepo.createMessage(message);
 
   @override
-  Future<void> updateMessage(Message message) =>
-      _aiRepo.updateMessage(message);
+  Future<void> updateMessage(Message message) => _aiRepo.updateMessage(message);
 
   @override
   Future<void> deleteMessagesByConversation(int conversationId) =>
       _aiRepo.deleteMessagesByConversation(conversationId);
 
   @override
-  Future<void> deleteMessage(int id) =>
-      _aiRepo.deleteMessage(id);
+  Future<void> deleteMessage(int id) => _aiRepo.deleteMessage(id);
 
   @override
   Future<Message?> getMessageByTransactionId(int transactionId) =>
@@ -2268,8 +2455,10 @@ class LocalRepository extends BaseRepository {
       final tag = await _tagRepo.getTagById(id);
       if (tag?.syncId != null) {
         await changeTracker!.recordUserGlobalChange(
-          entityType: 'tag', entityId: id,
-          entitySyncId: tag!.syncId!, action: 'create',
+          entityType: 'tag',
+          entityId: id,
+          entitySyncId: tag!.syncId!,
+          action: 'create',
         );
       }
     }
@@ -2295,11 +2484,14 @@ class LocalRepository extends BaseRepository {
     int? sortOrder,
   }) async {
     final tag = changeTracker != null ? await _tagRepo.getTagById(id) : null;
-    await _tagRepo.updateTag(id, name: name, color: color, sortOrder: sortOrder);
+    await _tagRepo.updateTag(id,
+        name: name, color: color, sortOrder: sortOrder);
     if (tag?.syncId != null) {
       await changeTracker!.recordUserGlobalChange(
-        entityType: 'tag', entityId: id,
-        entitySyncId: tag!.syncId!, action: 'update',
+        entityType: 'tag',
+        entityId: id,
+        entitySyncId: tag!.syncId!,
+        action: 'update',
       );
     }
   }
@@ -2311,8 +2503,10 @@ class LocalRepository extends BaseRepository {
       final tag = await _tagRepo.getTagById(id);
       if (tag?.syncId != null) {
         await changeTracker!.recordUserGlobalChange(
-          entityType: 'tag', entityId: id,
-          entitySyncId: tag!.syncId!, action: 'delete',
+          entityType: 'tag',
+          entityId: id,
+          entitySyncId: tag!.syncId!,
+          action: 'delete',
         );
         recorded = true;
       } else if (tag != null) {
@@ -2379,14 +2573,16 @@ class LocalRepository extends BaseRepository {
     required int transactionId,
     required List<int> tagIds,
   }) =>
-      _tagRepo.addTagsToTransaction(transactionId: transactionId, tagIds: tagIds);
+      _tagRepo.addTagsToTransaction(
+          transactionId: transactionId, tagIds: tagIds);
 
   @override
   Future<void> removeTagFromTransaction({
     required int transactionId,
     required int tagId,
   }) =>
-      _tagRepo.removeTagFromTransaction(transactionId: transactionId, tagId: tagId);
+      _tagRepo.removeTagFromTransaction(
+          transactionId: transactionId, tagId: tagId);
 
   @override
   Future<void> removeAllTagsFromTransaction(int transactionId) =>
@@ -2397,14 +2593,16 @@ class LocalRepository extends BaseRepository {
     required int transactionId,
     required List<int> tagIds,
   }) =>
-      _tagRepo.updateTransactionTags(transactionId: transactionId, tagIds: tagIds);
+      _tagRepo.updateTransactionTags(
+          transactionId: transactionId, tagIds: tagIds);
 
   @override
   Future<List<Tag>> getTagsForTransaction(int transactionId) =>
       _tagRepo.getTagsForTransaction(transactionId);
 
   @override
-  Future<Map<int, List<Tag>>> getTagsForTransactions(List<int> transactionIds) =>
+  Future<Map<int, List<Tag>>> getTagsForTransactions(
+          List<int> transactionIds) =>
       _tagRepo.getTagsForTransactions(transactionIds);
 
   @override
@@ -2420,7 +2618,8 @@ class LocalRepository extends BaseRepository {
       _tagRepo.getAllTagTransactionCounts();
 
   @override
-  Future<({int count, double expense, double income})> getTagStats(int tagId, {int? ledgerId}) =>
+  Future<({int count, double expense, double income})> getTagStats(int tagId,
+          {int? ledgerId}) =>
       _tagRepo.getTagStats(tagId, ledgerId: ledgerId);
 
   @override
@@ -2433,7 +2632,8 @@ class LocalRepository extends BaseRepository {
     required DateTime start,
     required DateTime end,
   }) =>
-      _tagRepo.getTransactionsByTagInRange(tagId: tagId, start: start, end: end);
+      _tagRepo.getTransactionsByTagInRange(
+          tagId: tagId, start: start, end: end);
 
   @override
   Stream<List<Tag>> watchAllTags() => _tagRepo.watchAllTags();
@@ -2450,7 +2650,8 @@ class LocalRepository extends BaseRepository {
       _tagRepo.watchTagsForTransaction(transactionId);
 
   @override
-  Stream<List<Transaction>> watchTransactionsByTag(int tagId, {int? ledgerId}) =>
+  Stream<List<Transaction>> watchTransactionsByTag(int tagId,
+          {int? ledgerId}) =>
       _tagRepo.watchTransactionsByTag(tagId, ledgerId: ledgerId);
 
   @override
@@ -2477,6 +2678,11 @@ class LocalRepository extends BaseRepository {
     required double amount,
     String period = 'monthly',
     int startDay = 1,
+    String? name,
+    DateTime? startAt,
+    DateTime? endAt,
+    bool? excludeFromMonthlyTotal,
+    String? status,
   }) async {
     final id = await _budgetRepo.createBudget(
       ledgerId: ledgerId,
@@ -2485,6 +2691,11 @@ class LocalRepository extends BaseRepository {
       amount: amount,
       period: period,
       startDay: startDay,
+      name: name,
+      startAt: startAt,
+      endAt: endAt,
+      excludeFromMonthlyTotal: excludeFromMonthlyTotal,
+      status: status,
     );
     if (changeTracker != null) {
       final row = await (db.select(db.budgets)..where((b) => b.id.equals(id)))
@@ -2508,12 +2719,22 @@ class LocalRepository extends BaseRepository {
     double? amount,
     int? startDay,
     bool? enabled,
+    String? name,
+    DateTime? startAt,
+    DateTime? endAt,
+    bool? excludeFromMonthlyTotal,
+    String? status,
   }) async {
     await _budgetRepo.updateBudget(
       id,
       amount: amount,
       startDay: startDay,
       enabled: enabled,
+      name: name,
+      startAt: startAt,
+      endAt: endAt,
+      excludeFromMonthlyTotal: excludeFromMonthlyTotal,
+      status: status,
     );
     if (changeTracker != null) {
       final row = await (db.select(db.budgets)..where((b) => b.id.equals(id)))
@@ -2532,18 +2753,21 @@ class LocalRepository extends BaseRepository {
 
   @override
   Future<void> deleteBudget(int id) async {
-    // 先拿到要删的行(syncId / ledgerId),再走仓库的级联删除。删总预算会连同
-    // 带所有分类预算一起清;这里需要为每条挂掉的 budget 登记一条 delete change,
-    // 否则对端的总预算删不掉。
+    // 先拿到要删的行(syncId / ledgerId),再走仓库的级联删除。
+    // v31 修复:删总预算只级联 total/category,project 行不动;这里 pre-scan
+    // 也要用同样的收窄条件,否则会给 project 记多余的 delete change,把对端
+    // 的 project 静默删掉。
     final target = await (db.select(db.budgets)..where((b) => b.id.equals(id)))
         .getSingleOrNull();
     if (target == null) return;
 
     List<Budget> toRecord = [target];
     if (target.type == 'total') {
-      // 总预算的删除会级联清同 ledger 下所有 budget。
+      // 总预算的删除会级联清同 ledger 下 total/category 行(v31 起 project 不再被卷入)。
       toRecord = await (db.select(db.budgets)
-            ..where((b) => b.ledgerId.equals(target.ledgerId)))
+            ..where((b) =>
+                b.ledgerId.equals(target.ledgerId) &
+                b.type.isIn(const ['total', 'category'])))
           .get();
     }
 
@@ -2564,7 +2788,8 @@ class LocalRepository extends BaseRepository {
   }
 
   @override
-  Future<Budget?> getTotalBudget(int ledgerId) => _budgetRepo.getTotalBudget(ledgerId);
+  Future<Budget?> getTotalBudget(int ledgerId) =>
+      _budgetRepo.getTotalBudget(ledgerId);
 
   @override
   Future<List<Budget>> getCategoryBudgets(int ledgerId) =>
@@ -2575,10 +2800,60 @@ class LocalRepository extends BaseRepository {
       _budgetRepo.getBudgetByCategory(ledgerId, categoryId);
 
   @override
-  Future<List<Budget>> getAllBudgets(int ledgerId) => _budgetRepo.getAllBudgets(ledgerId);
+  Future<List<Budget>> getProjectBudgets(int ledgerId) =>
+      _budgetRepo.getProjectBudgets(ledgerId);
 
   @override
-  Future<List<Budget>> getAllBudgetsForExport() => _budgetRepo.getAllBudgetsForExport();
+  Future<Budget?> getProjectBudgetBySyncId(String syncId) =>
+      _budgetRepo.getProjectBudgetBySyncId(syncId);
+
+  @override
+  Future<void> overwriteBudgetSyncId(int id, String newSyncId) =>
+      _budgetRepo.overwriteBudgetSyncId(id, newSyncId);
+
+  @override
+  Future<Budget?> getBudgetBySyncId(String syncId) =>
+      _budgetRepo.getBudgetBySyncId(syncId);
+
+  @override
+  Future<int> restoreBudgetBySyncId({
+    required String syncId,
+    required int ledgerId,
+    required String type,
+    int? categoryId,
+    required double amount,
+    String period = 'monthly',
+    int startDay = 1,
+    bool enabled = true,
+    String? name,
+    DateTime? startAt,
+    DateTime? endAt,
+    bool excludeFromMonthlyTotal = false,
+    String status = 'active',
+  }) =>
+      _budgetRepo.restoreBudgetBySyncId(
+        syncId: syncId,
+        ledgerId: ledgerId,
+        type: type,
+        categoryId: categoryId,
+        amount: amount,
+        period: period,
+        startDay: startDay,
+        enabled: enabled,
+        name: name,
+        startAt: startAt,
+        endAt: endAt,
+        excludeFromMonthlyTotal: excludeFromMonthlyTotal,
+        status: status,
+      );
+
+  @override
+  Future<List<Budget>> getAllBudgets(int ledgerId) =>
+      _budgetRepo.getAllBudgets(ledgerId);
+
+  @override
+  Future<List<Budget>> getAllBudgetsForExport() =>
+      _budgetRepo.getAllBudgetsForExport();
 
   @override
   Future<BudgetUsage> getBudgetUsage(int budgetId, DateTime month) =>
@@ -2589,11 +2864,13 @@ class LocalRepository extends BaseRepository {
       _budgetRepo.getBudgetOverview(ledgerId, month);
 
   @override
-  Future<List<CategoryBudgetUsage>> getCategoryBudgetUsages(int ledgerId, DateTime month) =>
+  Future<List<CategoryBudgetUsage>> getCategoryBudgetUsages(
+          int ledgerId, DateTime month) =>
       _budgetRepo.getCategoryBudgetUsages(ledgerId, month);
 
   @override
-  Stream<List<Budget>> watchBudgets(int ledgerId) => _budgetRepo.watchBudgets(ledgerId);
+  Stream<List<Budget>> watchBudgets(int ledgerId) =>
+      _budgetRepo.watchBudgets(ledgerId);
 
   // ============================================
   // AttachmentRepository 接口实现 - 委托给 LocalAttachmentRepository
@@ -2634,7 +2911,8 @@ class LocalRepository extends BaseRepository {
       _attachmentRepo.getAttachmentById(id);
 
   @override
-  Future<List<TransactionAttachment>> getAttachmentsByTransaction(int transactionId) =>
+  Future<List<TransactionAttachment>> getAttachmentsByTransaction(
+          int transactionId) =>
       _attachmentRepo.getAttachmentsByTransaction(transactionId);
 
   @override
@@ -2675,12 +2953,15 @@ class LocalRepository extends BaseRepository {
       _attachmentRepo.updateAttachmentSortOrder(id, sortOrder);
 
   @override
-  Future<void> updateAttachmentSortOrders(List<({int id, int sortOrder})> updates) =>
+  Future<void> updateAttachmentSortOrders(
+          List<({int id, int sortOrder})> updates) =>
       _attachmentRepo.updateAttachmentSortOrders(updates);
 
   @override
-  Future<void> updateAttachmentCloudRef(int id, {String? cloudFileId, String? cloudSha256}) =>
-      _attachmentRepo.updateAttachmentCloudRef(id, cloudFileId: cloudFileId, cloudSha256: cloudSha256);
+  Future<void> updateAttachmentCloudRef(int id,
+          {String? cloudFileId, String? cloudSha256}) =>
+      _attachmentRepo.updateAttachmentCloudRef(id,
+          cloudFileId: cloudFileId, cloudSha256: cloudSha256);
 
   @override
   Future<bool> attachmentExistsByFileName(String fileName) =>
@@ -2699,11 +2980,13 @@ class LocalRepository extends BaseRepository {
       _attachmentRepo.getAttachmentCountByTransaction(transactionId);
 
   @override
-  Future<Map<int, int>> getAttachmentCountsForTransactions(List<int> transactionIds) =>
+  Future<Map<int, int>> getAttachmentCountsForTransactions(
+          List<int> transactionIds) =>
       _attachmentRepo.getAttachmentCountsForTransactions(transactionIds);
 
   @override
-  Future<Map<int, List<TransactionAttachment>>> getAttachmentsForTransactions(List<int> transactionIds) =>
+  Future<Map<int, List<TransactionAttachment>>> getAttachmentsForTransactions(
+          List<int> transactionIds) =>
       _attachmentRepo.getAttachmentsForTransactions(transactionIds);
 
   @override
@@ -2719,7 +3002,8 @@ class LocalRepository extends BaseRepository {
       _attachmentRepo.deleteAttachmentByFileName(fileName);
 
   @override
-  Stream<List<TransactionAttachment>> watchAttachmentsByTransaction(int transactionId) =>
+  Stream<List<TransactionAttachment>> watchAttachmentsByTransaction(
+          int transactionId) =>
       _attachmentRepo.watchAttachmentsByTransaction(transactionId);
 
   @override
@@ -2739,8 +3023,11 @@ class LocalRepository extends BaseRepository {
     required DateTime fetchedAt,
   }) =>
       _exchangeRateRepo.upsertAutoRates(
-        base: base, rateDate: rateDate, rates: rates,
-        source: source, fetchedAt: fetchedAt,
+        base: base,
+        rateDate: rateDate,
+        rates: rates,
+        source: source,
+        fetchedAt: fetchedAt,
       );
 
   @override

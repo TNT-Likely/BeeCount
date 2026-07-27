@@ -213,6 +213,56 @@ extension SyncEngineApplyExt on SyncEngine {
     final payloadNative =
         hasNativeKey ? (payload['nativeAmount'] as num?)?.toDouble() : null;
 
+    // v31 专项预算关联:与 excludeFrom* 相同 tri-state 语义 —— 键缺失 → 保留
+    // 本地(update 走 Value.absent()、insert 走 null);键存在且为 null → 清除;
+    // 键存在且是 string → 必须解析为同账本 type=project 的预算。
+    final hasProjectLinkKey = payload.containsKey('projectBudgetSyncId');
+    final payloadProjectLink =
+        hasProjectLinkKey ? (payload['projectBudgetSyncId'] as String?) : null;
+    if (payloadProjectLink != null) {
+      final project = await (db.select(db.budgets)
+            ..where((b) =>
+                b.syncId.equals(payloadProjectLink) &
+                b.ledgerId.equals(ledgerIdInt) &
+                b.type.equals('project')))
+          .getSingleOrNull();
+      if (project == null) {
+        logger.warning(
+            'SyncEngine',
+            'pull: transaction $syncId 的 projectBudgetSyncId=$payloadProjectLink '
+                '未解析为同账本 project，跳过');
+        return;
+      }
+    }
+    String? effectiveProjectLink = payloadProjectLink;
+    if (!hasProjectLinkKey && existingId != null) {
+      final existingTxId = existingId;
+      final existing = await (db.select(db.transactions)
+            ..where((t) => t.id.equals(existingTxId)))
+          .getSingleOrNull();
+      effectiveProjectLink = existing?.projectBudgetSyncId;
+    }
+    if (type != 'expense' && effectiveProjectLink != null) {
+      logger.warning(
+          'SyncEngine', 'pull: transaction $syncId 非 expense 但仍关联 project，跳过');
+      return;
+    }
+    if (effectiveProjectLink != null && !hasProjectLinkKey) {
+      final retainedProject = await (db.select(db.budgets)
+            ..where((b) =>
+                b.syncId.equals(effectiveProjectLink!) &
+                b.ledgerId.equals(ledgerIdInt) &
+                b.type.equals('project')))
+          .getSingleOrNull();
+      if (retainedProject == null) {
+        logger.warning(
+            'SyncEngine',
+            'pull: transaction $syncId 保留的 projectBudgetSyncId='
+                '$effectiveProjectLink 未解析为同账本 project，跳过');
+        return;
+      }
+    }
+
     if (existingId != null) {
       // 更新 — createdByUserId 走"本地为 null 就回填,否则保持"的策略。
       final shouldBackfillCreator =
@@ -258,6 +308,10 @@ extension SyncEngineApplyExt on SyncEngine {
             ? d.Value(payloadCurrency)
             : const d.Value.absent(), // 缺键保留本地币种
         nativeAmount: nativeValue,
+        // v31 project 关联:键缺失 → 保留本地(absent);键存在(包括 null)→ 写入。
+        projectBudgetSyncId: hasProjectLinkKey
+            ? d.Value(payloadProjectLink)
+            : const d.Value.absent(),
       ));
       // 更新标签和附件(existing 路径)
       await _syncTransactionTags(existingId, syncId, payload);
@@ -288,6 +342,9 @@ extension SyncEngineApplyExt on SyncEngine {
               // 留 NULL(检测端 LEFT JOIN 账户币种兜底)。
               currencyCode: d.Value(payloadCurrency),
               nativeAmount: d.Value(hasNativeKey ? payloadNative : amount),
+              // v31 project 关联:insert 无本地行可保留,直接使用 payload 值
+              // (缺键 → null / unlinked)。
+              projectBudgetSyncId: d.Value(payloadProjectLink),
             ),
           );
       // 写回 cache,后续同 syncId 的 update change 能命中
@@ -645,6 +702,16 @@ extension SyncEngineApplyExt on SyncEngine {
             ..where((b) => b.syncId.equals(syncId)))
           .getSingleOrNull();
       if (existing != null) {
+        final referenced = existing.type == 'project' &&
+            await (db.select(db.transactions)
+                      ..where((t) => t.projectBudgetSyncId.equals(syncId)))
+                    .getSingleOrNull() !=
+                null;
+        if (referenced) {
+          logger.warning('SyncEngine',
+              'pull: 拒绝删除仍被 transaction 引用的 project budget $syncId');
+          return;
+        }
         await (db.delete(db.budgets)..where((b) => b.id.equals(existing.id)))
             .go();
         logger.debug('SyncEngine', 'pull: 删除预算 $syncId');
@@ -654,13 +721,99 @@ extension SyncEngineApplyExt on SyncEngine {
 
     // upsert
     final payload = change.payload!;
+
+    // E4-S2: inspect raw type/amount without unsafe `as` casts. A wrong-type
+    // value (e.g. type=42) must be caught here and skip this change, not throw
+    // _TypeError and roll back the entire pull page.
+    final rawType = payload['type'];
+    if (rawType != null && rawType is! String) {
+      logger.warning('SyncEngine', 'pull: 预算 $syncId type 类型非法 ($rawType),跳过');
+      return;
+    }
+    final type = rawType as String? ?? 'total';
+
+    final rawAmount = payload['amount'];
+    if (rawAmount != null && rawAmount is! num) {
+      logger.warning(
+          'SyncEngine', 'pull: 预算 $syncId amount 类型非法 ($rawAmount),跳过');
+      return;
+    }
+    final amount = (rawAmount as num?)?.toDouble() ?? 0.0;
+
     final ledgerSyncId = payload['ledgerSyncId'] as String?;
     final categorySyncId = payload['categoryId'] as String?;
-    final type = payload['type'] as String? ?? 'total';
-    final amount = (payload['amount'] as num?)?.toDouble() ?? 0.0;
     final period = payload['period'] as String? ?? 'monthly';
     final startDay = (payload['startDay'] as num?)?.toInt() ?? 1;
     final enabled = payload['enabled'] as bool? ?? true;
+
+    // v31 专项预算字段:类型 project 时 5 个新键必带(合同要求);其他类型
+    // 键不出现,按 Value.absent() / null 处理,不覆盖已存在的行(例如把 total
+    // 行的 name 意外置成 null 也不会发生 -- 因为对方 total serializer 根本
+    // 不发这些键)。tri-state 处理:键缺失 -> 保留;键存在 -> 用值(project 行
+    // 必须为具体值,不允许 null)。
+    //
+    // E4-S2: inspect raw field types before casting. Wrong-type values must
+    // follow the same controlled skip path as missing/invalid values.
+    final hasProjectFields = type == 'project';
+
+    // Type-safe extraction: if the key is present but the value is not the
+    // expected type, treat it as malformed (null) so the validation block
+    // below skips the change.
+    String? projectName;
+    if (payload['name'] is String) {
+      projectName = payload['name'] as String;
+    }
+
+    String? projectStartAtStr;
+    if (payload['startAt'] is String) {
+      projectStartAtStr = payload['startAt'] as String;
+    }
+
+    String? projectEndAtStr;
+    if (payload['endAt'] is String) {
+      projectEndAtStr = payload['endAt'] as String;
+    }
+
+    final projectStartAt = projectStartAtStr != null
+        ? DateTime.tryParse(projectStartAtStr)?.toUtc()
+        : null;
+    final projectEndAt = projectEndAtStr != null
+        ? DateTime.tryParse(projectEndAtStr)?.toUtc()
+        : null;
+
+    bool? projectExcludeFromMonthlyTotal;
+    if (payload['excludeFromMonthlyTotal'] is bool) {
+      projectExcludeFromMonthlyTotal =
+          payload['excludeFromMonthlyTotal'] as bool;
+    }
+
+    String? projectStatus;
+    if (payload['status'] is String) {
+      projectStatus = payload['status'] as String;
+    }
+
+    if (hasProjectFields) {
+      // 服务端有明确校验;本地兜底校验一下,格式不对就日志 skip(不阻塞
+      // pull 队列),避免脏 payload 写入本地库。
+      if (!amount.isFinite ||
+          amount <= 0 ||
+          (projectName ?? '').trim().isEmpty ||
+          projectStartAt == null ||
+          projectEndAt == null ||
+          !projectStartAt.isBefore(projectEndAt) ||
+          !payload.containsKey('excludeFromMonthlyTotal') ||
+          projectExcludeFromMonthlyTotal == null ||
+          projectStatus == null ||
+          (projectStatus != 'planned' &&
+              projectStatus != 'active' &&
+              projectStatus != 'archived')) {
+        logger.warning(
+            'SyncEngine',
+            'pull: 专项预算 $syncId payload 校验失败,跳过 '
+                '(name/startAt/endAt/excludeFromMonthlyTotal/status 缺失或不合法)');
+        return;
+      }
+    }
 
     // 先解析外键 —— 本地 ledger 找不到就 skip,等 ledger change 先到再说。
     final localLedgerId = await _resolveLedgerIdBySyncId(ledgerSyncId);
@@ -676,6 +829,43 @@ extension SyncEngineApplyExt on SyncEngine {
         .getSingleOrNull();
 
     if (existing != null) {
+      if (existing.ledgerId != localLedgerId) {
+        logger.warning('SyncEngine',
+            'pull: 拒绝将预算 $syncId 从账本 ${existing.ledgerId} 移到 $localLedgerId');
+        return;
+      }
+      if (existing.type == 'project' && type != 'project') {
+        final reference = await (db.select(db.transactions)
+              ..where((t) => t.projectBudgetSyncId.equals(syncId)))
+            .getSingleOrNull();
+        if (reference != null) {
+          logger.warning('SyncEngine',
+              'pull: 拒绝把仍被 transaction 引用的 project budget $syncId 改成 $type');
+          return;
+        }
+      }
+      // archived project 的唯一合法状态转移是：所有业务字段不变，仅
+      // status archived → active。sync payload 是完整 upsert，不能用“字段
+      // 是否传入”判断，必须逐项比较后才允许重激活。
+      if (existing.type == 'project' && existing.status == 'archived') {
+        final onlyReactivating = type == 'project' &&
+            projectStatus == 'active' &&
+            existing.ledgerId == localLedgerId &&
+            existing.categoryId == localCategoryId &&
+            existing.amount == amount &&
+            existing.period == period &&
+            existing.startDay == startDay &&
+            existing.enabled == enabled &&
+            existing.name == projectName!.trim() &&
+            existing.startAt == projectStartAt &&
+            existing.endAt == projectEndAt &&
+            existing.excludeFromMonthlyTotal == projectExcludeFromMonthlyTotal;
+        if (!onlyReactivating) {
+          logger.warning('SyncEngine',
+              'pull: 拒绝修改 archived project budget $syncId；仅允许无附带字段地重激活');
+          return;
+        }
+      }
       await (db.update(db.budgets)..where((b) => b.id.equals(existing.id)))
           .write(BudgetsCompanion(
         ledgerId: d.Value(localLedgerId),
@@ -686,6 +876,18 @@ extension SyncEngineApplyExt on SyncEngine {
         startDay: d.Value(startDay),
         enabled: d.Value(enabled),
         updatedAt: d.Value(DateTime.now()),
+        name: hasProjectFields
+            ? d.Value(projectName!.trim())
+            : const d.Value.absent(),
+        startAt:
+            hasProjectFields ? d.Value(projectStartAt) : const d.Value.absent(),
+        endAt:
+            hasProjectFields ? d.Value(projectEndAt) : const d.Value.absent(),
+        excludeFromMonthlyTotal: hasProjectFields
+            ? d.Value(projectExcludeFromMonthlyTotal ?? false)
+            : const d.Value.absent(),
+        status:
+            hasProjectFields ? d.Value(projectStatus!) : const d.Value.absent(),
       ));
       logger.debug('SyncEngine', 'pull: 更新预算 $syncId');
     } else {
@@ -698,6 +900,21 @@ extension SyncEngineApplyExt on SyncEngine {
             startDay: d.Value(startDay),
             enabled: d.Value(enabled),
             syncId: d.Value(syncId),
+            name: hasProjectFields
+                ? d.Value(projectName!.trim())
+                : const d.Value.absent(),
+            startAt: hasProjectFields
+                ? d.Value(projectStartAt)
+                : const d.Value.absent(),
+            endAt: hasProjectFields
+                ? d.Value(projectEndAt)
+                : const d.Value.absent(),
+            excludeFromMonthlyTotal: hasProjectFields
+                ? d.Value(projectExcludeFromMonthlyTotal ?? false)
+                : const d.Value.absent(),
+            status: hasProjectFields
+                ? d.Value(projectStatus!)
+                : const d.Value.absent(),
           ));
       logger.debug('SyncEngine', 'pull: 新增预算 $syncId');
     }

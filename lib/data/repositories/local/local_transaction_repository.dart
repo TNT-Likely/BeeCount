@@ -19,6 +19,40 @@ class LocalTransactionRepository implements TransactionRepository {
 
   LocalTransactionRepository(this.db);
 
+  /// 强制所有公开批量写入口遵守 projectBudgetSyncId 完整性；DB 没有 FK，
+  /// 所以不能只依赖 LocalRepository 的单条 wrapper。
+  Future<void> _validateProjectLink(int ledgerId, String? projectSyncId) async {
+    if (projectSyncId == null) return;
+    final project = await (db.select(db.budgets)
+          ..where(
+              (b) => b.syncId.equals(projectSyncId) & b.type.equals('project')))
+        .getSingleOrNull();
+    if (project == null || project.ledgerId != ledgerId) {
+      throw StateError(
+          'projectBudgetSyncId must reference an existing same-ledger project budget');
+    }
+  }
+
+  Future<void> _validateCompanionProjectLinks(
+      Iterable<TransactionsCompanion> items) async {
+    for (final item in items) {
+      final link = item.projectBudgetSyncId;
+      if (link == const d.Value.absent() || link.value == null) continue;
+      final transactionType = item.type;
+      if (transactionType == const d.Value.absent() ||
+          transactionType.value != 'expense') {
+        throw StateError(
+            'only expense transactions may reference a project budget');
+      }
+      final ledger = item.ledgerId;
+      if (ledger == const d.Value.absent()) {
+        throw StateError(
+            'transaction ledgerId is required for projectBudgetSyncId validation');
+      }
+      await _validateProjectLink(ledger.value, link.value);
+    }
+  }
+
   @override
   Stream<List<Transaction>> watchRecentTransactions({
     required int ledgerId,
@@ -87,8 +121,14 @@ class LocalTransactionRepository implements TransactionRepository {
       ];
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      watchTransactionsWithCategoryAll({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryAll({
     int? ledgerId,
   }) {
     final select = db.select(db.transactions);
@@ -96,8 +136,7 @@ class LocalTransactionRepository implements TransactionRepository {
       select.where((t) => t.ledgerId.equals(ledgerId));
     }
     select.orderBy([
-      (t) => d.OrderingTerm(
-          expression: t.happenedAt, mode: d.OrderingMode.desc)
+      (t) => d.OrderingTerm(expression: t.happenedAt, mode: d.OrderingMode.desc)
     ]);
     final q = select.join(_txJoins());
     return _watchTxJoinWithSharedHydration(q);
@@ -111,9 +150,22 @@ class LocalTransactionRepository implements TransactionRepository {
   /// re-emit → tx tile 显示旧名字/图标,跟 picker 不一致。这里手动加两路
   /// db.tableUpdates(SharedLedger{Categories,Accounts}) 监听,触发时拿上一次
   /// Drift 结果重 hydrate 再 emit。
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      _watchTxJoinWithSharedHydration(d.JoinedSelectStatement q) {
-    late StreamController<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> ctrl;
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> _watchTxJoinWithSharedHydration(d.JoinedSelectStatement q) {
+    late StreamController<
+        List<
+            ({
+              Transaction t,
+              Category? category,
+              Account? account,
+              Account? toAccount
+            })>> ctrl;
     StreamSubscription? txSub;
     StreamSubscription? sharedCatSub;
     StreamSubscription? sharedAccSub;
@@ -133,7 +185,14 @@ class LocalTransactionRepository implements TransactionRepository {
       if (!ctrl.isClosed) ctrl.add(hydrated);
     }
 
-    ctrl = StreamController<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>(
+    ctrl = StreamController<
+        List<
+            ({
+              Transaction t,
+              Category? category,
+              Account? account,
+              Account? toAccount
+            })>>(
       onListen: () {
         txSub = q.watch().listen((rows) {
           lastRows = rows;
@@ -161,9 +220,22 @@ class LocalTransactionRepository implements TransactionRepository {
   ///
   /// 合并 category + from-account + to-account 三类 hydration:共用同一遍 rows
   /// 扫描;每类各一个 batch query。
-  Future<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      _hydrateSharedOverrides(
-    List<({Transaction t, Category? category, Account? account, Account? toAccount})> rows,
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> _hydrateSharedOverrides(
+    List<
+            ({
+              Transaction t,
+              Category? category,
+              Account? account,
+              Account? toAccount
+            })>
+        rows,
   ) async {
     // 1. 收集所有需要反查的 syncId(分类 / from 账户 / to 账户)
     final catSyncIds = <String>{};
@@ -280,8 +352,14 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      watchTransactionsWithCategoryInMonth({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryInMonth({
     required int ledgerId,
     required DateTime month,
   }) {
@@ -302,8 +380,14 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      watchTransactionsWithCategoryInYear({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryInYear({
     required int ledgerId,
     required int year,
   }) {
@@ -312,7 +396,8 @@ class LocalTransactionRepository implements TransactionRepository {
     final q = (db.select(db.transactions)
           ..where((t) =>
               t.ledgerId.equals(ledgerId) &
-              t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end))
+              t.happenedAt.isBiggerOrEqualValue(start) &
+              t.happenedAt.isSmallerThanValue(end))
           ..orderBy([
             (t) => d.OrderingTerm(
                 expression: t.happenedAt, mode: d.OrderingMode.desc)
@@ -322,8 +407,14 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      watchTransactionsForCategoryInRange({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsForCategoryInRange({
     required int ledgerId,
     required DateTime start,
     required DateTime end,
@@ -334,7 +425,8 @@ class LocalTransactionRepository implements TransactionRepository {
           ..where((t) =>
               t.ledgerId.equals(ledgerId) &
               t.type.equals(type) &
-              t.happenedAt.isBiggerOrEqualValue(start) & t.happenedAt.isSmallerThanValue(end))
+              t.happenedAt.isBiggerOrEqualValue(start) &
+              t.happenedAt.isSmallerThanValue(end))
           ..orderBy([
             (t) => d.OrderingTerm(
                 expression: t.happenedAt, mode: d.OrderingMode.desc)
@@ -368,9 +460,15 @@ class LocalTransactionRepository implements TransactionRepository {
     bool excludeFromBudget = false,
     String? currencyCode,
     double? nativeAmount,
+    String? projectBudgetSyncId,
   }) async {
     // v30:子仓收「已定值」直写;带折算的兜底(查账户/汇率)在聚合
     // LocalRepository 包装层(子仓拿不到汇率)。
+    if (projectBudgetSyncId != null && type != 'expense') {
+      throw StateError(
+          'only expense transactions may reference a project budget');
+    }
+    await _validateProjectLink(ledgerId, projectBudgetSyncId);
     return db.into(db.transactions).insert(TransactionsCompanion.insert(
           ledgerId: ledgerId,
           type: type,
@@ -388,6 +486,7 @@ class LocalTransactionRepository implements TransactionRepository {
           excludeFromBudget: d.Value(excludeFromBudget),
           currencyCode: d.Value(currencyCode),
           nativeAmount: d.Value(nativeAmount),
+          projectBudgetSyncId: d.Value(projectBudgetSyncId),
         ));
   }
 
@@ -399,6 +498,7 @@ class LocalTransactionRepository implements TransactionRepository {
     // 子仓库不挂 changeTracker,recordChanges 参数对它无作用 — 真正的 record
     // 在 LocalRepository wrapper 那一层。这里保留参数只是为了接口一致。
     if (items.isEmpty) return 0;
+    await _validateCompanionProjectLinks(items);
     final effectiveItems = items.map((item) {
       if (item.syncId == const d.Value.absent() || item.syncId.value == null) {
         return item.copyWith(syncId: d.Value(_uuid.v4()));
@@ -419,6 +519,7 @@ class LocalTransactionRepository implements TransactionRepository {
     bool recordChanges = true,
   }) async {
     if (transactions.isEmpty) return const [];
+    await _validateCompanionProjectLinks(transactions);
     // 预填充 syncId — batch insertAll 不返回 row id,必须靠 syncId 反查。
     final effective = transactions.map((tx) {
       if (tx.syncId == const d.Value.absent() || tx.syncId.value == null) {
@@ -506,6 +607,7 @@ class LocalTransactionRepository implements TransactionRepository {
     bool? excludeFromBudget,
     String? currencyCode,
     double? nativeAmount,
+    dynamic projectBudgetSyncId,
   }) async {
     // 处理 accountId 参数
     final d.Value<int?> accountIdValue;
@@ -515,6 +617,50 @@ class LocalTransactionRepository implements TransactionRepository {
       accountIdValue = accountId;
     } else {
       accountIdValue = d.Value(accountId as int?);
+    }
+
+    // v31 project 关联,tri-state:
+    //   dart `null`  → Value.absent()(不修改)
+    //   `d.Value<String?>(null)` → 显式解除关联
+    //   `d.Value<String?>("x")` → 关联到 x
+    //   直接传 String → 关联到该 syncId(便于旧调用方 lint)
+    final d.Value<String?> projectBudgetSyncIdValue;
+    if (projectBudgetSyncId == null) {
+      projectBudgetSyncIdValue = const d.Value.absent();
+    } else if (projectBudgetSyncId is d.Value<String?>) {
+      projectBudgetSyncIdValue = projectBudgetSyncId;
+    } else if (projectBudgetSyncId is String) {
+      projectBudgetSyncIdValue = d.Value(projectBudgetSyncId);
+    } else {
+      throw ArgumentError.value(projectBudgetSyncId, 'projectBudgetSyncId',
+          'expected null, String, or Value<String?>');
+    }
+
+    final projectLinkIsPresent =
+        projectBudgetSyncIdValue != const d.Value<String?>.absent();
+    final requestedProjectLink =
+        projectLinkIsPresent ? projectBudgetSyncIdValue.value : null;
+    final existingForProjectValidation = await (db.select(db.transactions)
+          ..where((t) => t.id.equals(id)))
+        .getSingleOrNull();
+    if (requestedProjectLink != null && existingForProjectValidation == null) {
+      throw StateError(
+          'transaction not found for projectBudgetSyncId validation: $id');
+    }
+    final effectiveProjectLink = projectLinkIsPresent
+        ? requestedProjectLink
+        : existingForProjectValidation?.projectBudgetSyncId;
+    if (effectiveProjectLink != null) {
+      if (existingForProjectValidation == null) {
+        throw StateError(
+            'transaction not found for projectBudgetSyncId validation: $id');
+      }
+      if (type != 'expense') {
+        throw StateError(
+            'only expense transactions may reference a project budget');
+      }
+      await _validateProjectLink(
+          existingForProjectValidation.ledgerId, effectiveProjectLink);
     }
 
     await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(
@@ -543,6 +689,7 @@ class LocalTransactionRepository implements TransactionRepository {
         nativeAmount: nativeAmount == null
             ? const d.Value.absent()
             : d.Value(nativeAmount),
+        projectBudgetSyncId: projectBudgetSyncIdValue,
       ),
     );
   }
@@ -561,8 +708,7 @@ class LocalTransactionRepository implements TransactionRepository {
   }) async {
     await (db.update(db.transactions)..where((t) => t.id.equals(txId))).write(
       TransactionsCompanion(
-        createdByUserId:
-            isCreate ? d.Value(userId) : const d.Value.absent(),
+        createdByUserId: isCreate ? d.Value(userId) : const d.Value.absent(),
         lastEditedByUserId: d.Value(userId),
       ),
     );
@@ -625,7 +771,8 @@ class LocalTransactionRepository implements TransactionRepository {
         }
       }
 
-      logger.info('LocalTransactionRepository', '已删除交易 $transactionId 的 ${attachments.length} 个附件');
+      logger.info('LocalTransactionRepository',
+          '已删除交易 $transactionId 的 ${attachments.length} 个附件');
     } catch (e, stackTrace) {
       logger.error('LocalTransactionRepository', '删除交易附件失败', e, stackTrace);
       // 不抛出异常，继续删除交易
@@ -644,22 +791,36 @@ class LocalTransactionRepository implements TransactionRepository {
     bool recordChanges = true,
   }) async {
     // 子仓库不挂 changeTracker,recordChanges 仅为接口一致保留。
-    final effective = item.syncId == const d.Value.absent() || item.syncId.value == null
-        ? item.copyWith(syncId: d.Value(_uuid.v4()))
-        : item;
+    await _validateCompanionProjectLinks([item]);
+    final effective =
+        item.syncId == const d.Value.absent() || item.syncId.value == null
+            ? item.copyWith(syncId: d.Value(_uuid.v4()))
+            : item;
     return await db.into(db.transactions).insert(effective);
   }
 
   @override
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      transactionsWithCategoryAll({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> transactionsWithCategoryAll({
     int? ledgerId,
   }) =>
-          watchTransactionsWithCategoryAll(ledgerId: ledgerId);
+      watchTransactionsWithCategoryAll(ledgerId: ledgerId);
 
   @override
-  Future<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>
-      getRecentTransactionsWithCategory({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> getRecentTransactionsWithCategory({
     required int ledgerId,
     required int limit,
   }) async {
@@ -712,8 +873,8 @@ class LocalTransactionRepository implements TransactionRepository {
     return await (db.select(db.transactions)
           ..where((t) => t.ledgerId.equals(ledgerId))
           ..orderBy([
-            (t) =>
-                d.OrderingTerm(expression: t.happenedAt, mode: d.OrderingMode.desc)
+            (t) => d.OrderingTerm(
+                expression: t.happenedAt, mode: d.OrderingMode.desc)
           ]))
         .get();
   }
@@ -730,8 +891,8 @@ class LocalTransactionRepository implements TransactionRepository {
               t.happenedAt.isBiggerOrEqualValue(start) &
               t.happenedAt.isSmallerThanValue(end))
           ..orderBy([
-            (t) =>
-                d.OrderingTerm(expression: t.happenedAt, mode: d.OrderingMode.desc)
+            (t) => d.OrderingTerm(
+                expression: t.happenedAt, mode: d.OrderingMode.desc)
           ]))
         .get();
   }
@@ -786,8 +947,8 @@ class LocalTransactionRepository implements TransactionRepository {
     return await (db.select(db.transactions)
           ..where((t) => t.ledgerId.equals(ledgerId))
           ..orderBy([
-            (t) =>
-                d.OrderingTerm(expression: t.happenedAt, mode: d.OrderingMode.asc)
+            (t) => d.OrderingTerm(
+                expression: t.happenedAt, mode: d.OrderingMode.asc)
           ])
           ..limit(1))
         .getSingleOrNull();
@@ -798,8 +959,8 @@ class LocalTransactionRepository implements TransactionRepository {
     return await (db.select(db.transactions)
           ..where((t) => t.ledgerId.equals(ledgerId))
           ..orderBy([
-            (t) =>
-                d.OrderingTerm(expression: t.happenedAt, mode: d.OrderingMode.desc)
+            (t) => d.OrderingTerm(
+                expression: t.happenedAt, mode: d.OrderingMode.desc)
           ])
           ..limit(1))
         .getSingleOrNull();
@@ -832,6 +993,13 @@ class LocalTransactionRepository implements TransactionRepository {
     required int id,
     required int ledgerId,
   }) async {
+    final existing = await (db.select(db.transactions)
+          ..where((t) => t.id.equals(id)))
+        .getSingleOrNull();
+    final projectLink = existing?.projectBudgetSyncId;
+    if (projectLink != null) {
+      await _validateProjectLink(ledgerId, projectLink);
+    }
     await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(ledgerId: d.Value(ledgerId)),
     );
@@ -872,7 +1040,8 @@ class LocalTransactionRepository implements TransactionRepository {
 
     // 查看一条交易的 happened_at 值
     if (totalCount > 0) {
-      final sampleQuery = 'SELECT happened_at FROM transactions WHERE ledger_id = ? LIMIT 1';
+      final sampleQuery =
+          'SELECT happened_at FROM transactions WHERE ledger_id = ? LIMIT 1';
       final sample = await db.customSelect(
         sampleQuery,
         variables: [d.Variable.withInt(ledgerId)],
@@ -881,7 +1050,8 @@ class LocalTransactionRepository implements TransactionRepository {
       print('🔍 样例 happened_at 值(int): $happenedAtValue');
 
       // 尝试转换为 DateTime 看看
-      final asDateTime = DateTime.fromMillisecondsSinceEpoch(happenedAtValue * 1000);
+      final asDateTime =
+          DateTime.fromMillisecondsSinceEpoch(happenedAtValue * 1000);
       print('🔍 转换为 DateTime (假设是秒): $asDateTime');
     }
 
@@ -926,13 +1096,15 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Future<List<({
-    Transaction t,
-    Category? category,
-    List<Tag> tags,
-    List<TransactionAttachment> attachments,
-    Account? account,
-  })>> getTransactionsByDate({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            List<Tag> tags,
+            List<TransactionAttachment> attachments,
+            Account? account,
+          })>> getTransactionsByDate({
     required int ledgerId,
     required DateTime date,
   }) async {
@@ -1040,20 +1212,24 @@ class LocalTransactionRepository implements TransactionRepository {
   /// 日历页 / 详情页等任何返回 tx + category + tags + account 完整 tuple 的查询
   /// 都用这个 helper 兜底,跟 transaction_list 走 _hydrateSharedCategoryOverrides
   /// 一致。
-  Future<List<({
-    Transaction t,
-    Category? category,
-    List<Tag> tags,
-    List<TransactionAttachment> attachments,
-    Account? account,
-  })>> _hydrateSharedOverridesFull(
-    List<({
-      Transaction t,
-      Category? category,
-      List<Tag> tags,
-      List<TransactionAttachment> attachments,
-      Account? account,
-    })> rows,
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            List<Tag> tags,
+            List<TransactionAttachment> attachments,
+            Account? account,
+          })>> _hydrateSharedOverridesFull(
+    List<
+            ({
+              Transaction t,
+              Category? category,
+              List<Tag> tags,
+              List<TransactionAttachment> attachments,
+              Account? account,
+            })>
+        rows,
   ) async {
     if (rows.isEmpty) return rows;
 
@@ -1201,13 +1377,15 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Future<List<({
-    Transaction t,
-    Category? category,
-    List<Tag> tags,
-    List<TransactionAttachment> attachments,
-    Account? account,
-  })>> getTransactionsByDateRange({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            List<Tag> tags,
+            List<TransactionAttachment> attachments,
+            Account? account,
+          })>> getTransactionsByDateRange({
     required int ledgerId,
     required DateTime startDate,
     required DateTime endDate,
@@ -1334,6 +1512,15 @@ class LocalTransactionRepository implements TransactionRepository {
     required DateTime happenedAt,
     String? note,
   }) async {
+    final existing = await getTransactionBySyncId(syncId);
+    final existingProjectLink = existing?.projectBudgetSyncId;
+    if (existingProjectLink != null) {
+      if (type != 'expense') {
+        throw StateError(
+            'only expense transactions may reference a project budget');
+      }
+      await _validateProjectLink(existing!.ledgerId, existingProjectLink);
+    }
     await (db.update(db.transactions)..where((t) => t.syncId.equals(syncId)))
         .write(TransactionsCompanion(
       type: d.Value(type),
@@ -1361,9 +1548,58 @@ class LocalTransactionRepository implements TransactionRepository {
     bool recordChanges = true,
   }) async {
     if (updates.isEmpty) return const {};
+    // update input 没有 ledgerId；先以 syncId 读取现有 transaction，只有显式
+    // 非空 project link 才做完整性校验。absent=保留、Value(null)=清除。
+    final existingBySyncId = {
+      for (final tx in await (db.select(db.transactions)
+            ..where(
+                (t) => t.syncId.isIn(updates.map((u) => u.syncId).toList())))
+          .get())
+        if (tx.syncId != null) tx.syncId!: tx,
+    };
+    for (final u in updates) {
+      final existing = existingBySyncId[u.syncId];
+      final raw = u.projectBudgetSyncId;
+      if (raw != null && raw is! String && raw is! d.Value<String?>) {
+        throw ArgumentError.value(raw, 'projectBudgetSyncId',
+            'expected null, String, or Value<String?>');
+      }
+      final linkIsPresent =
+          raw is String || (raw is d.Value<String?> && raw.present);
+      final String? requested = raw is String
+          ? raw
+          : raw is d.Value<String?>
+              ? raw.value
+              : null;
+      final effectiveLink =
+          linkIsPresent ? requested : existing?.projectBudgetSyncId;
+      if (effectiveLink != null) {
+        if (existing == null) {
+          throw StateError(
+              'transaction syncId not found for projectBudgetSyncId validation: ${u.syncId}');
+        }
+        if (u.type != 'expense') {
+          throw StateError(
+              'only expense transactions may reference a project budget');
+        }
+        await _validateProjectLink(existing.ledgerId, effectiveLink);
+      }
+    }
     return db.transaction(() async {
       await db.batch((b) {
         for (final u in updates) {
+          // v31: 与 updateTransaction 同 tri-state。默认 dart null 保留本地。
+          final d.Value<String?> projectLinkValue;
+          final pl = u.projectBudgetSyncId;
+          if (pl == null) {
+            projectLinkValue = const d.Value.absent();
+          } else if (pl is d.Value<String?>) {
+            projectLinkValue = pl;
+          } else if (pl is String) {
+            projectLinkValue = d.Value(pl);
+          } else {
+            projectLinkValue = const d.Value.absent();
+          }
           b.update(
             db.transactions,
             TransactionsCompanion(
@@ -1374,6 +1610,7 @@ class LocalTransactionRepository implements TransactionRepository {
               toAccountId: d.Value(u.toAccountId),
               happenedAt: d.Value(u.happenedAt),
               note: d.Value(u.note),
+              projectBudgetSyncId: projectLinkValue,
             ),
             where: (t) => t.syncId.equals(u.syncId),
           );
@@ -1388,6 +1625,76 @@ class LocalTransactionRepository implements TransactionRepository {
         for (final tx in rows)
           if (tx.syncId != null) tx.syncId!: tx.id,
       };
+    });
+  }
+
+  @override
+  Future<int?> updateTransactionWithRelationsBySyncId(
+    TransactionRelationsUpdateBySyncIdData update, {
+    bool recordChanges = true,
+  }) async {
+    // recordChanges is handled by LocalRepository, which owns changeTracker.
+    return db.transaction(() async {
+      final ids = await updateTransactionsBatchBySyncId(
+        [update.transaction],
+        recordChanges: false,
+      );
+      final txId = ids[update.transaction.syncId];
+      if (txId == null) return null;
+
+      final tagIds = update.tagIds;
+      if (tagIds != null) {
+        await (db.delete(db.transactionTags)
+              ..where((row) => row.transactionId.equals(txId)))
+            .go();
+        await (db.delete(db.transactionTagOverrides)
+              ..where((row) =>
+                  row.transactionSyncId.equals(update.transaction.syncId)))
+            .go();
+        final uniqueTagIds = tagIds.toSet();
+        if (uniqueTagIds.isNotEmpty) {
+          await db.batch((batch) {
+            for (final tagId in uniqueTagIds) {
+              batch.insert(
+                db.transactionTags,
+                TransactionTagsCompanion.insert(
+                  transactionId: txId,
+                  tagId: tagId,
+                ),
+              );
+            }
+          });
+        }
+      }
+
+      final attachments = update.attachments;
+      if (attachments != null) {
+        await (db.delete(db.transactionAttachments)
+              ..where((row) => row.transactionId.equals(txId)))
+            .go();
+        if (attachments.isNotEmpty) {
+          await db.batch((batch) {
+            for (final attachment in attachments) {
+              batch.insert(
+                db.transactionAttachments,
+                TransactionAttachmentsCompanion.insert(
+                  transactionId: txId,
+                  fileName: attachment.fileName,
+                  originalName: d.Value(attachment.originalName),
+                  fileSize: d.Value(attachment.fileSize),
+                  width: d.Value(attachment.width),
+                  height: d.Value(attachment.height),
+                  sortOrder: d.Value(attachment.sortOrder),
+                  cloudFileId: d.Value(attachment.cloudFileId),
+                  cloudSha256: d.Value(attachment.cloudSha256),
+                ),
+              );
+            }
+          });
+        }
+      }
+
+      return txId;
     });
   }
 

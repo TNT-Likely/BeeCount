@@ -47,6 +47,13 @@ class EntitySerializer {
       // 语义等价;省略保持 payload 干净。
       if (tx.currencyCode != null) 'currencyCode': tx.currencyCode,
       if (tx.nativeAmount != null) 'nativeAmount': tx.nativeAmount,
+      // v31 专项预算关联:与 excludeFrom* 不同,这个键**始终**写(unlinked
+      // 时值为 null)。server / 对端约定:JSON 中键存在 + null == 清除关联,
+      // 键缺失 == 保留旧值。partial update 的调用方(sync_engine_serialization
+      // 里的 push 路径)沿用同一 serializer,即"始终发",让"从关联变成 unlink"
+      // 能真正传达到对端;不像 excludeFromStats 那种 tri-state (缺 vs 显示
+      // false),link 必须区分"未提交"与"清除",故显式写 null。
+      'projectBudgetSyncId': tx.projectBudgetSyncId,
       if (ledgerSyncId != null && ledgerSyncId.isNotEmpty)
         'ledgerSyncId': ledgerSyncId,
       'categoryName': categoryName,
@@ -171,12 +178,16 @@ class EntitySerializer {
   /// 预算的跨设备同步 payload。ledgerSyncId / categorySyncId 用于对端 apply
   /// 时把本地 int id 对齐过去(跟 transaction payload 同一套思路)。categoryId
   /// 仅分类预算有值。
+  ///
+  /// v31:专项预算(type='project')在这里携带 5 个额外键
+  /// (name / startAt / endAt / excludeFromMonthlyTotal / status);其他类型
+  /// 只发原有 6 个键。日期用 UTC RFC 3339。
   static Map<String, dynamic> serializeBudget(
     Budget budget, {
     String? ledgerSyncId,
     String? categorySyncId,
   }) {
-    return {
+    final base = <String, dynamic>{
       'syncId': budget.syncId,
       if (ledgerSyncId != null && ledgerSyncId.isNotEmpty)
         'ledgerSyncId': ledgerSyncId,
@@ -188,6 +199,14 @@ class EntitySerializer {
       'startDay': budget.startDay,
       'enabled': budget.enabled,
     };
+    if (budget.type == 'project') {
+      base['name'] = budget.name;
+      base['startAt'] = budget.startAt?.toUtc().toIso8601String();
+      base['endAt'] = budget.endAt?.toUtc().toIso8601String();
+      base['excludeFromMonthlyTotal'] = budget.excludeFromMonthlyTotal;
+      base['status'] = budget.status;
+    }
+    return base;
   }
 
   // ==================== JSON Encode ====================
