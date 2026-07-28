@@ -274,12 +274,6 @@ void main() {
         name: '支付宝',
         currency: 'CNY',
       );
-      // 另一币种账户不参与匹配
-      await repo.createAccount(
-        ledgerId: ledgerId,
-        name: '支付宝',
-        currency: 'USD',
-      );
       final txId = await service.createFromBill(
         bill: BillInfo(
           amount: -30,
@@ -292,6 +286,28 @@ void main() {
       );
       final tx = await repo.getTransactionById(txId!);
       expect(tx?.accountId, acc);
+    });
+
+    test('AI 账户名相等但只有 USD 账户 → CNY 账本不命中', () async {
+      await repo.createAccount(
+        ledgerId: ledgerId,
+        name: '支付宝',
+        currency: 'USD',
+      );
+
+      final txId = await service.createFromBill(
+        bill: BillInfo(
+          amount: -30,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          account: '支付宝',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.accountId, isNull);
     });
 
     test('AI 账户名模糊匹配(account 名是 AI 名的超集)', () async {
@@ -599,8 +615,7 @@ void main() {
         customTagNames: const ['朋友聚餐', '商务'],
       );
       final tags = await repo.getTagsForTransaction(txId!);
-      expect(tags.map((t) => t.name).toSet(),
-          containsAll({'朋友聚餐', '商务'}));
+      expect(tags.map((t) => t.name).toSet(), containsAll({'朋友聚餐', '商务'}));
     });
 
     test('BillInfo.tags 也会被作为标签挂上', () async {

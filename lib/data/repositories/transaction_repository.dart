@@ -12,6 +12,12 @@ class TransactionUpdateBySyncIdData {
   final DateTime happenedAt;
   final String? note;
 
+  /// v31: 专项预算关联。tri-state:
+  ///   dart `null` → Value.absent()(不修改本地关联,批量 diff 默认走这条);
+  ///   `d.Value<String?>(null)` → 显式清除;
+  ///   `d.Value<String?>("x")` → 关联到 syncId=x。
+  final dynamic projectBudgetSyncId;
+
   const TransactionUpdateBySyncIdData({
     required this.syncId,
     required this.type,
@@ -21,6 +27,7 @@ class TransactionUpdateBySyncIdData {
     this.toAccountId,
     required this.happenedAt,
     this.note,
+    this.projectBudgetSyncId,
   });
 }
 
@@ -45,6 +52,21 @@ class BatchAttachmentData {
     this.sortOrder = 0,
     this.cloudFileId,
     this.cloudSha256,
+  });
+}
+
+/// 原子更新一条 existing transaction 及其可选关系集合。
+///
+/// `null` relation list means preserve; an empty list means authoritative clear.
+class TransactionRelationsUpdateBySyncIdData {
+  final TransactionUpdateBySyncIdData transaction;
+  final List<int>? tagIds;
+  final List<BatchAttachmentData>? attachments;
+
+  const TransactionRelationsUpdateBySyncIdData({
+    required this.transaction,
+    this.tagIds,
+    this.attachments,
   });
 }
 
@@ -124,19 +146,40 @@ abstract class TransactionRepository {
   ///
   /// [month] 为周期标签,约定传 DateTime(year, month, 1);实际范围由账本
   /// monthStartDay 决定:[y-m-起始日, y-(m+1)-起始日)。
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryInMonth({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryInMonth({
     required int ledgerId,
     required DateTime month,
   });
 
   /// 获取指定年份的交易记录（带分类信息）
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryInYear({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryInYear({
     required int ledgerId,
     required int year,
   });
 
   /// 获取指定分类和时间范围的交易记录（带分类信息）
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsForCategoryInRange({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsForCategoryInRange({
     required int ledgerId,
     required DateTime start,
     required DateTime end,
@@ -168,6 +211,9 @@ abstract class TransactionRepository {
     // nativeAmount 外币先按有效汇率折算,取不到才 =amount,详设计 02 §六)。
     String? currencyCode,
     double? nativeAmount,
+    // v31: 专项预算关联(仅 expense 有效)。传 syncId 表示关联,null / 缺省表
+    // 示未关联;insert 路径没有"保留旧值"的分支,与 update 语义不同。
+    String? projectBudgetSyncId,
   });
 
   /// 批量新增交易，单事务内插入，返回插入条数。
@@ -225,6 +271,10 @@ abstract class TransactionRepository {
     // 做折算兜底。
     String? currencyCode,
     double? nativeAmount,
+    // v31: 专项预算关联。三态:传 dart `null` = 不修改(保留原值);
+    // 传 `d.Value<String?>(null)` = 显式解除关联;传 `d.Value<String?>(x)`
+    // = 关联到 syncId=x。用 dynamic 与 accountId 的 API 语义保持一致。
+    dynamic projectBudgetSyncId,
   });
 
   /// 删除交易
@@ -303,25 +353,29 @@ abstract class TransactionRepository {
   });
 
   /// 获取指定日期的所有交易（含分类、标签、附件、账户）
-  Future<List<({
-    Transaction t,
-    Category? category,
-    List<Tag> tags,
-    List<TransactionAttachment> attachments,
-    Account? account,
-  })>> getTransactionsByDate({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            List<Tag> tags,
+            List<TransactionAttachment> attachments,
+            Account? account,
+          })>> getTransactionsByDate({
     required int ledgerId,
     required DateTime date,
   });
 
   /// 获取指定时间范围的交易列表（用于日历当月列表）
-  Future<List<({
-    Transaction t,
-    Category? category,
-    List<Tag> tags,
-    List<TransactionAttachment> attachments,
-    Account? account,
-  })>> getTransactionsByDateRange({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            List<Tag> tags,
+            List<TransactionAttachment> attachments,
+            Account? account,
+          })>> getTransactionsByDateRange({
     required int ledgerId,
     required DateTime startDate,
     required DateTime endDate,
@@ -370,6 +424,13 @@ abstract class TransactionRepository {
   /// 调 `updateTransactionTags`(或者更高效的 batch 接口,如果将来加的话)。
   Future<Map<String, int>> updateTransactionsBatchBySyncId(
     List<TransactionUpdateBySyncIdData> updates, {
+    bool recordChanges = true,
+  });
+
+  /// 原子更新一条 existing transaction 的主表、标签与附件元数据。
+  /// 返回 null 表示 syncId 不存在；不会创建新交易。
+  Future<int?> updateTransactionWithRelationsBySyncId(
+    TransactionRelationsUpdateBySyncIdData update, {
     bool recordChanges = true,
   });
 

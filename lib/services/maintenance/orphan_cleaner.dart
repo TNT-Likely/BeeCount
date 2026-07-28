@@ -59,8 +59,8 @@ class OrphanCleaner {
               await _cleanDb(r);
               success++;
             } catch (e, st) {
-              logger.warning('OrphanCleaner',
-                  'DB record ${r.uniqueKey} 失败: $e', st);
+              logger.warning(
+                  'OrphanCleaner', 'DB record ${r.uniqueKey} 失败: $e', st);
               failures.add((record: r, error: e.toString()));
             }
           }
@@ -84,8 +84,8 @@ class OrphanCleaner {
         await _cleanSync(r);
         success++;
       } catch (e, st) {
-        logger.warning('OrphanCleaner',
-            'sync record ${r.uniqueKey} 失败: $e', st);
+        logger.warning(
+            'OrphanCleaner', 'sync record ${r.uniqueKey} 失败: $e', st);
         failures.add((record: r, error: e.toString()));
       }
     }
@@ -95,8 +95,8 @@ class OrphanCleaner {
         await _cleanFile(r);
         success++;
       } catch (e, st) {
-        logger.warning('OrphanCleaner',
-            'file record ${r.uniqueKey} 失败: $e', st);
+        logger.warning(
+            'OrphanCleaner', 'file record ${r.uniqueKey} 失败: $e', st);
         failures.add((record: r, error: e.toString()));
       }
     }
@@ -137,14 +137,25 @@ class OrphanCleaner {
   Future<void> _deleteBudget(OrphanRecord r) async {
     final id = r.localId;
     if (id == null) throw StateError('budget record 缺 localId');
+    final budget = await (db.select(db.budgets)..where((b) => b.id.equals(id)))
+        .getSingleOrNull();
+    final projectSyncId = budget?.type == 'project' ? budget?.syncId : null;
+    if (projectSyncId != null) {
+      final referenced = await (db.select(db.transactions)
+            ..where((t) => t.projectBudgetSyncId.equals(projectSyncId)))
+          .getSingleOrNull();
+      if (referenced != null) {
+        throw StateError(
+            '拒绝清理仍被 transaction 引用的 project budget: $projectSyncId');
+      }
+    }
     await (db.delete(db.budgets)..where((t) => t.id.equals(id))).go();
   }
 
   Future<void> _deleteAttachmentRow(OrphanRecord r) async {
     final id = r.localId;
     if (id == null) throw StateError('attachment record 缺 localId');
-    await (db.delete(db.transactionAttachments)
-          ..where((t) => t.id.equals(id)))
+    await (db.delete(db.transactionAttachments)..where((t) => t.id.equals(id)))
         .go();
   }
 
@@ -162,12 +173,10 @@ class OrphanCleaner {
     final clearToAccount = (r.extra?['toAccountMissing'] as bool?) ?? false;
     await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(
-        accountId: clearAccount
-            ? const d.Value<int?>(null)
-            : const d.Value.absent(),
-        toAccountId: clearToAccount
-            ? const d.Value<int?>(null)
-            : const d.Value.absent(),
+        accountId:
+            clearAccount ? const d.Value<int?>(null) : const d.Value.absent(),
+        toAccountId:
+            clearToAccount ? const d.Value<int?>(null) : const d.Value.absent(),
       ),
     );
   }

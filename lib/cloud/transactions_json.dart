@@ -140,9 +140,8 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
 
     // 记录分类缺失的交易（用于排查数据问题）
     if (t.categoryId != null && catInfo == null) {
-      logger.warning('TransactionsJson',
-        '交易 ${t.id} 引用了不存在的分类 ${t.categoryId}, '
-        'amount=${t.amount}, note=${t.note}, happenedAt=${t.happenedAt}');
+      logger.warning(
+          'TransactionsJson', '交易 ${t.id} 引用了不存在的分类 ${t.categoryId}');
     }
 
     final item = <String, dynamic>{
@@ -153,6 +152,9 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
       'happenedAt': t.happenedAt.toUtc().toIso8601String(),
       'note': _sanitizeString(t.note),
       if (t.syncId != null) 'syncId': t.syncId,
+      // v31: v7 快照始终携带专项预算关联(unlinked 时值为 null),让 parser
+      // 能区分"未提交更改"与"清除关联"。
+      'projectBudgetSyncId': t.projectBudgetSyncId,
     };
 
     // 添加账户信息
@@ -181,7 +183,8 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
   }).toList();
 
   // v1.20.0: 导出附件元数据
-  final attachmentsMap = <int, List<Map<String, dynamic>>>{}; // transactionId -> attachments
+  final attachmentsMap =
+      <int, List<Map<String, dynamic>>>{}; // transactionId -> attachments
   if (txIds.isNotEmpty) {
     final allAttachments = await (db.select(db.transactionAttachments)
           ..where((a) => a.transactionId.isIn(txIds)))
@@ -279,8 +282,43 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
     throw Exception('账本 $ledgerId 不存在');
   }
 
+  // v31: 拉本账本预算(不受 enabled 过滤,快照要真实反映所有 total/category/project
+  // 行);为分类预算解析 categoryName 让接收方按 name 挂 categoryId。
+  final ledgerBudgets = await (db.select(db.budgets)
+        ..where((b) => b.ledgerId.equals(ledgerId)))
+      .get();
+  final budgetItems = <Map<String, dynamic>>[];
+  for (final b in ledgerBudgets) {
+    String? categoryName;
+    if (b.categoryId != null) {
+      final c = await (db.select(db.categories)
+            ..where((c) => c.id.equals(b.categoryId!)))
+          .getSingleOrNull();
+      categoryName = c != null ? _sanitizeString(c.name) : null;
+    }
+    final m = <String, dynamic>{
+      if (b.syncId != null) 'syncId': b.syncId,
+      if (ledger.syncId != null) 'ledgerSyncId': ledger.syncId,
+      'type': b.type,
+      'amount': b.amount,
+      'period': b.period,
+      'startDay': b.startDay,
+      'enabled': b.enabled,
+      if (categoryName != null) 'categoryName': categoryName,
+    };
+    if (b.type == 'project') {
+      m['name'] = b.name;
+      m['startAt'] = b.startAt?.toUtc().toIso8601String();
+      m['endAt'] = b.endAt?.toUtc().toIso8601String();
+      m['excludeFromMonthlyTotal'] = b.excludeFromMonthlyTotal;
+      m['status'] = b.status;
+    }
+    budgetItems.add(m);
+  }
+
   final payload = {
-    'version': 6, // 版本升级,新增 syncId 用于跨设备同步
+    'version':
+        7, // v31: v7 新增 top-level `budgets` + items 的 projectBudgetSyncId
     'exportedAt': DateTime.now().toUtc().toIso8601String(),
     'ledgerId': ledgerId,
     'ledgerName': ledger.name,
@@ -290,10 +328,12 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
     'accounts': accountItems,
     'categories': categoryItems,
     'tags': tagItems, // 新增：标签信息
+    'budgets': budgetItems,
     'items': items,
   };
 
-  logger.debug('TransactionsJson', '导出完成: ${items.length} 条交易, ${categoryItems.length} 个分类');
+  logger.debug('TransactionsJson',
+      '导出完成: ${items.length} 条交易, ${categoryItems.length} 个分类');
   return jsonEncode(payload);
 }
 
@@ -302,18 +342,33 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
 /// 将 JSON 数据转换为统一的 ImportData 格式
 ImportData parseJsonToImportData(String jsonStr) {
   final data = jsonDecode(jsonStr) as Map<String, dynamic>;
+  final version = data['version'];
+  if (version is! int) {
+    throw const FormatException('Snapshot version must be an integer');
+  }
+  if (version > 7) {
+    throw FormatException('Unsupported snapshot version: $version');
+  }
 
   // 解析账户
   final accounts = <ImportAccount>[];
   final jsonAccounts = data['accounts'] as List?;
   if (jsonAccounts != null) {
-    for (final acc in jsonAccounts.cast<Map<String, dynamic>>()) {
-      accounts.add(ImportAccount(
-        name: acc['name'] as String,
-        type: acc['type'] as String?,
-        currency: acc['currency'] as String?,
-        initialBalance: (acc['initialBalance'] as num?)?.toDouble(),
-      ));
+    for (final raw in jsonAccounts) {
+      try {
+        if (raw is! Map) {
+          continue;
+        }
+        final acc = Map<String, dynamic>.from(raw);
+        accounts.add(ImportAccount(
+          name: acc['name'] as String,
+          type: acc['type'] as String?,
+          currency: acc['currency'] as String?,
+          initialBalance: (acc['initialBalance'] as num?)?.toDouble(),
+        ));
+      } catch (_) {
+        continue;
+      }
     }
   }
 
@@ -321,18 +376,26 @@ ImportData parseJsonToImportData(String jsonStr) {
   final categories = <ImportCategory>[];
   final jsonCategories = data['categories'] as List?;
   if (jsonCategories != null) {
-    for (final cat in jsonCategories.cast<Map<String, dynamic>>()) {
-      categories.add(ImportCategory(
-        name: cat['name'] as String,
-        kind: cat['kind'] as String,
-        level: cat['level'] as int? ?? 1,
-        sortOrder: cat['sortOrder'] as int? ?? 0,
-        icon: cat['icon'] as String?,
-        parentName: cat['parentName'] as String?,
-        iconType: cat['iconType'] as String?,
-        customIconPath: cat['customIconPath'] as String?,
-        communityIconId: cat['communityIconId'] as String?,
-      ));
+    for (final raw in jsonCategories) {
+      try {
+        if (raw is! Map) {
+          continue;
+        }
+        final cat = Map<String, dynamic>.from(raw);
+        categories.add(ImportCategory(
+          name: cat['name'] as String,
+          kind: cat['kind'] as String,
+          level: cat['level'] as int? ?? 1,
+          sortOrder: cat['sortOrder'] as int? ?? 0,
+          icon: cat['icon'] as String?,
+          parentName: cat['parentName'] as String?,
+          iconType: cat['iconType'] as String?,
+          customIconPath: cat['customIconPath'] as String?,
+          communityIconId: cat['communityIconId'] as String?,
+        ));
+      } catch (_) {
+        continue;
+      }
     }
   }
 
@@ -340,11 +403,19 @@ ImportData parseJsonToImportData(String jsonStr) {
   final tags = <ImportTag>[];
   final jsonTags = data['tags'] as List?;
   if (jsonTags != null) {
-    for (final tag in jsonTags.cast<Map<String, dynamic>>()) {
-      tags.add(ImportTag(
-        name: tag['name'] as String,
-        color: tag['color']?.toString(),
-      ));
+    for (final raw in jsonTags) {
+      try {
+        if (raw is! Map) {
+          continue;
+        }
+        final tag = Map<String, dynamic>.from(raw);
+        tags.add(ImportTag(
+          name: tag['name'] as String,
+          color: tag['color']?.toString(),
+        ));
+      } catch (_) {
+        continue;
+      }
     }
   }
 
@@ -352,48 +423,168 @@ ImportData parseJsonToImportData(String jsonStr) {
   final transactions = <ImportTransaction>[];
   final jsonItems = data['items'] as List?;
   if (jsonItems != null) {
-    for (final it in jsonItems.cast<Map<String, dynamic>>()) {
-      // 解析标签名称列表
-      List<String>? tagNames;
-      final tagsStr = it['tags'] as String?;
-      if (tagsStr != null && tagsStr.trim().isNotEmpty) {
-        tagNames = tagsStr.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
-      }
+    for (final raw in jsonItems) {
+      try {
+        if (raw is! Map) {
+          continue;
+        }
+        final it = Map<String, dynamic>.from(raw);
+        final projectBudgetSyncIdPresent =
+            it.containsKey('projectBudgetSyncId');
+        final projectBudgetSyncId = it['projectBudgetSyncId'];
+        if (version == 7 &&
+            (!projectBudgetSyncIdPresent ||
+                (projectBudgetSyncId != null &&
+                    projectBudgetSyncId is! String))) {
+          continue;
+        }
 
-      // 解析附件元数据
-      List<ImportAttachment>? attachments;
-      final jsonAttachments = it['attachments'] as List?;
-      if (jsonAttachments != null && jsonAttachments.isNotEmpty) {
-        attachments = jsonAttachments.cast<Map<String, dynamic>>().map((a) {
-          return ImportAttachment(
-            fileName: a['fileName'] as String,
-            originalName: a['originalName'] as String?,
-            fileSize: a['fileSize'] as int?,
-            width: a['width'] as int?,
-            height: a['height'] as int?,
-            sortOrder: a['sortOrder'] as int? ?? 0,
-            cloudFileId: a['cloudFileId'] as String?,
-            cloudSha256: a['cloudSha256'] as String?,
-          );
-        }).toList();
-      }
+        // 解析标签名称列表
+        List<String>? tagNames;
+        final tagsStr = it['tags'] as String?;
+        if (tagsStr != null && tagsStr.trim().isNotEmpty) {
+          tagNames = tagsStr
+              .split(',')
+              .map((s) => s.trim())
+              .where((s) => s.isNotEmpty)
+              .toList();
+        }
+        // v6/v7 are complete snapshots: omitted/empty `tags` is an
+        // authoritative empty relation set, not "preserve local".
+        final tagNamesPresent = version >= 6 || it.containsKey('tags');
+        if (tagNamesPresent && tagNames == null) tagNames = <String>[];
 
-      final type = it['type'] as String;
-      transactions.add(ImportTransaction(
-        type: type,
-        amount: (it['amount'] as num).toDouble(),
-        categoryName: it['categoryName'] as String?,
-        categoryKind: it['categoryKind'] as String?,
-        happenedAt: DateTime.parse(it['happenedAt'] as String).toLocal(),
-        note: it['note'] as String?,
-        // 账户信息：转账用 fromAccountName/toAccountName，其他用 accountName
-        accountName: type != 'transfer' ? it['accountName'] as String? : null,
-        fromAccountName: type == 'transfer' ? it['fromAccountName'] as String? : null,
-        toAccountName: type == 'transfer' ? it['toAccountName'] as String? : null,
-        tagNames: tagNames,
-        attachments: attachments,
-        syncId: it['syncId'] as String?,
-      ));
+        // 解析附件元数据
+        List<ImportAttachment>? attachments;
+        // v6+ are complete snapshots. Their exporter historically omitted the
+        // key when a transaction had zero attachments, so omission is an
+        // authoritative empty relation set (matching fingerprint semantics).
+        final attachmentsPresent =
+            version >= 6 || it.containsKey('attachments');
+        if (attachmentsPresent) {
+          final rawAttachments = it['attachments'];
+          if (rawAttachments != null && rawAttachments is! List) {
+            throw const FormatException('attachments must be a list or null');
+          }
+          final jsonAttachments = (rawAttachments as List?) ?? const [];
+          attachments = jsonAttachments.cast<Map<String, dynamic>>().map((a) {
+            return ImportAttachment(
+              fileName: a['fileName'] as String,
+              originalName: a['originalName'] as String?,
+              fileSize: a['fileSize'] as int?,
+              width: a['width'] as int?,
+              height: a['height'] as int?,
+              sortOrder: a['sortOrder'] as int? ?? 0,
+              cloudFileId: a['cloudFileId'] as String?,
+              cloudSha256: a['cloudSha256'] as String?,
+            );
+          }).toList();
+        }
+
+        final type = it['type'] as String;
+        transactions.add(ImportTransaction(
+          type: type,
+          amount: (it['amount'] as num).toDouble(),
+          categoryName: it['categoryName'] as String?,
+          categoryKind: it['categoryKind'] as String?,
+          happenedAt: DateTime.parse(it['happenedAt'] as String).toLocal(),
+          note: it['note'] as String?,
+          // 账户信息：转账用 fromAccountName/toAccountName，其他用 accountName
+          accountName: type != 'transfer' ? it['accountName'] as String? : null,
+          fromAccountName:
+              type == 'transfer' ? it['fromAccountName'] as String? : null,
+          toAccountName:
+              type == 'transfer' ? it['toAccountName'] as String? : null,
+          tagNames: tagNames,
+          tagNamesPresent: tagNamesPresent,
+          attachments: attachments,
+          attachmentsPresent: attachmentsPresent,
+          syncId: it['syncId'] as String?,
+          // v31 tri-state:v6 快照没有 projectBudgetSyncId 键 → present=false 让
+          // sync_diff 走"保留本地"(Value.absent);v7 快照始终携带此键(含 null)
+          // → present=true,值直接反映"清除 vs 关联"意图。
+          projectBudgetSyncId: projectBudgetSyncId as String?,
+          projectBudgetSyncIdPresent: projectBudgetSyncIdPresent,
+        ));
+      } catch (_) {
+        continue;
+      }
+    }
+  }
+
+  // v31: 解析 budgets 数组(v7 快照新增,v6 快照无此键 → 空 list)。
+  final budgets = <ImportBudget>[];
+  final jsonBudgets = data['budgets'] as List?;
+  if (jsonBudgets != null) {
+    for (final raw in jsonBudgets) {
+      try {
+        if (raw is! Map) {
+          continue;
+        }
+        final b = Map<String, dynamic>.from(raw);
+        final syncId = b['syncId'] as String?;
+        if (syncId == null || syncId.isEmpty) {
+          continue; // 没 syncId 的预算无法幂等 upsert
+        }
+        final type = b['type'] as String? ?? 'total';
+        // v7 project 是严格合同：关键字段缺失不能以 false/active 默认值伪造
+        // 合法预算，否则后续 import 无法区分坏 payload 与真实业务值。
+        if (version == 7 && type == 'project') {
+          final name = b['name'];
+          final amountValue = b['amount'];
+          final startAtValue = b['startAt'];
+          final endAtValue = b['endAt'];
+          final excludeFromMonthlyTotal = b['excludeFromMonthlyTotal'];
+          final status = b['status'];
+          final projectAmount =
+              amountValue is num ? amountValue.toDouble() : double.nan;
+          if (!projectAmount.isFinite ||
+              projectAmount <= 0 ||
+              name is! String ||
+              name.trim().isEmpty ||
+              startAtValue is! String ||
+              endAtValue is! String ||
+              excludeFromMonthlyTotal is! bool ||
+              status is! String ||
+              (status != 'planned' &&
+                  status != 'active' &&
+                  status != 'archived')) {
+            continue;
+          }
+          final startAt = DateTime.tryParse(startAtValue)?.toUtc();
+          final endAt = DateTime.tryParse(endAtValue)?.toUtc();
+          if (startAt == null || endAt == null || !startAt.isBefore(endAt)) {
+            continue;
+          }
+        }
+        DateTime? startAt;
+        final startAtStr = b['startAt'] as String?;
+        if (startAtStr != null) {
+          startAt = DateTime.tryParse(startAtStr)?.toUtc();
+        }
+        DateTime? endAt;
+        final endAtStr = b['endAt'] as String?;
+        if (endAtStr != null) {
+          endAt = DateTime.tryParse(endAtStr)?.toUtc();
+        }
+        budgets.add(ImportBudget(
+          syncId: syncId,
+          type: type,
+          amount: (b['amount'] as num?)?.toDouble() ?? 0.0,
+          period: b['period'] as String? ?? 'monthly',
+          startDay: (b['startDay'] as num?)?.toInt() ?? 1,
+          enabled: b['enabled'] as bool? ?? true,
+          categoryName: b['categoryName'] as String?,
+          name: b['name'] as String?,
+          startAt: startAt,
+          endAt: endAt,
+          excludeFromMonthlyTotal:
+              b['excludeFromMonthlyTotal'] as bool? ?? false,
+          status: b['status'] as String? ?? 'active',
+        ));
+      } catch (_) {
+        continue;
+      }
     }
   }
 
@@ -404,6 +595,7 @@ ImportData parseJsonToImportData(String jsonStr) {
     categories: categories,
     tags: tags,
     transactions: transactions,
+    budgets: budgets,
     ledgerName: data['ledgerName'] as String?,
     currency: data['currency'] as String?,
   );

@@ -2013,6 +2013,12 @@ class $TransactionsTable extends Transactions
   late final GeneratedColumn<double> nativeAmount = GeneratedColumn<double>(
       'native_amount', aliasedName, true,
       type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _projectBudgetSyncIdMeta =
+      const VerificationMeta('projectBudgetSyncId');
+  @override
+  late final GeneratedColumn<String> projectBudgetSyncId =
+      GeneratedColumn<String>('project_budget_sync_id', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -2035,7 +2041,8 @@ class $TransactionsTable extends Transactions
         excludeFromStats,
         excludeFromBudget,
         currencyCode,
-        nativeAmount
+        nativeAmount,
+        projectBudgetSyncId
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2165,6 +2172,12 @@ class $TransactionsTable extends Transactions
           nativeAmount.isAcceptableOrUnknown(
               data['native_amount']!, _nativeAmountMeta));
     }
+    if (data.containsKey('project_budget_sync_id')) {
+      context.handle(
+          _projectBudgetSyncIdMeta,
+          projectBudgetSyncId.isAcceptableOrUnknown(
+              data['project_budget_sync_id']!, _projectBudgetSyncIdMeta));
+    }
     return context;
   }
 
@@ -2219,6 +2232,9 @@ class $TransactionsTable extends Transactions
           .read(DriftSqlType.string, data['${effectivePrefix}currency_code']),
       nativeAmount: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}native_amount']),
+      projectBudgetSyncId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}project_budget_sync_id']),
     );
   }
 
@@ -2263,6 +2279,15 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   /// 单币种/未折算 == amount(隐含汇率 1.0)。账本维度统计读本列(?? amount),
   /// 账户维度(余额等)仍读 amount。
   final double? nativeAmount;
+
+  /// v31:专项预算关联的稳定 syncId(指向 budgets.type='project' 的行)。
+  /// 语义:
+  /// - 只对 type='expense' 有效;转账/收入不挂专项。
+  /// - JSON 明确写 null → 清除关联(SQL NULL)。partial payload 中省略键
+  ///   → 保留旧关联(不写);全量 snapshot 中始终携带,unlinked 时值为 null。
+  /// - 引用的必须是同账本 type=project 行(不做 SQLite FK,orphan/跨账本
+  ///   由 App/server 校验)。
+  final String? projectBudgetSyncId;
   const Transaction(
       {required this.id,
       required this.ledgerId,
@@ -2284,7 +2309,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       required this.excludeFromStats,
       required this.excludeFromBudget,
       this.currencyCode,
-      this.nativeAmount});
+      this.nativeAmount,
+      this.projectBudgetSyncId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2339,6 +2365,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     if (!nullToAbsent || nativeAmount != null) {
       map['native_amount'] = Variable<double>(nativeAmount);
     }
+    if (!nullToAbsent || projectBudgetSyncId != null) {
+      map['project_budget_sync_id'] = Variable<String>(projectBudgetSyncId);
+    }
     return map;
   }
 
@@ -2390,6 +2419,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       nativeAmount: nativeAmount == null && nullToAbsent
           ? const Value.absent()
           : Value(nativeAmount),
+      projectBudgetSyncId: projectBudgetSyncId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(projectBudgetSyncId),
     );
   }
 
@@ -2423,6 +2455,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       excludeFromBudget: serializer.fromJson<bool>(json['excludeFromBudget']),
       currencyCode: serializer.fromJson<String?>(json['currencyCode']),
       nativeAmount: serializer.fromJson<double?>(json['nativeAmount']),
+      projectBudgetSyncId:
+          serializer.fromJson<String?>(json['projectBudgetSyncId']),
     );
   }
   @override
@@ -2453,6 +2487,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'excludeFromBudget': serializer.toJson<bool>(excludeFromBudget),
       'currencyCode': serializer.toJson<String?>(currencyCode),
       'nativeAmount': serializer.toJson<double?>(nativeAmount),
+      'projectBudgetSyncId': serializer.toJson<String?>(projectBudgetSyncId),
     };
   }
 
@@ -2477,7 +2512,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           bool? excludeFromStats,
           bool? excludeFromBudget,
           Value<String?> currencyCode = const Value.absent(),
-          Value<double?> nativeAmount = const Value.absent()}) =>
+          Value<double?> nativeAmount = const Value.absent(),
+          Value<String?> projectBudgetSyncId = const Value.absent()}) =>
       Transaction(
         id: id ?? this.id,
         ledgerId: ledgerId ?? this.ledgerId,
@@ -2514,6 +2550,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
             currencyCode.present ? currencyCode.value : this.currencyCode,
         nativeAmount:
             nativeAmount.present ? nativeAmount.value : this.nativeAmount,
+        projectBudgetSyncId: projectBudgetSyncId.present
+            ? projectBudgetSyncId.value
+            : this.projectBudgetSyncId,
       );
   Transaction copyWithCompanion(TransactionsCompanion data) {
     return Transaction(
@@ -2562,6 +2601,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       nativeAmount: data.nativeAmount.present
           ? data.nativeAmount.value
           : this.nativeAmount,
+      projectBudgetSyncId: data.projectBudgetSyncId.present
+          ? data.projectBudgetSyncId.value
+          : this.projectBudgetSyncId,
     );
   }
 
@@ -2588,7 +2630,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('excludeFromStats: $excludeFromStats, ')
           ..write('excludeFromBudget: $excludeFromBudget, ')
           ..write('currencyCode: $currencyCode, ')
-          ..write('nativeAmount: $nativeAmount')
+          ..write('nativeAmount: $nativeAmount, ')
+          ..write('projectBudgetSyncId: $projectBudgetSyncId')
           ..write(')'))
         .toString();
   }
@@ -2615,7 +2658,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
         excludeFromStats,
         excludeFromBudget,
         currencyCode,
-        nativeAmount
+        nativeAmount,
+        projectBudgetSyncId
       ]);
   @override
   bool operator ==(Object other) =>
@@ -2641,7 +2685,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.excludeFromStats == this.excludeFromStats &&
           other.excludeFromBudget == this.excludeFromBudget &&
           other.currencyCode == this.currencyCode &&
-          other.nativeAmount == this.nativeAmount);
+          other.nativeAmount == this.nativeAmount &&
+          other.projectBudgetSyncId == this.projectBudgetSyncId);
 }
 
 class TransactionsCompanion extends UpdateCompanion<Transaction> {
@@ -2666,6 +2711,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<bool> excludeFromBudget;
   final Value<String?> currencyCode;
   final Value<double?> nativeAmount;
+  final Value<String?> projectBudgetSyncId;
   const TransactionsCompanion({
     this.id = const Value.absent(),
     this.ledgerId = const Value.absent(),
@@ -2688,6 +2734,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.excludeFromBudget = const Value.absent(),
     this.currencyCode = const Value.absent(),
     this.nativeAmount = const Value.absent(),
+    this.projectBudgetSyncId = const Value.absent(),
   });
   TransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -2711,6 +2758,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.excludeFromBudget = const Value.absent(),
     this.currencyCode = const Value.absent(),
     this.nativeAmount = const Value.absent(),
+    this.projectBudgetSyncId = const Value.absent(),
   })  : ledgerId = Value(ledgerId),
         type = Value(type),
         amount = Value(amount);
@@ -2736,6 +2784,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<bool>? excludeFromBudget,
     Expression<String>? currencyCode,
     Expression<double>? nativeAmount,
+    Expression<String>? projectBudgetSyncId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2764,6 +2813,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (excludeFromBudget != null) 'exclude_from_budget': excludeFromBudget,
       if (currencyCode != null) 'currency_code': currencyCode,
       if (nativeAmount != null) 'native_amount': nativeAmount,
+      if (projectBudgetSyncId != null)
+        'project_budget_sync_id': projectBudgetSyncId,
     });
   }
 
@@ -2788,7 +2839,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       Value<bool>? excludeFromStats,
       Value<bool>? excludeFromBudget,
       Value<String?>? currencyCode,
-      Value<double?>? nativeAmount}) {
+      Value<double?>? nativeAmount,
+      Value<String?>? projectBudgetSyncId}) {
     return TransactionsCompanion(
       id: id ?? this.id,
       ledgerId: ledgerId ?? this.ledgerId,
@@ -2814,6 +2866,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       excludeFromBudget: excludeFromBudget ?? this.excludeFromBudget,
       currencyCode: currencyCode ?? this.currencyCode,
       nativeAmount: nativeAmount ?? this.nativeAmount,
+      projectBudgetSyncId: projectBudgetSyncId ?? this.projectBudgetSyncId,
     );
   }
 
@@ -2887,6 +2940,10 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (nativeAmount.present) {
       map['native_amount'] = Variable<double>(nativeAmount.value);
     }
+    if (projectBudgetSyncId.present) {
+      map['project_budget_sync_id'] =
+          Variable<String>(projectBudgetSyncId.value);
+    }
     return map;
   }
 
@@ -2913,7 +2970,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('excludeFromStats: $excludeFromStats, ')
           ..write('excludeFromBudget: $excludeFromBudget, ')
           ..write('currencyCode: $currencyCode, ')
-          ..write('nativeAmount: $nativeAmount')
+          ..write('nativeAmount: $nativeAmount, ')
+          ..write('projectBudgetSyncId: $projectBudgetSyncId')
           ..write(')'))
         .toString();
   }
@@ -5162,6 +5220,39 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
       type: DriftSqlType.dateTime,
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _startAtMeta =
+      const VerificationMeta('startAt');
+  @override
+  late final GeneratedColumn<DateTime> startAt = GeneratedColumn<DateTime>(
+      'start_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _endAtMeta = const VerificationMeta('endAt');
+  @override
+  late final GeneratedColumn<DateTime> endAt = GeneratedColumn<DateTime>(
+      'end_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _excludeFromMonthlyTotalMeta =
+      const VerificationMeta('excludeFromMonthlyTotal');
+  @override
+  late final GeneratedColumn<bool> excludeFromMonthlyTotal =
+      GeneratedColumn<bool>('exclude_from_monthly_total', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("exclude_from_monthly_total" IN (0, 1))'),
+          defaultValue: const Constant(false));
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('active'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -5174,7 +5265,12 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
         startDay,
         enabled,
         createdAt,
-        updatedAt
+        updatedAt,
+        name,
+        startAt,
+        endAt,
+        excludeFromMonthlyTotal,
+        status
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5235,6 +5331,29 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
       context.handle(_updatedAtMeta,
           updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
     }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    }
+    if (data.containsKey('start_at')) {
+      context.handle(_startAtMeta,
+          startAt.isAcceptableOrUnknown(data['start_at']!, _startAtMeta));
+    }
+    if (data.containsKey('end_at')) {
+      context.handle(
+          _endAtMeta, endAt.isAcceptableOrUnknown(data['end_at']!, _endAtMeta));
+    }
+    if (data.containsKey('exclude_from_monthly_total')) {
+      context.handle(
+          _excludeFromMonthlyTotalMeta,
+          excludeFromMonthlyTotal.isAcceptableOrUnknown(
+              data['exclude_from_monthly_total']!,
+              _excludeFromMonthlyTotalMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
     return context;
   }
 
@@ -5266,6 +5385,17 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name']),
+      startAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_at']),
+      endAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}end_at']),
+      excludeFromMonthlyTotal: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool,
+          data['${effectivePrefix}exclude_from_monthly_total'])!,
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
     );
   }
 
@@ -5308,6 +5438,26 @@ class Budget extends DataClass implements Insertable<Budget> {
 
   /// 更新时间
   final DateTime updatedAt;
+
+  /// 项目名称。type='project' 时 trim 后非空必填;total/category 行为 null。
+  final String? name;
+
+  /// 项目起始时刻(半开区间左端点,inclusive)。UTC 存储,wire 用 UTC RFC 3339。
+  /// type='project' 必填,且早于 endAt。
+  final DateTime? startAt;
+
+  /// 项目结束时刻(半开区间右端点,**exclusive**)。UTC 存储,wire 用 UTC RFC 3339。
+  final DateTime? endAt;
+
+  /// 项目支出是否从总月度预算 usage 中剔除(true=剔除)。仅影响 total budget
+  /// 的 usage,不影响 excludeFromStats/excludeFromBudget。DB 默认 false;
+  /// 项目创建时默认 true(合同要求,由 repository 保证)。
+  final bool excludeFromMonthlyTotal;
+
+  /// 项目生命周期。允许值:'planned' / 'active' / 'archived'。
+  /// 归档只读,可 reactivate 回 active。legacy `enabled` 对 project 行无效,
+  /// 仅为兼容其他类型保留。
+  final String status;
   const Budget(
       {required this.id,
       this.syncId,
@@ -5319,7 +5469,12 @@ class Budget extends DataClass implements Insertable<Budget> {
       required this.startDay,
       required this.enabled,
       required this.createdAt,
-      required this.updatedAt});
+      required this.updatedAt,
+      this.name,
+      this.startAt,
+      this.endAt,
+      required this.excludeFromMonthlyTotal,
+      required this.status});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5338,6 +5493,17 @@ class Budget extends DataClass implements Insertable<Budget> {
     map['enabled'] = Variable<bool>(enabled);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || startAt != null) {
+      map['start_at'] = Variable<DateTime>(startAt);
+    }
+    if (!nullToAbsent || endAt != null) {
+      map['end_at'] = Variable<DateTime>(endAt);
+    }
+    map['exclude_from_monthly_total'] = Variable<bool>(excludeFromMonthlyTotal);
+    map['status'] = Variable<String>(status);
     return map;
   }
 
@@ -5357,6 +5523,14 @@ class Budget extends DataClass implements Insertable<Budget> {
       enabled: Value(enabled),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      startAt: startAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startAt),
+      endAt:
+          endAt == null && nullToAbsent ? const Value.absent() : Value(endAt),
+      excludeFromMonthlyTotal: Value(excludeFromMonthlyTotal),
+      status: Value(status),
     );
   }
 
@@ -5375,6 +5549,12 @@ class Budget extends DataClass implements Insertable<Budget> {
       enabled: serializer.fromJson<bool>(json['enabled']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      name: serializer.fromJson<String?>(json['name']),
+      startAt: serializer.fromJson<DateTime?>(json['startAt']),
+      endAt: serializer.fromJson<DateTime?>(json['endAt']),
+      excludeFromMonthlyTotal:
+          serializer.fromJson<bool>(json['excludeFromMonthlyTotal']),
+      status: serializer.fromJson<String>(json['status']),
     );
   }
   @override
@@ -5392,6 +5572,12 @@ class Budget extends DataClass implements Insertable<Budget> {
       'enabled': serializer.toJson<bool>(enabled),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'name': serializer.toJson<String?>(name),
+      'startAt': serializer.toJson<DateTime?>(startAt),
+      'endAt': serializer.toJson<DateTime?>(endAt),
+      'excludeFromMonthlyTotal':
+          serializer.toJson<bool>(excludeFromMonthlyTotal),
+      'status': serializer.toJson<String>(status),
     };
   }
 
@@ -5406,7 +5592,12 @@ class Budget extends DataClass implements Insertable<Budget> {
           int? startDay,
           bool? enabled,
           DateTime? createdAt,
-          DateTime? updatedAt}) =>
+          DateTime? updatedAt,
+          Value<String?> name = const Value.absent(),
+          Value<DateTime?> startAt = const Value.absent(),
+          Value<DateTime?> endAt = const Value.absent(),
+          bool? excludeFromMonthlyTotal,
+          String? status}) =>
       Budget(
         id: id ?? this.id,
         syncId: syncId.present ? syncId.value : this.syncId,
@@ -5419,6 +5610,12 @@ class Budget extends DataClass implements Insertable<Budget> {
         enabled: enabled ?? this.enabled,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
+        name: name.present ? name.value : this.name,
+        startAt: startAt.present ? startAt.value : this.startAt,
+        endAt: endAt.present ? endAt.value : this.endAt,
+        excludeFromMonthlyTotal:
+            excludeFromMonthlyTotal ?? this.excludeFromMonthlyTotal,
+        status: status ?? this.status,
       );
   Budget copyWithCompanion(BudgetsCompanion data) {
     return Budget(
@@ -5434,6 +5631,13 @@ class Budget extends DataClass implements Insertable<Budget> {
       enabled: data.enabled.present ? data.enabled.value : this.enabled,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      name: data.name.present ? data.name.value : this.name,
+      startAt: data.startAt.present ? data.startAt.value : this.startAt,
+      endAt: data.endAt.present ? data.endAt.value : this.endAt,
+      excludeFromMonthlyTotal: data.excludeFromMonthlyTotal.present
+          ? data.excludeFromMonthlyTotal.value
+          : this.excludeFromMonthlyTotal,
+      status: data.status.present ? data.status.value : this.status,
     );
   }
 
@@ -5450,14 +5654,34 @@ class Budget extends DataClass implements Insertable<Budget> {
           ..write('startDay: $startDay, ')
           ..write('enabled: $enabled, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('name: $name, ')
+          ..write('startAt: $startAt, ')
+          ..write('endAt: $endAt, ')
+          ..write('excludeFromMonthlyTotal: $excludeFromMonthlyTotal, ')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, syncId, ledgerId, type, categoryId,
-      amount, period, startDay, enabled, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      id,
+      syncId,
+      ledgerId,
+      type,
+      categoryId,
+      amount,
+      period,
+      startDay,
+      enabled,
+      createdAt,
+      updatedAt,
+      name,
+      startAt,
+      endAt,
+      excludeFromMonthlyTotal,
+      status);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5472,7 +5696,12 @@ class Budget extends DataClass implements Insertable<Budget> {
           other.startDay == this.startDay &&
           other.enabled == this.enabled &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.name == this.name &&
+          other.startAt == this.startAt &&
+          other.endAt == this.endAt &&
+          other.excludeFromMonthlyTotal == this.excludeFromMonthlyTotal &&
+          other.status == this.status);
 }
 
 class BudgetsCompanion extends UpdateCompanion<Budget> {
@@ -5487,6 +5716,11 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
   final Value<bool> enabled;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<String?> name;
+  final Value<DateTime?> startAt;
+  final Value<DateTime?> endAt;
+  final Value<bool> excludeFromMonthlyTotal;
+  final Value<String> status;
   const BudgetsCompanion({
     this.id = const Value.absent(),
     this.syncId = const Value.absent(),
@@ -5499,6 +5733,11 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     this.enabled = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.name = const Value.absent(),
+    this.startAt = const Value.absent(),
+    this.endAt = const Value.absent(),
+    this.excludeFromMonthlyTotal = const Value.absent(),
+    this.status = const Value.absent(),
   });
   BudgetsCompanion.insert({
     this.id = const Value.absent(),
@@ -5512,6 +5751,11 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     this.enabled = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.name = const Value.absent(),
+    this.startAt = const Value.absent(),
+    this.endAt = const Value.absent(),
+    this.excludeFromMonthlyTotal = const Value.absent(),
+    this.status = const Value.absent(),
   })  : ledgerId = Value(ledgerId),
         amount = Value(amount);
   static Insertable<Budget> custom({
@@ -5526,6 +5770,11 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     Expression<bool>? enabled,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<String>? name,
+    Expression<DateTime>? startAt,
+    Expression<DateTime>? endAt,
+    Expression<bool>? excludeFromMonthlyTotal,
+    Expression<String>? status,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -5539,6 +5788,12 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
       if (enabled != null) 'enabled': enabled,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (name != null) 'name': name,
+      if (startAt != null) 'start_at': startAt,
+      if (endAt != null) 'end_at': endAt,
+      if (excludeFromMonthlyTotal != null)
+        'exclude_from_monthly_total': excludeFromMonthlyTotal,
+      if (status != null) 'status': status,
     });
   }
 
@@ -5553,7 +5808,12 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
       Value<int>? startDay,
       Value<bool>? enabled,
       Value<DateTime>? createdAt,
-      Value<DateTime>? updatedAt}) {
+      Value<DateTime>? updatedAt,
+      Value<String?>? name,
+      Value<DateTime?>? startAt,
+      Value<DateTime?>? endAt,
+      Value<bool>? excludeFromMonthlyTotal,
+      Value<String>? status}) {
     return BudgetsCompanion(
       id: id ?? this.id,
       syncId: syncId ?? this.syncId,
@@ -5566,6 +5826,12 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
       enabled: enabled ?? this.enabled,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      name: name ?? this.name,
+      startAt: startAt ?? this.startAt,
+      endAt: endAt ?? this.endAt,
+      excludeFromMonthlyTotal:
+          excludeFromMonthlyTotal ?? this.excludeFromMonthlyTotal,
+      status: status ?? this.status,
     );
   }
 
@@ -5605,6 +5871,22 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (startAt.present) {
+      map['start_at'] = Variable<DateTime>(startAt.value);
+    }
+    if (endAt.present) {
+      map['end_at'] = Variable<DateTime>(endAt.value);
+    }
+    if (excludeFromMonthlyTotal.present) {
+      map['exclude_from_monthly_total'] =
+          Variable<bool>(excludeFromMonthlyTotal.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
     return map;
   }
 
@@ -5621,7 +5903,12 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
           ..write('startDay: $startDay, ')
           ..write('enabled: $enabled, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('name: $name, ')
+          ..write('startAt: $startAt, ')
+          ..write('endAt: $endAt, ')
+          ..write('excludeFromMonthlyTotal: $excludeFromMonthlyTotal, ')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
@@ -11733,6 +12020,7 @@ typedef $$TransactionsTableCreateCompanionBuilder = TransactionsCompanion
   Value<bool> excludeFromBudget,
   Value<String?> currencyCode,
   Value<double?> nativeAmount,
+  Value<String?> projectBudgetSyncId,
 });
 typedef $$TransactionsTableUpdateCompanionBuilder = TransactionsCompanion
     Function({
@@ -11757,6 +12045,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder = TransactionsCompanion
   Value<bool> excludeFromBudget,
   Value<String?> currencyCode,
   Value<double?> nativeAmount,
+  Value<String?> projectBudgetSyncId,
 });
 
 class $$TransactionsTableFilterComposer
@@ -11838,6 +12127,10 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<double> get nativeAmount => $composableBuilder(
       column: $table.nativeAmount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get projectBudgetSyncId => $composableBuilder(
+      column: $table.projectBudgetSyncId,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$TransactionsTableOrderingComposer
@@ -11921,6 +12214,10 @@ class $$TransactionsTableOrderingComposer
   ColumnOrderings<double> get nativeAmount => $composableBuilder(
       column: $table.nativeAmount,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get projectBudgetSyncId => $composableBuilder(
+      column: $table.projectBudgetSyncId,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$TransactionsTableAnnotationComposer
@@ -11994,6 +12291,9 @@ class $$TransactionsTableAnnotationComposer
 
   GeneratedColumn<double> get nativeAmount => $composableBuilder(
       column: $table.nativeAmount, builder: (column) => column);
+
+  GeneratedColumn<String> get projectBudgetSyncId => $composableBuilder(
+      column: $table.projectBudgetSyncId, builder: (column) => column);
 }
 
 class $$TransactionsTableTableManager extends RootTableManager<
@@ -12043,6 +12343,7 @@ class $$TransactionsTableTableManager extends RootTableManager<
             Value<bool> excludeFromBudget = const Value.absent(),
             Value<String?> currencyCode = const Value.absent(),
             Value<double?> nativeAmount = const Value.absent(),
+            Value<String?> projectBudgetSyncId = const Value.absent(),
           }) =>
               TransactionsCompanion(
             id: id,
@@ -12066,6 +12367,7 @@ class $$TransactionsTableTableManager extends RootTableManager<
             excludeFromBudget: excludeFromBudget,
             currencyCode: currencyCode,
             nativeAmount: nativeAmount,
+            projectBudgetSyncId: projectBudgetSyncId,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -12089,6 +12391,7 @@ class $$TransactionsTableTableManager extends RootTableManager<
             Value<bool> excludeFromBudget = const Value.absent(),
             Value<String?> currencyCode = const Value.absent(),
             Value<double?> nativeAmount = const Value.absent(),
+            Value<String?> projectBudgetSyncId = const Value.absent(),
           }) =>
               TransactionsCompanion.insert(
             id: id,
@@ -12112,6 +12415,7 @@ class $$TransactionsTableTableManager extends RootTableManager<
             excludeFromBudget: excludeFromBudget,
             currencyCode: currencyCode,
             nativeAmount: nativeAmount,
+            projectBudgetSyncId: projectBudgetSyncId,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -13218,6 +13522,11 @@ typedef $$BudgetsTableCreateCompanionBuilder = BudgetsCompanion Function({
   Value<bool> enabled,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
+  Value<String?> name,
+  Value<DateTime?> startAt,
+  Value<DateTime?> endAt,
+  Value<bool> excludeFromMonthlyTotal,
+  Value<String> status,
 });
 typedef $$BudgetsTableUpdateCompanionBuilder = BudgetsCompanion Function({
   Value<int> id,
@@ -13231,6 +13540,11 @@ typedef $$BudgetsTableUpdateCompanionBuilder = BudgetsCompanion Function({
   Value<bool> enabled,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
+  Value<String?> name,
+  Value<DateTime?> startAt,
+  Value<DateTime?> endAt,
+  Value<bool> excludeFromMonthlyTotal,
+  Value<String> status,
 });
 
 class $$BudgetsTableFilterComposer
@@ -13274,6 +13588,22 @@ class $$BudgetsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startAt => $composableBuilder(
+      column: $table.startAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get endAt => $composableBuilder(
+      column: $table.endAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get excludeFromMonthlyTotal => $composableBuilder(
+      column: $table.excludeFromMonthlyTotal,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
 }
 
 class $$BudgetsTableOrderingComposer
@@ -13317,6 +13647,22 @@ class $$BudgetsTableOrderingComposer
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startAt => $composableBuilder(
+      column: $table.startAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get endAt => $composableBuilder(
+      column: $table.endAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get excludeFromMonthlyTotal => $composableBuilder(
+      column: $table.excludeFromMonthlyTotal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
 }
 
 class $$BudgetsTableAnnotationComposer
@@ -13360,6 +13706,21 @@ class $$BudgetsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startAt =>
+      $composableBuilder(column: $table.startAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endAt =>
+      $composableBuilder(column: $table.endAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get excludeFromMonthlyTotal => $composableBuilder(
+      column: $table.excludeFromMonthlyTotal, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
 }
 
 class $$BudgetsTableTableManager extends RootTableManager<
@@ -13396,6 +13757,11 @@ class $$BudgetsTableTableManager extends RootTableManager<
             Value<bool> enabled = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
+            Value<String?> name = const Value.absent(),
+            Value<DateTime?> startAt = const Value.absent(),
+            Value<DateTime?> endAt = const Value.absent(),
+            Value<bool> excludeFromMonthlyTotal = const Value.absent(),
+            Value<String> status = const Value.absent(),
           }) =>
               BudgetsCompanion(
             id: id,
@@ -13409,6 +13775,11 @@ class $$BudgetsTableTableManager extends RootTableManager<
             enabled: enabled,
             createdAt: createdAt,
             updatedAt: updatedAt,
+            name: name,
+            startAt: startAt,
+            endAt: endAt,
+            excludeFromMonthlyTotal: excludeFromMonthlyTotal,
+            status: status,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -13422,6 +13793,11 @@ class $$BudgetsTableTableManager extends RootTableManager<
             Value<bool> enabled = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
+            Value<String?> name = const Value.absent(),
+            Value<DateTime?> startAt = const Value.absent(),
+            Value<DateTime?> endAt = const Value.absent(),
+            Value<bool> excludeFromMonthlyTotal = const Value.absent(),
+            Value<String> status = const Value.absent(),
           }) =>
               BudgetsCompanion.insert(
             id: id,
@@ -13435,6 +13811,11 @@ class $$BudgetsTableTableManager extends RootTableManager<
             enabled: enabled,
             createdAt: createdAt,
             updatedAt: updatedAt,
+            name: name,
+            startAt: startAt,
+            endAt: endAt,
+            excludeFromMonthlyTotal: excludeFromMonthlyTotal,
+            status: status,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

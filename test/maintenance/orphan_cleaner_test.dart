@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:beecount/data/db.dart';
 import 'package:beecount/services/maintenance/orphan_cleaner.dart';
+import 'package:beecount/services/maintenance/orphan_record.dart';
 import 'package:beecount/services/maintenance/orphan_scanner.dart';
 
 void main() {
@@ -92,8 +93,9 @@ void main() {
   test('A5 tx 失主 account → 不删 tx,只把 account_id 置 null', () async {
     final lid = await db.into(db.ledgers).insert(
         LedgersCompanion.insert(name: 'L', syncId: const d.Value('l-sync')));
-    final accId = await db.into(db.accounts).insert(
-        AccountsCompanion.insert(ledgerId: lid, name: 'A'));
+    final accId = await db
+        .into(db.accounts)
+        .insert(AccountsCompanion.insert(ledgerId: lid, name: 'A'));
     final tid = await db.into(db.transactions).insert(
           TransactionsCompanion.insert(
             ledgerId: lid,
@@ -157,6 +159,56 @@ void main() {
 
     final after = await scanner.scanAll();
     expect(after.syncOrphans, isEmpty);
+  });
+
+  test('referenced project 被交给 cleaner 时拒绝删除并保留 transaction link', () async {
+    final lid = await db.into(db.ledgers).insert(
+        LedgersCompanion.insert(name: 'L', syncId: const d.Value('l-sync')));
+    final projectId = await db.into(db.budgets).insert(
+          BudgetsCompanion.insert(
+            ledgerId: lid,
+            type: const d.Value('project'),
+            amount: 100,
+            syncId: const d.Value('project-referenced'),
+            name: const d.Value('P'),
+            startAt: d.Value(DateTime.utc(2026, 1, 1)),
+            endAt: d.Value(DateTime.utc(2026, 2, 1)),
+            excludeFromMonthlyTotal: const d.Value(true),
+            status: const d.Value('active'),
+          ),
+        );
+    final txId = await db.into(db.transactions).insert(
+          TransactionsCompanion.insert(
+            ledgerId: lid,
+            type: 'expense',
+            amount: 10,
+            happenedAt: d.Value(DateTime.utc(2026, 1, 15)),
+            projectBudgetSyncId: const d.Value('project-referenced'),
+          ),
+        );
+
+    final result = await cleaner.clean([
+      OrphanRecord(
+        type: OrphanType.budgetMissingLedger,
+        title: 'project',
+        subtitle: 'synthetic cleaner input',
+        localId: projectId,
+        syncId: 'project-referenced',
+      ),
+    ]);
+
+    expect(result.successCount, 0);
+    expect(result.failures, hasLength(1));
+    expect(result.failures.single.error, contains('仍被 transaction 引用'));
+    expect(
+      await (db.select(db.budgets)..where((b) => b.id.equals(projectId)))
+          .getSingleOrNull(),
+      isNotNull,
+    );
+    final tx = await (db.select(db.transactions)
+          ..where((t) => t.id.equals(txId)))
+        .getSingle();
+    expect(tx.projectBudgetSyncId, 'project-referenced');
   });
 
   test('空 records 调用 → empty result', () async {

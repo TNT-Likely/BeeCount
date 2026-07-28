@@ -61,4 +61,15 @@ abstract class BaseRepository
 
   /// 按 picker 账户 id 解析币种:正数=主表账户;负数=共享账本 synthetic id。
   Future<String?> getAccountCurrencyByAnyId(int accountId);
+
+  /// 原子应用一条 existing transaction 及其可选的新建 project 依赖。
+  /// transaction 或 change log 任一步失败时,新建依赖也必须回滚。
+  Future<int?> updateTransactionWithRelationsAndOptionalProjectBySyncId(
+    TransactionRelationsUpdateBySyncIdData update, {
+    BudgetRestoreBySyncIdData? missingProject,
+    bool recordChanges = true,
+  });
+
+  /// 在数据源支持的事务中执行一个跨 repository 原子单元。
+  Future<T> runInTransaction<T>(Future<T> Function() action);
 }

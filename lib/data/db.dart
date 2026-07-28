@@ -18,7 +18,8 @@ class Ledgers extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
   TextColumn get currency => text().withDefault(const Constant('CNY'))();
-  TextColumn get type => text().withDefault(const Constant('personal'))();  // personal / shared
+  TextColumn get type =>
+      text().withDefault(const Constant('personal'))(); // personal / shared
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   // 跨设备同步唯一标识：跟 accounts/categories/tags 的 syncId 同语义，
   // 对齐 BeeCount Cloud server 的 ledger.external_id。device B 首次登录
@@ -27,10 +28,11 @@ class Ledgers extends Table {
   // 不一致）。v21 migration 里已为旧数据把 id 回填成 syncId 以兼容。
   TextColumn get syncId => text().nullable()();
   // v24: 共享账本字段 — server 端 LedgerMember.role 同步下来
-  TextColumn get myRole => text().withDefault(const Constant('owner'))();  // owner / editor
+  TextColumn get myRole =>
+      text().withDefault(const Constant('owner'))(); // owner / editor
   IntColumn get memberCount => integer().withDefault(const Constant(1))();
   BoolColumn get isShared => boolean().withDefault(const Constant(false))();
-  TextColumn get ownerUserId => text().nullable()();  // 当前 Owner 是谁
+  TextColumn get ownerUserId => text().nullable()(); // 当前 Owner 是谁
   // v27: 自定义每月起始日(1-28),统计/预算/小部件按 [当月N日, 次月N日) 聚合,
   // 1=自然月。随 sync 跨设备(payload key `monthStartDay`,server 列
   // ledgers.month_start_day)。见 .docs/period-start-date/design.md。
@@ -99,8 +101,8 @@ class Categories extends Table {
   IntColumn get level =>
       integer().withDefault(const Constant(1))(); // 层级：1=一级，2=二级
   // v13: 自定义图标支持
-  TextColumn get iconType =>
-      text().withDefault(const Constant('material'))(); // material / custom / community
+  TextColumn get iconType => text().withDefault(
+      const Constant('material'))(); // material / custom / community
   TextColumn get customIconPath => text().nullable()(); // 自定义图标本地路径
   TextColumn get communityIconId => text().nullable()(); // 社区图标ID（预留）
   TextColumn get syncId => text().nullable()(); // 跨设备同步唯一标识 (UUID)
@@ -131,7 +133,7 @@ class Transactions extends Table {
   TextColumn get categorySyncIdOverride => text().nullable()();
   TextColumn get accountSyncIdOverride => text().nullable()();
   TextColumn get toAccountSyncIdOverride => text().nullable()();
-  TextColumn get tagSyncIdsOverride => text().nullable()();  // JSON list
+  TextColumn get tagSyncIdsOverride => text().nullable()(); // JSON list
 
   /// 不计入收支:true 时从收支统计/图表/月年汇总剔除,但仍计入账户余额、净资产、
   /// 账单列表(.docs/transaction-flags/01 §二 D1)。
@@ -151,6 +153,15 @@ class Transactions extends Table {
   /// 单币种/未折算 == amount(隐含汇率 1.0)。账本维度统计读本列(?? amount),
   /// 账户维度(余额等)仍读 amount。
   RealColumn get nativeAmount => real().nullable()();
+
+  /// v31:专项预算关联的稳定 syncId(指向 budgets.type='project' 的行)。
+  /// 语义:
+  /// - 只对 type='expense' 有效;转账/收入不挂专项。
+  /// - JSON 明确写 null → 清除关联(SQL NULL)。partial payload 中省略键
+  ///   → 保留旧关联(不写);全量 snapshot 中始终携带,unlinked 时值为 null。
+  /// - 引用的必须是同账本 type=project 行(不做 SQLite FK,orphan/跨账本
+  ///   由 App/server 校验)。
+  TextColumn get projectBudgetSyncId => text().nullable()();
 }
 
 class RecurringTransactions extends Table {
@@ -209,9 +220,9 @@ class Messages extends Table {
 // 标签表
 class Tags extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get name => text()();                    // 标签名称
-  TextColumn get color => text().nullable()();        // 颜色值（如 #FF5722）
-  IntColumn get sortOrder => integer().withDefault(const Constant(0))();  // 排序
+  TextColumn get name => text()(); // 标签名称
+  TextColumn get color => text().nullable()(); // 颜色值（如 #FF5722）
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))(); // 排序
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   TextColumn get syncId => text().nullable()(); // 跨设备同步唯一标识 (UUID)
 }
@@ -219,11 +230,11 @@ class Tags extends Table {
 // 本地变更追踪表（用于增量同步）
 class LocalChanges extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get entityType => text()();       // transaction/account/category/tag
-  IntColumn get entityId => integer()();       // 本地实体ID
-  TextColumn get entitySyncId => text()();     // 实体的 syncId (UUID)
-  IntColumn get ledgerId => integer()();       // 关联账本ID
-  TextColumn get action => text()();           // create/update/delete
+  TextColumn get entityType => text()(); // transaction/account/category/tag
+  IntColumn get entityId => integer()(); // 本地实体ID
+  TextColumn get entitySyncId => text()(); // 实体的 syncId (UUID)
+  IntColumn get ledgerId => integer()(); // 关联账本ID
+  TextColumn get action => text()(); // create/update/delete
   TextColumn get payloadJson => text().nullable()(); // 变更后的完整 JSON
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get pushedAt => dateTime().nullable()(); // 非null表示已推送
@@ -232,9 +243,11 @@ class LocalChanges extends Table {
 // 同步状态表
 class SyncState extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get deviceId => text()();         // 设备唯一标识
-  TextColumn get providerType => text().withDefault(const Constant('beecount_cloud'))(); // 防止不同 provider 的 cursor 冲突
-  IntColumn get serverCursor => integer().withDefault(const Constant(0))(); // 服务端变更游标
+  TextColumn get deviceId => text()(); // 设备唯一标识
+  TextColumn get providerType => text().withDefault(
+      const Constant('beecount_cloud'))(); // 防止不同 provider 的 cursor 冲突
+  IntColumn get serverCursor =>
+      integer().withDefault(const Constant(0))(); // 服务端变更游标
   DateTimeColumn get lastPushAt => dateTime().nullable()();
   DateTimeColumn get lastPullAt => dateTime().nullable()();
 }
@@ -242,8 +255,8 @@ class SyncState extends Table {
 // 交易-标签关联表
 class TransactionTags extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get transactionId => integer()();         // 交易ID
-  IntColumn get tagId => integer()();                 // 标签ID
+  IntColumn get transactionId => integer()(); // 交易ID
+  IntColumn get tagId => integer()(); // 标签ID
 }
 
 // v27: 共享账本 §7 — 交易标签 sync_id override
@@ -252,8 +265,8 @@ class TransactionTags extends Table {
 // override 表按 (transaction_id, tag_sync_id) 存,sync push 时 union 进 tagIds
 // payload;tx 反查 / 编辑回显时 union 主表 transaction_tags + 本表。
 class TransactionTagOverrides extends Table {
-  TextColumn get transactionSyncId => text()();   // tx.syncId(全局唯一)
-  TextColumn get tagSyncId => text()();           // Owner tag syncId
+  TextColumn get transactionSyncId => text()(); // tx.syncId(全局唯一)
+  TextColumn get tagSyncId => text()(); // Owner tag syncId
   DateTimeColumn get createdAt => dateTime()();
 
   @override
@@ -265,19 +278,21 @@ class TransactionTagOverrides extends Table {
 // 远程诊断。详见 .docs/full-pull-refactor/04-data-model.md。
 class SyncPullErrors extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get changeId => integer().unique()();      // server change_id,唯一
-  TextColumn get ledgerExternalId => text().nullable()(); // user-global change 可空
+  IntColumn get changeId => integer().unique()(); // server change_id,唯一
+  TextColumn get ledgerExternalId =>
+      text().nullable()(); // user-global change 可空
   TextColumn get entityType => text()();
   TextColumn get entitySyncId => text()();
-  TextColumn get action => text()();                   // upsert / delete
-  TextColumn get rawChangeJson => text()();            // 完整 change JSON,供诊断 + 复制给用户
-  TextColumn get errorClass => text().nullable()();    // Dart exception 类名
-  TextColumn get errorMessage => text().nullable()();  // exception.toString() 首行
-  TextColumn get stackTrace => text().nullable()();    // 截断到 ~2KB
+  TextColumn get action => text()(); // upsert / delete
+  TextColumn get rawChangeJson => text()(); // 完整 change JSON,供诊断 + 复制给用户
+  TextColumn get errorClass => text().nullable()(); // Dart exception 类名
+  TextColumn get errorMessage => text().nullable()(); // exception.toString() 首行
+  TextColumn get stackTrace => text().nullable()(); // 截断到 ~2KB
   DateTimeColumn get firstSeenAt => dateTime()();
   DateTimeColumn get lastAttemptAt => dateTime()();
   IntColumn get attemptCount => integer().withDefault(const Constant(1))();
-  TextColumn get userAction => text().nullable()();    // null / 'skip' / 'retry_requested'
+  TextColumn get userAction =>
+      text().nullable()(); // null / 'skip' / 'retry_requested'
   DateTimeColumn get resolvedAt => dateTime().nullable()();
 }
 
@@ -285,14 +300,14 @@ class SyncPullErrors extends Table {
 class TransactionAttachments extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get transactionId => integer()(); // 关联的交易ID
-  TextColumn get fileName => text()();        // 文件名（不含路径）
+  TextColumn get fileName => text()(); // 文件名（不含路径）
   TextColumn get originalName => text().nullable()(); // 原始文件名
-  IntColumn get fileSize => integer().nullable()();   // 文件大小（bytes）
-  IntColumn get width => integer().nullable()();      // 图片宽度
-  IntColumn get height => integer().nullable()();     // 图片高度
+  IntColumn get fileSize => integer().nullable()(); // 文件大小（bytes）
+  IntColumn get width => integer().nullable()(); // 图片宽度
+  IntColumn get height => integer().nullable()(); // 图片高度
   IntColumn get sortOrder => integer().withDefault(const Constant(0))(); // 排序序号
-  TextColumn get cloudFileId => text().nullable()();   // 云端文件ID
-  TextColumn get cloudSha256 => text().nullable()();   // 云端文件SHA256
+  TextColumn get cloudFileId => text().nullable()(); // 云端文件ID
+  TextColumn get cloudSha256 => text().nullable()(); // 云端文件SHA256
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
@@ -330,6 +345,33 @@ class Budgets extends Table {
 
   /// 更新时间
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+
+  // ==================== v31: 专项预算(type='project') ==================== //
+  // 与 total/category 共存于同一张 budgets 表,靠 type 区分。以下字段仅对
+  // type='project' 行有值;对 total/category 行保持 null / DB 默认值,不参与
+  // 已有 usage/CRUD 语义。字段命名与 Cloud/Web 冻结合同一致
+  // (local-artifacts/special-budget/plans/2026-07-23-app-phase3-contract.md)。
+
+  /// 项目名称。type='project' 时 trim 后非空必填;total/category 行为 null。
+  TextColumn get name => text().nullable()();
+
+  /// 项目起始时刻(半开区间左端点,inclusive)。UTC 存储,wire 用 UTC RFC 3339。
+  /// type='project' 必填,且早于 endAt。
+  DateTimeColumn get startAt => dateTime().nullable()();
+
+  /// 项目结束时刻(半开区间右端点,**exclusive**)。UTC 存储,wire 用 UTC RFC 3339。
+  DateTimeColumn get endAt => dateTime().nullable()();
+
+  /// 项目支出是否从总月度预算 usage 中剔除(true=剔除)。仅影响 total budget
+  /// 的 usage,不影响 excludeFromStats/excludeFromBudget。DB 默认 false;
+  /// 项目创建时默认 true(合同要求,由 repository 保证)。
+  BoolColumn get excludeFromMonthlyTotal =>
+      boolean().withDefault(const Constant(false))();
+
+  /// 项目生命周期。允许值:'planned' / 'active' / 'archived'。
+  /// 归档只读,可 reactivate 回 active。legacy `enabled` 对 project 行无效,
+  /// 仅为兼容其他类型保留。
+  TextColumn get status => text().withDefault(const Constant('active'))();
 }
 
 // ============================================================================
@@ -340,14 +382,14 @@ class Budgets extends Table {
 /// 离线渲染。`GET /api/v1/ledgers/{id}/members` 拉来后写入;`member_change`
 /// WS 事件触发增量更新。
 class LedgerMembers extends Table {
-  TextColumn get ledgerSyncId => text()();        // ledger.syncId(全 user 唯一)
+  TextColumn get ledgerSyncId => text()(); // ledger.syncId(全 user 唯一)
   TextColumn get userId => text()();
   TextColumn get email => text().nullable()();
   TextColumn get displayName => text().nullable()();
   TextColumn get avatarUrl => text().nullable()();
-  TextColumn get role => text()();                // owner / editor
+  TextColumn get role => text()(); // owner / editor
   DateTimeColumn get joinedAt => dateTime()();
-  DateTimeColumn get updatedAt => dateTime()();   // 本地更新时间,用于 cache 失效
+  DateTimeColumn get updatedAt => dateTime()(); // 本地更新时间,用于 cache 失效
 
   @override
   Set<Column> get primaryKey => {ledgerSyncId, userId};
@@ -358,13 +400,15 @@ class LedgerMembers extends Table {
 /// 拉来落库;`shared_resource_change` WS 事件增量更新。
 class SharedLedgerCategories extends Table {
   TextColumn get ledgerSyncId => text()();
-  TextColumn get syncId => text()();              // Owner 的 user-global category sync_id
+  TextColumn get syncId => text()(); // Owner 的 user-global category sync_id
   TextColumn get name => text()();
-  TextColumn get kind => text()();                // expense / income
+  TextColumn get kind => text()(); // expense / income
   TextColumn get icon => text().nullable()();
   TextColumn get iconType => text().withDefault(const Constant('material'))();
-  TextColumn get iconCloudFileId => text().nullable()();   // 自定义图标:attachment UUID
-  TextColumn get iconCloudSha256 => text().nullable()();   // 自定义图标:sha256(本地 cache 去重)
+  TextColumn get iconCloudFileId =>
+      text().nullable()(); // 自定义图标:attachment UUID
+  TextColumn get iconCloudSha256 =>
+      text().nullable()(); // 自定义图标:sha256(本地 cache 去重)
   TextColumn get color => text().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   IntColumn get level => integer().withDefault(const Constant(1))();
@@ -442,7 +486,8 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 31; // v31: 账户隐藏 — accounts.hidden
+  int get schemaVersion =>
+      32; // v32: 合并 current-main accounts.hidden + Phase 3 专项预算字段/索引
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -587,7 +632,8 @@ class BeeDatabase extends _$BeeDatabase {
 
             // 4. 重命名新表
             print('[DB Migration] 步骤4: 重命名新表');
-            await customStatement('ALTER TABLE recurring_transactions_new RENAME TO recurring_transactions;');
+            await customStatement(
+                'ALTER TABLE recurring_transactions_new RENAME TO recurring_transactions;');
             print('[DB Migration] v7 迁移完成');
           }
           if (from < 8) {
@@ -605,8 +651,7 @@ class BeeDatabase extends _$BeeDatabase {
             // 检查字段是否已存在，避免重复添加
             final tableInfo =
                 await customSelect('PRAGMA table_info(ledgers)').get();
-            final hasType =
-                tableInfo.any((row) => row.data['name'] == 'type');
+            final hasType = tableInfo.any((row) => row.data['name'] == 'type');
 
             if (!hasType) {
               await customStatement(
@@ -812,8 +857,7 @@ class BeeDatabase extends _$BeeDatabase {
                 tableInfo.any((row) => row.data['name'] == 'bank_name');
             final hasCardLastFour =
                 tableInfo.any((row) => row.data['name'] == 'card_last_four');
-            final hasNote =
-                tableInfo.any((row) => row.data['name'] == 'note');
+            final hasNote = tableInfo.any((row) => row.data['name'] == 'note');
 
             if (!hasBankName) {
               await customStatement(
@@ -883,8 +927,7 @@ class BeeDatabase extends _$BeeDatabase {
             }
 
             // 3. 为 tags 添加 sync_id
-            final tagInfo =
-                await customSelect('PRAGMA table_info(tags)').get();
+            final tagInfo = await customSelect('PRAGMA table_info(tags)').get();
             if (!tagInfo.any((row) => row.data['name'] == 'sync_id')) {
               await customStatement(
                   'ALTER TABLE tags ADD COLUMN sync_id TEXT;');
@@ -918,7 +961,8 @@ class BeeDatabase extends _$BeeDatabase {
             print('[DB Migration] 开始迁移到 v20: 附件云端同步字段');
 
             final tableInfo =
-                await customSelect('PRAGMA table_info(transaction_attachments)').get();
+                await customSelect('PRAGMA table_info(transaction_attachments)')
+                    .get();
             final hasCloudFileId =
                 tableInfo.any((row) => row.data['name'] == 'cloud_file_id');
             final hasCloudSha256 =
@@ -991,7 +1035,8 @@ class BeeDatabase extends _$BeeDatabase {
             // 之后渲染层 getCategoryIconData 只认 icon 字段、不再 byName 推导。
             // 结合服务端 alembic 0002 的同名 backfill,两端同步"迁 read-time 到
             // write-time"。
-            print('[DB Migration] 开始迁移到 v23: backfill category icons via byName');
+            print(
+                '[DB Migration] 开始迁移到 v23: backfill category icons via byName');
 
             // 取所有 icon 空的分类,按 name 推导图标字符串回填
             final rows = await customSelect(
@@ -1024,43 +1069,44 @@ class BeeDatabase extends _$BeeDatabase {
             // 卡死。每条都要幂等。
             print('[DB Migration] 开始迁移到 v24: 共享账本完整 schema');
 
-            await _addColumnIfMissing(
-                'ledgers', 'my_role',
+            await _addColumnIfMissing('ledgers', 'my_role',
                 "ALTER TABLE ledgers ADD COLUMN my_role TEXT NOT NULL DEFAULT 'owner';");
-            await _addColumnIfMissing(
-                'ledgers', 'member_count',
+            await _addColumnIfMissing('ledgers', 'member_count',
                 "ALTER TABLE ledgers ADD COLUMN member_count INTEGER NOT NULL DEFAULT 1;");
-            await _addColumnIfMissing(
-                'ledgers', 'is_shared',
+            await _addColumnIfMissing('ledgers', 'is_shared',
                 "ALTER TABLE ledgers ADD COLUMN is_shared INTEGER NOT NULL DEFAULT 0;");
-            await _addColumnIfMissing(
-                'ledgers', 'owner_user_id',
+            await _addColumnIfMissing('ledgers', 'owner_user_id',
                 "ALTER TABLE ledgers ADD COLUMN owner_user_id TEXT;");
 
-            await _addColumnIfMissing(
-                'transactions', 'created_by_user_id',
+            await _addColumnIfMissing('transactions', 'created_by_user_id',
                 "ALTER TABLE transactions ADD COLUMN created_by_user_id TEXT;");
-            await _addColumnIfMissing(
-                'transactions', 'last_edited_by_user_id',
+            await _addColumnIfMissing('transactions', 'last_edited_by_user_id',
                 "ALTER TABLE transactions ADD COLUMN last_edited_by_user_id TEXT;");
             await _addColumnIfMissing(
-                'transactions', 'category_sync_id_override',
+                'transactions',
+                'category_sync_id_override',
                 'ALTER TABLE transactions ADD COLUMN category_sync_id_override TEXT;');
             await _addColumnIfMissing(
-                'transactions', 'account_sync_id_override',
+                'transactions',
+                'account_sync_id_override',
                 'ALTER TABLE transactions ADD COLUMN account_sync_id_override TEXT;');
             await _addColumnIfMissing(
-                'transactions', 'to_account_sync_id_override',
+                'transactions',
+                'to_account_sync_id_override',
                 'ALTER TABLE transactions ADD COLUMN to_account_sync_id_override TEXT;');
-            await _addColumnIfMissing(
-                'transactions', 'tag_sync_ids_override',
+            await _addColumnIfMissing('transactions', 'tag_sync_ids_override',
                 'ALTER TABLE transactions ADD COLUMN tag_sync_ids_override TEXT;');
 
-            await _createTableIfMissing(migrator, 'ledger_members', ledgerMembers);
-            await _createTableIfMissing(migrator, 'shared_ledger_categories', sharedLedgerCategories);
-            await _createTableIfMissing(migrator, 'shared_ledger_accounts', sharedLedgerAccounts);
-            await _createTableIfMissing(migrator, 'shared_ledger_tags', sharedLedgerTags);
-            await _createTableIfMissing(migrator, 'transaction_tag_overrides', transactionTagOverrides);
+            await _createTableIfMissing(
+                migrator, 'ledger_members', ledgerMembers);
+            await _createTableIfMissing(
+                migrator, 'shared_ledger_categories', sharedLedgerCategories);
+            await _createTableIfMissing(
+                migrator, 'shared_ledger_accounts', sharedLedgerAccounts);
+            await _createTableIfMissing(
+                migrator, 'shared_ledger_tags', sharedLedgerTags);
+            await _createTableIfMissing(
+                migrator, 'transaction_tag_overrides', transactionTagOverrides);
 
             // 重置 server_cursor — 强制下次启动全量重拉,确保 sync_engine_apply
             // 用最新的 override 写入逻辑填回 *SyncIdOverride 字段。
@@ -1076,7 +1122,8 @@ class BeeDatabase extends _$BeeDatabase {
             logger.info('DBMigration',
                 '开始迁移到 v25: SharedLedgerCategories.parent_sync_id');
             await _addColumnIfMissing(
-                'shared_ledger_categories', 'parent_sync_id',
+                'shared_ledger_categories',
+                'parent_sync_id',
                 'ALTER TABLE shared_ledger_categories ADD COLUMN parent_sync_id TEXT;');
             // 数据回填:对每个 level=2 行,在同 ledger_sync_id + kind 内按
             // parent_name 反查 level=1 行的 syncId 填进 parent_sync_id。
@@ -1105,7 +1152,8 @@ class BeeDatabase extends _$BeeDatabase {
             // 抛错时写入,UI 据此显示"同步异常"banner + 重试/跳过操作。
             // 详见 .docs/full-pull-refactor/04-data-model.md
             logger.info('DBMigration', '开始迁移到 v26: sync_pull_errors');
-            await _createTableIfMissing(migrator, 'sync_pull_errors', syncPullErrors);
+            await _createTableIfMissing(
+                migrator, 'sync_pull_errors', syncPullErrors);
             logger.info('DBMigration', 'v26 迁移完成');
           }
           if (from < 27) {
@@ -1116,9 +1164,12 @@ class BeeDatabase extends _$BeeDatabase {
             logger.info('DBMigration', 'v27 迁移完成');
           }
           if (from < 28) {
-            logger.info('DBMigration', '开始迁移到 v28: 多币种 MVP(exchange_rates / exchange_rate_overrides)');
-            await _createTableIfMissing(migrator, 'exchange_rates', exchangeRates);
-            await _createTableIfMissing(migrator, 'exchange_rate_overrides', exchangeRateOverrides);
+            logger.info('DBMigration',
+                '开始迁移到 v28: 多币种 MVP(exchange_rates / exchange_rate_overrides)');
+            await _createTableIfMissing(
+                migrator, 'exchange_rates', exchangeRates);
+            await _createTableIfMissing(
+                migrator, 'exchange_rate_overrides', exchangeRateOverrides);
             await customStatement(
                 'CREATE UNIQUE INDEX IF NOT EXISTS idx_rate_override_pair '
                 'ON exchange_rate_overrides (base_currency, quote_currency);');
@@ -1133,7 +1184,8 @@ class BeeDatabase extends _$BeeDatabase {
             logger.info('DBMigration', 'v29 迁移完成');
           }
           if (from < 30) {
-            logger.info('DBMigration', '开始迁移到 v30: 交易级多币种(currency_code + native_amount)');
+            logger.info('DBMigration',
+                '开始迁移到 v30: 交易级多币种(currency_code + native_amount)');
             await _addColumnIfMissing('transactions', 'currency_code',
                 'ALTER TABLE transactions ADD COLUMN currency_code TEXT;');
             await _addColumnIfMissing('transactions', 'native_amount',
@@ -1152,10 +1204,41 @@ class BeeDatabase extends _$BeeDatabase {
             logger.info('DBMigration', 'v30 迁移完成');
           }
           if (from < 31) {
+            // 保留 current-main 的历史 v31 语义。Phase 3 曾独立占用 v31，
+            // 双方字段的 reconciliation 统一在 v32 幂等完成。
             logger.info('DBMigration', '开始迁移到 v31: 账户隐藏(hidden)');
             await _addColumnIfMissing('accounts', 'hidden',
                 'ALTER TABLE accounts ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0;');
             logger.info('DBMigration', 'v31 迁移完成');
+          }
+          if (from < 32) {
+            // v32: reconciliation block — 确保两个 parent 的 v31 字段全部就位。
+            // 处理 partial/legacy v31(只跑了 hidden 或只跑了 project)的幂等重跑:
+            // 每列走 _addColumnIfMissing,索引 CREATE INDEX IF NOT EXISTS。
+            // 不做行重写,不删列,不加 SQLite FK。
+            logger.info('DBMigration', '开始迁移到 v32: reconciliation');
+            await _addColumnIfMissing('accounts', 'hidden',
+                'ALTER TABLE accounts ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0;');
+            await _addColumnIfMissing(
+                'budgets', 'name', 'ALTER TABLE budgets ADD COLUMN name TEXT;');
+            await _addColumnIfMissing('budgets', 'start_at',
+                'ALTER TABLE budgets ADD COLUMN start_at INTEGER;');
+            await _addColumnIfMissing('budgets', 'end_at',
+                'ALTER TABLE budgets ADD COLUMN end_at INTEGER;');
+            await _addColumnIfMissing(
+                'budgets',
+                'exclude_from_monthly_total',
+                "ALTER TABLE budgets ADD COLUMN exclude_from_monthly_total "
+                    "INTEGER NOT NULL DEFAULT 0;");
+            await _addColumnIfMissing('budgets', 'status',
+                "ALTER TABLE budgets ADD COLUMN status TEXT NOT NULL DEFAULT 'active';");
+            await _addColumnIfMissing('transactions', 'project_budget_sync_id',
+                'ALTER TABLE transactions ADD COLUMN project_budget_sync_id TEXT;');
+            await customStatement(
+                'CREATE INDEX IF NOT EXISTS idx_transactions_project_budget_sync_id '
+                'ON transactions(project_budget_sync_id);');
+            await _ensureProjectLinkInvariants();
+            logger.info('DBMigration', 'v32 迁移完成');
           }
         },
         onCreate: (m) async {
@@ -1163,8 +1246,88 @@ class BeeDatabase extends _$BeeDatabase {
           await customStatement(
               'CREATE UNIQUE INDEX IF NOT EXISTS idx_rate_override_pair '
               'ON exchange_rate_overrides (base_currency, quote_currency);');
+          // v31: transaction 上的 project_budget_sync_id 索引;fresh install
+          // 也要建,与 onUpgrade 保持一致。
+          await customStatement(
+              'CREATE INDEX IF NOT EXISTS idx_transactions_project_budget_sync_id '
+              'ON transactions(project_budget_sync_id);');
+          await _ensureProjectLinkInvariants();
         },
       );
+
+  /// v32: projectBudgetSyncId 没有 SQLite FK，因为它引用稳定 sync ID 且还需
+  /// 同时约束 transaction/budget type 与 ledger。用幂等 trigger 把完整业务
+  /// 不变量放到数据库边界，覆盖 companion/raw SQL 和多连接竞态；repository
+  /// 的预校验只负责更友好的错误与批量查询性能，不再是唯一防线。
+  Future<void> _ensureProjectLinkInvariants() async {
+    // 历史 v22 upgrade 已创建该索引，但 fresh onCreate 原先漏建。trigger 的
+    // EXISTS 查找依赖它，重复执行 CREATE IF NOT EXISTS 是安全的。
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS idx_budgets_sync_id ON budgets(sync_id);');
+    await customStatement('''
+CREATE TRIGGER IF NOT EXISTS trg_transactions_project_link_insert
+BEFORE INSERT ON transactions
+WHEN NEW.project_budget_sync_id IS NOT NULL
+BEGIN
+  SELECT RAISE(ABORT, 'project_link_requires_expense')
+    WHERE NEW.type <> 'expense';
+  SELECT RAISE(ABORT, 'project_link_target_invalid')
+    WHERE NOT EXISTS (
+      SELECT 1 FROM budgets b
+      WHERE b.sync_id = NEW.project_budget_sync_id
+        AND b.type = 'project'
+        AND b.ledger_id = NEW.ledger_id
+    );
+END;
+''');
+    await customStatement('''
+CREATE TRIGGER IF NOT EXISTS trg_transactions_project_link_update
+BEFORE UPDATE OF project_budget_sync_id, ledger_id, type ON transactions
+WHEN NEW.project_budget_sync_id IS NOT NULL
+BEGIN
+  SELECT RAISE(ABORT, 'project_link_requires_expense')
+    WHERE NEW.type <> 'expense';
+  SELECT RAISE(ABORT, 'project_link_target_invalid')
+    WHERE NOT EXISTS (
+      SELECT 1 FROM budgets b
+      WHERE b.sync_id = NEW.project_budget_sync_id
+        AND b.type = 'project'
+        AND b.ledger_id = NEW.ledger_id
+    );
+END;
+''');
+    await customStatement('''
+CREATE TRIGGER IF NOT EXISTS trg_project_budget_restrict_delete
+BEFORE DELETE ON budgets
+WHEN OLD.type = 'project'
+  AND OLD.sync_id IS NOT NULL
+  AND EXISTS (
+    SELECT 1 FROM transactions t
+    WHERE t.project_budget_sync_id = OLD.sync_id
+  )
+BEGIN
+  SELECT RAISE(ABORT, 'project_budget_is_referenced');
+END;
+''');
+    await customStatement('''
+CREATE TRIGGER IF NOT EXISTS trg_project_budget_restrict_identity_update
+BEFORE UPDATE OF sync_id, type, ledger_id ON budgets
+WHEN OLD.type = 'project'
+  AND OLD.sync_id IS NOT NULL
+  AND EXISTS (
+    SELECT 1 FROM transactions t
+    WHERE t.project_budget_sync_id = OLD.sync_id
+  )
+  AND (
+    NEW.type <> 'project'
+    OR NEW.sync_id IS NOT OLD.sync_id
+    OR NEW.ledger_id IS NOT OLD.ledger_id
+  )
+BEGIN
+  SELECT RAISE(ABORT, 'project_budget_identity_is_referenced');
+END;
+''');
+  }
 
   /// Migration helper: 列不存在再 ALTER ADD,避免 partial state 重跑时
   /// "duplicate column" 把启动卡死。
@@ -1174,13 +1337,10 @@ class BeeDatabase extends _$BeeDatabase {
   /// 报 duplicate。每条 ALTER 都通过这里走 PRAGMA 检查可幂等。
   Future<void> _addColumnIfMissing(
       String table, String column, String ddl) async {
-    final cols =
-        await customSelect("PRAGMA table_info($table)").get();
-    final exists =
-        cols.any((r) => r.read<String>('name') == column);
+    final cols = await customSelect("PRAGMA table_info($table)").get();
+    final exists = cols.any((r) => r.read<String>('name') == column);
     if (exists) {
-      logger.info(
-          'DBMigration', '$table.$column 已存在,跳过 ALTER');
+      logger.info('DBMigration', '$table.$column 已存在,跳过 ALTER');
       return;
     }
     await customStatement(ddl);

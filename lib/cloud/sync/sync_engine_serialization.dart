@@ -611,6 +611,13 @@ extension SyncEngineSerializationExt on SyncEngine {
         .get();
     final categories = await db.select(db.categories).get();
     final tags = await db.select(db.tags).get();
+    // v31: 全量快照携带同账本所有预算(total / category / project)。恢复
+    // 顺序 accounts → categories → tags → budgets → items 由 DataImportService
+    // 保证:budgets 在 items 之前恢复,items 里的 projectBudgetSyncId 才能挂到
+    // 已建立的 project 行。
+    final budgets = await (db.select(db.budgets)
+          ..where((b) => b.ledgerId.equals(ledger.id)))
+        .get();
 
     final items = <Map<String, dynamic>>[];
     for (final tx in transactions) {
@@ -665,7 +672,7 @@ extension SyncEngineSerializationExt on SyncEngine {
     }
 
     return jsonEncode({
-      'version': 6,
+      'version': 7, // v31: 新增 top-level `budgets` + items 的 projectBudgetSyncId
       'exportedAt': DateTime.now().toUtc().toIso8601String(),
       'ledgerId': ledger.id,
       'ledgerName': ledger.name,
@@ -688,6 +695,21 @@ extension SyncEngineSerializationExt on SyncEngine {
             parentName: parentName, parentSyncId: parentSyncId);
       }).toList(),
       'tags': tags.map((t) => EntitySerializer.serializeTag(t)).toList(),
+      'budgets': budgets.map((b) {
+        // 分类预算需要携带 categorySyncId,让对端 apply 时映射本地 int id。
+        String? categorySyncId;
+        if (b.categoryId != null) {
+          final cat = categories
+              .cast<Category?>()
+              .firstWhere((c) => c?.id == b.categoryId, orElse: () => null);
+          categorySyncId = cat?.syncId;
+        }
+        return EntitySerializer.serializeBudget(
+          b,
+          ledgerSyncId: ledger.syncId,
+          categorySyncId: categorySyncId,
+        );
+      }).toList(),
       'items': items,
     });
   }
