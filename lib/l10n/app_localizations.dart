@@ -13376,6 +13376,12 @@ abstract class AppLocalizations {
   /// **'No budget'**
   String get txFlagBudgetExcludedTag;
 
+  /// No description provided for @txContinueEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Record another'**
+  String get txContinueEntry;
+
   /// No description provided for @txCurrencyLabel.
   ///
   /// In en, this message translates to:

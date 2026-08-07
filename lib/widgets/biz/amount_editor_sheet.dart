@@ -196,6 +196,9 @@ typedef AmountEditorResult = ({
   // 与折本位币快照(同币种 == amount;外币 = amount × 汇率,缺汇率已在提交前阻断)。
   String? currencyCode,
   double? nativeAmount,
+  // 再记一笔(连续记账):为 true 时上层保存后不关闭弹窗/编辑器,清空表单
+  // 等待输入下一笔;为 false 时维持原行为(保存后关闭)。
+  bool continueEntry,
 });
 
 class AmountEditorSheet extends ConsumerStatefulWidget {
@@ -266,6 +269,9 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
 
   // 防重复提交标志
   bool _isSubmitting = false;
+
+  // 再记一笔(连续记账):保存成功后不关闭弹窗,清空表单继续录入
+  bool _continueEntry = false;
 
   // 已选标签ID列表
   late List<int> _selectedTagIds;
@@ -346,6 +352,20 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     if (!mounted) return; // 弹窗已关时不再 setState(widget 测试暴露的既有问题)
     setState(() {
       _frequentNotes = notes;
+    });
+  }
+
+  /// 再记一笔:保存成功后不关闭弹窗,清空金额/备注/标签/附件与运算状态,
+  /// 保留分类上下文(账户/日期/标记/币种),等待录入下一笔。
+  void _resetForNextEntry() {
+    setState(() {
+      _amountStr = '0';
+      _acc = 0;
+      _op = null;
+      _noteCtrl.clear();
+      _selectedTagIds = [];
+      _pendingAttachments = [];
+      _isSubmitting = false;
     });
   }
 
@@ -989,6 +1009,41 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
             // 标签和附件选择区域（一行）
             const SizedBox(height: 8),
             _buildTagAndAttachmentRow(),
+            // 再记一笔(连续记账):仅新建收支显示(转账无意义,编辑模式不适用)
+            if (widget.editingTransactionId == null &&
+                widget.transactionKind != 'transfer') ...[
+              const SizedBox(height: 4),
+              InkWell(
+                onTap: () => setState(() => _continueEntry = !_continueEntry),
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _continueEntry
+                            ? Icons.check_box
+                            : Icons.check_box_outline_blank,
+                        size: 20,
+                        color: _continueEntry
+                            ? Theme.of(context).colorScheme.primary
+                            : BeeTokens.iconSecondary(context),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        AppLocalizations.of(context).txContinueEntry,
+                        style: TextStyle(
+                          color: BeeTokens.textSecondary(context),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 10),
             // 数字键盘
             LayoutBuilder(builder: (ctx, c) {
@@ -1118,10 +1173,15 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                                 excludeFromBudget: _excludeFromBudget,
                                 currencyCode: txCurrency,
                                 nativeAmount: nativeAmount,
+                                continueEntry: _continueEntry,
                               ));
 
-                              // 注意：不需要在这里重置 _isSubmitting
-                              // 因为提交后整个 Sheet 会被关闭，State 会被销毁
+                              // 再记一笔:提交后不关闭,清空表单等待下一笔。
+                              // 非连续模式由上层 onSubmit 完成后统一关闭
+                              // sheet 与编辑器页面(本 sheet 不做 pop)。
+                              if (_continueEntry) {
+                                _resetForNextEntry();
+                              }
                             }
                           : null,
                       child: SizedBox(

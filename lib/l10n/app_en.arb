@@ -3148,6 +3148,7 @@
   "txFlagExcludeFromBudgetHint": "Doesn't count against your budget",
   "txFlagExcludedTag": "Excluded",
   "txFlagBudgetExcludedTag": "No budget",
+  "txContinueEntry": "Record another",
   "txCurrencyLabel": "Currency",
   "txRateLabel": "Rate",
   "txConvertedPreview": "≈ {amount} {currency}",

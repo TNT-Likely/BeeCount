@@ -2169,5 +2169,6 @@
   "txFlagExcludeFromStatsHint": "통계에서는 제외되지만 잔액에는 계속 반영됩니다",
   "txFlagExcludeFromBudgetHint": "예산에는 반영되지 않습니다",
   "txFlagExcludedTag": "제외됨",
-  "txFlagBudgetExcludedTag": "예산 제외"
+  "txFlagBudgetExcludedTag": "예산 제외",
+  "txContinueEntry": "한 건 더 기록"
 }
