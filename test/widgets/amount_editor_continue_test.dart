@@ -1,6 +1,7 @@
 /// 再记一笔(连续记账)交互:
-///   - 键盘键位于完成按钮上方;新建收支/转账均可切换,编辑模式置灰不可点
-///   - 勾选后提交:onSubmit 带 continueEntry=true,表单清空可继续录入
+///   - 键盘键位于完成按钮上方;点击 = 直接保存当前记录并清空表单继续录入
+///   - 新建收支/转账均可使用,编辑模式置灰不可点
+///   - 提交时 onSubmit 带 continueEntry=true,表单清空可继续录入
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -68,7 +69,7 @@ void main() {
     );
   }
 
-  testWidgets('再记一笔键:新建收支/转账可切换,编辑模式置灰不可点', (tester) async {
+  testWidgets('再记一笔键:新建收支/转账可点击,编辑模式置灰不可点', (tester) async {
     await db.customStatement(
         "INSERT INTO ledgers (id, name, currency) VALUES (1, 'L', 'CNY')");
 
@@ -81,17 +82,20 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('再记一笔'), findsOneWidget);
 
-    // 编辑模式:键仍显示但置灰(非白字),点击无效果
-    await tester.pumpWidget(host(editingTransactionId: 5));
+    // 编辑模式:键仍显示但置灰(非白字),点击不触发提交
+    int submitCount = 0;
+    await tester.pumpWidget(
+        host(editingTransactionId: 5, onSubmit: (_) => submitCount++));
     await tester.pumpAndSettle();
     expect(find.text('再记一笔'), findsOneWidget);
     await tester.tap(find.text('再记一笔'));
     await tester.pump();
+    expect(submitCount, 0);
     final disabledKey = tester.widget<Text>(find.text('再记一笔'));
     expect(disabledKey.style?.color, isNot(Colors.white));
   });
 
-  testWidgets('再记一笔:勾选后提交 continueEntry=true,表单清空可继续录入',
+  testWidgets('再记一笔:点击即提交 continueEntry=true,表单清空可继续录入',
       (tester) async {
     await db.customStatement(
         "INSERT INTO ledgers (id, name, currency) VALUES (1, 'L', 'CNY')");
@@ -107,14 +111,8 @@ void main() {
     }
     expect(find.text('12.5'), findsOneWidget);
 
-    // 点击键盘上的再记一笔键(激活态:主色背景 + 白字)
+    // 点击键盘上的再记一笔键:单步提交,无需再点完成
     await tester.tap(find.text('再记一笔'));
-    await tester.pump();
-    final activeKey = tester.widget<Text>(find.text('再记一笔'));
-    expect(activeKey.style?.color, Colors.white);
-
-    // 提交
-    await tester.tap(find.text('完成'));
     await tester.pump();
 
     expect(submitted, isNotNull);
@@ -129,7 +127,7 @@ void main() {
     expect(find.text('3'), findsNWidgets(2));
   });
 
-  testWidgets('再记一笔:转账模式勾选同样生效', (tester) async {
+  testWidgets('再记一笔:转账模式点击同样生效', (tester) async {
     await db.customStatement(
         "INSERT INTO ledgers (id, name, currency) VALUES (1, 'L', 'CNY')");
 
@@ -144,10 +142,8 @@ void main() {
       await tester.pump();
     }
 
-    // 勾选再记一笔并提交
+    // 点击再记一笔:直接提交
     await tester.tap(find.text('再记一笔'));
-    await tester.pump();
-    await tester.tap(find.text('完成'));
     await tester.pump();
 
     expect(submitted, isNotNull);

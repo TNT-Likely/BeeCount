@@ -270,9 +270,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   // 防重复提交标志
   bool _isSubmitting = false;
 
-  // 再记一笔(连续记账):保存成功后不关闭弹窗,清空表单继续录入
-  bool _continueEntry = false;
-
   // 已选标签ID列表
   late List<int> _selectedTagIds;
 
@@ -367,6 +364,53 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       _pendingAttachments = [];
       _isSubmitting = false;
     });
+  }
+
+  /// 提交当前记录。continueEntry=true 时(再记一笔)提交后不关闭弹窗,
+  /// 清空表单继续录入下一笔;false 时由上层 onSubmit 完成后统一关闭。
+  /// 外币且汇率无效 → 阻断(L8)。
+  Future<void> _submit({required bool continueEntry}) async {
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+
+    // v30:折本位币快照
+    final cur = parsed();
+    final total = _op == null ? cur : _compute(_acc, _op!, cur);
+    final txCurrency = _txCurrency();
+    final ledgerBase = ref.read(currentLedgerCurrencyProvider);
+    double? nativeAmount;
+    if (txCurrency == ledgerBase) {
+      nativeAmount = total.abs();
+    } else {
+      final r = _currentRate();
+      if (r == null || r <= 0) {
+        setState(() => _isSubmitting = false);
+        showToast(context,
+            AppLocalizations.of(context).txRateMissingHint);
+        return;
+      }
+      nativeAmount = total.abs() * r;
+    }
+
+    HapticFeedback.lightImpact();
+    SystemSound.play(SystemSoundType.click);
+    widget.onSubmit((
+      amount: total.abs(), // 始终正数
+      note: _noteCtrl.text.isEmpty ? null : _noteCtrl.text,
+      date: _date,
+      accountId: _selectedAccountId,
+      tagIds: _selectedTagIds,
+      pendingAttachments: _pendingAttachments,
+      excludeFromStats: _excludeFromStats,
+      excludeFromBudget: _excludeFromBudget,
+      currencyCode: txCurrency,
+      nativeAmount: nativeAmount,
+      continueEntry: continueEntry,
+    ));
+
+    if (continueEntry) {
+      _resetForNextEntry();
+    }
   }
 
   Future<void> _loadAccountCurrency(int accountId) async {
@@ -620,29 +664,35 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     );
   }
 
-  /// 再记一笔(连续记账)键盘键:位于完成按钮上方。新建模式(收支/转账)
-  /// 可点击切换(激活 = 主色高亮 + 白字勾),编辑模式置灰不可用,布局恒定。
+  /// 再记一笔(连续记账)键盘键:位于完成按钮上方。点击 = 直接保存当前
+  /// 记录并清空表单继续录入下一笔(单步提交,无需再点完成)。运算模式下
+  /// 先按等号结算再提交。编辑模式置灰不可用,布局恒定。
   Widget _buildContinueEntryKey(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final primary = Theme.of(context).colorScheme.primary;
-    final enabled = widget.editingTransactionId == null;
-    final active = _continueEntry && enabled;
+    final editing = widget.editingTransactionId != null;
+    final cur = parsed();
+    final total = _op == null ? cur : _compute(_acc, _op!, cur);
+    final isInCalcMode = _op != null;
+    final enabled = !editing &&
+        (isInCalcMode ? true : total.abs() > 0) &&
+        !_isSubmitting;
     return Padding(
       padding: const EdgeInsets.all(6),
       child: Material(
-        color: active
-            ? primary
-            : enabled
-                ? BeeTokens.surfaceKeySecondary(context)
-                : BeeTokens.surfaceDisabled(context),
+        color: enabled
+            ? BeeTokens.surfaceKeySecondary(context)
+            : BeeTokens.surfaceDisabled(context),
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: enabled
-              ? () {
+              ? () async {
                   HapticFeedback.selectionClick();
                   SystemSound.play(SystemSoundType.click);
-                  setState(() => _continueEntry = !_continueEntry);
+                  if (isInCalcMode) {
+                    applyEquals();
+                  }
+                  await _submit(continueEntry: true);
                 }
               : null,
           child: SizedBox(
@@ -650,19 +700,13 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (active) ...[
-                  const Icon(Icons.check, size: 14, color: Colors.white),
-                  const SizedBox(height: 2),
-                ],
                 Text(
                   AppLocalizations.of(context).txContinueEntry,
                   textAlign: TextAlign.center,
                   style: text.labelSmall?.copyWith(
-                    color: active
-                        ? Colors.white
-                        : enabled
-                            ? BeeTokens.textSecondary(context)
-                            : BeeTokens.textTertiary(context),
+                    color: enabled
+                        ? BeeTokens.textSecondary(context)
+                        : BeeTokens.textTertiary(context),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -1182,56 +1226,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                                 applyEquals();
                                 return;
                               }
-
-                              // 正常模式：提交
-                              // 防重复点击
-                              if (_isSubmitting) return;
-                              setState(() => _isSubmitting = true);
-
-                              // v30:折本位币快照。外币且汇率无效 → 阻断(L8)。
-                              final txCurrency = _txCurrency();
-                              final ledgerBase =
-                                  ref.read(currentLedgerCurrencyProvider);
-                              double? nativeAmount;
-                              if (txCurrency == ledgerBase) {
-                                nativeAmount = total.abs();
-                              } else {
-                                final r = _currentRate();
-                                if (r == null || r <= 0) {
-                                  setState(() => _isSubmitting = false);
-                                  showToast(
-                                      context,
-                                      AppLocalizations.of(context)
-                                          .txRateMissingHint);
-                                  return;
-                                }
-                                nativeAmount = total.abs() * r;
-                              }
-
-                              HapticFeedback.lightImpact();
-                              SystemSound.play(SystemSoundType.click);
-                              widget.onSubmit((
-                                amount: total.abs(), // 始终正数
-                                note: _noteCtrl.text.isEmpty
-                                    ? null
-                                    : _noteCtrl.text,
-                                date: _date,
-                                accountId: _selectedAccountId,
-                                tagIds: _selectedTagIds,
-                                pendingAttachments: _pendingAttachments,
-                                excludeFromStats: _excludeFromStats,
-                                excludeFromBudget: _excludeFromBudget,
-                                currencyCode: txCurrency,
-                                nativeAmount: nativeAmount,
-                                continueEntry: _continueEntry,
-                              ));
-
-                              // 再记一笔:提交后不关闭,清空表单等待下一笔。
-                              // 非连续模式由上层 onSubmit 完成后统一关闭
-                              // sheet 与编辑器页面(本 sheet 不做 pop)。
-                              if (_continueEntry) {
-                                _resetForNextEntry();
-                              }
+                              // 正常模式：提交(由上层关闭弹窗与编辑器页面)
+                              await _submit(continueEntry: false);
                             }
                           : null,
                       child: SizedBox(
