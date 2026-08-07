@@ -812,6 +812,27 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     return r.round(scale: 2).toDouble();
   }
 
+  /// 当前金额串解析为数值(非法时按 0 处理)。
+  double parsed() => double.tryParse(_amountStr) ?? 0.0;
+
+  /// 计算等号:完成当前运算,将结果存入 _amountStr,清空运算状态。
+  void applyEquals() {
+    if (_op == null) return; // 没有运算符,不执行
+    final cur = parsed();
+    final total = _compute(_acc, _op!, cur);
+    // 格式化结果
+    final s = total.abs().toStringAsFixed(2);
+    final trimmed = s.contains('.')
+        ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '')
+        : s;
+    _amountStr = trimmed.isEmpty ? '0' : trimmed;
+    _acc = 0;
+    _op = null;
+    HapticFeedback.selectionClick();
+    SystemSound.play(SystemSoundType.click);
+    setState(() {});
+  }
+
   /// 运算符显示字形(减号用真减号 −,而非连字符 -)。
   String _opGlyph(String op) {
     switch (op) {
@@ -840,8 +861,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     // 如果备注框有焦点且键盘弹出，固定增加100的padding
     final extraPadding = (_noteFieldHasFocus && keyboardHeight > 0) ? 100.0 : 0.0;
 
-    double parsed() => double.tryParse(_amountStr) ?? 0.0;
-
     void applyOp(String op) {
       final cur = parsed();
       if (_op == null) {
@@ -853,24 +872,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       }
       _op = op;
       _amountStr = '0';
-      HapticFeedback.selectionClick();
-      SystemSound.play(SystemSoundType.click);
-      setState(() {});
-    }
-
-    // 计算等号：完成当前运算，将结果存入 _amountStr，清空运算状态
-    void applyEquals() {
-      if (_op == null) return; // 没有运算符，不执行
-      final cur = parsed();
-      final total = _compute(_acc, _op!, cur);
-      // 格式化结果
-      final s = total.abs().toStringAsFixed(2);
-      final trimmed = s.contains('.')
-          ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '')
-          : s;
-      _amountStr = trimmed.isEmpty ? '0' : trimmed;
-      _acc = 0;
-      _op = null;
       HapticFeedback.selectionClick();
       SystemSound.play(SystemSoundType.click);
       setState(() {});
