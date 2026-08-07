@@ -371,7 +371,6 @@ For commercial licensing pricing and process, see [COMMERCIAL_LICENSE.md](COMMER
 | [BeeCount-Cloud](https://github.com/TNT-Likely/BeeCount-Cloud) | Self-hosted sync server + Web admin (FastAPI + React) |
 | [BeeCount-Website](https://github.com/TNT-Likely/BeeCount-Website) | Website / docs repo |
 | [beecount-openharmony](https://github.com/TNT-Likely/beecount-openharmony) | HarmonyOS version (discontinued) |
-| [BeeShot](https://github.com/TNT-Likely/BeeShot) | App Store screenshot generator |
 | [honeycomb](https://github.com/TNT-Likely/honeycomb) | Claude Code plugin marketplace (skills/agents used for developing this project) |
 
 ---

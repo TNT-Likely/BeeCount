@@ -371,7 +371,6 @@ A: 使用自己的服务器 / Storage / Bucket,WebDAV 和 S3 建议 HTTPS 加密
 | [BeeCount-Cloud](https://github.com/TNT-Likely/BeeCount-Cloud) | 自建云同步服务端 + Web 管理端(FastAPI + React) |
 | [BeeCount-Website](https://github.com/TNT-Likely/BeeCount-Website) | 官网 / 文档仓库 |
 | [beecount-openharmony](https://github.com/TNT-Likely/beecount-openharmony) | 鸿蒙版本(已停止更新) |
-| [BeeShot](https://github.com/TNT-Likely/BeeShot) | App Store 截图生成器 |
 | [honeycomb](https://github.com/TNT-Likely/honeycomb) | Claude Code 开发脚手架插件市场(本项目开发用的 skills/agents 集合) |
 
 ---
