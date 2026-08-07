@@ -932,109 +932,115 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
           children: [
             // 顶部行:左侧日期按钮与右侧金额显示区等高对齐(stretch)。
             // 金额显示区域(表达式模式)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  width: 88,
-                  child: _buildDateButton(context),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                    // 表达式行:左侧 = 共享账本作者头像(仅编辑模式 + 共享账本时
-                    // 显示);右侧 = 金额表达式。新建 tx / 单人账本时左侧为空。
-                    Row(
+            // 注意:必须包 IntrinsicHeight——否则 stretch 会把整行拉伸到
+            // sheet 最大高度(有界约束),导致键盘等被挤出屏幕(全屏空白 bug)。
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(
+                    width: 88,
+                    child: _buildDateButton(context),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        if (widget.editingTransactionId != null)
-                          _TxAuthorAvatars(
-                              editingTransactionId: widget.editingTransactionId!),
-                        const Spacer(),
-                        // v30 币种标:整个金额表达式的最左侧(反馈11:运算模式下
-                        // 不能夹在「10 + 20」中间),点开选币种。
-                        _buildCurrencyChip(context),
-                        const SizedBox(width: 6),
-                        if (_op != null) ...[
-                          // 显示累加值
+                      // 表达式行:左侧 = 共享账本作者头像(仅编辑模式 + 共享账本时
+                      // 显示);右侧 = 金额表达式。新建 tx / 单人账本时左侧为空。
+                      Row(
+                        children: [
+                          if (widget.editingTransactionId != null)
+                            _TxAuthorAvatars(
+                                editingTransactionId:
+                                    widget.editingTransactionId!),
+                          const Spacer(),
+                          // v30 币种标:整个金额表达式的最左侧(反馈11:运算模式下
+                          // 不能夹在「10 + 20」中间),点开选币种。
+                          _buildCurrencyChip(context),
+                          const SizedBox(width: 6),
+                          if (_op != null) ...[
+                            // 显示累加值
+                            Text(
+                              (() {
+                                final s = _acc.abs().toStringAsFixed(2);
+                                final r1 = s.contains('.')
+                                    ? s.replaceFirst(RegExp(r'0+$'), '')
+                                    : s;
+                                return r1.endsWith('.')
+                                    ? r1.substring(0, r1.length - 1)
+                                    : r1;
+                              })(),
+                              style: text.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: BeeTokens.textSecondary(context),
+                              ),
+                            ),
+                            // 显示运算符
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Text(
+                                _opGlyph(_op!),
+                                style: text.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                          // 当前输入值
                           Text(
-                            (() {
-                              final s = _acc.abs().toStringAsFixed(2);
-                              final r1 = s.contains('.')
-                                  ? s.replaceFirst(RegExp(r'0+$'), '')
-                                  : s;
-                              return r1.endsWith('.')
-                                  ? r1.substring(0, r1.length - 1)
-                                  : r1;
-                            })(),
-                            style: text.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: BeeTokens.textSecondary(context),
+                            _amountStr,
+                            style: text.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.0,
+                              color: BeeTokens.textPrimary(context),
                             ),
                           ),
-                          // 显示运算符
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Text(
-                              _opGlyph(_op!),
+                        ],
+                      ),
+                      // 等号行：仅在有运算符时显示
+                      if (_op != null) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              '= ',
+                              style: text.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: BeeTokens.textTertiary(context),
+                              ),
+                            ),
+                            Text(
+                              (() {
+                                final cur = parsed();
+                                final total = _compute(_acc, _op!, cur);
+                                final s = total.abs().toStringAsFixed(2);
+                                final r1 = s.contains('.')
+                                    ? s.replaceFirst(RegExp(r'0+$'), '')
+                                    : s;
+                                return r1.endsWith('.')
+                                    ? r1.substring(0, r1.length - 1)
+                                    : r1;
+                              })(),
                               style: text.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: primary,
                               ),
                             ),
-                          ),
-                        ],
-                        // 当前输入值
-                        Text(
-                          _amountStr,
-                          style: text.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.0,
-                            color: BeeTokens.textPrimary(context),
-                          ),
+                          ],
                         ),
                       ],
+                      // v30 折算预览:金额模块区域内、金额/等号下方(反馈11)。
+                      _buildCurrencySection(context),
+                      ],
                     ),
-                    // 等号行：仅在有运算符时显示
-                    if (_op != null) ...[
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            '= ',
-                            style: text.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: BeeTokens.textTertiary(context),
-                            ),
-                          ),
-                          Text(
-                            (() {
-                              final cur = parsed();
-                              final total = _compute(_acc, _op!, cur);
-                              final s = total.abs().toStringAsFixed(2);
-                              final r1 = s.contains('.')
-                                  ? s.replaceFirst(RegExp(r'0+$'), '')
-                                  : s;
-                              return r1.endsWith('.')
-                                  ? r1.substring(0, r1.length - 1)
-                                  : r1;
-                            })(),
-                            style: text.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                    // v30 折算预览:金额模块区域内、金额/等号下方(反馈11)。
-                    _buildCurrencySection(context),
-                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 10),
             // 备注输入区域 - 带历史备注图标前缀
