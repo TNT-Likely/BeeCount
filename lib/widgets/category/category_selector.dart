@@ -299,10 +299,12 @@ class _CategorySelectorState extends ConsumerState<CategorySelector> {
             );
             displayItems.add(const SizedBox(height: 12));
 
-            return ListView(
+            return SafeArea(
+                top: false,
+                child: ListView(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
               children: displayItems,
-            );
+            ));
           },
         );
       },

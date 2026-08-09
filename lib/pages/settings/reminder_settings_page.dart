@@ -27,6 +27,7 @@ class ReminderSettingsPage extends ConsumerWidget {
             showBack: true,
           ),
           Expanded(
+              child: SafeArea(
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
@@ -390,7 +391,7 @@ class ReminderSettingsPage extends ConsumerWidget {
           const SizedBox(height: 32),
                 ],
               ),
-            ),
+            )),
           ],
         ),
       );

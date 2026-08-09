@@ -182,6 +182,8 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
               ],
             ),
             Expanded(
+                child: SafeArea(
+              top: false,
               child: Stack(
                 children: [
                   if (_controller != null && !_failed)
@@ -234,7 +236,7 @@ class _HelpCenterPageState extends ConsumerState<HelpCenterPage> {
                     ),
                 ],
               ),
-            ),
+            )),
           ],
         ),
       ),

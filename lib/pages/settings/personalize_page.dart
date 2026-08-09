@@ -64,6 +64,7 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
             compact: true,
           ),
           Expanded(
+              child: SafeArea(
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -98,7 +99,7 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
                 ),
               ],
             ),
-          ),
+          )),
         ],
       ),
     );

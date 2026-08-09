@@ -114,8 +114,9 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
             ] : null,
           ),
           Expanded(
-            child: Form(
-              key: _formKey,
+              child: Form(
+            key: _formKey,
+            child: SafeArea(
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
@@ -209,7 +210,7 @@ class _RecurringTransactionEditPageState extends ConsumerState<RecurringTransact
                 ],
               ),
             ),
-          ),
+          )),
 
           // 底部保存按钮
           Container(
