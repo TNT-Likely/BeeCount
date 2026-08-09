@@ -1543,14 +1543,18 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
         await ref.read(cloudServiceStoreProvider).saveOnly(cfg);
         ref.invalidate(beecountCloudConfigProvider);
         ref.invalidate(activeCloudConfigProvider);
+        ref.invalidate(beecountCloudProviderInstance);
         if (mounted) showToast(context, AppLocalizations.of(context).cloudConfigSaved);
 
         // 如果提供了邮箱和密码，尝试登录（恢复旧行为）
         if (email.isNotEmpty && password.isNotEmpty) {
           try {
-            final services = await createCloudServices(cfg);
-            if (services.auth != null) {
-              await services.auth!.signInWithEmail(
+            // 在全 App 唯一的 provider 上登录，避免 2FA session 只写入临时
+            // auth 实例、SyncEngine 仍持有未登录实例。
+            final provider =
+                await ref.read(beecountCloudProviderInstance.future);
+            if (provider != null) {
+              await provider.auth.signInWithEmail(
                 email: email,
                 password: password,
               );
