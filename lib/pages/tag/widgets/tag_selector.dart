@@ -56,9 +56,13 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     // §7 共享账本:Editor + 共享账本 picker 只显示 Owner mirror tags
-    final allTagsAsync = ref.watch(tagsForCurrentLedgerProvider);
-    final recentTagsAsync = ref.watch(recentTagsForCurrentLedgerProvider);
+    final allTagsAsync =
+        ref.watch(tagsForCurrentLedgerProvider).unwrapPrevious();
+    final recentTagsAsync =
+        ref.watch(recentTagsForCurrentLedgerProvider).unwrapPrevious();
     final canCreateTag = ref.watch(canCreateTagForCurrentLedgerProvider);
+    final visibleTagIds =
+        allTagsAsync.valueOrNull?.map((tag) => tag.id).toSet();
 
     return Container(
       constraints: BoxConstraints(
@@ -112,7 +116,20 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
                   ],
                 ),
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(_selectedIds.toList()),
+                  // Editor 必须等当前账本标签加载完成后才能确认。正数 ID 是升级前
+                  // 残留的个人标签，必须清掉；负数是 Owner mirror 的 synthetic ID，
+                  // 即使本轮资源拉取失败暂不可见也要保留，避免静默删除有效关联。
+                  onPressed: !canCreateTag && visibleTagIds == null
+                      ? null
+                      : () {
+                          final selected = canCreateTag
+                              ? _selectedIds.toList()
+                              : _selectedIds
+                                  .where((id) =>
+                                      id < 0 || visibleTagIds!.contains(id))
+                                  .toList();
+                          Navigator.of(context).pop(selected);
+                        },
                   child: Text(l10n.commonConfirm),
                 ),
               ],
@@ -152,7 +169,9 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
                 final filteredTags = _searchText.isEmpty
                     ? allTags
                     : allTags
-                        .where((t) => t.name.toLowerCase().contains(_searchText.toLowerCase()))
+                        .where((t) => t.name
+                            .toLowerCase()
+                            .contains(_searchText.toLowerCase()))
                         .toList();
 
                 if (filteredTags.isEmpty && allTags.isEmpty) {
@@ -184,7 +203,9 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
                     // 全部标签
                     if (filteredTags.isNotEmpty)
                       _buildSection(
-                        _searchText.isEmpty ? l10n.tagSelectAllTags : '${l10n.commonSearch}结果',
+                        _searchText.isEmpty
+                            ? l10n.tagSelectAllTags
+                            : '${l10n.commonSearch}结果',
                         filteredTags,
                       ),
 
@@ -219,7 +240,7 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
           ),
           const SizedBox(height: 12),
           Text(
-            '暂无标签',
+            l10n.tagManageEmpty,
             style: TextStyle(
               color: BeeTokens.textSecondary(context),
             ),
@@ -332,6 +353,8 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
         builder: (_) => const TagEditPage(),
       ),
     );
+
+    if (!mounted) return;
 
     // 如果创建了新标签，自动选中
     if (result != null) {

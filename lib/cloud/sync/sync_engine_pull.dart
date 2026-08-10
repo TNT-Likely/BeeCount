@@ -54,8 +54,8 @@ class AppCursorStore {
     final providerCursor = prefs.getInt(providerKey);
     if (providerCursor != null && providerCursor > 0) {
       await prefs.setInt(appKey, providerCursor);
-      logger.info('AppCursorStore',
-          '复制 provider cursor → app cursor: $providerCursor');
+      logger.info(
+          'AppCursorStore', '复制 provider cursor → app cursor: $providerCursor');
     }
   }
 
@@ -222,17 +222,19 @@ class SyncErrorStore {
 /// account / tag 的 syncId 映射,10k 条 ≈ 80-100k SELECT,iOS SQLite 主线程
 /// 阻塞数十分钟(用户实测 1 万条 20 分钟)。
 ///
-/// 改造后:pull 入口 [prime] 一次性加载 4 张表全表 syncId→id,apply 内查
+/// 改造后:pull 入口 [prime] 一次性加载实体 ID、账本角色和共享标签索引,apply 内查
 /// cache,miss 才走 DB(insert 新实体后调 [putXxx] 写回)。10k 条 SELECT
-/// 从 ~10万 降到 ~5(prime)+ 极少量 miss。
+/// 从 ~10万 降到 ~6(prime)+ 极少量 miss。
 ///
 /// **生命周期**:SyncEngine 每次 pull 入口 new 一个实例赋值给 `activePullCache`,
 /// pull 结束清空。不跨 pull 复用,避免长期持有大 map。
 class LookupCache {
   final Map<String, int> _ledger = {};
+  final Map<int, _LedgerTagContext> _ledgerTagContext = {};
   final Map<String, int> _category = {};
   final Map<String, int> _account = {};
   final Map<String, int> _tag = {};
+  final Map<String, List<SharedLedgerTag>> _sharedTagsByLedgerAndName = {};
 
   /// transactions 表 syncId → 已存在记录的轻量信息(id + createdByUserId)。
   /// `_applyTransactionChange` 每条都要查 existing tx 决定 INSERT/UPDATE,
@@ -244,6 +246,11 @@ class LookupCache {
     for (final l in ledgers) {
       final s = l.syncId;
       if (s != null && s.isNotEmpty) _ledger[s] = l.id;
+      _ledgerTagContext[l.id] = _LedgerTagContext(
+        syncId: s,
+        isShared: l.isShared,
+        myRole: l.myRole,
+      );
     }
     final categories = await db.select(db.categories).get();
     for (final c in categories) {
@@ -260,6 +267,15 @@ class LookupCache {
       final s = t.syncId;
       if (s != null && s.isNotEmpty) _tag[s] = t.id;
     }
+    final sharedTags = await db.select(db.sharedLedgerTags).get();
+    for (final tag in sharedTags) {
+      _sharedTagsByLedgerAndName
+          .putIfAbsent(
+            _sharedTagNameKey(tag.ledgerSyncId, tag.name),
+            () => <SharedLedgerTag>[],
+          )
+          .add(tag);
+    }
     // tx 全表加载:只保留 id + syncId + createdByUserId(每行 ~100B,10k 条 ~1MB)
     final txs = await db.select(db.transactions).get();
     for (final t in txs) {
@@ -268,9 +284,11 @@ class LookupCache {
         _tx[s] = _TxCacheEntry(id: t.id, createdByUserId: t.createdByUserId);
       }
     }
-    logger.info('LookupCache',
+    logger.info(
+        'LookupCache',
         'prime: ledgers=${_ledger.length} categories=${_category.length} '
-        'accounts=${_account.length} tags=${_tag.length} transactions=${_tx.length}');
+            'accounts=${_account.length} tags=${_tag.length} '
+            'sharedTags=${sharedTags.length} transactions=${_tx.length}');
   }
 
   int? ledgerId(String? syncId) =>
@@ -281,18 +299,48 @@ class LookupCache {
       (syncId == null || syncId.isEmpty) ? null : _account[syncId];
   int? tagId(String? syncId) =>
       (syncId == null || syncId.isEmpty) ? null : _tag[syncId];
+  // ignore: library_private_types_in_public_api
+  _LedgerTagContext? ledgerTagContext(int ledgerId) =>
+      _ledgerTagContext[ledgerId];
+  List<SharedLedgerTag> sharedTagsByName(String ledgerSyncId, String name) =>
+      _sharedTagsByLedgerAndName[_sharedTagNameKey(ledgerSyncId, name)] ??
+      const <SharedLedgerTag>[];
+
   /// `_TxCacheEntry` 是 part 内私有,仅供 apply 路径用,所以 ignore lint。
   // ignore: library_private_types_in_public_api
   _TxCacheEntry? transaction(String? syncId) =>
       (syncId == null || syncId.isEmpty) ? null : _tx[syncId];
 
   void putLedger(String syncId, int id) => _ledger[syncId] = id;
+  void putLedgerTagContext(Ledger ledger) {
+    _ledgerTagContext[ledger.id] = _LedgerTagContext(
+      syncId: ledger.syncId,
+      isShared: ledger.isShared,
+      myRole: ledger.myRole,
+    );
+  }
+
   void putCategory(String syncId, int id) => _category[syncId] = id;
   void putAccount(String syncId, int id) => _account[syncId] = id;
   void putTag(String syncId, int id) => _tag[syncId] = id;
   void putTransaction(String syncId, int id, String? createdByUserId) =>
       _tx[syncId] = _TxCacheEntry(id: id, createdByUserId: createdByUserId);
   void removeTransaction(String syncId) => _tx.remove(syncId);
+
+  static String _sharedTagNameKey(String ledgerSyncId, String name) =>
+      '$ledgerSyncId\u0000$name';
+}
+
+class _LedgerTagContext {
+  const _LedgerTagContext({
+    required this.syncId,
+    required this.isShared,
+    required this.myRole,
+  });
+
+  final String? syncId;
+  final bool isShared;
+  final String? myRole;
 }
 
 /// transactions 表的轻量缓存条目。只存 apply 路径会用到的 2 个字段。

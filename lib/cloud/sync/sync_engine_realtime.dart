@@ -40,9 +40,10 @@ extension SyncEngineRealtime on SyncEngine {
             '收到 member_change: ledger=${event.ledgerId} change=${event.rawData['changeType']}');
         unawaited(_handleMemberChange(event));
       } else if (event.type == 'shared_resource_change') {
-        logger.info('SyncEngine',
+        logger.info(
+            'SyncEngine',
             '收到 shared_resource_change: ledger=${event.ledgerId} '
-            'resource=${event.rawData['resourceType']} action=${event.rawData['action']}');
+                'resource=${event.rawData['resourceType']} action=${event.rawData['action']}');
         unawaited(_handleSharedResourceChange(event));
       }
     }, onError: (Object e) {
@@ -69,8 +70,7 @@ extension SyncEngineRealtime on SyncEngine {
     _autoSyncDebounce?.cancel();
     _autoSyncDebounce = Timer(const Duration(seconds: 2), () async {
       if (_autoSyncing) {
-        logger.debug('SyncEngine',
-            'auto sync 跳过 (reason=$reason, 已在执行中)');
+        logger.debug('SyncEngine', 'auto sync 跳过 (reason=$reason, 已在执行中)');
         return;
       }
       final resolver = ledgerIdResolver;
@@ -80,14 +80,14 @@ extension SyncEngineRealtime on SyncEngine {
       }
       final ledgerId = resolver();
       if (ledgerId.isEmpty || ledgerId == '0') {
-        logger.debug('SyncEngine',
-            'auto sync 跳过 (reason=$reason, ledgerId 为空)');
+        logger.debug(
+            'SyncEngine', 'auto sync 跳过 (reason=$reason, ledgerId 为空)');
         return;
       }
       _autoSyncing = true;
       try {
-        logger.info('SyncEngine',
-            'auto sync 触发 (reason=$reason, ledger=$ledgerId)');
+        logger.info(
+            'SyncEngine', 'auto sync 触发 (reason=$reason, ledger=$ledgerId)');
         // §7 共享账本:WS 重连 / 网络恢复时,顺手对账 ledger 列表 + 共享账本
         // 状态。如果 WS 期间错过了 member_change.removed(被踢),GC 1 会自动
         // 清掉本地残留共享账本;还有 dup ledger 检测兜底。
@@ -116,14 +116,13 @@ extension SyncEngineRealtime on SyncEngine {
           try {
             await _refreshAllSharedResourcesAfterReconnect();
           } catch (e, st) {
-            logger.error('SyncEngine',
-                '重连共享资源对账失败,继续 sync', e, st);
+            logger.error('SyncEngine', '重连共享资源对账失败,继续 sync', e, st);
           }
         }
         final result = await sync(ledgerId: ledgerId);
         if (result.hasError) {
-          logger.warning('SyncEngine',
-              'auto sync 失败 (reason=$reason): ${result.error}');
+          logger.warning(
+              'SyncEngine', 'auto sync 失败 (reason=$reason): ${result.error}');
         } else {
           logger.info('SyncEngine',
               'auto sync 完成 (reason=$reason): pushed=${result.pushed} pulled=${result.pulled}');
@@ -154,7 +153,9 @@ extension SyncEngineRealtime on SyncEngine {
     final myUserId = me?.id;
 
     try {
-      if (changeType == 'removed' && affectedUserId != null && affectedUserId == myUserId) {
+      if (changeType == 'removed' &&
+          affectedUserId != null &&
+          affectedUserId == myUserId) {
         // 自己被踢:清本地该 ledger 数据
         await _purgeLocalLedgerByExternalId(ledgerExternalId);
         _emit(PullCompleted(ledgerId: ledgerExternalId));
@@ -169,7 +170,9 @@ extension SyncEngineRealtime on SyncEngine {
       //      fetchAndStoreSharedResources 拉 SharedLedger* 资源)
       //   2. replayAllChanges 把 sync_changes 表所有历史 tx 重新 apply 到本地
       //      (单跑 _pull 拉不回历史 — 设备 cursor 已经在最新位置)
-      if (changeType == 'joined' && affectedUserId != null && affectedUserId == myUserId) {
+      if (changeType == 'joined' &&
+          affectedUserId != null &&
+          affectedUserId == myUserId) {
         logger.info('SyncEngine',
             '自己加入 ledger=$ledgerExternalId(可能 web 端 accept),触发完整初始化');
         await syncLedgersFromServer();
@@ -191,9 +194,20 @@ extension SyncEngineRealtime on SyncEngine {
   /// 处理 Owner user-global category/account/tag 变更的 fan-out。
   /// 直接增量更新本地 SharedLedger{Categories,Accounts,Tags} 行(写主表是
   /// Owner 操作,Editor 端只镜像)。
-  Future<void> _handleSharedResourceChange(BeeCountCloudRealtimeEvent event) async {
+  Future<void> _handleSharedResourceChange(
+      BeeCountCloudRealtimeEvent event) async {
     final ledgerExternalId = event.ledgerId;
     if (ledgerExternalId == null || ledgerExternalId.isEmpty) return;
+    await _runSharedResourceSerial(
+      ledgerExternalId,
+      () => _handleSharedResourceChangeUnlocked(event, ledgerExternalId),
+    );
+  }
+
+  Future<void> _handleSharedResourceChangeUnlocked(
+    BeeCountCloudRealtimeEvent event,
+    String ledgerExternalId,
+  ) async {
     final resourceType = event.rawData['resourceType'] as String?;
     final action = event.rawData['action'] as String?;
     final payload = event.rawData['payload'];
@@ -201,8 +215,8 @@ extension SyncEngineRealtime on SyncEngine {
     // Mobile serialize tag/category/account 时 key 是 camelCase('syncId'),
     // 但 server fan-out 时 ev["sync_id"] 也填了 entity_sync_id 兜底。
     // 优先读 camelCase(mobile push 实际值),snake_case 兜底。
-    final syncId = (payload['syncId'] as String?) ??
-        (payload['sync_id'] as String?);
+    final syncId =
+        (payload['syncId'] as String?) ?? (payload['sync_id'] as String?);
     if (syncId == null || syncId.isEmpty) return;
     final now = DateTime.now().toUtc();
 
@@ -224,17 +238,16 @@ extension SyncEngineRealtime on SyncEngine {
                     name: (payload['name'] as String?) ?? '',
                     kind: (payload['kind'] as String?) ?? 'expense',
                     icon: d.Value(payload['icon'] as String?),
-                    iconType: d.Value(
-                        (payload['iconType'] as String?) ?? 'material'),
+                    iconType:
+                        d.Value((payload['iconType'] as String?) ?? 'material'),
                     iconCloudFileId:
                         d.Value(payload['iconCloudFileId'] as String?),
                     iconCloudSha256:
                         d.Value(payload['iconCloudSha256'] as String?),
                     color: d.Value(payload['color'] as String?),
-                    sortOrder: d.Value(
-                        (payload['sortOrder'] as num?)?.toInt() ?? 0),
-                    level:
-                        d.Value((payload['level'] as num?)?.toInt() ?? 1),
+                    sortOrder:
+                        d.Value((payload['sortOrder'] as num?)?.toInt() ?? 0),
+                    level: d.Value((payload['level'] as num?)?.toInt() ?? 1),
                     parentName: d.Value(payload['parentName'] as String?),
                     parentSyncId: d.Value(payload['parentSyncId'] as String?),
                     updatedAt: now,
@@ -256,28 +269,26 @@ extension SyncEngineRealtime on SyncEngine {
           } else {
             // mobile EntitySerializer.serializeAccount 用 'type' 字段
             // (跟主表 Accounts.type 一致),WS handler 也按 'type' 读
-            final accountType =
-                (payload['type'] as String?) ?? 'cash';
+            final accountType = (payload['type'] as String?) ?? 'cash';
             await db.into(db.sharedLedgerAccounts).insertOnConflictUpdate(
                   SharedLedgerAccountsCompanion.insert(
                     ledgerSyncId: ledgerExternalId,
                     syncId: syncId,
                     name: (payload['name'] as String?) ?? '',
                     accountType: d.Value(accountType),
-                    currency: d.Value(
-                        (payload['currency'] as String?) ?? 'CNY'),
+                    currency:
+                        d.Value((payload['currency'] as String?) ?? 'CNY'),
                     note: d.Value(payload['note'] as String?),
                     initialBalance: d.Value(
                         (payload['initialBalance'] as num?)?.toDouble()),
-                    creditLimit: d.Value(
-                        (payload['creditLimit'] as num?)?.toDouble()),
-                    billingDay: d.Value(
-                        (payload['billingDay'] as num?)?.toInt()),
-                    paymentDueDay: d.Value(
-                        (payload['paymentDueDay'] as num?)?.toInt()),
+                    creditLimit:
+                        d.Value((payload['creditLimit'] as num?)?.toDouble()),
+                    billingDay:
+                        d.Value((payload['billingDay'] as num?)?.toInt()),
+                    paymentDueDay:
+                        d.Value((payload['paymentDueDay'] as num?)?.toInt()),
                     bankName: d.Value(payload['bankName'] as String?),
-                    cardLastFour:
-                        d.Value(payload['cardLastFour'] as String?),
+                    cardLastFour: d.Value(payload['cardLastFour'] as String?),
                     updatedAt: now,
                   ),
                 );
@@ -286,11 +297,24 @@ extension SyncEngineRealtime on SyncEngine {
           break;
         case 'tag':
           if (action == 'delete') {
-            await (db.delete(db.sharedLedgerTags)
-                  ..where((t) =>
-                      t.ledgerSyncId.equals(ledgerExternalId) &
-                      t.syncId.equals(syncId)))
-                .go();
+            var removedOverrides = 0;
+            await db.transaction(() async {
+              await (db.delete(db.sharedLedgerTags)
+                    ..where((t) =>
+                        t.ledgerSyncId.equals(ledgerExternalId) &
+                        t.syncId.equals(syncId)))
+                  .go();
+              removedOverrides = await _deleteTagOverridesForLedger(
+                ledgerExternalId,
+                {syncId},
+              );
+            });
+            if (removedOverrides > 0) {
+              logger.info(
+                'SyncEngine',
+                'Owner 删除共享标签 $syncId，已清理 $removedOverrides 条交易关联',
+              );
+            }
             // v25 不 mirror 主表 → 无需删主表
           } else {
             await db.into(db.sharedLedgerTags).insertOnConflictUpdate(
@@ -313,10 +337,104 @@ extension SyncEngineRealtime on SyncEngine {
       // 更新(category JOIN 会带新 name/icon)。
       _emit(SharedResourceChanged(ledgerId: ledgerExternalId));
     } catch (e, st) {
-      logger.warning('SyncEngine',
-          'handleSharedResourceChange 失败 type=$resourceType action=$action', st);
+      logger.warning(
+          'SyncEngine',
+          'handleSharedResourceChange 失败 type=$resourceType action=$action',
+          st);
       logger.warning('SyncEngine', 'error: $e');
     }
+  }
+
+  /// 同一账本的 snapshot fetch/apply 与 WS 增量按到达顺序串行执行。锁覆盖
+  /// snapshot 的网络请求，保证“请求已开始后到达的 WS”一定在 snapshot 落库
+  /// 之后重放，不会被较旧快照误判成删除。
+  Future<T> _runSharedResourceSerial<T>(
+    String ledgerExternalId,
+    Future<T> Function() operation,
+  ) {
+    final completer = Completer<T>();
+    final previous =
+        _sharedResourceSerialTails[ledgerExternalId] ?? Future<void>.value();
+    late final Future<void> current;
+    current = previous.catchError((Object _) {}).then((_) async {
+      try {
+        completer.complete(await operation());
+      } catch (error, stackTrace) {
+        completer.completeError(error, stackTrace);
+      }
+    }).whenComplete(() {
+      if (identical(_sharedResourceSerialTails[ledgerExternalId], current)) {
+        _sharedResourceSerialTails.remove(ledgerExternalId);
+      }
+    });
+    _sharedResourceSerialTails[ledgerExternalId] = current;
+    return completer.future;
+  }
+
+  /// Owner 明确删除标签（WS delete 或成功的全量资源快照）后，清掉当前账本
+  /// 交易对应的 stale override。不能在普通 mirror miss 时调用：资源拉取可能
+  /// 只是暂时失败/乱序，那时必须保留 opaque ID 等待恢复。
+  Future<List<String>> _transactionSyncIdsForLedger(
+      String ledgerExternalId) async {
+    final ledger = await (db.select(db.ledgers)
+          ..where((l) => l.syncId.equals(ledgerExternalId)))
+        .getSingleOrNull();
+    if (ledger == null) return const [];
+    final transactions = await (db.select(db.transactions)
+          ..where((t) => t.ledgerId.equals(ledger.id) & t.syncId.isNotNull()))
+        .get();
+    return transactions.map((tx) => tx.syncId!).toList();
+  }
+
+  Future<Set<String>> _tagOverrideIdsForLedger(String ledgerExternalId) async {
+    final transactionSyncIds =
+        await _transactionSyncIdsForLedger(ledgerExternalId);
+    final ids = <String>{};
+    for (var offset = 0; offset < transactionSyncIds.length; offset += 800) {
+      final end = offset + 800 < transactionSyncIds.length
+          ? offset + 800
+          : transactionSyncIds.length;
+      final rows = await (db.select(db.transactionTagOverrides)
+            ..where((t) => t.transactionSyncId
+                .isIn(transactionSyncIds.sublist(offset, end))))
+          .get();
+      ids.addAll(rows.map((row) => row.tagSyncId));
+    }
+    return ids;
+  }
+
+  Future<int> _deleteTagOverridesForLedger(
+    String ledgerExternalId,
+    Iterable<String> tagSyncIds,
+  ) async {
+    final ids = tagSyncIds.where((id) => id.isNotEmpty).toSet().toList();
+    if (ids.isEmpty) return 0;
+    final transactionSyncIds =
+        await _transactionSyncIdsForLedger(ledgerExternalId);
+    if (transactionSyncIds.isEmpty) return 0;
+
+    var deleted = 0;
+    // 500 个 tx ID + 400 个 tag ID，给 SQLite 999 参数上限留余量。常见的
+    // 100 tags / 10k tx 只需 20 次 DELETE，而不是逐 tag 的 2000 次。
+    for (var txOffset = 0;
+        txOffset < transactionSyncIds.length;
+        txOffset += 500) {
+      final txEnd = txOffset + 500 < transactionSyncIds.length
+          ? txOffset + 500
+          : transactionSyncIds.length;
+      final txChunk = transactionSyncIds.sublist(txOffset, txEnd);
+      for (var tagOffset = 0; tagOffset < ids.length; tagOffset += 400) {
+        final tagEnd =
+            tagOffset + 400 < ids.length ? tagOffset + 400 : ids.length;
+        final tagChunk = ids.sublist(tagOffset, tagEnd);
+        deleted += await (db.delete(db.transactionTagOverrides)
+              ..where((t) =>
+                  t.tagSyncId.isIn(tagChunk) &
+                  t.transactionSyncId.isIn(txChunk)))
+            .go();
+      }
+    }
+    return deleted;
   }
 
   /// Sprint 5.1 边界:WS 重连后对账所有 Editor 角色的共享账本。WS server
@@ -336,8 +454,7 @@ extension SyncEngineRealtime on SyncEngine {
           ..where((l) => l.isShared.equals(true) & l.myRole.equals('editor')))
         .get();
     if (rows.isEmpty) return;
-    logger.info('SyncEngine',
-        '重连共享资源对账:Editor 角色账本 ${rows.length} 个');
+    logger.info('SyncEngine', '重连共享资源对账:Editor 角色账本 ${rows.length} 个');
     // 并发拉(每账本独立 HTTP),原串行 await 在多账本场景下会 N×RTT 阻塞
     // 整条 auto sync 链。Future.wait + 在 inner future 内吞错保证一个失败
     // 不影响其它账本。
@@ -350,8 +467,7 @@ extension SyncEngineRealtime on SyncEngine {
           await fetchAndStoreSharedResources(sid);
           return true;
         } catch (e, st) {
-          logger.error('SyncEngine',
-              '重连共享资源对账失败 ledger=$sid', e, st);
+          logger.error('SyncEngine', '重连共享资源对账失败 ledger=$sid', e, st);
           return false;
         }
       }());
@@ -359,8 +475,7 @@ extension SyncEngineRealtime on SyncEngine {
     final results = await Future.wait(futures);
     final ok = results.where((v) => v).length;
     final fail = results.length - ok;
-    logger.info('SyncEngine',
-        '重连共享资源对账完成 ok=$ok fail=$fail');
+    logger.info('SyncEngine', '重连共享资源对账完成 ok=$ok fail=$fail');
     if (ok > 0) {
       // 只 emit SharedResourceChanged — 重连补拉的只是 SharedLedger* 镜像表,
       // tx 没变,不该让 home 整页刷新。Editor 的 TransactionList 监听
@@ -384,8 +499,31 @@ extension SyncEngineRealtime on SyncEngine {
   ///   isShared && myRole != 'owner' → 触发这个 helper 把资源落库
   /// - 用户手动刷新共享账本(将来 UI 加按钮)
   Future<void> fetchAndStoreSharedResources(String ledgerExternalId) async {
-    final snapshot = await provider.fetchSharedResources(ledgerId: ledgerExternalId);
+    await _runSharedResourceSerial(
+      ledgerExternalId,
+      () => _fetchAndStoreSharedResourcesUnlocked(ledgerExternalId),
+    );
+  }
+
+  Future<void> _fetchAndStoreSharedResourcesUnlocked(
+      String ledgerExternalId) async {
+    // 删除判定的基线必须在发 HTTP 前截取。普通 transaction pull 不走共享资源
+    // 串行队列；若请求期间新落了 mirror-late opaque override，较旧 snapshot
+    // 不能把它当成“请求前已存在、现已删除”的 stale 关联。
+    final oldTags = await (db.select(db.sharedLedgerTags)
+          ..where((t) => t.ledgerSyncId.equals(ledgerExternalId)))
+        .get();
+    final oldOverrideTagSyncIds =
+        await _tagOverrideIdsForLedger(ledgerExternalId);
+    final snapshot =
+        await provider.fetchSharedResources(ledgerId: ledgerExternalId);
     final now = DateTime.now().toUtc();
+    final newTagSyncIds = snapshot.tags.map((tag) => tag.syncId).toSet();
+    final removedTagSyncIds = <String>{
+      ...oldTags.map((tag) => tag.syncId),
+      ...oldOverrideTagSyncIds,
+    }..removeAll(newTagSyncIds);
+    var removedOverrides = 0;
 
     await db.transaction(() async {
       await (db.delete(db.sharedLedgerCategories)
@@ -446,9 +584,20 @@ extension SyncEngineRealtime on SyncEngine {
               ),
             );
       }
+      removedOverrides = await _deleteTagOverridesForLedger(
+        ledgerExternalId,
+        removedTagSyncIds,
+      );
     });
     logger.info('SyncEngine',
         'fetchAndStoreSharedResources ledger=$ledgerExternalId categories=${snapshot.categories.length} accounts=${snapshot.accounts.length} tags=${snapshot.tags.length}');
+    if (removedOverrides > 0) {
+      logger.info(
+        'SyncEngine',
+        '共享资源快照确认删除 ${removedTagSyncIds.length} 个标签，已清理 '
+            '$removedOverrides 条交易关联',
+      );
+    }
 
     // §7 决策(v25):自定义图标走 sha256 cache 异步下载,SharedLedger* 行
     // 已落地,UI 渲染按 'custom_icons/shared_<sha256>.png' 路径查找。
@@ -481,7 +630,8 @@ extension SyncEngineRealtime on SyncEngine {
       await replayAllChanges();
       _emit(PullCompleted(ledgerId: ledgerExternalId));
     } catch (e, st) {
-      logger.warning('SyncEngine', 'onInviteAccepted 失败 ledger=$ledgerExternalId', st);
+      logger.warning(
+          'SyncEngine', 'onInviteAccepted 失败 ledger=$ledgerExternalId', st);
       logger.warning('SyncEngine', 'error: $e');
     }
   }
@@ -511,8 +661,7 @@ extension SyncEngineRealtime on SyncEngine {
           bytes: bytes,
         );
       } catch (e, st) {
-        logger.warning('SyncEngine',
-            '自定义图标下载失败 syncId=${c.syncId}', st);
+        logger.warning('SyncEngine', '自定义图标下载失败 syncId=${c.syncId}', st);
         logger.warning('SyncEngine', 'error: $e');
         // 下载失败不阻塞,后续渲染 fallback 通用图标
       }
@@ -562,8 +711,9 @@ extension SyncEngineRealtime on SyncEngine {
     final c = await gc((alive) async {
       // SQLite NOT IN 不支持空集合,空时直接 truncate 全表
       if (alive.isEmpty) {
-        return (db.delete(db.sharedLedgerCategories)..where((_) =>
-            d.Constant(true))).go();
+        return (db.delete(db.sharedLedgerCategories)
+              ..where((_) => d.Constant(true)))
+            .go();
       }
       return (db.delete(db.sharedLedgerCategories)
             ..where((t) => t.ledgerSyncId.isNotIn(alive.toList())))
@@ -571,8 +721,9 @@ extension SyncEngineRealtime on SyncEngine {
     });
     final a = await gc((alive) async {
       if (alive.isEmpty) {
-        return (db.delete(db.sharedLedgerAccounts)..where((_) =>
-            d.Constant(true))).go();
+        return (db.delete(db.sharedLedgerAccounts)
+              ..where((_) => d.Constant(true)))
+            .go();
       }
       return (db.delete(db.sharedLedgerAccounts)
             ..where((t) => t.ledgerSyncId.isNotIn(alive.toList())))
@@ -580,8 +731,8 @@ extension SyncEngineRealtime on SyncEngine {
     });
     final t = await gc((alive) async {
       if (alive.isEmpty) {
-        return (db.delete(db.sharedLedgerTags)..where((_) =>
-            d.Constant(true))).go();
+        return (db.delete(db.sharedLedgerTags)..where((_) => d.Constant(true)))
+            .go();
       }
       return (db.delete(db.sharedLedgerTags)
             ..where((t) => t.ledgerSyncId.isNotIn(alive.toList())))
@@ -598,7 +749,8 @@ extension SyncEngineRealtime on SyncEngine {
     final localId = await _resolveLedgerIdBySyncId(ledgerExternalId);
     if (localId == null) return;
     // tx + tags + attachments 走级联;ledgers 行本身删
-    await (db.delete(db.transactions)..where((t) => t.ledgerId.equals(localId))).go();
+    await (db.delete(db.transactions)..where((t) => t.ledgerId.equals(localId)))
+        .go();
     await (db.delete(db.ledgers)..where((l) => l.id.equals(localId))).go();
     // SharedLedger* 镜像
     await (db.delete(db.ledgerMembers)
@@ -660,11 +812,10 @@ extension SyncEngineRealtime on SyncEngine {
         if (localLedgerIdInt != null && localLedgerIdInt > 0) {
           unawaited(() async {
             try {
-              final downloaded = await downloadAttachments(
-                  ledgerId: localLedgerIdInt);
+              final downloaded =
+                  await downloadAttachments(ledgerId: localLedgerIdInt);
               if (downloaded > 0) {
-                logger.info('SyncEngine',
-                    '自动 pull 后下载了 $downloaded 个附件');
+                logger.info('SyncEngine', '自动 pull 后下载了 $downloaded 个附件');
                 // 重新通知 UI 刷新(附件 UI 的 state 可能已经 stale)。
                 _emit(PullCompleted(ledgerId: targetLedgerId));
               }

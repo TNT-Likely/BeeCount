@@ -54,14 +54,22 @@ extension SyncEngineSerializationExt on SyncEngine {
             .get();
         final tagNames = <String>[];
         final tagSyncIds = <String>[];
-        for (final tt in txTags) {
-          final tag = await (db.select(db.tags)
-                ..where((t) => t.id.equals(tt.tagId)))
-              .getSingleOrNull();
-          if (tag != null) {
-            tagNames.add(tag.name);
-            if (tag.syncId != null && tag.syncId!.isNotEmpty) {
-              tagSyncIds.add(tag.syncId!);
+        var hasUnresolvedTagOverrides = false;
+        final isSharedEditor =
+            parentLedger?.isShared == true && parentLedger?.myRole != 'owner';
+        // 共享 Editor 的 transaction_tags 可能残留升级前创建的个人标签。
+        // 新 server 会拒绝这些 ID，因此 Editor 只序列化 Owner override；个人/
+        // Owner 账本仍走主 Tags。这样历史脏 change 也能继续同步而不会永久 400。
+        if (!isSharedEditor) {
+          for (final tt in txTags) {
+            final tag = await (db.select(db.tags)
+                  ..where((t) => t.id.equals(tt.tagId)))
+                .getSingleOrNull();
+            if (tag != null) {
+              tagNames.add(tag.name);
+              if (tag.syncId != null && tag.syncId!.isNotEmpty) {
+                tagSyncIds.add(tag.syncId!);
+              }
             }
           }
         }
@@ -73,11 +81,22 @@ extension SyncEngineSerializationExt on SyncEngine {
               .get();
           for (final ov in overrides) {
             if (tagSyncIds.contains(ov.tagSyncId)) continue;
-            tagSyncIds.add(ov.tagSyncId);
             final shared = await (db.select(db.sharedLedgerTags)
-                  ..where((t) => t.syncId.equals(ov.tagSyncId)))
+                  ..where((t) =>
+                      t.ledgerSyncId.equals(parentLedgerSyncId ?? '') &
+                      t.syncId.equals(ov.tagSyncId)))
                 .getSingleOrNull();
-            if (shared != null) tagNames.add(shared.name);
+            if (shared == null) {
+              hasUnresolvedTagOverrides = true;
+              logger.warning(
+                'SyncEngine',
+                'push tx=${tx.syncId}: 跳过当前账本无法解析的共享标签 '
+                    '${ov.tagSyncId}（本地保留 override，等待 mirror 到达）',
+              );
+              continue;
+            }
+            tagSyncIds.add(ov.tagSyncId);
+            tagNames.add(shared.name);
           }
         }
 
@@ -169,8 +188,8 @@ extension SyncEngineSerializationExt on SyncEngine {
           toAccountName: finalToAccountName,
           toAccountSyncId: finalToAccountSyncId,
           ledgerSyncId: parentLedgerSyncId,
-          tagNames: tagNames.isNotEmpty ? tagNames : null,
-          tagSyncIds: tagSyncIds.isNotEmpty ? tagSyncIds : null,
+          tagNames: hasUnresolvedTagOverrides ? null : tagNames,
+          tagSyncIds: hasUnresolvedTagOverrides ? null : tagSyncIds,
           attachments: attMaps,
         );
 
@@ -559,8 +578,8 @@ extension SyncEngineSerializationExt on SyncEngine {
           toAccountName: toAcc?.name,
           toAccountSyncId: toAcc?.syncId,
           ledgerSyncId: ledger.syncId,
-          tagNames: tagNames.isNotEmpty ? tagNames : null,
-          tagSyncIds: tagSyncIds.isNotEmpty ? tagSyncIds : null,
+          tagNames: tagNames,
+          tagSyncIds: tagSyncIds,
           attachments: attMaps,
         ),
         'updated_at': now,
@@ -659,8 +678,8 @@ extension SyncEngineSerializationExt on SyncEngine {
         toAccountName: toAcc?.name,
         toAccountSyncId: toAcc?.syncId,
         ledgerSyncId: ledger.syncId,
-        tagNames: tagNames.isNotEmpty ? tagNames : null,
-        tagSyncIds: tagSyncIds.isNotEmpty ? tagSyncIds : null,
+        tagNames: tagNames,
+        tagSyncIds: tagSyncIds,
       ));
     }
 

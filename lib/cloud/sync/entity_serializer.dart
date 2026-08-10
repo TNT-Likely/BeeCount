@@ -66,8 +66,11 @@ class EntitySerializer {
       'fromAccountId': fromAccountSyncId ?? '',
       'toAccountName': toAccountName ?? '',
       'toAccountId': toAccountSyncId ?? '',
-      if (tagNames != null && tagNames.isNotEmpty) 'tags': tagNames.join(','),
-      if (tagSyncIds != null && tagSyncIds.isNotEmpty) 'tagIds': tagSyncIds,
+      // 非 null 表示调用方拿到了权威完整集合：即使为空也必须显式发送，才能
+      // 清掉 server 旧关联。null 表示存在尚未解析的 opaque override，此时
+      // 省略字段，让 server merge 保留权威关联而不是被本地临时缺镜像误清。
+      if (tagNames != null) 'tags': tagNames.join(','),
+      if (tagSyncIds != null) 'tagIds': tagSyncIds,
       // 即使是 `[]` 也必须写出来，不能变 null 后被 if-spread 过滤掉。否则
       // A 端删光所有附件时 payload 里完全没有 attachments 字段 → B 端没法
       // 区分"没发送附件信息"和"全删光了"，B 就永远同步不到删除。

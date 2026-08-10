@@ -47,7 +47,8 @@ class FakeBeeCountCloudAuthService extends BeeCountCloudAuthService {
       _userId == null ? null : CloudUser(id: _userId!);
 
   /// 测试入口:模拟用户登录 / 登出
-  void setLoggedIn({String? userId = 'test-user-id', String? deviceId = 'test-device-id'}) {
+  void setLoggedIn(
+      {String? userId = 'test-user-id', String? deviceId = 'test-device-id'}) {
     _userId = userId;
     _deviceId = deviceId;
   }
@@ -141,6 +142,11 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
   /// 历次 pullChanges 调用记录(用于断言"几次 pull" / "since 序列")
   final List<({int? since, int limit, bool persistCursor})> pullCalls = [];
 
+  /// `/shared-resources` 的按账本快照。
+  final Map<String, BeeCountCloudSharedResources> sharedResourcesByLedger = {};
+  Future<BeeCountCloudSharedResources> Function(String ledgerId)?
+      sharedResourcesFetcher;
+
   /// 控制 pullChanges 是否抛错(测试错误恢复路径)
   Exception Function(int? since)? pullErrorInjector;
 
@@ -190,8 +196,7 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
     final slice = unread.take(limit).toList();
     return BeeCountCloudPullResult(
       changes: slice,
-      serverCursor:
-          slice.isEmpty ? from : slice.last.changeId,
+      serverCursor: slice.isEmpty ? from : slice.last.changeId,
       hasMore: unread.length > slice.length,
     );
   }
@@ -295,14 +300,18 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
     pullErrorInjector = null;
     storageListError = null;
     _fakeStorage.ledgerSnapshots.clear();
+    sharedResourcesByLedger.clear();
+    sharedResourcesFetcher = null;
   }
 
   // ====== 附件 / 图标 ======
 
   /// in-memory 附件 store:fileId → bytes
   final Map<String, Uint8List> uploadedAttachments = {};
+
   /// 测试可塞预定义内容供 download
   final Map<String, Uint8List> downloadableAttachments = {};
+
   /// 记录每次 uploadAttachment 调用(并发场景断言用)
   final List<String> uploadAttachmentCalls = [];
 
@@ -329,10 +338,10 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
 
   @override
   Future<Uint8List> downloadAttachment({required String fileId}) async {
-    final bytes = downloadableAttachments[fileId] ?? uploadedAttachments[fileId];
+    final bytes =
+        downloadableAttachments[fileId] ?? uploadedAttachments[fileId];
     if (bytes == null) {
-      throw CloudStorageException(
-          'Fake: attachment not found: $fileId');
+      throw CloudStorageException('Fake: attachment not found: $fileId');
     }
     return bytes;
   }
@@ -393,7 +402,15 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
   Future<BeeCountCloudSharedResources> fetchSharedResources({
     required String ledgerId,
   }) async {
-    throw UnimplementedError('FakeProvider.fetchSharedResources');
+    final fetcher = sharedResourcesFetcher;
+    if (fetcher != null) return fetcher(ledgerId);
+    return sharedResourcesByLedger[ledgerId] ??
+        const BeeCountCloudSharedResources(
+          ownerUserId: 'owner-user-id',
+          categories: [],
+          accounts: [],
+          tags: [],
+        );
   }
 }
 
