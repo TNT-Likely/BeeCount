@@ -10376,6 +10376,12 @@ abstract class AppLocalizations {
   /// **'Create New Tag'**
   String get tagSelectCreateNew;
 
+  /// No description provided for @tagSelectOwnerManaged.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared ledger tags are managed by the owner'**
+  String get tagSelectOwnerManaged;
+
   /// No description provided for @tagSelectRecentlyUsed.
   ///
   /// In en, this message translates to:

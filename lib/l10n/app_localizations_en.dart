@@ -5422,6 +5422,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tagSelectCreateNew => 'Create New Tag';
 
   @override
+  String get tagSelectOwnerManaged => 'Shared ledger tags are managed by the owner';
+
+  @override
   String get tagSelectRecentlyUsed => 'Recently Used';
 
   @override

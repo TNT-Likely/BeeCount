@@ -2259,6 +2259,7 @@
   "tagSelectTitle": "选择标签",
   "tagSelectHint": "可多选",
   "tagSelectCreateNew": "新建标签",
+  "tagSelectOwnerManaged": "共享账本标签由所有者管理",
   "tagSelectRecentlyUsed": "最近使用",
   "tagSelectAllTags": "全部标签",
   "tagTransactionCount": "{count}笔",

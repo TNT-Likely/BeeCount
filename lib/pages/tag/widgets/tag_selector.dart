@@ -58,6 +58,7 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
     // §7 共享账本:Editor + 共享账本 picker 只显示 Owner mirror tags
     final allTagsAsync = ref.watch(tagsForCurrentLedgerProvider);
     final recentTagsAsync = ref.watch(recentTagsForCurrentLedgerProvider);
+    final canCreateTag = ref.watch(canCreateTagForCurrentLedgerProvider);
 
     return Container(
       constraints: BoxConstraints(
@@ -155,7 +156,10 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
                         .toList();
 
                 if (filteredTags.isEmpty && allTags.isEmpty) {
-                  return _buildEmptyState(l10n);
+                  return _buildEmptyState(
+                    l10n,
+                    canCreateTag: canCreateTag,
+                  );
                 }
 
                 return ListView(
@@ -185,8 +189,10 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
                       ),
 
                     // 新建标签入口
-                    const SizedBox(height: 8),
-                    _buildCreateNew(l10n),
+                    if (canCreateTag) ...[
+                      const SizedBox(height: 8),
+                      _buildCreateNew(l10n),
+                    ],
                     const SizedBox(height: 16),
                   ],
                 );
@@ -198,7 +204,10 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
     );
   }
 
-  Widget _buildEmptyState(AppLocalizations l10n) {
+  Widget _buildEmptyState(
+    AppLocalizations l10n, {
+    required bool canCreateTag,
+  }) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -215,12 +224,27 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
               color: BeeTokens.textSecondary(context),
             ),
           ),
-          const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: _createNewTag,
-            icon: const Icon(Icons.add, size: 18),
-            label: Text(l10n.tagSelectCreateNew),
-          ),
+          if (canCreateTag) ...[
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _createNewTag,
+              icon: const Icon(Icons.add, size: 18),
+              label: Text(l10n.tagSelectCreateNew),
+            ),
+          ] else ...[
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                l10n.tagSelectOwnerManaged,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: BeeTokens.textTertiary(context),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

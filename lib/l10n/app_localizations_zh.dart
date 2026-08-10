@@ -5422,6 +5422,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get tagSelectCreateNew => '新建标签';
 
   @override
+  String get tagSelectOwnerManaged => '共享账本标签由所有者管理';
+
+  @override
   String get tagSelectRecentlyUsed => '最近使用';
 
   @override
@@ -12850,6 +12853,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get tagSelectCreateNew => '新建標籤';
+
+  @override
+  String get tagSelectOwnerManaged => '共享帳本標籤由所有者管理';
 
   @override
   String get tagSelectRecentlyUsed => '最近使用';

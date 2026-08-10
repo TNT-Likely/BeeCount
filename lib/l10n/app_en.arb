@@ -2329,6 +2329,7 @@
   "tagSelectTitle": "Select Tags",
   "tagSelectHint": "Multiple selection",
   "tagSelectCreateNew": "Create New Tag",
+  "tagSelectOwnerManaged": "Shared ledger tags are managed by the owner",
   "tagSelectRecentlyUsed": "Recently Used",
   "tagSelectAllTags": "All Tags",
   "tagTransactionCount": "{count} transactions",

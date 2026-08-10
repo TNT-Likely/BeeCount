@@ -534,6 +534,140 @@ void main() {
     });
   });
 
+  group('共享账本交易标签 fallback', () {
+    test('Owner 收到 name-only payload 时只关联已有标签，不创建未知标签', () async {
+      final ledgerId = await db.into(db.ledgers).insert(
+            LedgersCompanion.insert(
+              name: 'Shared Owner',
+              syncId: const Value('shared-owner'),
+              isShared: const Value(true),
+              myRole: const Value('owner'),
+            ),
+          );
+      final ownerTagId = await db.into(db.tags).insert(
+            TagsCompanion.insert(
+              name: 'OwnerTag',
+              syncId: const Value('owner-tag'),
+            ),
+          );
+
+      provider.pushFakeChange(
+        entityType: 'transaction',
+        entitySyncId: 'tx-known-tag',
+        ledgerId: 'shared-owner',
+        payload: {
+          'type': 'expense',
+          'amount': 10,
+          'tags': 'OwnerTag',
+        },
+      );
+      provider.pushFakeChange(
+        entityType: 'transaction',
+        entitySyncId: 'tx-unknown-tag',
+        ledgerId: 'shared-owner',
+        payload: {
+          'type': 'expense',
+          'amount': 20,
+          'tags': 'EditorOnlyTag',
+        },
+      );
+
+      await engine.pull(ledgerId.toString());
+
+      final tags = await db.select(db.tags).get();
+      expect(tags.map((tag) => tag.name), ['OwnerTag']);
+      final links = await db.select(db.transactionTags).get();
+      expect(links, hasLength(1));
+      expect(links.single.tagId, ownerTagId);
+    });
+
+    test('Editor 的 name fallback 只匹配当前账本 Owner mirror tag', () async {
+      final ledgerId = await db.into(db.ledgers).insert(
+            LedgersCompanion.insert(
+              name: 'Shared Editor',
+              syncId: const Value('shared-editor'),
+              isShared: const Value(true),
+              myRole: const Value('editor'),
+            ),
+          );
+      final now = DateTime.now().toUtc();
+      await db.into(db.sharedLedgerTags).insert(
+            SharedLedgerTagsCompanion.insert(
+              ledgerSyncId: 'shared-editor',
+              syncId: 'owner-fuel-tag',
+              name: 'Fuel',
+              updatedAt: now,
+            ),
+          );
+      await db.into(db.sharedLedgerTags).insert(
+            SharedLedgerTagsCompanion.insert(
+              ledgerSyncId: 'another-ledger',
+              syncId: 'other-ledger-tag',
+              name: 'OtherLedgerTag',
+              updatedAt: now,
+            ),
+          );
+
+      provider.pushFakeChange(
+        entityType: 'transaction',
+        entitySyncId: 'tx-editor-known',
+        ledgerId: 'shared-editor',
+        payload: {
+          'type': 'expense',
+          'amount': 10,
+          'tags': 'Fuel',
+        },
+      );
+      provider.pushFakeChange(
+        entityType: 'transaction',
+        entitySyncId: 'tx-editor-known-id',
+        ledgerId: 'shared-editor',
+        payload: {
+          'type': 'expense',
+          'amount': 15,
+          'tagIds': ['owner-fuel-tag'],
+          'tags': 'Fuel',
+        },
+      );
+      provider.pushFakeChange(
+        entityType: 'transaction',
+        entitySyncId: 'tx-editor-other-ledger',
+        ledgerId: 'shared-editor',
+        payload: {
+          'type': 'expense',
+          'amount': 20,
+          'tagIds': ['other-ledger-tag'],
+          'tags': 'OtherLedgerTag',
+        },
+      );
+      provider.pushFakeChange(
+        entityType: 'transaction',
+        entitySyncId: 'tx-editor-unknown',
+        ledgerId: 'shared-editor',
+        payload: {
+          'type': 'expense',
+          'amount': 30,
+          'tags': 'EditorOnlyTag',
+        },
+      );
+
+      await engine.pull(ledgerId.toString());
+
+      expect(await db.select(db.tags).get(), isEmpty,
+          reason: 'Editor 的共享交易不能创建 user-scoped 标签');
+      final overrides = await db.select(db.transactionTagOverrides).get();
+      expect(overrides, hasLength(2));
+      expect(
+        overrides.map((row) => row.transactionSyncId).toSet(),
+        {'tx-editor-known', 'tx-editor-known-id'},
+      );
+      expect(
+        overrides.map((row) => row.tagSyncId).toSet(),
+        {'owner-fuel-tag'},
+      );
+    });
+  });
+
   group('apply 各种 entity type', () {
     test('account / category / tag insert', () async {
       provider.pushFakeChange(
@@ -851,4 +985,3 @@ void main() {
     });
   });
 }
-

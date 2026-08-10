@@ -5422,6 +5422,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tagSelectCreateNew => '새 태그 만들기';
 
   @override
+  String get tagSelectOwnerManaged => '공유 원장의 태그는 소유자가 관리합니다';
+
+  @override
   String get tagSelectRecentlyUsed => '최근 사용';
 
   @override

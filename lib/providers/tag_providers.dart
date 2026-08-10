@@ -9,6 +9,16 @@ import 'sync_providers.dart' show currentLedgerIdProvider;
 /// 标签列表刷新触发器
 final tagListRefreshProvider = StateProvider<int>((ref) => 0);
 
+/// 当前账本是否允许在标签选择器中创建标签。
+///
+/// 标签仍是 user-scoped；共享账本的 Editor 只能使用 Owner 同步下来的标签，
+/// 因此不能在共享账本记账流程里创建自己的标签。
+final canCreateTagForCurrentLedgerProvider = Provider<bool>((ref) {
+  final ledger = ref.watch(currentLedgerProvider).valueOrNull;
+  if (ledger == null) return false;
+  return !ledger.isShared || ledger.myRole == 'owner';
+});
+
 /// 所有标签列表 Provider（响应式）
 final allTagsStreamProvider = StreamProvider<List<Tag>>((ref) {
   ref.watch(tagListRefreshProvider);

@@ -260,7 +260,12 @@ extension SyncEngineApplyExt on SyncEngine {
         nativeAmount: nativeValue,
       ));
       // 更新标签和附件(existing 路径)
-      await _syncTransactionTags(existingId, syncId, payload);
+      await _syncTransactionTags(
+        existingId,
+        syncId,
+        payload,
+        ledgerId: ledgerIdInt,
+      );
       await _syncTransactionAttachments(existingId, payload);
       logger.debug('SyncEngine', 'pull: 更新交易 $syncId');
     } else {
@@ -293,7 +298,13 @@ extension SyncEngineApplyExt on SyncEngine {
       // 写回 cache,后续同 syncId 的 update change 能命中
       activePullCache?.putTransaction(syncId, id, createdByUserId);
       // 同步标签和附件(新插入路径 — existing 必空,跳过相关 SELECT/DELETE)
-      await _syncTransactionTags(id, syncId, payload, isNewlyInserted: true);
+      await _syncTransactionTags(
+        id,
+        syncId,
+        payload,
+        ledgerId: ledgerIdInt,
+        isNewlyInserted: true,
+      );
       await _syncTransactionAttachments(id, payload, isNewlyInserted: true);
       logger.debug('SyncEngine', 'pull: 新增交易 $syncId');
     }
@@ -863,6 +874,7 @@ extension SyncEngineApplyExt on SyncEngine {
     int transactionId,
     String txSyncId,
     Map<String, dynamic> payload, {
+    required int ledgerId,
     bool isNewlyInserted = false,
   }) async {
     // 删除旧关联,按新 payload 重建(主表 + override)。新插入路径跳过 — 必空。
@@ -888,12 +900,67 @@ extension SyncEngineApplyExt on SyncEngine {
             .where((s) => s.isNotEmpty)
             .toList();
 
+    // 大多数交易没有标签；此时旧关联已按 payload 清空，无需再查 ledger 角色。
+    if (tagIds.isEmpty && tagNamesFromStr.isEmpty) return;
+
     final linkedLocalIds = <int>{};
     final overrideSyncIds = <String>{};
+
+    final ledger = await (db.select(db.ledgers)
+          ..where((l) => l.id.equals(ledgerId)))
+        .getSingleOrNull();
+    final isSharedLedger = ledger?.isShared ?? false;
+    final isSharedEditor = isSharedLedger && ledger!.myRole != 'owner';
+    final sharedLedgerSyncId = isSharedLedger ? ledger?.syncId : null;
+
+    Future<SharedLedgerTag?> findSharedTagBySyncId(String syncId) async {
+      if (!isSharedEditor || sharedLedgerSyncId == null) return null;
+      return (db.select(db.sharedLedgerTags)
+            ..where((t) =>
+                t.ledgerSyncId.equals(sharedLedgerSyncId) &
+                t.syncId.equals(syncId)))
+          .getSingleOrNull();
+    }
+
+    Future<SharedLedgerTag?> findSharedTagByName(String name) async {
+      if (!isSharedEditor || sharedLedgerSyncId == null) return null;
+      return (db.select(db.sharedLedgerTags)
+            ..where((t) =>
+                t.ledgerSyncId.equals(sharedLedgerSyncId) &
+                t.name.equals(name)))
+          .getSingleOrNull();
+    }
+
+    void logUnknownSharedTag({String? syncId, String? name}) {
+      logger.warning(
+        'SyncEngine',
+        'pull: 共享账本交易引用了未匹配的标签，跳过 '
+            'ledger=$sharedLedgerSyncId tx=$txSyncId '
+            'tagSyncId=${syncId ?? ""} name=${name ?? ""}',
+      );
+    }
 
     if (tagIds.isNotEmpty) {
       for (var i = 0; i < tagIds.length; i++) {
         final syncId = tagIds[i];
+        final fallbackName =
+            i < tagNamesFromStr.length ? tagNamesFromStr[i] : null;
+
+        // 共享账本 Editor 只能引用当前账本的 Owner mirror tag；不能命中自己
+        // user-scoped 的主 Tags，也不能因老协议 name fallback 创建个人标签。
+        if (isSharedEditor) {
+          final shared = await findSharedTagBySyncId(syncId) ??
+              (fallbackName == null
+                  ? null
+                  : await findSharedTagByName(fallbackName));
+          if (shared != null) {
+            overrideSyncIds.add(shared.syncId);
+          } else {
+            logUnknownSharedTag(syncId: syncId, name: fallbackName);
+          }
+          continue;
+        }
+
         // 优先查 LookupCache(pull 路径已 prime),消除 N+1 tag SELECT
         final cachedTagId = activePullCache?.tagId(syncId);
         if (cachedTagId != null) {
@@ -908,17 +975,9 @@ extension SyncEngineApplyExt on SyncEngine {
           linkedLocalIds.add(tag.id);
           continue;
         }
-        // 主表 miss → 查 SharedLedgerTags(Editor 视角看 Owner 的 tx 引用 Owner 的 tag)
-        final shared = await (db.select(db.sharedLedgerTags)
-              ..where((t) => t.syncId.equals(syncId)))
-            .getSingleOrNull();
-        if (shared != null) {
-          overrideSyncIds.add(syncId);
-          continue;
-        }
-        // 都 miss → name fallback(老协议),建本地 tag
-        if (i < tagNamesFromStr.length) {
-          final name = tagNamesFromStr[i];
+        // syncId miss → name fallback(老协议),只复用已有本地标签。
+        if (fallbackName != null) {
+          final name = fallbackName;
           tag = await (db.select(db.tags)..where((t) => t.name.equals(name)))
               .getSingleOrNull();
           if (tag != null && (tag.syncId ?? '').isEmpty) {
@@ -930,13 +989,31 @@ extension SyncEngineApplyExt on SyncEngine {
             linkedLocalIds.add(tag.id);
           }
         }
+        if (isSharedLedger && tag == null) {
+          logUnknownSharedTag(syncId: syncId, name: fallbackName);
+        }
       }
     } else {
-      // 完全没 tagIds 的老 payload:按 name 查,没有就建个带 syncId 的新 tag
+      // 完全没 tagIds 的老 payload：共享账本只匹配已有 Owner tag；个人账本
+      // 保留旧兼容逻辑，按 name 查找，不存在时创建本地标签。
       for (final name in tagNamesFromStr) {
+        if (isSharedEditor) {
+          final shared = await findSharedTagByName(name);
+          if (shared != null) {
+            overrideSyncIds.add(shared.syncId);
+          } else {
+            logUnknownSharedTag(name: name);
+          }
+          continue;
+        }
+
         var tag = await (db.select(db.tags)..where((t) => t.name.equals(name)))
             .getSingleOrNull();
         if (tag == null) {
+          if (isSharedLedger) {
+            logUnknownSharedTag(name: name);
+            continue;
+          }
           final newSyncId = _uuid.v4();
           final id = await db.into(db.tags).insert(
                 TagsCompanion.insert(
