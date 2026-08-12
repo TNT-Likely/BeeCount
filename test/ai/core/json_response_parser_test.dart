@@ -173,4 +173,33 @@ void main() {
       expect(bills.first.category, '转账');
     });
   });
+
+  group('币种(智能记账多币种)', () {
+    const parser = JsonResponseParser();
+
+    test('ISO 代码原样带出', () {
+      final bills = parser.parse('[{"amount":-45,"currency":"USD"}]');
+      expect(bills.first.currency, 'USD');
+    });
+
+    test(r'AI 回符号 $ 也能解析成 USD', () {
+      final bills = parser.parse(r'[{"amount":-45,"currency":"$"}]');
+      expect(bills.first.currency, 'USD');
+    });
+
+    test('无法解析的币种 → 按缺失入账,但账单本身照常保留', () {
+      // 静默降级(A5 不阻断),同时会打一条 warning 便于排查(_warnIfCurrencyDropped)
+      final bills = parser.parse('[{"amount":-45,"currency":"喵"}]');
+      expect(bills, hasLength(1));
+      expect(bills.first.amount, -45.0);
+      expect(bills.first.currency, isNull);
+    });
+
+    test('回归锁:没有 currency 字段的老输出照常解析', () {
+      final bills = parser.parse('[{"amount":-45,"category":"餐饮"}]');
+      expect(bills, hasLength(1));
+      expect(bills.first.currency, isNull);
+      expect(bills.first.category, '餐饮');
+    });
+  });
 }

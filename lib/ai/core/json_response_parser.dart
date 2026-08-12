@@ -39,6 +39,7 @@ class JsonResponseParser {
             }
             try {
               final raw = BillInfo.fromJson(item);
+              _warnIfCurrencyDropped(item, raw);
               final sanitized = _sanitize(raw);
               if (sanitized == null) {
                 logger
@@ -71,6 +72,7 @@ class JsonResponseParser {
     try {
       final json = jsonDecode(_cleanupJson(objectBlock)) as Map<String, dynamic>;
       final raw = BillInfo.fromJson(json);
+      _warnIfCurrencyDropped(json, raw);
       final sanitized = _sanitize(raw);
       if (sanitized == null) {
         logger.warning(_tag, '单对象金额无效: ${raw.toJson()}');
@@ -82,6 +84,20 @@ class JsonResponseParser {
       logger.warning(_tag, '单对象 JSON 解析失败: $e');
       return const [];
     }
+  }
+
+  /// AI 给了币种但解析不出来时留一条 warning。
+  ///
+  /// 这条日志的价值:币种解析失败是**静默降级**成账本本位币的(A5 不阻断),
+  /// 用户只会看到「1200 日元被记成 1200 元」这种结果,没有日志根本没法判断
+  /// 是模型没填、还是填了个我们不认的写法(实测「美元」失效就卡在这一步:
+  /// 模型回的是 `"$"`,被歧义保护丢掉了)。
+  void _warnIfCurrencyDropped(Map<String, dynamic> json, BillInfo bill) {
+    if (bill.currency != null) return;
+    final raw = json['currency'] ?? json['currency_code'] ?? json['currencyCode'];
+    if (raw == null || (raw is String && raw.trim().isEmpty)) return;
+    logger.warning(
+        _tag, '币种「$raw」无法解析成 ISO 代码,本笔按账本本位币入账');
   }
 
   /// 单笔统一校验 + 兜底。
