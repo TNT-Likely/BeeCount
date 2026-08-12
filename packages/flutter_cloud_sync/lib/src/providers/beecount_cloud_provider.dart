@@ -1140,6 +1140,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
   String? _recoveryEmail;
   String? _recoveryPassword;
   Future<CloudUser>? _recoveryInFlight;
+  bool _recoveryBlockedUntilCredentialChange = false;
 
   /// 静默恢复失败后冷却到这个时间点,期间所有 currentUser / requireAccessToken
   /// 调用都直接返 null,**不再发新的 /auth/login 请求**。
@@ -1174,6 +1175,12 @@ class BeeCountCloudAuthService implements CloudAuthService {
     return 'beecount_cloud_local_device_id_$digest';
   }
 
+  String get _logoutTombstoneStorageKey {
+    final raw = '$baseUrl|$apiPrefix';
+    final digest = sha1.convert(utf8.encode(raw)).toString();
+    return 'beecount_cloud_logout_$digest';
+  }
+
   Future<void> initialize() async {
     final session = await _restorePersistedSession();
     if (session == null) return;
@@ -1189,9 +1196,9 @@ class BeeCountCloudAuthService implements CloudAuthService {
 
   @override
   Future<CloudUser?> get currentUser async {
-    // 先接住其他实例已经完成 2FA 后持久化的 session，不要直接走 silent
-    // password recovery；后者遇到 2FA 会按设计取消。
-    final session = _session ?? await _restorePersistedSession(emit: true);
+    // SharedPreferences 是同一服务地址下各 auth 实例的会话真源。每次关键
+    // 认证操作先接管另一实例刚完成的登录 / token rotation / 账号切换。
+    final session = await _synchronizePersistedSession(emit: true);
     if (session == null) {
       // 完全没 session(从没登过 / session 被清了):只有带了恢复凭证才尝试
       // 自动重登,否则按未登录返回 null 让 UI 显示登录入口。
@@ -1201,7 +1208,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
       final refreshed = await tryRefreshSession();
       if (!refreshed) {
         // refresh 失败 → 凭证兜底。
-        return _tryRecoveryLogin();
+        return _tryRecoveryLogin(expectedEmail: session.email);
       }
     }
     final latest = _session;
@@ -1210,7 +1217,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
   }
 
   Future<String> requireAccessToken() async {
-    final session = _session ?? await _restorePersistedSession(emit: true);
+    final session = await _synchronizePersistedSession(emit: true);
     if (session == null) {
       final recovered = await _tryRecoveryLogin();
       if (recovered == null || _session == null) {
@@ -1221,7 +1228,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
     if (_isAccessTokenExpired(session)) {
       final refreshed = await tryRefreshSession();
       if (!refreshed || _session == null) {
-        final recovered = await _tryRecoveryLogin();
+        final recovered = await _tryRecoveryLogin(expectedEmail: session.email);
         if (recovered == null || _session == null) {
           throw CloudNotAuthenticatedException(
               'Session expired, please login again.');
@@ -1238,10 +1245,22 @@ class BeeCountCloudAuthService implements CloudAuthService {
   /// 失败后进 30 秒冷却期(见 [_silentRecoveryCooldownUntil] 注释):
   /// 防止 UI 频繁 rebuild 导致每次都 POST /auth/login,撞 server 30/min 限流,
   /// 让用户主动点「重新登录」时反而被 429 挡掉。
-  Future<CloudUser?> _tryRecoveryLogin() async {
+  Future<CloudUser?> _tryRecoveryLogin({String? expectedEmail}) async {
     final email = _recoveryEmail;
     final password = _recoveryPassword;
     if (email == null || password == null) return null;
+    final prefs = await SharedPreferences.getInstance();
+    if (_recoveryBlockedUntilCredentialChange ||
+        prefs.getBool(_logoutTombstoneStorageKey) == true) {
+      _recoveryBlockedUntilCredentialChange = true;
+      return null;
+    }
+    // 旧实例可能还缓存账号 A 的邮密，但共享 session 已被另一实例切到 B。
+    // B 的 refresh 失败时绝不能用 A 的旧凭证覆盖当前账号。
+    if (expectedEmail != null &&
+        email.trim().toLowerCase() != expectedEmail.trim().toLowerCase()) {
+      return null;
+    }
 
     // 冷却期内直接返 null,不打网络请求
     final cooldown = _silentRecoveryCooldownUntil;
@@ -1304,10 +1323,11 @@ class BeeCountCloudAuthService implements CloudAuthService {
   }
 
   Future<bool> _doRefreshSession() async {
-    final refreshToken = _session?.refreshToken;
+    final session = await _synchronizePersistedSession(emit: true);
+    if (session == null) return false;
+    final refreshToken = session.refreshToken;
     try {
-      await _refreshSession();
-      return true;
+      return await _refreshSession();
     } catch (_) {
       // 只清除本次失败所使用的旧 rotating token。若另一实例已经刷新并
       // 持久化了新 token，则载入新 session 继续使用。
@@ -1558,10 +1578,11 @@ class BeeCountCloudAuthService implements CloudAuthService {
 
   @override
   Future<void> signOut() async {
-    final session = _session;
-    if (session == null) {
-      return;
-    }
+    // 先原子清本地 session + 写 logout tombstone，再 best-effort 通知 server。
+    // 这样在途 refresh 即使随后成功，保存响应时也会看到 tombstone 并丢弃，
+    // 不会在用户点击退出后把 session 复活。
+    final session = await _takeSessionForLogout();
+    if (session == null) return;
 
     try {
       await _request(
@@ -1571,9 +1592,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
         accessToken: session.accessToken,
       );
     } catch (_) {
-      // Ignore network/logout errors and clear local session directly.
-    } finally {
-      await _clearSession();
+      // Ignore network/logout errors; local logout already completed.
     }
   }
 
@@ -1720,7 +1739,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
     await tryRefreshSession();
   }
 
-  Future<void> _refreshSession() async {
+  Future<bool> _refreshSession() async {
     final session = _session;
     if (session == null) {
       throw CloudNotAuthenticatedException();
@@ -1738,16 +1757,39 @@ class BeeCountCloudAuthService implements CloudAuthService {
 
     final payload = _decodeJsonObject(response.body);
     final refreshed = _BeeCountCloudSession.fromAuthResponse(payload);
-    await _saveSession(refreshed);
+    return _withSessionMutation(() async {
+      final persisted = await _readPersistedSessionUnlocked();
+      if (persisted == null) {
+        _session = null;
+        _recoveryBlockedUntilCredentialChange = true;
+        _authStateController.add(null);
+        return false;
+      }
+      if (persisted.refreshToken != session.refreshToken) {
+        // 请求在途时另一实例已轮换 token 或切换账号。丢弃旧响应并接管
+        // 当前权威 session，不能让旧响应覆盖它。
+        _session = persisted;
+        _emitCurrentUser();
+        return true;
+      }
+      await _saveSessionUnlocked(refreshed);
+      return true;
+    });
   }
 
   Future<void> _saveSession(_BeeCountCloudSession session) async {
+    await _withSessionMutation(() => _saveSessionUnlocked(session));
+  }
+
+  Future<void> _saveSessionUnlocked(_BeeCountCloudSession session) async {
     _session = session;
+    _recoveryBlockedUntilCredentialChange = false;
     // 任何成功登录路径都清掉静默恢复冷却,避免之前的失败状态拖到现在。
     _silentRecoveryCooldownUntil = null;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_sessionStorageKey, jsonEncode(session.toJson()));
     await prefs.setString(_localDeviceIdStorageKey, session.deviceId);
+    await prefs.remove(_logoutTombstoneStorageKey);
     final metadata = _deviceMetadataCache;
     if (metadata != null && metadata.deviceId != session.deviceId) {
       _deviceMetadataCache = _BeeCountDeviceMetadata(
@@ -1762,22 +1804,36 @@ class BeeCountCloudAuthService implements CloudAuthService {
     _emitCurrentUser();
   }
 
-  Future<_BeeCountCloudSession?> _restorePersistedSession({
-    bool emit = false,
-  }) async {
+  static final Map<String, Future<void>> _sessionMutationTails = {};
+
+  Future<T> _withSessionMutation<T>(Future<T> Function() action) async {
+    final key = _sessionStorageKey;
+    final previous = _sessionMutationTails[key] ?? Future<void>.value();
+    final gate = Completer<void>();
+    final tail = previous.then((_) => gate.future, onError: (_) => gate.future);
+    _sessionMutationTails[key] = tail;
+    try {
+      await previous.catchError((Object _) {});
+      return await action();
+    } finally {
+      gate.complete();
+      if (identical(_sessionMutationTails[key], tail)) {
+        _sessionMutationTails.remove(key);
+      }
+    }
+  }
+
+  Future<_BeeCountCloudSession?> _readPersistedSessionUnlocked() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_sessionStorageKey);
     if (raw == null || raw.isEmpty) return null;
 
     try {
-      final session = _BeeCountCloudSession.fromJson(
+      return _BeeCountCloudSession.fromJson(
         jsonDecode(raw) as Map<String, dynamic>,
       );
-      _session = session;
-      if (emit) _emitCurrentUser();
-      return session;
     } catch (_) {
-      // 不要让旧值的解析失败删除并发写入的新 session。
+      // 会话变更都在同一把进程内锁中；这里只删除仍与读取值相同的坏数据。
       if (prefs.getString(_sessionStorageKey) == raw) {
         await prefs.remove(_sessionStorageKey);
       }
@@ -1785,38 +1841,90 @@ class BeeCountCloudAuthService implements CloudAuthService {
     }
   }
 
+  Future<_BeeCountCloudSession?> _synchronizePersistedSession({
+    bool emit = false,
+  }) {
+    return _withSessionMutation(() async {
+      final persisted = await _readPersistedSessionUnlocked();
+      final current = _session;
+      if (persisted == null) {
+        final prefs = await SharedPreferences.getInstance();
+        final loggedOut = prefs.getBool(_logoutTombstoneStorageKey) == true;
+        if (current != null) {
+          _session = null;
+          _recoveryBlockedUntilCredentialChange = loggedOut;
+          if (emit) _authStateController.add(null);
+        } else if (loggedOut) {
+          _recoveryBlockedUntilCredentialChange = true;
+        }
+        return null;
+      }
+      if (current == null ||
+          persisted.userId != current.userId ||
+          persisted.refreshToken != current.refreshToken) {
+        _session = persisted;
+        _recoveryBlockedUntilCredentialChange = false;
+        if (emit) _emitCurrentUser();
+        return persisted;
+      }
+      return current;
+    });
+  }
+
+  Future<_BeeCountCloudSession?> _restorePersistedSession({
+    bool emit = false,
+  }) {
+    return _withSessionMutation(() async {
+      final session = await _readPersistedSessionUnlocked();
+      if (session == null) return null;
+      _session = session;
+      if (emit) _emitCurrentUser();
+      return session;
+    });
+  }
+
   /// 返回 true 表示 session 已清除；false 表示发现并载入了更新的 session。
-  Future<bool> _clearSession({String? expectedRefreshToken}) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (expectedRefreshToken != null) {
-      final raw = prefs.getString(_sessionStorageKey);
-      if (raw != null && raw.isNotEmpty) {
-        try {
-          final persisted = _BeeCountCloudSession.fromJson(
-            jsonDecode(raw) as Map<String, dynamic>,
-          );
-          if (persisted.refreshToken != expectedRefreshToken) {
-            // 同一用户说明是 rotating refresh 的新版本，可以安全接管；不同
-            // 用户说明账号已被另一个登录切换，只保护磁盘值而不越权接管。
-            if (_session?.userId == persisted.userId) {
-              _session = persisted;
-              _emitCurrentUser();
-            } else {
-              _session = null;
-              _authStateController.add(null);
-            }
-            return false;
-          }
-        } catch (_) {
-          // 无法解析的旧值继续按清除处理。
+  Future<bool> _clearSession({
+    String? expectedRefreshToken,
+    bool blockRecovery = false,
+  }) {
+    return _withSessionMutation(() async {
+      final prefs = await SharedPreferences.getInstance();
+      if (expectedRefreshToken != null) {
+        final persisted = await _readPersistedSessionUnlocked();
+        if (persisted != null &&
+            persisted.refreshToken != expectedRefreshToken) {
+          // 另一实例已完成 rotation 或账号切换；接管当前权威 session。
+          _session = persisted;
+          _recoveryBlockedUntilCredentialChange = false;
+          _emitCurrentUser();
+          return false;
         }
       }
-    }
 
-    _session = null;
-    await prefs.remove(_sessionStorageKey);
-    _authStateController.add(null);
-    return true;
+      _session = null;
+      _recoveryBlockedUntilCredentialChange = blockRecovery;
+      await prefs.remove(_sessionStorageKey);
+      if (blockRecovery) {
+        await prefs.setBool(_logoutTombstoneStorageKey, true);
+      }
+      _authStateController.add(null);
+      return true;
+    });
+  }
+
+  Future<_BeeCountCloudSession?> _takeSessionForLogout() {
+    return _withSessionMutation(() async {
+      final prefs = await SharedPreferences.getInstance();
+      final persisted = await _readPersistedSessionUnlocked();
+      final session = persisted ?? _session;
+      _session = null;
+      _recoveryBlockedUntilCredentialChange = true;
+      await prefs.remove(_sessionStorageKey);
+      await prefs.setBool(_logoutTombstoneStorageKey, true);
+      _authStateController.add(null);
+      return session;
+    });
   }
 
   void _emitCurrentUser() {
