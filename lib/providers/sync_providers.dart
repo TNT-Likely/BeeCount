@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui' show Color;
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +24,8 @@ import '../services/attachment_service.dart' show attachmentListRefreshProvider;
 import '../services/system/logger_service.dart';
 import '../services/ui/avatar_service.dart';
 import '../models/note_history.dart';
+import '../styles/header_skins.dart'
+    show boundPrimaryOf, headerSkinById, kHeaderSkinNone;
 import 'theme_providers.dart';
 import 'budget_providers.dart';
 import 'calendar_providers.dart';
@@ -713,17 +717,88 @@ Future<void> reconcileProfileToServer({
 // "写了相同值不再触发" 的保证由 Riverpod 自己给,StateProvider 收到相同值不
 // 会 notify。所以只要我们正确跳过"相同值",就不会产生 echo 循环。
 
+// ==================== 主题色的「同批结算」 ====================
+//
+// 一次 syncMyProfile 会**连着** emit theme_color 和 appearance 两个事件
+// (见 sync_engine_profile.dart)。如果两边各自立刻写一次 primaryColorProvider,
+// 用户就会看到主题色先跳到 server 存的颜色、再跳到皮肤语义算出的颜色 ——
+// 这就是「开启 BeeCount Cloud 时主题色闪烁」。绑定配色的皮肤会闪,
+// **不绑定配色的皮肤(比如一岁星座)一样会闪**,因为第二跳来自「上一款皮肤
+// 是绑定色款 → 恢复用户手选色」这条分支。
+//
+// 所以下行不再逐字段写颜色:各字段只登记意图,然后在一个 microtask 里统一
+// 算出最终颜色、只写一次。emit 是同步连发的,后一个事件的分发 microtask 排在
+// 结算 microtask 之前,结算时能读到已经更新好的 header_skin。
+
+/// 本批 server 推来的 theme_primary_color(null = 这批没带)。
+Color? _pendingServerTheme;
+
+/// 本批里皮肤是否**从**自带配色的款式切走了 —— 切走要恢复用户手选色。
+bool _skinLeftBoundPalette = false;
+bool _themeSettleScheduled = false;
+
+/// 结算优先级:皮肤自带配色 > server 的 theme_color > 本地记的用户手选色。
+///
+/// server 值排在 userChosen 前面是有意的:对端把皮肤从绑定色款换成普通款时,
+/// 它推上来的 theme_color 就是**它那边**的用户手选色,比本机记忆更新。
+@visibleForTesting
+Color? resolvePrimaryFromSync({
+  required Color? boundPrimary,
+  required Color? serverTheme,
+  required Color userChosen,
+  required bool leftBoundPalette,
+}) {
+  if (boundPrimary != null) return boundPrimary;
+  if (serverTheme != null) return serverTheme;
+  return leftBoundPalette ? userChosen : null;
+}
+
+void _scheduleThemeSettle(Ref ref) {
+  if (_themeSettleScheduled) return;
+  _themeSettleScheduled = true;
+  scheduleMicrotask(() {
+    _themeSettleScheduled = false;
+    final server = _pendingServerTheme;
+    final left = _skinLeftBoundPalette;
+    _pendingServerTheme = null;
+    _skinLeftBoundPalette = false;
+    try {
+      final bound = boundPrimaryOf(ref.read(headerSkinProvider));
+      // 本地颜色还在推往 server 的路上时,server 这一份多半就是我们**还没
+      // 覆盖掉的旧值** —— 采信它就会「跳到旧色,等 push 落地再跳回来」闪一下。
+      // 用户刚做出的选择比它可信。绑定色皮肤不受影响:那种情况下颜色由皮肤
+      // 决定,压根不看 server。
+      final serverUsable = bound != null || !isThemePushInFlight;
+      if (!serverUsable && server != null) {
+        logger.info('profile_sync',
+            'skip server theme while local push in flight: $server');
+      }
+      final next = resolvePrimaryFromSync(
+        boundPrimary: bound,
+        serverTheme: serverUsable ? server : null,
+        userChosen: ref.read(userChosenPrimaryProvider),
+        leftBoundPalette: left,
+      );
+      if (next == null) return;
+      if (ref.read(primaryColorProvider) == next) return; // 同值不写 → 无 echo
+      // 包起来:这个值来自 server,写入触发的 listener 不该再推回去。
+      // 不包的话两端在途的 push 会交替触发,颜色无限横跳。
+      runApplyingFromServer(
+          () => ref.read(primaryColorProvider.notifier).state = next);
+      logger.info('profile_sync', 'settled primary color from sync: $next');
+    } catch (e, st) {
+      logger.warning('profile_sync', 'settle primary color failed: $e', st);
+    }
+  });
+}
+
 void _applyThemeColorFromServer(Ref ref, String hex) {
   try {
     final normalized = hex.startsWith('#') ? hex : '#$hex';
     final code = int.tryParse(normalized.substring(1), radix: 16);
     if (code == null) return;
-    final currentColor = ref.read(primaryColorProvider);
-    final nextColor = Color(0xFF000000 | code);
-    // ignore: deprecated_member_use
-    if (currentColor.value == nextColor.value) return;
-    ref.read(primaryColorProvider.notifier).state = nextColor;
-    logger.info('profile_sync', 'applied theme_primary_color from server: $normalized');
+    _pendingServerTheme = Color(0xFF000000 | code);
+    _scheduleThemeSettle(ref);
   } catch (e, st) {
     logger.warning('profile_sync', 'apply theme color failed: $e', st);
   }
@@ -732,7 +807,8 @@ void _applyThemeColorFromServer(Ref ref, String hex) {
 void _applyIncomeColorFromServer(Ref ref, bool incomeIsRed) {
   final current = ref.read(incomeExpenseColorSchemeProvider);
   if (current == incomeIsRed) return;
-  ref.read(incomeExpenseColorSchemeProvider.notifier).state = incomeIsRed;
+  runApplyingFromServer(
+      () => ref.read(incomeExpenseColorSchemeProvider.notifier).state = incomeIsRed);
   logger.info('profile_sync', 'applied income_is_red from server: $incomeIsRed');
 }
 
@@ -741,7 +817,10 @@ void _applyDisplayNameFromServer(Ref ref, String name) {
   if (trimmed.isEmpty) return; // v1 不下空,避免清空对端本地昵称
   final current = ref.read(displayNameProvider);
   if (current == trimmed) return; // 相同值不写,StateProvider 不 notify → 无 echo
-  ref.read(displayNameProvider.notifier).state = trimmed;
+  // 「同值不写」只挡得住单端回声;两端各有一次在途 push 时仍会交替触发,
+  // 所以还要抑制这次写入产生的上行(见 runApplyingFromServer)。
+  runApplyingFromServer(
+      () => ref.read(displayNameProvider.notifier).state = trimmed);
   logger.info('profile_sync', 'applied display_name from server: $trimmed');
 }
 
@@ -751,9 +830,10 @@ Future<void> _applyBaseCurrencyFromServer(Ref ref, String code) async {
     if (normalized.isEmpty) return; // server 不下空,这里再兜一层
     final current = ref.read(baseCurrencyProvider);
     if (current == normalized) return; // 相同值不写,StateProvider 不 notify → 无 echo
-    // primaryCurrency 回流:写 provider + prefs。StateProvider 同值赋值不触发
-    // listener,不会造成 推送→广播→回流→再推送 的循环。
-    ref.read(baseCurrencyProvider.notifier).state = normalized;
+    // primaryCurrency 回流:写 provider + prefs。同值不写挡单端回声,
+    // runApplyingFromServer 再挡「两端在途 push 交替触发」的回环。
+    runApplyingFromServer(
+        () => ref.read(baseCurrencyProvider.notifier).state = normalized);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('baseCurrency', normalized);
     logger.info('profile_sync', 'applied primary_currency from server: $normalized');
@@ -762,7 +842,13 @@ Future<void> _applyBaseCurrencyFromServer(Ref ref, String code) async {
   }
 }
 
-void _applyAppearanceFromServer(Ref ref, Map<String, dynamic> appearance) {
+/// appearance 整包下行。**整个函数体都在 [runApplyingFromServer] 里** ——
+/// 这里写的每一个 provider 都有个 listener 会把新值推回 server,不抑制就是
+/// 「下行触发上行」的回环,和主题色横跳同源。
+void _applyAppearanceFromServer(Ref ref, Map<String, dynamic> appearance) =>
+    runApplyingFromServer(() => _applyAppearanceFields(ref, appearance));
+
+void _applyAppearanceFields(Ref ref, Map<String, dynamic> appearance) {
   final headerStyle = appearance['header_decoration_style'] as String?;
   if (headerStyle != null && headerStyle.isNotEmpty) {
     final current = ref.read(headerDecorationStyleProvider);
@@ -787,8 +873,24 @@ void _applyAppearanceFromServer(Ref ref, Map<String, dynamic> appearance) {
   final skin = appearance['header_skin'] as String?;
   if (skin != null && skin.isNotEmpty) {
     final current = ref.read(headerSkinProvider);
-    if (current != skin) {
+    // server 上可能还存着**已下架**的皮肤 id(老版本设备推的,或者本机升级前
+    // 推的)。认不出来就当没收到:写进去只会让本地又回到失效状态,和启动校正
+    // 的降级来回打架 —— 本地降级成 none 推上去、server 又把旧 id 推下来。
+    if (skin != kHeaderSkinNone && headerSkinById(skin) == null) {
+      logger.info('profile_sync', 'ignore unknown header_skin from server: $skin');
+    } else if (current != skin) {
+      // 这里**只换皮肤 + 登记颜色意图**,颜色本身交给 _scheduleThemeSettle
+      // 统一结算 —— 直接调 applyHeaderSkinWith 会和同批的 theme_color 事件
+      // 各写一次 primaryColorProvider,用户看到主题色闪两下。
+      final prevBound = boundPrimaryOf(current);
+      if (prevBound == null && boundPrimaryOf(skin) != null) {
+        // 离开自由配色前记住用户当前的颜色,换回普通皮肤时才恢复得对
+        ref.read(userChosenPrimaryProvider.notifier).state =
+            ref.read(primaryColorProvider);
+      }
+      if (prevBound != null) _skinLeftBoundPalette = true;
       ref.read(headerSkinProvider.notifier).state = skin;
+      _scheduleThemeSettle(ref);
     }
   }
   final noteMode = appearance['note_display_mode'] as String?;

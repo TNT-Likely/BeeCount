@@ -1015,6 +1015,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get headerSkinNone => 'Solid';
 
   @override
+  String get headerSkinAnniversary => 'Constellation No.1';
+
+  @override
+  String get headerSkinAnnivCake => 'Birthday Cake';
+
+  @override
+  String get headerSkinTabAll => 'All';
+
+  @override
+  String get headerSkinTabAnimated => 'Animated';
+
+  @override
+  String get headerSkinTabStatic => 'Static';
+
+  @override
+  String get headerSkinAnimatedBadge => 'LIVE';
+
+  @override
+  String get headerSkinFixedPalette => 'Own palette';
+
+  @override
+  String personalizeLockedBySkin(String skin) {
+    return 'The skin \"$skin\" comes with its own palette, so the theme color is set by the skin and can\'t be changed. Switch to another skin to get your color back.';
+  }
+
+  @override
+  String get personalizeFixedSkinAction => 'Change skin';
+
+  @override
   String get headerSkinAurora => 'Aurora';
 
   @override

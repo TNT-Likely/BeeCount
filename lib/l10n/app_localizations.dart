@@ -1946,6 +1946,60 @@ abstract class AppLocalizations {
   /// **'Solid'**
   String get headerSkinNone;
 
+  /// No description provided for @headerSkinAnniversary.
+  ///
+  /// In en, this message translates to:
+  /// **'Constellation No.1'**
+  String get headerSkinAnniversary;
+
+  /// No description provided for @headerSkinAnnivCake.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday Cake'**
+  String get headerSkinAnnivCake;
+
+  /// No description provided for @headerSkinTabAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get headerSkinTabAll;
+
+  /// No description provided for @headerSkinTabAnimated.
+  ///
+  /// In en, this message translates to:
+  /// **'Animated'**
+  String get headerSkinTabAnimated;
+
+  /// No description provided for @headerSkinTabStatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Static'**
+  String get headerSkinTabStatic;
+
+  /// No description provided for @headerSkinAnimatedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE'**
+  String get headerSkinAnimatedBadge;
+
+  /// No description provided for @headerSkinFixedPalette.
+  ///
+  /// In en, this message translates to:
+  /// **'Own palette'**
+  String get headerSkinFixedPalette;
+
+  /// No description provided for @personalizeLockedBySkin.
+  ///
+  /// In en, this message translates to:
+  /// **'The skin \"{skin}\" comes with its own palette, so the theme color is set by the skin and can\'t be changed. Switch to another skin to get your color back.'**
+  String personalizeLockedBySkin(String skin);
+
+  /// No description provided for @personalizeFixedSkinAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Change skin'**
+  String get personalizeFixedSkinAction;
+
   /// No description provided for @headerSkinAurora.
   ///
   /// In en, this message translates to:

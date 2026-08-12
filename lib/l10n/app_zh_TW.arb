@@ -1552,6 +1552,18 @@
   "headerSkinTitle": "皮膚",
   "headerSkinSubtitle": "跟隨主題色,疊在頁首之上",
   "headerSkinNone": "純色",
+  "headerSkinAnniversary": "一歲星座",
+  "headerSkinAnnivCake": "週年蛋糕",
+  "headerSkinTabAll": "全部",
+  "headerSkinTabAnimated": "動態",
+  "headerSkinTabStatic": "靜態",
+  "headerSkinAnimatedBadge": "動",
+  "headerSkinFixedPalette": "自帶配色",
+  "personalizeLockedBySkin": "目前皮膚「{skin}」自帶配色,主題色已隨皮膚設定,暫不可更改。換回其它皮膚即可恢復你原來的顏色。",
+  "@personalizeLockedBySkin": {
+    "placeholders": { "skin": { "type": "String" } }
+  },
+  "personalizeFixedSkinAction": "換皮膚",
   "headerSkinAurora": "極光",
   "headerSkinMountains": "山巒",
   "headerSkinBokeh": "光斑",

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/note_history.dart';
 import '../services/system/logger_service.dart';
+import '../styles/header_skins.dart';
 import '../theme.dart';
 import '../widget/widget_manager.dart';
 import '../providers.dart';
@@ -62,6 +63,24 @@ final primaryColorInitProvider = FutureProvider<void>((ref) async {
     ref.read(primaryColorProvider.notifier).state = Color(saved);
   }
   ref.listen<Color>(primaryColorProvider, (prev, next) async {
+    // 同步捕获 —— 下面有 await,await 之后标志早被 finally 清掉了
+    final fromServer = isApplyingFromServer;
+    // 窗口也必须**同步**开:下面的 prefs 写入和小组件重绘都要 await,
+    // 等推送那一步才开就晚了,空窗期里 server 的旧色会被下行采信。
+    final endPush = fromServer ? null : beginThemePush();
+    try {
+      await _persistAndPushPrimary(ref, prefs, next, fromServer);
+    } finally {
+      endPush?.call();
+    }
+  });
+});
+
+/// primaryColor 变化后的落盘 + 小组件刷新 + 上行推送。
+/// 抽出来只是为了让 listener 那层能用 try/finally 卡住推送窗口。
+Future<void> _persistAndPushPrimary(
+    Ref ref, SharedPreferences prefs, Color next, bool fromServer) async {
+  {
     final colorValue = (next.a * 255).toInt() << 24 | (next.r * 255).toInt() << 16 | (next.g * 255).toInt() << 8 | (next.b * 255).toInt();
     await prefs.setInt('primaryColor', colorValue);
     // Update widget with new theme color
@@ -88,22 +107,92 @@ final primaryColorInitProvider = FutureProvider<void>((ref) async {
 
     // 推送主题色到 server，让 web 端通过 WS profile_change 自动跟随。
     // 同步方向单向：mobile → server → web；web 本地改色不回推。
-    unawaited(() async {
-      try {
-        final cloudProvider =
-            await ref.read(beecountCloudProviderInstance.future);
-        if (cloudProvider == null) return;
-        final hex = _colorToHex(next);
-        await cloudProvider.updateMyProfileThemeColor(hex: hex);
-        logger.info(
-            'theme_providers', 'primary color pushed to server: $hex');
-      } catch (e) {
-        logger.warning(
-            'theme_providers', 'push primary color failed (non-blocking): $e');
-      }
-    }());
-  });
-});
+    //
+    // 这个值本身就是 server 推下来的时候不能再推回去 —— 否则和对端在途的
+    // push 交替触发,颜色无限横跳(见 [runApplyingFromServer])。
+    if (fromServer) return;
+    try {
+      final cloudProvider =
+          await ref.read(beecountCloudProviderInstance.future);
+      if (cloudProvider == null) return;
+      final hex = _colorToHex(next);
+      await cloudProvider.updateMyProfileThemeColor(hex: hex);
+      logger.info('theme_providers', 'primary color pushed to server: $hex');
+    } catch (e) {
+      logger.warning(
+          'theme_providers', 'push primary color failed (non-blocking): $e');
+    }
+  }
+}
+
+// ==================== 下行 apply 的 echo 抑制 ====================
+//
+// 主题色 / 皮肤的 listener 一律把新值推给 server(见上面的 push 块和
+// `_pushAppearanceToCloud`)。问题是**下行 apply 也是写同一个 provider**,
+// 于是「server 推下来 → 本地写入 → listener 又推回 server」构成回环。
+//
+// 单看一次不出事(server 收到相同值不再广播),但两端各有一次在途 push 时就会
+// 交替到达、互相触发,主题色在两个颜色之间**无限横跳** —— 这就是「开启
+// BeeCount Cloud 后一岁星座主题色一直闪」的成因。
+//
+// 绑定配色的皮肤看不出来:它们的结算恒等于 boundPrimary,同值不写自然不推。
+// 一岁星座不绑定配色,走的是 server 值分支,回环就暴露了。
+//
+// 只压上行,**不压本地持久化和桌面小组件刷新** —— 那两件事不论值从哪来都得做。
+bool _applyingFromServer = false;
+
+/// 下行 apply 期间为 true。listener 用它决定「这个值要不要推回 server」。
+bool get isApplyingFromServer => _applyingFromServer;
+
+/// 把一段下行写入包起来,期间产生的 provider 变更不回推 server。
+/// 必须是**同步**闭包:Riverpod 的 listener 同步触发,await 之后标志就失效了。
+T runApplyingFromServer<T>(T Function() body) {
+  final prev = _applyingFromServer;
+  _applyingFromServer = true;
+  try {
+    return body();
+  } finally {
+    _applyingFromServer = prev;
+  }
+}
+
+// ==================== 本地主题色「推送在途」窗口 ====================
+//
+// echo 抑制解决了「无限横跳」,但还剩**一次**闪:
+//
+//   用户切皮肤 → 本地写新色 → push 异步发出(还没到 server)
+//   → 这期间一次 syncMyProfile 拉到 server 上的**旧颜色**
+//   → 结算采信它、跳到旧色 → push 到达、server 广播回来 → 又跳回新色
+//
+// 本地用户刚做出的选择,比 server 上那个我们自己还没覆盖掉的旧值更可信。
+// 所以推送在途期间,下行的 theme_color 一律不采信。
+//
+// 用计数而不是 bool:切皮肤会同时改 headerSkin 和 primaryColor,
+// 两个 listener 各推一次,窗口要叠着算。
+int _themePushInFlight = 0;
+
+/// 本地主题色是否有推送还没落地。
+bool get isThemePushInFlight => _themePushInFlight > 0;
+
+/// 同步开一个「本地外观改动还没落到 server」的窗口,返回关窗回调(幂等)。
+///
+/// **必须在 listener 的同步段调用**,不能等到真正发请求时才开 —— 那之间隔着
+/// prefs 写入和桌面小组件重绘两段 await(小组件那步要渲染图片,几百毫秒),
+/// 窗口没开的这段时间里下行照样会采信 server 的旧色。
+///
+/// 实测症状:枫叶(绑定枫红)→ 一岁星座,主题色「黄 → 红 → 黄」跳三下。
+/// 第一跳是正确的恢复用户手选色,第二跳就是这个空窗期里被 server 上
+/// 还没来得及覆盖的枫红顶掉,第三跳是 push 落地后广播回来。
+void Function() beginThemePush() {
+  _themePushInFlight++;
+  var closed = false;
+  return () {
+    // 幂等:重复关会让计数穿底,之后就永远不采信 server 的颜色了
+    if (closed) return;
+    closed = true;
+    _themePushInFlight--;
+  };
+}
 
 /// Flutter [Color] → `#RRGGBB`。忽略 alpha，server 只存 6 位 hex。
 String _colorToHex(Color color) {
@@ -321,11 +410,99 @@ final headerSkinInitProvider = FutureProvider<void>((ref) async {
   if (saved != null) {
     ref.read(headerSkinProvider.notifier).state = saved;
   }
+  final savedUserColor = prefs.getInt('userChosenPrimaryColor');
+  if (savedUserColor != null) {
+    ref.read(userChosenPrimaryProvider.notifier).state = Color(savedUserColor);
+  }
+  // 启动校正:皮肤可能是从云端同步下来的,主题色未必跟着绑定色走。
+  final bound = boundPrimaryOf(ref.read(headerSkinProvider));
+  if (bound != null && ref.read(primaryColorProvider) != bound) {
+    ref.read(primaryColorProvider.notifier).state = bound;
+  }
   ref.listen<String>(headerSkinProvider, (prev, next) async {
-    await prefs.setString('headerSkin', next);
-    _pushAppearanceToCloud(ref);
+    final fromServer = isApplyingFromServer;
+    // 同 primaryColor:窗口要在 prefs 那个 await 之前同步开。
+    // 切皮肤时这两个 listener 都会开一次,计数叠着,最后一个关完才算落地。
+    final endPush = fromServer ? null : beginThemePush();
+    try {
+      await prefs.setString('headerSkin', next);
+      if (fromServer) return; // server 推下来的皮肤不再推回去
+      _pushAppearanceToCloud(ref); // 它内部自己再开一个窗口接力
+    } finally {
+      endPush?.call();
+    }
   });
+  ref.listen<Color>(userChosenPrimaryProvider, (prev, next) async {
+    await prefs.setInt('userChosenPrimaryColor', _colorToInt(next));
+  });
+
+  // 启动校正 ②:皮肤 id 可能指向一款**已经下架**的皮肤(本地存的老值,或者
+  // 别的老版本设备同步上去、又推下来的)。UI 层 headerSkinById 返回 null 会
+  // 自动渲染成纯色,看着没事,但 provider 里那个失效 id 不清掉就会:
+  //   - 一直被推给 server,cloud 那边永远停在下架的皮肤上
+  //   - 皮肤选择页里选不中任何一项
+  //
+  // 必须放在 listener 注册**之后** —— 降级结果要走正常上行推给 server,
+  // 这样 server 上那个失效 id 才会被覆盖掉,不然下次同步又推回来。
+  final currentSkin = ref.read(headerSkinProvider);
+  if (currentSkin != kHeaderSkinNone && headerSkinById(currentSkin) == null) {
+    logger.info('theme_providers',
+        'header skin "$currentSkin" no longer registered, falling back to none');
+    ref.read(headerSkinProvider.notifier).state = kHeaderSkinNone;
+    // 下架的多半是绑定配色的皮肤,主题色还停在它的绑定色上。皮肤都没了,
+    // 就把颜色还给用户自己选的那个 —— boundPrimaryOf 现在已经认不出它,
+    // 走不到 applyHeaderSkin 里恢复手选色的那条分支。
+    final userColor = ref.read(userChosenPrimaryProvider);
+    if (ref.read(primaryColorProvider) != userColor) {
+      ref.read(primaryColorProvider.notifier).state = userColor;
+    }
+  }
 });
+
+/// 用户**手动选择**的主题色,与皮肤绑定色分开记。
+/// 选中绑定色皮肤时不覆盖它,换回普通皮肤时用它恢复,
+/// 用户就不会因为试了一款秋日皮肤而丢掉自己调的颜色。
+final userChosenPrimaryProvider =
+    StateProvider<Color>((ref) => BeeTheme.honeyGold);
+
+int _colorToInt(Color c) =>
+    (c.a * 255).toInt() << 24 |
+    (c.r * 255).toInt() << 16 |
+    (c.g * 255).toInt() << 8 |
+    (c.b * 255).toInt();
+
+/// 切换头部皮肤,并处理**主题色绑定**:
+/// - 切到绑定色皮肤:先把当前颜色记进 [userChosenPrimaryProvider],再切成皮肤色;
+/// - 从绑定色皮肤切回普通皮肤:恢复用户原先手选的颜色。
+///
+/// 皮肤页与任何需要换皮肤的地方都走这里,别直接改 [headerSkinProvider],
+/// 否则会出现「头部秋色、按钮蜜黄」的割裂。
+void applyHeaderSkin(WidgetRef ref, String skinId) =>
+    applyHeaderSkinWith(ref.read, skinId);
+
+/// `Ref` / `WidgetRef` 通用的读取器 —— 两者的 `read` 签名一致,直接 tear-off
+/// 传进来,[applyHeaderSkinWith] 就能同时服务 UI 和云同步 apply 侧。
+typedef ProviderReader = T Function<T>(ProviderListenable<T> provider);
+
+/// [applyHeaderSkin] 的实现体。云同步下行(`_applyAppearanceFromServer`)必须
+/// 也走这里 —— 直写 [headerSkinProvider] 会让「皮肤是绑定色款、主题色还是旧色」
+/// 这种自相矛盾的状态漏出去,再叠加 server 回推就变成两个颜色来回闪。
+void applyHeaderSkinWith(ProviderReader read, String skinId) {
+  final prevBound = boundPrimaryOf(read(headerSkinProvider));
+  final nextBound = boundPrimaryOf(skinId);
+
+  if (prevBound == null && nextBound != null) {
+    // 离开自由配色前,记住用户当前的颜色
+    read(userChosenPrimaryProvider.notifier).state = read(primaryColorProvider);
+  }
+  read(headerSkinProvider.notifier).state = skinId;
+
+  if (nextBound != null) {
+    read(primaryColorProvider.notifier).state = nextBound;
+  } else if (prevBound != null) {
+    read(primaryColorProvider.notifier).state = read(userChosenPrimaryProvider);
+  }
+}
 
 /// 把 header_decoration_style / compact_amount / show_transaction_time
 /// 的当前值打包推给 server 的 /profile/me。非 BeeCount Cloud 模式 provider
@@ -334,12 +511,28 @@ final headerSkinInitProvider = FutureProvider<void>((ref) async {
 /// 用整包 PATCH 是故意的:三者属于同一组"外观",任何一个改动都重发全量,server
 /// 写入 appearance_json 整体替换,对端用 WS profile_change 事件拉 /profile/me
 /// 拿到最新 dict 应用。
+///
+/// **绑定主题色的皮肤要先把颜色推上去再推 appearance。** theme_color 和
+/// appearance 是 server 上两个字段、两次广播,各自触发对端一次 apply。如果
+/// appearance 先落地,对端会在「新皮肤 + server 上还是旧颜色」的组合下走一遍
+/// apply,颜色就会先跳旧色再跳回绑定色 —— 用户看到的就是两个主题色之间闪。
+/// 这里串行 await 保证对端收到 header_skin 变更时,server 上的颜色已经对齐。
 void _pushAppearanceToCloud(Ref ref) {
+  // 同步开窗口:皮肤和颜色都还没落到 server 的这段时间里,下行拿到的是旧值,
+  // 采信它就会闪一下(见 [beginThemePush])。
+  final endPush = beginThemePush();
   unawaited(() async {
     try {
       final cloudProvider =
           await ref.read(beecountCloudProviderInstance.future);
       if (cloudProvider == null) return;
+      final bound = boundPrimaryOf(ref.read(headerSkinProvider));
+      if (bound != null) {
+        final hex = _colorToHex(bound);
+        await cloudProvider.updateMyProfileThemeColor(hex: hex);
+        logger.info('theme_providers',
+            'bound skin color pushed before appearance: $hex');
+      }
       final appearance = <String, dynamic>{
         'header_decoration_style': ref.read(headerDecorationStyleProvider),
         'compact_amount': ref.read(compactAmountProvider),
@@ -356,6 +549,8 @@ void _pushAppearanceToCloud(Ref ref) {
     } catch (e, st) {
       logger.warning(
           'theme_providers', 'push appearance failed (non-blocking): $e', st);
+    } finally {
+      endPush();
     }
   }());
 }
@@ -429,7 +624,9 @@ final displayNameInitProvider = FutureProvider<void>((ref) async {
     ref.read(displayNameProvider.notifier).state = saved;
   }
   ref.listen<String>(displayNameProvider, (prev, next) async {
+    final fromServer = isApplyingFromServer;
     await prefs.setString('displayName', next);
+    if (fromServer) return; // server 推下来的昵称不再推回去
     _pushDisplayNameToCloud(ref, next);
   });
 });

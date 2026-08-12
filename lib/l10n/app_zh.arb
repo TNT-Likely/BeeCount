@@ -399,6 +399,18 @@
   "headerSkinTitle": "皮肤",
   "headerSkinSubtitle": "跟随主题色,叠在头部之上",
   "headerSkinNone": "纯色",
+  "headerSkinAnniversary": "一岁星座",
+  "headerSkinAnnivCake": "周年蛋糕",
+  "headerSkinTabAll": "全部",
+  "headerSkinTabAnimated": "动态",
+  "headerSkinTabStatic": "静态",
+  "headerSkinAnimatedBadge": "动",
+  "headerSkinFixedPalette": "自带配色",
+  "personalizeLockedBySkin": "当前皮肤「{skin}」自带配色,主题色已随皮肤设定,暂不可更改。换回其它皮肤即可恢复你原来的颜色。",
+  "@personalizeLockedBySkin": {
+    "placeholders": { "skin": { "type": "String" } }
+  },
+  "personalizeFixedSkinAction": "换皮肤",
   "headerSkinAurora": "极光",
   "headerSkinMountains": "山峦",
   "headerSkinBokeh": "光斑",

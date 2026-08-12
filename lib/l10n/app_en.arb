@@ -467,6 +467,18 @@
   "headerSkinTitle": "Skin",
   "headerSkinSubtitle": "Follows your theme color, layered over the header",
   "headerSkinNone": "Solid",
+  "headerSkinAnniversary": "Constellation No.1",
+  "headerSkinAnnivCake": "Birthday Cake",
+  "headerSkinTabAll": "All",
+  "headerSkinTabAnimated": "Animated",
+  "headerSkinTabStatic": "Static",
+  "headerSkinAnimatedBadge": "LIVE",
+  "headerSkinFixedPalette": "Own palette",
+  "personalizeLockedBySkin": "The skin \"{skin}\" comes with its own palette, so the theme color is set by the skin and can't be changed. Switch to another skin to get your color back.",
+  "@personalizeLockedBySkin": {
+    "placeholders": { "skin": { "type": "String" } }
+  },
+  "personalizeFixedSkinAction": "Change skin",
   "headerSkinAurora": "Aurora",
   "headerSkinMountains": "Mountains",
   "headerSkinBokeh": "Bokeh",

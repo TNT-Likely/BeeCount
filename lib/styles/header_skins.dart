@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../l10n/app_localizations.dart';
 
+part 'header_skins/anniv_cake_skin.dart';
+part 'header_skins/skin_common.dart';
+part 'header_skins/anniversary_skin.dart';
 part 'header_skins/aurora_skin.dart';
 part 'header_skins/bokeh_skin.dart';
 part 'header_skins/bubbles_skin.dart';
@@ -34,6 +37,10 @@ part 'header_skins/waves_skin.dart';
 /// 两类皮肤:**代码皮肤**(渐变/几何/光斑,跟随主题色,见各 `header_skins/*_skin.dart`
 /// part)与 **图片皮肤**(`_ImageSkin`,SVG 全幅铺满;themed=true 整幅染成主题色,否则
 /// 用 SVG 自带配色)。**一个皮肤一个 part 文件**;新增见 assets/header_skins/README.md。
+///
+/// 代码皮肤可以是**动态**的(builder 返回带 AnimationController 的 StatefulWidget,
+/// 用 RepaintBoundary 隔离、尊重系统「减弱动态效果」,首例见 anniversary_skin.dart),
+/// 也可通过可选的 [HeaderSkin.tabBarBuilder] 同时装饰悬浮 tab 胶囊。
 
 const String kHeaderSkinNone = 'none';
 
@@ -42,6 +49,10 @@ class HeaderSkin {
     required this.id,
     required this.nameOf,
     required this.builder,
+    this.tabBarBuilder,
+    this.isAnimated = false,
+    this.boundPrimary,
+    this.badge,
   });
 
   final String id;
@@ -51,7 +62,31 @@ class HeaderSkin {
 
   /// 返回铺满 header 的装饰层(放进 Positioned.fill)。
   final Widget Function(Color primary, bool isDark) builder;
+
+  /// 可选:悬浮 tab 胶囊内的装饰层(垫在图标之下,见 app.dart _BeeBottomBar)。
+  /// 不实现则 tab 无装饰,现有皮肤行为零变化。
+  final Widget Function(Color primary, bool isDark)? tabBarBuilder;
+
+  /// 是否带动画(选择页据此分「动态 / 静态」两组)。
+  final bool isAnimated;
+
+  /// **绑定主题色**:非 null 表示皮肤自带整套配色。选中这类皮肤时会把 App 主题色
+  /// 自动切成这个颜色、并锁定主题色选择 —— 否则会出现「头部枫红、按钮蜜黄」的割裂。
+  /// 换回普通皮肤时自动恢复用户原先手选的颜色(见 applyHeaderSkin)。
+  final Color? boundPrimary;
+
+  /// 皮肤是否自带配色(= 绑定了主题色)。
+  bool get hasFixedPalette => boundPrimary != null;
+
+  /// 选择页卡片左上角小徽标(如周年款的「1st」),null 不显示。
+  final String? badge;
 }
+
+/// 按「动态 / 静态」分组的过滤器,供选择页分段切换使用。
+enum HeaderSkinFilter { all, animated, static_ }
+
+/// 当前皮肤绑定的主题色;null = 用户可自由选主题色。
+Color? boundPrimaryOf(String skinId) => headerSkinById(skinId)?.boundPrimary;
 
 // ---- HSL 派生工具(供各皮肤 part 共用)----
 Color _lighten(Color c, double amount) {
@@ -66,6 +101,28 @@ Color _hueShift(Color c, double deg) {
 
 /// 已注册皮肤(不含「无」)。
 final List<HeaderSkin> kHeaderSkins = [
+  // 一周年纪念款(2025.9.10—2026.9.10)×2,置顶展示;选择页带「1st」角标。
+  // 曾经有第三款「周年账单」(一张年度小票),已下架:设计稿把票排在 300×208
+  // 方画布的右半边,而真实 header 是 440×172 的扁条、右上角还被三个功能图标
+  // 占着 —— 票要么细成一条、要么压着图标,两头不讨好。
+  HeaderSkin(
+      id: 'anniversary',
+      nameOf: (l) => l.headerSkinAnniversary,
+      builder: (p, d) => _AnniversarySkin(p, d),
+      tabBarBuilder: (p, d) => _AnniversaryTabDeco(p, d),
+      isAnimated: true,
+      badge: '1st'),
+  HeaderSkin(
+      id: 'anniv_cake',
+      nameOf: (l) => l.headerSkinAnnivCake,
+      builder: (p, d) => _AnnivCakeSkin(d),
+      tabBarBuilder: (p, d) => _AnnivCakeTabDeco(d),
+      isAnimated: true,
+      boundPrimary: _kCakeCandleL,
+      badge: '1st'),
+  // 秋日系列(枫叶清秋 / 桂月中秋 / 银杏金秋 / 柿柿如意 / 秋雨梧桐 / 雁阵南飞)
+  // 不在这一版:计划以付费皮肤形态单独发布,提前免费放出去就收不回来了。
+  // 代码在 feat/autumn-skins-paid 分支上,见 .docs/skin-monetization-research.md。
   HeaderSkin(
       id: 'aurora',
       nameOf: (l) => l.headerSkinAurora,

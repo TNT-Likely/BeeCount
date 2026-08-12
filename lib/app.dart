@@ -32,6 +32,7 @@ import 'services/system/logger_service.dart';
 import 'services/security/app_lock_service.dart';
 import 'providers/security_providers.dart';
 import 'styles/tokens.dart';
+import 'styles/header_skins.dart';
 import 'providers/avatar_providers.dart';
 
 class BeeApp extends ConsumerStatefulWidget {
@@ -796,6 +797,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final avatarPath = ref.watch(avatarPathProvider).asData?.value;
+    // 头部皮肤可附带悬浮 tab 装饰层(如一周年皮肤),随皮肤选择联动。
+    final headerSkin = headerSkinById(ref.watch(headerSkinProvider));
 
     return PopScope(
       canPop: false,
@@ -827,6 +830,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
               bottomPadding: bottomPadding,
               l10n: l10n,
               avatarPath: avatarPath,
+              skin: headerSkin,
               centerButtonKey: _centerButtonKey,
               onTabTap: (index) {
                 final now = DateTime.now();
@@ -902,6 +906,7 @@ class _BeeBottomBar extends StatelessWidget {
   final double bottomPadding;
   final AppLocalizations l10n;
   final String? avatarPath;
+  final HeaderSkin? skin;
   final GlobalKey centerButtonKey;
   final ValueChanged<int> onTabTap;
   final VoidCallback onCenterTap;
@@ -916,6 +921,7 @@ class _BeeBottomBar extends StatelessWidget {
     required this.bottomPadding,
     required this.l10n,
     this.avatarPath,
+    this.skin,
     required this.centerButtonKey,
     required this.onTabTap,
     required this.onCenterTap,
@@ -947,17 +953,27 @@ class _BeeBottomBar extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(28),
-            child: Row(
+            child: Stack(
               children: [
-                _buildTabItem(
-                    0, Icons.receipt_long_outlined, Icons.receipt_long, l10n.tabHome, inactiveColor),
-                _buildTabItem(1, Icons.pie_chart_outline_rounded,
-                    Icons.pie_chart_rounded, l10n.tabInsights, inactiveColor),
-                // 中间记账按钮（作为 Tab 样式）
-                _buildCenterTabItem(inactiveColor),
-                _buildTabItem(2, Icons.account_balance_wallet_outlined,
-                    Icons.account_balance_wallet, l10n.tabAssets, inactiveColor),
-                _buildAvatarTabItem(3, l10n.tabMine, inactiveColor),
+                // 皮肤的悬浮 tab 装饰层(垫在图标之下,不影响点按)
+                if (skin?.tabBarBuilder != null)
+                  Positioned.fill(
+                      child: IgnorePointer(
+                          child: skin!.tabBarBuilder!(primaryColor, isDark))),
+                Row(
+                  children: [
+                    _buildTabItem(0, Icons.receipt_long_outlined,
+                        Icons.receipt_long, l10n.tabHome, inactiveColor),
+                    _buildTabItem(1, Icons.pie_chart_outline_rounded,
+                        Icons.pie_chart_rounded, l10n.tabInsights, inactiveColor),
+                    // 中间记账按钮（作为 Tab 样式）
+                    _buildCenterTabItem(inactiveColor),
+                    _buildTabItem(2, Icons.account_balance_wallet_outlined,
+                        Icons.account_balance_wallet, l10n.tabAssets,
+                        inactiveColor),
+                    _buildAvatarTabItem(3, l10n.tabMine, inactiveColor),
+                  ],
+                ),
               ],
             ),
           ),
