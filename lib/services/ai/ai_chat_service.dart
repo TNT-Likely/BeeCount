@@ -115,7 +115,15 @@ class AIChatService {
     }
 
     logger.info('AIChat', '账单提取成功: ${result.savedCount} 笔');
-    return AIResponse.billCards(result.savedBills, result.transactionIds);
+    return AIResponse.billCards(
+      result.savedBills,
+      result.transactionIds,
+      // 多币种降级提示(A5):缺汇率时已按 1:1 暂记,告诉用户去统计页补折算
+      note: (result.unconvertedCurrencies.isEmpty || l10n == null)
+          ? null
+          : l10n.aiBillingRateMissingHint(
+              result.unconvertedCurrencies.join('、')),
+    );
   }
 
   Future<AIResponse> _handleFreeChat(
@@ -202,13 +210,17 @@ class AIResponse {
       AIResponse(type: 'text', text: text);
 
   /// 多笔/单笔统一入口。bills 与 txIds 必须等长且非空。
-  factory AIResponse.billCards(List<BillInfo> bills, List<int> txIds) {
+  ///
+  /// [note] 附加在成功文案后的一行提示(目前用于多币种「缺汇率按 1:1 暂记」)。
+  factory AIResponse.billCards(List<BillInfo> bills, List<int> txIds,
+      {String? note}) {
     assert(bills.length == txIds.length && bills.isNotEmpty,
         'bills/txIds 必须等长且非空');
     final n = bills.length;
+    final base = n == 1 ? '✅ 记账成功' : '✅ 已记账 $n 笔';
     return AIResponse(
       type: 'bill_card',
-      text: n == 1 ? '✅ 记账成功' : '✅ 已记账 $n 笔',
+      text: (note == null || note.isEmpty) ? base : '$base\n$note',
       bills: List.unmodifiable(bills),
       transactionIds: List.unmodifiable(txIds),
     );

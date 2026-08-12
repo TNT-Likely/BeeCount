@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:beecount/ai/core/ai_extraction_context.dart';
 import 'package:beecount/ai/core/prompt_builder.dart';
+import 'package:beecount/utils/currency_aliases.dart';
 
 void main() {
   group('PromptBuilder', () {
@@ -25,7 +26,12 @@ void main() {
 
     test('注入账户列表替换 {{ACCOUNTS}}', () {
       final ctx = AiExtractionContext(
-        accounts: const ['支付宝', '微信零钱', '招行储蓄'],
+        accounts: const [
+          (name: '支付宝', currency: 'CNY'),
+          (name: '微信零钱', currency: 'CNY'),
+          (name: '招行储蓄', currency: 'CNY'),
+        ],
+        ledgerCurrency: 'CNY',
       );
       final out = builder.build(
         context: ctx,
@@ -33,7 +39,227 @@ void main() {
         ocrText: 'Y',
         now: DateTime(2026, 5, 26),
       );
+      // 单币种账本:账户清单**不带**币种后缀,与加多币种之前逐字相同
       expect(out, contains('账户列表：支付宝、微信零钱、招行储蓄'));
+    });
+
+    // 智能记账多币种(.docs/multi-currency-ai)
+    test('外币账户在清单里带币种后缀', () {
+      final ctx = AiExtractionContext(
+        accounts: const [
+          (name: '微信', currency: 'CNY'),
+          (name: 'Chase', currency: 'USD'),
+        ],
+        ledgerCurrency: 'CNY',
+        availableCurrencies: const ['CNY', 'USD'],
+      );
+      final out = builder.build(
+        context: ctx,
+        inputSource: 'X',
+        now: DateTime(2026, 5, 26),
+      );
+      expect(out, contains('账户列表：微信、Chase(USD)'));
+    });
+
+    test('单币种账本的币种提示只有一行主币种', () {
+      final ctx = AiExtractionContext(
+        accounts: const [(name: '微信', currency: 'CNY')],
+        ledgerCurrency: 'CNY',
+        availableCurrencies: const ['CNY'],
+      );
+      final out = builder.build(
+        context: ctx,
+        inputSource: 'X',
+        now: DateTime(2026, 5, 26),
+      );
+      expect(out, contains('账本主币种：CNY'));
+      expect(out, isNot(contains('已有外币账户')));
+    });
+
+    test('有外币账户时列出可用币种', () {
+      final ctx = AiExtractionContext(
+        accounts: const [(name: 'Chase', currency: 'USD')],
+        ledgerCurrency: 'CNY',
+        availableCurrencies: const ['CNY', 'USD'],
+      );
+      final out = builder.build(
+        context: ctx,
+        inputSource: 'X',
+        now: DateTime(2026, 5, 26),
+      );
+      expect(out, contains('账本主币种：CNY；账本内已有外币账户：USD'));
+    });
+
+    test('默认模板含 currency 字段说明与外币示例', () {
+      final out = builder.build(
+        context: AiExtractionContext.fallback,
+        inputSource: 'X',
+        now: DateTime(2026, 5, 26),
+      );
+      expect(out, contains('10. currency:'));
+      // 多币种示例要覆盖多个币种:只给 JPY 一个样例时,实测「美元」会漏填
+      expect(out, contains('"currency":"JPY"'));
+      expect(out, contains('"currency":"USD"'));
+      expect(out, contains('"currency":"EUR"'));
+    });
+
+    test('默认模板明令禁止填符号/中文名,并给出符号对应', () {
+      final out = builder.build(
+        context: AiExtractionContext.fallback,
+        inputSource: 'X',
+        now: DateTime(2026, 5, 26),
+      );
+      expect(out, contains('不要填货币符号'));
+      expect(out, contains('\$ → USD'));
+    });
+
+    // 「日元能识别、美元不行」的根因之一:只靠一句「填 ISO 代码」,模型对没有
+    // 样例的币种会漏填。对照表从别名表运行时生成,prompt 与解析器同一份数据。
+    group('币种对照表', () {
+      test('常用币种都在表里,且只给一个规范名(不带繁体/口语变体)', () {
+        final out = builder.build(
+          context: AiExtractionContext.fallback,
+          inputSource: 'X',
+          now: DateTime(2026, 5, 26),
+        );
+        expect(out, contains('币种对照'));
+        expect(out, contains('美元=USD'));
+        expect(out, contains('日元=JPY'));
+        expect(out, contains('欧元=EUR'));
+        expect(out, contains('英镑=GBP'));
+        expect(out, contains('港币=HKD'));
+        expect(out, contains('泰铢=THB'));
+        // 繁体变体只用于解析,不该出现在 prompt 里(白烧 token)
+        expect(out, isNot(contains('歐元')));
+        expect(out, isNot(contains('港幣')));
+      });
+
+      test('账本主币种自己不进对照表(相同就该省略字段)', () {
+        final out = builder.build(
+          context: const AiExtractionContext(
+              ledgerCurrency: 'JPY', availableCurrencies: ['JPY']),
+          inputSource: 'X',
+          now: DateTime(2026, 5, 26),
+        );
+        expect(out, contains('账本主币种：JPY'));
+        expect(out, isNot(contains('日元=JPY')));
+      });
+
+      test('账本在用的长尾币种也带上(哪怕不在常用列表里)', () {
+        final out = builder.build(
+          context: const AiExtractionContext(
+              ledgerCurrency: 'CNY', availableCurrencies: ['CNY', 'KES']),
+          inputSource: 'X',
+          now: DateTime(2026, 5, 26),
+        );
+        // KES 没登记中文别名 → 只出 code
+        expect(out, contains('KES'));
+      });
+
+      test('对照表里的每个中文名都能被解析器认回来(prompt 与解析不脱节)', () {
+        final out = builder.build(
+          context: AiExtractionContext.fallback,
+          inputSource: 'X',
+          now: DateTime(2026, 5, 26),
+        );
+        final line = out
+            .split('\n')
+            .firstWhere((l) => l.startsWith('币种对照'));
+        final pairs = line.split('：').last.split('、');
+        for (final pair in pairs) {
+          if (!pair.contains('=')) continue; // 纯 code 项
+          final parts = pair.split('=');
+          expect(currencyCodeFromAlias(parts[0]), parts[1],
+              reason: 'prompt 教 AI 写「${parts[0]}」,解析器却认不出');
+        }
+      });
+    });
+
+    // 占位符登记表(A7):自定义模板是整段替换默认模板的,所以默认模板新增
+    // 占位符时老模板拿不到对应能力。登记表让编辑页能算出「缺哪些能力」。
+    group('占位符登记表', () {
+      test('登记表与默认模板双向一致(漏登记 / 登记了模板没有的都算错)', () {
+        expect(PromptBuilder.placeholdersMatchDefaultTemplate, isTrue,
+            reason: '新增 {{XXX}} 占位符后要同步登记进 PromptBuilder.placeholders');
+      });
+
+      test('默认模板本身不缺任何能力', () {
+        expect(
+          PromptBuilder.missingPlaceholdersIn(PromptBuilder.defaultTemplate),
+          isEmpty,
+        );
+      });
+
+      test('缺能力性占位符会被报出来', () {
+        final missing = PromptBuilder.missingPlaceholdersIn(
+            '只提取金额 {{OCR_TEXT}} {{CURRENT_TIME}}');
+        final tokens = missing.map((p) => p.token);
+        expect(tokens, contains('{{CURRENCIES}}'));
+        expect(tokens, contains('{{CATEGORIES}}'));
+        expect(tokens, contains('{{ACCOUNTS}}'));
+        expect(tokens, contains('{{BILL_GUARD}}'));
+        // 模板里已有的不该被报
+        expect(tokens, isNot(contains('{{OCR_TEXT}}')));
+        expect(tokens, isNot(contains('{{CURRENT_TIME}}')));
+      });
+
+      test('纯观感占位符缺失不报警(否则会变成永远消不掉的黄条)', () {
+        final tokens = PromptBuilder.missingPlaceholdersIn('空模板')
+            .map((p) => p.token);
+        expect(tokens, isNot(contains('{{INPUT_SOURCE}}')));
+        expect(tokens, isNot(contains('{{CURRENT_DATE}}')));
+      });
+
+      test('只有位置安全的占位符才带一键补丁片段', () {
+        final byToken = {
+          for (final p in PromptBuilder.placeholders) p.token: p,
+        };
+        // {{CURRENCIES}} 追加到末尾是安全的
+        expect(byToken['{{CURRENCIES}}']!.appendSnippet, isNotNull);
+        // 这两个位置有语义,盲目追加会写坏模板
+        expect(byToken['{{BILL_GUARD}}']!.appendSnippet, isNull);
+        expect(byToken['{{OCR_TEXT}}']!.appendSnippet, isNull);
+      });
+
+      test('补丁片段本身补完就不再缺该能力(补丁真的管用)', () {
+        const userTemplate = 'CUSTOM {{OCR_TEXT}}';
+        final currencies = PromptBuilder.placeholders
+            .firstWhere((p) => p.token == '{{CURRENCIES}}');
+        final patched = '$userTemplate\n${currencies.appendSnippet}';
+        expect(
+          PromptBuilder.missingPlaceholdersIn(patched).map((p) => p.token),
+          isNot(contains('{{CURRENCIES}}')),
+        );
+      });
+    });
+
+    test('「插入币种段落」补丁与默认模板共用同一份字段说明(防漂移)', () {
+      final out = builder.build(
+        context: AiExtractionContext.fallback,
+        inputSource: 'X',
+        now: DateTime(2026, 5, 26),
+      );
+      // 补丁 = 字段说明 + {{CURRENCIES}};字段说明部分必须逐字出现在默认模板里
+      final spec =
+          PromptBuilder.currencySectionSnippet.replaceAll('\n{{CURRENCIES}}', '');
+      expect(out, contains(spec));
+    });
+
+    test('A7 回归锁:自定义模板不含 {{CURRENCIES}} → 不注入币种段落', () {
+      final ctx = AiExtractionContext(
+        accounts: const [(name: 'Chase', currency: 'USD')],
+        ledgerCurrency: 'CNY',
+        availableCurrencies: const ['CNY', 'USD'],
+        customPromptTemplate: 'CUSTOM: {{INPUT_SOURCE}} / {{CATEGORIES}}',
+      );
+      final out = builder.build(
+        context: ctx,
+        inputSource: 'X',
+        now: DateTime(2026, 5, 26),
+      );
+      expect(out, startsWith('CUSTOM: X'));
+      expect(out, isNot(contains('账本主币种')));
+      expect(out, isNot(contains('账户列表')));
     });
 
     test('空 context → 走 hardcoded fallback 分类', () {

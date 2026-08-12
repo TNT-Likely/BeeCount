@@ -20,7 +20,14 @@ final aiBookkeeperProvider = Provider<AiBookkeeper>((ref) {
   return AiBookkeeper(
     repository: repo,
     engine: ref.watch(aiExtractionEngineProvider),
-    persister: BillCreationService(repo),
+    persister: BillCreationService(
+      repo,
+      // 多币种(.docs/multi-currency-ai A6):AI 识别出外币时,落库前把该币种
+      // 的汇率拉到本地,否则 repo 只能按 1:1 折算。注入而非在渠道层预拉,是
+      // 为了让**后台自动记账**(截图/通知,无 WidgetRef)也走同一条路径。
+      ensureRate: (code) =>
+          refreshExchangeRates(ref, force: true, extraQuotes: {code}),
+    ),
   );
 });
 

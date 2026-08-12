@@ -196,6 +196,63 @@ void main() {
     });
   });
 
+  group('BillInfo.currency(智能记账多币种 A4)', () {
+    test('ISO 码大小写归一', () {
+      expect(BillInfo.fromJson({'amount': -1, 'currency': 'usd'}).currency, 'USD');
+      expect(BillInfo.fromJson({'amount': -1, 'currency': ' JPY '}).currency, 'JPY');
+    });
+
+    test('兼容 currency_code / currencyCode 键名', () {
+      expect(
+        BillInfo.fromJson({'amount': -1, 'currency_code': 'EUR'}).currency,
+        'EUR',
+      );
+      expect(
+        BillInfo.fromJson({'amount': -1, 'currencyCode': 'GBP'}).currency,
+        'GBP',
+      );
+    });
+
+    test('口语别名走 alias 表', () {
+      expect(BillInfo.fromJson({'amount': -1, 'currency': '美元'}).currency, 'USD');
+      expect(BillInfo.fromJson({'amount': -1, 'currency': '日元'}).currency, 'JPY');
+    });
+
+    test(r'AI 把 currency 回成 "$" 时仍解析成 USD(实测高频)', () {
+      expect(BillInfo.fromJson({'amount': -1, 'currency': r'$'}).currency, 'USD');
+    });
+
+    test('真歧义符号 ¥ 按缺失处理(CNY/JPY 猜错差 ~20 倍)', () {
+      expect(BillInfo.fromJson({'amount': -1, 'currency': '¥'}).currency, isNull);
+    });
+
+    test('非法币种按缺失处理,不抛异常', () {
+      expect(BillInfo.fromJson({'amount': -1, 'currency': 'XYZ'}).currency, isNull);
+      expect(BillInfo.fromJson({'amount': -1, 'currency': 123}).currency, isNull);
+    });
+
+    test('回归锁:老 payload 无 currency 键 → null,其余字段不受影响', () {
+      final bill = BillInfo.fromJson({
+        'amount': -30,
+        'type': 'expense',
+        'category': '餐饮',
+      });
+      expect(bill.currency, isNull);
+      expect(bill.amount, -30);
+      expect(bill.category, '餐饮');
+    });
+
+    test('copyWith / toJson 往返', () {
+      const bill = BillInfo(amount: -1, currency: 'JPY');
+      expect(bill.copyWith(note: 'x').currency, 'JPY');
+      expect(bill.toJson()['currency'], 'JPY');
+      expect(
+        BillInfo.fromJson(Map<String, dynamic>.from(bill.toJson())).currency,
+        'JPY',
+      );
+    });
+  });
+
   group('BillInfo.isComplete', () {
     test('amount + time 都有 → true', () {
       final bill = BillInfo(

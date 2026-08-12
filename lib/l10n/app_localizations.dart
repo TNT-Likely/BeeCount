@@ -8300,6 +8300,42 @@ abstract class AppLocalizations {
   /// **'Ledger not found'**
   String get aiOcrNoLedger;
 
+  /// No description provided for @aiBillingRateMissingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ No {currency} rate available — recorded 1:1 for now; use “Reconvert” on the stats page to fix.'**
+  String aiBillingRateMissingHint(String currency);
+
+  /// No description provided for @aiPromptVarCurrencies.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger base currency + foreign-currency accounts in use'**
+  String get aiPromptVarCurrencies;
+
+  /// No description provided for @aiPromptVarBillGuard.
+  ///
+  /// In en, this message translates to:
+  /// **'Non-bill filter (injected for screenshot / auto bookkeeping only)'**
+  String get aiPromptVarBillGuard;
+
+  /// No description provided for @aiPromptMissingVarsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your custom template is missing these variables, so the matching features stop working: {vars}'**
+  String aiPromptMissingVarsHint(String vars);
+
+  /// No description provided for @aiPromptInsertVarSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert {name} section'**
+  String aiPromptInsertVarSection(String name);
+
+  /// No description provided for @aiPromptVarSectionInserted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} section appended — review, then save'**
+  String aiPromptVarSectionInserted(String name);
+
   /// No description provided for @aiOcrSuccess.
   ///
   /// In en, this message translates to:

@@ -16,12 +16,21 @@ import 'category_matcher.dart';
 /// 记录,同时挂上分类/账户/标签。被以下渠道复用:
 /// - [AiBookkeeper] 的 5 条路径(对话/图片/语音/自动截图/自动文本)
 /// - 后续可能接入的手动录入(目前手动走 `repository.addTransaction` 直接落库)
+/// 确保某币种 → 账本本位币的汇率在本地可用;返回是否可用。
+///
+/// 由 provider 层注入(见 `aiBookkeeperProvider` 装配),这样 service 层不必
+/// 依赖 Riverpod,后台自动记账也能复用同一条汇率预拉路径(A6)。
+typedef EnsureRate = Future<bool> Function(String currencyCode);
+
 class BillCreationService {
   static const _tag = 'BillCreation';
 
   final BaseRepository repo;
 
-  BillCreationService(this.repo);
+  /// 见 [EnsureRate]。未注入(单测 / 老调用方)时跳过预拉,行为与改动前一致。
+  final EnsureRate? ensureRate;
+
+  BillCreationService(this.repo, {this.ensureRate});
 
   /// 从 [BillInfo] 创建账单交易。入参的 [bill] 经过 sanitize,
   /// **保证 amount 非空且 abs > 0、time 非空**,内部无需再做兜底。
@@ -56,16 +65,37 @@ class BillCreationService {
       categoryId = _fallbackCategoryId(categories);
     }
 
-    // 4. 匹配账户
+    // 3.5 账本本位币 + AI 给的币种(.docs/multi-currency-ai A1/A2)
+    final ledgerBase = await _ledgerCurrency(ledgerId);
+    final requestedCurrency = bill.currency?.trim().toUpperCase();
+
+    // 4. 匹配账户。**账户候选池按这笔的币种筛**(A3,与手动记账
+    //    AccountSelector.filterCurrency 同构):AI 给了币种就只在该币种的账户
+    //    里找;没给币种则全币种可选,由命中的账户反过来决定币种(L7)。
     int? accountId;
     int? toAccountId;
     if (transactionType == 'transfer') {
       final source = bill.fromAccount ?? bill.account;
       if (source != null && source.trim().isNotEmpty) {
-        accountId = await _matchAccountByName(source, ledgerId);
+        accountId = await _matchAccountByName(source, requestedCurrency);
       }
       if (bill.toAccount != null && bill.toAccount!.trim().isNotEmpty) {
-        toAccountId = await _matchAccountByName(bill.toAccount!, ledgerId);
+        // **跨币种转账守卫**(.docs/multi-currency-ledger 01 §4.4):转入账户必须
+        // 与这笔转账的币种一致。手动路径(transfer_form)会 toast 报错并重置转入
+        // 账户;AI 是无人值守,所以退化成「匹配不到转入账户」—— 这与 AI 本来
+        // 就没说转入账户时的落库形态一致,不会造出一笔币种错乱的转账。
+        //
+        // 这里**必须兜到 ledgerBase**,不能留 null:留 null 池就全币种开放,
+        // 于是「转出账户没匹配上 + AI 没给币种」时,转入账户可能是 USD 账户而
+        // 这笔按 CNY 落库(下面 4.5 算出的 txCurrency=ledgerBase)—— 账户余额读
+        // 的是原币 amount,800 会当成 800 美元加到 USD 账户上,余额直接错。
+        final fromCurrency = accountId == null
+            ? null
+            : (await repo.getAccount(accountId))?.currency.toUpperCase();
+        final transferCurrency =
+            fromCurrency ?? requestedCurrency ?? ledgerBase;
+        toAccountId =
+            await _matchAccountByName(bill.toAccount!, transferCurrency);
       }
       if (accountId != null && accountId == toAccountId) {
         toAccountId = null;
@@ -75,10 +105,35 @@ class BillCreationService {
         bill.account,
         ledgerId,
         transactionType: transactionType,
+        requestedCurrency: requestedCurrency,
+        ledgerBase: ledgerBase,
       );
     }
 
-    // 5. 落库
+    // 4.5 定交易币种:命中账户 → 随账户(账户内不混币,L7/L12 的不变量);
+    //     否则用 AI 给的;都没有 → 账本本位币。
+    final matchedAccount = accountId == null ? null : await repo.getAccount(accountId);
+    final accountCurrency = (matchedAccount?.currency.isNotEmpty ?? false)
+        ? matchedAccount!.currency.toUpperCase()
+        : null;
+    final txCurrency = accountCurrency ?? requestedCurrency ?? ledgerBase;
+    if (requestedCurrency != null &&
+        accountCurrency != null &&
+        requestedCurrency != accountCurrency) {
+      // 池已按币种筛过,正常走不到这里;留日志防未来改动引入静默错币种
+      logger.warning(_tag,
+          '[币种] AI 给 $requestedCurrency 但命中账户是 $accountCurrency,以账户为准');
+    }
+    // 外币且**本地还没有**有效汇率时才拉(A6)。本地已有就直接用 —— 否则
+    // 多笔外币账单(一张图 10 笔)会各打一次 force 网络请求,后台自动记账
+    // 同样受害;先查本地也让同一批里的后续账单命中第一笔刚落库的汇率。
+    if (txCurrency != ledgerBase &&
+        !await _hasLocalRate(ledgerBase, txCurrency)) {
+      await _ensureRateAvailable(txCurrency);
+    }
+
+    // 5. 落库。nativeAmount 不传 —— 交给 LocalRepository._resolveTxCurrency
+    //    按有效汇率折算;缺汇率时它会退化成 =amount 并被 L11 检测捞回。
     final happenedAt = bill.time ?? DateTime.now();
     final transactionId = await repo.addTransaction(
       ledgerId: ledgerId,
@@ -89,6 +144,7 @@ class BillCreationService {
       toAccountId: toAccountId,
       happenedAt: happenedAt,
       note: bill.note,
+      currencyCode: txCurrency,
     );
 
     // 6. 自动标签:受「智能记账自动关联标签」开关控制(默认开启,关闭后不挂任何标签)。
@@ -243,6 +299,8 @@ class BillCreationService {
     String? aiAccountName,
     int ledgerId, {
     required String transactionType,
+    required String? requestedCurrency,
+    required String ledgerBase,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final enabled = prefs.getBool('account_feature_enabled') ?? true;
@@ -253,26 +311,32 @@ class BillCreationService {
 
     if (aiAccountName == null || aiAccountName.isEmpty) {
       logger.debug(_tag, '[账户匹配] AI 未识别账户,使用默认账户');
-      return _getDefaultAccountId(transactionType, ledgerId, prefs);
+      return _getDefaultAccountId(
+          transactionType, prefs, requestedCurrency ?? ledgerBase);
     }
 
-    final matched = await _matchAccountByName(aiAccountName, ledgerId);
+    final matched = await _matchAccountByName(aiAccountName, requestedCurrency);
     if (matched != null) return matched;
 
     logger.debug(_tag, '[账户匹配] "$aiAccountName" 未匹配,尝试默认账户');
-    return _getDefaultAccountId(transactionType, ledgerId, prefs);
+    return _getDefaultAccountId(
+        transactionType, prefs, requestedCurrency ?? ledgerBase);
   }
 
-  /// 按名称匹配账户(限同币种)。完全 → 模糊 → 类型映射。
-  Future<int?> _matchAccountByName(String accountName, int ledgerId) async {
-    final ledger = await repo.getLedgerById(ledgerId);
-    if (ledger == null) return null;
-
+  /// 按名称匹配账户。完全 → 模糊 → 类型映射。
+  ///
+  /// [currency] 非空时只在该币种的账户里找(AI 明确说了外币,就不该匹配到本位
+  /// 币账户 —— 45 美元记成 45 元是比「没匹配到账户」严重得多的错);为空则全
+  /// 币种可选,命中的账户反过来决定这笔的币种(L7)。
+  Future<int?> _matchAccountByName(String accountName, String? currency) async {
     final allAccounts = await repo.getAllAccounts();
     // 账户隐藏(#240):AI 自动记账不匹配隐藏账户(隐藏 = 不再作为新交易记账
     // 目标,与手动选择器 / Web AI 候选一致);未匹配则回落默认账户。
+    final wanted = currency?.toUpperCase();
     final pool = allAccounts
-        .where((a) => a.currency == ledger.currency && !a.hidden)
+        .where((a) =>
+            !a.hidden &&
+            (wanted == null || a.currency.toUpperCase() == wanted))
         .toList();
     final target = accountName.toLowerCase().trim();
 
@@ -316,10 +380,13 @@ class BillCreationService {
     return null;
   }
 
+  /// 默认账户。[txCurrency] 是这笔的币种(AI 给的,没给就是账本本位币)——
+  /// 记外币时本位币的默认账户**不适用**,返回 null 让这笔不挂账户(Q3),
+  /// 而不是硬塞一个币种不符的账户进去。
   Future<int?> _getDefaultAccountId(
     String transactionType,
-    int ledgerId,
     SharedPreferences prefs,
+    String txCurrency,
   ) async {
     if (transactionType == 'transfer') return null;
     final key = transactionType == 'income'
@@ -328,17 +395,61 @@ class BillCreationService {
     final defaultId = prefs.getInt(key);
     if (defaultId == null) return null;
 
-    final ledger = await repo.getLedgerById(ledgerId);
-    if (ledger == null) return null;
     final account = await repo.getAccount(defaultId);
     if (account == null) return null;
-    if (account.currency != ledger.currency) {
+    if (account.currency.toUpperCase() != txCurrency.toUpperCase()) {
       logger.debug(_tag,
-          '[默认账户] 币种不匹配: ${account.currency} vs ${ledger.currency}');
+          '[默认账户] 币种不匹配: ${account.currency} vs $txCurrency');
       return null;
     }
     logger.debug(_tag, '[默认账户] → ${account.name}(ID:${account.id})');
     return defaultId;
+  }
+
+  /// 账本本位币(空/查不到兜底 CNY)。
+  Future<String> _ledgerCurrency(int ledgerId) async {
+    final ledger = await repo.getLedgerById(ledgerId);
+    final c = ledger?.currency;
+    return (c == null || c.isEmpty) ? 'CNY' : c.toUpperCase();
+  }
+
+  /// 本地是否已有 [quote] → [base] 的有效汇率(手动 override 或最新自动源)。
+  /// 判定口径与 `mergeEffectiveRates` 一致:rate 能解析成正数才算有效。
+  Future<bool> _hasLocalRate(String base, String quote) async {
+    bool valid(String rate) => (double.tryParse(rate) ?? 0) > 0;
+    try {
+      final overrides = await repo.getOverrides(base);
+      if (overrides.any((o) =>
+          o.quoteCurrency.toUpperCase() == quote && valid(o.rate))) {
+        return true;
+      }
+      final autos = await repo.getLatestAutoRates(base);
+      return autos.any(
+          (r) => r.quoteCurrency.toUpperCase() == quote && valid(r.rate));
+    } catch (e) {
+      // 查不了就当没有,交给 _ensureRateAvailable 兜(它自己也吞异常)
+      logger.debug(_tag, '[汇率] 本地汇率检查失败,按「无」处理: $e');
+      return false;
+    }
+  }
+
+  /// 尽力把 [code] → 账本本位币的汇率拉到本地(A6)。
+  ///
+  /// 拉不到**不阻断**:自动截图/通知记账是无人值守的,阻断等于丢账。落库时
+  /// repo 会退化成 `nativeAmount = amount`,恰好命中 L11 检测条件,用户在统计
+  /// 页点一次「补折算」即可修正。手动记账那条路径仍然是阻断的(L8)。
+  Future<void> _ensureRateAvailable(String code) async {
+    final fn = ensureRate;
+    if (fn == null) return;
+    try {
+      final ok = await fn(code);
+      if (!ok) {
+        logger.info(_tag, '[汇率] $code 拉取未成功,本笔按 1:1 暂记(L11 可补折算)');
+      }
+    } catch (e, st) {
+      logger.warning(_tag, '[汇率] $code 拉取异常,本笔按 1:1 暂记', st);
+      logger.debug(_tag, '[汇率] 异常详情: $e');
+    }
   }
 
   /// 自动添加标签(记账方式 + 自定义)

@@ -1,3 +1,5 @@
+import '../../utils/currency_aliases.dart';
+
 /// 账单类型
 ///
 /// AI 多模态记账底座 · 数据模型。底座 (Layer 1) 把 text/image/audio 输入
@@ -44,6 +46,10 @@ class BillInfo {
   /// 标签列表
   final List<String>? tags;
 
+  /// 交易币种(ISO 4217 大写)。`null` = AI 未识别 → 落库时回落账本本位币
+  /// (.docs/multi-currency-ai A1)。解析/兜底见 [_parseCurrency]。
+  final String? currency;
+
   /// 账本 ID(由应用层注入,AI 不感知)
   final int? ledgerId;
 
@@ -60,6 +66,7 @@ class BillInfo {
     this.fromAccount,
     this.toAccount,
     this.tags,
+    this.currency,
     this.ledgerId,
     this.confidence = 0.0,
   });
@@ -82,6 +89,7 @@ class BillInfo {
     String? fromAccount,
     String? toAccount,
     List<String>? tags,
+    String? currency,
     int? ledgerId,
     double? confidence,
   }) {
@@ -95,6 +103,7 @@ class BillInfo {
       fromAccount: fromAccount ?? this.fromAccount,
       toAccount: toAccount ?? this.toAccount,
       tags: tags ?? this.tags,
+      currency: currency ?? this.currency,
       ledgerId: ledgerId ?? this.ledgerId,
       confidence: confidence ?? this.confidence,
     );
@@ -124,6 +133,8 @@ class BillInfo {
           json['from_account'] as String? ?? json['fromAccount'] as String?,
       toAccount: json['to_account'] as String? ?? json['toAccount'] as String?,
       tags: _parseTags(json['tags'] ?? json['tag']),
+      currency: _parseCurrency(
+          json['currency'] ?? json['currency_code'] ?? json['currencyCode']),
       ledgerId: json['ledgerId'] as int?,
       confidence: _parseDouble(json['confidence']) ?? 0.8,
     );
@@ -139,6 +150,7 @@ class BillInfo {
         'from_account': fromAccount,
         'to_account': toAccount,
         'tags': tags,
+        'currency': currency,
         'ledgerId': ledgerId,
         'confidence': confidence,
       };
@@ -179,6 +191,17 @@ class BillInfo {
     return DateTime(g(1), month, day, g(4), g(5), g(6));
   }
 
+  /// 币种解析(.docs/multi-currency-ai A4):ISO 码直通 → 口语/符号别名兜底。
+  ///
+  /// 无法唯一确定(未知码、歧义符号 `$`/`¥` 无上下文)一律返回 null 按缺失
+  /// 处理,落库时回落账本本位币 —— **绝不猜**,记错币种比不识别代价大得多。
+  /// 这里拿不到账本/账户上下文,所以不传 `disambiguateWith`;需要消歧的场景
+  /// 由 [BillCreationService] 在有账本上下文时再判。
+  static String? _parseCurrency(dynamic value) {
+    if (value is! String) return null;
+    return currencyCodeFromAlias(value);
+  }
+
   static BillType? _parseBillType(dynamic value) {
     if (value == null) return null;
     final str = value.toString().toLowerCase();
@@ -210,6 +233,6 @@ class BillInfo {
   String toString() {
     return 'BillInfo(amount: $amount, time: $time, note: $note, category: $category, '
         'type: $type, account: $account, fromAccount: $fromAccount, '
-        'toAccount: $toAccount, tags: $tags)';
+        'toAccount: $toAccount, tags: $tags, currency: $currency)';
   }
 }

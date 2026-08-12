@@ -31,15 +31,35 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
   /// 使用 PromptBuilder 中定义的默认模板
   static String get defaultPrompt => PromptBuilder.defaultTemplate;
 
-  /// 获取变量说明列表（使用国际化文案）
+  /// 变量说明列表 —— 从 [PromptBuilder.placeholders] 登记表生成,不再手工维护
+  /// (以前手写导致 `{{BILL_GUARD}}` 一直漏列)。
   List<Map<String, String>> _getVariables(AppLocalizations l10n) => [
-    {'name': '{{INPUT_SOURCE}}', 'desc': l10n.aiPromptVarInputSource},
-    {'name': '{{CURRENT_TIME}}', 'desc': l10n.aiPromptVarCurrentTime},
-    {'name': '{{CURRENT_DATE}}', 'desc': l10n.aiPromptVarCurrentDate},
-    {'name': '{{OCR_TEXT}}', 'desc': l10n.aiPromptVarOcrText},
-    {'name': '{{CATEGORIES}}', 'desc': l10n.aiPromptVarCategories},
-    {'name': '{{ACCOUNTS}}', 'desc': l10n.aiPromptVarAccounts},
-  ];
+        for (final p in PromptBuilder.placeholders)
+          {'name': p.token, 'desc': _placeholderDesc(p.token, l10n)},
+      ];
+
+  String _placeholderDesc(String token, AppLocalizations l10n) => switch (token) {
+        '{{BILL_GUARD}}' => l10n.aiPromptVarBillGuard,
+        '{{INPUT_SOURCE}}' => l10n.aiPromptVarInputSource,
+        '{{CURRENT_TIME}}' => l10n.aiPromptVarCurrentTime,
+        '{{CURRENT_DATE}}' => l10n.aiPromptVarCurrentDate,
+        '{{OCR_TEXT}}' => l10n.aiPromptVarOcrText,
+        '{{CATEGORIES}}' => l10n.aiPromptVarCategories,
+        '{{ACCOUNTS}}' => l10n.aiPromptVarAccounts,
+        '{{CURRENCIES}}' => l10n.aiPromptVarCurrencies,
+        _ => token,
+      };
+
+  /// 当前模板缺失的、会导致能力失效的占位符(.docs/multi-currency-ai A7)。
+  ///
+  /// **无状态检测**:直接算「默认模板的占位符集合 − 用户模板里有的」,不引版本
+  /// 号 —— 自定义模板会随 ai_config 跨设备同步,版本号会在多端间漂移;集合差在
+  /// 哪台设备上算都一样。
+  ///
+  /// 只报**能力性**占位符(见 [PromptPlaceholder.warnIfMissing]):自定义模板与
+  /// 默认模板的文本差异是天然的,把差异本身报成警告会变成一条永远消不掉的黄条。
+  List<PromptPlaceholder> get _missingPlaceholders =>
+      PromptBuilder.missingPlaceholdersIn(_promptController.text);
 
   @override
   void initState() {
@@ -111,6 +131,24 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
     }
   }
 
+  /// 把某个占位符的段落追加到用户模板末尾(A7 方案 a 的一键补丁)。
+  ///
+  /// **不整段重置** —— 用户的定制照旧保留,只补上缺的能力;也**不自动保存**,
+  /// 让用户先看一眼再点保存。只有 [PromptPlaceholder.appendSnippet] 非空的占位符
+  /// 才提供这个按钮:`{{BILL_GUARD}}` 必须在最前面、`{{OCR_TEXT}}` 位置有语义,
+  /// 盲目追加到末尾反而会写坏模板。
+  void _insertPlaceholderSection(PromptPlaceholder p) {
+    final snippet = p.appendSnippet;
+    if (snippet == null) return;
+    final text = _promptController.text.trimRight();
+    _promptController.text = '$text\n$snippet';
+    setState(() {
+      _hasChanges = _promptController.text != _savedPrompt;
+    });
+    showToast(
+        context, AppLocalizations.of(context).aiPromptVarSectionInserted(p.token));
+  }
+
   Future<void> _pastePrompt() async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
     if (data?.text != null && data!.text!.isNotEmpty) {
@@ -151,8 +189,11 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
     // 示例分类
     const exampleCategories = '分类列表：\n支出：餐饮、交通、购物、娱乐、居家\n收入：工资、理财、红包';
 
-    // 示例账户
-    const exampleAccounts = '\n账户列表：微信、支付宝、现金';
+    // 示例账户(多币种:外币账户会带币种后缀)
+    const exampleAccounts = '\n账户列表：微信、支付宝、现金、Chase(USD)';
+
+    // 示例币种上下文
+    const exampleCurrencies = '\n账本主币种：CNY；账本内已有外币账户：USD';
 
     // 示例OCR文本
     const exampleOcrText = '商品名称：星巴克拿铁咖啡\n金额：￥35.00\n支付时间：2025-01-15 14:30';
@@ -167,7 +208,8 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
         .replaceAll('{{CURRENT_DATE}}', currentDate)
         .replaceAll('{{OCR_TEXT}}', exampleOcrText)
         .replaceAll('{{CATEGORIES}}', exampleCategories)
-        .replaceAll('{{ACCOUNTS}}', exampleAccounts);
+        .replaceAll('{{ACCOUNTS}}', exampleAccounts)
+        .replaceAll('{{CURRENCIES}}', exampleCurrencies);
   }
 
   /// 显示预览对话框
@@ -307,6 +349,13 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
                 // 变量说明
                 _buildVariablesSection(primaryColor),
 
+                // 能力缺失提示(A7):默认模板新增占位符后,老的自定义模板拿不到
+                // 对应能力 —— 我们不覆盖用户模板,只给提示 + 可安全追加的一键补丁。
+                if (_missingPlaceholders.isNotEmpty) ...[
+                  SizedBox(height: 8.0.scaled(context, ref)),
+                  _buildMissingPlaceholderHint(primaryColor),
+                ],
+
                 SizedBox(height: 8.0.scaled(context, ref)),
 
                 // 提示词编辑区
@@ -385,6 +434,72 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 「模板缺能力」提示条:列出缺的占位符 + 可自动补的给按钮 + 恢复默认兜底。
+  Widget _buildMissingPlaceholderHint(Color primaryColor) {
+    final l10n = AppLocalizations.of(context);
+    final missing = _missingPlaceholders;
+    final insertable = missing.where((p) => p.appendSnippet != null).toList();
+    return SectionCard(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.info_outline, color: Colors.orange[700], size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.aiPromptMissingVarsHint(
+                        missing.map((p) => p.token).join('、')),
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.5,
+                      color: BeeTokens.textSecondary(context),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // 有安全追加片段的逐个给一键补丁;位置有语义的只提示(上面的变量
+            // 说明卡里有它的用途),用户自己放,或者用「恢复默认」兜底。
+            for (final p in insertable) ...[
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => _insertPlaceholderSection(p),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: Text(l10n.aiPromptInsertVarSection(p.token)),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _resetToDefault,
+                icon: const Icon(Icons.restore, size: 18),
+                label: Text(l10n.aiPromptResetDefault),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: BeeTokens.textSecondary(context),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

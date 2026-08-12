@@ -484,7 +484,14 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       final toast = response.result.isMulti
           ? '${l10n.voiceRecordingSuccess} × ${response.result.savedCount}'
           : l10n.voiceRecordingSuccess;
-      showToast(context, toast);
+      // 多币种降级提示(A5):缺汇率已按 1:1 暂记,指路统计页补折算
+      final unconverted = response.result.unconvertedCurrencies;
+      showToast(
+        context,
+        unconverted.isEmpty
+            ? toast
+            : '$toast\n${l10n.aiBillingRateMissingHint(unconverted.join('、'))}',
+      );
     } catch (e) {
       if (!mounted) return;
       setState(() {

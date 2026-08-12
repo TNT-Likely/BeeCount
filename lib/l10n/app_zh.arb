@@ -1709,6 +1709,24 @@
   },
   "autoBillingNotifySuccessSingleBodyDefault": "已自动创建记录",
   "aiOcrNoLedger": "未找到账本",
+  "aiBillingRateMissingHint": "⚠️ 未取到 {currency} 汇率，已按 1:1 暂记，可在统计页「补折算」修正",
+  "@aiBillingRateMissingHint": {
+    "placeholders": { "currency": { "type": "String" } }
+  },
+  "aiPromptVarCurrencies": "账本主币种 + 已在用的外币账户",
+  "aiPromptVarBillGuard": "账单过滤段（仅截图 / 自动记账时注入）",
+  "aiPromptMissingVarsHint": "你的自定义模板缺少这些变量，对应能力会失效：{vars}",
+  "@aiPromptMissingVarsHint": {
+    "placeholders": { "vars": { "type": "String" } }
+  },
+  "aiPromptInsertVarSection": "插入 {name} 段落",
+  "@aiPromptInsertVarSection": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "aiPromptVarSectionInserted": "已追加 {name} 段落，确认后保存",
+  "@aiPromptVarSectionInserted": {
+    "placeholders": { "name": { "type": "String" } }
+  },
   "aiOcrSuccess": "✅ {type}账单创建成功 ¥{amount}",
   "@aiOcrSuccess": {
     "placeholders": {
