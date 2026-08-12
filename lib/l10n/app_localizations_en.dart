@@ -4344,6 +4344,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiOcrNoLedger => 'Ledger not found';
 
   @override
+  String aiBillingRateMissingHint(String currency) {
+    return '⚠️ No $currency rate available — recorded 1:1 for now; use “Reconvert” on the stats page to fix.';
+  }
+
+  @override
+  String get aiPromptVarCurrencies => 'Ledger base currency + foreign-currency accounts in use';
+
+  @override
+  String get aiPromptCurrencyUpgradeHint => 'The default template now recognises currencies. Your custom template is missing the currency placeholder below, so AI cannot detect foreign currencies.';
+
+  @override
+  String get aiPromptInsertCurrencySection => 'Insert currency section';
+
+  @override
+  String get aiPromptCurrencySectionInserted => 'Currency section appended — review, then save';
+
+  @override
   String aiOcrSuccess(String type, String amount) {
     return '✅ $type bill created ¥$amount';
   }

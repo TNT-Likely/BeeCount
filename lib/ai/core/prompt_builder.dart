@@ -19,7 +19,7 @@ class PromptBuilder {
 
 {{OCR_TEXT}}
 
-{{CATEGORIES}}{{ACCOUNTS}}
+{{CATEGORIES}}{{ACCOUNTS}}{{CURRENCIES}}
 
 输出格式：
 - 始终返回 JSON 数组，即使只有一笔，也包成 [{...}]
@@ -45,15 +45,26 @@ class PromptBuilder {
 7. from_account: 转出账户（仅转账可用）
 8. to_account: 转入账户（仅转账可用）
 9. tag/tags: 标签（可选，单个字符串或字符串数组）
+10. currency: 币种 ISO 4217 代码（如 USD、JPY、EUR）。**与账本主币种相同时不要填**；
+    只有原文明确是外币（如"100 美元"、"1200 日元"、"\$45"）才填
 
 示例：
 单笔"昨天中午吃饭50" → [{"amount":-50,"time":"2025-11-24T12:00:00","category":"餐饮","type":"expense"}]
 单笔"早上在星巴克买咖啡30" → [{"amount":-30,"time":"{{CURRENT_DATE}}T09:00:00","note":"星巴克","category":"咖啡","type":"expense"}]
 单笔"商品:2025春季新款黑色半身裙 金额:￥299" → [{"amount":-299,"note":"黑色半身裙","category":"服装","type":"expense"}]
 转账"从建行转800到零钱包" → [{"amount":800,"category":"转账","type":"transfer","from_account":"建行","to_account":"零钱包","tag":"自己"}]
+外币"在东京吃拉面1200日元" → [{"amount":-1200,"currency":"JPY","note":"拉面","category":"餐饮","type":"expense"}]
 多笔"早上地铁5元，中午吃饭40元，晚上买水果35元" → [{"amount":-5,"time":"{{CURRENT_DATE}}T09:00:00","note":"地铁","category":"交通","type":"expense"},{"amount":-40,"time":"{{CURRENT_DATE}}T12:00:00","category":"餐饮","type":"expense"},{"amount":-35,"time":"{{CURRENT_DATE}}T19:00:00","note":"水果","category":"购物","type":"expense"}]
 
 注意：只返回 JSON 数组（即使只有一笔也用数组包裹），尽量推断时间不要返回 null，note 必须 ≤15 字（长标题要精简）''';
+
+  /// 币种段落(A7)。默认模板里已含同样内容;这份常量额外给**自定义模板用户**
+  /// 的「插入币种段落」一键补丁复用 —— 我们不覆盖用户模板(方案 a),但让他们
+  /// 一次点击就能把这个能力补进自己的模板,不必推倒重来。
+  static const String currencySectionSnippet = '''
+10. currency: 币种 ISO 4217 代码（如 USD、JPY、EUR）。**与账本主币种相同时不要填**；
+    只有原文明确是外币（如"100 美元"、"1200 日元"、"\$45"）才填
+{{CURRENCIES}}''';
 
   /// 截图/自动路径使用的账单过滤段。
   ///
@@ -103,7 +114,8 @@ class PromptBuilder {
         .replaceAll('{{CURRENT_DATE}}', currentDate)
         .replaceAll('{{OCR_TEXT}}', ocrText)
         .replaceAll('{{CATEGORIES}}', _buildCategoryHint(context))
-        .replaceAll('{{ACCOUNTS}}', _buildAccountHint(context));
+        .replaceAll('{{ACCOUNTS}}', _buildAccountHint(context))
+        .replaceAll('{{CURRENCIES}}', _buildCurrencyHint(context));
   }
 
   String _buildCategoryHint(AiExtractionContext ctx) {
@@ -120,9 +132,33 @@ class PromptBuilder {
     return '分类列表：\n${parts.join('\n')}';
   }
 
+  /// 账户清单。**只有币种 ≠ 账本本位币的账户才标注币种** —— 单币种账本渲染出
+  /// 的字符串与加多币种之前逐字相同(零噪声、零回归)。
   String _buildAccountHint(AiExtractionContext ctx) {
     if (ctx.accounts.isEmpty) return '';
-    return '\n账户列表：${ctx.accounts.join('、')}';
+    final base = ctx.ledgerCurrency.toUpperCase();
+    final parts = ctx.accounts.map((a) {
+      final code = a.currency.toUpperCase();
+      return (code.isEmpty || code == base) ? a.name : '${a.name}($code)';
+    });
+    return '\n账户列表：${parts.join('、')}';
+  }
+
+  /// 币种提示。单币种账本只报一行主币种;账本里出现外币账户时额外列出来,
+  /// 让 AI 知道「这个用户确实会记外币」。
+  String _buildCurrencyHint(AiExtractionContext ctx) {
+    final base = ctx.ledgerCurrency.toUpperCase();
+    final others = ctx.availableCurrencies
+        .map((c) => c.toUpperCase())
+        .where((c) => c.isNotEmpty && c != base)
+        .toSet()
+        .toList()
+      ..sort();
+    final buf = StringBuffer('\n账本主币种：$base');
+    if (others.isNotEmpty) {
+      buf.write('；账本内已有外币账户：${others.join('、')}');
+    }
+    return buf.toString();
   }
 
   static String _pad(int n) => n.toString().padLeft(2, '0');

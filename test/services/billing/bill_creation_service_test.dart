@@ -268,17 +268,11 @@ void main() {
       SharedPreferences.setMockInitialValues({'account_feature_enabled': true});
     });
 
-    test('AI 账户名完全相等 → 命中(限同账本币种)', () async {
+    test('AI 账户名完全相等 → 命中', () async {
       final acc = await repo.createAccount(
         ledgerId: ledgerId,
         name: '支付宝',
         currency: 'CNY',
-      );
-      // 另一币种账户不参与匹配
-      await repo.createAccount(
-        ledgerId: ledgerId,
-        name: '支付宝',
-        currency: 'USD',
       );
       final txId = await service.createFromBill(
         bill: BillInfo(
@@ -634,6 +628,228 @@ void main() {
       );
       final tags = await repo.getTagsForTransaction(txId!);
       expect(tags, isEmpty);
+    });
+  });
+
+  // ============================================================
+  // 智能记账多币种(.docs/multi-currency-ai)
+  // ============================================================
+
+  group('交易币种', () {
+    test('回归锁:AI 没给币种 → currencyCode = 账本本位币', () async {
+      await repo.createCategory(name: '餐饮', kind: 'expense');
+      final txId = await service.createFromBill(
+        bill: BillInfo(
+          amount: -30,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.currencyCode, 'CNY');
+      expect(tx?.nativeAmount, 30);
+    });
+
+    test('AI 给外币 + 有同币种账户 → 命中该账户,币种为外币', () async {
+      await repo.createCategory(name: '餐饮', kind: 'expense');
+      final usdAcc = await repo.createAccount(
+        ledgerId: ledgerId,
+        name: 'Chase',
+        currency: 'USD',
+      );
+      final txId = await service.createFromBill(
+        bill: BillInfo(
+          amount: -45,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          account: 'Chase',
+          currency: 'USD',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.accountId, usdAcc);
+      expect(tx?.currencyCode, 'USD');
+      expect(tx?.amount, 45); // 原币金额原样保存
+    });
+
+    test('AI 给外币但账本只有本位币账户 → 不挂账户,币种仍是外币(Q3)', () async {
+      await repo.createCategory(name: '餐饮', kind: 'expense');
+      await repo.createAccount(
+        ledgerId: ledgerId,
+        name: '招行',
+        currency: 'CNY',
+      );
+      final txId = await service.createFromBill(
+        bill: BillInfo(
+          amount: -1200,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          currency: 'JPY',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.accountId, isNull);
+      expect(tx?.currencyCode, 'JPY');
+    });
+
+    test('账户与币种冲突 → 币种优先,不硬塞币种不符的账户(A2)', () async {
+      // 「用招行付了 45 美元」:招行是 CNY 账户。把 45 记成 45 元是比
+      // 「没匹配到账户」严重得多的错,所以宁可不挂账户。
+      await repo.createCategory(name: '餐饮', kind: 'expense');
+      await repo.createAccount(
+        ledgerId: ledgerId,
+        name: '招行',
+        currency: 'CNY',
+      );
+      final txId = await service.createFromBill(
+        bill: BillInfo(
+          amount: -45,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          account: '招行',
+          currency: 'USD',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.currencyCode, 'USD');
+      expect(tx?.accountId, isNull);
+    });
+
+    test('AI 只给外币账户没给币种 → 币种随账户(L7)', () async {
+      await repo.createCategory(name: '餐饮', kind: 'expense');
+      final usdAcc = await repo.createAccount(
+        ledgerId: ledgerId,
+        name: 'Chase',
+        currency: 'USD',
+      );
+      final txId = await service.createFromBill(
+        bill: BillInfo(
+          amount: -45,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          account: 'Chase',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.accountId, usdAcc);
+      expect(tx?.currencyCode, 'USD');
+    });
+
+    test('记外币时本位币的默认账户不适用', () async {
+      await repo.createCategory(name: '餐饮', kind: 'expense');
+      final cnyAcc = await repo.createAccount(
+        ledgerId: ledgerId,
+        name: '招行',
+        currency: 'CNY',
+      );
+      SharedPreferences.setMockInitialValues({
+        'default_expense_account_id': cnyAcc,
+      });
+      final txId = await service.createFromBill(
+        bill: BillInfo(
+          amount: -45,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          currency: 'USD',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.accountId, isNull);
+      expect(tx?.currencyCode, 'USD');
+    });
+
+    test('缺汇率不阻断:仍落库,nativeAmount 退化成 amount(A5 + L11 可捞回)',
+        () async {
+      await repo.createCategory(name: '餐饮', kind: 'expense');
+      final txId = await service.createFromBill(
+        bill: BillInfo(
+          amount: -1200,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          currency: 'JPY',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+      expect(txId, isNotNull);
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.currencyCode, 'JPY');
+      expect(tx?.nativeAmount, tx?.amount); // 命中 L11 检测条件
+      expect(await repo.countUnconvertedForeignTx(ledgerId), 1);
+    });
+  });
+
+  group('汇率预拉回调(A6)', () {
+    test('外币 → ensureRate 被调用一次,参数是该币种', () async {
+      await repo.createCategory(name: '餐饮', kind: 'expense');
+      final calls = <String>[];
+      final svc = BillCreationService(repo, ensureRate: (code) async {
+        calls.add(code);
+        return true;
+      });
+      await svc.createFromBill(
+        bill: BillInfo(
+          amount: -1200,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          currency: 'JPY',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+      expect(calls, ['JPY']);
+    });
+
+    test('本位币 → 不调用(单币种用户不会因此多一次网络请求)', () async {
+      await repo.createCategory(name: '餐饮', kind: 'expense');
+      final calls = <String>[];
+      final svc = BillCreationService(repo, ensureRate: (code) async {
+        calls.add(code);
+        return true;
+      });
+      await svc.createFromBill(
+        bill: BillInfo(
+          amount: -30,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+      expect(calls, isEmpty);
+    });
+
+    test('ensureRate 抛异常 → 吞掉,交易照常落库(不能因为拉汇率失败丢账)',
+        () async {
+      await repo.createCategory(name: '餐饮', kind: 'expense');
+      final svc = BillCreationService(repo, ensureRate: (_) async {
+        throw Exception('network down');
+      });
+      final txId = await svc.createFromBill(
+        bill: BillInfo(
+          amount: -1200,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          currency: 'JPY',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+      expect(txId, isNotNull);
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.currencyCode, 'JPY');
     });
   });
 }

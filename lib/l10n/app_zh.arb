@@ -1709,6 +1709,14 @@
   },
   "autoBillingNotifySuccessSingleBodyDefault": "已自动创建记录",
   "aiOcrNoLedger": "未找到账本",
+  "aiBillingRateMissingHint": "⚠️ 未取到 {currency} 汇率，已按 1:1 暂记，可在统计页「补折算」修正",
+  "@aiBillingRateMissingHint": {
+    "placeholders": { "currency": { "type": "String" } }
+  },
+  "aiPromptVarCurrencies": "账本主币种 + 已在用的外币账户",
+  "aiPromptCurrencyUpgradeHint": "默认模板已更新（新增币种识别）。你的自定义模板缺少下面这个币种占位符，AI 将无法识别外币。",
+  "aiPromptInsertCurrencySection": "插入币种段落",
+  "aiPromptCurrencySectionInserted": "已追加币种段落，确认后保存",
   "aiOcrSuccess": "✅ {type}账单创建成功 ¥{amount}",
   "@aiOcrSuccess": {
     "placeholders": {

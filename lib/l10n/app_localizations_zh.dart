@@ -4344,6 +4344,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiOcrNoLedger => '未找到账本';
 
   @override
+  String aiBillingRateMissingHint(String currency) {
+    return '⚠️ 未取到 $currency 汇率，已按 1:1 暂记，可在统计页「补折算」修正';
+  }
+
+  @override
+  String get aiPromptVarCurrencies => '账本主币种 + 已在用的外币账户';
+
+  @override
+  String get aiPromptCurrencyUpgradeHint => '默认模板已更新（新增币种识别）。你的自定义模板缺少下面这个币种占位符，AI 将无法识别外币。';
+
+  @override
+  String get aiPromptInsertCurrencySection => '插入币种段落';
+
+  @override
+  String get aiPromptCurrencySectionInserted => '已追加币种段落，确认后保存';
+
+  @override
   String aiOcrSuccess(String type, String amount) {
     return '✅ $type账单创建成功 ¥$amount';
   }
@@ -11772,6 +11789,23 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get aiOcrNoLedger => '未找到帳本';
+
+  @override
+  String aiBillingRateMissingHint(String currency) {
+    return '⚠️ 未取得 $currency 匯率，已按 1:1 暫記，可在統計頁「補折算」修正';
+  }
+
+  @override
+  String get aiPromptVarCurrencies => '帳本主幣種 + 已在用的外幣帳戶';
+
+  @override
+  String get aiPromptCurrencyUpgradeHint => '預設範本已更新（新增幣種識別）。你的自訂範本缺少下面這個幣種佔位符，AI 將無法識別外幣。';
+
+  @override
+  String get aiPromptInsertCurrencySection => '插入幣種段落';
+
+  @override
+  String get aiPromptCurrencySectionInserted => '已追加幣種段落，確認後儲存';
 
   @override
   String aiOcrSuccess(String type, String amount) {

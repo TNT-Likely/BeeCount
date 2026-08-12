@@ -39,7 +39,19 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
     {'name': '{{OCR_TEXT}}', 'desc': l10n.aiPromptVarOcrText},
     {'name': '{{CATEGORIES}}', 'desc': l10n.aiPromptVarCategories},
     {'name': '{{ACCOUNTS}}', 'desc': l10n.aiPromptVarAccounts},
+    {'name': _currencyPlaceholder, 'desc': l10n.aiPromptVarCurrencies},
   ];
+
+  /// 多币种占位符(.docs/multi-currency-ai A7)
+  static const String _currencyPlaceholder = '{{CURRENCIES}}';
+
+  /// 当前模板是否缺币种能力。
+  ///
+  /// **无状态检测**:直接看模板含不含占位符,不引版本号 —— 自定义模板会随
+  /// ai_config 跨设备同步,存版本号会在多端间漂移;而「含不含占位符」在哪台
+  /// 设备上判断结果都一样。
+  bool get _lacksCurrencySupport =>
+      !_promptController.text.contains(_currencyPlaceholder);
 
   @override
   void initState() {
@@ -111,6 +123,19 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
     }
   }
 
+  /// 把币种段落追加到用户模板末尾(A7 方案 a 的一键补丁)。
+  ///
+  /// **不整段重置** —— 用户的定制照旧保留,只补上缺的能力;也**不自动保存**,
+  /// 让用户先看一眼再点保存。
+  void _insertCurrencySection() {
+    final text = _promptController.text.trimRight();
+    _promptController.text = '$text\n${PromptBuilder.currencySectionSnippet}';
+    setState(() {
+      _hasChanges = _promptController.text != _savedPrompt;
+    });
+    showToast(context, AppLocalizations.of(context).aiPromptCurrencySectionInserted);
+  }
+
   Future<void> _pastePrompt() async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
     if (data?.text != null && data!.text!.isNotEmpty) {
@@ -151,8 +176,11 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
     // 示例分类
     const exampleCategories = '分类列表：\n支出：餐饮、交通、购物、娱乐、居家\n收入：工资、理财、红包';
 
-    // 示例账户
-    const exampleAccounts = '\n账户列表：微信、支付宝、现金';
+    // 示例账户(多币种:外币账户会带币种后缀)
+    const exampleAccounts = '\n账户列表：微信、支付宝、现金、Chase(USD)';
+
+    // 示例币种上下文
+    const exampleCurrencies = '\n账本主币种：CNY；账本内已有外币账户：USD';
 
     // 示例OCR文本
     const exampleOcrText = '商品名称：星巴克拿铁咖啡\n金额：￥35.00\n支付时间：2025-01-15 14:30';
@@ -167,7 +195,8 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
         .replaceAll('{{CURRENT_DATE}}', currentDate)
         .replaceAll('{{OCR_TEXT}}', exampleOcrText)
         .replaceAll('{{CATEGORIES}}', exampleCategories)
-        .replaceAll('{{ACCOUNTS}}', exampleAccounts);
+        .replaceAll('{{ACCOUNTS}}', exampleAccounts)
+        .replaceAll(_currencyPlaceholder, exampleCurrencies);
   }
 
   /// 显示预览对话框
@@ -307,6 +336,13 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
                 // 变量说明
                 _buildVariablesSection(primaryColor),
 
+                // 多币种能力缺失提示(A7):默认模板加了 {{CURRENCIES}},但我们
+                // 不覆盖用户的自定义模板 —— 给一条提示 + 一键补丁,由用户决定。
+                if (_lacksCurrencySupport) ...[
+                  SizedBox(height: 8.0.scaled(context, ref)),
+                  _buildCurrencyUpgradeHint(primaryColor),
+                ],
+
                 SizedBox(height: 8.0.scaled(context, ref)),
 
                 // 提示词编辑区
@@ -385,6 +421,67 @@ class _AIPromptEditPageState extends ConsumerState<AIPromptEditPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 「模板缺币种能力」提示条 + 一键补丁 / 恢复默认。
+  Widget _buildCurrencyUpgradeHint(Color primaryColor) {
+    final l10n = AppLocalizations.of(context);
+    return SectionCard(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.info_outline, color: Colors.orange[700], size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.aiPromptCurrencyUpgradeHint,
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.5,
+                      color: BeeTokens.textSecondary(context),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: _insertCurrencySection,
+                    icon: const Icon(Icons.add, size: 18),
+                    label: Text(l10n.aiPromptInsertCurrencySection),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _resetToDefault,
+                    icon: const Icon(Icons.restore, size: 18),
+                    label: Text(l10n.aiPromptResetDefault),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: BeeTokens.textSecondary(context),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

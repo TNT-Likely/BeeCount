@@ -1845,6 +1845,14 @@
   },
   "autoBillingNotifySuccessSingleBodyDefault": "Record created automatically",
   "aiOcrNoLedger": "Ledger not found",
+  "aiBillingRateMissingHint": "⚠️ No {currency} rate available — recorded 1:1 for now; use “Reconvert” on the stats page to fix.",
+  "@aiBillingRateMissingHint": {
+    "placeholders": { "currency": { "type": "String" } }
+  },
+  "aiPromptVarCurrencies": "Ledger base currency + foreign-currency accounts in use",
+  "aiPromptCurrencyUpgradeHint": "The default template now recognises currencies. Your custom template is missing the currency placeholder below, so AI cannot detect foreign currencies.",
+  "aiPromptInsertCurrencySection": "Insert currency section",
+  "aiPromptCurrencySectionInserted": "Currency section appended — review, then save",
   "aiOcrSuccess": "✅ {type} bill created ¥{amount}",
   "@aiOcrSuccess": {
     "placeholders": {

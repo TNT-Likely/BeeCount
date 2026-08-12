@@ -143,7 +143,13 @@ class ImageBillingHelper {
       final toastText = result.isMulti
           ? '${l10n.aiOcrSuccess(typeText, amountStr)} × ${result.savedCount}'
           : l10n.aiOcrSuccess(typeText, amountStr);
-      showToast(context, toastText);
+      // 多币种降级提示(A5):缺汇率已按 1:1 暂记,指路统计页补折算
+      showToast(
+        context,
+        result.unconvertedCurrencies.isEmpty
+            ? toastText
+            : '$toastText\n${l10n.aiBillingRateMissingHint(result.unconvertedCurrencies.join('、'))}',
+      );
     } catch (e) {
       if (!context.mounted) return;
       Navigator.of(context).popUntil((route) => route.isFirst);

@@ -15,10 +15,19 @@ class BookkeepingResult {
   /// 因创建失败被跳过的笔数(amount 已校验,失败原因通常是 DB 异常)
   final int failedCount;
 
+  /// 本次入库里「拿不到汇率、按 1:1 暂记」的外币币种(去重、已排序)。
+  ///
+  /// 多币种降级路径(.docs/multi-currency-ai A5):自动通道无人值守,缺汇率
+  /// 不能阻断,只能先落 `nativeAmount = amount` 再靠统计页 L11 横幅补折算。
+  /// 有 UI 的渠道(对话/语音/选图)据此在结果上补一行提示;自动截图/通知
+  /// 渠道忽略它,只打日志。
+  final List<String> unconvertedCurrencies;
+
   const BookkeepingResult({
     this.savedBills = const [],
     this.transactionIds = const [],
     this.failedCount = 0,
+    this.unconvertedCurrencies = const [],
   });
 
   /// 至少有一笔成功入库

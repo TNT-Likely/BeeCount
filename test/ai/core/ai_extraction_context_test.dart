@@ -70,7 +70,11 @@ void main() {
     expect(ctx.customPromptTemplate, isNull);
   });
 
-  test('accounts 按账本币种过滤', () async {
+  // 智能记账多币种(.docs/multi-currency-ai A3):账户候选**不再**按账本本位币
+  // 过滤 —— 过滤掉外币账户,AI 就永远匹配不到它们,「用我的美元卡付的」这类
+  // 指令无解(#437)。改为全量喂给 AI 并标注币种,由 BillCreationService 按
+  // 这笔的币种去匹配。
+  test('accounts 包含外币账户,并带上各自币种', () async {
     final cnyLedgerId = await repo.createLedger(name: '人民币', currency: 'CNY');
     await repo.createAccount(
       ledgerId: cnyLedgerId,
@@ -88,8 +92,47 @@ void main() {
       ledgerId: cnyLedgerId,
     );
 
-    expect(ctx.accounts, contains('招行 CNY'));
-    expect(ctx.accounts, isNot(contains('PayPal USD')));
+    final names = ctx.accounts.map((a) => a.name).toList();
+    expect(names, contains('招行 CNY'));
+    expect(names, contains('PayPal USD'));
+    expect(
+      ctx.accounts.firstWhere((a) => a.name == 'PayPal USD').currency,
+      'USD',
+    );
+  });
+
+  test('隐藏账户仍然被排除(#240 回归锁)', () async {
+    final ledgerId = await repo.createLedger(name: '人民币', currency: 'CNY');
+    final hiddenId = await repo.createAccount(
+      ledgerId: ledgerId,
+      name: '已隐藏',
+      currency: 'CNY',
+    );
+    await repo.setAccountHidden(hiddenId, true);
+
+    final ctx = await AiExtractionContext.forLedger(
+      repository: repo,
+      ledgerId: ledgerId,
+    );
+
+    expect(ctx.accounts.map((a) => a.name), isNot(contains('已隐藏')));
+  });
+
+  test('ledgerCurrency / availableCurrencies 反映账本与账户币种', () async {
+    final ledgerId = await repo.createLedger(name: '人民币', currency: 'CNY');
+    await repo.createAccount(
+      ledgerId: ledgerId,
+      name: 'PayPal',
+      currency: 'USD',
+    );
+
+    final ctx = await AiExtractionContext.forLedger(
+      repository: repo,
+      ledgerId: ledgerId,
+    );
+
+    expect(ctx.ledgerCurrency, 'CNY');
+    expect(ctx.availableCurrencies, containsAll(<String>['CNY', 'USD']));
   });
 
   test('AiExtractionContext.fallback 是常量,字段全空', () {
@@ -98,5 +141,6 @@ void main() {
     expect(ctx.incomeCategories, isEmpty);
     expect(ctx.accounts, isEmpty);
     expect(ctx.customPromptTemplate, isNull);
+    expect(ctx.ledgerCurrency, 'CNY');
   });
 }

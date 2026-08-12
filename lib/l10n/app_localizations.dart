@@ -8300,6 +8300,36 @@ abstract class AppLocalizations {
   /// **'Ledger not found'**
   String get aiOcrNoLedger;
 
+  /// No description provided for @aiBillingRateMissingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ No {currency} rate available — recorded 1:1 for now; use “Reconvert” on the stats page to fix.'**
+  String aiBillingRateMissingHint(String currency);
+
+  /// No description provided for @aiPromptVarCurrencies.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger base currency + foreign-currency accounts in use'**
+  String get aiPromptVarCurrencies;
+
+  /// No description provided for @aiPromptCurrencyUpgradeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The default template now recognises currencies. Your custom template is missing the currency placeholder below, so AI cannot detect foreign currencies.'**
+  String get aiPromptCurrencyUpgradeHint;
+
+  /// No description provided for @aiPromptInsertCurrencySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert currency section'**
+  String get aiPromptInsertCurrencySection;
+
+  /// No description provided for @aiPromptCurrencySectionInserted.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency section appended — review, then save'**
+  String get aiPromptCurrencySectionInserted;
+
   /// No description provided for @aiOcrSuccess.
   ///
   /// In en, this message translates to:

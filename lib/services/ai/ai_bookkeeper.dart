@@ -188,7 +188,41 @@ class AiBookkeeper {
       savedBills: List.unmodifiable(saved),
       transactionIds: List.unmodifiable(txIds),
       failedCount: failed,
+      unconvertedCurrencies:
+          List.unmodifiable(await _collectUnconverted(txIds, ledgerId)),
     );
+  }
+
+  /// 找出本批里「外币且未折算」的币种(A5)。判定条件与 L11 补折算横幅一致:
+  /// `currencyCode != 账本本位币 && nativeAmount == amount`。
+  Future<List<String>> _collectUnconverted(List<int> txIds, int ledgerId) async {
+    if (txIds.isEmpty) return const [];
+    try {
+      final ledger = await _repo.getLedgerById(ledgerId);
+      final base = ((ledger?.currency.isNotEmpty ?? false)
+              ? ledger!.currency
+              : 'CNY')
+          .toUpperCase();
+      final codes = <String>{};
+      for (final id in txIds) {
+        final tx = await _repo.getTransactionById(id);
+        if (tx == null) continue;
+        final code = tx.currencyCode?.toUpperCase();
+        if (code == null || code == base) continue;
+        if (tx.nativeAmount == null || tx.nativeAmount == tx.amount) {
+          codes.add(code);
+        }
+      }
+      if (codes.isNotEmpty) {
+        logger.info(_tag, '未折算外币: ${codes.join(",")}(已按 1:1 暂记,可在统计页补折算)');
+      }
+      return codes.toList()..sort();
+    } catch (e, st) {
+      // 只影响一行提示,不能影响记账结果
+      logger.warning(_tag, '统计未折算币种失败,忽略', st);
+      logger.debug(_tag, '异常详情: $e');
+      return const [];
+    }
   }
 
   /// 查询实际入库的分类/账户名称,回填到 BillInfo。AI 给的可能是"奶茶"
