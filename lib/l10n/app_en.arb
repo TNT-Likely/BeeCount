@@ -1850,9 +1850,19 @@
     "placeholders": { "currency": { "type": "String" } }
   },
   "aiPromptVarCurrencies": "Ledger base currency + foreign-currency accounts in use",
-  "aiPromptCurrencyUpgradeHint": "The default template now recognises currencies. Your custom template is missing the currency placeholder below, so AI cannot detect foreign currencies.",
-  "aiPromptInsertCurrencySection": "Insert currency section",
-  "aiPromptCurrencySectionInserted": "Currency section appended — review, then save",
+  "aiPromptVarBillGuard": "Non-bill filter (injected for screenshot / auto bookkeeping only)",
+  "aiPromptMissingVarsHint": "Your custom template is missing these variables, so the matching features stop working: {vars}",
+  "@aiPromptMissingVarsHint": {
+    "placeholders": { "vars": { "type": "String" } }
+  },
+  "aiPromptInsertVarSection": "Insert {name} section",
+  "@aiPromptInsertVarSection": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "aiPromptVarSectionInserted": "{name} section appended — review, then save",
+  "@aiPromptVarSectionInserted": {
+    "placeholders": { "name": { "type": "String" } }
+  },
   "aiOcrSuccess": "✅ {type} bill created ¥{amount}",
   "@aiOcrSuccess": {
     "placeholders": {

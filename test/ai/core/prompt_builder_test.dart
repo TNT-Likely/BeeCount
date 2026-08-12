@@ -175,6 +175,64 @@ void main() {
       });
     });
 
+    // 占位符登记表(A7):自定义模板是整段替换默认模板的,所以默认模板新增
+    // 占位符时老模板拿不到对应能力。登记表让编辑页能算出「缺哪些能力」。
+    group('占位符登记表', () {
+      test('登记表与默认模板双向一致(漏登记 / 登记了模板没有的都算错)', () {
+        expect(PromptBuilder.placeholdersMatchDefaultTemplate, isTrue,
+            reason: '新增 {{XXX}} 占位符后要同步登记进 PromptBuilder.placeholders');
+      });
+
+      test('默认模板本身不缺任何能力', () {
+        expect(
+          PromptBuilder.missingPlaceholdersIn(PromptBuilder.defaultTemplate),
+          isEmpty,
+        );
+      });
+
+      test('缺能力性占位符会被报出来', () {
+        final missing = PromptBuilder.missingPlaceholdersIn(
+            '只提取金额 {{OCR_TEXT}} {{CURRENT_TIME}}');
+        final tokens = missing.map((p) => p.token);
+        expect(tokens, contains('{{CURRENCIES}}'));
+        expect(tokens, contains('{{CATEGORIES}}'));
+        expect(tokens, contains('{{ACCOUNTS}}'));
+        expect(tokens, contains('{{BILL_GUARD}}'));
+        // 模板里已有的不该被报
+        expect(tokens, isNot(contains('{{OCR_TEXT}}')));
+        expect(tokens, isNot(contains('{{CURRENT_TIME}}')));
+      });
+
+      test('纯观感占位符缺失不报警(否则会变成永远消不掉的黄条)', () {
+        final tokens = PromptBuilder.missingPlaceholdersIn('空模板')
+            .map((p) => p.token);
+        expect(tokens, isNot(contains('{{INPUT_SOURCE}}')));
+        expect(tokens, isNot(contains('{{CURRENT_DATE}}')));
+      });
+
+      test('只有位置安全的占位符才带一键补丁片段', () {
+        final byToken = {
+          for (final p in PromptBuilder.placeholders) p.token: p,
+        };
+        // {{CURRENCIES}} 追加到末尾是安全的
+        expect(byToken['{{CURRENCIES}}']!.appendSnippet, isNotNull);
+        // 这两个位置有语义,盲目追加会写坏模板
+        expect(byToken['{{BILL_GUARD}}']!.appendSnippet, isNull);
+        expect(byToken['{{OCR_TEXT}}']!.appendSnippet, isNull);
+      });
+
+      test('补丁片段本身补完就不再缺该能力(补丁真的管用)', () {
+        const userTemplate = 'CUSTOM {{OCR_TEXT}}';
+        final currencies = PromptBuilder.placeholders
+            .firstWhere((p) => p.token == '{{CURRENCIES}}');
+        final patched = '$userTemplate\n${currencies.appendSnippet}';
+        expect(
+          PromptBuilder.missingPlaceholdersIn(patched).map((p) => p.token),
+          isNot(contains('{{CURRENCIES}}')),
+        );
+      });
+    });
+
     test('「插入币种段落」补丁与默认模板共用同一份字段说明(防漂移)', () {
       final out = builder.build(
         context: AiExtractionContext.fallback,

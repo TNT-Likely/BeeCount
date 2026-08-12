@@ -8312,23 +8312,29 @@ abstract class AppLocalizations {
   /// **'Ledger base currency + foreign-currency accounts in use'**
   String get aiPromptVarCurrencies;
 
-  /// No description provided for @aiPromptCurrencyUpgradeHint.
+  /// No description provided for @aiPromptVarBillGuard.
   ///
   /// In en, this message translates to:
-  /// **'The default template now recognises currencies. Your custom template is missing the currency placeholder below, so AI cannot detect foreign currencies.'**
-  String get aiPromptCurrencyUpgradeHint;
+  /// **'Non-bill filter (injected for screenshot / auto bookkeeping only)'**
+  String get aiPromptVarBillGuard;
 
-  /// No description provided for @aiPromptInsertCurrencySection.
+  /// No description provided for @aiPromptMissingVarsHint.
   ///
   /// In en, this message translates to:
-  /// **'Insert currency section'**
-  String get aiPromptInsertCurrencySection;
+  /// **'Your custom template is missing these variables, so the matching features stop working: {vars}'**
+  String aiPromptMissingVarsHint(String vars);
 
-  /// No description provided for @aiPromptCurrencySectionInserted.
+  /// No description provided for @aiPromptInsertVarSection.
   ///
   /// In en, this message translates to:
-  /// **'Currency section appended — review, then save'**
-  String get aiPromptCurrencySectionInserted;
+  /// **'Insert {name} section'**
+  String aiPromptInsertVarSection(String name);
+
+  /// No description provided for @aiPromptVarSectionInserted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} section appended — review, then save'**
+  String aiPromptVarSectionInserted(String name);
 
   /// No description provided for @aiOcrSuccess.
   ///

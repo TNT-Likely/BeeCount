@@ -4352,13 +4352,22 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiPromptVarCurrencies => 'Ledger base currency + foreign-currency accounts in use';
 
   @override
-  String get aiPromptCurrencyUpgradeHint => 'The default template now recognises currencies. Your custom template is missing the currency placeholder below, so AI cannot detect foreign currencies.';
+  String get aiPromptVarBillGuard => 'Non-bill filter (injected for screenshot / auto bookkeeping only)';
 
   @override
-  String get aiPromptInsertCurrencySection => 'Insert currency section';
+  String aiPromptMissingVarsHint(String vars) {
+    return 'Your custom template is missing these variables, so the matching features stop working: $vars';
+  }
 
   @override
-  String get aiPromptCurrencySectionInserted => 'Currency section appended — review, then save';
+  String aiPromptInsertVarSection(String name) {
+    return 'Insert $name section';
+  }
+
+  @override
+  String aiPromptVarSectionInserted(String name) {
+    return '$name section appended — review, then save';
+  }
 
   @override
   String aiOcrSuccess(String type, String amount) {
