@@ -157,10 +157,6 @@ final authServiceProvider = FutureProvider<CloudAuthService>((ref) async {
 
     final services = await createCloudServices(config);
     if (services.auth != null) {
-      final provider = services.provider;
-      if (provider != null) {
-        ref.onDispose(() => unawaited(provider.dispose()));
-      }
       return services.auth!;
     }
   } catch (e) {
@@ -504,7 +500,6 @@ final beecountCloudProviderInstance =
     final services = await createCloudServices(config);
     if (services.provider is! BeeCountCloudProvider) return null;
     final provider = services.provider as BeeCountCloudProvider;
-    ref.onDispose(() => unawaited(provider.dispose()));
 
     final email = config.beecountCloudEmail;
     final password = config.beecountCloudPassword;
