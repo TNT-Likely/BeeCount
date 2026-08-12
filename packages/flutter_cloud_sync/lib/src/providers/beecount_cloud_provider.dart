@@ -1175,22 +1175,12 @@ class BeeCountCloudAuthService implements CloudAuthService {
   }
 
   Future<void> initialize() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_sessionStorageKey);
-    if (raw == null || raw.isEmpty) {
-      return;
-    }
-
-    try {
-      final json = jsonDecode(raw) as Map<String, dynamic>;
-      _session = _BeeCountCloudSession.fromJson(json);
-      if (_isAccessTokenExpired(_session!)) {
-        await _refreshSessionOrClear();
-      } else {
-        _emitCurrentUser();
-      }
-    } catch (_) {
-      await _clearSession();
+    final session = await _restorePersistedSession();
+    if (session == null) return;
+    if (_isAccessTokenExpired(session)) {
+      await _refreshSessionOrClear();
+    } else {
+      _emitCurrentUser();
     }
   }
 
@@ -1199,7 +1189,9 @@ class BeeCountCloudAuthService implements CloudAuthService {
 
   @override
   Future<CloudUser?> get currentUser async {
-    final session = _session;
+    // 先接住其他实例已经完成 2FA 后持久化的 session，不要直接走 silent
+    // password recovery；后者遇到 2FA 会按设计取消。
+    final session = _session ?? await _restorePersistedSession(emit: true);
     if (session == null) {
       // 完全没 session(从没登过 / session 被清了):只有带了恢复凭证才尝试
       // 自动重登,否则按未登录返回 null 让 UI 显示登录入口。
@@ -1218,7 +1210,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
   }
 
   Future<String> requireAccessToken() async {
-    final session = _session;
+    final session = _session ?? await _restorePersistedSession(emit: true);
     if (session == null) {
       final recovered = await _tryRecoveryLogin();
       if (recovered == null || _session == null) {
@@ -1312,12 +1304,16 @@ class BeeCountCloudAuthService implements CloudAuthService {
   }
 
   Future<bool> _doRefreshSession() async {
+    final refreshToken = _session?.refreshToken;
     try {
       await _refreshSession();
       return true;
     } catch (_) {
-      await _clearSession();
-      return false;
+      // 只清除本次失败所使用的旧 rotating token。若另一实例已经刷新并
+      // 持久化了新 token，则载入新 session 继续使用。
+      final cleared =
+          await _clearSession(expectedRefreshToken: refreshToken);
+      return !cleared && _session != null;
     }
   }
 
@@ -1766,11 +1762,61 @@ class BeeCountCloudAuthService implements CloudAuthService {
     _emitCurrentUser();
   }
 
-  Future<void> _clearSession() async {
-    _session = null;
+  Future<_BeeCountCloudSession?> _restorePersistedSession({
+    bool emit = false,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_sessionStorageKey);
+    if (raw == null || raw.isEmpty) return null;
+
+    try {
+      final session = _BeeCountCloudSession.fromJson(
+        jsonDecode(raw) as Map<String, dynamic>,
+      );
+      _session = session;
+      if (emit) _emitCurrentUser();
+      return session;
+    } catch (_) {
+      // 不要让旧值的解析失败删除并发写入的新 session。
+      if (prefs.getString(_sessionStorageKey) == raw) {
+        await prefs.remove(_sessionStorageKey);
+      }
+      return null;
+    }
+  }
+
+  /// 返回 true 表示 session 已清除；false 表示发现并载入了更新的 session。
+  Future<bool> _clearSession({String? expectedRefreshToken}) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (expectedRefreshToken != null) {
+      final raw = prefs.getString(_sessionStorageKey);
+      if (raw != null && raw.isNotEmpty) {
+        try {
+          final persisted = _BeeCountCloudSession.fromJson(
+            jsonDecode(raw) as Map<String, dynamic>,
+          );
+          if (persisted.refreshToken != expectedRefreshToken) {
+            // 同一用户说明是 rotating refresh 的新版本，可以安全接管；不同
+            // 用户说明账号已被另一个登录切换，只保护磁盘值而不越权接管。
+            if (_session?.userId == persisted.userId) {
+              _session = persisted;
+              _emitCurrentUser();
+            } else {
+              _session = null;
+              _authStateController.add(null);
+            }
+            return false;
+          }
+        } catch (_) {
+          // 无法解析的旧值继续按清除处理。
+        }
+      }
+    }
+
+    _session = null;
     await prefs.remove(_sessionStorageKey);
     _authStateController.add(null);
+    return true;
   }
 
   void _emitCurrentUser() {
