@@ -260,12 +260,7 @@ extension SyncEngineApplyExt on SyncEngine {
         nativeAmount: nativeValue,
       ));
       // 更新标签和附件(existing 路径)
-      await _syncTransactionTags(
-        existingId,
-        syncId,
-        payload,
-        ledgerId: ledgerIdInt,
-      );
+      await _syncTransactionTags(existingId, syncId, payload);
       await _syncTransactionAttachments(existingId, payload);
       logger.debug('SyncEngine', 'pull: 更新交易 $syncId');
     } else {
@@ -298,13 +293,7 @@ extension SyncEngineApplyExt on SyncEngine {
       // 写回 cache,后续同 syncId 的 update change 能命中
       activePullCache?.putTransaction(syncId, id, createdByUserId);
       // 同步标签和附件(新插入路径 — existing 必空,跳过相关 SELECT/DELETE)
-      await _syncTransactionTags(
-        id,
-        syncId,
-        payload,
-        ledgerId: ledgerIdInt,
-        isNewlyInserted: true,
-      );
+      await _syncTransactionTags(id, syncId, payload, isNewlyInserted: true);
       await _syncTransactionAttachments(id, payload, isNewlyInserted: true);
       logger.debug('SyncEngine', 'pull: 新增交易 $syncId');
     }
@@ -874,12 +863,18 @@ extension SyncEngineApplyExt on SyncEngine {
     int transactionId,
     String txSyncId,
     Map<String, dynamic> payload, {
-    required int ledgerId,
     bool isNewlyInserted = false,
   }) async {
-    // key 缺失表示老协议没有携带标签信息，不能据此清空本地关联；新版会用
-    // tags="" + tagIds=[] 显式表达“删除全部标签”。
-    if (!payload.containsKey('tagIds') && !payload.containsKey('tags')) return;
+    // 删除旧关联,按新 payload 重建(主表 + override)。新插入路径跳过 — 必空。
+    if (!isNewlyInserted) {
+      await (db.delete(db.transactionTags)
+            ..where((tt) => tt.transactionId.equals(transactionId)))
+          .go();
+      await (db.delete(db.transactionTagOverrides)
+            ..where((t) => t.transactionSyncId.equals(txSyncId)))
+          .go();
+    }
+
     final rawTagIds = payload['tagIds'];
     final tagIds = rawTagIds is List
         ? rawTagIds.whereType<String>().toList(growable: false)
@@ -893,80 +888,12 @@ extension SyncEngineApplyExt on SyncEngine {
             .where((s) => s.isNotEmpty)
             .toList();
 
-    // 显式空集合是“删除全部标签”。大多数交易走这条，无需加载账本角色。
-    if (tagIds.isEmpty && tagNamesFromStr.isEmpty) {
-      if (!isNewlyInserted) {
-        await (db.delete(db.transactionTags)
-              ..where((tt) => tt.transactionId.equals(transactionId)))
-            .go();
-        await (db.delete(db.transactionTagOverrides)
-              ..where((t) => t.transactionSyncId.equals(txSyncId)))
-            .go();
-      }
-      return;
-    }
-
     final linkedLocalIds = <int>{};
     final overrideSyncIds = <String>{};
-    var resolutionComplete = true;
-
-    final cachedLedger = activePullCache?.ledgerTagContext(ledgerId);
-    final ledger = cachedLedger == null
-        ? await (db.select(db.ledgers)..where((l) => l.id.equals(ledgerId)))
-            .getSingleOrNull()
-        : null;
-    if (ledger != null) activePullCache?.putLedgerTagContext(ledger);
-    final isSharedLedger = cachedLedger?.isShared ?? ledger?.isShared ?? false;
-    final myRole = cachedLedger?.myRole ?? ledger?.myRole;
-    final isSharedEditor = isSharedLedger && myRole != 'owner';
-    final sharedLedgerSyncId =
-        isSharedLedger ? (cachedLedger?.syncId ?? ledger?.syncId) : null;
-
-    void logUnknownSharedTag({String? syncId, String? name}) {
-      logger.warning(
-        'SyncEngine',
-        'pull: 共享账本交易引用了未匹配的标签，跳过 '
-            'ledger=$sharedLedgerSyncId tx=$txSyncId '
-            'tagSyncId=${syncId ?? ""} name=${name ?? ""}',
-      );
-    }
-
-    Future<SharedLedgerTag?> findSharedTagByName(String name) async {
-      if (!isSharedEditor || sharedLedgerSyncId == null) return null;
-      final matches = activePullCache == null
-          ? await (db.select(db.sharedLedgerTags)
-                ..where((t) =>
-                    t.ledgerSyncId.equals(sharedLedgerSyncId) &
-                    t.name.equals(name)))
-              .get()
-          : activePullCache!.sharedTagsByName(sharedLedgerSyncId, name);
-      if (matches.length > 1) {
-        logger.warning(
-          'SyncEngine',
-          'pull: 共享账本交易标签名称有多个 Owner ID，按未解析处理 '
-              'ledger=$sharedLedgerSyncId tx=$txSyncId name=$name '
-              'ids=${matches.map((tag) => tag.syncId).join(",")}',
-        );
-        return null;
-      }
-      return matches.length == 1 ? matches.single : null;
-    }
 
     if (tagIds.isNotEmpty) {
       for (var i = 0; i < tagIds.length; i++) {
         final syncId = tagIds[i];
-        final fallbackName =
-            i < tagNamesFromStr.length ? tagNamesFromStr[i] : null;
-
-        // 新协议的 tagIds 是 server 已校验的权威引用。Editor 直接把 ID 作为
-        // opaque override 保存：Owner mirror 可能因资源快照乱序暂时未到，不能
-        // 因本地显示数据缺失就永久丢掉关联。mirror 后续到达后会自动恢复显示。
-        // 只有真正没有 tagIds 的老协议 payload 才按名称解析。
-        if (isSharedEditor) {
-          overrideSyncIds.add(syncId);
-          continue;
-        }
-
         // 优先查 LookupCache(pull 路径已 prime),消除 N+1 tag SELECT
         final cachedTagId = activePullCache?.tagId(syncId);
         if (cachedTagId != null) {
@@ -981,9 +908,17 @@ extension SyncEngineApplyExt on SyncEngine {
           linkedLocalIds.add(tag.id);
           continue;
         }
-        // syncId miss → name fallback(老协议),只复用已有本地标签。
-        if (fallbackName != null) {
-          final name = fallbackName;
+        // 主表 miss → 查 SharedLedgerTags(Editor 视角看 Owner 的 tx 引用 Owner 的 tag)
+        final shared = await (db.select(db.sharedLedgerTags)
+              ..where((t) => t.syncId.equals(syncId)))
+            .getSingleOrNull();
+        if (shared != null) {
+          overrideSyncIds.add(syncId);
+          continue;
+        }
+        // 都 miss → name fallback(老协议),建本地 tag
+        if (i < tagNamesFromStr.length) {
+          final name = tagNamesFromStr[i];
           tag = await (db.select(db.tags)..where((t) => t.name.equals(name)))
               .getSingleOrNull();
           if (tag != null && (tag.syncId ?? '').isEmpty) {
@@ -995,36 +930,13 @@ extension SyncEngineApplyExt on SyncEngine {
             linkedLocalIds.add(tag.id);
           }
         }
-        if (tag == null) {
-          resolutionComplete = false;
-          if (isSharedLedger) {
-            logUnknownSharedTag(syncId: syncId, name: fallbackName);
-          }
-        }
       }
     } else {
-      // 完全没 tagIds 的老 payload：共享账本只匹配已有 Owner tag；个人账本
-      // 保留旧兼容逻辑，按 name 查找，不存在时创建本地标签。
+      // 完全没 tagIds 的老 payload:按 name 查,没有就建个带 syncId 的新 tag
       for (final name in tagNamesFromStr) {
-        if (isSharedEditor) {
-          final shared = await findSharedTagByName(name);
-          if (shared != null) {
-            overrideSyncIds.add(shared.syncId);
-          } else {
-            resolutionComplete = false;
-            logUnknownSharedTag(name: name);
-          }
-          continue;
-        }
-
         var tag = await (db.select(db.tags)..where((t) => t.name.equals(name)))
             .getSingleOrNull();
         if (tag == null) {
-          if (isSharedLedger) {
-            resolutionComplete = false;
-            logUnknownSharedTag(name: name);
-            continue;
-          }
           final newSyncId = _uuid.v4();
           final id = await db.into(db.tags).insert(
                 TagsCompanion.insert(
@@ -1038,33 +950,6 @@ extension SyncEngineApplyExt on SyncEngine {
         }
         linkedLocalIds.add(tag.id);
       }
-    }
-
-    // name-only/无法解析的老 payload 不是完整权威集合。已有交易必须保留旧
-    // 关联，避免 mirror 延迟或重名时先删后推进 cursor 造成永久数据丢失；新
-    // 交易则宁可暂时无标签，也不写入一个不完整的子集。
-    if (!resolutionComplete) {
-      if (!isNewlyInserted) {
-        logger.warning(
-          'SyncEngine',
-          'pull: 标签集合解析不完整，保留已有关联 ledger=$sharedLedgerSyncId '
-              'tx=$txSyncId',
-        );
-        return;
-      }
-      linkedLocalIds.clear();
-      overrideSyncIds.clear();
-    }
-
-    // 只有完整解析成功（含显式空集合）后才用新集合替换旧关联。新插入路径
-    // 必然为空，跳过两次 DELETE。
-    if (!isNewlyInserted) {
-      await (db.delete(db.transactionTags)
-            ..where((tt) => tt.transactionId.equals(transactionId)))
-          .go();
-      await (db.delete(db.transactionTagOverrides)
-            ..where((t) => t.transactionSyncId.equals(txSyncId)))
-          .go();
     }
 
     // 批量插入 transactionTags + transactionTagOverrides,一次 db.batch

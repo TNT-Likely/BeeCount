@@ -257,7 +257,7 @@ class _TagEditPageState extends ConsumerState<TagEditPage> {
     setState(() => _isSubmitting = true);
 
     try {
-      late final Tag savedTag;
+      Tag? savedTag;
       if (_isEditing) {
         // 更新标签
         await repo.updateTag(
@@ -265,7 +265,7 @@ class _TagEditPageState extends ConsumerState<TagEditPage> {
           name: name,
           color: _selectedColor,
         );
-        savedTag = (await repo.getTagById(widget.tag!.id))!;
+        savedTag = await repo.getTagById(widget.tag!.id);
         if (mounted) {
           showToast(context, l10n.tagUpdateSuccess);
         }
@@ -275,7 +275,7 @@ class _TagEditPageState extends ConsumerState<TagEditPage> {
           name: name,
           color: _selectedColor,
         );
-        savedTag = (await repo.getTagById(id))!;
+        savedTag = await repo.getTagById(id);
         if (mounted) {
           showToast(context, l10n.tagCreateSuccess);
         }
@@ -293,7 +293,11 @@ class _TagEditPageState extends ConsumerState<TagEditPage> {
       }
 
       if (mounted) {
-        Navigator.of(context).pop(savedTag);
+        if (savedTag == null) {
+          Navigator.of(context).pop();
+        } else {
+          Navigator.of(context).pop(savedTag);
+        }
       }
     } catch (e) {
       if (mounted) {

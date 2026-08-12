@@ -169,9 +169,7 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
                 final filteredTags = _searchText.isEmpty
                     ? allTags
                     : allTags
-                        .where((t) => t.name
-                            .toLowerCase()
-                            .contains(_searchText.toLowerCase()))
+                        .where((t) => t.name.toLowerCase().contains(_searchText.toLowerCase()))
                         .toList();
 
                 if (filteredTags.isEmpty && allTags.isEmpty) {
@@ -203,9 +201,7 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
                     // 全部标签
                     if (filteredTags.isNotEmpty)
                       _buildSection(
-                        _searchText.isEmpty
-                            ? l10n.tagSelectAllTags
-                            : '${l10n.commonSearch}结果',
+                        _searchText.isEmpty ? l10n.tagSelectAllTags : '${l10n.commonSearch}结果',
                         filteredTags,
                       ),
 

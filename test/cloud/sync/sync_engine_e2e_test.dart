@@ -4,8 +4,6 @@
 // 链路。Day 1:smoke test 验证 fake provider 能跟 SyncEngine 兜上,跑通空 pull
 // 路径。Day 2 加更多场景(脏数据 / 单飞 / web 新建账本 / busy retry 等)。
 
-import 'dart:async';
-
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
@@ -63,8 +61,7 @@ void main() {
       await engine.pull('');
       final prefs = await SharedPreferences.getInstance();
       // 应该还没有 app cursor key
-      final keys =
-          prefs.getKeys().where((k) => k.startsWith('app_pull_cursor_'));
+      final keys = prefs.getKeys().where((k) => k.startsWith('app_pull_cursor_'));
       expect(keys, isEmpty, reason: '空 pull 不应推进 cursor');
     });
   });
@@ -115,8 +112,8 @@ void main() {
     });
 
     test('apply 成功后 cursor 推进到本页末尾', () async {
-      await db.into(db.ledgers).insert(
-          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(LedgersCompanion.insert(
+          name: 'L', syncId: const Value('L1')));
       await db.into(db.categories).insert(CategoriesCompanion.insert(
           name: 'C', kind: 'expense', syncId: const Value('C1')));
 
@@ -223,13 +220,12 @@ void main() {
       expect(cursor, 0);
     });
 
-    test(
-        'apply 时单条 change payload 异常 → 整页 rollback + 错误入 sync_pull_errors + cursor 不推进',
+    test('apply 时单条 change payload 异常 → 整页 rollback + 错误入 sync_pull_errors + cursor 不推进',
         () async {
       // 推 5 条 change,第 3 条 payload 用错误类型(categoryId 传 int 而不是 string)
       // 让 _applyTransactionChange 内 `payload['categoryId'] as String?` 抛 TypeError
-      await db.into(db.ledgers).insert(
-          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(LedgersCompanion.insert(
+          name: 'L', syncId: const Value('L1')));
 
       for (var i = 0; i < 5; i++) {
         final payload = <String, dynamic>{
@@ -256,7 +252,8 @@ void main() {
 
       // 本地 transactions 表应该是空(rollback 生效,不是只插了前两条)
       final txs = await db.select(db.transactions).get();
-      expect(txs, isEmpty, reason: 'apply 抛错时整页 rollback,前面已 INSERT 的也应回滚');
+      expect(txs, isEmpty,
+          reason: 'apply 抛错时整页 rollback,前面已 INSERT 的也应回滚');
 
       // cursor 不推进(读 0)
       expect(await engine.appCursor.read(), 0);
@@ -271,8 +268,8 @@ void main() {
     });
 
     test('修复后 server 推同 change_id 新版本 → markResolved', () async {
-      await db.into(db.ledgers).insert(
-          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(LedgersCompanion.insert(
+          name: 'L', syncId: const Value('L1')));
 
       // 先推一条会抛错的
       provider.pushFakeChange(
@@ -297,8 +294,8 @@ void main() {
 
   group('cursor 持久化', () {
     test('apply 成功后 cursor 写入 SharedPreferences,跨 SyncEngine 实例可读', () async {
-      await db.into(db.ledgers).insert(
-          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(LedgersCompanion.insert(
+          name: 'L', syncId: const Value('L1')));
       await db.into(db.categories).insert(CategoriesCompanion.insert(
           name: 'C', kind: 'expense', syncId: const Value('C1')));
 
@@ -331,8 +328,7 @@ void main() {
         repo: repo,
       );
       final cursor2 = await engine2.appCursor.read();
-      expect(cursor2, 3,
-          reason: '新 SyncEngine 实例应从 SharedPreferences 读到上次 cursor');
+      expect(cursor2, 3, reason: '新 SyncEngine 实例应从 SharedPreferences 读到上次 cursor');
 
       // 第二个 engine pull 应该看到"无变更"(空 pull)
       final applied = await engine2.pull('');
@@ -344,8 +340,8 @@ void main() {
 
   group('replay (sinceOverride=0)', () {
     test('replay 从头拉所有 change,即使 cursor 已推进', () async {
-      await db.into(db.ledgers).insert(
-          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(LedgersCompanion.insert(
+          name: 'L', syncId: const Value('L1')));
       await db.into(db.categories).insert(CategoriesCompanion.insert(
           name: 'C', kind: 'expense', syncId: const Value('C1')));
 
@@ -374,7 +370,8 @@ void main() {
       provider.pullCalls.clear();
       final applied = await engine.pull('', sinceOverride: 0);
       expect(applied, 3, reason: 'replay 应重新 apply 3 条');
-      expect(provider.pullCalls.first.since, 0, reason: 'replay 必须从 since=0 拉');
+      expect(provider.pullCalls.first.since, 0,
+          reason: 'replay 必须从 since=0 拉');
 
       // 本地 transactions 仍是 3 条(没 dup)
       final txs = await db.select(db.transactions).get();
@@ -387,8 +384,7 @@ void main() {
       // 本地通过 repo 写一条 tx(会触发 changeTracker.recordLedgerChange)
       final ledgerId = await db.into(db.ledgers).insert(
             LedgersCompanion.insert(
-              name: 'L',
-              syncId: const Value('L1'),
+              name: 'L', syncId: const Value('L1'),
             ),
           );
       await repo.insertTransactionsBatch([
@@ -415,15 +411,9 @@ void main() {
       expect(provider.pushedBatches.first, hasLength(1));
       expect(provider.pushedBatches.first.first['entity_sync_id'], 'tx-push-1');
       expect(provider.pushedBatches.first.first['action'], 'upsert');
-      final payload =
-          provider.pushedBatches.first.first['payload'] as Map<String, dynamic>;
-      expect(payload['tags'], '', reason: '空标签必须显式发送，才能清掉 server 旧关联');
-      expect(payload['tagIds'], isEmpty,
-          reason: '空 tagIds 必须显式发送，不能被 merge 当成“不更新”');
 
       // local_changes 已 markPushed
-      final remaining =
-          await changeTracker.getUnpushedChangesForLedger(ledgerId);
+      final remaining = await changeTracker.getUnpushedChangesForLedger(ledgerId);
       expect(remaining, isEmpty);
     });
 
@@ -445,159 +435,10 @@ void main() {
       expect(pushed2, 0);
       expect(provider.pushedBatches, hasLength(1), reason: '无变更不应发新 batch');
     });
-
-    test('共享 Editor 有 unresolved override 时整体省略标签，mirror 后发送完整集合', () async {
-      final ledgerId = await db.into(db.ledgers).insert(
-            LedgersCompanion.insert(
-              name: 'Shared Editor Push',
-              syncId: const Value('shared-editor-push'),
-              isShared: const Value(true),
-              myRole: const Value('editor'),
-            ),
-          );
-      final personalTagId = await db.into(db.tags).insert(
-            TagsCompanion.insert(
-              name: 'Editor Personal',
-              syncId: const Value('editor-personal-tag'),
-            ),
-          );
-      final txIds = await repo.insertTransactionsBatchWithRelations(
-        transactions: [
-          TransactionsCompanion.insert(
-            ledgerId: ledgerId,
-            type: 'expense',
-            amount: 10,
-            syncId: const Value('tx-editor-stale-tag'),
-          ),
-        ],
-        tagIdsByIndex: {
-          0: [personalTagId],
-        },
-      );
-      final now = DateTime.now().toUtc();
-      await db.batch((batch) {
-        for (final ledgerSyncId in [
-          'shared-editor-push',
-          'another-shared-ledger',
-        ]) {
-          batch.insert(
-            db.sharedLedgerTags,
-            SharedLedgerTagsCompanion.insert(
-              ledgerSyncId: ledgerSyncId,
-              syncId: 'owner-tag',
-              name: 'Owner Tag',
-              updatedAt: now,
-            ),
-          );
-        }
-      });
-      await db.batch((batch) {
-        for (final tagSyncId in ['owner-tag', 'owner-mirror-late']) {
-          batch.insert(
-            db.transactionTagOverrides,
-            TransactionTagOverridesCompanion.insert(
-              transactionSyncId: 'tx-editor-stale-tag',
-              tagSyncId: tagSyncId,
-              createdAt: now,
-            ),
-          );
-        }
-      });
-
-      expect(txIds, hasLength(1));
-      expect(await engine.push(ledgerId.toString()), 2,
-          reason: '包含 1 条 legacy user-global tag backfill + 1 条 transaction');
-      final pushed = provider.pushedBatches
-          .expand((batch) => batch)
-          .singleWhere((change) => change['entity_type'] == 'transaction');
-      final payload = pushed['payload'] as Map<String, dynamic>;
-      expect(payload.containsKey('tagIds'), isFalse,
-          reason: 'resolved + unresolved 不能发送部分集合，否则会误清 server 权威关联');
-      expect(payload.containsKey('tags'), isFalse,
-          reason: '存在任一 unresolved override 时标签两键必须整体省略');
-
-      // 模拟 server merge 保留原标签并回声；本地 opaque 仍应完整存在。
-      provider.pushFakeChange(
-        entityType: 'transaction',
-        entitySyncId: 'tx-editor-stale-tag',
-        ledgerId: 'shared-editor-push',
-        payload: {
-          'type': 'expense',
-          'amount': 10,
-          'tagIds': ['owner-tag', 'owner-mirror-late'],
-          'tags': 'Owner Tag,Late Owner Tag',
-        },
-      );
-      await engine.pull(ledgerId.toString());
-      expect(
-        (await db.select(db.transactionTagOverrides).get())
-            .map((row) => row.tagSyncId),
-        unorderedEquals(['owner-tag', 'owner-mirror-late']),
-      );
-
-      await db.into(db.sharedLedgerTags).insert(
-            SharedLedgerTagsCompanion.insert(
-              ledgerSyncId: 'shared-editor-push',
-              syncId: 'owner-mirror-late',
-              name: 'Late Owner Tag',
-              updatedAt: now,
-            ),
-          );
-      await changeTracker.recordLedgerChange(
-        entityType: 'transaction',
-        entityId: txIds.single,
-        entitySyncId: 'tx-editor-stale-tag',
-        ledgerId: ledgerId,
-        action: 'update',
-      );
-      expect(await engine.push(ledgerId.toString()), 1);
-      final afterMirror = provider.pushedBatches.last
-          .singleWhere((change) => change['entity_type'] == 'transaction');
-      final afterMirrorPayload = afterMirror['payload'] as Map<String, dynamic>;
-      expect(afterMirrorPayload['tagIds'],
-          unorderedEquals(['owner-tag', 'owner-mirror-late']),
-          reason: 'mirror 后到后，保留的 opaque override 应自动恢复上传');
-      expect((afterMirrorPayload['tags'] as String).split(','),
-          unorderedEquals(['Owner Tag', 'Late Owner Tag']));
-    });
-
-    test('共享 Editor 只有 unresolved opaque override 时也省略标签两键', () async {
-      final ledgerId = await db.into(db.ledgers).insert(
-            LedgersCompanion.insert(
-              name: 'Shared Editor Opaque Only',
-              syncId: const Value('shared-editor-opaque-only'),
-              isShared: const Value(true),
-              myRole: const Value('editor'),
-            ),
-          );
-      final inserted = await repo.insertTransactionsBatch([
-        TransactionsCompanion.insert(
-          ledgerId: ledgerId,
-          type: 'expense',
-          amount: 1,
-          syncId: const Value('tx-editor-opaque-only'),
-        ),
-      ]);
-      await db.into(db.transactionTagOverrides).insert(
-            TransactionTagOverridesCompanion.insert(
-              transactionSyncId: 'tx-editor-opaque-only',
-              tagSyncId: 'owner-never-mirrored',
-              createdAt: DateTime.now().toUtc(),
-            ),
-          );
-
-      expect(await engine.push(ledgerId.toString()), 1);
-      final pushed = provider.pushedBatches.single.single;
-      final payload = pushed['payload'] as Map<String, dynamic>;
-      expect(payload.containsKey('tagIds'), isFalse);
-      expect(payload.containsKey('tags'), isFalse);
-      expect(inserted, 1);
-    });
   });
 
   group('recordChanges=false:fullPull 不反向回流', () {
-    test(
-        'LocalRepository.insertTransactionsBatch(recordChanges: false) → 不写 local_changes',
+    test('LocalRepository.insertTransactionsBatch(recordChanges: false) → 不写 local_changes',
         () async {
       final ledgerId = await db.into(db.ledgers).insert(
           LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
@@ -618,7 +459,8 @@ void main() {
       // 本地有 50 条 tx,但 local_changes 表为空(不会反向 push)
       final txs = await db.select(db.transactions).get();
       expect(txs, hasLength(50));
-      final changes = await changeTracker.getUnpushedChangesForLedger(ledgerId);
+      final changes =
+          await changeTracker.getUnpushedChangesForLedger(ledgerId);
       expect(changes, isEmpty,
           reason: 'fullPull 写入不应触发 changeTracker.recordLedgerChange');
     });
@@ -633,7 +475,8 @@ void main() {
             amount: 1.0,
             syncId: const Value('normal-tx')),
       ]); // 不传 recordChanges,走默认 true
-      final changes = await changeTracker.getUnpushedChangesForLedger(ledgerId);
+      final changes =
+          await changeTracker.getUnpushedChangesForLedger(ledgerId);
       expect(changes, hasLength(1));
     });
   });
@@ -642,7 +485,8 @@ void main() {
     test('uploadAttachments 上传未同步附件 → 回填 cloudFileId + 登记 update change',
         () async {
       final ledgerId = await db.into(db.ledgers).insert(
-            LedgersCompanion.insert(name: 'L', syncId: const Value('L1')),
+            LedgersCompanion.insert(
+                name: 'L', syncId: const Value('L1')),
           );
       // 插一条 tx + 一个未上传的 attachment
       final txId = await db.into(db.transactions).insert(
@@ -687,240 +531,6 @@ void main() {
       expect(provider.writeCreateLedgerCalls, isEmpty,
           reason: 'Editor 角色永不应触发 fullPush');
       expect(result.hasError, isFalse);
-    });
-  });
-
-  group('共享账本交易标签 fallback', () {
-    test('Owner 收到 name-only payload 时只关联已有标签，不创建未知标签', () async {
-      final ledgerId = await db.into(db.ledgers).insert(
-            LedgersCompanion.insert(
-              name: 'Shared Owner',
-              syncId: const Value('shared-owner'),
-              isShared: const Value(true),
-              myRole: const Value('owner'),
-            ),
-          );
-      final ownerTagId = await db.into(db.tags).insert(
-            TagsCompanion.insert(
-              name: 'OwnerTag',
-              syncId: const Value('owner-tag'),
-            ),
-          );
-
-      provider.pushFakeChange(
-        entityType: 'transaction',
-        entitySyncId: 'tx-known-tag',
-        ledgerId: 'shared-owner',
-        payload: {
-          'type': 'expense',
-          'amount': 10,
-          'tags': 'OwnerTag',
-        },
-      );
-      provider.pushFakeChange(
-        entityType: 'transaction',
-        entitySyncId: 'tx-unknown-tag',
-        ledgerId: 'shared-owner',
-        payload: {
-          'type': 'expense',
-          'amount': 20,
-          'tags': 'EditorOnlyTag',
-        },
-      );
-
-      await engine.pull(ledgerId.toString());
-
-      final tags = await db.select(db.tags).get();
-      expect(tags.map((tag) => tag.name), ['OwnerTag']);
-      final links = await db.select(db.transactionTags).get();
-      expect(links, hasLength(1));
-      expect(links.single.tagId, ownerTagId);
-    });
-
-    test('Editor 的 name fallback 只匹配当前账本 Owner mirror tag', () async {
-      final ledgerId = await db.into(db.ledgers).insert(
-            LedgersCompanion.insert(
-              name: 'Shared Editor',
-              syncId: const Value('shared-editor'),
-              isShared: const Value(true),
-              myRole: const Value('editor'),
-            ),
-          );
-      final now = DateTime.now().toUtc();
-      await db.into(db.sharedLedgerTags).insert(
-            SharedLedgerTagsCompanion.insert(
-              ledgerSyncId: 'shared-editor',
-              syncId: 'owner-fuel-tag',
-              name: 'Fuel',
-              updatedAt: now,
-            ),
-          );
-      provider.pushFakeChange(
-        entityType: 'transaction',
-        entitySyncId: 'tx-editor-known',
-        ledgerId: 'shared-editor',
-        payload: {
-          'type': 'expense',
-          'amount': 10,
-          'tags': 'Fuel',
-        },
-      );
-      provider.pushFakeChange(
-        entityType: 'transaction',
-        entitySyncId: 'tx-editor-known-id',
-        ledgerId: 'shared-editor',
-        payload: {
-          'type': 'expense',
-          'amount': 15,
-          'tagIds': ['owner-fuel-tag'],
-          'tags': '错误名称不应覆盖权威 ID',
-        },
-      );
-      provider.pushFakeChange(
-        entityType: 'transaction',
-        entitySyncId: 'tx-editor-mirror-late',
-        ledgerId: 'shared-editor',
-        payload: {
-          'type': 'expense',
-          'amount': 20,
-          'tagIds': ['owner-late-tag'],
-          'tags': 'LateTag',
-        },
-      );
-      provider.pushFakeChange(
-        entityType: 'transaction',
-        entitySyncId: 'tx-editor-unknown',
-        ledgerId: 'shared-editor',
-        payload: {
-          'type': 'expense',
-          'amount': 30,
-          'tags': 'EditorOnlyTag',
-        },
-      );
-
-      await engine.pull(ledgerId.toString());
-
-      expect(await db.select(db.tags).get(), isEmpty,
-          reason: 'Editor 的共享交易不能创建 user-scoped 标签');
-      final overrides = await db.select(db.transactionTagOverrides).get();
-      expect(overrides, hasLength(3));
-      expect(
-        overrides.map((row) => row.transactionSyncId).toSet(),
-        {
-          'tx-editor-known',
-          'tx-editor-known-id',
-          'tx-editor-mirror-late',
-        },
-      );
-      expect(
-        overrides.map((row) => row.tagSyncId).toSet(),
-        {'owner-fuel-tag', 'owner-late-tag'},
-      );
-
-      final lateTx = await (db.select(db.transactions)
-            ..where((tx) => tx.syncId.equals('tx-editor-mirror-late')))
-          .getSingle();
-      expect(await repo.getTagsForTransaction(lateTx.id), isEmpty,
-          reason: 'mirror 尚未到达时引用先保持 opaque，不应错误绑定名称');
-
-      await db.into(db.sharedLedgerTags).insert(
-            SharedLedgerTagsCompanion.insert(
-              ledgerSyncId: 'shared-editor',
-              syncId: 'owner-late-tag',
-              name: 'LateTag',
-              updatedAt: now,
-            ),
-          );
-      final restored = await repo.getTagsForTransaction(lateTx.id);
-      expect(restored.map((tag) => tag.syncId), ['owner-late-tag'],
-          reason: 'mirror 后到时应凭已保存的 override 自动恢复显示');
-    });
-
-    test('Editor 的 name-only payload 遇到同名多个 Owner ID 时不中断 pull', () async {
-      final ledgerId = await db.into(db.ledgers).insert(
-            LedgersCompanion.insert(
-              name: 'Shared Editor Duplicate Tags',
-              syncId: const Value('shared-editor-duplicates'),
-              isShared: const Value(true),
-              myRole: const Value('editor'),
-            ),
-          );
-      final now = DateTime.now().toUtc();
-      await db.batch((batch) {
-        for (final syncId in ['duplicate-a', 'duplicate-b']) {
-          batch.insert(
-            db.sharedLedgerTags,
-            SharedLedgerTagsCompanion.insert(
-              ledgerSyncId: 'shared-editor-duplicates',
-              syncId: syncId,
-              name: 'Duplicate',
-              updatedAt: now,
-            ),
-          );
-        }
-      });
-
-      provider.pushFakeChange(
-        entityType: 'transaction',
-        entitySyncId: 'tx-ambiguous-name',
-        ledgerId: 'shared-editor-duplicates',
-        payload: {
-          'type': 'expense',
-          'amount': 10,
-          'tags': 'Duplicate',
-        },
-      );
-
-      expect(await engine.pull(ledgerId.toString()), 1,
-          reason: '歧义名称应按 unresolved 跳过，不能抛异常卡住整页 cursor');
-      expect(await db.select(db.transactionTagOverrides).get(), isEmpty);
-      expect(
-        await (db.select(db.transactions)
-              ..where((tx) => tx.syncId.equals('tx-ambiguous-name')))
-            .getSingleOrNull(),
-        isNotNull,
-      );
-    });
-
-    test('已有交易遇到无法解析的 name-only payload 时保留原 Owner 标签', () async {
-      final ledgerId = await db.into(db.ledgers).insert(
-            LedgersCompanion.insert(
-              name: 'Shared Editor Legacy Update',
-              syncId: const Value('shared-editor-legacy-update'),
-              isShared: const Value(true),
-              myRole: const Value('editor'),
-            ),
-          );
-      provider.pushFakeChange(
-        entityType: 'transaction',
-        entitySyncId: 'tx-legacy-update',
-        ledgerId: 'shared-editor-legacy-update',
-        payload: {
-          'type': 'expense',
-          'amount': 10,
-          'tagIds': ['owner-existing-tag'],
-          'tags': 'Existing',
-        },
-      );
-      await engine.pull(ledgerId.toString());
-
-      provider.pushFakeChange(
-        entityType: 'transaction',
-        entitySyncId: 'tx-legacy-update',
-        ledgerId: 'shared-editor-legacy-update',
-        payload: {
-          'type': 'expense',
-          'amount': 20,
-          'tags': 'MirrorStillMissing',
-        },
-      );
-      await engine.pull(ledgerId.toString());
-
-      final overrides = await db.select(db.transactionTagOverrides).get();
-      expect(overrides, hasLength(1));
-      expect(overrides.single.transactionSyncId, 'tx-legacy-update');
-      expect(overrides.single.tagSyncId, 'owner-existing-tag',
-          reason: '老协议名称在 mirror 延迟时不能先删旧关联再推进 cursor');
     });
   });
 
@@ -1087,275 +697,10 @@ void main() {
     });
   });
 
-  group('共享标签删除清理', () {
-    test('WS tag delete 会按账本清理 stale transaction override', () async {
-      final ledgerId = await db.into(db.ledgers).insert(
-            LedgersCompanion.insert(
-              name: 'Shared Cleanup WS',
-              syncId: const Value('shared-cleanup-ws'),
-              isShared: const Value(true),
-              myRole: const Value('editor'),
-            ),
-          );
-      await db.into(db.transactions).insert(
-            TransactionsCompanion.insert(
-              ledgerId: ledgerId,
-              type: 'expense',
-              amount: 1,
-              syncId: const Value('tx-cleanup-ws'),
-            ),
-          );
-      final now = DateTime.now().toUtc();
-      await db.into(db.sharedLedgerTags).insert(
-            SharedLedgerTagsCompanion.insert(
-              ledgerSyncId: 'shared-cleanup-ws',
-              syncId: 'owner-deleted-tag',
-              name: 'Deleted',
-              updatedAt: now,
-            ),
-          );
-      await db.into(db.transactionTagOverrides).insert(
-            TransactionTagOverridesCompanion.insert(
-              transactionSyncId: 'tx-cleanup-ws',
-              tagSyncId: 'owner-deleted-tag',
-              createdAt: now,
-            ),
-          );
-
-      engine.startListeningRealtime();
-      provider.emitRealtimeEvent(BeeCountCloudRealtimeEvent(
-        type: 'shared_resource_change',
-        ledgerId: 'shared-cleanup-ws',
-        rawData: const {
-          'resourceType': 'tag',
-          'action': 'delete',
-          'payload': {'syncId': 'owner-deleted-tag'},
-        },
-      ));
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      engine.stopListeningRealtime();
-
-      expect(await db.select(db.sharedLedgerTags).get(), isEmpty);
-      expect(await db.select(db.transactionTagOverrides).get(), isEmpty,
-          reason: 'Owner 明确删除后 Editor 不能继续回推 stale tag ID 导致 400');
-    });
-
-    test('成功的 shared-resources 全量快照会清理快照中已删除的标签关联', () async {
-      final ledgerId = await db.into(db.ledgers).insert(
-            LedgersCompanion.insert(
-              name: 'Shared Cleanup Snapshot',
-              syncId: const Value('shared-cleanup-snapshot'),
-              isShared: const Value(true),
-              myRole: const Value('editor'),
-            ),
-          );
-      await db.into(db.transactions).insert(
-            TransactionsCompanion.insert(
-              ledgerId: ledgerId,
-              type: 'expense',
-              amount: 1,
-              syncId: const Value('tx-cleanup-snapshot'),
-            ),
-          );
-      final now = DateTime.now().toUtc();
-      await db.batch((batch) {
-        for (final tagSyncId in ['owner-kept-tag', 'owner-removed-tag']) {
-          batch.insert(
-            db.sharedLedgerTags,
-            SharedLedgerTagsCompanion.insert(
-              ledgerSyncId: 'shared-cleanup-snapshot',
-              syncId: tagSyncId,
-              name: tagSyncId,
-              updatedAt: now,
-            ),
-          );
-          batch.insert(
-            db.transactionTagOverrides,
-            TransactionTagOverridesCompanion.insert(
-              transactionSyncId: 'tx-cleanup-snapshot',
-              tagSyncId: tagSyncId,
-              createdAt: now,
-            ),
-          );
-        }
-        batch.insert(
-          db.transactionTagOverrides,
-          TransactionTagOverridesCompanion.insert(
-            transactionSyncId: 'tx-cleanup-snapshot',
-            tagSyncId: 'owner-never-mirrored',
-            createdAt: now,
-          ),
-        );
-        // 跨过 500 条 SQLite 参数分块边界，并验证多标签删除不会退化成
-        // removed tags × transaction chunks 次逐标签 DELETE。
-        for (var i = 0; i < 501; i++) {
-          final txSyncId = 'tx-cleanup-bulk-$i';
-          batch.insert(
-            db.transactions,
-            TransactionsCompanion.insert(
-              ledgerId: ledgerId,
-              type: 'expense',
-              amount: i.toDouble(),
-              syncId: Value(txSyncId),
-            ),
-          );
-          for (final tagSyncId in ['owner-kept-tag', 'owner-removed-tag']) {
-            batch.insert(
-              db.transactionTagOverrides,
-              TransactionTagOverridesCompanion.insert(
-                transactionSyncId: txSyncId,
-                tagSyncId: tagSyncId,
-                createdAt: now,
-              ),
-            );
-          }
-        }
-      });
-      provider.sharedResourcesByLedger['shared-cleanup-snapshot'] =
-          const BeeCountCloudSharedResources(
-        ownerUserId: 'owner',
-        categories: [],
-        accounts: [],
-        tags: [
-          BeeCountCloudSharedTag(
-            syncId: 'owner-kept-tag',
-            name: 'Kept',
-          ),
-        ],
-      );
-
-      await engine.fetchAndStoreSharedResources('shared-cleanup-snapshot');
-
-      final overrides = await db.select(db.transactionTagOverrides).get();
-      expect(overrides, hasLength(502));
-      expect(overrides.map((row) => row.tagSyncId).toSet(), {'owner-kept-tag'},
-          reason: '快照应同时清理旧 mirror 标签和从未 mirror 的 opaque stale ID');
-    });
-
-    test('snapshot 请求进行中到达的 WS upsert 会在快照落库后重放', () async {
-      await db.into(db.ledgers).insert(
-            LedgersCompanion.insert(
-              name: 'Shared Snapshot Race',
-              syncId: const Value('shared-snapshot-race'),
-              isShared: const Value(true),
-              myRole: const Value('editor'),
-            ),
-          );
-      final fetchStarted = Completer<void>();
-      final releaseSnapshot = Completer<BeeCountCloudSharedResources>();
-      provider.sharedResourcesFetcher = (ledgerId) {
-        expect(ledgerId, 'shared-snapshot-race');
-        fetchStarted.complete();
-        return releaseSnapshot.future;
-      };
-
-      engine.startListeningRealtime();
-      final snapshotFuture =
-          engine.fetchAndStoreSharedResources('shared-snapshot-race');
-      await fetchStarted.future;
-      provider.emitRealtimeEvent(BeeCountCloudRealtimeEvent(
-        type: 'shared_resource_change',
-        ledgerId: 'shared-snapshot-race',
-        rawData: const {
-          'resourceType': 'tag',
-          'action': 'upsert',
-          'payload': {
-            'syncId': 'owner-created-during-snapshot',
-            'name': 'Created During Snapshot',
-          },
-        },
-      ));
-      await Future<void>.delayed(const Duration(milliseconds: 10));
-      releaseSnapshot.complete(const BeeCountCloudSharedResources(
-        ownerUserId: 'owner',
-        categories: [],
-        accounts: [],
-        tags: [],
-      ));
-      await snapshotFuture;
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      engine.stopListeningRealtime();
-
-      final tags = await db.select(db.sharedLedgerTags).get();
-      expect(tags.map((tag) => tag.syncId), ['owner-created-during-snapshot'],
-          reason: '较旧 snapshot 不能覆盖请求开始后到达的 WS 新标签');
-    });
-
-    test('snapshot 请求进行中 pull 新增的 opaque override 不会被旧快照清理', () async {
-      final ledgerId = await db.into(db.ledgers).insert(
-            LedgersCompanion.insert(
-              name: 'Shared Snapshot Pull Race',
-              syncId: const Value('shared-snapshot-pull-race'),
-              isShared: const Value(true),
-              myRole: const Value('editor'),
-            ),
-          );
-      final fetchStarted = Completer<void>();
-      final releaseSnapshot = Completer<BeeCountCloudSharedResources>();
-      provider.sharedResourcesFetcher = (_) {
-        fetchStarted.complete();
-        return releaseSnapshot.future;
-      };
-
-      engine.startListeningRealtime();
-      final snapshotFuture =
-          engine.fetchAndStoreSharedResources('shared-snapshot-pull-race');
-      await fetchStarted.future;
-      provider.pushFakeChange(
-        entityType: 'transaction',
-        entitySyncId: 'tx-created-during-snapshot',
-        ledgerId: 'shared-snapshot-pull-race',
-        payload: {
-          'type': 'expense',
-          'amount': 1,
-          'tagIds': ['owner-tag-created-during-snapshot'],
-          'tags': 'Created During Snapshot',
-        },
-      );
-      await engine.pull(ledgerId.toString());
-      releaseSnapshot.complete(const BeeCountCloudSharedResources(
-        ownerUserId: 'owner',
-        categories: [],
-        accounts: [],
-        tags: [],
-      ));
-      await snapshotFuture;
-
-      var overrides = await db.select(db.transactionTagOverrides).get();
-      expect(overrides.map((row) => row.tagSyncId),
-          ['owner-tag-created-during-snapshot'],
-          reason: '较旧 snapshot 只能清请求开始前存在的 stale override');
-
-      provider.emitRealtimeEvent(BeeCountCloudRealtimeEvent(
-        type: 'shared_resource_change',
-        ledgerId: 'shared-snapshot-pull-race',
-        rawData: const {
-          'resourceType': 'tag',
-          'action': 'upsert',
-          'payload': {
-            'syncId': 'owner-tag-created-during-snapshot',
-            'name': 'Created During Snapshot',
-          },
-        },
-      ));
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      engine.stopListeningRealtime();
-
-      final tx = await (db.select(db.transactions)
-            ..where((row) => row.syncId.equals('tx-created-during-snapshot')))
-          .getSingle();
-      expect((await repo.getTagsForTransaction(tx.id)).map((tag) => tag.syncId),
-          ['owner-tag-created-during-snapshot'],
-          reason: 'mirror 后到后应凭保留的 opaque override 恢复显示');
-      overrides = await db.select(db.transactionTagOverrides).get();
-      expect(overrides, hasLength(1));
-    });
-  });
-
   group('SyncEvent stream(PR 1 解耦改造)', () {
     test('WS pull 完成 emit PullCompleted 到 events stream', () async {
-      await db.into(db.ledgers).insert(
-          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(LedgersCompanion.insert(
+          name: 'L', syncId: const Value('L1')));
       await db.into(db.categories).insert(CategoriesCompanion.insert(
           name: 'C', kind: 'expense', syncId: const Value('C1')));
 
@@ -1396,8 +741,7 @@ void main() {
       expect(pullEvents.last.applied, greaterThan(0));
     });
 
-    test(
-        'sync push 后清缓存 + emit,getStatus 从 localNewer 刷新为 inSync'
+    test('sync push 后清缓存 + emit,getStatus 从 localNewer 刷新为 inSync'
         '(修复:同步完成后「我的」页状态自动更新,不用手动下拉)', () async {
       final ledgerId = await db.into(db.ledgers).insert(
             LedgersCompanion.insert(
@@ -1447,8 +791,8 @@ void main() {
       // 直接调 _emit 不容易(私有),但 syncMyProfile / pull 路径会 emit。
       // 这里用 syncMyProfile 路径:fake provider 抛 UnimplementedError →
       // 整个流程进 catch 不 emit。我们改测 pull → PullCompleted
-      await db.into(db.ledgers).insert(
-          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(LedgersCompanion.insert(
+          name: 'L', syncId: const Value('L1')));
       engine.startListeningRealtime();
       provider.emitRealtimeEvent(BeeCountCloudRealtimeEvent(
         type: 'sync_change',
@@ -1466,8 +810,8 @@ void main() {
   group('WS realtime', () {
     test('startListeningRealtime + 模拟 WS sync_change → 1s debounce 后触发 pull',
         () async {
-      await db.into(db.ledgers).insert(
-          LedgersCompanion.insert(name: 'L', syncId: const Value('L1')));
+      await db.into(db.ledgers).insert(LedgersCompanion.insert(
+          name: 'L', syncId: const Value('L1')));
       await db.into(db.categories).insert(CategoriesCompanion.insert(
           name: 'C', kind: 'expense', syncId: const Value('C1')));
 
@@ -1507,3 +851,4 @@ void main() {
     });
   });
 }
+
