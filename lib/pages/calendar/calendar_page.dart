@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/section_card.dart';
@@ -11,7 +10,6 @@ import '../../widgets/category_icon.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../utils/transaction_edit_utils.dart';
-import '../../utils/currencies.dart';
 import '../../providers.dart';
 import '../../providers/calendar_providers.dart';
 import '../../l10n/app_localizations.dart';
@@ -153,18 +151,12 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final ledgerId = ref.watch(currentLedgerIdProvider);
-    final ledgerAsync = ref.watch(currentLedgerProvider);
     final primaryColor = ref.watch(primaryColorProvider);
-    final currencySymbol = ledgerAsync.maybeWhen(
-      data: (ledger) => ledger?.currency ?? 'CNY',
-      orElse: () => 'CNY',
-    );
 
     // 监听数据刷新
     ref.watch(calendarRefreshProvider);
 
     // 获取当月统计数据
-    print('🔍 查询参数: ledgerId=$ledgerId, month=$_focusedMonth');
     final dailyTotalsAsync = ref.watch(
       dailyTotalsByMonthProvider((ledgerId: ledgerId, month: _focusedMonth)),
     );
@@ -250,15 +242,6 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
       fontWeight: FontWeight.w600,
       color: BeeTokens.textPrimary(context),
     );
-
-    print('📊 _buildCalendar 被调用: dailyTotals.length=${dailyTotals.length}');
-    print('📊 locale=${locale.toString()}');
-    if (dailyTotals.isNotEmpty) {
-      print('📊 数据样例:');
-      dailyTotals.entries.take(5).forEach((e) {
-        print('  ${e.key}: 收入=${e.value.$1}, 支出=${e.value.$2}');
-      });
-    }
 
     return TableCalendar(
       locale: locale.toString(),
@@ -423,14 +406,6 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     final totals = dailyTotals[dateKey];
     final (income, expense) = totals ?? (0.0, 0.0);
     final hasTransaction = income > 0 || expense > 0;
-
-    // 调试：打印前3天的数据
-    if (day.day <= 3 && day.month == _focusedMonth.month) {
-      print('📅 _buildDateCell: day=${day.day}, dateKey=$dateKey');
-      print(
-          '   totals=$totals, income=$income, expense=$expense, hasTransaction=$hasTransaction');
-      print('   isOutside=$isOutside');
-    }
 
     // 文字颜色
     Color textColor;
@@ -686,103 +661,6 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [header, card],
-    );
-  }
-
-  // 构建当月交易列表（不显示日期和统计）
-  Widget _buildMonthTransactionsList(
-      BuildContext context, int ledgerId, DateTime month) {
-    final l10n = AppLocalizations.of(context);
-
-    // 使用 Provider 查询当月交易
-    final startDate = DateTime(month.year, month.month, 1);
-    final endDate = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
-
-    final transactionsAsync = ref.watch(
-      monthTransactionsProvider(
-          (ledgerId: ledgerId, startDate: startDate, endDate: endDate)),
-    );
-
-    return SectionCard(
-      margin: EdgeInsets.zero,
-      child: transactionsAsync.when(
-        data: (transactions) {
-          if (transactions.isEmpty) {
-            return Padding(
-              padding: EdgeInsets.all(24.0.scaled(context, ref)),
-              child: Center(
-                child: Text(
-                  l10n.calendarNoTransactions,
-                  style: TextStyle(
-                    color: BeeTokens.textTertiary(context),
-                  ),
-                ),
-              ),
-            );
-          }
-
-          // 直接显示交易列表
-          return ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.zero,
-            itemCount: transactions.length,
-            itemBuilder: (context, index) {
-              final item = transactions[index];
-              final category = item.category;
-              final isExpense = item.t.type == 'expense';
-              final isTransfer = item.t.type == 'transfer';
-
-              // 分类名称
-              final categoryName = category?.name ?? l10n.commonUncategorized;
-
-              // 备注作为副标题
-              final subtitle = item.t.note ?? '';
-
-              // 标签列表
-              final tagsList = item.tags
-                  .map((tag) => (id: tag.id, name: tag.name, color: tag.color))
-                  .toList();
-
-              return TransactionListItem(
-                icon: getCategoryIconData(category: category, categoryName: categoryName),
-                category: category,
-                title: isTransfer
-                    ? (subtitle.isNotEmpty ? subtitle : l10n.transferTitle)
-                    : (subtitle.isNotEmpty ? subtitle : categoryName),
-                categoryName: isTransfer
-                    ? null
-                    : (subtitle.isNotEmpty ? categoryName : null),
-                amount: item.t.amount,
-                currencyCode: item.t.currencyCode,
-                nativeAmount: item.t.nativeAmount,
-                isExpense: isExpense,
-                isTransfer: isTransfer,
-                happenedAt: item.t.happenedAt,
-                accountName: item.account?.name,
-                tags: tagsList.isNotEmpty ? tagsList : null,
-                attachmentCount: item.attachments.length,
-                onTap: () async {
-                  await TransactionEditUtils.editTransaction(
-                    context,
-                    ref,
-                    item.t,
-                    item.category,
-                  );
-                },
-              );
-            },
-          );
-        },
-        loading: () => const Padding(
-          padding: EdgeInsets.all(24),
-          child: Center(child: CircularProgressIndicator()),
-        ),
-        error: (err, stack) => Padding(
-          padding: const EdgeInsets.all(24),
-          child: Center(child: Text('Error: $err')),
-        ),
-      ),
     );
   }
 

@@ -66,33 +66,5 @@ final transactionDatesByMonthProvider = FutureProvider.autoDispose
   },
 );
 
-/// 获取指定时间范围的交易列表（用于当月交易列表）
-/// 参数: (ledgerId, startDate, endDate)
-final monthTransactionsProvider = FutureProvider.autoDispose.family<
-    List<({
-      Transaction t,
-      Category? category,
-      List<Tag> tags,
-      List<TransactionAttachment> attachments,
-      Account? account,
-    })>,
-    ({int ledgerId, DateTime startDate, DateTime endDate})>(
-  (ref, params) async {
-    // 监听刷新触发器
-    ref.watch(calendarRefreshProvider);
-
-    final repo = ref.watch(repositoryProvider);
-
-    // 查询时间范围内的所有交易
-    final transactions = await repo.getTransactionsByDateRange(
-      ledgerId: params.ledgerId,
-      startDate: params.startDate,
-      endDate: params.endDate,
-    );
-
-    return transactions;
-  },
-);
-
 /// 日历刷新触发器（添加/删除交易后触发）
 final calendarRefreshProvider = StateProvider<int>((ref) => 0);
