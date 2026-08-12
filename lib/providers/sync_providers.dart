@@ -141,19 +141,26 @@ final s3ConfigProvider = FutureProvider<CloudServiceConfig?>((ref) async {
 });
 
 final authServiceProvider = FutureProvider<CloudAuthService>((ref) async {
-  final activeAsync = ref.watch(activeCloudConfigProvider);
-  if (!activeAsync.hasValue) {
-    return NoopAuthService();
-  }
-
-  final config = activeAsync.value!;
+  final config = await ref.watch(activeCloudConfigProvider.future);
   if (!config.valid || config.type == CloudBackendType.local) {
     return NoopAuthService();
   }
 
   try {
+    // BeeCount Cloud 必须复用同步引擎持有的唯一 provider/auth 实例。
+    // 多个实例虽然共用 SharedPreferences，却各自缓存 session；这会让 2FA
+    // 登录成功后同步实例仍停留在未登录状态。
+    if (config.type == CloudBackendType.beecountCloud) {
+      final provider = await ref.watch(beecountCloudProviderInstance.future);
+      return provider?.auth ?? NoopAuthService();
+    }
+
     final services = await createCloudServices(config);
     if (services.auth != null) {
+      final provider = services.provider;
+      if (provider != null) {
+        ref.onDispose(() => unawaited(provider.dispose()));
+      }
       return services.auth!;
     }
   } catch (e) {
@@ -488,10 +495,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
 /// 用于 SyncEngine 和其他需要直接访问 BeeCount Cloud API 的场景
 final beecountCloudProviderInstance =
     FutureProvider<BeeCountCloudProvider?>((ref) async {
-  final configAsync = ref.watch(activeCloudConfigProvider);
-  if (!configAsync.hasValue) return null;
-
-  final config = configAsync.value!;
+  final config = await ref.watch(activeCloudConfigProvider.future);
   if (!config.valid || config.type != CloudBackendType.beecountCloud) {
     return null;
   }
@@ -500,6 +504,7 @@ final beecountCloudProviderInstance =
     final services = await createCloudServices(config);
     if (services.provider is! BeeCountCloudProvider) return null;
     final provider = services.provider as BeeCountCloudProvider;
+    ref.onDispose(() => unawaited(provider.dispose()));
 
     final email = config.beecountCloudEmail;
     final password = config.beecountCloudPassword;
