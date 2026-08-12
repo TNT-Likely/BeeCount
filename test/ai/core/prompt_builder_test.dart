@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:beecount/ai/core/ai_extraction_context.dart';
 import 'package:beecount/ai/core/prompt_builder.dart';
+import 'package:beecount/utils/currency_aliases.dart';
 
 void main() {
   group('PromptBuilder', () {
@@ -96,7 +97,94 @@ void main() {
         now: DateTime(2026, 5, 26),
       );
       expect(out, contains('10. currency:'));
+      // 多币种示例要覆盖多个币种:只给 JPY 一个样例时,实测「美元」会漏填
       expect(out, contains('"currency":"JPY"'));
+      expect(out, contains('"currency":"USD"'));
+      expect(out, contains('"currency":"EUR"'));
+    });
+
+    test('默认模板明令禁止填符号/中文名,并给出符号对应', () {
+      final out = builder.build(
+        context: AiExtractionContext.fallback,
+        inputSource: 'X',
+        now: DateTime(2026, 5, 26),
+      );
+      expect(out, contains('不要填货币符号'));
+      expect(out, contains('\$ → USD'));
+    });
+
+    // 「日元能识别、美元不行」的根因之一:只靠一句「填 ISO 代码」,模型对没有
+    // 样例的币种会漏填。对照表从别名表运行时生成,prompt 与解析器同一份数据。
+    group('币种对照表', () {
+      test('常用币种都在表里,且只给一个规范名(不带繁体/口语变体)', () {
+        final out = builder.build(
+          context: AiExtractionContext.fallback,
+          inputSource: 'X',
+          now: DateTime(2026, 5, 26),
+        );
+        expect(out, contains('币种对照'));
+        expect(out, contains('美元=USD'));
+        expect(out, contains('日元=JPY'));
+        expect(out, contains('欧元=EUR'));
+        expect(out, contains('英镑=GBP'));
+        expect(out, contains('港币=HKD'));
+        expect(out, contains('泰铢=THB'));
+        // 繁体变体只用于解析,不该出现在 prompt 里(白烧 token)
+        expect(out, isNot(contains('歐元')));
+        expect(out, isNot(contains('港幣')));
+      });
+
+      test('账本主币种自己不进对照表(相同就该省略字段)', () {
+        final out = builder.build(
+          context: const AiExtractionContext(
+              ledgerCurrency: 'JPY', availableCurrencies: ['JPY']),
+          inputSource: 'X',
+          now: DateTime(2026, 5, 26),
+        );
+        expect(out, contains('账本主币种：JPY'));
+        expect(out, isNot(contains('日元=JPY')));
+      });
+
+      test('账本在用的长尾币种也带上(哪怕不在常用列表里)', () {
+        final out = builder.build(
+          context: const AiExtractionContext(
+              ledgerCurrency: 'CNY', availableCurrencies: ['CNY', 'KES']),
+          inputSource: 'X',
+          now: DateTime(2026, 5, 26),
+        );
+        // KES 没登记中文别名 → 只出 code
+        expect(out, contains('KES'));
+      });
+
+      test('对照表里的每个中文名都能被解析器认回来(prompt 与解析不脱节)', () {
+        final out = builder.build(
+          context: AiExtractionContext.fallback,
+          inputSource: 'X',
+          now: DateTime(2026, 5, 26),
+        );
+        final line = out
+            .split('\n')
+            .firstWhere((l) => l.startsWith('币种对照'));
+        final pairs = line.split('：').last.split('、');
+        for (final pair in pairs) {
+          if (!pair.contains('=')) continue; // 纯 code 项
+          final parts = pair.split('=');
+          expect(currencyCodeFromAlias(parts[0]), parts[1],
+              reason: 'prompt 教 AI 写「${parts[0]}」,解析器却认不出');
+        }
+      });
+    });
+
+    test('「插入币种段落」补丁与默认模板共用同一份字段说明(防漂移)', () {
+      final out = builder.build(
+        context: AiExtractionContext.fallback,
+        inputSource: 'X',
+        now: DateTime(2026, 5, 26),
+      );
+      // 补丁 = 字段说明 + {{CURRENCIES}};字段说明部分必须逐字出现在默认模板里
+      final spec =
+          PromptBuilder.currencySectionSnippet.replaceAll('\n{{CURRENCIES}}', '');
+      expect(out, contains(spec));
     });
 
     test('A7 回归锁:自定义模板不含 {{CURRENCIES}} → 不注入币种段落', () {

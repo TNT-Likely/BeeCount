@@ -104,17 +104,19 @@ void main() {
       expect(currencyCodeFromAlias('rmb'), 'CNY');
     });
 
-    test(r'裸 $ 和 ¥ 是歧义符号,无上下文不猜(本文件最关键的一条)', () {
-      expect(currencyCodeFromAlias(r'$'), isNull);
+    test(r'裸 ¥ 是真歧义(CNY/JPY 都写裸 ¥),无上下文不猜 —— 本文件最关键的一条',
+        () {
       expect(currencyCodeFromAlias('¥'), isNull);
       expect(currencyCodeFromAlias('￥'), isNull);
     });
 
+    test(r'裸 $ 默认 USD(要区分 AUD/CAD/… 时惯例写 A$/C$/…)', () {
+      // AI 识别出「45 美元」却常把 currency 回成 "$";一律丢弃会让美元记账失效
+      expect(currencyCodeFromAlias(r'$'), 'USD');
+      expect(currencyCodeFromAlias(r'$', disambiguateWith: {'USD', 'HKD'}), 'USD');
+    });
+
     test('歧义符号可被上下文消歧', () {
-      expect(
-        currencyCodeFromAlias(r'$', disambiguateWith: {'CNY', 'USD'}),
-        'USD',
-      );
       expect(
         currencyCodeFromAlias('¥', disambiguateWith: {'CNY', 'JPY'}),
         isNull, // 两个候选都在场 → 仍不猜

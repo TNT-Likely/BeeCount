@@ -18,6 +18,18 @@ import 'currencies.dart';
 bool isKnownCurrencyCode(String code) =>
     _allCodes.contains(code.trim().toUpperCase());
 
+/// 该币种登记过的中文别名(主名在前,最多 [limit] 个);没登记则返回空 list。
+///
+/// 给 prompt 生成「中文说法 → ISO 代码」对照表用 —— **prompt 与解析器共用这一份
+/// 表**,AI 照着填就一定解析得出来,不会出现「prompt 教它写美元、解析器不认」。
+/// 一词多币的条目(卢比 / 比索 / 里拉 / 法郎)不进反向表:它们本身需要上下文
+/// 消歧,写进 prompt 只会误导。
+List<String> zhAliasesForCode(String code, {int limit = 2}) {
+  final hit = _codeToZhAliases[code.trim().toUpperCase()];
+  if (hit == null) return const [];
+  return hit.length <= limit ? hit : hit.sublist(0, limit);
+}
+
 /// 把任意币种表达解析成 ISO 码;无法唯一确定时返回 null。
 ///
 /// [disambiguateWith] 消歧上下文,通常传「账本本位币 ∪ 已有账户币种 ∪ 用户
@@ -47,10 +59,27 @@ String? currencyCodeFromAlias(String raw, {Set<String>? disambiguateWith}) {
 
   // 5. 符号(派生自币种表)
   final symHit = _symbolToCodes[trimmed];
-  if (symHit != null) return _pick(symHit, disambiguateWith);
+  if (symHit != null) {
+    final picked = _pick(symHit, disambiguateWith);
+    if (picked != null) return picked;
+    // 上下文也定不了 → 查「业界事实默认」(见 [_ambiguousDefaults])
+    final fallback = _ambiguousDefaults[trimmed];
+    if (fallback != null) return fallback;
+  }
 
   return null;
 }
+
+/// 歧义符号在「上下文也定不了」时的默认取向。
+///
+/// 只登记**业界事实上唯一**的默认:裸 `$` 全球默认指美元 —— 要区分 AUD/CAD/
+/// SGD/HKD/NZD 时书写惯例都是 `A$` / `C$` / `S$` / `HK$` / `NZ$`,写裸 `$` 就是
+/// 美元。这条是必要的:AI 明明识别出了「45 美元」,却常常把 currency 回成
+/// `"$"`,一律丢弃会让美元记账整个失效(实测)。
+///
+/// **`¥` 有意不登记** —— CNY 与 JPY 都写裸 `¥`,在中文用户场景下两者都高频,
+/// 猜错是 ~20 倍金额差。这类真歧义仍然退回账本本位币(见库文档的红线)。
+const Map<String, String> _ambiguousDefaults = {r'$': 'USD'};
 
 /// 候选集唯一 → 直接采纳;多个 → 用上下文求交,交集恰好一个才采纳,否则不猜。
 String? _pick(Set<String> candidates, Set<String>? context) {
@@ -109,6 +138,17 @@ final Map<String, Set<String>> _enWordToCodes = () {
   return map;
 }();
 
+/// code → 中文别名(登记顺序 = 主名在前)。只收**单候选**的别名条目 ——
+/// 「卢比」这种多候选词需要上下文消歧,不该出现在给 AI 的对照表里。
+final Map<String, List<String>> _codeToZhAliases = () {
+  final map = <String, List<String>>{};
+  for (final e in _zhAliases.entries) {
+    if (e.value.length != 1) continue;
+    (map[e.value.first] ??= <String>[]).add(e.key);
+  }
+  return map;
+}();
+
 /// 中文别名 → 候选码集合。只登记口语高频的;长尾靠 AI 直出 ISO 码。
 /// 值是集合:一词多币的(卢比 / 比索 / 里拉)登记成多候选,靠上下文消歧。
 const Map<String, Set<String>> _zhAliases = {
@@ -116,7 +156,7 @@ const Map<String, Set<String>> _zhAliases = {
   '人民币': {'CNY'}, '人民幣': {'CNY'}, '元人民币': {'CNY'}, '软妹币': {'CNY'},
   '美元': {'USD'}, '美金': {'USD'}, '美刀': {'USD'},
   '日元': {'JPY'}, '日圆': {'JPY'}, '日圓': {'JPY'}, '日币': {'JPY'}, '日幣': {'JPY'},
-  '欧元': {'EUR'}, '歐元': {'EUR'},
+  '欧元': {'EUR'}, '歐元': {'EUR'}, '欧': {'EUR'}, '歐': {'EUR'},
   '英镑': {'GBP'}, '英鎊': {'GBP'},
   '港币': {'HKD'}, '港幣': {'HKD'}, '港元': {'HKD'},
   '新台币': {'TWD'}, '新臺幣': {'TWD'}, '台币': {'TWD'}, '臺幣': {'TWD'},

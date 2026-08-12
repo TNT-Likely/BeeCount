@@ -1,3 +1,5 @@
+import '../../utils/currencies.dart';
+import '../../utils/currency_aliases.dart';
 import 'ai_extraction_context.dart';
 
 /// Prompt 模板拼装。纯函数,无副作用,易于单测。
@@ -45,26 +47,41 @@ class PromptBuilder {
 7. from_account: 转出账户（仅转账可用）
 8. to_account: 转入账户（仅转账可用）
 9. tag/tags: 标签（可选，单个字符串或字符串数组）
-10. currency: 币种 ISO 4217 代码（如 USD、JPY、EUR）。**与账本主币种相同时不要填**；
-    只有原文明确是外币（如"100 美元"、"1200 日元"、"\$45"）才填
+$_currencyFieldSpec
 
 示例：
 单笔"昨天中午吃饭50" → [{"amount":-50,"time":"2025-11-24T12:00:00","category":"餐饮","type":"expense"}]
 单笔"早上在星巴克买咖啡30" → [{"amount":-30,"time":"{{CURRENT_DATE}}T09:00:00","note":"星巴克","category":"咖啡","type":"expense"}]
 单笔"商品:2025春季新款黑色半身裙 金额:￥299" → [{"amount":-299,"note":"黑色半身裙","category":"服装","type":"expense"}]
 转账"从建行转800到零钱包" → [{"amount":800,"category":"转账","type":"transfer","from_account":"建行","to_account":"零钱包","tag":"自己"}]
+外币"花了45美元" → [{"amount":-45,"currency":"USD","type":"expense"}]
 外币"在东京吃拉面1200日元" → [{"amount":-1200,"currency":"JPY","note":"拉面","category":"餐饮","type":"expense"}]
+外币"星巴克 \$6.5" → [{"amount":-6.5,"currency":"USD","note":"星巴克","category":"咖啡","type":"expense"}]
+外币"房租 1200 欧" → [{"amount":-1200,"currency":"EUR","note":"房租","category":"居家","type":"expense"}]
 多笔"早上地铁5元，中午吃饭40元，晚上买水果35元" → [{"amount":-5,"time":"{{CURRENT_DATE}}T09:00:00","note":"地铁","category":"交通","type":"expense"},{"amount":-40,"time":"{{CURRENT_DATE}}T12:00:00","category":"餐饮","type":"expense"},{"amount":-35,"time":"{{CURRENT_DATE}}T19:00:00","note":"水果","category":"购物","type":"expense"}]
 
-注意：只返回 JSON 数组（即使只有一笔也用数组包裹），尽量推断时间不要返回 null，note 必须 ≤15 字（长标题要精简）''';
+注意：只返回 JSON 数组（即使只有一笔也用数组包裹），尽量推断时间不要返回 null，note 必须 ≤15 字（长标题要精简）。外币的 currency 一律填 ISO 代码（USD，不是 \$ 或"美元"）''';
 
-  /// 币种段落(A7)。默认模板里已含同样内容;这份常量额外给**自定义模板用户**
-  /// 的「插入币种段落」一键补丁复用 —— 我们不覆盖用户模板(方案 a),但让他们
-  /// 一次点击就能把这个能力补进自己的模板,不必推倒重来。
-  static const String currencySectionSnippet = '''
-10. currency: 币种 ISO 4217 代码（如 USD、JPY、EUR）。**与账本主币种相同时不要填**；
-    只有原文明确是外币（如"100 美元"、"1200 日元"、"\$45"）才填
-{{CURRENCIES}}''';
+  /// 币种字段说明。**默认模板与「插入币种段落」补丁共用同一份**,避免两处漂移。
+  ///
+  /// 写法上刻意做了三件事(2026-08-12 实测「日元能识别、美元不行」后调整):
+  /// 1. 显式列出中文名/符号 → ISO 代码的对应表 —— 只靠"填 ISO 代码"这句话,
+  ///    模型对没见过样例的币种容易漏填
+  /// 2. 明确禁止填符号或中文名 —— 原先字段说明里把 `\$45` 当输入例子写在紧邻
+  ///    位置,模型会直接把 `\$` 当**字段值**回来
+  /// 3. 强调"出现任何外币说法都要填",对冲其余示例(都没有 currency)带来的
+  ///    few-shot 偏置
+  static const String _currencyFieldSpec =
+      '''10. currency: 币种，必须是 3 位大写 ISO 4217 代码，**不要填货币符号，也不要填中文名**
+    - 中文说法与代码的对应见上面的「币种对照」；符号同样算外币说法：
+      \$ → USD，€ → EUR，£ → GBP，₩ → KRW，฿ → THB
+    - 与账本主币种相同时**省略此字段**（主币种是 CNY 时，"花了50元"不要填 currency）
+    - 原文出现任何外币说法（中文名、符号、代码都算）就必须填，别漏''';
+
+  /// 币种段落(A7)。给**自定义模板用户**的「插入币种段落」一键补丁用 ——
+  /// 我们不覆盖用户模板(方案 a),但让他们一次点击就能把这个能力补进自己的
+  /// 模板。内容与默认模板共用 [_currencyFieldSpec],不会漂移。
+  static const String currencySectionSnippet = '$_currencyFieldSpec\n{{CURRENCIES}}';
 
   /// 截图/自动路径使用的账单过滤段。
   ///
@@ -144,19 +161,45 @@ class PromptBuilder {
     return '\n账户列表：${parts.join('、')}';
   }
 
-  /// 币种提示。单币种账本只报一行主币种;账本里出现外币账户时额外列出来,
-  /// 让 AI 知道「这个用户确实会记外币」。
+  /// 币种提示 = 主币种 + 账本内的外币账户币种 + **「中文说法 → ISO 代码」对照表**。
+  ///
+  /// 对照表从 [zhAliasesForCode] 生成(与解析器同一份别名表),覆盖:
+  /// ① 账本自己在用的币种 —— 哪怕是 KES 这种长尾也带上,它对这个用户最相关;
+  /// ② [kCommonCurrencyCodes] 常用币种 —— 用户在单币种账本里说「花了 45 美元」
+  ///    同样要认得,所以不按「有没有外币账户」裁剪。
+  ///
+  /// 只靠一句「填 ISO 代码」是不够的:实测「日元」能识别而「美元」漏填,就是
+  /// 因为示例里只有 JPY 一个样例、模型没有可套的模式(见 [_currencyFieldSpec])。
   String _buildCurrencyHint(AiExtractionContext ctx) {
     final base = ctx.ledgerCurrency.toUpperCase();
-    final others = ctx.availableCurrencies
+    final ledgerOthers = ctx.availableCurrencies
         .map((c) => c.toUpperCase())
         .where((c) => c.isNotEmpty && c != base)
         .toSet()
         .toList()
       ..sort();
+
     final buf = StringBuffer('\n账本主币种：$base');
-    if (others.isNotEmpty) {
-      buf.write('；账本内已有外币账户：${others.join('、')}');
+    if (ledgerOthers.isNotEmpty) {
+      buf.write('；账本内已有外币账户：${ledgerOthers.join('、')}');
+    }
+
+    // 账本在用的排前面(更相关),再补常用币种;主币种不需要(相同就省略字段)
+    final codes = <String>{
+      ...ledgerOthers,
+      ...kCommonCurrencyCodes.map((c) => c.toUpperCase()),
+    }..remove(base);
+    final rows = <String>[];
+    for (final code in codes) {
+      // limit:1 —— 对照表只给**一个规范名**。别名表里还登记了繁体变体(歐元/
+      // 港幣)和口语(美金/美刀),那些是给**解析**用的,写进 prompt 只是白烧
+      // token:模型自己就知道美金=美元,输出的都是 code。
+      final names = zhAliasesForCode(code, limit: 1);
+      rows.add(names.isEmpty ? code : '${names.first}=$code');
+    }
+    if (rows.isNotEmpty) {
+      buf.write('\n币种对照（原文出现左边说法时，currency 填右边代码）：'
+          '${rows.join('、')}');
     }
     return buf.toString();
   }

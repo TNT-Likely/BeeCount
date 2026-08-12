@@ -218,8 +218,12 @@ void main() {
       expect(BillInfo.fromJson({'amount': -1, 'currency': '日元'}).currency, 'JPY');
     });
 
-    test('歧义符号无上下文 → 按缺失处理(宁可不识别也不记错)', () {
-      expect(BillInfo.fromJson({'amount': -1, 'currency': r'$'}).currency, isNull);
+    test(r'AI 把 currency 回成 "$" 时仍解析成 USD(实测高频)', () {
+      expect(BillInfo.fromJson({'amount': -1, 'currency': r'$'}).currency, 'USD');
+    });
+
+    test('真歧义符号 ¥ 按缺失处理(CNY/JPY 猜错差 ~20 倍)', () {
+      expect(BillInfo.fromJson({'amount': -1, 'currency': '¥'}).currency, isNull);
     });
 
     test('非法币种按缺失处理,不抛异常', () {
