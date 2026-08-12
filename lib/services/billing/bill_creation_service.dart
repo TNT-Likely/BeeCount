@@ -80,7 +80,19 @@ class BillCreationService {
         accountId = await _matchAccountByName(source, requestedCurrency);
       }
       if (bill.toAccount != null && bill.toAccount!.trim().isNotEmpty) {
-        toAccountId = await _matchAccountByName(bill.toAccount!, requestedCurrency);
+        // **跨币种转账守卫**(.docs/multi-currency-ledger 01 §4.4):转入账户必须
+        // 与转出账户同币种。手动路径(transfer_form)会 toast 报错并重置转入
+        // 账户;AI 是无人值守,所以退化成「匹配不到转入账户」—— 这与 AI 本来
+        // 就没说转入账户时的落库形态一致,不会造出一笔币种错乱的转账。
+        //
+        // 注意:池不能只按 requestedCurrency 筛 —— AI 不给币种时那是 null,
+        // 池就全币种开放,建行(CNY)→Chase(USD) 会被当成合法转账落库。
+        final fromCurrency = accountId == null
+            ? requestedCurrency
+            : (await repo.getAccount(accountId))?.currency.toUpperCase() ??
+                requestedCurrency;
+        toAccountId = await _matchAccountByName(
+            bill.toAccount!, fromCurrency ?? requestedCurrency);
       }
       if (accountId != null && accountId == toAccountId) {
         toAccountId = null;
@@ -109,9 +121,11 @@ class BillCreationService {
       logger.warning(_tag,
           '[币种] AI 给 $requestedCurrency 但命中账户是 $accountCurrency,以账户为准');
     }
-    if (txCurrency != ledgerBase) {
-      // 外币:落库前尽量把汇率拉到本地,否则 repo 只能按 1:1 落
-      // (A5:不阻断,靠统计页 L11 补折算横幅捞回)
+    // 外币且**本地还没有**有效汇率时才拉(A6)。本地已有就直接用 —— 否则
+    // 多笔外币账单(一张图 10 笔)会各打一次 force 网络请求,后台自动记账
+    // 同样受害;先查本地也让同一批里的后续账单命中第一笔刚落库的汇率。
+    if (txCurrency != ledgerBase &&
+        !await _hasLocalRate(ledgerBase, txCurrency)) {
       await _ensureRateAvailable(txCurrency);
     }
 
@@ -394,6 +408,26 @@ class BillCreationService {
     final ledger = await repo.getLedgerById(ledgerId);
     final c = ledger?.currency;
     return (c == null || c.isEmpty) ? 'CNY' : c.toUpperCase();
+  }
+
+  /// 本地是否已有 [quote] → [base] 的有效汇率(手动 override 或最新自动源)。
+  /// 判定口径与 `mergeEffectiveRates` 一致:rate 能解析成正数才算有效。
+  Future<bool> _hasLocalRate(String base, String quote) async {
+    bool valid(String rate) => (double.tryParse(rate) ?? 0) > 0;
+    try {
+      final overrides = await repo.getOverrides(base);
+      if (overrides.any((o) =>
+          o.quoteCurrency.toUpperCase() == quote && valid(o.rate))) {
+        return true;
+      }
+      final autos = await repo.getLatestAutoRates(base);
+      return autos.any(
+          (r) => r.quoteCurrency.toUpperCase() == quote && valid(r.rate));
+    } catch (e) {
+      // 查不了就当没有,交给 _ensureRateAvailable 兜(它自己也吞异常)
+      logger.debug(_tag, '[汇率] 本地汇率检查失败,按「无」处理: $e');
+      return false;
+    }
   }
 
   /// 尽力把 [code] → 账本本位币的汇率拉到本地(A6)。

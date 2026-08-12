@@ -791,6 +791,90 @@ void main() {
     });
   });
 
+  group('跨币种转账守卫', () {
+    // 手动路径(transfer_form)会 toast 报错 + 重置转入账户;AI 无人值守,
+    // 退化成「匹配不到转入账户」。绝不能落一笔 from=CNY / to=USD 的转账。
+    test('转入账户与转出账户币种不同 → 不挂转入账户', () async {
+      final cny = await repo.createAccount(
+        ledgerId: ledgerId,
+        name: '建行',
+        currency: 'CNY',
+      );
+      await repo.createAccount(
+        ledgerId: ledgerId,
+        name: 'Chase',
+        currency: 'USD',
+      );
+      final txId = await service.createFromBill(
+        bill: BillInfo(
+          amount: 800,
+          time: DateTime(2026, 5, 26),
+          type: BillType.transfer,
+          fromAccount: '建行',
+          toAccount: 'Chase',
+        ),
+        ledgerId: ledgerId,
+      );
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.accountId, cny);
+      expect(tx?.toAccountId, isNull, reason: '跨币种转账不能成立');
+      expect(tx?.currencyCode, 'CNY');
+    });
+
+    test('同币种转账照常双端命中(回归锁)', () async {
+      final from = await repo.createAccount(
+        ledgerId: ledgerId,
+        name: '建行',
+        currency: 'CNY',
+      );
+      final to = await repo.createAccount(
+        ledgerId: ledgerId,
+        name: '零钱包',
+        currency: 'CNY',
+      );
+      final txId = await service.createFromBill(
+        bill: BillInfo(
+          amount: 800,
+          time: DateTime(2026, 5, 26),
+          type: BillType.transfer,
+          fromAccount: '建行',
+          toAccount: '零钱包',
+        ),
+        ledgerId: ledgerId,
+      );
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.accountId, from);
+      expect(tx?.toAccountId, to);
+    });
+
+    test('外币账户之间的同币种转账成立', () async {
+      final from = await repo.createAccount(
+        ledgerId: ledgerId,
+        name: 'Chase',
+        currency: 'USD',
+      );
+      final to = await repo.createAccount(
+        ledgerId: ledgerId,
+        name: 'PayPal',
+        currency: 'USD',
+      );
+      final txId = await service.createFromBill(
+        bill: BillInfo(
+          amount: 100,
+          time: DateTime(2026, 5, 26),
+          type: BillType.transfer,
+          fromAccount: 'Chase',
+          toAccount: 'PayPal',
+        ),
+        ledgerId: ledgerId,
+      );
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.accountId, from);
+      expect(tx?.toAccountId, to);
+      expect(tx?.currencyCode, 'USD');
+    });
+  });
+
   group('汇率预拉回调(A6)', () {
     test('外币 → ensureRate 被调用一次,参数是该币种', () async {
       await repo.createCategory(name: '餐饮', kind: 'expense');
@@ -810,6 +894,58 @@ void main() {
         ledgerId: ledgerId,
       );
       expect(calls, ['JPY']);
+    });
+
+    test('本地已有该币种汇率 → 不再拉(否则每笔外币都打一次 force 请求)',
+        () async {
+      await repo.createCategory(name: '餐饮', kind: 'expense');
+      await repo.upsertAutoRates(
+        base: 'CNY',
+        rateDate: '2026-05-26',
+        rates: const {'JPY': '0.048'},
+        source: 'test',
+        fetchedAt: DateTime.utc(2026, 5, 26),
+      );
+      final calls = <String>[];
+      final svc = BillCreationService(repo, ensureRate: (code) async {
+        calls.add(code);
+        return true;
+      });
+      final txId = await svc.createFromBill(
+        bill: BillInfo(
+          amount: -1200,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          currency: 'JPY',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+      expect(calls, isEmpty);
+      // 本地汇率照常参与折算(1200 × 0.048 = 57.6)
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.nativeAmount, closeTo(57.6, 0.001));
+    });
+
+    test('手动 override 也算本地已有', () async {
+      await repo.createCategory(name: '餐饮', kind: 'expense');
+      await repo.setOverride(base: 'CNY', quote: 'JPY', rate: '0.05');
+      final calls = <String>[];
+      final svc = BillCreationService(repo, ensureRate: (code) async {
+        calls.add(code);
+        return true;
+      });
+      await svc.createFromBill(
+        bill: BillInfo(
+          amount: -1000,
+          time: DateTime(2026, 5, 26),
+          category: '餐饮',
+          currency: 'JPY',
+          type: BillType.expense,
+        ),
+        ledgerId: ledgerId,
+      );
+      expect(calls, isEmpty);
     });
 
     test('本位币 → 不调用(单币种用户不会因此多一次网络请求)', () async {
