@@ -10,6 +10,15 @@ part 'header_skins/anniv_cake_skin.dart';
 part 'header_skins/skin_common.dart';
 part 'header_skins/anniversary_skin.dart';
 part 'header_skins/aurora_skin.dart';
+part 'header_skins/autumn_leaves.dart';
+part 'header_skins/autumn_leaf_pile.dart';
+part 'header_skins/autumn_twinkle.dart';
+part 'header_skins/autumn_ginkgo_skin.dart';
+part 'header_skins/autumn_maple_skin.dart';
+part 'header_skins/autumn_osmanthus_skin.dart';
+part 'header_skins/autumn_persimmon_skin.dart';
+part 'header_skins/autumn_rain_skin.dart';
+part 'header_skins/autumn_southbound_skin.dart';
 part 'header_skins/bokeh_skin.dart';
 part 'header_skins/bubbles_skin.dart';
 part 'header_skins/clouds_skin.dart';
@@ -51,6 +60,9 @@ enum HeaderSkinGroup {
   /// 周年纪念款,永远置顶。
   anniversary,
 
+  /// 秋日系列(2026 秋),整季主推。
+  autumn,
+
   /// 主题色渐变。
   gradient,
 
@@ -67,6 +79,7 @@ enum HeaderSkinGroup {
 /// 分组在选择页里的先后顺序。
 const List<HeaderSkinGroup> kHeaderSkinGroupOrder = [
   HeaderSkinGroup.anniversary,
+  HeaderSkinGroup.autumn,
   HeaderSkinGroup.gradient,
   HeaderSkinGroup.scene,
   HeaderSkinGroup.pattern,
@@ -173,9 +186,55 @@ final List<HeaderSkin> kHeaderSkins = [
       isAnimated: true,
       boundPrimary: _kCakeCandleL,
       badge: '1st'),
-  // 秋日系列(枫叶清秋 / 桂月中秋 / 银杏金秋 / 柿柿如意 / 秋雨梧桐 / 雁阵南飞)
-  // 不在这一版:计划以付费皮肤形态单独发布,提前免费放出去就收不回来了。
-  // 代码在 feat/autumn-skins-paid 分支上,见 .docs/skin-monetization-research.md。
+  // 秋日系列(2026 秋)x6:除桂月中秋跟随主题色外,其余绑定各自的秋色 ——
+  // 枫红 / 银杏金 / 柿橙 / 雨天青 / 雁阵暖橙,主题色一换这些景就不成立了。
+  HeaderSkin(
+      id: 'maple',
+      group: HeaderSkinGroup.autumn,
+      nameOf: (l) => l.headerSkinMaple,
+      builder: (p, d) => _MapleSkin(d),
+      tabBarBuilder: (p, d) => _MapleTabDeco(d),
+      isAnimated: true,
+      boundPrimary: _kMapleRedL),
+  HeaderSkin(
+      id: 'osmanthus_moon',
+      group: HeaderSkinGroup.autumn,
+      nameOf: (l) => l.headerSkinOsmanthusMoon,
+      builder: (p, d) => _OsmanthusMoonSkin(p, d),
+      tabBarBuilder: (p, d) => _OsmanthusMoonTabDeco(p, d),
+      isAnimated: true),
+  HeaderSkin(
+      id: 'ginkgo',
+      group: HeaderSkinGroup.autumn,
+      nameOf: (l) => l.headerSkinGinkgo,
+      builder: (p, d) => _GinkgoSkin(d),
+      tabBarBuilder: (p, d) => _GinkgoTabDeco(d),
+      isAnimated: true,
+      boundPrimary: Color(0xFFE8890B)),
+  HeaderSkin(
+      id: 'persimmon',
+      group: HeaderSkinGroup.autumn,
+      nameOf: (l) => l.headerSkinPersimmon,
+      builder: (p, d) => _PersimmonSkin(d),
+      tabBarBuilder: (p, d) => _PersimmonTabDeco(d),
+      isAnimated: true,
+      boundPrimary: _kPersimSkinL),
+  HeaderSkin(
+      id: 'autumn_rain',
+      group: HeaderSkinGroup.autumn,
+      nameOf: (l) => l.headerSkinAutumnRain,
+      builder: (p, d) => _AutumnRainSkin(d),
+      tabBarBuilder: (p, d) => _AutumnRainTabDeco(d),
+      isAnimated: true,
+      boundPrimary: Color(0xFF587C98)),
+  HeaderSkin(
+      id: 'southbound',
+      group: HeaderSkinGroup.autumn,
+      nameOf: (l) => l.headerSkinSouthbound,
+      builder: (p, d) => _SouthboundSkin(d),
+      tabBarBuilder: (p, d) => _SouthboundTabDeco(d),
+      isAnimated: true,
+      boundPrimary: Color(0xFFE08A4E)),
   HeaderSkin(
       id: 'aurora',
       group: HeaderSkinGroup.gradient,

@@ -74,9 +74,7 @@ void main() {
     }
   });
 
-  test('秋日系列不在这一版里 —— 留给付费皮肤单独发', () {
-    // 免费放出去就收不回来了(见 .docs/skin-monetization-research.md §1.3)。
-    // 代码在 feat/autumn-skins 分支上,这里守住「没混进本版」。
+  test('所有秋日皮肤都已注册且带动画与 tab 装饰', () {
     for (final id in [
       'maple',
       'osmanthus_moon',
@@ -85,8 +83,20 @@ void main() {
       'autumn_rain',
       'southbound'
     ]) {
-      expect(headerSkinById(id), isNull, reason: '$id 不应出现在本版');
+      final s = headerSkinById(id);
+      expect(s, isNotNull, reason: '$id 未注册');
+      expect(s!.isAnimated, isTrue, reason: '$id 应是动态皮肤');
+      expect(s.tabBarBuilder, isNotNull, reason: '$id 应有悬浮 tab 装饰');
     }
+  });
+
+  test('秋日里只有桂月中秋跟随主题色,其余自带配色', () {
+    for (final id in ['maple', 'ginkgo', 'persimmon', 'autumn_rain', 'southbound']) {
+      final s = headerSkinById(id)!;
+      expect(s.hasFixedPalette, isTrue, reason: '$id 应自带配色');
+      expect(s.boundPrimary, isNotNull, reason: '$id 应有绑定色');
+    }
+    expect(headerSkinById('osmanthus_moon')!.hasFixedPalette, isFalse);
   });
 
   test('两款周年皮肤都带 1st 角标、动效与 tab 装饰', () {

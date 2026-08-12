@@ -1018,6 +1018,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get headerSkinGroupAnniversary => 'Anniversary';
 
   @override
+  String get headerSkinGroupAutumn => 'Autumn';
+
+  @override
   String get headerSkinGroupGradient => 'Gradient';
 
   @override
@@ -1037,6 +1040,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get headerSkinAnnivCake => 'Birthday Cake';
+
+  @override
+  String get headerSkinMaple => 'Maple Autumn';
+
+  @override
+  String get headerSkinOsmanthusMoon => 'Osmanthus Moon';
+
+  @override
+  String get headerSkinGinkgo => 'Ginkgo Gold';
+
+  @override
+  String get headerSkinPersimmon => 'Persimmon Wishes';
+
+  @override
+  String get headerSkinAutumnRain => 'Autumn Rain';
+
+  @override
+  String get headerSkinSouthbound => 'Southbound';
 
   @override
   String get headerSkinTabAll => 'All';

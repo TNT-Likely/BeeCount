@@ -1018,6 +1018,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get headerSkinGroupAnniversary => '周年纪念';
 
   @override
+  String get headerSkinGroupAutumn => '秋日';
+
+  @override
   String get headerSkinGroupGradient => '渐变';
 
   @override
@@ -1037,6 +1040,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get headerSkinAnnivCake => '周年蛋糕';
+
+  @override
+  String get headerSkinMaple => '枫叶清秋';
+
+  @override
+  String get headerSkinOsmanthusMoon => '桂月中秋';
+
+  @override
+  String get headerSkinGinkgo => '银杏金秋';
+
+  @override
+  String get headerSkinPersimmon => '柿柿如意';
+
+  @override
+  String get headerSkinAutumnRain => '秋雨梧桐';
+
+  @override
+  String get headerSkinSouthbound => '雁阵南飞';
 
   @override
   String get headerSkinTabAll => '全部';
@@ -8530,6 +8551,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get headerSkinGroupAnniversary => '週年紀念';
 
   @override
+  String get headerSkinGroupAutumn => '秋日';
+
+  @override
   String get headerSkinGroupGradient => '漸層';
 
   @override
@@ -8549,6 +8573,24 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get headerSkinAnnivCake => '週年蛋糕';
+
+  @override
+  String get headerSkinMaple => '楓葉清秋';
+
+  @override
+  String get headerSkinOsmanthusMoon => '桂月中秋';
+
+  @override
+  String get headerSkinGinkgo => '銀杏金秋';
+
+  @override
+  String get headerSkinPersimmon => '柿柿如意';
+
+  @override
+  String get headerSkinAutumnRain => '秋雨梧桐';
+
+  @override
+  String get headerSkinSouthbound => '雁陣南飛';
 
   @override
   String get headerSkinTabAll => '全部';

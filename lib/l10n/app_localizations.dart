@@ -1952,6 +1952,12 @@ abstract class AppLocalizations {
   /// **'Anniversary'**
   String get headerSkinGroupAnniversary;
 
+  /// No description provided for @headerSkinGroupAutumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Autumn'**
+  String get headerSkinGroupAutumn;
+
   /// No description provided for @headerSkinGroupGradient.
   ///
   /// In en, this message translates to:
@@ -1993,6 +1999,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Birthday Cake'**
   String get headerSkinAnnivCake;
+
+  /// No description provided for @headerSkinMaple.
+  ///
+  /// In en, this message translates to:
+  /// **'Maple Autumn'**
+  String get headerSkinMaple;
+
+  /// No description provided for @headerSkinOsmanthusMoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Osmanthus Moon'**
+  String get headerSkinOsmanthusMoon;
+
+  /// No description provided for @headerSkinGinkgo.
+  ///
+  /// In en, this message translates to:
+  /// **'Ginkgo Gold'**
+  String get headerSkinGinkgo;
+
+  /// No description provided for @headerSkinPersimmon.
+  ///
+  /// In en, this message translates to:
+  /// **'Persimmon Wishes'**
+  String get headerSkinPersimmon;
+
+  /// No description provided for @headerSkinAutumnRain.
+  ///
+  /// In en, this message translates to:
+  /// **'Autumn Rain'**
+  String get headerSkinAutumnRain;
+
+  /// No description provided for @headerSkinSouthbound.
+  ///
+  /// In en, this message translates to:
+  /// **'Southbound'**
+  String get headerSkinSouthbound;
 
   /// No description provided for @headerSkinTabAll.
   ///
