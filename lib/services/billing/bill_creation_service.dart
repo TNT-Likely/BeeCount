@@ -81,18 +81,21 @@ class BillCreationService {
       }
       if (bill.toAccount != null && bill.toAccount!.trim().isNotEmpty) {
         // **跨币种转账守卫**(.docs/multi-currency-ledger 01 §4.4):转入账户必须
-        // 与转出账户同币种。手动路径(transfer_form)会 toast 报错并重置转入
+        // 与这笔转账的币种一致。手动路径(transfer_form)会 toast 报错并重置转入
         // 账户;AI 是无人值守,所以退化成「匹配不到转入账户」—— 这与 AI 本来
         // 就没说转入账户时的落库形态一致,不会造出一笔币种错乱的转账。
         //
-        // 注意:池不能只按 requestedCurrency 筛 —— AI 不给币种时那是 null,
-        // 池就全币种开放,建行(CNY)→Chase(USD) 会被当成合法转账落库。
+        // 这里**必须兜到 ledgerBase**,不能留 null:留 null 池就全币种开放,
+        // 于是「转出账户没匹配上 + AI 没给币种」时,转入账户可能是 USD 账户而
+        // 这笔按 CNY 落库(下面 4.5 算出的 txCurrency=ledgerBase)—— 账户余额读
+        // 的是原币 amount,800 会当成 800 美元加到 USD 账户上,余额直接错。
         final fromCurrency = accountId == null
-            ? requestedCurrency
-            : (await repo.getAccount(accountId))?.currency.toUpperCase() ??
-                requestedCurrency;
-        toAccountId = await _matchAccountByName(
-            bill.toAccount!, fromCurrency ?? requestedCurrency);
+            ? null
+            : (await repo.getAccount(accountId))?.currency.toUpperCase();
+        final transferCurrency =
+            fromCurrency ?? requestedCurrency ?? ledgerBase;
+        toAccountId =
+            await _matchAccountByName(bill.toAccount!, transferCurrency);
       }
       if (accountId != null && accountId == toAccountId) {
         toAccountId = null;

@@ -821,6 +821,31 @@ void main() {
       expect(tx?.currencyCode, 'CNY');
     });
 
+    test('转出账户没匹配上 + AI 没给币种 → 转入账户也不能是外币账户', () async {
+      // 上一轮修守卫时漏掉的分支:from 没匹配上时池若不兜 ledgerBase 就全币种
+      // 开放,于是这笔按 CNY 落库、却挂了个 USD 转入账户 —— 账户余额读原币
+      // amount,800 会当成 800 美元加到 USD 账户上。
+      await repo.createAccount(
+        ledgerId: ledgerId,
+        name: 'Chase',
+        currency: 'USD',
+      );
+      final txId = await service.createFromBill(
+        bill: BillInfo(
+          amount: 800,
+          time: DateTime(2026, 5, 26),
+          type: BillType.transfer,
+          fromAccount: '不存在的账户',
+          toAccount: 'Chase',
+        ),
+        ledgerId: ledgerId,
+      );
+      final tx = await repo.getTransactionById(txId!);
+      expect(tx?.currencyCode, 'CNY');
+      expect(tx?.toAccountId, isNull,
+          reason: 'CNY 的转账不能挂 USD 转入账户');
+    });
+
     test('同币种转账照常双端命中(回归锁)', () async {
       final from = await repo.createAccount(
         ledgerId: ledgerId,
