@@ -92,6 +92,12 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
       for (final g in kHeaderSkinGroupOrder) g: [],
     };
     for (final s in skins) {
+      // **自带配色的皮肤按它自己的颜色预览,不跟当前主题色走。**
+      // 选中这类皮肤时 applyHeaderSkin 会把 App 主题色切成 boundPrimary,
+      // 所以预览就该是切过去之后的样子 —— 拿当前主题色渲染的话,卡片上标着
+      // 「自带配色」画出来却是另一个颜色,选中后又变一次,自相矛盾。
+      final skinPrimary = s.boundPrimary ?? primary;
+      final skinBase = modeIsDark ? Colors.black : skinPrimary;
       buckets[s.group]!.add((
         id: s.id,
         name: s.nameOf(l10n),
@@ -99,11 +105,11 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
         // MediaQuery 的 topInset 给状态栏让位,不抹的话卡片里会凭空
         // 空出一条,构图看着就散了。
         preview: ColoredBox(
-          color: base,
+          color: skinBase,
           child: MediaQuery.removePadding(
             context: context,
             removeTop: true,
-            child: s.builder(primary, modeIsDark),
+            child: s.builder(skinPrimary, modeIsDark),
           ),
         ),
         badge: s.badge,
@@ -381,6 +387,30 @@ class _SkinCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                    // 「自带配色」做成预览区右下角的 tag,而不是名字下面多排
+                    // 一行字 —— 那会让带标记的卡片预览区被挤矮,和不带标记的
+                    // 卡片高度对不齐(GridView 的 childAspectRatio 是固定的)。
+                    if (fixedPalette)
+                      Positioned(
+                        right: 6,
+                        bottom: 6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.42),
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Text(
+                            fixedLabel,
+                            style: const TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
                     if (selected)
                       Positioned(
                         right: 6,
@@ -409,18 +439,6 @@ class _SkinCard extends StatelessWidget {
               fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
             ),
           ),
-          if (fixedPalette)
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                fixedLabel,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 10.5,
-                  color: BeeTokens.textTertiary(context),
-                ),
-              ),
-            ),
         ],
       ),
     );
