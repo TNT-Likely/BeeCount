@@ -51,12 +51,12 @@ class FeatureHighlight {
 const List<FeatureHighlight> kFeatureHighlights = [
   FeatureHighlight(
     id: 'anniversary_skins',
-    version: '3.8.0',
+    version: '3.7.1',
     anchors: ['tab_mine', 'personalize', 'header_skin'],
   ),
   FeatureHighlight(
     id: 'skin_animation_toggle',
-    version: '3.8.0',
+    version: '3.7.1',
     // 开关就在外观设置页上,没有更深的层级,叶子就是页面本身
     anchors: ['tab_mine', 'personalize'],
   ),
