@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
+import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 
 import '../system/logger_service.dart';
 
@@ -17,8 +18,30 @@ class DonationService {
   factory DonationService() => _instance;
   DonationService._internal();
 
+  // StoreKit 平台实现是否已注册
+  //
+  // 本服务原先依赖 `in_app_purchase` 联合插件，由 `InAppPurchase.instance`
+  // 按平台自动注册实现。为了不把 Google Play 结算库打进 Android 包
+  // (Android 从来不显示打赏入口，见 pubspec.yaml 注释)，现在只依赖
+  // iOS 专属的 `in_app_purchase_storekit`，注册需要自己做。
+  // 必须保证幂等：重复 registerPlatform 会换掉实例，导致已有的
+  // purchaseStream 订阅失效。
+  static bool _storeKitRegistered = false;
+
   // IAP实例
-  final InAppPurchase _iap = InAppPurchase.instance;
+  InAppPurchasePlatform get _iap {
+    if (!_supported) {
+      throw UnsupportedError('DonationService 仅支持 iOS/macOS');
+    }
+    if (!_storeKitRegistered) {
+      InAppPurchaseStoreKitPlatform.registerPlatform();
+      _storeKitRegistered = true;
+    }
+    return InAppPurchasePlatform.instance;
+  }
+
+  /// 当前平台是否支持打赏（仅 StoreKit 平台）
+  static bool get _supported => Platform.isIOS || Platform.isMacOS;
 
   // 购买监听订阅
   StreamSubscription<List<PurchaseDetails>>? _subscription;
@@ -87,7 +110,7 @@ class DonationService {
   Future<bool> initialize() async {
     try {
       // 仅支持iOS平台
-      if (!Platform.isIOS) {
+      if (!_supported) {
         logger.info('Donation', 'Android平台暂不支持打赏功能');
         return false;
       }
@@ -123,6 +146,9 @@ class DonationService {
   ///
   /// 返回: 商品列表
   Future<List<ProductDetails>> queryProducts() async {
+    if (!_supported) {
+      return [];
+    }
     try {
       logger.info('Donation', '开始查询商品，Product IDs: $kProductIds');
       final response = await _iap.queryProductDetails(kProductIds);
@@ -187,6 +213,9 @@ class DonationService {
   /// [product] 商品信息
   /// 返回: true=请求成功, false=请求失败
   Future<bool> donate(ProductDetails product) async {
+    if (!_supported) {
+      return false;
+    }
     try {
       logger.info('Donation', '发起打赏: ${product.id}');
 
@@ -279,6 +308,9 @@ class DonationService {
 
   /// 恢复购买（消耗型商品通常不需要）
   Future<void> restorePurchases() async {
+    if (!_supported) {
+      return;
+    }
     try {
       logger.info('Donation', '开始恢复购买');
       await _iap.restorePurchases();

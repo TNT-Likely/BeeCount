@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
 
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/biz.dart';
