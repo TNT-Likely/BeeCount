@@ -723,7 +723,7 @@ Future<void> reconcileProfileToServer({
 // (见 sync_engine_profile.dart)。如果两边各自立刻写一次 primaryColorProvider,
 // 用户就会看到主题色先跳到 server 存的颜色、再跳到皮肤语义算出的颜色 ——
 // 这就是「开启 BeeCount Cloud 时主题色闪烁」。绑定配色的皮肤会闪,
-// **不绑定配色的皮肤(比如一岁星座)一样会闪**,因为第二跳来自「上一款皮肤
+// **不绑定配色的皮肤(极光等经典款)一样会闪**,因为第二跳来自「上一款皮肤
 // 是绑定色款 → 恢复用户手选色」这条分支。
 //
 // 所以下行不再逐字段写颜色:各字段只登记意图,然后在一个 microtask 里统一

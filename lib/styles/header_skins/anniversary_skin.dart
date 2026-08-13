@@ -5,8 +5,13 @@ part of '../header_skins.dart';
 // BeeCount 首个动态皮肤,纪念 2025.9.10 首版发布一周年。
 // 「你的第一年被连成一个星座」:十颗星连成数字「1」,一只发光的小蜜蜂
 // 拖着彗尾绕它巡航;左上一弯金色月牙,流星偶尔划过,三颗四芒星错相
-// 闪烁。亮色 = 主题色底 + 白色星光;暗色 = 纯黑底 + 主题色星光。
+// 闪烁。亮色 = 蜜金底 + 白色星光;暗色 = 纯黑底 + 蜜金星光。
 // 设计文档:.docs/anniversary-skin/design.md
+//
+// **绑定蜜金(BeeTheme.honeyGold),不跟随主题色。** painter 里仍然全部从
+// primary 派生(没有写死第二处色值),但注册表绑了 boundPrimary,选中本皮肤
+// 时 App 主题色会被切成蜜金 —— 星空的星光只有暖白/金不显假,纪念款用品牌
+// 色也贴题。
 //
 // 布局(v2,修复「我的」页遮挡):首页左重、我的页中央重、子页左侧标题,
 // 三种布局唯一共同净空是**右上区**——星座缩小锚定右上:
@@ -198,6 +203,24 @@ class _ConstellationPainter extends CustomPainter {
   /// 月牙 / 流星 / 十字星的暖色:亮色白,暗色固定蜜金(夜空的月亮是金色的)。
   Color get _warm => isDark ? const Color(0xFFF8C91C) : Colors.white;
 
+  /// 银河带的浓度。**按底色亮度反推,不是拍一个常数。**
+  ///
+  /// 白雾叠在底色上,视觉增量约等于 `alpha × (1 - 底色相对亮度)` —— 底色越亮,
+  /// 同样的 alpha 能拉开的差距越小。原来亮色分支写死 .26,那个值是在中等
+  /// 亮度的主题色(晴空蓝一类)上调出来的;换到**默认的蜜蜂黄**上就废了:
+  /// 实测截图沿银河法线采样,亮度是单调下降的,压根分离不出带状特征 ——
+  /// 银河被底色自身的纵向渐变完全淹没。而蜜蜂黄恰恰是默认主题色,
+  /// 也就是大多数用户看到的那一版。
+  ///
+  /// 所以按 `target / (1 - luminance)` 反推,让各主题色下的可见度拉齐。
+  /// target 由原来那个能用的组合标定(晴空蓝 luminance≈.28 × alpha .26)。
+  /// 上下限兜底:主题色可能非常浅(接近白),那时公式会发散。
+  double get _milkyWayAlpha {
+    if (isDark) return .11; // 黑底上一点点就跳出来,不用算
+    const target = .19;
+    return (target / (1 - primary.computeLuminance())).clamp(.24, .52);
+  }
+
   /// 铭文专用色 —— **不跟 [_fg] 走**。
   ///
   /// 铭文从左下角挪到标题行右侧后,正好落在银河带最亮的一段:亮色模式下
@@ -259,9 +282,7 @@ class _ConstellationPainter extends CustomPainter {
             end: Alignment.bottomCenter,
             colors: [
               _fg.withValues(alpha: 0),
-              // 亮色要给到暗色的两倍多:暗色是「亮金雾叠纯黑」,一点点就跳出来;
-              // 亮色是「白雾叠主题色」,同样的 alpha 在中高明度底色上几乎看不见。
-              _fg.withValues(alpha: isDark ? .11 : .26),
+              _fg.withValues(alpha: _milkyWayAlpha),
               _fg.withValues(alpha: 0),
             ],
           ).createShader(band));

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../l10n/app_localizations.dart';
+import '../theme.dart' show BeeTheme;
 
 part 'header_skins/anniv_cake_skin.dart';
 part 'header_skins/skin_common.dart';
@@ -157,6 +158,11 @@ final List<HeaderSkin> kHeaderSkins = [
       builder: (p, d) => _AnniversarySkin(p, d),
       tabBarBuilder: (p, d) => _AnniversaryTabDeco(p, d),
       isAnimated: true,
+      // 绑定蜜金,不再跟随主题色。星空的星光只有暖白/金是「真的」,主题色
+      // 一换紫换绿,银河立刻显假(星云代码里那条「hue 偏移 ±14° 以内,否则
+      // 黑底泛脏绿/脏红」的注释就是在跟这个搏斗)。纪念款绑品牌色也贴题:
+      // 这是蜜蜂的第一年。#F8C91C 同时是暗色下月牙/流星的暖色,整套自洽。
+      boundPrimary: BeeTheme.honeyGold,
       badge: '1st'),
   HeaderSkin(
       id: 'anniv_cake',

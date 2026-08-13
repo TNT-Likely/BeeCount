@@ -22,12 +22,13 @@ double _ax(Size s, double x) => s.width * (x / 300);
 double _ay(Size s, double y) => s.height * (y / 208);
 Offset _ap(Size s, double x, double y) => Offset(_ax(s, x), _ay(s, y));
 
-/// 秋日皮肤的动画骨架:单 Controller + RepaintBoundary + 减弱动态效果退静态帧。
+/// 动态皮肤的动画骨架:单 Controller + RepaintBoundary + 减弱动态效果退静态帧。
 /// 各皮肤只需提供 painter 工厂与循环时长。
 class _AnimSkinShell extends StatefulWidget {
   const _AnimSkinShell({
     required this.painterFor,
     this.seconds = 12,
+    // ignore: unused_element_parameter
     this.staticFrame = 0.3,
   });
 
@@ -73,31 +74,6 @@ class _AnimSkinShellState extends State<_AnimSkinShell>
 }
 
 
-/// 明灭光点(星尘 / 光斑通用)。频率取整数。
-void _paintTwinkles(
-  Canvas canvas,
-  Size size,
-  double t, {
-  required Color color,
-  int seed = 14,
-  int count = 22,
-  double minR = .8,
-  double maxR = 2.2,
-  double maxAlpha = .8,
-}) {
-  final rnd = math.Random(seed);
-  for (int i = 0; i < count; i++) {
-    final x = rnd.nextDouble() * size.width;
-    final y = rnd.nextDouble() * size.height;
-    final r = minR + rnd.nextDouble() * (maxR - minR);
-    final freq = 2 + rnd.nextInt(3);
-    final phase = rnd.nextDouble() * math.pi * 2;
-    final wave = .5 + .5 * math.sin(t * math.pi * 2 * freq + phase);
-    canvas.drawCircle(
-        Offset(x, y), r, Paint()..color = color.withValues(alpha: .06 + wave * maxAlpha));
-  }
-}
-
 /// 纵向渐变底(秋日皮肤的统一底色画法)。
 void _paintVerticalBase(Canvas canvas, Size size, List<Color> colors,
     [List<double>? stops]) {
@@ -130,6 +106,7 @@ class _AnimTabShell extends StatefulWidget {
   const _AnimTabShell({
     required this.painterFor,
     this.seconds = 10,
+    // ignore: unused_element_parameter
     this.staticFrame = 0.25,
   });
   final CustomPainter Function(Animation<double> anim) painterFor;

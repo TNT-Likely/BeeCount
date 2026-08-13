@@ -136,7 +136,8 @@ Future<void> _persistAndPushPrimary(
 // BeeCount Cloud 后一岁星座主题色一直闪」的成因。
 //
 // 绑定配色的皮肤看不出来:它们的结算恒等于 boundPrimary,同值不写自然不推。
-// 一岁星座不绑定配色,走的是 server 值分支,回环就暴露了。
+// 当时的一岁星座不绑定配色(后来绑了蜜金),走的是 server 值分支,回环就
+// 暴露了 —— 如今 19 款经典皮肤仍跟随主题色,这层抑制照样是它们的防线。
 //
 // 只压上行,**不压本地持久化和桌面小组件刷新** —— 那两件事不论值从哪来都得做。
 bool _applyingFromServer = false;

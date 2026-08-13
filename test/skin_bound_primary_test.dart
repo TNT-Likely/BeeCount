@@ -34,6 +34,11 @@ void main() {
     // 用户手选色被记住,没有被覆盖
     expect(container.read(userChosenPrimaryProvider), userColor);
 
+    // 绑定皮肤之间互切(蛋糕 → 一岁星座):主题色跟着换,手选色仍不被污染
+    applyHeaderSkin(ref, 'anniversary');
+    expect(container.read(primaryColorProvider), boundPrimaryOf('anniversary'));
+    expect(container.read(userChosenPrimaryProvider), userColor);
+
     // 换回普通皮肤 → 恢复用户色
     applyHeaderSkin(ref, 'aurora');
     expect(container.read(primaryColorProvider), userColor);
@@ -49,10 +54,13 @@ void main() {
   });
 
   test('自带配色的皮肤都声明了绑定色,跟随主题色的则没有', () {
-    final s = headerSkinById('anniv_cake')!;
-    expect(s.hasFixedPalette, isTrue, reason: 'anniv_cake 应自带配色');
-    expect(s.boundPrimary, isNotNull, reason: 'anniv_cake 应有绑定色');
-    for (final id in ['anniversary', 'aurora']) {
+    // 周年两款都绑定:蛋糕=奶油金,星座=蜜金(星空的星光只有暖白/金不显假)
+    for (final id in ['anniv_cake', 'anniversary']) {
+      final s = headerSkinById(id)!;
+      expect(s.hasFixedPalette, isTrue, reason: '$id 应自带配色');
+      expect(s.boundPrimary, isNotNull, reason: '$id 应有绑定色');
+    }
+    for (final id in ['aurora', 'waves', 'galaxy']) {
       expect(headerSkinById(id)!.hasFixedPalette, isFalse, reason: '$id 应跟随主题色');
     }
   });
@@ -89,9 +97,9 @@ void main() {
       expect(s.isAnimated, isTrue, reason: '$id 应是动态皮肤');
       expect(s.tabBarBuilder, isNotNull, reason: '$id 应有悬浮 tab 装饰');
     }
-    // 蛋糕绑定自己的配色,星座跟随主题色
+    // 两款都绑定自己的配色(蛋糕=奶油金,星座=蜜金)
     expect(headerSkinById('anniv_cake')!.hasFixedPalette, isTrue);
-    expect(headerSkinById('anniversary')!.hasFixedPalette, isFalse);
+    expect(headerSkinById('anniversary')!.hasFixedPalette, isTrue);
   });
 
   test('已下架的周年账单不再注册,老用户的 id 降级为纯色', () {
@@ -143,10 +151,11 @@ void main() {
       );
     });
 
-    test('一岁星座这种不绑定配色的皮肤 → 听 server 的', () {
-      // 这一条正是「选一岁星座 + 开云同步还是闪」的场景:皮肤没有绑定色,
-      // 挡板不生效,必须靠合并结算把两次写压成一次。
-      expect(boundPrimaryOf('anniversary'), isNull);
+    test('极光这种不绑定配色的皮肤 → 听 server 的', () {
+      // 最初暴露这条链的是「选一岁星座 + 开云同步一直闪」—— 后来星座绑了
+      // 蜜金,不再走这个分支,但 19 款经典皮肤仍然跟随主题色,合并结算
+      // 照样是它们的救命稻草。样本换成极光。
+      expect(boundPrimaryOf('aurora'), isNull);
       expect(
         resolvePrimaryFromSync(
           boundPrimary: null,
@@ -208,7 +217,7 @@ void main() {
         reason: 'apply 侧靠这个判断来挡下 server 的 theme_color');
 
     // 换成不绑定的皮肤后,挡板放行
-    applyHeaderSkinWith(container.read, 'anniversary');
+    applyHeaderSkinWith(container.read, 'aurora');
     expect(boundPrimaryOf(container.read(headerSkinProvider)), isNull);
   });
 
