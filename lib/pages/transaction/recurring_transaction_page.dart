@@ -299,24 +299,42 @@ class _RecurringTransactionCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // 金额(v32 / issue #444:外币模板带币种符号,与交易列表口径一致)
-                    AmountText(
-                      value: recurring.type == 'expense'
-                          ? -recurring.amount
-                          : recurring.amount,
-                      signed: recurring.type != 'transfer',
-                      decimals: 2,
-                      showCurrency: _isForeign(ref),
-                      currencyCode: recurring.currencyCode,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: recurring.type == 'expense'
-                            ? BeeTokens.error(context)
-                            : recurring.type == 'income'
-                                ? BeeTokens.success(context)
-                                : BeeTokens.textPrimary(context),
-                      ),
+                    // 金额(v32 / issue #444:外币模板在金额左侧标 ISO 码)
+                    //
+                    // 标**码**而不是符号:JPY/CNY 的符号都是「¥」,只换符号
+                    // 的话 5000 日元和 5000 元长得一模一样,等于没标。
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (_isForeign(ref)) ...[
+                          Text(
+                            recurring.currencyCode!.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: BeeTokens.textSecondary(context),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                        ],
+                        AmountText(
+                          value: recurring.type == 'expense'
+                              ? -recurring.amount
+                              : recurring.amount,
+                          signed: recurring.type != 'transfer',
+                          decimals: 2,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: recurring.type == 'expense'
+                                ? BeeTokens.error(context)
+                                : recurring.type == 'income'
+                                    ? BeeTokens.success(context)
+                                    : BeeTokens.textPrimary(context),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 2),
                     // 开关
