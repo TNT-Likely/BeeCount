@@ -163,6 +163,11 @@ class RecurringTransactions extends Table {
   IntColumn get toAccountId => integer().nullable()(); // 转账的目标账户
   TextColumn get note => text().nullable()();
 
+  /// v32 周期账单币种(issue #444):模板币种(ISO 大写)。
+  /// NULL = 账本本位币(存量语义);挂了账户时生成仍以账户币种为准(账户内不混币)。
+  /// 汇率不锁在模板上 —— 每次生成按当日有效汇率折算 nativeAmount。
+  TextColumn get currencyCode => text().nullable()();
+
   // 重复规则
   TextColumn get frequency => text()(); // daily / weekly / monthly / yearly
   IntColumn get interval =>
@@ -442,7 +447,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 31; // v31: 账户隐藏 — accounts.hidden
+  int get schemaVersion => 32; // v32: 周期账单币种 — recurring_transactions.currency_code
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1156,6 +1161,13 @@ class BeeDatabase extends _$BeeDatabase {
             await _addColumnIfMissing('accounts', 'hidden',
                 'ALTER TABLE accounts ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0;');
             logger.info('DBMigration', 'v31 迁移完成');
+          }
+          if (from < 32) {
+            logger.info('DBMigration', '开始迁移到 v32: 周期账单币种(currency_code)');
+            // 不回填:NULL = 账本本位币/跟随账户,与迁移前生成行为一字不差。
+            await _addColumnIfMissing('recurring_transactions', 'currency_code',
+                'ALTER TABLE recurring_transactions ADD COLUMN currency_code TEXT;');
+            logger.info('DBMigration', 'v32 迁移完成');
           }
         },
         onCreate: (m) async {
