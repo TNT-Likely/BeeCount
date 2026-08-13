@@ -1940,6 +1940,42 @@ abstract class AppLocalizations {
   /// **'Follows your theme color, layered over the header'**
   String get headerSkinSubtitle;
 
+  /// No description provided for @headerSkinGroupBasic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic'**
+  String get headerSkinGroupBasic;
+
+  /// No description provided for @headerSkinGroupAnniversary.
+  ///
+  /// In en, this message translates to:
+  /// **'Anniversary'**
+  String get headerSkinGroupAnniversary;
+
+  /// No description provided for @headerSkinGroupGradient.
+  ///
+  /// In en, this message translates to:
+  /// **'Gradient'**
+  String get headerSkinGroupGradient;
+
+  /// No description provided for @headerSkinGroupScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Scenery'**
+  String get headerSkinGroupScene;
+
+  /// No description provided for @headerSkinGroupPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Patterns'**
+  String get headerSkinGroupPattern;
+
+  /// No description provided for @headerSkinGroupGeometric.
+  ///
+  /// In en, this message translates to:
+  /// **'Geometric'**
+  String get headerSkinGroupGeometric;
+
   /// No description provided for @headerSkinNone.
   ///
   /// In en, this message translates to:

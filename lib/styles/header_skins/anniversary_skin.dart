@@ -689,7 +689,13 @@ class _TabMeteorPainter extends CustomPainter {
             ],
           ).createShader(band));
 
-    _paintMiniOne(canvas, Offset(w * .93, h * .5), h * .62, t);
+    // 迷你「1」放在「资产」和「我的」之间的缝里。
+    //
+    // 原来在 w*.93 —— 那正是最后一项(「我的」)的图标位置,而那一项显示的是
+    // **用户头像**:一张不透明的圆图,直径约占 87%~93.5%,星座直接被盖掉。
+    // tab 是 5 项等宽,每项 20%,图标居中;项与项之间 73%~87% 这一段是空的,
+    // 星座宽度只有 h*.3 上下,塞进去绰绰有余,视觉上也还在右侧。
+    _paintMiniOne(canvas, Offset(w * .80, h * .5), h * .62, t);
 
     final moonC = Offset(w * .045, h * .28);
     final mr = h * .17;

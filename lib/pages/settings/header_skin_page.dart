@@ -13,6 +13,16 @@ import '../../widgets/ui/ui.dart';
 /// 皮肤分「动态 / 静态」两类:动态皮肤自带动画(卡片预览里就在动),用顶部分段
 /// 切换过滤。**固定配色**的皮肤(如鎏金岁月、秋日系列)自带整套颜色不跟随主题色,
 /// 卡片上会标出来 —— 否则用户改主题色发现头部不变会以为坏了。
+/// 选择页里一张卡片要的全部信息。「纯色」也走这个结构,所以不直接用 HeaderSkin。
+typedef _SkinItem = ({
+  String id,
+  String name,
+  Widget preview,
+  String? badge,
+  bool animated,
+  bool fixed,
+});
+
 class HeaderSkinPage extends ConsumerStatefulWidget {
   const HeaderSkinPage({super.key});
 
@@ -34,7 +44,8 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
     // 必须垫底色才看得见。
     final base = modeIsDark ? Colors.black : primary;
 
-    final skins = kHeaderSkins.where((s) {
+    // 已下架的皮肤不进选择页(仍能被 headerSkinById 查到,老用户照常用)
+    final skins = kVisibleHeaderSkins.where((s) {
       switch (_filter) {
         case HeaderSkinFilter.all:
           return true;
@@ -45,44 +56,72 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
       }
     }).toList();
 
-    final items = <({
+    Widget cardFor(({
       String id,
       String name,
       Widget preview,
       String? badge,
       bool animated,
       bool fixed,
-    })>[
-      // 「纯色」只在「全部 / 静态」下出现
-      if (_filter != HeaderSkinFilter.animated)
-        (
-          id: kHeaderSkinNone,
-          name: l10n.headerSkinNone,
-          preview: ColoredBox(color: base),
-          badge: null,
-          animated: false,
-          fixed: false,
-        ),
-      for (final s in skins)
-        (
-          id: s.id,
-          name: s.nameOf(l10n),
-          // 缩略图不在状态栏底下,得把 top padding 抹掉:周年皮肤靠
-          // MediaQuery 的 topInset 给状态栏让位,不抹的话卡片里会凭空
-          // 空出一条,构图看着就散了。
-          preview: ColoredBox(
-            color: base,
-            child: MediaQuery.removePadding(
-              context: context,
-              removeTop: true,
-              child: s.builder(primary, modeIsDark),
-            ),
+    }) it) =>
+        _SkinCard(
+          name: it.name,
+          preview: it.preview,
+          selected: it.id == current,
+          primary: primary,
+          cornerBadge: it.badge,
+          animated: it.animated,
+          fixedPalette: it.fixed,
+          animatedLabel: l10n.headerSkinAnimatedBadge,
+          fixedLabel: l10n.headerSkinFixedPalette,
+          // 走 applyHeaderSkin:绑定色皮肤会顺带把主题色切过去
+          onTap: () => applyHeaderSkin(ref, it.id),
+        );
+
+    final noneItem = (
+      id: kHeaderSkinNone,
+      name: l10n.headerSkinNone,
+      preview: ColoredBox(color: base) as Widget,
+      badge: null as String?,
+      animated: false,
+      fixed: false,
+    );
+
+    // 按系列分桶,空桶不出标题(比如「动态」筛选下只剩周年那一组)
+    final buckets = <HeaderSkinGroup, List<_SkinItem>>{
+      for (final g in kHeaderSkinGroupOrder) g: [],
+    };
+    for (final s in skins) {
+      buckets[s.group]!.add((
+        id: s.id,
+        name: s.nameOf(l10n),
+        // 缩略图不在状态栏底下,得把 top padding 抹掉:周年皮肤靠
+        // MediaQuery 的 topInset 给状态栏让位,不抹的话卡片里会凭空
+        // 空出一条,构图看着就散了。
+        preview: ColoredBox(
+          color: base,
+          child: MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: s.builder(primary, modeIsDark),
           ),
-          badge: s.badge,
-          animated: s.isAnimated,
-          fixed: s.hasFixedPalette,
         ),
-    ];
+        badge: s.badge,
+        animated: s.isAnimated,
+        fixed: s.hasFixedPalette,
+      ));
+    }
+
+    Widget grid(List<_SkinItem> list) => GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          childAspectRatio: 0.95,
+          children: [for (final it in list) cardFor(it)],
+        );
 
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
@@ -107,27 +146,21 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
             ),
           ),
           Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
+            child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 0.95,
               children: [
-                for (final it in items)
-                  _SkinCard(
-                    name: it.name,
-                    preview: it.preview,
-                    selected: it.id == current,
-                    primary: primary,
-                    cornerBadge: it.badge,
-                    animated: it.animated,
-                    fixedPalette: it.fixed,
-                    animatedLabel: l10n.headerSkinAnimatedBadge,
-                    fixedLabel: l10n.headerSkinFixedPalette,
-                    // 走 applyHeaderSkin:绑定色皮肤会顺带把主题色切过去
-                    onTap: () => applyHeaderSkin(ref, it.id),
-                  ),
+                // 「纯色」不属于任何系列,单独打头(动态筛选下不出现)
+                if (_filter != HeaderSkinFilter.animated) ...[
+                  _GroupHeader(l10n.headerSkinGroupBasic),
+                  grid([noneItem]),
+                  const SizedBox(height: 20),
+                ],
+                for (final g in kHeaderSkinGroupOrder)
+                  if (buckets[g]!.isNotEmpty) ...[
+                    _GroupHeader(_groupLabel(l10n, g)),
+                    grid(buckets[g]!),
+                    const SizedBox(height: 20),
+                  ],
               ],
             ),
           ),
@@ -135,6 +168,40 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
       ),
     );
   }
+}
+
+String _groupLabel(AppLocalizations l10n, HeaderSkinGroup g) {
+  switch (g) {
+    case HeaderSkinGroup.anniversary:
+      return l10n.headerSkinGroupAnniversary;
+    case HeaderSkinGroup.gradient:
+      return l10n.headerSkinGroupGradient;
+    case HeaderSkinGroup.scene:
+      return l10n.headerSkinGroupScene;
+    case HeaderSkinGroup.pattern:
+      return l10n.headerSkinGroupPattern;
+    case HeaderSkinGroup.geometric:
+      return l10n.headerSkinGroupGeometric;
+  }
+}
+
+/// 系列小标题。
+class _GroupHeader extends StatelessWidget {
+  const _GroupHeader(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 10, top: 2),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: BeeTokens.textSecondary(context),
+          ),
+        ),
+      );
 }
 
 /// 全部 / 动态 / 静态 分段切换。

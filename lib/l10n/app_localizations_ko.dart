@@ -1012,6 +1012,24 @@ class AppLocalizationsKo extends AppLocalizations {
   String get headerSkinSubtitle => '테마 색상을 따르며 헤더 위에 겹쳐 표시됩니다';
 
   @override
+  String get headerSkinGroupBasic => 'Basic';
+
+  @override
+  String get headerSkinGroupAnniversary => 'Anniversary';
+
+  @override
+  String get headerSkinGroupGradient => 'Gradient';
+
+  @override
+  String get headerSkinGroupScene => 'Scenery';
+
+  @override
+  String get headerSkinGroupPattern => 'Patterns';
+
+  @override
+  String get headerSkinGroupGeometric => 'Geometric';
+
+  @override
   String get headerSkinNone => '단색';
 
   @override

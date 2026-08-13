@@ -1012,6 +1012,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get headerSkinSubtitle => '跟随主题色,叠在头部之上';
 
   @override
+  String get headerSkinGroupBasic => '基础';
+
+  @override
+  String get headerSkinGroupAnniversary => '周年纪念';
+
+  @override
+  String get headerSkinGroupGradient => '渐变';
+
+  @override
+  String get headerSkinGroupScene => '场景';
+
+  @override
+  String get headerSkinGroupPattern => '图案';
+
+  @override
+  String get headerSkinGroupGeometric => '几何艺术';
+
+  @override
   String get headerSkinNone => '纯色';
 
   @override
@@ -8501,6 +8519,24 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get headerSkinSubtitle => '跟隨主題色,疊在頁首之上';
+
+  @override
+  String get headerSkinGroupBasic => '基礎';
+
+  @override
+  String get headerSkinGroupAnniversary => '週年紀念';
+
+  @override
+  String get headerSkinGroupGradient => '漸層';
+
+  @override
+  String get headerSkinGroupScene => '場景';
+
+  @override
+  String get headerSkinGroupPattern => '圖案';
+
+  @override
+  String get headerSkinGroupGeometric => '幾何藝術';
 
   @override
   String get headerSkinNone => '純色';

@@ -1012,6 +1012,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get headerSkinSubtitle => 'Follows your theme color, layered over the header';
 
   @override
+  String get headerSkinGroupBasic => 'Basic';
+
+  @override
+  String get headerSkinGroupAnniversary => 'Anniversary';
+
+  @override
+  String get headerSkinGroupGradient => 'Gradient';
+
+  @override
+  String get headerSkinGroupScene => 'Scenery';
+
+  @override
+  String get headerSkinGroupPattern => 'Patterns';
+
+  @override
+  String get headerSkinGroupGeometric => 'Geometric';
+
+  @override
   String get headerSkinNone => 'Solid';
 
   @override
