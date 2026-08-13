@@ -1012,7 +1012,54 @@ class AppLocalizationsZh extends AppLocalizations {
   String get headerSkinSubtitle => '跟随主题色,叠在头部之上';
 
   @override
+  String get headerSkinGroupBasic => '基础';
+
+  @override
+  String get headerSkinGroupAnniversary => '周年纪念';
+
+  @override
+  String get headerSkinGroupGradient => '渐变';
+
+  @override
+  String get headerSkinGroupScene => '场景';
+
+  @override
+  String get headerSkinGroupPattern => '图案';
+
+  @override
+  String get headerSkinGroupGeometric => '几何艺术';
+
+  @override
   String get headerSkinNone => '纯色';
+
+  @override
+  String get headerSkinAnniversary => '一岁星座';
+
+  @override
+  String get headerSkinAnnivCake => '周年蛋糕';
+
+  @override
+  String get headerSkinTabAll => '全部';
+
+  @override
+  String get headerSkinTabAnimated => '动态';
+
+  @override
+  String get headerSkinTabStatic => '静态';
+
+  @override
+  String get headerSkinAnimatedBadge => '动';
+
+  @override
+  String get headerSkinFixedPalette => '自带配色';
+
+  @override
+  String personalizeLockedBySkin(String skin) {
+    return '当前皮肤「$skin」自带配色,主题色已随皮肤设定,暂不可更改。换回其它皮肤即可恢复你原来的颜色。';
+  }
+
+  @override
+  String get personalizeFixedSkinAction => '换皮肤';
 
   @override
   String get headerSkinAurora => '极光';
@@ -2110,6 +2157,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get appearanceAmountFormatCompactDesc => '大金额缩写，如 12.3万（仅对账户余额生效）';
+
+  @override
+  String get appearanceSkinAnimation => '皮肤动效';
+
+  @override
+  String get appearanceSkinAnimationDesc => '关闭后动态皮肤停在静止画面，更省电';
 
   @override
   String get appearanceShowTransactionTime => '显示交易时间';
@@ -8468,7 +8521,54 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get headerSkinSubtitle => '跟隨主題色,疊在頁首之上';
 
   @override
+  String get headerSkinGroupBasic => '基礎';
+
+  @override
+  String get headerSkinGroupAnniversary => '週年紀念';
+
+  @override
+  String get headerSkinGroupGradient => '漸層';
+
+  @override
+  String get headerSkinGroupScene => '場景';
+
+  @override
+  String get headerSkinGroupPattern => '圖案';
+
+  @override
+  String get headerSkinGroupGeometric => '幾何藝術';
+
+  @override
   String get headerSkinNone => '純色';
+
+  @override
+  String get headerSkinAnniversary => '一歲星座';
+
+  @override
+  String get headerSkinAnnivCake => '週年蛋糕';
+
+  @override
+  String get headerSkinTabAll => '全部';
+
+  @override
+  String get headerSkinTabAnimated => '動態';
+
+  @override
+  String get headerSkinTabStatic => '靜態';
+
+  @override
+  String get headerSkinAnimatedBadge => '動';
+
+  @override
+  String get headerSkinFixedPalette => '自帶配色';
+
+  @override
+  String personalizeLockedBySkin(String skin) {
+    return '目前皮膚「$skin」自帶配色,主題色已隨皮膚設定,暫不可更改。換回其它皮膚即可恢復你原來的顏色。';
+  }
+
+  @override
+  String get personalizeFixedSkinAction => '換皮膚';
 
   @override
   String get headerSkinAurora => '極光';
@@ -9566,6 +9666,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get appearanceAmountFormatCompactDesc => '大金額縮寫，如 12.3萬（僅對帳戶餘額生效）';
+
+  @override
+  String get appearanceSkinAnimation => '面板動效';
+
+  @override
+  String get appearanceSkinAnimationDesc => '關閉後動態面板停在靜止畫面，更省電';
 
   @override
   String get appearanceShowTransactionTime => '顯示交易時間';

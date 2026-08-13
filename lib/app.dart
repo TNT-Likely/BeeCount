@@ -32,6 +32,7 @@ import 'services/system/logger_service.dart';
 import 'services/security/app_lock_service.dart';
 import 'providers/security_providers.dart';
 import 'styles/tokens.dart';
+import 'styles/header_skins.dart';
 import 'providers/avatar_providers.dart';
 
 class BeeApp extends ConsumerStatefulWidget {
@@ -796,6 +797,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final avatarPath = ref.watch(avatarPathProvider).asData?.value;
+    // 头部皮肤可附带悬浮 tab 装饰层(如一周年皮肤),随皮肤选择联动。
+    final headerSkin = headerSkinById(ref.watch(headerSkinProvider));
 
     return PopScope(
       canPop: false,
@@ -816,9 +819,19 @@ class _BeeAppState extends ConsumerState<BeeApp>
         children: [
           Scaffold(
             extendBody: true, // 让页面内容延伸到底部栏后面
+            // IndexedStack 靠 Offstage 藏起非当前页,而 **Offstage 不会停
+            // Ticker** —— 五个页面的 header 皮肤会同时满帧跑,在 ProMotion
+            // 机型上就是 5×120fps 的持续重绘,机器明显发烫。
+            //
+            // TickerMode 关掉后,非当前页的 AnimationController 被 mute(仍
+            // isAnimating,只是不再 tick),切回来自动恢复。动态皮肤是最先
+            // 暴露这个问题的,但收益覆盖所有页内动画。
             body: IndexedStack(
               index: idx,
-              children: _pages,
+              children: [
+                for (var i = 0; i < _pages.length; i++)
+                  TickerMode(enabled: i == idx, child: _pages[i]),
+              ],
             ),
             bottomNavigationBar: _BeeBottomBar(
               currentIndex: idx,
@@ -827,6 +840,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
               bottomPadding: bottomPadding,
               l10n: l10n,
               avatarPath: avatarPath,
+              skin: headerSkin,
               centerButtonKey: _centerButtonKey,
               onTabTap: (index) {
                 final now = DateTime.now();
@@ -902,6 +916,7 @@ class _BeeBottomBar extends StatelessWidget {
   final double bottomPadding;
   final AppLocalizations l10n;
   final String? avatarPath;
+  final HeaderSkin? skin;
   final GlobalKey centerButtonKey;
   final ValueChanged<int> onTabTap;
   final VoidCallback onCenterTap;
@@ -916,6 +931,7 @@ class _BeeBottomBar extends StatelessWidget {
     required this.bottomPadding,
     required this.l10n,
     this.avatarPath,
+    this.skin,
     required this.centerButtonKey,
     required this.onTabTap,
     required this.onCenterTap,
@@ -947,17 +963,29 @@ class _BeeBottomBar extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(28),
-            child: Row(
+            child: Stack(
               children: [
-                _buildTabItem(
-                    0, Icons.receipt_long_outlined, Icons.receipt_long, l10n.tabHome, inactiveColor),
-                _buildTabItem(1, Icons.pie_chart_outline_rounded,
-                    Icons.pie_chart_rounded, l10n.tabInsights, inactiveColor),
-                // 中间记账按钮（作为 Tab 样式）
-                _buildCenterTabItem(inactiveColor),
-                _buildTabItem(2, Icons.account_balance_wallet_outlined,
-                    Icons.account_balance_wallet, l10n.tabAssets, inactiveColor),
-                _buildAvatarTabItem(3, l10n.tabMine, inactiveColor),
+                // 皮肤的悬浮 tab 装饰层(垫在图标之下,不影响点按)
+                if (skin?.tabBarBuilder != null)
+                  Positioned.fill(
+                      child: IgnorePointer(
+                          child: SkinAnimationScope(
+                              child: skin!.tabBarBuilder!(
+                                  primaryColor, isDark)))),
+                Row(
+                  children: [
+                    _buildTabItem(0, Icons.receipt_long_outlined,
+                        Icons.receipt_long, l10n.tabHome, inactiveColor),
+                    _buildTabItem(1, Icons.pie_chart_outline_rounded,
+                        Icons.pie_chart_rounded, l10n.tabInsights, inactiveColor),
+                    // 中间记账按钮（作为 Tab 样式）
+                    _buildCenterTabItem(inactiveColor),
+                    _buildTabItem(2, Icons.account_balance_wallet_outlined,
+                        Icons.account_balance_wallet, l10n.tabAssets,
+                        inactiveColor),
+                    _buildAvatarTabItem(3, l10n.tabMine, inactiveColor),
+                  ],
+                ),
               ],
             ),
           ),
@@ -967,7 +995,8 @@ class _BeeBottomBar extends StatelessWidget {
   }
 
   Widget _buildTabItem(
-      int index, IconData icon, IconData activeIcon, String label, Color inactiveColor) {
+      int index, IconData icon, IconData activeIcon, String label, Color inactiveColor,
+      {String? dotAnchor}) {
     final isActive = index == currentIndex;
     final iconColor = isActive ? primaryColor : inactiveColor;
 
@@ -989,7 +1018,17 @@ class _BeeBottomBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(isActive ? activeIcon : icon, color: iconColor, size: 22),
+                // 新功能红点挂在图标上(不是整个 tab),这样位置跟着图标走、
+                // 不会因为 label 长短漂移
+                dotAnchor == null
+                    ? Icon(isActive ? activeIcon : icon,
+                        color: iconColor, size: 22)
+                    : FeatureDot(
+                        anchor: dotAnchor,
+                        offset: const Offset(-2, 0),
+                        child: Icon(isActive ? activeIcon : icon,
+                            color: iconColor, size: 22),
+                      ),
                 const SizedBox(height: 1),
                 Text(
                   label,
@@ -1087,7 +1126,13 @@ class _BeeBottomBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                iconWidget,
+                // 新功能红点的第一级 —— 新功能大多在「我的」这条线下面,
+                // 用户第一眼能看到的就是这里。
+                FeatureDot(
+                  anchor: 'tab_mine',
+                  offset: const Offset(-2, 0),
+                  child: iconWidget,
+                ),
                 const SizedBox(height: 1),
                 Text(
                   label,

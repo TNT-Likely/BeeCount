@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
+import '../../providers/theme_providers.dart';
+import '../../styles/header_skins.dart';
 import '../../widgets/ui/ui.dart';
 import '../../styles/tokens.dart';
+import 'header_skin_page.dart';
 
 // 兼容旧引用
 final headerStyleProvider = StateProvider<String>((ref) => 'primary');
@@ -52,6 +55,12 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
       _ThemeOption(l10n.personalizeThemeLime, Colors.lime),
     ];
 
+    // 当前皮肤若绑定了配色(鎏金岁月 / 秋日系列),主题色由皮肤决定并锁定 ——
+    // 否则会出现「头部枫红、按钮蜜黄」的割裂。要改色先换皮肤。
+    final skinId = ref.watch(headerSkinProvider);
+    final skin = headerSkinById(skinId);
+    final locked = skin?.hasFixedPalette ?? false;
+
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
       body: Column(
@@ -67,34 +76,58 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1.4,
+                if (locked) ...[
+                  _LockedBySkinNotice(
+                    skinName: skin!.nameOf(l10n),
+                    primary: primary,
+                    onChangeSkin: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const HeaderSkinPage()),
+                    ),
                   ),
-                  itemCount: options.length + 1, // +1 for custom color picker
-                  itemBuilder: (_, i) {
-                    if (i == options.length) {
-                      // Custom color picker card
-                      return _CustomColorCard(
-                        onTap: () => _showColorPicker(context, ref),
-                      );
-                    }
-                    final o = options[i];
-                    final selected = o.color == primary;
-                    return _ThemeCard(
-                      option: o,
-                      selected: selected,
-                      onTap: () => ref
-                          .read(primaryColorProvider.notifier)
-                          .state = o.color,
-                    );
-                  },
+                  const SizedBox(height: 16),
+                ],
+                Opacity(
+                  opacity: locked ? 0.42 : 1,
+                  child: IgnorePointer(
+                    ignoring: locked,
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 1.4,
+                      ),
+                      itemCount:
+                          options.length + 1, // +1 for custom color picker
+                      itemBuilder: (_, i) {
+                        if (i == options.length) {
+                          // Custom color picker card
+                          return _CustomColorCard(
+                            onTap: () => _showColorPicker(context, ref),
+                          );
+                        }
+                        final o = options[i];
+                        final selected = o.color == primary;
+                        return _ThemeCard(
+                          option: o,
+                          selected: selected,
+                          onTap: () {
+                            ref.read(primaryColorProvider.notifier).state =
+                                o.color;
+                            // 同步记为用户手选色:之后试用绑定色皮肤再换回来能恢复
+                            ref
+                                .read(userChosenPrimaryProvider.notifier)
+                                .state = o.color;
+                          },
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -126,6 +159,61 @@ class _ThemeOption {
   final String name;
   final Color color;
   _ThemeOption(this.name, this.color);
+}
+
+/// 皮肤绑定配色时的提示条:说清楚为什么改不了 + 给一条出路。
+class _LockedBySkinNotice extends StatelessWidget {
+  const _LockedBySkinNotice({
+    required this.skinName,
+    required this.primary,
+    required this.onChangeSkin,
+  });
+
+  final String skinName;
+  final Color primary;
+  final VoidCallback onChangeSkin;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+      decoration: BoxDecoration(
+        color: primary.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: primary.withValues(alpha: 0.32)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.palette_outlined, size: 20, color: primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              l10n.personalizeLockedBySkin(skinName),
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.5,
+                color: BeeTokens.textSecondary(context),
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+          TextButton(
+            onPressed: onChangeSkin,
+            style: TextButton.styleFrom(
+              foregroundColor: primary,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              minimumSize: const Size(0, 34),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(l10n.personalizeFixedSkinAction,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ThemeCard extends StatelessWidget {

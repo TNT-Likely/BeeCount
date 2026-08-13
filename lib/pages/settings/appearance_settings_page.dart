@@ -17,15 +17,34 @@ import './app_lock_settings_page.dart';
 import './header_skin_page.dart';
 import '../../styles/header_skins.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/feature_highlight_providers.dart';
 import '../currency/exchange_rate_page.dart';
 import '../../utils/ui_scale_extensions.dart';
 
 /// 外观设置二级页面
-class AppearanceSettingsPage extends ConsumerWidget {
+class AppearanceSettingsPage extends ConsumerStatefulWidget {
   const AppearanceSettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppearanceSettingsPage> createState() =>
+      _AppearanceSettingsPageState();
+}
+
+class _AppearanceSettingsPageState
+    extends ConsumerState<AppearanceSettingsPage> {
+  @override
+  void initState() {
+    super.initState();
+    // 「皮肤动效」开关就在本页,进来即算看到 —— 消费掉它的红点。
+    // 放 postFrame 里是因为 markAnchorVisited 会写 provider,
+    // initState 阶段直接改状态会撞上 build。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) markAnchorVisited(ref, 'personalize');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final currentLanguage = ref.watch(languageProvider);
     final themeMode = ref.watch(themeModeProvider);
     final l10n = AppLocalizations.of(context);
@@ -109,12 +128,35 @@ class AppearanceSettingsPage extends ConsumerWidget {
                       // 皮肤
                       AppListTile(
                         leading: Icons.wallpaper_outlined,
+                        // 红点链的终点。进到皮肤页就算「看到了」,整条链
+                        // (我的 tab → 个性化 → 皮肤)一起熄灭。
+                        dotAnchor: 'header_skin',
                         title: l10n.headerSkinTitle,
                         subtitle: skinDisplay,
                         onTap: () async {
                           await Navigator.of(context).push(
                             MaterialPageRoute(builder: (_) => const HeaderSkinPage()),
                           );
+                        },
+                      ),
+                      BeeTokens.cardDivider(context),
+                      // 皮肤动效 —— 关掉后动态皮肤停在静态帧(省电)
+                      AppListTile(
+                        leading: Icons.auto_awesome_motion_outlined,
+                        title: l10n.appearanceSkinAnimation,
+                        subtitle: l10n.appearanceSkinAnimationDesc,
+                        trailing: Switch.adaptive(
+                          value: ref.watch(skinAnimationEnabledProvider),
+                          onChanged: (value) {
+                            ref.read(skinAnimationEnabledProvider.notifier).state =
+                                value;
+                          },
+                          activeColor: ref.watch(primaryColorProvider),
+                        ),
+                        onTap: () {
+                          final current = ref.read(skinAnimationEnabledProvider);
+                          ref.read(skinAnimationEnabledProvider.notifier).state =
+                              !current;
                         },
                       ),
                       BeeTokens.cardDivider(context),

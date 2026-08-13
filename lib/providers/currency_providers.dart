@@ -10,6 +10,7 @@ import '../services/currency/exchange_rate_service.dart';
 import 'database_providers.dart';
 import 'statistics_providers.dart';
 import 'sync_providers.dart';
+import 'theme_providers.dart' show isApplyingFromServer;
 
 /// 多币种 MVP 的 provider 层(.docs/multi-currency/02-tech-design-app.md §五/§六)。
 /// 主币种链照 displayName(theme_providers.dart:275-312)同款。
@@ -42,7 +43,9 @@ final baseCurrencyInitProvider = FutureProvider<void>((ref) async {
   ref.read(baseCurrencyProvider.notifier).state = saved.toUpperCase();
 
   ref.listen<String>(baseCurrencyProvider, (prev, next) async {
+    final fromServer = isApplyingFromServer;
     await prefs.setString('baseCurrency', next);
+    if (fromServer) return; // server 推下来的主币种不再推回去
     _pushBaseCurrencyToCloud(ref, next);
   });
 });

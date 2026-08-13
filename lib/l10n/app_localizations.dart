@@ -1940,11 +1940,101 @@ abstract class AppLocalizations {
   /// **'Follows your theme color, layered over the header'**
   String get headerSkinSubtitle;
 
+  /// No description provided for @headerSkinGroupBasic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic'**
+  String get headerSkinGroupBasic;
+
+  /// No description provided for @headerSkinGroupAnniversary.
+  ///
+  /// In en, this message translates to:
+  /// **'Anniversary'**
+  String get headerSkinGroupAnniversary;
+
+  /// No description provided for @headerSkinGroupGradient.
+  ///
+  /// In en, this message translates to:
+  /// **'Gradient'**
+  String get headerSkinGroupGradient;
+
+  /// No description provided for @headerSkinGroupScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Scenery'**
+  String get headerSkinGroupScene;
+
+  /// No description provided for @headerSkinGroupPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Patterns'**
+  String get headerSkinGroupPattern;
+
+  /// No description provided for @headerSkinGroupGeometric.
+  ///
+  /// In en, this message translates to:
+  /// **'Geometric'**
+  String get headerSkinGroupGeometric;
+
   /// No description provided for @headerSkinNone.
   ///
   /// In en, this message translates to:
   /// **'Solid'**
   String get headerSkinNone;
+
+  /// No description provided for @headerSkinAnniversary.
+  ///
+  /// In en, this message translates to:
+  /// **'Constellation No.1'**
+  String get headerSkinAnniversary;
+
+  /// No description provided for @headerSkinAnnivCake.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday Cake'**
+  String get headerSkinAnnivCake;
+
+  /// No description provided for @headerSkinTabAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get headerSkinTabAll;
+
+  /// No description provided for @headerSkinTabAnimated.
+  ///
+  /// In en, this message translates to:
+  /// **'Animated'**
+  String get headerSkinTabAnimated;
+
+  /// No description provided for @headerSkinTabStatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Static'**
+  String get headerSkinTabStatic;
+
+  /// No description provided for @headerSkinAnimatedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE'**
+  String get headerSkinAnimatedBadge;
+
+  /// No description provided for @headerSkinFixedPalette.
+  ///
+  /// In en, this message translates to:
+  /// **'Own palette'**
+  String get headerSkinFixedPalette;
+
+  /// No description provided for @personalizeLockedBySkin.
+  ///
+  /// In en, this message translates to:
+  /// **'The skin \"{skin}\" comes with its own palette, so the theme color is set by the skin and can\'t be changed. Switch to another skin to get your color back.'**
+  String personalizeLockedBySkin(String skin);
+
+  /// No description provided for @personalizeFixedSkinAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Change skin'**
+  String get personalizeFixedSkinAction;
 
   /// No description provided for @headerSkinAurora.
   ///
@@ -4015,6 +4105,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Abbreviate large amounts, e.g. 12.3K (only affects account balance)'**
   String get appearanceAmountFormatCompactDesc;
+
+  /// No description provided for @appearanceSkinAnimation.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin Animation'**
+  String get appearanceSkinAnimation;
+
+  /// No description provided for @appearanceSkinAnimationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off to freeze animated skins on a still frame and save power'**
+  String get appearanceSkinAnimationDesc;
 
   /// No description provided for @appearanceShowTransactionTime.
   ///

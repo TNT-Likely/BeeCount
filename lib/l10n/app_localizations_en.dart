@@ -1012,7 +1012,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get headerSkinSubtitle => 'Follows your theme color, layered over the header';
 
   @override
+  String get headerSkinGroupBasic => 'Basic';
+
+  @override
+  String get headerSkinGroupAnniversary => 'Anniversary';
+
+  @override
+  String get headerSkinGroupGradient => 'Gradient';
+
+  @override
+  String get headerSkinGroupScene => 'Scenery';
+
+  @override
+  String get headerSkinGroupPattern => 'Patterns';
+
+  @override
+  String get headerSkinGroupGeometric => 'Geometric';
+
+  @override
   String get headerSkinNone => 'Solid';
+
+  @override
+  String get headerSkinAnniversary => 'Constellation No.1';
+
+  @override
+  String get headerSkinAnnivCake => 'Birthday Cake';
+
+  @override
+  String get headerSkinTabAll => 'All';
+
+  @override
+  String get headerSkinTabAnimated => 'Animated';
+
+  @override
+  String get headerSkinTabStatic => 'Static';
+
+  @override
+  String get headerSkinAnimatedBadge => 'LIVE';
+
+  @override
+  String get headerSkinFixedPalette => 'Own palette';
+
+  @override
+  String personalizeLockedBySkin(String skin) {
+    return 'The skin \"$skin\" comes with its own palette, so the theme color is set by the skin and can\'t be changed. Switch to another skin to get your color back.';
+  }
+
+  @override
+  String get personalizeFixedSkinAction => 'Change skin';
 
   @override
   String get headerSkinAurora => 'Aurora';
@@ -2110,6 +2157,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appearanceAmountFormatCompactDesc => 'Abbreviate large amounts, e.g. 12.3K (only affects account balance)';
+
+  @override
+  String get appearanceSkinAnimation => 'Skin Animation';
+
+  @override
+  String get appearanceSkinAnimationDesc => 'Turn off to freeze animated skins on a still frame and save power';
 
   @override
   String get appearanceShowTransactionTime => 'Show Transaction Time';
