@@ -995,7 +995,8 @@ class _BeeBottomBar extends StatelessWidget {
   }
 
   Widget _buildTabItem(
-      int index, IconData icon, IconData activeIcon, String label, Color inactiveColor) {
+      int index, IconData icon, IconData activeIcon, String label, Color inactiveColor,
+      {String? dotAnchor}) {
     final isActive = index == currentIndex;
     final iconColor = isActive ? primaryColor : inactiveColor;
 
@@ -1017,7 +1018,17 @@ class _BeeBottomBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(isActive ? activeIcon : icon, color: iconColor, size: 22),
+                // 新功能红点挂在图标上(不是整个 tab),这样位置跟着图标走、
+                // 不会因为 label 长短漂移
+                dotAnchor == null
+                    ? Icon(isActive ? activeIcon : icon,
+                        color: iconColor, size: 22)
+                    : FeatureDot(
+                        anchor: dotAnchor,
+                        offset: const Offset(-2, 0),
+                        child: Icon(isActive ? activeIcon : icon,
+                            color: iconColor, size: 22),
+                      ),
                 const SizedBox(height: 1),
                 Text(
                   label,
@@ -1115,7 +1126,13 @@ class _BeeBottomBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                iconWidget,
+                // 新功能红点的第一级 —— 新功能大多在「我的」这条线下面,
+                // 用户第一眼能看到的就是这里。
+                FeatureDot(
+                  anchor: 'tab_mine',
+                  offset: const Offset(-2, 0),
+                  child: iconWidget,
+                ),
                 const SizedBox(height: 1),
                 Text(
                   label,

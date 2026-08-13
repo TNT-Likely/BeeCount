@@ -351,6 +351,9 @@ class MinePage extends ConsumerWidget {
                       // 外观设置
                       AppListTile(
                         leading: Icons.palette_outlined,
+                        // 新功能红点的中间一级:这一行亮是为了把用户往外观
+                        // 设置里引(终点是皮肤页)。见 FeatureHighlight。
+                        dotAnchor: 'personalize',
                         title: AppLocalizations.of(context).appearanceSettings,
                         subtitle:
                             AppLocalizations.of(context).appearanceSettingsDesc,

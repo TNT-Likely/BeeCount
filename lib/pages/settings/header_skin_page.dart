@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/theme_providers.dart';
 import '../../styles/header_skins.dart';
+import '../../providers/feature_highlight_providers.dart';
 import '../../styles/tokens.dart';
 import '../../widgets/ui/ui.dart';
 
@@ -32,6 +33,15 @@ class HeaderSkinPage extends ConsumerStatefulWidget {
 
 class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
   HeaderSkinFilter _filter = HeaderSkinFilter.all;
+
+  @override
+  void initState() {
+    super.initState();
+    // 新功能红点链的终点:走到这里就算看到了周年皮肤,整条链熄灭。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) markAnchorVisited(ref, 'header_skin');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
