@@ -272,6 +272,32 @@ final compactAmountInitProvider = FutureProvider<void>((ref) async {
   });
 });
 
+/// 动态皮肤是否播放动效。关掉后皮肤停在各自的「静态帧」——
+/// 那一帧是按构图最完整的时刻挑的,所以静态版本身也好看。
+///
+/// 存在的理由是**功耗**:动态皮肤是持续重绘,长时间用会发烫。
+/// 关掉后一帧都不画,等同静态皮肤。
+final skinAnimationEnabledProvider = StateProvider<bool>((ref) => true);
+
+final skinAnimationInitProvider = FutureProvider<void>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  final saved = prefs.getBool('skinAnimationEnabled');
+  if (saved != null) {
+    ref.read(skinAnimationEnabledProvider.notifier).state = saved;
+  }
+  ref.listen<bool>(skinAnimationEnabledProvider, (prev, next) async {
+    final fromServer = isApplyingFromServer;
+    final endPush = fromServer ? null : beginThemePush();
+    try {
+      await prefs.setBool('skinAnimationEnabled', next);
+      if (fromServer) return;
+      _pushAppearanceToCloud(ref);
+    } finally {
+      endPush?.call();
+    }
+  });
+});
+
 // 显示交易时间Provider（默认不显示）
 // false = 只显示日期
 // true = 显示日期和时间（时:分）
@@ -536,6 +562,7 @@ void _pushAppearanceToCloud(Ref ref) {
       final appearance = <String, dynamic>{
         'header_decoration_style': ref.read(headerDecorationStyleProvider),
         'compact_amount': ref.read(compactAmountProvider),
+        'skin_animation': ref.read(skinAnimationEnabledProvider),
         'show_transaction_time': ref.read(showTransactionTimeProvider),
         'header_skin': ref.read(headerSkinProvider),
         'note_display_mode': ref.read(noteDisplayModeProvider),

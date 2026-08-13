@@ -204,6 +204,7 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
       ref.watch(fontScaleInitProvider.future),
       ref.watch(hideAmountsInitProvider.future),
       ref.watch(compactAmountInitProvider.future),
+      ref.watch(skinAnimationInitProvider.future),
       ref.watch(showTransactionTimeInitProvider.future),
       ref.watch(noteDisplayModeInitProvider.future),
       ref.watch(noteHistoryPreferencesInitProvider.future),

@@ -4070,6 +4070,18 @@ abstract class AppLocalizations {
   /// **'Abbreviate large amounts, e.g. 12.3K (only affects account balance)'**
   String get appearanceAmountFormatCompactDesc;
 
+  /// No description provided for @appearanceSkinAnimation.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin Animation'**
+  String get appearanceSkinAnimation;
+
+  /// No description provided for @appearanceSkinAnimationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off to freeze animated skins on a still frame and save power'**
+  String get appearanceSkinAnimationDesc;
+
   /// No description provided for @appearanceShowTransactionTime.
   ///
   /// In en, this message translates to:

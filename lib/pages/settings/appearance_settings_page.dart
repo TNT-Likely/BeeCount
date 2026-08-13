@@ -118,6 +118,26 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         },
                       ),
                       BeeTokens.cardDivider(context),
+                      // 皮肤动效 —— 关掉后动态皮肤停在静态帧(省电)
+                      AppListTile(
+                        leading: Icons.auto_awesome_motion_outlined,
+                        title: l10n.appearanceSkinAnimation,
+                        subtitle: l10n.appearanceSkinAnimationDesc,
+                        trailing: Switch.adaptive(
+                          value: ref.watch(skinAnimationEnabledProvider),
+                          onChanged: (value) {
+                            ref.read(skinAnimationEnabledProvider.notifier).state =
+                                value;
+                          },
+                          activeColor: ref.watch(primaryColorProvider),
+                        ),
+                        onTap: () {
+                          final current = ref.read(skinAnimationEnabledProvider);
+                          ref.read(skinAnimationEnabledProvider.notifier).state =
+                              !current;
+                        },
+                      ),
+                      BeeTokens.cardDivider(context),
                       // 显示缩放
                       AppListTile(
                         leading: Icons.zoom_out_map_outlined,

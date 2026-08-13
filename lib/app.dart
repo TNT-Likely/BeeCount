@@ -819,9 +819,19 @@ class _BeeAppState extends ConsumerState<BeeApp>
         children: [
           Scaffold(
             extendBody: true, // 让页面内容延伸到底部栏后面
+            // IndexedStack 靠 Offstage 藏起非当前页,而 **Offstage 不会停
+            // Ticker** —— 五个页面的 header 皮肤会同时满帧跑,在 ProMotion
+            // 机型上就是 5×120fps 的持续重绘,机器明显发烫。
+            //
+            // TickerMode 关掉后,非当前页的 AnimationController 被 mute(仍
+            // isAnimating,只是不再 tick),切回来自动恢复。动态皮肤是最先
+            // 暴露这个问题的,但收益覆盖所有页内动画。
             body: IndexedStack(
               index: idx,
-              children: _pages,
+              children: [
+                for (var i = 0; i < _pages.length; i++)
+                  TickerMode(enabled: i == idx, child: _pages[i]),
+              ],
             ),
             bottomNavigationBar: _BeeBottomBar(
               currentIndex: idx,
@@ -959,7 +969,9 @@ class _BeeBottomBar extends StatelessWidget {
                 if (skin?.tabBarBuilder != null)
                   Positioned.fill(
                       child: IgnorePointer(
-                          child: skin!.tabBarBuilder!(primaryColor, isDark))),
+                          child: SkinAnimationScope(
+                              child: skin!.tabBarBuilder!(
+                                  primaryColor, isDark)))),
                 Row(
                   children: [
                     _buildTabItem(0, Icons.receipt_long_outlined,

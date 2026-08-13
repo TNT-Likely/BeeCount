@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:beecount/providers/sync_providers.dart' show resolvePrimaryFromSync;
 import 'package:beecount/providers/theme_providers.dart';
 import 'package:beecount/styles/header_skins.dart';
+import 'package:beecount/widgets/ui/skin_animation_scope.dart';
 
 /// 皮肤绑定主题色的交互:
 /// 选中自带配色的皮肤 → 主题色自动切成皮肤色并锁定;
@@ -209,6 +210,54 @@ void main() {
     // 换成不绑定的皮肤后,挡板放行
     applyHeaderSkinWith(container.read, 'anniversary');
     expect(boundPrimaryOf(container.read(headerSkinProvider)), isNull);
+  });
+
+  group('皮肤动效开关', () {
+    // 开关不给皮肤加参数,而是翻译成子树的 disableAnimations —— 复用动态皮肤
+    // 本来就有的「系统减弱动态效果 → 停在静态帧」那条分支。守住这个翻译。
+
+    Widget probe(void Function(bool) sink) => Builder(builder: (ctx) {
+          sink(MediaQuery.disableAnimationsOf(ctx));
+          return const SizedBox();
+        });
+
+    test('默认开着', () {
+      expect(container.read(skinAnimationEnabledProvider), isTrue);
+    });
+
+    testWidgets('开着时子树不被置真', (tester) async {
+      var disabled = true;
+      await tester.pumpWidget(ProviderScope(
+        child: MediaQuery(
+          data: const MediaQueryData(),
+          child: SkinAnimationScope(child: probe((v) => disabled = v)),
+        ),
+      ));
+      expect(disabled, isFalse);
+    });
+
+    testWidgets('关掉后子树 disableAnimations 置真', (tester) async {
+      var disabled = false;
+      await tester.pumpWidget(ProviderScope(
+        overrides: [skinAnimationEnabledProvider.overrideWith((ref) => false)],
+        child: MediaQuery(
+          data: const MediaQueryData(),
+          child: SkinAnimationScope(child: probe((v) => disabled = v)),
+        ),
+      ));
+      expect(disabled, isTrue, reason: '皮肤据此停在静态帧');
+    });
+
+    testWidgets('系统减弱动态效果优先 —— 开关开着也得停', (tester) async {
+      var disabled = false;
+      await tester.pumpWidget(ProviderScope(
+        child: MediaQuery(
+          data: const MediaQueryData(disableAnimations: true),
+          child: SkinAnimationScope(child: probe((v) => disabled = v)),
+        ),
+      ));
+      expect(disabled, isTrue, reason: '无障碍设置优先级高于皮肤偏好');
+    });
   });
 
   group('下行 apply 的 echo 抑制', () {

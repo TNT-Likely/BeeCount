@@ -2141,6 +2141,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appearanceAmountFormatCompactDesc => '大金额缩写，如 12.3万（仅对账户余额生效）';
 
   @override
+  String get appearanceSkinAnimation => '皮肤动效';
+
+  @override
+  String get appearanceSkinAnimationDesc => '关闭后动态皮肤停在静止画面，更省电';
+
+  @override
   String get appearanceShowTransactionTime => '显示交易时间';
 
   @override
@@ -9624,6 +9630,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get appearanceAmountFormatCompactDesc => '大金額縮寫，如 12.3萬（僅對帳戶餘額生效）';
+
+  @override
+  String get appearanceSkinAnimation => '面板動效';
+
+  @override
+  String get appearanceSkinAnimationDesc => '關閉後動態面板停在靜止畫面，更省電';
 
   @override
   String get appearanceShowTransactionTime => '顯示交易時間';

@@ -846,6 +846,8 @@
   "appearanceAmountFormatFullDesc": "显示完整金额，如 123,456.78",
   "appearanceAmountFormatCompact": "简洁显示",
   "appearanceAmountFormatCompactDesc": "大金额缩写，如 12.3万（仅对账户余额生效）",
+  "appearanceSkinAnimation": "皮肤动效",
+  "appearanceSkinAnimationDesc": "关闭后动态皮肤停在静止画面，更省电",
   "appearanceShowTransactionTime": "显示交易时间",
   "appearanceShowTransactionTimeDesc": "在账单列表显示时分，编辑时可选择时间",
   "appearanceNoteDisplay": "备注显示方式",

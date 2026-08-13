@@ -893,6 +893,8 @@
   "appearanceAmountFormatFullDesc": "Show full amount, e.g. 123,456.78",
   "appearanceAmountFormatCompact": "Compact",
   "appearanceAmountFormatCompactDesc": "Abbreviate large amounts, e.g. 12.3K (only affects account balance)",
+  "appearanceSkinAnimation": "Skin Animation",
+  "appearanceSkinAnimationDesc": "Turn off to freeze animated skins on a still frame and save power",
   "appearanceShowTransactionTime": "Show Transaction Time",
   "appearanceShowTransactionTimeDesc": "Display time in transaction list, allow time selection when editing",
   "appearanceNoteDisplay": "Note display",

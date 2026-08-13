@@ -49,6 +49,10 @@ const double _kAnnivStaticFrame = 0.62;
 // 预算进度条让位,原来的 _kBudgetBarH / _kHeaderWithBudgetBar 两个常量随之删除。
 // 首页开了预算条时铭文会被它盖住下半 —— 设计稿的排法本来如此,不再额外规避。
 
+/// 「我的」页级 header 的高度下限。超过它就认为是那种「中间摆大头像」的高
+/// header,铭文要避开正中(见 [_paintAnnivInscription])。
+const double _kAnnivTallHeader = 220;
+
 /// 三款周年皮肤共用的铭文:小十字星 + 「1st ANNIVERSARY」/「SINCE 2025.9.10」。
 ///
 /// **两行,排在标题行右侧那块空当里**。
@@ -61,6 +65,10 @@ const double _kAnnivStaticFrame = 0.62;
 /// header 里唯一放得下两行的空白是**账本名右缘到右上角图标之间**(实测约
 /// 120pt 宽、34pt 高)。锚点按 [topInset] 算而不是按 header 高度的百分比 ——
 /// 标题行是绝对定位的,header 变高时它并不跟着往下走。
+///
+/// **「我的」页要挪到左上。** 那一页的 header 高得多(实测约 270pt,首页只有
+/// 172pt),而且正中间是个大头像 —— 照首页的横向位置排,铭文正好被头像盖掉
+/// 半截。高 header 一律靠左上,那块区域在「我的」页是空的。
 void _paintAnnivInscription(
     Canvas canvas, Size size, Color color, double topInset) {
   if (size.height < 40) return; // 极端矮(预览缩略图)就不画了
@@ -68,7 +76,9 @@ void _paintAnnivInscription(
   final y1 = topInset + 22, y2 = y1 + 12;
   if (y2 + 10 > size.height) return; // 放不下就不画,画出去比不画难看
   final (title, sub) = _AnnivInscription.of(color);
-  final x = size.width * .50;
+  // 首页 172 / 我的页 270 / 子页 107(Android 状态栏矮 30 时各减 29),
+  // 220 这个阈值把「我的」页单独分出来,其余机型档位都不会误判。
+  final x = size.height >= _kAnnivTallHeader ? size.width * .06 : size.width * .50;
   _drawAnnivCross(canvas, Offset(x - 9, y1 + 5), 3.4, color, .7);
   title.paint(canvas, Offset(x, y1));
   sub.paint(canvas, Offset(x, y2));

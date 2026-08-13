@@ -2141,6 +2141,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appearanceAmountFormatCompactDesc => '큰 금액을 축약합니다. 예: 12.3K (계좌 잔액에만 적용)';
 
   @override
+  String get appearanceSkinAnimation => 'Skin Animation';
+
+  @override
+  String get appearanceSkinAnimationDesc => 'Turn off to freeze animated skins on a still frame and save power';
+
+  @override
   String get appearanceShowTransactionTime => '거래 시간 표시';
 
   @override

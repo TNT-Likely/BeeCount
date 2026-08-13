@@ -2141,6 +2141,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceAmountFormatCompactDesc => 'Abbreviate large amounts, e.g. 12.3K (only affects account balance)';
 
   @override
+  String get appearanceSkinAnimation => 'Skin Animation';
+
+  @override
+  String get appearanceSkinAnimationDesc => 'Turn off to freeze animated skins on a still frame and save power';
+
+  @override
   String get appearanceShowTransactionTime => 'Show Transaction Time';
 
   @override

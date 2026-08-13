@@ -863,6 +863,13 @@ void _applyAppearanceFields(Ref ref, Map<String, dynamic> appearance) {
       ref.read(compactAmountProvider.notifier).state = compact;
     }
   }
+  final skinAnim = appearance['skin_animation'] as bool?;
+  if (skinAnim != null) {
+    final current = ref.read(skinAnimationEnabledProvider);
+    if (current != skinAnim) {
+      ref.read(skinAnimationEnabledProvider.notifier).state = skinAnim;
+    }
+  }
   final showTime = appearance['show_transaction_time'] as bool?;
   if (showTime != null) {
     final current = ref.read(showTransactionTimeProvider);

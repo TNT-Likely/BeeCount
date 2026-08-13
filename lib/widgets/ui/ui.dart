@@ -1,6 +1,7 @@
 export 'dialog.dart';
 export 'toast.dart';
 export 'primary_header.dart';
+export 'skin_animation_scope.dart';
 export 'wheel_date_picker.dart';
 export 'wheel_time_picker.dart';
 export 'wheel_picker.dart';
