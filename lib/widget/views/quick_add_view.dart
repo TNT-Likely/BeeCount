@@ -15,8 +15,10 @@ import 'widget_view_style.dart';
 ///
 /// - small(155×155):2×2 格 = 前 3 个分类(不足 3 个用占位格补齐,保持网格
 ///   形状不塌)+ 第 4 格固定是「记一笔」按钮。
-/// - medium(364×169):一整行(最多 4 个分类 + 「记一笔」,共 5 格),分类
-///   数不足时该行自然更宽,不额外补占位格。
+/// - medium(364×169):2×4 格 = 前 7 个分类(同样用占位格补齐)+ 末格固定是
+///   「记一笔」。**不是**小号那样只画一行——364×169 里单行格子只占得满
+///   上半截,下面一大片空白(2026-08 用户点名"空白很多不好看");两行网格
+///   同时把入口数从 4 个提到 7 个,更符合"快速"记账的定位。
 class QuickAddView extends StatelessWidget {
   final HWSize size;
 
@@ -124,48 +126,61 @@ class QuickAddView extends StatelessWidget {
   }
 
   // -------------------------------------------------------------------
-  // medium(364×169):一整行,最多 4 分类 + 「记一笔」
+  // medium(364×169):2×4 网格,7 分类 + 「记一笔」
   // -------------------------------------------------------------------
+  /// medium 网格列数与总格数(末格恒为「记一笔」,故分类最多 [_mediumColumns]
+  /// × 2 - 1 = 7 个)。
+  static const _mediumColumns = 4;
+  static const _mediumCells = _mediumColumns * 2;
+
   Widget _buildMedium() {
     final cells = <Widget>[
-      for (final c in categories.take(4)) _categoryCell(c),
-      _addButtonCell(),
+      for (final c in categories.take(_mediumCells - 1)) _categoryCell(c),
     ];
+    // 与 small 同一套策略:分类不够就补占位格,保持网格形状不塌。取数侧
+    // (`WidgetDataService.gatherQuickAddCategories`)会用账本里其余支出分类
+    // 补足,所以正常账本几乎不会走到这里。
+    while (cells.length < _mediumCells - 1) {
+      cells.add(_placeholderCell());
+    }
+    cells.add(_addButtonCell());
 
     return _cardContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _title(),
-          Expanded(
-            child: Row(
-              // 格子按自然高度垂直居中(Row 默认 cross center),**不要**
-              // stretch 撑满——撑满会把格子拉成又高又瘦的长条(2026-07 用户
-              // 点名"太丑");格子的饱满度靠下面 _cellGlyph/_cellVPad 的
-              // medium 舒展档,留白均匀分布在上下,不是堆在底部。
-              children: [
-                for (final cell in cells)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: cell,
+          for (var row = 0; row < 2; row++)
+            Expanded(
+              child: Row(
+                children: [
+                  for (var col = 0; col < _mediumColumns; col++)
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(3),
+                        child: cells[row * _mediumColumns + col],
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
   }
 
-  /// 格子内容尺寸按档分级:small 里 2×2 网格被 Expanded 严格约束、标题又
-  /// 占掉一截,必须用紧凑档(超 1~2px 就 RenderFlex 溢出);medium 格子按
-  /// 自然高度居中、空间充裕,用舒展档让格子接近正方形、不显得干瘪。
+  /// 格子内容尺寸按档分级:两档都是被 Expanded 严格约束的网格格子(small
+  /// 2×2 / medium 2×4),必须保证「内容自然高度 < 行高」,否则 RenderFlex
+  /// 溢出。medium 行高约 59(149 可用 - 标题 ~19,再二等分、去掉格间距),比
+  /// small 的约 55 略宽裕,故图标/文字各放大一档,但仍留足余量。
   bool get _isSmall => size == HWSize.small;
   double get _cellGlyph => _isSmall ? 20 : 24;
-  double get _cellGap => _isSmall ? 2 : 4;
-  double get _cellVPad => _isSmall ? 5 : 10;
+  double get _cellGap => _isSmall ? 2 : 3;
+  double get _cellVPad => _isSmall ? 5 : 4;
+
+  /// 分类名/按钮文案字号:medium 格子宽约 80(小号仅约 65),多给 1px 更清楚,
+  /// 也让较长的英文分类名少些省略号。
+  double get _cellLabel => _isSmall ? 10 : 11;
 
   Widget _categoryCell(QuickAddCategoryItem item) {
     return Container(
@@ -186,7 +201,7 @@ class QuickAddView extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: _cellLabel,
               fontWeight: FontWeight.w500,
               color: widgetTextPrimary(dark),
             ),
@@ -227,8 +242,8 @@ class QuickAddView extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 10,
+            style: TextStyle(
+              fontSize: _cellLabel,
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),
@@ -247,7 +262,20 @@ class QuickAddView extends StatelessWidget {
   /// `Icons.category`,不会是空)。
   Widget _categoryGlyph(String? icon) {
     if (icon != null && icon.isNotEmpty && _looksLikeEmoji(icon)) {
-      return Text(icon, style: TextStyle(fontSize: _cellGlyph));
+      // 高度必须锁死成和 `Icon(size: _cellGlyph)` 一样:裸 Text 的占位高度是
+      // 「字号 × 字体行高倍数」,真机/预览用的中文字体下约 1.4 倍,比同字号的
+      // Icon 高出近 10px,直接把受 Expanded 约束的网格格子撑爆(RenderFlex
+      // overflowed;flutter_test 默认的 Ahem 字体行高恰好是 1.0,所以单元测试
+      // 里复现不出来,只有加载真实字体渲染时才暴露)。
+      return SizedBox(
+        height: _cellGlyph,
+        child: Center(
+          child: Text(
+            icon,
+            style: TextStyle(fontSize: _cellGlyph * 0.85, height: 1.0),
+          ),
+        ),
+      );
     }
     return Icon(CategoryService.getCategoryIcon(icon),
         size: _cellGlyph, color: themeColor);

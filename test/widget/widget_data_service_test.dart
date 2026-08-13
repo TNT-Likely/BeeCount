@@ -409,8 +409,38 @@ void main() {
       final items = await WidgetDataService.gatherQuickAddCategories(
           repository: repo, ledgerId: 2, limit: 10);
 
+      // 账本里就这一个支出分类,补齐也补不出更多。
       expect(items.length, 1);
       expect(items.single.total, 30);
+    });
+
+    test('本期用过的分类不足 limit 时,用其余可用支出分类按 sortOrder 补齐(total=0)',
+        () async {
+      final food = await repo.createCategory(
+          name: '餐饮', kind: 'expense', icon: 'fastfood');
+      // 未在本期消费的分类:排在有支出的分类之后,total 记 0。
+      await repo.createCategory(name: '交通', kind: 'expense', icon: 'car');
+      await repo.createCategory(name: '购物', kind: 'expense', icon: 'shopping');
+      // 收入分类不参与补齐(kind 过滤)。
+      await repo.createCategory(name: '工资', kind: 'income');
+
+      await repo.addTransaction(
+          ledgerId: 1,
+          type: 'expense',
+          amount: 100,
+          categoryId: food,
+          happenedAt: DateTime.now());
+
+      final items = await WidgetDataService.gatherQuickAddCategories(
+          repository: repo, ledgerId: 1, limit: 7);
+
+      expect(items.length, 3); // 餐饮(有支出) + 交通/购物(补齐)
+      expect(items[0].categoryId, food);
+      expect(items[0].total, 100);
+      expect(items.map((e) => e.name), ['餐饮', '交通', '购物']);
+      expect(items.skip(1).every((e) => e.total == 0), isTrue);
+      expect(items.map((e) => e.categoryId).toSet().length, 3); // 不重复
+      expect(items.any((e) => e.name == '工资'), isFalse);
     });
   });
 

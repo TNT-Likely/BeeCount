@@ -652,8 +652,8 @@ class WidgetManager {
     required String addLabel,
     required String titleLabel,
   }) async {
-    // 批次内按最大需求取 4 个(medium 用满);small 由 QuickAddView 内部
-    // 截断到 3 个 + 补位(见 WidgetGatherBatch.quickAddCategories 文档)。
+    // 批次内按最大需求取 7 个(medium 2×4 网格用满);small 由 QuickAddView
+    // 内部截断到 3 个 + 补位(见 WidgetGatherBatch.quickAddCategories 文档)。
     final categories = await batch.quickAddCategories();
 
     final view = QuickAddView(

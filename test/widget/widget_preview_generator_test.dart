@@ -81,7 +81,9 @@ class _Pack {
   final String addLabel;
   final String budgetLabel, usedLabel, totalLabel, remainingLabel;
   final String recentLabel;
-  final List<String> categoryNames; // 餐饮/交通/购物/娱乐 顺序
+  /// 餐饮/交通/购物/娱乐/医疗/居家/通讯 顺序;前 4 个给 glance/recent/
+  /// dashboard 用,后 3 个只有快速记账中号(2×4 网格 7 分类)吃得下。
+  final List<String> categoryNames;
   final String salaryName;
   final List<String> accountNames; // 主账户 / 次账户
 
@@ -138,7 +140,7 @@ const _zh = _Pack(
   totalLabel: '总额',
   remainingLabel: '剩',
   recentLabel: '最近交易',
-  categoryNames: ['餐饮', '交通', '购物', '娱乐'],
+  categoryNames: ['餐饮', '交通', '购物', '娱乐', '医疗', '居家', '通讯'],
   salaryName: '工资',
   accountNames: ['招商银行', '支付宝'],
 );
@@ -167,7 +169,9 @@ const _en = _Pack(
   totalLabel: 'Total', // widgetBudgetTotal
   remainingLabel: 'Left', // widgetBudgetRemaining
   recentLabel: 'Recent Transactions', // widgetRecentTransactions
-  categoryNames: ['Dining', 'Transport', 'Shopping', 'Movies'],
+  categoryNames: [
+    'Dining', 'Transport', 'Shopping', 'Movies', 'Health', 'Home', 'Phone',
+  ],
   salaryName: 'Salary',
   accountNames: ['Bank Card', 'Cash'],
 );
@@ -313,6 +317,8 @@ Category _category(int id, String name, String icon) => Category(
       iconType: 'material',
     );
 
+/// 7 个:快速记账中号 2×4 网格用满(7 分类 + 记一笔);小号/dashboard 各自
+/// take(3) 截断。
 List<QuickAddCategoryItem> _quickAddCategories(_Pack p) => [
       QuickAddCategoryItem(
           categoryId: 1, name: p.categoryNames[0], icon: 'restaurant', total: 1620),
@@ -322,6 +328,12 @@ List<QuickAddCategoryItem> _quickAddCategories(_Pack p) => [
           categoryId: 3, name: p.categoryNames[2], icon: 'shopping_cart', total: 2350),
       QuickAddCategoryItem(
           categoryId: 4, name: p.categoryNames[3], icon: 'movie', total: 300),
+      QuickAddCategoryItem(
+          categoryId: 5, name: p.categoryNames[4], icon: 'local_hospital', total: 260),
+      QuickAddCategoryItem(
+          categoryId: 6, name: p.categoryNames[5], icon: 'home', total: 180),
+      QuickAddCategoryItem(
+          categoryId: 7, name: p.categoryNames[6], icon: 'phone', total: 99),
     ];
 
 List<RecentTransactionItem> _recentItems(_Pack p) {
@@ -521,7 +533,7 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
     'widget_preview_quickadd',
   );
 
-  // 3.5) 快速记账·中(Android 中号入口的选择器预览:4 分类一排)
+  // 3.5) 快速记账·中(Android 中号入口的选择器预览:2×4 网格,7 分类 + 记一笔)
   await _capture(
     tester,
     QuickAddView(
