@@ -309,6 +309,8 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
       ),
     );
 
+    if (!mounted) return;
+
     // 如果创建了新标签，自动选中
     if (result != null) {
       setState(() {
