@@ -82,11 +82,17 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
 
   /// 获取 BeeCountCloudProvider 实例（仅 beecountCloud 后端可用）
   Future<BeeCountCloudProvider> _getCloudProvider() async {
-    final unavailableMessage =
-        AppLocalizations.of(context).cloudCollabUnavailableMessage;
-    final provider = await ref.read(beecountCloudProviderInstance.future);
-    if (provider == null) throw StateError(unavailableMessage);
-    return provider;
+    final config = await ref.read(activeCloudConfigProvider.future);
+    if (!config.valid || config.type != CloudBackendType.beecountCloud) {
+      throw StateError(
+          AppLocalizations.of(context).cloudCollabUnavailableMessage);
+    }
+    final services = await createCloudServices(config);
+    if (services.provider == null || services.provider is! BeeCountCloudProvider) {
+      throw StateError(
+          AppLocalizations.of(context).cloudCollabUnavailableMessage);
+    }
+    return services.provider as BeeCountCloudProvider;
   }
 
   Future<void> _reload({bool keepLoadingState = true}) async {
@@ -98,9 +104,11 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
       _scopeDenied = false;
     });
     try {
-      final provider = await _getCloudProvider();
-      final user = await provider.auth.currentUser;
+      final auth = await ref.read(authServiceProvider.future);
+      final user = await auth.currentUser;
       final currentDeviceId = user?.metadata?['deviceId']?.toString();
+
+      final provider = await _getCloudProvider();
       final devices = await provider.listDevices(
         view: _showAllSessions ? 'sessions' : 'deduped',
         activeWithinDays: 30,
