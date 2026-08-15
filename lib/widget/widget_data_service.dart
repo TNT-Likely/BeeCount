@@ -270,6 +270,13 @@ class WidgetDataService {
   ///
   /// "未分类"桶(`id == null`)被剔除:快速记账格点开即需跳转
   /// `beecount://new?type=expense&category=<id>`,没有具体分类 id 无法深链。
+  ///
+  /// **本周期用过的分类不足 [limit] 时,用账本其余可用支出分类(按 sortOrder)
+  /// 补足**(补进来的 `total` 记 0)。快速记账组件是"入口"而不是"报表":
+  /// 月初刚翻篇、或刚建账本时本周期一笔都还没记,不补的话中号 2×4 网格会
+  /// 空出一大片占位格,而用户真正想要的恰恰是这时候有格子可点。默认分类
+  /// seed 就有 40+ 个支出分类(见 `SeedService.flatExpenseCategoryKeys`),
+  /// 正常账本补得满。
   static Future<List<QuickAddCategoryItem>> gatherQuickAddCategories({
     required BaseRepository repository,
     required int ledgerId,
@@ -287,7 +294,7 @@ class WidgetDataService {
       end: range.end,
     );
 
-    return totals
+    final items = totals
         .where((e) => e.id != null)
         .take(limit)
         .map((e) => QuickAddCategoryItem(
@@ -297,6 +304,22 @@ class WidgetDataService {
               total: e.total,
             ))
         .toList();
+    if (items.length >= limit) return items;
+
+    // 补足(见方法文档):按 sortOrder 取账本可用支出分类,跳过已在列表里的。
+    final used = items.map((e) => e.categoryId).toSet();
+    final usable = await repository.getUsableCategories('expense');
+    for (final c in usable) {
+      if (items.length >= limit) break;
+      if (used.contains(c.id)) continue;
+      items.add(QuickAddCategoryItem(
+        categoryId: c.id,
+        name: c.name,
+        icon: c.icon,
+        total: 0,
+      ));
+    }
+    return items;
   }
 
   // ---------------------------------------------------------------------
@@ -563,12 +586,12 @@ class WidgetGatherBatch {
 
   Future<List<QuickAddCategoryItem>>? _quickAdd;
 
-  /// 常用支出分类,按批次内最大需求(medium 的 4 个)取一次;small(3)与
-  /// dashboard(3)由 View 自行截断/补位(QuickAddView / DashboardView 内部
-  /// 都有 take)。
+  /// 常用支出分类,按批次内最大需求(medium 2×4 网格的 7 个)取一次;
+  /// small(3)与 dashboard(3)由 View 自行截断/补位(QuickAddView /
+  /// DashboardView 内部都有 take)。
   Future<List<QuickAddCategoryItem>> quickAddCategories() =>
       _quickAdd ??= WidgetDataService.gatherQuickAddCategories(
-          repository: repository, ledgerId: ledgerId, limit: 4);
+          repository: repository, ledgerId: ledgerId, limit: 7);
 
   Future<BudgetOverview>? _budget;
   Future<BudgetOverview> budget() => _budget ??=
