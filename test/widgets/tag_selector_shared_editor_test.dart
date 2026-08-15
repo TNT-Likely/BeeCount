@@ -100,9 +100,28 @@ void main() {
   }
 
   testWidgets('共享账本 Editor 不显示新建标签入口，并提示由 Owner 管理', (tester) async {
-    await tester.pumpWidget(host(role: 'editor'));
+    await tester.pumpWidget(host(
+      role: 'editor',
+      tags: [tag(id: -101, name: 'Owner Tag')],
+    ));
     await tester.pumpAndSettle();
 
+    expect(find.text('Owner Tag'), findsWidgets);
+    expect(find.text('新建标签'), findsNothing);
+    expect(find.text('共享账本标签由所有者管理'), findsOneWidget);
+  });
+
+  testWidgets('共享账本 Editor 搜索无结果时仍显示 Owner 管理提示', (tester) async {
+    await tester.pumpWidget(host(
+      role: 'editor',
+      tags: [tag(id: -101, name: 'Owner Tag')],
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), '不存在');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Owner Tag'), findsNothing);
     expect(find.text('新建标签'), findsNothing);
     expect(find.text('共享账本标签由所有者管理'), findsOneWidget);
   });

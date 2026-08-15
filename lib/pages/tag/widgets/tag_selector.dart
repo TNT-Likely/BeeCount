@@ -205,10 +205,13 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
                         filteredTags,
                       ),
 
-                    // 新建标签入口
+                    // 新建标签入口；Editor 在同一位置显示权限说明。
                     if (canCreateTag) ...[
                       const SizedBox(height: 8),
                       _buildCreateNew(l10n),
+                    ] else ...[
+                      const SizedBox(height: 8),
+                      _buildOwnerManagedHint(l10n),
                     ],
                     const SizedBox(height: 16),
                   ],
@@ -250,19 +253,23 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
             ),
           ] else ...[
             const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                l10n.tagSelectOwnerManaged,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: BeeTokens.textTertiary(context),
-                ),
-              ),
-            ),
+            _buildOwnerManagedHint(l10n),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildOwnerManagedHint(AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Text(
+        l10n.tagSelectOwnerManaged,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 13,
+          color: BeeTokens.textTertiary(context),
+        ),
       ),
     );
   }
@@ -349,8 +356,6 @@ class _TagSelectorState extends ConsumerState<TagSelector> {
         builder: (_) => const TagEditPage(),
       ),
     );
-
-    if (!mounted) return;
 
     // 如果创建了新标签，自动选中
     if (result != null) {
