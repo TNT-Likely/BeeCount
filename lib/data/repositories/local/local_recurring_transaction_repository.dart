@@ -46,6 +46,7 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
     required DateTime startDate,
     DateTime? endDate,
     bool enabled = true,
+    String? currencyCode,
   }) async {
     return await db.into(db.recurringTransactions).insert(
       RecurringTransactionsCompanion.insert(
@@ -64,8 +65,16 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
         startDate: startDate,
         endDate: d.Value(endDate),
         enabled: d.Value(enabled),
+        currencyCode: d.Value(_normalizeCurrency(currencyCode)),
       ),
     );
+  }
+
+  /// 币种统一大写存储(与 transactions.currency_code 一致);空串按 null。
+  static String? _normalizeCurrency(String? code) {
+    if (code == null) return null;
+    final trimmed = code.trim();
+    return trimmed.isEmpty ? null : trimmed.toUpperCase();
   }
 
   @override
@@ -87,6 +96,7 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
     DateTime? endDate,
     bool? enabled,
     DateTime? lastGeneratedDate,
+    String? currencyCode,
   }) async {
     await (db.update(db.recurringTransactions)..where((t) => t.id.equals(id)))
         .write(
@@ -107,6 +117,8 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
         endDate: d.Value(endDate),
         enabled: enabled != null ? d.Value(enabled) : const d.Value.absent(),
         lastGeneratedDate: d.Value(lastGeneratedDate),
+        // null 即写 NULL(改回本位币要能清掉旧外币),与本方法其它字段同语义
+        currencyCode: d.Value(_normalizeCurrency(currencyCode)),
         updatedAt: d.Value(DateTime.now()),
       ),
     );

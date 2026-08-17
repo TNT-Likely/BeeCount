@@ -14,6 +14,9 @@ abstract class RecurringTransactionRepository {
       int ledgerId);
 
   /// 添加周期记账
+  ///
+  /// [currencyCode] v32(issue #444)模板币种(ISO,大小写不敏感)。
+  /// null = 账本本位币;挂了账户时生成仍以账户币种为准(账户内不混币)。
   Future<int> addRecurringTransaction({
     required int ledgerId,
     required String type,
@@ -30,6 +33,7 @@ abstract class RecurringTransactionRepository {
     required DateTime startDate,
     DateTime? endDate,
     bool enabled = true,
+    String? currencyCode,
   });
 
   /// 更新周期记账
@@ -50,6 +54,7 @@ abstract class RecurringTransactionRepository {
     required DateTime startDate,
     DateTime? endDate,
     bool? enabled,
+    String? currencyCode,
   });
 
   /// 删除周期记账

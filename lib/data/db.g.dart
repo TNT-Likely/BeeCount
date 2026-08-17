@@ -2973,6 +2973,12 @@ class $RecurringTransactionsTable extends RecurringTransactions
   late final GeneratedColumn<String> note = GeneratedColumn<String>(
       'note', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _currencyCodeMeta =
+      const VerificationMeta('currencyCode');
+  @override
+  late final GeneratedColumn<String> currencyCode = GeneratedColumn<String>(
+      'currency_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _frequencyMeta =
       const VerificationMeta('frequency');
   @override
@@ -3059,6 +3065,7 @@ class $RecurringTransactionsTable extends RecurringTransactions
         accountId,
         toAccountId,
         note,
+        currencyCode,
         frequency,
         interval,
         dayOfMonth,
@@ -3122,6 +3129,12 @@ class $RecurringTransactionsTable extends RecurringTransactions
     if (data.containsKey('note')) {
       context.handle(
           _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('currency_code')) {
+      context.handle(
+          _currencyCodeMeta,
+          currencyCode.isAcceptableOrUnknown(
+              data['currency_code']!, _currencyCodeMeta));
     }
     if (data.containsKey('frequency')) {
       context.handle(_frequencyMeta,
@@ -3204,6 +3217,8 @@ class $RecurringTransactionsTable extends RecurringTransactions
           .read(DriftSqlType.int, data['${effectivePrefix}to_account_id']),
       note: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      currencyCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}currency_code']),
       frequency: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}frequency'])!,
       interval: attachedDatabase.typeMapping
@@ -3245,6 +3260,11 @@ class RecurringTransaction extends DataClass
   final int? accountId;
   final int? toAccountId;
   final String? note;
+
+  /// v32 周期账单币种(issue #444):模板币种(ISO 大写)。
+  /// NULL = 账本本位币(存量语义);挂了账户时生成仍以账户币种为准(账户内不混币)。
+  /// 汇率不锁在模板上 —— 每次生成按当日有效汇率折算 nativeAmount。
+  final String? currencyCode;
   final String frequency;
   final int interval;
   final int? dayOfMonth;
@@ -3265,6 +3285,7 @@ class RecurringTransaction extends DataClass
       this.accountId,
       this.toAccountId,
       this.note,
+      this.currencyCode,
       required this.frequency,
       required this.interval,
       this.dayOfMonth,
@@ -3294,6 +3315,9 @@ class RecurringTransaction extends DataClass
     }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || currencyCode != null) {
+      map['currency_code'] = Variable<String>(currencyCode);
     }
     map['frequency'] = Variable<String>(frequency);
     map['interval'] = Variable<int>(interval);
@@ -3335,6 +3359,9 @@ class RecurringTransaction extends DataClass
           ? const Value.absent()
           : Value(toAccountId),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      currencyCode: currencyCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currencyCode),
       frequency: Value(frequency),
       interval: Value(interval),
       dayOfMonth: dayOfMonth == null && nullToAbsent
@@ -3371,6 +3398,7 @@ class RecurringTransaction extends DataClass
       accountId: serializer.fromJson<int?>(json['accountId']),
       toAccountId: serializer.fromJson<int?>(json['toAccountId']),
       note: serializer.fromJson<String?>(json['note']),
+      currencyCode: serializer.fromJson<String?>(json['currencyCode']),
       frequency: serializer.fromJson<String>(json['frequency']),
       interval: serializer.fromJson<int>(json['interval']),
       dayOfMonth: serializer.fromJson<int?>(json['dayOfMonth']),
@@ -3397,6 +3425,7 @@ class RecurringTransaction extends DataClass
       'accountId': serializer.toJson<int?>(accountId),
       'toAccountId': serializer.toJson<int?>(toAccountId),
       'note': serializer.toJson<String?>(note),
+      'currencyCode': serializer.toJson<String?>(currencyCode),
       'frequency': serializer.toJson<String>(frequency),
       'interval': serializer.toJson<int>(interval),
       'dayOfMonth': serializer.toJson<int?>(dayOfMonth),
@@ -3420,6 +3449,7 @@ class RecurringTransaction extends DataClass
           Value<int?> accountId = const Value.absent(),
           Value<int?> toAccountId = const Value.absent(),
           Value<String?> note = const Value.absent(),
+          Value<String?> currencyCode = const Value.absent(),
           String? frequency,
           int? interval,
           Value<int?> dayOfMonth = const Value.absent(),
@@ -3440,6 +3470,8 @@ class RecurringTransaction extends DataClass
         accountId: accountId.present ? accountId.value : this.accountId,
         toAccountId: toAccountId.present ? toAccountId.value : this.toAccountId,
         note: note.present ? note.value : this.note,
+        currencyCode:
+            currencyCode.present ? currencyCode.value : this.currencyCode,
         frequency: frequency ?? this.frequency,
         interval: interval ?? this.interval,
         dayOfMonth: dayOfMonth.present ? dayOfMonth.value : this.dayOfMonth,
@@ -3466,6 +3498,9 @@ class RecurringTransaction extends DataClass
       toAccountId:
           data.toAccountId.present ? data.toAccountId.value : this.toAccountId,
       note: data.note.present ? data.note.value : this.note,
+      currencyCode: data.currencyCode.present
+          ? data.currencyCode.value
+          : this.currencyCode,
       frequency: data.frequency.present ? data.frequency.value : this.frequency,
       interval: data.interval.present ? data.interval.value : this.interval,
       dayOfMonth:
@@ -3495,6 +3530,7 @@ class RecurringTransaction extends DataClass
           ..write('accountId: $accountId, ')
           ..write('toAccountId: $toAccountId, ')
           ..write('note: $note, ')
+          ..write('currencyCode: $currencyCode, ')
           ..write('frequency: $frequency, ')
           ..write('interval: $interval, ')
           ..write('dayOfMonth: $dayOfMonth, ')
@@ -3520,6 +3556,7 @@ class RecurringTransaction extends DataClass
       accountId,
       toAccountId,
       note,
+      currencyCode,
       frequency,
       interval,
       dayOfMonth,
@@ -3543,6 +3580,7 @@ class RecurringTransaction extends DataClass
           other.accountId == this.accountId &&
           other.toAccountId == this.toAccountId &&
           other.note == this.note &&
+          other.currencyCode == this.currencyCode &&
           other.frequency == this.frequency &&
           other.interval == this.interval &&
           other.dayOfMonth == this.dayOfMonth &&
@@ -3566,6 +3604,7 @@ class RecurringTransactionsCompanion
   final Value<int?> accountId;
   final Value<int?> toAccountId;
   final Value<String?> note;
+  final Value<String?> currencyCode;
   final Value<String> frequency;
   final Value<int> interval;
   final Value<int?> dayOfMonth;
@@ -3586,6 +3625,7 @@ class RecurringTransactionsCompanion
     this.accountId = const Value.absent(),
     this.toAccountId = const Value.absent(),
     this.note = const Value.absent(),
+    this.currencyCode = const Value.absent(),
     this.frequency = const Value.absent(),
     this.interval = const Value.absent(),
     this.dayOfMonth = const Value.absent(),
@@ -3607,6 +3647,7 @@ class RecurringTransactionsCompanion
     this.accountId = const Value.absent(),
     this.toAccountId = const Value.absent(),
     this.note = const Value.absent(),
+    this.currencyCode = const Value.absent(),
     required String frequency,
     this.interval = const Value.absent(),
     this.dayOfMonth = const Value.absent(),
@@ -3632,6 +3673,7 @@ class RecurringTransactionsCompanion
     Expression<int>? accountId,
     Expression<int>? toAccountId,
     Expression<String>? note,
+    Expression<String>? currencyCode,
     Expression<String>? frequency,
     Expression<int>? interval,
     Expression<int>? dayOfMonth,
@@ -3653,6 +3695,7 @@ class RecurringTransactionsCompanion
       if (accountId != null) 'account_id': accountId,
       if (toAccountId != null) 'to_account_id': toAccountId,
       if (note != null) 'note': note,
+      if (currencyCode != null) 'currency_code': currencyCode,
       if (frequency != null) 'frequency': frequency,
       if (interval != null) 'interval': interval,
       if (dayOfMonth != null) 'day_of_month': dayOfMonth,
@@ -3676,6 +3719,7 @@ class RecurringTransactionsCompanion
       Value<int?>? accountId,
       Value<int?>? toAccountId,
       Value<String?>? note,
+      Value<String?>? currencyCode,
       Value<String>? frequency,
       Value<int>? interval,
       Value<int?>? dayOfMonth,
@@ -3696,6 +3740,7 @@ class RecurringTransactionsCompanion
       accountId: accountId ?? this.accountId,
       toAccountId: toAccountId ?? this.toAccountId,
       note: note ?? this.note,
+      currencyCode: currencyCode ?? this.currencyCode,
       frequency: frequency ?? this.frequency,
       interval: interval ?? this.interval,
       dayOfMonth: dayOfMonth ?? this.dayOfMonth,
@@ -3736,6 +3781,9 @@ class RecurringTransactionsCompanion
     }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
+    }
+    if (currencyCode.present) {
+      map['currency_code'] = Variable<String>(currencyCode.value);
     }
     if (frequency.present) {
       map['frequency'] = Variable<String>(frequency.value);
@@ -3784,6 +3832,7 @@ class RecurringTransactionsCompanion
           ..write('accountId: $accountId, ')
           ..write('toAccountId: $toAccountId, ')
           ..write('note: $note, ')
+          ..write('currencyCode: $currencyCode, ')
           ..write('frequency: $frequency, ')
           ..write('interval: $interval, ')
           ..write('dayOfMonth: $dayOfMonth, ')
@@ -12145,6 +12194,7 @@ typedef $$RecurringTransactionsTableCreateCompanionBuilder
   Value<int?> accountId,
   Value<int?> toAccountId,
   Value<String?> note,
+  Value<String?> currencyCode,
   required String frequency,
   Value<int> interval,
   Value<int?> dayOfMonth,
@@ -12167,6 +12217,7 @@ typedef $$RecurringTransactionsTableUpdateCompanionBuilder
   Value<int?> accountId,
   Value<int?> toAccountId,
   Value<String?> note,
+  Value<String?> currencyCode,
   Value<String> frequency,
   Value<int> interval,
   Value<int?> dayOfMonth,
@@ -12212,6 +12263,9 @@ class $$RecurringTransactionsTableFilterComposer
 
   ColumnFilters<String> get note => $composableBuilder(
       column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currencyCode => $composableBuilder(
+      column: $table.currencyCode, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get frequency => $composableBuilder(
       column: $table.frequency, builder: (column) => ColumnFilters(column));
@@ -12281,6 +12335,10 @@ class $$RecurringTransactionsTableOrderingComposer
   ColumnOrderings<String> get note => $composableBuilder(
       column: $table.note, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get currencyCode => $composableBuilder(
+      column: $table.currencyCode,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get frequency => $composableBuilder(
       column: $table.frequency, builder: (column) => ColumnOrderings(column));
 
@@ -12348,6 +12406,9 @@ class $$RecurringTransactionsTableAnnotationComposer
 
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get currencyCode => $composableBuilder(
+      column: $table.currencyCode, builder: (column) => column);
 
   GeneratedColumn<String> get frequency =>
       $composableBuilder(column: $table.frequency, builder: (column) => column);
@@ -12422,6 +12483,7 @@ class $$RecurringTransactionsTableTableManager extends RootTableManager<
             Value<int?> accountId = const Value.absent(),
             Value<int?> toAccountId = const Value.absent(),
             Value<String?> note = const Value.absent(),
+            Value<String?> currencyCode = const Value.absent(),
             Value<String> frequency = const Value.absent(),
             Value<int> interval = const Value.absent(),
             Value<int?> dayOfMonth = const Value.absent(),
@@ -12443,6 +12505,7 @@ class $$RecurringTransactionsTableTableManager extends RootTableManager<
             accountId: accountId,
             toAccountId: toAccountId,
             note: note,
+            currencyCode: currencyCode,
             frequency: frequency,
             interval: interval,
             dayOfMonth: dayOfMonth,
@@ -12464,6 +12527,7 @@ class $$RecurringTransactionsTableTableManager extends RootTableManager<
             Value<int?> accountId = const Value.absent(),
             Value<int?> toAccountId = const Value.absent(),
             Value<String?> note = const Value.absent(),
+            Value<String?> currencyCode = const Value.absent(),
             required String frequency,
             Value<int> interval = const Value.absent(),
             Value<int?> dayOfMonth = const Value.absent(),
@@ -12485,6 +12549,7 @@ class $$RecurringTransactionsTableTableManager extends RootTableManager<
             accountId: accountId,
             toAccountId: toAccountId,
             note: note,
+            currencyCode: currencyCode,
             frequency: frequency,
             interval: interval,
             dayOfMonth: dayOfMonth,

@@ -111,6 +111,17 @@ class _RecurringTransactionCard extends ConsumerWidget {
 
   const _RecurringTransactionCard({required this.recurring});
 
+  /// 模板币种是否为外币(≠所属账本本位币)。null 币种 = 本位币,恒非外币。
+  /// 账本还在异步加载时先当外币展示 —— 保存路径下"本位币"一律落 null,
+  /// 故非 null 几乎必然是外币,这样避免符号从无到有的闪动。
+  bool _isForeign(WidgetRef ref) {
+    final code = recurring.currencyCode;
+    if (code == null || code.isEmpty) return false;
+    final base =
+        ref.watch(ledgerByIdProvider(recurring.ledgerId)).valueOrNull?.currency;
+    return code.toUpperCase() != (base?.toUpperCase() ?? '');
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final repo = ref.watch(repositoryProvider);
@@ -288,22 +299,42 @@ class _RecurringTransactionCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // 金额
-                    AmountText(
-                      value: recurring.type == 'expense'
-                          ? -recurring.amount
-                          : recurring.amount,
-                      signed: recurring.type != 'transfer',
-                      decimals: 2,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: recurring.type == 'expense'
-                            ? BeeTokens.error(context)
-                            : recurring.type == 'income'
-                                ? BeeTokens.success(context)
-                                : BeeTokens.textPrimary(context),
-                      ),
+                    // 金额(v32 / issue #444:外币模板在金额左侧标 ISO 码)
+                    //
+                    // 标**码**而不是符号:JPY/CNY 的符号都是「¥」,只换符号
+                    // 的话 5000 日元和 5000 元长得一模一样,等于没标。
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (_isForeign(ref)) ...[
+                          Text(
+                            recurring.currencyCode!.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: BeeTokens.textSecondary(context),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                        ],
+                        AmountText(
+                          value: recurring.type == 'expense'
+                              ? -recurring.amount
+                              : recurring.amount,
+                          signed: recurring.type != 'transfer',
+                          decimals: 2,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: recurring.type == 'expense'
+                                ? BeeTokens.error(context)
+                                : recurring.type == 'income'
+                                    ? BeeTokens.success(context)
+                                    : BeeTokens.textPrimary(context),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 2),
                     // 开关
