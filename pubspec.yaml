@@ -58,8 +58,17 @@ dependencies:
   qr_flutter: ^4.1.0
   gal: ^2.3.0
   archive: ^3.6.1
-  in_app_purchase: ^3.1.0
+  # 打赏(IAP)只在 iOS 提供,Android 从不显示入口(见 mine_page.dart / donation_service.dart)。
+  # 这里故意不依赖 `in_app_purchase` 联合插件:它会把 in_app_purchase_android
+  # 一并打进 AAB,从而带入 com.android.billingclient。Google Play 要求结算库
+  # >= 8.0.0(2026-11-01 截止),而官方插件升到 billing 8 的版本
+  # (in_app_purchase_android 0.5.0)要求 Flutter >= 3.38 / Dart ^3.10,
+  # 远超本项目锁定的 Flutter 3.27.3。既然 Android 根本不用结算,索性只依赖
+  # iOS 专属实现,让 AAB 里彻底不含结算库 —— 该策略要求随之不适用。
+  # ⚠️ 若将来要在 Android 上做内购(如付费皮肤),需改回 `in_app_purchase`
+  #    联合插件,并同步升级 Flutter 以获得 billing 8+ 的实现。
   in_app_purchase_storekit: ^0.3.6
+  in_app_purchase_platform_interface: ^1.4.0
   flutter_ai_kit:
     path: packages/flutter_ai_kit
   flutter_ai_kit_zhipu:
