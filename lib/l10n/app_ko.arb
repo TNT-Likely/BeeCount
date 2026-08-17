@@ -1670,6 +1670,7 @@
   "tagSelectTitle": "태그 선택",
   "tagSelectHint": "여러 개 선택 가능",
   "tagSelectCreateNew": "새 태그 만들기",
+  "tagSelectOwnerManaged": "공유 원장의 태그는 소유자가 관리합니다",
   "tagSelectRecentlyUsed": "최근 사용",
   "tagSelectAllTags": "전체 태그",
   "tagTransactionCount": "거래 {count}건",

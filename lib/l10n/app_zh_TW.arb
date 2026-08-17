@@ -2068,6 +2068,7 @@
   "tagNotFound": "標籤不存在",
   "tagSelectAllTags": "全部標籤",
   "tagSelectCreateNew": "新建標籤",
+  "tagSelectOwnerManaged": "共享帳本標籤由所有者管理",
   "tagSelectHint": "可多選",
   "tagSelectRecentlyUsed": "最近使用",
   "tagSelectTitle": "選擇標籤",

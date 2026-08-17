@@ -8,6 +8,18 @@ import 'shared_ledger_providers.dart';
 /// 标签列表刷新触发器
 final tagListRefreshProvider = StateProvider<int>((ref) => 0);
 
+/// 当前账本是否允许在标签选择器中创建标签。
+///
+/// 标签仍是 user-scoped；共享账本的 Editor 只能使用 Owner 同步下来的标签，
+/// 因此不能在共享账本记账流程里创建自己的标签。
+final canCreateTagForCurrentLedgerProvider = Provider<bool>((ref) {
+  // 切换账本触发 reload 时 Riverpod 会保留 previous value；权限判断不能沿用
+  // 上一个个人/Owner 账本，否则进入 Editor 账本的短窗口仍会暴露创建入口。
+  final ledger = ref.watch(currentLedgerProvider).unwrapPrevious().valueOrNull;
+  if (ledger == null) return false;
+  return !ledger.isShared || ledger.myRole == 'owner';
+});
+
 /// 所有标签列表 Provider（响应式）
 final allTagsStreamProvider = StreamProvider<List<Tag>>((ref) {
   ref.watch(tagListRefreshProvider);
