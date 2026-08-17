@@ -13,7 +13,7 @@
 /// Synthetic id 规则:`_syntheticIdForSyncId(syncId)` 一律负数,稳定可复现。
 library;
 
-import 'package:drift/drift.dart' show OrderingTerm;
+import 'package:drift/drift.dart' show OrderingTerm, Variable;
 
 import '../data/db.dart';
 
@@ -138,6 +138,12 @@ extension SharedLedgerPickerFilter on BeeDatabase {
   }
 
   /// 拿 picker 用的 tags。规则同 categories。
+  ///
+  /// ⚠️ Editor 分支**整个丢弃入参 `all`**、返回该账本的全量 mirror tags —— 这是
+  /// "完全替换"语义(见文件头 §7),所以 `all` 只能传主表**全量**列表。传子集
+  /// (如「最近使用」的 10 条)会被静默放大成全量,#443 就是这么来的:
+  /// 「最近使用」区块拿到了跟「全部标签」一模一样的内容。子集场景请改用
+  /// [recentSharedTagsForLedger] 这类专用取数。
   Future<List<Tag>> filterTagsForLedger(
     List<Tag> all,
     LedgerPickerContext? ctx,
@@ -149,6 +155,53 @@ extension SharedLedgerPickerFilter on BeeDatabase {
           ..where((t) => t.ledgerSyncId.equals(ctx.ledgerSyncId!)))
         .get();
     return shared.map(_sharedTagAsMain).toList();
+  }
+
+  /// 共享账本 Editor 视角的「最近使用」tags(#443)。
+  ///
+  /// 不能复用 `getRecentlyUsedTags`:那边查的是 `tags` ⨝ `transaction_tags` 主表
+  /// 关联,而 Editor 记账时 tag 关联落在 [TransactionTagOverrides](按
+  /// `tag_sync_id`),主表里一条都没有 —— 直接用会永远是空。
+  ///
+  /// 这里从 override 表 join **当前账本**的 transactions,按 `MAX(happened_at)`
+  /// 取最近 [limit] 个 `tag_sync_id`,再用 SharedLedgerTags 映射成 synthetic
+  /// Tag。映射复用 [_sharedTagAsMain],保证 id 口径与 [filterTagsForLedger] 返回
+  /// 的「全部标签」一致 —— picker 的选中态是按 `tag.id` 比的,口径不一致会错位。
+  ///
+  /// mirror 还没到齐(pull 未完成)导致某个 syncId 查不到时跳过该条;全都查不到
+  /// 就返回空列表,调用方 tag_selector 已有 `recentTags.isEmpty →
+  /// SizedBox.shrink()`,区块会自然隐藏。
+  Future<List<Tag>> recentSharedTagsForLedger({
+    required int ledgerId,
+    required String ledgerSyncId,
+    int limit = 10,
+  }) async {
+    final rows = await customSelect(
+      '''
+      SELECT o.tag_sync_id AS tag_sync_id, MAX(tx.happened_at) AS last_used
+      FROM transaction_tag_overrides o
+      INNER JOIN transactions tx ON tx.sync_id = o.transaction_sync_id
+      WHERE tx.ledger_id = ?
+      GROUP BY o.tag_sync_id
+      ORDER BY last_used DESC
+      LIMIT ?
+      ''',
+      variables: [Variable.withInt(ledgerId), Variable.withInt(limit)],
+      readsFrom: {transactionTagOverrides, transactions, sharedLedgerTags},
+    ).get();
+    if (rows.isEmpty) return const [];
+    final orderedSyncIds = [
+      for (final r in rows) r.read<String>('tag_sync_id'),
+    ];
+    final mirror = await (select(sharedLedgerTags)
+          ..where((t) => t.ledgerSyncId.equals(ledgerSyncId))
+          ..where((t) => t.syncId.isIn(orderedSyncIds)))
+        .get();
+    final bySyncId = {for (final t in mirror) t.syncId: t};
+    return [
+      for (final syncId in orderedSyncIds)
+        if (bySyncId[syncId] != null) _sharedTagAsMain(bySyncId[syncId]!),
+    ];
   }
 
   /// 把 SharedLedgerCategory 转成 Category(synthetic id < 0,syncId 来自 Owner)。
