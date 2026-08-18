@@ -380,11 +380,11 @@ A: 使用自己的服务器 / Storage / Bucket,WebDAV 和 S3 建议 HTTPS 加密
 <details>
 <summary>查看 Star 历史曲线</summary>
 
-<a href="https://www.star-history.com/?repos=tnt-likely%2Fbeecount&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=tnt-likely/beecount&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=tnt-likely/beecount&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=tnt-likely/beecount&type=date&legend=top-left" />
+ <a href="https://star-history.dera.page/#tnt-likely/beecount&type=date&legend=top-left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=tnt-likely/beecount&type=date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=tnt-likely/beecount&type=date&legend=top-left" />
+    <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=tnt-likely/beecount&type=date&legend=top-left" />
  </picture>
 </a>
 
