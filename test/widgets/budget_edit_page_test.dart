@@ -3,6 +3,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
@@ -15,6 +16,7 @@ void main() {
   late LocalRepository repo;
 
   setUp(() async {
+    SharedPreferences.setMockInitialValues({});
     db = BeeDatabase.forTesting(NativeDatabase.memory());
     repo = LocalRepository(db);
     await db.into(db.ledgers).insert(
@@ -75,6 +77,10 @@ void main() {
 
     expect(find.text('住房'), findsNothing);
     expect(find.text('餐饮'), findsOneWidget);
+
+    // 关闭弹窗，让 _selectCategory 的 Future 完整结束。
+    await tester.tap(find.byIcon(Icons.close));
+    await pumpUi(tester);
   });
 
   testWidgets('选择分类后若同步进同分类预算，保存时阻止重复创建', (tester) async {
