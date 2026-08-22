@@ -79,7 +79,6 @@ void main() {
     // 代码在 feat/autumn-skins 分支上,这里守住「没混进本版」。
     for (final id in [
       'maple',
-      'osmanthus_moon',
       'ginkgo',
       'persimmon',
       'autumn_rain',
@@ -87,6 +86,15 @@ void main() {
     ]) {
       expect(headerSkinById(id), isNull, reason: '$id 不应出现在本版');
     }
+  });
+
+  test('桂月中秋已注册,带动效与 tab 装饰', () {
+    final s = headerSkinById('osmanthus_moon');
+    expect(s, isNotNull, reason: 'osmanthus_moon 未注册');
+    expect(s!.group, HeaderSkinGroup.autumn);
+    expect(s.isAnimated, isTrue, reason: '应是动态皮肤');
+    expect(s.tabBarBuilder, isNotNull, reason: '应有悬浮 tab 装饰');
+      expect(s.hasFixedPalette, isFalse, reason: '桂月中秋跟随主题色');
   });
 
   test('两款周年皮肤都带 1st 角标、动效与 tab 装饰', () {
