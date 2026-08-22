@@ -1,0 +1,39 @@
+name: Codex budget fix verification
+
+on:
+  push:
+    branches:
+      - codex/fix-category-budget-visibility
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.27.3
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - name: Check generated localization files
+        run: git diff --exit-code -- lib/l10n
+      - name: Check Dart formatting
+        run: >-
+          dart format --output=none --set-exit-if-changed
+          lib/pages/budget/budget_page.dart
+          lib/pages/budget/budget_edit_page.dart
+          lib/data/repositories/local/local_budget_repository.dart
+          test/widgets/budget_page_test.dart
+          test/widgets/budget_edit_page_test.dart
+          test/repositories/budget_category_dedup_test.dart
+      - name: Run budget regression tests
+        run: >-
+          flutter test
+          test/widgets/budget_page_test.dart
+          test/widgets/budget_edit_page_test.dart
+          test/repositories/budget_category_dedup_test.dart
