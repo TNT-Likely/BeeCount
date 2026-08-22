@@ -1952,6 +1952,18 @@ abstract class AppLocalizations {
   /// **'Anniversary'**
   String get headerSkinGroupAnniversary;
 
+  /// No description provided for @headerSkinGroupAutumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Autumn'**
+  String get headerSkinGroupAutumn;
+
+  /// No description provided for @headerSkinPersimmon.
+  ///
+  /// In en, this message translates to:
+  /// **'Persimmon Wishes'**
+  String get headerSkinPersimmon;
+
   /// No description provided for @headerSkinGroupGradient.
   ///
   /// In en, this message translates to:
