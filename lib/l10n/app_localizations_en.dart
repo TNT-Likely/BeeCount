@@ -1018,6 +1018,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get headerSkinGroupAnniversary => 'Anniversary';
 
   @override
+  String get headerSkinGroupAutumn => 'Autumn';
+
+  @override
+  String get headerSkinAutumnRain => 'Autumn Rain';
+
+  @override
   String get headerSkinGroupGradient => 'Gradient';
 
   @override
