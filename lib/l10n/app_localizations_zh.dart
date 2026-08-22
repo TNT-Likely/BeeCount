@@ -1018,6 +1018,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get headerSkinGroupAnniversary => '周年纪念';
 
   @override
+  String get headerSkinGroupAutumn => '秋日';
+
+  @override
+  String get headerSkinSouthbound => '雁阵南飞';
+
+  @override
   String get headerSkinGroupGradient => '渐变';
 
   @override
@@ -8528,6 +8534,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get headerSkinGroupAnniversary => '週年紀念';
+
+  @override
+  String get headerSkinGroupAutumn => '秋日';
+
+  @override
+  String get headerSkinSouthbound => '雁陣南飛';
 
   @override
   String get headerSkinGroupGradient => '漸層';

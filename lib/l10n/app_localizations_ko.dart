@@ -1018,6 +1018,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get headerSkinGroupAnniversary => 'Anniversary';
 
   @override
+  String get headerSkinGroupAutumn => 'Autumn';
+
+  @override
+  String get headerSkinSouthbound => 'Southbound';
+
+  @override
   String get headerSkinGroupGradient => 'Gradient';
 
   @override
