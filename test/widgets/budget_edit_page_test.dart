@@ -62,7 +62,8 @@ void main() {
   Future<void> disposeUi(WidgetTester tester) async {
     await tester.pumpWidget(const SizedBox.shrink());
     // Riverpod 释放 Drift 查询流时会安排一个零时长计时器。
-    await tester.pump();
+    // 此时页面中的持续动效已经移除，可以安全等待清理任务全部结束。
+    await tester.pumpAndSettle();
   }
 
   testWidgets('分类选择器不再列出已经设置预算的分类', (tester) async {
