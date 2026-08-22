@@ -59,6 +59,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
   }
 
+  Future<void> disposeUi(WidgetTester tester) async {
+    await tester.pumpWidget(const SizedBox.shrink());
+    // Riverpod 释放 Drift 查询流时会安排一个零时长计时器。
+    await tester.pump();
+  }
+
   testWidgets('分类选择器不再列出已经设置预算的分类', (tester) async {
     await db.into(db.budgets).insert(
           BudgetsCompanion.insert(
@@ -81,6 +87,7 @@ void main() {
     // 关闭弹窗，让 _selectCategory 的 Future 完整结束。
     await tester.tap(find.byIcon(Icons.close));
     await pumpUi(tester);
+    await disposeUi(tester);
   });
 
   testWidgets('选择分类后若同步进同分类预算，保存时阻止重复创建', (tester) async {
@@ -111,5 +118,6 @@ void main() {
 
     // showToastOnOverlay 的移除计时器。
     await tester.pump(const Duration(seconds: 3));
+    await disposeUi(tester);
   });
 }
