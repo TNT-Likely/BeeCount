@@ -40,9 +40,12 @@ jobs:
             git commit -m "style: apply dart format"
             git push
           fi
-      - name: Run budget regression tests
-        run: >-
-          flutter test
-          test/widgets/budget_page_test.dart
-          test/widgets/budget_edit_page_test.dart
-          test/repositories/budget_category_dedup_test.dart
+      - name: Test historical budget deduplication
+        timeout-minutes: 5
+        run: flutter test --reporter expanded test/repositories/budget_category_dedup_test.dart
+      - name: Test category-only budget visibility
+        timeout-minutes: 5
+        run: flutter test --reporter expanded test/widgets/budget_page_test.dart
+      - name: Test duplicate category budget prevention
+        timeout-minutes: 5
+        run: flutter test --reporter expanded test/widgets/budget_edit_page_test.dart
