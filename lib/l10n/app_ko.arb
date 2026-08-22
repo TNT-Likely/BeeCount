@@ -1746,6 +1746,7 @@
   "budgetAmountHint": "예산 금액을 입력하세요",
   "budgetCategoryLabel": "카테고리 선택",
   "budgetCategoryHint": "예산 카테고리를 선택하세요",
+  "budgetCategoryAlreadyExists": "이 카테고리에는 이미 예산이 있습니다",
   "budgetStartDayLabel": "시작일",
   "budgetPeriodLabel": "기간",
   "budgetSaveSuccess": "예산이 저장되었습니다",

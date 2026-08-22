@@ -5741,6 +5741,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get budgetCategoryHint => '예산 카테고리를 선택하세요';
 
   @override
+  String get budgetCategoryAlreadyExists => '이 카테고리에는 이미 예산이 있습니다';
+
+  @override
   String get budgetStartDayLabel => '시작일';
 
   @override

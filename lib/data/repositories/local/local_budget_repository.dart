@@ -107,20 +107,29 @@ class LocalBudgetRepository implements BudgetRepository {
 
   @override
   Future<List<Budget>> getCategoryBudgets(int ledgerId) async {
-    return await (db.select(db.budgets)
+    final rows = await (db.select(db.budgets)
           ..where((b) => b.ledgerId.equals(ledgerId) & b.type.equals('category') & b.enabled.equals(true)))
         .get();
+
+    // 老版本允许同一分类创建多条预算，Cloud 的读接口按 syncId 字典序最大
+    // 的记录展示。本地采用相同 keeper 规则，避免升级后把历史重复行全部画
+    // 出来；数据仍保留，后续同步/清理不会因一次只读查询而丢失。
+    final byCategory = <int, Budget>{};
+    for (final row in rows) {
+      final categoryId = row.categoryId;
+      if (categoryId == null) continue;
+      final current = byCategory[categoryId];
+      if (current == null || _preferBudget(row, current)) {
+        byCategory[categoryId] = row;
+      }
+    }
+    return byCategory.values.toList();
   }
 
   @override
   Future<Budget?> getBudgetByCategory(int ledgerId, int categoryId) async {
-    return await (db.select(db.budgets)
-          ..where((b) =>
-              b.ledgerId.equals(ledgerId) &
-              b.type.equals('category') &
-              b.categoryId.equals(categoryId) &
-              b.enabled.equals(true)))
-        .getSingleOrNull();
+    final budgets = await getCategoryBudgets(ledgerId);
+    return budgets.where((b) => b.categoryId == categoryId).firstOrNull;
   }
 
   @override
@@ -315,5 +324,14 @@ class LocalBudgetRepository implements BudgetRepository {
     if (v is int) return v.toDouble();
     if (v is num) return v.toDouble();
     return 0.0;
+  }
+
+  bool _preferBudget(Budget candidate, Budget current) {
+    final candidateSyncId = candidate.syncId ?? '';
+    final currentSyncId = current.syncId ?? '';
+    if (candidateSyncId != currentSyncId) {
+      return candidateSyncId.compareTo(currentSyncId) > 0;
+    }
+    return candidate.createdAt.isAfter(current.createdAt);
   }
 }

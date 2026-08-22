@@ -65,7 +65,12 @@ class BudgetPage extends ConsumerWidget {
         ref.watch(currentLedgerProvider).asData?.value?.currency ?? 'CNY';
     final currencySymbol = getCurrencySymbol(currencyCode);
 
-    if (overview == null || overview.totalBudget == null) {
+    final categoryBudgets = overview?.categoryBudgets ?? const [];
+    final hasTotalBudget = overview?.totalBudget != null;
+
+    // 分类预算可以独立于总预算存在。旧逻辑只判断 totalBudget，导致 Web 或
+    // App 创建的分类预算已经落库、同步计数也正确，但整个页面仍显示为空。
+    if (!hasTotalBudget && categoryBudgets.isEmpty) {
       return _buildEmptyState(context, ref, l10n);
     }
 
@@ -75,13 +80,15 @@ class BudgetPage extends ConsumerWidget {
         vertical: 8.0.scaled(context, ref),
       ),
       children: [
-        // 总预算概览卡片
-        _buildTotalBudgetCard(context, ref, overview, l10n, currencySymbol),
-        SizedBox(height: 12.0.scaled(context, ref)),
+        // 总预算概览卡片（分类预算不要求先创建总预算）
+        if (hasTotalBudget) ...[
+          _buildTotalBudgetCard(context, ref, overview!, l10n, currencySymbol),
+          SizedBox(height: 12.0.scaled(context, ref)),
+        ],
         // 分类预算列表
-        if (overview.categoryBudgets.isNotEmpty)
+        if (categoryBudgets.isNotEmpty)
           _buildCategoryBudgetsCard(
-              context, ref, overview.categoryBudgets, l10n, currencySymbol),
+              context, ref, categoryBudgets, l10n, currencySymbol),
         SizedBox(height: 12.0.scaled(context, ref)),
         // 首页显示开关
         _buildSettingsCard(context, ref, l10n),
