@@ -58,7 +58,10 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    // PrimaryHeader 下包含可持续运行的主题动效；固定推进测试时钟，避免
+    // pumpAndSettle 等待无穷动画直到超时。
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('分类预算'), findsOneWidget);
     expect(find.text('住房'), findsOneWidget);

@@ -51,6 +51,12 @@ void main() {
         ),
       );
 
+  Future<void> pumpUi(WidgetTester tester) async {
+    // 页面头部可能存在持续主题动效，不能用 pumpAndSettle 等待动画归零。
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+  }
+
   testWidgets('分类选择器不再列出已经设置预算的分类', (tester) async {
     await db.into(db.budgets).insert(
           BudgetsCompanion.insert(
@@ -63,9 +69,9 @@ void main() {
         );
 
     await tester.pumpWidget(host());
-    await tester.pumpAndSettle();
+    await pumpUi(tester);
     await tester.tap(find.text('请选择预算分类'));
-    await tester.pumpAndSettle();
+    await pumpUi(tester);
 
     expect(find.text('住房'), findsNothing);
     expect(find.text('餐饮'), findsOneWidget);
@@ -73,11 +79,11 @@ void main() {
 
   testWidgets('选择分类后若同步进同分类预算，保存时阻止重复创建', (tester) async {
     await tester.pumpWidget(host());
-    await tester.pumpAndSettle();
+    await pumpUi(tester);
     await tester.tap(find.text('请选择预算分类'));
-    await tester.pumpAndSettle();
+    await pumpUi(tester);
     await tester.tap(find.text('住房'));
-    await tester.pumpAndSettle();
+    await pumpUi(tester);
 
     // 模拟选择器关闭后，另一设备同步进同分类预算。
     await db.into(db.budgets).insert(
