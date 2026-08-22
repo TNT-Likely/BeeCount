@@ -80,13 +80,22 @@ void main() {
     for (final id in [
       'maple',
       'osmanthus_moon',
-      'ginkgo',
       'persimmon',
       'autumn_rain',
       'southbound'
     ]) {
       expect(headerSkinById(id), isNull, reason: '$id 不应出现在本版');
     }
+  });
+
+  test('银杏金秋已注册,带动效与 tab 装饰', () {
+    final s = headerSkinById('ginkgo');
+    expect(s, isNotNull, reason: 'ginkgo 未注册');
+    expect(s!.group, HeaderSkinGroup.autumn);
+    expect(s.isAnimated, isTrue, reason: '应是动态皮肤');
+    expect(s.tabBarBuilder, isNotNull, reason: '应有悬浮 tab 装饰');
+      expect(s.hasFixedPalette, isTrue, reason: '自带配色');
+      expect(s.boundPrimary, isNotNull, reason: '应有绑定色');
   });
 
   test('两款周年皮肤都带 1st 角标、动效与 tab 装饰', () {
