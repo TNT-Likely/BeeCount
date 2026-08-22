@@ -1018,6 +1018,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get headerSkinGroupAnniversary => '周年纪念';
 
   @override
+  String get headerSkinGroupWinter => '冬日';
+
+  @override
   String get headerSkinGroupGradient => '渐变';
 
   @override
@@ -1037,6 +1040,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get headerSkinAnnivCake => '周年蛋糕';
+
+  @override
+  String get headerSkinFirstSnow => '初雪';
+
+  @override
+  String get headerSkinPlumSnow => '踏雪寻梅';
+
+  @override
+  String get headerSkinCabinGlow => '雪夜灯火';
+
+  @override
+  String get headerSkinFiresideTea => '围炉煮茶';
+
+  @override
+  String get headerSkinFrostwork => '冰晶初凝';
+
+  @override
+  String get headerSkinGoldenSummit => '日照金山';
 
   @override
   String get headerSkinTabAll => '全部';
@@ -8530,6 +8551,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get headerSkinGroupAnniversary => '週年紀念';
 
   @override
+  String get headerSkinGroupWinter => '冬日';
+
+  @override
   String get headerSkinGroupGradient => '漸層';
 
   @override
@@ -8549,6 +8573,24 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get headerSkinAnnivCake => '週年蛋糕';
+
+  @override
+  String get headerSkinFirstSnow => '初雪';
+
+  @override
+  String get headerSkinPlumSnow => '踏雪尋梅';
+
+  @override
+  String get headerSkinCabinGlow => '雪夜燈火';
+
+  @override
+  String get headerSkinFiresideTea => '圍爐煮茶';
+
+  @override
+  String get headerSkinFrostwork => '冰晶初凝';
+
+  @override
+  String get headerSkinGoldenSummit => '日照金山';
 
   @override
   String get headerSkinTabAll => '全部';

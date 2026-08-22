@@ -27,6 +27,13 @@ part 'header_skins/skyline_skin.dart';
 part 'header_skins/sunset_skin.dart';
 part 'header_skins/terrazzo_skin.dart';
 part 'header_skins/waves_skin.dart';
+part 'header_skins/winter_snow.dart';
+part 'header_skins/winter_first_snow_skin.dart';
+part 'header_skins/winter_plum_skin.dart';
+part 'header_skins/winter_cabin_skin.dart';
+part 'header_skins/winter_stove_skin.dart';
+part 'header_skins/winter_frost_skin.dart';
+part 'header_skins/winter_peak_skin.dart';
 
 /// 皮肤系统:皮肤 = 叠在「主题色底」之上的装饰层(渲染在 PrimaryHeader)。
 ///
@@ -51,6 +58,9 @@ enum HeaderSkinGroup {
   /// 周年纪念款,永远置顶。
   anniversary,
 
+  /// 冬日系列(2026 冬),整季主推。
+  winter,
+
   /// 主题色渐变。
   gradient,
 
@@ -67,6 +77,7 @@ enum HeaderSkinGroup {
 /// 分组在选择页里的先后顺序。
 const List<HeaderSkinGroup> kHeaderSkinGroupOrder = [
   HeaderSkinGroup.anniversary,
+  HeaderSkinGroup.winter,
   HeaderSkinGroup.gradient,
   HeaderSkinGroup.scene,
   HeaderSkinGroup.pattern,
@@ -176,6 +187,58 @@ final List<HeaderSkin> kHeaderSkins = [
   // 秋日系列(枫叶清秋 / 桂月中秋 / 银杏金秋 / 柿柿如意 / 秋雨梧桐 / 雁阵南飞)
   // 不在这一版:计划以付费皮肤形态单独发布,提前免费放出去就收不回来了。
   // 代码在 feat/autumn-skins-paid 分支上,见 .docs/skin-monetization-research.md。
+  //
+  // 冬日系列(2026 冬)x6:设计稿 .docs/skin-designs/winter-skins.html。
+  // 除「初雪」跟随主题色外,其余绑定各自的冬色 —— 梅红 / 炉橘 / 炭橘 /
+  // 冰蓝 / 黎明金,主题色一换这些景就不成立了(绑定色取设计稿的 tab 强调色)。
+  // 发布形态(免费 / 付费 / 与秋日打包)另议,同受皮肤付费悬置决议约束。
+  HeaderSkin(
+      id: 'first_snow',
+      group: HeaderSkinGroup.winter,
+      nameOf: (l) => l.headerSkinFirstSnow,
+      builder: (p, d) => _FirstSnowSkin(p, d),
+      tabBarBuilder: (p, d) => _FirstSnowTabDeco(p, d),
+      isAnimated: true),
+  HeaderSkin(
+      id: 'plum_snow',
+      group: HeaderSkinGroup.winter,
+      nameOf: (l) => l.headerSkinPlumSnow,
+      builder: (p, d) => _PlumSnowSkin(d),
+      tabBarBuilder: (p, d) => _PlumSnowTabDeco(d),
+      isAnimated: true,
+      boundPrimary: Color(0xFFC94258)),
+  HeaderSkin(
+      id: 'cabin_glow',
+      group: HeaderSkinGroup.winter,
+      nameOf: (l) => l.headerSkinCabinGlow,
+      builder: (p, d) => _CabinGlowSkin(d),
+      tabBarBuilder: (p, d) => _CabinGlowTabDeco(d),
+      isAnimated: true,
+      boundPrimary: Color(0xFFE0813A)),
+  HeaderSkin(
+      id: 'fireside_tea',
+      group: HeaderSkinGroup.winter,
+      nameOf: (l) => l.headerSkinFiresideTea,
+      builder: (p, d) => _FiresideTeaSkin(d),
+      tabBarBuilder: (p, d) => _FiresideTeaTabDeco(d),
+      isAnimated: true,
+      boundPrimary: Color(0xFFD96C2E)),
+  HeaderSkin(
+      id: 'frostwork',
+      group: HeaderSkinGroup.winter,
+      nameOf: (l) => l.headerSkinFrostwork,
+      builder: (p, d) => _FrostworkSkin(d),
+      tabBarBuilder: (p, d) => _FrostworkTabDeco(d),
+      isAnimated: true,
+      boundPrimary: Color(0xFF4A90C2)),
+  HeaderSkin(
+      id: 'golden_summit',
+      group: HeaderSkinGroup.winter,
+      nameOf: (l) => l.headerSkinGoldenSummit,
+      builder: (p, d) => _GoldenSummitSkin(d),
+      tabBarBuilder: (p, d) => _GoldenSummitTabDeco(d),
+      isAnimated: true,
+      boundPrimary: Color(0xFFD99A28)),
   HeaderSkin(
       id: 'aurora',
       group: HeaderSkinGroup.gradient,

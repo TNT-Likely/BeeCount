@@ -1018,6 +1018,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get headerSkinGroupAnniversary => 'Anniversary';
 
   @override
+  String get headerSkinGroupWinter => 'Winter';
+
+  @override
   String get headerSkinGroupGradient => 'Gradient';
 
   @override
@@ -1037,6 +1040,24 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get headerSkinAnnivCake => 'Birthday Cake';
+
+  @override
+  String get headerSkinFirstSnow => 'First Snow';
+
+  @override
+  String get headerSkinPlumSnow => 'Plum in Snow';
+
+  @override
+  String get headerSkinCabinGlow => 'Cabin Glow';
+
+  @override
+  String get headerSkinFiresideTea => 'Fireside Tea';
+
+  @override
+  String get headerSkinFrostwork => 'Frostwork';
+
+  @override
+  String get headerSkinGoldenSummit => 'Golden Summit';
 
   @override
   String get headerSkinTabAll => 'All';

@@ -65,6 +65,27 @@ void main() {
     }
   });
 
+  test('冬日系列:五款绑定各自冬色,初雪跟随主题色', () {
+    // 绑定色取设计稿(.docs/skin-designs/winter-skins.html)的 tab 强调色。
+    for (final id in [
+      'plum_snow',
+      'cabin_glow',
+      'fireside_tea',
+      'frostwork',
+      'golden_summit'
+    ]) {
+      final s = headerSkinById(id)!;
+      expect(s.hasFixedPalette, isTrue, reason: '$id 应自带配色');
+      expect(s.group, HeaderSkinGroup.winter);
+      expect(s.isAnimated, isTrue, reason: '冬日六款全是动态皮肤');
+      expect(s.tabBarBuilder, isNotNull, reason: '$id 应装饰悬浮 tab');
+    }
+    final firstSnow = headerSkinById('first_snow')!;
+    expect(firstSnow.hasFixedPalette, isFalse, reason: '初雪是跟随主题色的雪');
+    expect(firstSnow.group, HeaderSkinGroup.winter);
+    expect(firstSnow.tabBarBuilder, isNotNull);
+  });
+
   test('已下架的皮肤 id 安全降级为纯色', () {
     // 老用户可能仍存着这两个 id(本地 prefs 或云端 appearance),
     // headerSkinById 返回 null → PrimaryHeader 走纯色分支,不崩。

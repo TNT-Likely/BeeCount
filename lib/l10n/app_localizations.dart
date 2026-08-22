@@ -1952,6 +1952,12 @@ abstract class AppLocalizations {
   /// **'Anniversary'**
   String get headerSkinGroupAnniversary;
 
+  /// No description provided for @headerSkinGroupWinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Winter'**
+  String get headerSkinGroupWinter;
+
   /// No description provided for @headerSkinGroupGradient.
   ///
   /// In en, this message translates to:
@@ -1993,6 +1999,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Birthday Cake'**
   String get headerSkinAnnivCake;
+
+  /// No description provided for @headerSkinFirstSnow.
+  ///
+  /// In en, this message translates to:
+  /// **'First Snow'**
+  String get headerSkinFirstSnow;
+
+  /// No description provided for @headerSkinPlumSnow.
+  ///
+  /// In en, this message translates to:
+  /// **'Plum in Snow'**
+  String get headerSkinPlumSnow;
+
+  /// No description provided for @headerSkinCabinGlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Cabin Glow'**
+  String get headerSkinCabinGlow;
+
+  /// No description provided for @headerSkinFiresideTea.
+  ///
+  /// In en, this message translates to:
+  /// **'Fireside Tea'**
+  String get headerSkinFiresideTea;
+
+  /// No description provided for @headerSkinFrostwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Frostwork'**
+  String get headerSkinFrostwork;
+
+  /// No description provided for @headerSkinGoldenSummit.
+  ///
+  /// In en, this message translates to:
+  /// **'Golden Summit'**
+  String get headerSkinGoldenSummit;
 
   /// No description provided for @headerSkinTabAll.
   ///

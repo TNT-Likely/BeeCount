@@ -190,6 +190,8 @@ String _groupLabel(AppLocalizations l10n, HeaderSkinGroup g) {
   switch (g) {
     case HeaderSkinGroup.anniversary:
       return l10n.headerSkinGroupAnniversary;
+    case HeaderSkinGroup.winter:
+      return l10n.headerSkinGroupWinter;
     case HeaderSkinGroup.gradient:
       return l10n.headerSkinGroupGradient;
     case HeaderSkinGroup.scene:
