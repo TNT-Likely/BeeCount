@@ -356,12 +356,20 @@ class LocalTagRepository implements TagRepository {
   }
 
   @override
-  Future<({int count, double expense, double income})> getTagStats(int tagId, {int? ledgerId}) async {
+  Future<({int count, double expense, double income})> getTagStats(int tagId,
+      {int? ledgerId, DateTime? start, DateTime? end}) async {
     // §7 共享账本:负 id 是 synthetic tag，经 TransactionTagOverrides 反查统计
-    if (tagId < 0) return _sharedTagStatsBySyntheticId(tagId, ledgerId);
+    if (tagId < 0) {
+      return _sharedTagStatsBySyntheticId(tagId, ledgerId,
+          start: start, end: end);
+    }
     final ledgerFilter = ledgerId != null ? 'AND tx.ledger_id = ?' : '';
+    final startFilter = start != null ? 'AND tx.happened_at >= ?' : '';
+    final endFilter = end != null ? 'AND tx.happened_at < ?' : '';
     final vars = <d.Variable>[d.Variable.withInt(tagId)];
     if (ledgerId != null) vars.add(d.Variable.withInt(ledgerId));
+    if (start != null) vars.add(d.Variable.withDateTime(start));
+    if (end != null) vars.add(d.Variable.withDateTime(end));
     final result = await db.customSelect(
       '''
       SELECT
@@ -370,7 +378,7 @@ class LocalTagRepository implements TagRepository {
         COALESCE(SUM(CASE WHEN tx.type = 'income' AND tx.exclude_from_stats = 0 THEN COALESCE(tx.native_amount, tx.amount) ELSE 0 END), 0) as income
       FROM transaction_tags tt
       INNER JOIN transactions tx ON tt.transaction_id = tx.id
-      WHERE tt.tag_id = ? $ledgerFilter
+      WHERE tt.tag_id = ? $ledgerFilter $startFilter $endFilter
       ''',
       variables: vars,
       readsFrom: {db.transactionTags, db.transactions},
@@ -533,7 +541,8 @@ class LocalTagRepository implements TagRepository {
 
   /// 共享账本:synthetic tag 下的交易 — 经 TransactionTagOverrides(tagSyncId)反查。
   Stream<List<Transaction>> _watchSharedTxByTagSyntheticId(
-      int syntheticId, int? ledgerId) {
+      int syntheticId, int? ledgerId,
+      {DateTime? start, DateTime? end}) {
     final ctrl = StreamController<List<Transaction>>();
     StreamSubscription? sub;
     String? matchedSyncId;
@@ -572,6 +581,12 @@ class LocalTagRepository implements TagRepository {
       if (ledgerId != null) {
         q.where((t) => t.ledgerId.equals(ledgerId));
       }
+      if (start != null) {
+        q.where((t) => t.happenedAt.isBiggerOrEqualValue(start));
+      }
+      if (end != null) {
+        q.where((t) => t.happenedAt.isSmallerThanValue(end));
+      }
       final list = await q.get();
       if (!ctrl.isClosed) ctrl.add(list);
     }
@@ -592,7 +607,8 @@ class LocalTagRepository implements TagRepository {
 
   /// 共享账本:synthetic tag 的统计 — 基于 override 关联的交易聚合。
   Future<({int count, double expense, double income})>
-      _sharedTagStatsBySyntheticId(int syntheticId, int? ledgerId) async {
+      _sharedTagStatsBySyntheticId(int syntheticId, int? ledgerId,
+          {DateTime? start, DateTime? end}) async {
     String? matchedSyncId;
     final rows = await db.select(db.sharedLedgerTags).get();
     for (final s in rows) {
@@ -611,6 +627,12 @@ class LocalTagRepository implements TagRepository {
       ..where((t) => t.syncId.isIn(txSyncIds));
     if (ledgerId != null) {
       q.where((t) => t.ledgerId.equals(ledgerId));
+    }
+    if (start != null) {
+      q.where((t) => t.happenedAt.isBiggerOrEqualValue(start));
+    }
+    if (end != null) {
+      q.where((t) => t.happenedAt.isSmallerThanValue(end));
     }
     final txs = await q.get();
     var count = 0;
@@ -653,40 +675,38 @@ class LocalTagRepository implements TagRepository {
   }
 
   @override
-  Stream<List<Transaction>> watchTransactionsByTag(int tagId, {int? ledgerId}) {
+  Stream<List<Transaction>> watchTransactionsByTag(int tagId,
+      {int? ledgerId, DateTime? start, DateTime? end}) {
     // §7 共享账本:负 id 是 synthetic tag，经 TransactionTagOverrides 反查交易
-    if (tagId < 0) return _watchSharedTxByTagSyntheticId(tagId, ledgerId);
-    final ledgerFilter = ledgerId != null ? 'AND tx.ledger_id = ?' : '';
-    final vars = <d.Variable>[d.Variable.withInt(tagId)];
-    if (ledgerId != null) vars.add(d.Variable.withInt(ledgerId));
-    return db.customSelect(
-      '''
-      SELECT tx.*
-      FROM transactions tx
-      INNER JOIN transaction_tags tt ON tx.id = tt.transaction_id
-      WHERE tt.tag_id = ? $ledgerFilter
-      ORDER BY tx.happened_at DESC
-      ''',
-      variables: vars,
-      readsFrom: {db.transactions, db.transactionTags},
-    ).watch().map((rows) {
-      return rows.map((row) {
-        return Transaction(
-          id: row.read<int>('id'),
-          ledgerId: row.read<int>('ledger_id'),
-          type: row.read<String>('type'),
-          amount: row.read<double>('amount'),
-          categoryId: row.read<int?>('category_id'),
-          accountId: row.read<int?>('account_id'),
-          toAccountId: row.read<int?>('to_account_id'),
-          happenedAt: row.read<DateTime>('happened_at'),
-          note: row.read<String?>('note'),
-          recurringId: row.read<int?>('recurring_id'),
-          excludeFromStats: row.read<bool>('exclude_from_stats'),
-          excludeFromBudget: row.read<bool>('exclude_from_budget'),
-        );
-      }).toList();
-    });
+    if (tagId < 0) {
+      return _watchSharedTxByTagSyntheticId(tagId, ledgerId,
+          start: start, end: end);
+    }
+    // drift join + readTable 全字段映射;旧手写映射漏掉 currencyCode/
+    // nativeAmount/categorySyncIdOverride 等列,外币交易在详情页显示会错。
+    final query = db.select(db.transactions).join([
+      d.innerJoin(
+        db.transactionTags,
+        db.transactionTags.transactionId.equalsExp(db.transactions.id),
+      ),
+    ])
+      ..where(db.transactionTags.tagId.equals(tagId))
+      ..orderBy([
+        d.OrderingTerm(
+            expression: db.transactions.happenedAt, mode: d.OrderingMode.desc),
+      ]);
+    if (ledgerId != null) {
+      query.where(db.transactions.ledgerId.equals(ledgerId));
+    }
+    if (start != null) {
+      query.where(db.transactions.happenedAt.isBiggerOrEqualValue(start));
+    }
+    if (end != null) {
+      query.where(db.transactions.happenedAt.isSmallerThanValue(end));
+    }
+    return query
+        .watch()
+        .map((rows) => rows.map((row) => row.readTable(db.transactions)).toList());
   }
 
   // ============================================

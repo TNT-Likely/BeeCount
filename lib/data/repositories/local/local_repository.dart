@@ -2466,8 +2466,9 @@ class LocalRepository extends BaseRepository {
       _tagRepo.getAllTagTransactionCounts();
 
   @override
-  Future<({int count, double expense, double income})> getTagStats(int tagId, {int? ledgerId}) =>
-      _tagRepo.getTagStats(tagId, ledgerId: ledgerId);
+  Future<({int count, double expense, double income})> getTagStats(int tagId,
+          {int? ledgerId, DateTime? start, DateTime? end}) =>
+      _tagRepo.getTagStats(tagId, ledgerId: ledgerId, start: start, end: end);
 
   @override
   Future<List<Transaction>> getTransactionsByTag(int tagId) =>
@@ -2496,8 +2497,10 @@ class LocalRepository extends BaseRepository {
       _tagRepo.watchTagsForTransaction(transactionId);
 
   @override
-  Stream<List<Transaction>> watchTransactionsByTag(int tagId, {int? ledgerId}) =>
-      _tagRepo.watchTransactionsByTag(tagId, ledgerId: ledgerId);
+  Stream<List<Transaction>> watchTransactionsByTag(int tagId,
+          {int? ledgerId, DateTime? start, DateTime? end}) =>
+      _tagRepo.watchTransactionsByTag(tagId,
+          ledgerId: ledgerId, start: start, end: end);
 
   @override
   Future<bool> isTagNameDuplicate({required String name, int? excludeId}) =>

@@ -11,7 +11,9 @@ import '../../styles/tokens.dart';
 import '../../utils/transaction_edit_utils.dart';
 import '../../services/billing/post_processor.dart';
 import '../../utils/category_utils.dart';
+import '../../utils/month_range.dart';
 import '../../utils/shared_ledger_picker_filter.dart';
+import '../../widgets/ui/capsule_switcher.dart';
 import '../../l10n/app_localizations.dart';
 import 'tag_edit_page.dart';
 
@@ -36,6 +38,11 @@ class TagDetailPage extends ConsumerStatefulWidget {
 class _TagDetailPageState extends ConsumerState<TagDetailPage> {
   // 缓存分类数据
   Map<int, db.Category> _categoryCache = {};
+
+  // #461 时间维度:month | year | all。默认 all 保持旧行为(与标签管理列表的总笔数对得上)。
+  String _scope = 'all';
+  // 月/年视角选中的周期标签(DateTime(y,m,1));null = 当前周期
+  DateTime? _selMonth;
 
   @override
   void initState() {
@@ -71,54 +78,138 @@ class _TagDetailPageState extends ConsumerState<TagDetailPage> {
     }
   }
 
+  /// 当前 scope 的统计/列表时间范围;all 返回 null(全部历史,含未来的预记账)。
+  /// 月/年周期口径与洞察页一致(自定义每月起始日,periodForLabel/yearRangeFor)。
+  DateRange? _rangeForScope(int startDay, DateTime selMonth) {
+    switch (_scope) {
+      case 'month':
+        return periodForLabel(selMonth.year, selMonth.month, startDay);
+      case 'year':
+        return yearRangeFor(selMonth.year, startDay);
+      default:
+        return null;
+    }
+  }
+
+  // 显示周期选择器(对齐洞察页:月=年月轮盘,年=年轮盘)
+  void _showPeriodPicker(DateTime selMonth) async {
+    if (_scope == 'month') {
+      final res = await showWheelDatePicker(
+        context,
+        initial: selMonth,
+        mode: WheelDatePickerMode.ym,
+        maxDate: DateTime.now(),
+      );
+      if (res != null) {
+        setState(() => _selMonth = DateTime(res.year, res.month, 1));
+      }
+    } else if (_scope == 'year') {
+      final res = await showWheelDatePicker(
+        context,
+        initial: selMonth,
+        mode: WheelDatePickerMode.y,
+        maxDate: DateTime.now(),
+      );
+      if (res != null) {
+        setState(() => _selMonth = DateTime(res.year, 1, 1));
+      }
+    }
+  }
+
+  Widget _buildScopeBar(AppLocalizations l10n, DateTime selMonth) {
+    final periodLabel = _scope == 'year'
+        ? '${selMonth.year}'
+        : '${selMonth.year}-${selMonth.month.toString().padLeft(2, '0')}';
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: CapsuleSwitcher<String>(
+              selectedValue: _scope,
+              options: [
+                CapsuleOption(value: 'month', label: l10n.analyticsMonth),
+                CapsuleOption(value: 'year', label: l10n.analyticsYear),
+                CapsuleOption(value: 'all', label: l10n.analyticsAll),
+              ],
+              onChanged: (value) => setState(() => _scope = value),
+            ),
+          ),
+          if (_scope != 'all') ...[
+            const SizedBox(width: 12),
+            InkWell(
+              onTap: () => _showPeriodPicker(selMonth),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(periodLabel, style: BeeTextTokens.title(context)),
+                  Icon(
+                    Icons.arrow_drop_down,
+                    size: 20,
+                    color: BeeTokens.textPrimary(context),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final tagAsync = ref.watch(_tagStreamProvider(widget.tagId));
     final ledgerScope = widget.allLedgers ? null : ref.watch(currentLedgerIdProvider);
-    final statsAsync = ref.watch(_tagStatsProvider((tagId: widget.tagId, ledgerId: ledgerScope)));
-    final transactionsAsync = ref.watch(_tagTransactionsStreamProvider((tagId: widget.tagId, ledgerId: ledgerScope)));
+    final startDay = ref.watch(currentMonthStartDayProvider);
+    final selMonth = _selMonth ?? labelForDate(DateTime.now(), startDay);
+    final range = _rangeForScope(startDay, selMonth);
+    final statsAsync = ref.watch(_tagStatsProvider((
+      tagId: widget.tagId,
+      ledgerId: ledgerScope,
+      start: range?.start,
+      end: range?.end,
+    )));
+    final transactionsAsync = ref.watch(_tagTransactionsStreamProvider((
+      tagId: widget.tagId,
+      ledgerId: ledgerScope,
+      start: range?.start,
+      end: range?.end,
+    )));
+    final tag = tagAsync.valueOrNull;
 
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
       body: Column(
         children: [
-          // Header
-          tagAsync.when(
-            loading: () => PrimaryHeader(
-              title: l10n.tagDetailTitle,
-              showBack: true,
-            ),
-            error: (error, stack) => PrimaryHeader(
-              title: l10n.tagDetailTitle,
-              showBack: true,
-            ),
-            data: (tag) => PrimaryHeader(
-              title: l10n.tagDetailTitle,
-              showBack: true,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined),
-                  tooltip: l10n.commonEdit,
-                  onPressed: tag != null
-                      ? () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => TagEditPage(tag: tag),
-                            ),
-                          );
-                        }
-                      : null,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  tooltip: l10n.commonDelete,
-                  onPressed: tag != null
-                      ? () => _confirmDelete(tag, l10n)
-                      : null,
-                ),
-              ],
-            ),
+          // Header(tag 未加载完时编辑/删除禁用)
+          PrimaryHeader(
+            title: l10n.tagDetailTitle,
+            showBack: true,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                tooltip: l10n.commonEdit,
+                onPressed: tag != null
+                    ? () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => TagEditPage(tag: tag),
+                          ),
+                        );
+                      }
+                    : null,
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                tooltip: l10n.commonDelete,
+                onPressed: tag != null
+                    ? () => _confirmDelete(tag, l10n)
+                    : null,
+              ),
+            ],
+            bottom: _buildScopeBar(l10n, selMonth),
           ),
           Expanded(
             child: Column(
@@ -446,15 +537,31 @@ final _tagStreamProvider = StreamProvider.family<db.Tag?, int>((ref, tagId) {
   return repo.watchTag(tagId);
 });
 
-/// 获取标签统计信息
-final _tagStatsProvider = FutureProvider.family<({int count, double expense, double income}), ({int tagId, int? ledgerId})>((ref, params) async {
+/// 获取标签统计信息(start/end 为 #461 时间维度筛选,null = 全部)。
+/// autoDispose:参数含时间范围,用户切换周期会产生新 family 实例,旧实例及时释放。
+final _tagStatsProvider = FutureProvider.autoDispose.family<
+    ({int count, double expense, double income}),
+    ({int tagId, int? ledgerId, DateTime? start, DateTime? end})>((ref, params) async {
   ref.watch(tagListRefreshProvider);
   final repo = ref.watch(repositoryProvider);
-  return await repo.getTagStats(params.tagId, ledgerId: params.ledgerId);
+  return await repo.getTagStats(
+    params.tagId,
+    ledgerId: params.ledgerId,
+    start: params.start,
+    end: params.end,
+  );
 });
 
-/// 监听标签下的交易
-final _tagTransactionsStreamProvider = StreamProvider.family<List<db.Transaction>, ({int tagId, int? ledgerId})>((ref, params) {
+/// 监听标签下的交易(start/end 为 #461 时间维度筛选,null = 全部)。
+/// autoDispose:同上,切换周期后旧范围的 drift watch 订阅随之取消。
+final _tagTransactionsStreamProvider = StreamProvider.autoDispose.family<
+    List<db.Transaction>,
+    ({int tagId, int? ledgerId, DateTime? start, DateTime? end})>((ref, params) {
   final repo = ref.watch(repositoryProvider);
-  return repo.watchTransactionsByTag(params.tagId, ledgerId: params.ledgerId);
+  return repo.watchTransactionsByTag(
+    params.tagId,
+    ledgerId: params.ledgerId,
+    start: params.start,
+    end: params.end,
+  );
 });
