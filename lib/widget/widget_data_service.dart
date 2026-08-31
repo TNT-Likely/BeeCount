@@ -21,6 +21,20 @@ class GlanceWidgetData {
   });
 }
 
+/// 桌面小组件近若干日的记账活动:每天至少保留一条(无交易日为 0 / false),
+/// 供「消费节奏」与「记账连续蜂迹」共用。
+class DailyWidgetActivity {
+  final DateTime date;
+  final double expenseTotal;
+  final bool hasRecord;
+
+  const DailyWidgetActivity({
+    required this.date,
+    required this.expenseTotal,
+    required this.hasRecord,
+  });
+}
+
 /// 净资产(netWorth)小组件的总览数据:已折算到主币种(见
 /// [WidgetDataService.gatherNetWorthBreakdown])。
 class NetWorthBreakdownData {
@@ -164,6 +178,53 @@ class WidgetDataService {
       todayIncomeTotal: _sumTotals(todayIncome),
       monthExpenseTotal: _sumTotals(monthExpense),
       monthIncomeTotal: _sumTotals(monthIncome),
+    );
+  }
+
+  /// 取以 [now] 当天为终点的连续日活动。使用单个区间查询后在内存中按日
+  /// 聚合，避免小组件渲染时按天发出 N 次数据库查询。
+  ///
+  /// 与统计页口径一致，`excludeFromStats` 的交易完全忽略；其余任何类型的
+  /// 交易都代表当天完成过记账，但只有支出计入 [expenseTotal]。
+  static Future<List<DailyWidgetActivity>> gatherDailyActivity({
+    required BaseRepository repository,
+    required int ledgerId,
+    int days = 30,
+    DateTime? now,
+  }) async {
+    assert(days > 0);
+    final anchor = now ?? DateTime.now();
+    final endDay = DateTime(anchor.year, anchor.month, anchor.day);
+    final startDay = endDay.subtract(Duration(days: days - 1));
+    final endExclusive = endDay.add(const Duration(days: 1));
+    final expenses = List<double>.filled(days, 0);
+    final records = List<bool>.filled(days, false);
+
+    final transactions = await repository.getTransactionsByLedgerInRange(
+      ledgerId: ledgerId,
+      start: startDay,
+      end: endExclusive,
+    );
+    for (final transaction in transactions) {
+      if (transaction.excludeFromStats) continue;
+      final date = DateTime(transaction.happenedAt.year,
+          transaction.happenedAt.month, transaction.happenedAt.day);
+      final index = date.difference(startDay).inDays;
+      if (index < 0 || index >= days) continue;
+      records[index] = true;
+      if (transaction.type == 'expense') {
+        expenses[index] += transaction.amount;
+      }
+    }
+
+    return List.generate(
+      days,
+      (index) => DailyWidgetActivity(
+        date: startDay.add(Duration(days: index)),
+        expenseTotal: expenses[index],
+        hasRecord: records[index],
+      ),
+      growable: false,
     );
   }
 
@@ -554,6 +615,13 @@ class WidgetGatherBatch {
   Future<GlanceWidgetData>? _glance;
   Future<GlanceWidgetData> glance() => _glance ??=
       WidgetDataService.gatherGlance(repository: repository, ledgerId: ledgerId);
+
+  Future<List<DailyWidgetActivity>>? _dailyActivity30;
+
+  /// 近 30 个自然日的记账/消费活动，两个行为型小组件共用同一份聚合结果。
+  Future<List<DailyWidgetActivity>> dailyActivity30() => _dailyActivity30 ??=
+      WidgetDataService.gatherDailyActivity(
+          repository: repository, ledgerId: ledgerId);
 
   Future<NetWorthBreakdownData>? _netWorthBreakdown;
   Future<NetWorthBreakdownData> netWorthBreakdown() =>

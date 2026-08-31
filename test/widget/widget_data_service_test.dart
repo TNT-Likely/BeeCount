@@ -83,6 +83,60 @@ void main() {
     expect(data.monthIncomeTotal, 0);
   });
 
+  group('gatherDailyActivity', () {
+    test('补齐日序列,仅累计支出,并排除不计统计的交易', () async {
+      await db.customStatement(
+          "INSERT INTO ledgers (id, name, currency) VALUES (301, 'L', 'CNY')");
+      final now = DateTime(2026, 8, 30, 14);
+      final start = DateTime(2026, 8, 1);
+
+      await repo.addTransaction(
+          ledgerId: 301,
+          type: 'expense',
+          amount: 12,
+          happenedAt: start.add(const Duration(days: 3, hours: 9)));
+      await repo.addTransaction(
+          ledgerId: 301,
+          type: 'income',
+          amount: 88,
+          happenedAt: start.add(const Duration(days: 3, hours: 18)));
+      await repo.addTransaction(
+          ledgerId: 301,
+          type: 'transfer',
+          amount: 50,
+          happenedAt: start.add(const Duration(days: 4)));
+      await repo.addTransaction(
+          ledgerId: 301,
+          type: 'expense',
+          amount: 99,
+          happenedAt: start.add(const Duration(days: 5)),
+          excludeFromStats: true);
+      await repo.addTransaction(
+          ledgerId: 301,
+          type: 'expense',
+          amount: 777,
+          happenedAt: start.subtract(const Duration(days: 1)));
+
+      final days = await WidgetDataService.gatherDailyActivity(
+        repository: repo,
+        ledgerId: 301,
+        now: now,
+      );
+
+      expect(days, hasLength(30));
+      expect(days.first.date, start);
+      expect(days.last.date, DateTime(2026, 8, 30));
+      expect(days[3].expenseTotal, 12);
+      expect(days[3].hasRecord, isTrue);
+      expect(days[4].expenseTotal, 0);
+      expect(days[4].hasRecord, isTrue);
+      expect(days[5].expenseTotal, 0);
+      expect(days[5].hasRecord, isFalse);
+      expect(days[6].date, DateTime(2026, 8, 7));
+      expect(days[6].hasRecord, isFalse);
+    });
+  });
+
   group('gatherNetWorthBreakdown', () {
     test('单币种:折算口径与直接口径一致(rate=1.0)', () async {
       await repo.createAccount(
