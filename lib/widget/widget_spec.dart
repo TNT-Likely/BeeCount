@@ -361,8 +361,8 @@ class WidgetSpec {
       final iosHit = spec.iosKind != null &&
           spec.iosKind == info.iOSKind &&
           (spec.iosFamily == null || spec.iosFamily == info.iOSFamily);
-      final androidHit =
-          _androidClassMatches(info.androidClassName, spec.androidAllClassNames);
+      final androidHit = _androidClassMatches(
+          info.androidClassName, spec.androidAllClassNames);
       if (iosHit || androidHit) {
         matched.add(spec);
       }

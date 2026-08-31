@@ -264,7 +264,8 @@ class WidgetDataService {
   /// `ref.watch(baseCurrencyProvider)` / `effectiveRatesProvider` 拿,这里
   /// 直接把 [baseCurrency] 当参数传入,避免依赖 Riverpod。
   static Future<
-      List<({DateTime date, double assets, double liabilities, double net})>>
+          List<
+              ({DateTime date, double assets, double liabilities, double net})>>
       gatherNetWorthTrend({
     required BaseRepository repository,
     required String baseCurrency,
@@ -317,8 +318,8 @@ class WidgetDataService {
       );
     }).toList();
 
-    items.sort((x, y) =>
-        (y.convertedBalance ?? y.balance).compareTo(x.convertedBalance ?? x.balance));
+    items.sort((x, y) => (y.convertedBalance ?? y.balance)
+        .compareTo(x.convertedBalance ?? x.balance));
     return items.take(limit).toList();
   }
 
@@ -485,12 +486,15 @@ class WidgetDataService {
 
     final items = <RecentTransactionItem>[];
     for (final t in txs) {
-      final category =
-          t.categoryId != null ? await repository.getCategoryById(t.categoryId!) : null;
-      final account =
-          t.accountId != null ? await repository.getAccount(t.accountId!) : null;
-      final toAccount =
-          t.toAccountId != null ? await repository.getAccount(t.toAccountId!) : null;
+      final category = t.categoryId != null
+          ? await repository.getCategoryById(t.categoryId!)
+          : null;
+      final account = t.accountId != null
+          ? await repository.getAccount(t.accountId!)
+          : null;
+      final toAccount = t.toAccountId != null
+          ? await repository.getAccount(t.toAccountId!)
+          : null;
       items.add(RecentTransactionItem(
         transaction: t,
         category: category,
@@ -514,7 +518,8 @@ class WidgetDataService {
     int recentCount = 3,
     int quickAddCount = 4,
   }) async {
-    final glance = await gatherGlance(repository: repository, ledgerId: ledgerId);
+    final glance =
+        await gatherGlance(repository: repository, ledgerId: ledgerId);
 
     final end = trendTodayAnchor();
     final start = end.subtract(const Duration(days: 29)); // 近 30 日(含今天)
@@ -560,7 +565,8 @@ class WidgetDataService {
     final overrides = await repository.getOverrides(base);
     return mergeEffectiveRates(
       autoRates: [
-        for (final r in autos) (quote: r.quoteCurrency, rate: r.rate, rateDate: r.rateDate)
+        for (final r in autos)
+          (quote: r.quoteCurrency, rate: r.rate, rateDate: r.rateDate)
       ],
       overrides: [
         for (final o in overrides) (quote: o.quoteCurrency, rate: o.rate)
@@ -613,14 +619,15 @@ class WidgetGatherBatch {
   });
 
   Future<GlanceWidgetData>? _glance;
-  Future<GlanceWidgetData> glance() => _glance ??=
-      WidgetDataService.gatherGlance(repository: repository, ledgerId: ledgerId);
+  Future<GlanceWidgetData> glance() =>
+      _glance ??= WidgetDataService.gatherGlance(
+          repository: repository, ledgerId: ledgerId);
 
   Future<List<DailyWidgetActivity>>? _dailyActivity30;
 
   /// 近 30 个自然日的记账/消费活动，两个行为型小组件共用同一份聚合结果。
-  Future<List<DailyWidgetActivity>> dailyActivity30() => _dailyActivity30 ??=
-      WidgetDataService.gatherDailyActivity(
+  Future<List<DailyWidgetActivity>> dailyActivity30() =>
+      _dailyActivity30 ??= WidgetDataService.gatherDailyActivity(
           repository: repository, ledgerId: ledgerId);
 
   Future<NetWorthBreakdownData>? _netWorthBreakdown;
@@ -628,8 +635,14 @@ class WidgetGatherBatch {
       _netWorthBreakdown ??= WidgetDataService.gatherNetWorthBreakdown(
           repository: repository, baseCurrency: baseCurrency);
 
-  Future<List<({DateTime date, double assets, double liabilities, double net})>>?
-      _trend30;
+  Future<
+      List<
+          ({
+            DateTime date,
+            double assets,
+            double liabilities,
+            double net
+          })>>? _trend30;
 
   /// 近 30 天(含今天)净值趋势,netWorth 三档与 dashboard 共用同一份。
   Future<List<({DateTime date, double assets, double liabilities, double net})>>
@@ -662,8 +675,8 @@ class WidgetGatherBatch {
           repository: repository, ledgerId: ledgerId, limit: 7);
 
   Future<BudgetOverview>? _budget;
-  Future<BudgetOverview> budget() => _budget ??=
-      WidgetDataService.gatherBudget(repository: repository, ledgerId: ledgerId);
+  Future<BudgetOverview> budget() => _budget ??= WidgetDataService.gatherBudget(
+      repository: repository, ledgerId: ledgerId);
 
   Future<List<({String name, double share})>>? _topShares;
 
@@ -673,16 +686,16 @@ class WidgetGatherBatch {
           repository: repository, ledgerId: ledgerId);
 
   Future<String>? _ledgerCurrency;
-  Future<String> ledgerCurrency() => _ledgerCurrency ??=
-      WidgetDataService.gatherLedgerCurrency(
+  Future<String> ledgerCurrency() =>
+      _ledgerCurrency ??= WidgetDataService.gatherLedgerCurrency(
           repository: repository, ledgerId: ledgerId);
 
   Future<List<RecentTransactionItem>>? _recent;
 
   /// 最近交易,按批次内最大需求(large 的 6 笔)取一次;medium(3)与
   /// dashboard(2)由 View 内部 take 截断。
-  Future<List<RecentTransactionItem>> recent() => _recent ??=
-      WidgetDataService.gatherRecent(
+  Future<List<RecentTransactionItem>> recent() =>
+      _recent ??= WidgetDataService.gatherRecent(
           repository: repository, ledgerId: ledgerId, limit: 6);
 
   /// dashboard 组合数据:全部由本批次已 memo 的各份数据拼装,不再走

@@ -37,7 +37,9 @@ class ConsumptionRhythmView extends StatelessWidget {
         ? activity.sublist(activity.length - 30)
         : activity;
     final maxExpense = days.fold<double>(
-        0, (maximum, day) => day.expenseTotal > maximum ? day.expenseTotal : maximum);
+        0,
+        (maximum, day) =>
+            day.expenseTotal > maximum ? day.expenseTotal : maximum);
     final empty = maxExpense == 0;
 
     return Container(
@@ -56,7 +58,8 @@ class ConsumptionRhythmView extends StatelessWidget {
               Container(
                 width: 7,
                 height: 7,
-                decoration: BoxDecoration(color: themeColor, shape: BoxShape.circle),
+                decoration:
+                    BoxDecoration(color: themeColor, shape: BoxShape.circle),
               ),
               const SizedBox(width: 6),
               Text(titleLabel,
@@ -66,7 +69,8 @@ class ConsumptionRhythmView extends StatelessWidget {
                       fontWeight: FontWeight.w600)),
               const Spacer(),
               Text('近 30 天',
-                  style: TextStyle(color: widgetTextTertiary(dark), fontSize: 10)),
+                  style:
+                      TextStyle(color: widgetTextTertiary(dark), fontSize: 10)),
             ],
           ),
           const SizedBox(height: 7),
@@ -76,7 +80,11 @@ class ConsumptionRhythmView extends StatelessWidget {
                     child: Text(emptyLabel,
                         style: TextStyle(
                             color: widgetTextTertiary(dark), fontSize: 12)))
-                : _HeatMap(days: days, maxExpense: maxExpense, color: themeColor, dark: dark),
+                : _HeatMap(
+                    days: days,
+                    maxExpense: maxExpense,
+                    color: themeColor,
+                    dark: dark),
           ),
           const SizedBox(height: 5),
           Text(
@@ -84,7 +92,9 @@ class ConsumptionRhythmView extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-                color: empty ? widgetTextTertiary(dark) : widgetTextSecondary(dark),
+                color: empty
+                    ? widgetTextTertiary(dark)
+                    : widgetTextSecondary(dark),
                 fontSize: 11,
                 fontWeight: FontWeight.w500),
           ),
@@ -95,8 +105,9 @@ class ConsumptionRhythmView extends StatelessWidget {
 
   String _comparisonLabel(List<DailyWidgetActivity> days) {
     if (days.every((day) => day.expenseTotal == 0)) return emptyLabel;
-    final recent = days.skip((days.length - 7).clamp(0, days.length)).fold<double>(
-        0, (sum, day) => sum + day.expenseTotal);
+    final recent = days
+        .skip((days.length - 7).clamp(0, days.length))
+        .fold<double>(0, (sum, day) => sum + day.expenseTotal);
     final previousStart = (days.length - 14).clamp(0, days.length);
     final previousEnd = (days.length - 7).clamp(0, days.length);
     final previous = days
@@ -149,7 +160,8 @@ class _HeatMap extends StatelessWidget {
   }
 
   Widget _cell(DailyWidgetActivity? day) {
-    final ratio = day == null || maxExpense == 0 ? 0.0 : day.expenseTotal / maxExpense;
+    final ratio =
+        day == null || maxExpense == 0 ? 0.0 : day.expenseTotal / maxExpense;
     final alpha = ratio == 0 ? (dark ? 0.10 : 0.08) : 0.22 + ratio * 0.70;
     return DecoratedBox(
       decoration: BoxDecoration(

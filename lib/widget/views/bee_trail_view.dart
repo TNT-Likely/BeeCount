@@ -67,7 +67,8 @@ class BeeTrailView extends StatelessWidget {
               child: Center(
                 child: Text(emptyLabel,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: widgetTextTertiary(dark), fontSize: 11)),
+                    style: TextStyle(
+                        color: widgetTextTertiary(dark), fontSize: 11)),
               ),
             )
           else ...[
@@ -78,7 +79,9 @@ class BeeTrailView extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                     height: 1.0)),
             const SizedBox(height: 4),
-            Expanded(child: CustomPaint(painter: _HivePainter(dots, themeColor, dark))),
+            Expanded(
+                child:
+                    CustomPaint(painter: _HivePainter(dots, themeColor, dark))),
             const SizedBox(height: 3),
             Row(
               children: [
@@ -86,7 +89,8 @@ class BeeTrailView extends StatelessWidget {
                   child: Text(completionLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: widgetTextTertiary(dark), fontSize: 9)),
+                      style: TextStyle(
+                          color: widgetTextTertiary(dark), fontSize: 9)),
                 ),
                 Text('${(recorded / activity.length * 100).round()}%',
                     style: TextStyle(
@@ -149,12 +153,16 @@ class _HivePainter extends CustomPainter {
             Paint()
               ..color = dots[index]
                   ? color.withValues(alpha: 0.90)
-                  : (dark ? Colors.white.withValues(alpha: 0.09) : const Color(0xFFF1F1F1)));
+                  : (dark
+                      ? Colors.white.withValues(alpha: 0.09)
+                      : const Color(0xFFF1F1F1)));
       }
     }
   }
 
   @override
   bool shouldRepaint(covariant _HivePainter oldDelegate) =>
-      oldDelegate.dots != dots || oldDelegate.color != color || oldDelegate.dark != dark;
+      oldDelegate.dots != dots ||
+      oldDelegate.color != color ||
+      oldDelegate.dark != dark;
 }

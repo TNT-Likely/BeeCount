@@ -998,8 +998,7 @@ class WidgetManager {
         logicalSize: logicalSize,
         pixelRatio: 3.0,
       );
-      logger.warning(
-          _tag, '${spec.imageKey} 渲染出错,已用兜底卡覆盖(根因见上条 error 日志)');
+      logger.warning(_tag, '${spec.imageKey} 渲染出错,已用兜底卡覆盖(根因见上条 error 日志)');
       return;
     }
 
