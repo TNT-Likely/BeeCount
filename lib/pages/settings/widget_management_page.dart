@@ -687,7 +687,8 @@ Account _sampleAccount(
   );
 }
 
-Category _sampleCategory(int id, String name, {String? icon, String kind = 'expense'}) {
+Category _sampleCategory(int id, String name,
+    {String? icon, String kind = 'expense'}) {
   return Category(
     id: id,
     name: name,
@@ -776,9 +777,12 @@ List<NetWorthAccountItem> _sampleNetWorthAccounts() {
 /// 快速记账 4 个常用分类(含一个 emoji 图标,展示 emoji/图标两种渲染路径)。
 List<QuickAddCategoryItem> _sampleQuickAddCategories() {
   return const [
-    QuickAddCategoryItem(categoryId: 1, name: '餐饮', icon: 'restaurant', total: 680),
-    QuickAddCategoryItem(categoryId: 2, name: '交通', icon: 'directions_car', total: 210),
-    QuickAddCategoryItem(categoryId: 3, name: '购物', icon: 'shopping_bag', total: 450),
+    QuickAddCategoryItem(
+        categoryId: 1, name: '餐饮', icon: 'restaurant', total: 680),
+    QuickAddCategoryItem(
+        categoryId: 2, name: '交通', icon: 'directions_car', total: 210),
+    QuickAddCategoryItem(
+        categoryId: 3, name: '购物', icon: 'shopping_bag', total: 450),
     QuickAddCategoryItem(categoryId: 4, name: '奶茶', icon: '🧋', total: 68),
   ];
 }

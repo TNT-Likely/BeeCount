@@ -13,7 +13,12 @@ void main() {
         30,
         (index) => DailyWidgetActivity(
           date: DateTime(2026, 8, index + 1),
-          expenseTotal: switch (index % 4) { 0 => 0, 1 => 12, 2 => 45, _ => 120 },
+          expenseTotal: switch (index % 4) {
+            0 => 0,
+            1 => 12,
+            2 => 45,
+            _ => 120
+          },
           hasRecord: index.isEven,
         ),
       );
@@ -24,8 +29,7 @@ void main() {
       );
 
   for (final dark in [false, true]) {
-    testWidgets('364x169 ${dark ? "暗色" : "亮色"}显示热力图和节奏提示',
-        (tester) async {
+    testWidgets('364x169 ${dark ? "暗色" : "亮色"}显示热力图和节奏提示', (tester) async {
       await tester.pumpWidget(wrap(ConsumptionRhythmView(
         activity: activity(),
         themeColor: const Color(0xFFF5A623),

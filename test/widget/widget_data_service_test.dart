@@ -62,10 +62,7 @@ void main() {
         ledgerId: 2, type: 'expense', amount: 30, happenedAt: range.start);
     // 上一周期最后一天一笔支出,不应计入本周期
     await repo.addTransaction(
-        ledgerId: 2,
-        type: 'expense',
-        amount: 999,
-        happenedAt: justBeforeRange);
+        ledgerId: 2, type: 'expense', amount: 999, happenedAt: justBeforeRange);
 
     final data =
         await WidgetDataService.gatherGlance(repository: repo, ledgerId: 2);
@@ -74,8 +71,8 @@ void main() {
   });
 
   test('账本不存在(getLedgerById 返回 null)时按自然月兜底,不抛异常', () async {
-    final data = await WidgetDataService.gatherGlance(
-        repository: repo, ledgerId: 999);
+    final data =
+        await WidgetDataService.gatherGlance(repository: repo, ledgerId: 999);
 
     expect(data.todayExpenseTotal, 0);
     expect(data.todayIncomeTotal, 0);
@@ -246,7 +243,8 @@ void main() {
       final data = await WidgetDataService.gatherNetWorthBreakdown(
           repository: repo, baseCurrency: 'CNY');
 
-      expect(data.totalAssets, closeTo(1650, 1e-9)); // 1000 + 100×6.5(override 优先)
+      expect(
+          data.totalAssets, closeTo(1650, 1e-9)); // 1000 + 100×6.5(override 优先)
     });
   });
 
@@ -302,8 +300,7 @@ void main() {
   });
 
   group('gatherNetWorthTopAccounts', () {
-    test('按折算余额降序;隐藏账户排除;缺汇率账户仍返回(用原币余额兜底排序)',
-        () async {
+    test('按折算余额降序;隐藏账户排除;缺汇率账户仍返回(用原币余额兜底排序)', () async {
       final cnyId = await repo.createAccount(
           ledgerId: 1,
           name: '现金',
@@ -468,8 +465,7 @@ void main() {
       expect(items.single.total, 30);
     });
 
-    test('本期用过的分类不足 limit 时,用其余可用支出分类按 sortOrder 补齐(total=0)',
-        () async {
+    test('本期用过的分类不足 limit 时,用其余可用支出分类按 sortOrder 补齐(total=0)', () async {
       final food = await repo.createCategory(
           name: '餐饮', kind: 'expense', icon: 'fastfood');
       // 未在本期消费的分类:排在有支出的分类之后,total 记 0。
@@ -516,13 +512,29 @@ void main() {
 
       final now = DateTime.now();
       await repo.addTransaction(
-          ledgerId: 1, type: 'expense', amount: 490, categoryId: cat1, happenedAt: now);
+          ledgerId: 1,
+          type: 'expense',
+          amount: 490,
+          categoryId: cat1,
+          happenedAt: now);
       await repo.addTransaction(
-          ledgerId: 1, type: 'expense', amount: 100, categoryId: cat2, happenedAt: now);
+          ledgerId: 1,
+          type: 'expense',
+          amount: 100,
+          categoryId: cat2,
+          happenedAt: now);
       await repo.addTransaction(
-          ledgerId: 1, type: 'expense', amount: 200, categoryId: cat3, happenedAt: now);
+          ledgerId: 1,
+          type: 'expense',
+          amount: 200,
+          categoryId: cat3,
+          happenedAt: now);
       await repo.addTransaction(
-          ledgerId: 1, type: 'expense', amount: 10, categoryId: cat4, happenedAt: now);
+          ledgerId: 1,
+          type: 'expense',
+          amount: 10,
+          categoryId: cat4,
+          happenedAt: now);
 
       final overview = await WidgetDataService.gatherBudget(
           repository: repo, ledgerId: 1, topCategoryCount: 2);
@@ -548,10 +560,12 @@ void main() {
 
   group('gatherRecent', () {
     test('拼上分类(支出)与转入转出账户(转账)', () async {
-      final cat =
-          await repo.createCategory(name: '餐饮', kind: 'expense', icon: 'fastfood');
-      final accA = await repo.createAccount(ledgerId: 1, name: 'A', currency: 'CNY');
-      final accB = await repo.createAccount(ledgerId: 1, name: 'B', currency: 'CNY');
+      final cat = await repo.createCategory(
+          name: '餐饮', kind: 'expense', icon: 'fastfood');
+      final accA =
+          await repo.createAccount(ledgerId: 1, name: 'A', currency: 'CNY');
+      final accB =
+          await repo.createAccount(ledgerId: 1, name: 'B', currency: 'CNY');
 
       await repo.addTransaction(
           ledgerId: 1,
@@ -602,7 +616,11 @@ void main() {
       final cat = await repo.createCategory(name: '餐饮', kind: 'expense');
       final now = DateTime.now();
       await repo.addTransaction(
-          ledgerId: 1, type: 'expense', amount: 50, categoryId: cat, happenedAt: now);
+          ledgerId: 1,
+          type: 'expense',
+          amount: 50,
+          categoryId: cat,
+          happenedAt: now);
       await repo.addTransaction(
           ledgerId: 1, type: 'income', amount: 80, happenedAt: now);
 

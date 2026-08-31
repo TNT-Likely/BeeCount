@@ -24,8 +24,7 @@ void main() {
       );
 
   for (final dark in [false, true]) {
-    testWidgets('155x155 ${dark ? "暗色" : "亮色"}显示连续记账和完成率',
-        (tester) async {
+    testWidgets('155x155 ${dark ? "暗色" : "亮色"}显示连续记账和完成率', (tester) async {
       await tester.pumpWidget(wrap(BeeTrailView(
         activity: activity(),
         themeColor: const Color(0xFFF5A623),

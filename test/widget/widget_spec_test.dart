@@ -55,8 +55,7 @@ void main() {
         (HWType.consumptionRhythm, HWSize.medium),
         (HWType.beeTrail, HWSize.small),
       };
-      final actual =
-          WidgetSpec.catalog.map((s) => (s.type, s.size)).toSet();
+      final actual = WidgetSpec.catalog.map((s) => (s.type, s.size)).toSet();
       expect(actual, expected);
     });
 
