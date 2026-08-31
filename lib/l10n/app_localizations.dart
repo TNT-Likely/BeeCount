@@ -7718,6 +7718,72 @@ abstract class AppLocalizations {
   /// **'Income, trend and recent transactions in one view'**
   String get widgetGalleryDashboardDesc;
 
+  /// No description provided for @widgetConsumptionRhythmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending Rhythm'**
+  String get widgetConsumptionRhythmTitle;
+
+  /// No description provided for @widgetConsumptionRhythmStable.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending is steady'**
+  String get widgetConsumptionRhythmStable;
+
+  /// No description provided for @widgetConsumptionRhythmIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Faster than last week'**
+  String get widgetConsumptionRhythmIncrease;
+
+  /// No description provided for @widgetConsumptionRhythmDecrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Steadier than last week'**
+  String get widgetConsumptionRhythmDecrease;
+
+  /// No description provided for @widgetConsumptionRhythmEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending this month'**
+  String get widgetConsumptionRhythmEmpty;
+
+  /// No description provided for @widgetBeeTrailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record Bee Trail'**
+  String get widgetBeeTrailTitle;
+
+  /// No description provided for @widgetBeeTrailStreakSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get widgetBeeTrailStreakSuffix;
+
+  /// No description provided for @widgetBeeTrailCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly completion'**
+  String get widgetBeeTrailCompletion;
+
+  /// No description provided for @widgetBeeTrailEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a record to light the first cell'**
+  String get widgetBeeTrailEmpty;
+
+  /// No description provided for @widgetGalleryConsumptionRhythmDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'See your spending pace across the last 30 days'**
+  String get widgetGalleryConsumptionRhythmDesc;
+
+  /// No description provided for @widgetGalleryBeeTrailDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Build a gentle daily recording habit'**
+  String get widgetGalleryBeeTrailDesc;
+
   /// No description provided for @widgetSizeSmall.
   ///
   /// In en, this message translates to:

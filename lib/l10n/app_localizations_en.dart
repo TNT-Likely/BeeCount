@@ -4043,6 +4043,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetGalleryDashboardDesc => 'Income, trend and recent transactions in one view';
 
   @override
+  String get widgetConsumptionRhythmTitle => 'Spending Rhythm';
+
+  @override
+  String get widgetConsumptionRhythmStable => 'Spending is steady';
+
+  @override
+  String get widgetConsumptionRhythmIncrease => 'Faster than last week';
+
+  @override
+  String get widgetConsumptionRhythmDecrease => 'Steadier than last week';
+
+  @override
+  String get widgetConsumptionRhythmEmpty => 'No spending this month';
+
+  @override
+  String get widgetBeeTrailTitle => 'Record Bee Trail';
+
+  @override
+  String get widgetBeeTrailStreakSuffix => 'days';
+
+  @override
+  String get widgetBeeTrailCompletion => 'Monthly completion';
+
+  @override
+  String get widgetBeeTrailEmpty => 'Add a record to light the first cell';
+
+  @override
+  String get widgetGalleryConsumptionRhythmDesc => 'See your spending pace across the last 30 days';
+
+  @override
+  String get widgetGalleryBeeTrailDesc => 'Build a gentle daily recording habit';
+
+  @override
   String get widgetSizeSmall => 'Small';
 
   @override

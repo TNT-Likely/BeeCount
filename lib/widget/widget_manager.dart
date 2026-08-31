@@ -10,6 +10,8 @@ import '../services/system/logger_service.dart';
 import '../utils/currencies.dart' show getCurrencySymbol;
 import '../widgets/biz/format_money.dart' show formatMoneyCompact;
 import 'views/budget_view.dart';
+import 'views/bee_trail_view.dart';
+import 'views/consumption_rhythm_view.dart';
 import 'views/dashboard_view.dart';
 import 'views/glance_view.dart';
 import 'views/net_worth_view.dart';
@@ -209,6 +211,15 @@ class WidgetManager {
     // `widgetRecentTransactions`。其余文案(本月支出/收入、未分类、暂无交易、
     // 记一笔)全部复用上面 glance/recent/quickAdd 已有的同名参数,不重复造词。
     String dashboardRecentLabel = '最近交易',
+    String consumptionRhythmTitleLabel = '消费节奏',
+    String consumptionRhythmStableLabel = '消费很均匀',
+    String consumptionRhythmIncreaseLabel = '比上周更快',
+    String consumptionRhythmDecreaseLabel = '比上周更稳',
+    String consumptionRhythmEmptyLabel = '本月还没有支出',
+    String beeTrailTitleLabel = '记账连续蜂迹',
+    String beeTrailStreakSuffix = '天',
+    String beeTrailCompletionLabel = '本月完成率',
+    String beeTrailEmptyLabel = '今天记一笔，点亮第一格',
     // 预热:true 时渲染整个 [WidgetSpec.catalog] 而非仅"已安装"(D5 的显式
     // 例外)。用于 App 启动 / 切账本这类低频时机,把全部类型×尺寸的图先备好
     // ——否则用户添加一个从未渲染过的组件类型时,共享存储里没有对应图片,
@@ -284,6 +295,15 @@ class WidgetManager {
             uncategorizedLabel: uncategorizedLabel,
             noTransactionsLabel: noTransactionsLabel,
             dashboardRecentLabel: dashboardRecentLabel,
+            consumptionRhythmTitleLabel: consumptionRhythmTitleLabel,
+            consumptionRhythmStableLabel: consumptionRhythmStableLabel,
+            consumptionRhythmIncreaseLabel: consumptionRhythmIncreaseLabel,
+            consumptionRhythmDecreaseLabel: consumptionRhythmDecreaseLabel,
+            consumptionRhythmEmptyLabel: consumptionRhythmEmptyLabel,
+            beeTrailTitleLabel: beeTrailTitleLabel,
+            beeTrailStreakSuffix: beeTrailStreakSuffix,
+            beeTrailCompletionLabel: beeTrailCompletionLabel,
+            beeTrailEmptyLabel: beeTrailEmptyLabel,
           );
         } catch (e, st) {
           // 单个 spec 渲染失败不应阻断其余 spec。
@@ -375,6 +395,15 @@ class WidgetManager {
       uncategorizedLabel: l10n.commonUncategorized,
       noTransactionsLabel: l10n.widgetNoTransactions,
       dashboardRecentLabel: l10n.widgetRecentTransactions,
+      consumptionRhythmTitleLabel: l10n.widgetConsumptionRhythmTitle,
+      consumptionRhythmStableLabel: l10n.widgetConsumptionRhythmStable,
+      consumptionRhythmIncreaseLabel: l10n.widgetConsumptionRhythmIncrease,
+      consumptionRhythmDecreaseLabel: l10n.widgetConsumptionRhythmDecrease,
+      consumptionRhythmEmptyLabel: l10n.widgetConsumptionRhythmEmpty,
+      beeTrailTitleLabel: l10n.widgetBeeTrailTitle,
+      beeTrailStreakSuffix: l10n.widgetBeeTrailStreakSuffix,
+      beeTrailCompletionLabel: l10n.widgetBeeTrailCompletion,
+      beeTrailEmptyLabel: l10n.widgetBeeTrailEmpty,
     );
   }
 
@@ -424,6 +453,15 @@ class WidgetManager {
     required String uncategorizedLabel,
     required String noTransactionsLabel,
     required String dashboardRecentLabel,
+    required String consumptionRhythmTitleLabel,
+    required String consumptionRhythmStableLabel,
+    required String consumptionRhythmIncreaseLabel,
+    required String consumptionRhythmDecreaseLabel,
+    required String consumptionRhythmEmptyLabel,
+    required String beeTrailTitleLabel,
+    required String beeTrailStreakSuffix,
+    required String beeTrailCompletionLabel,
+    required String beeTrailEmptyLabel,
   }) async {
     switch (spec.type) {
       case HWType.glance:
@@ -507,7 +545,90 @@ class WidgetManager {
           titleLabel: dashboardTitleLabel,
         );
         return;
+      case HWType.consumptionRhythm:
+        await _renderConsumptionRhythm(
+          spec,
+          batch: batch,
+          themeColor: themeColor,
+          dark: dark,
+          titleLabel: consumptionRhythmTitleLabel,
+          stableLabel: consumptionRhythmStableLabel,
+          increaseLabel: consumptionRhythmIncreaseLabel,
+          decreaseLabel: consumptionRhythmDecreaseLabel,
+          emptyLabel: consumptionRhythmEmptyLabel,
+        );
+        return;
+      case HWType.beeTrail:
+        await _renderBeeTrail(
+          spec,
+          batch: batch,
+          themeColor: themeColor,
+          dark: dark,
+          titleLabel: beeTrailTitleLabel,
+          streakSuffix: beeTrailStreakSuffix,
+          completionLabel: beeTrailCompletionLabel,
+          emptyLabel: beeTrailEmptyLabel,
+        );
+        return;
     }
+  }
+
+  Future<void> _renderConsumptionRhythm(
+    WidgetSpec spec, {
+    required WidgetGatherBatch batch,
+    required Color themeColor,
+    required bool dark,
+    required String titleLabel,
+    required String stableLabel,
+    required String increaseLabel,
+    required String decreaseLabel,
+    required String emptyLabel,
+  }) async {
+    final view = ConsumptionRhythmView(
+      activity: await batch.dailyActivity30(),
+      themeColor: themeColor,
+      dark: dark,
+      titleLabel: titleLabel,
+      stableLabel: stableLabel,
+      increaseLabel: increaseLabel,
+      decreaseLabel: decreaseLabel,
+      emptyLabel: emptyLabel,
+      width: spec.logicalSize.width,
+      height: spec.logicalSize.height,
+    );
+    await _renderView(view,
+        spec: spec,
+        logicalSize: spec.logicalSize,
+        themeColor: themeColor,
+        dark: dark);
+  }
+
+  Future<void> _renderBeeTrail(
+    WidgetSpec spec, {
+    required WidgetGatherBatch batch,
+    required Color themeColor,
+    required bool dark,
+    required String titleLabel,
+    required String streakSuffix,
+    required String completionLabel,
+    required String emptyLabel,
+  }) async {
+    final view = BeeTrailView(
+      activity: await batch.dailyActivity30(),
+      themeColor: themeColor,
+      dark: dark,
+      titleLabel: titleLabel,
+      streakSuffix: streakSuffix,
+      completionLabel: completionLabel,
+      emptyLabel: emptyLabel,
+      width: spec.logicalSize.width,
+      height: spec.logicalSize.height,
+    );
+    await _renderView(view,
+        spec: spec,
+        logicalSize: spec.logicalSize,
+        themeColor: themeColor,
+        dark: dark);
   }
 
   /// 渲染收支速览(glance):小/中两档,均已接 [GlanceView] 真实视图。

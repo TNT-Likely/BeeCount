@@ -4043,6 +4043,39 @@ class AppLocalizationsKo extends AppLocalizations {
   String get widgetGalleryDashboardDesc => 'Income, trend and recent transactions in one view';
 
   @override
+  String get widgetConsumptionRhythmTitle => '소비 리듬';
+
+  @override
+  String get widgetConsumptionRhythmStable => '소비가 안정적이에요';
+
+  @override
+  String get widgetConsumptionRhythmIncrease => '지난주보다 빨라요';
+
+  @override
+  String get widgetConsumptionRhythmDecrease => '지난주보다 안정적이에요';
+
+  @override
+  String get widgetConsumptionRhythmEmpty => '이번 달 지출이 없어요';
+
+  @override
+  String get widgetBeeTrailTitle => '기록 꿀벌 궤적';
+
+  @override
+  String get widgetBeeTrailStreakSuffix => '일';
+
+  @override
+  String get widgetBeeTrailCompletion => '이번 달 완료율';
+
+  @override
+  String get widgetBeeTrailEmpty => '첫 칸을 밝히려면 기록을 추가하세요';
+
+  @override
+  String get widgetGalleryConsumptionRhythmDesc => '최근 30일의 소비 흐름을 확인하세요';
+
+  @override
+  String get widgetGalleryBeeTrailDesc => '벌집 칸으로 매일 기록하는 습관을 만드세요';
+
+  @override
   String get widgetSizeSmall => 'Small';
 
   @override
