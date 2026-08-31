@@ -1730,6 +1730,7 @@
   "widgetDashboardTitle": "This Month",
   "widgetGalleryDashboardDesc": "Income, trend and recent transactions in one view",
   "widgetConsumptionRhythmTitle": "Spending Rhythm",
+  "widgetConsumptionRhythmRange": "Last 30 days",
   "widgetConsumptionRhythmStable": "Spending is steady",
   "widgetConsumptionRhythmIncrease": "Faster than last week",
   "widgetConsumptionRhythmDecrease": "Steadier than last week",

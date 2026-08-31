@@ -7724,6 +7724,12 @@ abstract class AppLocalizations {
   /// **'Spending Rhythm'**
   String get widgetConsumptionRhythmTitle;
 
+  /// No description provided for @widgetConsumptionRhythmRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get widgetConsumptionRhythmRange;
+
   /// No description provided for @widgetConsumptionRhythmStable.
   ///
   /// In en, this message translates to:

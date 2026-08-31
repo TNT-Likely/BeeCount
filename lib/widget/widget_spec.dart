@@ -42,7 +42,7 @@ class WidgetSpec {
   /// 渲染时使用的逻辑尺寸(pt/dp,对应 `HomeWidget.renderFlutterWidget` 的
   /// `logicalSize`)。
   ///
-  /// 全部 12 个 spec 均按此尺寸渲染;唯一例外是 [glanceMedium]——其渲染
+  /// 全部 14 个 spec 均按此尺寸渲染;唯一例外是 [glanceMedium]——其渲染
   /// 尺寸按平台(iOS 364×169 / Android 364×182)分叉、不直接取用这里的值
   /// (见 `WidgetManager._renderGlance` 注释,属 D2 back-compat)。取值接近
   /// iOS systemSmall/Medium/Large 的常见尺寸。

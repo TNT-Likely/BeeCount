@@ -2360,6 +2360,7 @@
   "widgetDashboardTitle": "本月概覽",
   "widgetGalleryDashboardDesc": "收支、趨勢與最近交易一屏看盡",
   "widgetConsumptionRhythmTitle": "消費節奏",
+  "widgetConsumptionRhythmRange": "近 30 天",
   "widgetConsumptionRhythmStable": "消費很均勻",
   "widgetConsumptionRhythmIncrease": "比上週更快",
   "widgetConsumptionRhythmDecrease": "比上週更穩",

@@ -1213,6 +1213,7 @@
   "widgetManagement": "홈 화면 위젯",
   "widgetManagementDesc": "홈 화면에서 수입과 지출을 빠르게 확인하세요",
   "widgetConsumptionRhythmTitle": "소비 리듬",
+  "widgetConsumptionRhythmRange": "최근 30일",
   "widgetConsumptionRhythmStable": "소비가 안정적이에요",
   "widgetConsumptionRhythmIncrease": "지난주보다 빨라요",
   "widgetConsumptionRhythmDecrease": "지난주보다 안정적이에요",

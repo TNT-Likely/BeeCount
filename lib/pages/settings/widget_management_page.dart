@@ -267,6 +267,7 @@ class WidgetManagementPage extends ConsumerWidget {
                     themeColor: primaryColor,
                     dark: dark,
                     titleLabel: l10n.widgetConsumptionRhythmTitle,
+                    rangeLabel: l10n.widgetConsumptionRhythmRange,
                     stableLabel: l10n.widgetConsumptionRhythmStable,
                     increaseLabel: l10n.widgetConsumptionRhythmIncrease,
                     decreaseLabel: l10n.widgetConsumptionRhythmDecrease,

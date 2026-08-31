@@ -4046,6 +4046,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get widgetConsumptionRhythmTitle => '소비 리듬';
 
   @override
+  String get widgetConsumptionRhythmRange => '최근 30일';
+
+  @override
   String get widgetConsumptionRhythmStable => '소비가 안정적이에요';
 
   @override

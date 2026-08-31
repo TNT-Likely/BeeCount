@@ -4046,6 +4046,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetConsumptionRhythmTitle => '消费节奏';
 
   @override
+  String get widgetConsumptionRhythmRange => '近 30 天';
+
+  @override
   String get widgetConsumptionRhythmStable => '消费很均匀';
 
   @override
@@ -11589,6 +11592,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get widgetConsumptionRhythmTitle => '消費節奏';
+
+  @override
+  String get widgetConsumptionRhythmRange => '近 30 天';
 
   @override
   String get widgetConsumptionRhythmStable => '消費很均勻';

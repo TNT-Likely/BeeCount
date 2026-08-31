@@ -4046,6 +4046,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetConsumptionRhythmTitle => 'Spending Rhythm';
 
   @override
+  String get widgetConsumptionRhythmRange => 'Last 30 days';
+
+  @override
   String get widgetConsumptionRhythmStable => 'Spending is steady';
 
   @override

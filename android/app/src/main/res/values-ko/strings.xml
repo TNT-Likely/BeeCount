@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_consumption_rhythm_name">소비 리듬</string>
+    <string name="widget_bee_trail_name">기록 꿀벌 궤적</string>
+    <string name="widget_consumption_rhythm_description">최근 30일의 소비 흐름을 한눈에 확인하세요</string>
+    <string name="widget_bee_trail_description">벌집 칸으로 매일 기록하는 습관을 만들어 보세요</string>
+</resources>

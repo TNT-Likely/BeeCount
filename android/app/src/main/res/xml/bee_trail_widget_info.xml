@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="155dp" android:minHeight="155dp" android:updatePeriodMillis="1800000"
-    android:initialLayout="@layout/bee_trail_widget" android:resizeMode="horizontal|vertical"
+    android:initialLayout="@layout/bee_trail_widget"
     android:widgetCategory="home_screen" android:description="@string/widget_bee_trail_description" />

@@ -62,4 +62,30 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('今天记一笔，点亮第一格'), findsOneWidget);
   });
+
+  testWidgets('仅最早两天有记录时，28 天蜂巢显示为空状态', (tester) async {
+    final oldestOnly = List.generate(
+      30,
+      (index) => DailyWidgetActivity(
+        date: DateTime(2026, 8, index + 1),
+        expenseTotal: 0,
+        hasRecord: index < 2,
+      ),
+    );
+    await tester.pumpWidget(wrap(BeeTrailView(
+      activity: oldestOnly,
+      themeColor: const Color(0xFFF5A623),
+      dark: false,
+      titleLabel: '记账连续蜂迹',
+      streakSuffix: '天',
+      completionLabel: '本月完成率',
+      emptyLabel: '今天记一笔，点亮第一格',
+      width: size.width,
+      height: size.height,
+    )));
+    await tester.pump();
+
+    expect(find.text('今天记一笔，点亮第一格'), findsOneWidget);
+    expect(find.text('7%'), findsNothing);
+  });
 }
