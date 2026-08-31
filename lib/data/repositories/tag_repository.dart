@@ -97,8 +97,10 @@ abstract class TagRepository {
   /// 获取所有标签的交易数量
   Future<Map<int, int>> getAllTagTransactionCounts();
 
-  /// 获取标签统计信息（总笔数、总支出、总收入）
-  Future<({int count, double expense, double income})> getTagStats(int tagId, {int? ledgerId});
+  /// 获取标签统计信息（总笔数、总支出、总收入）。
+  /// [start]/[end] 可选,半开区间 [start, end) 过滤 happenedAt;不传 = 全部历史。
+  Future<({int count, double expense, double income})> getTagStats(int tagId,
+      {int? ledgerId, DateTime? start, DateTime? end});
 
   /// 获取标签下的所有交易
   Future<List<Transaction>> getTransactionsByTag(int tagId);
@@ -126,8 +128,10 @@ abstract class TagRepository {
   /// 监听交易的标签
   Stream<List<Tag>> watchTagsForTransaction(int transactionId);
 
-  /// 监听标签下的交易
-  Stream<List<Transaction>> watchTransactionsByTag(int tagId, {int? ledgerId});
+  /// 监听标签下的交易。
+  /// [start]/[end] 可选,半开区间 [start, end) 过滤 happenedAt;不传 = 全部历史。
+  Stream<List<Transaction>> watchTransactionsByTag(int tagId,
+      {int? ledgerId, DateTime? start, DateTime? end});
 
   // ============================================
   // 辅助方法
