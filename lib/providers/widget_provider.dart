@@ -56,6 +56,7 @@ Future<void> updateAppWidget(WidgetRef ref, BuildContext context) async {
       noTransactionsLabel: l10n.widgetNoTransactions,
       dashboardRecentLabel: l10n.widgetRecentTransactions,
       consumptionRhythmTitleLabel: l10n.widgetConsumptionRhythmTitle,
+      consumptionRhythmRangeLabel: l10n.widgetConsumptionRhythmRange,
       consumptionRhythmStableLabel: l10n.widgetConsumptionRhythmStable,
       consumptionRhythmIncreaseLabel: l10n.widgetConsumptionRhythmIncrease,
       consumptionRhythmDecreaseLabel: l10n.widgetConsumptionRhythmDecrease,

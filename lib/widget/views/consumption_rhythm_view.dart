@@ -10,6 +10,7 @@ class ConsumptionRhythmView extends StatelessWidget {
   final Color themeColor;
   final bool dark;
   final String titleLabel;
+  final String rangeLabel;
   final String stableLabel;
   final String increaseLabel;
   final String decreaseLabel;
@@ -23,6 +24,7 @@ class ConsumptionRhythmView extends StatelessWidget {
     required this.themeColor,
     required this.dark,
     required this.titleLabel,
+    this.rangeLabel = 'Last 30 days',
     required this.stableLabel,
     required this.increaseLabel,
     required this.decreaseLabel,
@@ -68,7 +70,7 @@ class ConsumptionRhythmView extends StatelessWidget {
                       fontSize: 12,
                       fontWeight: FontWeight.w600)),
               const Spacer(),
-              Text('近 30 天',
+              Text(rangeLabel,
                   style:
                       TextStyle(color: widgetTextTertiary(dark), fontSize: 10)),
             ],

@@ -33,11 +33,11 @@ class BeeTrailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final recorded = activity.where((day) => day.hasRecord).length;
-    final streak = _currentStreak(activity);
     final recent = activity.length > 28
         ? activity.sublist(activity.length - 28)
         : activity;
+    final recorded = recent.where((day) => day.hasRecord).length;
+    final streak = _currentStreak(recent);
     final dots = <bool>[for (final day in recent) day.hasRecord];
     while (dots.length < 28) {
       dots.insert(0, false);
@@ -92,7 +92,7 @@ class BeeTrailView extends StatelessWidget {
                       style: TextStyle(
                           color: widgetTextTertiary(dark), fontSize: 9)),
                 ),
-                Text('${(recorded / activity.length * 100).round()}%',
+                Text('${(recorded / recent.length * 100).round()}%',
                     style: TextStyle(
                         color: widgetTextSecondary(dark),
                         fontSize: 10,

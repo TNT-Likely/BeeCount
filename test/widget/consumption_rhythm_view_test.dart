@@ -46,6 +46,7 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.text('消费节奏'), findsOneWidget);
+      expect(find.text('Last 30 days'), findsOneWidget);
       expect(find.byType(ConsumptionRhythmView), findsOneWidget);
     });
   }
