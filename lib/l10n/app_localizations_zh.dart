@@ -4058,7 +4058,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetConsumptionRhythmDecrease => '比上周更稳';
 
   @override
-  String get widgetConsumptionRhythmEmpty => '本月还没有支出';
+  String get widgetConsumptionRhythmEmpty => '近 30 天还没有支出';
 
   @override
   String get widgetBeeTrailTitle => '记账连续蜂迹';
@@ -4067,7 +4067,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetBeeTrailStreakSuffix => '天';
 
   @override
-  String get widgetBeeTrailCompletion => '本月完成率';
+  String get widgetBeeTrailCompletion => '近 28 天完成率';
 
   @override
   String get widgetBeeTrailEmpty => '今天记一笔，点亮第一格';
@@ -11606,7 +11606,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get widgetConsumptionRhythmDecrease => '比上週更穩';
 
   @override
-  String get widgetConsumptionRhythmEmpty => '本月還沒有支出';
+  String get widgetConsumptionRhythmEmpty => '近 30 天還沒有支出';
 
   @override
   String get widgetBeeTrailTitle => '記帳連續蜂跡';
@@ -11615,7 +11615,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get widgetBeeTrailStreakSuffix => '天';
 
   @override
-  String get widgetBeeTrailCompletion => '本月完成率';
+  String get widgetBeeTrailCompletion => '近 28 天完成率';
 
   @override
   String get widgetBeeTrailEmpty => '今天記一筆，點亮第一格';

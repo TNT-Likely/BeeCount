@@ -4058,7 +4058,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get widgetConsumptionRhythmDecrease => '지난주보다 안정적이에요';
 
   @override
-  String get widgetConsumptionRhythmEmpty => '이번 달 지출이 없어요';
+  String get widgetConsumptionRhythmEmpty => '최근 30일 지출이 없어요';
 
   @override
   String get widgetBeeTrailTitle => '기록 꿀벌 궤적';
@@ -4067,7 +4067,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get widgetBeeTrailStreakSuffix => '일';
 
   @override
-  String get widgetBeeTrailCompletion => '이번 달 완료율';
+  String get widgetBeeTrailCompletion => '최근 28일 완료율';
 
   @override
   String get widgetBeeTrailEmpty => '첫 칸을 밝히려면 기록을 추가하세요';

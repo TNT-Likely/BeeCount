@@ -4058,7 +4058,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetConsumptionRhythmDecrease => 'Steadier than last week';
 
   @override
-  String get widgetConsumptionRhythmEmpty => 'No spending this month';
+  String get widgetConsumptionRhythmEmpty => 'No spending in the last 30 days';
 
   @override
   String get widgetBeeTrailTitle => 'Record Bee Trail';
@@ -4067,7 +4067,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetBeeTrailStreakSuffix => 'days';
 
   @override
-  String get widgetBeeTrailCompletion => 'Monthly completion';
+  String get widgetBeeTrailCompletion => '28-day completion';
 
   @override
   String get widgetBeeTrailEmpty => 'Add a record to light the first cell';
