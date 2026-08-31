@@ -7871,7 +7871,7 @@ abstract class AppLocalizations {
   /// No description provided for @widgetConsumptionRhythmEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No spending this month'**
+  /// **'No spending in the last 30 days'**
   String get widgetConsumptionRhythmEmpty;
 
   /// No description provided for @widgetBeeTrailTitle.
@@ -7889,7 +7889,7 @@ abstract class AppLocalizations {
   /// No description provided for @widgetBeeTrailCompletion.
   ///
   /// In en, this message translates to:
-  /// **'Monthly completion'**
+  /// **'28-day completion'**
   String get widgetBeeTrailCompletion;
 
   /// No description provided for @widgetBeeTrailEmpty.
