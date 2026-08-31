@@ -4043,6 +4043,42 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetGalleryDashboardDesc => '收支、趋势与最近交易一屏看尽';
 
   @override
+  String get widgetConsumptionRhythmTitle => '消费节奏';
+
+  @override
+  String get widgetConsumptionRhythmRange => '近 30 天';
+
+  @override
+  String get widgetConsumptionRhythmStable => '消费很均匀';
+
+  @override
+  String get widgetConsumptionRhythmIncrease => '比上周更快';
+
+  @override
+  String get widgetConsumptionRhythmDecrease => '比上周更稳';
+
+  @override
+  String get widgetConsumptionRhythmEmpty => '近 30 天还没有支出';
+
+  @override
+  String get widgetBeeTrailTitle => '记账连续蜂迹';
+
+  @override
+  String get widgetBeeTrailStreakSuffix => '天';
+
+  @override
+  String get widgetBeeTrailCompletion => '近 28 天完成率';
+
+  @override
+  String get widgetBeeTrailEmpty => '今天记一笔，点亮第一格';
+
+  @override
+  String get widgetGalleryConsumptionRhythmDesc => '近 30 天消费节奏一眼看清';
+
+  @override
+  String get widgetGalleryBeeTrailDesc => '用蜂巢格养成每日记账习惯';
+
+  @override
   String get widgetSizeSmall => '小号';
 
   @override
@@ -11553,6 +11589,42 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get widgetGalleryDashboardDesc => '收支、趨勢與最近交易一屏看盡';
+
+  @override
+  String get widgetConsumptionRhythmTitle => '消費節奏';
+
+  @override
+  String get widgetConsumptionRhythmRange => '近 30 天';
+
+  @override
+  String get widgetConsumptionRhythmStable => '消費很均勻';
+
+  @override
+  String get widgetConsumptionRhythmIncrease => '比上週更快';
+
+  @override
+  String get widgetConsumptionRhythmDecrease => '比上週更穩';
+
+  @override
+  String get widgetConsumptionRhythmEmpty => '近 30 天還沒有支出';
+
+  @override
+  String get widgetBeeTrailTitle => '記帳連續蜂跡';
+
+  @override
+  String get widgetBeeTrailStreakSuffix => '天';
+
+  @override
+  String get widgetBeeTrailCompletion => '近 28 天完成率';
+
+  @override
+  String get widgetBeeTrailEmpty => '今天記一筆，點亮第一格';
+
+  @override
+  String get widgetGalleryConsumptionRhythmDesc => '近 30 天消費節奏一眼看清';
+
+  @override
+  String get widgetGalleryBeeTrailDesc => '用蜂巢格養成每日記帳習慣';
 
   @override
   String get widgetSizeSmall => '小號';

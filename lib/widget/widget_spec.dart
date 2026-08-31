@@ -14,7 +14,16 @@ import 'package:home_widget/home_widget.dart' show HomeWidgetInfo;
 ///
 /// P1(本阶段)只落地了 [WidgetSpec.glanceMedium] 的真实取数/渲染,其余
 /// 类型仅登记目录条目,渲染管线会按 Phase B(P2)前的约定跳过它们。
-enum HWType { glance, netWorth, quickAdd, budget, recent, dashboard }
+enum HWType {
+  glance,
+  netWorth,
+  quickAdd,
+  budget,
+  recent,
+  dashboard,
+  consumptionRhythm,
+  beeTrail,
+}
 
 /// 桌面小组件尺寸档位,对应 iOS `systemSmall/Medium/Large`、Android 对应
 /// 网格尺寸。
@@ -33,7 +42,7 @@ class WidgetSpec {
   /// 渲染时使用的逻辑尺寸(pt/dp,对应 `HomeWidget.renderFlutterWidget` 的
   /// `logicalSize`)。
   ///
-  /// 全部 12 个 spec 均按此尺寸渲染;唯一例外是 [glanceMedium]——其渲染
+  /// 全部 14 个 spec 均按此尺寸渲染;唯一例外是 [glanceMedium]——其渲染
   /// 尺寸按平台(iOS 364×169 / Android 364×182)分叉、不直接取用这里的值
   /// (见 `WidgetManager._renderGlance` 注释,属 D2 back-compat)。取值接近
   /// iOS systemSmall/Medium/Large 的常见尺寸。
@@ -252,6 +261,27 @@ class WidgetSpec {
     androidClassName: 'com.tntlikely.beecount.BeeCountDashboardWidgetProvider',
   );
 
+  // ---- 消费节奏(consumptionRhythm):仅中 ----
+  static const consumptionRhythmMedium = WidgetSpec._(
+    type: HWType.consumptionRhythm,
+    size: HWSize.medium,
+    logicalSize: Size(364, 169),
+    iosKind: 'BeeCountConsumptionRhythmWidget',
+    iosFamily: 'systemMedium',
+    androidClassName:
+        'com.tntlikely.beecount.BeeCountConsumptionRhythmWidgetProvider',
+  );
+
+  // ---- 记账连续蜂迹(beeTrail):仅小 ----
+  static const beeTrailSmall = WidgetSpec._(
+    type: HWType.beeTrail,
+    size: HWSize.small,
+    logicalSize: Size(155, 155),
+    iosKind: 'BeeCountBeeTrailWidget',
+    iosFamily: 'systemSmall',
+    androidClassName: 'com.tntlikely.beecount.BeeCountBeeTrailWidgetProvider',
+  );
+
   /// 全部合法 (type, size) 组合的目录(见 plan.md §二逐组件 spec)。
   static const List<WidgetSpec> catalog = [
     glanceSmall,
@@ -266,6 +296,8 @@ class WidgetSpec {
     recentMedium,
     recentLarge,
     dashboardLarge,
+    consumptionRhythmMedium,
+    beeTrailSmall,
   ];
 
   /// 渲染管线拿不到"已安装组件"列表时(home_widget 版本过低 / 平台调用
@@ -329,8 +361,8 @@ class WidgetSpec {
       final iosHit = spec.iosKind != null &&
           spec.iosKind == info.iOSKind &&
           (spec.iosFamily == null || spec.iosFamily == info.iOSFamily);
-      final androidHit =
-          _androidClassMatches(info.androidClassName, spec.androidAllClassNames);
+      final androidHit = _androidClassMatches(
+          info.androidClassName, spec.androidAllClassNames);
       if (iosHit || androidHit) {
         matched.add(spec);
       }

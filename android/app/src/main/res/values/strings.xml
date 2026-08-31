@@ -16,6 +16,8 @@
     <string name="widget_recent_name">最近交易·中</string>
     <string name="widget_recent_large_name">最近交易·大</string>
     <string name="widget_dashboard_name">综合仪表盘</string>
+    <string name="widget_consumption_rhythm_name">消费节奏</string>
+    <string name="widget_bee_trail_name">记账连续蜂迹</string>
 
     <!-- 桌面小组件:选择器里名称下方的一句描述(android:description)。 -->
     <string name="widget_description">查看今日和本月的收支情况</string>
@@ -25,6 +27,8 @@
     <string name="widget_budget_description">预算进度实时掌握</string>
     <string name="widget_recent_description">快速查看最近几笔账单</string>
     <string name="widget_dashboard_description">收支、趋势与最近交易一屏看尽</string>
+    <string name="widget_consumption_rhythm_description">近 30 天消费节奏一眼看清</string>
+    <string name="widget_bee_trail_description">用蜂巢格养成每日记账习惯</string>
 
     <!-- 无障碍服务相关字符串由 flavor 特定的 strings.xml 定义 -->
     <!-- dev: android/app/src/dev/res/values/strings.xml -->
