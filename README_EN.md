@@ -375,23 +375,6 @@ For commercial licensing pricing and process, see [COMMERCIAL_LICENSE.md](COMMER
 
 ---
 
-## ⭐ Star History
-
-<details>
-<summary>View Star history chart</summary>
-
-<a href="https://www.star-history.com/?repos=tnt-likely%2Fbeecount&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=tnt-likely/beecount&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=tnt-likely/beecount&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=tnt-likely/beecount&type=date&legend=top-left" />
- </picture>
-</a>
-
-</details>
-
----
-
 ## 🙏 Acknowledgments
 
 Thanks to [Guhe Bake (Internet Pure Land)](https://www.ghxi.com/) and [Star Mochen](https://mp.weixin.qq.com/s/HieVbKzpdUvnoaCa_9xjkA) for promoting this project.
