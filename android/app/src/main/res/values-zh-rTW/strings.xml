@@ -3,6 +3,8 @@
     <!-- 桌面小組件名稱 / 描述(繁體中文)。Android 桌面選擇器按「系統語言」取,
          走此資源目錄;簡體見 values/、英文見 values-en/。未覆蓋的字串按 Android
          機制回退到 values/ 預設值。 -->
+    <string name="app_name">蜜蜂記帳</string>
+    <string name="app_name_test">蜜蜂記帳測試版</string>
     <!-- 小組件名稱(選擇器 android:label) -->
     <string name="widget_name">收支速覽·中</string>
     <string name="widget_glance_small_name">收支速覽·小</string>
