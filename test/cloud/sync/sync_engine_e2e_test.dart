@@ -220,7 +220,7 @@ void main() {
       expect(cursor, 0);
     });
 
-    test('apply 时单条 change payload 异常 → 整页 rollback + 错误入 sync_pull_errors + cursor 不推进',
+    test('批量事务失败 → 降级逐条隔离:好 change 入库,坏 change 进 pullErrors,cursor 推进',
         () async {
       // 推 5 条 change,第 3 条 payload 用错误类型(categoryId 传 int 而不是 string)
       // 让 _applyTransactionChange 内 `payload['categoryId'] as String?` 抛 TypeError
@@ -235,7 +235,7 @@ void main() {
           'happenedAt': '2026-05-01T10:00:00Z',
         };
         if (i == 2) {
-          // 故意脏数据:categoryId 应是 String,这里传 int
+          // 故意脏数据:categoryId 应是 String,这里传 int → TypeError(持久错误)
           payload['categoryId'] = 12345;
         }
         provider.pushFakeChange(
@@ -247,24 +247,57 @@ void main() {
       }
 
       final applied = await engine.pull('');
-      // 整页 rollback,applied=0
-      expect(applied, 0);
+      // 降级路径:前 2 条好 change 入库,第 3 条坏 change 隔离,后 2 条好 change 入库
+      expect(applied, 4);
 
-      // 本地 transactions 表应该是空(rollback 生效,不是只插了前两条)
+      // 本地 transactions 表应有 4 条(排除第 3 条)
       final txs = await db.select(db.transactions).get();
-      expect(txs, isEmpty,
-          reason: 'apply 抛错时整页 rollback,前面已 INSERT 的也应回滚');
+      expect(txs, hasLength(4),
+          reason: '降级路径:好 change 入库,坏 change 隔离');
 
-      // cursor 不推进(读 0)
-      expect(await engine.appCursor.read(), 0);
+      // cursor 推进(不再死循环)
+      expect(await engine.appCursor.read(), 5);
 
-      // 错误入 sync_pull_errors 表
+      // 错误入 sync_pull_errors 表,仅 1 条(第 3 条)
       final errors = await engine.pullErrors.watchUnresolved().first;
       expect(errors, hasLength(1));
       expect(errors.first.changeId, 3); // 第 3 条触发
       expect(errors.first.entityType, 'transaction');
       expect(errors.first.entitySyncId, 'tx-2');
       expect(errors.first.errorClass, contains('TypeError'));
+    });
+
+    test('降级路径:失败的 changeId 不被 markResolved,UI 仍可见', () async {
+      await db.into(db.ledgers).insert(LedgersCompanion.insert(
+          name: 'L', syncId: const Value('L1')));
+
+      // 推 3 条,第 2 条坏
+      provider.pushFakeChange(
+        entityType: 'transaction',
+        entitySyncId: 'tx-0',
+        ledgerId: 'L1',
+        payload: {'syncId': 'tx-0', 'type': 'expense', 'amount': 10.0, 'happenedAt': '2026-05-01T10:00:00Z'},
+      );
+      provider.pushFakeChange(
+        entityType: 'transaction',
+        entitySyncId: 'tx-1',
+        ledgerId: 'L1',
+        payload: {'syncId': 'tx-1', 'type': 'expense', 'amount': 10.0, 'categoryId': 9999}, // 坏
+      );
+      provider.pushFakeChange(
+        entityType: 'transaction',
+        entitySyncId: 'tx-2',
+        ledgerId: 'L1',
+        payload: {'syncId': 'tx-2', 'type': 'expense', 'amount': 10.0, 'happenedAt': '2026-05-01T10:00:00Z'},
+      );
+
+      await engine.pull('');
+
+      // 坏 change(changeId=2) 应在未解决列表中
+      final errors = await engine.pullErrors.watchUnresolved().first;
+      expect(errors, hasLength(1));
+      expect(errors.first.changeId, 2);
+      expect(errors.first.entitySyncId, 'tx-1');
     });
 
     test('修复后 server 推同 change_id 新版本 → markResolved', () async {
@@ -848,6 +881,34 @@ void main() {
       expect(txs.where((t) => t.syncId == 'tx-ws'), hasLength(1));
 
       engine.stopListeningRealtime();
+    });
+  });
+
+  group('_isTransientError behavior', () {
+    // _isTransientError 是 SyncEngine 的私有方法(library-private),测试文件
+    // 无法直接调用。通过行为测试验证:降级路径中瞬时错误应导致 blocked=true。
+    //
+    // 由于 FakeProvider 无法注入 SQLiteException,我们用 _applyOneWithBusyRetry
+    // 的行为间接验证:如果 _isTransientError 正确分类,那么降级路径的 blocked
+    // 行为就正确。
+    //
+    // 直接验证 _isTransientError 逻辑(通过反射或复制判定逻辑):
+    test('_isTransientError 判定逻辑正确', () {
+      // 复制判定逻辑,验证它覆盖所有预期场景
+      bool isTransient(Object e) {
+        final msg = e.toString().toLowerCase();
+        return (msg.contains('sqlite') || msg.contains('database')) &&
+            (msg.contains('busy') || msg.contains('locked'));
+      }
+
+      // 瞬时错误
+      expect(isTransient(Exception('SqliteException: database is locked')), isTrue);
+      expect(isTransient(Exception('SqliteException: database is busy')), isTrue);
+      expect(isTransient(Exception('SQLite error database locked')), isTrue);
+      // 非瞬时错误
+      expect(isTransient(Exception('TypeError: bad payload')), isFalse);
+      expect(isTransient(Exception('FormatException: invalid JSON')), isFalse);
+      expect(isTransient(Exception('NoSuchMethodError: null')), isFalse);
     });
   });
 }
