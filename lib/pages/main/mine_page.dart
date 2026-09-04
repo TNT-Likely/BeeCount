@@ -568,14 +568,19 @@ class _StatCell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Widget valueWidget;
     if (isAmount && value is double) {
-      // 金额类型,使用 AmountText
-      valueWidget = AmountText(
-        value: value as double,
-        signed: false,
-        showCurrency: true,
-        useCompactFormat: ref.watch(compactAmountProvider),
-        currencyCode: currencyCode,
-        style: numStyle,
+      // 金额类型,使用 AmountText。用 FittedBox 缩放代替截断,避免长余额在
+      // 三等分单元格里被省略号截断(#453),与首页收支汇总的处理一致。
+      valueWidget = FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: centered ? Alignment.center : Alignment.centerLeft,
+        child: AmountText(
+          value: value as double,
+          signed: false,
+          showCurrency: true,
+          useCompactFormat: ref.watch(compactAmountProvider),
+          currencyCode: currencyCode,
+          style: numStyle,
+        ),
       );
     } else {
       // 其他类型,直接显示字符串
