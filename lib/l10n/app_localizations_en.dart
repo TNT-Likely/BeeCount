@@ -5216,6 +5216,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiChatSendFailed => 'Failed to send';
 
   @override
+  String get agentRunFailed => 'AI service is temporarily unavailable. Please try again later.';
+
+  @override
+  String get agentRecordIncomplete => 'The transaction details are incomplete. Please include an amount and purpose, then try again.';
+
+  @override
+  String get agentStepsExceeded => 'This request took too many steps. Please simplify it and try again.';
+
+  @override
   String get billCardSuccess => 'Booking Successful';
 
   @override

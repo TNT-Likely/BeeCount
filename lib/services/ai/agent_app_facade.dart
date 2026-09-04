@@ -7,6 +7,7 @@ import '../../agent/model/native_tool_agent_model.dart';
 import '../../agent/policy/p0_agent_policy.dart';
 import '../../agent/tools/local_agent_tools.dart';
 import '../../ai/core/bill_info.dart';
+import '../../l10n/app_localizations.dart';
 import 'ai_chat_service.dart';
 
 /// App composition root for one foreground Agent message. It records local
@@ -40,6 +41,7 @@ final class AgentAppFacade {
     required int ledgerId,
     bool allowsExplicitMemory = false,
     Map<String, Object?> context = const {},
+    AppLocalizations? l10n,
   }) async {
     final runId = _runIdFactory();
     await _memoryRepository.createRun(
@@ -82,7 +84,7 @@ final class AgentAppFacade {
       ).run(request);
       await _recordAudit(runId, result);
 
-      final response = _responseFor(result, localTools);
+      final response = _responseFor(result, localTools, l10n);
       await _memoryRepository.finishRun(runId: runId, status: 'completed');
       return AgentChatResponse(runId: runId, response: response);
     } catch (_) {
@@ -93,7 +95,7 @@ final class AgentAppFacade {
       );
       return AgentChatResponse(
         runId: runId,
-        response: AIResponse.error('AI 服务暂时不可用，请稍后重试。'),
+        response: AIResponse.error(l10n?.agentRunFailed ?? 'AI 服务暂时不可用，请稍后重试。'),
       );
     }
   }
@@ -122,12 +124,18 @@ final class AgentAppFacade {
     }
   }
 
-  AIResponse _responseFor(AgentRunResult result, LocalAgentTools tools) {
+  AIResponse _responseFor(
+    AgentRunResult result,
+    LocalAgentTools tools,
+    AppLocalizations? l10n,
+  ) {
     for (final call in result.executedCalls) {
       if (call.name != 'record_transaction_from_text') continue;
       final recorded = tools.recordResultFor(call);
       if (recorded == null || !recorded.success) {
-        return AIResponse.text('未识别到完整的记账信息，请补充金额和用途后重试。');
+        return AIResponse.text(
+          l10n?.agentRecordIncomplete ?? '未识别到完整的记账信息，请补充金额和用途后重试。',
+        );
       }
       final bills = recorded.bills
           .map((bill) => BillInfo.fromJson(Map<String, dynamic>.from(bill)))
@@ -138,7 +146,9 @@ final class AgentAppFacade {
       return AIResponse.text('已创建 ${recorded.transactionIds.length} 笔账单。');
     }
     return AIResponse.text(
-      result.text.isEmpty ? '这次操作步骤过多，请简化后重试。' : result.text,
+      result.text.isEmpty
+          ? (l10n?.agentStepsExceeded ?? '这次操作步骤过多，请简化后重试。')
+          : result.text,
     );
   }
 }

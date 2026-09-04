@@ -9956,6 +9956,24 @@ abstract class AppLocalizations {
   /// **'Failed to send'**
   String get aiChatSendFailed;
 
+  /// No description provided for @agentRunFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'AI service is temporarily unavailable. Please try again later.'**
+  String get agentRunFailed;
+
+  /// No description provided for @agentRecordIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'The transaction details are incomplete. Please include an amount and purpose, then try again.'**
+  String get agentRecordIncomplete;
+
+  /// No description provided for @agentStepsExceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'This request took too many steps. Please simplify it and try again.'**
+  String get agentStepsExceeded;
+
   /// No description provided for @billCardSuccess.
   ///
   /// In en, this message translates to:

@@ -62,6 +62,7 @@ class AIChatService {
           message: userInput,
           ledgerId: ledgerId,
           context: {'languageCode': languageCode},
+          l10n: l10n,
         );
         return agentResponse.response;
       }

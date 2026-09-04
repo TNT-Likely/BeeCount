@@ -20,6 +20,7 @@ final class AgentCore {
     var nextRequest = request;
     final executedCalls = <AgentToolCall>[];
     final deniedCalls = <AgentDeniedCall>[];
+    var hasRecordedTransaction = false;
     var modelTurns = 0;
 
     while (modelTurns < _maximumModelTurns &&
@@ -36,6 +37,16 @@ final class AgentCore {
         case AgentToolCallsTurn(:final calls):
           final data = <Map<String, Object?>>[];
           for (final call in calls) {
+            if (call.name == 'record_transaction_from_text' &&
+                hasRecordedTransaction) {
+              deniedCalls.add(
+                AgentDeniedCall(
+                  call: call,
+                  reason: '同一条消息只能记账一次。',
+                ),
+              );
+              continue;
+            }
             final decision = policy.decide(nextRequest, call);
             final tool = tools[call.name];
             if (!decision.isAllowed || tool == null) {
@@ -50,6 +61,9 @@ final class AgentCore {
             if (executedCalls.length == _maximumToolCalls) break;
             final result = await tool.execute(call);
             executedCalls.add(call);
+            if (call.name == 'record_transaction_from_text') {
+              hasRecordedTransaction = true;
+            }
             data.add({'id': call.id, 'name': call.name, 'data': result});
           }
           nextRequest = nextRequest.withToolData(data);

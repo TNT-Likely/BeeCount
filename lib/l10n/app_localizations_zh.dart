@@ -5216,6 +5216,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiChatSendFailed => '发送失败';
 
   @override
+  String get agentRunFailed => 'AI 服务暂时不可用，请稍后重试。';
+
+  @override
+  String get agentRecordIncomplete => '未识别到完整的记账信息，请补充金额和用途后重试。';
+
+  @override
+  String get agentStepsExceeded => '这次操作步骤过多，请简化后重试。';
+
+  @override
   String get billCardSuccess => '记账成功';
 
   @override

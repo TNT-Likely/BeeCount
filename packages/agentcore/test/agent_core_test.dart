@@ -96,7 +96,7 @@ void main() {
     expect(model.requests, hasLength(4));
   });
 
-  test('does not execute a fifth otherwise allowed call', () async {
+  test('does not repeat a record call within one tool-call turn', () async {
     model.turns = [
       AgentTurn.toolCalls([
         for (var index = 0; index < 5; index++)
@@ -110,8 +110,34 @@ void main() {
 
     final result = await core.run(_requestFor('连续记五笔'));
 
-    expect(fakeTool.calls, hasLength(4));
-    expect(result.executedCalls, hasLength(4));
+    expect(fakeTool.calls, hasLength(1));
+    expect(result.executedCalls, hasLength(1));
+  });
+
+  test('executes record_transaction_from_text only once per run', () async {
+    model.turns = [
+      AgentTurn.toolCalls([
+        AgentToolCall(
+          id: 'call-1',
+          name: 'record_transaction_from_text',
+          arguments: {'sourceText': '午饭 35'},
+        ),
+      ]),
+      AgentTurn.toolCalls([
+        AgentToolCall(
+          id: 'call-2',
+          name: 'record_transaction_from_text',
+          arguments: {'sourceText': '午饭 35'},
+        ),
+      ]),
+      const AgentTurn.finalText('已完成'),
+    ];
+
+    final result = await core.run(_requestFor('午饭 35'));
+
+    expect(fakeTool.calls, hasLength(1));
+    expect(result.executedCalls, hasLength(1));
+    expect(result.deniedCalls.single.call.id, 'call-2');
   });
 
   test('fails fast when a tool map key does not match the tool name', () async {
