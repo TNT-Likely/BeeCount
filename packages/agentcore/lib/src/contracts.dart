@@ -1,9 +1,17 @@
 import 'dart:collection';
 
 final class AgentScope {
-  const AgentScope({required this.id});
+  const AgentScope({
+    required this.id,
+    this.ledgerId,
+    this.isForeground = true,
+    this.allowsExplicitMemory = false,
+  });
 
   final String id;
+  final int? ledgerId;
+  final bool isForeground;
+  final bool allowsExplicitMemory;
 }
 
 final class AgentRequest {
@@ -11,18 +19,22 @@ final class AgentRequest {
     required this.text,
     required this.scope,
     List<Map<String, Object?>> toolData = const [],
-  }) : toolData = UnmodifiableListView(
+    Map<String, Object?> context = const {},
+  })  : toolData = UnmodifiableListView(
           toolData.map((data) => UnmodifiableMapView(Map.of(data))),
-        );
+        ),
+        context = UnmodifiableMapView(Map.of(context));
 
   final String text;
   final AgentScope scope;
   final List<Map<String, Object?>> toolData;
+  final Map<String, Object?> context;
 
   AgentRequest withToolData(List<Map<String, Object?>> data) => AgentRequest(
         text: text,
         scope: scope,
         toolData: data,
+        context: context,
       );
 }
 
