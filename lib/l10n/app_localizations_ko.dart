@@ -5216,6 +5216,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiChatSendFailed => '전송 실패';
 
   @override
+  String get agentRunFailed => 'AI 서비스를 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get agentRecordIncomplete => '거래 정보가 충분하지 않습니다. 금액과 용도를 입력한 뒤 다시 시도해 주세요.';
+
+  @override
+  String get agentStepsExceeded => '요청 처리 단계가 너무 많습니다. 요청을 간단히 한 뒤 다시 시도해 주세요.';
+
+  @override
   String get billCardSuccess => '기록 성공';
 
   @override
