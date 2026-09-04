@@ -8,8 +8,11 @@ import 'package:beecount/services/ai/agent_app_facade.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
   late BeeDatabase db;
   late _FakeGateway gateway;
 
@@ -97,6 +100,7 @@ void main() {
     await facade.processMessage(message: '咖啡', ledgerId: 1);
 
     expect(model.request!.context['memories'], ['咖啡默认用微信支付']);
+    expect(model.request!.context['currentTime'], isA<String>());
   });
 
   test('event stream reports tool execution before its final response',

@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
 import 'package:agentcore/agentcore.dart';
 
 import '../../ai/providers/ai_provider_factory.dart';
+import '../../services/system/logger_service.dart';
 import 'agent_prompt_builder.dart';
 
 final class AgentNativeToolDefinition {
@@ -115,6 +117,10 @@ final class AgentNativeToolUnsupportedException implements Exception {
   const AgentNativeToolUnsupportedException();
 }
 
+final class AgentNativeToolTimeoutException implements Exception {
+  const AgentNativeToolTimeoutException();
+}
+
 /// Stateful OpenAI-compatible transport. It emits actual `tools` in the HTTP
 /// payload and appends assistant tool_calls plus role:tool results verbatim.
 final class OpenAiCompatibleNativeToolTransport
@@ -126,6 +132,10 @@ final class OpenAiCompatibleNativeToolTransport
     AgentNativeToolRequest request, {
     AgentNativeEventSink? onEvent,
   }) async {
+    logger.debug('AgentNativeTools', '模型回合开始', {
+      'runId': request.runId,
+      'toolResultCount': request.toolResults.length,
+    });
     final messages = _sessions.putIfAbsent(
       request.runId,
       () => [
@@ -150,9 +160,17 @@ final class OpenAiCompatibleNativeToolTransport
       if (response is AgentNativeFinalTextResponse) {
         _sessions.remove(request.runId);
       }
+      logger.debug('AgentNativeTools', '模型回合结束', {
+        'runId': request.runId,
+        'responseType': response.runtimeType.toString(),
+      });
       return response;
     } on AIException catch (error) {
       _sessions.remove(request.runId);
+      logger.warning('AgentNativeTools', '模型回合失败', {
+        'runId': request.runId,
+        'reason': error.message,
+      });
       if (error.message.contains('不支持原生工具调用') ||
           error.message.toLowerCase().contains('tool')) {
         throw const AgentNativeToolUnsupportedException();
@@ -232,8 +250,8 @@ final class OpenAiCompatibleNativeToolTransport
   }
 
   static final List<Map<String, dynamic>> _toolDefinitions = [
-    _tool('query_transactions', '查询当前账本交易', {'type': 'object'}),
-    _tool('get_spending_summary', '汇总当前账本支出', {'type': 'object'}),
+    _tool('query_transactions', '查询当前账本交易', _rangeParameters),
+    _tool('get_spending_summary', '汇总当前账本支出', _rangeParameters),
     _tool('get_budget_status', '读取当前账本预算', {'type': 'object'}),
     _tool('record_transaction_from_text', '记录当前用户明确给出的交易', {
       'type': 'object',
@@ -260,6 +278,21 @@ final class OpenAiCompatibleNativeToolTransport
           'parameters': parameters,
         },
       };
+
+  static const Map<String, dynamic> _rangeParameters = {
+    'type': 'object',
+    'properties': {
+      'start': {
+        'type': 'string',
+        'description': '查询开始时间，ISO 8601 格式。',
+      },
+      'end': {
+        'type': 'string',
+        'description': '查询结束时间，ISO 8601 格式。',
+      },
+    },
+    'additionalProperties': false,
+  };
 }
 
 final class _StreamToolCall {
@@ -285,11 +318,14 @@ final class NativeToolAgentModel implements AgentModel {
   NativeToolAgentModel({
     required AgentNativeToolTransport transport,
     AgentPromptBuilder promptBuilder = const AgentPromptBuilder(),
+    Duration toolTurnTimeout = const Duration(seconds: 45),
   })  : _transport = transport,
-        _promptBuilder = promptBuilder;
+        _promptBuilder = promptBuilder,
+        _toolTurnTimeout = toolTurnTimeout;
 
   final AgentNativeToolTransport _transport;
   final AgentPromptBuilder _promptBuilder;
+  final Duration _toolTurnTimeout;
   final Set<String> _startedRuns = <String>{};
 
   @override
@@ -297,16 +333,25 @@ final class NativeToolAgentModel implements AgentModel {
     final isFirstTurn = _startedRuns.add(request.scope.id);
     final AgentNativeModelResponse response;
     try {
-      response = await _transport.complete(
-        AgentNativeToolRequest(
-          runId: request.scope.id,
-          userPrompt:
-              isFirstTurn ? _promptBuilder.buildNative(request) : request.text,
-          toolResults: _toolResults(request.toolData),
-        ),
-        onEvent: request.nativeStreamSink,
-      );
+      response = await _transport
+          .complete(
+            AgentNativeToolRequest(
+              runId: request.scope.id,
+              userPrompt: isFirstTurn
+                  ? _promptBuilder.buildNative(request)
+                  : request.text,
+              toolResults: _toolResults(request.toolData),
+            ),
+            onEvent: request.nativeStreamSink,
+          )
+          .timeout(
+            _toolTurnTimeout,
+            onTimeout: () => throw const AgentNativeToolTimeoutException(),
+          );
     } on AgentNativeToolUnsupportedException {
+      _startedRuns.remove(request.scope.id);
+      rethrow;
+    } on AgentNativeToolTimeoutException {
       _startedRuns.remove(request.scope.id);
       rethrow;
     }

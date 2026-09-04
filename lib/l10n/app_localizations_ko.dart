@@ -5222,6 +5222,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get agentNativeToolsUnsupported => '현재 모델은 Agent 네이티브 도구 호출 또는 스트리밍을 지원하지 않습니다. AI 설정에서 모델을 변경해 주세요.';
 
   @override
+  String get agentTurnTimedOut => 'AI 응답 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요.';
+
+  @override
   String get agentRecordIncomplete => '거래 정보가 충분하지 않습니다. 금액과 용도를 입력한 뒤 다시 시도해 주세요.';
 
   @override

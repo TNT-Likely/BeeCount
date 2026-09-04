@@ -51,6 +51,22 @@ void main() {
     expect(items, hasLength(20));
     expect(gateway.requestedLedgerIds, [1]);
   });
+
+  test('spending summary returns the requested date range to the model',
+      () async {
+    final result = await tools['get_spending_summary']!.execute(
+      AgentToolCall(
+        name: 'get_spending_summary',
+        arguments: const {
+          'start': '2026-08-01T00:00:00.000',
+          'end': '2026-08-31T23:59:59.999',
+        },
+      ),
+    );
+
+    expect(result['periodStart'], '2026-08-01T00:00:00.000');
+    expect(result['periodEnd'], '2026-08-31T23:59:59.999');
+  });
 }
 
 final class _FakeGateway implements LocalAgentToolGateway {

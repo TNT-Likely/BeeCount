@@ -5222,6 +5222,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentNativeToolsUnsupported => 'This model does not support native Agent tools or streaming. Switch models in AI Settings.';
 
   @override
+  String get agentTurnTimedOut => 'The AI response timed out. Please try again shortly.';
+
+  @override
   String get agentRecordIncomplete => 'The transaction details are incomplete. Please include an amount and purpose, then try again.';
 
   @override

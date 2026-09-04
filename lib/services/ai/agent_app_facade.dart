@@ -9,6 +9,7 @@ import '../../agent/policy/p0_agent_policy.dart';
 import '../../agent/tools/local_agent_tools.dart';
 import '../../ai/core/bill_info.dart';
 import '../../l10n/app_localizations.dart';
+import '../system/logger_service.dart';
 import 'ai_chat_service.dart';
 
 /// App composition root for one foreground Agent message. It records local
@@ -85,6 +86,7 @@ final class AgentAppFacade {
     void Function(AgentRunEvent event)? emit,
   }) async {
     final runId = _runIdFactory();
+    logger.info('AgentCore', '运行开始', {'runId': runId, 'ledgerId': ledgerId});
     await _memoryRepository.createRun(
       runId: runId,
       ledgerId: ledgerId,
@@ -99,6 +101,7 @@ final class AgentAppFacade {
     );
     final localTools = LocalAgentTools(scope: scope, gateway: _toolGateway);
     final requestContext = Map<String, Object?>.of(context);
+    requestContext['currentTime'] = DateTime.now().toIso8601String();
     try {
       final memories = await _memoryRepository.search(
         ledgerId: ledgerId,
@@ -106,6 +109,10 @@ final class AgentAppFacade {
       );
       requestContext['memories'] =
           memories.map((item) => item.content).toList();
+      logger.debug('AgentCore', '本地记忆已加载', {
+        'runId': runId,
+        'count': memories.length,
+      });
     } catch (_) {
       // Memory is optional context: a local lookup failure must never turn
       // into a write or prevent the user from receiving a safe response.
@@ -127,15 +134,22 @@ final class AgentAppFacade {
     try {
       final result = await AgentCore(
         model: _model,
-        tools: _observedTools(localTools.build(), emit),
+        tools: _observedTools(localTools.build(), emit, runId),
         policy: _policy,
       ).run(request);
       await _recordAudit(runId, result);
+      logger.info('AgentCore', '运行结束', {
+        'runId': runId,
+        'executedToolCalls': result.executedCalls.length,
+        'deniedToolCalls': result.deniedCalls.length,
+        'hasFinalText': result.text.isNotEmpty,
+      });
 
       final response = _responseFor(result, localTools, l10n);
       await _memoryRepository.finishRun(runId: runId, status: 'completed');
       return AgentChatResponse(runId: runId, response: response);
     } on AgentNativeToolUnsupportedException {
+      logger.warning('AgentCore', '模型不支持原生 Agent 能力', {'runId': runId});
       await _memoryRepository.finishRun(
         runId: runId,
         status: 'failed',
@@ -148,7 +162,21 @@ final class AgentAppFacade {
               '当前模型不支持 Agent 原生工具调用或流式输出，请在 AI 设置中切换模型。',
         ),
       );
-    } catch (_) {
+    } on AgentNativeToolTimeoutException {
+      logger.warning('AgentCore', '模型回合超时', {'runId': runId});
+      await _memoryRepository.finishRun(
+        runId: runId,
+        status: 'failed',
+        errorMessage: 'agent_turn_timeout',
+      );
+      return AgentChatResponse(
+        runId: runId,
+        response: AIResponse.error(
+          l10n?.agentTurnTimedOut ?? 'AI 响应超时，请稍后重试。',
+        ),
+      );
+    } catch (error, stackTrace) {
+      logger.error('AgentCore', '运行失败', error, stackTrace);
       await _memoryRepository.finishRun(
         runId: runId,
         status: 'failed',
@@ -164,15 +192,28 @@ final class AgentAppFacade {
   Map<String, AgentTool> _observedTools(
     Map<String, AgentTool> tools,
     void Function(AgentRunEvent event)? emit,
+    String runId,
   ) {
     if (emit == null) return tools;
     return {
       for (final entry in tools.entries)
         entry.key: _ObservedAgentTool(
           delegate: entry.value,
-          onStarted: (call) => emit(AgentToolStartedEvent(call.name)),
-          onCompleted: (call, succeeded) =>
-              emit(AgentToolCompletedEvent(call.name, succeeded: succeeded)),
+          onStarted: (call) {
+            logger.info('AgentCore', '工具开始执行', {
+              'runId': runId,
+              'tool': call.name,
+            });
+            emit(AgentToolStartedEvent(call.name));
+          },
+          onCompleted: (call, succeeded) {
+            logger.info('AgentCore', '工具执行结束', {
+              'runId': runId,
+              'tool': call.name,
+              'succeeded': succeeded,
+            });
+            emit(AgentToolCompletedEvent(call.name, succeeded: succeeded));
+          },
         ),
     };
   }

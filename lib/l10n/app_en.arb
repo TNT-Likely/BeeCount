@@ -2255,6 +2255,7 @@
   "aiChatSendFailed": "Failed to send",
   "agentRunFailed": "AI service is temporarily unavailable. Please try again later.",
   "agentNativeToolsUnsupported": "This model does not support native Agent tools or streaming. Switch models in AI Settings.",
+  "agentTurnTimedOut": "The AI response timed out. Please try again shortly.",
   "agentRecordIncomplete": "The transaction details are incomplete. Please include an amount and purpose, then try again.",
   "agentStepsExceeded": "This request took too many steps. Please simplify it and try again.",
   "agentExecutingTool": "Working: {tool}",

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:agentcore/agentcore.dart';
 import 'package:beecount/agent/model/agent_prompt_builder.dart';
 import 'package:beecount/agent/model/native_tool_agent_model.dart';
@@ -44,6 +46,18 @@ void main() {
     await expectLater(
       model.nextTurn(requestWithContext()),
       throwsA(isA<AgentNativeToolUnsupportedException>()),
+    );
+  });
+
+  test('native tool model times out one stalled provider turn', () async {
+    final model = NativeToolAgentModel(
+      transport: _StalledNativeTransport(),
+      toolTurnTimeout: const Duration(milliseconds: 1),
+    );
+
+    await expectLater(
+      model.nextTurn(requestWithContext()),
+      throwsA(isA<AgentNativeToolTimeoutException>()),
     );
   });
 
@@ -109,6 +123,15 @@ final class _UnsupportedNativeTransport implements AgentNativeToolTransport {
       Future<AgentNativeModelResponse>.error(
         const AgentNativeToolUnsupportedException(),
       );
+}
+
+final class _StalledNativeTransport implements AgentNativeToolTransport {
+  @override
+  Future<AgentNativeModelResponse> complete(
+    AgentNativeToolRequest request, {
+    AgentNativeEventSink? onEvent,
+  }) =>
+      Completer<AgentNativeModelResponse>().future;
 }
 
 final class _FakeNativeTransport implements AgentNativeToolTransport {

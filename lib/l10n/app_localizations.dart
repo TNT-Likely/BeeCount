@@ -9968,6 +9968,12 @@ abstract class AppLocalizations {
   /// **'This model does not support native Agent tools or streaming. Switch models in AI Settings.'**
   String get agentNativeToolsUnsupported;
 
+  /// No description provided for @agentTurnTimedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI response timed out. Please try again shortly.'**
+  String get agentTurnTimedOut;
+
   /// No description provided for @agentRecordIncomplete.
   ///
   /// In en, this message translates to:

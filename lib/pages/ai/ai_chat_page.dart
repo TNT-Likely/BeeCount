@@ -296,7 +296,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           ),
 
           // 加载指示器
-          if (_isLoading)
+          if (_isLoading && !_hasLiveAgentMessage)
             Container(
               padding: EdgeInsets.symmetric(
                 vertical: 8.0.scaled(context, ref),

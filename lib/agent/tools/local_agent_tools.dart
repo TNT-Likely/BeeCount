@@ -243,7 +243,12 @@ final class LocalAgentTools {
         .where((transaction) => transaction.ledgerId == _ledgerId)
         .where((transaction) => transaction.type == 'expense')
         .fold<double>(0, (sum, transaction) => sum + transaction.amount.abs());
-    return {'total': spending, 'currency': 'ledger'};
+    return {
+      'total': spending,
+      'currency': 'ledger',
+      'periodStart': range.$1.toIso8601String(),
+      'periodEnd': range.$2.toIso8601String(),
+    };
   }
 
   Future<Map<String, Object?>> _budgetStatus(AgentToolCall call) async =>
@@ -264,8 +269,9 @@ final class LocalAgentTools {
 
   Future<Map<String, Object?>> _saveMemory(AgentToolCall call) async {
     final content = call.arguments['content'];
-    if (content is! String || content.trim().isEmpty)
+    if (content is! String || content.trim().isEmpty) {
       return const {'saved': false};
+    }
     await gateway.saveExplicitMemory(
         ledgerId: scope.ledgerId, content: content.trim());
     return const {'saved': true};
