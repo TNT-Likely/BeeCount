@@ -8,17 +8,23 @@ final class AgentCore {
   });
 
   static const _maximumToolCalls = 4;
+  static const _maximumModelTurns = 4;
 
   final AgentModel model;
   final Map<String, AgentTool> tools;
   final AgentPolicy policy;
 
   Future<AgentRunResult> run(AgentRequest request) async {
+    _validateToolRegistry();
+
     var nextRequest = request;
     final executedCalls = <AgentToolCall>[];
     final deniedCalls = <AgentDeniedCall>[];
+    var modelTurns = 0;
 
-    while (executedCalls.length < _maximumToolCalls) {
+    while (modelTurns < _maximumModelTurns &&
+        executedCalls.length < _maximumToolCalls) {
+      modelTurns += 1;
       final turn = await model.nextTurn(nextRequest);
       switch (turn) {
         case AgentFinalTextTurn(:final text):
@@ -55,5 +61,17 @@ final class AgentCore {
       executedCalls: executedCalls,
       deniedCalls: deniedCalls,
     );
+  }
+
+  void _validateToolRegistry() {
+    for (final entry in tools.entries) {
+      if (entry.key != entry.value.name) {
+        throw ArgumentError.value(
+          entry.key,
+          'tools',
+          '工具注册键必须与 AgentTool.name 一致。',
+        );
+      }
+    }
   }
 }

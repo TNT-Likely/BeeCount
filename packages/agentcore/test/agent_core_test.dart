@@ -60,6 +60,71 @@ void main() {
     expect(result.deniedCalls.single.reason, 'P0 不允许此操作');
     expect(fakeTool.calls, isEmpty);
   });
+
+  test('returns after unknown calls without executing a tool', () async {
+    model.turns = [
+      for (var index = 0; index < 4; index++)
+        AgentTurn.toolCalls([
+          AgentToolCall(name: 'unknown_$index'),
+        ]),
+      const AgentTurn.finalText('不应再请求模型'),
+    ];
+
+    final result = await core.run(_requestFor('未知操作'));
+
+    expect(fakeTool.calls, isEmpty);
+    expect(result.deniedCalls, hasLength(4));
+    expect(model.requests, hasLength(4));
+  });
+
+  test('bounds repeated denied calls independently of executed calls',
+      () async {
+    model.turns = [
+      for (var index = 0; index < 4; index++)
+        AgentTurn.toolCalls([
+          AgentToolCall(
+              name: 'delete_transaction', arguments: {'index': index}),
+        ]),
+      const AgentTurn.finalText('不应再请求模型'),
+    ];
+
+    final result = await core.run(_requestFor('一直删除'));
+
+    expect(fakeTool.calls, isEmpty);
+    expect(result.deniedCalls, hasLength(4));
+    expect(model.requests, hasLength(4));
+  });
+
+  test('does not execute a fifth otherwise allowed call', () async {
+    model.turns = [
+      AgentTurn.toolCalls([
+        for (var index = 0; index < 5; index++)
+          AgentToolCall(
+            name: 'record_transaction_from_text',
+            arguments: {'index': index},
+          ),
+      ]),
+      const AgentTurn.finalText('不应再请求模型'),
+    ];
+
+    final result = await core.run(_requestFor('连续记五笔'));
+
+    expect(fakeTool.calls, hasLength(4));
+    expect(result.executedCalls, hasLength(4));
+  });
+
+  test('fails fast when a tool map key does not match the tool name', () async {
+    final invalidCore = AgentCore(
+      model: model,
+      tools: {'wrong_key': fakeTool},
+      policy: const _FakePolicy(),
+    );
+
+    await expectLater(
+      invalidCore.run(_requestFor('午饭 35')),
+      throwsA(isA<ArgumentError>()),
+    );
+  });
 }
 
 AgentRequest _requestFor(String text) => AgentRequest(
