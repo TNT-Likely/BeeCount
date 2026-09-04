@@ -41,6 +41,7 @@ void main() {
     expect(result.executedCalls, hasLength(1));
     expect(model.requests[1].toolData, [
       {
+        'id': '',
         'name': 'record_transaction_from_text',
         'data': {'recorded': true}
       },

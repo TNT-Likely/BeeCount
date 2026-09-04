@@ -1,6 +1,7 @@
 import 'package:agentcore/agentcore.dart';
 import 'package:beecount/agent/model/agent_prompt_builder.dart';
 import 'package:beecount/agent/model/json_agent_model.dart';
+import 'package:beecount/agent/model/native_tool_agent_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -48,4 +49,50 @@ void main() {
     expect(prompts, hasLength(2));
     expect(prompts.last, contains('修复'));
   });
+
+  test('native tool model returns a provider tool call then sends tool result',
+      () async {
+    final transport = _FakeNativeTransport([
+      AgentNativeModelResponse.toolCalls([
+        AgentNativeToolCall(
+          id: 'call-1',
+          name: 'query_transactions',
+          arguments: const {'ledgerId': 1},
+        ),
+      ]),
+      const AgentNativeModelResponse.finalText('本月餐饮支出 300 元。'),
+    ]);
+    final model = NativeToolAgentModel(transport: transport);
+    final request = requestWithContext();
+
+    final firstTurn = await model.nextTurn(request);
+    final finalTurn = await model.nextTurn(
+      request.withToolData([
+        {
+          'id': 'call-1',
+          'name': 'query_transactions',
+          'data': {'items': []}
+        },
+      ]),
+    );
+
+    expect((firstTurn as AgentToolCallsTurn).calls.single.id, 'call-1');
+    expect((finalTurn as AgentFinalTextTurn).text, '本月餐饮支出 300 元。');
+    expect(transport.requests, hasLength(2));
+    expect(transport.requests.last.toolResults.single.toolCallId, 'call-1');
+  });
+}
+
+final class _FakeNativeTransport implements AgentNativeToolTransport {
+  _FakeNativeTransport(this._responses);
+
+  final List<AgentNativeModelResponse> _responses;
+  final List<AgentNativeToolRequest> requests = [];
+
+  @override
+  Future<AgentNativeModelResponse> complete(
+      AgentNativeToolRequest request) async {
+    requests.add(request);
+    return _responses.removeAt(0);
+  }
 }

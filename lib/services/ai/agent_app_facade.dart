@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../agent/memory/agent_memory_repository.dart';
 import '../../agent/model/json_agent_model.dart';
+import '../../agent/model/native_tool_agent_model.dart';
 import '../../agent/policy/p0_agent_policy.dart';
 import '../../agent/tools/local_agent_tools.dart';
 import '../../ai/core/bill_info.dart';
@@ -20,7 +21,11 @@ final class AgentAppFacade {
     String Function()? runIdFactory,
   })  : _memoryRepository = memoryRepository,
         _toolGateway = toolGateway,
-        _model = model ?? JsonAgentModel(),
+        _model = model ??
+            NativeToolAgentModel(
+              transport: OpenAiCompatibleNativeToolTransport(),
+              fallback: JsonAgentModel(),
+            ),
         _policy = policy,
         _runIdFactory = runIdFactory ?? const Uuid().v4;
 
@@ -50,7 +55,24 @@ final class AgentAppFacade {
       allowsExplicitMemory: allowsExplicitMemory,
     );
     final localTools = LocalAgentTools(scope: scope, gateway: _toolGateway);
-    final request = AgentRequest(text: message, scope: scope, context: context);
+    final requestContext = Map<String, Object?>.of(context);
+    try {
+      final memories = await _memoryRepository.search(
+        ledgerId: ledgerId,
+        query: message,
+      );
+      requestContext['memories'] =
+          memories.map((item) => item.content).toList();
+    } catch (_) {
+      // Memory is optional context: a local lookup failure must never turn
+      // into a write or prevent the user from receiving a safe response.
+      requestContext['memories'] = const <String>[];
+    }
+    final request = AgentRequest(
+      text: message,
+      scope: scope,
+      context: requestContext,
+    );
 
     try {
       final result = await AgentCore(

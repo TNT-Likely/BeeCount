@@ -1,5 +1,6 @@
 import 'package:agentcore/agentcore.dart';
 import 'package:beecount/agent/memory/local_agent_memory_repository.dart';
+import 'package:beecount/agent/memory/agent_memory_repository.dart';
 import 'package:beecount/agent/tools/local_agent_tools.dart';
 import 'package:beecount/data/db.dart' hide AgentToolCall;
 import 'package:beecount/services/ai/agent_app_facade.dart';
@@ -61,6 +62,26 @@ void main() {
     expect(run.status, 'failed');
     expect(gateway.recordedTexts, isEmpty);
   });
+
+  test('loads scoped local memories into the Agent request context', () async {
+    final memory = LocalAgentMemoryRepository(db);
+    await memory.saveExplicit(const AgentMemoryDraft(
+      ledgerId: 1,
+      kind: 'explicit',
+      content: '咖啡默认用微信支付',
+    ));
+    final model = _CapturingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: memory,
+      toolGateway: gateway,
+      model: model,
+      runIdFactory: () => 'run-3',
+    );
+
+    await facade.processMessage(message: '咖啡', ledgerId: 1);
+
+    expect(model.request!.context['memories'], ['咖啡默认用微信支付']);
+  });
 }
 
 final class _FakeModel implements AgentModel {
@@ -76,6 +97,16 @@ final class _ThrowingModel implements AgentModel {
   @override
   Future<AgentTurn> nextTurn(AgentRequest request) =>
       Future.error(const FormatException('bad response'));
+}
+
+final class _CapturingModel implements AgentModel {
+  AgentRequest? request;
+
+  @override
+  Future<AgentTurn> nextTurn(AgentRequest request) async {
+    this.request = request;
+    return const AgentTurn.finalText('已完成');
+  }
 }
 
 final class _FakeGateway implements LocalAgentToolGateway {

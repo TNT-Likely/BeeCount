@@ -50,7 +50,7 @@ final class AgentCore {
             if (executedCalls.length == _maximumToolCalls) break;
             final result = await tool.execute(call);
             executedCalls.add(call);
-            data.add({'name': call.name, 'data': result});
+            data.add({'id': call.id, 'name': call.name, 'data': result});
           }
           nextRequest = nextRequest.withToolData(data);
       }
