@@ -125,6 +125,43 @@ void main() {
       throwsA(isA<ArgumentError>()),
     );
   });
+
+  group('AgentTurnParser', () {
+    const parser = AgentTurnParser();
+
+    test('rejects an unknown tool name before any policy evaluation', () {
+      expect(
+        () => parser.parse(
+          '{"kind":"tool_calls","calls":[{"id":"1","name":"drop_db","arguments":{}}]}',
+        ),
+        throwsA(isA<AgentParseFailure>()),
+      );
+    });
+
+    test('rejects a record call whose source text differs from user input', () {
+      final turn = parser.parse(
+        '{"kind":"tool_calls","calls":[{"id":"1","name":"record_transaction_from_text","arguments":{"sourceText":"凭空生成的交易"}}]}',
+      );
+
+      expect(turn.validateAgainst('午饭 35').isValid, isFalse);
+    });
+
+    test('rejects call objects with fields outside the protocol', () {
+      expect(
+        () => parser.parse(
+          '{"kind":"tool_calls","calls":[{"id":"1","name":"query_transactions","arguments":{},"unsafe":true}]}',
+        ),
+        throwsA(isA<AgentParseFailure>()),
+      );
+    });
+
+    test('parses a final response', () {
+      final turn = parser.parse('{"kind":"final","text":"已完成"}');
+
+      expect(turn, isA<AgentFinalTextTurn>());
+      expect((turn as AgentFinalTextTurn).text, '已完成');
+    });
+  });
 }
 
 AgentRequest _requestFor(String text) => AgentRequest(
