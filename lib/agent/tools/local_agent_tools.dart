@@ -188,6 +188,10 @@ final class LocalAgentTools {
 
   final AgentScope scope;
   final LocalAgentToolGateway gateway;
+  final Map<String, AgentRecordToolResult> _recordResults = {};
+
+  AgentRecordToolResult? recordResultFor(AgentToolCall call) =>
+      _recordResults[call.id];
 
   Map<String, AgentTool> build() {
     final tools = <String, AgentTool>{
@@ -252,8 +256,10 @@ final class LocalAgentTools {
     if (text is! String || text.isEmpty || scope.ledgerId == null) {
       return const {'success': false};
     }
-    return (await gateway.recordTransaction(ledgerId: _ledgerId, text: text))
-        .toToolData();
+    final result =
+        await gateway.recordTransaction(ledgerId: _ledgerId, text: text);
+    if (call.id.isNotEmpty) _recordResults[call.id] = result;
+    return result.toToolData();
   }
 
   Future<Map<String, Object?>> _saveMemory(AgentToolCall call) async {

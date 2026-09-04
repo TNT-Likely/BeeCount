@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../data/tag_seed_service.dart';
 import '../system/logger_service.dart';
 import 'ai_bookkeeper.dart';
+import 'agent_app_facade.dart';
 
 /// AI 对话服务
 ///
@@ -19,12 +20,15 @@ import 'ai_bookkeeper.dart';
 class AIChatService {
   final BaseRepository _repo;
   final AiBookkeeper _bookkeeper;
+  final AgentAppFacade? _agentFacade;
 
   AIChatService({
     required BaseRepository repo,
     required AiBookkeeper bookkeeper,
+    AgentAppFacade? agentFacade,
   })  : _repo = repo,
-        _bookkeeper = bookkeeper;
+        _bookkeeper = bookkeeper,
+        _agentFacade = agentFacade;
 
   /// 验证 AI 配置是否存在(仅本地配置,不发网络请求)
   static Future<AIConfigValidationResult> validateApiKey() async {
@@ -53,6 +57,14 @@ class AIChatService {
   }) async {
     logger.info('AIChat', '收到消息: $userInput (forceChat: $forceChat)');
     try {
+      if (_agentFacade != null) {
+        final agentResponse = await _agentFacade.processMessage(
+          message: userInput,
+          ledgerId: ledgerId,
+          context: {'languageCode': languageCode},
+        );
+        return agentResponse.response;
+      }
       if (!forceChat && _isTransactionIntent(userInput)) {
         return await _handleTransaction(
           userInput,
@@ -121,8 +133,8 @@ class AIChatService {
       // 多币种降级提示(A5):缺汇率时已按 1:1 暂记,告诉用户去统计页补折算
       note: (result.unconvertedCurrencies.isEmpty || l10n == null)
           ? null
-          : l10n.aiBillingRateMissingHint(
-              result.unconvertedCurrencies.join('、')),
+          : l10n
+              .aiBillingRateMissingHint(result.unconvertedCurrencies.join('、')),
     );
   }
 
@@ -206,8 +218,7 @@ class AIResponse {
   int? get transactionId =>
       transactionIds.isNotEmpty ? transactionIds.first : null;
 
-  factory AIResponse.text(String text) =>
-      AIResponse(type: 'text', text: text);
+  factory AIResponse.text(String text) => AIResponse(type: 'text', text: text);
 
   /// 多笔/单笔统一入口。bills 与 txIds 必须等长且非空。
   ///

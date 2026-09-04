@@ -4,9 +4,13 @@ import 'package:drift/drift.dart';
 import '../ai/core/ai_extraction_engine.dart';
 import '../services/ai/ai_bookkeeper.dart';
 import '../services/ai/ai_chat_service.dart';
+import '../services/ai/agent_app_facade.dart';
 import '../services/billing/bill_creation_service.dart';
 import '../providers.dart';
 import '../data/db.dart';
+import '../agent/memory/agent_memory_repository.dart';
+import '../agent/memory/local_agent_memory_repository.dart';
+import '../agent/tools/local_agent_tools.dart';
 
 /// AI 多模态记账底座 (Layer 1)。无状态,可全局复用。
 final aiExtractionEngineProvider = Provider<AiExtractionEngine>(
@@ -31,12 +35,33 @@ final aiBookkeeperProvider = Provider<AiBookkeeper>((ref) {
   );
 });
 
+/// Agent 的记忆、审计与检索全部停留在本机 Drift 数据库。
+final agentMemoryRepositoryProvider = Provider<AgentMemoryRepository>((ref) {
+  return LocalAgentMemoryRepository(ref.watch(databaseProvider));
+});
+
+final localAgentToolGatewayProvider = Provider<LocalAgentToolGateway>((ref) {
+  return BeeCountLocalAgentToolGateway(
+    repository: ref.watch(repositoryProvider),
+    bookkeeper: ref.watch(aiBookkeeperProvider),
+    memoryRepository: ref.watch(agentMemoryRepositoryProvider),
+  );
+});
+
+final agentAppFacadeProvider = Provider<AgentAppFacade>((ref) {
+  return AgentAppFacade(
+    memoryRepository: ref.watch(agentMemoryRepositoryProvider),
+    toolGateway: ref.watch(localAgentToolGatewayProvider),
+  );
+});
+
 /// AI 对话服务 Provider
 final aiChatServiceProvider = Provider<AIChatService>((ref) {
   final repo = ref.watch(repositoryProvider);
   return AIChatService(
     repo: repo,
     bookkeeper: ref.watch(aiBookkeeperProvider),
+    agentFacade: ref.watch(agentAppFacadeProvider),
   );
 });
 
