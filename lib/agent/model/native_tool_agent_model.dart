@@ -52,6 +52,35 @@ final class AgentNativeToolRequest {
   final List<AgentNativeToolResult> toolResults;
 }
 
+sealed class AgentNativeStreamEvent {
+  const AgentNativeStreamEvent();
+}
+
+final class AgentNativeTextDelta extends AgentNativeStreamEvent {
+  const AgentNativeTextDelta(this.text);
+
+  final String text;
+}
+
+typedef AgentNativeEventSink = void Function(AgentNativeStreamEvent event);
+
+/// Carries a per-request stream sink without sharing mutable state between
+/// foreground Agent runs.
+extension AgentRequestNativeStreaming on AgentRequest {
+  static const _streamSinkKey = '_agent_native_stream_sink';
+
+  AgentRequest withStreamingTextDeltas(AgentNativeEventSink sink) =>
+      AgentRequest(
+        text: text,
+        scope: scope,
+        toolData: toolData,
+        context: {...context, _streamSinkKey: sink},
+      );
+
+  AgentNativeEventSink? get nativeStreamSink =>
+      context[_streamSinkKey] as AgentNativeEventSink?;
+}
+
 sealed class AgentNativeModelResponse {
   const AgentNativeModelResponse._();
 
@@ -76,7 +105,10 @@ final class AgentNativeToolCallsResponse extends AgentNativeModelResponse {
 }
 
 abstract interface class AgentNativeToolTransport {
-  Future<AgentNativeModelResponse> complete(AgentNativeToolRequest request);
+  Future<AgentNativeModelResponse> complete(
+    AgentNativeToolRequest request, {
+    AgentNativeEventSink? onEvent,
+  });
 }
 
 final class AgentNativeToolUnsupportedException implements Exception {
@@ -91,11 +123,13 @@ final class OpenAiCompatibleNativeToolTransport
 
   @override
   Future<AgentNativeModelResponse> complete(
-      AgentNativeToolRequest request) async {
+    AgentNativeToolRequest request, {
+    AgentNativeEventSink? onEvent,
+  }) async {
     final messages = _sessions.putIfAbsent(
       request.runId,
       () => [
-        {'role': 'system', 'content': AgentPromptBuilder.systemPrompt},
+        {'role': 'system', 'content': AgentPromptBuilder.nativeSystemPrompt},
         {'role': 'user', 'content': request.userPrompt},
       ],
     );
@@ -106,31 +140,78 @@ final class OpenAiCompatibleNativeToolTransport
         'content': result.content,
       });
     }
-    final Map<String, dynamic> message;
     try {
-      message = await AIProviderFactory.chatWithTools(
+      final response = await _completeStream(
         messages: messages,
         tools: _toolDefinitions,
         logTag: 'AgentNativeTools',
+        onEvent: onEvent,
       );
+      if (response is AgentNativeFinalTextResponse) {
+        _sessions.remove(request.runId);
+      }
+      return response;
     } on AIException catch (error) {
+      _sessions.remove(request.runId);
       if (error.message.contains('不支持原生工具调用') ||
           error.message.toLowerCase().contains('tool')) {
-        _sessions.remove(request.runId);
         throw const AgentNativeToolUnsupportedException();
       }
       rethrow;
     }
-    final rawCalls = message['tool_calls'];
-    if (rawCalls is List && rawCalls.isNotEmpty) {
-      messages.add(message);
+  }
+
+  Future<AgentNativeModelResponse> _completeStream({
+    required List<Map<String, dynamic>> messages,
+    required List<Map<String, dynamic>> tools,
+    required String logTag,
+    AgentNativeEventSink? onEvent,
+  }) async {
+    final text = StringBuffer();
+    final calls = <int, _StreamToolCall>{};
+    await for (final chunk in AIProviderFactory.chatWithToolsStream(
+      messages: messages,
+      tools: tools,
+      logTag: logTag,
+    )) {
+      final choices = chunk['choices'];
+      if (choices is! List || choices.isEmpty || choices.first is! Map) {
+        continue;
+      }
+      final delta = (choices.first as Map)['delta'];
+      if (delta is! Map) continue;
+      final content = delta['content'];
+      if (content is String && content.isNotEmpty) {
+        text.write(content);
+        onEvent?.call(AgentNativeTextDelta(content));
+      }
+      final rawCalls = delta['tool_calls'];
+      if (rawCalls is! List) continue;
+      for (final raw in rawCalls.whereType<Map>()) {
+        final index = raw['index'] is num ? (raw['index'] as num).toInt() : 0;
+        final call = calls.putIfAbsent(index, _StreamToolCall.new);
+        if (raw['id'] is String) call.id = raw['id'] as String;
+        final function = raw['function'];
+        if (function is Map) {
+          if (function['name'] is String) {
+            call.name = function['name'] as String;
+          }
+          if (function['arguments'] is String) {
+            call.arguments.write(function['arguments'] as String);
+          }
+        }
+      }
+    }
+    if (calls.isNotEmpty) {
+      final toolCalls = calls.entries.toList()
+        ..sort((left, right) => left.key.compareTo(right.key));
+      final rawCalls = toolCalls.map((entry) => entry.value.toRaw()).toList();
+      messages.add({'role': 'assistant', 'tool_calls': rawCalls});
       return AgentNativeModelResponse.toolCalls(
-        rawCalls.whereType<Map>().map(_toToolCall).toList(),
+        rawCalls.map(_toToolCall).toList(),
       );
     }
-    _sessions.remove(request.runId);
-    return AgentNativeModelResponse.finalText(
-        message['content'] as String? ?? '');
+    return AgentNativeModelResponse.finalText(text.toString());
   }
 
   AgentNativeToolCall _toToolCall(Map raw) {
@@ -174,6 +255,23 @@ final class OpenAiCompatibleNativeToolTransport
       };
 }
 
+final class _StreamToolCall {
+  String? id;
+  String? name;
+  final StringBuffer arguments = StringBuffer();
+
+  Map<String, dynamic> toRaw() {
+    if (id == null || name == null) {
+      throw AIException('服务商返回了不完整的工具调用');
+    }
+    return {
+      'id': id,
+      'type': 'function',
+      'function': {'name': name, 'arguments': arguments.toString()},
+    };
+  }
+}
+
 /// Stateful bridge between a provider's native tool-call protocol and the
 /// pure-Dart AgentCore loop. State is keyed by one foreground run ID.
 final class NativeToolAgentModel implements AgentModel {
@@ -203,9 +301,10 @@ final class NativeToolAgentModel implements AgentModel {
         AgentNativeToolRequest(
           runId: request.scope.id,
           userPrompt:
-              isFirstTurn ? _promptBuilder.build(request) : request.text,
+              isFirstTurn ? _promptBuilder.buildNative(request) : request.text,
           toolResults: _toolResults(request.toolData),
         ),
+        onEvent: request.nativeStreamSink,
       );
     } on AgentNativeToolUnsupportedException {
       if (_fallback == null) rethrow;

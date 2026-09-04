@@ -80,6 +80,37 @@ class AIChatService {
     }
   }
 
+  /// Live Agent events for the chat UI. The normal native path yields genuine
+  /// provider SSE text deltas; legacy configurations still yield one completed
+  /// event so callers can use a single rendering flow.
+  Stream<AgentRunEvent> processMessageEvents(
+    String userInput, {
+    required int ledgerId,
+    String? languageCode,
+    bool forceChat = false,
+    AppLocalizations? l10n,
+  }) async* {
+    if (_agentFacade != null) {
+      yield* _agentFacade.processMessageEvents(
+        message: userInput,
+        ledgerId: ledgerId,
+        context: {'languageCode': languageCode},
+        l10n: l10n,
+      );
+      return;
+    }
+    final response = await processMessage(
+      userInput,
+      ledgerId: ledgerId,
+      languageCode: languageCode,
+      forceChat: forceChat,
+      l10n: l10n,
+    );
+    yield AgentRunCompletedEvent(
+      AgentChatResponse(runId: '', response: response),
+    );
+  }
+
   /// 撤销记账(给 UI 卡片上的「撤销」按钮用)
   Future<bool> undoTransaction(int transactionId) async {
     try {

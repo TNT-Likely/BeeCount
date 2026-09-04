@@ -82,6 +82,35 @@ void main() {
 
     expect(model.request!.context['memories'], ['咖啡默认用微信支付']);
   });
+
+  test('event stream reports tool execution before its final response',
+      () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      model: _FakeModel([
+        AgentTurn.toolCalls([
+          AgentToolCall(
+            id: 'call-1',
+            name: 'record_transaction_from_text',
+            arguments: const {'sourceText': '午饭 35'},
+          ),
+        ]),
+        const AgentTurn.finalText('已完成'),
+      ]),
+      runIdFactory: () => 'run-events',
+    );
+
+    final events = await facade
+        .processMessageEvents(message: '午饭 35', ledgerId: 1)
+        .toList();
+
+    expect(events.whereType<AgentToolStartedEvent>().single.toolName,
+        'record_transaction_from_text');
+    expect(events.whereType<AgentToolCompletedEvent>().single.toolName,
+        'record_transaction_from_text');
+    expect(events.last, isA<AgentRunCompletedEvent>());
+  });
 }
 
 final class _FakeModel implements AgentModel {

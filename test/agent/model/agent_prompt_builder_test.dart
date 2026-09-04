@@ -26,6 +26,14 @@ void main() {
     expect(prompt, contains('record_transaction_from_text'));
   });
 
+  test('native prompt never instructs the model to expose JSON protocol', () {
+    final prompt = const AgentPromptBuilder().buildNative(requestWithContext());
+
+    expect(AgentPromptBuilder.nativeSystemPrompt, isNot(contains('JSON')));
+    expect(prompt, isNot(contains('"kind":"tool_calls"')));
+    expect(prompt, contains('当前用户消息'));
+  });
+
   test('model repairs one malformed response before returning a valid turn',
       () async {
     final prompts = <String>[];
@@ -81,18 +89,42 @@ void main() {
     expect(transport.requests, hasLength(2));
     expect(transport.requests.last.toolResults.single.toolCallId, 'call-1');
   });
+
+  test('native tool model forwards provider text deltas during a real stream',
+      () async {
+    final deltas = <String>[];
+    final transport = _FakeNativeTransport([
+      const AgentNativeModelResponse.finalText('已完成。'),
+    ], onComplete: (onEvent) {
+      onEvent?.call(const AgentNativeTextDelta('已'));
+      onEvent?.call(const AgentNativeTextDelta('完成。'));
+    });
+    final model = NativeToolAgentModel(transport: transport);
+
+    await model.nextTurn(requestWithContext().withStreamingTextDeltas(
+      (event) {
+        if (event case AgentNativeTextDelta(:final text)) deltas.add(text);
+      },
+    ));
+
+    expect(deltas, ['已', '完成。']);
+  });
 }
 
 final class _FakeNativeTransport implements AgentNativeToolTransport {
-  _FakeNativeTransport(this._responses);
+  _FakeNativeTransport(this._responses, {this.onComplete});
 
   final List<AgentNativeModelResponse> _responses;
+  final void Function(AgentNativeEventSink? onEvent)? onComplete;
   final List<AgentNativeToolRequest> requests = [];
 
   @override
   Future<AgentNativeModelResponse> complete(
-      AgentNativeToolRequest request) async {
+    AgentNativeToolRequest request, {
+    AgentNativeEventSink? onEvent,
+  }) async {
     requests.add(request);
+    onComplete?.call(onEvent);
     return _responses.removeAt(0);
   }
 }

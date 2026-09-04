@@ -26,6 +26,7 @@ import '../../models/ai_quick_command.dart';
 import '../../services/ui/avatar_service.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/ai/ai_chat_service.dart';
+import '../../services/ai/agent_app_facade.dart';
 import '../../services/ai/ai_quick_command_service.dart';
 
 /// AI 对话页面
@@ -47,6 +48,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   AIConfigValidationResult? _apiValidation; // API配置验证结果
   bool _showScrollToBottom = false; // 是否显示"回到底部"按钮
   bool _isFirstLoad = true; // 是否首次加载
+  bool _hasLiveAgentMessage = false;
+  String _streamingAgentText = '';
+  String? _agentExecutionStatus;
 
   @override
   void initState() {
@@ -234,7 +238,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                       });
                     }
 
-                    if (messages.isEmpty) {
+                    if (messages.isEmpty && !_hasLiveAgentMessage) {
                       return const Center(child: Text('暂无消息'));
                     }
 
@@ -244,8 +248,12 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                         horizontal: 12.0.scaled(context, ref),
                         vertical: 8.0.scaled(context, ref),
                       ),
-                      itemCount: messages.length,
+                      itemCount:
+                          messages.length + (_hasLiveAgentMessage ? 1 : 0),
                       itemBuilder: (context, index) {
+                        if (index == messages.length) {
+                          return _buildLiveAgentBubble();
+                        }
                         return _buildMessageBubble(messages[index]);
                       },
                     );
@@ -451,6 +459,79 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     );
   }
 
+  Widget _buildLiveAgentBubble() {
+    final hasText = _streamingAgentText.isNotEmpty;
+    final status = _agentExecutionStatus;
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.0.scaled(context, ref)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAIAvatar(),
+          SizedBox(width: 8.0.scaled(context, ref)),
+          Flexible(
+            child: Container(
+              margin: EdgeInsets.only(right: 60.0.scaled(context, ref)),
+              padding: EdgeInsets.symmetric(
+                horizontal: 12.0.scaled(context, ref),
+                vertical: 10.0.scaled(context, ref),
+              ),
+              decoration: BoxDecoration(
+                color: BeeTokens.surface(context),
+                borderRadius: BorderRadius.circular(12.0.scaled(context, ref)),
+                border: Border.all(color: BeeTokens.border(context)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (hasText)
+                    Text(
+                      _streamingAgentText,
+                      style: TextStyle(
+                        color: BeeTokens.textPrimary(context),
+                        fontSize: 14.0.scaled(context, ref),
+                        height: 1.5,
+                      ),
+                    ),
+                  if (status != null) ...[
+                    if (hasText) SizedBox(height: 8.0.scaled(context, ref)),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_isLoading)
+                          SizedBox(
+                            width: 14.0.scaled(context, ref),
+                            height: 14.0.scaled(context, ref),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                ref.watch(primaryColorProvider),
+                              ),
+                            ),
+                          ),
+                        if (_isLoading)
+                          SizedBox(width: 6.0.scaled(context, ref)),
+                        Flexible(
+                          child: Text(
+                            status,
+                            style: TextStyle(
+                              color: BeeTokens.textSecondary(context),
+                              fontSize: 13.0.scaled(context, ref),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // 构建AI头像
   Widget _buildAIAvatar() {
     return Container(
@@ -641,6 +722,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           createdAt: Value(DateTime.now()),
         ),
       );
+      if (!mounted) return;
 
       _scrollToBottom();
 
@@ -653,17 +735,50 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
       logger.info('AIChat', '当前账本ID: $ledgerId');
 
-      final response = await chatService.processMessage(
+      setState(() {
+        _hasLiveAgentMessage = true;
+        _streamingAgentText = '';
+        _agentExecutionStatus = l10n.aiChatThinking;
+      });
+      _scrollToBottom();
+
+      AIResponse? response;
+      await for (final event in chatService.processMessageEvents(
         text,
         ledgerId: ledgerId,
         languageCode: currentLocale.languageCode,
-        forceChat: forceChat, // 快捷指令强制为自由对话
+        forceChat: forceChat,
         l10n: l10n,
-      );
+      )) {
+        if (!mounted) break;
+        switch (event) {
+          case AgentTextDeltaEvent(:final text):
+            setState(() {
+              _streamingAgentText += text;
+              _agentExecutionStatus = null;
+            });
+          case AgentToolStartedEvent(:final toolName):
+            setState(() {
+              _agentExecutionStatus =
+                  l10n.agentExecutingTool(_agentToolLabel(l10n, toolName));
+            });
+          case AgentToolCompletedEvent(:final toolName, :final succeeded):
+            setState(() {
+              final label = _agentToolLabel(l10n, toolName);
+              _agentExecutionStatus = succeeded
+                  ? l10n.agentToolCompleted(label)
+                  : l10n.agentToolFailed(label);
+            });
+          case AgentRunCompletedEvent(:final result):
+            response = result.response;
+        }
+        _scrollToBottomSmooth();
+      }
+      response ??= AIResponse.error(l10n.agentRunFailed);
 
       // 保存 AI 回复。多笔 metadata 用新格式 {bills, txIds, undoneIds};
       // transactionId 列仍存第一笔 id(getMessageByTransactionId 兼容)。
-      final messageId = await repo.createMessage(
+      await repo.createMessage(
         MessagesCompanion.insert(
           conversationId: _conversationId!,
           role: 'assistant',
@@ -695,9 +810,13 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         logger.info('AIChat', '记账成功，已刷新统计信息和触发云同步');
       }
 
-      // 设置动画消息ID
       setState(() {
-        _animatingMessageId = messageId;
+        // Content was already rendered from the provider's real SSE chunks.
+        // Do not replay it with the old typewriter simulation after persistence.
+        _animatingMessageId = null;
+        _hasLiveAgentMessage = false;
+        _streamingAgentText = '';
+        _agentExecutionStatus = null;
       });
 
       _scrollToBottom();
@@ -708,10 +827,26 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       }
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _hasLiveAgentMessage = false;
+          _streamingAgentText = '';
+          _agentExecutionStatus = null;
+        });
       }
     }
   }
+
+  String _agentToolLabel(AppLocalizations l10n, String toolName) =>
+      switch (toolName) {
+        'query_transactions' => l10n.agentToolQueryTransactions,
+        'get_spending_summary' => l10n.agentToolSpendingSummary,
+        'get_budget_status' => l10n.agentToolBudgetStatus,
+        'record_transaction_from_text' => l10n.agentToolRecordTransaction,
+        'save_explicit_memory' => l10n.agentToolSaveMemory,
+        'forget_memory' => l10n.agentToolForgetMemory,
+        _ => toolName,
+      };
 
   void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 100), () {

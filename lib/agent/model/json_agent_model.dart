@@ -42,7 +42,7 @@ final class JsonAgentModel implements AgentModel {
 
   Future<String> _request(String prompt) => _transport(
         prompt: prompt,
-        systemPrompt: AgentPromptBuilder.systemPrompt,
+        systemPrompt: AgentPromptBuilder.jsonFallbackSystemPrompt,
         temperature: 0.1,
         logTag: 'AgentModel',
       );

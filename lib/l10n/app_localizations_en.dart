@@ -5225,6 +5225,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentStepsExceeded => 'This request took too many steps. Please simplify it and try again.';
 
   @override
+  String agentExecutingTool(Object tool) {
+    return 'Working: $tool';
+  }
+
+  @override
+  String agentToolCompleted(Object tool) {
+    return 'Done: $tool';
+  }
+
+  @override
+  String agentToolFailed(Object tool) {
+    return 'Could not complete: $tool';
+  }
+
+  @override
+  String get agentToolQueryTransactions => 'query transactions';
+
+  @override
+  String get agentToolSpendingSummary => 'summarize spending';
+
+  @override
+  String get agentToolBudgetStatus => 'check budget';
+
+  @override
+  String get agentToolRecordTransaction => 'record transaction';
+
+  @override
+  String get agentToolSaveMemory => 'save memory';
+
+  @override
+  String get agentToolForgetMemory => 'forget memory';
+
+  @override
   String get billCardSuccess => 'Booking Successful';
 
   @override

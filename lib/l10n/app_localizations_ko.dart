@@ -5225,6 +5225,39 @@ class AppLocalizationsKo extends AppLocalizations {
   String get agentStepsExceeded => '요청 처리 단계가 너무 많습니다. 요청을 간단히 한 뒤 다시 시도해 주세요.';
 
   @override
+  String agentExecutingTool(Object tool) {
+    return '실행 중: $tool';
+  }
+
+  @override
+  String agentToolCompleted(Object tool) {
+    return '완료: $tool';
+  }
+
+  @override
+  String agentToolFailed(Object tool) {
+    return '실패: $tool';
+  }
+
+  @override
+  String get agentToolQueryTransactions => '거래 조회';
+
+  @override
+  String get agentToolSpendingSummary => '지출 요약';
+
+  @override
+  String get agentToolBudgetStatus => '예산 확인';
+
+  @override
+  String get agentToolRecordTransaction => '거래 기록';
+
+  @override
+  String get agentToolSaveMemory => '기억 저장';
+
+  @override
+  String get agentToolForgetMemory => '기억 삭제';
+
+  @override
   String get billCardSuccess => '기록 성공';
 
   @override

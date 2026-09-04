@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:agentcore/agentcore.dart';
 import 'package:uuid/uuid.dart';
 
@@ -42,6 +44,47 @@ final class AgentAppFacade {
     bool allowsExplicitMemory = false,
     Map<String, Object?> context = const {},
     AppLocalizations? l10n,
+  }) =>
+      _processMessage(
+        message: message,
+        ledgerId: ledgerId,
+        allowsExplicitMemory: allowsExplicitMemory,
+        context: context,
+        l10n: l10n,
+      );
+
+  /// Emits live model text and the lifecycle of each locally executed tool.
+  /// The completed event is always last, including safe error responses.
+  Stream<AgentRunEvent> processMessageEvents({
+    required String message,
+    required int ledgerId,
+    bool allowsExplicitMemory = false,
+    Map<String, Object?> context = const {},
+    AppLocalizations? l10n,
+  }) {
+    final controller = StreamController<AgentRunEvent>();
+    () async {
+      final response = await _processMessage(
+        message: message,
+        ledgerId: ledgerId,
+        allowsExplicitMemory: allowsExplicitMemory,
+        context: context,
+        l10n: l10n,
+        emit: controller.add,
+      );
+      controller.add(AgentRunCompletedEvent(response));
+      await controller.close();
+    }();
+    return controller.stream;
+  }
+
+  Future<AgentChatResponse> _processMessage({
+    required String message,
+    required int ledgerId,
+    required bool allowsExplicitMemory,
+    required Map<String, Object?> context,
+    required AppLocalizations? l10n,
+    void Function(AgentRunEvent event)? emit,
   }) async {
     final runId = _runIdFactory();
     await _memoryRepository.createRun(
@@ -70,16 +113,23 @@ final class AgentAppFacade {
       // into a write or prevent the user from receiving a safe response.
       requestContext['memories'] = const <String>[];
     }
-    final request = AgentRequest(
+    var request = AgentRequest(
       text: message,
       scope: scope,
       context: requestContext,
     );
+    if (emit != null) {
+      request = request.withStreamingTextDeltas((event) {
+        if (event case AgentNativeTextDelta(:final text)) {
+          emit(AgentTextDeltaEvent(text));
+        }
+      });
+    }
 
     try {
       final result = await AgentCore(
         model: _model,
-        tools: localTools.build(),
+        tools: _observedTools(localTools.build(), emit),
         policy: _policy,
       ).run(request);
       await _recordAudit(runId, result);
@@ -98,6 +148,22 @@ final class AgentAppFacade {
         response: AIResponse.error(l10n?.agentRunFailed ?? 'AI 服务暂时不可用，请稍后重试。'),
       );
     }
+  }
+
+  Map<String, AgentTool> _observedTools(
+    Map<String, AgentTool> tools,
+    void Function(AgentRunEvent event)? emit,
+  ) {
+    if (emit == null) return tools;
+    return {
+      for (final entry in tools.entries)
+        entry.key: _ObservedAgentTool(
+          delegate: entry.value,
+          onStarted: (call) => emit(AgentToolStartedEvent(call.name)),
+          onCompleted: (call, succeeded) =>
+              emit(AgentToolCompletedEvent(call.name, succeeded: succeeded)),
+        ),
+    };
   }
 
   Future<void> _recordAudit(String runId, AgentRunResult result) async {
@@ -150,6 +216,63 @@ final class AgentAppFacade {
           ? (l10n?.agentStepsExceeded ?? '这次操作步骤过多，请简化后重试。')
           : result.text,
     );
+  }
+}
+
+sealed class AgentRunEvent {
+  const AgentRunEvent();
+}
+
+final class AgentTextDeltaEvent extends AgentRunEvent {
+  const AgentTextDeltaEvent(this.text);
+
+  final String text;
+}
+
+final class AgentToolStartedEvent extends AgentRunEvent {
+  const AgentToolStartedEvent(this.toolName);
+
+  final String toolName;
+}
+
+final class AgentToolCompletedEvent extends AgentRunEvent {
+  const AgentToolCompletedEvent(this.toolName, {required this.succeeded});
+
+  final String toolName;
+  final bool succeeded;
+}
+
+final class AgentRunCompletedEvent extends AgentRunEvent {
+  const AgentRunCompletedEvent(this.result);
+
+  final AgentChatResponse result;
+}
+
+final class _ObservedAgentTool implements AgentTool {
+  const _ObservedAgentTool({
+    required this.delegate,
+    required this.onStarted,
+    required this.onCompleted,
+  });
+
+  final AgentTool delegate;
+  final void Function(AgentToolCall call) onStarted;
+  final void Function(AgentToolCall call, bool succeeded) onCompleted;
+
+  @override
+  String get name => delegate.name;
+
+  @override
+  Future<Map<String, Object?>> execute(AgentToolCall call) async {
+    onStarted(call);
+    try {
+      final result = await delegate.execute(call);
+      onCompleted(call, true);
+      return result;
+    } catch (_) {
+      onCompleted(call, false);
+      rethrow;
+    }
   }
 }
 

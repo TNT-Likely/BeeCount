@@ -2256,6 +2256,24 @@
   "agentRunFailed": "AI service is temporarily unavailable. Please try again later.",
   "agentRecordIncomplete": "The transaction details are incomplete. Please include an amount and purpose, then try again.",
   "agentStepsExceeded": "This request took too many steps. Please simplify it and try again.",
+  "agentExecutingTool": "Working: {tool}",
+  "@agentExecutingTool": {
+    "placeholders": {"tool": {}}
+  },
+  "agentToolCompleted": "Done: {tool}",
+  "@agentToolCompleted": {
+    "placeholders": {"tool": {}}
+  },
+  "agentToolFailed": "Could not complete: {tool}",
+  "@agentToolFailed": {
+    "placeholders": {"tool": {}}
+  },
+  "agentToolQueryTransactions": "query transactions",
+  "agentToolSpendingSummary": "summarize spending",
+  "agentToolBudgetStatus": "check budget",
+  "agentToolRecordTransaction": "record transaction",
+  "agentToolSaveMemory": "save memory",
+  "agentToolForgetMemory": "forget memory",
   "billCardSuccess": "Booking Successful",
   "billCardUndone": "Undone",
   "billCardAmount": "💰 Amount",

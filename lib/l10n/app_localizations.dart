@@ -9974,6 +9974,60 @@ abstract class AppLocalizations {
   /// **'This request took too many steps. Please simplify it and try again.'**
   String get agentStepsExceeded;
 
+  /// No description provided for @agentExecutingTool.
+  ///
+  /// In en, this message translates to:
+  /// **'Working: {tool}'**
+  String agentExecutingTool(Object tool);
+
+  /// No description provided for @agentToolCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Done: {tool}'**
+  String agentToolCompleted(Object tool);
+
+  /// No description provided for @agentToolFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not complete: {tool}'**
+  String agentToolFailed(Object tool);
+
+  /// No description provided for @agentToolQueryTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'query transactions'**
+  String get agentToolQueryTransactions;
+
+  /// No description provided for @agentToolSpendingSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'summarize spending'**
+  String get agentToolSpendingSummary;
+
+  /// No description provided for @agentToolBudgetStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'check budget'**
+  String get agentToolBudgetStatus;
+
+  /// No description provided for @agentToolRecordTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'record transaction'**
+  String get agentToolRecordTransaction;
+
+  /// No description provided for @agentToolSaveMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'save memory'**
+  String get agentToolSaveMemory;
+
+  /// No description provided for @agentToolForgetMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'forget memory'**
+  String get agentToolForgetMemory;
+
   /// No description provided for @billCardSuccess.
   ///
   /// In en, this message translates to:

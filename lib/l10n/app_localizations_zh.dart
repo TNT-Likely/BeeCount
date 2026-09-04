@@ -5225,6 +5225,39 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentStepsExceeded => '这次操作步骤过多，请简化后重试。';
 
   @override
+  String agentExecutingTool(Object tool) {
+    return '正在执行：$tool';
+  }
+
+  @override
+  String agentToolCompleted(Object tool) {
+    return '已完成：$tool';
+  }
+
+  @override
+  String agentToolFailed(Object tool) {
+    return '执行失败：$tool';
+  }
+
+  @override
+  String get agentToolQueryTransactions => '查询交易';
+
+  @override
+  String get agentToolSpendingSummary => '汇总支出';
+
+  @override
+  String get agentToolBudgetStatus => '查询预算';
+
+  @override
+  String get agentToolRecordTransaction => '记录交易';
+
+  @override
+  String get agentToolSaveMemory => '保存记忆';
+
+  @override
+  String get agentToolForgetMemory => '遗忘记忆';
+
+  @override
   String get billCardSuccess => '记账成功';
 
   @override
