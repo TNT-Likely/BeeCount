@@ -72,42 +72,6 @@ class AIProviderFactory {
     }
   }
 
-  /// OpenAI-compatible 原生工具调用。返回 assistant message 的原始对象，
-  /// 调用方据此把 tool_calls 和 role:tool 结果组成多回合会话。
-  static Future<Map<String, dynamic>> chatWithTools({
-    required List<Map<String, dynamic>> messages,
-    required List<Map<String, dynamic>> tools,
-    String? logTag,
-  }) async {
-    final config = await AIProviderManager.getProviderForCapability(
-      AICapabilityType.text,
-    );
-    if (config == null || !config.isValid || !config.supportsText) {
-      throw AIException('未配置可用的文本对话服务商');
-    }
-    if (config.isBuiltIn) {
-      throw AIException('当前文本服务商不支持原生工具调用');
-    }
-    final dio = _getDio(config);
-    try {
-      // Native tools must never pass through the regular parameter-stripping
-      // fallback: silently removing `tools` would turn an Agent run back into
-      // plain prompt chat.
-      final response = await dio.post('/chat/completions', data: {
-        'model': config.textModel,
-        'messages': messages,
-        'tools': tools,
-        'tool_choice': 'auto',
-        'temperature': 0.1,
-      });
-      final data = response.data as Map<String, dynamic>;
-      final choices = data['choices'] as List;
-      return Map<String, dynamic>.from(choices.first['message'] as Map);
-    } on DioException catch (error) {
-      throw AIException(_extractDioError(error));
-    }
-  }
-
   /// Real Server-Sent Events from an OpenAI-compatible tool-call endpoint.
   /// Each yielded map is one parsed `data:` payload; callers aggregate content
   /// and fragmented tool-call arguments while presenting updates immediately.
@@ -121,9 +85,6 @@ class AIProviderFactory {
     );
     if (config == null || !config.isValid || !config.supportsText) {
       throw AIException('未配置可用的文本对话服务商');
-    }
-    if (config.isBuiltIn) {
-      throw AIException('当前文本服务商不支持原生工具调用');
     }
     logger.debug(logTag ?? 'AgentNativeTools',
         '发起原生工具流式对话 (${config.name}, 模型: ${config.textModel})');
@@ -144,6 +105,10 @@ class AIProviderFactory {
       final body = response.data;
       if (body == null) {
         throw AIException('服务商未返回流式响应');
+      }
+      final contentType = response.headers.value(Headers.contentTypeHeader);
+      if (contentType == null || !contentType.contains('text/event-stream')) {
+        throw AIException('当前文本服务商不支持原生工具调用或流式输出');
       }
       await for (final line in body.stream
           .map<List<int>>(List<int>.from)

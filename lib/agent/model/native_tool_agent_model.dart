@@ -206,7 +206,14 @@ final class OpenAiCompatibleNativeToolTransport
       final toolCalls = calls.entries.toList()
         ..sort((left, right) => left.key.compareTo(right.key));
       final rawCalls = toolCalls.map((entry) => entry.value.toRaw()).toList();
-      messages.add({'role': 'assistant', 'tool_calls': rawCalls});
+      // OpenAI-compatible tool continuation requires an assistant message
+      // whose `content` is explicitly null before role:tool results. Some
+      // gateways otherwise lose the tool-call turn and repeat it.
+      messages.add({
+        'role': 'assistant',
+        'content': null,
+        'tool_calls': rawCalls,
+      });
       return AgentNativeModelResponse.toolCalls(
         rawCalls.map(_toToolCall).toList(),
       );
@@ -278,22 +285,15 @@ final class NativeToolAgentModel implements AgentModel {
   NativeToolAgentModel({
     required AgentNativeToolTransport transport,
     AgentPromptBuilder promptBuilder = const AgentPromptBuilder(),
-    AgentModel? fallback,
   })  : _transport = transport,
-        _promptBuilder = promptBuilder,
-        _fallback = fallback;
+        _promptBuilder = promptBuilder;
 
   final AgentNativeToolTransport _transport;
   final AgentPromptBuilder _promptBuilder;
-  final AgentModel? _fallback;
   final Set<String> _startedRuns = <String>{};
-  final Set<String> _fallbackRuns = <String>{};
 
   @override
   Future<AgentTurn> nextTurn(AgentRequest request) async {
-    if (_fallbackRuns.contains(request.scope.id)) {
-      return _fallback!.nextTurn(request);
-    }
     final isFirstTurn = _startedRuns.add(request.scope.id);
     final AgentNativeModelResponse response;
     try {
@@ -307,10 +307,8 @@ final class NativeToolAgentModel implements AgentModel {
         onEvent: request.nativeStreamSink,
       );
     } on AgentNativeToolUnsupportedException {
-      if (_fallback == null) rethrow;
       _startedRuns.remove(request.scope.id);
-      _fallbackRuns.add(request.scope.id);
-      return _fallback.nextTurn(request);
+      rethrow;
     }
     return switch (response) {
       AgentNativeFinalTextResponse(:final text) => _finish(
@@ -333,7 +331,6 @@ final class NativeToolAgentModel implements AgentModel {
 
   AgentTurn _finish(String runId, AgentTurn turn) {
     _startedRuns.remove(runId);
-    _fallbackRuns.remove(runId);
     return turn;
   }
 

@@ -2184,6 +2184,7 @@
   "aiChatOpenEditorFailed": "打开编辑页面失败",
   "aiChatSendFailed": "发送失败",
   "agentRunFailed": "AI 服务暂时不可用，请稍后重试。",
+  "agentNativeToolsUnsupported": "当前模型不支持 Agent 原生工具调用或流式输出，请在 AI 设置中切换模型。",
   "agentRecordIncomplete": "未识别到完整的记账信息，请补充金额和用途后重试。",
   "agentStepsExceeded": "这次操作步骤过多，请简化后重试。",
   "agentExecutingTool": "正在执行：{tool}",

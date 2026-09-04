@@ -5219,6 +5219,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentRunFailed => 'AI service is temporarily unavailable. Please try again later.';
 
   @override
+  String get agentNativeToolsUnsupported => 'This model does not support native Agent tools or streaming. Switch models in AI Settings.';
+
+  @override
   String get agentRecordIncomplete => 'The transaction details are incomplete. Please include an amount and purpose, then try again.';
 
   @override

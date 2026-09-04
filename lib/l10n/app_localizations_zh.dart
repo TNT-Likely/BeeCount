@@ -5219,6 +5219,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentRunFailed => 'AI 服务暂时不可用，请稍后重试。';
 
   @override
+  String get agentNativeToolsUnsupported => '当前模型不支持 Agent 原生工具调用或流式输出，请在 AI 设置中切换模型。';
+
+  @override
   String get agentRecordIncomplete => '未识别到完整的记账信息，请补充金额和用途后重试。';
 
   @override

@@ -4,7 +4,6 @@ import 'package:agentcore/agentcore.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../agent/memory/agent_memory_repository.dart';
-import '../../agent/model/json_agent_model.dart';
 import '../../agent/model/native_tool_agent_model.dart';
 import '../../agent/policy/p0_agent_policy.dart';
 import '../../agent/tools/local_agent_tools.dart';
@@ -27,7 +26,6 @@ final class AgentAppFacade {
         _model = model ??
             NativeToolAgentModel(
               transport: OpenAiCompatibleNativeToolTransport(),
-              fallback: JsonAgentModel(),
             ),
         _policy = policy,
         _runIdFactory = runIdFactory ?? const Uuid().v4;
@@ -137,6 +135,19 @@ final class AgentAppFacade {
       final response = _responseFor(result, localTools, l10n);
       await _memoryRepository.finishRun(runId: runId, status: 'completed');
       return AgentChatResponse(runId: runId, response: response);
+    } on AgentNativeToolUnsupportedException {
+      await _memoryRepository.finishRun(
+        runId: runId,
+        status: 'failed',
+        errorMessage: 'agent_native_tools_unsupported',
+      );
+      return AgentChatResponse(
+        runId: runId,
+        response: AIResponse.error(
+          l10n?.agentNativeToolsUnsupported ??
+              '当前模型不支持 Agent 原生工具调用或流式输出，请在 AI 设置中切换模型。',
+        ),
+      );
     } catch (_) {
       await _memoryRepository.finishRun(
         runId: runId,

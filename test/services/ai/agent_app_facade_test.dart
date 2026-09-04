@@ -1,6 +1,7 @@
 import 'package:agentcore/agentcore.dart';
 import 'package:beecount/agent/memory/local_agent_memory_repository.dart';
 import 'package:beecount/agent/memory/agent_memory_repository.dart';
+import 'package:beecount/agent/model/native_tool_agent_model.dart';
 import 'package:beecount/agent/tools/local_agent_tools.dart';
 import 'package:beecount/data/db.dart' hide AgentToolCall;
 import 'package:beecount/services/ai/agent_app_facade.dart';
@@ -60,6 +61,21 @@ void main() {
 
     expect(response.type, 'error');
     expect(run.status, 'failed');
+    expect(gateway.recordedTexts, isEmpty);
+  });
+
+  test('unsupported native tools return a direct configuration hint', () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      model: _UnsupportedModel(),
+      runIdFactory: () => 'run-unsupported',
+    );
+
+    final response = await facade.processMessage(message: '午饭 35', ledgerId: 1);
+
+    expect(response.type, 'error');
+    expect(response.text, contains('不支持 Agent 原生工具调用'));
     expect(gateway.recordedTexts, isEmpty);
   });
 
@@ -126,6 +142,12 @@ final class _ThrowingModel implements AgentModel {
   @override
   Future<AgentTurn> nextTurn(AgentRequest request) =>
       Future.error(const FormatException('bad response'));
+}
+
+final class _UnsupportedModel implements AgentModel {
+  @override
+  Future<AgentTurn> nextTurn(AgentRequest request) =>
+      Future.error(const AgentNativeToolUnsupportedException());
 }
 
 final class _CapturingModel implements AgentModel {

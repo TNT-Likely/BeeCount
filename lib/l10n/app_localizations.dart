@@ -9962,6 +9962,12 @@ abstract class AppLocalizations {
   /// **'AI service is temporarily unavailable. Please try again later.'**
   String get agentRunFailed;
 
+  /// No description provided for @agentNativeToolsUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'This model does not support native Agent tools or streaming. Switch models in AI Settings.'**
+  String get agentNativeToolsUnsupported;
+
   /// No description provided for @agentRecordIncomplete.
   ///
   /// In en, this message translates to:
