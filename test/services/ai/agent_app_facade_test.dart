@@ -48,6 +48,74 @@ void main() {
     expect(gateway.recordedTexts, ['午饭 35']);
   });
 
+  test('a fragmented native record tool call reaches the local tool',
+      () async {
+    final transport = OpenAiCompatibleNativeToolTransport(
+      toolStream: ({required messages, required tools, logTag}) {
+        final hasToolResult = messages.any(
+          (message) => message['role'] == 'tool',
+        );
+        if (hasToolResult) {
+          return Stream<Map<String, dynamic>>.value({
+            'choices': [
+              {
+                'delta': {'content': '已记录早饭 8 元。'},
+              },
+            ],
+          });
+        }
+        return Stream<Map<String, dynamic>>.fromIterable([
+          {
+            'choices': [
+              {
+                'delta': {
+                  'tool_calls': [
+                    {
+                      'index': 0,
+                      'id': 'call-native-record',
+                      'function': {
+                        'name': 'record_transaction_from_text',
+                        'arguments': '{"sourceText":"早饭花了8元"}',
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+          {
+            'choices': [
+              {
+                'delta': {
+                  'tool_calls': [
+                    {
+                      'index': 0,
+                      'function': {'name': '', 'arguments': ''},
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        ]);
+      },
+    );
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      model: NativeToolAgentModel(transport: transport),
+      runIdFactory: () => 'run-native-record',
+    );
+
+    final response = await facade.processMessage(
+      message: '早饭花了8元',
+      ledgerId: 1,
+    );
+
+    expect(response.type, 'bill_card');
+    expect(gateway.recordedTexts, ['早饭花了8元']);
+  });
+
   test('a malformed model response creates no transaction and records failure',
       () async {
     final facade = AgentAppFacade(

@@ -4,8 +4,12 @@ import 'package:agentcore/agentcore.dart';
 import 'package:beecount/agent/model/agent_prompt_builder.dart';
 import 'package:beecount/agent/model/native_tool_agent_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
+
   AgentRequest requestWithContext() => AgentRequest(
         text: '午饭 35',
         scope: const AgentScope(id: 'user-1', ledgerId: 1),
@@ -136,6 +140,62 @@ void main() {
     ));
 
     expect(deltas, ['已', '完成。']);
+  });
+
+  test('tool stream keeps its name when a later fragment leaves it empty',
+      () async {
+    final transport = OpenAiCompatibleNativeToolTransport(
+      toolStream: ({required messages, required tools, logTag}) =>
+          Stream<Map<String, dynamic>>.fromIterable([
+        {
+          'choices': [
+            {
+              'delta': {
+                'tool_calls': [
+                  {
+                    'index': 0,
+                    'id': 'call-1',
+                    'function': {
+                      'name': 'record_transaction_from_text',
+                      'arguments': '{"sourceText":"早饭',
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+        {
+          'choices': [
+            {
+              'delta': {
+                'tool_calls': [
+                  {
+                    'index': 0,
+                    'function': {
+                      'name': '',
+                      'arguments': '花了8元"}',
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ]),
+    );
+
+    final response = await transport.complete(
+      AgentNativeToolRequest(
+        runId: 'run-stream-fragments',
+        userPrompt: '早饭花了8元',
+        toolResults: const [],
+      ),
+    );
+
+    final call = (response as AgentNativeToolCallsResponse).calls.single;
+    expect(call.name, 'record_transaction_from_text');
+    expect(call.arguments, {'sourceText': '早饭花了8元'});
   });
 }
 

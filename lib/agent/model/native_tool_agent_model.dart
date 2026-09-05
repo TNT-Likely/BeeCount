@@ -113,6 +113,12 @@ abstract interface class AgentNativeToolTransport {
   });
 }
 
+typedef AgentNativeToolStream = Stream<Map<String, dynamic>> Function({
+  required List<Map<String, dynamic>> messages,
+  required List<Map<String, dynamic>> tools,
+  String? logTag,
+});
+
 final class AgentNativeToolUnsupportedException implements Exception {
   const AgentNativeToolUnsupportedException();
 }
@@ -125,6 +131,10 @@ final class AgentNativeToolTimeoutException implements Exception {
 /// payload and appends assistant tool_calls plus role:tool results verbatim.
 final class OpenAiCompatibleNativeToolTransport
     implements AgentNativeToolTransport {
+  OpenAiCompatibleNativeToolTransport({AgentNativeToolStream? toolStream})
+      : _toolStream = toolStream ?? AIProviderFactory.chatWithToolsStream;
+
+  final AgentNativeToolStream _toolStream;
   final Map<String, List<Map<String, dynamic>>> _sessions = {};
 
   @override
@@ -135,6 +145,15 @@ final class OpenAiCompatibleNativeToolTransport
     logger.debug('AgentNativeTools', '模型回合开始', {
       'runId': request.runId,
       'toolResultCount': request.toolResults.length,
+      if (request.toolResults.isNotEmpty)
+        'toolResults': request.toolResults
+            .map(
+              (result) => {
+                'toolCallId': result.toolCallId,
+                'content': result.content,
+              },
+            )
+            .toList(),
     });
     final messages = _sessions.putIfAbsent(
       request.runId,
@@ -163,7 +182,15 @@ final class OpenAiCompatibleNativeToolTransport
         logger.debug('AgentNativeTools', '模型请求工具', {
           'runId': request.runId,
           'toolCount': response.calls.length,
-          'tools': response.calls.map((call) => call.name).toList(),
+          'toolCalls': response.calls
+              .map(
+                (call) => {
+                  'id': call.id,
+                  'name': call.name,
+                  'arguments': call.arguments,
+                },
+              )
+              .toList(),
         });
       }
       logger.debug('AgentNativeTools', '模型回合结束', {
@@ -193,7 +220,7 @@ final class OpenAiCompatibleNativeToolTransport
   }) async {
     final text = StringBuffer();
     final calls = <int, _StreamToolCall>{};
-    await for (final chunk in AIProviderFactory.chatWithToolsStream(
+    await for (final chunk in _toolStream(
       messages: messages,
       tools: tools,
       logTag: logTag,
@@ -214,11 +241,13 @@ final class OpenAiCompatibleNativeToolTransport
       for (final raw in rawCalls.whereType<Map>()) {
         final index = raw['index'] is num ? (raw['index'] as num).toInt() : 0;
         final call = calls.putIfAbsent(index, _StreamToolCall.new);
-        if (raw['id'] is String) call.id = raw['id'] as String;
+        if (raw['id'] case final String id when id.isNotEmpty) {
+          call.id = id;
+        }
         final function = raw['function'];
         if (function is Map) {
-          if (function['name'] is String) {
-            call.name = function['name'] as String;
+          if (function['name'] case final String name when name.isNotEmpty) {
+            call.name = name;
           }
           if (function['arguments'] is String) {
             call.arguments.write(function['arguments'] as String);

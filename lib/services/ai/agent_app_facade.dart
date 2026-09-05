@@ -194,7 +194,6 @@ final class AgentAppFacade {
     void Function(AgentRunEvent event)? emit,
     String runId,
   ) {
-    if (emit == null) return tools;
     return {
       for (final entry in tools.entries)
         entry.key: _ObservedAgentTool(
@@ -202,17 +201,29 @@ final class AgentAppFacade {
           onStarted: (call) {
             logger.info('AgentCore', '工具开始执行', {
               'runId': runId,
+              'callId': call.id,
               'tool': call.name,
+              'arguments': call.arguments,
             });
-            emit(AgentToolStartedEvent(call.name));
+            emit?.call(AgentToolStartedEvent(call.name));
           },
-          onCompleted: (call, succeeded) {
-            logger.info('AgentCore', '工具执行结束', {
+          onFinished: (call, result, error) {
+            final data = {
               'runId': runId,
+              'callId': call.id,
               'tool': call.name,
-              'succeeded': succeeded,
-            });
-            emit(AgentToolCompletedEvent(call.name, succeeded: succeeded));
+              'arguments': call.arguments,
+              if (result != null) 'result': result,
+              if (error != null) 'error': error.toString(),
+            };
+            if (error == null) {
+              logger.info('AgentCore', '工具执行结束', data);
+            } else {
+              logger.warning('AgentCore', '工具执行失败', data);
+            }
+            emit?.call(
+              AgentToolCompletedEvent(call.name, succeeded: error == null),
+            );
           },
         ),
     };
@@ -232,7 +243,9 @@ final class AgentAppFacade {
     for (final denied in result.deniedCalls) {
       logger.warning('AgentCore', '工具调用已拒绝', {
         'runId': runId,
+        'callId': denied.call.id,
         'tool': denied.call.name,
+        'arguments': denied.call.arguments,
         'reason': denied.reason,
       });
       await _memoryRepository.recordToolCall(
@@ -309,12 +322,16 @@ final class _ObservedAgentTool implements AgentTool {
   const _ObservedAgentTool({
     required this.delegate,
     required this.onStarted,
-    required this.onCompleted,
+    required this.onFinished,
   });
 
   final AgentTool delegate;
   final void Function(AgentToolCall call) onStarted;
-  final void Function(AgentToolCall call, bool succeeded) onCompleted;
+  final void Function(
+    AgentToolCall call,
+    Map<String, Object?>? result,
+    Object? error,
+  ) onFinished;
 
   @override
   String get name => delegate.name;
@@ -324,10 +341,10 @@ final class _ObservedAgentTool implements AgentTool {
     onStarted(call);
     try {
       final result = await delegate.execute(call);
-      onCompleted(call, true);
+      onFinished(call, result, null);
       return result;
-    } catch (_) {
-      onCompleted(call, false);
+    } catch (error) {
+      onFinished(call, null, error);
       rethrow;
     }
   }

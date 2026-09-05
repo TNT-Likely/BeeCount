@@ -9,6 +9,7 @@ import 'package:drift/drift.dart' hide Column;
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/bee_icon.dart';
 import '../../widgets/ai/typewriter_text.dart';
+import '../../widgets/ai/agent_markdown_text.dart';
 import '../../widgets/ai/bill_card_widget.dart';
 import '../../widgets/ai/ai_quick_commands_bar.dart';
 import '../../styles/tokens.dart';
@@ -421,31 +422,33 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                         : BeeTokens.border(context),
                   ),
                 ),
-                child: TypewriterText(
-                  text: message.content,
-                  animate: shouldAnimate, // 只对标记的消息启用动画
-                  onTextChange: shouldAnimate
-                      ? () {
-                          // 每次文本更新时滚动到底部
-                          _scrollToBottomSmooth();
-                        }
-                      : null,
-                  onComplete: shouldAnimate
-                      ? () {
-                          // 动画完成后清除标记
-                          if (mounted) {
-                            setState(() {
-                              _animatingMessageId = null;
-                            });
-                          }
-                        }
-                      : null,
-                  style: TextStyle(
-                    color: BeeTokens.textPrimary(context),
-                    fontSize: 14.0.scaled(context, ref),
-                    height: 1.5,
-                  ),
-                ),
+                child: isUser
+                    ? TypewriterText(
+                        text: message.content,
+                        animate: shouldAnimate,
+                        onTextChange:
+                            shouldAnimate ? _scrollToBottomSmooth : null,
+                        onComplete: shouldAnimate
+                            ? () {
+                                if (mounted) {
+                                  setState(() => _animatingMessageId = null);
+                                }
+                              }
+                            : null,
+                        style: TextStyle(
+                          color: BeeTokens.textPrimary(context),
+                          fontSize: 14.0.scaled(context, ref),
+                          height: 1.5,
+                        ),
+                      )
+                    : AgentMarkdownText(
+                        data: message.content,
+                        style: TextStyle(
+                          color: BeeTokens.textPrimary(context),
+                          fontSize: 14.0.scaled(context, ref),
+                          height: 1.5,
+                        ),
+                      ),
               ),
             ),
           ),
@@ -485,8 +488,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (hasText)
-                    Text(
-                      _streamingAgentText,
+                    AgentMarkdownText(
+                      data: _streamingAgentText,
                       style: TextStyle(
                         color: BeeTokens.textPrimary(context),
                         fontSize: 14.0.scaled(context, ref),
