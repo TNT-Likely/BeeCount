@@ -362,7 +362,13 @@ final class AgentAppFacade {
               'tool': call.name,
               'arguments': call.arguments,
             });
-            emit?.call(AgentToolStartedEvent(call.name));
+            emit?.call(
+              AgentToolStartedEvent(
+                call.name,
+                callId: call.id,
+                arguments: call.arguments,
+              ),
+            );
           },
           onFinished: (call, result, error) {
             final data = {
@@ -379,7 +385,14 @@ final class AgentAppFacade {
               logger.warning('AgentCore', '工具执行失败', data);
             }
             emit?.call(
-              AgentToolCompletedEvent(call.name, succeeded: error == null),
+              AgentToolCompletedEvent(
+                call.name,
+                callId: call.id,
+                arguments: call.arguments,
+                result: result,
+                error: error?.toString(),
+                succeeded: error == null,
+              ),
             );
           },
         ),
@@ -463,16 +476,34 @@ final class AgentTextDeltaEvent extends AgentRunEvent {
 }
 
 final class AgentToolStartedEvent extends AgentRunEvent {
-  const AgentToolStartedEvent(this.toolName);
+  AgentToolStartedEvent(
+    this.toolName, {
+    this.callId = '',
+    Map<String, Object?> arguments = const {},
+  }) : arguments = Map.unmodifiable(arguments);
 
   final String toolName;
+  final String callId;
+  final Map<String, Object?> arguments;
 }
 
 final class AgentToolCompletedEvent extends AgentRunEvent {
-  const AgentToolCompletedEvent(this.toolName, {required this.succeeded});
+  AgentToolCompletedEvent(
+    this.toolName, {
+    required this.succeeded,
+    this.callId = '',
+    Map<String, Object?> arguments = const {},
+    Map<String, Object?>? result,
+    this.error,
+  })  : arguments = Map.unmodifiable(arguments),
+        result = result == null ? null : Map.unmodifiable(result);
 
   final String toolName;
   final bool succeeded;
+  final String callId;
+  final Map<String, Object?> arguments;
+  final Map<String, Object?>? result;
+  final String? error;
 }
 
 final class AgentRunCompletedEvent extends AgentRunEvent {

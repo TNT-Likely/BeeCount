@@ -21,9 +21,10 @@ import '../../ai/core/bill_info.dart';
 import '../../pages/transaction/transaction_editor_page.dart';
 import '../../pages/ai/ai_settings_page.dart';
 import '../../pages/ai/agent_permissions_page.dart';
-import '../../pages/ai/agent_tool_presentation.dart';
 import '../../widgets/biz/ledger_selector_dialog.dart';
 import '../../widgets/ai/agent_tool_authorization_dialog.dart';
+import '../../widgets/ai/agent_chat_shell.dart';
+import '../../widgets/ai/agent_execution_timeline.dart';
 import '../../data/db.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/ai_quick_command.dart';
@@ -55,7 +56,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   bool _isFirstLoad = true; // 是否首次加载
   bool _hasLiveAgentMessage = false;
   String _streamingAgentText = '';
-  String? _agentExecutionStatus;
+  List<AgentExecutionStep> _agentExecutionSteps = const [];
 
   @override
   void initState() {
@@ -155,32 +156,22 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
     final messagesAsync = ref.watch(messagesProvider(_conversationId!));
 
-    return Scaffold(
-      backgroundColor: BeeTokens.scaffoldBackground(context),
-      body: Column(
-        children: [
-          // Header
-          PrimaryHeader(
-            title: AppLocalizations.of(context).aiChatTitle,
-            showBack: true,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.shield_outlined),
-                tooltip: AppLocalizations.of(context).agentPermissionsTitle,
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AgentPermissionsPage(),
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline),
-                tooltip: AppLocalizations.of(context).aiChatClearHistory,
-                onPressed: _showClearHistoryDialog,
-              ),
-            ],
-          ),
+    final l10n = AppLocalizations.of(context);
 
+    return AgentChatShell(
+      title: l10n.aiChatTitle,
+      backTooltip: l10n.commonBack,
+      permissionsTooltip: l10n.agentPermissionsTitle,
+      clearTooltip: l10n.aiChatClearHistory,
+      onBack: () => Navigator.of(context).maybePop(),
+      onOpenPermissions: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const AgentPermissionsPage(),
+        ),
+      ),
+      onClearHistory: _showClearHistoryDialog,
+      child: Column(
+        children: [
           // API配置警告横幅
           if (_apiValidation != null && !_apiValidation!.isValid)
             Container(
@@ -308,37 +299,6 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
               ],
             ),
           ),
-
-          // 加载指示器
-          if (_isLoading && !_hasLiveAgentMessage)
-            Container(
-              padding: EdgeInsets.symmetric(
-                vertical: 8.0.scaled(context, ref),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 16.0.scaled(context, ref),
-                    height: 16.0.scaled(context, ref),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        ref.watch(primaryColorProvider),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 8.0.scaled(context, ref)),
-                  Text(
-                    AppLocalizations.of(context).aiChatThinking,
-                    style: TextStyle(
-                      color: BeeTokens.textSecondary(context),
-                      fontSize: 13.0.scaled(context, ref),
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
           // 快捷指令横条
           AIQuickCommandsBar(
@@ -476,8 +436,6 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   }
 
   Widget _buildLiveAgentBubble() {
-    final hasText = _streamingAgentText.isNotEmpty;
-    final status = _agentExecutionStatus;
     return Padding(
       padding: EdgeInsets.only(bottom: 8.0.scaled(context, ref)),
       child: Row(
@@ -497,49 +455,10 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                 borderRadius: BorderRadius.circular(12.0.scaled(context, ref)),
                 border: Border.all(color: BeeTokens.border(context)),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (hasText)
-                    AgentMarkdownText(
-                      data: _streamingAgentText,
-                      style: TextStyle(
-                        color: BeeTokens.textPrimary(context),
-                        fontSize: 14.0.scaled(context, ref),
-                        height: 1.5,
-                      ),
-                    ),
-                  if (status != null) ...[
-                    if (hasText) SizedBox(height: 8.0.scaled(context, ref)),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (_isLoading)
-                          SizedBox(
-                            width: 14.0.scaled(context, ref),
-                            height: 14.0.scaled(context, ref),
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                ref.watch(primaryColorProvider),
-                              ),
-                            ),
-                          ),
-                        if (_isLoading)
-                          SizedBox(width: 6.0.scaled(context, ref)),
-                        Flexible(
-                          child: Text(
-                            status,
-                            style: TextStyle(
-                              color: BeeTokens.textSecondary(context),
-                              fontSize: 13.0.scaled(context, ref),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
+              child: AgentExecutionTimeline(
+                steps: _agentExecutionSteps,
+                isStreaming: _isLoading,
+                streamingText: _streamingAgentText,
               ),
             ),
           ),
@@ -754,7 +673,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       setState(() {
         _hasLiveAgentMessage = true;
         _streamingAgentText = '';
-        _agentExecutionStatus = l10n.aiChatThinking;
+        _agentExecutionSteps = const [];
       });
       _scrollToBottom();
 
@@ -772,11 +691,17 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           case AgentTextDeltaEvent(:final text):
             setState(() {
               _streamingAgentText += text;
-              _agentExecutionStatus = null;
             });
           case AgentToolAuthorizationRequestedEvent(:final request):
             setState(() {
-              _agentExecutionStatus = l10n.agentPermissionWaiting;
+              _agentExecutionSteps = [
+                ..._agentExecutionSteps,
+                AgentExecutionStep(
+                  toolName: request.toolName,
+                  arguments: request.arguments,
+                  status: AgentExecutionStepStatus.waiting,
+                ),
+              ];
             });
             final choice = mounted
                 ? await AgentToolAuthorizationDialog.show(
@@ -788,17 +713,38 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
               request.authorizationId,
               choice,
             );
-          case AgentToolStartedEvent(:final toolName):
+          case AgentToolStartedEvent(
+              :final toolName,
+              :final callId,
+              :final arguments
+            ):
             setState(() {
-              _agentExecutionStatus =
-                  l10n.agentExecutingTool(_agentToolLabel(l10n, toolName));
+              _agentExecutionSteps = _updateExecutionStep(
+                toolName: toolName,
+                callId: callId,
+                arguments: arguments,
+                status: AgentExecutionStepStatus.running,
+              );
             });
-          case AgentToolCompletedEvent(:final toolName, :final succeeded):
+          case AgentToolCompletedEvent(
+              :final toolName,
+              :final callId,
+              :final arguments,
+              :final result,
+              :final error,
+              :final succeeded
+            ):
             setState(() {
-              final label = _agentToolLabel(l10n, toolName);
-              _agentExecutionStatus = succeeded
-                  ? l10n.agentToolCompleted(label)
-                  : l10n.agentToolFailed(label);
+              _agentExecutionSteps = _updateExecutionStep(
+                toolName: toolName,
+                callId: callId,
+                arguments: arguments,
+                status: succeeded
+                    ? AgentExecutionStepStatus.completed
+                    : AgentExecutionStepStatus.failed,
+                result: result,
+                error: error,
+              );
             });
           case AgentRunCompletedEvent(:final result):
             response = result.response;
@@ -847,7 +793,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         _animatingMessageId = null;
         _hasLiveAgentMessage = false;
         _streamingAgentText = '';
-        _agentExecutionStatus = null;
+        _agentExecutionSteps = const [];
       });
 
       _scrollToBottom();
@@ -862,14 +808,59 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           _isLoading = false;
           _hasLiveAgentMessage = false;
           _streamingAgentText = '';
-          _agentExecutionStatus = null;
+          _agentExecutionSteps = const [];
         });
       }
     }
   }
 
-  String _agentToolLabel(AppLocalizations l10n, String toolName) =>
-      AgentToolPresentation.label(l10n, toolName);
+  List<AgentExecutionStep> _updateExecutionStep({
+    required String toolName,
+    required String callId,
+    required Map<String, Object?> arguments,
+    required AgentExecutionStepStatus status,
+    Map<String, Object?>? result,
+    String? error,
+  }) {
+    final steps = [..._agentExecutionSteps];
+    var index = -1;
+    if (callId.isNotEmpty) {
+      for (var i = steps.length - 1; i >= 0; i--) {
+        if (steps[i].callId == callId) {
+          index = i;
+          break;
+        }
+      }
+    }
+    if (index < 0) {
+      for (var i = steps.length - 1; i >= 0; i--) {
+        final candidate = steps[i];
+        if (candidate.toolName == toolName &&
+            (candidate.status == AgentExecutionStepStatus.waiting ||
+                candidate.status == AgentExecutionStepStatus.running)) {
+          index = i;
+          break;
+        }
+      }
+    }
+
+    final current = index >= 0 ? steps[index] : null;
+    final next = AgentExecutionStep(
+      toolName: toolName,
+      arguments:
+          arguments.isEmpty ? (current?.arguments ?? arguments) : arguments,
+      callId: callId.isEmpty ? current?.callId : callId,
+      status: status,
+      result: result,
+      error: error,
+    );
+    if (index >= 0) {
+      steps[index] = next;
+    } else {
+      steps.add(next);
+    }
+    return steps;
+  }
 
   void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 100), () {

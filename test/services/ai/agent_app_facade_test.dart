@@ -291,10 +291,16 @@ void main() {
         .processMessageEvents(message: '午饭 35', ledgerId: 1)
         .toList();
 
-    expect(events.whereType<AgentToolStartedEvent>().single.toolName,
-        'record_transaction_from_text');
-    expect(events.whereType<AgentToolCompletedEvent>().single.toolName,
-        'record_transaction_from_text');
+    final started = events.whereType<AgentToolStartedEvent>().single;
+    expect(started.toolName, 'record_transaction_from_text');
+    expect(started.arguments, {'sourceText': '午饭 35'});
+    expect(started.callId, 'call-1');
+    final completed = events.whereType<AgentToolCompletedEvent>().single;
+    expect(completed.toolName, 'record_transaction_from_text');
+    expect(completed.arguments, {'sourceText': '午饭 35'});
+    expect(completed.callId, 'call-1');
+    expect(completed.result, isNotNull);
+    expect(completed.succeeded, isTrue);
     expect(events.last, isA<AgentRunCompletedEvent>());
   });
 
