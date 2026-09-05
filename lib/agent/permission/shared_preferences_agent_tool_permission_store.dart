@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +13,7 @@ final class SharedPreferencesAgentToolPermissionStore
 
   static const String key = 'agent_tool_permissions_v1';
   static const int _version = 1;
+  static final _states = Expando<_PermissionPersistenceState>();
   final Future<SharedPreferences> Function() _getPreferences;
 
   @override
@@ -41,33 +43,82 @@ final class SharedPreferencesAgentToolPermissionStore
     if (AgentToolPermissionCatalog.find(toolName) == null) {
       throw ArgumentError.value(toolName, 'toolName', 'Unknown agent tool');
     }
-    final prefs = await _getPreferences();
-    final stored = await _readStored(prefs);
-    stored[toolName] = permission;
-    final persisted = await prefs.setString(
-        key,
-        jsonEncode({
-          'version': _version,
-          'tools': stored.map((name, value) => MapEntry(name, value.name)),
-        }));
-    if (!persisted) throw StateError('工具授权偏好保存失败。');
+    await _withState((prefs, state) async {
+      // An uncertain plugin cache must never enter the next successful write.
+      final stored = _decodeStored(state.trustedRaw);
+      stored[toolName] = permission;
+      await _write(
+          prefs,
+          state,
+          jsonEncode({
+            'version': _version,
+            'tools': stored.map((name, value) => MapEntry(name, value.name)),
+          }));
+    });
   }
 
   @override
   Future<void> restoreDefaults() async {
-    final prefs = await _getPreferences();
-    await prefs.remove(key);
+    await _withState((prefs, state) => _write(prefs, state, null));
   }
 
-  Future<Map<String, AgentToolPermission>> _readStored([
-    SharedPreferences? preferences,
-  ]) async {
-    final prefs = preferences ?? await _getPreferences();
-    // setString updates the plugin cache before its platform write completes.
-    // Only persisted preferences may authorize later calls, even after a failed
-    // write or when another store instance shares the same optimistic cache.
-    await prefs.reload();
-    final raw = prefs.getString(key);
+  Future<Map<String, AgentToolPermission>> _readStored() =>
+      _withState((prefs, state) async =>
+          state.uncertain ? {} : _decodeStored(state.trustedRaw));
+
+  Future<T> _withState<T>(
+    Future<T> Function(
+            SharedPreferences prefs, _PermissionPersistenceState state)
+        action,
+  ) async {
+    final prefs = await _getPreferences();
+    final state = _states[prefs] ??= _PermissionPersistenceState();
+    // Serialize across Store instances sharing this preferences object. This
+    // also prevents a reader from trusting an in-flight optimistic cache update.
+    final previous = state.pending;
+    final finished = Completer<void>();
+    state.pending = finished.future;
+    await previous;
+    try {
+      if (!state.initialized) {
+        await prefs.reload();
+        state.trustedRaw = prefs.getString(key);
+        state.initialized = true;
+      }
+      return await action(prefs, state);
+    } finally {
+      finished.complete();
+    }
+  }
+
+  Future<void> _write(SharedPreferences prefs,
+      _PermissionPersistenceState state, String? raw) async {
+    try {
+      final persisted = raw == null
+          ? await prefs.remove(key)
+          : await prefs.setString(key, raw);
+      if (!persisted) throw StateError('工具授权偏好保存失败。');
+      state.trustedRaw = raw;
+      state.uncertain = false;
+    } on Object {
+      // Windows getAll/reload can return cache values from a failed disk write.
+      // Keep the safety lock even if this best-effort rollback reports success.
+      state.uncertain = true;
+      try {
+        final previous = state.trustedRaw;
+        if (previous == null) {
+          await prefs.remove(key);
+        } else {
+          await prefs.setString(key, previous);
+        }
+      } on Object {
+        // Preserve the original failure; rollback cannot establish new trust.
+      }
+      rethrow;
+    }
+  }
+
+  Map<String, AgentToolPermission> _decodeStored(String? raw) {
     if (raw == null) return {};
     try {
       final decoded = jsonDecode(raw);
@@ -94,4 +145,11 @@ final class SharedPreferencesAgentToolPermissionStore
     }
     return null;
   }
+}
+
+final class _PermissionPersistenceState {
+  bool initialized = false;
+  bool uncertain = false;
+  String? trustedRaw;
+  Future<void> pending = Future.value();
 }

@@ -58,6 +58,74 @@ void main() {
     expect(await store.permissionFor('delete_everything'), isNull);
   });
 
+  for (final throwsOnWrite in [false, true]) {
+    test(
+        'uncertain Windows cache fails closed across stores (throws: $throwsOnWrite)',
+        () async {
+      final platform = _OptimisticFailingPreferencesPlatform(
+        throwsOnWrite: throwsOnWrite,
+      );
+      SharedPreferencesStorePlatform.instance = platform;
+      final store = createStore();
+      expect(await store.permissionFor('record_transaction_from_text'),
+          AgentToolPermission.ask);
+
+      await expectLater(
+          store.setPermission(
+              'record_transaction_from_text', AgentToolPermission.alwaysAllow),
+          throwsStateError);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.reload();
+      // The failed write remains in the platform cache even after rollback.
+      expect(prefs.getString(SharedPreferencesAgentToolPermissionStore.key),
+          contains('alwaysAllow'));
+      final rebuilt = createStore();
+      expect(await rebuilt.permissionFor('record_transaction_from_text'),
+          AgentToolPermission.ask);
+      expect((await rebuilt.readAll())['record_transaction_from_text'],
+          AgentToolPermission.ask);
+      expect(platform.rollbackAttempts, 1);
+
+      platform.succeeds = true;
+      // Recover by granting a different tool. Never carry the poisoned grant
+      // into the new JSON; compose from the last trusted snapshot instead.
+      await rebuilt.setPermission(
+          'save_explicit_memory', AgentToolPermission.alwaysAllow);
+      expect(await createStore().permissionFor('save_explicit_memory'),
+          AgentToolPermission.alwaysAllow);
+      expect(await createStore().permissionFor('record_transaction_from_text'),
+          AgentToolPermission.ask);
+    });
+  }
+
+  test('failed restore locks trusted grants until a successful restore',
+      () async {
+    final platform = _OptimisticFailingPreferencesPlatform(
+      initialValues: {
+        'flutter.agent_tool_permissions_v1': jsonEncode({
+          'version': 1,
+          'tools': {'record_transaction_from_text': 'alwaysAllow'},
+        }),
+      },
+    );
+    SharedPreferencesStorePlatform.instance = platform;
+    final store = createStore();
+    expect(await store.permissionFor('record_transaction_from_text'),
+        AgentToolPermission.alwaysAllow);
+    await expectLater(store.restoreDefaults(), throwsStateError);
+    expect(await createStore().permissionFor('record_transaction_from_text'),
+        AgentToolPermission.ask);
+    expect(platform.rollbackAttempts, 1);
+    platform.succeeds = true;
+    await createStore().restoreDefaults();
+    expect((await createStore().readAll())['record_transaction_from_text'],
+        AgentToolPermission.ask);
+    expect(
+        (await SharedPreferences.getInstance())
+            .containsKey(SharedPreferencesAgentToolPermissionStore.key),
+        isFalse);
+  });
+
   test('persists an explicit permission and restores catalog defaults',
       () async {
     final store = createStore();
@@ -148,4 +216,36 @@ final class _RejectingPreferencesPlatform
   @override
   Future<bool> setValue(String valueType, String key, Object value) async =>
       false;
+}
+
+final class _OptimisticFailingPreferencesPlatform
+    extends InMemorySharedPreferencesStore {
+  _OptimisticFailingPreferencesPlatform({
+    this.throwsOnWrite = false,
+    Map<String, Object> initialValues = const {},
+  }) : super.withData(initialValues);
+
+  final bool throwsOnWrite;
+  bool succeeds = false;
+  bool _failed = false;
+  int rollbackAttempts = 0;
+
+  Future<bool> _write(Future<bool> Function() update) async {
+    if (succeeds) return update();
+    if (_failed) {
+      rollbackAttempts++;
+      return false;
+    }
+    _failed = true;
+    await update();
+    if (throwsOnWrite) throw StateError('disk unavailable');
+    return false;
+  }
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) =>
+      _write(() => super.setValue(valueType, key, value));
+
+  @override
+  Future<bool> remove(String key) => _write(() => super.remove(key));
 }

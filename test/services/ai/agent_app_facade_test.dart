@@ -745,10 +745,26 @@ final class _RejectingPreferencesPlatform
     extends InMemorySharedPreferencesStore {
   _RejectingPreferencesPlatform() : super.empty();
 
+  bool _failed = false;
+
   @override
   Future<bool> setValue(String valueType, String key, Object value) async {
-    if (key == 'flutter.agent_tool_permissions_v1') return false;
+    if (key == 'flutter.agent_tool_permissions_v1') {
+      // Windows mutates its own cache before a failed disk write. The later
+      // rollback also fails, leaving reload unable to remove this false grant.
+      if (!_failed) {
+        _failed = true;
+        await super.setValue(valueType, key, value);
+      }
+      return false;
+    }
     return super.setValue(valueType, key, value);
+  }
+
+  @override
+  Future<bool> remove(String key) async {
+    if (key == 'flutter.agent_tool_permissions_v1') return false;
+    return super.remove(key);
   }
 }
 
