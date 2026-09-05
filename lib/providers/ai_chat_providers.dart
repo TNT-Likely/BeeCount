@@ -57,10 +57,21 @@ final agentToolPermissionStoreProvider = Provider<AgentToolPermissionStore>(
 );
 
 final agentAppFacadeProvider = Provider<AgentAppFacade>((ref) {
+  final repo = ref.watch(repositoryProvider);
   return AgentAppFacade(
     memoryRepository: ref.watch(agentMemoryRepositoryProvider),
     toolGateway: ref.watch(localAgentToolGatewayProvider),
     permissionStore: ref.watch(agentToolPermissionStoreProvider),
+    conversationHistoryLoader: (conversationId) async {
+      final messages = await repo.watchMessages(conversationId).first;
+      return [
+        for (final message in messages)
+          {
+            'role': message.role,
+            'content': message.content,
+          },
+      ];
+    },
   );
 });
 

@@ -14,6 +14,9 @@ import '../../l10n/app_localizations.dart';
 import '../system/logger_service.dart';
 import 'ai_chat_service.dart';
 
+typedef AgentConversationHistoryLoader = Future<List<Map<String, Object?>>>
+    Function(int conversationId);
+
 /// App composition root for one foreground Agent message. It records local
 /// audit state before a model call and turns the bounded tool result back into
 /// the existing chat response/card contract.
@@ -22,6 +25,7 @@ final class AgentAppFacade {
     required AgentMemoryRepository memoryRepository,
     required LocalAgentToolGateway toolGateway,
     required AgentToolPermissionStore permissionStore,
+    this.conversationHistoryLoader,
     AgentModel? model,
     AgentPolicy policy = const P0AgentPolicy(),
     String Function()? runIdFactory,
@@ -38,6 +42,7 @@ final class AgentAppFacade {
   final AgentMemoryRepository _memoryRepository;
   final LocalAgentToolGateway _toolGateway;
   final AgentToolPermissionStore _permissionStore;
+  final AgentConversationHistoryLoader? conversationHistoryLoader;
   final AgentModel _model;
   final AgentPolicy _policy;
   final String Function() _runIdFactory;
@@ -64,6 +69,7 @@ final class AgentAppFacade {
   Future<AgentChatResponse> processMessage({
     required String message,
     required int ledgerId,
+    int? conversationId,
     bool allowsExplicitMemory = false,
     Map<String, Object?> context = const {},
     AppLocalizations? l10n,
@@ -74,6 +80,7 @@ final class AgentAppFacade {
         allowsExplicitMemory: allowsExplicitMemory,
         context: context,
         l10n: l10n,
+        conversationId: conversationId,
         authorization: _createAuthorization(),
       );
 
@@ -82,6 +89,7 @@ final class AgentAppFacade {
   Stream<AgentRunEvent> processMessageEvents({
     required String message,
     required int ledgerId,
+    int? conversationId,
     bool allowsExplicitMemory = false,
     Map<String, Object?> context = const {},
     AppLocalizations? l10n,
@@ -103,6 +111,7 @@ final class AgentAppFacade {
             allowsExplicitMemory: allowsExplicitMemory,
             context: context,
             l10n: l10n,
+            conversationId: conversationId,
             authorization: authorization,
             emit: emit,
           );
@@ -151,6 +160,7 @@ final class AgentAppFacade {
     required bool allowsExplicitMemory,
     required Map<String, Object?> context,
     required AppLocalizations? l10n,
+    required int? conversationId,
     required _RunAuthorization authorization,
     void Function(AgentRunEvent event)? emit,
   }) async {
@@ -175,6 +185,11 @@ final class AgentAppFacade {
     final localTools = LocalAgentTools(scope: scope, gateway: _toolGateway);
     final requestContext = Map<String, Object?>.of(context);
     requestContext['currentTime'] = DateTime.now().toIso8601String();
+    await _loadConversationHistory(
+      conversationId: conversationId,
+      requestContext: requestContext,
+      runId: runId,
+    );
     try {
       final memories = await _memoryRepository.search(
         ledgerId: ledgerId,
@@ -267,6 +282,67 @@ final class AgentAppFacade {
         runId: runId,
         response: AIResponse.error(l10n?.agentRunFailed ?? 'AI 服务暂时不可用，请稍后重试。'),
       );
+    }
+  }
+
+  Future<void> _loadConversationHistory({
+    required int? conversationId,
+    required Map<String, Object?> requestContext,
+    required String runId,
+  }) async {
+    final loader = conversationHistoryLoader;
+    if (conversationId == null || loader == null) {
+      requestContext.putIfAbsent(
+        'recentMessages',
+        () => const <Map<String, Object?>>[],
+      );
+      return;
+    }
+
+    try {
+      final history = await loader(conversationId);
+      const maxMessageCharacters = 2000;
+      final safeHistory = <Map<String, Object?>>[];
+      for (final item in history) {
+        final role = item['role'];
+        final content = item['content'];
+        if ((role == 'user' || role == 'assistant') && content is String) {
+          final trimmed = content.trim();
+          if (trimmed.isNotEmpty) {
+            safeHistory.add({
+              'role': role as String,
+              'content': trimmed.length > maxMessageCharacters
+                  ? '${trimmed.substring(0, maxMessageCharacters)}…'
+                  : trimmed,
+            });
+          }
+        }
+      }
+      const maxRecentMessages = 12;
+      final start = safeHistory.length > maxRecentMessages
+          ? safeHistory.length - maxRecentMessages
+          : 0;
+      requestContext['recentMessages'] = List.unmodifiable(
+        safeHistory.sublist(start),
+      );
+      logger.debug('AgentCore', '会话上下文已加载', {
+        'runId': runId,
+        'conversationId': conversationId,
+        'count': safeHistory.length - start,
+      });
+    } on Object catch (error, stackTrace) {
+      // Conversation context is optional. A local history read failure must
+      // not prevent the current request or turn history into a write source.
+      requestContext['recentMessages'] = const <Map<String, Object?>>[];
+      logger.warning('AgentCore', '会话上下文加载失败', {
+        'runId': runId,
+        'conversationId': conversationId,
+        'error': error.toString(),
+      });
+      logger.debug('AgentCore', '会话上下文异常堆栈', {
+        'runId': runId,
+        'stackTrace': stackTrace.toString(),
+      });
     }
   }
 

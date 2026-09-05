@@ -62,6 +62,7 @@ class AIChatService {
   Future<AIResponse> processMessage(
     String userInput, {
     required int ledgerId,
+    int? conversationId,
     String? languageCode,
     bool forceChat = false,
     AppLocalizations? l10n,
@@ -72,6 +73,7 @@ class AIChatService {
         final agentResponse = await _agentFacade.processMessage(
           message: userInput,
           ledgerId: ledgerId,
+          conversationId: conversationId,
           context: {'languageCode': languageCode},
           l10n: l10n,
         );
@@ -97,6 +99,7 @@ class AIChatService {
   Stream<AgentRunEvent> processMessageEvents(
     String userInput, {
     required int ledgerId,
+    int? conversationId,
     String? languageCode,
     bool forceChat = false,
     AppLocalizations? l10n,
@@ -105,6 +108,7 @@ class AIChatService {
       yield* _agentFacade.processMessageEvents(
         message: userInput,
         ledgerId: ledgerId,
+        conversationId: conversationId,
         context: {'languageCode': languageCode},
         l10n: l10n,
       );

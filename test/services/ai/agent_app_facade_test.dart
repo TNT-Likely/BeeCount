@@ -193,6 +193,81 @@ void main() {
     expect(model.request!.context['currentTime'], isA<String>());
   });
 
+  test('loads bounded conversation history into the Agent request context',
+      () async {
+    final model = _CapturingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      conversationHistoryLoader: (conversationId) async {
+        expect(conversationId, 42);
+        return [
+          {
+            'role': 'assistant',
+            'content': '上轮查询到本月支出 80 元。',
+          },
+          {
+            'role': 'user',
+            'content': 'ok',
+          },
+        ];
+      },
+      model: model,
+      runIdFactory: () => 'run-history',
+    );
+
+    await facade.processMessage(
+      message: '继续',
+      ledgerId: 1,
+      conversationId: 42,
+    );
+
+    expect(model.request!.context['recentMessages'], [
+      {
+        'role': 'assistant',
+        'content': '上轮查询到本月支出 80 元。',
+      },
+      {
+        'role': 'user',
+        'content': 'ok',
+      },
+    ]);
+  });
+
+  test('sanitizes and caps conversation history before prompting the model',
+      () async {
+    final model = _CapturingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      conversationHistoryLoader: (_) async => [
+        {'role': 'system', 'content': '不得把这条系统消息传给模型。'},
+        {'role': 'user', 'content': ''},
+        for (var i = 0; i < 13; i++)
+          {'role': 'assistant', 'content': '第 $i 条 ${'x' * 2100}'},
+        {'role': 'assistant', 'content': 123},
+      ],
+      model: model,
+      runIdFactory: () => 'run-history-safety',
+    );
+
+    await facade.processMessage(
+      message: '继续',
+      ledgerId: 1,
+      conversationId: 42,
+    );
+
+    final history = (model.request!.context['recentMessages']! as List)
+        .cast<Map<String, Object?>>();
+    expect(history, hasLength(12));
+    expect(history.first['content'], startsWith('第 1 条'));
+    expect((history.first['content'] as String).length, 2001);
+    expect(history.last['content'], startsWith('第 12 条'));
+    expect(history.where((item) => item['role'] == 'system'), isEmpty);
+  });
+
   test('event stream reports tool execution before its final response',
       () async {
     final facade = AgentAppFacade(

@@ -762,6 +762,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       await for (final event in chatService.processMessageEvents(
         text,
         ledgerId: ledgerId,
+        conversationId: _conversationId,
         languageCode: currentLocale.languageCode,
         forceChat: forceChat,
         l10n: l10n,
