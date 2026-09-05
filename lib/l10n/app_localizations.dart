@@ -10046,6 +10046,48 @@ abstract class AppLocalizations {
   /// **'Agent permissions'**
   String get agentPermissionsTitle;
 
+  /// No description provided for @agentPermissionsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what the Agent can do here. Read-only tools only view data; tools that change data ask for authorization before running.'**
+  String get agentPermissionsIntro;
+
+  /// No description provided for @agentPermissionsReadOnlySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Read-only tools'**
+  String get agentPermissionsReadOnlySection;
+
+  /// No description provided for @agentPermissionsReadOnlySectionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View ledger information without changing anything.'**
+  String get agentPermissionsReadOnlySectionDescription;
+
+  /// No description provided for @agentPermissionsWriteSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Data-changing tools'**
+  String get agentPermissionsWriteSection;
+
+  /// No description provided for @agentPermissionsWriteSectionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'These can change your ledger or local memories; asking every time is recommended.'**
+  String get agentPermissionsWriteSectionDescription;
+
+  /// No description provided for @agentPermissionsDefaultsActive.
+  ///
+  /// In en, this message translates to:
+  /// **'All tools are using their default policies'**
+  String get agentPermissionsDefaultsActive;
+
+  /// No description provided for @agentPermissionsModifiedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} custom settings'**
+  String agentPermissionsModifiedCount(int count);
+
   /// No description provided for @agentPermissionsRestoreDefaults.
   ///
   /// In en, this message translates to:

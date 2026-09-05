@@ -5267,6 +5267,29 @@ class AppLocalizationsKo extends AppLocalizations {
   String get agentPermissionsTitle => 'Agent permissions';
 
   @override
+  String get agentPermissionsIntro => '여기에서 Agent가 실행할 수 있는 작업을 제어하세요. 읽기 전용 도구는 데이터를 보기만 하며, 데이터를 변경하는 도구는 실행 전에 권한을 요청합니다.';
+
+  @override
+  String get agentPermissionsReadOnlySection => '읽기 전용 도구';
+
+  @override
+  String get agentPermissionsReadOnlySectionDescription => '장부 정보를 확인하지만 아무것도 변경하지 않습니다.';
+
+  @override
+  String get agentPermissionsWriteSection => '데이터 변경 도구';
+
+  @override
+  String get agentPermissionsWriteSectionDescription => '장부 또는 로컬 기억을 변경할 수 있으므로 매번 묻도록 설정하는 것을 권장합니다.';
+
+  @override
+  String get agentPermissionsDefaultsActive => '모든 도구가 기본 정책을 사용 중입니다';
+
+  @override
+  String agentPermissionsModifiedCount(int count) {
+    return '맞춤 설정 $count개';
+  }
+
+  @override
   String get agentPermissionsRestoreDefaults => 'Restore defaults';
 
   @override

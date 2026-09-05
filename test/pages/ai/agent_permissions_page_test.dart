@@ -29,15 +29,14 @@ void main() {
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
+    expect(find.text('只读工具'), findsOneWidget);
+    expect(find.text('数据修改工具'), findsOneWidget);
     expect(find.text('每次询问'), findsNWidgets(3));
     expect(
-      tester
-          .widget<DropdownButton<AgentToolPermission>>(
-            find.byKey(
-                const ValueKey('permission-record_transaction_from_text')),
-          )
-          .value,
-      AgentToolPermission.ask,
+      find.byKey(
+        const ValueKey('permission-status-record_transaction_from_text'),
+      ),
+      findsOneWidget,
     );
   });
 
@@ -45,9 +44,9 @@ void main() {
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
-    await tester.tap(
-      find.byKey(const ValueKey('permission-record_transaction_from_text')),
-    );
+    await tester.tap(find.byKey(const ValueKey(
+      'permission-status-record_transaction_from_text',
+    )));
     await tester.pumpAndSettle();
     await tester.tap(find.text('始终允许').last);
     await tester.pumpAndSettle();
@@ -66,7 +65,11 @@ void main() {
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('恢复默认'));
+    await tester.drag(find.byType(ListView), const Offset(0, -1000));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('restore-agent-permissions')),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('恢复').last);
     await tester.pumpAndSettle();

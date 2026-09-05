@@ -2207,6 +2207,16 @@
   "agentToolSaveMemory": "保存记忆",
   "agentToolForgetMemory": "遗忘记忆",
   "agentPermissionsTitle": "Agent 权限",
+  "agentPermissionsIntro": "在这里控制 Agent 可以执行的操作。查询类工具只读取数据，修改类工具会在执行前请求授权。",
+  "agentPermissionsReadOnlySection": "只读工具",
+  "agentPermissionsReadOnlySectionDescription": "查看账本信息，不会修改任何数据。",
+  "agentPermissionsWriteSection": "数据修改工具",
+  "agentPermissionsWriteSectionDescription": "会改变账本或本地记忆，建议保持每次询问。",
+  "agentPermissionsDefaultsActive": "所有工具都在使用默认策略",
+  "agentPermissionsModifiedCount": "已自定义 {count} 项设置",
+  "@agentPermissionsModifiedCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
   "agentPermissionsRestoreDefaults": "恢复默认",
   "agentPermissionsRestoreTitle": "恢复默认权限？",
   "agentPermissionsRestoreDescription": "这会清除所有“始终允许”设置，并恢复每个工具的默认权限。",

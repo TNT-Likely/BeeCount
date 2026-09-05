@@ -5267,6 +5267,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentPermissionsTitle => 'Agent 权限';
 
   @override
+  String get agentPermissionsIntro => '在这里控制 Agent 可以执行的操作。查询类工具只读取数据，修改类工具会在执行前请求授权。';
+
+  @override
+  String get agentPermissionsReadOnlySection => '只读工具';
+
+  @override
+  String get agentPermissionsReadOnlySectionDescription => '查看账本信息，不会修改任何数据。';
+
+  @override
+  String get agentPermissionsWriteSection => '数据修改工具';
+
+  @override
+  String get agentPermissionsWriteSectionDescription => '会改变账本或本地记忆，建议保持每次询问。';
+
+  @override
+  String get agentPermissionsDefaultsActive => '所有工具都在使用默认策略';
+
+  @override
+  String agentPermissionsModifiedCount(int count) {
+    return '已自定义 $count 项设置';
+  }
+
+  @override
   String get agentPermissionsRestoreDefaults => '恢复默认';
 
   @override

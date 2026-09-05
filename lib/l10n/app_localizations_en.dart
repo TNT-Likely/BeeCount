@@ -5267,6 +5267,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentPermissionsTitle => 'Agent permissions';
 
   @override
+  String get agentPermissionsIntro => 'Choose what the Agent can do here. Read-only tools only view data; tools that change data ask for authorization before running.';
+
+  @override
+  String get agentPermissionsReadOnlySection => 'Read-only tools';
+
+  @override
+  String get agentPermissionsReadOnlySectionDescription => 'View ledger information without changing anything.';
+
+  @override
+  String get agentPermissionsWriteSection => 'Data-changing tools';
+
+  @override
+  String get agentPermissionsWriteSectionDescription => 'These can change your ledger or local memories; asking every time is recommended.';
+
+  @override
+  String get agentPermissionsDefaultsActive => 'All tools are using their default policies';
+
+  @override
+  String agentPermissionsModifiedCount(int count) {
+    return '$count custom settings';
+  }
+
+  @override
   String get agentPermissionsRestoreDefaults => 'Restore defaults';
 
   @override

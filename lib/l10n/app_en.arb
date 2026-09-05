@@ -2277,6 +2277,16 @@
   "agentToolSaveMemory": "save memory",
   "agentToolForgetMemory": "forget memory",
   "agentPermissionsTitle": "Agent permissions",
+  "agentPermissionsIntro": "Choose what the Agent can do here. Read-only tools only view data; tools that change data ask for authorization before running.",
+  "agentPermissionsReadOnlySection": "Read-only tools",
+  "agentPermissionsReadOnlySectionDescription": "View ledger information without changing anything.",
+  "agentPermissionsWriteSection": "Data-changing tools",
+  "agentPermissionsWriteSectionDescription": "These can change your ledger or local memories; asking every time is recommended.",
+  "agentPermissionsDefaultsActive": "All tools are using their default policies",
+  "agentPermissionsModifiedCount": "{count} custom settings",
+  "@agentPermissionsModifiedCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
   "agentPermissionsRestoreDefaults": "Restore defaults",
   "agentPermissionsRestoreTitle": "Restore default permissions?",
   "agentPermissionsRestoreDescription": "This clears every Always allow setting and restores each tool's default permission.",
