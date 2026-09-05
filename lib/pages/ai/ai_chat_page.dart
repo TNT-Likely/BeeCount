@@ -21,6 +21,7 @@ import '../../ai/core/bill_info.dart';
 import '../../pages/transaction/transaction_editor_page.dart';
 import '../../pages/ai/ai_settings_page.dart';
 import '../../pages/ai/agent_permissions_page.dart';
+import '../../pages/ai/agent_message_visibility.dart';
 import '../../widgets/biz/ledger_selector_dialog.dart';
 import '../../widgets/ai/agent_tool_authorization_dialog.dart';
 import '../../widgets/ai/agent_chat_shell.dart';
@@ -57,6 +58,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   bool _hasLiveAgentMessage = false;
   String _streamingAgentText = '';
   List<AgentExecutionStep> _agentExecutionSteps = const [];
+  AIResponse? _liveAgentResponse;
+  int? _liveAssistantMessageId;
 
   @override
   void initState() {
@@ -238,15 +241,21 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
               children: [
                 messagesAsync.when(
                   data: (messages) {
+                    final displayMessages =
+                        AgentMessageVisibility.forLiveResponse(
+                      messages,
+                      liveResponse: _liveAgentResponse,
+                      persistedMessageId: _liveAssistantMessageId,
+                    );
                     // 首次加载完成且有消息时，自动滚动到底部
-                    if (_isFirstLoad && messages.isNotEmpty) {
+                    if (_isFirstLoad && displayMessages.isNotEmpty) {
                       _isFirstLoad = false;
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         _scrollToBottom();
                       });
                     }
 
-                    if (messages.isEmpty && !_hasLiveAgentMessage) {
+                    if (displayMessages.isEmpty && !_hasLiveAgentMessage) {
                       return const Center(child: Text('暂无消息'));
                     }
 
@@ -256,13 +265,13 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                         horizontal: 12.0.scaled(context, ref),
                         vertical: 8.0.scaled(context, ref),
                       ),
-                      itemCount:
-                          messages.length + (_hasLiveAgentMessage ? 1 : 0),
+                      itemCount: displayMessages.length +
+                          (_hasLiveAgentMessage ? 1 : 0),
                       itemBuilder: (context, index) {
-                        if (index == messages.length) {
+                        if (index == displayMessages.length) {
                           return _buildLiveAgentBubble();
                         }
-                        return _buildMessageBubble(messages[index]);
+                        return _buildMessageBubble(displayMessages[index]);
                       },
                     );
                   },
@@ -439,6 +448,11 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   }
 
   Widget _buildLiveAgentBubble() {
+    final liveResponse = _liveAgentResponse;
+    if (liveResponse != null) {
+      return _buildLiveAgentResponse(liveResponse);
+    }
+
     return Padding(
       padding: EdgeInsets.only(bottom: 8.0.scaled(context, ref)),
       child: Row(
@@ -462,6 +476,59 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                 steps: _agentExecutionSteps,
                 isStreaming: _isLoading,
                 streamingText: _streamingAgentText,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Keeps the completed response in the same list slot while its database
+  /// row and post-processing finish. This avoids a timeline/message double
+  /// render and lets the user see the final Markdown or bill card immediately.
+  Widget _buildLiveAgentResponse(AIResponse response) {
+    if (response.type == 'bill_card' && response.bills.isNotEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var index = 0; index < response.bills.length; index++)
+            BillCardWidget(
+              billInfo: response.bills[index],
+              transactionId: index < response.transactionIds.length
+                  ? response.transactionIds[index]
+                  : null,
+            ),
+        ],
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.0.scaled(context, ref)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAIAvatar(),
+          SizedBox(width: 8.0.scaled(context, ref)),
+          Flexible(
+            child: Container(
+              margin: EdgeInsets.only(right: 60.0.scaled(context, ref)),
+              padding: EdgeInsets.symmetric(
+                horizontal: 12.0.scaled(context, ref),
+                vertical: 10.0.scaled(context, ref),
+              ),
+              decoration: BoxDecoration(
+                color: BeeTokens.surface(context),
+                borderRadius: BorderRadius.circular(12.0.scaled(context, ref)),
+                border: Border.all(color: BeeTokens.border(context)),
+              ),
+              child: AgentMarkdownText(
+                data: response.text,
+                style: TextStyle(
+                  color: BeeTokens.textPrimary(context),
+                  fontSize: 14.0.scaled(context, ref),
+                  height: 1.5,
+                ),
               ),
             ),
           ),
@@ -643,7 +710,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     String? displayText,
     bool forceChat = false,
   }) async {
-    if (text.isEmpty || _isLoading) return;
+    if (!mounted || text.isEmpty || _isLoading) return;
 
     setState(() => _isLoading = true);
 
@@ -677,6 +744,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         _hasLiveAgentMessage = true;
         _streamingAgentText = '';
         _agentExecutionSteps = const [];
+        _liveAgentResponse = null;
+        _liveAssistantMessageId = null;
       });
       _scrollToBottom();
 
@@ -758,10 +827,13 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       // route. Do not persist or update UI after the page has been disposed.
       if (!mounted) return;
       response ??= AIResponse.error(l10n.agentRunFailed);
+      setState(() {
+        _liveAgentResponse = response;
+      });
 
       // 保存 AI 回复。多笔 metadata 用新格式 {bills, txIds, undoneIds};
       // transactionId 列仍存第一笔 id(getMessageByTransactionId 兼容)。
-      await repo.createMessage(
+      final assistantMessageId = await repo.createMessage(
         MessagesCompanion.insert(
           conversationId: _conversationId!,
           role: 'assistant',
@@ -781,6 +853,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         ),
       );
       if (!mounted) return;
+      setState(() {
+        _liveAssistantMessageId = assistantMessageId;
+      });
 
       // 如果是记账成功，刷新统计信息
       if (response.type == 'bill_card' && response.transactionId != null) {
@@ -804,6 +879,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         _hasLiveAgentMessage = false;
         _streamingAgentText = '';
         _agentExecutionSteps = const [];
+        _liveAgentResponse = null;
+        _liveAssistantMessageId = null;
       });
 
       _scrollToBottom();
@@ -819,6 +896,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           _hasLiveAgentMessage = false;
           _streamingAgentText = '';
           _agentExecutionSteps = const [];
+          _liveAgentResponse = null;
+          _liveAssistantMessageId = null;
         });
       }
     }
