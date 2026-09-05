@@ -60,6 +60,13 @@ void main() {
 
     expect(result.deniedCalls.single.reason, 'P0 不允许此操作');
     expect(fakeTool.calls, isEmpty);
+    expect(model.requests[1].toolData, [
+      {
+        'id': '',
+        'name': 'delete_transaction',
+        'data': {'error': 'P0 不允许此操作'},
+      },
+    ]);
   });
 
   test('returns after unknown calls without executing a tool', () async {

@@ -39,23 +39,27 @@ final class AgentCore {
           for (final call in calls) {
             if (call.name == 'record_transaction_from_text' &&
                 hasRecordedTransaction) {
-              deniedCalls.add(
-                AgentDeniedCall(
-                  call: call,
-                  reason: '同一条消息只能记账一次。',
-                ),
-              );
+              const reason = '同一条消息只能记账一次。';
+              deniedCalls.add(AgentDeniedCall(call: call, reason: reason));
+              data.add({
+                'id': call.id,
+                'name': call.name,
+                'data': {'error': reason},
+              });
               continue;
             }
             final decision = policy.decide(nextRequest, call);
             final tool = tools[call.name];
             if (!decision.isAllowed || tool == null) {
+              final reason = decision.reason ?? '未知工具：${call.name}';
               deniedCalls.add(
-                AgentDeniedCall(
-                  call: call,
-                  reason: decision.reason ?? '未知工具：${call.name}',
-                ),
+                AgentDeniedCall(call: call, reason: reason),
               );
+              data.add({
+                'id': call.id,
+                'name': call.name,
+                'data': {'error': reason},
+              });
               continue;
             }
             if (executedCalls.length == _maximumToolCalls) break;

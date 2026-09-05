@@ -93,6 +93,31 @@ void main() {
     expect(transport.requests.last.toolResults.single.toolCallId, 'call-1');
   });
 
+  test('native read tool ignores a provider supplied ledger id', () async {
+    final model = NativeToolAgentModel(
+      transport: _FakeNativeTransport([
+        AgentNativeModelResponse.toolCalls([
+          AgentNativeToolCall(
+            id: 'call-1',
+            name: 'get_spending_summary',
+            arguments: const {
+              'ledgerId': '1',
+              'start': '2026-08-01T00:00:00.000',
+              'end': '2026-09-01T00:00:00.000',
+            },
+          ),
+        ]),
+      ]),
+    );
+
+    final turn = await model.nextTurn(requestWithContext());
+
+    expect((turn as AgentToolCallsTurn).calls.single.arguments, {
+      'start': '2026-08-01T00:00:00.000',
+      'end': '2026-09-01T00:00:00.000',
+    });
+  });
+
   test('native tool model forwards provider text deltas during a real stream',
       () async {
     final deltas = <String>[];

@@ -230,6 +230,11 @@ final class AgentAppFacade {
       );
     }
     for (final denied in result.deniedCalls) {
+      logger.warning('AgentCore', '工具调用已拒绝', {
+        'runId': runId,
+        'tool': denied.call.name,
+        'reason': denied.reason,
+      });
       await _memoryRepository.recordToolCall(
         AgentToolCallAudit(
           runId: runId,

@@ -159,6 +159,12 @@ final class OpenAiCompatibleNativeToolTransport
       );
       if (response is AgentNativeFinalTextResponse) {
         _sessions.remove(request.runId);
+      } else if (response is AgentNativeToolCallsResponse) {
+        logger.debug('AgentNativeTools', '模型请求工具', {
+          'runId': request.runId,
+          'toolCount': response.calls.length,
+          'tools': response.calls.map((call) => call.name).toList(),
+        });
       }
       logger.debug('AgentNativeTools', '模型回合结束', {
         'runId': request.runId,
@@ -328,6 +334,16 @@ final class NativeToolAgentModel implements AgentModel {
   final Duration _toolTurnTimeout;
   final Set<String> _startedRuns = <String>{};
 
+  // Ledger-scoped tools always execute against the ledger in AgentScope. A
+  // provider may still echo a hallucinated ledgerId argument even though it is
+  // not part of the tool schema; drop it before policy evaluation so the
+  // current local scope remains authoritative.
+  static const Set<String> _ledgerScopedTools = <String>{
+    'query_transactions',
+    'get_spending_summary',
+    'get_budget_status',
+  };
+
   @override
   Future<AgentTurn> nextTurn(AgentRequest request) async {
     final isFirstTurn = _startedRuns.add(request.scope.id);
@@ -366,12 +382,22 @@ final class NativeToolAgentModel implements AgentModel {
                 (call) => AgentToolCall(
                   id: call.id,
                   name: call.name,
-                  arguments: call.arguments,
+                  arguments: _argumentsForScope(call),
                 ),
               )
               .toList(),
         ),
     };
+  }
+
+  Map<String, Object?> _argumentsForScope(AgentNativeToolCall call) {
+    if (!_ledgerScopedTools.contains(call.name) ||
+        !call.arguments.containsKey('ledgerId')) {
+      return call.arguments;
+    }
+    final arguments = Map<String, Object?>.of(call.arguments)
+      ..remove('ledgerId');
+    return arguments;
   }
 
   AgentTurn _finish(String runId, AgentTurn turn) {
