@@ -6,16 +6,7 @@ import 'contracts.dart';
 /// the local tool runtime. The parser accepts data only; it never executes a
 /// tool or assigns permissions.
 final class AgentTurnParser {
-  const AgentTurnParser({this.allowedToolNames = _p0ToolNames});
-
-  static const _p0ToolNames = {
-    'query_transactions',
-    'get_spending_summary',
-    'get_budget_status',
-    'record_transaction_from_text',
-    'save_explicit_memory',
-    'forget_memory',
-  };
+  const AgentTurnParser({required this.allowedToolNames});
 
   final Set<String> allowedToolNames;
 

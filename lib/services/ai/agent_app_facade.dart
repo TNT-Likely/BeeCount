@@ -224,6 +224,8 @@ final class AgentAppFacade {
         model: _model,
         tools: _observedTools(localTools.build(), emit, runId),
         policy: authorization,
+        singleUseToolNames: const {'record_transaction_from_text'},
+        singleUseToolDenialReason: (_) => '同一条消息只能记账一次。',
       ).run(request);
       await _recordAudit(runId, result);
       logger.info('AgentCore', '运行结束', {

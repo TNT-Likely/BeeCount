@@ -15,6 +15,7 @@ void main() {
       model: model,
       tools: {fakeTool.name: fakeTool},
       policy: const _FakePolicy(),
+      singleUseToolNames: {fakeTool.name},
     );
   });
 
@@ -49,46 +50,45 @@ void main() {
     expect(fakeTool.calls, hasLength(1));
   });
 
-  test('executes an allowed call once and sends its data back to the model',
+  test('executes an allowed call and sends its data back to the model',
       () async {
     model.turns = [
       AgentTurn.toolCalls([
-        AgentToolCall(
-            name: 'record_transaction_from_text', arguments: {'text': '午饭 35'}),
+        AgentToolCall(name: 'write_report', arguments: {'text': '午饭 35'}),
       ]),
       AgentTurn.finalText('已记录午饭 35 元。'),
     ];
 
     final result = await core.run(_requestFor('午饭 35'));
 
-    expect(fakeTool.calls.single.name, 'record_transaction_from_text');
+    expect(fakeTool.calls.single.name, 'write_report');
     expect(result.executedCalls, hasLength(1));
     expect(model.requests[1].toolData, [
       {
         'id': '',
-        'name': 'record_transaction_from_text',
+        'name': 'write_report',
         'data': {'recorded': true}
       },
     ]);
   });
 
-  test('does not execute a denied write call', () async {
+  test('does not execute a denied tool call', () async {
     model.turns = [
       AgentTurn.toolCalls([
-        AgentToolCall(name: 'delete_transaction', arguments: {'date': '昨天'}),
+        AgentToolCall(name: 'delete_report', arguments: {'date': '昨天'}),
       ]),
       AgentTurn.finalText('我不能删除账目。'),
     ];
 
     final result = await core.run(_requestFor('删除昨天的账'));
 
-    expect(result.deniedCalls.single.reason, 'P0 不允许此操作');
+    expect(result.deniedCalls.single.reason, 'tool_not_allowed');
     expect(fakeTool.calls, isEmpty);
     expect(model.requests[1].toolData, [
       {
         'id': '',
-        'name': 'delete_transaction',
-        'data': {'error': 'P0 不允许此操作'},
+        'name': 'delete_report',
+        'data': {'error': 'tool_not_allowed'},
       },
     ]);
   });
@@ -114,8 +114,7 @@ void main() {
     model.turns = [
       for (var index = 0; index < 4; index++)
         AgentTurn.toolCalls([
-          AgentToolCall(
-              name: 'delete_transaction', arguments: {'index': index}),
+          AgentToolCall(name: 'delete_report', arguments: {'index': index}),
         ]),
       const AgentTurn.finalText('不应再请求模型'),
     ];
@@ -127,12 +126,12 @@ void main() {
     expect(model.requests, hasLength(4));
   });
 
-  test('does not repeat a record call within one tool-call turn', () async {
+  test('does not repeat a single-use call within one tool-call turn', () async {
     model.turns = [
       AgentTurn.toolCalls([
         for (var index = 0; index < 5; index++)
           AgentToolCall(
-            name: 'record_transaction_from_text',
+            name: 'write_report',
             arguments: {'index': index},
           ),
       ]),
@@ -145,19 +144,19 @@ void main() {
     expect(result.executedCalls, hasLength(1));
   });
 
-  test('executes record_transaction_from_text only once per run', () async {
+  test('executes a configured single-use tool only once per run', () async {
     model.turns = [
       AgentTurn.toolCalls([
         AgentToolCall(
           id: 'call-1',
-          name: 'record_transaction_from_text',
+          name: 'write_report',
           arguments: {'sourceText': '午饭 35'},
         ),
       ]),
       AgentTurn.toolCalls([
         AgentToolCall(
           id: 'call-2',
-          name: 'record_transaction_from_text',
+          name: 'write_report',
           arguments: {'sourceText': '午饭 35'},
         ),
       ]),
@@ -185,7 +184,7 @@ void main() {
   });
 
   group('AgentTurnParser', () {
-    const parser = AgentTurnParser();
+    const parser = AgentTurnParser(allowedToolNames: {'query_report'});
 
     test('rejects an unknown tool name before any policy evaluation', () {
       expect(
@@ -196,18 +195,18 @@ void main() {
       );
     });
 
-    test('rejects a record call whose source text differs from user input', () {
+    test('parses a tool call from the injected allowlist', () {
       final turn = parser.parse(
-        '{"kind":"tool_calls","calls":[{"id":"1","name":"record_transaction_from_text","arguments":{"sourceText":"凭空生成的交易"}}]}',
+        '{"kind":"tool_calls","calls":[{"id":"1","name":"query_report","arguments":{}}]}',
       );
 
-      expect(turn.validateAgainst('午饭 35').isValid, isFalse);
+      expect(turn, isA<AgentToolCallsTurn>());
     });
 
     test('rejects call objects with fields outside the protocol', () {
       expect(
         () => parser.parse(
-          '{"kind":"tool_calls","calls":[{"id":"1","name":"query_transactions","arguments":{},"unsafe":true}]}',
+          '{"kind":"tool_calls","calls":[{"id":"1","name":"query_report","arguments":{},"unsafe":true}]}',
         ),
         throwsA(isA<AgentParseFailure>()),
       );
@@ -242,7 +241,7 @@ final class _FakeTool implements AgentTool {
   final List<AgentToolCall> calls = [];
 
   @override
-  String get name => 'record_transaction_from_text';
+  String get name => 'write_report';
 
   @override
   Future<Map<String, Object?>> execute(AgentToolCall call) async {
@@ -256,10 +255,10 @@ final class _FakePolicy implements AgentPolicy {
 
   @override
   AgentPolicyDecision decide(AgentRequest request, AgentToolCall call) {
-    if (call.name == 'record_transaction_from_text') {
+    if (call.name == 'write_report') {
       return const AgentPolicyDecision.allow();
     }
-    return const AgentPolicyDecision.deny('P0 不允许此操作');
+    return const AgentPolicyDecision.deny('tool_not_allowed');
   }
 }
 

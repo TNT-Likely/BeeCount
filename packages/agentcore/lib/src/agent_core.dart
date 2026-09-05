@@ -5,26 +5,34 @@ final class AgentCore {
     required this.model,
     required this.tools,
     required this.policy,
+    this.maximumToolCalls = 4,
+    this.maximumModelTurns = 4,
+    this.singleUseToolNames = const {},
+    this.singleUseToolDenialReason = _defaultSingleUseToolDenialReason,
   });
-
-  static const _maximumToolCalls = 4;
-  static const _maximumModelTurns = 4;
 
   final AgentModel model;
   final Map<String, AgentTool> tools;
   final AgentPolicy policy;
+  final int maximumToolCalls;
+  final int maximumModelTurns;
+  final Set<String> singleUseToolNames;
+  final String Function(String toolName) singleUseToolDenialReason;
 
   Future<AgentRunResult> run(AgentRequest request) async {
     _validateToolRegistry();
+    if (maximumToolCalls <= 0 || maximumModelTurns <= 0) {
+      throw ArgumentError('AgentCore 执行上限必须大于 0。');
+    }
 
     var nextRequest = request;
     final executedCalls = <AgentToolCall>[];
     final deniedCalls = <AgentDeniedCall>[];
-    var hasRecordedTransaction = false;
+    final executedSingleUseTools = <String>{};
     var modelTurns = 0;
 
-    while (modelTurns < _maximumModelTurns &&
-        executedCalls.length < _maximumToolCalls) {
+    while (modelTurns < maximumModelTurns &&
+        executedCalls.length < maximumToolCalls) {
       modelTurns += 1;
       final turn = await model.nextTurn(nextRequest);
       switch (turn) {
@@ -37,9 +45,9 @@ final class AgentCore {
         case AgentToolCallsTurn(:final calls):
           final data = <Map<String, Object?>>[];
           for (final call in calls) {
-            if (call.name == 'record_transaction_from_text' &&
-                hasRecordedTransaction) {
-              const reason = '同一条消息只能记账一次。';
+            if (singleUseToolNames.contains(call.name) &&
+                executedSingleUseTools.contains(call.name)) {
+              final reason = singleUseToolDenialReason(call.name);
               deniedCalls.add(AgentDeniedCall(call: call, reason: reason));
               data.add({
                 'id': call.id,
@@ -62,11 +70,11 @@ final class AgentCore {
               });
               continue;
             }
-            if (executedCalls.length == _maximumToolCalls) break;
+            if (executedCalls.length >= maximumToolCalls) break;
             final result = await tool.execute(call);
             executedCalls.add(call);
-            if (call.name == 'record_transaction_from_text') {
-              hasRecordedTransaction = true;
+            if (singleUseToolNames.contains(call.name)) {
+              executedSingleUseTools.add(call.name);
             }
             data.add({'id': call.id, 'name': call.name, 'data': result});
           }
@@ -93,3 +101,6 @@ final class AgentCore {
     }
   }
 }
+
+String _defaultSingleUseToolDenialReason(String toolName) =>
+    'tool_can_only_run_once:$toolName';

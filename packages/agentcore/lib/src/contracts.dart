@@ -49,14 +49,6 @@ final class AgentToolCall {
   final String id;
   final String name;
   final Map<String, Object?> arguments;
-
-  AgentTurnValidation validateAgainst(String currentUserText) {
-    if (name == 'record_transaction_from_text' &&
-        arguments['sourceText'] != currentUserText) {
-      return const AgentTurnValidation.invalid('记账来源必须是当前用户消息。');
-    }
-    return const AgentTurnValidation.valid();
-  }
 }
 
 sealed class AgentTurn {
@@ -64,18 +56,12 @@ sealed class AgentTurn {
 
   const factory AgentTurn.finalText(String text) = AgentFinalTextTurn;
   factory AgentTurn.toolCalls(List<AgentToolCall> calls) = AgentToolCallsTurn;
-
-  AgentTurnValidation validateAgainst(String currentUserText);
 }
 
 final class AgentFinalTextTurn extends AgentTurn {
   const AgentFinalTextTurn(this.text) : super._();
 
   final String text;
-
-  @override
-  AgentTurnValidation validateAgainst(String currentUserText) =>
-      const AgentTurnValidation.valid();
 }
 
 final class AgentToolCallsTurn extends AgentTurn {
@@ -84,25 +70,6 @@ final class AgentToolCallsTurn extends AgentTurn {
         super._();
 
   final List<AgentToolCall> calls;
-
-  @override
-  AgentTurnValidation validateAgainst(String currentUserText) {
-    for (final call in calls) {
-      final validation = call.validateAgainst(currentUserText);
-      if (!validation.isValid) return validation;
-    }
-    return const AgentTurnValidation.valid();
-  }
-}
-
-final class AgentTurnValidation {
-  const AgentTurnValidation.valid()
-      : isValid = true,
-        reason = null;
-  const AgentTurnValidation.invalid(this.reason) : isValid = false;
-
-  final bool isValid;
-  final String? reason;
 }
 
 abstract interface class AgentModel {

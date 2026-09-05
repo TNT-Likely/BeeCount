@@ -23,10 +23,9 @@ final class P0AgentPolicy implements AgentPolicy {
       if (!request.scope.isForeground) {
         return const AgentPolicyDecision.deny('后台任务不能直接记账。');
       }
-      final validation = call.validateAgainst(request.text);
-      return validation.isValid
+      return _hasCurrentUserSourceText(request, call)
           ? const AgentPolicyDecision.allow()
-          : AgentPolicyDecision.deny(validation.reason!);
+          : const AgentPolicyDecision.deny('记账来源必须是当前用户消息。');
     }
 
     if (call.name == 'save_explicit_memory' || call.name == 'forget_memory') {
@@ -44,4 +43,10 @@ final class P0AgentPolicy implements AgentPolicy {
     return requestedLedgerId != null &&
         requestedLedgerId != request.scope.ledgerId;
   }
+
+  bool _hasCurrentUserSourceText(
+    AgentRequest request,
+    AgentToolCall call,
+  ) =>
+      call.arguments['sourceText'] == request.text;
 }
