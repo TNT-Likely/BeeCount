@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../styles/tokens.dart';
+import 'agent_ai_mark.dart';
 import 'agent_brand_mark.dart';
 
 /// A compact, discoverable entry point for the Agent from the home page.
@@ -74,7 +75,7 @@ final class AgentEntryCard extends StatelessWidget {
 }
 
 /// Compact icon button used in the home header where a full card would be
-/// too wide. It shares the same mark so the entry and chat page feel related.
+/// too wide. The AI wordmark makes this entry distinct from the chat avatar.
 final class AgentEntryButton extends StatelessWidget {
   const AgentEntryButton({
     super.key,
@@ -97,10 +98,7 @@ final class AgentEntryButton extends StatelessWidget {
           customBorder: const CircleBorder(),
           child: const Padding(
             padding: EdgeInsets.all(4),
-            child: AgentBrandMark(
-              size: 32,
-              showStatus: true,
-            ),
+            child: AgentAiMark(size: 24),
           ),
         ),
       ),

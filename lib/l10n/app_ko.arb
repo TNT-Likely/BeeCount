@@ -1562,7 +1562,6 @@
   "iosVersionWarningTitle": "iOS 16.0 이상이 필요합니다",
   "iosVersionWarningDesc": "스크린샷 자동 기록 기능은 iOS 16에서 도입된 App Intents 프레임워크를 사용합니다. 사용 중인 기기는 이전 버전이라 이 기능을 지원하지 않습니다.\n\n이 기능을 사용하려면 iOS 16 이상으로 업그레이드해 주세요.",
   "aiChatTitle": "AI 어시스턴트",
-  "aiChatEntrySubtitle": "지출을 기록하거나 내역을 자연스럽게 물어보세요.",
   "aiChatClearHistory": "기록 지우기",
   "aiChatClearHistoryDialogTitle": "대화 기록 지우기",
   "aiChatClearHistoryDialogContent": "모든 대화 기록을 지우시겠습니까? 이 작업은 되돌릴 수 없습니다.",

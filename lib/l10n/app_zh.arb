@@ -2168,7 +2168,6 @@
   "iosVersionWarningTitle": "需要 iOS 16.0 或更高版本",
   "iosVersionWarningDesc": "截图自动记账功能使用了 iOS 16 引入的 App Intents 框架。您的设备系统版本较低，暂不支持此功能。\n\n请升级到 iOS 16 或更高版本以使用此功能。",
   "aiChatTitle": "AI助手",
-  "aiChatEntrySubtitle": "记账、查支出，直接说就好",
   "aiChatClearHistory": "清除对话历史",
   "aiChatClearHistoryDialogTitle": "清除对话历史",
   "aiChatClearHistoryDialogContent": "确定要清除所有对话记录吗?此操作不可恢复。",

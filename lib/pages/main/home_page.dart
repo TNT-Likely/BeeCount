@@ -1024,15 +1024,6 @@ class _HomePageState extends ConsumerState<HomePage> {
             }
             return const SizedBox.shrink();
           }),
-          if (aiEnabled)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-              child: AgentEntryCard(
-                title: AppLocalizations.of(context).aiChatTitle,
-                subtitle: AppLocalizations.of(context).aiChatEntrySubtitle,
-                onTap: _openAIChat,
-              ),
-            ),
           Expanded(
             child: StreamBuilder<
                 List<

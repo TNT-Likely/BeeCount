@@ -1,4 +1,5 @@
 import 'package:beecount/widgets/ai/agent_brand_mark.dart';
+import 'package:beecount/widgets/ai/agent_ai_mark.dart';
 import 'package:beecount/widgets/ai/agent_entry_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,7 +31,7 @@ void main() {
     expect(taps, 1);
   });
 
-  testWidgets('首页紧凑入口按钮保留 AI 语义和状态点', (tester) async {
+  testWidgets('首页紧凑入口按钮展示 AI 图标并保留语义', (tester) async {
     var taps = 0;
     await tester.pumpWidget(
       ProviderScope(
@@ -46,8 +47,8 @@ void main() {
     );
 
     expect(find.bySemanticsLabel('AI 助手'), findsOneWidget);
-    expect(find.byType(AgentBrandMark), findsOneWidget);
-    await tester.tap(find.byType(AgentBrandMark));
+    expect(find.byType(AgentAiMark), findsOneWidget);
+    await tester.tap(find.byType(AgentAiMark));
     await tester.pump();
     expect(taps, 1);
   });

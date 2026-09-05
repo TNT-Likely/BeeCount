@@ -9866,12 +9866,6 @@ abstract class AppLocalizations {
   /// **'AI Assistant'**
   String get aiChatTitle;
 
-  /// No description provided for @aiChatEntrySubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Record expenses or check spending in plain language.'**
-  String get aiChatEntrySubtitle;
-
   /// No description provided for @aiChatClearHistory.
   ///
   /// In en, this message translates to:

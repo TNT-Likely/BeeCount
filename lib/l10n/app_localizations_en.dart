@@ -5171,9 +5171,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiChatTitle => 'AI Assistant';
 
   @override
-  String get aiChatEntrySubtitle => 'Record expenses or check spending in plain language.';
-
-  @override
   String get aiChatClearHistory => 'Clear History';
 
   @override

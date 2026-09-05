@@ -5171,9 +5171,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiChatTitle => 'AI 어시스턴트';
 
   @override
-  String get aiChatEntrySubtitle => '지출을 기록하거나 내역을 자연스럽게 물어보세요.';
-
-  @override
   String get aiChatClearHistory => '기록 지우기';
 
   @override

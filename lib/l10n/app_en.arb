@@ -2238,7 +2238,6 @@
   "iosVersionWarningTitle": "Requires iOS 16.0 or later",
   "iosVersionWarningDesc": "Screenshot auto-billing feature uses the App Intents framework introduced in iOS 16. Your device is running an older version and does not support this feature.\n\nPlease upgrade to iOS 16 or later to use this feature.",
   "aiChatTitle": "AI Assistant",
-  "aiChatEntrySubtitle": "Record expenses or check spending in plain language.",
   "aiChatClearHistory": "Clear History",
   "aiChatClearHistoryDialogTitle": "Clear Conversation History",
   "aiChatClearHistoryDialogContent": "Are you sure you want to clear all conversation records? This action cannot be undone.",
