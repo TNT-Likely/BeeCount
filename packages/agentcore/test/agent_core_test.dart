@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:agentcore/agentcore.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 
 void main() {
   late _FakeTool fakeTool;
