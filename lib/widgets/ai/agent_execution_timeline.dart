@@ -76,6 +76,28 @@ final class AgentExecutionTimeline extends StatelessWidget {
     }
 
     final l10n = AppLocalizations.of(context);
+    AgentExecutionStep? runningStep;
+    AgentExecutionStep? waitingStep;
+    for (final step in steps.reversed) {
+      if (runningStep == null &&
+          step.status == AgentExecutionStepStatus.running) {
+        runningStep = step;
+      }
+      if (waitingStep == null &&
+          step.status == AgentExecutionStepStatus.waiting) {
+        waitingStep = step;
+      }
+      if (runningStep != null && waitingStep != null) break;
+    }
+    final phaseText = runningStep != null
+        ? l10n.agentExecutingTool(
+            AgentToolPresentation.label(l10n, runningStep.toolName),
+          )
+        : waitingStep != null
+            ? l10n.agentPermissionWaiting
+            : l10n.aiChatThinking;
+    final showSpinner =
+        runningStep != null || (isStreaming && waitingStep == null);
     return Container(
       key: const ValueKey('agent-execution-timeline'),
       width: double.infinity,
@@ -98,12 +120,13 @@ final class AgentExecutionTimeline extends StatelessWidget {
                 ),
                 const SizedBox(width: 7),
                 Text(
-                  l10n.aiChatThinking,
+                  phaseText,
+                  key: const ValueKey('agent-execution-phase'),
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                 ),
-                if (isStreaming) ...[
+                if (showSpinner) ...[
                   const SizedBox(width: 8),
                   SizedBox(
                     width: 13,

@@ -5183,6 +5183,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiChatInputHint => '例如: 买了杯咖啡35块';
 
   @override
+  String get aiChatEmptyMessages => '暂无消息';
+
+  @override
+  String aiChatMessagesLoadFailed(String error) {
+    return '加载失败: $error';
+  }
+
+  @override
   String get aiChatThinking => '思考中...';
 
   @override

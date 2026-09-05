@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:agentcore/agentcore.dart';
 import 'package:test/test.dart';
 
@@ -101,6 +103,44 @@ void main() {
     final call = (response as AgentNativeToolCallsResponse).calls.single;
     expect(call.name, 'read_report');
     expect(call.arguments, {'range': 'month'});
+  });
+
+  test(
+      'openai-compatible transport completes on a final chunk before stream close',
+      () async {
+    final controller = StreamController<Map<String, dynamic>>();
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      toolStream: ({required messages, required tools, logTag}) =>
+          controller.stream,
+    );
+
+    final responseFuture = transport.complete(
+      AgentNativeToolRequest(
+        runId: 'run-final-chunk',
+        userPrompt: 'show',
+        toolResults: const [],
+      ),
+    );
+    controller.add({
+      'choices': [
+        {
+          'delta': {'content': 'done'},
+          'finish_reason': 'stop',
+        },
+      ],
+    });
+
+    try {
+      final response = await responseFuture.timeout(
+        const Duration(milliseconds: 200),
+      );
+      expect(response, isA<AgentNativeFinalTextResponse>());
+      expect((response as AgentNativeFinalTextResponse).text, 'done');
+    } finally {
+      await controller.close();
+    }
   });
 
   test('logs the tool catalog sent to the provider', () async {

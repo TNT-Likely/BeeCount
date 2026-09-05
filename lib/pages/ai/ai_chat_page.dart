@@ -22,6 +22,7 @@ import '../../pages/transaction/transaction_editor_page.dart';
 import '../../pages/ai/ai_settings_page.dart';
 import '../../pages/ai/agent_permissions_page.dart';
 import '../../pages/ai/agent_message_visibility.dart';
+import '../../pages/ai/agent_chat_scroll_coordinator.dart';
 import '../../widgets/biz/ledger_selector_dialog.dart';
 import '../../widgets/ai/agent_tool_authorization_dialog.dart';
 import '../../widgets/ai/agent_chat_shell.dart';
@@ -48,6 +49,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     with WidgetsBindingObserver {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late final AgentChatScrollCoordinator _responseScrollCoordinator =
+      AgentChatScrollCoordinator(_scrollController);
   int? _conversationId;
   bool _isLoading = false;
   int? _animatingMessageId; // 正在播放动画的消息ID
@@ -60,6 +63,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   List<AgentExecutionStep> _agentExecutionSteps = const [];
   AIResponse? _liveAgentResponse;
   int? _liveAssistantMessageId;
+  int? _pendingResponseMessageId;
 
   @override
   void initState() {
@@ -247,6 +251,22 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                       liveResponse: _liveAgentResponse,
                       persistedMessageId: _liveAssistantMessageId,
                     );
+                    final pendingResponseId = _pendingResponseMessageId;
+                    if (pendingResponseId != null &&
+                        displayMessages.any(
+                          (message) => message.id == pendingResponseId,
+                        )) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (!mounted ||
+                            _pendingResponseMessageId != pendingResponseId) {
+                          return;
+                        }
+                        _pendingResponseMessageId = null;
+                        _responseScrollCoordinator.onContentLaidOut(
+                          targetReady: true,
+                        );
+                      });
+                    }
                     // 首次加载完成且有消息时，自动滚动到底部
                     if (_isFirstLoad && displayMessages.isNotEmpty) {
                       _isFirstLoad = false;
@@ -256,7 +276,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                     }
 
                     if (displayMessages.isEmpty && !_hasLiveAgentMessage) {
-                      return const Center(child: Text('暂无消息'));
+                      return Center(child: Text(l10n.aiChatEmptyMessages));
                     }
 
                     return ListView.builder(
@@ -277,7 +297,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                   },
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
-                  error: (e, st) => Center(child: Text('加载失败: $e')),
+                  error: (e, st) => Center(
+                    child: Text(l10n.aiChatMessagesLoadFailed(e.toString())),
+                  ),
                 ),
 
                 // 回到底部按钮
@@ -855,6 +877,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       if (!mounted) return;
       setState(() {
         _liveAssistantMessageId = assistantMessageId;
+        _pendingResponseMessageId = assistantMessageId;
+        _responseScrollCoordinator.request();
       });
 
       // 如果是记账成功，刷新统计信息
@@ -882,8 +906,6 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         _liveAgentResponse = null;
         _liveAssistantMessageId = null;
       });
-
-      _scrollToBottom();
     } catch (e) {
       if (mounted) {
         showToast(

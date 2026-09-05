@@ -5183,6 +5183,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiChatInputHint => 'e.g.: Bought a coffee for \$35';
 
   @override
+  String get aiChatEmptyMessages => 'No messages yet';
+
+  @override
+  String aiChatMessagesLoadFailed(String error) {
+    return 'Failed to load messages: $error';
+  }
+
+  @override
   String get aiChatThinking => 'Thinking...';
 
   @override

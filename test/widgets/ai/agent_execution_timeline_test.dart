@@ -34,4 +34,33 @@ void main() {
     expect(find.textContaining('count'), findsOneWidget);
     expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
   });
+
+  testWidgets('工具执行期间阶段标题展示具体工具而不是思考中', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('zh'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: AgentExecutionTimeline(
+          isStreaming: true,
+          steps: [
+            AgentExecutionStep(
+              toolName: 'record_transaction_from_text',
+              arguments: const {'sourceText': '早饭花了8元'},
+              status: AgentExecutionStepStatus.running,
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(
+      find.byKey(const ValueKey('agent-execution-phase')),
+      findsOneWidget,
+    );
+    expect(find.text('正在执行：记录交易'), findsAtLeastNWidgets(1));
+    expect(find.text('思考中'), findsNothing);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  });
 }

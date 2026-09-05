@@ -9890,6 +9890,18 @@ abstract class AppLocalizations {
   /// **'e.g.: Bought a coffee for \$35'**
   String get aiChatInputHint;
 
+  /// No description provided for @aiChatEmptyMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get aiChatEmptyMessages;
+
+  /// No description provided for @aiChatMessagesLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load messages: {error}'**
+  String aiChatMessagesLoadFailed(String error);
+
   /// No description provided for @aiChatThinking.
   ///
   /// In en, this message translates to:

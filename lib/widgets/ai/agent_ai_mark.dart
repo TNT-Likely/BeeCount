@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 /// Compact AI wordmark used for the home-page entry point.
 ///
@@ -26,10 +25,20 @@ final class AgentAiMark extends StatelessWidget {
       label: semanticLabel,
       child: SizedBox.square(
         dimension: size,
-        child: SvgPicture.asset(
-          'assets/icons/ai.svg',
-          fit: BoxFit.contain,
-          colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+        child: Center(
+          child: ExcludeSemantics(
+            child: Text(
+              'AI',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: iconColor,
+                fontSize: size * 0.8,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.8,
+                height: 1,
+              ),
+            ),
+          ),
         ),
       ),
     );

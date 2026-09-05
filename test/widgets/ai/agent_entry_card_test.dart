@@ -70,6 +70,23 @@ void main() {
     expect(tester.getSize(find.byType(InkWell)), const Size(32, 32));
   });
 
+  testWidgets('首页 AI 标识使用轻量字标样式', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AgentEntryButton(
+            tooltip: 'AI 助手',
+            onTap: () {},
+          ),
+        ),
+      ),
+    );
+
+    final aiText = tester.widget<Text>(find.text('AI'));
+    expect(aiText.style?.fontSize, 16);
+    expect(aiText.style?.fontWeight, FontWeight.w600);
+  });
+
   testWidgets('首页入口图标继承页头颜色，避免与背景同色不可见', (tester) async {
     await tester.pumpWidget(
       MaterialApp(

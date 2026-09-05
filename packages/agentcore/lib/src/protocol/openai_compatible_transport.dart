@@ -127,31 +127,42 @@ final class OpenAiCompatibleNativeToolTransport
       if (choices is! List || choices.isEmpty || choices.first is! Map) {
         continue;
       }
-      final delta = (choices.first as Map)['delta'];
-      if (delta is! Map) continue;
-      final content = delta['content'];
-      if (content is String && content.isNotEmpty) {
-        text.write(content);
-        onEvent?.call(AgentNativeTextDelta(content));
-      }
-      final rawCalls = delta['tool_calls'];
-      if (rawCalls is! List) continue;
-      for (final raw in rawCalls.whereType<Map>()) {
-        final index = raw['index'] is num ? (raw['index'] as num).toInt() : 0;
-        final call = calls.putIfAbsent(index, _StreamToolCall.new);
-        if (raw['id'] case final String id when id.isNotEmpty) {
-          call.id = id;
+      final choice = choices.first as Map;
+      final delta = choice['delta'];
+      if (delta is Map) {
+        final content = delta['content'];
+        if (content is String && content.isNotEmpty) {
+          text.write(content);
+          onEvent?.call(AgentNativeTextDelta(content));
         }
-        final function = raw['function'];
-        if (function is Map) {
-          if (function['name'] case final String name when name.isNotEmpty) {
-            call.name = name;
-          }
-          if (function['arguments'] is String) {
-            call.arguments.write(function['arguments'] as String);
+        final rawCalls = delta['tool_calls'];
+        if (rawCalls is List) {
+          for (final raw in rawCalls.whereType<Map>()) {
+            final index =
+                raw['index'] is num ? (raw['index'] as num).toInt() : 0;
+            final call = calls.putIfAbsent(index, _StreamToolCall.new);
+            if (raw['id'] case final String id when id.isNotEmpty) {
+              call.id = id;
+            }
+            final function = raw['function'];
+            if (function is Map) {
+              if (function['name'] case final String name
+                  when name.isNotEmpty) {
+                call.name = name;
+              }
+              if (function['arguments'] is String) {
+                call.arguments.write(function['arguments'] as String);
+              }
+            }
           }
         }
       }
+      // Some OpenAI-compatible providers send a terminal choice but keep the
+      // HTTP stream open (or omit [DONE]). The response is complete once the
+      // non-null finish_reason arrives, so do not turn an already-rendered
+      // response into a false timeout while waiting for connection teardown.
+      final finishReason = choice['finish_reason'];
+      if (finishReason is String && finishReason.isNotEmpty) break;
     }
     if (calls.isNotEmpty) {
       final toolCalls = calls.entries.toList()
