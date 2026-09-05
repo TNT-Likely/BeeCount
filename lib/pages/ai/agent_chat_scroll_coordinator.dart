@@ -22,25 +22,29 @@ final class AgentChatScrollCoordinator {
   /// this is an initial history position, not a newly completed response.
   void requestInitialPositioning() {
     request();
+    // This is called while the first ListView is being built. A single
+    // post-frame attempt runs after that ListView has attached and calculated
+    // its extent. Do not nest another post-frame callback here: an initial
+    // route can otherwise have no subsequent frame to flush it.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollIfReady());
   }
 
   void onContentLaidOut({required bool targetReady}) {
     if (!_pending || !targetReady) return;
+    // Message persistence is observed while the replacement ListView is
+    // building. Wait for that same frame to compute its updated extent.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollIfReady());
+  }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_pending) return;
-      // The list can still be detached while the message provider is
-      // transitioning. Keep the request pending; the next data build will
-      // call us again once a scrollable exists.
-      if (!controller.hasClients) return;
-      if (!controller.position.hasContentDimensions) {
-        onContentLaidOut(targetReady: true);
-        return;
-      }
-      _pending = false;
-      final target = controller.position.maxScrollExtent;
-      if ((controller.position.pixels - target).abs() < 0.5) return;
-      controller.jumpTo(target);
-    });
+  void _scrollIfReady() {
+    if (!_pending ||
+        !controller.hasClients ||
+        !controller.position.hasContentDimensions) {
+      return;
+    }
+    _pending = false;
+    final target = controller.position.maxScrollExtent;
+    if ((controller.position.pixels - target).abs() < 0.5) return;
+    controller.jumpTo(target);
   }
 }

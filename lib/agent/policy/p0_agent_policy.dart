@@ -30,6 +30,9 @@ final class P0AgentPolicy implements AgentPolicy {
     'query_transactions',
     'get_spending_summary',
     'get_budget_status',
+    'get_income_expense_summary',
+    'get_category_spending',
+    'get_recurring_transactions',
   };
 
   @override

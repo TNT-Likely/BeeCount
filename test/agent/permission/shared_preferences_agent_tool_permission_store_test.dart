@@ -200,11 +200,14 @@ void main() {
           'query_transactions',
           'get_spending_summary',
           'get_budget_status',
+          'get_income_expense_summary',
+          'get_category_spending',
+          'get_recurring_transactions',
           'record_transaction_from_text',
           'save_explicit_memory',
           'forget_memory',
         ]));
-    expect(all.length, 6);
+    expect(all.length, 9);
     expect(all['save_explicit_memory'], AgentToolPermission.alwaysAllow);
   });
 }

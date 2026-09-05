@@ -961,6 +961,28 @@ final class _FakeGateway implements LocalAgentToolGateway {
   final List<String> savedMemories = [];
 
   @override
+  Future<List<AgentCategorySpending>> getCategorySpending({
+    required int ledgerId,
+    required DateTime start,
+    required DateTime end,
+  }) async =>
+      const [];
+
+  @override
+  Future<AgentIncomeExpenseSummary> getIncomeExpenseSummary({
+    required int ledgerId,
+    required DateTime start,
+    required DateTime end,
+  }) async =>
+      const AgentIncomeExpenseSummary(income: 0, expense: 0);
+
+  @override
+  Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
+    int ledgerId,
+  ) async =>
+      const [];
+
+  @override
   Future<void> forgetMemory(int memoryId) async {}
 
   @override

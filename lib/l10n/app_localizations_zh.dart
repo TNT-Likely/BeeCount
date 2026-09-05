@@ -5269,6 +5269,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentToolBudgetStatus => '查询预算';
 
   @override
+  String get agentToolIncomeExpenseSummary => '汇总收支';
+
+  @override
+  String get agentToolCategorySpending => '查看分类支出';
+
+  @override
+  String get agentToolRecurringTransactions => '查看周期账单';
+
+  @override
   String get agentToolRecordTransaction => '记录交易';
 
   @override
@@ -5338,6 +5347,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get agentToolBudgetStatusDescription => '查看当前账本的预算状态。';
+
+  @override
+  String get agentToolIncomeExpenseSummaryDescription => '汇总指定时间范围内的收入、支出和结余。';
+
+  @override
+  String get agentToolCategorySpendingDescription => '查看指定时间范围内支出最多的分类。';
+
+  @override
+  String get agentToolRecurringTransactionsDescription => '查看当前账本启用中的周期账单。';
 
   @override
   String get agentToolRecordTransactionDescription => '根据你发送的原始文本记录一笔交易。';

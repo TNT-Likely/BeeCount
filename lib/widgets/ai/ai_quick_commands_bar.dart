@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../models/ai_quick_command.dart';
+import '../../providers/theme_providers.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 
@@ -43,7 +44,7 @@ final class AIQuickCommandSuggestions extends ConsumerWidget {
 }
 
 /// A compact input-adjacent entry point for the full command catalog.
-final class AIQuickCommandLauncher extends StatelessWidget {
+final class AIQuickCommandLauncher extends ConsumerWidget {
   const AIQuickCommandLauncher({
     super.key,
     required this.onCommandTap,
@@ -54,8 +55,9 @@ final class AIQuickCommandLauncher extends StatelessWidget {
   final bool enabled;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final primary = ref.watch(primaryColorProvider);
     return IconButton(
       key: const ValueKey('ai-quick-command-launcher'),
       tooltip: l10n.aiQuickCommandsOpen,
@@ -63,12 +65,17 @@ final class AIQuickCommandLauncher extends StatelessWidget {
           ? () async {
               final command = await showModalBottomSheet<AIQuickCommand>(
                 context: context,
-                showDragHandle: true,
+                backgroundColor: BeeTokens.surfaceSheet(context),
+                barrierColor: BeeTokens.overlay(context),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
                 builder: (_) => const _AIQuickCommandsSheet(),
               );
               if (command != null) onCommandTap(command);
             }
           : null,
+      style: IconButton.styleFrom(foregroundColor: primary),
       icon: const Icon(Icons.auto_awesome_outlined),
     );
   }
@@ -80,49 +87,120 @@ final class _AIQuickCommandsSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final primary = ref.watch(primaryColorProvider);
     final commands = AIQuickCommands.getAllCommands();
     return SafeArea(
       top: false,
       child: SizedBox(
         key: const ValueKey('ai-quick-command-sheet'),
-        height: 420.0.scaled(context, ref),
+        height: 404.0.scaled(context, ref),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: Container(
+                margin: EdgeInsets.only(top: 12.0.scaled(context, ref)),
+                width: 34.0.scaled(context, ref),
+                height: 4.0.scaled(context, ref),
+                decoration: BoxDecoration(
+                  color: primary.withValues(alpha: 0.34),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+              ),
+            ),
             Padding(
               padding: EdgeInsets.fromLTRB(
                 20.0.scaled(context, ref),
-                4.0.scaled(context, ref),
+                18.0.scaled(context, ref),
                 20.0.scaled(context, ref),
-                8.0.scaled(context, ref),
+                12.0.scaled(context, ref),
               ),
-              child: Text(
-                l10n.aiQuickCommandsTitle,
-                style: BeeTextTokens.strongTitle(context),
+              child: Row(
+                children: [
+                  Container(
+                    key: const ValueKey('ai-quick-command-sheet-header-icon'),
+                    width: 38.0.scaled(context, ref),
+                    height: 38.0.scaled(context, ref),
+                    decoration: BoxDecoration(
+                      color: primary.withValues(alpha: 0.14),
+                      borderRadius:
+                          BorderRadius.circular(13.0.scaled(context, ref)),
+                    ),
+                    child: Icon(
+                      Icons.auto_awesome_rounded,
+                      color: primary,
+                      size: 20.0.scaled(context, ref),
+                    ),
+                  ),
+                  SizedBox(width: 12.0.scaled(context, ref)),
+                  Text(
+                    l10n.aiQuickCommandsTitle,
+                    style: BeeTextTokens.boldTitle(context),
+                  ),
+                ],
               ),
             ),
             Expanded(
-              child: ListView.separated(
+              child: GridView.builder(
+                key: const ValueKey('ai-quick-command-sheet-grid'),
                 padding: EdgeInsets.fromLTRB(
-                  12.0.scaled(context, ref),
+                  16.0.scaled(context, ref),
                   0,
-                  12.0.scaled(context, ref),
+                  16.0.scaled(context, ref),
                   16.0.scaled(context, ref),
                 ),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10.0.scaled(context, ref),
+                  crossAxisSpacing: 10.0.scaled(context, ref),
+                  mainAxisExtent: 82.0.scaled(context, ref),
+                ),
                 itemCount: commands.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 4),
                 itemBuilder: (context, index) {
                   final command = commands[index];
-                  final description = _descriptionFor(command, l10n);
-                  return ListTile(
+                  return Material(
                     key: ValueKey('ai-quick-command-sheet-item-$index'),
-                    leading: const Icon(Icons.auto_awesome_outlined),
-                    title: Text(_titleFor(command, l10n)),
-                    subtitle: description == null || description.isEmpty
-                        ? null
-                        : Text(description),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => Navigator.of(context).pop(command),
+                    color: primary.withValues(
+                      alpha: BeeTokens.isDark(context) ? 0.18 : 0.08,
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(16.0.scaled(context, ref)),
+                    child: InkWell(
+                      onTap: () => Navigator.of(context).pop(command),
+                      borderRadius:
+                          BorderRadius.circular(16.0.scaled(context, ref)),
+                      child: Padding(
+                        padding: EdgeInsets.all(12.0.scaled(context, ref)),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 30.0.scaled(context, ref),
+                              height: 30.0.scaled(context, ref),
+                              decoration: BoxDecoration(
+                                color: BeeTokens.surface(context),
+                                borderRadius: BorderRadius.circular(
+                                  10.0.scaled(context, ref),
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.auto_awesome_outlined,
+                                color: primary,
+                                size: 16.0.scaled(context, ref),
+                              ),
+                            ),
+                            SizedBox(width: 9.0.scaled(context, ref)),
+                            Expanded(
+                              child: Text(
+                                _titleFor(command, l10n),
+                                style: BeeTextTokens.strongTitle(context),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   );
                 },
               ),
@@ -148,20 +226,5 @@ String _titleFor(AIQuickCommand command, AppLocalizations l10n) {
       l10n.aiQuickCommandAbnormalExpenseTitle,
     'aiQuickCommandSavingTipsTitle' => l10n.aiQuickCommandSavingTipsTitle,
     _ => command.titleKey,
-  };
-}
-
-String? _descriptionFor(AIQuickCommand command, AppLocalizations l10n) {
-  return switch (command.descriptionKey) {
-    'aiQuickCommandFinancialHealthDesc' =>
-      l10n.aiQuickCommandFinancialHealthDesc,
-    'aiQuickCommandMonthlyExpenseDesc' => l10n.aiQuickCommandMonthlyExpenseDesc,
-    'aiQuickCommandCategoryAnalysisDesc' =>
-      l10n.aiQuickCommandCategoryAnalysisDesc,
-    'aiQuickCommandBudgetPlanningDesc' => l10n.aiQuickCommandBudgetPlanningDesc,
-    'aiQuickCommandAbnormalExpenseDesc' =>
-      l10n.aiQuickCommandAbnormalExpenseDesc,
-    'aiQuickCommandSavingTipsDesc' => l10n.aiQuickCommandSavingTipsDesc,
-    _ => null,
   };
 }

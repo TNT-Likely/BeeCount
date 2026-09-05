@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../agent/permission/agent_tool_permission.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/ai_chat_providers.dart';
-import '../../providers/theme_providers.dart';
 import '../../styles/tokens.dart';
 import '../../widgets/ui/primary_header.dart';
 import '../../widgets/ui/toast.dart';
@@ -212,40 +211,31 @@ final class _AgentPermissionsPageState
   }
 
   Widget _buildIntroCard(AppLocalizations l10n) {
-    final primary = ref.watch(primaryColorProvider);
     return Container(
+      key: const ValueKey('agent-permissions-intro'),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          colors: [
-            primary.withValues(alpha: BeeTokens.isDark(context) ? 0.24 : 0.12),
-            BeeTokens.surface(context),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        border: Border.all(color: primary.withValues(alpha: 0.18)),
-        boxShadow: BeeTokens.isDark(context) ? null : BeeShadows.card,
+        color: BeeTokens.surfaceSecondary(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: BeeTokens.divider(context)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: primary.withValues(alpha: 0.16),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.shield_outlined, color: primary, size: 24),
+            Icon(
+              Icons.info_outline_rounded,
+              color: BeeTokens.textSecondary(context),
+              size: 21,
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 l10n.agentPermissionsIntro,
-                style: BeeTextTokens.body(context).copyWith(height: 1.45),
+                style: BeeTextTokens.body(context).copyWith(
+                  color: BeeTokens.textSecondary(context),
+                  height: 1.45,
+                ),
               ),
             ),
           ],

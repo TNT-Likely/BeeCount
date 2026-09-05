@@ -2,6 +2,7 @@ import 'package:beecount/agent/permission/agent_tool_permission.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/ai/agent_permissions_page.dart';
 import 'package:beecount/providers/ai_chat_providers.dart';
+import 'package:beecount/styles/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,8 +31,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('只读工具'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('数据修改工具'), 160);
     expect(find.text('数据修改工具'), findsOneWidget);
     expect(find.text('每次询问'), findsNWidgets(3));
+    await tester.scrollUntilVisible(
+      find.byKey(
+        const ValueKey('permission-status-record_transaction_from_text'),
+      ),
+      120,
+    );
     expect(
       find.byKey(
         const ValueKey('permission-status-record_transaction_from_text'),
@@ -40,10 +48,32 @@ void main() {
     );
   });
 
+  testWidgets('权限说明使用中性信息卡而非主题渐变', (tester) async {
+    await tester.pumpWidget(host());
+    await tester.pumpAndSettle();
+
+    final intro = tester.widget<Container>(
+      find.byKey(const ValueKey('agent-permissions-intro')),
+    );
+    final decoration = intro.decoration! as BoxDecoration;
+    expect(decoration.gradient, isNull);
+    expect(
+        decoration.color,
+        BeeTokens.surfaceSecondary(tester.element(
+          find.byKey(const ValueKey('agent-permissions-intro')),
+        )));
+  });
+
   testWidgets('可将单个工具改为始终允许', (tester) async {
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(
+      find.byKey(
+        const ValueKey('permission-status-record_transaction_from_text'),
+      ),
+      160,
+    );
     await tester.tap(find.byKey(const ValueKey(
       'permission-status-record_transaction_from_text',
     )));

@@ -3,20 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('初始历史消息完成布局后定位到最后一条', (tester) async {
+  testWidgets('首帧加载历史消息后无需额外刷新也定位到最后一条', (tester) async {
     final controller = ScrollController();
     final coordinator = AgentChatScrollCoordinator(controller);
-    var itemCount = 0;
-    late StateSetter updateItems;
+    var requested = false;
 
     await tester.pumpWidget(
       MaterialApp(
         home: StatefulBuilder(
           builder: (context, setState) {
-            updateItems = setState;
+            if (!requested) {
+              requested = true;
+              coordinator.requestInitialPositioning();
+            }
             return ListView.builder(
               controller: controller,
-              itemCount: itemCount,
+              itemCount: 40,
               itemBuilder: (_, index) => SizedBox(
                 height: 60,
                 child: Text('history $index'),
@@ -27,16 +29,6 @@ void main() {
       ),
     );
     await tester.pump();
-
-    coordinator.requestInitialPositioning();
-    coordinator.onContentLaidOut(targetReady: false);
-    await tester.pump();
-    expect(controller.offset, 0);
-
-    updateItems(() => itemCount = 40);
-    coordinator.onContentLaidOut(targetReady: true);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
 
     expect(controller.offset, controller.position.maxScrollExtent);
   });

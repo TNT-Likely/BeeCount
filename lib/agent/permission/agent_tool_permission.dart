@@ -25,6 +25,21 @@ final class AgentToolPermissionCatalog {
       mutatesLocalData: false,
     ),
     AgentToolPermissionDescriptor(
+      toolName: 'get_income_expense_summary',
+      defaultPermission: AgentToolPermission.alwaysAllow,
+      mutatesLocalData: false,
+    ),
+    AgentToolPermissionDescriptor(
+      toolName: 'get_category_spending',
+      defaultPermission: AgentToolPermission.alwaysAllow,
+      mutatesLocalData: false,
+    ),
+    AgentToolPermissionDescriptor(
+      toolName: 'get_recurring_transactions',
+      defaultPermission: AgentToolPermission.alwaysAllow,
+      mutatesLocalData: false,
+    ),
+    AgentToolPermissionDescriptor(
       toolName: 'record_transaction_from_text',
       defaultPermission: AgentToolPermission.ask,
       mutatesLocalData: true,

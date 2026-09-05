@@ -5269,6 +5269,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get agentToolBudgetStatus => '예산 확인';
 
   @override
+  String get agentToolIncomeExpenseSummary => 'summarize cash flow';
+
+  @override
+  String get agentToolCategorySpending => 'view spending by category';
+
+  @override
+  String get agentToolRecurringTransactions => 'view recurring transactions';
+
+  @override
   String get agentToolRecordTransaction => '거래 기록';
 
   @override
@@ -5338,6 +5347,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get agentToolBudgetStatusDescription => 'View the budget status for the current ledger.';
+
+  @override
+  String get agentToolIncomeExpenseSummaryDescription => 'Summarize income, spending, and net cash flow for a selected time range.';
+
+  @override
+  String get agentToolCategorySpendingDescription => 'View the highest-spending categories for a selected time range.';
+
+  @override
+  String get agentToolRecurringTransactionsDescription => 'View enabled recurring transactions in the current ledger.';
 
   @override
   String get agentToolRecordTransactionDescription => 'Record a transaction from the original text you sent.';

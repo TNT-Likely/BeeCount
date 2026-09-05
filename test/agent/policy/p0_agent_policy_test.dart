@@ -21,15 +21,15 @@ void main() {
       );
 
   test('P0 policy permits record only for the current foreground user text',
-      () async {
-    final allowed = await policy.decide(
+      () {
+    final allowed = policy.decide(
       request(),
       AgentToolCall(
         name: 'record_transaction_from_text',
         arguments: const {'sourceText': '午饭 35'},
       ),
     );
-    final denied = await policy.decide(
+    final denied = policy.decide(
       request(),
       AgentToolCall(
         name: 'record_transaction_from_text',
@@ -41,15 +41,15 @@ void main() {
     expect(denied.isAllowed, isFalse);
   });
 
-  test('P0 policy denies background writes and cross-ledger reads', () async {
-    final backgroundWrite = await policy.decide(
+  test('P0 policy denies background writes and cross-ledger reads', () {
+    final backgroundWrite = policy.decide(
       request(isForeground: false),
       AgentToolCall(
         name: 'record_transaction_from_text',
         arguments: const {'sourceText': '午饭 35'},
       ),
     );
-    final crossLedgerRead = await policy.decide(
+    final crossLedgerRead = policy.decide(
       request(),
       AgentToolCall(
         name: 'query_transactions',
@@ -61,16 +61,29 @@ void main() {
     expect(crossLedgerRead.isAllowed, isFalse);
   });
 
-  test('P0 policy only permits explicit memory changes when user opted in',
-      () async {
-    final denied = await policy.decide(
+  test('P0 policy permits the additional scoped read tools', () async {
+    for (final toolName in <String>[
+      'get_income_expense_summary',
+      'get_category_spending',
+      'get_recurring_transactions',
+    ]) {
+      final decision = policy.decide(
+        request(),
+        AgentToolCall(name: toolName),
+      );
+      expect(decision.isAllowed, isTrue, reason: toolName);
+    }
+  });
+
+  test('P0 policy only permits explicit memory changes when user opted in', () {
+    final denied = policy.decide(
       request(),
       AgentToolCall(
         name: 'save_explicit_memory',
         arguments: const {'content': '咖啡用微信'},
       ),
     );
-    final allowed = await policy.decide(
+    final allowed = policy.decide(
       request(allowsExplicitMemory: true),
       AgentToolCall(
         name: 'save_explicit_memory',

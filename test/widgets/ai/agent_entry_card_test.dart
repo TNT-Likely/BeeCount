@@ -70,7 +70,7 @@ void main() {
     expect(tester.getSize(find.byType(InkWell)), const Size(32, 32));
   });
 
-  testWidgets('首页 AI 标识使用轻量字标样式', (tester) async {
+  testWidgets('首页 AI 标识填满紧凑入口的视觉尺寸', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -83,7 +83,7 @@ void main() {
     );
 
     final aiText = tester.widget<Text>(find.text('AI'));
-    expect(aiText.style?.fontSize, 17.6);
+    expect(aiText.style?.fontSize, 19.8);
     expect(aiText.style?.fontWeight, FontWeight.w600);
   });
 

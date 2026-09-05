@@ -1,13 +1,18 @@
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/models/ai_quick_command.dart';
+import 'package:beecount/providers/theme_providers.dart';
 import 'package:beecount/widgets/ai/ai_quick_commands_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  Widget host(Widget child) {
+  Widget host(Widget child, {Color? primaryColor}) {
     return ProviderScope(
+      overrides: [
+        if (primaryColor != null)
+          primaryColorProvider.overrideWith((ref) => primaryColor),
+      ],
       child: MaterialApp(
         locale: const Locale('zh'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -47,12 +52,14 @@ void main() {
     expect(selected, isNotNull);
   });
 
-  testWidgets('输入框快捷入口按需打开完整指令抽屉', (tester) async {
+  testWidgets('输入框快捷入口打开使用当前主题色的任务面板', (tester) async {
+    const primary = Color(0xFF7E57C2);
     await tester.pumpWidget(
       host(
         AIQuickCommandLauncher(
           onCommandTap: (_) {},
         ),
+        primaryColor: primary,
       ),
     );
 
@@ -61,10 +68,15 @@ void main() {
 
     expect(
         find.byKey(const ValueKey('ai-quick-command-sheet')), findsOneWidget);
-    await tester.drag(find.byType(ListView), const Offset(0, -500));
-    await tester.pumpAndSettle();
+    final iconContainer = tester.widget<Container>(
+      find.byKey(const ValueKey('ai-quick-command-sheet-header-icon')),
+    );
     expect(
-      find.byKey(const ValueKey('ai-quick-command-sheet-item-5')),
+      (iconContainer.decoration! as BoxDecoration).color,
+      primary.withValues(alpha: 0.14),
+    );
+    expect(
+      find.byKey(const ValueKey('ai-quick-command-sheet-item-0')),
       findsOneWidget,
     );
   });

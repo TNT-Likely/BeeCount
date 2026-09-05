@@ -10046,6 +10046,24 @@ abstract class AppLocalizations {
   /// **'check budget'**
   String get agentToolBudgetStatus;
 
+  /// No description provided for @agentToolIncomeExpenseSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'summarize cash flow'**
+  String get agentToolIncomeExpenseSummary;
+
+  /// No description provided for @agentToolCategorySpending.
+  ///
+  /// In en, this message translates to:
+  /// **'view spending by category'**
+  String get agentToolCategorySpending;
+
+  /// No description provided for @agentToolRecurringTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'view recurring transactions'**
+  String get agentToolRecurringTransactions;
+
   /// No description provided for @agentToolRecordTransaction.
   ///
   /// In en, this message translates to:
@@ -10183,6 +10201,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View the budget status for the current ledger.'**
   String get agentToolBudgetStatusDescription;
+
+  /// No description provided for @agentToolIncomeExpenseSummaryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize income, spending, and net cash flow for a selected time range.'**
+  String get agentToolIncomeExpenseSummaryDescription;
+
+  /// No description provided for @agentToolCategorySpendingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View the highest-spending categories for a selected time range.'**
+  String get agentToolCategorySpendingDescription;
+
+  /// No description provided for @agentToolRecurringTransactionsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View enabled recurring transactions in the current ledger.'**
+  String get agentToolRecurringTransactionsDescription;
 
   /// No description provided for @agentToolRecordTransactionDescription.
   ///
