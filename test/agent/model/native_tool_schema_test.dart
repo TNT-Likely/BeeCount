@@ -39,18 +39,19 @@ void main() {
     };
 
     expect(
-        definitions.keys,
-        containsAll(<String>[
-          'query_transactions',
-          'get_spending_summary',
-          'get_budget_status',
-          'get_income_expense_summary',
-          'get_category_spending',
-          'get_recurring_transactions',
-          'record_transaction_from_text',
-          'save_explicit_memory',
-          'forget_memory',
-        ]));
+      definitions.keys,
+      containsAll(<String>[
+        'query_transactions',
+        'get_spending_summary',
+        'get_budget_status',
+        'get_recurring_transactions',
+        'record_transaction_from_text',
+        'save_explicit_memory',
+        'forget_memory',
+      ]),
+    );
+    expect(definitions, isNot(contains('get_income_expense_summary')));
+    expect(definitions, isNot(contains('get_category_spending')));
     for (final definition in definitions.values) {
       expect(definition['description'], isA<String>());
       expect((definition['description'] as String).trim(), isNotEmpty);

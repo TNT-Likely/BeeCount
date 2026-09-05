@@ -10,6 +10,8 @@ import '../providers.dart';
 import '../data/db.dart';
 import '../agent/memory/agent_memory_repository.dart';
 import '../agent/memory/local_agent_memory_repository.dart';
+import '../agent/runtime/agent_execution_settings.dart';
+import '../agent/runtime/shared_preferences_agent_execution_settings_store.dart';
 import '../agent/tools/local_agent_tools.dart';
 import '../agent/permission/agent_tool_permission.dart';
 import '../agent/permission/shared_preferences_agent_tool_permission_store.dart';
@@ -56,12 +58,20 @@ final agentToolPermissionStoreProvider = Provider<AgentToolPermissionStore>(
   ),
 );
 
+final agentExecutionSettingsStoreProvider =
+    Provider<AgentExecutionSettingsStore>(
+  (_) => SharedPreferencesAgentExecutionSettingsStore(
+    getPreferences: SharedPreferences.getInstance,
+  ),
+);
+
 final agentAppFacadeProvider = Provider<AgentAppFacade>((ref) {
   final repo = ref.watch(repositoryProvider);
   return AgentAppFacade(
     memoryRepository: ref.watch(agentMemoryRepositoryProvider),
     toolGateway: ref.watch(localAgentToolGatewayProvider),
     permissionStore: ref.watch(agentToolPermissionStoreProvider),
+    executionSettingsStore: ref.watch(agentExecutionSettingsStoreProvider),
     conversationHistoryLoader: (conversationId) async {
       final messages = await repo.watchMessages(conversationId).first;
       return [

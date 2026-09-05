@@ -11,6 +11,8 @@ final class AgentChatScrollCoordinator {
 
   final ScrollController controller;
   bool _pending = false;
+  bool _frameScheduled = false;
+  int _initialRetryFramesRemaining = 0;
 
   void request() {
     _pending = true;
@@ -22,11 +24,12 @@ final class AgentChatScrollCoordinator {
   /// this is an initial history position, not a newly completed response.
   void requestInitialPositioning() {
     request();
-    // This is called while the first ListView is being built. A single
-    // post-frame attempt runs after that ListView has attached and calculated
-    // its extent. Do not nest another post-frame callback here: an initial
-    // route can otherwise have no subsequent frame to flush it.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollIfReady());
+    // A route can reach this point before its ListView attaches on a slower
+    // device. Retry a bounded number of frames; later metrics changes remain
+    // an independent retry path, so this never becomes a polling loop.
+    _initialRetryFramesRemaining = 8;
+    _debug('已请求初始定位');
+    _scheduleScrollAttempt();
   }
 
   /// Retries a pending request after the scrollable reports a new layout.
@@ -43,7 +46,16 @@ final class AgentChatScrollCoordinator {
     if (!_pending || !targetReady) return;
     // Message persistence is observed while the replacement ListView is
     // building. Wait for that same frame to compute its updated extent.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollIfReady());
+    _scheduleScrollAttempt();
+  }
+
+  void _scheduleScrollAttempt() {
+    if (_frameScheduled) return;
+    _frameScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _frameScheduled = false;
+      _scrollIfReady();
+    });
   }
 
   void _scrollIfReady() {
@@ -56,6 +68,7 @@ final class AgentChatScrollCoordinator {
             ? controller.position.hasContentDimensions
             : false,
       );
+      _scheduleInitialRetry();
       return;
     }
 
@@ -66,10 +79,12 @@ final class AgentChatScrollCoordinator {
         offset: controller.position.pixels,
         maxScrollExtent: target,
       );
+      _scheduleInitialRetry();
       return;
     }
 
     _pending = false;
+    _initialRetryFramesRemaining = 0;
     if ((controller.position.pixels - target).abs() < 0.5) return;
     controller.jumpTo(target);
     _debug(
@@ -77,6 +92,12 @@ final class AgentChatScrollCoordinator {
       offset: controller.position.pixels,
       maxScrollExtent: target,
     );
+  }
+
+  void _scheduleInitialRetry() {
+    if (_initialRetryFramesRemaining <= 0) return;
+    _initialRetryFramesRemaining -= 1;
+    _scheduleScrollAttempt();
   }
 
   void _debug(

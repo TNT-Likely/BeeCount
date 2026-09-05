@@ -20,7 +20,7 @@ import '../../providers/ai_chat_providers.dart';
 import '../../ai/core/bill_info.dart';
 import '../../pages/transaction/transaction_editor_page.dart';
 import '../../pages/ai/ai_settings_page.dart';
-import '../../pages/ai/agent_permissions_page.dart';
+import '../../pages/ai/agent_assistant_settings_page.dart';
 import '../../pages/ai/agent_message_visibility.dart';
 import '../../pages/ai/agent_chat_scroll_coordinator.dart';
 import '../../widgets/biz/ledger_selector_dialog.dart';
@@ -175,12 +175,14 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     return AgentChatShell(
       title: l10n.aiChatTitle,
       backTooltip: l10n.commonBack,
-      permissionsTooltip: l10n.agentPermissionsTitle,
+      permissionsTooltip: l10n.agentAssistantSettingsTitle,
       clearTooltip: l10n.aiChatClearHistory,
       onBack: () => Navigator.of(context).maybePop(),
       onOpenPermissions: () => Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => const AgentPermissionsPage(),
+          builder: (_) => AgentAssistantSettingsPage(
+            ledgerId: ref.read(currentLedgerIdProvider),
+          ),
         ),
       ),
       onClearHistory: _showClearHistoryDialog,
@@ -667,17 +669,24 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
             SizedBox(width: 8.0.scaled(context, ref)),
             IconButton(
               icon: Icon(
-                Icons.send,
+                _isLoading ? Icons.stop_circle_outlined : Icons.send,
                 color: _isLoading
-                    ? BeeTokens.textTertiary(context)
+                    ? Theme.of(context).colorScheme.error
                     : ref.watch(primaryColorProvider),
               ),
-              onPressed: _isLoading ? null : _sendMessage,
+              tooltip:
+                  _isLoading ? AppLocalizations.of(context).agentRunStop : null,
+              onPressed: _isLoading ? _stopCurrentAgentRun : _sendMessage,
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _stopCurrentAgentRun() {
+    if (!_isLoading) return;
+    _chatService.cancelActiveAgentRuns();
   }
 
   /// 处理快捷指令点击

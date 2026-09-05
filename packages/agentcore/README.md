@@ -78,12 +78,15 @@ final request = AgentRequest(
   context: {'currentTime': DateTime.now().toIso8601String()},
 );
 
+final cancellation = AgentCancellationToken();
+
 final core = AgentCore(
   model: model,
   tools: {'read_report': readReportTool},
   policy: policy,
   maximumModelTurns: 4,
   maximumToolCalls: 4,
+  cancellationToken: cancellation,
 );
 
 final result = await core.run(request);
@@ -91,6 +94,25 @@ final result = await core.run(request);
 
 `AgentTool.name` 必须和注册表 key 完全一致。工具执行结果是
 `Map<String, Object?>`，会被宿主序列化后作为下一轮的 `role: tool` 内容。
+
+工具调用恰好耗尽 `maximumToolCalls` 时，core 仍会给模型一个剩余回合来生成最终
+文本；只有模型再次请求工具时才会停止。这样“查询 → 返回结果”不会被误判为步骤过多。
+
+### 取消运行
+
+前台宿主可持有一个 `AgentCancellationToken`，并在用户选择停止后调用 `cancel()`：
+
+```dart
+final pending = core.run(request);
+
+// 用户点击“停止”时：立刻结束等待中的模型/授权回合。
+cancellation.cancel();
+final result = await pending;
+assert(result.wasCancelled);
+```
+
+取消会与等待中的模型或策略决策竞争，避免继续等待网络；它**不会**强行中断已经开始
+的工具写入。core 会在每个下一操作前检查 token，使宿主可以保持本地事务一致性。
 
 ### 原生工具描述
 
@@ -193,9 +215,10 @@ agentcore 提供通用的权限模型，但不保存权限数据，也不负责�
 存储实现：
 
 - 显式记忆保存、查询、删除和清空；
+- 当前 scope 的活跃记忆列表；
 - 运行摘要保存；
-- Agent run 的开始/结束状态；
-- 每次工具调用的审计和计数。
+- Agent run 的开始/结束状态与最近运行列表；
+- 每次工具调用的审计、计数和按 run 查询。
 
 记忆检索、加密、去重、过期清理和云同步不属于 agentcore。实现时应按账本或用户
 scope 隔离数据，并限制传入模型的条数和长度。

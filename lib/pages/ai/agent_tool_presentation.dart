@@ -14,8 +14,6 @@ final class AgentToolPresentation {
         'query_transactions' => l10n.agentToolQueryTransactions,
         'get_spending_summary' => l10n.agentToolSpendingSummary,
         'get_budget_status' => l10n.agentToolBudgetStatus,
-        'get_income_expense_summary' => l10n.agentToolIncomeExpenseSummary,
-        'get_category_spending' => l10n.agentToolCategorySpending,
         'get_recurring_transactions' => l10n.agentToolRecurringTransactions,
         'record_transaction_from_text' => l10n.agentToolRecordTransaction,
         'save_explicit_memory' => l10n.agentToolSaveMemory,
@@ -28,9 +26,6 @@ final class AgentToolPresentation {
         'query_transactions' => l10n.agentToolQueryTransactionsDescription,
         'get_spending_summary' => l10n.agentToolSpendingSummaryDescription,
         'get_budget_status' => l10n.agentToolBudgetStatusDescription,
-        'get_income_expense_summary' =>
-          l10n.agentToolIncomeExpenseSummaryDescription,
-        'get_category_spending' => l10n.agentToolCategorySpendingDescription,
         'get_recurring_transactions' =>
           l10n.agentToolRecurringTransactionsDescription,
         'record_transaction_from_text' =>
@@ -54,9 +49,7 @@ final class AgentToolPresentation {
     }
 
     if (toolName == 'query_transactions' ||
-        toolName == 'get_spending_summary' ||
-        toolName == 'get_income_expense_summary' ||
-        toolName == 'get_category_spending') {
+        toolName == 'get_spending_summary') {
       final start = arguments['start'];
       final end = arguments['end'];
       if (start is String || end is String) {

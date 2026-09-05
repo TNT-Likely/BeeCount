@@ -38,6 +38,7 @@ import 'package:beecount/agent/memory/agent_memory_repository.dart';
 import 'package:beecount/agent/model/native_tool_agent_model.dart';
 import 'package:beecount/agent/permission/agent_authorization_gate.dart';
 import 'package:beecount/agent/permission/agent_tool_permission.dart';
+import 'package:beecount/agent/runtime/agent_execution_settings.dart';
 import 'package:beecount/agent/permission/shared_preferences_agent_tool_permission_store.dart';
 import 'package:beecount/agent/tools/local_agent_tools.dart';
 import 'package:beecount/data/db.dart' hide AgentToolCall;
@@ -97,6 +98,25 @@ void main() {
       ),
       isTrue,
     );
+  });
+
+  test('uses the locally selected model-turn limit for an Agent run', () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      executionSettingsStore: _FixedExecutionSettingsStore(2),
+      model: _FakeModel([
+        AgentTurn.toolCalls([AgentToolCall(name: 'unknown-first')]),
+        AgentTurn.toolCalls([AgentToolCall(name: 'unknown-second')]),
+        const AgentTurn.finalText('不应请求第三轮'),
+      ]),
+      runIdFactory: () => 'run-limited-turns',
+    );
+
+    final response = await facade.processMessage(message: '测试', ledgerId: 1);
+
+    expect(response.response.text, '这次操作步骤过多，请简化后重试。');
   });
 
   test('a fragmented native record tool call reaches the local tool', () async {
@@ -542,7 +562,7 @@ void main() {
     expect(audit.status, 'denied');
   });
 
-  test('canceling an event stream denies its pending authorization', () async {
+  test('canceling an event stream stops its pending authorization', () async {
     final facade = AgentAppFacade(
       memoryRepository: LocalAgentMemoryRepository(db),
       toolGateway: gateway,
@@ -575,7 +595,7 @@ void main() {
     final runFinished = (db.select(db.agentRuns)
           ..where((row) => row.runId.equals('run-canceled')))
         .watchSingle()
-        .firstWhere((run) => run.status == 'completed');
+        .firstWhere((run) => run.status == 'cancelled');
     await iterator.cancel();
 
     expect(
@@ -625,7 +645,7 @@ void main() {
     expect(gateway.recordedTexts, ['午饭 35', '晚饭 45']);
   });
 
-  test('cancellation while the model is pending blocks an always allowed write',
+  test('cancelling a pending model run blocks an always allowed write',
       () async {
     logger.clear();
     final model = _PendingModel();
@@ -643,7 +663,7 @@ void main() {
     final finished = (db.select(db.agentRuns)
           ..where((row) => row.runId.equals('cancel-before-policy')))
         .watchSingle()
-        .firstWhere((run) => run.status == 'completed');
+        .firstWhere((run) => run.status == 'cancelled');
     await subscription.cancel();
     model.pending.complete(AgentTurn.toolCalls([
       AgentToolCall(
@@ -653,7 +673,7 @@ void main() {
     ]));
     await finished.timeout(const Duration(seconds: 2));
     expect(gateway.recordedTexts, isEmpty);
-    expect(model.requests.last.toolData.single['data'], {'error': '用户未授权此操作。'});
+    expect(model.requests, hasLength(1));
     expect(
         logger.logs.any((entry) =>
             entry.message.contains('工具开始执行') &&
@@ -661,8 +681,7 @@ void main() {
         isFalse);
   });
 
-  test('cancellation during always allow persistence blocks execution',
-      () async {
+  test('cancelling during always allow persistence blocks execution', () async {
     logger.clear();
     final persistenceStarted = Completer<void>();
     final persistenceFinished = Completer<void>();
@@ -701,12 +720,12 @@ void main() {
     final finished = (db.select(db.agentRuns)
           ..where((row) => row.runId.equals('cancel-during-persistence')))
         .watchSingle()
-        .firstWhere((run) => run.status == 'completed');
+        .firstWhere((run) => run.status == 'cancelled');
     await iterator.cancel();
     persistenceFinished.complete();
     await finished.timeout(const Duration(seconds: 2));
     expect(gateway.recordedTexts, isEmpty);
-    expect(model.requests.last.toolData.single['data'], {'error': '用户未授权此操作。'});
+    expect(model.requests, hasLength(1));
     expect(
         logger.logs.any((entry) =>
             entry.message.contains('工具开始执行') &&
@@ -798,6 +817,34 @@ void main() {
     expect(iterator.current, isA<AgentRunCompletedEvent>());
     expect(await iterator.moveNext(), isFalse);
     expect(gateway.recordedTexts, isEmpty);
+  });
+
+  test('stopping an active run returns immediately while its model waits',
+      () async {
+    final model = _PendingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: model,
+      runIdFactory: () => 'stopped-active-run',
+    );
+
+    final events =
+        facade.processMessageEvents(message: '本月花了多少', ledgerId: 1).toList();
+    await model.started.future;
+    facade.cancelActiveRuns();
+
+    final completedEvents = await events.timeout(const Duration(seconds: 2));
+    final completed = completedEvents.single as AgentRunCompletedEvent;
+    final run = await (db.select(db.agentRuns)
+          ..where((row) => row.runId.equals('stopped-active-run')))
+        .getSingle();
+
+    expect(completed.result.response.text, '本次操作已停止。');
+    expect(run.status, 'cancelled');
+    expect(gateway.recordedTexts, isEmpty);
+    model.pending.complete(const AgentTurn.finalText('迟到的回复'));
   });
 
   for (final failsPersistence in [false, true]) {
@@ -961,22 +1008,6 @@ final class _FakeGateway implements LocalAgentToolGateway {
   final List<String> savedMemories = [];
 
   @override
-  Future<List<AgentCategorySpending>> getCategorySpending({
-    required int ledgerId,
-    required DateTime start,
-    required DateTime end,
-  }) async =>
-      const [];
-
-  @override
-  Future<AgentIncomeExpenseSummary> getIncomeExpenseSummary({
-    required int ledgerId,
-    required DateTime start,
-    required DateTime end,
-  }) async =>
-      const AgentIncomeExpenseSummary(income: 0, expense: 0);
-
-  @override
   Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
     int ledgerId,
   ) async =>
@@ -1059,4 +1090,18 @@ final class _MemoryPermissionStore implements AgentToolPermissionStore {
     if (failsPersistence) throw StateError('disk full');
     await onPersist?.call();
   }
+}
+
+final class _FixedExecutionSettingsStore
+    implements AgentExecutionSettingsStore {
+  _FixedExecutionSettingsStore(this.maximumModelTurns);
+
+  final int maximumModelTurns;
+
+  @override
+  Future<AgentExecutionSettings> read() async =>
+      AgentExecutionSettings(maximumModelTurns: maximumModelTurns);
+
+  @override
+  Future<void> setMaximumModelTurns(int value) async {}
 }

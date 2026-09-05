@@ -70,6 +70,20 @@ void main() {
     );
   });
 
+  test('lists only active memories that belong to the selected ledger',
+      () async {
+    await repository.saveExplicit(memory(content: '账本一的偏好'));
+    await repository.saveExplicit(memory(ledgerId: 2, content: '账本二的偏好'));
+    final forgotten = await repository.saveExplicit(
+      memory(content: '已忘记的偏好'),
+    );
+    await repository.forget(forgotten.id);
+
+    final memories = await repository.listActive(ledgerId: 1);
+
+    expect(memories.map((item) => item.content), ['账本一的偏好']);
+  });
+
   test('clearAll deletes only local memories and keeps conversation messages',
       () async {
     await repository.saveExplicit(memory());
@@ -81,6 +95,19 @@ void main() {
 
     expect(await repository.search(ledgerId: 1, query: '咖啡'), isEmpty);
     expect(await db.select(db.conversations).get(), hasLength(1));
+  });
+
+  test('clears only memories in the selected ledger', () async {
+    await repository.saveExplicit(memory(ledgerId: 1, content: '账本一'));
+    await repository.saveExplicit(memory(ledgerId: 2, content: '账本二'));
+
+    await repository.clearForLedger(1);
+
+    expect(await repository.listActive(ledgerId: 1), isEmpty);
+    expect(
+      (await repository.listActive(ledgerId: 2)).single.content,
+      '账本二',
+    );
   });
 
   test('recordToolCall ignores a repeated run and call id', () async {
@@ -95,5 +122,37 @@ void main() {
     await repository.recordToolCall(call);
 
     expect(await repository.toolCallCount('run-1'), 1);
+  });
+
+  test('lists recent local runs together with their local tool audit',
+      () async {
+    await repository.createRun(
+      runId: 'run-activity',
+      ledgerId: 1,
+      userMessage: '本月花了多少',
+    );
+    await repository.finishRun(runId: 'run-activity', status: 'completed');
+    await repository.recordToolCall(
+      const AgentToolCallAudit(
+        runId: 'run-activity',
+        callId: 'call-summary',
+        toolName: 'get_spending_summary',
+        status: 'completed',
+      ),
+    );
+    await repository.createRun(
+      runId: 'other-ledger-run',
+      ledgerId: 2,
+      userMessage: '不应展示',
+    );
+
+    final runs = await repository.listRecentRuns(ledgerId: 1);
+    final toolCalls = await repository.listToolCalls('run-activity');
+
+    expect(runs.single.runId, 'run-activity');
+    expect(runs.single.status, 'completed');
+    expect(runs.single.userMessage, '本月花了多少');
+    expect(toolCalls.single.toolName, 'get_spending_summary');
+    expect(toolCalls.single.status, 'completed');
   });
 }

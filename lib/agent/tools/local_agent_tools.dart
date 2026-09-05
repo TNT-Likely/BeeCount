@@ -58,31 +58,6 @@ final class AgentBudgetSummary {
       };
 }
 
-final class AgentIncomeExpenseSummary {
-  const AgentIncomeExpenseSummary({
-    required this.income,
-    required this.expense,
-  });
-
-  final double income;
-  final double expense;
-
-  Map<String, Object?> toToolData() => {
-        'income': income,
-        'expense': expense,
-        'net': income - expense,
-      };
-}
-
-final class AgentCategorySpending {
-  const AgentCategorySpending({required this.name, required this.total});
-
-  final String name;
-  final double total;
-
-  Map<String, Object?> toToolData() => {'name': name, 'total': total};
-}
-
 final class AgentRecurringTransactionSummary {
   const AgentRecurringTransactionSummary({
     required this.type,
@@ -134,16 +109,6 @@ abstract interface class LocalAgentToolGateway {
     required DateTime end,
   });
   Future<AgentBudgetSummary> getBudgetStatus(int ledgerId);
-  Future<AgentIncomeExpenseSummary> getIncomeExpenseSummary({
-    required int ledgerId,
-    required DateTime start,
-    required DateTime end,
-  });
-  Future<List<AgentCategorySpending>> getCategorySpending({
-    required int ledgerId,
-    required DateTime start,
-    required DateTime end,
-  });
   Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
     int ledgerId,
   );
@@ -212,45 +177,6 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
   }
 
   @override
-  Future<AgentIncomeExpenseSummary> getIncomeExpenseSummary({
-    required int ledgerId,
-    required DateTime start,
-    required DateTime end,
-  }) async {
-    final totals = await _repository.totalsInRange(
-      ledgerId: ledgerId,
-      start: start,
-      end: end,
-    );
-    return AgentIncomeExpenseSummary(
-      income: totals.$1.abs(),
-      expense: totals.$2.abs(),
-    );
-  }
-
-  @override
-  Future<List<AgentCategorySpending>> getCategorySpending({
-    required int ledgerId,
-    required DateTime start,
-    required DateTime end,
-  }) async {
-    final rows = await _repository.totalsByCategory(
-      ledgerId: ledgerId,
-      type: 'expense',
-      start: start,
-      end: end,
-    );
-    return rows
-        .map(
-          (row) => AgentCategorySpending(
-            name: row.name,
-            total: row.total.abs(),
-          ),
-        )
-        .toList();
-  }
-
-  @override
   Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
     int ledgerId,
   ) async {
@@ -309,7 +235,6 @@ final class LocalAgentTools {
   LocalAgentTools({required this.scope, required this.gateway});
 
   static const _maximumRows = 20;
-  static const _maximumCategories = 8;
   static const _maximumRecurringTransactions = 20;
 
   final AgentScope scope;
@@ -330,14 +255,6 @@ final class LocalAgentTools {
         _spendingSummary,
       ),
       'get_budget_status': _CallbackTool('get_budget_status', _budgetStatus),
-      'get_income_expense_summary': _CallbackTool(
-        'get_income_expense_summary',
-        _incomeExpenseSummary,
-      ),
-      'get_category_spending': _CallbackTool(
-        'get_category_spending',
-        _categorySpending,
-      ),
       'get_recurring_transactions': _CallbackTool(
         'get_recurring_transactions',
         _recurringTransactions,
@@ -393,38 +310,6 @@ final class LocalAgentTools {
       gateway
           .getBudgetStatus(_ledgerId)
           .then((summary) => summary.toToolData());
-
-  Future<Map<String, Object?>> _incomeExpenseSummary(
-    AgentToolCall call,
-  ) async {
-    final range = _rangeFor(call);
-    final summary = await gateway.getIncomeExpenseSummary(
-      ledgerId: _ledgerId,
-      start: range.$1,
-      end: range.$2,
-    );
-    return {
-      ...summary.toToolData(),
-      'currency': 'ledger',
-      'periodStart': range.$1.toIso8601String(),
-      'periodEnd': range.$2.toIso8601String(),
-    };
-  }
-
-  Future<Map<String, Object?>> _categorySpending(AgentToolCall call) async {
-    final range = _rangeFor(call);
-    final rows = await gateway.getCategorySpending(
-      ledgerId: _ledgerId,
-      start: range.$1,
-      end: range.$2,
-    );
-    return {
-      'items':
-          rows.take(_maximumCategories).map((row) => row.toToolData()).toList(),
-      'periodStart': range.$1.toIso8601String(),
-      'periodEnd': range.$2.toIso8601String(),
-    };
-  }
 
   Future<Map<String, Object?>> _recurringTransactions(
     AgentToolCall call,

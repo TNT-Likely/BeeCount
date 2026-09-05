@@ -5269,12 +5269,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentToolBudgetStatus => '查询预算';
 
   @override
-  String get agentToolIncomeExpenseSummary => '汇总收支';
-
-  @override
-  String get agentToolCategorySpending => '查看分类支出';
-
-  @override
   String get agentToolRecurringTransactions => '查看周期账单';
 
   @override
@@ -5347,12 +5341,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get agentToolBudgetStatusDescription => '查看当前账本的预算状态。';
-
-  @override
-  String get agentToolIncomeExpenseSummaryDescription => '汇总指定时间范围内的收入、支出和结余。';
-
-  @override
-  String get agentToolCategorySpendingDescription => '查看指定时间范围内支出最多的分类。';
 
   @override
   String get agentToolRecurringTransactionsDescription => '查看当前账本启用中的周期账单。';
@@ -7704,6 +7692,119 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get currencyMRU => '毛里塔尼亚乌吉亚';
+
+  @override
+  String get agentAssistantSettingsTitle => 'AI助手';
+
+  @override
+  String get agentAssistantSettingsSubtitle => '管理助手如何使用本地数据和工具。';
+
+  @override
+  String get agentAssistantPermissionsEntry => '权限';
+
+  @override
+  String get agentAssistantPermissionsEntryDescription => '设置修改数据的工具何时需要你的授权。';
+
+  @override
+  String get agentAssistantMemoryEntry => '本地记忆';
+
+  @override
+  String get agentAssistantMemoryEntryDescription => '查看和移除仅保存在本机的记忆。';
+
+  @override
+  String get agentAssistantActivityEntry => '最近活动';
+
+  @override
+  String get agentAssistantActivityEntryDescription => '查看本地工具调用及其结果。';
+
+  @override
+  String get agentExecutionDepthEntry => '执行深度';
+
+  @override
+  String get agentExecutionDepthEntryDescription => '更高的上限可处理更多步骤，但响应可能更慢。';
+
+  @override
+  String agentExecutionDepthSelected(int turns) {
+    return '最多 $turns 个模型回合';
+  }
+
+  @override
+  String get agentExecutionDepthChooseTitle => '执行深度';
+
+  @override
+  String get agentExecutionDepthQuick => '快速';
+
+  @override
+  String get agentExecutionDepthStandard => '标准';
+
+  @override
+  String get agentExecutionDepthDeep => '深入';
+
+  @override
+  String get agentExecutionDepthCustom => '自定义';
+
+  @override
+  String get agentMemoryTitle => '本地记忆';
+
+  @override
+  String get agentMemoryIntro => '这些记忆仅保存在本机，并且只会用于当前账本。';
+
+  @override
+  String get agentMemoryEmpty => '暂时没有本地记忆。';
+
+  @override
+  String get agentMemoryDeleteTitle => '删除这条记忆？';
+
+  @override
+  String get agentMemoryDeleteDescription => '删除后，AI助手将不再使用这条记忆。';
+
+  @override
+  String get agentMemoryClear => '清空当前账本记忆';
+
+  @override
+  String get agentMemoryClearTitle => '清空当前账本的全部记忆？';
+
+  @override
+  String get agentMemoryClearDescription => '这会移除当前账本的所有本地记忆，且无法撤销。';
+
+  @override
+  String get agentActivityTitle => '最近活动';
+
+  @override
+  String get agentActivityIntro => '活动记录仅保存在本机，不会参与同步。';
+
+  @override
+  String get agentActivityEmpty => '暂时没有助手活动。';
+
+  @override
+  String get agentActivityCompleted => '已完成';
+
+  @override
+  String get agentActivityFailed => '失败';
+
+  @override
+  String get agentActivityRunning => '进行中';
+
+  @override
+  String get agentActivityCancelled => '已取消';
+
+  @override
+  String get agentActivityTools => '工具';
+
+  @override
+  String get agentActivityToolCompleted => '已完成';
+
+  @override
+  String get agentActivityToolDenied => '已拒绝';
+
+  @override
+  String get agentActivityToolFailed => '失败';
+
+  @override
+  String get agentRunCancelled => '本次操作已停止。';
+
+  @override
+  String get agentRunStop => '停止';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

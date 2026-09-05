@@ -8,6 +8,7 @@ import 'package:beecount/providers/database_providers.dart';
 import 'package:beecount/services/ai/ai_bookkeeper.dart';
 import 'package:beecount/services/ai/ai_chat_service.dart';
 import 'package:beecount/services/billing/bill_creation_service.dart';
+import 'package:drift/drift.dart' hide Column, isNull;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -61,5 +62,38 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('加载已有长对话后会自动定位到最后一条消息', (tester) async {
+    final conversationId = await repository.createConversation(
+      ConversationsCompanion.insert(
+        title: const Value('历史对话'),
+        createdAt: Value(DateTime(2026, 9, 6)),
+        updatedAt: Value(DateTime(2026, 9, 6)),
+      ),
+    );
+    for (var index = 0; index < 40; index++) {
+      await repository.createMessage(
+        MessagesCompanion.insert(
+          conversationId: conversationId,
+          role: index.isEven ? 'user' : 'assistant',
+          content: '历史消息 $index',
+          messageType: 'text',
+          createdAt: Value(DateTime(2026, 9, 6, 12, index)),
+        ),
+      );
+    }
+
+    await tester.pumpWidget(host());
+    await tester.pumpAndSettle();
+
+    final scrollable = tester
+        .stateList<ScrollableState>(find.byType(Scrollable))
+        .singleWhere((state) => state.position.maxScrollExtent > 0);
+    expect(scrollable.position.maxScrollExtent, greaterThan(0));
+    expect(scrollable.position.pixels, scrollable.position.maxScrollExtent);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
   });
 }

@@ -72,6 +72,77 @@ void main() {
     ]);
   });
 
+  test('allows a final response after a tool batch reaches its call budget',
+      () async {
+    final boundedCore = AgentCore(
+      model: model
+        ..turns = [
+          AgentTurn.toolCalls([
+            AgentToolCall(name: fakeTool.name),
+          ]),
+          const AgentTurn.finalText('本月支出 80 元。'),
+        ],
+      tools: {fakeTool.name: fakeTool},
+      policy: const _FakePolicy(),
+      maximumToolCalls: 1,
+      maximumModelTurns: 2,
+    );
+
+    final result = await boundedCore.run(_requestFor('本月花了多少'));
+
+    expect(result.text, '本月支出 80 元。');
+    expect(result.executedCalls, hasLength(1));
+    expect(model.requests, hasLength(2));
+  });
+
+  test('returns completed batch data before asking for the final response',
+      () async {
+    final boundedCore = AgentCore(
+      model: model
+        ..turns = [
+          AgentTurn.toolCalls([
+            AgentToolCall(id: 'first', name: fakeTool.name),
+            AgentToolCall(id: 'second', name: fakeTool.name),
+          ]),
+          const AgentTurn.finalText('已完成可执行的项目。'),
+        ],
+      tools: {fakeTool.name: fakeTool},
+      policy: const _FakePolicy(),
+      maximumToolCalls: 1,
+      maximumModelTurns: 2,
+    );
+
+    final result = await boundedCore.run(_requestFor('执行两个操作'));
+
+    expect(result.text, '已完成可执行的项目。');
+    expect(result.executedCalls, hasLength(1));
+    expect(model.requests, hasLength(2));
+    expect(model.requests[1].toolData, [
+      {'id': 'first', 'name': fakeTool.name, 'data': {'recorded': true}},
+    ]);
+  });
+
+  test('cancels a pending model turn without waiting for its response',
+      () async {
+    final pendingTurn = Completer<AgentTurn>();
+    final pendingModel = _PendingCoreModel(pendingTurn);
+    final cancellation = AgentCancellationToken();
+    final cancellableCore = AgentCore(
+      model: pendingModel,
+      tools: {fakeTool.name: fakeTool},
+      policy: const _FakePolicy(),
+      cancellationToken: cancellation,
+    );
+
+    final result = cancellableCore.run(_requestFor('本月花了多少'));
+    await pendingModel.started.future;
+    cancellation.cancel();
+
+    expect((await result).wasCancelled, isTrue);
+    expect(fakeTool.calls, isEmpty);
+    pendingTurn.complete(const AgentTurn.finalText('迟到的回复'));
+  });
+
   test('does not execute a denied tool call', () async {
     model.turns = [
       AgentTurn.toolCalls([
@@ -273,4 +344,17 @@ final class _DelayedPolicy implements AgentPolicy {
     AgentToolCall call,
   ) =>
       decision;
+}
+
+final class _PendingCoreModel implements AgentModel {
+  _PendingCoreModel(this.pendingTurn);
+
+  final Completer<AgentTurn> pendingTurn;
+  final started = Completer<void>();
+
+  @override
+  Future<AgentTurn> nextTurn(AgentRequest request) {
+    started.complete();
+    return pendingTurn.future;
+  }
 }

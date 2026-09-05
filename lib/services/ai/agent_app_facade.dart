@@ -38,6 +38,7 @@ import '../../agent/memory/agent_memory_repository.dart';
 import '../../agent/model/native_tool_agent_model.dart';
 import '../../agent/permission/agent_authorization_gate.dart';
 import '../../agent/permission/agent_tool_permission.dart';
+import '../../agent/runtime/agent_execution_settings.dart';
 import '../../agent/policy/p0_agent_policy.dart';
 import '../../agent/tools/local_agent_tools.dart';
 import '../../ai/core/bill_info.dart';
@@ -56,6 +57,7 @@ final class AgentAppFacade {
     required AgentMemoryRepository memoryRepository,
     required LocalAgentToolGateway toolGateway,
     required AgentToolPermissionStore permissionStore,
+    AgentExecutionSettingsStore? executionSettingsStore,
     this.conversationHistoryLoader,
     AgentModel? model,
     AgentPolicy policy = const P0AgentPolicy(),
@@ -63,6 +65,8 @@ final class AgentAppFacade {
   })  : _memoryRepository = memoryRepository,
         _toolGateway = toolGateway,
         _permissionStore = permissionStore,
+        _executionSettingsStore =
+            executionSettingsStore ?? _DefaultAgentExecutionSettingsStore(),
         _model = model ??
             NativeToolAgentModel(
               transport: OpenAiCompatibleNativeToolTransport(),
@@ -73,12 +77,14 @@ final class AgentAppFacade {
   final AgentMemoryRepository _memoryRepository;
   final LocalAgentToolGateway _toolGateway;
   final AgentToolPermissionStore _permissionStore;
+  final AgentExecutionSettingsStore _executionSettingsStore;
   final AgentConversationHistoryLoader? conversationHistoryLoader;
   final AgentModel _model;
   final AgentPolicy _policy;
   final String Function() _runIdFactory;
   final Map<String, AgentToolAuthorizationBroker> _pendingAuthorizations = {};
   final Set<_RunAuthorization> _activeAuthorizations = {};
+  final Set<AgentCancellationToken> _activeCancellations = {};
 
   bool resolveToolAuthorization(
     String authorizationId,
@@ -95,6 +101,18 @@ final class AgentAppFacade {
       authorization.denyPending();
     }
     _pendingAuthorizations.clear();
+  }
+
+  /// Stops foreground runs that are waiting on a model response or consent.
+  ///
+  /// A local mutation already being executed is deliberately not force-killed;
+  /// AgentCore observes this token before every next action so transactions
+  /// remain consistent while blocked model requests end immediately.
+  void cancelActiveRuns() {
+    for (final cancellation in _activeCancellations.toList()) {
+      cancellation.cancel();
+    }
+    cancelPendingToolAuthorizations();
   }
 
   Future<AgentChatResponse> processMessage({
@@ -126,6 +144,7 @@ final class AgentAppFacade {
     AppLocalizations? l10n,
   }) {
     var canceled = false;
+    final cancellation = AgentCancellationToken();
     late final StreamController<AgentRunEvent> controller;
     void emit(AgentRunEvent event) {
       if (!canceled && !controller.isClosed) controller.add(event);
@@ -135,6 +154,7 @@ final class AgentAppFacade {
     controller = StreamController<AgentRunEvent>(
       onListen: () async {
         _activeAuthorizations.add(authorization);
+        _activeCancellations.add(cancellation);
         try {
           final response = await _processMessage(
             message: message,
@@ -145,6 +165,7 @@ final class AgentAppFacade {
             conversationId: conversationId,
             authorization: authorization,
             emit: emit,
+            cancellationToken: cancellation,
           );
           emit(AgentRunCompletedEvent(response));
         } catch (error, stackTrace) {
@@ -152,11 +173,13 @@ final class AgentAppFacade {
         } finally {
           authorization.denyPending();
           _activeAuthorizations.remove(authorization);
+          _activeCancellations.remove(cancellation);
           unawaited(controller.close());
         }
       },
       onCancel: () {
         canceled = true;
+        cancellation.cancel();
         // StreamController also invokes onCancel after normal completion.
         if (!controller.isClosed) cancelPendingToolAuthorizations();
       },
@@ -194,6 +217,7 @@ final class AgentAppFacade {
     required int? conversationId,
     required _RunAuthorization authorization,
     void Function(AgentRunEvent event)? emit,
+    AgentCancellationToken? cancellationToken,
   }) async {
     final runId = _runIdFactory();
     logger.info('AgentCore', '运行开始', {
@@ -249,6 +273,7 @@ final class AgentAppFacade {
     );
     if (emit != null) {
       request = request.withStreamingTextDeltas((event) {
+        if ((cancellationToken?.isCancelled) ?? false) return;
         if (event case AgentNativeTextDelta(:final text)) {
           emit(AgentTextDeltaEvent(text));
         }
@@ -256,14 +281,37 @@ final class AgentAppFacade {
     }
 
     try {
+      final executionSettings = await _executionSettingsStore.read();
+      logger.debug('AgentCore', '本地执行深度已加载', {
+        'runId': runId,
+        'maximumModelTurns': executionSettings.maximumModelTurns,
+        'maximumToolCalls': executionSettings.maximumToolCalls,
+      });
       final result = await AgentCore(
         model: _model,
         tools: _observedTools(localTools.build(), emit, runId),
         policy: authorization,
+        maximumModelTurns: executionSettings.maximumModelTurns,
+        maximumToolCalls: executionSettings.maximumToolCalls,
         singleUseToolNames: const {'record_transaction_from_text'},
         singleUseToolDenialReason: (_) => '同一条消息只能记账一次。',
+        cancellationToken: cancellationToken,
       ).run(request);
       await _recordAudit(runId, result);
+      if (result.wasCancelled) {
+        logger.info('AgentCore', '运行已由用户停止', {
+          'runId': runId,
+          'executedToolCalls': result.executedCalls.length,
+          'deniedToolCalls': result.deniedCalls.length,
+        });
+        await _memoryRepository.finishRun(runId: runId, status: 'cancelled');
+        return AgentChatResponse(
+          runId: runId,
+          response: AIResponse.text(
+            l10n?.agentRunCancelled ?? '本次操作已停止。',
+          ),
+        );
+      }
       logger.info('AgentCore', '运行结束', {
         'runId': runId,
         'executedToolCalls': result.executedCalls.length,
@@ -495,6 +543,15 @@ final class AgentAppFacade {
           : result.text,
     );
   }
+}
+
+final class _DefaultAgentExecutionSettingsStore
+    implements AgentExecutionSettingsStore {
+  @override
+  Future<AgentExecutionSettings> read() async => AgentExecutionSettings();
+
+  @override
+  Future<void> setMaximumModelTurns(int value) async {}
 }
 
 sealed class AgentRunEvent {

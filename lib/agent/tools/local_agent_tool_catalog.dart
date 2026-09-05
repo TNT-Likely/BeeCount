@@ -46,16 +46,6 @@ final class LocalAgentToolCatalog {
       parameters: _emptyParameters,
     ),
     core.AgentNativeToolDefinition(
-      name: 'get_income_expense_summary',
-      description: '汇总当前账本在指定时间范围内的收入、支出和结余，只读，不会修改数据。',
-      parameters: _rangeParameters,
-    ),
-    core.AgentNativeToolDefinition(
-      name: 'get_category_spending',
-      description: '列出当前账本在指定时间范围内支出最多的分类，只读，不会修改数据。',
-      parameters: _rangeParameters,
-    ),
-    core.AgentNativeToolDefinition(
       name: 'get_recurring_transactions',
       description: '读取当前账本启用中的周期记账，只读，不会修改数据。',
       parameters: _emptyParameters,

@@ -76,6 +76,39 @@ final class LocalAgentMemoryRepository implements AgentMemoryRepository {
   }
 
   @override
+  Future<void> clearForLedger(int ledgerId) async {
+    final rows = await (_db.select(_db.agentMemories)
+          ..where((memory) => memory.ledgerId.equals(ledgerId)))
+        .get();
+    final ids = rows.map((memory) => memory.id).toList();
+    await (_db.delete(_db.agentMemories)
+          ..where((memory) => memory.ledgerId.equals(ledgerId)))
+        .go();
+    for (final id in ids) {
+      await _tryFtsStatement(
+        'DELETE FROM agent_memory_fts WHERE memory_id = ?',
+        [id],
+      );
+    }
+  }
+
+  @override
+  Future<List<AgentMemoryRecord>> listActive({required int ledgerId}) async {
+    final now = DateTime.now();
+    final rows = await (_db.select(_db.agentMemories)
+          ..where(
+            (memory) =>
+                memory.status.equals('active') &
+                memory.ledgerId.equals(ledgerId) &
+                (memory.expiresAt.isNull() |
+                    memory.expiresAt.isBiggerThanValue(now)),
+          )
+          ..orderBy([(memory) => d.OrderingTerm.desc(memory.updatedAt)]))
+        .get();
+    return rows.map(_toRecord).toList();
+  }
+
+  @override
   Future<void> saveSummary({
     required int? ledgerId,
     required int? conversationId,
@@ -146,6 +179,48 @@ final class LocalAgentMemoryRepository implements AgentMemoryRepository {
           ..where(_db.agentToolCalls.runId.equals(runId)))
         .getSingle();
     return row.read(count) ?? 0;
+  }
+
+  @override
+  Future<List<AgentRunRecord>> listRecentRuns({required int ledgerId}) async {
+    final rows = await (_db.select(_db.agentRuns)
+          ..where((run) => run.ledgerId.equals(ledgerId))
+          ..orderBy([(run) => d.OrderingTerm.desc(run.startedAt)])
+          ..limit(30))
+        .get();
+    return rows
+        .map(
+          (run) => AgentRunRecord(
+            runId: run.runId,
+            ledgerId: run.ledgerId,
+            status: run.status,
+            userMessage: run.userMessage,
+            errorMessage: run.errorMessage,
+            startedAt: run.startedAt,
+            finishedAt: run.finishedAt,
+          ),
+        )
+        .toList();
+  }
+
+  @override
+  Future<List<AgentToolCallRecord>> listToolCalls(String runId) async {
+    final rows = await (_db.select(_db.agentToolCalls)
+          ..where((call) => call.runId.equals(runId))
+          ..orderBy([(call) => d.OrderingTerm.asc(call.createdAt)]))
+        .get();
+    return rows
+        .map(
+          (call) => AgentToolCallRecord(
+            runId: call.runId,
+            callId: call.callId,
+            toolName: call.toolName,
+            status: call.status,
+            detail: call.detail,
+            createdAt: call.createdAt,
+          ),
+        )
+        .toList();
   }
 
   Future<List<int>> _searchFtsIds(String query) async {

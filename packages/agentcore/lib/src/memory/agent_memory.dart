@@ -56,6 +56,46 @@ final class AgentToolCallAudit {
   final String? detail;
 }
 
+/// A locally persisted Agent run, suitable for a host UI's activity history.
+final class AgentRunRecord {
+  const AgentRunRecord({
+    required this.runId,
+    required this.ledgerId,
+    required this.status,
+    required this.userMessage,
+    required this.errorMessage,
+    required this.startedAt,
+    required this.finishedAt,
+  });
+
+  final String runId;
+  final int? ledgerId;
+  final String status;
+  final String? userMessage;
+  final String? errorMessage;
+  final DateTime startedAt;
+  final DateTime? finishedAt;
+}
+
+/// A locally persisted tool event belonging to an [AgentRunRecord].
+final class AgentToolCallRecord {
+  const AgentToolCallRecord({
+    required this.runId,
+    required this.callId,
+    required this.toolName,
+    required this.status,
+    required this.detail,
+    required this.createdAt,
+  });
+
+  final String runId;
+  final String callId;
+  final String toolName;
+  final String status;
+  final String? detail;
+  final DateTime createdAt;
+}
+
 abstract interface class AgentMemoryRepository {
   Future<AgentMemoryRecord> saveExplicit(AgentMemoryDraft draft);
 
@@ -66,6 +106,9 @@ abstract interface class AgentMemoryRepository {
 
   Future<void> forget(int memoryId);
   Future<void> clearAll();
+  Future<void> clearForLedger(int ledgerId);
+
+  Future<List<AgentMemoryRecord>> listActive({required int ledgerId});
 
   Future<void> saveSummary({
     required int? ledgerId,
@@ -87,4 +130,6 @@ abstract interface class AgentMemoryRepository {
 
   Future<void> recordToolCall(AgentToolCallAudit call);
   Future<int> toolCallCount(String runId);
+  Future<List<AgentRunRecord>> listRecentRuns({required int ledgerId});
+  Future<List<AgentToolCallRecord>> listToolCalls(String runId);
 }

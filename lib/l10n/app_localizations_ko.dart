@@ -5269,12 +5269,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get agentToolBudgetStatus => '예산 확인';
 
   @override
-  String get agentToolIncomeExpenseSummary => 'summarize cash flow';
-
-  @override
-  String get agentToolCategorySpending => 'view spending by category';
-
-  @override
   String get agentToolRecurringTransactions => 'view recurring transactions';
 
   @override
@@ -5347,12 +5341,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get agentToolBudgetStatusDescription => 'View the budget status for the current ledger.';
-
-  @override
-  String get agentToolIncomeExpenseSummaryDescription => 'Summarize income, spending, and net cash flow for a selected time range.';
-
-  @override
-  String get agentToolCategorySpendingDescription => 'View the highest-spending categories for a selected time range.';
 
   @override
   String get agentToolRecurringTransactionsDescription => 'View enabled recurring transactions in the current ledger.';
@@ -7704,4 +7692,117 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get currencyMRU => 'Mauritanian Ouguiya';
+
+  @override
+  String get agentAssistantSettingsTitle => 'AI Assistant';
+
+  @override
+  String get agentAssistantSettingsSubtitle => 'Manage how the assistant uses local data and tools.';
+
+  @override
+  String get agentAssistantPermissionsEntry => 'Permissions';
+
+  @override
+  String get agentAssistantPermissionsEntryDescription => 'Choose when data-changing tools need your approval.';
+
+  @override
+  String get agentAssistantMemoryEntry => 'Local memory';
+
+  @override
+  String get agentAssistantMemoryEntryDescription => 'View and remove memories kept only on this device.';
+
+  @override
+  String get agentAssistantActivityEntry => 'Recent activity';
+
+  @override
+  String get agentAssistantActivityEntryDescription => 'Review local tool calls and their outcomes.';
+
+  @override
+  String get agentExecutionDepthEntry => 'Execution depth';
+
+  @override
+  String get agentExecutionDepthEntryDescription => 'Higher limits can handle more steps but may take longer.';
+
+  @override
+  String agentExecutionDepthSelected(int turns) {
+    return 'Up to $turns model turns';
+  }
+
+  @override
+  String get agentExecutionDepthChooseTitle => 'Execution depth';
+
+  @override
+  String get agentExecutionDepthQuick => 'Quick';
+
+  @override
+  String get agentExecutionDepthStandard => 'Standard';
+
+  @override
+  String get agentExecutionDepthDeep => 'Deep';
+
+  @override
+  String get agentExecutionDepthCustom => 'Custom';
+
+  @override
+  String get agentMemoryTitle => 'Local memory';
+
+  @override
+  String get agentMemoryIntro => 'These memories stay on this device and apply only to the current ledger.';
+
+  @override
+  String get agentMemoryEmpty => 'No local memories yet.';
+
+  @override
+  String get agentMemoryDeleteTitle => 'Delete this memory?';
+
+  @override
+  String get agentMemoryDeleteDescription => 'The assistant will no longer use this memory.';
+
+  @override
+  String get agentMemoryClear => 'Clear current ledger memories';
+
+  @override
+  String get agentMemoryClearTitle => 'Clear all current ledger memories?';
+
+  @override
+  String get agentMemoryClearDescription => 'This removes every local memory for this ledger and cannot be undone.';
+
+  @override
+  String get agentActivityTitle => 'Recent activity';
+
+  @override
+  String get agentActivityIntro => 'This activity history is stored locally and is never synced.';
+
+  @override
+  String get agentActivityEmpty => 'No assistant activity yet.';
+
+  @override
+  String get agentActivityCompleted => 'Completed';
+
+  @override
+  String get agentActivityFailed => 'Failed';
+
+  @override
+  String get agentActivityRunning => 'Running';
+
+  @override
+  String get agentActivityCancelled => 'Cancelled';
+
+  @override
+  String get agentActivityTools => 'Tools';
+
+  @override
+  String get agentActivityToolCompleted => 'Completed';
+
+  @override
+  String get agentActivityToolDenied => 'Denied';
+
+  @override
+  String get agentActivityToolFailed => 'Failed';
+
+  @override
+  String get agentRunCancelled => 'This run was stopped.';
+
+  @override
+  String get agentRunStop => 'Stop';
 }

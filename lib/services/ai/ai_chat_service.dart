@@ -41,6 +41,12 @@ class AIChatService {
     _agentFacade?.cancelPendingToolAuthorizations();
   }
 
+  /// Stops the foreground Agent run, including a model turn that is still
+  /// waiting for network data. Legacy non-Agent chat has nothing to cancel.
+  void cancelActiveAgentRuns() {
+    _agentFacade?.cancelActiveRuns();
+  }
+
   /// 验证 AI 配置是否存在(仅本地配置,不发网络请求)
   static Future<AIConfigValidationResult> validateApiKey() async {
     final config = await AIProviderManager.getProviderForCapability(

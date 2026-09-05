@@ -68,34 +68,14 @@ void main() {
     expect(result['periodEnd'], '2026-08-31T23:59:59.999');
   });
 
-  test('read-only financial tools expose scoped summaries to the model',
-      () async {
-    final cashFlow = await tools['get_income_expense_summary']!.execute(
-      AgentToolCall(
-        name: 'get_income_expense_summary',
-        arguments: const {
-          'start': '2026-08-01T00:00:00.000',
-          'end': '2026-08-31T23:59:59.999',
-        },
-      ),
-    );
-    final categories = await tools['get_category_spending']!.execute(
-      AgentToolCall(
-        name: 'get_category_spending',
-        arguments: const {
-          'start': '2026-08-01T00:00:00.000',
-          'end': '2026-08-31T23:59:59.999',
-        },
-      ),
-    );
+  test('P0 query tools exclude overlapping report summaries', () async {
+    expect(tools, isNot(contains('get_income_expense_summary')));
+    expect(tools, isNot(contains('get_category_spending')));
+
     final recurring = await tools['get_recurring_transactions']!.execute(
       AgentToolCall(name: 'get_recurring_transactions'),
     );
 
-    expect(cashFlow['net'], 60.0);
-    expect(categories['items'], [
-      {'name': '餐饮', 'total': 80.0},
-    ]);
     expect(recurring['items'], [
       {
         'type': 'expense',
@@ -105,7 +85,7 @@ void main() {
         'note': '视频会员',
       },
     ]);
-    expect(gateway.requestedLedgerIds, everyElement(1));
+    expect(gateway.requestedLedgerIds, [1]);
   });
 }
 
@@ -113,11 +93,6 @@ final class _FakeGateway implements LocalAgentToolGateway {
   final List<String> recordedTexts = [];
   final List<int> requestedLedgerIds = [];
   List<AgentTransactionSummary> transactions = [];
-  final AgentIncomeExpenseSummary incomeExpense =
-      const AgentIncomeExpenseSummary(income: 160, expense: 100);
-  final List<AgentCategorySpending> categorySpending = const [
-    AgentCategorySpending(name: '餐饮', total: 80),
-  ];
   final List<AgentRecurringTransactionSummary> recurringTransactions = const [
     AgentRecurringTransactionSummary(
       type: 'expense',
@@ -136,25 +111,6 @@ final class _FakeGateway implements LocalAgentToolGateway {
       const AgentBudgetSummary(daysRemaining: 10, dailyAvailable: 20);
 
   @override
-  Future<AgentIncomeExpenseSummary> getIncomeExpenseSummary({
-    required int ledgerId,
-    required DateTime start,
-    required DateTime end,
-  }) async {
-    requestedLedgerIds.add(ledgerId);
-    return incomeExpense;
-  }
-
-  @override
-  Future<List<AgentCategorySpending>> getCategorySpending({
-    required int ledgerId,
-    required DateTime start,
-    required DateTime end,
-  }) async {
-    requestedLedgerIds.add(ledgerId);
-    return categorySpending;
-  }
-
   @override
   Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
     int ledgerId,

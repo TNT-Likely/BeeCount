@@ -111,4 +111,29 @@ void main() {
 
     expect(controller.offset, controller.position.maxScrollExtent);
   });
+
+  testWidgets('定位请求早于列表挂载时也会在后续帧定位到底部', (tester) async {
+    final controller = ScrollController();
+    final coordinator = AgentChatScrollCoordinator(controller);
+
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    coordinator.requestInitialPositioning();
+    await tester.pump();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ListView.builder(
+          controller: controller,
+          itemCount: 40,
+          itemBuilder: (_, index) => SizedBox(
+            height: 60,
+            child: Text('late history $index'),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(controller.offset, controller.position.maxScrollExtent);
+  });
 }

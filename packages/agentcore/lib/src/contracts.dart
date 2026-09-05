@@ -105,15 +105,33 @@ final class AgentDeniedCall {
   final String reason;
 }
 
+/// Cooperatively cancels an in-flight foreground Agent run.
+///
+/// It deliberately does not try to interrupt a tool midway through a local
+/// mutation. Instead, AgentCore observes it before every next action and races
+/// it against a waiting model or policy decision, where cancellation is safe.
+final class AgentCancellationToken {
+  final Completer<void> _cancelled = Completer<void>();
+
+  bool get isCancelled => _cancelled.isCompleted;
+  Future<void> get whenCancelled => _cancelled.future;
+
+  void cancel() {
+    if (!_cancelled.isCompleted) _cancelled.complete();
+  }
+}
+
 final class AgentRunResult {
   AgentRunResult({
     required this.text,
     List<AgentToolCall> executedCalls = const [],
     List<AgentDeniedCall> deniedCalls = const [],
+    this.wasCancelled = false,
   })  : executedCalls = UnmodifiableListView(List.of(executedCalls)),
         deniedCalls = UnmodifiableListView(List.of(deniedCalls));
 
   final String text;
   final List<AgentToolCall> executedCalls;
   final List<AgentDeniedCall> deniedCalls;
+  final bool wasCancelled;
 }

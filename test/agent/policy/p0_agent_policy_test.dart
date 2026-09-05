@@ -61,10 +61,8 @@ void main() {
     expect(crossLedgerRead.isAllowed, isFalse);
   });
 
-  test('P0 policy permits the additional scoped read tools', () async {
+  test('P0 policy only permits the P0 scoped read tools', () async {
     for (final toolName in <String>[
-      'get_income_expense_summary',
-      'get_category_spending',
       'get_recurring_transactions',
     ]) {
       final decision = policy.decide(
@@ -72,6 +70,16 @@ void main() {
         AgentToolCall(name: toolName),
       );
       expect(decision.isAllowed, isTrue, reason: toolName);
+    }
+    for (final toolName in <String>[
+      'get_income_expense_summary',
+      'get_category_spending',
+    ]) {
+      final decision = policy.decide(
+        request(),
+        AgentToolCall(name: toolName),
+      );
+      expect(decision.isAllowed, isFalse, reason: toolName);
     }
   });
 
