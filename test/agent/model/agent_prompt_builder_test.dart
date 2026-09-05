@@ -1,6 +1,25 @@
 import 'dart:async';
 
-import 'package:agentcore/agentcore.dart';
+import 'package:agentcore/agentcore.dart'
+    hide
+        AgentNativeEventSink,
+        AgentNativeFinalTextResponse,
+        AgentNativeModelResponse,
+        AgentNativeProtocolException,
+        AgentNativeStreamEvent,
+        AgentNativeTextDelta,
+        AgentNativeToolCall,
+        AgentNativeToolCallsResponse,
+        AgentNativeToolDefinition,
+        AgentNativeToolRequest,
+        AgentNativeToolResult,
+        AgentNativeToolStream,
+        AgentNativeToolTimeoutException,
+        AgentNativeToolTransport,
+        AgentNativeToolUnsupportedException,
+        AgentRequestNativeStreaming,
+        NativeToolAgentModel,
+        OpenAiCompatibleNativeToolTransport;
 import 'package:beecount/agent/model/agent_prompt_builder.dart';
 import 'package:beecount/agent/model/native_tool_agent_model.dart';
 import 'package:beecount/services/system/logger_service.dart';

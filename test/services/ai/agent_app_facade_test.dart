@@ -13,7 +13,26 @@ import 'package:agentcore/agentcore.dart'
         AgentToolCallAudit,
         AgentToolPermission,
         AgentToolPermissionDescriptor,
-        AgentToolPermissionStore;
+        AgentToolPermissionStore,
+        AgentToolPermissionCatalog,
+        AgentNativeEventSink,
+        AgentNativeFinalTextResponse,
+        AgentNativeModelResponse,
+        AgentNativeProtocolException,
+        AgentNativeStreamEvent,
+        AgentNativeTextDelta,
+        AgentNativeToolCall,
+        AgentNativeToolCallsResponse,
+        AgentNativeToolDefinition,
+        AgentNativeToolRequest,
+        AgentNativeToolResult,
+        AgentNativeToolStream,
+        AgentNativeToolTimeoutException,
+        AgentNativeToolTransport,
+        AgentNativeToolUnsupportedException,
+        AgentRequestNativeStreaming,
+        NativeToolAgentModel,
+        OpenAiCompatibleNativeToolTransport;
 import 'package:beecount/agent/memory/local_agent_memory_repository.dart';
 import 'package:beecount/agent/memory/agent_memory_repository.dart';
 import 'package:beecount/agent/model/native_tool_agent_model.dart';
