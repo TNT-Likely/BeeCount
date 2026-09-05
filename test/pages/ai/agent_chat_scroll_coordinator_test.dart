@@ -71,4 +71,44 @@ void main() {
 
     expect(controller.offset, controller.position.maxScrollExtent);
   });
+
+  testWidgets('首帧内容尚未形成滚动范围时，后续布局变化仍定位到底部', (tester) async {
+    final controller = ScrollController();
+    final coordinator = AgentChatScrollCoordinator(controller);
+    var itemCount = 1;
+    var requested = false;
+    late StateSetter updateItems;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StatefulBuilder(
+          builder: (context, setState) {
+            updateItems = setState;
+            if (!requested) {
+              requested = true;
+              coordinator.requestInitialPositioning();
+            }
+            return ListView.builder(
+              controller: controller,
+              itemCount: itemCount,
+              itemBuilder: (_, index) => SizedBox(
+                height: 60,
+                child: Text('history $index'),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.pumpAndSettle();
+    expect(controller.position.maxScrollExtent, 0);
+
+    updateItems(() => itemCount = 40);
+    coordinator.onContentLaidOut(targetReady: true);
+    await tester.pump();
+
+    expect(controller.offset, controller.position.maxScrollExtent);
+  });
 }

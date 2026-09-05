@@ -30,6 +30,7 @@ void main() {
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
+    expect(find.text('AI助手权限'), findsOneWidget);
     expect(find.text('只读工具'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('数据修改工具'), 160);
     expect(find.text('数据修改工具'), findsOneWidget);

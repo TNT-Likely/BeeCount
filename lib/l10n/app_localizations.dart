@@ -10085,13 +10085,13 @@ abstract class AppLocalizations {
   /// No description provided for @agentPermissionsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Agent permissions'**
+  /// **'AI Assistant permissions'**
   String get agentPermissionsTitle;
 
   /// No description provided for @agentPermissionsIntro.
   ///
   /// In en, this message translates to:
-  /// **'Choose what the Agent can do here. Read-only tools only view data; tools that change data ask for authorization before running.'**
+  /// **'Choose what AI Assistant can do here. Read-only tools only view data; tools that change data ask for authorization before running.'**
   String get agentPermissionsIntro;
 
   /// No description provided for @agentPermissionsReadOnlySection.

@@ -84,7 +84,7 @@ void main() {
 
     final aiText = tester.widget<Text>(find.text('AI'));
     expect(aiText.style?.fontSize, 19.8);
-    expect(aiText.style?.fontWeight, FontWeight.w600);
+    expect(aiText.style?.fontWeight, FontWeight.w500);
   });
 
   testWidgets('首页入口图标继承页头颜色，避免与背景同色不可见', (tester) async {

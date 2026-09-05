@@ -5287,10 +5287,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentToolForgetMemory => 'forget memory';
 
   @override
-  String get agentPermissionsTitle => 'Agent permissions';
+  String get agentPermissionsTitle => 'AI Assistant permissions';
 
   @override
-  String get agentPermissionsIntro => 'Choose what the Agent can do here. Read-only tools only view data; tools that change data ask for authorization before running.';
+  String get agentPermissionsIntro => 'Choose what AI Assistant can do here. Read-only tools only view data; tools that change data ask for authorization before running.';
 
   @override
   String get agentPermissionsReadOnlySection => 'Read-only tools';

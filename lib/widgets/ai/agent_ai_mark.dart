@@ -36,7 +36,7 @@ final class AgentAiMark extends StatelessWidget {
                 // icon. Increase the glyph, not its tap target, so it aligns
                 // optically with the adjacent home header icons.
                 fontSize: size * 0.9,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
                 letterSpacing: -0.8,
                 height: 1,
               ),

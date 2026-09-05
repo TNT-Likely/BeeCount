@@ -49,6 +49,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     with WidgetsBindingObserver {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late final AIChatService _chatService;
   late final AgentChatScrollCoordinator _chatScrollCoordinator =
       AgentChatScrollCoordinator(_scrollController);
   int? _conversationId;
@@ -68,6 +69,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   @override
   void initState() {
     super.initState();
+    // Cache this while [ref] is valid. Calling ref.read during dispose is
+    // invalid because Riverpod may already have detached this element.
+    _chatService = ref.read(aiChatServiceProvider);
     WidgetsBinding.instance.addObserver(this);
     _initConversation();
     _loadUserAvatar();
@@ -287,20 +291,26 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                       );
                     }
 
-                    return ListView.builder(
-                      controller: _scrollController,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12.0.scaled(context, ref),
-                        vertical: 8.0.scaled(context, ref),
-                      ),
-                      itemCount: displayMessages.length +
-                          (_hasLiveAgentMessage ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index == displayMessages.length) {
-                          return _buildLiveAgentBubble();
-                        }
-                        return _buildMessageBubble(displayMessages[index]);
+                    return NotificationListener<ScrollMetricsNotification>(
+                      onNotification: (_) {
+                        _chatScrollCoordinator.onScrollMetricsChanged();
+                        return false;
                       },
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.0.scaled(context, ref),
+                          vertical: 8.0.scaled(context, ref),
+                        ),
+                        itemCount: displayMessages.length +
+                            (_hasLiveAgentMessage ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == displayMessages.length) {
+                            return _buildLiveAgentBubble();
+                          }
+                          return _buildMessageBubble(displayMessages[index]);
+                        },
+                      ),
                     );
                   },
                   loading: () =>
@@ -762,7 +772,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
       // chat_service 内部走 BillExtractionService.forLedger,会自动查
       // 当前账本可用分类 + 同币种账户,page 层不再预查。
-      final chatService = ref.read(aiChatServiceProvider);
+      final chatService = _chatService;
       final currentLocale = Localizations.localeOf(context);
       final ledgerId = ref.read(currentLedgerIdProvider);
       final l10n = AppLocalizations.of(context);
@@ -1458,7 +1468,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    ref.read(aiChatServiceProvider).cancelPendingToolAuthorizations();
+    _chatService.cancelPendingToolAuthorizations();
     _inputController.dispose();
     _scrollController.dispose();
     super.dispose();

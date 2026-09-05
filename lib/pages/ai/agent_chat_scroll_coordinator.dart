@@ -29,6 +29,16 @@ final class AgentChatScrollCoordinator {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollIfReady());
   }
 
+  /// Retries a pending request after the scrollable reports a new layout.
+  ///
+  /// A real device can attach a list before its message rows have produced a
+  /// scroll range. Keeping the request pending lets a later metrics update
+  /// position the same conversation once its content becomes scrollable.
+  void onScrollMetricsChanged() {
+    if (!_pending) return;
+    onContentLaidOut(targetReady: true);
+  }
+
   void onContentLaidOut({required bool targetReady}) {
     if (!_pending || !targetReady) return;
     // Message persistence is observed while the replacement ListView is
@@ -37,14 +47,52 @@ final class AgentChatScrollCoordinator {
   }
 
   void _scrollIfReady() {
-    if (!_pending ||
-        !controller.hasClients ||
-        !controller.position.hasContentDimensions) {
+    if (!_pending) return;
+    if (!controller.hasClients || !controller.position.hasContentDimensions) {
+      _debug(
+        '等待消息列表挂载或完成布局',
+        hasClients: controller.hasClients,
+        hasContentDimensions: controller.hasClients
+            ? controller.position.hasContentDimensions
+            : false,
+      );
       return;
     }
-    _pending = false;
+
     final target = controller.position.maxScrollExtent;
+    if (target <= 0) {
+      _debug(
+        '消息列表暂未形成滚动范围，保持待定位状态',
+        offset: controller.position.pixels,
+        maxScrollExtent: target,
+      );
+      return;
+    }
+
+    _pending = false;
     if ((controller.position.pixels - target).abs() < 0.5) return;
     controller.jumpTo(target);
+    _debug(
+      '已定位到消息列表底部',
+      offset: controller.position.pixels,
+      maxScrollExtent: target,
+    );
+  }
+
+  void _debug(
+    String message, {
+    bool? hasClients,
+    bool? hasContentDimensions,
+    double? offset,
+    double? maxScrollExtent,
+  }) {
+    final data = <String, Object?>{
+      if (hasClients != null) 'hasClients': hasClients,
+      if (hasContentDimensions != null)
+        'hasContentDimensions': hasContentDimensions,
+      if (offset != null) 'offset': offset,
+      if (maxScrollExtent != null) 'maxScrollExtent': maxScrollExtent,
+    };
+    debugPrint('[AIChatScroll] $message | Data: $data');
   }
 }

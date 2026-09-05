@@ -4,9 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:beecount/widgets/ai/agent_chat_shell.dart';
 import 'package:beecount/widgets/ai/agent_brand_mark.dart';
+import 'package:beecount/widgets/ui/primary_header.dart';
 
 void main() {
-  testWidgets('沉浸式对话壳保留核心操作并扩展内容区', (tester) async {
+  testWidgets('对话壳使用紧凑主标题栏并保留核心操作', (tester) async {
     var backCount = 0;
     var permissionCount = 0;
     var clearCount = 0;
@@ -38,6 +39,7 @@ void main() {
     );
     expect(find.byKey(const ValueKey('agent-chat-clear')), findsOneWidget);
     expect(find.byType(AppBar), findsNothing);
+    expect(find.byType(PrimaryHeader), findsOneWidget);
     expect(find.byType(AgentBrandMark), findsNothing);
 
     await tester.tap(find.byKey(const ValueKey('agent-chat-back')));

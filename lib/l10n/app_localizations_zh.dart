@@ -5287,10 +5287,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentToolForgetMemory => '遗忘记忆';
 
   @override
-  String get agentPermissionsTitle => 'Agent 权限';
+  String get agentPermissionsTitle => 'AI助手权限';
 
   @override
-  String get agentPermissionsIntro => '在这里控制 Agent 可以执行的操作。查询类工具只读取数据，修改类工具会在执行前请求授权。';
+  String get agentPermissionsIntro => '在这里管理 AI助手可以执行的操作。查询类工具只读取数据，修改类工具会在执行前请求授权。';
 
   @override
   String get agentPermissionsReadOnlySection => '只读工具';
