@@ -1,4 +1,5 @@
 import '../../ai/core/bill_info.dart';
+import '../../agent/permission/agent_authorization_gate.dart';
 import '../../ai/providers/ai_provider_config.dart';
 import '../../ai/providers/ai_provider_factory.dart';
 import '../../ai/providers/ai_provider_manager.dart';
@@ -29,6 +30,16 @@ class AIChatService {
   })  : _repo = repo,
         _bookkeeper = bookkeeper,
         _agentFacade = agentFacade;
+
+  bool resolveToolAuthorization(
+    String authorizationId,
+    AgentToolAuthorizationChoice choice,
+  ) =>
+      _agentFacade?.resolveToolAuthorization(authorizationId, choice) ?? false;
+
+  void cancelPendingToolAuthorizations() {
+    _agentFacade?.cancelPendingToolAuthorizations();
+  }
 
   /// 验证 AI 配置是否存在(仅本地配置,不发网络请求)
   static Future<AIConfigValidationResult> validateApiKey() async {

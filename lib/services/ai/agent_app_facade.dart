@@ -5,6 +5,8 @@ import 'package:uuid/uuid.dart';
 
 import '../../agent/memory/agent_memory_repository.dart';
 import '../../agent/model/native_tool_agent_model.dart';
+import '../../agent/permission/agent_authorization_gate.dart';
+import '../../agent/permission/agent_tool_permission.dart';
 import '../../agent/policy/p0_agent_policy.dart';
 import '../../agent/tools/local_agent_tools.dart';
 import '../../ai/core/bill_info.dart';
@@ -19,11 +21,13 @@ final class AgentAppFacade {
   AgentAppFacade({
     required AgentMemoryRepository memoryRepository,
     required LocalAgentToolGateway toolGateway,
+    required AgentToolPermissionStore permissionStore,
     AgentModel? model,
     AgentPolicy policy = const P0AgentPolicy(),
     String Function()? runIdFactory,
   })  : _memoryRepository = memoryRepository,
         _toolGateway = toolGateway,
+        _permissionStore = permissionStore,
         _model = model ??
             NativeToolAgentModel(
               transport: OpenAiCompatibleNativeToolTransport(),
@@ -33,9 +37,29 @@ final class AgentAppFacade {
 
   final AgentMemoryRepository _memoryRepository;
   final LocalAgentToolGateway _toolGateway;
+  final AgentToolPermissionStore _permissionStore;
   final AgentModel _model;
   final AgentPolicy _policy;
   final String Function() _runIdFactory;
+  final Map<String, AgentToolAuthorizationBroker> _pendingAuthorizations = {};
+  final Set<_RunAuthorization> _activeAuthorizations = {};
+
+  bool resolveToolAuthorization(
+    String authorizationId,
+    AgentToolAuthorizationChoice choice,
+  ) =>
+      _pendingAuthorizations.remove(authorizationId)?.resolve(
+            authorizationId,
+            choice,
+          ) ??
+      false;
+
+  void cancelPendingToolAuthorizations() {
+    for (final authorization in _activeAuthorizations) {
+      authorization.denyPending();
+    }
+    _pendingAuthorizations.clear();
+  }
 
   Future<AgentChatResponse> processMessage({
     required String message,
@@ -50,6 +74,7 @@ final class AgentAppFacade {
         allowsExplicitMemory: allowsExplicitMemory,
         context: context,
         l10n: l10n,
+        authorization: _createAuthorization(),
       );
 
   /// Emits live model text and the lifecycle of each locally executed tool.
@@ -61,20 +86,63 @@ final class AgentAppFacade {
     Map<String, Object?> context = const {},
     AppLocalizations? l10n,
   }) {
-    final controller = StreamController<AgentRunEvent>();
-    () async {
-      final response = await _processMessage(
-        message: message,
-        ledgerId: ledgerId,
-        allowsExplicitMemory: allowsExplicitMemory,
-        context: context,
-        l10n: l10n,
-        emit: controller.add,
-      );
-      controller.add(AgentRunCompletedEvent(response));
-      await controller.close();
-    }();
+    var canceled = false;
+    late final StreamController<AgentRunEvent> controller;
+    void emit(AgentRunEvent event) {
+      if (!canceled && !controller.isClosed) controller.add(event);
+    }
+
+    final authorization = _createAuthorization(emit: emit);
+    controller = StreamController<AgentRunEvent>(
+      onListen: () async {
+        _activeAuthorizations.add(authorization);
+        try {
+          final response = await _processMessage(
+            message: message,
+            ledgerId: ledgerId,
+            allowsExplicitMemory: allowsExplicitMemory,
+            context: context,
+            l10n: l10n,
+            authorization: authorization,
+            emit: emit,
+          );
+          emit(AgentRunCompletedEvent(response));
+        } catch (error, stackTrace) {
+          if (!canceled) controller.addError(error, stackTrace);
+        } finally {
+          authorization.denyPending();
+          _activeAuthorizations.remove(authorization);
+          unawaited(controller.close());
+        }
+      },
+      onCancel: () {
+        canceled = true;
+        // StreamController also invokes onCancel after normal completion.
+        if (!controller.isClosed) cancelPendingToolAuthorizations();
+      },
+    );
     return controller.stream;
+  }
+
+  _RunAuthorization _createAuthorization({
+    void Function(AgentRunEvent event)? emit,
+  }) {
+    late final _RunAuthorization authorization;
+    authorization = _RunAuthorization(
+      hardPolicy: _policy,
+      permissions: _permissionStore,
+      onRequest: emit == null
+          ? null
+          : (request) {
+              _pendingAuthorizations[request.authorizationId] =
+                  authorization.broker;
+              logger.info(
+                  'AgentCore', '工具等待用户授权', authorization._requestLogData);
+              emit(AgentToolAuthorizationRequestedEvent(request));
+            },
+      onSettled: _pendingAuthorizations.remove,
+    );
+    return authorization;
   }
 
   Future<AgentChatResponse> _processMessage({
@@ -83,6 +151,7 @@ final class AgentAppFacade {
     required bool allowsExplicitMemory,
     required Map<String, Object?> context,
     required AppLocalizations? l10n,
+    required _RunAuthorization authorization,
     void Function(AgentRunEvent event)? emit,
   }) async {
     final runId = _runIdFactory();
@@ -139,7 +208,7 @@ final class AgentAppFacade {
       final result = await AgentCore(
         model: _model,
         tools: _observedTools(localTools.build(), emit, runId),
-        policy: _policy,
+        policy: authorization,
       ).run(request);
       await _recordAudit(runId, result);
       logger.info('AgentCore', '运行结束', {
@@ -305,6 +374,12 @@ sealed class AgentRunEvent {
   const AgentRunEvent();
 }
 
+final class AgentToolAuthorizationRequestedEvent extends AgentRunEvent {
+  const AgentToolAuthorizationRequestedEvent(this.request);
+
+  final AgentToolAuthorizationRequest request;
+}
+
 final class AgentTextDeltaEvent extends AgentRunEvent {
   const AgentTextDeltaEvent(this.text);
 
@@ -328,6 +403,105 @@ final class AgentRunCompletedEvent extends AgentRunEvent {
   const AgentRunCompletedEvent(this.result);
 
   final AgentChatResponse result;
+}
+
+/// Observes the shared authorization policy without duplicating its hard rules.
+/// One instance belongs to one sequential AgentCore run.
+final class _RunAuthorization
+    implements AgentPolicy, AgentToolAuthorizationRequester {
+  _RunAuthorization({
+    required AgentPolicy hardPolicy,
+    required AgentToolPermissionStore permissions,
+    required void Function(AgentToolAuthorizationRequest)? onRequest,
+    required this.onSettled,
+  }) {
+    broker = AgentToolAuthorizationBroker(onRequest: (request) {
+      _currentRequest = request;
+      if (_canceled || onRequest == null) {
+        logger.info('AgentCore', '工具等待用户授权', _requestLogData);
+        broker.resolve(
+            request.authorizationId, AgentToolAuthorizationChoice.deny);
+      } else {
+        onRequest(request);
+      }
+    });
+    _policy = AgentAuthorizationPolicy(
+      hardPolicy: hardPolicy,
+      permissions: permissions,
+      requester: this,
+      onPersistenceError: (error, stackTrace) {
+        _persistenceFailed = true;
+        logger.warning('AgentCore', '工具授权偏好保存失败', {
+          ..._requestLogData,
+          'choice': _choice?.name,
+          'persisted': false,
+          'error': error.toString(),
+        });
+      },
+    );
+  }
+
+  late final AgentToolAuthorizationBroker broker;
+  late final AgentAuthorizationPolicy _policy;
+  final void Function(String authorizationId) onSettled;
+  AgentToolAuthorizationRequest? _currentRequest;
+  AgentToolAuthorizationChoice? _choice;
+  bool _persistenceFailed = false;
+  bool _canceled = false;
+
+  Map<String, Object?> get _requestLogData => {
+        'runId': _currentRequest?.runId,
+        'authorizationId': _currentRequest?.authorizationId,
+        'tool': _currentRequest?.toolName,
+        'arguments': _currentRequest?.arguments,
+        'ledgerId': _currentRequest?.ledgerId,
+      };
+
+  @override
+  Future<AgentPolicyDecision> decide(
+    AgentRequest request,
+    AgentToolCall call,
+  ) async {
+    _currentRequest = null;
+    _choice = null;
+    _persistenceFailed = false;
+    final decision = await _policy.decide(request, call);
+    if (_currentRequest != null) {
+      logger.info('AgentCore', '工具授权决定已完成', {
+        ..._requestLogData,
+        'choice': _choice?.name,
+        'persisted': _choice == AgentToolAuthorizationChoice.alwaysAllow &&
+            !_persistenceFailed,
+      });
+    }
+    return decision;
+  }
+
+  @override
+  Future<AgentToolAuthorizationChoice> request({
+    required String runId,
+    required int? ledgerId,
+    required String toolName,
+    required Map<String, Object?> arguments,
+  }) async {
+    try {
+      return _choice = await broker.request(
+        runId: runId,
+        ledgerId: ledgerId,
+        toolName: toolName,
+        arguments: arguments,
+      );
+    } finally {
+      final request = _currentRequest;
+      if (request != null) onSettled(request.authorizationId);
+    }
+  }
+
+  @override
+  void denyPending() {
+    _canceled = true;
+    broker.denyPending();
+  }
 }
 
 final class _ObservedAgentTool implements AgentTool {

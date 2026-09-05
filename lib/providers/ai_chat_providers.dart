@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ai/core/ai_extraction_engine.dart';
 import '../services/ai/ai_bookkeeper.dart';
@@ -11,6 +11,8 @@ import '../data/db.dart';
 import '../agent/memory/agent_memory_repository.dart';
 import '../agent/memory/local_agent_memory_repository.dart';
 import '../agent/tools/local_agent_tools.dart';
+import '../agent/permission/agent_tool_permission.dart';
+import '../agent/permission/shared_preferences_agent_tool_permission_store.dart';
 
 /// AI 多模态记账底座 (Layer 1)。无状态,可全局复用。
 final aiExtractionEngineProvider = Provider<AiExtractionEngine>(
@@ -48,10 +50,17 @@ final localAgentToolGatewayProvider = Provider<LocalAgentToolGateway>((ref) {
   );
 });
 
+final agentToolPermissionStoreProvider = Provider<AgentToolPermissionStore>(
+  (_) => SharedPreferencesAgentToolPermissionStore(
+    getPreferences: SharedPreferences.getInstance,
+  ),
+);
+
 final agentAppFacadeProvider = Provider<AgentAppFacade>((ref) {
   return AgentAppFacade(
     memoryRepository: ref.watch(agentMemoryRepositoryProvider),
     toolGateway: ref.watch(localAgentToolGatewayProvider),
+    permissionStore: ref.watch(agentToolPermissionStoreProvider),
   );
 });
 

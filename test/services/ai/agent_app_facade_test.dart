@@ -1,12 +1,15 @@
+import 'dart:async';
+
 import 'package:agentcore/agentcore.dart';
 import 'package:beecount/agent/memory/local_agent_memory_repository.dart';
 import 'package:beecount/agent/memory/agent_memory_repository.dart';
 import 'package:beecount/agent/model/native_tool_agent_model.dart';
+import 'package:beecount/agent/permission/agent_authorization_gate.dart';
+import 'package:beecount/agent/permission/agent_tool_permission.dart';
 import 'package:beecount/agent/tools/local_agent_tools.dart';
 import 'package:beecount/data/db.dart' hide AgentToolCall;
 import 'package:beecount/services/ai/agent_app_facade.dart';
 import 'package:beecount/services/system/logger_service.dart';
-import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +33,7 @@ void main() {
     final facade = AgentAppFacade(
       memoryRepository: LocalAgentMemoryRepository(db),
       toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
       model: _FakeModel([
         AgentTurn.toolCalls([
           AgentToolCall(
@@ -113,6 +117,7 @@ void main() {
     final facade = AgentAppFacade(
       memoryRepository: LocalAgentMemoryRepository(db),
       toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
       model: NativeToolAgentModel(transport: transport),
       runIdFactory: () => 'run-native-record',
     );
@@ -131,6 +136,7 @@ void main() {
     final facade = AgentAppFacade(
       memoryRepository: LocalAgentMemoryRepository(db),
       toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
       model: _ThrowingModel(),
       runIdFactory: () => 'run-2',
     );
@@ -149,6 +155,7 @@ void main() {
     final facade = AgentAppFacade(
       memoryRepository: LocalAgentMemoryRepository(db),
       toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
       model: _UnsupportedModel(),
       runIdFactory: () => 'run-unsupported',
     );
@@ -171,6 +178,7 @@ void main() {
     final facade = AgentAppFacade(
       memoryRepository: memory,
       toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
       model: model,
       runIdFactory: () => 'run-3',
     );
@@ -186,6 +194,7 @@ void main() {
     final facade = AgentAppFacade(
       memoryRepository: LocalAgentMemoryRepository(db),
       toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
       model: _FakeModel([
         AgentTurn.toolCalls([
           AgentToolCall(
@@ -209,21 +218,380 @@ void main() {
         'record_transaction_from_text');
     expect(events.last, isA<AgentRunCompletedEvent>());
   });
+
+  test('emits authorization before a write tool starts and waits for the reply',
+      () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(
+        permission: AgentToolPermission.ask,
+      ),
+      model: _FakeModel([
+        AgentTurn.toolCalls([
+          AgentToolCall(
+            id: 'call-authorized',
+            name: 'record_transaction_from_text',
+            arguments: const {'sourceText': '午饭 35'},
+          ),
+        ]),
+        const AgentTurn.finalText('已完成'),
+      ]),
+      runIdFactory: () => 'run-authorized',
+    );
+    final iterator = StreamIterator(
+      facade.processMessageEvents(message: '午饭 35', ledgerId: 1),
+    );
+
+    expect(await iterator.moveNext(), isTrue);
+    final requested = iterator.current as AgentToolAuthorizationRequestedEvent;
+    expect(requested.request.runId, 'run-authorized');
+    expect(requested.request.ledgerId, 1);
+    expect(requested.request.toolName, 'record_transaction_from_text');
+    expect(requested.request.arguments, {'sourceText': '午饭 35'});
+    expect(requested.request.authorizationId, isNot('call-authorized'));
+    expect(gateway.recordedTexts, isEmpty);
+
+    expect(
+      facade.resolveToolAuthorization(
+        'call-authorized',
+        AgentToolAuthorizationChoice.allowOnce,
+      ),
+      isFalse,
+    );
+    expect(
+      facade.resolveToolAuthorization(
+        requested.request.authorizationId,
+        AgentToolAuthorizationChoice.allowOnce,
+      ),
+      isTrue,
+    );
+    expect(await iterator.moveNext(), isTrue);
+    expect(iterator.current, isA<AgentToolStartedEvent>());
+    expect(await iterator.moveNext(), isTrue);
+    expect(iterator.current, isA<AgentToolCompletedEvent>());
+    expect(await iterator.moveNext(), isTrue);
+    expect(iterator.current, isA<AgentRunCompletedEvent>());
+    expect(await iterator.moveNext(), isFalse);
+    expect(gateway.recordedTexts, ['午饭 35']);
+    expect(
+      facade.resolveToolAuthorization(
+        requested.request.authorizationId,
+        AgentToolAuthorizationChoice.allowOnce,
+      ),
+      isFalse,
+    );
+  });
+
+  test('denied authorization is audited and returned to the next model turn',
+      () async {
+    final model = _FakeModel([
+      AgentTurn.toolCalls([
+        AgentToolCall(
+          id: 'call-denied',
+          name: 'record_transaction_from_text',
+          arguments: const {'sourceText': '午饭 35'},
+        ),
+      ]),
+      const AgentTurn.finalText('已取消'),
+    ]);
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(
+        permission: AgentToolPermission.ask,
+      ),
+      model: model,
+      runIdFactory: () => 'run-denied',
+    );
+    final iterator = StreamIterator(
+      facade.processMessageEvents(message: '午饭 35', ledgerId: 1),
+    );
+
+    expect(await iterator.moveNext(), isTrue);
+    final requested = iterator.current as AgentToolAuthorizationRequestedEvent;
+    expect(
+      facade.resolveToolAuthorization(
+        requested.request.authorizationId,
+        AgentToolAuthorizationChoice.deny,
+      ),
+      isTrue,
+    );
+    final remainingEvents = <AgentRunEvent>[];
+    while (await iterator.moveNext()) {
+      remainingEvents.add(iterator.current);
+    }
+    final audit = await (db.select(db.agentToolCalls)
+          ..where((row) => row.runId.equals('run-denied')))
+        .getSingle();
+
+    expect(gateway.recordedTexts, isEmpty);
+    expect(remainingEvents.whereType<AgentToolStartedEvent>(), isEmpty);
+    expect(remainingEvents.whereType<AgentToolCompletedEvent>(), isEmpty);
+    expect(remainingEvents.last, isA<AgentRunCompletedEvent>());
+    expect(model.requests, hasLength(2));
+    expect(model.requests.last.toolData, [
+      {
+        'id': 'call-denied',
+        'name': 'record_transaction_from_text',
+        'data': {'error': '用户未授权此操作。'},
+      },
+    ]);
+    expect(audit.callId, 'call-denied');
+    expect(audit.status, 'denied');
+    expect(audit.detail, '用户未授权此操作。');
+  });
+
+  test('non-stream processing denies write tools without waiting for UI',
+      () async {
+    final model = _FakeModel([
+      AgentTurn.toolCalls([
+        AgentToolCall(
+          id: 'call-no-ui',
+          name: 'record_transaction_from_text',
+          arguments: const {'sourceText': '午饭 35'},
+        ),
+      ]),
+      const AgentTurn.finalText('未执行'),
+    ]);
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(
+        permission: AgentToolPermission.ask,
+      ),
+      model: model,
+      runIdFactory: () => 'run-no-ui',
+    );
+
+    final response = await facade.processMessage(
+      message: '午饭 35',
+      ledgerId: 1,
+    );
+    final audit = await (db.select(db.agentToolCalls)
+          ..where((row) => row.runId.equals('run-no-ui')))
+        .getSingle();
+
+    expect(response.text, '未执行');
+    expect(gateway.recordedTexts, isEmpty);
+    expect(model.requests.last.toolData.single['data'], {
+      'error': '用户未授权此操作。',
+    });
+    expect(audit.status, 'denied');
+  });
+
+  test('canceling an event stream denies its pending authorization', () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(
+        permission: AgentToolPermission.ask,
+      ),
+      model: _FakeModel([
+        AgentTurn.toolCalls([
+          AgentToolCall(
+            id: 'call-canceled',
+            name: 'record_transaction_from_text',
+            arguments: const {'sourceText': '午饭 35'},
+          ),
+          AgentToolCall(
+            id: 'call-after-cancel',
+            name: 'record_transaction_from_text',
+            arguments: const {'sourceText': '午饭 35'},
+          ),
+        ]),
+        const AgentTurn.finalText('已取消'),
+      ]),
+      runIdFactory: () => 'run-canceled',
+    );
+    final iterator = StreamIterator(
+      facade.processMessageEvents(message: '午饭 35', ledgerId: 1),
+    );
+
+    expect(await iterator.moveNext(), isTrue);
+    final requested = iterator.current as AgentToolAuthorizationRequestedEvent;
+    final runFinished = (db.select(db.agentRuns)
+          ..where((row) => row.runId.equals('run-canceled')))
+        .watchSingle()
+        .firstWhere((run) => run.status == 'completed');
+    await iterator.cancel();
+
+    expect(
+      facade.resolveToolAuthorization(
+        requested.request.authorizationId,
+        AgentToolAuthorizationChoice.allowOnce,
+      ),
+      isFalse,
+    );
+    await runFinished.timeout(const Duration(seconds: 2));
+    expect(gateway.recordedTexts, isEmpty);
+  });
+
+  test('finishing one run keeps another run authorization pending', () async {
+    var runNumber = 0;
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore:
+          _MemoryPermissionStore(permission: AgentToolPermission.ask),
+      model: _ConcurrentModel(),
+      runIdFactory: () => 'concurrent-${++runNumber}',
+    );
+    final first = StreamIterator(
+      facade.processMessageEvents(message: '午饭 35', ledgerId: 1),
+    );
+    final second = StreamIterator(
+      facade.processMessageEvents(message: '晚饭 45', ledgerId: 1),
+    );
+    expect(await first.moveNext(), isTrue);
+    expect(await second.moveNext(), isTrue);
+    final firstRequest = first.current as AgentToolAuthorizationRequestedEvent;
+    final secondRequest =
+        second.current as AgentToolAuthorizationRequestedEvent;
+    expect(firstRequest.request.authorizationId,
+        isNot(secondRequest.request.authorizationId));
+    expect(
+        facade.resolveToolAuthorization(firstRequest.request.authorizationId,
+            AgentToolAuthorizationChoice.allowOnce),
+        isTrue);
+    while (await first.moveNext()) {}
+    final resolvedSecond = facade.resolveToolAuthorization(
+        secondRequest.request.authorizationId,
+        AgentToolAuthorizationChoice.allowOnce);
+    while (await second.moveNext()) {}
+    expect(resolvedSecond, isTrue);
+    expect(gateway.recordedTexts, ['午饭 35', '晚饭 45']);
+  });
+
+  test('explicit cancellation denies pending requests and completes the run',
+      () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore:
+          _MemoryPermissionStore(permission: AgentToolPermission.ask),
+      model: _FakeModel([
+        AgentTurn.toolCalls([
+          AgentToolCall(
+            id: 'call-explicit-cancel',
+            name: 'record_transaction_from_text',
+            arguments: const {'sourceText': '午饭 35'},
+          ),
+        ]),
+        const AgentTurn.finalText('已取消'),
+      ]),
+    );
+    final iterator = StreamIterator(
+      facade.processMessageEvents(message: '午饭 35', ledgerId: 1),
+    );
+    expect(await iterator.moveNext(), isTrue);
+    final requested = iterator.current as AgentToolAuthorizationRequestedEvent;
+    facade.cancelPendingToolAuthorizations();
+    expect(
+        facade.resolveToolAuthorization(requested.request.authorizationId,
+            AgentToolAuthorizationChoice.allowOnce),
+        isFalse);
+    expect(await iterator.moveNext(), isTrue);
+    expect(iterator.current, isA<AgentRunCompletedEvent>());
+    expect(await iterator.moveNext(), isFalse);
+    expect(gateway.recordedTexts, isEmpty);
+  });
+
+  for (final failsPersistence in [false, true]) {
+    test('logs actual authorization persistence (fails: $failsPersistence)',
+        () async {
+      logger.clear();
+      final facade = AgentAppFacade(
+        memoryRepository: LocalAgentMemoryRepository(db),
+        toolGateway: gateway,
+        permissionStore: _MemoryPermissionStore(
+          permission: AgentToolPermission.ask,
+          failsPersistence: failsPersistence,
+        ),
+        model: _FakeModel([
+          AgentTurn.toolCalls([
+            AgentToolCall(
+              id: 'call-persist',
+              name: 'record_transaction_from_text',
+              arguments: const {'sourceText': '午饭 35'},
+            ),
+          ]),
+          const AgentTurn.finalText('已完成'),
+        ]),
+        runIdFactory: () => 'run-persist',
+      );
+      final iterator = StreamIterator(
+        facade.processMessageEvents(message: '午饭 35', ledgerId: 1),
+      );
+      expect(await iterator.moveNext(), isTrue);
+      final requested =
+          iterator.current as AgentToolAuthorizationRequestedEvent;
+      expect(
+          logger.logs.any((entry) =>
+              entry.level == LogLevel.info &&
+              entry.message.contains(
+                  'authorizationId: ${requested.request.authorizationId}') &&
+              entry.message.contains('runId: run-persist') &&
+              entry.message.contains('tool: record_transaction_from_text') &&
+              entry.message.contains('arguments: {sourceText: 午饭 35}') &&
+              entry.message.contains('ledgerId: 1')),
+          isTrue);
+      expect(
+          facade.resolveToolAuthorization(requested.request.authorizationId,
+              AgentToolAuthorizationChoice.alwaysAllow),
+          isTrue);
+      while (await iterator.moveNext()) {}
+      expect(gateway.recordedTexts, ['午饭 35']);
+      expect(
+          logger.logs.any((entry) =>
+              entry.level == LogLevel.info &&
+              entry.message.contains(
+                  'authorizationId: ${requested.request.authorizationId}') &&
+              entry.message.contains('choice: alwaysAllow') &&
+              entry.message.contains('persisted: ${!failsPersistence}')),
+          isTrue);
+      expect(
+          logger.logs.any((entry) =>
+              entry.level == LogLevel.warning &&
+              entry.message.contains(
+                  'authorizationId: ${requested.request.authorizationId}') &&
+              entry.message.contains('disk full')),
+          failsPersistence);
+    });
+  }
 }
 
 final class _FakeModel implements AgentModel {
   _FakeModel(this._turns);
 
   final List<AgentTurn> _turns;
+  final List<AgentRequest> requests = [];
 
   @override
-  Future<AgentTurn> nextTurn(AgentRequest request) async => _turns.removeAt(0);
+  Future<AgentTurn> nextTurn(AgentRequest request) async {
+    requests.add(request);
+    return _turns.removeAt(0);
+  }
 }
 
 final class _ThrowingModel implements AgentModel {
   @override
   Future<AgentTurn> nextTurn(AgentRequest request) =>
       Future.error(const FormatException('bad response'));
+}
+
+final class _ConcurrentModel implements AgentModel {
+  @override
+  Future<AgentTurn> nextTurn(AgentRequest request) async {
+    if (request.toolData.isNotEmpty) return const AgentTurn.finalText('已完成');
+    return AgentTurn.toolCalls([
+      AgentToolCall(
+        id: 'same-model-call-id',
+        name: 'record_transaction_from_text',
+        arguments: {'sourceText': request.text},
+      ),
+    ]);
+  }
 }
 
 final class _UnsupportedModel implements AgentModel {
@@ -286,4 +654,35 @@ final class _FakeGateway implements LocalAgentToolGateway {
     required int? ledgerId,
     required String content,
   }) async {}
+}
+
+final class _MemoryPermissionStore implements AgentToolPermissionStore {
+  _MemoryPermissionStore({
+    this.permission = AgentToolPermission.alwaysAllow,
+    this.failsPersistence = false,
+  });
+
+  final AgentToolPermission permission;
+  final bool failsPersistence;
+
+  @override
+  Future<AgentToolPermission?> permissionFor(String toolName) async =>
+      AgentToolPermissionCatalog.find(toolName) == null ? null : permission;
+
+  @override
+  Future<Map<String, AgentToolPermission>> readAll() async => {
+        for (final descriptor in AgentToolPermissionCatalog.descriptors)
+          descriptor.toolName: permission,
+      };
+
+  @override
+  Future<void> restoreDefaults() async {}
+
+  @override
+  Future<void> setPermission(
+    String toolName,
+    AgentToolPermission permission,
+  ) async {
+    if (failsPersistence) throw StateError('disk full');
+  }
 }
