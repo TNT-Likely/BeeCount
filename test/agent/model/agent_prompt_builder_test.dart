@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:agentcore/agentcore.dart';
 import 'package:beecount/agent/model/agent_prompt_builder.dart';
 import 'package:beecount/agent/model/native_tool_agent_model.dart';
+import 'package:beecount/services/system/logger_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -196,6 +197,37 @@ void main() {
     final call = (response as AgentNativeToolCallsResponse).calls.single;
     expect(call.name, 'record_transaction_from_text');
     expect(call.arguments, {'sourceText': '早饭花了8元'});
+  });
+
+  test('tool stream logs the aggregated final text', () async {
+    logger.clear();
+    final transport = OpenAiCompatibleNativeToolTransport(
+      toolStream: ({required messages, required tools, logTag}) =>
+          Stream<Map<String, dynamic>>.value({
+        'choices': [
+          {
+            'delta': {'content': '本月支出 **80 元**。'},
+          },
+        ],
+      }),
+    );
+
+    await transport.complete(
+      AgentNativeToolRequest(
+        runId: 'run-final-text',
+        userPrompt: '本月花了多少',
+        toolResults: const [],
+      ),
+    );
+
+    expect(
+      logger.logs.any(
+        (entry) =>
+            entry.tag == 'AgentNativeTools' &&
+            entry.message.contains('本月支出 **80 元**。'),
+      ),
+      isTrue,
+    );
   });
 }
 

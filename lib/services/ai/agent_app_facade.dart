@@ -86,7 +86,11 @@ final class AgentAppFacade {
     void Function(AgentRunEvent event)? emit,
   }) async {
     final runId = _runIdFactory();
-    logger.info('AgentCore', '运行开始', {'runId': runId, 'ledgerId': ledgerId});
+    logger.info('AgentCore', '运行开始', {
+      'runId': runId,
+      'ledgerId': ledgerId,
+      'userMessage': message,
+    });
     await _memoryRepository.createRun(
       runId: runId,
       ledgerId: ledgerId,
@@ -143,9 +147,17 @@ final class AgentAppFacade {
         'executedToolCalls': result.executedCalls.length,
         'deniedToolCalls': result.deniedCalls.length,
         'hasFinalText': result.text.isNotEmpty,
+        'finalText': result.text,
       });
 
       final response = _responseFor(result, localTools, l10n);
+      logger.info('AgentCore', '运行结果已生成', {
+        'runId': runId,
+        'responseType': response.type,
+        'text': response.text,
+        'billCount': response.bills.length,
+        'transactionIds': response.transactionIds,
+      });
       await _memoryRepository.finishRun(runId: runId, status: 'completed');
       return AgentChatResponse(runId: runId, response: response);
     } on AgentNativeToolUnsupportedException {

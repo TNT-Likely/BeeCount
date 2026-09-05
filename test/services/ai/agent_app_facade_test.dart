@@ -5,6 +5,7 @@ import 'package:beecount/agent/model/native_tool_agent_model.dart';
 import 'package:beecount/agent/tools/local_agent_tools.dart';
 import 'package:beecount/data/db.dart' hide AgentToolCall;
 import 'package:beecount/services/ai/agent_app_facade.dart';
+import 'package:beecount/services/system/logger_service.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,6 +26,7 @@ void main() {
 
   test('a successful record response preserves cards and transaction ids',
       () async {
+    logger.clear();
     final facade = AgentAppFacade(
       memoryRepository: LocalAgentMemoryRepository(db),
       toolGateway: gateway,
@@ -46,10 +48,18 @@ void main() {
     expect(response.type, 'bill_card');
     expect(response.transactionIds, [42]);
     expect(gateway.recordedTexts, ['午饭 35']);
+    expect(
+      logger.logs.any(
+        (entry) =>
+            entry.tag == 'AgentCore' &&
+            entry.message.contains('运行结果已生成') &&
+            entry.message.contains('responseType: bill_card'),
+      ),
+      isTrue,
+    );
   });
 
-  test('a fragmented native record tool call reaches the local tool',
-      () async {
+  test('a fragmented native record tool call reaches the local tool', () async {
     final transport = OpenAiCompatibleNativeToolTransport(
       toolStream: ({required messages, required tools, logTag}) {
         final hasToolResult = messages.any(

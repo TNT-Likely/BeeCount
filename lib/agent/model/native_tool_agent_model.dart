@@ -177,6 +177,11 @@ final class OpenAiCompatibleNativeToolTransport
         onEvent: onEvent,
       );
       if (response is AgentNativeFinalTextResponse) {
+        logger.debug('AgentNativeTools', '模型返回最终文本', {
+          'runId': request.runId,
+          'textLength': response.text.length,
+          'text': response.text,
+        });
         _sessions.remove(request.runId);
       } else if (response is AgentNativeToolCallsResponse) {
         logger.debug('AgentNativeTools', '模型请求工具', {
