@@ -9890,6 +9890,18 @@ abstract class AppLocalizations {
   /// **'e.g.: Bought a coffee for \$35'**
   String get aiChatInputHint;
 
+  /// No description provided for @aiQuickCommandsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a task'**
+  String get aiQuickCommandsTitle;
+
+  /// No description provided for @aiQuickCommandsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open suggestions'**
+  String get aiQuickCommandsOpen;
+
   /// No description provided for @aiChatEmptyMessages.
   ///
   /// In en, this message translates to:

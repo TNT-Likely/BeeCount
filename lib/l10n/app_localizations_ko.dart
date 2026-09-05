@@ -5183,6 +5183,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiChatInputHint => '예: 커피 한 잔에 3,500원 썼어';
 
   @override
+  String get aiQuickCommandsTitle => 'Try a task';
+
+  @override
+  String get aiQuickCommandsOpen => 'Open suggestions';
+
+  @override
   String get aiChatEmptyMessages => 'No messages yet';
 
   @override

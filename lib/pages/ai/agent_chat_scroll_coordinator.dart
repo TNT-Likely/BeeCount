@@ -16,6 +16,14 @@ final class AgentChatScrollCoordinator {
     _pending = true;
   }
 
+  /// Requests the first visible position for an existing conversation.
+  ///
+  /// Kept separate from [request] so page code documents why it is scrolling:
+  /// this is an initial history position, not a newly completed response.
+  void requestInitialPositioning() {
+    request();
+  }
+
   void onContentLaidOut({required bool targetReady}) {
     if (!_pending || !targetReady) return;
 

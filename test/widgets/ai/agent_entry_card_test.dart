@@ -53,7 +53,7 @@ void main() {
     expect(taps, 1);
   });
 
-  testWidgets('首页紧凑入口使用20px AI图标且保留32px点击区域', (tester) async {
+  testWidgets('首页紧凑入口使用22px AI字标且保留32px点击区域', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -66,7 +66,7 @@ void main() {
     );
 
     final mark = tester.widget<AgentAiMark>(find.byType(AgentAiMark));
-    expect(mark.size, 20);
+    expect(mark.size, 22);
     expect(tester.getSize(find.byType(InkWell)), const Size(32, 32));
   });
 
@@ -83,7 +83,7 @@ void main() {
     );
 
     final aiText = tester.widget<Text>(find.text('AI'));
-    expect(aiText.style?.fontSize, 16);
+    expect(aiText.style?.fontSize, 17.6);
     expect(aiText.style?.fontWeight, FontWeight.w600);
   });
 

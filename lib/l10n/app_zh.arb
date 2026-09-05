@@ -2172,6 +2172,8 @@
   "aiChatClearHistoryDialogTitle": "清除对话历史",
   "aiChatClearHistoryDialogContent": "确定要清除所有对话记录吗?此操作不可恢复。",
   "aiChatInputHint": "例如: 买了杯咖啡35块",
+  "aiQuickCommandsTitle": "试试这些",
+  "aiQuickCommandsOpen": "打开快捷指令",
   "aiChatEmptyMessages": "暂无消息",
   "aiChatMessagesLoadFailed": "加载失败: {error}",
   "@aiChatMessagesLoadFailed": {

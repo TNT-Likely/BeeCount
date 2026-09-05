@@ -2242,6 +2242,8 @@
   "aiChatClearHistoryDialogTitle": "Clear Conversation History",
   "aiChatClearHistoryDialogContent": "Are you sure you want to clear all conversation records? This action cannot be undone.",
   "aiChatInputHint": "e.g.: Bought a coffee for $35",
+  "aiQuickCommandsTitle": "Try a task",
+  "aiQuickCommandsOpen": "Open suggestions",
   "aiChatEmptyMessages": "No messages yet",
   "aiChatMessagesLoadFailed": "Failed to load messages: {error}",
   "@aiChatMessagesLoadFailed": {

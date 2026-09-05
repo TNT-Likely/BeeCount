@@ -5183,6 +5183,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiChatInputHint => 'e.g.: Bought a coffee for \$35';
 
   @override
+  String get aiQuickCommandsTitle => 'Try a task';
+
+  @override
+  String get aiQuickCommandsOpen => 'Open suggestions';
+
+  @override
   String get aiChatEmptyMessages => 'No messages yet';
 
   @override

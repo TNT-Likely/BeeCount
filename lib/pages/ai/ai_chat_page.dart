@@ -49,7 +49,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     with WidgetsBindingObserver {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  late final AgentChatScrollCoordinator _responseScrollCoordinator =
+  late final AgentChatScrollCoordinator _chatScrollCoordinator =
       AgentChatScrollCoordinator(_scrollController);
   int? _conversationId;
   bool _isLoading = false;
@@ -262,7 +262,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                           return;
                         }
                         _pendingResponseMessageId = null;
-                        _responseScrollCoordinator.onContentLaidOut(
+                        _chatScrollCoordinator.onContentLaidOut(
                           targetReady: true,
                         );
                       });
@@ -270,13 +270,34 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                     // 首次加载完成且有消息时，自动滚动到底部
                     if (_isFirstLoad && displayMessages.isNotEmpty) {
                       _isFirstLoad = false;
+                      _chatScrollCoordinator.requestInitialPositioning();
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _scrollToBottom();
+                        if (mounted) {
+                          _chatScrollCoordinator.onContentLaidOut(
+                            targetReady: true,
+                          );
+                        }
                       });
                     }
 
                     if (displayMessages.isEmpty && !_hasLiveAgentMessage) {
-                      return Center(child: Text(l10n.aiChatEmptyMessages));
+                      return Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 24.0.scaled(context, ref),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(l10n.aiChatEmptyMessages),
+                              SizedBox(height: 16.0.scaled(context, ref)),
+                              AIQuickCommandSuggestions(
+                                onCommandTap: _handleQuickCommand,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
                     }
 
                     return ListView.builder(
@@ -332,11 +353,6 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                   ),
               ],
             ),
-          ),
-
-          // 快捷指令横条
-          AIQuickCommandsBar(
-            onCommandTap: _handleQuickCommand,
           ),
 
           // 输入区域
@@ -621,6 +637,10 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         top: false, // 不保护顶部，避免额外空白
         child: Row(
           children: [
+            AIQuickCommandLauncher(
+              onCommandTap: _handleQuickCommand,
+              enabled: !_isLoading,
+            ),
             Expanded(
               child: TextField(
                 controller: _inputController,
@@ -878,7 +898,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       setState(() {
         _liveAssistantMessageId = assistantMessageId;
         _pendingResponseMessageId = assistantMessageId;
-        _responseScrollCoordinator.request();
+        _chatScrollCoordinator.request();
       });
 
       // 如果是记账成功，刷新统计信息

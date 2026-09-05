@@ -5183,6 +5183,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiChatInputHint => '例如: 买了杯咖啡35块';
 
   @override
+  String get aiQuickCommandsTitle => '试试这些';
+
+  @override
+  String get aiQuickCommandsOpen => '打开快捷指令';
+
+  @override
   String get aiChatEmptyMessages => '暂无消息';
 
   @override

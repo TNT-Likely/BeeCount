@@ -103,7 +103,7 @@ final class AgentEntryButton extends StatelessWidget {
             child: SizedBox.square(
               dimension: 24,
               child: Center(
-                child: AgentAiMark(size: 20, color: iconColor),
+                child: AgentAiMark(size: 22, color: iconColor),
               ),
             ),
           ),
