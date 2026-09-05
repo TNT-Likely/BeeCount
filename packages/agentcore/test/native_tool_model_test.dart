@@ -103,6 +103,41 @@ void main() {
     expect(call.arguments, {'range': 'month'});
   });
 
+  test('logs the tool catalog sent to the provider', () async {
+    final events = <String, Map<String, Object?>>{};
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      logSink: (event, data) => events[event] = data,
+      toolStream: ({required messages, required tools, logTag}) =>
+          Stream<Map<String, dynamic>>.value({
+        'choices': [
+          {
+            'delta': {'content': 'done'},
+          },
+        ],
+      }),
+    );
+
+    await transport.complete(
+      AgentNativeToolRequest(
+        runId: 'catalog-log',
+        userPrompt: 'show',
+        toolResults: const [],
+      ),
+    );
+
+    final started = events['turnStarted'];
+    expect(started, isNotNull);
+    expect(started!['toolDefinitions'], [
+      {
+        'name': 'read_report',
+        'description': 'Read a report',
+        'parameters': {'type': 'object'},
+      },
+    ]);
+  });
+
   test('native model resets a run after an unexpected transport error',
       () async {
     final transport = _FailOnceTransport();

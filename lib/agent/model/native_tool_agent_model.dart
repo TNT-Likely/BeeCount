@@ -3,6 +3,7 @@ import 'package:agentcore/agentcore.dart' as core;
 import '../../ai/providers/ai_provider_factory.dart';
 import '../../services/system/logger_service.dart';
 import 'agent_prompt_builder.dart';
+import '../tools/local_agent_tool_catalog.dart';
 
 // Keep the protocol types public from the App adapter so existing consumers do
 // not need to know whether a model is provided by BeeCount or agentcore.
@@ -36,7 +37,7 @@ final class OpenAiCompatibleNativeToolTransport
     String? systemPrompt,
   }) : _delegate = core.OpenAiCompatibleNativeToolTransport(
           toolStream: toolStream ?? AIProviderFactory.chatWithToolsStream,
-          toolDefinitions: toolDefinitions ?? _toolDefinitions,
+          toolDefinitions: toolDefinitions ?? LocalAgentToolCatalog.definitions,
           systemPrompt: systemPrompt ?? AgentPromptBuilder.nativeSystemPrompt,
           logSink: _log,
           isUnsupportedError: (error) =>
@@ -68,61 +69,6 @@ final class OpenAiCompatibleNativeToolTransport
         logger.warning('AgentNativeTools', '模型回合失败', data);
     }
   }
-
-  static const _rangeParameters = <String, Object?>{
-    'type': 'object',
-    'properties': {
-      'start': {
-        'type': 'string',
-        'description': '查询开始时间，ISO 8601 格式。',
-      },
-      'end': {
-        'type': 'string',
-        'description': '查询结束时间，ISO 8601 格式。',
-      },
-    },
-    'additionalProperties': false,
-  };
-
-  static const _toolDefinitions = <core.AgentNativeToolDefinition>[
-    core.AgentNativeToolDefinition(
-      name: 'query_transactions',
-      description: '查询当前账本交易',
-      parameters: _rangeParameters,
-    ),
-    core.AgentNativeToolDefinition(
-      name: 'get_spending_summary',
-      description: '汇总当前账本支出',
-      parameters: _rangeParameters,
-    ),
-    core.AgentNativeToolDefinition(
-      name: 'get_budget_status',
-      description: '读取当前账本预算',
-      parameters: {'type': 'object'},
-    ),
-    core.AgentNativeToolDefinition(
-      name: 'record_transaction_from_text',
-      description: '记录当前用户明确给出的交易',
-      parameters: {
-        'type': 'object',
-        'properties': {
-          'sourceText': {'type': 'string'},
-        },
-        'required': ['sourceText'],
-        'additionalProperties': false,
-      },
-    ),
-    core.AgentNativeToolDefinition(
-      name: 'save_explicit_memory',
-      description: '保存用户明确要求记住的信息',
-      parameters: {'type': 'object'},
-    ),
-    core.AgentNativeToolDefinition(
-      name: 'forget_memory',
-      description: '遗忘用户明确指定的记忆',
-      parameters: {'type': 'object'},
-    ),
-  ];
 }
 
 /// BeeCount composition adapter for the generic stateful model.

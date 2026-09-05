@@ -30,6 +30,15 @@ final class OpenAiCompatibleNativeToolTransport
     logSink?.call('turnStarted', {
       'runId': request.runId,
       'toolResultCount': request.toolResults.length,
+      'toolDefinitions': _toolDefinitions
+          .map(
+            (definition) => {
+              'name': definition.name,
+              'description': definition.description,
+              'parameters': definition.parameters,
+            },
+          )
+          .toList(),
       if (request.toolResults.isNotEmpty)
         'toolResults': request.toolResults
             .map(
