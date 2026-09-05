@@ -88,6 +88,8 @@ final class AgentEntryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconColor =
+        IconTheme.of(context).color ?? Theme.of(context).colorScheme.primary;
     return Semantics(
       button: true,
       label: tooltip,
@@ -96,9 +98,9 @@ final class AgentEntryButton extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           customBorder: const CircleBorder(),
-          child: const Padding(
-            padding: EdgeInsets.all(4),
-            child: AgentAiMark(size: 24),
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: AgentAiMark(size: 24, color: iconColor),
           ),
         ),
       ),

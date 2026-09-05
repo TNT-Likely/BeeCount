@@ -52,4 +52,23 @@ void main() {
     await tester.pump();
     expect(taps, 1);
   });
+
+  testWidgets('首页入口图标继承页头颜色，避免与背景同色不可见', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: IconTheme(
+            data: const IconThemeData(color: Colors.black),
+            child: AgentEntryButton(
+              tooltip: 'AI 助手',
+              onTap: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final mark = tester.widget<AgentAiMark>(find.byType(AgentAiMark));
+    expect(mark.color, Colors.black);
+  });
 }

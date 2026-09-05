@@ -60,6 +60,17 @@ void main() {
     expect(prompt, contains('当前用户消息'));
   });
 
+  test('native system prompt requires explicit consent for memory tools', () {
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('只有当前用户消息明确要求记住、保存或忘记信息时'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('仅陈述个人信息不等于同意保存记忆'),
+    );
+  });
+
   test(
       'native tool model surfaces unsupported capabilities instead of fallback',
       () async {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../styles/tokens.dart';
-import 'agent_brand_mark.dart';
 
 /// Agent 对话页的轻量页面壳。
 ///
@@ -66,11 +65,6 @@ class AgentChatShell extends StatelessWidget {
                         onPressed: onBack,
                       ),
                       const SizedBox(width: 2),
-                      const AgentBrandMark(
-                        size: 34,
-                        showStatus: true,
-                      ),
-                      const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           title,

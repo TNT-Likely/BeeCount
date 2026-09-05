@@ -81,4 +81,20 @@ void main() {
     expect(denied.isAllowed, isFalse);
     expect(allowed.isAllowed, isTrue);
   });
+
+  test(
+      'recognizes explicit memory intent without treating ordinary chat as consent',
+      () {
+    expect(P0AgentPolicy.hasExplicitMemoryIntent('请记住我喜欢喝茶'), isTrue);
+    expect(P0AgentPolicy.hasExplicitMemoryIntent('remember that I prefer tea'),
+        isTrue);
+    expect(P0AgentPolicy.hasExplicitMemoryIntent('请忘记我之前的住址'), isTrue);
+    expect(P0AgentPolicy.hasExplicitMemoryIntent('delete this memory'), isTrue);
+    expect(P0AgentPolicy.hasExplicitMemoryIntent('不要记住我的住址'), isFalse);
+    expect(P0AgentPolicy.hasExplicitMemoryIntent("don't remember my address"),
+        isFalse);
+    expect(P0AgentPolicy.hasExplicitMemoryIntent('本月花了多少钱'), isFalse);
+    expect(P0AgentPolicy.hasExplicitMemoryIntent('你好'), isFalse);
+    expect(P0AgentPolicy.hasExplicitMemoryIntent('我忘记带伞了'), isFalse);
+  });
 }

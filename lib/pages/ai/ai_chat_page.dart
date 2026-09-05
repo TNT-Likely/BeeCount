@@ -127,6 +127,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
     // 查找全局活跃对话（不限制账本）
     final conv = await repo.getActiveConversation();
+    if (!mounted) return;
 
     if (conv != null) {
       setState(() => _conversationId = conv.id);
@@ -139,9 +140,11 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           updatedAt: Value(DateTime.now()),
         ),
       );
+      if (!mounted) return;
       setState(() => _conversationId = id);
     }
 
+    if (!mounted) return;
     ref.read(currentConversationIdProvider.notifier).state = _conversationId;
   }
 
@@ -624,7 +627,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
   Future<void> _sendMessage() async {
     final text = _inputController.text.trim();
-    if (text.isEmpty || _isLoading) return;
+    if (!mounted || text.isEmpty || _isLoading) return;
 
     _inputController.clear();
     await _sendMessageText(text);
@@ -751,6 +754,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         }
         _scrollToBottomSmooth();
       }
+      // The authorization dialog and native SSE stream can outlive this
+      // route. Do not persist or update UI after the page has been disposed.
+      if (!mounted) return;
       response ??= AIResponse.error(l10n.agentRunFailed);
 
       // 保存 AI 回复。多笔 metadata 用新格式 {bills, txIds, undoneIds};
@@ -774,6 +780,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           createdAt: Value(DateTime.now()),
         ),
       );
+      if (!mounted) return;
 
       // 如果是记账成功，刷新统计信息
       if (response.type == 'bill_card' && response.transactionId != null) {
@@ -784,9 +791,12 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         final billLedgerId = response.billInfo?.ledgerId ?? ledgerId;
         await PostProcessor.sync(ref, ledgerId: billLedgerId);
 
+        if (!mounted) return;
+
         logger.info('AIChat', '记账成功，已刷新统计信息和触发云同步');
       }
 
+      if (!mounted) return;
       setState(() {
         // Content was already rendered from the provider's real SSE chunks.
         // Do not replay it with the old typewriter simulation after persistence.

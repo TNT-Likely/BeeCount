@@ -400,6 +400,51 @@ void main() {
     );
   });
 
+  test('explicit memory intent reaches authorization instead of hard denial',
+      () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(
+        permission: AgentToolPermission.ask,
+      ),
+      model: _FakeModel([
+        AgentTurn.toolCalls([
+          AgentToolCall(
+            id: 'call-memory',
+            name: 'save_explicit_memory',
+            arguments: const {'content': '我喜欢喝茶'},
+          ),
+        ]),
+        const AgentTurn.finalText('好的，我记住了。'),
+      ]),
+      runIdFactory: () => 'run-memory-intent',
+    );
+    final iterator = StreamIterator(
+      facade.processMessageEvents(
+        message: '请记住我喜欢喝茶',
+        ledgerId: 1,
+      ),
+    );
+
+    expect(await iterator.moveNext(), isTrue);
+    final requested = iterator.current as AgentToolAuthorizationRequestedEvent;
+    expect(requested.request.toolName, 'save_explicit_memory');
+    expect(requested.request.arguments, {'content': '我喜欢喝茶'});
+    expect(
+      facade.resolveToolAuthorization(
+        requested.request.authorizationId,
+        AgentToolAuthorizationChoice.allowOnce,
+      ),
+      isTrue,
+    );
+
+    while (await iterator.moveNext()) {
+      // Drain the run so the tool result is persisted and the stream closes.
+    }
+    expect(gateway.savedMemories, ['我喜欢喝茶']);
+  });
+
   test('denied authorization is audited and returned to the next model turn',
       () async {
     final model = _FakeModel([
@@ -913,6 +958,7 @@ final class _CapturingModel implements AgentModel {
 
 final class _FakeGateway implements LocalAgentToolGateway {
   final List<String> recordedTexts = [];
+  final List<String> savedMemories = [];
 
   @override
   Future<void> forgetMemory(int memoryId) async {}
@@ -954,7 +1000,9 @@ final class _FakeGateway implements LocalAgentToolGateway {
   Future<void> saveExplicitMemory({
     required int? ledgerId,
     required String content,
-  }) async {}
+  }) async {
+    savedMemories.add(content);
+  }
 }
 
 final class _MemoryPermissionStore implements AgentToolPermissionStore {

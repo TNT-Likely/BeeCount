@@ -211,7 +211,12 @@ final class AgentAppFacade {
       id: runId,
       ledgerId: ledgerId,
       isForeground: true,
-      allowsExplicitMemory: allowsExplicitMemory,
+      // The caller can grant this explicitly, while the foreground chat also
+      // derives a narrow consent signal from the user's current message.
+      // Ordinary messages remain unable to authorize a model-initiated memory
+      // write, so hallucinated save/forget calls are still hard-denied.
+      allowsExplicitMemory: allowsExplicitMemory ||
+          P0AgentPolicy.hasExplicitMemoryIntent(message),
     );
     final localTools = LocalAgentTools(scope: scope, gateway: _toolGateway);
     final requestContext = Map<String, Object?>.of(context);
