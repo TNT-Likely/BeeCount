@@ -1,4 +1,14 @@
-import 'package:agentcore/agentcore.dart';
+import 'package:agentcore/agentcore.dart'
+    hide
+        AgentAuthorizationPolicy,
+        AgentToolAuthorizationBroker,
+        AgentToolAuthorizationChoice,
+        AgentToolAuthorizationRequest,
+        AgentToolAuthorizationRequester,
+        AgentToolPermission,
+        AgentToolPermissionDescriptor,
+        AgentToolPermissionStore,
+        AgentToolPermissionCatalog;
 import 'package:beecount/agent/permission/agent_authorization_gate.dart';
 import 'package:beecount/agent/permission/agent_tool_permission.dart';
 import 'package:flutter_test/flutter_test.dart';

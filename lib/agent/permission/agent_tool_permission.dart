@@ -1,29 +1,9 @@
-enum AgentToolPermission { ask, alwaysAllow }
+import 'package:agentcore/agentcore.dart' as core;
 
-final class AgentToolPermissionDescriptor {
-  const AgentToolPermissionDescriptor({
-    required this.toolName,
-    required this.defaultPermission,
-    required this.mutatesLocalData,
-  });
-
-  final String toolName;
-  final AgentToolPermission defaultPermission;
-  final bool mutatesLocalData;
-}
-
-abstract interface class AgentToolPermissionStore {
-  Future<AgentToolPermission?> permissionFor(String toolName);
-
-  Future<Map<String, AgentToolPermission>> readAll();
-
-  Future<void> setPermission(
-    String toolName,
-    AgentToolPermission permission,
-  );
-
-  Future<void> restoreDefaults();
-}
+/// App-facing aliases for the generic AgentCore permission contracts.
+typedef AgentToolPermission = core.AgentToolPermission;
+typedef AgentToolPermissionDescriptor = core.AgentToolPermissionDescriptor;
+typedef AgentToolPermissionStore = core.AgentToolPermissionStore;
 
 final class AgentToolPermissionCatalog {
   const AgentToolPermissionCatalog._();
@@ -67,4 +47,7 @@ final class AgentToolPermissionCatalog {
     }
     return null;
   }
+
+  static core.AgentToolPermissionCatalog get runtime =>
+      const core.AgentToolPermissionCatalog(descriptors: descriptors);
 }

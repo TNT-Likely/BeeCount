@@ -1,4 +1,9 @@
-import 'package:agentcore/agentcore.dart';
+import 'package:agentcore/agentcore.dart'
+    hide
+        AgentMemoryDraft,
+        AgentMemoryRecord,
+        AgentMemoryRepository,
+        AgentToolCallAudit;
 
 import '../../data/repositories/base_repository.dart';
 import '../../services/ai/ai_bookkeeper.dart';

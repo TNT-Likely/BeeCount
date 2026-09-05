@@ -1,6 +1,19 @@
 import 'dart:async';
 
-import 'package:agentcore/agentcore.dart';
+import 'package:agentcore/agentcore.dart'
+    hide
+        AgentAuthorizationPolicy,
+        AgentMemoryDraft,
+        AgentMemoryRecord,
+        AgentMemoryRepository,
+        AgentToolAuthorizationBroker,
+        AgentToolAuthorizationChoice,
+        AgentToolAuthorizationRequest,
+        AgentToolAuthorizationRequester,
+        AgentToolCallAudit,
+        AgentToolPermission,
+        AgentToolPermissionDescriptor,
+        AgentToolPermissionStore;
 import 'package:uuid/uuid.dart';
 
 import '../../agent/memory/agent_memory_repository.dart';

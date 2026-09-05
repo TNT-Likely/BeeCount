@@ -1,6 +1,19 @@
 import 'dart:async';
 
-import 'package:agentcore/agentcore.dart';
+import 'package:agentcore/agentcore.dart'
+    hide
+        AgentAuthorizationPolicy,
+        AgentMemoryDraft,
+        AgentMemoryRecord,
+        AgentMemoryRepository,
+        AgentToolAuthorizationBroker,
+        AgentToolAuthorizationChoice,
+        AgentToolAuthorizationRequest,
+        AgentToolAuthorizationRequester,
+        AgentToolCallAudit,
+        AgentToolPermission,
+        AgentToolPermissionDescriptor,
+        AgentToolPermissionStore;
 import 'package:beecount/agent/memory/local_agent_memory_repository.dart';
 import 'package:beecount/agent/memory/agent_memory_repository.dart';
 import 'package:beecount/agent/model/native_tool_agent_model.dart';
