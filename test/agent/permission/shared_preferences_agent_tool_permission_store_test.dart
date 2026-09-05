@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// Retain the real SharedPreferences cache while rejecting its platform write.
+// ignore: depend_on_referenced_packages
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 
 import 'package:beecount/agent/permission/agent_tool_permission.dart';
 import 'package:beecount/agent/permission/shared_preferences_agent_tool_permission_store.dart';
@@ -33,6 +36,21 @@ void main() {
       await store.permissionFor('get_budget_status'),
       AgentToolPermission.alwaysAllow,
     );
+  });
+
+  test('false platform result fails without granting a cached permission',
+      () async {
+    SharedPreferencesStorePlatform.instance = _RejectingPreferencesPlatform();
+    final store = createStore();
+    await expectLater(
+      store.setPermission(
+          'record_transaction_from_text', AgentToolPermission.alwaysAllow),
+      throwsStateError,
+    );
+    expect(await store.permissionFor('record_transaction_from_text'),
+        AgentToolPermission.ask);
+    expect(await createStore().permissionFor('record_transaction_from_text'),
+        AgentToolPermission.ask);
   });
 
   test('never returns an inherited permission for an unknown tool', () async {
@@ -121,4 +139,13 @@ void main() {
     expect(all.length, 6);
     expect(all['save_explicit_memory'], AgentToolPermission.alwaysAllow);
   });
+}
+
+final class _RejectingPreferencesPlatform
+    extends InMemorySharedPreferencesStore {
+  _RejectingPreferencesPlatform() : super.empty();
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) async =>
+      false;
 }

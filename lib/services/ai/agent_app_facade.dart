@@ -465,6 +465,9 @@ final class _RunAuthorization
     _currentRequest = null;
     _choice = null;
     _persistenceFailed = false;
+    if (_canceled) {
+      return const AgentPolicyDecision.deny('用户未授权此操作。');
+    }
     final decision = await _policy.decide(request, call);
     if (_currentRequest != null) {
       logger.info('AgentCore', '工具授权决定已完成', {
@@ -474,7 +477,9 @@ final class _RunAuthorization
             !_persistenceFailed,
       });
     }
-    return decision;
+    // Cancellation can arrive while permission lookup or persistence is pending,
+    // including paths which never ask the broker (stored alwaysAllow).
+    return _canceled ? const AgentPolicyDecision.deny('用户未授权此操作。') : decision;
   }
 
   @override

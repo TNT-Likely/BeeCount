@@ -6,6 +6,7 @@ import 'package:beecount/agent/memory/agent_memory_repository.dart';
 import 'package:beecount/agent/model/native_tool_agent_model.dart';
 import 'package:beecount/agent/permission/agent_authorization_gate.dart';
 import 'package:beecount/agent/permission/agent_tool_permission.dart';
+import 'package:beecount/agent/permission/shared_preferences_agent_tool_permission_store.dart';
 import 'package:beecount/agent/tools/local_agent_tools.dart';
 import 'package:beecount/data/db.dart' hide AgentToolCall;
 import 'package:beecount/services/ai/agent_app_facade.dart';
@@ -13,6 +14,9 @@ import 'package:beecount/services/system/logger_service.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// Tests the platform write result while retaining the real preferences cache.
+// ignore: depend_on_referenced_packages
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -463,6 +467,147 @@ void main() {
     expect(gateway.recordedTexts, ['午饭 35', '晚饭 45']);
   });
 
+  test('cancellation while the model is pending blocks an always allowed write',
+      () async {
+    logger.clear();
+    final model = _PendingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: model,
+      runIdFactory: () => 'cancel-before-policy',
+    );
+    final subscription = facade
+        .processMessageEvents(message: '午饭 35', ledgerId: 1)
+        .listen((_) {});
+    await model.started.future;
+    final finished = (db.select(db.agentRuns)
+          ..where((row) => row.runId.equals('cancel-before-policy')))
+        .watchSingle()
+        .firstWhere((run) => run.status == 'completed');
+    await subscription.cancel();
+    model.pending.complete(AgentTurn.toolCalls([
+      AgentToolCall(
+          id: 'late-write',
+          name: 'record_transaction_from_text',
+          arguments: const {'sourceText': '午饭 35'}),
+    ]));
+    await finished.timeout(const Duration(seconds: 2));
+    expect(gateway.recordedTexts, isEmpty);
+    expect(model.requests.last.toolData.single['data'], {'error': '用户未授权此操作。'});
+    expect(
+        logger.logs.any((entry) =>
+            entry.message.contains('工具开始执行') &&
+            entry.message.contains('cancel-before-policy')),
+        isFalse);
+  });
+
+  test('cancellation during always allow persistence blocks execution',
+      () async {
+    logger.clear();
+    final persistenceStarted = Completer<void>();
+    final persistenceFinished = Completer<void>();
+    final model = _FakeModel([
+      AgentTurn.toolCalls([
+        AgentToolCall(
+            id: 'pending-write',
+            name: 'record_transaction_from_text',
+            arguments: const {'sourceText': '午饭 35'}),
+      ]),
+      const AgentTurn.finalText('已取消'),
+    ]);
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(
+        permission: AgentToolPermission.ask,
+        onPersist: () {
+          persistenceStarted.complete();
+          return persistenceFinished.future;
+        },
+      ),
+      model: model,
+      runIdFactory: () => 'cancel-during-persistence',
+    );
+    final iterator = StreamIterator(
+      facade.processMessageEvents(message: '午饭 35', ledgerId: 1),
+    );
+    expect(await iterator.moveNext(), isTrue);
+    final requested = iterator.current as AgentToolAuthorizationRequestedEvent;
+    expect(
+        facade.resolveToolAuthorization(requested.request.authorizationId,
+            AgentToolAuthorizationChoice.alwaysAllow),
+        isTrue);
+    await persistenceStarted.future;
+    final finished = (db.select(db.agentRuns)
+          ..where((row) => row.runId.equals('cancel-during-persistence')))
+        .watchSingle()
+        .firstWhere((run) => run.status == 'completed');
+    await iterator.cancel();
+    persistenceFinished.complete();
+    await finished.timeout(const Duration(seconds: 2));
+    expect(gateway.recordedTexts, isEmpty);
+    expect(model.requests.last.toolData.single['data'], {'error': '用户未授权此操作。'});
+    expect(
+        logger.logs.any((entry) =>
+            entry.message.contains('工具开始执行') &&
+            entry.message.contains('cancel-during-persistence')),
+        isFalse);
+  });
+
+  test('false preference write warns and authorizes only the current call',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    SharedPreferencesStorePlatform.instance = _RejectingPreferencesPlatform();
+    addTearDown(() => SharedPreferences.setMockInitialValues({}));
+    logger.clear();
+    var runNumber = 0;
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: SharedPreferencesAgentToolPermissionStore(
+        getPreferences: SharedPreferences.getInstance,
+      ),
+      model: _ConcurrentModel(),
+      runIdFactory: () => 'false-persistence-${++runNumber}',
+    );
+    final first = StreamIterator(
+      facade.processMessageEvents(message: '午饭 35', ledgerId: 1),
+    );
+    expect(await first.moveNext(), isTrue);
+    final request = first.current as AgentToolAuthorizationRequestedEvent;
+    facade.resolveToolAuthorization(request.request.authorizationId,
+        AgentToolAuthorizationChoice.alwaysAllow);
+    while (await first.moveNext()) {}
+    expect(gateway.recordedTexts, ['午饭 35']);
+    expect(
+        logger.logs.any((entry) =>
+            entry.level == LogLevel.warning &&
+            entry.message.contains(
+                'authorizationId: ${request.request.authorizationId}') &&
+            entry.message.contains('persisted: false')),
+        isTrue);
+    expect(
+        logger.logs.any((entry) =>
+            entry.level == LogLevel.info &&
+            entry.message.contains(
+                'authorizationId: ${request.request.authorizationId}') &&
+            entry.message.contains('choice: alwaysAllow') &&
+            entry.message.contains('persisted: false')),
+        isTrue);
+    final later = StreamIterator(
+      facade.processMessageEvents(message: '晚饭 45', ledgerId: 1),
+    );
+    expect(await later.moveNext(), isTrue);
+    final laterEvent = later.current;
+    // Drain the run even on regression, so database cleanup does not race it.
+    facade.cancelPendingToolAuthorizations();
+    while (await later.moveNext()) {}
+    expect(laterEvent, isA<AgentToolAuthorizationRequestedEvent>());
+    expect(gateway.recordedTexts, ['午饭 35']);
+  });
+
   test('explicit cancellation denies pending requests and completes the run',
       () async {
     final facade = AgentAppFacade(
@@ -580,6 +725,33 @@ final class _ThrowingModel implements AgentModel {
       Future.error(const FormatException('bad response'));
 }
 
+final class _PendingModel implements AgentModel {
+  final started = Completer<void>();
+  final pending = Completer<AgentTurn>();
+  final requests = <AgentRequest>[];
+
+  @override
+  Future<AgentTurn> nextTurn(AgentRequest request) {
+    requests.add(request);
+    if (requests.length > 1) {
+      return Future.value(const AgentTurn.finalText('已取消'));
+    }
+    started.complete();
+    return pending.future;
+  }
+}
+
+final class _RejectingPreferencesPlatform
+    extends InMemorySharedPreferencesStore {
+  _RejectingPreferencesPlatform() : super.empty();
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) async {
+    if (key == 'flutter.agent_tool_permissions_v1') return false;
+    return super.setValue(valueType, key, value);
+  }
+}
+
 final class _ConcurrentModel implements AgentModel {
   @override
   Future<AgentTurn> nextTurn(AgentRequest request) async {
@@ -660,10 +832,12 @@ final class _MemoryPermissionStore implements AgentToolPermissionStore {
   _MemoryPermissionStore({
     this.permission = AgentToolPermission.alwaysAllow,
     this.failsPersistence = false,
+    this.onPersist,
   });
 
   final AgentToolPermission permission;
   final bool failsPersistence;
+  final Future<void> Function()? onPersist;
 
   @override
   Future<AgentToolPermission?> permissionFor(String toolName) async =>
@@ -684,5 +858,6 @@ final class _MemoryPermissionStore implements AgentToolPermissionStore {
     AgentToolPermission permission,
   ) async {
     if (failsPersistence) throw StateError('disk full');
+    await onPersist?.call();
   }
 }

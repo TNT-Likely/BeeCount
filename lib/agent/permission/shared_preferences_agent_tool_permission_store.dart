@@ -44,12 +44,13 @@ final class SharedPreferencesAgentToolPermissionStore
     final prefs = await _getPreferences();
     final stored = await _readStored(prefs);
     stored[toolName] = permission;
-    await prefs.setString(
+    final persisted = await prefs.setString(
         key,
         jsonEncode({
           'version': _version,
           'tools': stored.map((name, value) => MapEntry(name, value.name)),
         }));
+    if (!persisted) throw StateError('工具授权偏好保存失败。');
   }
 
   @override
@@ -62,6 +63,10 @@ final class SharedPreferencesAgentToolPermissionStore
     SharedPreferences? preferences,
   ]) async {
     final prefs = preferences ?? await _getPreferences();
+    // setString updates the plugin cache before its platform write completes.
+    // Only persisted preferences may authorize later calls, even after a failed
+    // write or when another store instance shares the same optimistic cache.
+    await prefs.reload();
     final raw = prefs.getString(key);
     if (raw == null) return {};
     try {
