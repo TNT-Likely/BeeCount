@@ -92,7 +92,6 @@ void main() {
       await store.permissionFor('record_transaction_from_text'),
       AgentToolPermission.ask,
     );
-    expect(requester.requests.single.authorizationId, 'call-1');
     expect(requester.requests.single.runId, 'run-1');
     expect(requester.requests.single.ledgerId, 7);
     expect(requester.requests.single.arguments, {'sourceText': '午饭 35'});
@@ -134,6 +133,21 @@ void main() {
     expect(failures.single, isA<StateError>());
   });
 
+  test('persistence observer failure still permits the current call', () async {
+    final policy = AgentAuthorizationPolicy(
+      hardPolicy: const _AllowingPolicy(),
+      permissions: _FailingPermissionStore(),
+      requester: _FakeRequester(AgentToolAuthorizationChoice.alwaysAllow),
+      onPersistenceError: (error, stackTrace) {
+        throw StateError('观察者不可用');
+      },
+    );
+
+    final result = await policy.decide(request(), recordCall());
+
+    expect(result.isAllowed, isTrue);
+  });
+
   test('unknown tools are denied without authorization', () async {
     final requester = _FakeRequester(AgentToolAuthorizationChoice.allowOnce);
     final policy = AgentAuthorizationPolicy(
@@ -157,8 +171,12 @@ void main() {
     (tester) async {
       final broker = AgentToolAuthorizationBroker(onRequest: (_) {});
       var isComplete = false;
-      final result = broker.request(_authorizationRequest())
-        ..then((_) => isComplete = true);
+      final result = broker.request(
+        runId: 'run-1',
+        ledgerId: 7,
+        toolName: 'record_transaction_from_text',
+        arguments: const {'sourceText': '午饭 35'},
+      )..then((_) => isComplete = true);
 
       await tester.pump(
         const Duration(minutes: 2) - const Duration(milliseconds: 1),
@@ -168,30 +186,35 @@ void main() {
       await tester.pump(const Duration(milliseconds: 1));
       expect(await result, AgentToolAuthorizationChoice.deny);
       expect(
-        broker.resolve(
-          'authorization-1',
-          AgentToolAuthorizationChoice.allowOnce,
-        ),
+        broker.resolve('missing', AgentToolAuthorizationChoice.allowOnce),
         isFalse,
       );
     },
   );
 
   test('broker resolves and can deny all pending authorizations', () async {
-    final broker = AgentToolAuthorizationBroker(onRequest: (_) {});
-    final first = broker.request(_authorizationRequest());
+    final requested = <AgentToolAuthorizationRequest>[];
+    final broker = AgentToolAuthorizationBroker(
+      onRequest: requested.add,
+    );
+    final first = broker.request(
+      runId: 'run-1',
+      ledgerId: 7,
+      toolName: 'record_transaction_from_text',
+      arguments: const {'sourceText': '午饭 35'},
+    );
     final second = broker.request(
-      const AgentToolAuthorizationRequest(
-        authorizationId: 'authorization-2',
-        runId: 'run-1',
-        ledgerId: 7,
-        toolName: 'save_explicit_memory',
-        arguments: {'content': '咖啡用微信'},
-      ),
+      runId: 'run-1',
+      ledgerId: 7,
+      toolName: 'save_explicit_memory',
+      arguments: const {'content': '咖啡用微信'},
     );
 
     expect(
-      broker.resolve('authorization-1', AgentToolAuthorizationChoice.allowOnce),
+      broker.resolve(
+        requested[0].authorizationId,
+        AgentToolAuthorizationChoice.allowOnce,
+      ),
       isTrue,
     );
     broker.denyPending();
@@ -199,20 +222,180 @@ void main() {
     expect(await first, AgentToolAuthorizationChoice.allowOnce);
     expect(await second, AgentToolAuthorizationChoice.deny);
     expect(
-      broker.resolve('authorization-2', AgentToolAuthorizationChoice.allowOnce),
+      broker.resolve(
+        requested[1].authorizationId,
+        AgentToolAuthorizationChoice.allowOnce,
+      ),
       isFalse,
     );
   });
-}
 
-AgentToolAuthorizationRequest _authorizationRequest() =>
-    const AgentToolAuthorizationRequest(
-      authorizationId: 'authorization-1',
+  test('broker gives blank repeated model call IDs independent nonces',
+      () async {
+    final requests = <AgentToolAuthorizationRequest>[];
+    final broker = AgentToolAuthorizationBroker(onRequest: requests.add);
+    final policy = AgentAuthorizationPolicy(
+      hardPolicy: const _AllowingPolicy(),
+      permissions: _MemoryPermissionStore(
+        defaults: {'record_transaction_from_text': AgentToolPermission.ask},
+      ),
+      requester: broker,
+    );
+    final blankCall = AgentToolCall(
+      id: '',
+      name: 'record_transaction_from_text',
+      arguments: const {'sourceText': '午饭 35'},
+    );
+
+    final first = policy.decide(request(), blankCall);
+    await Future<void>.delayed(Duration.zero);
+    final firstId = requests.single.authorizationId;
+    expect(firstId, isNotEmpty);
+    expect(
+      broker.resolve(firstId, AgentToolAuthorizationChoice.allowOnce),
+      isTrue,
+    );
+    expect((await first).isAllowed, isTrue);
+
+    final later = policy.decide(request(), blankCall);
+    await Future<void>.delayed(Duration.zero);
+    final laterId = requests.last.authorizationId;
+    expect(laterId, isNot(firstId));
+    expect(
+      broker.resolve(firstId, AgentToolAuthorizationChoice.alwaysAllow),
+      isFalse,
+    );
+    expect(
+      broker.resolve(laterId, AgentToolAuthorizationChoice.allowOnce),
+      isTrue,
+    );
+    expect((await later).isAllowed, isTrue);
+  });
+
+  test('broker snapshots immutable authorization payload', () async {
+    final requests = <AgentToolAuthorizationRequest>[];
+    final broker = AgentToolAuthorizationBroker(onRequest: requests.add);
+    final arguments = <String, Object?>{'sourceText': '午饭 35'};
+
+    final decision = broker.request(
       runId: 'run-1',
       ledgerId: 7,
       toolName: 'record_transaction_from_text',
-      arguments: {'sourceText': '午饭 35'},
+      arguments: arguments,
     );
+    final authorization = requests.single;
+    arguments['sourceText'] = '晚饭 48';
+
+    expect(authorization.runId, 'run-1');
+    expect(authorization.toolName, 'record_transaction_from_text');
+    expect(authorization.arguments, {'sourceText': '午饭 35'});
+    expect(
+      () => authorization.arguments['sourceText'] = '不能修改',
+      throwsUnsupportedError,
+    );
+    broker.resolve(
+        authorization.authorizationId, AgentToolAuthorizationChoice.deny);
+    expect(await decision, AgentToolAuthorizationChoice.deny);
+  });
+
+  test('old resolved cleanup cannot remove a newly pending authorization',
+      () async {
+    final requests = <AgentToolAuthorizationRequest>[];
+    final broker = AgentToolAuthorizationBroker(onRequest: requests.add);
+    final first = broker.request(
+      runId: 'run-1',
+      ledgerId: 7,
+      toolName: 'record_transaction_from_text',
+      arguments: const {'sourceText': '午饭 35'},
+    );
+    final firstId = requests.single.authorizationId;
+
+    expect(
+      broker.resolve(firstId, AgentToolAuthorizationChoice.allowOnce),
+      isTrue,
+    );
+    final later = broker.request(
+      runId: 'run-1',
+      ledgerId: 7,
+      toolName: 'save_explicit_memory',
+      arguments: const {'content': '咖啡用微信'},
+    );
+    final laterId = requests.last.authorizationId;
+    await first;
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+      broker.resolve(laterId, AgentToolAuthorizationChoice.allowOnce),
+      isTrue,
+    );
+    expect(await later, AgentToolAuthorizationChoice.allowOnce);
+  });
+
+  test('old denied cleanup cannot remove a newly pending authorization',
+      () async {
+    final requests = <AgentToolAuthorizationRequest>[];
+    final broker = AgentToolAuthorizationBroker(onRequest: requests.add);
+    final first = broker.request(
+      runId: 'run-1',
+      ledgerId: 7,
+      toolName: 'record_transaction_from_text',
+      arguments: const {'sourceText': '午饭 35'},
+    );
+
+    broker.denyPending();
+    final later = broker.request(
+      runId: 'run-1',
+      ledgerId: 7,
+      toolName: 'save_explicit_memory',
+      arguments: const {'content': '咖啡用微信'},
+    );
+    final laterId = requests.last.authorizationId;
+    await first;
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+      broker.resolve(laterId, AgentToolAuthorizationChoice.allowOnce),
+      isTrue,
+    );
+    expect(await later, AgentToolAuthorizationChoice.allowOnce);
+  });
+
+  test('broker denies a request callback failure without reserving the nonce',
+      () async {
+    var throwsOnRequest = true;
+    final requests = <AgentToolAuthorizationRequest>[];
+    final broker = AgentToolAuthorizationBroker(
+      onRequest: (request) {
+        if (throwsOnRequest) throw StateError('事件流关闭');
+        requests.add(request);
+      },
+    );
+
+    final failed = broker.request(
+      runId: 'run-1',
+      ledgerId: 7,
+      toolName: 'record_transaction_from_text',
+      arguments: const {'sourceText': '午饭 35'},
+    );
+    expect(await failed, AgentToolAuthorizationChoice.deny);
+
+    throwsOnRequest = false;
+    final recovered = broker.request(
+      runId: 'run-1',
+      ledgerId: 7,
+      toolName: 'record_transaction_from_text',
+      arguments: const {'sourceText': '午饭 35'},
+    );
+    expect(
+      broker.resolve(
+        requests.single.authorizationId,
+        AgentToolAuthorizationChoice.allowOnce,
+      ),
+      isTrue,
+    );
+    expect(await recovered, AgentToolAuthorizationChoice.allowOnce);
+  });
+}
 
 final class _AllowingPolicy implements AgentPolicy {
   const _AllowingPolicy();
@@ -236,18 +419,42 @@ final class _FakeRequester implements AgentToolAuthorizationRequester {
   _FakeRequester([this.choice = AgentToolAuthorizationChoice.deny]);
 
   final AgentToolAuthorizationChoice choice;
-  final List<AgentToolAuthorizationRequest> requests = [];
+  final List<_AuthorizationPayload> requests = [];
 
   @override
-  Future<AgentToolAuthorizationChoice> request(
-    AgentToolAuthorizationRequest request,
-  ) async {
-    requests.add(request);
+  Future<AgentToolAuthorizationChoice> request({
+    required String runId,
+    required int? ledgerId,
+    required String toolName,
+    required Map<String, Object?> arguments,
+  }) async {
+    requests.add(
+      _AuthorizationPayload(
+        runId: runId,
+        ledgerId: ledgerId,
+        toolName: toolName,
+        arguments: arguments,
+      ),
+    );
     return choice;
   }
 
   @override
   void denyPending() {}
+}
+
+final class _AuthorizationPayload {
+  const _AuthorizationPayload({
+    required this.runId,
+    required this.ledgerId,
+    required this.toolName,
+    required this.arguments,
+  });
+
+  final String runId;
+  final int? ledgerId;
+  final String toolName;
+  final Map<String, Object?> arguments;
 }
 
 class _MemoryPermissionStore implements AgentToolPermissionStore {

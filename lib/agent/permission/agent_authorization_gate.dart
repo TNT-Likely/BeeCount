@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:agentcore/agentcore.dart';
 
@@ -7,13 +8,13 @@ import 'agent_tool_permission.dart';
 enum AgentToolAuthorizationChoice { deny, allowOnce, alwaysAllow }
 
 final class AgentToolAuthorizationRequest {
-  const AgentToolAuthorizationRequest({
+  AgentToolAuthorizationRequest({
     required this.authorizationId,
     required this.runId,
     required this.ledgerId,
     required this.toolName,
-    required this.arguments,
-  });
+    required Map<String, Object?> arguments,
+  }) : arguments = UnmodifiableMapView(Map.of(arguments));
 
   final String authorizationId;
   final String runId;
@@ -23,9 +24,12 @@ final class AgentToolAuthorizationRequest {
 }
 
 abstract interface class AgentToolAuthorizationRequester {
-  Future<AgentToolAuthorizationChoice> request(
-    AgentToolAuthorizationRequest request,
-  );
+  Future<AgentToolAuthorizationChoice> request({
+    required String runId,
+    required int? ledgerId,
+    required String toolName,
+    required Map<String, Object?> arguments,
+  });
 
   void denyPending();
 }
@@ -35,33 +39,45 @@ final class AgentToolAuthorizationBroker
   AgentToolAuthorizationBroker({required this.onRequest});
 
   static const Duration _authorizationTimeout = Duration(minutes: 2);
+  static int _nextAuthorizationNonce = 0;
 
   final void Function(AgentToolAuthorizationRequest request) onRequest;
-  final Map<String, Completer<AgentToolAuthorizationChoice>> _pending = {};
+  final Map<String, _PendingAuthorization> _pending = {};
 
   @override
-  Future<AgentToolAuthorizationChoice> request(
-    AgentToolAuthorizationRequest request,
-  ) {
-    if (_pending.containsKey(request.authorizationId)) {
-      throw StateError('Authorization is already pending.');
+  Future<AgentToolAuthorizationChoice> request({
+    required String runId,
+    required int? ledgerId,
+    required String toolName,
+    required Map<String, Object?> arguments,
+  }) {
+    final pending = _PendingAuthorization(_nextAuthorizationId());
+    _pending[pending.authorizationId] = pending;
+    final request = AgentToolAuthorizationRequest(
+      authorizationId: pending.authorizationId,
+      runId: runId,
+      ledgerId: ledgerId,
+      toolName: toolName,
+      arguments: arguments,
+    );
+    try {
+      onRequest(request);
+    } on Object {
+      _removePending(pending);
+      return Future.value(AgentToolAuthorizationChoice.deny);
     }
-
-    final completer = Completer<AgentToolAuthorizationChoice>();
-    _pending[request.authorizationId] = completer;
-    onRequest(request);
-    return completer.future
+    return pending.completer.future
         .timeout(
           _authorizationTimeout,
           onTimeout: () => AgentToolAuthorizationChoice.deny,
         )
-        .whenComplete(() => _pending.remove(request.authorizationId));
+        .whenComplete(() => _removePending(pending));
   }
 
   bool resolve(String authorizationId, AgentToolAuthorizationChoice choice) {
-    final completer = _pending.remove(authorizationId);
-    if (completer == null) return false;
-    completer.complete(choice);
+    final pending = _pending.remove(authorizationId);
+    if (pending == null) return false;
+    pending.completer.complete(choice);
     return true;
   }
 
@@ -69,10 +85,25 @@ final class AgentToolAuthorizationBroker
   void denyPending() {
     final pending = _pending.values.toList(growable: false);
     _pending.clear();
-    for (final completer in pending) {
-      completer.complete(AgentToolAuthorizationChoice.deny);
+    for (final authorization in pending) {
+      authorization.completer.complete(AgentToolAuthorizationChoice.deny);
     }
   }
+
+  String _nextAuthorizationId() => 'authorization-${++_nextAuthorizationNonce}';
+
+  void _removePending(_PendingAuthorization pending) {
+    if (identical(_pending[pending.authorizationId], pending)) {
+      _pending.remove(pending.authorizationId);
+    }
+  }
+}
+
+final class _PendingAuthorization {
+  _PendingAuthorization(this.authorizationId);
+
+  final String authorizationId;
+  final Completer<AgentToolAuthorizationChoice> completer = Completer();
 }
 
 final class AgentAuthorizationPolicy implements AgentPolicy {
@@ -109,13 +140,10 @@ final class AgentAuthorizationPolicy implements AgentPolicy {
     }
 
     final choice = await requester.request(
-      AgentToolAuthorizationRequest(
-        authorizationId: call.id,
-        runId: request.scope.id,
-        ledgerId: request.scope.ledgerId,
-        toolName: call.name,
-        arguments: call.arguments,
-      ),
+      runId: request.scope.id,
+      ledgerId: request.scope.ledgerId,
+      toolName: call.name,
+      arguments: call.arguments,
     );
     switch (choice) {
       case AgentToolAuthorizationChoice.deny:
@@ -133,7 +161,11 @@ final class AgentAuthorizationPolicy implements AgentPolicy {
       await permissions.setPermission(
           toolName, AgentToolPermission.alwaysAllow);
     } on Object catch (error, stackTrace) {
-      onPersistenceError?.call(error, stackTrace);
+      try {
+        onPersistenceError?.call(error, stackTrace);
+      } on Object {
+        // Observability cannot change the current authorization result.
+      }
     }
   }
 }
