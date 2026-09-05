@@ -102,6 +102,28 @@ void main() {
     expect(call.name, 'read_report');
     expect(call.arguments, {'range': 'month'});
   });
+
+  test('native model resets a run after an unexpected transport error',
+      () async {
+    final transport = _FailOnceTransport();
+    var promptCalls = 0;
+    final model = NativeToolAgentModel(
+      transport: transport,
+      promptBuilder: (request) {
+        promptCalls += 1;
+        return request.text;
+      },
+    );
+    final request = AgentRequest(
+      text: 'try again',
+      scope: const AgentScope(id: 'run-retry'),
+    );
+
+    await expectLater(model.nextTurn(request), throwsA(isA<FormatException>()));
+    await model.nextTurn(request);
+
+    expect(promptCalls, 2);
+  });
 }
 
 final class _FakeTransport implements AgentNativeToolTransport {
@@ -117,5 +139,25 @@ final class _FakeTransport implements AgentNativeToolTransport {
   }) async {
     requests.add(request);
     return responses.removeAt(0);
+  }
+}
+
+final class _FailOnceTransport implements AgentNativeToolTransport {
+  var _failed = false;
+
+  @override
+  Future<AgentNativeModelResponse> complete(
+    AgentNativeToolRequest request, {
+    AgentNativeEventSink? onEvent,
+  }) {
+    if (!_failed) {
+      _failed = true;
+      return Future<AgentNativeModelResponse>.error(
+        const FormatException('temporary'),
+      );
+    }
+    return Future<AgentNativeModelResponse>.value(
+      const AgentNativeModelResponse.finalText('retried'),
+    );
   }
 }

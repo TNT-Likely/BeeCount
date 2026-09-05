@@ -46,6 +46,9 @@ final class NativeToolAgentModel implements AgentModel {
     } on AgentNativeToolTimeoutException {
       _startedRuns.remove(request.scope.id);
       rethrow;
+    } on Object {
+      _startedRuns.remove(request.scope.id);
+      rethrow;
     }
     return switch (response) {
       AgentNativeFinalTextResponse(:final text) => _finish(
