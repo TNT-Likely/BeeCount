@@ -5171,6 +5171,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiChatTitle => 'AI助手';
 
   @override
+  String get aiChatEntrySubtitle => '记账、查支出，直接说就好';
+
+  @override
   String get aiChatClearHistory => '清除对话历史';
 
   @override

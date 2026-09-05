@@ -24,6 +24,7 @@ import '../report/annual_report_page.dart';
 import '../calendar/calendar_page.dart';
 import '../../widgets/biz/ledger_picker_sheet.dart';
 import '../../widgets/biz/home_budget_summary.dart';
+import '../../widgets/ai/agent_entry_card.dart';
 import 'ledgers_page_new.dart';
 import '../../providers/shared_ledger_providers.dart';
 
@@ -56,8 +57,14 @@ class _HomePageState extends ConsumerState<HomePage> {
   // → fallback 到 cachedFullData(只有前 20 条预加载)→ 等 Drift 推数据 → 切回
   // 完整列表,视觉上"整页闪一下"。这里把 stream 缓存到 State,只在 ledgerId
   // 变化时重建,无关 setState 重 build 时复用同一 stream 引用。
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>?
-      _txStream;
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>>? _txStream;
   int? _txStreamLedgerId;
 
   // 月初提醒状态
@@ -179,6 +186,13 @@ class _HomePageState extends ConsumerState<HomePage> {
         _showBudgetSetupHint = false;
       });
     }
+  }
+
+  void _openAIChat() {
+    _transactionListKey.currentState?.switchToStreamMode();
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const AIChatPage()),
+    );
   }
 
   @override
@@ -584,8 +598,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const BudgetPage()),
+                        MaterialPageRoute(builder: (_) => const BudgetPage()),
                       );
                     },
                     child: Text(
@@ -749,10 +762,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                                             }
                                           },
                                           child: Container(
-                                            padding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 6),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 6),
                                             decoration: BoxDecoration(
                                               color: Theme.of(context)
                                                           .brightness ==
@@ -857,27 +868,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                         ),
                         // 右侧操作按钮
                         if (aiEnabled)
-                          IconButton(
+                          AgentEntryButton(
                             tooltip: AppLocalizations.of(context).aiChatTitle,
-                            padding: const EdgeInsets.all(8),
-                            style: IconButton.styleFrom(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              minimumSize: Size.zero,
-                            ),
-                            onPressed: () {
-                              _transactionListKey.currentState
-                                  ?.switchToStreamMode();
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => const AIChatPage(),
-                                ),
-                              );
-                            },
-                            icon: Icon(
-                              Icons.auto_awesome_outlined,
-                              size: 20,
-                              color: Theme.of(context).iconTheme.color,
-                            ),
+                            onTap: _openAIChat,
                           ),
                         IconButton(
                           tooltip: AppLocalizations.of(context).calendarTitle,
@@ -1031,15 +1024,32 @@ class _HomePageState extends ConsumerState<HomePage> {
             }
             return const SizedBox.shrink();
           }),
+          if (aiEnabled)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: AgentEntryCard(
+                title: AppLocalizations.of(context).aiChatTitle,
+                subtitle: AppLocalizations.of(context).aiChatEntrySubtitle,
+                onTap: _openAIChat,
+              ),
+            ),
           Expanded(
-            child: StreamBuilder<List<({Transaction t, Category? category, Account? account, Account? toAccount})>>(
+            child: StreamBuilder<
+                List<
+                    ({
+                      Transaction t,
+                      Category? category,
+                      Account? account,
+                      Account? toAccount
+                    })>>(
               key: ValueKey('transactions_$_streamBuilderKey'), // 使用递增key强制重建
               stream: () {
                 // ledgerId 变了或第一次进来才重建 stream;无关 setState(预算
                 // 提示卡片、月度提醒等)的 home rebuild 复用同一 stream 引用,
                 // StreamBuilder 不会重新订阅,不会闪到 fallback 数据。
                 if (_txStream == null || _txStreamLedgerId != ledgerId) {
-                  _txStream = repo.transactionsWithCategoryAll(ledgerId: ledgerId);
+                  _txStream =
+                      repo.transactionsWithCategoryAll(ledgerId: ledgerId);
                   _txStreamLedgerId = ledgerId;
                 }
                 return _txStream;
