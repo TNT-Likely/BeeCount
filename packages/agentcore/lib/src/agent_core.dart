@@ -48,7 +48,7 @@ final class AgentCore {
               });
               continue;
             }
-            final decision = policy.decide(nextRequest, call);
+            final decision = await policy.decide(nextRequest, call);
             final tool = tools[call.name];
             if (!decision.isAllowed || tool == null) {
               final reason = decision.reason ?? '未知工具：${call.name}';

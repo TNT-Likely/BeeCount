@@ -21,15 +21,15 @@ void main() {
       );
 
   test('P0 policy permits record only for the current foreground user text',
-      () {
-    final allowed = policy.decide(
+      () async {
+    final allowed = await policy.decide(
       request(),
       AgentToolCall(
         name: 'record_transaction_from_text',
         arguments: const {'sourceText': '午饭 35'},
       ),
     );
-    final denied = policy.decide(
+    final denied = await policy.decide(
       request(),
       AgentToolCall(
         name: 'record_transaction_from_text',
@@ -41,15 +41,15 @@ void main() {
     expect(denied.isAllowed, isFalse);
   });
 
-  test('P0 policy denies background writes and cross-ledger reads', () {
-    final backgroundWrite = policy.decide(
+  test('P0 policy denies background writes and cross-ledger reads', () async {
+    final backgroundWrite = await policy.decide(
       request(isForeground: false),
       AgentToolCall(
         name: 'record_transaction_from_text',
         arguments: const {'sourceText': '午饭 35'},
       ),
     );
-    final crossLedgerRead = policy.decide(
+    final crossLedgerRead = await policy.decide(
       request(),
       AgentToolCall(
         name: 'query_transactions',
@@ -61,15 +61,16 @@ void main() {
     expect(crossLedgerRead.isAllowed, isFalse);
   });
 
-  test('P0 policy only permits explicit memory changes when user opted in', () {
-    final denied = policy.decide(
+  test('P0 policy only permits explicit memory changes when user opted in',
+      () async {
+    final denied = await policy.decide(
       request(),
       AgentToolCall(
         name: 'save_explicit_memory',
         arguments: const {'content': '咖啡用微信'},
       ),
     );
-    final allowed = policy.decide(
+    final allowed = await policy.decide(
       request(allowsExplicitMemory: true),
       AgentToolCall(
         name: 'save_explicit_memory',

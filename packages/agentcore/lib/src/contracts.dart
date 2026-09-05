@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 final class AgentScope {
@@ -115,7 +116,10 @@ abstract interface class AgentTool {
 }
 
 abstract interface class AgentPolicy {
-  AgentPolicyDecision decide(AgentRequest request, AgentToolCall call);
+  FutureOr<AgentPolicyDecision> decide(
+    AgentRequest request,
+    AgentToolCall call,
+  );
 }
 
 final class AgentPolicyDecision {

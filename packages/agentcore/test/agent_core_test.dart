@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:agentcore/agentcore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -23,6 +25,28 @@ void main() {
 
     expect(result.text, '你好，我能帮你查账或记账。');
     expect(fakeTool.calls, isEmpty);
+  });
+
+  test('waits for an asynchronous policy decision before executing a tool',
+      () async {
+    final decision = Completer<AgentPolicyDecision>();
+    final delayedCore = AgentCore(
+      model: model
+        ..turns = [
+          AgentTurn.toolCalls([AgentToolCall(name: fakeTool.name)]),
+          const AgentTurn.finalText('完成'),
+        ],
+      tools: {fakeTool.name: fakeTool},
+      policy: _DelayedPolicy(decision.future),
+    );
+
+    final pending = delayedCore.run(_requestFor('午饭 35'));
+    await Future<void>.delayed(Duration.zero);
+    expect(fakeTool.calls, isEmpty);
+
+    decision.complete(const AgentPolicyDecision.allow());
+    await pending;
+    expect(fakeTool.calls, hasLength(1));
   });
 
   test('executes an allowed call once and sends its data back to the model',
@@ -237,4 +261,17 @@ final class _FakePolicy implements AgentPolicy {
     }
     return const AgentPolicyDecision.deny('P0 不允许此操作');
   }
+}
+
+final class _DelayedPolicy implements AgentPolicy {
+  const _DelayedPolicy(this.decision);
+
+  final Future<AgentPolicyDecision> decision;
+
+  @override
+  Future<AgentPolicyDecision> decide(
+    AgentRequest request,
+    AgentToolCall call,
+  ) =>
+      decision;
 }
