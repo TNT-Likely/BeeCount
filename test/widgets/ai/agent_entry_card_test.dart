@@ -53,6 +53,23 @@ void main() {
     expect(taps, 1);
   });
 
+  testWidgets('首页紧凑入口使用20px AI图标且保留32px点击区域', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AgentEntryButton(
+            tooltip: 'AI 助手',
+            onTap: () {},
+          ),
+        ),
+      ),
+    );
+
+    final mark = tester.widget<AgentAiMark>(find.byType(AgentAiMark));
+    expect(mark.size, 20);
+    expect(tester.getSize(find.byType(InkWell)), const Size(32, 32));
+  });
+
   testWidgets('首页入口图标继承页头颜色，避免与背景同色不可见', (tester) async {
     await tester.pumpWidget(
       MaterialApp(

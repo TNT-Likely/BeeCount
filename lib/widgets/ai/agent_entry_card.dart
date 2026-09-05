@@ -100,7 +100,12 @@ final class AgentEntryButton extends StatelessWidget {
           customBorder: const CircleBorder(),
           child: Padding(
             padding: const EdgeInsets.all(4),
-            child: AgentAiMark(size: 24, color: iconColor),
+            child: SizedBox.square(
+              dimension: 24,
+              child: Center(
+                child: AgentAiMark(size: 20, color: iconColor),
+              ),
+            ),
           ),
         ),
       ),
