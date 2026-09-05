@@ -5264,6 +5264,95 @@ class AppLocalizationsKo extends AppLocalizations {
   String get agentToolForgetMemory => '기억 삭제';
 
   @override
+  String get agentPermissionsTitle => 'Agent permissions';
+
+  @override
+  String get agentPermissionsRestoreDefaults => 'Restore defaults';
+
+  @override
+  String get agentPermissionsRestoreTitle => 'Restore default permissions?';
+
+  @override
+  String get agentPermissionsRestoreDescription => 'This clears every Always allow setting and restores each tool\'s default permission.';
+
+  @override
+  String get agentPermissionsRestoreConfirm => 'Restore';
+
+  @override
+  String get agentPermissionAsk => 'Ask every time';
+
+  @override
+  String get agentPermissionAlwaysAllow => 'Always allow';
+
+  @override
+  String get agentPermissionWaiting => 'Waiting for your authorization';
+
+  @override
+  String get agentPermissionWriteFailed => 'Could not save permission settings. Please try again.';
+
+  @override
+  String get agentAuthorizationPersistenceFailed => 'Permission could not be saved; this operation still follows your choice.';
+
+  @override
+  String get agentToolQueryTransactionsDescription => 'View transactions in the current ledger for a selected time range.';
+
+  @override
+  String get agentToolSpendingSummaryDescription => 'Summarize spending in the current ledger for a selected time range.';
+
+  @override
+  String get agentToolBudgetStatusDescription => 'View the budget status for the current ledger.';
+
+  @override
+  String get agentToolRecordTransactionDescription => 'Record a transaction from the original text you sent.';
+
+  @override
+  String get agentToolSaveMemoryDescription => 'Save something you explicitly asked the assistant to remember.';
+
+  @override
+  String get agentToolForgetMemoryDescription => 'Delete a saved local memory.';
+
+  @override
+  String get agentToolUnknownDescription => 'Run a local Agent tool.';
+
+  @override
+  String get agentAuthorizationTitle => 'Allow Agent action?';
+
+  @override
+  String agentAuthorizationCurrentLedger(int ledgerId) {
+    return 'Ledger: current ledger (ID $ledgerId)';
+  }
+
+  @override
+  String get agentAuthorizationAllLedgers => 'Ledger: all accessible ledgers';
+
+  @override
+  String get agentAuthorizationParameters => 'Information used this time';
+
+  @override
+  String get agentAuthorizationNoParameters => 'No parameters need to be shown.';
+
+  @override
+  String get agentAuthorizationSourceText => 'Original transaction text';
+
+  @override
+  String get agentAuthorizationTimeRange => 'Query time range';
+
+  @override
+  String get agentAuthorizationMemoryContent => 'Memory content';
+
+  @override
+  String get agentAuthorizationMemoryId => 'Memory ID';
+
+  @override
+  String get agentAuthorizationDeny => 'Deny';
+
+  @override
+  String get agentAuthorizationAllowOnce => 'Allow once';
+
+  @override
+  String get agentAuthorizationAlwaysAllow => 'Always allow';
+
+  @override
   String get billCardSuccess => '기록 성공';
 
   @override

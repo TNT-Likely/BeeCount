@@ -5264,6 +5264,95 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentToolForgetMemory => '遗忘记忆';
 
   @override
+  String get agentPermissionsTitle => 'Agent 权限';
+
+  @override
+  String get agentPermissionsRestoreDefaults => '恢复默认';
+
+  @override
+  String get agentPermissionsRestoreTitle => '恢复默认权限？';
+
+  @override
+  String get agentPermissionsRestoreDescription => '这会清除所有“始终允许”设置，并恢复每个工具的默认权限。';
+
+  @override
+  String get agentPermissionsRestoreConfirm => '恢复';
+
+  @override
+  String get agentPermissionAsk => '每次询问';
+
+  @override
+  String get agentPermissionAlwaysAllow => '始终允许';
+
+  @override
+  String get agentPermissionWaiting => '等待你的授权';
+
+  @override
+  String get agentPermissionWriteFailed => '权限设置保存失败，请重试。';
+
+  @override
+  String get agentAuthorizationPersistenceFailed => '权限保存失败，本次操作仍按你的选择处理。';
+
+  @override
+  String get agentToolQueryTransactionsDescription => '查看当前账本内指定时间范围的交易。';
+
+  @override
+  String get agentToolSpendingSummaryDescription => '汇总当前账本在指定时间范围内的支出。';
+
+  @override
+  String get agentToolBudgetStatusDescription => '查看当前账本的预算状态。';
+
+  @override
+  String get agentToolRecordTransactionDescription => '根据你发送的原始文本记录一笔交易。';
+
+  @override
+  String get agentToolSaveMemoryDescription => '保存你明确要求助手记住的内容。';
+
+  @override
+  String get agentToolForgetMemoryDescription => '删除一条已保存的本地记忆。';
+
+  @override
+  String get agentToolUnknownDescription => '执行本地 Agent 工具。';
+
+  @override
+  String get agentAuthorizationTitle => '允许 Agent 执行操作？';
+
+  @override
+  String agentAuthorizationCurrentLedger(int ledgerId) {
+    return '账本：当前账本（ID $ledgerId）';
+  }
+
+  @override
+  String get agentAuthorizationAllLedgers => '账本：所有可访问账本';
+
+  @override
+  String get agentAuthorizationParameters => '本次会使用的信息';
+
+  @override
+  String get agentAuthorizationNoParameters => '没有需要展示的参数。';
+
+  @override
+  String get agentAuthorizationSourceText => '原始记账文本';
+
+  @override
+  String get agentAuthorizationTimeRange => '查询时间范围';
+
+  @override
+  String get agentAuthorizationMemoryContent => '记忆内容';
+
+  @override
+  String get agentAuthorizationMemoryId => '记忆编号';
+
+  @override
+  String get agentAuthorizationDeny => '拒绝';
+
+  @override
+  String get agentAuthorizationAllowOnce => '本次允许';
+
+  @override
+  String get agentAuthorizationAlwaysAllow => '始终允许';
+
+  @override
   String get billCardSuccess => '记账成功';
 
   @override

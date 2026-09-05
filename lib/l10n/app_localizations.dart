@@ -10040,6 +10040,180 @@ abstract class AppLocalizations {
   /// **'forget memory'**
   String get agentToolForgetMemory;
 
+  /// No description provided for @agentPermissionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent permissions'**
+  String get agentPermissionsTitle;
+
+  /// No description provided for @agentPermissionsRestoreDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore defaults'**
+  String get agentPermissionsRestoreDefaults;
+
+  /// No description provided for @agentPermissionsRestoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore default permissions?'**
+  String get agentPermissionsRestoreTitle;
+
+  /// No description provided for @agentPermissionsRestoreDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This clears every Always allow setting and restores each tool\'s default permission.'**
+  String get agentPermissionsRestoreDescription;
+
+  /// No description provided for @agentPermissionsRestoreConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get agentPermissionsRestoreConfirm;
+
+  /// No description provided for @agentPermissionAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask every time'**
+  String get agentPermissionAsk;
+
+  /// No description provided for @agentPermissionAlwaysAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Always allow'**
+  String get agentPermissionAlwaysAllow;
+
+  /// No description provided for @agentPermissionWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your authorization'**
+  String get agentPermissionWaiting;
+
+  /// No description provided for @agentPermissionWriteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save permission settings. Please try again.'**
+  String get agentPermissionWriteFailed;
+
+  /// No description provided for @agentAuthorizationPersistenceFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission could not be saved; this operation still follows your choice.'**
+  String get agentAuthorizationPersistenceFailed;
+
+  /// No description provided for @agentToolQueryTransactionsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View transactions in the current ledger for a selected time range.'**
+  String get agentToolQueryTransactionsDescription;
+
+  /// No description provided for @agentToolSpendingSummaryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize spending in the current ledger for a selected time range.'**
+  String get agentToolSpendingSummaryDescription;
+
+  /// No description provided for @agentToolBudgetStatusDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View the budget status for the current ledger.'**
+  String get agentToolBudgetStatusDescription;
+
+  /// No description provided for @agentToolRecordTransactionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a transaction from the original text you sent.'**
+  String get agentToolRecordTransactionDescription;
+
+  /// No description provided for @agentToolSaveMemoryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Save something you explicitly asked the assistant to remember.'**
+  String get agentToolSaveMemoryDescription;
+
+  /// No description provided for @agentToolForgetMemoryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete a saved local memory.'**
+  String get agentToolForgetMemoryDescription;
+
+  /// No description provided for @agentToolUnknownDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Run a local Agent tool.'**
+  String get agentToolUnknownDescription;
+
+  /// No description provided for @agentAuthorizationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Agent action?'**
+  String get agentAuthorizationTitle;
+
+  /// No description provided for @agentAuthorizationCurrentLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger: current ledger (ID {ledgerId})'**
+  String agentAuthorizationCurrentLedger(int ledgerId);
+
+  /// No description provided for @agentAuthorizationAllLedgers.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger: all accessible ledgers'**
+  String get agentAuthorizationAllLedgers;
+
+  /// No description provided for @agentAuthorizationParameters.
+  ///
+  /// In en, this message translates to:
+  /// **'Information used this time'**
+  String get agentAuthorizationParameters;
+
+  /// No description provided for @agentAuthorizationNoParameters.
+  ///
+  /// In en, this message translates to:
+  /// **'No parameters need to be shown.'**
+  String get agentAuthorizationNoParameters;
+
+  /// No description provided for @agentAuthorizationSourceText.
+  ///
+  /// In en, this message translates to:
+  /// **'Original transaction text'**
+  String get agentAuthorizationSourceText;
+
+  /// No description provided for @agentAuthorizationTimeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Query time range'**
+  String get agentAuthorizationTimeRange;
+
+  /// No description provided for @agentAuthorizationMemoryContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory content'**
+  String get agentAuthorizationMemoryContent;
+
+  /// No description provided for @agentAuthorizationMemoryId.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory ID'**
+  String get agentAuthorizationMemoryId;
+
+  /// No description provided for @agentAuthorizationDeny.
+  ///
+  /// In en, this message translates to:
+  /// **'Deny'**
+  String get agentAuthorizationDeny;
+
+  /// No description provided for @agentAuthorizationAllowOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow once'**
+  String get agentAuthorizationAllowOnce;
+
+  /// No description provided for @agentAuthorizationAlwaysAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Always allow'**
+  String get agentAuthorizationAlwaysAllow;
+
   /// No description provided for @billCardSuccess.
   ///
   /// In en, this message translates to:

@@ -20,7 +20,10 @@ import '../../providers/ai_chat_providers.dart';
 import '../../ai/core/bill_info.dart';
 import '../../pages/transaction/transaction_editor_page.dart';
 import '../../pages/ai/ai_settings_page.dart';
+import '../../pages/ai/agent_permissions_page.dart';
+import '../../pages/ai/agent_tool_presentation.dart';
 import '../../widgets/biz/ledger_selector_dialog.dart';
+import '../../widgets/ai/agent_tool_authorization_dialog.dart';
 import '../../data/db.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/ai_quick_command.dart';
@@ -28,6 +31,7 @@ import '../../services/ui/avatar_service.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/ai/ai_chat_service.dart';
 import '../../services/ai/agent_app_facade.dart';
+import '../../agent/permission/agent_authorization_gate.dart';
 import '../../services/ai/ai_quick_command_service.dart';
 
 /// AI 对话页面
@@ -160,6 +164,15 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
             title: AppLocalizations.of(context).aiChatTitle,
             showBack: true,
             actions: [
+              IconButton(
+                icon: const Icon(Icons.shield_outlined),
+                tooltip: AppLocalizations.of(context).agentPermissionsTitle,
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AgentPermissionsPage(),
+                  ),
+                ),
+              ),
               IconButton(
                 icon: const Icon(Icons.delete_outline),
                 tooltip: AppLocalizations.of(context).aiChatClearHistory,
@@ -760,6 +773,20 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
               _streamingAgentText += text;
               _agentExecutionStatus = null;
             });
+          case AgentToolAuthorizationRequestedEvent(:final request):
+            setState(() {
+              _agentExecutionStatus = l10n.agentPermissionWaiting;
+            });
+            final choice = mounted
+                ? await AgentToolAuthorizationDialog.show(
+                    context: context,
+                    request: request,
+                  )
+                : AgentToolAuthorizationChoice.deny;
+            chatService.resolveToolAuthorization(
+              request.authorizationId,
+              choice,
+            );
           case AgentToolStartedEvent(:final toolName):
             setState(() {
               _agentExecutionStatus =
@@ -841,15 +868,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   }
 
   String _agentToolLabel(AppLocalizations l10n, String toolName) =>
-      switch (toolName) {
-        'query_transactions' => l10n.agentToolQueryTransactions,
-        'get_spending_summary' => l10n.agentToolSpendingSummary,
-        'get_budget_status' => l10n.agentToolBudgetStatus,
-        'record_transaction_from_text' => l10n.agentToolRecordTransaction,
-        'save_explicit_memory' => l10n.agentToolSaveMemory,
-        'forget_memory' => l10n.agentToolForgetMemory,
-        _ => toolName,
-      };
+      AgentToolPresentation.label(l10n, toolName);
 
   void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 100), () {
@@ -933,7 +952,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     final repo = ref.read(repositoryProvider);
     final message = await repo.getMessageById(messageId);
     if (message == null || message.metadata == null) {
-      if (mounted) showToast(context, AppLocalizations.of(context).aiChatUndone);
+      if (mounted) {
+        showToast(context, AppLocalizations.of(context).aiChatUndone);
+      }
       return;
     }
 
@@ -1113,7 +1134,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         final idx = parsed.txIds.indexOf(transactionId);
         if (idx >= 0 && idx < parsed.bills.length) {
           final newBills = List<BillInfo>.from(parsed.bills);
-          newBills[idx] = parsed.bills[idx].copyWith(ledgerId: selectedLedgerId);
+          newBills[idx] =
+              parsed.bills[idx].copyWith(ledgerId: selectedLedgerId);
           await repo.updateMessage(message.copyWith(
             metadata: Value(_encodeBillMetadata(
               newBills,
@@ -1245,12 +1267,10 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           .whereType<Map>()
           .map((j) => BillInfo.fromJson(Map<String, dynamic>.from(j)))
           .toList();
-      final txIds = ((raw['txIds'] as List?) ?? const [])
-          .whereType<int>()
-          .toList();
-      final undoneIds = ((raw['undoneIds'] as List?) ?? const [])
-          .whereType<int>()
-          .toSet();
+      final txIds =
+          ((raw['txIds'] as List?) ?? const []).whereType<int>().toList();
+      final undoneIds =
+          ((raw['undoneIds'] as List?) ?? const []).whereType<int>().toSet();
       return (bills: bills, txIds: txIds, undoneIds: undoneIds);
     }
 
@@ -1328,6 +1348,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    ref.read(aiChatServiceProvider).cancelPendingToolAuthorizations();
     _inputController.dispose();
     _scrollController.dispose();
     super.dispose();
