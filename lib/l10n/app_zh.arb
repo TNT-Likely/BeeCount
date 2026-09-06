@@ -2175,6 +2175,21 @@
   "aiQuickCommandsTitle": "试试这些",
   "aiQuickCommandsOpen": "打开快捷指令",
   "aiChatEmptyMessages": "暂无消息",
+  "aiChatEmptyCurrentLedger": "当前账本",
+  "aiChatEmptyStartTitle": "从一笔账，或一个问题开始",
+  "aiChatEmptyStartDescription": "我会基于当前账本回答，并在需要时请求你的授权。",
+  "aiChatEmptyMonthExpense": "本月支出",
+  "aiChatEmptyRecordedTransactions": "已记录交易",
+  "aiChatEmptyTransactionCount": "{count} 笔",
+  "@aiChatEmptyTransactionCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "aiChatEmptyQuestionExample": "试着问：本月哪项花得最多？",
+  "aiChatEmptyFirstTransactionTitle": "从今天的第一笔开始",
+  "aiChatEmptyFirstTransactionDescription": "直接告诉我金额和用途，我会帮你完成记账。",
+  "aiChatEmptyFirstTransactionExample": "例如：午饭花了 28 元",
   "aiChatMessagesLoadFailed": "加载失败: {error}",
   "@aiChatMessagesLoadFailed": {
     "placeholders": {

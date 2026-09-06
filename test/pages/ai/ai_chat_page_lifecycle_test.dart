@@ -98,15 +98,44 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('空会话以低存在感启动区引导任务选择', (tester) async {
+  testWidgets('当前周期没有交易时，空会话引导用户记下第一笔账', (tester) async {
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
     expect(find.text('暂无消息'), findsNothing);
     expect(find.byType(AgentBrandMark), findsOneWidget);
+    expect(find.text('从今天的第一笔开始'), findsOneWidget);
     expect(
       find.byKey(const ValueKey('ai-quick-command-suggestion-0')),
-      findsOneWidget,
+      findsNothing,
+    );
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('当前周期已有交易时，空会话展示账本摘要', (tester) async {
+    final ledgerId = await repository.createLedger(name: '当前账本');
+    await database.into(database.transactions).insert(
+          TransactionsCompanion.insert(
+            ledgerId: ledgerId,
+            type: 'expense',
+            amount: 32,
+            happenedAt: Value(DateTime.now()),
+          ),
+        );
+
+    await tester.pumpWidget(host());
+    await tester.pumpAndSettle();
+
+    expect(find.text('从一笔账，或一个问题开始'), findsOneWidget);
+    expect(find.text('本月支出'), findsOneWidget);
+    expect(find.text('已记录交易'), findsOneWidget);
+    expect(find.text('¥32'), findsOneWidget);
+    expect(find.text('1 笔'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('ai-quick-command-suggestion-0')),
+      findsNothing,
     );
 
     await tester.pumpWidget(const SizedBox());

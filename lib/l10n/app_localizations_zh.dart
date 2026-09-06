@@ -5192,6 +5192,38 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiChatEmptyMessages => '暂无消息';
 
   @override
+  String get aiChatEmptyCurrentLedger => '当前账本';
+
+  @override
+  String get aiChatEmptyStartTitle => '从一笔账，或一个问题开始';
+
+  @override
+  String get aiChatEmptyStartDescription => '我会基于当前账本回答，并在需要时请求你的授权。';
+
+  @override
+  String get aiChatEmptyMonthExpense => '本月支出';
+
+  @override
+  String get aiChatEmptyRecordedTransactions => '已记录交易';
+
+  @override
+  String aiChatEmptyTransactionCount(int count) {
+    return '$count 笔';
+  }
+
+  @override
+  String get aiChatEmptyQuestionExample => '试着问：本月哪项花得最多？';
+
+  @override
+  String get aiChatEmptyFirstTransactionTitle => '从今天的第一笔开始';
+
+  @override
+  String get aiChatEmptyFirstTransactionDescription => '直接告诉我金额和用途，我会帮你完成记账。';
+
+  @override
+  String get aiChatEmptyFirstTransactionExample => '例如：午饭花了 28 元';
+
+  @override
   String aiChatMessagesLoadFailed(String error) {
     return '加载失败: $error';
   }

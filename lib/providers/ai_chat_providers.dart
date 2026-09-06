@@ -15,6 +15,7 @@ import '../agent/runtime/shared_preferences_agent_execution_settings_store.dart'
 import '../agent/tools/local_agent_tools.dart';
 import '../agent/permission/agent_tool_permission.dart';
 import '../agent/permission/shared_preferences_agent_tool_permission_store.dart';
+import '../utils/month_range.dart';
 
 /// AI 多模态记账底座 (Layer 1)。无状态,可全局复用。
 final aiExtractionEngineProvider = Provider<AiExtractionEngine>(
@@ -105,3 +106,48 @@ final messagesProvider = StreamProvider.family<List<Message>, int>(
     return repo.watchMessages(conversationId);
   },
 );
+
+/// Empty conversations show a small, local snapshot of the active period.
+///
+/// The transaction count intentionally includes every recorded transaction,
+/// while [expense] keeps the existing statistics convention and excludes
+/// transactions marked as `excludeFromStats`.
+final class AiChatEmptyLedgerSummary {
+  const AiChatEmptyLedgerSummary({
+    required this.period,
+    required this.transactionCount,
+    required this.expense,
+  });
+
+  final DateTime period;
+  final int transactionCount;
+  final double expense;
+
+  bool get hasTransactionData => transactionCount > 0;
+}
+
+/// A live summary for the empty AI conversation state.
+///
+/// It deliberately reads through [BaseRepository], so it remains local-first
+/// and does not couple the chat UI to Drift or any optional cloud backend.
+final aiChatEmptyLedgerSummaryProvider =
+    StreamProvider.autoDispose<AiChatEmptyLedgerSummary>((ref) {
+  final ledgerId = ref.watch(currentLedgerIdProvider);
+  final startDay = ref.watch(currentMonthStartDayProvider);
+  final period = labelForDate(DateTime.now(), startDay);
+  final repository = ref.watch(repositoryProvider);
+
+  return repository
+      .watchTransactionsInMonth(ledgerId: ledgerId, month: period)
+      .asyncMap((transactions) async {
+    final (_, expense) = await repository.monthlyTotals(
+      ledgerId: ledgerId,
+      month: period,
+    );
+    return AiChatEmptyLedgerSummary(
+      period: period,
+      transactionCount: transactions.length,
+      expense: expense,
+    );
+  });
+});

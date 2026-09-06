@@ -9908,6 +9908,66 @@ abstract class AppLocalizations {
   /// **'No messages yet'**
   String get aiChatEmptyMessages;
 
+  /// No description provided for @aiChatEmptyCurrentLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Current ledger'**
+  String get aiChatEmptyCurrentLedger;
+
+  /// No description provided for @aiChatEmptyStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with a transaction or a question'**
+  String get aiChatEmptyStartTitle;
+
+  /// No description provided for @aiChatEmptyStartDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ll answer from this ledger and ask for permission when needed.'**
+  String get aiChatEmptyStartDescription;
+
+  /// No description provided for @aiChatEmptyMonthExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'This month\'s spending'**
+  String get aiChatEmptyMonthExpense;
+
+  /// No description provided for @aiChatEmptyRecordedTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded transactions'**
+  String get aiChatEmptyRecordedTransactions;
+
+  /// No description provided for @aiChatEmptyTransactionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recorded'**
+  String aiChatEmptyTransactionCount(int count);
+
+  /// No description provided for @aiChatEmptyQuestionExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Try asking: What did I spend the most on this month?'**
+  String get aiChatEmptyQuestionExample;
+
+  /// No description provided for @aiChatEmptyFirstTransactionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with today\'s first transaction'**
+  String get aiChatEmptyFirstTransactionTitle;
+
+  /// No description provided for @aiChatEmptyFirstTransactionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell me the amount and purpose, and I\'ll help record it.'**
+  String get aiChatEmptyFirstTransactionDescription;
+
+  /// No description provided for @aiChatEmptyFirstTransactionExample.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: Lunch cost 28'**
+  String get aiChatEmptyFirstTransactionExample;
+
   /// No description provided for @aiChatMessagesLoadFailed.
   ///
   /// In en, this message translates to:

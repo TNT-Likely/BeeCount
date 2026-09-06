@@ -2245,6 +2245,21 @@
   "aiQuickCommandsTitle": "Try a task",
   "aiQuickCommandsOpen": "Open suggestions",
   "aiChatEmptyMessages": "No messages yet",
+  "aiChatEmptyCurrentLedger": "Current ledger",
+  "aiChatEmptyStartTitle": "Start with a transaction or a question",
+  "aiChatEmptyStartDescription": "I'll answer from this ledger and ask for permission when needed.",
+  "aiChatEmptyMonthExpense": "This month's spending",
+  "aiChatEmptyRecordedTransactions": "Recorded transactions",
+  "aiChatEmptyTransactionCount": "{count} recorded",
+  "@aiChatEmptyTransactionCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "aiChatEmptyQuestionExample": "Try asking: What did I spend the most on this month?",
+  "aiChatEmptyFirstTransactionTitle": "Start with today's first transaction",
+  "aiChatEmptyFirstTransactionDescription": "Tell me the amount and purpose, and I'll help record it.",
+  "aiChatEmptyFirstTransactionExample": "For example: Lunch cost 28",
   "aiChatMessagesLoadFailed": "Failed to load messages: {error}",
   "@aiChatMessagesLoadFailed": {
     "placeholders": {

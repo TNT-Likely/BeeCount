@@ -5192,6 +5192,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiChatEmptyMessages => 'No messages yet';
 
   @override
+  String get aiChatEmptyCurrentLedger => 'Current ledger';
+
+  @override
+  String get aiChatEmptyStartTitle => 'Start with a transaction or a question';
+
+  @override
+  String get aiChatEmptyStartDescription => 'I\'ll answer from this ledger and ask for permission when needed.';
+
+  @override
+  String get aiChatEmptyMonthExpense => 'This month\'s spending';
+
+  @override
+  String get aiChatEmptyRecordedTransactions => 'Recorded transactions';
+
+  @override
+  String aiChatEmptyTransactionCount(int count) {
+    return '$count recorded';
+  }
+
+  @override
+  String get aiChatEmptyQuestionExample => 'Try asking: What did I spend the most on this month?';
+
+  @override
+  String get aiChatEmptyFirstTransactionTitle => 'Start with today\'s first transaction';
+
+  @override
+  String get aiChatEmptyFirstTransactionDescription => 'Tell me the amount and purpose, and I\'ll help record it.';
+
+  @override
+  String get aiChatEmptyFirstTransactionExample => 'For example: Lunch cost 28';
+
+  @override
   String aiChatMessagesLoadFailed(String error) {
     return 'Failed to load messages: $error';
   }
