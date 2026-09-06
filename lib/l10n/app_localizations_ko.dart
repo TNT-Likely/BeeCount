@@ -5264,16 +5264,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiChatSendFailed => '전송 실패';
 
   @override
-  String get agentRunFailed => 'AI 서비스를 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.';
+  String get agentRunFailed => 'AI service is temporarily unavailable. Please try again later.';
 
   @override
-  String get agentNativeToolsUnsupported => '현재 모델은 Agent 네이티브 도구 호출 또는 스트리밍을 지원하지 않습니다. AI 설정에서 모델을 변경해 주세요.';
+  String get agentNativeToolsUnsupported => 'This model does not support native Agent tools or streaming. Switch models in AI Settings.';
 
   @override
-  String get agentTurnTimedOut => 'AI 응답 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요.';
+  String get agentTurnTimedOut => 'The AI response timed out. Please try again shortly.';
 
   @override
-  String get agentRecordIncomplete => '거래 정보가 충분하지 않습니다. 금액과 용도를 입력한 뒤 다시 시도해 주세요.';
+  String get agentRecordIncomplete => 'The transaction details are incomplete. Please include an amount and purpose, then try again.';
 
   @override
   String agentRecordCreated(int count) {
@@ -5287,68 +5287,68 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get agentStepsExceeded => '요청 처리 단계가 너무 많습니다. 요청을 간단히 한 뒤 다시 시도해 주세요.';
+  String get agentStepsExceeded => 'This request took too many steps. Please simplify it and try again.';
 
   @override
   String agentExecutingTool(Object tool) {
-    return '실행 중: $tool';
+    return 'Working: $tool';
   }
 
   @override
   String agentToolCompleted(Object tool) {
-    return '완료: $tool';
+    return 'Done: $tool';
   }
 
   @override
   String agentToolFailed(Object tool) {
-    return '실패: $tool';
+    return 'Could not complete: $tool';
   }
 
   @override
-  String get agentToolQueryTransactions => '거래 조회';
+  String get agentToolQueryTransactions => 'query transactions';
 
   @override
-  String get agentToolSpendingSummary => '지출 요약';
+  String get agentToolSpendingSummary => 'summarize spending';
 
   @override
-  String get agentToolBudgetStatus => '예산 확인';
+  String get agentToolBudgetStatus => 'check budget';
 
   @override
   String get agentToolRecurringTransactions => 'view recurring transactions';
 
   @override
-  String get agentToolRecordTransaction => '거래 기록';
+  String get agentToolRecordTransaction => 'record transaction';
 
   @override
-  String get agentToolSaveMemory => '기억 저장';
+  String get agentToolSaveMemory => 'save memory';
 
   @override
-  String get agentToolForgetMemory => '기억 삭제';
+  String get agentToolForgetMemory => 'forget memory';
 
   @override
-  String get agentPermissionsTitle => 'Agent permissions';
+  String get agentPermissionsTitle => 'AI Assistant permissions';
 
   @override
-  String get agentPermissionsIntro => '여기에서 Agent가 실행할 수 있는 작업을 제어하세요. 읽기 전용 도구는 데이터를 보기만 하며, 데이터를 변경하는 도구는 실행 전에 권한을 요청합니다.';
+  String get agentPermissionsIntro => 'Choose what AI Assistant can do here. Read-only tools only view data; tools that change data ask for authorization before running.';
 
   @override
-  String get agentPermissionsReadOnlySection => '읽기 전용 도구';
+  String get agentPermissionsReadOnlySection => 'Read-only tools';
 
   @override
-  String get agentPermissionsReadOnlySectionDescription => '장부 정보를 확인하지만 아무것도 변경하지 않습니다.';
+  String get agentPermissionsReadOnlySectionDescription => 'View ledger information without changing anything.';
 
   @override
-  String get agentPermissionsWriteSection => '데이터 변경 도구';
+  String get agentPermissionsWriteSection => 'Data-changing tools';
 
   @override
-  String get agentPermissionsWriteSectionDescription => '장부 또는 로컬 기억을 변경할 수 있으므로 매번 묻도록 설정하는 것을 권장합니다.';
+  String get agentPermissionsWriteSectionDescription => 'These can change your ledger or local memories; asking every time is recommended.';
 
   @override
-  String get agentPermissionsDefaultsActive => '모든 도구가 기본 정책을 사용 중입니다';
+  String get agentPermissionsDefaultsActive => 'All tools are using their default policies';
 
   @override
   String agentPermissionsModifiedCount(int count) {
-    return '맞춤 설정 $count개';
+    return '$count custom settings';
   }
 
   @override

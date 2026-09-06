@@ -1577,40 +1577,6 @@
   "aiChatTransactionNotFound": "거래를 찾을 수 없습니다",
   "aiChatOpenEditorFailed": "편집기를 열지 못했습니다",
   "aiChatSendFailed": "전송 실패",
-  "agentRunFailed": "AI 서비스를 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.",
-  "agentNativeToolsUnsupported": "현재 모델은 Agent 네이티브 도구 호출 또는 스트리밍을 지원하지 않습니다. AI 설정에서 모델을 변경해 주세요.",
-  "agentTurnTimedOut": "AI 응답 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요.",
-  "agentRecordIncomplete": "거래 정보가 충분하지 않습니다. 금액과 용도를 입력한 뒤 다시 시도해 주세요.",
-  "agentStepsExceeded": "요청 처리 단계가 너무 많습니다. 요청을 간단히 한 뒤 다시 시도해 주세요.",
-  "agentExecutingTool": "실행 중: {tool}",
-  "@agentExecutingTool": {
-    "placeholders": {"tool": {}}
-  },
-  "agentToolCompleted": "완료: {tool}",
-  "@agentToolCompleted": {
-    "placeholders": {"tool": {}}
-  },
-  "agentToolFailed": "실패: {tool}",
-  "@agentToolFailed": {
-    "placeholders": {"tool": {}}
-  },
-  "agentToolQueryTransactions": "거래 조회",
-  "agentToolSpendingSummary": "지출 요약",
-  "agentToolBudgetStatus": "예산 확인",
-  "agentToolRecordTransaction": "거래 기록",
-  "agentToolSaveMemory": "기억 저장",
-  "agentToolForgetMemory": "기억 삭제",
-  "agentPermissionsTitle": "Agent permissions",
-  "agentPermissionsIntro": "여기에서 Agent가 실행할 수 있는 작업을 제어하세요. 읽기 전용 도구는 데이터를 보기만 하며, 데이터를 변경하는 도구는 실행 전에 권한을 요청합니다.",
-  "agentPermissionsReadOnlySection": "읽기 전용 도구",
-  "agentPermissionsReadOnlySectionDescription": "장부 정보를 확인하지만 아무것도 변경하지 않습니다.",
-  "agentPermissionsWriteSection": "데이터 변경 도구",
-  "agentPermissionsWriteSectionDescription": "장부 또는 로컬 기억을 변경할 수 있으므로 매번 묻도록 설정하는 것을 권장합니다.",
-  "agentPermissionsDefaultsActive": "모든 도구가 기본 정책을 사용 중입니다",
-  "agentPermissionsModifiedCount": "맞춤 설정 {count}개",
-  "@agentPermissionsModifiedCount": {
-    "placeholders": {"count": {"type": "int"}}
-  },
   "billCardSuccess": "기록 성공",
   "billCardUndone": "실행 취소됨",
   "billCardAmount": "💰 금액",
