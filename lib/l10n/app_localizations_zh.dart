@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -5183,6 +5185,52 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiChatInputHint => '例如: 买了杯咖啡35块';
 
   @override
+  String get aiQuickCommandsTitle => '试试这些';
+
+  @override
+  String get aiQuickCommandsOpen => '打开快捷指令';
+
+  @override
+  String get aiChatEmptyMessages => '暂无消息';
+
+  @override
+  String get aiChatEmptyCurrentLedger => '当前账本';
+
+  @override
+  String get aiChatEmptyStartTitle => '从一笔账，或一个问题开始';
+
+  @override
+  String get aiChatEmptyStartDescription => '我会基于当前账本回答，并在需要时请求你的授权。';
+
+  @override
+  String get aiChatEmptyMonthExpense => '本月支出';
+
+  @override
+  String get aiChatEmptyRecordedTransactions => '已记录交易';
+
+  @override
+  String aiChatEmptyTransactionCount(int count) {
+    return '$count 笔';
+  }
+
+  @override
+  String get aiChatEmptyQuestionExample => '试着问：本月哪项花得最多？';
+
+  @override
+  String get aiChatEmptyFirstTransactionTitle => '从今天的第一笔开始';
+
+  @override
+  String get aiChatEmptyFirstTransactionDescription => '直接告诉我金额和用途，我会帮你完成记账。';
+
+  @override
+  String get aiChatEmptyFirstTransactionExample => '例如：午饭花了 28 元';
+
+  @override
+  String aiChatMessagesLoadFailed(String error) {
+    return '加载失败: $error';
+  }
+
+  @override
   String get aiChatThinking => '思考中...';
 
   @override
@@ -5216,6 +5264,177 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiChatSendFailed => '发送失败';
 
   @override
+  String get agentRunFailed => 'AI 服务暂时不可用，请稍后重试。';
+
+  @override
+  String get agentNativeToolsUnsupported => '当前模型不支持 Agent 原生工具调用或流式输出，请在 AI 设置中切换模型。';
+
+  @override
+  String get agentTurnTimedOut => 'AI 响应超时，请稍后重试。';
+
+  @override
+  String get agentRecordIncomplete => '未识别到完整的记账信息，请补充金额和用途后重试。';
+
+  @override
+  String agentRecordCreated(int count) {
+    return '已创建 $count 笔账单。';
+  }
+
+  @override
+  String get agentStepsExceeded => '这次操作步骤过多，请简化后重试。';
+
+  @override
+  String agentExecutingTool(Object tool) {
+    return '正在执行：$tool';
+  }
+
+  @override
+  String agentToolCompleted(Object tool) {
+    return '已完成：$tool';
+  }
+
+  @override
+  String agentToolFailed(Object tool) {
+    return '执行失败：$tool';
+  }
+
+  @override
+  String get agentToolQueryTransactions => '查询交易';
+
+  @override
+  String get agentToolSpendingSummary => '汇总支出';
+
+  @override
+  String get agentToolBudgetStatus => '查询预算';
+
+  @override
+  String get agentToolRecurringTransactions => '查看周期账单';
+
+  @override
+  String get agentToolRecordTransaction => '记录交易';
+
+  @override
+  String get agentToolSaveMemory => '保存记忆';
+
+  @override
+  String get agentToolForgetMemory => '遗忘记忆';
+
+  @override
+  String get agentPermissionsTitle => 'AI助手权限';
+
+  @override
+  String get agentPermissionsIntro => '在这里管理 AI助手可以执行的操作。查询类工具只读取数据，修改类工具会在执行前请求授权。';
+
+  @override
+  String get agentPermissionsReadOnlySection => '只读工具';
+
+  @override
+  String get agentPermissionsReadOnlySectionDescription => '查看账本信息，不会修改任何数据。';
+
+  @override
+  String get agentPermissionsWriteSection => '数据修改工具';
+
+  @override
+  String get agentPermissionsWriteSectionDescription => '会改变账本或本地记忆，建议保持每次询问。';
+
+  @override
+  String get agentPermissionsDefaultsActive => '所有工具都在使用默认策略';
+
+  @override
+  String agentPermissionsModifiedCount(int count) {
+    return '已自定义 $count 项设置';
+  }
+
+  @override
+  String get agentPermissionsRestoreDefaults => '恢复默认';
+
+  @override
+  String get agentPermissionsRestoreTitle => '恢复默认权限？';
+
+  @override
+  String get agentPermissionsRestoreDescription => '这会清除所有“始终允许”设置，并恢复每个工具的默认权限。';
+
+  @override
+  String get agentPermissionsRestoreConfirm => '恢复';
+
+  @override
+  String get agentPermissionAsk => '每次询问';
+
+  @override
+  String get agentPermissionAlwaysAllow => '始终允许';
+
+  @override
+  String get agentPermissionWaiting => '等待你的授权';
+
+  @override
+  String get agentPermissionWriteFailed => '权限设置保存失败，请重试。';
+
+  @override
+  String get agentAuthorizationPersistenceFailed => '权限保存失败，本次操作仍按你的选择处理。';
+
+  @override
+  String get agentToolQueryTransactionsDescription => '查看当前账本内指定时间范围的交易。';
+
+  @override
+  String get agentToolSpendingSummaryDescription => '汇总当前账本在指定时间范围内的支出。';
+
+  @override
+  String get agentToolBudgetStatusDescription => '查看当前账本的预算状态。';
+
+  @override
+  String get agentToolRecurringTransactionsDescription => '查看当前账本启用中的周期账单。';
+
+  @override
+  String get agentToolRecordTransactionDescription => '根据你发送的原始文本记录一笔交易。';
+
+  @override
+  String get agentToolSaveMemoryDescription => '保存你明确要求助手记住的内容。';
+
+  @override
+  String get agentToolForgetMemoryDescription => '删除一条已保存的本地记忆。';
+
+  @override
+  String get agentToolUnknownDescription => '执行本地 Agent 工具。';
+
+  @override
+  String get agentAuthorizationTitle => '允许 Agent 执行操作？';
+
+  @override
+  String agentAuthorizationCurrentLedger(int ledgerId) {
+    return '账本：当前账本（ID $ledgerId）';
+  }
+
+  @override
+  String get agentAuthorizationAllLedgers => '账本：所有可访问账本';
+
+  @override
+  String get agentAuthorizationParameters => '本次会使用的信息';
+
+  @override
+  String get agentAuthorizationNoParameters => '没有需要展示的参数。';
+
+  @override
+  String get agentAuthorizationSourceText => '原始记账文本';
+
+  @override
+  String get agentAuthorizationTimeRange => '查询时间范围';
+
+  @override
+  String get agentAuthorizationMemoryContent => '记忆内容';
+
+  @override
+  String get agentAuthorizationMemoryId => '记忆编号';
+
+  @override
+  String get agentAuthorizationDeny => '拒绝';
+
+  @override
+  String get agentAuthorizationAllowOnce => '本次允许';
+
+  @override
+  String get agentAuthorizationAlwaysAllow => '始终允许';
+
+  @override
   String get billCardSuccess => '记账成功';
 
   @override
@@ -5235,6 +5454,27 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get billCardAccount => '💳 账户';
+
+  @override
+  String get billCardTransferAccounts => '🔁 转账账户';
+
+  @override
+  String get billCardType => '↕️ 类型';
+
+  @override
+  String get billCardExpense => '支出';
+
+  @override
+  String get billCardIncome => '收入';
+
+  @override
+  String get billCardTransfer => '转账';
+
+  @override
+  String get billCardCurrency => '💱 币种';
+
+  @override
+  String get billCardTags => '🏷️ 标签';
 
   @override
   String get billCardUndo => '撤销';
@@ -7512,6 +7752,119 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get currencyMRU => '毛里塔尼亚乌吉亚';
+
+  @override
+  String get agentAssistantSettingsTitle => 'AI助手';
+
+  @override
+  String get agentAssistantSettingsSubtitle => '管理助手如何使用本地数据和工具。';
+
+  @override
+  String get agentAssistantPermissionsEntry => '权限';
+
+  @override
+  String get agentAssistantPermissionsEntryDescription => '设置修改数据的工具何时需要你的授权。';
+
+  @override
+  String get agentAssistantMemoryEntry => '本地记忆';
+
+  @override
+  String get agentAssistantMemoryEntryDescription => '查看和移除仅保存在本机的记忆。';
+
+  @override
+  String get agentAssistantActivityEntry => '最近活动';
+
+  @override
+  String get agentAssistantActivityEntryDescription => '查看本地工具调用及其结果。';
+
+  @override
+  String get agentExecutionDepthEntry => '执行深度';
+
+  @override
+  String get agentExecutionDepthEntryDescription => '更高的上限可处理更多步骤，但响应可能更慢。';
+
+  @override
+  String agentExecutionDepthSelected(int turns) {
+    return '最多 $turns 个模型回合';
+  }
+
+  @override
+  String get agentExecutionDepthChooseTitle => '执行深度';
+
+  @override
+  String get agentExecutionDepthQuick => '快速';
+
+  @override
+  String get agentExecutionDepthStandard => '标准';
+
+  @override
+  String get agentExecutionDepthDeep => '深入';
+
+  @override
+  String get agentExecutionDepthCustom => '自定义';
+
+  @override
+  String get agentMemoryTitle => '本地记忆';
+
+  @override
+  String get agentMemoryIntro => '这些记忆仅保存在本机，并且只会用于当前账本。';
+
+  @override
+  String get agentMemoryEmpty => '暂时没有本地记忆。';
+
+  @override
+  String get agentMemoryDeleteTitle => '删除这条记忆？';
+
+  @override
+  String get agentMemoryDeleteDescription => '删除后，AI助手将不再使用这条记忆。';
+
+  @override
+  String get agentMemoryClear => '清空当前账本记忆';
+
+  @override
+  String get agentMemoryClearTitle => '清空当前账本的全部记忆？';
+
+  @override
+  String get agentMemoryClearDescription => '这会移除当前账本的所有本地记忆，且无法撤销。';
+
+  @override
+  String get agentActivityTitle => '最近活动';
+
+  @override
+  String get agentActivityIntro => '活动记录仅保存在本机，不会参与同步。';
+
+  @override
+  String get agentActivityEmpty => '暂时没有助手活动。';
+
+  @override
+  String get agentActivityCompleted => '已完成';
+
+  @override
+  String get agentActivityFailed => '失败';
+
+  @override
+  String get agentActivityRunning => '进行中';
+
+  @override
+  String get agentActivityCancelled => '已取消';
+
+  @override
+  String get agentActivityTools => '工具';
+
+  @override
+  String get agentActivityToolCompleted => '已完成';
+
+  @override
+  String get agentActivityToolDenied => '已拒绝';
+
+  @override
+  String get agentActivityToolFailed => '失败';
+
+  @override
+  String get agentRunCancelled => '本次操作已停止。';
+
+  @override
+  String get agentRunStop => '停止';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

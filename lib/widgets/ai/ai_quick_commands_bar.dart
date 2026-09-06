@@ -1,148 +1,329 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../models/ai_quick_command.dart';
 import '../../l10n/app_localizations.dart';
+import '../../models/ai_quick_command.dart';
+import '../../providers/theme_providers.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
-import '../../providers/theme_providers.dart';
 
-/// AI快捷指令横条组件
-class AIQuickCommandsBar extends ConsumerWidget {
-  /// 点击快捷指令的回调
-  final Function(AIQuickCommand) onCommandTap;
-
-  const AIQuickCommandsBar({
+/// Four high-frequency prompts shown only while a conversation is empty.
+///
+/// They help a new user discover useful tasks without permanently occupying
+/// vertical space once the conversation has started.
+final class AIQuickCommandSuggestions extends ConsumerWidget {
+  const AIQuickCommandSuggestions({
     super.key,
     required this.onCommandTap,
   });
 
+  final ValueChanged<AIQuickCommand> onCommandTap;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final commands = AIQuickCommands.getAllCommands();
-    final primaryColor = ref.watch(primaryColorProvider);
+    final primary = ref.watch(primaryColorProvider);
+    final commands = AIQuickCommands.getAllCommands().take(4).toList();
+    final gap = 8.0.scaled(context, ref);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final itemWidth = (constraints.maxWidth - gap) / 2;
+        return SizedBox(
+          width: constraints.maxWidth,
+          child: Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: [
+              for (var index = 0; index < commands.length; index++)
+                SizedBox(
+                  width: itemWidth,
+                  height: 38.0.scaled(context, ref),
+                  child: _AIQuickCommandSuggestionCard(
+                    key: ValueKey('ai-quick-command-suggestion-$index'),
+                    iconKey: ValueKey(
+                      'ai-quick-command-suggestion-icon-$index',
+                    ),
+                    command: commands[index],
+                    title: _titleFor(commands[index], l10n),
+                    primary: primary,
+                    onTap: () => onCommandTap(commands[index]),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
 
-    return SizedBox(
-      height: 48.0.scaled(context, ref),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.only(
-          left: 12.0.scaled(context, ref),
-          right: 12.0.scaled(context, ref),
-          bottom: 6.0.scaled(context, ref),
-          top: 0,
+final class _AIQuickCommandSuggestionCard extends StatelessWidget {
+  const _AIQuickCommandSuggestionCard({
+    super.key,
+    required this.iconKey,
+    required this.command,
+    required this.title,
+    required this.primary,
+    required this.onTap,
+  });
+
+  final Key iconKey;
+  final AIQuickCommand command;
+  final String title;
+  final Color primary;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = BeeTokens.isDark(context);
+    final radius = BorderRadius.circular(12);
+    final iconBackground = primary.withValues(alpha: isDark ? 0.22 : 0.14);
+    return Material(
+      color: Colors.transparent,
+      borderRadius: radius,
+      clipBehavior: Clip.antiAlias,
+      child: Ink(
+        decoration: BoxDecoration(
+          color: BeeTokens.surface(context),
+          borderRadius: radius,
+          border: Border.all(
+            color: primary.withValues(alpha: isDark ? 0.32 : 0.14),
+          ),
         ),
-        itemCount: commands.length,
-        separatorBuilder: (_, __) => SizedBox(width: 8.0.scaled(context, ref)),
-        itemBuilder: (context, index) {
-          final command = commands[index];
-          return _QuickCommandCard(
-            command: command,
-            l10n: l10n,
-            primaryColor: primaryColor,
-            onTap: () => onCommandTap(command),
-          );
-        },
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 9),
+            child: Row(
+              children: [
+                Container(
+                  key: iconKey,
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: iconBackground,
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                  child: Icon(
+                    _iconFor(command),
+                    color: primary,
+                    size: 14,
+                  ),
+                ),
+                const SizedBox(width: 7),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: BeeTextTokens.strongTitle(context).copyWith(
+                      color: BeeTokens.textPrimary(context),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 }
 
-/// 快捷指令卡片
-class _QuickCommandCard extends ConsumerWidget {
-  final AIQuickCommand command;
-  final AppLocalizations l10n;
-  final Color primaryColor;
-  final VoidCallback onTap;
-
-  const _QuickCommandCard({
-    required this.command,
-    required this.l10n,
-    required this.primaryColor,
-    required this.onTap,
+/// A compact input-adjacent entry point for the full command catalog.
+final class AIQuickCommandLauncher extends ConsumerWidget {
+  const AIQuickCommandLauncher({
+    super.key,
+    required this.onCommandTap,
+    this.enabled = true,
   });
 
-  String _getTitle() {
-    switch (command.titleKey) {
-      case 'aiQuickCommandFinancialHealthTitle':
-        return l10n.aiQuickCommandFinancialHealthTitle;
-      case 'aiQuickCommandMonthlyExpenseTitle':
-        return l10n.aiQuickCommandMonthlyExpenseTitle;
-      case 'aiQuickCommandCategoryAnalysisTitle':
-        return l10n.aiQuickCommandCategoryAnalysisTitle;
-      case 'aiQuickCommandBudgetPlanningTitle':
-        return l10n.aiQuickCommandBudgetPlanningTitle;
-      case 'aiQuickCommandAbnormalExpenseTitle':
-        return l10n.aiQuickCommandAbnormalExpenseTitle;
-      case 'aiQuickCommandSavingTipsTitle':
-        return l10n.aiQuickCommandSavingTipsTitle;
-      default:
-        return command.titleKey;
-    }
-  }
-
-  String? _getDescription() {
-    if (command.descriptionKey == null) return null;
-
-    switch (command.descriptionKey) {
-      case 'aiQuickCommandFinancialHealthDesc':
-        return l10n.aiQuickCommandFinancialHealthDesc;
-      case 'aiQuickCommandMonthlyExpenseDesc':
-        return l10n.aiQuickCommandMonthlyExpenseDesc;
-      case 'aiQuickCommandCategoryAnalysisDesc':
-        return l10n.aiQuickCommandCategoryAnalysisDesc;
-      case 'aiQuickCommandBudgetPlanningDesc':
-        return l10n.aiQuickCommandBudgetPlanningDesc;
-      case 'aiQuickCommandAbnormalExpenseDesc':
-        return l10n.aiQuickCommandAbnormalExpenseDesc;
-      case 'aiQuickCommandSavingTipsDesc':
-        return l10n.aiQuickCommandSavingTipsDesc;
-      default:
-        return command.descriptionKey;
-    }
-  }
+  final ValueChanged<AIQuickCommand> onCommandTap;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = BeeTokens.isDark(context);
-    final title = _getTitle();
-    final description = _getDescription();
+    final l10n = AppLocalizations.of(context);
+    final primary = ref.watch(primaryColorProvider);
+    return IconButton(
+      key: const ValueKey('ai-quick-command-launcher'),
+      tooltip: l10n.aiQuickCommandsOpen,
+      onPressed: enabled
+          ? () async {
+              final command = await showModalBottomSheet<AIQuickCommand>(
+                context: context,
+                backgroundColor: BeeTokens.surfaceSheet(context),
+                barrierColor: BeeTokens.overlay(context),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                builder: (_) => const _AIQuickCommandsSheet(),
+              );
+              if (command != null) onCommandTap(command);
+            }
+          : null,
+      style: IconButton.styleFrom(foregroundColor: primary),
+      icon: const Icon(Icons.auto_awesome_outlined),
+    );
+  }
+}
 
-    return Material(
-      color: BeeTokens.surface(context),
-      borderRadius: BorderRadius.circular(8.0.scaled(context, ref)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8.0.scaled(context, ref)),
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 10.0.scaled(context, ref),
-            vertical: 8.0.scaled(context, ref),
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8.0.scaled(context, ref)),
-            border: Border.all(
-              color: isDark
-                  ? primaryColor.withAlpha(77) // 30% 透明度
-                  : BeeTokens.border(context),
-              width: 1.0,
-            ),
-          ),
-          child: Center(
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 12.0.scaled(context, ref),
-                fontWeight: FontWeight.w500,
-                color: BeeTokens.textPrimary(context),
+final class _AIQuickCommandsSheet extends ConsumerWidget {
+  const _AIQuickCommandsSheet();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final primary = ref.watch(primaryColorProvider);
+    final commands = AIQuickCommands.getAllCommands();
+    return SafeArea(
+      top: false,
+      child: SizedBox(
+        key: const ValueKey('ai-quick-command-sheet'),
+        height: 404.0.scaled(context, ref),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                margin: EdgeInsets.only(top: 12.0.scaled(context, ref)),
+                width: 34.0.scaled(context, ref),
+                height: 4.0.scaled(context, ref),
+                decoration: BoxDecoration(
+                  color: primary.withValues(alpha: 0.34),
+                  borderRadius: BorderRadius.circular(100),
+                ),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                20.0.scaled(context, ref),
+                18.0.scaled(context, ref),
+                20.0.scaled(context, ref),
+                12.0.scaled(context, ref),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    key: const ValueKey('ai-quick-command-sheet-header-icon'),
+                    width: 38.0.scaled(context, ref),
+                    height: 38.0.scaled(context, ref),
+                    decoration: BoxDecoration(
+                      color: primary.withValues(alpha: 0.14),
+                      borderRadius:
+                          BorderRadius.circular(13.0.scaled(context, ref)),
+                    ),
+                    child: Icon(
+                      Icons.auto_awesome_rounded,
+                      color: primary,
+                      size: 20.0.scaled(context, ref),
+                    ),
+                  ),
+                  SizedBox(width: 12.0.scaled(context, ref)),
+                  Text(
+                    l10n.aiQuickCommandsTitle,
+                    style: BeeTextTokens.boldTitle(context),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: GridView.builder(
+                key: const ValueKey('ai-quick-command-sheet-grid'),
+                padding: EdgeInsets.fromLTRB(
+                  16.0.scaled(context, ref),
+                  0,
+                  16.0.scaled(context, ref),
+                  16.0.scaled(context, ref),
+                ),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10.0.scaled(context, ref),
+                  crossAxisSpacing: 10.0.scaled(context, ref),
+                  mainAxisExtent: 82.0.scaled(context, ref),
+                ),
+                itemCount: commands.length,
+                itemBuilder: (context, index) {
+                  final command = commands[index];
+                  return Material(
+                    key: ValueKey('ai-quick-command-sheet-item-$index'),
+                    color: primary.withValues(
+                      alpha: BeeTokens.isDark(context) ? 0.18 : 0.08,
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(16.0.scaled(context, ref)),
+                    child: InkWell(
+                      onTap: () => Navigator.of(context).pop(command),
+                      borderRadius:
+                          BorderRadius.circular(16.0.scaled(context, ref)),
+                      child: Padding(
+                        padding: EdgeInsets.all(12.0.scaled(context, ref)),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 30.0.scaled(context, ref),
+                              height: 30.0.scaled(context, ref),
+                              decoration: BoxDecoration(
+                                color: BeeTokens.surface(context),
+                                borderRadius: BorderRadius.circular(
+                                  10.0.scaled(context, ref),
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.auto_awesome_outlined,
+                                color: primary,
+                                size: 16.0.scaled(context, ref),
+                              ),
+                            ),
+                            SizedBox(width: 9.0.scaled(context, ref)),
+                            Expanded(
+                              child: Text(
+                                _titleFor(command, l10n),
+                                style: BeeTextTokens.strongTitle(context),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+String _titleFor(AIQuickCommand command, AppLocalizations l10n) {
+  return switch (command.titleKey) {
+    'aiQuickCommandFinancialHealthTitle' =>
+      l10n.aiQuickCommandFinancialHealthTitle,
+    'aiQuickCommandMonthlyExpenseTitle' =>
+      l10n.aiQuickCommandMonthlyExpenseTitle,
+    'aiQuickCommandCategoryAnalysisTitle' =>
+      l10n.aiQuickCommandCategoryAnalysisTitle,
+    'aiQuickCommandBudgetPlanningTitle' =>
+      l10n.aiQuickCommandBudgetPlanningTitle,
+    'aiQuickCommandAbnormalExpenseTitle' =>
+      l10n.aiQuickCommandAbnormalExpenseTitle,
+    'aiQuickCommandSavingTipsTitle' => l10n.aiQuickCommandSavingTipsTitle,
+    _ => command.titleKey,
+  };
+}
+
+IconData _iconFor(AIQuickCommand command) {
+  return switch (command.titleKey) {
+    'aiQuickCommandFinancialHealthTitle' => Icons.monitor_heart_outlined,
+    'aiQuickCommandMonthlyExpenseTitle' => Icons.calendar_month_outlined,
+    'aiQuickCommandCategoryAnalysisTitle' => Icons.pie_chart_outline_rounded,
+    'aiQuickCommandBudgetPlanningTitle' => Icons.savings_outlined,
+    'aiQuickCommandAbnormalExpenseTitle' => Icons.trending_up_rounded,
+    'aiQuickCommandSavingTipsTitle' => Icons.lightbulb_outline_rounded,
+    _ => Icons.auto_awesome_outlined,
+  };
 }

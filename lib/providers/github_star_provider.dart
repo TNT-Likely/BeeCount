@@ -6,6 +6,8 @@ import '../services/system/logger_service.dart';
 
 /// GitHub Star 数量 Provider
 /// 缓存1小时，避免频繁请求API
+const githubStarFallbackCount = 2500;
+
 final githubStarCountProvider = FutureProvider<int>((ref) async {
   const cacheKey = 'github_star_count';
   const cacheTimeKey = 'github_star_count_time';
@@ -44,6 +46,6 @@ final githubStarCountProvider = FutureProvider<int>((ref) async {
     logger.warning('GitHubStar', '获取Star数量失败: $e');
   }
 
-  // 返回缓存值或默认值（兜底800）
-  return cachedCount ?? 800;
+  // 返回缓存值或默认值（网络不可用时保持可信的项目展示）。
+  return cachedCount ?? githubStarFallbackCount;
 });

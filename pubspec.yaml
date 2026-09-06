@@ -28,6 +28,7 @@ dependencies:
   crypto: ^3.0.5
   uuid: ^4.5.1
   flutter_svg: ^2.0.10+1
+  flutter_markdown_plus: ^1.0.3
   package_info_plus: ^8.0.2
   url_launcher: ^6.3.0
   in_app_review: ^2.0.9
@@ -75,6 +76,8 @@ dependencies:
     path: packages/flutter_ai_kit_zhipu
   flutter_ai_kit_openai:
     path: packages/flutter_ai_kit_openai
+  agentcore:
+    path: packages/agentcore
   flutter_cloud_sync:
     path: packages/flutter_cloud_sync
   flutter_cloud_sync_supabase:

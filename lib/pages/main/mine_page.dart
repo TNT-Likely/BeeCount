@@ -460,7 +460,8 @@ class MinePage extends ConsumerWidget {
                         builder: (context, ref, _) {
                           final starCountAsync =
                               ref.watch(githubStarCountProvider);
-                          final starCount = starCountAsync.valueOrNull ?? 999;
+                          final starCount = starCountAsync.valueOrNull ??
+                              githubStarFallbackCount;
                           return AppListTile(
                             leading: Icons.star_outline,
                             title:

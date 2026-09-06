@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -5183,6 +5185,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiChatInputHint => 'e.g.: Bought a coffee for \$35';
 
   @override
+  String get aiQuickCommandsTitle => 'Try a task';
+
+  @override
+  String get aiQuickCommandsOpen => 'Open suggestions';
+
+  @override
+  String get aiChatEmptyMessages => 'No messages yet';
+
+  @override
+  String get aiChatEmptyCurrentLedger => 'Current ledger';
+
+  @override
+  String get aiChatEmptyStartTitle => 'Start with a transaction or a question';
+
+  @override
+  String get aiChatEmptyStartDescription => 'I\'ll answer from this ledger and ask for permission when needed.';
+
+  @override
+  String get aiChatEmptyMonthExpense => 'This month\'s spending';
+
+  @override
+  String get aiChatEmptyRecordedTransactions => 'Recorded transactions';
+
+  @override
+  String aiChatEmptyTransactionCount(int count) {
+    return '$count recorded';
+  }
+
+  @override
+  String get aiChatEmptyQuestionExample => 'Try asking: What did I spend the most on this month?';
+
+  @override
+  String get aiChatEmptyFirstTransactionTitle => 'Start with today\'s first transaction';
+
+  @override
+  String get aiChatEmptyFirstTransactionDescription => 'Tell me the amount and purpose, and I\'ll help record it.';
+
+  @override
+  String get aiChatEmptyFirstTransactionExample => 'For example: Lunch cost 28';
+
+  @override
+  String aiChatMessagesLoadFailed(String error) {
+    return 'Failed to load messages: $error';
+  }
+
+  @override
   String get aiChatThinking => 'Thinking...';
 
   @override
@@ -5216,6 +5264,183 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiChatSendFailed => 'Failed to send';
 
   @override
+  String get agentRunFailed => 'AI service is temporarily unavailable. Please try again later.';
+
+  @override
+  String get agentNativeToolsUnsupported => 'This model does not support native Agent tools or streaming. Switch models in AI Settings.';
+
+  @override
+  String get agentTurnTimedOut => 'The AI response timed out. Please try again shortly.';
+
+  @override
+  String get agentRecordIncomplete => 'The transaction details are incomplete. Please include an amount and purpose, then try again.';
+
+  @override
+  String agentRecordCreated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+    );
+    return 'Created $_temp0.';
+  }
+
+  @override
+  String get agentStepsExceeded => 'This request took too many steps. Please simplify it and try again.';
+
+  @override
+  String agentExecutingTool(Object tool) {
+    return 'Working: $tool';
+  }
+
+  @override
+  String agentToolCompleted(Object tool) {
+    return 'Done: $tool';
+  }
+
+  @override
+  String agentToolFailed(Object tool) {
+    return 'Could not complete: $tool';
+  }
+
+  @override
+  String get agentToolQueryTransactions => 'query transactions';
+
+  @override
+  String get agentToolSpendingSummary => 'summarize spending';
+
+  @override
+  String get agentToolBudgetStatus => 'check budget';
+
+  @override
+  String get agentToolRecurringTransactions => 'view recurring transactions';
+
+  @override
+  String get agentToolRecordTransaction => 'record transaction';
+
+  @override
+  String get agentToolSaveMemory => 'save memory';
+
+  @override
+  String get agentToolForgetMemory => 'forget memory';
+
+  @override
+  String get agentPermissionsTitle => 'AI Assistant permissions';
+
+  @override
+  String get agentPermissionsIntro => 'Choose what AI Assistant can do here. Read-only tools only view data; tools that change data ask for authorization before running.';
+
+  @override
+  String get agentPermissionsReadOnlySection => 'Read-only tools';
+
+  @override
+  String get agentPermissionsReadOnlySectionDescription => 'View ledger information without changing anything.';
+
+  @override
+  String get agentPermissionsWriteSection => 'Data-changing tools';
+
+  @override
+  String get agentPermissionsWriteSectionDescription => 'These can change your ledger or local memories; asking every time is recommended.';
+
+  @override
+  String get agentPermissionsDefaultsActive => 'All tools are using their default policies';
+
+  @override
+  String agentPermissionsModifiedCount(int count) {
+    return '$count custom settings';
+  }
+
+  @override
+  String get agentPermissionsRestoreDefaults => 'Restore defaults';
+
+  @override
+  String get agentPermissionsRestoreTitle => 'Restore default permissions?';
+
+  @override
+  String get agentPermissionsRestoreDescription => 'This clears every Always allow setting and restores each tool\'s default permission.';
+
+  @override
+  String get agentPermissionsRestoreConfirm => 'Restore';
+
+  @override
+  String get agentPermissionAsk => 'Ask every time';
+
+  @override
+  String get agentPermissionAlwaysAllow => 'Always allow';
+
+  @override
+  String get agentPermissionWaiting => 'Waiting for your authorization';
+
+  @override
+  String get agentPermissionWriteFailed => 'Could not save permission settings. Please try again.';
+
+  @override
+  String get agentAuthorizationPersistenceFailed => 'Permission could not be saved; this operation still follows your choice.';
+
+  @override
+  String get agentToolQueryTransactionsDescription => 'View transactions in the current ledger for a selected time range.';
+
+  @override
+  String get agentToolSpendingSummaryDescription => 'Summarize spending in the current ledger for a selected time range.';
+
+  @override
+  String get agentToolBudgetStatusDescription => 'View the budget status for the current ledger.';
+
+  @override
+  String get agentToolRecurringTransactionsDescription => 'View enabled recurring transactions in the current ledger.';
+
+  @override
+  String get agentToolRecordTransactionDescription => 'Record a transaction from the original text you sent.';
+
+  @override
+  String get agentToolSaveMemoryDescription => 'Save something you explicitly asked the assistant to remember.';
+
+  @override
+  String get agentToolForgetMemoryDescription => 'Delete a saved local memory.';
+
+  @override
+  String get agentToolUnknownDescription => 'Run a local Agent tool.';
+
+  @override
+  String get agentAuthorizationTitle => 'Allow Agent action?';
+
+  @override
+  String agentAuthorizationCurrentLedger(int ledgerId) {
+    return 'Ledger: current ledger (ID $ledgerId)';
+  }
+
+  @override
+  String get agentAuthorizationAllLedgers => 'Ledger: all accessible ledgers';
+
+  @override
+  String get agentAuthorizationParameters => 'Information used this time';
+
+  @override
+  String get agentAuthorizationNoParameters => 'No parameters need to be shown.';
+
+  @override
+  String get agentAuthorizationSourceText => 'Original transaction text';
+
+  @override
+  String get agentAuthorizationTimeRange => 'Query time range';
+
+  @override
+  String get agentAuthorizationMemoryContent => 'Memory content';
+
+  @override
+  String get agentAuthorizationMemoryId => 'Memory ID';
+
+  @override
+  String get agentAuthorizationDeny => 'Deny';
+
+  @override
+  String get agentAuthorizationAllowOnce => 'Allow once';
+
+  @override
+  String get agentAuthorizationAlwaysAllow => 'Always allow';
+
+  @override
   String get billCardSuccess => 'Booking Successful';
 
   @override
@@ -5235,6 +5460,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get billCardAccount => '💳 Account';
+
+  @override
+  String get billCardTransferAccounts => '🔁 Transfer accounts';
+
+  @override
+  String get billCardType => '↕️ Type';
+
+  @override
+  String get billCardExpense => 'Expense';
+
+  @override
+  String get billCardIncome => 'Income';
+
+  @override
+  String get billCardTransfer => 'Transfer';
+
+  @override
+  String get billCardCurrency => '💱 Currency';
+
+  @override
+  String get billCardTags => '🏷️ Tags';
 
   @override
   String get billCardUndo => 'Undo';
@@ -7512,4 +7758,117 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currencyMRU => 'Mauritanian Ouguiya';
+
+  @override
+  String get agentAssistantSettingsTitle => 'AI Assistant';
+
+  @override
+  String get agentAssistantSettingsSubtitle => 'Manage how the assistant uses local data and tools.';
+
+  @override
+  String get agentAssistantPermissionsEntry => 'Permissions';
+
+  @override
+  String get agentAssistantPermissionsEntryDescription => 'Choose when data-changing tools need your approval.';
+
+  @override
+  String get agentAssistantMemoryEntry => 'Local memory';
+
+  @override
+  String get agentAssistantMemoryEntryDescription => 'View and remove memories kept only on this device.';
+
+  @override
+  String get agentAssistantActivityEntry => 'Recent activity';
+
+  @override
+  String get agentAssistantActivityEntryDescription => 'Review local tool calls and their outcomes.';
+
+  @override
+  String get agentExecutionDepthEntry => 'Execution depth';
+
+  @override
+  String get agentExecutionDepthEntryDescription => 'Higher limits can handle more steps but may take longer.';
+
+  @override
+  String agentExecutionDepthSelected(int turns) {
+    return 'Up to $turns model turns';
+  }
+
+  @override
+  String get agentExecutionDepthChooseTitle => 'Execution depth';
+
+  @override
+  String get agentExecutionDepthQuick => 'Quick';
+
+  @override
+  String get agentExecutionDepthStandard => 'Standard';
+
+  @override
+  String get agentExecutionDepthDeep => 'Deep';
+
+  @override
+  String get agentExecutionDepthCustom => 'Custom';
+
+  @override
+  String get agentMemoryTitle => 'Local memory';
+
+  @override
+  String get agentMemoryIntro => 'These memories stay on this device and apply only to the current ledger.';
+
+  @override
+  String get agentMemoryEmpty => 'No local memories yet.';
+
+  @override
+  String get agentMemoryDeleteTitle => 'Delete this memory?';
+
+  @override
+  String get agentMemoryDeleteDescription => 'The assistant will no longer use this memory.';
+
+  @override
+  String get agentMemoryClear => 'Clear current ledger memories';
+
+  @override
+  String get agentMemoryClearTitle => 'Clear all current ledger memories?';
+
+  @override
+  String get agentMemoryClearDescription => 'This removes every local memory for this ledger and cannot be undone.';
+
+  @override
+  String get agentActivityTitle => 'Recent activity';
+
+  @override
+  String get agentActivityIntro => 'This activity history is stored locally and is never synced.';
+
+  @override
+  String get agentActivityEmpty => 'No assistant activity yet.';
+
+  @override
+  String get agentActivityCompleted => 'Completed';
+
+  @override
+  String get agentActivityFailed => 'Failed';
+
+  @override
+  String get agentActivityRunning => 'Running';
+
+  @override
+  String get agentActivityCancelled => 'Cancelled';
+
+  @override
+  String get agentActivityTools => 'Tools';
+
+  @override
+  String get agentActivityToolCompleted => 'Completed';
+
+  @override
+  String get agentActivityToolDenied => 'Denied';
+
+  @override
+  String get agentActivityToolFailed => 'Failed';
+
+  @override
+  String get agentRunCancelled => 'This run was stopped.';
+
+  @override
+  String get agentRunStop => 'Stop';
 }

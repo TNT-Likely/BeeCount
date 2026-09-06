@@ -4576,6 +4576,1627 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   }
 }
 
+class $AgentMemoriesTable extends AgentMemories
+    with TableInfo<$AgentMemoriesTable, AgentMemory> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AgentMemoriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _ledgerIdMeta =
+      const VerificationMeta('ledgerId');
+  @override
+  late final GeneratedColumn<int> ledgerId = GeneratedColumn<int>(
+      'ledger_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _contentMeta =
+      const VerificationMeta('content');
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+      'content', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _keywordsMeta =
+      const VerificationMeta('keywords');
+  @override
+  late final GeneratedColumn<String> keywords = GeneratedColumn<String>(
+      'keywords', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceMessageIdMeta =
+      const VerificationMeta('sourceMessageId');
+  @override
+  late final GeneratedColumn<int> sourceMessageId = GeneratedColumn<int>(
+      'source_message_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('active'));
+  static const VerificationMeta _expiresAtMeta =
+      const VerificationMeta('expiresAt');
+  @override
+  late final GeneratedColumn<DateTime> expiresAt = GeneratedColumn<DateTime>(
+      'expires_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        ledgerId,
+        kind,
+        content,
+        keywords,
+        sourceMessageId,
+        status,
+        expiresAt,
+        createdAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'agent_memories';
+  @override
+  VerificationContext validateIntegrity(Insertable<AgentMemory> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('ledger_id')) {
+      context.handle(_ledgerIdMeta,
+          ledgerId.isAcceptableOrUnknown(data['ledger_id']!, _ledgerIdMeta));
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(_contentMeta,
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('keywords')) {
+      context.handle(_keywordsMeta,
+          keywords.isAcceptableOrUnknown(data['keywords']!, _keywordsMeta));
+    }
+    if (data.containsKey('source_message_id')) {
+      context.handle(
+          _sourceMessageIdMeta,
+          sourceMessageId.isAcceptableOrUnknown(
+              data['source_message_id']!, _sourceMessageIdMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('expires_at')) {
+      context.handle(_expiresAtMeta,
+          expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AgentMemory map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AgentMemory(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      ledgerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}ledger_id']),
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      content: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
+      keywords: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}keywords']),
+      sourceMessageId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}source_message_id']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      expiresAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}expires_at']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $AgentMemoriesTable createAlias(String alias) {
+    return $AgentMemoriesTable(attachedDatabase, alias);
+  }
+}
+
+class AgentMemory extends DataClass implements Insertable<AgentMemory> {
+  final int id;
+  final int? ledgerId;
+  final String kind;
+  final String content;
+  final String? keywords;
+  final int? sourceMessageId;
+  final String status;
+  final DateTime? expiresAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const AgentMemory(
+      {required this.id,
+      this.ledgerId,
+      required this.kind,
+      required this.content,
+      this.keywords,
+      this.sourceMessageId,
+      required this.status,
+      this.expiresAt,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || ledgerId != null) {
+      map['ledger_id'] = Variable<int>(ledgerId);
+    }
+    map['kind'] = Variable<String>(kind);
+    map['content'] = Variable<String>(content);
+    if (!nullToAbsent || keywords != null) {
+      map['keywords'] = Variable<String>(keywords);
+    }
+    if (!nullToAbsent || sourceMessageId != null) {
+      map['source_message_id'] = Variable<int>(sourceMessageId);
+    }
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || expiresAt != null) {
+      map['expires_at'] = Variable<DateTime>(expiresAt);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  AgentMemoriesCompanion toCompanion(bool nullToAbsent) {
+    return AgentMemoriesCompanion(
+      id: Value(id),
+      ledgerId: ledgerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ledgerId),
+      kind: Value(kind),
+      content: Value(content),
+      keywords: keywords == null && nullToAbsent
+          ? const Value.absent()
+          : Value(keywords),
+      sourceMessageId: sourceMessageId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceMessageId),
+      status: Value(status),
+      expiresAt: expiresAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(expiresAt),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory AgentMemory.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AgentMemory(
+      id: serializer.fromJson<int>(json['id']),
+      ledgerId: serializer.fromJson<int?>(json['ledgerId']),
+      kind: serializer.fromJson<String>(json['kind']),
+      content: serializer.fromJson<String>(json['content']),
+      keywords: serializer.fromJson<String?>(json['keywords']),
+      sourceMessageId: serializer.fromJson<int?>(json['sourceMessageId']),
+      status: serializer.fromJson<String>(json['status']),
+      expiresAt: serializer.fromJson<DateTime?>(json['expiresAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'ledgerId': serializer.toJson<int?>(ledgerId),
+      'kind': serializer.toJson<String>(kind),
+      'content': serializer.toJson<String>(content),
+      'keywords': serializer.toJson<String?>(keywords),
+      'sourceMessageId': serializer.toJson<int?>(sourceMessageId),
+      'status': serializer.toJson<String>(status),
+      'expiresAt': serializer.toJson<DateTime?>(expiresAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  AgentMemory copyWith(
+          {int? id,
+          Value<int?> ledgerId = const Value.absent(),
+          String? kind,
+          String? content,
+          Value<String?> keywords = const Value.absent(),
+          Value<int?> sourceMessageId = const Value.absent(),
+          String? status,
+          Value<DateTime?> expiresAt = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      AgentMemory(
+        id: id ?? this.id,
+        ledgerId: ledgerId.present ? ledgerId.value : this.ledgerId,
+        kind: kind ?? this.kind,
+        content: content ?? this.content,
+        keywords: keywords.present ? keywords.value : this.keywords,
+        sourceMessageId: sourceMessageId.present
+            ? sourceMessageId.value
+            : this.sourceMessageId,
+        status: status ?? this.status,
+        expiresAt: expiresAt.present ? expiresAt.value : this.expiresAt,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  AgentMemory copyWithCompanion(AgentMemoriesCompanion data) {
+    return AgentMemory(
+      id: data.id.present ? data.id.value : this.id,
+      ledgerId: data.ledgerId.present ? data.ledgerId.value : this.ledgerId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      content: data.content.present ? data.content.value : this.content,
+      keywords: data.keywords.present ? data.keywords.value : this.keywords,
+      sourceMessageId: data.sourceMessageId.present
+          ? data.sourceMessageId.value
+          : this.sourceMessageId,
+      status: data.status.present ? data.status.value : this.status,
+      expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentMemory(')
+          ..write('id: $id, ')
+          ..write('ledgerId: $ledgerId, ')
+          ..write('kind: $kind, ')
+          ..write('content: $content, ')
+          ..write('keywords: $keywords, ')
+          ..write('sourceMessageId: $sourceMessageId, ')
+          ..write('status: $status, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, ledgerId, kind, content, keywords,
+      sourceMessageId, status, expiresAt, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AgentMemory &&
+          other.id == this.id &&
+          other.ledgerId == this.ledgerId &&
+          other.kind == this.kind &&
+          other.content == this.content &&
+          other.keywords == this.keywords &&
+          other.sourceMessageId == this.sourceMessageId &&
+          other.status == this.status &&
+          other.expiresAt == this.expiresAt &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class AgentMemoriesCompanion extends UpdateCompanion<AgentMemory> {
+  final Value<int> id;
+  final Value<int?> ledgerId;
+  final Value<String> kind;
+  final Value<String> content;
+  final Value<String?> keywords;
+  final Value<int?> sourceMessageId;
+  final Value<String> status;
+  final Value<DateTime?> expiresAt;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const AgentMemoriesCompanion({
+    this.id = const Value.absent(),
+    this.ledgerId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.content = const Value.absent(),
+    this.keywords = const Value.absent(),
+    this.sourceMessageId = const Value.absent(),
+    this.status = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  AgentMemoriesCompanion.insert({
+    this.id = const Value.absent(),
+    this.ledgerId = const Value.absent(),
+    required String kind,
+    required String content,
+    this.keywords = const Value.absent(),
+    this.sourceMessageId = const Value.absent(),
+    this.status = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  })  : kind = Value(kind),
+        content = Value(content);
+  static Insertable<AgentMemory> custom({
+    Expression<int>? id,
+    Expression<int>? ledgerId,
+    Expression<String>? kind,
+    Expression<String>? content,
+    Expression<String>? keywords,
+    Expression<int>? sourceMessageId,
+    Expression<String>? status,
+    Expression<DateTime>? expiresAt,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ledgerId != null) 'ledger_id': ledgerId,
+      if (kind != null) 'kind': kind,
+      if (content != null) 'content': content,
+      if (keywords != null) 'keywords': keywords,
+      if (sourceMessageId != null) 'source_message_id': sourceMessageId,
+      if (status != null) 'status': status,
+      if (expiresAt != null) 'expires_at': expiresAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  AgentMemoriesCompanion copyWith(
+      {Value<int>? id,
+      Value<int?>? ledgerId,
+      Value<String>? kind,
+      Value<String>? content,
+      Value<String?>? keywords,
+      Value<int?>? sourceMessageId,
+      Value<String>? status,
+      Value<DateTime?>? expiresAt,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt}) {
+    return AgentMemoriesCompanion(
+      id: id ?? this.id,
+      ledgerId: ledgerId ?? this.ledgerId,
+      kind: kind ?? this.kind,
+      content: content ?? this.content,
+      keywords: keywords ?? this.keywords,
+      sourceMessageId: sourceMessageId ?? this.sourceMessageId,
+      status: status ?? this.status,
+      expiresAt: expiresAt ?? this.expiresAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (ledgerId.present) {
+      map['ledger_id'] = Variable<int>(ledgerId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (keywords.present) {
+      map['keywords'] = Variable<String>(keywords.value);
+    }
+    if (sourceMessageId.present) {
+      map['source_message_id'] = Variable<int>(sourceMessageId.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (expiresAt.present) {
+      map['expires_at'] = Variable<DateTime>(expiresAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentMemoriesCompanion(')
+          ..write('id: $id, ')
+          ..write('ledgerId: $ledgerId, ')
+          ..write('kind: $kind, ')
+          ..write('content: $content, ')
+          ..write('keywords: $keywords, ')
+          ..write('sourceMessageId: $sourceMessageId, ')
+          ..write('status: $status, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AgentConversationSummariesTable extends AgentConversationSummaries
+    with TableInfo<$AgentConversationSummariesTable, AgentConversationSummary> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AgentConversationSummariesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _ledgerIdMeta =
+      const VerificationMeta('ledgerId');
+  @override
+  late final GeneratedColumn<int> ledgerId = GeneratedColumn<int>(
+      'ledger_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _conversationIdMeta =
+      const VerificationMeta('conversationId');
+  @override
+  late final GeneratedColumn<int> conversationId = GeneratedColumn<int>(
+      'conversation_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _contentMeta =
+      const VerificationMeta('content');
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+      'content', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, ledgerId, conversationId, content, createdAt, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'agent_conversation_summaries';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<AgentConversationSummary> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('ledger_id')) {
+      context.handle(_ledgerIdMeta,
+          ledgerId.isAcceptableOrUnknown(data['ledger_id']!, _ledgerIdMeta));
+    }
+    if (data.containsKey('conversation_id')) {
+      context.handle(
+          _conversationIdMeta,
+          conversationId.isAcceptableOrUnknown(
+              data['conversation_id']!, _conversationIdMeta));
+    }
+    if (data.containsKey('content')) {
+      context.handle(_contentMeta,
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AgentConversationSummary map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AgentConversationSummary(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      ledgerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}ledger_id']),
+      conversationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}conversation_id']),
+      content: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $AgentConversationSummariesTable createAlias(String alias) {
+    return $AgentConversationSummariesTable(attachedDatabase, alias);
+  }
+}
+
+class AgentConversationSummary extends DataClass
+    implements Insertable<AgentConversationSummary> {
+  final int id;
+  final int? ledgerId;
+  final int? conversationId;
+  final String content;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const AgentConversationSummary(
+      {required this.id,
+      this.ledgerId,
+      this.conversationId,
+      required this.content,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || ledgerId != null) {
+      map['ledger_id'] = Variable<int>(ledgerId);
+    }
+    if (!nullToAbsent || conversationId != null) {
+      map['conversation_id'] = Variable<int>(conversationId);
+    }
+    map['content'] = Variable<String>(content);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  AgentConversationSummariesCompanion toCompanion(bool nullToAbsent) {
+    return AgentConversationSummariesCompanion(
+      id: Value(id),
+      ledgerId: ledgerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ledgerId),
+      conversationId: conversationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conversationId),
+      content: Value(content),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory AgentConversationSummary.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AgentConversationSummary(
+      id: serializer.fromJson<int>(json['id']),
+      ledgerId: serializer.fromJson<int?>(json['ledgerId']),
+      conversationId: serializer.fromJson<int?>(json['conversationId']),
+      content: serializer.fromJson<String>(json['content']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'ledgerId': serializer.toJson<int?>(ledgerId),
+      'conversationId': serializer.toJson<int?>(conversationId),
+      'content': serializer.toJson<String>(content),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  AgentConversationSummary copyWith(
+          {int? id,
+          Value<int?> ledgerId = const Value.absent(),
+          Value<int?> conversationId = const Value.absent(),
+          String? content,
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      AgentConversationSummary(
+        id: id ?? this.id,
+        ledgerId: ledgerId.present ? ledgerId.value : this.ledgerId,
+        conversationId:
+            conversationId.present ? conversationId.value : this.conversationId,
+        content: content ?? this.content,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  AgentConversationSummary copyWithCompanion(
+      AgentConversationSummariesCompanion data) {
+    return AgentConversationSummary(
+      id: data.id.present ? data.id.value : this.id,
+      ledgerId: data.ledgerId.present ? data.ledgerId.value : this.ledgerId,
+      conversationId: data.conversationId.present
+          ? data.conversationId.value
+          : this.conversationId,
+      content: data.content.present ? data.content.value : this.content,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentConversationSummary(')
+          ..write('id: $id, ')
+          ..write('ledgerId: $ledgerId, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, ledgerId, conversationId, content, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AgentConversationSummary &&
+          other.id == this.id &&
+          other.ledgerId == this.ledgerId &&
+          other.conversationId == this.conversationId &&
+          other.content == this.content &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class AgentConversationSummariesCompanion
+    extends UpdateCompanion<AgentConversationSummary> {
+  final Value<int> id;
+  final Value<int?> ledgerId;
+  final Value<int?> conversationId;
+  final Value<String> content;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const AgentConversationSummariesCompanion({
+    this.id = const Value.absent(),
+    this.ledgerId = const Value.absent(),
+    this.conversationId = const Value.absent(),
+    this.content = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  AgentConversationSummariesCompanion.insert({
+    this.id = const Value.absent(),
+    this.ledgerId = const Value.absent(),
+    this.conversationId = const Value.absent(),
+    required String content,
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : content = Value(content);
+  static Insertable<AgentConversationSummary> custom({
+    Expression<int>? id,
+    Expression<int>? ledgerId,
+    Expression<int>? conversationId,
+    Expression<String>? content,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ledgerId != null) 'ledger_id': ledgerId,
+      if (conversationId != null) 'conversation_id': conversationId,
+      if (content != null) 'content': content,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  AgentConversationSummariesCompanion copyWith(
+      {Value<int>? id,
+      Value<int?>? ledgerId,
+      Value<int?>? conversationId,
+      Value<String>? content,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt}) {
+    return AgentConversationSummariesCompanion(
+      id: id ?? this.id,
+      ledgerId: ledgerId ?? this.ledgerId,
+      conversationId: conversationId ?? this.conversationId,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (ledgerId.present) {
+      map['ledger_id'] = Variable<int>(ledgerId.value);
+    }
+    if (conversationId.present) {
+      map['conversation_id'] = Variable<int>(conversationId.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentConversationSummariesCompanion(')
+          ..write('id: $id, ')
+          ..write('ledgerId: $ledgerId, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AgentRunsTable extends AgentRuns
+    with TableInfo<$AgentRunsTable, AgentRun> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AgentRunsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _runIdMeta = const VerificationMeta('runId');
+  @override
+  late final GeneratedColumn<String> runId = GeneratedColumn<String>(
+      'run_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ledgerIdMeta =
+      const VerificationMeta('ledgerId');
+  @override
+  late final GeneratedColumn<int> ledgerId = GeneratedColumn<int>(
+      'ledger_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _userMessageMeta =
+      const VerificationMeta('userMessage');
+  @override
+  late final GeneratedColumn<String> userMessage = GeneratedColumn<String>(
+      'user_message', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _errorMessageMeta =
+      const VerificationMeta('errorMessage');
+  @override
+  late final GeneratedColumn<String> errorMessage = GeneratedColumn<String>(
+      'error_message', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        runId,
+        ledgerId,
+        status,
+        userMessage,
+        errorMessage,
+        startedAt,
+        finishedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'agent_runs';
+  @override
+  VerificationContext validateIntegrity(Insertable<AgentRun> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('run_id')) {
+      context.handle(
+          _runIdMeta, runId.isAcceptableOrUnknown(data['run_id']!, _runIdMeta));
+    } else if (isInserting) {
+      context.missing(_runIdMeta);
+    }
+    if (data.containsKey('ledger_id')) {
+      context.handle(_ledgerIdMeta,
+          ledgerId.isAcceptableOrUnknown(data['ledger_id']!, _ledgerIdMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('user_message')) {
+      context.handle(
+          _userMessageMeta,
+          userMessage.isAcceptableOrUnknown(
+              data['user_message']!, _userMessageMeta));
+    }
+    if (data.containsKey('error_message')) {
+      context.handle(
+          _errorMessageMeta,
+          errorMessage.isAcceptableOrUnknown(
+              data['error_message']!, _errorMessageMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {runId};
+  @override
+  AgentRun map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AgentRun(
+      runId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}run_id'])!,
+      ledgerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}ledger_id']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      userMessage: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_message']),
+      errorMessage: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}error_message']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at'])!,
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+    );
+  }
+
+  @override
+  $AgentRunsTable createAlias(String alias) {
+    return $AgentRunsTable(attachedDatabase, alias);
+  }
+}
+
+class AgentRun extends DataClass implements Insertable<AgentRun> {
+  final String runId;
+  final int? ledgerId;
+  final String status;
+  final String? userMessage;
+  final String? errorMessage;
+  final DateTime startedAt;
+  final DateTime? finishedAt;
+  const AgentRun(
+      {required this.runId,
+      this.ledgerId,
+      required this.status,
+      this.userMessage,
+      this.errorMessage,
+      required this.startedAt,
+      this.finishedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['run_id'] = Variable<String>(runId);
+    if (!nullToAbsent || ledgerId != null) {
+      map['ledger_id'] = Variable<int>(ledgerId);
+    }
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || userMessage != null) {
+      map['user_message'] = Variable<String>(userMessage);
+    }
+    if (!nullToAbsent || errorMessage != null) {
+      map['error_message'] = Variable<String>(errorMessage);
+    }
+    map['started_at'] = Variable<DateTime>(startedAt);
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    return map;
+  }
+
+  AgentRunsCompanion toCompanion(bool nullToAbsent) {
+    return AgentRunsCompanion(
+      runId: Value(runId),
+      ledgerId: ledgerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ledgerId),
+      status: Value(status),
+      userMessage: userMessage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userMessage),
+      errorMessage: errorMessage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorMessage),
+      startedAt: Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+    );
+  }
+
+  factory AgentRun.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AgentRun(
+      runId: serializer.fromJson<String>(json['runId']),
+      ledgerId: serializer.fromJson<int?>(json['ledgerId']),
+      status: serializer.fromJson<String>(json['status']),
+      userMessage: serializer.fromJson<String?>(json['userMessage']),
+      errorMessage: serializer.fromJson<String?>(json['errorMessage']),
+      startedAt: serializer.fromJson<DateTime>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'runId': serializer.toJson<String>(runId),
+      'ledgerId': serializer.toJson<int?>(ledgerId),
+      'status': serializer.toJson<String>(status),
+      'userMessage': serializer.toJson<String?>(userMessage),
+      'errorMessage': serializer.toJson<String?>(errorMessage),
+      'startedAt': serializer.toJson<DateTime>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+    };
+  }
+
+  AgentRun copyWith(
+          {String? runId,
+          Value<int?> ledgerId = const Value.absent(),
+          String? status,
+          Value<String?> userMessage = const Value.absent(),
+          Value<String?> errorMessage = const Value.absent(),
+          DateTime? startedAt,
+          Value<DateTime?> finishedAt = const Value.absent()}) =>
+      AgentRun(
+        runId: runId ?? this.runId,
+        ledgerId: ledgerId.present ? ledgerId.value : this.ledgerId,
+        status: status ?? this.status,
+        userMessage: userMessage.present ? userMessage.value : this.userMessage,
+        errorMessage:
+            errorMessage.present ? errorMessage.value : this.errorMessage,
+        startedAt: startedAt ?? this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+      );
+  AgentRun copyWithCompanion(AgentRunsCompanion data) {
+    return AgentRun(
+      runId: data.runId.present ? data.runId.value : this.runId,
+      ledgerId: data.ledgerId.present ? data.ledgerId.value : this.ledgerId,
+      status: data.status.present ? data.status.value : this.status,
+      userMessage:
+          data.userMessage.present ? data.userMessage.value : this.userMessage,
+      errorMessage: data.errorMessage.present
+          ? data.errorMessage.value
+          : this.errorMessage,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentRun(')
+          ..write('runId: $runId, ')
+          ..write('ledgerId: $ledgerId, ')
+          ..write('status: $status, ')
+          ..write('userMessage: $userMessage, ')
+          ..write('errorMessage: $errorMessage, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(runId, ledgerId, status, userMessage,
+      errorMessage, startedAt, finishedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AgentRun &&
+          other.runId == this.runId &&
+          other.ledgerId == this.ledgerId &&
+          other.status == this.status &&
+          other.userMessage == this.userMessage &&
+          other.errorMessage == this.errorMessage &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt);
+}
+
+class AgentRunsCompanion extends UpdateCompanion<AgentRun> {
+  final Value<String> runId;
+  final Value<int?> ledgerId;
+  final Value<String> status;
+  final Value<String?> userMessage;
+  final Value<String?> errorMessage;
+  final Value<DateTime> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<int> rowid;
+  const AgentRunsCompanion({
+    this.runId = const Value.absent(),
+    this.ledgerId = const Value.absent(),
+    this.status = const Value.absent(),
+    this.userMessage = const Value.absent(),
+    this.errorMessage = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AgentRunsCompanion.insert({
+    required String runId,
+    this.ledgerId = const Value.absent(),
+    required String status,
+    this.userMessage = const Value.absent(),
+    this.errorMessage = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : runId = Value(runId),
+        status = Value(status);
+  static Insertable<AgentRun> custom({
+    Expression<String>? runId,
+    Expression<int>? ledgerId,
+    Expression<String>? status,
+    Expression<String>? userMessage,
+    Expression<String>? errorMessage,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (runId != null) 'run_id': runId,
+      if (ledgerId != null) 'ledger_id': ledgerId,
+      if (status != null) 'status': status,
+      if (userMessage != null) 'user_message': userMessage,
+      if (errorMessage != null) 'error_message': errorMessage,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AgentRunsCompanion copyWith(
+      {Value<String>? runId,
+      Value<int?>? ledgerId,
+      Value<String>? status,
+      Value<String?>? userMessage,
+      Value<String?>? errorMessage,
+      Value<DateTime>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<int>? rowid}) {
+    return AgentRunsCompanion(
+      runId: runId ?? this.runId,
+      ledgerId: ledgerId ?? this.ledgerId,
+      status: status ?? this.status,
+      userMessage: userMessage ?? this.userMessage,
+      errorMessage: errorMessage ?? this.errorMessage,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (runId.present) {
+      map['run_id'] = Variable<String>(runId.value);
+    }
+    if (ledgerId.present) {
+      map['ledger_id'] = Variable<int>(ledgerId.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (userMessage.present) {
+      map['user_message'] = Variable<String>(userMessage.value);
+    }
+    if (errorMessage.present) {
+      map['error_message'] = Variable<String>(errorMessage.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentRunsCompanion(')
+          ..write('runId: $runId, ')
+          ..write('ledgerId: $ledgerId, ')
+          ..write('status: $status, ')
+          ..write('userMessage: $userMessage, ')
+          ..write('errorMessage: $errorMessage, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AgentToolCallsTable extends AgentToolCalls
+    with TableInfo<$AgentToolCallsTable, AgentToolCall> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AgentToolCallsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _runIdMeta = const VerificationMeta('runId');
+  @override
+  late final GeneratedColumn<String> runId = GeneratedColumn<String>(
+      'run_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _callIdMeta = const VerificationMeta('callId');
+  @override
+  late final GeneratedColumn<String> callId = GeneratedColumn<String>(
+      'call_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _toolNameMeta =
+      const VerificationMeta('toolName');
+  @override
+  late final GeneratedColumn<String> toolName = GeneratedColumn<String>(
+      'tool_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _detailMeta = const VerificationMeta('detail');
+  @override
+  late final GeneratedColumn<String> detail = GeneratedColumn<String>(
+      'detail', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, runId, callId, toolName, status, detail, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'agent_tool_calls';
+  @override
+  VerificationContext validateIntegrity(Insertable<AgentToolCall> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('run_id')) {
+      context.handle(
+          _runIdMeta, runId.isAcceptableOrUnknown(data['run_id']!, _runIdMeta));
+    } else if (isInserting) {
+      context.missing(_runIdMeta);
+    }
+    if (data.containsKey('call_id')) {
+      context.handle(_callIdMeta,
+          callId.isAcceptableOrUnknown(data['call_id']!, _callIdMeta));
+    } else if (isInserting) {
+      context.missing(_callIdMeta);
+    }
+    if (data.containsKey('tool_name')) {
+      context.handle(_toolNameMeta,
+          toolName.isAcceptableOrUnknown(data['tool_name']!, _toolNameMeta));
+    } else if (isInserting) {
+      context.missing(_toolNameMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('detail')) {
+      context.handle(_detailMeta,
+          detail.isAcceptableOrUnknown(data['detail']!, _detailMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AgentToolCall map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AgentToolCall(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      runId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}run_id'])!,
+      callId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}call_id'])!,
+      toolName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tool_name'])!,
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      detail: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}detail']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $AgentToolCallsTable createAlias(String alias) {
+    return $AgentToolCallsTable(attachedDatabase, alias);
+  }
+}
+
+class AgentToolCall extends DataClass implements Insertable<AgentToolCall> {
+  final int id;
+  final String runId;
+  final String callId;
+  final String toolName;
+  final String status;
+  final String? detail;
+  final DateTime createdAt;
+  const AgentToolCall(
+      {required this.id,
+      required this.runId,
+      required this.callId,
+      required this.toolName,
+      required this.status,
+      this.detail,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['run_id'] = Variable<String>(runId);
+    map['call_id'] = Variable<String>(callId);
+    map['tool_name'] = Variable<String>(toolName);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || detail != null) {
+      map['detail'] = Variable<String>(detail);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  AgentToolCallsCompanion toCompanion(bool nullToAbsent) {
+    return AgentToolCallsCompanion(
+      id: Value(id),
+      runId: Value(runId),
+      callId: Value(callId),
+      toolName: Value(toolName),
+      status: Value(status),
+      detail:
+          detail == null && nullToAbsent ? const Value.absent() : Value(detail),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory AgentToolCall.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AgentToolCall(
+      id: serializer.fromJson<int>(json['id']),
+      runId: serializer.fromJson<String>(json['runId']),
+      callId: serializer.fromJson<String>(json['callId']),
+      toolName: serializer.fromJson<String>(json['toolName']),
+      status: serializer.fromJson<String>(json['status']),
+      detail: serializer.fromJson<String?>(json['detail']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'runId': serializer.toJson<String>(runId),
+      'callId': serializer.toJson<String>(callId),
+      'toolName': serializer.toJson<String>(toolName),
+      'status': serializer.toJson<String>(status),
+      'detail': serializer.toJson<String?>(detail),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  AgentToolCall copyWith(
+          {int? id,
+          String? runId,
+          String? callId,
+          String? toolName,
+          String? status,
+          Value<String?> detail = const Value.absent(),
+          DateTime? createdAt}) =>
+      AgentToolCall(
+        id: id ?? this.id,
+        runId: runId ?? this.runId,
+        callId: callId ?? this.callId,
+        toolName: toolName ?? this.toolName,
+        status: status ?? this.status,
+        detail: detail.present ? detail.value : this.detail,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  AgentToolCall copyWithCompanion(AgentToolCallsCompanion data) {
+    return AgentToolCall(
+      id: data.id.present ? data.id.value : this.id,
+      runId: data.runId.present ? data.runId.value : this.runId,
+      callId: data.callId.present ? data.callId.value : this.callId,
+      toolName: data.toolName.present ? data.toolName.value : this.toolName,
+      status: data.status.present ? data.status.value : this.status,
+      detail: data.detail.present ? data.detail.value : this.detail,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentToolCall(')
+          ..write('id: $id, ')
+          ..write('runId: $runId, ')
+          ..write('callId: $callId, ')
+          ..write('toolName: $toolName, ')
+          ..write('status: $status, ')
+          ..write('detail: $detail, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, runId, callId, toolName, status, detail, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AgentToolCall &&
+          other.id == this.id &&
+          other.runId == this.runId &&
+          other.callId == this.callId &&
+          other.toolName == this.toolName &&
+          other.status == this.status &&
+          other.detail == this.detail &&
+          other.createdAt == this.createdAt);
+}
+
+class AgentToolCallsCompanion extends UpdateCompanion<AgentToolCall> {
+  final Value<int> id;
+  final Value<String> runId;
+  final Value<String> callId;
+  final Value<String> toolName;
+  final Value<String> status;
+  final Value<String?> detail;
+  final Value<DateTime> createdAt;
+  const AgentToolCallsCompanion({
+    this.id = const Value.absent(),
+    this.runId = const Value.absent(),
+    this.callId = const Value.absent(),
+    this.toolName = const Value.absent(),
+    this.status = const Value.absent(),
+    this.detail = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  AgentToolCallsCompanion.insert({
+    this.id = const Value.absent(),
+    required String runId,
+    required String callId,
+    required String toolName,
+    required String status,
+    this.detail = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  })  : runId = Value(runId),
+        callId = Value(callId),
+        toolName = Value(toolName),
+        status = Value(status);
+  static Insertable<AgentToolCall> custom({
+    Expression<int>? id,
+    Expression<String>? runId,
+    Expression<String>? callId,
+    Expression<String>? toolName,
+    Expression<String>? status,
+    Expression<String>? detail,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (runId != null) 'run_id': runId,
+      if (callId != null) 'call_id': callId,
+      if (toolName != null) 'tool_name': toolName,
+      if (status != null) 'status': status,
+      if (detail != null) 'detail': detail,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  AgentToolCallsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? runId,
+      Value<String>? callId,
+      Value<String>? toolName,
+      Value<String>? status,
+      Value<String?>? detail,
+      Value<DateTime>? createdAt}) {
+    return AgentToolCallsCompanion(
+      id: id ?? this.id,
+      runId: runId ?? this.runId,
+      callId: callId ?? this.callId,
+      toolName: toolName ?? this.toolName,
+      status: status ?? this.status,
+      detail: detail ?? this.detail,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (runId.present) {
+      map['run_id'] = Variable<String>(runId.value);
+    }
+    if (callId.present) {
+      map['call_id'] = Variable<String>(callId.value);
+    }
+    if (toolName.present) {
+      map['tool_name'] = Variable<String>(toolName.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (detail.present) {
+      map['detail'] = Variable<String>(detail.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentToolCallsCompanion(')
+          ..write('id: $id, ')
+          ..write('runId: $runId, ')
+          ..write('callId: $callId, ')
+          ..write('toolName: $toolName, ')
+          ..write('status: $status, ')
+          ..write('detail: $detail, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -10863,6 +12484,11 @@ abstract class _$BeeDatabase extends GeneratedDatabase {
       $RecurringTransactionsTable(this);
   late final $ConversationsTable conversations = $ConversationsTable(this);
   late final $MessagesTable messages = $MessagesTable(this);
+  late final $AgentMemoriesTable agentMemories = $AgentMemoriesTable(this);
+  late final $AgentConversationSummariesTable agentConversationSummaries =
+      $AgentConversationSummariesTable(this);
+  late final $AgentRunsTable agentRuns = $AgentRunsTable(this);
+  late final $AgentToolCallsTable agentToolCalls = $AgentToolCallsTable(this);
   late final $TagsTable tags = $TagsTable(this);
   late final $TransactionTagsTable transactionTags =
       $TransactionTagsTable(this);
@@ -10896,6 +12522,10 @@ abstract class _$BeeDatabase extends GeneratedDatabase {
         recurringTransactions,
         conversations,
         messages,
+        agentMemories,
+        agentConversationSummaries,
+        agentRuns,
+        agentToolCalls,
         tags,
         transactionTags,
         budgets,
@@ -12959,6 +14589,835 @@ typedef $$MessagesTableProcessedTableManager = ProcessedTableManager<
     $$MessagesTableUpdateCompanionBuilder,
     (Message, BaseReferences<_$BeeDatabase, $MessagesTable, Message>),
     Message,
+    PrefetchHooks Function()>;
+typedef $$AgentMemoriesTableCreateCompanionBuilder = AgentMemoriesCompanion
+    Function({
+  Value<int> id,
+  Value<int?> ledgerId,
+  required String kind,
+  required String content,
+  Value<String?> keywords,
+  Value<int?> sourceMessageId,
+  Value<String> status,
+  Value<DateTime?> expiresAt,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+typedef $$AgentMemoriesTableUpdateCompanionBuilder = AgentMemoriesCompanion
+    Function({
+  Value<int> id,
+  Value<int?> ledgerId,
+  Value<String> kind,
+  Value<String> content,
+  Value<String?> keywords,
+  Value<int?> sourceMessageId,
+  Value<String> status,
+  Value<DateTime?> expiresAt,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+
+class $$AgentMemoriesTableFilterComposer
+    extends Composer<_$BeeDatabase, $AgentMemoriesTable> {
+  $$AgentMemoriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get ledgerId => $composableBuilder(
+      column: $table.ledgerId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get keywords => $composableBuilder(
+      column: $table.keywords, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sourceMessageId => $composableBuilder(
+      column: $table.sourceMessageId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get expiresAt => $composableBuilder(
+      column: $table.expiresAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$AgentMemoriesTableOrderingComposer
+    extends Composer<_$BeeDatabase, $AgentMemoriesTable> {
+  $$AgentMemoriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get ledgerId => $composableBuilder(
+      column: $table.ledgerId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get keywords => $composableBuilder(
+      column: $table.keywords, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sourceMessageId => $composableBuilder(
+      column: $table.sourceMessageId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get expiresAt => $composableBuilder(
+      column: $table.expiresAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$AgentMemoriesTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $AgentMemoriesTable> {
+  $$AgentMemoriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get ledgerId =>
+      $composableBuilder(column: $table.ledgerId, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get keywords =>
+      $composableBuilder(column: $table.keywords, builder: (column) => column);
+
+  GeneratedColumn<int> get sourceMessageId => $composableBuilder(
+      column: $table.sourceMessageId, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get expiresAt =>
+      $composableBuilder(column: $table.expiresAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$AgentMemoriesTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $AgentMemoriesTable,
+    AgentMemory,
+    $$AgentMemoriesTableFilterComposer,
+    $$AgentMemoriesTableOrderingComposer,
+    $$AgentMemoriesTableAnnotationComposer,
+    $$AgentMemoriesTableCreateCompanionBuilder,
+    $$AgentMemoriesTableUpdateCompanionBuilder,
+    (
+      AgentMemory,
+      BaseReferences<_$BeeDatabase, $AgentMemoriesTable, AgentMemory>
+    ),
+    AgentMemory,
+    PrefetchHooks Function()> {
+  $$AgentMemoriesTableTableManager(_$BeeDatabase db, $AgentMemoriesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AgentMemoriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AgentMemoriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AgentMemoriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int?> ledgerId = const Value.absent(),
+            Value<String> kind = const Value.absent(),
+            Value<String> content = const Value.absent(),
+            Value<String?> keywords = const Value.absent(),
+            Value<int?> sourceMessageId = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<DateTime?> expiresAt = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              AgentMemoriesCompanion(
+            id: id,
+            ledgerId: ledgerId,
+            kind: kind,
+            content: content,
+            keywords: keywords,
+            sourceMessageId: sourceMessageId,
+            status: status,
+            expiresAt: expiresAt,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int?> ledgerId = const Value.absent(),
+            required String kind,
+            required String content,
+            Value<String?> keywords = const Value.absent(),
+            Value<int?> sourceMessageId = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<DateTime?> expiresAt = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              AgentMemoriesCompanion.insert(
+            id: id,
+            ledgerId: ledgerId,
+            kind: kind,
+            content: content,
+            keywords: keywords,
+            sourceMessageId: sourceMessageId,
+            status: status,
+            expiresAt: expiresAt,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$AgentMemoriesTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $AgentMemoriesTable,
+    AgentMemory,
+    $$AgentMemoriesTableFilterComposer,
+    $$AgentMemoriesTableOrderingComposer,
+    $$AgentMemoriesTableAnnotationComposer,
+    $$AgentMemoriesTableCreateCompanionBuilder,
+    $$AgentMemoriesTableUpdateCompanionBuilder,
+    (
+      AgentMemory,
+      BaseReferences<_$BeeDatabase, $AgentMemoriesTable, AgentMemory>
+    ),
+    AgentMemory,
+    PrefetchHooks Function()>;
+typedef $$AgentConversationSummariesTableCreateCompanionBuilder
+    = AgentConversationSummariesCompanion Function({
+  Value<int> id,
+  Value<int?> ledgerId,
+  Value<int?> conversationId,
+  required String content,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+typedef $$AgentConversationSummariesTableUpdateCompanionBuilder
+    = AgentConversationSummariesCompanion Function({
+  Value<int> id,
+  Value<int?> ledgerId,
+  Value<int?> conversationId,
+  Value<String> content,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+
+class $$AgentConversationSummariesTableFilterComposer
+    extends Composer<_$BeeDatabase, $AgentConversationSummariesTable> {
+  $$AgentConversationSummariesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get ledgerId => $composableBuilder(
+      column: $table.ledgerId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get conversationId => $composableBuilder(
+      column: $table.conversationId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$AgentConversationSummariesTableOrderingComposer
+    extends Composer<_$BeeDatabase, $AgentConversationSummariesTable> {
+  $$AgentConversationSummariesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get ledgerId => $composableBuilder(
+      column: $table.ledgerId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get conversationId => $composableBuilder(
+      column: $table.conversationId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$AgentConversationSummariesTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $AgentConversationSummariesTable> {
+  $$AgentConversationSummariesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get ledgerId =>
+      $composableBuilder(column: $table.ledgerId, builder: (column) => column);
+
+  GeneratedColumn<int> get conversationId => $composableBuilder(
+      column: $table.conversationId, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$AgentConversationSummariesTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $AgentConversationSummariesTable,
+    AgentConversationSummary,
+    $$AgentConversationSummariesTableFilterComposer,
+    $$AgentConversationSummariesTableOrderingComposer,
+    $$AgentConversationSummariesTableAnnotationComposer,
+    $$AgentConversationSummariesTableCreateCompanionBuilder,
+    $$AgentConversationSummariesTableUpdateCompanionBuilder,
+    (
+      AgentConversationSummary,
+      BaseReferences<_$BeeDatabase, $AgentConversationSummariesTable,
+          AgentConversationSummary>
+    ),
+    AgentConversationSummary,
+    PrefetchHooks Function()> {
+  $$AgentConversationSummariesTableTableManager(
+      _$BeeDatabase db, $AgentConversationSummariesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AgentConversationSummariesTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AgentConversationSummariesTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AgentConversationSummariesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int?> ledgerId = const Value.absent(),
+            Value<int?> conversationId = const Value.absent(),
+            Value<String> content = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              AgentConversationSummariesCompanion(
+            id: id,
+            ledgerId: ledgerId,
+            conversationId: conversationId,
+            content: content,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int?> ledgerId = const Value.absent(),
+            Value<int?> conversationId = const Value.absent(),
+            required String content,
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              AgentConversationSummariesCompanion.insert(
+            id: id,
+            ledgerId: ledgerId,
+            conversationId: conversationId,
+            content: content,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$AgentConversationSummariesTableProcessedTableManager
+    = ProcessedTableManager<
+        _$BeeDatabase,
+        $AgentConversationSummariesTable,
+        AgentConversationSummary,
+        $$AgentConversationSummariesTableFilterComposer,
+        $$AgentConversationSummariesTableOrderingComposer,
+        $$AgentConversationSummariesTableAnnotationComposer,
+        $$AgentConversationSummariesTableCreateCompanionBuilder,
+        $$AgentConversationSummariesTableUpdateCompanionBuilder,
+        (
+          AgentConversationSummary,
+          BaseReferences<_$BeeDatabase, $AgentConversationSummariesTable,
+              AgentConversationSummary>
+        ),
+        AgentConversationSummary,
+        PrefetchHooks Function()>;
+typedef $$AgentRunsTableCreateCompanionBuilder = AgentRunsCompanion Function({
+  required String runId,
+  Value<int?> ledgerId,
+  required String status,
+  Value<String?> userMessage,
+  Value<String?> errorMessage,
+  Value<DateTime> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int> rowid,
+});
+typedef $$AgentRunsTableUpdateCompanionBuilder = AgentRunsCompanion Function({
+  Value<String> runId,
+  Value<int?> ledgerId,
+  Value<String> status,
+  Value<String?> userMessage,
+  Value<String?> errorMessage,
+  Value<DateTime> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int> rowid,
+});
+
+class $$AgentRunsTableFilterComposer
+    extends Composer<_$BeeDatabase, $AgentRunsTable> {
+  $$AgentRunsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get runId => $composableBuilder(
+      column: $table.runId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get ledgerId => $composableBuilder(
+      column: $table.ledgerId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userMessage => $composableBuilder(
+      column: $table.userMessage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get errorMessage => $composableBuilder(
+      column: $table.errorMessage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$AgentRunsTableOrderingComposer
+    extends Composer<_$BeeDatabase, $AgentRunsTable> {
+  $$AgentRunsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get runId => $composableBuilder(
+      column: $table.runId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get ledgerId => $composableBuilder(
+      column: $table.ledgerId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get userMessage => $composableBuilder(
+      column: $table.userMessage, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get errorMessage => $composableBuilder(
+      column: $table.errorMessage,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$AgentRunsTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $AgentRunsTable> {
+  $$AgentRunsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get runId =>
+      $composableBuilder(column: $table.runId, builder: (column) => column);
+
+  GeneratedColumn<int> get ledgerId =>
+      $composableBuilder(column: $table.ledgerId, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get userMessage => $composableBuilder(
+      column: $table.userMessage, builder: (column) => column);
+
+  GeneratedColumn<String> get errorMessage => $composableBuilder(
+      column: $table.errorMessage, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+}
+
+class $$AgentRunsTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $AgentRunsTable,
+    AgentRun,
+    $$AgentRunsTableFilterComposer,
+    $$AgentRunsTableOrderingComposer,
+    $$AgentRunsTableAnnotationComposer,
+    $$AgentRunsTableCreateCompanionBuilder,
+    $$AgentRunsTableUpdateCompanionBuilder,
+    (AgentRun, BaseReferences<_$BeeDatabase, $AgentRunsTable, AgentRun>),
+    AgentRun,
+    PrefetchHooks Function()> {
+  $$AgentRunsTableTableManager(_$BeeDatabase db, $AgentRunsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AgentRunsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AgentRunsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AgentRunsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> runId = const Value.absent(),
+            Value<int?> ledgerId = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<String?> userMessage = const Value.absent(),
+            Value<String?> errorMessage = const Value.absent(),
+            Value<DateTime> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AgentRunsCompanion(
+            runId: runId,
+            ledgerId: ledgerId,
+            status: status,
+            userMessage: userMessage,
+            errorMessage: errorMessage,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String runId,
+            Value<int?> ledgerId = const Value.absent(),
+            required String status,
+            Value<String?> userMessage = const Value.absent(),
+            Value<String?> errorMessage = const Value.absent(),
+            Value<DateTime> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AgentRunsCompanion.insert(
+            runId: runId,
+            ledgerId: ledgerId,
+            status: status,
+            userMessage: userMessage,
+            errorMessage: errorMessage,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$AgentRunsTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $AgentRunsTable,
+    AgentRun,
+    $$AgentRunsTableFilterComposer,
+    $$AgentRunsTableOrderingComposer,
+    $$AgentRunsTableAnnotationComposer,
+    $$AgentRunsTableCreateCompanionBuilder,
+    $$AgentRunsTableUpdateCompanionBuilder,
+    (AgentRun, BaseReferences<_$BeeDatabase, $AgentRunsTable, AgentRun>),
+    AgentRun,
+    PrefetchHooks Function()>;
+typedef $$AgentToolCallsTableCreateCompanionBuilder = AgentToolCallsCompanion
+    Function({
+  Value<int> id,
+  required String runId,
+  required String callId,
+  required String toolName,
+  required String status,
+  Value<String?> detail,
+  Value<DateTime> createdAt,
+});
+typedef $$AgentToolCallsTableUpdateCompanionBuilder = AgentToolCallsCompanion
+    Function({
+  Value<int> id,
+  Value<String> runId,
+  Value<String> callId,
+  Value<String> toolName,
+  Value<String> status,
+  Value<String?> detail,
+  Value<DateTime> createdAt,
+});
+
+class $$AgentToolCallsTableFilterComposer
+    extends Composer<_$BeeDatabase, $AgentToolCallsTable> {
+  $$AgentToolCallsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get runId => $composableBuilder(
+      column: $table.runId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get callId => $composableBuilder(
+      column: $table.callId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get toolName => $composableBuilder(
+      column: $table.toolName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get detail => $composableBuilder(
+      column: $table.detail, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$AgentToolCallsTableOrderingComposer
+    extends Composer<_$BeeDatabase, $AgentToolCallsTable> {
+  $$AgentToolCallsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get runId => $composableBuilder(
+      column: $table.runId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get callId => $composableBuilder(
+      column: $table.callId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get toolName => $composableBuilder(
+      column: $table.toolName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get detail => $composableBuilder(
+      column: $table.detail, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$AgentToolCallsTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $AgentToolCallsTable> {
+  $$AgentToolCallsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get runId =>
+      $composableBuilder(column: $table.runId, builder: (column) => column);
+
+  GeneratedColumn<String> get callId =>
+      $composableBuilder(column: $table.callId, builder: (column) => column);
+
+  GeneratedColumn<String> get toolName =>
+      $composableBuilder(column: $table.toolName, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get detail =>
+      $composableBuilder(column: $table.detail, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$AgentToolCallsTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $AgentToolCallsTable,
+    AgentToolCall,
+    $$AgentToolCallsTableFilterComposer,
+    $$AgentToolCallsTableOrderingComposer,
+    $$AgentToolCallsTableAnnotationComposer,
+    $$AgentToolCallsTableCreateCompanionBuilder,
+    $$AgentToolCallsTableUpdateCompanionBuilder,
+    (
+      AgentToolCall,
+      BaseReferences<_$BeeDatabase, $AgentToolCallsTable, AgentToolCall>
+    ),
+    AgentToolCall,
+    PrefetchHooks Function()> {
+  $$AgentToolCallsTableTableManager(
+      _$BeeDatabase db, $AgentToolCallsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AgentToolCallsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AgentToolCallsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AgentToolCallsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> runId = const Value.absent(),
+            Value<String> callId = const Value.absent(),
+            Value<String> toolName = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<String?> detail = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              AgentToolCallsCompanion(
+            id: id,
+            runId: runId,
+            callId: callId,
+            toolName: toolName,
+            status: status,
+            detail: detail,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String runId,
+            required String callId,
+            required String toolName,
+            required String status,
+            Value<String?> detail = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              AgentToolCallsCompanion.insert(
+            id: id,
+            runId: runId,
+            callId: callId,
+            toolName: toolName,
+            status: status,
+            detail: detail,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$AgentToolCallsTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $AgentToolCallsTable,
+    AgentToolCall,
+    $$AgentToolCallsTableFilterComposer,
+    $$AgentToolCallsTableOrderingComposer,
+    $$AgentToolCallsTableAnnotationComposer,
+    $$AgentToolCallsTableCreateCompanionBuilder,
+    $$AgentToolCallsTableUpdateCompanionBuilder,
+    (
+      AgentToolCall,
+      BaseReferences<_$BeeDatabase, $AgentToolCallsTable, AgentToolCall>
+    ),
+    AgentToolCall,
     PrefetchHooks Function()>;
 typedef $$TagsTableCreateCompanionBuilder = TagsCompanion Function({
   Value<int> id,
@@ -16091,6 +18550,16 @@ class $BeeDatabaseManager {
       $$ConversationsTableTableManager(_db, _db.conversations);
   $$MessagesTableTableManager get messages =>
       $$MessagesTableTableManager(_db, _db.messages);
+  $$AgentMemoriesTableTableManager get agentMemories =>
+      $$AgentMemoriesTableTableManager(_db, _db.agentMemories);
+  $$AgentConversationSummariesTableTableManager
+      get agentConversationSummaries =>
+          $$AgentConversationSummariesTableTableManager(
+              _db, _db.agentConversationSummaries);
+  $$AgentRunsTableTableManager get agentRuns =>
+      $$AgentRunsTableTableManager(_db, _db.agentRuns);
+  $$AgentToolCallsTableTableManager get agentToolCalls =>
+      $$AgentToolCallsTableTableManager(_db, _db.agentToolCalls);
   $$TagsTableTableManager get tags => $$TagsTableTableManager(_db, _db.tags);
   $$TransactionTagsTableTableManager get transactionTags =>
       $$TransactionTagsTableTableManager(_db, _db.transactionTags);

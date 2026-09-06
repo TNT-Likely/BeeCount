@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' hide Column;
+import 'package:uuid/uuid.dart';
 
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/bee_icon.dart';
 import '../../widgets/ai/typewriter_text.dart';
+import '../../widgets/ai/agent_markdown_text.dart';
 import '../../widgets/ai/bill_card_widget.dart';
 import '../../widgets/ai/ai_quick_commands_bar.dart';
 import '../../styles/tokens.dart';
@@ -19,13 +21,23 @@ import '../../providers/ai_chat_providers.dart';
 import '../../ai/core/bill_info.dart';
 import '../../pages/transaction/transaction_editor_page.dart';
 import '../../pages/ai/ai_settings_page.dart';
+import '../../pages/ai/agent_assistant_settings_page.dart';
+import '../../pages/ai/agent_message_visibility.dart';
+import '../../pages/ai/agent_chat_scroll_coordinator.dart';
 import '../../widgets/biz/ledger_selector_dialog.dart';
+import '../../widgets/ai/agent_tool_authorization_dialog.dart';
+import '../../widgets/ai/agent_chat_shell.dart';
+import '../../widgets/ai/agent_execution_timeline.dart';
+import '../../widgets/ai/agent_empty_conversation.dart';
 import '../../data/db.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/ai_quick_command.dart';
 import '../../services/ui/avatar_service.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/ai/ai_chat_service.dart';
+import '../../services/ai/agent_app_facade.dart';
+import '../../services/ai/bill_card_info_builder.dart';
+import '../../agent/permission/agent_authorization_gate.dart';
 import '../../services/ai/ai_quick_command_service.dart';
 
 /// AI 对话页面
@@ -40,6 +52,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     with WidgetsBindingObserver {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late final AIChatService _chatService;
+  late final AgentChatScrollCoordinator _chatScrollCoordinator =
+      AgentChatScrollCoordinator(_scrollController);
   int? _conversationId;
   bool _isLoading = false;
   int? _animatingMessageId; // 正在播放动画的消息ID
@@ -47,10 +62,21 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   AIConfigValidationResult? _apiValidation; // API配置验证结果
   bool _showScrollToBottom = false; // 是否显示"回到底部"按钮
   bool _isFirstLoad = true; // 是否首次加载
+  bool _hasLiveAgentMessage = false;
+  String _streamingAgentText = '';
+  List<AgentExecutionStep> _agentExecutionSteps = const [];
+  AIResponse? _liveAgentResponse;
+  int? _liveAssistantMessageId;
+  int? _pendingResponseMessageId;
+  String? _activeAgentRunId;
+  bool _isAuthorizationDialogOpen = false;
 
   @override
   void initState() {
     super.initState();
+    // Cache this while [ref] is valid. Calling ref.read during dispose is
+    // invalid because Riverpod may already have detached this element.
+    _chatService = ref.read(aiChatServiceProvider);
     WidgetsBinding.instance.addObserver(this);
     _initConversation();
     _loadUserAvatar();
@@ -117,6 +143,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
     // 查找全局活跃对话（不限制账本）
     final conv = await repo.getActiveConversation();
+    if (!mounted) return;
 
     if (conv != null) {
       setState(() => _conversationId = conv.id);
@@ -129,9 +156,11 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           updatedAt: Value(DateTime.now()),
         ),
       );
+      if (!mounted) return;
       setState(() => _conversationId = id);
     }
 
+    if (!mounted) return;
     ref.read(currentConversationIdProvider.notifier).state = _conversationId;
   }
 
@@ -146,23 +175,24 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
     final messagesAsync = ref.watch(messagesProvider(_conversationId!));
 
-    return Scaffold(
-      backgroundColor: BeeTokens.scaffoldBackground(context),
-      body: Column(
-        children: [
-          // Header
-          PrimaryHeader(
-            title: AppLocalizations.of(context).aiChatTitle,
-            showBack: true,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.delete_outline),
-                tooltip: AppLocalizations.of(context).aiChatClearHistory,
-                onPressed: _showClearHistoryDialog,
-              ),
-            ],
-          ),
+    final l10n = AppLocalizations.of(context);
 
+    return AgentChatShell(
+      title: l10n.aiChatTitle,
+      backTooltip: l10n.commonBack,
+      permissionsTooltip: l10n.agentAssistantSettingsTitle,
+      clearTooltip: l10n.aiChatClearHistory,
+      onBack: () => Navigator.of(context).maybePop(),
+      onOpenPermissions: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => AgentAssistantSettingsPage(
+            ledgerId: ref.read(currentLedgerIdProvider),
+          ),
+        ),
+      ),
+      onClearHistory: _showClearHistoryDialog,
+      child: Column(
+        children: [
           // API配置警告横幅
           if (_apiValidation != null && !_apiValidation!.isValid)
             Container(
@@ -172,10 +202,10 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
               ),
               padding: EdgeInsets.all(12.0.scaled(context, ref)),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: Colors.red.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8.0.scaled(context, ref)),
                 border: Border.all(
-                  color: Colors.red.withOpacity(0.3),
+                  color: Colors.red.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -226,33 +256,59 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
               children: [
                 messagesAsync.when(
                   data: (messages) {
+                    final displayMessages =
+                        AgentMessageVisibility.forLiveResponse(
+                      messages,
+                      liveResponse: _liveAgentResponse,
+                      persistedMessageId: _liveAssistantMessageId,
+                    );
+                    final pendingResponseId = _pendingResponseMessageId;
+                    if (pendingResponseId != null &&
+                        displayMessages.any(
+                          (message) => message.id == pendingResponseId,
+                        )) {
+                      _pendingResponseMessageId = null;
+                      _chatScrollCoordinator.onContentLaidOut(
+                        targetReady: true,
+                      );
+                    }
                     // 首次加载完成且有消息时，自动滚动到底部
-                    if (_isFirstLoad && messages.isNotEmpty) {
+                    if (_isFirstLoad && displayMessages.isNotEmpty) {
                       _isFirstLoad = false;
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _scrollToBottom();
-                      });
+                      _chatScrollCoordinator.requestInitialPositioning();
                     }
 
-                    if (messages.isEmpty) {
-                      return const Center(child: Text('暂无消息'));
+                    if (displayMessages.isEmpty && !_hasLiveAgentMessage) {
+                      return const AgentEmptyConversation();
                     }
 
-                    return ListView.builder(
-                      controller: _scrollController,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12.0.scaled(context, ref),
-                        vertical: 8.0.scaled(context, ref),
-                      ),
-                      itemCount: messages.length,
-                      itemBuilder: (context, index) {
-                        return _buildMessageBubble(messages[index]);
+                    return NotificationListener<ScrollMetricsNotification>(
+                      onNotification: (_) {
+                        _chatScrollCoordinator.onScrollMetricsChanged();
+                        return false;
                       },
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.0.scaled(context, ref),
+                          vertical: 8.0.scaled(context, ref),
+                        ),
+                        itemCount: displayMessages.length +
+                            (_hasLiveAgentMessage ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == displayMessages.length) {
+                            return _buildLiveAgentBubble();
+                          }
+                          return _buildMessageBubble(displayMessages[index]);
+                        },
+                      ),
                     );
                   },
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
-                  error: (e, st) => Center(child: Text('加载失败: $e')),
+                  error: (e, st) => Center(
+                    child: Text(l10n.aiChatMessagesLoadFailed(e.toString())),
+                  ),
                 ),
 
                 // 回到底部按钮
@@ -265,7 +321,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                       borderRadius:
                           BorderRadius.circular(24.0.scaled(context, ref)),
                       elevation: 8,
-                      shadowColor: Colors.black.withOpacity(0.4),
+                      shadowColor: Colors.black.withValues(alpha: 0.4),
                       child: InkWell(
                         onTap: _scrollToBottomWithAnimation,
                         borderRadius:
@@ -285,42 +341,6 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                   ),
               ],
             ),
-          ),
-
-          // 加载指示器
-          if (_isLoading)
-            Container(
-              padding: EdgeInsets.symmetric(
-                vertical: 8.0.scaled(context, ref),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 16.0.scaled(context, ref),
-                    height: 16.0.scaled(context, ref),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        ref.watch(primaryColorProvider),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 8.0.scaled(context, ref)),
-                  Text(
-                    AppLocalizations.of(context).aiChatThinking,
-                    style: TextStyle(
-                      color: BeeTokens.textSecondary(context),
-                      fontSize: 13.0.scaled(context, ref),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-          // 快捷指令横条
-          AIQuickCommandsBar(
-            onCommandTap: _handleQuickCommand,
           ),
 
           // 输入区域
@@ -403,41 +423,43 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                 ),
                 decoration: BoxDecoration(
                   color: isUser
-                      ? ref.watch(primaryColorProvider).withOpacity(0.1)
+                      ? ref.watch(primaryColorProvider).withValues(alpha: 0.1)
                       : BeeTokens.surface(context),
                   borderRadius:
                       BorderRadius.circular(12.0.scaled(context, ref)),
                   border: Border.all(
                     color: isUser
-                        ? ref.watch(primaryColorProvider).withOpacity(0.3)
+                        ? ref.watch(primaryColorProvider).withValues(alpha: 0.3)
                         : BeeTokens.border(context),
                   ),
                 ),
-                child: TypewriterText(
-                  text: message.content,
-                  animate: shouldAnimate, // 只对标记的消息启用动画
-                  onTextChange: shouldAnimate
-                      ? () {
-                          // 每次文本更新时滚动到底部
-                          _scrollToBottomSmooth();
-                        }
-                      : null,
-                  onComplete: shouldAnimate
-                      ? () {
-                          // 动画完成后清除标记
-                          if (mounted) {
-                            setState(() {
-                              _animatingMessageId = null;
-                            });
-                          }
-                        }
-                      : null,
-                  style: TextStyle(
-                    color: BeeTokens.textPrimary(context),
-                    fontSize: 14.0.scaled(context, ref),
-                    height: 1.5,
-                  ),
-                ),
+                child: isUser
+                    ? TypewriterText(
+                        text: message.content,
+                        animate: shouldAnimate,
+                        onTextChange:
+                            shouldAnimate ? _scrollToBottomSmooth : null,
+                        onComplete: shouldAnimate
+                            ? () {
+                                if (mounted) {
+                                  setState(() => _animatingMessageId = null);
+                                }
+                              }
+                            : null,
+                        style: TextStyle(
+                          color: BeeTokens.textPrimary(context),
+                          fontSize: 14.0.scaled(context, ref),
+                          height: 1.5,
+                        ),
+                      )
+                    : AgentMarkdownText(
+                        data: message.content,
+                        style: TextStyle(
+                          color: BeeTokens.textPrimary(context),
+                          fontSize: 14.0.scaled(context, ref),
+                          height: 1.5,
+                        ),
+                      ),
               ),
             ),
           ),
@@ -451,6 +473,96 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     );
   }
 
+  Widget _buildLiveAgentBubble() {
+    final liveResponse = _liveAgentResponse;
+    if (liveResponse != null) {
+      return _buildLiveAgentResponse(liveResponse);
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.0.scaled(context, ref)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAIAvatar(),
+          SizedBox(width: 8.0.scaled(context, ref)),
+          Flexible(
+            child: Container(
+              margin: EdgeInsets.only(right: 60.0.scaled(context, ref)),
+              padding: EdgeInsets.symmetric(
+                horizontal: 12.0.scaled(context, ref),
+                vertical: 10.0.scaled(context, ref),
+              ),
+              decoration: BoxDecoration(
+                color: BeeTokens.surface(context),
+                borderRadius: BorderRadius.circular(12.0.scaled(context, ref)),
+                border: Border.all(color: BeeTokens.border(context)),
+              ),
+              child: AgentExecutionTimeline(
+                steps: _agentExecutionSteps,
+                isStreaming: _isLoading,
+                streamingText: _streamingAgentText,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Keeps the completed response in the same list slot while its database
+  /// row and post-processing finish. This avoids a timeline/message double
+  /// render and lets the user see the final Markdown or bill card immediately.
+  Widget _buildLiveAgentResponse(AIResponse response) {
+    if (response.type == 'bill_card' && response.bills.isNotEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var index = 0; index < response.bills.length; index++)
+            BillCardWidget(
+              billInfo: response.bills[index],
+              transactionId: index < response.transactionIds.length
+                  ? response.transactionIds[index]
+                  : null,
+            ),
+        ],
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.0.scaled(context, ref)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAIAvatar(),
+          SizedBox(width: 8.0.scaled(context, ref)),
+          Flexible(
+            child: Container(
+              margin: EdgeInsets.only(right: 60.0.scaled(context, ref)),
+              padding: EdgeInsets.symmetric(
+                horizontal: 12.0.scaled(context, ref),
+                vertical: 10.0.scaled(context, ref),
+              ),
+              decoration: BoxDecoration(
+                color: BeeTokens.surface(context),
+                borderRadius: BorderRadius.circular(12.0.scaled(context, ref)),
+                border: Border.all(color: BeeTokens.border(context)),
+              ),
+              child: AgentMarkdownText(
+                data: response.text,
+                style: TextStyle(
+                  color: BeeTokens.textPrimary(context),
+                  fontSize: 14.0.scaled(context, ref),
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // 构建AI头像
   Widget _buildAIAvatar() {
     return Container(
@@ -459,10 +571,10 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: ref.watch(primaryColorProvider).withOpacity(0.3),
+          color: ref.watch(primaryColorProvider).withValues(alpha: 0.3),
           width: 1.5,
         ),
-        color: ref.watch(primaryColorProvider).withOpacity(0.1),
+        color: ref.watch(primaryColorProvider).withValues(alpha: 0.1),
       ),
       child: Center(
         child: BeeIcon(
@@ -513,6 +625,10 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         top: false, // 不保护顶部，避免额外空白
         child: Row(
           children: [
+            AIQuickCommandLauncher(
+              onCommandTap: _handleQuickCommand,
+              enabled: !_isLoading,
+            ),
             Expanded(
               child: TextField(
                 controller: _inputController,
@@ -542,17 +658,28 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
             SizedBox(width: 8.0.scaled(context, ref)),
             IconButton(
               icon: Icon(
-                Icons.send,
+                _isLoading ? Icons.stop_circle_outlined : Icons.send,
                 color: _isLoading
-                    ? BeeTokens.textTertiary(context)
+                    ? Theme.of(context).colorScheme.error
                     : ref.watch(primaryColorProvider),
               ),
-              onPressed: _isLoading ? null : _sendMessage,
+              tooltip:
+                  _isLoading ? AppLocalizations.of(context).agentRunStop : null,
+              onPressed: _isLoading ? _stopCurrentAgentRun : _sendMessage,
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _stopCurrentAgentRun() {
+    final runId = _activeAgentRunId;
+    if (!_isLoading || runId == null) return;
+    _chatService.cancelAgentRun(runId);
+    if (_isAuthorizationDialogOpen && mounted) {
+      Navigator.of(context).pop(AgentToolAuthorizationChoice.deny);
+    }
   }
 
   /// 处理快捷指令点击
@@ -608,7 +735,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
   Future<void> _sendMessage() async {
     final text = _inputController.text.trim();
-    if (text.isEmpty || _isLoading) return;
+    if (!mounted || text.isEmpty || _isLoading) return;
 
     _inputController.clear();
     await _sendMessageText(text);
@@ -624,7 +751,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     String? displayText,
     bool forceChat = false,
   }) async {
-    if (text.isEmpty || _isLoading) return;
+    if (!mounted || text.isEmpty || _isLoading) return;
 
     setState(() => _isLoading = true);
 
@@ -641,29 +768,118 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           createdAt: Value(DateTime.now()),
         ),
       );
+      if (!mounted) return;
 
       _scrollToBottom();
 
       // chat_service 内部走 BillExtractionService.forLedger,会自动查
       // 当前账本可用分类 + 同币种账户,page 层不再预查。
-      final chatService = ref.read(aiChatServiceProvider);
+      final chatService = _chatService;
       final currentLocale = Localizations.localeOf(context);
       final ledgerId = ref.read(currentLedgerIdProvider);
       final l10n = AppLocalizations.of(context);
+      final agentRunId = const Uuid().v4();
 
       logger.info('AIChat', '当前账本ID: $ledgerId');
 
-      final response = await chatService.processMessage(
+      setState(() {
+        _hasLiveAgentMessage = true;
+        _streamingAgentText = '';
+        _agentExecutionSteps = const [];
+        _liveAgentResponse = null;
+        _liveAssistantMessageId = null;
+        _activeAgentRunId = agentRunId;
+      });
+      _scrollToBottom();
+
+      AIResponse? response;
+      await for (final event in chatService.processMessageEvents(
         text,
         ledgerId: ledgerId,
+        runId: agentRunId,
+        conversationId: _conversationId,
         languageCode: currentLocale.languageCode,
-        forceChat: forceChat, // 快捷指令强制为自由对话
+        forceChat: forceChat,
         l10n: l10n,
-      );
+      )) {
+        if (!mounted) break;
+        switch (event) {
+          case AgentTextDeltaEvent(:final text):
+            setState(() {
+              _streamingAgentText += text;
+            });
+          case AgentToolAuthorizationRequestedEvent(:final request):
+            setState(() {
+              _agentExecutionSteps = [
+                ..._agentExecutionSteps,
+                AgentExecutionStep(
+                  toolName: request.toolName,
+                  arguments: request.arguments,
+                  status: AgentExecutionStepStatus.waiting,
+                ),
+              ];
+            });
+            _isAuthorizationDialogOpen = true;
+            final choice = mounted
+                ? await AgentToolAuthorizationDialog.show(
+                    context: context,
+                    request: request,
+                  )
+                : AgentToolAuthorizationChoice.deny;
+            _isAuthorizationDialogOpen = false;
+            chatService.resolveToolAuthorization(
+              request.authorizationId,
+              choice,
+            );
+          case AgentToolStartedEvent(
+              :final toolName,
+              :final callId,
+              :final arguments
+            ):
+            setState(() {
+              _agentExecutionSteps = _updateExecutionStep(
+                toolName: toolName,
+                callId: callId,
+                arguments: arguments,
+                status: AgentExecutionStepStatus.running,
+              );
+            });
+          case AgentToolCompletedEvent(
+              :final toolName,
+              :final callId,
+              :final arguments,
+              :final result,
+              :final error,
+              :final succeeded
+            ):
+            setState(() {
+              _agentExecutionSteps = _updateExecutionStep(
+                toolName: toolName,
+                callId: callId,
+                arguments: arguments,
+                status: succeeded
+                    ? AgentExecutionStepStatus.completed
+                    : AgentExecutionStepStatus.failed,
+                result: result,
+                error: error,
+              );
+            });
+          case AgentRunCompletedEvent(:final result):
+            response = result.response;
+        }
+        _scrollToBottomSmooth();
+      }
+      // The authorization dialog and native SSE stream can outlive this
+      // route. Do not persist or update UI after the page has been disposed.
+      if (!mounted) return;
+      response ??= AIResponse.error(l10n.agentRunFailed);
+      setState(() {
+        _liveAgentResponse = response;
+      });
 
       // 保存 AI 回复。多笔 metadata 用新格式 {bills, txIds, undoneIds};
       // transactionId 列仍存第一笔 id(getMessageByTransactionId 兼容)。
-      final messageId = await repo.createMessage(
+      final assistantMessageId = await repo.createMessage(
         MessagesCompanion.insert(
           conversationId: _conversationId!,
           role: 'assistant',
@@ -682,6 +898,12 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           createdAt: Value(DateTime.now()),
         ),
       );
+      if (!mounted) return;
+      setState(() {
+        _liveAssistantMessageId = assistantMessageId;
+        _pendingResponseMessageId = assistantMessageId;
+        _chatScrollCoordinator.request();
+      });
 
       // 如果是记账成功，刷新统计信息
       if (response.type == 'bill_card' && response.transactionId != null) {
@@ -692,15 +914,22 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         final billLedgerId = response.billInfo?.ledgerId ?? ledgerId;
         await PostProcessor.sync(ref, ledgerId: billLedgerId);
 
+        if (!mounted) return;
+
         logger.info('AIChat', '记账成功，已刷新统计信息和触发云同步');
       }
 
-      // 设置动画消息ID
+      if (!mounted) return;
       setState(() {
-        _animatingMessageId = messageId;
+        // Content was already rendered from the provider's real SSE chunks.
+        // Do not replay it with the old typewriter simulation after persistence.
+        _animatingMessageId = null;
+        _hasLiveAgentMessage = false;
+        _streamingAgentText = '';
+        _agentExecutionSteps = const [];
+        _liveAgentResponse = null;
+        _liveAssistantMessageId = null;
       });
-
-      _scrollToBottom();
     } catch (e) {
       if (mounted) {
         showToast(
@@ -708,9 +937,66 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       }
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _hasLiveAgentMessage = false;
+          _streamingAgentText = '';
+          _agentExecutionSteps = const [];
+          _liveAgentResponse = null;
+          _liveAssistantMessageId = null;
+          _activeAgentRunId = null;
+          _isAuthorizationDialogOpen = false;
+        });
       }
     }
+  }
+
+  List<AgentExecutionStep> _updateExecutionStep({
+    required String toolName,
+    required String callId,
+    required Map<String, Object?> arguments,
+    required AgentExecutionStepStatus status,
+    Map<String, Object?>? result,
+    String? error,
+  }) {
+    final steps = [..._agentExecutionSteps];
+    var index = -1;
+    if (callId.isNotEmpty) {
+      for (var i = steps.length - 1; i >= 0; i--) {
+        if (steps[i].callId == callId) {
+          index = i;
+          break;
+        }
+      }
+    }
+    if (index < 0) {
+      for (var i = steps.length - 1; i >= 0; i--) {
+        final candidate = steps[i];
+        if (candidate.toolName == toolName &&
+            (candidate.status == AgentExecutionStepStatus.waiting ||
+                candidate.status == AgentExecutionStepStatus.running)) {
+          index = i;
+          break;
+        }
+      }
+    }
+
+    final current = index >= 0 ? steps[index] : null;
+    final next = AgentExecutionStep(
+      toolName: toolName,
+      arguments:
+          arguments.isEmpty ? (current?.arguments ?? arguments) : arguments,
+      callId: callId.isEmpty ? current?.callId : callId,
+      status: status,
+      result: result,
+      error: error,
+    );
+    if (index >= 0) {
+      steps[index] = next;
+    } else {
+      steps.add(next);
+    }
+    return steps;
   }
 
   void _scrollToBottom() {
@@ -795,7 +1081,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     final repo = ref.read(repositoryProvider);
     final message = await repo.getMessageById(messageId);
     if (message == null || message.metadata == null) {
-      if (mounted) showToast(context, AppLocalizations.of(context).aiChatUndone);
+      if (mounted) {
+        showToast(context, AppLocalizations.of(context).aiChatUndone);
+      }
       return;
     }
 
@@ -881,30 +1169,30 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       final transaction = await repo.getTransactionById(transactionId);
       if (transaction == null) return;
 
-      String? categoryName;
-      if (transaction.categoryId != null) {
-        final category = await repo.getCategoryById(transaction.categoryId!);
-        categoryName = category?.name;
-      }
-      String? accountName;
-      if (transaction.accountId != null) {
-        final account = await repo.getAccount(transaction.accountId!);
-        accountName = account?.name;
-      }
-
-      final updatedBillInfo = BillInfo(
+      final category = transaction.categoryId == null
+          ? null
+          : await repo.getCategoryById(transaction.categoryId!);
+      final account = transaction.accountId == null
+          ? null
+          : await repo.getAccount(transaction.accountId!);
+      final toAccount = transaction.toAccountId == null
+          ? null
+          : await repo.getAccount(transaction.toAccountId!);
+      final tagsByTransaction = await repo.getTagsForTransactions([
+        transactionId,
+      ]);
+      final updatedBillInfo = buildBillCardInfoFromTransaction(
         amount: transaction.amount,
         time: transaction.happenedAt,
         note: transaction.note,
-        category: categoryName,
-        type: transaction.type == 'expense'
-            ? BillType.expense
-            : (transaction.type == 'transfer'
-                ? BillType.transfer
-                : BillType.income),
-        account: accountName,
+        category: category?.name,
+        transactionType: transaction.type,
+        account: account?.name,
+        fromAccount: account?.name,
+        toAccount: toAccount?.name,
+        tags: tagsByTransaction[transactionId]?.map((tag) => tag.name).toList(),
+        currency: transaction.currencyCode ?? account?.currency,
         ledgerId: transaction.ledgerId,
-        confidence: 1.0,
       );
 
       final parsed = _parseBillMetadata(message);
@@ -975,7 +1263,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         final idx = parsed.txIds.indexOf(transactionId);
         if (idx >= 0 && idx < parsed.bills.length) {
           final newBills = List<BillInfo>.from(parsed.bills);
-          newBills[idx] = parsed.bills[idx].copyWith(ledgerId: selectedLedgerId);
+          newBills[idx] =
+              parsed.bills[idx].copyWith(ledgerId: selectedLedgerId);
           await repo.updateMessage(message.copyWith(
             metadata: Value(_encodeBillMetadata(
               newBills,
@@ -1107,12 +1396,10 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           .whereType<Map>()
           .map((j) => BillInfo.fromJson(Map<String, dynamic>.from(j)))
           .toList();
-      final txIds = ((raw['txIds'] as List?) ?? const [])
-          .whereType<int>()
-          .toList();
-      final undoneIds = ((raw['undoneIds'] as List?) ?? const [])
-          .whereType<int>()
-          .toSet();
+      final txIds =
+          ((raw['txIds'] as List?) ?? const []).whereType<int>().toList();
+      final undoneIds =
+          ((raw['undoneIds'] as List?) ?? const []).whereType<int>().toSet();
       return (bills: bills, txIds: txIds, undoneIds: undoneIds);
     }
 
@@ -1190,6 +1477,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    final runId = _activeAgentRunId;
+    if (runId != null) _chatService.cancelAgentRun(runId);
     _inputController.dispose();
     _scrollController.dispose();
     super.dispose();

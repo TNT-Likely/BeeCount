@@ -1,4 +1,5 @@
 import '../../ai/core/bill_info.dart';
+import '../../agent/permission/agent_authorization_gate.dart';
 import '../../ai/providers/ai_provider_config.dart';
 import '../../ai/providers/ai_provider_factory.dart';
 import '../../ai/providers/ai_provider_manager.dart';
@@ -7,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../data/tag_seed_service.dart';
 import '../system/logger_service.dart';
 import 'ai_bookkeeper.dart';
+import 'agent_app_facade.dart';
 
 /// AI 对话服务
 ///
@@ -19,12 +21,29 @@ import 'ai_bookkeeper.dart';
 class AIChatService {
   final BaseRepository _repo;
   final AiBookkeeper _bookkeeper;
+  final AgentAppFacade? _agentFacade;
 
   AIChatService({
     required BaseRepository repo,
     required AiBookkeeper bookkeeper,
+    AgentAppFacade? agentFacade,
   })  : _repo = repo,
-        _bookkeeper = bookkeeper;
+        _bookkeeper = bookkeeper,
+        _agentFacade = agentFacade;
+
+  bool resolveToolAuthorization(
+    String authorizationId,
+    AgentToolAuthorizationChoice choice,
+  ) =>
+      _agentFacade?.resolveToolAuthorization(authorizationId, choice) ?? false;
+
+  void cancelPendingToolAuthorizations() {
+    _agentFacade?.cancelPendingToolAuthorizations();
+  }
+
+  /// Stops one foreground Agent run, including a model turn waiting for
+  /// network data. Legacy non-Agent chat has nothing to cancel.
+  bool cancelAgentRun(String runId) => _agentFacade?.cancelRun(runId) ?? false;
 
   /// 验证 AI 配置是否存在(仅本地配置,不发网络请求)
   static Future<AIConfigValidationResult> validateApiKey() async {
@@ -47,12 +66,23 @@ class AIChatService {
   Future<AIResponse> processMessage(
     String userInput, {
     required int ledgerId,
+    int? conversationId,
     String? languageCode,
     bool forceChat = false,
     AppLocalizations? l10n,
   }) async {
     logger.info('AIChat', '收到消息: $userInput (forceChat: $forceChat)');
     try {
+      if (_agentFacade != null) {
+        final agentResponse = await _agentFacade.processMessage(
+          message: userInput,
+          ledgerId: ledgerId,
+          conversationId: conversationId,
+          context: {'languageCode': languageCode},
+          l10n: l10n,
+        );
+        return agentResponse.response;
+      }
       if (!forceChat && _isTransactionIntent(userInput)) {
         return await _handleTransaction(
           userInput,
@@ -65,6 +95,41 @@ class AIChatService {
       logger.error('AIChat', '处理失败', e, st);
       return AIResponse.error('抱歉,处理失败,请重试');
     }
+  }
+
+  /// Live Agent events for the chat UI. The normal native path yields genuine
+  /// provider SSE text deltas; legacy configurations still yield one completed
+  /// event so callers can use a single rendering flow.
+  Stream<AgentRunEvent> processMessageEvents(
+    String userInput, {
+    required int ledgerId,
+    String? runId,
+    int? conversationId,
+    String? languageCode,
+    bool forceChat = false,
+    AppLocalizations? l10n,
+  }) async* {
+    if (_agentFacade != null) {
+      yield* _agentFacade.processMessageEvents(
+        message: userInput,
+        ledgerId: ledgerId,
+        runId: runId,
+        conversationId: conversationId,
+        context: {'languageCode': languageCode},
+        l10n: l10n,
+      );
+      return;
+    }
+    final response = await processMessage(
+      userInput,
+      ledgerId: ledgerId,
+      languageCode: languageCode,
+      forceChat: forceChat,
+      l10n: l10n,
+    );
+    yield AgentRunCompletedEvent(
+      AgentChatResponse(runId: '', response: response),
+    );
   }
 
   /// 撤销记账(给 UI 卡片上的「撤销」按钮用)
@@ -121,8 +186,8 @@ class AIChatService {
       // 多币种降级提示(A5):缺汇率时已按 1:1 暂记,告诉用户去统计页补折算
       note: (result.unconvertedCurrencies.isEmpty || l10n == null)
           ? null
-          : l10n.aiBillingRateMissingHint(
-              result.unconvertedCurrencies.join('、')),
+          : l10n
+              .aiBillingRateMissingHint(result.unconvertedCurrencies.join('、')),
     );
   }
 
@@ -206,8 +271,7 @@ class AIResponse {
   int? get transactionId =>
       transactionIds.isNotEmpty ? transactionIds.first : null;
 
-  factory AIResponse.text(String text) =>
-      AIResponse(type: 'text', text: text);
+  factory AIResponse.text(String text) => AIResponse(type: 'text', text: text);
 
   /// 多笔/单笔统一入口。bills 与 txIds 必须等长且非空。
   ///

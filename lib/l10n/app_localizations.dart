@@ -9890,6 +9890,90 @@ abstract class AppLocalizations {
   /// **'e.g.: Bought a coffee for \$35'**
   String get aiChatInputHint;
 
+  /// No description provided for @aiQuickCommandsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a task'**
+  String get aiQuickCommandsTitle;
+
+  /// No description provided for @aiQuickCommandsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open suggestions'**
+  String get aiQuickCommandsOpen;
+
+  /// No description provided for @aiChatEmptyMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get aiChatEmptyMessages;
+
+  /// No description provided for @aiChatEmptyCurrentLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Current ledger'**
+  String get aiChatEmptyCurrentLedger;
+
+  /// No description provided for @aiChatEmptyStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with a transaction or a question'**
+  String get aiChatEmptyStartTitle;
+
+  /// No description provided for @aiChatEmptyStartDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ll answer from this ledger and ask for permission when needed.'**
+  String get aiChatEmptyStartDescription;
+
+  /// No description provided for @aiChatEmptyMonthExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'This month\'s spending'**
+  String get aiChatEmptyMonthExpense;
+
+  /// No description provided for @aiChatEmptyRecordedTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded transactions'**
+  String get aiChatEmptyRecordedTransactions;
+
+  /// No description provided for @aiChatEmptyTransactionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recorded'**
+  String aiChatEmptyTransactionCount(int count);
+
+  /// No description provided for @aiChatEmptyQuestionExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Try asking: What did I spend the most on this month?'**
+  String get aiChatEmptyQuestionExample;
+
+  /// No description provided for @aiChatEmptyFirstTransactionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with today\'s first transaction'**
+  String get aiChatEmptyFirstTransactionTitle;
+
+  /// No description provided for @aiChatEmptyFirstTransactionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell me the amount and purpose, and I\'ll help record it.'**
+  String get aiChatEmptyFirstTransactionDescription;
+
+  /// No description provided for @aiChatEmptyFirstTransactionExample.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: Lunch cost 28'**
+  String get aiChatEmptyFirstTransactionExample;
+
+  /// No description provided for @aiChatMessagesLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load messages: {error}'**
+  String aiChatMessagesLoadFailed(String error);
+
   /// No description provided for @aiChatThinking.
   ///
   /// In en, this message translates to:
@@ -9956,6 +10040,324 @@ abstract class AppLocalizations {
   /// **'Failed to send'**
   String get aiChatSendFailed;
 
+  /// No description provided for @agentRunFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'AI service is temporarily unavailable. Please try again later.'**
+  String get agentRunFailed;
+
+  /// No description provided for @agentNativeToolsUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'This model does not support native Agent tools or streaming. Switch models in AI Settings.'**
+  String get agentNativeToolsUnsupported;
+
+  /// No description provided for @agentTurnTimedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI response timed out. Please try again shortly.'**
+  String get agentTurnTimedOut;
+
+  /// No description provided for @agentRecordIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'The transaction details are incomplete. Please include an amount and purpose, then try again.'**
+  String get agentRecordIncomplete;
+
+  /// No description provided for @agentRecordCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created {count, plural, =1{1 transaction} other{{count} transactions}}.'**
+  String agentRecordCreated(int count);
+
+  /// No description provided for @agentStepsExceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'This request took too many steps. Please simplify it and try again.'**
+  String get agentStepsExceeded;
+
+  /// No description provided for @agentExecutingTool.
+  ///
+  /// In en, this message translates to:
+  /// **'Working: {tool}'**
+  String agentExecutingTool(Object tool);
+
+  /// No description provided for @agentToolCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Done: {tool}'**
+  String agentToolCompleted(Object tool);
+
+  /// No description provided for @agentToolFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not complete: {tool}'**
+  String agentToolFailed(Object tool);
+
+  /// No description provided for @agentToolQueryTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'query transactions'**
+  String get agentToolQueryTransactions;
+
+  /// No description provided for @agentToolSpendingSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'summarize spending'**
+  String get agentToolSpendingSummary;
+
+  /// No description provided for @agentToolBudgetStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'check budget'**
+  String get agentToolBudgetStatus;
+
+  /// No description provided for @agentToolRecurringTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'view recurring transactions'**
+  String get agentToolRecurringTransactions;
+
+  /// No description provided for @agentToolRecordTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'record transaction'**
+  String get agentToolRecordTransaction;
+
+  /// No description provided for @agentToolSaveMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'save memory'**
+  String get agentToolSaveMemory;
+
+  /// No description provided for @agentToolForgetMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'forget memory'**
+  String get agentToolForgetMemory;
+
+  /// No description provided for @agentPermissionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant permissions'**
+  String get agentPermissionsTitle;
+
+  /// No description provided for @agentPermissionsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what AI Assistant can do here. Read-only tools only view data; tools that change data ask for authorization before running.'**
+  String get agentPermissionsIntro;
+
+  /// No description provided for @agentPermissionsReadOnlySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Read-only tools'**
+  String get agentPermissionsReadOnlySection;
+
+  /// No description provided for @agentPermissionsReadOnlySectionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View ledger information without changing anything.'**
+  String get agentPermissionsReadOnlySectionDescription;
+
+  /// No description provided for @agentPermissionsWriteSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Data-changing tools'**
+  String get agentPermissionsWriteSection;
+
+  /// No description provided for @agentPermissionsWriteSectionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'These can change your ledger or local memories; asking every time is recommended.'**
+  String get agentPermissionsWriteSectionDescription;
+
+  /// No description provided for @agentPermissionsDefaultsActive.
+  ///
+  /// In en, this message translates to:
+  /// **'All tools are using their default policies'**
+  String get agentPermissionsDefaultsActive;
+
+  /// No description provided for @agentPermissionsModifiedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} custom settings'**
+  String agentPermissionsModifiedCount(int count);
+
+  /// No description provided for @agentPermissionsRestoreDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore defaults'**
+  String get agentPermissionsRestoreDefaults;
+
+  /// No description provided for @agentPermissionsRestoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore default permissions?'**
+  String get agentPermissionsRestoreTitle;
+
+  /// No description provided for @agentPermissionsRestoreDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This clears every Always allow setting and restores each tool\'s default permission.'**
+  String get agentPermissionsRestoreDescription;
+
+  /// No description provided for @agentPermissionsRestoreConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get agentPermissionsRestoreConfirm;
+
+  /// No description provided for @agentPermissionAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask every time'**
+  String get agentPermissionAsk;
+
+  /// No description provided for @agentPermissionAlwaysAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Always allow'**
+  String get agentPermissionAlwaysAllow;
+
+  /// No description provided for @agentPermissionWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your authorization'**
+  String get agentPermissionWaiting;
+
+  /// No description provided for @agentPermissionWriteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save permission settings. Please try again.'**
+  String get agentPermissionWriteFailed;
+
+  /// No description provided for @agentAuthorizationPersistenceFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission could not be saved; this operation still follows your choice.'**
+  String get agentAuthorizationPersistenceFailed;
+
+  /// No description provided for @agentToolQueryTransactionsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View transactions in the current ledger for a selected time range.'**
+  String get agentToolQueryTransactionsDescription;
+
+  /// No description provided for @agentToolSpendingSummaryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize spending in the current ledger for a selected time range.'**
+  String get agentToolSpendingSummaryDescription;
+
+  /// No description provided for @agentToolBudgetStatusDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View the budget status for the current ledger.'**
+  String get agentToolBudgetStatusDescription;
+
+  /// No description provided for @agentToolRecurringTransactionsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View enabled recurring transactions in the current ledger.'**
+  String get agentToolRecurringTransactionsDescription;
+
+  /// No description provided for @agentToolRecordTransactionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a transaction from the original text you sent.'**
+  String get agentToolRecordTransactionDescription;
+
+  /// No description provided for @agentToolSaveMemoryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Save something you explicitly asked the assistant to remember.'**
+  String get agentToolSaveMemoryDescription;
+
+  /// No description provided for @agentToolForgetMemoryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete a saved local memory.'**
+  String get agentToolForgetMemoryDescription;
+
+  /// No description provided for @agentToolUnknownDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Run a local Agent tool.'**
+  String get agentToolUnknownDescription;
+
+  /// No description provided for @agentAuthorizationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Agent action?'**
+  String get agentAuthorizationTitle;
+
+  /// No description provided for @agentAuthorizationCurrentLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger: current ledger (ID {ledgerId})'**
+  String agentAuthorizationCurrentLedger(int ledgerId);
+
+  /// No description provided for @agentAuthorizationAllLedgers.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger: all accessible ledgers'**
+  String get agentAuthorizationAllLedgers;
+
+  /// No description provided for @agentAuthorizationParameters.
+  ///
+  /// In en, this message translates to:
+  /// **'Information used this time'**
+  String get agentAuthorizationParameters;
+
+  /// No description provided for @agentAuthorizationNoParameters.
+  ///
+  /// In en, this message translates to:
+  /// **'No parameters need to be shown.'**
+  String get agentAuthorizationNoParameters;
+
+  /// No description provided for @agentAuthorizationSourceText.
+  ///
+  /// In en, this message translates to:
+  /// **'Original transaction text'**
+  String get agentAuthorizationSourceText;
+
+  /// No description provided for @agentAuthorizationTimeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Query time range'**
+  String get agentAuthorizationTimeRange;
+
+  /// No description provided for @agentAuthorizationMemoryContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory content'**
+  String get agentAuthorizationMemoryContent;
+
+  /// No description provided for @agentAuthorizationMemoryId.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory ID'**
+  String get agentAuthorizationMemoryId;
+
+  /// No description provided for @agentAuthorizationDeny.
+  ///
+  /// In en, this message translates to:
+  /// **'Deny'**
+  String get agentAuthorizationDeny;
+
+  /// No description provided for @agentAuthorizationAllowOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow once'**
+  String get agentAuthorizationAllowOnce;
+
+  /// No description provided for @agentAuthorizationAlwaysAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Always allow'**
+  String get agentAuthorizationAlwaysAllow;
+
   /// No description provided for @billCardSuccess.
   ///
   /// In en, this message translates to:
@@ -9997,6 +10399,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'💳 Account'**
   String get billCardAccount;
+
+  /// No description provided for @billCardTransferAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'🔁 Transfer accounts'**
+  String get billCardTransferAccounts;
+
+  /// No description provided for @billCardType.
+  ///
+  /// In en, this message translates to:
+  /// **'↕️ Type'**
+  String get billCardType;
+
+  /// No description provided for @billCardExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get billCardExpense;
+
+  /// No description provided for @billCardIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get billCardIncome;
+
+  /// No description provided for @billCardTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get billCardTransfer;
+
+  /// No description provided for @billCardCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'💱 Currency'**
+  String get billCardCurrency;
+
+  /// No description provided for @billCardTags.
+  ///
+  /// In en, this message translates to:
+  /// **'🏷️ Tags'**
+  String get billCardTags;
 
   /// No description provided for @billCardUndo.
   ///
@@ -14239,6 +14683,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mauritanian Ouguiya'**
   String get currencyMRU;
+
+  /// No description provided for @agentAssistantSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant'**
+  String get agentAssistantSettingsTitle;
+
+  /// No description provided for @agentAssistantSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage how the assistant uses local data and tools.'**
+  String get agentAssistantSettingsSubtitle;
+
+  /// No description provided for @agentAssistantPermissionsEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get agentAssistantPermissionsEntry;
+
+  /// No description provided for @agentAssistantPermissionsEntryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose when data-changing tools need your approval.'**
+  String get agentAssistantPermissionsEntryDescription;
+
+  /// No description provided for @agentAssistantMemoryEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Local memory'**
+  String get agentAssistantMemoryEntry;
+
+  /// No description provided for @agentAssistantMemoryEntryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View and remove memories kept only on this device.'**
+  String get agentAssistantMemoryEntryDescription;
+
+  /// No description provided for @agentAssistantActivityEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activity'**
+  String get agentAssistantActivityEntry;
+
+  /// No description provided for @agentAssistantActivityEntryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Review local tool calls and their outcomes.'**
+  String get agentAssistantActivityEntryDescription;
+
+  /// No description provided for @agentExecutionDepthEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Execution depth'**
+  String get agentExecutionDepthEntry;
+
+  /// No description provided for @agentExecutionDepthEntryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher limits can handle more steps but may take longer.'**
+  String get agentExecutionDepthEntryDescription;
+
+  /// No description provided for @agentExecutionDepthSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {turns} model turns'**
+  String agentExecutionDepthSelected(int turns);
+
+  /// No description provided for @agentExecutionDepthChooseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Execution depth'**
+  String get agentExecutionDepthChooseTitle;
+
+  /// No description provided for @agentExecutionDepthQuick.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick'**
+  String get agentExecutionDepthQuick;
+
+  /// No description provided for @agentExecutionDepthStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get agentExecutionDepthStandard;
+
+  /// No description provided for @agentExecutionDepthDeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep'**
+  String get agentExecutionDepthDeep;
+
+  /// No description provided for @agentExecutionDepthCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get agentExecutionDepthCustom;
+
+  /// No description provided for @agentMemoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Local memory'**
+  String get agentMemoryTitle;
+
+  /// No description provided for @agentMemoryIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'These memories stay on this device and apply only to the current ledger.'**
+  String get agentMemoryIntro;
+
+  /// No description provided for @agentMemoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No local memories yet.'**
+  String get agentMemoryEmpty;
+
+  /// No description provided for @agentMemoryDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this memory?'**
+  String get agentMemoryDeleteTitle;
+
+  /// No description provided for @agentMemoryDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The assistant will no longer use this memory.'**
+  String get agentMemoryDeleteDescription;
+
+  /// No description provided for @agentMemoryClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear current ledger memories'**
+  String get agentMemoryClear;
+
+  /// No description provided for @agentMemoryClearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all current ledger memories?'**
+  String get agentMemoryClearTitle;
+
+  /// No description provided for @agentMemoryClearDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes every local memory for this ledger and cannot be undone.'**
+  String get agentMemoryClearDescription;
+
+  /// No description provided for @agentActivityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activity'**
+  String get agentActivityTitle;
+
+  /// No description provided for @agentActivityIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'This activity history is stored locally and is never synced.'**
+  String get agentActivityIntro;
+
+  /// No description provided for @agentActivityEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No assistant activity yet.'**
+  String get agentActivityEmpty;
+
+  /// No description provided for @agentActivityCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get agentActivityCompleted;
+
+  /// No description provided for @agentActivityFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get agentActivityFailed;
+
+  /// No description provided for @agentActivityRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get agentActivityRunning;
+
+  /// No description provided for @agentActivityCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get agentActivityCancelled;
+
+  /// No description provided for @agentActivityTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get agentActivityTools;
+
+  /// No description provided for @agentActivityToolCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get agentActivityToolCompleted;
+
+  /// No description provided for @agentActivityToolDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Denied'**
+  String get agentActivityToolDenied;
+
+  /// No description provided for @agentActivityToolFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get agentActivityToolFailed;
+
+  /// No description provided for @agentRunCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'This run was stopped.'**
+  String get agentRunCancelled;
+
+  /// No description provided for @agentRunStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get agentRunStop;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

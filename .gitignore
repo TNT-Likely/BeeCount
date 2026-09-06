@@ -64,3 +64,6 @@ tmp
 
 # visual brainstorm 临时文件
 .superpowers/
+
+# 本地设计原型（不提交）
+design-prototypes/
