@@ -29,7 +29,7 @@ void main() {
       AgentToolPermission.alwaysAllow,
     );
     expect(
-      await store.permissionFor('get_spending_summary'),
+      await store.permissionFor('get_transaction_summary'),
       AgentToolPermission.alwaysAllow,
     );
     expect(
@@ -198,7 +198,7 @@ void main() {
         all.keys,
         containsAll(<String>[
           'query_transactions',
-          'get_spending_summary',
+          'get_transaction_summary',
           'get_budget_status',
           'get_recurring_transactions',
           'record_transaction_from_text',

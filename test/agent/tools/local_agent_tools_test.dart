@@ -96,11 +96,11 @@ void main() {
     ]);
   });
 
-  test('spending summary returns the requested date range to the model',
+  test('transaction summary delegates an all-type aggregate without rows',
       () async {
-    final result = await tools['get_spending_summary']!.execute(
+    final result = await tools['get_transaction_summary']!.execute(
       AgentToolCall(
-        name: 'get_spending_summary',
+        name: 'get_transaction_summary',
         arguments: const {
           'start': '2026-08-01T00:00:00.000',
           'end': '2026-08-31T23:59:59.999',
@@ -108,72 +108,59 @@ void main() {
       ),
     );
 
-    expect(result['periodStart'], '2026-08-01T00:00:00.000');
-    expect(result['periodEnd'], '2026-08-31T23:59:59.999');
+    expect(result, {
+      'currency': 'CNY',
+      'periodStart': '2026-08-01T00:00:00.000',
+      'periodEnd': '2026-08-31T23:59:59.999',
+      'types': ['income', 'expense', 'transfer'],
+      'totals': {
+        'income': {'amount': 1200.0, 'count': 2},
+        'expense': {'amount': 480.0, 'count': 4},
+        'transfer': {'amount': 300.0, 'count': 1},
+      },
+      'groupBy': 'none',
+      'groups': [],
+      'groupsMayOverlap': false,
+      'truncated': false,
+    });
+    expect(gateway.summaryRequests, [
+      (
+        ledgerId: 1,
+        start: DateTime(2026, 8, 1),
+        end: DateTime(2026, 8, 31, 23, 59, 59, 999),
+        types: const {'income', 'expense', 'transfer'},
+        groupBy: 'none',
+        categoryLevel: 'leaf',
+        categoryIds: const <int>[],
+        tagIds: const <int>[],
+        accountIds: const <int>[],
+        includeExcludedFromStats: false,
+        groupLimit: 20,
+      ),
+    ]);
   });
 
-  test('spending summary uses ledger amounts instead of mixing currencies',
+  test('transaction summary forwards filters and the requested grouping',
       () async {
-    gateway.transactions = [
-      AgentTransactionSummary(
-        id: 9,
-        ledgerId: 1,
-        type: 'expense',
-        amount: -10,
-        ledgerAmount: -72,
-        currency: 'CNY',
-        happenedAt: DateTime(2026, 9, 6),
-        note: '美元订阅',
+    await tools['get_transaction_summary']!.execute(
+      AgentToolCall(
+        name: 'get_transaction_summary',
+        arguments: const {
+          'types': ['expense'],
+          'groupBy': 'tag',
+          'tagIds': [7],
+          'includeExcludedFromStats': true,
+          'groupLimit': 12,
+        },
       ),
-    ];
-
-    final result = await tools['get_spending_summary']!.execute(
-      AgentToolCall(name: 'get_spending_summary'),
     );
 
-    expect(result['total'], 72.0);
-    expect(result['currency'], 'CNY');
-  });
-
-  test('spending summary keeps the ledger currency when no transactions match',
-      () async {
-    gateway.ledgerCurrency = 'USD';
-
-    final result = await tools['get_spending_summary']!.execute(
-      AgentToolCall(name: 'get_spending_summary'),
-    );
-
-    expect(result['total'], 0.0);
-    expect(result['currency'], 'USD');
-  });
-
-  test('spending summary honors transactions excluded from statistics',
-      () async {
-    gateway.transactions = [
-      AgentTransactionSummary(
-        id: 10,
-        ledgerId: 1,
-        type: 'expense',
-        amount: 30,
-        happenedAt: DateTime(2026, 9, 6),
-        note: '午饭',
-      ),
-      AgentTransactionSummary(
-        id: 11,
-        ledgerId: 1,
-        type: 'expense',
-        amount: 70,
-        excludeFromStats: true,
-        happenedAt: DateTime(2026, 9, 6),
-        note: '报销垫付',
-      ),
-    ];
-
-    final result = await tools['get_spending_summary']!.execute(
-      AgentToolCall(name: 'get_spending_summary'),
-    );
-
-    expect(result['total'], 30.0);
+    final request = gateway.summaryRequests.single;
+    expect(request.types, {'expense'});
+    expect(request.groupBy, 'tag');
+    expect(request.tagIds, [7]);
+    expect(request.includeExcludedFromStats, isTrue);
+    expect(request.groupLimit, 12);
   });
 
   test('budget tool returns a stable, currency-aware budget snapshot',
@@ -220,6 +207,7 @@ void main() {
   test('P0 query tools exclude overlapping report summaries', () async {
     expect(tools, isNot(contains('get_income_expense_summary')));
     expect(tools, isNot(contains('get_category_spending')));
+    expect(tools, contains('get_transaction_summary'));
 
     final recurring = await tools['get_recurring_transactions']!.execute(
       AgentToolCall(name: 'get_recurring_transactions'),
@@ -253,6 +241,20 @@ final class _FakeGateway implements LocalAgentToolGateway {
   final List<String> recordedTexts = [];
   final List<int> requestedLedgerIds = [];
   final List<({int ledgerId, int memoryId})> forgetMemoryRequests = [];
+  final List<
+      ({
+        int ledgerId,
+        DateTime start,
+        DateTime end,
+        Set<String> types,
+        String groupBy,
+        String categoryLevel,
+        List<int> categoryIds,
+        List<int> tagIds,
+        List<int> accountIds,
+        bool includeExcludedFromStats,
+        int groupLimit,
+      })> summaryRequests = [];
   List<AgentTransactionSummary> transactions = [];
   String ledgerCurrency = 'CNY';
   final List<AgentRecurringTransactionSummary> recurringTransactions = const [
@@ -298,6 +300,50 @@ final class _FakeGateway implements LocalAgentToolGateway {
   }) async {
     requestedLedgerIds.add(ledgerId);
     return transactions;
+  }
+
+  @override
+  Future<Map<String, Object?>> summarizeTransactions({
+    required int ledgerId,
+    required DateTime start,
+    required DateTime end,
+    required Set<String> types,
+    required String groupBy,
+    required String categoryLevel,
+    required List<int> categoryIds,
+    required List<int> tagIds,
+    required List<int> accountIds,
+    required bool includeExcludedFromStats,
+    required int groupLimit,
+  }) async {
+    summaryRequests.add((
+      ledgerId: ledgerId,
+      start: start,
+      end: end,
+      types: types,
+      groupBy: groupBy,
+      categoryLevel: categoryLevel,
+      categoryIds: categoryIds,
+      tagIds: tagIds,
+      accountIds: accountIds,
+      includeExcludedFromStats: includeExcludedFromStats,
+      groupLimit: groupLimit,
+    ));
+    return const {
+      'currency': 'CNY',
+      'periodStart': '2026-08-01T00:00:00.000',
+      'periodEnd': '2026-08-31T23:59:59.999',
+      'types': ['income', 'expense', 'transfer'],
+      'totals': {
+        'income': {'amount': 1200.0, 'count': 2},
+        'expense': {'amount': 480.0, 'count': 4},
+        'transfer': {'amount': 300.0, 'count': 1},
+      },
+      'groupBy': 'none',
+      'groups': [],
+      'groupsMayOverlap': false,
+      'truncated': false,
+    };
   }
 
   @override

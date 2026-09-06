@@ -10106,6 +10106,12 @@ abstract class AppLocalizations {
   /// **'summarize spending'**
   String get agentToolSpendingSummary;
 
+  /// No description provided for @agentToolTransactionSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'summarize transactions'**
+  String get agentToolTransactionSummary;
+
   /// No description provided for @agentToolBudgetStatus.
   ///
   /// In en, this message translates to:
@@ -10250,6 +10256,12 @@ abstract class AppLocalizations {
   /// **'Summarize spending in the current ledger for a selected time range.'**
   String get agentToolSpendingSummaryDescription;
 
+  /// No description provided for @agentToolTransactionSummaryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Aggregate transactions in the current ledger by type, category, tag, account, or time period.'**
+  String get agentToolTransactionSummaryDescription;
+
   /// No description provided for @agentToolBudgetStatusDescription.
   ///
   /// In en, this message translates to:
@@ -10327,6 +10339,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Query time range'**
   String get agentAuthorizationTimeRange;
+
+  /// No description provided for @agentAuthorizationSummaryTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction types'**
+  String get agentAuthorizationSummaryTypes;
+
+  /// No description provided for @agentAuthorizationSummaryGroupBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Group by'**
+  String get agentAuthorizationSummaryGroupBy;
+
+  /// No description provided for @agentAuthorizationCategoryIds.
+  ///
+  /// In en, this message translates to:
+  /// **'Category IDs'**
+  String get agentAuthorizationCategoryIds;
+
+  /// No description provided for @agentAuthorizationTagIds.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag IDs'**
+  String get agentAuthorizationTagIds;
+
+  /// No description provided for @agentAuthorizationAccountIds.
+  ///
+  /// In en, this message translates to:
+  /// **'Account IDs'**
+  String get agentAuthorizationAccountIds;
 
   /// No description provided for @agentAuthorizationMemoryContent.
   ///

@@ -71,6 +71,17 @@ void main() {
     );
   });
 
+  test('native system prompt routes aggregates to the summary tool', () {
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('优先使用 get_transaction_summary'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('query_transactions 仅用于查看明细'),
+    );
+  });
+
   test(
       'native tool model surfaces unsupported capabilities instead of fallback',
       () async {
@@ -128,13 +139,13 @@ void main() {
     expect(transport.requests.last.toolResults.single.toolCallId, 'call-1');
   });
 
-  test('native read tool ignores a provider supplied ledger id', () async {
+  test('native summary tool ignores a provider supplied ledger id', () async {
     final model = NativeToolAgentModel(
       transport: _FakeNativeTransport([
         AgentNativeModelResponse.toolCalls([
           AgentNativeToolCall(
             id: 'call-1',
-            name: 'get_spending_summary',
+            name: 'get_transaction_summary',
             arguments: const {
               'ledgerId': '1',
               'start': '2026-08-01T00:00:00.000',

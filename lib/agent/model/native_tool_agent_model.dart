@@ -100,7 +100,7 @@ final class NativeToolAgentModel
 
   static const _ledgerScopedTools = <String>{
     'query_transactions',
-    'get_spending_summary',
+    'get_transaction_summary',
     'get_budget_status',
     'get_recurring_transactions',
   };

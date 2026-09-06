@@ -15,7 +15,7 @@ final class AgentToolPermissionCatalog {
       mutatesLocalData: false,
     ),
     AgentToolPermissionDescriptor(
-      toolName: 'get_spending_summary',
+      toolName: 'get_transaction_summary',
       defaultPermission: AgentToolPermission.alwaysAllow,
       mutatesLocalData: false,
     ),

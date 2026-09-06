@@ -5305,6 +5305,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentToolSpendingSummary => '汇总支出';
 
   @override
+  String get agentToolTransactionSummary => '汇总交易';
+
+  @override
   String get agentToolBudgetStatus => '查询预算';
 
   @override
@@ -5379,6 +5382,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentToolSpendingSummaryDescription => '汇总当前账本在指定时间范围内的支出。';
 
   @override
+  String get agentToolTransactionSummaryDescription => '按类型、分类、标签、账户或时间周期汇总当前账本的交易。';
+
+  @override
   String get agentToolBudgetStatusDescription => '查看当前账本的预算状态。';
 
   @override
@@ -5418,6 +5424,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get agentAuthorizationTimeRange => '查询时间范围';
+
+  @override
+  String get agentAuthorizationSummaryTypes => '交易类型';
+
+  @override
+  String get agentAuthorizationSummaryGroupBy => '分组方式';
+
+  @override
+  String get agentAuthorizationCategoryIds => '分类编号';
+
+  @override
+  String get agentAuthorizationTagIds => '标签编号';
+
+  @override
+  String get agentAuthorizationAccountIds => '账户编号';
 
   @override
   String get agentAuthorizationMemoryContent => '记忆内容';
