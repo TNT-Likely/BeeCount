@@ -5449,6 +5449,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get billCardAccount => '💳 Account';
 
   @override
+  String get billCardTransferAccounts => '🔁 Transfer accounts';
+
+  @override
+  String get billCardType => '↕️ Type';
+
+  @override
+  String get billCardExpense => 'Expense';
+
+  @override
+  String get billCardIncome => 'Income';
+
+  @override
+  String get billCardTransfer => 'Transfer';
+
+  @override
+  String get billCardCurrency => '💱 Currency';
+
+  @override
+  String get billCardTags => '🏷️ Tags';
+
+  @override
   String get billCardUndo => 'Undo';
 
   @override

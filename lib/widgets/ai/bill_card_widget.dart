@@ -38,6 +38,10 @@ class BillCardWidget extends ConsumerWidget {
     final ledgerName = ledger?.name != null
         ? translateLedgerName(context, ledger!.name)
         : AppLocalizations.of(context).billCardUnknownLedger;
+    final currency = (billInfo.currency?.trim().isNotEmpty ?? false)
+        ? billInfo.currency!.trim().toUpperCase()
+        : ledger?.currency ?? 'CNY';
+    final l10n = AppLocalizations.of(context);
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -57,9 +61,7 @@ class BillCardWidget extends ConsumerWidget {
                 ),
                 SizedBox(width: 8.0.scaled(context, ref)),
                 Text(
-                  isUndone
-                      ? AppLocalizations.of(context).billCardUndone
-                      : AppLocalizations.of(context).billCardSuccess,
+                  isUndone ? l10n.billCardUndone : l10n.billCardSuccess,
                   style: TextStyle(
                     fontSize: 16.0.scaled(context, ref),
                     fontWeight: FontWeight.w600,
@@ -82,40 +84,57 @@ class BillCardWidget extends ConsumerWidget {
             _buildInfoRow(
               context,
               ref,
-              AppLocalizations.of(context).billCardAmount,
-              '¥${billInfo.amount?.abs().toStringAsFixed(2) ?? '0.00'}',
+              l10n.billCardAmount,
+              formatBalanceFull(billInfo.amount?.abs() ?? 0, currency),
             ),
             SizedBox(height: 8.0.scaled(context, ref)),
             _buildInfoRow(
               context,
               ref,
-              AppLocalizations.of(context).billCardCategory,
-              billInfo.category ?? AppLocalizations.of(context).commonOther,
+              l10n.billCardCategory,
+              billInfo.category ?? l10n.commonOther,
             ),
             SizedBox(height: 8.0.scaled(context, ref)),
             _buildInfoRow(
               context,
               ref,
-              AppLocalizations.of(context).billCardTime,
+              l10n.billCardTime,
               _formatTime(context, billInfo.time),
             ),
+            if (billInfo.type != null) ...[
+              SizedBox(height: 8.0.scaled(context, ref)),
+              _buildInfoRow(
+                context,
+                ref,
+                l10n.billCardType,
+                _formatType(l10n, billInfo.type!),
+              ),
+            ],
+            SizedBox(height: 8.0.scaled(context, ref)),
+            _buildInfoRow(context, ref, l10n.billCardCurrency, currency),
             if (billInfo.note != null && billInfo.note!.isNotEmpty) ...[
               SizedBox(height: 8.0.scaled(context, ref)),
               _buildInfoRow(
                 context,
                 ref,
-                AppLocalizations.of(context).billCardNote,
+                l10n.billCardNote,
                 billInfo.note!,
               ),
             ],
-            if (billInfo.account != null && billInfo.account!.isNotEmpty) ...[
+            if (_accountSummary != null) ...[
               SizedBox(height: 8.0.scaled(context, ref)),
               _buildInfoRow(
                 context,
                 ref,
-                AppLocalizations.of(context).billCardAccount,
-                billInfo.account!,
+                billInfo.type == BillType.transfer
+                    ? l10n.billCardTransferAccounts
+                    : l10n.billCardAccount,
+                _accountSummary!,
               ),
+            ],
+            if (_tags.isNotEmpty) ...[
+              SizedBox(height: 8.0.scaled(context, ref)),
+              _buildTagsRow(context, ref, l10n.billCardTags, _tags),
             ],
 
             SizedBox(height: 16.0.scaled(context, ref)),
@@ -155,6 +174,29 @@ class BillCardWidget extends ConsumerWidget {
     );
   }
 
+  List<String> get _tags {
+    final uniqueTags = <String>{};
+    for (final tag in billInfo.tags ?? const <String>[]) {
+      final normalized = tag.trim();
+      if (normalized.isNotEmpty) uniqueTags.add(normalized);
+    }
+    return uniqueTags.toList();
+  }
+
+  String? get _accountSummary {
+    if (billInfo.type == BillType.transfer) {
+      final from = billInfo.fromAccount?.trim();
+      final to = billInfo.toAccount?.trim();
+      if (from != null && from.isNotEmpty && to != null && to.isNotEmpty) {
+        return '$from → $to';
+      }
+      if (from != null && from.isNotEmpty) return from;
+      if (to != null && to.isNotEmpty) return to;
+    }
+    final account = billInfo.account?.trim();
+    return account == null || account.isEmpty ? null : account;
+  }
+
   Widget _buildInfoRow(
     BuildContext context,
     WidgetRef ref,
@@ -186,6 +228,66 @@ class BillCardWidget extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildTagsRow(
+    BuildContext context,
+    WidgetRef ref,
+    String label,
+    List<String> tags,
+  ) {
+    final primaryColor = ref.watch(primaryColorProvider);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 80.0.scaled(context, ref),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 14.0.scaled(context, ref),
+              color: BeeTokens.textSecondary(context),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Wrap(
+            spacing: 6.0.scaled(context, ref),
+            runSpacing: 6.0.scaled(context, ref),
+            children: [
+              for (final tag in tags)
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8.0.scaled(context, ref),
+                    vertical: 3.0.scaled(context, ref),
+                  ),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withValues(alpha: 0.1),
+                    borderRadius:
+                        BorderRadius.circular(10.0.scaled(context, ref)),
+                  ),
+                  child: Text(
+                    tag,
+                    style: TextStyle(
+                      fontSize: 12.0.scaled(context, ref),
+                      color: primaryColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatType(AppLocalizations l10n, BillType type) {
+    return switch (type) {
+      BillType.expense => l10n.billCardExpense,
+      BillType.income => l10n.billCardIncome,
+      BillType.transfer => l10n.billCardTransfer,
+    };
   }
 
   /// 账本芯片（显示在右上角）

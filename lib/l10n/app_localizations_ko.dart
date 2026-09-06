@@ -5449,6 +5449,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get billCardAccount => '💳 계정';
 
   @override
+  String get billCardTransferAccounts => '🔁 Transfer accounts';
+
+  @override
+  String get billCardType => '↕️ Type';
+
+  @override
+  String get billCardExpense => 'Expense';
+
+  @override
+  String get billCardIncome => 'Income';
+
+  @override
+  String get billCardTransfer => 'Transfer';
+
+  @override
+  String get billCardCurrency => '💱 Currency';
+
+  @override
+  String get billCardTags => '🏷️ Tags';
+
+  @override
   String get billCardUndo => '실행 취소';
 
   @override

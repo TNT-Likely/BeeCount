@@ -5449,6 +5449,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get billCardAccount => '💳 账户';
 
   @override
+  String get billCardTransferAccounts => '🔁 转账账户';
+
+  @override
+  String get billCardType => '↕️ 类型';
+
+  @override
+  String get billCardExpense => '支出';
+
+  @override
+  String get billCardIncome => '收入';
+
+  @override
+  String get billCardTransfer => '转账';
+
+  @override
+  String get billCardCurrency => '💱 币种';
+
+  @override
+  String get billCardTags => '🏷️ 标签';
+
+  @override
   String get billCardUndo => '撤销';
 
   @override

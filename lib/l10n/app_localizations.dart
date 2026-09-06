@@ -10394,6 +10394,48 @@ abstract class AppLocalizations {
   /// **'💳 Account'**
   String get billCardAccount;
 
+  /// No description provided for @billCardTransferAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'🔁 Transfer accounts'**
+  String get billCardTransferAccounts;
+
+  /// No description provided for @billCardType.
+  ///
+  /// In en, this message translates to:
+  /// **'↕️ Type'**
+  String get billCardType;
+
+  /// No description provided for @billCardExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get billCardExpense;
+
+  /// No description provided for @billCardIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get billCardIncome;
+
+  /// No description provided for @billCardTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get billCardTransfer;
+
+  /// No description provided for @billCardCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'💱 Currency'**
+  String get billCardCurrency;
+
+  /// No description provided for @billCardTags.
+  ///
+  /// In en, this message translates to:
+  /// **'🏷️ Tags'**
+  String get billCardTags;
+
   /// No description provided for @billCardUndo.
   ///
   /// In en, this message translates to:
