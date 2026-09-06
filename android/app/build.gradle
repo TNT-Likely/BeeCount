@@ -42,6 +42,7 @@ android {
         targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders += [appName: "@string/app_name"]
     // 当未在命令行指定 --flavor 时，默认选择 dev 风味，避免 Flutter 调试找不到 APK。
     missingDimensionStrategy "env", "dev"
     }
@@ -51,11 +52,10 @@ android {
         dev {
             dimension "env"
             applicationIdSuffix ".dev"
-            resValue "string", "app_name", "蜜蜂记账测试版"
+            manifestPlaceholders += [appName: "@string/app_name_test"]
         }
         prod {
             dimension "env"
-            resValue "string", "app_name", "蜜蜂记账"
         }
     }
 
@@ -143,7 +143,7 @@ android {
             // Debug 构建追加独立后缀，名称显示为测试版，便于与生产包共存
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
-            resValue "string", "app_name", "蜜蜂记账测试版"
+            manifestPlaceholders += [appName: "@string/app_name_test"]
         }
         release {
             // Use a stable release keystore so upgrades don't require uninstall
