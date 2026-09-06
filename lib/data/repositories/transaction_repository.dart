@@ -105,6 +105,37 @@ abstract class TransactionRepository {
     required int limit,
   });
 
+  /// 获取指定时间范围内的交易及其分类、转出/转入账户。
+  ///
+  /// 共享账本会按 override 回填 synthetic 分类和账户，调用方无需另行处理。
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> getTransactionsWithCategoryInRange({
+    required int ledgerId,
+    required DateTime start,
+    required DateTime end,
+  });
+
+  /// 根据交易 ID 批量读取交易及关联分类、账户。
+  ///
+  /// 结果不保证与 [transactionIds] 的输入顺序一致；调用方应按 ID 映射。
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> getTransactionsWithCategoryByIds({
+    required int ledgerId,
+    required List<int> transactionIds,
+  });
+
   /// 聚合指定账本的历史备注。
   ///
   /// [categoryId] 和 [categorySyncId] 都为空时查询账本全部分类；共享账本中
@@ -124,19 +155,40 @@ abstract class TransactionRepository {
   ///
   /// [month] 为周期标签,约定传 DateTime(year, month, 1);实际范围由账本
   /// monthStartDay 决定:[y-m-起始日, y-(m+1)-起始日)。
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryInMonth({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryInMonth({
     required int ledgerId,
     required DateTime month,
   });
 
   /// 获取指定年份的交易记录（带分类信息）
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsWithCategoryInYear({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsWithCategoryInYear({
     required int ledgerId,
     required int year,
   });
 
   /// 获取指定分类和时间范围的交易记录（带分类信息）
-  Stream<List<({Transaction t, Category? category, Account? account, Account? toAccount})>> watchTransactionsForCategoryInRange({
+  Stream<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            Account? account,
+            Account? toAccount
+          })>> watchTransactionsForCategoryInRange({
     required int ledgerId,
     required DateTime start,
     required DateTime end,
@@ -303,25 +355,29 @@ abstract class TransactionRepository {
   });
 
   /// 获取指定日期的所有交易（含分类、标签、附件、账户）
-  Future<List<({
-    Transaction t,
-    Category? category,
-    List<Tag> tags,
-    List<TransactionAttachment> attachments,
-    Account? account,
-  })>> getTransactionsByDate({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            List<Tag> tags,
+            List<TransactionAttachment> attachments,
+            Account? account,
+          })>> getTransactionsByDate({
     required int ledgerId,
     required DateTime date,
   });
 
   /// 获取指定时间范围的交易列表（用于日历当月列表）
-  Future<List<({
-    Transaction t,
-    Category? category,
-    List<Tag> tags,
-    List<TransactionAttachment> attachments,
-    Account? account,
-  })>> getTransactionsByDateRange({
+  Future<
+      List<
+          ({
+            Transaction t,
+            Category? category,
+            List<Tag> tags,
+            List<TransactionAttachment> attachments,
+            Account? account,
+          })>> getTransactionsByDateRange({
     required int ledgerId,
     required DateTime startDate,
     required DateTime endDate,

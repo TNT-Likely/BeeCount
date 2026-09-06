@@ -1110,6 +1110,9 @@ final class _FakeGateway implements LocalAgentToolGateway {
       const AgentBudgetSummary(daysRemaining: 10, dailyAvailable: 20);
 
   @override
+  Future<String> getLedgerCurrency(int ledgerId) async => 'CNY';
+
+  @override
   Future<List<AgentTransactionSummary>> queryTransactions({
     required int ledgerId,
     required DateTime start,
@@ -1141,11 +1144,12 @@ final class _FakeGateway implements LocalAgentToolGateway {
   }
 
   @override
-  Future<void> saveExplicitMemory({
+  Future<int> saveExplicitMemory({
     required int? ledgerId,
     required String content,
   }) async {
     savedMemories.add(content);
+    return 1;
   }
 }
 

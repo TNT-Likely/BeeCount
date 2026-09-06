@@ -5,10 +5,57 @@ import 'package:agentcore/agentcore.dart'
         AgentMemoryRepository,
         AgentToolCallAudit;
 
+import '../../data/db.dart' show Account, Category, Ledger, Tag, Transaction;
 import '../../data/repositories/base_repository.dart';
+import '../../data/repositories/budget_repository.dart';
 import '../../services/ai/ai_bookkeeper.dart';
 import '../../services/data/tag_seed_service.dart';
 import '../memory/agent_memory_repository.dart';
+
+final class AgentCategoryReference {
+  const AgentCategoryReference({
+    required this.id,
+    required this.name,
+    this.icon,
+  });
+
+  final int id;
+  final String name;
+  final String? icon;
+
+  Map<String, Object?> toToolData() => {
+        'id': id,
+        'name': name,
+        if (icon != null && icon!.trim().isNotEmpty) 'icon': icon,
+      };
+}
+
+final class AgentAccountReference {
+  const AgentAccountReference({
+    required this.id,
+    required this.name,
+    required this.currency,
+  });
+
+  final int id;
+  final String name;
+  final String currency;
+
+  Map<String, Object?> toToolData() => {
+        'id': id,
+        'name': name,
+        'currency': currency,
+      };
+}
+
+final class AgentTagReference {
+  const AgentTagReference({required this.id, required this.name});
+
+  final int id;
+  final String name;
+
+  Map<String, Object?> toToolData() => {'id': id, 'name': name};
+}
 
 final class AgentTransactionSummary {
   const AgentTransactionSummary({
@@ -18,6 +65,15 @@ final class AgentTransactionSummary {
     required this.amount,
     required this.happenedAt,
     required this.note,
+    this.ledgerAmount,
+    this.currency = 'CNY',
+    this.ledgerCurrency = 'CNY',
+    this.category,
+    this.account,
+    this.toAccount,
+    this.tags = const [],
+    this.excludeFromStats = false,
+    this.excludeFromBudget = false,
   });
 
   final int id;
@@ -26,14 +82,74 @@ final class AgentTransactionSummary {
   final double amount;
   final DateTime happenedAt;
   final String? note;
+  final double? ledgerAmount;
+  final String currency;
+  final String ledgerCurrency;
+  final AgentCategoryReference? category;
+  final AgentAccountReference? account;
+  final AgentAccountReference? toAccount;
+  final List<AgentTagReference> tags;
+  final bool excludeFromStats;
+  final bool excludeFromBudget;
 
   Map<String, Object?> toToolData() => {
         'id': id,
         'ledgerId': ledgerId,
         'type': type,
         'amount': amount,
+        'ledgerAmount': ledgerAmount ?? amount,
+        'currency': currency,
+        'ledgerCurrency': ledgerCurrency,
+        'category': category?.toToolData(),
+        'account': account?.toToolData(),
+        'toAccount': toAccount?.toToolData(),
+        'tags': tags.map((tag) => tag.toToolData()).toList(),
+        'excludeFromStats': excludeFromStats,
+        'excludeFromBudget': excludeFromBudget,
         'happenedAt': happenedAt.toIso8601String(),
         'note': _clip(note, 160),
+      };
+}
+
+final class AgentBudgetUsageSummary {
+  const AgentBudgetUsageSummary({
+    required this.used,
+    required this.budget,
+    required this.remaining,
+    required this.rate,
+    required this.status,
+  });
+
+  final double used;
+  final double budget;
+  final double remaining;
+  final double rate;
+  final String status;
+
+  Map<String, Object?> toToolData() => {
+        'used': used,
+        'budget': budget,
+        'remaining': remaining,
+        'rate': rate,
+        'status': status,
+      };
+}
+
+final class AgentCategoryBudgetSummary {
+  const AgentCategoryBudgetSummary({
+    required this.budgetId,
+    required this.category,
+    required this.usage,
+  });
+
+  final int budgetId;
+  final AgentCategoryReference category;
+  final AgentBudgetUsageSummary usage;
+
+  Map<String, Object?> toToolData() => {
+        'budgetId': budgetId,
+        'category': category.toToolData(),
+        'usage': usage.toToolData(),
       };
 }
 
@@ -41,20 +157,25 @@ final class AgentBudgetSummary {
   const AgentBudgetSummary({
     required this.daysRemaining,
     required this.dailyAvailable,
-    this.used,
-    this.budget,
+    this.currency = 'CNY',
+    this.total,
+    this.categoryBudgets = const [],
   });
 
   final int daysRemaining;
   final double dailyAvailable;
-  final double? used;
-  final double? budget;
+  final String currency;
+  final AgentBudgetUsageSummary? total;
+  final List<AgentCategoryBudgetSummary> categoryBudgets;
 
   Map<String, Object?> toToolData() => {
+        'currency': currency,
         'daysRemaining': daysRemaining,
         'dailyAvailable': dailyAvailable,
-        'used': used,
-        'budget': budget,
+        'total': total?.toToolData(),
+        'categoryBudgets': categoryBudgets
+            .map((categoryBudget) => categoryBudget.toToolData())
+            .toList(),
       };
 }
 
@@ -64,21 +185,54 @@ final class AgentRecurringTransactionSummary {
     required this.amount,
     required this.frequency,
     required this.interval,
+    this.id,
+    this.currency = 'CNY',
+    this.category,
+    this.account,
+    this.toAccount,
+    this.dayOfMonth,
+    this.dayOfWeek,
+    this.monthOfYear,
+    this.startDate,
+    this.endDate,
+    this.lastGeneratedDate,
     this.note,
   });
 
+  final int? id;
   final String type;
   final double amount;
+  final String currency;
+  final AgentCategoryReference? category;
+  final AgentAccountReference? account;
+  final AgentAccountReference? toAccount;
   final String frequency;
   final int interval;
+  final int? dayOfMonth;
+  final int? dayOfWeek;
+  final int? monthOfYear;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final DateTime? lastGeneratedDate;
   final String? note;
 
   Map<String, Object?> toToolData() => {
+        'id': id,
         'type': type,
         'amount': amount,
+        'currency': currency,
+        'category': category?.toToolData(),
+        'account': account?.toToolData(),
+        'toAccount': toAccount?.toToolData(),
         'frequency': frequency,
         'interval': interval,
-        if (note != null && note!.trim().isNotEmpty) 'note': _clip(note, 120),
+        'dayOfMonth': dayOfMonth,
+        'dayOfWeek': dayOfWeek,
+        'monthOfYear': monthOfYear,
+        'startDate': startDate?.toIso8601String(),
+        'endDate': endDate?.toIso8601String(),
+        'lastGeneratedDate': lastGeneratedDate?.toIso8601String(),
+        'note': note == null || note!.trim().isEmpty ? null : _clip(note, 120),
       };
 }
 
@@ -87,16 +241,26 @@ final class AgentRecordToolResult {
     required this.success,
     this.transactionIds = const [],
     this.bills = const [],
+    this.transactions = const [],
+    this.unconvertedCurrencies = const [],
   });
 
   final bool success;
   final List<int> transactionIds;
+
+  /// UI 卡片继续使用已保存的 BillInfo 快照，模型只接收 [transactions] 的
+  /// 最终落库数据，避免把 AI 解析阶段的猜测当成事实。
   final List<Map<String, Object?>> bills;
+  final List<AgentTransactionSummary> transactions;
+  final List<String> unconvertedCurrencies;
 
   Map<String, Object?> toToolData() => {
         'success': success,
         'transactionIds': transactionIds,
-        'bills': bills,
+        'transactions': transactions
+            .map((transaction) => transaction.toToolData())
+            .toList(),
+        'unconvertedCurrencies': unconvertedCurrencies,
       };
 }
 
@@ -109,6 +273,7 @@ abstract interface class LocalAgentToolGateway {
     required DateTime end,
   });
   Future<AgentBudgetSummary> getBudgetStatus(int ledgerId);
+  Future<String> getLedgerCurrency(int ledgerId);
   Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
     int ledgerId,
   );
@@ -116,7 +281,7 @@ abstract interface class LocalAgentToolGateway {
     required int ledgerId,
     required String text,
   });
-  Future<void> saveExplicitMemory({
+  Future<int> saveExplicitMemory({
     required int? ledgerId,
     required String content,
   });
@@ -147,54 +312,99 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
     required DateTime start,
     required DateTime end,
   }) async {
-    final transactions = await _repository.getTransactionsByLedgerInRange(
+    final ledgerFuture = _repository.getLedgerById(ledgerId);
+    final transactions = await _repository.getTransactionsWithCategoryInRange(
       ledgerId: ledgerId,
       start: start,
       end: end,
     );
-    return transactions
-        .map(
-          (item) => AgentTransactionSummary(
-            id: item.id,
-            ledgerId: item.ledgerId,
-            type: item.type,
-            amount: item.amount,
-            happenedAt: item.happenedAt,
-            note: item.note,
-          ),
-        )
-        .toList();
+    return _summarizeTransactions(transactions, ledger: await ledgerFuture);
   }
 
   @override
   Future<AgentBudgetSummary> getBudgetStatus(int ledgerId) async {
     final overview =
         await _repository.getBudgetOverview(ledgerId, DateTime.now());
+    final ledger = await _repository.getLedgerById(ledgerId);
     final total = overview.totalBudget;
     return AgentBudgetSummary(
       daysRemaining: overview.daysRemaining,
       dailyAvailable: overview.dailyAvailable,
-      used: total?.used,
-      budget: total?.budget,
+      currency: _ledgerCurrency(ledger),
+      total: total == null ? null : _budgetUsage(total),
+      categoryBudgets: overview.categoryBudgets
+          .map(
+            (categoryBudget) => AgentCategoryBudgetSummary(
+              budgetId: categoryBudget.budgetId,
+              category: AgentCategoryReference(
+                id: categoryBudget.categoryId,
+                name: categoryBudget.categoryName,
+                icon: categoryBudget.categoryIcon,
+              ),
+              usage: _budgetUsage(categoryBudget.usage),
+            ),
+          )
+          .toList(),
     );
   }
+
+  @override
+  Future<String> getLedgerCurrency(int ledgerId) async =>
+      _ledgerCurrency(await _repository.getLedgerById(ledgerId));
 
   @override
   Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
     int ledgerId,
   ) async {
+    final ledgerFuture = _repository.getLedgerById(ledgerId);
+    final categoriesFuture = _repository.getAllCategoriesIncludingShared();
     final rows = await _repository.getEnabledRecurringTransactions(ledgerId);
-    return rows
-        .map(
-          (row) => AgentRecurringTransactionSummary(
-            type: row.type,
-            amount: row.amount,
-            frequency: row.frequency,
-            interval: row.interval,
-            note: row.note,
+    final accountIds = {
+      for (final row in rows) ...[
+        if (row.accountId != null) row.accountId!,
+        if (row.toAccountId != null) row.toAccountId!,
+      ],
+    };
+    final accountsFuture = _repository.getAccountsByIds(accountIds.toList());
+    final ledgerCurrency = _ledgerCurrency(await ledgerFuture);
+    final categoriesById = {
+      for (final category in await categoriesFuture) category.id: category,
+    };
+    final accountsById = {
+      for (final account in await accountsFuture) account.id: account,
+    };
+    return rows.map(
+      (row) {
+        final account =
+            row.accountId == null ? null : accountsById[row.accountId!];
+        return AgentRecurringTransactionSummary(
+          id: row.id,
+          type: row.type,
+          amount: row.amount,
+          currency: _currencyOr(
+            row.currencyCode,
+            fallback: account?.currency ?? ledgerCurrency,
           ),
-        )
-        .toList();
+          category: _categoryReference(
+            row.categoryId == null ? null : categoriesById[row.categoryId!],
+          ),
+          account: _accountReference(account, fallbackCurrency: ledgerCurrency),
+          toAccount: _accountReference(
+            row.toAccountId == null ? null : accountsById[row.toAccountId!],
+            fallbackCurrency: ledgerCurrency,
+          ),
+          frequency: row.frequency,
+          interval: row.interval,
+          dayOfMonth: row.dayOfMonth,
+          dayOfWeek: row.dayOfWeek,
+          monthOfYear: row.monthOfYear,
+          startDate: row.startDate,
+          endDate: row.endDate,
+          lastGeneratedDate: row.lastGeneratedDate,
+          note: row.note,
+        );
+      },
+    ).toList();
   }
 
   @override
@@ -207,27 +417,82 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
       ledgerId: ledgerId,
       billingTypes: [TagSeedService.billingTypeAi],
     );
+    final transactions = result.success
+        ? await _summarizeTransactionsByIds(ledgerId, result.transactionIds)
+        : const <AgentTransactionSummary>[];
     return AgentRecordToolResult(
       success: result.success,
       transactionIds: result.transactionIds,
       bills: result.savedBills
           .map((bill) => Map<String, Object?>.from(bill.toJson()))
           .toList(),
+      transactions: transactions,
+      unconvertedCurrencies: result.unconvertedCurrencies,
     );
   }
 
+  Future<List<AgentTransactionSummary>> _summarizeTransactionsByIds(
+    int ledgerId,
+    List<int> transactionIds,
+  ) async {
+    if (transactionIds.isEmpty) return const [];
+    final ledgerFuture = _repository.getLedgerById(ledgerId);
+    final rows = await _repository.getTransactionsWithCategoryByIds(
+      ledgerId: ledgerId,
+      transactionIds: transactionIds,
+    );
+    final summaries =
+        await _summarizeTransactions(rows, ledger: await ledgerFuture);
+    final summaryById = {for (final summary in summaries) summary.id: summary};
+    return [
+      for (final transactionId in transactionIds)
+        if (summaryById[transactionId] case final summary?) summary,
+    ];
+  }
+
+  Future<List<AgentTransactionSummary>> _summarizeTransactions(
+    List<
+            ({
+              Transaction t,
+              Category? category,
+              Account? account,
+              Account? toAccount,
+            })>
+        rows, {
+    required Ledger? ledger,
+  }) async {
+    final tagsByTransaction = await _repository.getTagsForTransactions(
+      rows.map((row) => row.t.id).toList(),
+    );
+    final ledgerCurrency = _ledgerCurrency(ledger);
+    return rows
+        .map(
+          (row) => _agentTransactionSummary(
+            transaction: row.t,
+            category: row.category,
+            account: row.account,
+            toAccount: row.toAccount,
+            tags: tagsByTransaction[row.t.id] ?? const [],
+            ledgerCurrency: ledgerCurrency,
+          ),
+        )
+        .toList();
+  }
+
   @override
-  Future<void> saveExplicitMemory({
+  Future<int> saveExplicitMemory({
     required int? ledgerId,
     required String content,
   }) =>
-      _memoryRepository.saveExplicit(
-        AgentMemoryDraft(
-          ledgerId: ledgerId,
-          kind: 'explicit',
-          content: content,
-        ),
-      );
+      _memoryRepository
+          .saveExplicit(
+            AgentMemoryDraft(
+              ledgerId: ledgerId,
+              kind: 'explicit',
+              content: content,
+            ),
+          )
+          .then((memory) => memory.id);
 
   @override
   Future<bool> forgetMemory({
@@ -235,6 +500,87 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
     required int memoryId,
   }) =>
       _memoryRepository.forget(memoryId, ledgerId: ledgerId);
+}
+
+String _ledgerCurrency(Ledger? ledger) {
+  final currency = ledger?.currency.trim().toUpperCase();
+  return currency == null || currency.isEmpty ? 'CNY' : currency;
+}
+
+AgentBudgetUsageSummary _budgetUsage(BudgetUsage usage) =>
+    AgentBudgetUsageSummary(
+      used: usage.used,
+      budget: usage.budget,
+      remaining: usage.remaining,
+      rate: usage.rate,
+      status: usage.status,
+    );
+
+AgentTransactionSummary _agentTransactionSummary({
+  required Transaction transaction,
+  required Category? category,
+  required Account? account,
+  required Account? toAccount,
+  required List<Tag> tags,
+  required String ledgerCurrency,
+}) {
+  final currency = _currencyOr(
+    transaction.currencyCode,
+    fallback: account?.currency ?? ledgerCurrency,
+  );
+  final tagReferences = tags
+      .map((tag) => AgentTagReference(id: tag.id, name: tag.name))
+      .toList()
+    ..sort((left, right) => left.name.compareTo(right.name));
+  return AgentTransactionSummary(
+    id: transaction.id,
+    ledgerId: transaction.ledgerId,
+    type: transaction.type,
+    amount: transaction.amount,
+    ledgerAmount: transaction.nativeAmount ?? transaction.amount,
+    currency: currency,
+    ledgerCurrency: ledgerCurrency,
+    category: category == null
+        ? null
+        : AgentCategoryReference(
+            id: category.id,
+            name: category.name,
+            icon: category.icon,
+          ),
+    account: _accountReference(account, fallbackCurrency: ledgerCurrency),
+    toAccount: _accountReference(toAccount, fallbackCurrency: ledgerCurrency),
+    tags: tagReferences,
+    excludeFromStats: transaction.excludeFromStats,
+    excludeFromBudget: transaction.excludeFromBudget,
+    happenedAt: transaction.happenedAt,
+    note: transaction.note,
+  );
+}
+
+AgentAccountReference? _accountReference(
+  Account? account, {
+  required String fallbackCurrency,
+}) =>
+    account == null
+        ? null
+        : AgentAccountReference(
+            id: account.id,
+            name: account.name,
+            currency: _currencyOr(account.currency, fallback: fallbackCurrency),
+          );
+
+AgentCategoryReference? _categoryReference(Category? category) =>
+    category == null
+        ? null
+        : AgentCategoryReference(
+            id: category.id,
+            name: category.name,
+            icon: category.icon,
+          );
+
+String _currencyOr(String? value, {required String fallback}) {
+  final normalized = value?.trim().toUpperCase();
+  return normalized == null || normalized.isEmpty ? fallback : normalized;
 }
 
 /// Builds the P0 allowlisted tools for exactly one foreground ledger scope.
@@ -296,18 +642,26 @@ final class LocalAgentTools {
 
   Future<Map<String, Object?>> _spendingSummary(AgentToolCall call) async {
     final range = _rangeFor(call);
+    final ledgerCurrency = gateway.getLedgerCurrency(_ledgerId);
     final transactions = await gateway.queryTransactions(
       ledgerId: _ledgerId,
       start: range.$1,
       end: range.$2,
     );
-    final spending = transactions
+    final scopedTransactions = transactions
         .where((transaction) => transaction.ledgerId == _ledgerId)
+        .toList();
+    final spending = scopedTransactions
         .where((transaction) => transaction.type == 'expense')
-        .fold<double>(0, (sum, transaction) => sum + transaction.amount.abs());
+        .where((transaction) => !transaction.excludeFromStats)
+        .fold<double>(
+          0,
+          (sum, transaction) =>
+              sum + (transaction.ledgerAmount ?? transaction.amount).abs(),
+        );
     return {
       'total': spending,
-      'currency': 'ledger',
+      'currency': await ledgerCurrency,
       'periodStart': range.$1.toIso8601String(),
       'periodEnd': range.$2.toIso8601String(),
     };
@@ -346,9 +700,9 @@ final class LocalAgentTools {
     if (content is! String || content.trim().isEmpty) {
       return const {'saved': false};
     }
-    await gateway.saveExplicitMemory(
+    final memoryId = await gateway.saveExplicitMemory(
         ledgerId: scope.ledgerId, content: content.trim());
-    return const {'saved': true};
+    return {'saved': true, 'memoryId': memoryId};
   }
 
   Future<Map<String, Object?>> _forgetMemory(AgentToolCall call) async {
