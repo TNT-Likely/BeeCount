@@ -28,6 +28,7 @@ import '../../widgets/biz/ledger_selector_dialog.dart';
 import '../../widgets/ai/agent_tool_authorization_dialog.dart';
 import '../../widgets/ai/agent_chat_shell.dart';
 import '../../widgets/ai/agent_execution_timeline.dart';
+import '../../widgets/ai/agent_brand_mark.dart';
 import '../../data/db.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/ai_quick_command.dart';
@@ -282,15 +283,32 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                           padding: EdgeInsets.symmetric(
                             horizontal: 24.0.scaled(context, ref),
                           ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(l10n.aiChatEmptyMessages),
-                              SizedBox(height: 16.0.scaled(context, ref)),
-                              AIQuickCommandSuggestions(
-                                onCommandTap: _handleQuickCommand,
-                              ),
-                            ],
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: 360.0.scaled(context, ref),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const AgentBrandMark(
+                                  size: 28,
+                                  showBackground: false,
+                                ),
+                                SizedBox(height: 8.0.scaled(context, ref)),
+                                Text(
+                                  l10n.aiQuickCommandsTitle,
+                                  style: BeeTextTokens.body(context).copyWith(
+                                    color: BeeTokens.textTertiary(context),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 12.0.scaled(context, ref),
+                                ),
+                                AIQuickCommandSuggestions(
+                                  onCommandTap: _handleQuickCommand,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );

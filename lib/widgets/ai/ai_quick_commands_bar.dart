@@ -22,23 +22,110 @@ final class AIQuickCommandSuggestions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final primary = ref.watch(primaryColorProvider);
     final commands = AIQuickCommands.getAllCommands().take(4).toList();
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 8.0.scaled(context, ref),
-      runSpacing: 8.0.scaled(context, ref),
-      children: [
-        for (var index = 0; index < commands.length; index++)
-          ActionChip(
-            key: ValueKey('ai-quick-command-suggestion-$index'),
-            avatar: Icon(
-              Icons.auto_awesome_outlined,
-              size: 15.0.scaled(context, ref),
-            ),
-            label: Text(_titleFor(commands[index], l10n)),
-            onPressed: () => onCommandTap(commands[index]),
+    final gap = 8.0.scaled(context, ref);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final itemWidth = (constraints.maxWidth - gap) / 2;
+        return SizedBox(
+          width: constraints.maxWidth,
+          child: Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: [
+              for (var index = 0; index < commands.length; index++)
+                SizedBox(
+                  width: itemWidth,
+                  height: 38.0.scaled(context, ref),
+                  child: _AIQuickCommandSuggestionCard(
+                    key: ValueKey('ai-quick-command-suggestion-$index'),
+                    iconKey: ValueKey(
+                      'ai-quick-command-suggestion-icon-$index',
+                    ),
+                    command: commands[index],
+                    title: _titleFor(commands[index], l10n),
+                    primary: primary,
+                    onTap: () => onCommandTap(commands[index]),
+                  ),
+                ),
+            ],
           ),
-      ],
+        );
+      },
+    );
+  }
+}
+
+final class _AIQuickCommandSuggestionCard extends StatelessWidget {
+  const _AIQuickCommandSuggestionCard({
+    super.key,
+    required this.iconKey,
+    required this.command,
+    required this.title,
+    required this.primary,
+    required this.onTap,
+  });
+
+  final Key iconKey;
+  final AIQuickCommand command;
+  final String title;
+  final Color primary;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = BeeTokens.isDark(context);
+    final radius = BorderRadius.circular(12);
+    final iconBackground = primary.withValues(alpha: isDark ? 0.22 : 0.14);
+    return Material(
+      color: Colors.transparent,
+      borderRadius: radius,
+      clipBehavior: Clip.antiAlias,
+      child: Ink(
+        decoration: BoxDecoration(
+          color: BeeTokens.surface(context),
+          borderRadius: radius,
+          border: Border.all(
+            color: primary.withValues(alpha: isDark ? 0.32 : 0.14),
+          ),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 9),
+            child: Row(
+              children: [
+                Container(
+                  key: iconKey,
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: iconBackground,
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                  child: Icon(
+                    _iconFor(command),
+                    color: primary,
+                    size: 14,
+                  ),
+                ),
+                const SizedBox(width: 7),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: BeeTextTokens.strongTitle(context).copyWith(
+                      color: BeeTokens.textPrimary(context),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -226,5 +313,17 @@ String _titleFor(AIQuickCommand command, AppLocalizations l10n) {
       l10n.aiQuickCommandAbnormalExpenseTitle,
     'aiQuickCommandSavingTipsTitle' => l10n.aiQuickCommandSavingTipsTitle,
     _ => command.titleKey,
+  };
+}
+
+IconData _iconFor(AIQuickCommand command) {
+  return switch (command.titleKey) {
+    'aiQuickCommandFinancialHealthTitle' => Icons.monitor_heart_outlined,
+    'aiQuickCommandMonthlyExpenseTitle' => Icons.calendar_month_outlined,
+    'aiQuickCommandCategoryAnalysisTitle' => Icons.pie_chart_outline_rounded,
+    'aiQuickCommandBudgetPlanningTitle' => Icons.savings_outlined,
+    'aiQuickCommandAbnormalExpenseTitle' => Icons.trending_up_rounded,
+    'aiQuickCommandSavingTipsTitle' => Icons.lightbulb_outline_rounded,
+    _ => Icons.auto_awesome_outlined,
   };
 }

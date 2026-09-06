@@ -8,6 +8,7 @@ import 'package:beecount/providers/database_providers.dart';
 import 'package:beecount/services/ai/ai_bookkeeper.dart';
 import 'package:beecount/services/ai/ai_chat_service.dart';
 import 'package:beecount/services/billing/bill_creation_service.dart';
+import 'package:beecount/widgets/ai/agent_brand_mark.dart';
 import 'package:drift/drift.dart' hide Column, isNull;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -92,6 +93,21 @@ void main() {
         .singleWhere((state) => state.position.maxScrollExtent > 0);
     expect(scrollable.position.maxScrollExtent, greaterThan(0));
     expect(scrollable.position.pixels, scrollable.position.maxScrollExtent);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('空会话以低存在感启动区引导任务选择', (tester) async {
+    await tester.pumpWidget(host());
+    await tester.pumpAndSettle();
+
+    expect(find.text('暂无消息'), findsNothing);
+    expect(find.byType(AgentBrandMark), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('ai-quick-command-suggestion-0')),
+      findsOneWidget,
+    );
 
     await tester.pumpWidget(const SizedBox());
     await tester.pumpAndSettle();
