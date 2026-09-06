@@ -51,19 +51,24 @@ final class LocalAgentMemoryRepository implements AgentMemoryRepository {
   }
 
   @override
-  Future<void> forget(int memoryId) async {
-    await (_db.update(_db.agentMemories)
-          ..where((memory) => memory.id.equals(memoryId)))
+  Future<bool> forget(int memoryId, {required int ledgerId}) async {
+    final affectedRows = await (_db.update(_db.agentMemories)
+          ..where(
+            (memory) =>
+                memory.id.equals(memoryId) & memory.ledgerId.equals(ledgerId),
+          ))
         .write(
       AgentMemoriesCompanion(
         status: const d.Value('forgotten'),
         updatedAt: d.Value(DateTime.now()),
       ),
     );
+    if (affectedRows == 0) return false;
     await _tryFtsStatement(
       'DELETE FROM agent_memory_fts WHERE memory_id = ?',
       [memoryId],
     );
+    return true;
   }
 
   @override

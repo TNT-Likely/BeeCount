@@ -120,7 +120,10 @@ abstract interface class LocalAgentToolGateway {
     required int? ledgerId,
     required String content,
   });
-  Future<void> forgetMemory(int memoryId);
+  Future<bool> forgetMemory({
+    required int ledgerId,
+    required int memoryId,
+  });
 }
 
 /// Production local gateway. It uses the same [AiBookkeeper] path as the
@@ -227,7 +230,11 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
       );
 
   @override
-  Future<void> forgetMemory(int memoryId) => _memoryRepository.forget(memoryId);
+  Future<bool> forgetMemory({
+    required int ledgerId,
+    required int memoryId,
+  }) =>
+      _memoryRepository.forget(memoryId, ledgerId: ledgerId);
 }
 
 /// Builds the P0 allowlisted tools for exactly one foreground ledger scope.
@@ -347,8 +354,11 @@ final class LocalAgentTools {
   Future<Map<String, Object?>> _forgetMemory(AgentToolCall call) async {
     final memoryId = call.arguments['memoryId'];
     if (memoryId is! int) return const {'forgotten': false};
-    await gateway.forgetMemory(memoryId);
-    return const {'forgotten': true};
+    final forgotten = await gateway.forgetMemory(
+      ledgerId: _ledgerId,
+      memoryId: memoryId,
+    );
+    return {'forgotten': forgotten};
   }
 
   int get _ledgerId => scope.ledgerId!;

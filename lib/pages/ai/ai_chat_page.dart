@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' hide Column;
+import 'package:uuid/uuid.dart';
 
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/bee_icon.dart';
@@ -65,6 +66,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   AIResponse? _liveAgentResponse;
   int? _liveAssistantMessageId;
   int? _pendingResponseMessageId;
+  String? _activeAgentRunId;
+  bool _isAuthorizationDialogOpen = false;
 
   @override
   void initState() {
@@ -685,8 +688,12 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   }
 
   void _stopCurrentAgentRun() {
-    if (!_isLoading) return;
-    _chatService.cancelActiveAgentRuns();
+    final runId = _activeAgentRunId;
+    if (!_isLoading || runId == null) return;
+    _chatService.cancelAgentRun(runId);
+    if (_isAuthorizationDialogOpen && mounted) {
+      Navigator.of(context).pop(AgentToolAuthorizationChoice.deny);
+    }
   }
 
   /// 处理快捷指令点击
@@ -785,6 +792,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       final currentLocale = Localizations.localeOf(context);
       final ledgerId = ref.read(currentLedgerIdProvider);
       final l10n = AppLocalizations.of(context);
+      final agentRunId = const Uuid().v4();
 
       logger.info('AIChat', '当前账本ID: $ledgerId');
 
@@ -794,6 +802,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         _agentExecutionSteps = const [];
         _liveAgentResponse = null;
         _liveAssistantMessageId = null;
+        _activeAgentRunId = agentRunId;
       });
       _scrollToBottom();
 
@@ -801,6 +810,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       await for (final event in chatService.processMessageEvents(
         text,
         ledgerId: ledgerId,
+        runId: agentRunId,
         conversationId: _conversationId,
         languageCode: currentLocale.languageCode,
         forceChat: forceChat,
@@ -823,12 +833,14 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                 ),
               ];
             });
+            _isAuthorizationDialogOpen = true;
             final choice = mounted
                 ? await AgentToolAuthorizationDialog.show(
                     context: context,
                     request: request,
                   )
                 : AgentToolAuthorizationChoice.deny;
+            _isAuthorizationDialogOpen = false;
             chatService.resolveToolAuthorization(
               request.authorizationId,
               choice,
@@ -946,6 +958,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           _agentExecutionSteps = const [];
           _liveAgentResponse = null;
           _liveAssistantMessageId = null;
+          _activeAgentRunId = null;
+          _isAuthorizationDialogOpen = false;
         });
       }
     }
@@ -1477,7 +1491,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _chatService.cancelPendingToolAuthorizations();
+    final runId = _activeAgentRunId;
+    if (runId != null) _chatService.cancelAgentRun(runId);
     _inputController.dispose();
     _scrollController.dispose();
     super.dispose();

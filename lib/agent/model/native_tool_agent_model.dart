@@ -30,7 +30,7 @@ export 'package:agentcore/agentcore.dart'
 /// localized prompt, and App logging are injected here; SSE aggregation lives
 /// in the pure-Dart agentcore package.
 final class OpenAiCompatibleNativeToolTransport
-    implements core.AgentNativeToolTransport {
+    implements core.AgentNativeToolTransport, core.AgentNativeToolRunFinalizer {
   OpenAiCompatibleNativeToolTransport({
     core.AgentNativeToolStream? toolStream,
     List<core.AgentNativeToolDefinition>? toolDefinitions,
@@ -55,6 +55,9 @@ final class OpenAiCompatibleNativeToolTransport
   }) =>
       _delegate.complete(request, onEvent: onEvent);
 
+  @override
+  void disposeRun(String runId) => _delegate.disposeRun(runId);
+
   static void _log(String event, Map<String, Object?> data) {
     switch (event) {
       case 'turnStarted':
@@ -72,7 +75,8 @@ final class OpenAiCompatibleNativeToolTransport
 }
 
 /// BeeCount composition adapter for the generic stateful model.
-final class NativeToolAgentModel implements core.AgentModel {
+final class NativeToolAgentModel
+    implements core.AgentModel, core.AgentRunFinalizer {
   NativeToolAgentModel({
     required core.AgentNativeToolTransport transport,
     AgentPromptBuilder promptBuilder = const AgentPromptBuilder(),
@@ -90,6 +94,9 @@ final class NativeToolAgentModel implements core.AgentModel {
   @override
   Future<core.AgentTurn> nextTurn(core.AgentRequest request) =>
       _delegate.nextTurn(request);
+
+  @override
+  void disposeRun(String runId) => _delegate.disposeRun(runId);
 
   static const _ledgerScopedTools = <String>{
     'query_transactions',

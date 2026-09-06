@@ -76,6 +76,15 @@ abstract interface class AgentModel {
   Future<AgentTurn> nextTurn(AgentRequest request);
 }
 
+/// Optional lifecycle hook for a model that keeps resources per Agent run.
+///
+/// AgentCore calls this once whenever a run reaches any terminal path,
+/// including cancellation and budget exhaustion. Stateless models do not need
+/// to implement it.
+abstract interface class AgentRunFinalizer {
+  void disposeRun(String runId);
+}
+
 abstract interface class AgentTool {
   String get name;
 

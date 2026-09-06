@@ -97,6 +97,9 @@ final result = await core.run(request);
 
 工具调用恰好耗尽 `maximumToolCalls` 时，core 仍会给模型一个剩余回合来生成最终
 文本；只有模型再次请求工具时才会停止。这样“查询 → 返回结果”不会被误判为步骤过多。
+如果单个原生工具调用批次超过剩余预算，core 会为每个未执行调用回填
+`{"error":"tool_call_limit_reached"}`，同时记录为拒绝调用；宿主因此仍能向
+OpenAI-compatible 服务回填完整批次的 tool result，而不会触发缺失结果的协议错误。
 
 ### 取消运行
 
@@ -113,6 +116,11 @@ assert(result.wasCancelled);
 
 取消会与等待中的模型或策略决策竞争，避免继续等待网络；它**不会**强行中断已经开始
 的工具写入。core 会在每个下一操作前检查 token，使宿主可以保持本地事务一致性。
+
+有状态模型可以实现 `AgentRunFinalizer`。core 会在完成、超限、异常或取消的 `finally`
+路径调用 `disposeRun(scope.id)`，释放该次运行的会话资源。原生 transport 还可实现
+`AgentNativeToolRunFinalizer`：`OpenAiCompatibleNativeToolTransport` 会取消仍在监听的
+SSE 订阅，并以 `AgentNativeToolRunCancelledException` 结束这次底层请求。
 
 ### 原生工具描述
 
@@ -190,8 +198,9 @@ transport 为每个 `runId` 保留一份短生命周期消息状态：
 
 不支持原生工具调用、流式响应格式错误和回合超时分别对应
 `AgentNativeToolUnsupportedException`、`AgentNativeProtocolException` 和
-`AgentNativeToolTimeoutException`。宿主应向用户提示配置或重试建议，不应静默退回
-旧的 prompt 协议。
+`AgentNativeToolTimeoutException`；运行主动释放时则为
+`AgentNativeToolRunCancelledException`。宿主应向用户提示配置或重试建议，不应静默
+退回旧的 prompt 协议。
 
 ## 权限门禁
 

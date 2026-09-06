@@ -61,12 +61,35 @@ void main() {
     final first = await repository.saveExplicit(memory(content: '咖啡用微信'));
     await repository.saveExplicit(memory(content: '午饭用现金'));
 
-    await repository.forget(first.id);
+    await repository.forget(first.id, ledgerId: 1);
 
     expect(await repository.search(ledgerId: 1, query: '咖啡'), isEmpty);
     expect(
       (await repository.search(ledgerId: 1, query: '午饭')).single.content,
       '午饭用现金',
+    );
+  });
+
+  test('forget does not alter a memory from another ledger', () async {
+    final ownMemory = await repository.saveExplicit(
+      memory(ledgerId: 1, content: '账本一偏好'),
+    );
+    final otherLedgerMemory = await repository.saveExplicit(
+      memory(ledgerId: 2, content: '账本二偏好'),
+    );
+
+    expect(
+      await repository.forget(otherLedgerMemory.id, ledgerId: 1),
+      isFalse,
+    );
+
+    expect(
+      (await repository.listActive(ledgerId: 1)).single.id,
+      ownMemory.id,
+    );
+    expect(
+      (await repository.listActive(ledgerId: 2)).single.id,
+      otherLedgerMemory.id,
     );
   });
 
@@ -77,7 +100,7 @@ void main() {
     final forgotten = await repository.saveExplicit(
       memory(content: '已忘记的偏好'),
     );
-    await repository.forget(forgotten.id);
+    await repository.forget(forgotten.id, ledgerId: 1);
 
     final memories = await repository.listActive(ledgerId: 1);
 

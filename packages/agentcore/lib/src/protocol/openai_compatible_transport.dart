@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'native_tool_protocol.dart';
@@ -5,7 +6,7 @@ import 'native_tool_protocol.dart';
 /// Stateful OpenAI-compatible transport. The host injects its actual HTTP/SSE
 /// stream and tool schemas; this package only aggregates protocol fragments.
 final class OpenAiCompatibleNativeToolTransport
-    implements AgentNativeToolTransport {
+    implements AgentNativeToolTransport, AgentNativeToolRunFinalizer {
   OpenAiCompatibleNativeToolTransport({
     required AgentNativeToolStream toolStream,
     required List<AgentNativeToolDefinition> toolDefinitions,
@@ -21,6 +22,14 @@ final class OpenAiCompatibleNativeToolTransport
   final AgentNativeLogSink? logSink;
   final AgentNativeUnsupportedErrorClassifier? isUnsupportedError;
   final Map<String, List<Map<String, dynamic>>> _sessions = {};
+  final Map<String, _ActiveNativeToolStream> _activeStreams = {};
+
+  @override
+  void disposeRun(String runId) {
+    _sessions.remove(runId);
+    final activeStream = _activeStreams.remove(runId);
+    activeStream?.cancel();
+  }
 
   @override
   Future<AgentNativeModelResponse> complete(
@@ -65,6 +74,7 @@ final class OpenAiCompatibleNativeToolTransport
     }
     try {
       final response = await _completeStream(
+        runId: request.runId,
         messages: messages,
         tools: _toolDefinitions.map((item) => item.toOpenAiSchema()).toList(),
         logTag: 'AgentNativeTools',
@@ -111,21 +121,54 @@ final class OpenAiCompatibleNativeToolTransport
   }
 
   Future<AgentNativeModelResponse> _completeStream({
+    required String runId,
     required List<Map<String, dynamic>> messages,
     required List<Map<String, dynamic>> tools,
     required String logTag,
     AgentNativeEventSink? onEvent,
-  }) async {
+  }) {
     final text = StringBuffer();
     final calls = <int, _StreamToolCall>{};
-    await for (final chunk in _toolStream(
-      messages: messages,
-      tools: tools,
-      logTag: logTag,
-    )) {
+    final response = Completer<AgentNativeModelResponse>();
+    StreamSubscription<Map<String, dynamic>>? subscription;
+
+    AgentNativeModelResponse buildResponse() {
+      if (calls.isNotEmpty) {
+        final toolCalls = calls.entries.toList()
+          ..sort((left, right) => left.key.compareTo(right.key));
+        final rawCalls = toolCalls.map((entry) => entry.value.toRaw()).toList();
+        messages.add({
+          'role': 'assistant',
+          'content': null,
+          'tool_calls': rawCalls,
+        });
+        return AgentNativeModelResponse.toolCalls(
+          rawCalls.map(_toToolCall).toList(),
+        );
+      }
+      return AgentNativeModelResponse.finalText(text.toString());
+    }
+
+    void finish() {
+      if (response.isCompleted) return;
+      _activeStreams.remove(runId);
+      final activeSubscription = subscription;
+      if (activeSubscription != null) {
+        unawaited(activeSubscription.cancel());
+      }
+      response.complete(buildResponse());
+    }
+
+    void fail(Object error, StackTrace stackTrace) {
+      if (response.isCompleted) return;
+      _activeStreams.remove(runId);
+      response.completeError(error, stackTrace);
+    }
+
+    void consume(Map<String, dynamic> chunk) {
       final choices = chunk['choices'];
       if (choices is! List || choices.isEmpty || choices.first is! Map) {
-        continue;
+        return;
       }
       final choice = choices.first as Map;
       final delta = choice['delta'];
@@ -162,22 +205,34 @@ final class OpenAiCompatibleNativeToolTransport
       // non-null finish_reason arrives, so do not turn an already-rendered
       // response into a false timeout while waiting for connection teardown.
       final finishReason = choice['finish_reason'];
-      if (finishReason is String && finishReason.isNotEmpty) break;
+      if (finishReason is String && finishReason.isNotEmpty) finish();
     }
-    if (calls.isNotEmpty) {
-      final toolCalls = calls.entries.toList()
-        ..sort((left, right) => left.key.compareTo(right.key));
-      final rawCalls = toolCalls.map((entry) => entry.value.toRaw()).toList();
-      messages.add({
-        'role': 'assistant',
-        'content': null,
-        'tool_calls': rawCalls,
-      });
-      return AgentNativeModelResponse.toolCalls(
-        rawCalls.map(_toToolCall).toList(),
+
+    subscription = _toolStream(
+      messages: messages,
+      tools: tools,
+      logTag: logTag,
+    ).listen(
+      (chunk) {
+        try {
+          consume(chunk);
+        } on Object catch (error, stackTrace) {
+          fail(error, stackTrace);
+        }
+      },
+      onError: (Object error, StackTrace stackTrace) => fail(error, stackTrace),
+      onDone: finish,
+      cancelOnError: true,
+    );
+    if (response.isCompleted) {
+      unawaited(subscription.cancel());
+    } else {
+      _activeStreams[runId] = _ActiveNativeToolStream(
+        subscription: subscription,
+        response: response,
       );
     }
-    return AgentNativeModelResponse.finalText(text.toString());
+    return response.future;
   }
 
   AgentNativeToolCall _toToolCall(Map raw) {
@@ -192,6 +247,23 @@ final class OpenAiCompatibleNativeToolTransport
       name: function['name'] as String,
       arguments: Map<String, Object?>.from(decoded),
     );
+  }
+}
+
+final class _ActiveNativeToolStream {
+  const _ActiveNativeToolStream({
+    required this.subscription,
+    required this.response,
+  });
+
+  final StreamSubscription<Map<String, dynamic>> subscription;
+  final Completer<AgentNativeModelResponse> response;
+
+  void cancel() {
+    unawaited(subscription.cancel());
+    if (!response.isCompleted) {
+      response.completeError(const AgentNativeToolRunCancelledException());
+    }
   }
 }
 

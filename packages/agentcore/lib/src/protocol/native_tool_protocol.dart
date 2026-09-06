@@ -117,6 +117,11 @@ abstract interface class AgentNativeToolTransport {
   });
 }
 
+/// Optional resource-release hook for a stateful native tool transport.
+abstract interface class AgentNativeToolRunFinalizer {
+  void disposeRun(String runId);
+}
+
 typedef AgentNativeToolStream = Stream<Map<String, dynamic>> Function({
   required List<Map<String, dynamic>> messages,
   required List<Map<String, dynamic>> tools,
@@ -136,6 +141,11 @@ final class AgentNativeToolUnsupportedException implements Exception {
 
 final class AgentNativeToolTimeoutException implements Exception {
   const AgentNativeToolTimeoutException();
+}
+
+/// Raised when a caller disposes a run while its native tool stream is active.
+final class AgentNativeToolRunCancelledException implements Exception {
+  const AgentNativeToolRunCancelledException();
 }
 
 final class AgentNativeProtocolException implements Exception {

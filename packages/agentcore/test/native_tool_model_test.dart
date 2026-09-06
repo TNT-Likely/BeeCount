@@ -105,6 +105,98 @@ void main() {
     expect(call.arguments, {'range': 'month'});
   });
 
+  test('disposing a run drops its unfinished native tool session', () async {
+    var invocation = 0;
+    final sentMessages = <List<Map<String, dynamic>>>[];
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      toolStream: ({required messages, required tools, logTag}) {
+        sentMessages.add(messages.map(Map<String, dynamic>.from).toList());
+        invocation += 1;
+        return Stream<Map<String, dynamic>>.value(
+          invocation == 1
+              ? {
+                  'choices': [
+                    {
+                      'delta': {
+                        'tool_calls': [
+                          {
+                            'index': 0,
+                            'id': 'unfinished-call',
+                            'function': {
+                              'name': 'read_report',
+                              'arguments': '{}',
+                            },
+                          },
+                        ],
+                      },
+                      'finish_reason': 'tool_calls',
+                    },
+                  ],
+                }
+              : {
+                  'choices': [
+                    {
+                      'delta': {'content': 'fresh run'},
+                      'finish_reason': 'stop',
+                    },
+                  ],
+                },
+        );
+      },
+    );
+    final request = AgentNativeToolRequest(
+      runId: 'dispose-run',
+      userPrompt: 'first request',
+      toolResults: const [],
+    );
+
+    await transport.complete(request);
+    (transport as AgentNativeToolRunFinalizer).disposeRun('dispose-run');
+    await transport.complete(
+      AgentNativeToolRequest(
+        runId: 'dispose-run',
+        userPrompt: 'second request',
+        toolResults: const [],
+      ),
+    );
+
+    expect(sentMessages.last, [
+      {'role': 'system', 'content': 'system'},
+      {'role': 'user', 'content': 'second request'},
+    ]);
+  });
+
+  test('disposing a run cancels its active native tool stream', () async {
+    final controller = StreamController<Map<String, dynamic>>();
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      toolStream: ({required messages, required tools, logTag}) =>
+          controller.stream,
+    );
+
+    final response = transport.complete(
+      AgentNativeToolRequest(
+        runId: 'cancel-active-stream',
+        userPrompt: 'show',
+        toolResults: const [],
+      ),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    (transport as AgentNativeToolRunFinalizer)
+        .disposeRun('cancel-active-stream');
+
+    await expectLater(
+      response.timeout(const Duration(milliseconds: 200)),
+      throwsA(isA<AgentNativeToolRunCancelledException>()),
+    );
+    expect(controller.hasListener, isFalse);
+    await controller.close();
+  });
+
   test(
       'openai-compatible transport completes on a final chunk before stream close',
       () async {

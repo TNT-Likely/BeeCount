@@ -104,7 +104,11 @@ abstract interface class AgentMemoryRepository {
     required String query,
   });
 
-  Future<void> forget(int memoryId);
+  /// Marks a memory as forgotten only when it belongs to [ledgerId].
+  ///
+  /// The boolean makes a mismatched or unknown ID safe to expose to a tool
+  /// caller without leaking whether another ledger owns it.
+  Future<bool> forget(int memoryId, {required int ledgerId});
   Future<void> clearAll();
   Future<void> clearForLedger(int ledgerId);
 

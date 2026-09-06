@@ -59,7 +59,9 @@ final class _AgentMemoryPageState extends ConsumerState<AgentMemoryPage> {
     if (confirmed != true || !mounted) return;
 
     setState(() => _isMutating = true);
-    await ref.read(agentMemoryRepositoryProvider).forget(memory.id);
+    await ref
+        .read(agentMemoryRepositoryProvider)
+        .forget(memory.id, ledgerId: widget.ledgerId);
     if (mounted) {
       setState(() => _isMutating = false);
       await _load();

@@ -6,7 +6,7 @@ import '../protocol/native_tool_protocol.dart';
 /// Stateful bridge between a provider's native tool-call protocol and the
 /// pure-Dart AgentCore loop. Prompts, schemas, and tool names are injected by
 /// the host application.
-final class NativeToolAgentModel implements AgentModel {
+final class NativeToolAgentModel implements AgentModel, AgentRunFinalizer {
   NativeToolAgentModel({
     required AgentNativeToolTransport transport,
     required this.promptBuilder,
@@ -21,6 +21,14 @@ final class NativeToolAgentModel implements AgentModel {
   final Duration toolTurnTimeout;
   final String emptyFinalText;
   final Set<String> _startedRuns = <String>{};
+
+  @override
+  void disposeRun(String runId) {
+    _startedRuns.remove(runId);
+    if (_transport case AgentNativeToolRunFinalizer finalizer) {
+      finalizer.disposeRun(runId);
+    }
+  }
 
   @override
   Future<AgentTurn> nextTurn(AgentRequest request) async {

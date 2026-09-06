@@ -356,6 +356,37 @@ void main() {
     expect(events.last, isA<AgentRunCompletedEvent>());
   });
 
+  test('persists a failed local tool call in the run activity audit', () async {
+    final memory = LocalAgentMemoryRepository(db);
+    gateway.throwOnQuery = true;
+    final facade = AgentAppFacade(
+      memoryRepository: memory,
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: _FakeModel([
+        AgentTurn.toolCalls([
+          AgentToolCall(
+            id: 'failed-query-call',
+            name: 'query_transactions',
+          ),
+        ]),
+      ]),
+      runIdFactory: () => 'failed-tool-run',
+    );
+
+    final response = await facade.processMessage(
+      message: '查询本月明细',
+      ledgerId: 1,
+    );
+    final audits = await memory.listToolCalls('failed-tool-run');
+
+    expect(response.response.type, 'error');
+    expect(audits, hasLength(1));
+    expect(audits.single.callId, 'failed-query-call');
+    expect(audits.single.toolName, 'query_transactions');
+    expect(audits.single.status, 'failed');
+  });
+
   test('emits authorization before a write tool starts and waits for the reply',
       () async {
     final facade = AgentAppFacade(
@@ -847,6 +878,41 @@ void main() {
     model.pending.complete(const AgentTurn.finalText('迟到的回复'));
   });
 
+  test('stopping one run does not cancel another active run', () async {
+    var runNumber = 0;
+    final model = _RunScopedPendingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: model,
+      runIdFactory: () => 'run-${String.fromCharCode(97 + runNumber++)}',
+    );
+
+    final first =
+        facade.processMessageEvents(message: '查询一', ledgerId: 1).toList();
+    final second =
+        facade.processMessageEvents(message: '查询二', ledgerId: 1).toList();
+    await model.waitUntilStarted('run-a');
+    await model.waitUntilStarted('run-b');
+
+    final cancelled = facade.cancelRun('run-a');
+    model.complete('run-a', const AgentTurn.finalText('迟到的回复'));
+    model.complete('run-b', const AgentTurn.finalText('第二个请求完成'));
+    final firstEvents = await first;
+    final secondEvents = await second;
+
+    expect(cancelled, isTrue);
+    expect(
+      (firstEvents.single as AgentRunCompletedEvent).result.response.text,
+      '本次操作已停止。',
+    );
+    expect(
+      (secondEvents.single as AgentRunCompletedEvent).result.response.text,
+      '第二个请求完成',
+    );
+  });
+
   for (final failsPersistence in [false, true]) {
     test('logs actual authorization persistence (fails: $failsPersistence)',
         () async {
@@ -946,6 +1012,24 @@ final class _PendingModel implements AgentModel {
   }
 }
 
+final class _RunScopedPendingModel implements AgentModel {
+  final Map<String, Completer<void>> _started = {};
+  final Map<String, Completer<AgentTurn>> _pending = {};
+
+  @override
+  Future<AgentTurn> nextTurn(AgentRequest request) {
+    final runId = request.scope.id;
+    _started.putIfAbsent(runId, Completer<void>.new).complete();
+    return _pending.putIfAbsent(runId, Completer<AgentTurn>.new).future;
+  }
+
+  Future<void> waitUntilStarted(String runId) =>
+      _started.putIfAbsent(runId, Completer<void>.new).future;
+
+  void complete(String runId, AgentTurn turn) =>
+      _pending[runId]!.complete(turn);
+}
+
 final class _RejectingPreferencesPlatform
     extends InMemorySharedPreferencesStore {
   _RejectingPreferencesPlatform() : super.empty();
@@ -1006,6 +1090,7 @@ final class _CapturingModel implements AgentModel {
 final class _FakeGateway implements LocalAgentToolGateway {
   final List<String> recordedTexts = [];
   final List<String> savedMemories = [];
+  bool throwOnQuery = false;
 
   @override
   Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
@@ -1014,7 +1099,11 @@ final class _FakeGateway implements LocalAgentToolGateway {
       const [];
 
   @override
-  Future<void> forgetMemory(int memoryId) async {}
+  Future<bool> forgetMemory({
+    required int ledgerId,
+    required int memoryId,
+  }) async =>
+      false;
 
   @override
   Future<AgentBudgetSummary> getBudgetStatus(int ledgerId) async =>
@@ -1025,8 +1114,10 @@ final class _FakeGateway implements LocalAgentToolGateway {
     required int ledgerId,
     required DateTime start,
     required DateTime end,
-  }) async =>
-      const [];
+  }) async {
+    if (throwOnQuery) throw StateError('query failed');
+    return const [];
+  }
 
   @override
   Future<AgentRecordToolResult> recordTransaction({

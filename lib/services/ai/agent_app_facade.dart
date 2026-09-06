@@ -83,8 +83,7 @@ final class AgentAppFacade {
   final AgentPolicy _policy;
   final String Function() _runIdFactory;
   final Map<String, AgentToolAuthorizationBroker> _pendingAuthorizations = {};
-  final Set<_RunAuthorization> _activeAuthorizations = {};
-  final Set<AgentCancellationToken> _activeCancellations = {};
+  final Map<String, _ActiveAgentRun> _activeRuns = {};
 
   bool resolveToolAuthorization(
     String authorizationId,
@@ -97,8 +96,8 @@ final class AgentAppFacade {
       false;
 
   void cancelPendingToolAuthorizations() {
-    for (final authorization in _activeAuthorizations) {
-      authorization.denyPending();
+    for (final run in _activeRuns.values) {
+      run.authorization.denyPending();
     }
     _pendingAuthorizations.clear();
   }
@@ -109,10 +108,19 @@ final class AgentAppFacade {
   /// AgentCore observes this token before every next action so transactions
   /// remain consistent while blocked model requests end immediately.
   void cancelActiveRuns() {
-    for (final cancellation in _activeCancellations.toList()) {
-      cancellation.cancel();
+    for (final run in _activeRuns.values.toList()) {
+      run.cancellation.cancel();
     }
     cancelPendingToolAuthorizations();
+  }
+
+  /// Cancels only the foreground Agent run identified by [runId].
+  bool cancelRun(String runId) {
+    final run = _activeRuns[runId];
+    if (run == null) return false;
+    run.cancellation.cancel();
+    run.authorization.denyPending();
+    return true;
   }
 
   Future<AgentChatResponse> processMessage({
@@ -138,12 +146,14 @@ final class AgentAppFacade {
   Stream<AgentRunEvent> processMessageEvents({
     required String message,
     required int ledgerId,
+    String? runId,
     int? conversationId,
     bool allowsExplicitMemory = false,
     Map<String, Object?> context = const {},
     AppLocalizations? l10n,
   }) {
     var canceled = false;
+    final activeRunId = runId ?? _runIdFactory();
     final cancellation = AgentCancellationToken();
     late final StreamController<AgentRunEvent> controller;
     void emit(AgentRunEvent event) {
@@ -153,8 +163,10 @@ final class AgentAppFacade {
     final authorization = _createAuthorization(emit: emit);
     controller = StreamController<AgentRunEvent>(
       onListen: () async {
-        _activeAuthorizations.add(authorization);
-        _activeCancellations.add(cancellation);
+        _activeRuns[activeRunId] = _ActiveAgentRun(
+          authorization: authorization,
+          cancellation: cancellation,
+        );
         try {
           final response = await _processMessage(
             message: message,
@@ -166,14 +178,14 @@ final class AgentAppFacade {
             authorization: authorization,
             emit: emit,
             cancellationToken: cancellation,
+            providedRunId: activeRunId,
           );
           emit(AgentRunCompletedEvent(response));
         } catch (error, stackTrace) {
           if (!canceled) controller.addError(error, stackTrace);
         } finally {
           authorization.denyPending();
-          _activeAuthorizations.remove(authorization);
-          _activeCancellations.remove(cancellation);
+          _activeRuns.remove(activeRunId);
           unawaited(controller.close());
         }
       },
@@ -181,7 +193,7 @@ final class AgentAppFacade {
         canceled = true;
         cancellation.cancel();
         // StreamController also invokes onCancel after normal completion.
-        if (!controller.isClosed) cancelPendingToolAuthorizations();
+        if (!controller.isClosed) authorization.denyPending();
       },
     );
     return controller.stream;
@@ -218,8 +230,9 @@ final class AgentAppFacade {
     required _RunAuthorization authorization,
     void Function(AgentRunEvent event)? emit,
     AgentCancellationToken? cancellationToken,
+    String? providedRunId,
   }) async {
-    final runId = _runIdFactory();
+    final runId = providedRunId ?? _runIdFactory();
     logger.info('AgentCore', '运行开始', {
       'runId': runId,
       'ledgerId': ledgerId,
@@ -279,6 +292,7 @@ final class AgentAppFacade {
         }
       });
     }
+    final failedToolAudits = <AgentToolCallAudit>[];
 
     try {
       final executionSettings = await _executionSettingsStore.read();
@@ -289,7 +303,22 @@ final class AgentAppFacade {
       });
       final result = await AgentCore(
         model: _model,
-        tools: _observedTools(localTools.build(), emit, runId),
+        tools: _observedTools(
+          localTools.build(),
+          emit,
+          runId,
+          onToolFailed: (call, error) {
+            failedToolAudits.add(
+              AgentToolCallAudit(
+                runId: runId,
+                callId: call.id,
+                toolName: call.name,
+                status: 'failed',
+                detail: error.toString(),
+              ),
+            );
+          },
+        ),
         policy: authorization,
         maximumModelTurns: executionSettings.maximumModelTurns,
         maximumToolCalls: executionSettings.maximumToolCalls,
@@ -297,7 +326,7 @@ final class AgentAppFacade {
         singleUseToolDenialReason: (_) => '同一条消息只能记账一次。',
         cancellationToken: cancellationToken,
       ).run(request);
-      await _recordAudit(runId, result);
+      await _recordAudit(runId, result, failedToolAudits: failedToolAudits);
       if (result.wasCancelled) {
         logger.info('AgentCore', '运行已由用户停止', {
           'runId': runId,
@@ -331,6 +360,7 @@ final class AgentAppFacade {
       await _memoryRepository.finishRun(runId: runId, status: 'completed');
       return AgentChatResponse(runId: runId, response: response);
     } on AgentNativeToolUnsupportedException {
+      await _recordFailedToolAudits(failedToolAudits);
       logger.warning('AgentCore', '模型不支持原生 Agent 能力', {'runId': runId});
       await _memoryRepository.finishRun(
         runId: runId,
@@ -345,6 +375,7 @@ final class AgentAppFacade {
         ),
       );
     } on AgentNativeToolTimeoutException {
+      await _recordFailedToolAudits(failedToolAudits);
       logger.warning('AgentCore', '模型回合超时', {'runId': runId});
       await _memoryRepository.finishRun(
         runId: runId,
@@ -358,6 +389,7 @@ final class AgentAppFacade {
         ),
       );
     } catch (error, stackTrace) {
+      await _recordFailedToolAudits(failedToolAudits);
       logger.error('AgentCore', '运行失败', error, stackTrace);
       await _memoryRepository.finishRun(
         runId: runId,
@@ -435,8 +467,9 @@ final class AgentAppFacade {
   Map<String, AgentTool> _observedTools(
     Map<String, AgentTool> tools,
     void Function(AgentRunEvent event)? emit,
-    String runId,
-  ) {
+    String runId, {
+    void Function(AgentToolCall call, Object error)? onToolFailed,
+  }) {
     return {
       for (final entry in tools.entries)
         entry.key: _ObservedAgentTool(
@@ -480,12 +513,17 @@ final class AgentAppFacade {
                 succeeded: error == null,
               ),
             );
+            if (error != null) onToolFailed?.call(call, error);
           },
         ),
     };
   }
 
-  Future<void> _recordAudit(String runId, AgentRunResult result) async {
+  Future<void> _recordAudit(
+    String runId,
+    AgentRunResult result, {
+    Iterable<AgentToolCallAudit> failedToolAudits = const [],
+  }) async {
     for (final call in result.executedCalls) {
       await _memoryRepository.recordToolCall(
         AgentToolCallAudit(
@@ -513,6 +551,15 @@ final class AgentAppFacade {
           detail: denied.reason,
         ),
       );
+    }
+    await _recordFailedToolAudits(failedToolAudits);
+  }
+
+  Future<void> _recordFailedToolAudits(
+    Iterable<AgentToolCallAudit> failedToolAudits,
+  ) async {
+    for (final audit in failedToolAudits) {
+      await _memoryRepository.recordToolCall(audit);
     }
   }
 
@@ -552,6 +599,16 @@ final class _DefaultAgentExecutionSettingsStore
 
   @override
   Future<void> setMaximumModelTurns(int value) async {}
+}
+
+final class _ActiveAgentRun {
+  const _ActiveAgentRun({
+    required this.authorization,
+    required this.cancellation,
+  });
+
+  final _RunAuthorization authorization;
+  final AgentCancellationToken cancellation;
 }
 
 sealed class AgentRunEvent {

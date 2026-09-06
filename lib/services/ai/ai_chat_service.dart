@@ -41,11 +41,9 @@ class AIChatService {
     _agentFacade?.cancelPendingToolAuthorizations();
   }
 
-  /// Stops the foreground Agent run, including a model turn that is still
-  /// waiting for network data. Legacy non-Agent chat has nothing to cancel.
-  void cancelActiveAgentRuns() {
-    _agentFacade?.cancelActiveRuns();
-  }
+  /// Stops one foreground Agent run, including a model turn waiting for
+  /// network data. Legacy non-Agent chat has nothing to cancel.
+  bool cancelAgentRun(String runId) => _agentFacade?.cancelRun(runId) ?? false;
 
   /// 验证 AI 配置是否存在(仅本地配置,不发网络请求)
   static Future<AIConfigValidationResult> validateApiKey() async {
@@ -105,6 +103,7 @@ class AIChatService {
   Stream<AgentRunEvent> processMessageEvents(
     String userInput, {
     required int ledgerId,
+    String? runId,
     int? conversationId,
     String? languageCode,
     bool forceChat = false,
@@ -114,6 +113,7 @@ class AIChatService {
       yield* _agentFacade.processMessageEvents(
         message: userInput,
         ledgerId: ledgerId,
+        runId: runId,
         conversationId: conversationId,
         context: {'languageCode': languageCode},
         l10n: l10n,

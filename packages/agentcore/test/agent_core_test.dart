@@ -118,7 +118,52 @@ void main() {
     expect(result.executedCalls, hasLength(1));
     expect(model.requests, hasLength(2));
     expect(model.requests[1].toolData, [
-      {'id': 'first', 'name': fakeTool.name, 'data': {'recorded': true}},
+      {
+        'id': 'first',
+        'name': fakeTool.name,
+        'data': {'recorded': true}
+      },
+      {
+        'id': 'second',
+        'name': fakeTool.name,
+        'data': {'error': 'tool_call_limit_reached'},
+      },
+    ]);
+  });
+
+  test('returns an error result for every budget-exhausted call in a batch',
+      () async {
+    final boundedCore = AgentCore(
+      model: model
+        ..turns = [
+          AgentTurn.toolCalls([
+            AgentToolCall(id: 'first', name: fakeTool.name),
+            AgentToolCall(id: 'second', name: fakeTool.name),
+          ]),
+          const AgentTurn.finalText('已完成可执行的项目。'),
+        ],
+      tools: {fakeTool.name: fakeTool},
+      policy: const _FakePolicy(),
+      maximumToolCalls: 1,
+      maximumModelTurns: 2,
+    );
+
+    final result = await boundedCore.run(_requestFor('执行两个操作'));
+
+    expect(result.text, '已完成可执行的项目。');
+    expect(result.executedCalls, hasLength(1));
+    expect(result.deniedCalls.single.reason, 'tool_call_limit_reached');
+    expect(model.requests[1].toolData, [
+      {
+        'id': 'first',
+        'name': fakeTool.name,
+        'data': {'recorded': true}
+      },
+      {
+        'id': 'second',
+        'name': fakeTool.name,
+        'data': {'error': 'tool_call_limit_reached'},
+      },
     ]);
   });
 
@@ -141,6 +186,25 @@ void main() {
     expect((await result).wasCancelled, isTrue);
     expect(fakeTool.calls, isEmpty);
     pendingTurn.complete(const AgentTurn.finalText('迟到的回复'));
+  });
+
+  test('finalizes a cancelled run owned by a stateful model', () async {
+    final cancellation = AgentCancellationToken();
+    final model = _FinalizablePendingModel();
+    final cancellableCore = AgentCore(
+      model: model,
+      tools: {fakeTool.name: fakeTool},
+      policy: const _FakePolicy(),
+      cancellationToken: cancellation,
+    );
+
+    final result = cancellableCore.run(_requestFor('本月花了多少'));
+    await model.started.future;
+    cancellation.cancel();
+
+    expect((await result).wasCancelled, isTrue);
+    expect(model.disposedRuns, ['test-user']);
+    model.pending.complete(const AgentTurn.finalText('迟到的回复'));
   });
 
   test('does not execute a denied tool call', () async {
@@ -357,4 +421,19 @@ final class _PendingCoreModel implements AgentModel {
     started.complete();
     return pendingTurn.future;
   }
+}
+
+final class _FinalizablePendingModel implements AgentModel, AgentRunFinalizer {
+  final Completer<void> started = Completer<void>();
+  final Completer<AgentTurn> pending = Completer<AgentTurn>();
+  final List<String> disposedRuns = [];
+
+  @override
+  Future<AgentTurn> nextTurn(AgentRequest request) {
+    started.complete();
+    return pending.future;
+  }
+
+  @override
+  void disposeRun(String runId) => disposedRuns.add(runId);
 }

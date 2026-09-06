@@ -68,6 +68,21 @@ void main() {
     expect(result['periodEnd'], '2026-08-31T23:59:59.999');
   });
 
+  test('forget memory reports false when the current ledger does not own it',
+      () async {
+    final result = await tools['forget_memory']!.execute(
+      AgentToolCall(
+        name: 'forget_memory',
+        arguments: const {'memoryId': 42},
+      ),
+    );
+
+    expect(result, {'forgotten': false});
+    expect(gateway.forgetMemoryRequests, [
+      (ledgerId: 1, memoryId: 42),
+    ]);
+  });
+
   test('P0 query tools exclude overlapping report summaries', () async {
     expect(tools, isNot(contains('get_income_expense_summary')));
     expect(tools, isNot(contains('get_category_spending')));
@@ -92,6 +107,7 @@ void main() {
 final class _FakeGateway implements LocalAgentToolGateway {
   final List<String> recordedTexts = [];
   final List<int> requestedLedgerIds = [];
+  final List<({int ledgerId, int memoryId})> forgetMemoryRequests = [];
   List<AgentTransactionSummary> transactions = [];
   final List<AgentRecurringTransactionSummary> recurringTransactions = const [
     AgentRecurringTransactionSummary(
@@ -104,7 +120,13 @@ final class _FakeGateway implements LocalAgentToolGateway {
   ];
 
   @override
-  Future<void> forgetMemory(int memoryId) async {}
+  Future<bool> forgetMemory({
+    required int ledgerId,
+    required int memoryId,
+  }) async {
+    forgetMemoryRequests.add((ledgerId: ledgerId, memoryId: memoryId));
+    return false;
+  }
 
   @override
   Future<AgentBudgetSummary> getBudgetStatus(int ledgerId) async =>
