@@ -5,12 +5,14 @@ import 'package:agentcore/agentcore.dart'
         AgentMemoryRepository,
         AgentToolCallAudit;
 
-import '../../data/db.dart' show Account, Category, Ledger, Tag, Transaction;
+import '../../data/db.dart'
+    show Account, BeeDatabase, Category, Ledger, Tag, Transaction;
 import '../../data/repositories/base_repository.dart';
 import '../../data/repositories/budget_repository.dart';
 import '../../services/ai/ai_bookkeeper.dart';
 import '../../services/data/tag_seed_service.dart';
 import '../memory/agent_memory_repository.dart';
+import 'local_agent_transaction_summary.dart';
 
 final class AgentCategoryReference {
   const AgentCategoryReference({
@@ -272,6 +274,19 @@ abstract interface class LocalAgentToolGateway {
     required DateTime start,
     required DateTime end,
   });
+  Future<Map<String, Object?>> summarizeTransactions({
+    required int ledgerId,
+    required DateTime start,
+    required DateTime end,
+    required Set<String> types,
+    required String groupBy,
+    required String categoryLevel,
+    required List<int> categoryIds,
+    required List<int> tagIds,
+    required List<int> accountIds,
+    required bool includeExcludedFromStats,
+    required int groupLimit,
+  });
   Future<AgentBudgetSummary> getBudgetStatus(int ledgerId);
   Future<String> getLedgerCurrency(int ledgerId);
   Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
@@ -296,13 +311,16 @@ abstract interface class LocalAgentToolGateway {
 final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
   BeeCountLocalAgentToolGateway({
     required BaseRepository repository,
+    required BeeDatabase database,
     required AiBookkeeper bookkeeper,
     required AgentMemoryRepository memoryRepository,
   })  : _repository = repository,
+        _summaryDataSource = LocalAgentTransactionSummaryDataSource(database),
         _bookkeeper = bookkeeper,
         _memoryRepository = memoryRepository;
 
   final BaseRepository _repository;
+  final LocalAgentTransactionSummaryDataSource _summaryDataSource;
   final AiBookkeeper _bookkeeper;
   final AgentMemoryRepository _memoryRepository;
 
@@ -320,6 +338,34 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
     );
     return _summarizeTransactions(transactions, ledger: await ledgerFuture);
   }
+
+  @override
+  Future<Map<String, Object?>> summarizeTransactions({
+    required int ledgerId,
+    required DateTime start,
+    required DateTime end,
+    required Set<String> types,
+    required String groupBy,
+    required String categoryLevel,
+    required List<int> categoryIds,
+    required List<int> tagIds,
+    required List<int> accountIds,
+    required bool includeExcludedFromStats,
+    required int groupLimit,
+  }) =>
+      _summaryDataSource.summarizeTransactions(
+        ledgerId: ledgerId,
+        start: start,
+        end: end,
+        types: types,
+        groupBy: groupBy,
+        categoryLevel: categoryLevel,
+        categoryIds: categoryIds,
+        tagIds: tagIds,
+        accountIds: accountIds,
+        includeExcludedFromStats: includeExcludedFromStats,
+        groupLimit: groupLimit,
+      );
 
   @override
   Future<AgentBudgetSummary> getBudgetStatus(int ledgerId) async {
@@ -603,9 +649,9 @@ final class LocalAgentTools {
         'query_transactions',
         _queryTransactions,
       ),
-      'get_spending_summary': _CallbackTool(
-        'get_spending_summary',
-        _spendingSummary,
+      'get_transaction_summary': _CallbackTool(
+        'get_transaction_summary',
+        _transactionSummary,
       ),
       'get_budget_status': _CallbackTool('get_budget_status', _budgetStatus),
       'get_recurring_transactions': _CallbackTool(
@@ -640,31 +686,25 @@ final class LocalAgentTools {
     return {'items': items};
   }
 
-  Future<Map<String, Object?>> _spendingSummary(AgentToolCall call) async {
+  Future<Map<String, Object?>> _transactionSummary(
+    AgentToolCall call,
+  ) async {
     final range = _rangeFor(call);
-    final ledgerCurrency = gateway.getLedgerCurrency(_ledgerId);
-    final transactions = await gateway.queryTransactions(
+    final types = _summaryTypesFor(call);
+    return gateway.summarizeTransactions(
       ledgerId: _ledgerId,
       start: range.$1,
       end: range.$2,
+      types: types,
+      groupBy: _summaryGroupByFor(call),
+      categoryLevel: _summaryCategoryLevelFor(call),
+      categoryIds: _intListArgument(call, 'categoryIds'),
+      tagIds: _intListArgument(call, 'tagIds'),
+      accountIds: _intListArgument(call, 'accountIds'),
+      includeExcludedFromStats:
+          call.arguments['includeExcludedFromStats'] == true,
+      groupLimit: _summaryGroupLimitFor(call),
     );
-    final scopedTransactions = transactions
-        .where((transaction) => transaction.ledgerId == _ledgerId)
-        .toList();
-    final spending = scopedTransactions
-        .where((transaction) => transaction.type == 'expense')
-        .where((transaction) => !transaction.excludeFromStats)
-        .fold<double>(
-          0,
-          (sum, transaction) =>
-              sum + (transaction.ledgerAmount ?? transaction.amount).abs(),
-        );
-    return {
-      'total': spending,
-      'currency': await ledgerCurrency,
-      'periodStart': range.$1.toIso8601String(),
-      'periodEnd': range.$2.toIso8601String(),
-    };
   }
 
   Future<Map<String, Object?>> _budgetStatus(AgentToolCall call) async =>
@@ -724,6 +764,44 @@ final class LocalAgentTools {
     final end =
         DateTime.tryParse(call.arguments['end'] as String? ?? '') ?? now;
     return (start, end.isBefore(start) ? now : end);
+  }
+
+  Set<String> _summaryTypesFor(AgentToolCall call) {
+    const supported = {'income', 'expense', 'transfer'};
+    final raw = call.arguments['types'];
+    final requested = raw is List
+        ? raw.whereType<String>().where(supported.contains).toSet()
+        : const <String>{};
+    return requested.isEmpty ? supported : requested;
+  }
+
+  String _summaryGroupByFor(AgentToolCall call) {
+    const supported = {
+      'none',
+      'category',
+      'tag',
+      'account',
+      'day',
+      'week',
+      'month',
+      'year',
+    };
+    final raw = call.arguments['groupBy'];
+    return raw is String && supported.contains(raw) ? raw : 'none';
+  }
+
+  String _summaryCategoryLevelFor(AgentToolCall call) =>
+      call.arguments['categoryLevel'] == 'top' ? 'top' : 'leaf';
+
+  List<int> _intListArgument(AgentToolCall call, String key) {
+    final raw = call.arguments[key];
+    if (raw is! List) return const [];
+    return raw.whereType<int>().toSet().toList()..sort();
+  }
+
+  int _summaryGroupLimitFor(AgentToolCall call) {
+    final raw = call.arguments['groupLimit'];
+    return raw is int ? raw.clamp(1, 50) : 20;
   }
 }
 

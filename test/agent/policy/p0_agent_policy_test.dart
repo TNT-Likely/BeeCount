@@ -64,6 +64,7 @@ void main() {
   test('P0 policy only permits the P0 scoped read tools', () async {
     for (final toolName in <String>[
       'get_recurring_transactions',
+      'get_transaction_summary',
     ]) {
       final decision = policy.decide(
         request(),

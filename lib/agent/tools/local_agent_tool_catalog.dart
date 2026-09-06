@@ -17,7 +17,78 @@ final class LocalAgentToolCatalog {
       },
       'end': {
         'type': 'string',
-        'description': '查询结束时间，ISO 8601 格式（包含）。',
+        'description': '查询结束时间，ISO 8601 格式（不包含）。',
+      },
+    },
+    'additionalProperties': false,
+  };
+
+  static const _transactionSummaryParameters = <String, Object?>{
+    'type': 'object',
+    'properties': {
+      'start': {
+        'type': 'string',
+        'description': '查询开始时间，ISO 8601 格式（包含）。',
+      },
+      'end': {
+        'type': 'string',
+        'description': '查询结束时间，ISO 8601 格式（不包含）。',
+      },
+      'types': {
+        'type': 'array',
+        'description': '需要统计的交易类型；不传表示收入、支出和转账全部统计。',
+        'items': {
+          'type': 'string',
+          'enum': ['income', 'expense', 'transfer'],
+        },
+        'uniqueItems': true,
+      },
+      'groupBy': {
+        'type': 'string',
+        'description': '可选分组维度；none 表示只返回总额。',
+        'enum': [
+          'none',
+          'category',
+          'tag',
+          'account',
+          'day',
+          'week',
+          'month',
+          'year',
+        ],
+      },
+      'categoryLevel': {
+        'type': 'string',
+        'description': '按分类分组时使用 leaf 明细分类或 top 一级分类。',
+        'enum': ['leaf', 'top'],
+      },
+      'categoryIds': {
+        'type': 'array',
+        'description': '只统计指定分类 ID（转账账户不受此筛选影响）。',
+        'items': {'type': 'integer', 'minimum': 1},
+        'uniqueItems': true,
+      },
+      'tagIds': {
+        'type': 'array',
+        'description': '只统计带有任一指定标签 ID 的交易。',
+        'items': {'type': 'integer', 'minimum': 1},
+        'uniqueItems': true,
+      },
+      'accountIds': {
+        'type': 'array',
+        'description': '只统计涉及任一指定账户 ID 的交易。',
+        'items': {'type': 'integer', 'minimum': 1},
+        'uniqueItems': true,
+      },
+      'includeExcludedFromStats': {
+        'type': 'boolean',
+        'description': '是否包含标记为不计入统计的交易，默认 false。',
+      },
+      'groupLimit': {
+        'type': 'integer',
+        'description': '最多返回的分组数量，超出部分合并到“其他”，默认 20，范围 1-50。',
+        'minimum': 1,
+        'maximum': 50,
       },
     },
     'additionalProperties': false,
@@ -37,9 +108,10 @@ final class LocalAgentToolCatalog {
       parameters: _rangeParameters,
     ),
     core.AgentNativeToolDefinition(
-      name: 'get_spending_summary',
-      description: '按账本本位币汇总当前账本在指定时间范围内的支出总额，只读，不会修改数据。多币种交易已使用各笔已保存的本位币折算金额。',
-      parameters: _rangeParameters,
+      name: 'get_transaction_summary',
+      description:
+          '在数据库内直接聚合当前账本的交易，不受明细查询条数限制。可统计收入、支出、转账（不传 types 默认全部），并按分类、标签、账户或日/周/月/年分组；支持分类、标签、账户筛选及是否包含排除统计的交易。结果金额均为账本本位币；按标签分组时交易可能同时出现在多个标签组，按账户分组时转账会分别提供 transferOut 和 transferIn。只读，不会修改数据。',
+      parameters: _transactionSummaryParameters,
     ),
     core.AgentNativeToolDefinition(
       name: 'get_budget_status',

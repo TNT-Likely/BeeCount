@@ -5311,6 +5311,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentToolSpendingSummary => 'summarize spending';
 
   @override
+  String get agentToolTransactionSummary => 'summarize transactions';
+
+  @override
   String get agentToolBudgetStatus => 'check budget';
 
   @override
@@ -5385,6 +5388,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentToolSpendingSummaryDescription => 'Summarize spending in the current ledger for a selected time range.';
 
   @override
+  String get agentToolTransactionSummaryDescription => 'Aggregate transactions in the current ledger by type, category, tag, account, or time period.';
+
+  @override
   String get agentToolBudgetStatusDescription => 'View the budget status for the current ledger.';
 
   @override
@@ -5424,6 +5430,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get agentAuthorizationTimeRange => 'Query time range';
+
+  @override
+  String get agentAuthorizationSummaryTypes => 'Transaction types';
+
+  @override
+  String get agentAuthorizationSummaryGroupBy => 'Group by';
+
+  @override
+  String get agentAuthorizationCategoryIds => 'Category IDs';
+
+  @override
+  String get agentAuthorizationTagIds => 'Tag IDs';
+
+  @override
+  String get agentAuthorizationAccountIds => 'Account IDs';
 
   @override
   String get agentAuthorizationMemoryContent => 'Memory content';

@@ -1168,6 +1168,36 @@ final class _FakeGateway implements LocalAgentToolGateway {
   }
 
   @override
+  Future<Map<String, Object?>> summarizeTransactions({
+    required int ledgerId,
+    required DateTime start,
+    required DateTime end,
+    required Set<String> types,
+    required String groupBy,
+    required String categoryLevel,
+    required List<int> categoryIds,
+    required List<int> tagIds,
+    required List<int> accountIds,
+    required bool includeExcludedFromStats,
+    required int groupLimit,
+  }) async =>
+      {
+        'currency': 'CNY',
+        'periodStart': start.toIso8601String(),
+        'periodEnd': end.toIso8601String(),
+        'types': types.toList(),
+        'totals': const {
+          'income': {'amount': 0.0, 'count': 0},
+          'expense': {'amount': 0.0, 'count': 0},
+          'transfer': {'amount': 0.0, 'count': 0},
+        },
+        'groupBy': groupBy,
+        'groups': const [],
+        'groupsMayOverlap': false,
+        'truncated': false,
+      };
+
+  @override
   Future<AgentRecordToolResult> recordTransaction({
     required int ledgerId,
     required String text,
