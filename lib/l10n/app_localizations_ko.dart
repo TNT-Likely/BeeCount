@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -5272,6 +5274,17 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get agentRecordIncomplete => '거래 정보가 충분하지 않습니다. 금액과 용도를 입력한 뒤 다시 시도해 주세요.';
+
+  @override
+  String agentRecordCreated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+    );
+    return 'Created $_temp0.';
+  }
 
   @override
   String get agentStepsExceeded => '요청 처리 단계가 너무 많습니다. 요청을 간단히 한 뒤 다시 시도해 주세요.';

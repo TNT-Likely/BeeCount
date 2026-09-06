@@ -582,7 +582,10 @@ final class AgentAppFacade {
       if (bills.isNotEmpty && bills.length == recorded.transactionIds.length) {
         return AIResponse.billCards(bills, recorded.transactionIds);
       }
-      return AIResponse.text('已创建 ${recorded.transactionIds.length} 笔账单。');
+      return AIResponse.text(
+        l10n?.agentRecordCreated(recorded.transactionIds.length) ??
+            '已创建 ${recorded.transactionIds.length} 笔账单。',
+      );
     }
     return AIResponse.text(
       result.text.isEmpty

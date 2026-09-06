@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -5272,6 +5274,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get agentRecordIncomplete => '未识别到完整的记账信息，请补充金额和用途后重试。';
+
+  @override
+  String agentRecordCreated(int count) {
+    return '已创建 $count 笔账单。';
+  }
 
   @override
   String get agentStepsExceeded => '这次操作步骤过多，请简化后重试。';

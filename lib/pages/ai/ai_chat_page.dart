@@ -36,6 +36,7 @@ import '../../services/ui/avatar_service.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/ai/ai_chat_service.dart';
 import '../../services/ai/agent_app_facade.dart';
+import '../../services/ai/bill_card_info_builder.dart';
 import '../../agent/permission/agent_authorization_gate.dart';
 import '../../services/ai/ai_quick_command_service.dart';
 
@@ -1168,30 +1169,30 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       final transaction = await repo.getTransactionById(transactionId);
       if (transaction == null) return;
 
-      String? categoryName;
-      if (transaction.categoryId != null) {
-        final category = await repo.getCategoryById(transaction.categoryId!);
-        categoryName = category?.name;
-      }
-      String? accountName;
-      if (transaction.accountId != null) {
-        final account = await repo.getAccount(transaction.accountId!);
-        accountName = account?.name;
-      }
-
-      final updatedBillInfo = BillInfo(
+      final category = transaction.categoryId == null
+          ? null
+          : await repo.getCategoryById(transaction.categoryId!);
+      final account = transaction.accountId == null
+          ? null
+          : await repo.getAccount(transaction.accountId!);
+      final toAccount = transaction.toAccountId == null
+          ? null
+          : await repo.getAccount(transaction.toAccountId!);
+      final tagsByTransaction = await repo.getTagsForTransactions([
+        transactionId,
+      ]);
+      final updatedBillInfo = buildBillCardInfoFromTransaction(
         amount: transaction.amount,
         time: transaction.happenedAt,
         note: transaction.note,
-        category: categoryName,
-        type: transaction.type == 'expense'
-            ? BillType.expense
-            : (transaction.type == 'transfer'
-                ? BillType.transfer
-                : BillType.income),
-        account: accountName,
+        category: category?.name,
+        transactionType: transaction.type,
+        account: account?.name,
+        fromAccount: account?.name,
+        toAccount: toAccount?.name,
+        tags: tagsByTransaction[transactionId]?.map((tag) => tag.name).toList(),
+        currency: transaction.currencyCode ?? account?.currency,
         ledgerId: transaction.ledgerId,
-        confidence: 1.0,
       );
 
       final parsed = _parseBillMetadata(message);

@@ -10064,6 +10064,12 @@ abstract class AppLocalizations {
   /// **'The transaction details are incomplete. Please include an amount and purpose, then try again.'**
   String get agentRecordIncomplete;
 
+  /// No description provided for @agentRecordCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created {count, plural, =1{1 transaction} other{{count} transactions}}.'**
+  String agentRecordCreated(int count);
+
   /// No description provided for @agentStepsExceeded.
   ///
   /// In en, this message translates to:

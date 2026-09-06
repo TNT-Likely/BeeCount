@@ -42,6 +42,7 @@ import 'package:beecount/agent/runtime/agent_execution_settings.dart';
 import 'package:beecount/agent/permission/shared_preferences_agent_tool_permission_store.dart';
 import 'package:beecount/agent/tools/local_agent_tools.dart';
 import 'package:beecount/data/db.dart' hide AgentToolCall;
+import 'package:beecount/l10n/app_localizations_en.dart';
 import 'package:beecount/services/ai/agent_app_facade.dart';
 import 'package:beecount/services/system/logger_service.dart';
 import 'package:drift/native.dart';
@@ -98,6 +99,37 @@ void main() {
       ),
       isTrue,
     );
+  });
+
+  test('record result without cards uses the active locale', () async {
+    gateway.recordResult = const AgentRecordToolResult(
+      success: true,
+      transactionIds: [42],
+    );
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: _FakeModel([
+        AgentTurn.toolCalls([
+          AgentToolCall(
+            id: 'call-record-without-card',
+            name: 'record_transaction_from_text',
+            arguments: const {'sourceText': '午饭 35'},
+          ),
+        ]),
+        const AgentTurn.finalText('已完成'),
+      ]),
+    );
+
+    final response = await facade.processMessage(
+      message: '午饭 35',
+      ledgerId: 1,
+      l10n: AppLocalizationsEn(),
+    );
+
+    expect(response.type, 'text');
+    expect(response.text, 'Created 1 transaction.');
   });
 
   test('uses the locally selected model-turn limit for an Agent run', () async {
@@ -1091,6 +1123,19 @@ final class _FakeGateway implements LocalAgentToolGateway {
   final List<String> recordedTexts = [];
   final List<String> savedMemories = [];
   bool throwOnQuery = false;
+  AgentRecordToolResult recordResult = const AgentRecordToolResult(
+    success: true,
+    transactionIds: [42],
+    bills: [
+      {
+        'amount': -35.0,
+        'time': '2026-01-01T12:00:00.000',
+        'note': '午饭',
+        'type': 'expense',
+        'ledgerId': 1,
+      },
+    ],
+  );
 
   @override
   Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
@@ -1128,19 +1173,7 @@ final class _FakeGateway implements LocalAgentToolGateway {
     required String text,
   }) async {
     recordedTexts.add(text);
-    return const AgentRecordToolResult(
-      success: true,
-      transactionIds: [42],
-      bills: [
-        {
-          'amount': -35.0,
-          'time': '2026-01-01T12:00:00.000',
-          'note': '午饭',
-          'type': 'expense',
-          'ledgerId': 1,
-        },
-      ],
-    );
+    return recordResult;
   }
 
   @override

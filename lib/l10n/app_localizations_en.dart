@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -5272,6 +5274,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get agentRecordIncomplete => 'The transaction details are incomplete. Please include an amount and purpose, then try again.';
+
+  @override
+  String agentRecordCreated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+    );
+    return 'Created $_temp0.';
+  }
 
   @override
   String get agentStepsExceeded => 'This request took too many steps. Please simplify it and try again.';
