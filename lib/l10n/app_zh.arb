@@ -3215,6 +3215,7 @@
   "txFlagExcludeFromBudgetHint": "不占用预算额度",
   "txFlagExcludedTag": "不计收支",
   "txFlagBudgetExcludedTag": "不计预算",
+  "txContinueEntry": "再记一笔",
   "txCurrencyLabel": "币种",
   "txRateLabel": "汇率",
   "txConvertedPreview": "≈ {amount} {currency}",

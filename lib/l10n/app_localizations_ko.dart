@@ -7392,6 +7392,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get txFlagBudgetExcludedTag => '예산 제외';
 
   @override
+  String get txContinueEntry => '한 건 더 기록';
+
+  @override
   String get txCurrencyLabel => 'Currency';
 
   @override
