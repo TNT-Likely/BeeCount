@@ -2589,6 +2589,7 @@
   "budgetAmountHint": "Enter budget amount",
   "budgetCategoryLabel": "Select Category",
   "budgetCategoryHint": "Select budget category",
+  "budgetCategoryAlreadyExists": "This category already has a budget",
   "budgetStartDayLabel": "Start Day",
   "budgetPeriodLabel": "Period",
   "budgetSaveSuccess": "Budget saved",

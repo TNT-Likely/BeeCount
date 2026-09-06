@@ -2519,6 +2519,7 @@
   "budgetAmountHint": "请输入预算金额",
   "budgetCategoryLabel": "选择分类",
   "budgetCategoryHint": "请选择预算分类",
+  "budgetCategoryAlreadyExists": "该分类已设置预算",
   "budgetStartDayLabel": "起始日",
   "budgetPeriodLabel": "周期",
   "budgetSaveSuccess": "预算保存成功",
