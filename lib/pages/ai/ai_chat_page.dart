@@ -1480,6 +1480,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     final runId = _activeAgentRunId;
     if (runId != null) _chatService.cancelAgentRun(runId);
     _inputController.dispose();
+    _chatScrollCoordinator.dispose();
     _scrollController.dispose();
     super.dispose();
   }

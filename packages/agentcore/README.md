@@ -64,8 +64,14 @@ AgentModel.nextTurn()
 ```
 
 `AgentCore.run()` 在开始时校验工具注册表，然后最多执行
-`maximumModelTurns` 个模型回合和 `maximumToolCalls` 个工具调用。达到上限时返回
-空文本和已有的调用审计，宿主应将其转换成可理解的“需要简化操作”提示。
+`maximumModelTurns` 个规划回合和 `maximumToolCalls` 个工具调用。规划或调用预算
+耗尽后，core 会额外保留一次**仅生成最终文本的收口回合**：该回合的
+`AgentRequest.allowToolCalls` 为 `false`，原生 transport 会发送空的 `tools` 数组并显式
+使用 `tool_choice: none`，因此模型只能基于已经回填的工具结果作答，不能再次消耗本地
+工具调用。收口回合仍受
+取消和超时控制；如果自定义模型违反契约继续返回工具调用，运行会以
+`AgentRunTerminationReason.modelTurnLimitReached` 或
+`AgentRunTerminationReason.toolCallLimitReached` 结束。
 
 ## 核心契约
 
@@ -86,6 +92,8 @@ final core = AgentCore(
   policy: policy,
   maximumModelTurns: 4,
   maximumToolCalls: 4,
+  // 可选：对同一运行中完全相同的只读调用复用结果，避免模型重复查询。
+  deduplicatedToolNames: {'read_report'},
   cancellationToken: cancellation,
 );
 
@@ -95,11 +103,17 @@ final result = await core.run(request);
 `AgentTool.name` 必须和注册表 key 完全一致。工具执行结果是
 `Map<String, Object?>`，会被宿主序列化后作为下一轮的 `role: tool` 内容。
 
-工具调用恰好耗尽 `maximumToolCalls` 时，core 仍会给模型一个剩余回合来生成最终
-文本；只有模型再次请求工具时才会停止。这样“查询 → 返回结果”不会被误判为步骤过多。
+工具调用恰好耗尽 `maximumToolCalls` 时，core 仍会给模型一个收口回合来生成最终
+文本；这样“查询 → 返回结果”不会被误判为步骤过多。
 如果单个原生工具调用批次超过剩余预算，core 会为每个未执行调用回填
 `{"error":"tool_call_limit_reached"}`，同时记录为拒绝调用；宿主因此仍能向
 OpenAI-compatible 服务回填完整批次的 tool result，而不会触发缺失结果的协议错误。
+
+对需要避免重复读取的工具，可通过 `deduplicatedToolNames` 显式开启调用级去重。core
+会按工具名称和规范化后的 JSON 参数生成指纹；命中后复用本次运行中第一次成功执行的
+结果，不会再次执行工具，也不会增加工具调用计数。该配置默认关闭，以便保留轮询型工具
+对同一参数重复读取变化状态的能力；写工具应使用 `singleUseToolNames` 或宿主权限策略
+控制，而不是依赖读取缓存。
 
 ### 取消运行
 
@@ -195,6 +209,9 @@ transport 为每个 `runId` 保留一份短生命周期消息状态：
 
 文本增量通过 `AgentNativeEventSink` 立即通知宿主，适合直接渲染真实 SSE 流。工具
 参数分片会在 transport 内部聚合完成后才交给 `AgentCore`，避免业务层处理半截 JSON。
+收口回合会关闭文本增量，避免供应商把内部 DSML/XML 标记闪现到界面；若网关仍返回
+工具标记，transport 会带更强约束重试一次，第二次仍不合规则返回空文本，由宿主使用
+自己的安全完成提示。
 
 不支持原生工具调用、流式响应格式错误和回合超时分别对应
 `AgentNativeToolUnsupportedException`、`AgentNativeProtocolException` 和
@@ -216,7 +233,9 @@ agentcore 提供通用的权限模型，但不保存权限数据，也不负责�
   撤销本次已经批准的调用，但会通过宿主提供的 `onPersistenceError` 暴露。
 
 未知工具、硬策略拒绝、用户拒绝和授权超时都会进入 `AgentRunResult.deniedCalls`，
-并向模型回填结构化错误，便于模型结束当前回合。
+并向模型回填结构化错误，便于模型结束当前回合。宿主可以通过
+`AgentRunResult.terminationReason` 区分正常完成、工具调用上限、模型回合上限和取消，
+但只要 `text` 非空，通常应优先展示模型的最终答复。
 
 ## 本地记忆与审计
 
@@ -238,7 +257,7 @@ scope 隔离数据，并限制传入模型的条数和长度。
 
 | 事件 | 主要字段 | 用途 |
 | --- | --- | --- |
-| `turnStarted` | `runId`、`toolResultCount`、`toolDefinitions` | 查看本轮发送的工具目录和已有结果 |
+| `turnStarted` | `runId`、`toolResultCount`、`allowToolCalls`、`toolDefinitions` | 查看本轮是否允许工具，以及发送的工具目录和已有结果 |
 | `toolCalls` | `runId`、调用 id、工具名、参数 | 查看模型请求了哪个工具 |
 | `finalText` | `runId`、文本长度、文本 | 查看模型最终返回 |
 | `turnFinished` | `runId`、响应类型 | 标记回合完成 |

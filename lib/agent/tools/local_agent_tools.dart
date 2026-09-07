@@ -282,8 +282,11 @@ abstract interface class LocalAgentToolGateway {
     required String groupBy,
     required String categoryLevel,
     required List<int> categoryIds,
+    required List<String> categoryNames,
     required List<int> tagIds,
+    required List<String> tagNames,
     required List<int> accountIds,
+    required List<String> accountNames,
     required bool includeExcludedFromStats,
     required int groupLimit,
   });
@@ -348,8 +351,11 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
     required String groupBy,
     required String categoryLevel,
     required List<int> categoryIds,
+    required List<String> categoryNames,
     required List<int> tagIds,
+    required List<String> tagNames,
     required List<int> accountIds,
+    required List<String> accountNames,
     required bool includeExcludedFromStats,
     required int groupLimit,
   }) =>
@@ -361,8 +367,11 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
         groupBy: groupBy,
         categoryLevel: categoryLevel,
         categoryIds: categoryIds,
+        categoryNames: categoryNames,
         tagIds: tagIds,
+        tagNames: tagNames,
         accountIds: accountIds,
+        accountNames: accountNames,
         includeExcludedFromStats: includeExcludedFromStats,
         groupLimit: groupLimit,
       );
@@ -639,6 +648,7 @@ final class LocalAgentTools {
   final AgentScope scope;
   final LocalAgentToolGateway gateway;
   final Map<String, AgentRecordToolResult> _recordResults = {};
+  (DateTime, DateTime)? _lastSummaryRange;
 
   AgentRecordToolResult? recordResultFor(AgentToolCall call) =>
       _recordResults[call.id];
@@ -689,7 +699,8 @@ final class LocalAgentTools {
   Future<Map<String, Object?>> _transactionSummary(
     AgentToolCall call,
   ) async {
-    final range = _rangeFor(call);
+    final range = _rangeFor(call, previous: _lastSummaryRange);
+    _lastSummaryRange = range;
     final types = _summaryTypesFor(call);
     return gateway.summarizeTransactions(
       ledgerId: _ledgerId,
@@ -699,8 +710,11 @@ final class LocalAgentTools {
       groupBy: _summaryGroupByFor(call),
       categoryLevel: _summaryCategoryLevelFor(call),
       categoryIds: _intListArgument(call, 'categoryIds'),
+      categoryNames: _stringListArgument(call, 'categoryNames'),
       tagIds: _intListArgument(call, 'tagIds'),
+      tagNames: _stringListArgument(call, 'tagNames'),
       accountIds: _intListArgument(call, 'accountIds'),
+      accountNames: _stringListArgument(call, 'accountNames'),
       includeExcludedFromStats:
           call.arguments['includeExcludedFromStats'] == true,
       groupLimit: _summaryGroupLimitFor(call),
@@ -757,12 +771,21 @@ final class LocalAgentTools {
 
   int get _ledgerId => scope.ledgerId!;
 
-  (DateTime, DateTime) _rangeFor(AgentToolCall call) {
+  (DateTime, DateTime) _rangeFor(
+    AgentToolCall call, {
+    (DateTime, DateTime)? previous,
+  }) {
+    // A model often needs one aggregate for totals and another for a named
+    // category/tag/account. Reusing the last explicit summary interval keeps
+    // those calls on the same slice instead of silently falling back to the
+    // rolling 30-day default.
     final now = DateTime.now();
     final start = DateTime.tryParse(call.arguments['start'] as String? ?? '') ??
+        previous?.$1 ??
         now.subtract(const Duration(days: 30));
-    final end =
-        DateTime.tryParse(call.arguments['end'] as String? ?? '') ?? now;
+    final end = DateTime.tryParse(call.arguments['end'] as String? ?? '') ??
+        previous?.$2 ??
+        now;
     return (start, end.isBefore(start) ? now : end);
   }
 
@@ -797,6 +820,17 @@ final class LocalAgentTools {
     final raw = call.arguments[key];
     if (raw is! List) return const [];
     return raw.whereType<int>().toSet().toList()..sort();
+  }
+
+  List<String> _stringListArgument(AgentToolCall call, String key) {
+    final raw = call.arguments[key];
+    if (raw is! List) return const [];
+    return raw
+        .whereType<String>()
+        .map((value) => value.trim().toLowerCase())
+        .where((value) => value.isNotEmpty)
+        .toSet()
+        .toList();
   }
 
   int _summaryGroupLimitFor(AgentToolCall call) {

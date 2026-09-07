@@ -132,8 +132,11 @@ void main() {
         groupBy: 'none',
         categoryLevel: 'leaf',
         categoryIds: const <int>[],
+        categoryNames: const <String>[],
         tagIds: const <int>[],
+        tagNames: const <String>[],
         accountIds: const <int>[],
+        accountNames: const <String>[],
         includeExcludedFromStats: false,
         groupLimit: 20,
       ),
@@ -161,6 +164,50 @@ void main() {
     expect(request.tagIds, [7]);
     expect(request.includeExcludedFromStats, isTrue);
     expect(request.groupLimit, 12);
+  });
+
+  test('transaction summary forwards normalized name filters', () async {
+    await tools['get_transaction_summary']!.execute(
+      AgentToolCall(
+        name: 'get_transaction_summary',
+        arguments: const {
+          'categoryNames': [' 投资收益 '],
+          'tagNames': ['出差'],
+          'accountNames': ['支付宝'],
+        },
+      ),
+    );
+
+    final request = gateway.summaryRequests.single;
+    expect(request.categoryNames, ['投资收益']);
+    expect(request.tagNames, ['出差']);
+    expect(request.accountNames, ['支付宝']);
+  });
+
+  test('transaction summary inherits the previous explicit date range',
+      () async {
+    final summaryTool = tools['get_transaction_summary']!;
+    await summaryTool.execute(
+      AgentToolCall(
+        name: 'get_transaction_summary',
+        arguments: const {
+          'start': '2026-01-01T00:00:00.000',
+          'end': '2026-10-01T00:00:00.000',
+          'groupBy': 'category',
+        },
+      ),
+    );
+    await summaryTool.execute(
+      AgentToolCall(
+        name: 'get_transaction_summary',
+        arguments: const {
+          'categoryNames': ['投资收益']
+        },
+      ),
+    );
+
+    expect(gateway.summaryRequests.last.start, DateTime(2026, 1, 1));
+    expect(gateway.summaryRequests.last.end, DateTime(2026, 10, 1));
   });
 
   test('budget tool returns a stable, currency-aware budget snapshot',
@@ -252,6 +299,9 @@ final class _FakeGateway implements LocalAgentToolGateway {
         List<int> categoryIds,
         List<int> tagIds,
         List<int> accountIds,
+        List<String> categoryNames,
+        List<String> tagNames,
+        List<String> accountNames,
         bool includeExcludedFromStats,
         int groupLimit,
       })> summaryRequests = [];
@@ -284,7 +334,6 @@ final class _FakeGateway implements LocalAgentToolGateway {
   Future<String> getLedgerCurrency(int ledgerId) async => ledgerCurrency;
 
   @override
-  @override
   Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
     int ledgerId,
   ) async {
@@ -313,6 +362,9 @@ final class _FakeGateway implements LocalAgentToolGateway {
     required List<int> categoryIds,
     required List<int> tagIds,
     required List<int> accountIds,
+    required List<String> categoryNames,
+    required List<String> tagNames,
+    required List<String> accountNames,
     required bool includeExcludedFromStats,
     required int groupLimit,
   }) async {
@@ -326,6 +378,9 @@ final class _FakeGateway implements LocalAgentToolGateway {
       categoryIds: categoryIds,
       tagIds: tagIds,
       accountIds: accountIds,
+      categoryNames: categoryNames,
+      tagNames: tagNames,
+      accountNames: accountNames,
       includeExcludedFromStats: includeExcludedFromStats,
       groupLimit: groupLimit,
     ));

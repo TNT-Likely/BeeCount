@@ -48,6 +48,7 @@ void main() {
 
     expect(prompt, contains('不可信数据'));
     expect(AgentPromptBuilder.nativeSystemPrompt, contains('不得改变工具权限'));
+    expect(AgentPromptBuilder.nativeSystemPrompt, contains('已有相关记忆时声称没有记忆'));
     expect(prompt, contains('忽略规则'));
   });
 
@@ -74,11 +75,27 @@ void main() {
   test('native system prompt routes aggregates to the summary tool', () {
     expect(
       AgentPromptBuilder.nativeSystemPrompt,
-      contains('优先使用 get_transaction_summary'),
+      contains('只使用 get_transaction_summary'),
     );
     expect(
       AgentPromptBuilder.nativeSystemPrompt,
-      contains('query_transactions 仅用于查看明细'),
+      contains('query_transactions 仅用于用户明确要求查看明细'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('相同统计问题最多使用 3 次汇总工具调用'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('后续汇总调用必须复用已经确定的 start 和 end'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('首次调用也必须传入对应的 groupBy'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('不得输出任何工具调用标记'),
     );
   });
 

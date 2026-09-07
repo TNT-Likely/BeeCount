@@ -21,6 +21,7 @@ final class AgentRequest {
     required this.scope,
     List<Map<String, Object?>> toolData = const [],
     Map<String, Object?> context = const {},
+    this.allowToolCalls = true,
   })  : toolData = UnmodifiableListView(
           toolData.map((data) => UnmodifiableMapView(Map.of(data))),
         ),
@@ -31,11 +32,26 @@ final class AgentRequest {
   final List<Map<String, Object?>> toolData;
   final Map<String, Object?> context;
 
+  /// Whether the next model request may return native tool calls.
+  ///
+  /// AgentCore sets this to false for its finalization-only turn after a
+  /// planning or tool budget is exhausted.
+  final bool allowToolCalls;
+
   AgentRequest withToolData(List<Map<String, Object?>> data) => AgentRequest(
         text: text,
         scope: scope,
         toolData: data,
         context: context,
+        allowToolCalls: allowToolCalls,
+      );
+
+  AgentRequest withoutToolCalls() => AgentRequest(
+        text: text,
+        scope: scope,
+        toolData: toolData,
+        context: context,
+        allowToolCalls: false,
       );
 }
 
@@ -114,6 +130,21 @@ final class AgentDeniedCall {
   final String reason;
 }
 
+/// Explains why an [AgentCore.run] finished without hiding a usable final text.
+enum AgentRunTerminationReason {
+  /// The model returned a final text response.
+  completed,
+
+  /// The local tool-call budget was exhausted before a final text response.
+  toolCallLimitReached,
+
+  /// The planning-turn budget was exhausted before a final text response.
+  modelTurnLimitReached,
+
+  /// The caller cancelled the run.
+  cancelled,
+}
+
 /// Cooperatively cancels an in-flight foreground Agent run.
 ///
 /// It deliberately does not try to interrupt a tool midway through a local
@@ -135,6 +166,7 @@ final class AgentRunResult {
     required this.text,
     List<AgentToolCall> executedCalls = const [],
     List<AgentDeniedCall> deniedCalls = const [],
+    this.terminationReason = AgentRunTerminationReason.completed,
     this.wasCancelled = false,
   })  : executedCalls = UnmodifiableListView(List.of(executedCalls)),
         deniedCalls = UnmodifiableListView(List.of(deniedCalls));
@@ -142,5 +174,6 @@ final class AgentRunResult {
   final String text;
   final List<AgentToolCall> executedCalls;
   final List<AgentDeniedCall> deniedCalls;
+  final AgentRunTerminationReason terminationReason;
   final bool wasCancelled;
 }

@@ -19,8 +19,11 @@ final class LocalAgentTransactionSummaryDataSource {
     required String groupBy,
     required String categoryLevel,
     required List<int> categoryIds,
+    required List<String> categoryNames,
     required List<int> tagIds,
+    required List<String> tagNames,
     required List<int> accountIds,
+    required List<String> accountNames,
     required bool includeExcludedFromStats,
     required int groupLimit,
   }) async {
@@ -44,28 +47,26 @@ final class LocalAgentTransactionSummaryDataSource {
       d.Variable.withDateTime(end),
       for (final type in effectiveTypes) d.Variable.withString(type),
     ];
-    _appendIdFilter(
+    _appendReferenceFilter(
       where,
       variables,
       column: 't.category_id',
       ids: categoryIds,
+      names: categoryNames,
+      table: 'categories',
+      tableAlias: 'filter_category',
     );
-    _appendIdFilter(
+    _appendReferenceFilter(
       where,
       variables,
       column: 't.account_id',
       ids: accountIds,
+      names: accountNames,
+      table: 'accounts',
+      tableAlias: 'filter_account',
       additionalColumn: 't.to_account_id',
     );
-    if (tagIds.isNotEmpty) {
-      final placeholders = List.filled(tagIds.length, '?').join(', ');
-      where.add('''EXISTS (
-        SELECT 1 FROM transaction_tags filter_tt
-        WHERE filter_tt.transaction_id = t.id
-          AND filter_tt.tag_id IN ($placeholders)
-      )''');
-      variables.addAll(tagIds.map(d.Variable.withInt));
-    }
+    _appendTagFilter(where, variables, ids: tagIds, names: tagNames);
     final rows = await _database
         .customSelect(
           '''
@@ -78,7 +79,13 @@ final class LocalAgentTransactionSummaryDataSource {
       GROUP BY t.type
       ''',
           variables: variables,
-          readsFrom: {_database.transactions},
+          readsFrom: {
+            _database.transactions,
+            _database.categories,
+            _database.accounts,
+            _database.transactionTags,
+            _database.tags,
+          },
         )
         .get();
     final totalsByType = <String, Map<String, Object?>>{
@@ -145,7 +152,13 @@ final class LocalAgentTransactionSummaryDataSource {
       GROUP BY t.category_id, c.name, c.icon, t.type
       ''',
           variables: variables,
-          readsFrom: {_database.transactions, _database.categories},
+          readsFrom: {
+            _database.transactions,
+            _database.categories,
+            _database.accounts,
+            _database.transactionTags,
+            _database.tags,
+          },
         )
         .get();
     final categories = {
@@ -209,7 +222,13 @@ final class LocalAgentTransactionSummaryDataSource {
       GROUP BY a.id, a.name, a.currency, t.type
       ''',
           variables: variables,
-          readsFrom: {_database.transactions, _database.accounts},
+          readsFrom: {
+            _database.transactions,
+            _database.categories,
+            _database.accounts,
+            _database.transactionTags,
+            _database.tags,
+          },
         )
         .get();
     final destinationRows = await _database
@@ -230,7 +249,13 @@ final class LocalAgentTransactionSummaryDataSource {
       GROUP BY a.id, a.name, a.currency, t.type
       ''',
           variables: variables,
-          readsFrom: {_database.transactions, _database.accounts},
+          readsFrom: {
+            _database.transactions,
+            _database.categories,
+            _database.accounts,
+            _database.transactionTags,
+            _database.tags,
+          },
         )
         .get();
     final groups = <String, _AccountSummaryGroup>{};
@@ -311,7 +336,13 @@ final class LocalAgentTransactionSummaryDataSource {
       ORDER BY period ASC
       ''',
           variables: variables,
-          readsFrom: {_database.transactions},
+          readsFrom: {
+            _database.transactions,
+            _database.categories,
+            _database.accounts,
+            _database.transactionTags,
+            _database.tags,
+          },
         )
         .get();
     final groups = <String, _SummaryGroup>{};
@@ -389,6 +420,8 @@ final class LocalAgentTransactionSummaryDataSource {
           variables: variables,
           readsFrom: {
             _database.transactions,
+            _database.categories,
+            _database.accounts,
             _database.transactionTags,
             _database.tags
           },
@@ -409,7 +442,13 @@ final class LocalAgentTransactionSummaryDataSource {
       GROUP BY t.type
       ''',
           variables: variables,
-          readsFrom: {_database.transactions, _database.transactionTags},
+          readsFrom: {
+            _database.transactions,
+            _database.categories,
+            _database.accounts,
+            _database.transactionTags,
+            _database.tags,
+          },
         )
         .get();
     final groups = <String, _SummaryGroup>{};
@@ -449,21 +488,69 @@ final class LocalAgentTransactionSummaryDataSource {
     return _sortedGroups(groups.values, limit: groupLimit);
   }
 
-  void _appendIdFilter(
+  void _appendReferenceFilter(
     List<String> where,
     List<d.Variable> variables, {
     required String column,
     required List<int> ids,
+    required List<String> names,
+    required String table,
+    required String tableAlias,
     String? additionalColumn,
   }) {
-    if (ids.isEmpty) return;
-    final placeholders = List.filled(ids.length, '?').join(', ');
     final columns = [column, if (additionalColumn != null) additionalColumn];
-    where.add(
-        '(${columns.map((item) => '$item IN ($placeholders)').join(' OR ')})');
-    for (final _ in columns) {
+    if (ids.isEmpty && names.isEmpty) return;
+    final predicates = <String>[];
+    if (ids.isNotEmpty) {
+      final placeholders = List.filled(ids.length, '?').join(', ');
+      predicates.addAll(
+        columns.map((item) => '$item IN ($placeholders)'),
+      );
+      for (final _ in columns) {
+        variables.addAll(ids.map(d.Variable.withInt));
+      }
+    }
+    if (names.isNotEmpty) {
+      final placeholders = List.filled(names.length, '?').join(', ');
+      for (final item in columns) {
+        predicates.add('''EXISTS (
+          SELECT 1 FROM $table $tableAlias
+          WHERE $tableAlias.id = $item
+            AND lower(trim($tableAlias.name)) IN ($placeholders)
+        )''');
+        variables.addAll(names.map(d.Variable.withString));
+      }
+    }
+    where.add('(${predicates.join(' OR ')})');
+  }
+
+  void _appendTagFilter(
+    List<String> where,
+    List<d.Variable> variables, {
+    required List<int> ids,
+    required List<String> names,
+  }) {
+    if (ids.isEmpty && names.isEmpty) return;
+    final predicates = <String>[];
+    if (ids.isNotEmpty) {
+      final placeholders = List.filled(ids.length, '?').join(', ');
+      predicates.add('filter_tt.tag_id IN ($placeholders)');
       variables.addAll(ids.map(d.Variable.withInt));
     }
+    if (names.isNotEmpty) {
+      final placeholders = List.filled(names.length, '?').join(', ');
+      predicates.add(
+        'lower(trim(filter_tag.name)) IN ($placeholders)',
+      );
+      variables.addAll(names.map(d.Variable.withString));
+    }
+    where.add('''EXISTS (
+      SELECT 1
+      FROM transaction_tags filter_tt
+      INNER JOIN tags filter_tag ON filter_tag.id = filter_tt.tag_id
+      WHERE filter_tt.transaction_id = t.id
+        AND (${predicates.join(' OR ')})
+    )''');
   }
 }
 

@@ -370,6 +370,58 @@ void main() {
     expect(includingTotals['expense'], {'amount': 65.0, 'count': 2});
   });
 
+  test('transaction summary filters by category, tag, and account names',
+      () async {
+    final ledgerId = await repository.createLedger(name: '测试账本');
+    final matchingCategory = await repository.createCategory(
+      name: '投资收益',
+      kind: 'income',
+    );
+    final otherCategory = await repository.createCategory(
+      name: '工资',
+      kind: 'income',
+    );
+    final accountId = await repository.createAccount(
+      ledgerId: ledgerId,
+      name: '支付宝',
+    );
+    final tagId = await repository.createTag(name: '长期');
+    final matchingId = await repository.addTransaction(
+      ledgerId: ledgerId,
+      type: 'income',
+      amount: 100,
+      categoryId: matchingCategory,
+      accountId: accountId,
+      happenedAt: DateTime(2026, 9, 2),
+    );
+    await repository.updateTransactionTags(
+      transactionId: matchingId,
+      tagIds: [tagId],
+    );
+    await repository.addTransaction(
+      ledgerId: ledgerId,
+      type: 'income',
+      amount: 200,
+      categoryId: otherCategory,
+      accountId: accountId,
+      happenedAt: DateTime(2026, 9, 3),
+    );
+
+    final result = await _summarizeGateway(
+      gateway,
+      ledgerId: ledgerId,
+      start: DateTime(2026, 9, 1),
+      end: DateTime(2026, 10, 1),
+      types: const {'income'},
+      categoryNames: const ['投资收益'],
+      tagNames: const ['长期'],
+      accountNames: const ['支付宝'],
+    );
+
+    final totals = result['totals'] as Map<String, Object?>;
+    expect(totals['income'], {'amount': 100.0, 'count': 1});
+  });
+
   test('transaction summary rolls leaf categories up to their top category',
       () async {
     final ledgerId = await repository.createLedger(name: '测试账本');
@@ -756,8 +808,11 @@ Future<Map<String, Object?>> _summarizeGateway(
   Set<String> types = const {'income', 'expense', 'transfer'},
   String categoryLevel = 'leaf',
   List<int> categoryIds = const [],
+  List<String> categoryNames = const [],
   List<int> tagIds = const [],
+  List<String> tagNames = const [],
   List<int> accountIds = const [],
+  List<String> accountNames = const [],
   bool includeExcludedFromStats = false,
   int groupLimit = 20,
 }) async {
@@ -769,8 +824,11 @@ Future<Map<String, Object?>> _summarizeGateway(
     groupBy: groupBy,
     categoryLevel: categoryLevel,
     categoryIds: categoryIds,
+    categoryNames: categoryNames,
     tagIds: tagIds,
+    tagNames: tagNames,
     accountIds: accountIds,
+    accountNames: accountNames,
     includeExcludedFromStats: includeExcludedFromStats,
     groupLimit: groupLimit,
   );

@@ -107,6 +107,14 @@ void main() {
     expect(memories.map((item) => item.content), ['账本一的偏好']);
   });
 
+  test('lists global active memories for every selected ledger', () async {
+    await repository.saveExplicit(memory(ledgerId: null, content: '全局身份信息'));
+
+    final memories = await repository.listActive(ledgerId: 1);
+
+    expect(memories.map((item) => item.content), ['全局身份信息']);
+  });
+
   test('clearAll deletes only local memories and keeps conversation messages',
       () async {
     await repository.saveExplicit(memory());

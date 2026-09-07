@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'contracts.dart';
 
 final class AgentCore {
@@ -9,6 +11,7 @@ final class AgentCore {
     this.maximumModelTurns = 4,
     this.singleUseToolNames = const {},
     this.singleUseToolDenialReason = _defaultSingleUseToolDenialReason,
+    this.deduplicatedToolNames = const {},
     this.cancellationToken,
   });
 
@@ -19,6 +22,12 @@ final class AgentCore {
   final int maximumModelTurns;
   final Set<String> singleUseToolNames;
   final String Function(String toolName) singleUseToolDenialReason;
+
+  /// Read-only tools that should not be executed twice with identical input
+  /// during one run. The cached result is sent back to the model instead.
+  ///
+  /// This is opt-in because some tools intentionally poll changing state.
+  final Set<String> deduplicatedToolNames;
   final AgentCancellationToken? cancellationToken;
 
   Future<AgentRunResult> run(AgentRequest request) async {
@@ -31,15 +40,24 @@ final class AgentCore {
     final executedCalls = <AgentToolCall>[];
     final deniedCalls = <AgentDeniedCall>[];
     final executedSingleUseTools = <String>{};
+    final cachedToolResults = <String, Map<String, Object?>>{};
     var modelTurns = 0;
+    var finalizationPending = false;
+    var toolCallLimitReached = false;
 
     try {
-      while (modelTurns < maximumModelTurns) {
+      while (modelTurns < maximumModelTurns || finalizationPending) {
         if (_isCancelled) {
           return _cancelledResult(executedCalls, deniedCalls);
         }
-        modelTurns += 1;
-        final turn = await _awaitUnlessCancelled(model.nextTurn(nextRequest));
+        final isFinalizationTurn = finalizationPending;
+        finalizationPending = false;
+        if (!isFinalizationTurn) modelTurns += 1;
+        final turn = await _awaitUnlessCancelled(
+          model.nextTurn(
+            isFinalizationTurn ? nextRequest.withoutToolCalls() : nextRequest,
+          ),
+        );
         if (turn == null || _isCancelled) {
           return _cancelledResult(executedCalls, deniedCalls);
         }
@@ -49,20 +67,24 @@ final class AgentCore {
               text: text,
               executedCalls: executedCalls,
               deniedCalls: deniedCalls,
+              terminationReason: AgentRunTerminationReason.completed,
             );
           case AgentToolCallsTurn(:final calls):
-            // A tool batch can consume the final call in the budget. Still give
-            // the model one more turn so it can turn those results into a user
-            // response. A later tool request after that budget is exhausted is
-            // bounded below instead of running another local action.
-            if (executedCalls.length >= maximumToolCalls) {
+            if (isFinalizationTurn) {
+              // Defensive guard for custom AgentModel implementations. Native
+              // transports receive an empty tool list during finalization.
               return AgentRunResult(
                 text: '',
                 executedCalls: executedCalls,
                 deniedCalls: deniedCalls,
+                terminationReason: toolCallLimitReached
+                    ? AgentRunTerminationReason.toolCallLimitReached
+                    : AgentRunTerminationReason.modelTurnLimitReached,
               );
             }
             final data = <Map<String, Object?>>[];
+            var executedNewTool = false;
+            var reusedCachedTool = false;
             for (final call in calls) {
               if (_isCancelled) {
                 return _cancelledResult(executedCalls, deniedCalls);
@@ -72,6 +94,7 @@ final class AgentCore {
                 // assistant tool-call batch. Report the budget denial instead
                 // of omitting the call and leaving the session invalid.
                 const reason = 'tool_call_limit_reached';
+                toolCallLimitReached = true;
                 deniedCalls.add(AgentDeniedCall(call: call, reason: reason));
                 data.add({
                   'id': call.id,
@@ -89,6 +112,23 @@ final class AgentCore {
                   'name': call.name,
                   'data': {'error': reason},
                 });
+                continue;
+              }
+              final duplicateKey = deduplicatedToolNames.contains(call.name)
+                  ? _toolCallKey(call)
+                  : null;
+              final cachedResult =
+                  duplicateKey == null ? null : cachedToolResults[duplicateKey];
+              if (cachedResult != null) {
+                // Preserve the call/result pairing expected by native
+                // providers, but do not spend another local action on an
+                // identical read. A duplicate-only turn is finalized below.
+                data.add({
+                  'id': call.id,
+                  'name': call.name,
+                  'data': cachedResult,
+                });
+                reusedCachedTool = true;
                 continue;
               }
               final decision = await _awaitUnlessCancelled(
@@ -116,12 +156,30 @@ final class AgentCore {
               }
               final result = await tool.execute(call);
               executedCalls.add(call);
+              executedNewTool = true;
               if (singleUseToolNames.contains(call.name)) {
                 executedSingleUseTools.add(call.name);
+              }
+              if (duplicateKey != null) {
+                cachedToolResults[duplicateKey] = Map.of(result);
               }
               data.add({'id': call.id, 'name': call.name, 'data': result});
             }
             nextRequest = nextRequest.withToolData(data);
+            if (executedCalls.length >= maximumToolCalls) {
+              toolCallLimitReached = true;
+            }
+            if (toolCallLimitReached || modelTurns >= maximumModelTurns) {
+              // Always reserve one model turn to turn the completed tool data
+              // into a user-facing response. Tool calls are disabled for that
+              // turn so a provider cannot consume another local action.
+              finalizationPending = true;
+            }
+            if (!executedNewTool && reusedCachedTool) {
+              // A model that only repeats already answered reads is stuck;
+              // give it one bounded text-only turn instead of another loop.
+              finalizationPending = true;
+            }
         }
       }
 
@@ -129,6 +187,9 @@ final class AgentCore {
         text: '',
         executedCalls: executedCalls,
         deniedCalls: deniedCalls,
+        terminationReason: toolCallLimitReached
+            ? AgentRunTerminationReason.toolCallLimitReached
+            : AgentRunTerminationReason.modelTurnLimitReached,
       );
     } finally {
       if (model case AgentRunFinalizer finalizer) {
@@ -156,6 +217,7 @@ final class AgentCore {
         text: '',
         executedCalls: executedCalls,
         deniedCalls: deniedCalls,
+        terminationReason: AgentRunTerminationReason.cancelled,
         wasCancelled: true,
       );
 
@@ -170,6 +232,25 @@ final class AgentCore {
       }
     }
   }
+}
+
+String _toolCallKey(AgentToolCall call) =>
+    '${call.name}:${jsonEncode(_canonicalJson(call.arguments))}';
+
+Object? _canonicalJson(Object? value) {
+  if (value is Map) {
+    final entries = value.entries.toList()
+      ..sort(
+          (left, right) => left.key.toString().compareTo(right.key.toString()));
+    return <String, Object?>{
+      for (final entry in entries)
+        entry.key.toString(): _canonicalJson(entry.value),
+    };
+  }
+  if (value is Iterable) {
+    return value.map(_canonicalJson).toList();
+  }
+  return value;
 }
 
 String _defaultSingleUseToolDenialReason(String toolName) =>

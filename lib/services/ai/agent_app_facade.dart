@@ -264,7 +264,7 @@ final class AgentAppFacade {
       runId: runId,
     );
     try {
-      final memories = await _memoryRepository.search(
+      final memories = await _loadMemories(
         ledgerId: ledgerId,
         query: message,
       );
@@ -273,6 +273,7 @@ final class AgentAppFacade {
       logger.debug('AgentCore', '本地记忆已加载', {
         'runId': runId,
         'count': memories.length,
+        'memoryIds': memories.map((memory) => memory.id).toList(),
       });
     } catch (_) {
       // Memory is optional context: a local lookup failure must never turn
@@ -323,6 +324,7 @@ final class AgentAppFacade {
         maximumModelTurns: executionSettings.maximumModelTurns,
         maximumToolCalls: executionSettings.maximumToolCalls,
         singleUseToolNames: const {'record_transaction_from_text'},
+        deduplicatedToolNames: const {'get_transaction_summary'},
         singleUseToolDenialReason: (_) => '同一条消息只能记账一次。',
         cancellationToken: cancellationToken,
       ).run(request);
@@ -345,6 +347,7 @@ final class AgentAppFacade {
         'runId': runId,
         'executedToolCalls': result.executedCalls.length,
         'deniedToolCalls': result.deniedCalls.length,
+        'terminationReason': result.terminationReason.name,
         'hasFinalText': result.text.isNotEmpty,
         'finalText': result.text,
       });
@@ -462,6 +465,35 @@ final class AgentAppFacade {
         'stackTrace': stackTrace.toString(),
       });
     }
+  }
+
+  /// Retrieves lexical matches first, then fills the bounded context with
+  /// recent active memories. A user may ask an equivalent question (for
+  /// example, “我是谁”) that shares no exact words with the saved memory
+  /// (“用户的身份是笑”), so query-only retrieval would incorrectly report an
+  /// empty memory context.
+  Future<List<AgentMemoryRecord>> _loadMemories({
+    required int ledgerId,
+    required String query,
+  }) async {
+    const maxMemories = 6;
+    final matched = await _memoryRepository.search(
+      ledgerId: ledgerId,
+      query: query,
+    );
+    if (matched.length >= maxMemories) {
+      return matched.take(maxMemories).toList(growable: false);
+    }
+
+    final recent = await _memoryRepository.listActive(ledgerId: ledgerId);
+    final byId = <int, AgentMemoryRecord>{
+      for (final memory in matched) memory.id: memory,
+    };
+    for (final memory in recent) {
+      byId.putIfAbsent(memory.id, () => memory);
+      if (byId.length >= maxMemories) break;
+    }
+    return byId.values.toList(growable: false);
   }
 
   Map<String, AgentTool> _observedTools(

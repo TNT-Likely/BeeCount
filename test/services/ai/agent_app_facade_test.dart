@@ -132,7 +132,8 @@ void main() {
     expect(response.text, 'Created 1 transaction.');
   });
 
-  test('uses the locally selected model-turn limit for an Agent run', () async {
+  test('uses the locally selected model-turn limit and still finalizes',
+      () async {
     final facade = AgentAppFacade(
       memoryRepository: LocalAgentMemoryRepository(db),
       toolGateway: gateway,
@@ -148,7 +149,7 @@ void main() {
 
     final response = await facade.processMessage(message: '测试', ledgerId: 1);
 
-    expect(response.response.text, '这次操作步骤过多，请简化后重试。');
+    expect(response.response.text, '不应请求第三轮');
   });
 
   test('a fragmented native record tool call reaches the local tool', () async {
@@ -275,6 +276,28 @@ void main() {
 
     expect(model.request!.context['memories'], ['咖啡默认用微信支付']);
     expect(model.request!.context['currentTime'], isA<String>());
+  });
+
+  test('loads recent local memories when the user asks an equivalent question',
+      () async {
+    final memory = LocalAgentMemoryRepository(db);
+    await memory.saveExplicit(const AgentMemoryDraft(
+      ledgerId: 1,
+      kind: 'explicit',
+      content: '用户的身份是笑',
+    ));
+    final model = _CapturingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: memory,
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: model,
+      runIdFactory: () => 'run-memory-recall',
+    );
+
+    await facade.processMessage(message: '我是谁', ledgerId: 1);
+
+    expect(model.request!.context['memories'], ['用户的身份是笑']);
   });
 
   test('loads bounded conversation history into the Agent request context',
@@ -1176,8 +1199,11 @@ final class _FakeGateway implements LocalAgentToolGateway {
     required String groupBy,
     required String categoryLevel,
     required List<int> categoryIds,
+    required List<String> categoryNames,
     required List<int> tagIds,
+    required List<String> tagNames,
     required List<int> accountIds,
+    required List<String> accountNames,
     required bool includeExcludedFromStats,
     required int groupLimit,
   }) async =>

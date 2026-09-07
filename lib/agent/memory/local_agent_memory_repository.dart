@@ -104,7 +104,7 @@ final class LocalAgentMemoryRepository implements AgentMemoryRepository {
           ..where(
             (memory) =>
                 memory.status.equals('active') &
-                memory.ledgerId.equals(ledgerId) &
+                (memory.ledgerId.isNull() | memory.ledgerId.equals(ledgerId)) &
                 (memory.expiresAt.isNull() |
                     memory.expiresAt.isBiggerThanValue(now)),
           )

@@ -52,6 +52,26 @@ void main() {
     expect(transport.requests.last.toolResults.single.content, '{"total":8}');
   });
 
+  test('native model preserves the finalization flag with streaming context',
+      () async {
+    final transport = _FakeTransport([
+      const AgentNativeModelResponse.finalText('done'),
+    ]);
+    final model = NativeToolAgentModel(
+      transport: transport,
+      promptBuilder: (request) => request.text,
+    );
+    final request = AgentRequest(
+      text: 'finish',
+      scope: const AgentScope(id: 'run-finalization'),
+      allowToolCalls: false,
+    ).withStreamingTextDeltas((_) {});
+
+    await model.nextTurn(request);
+
+    expect(transport.requests.single.allowToolCalls, isFalse);
+  });
+
   test('openai-compatible transport aggregates SSE tool fragments', () async {
     final transport = OpenAiCompatibleNativeToolTransport(
       systemPrompt: 'system',
@@ -103,6 +123,114 @@ void main() {
     final call = (response as AgentNativeToolCallsResponse).calls.single;
     expect(call.name, 'read_report');
     expect(call.arguments, {'range': 'month'});
+  });
+
+  test('finalization request sends no tool definitions to the provider',
+      () async {
+    List<Map<String, dynamic>>? sentTools;
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      toolStream: ({required messages, required tools, logTag}) {
+        sentTools = tools;
+        return Stream<Map<String, dynamic>>.value({
+          'choices': [
+            {
+              'delta': {'content': 'done'},
+              'finish_reason': 'stop',
+            },
+          ],
+        });
+      },
+    );
+
+    await transport.complete(
+      AgentNativeToolRequest(
+        runId: 'finalization',
+        userPrompt: 'show',
+        toolResults: const [],
+        allowToolCalls: false,
+      ),
+    );
+
+    expect(sentTools, isEmpty);
+  });
+
+  test('finalization request tells text-only providers not to emit tool markup',
+      () async {
+    List<Map<String, dynamic>>? sentMessages;
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      toolStream: ({required messages, required tools, logTag}) {
+        sentMessages = messages;
+        return Stream<Map<String, dynamic>>.value({
+          'choices': [
+            {
+              'delta': {'content': 'done'},
+              'finish_reason': 'stop',
+            },
+          ],
+        });
+      },
+    );
+
+    await transport.complete(
+      AgentNativeToolRequest(
+        runId: 'finalization-instruction',
+        userPrompt: 'show',
+        toolResults: const [],
+        allowToolCalls: false,
+      ),
+    );
+
+    expect(sentMessages, isNotNull);
+    expect(sentMessages!.last['role'], 'user');
+    expect(
+      sentMessages!.last['content'],
+      contains('不得输出任何工具调用标记'),
+    );
+  });
+
+  test('finalization retries and hides a gateway DSML response', () async {
+    var invocations = 0;
+    final streamedText = <String>[];
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      toolStream: ({required messages, required tools, logTag}) {
+        invocations += 1;
+        final text = invocations == 1
+            ? '<｜DSML｜tool_calls><｜DSML｜invoke name="read_report"></｜DSML｜invoke></｜DSML｜tool_calls>'
+            : '根据结果，查询已完成。';
+        return Stream<Map<String, dynamic>>.value({
+          'choices': [
+            {
+              'delta': {'content': text},
+              'finish_reason': 'stop',
+            },
+          ],
+        });
+      },
+    );
+
+    final response = await transport.complete(
+      AgentNativeToolRequest(
+        runId: 'finalization-dsml',
+        userPrompt: 'show',
+        toolResults: const [],
+        allowToolCalls: false,
+      ),
+      onEvent: (event) {
+        if (event case AgentNativeTextDelta(:final text)) {
+          streamedText.add(text);
+        }
+      },
+    );
+
+    expect(invocations, 2);
+    expect((response as AgentNativeFinalTextResponse).text, '根据结果，查询已完成。');
+    expect(streamedText, isEmpty);
   });
 
   test('disposing a run drops its unfinished native tool session', () async {
