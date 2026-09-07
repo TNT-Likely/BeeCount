@@ -60,6 +60,7 @@ class FakeBeeCountCloudAuthService extends BeeCountCloudAuthService {
 class FakeBeeCountCloudStorageService implements CloudStorageService {
   final Map<String, String> _files = {};
   final Map<String, Map<String, String>?> _metadata = {};
+  int listCallCount = 0;
 
   /// 测试 helper:模拟 server 端账本列表(`storage.list(path: '')` 返回)
   final List<CloudFile> ledgerSnapshots = [];
@@ -88,6 +89,7 @@ class FakeBeeCountCloudStorageService implements CloudStorageService {
 
   @override
   Future<List<CloudFile>> list({required String path}) async {
+    listCallCount++;
     // 测试关注的是"远端账本列表",由 [ledgerSnapshots] 控制
     return List.unmodifiable(ledgerSnapshots);
   }
@@ -146,6 +148,8 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
 
   /// 控制 storage.list 是否抛错
   Exception? storageListError;
+
+  int get storageListCallCount => _fakeStorage.listCallCount;
 
   final StreamController<BeeCountCloudRealtimeEvent> _realtimeController =
       StreamController<BeeCountCloudRealtimeEvent>.broadcast();

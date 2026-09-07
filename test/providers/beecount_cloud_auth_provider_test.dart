@@ -27,10 +27,19 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final provider = await container.read(beecountCloudProviderInstance.future);
-    final auth = await container.read(authServiceProvider.future);
+    // 真机上 Mine/云服务页会先 watch UI auth，同步引擎随后
+    // eager-load provider。主线在这个顺序下会各自创建一套 auth。
+    final authFuture = container.read(authServiceProvider.future);
+    final providerFuture = container.read(beecountCloudProviderInstance.future);
+
+    final auth = await authFuture;
+    final provider = await providerFuture;
 
     expect(provider, isNotNull);
-    expect(identical(auth, provider!.auth), isTrue);
+    expect(
+      identical(auth, provider!.auth),
+      isTrue,
+      reason: 'UI 与同步引擎不应持有两套独立 session',
+    );
   });
 }

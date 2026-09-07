@@ -1883,14 +1883,17 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
             break;
 
           case CloudBackendType.beecountCloud:
-            // BeeCount Cloud 连接测试 - 调用健康检查接口
+            // BeeCount Cloud 连接测试必须复用当前同步引擎的 provider。
+            // 单独 createCloudServices 会再创建一套 auth/session，2FA 登录
+            // 后可能与主实例分裂，并触发额外的静默登录。
             try {
-              final services = await createCloudServices(config);
-              if (services.provider == null) {
+              final provider =
+                  await ref.read(beecountCloudProviderInstance.future);
+              if (provider == null) {
                 throw Exception('BeeCount Cloud provider 初始化失败');
               }
               // 尝试列出文件验证连接
-              await services.provider!.storage.list(path: '');
+              await provider.storage.list(path: '');
               connectionSuccess = true;
             } catch (e) {
               String errorMsg = e.toString();
