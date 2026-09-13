@@ -3,6 +3,7 @@ import 'package:flutter_cloud_sync/flutter_cloud_sync.dart'
     hide SyncStatus;
 
 import '../../providers/database_providers.dart';
+import '../../providers/sync_providers.dart' show activeCloudServicesProvider;
 import 'change_tracker.dart';
 import 'sync_engine.dart';
 
@@ -23,6 +24,13 @@ final changeTrackerProvider = Provider<ChangeTracker>((ref) {
 /// 装配 callback 后才启动,但 dispose 由 Riverpod GC family entry 时统一触发。
 final syncEngineProvider = Provider.family<SyncEngine, BeeCountCloudProvider>(
   (ref, provider) {
+    // Loading with the same previous value is not a new session.
+    final session = ref.watch(activeCloudServicesProvider.select(
+        (value) => value.valueOrNull));
+    if (session == null || session.isClosed ||
+        !identical(session.services.provider, provider)) {
+      throw StateError('SyncEngine requires the active cloud session');
+    }
     final db = ref.watch(databaseProvider);
     final tracker = ref.watch(changeTrackerProvider);
     final repo = ref.watch(repositoryProvider);
@@ -32,7 +40,11 @@ final syncEngineProvider = Provider.family<SyncEngine, BeeCountCloudProvider>(
       changeTracker: tracker,
       repo: repo,
     );
-    ref.onDispose(() => engine.dispose());
+    final unregister = session.onClose(engine.dispose);
+    ref.onDispose(() {
+      unregister();
+      engine.dispose();
+    });
     return engine;
   },
 );

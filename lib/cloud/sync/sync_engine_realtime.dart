@@ -8,6 +8,7 @@ part of 'sync_engine.dart';
 extension SyncEngineRealtime on SyncEngine {
   /// 开始监听 WebSocket 实时事件，收到变更通知时自动触发 pull
   void startListeningRealtime() {
+    if (_disposed) return;
     _realtimeSubscription?.cancel();
     // 启动 WebSocket 连接，否则 realtimeEvents 流永远为空
     provider.startRealtime().catchError((e) {
@@ -66,6 +67,7 @@ extension SyncEngineRealtime on SyncEngine {
   /// 2 秒防抖：WiFi ↔ 移动网络切换、或 WS reconnect 接着 connectivity 事件
   /// 这种"连续上线信号"只触发 1 次 sync。
   void _scheduleAutoSync({required String reason}) {
+    if (_disposed) return;
     _autoSyncDebounce?.cancel();
     _autoSyncDebounce = Timer(const Duration(seconds: 2), () async {
       if (_autoSyncing) {
@@ -617,6 +619,7 @@ extension SyncEngineRealtime on SyncEngine {
 
   /// 防抖调度 pull（1 秒内多次触发只执行一次）
   void _schedulePull(String? ledgerId) {
+    if (_disposed) return;
     _pullDebounce?.cancel();
     _pullDebounce = Timer(const Duration(seconds: 1), () async {
       if (_autoPulling) return;

@@ -15,12 +15,14 @@ extension SyncEngineProfile on SyncEngine {
   /// PR 3:不再接 callback,所有字段更新走 [events] stream emit
   /// `ProfileFieldApplied` 事件,UI 通过 syncEventStreamProvider 订阅处理。
   Future<bool> syncMyProfile() async {
+    if (_disposed) return false;
     final localVersion = await AvatarService.getStoredRemoteVersion();
     logger.info('avatar_sync',
         'syncMyProfile start, localVersion=$localVersion');
     bool anyChanged = false;
     try {
       final profile = await provider.getMyProfile();
+      if (_disposed) return false;
 
       // === theme_primary_color ===
       final theme = profile.themePrimaryColor;
@@ -87,6 +89,7 @@ extension SyncEngineProfile on SyncEngine {
         userId: profile.userId,
         version: remoteVersion > 0 ? remoteVersion : null,
       );
+      if (_disposed) return false;
       logger.info('avatar_sync', 'downloaded size=${bytes.length}B');
       await AvatarService.saveAvatarFromBytes(bytes);
       await AvatarService.setStoredRemoteVersion(remoteVersion);

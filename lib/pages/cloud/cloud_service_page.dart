@@ -1809,6 +1809,15 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       String? errorDetail;
 
       try {
+        if (config.type == CloudBackendType.beecountCloud ||
+            config.type == CloudBackendType.s3) {
+          final active = ref.read(activeCloudServicesProvider);
+          // Retry initialization errors only. Keep healthy sessions and an
+          // already-running initialization shared with all other consumers.
+          if (active.hasError && !active.isLoading) {
+            ref.invalidate(activeCloudServicesProvider);
+          }
+        }
         switch (config.type) {
           case CloudBackendType.local:
             break;
@@ -1883,14 +1892,15 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
             break;
 
           case CloudBackendType.beecountCloud:
-            // BeeCount Cloud 连接测试 - 调用健康检查接口
+            // 已激活服务的认证与连接测试共用会话。
             try {
-              final services = await createCloudServices(config);
-              if (services.provider == null) {
+              final session = await ref.read(activeCloudServicesProvider.future);
+              final provider = session.services.provider;
+              if (provider == null) {
                 throw Exception('BeeCount Cloud provider 初始化失败');
               }
               // 尝试列出文件验证连接
-              await services.provider!.storage.list(path: '');
+              await provider.storage.list(path: '');
               connectionSuccess = true;
             } catch (e) {
               String errorMsg = e.toString();
@@ -1919,7 +1929,8 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
 
               logger.info('CloudServicePage', 'S3 连接测试开始: endpoint=${cleanedConfig.s3Endpoint}, bucket=${cleanedConfig.s3Bucket}');
 
-              final services = await createCloudServices(cleanedConfig);
+              final session = await ref.read(activeCloudServicesProvider.future);
+              final services = session.services;
 
               logger.info('CloudServicePage', 'S3 provider 创建结果: ${services.provider != null ? "成功" : "失败"}');
 

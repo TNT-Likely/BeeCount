@@ -126,8 +126,9 @@ class BeeCountCloudProvider implements CloudProvider {
       baseUrl: baseUrl,
       apiPrefix: apiPrefix,
       twoFactorHandler: BeeCountCloudProvider.globalTwoFactorHandler,
+      persistSession: config['persistSession'] != false,
     );
-    await authService.initialize();
+    await authService.initialize(expectedEmail: config['email'] as String?);
 
     _auth = authService;
     final storage = BeeCountCloudStorageService(
@@ -1119,6 +1120,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
     required this.apiPrefix,
     http.Client? httpClient,
     TwoFactorChallengeHandler? twoFactorHandler,
+    this.persistSession = true,
   })  : _httpClient = httpClient ?? http.Client(),
         _twoFactorHandler = twoFactorHandler;
 
@@ -1126,6 +1128,8 @@ class BeeCountCloudAuthService implements CloudAuthService {
   final String apiPrefix;
   final http.Client _httpClient;
   final TwoFactorChallengeHandler? _twoFactorHandler;
+  final bool persistSession;
+  bool _disposed = false;
 
   final StreamController<CloudUser?> _authStateController =
       StreamController<CloudUser?>.broadcast();
@@ -1174,7 +1178,8 @@ class BeeCountCloudAuthService implements CloudAuthService {
     return 'beecount_cloud_local_device_id_$digest';
   }
 
-  Future<void> initialize() async {
+  Future<void> initialize({String? expectedEmail}) async {
+    if (!persistSession) return;
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_sessionStorageKey);
     if (raw == null || raw.isEmpty) {
@@ -1183,7 +1188,11 @@ class BeeCountCloudAuthService implements CloudAuthService {
 
     try {
       final json = jsonDecode(raw) as Map<String, dynamic>;
-      _session = _BeeCountCloudSession.fromJson(json);
+      final saved = _BeeCountCloudSession.fromJson(json);
+      final email = expectedEmail?.trim().toLowerCase();
+      if (email != null && email.isNotEmpty &&
+          saved.email?.trim().toLowerCase() != email) return;
+      _session = saved;
       if (_isAccessTokenExpired(_session!)) {
         await _refreshSessionOrClear();
       } else {
@@ -1199,6 +1208,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
 
   @override
   Future<CloudUser?> get currentUser async {
+    if (_disposed) return null;
     final session = _session;
     if (session == null) {
       // 完全没 session(从没登过 / session 被清了):只有带了恢复凭证才尝试
@@ -1218,6 +1228,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
   }
 
   Future<String> requireAccessToken() async {
+    if (_disposed) throw CloudNotAuthenticatedException('Cloud session closed');
     final session = _session;
     if (session == null) {
       final recovered = await _tryRecoveryLogin();
@@ -1495,6 +1506,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
   }
 
   Future<String> _resolveOrCreateLocalDeviceId() async {
+    if (!persistSession) return _generateLocalDeviceId();
     final prefs = await SharedPreferences.getInstance();
     final existing = _trimOrNull(prefs.getString(_localDeviceIdStorageKey));
     if (existing != null) {
@@ -1594,6 +1606,8 @@ class BeeCountCloudAuthService implements CloudAuthService {
   }
 
   void dispose() {
+    if (_disposed) return;
+    _disposed = true;
     _authStateController.close();
     _httpClient.close();
   }
@@ -1746,12 +1760,16 @@ class BeeCountCloudAuthService implements CloudAuthService {
   }
 
   Future<void> _saveSession(_BeeCountCloudSession session) async {
+    if (_disposed) throw CloudNotAuthenticatedException('Cloud session closed');
     _session = session;
     // 任何成功登录路径都清掉静默恢复冷却,避免之前的失败状态拖到现在。
     _silentRecoveryCooldownUntil = null;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_sessionStorageKey, jsonEncode(session.toJson()));
-    await prefs.setString(_localDeviceIdStorageKey, session.deviceId);
+    if (persistSession) {
+      final prefs = await SharedPreferences.getInstance();
+      if (_disposed) throw CloudNotAuthenticatedException('Cloud session closed');
+      await prefs.setString(_sessionStorageKey, jsonEncode(session.toJson()));
+      await prefs.setString(_localDeviceIdStorageKey, session.deviceId);
+    }
     final metadata = _deviceMetadataCache;
     if (metadata != null && metadata.deviceId != session.deviceId) {
       _deviceMetadataCache = _BeeCountDeviceMetadata(
@@ -1767,13 +1785,17 @@ class BeeCountCloudAuthService implements CloudAuthService {
   }
 
   Future<void> _clearSession() async {
+    if (_disposed) return;
     _session = null;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_sessionStorageKey);
-    _authStateController.add(null);
+    if (persistSession) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_sessionStorageKey);
+    }
+    if (!_disposed) _authStateController.add(null);
   }
 
   void _emitCurrentUser() {
+    if (_disposed) return;
     final session = _session;
     if (session == null) {
       _authStateController.add(null);
@@ -1805,6 +1827,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
     Map<String, dynamic>? body,
     String? accessToken,
   }) async {
+    if (_disposed) throw CloudNotAuthenticatedException('Cloud session closed');
     final uri = Uri.parse('$baseUrl$apiPrefix$path');
     final request = http.Request(method, uri);
     request.headers['Content-Type'] = 'application/json';
