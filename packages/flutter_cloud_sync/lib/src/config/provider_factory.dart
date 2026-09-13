@@ -19,8 +19,9 @@ import 'cloud_service_config.dart';
 /// - Supabase: 使用独立包内的初始化逻辑
 /// - WebDAV: 创建新的 WebDAV provider
 Future<({CloudProvider? provider, CloudAuthService? auth})> createCloudServices(
-  CloudServiceConfig config,
-) async {
+  CloudServiceConfig config, {
+  bool persistSession = true,
+}) async {
   if (!config.valid) {
     return (provider: null, auth: null);
   }
@@ -34,6 +35,8 @@ Future<({CloudProvider? provider, CloudAuthService? auth})> createCloudServices(
       await provider.initialize({
         'baseUrl': config.beecountCloudBaseUrl!,
         'apiPrefix': config.beecountCloudApiPrefix ?? '/api/v1',
+        'persistSession': persistSession,
+        'email': config.beecountCloudEmail,
       });
       return (provider: provider, auth: provider.auth);
 
@@ -88,7 +91,7 @@ Future<({CloudProvider? provider, CloudAuthService? auth})> createCloudServices(
       // S3 初始化 - 不捕获异常，让错误向上传递以便调试
       final provider = S3Provider();
       await provider.initialize({
-        'endpoint': config.s3Endpoint!,
+        'endpoint': config.s3Endpoint!.replaceFirst(RegExp(r'^https?://'), ''),
         'region': config.s3Region ?? 'us-east-1',
         'accessKey': config.s3AccessKey!,
         'secretKey': config.s3SecretKey!,

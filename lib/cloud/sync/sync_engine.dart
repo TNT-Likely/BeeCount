@@ -78,6 +78,7 @@ class SyncEngine implements app.SyncService {
   /// 状态缓存
   final Map<int, app.SyncStatus> _statusCache = {};
   bool _localChanged = false;
+  bool _disposed = false;
 
   /// WebSocket 实时监听
   StreamSubscription<BeeCountCloudRealtimeEvent>? _realtimeSubscription;
@@ -361,6 +362,9 @@ class SyncEngine implements app.SyncService {
 
   /// 释放资源
   void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    ledgerIdResolver = null;
     stopListeningRealtime();
     _eventsController.close();
   }
@@ -369,6 +373,7 @@ class SyncEngine implements app.SyncService {
 
   /// 执行完整同步（先 push 后 pull）
   Future<SyncResult> sync({required String ledgerId}) async {
+    if (_disposed) return const SyncResult(error: 'Cloud session closed');
     logger.info('SyncEngine', '开始同步 ledger=$ledgerId');
     try {
       final ledgerIdInt = int.tryParse(ledgerId) ?? -1;
@@ -532,14 +537,11 @@ class SyncEngine implements app.SyncService {
   /// 此时设备全局 cursor 可能已经前移、普通 `_pull` 再也拉不回历史。
   ///
   /// 返回新增（非已存在）的账本数，调用方可据此决定要不要 bump 刷新信号。
-  /// 并发互斥锁 — **static** 跨 SyncEngine 实例共享。
-  /// 关键 bug:join page 拿 syncEngineProvider(family) 的 engine,WS listener
-  /// 拿 cloudSyncServiceProvider 创建的 engine,两个不同 instance!instance-level
-  /// 字段互不知道,各跑各的。改 static 后整个进程同一时间只有一个 fetch-then-write
-  /// 在跑。
-  static Completer<int>? _syncLedgersInFlight;
+  /// 同一会话共用一个 engine；切换会话不能复用旧服务器的 in-flight 结果。
+  Completer<int>? _syncLedgersInFlight;
 
   Future<int> syncLedgersFromServer() async {
+    if (_disposed) throw StateError('Cloud session closed');
     final existing = _syncLedgersInFlight;
     if (existing != null) {
       logger.info('SyncEngine', 'syncLedgersFromServer 已在执行中,等待 in-flight 结果');
@@ -563,6 +565,7 @@ class SyncEngine implements app.SyncService {
     logger.info('SyncEngine', 'syncLedgersFromServer start');
     try {
       final remote = await provider.readLedgers();
+      if (_disposed) return 0;
       int upserted = 0;
       int inserted = 0;
       // 新设备登录场景:Editor 已是 server LedgerMember 但本地 ledgers 表为空。
@@ -572,6 +575,7 @@ class SyncEngine implements app.SyncService {
       // 也会让单个失败影响其它账本。
       final newSharedLedgerSyncIds = <String>[];
       for (final r in remote) {
+        if (_disposed) return inserted;
         final syncId = r.ledgerId;
         if (syncId.isEmpty) continue;
         // 用 get() 不用 getSingleOrNull() — 历史可能已经产生过同 syncId 多行
@@ -711,6 +715,7 @@ class SyncEngine implements app.SyncService {
   /// 否则单飞失效。这俩内部应该只处理 ledger-scope change(transaction / budget /
   /// ledger / ledger_snapshot)。
   Future<int> pushUserGlobalEntities() async {
+    if (_disposed) throw StateError('Cloud session closed');
     final inFlight = _userGlobalPushInFlight;
     if (inFlight != null) {
       logger.info('SyncEngine', 'pushUserGlobalEntities 已在执行,复用 in-flight');
@@ -904,6 +909,7 @@ class SyncEngine implements app.SyncService {
   /// user-global change(account / category / tag)由 [pushUserGlobalEntities] 统一推
   /// (在 [_doPush] 开头调用),避免多账本场景下并行 push 重复推送 user-global。
   Future<int> push(String ledgerId) async {
+    if (_disposed) throw StateError('Cloud session closed');
     final inFlight = _pushInFlight[ledgerId];
     if (inFlight != null) {
       logger.info('SyncEngine', 'push(ledger=$ledgerId) 已在执行,复用 in-flight');
@@ -1062,6 +1068,7 @@ class SyncEngine implements app.SyncService {
   ///   轮)
   /// - replay(sinceOverride 非 null)语义独立,等 in-flight 完成后再自己跑
   Future<int> pull(String ledgerId, {int? sinceOverride}) async {
+    if (_disposed) throw StateError('Cloud session closed');
     // 1. in-flight 单飞
     final inFlight = _pullInFlight;
     if (inFlight != null) {
@@ -1214,6 +1221,7 @@ class SyncEngine implements app.SyncService {
   /// - SQLite busy/locked → 单条 retry 2 次
   Future<_PullPageOutcome> _applyPullPage(
       List<BeeCountCloudSyncChange> changes) async {
+    if (_disposed) throw StateError('Cloud session closed');
     int applied = 0;
     int skipped = 0;
     BeeCountCloudSyncChange? failingChange;
@@ -1221,6 +1229,7 @@ class SyncEngine implements app.SyncService {
     try {
       await db.transaction(() async {
         for (final ch in changes) {
+          if (_disposed) throw StateError('Cloud session closed');
           failingChange = ch;
           final ok = await _applyOneWithBusyRetry(ch);
           if (ok) {

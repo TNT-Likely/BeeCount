@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:beecount/l10n/app_localizations.dart';
+import 'package:beecount/cloud/cloud_session_manager.dart';
 import 'package:beecount/pages/cloud/cloud_service_page.dart';
 import 'package:beecount/providers/sync_providers.dart';
 
@@ -33,8 +34,8 @@ void main() {
           beecountCloudConfigProvider.overrideWith((ref) async => config),
           webdavConfigProvider.overrideWith((ref) async => null),
           s3ConfigProvider.overrideWith((ref) async => null),
-          beecountCloudProviderInstance
-              .overrideWith((ref) async => fakeProvider),
+          activeCloudServicesProvider.overrideWith((ref) async => CloudSession(
+              config, (provider: fakeProvider, auth: fakeProvider.auth))),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,

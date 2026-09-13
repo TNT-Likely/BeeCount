@@ -11,6 +11,7 @@ import '../services/data_import_service.dart';
 import '../services/system/logger_service.dart';
 import 'sync_diff_service.dart';
 import 'sync_service.dart';
+import 'cloud_session_manager.dart';
 import 'transactions_json.dart';
 
 /// 账本交易的云同步管理器
@@ -20,6 +21,7 @@ class TransactionsSyncManager implements SyncService {
   final fcs.CloudServiceConfig config;
   final BeeDatabase db;
   final BaseRepository repo;
+  final CloudSession session;
 
   fcs.CloudSyncManager<int>? _syncManager;
   fcs.CloudProvider? _provider;
@@ -34,6 +36,7 @@ class TransactionsSyncManager implements SyncService {
     required this.config,
     required this.db,
     required this.repo,
+    required this.session,
   });
 
   @override
@@ -47,6 +50,7 @@ class TransactionsSyncManager implements SyncService {
 
   /// 确保服务已初始化（延迟初始化）
   Future<void> _ensureInitialized() async {
+    if (session.isClosed) throw StateError('Cloud session closed');
     if (_isInitialized) return;
     if (_isInitializing) {
       // 等待初始化完成
@@ -67,7 +71,7 @@ class TransactionsSyncManager implements SyncService {
 
   /// 初始化 CloudProvider 和 SyncManager
   Future<void> _initialize() async {
-    final services = await fcs.createCloudServices(config);
+    final services = session.services;
     _provider = services.provider;
 
     if (_provider == null) {

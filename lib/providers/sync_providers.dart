@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' hide SyncStatus;
 import '../cloud/sync_service.dart';
+import '../cloud/cloud_session_manager.dart';
 import 'shared_ledger_providers.dart';
 import '../cloud/sync/sync_coordinator.dart';
 import '../cloud/sync/sync_engine.dart';
@@ -144,30 +145,26 @@ final s3ConfigProvider = FutureProvider<CloudServiceConfig?>((ref) async {
   return store.loadS3();
 });
 
-final authServiceProvider = FutureProvider<CloudAuthService>((ref) async {
+/// Owns services across projection rebuilds and configuration switches.
+final cloudSessionManagerProvider = Provider<CloudSessionManager>((ref) {
+  final manager = CloudSessionManager();
+  ref.onDispose(() => unawaited(manager.dispose().catchError(
+      (Object e, StackTrace st) => logger.warning('CloudSession', 'Dispose failed: $e', st))));
+  return manager;
+});
+
+final activeCloudServicesProvider = FutureProvider<CloudSession>((ref) async {
+  final manager = ref.watch(cloudSessionManagerProvider);
+  var cancelled = false;
+  ref.onDispose(() => cancelled = true);
   final config = await ref.watch(activeCloudConfigProvider.future);
-  if (!config.valid || config.type == CloudBackendType.local) {
-    return NoopAuthService();
-  }
+  if (cancelled) throw StateError('Cloud configuration changed');
+  return manager.activate(config);
+});
 
-  try {
-    // BeeCount Cloud 必须复用同步引擎持有的唯一 provider/auth 实例。
-    // 多个实例虽然共用 SharedPreferences，却各自缓存 session；这会让 2FA
-    // 登录成功后同步实例仍停留在未登录状态。
-    if (config.type == CloudBackendType.beecountCloud) {
-      final provider = await ref.watch(beecountCloudProviderInstance.future);
-      return provider?.auth ?? NoopAuthService();
-    }
-
-    final services = await createCloudServices(config);
-    if (services.auth != null) {
-      return services.auth!;
-    }
-  } catch (e) {
-    // 初始化失败，返回 NoopAuthService
-  }
-
-  return NoopAuthService();
+final authServiceProvider = FutureProvider<CloudAuthService>((ref) async {
+  final session = await ref.watch(activeCloudServicesProvider.future);
+  return session.services.auth ?? NoopAuthService();
 });
 
 // 防重入锁：避免 Provider 重建导致多个自动同步并发执行
@@ -175,7 +172,7 @@ bool _autoSyncInProgress = false;
 
 final syncServiceProvider = Provider<SyncService>((ref) {
   final activeAsync = ref.watch(activeCloudConfigProvider);
-  if (!activeAsync.hasValue) return LocalOnlySyncService();
+  if (activeAsync.isLoading || !activeAsync.hasValue) return LocalOnlySyncService();
 
   final config = activeAsync.value!;
   if (!config.valid || config.type == CloudBackendType.local) {
@@ -185,7 +182,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   // BeeCount Cloud → SyncEngine（增量同步）
   if (config.type == CloudBackendType.beecountCloud) {
     final providerAsync = ref.watch(beecountCloudProviderInstance);
-    if (!providerAsync.hasValue || providerAsync.value == null) {
+    if (providerAsync.isLoading || !providerAsync.hasValue || providerAsync.value == null) {
       // Provider 尚未初始化，返回 LocalOnly 等待
       return LocalOnlySyncService();
     }
@@ -488,57 +485,21 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   // 其他 provider → TransactionsSyncManager（快照同步）
   final db = ref.watch(databaseProvider);
   final repo = ref.watch(repositoryProvider);
-  return TransactionsSyncManager(config: config, db: db, repo: repo);
+  final servicesAsync = ref.watch(activeCloudServicesProvider);
+  if (servicesAsync.isLoading) return LocalOnlySyncService();
+  final session = servicesAsync.valueOrNull;
+  if (session == null || session.isClosed) return LocalOnlySyncService();
+  return TransactionsSyncManager(config: config, db: db, repo: repo,
+      session: session);
 });
 
 /// 已初始化的 BeeCountCloudProvider 实例
 /// 用于 SyncEngine 和其他需要直接访问 BeeCount Cloud API 的场景
 final beecountCloudProviderInstance =
     FutureProvider<BeeCountCloudProvider?>((ref) async {
-  final config = await ref.watch(activeCloudConfigProvider.future);
-  if (!config.valid || config.type != CloudBackendType.beecountCloud) {
-    return null;
-  }
-
-  try {
-    final services = await createCloudServices(config);
-    if (services.provider is! BeeCountCloudProvider) return null;
-    final provider = services.provider as BeeCountCloudProvider;
-
-    final email = config.beecountCloudEmail;
-    final password = config.beecountCloudPassword;
-
-    // 把邮密交给 auth service,让它在任何时刻发现 session 失效都能自动重登。
-    // 这是解决"token 过期后必须到配置页点一下才能恢复"的关键:auth service
-    // 内部会在 currentUser / requireAccessToken 触发时尝试恢复,不再等 Provider
-    // 重建。
-    if (services.auth is BeeCountCloudAuthService) {
-      (services.auth as BeeCountCloudAuthService).setRecoveryCredentials(
-        email: email,
-        password: password,
-      );
-    }
-
-    // 双重保险:构造之后也触发一次 currentUser,让 initialize() 没恢复出
-    // session 的场景立刻走一次恢复登录(email+password 有时),减少用户第一次
-    // 操作时的卡顿感。currentUser 内部已经自带 _tryRecoveryLogin。
-    if (services.auth != null) {
-      try {
-        final user = await services.auth!.currentUser;
-        if (user != null) {
-          logger.info('CloudSync', 'BeeCount Cloud session ready: ${user.email}');
-        } else if (email != null && email.isNotEmpty) {
-          logger.info('CloudSync', 'BeeCount Cloud 未登录,等首次 API 触发恢复');
-        }
-      } catch (e, st) {
-        logger.warning('CloudSync', 'BeeCount Cloud 初始 currentUser 失败: $e', st);
-      }
-    }
-    return provider;
-  } catch (e, st) {
-    logger.error('CloudSync', 'BeeCountCloudProvider 初始化失败', e, st);
-  }
-  return null;
+  final session = await ref.watch(activeCloudServicesProvider.future);
+  final provider = session.services.provider;
+  return provider is BeeCountCloudProvider ? provider : null;
 });
 
 /// BeeCount Cloud 服务端版本号。Mine 页面 / 云同步页都能直接用;失败就

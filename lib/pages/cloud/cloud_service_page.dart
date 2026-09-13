@@ -1883,12 +1883,10 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
             break;
 
           case CloudBackendType.beecountCloud:
-            // BeeCount Cloud 连接测试必须复用当前同步引擎的 provider。
-            // 单独 createCloudServices 会再创建一套 auth/session，2FA 登录
-            // 后可能与主实例分裂，并触发额外的静默登录。
+            // 已激活服务的认证与连接测试共用会话。
             try {
-              final provider =
-                  await ref.read(beecountCloudProviderInstance.future);
+              final session = await ref.read(activeCloudServicesProvider.future);
+              final provider = session.services.provider;
               if (provider == null) {
                 throw Exception('BeeCount Cloud provider 初始化失败');
               }
@@ -1922,7 +1920,8 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
 
               logger.info('CloudServicePage', 'S3 连接测试开始: endpoint=${cleanedConfig.s3Endpoint}, bucket=${cleanedConfig.s3Bucket}');
 
-              final services = await createCloudServices(cleanedConfig);
+              final session = await ref.read(activeCloudServicesProvider.future);
+              final services = session.services;
 
               logger.info('CloudServicePage', 'S3 provider 创建结果: ${services.provider != null ? "成功" : "失败"}');
 
