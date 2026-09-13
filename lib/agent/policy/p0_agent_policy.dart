@@ -28,7 +28,7 @@ final class P0AgentPolicy implements AgentPolicy {
 
   static const _readTools = {
     'query_transactions',
-    'get_spending_summary',
+    'get_transaction_summary',
     'get_budget_status',
     'get_recurring_transactions',
   };

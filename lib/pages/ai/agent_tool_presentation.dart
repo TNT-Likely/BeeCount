@@ -13,6 +13,7 @@ final class AgentToolPresentation {
       switch (toolName) {
         'query_transactions' => l10n.agentToolQueryTransactions,
         'get_spending_summary' => l10n.agentToolSpendingSummary,
+        'get_transaction_summary' => l10n.agentToolTransactionSummary,
         'get_budget_status' => l10n.agentToolBudgetStatus,
         'get_recurring_transactions' => l10n.agentToolRecurringTransactions,
         'record_transaction_from_text' => l10n.agentToolRecordTransaction,
@@ -25,6 +26,8 @@ final class AgentToolPresentation {
       switch (toolName) {
         'query_transactions' => l10n.agentToolQueryTransactionsDescription,
         'get_spending_summary' => l10n.agentToolSpendingSummaryDescription,
+        'get_transaction_summary' =>
+          l10n.agentToolTransactionSummaryDescription,
         'get_budget_status' => l10n.agentToolBudgetStatusDescription,
         'get_recurring_transactions' =>
           l10n.agentToolRecurringTransactionsDescription,
@@ -49,18 +52,51 @@ final class AgentToolPresentation {
     }
 
     if (toolName == 'query_transactions' ||
-        toolName == 'get_spending_summary') {
+        toolName == 'get_spending_summary' ||
+        toolName == 'get_transaction_summary') {
       final start = arguments['start'];
       final end = arguments['end'];
+      final result = <({String label, String value})>[];
       if (start is String || end is String) {
-        return [
+        result.add(
           (
             label: l10n.agentAuthorizationTimeRange,
             value: '${start ?? '—'} – ${end ?? '—'}',
           ),
-        ];
+        );
       }
-      return const [];
+      if (toolName == 'get_transaction_summary') {
+        final types = arguments['types'];
+        if (types is List && types.whereType<String>().isNotEmpty) {
+          result.add(
+            (
+              label: l10n.agentAuthorizationSummaryTypes,
+              value: types.whereType<String>().join(', '),
+            ),
+          );
+        }
+        final groupBy = arguments['groupBy'];
+        if (groupBy is String && groupBy.isNotEmpty) {
+          result.add(
+            (
+              label: l10n.agentAuthorizationSummaryGroupBy,
+              value: groupBy,
+            ),
+          );
+        }
+        for (final key in const ['categoryIds', 'tagIds', 'accountIds']) {
+          final ids = arguments[key];
+          if (ids is List && ids.whereType<int>().isNotEmpty) {
+            result.add(
+              (
+                label: _argumentLabel(l10n, key),
+                value: ids.whereType<int>().join(', '),
+              ),
+            );
+          }
+        }
+      }
+      return result;
     }
 
     const allowedKeys = {'content', 'memoryId'};
@@ -87,6 +123,9 @@ final class AgentToolPresentation {
       switch (key) {
         'content' => l10n.agentAuthorizationMemoryContent,
         'memoryId' => l10n.agentAuthorizationMemoryId,
+        'categoryIds' => l10n.agentAuthorizationCategoryIds,
+        'tagIds' => l10n.agentAuthorizationTagIds,
+        'accountIds' => l10n.agentAuthorizationAccountIds,
         _ => key,
       };
 

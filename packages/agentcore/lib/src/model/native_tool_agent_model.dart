@@ -41,6 +41,7 @@ final class NativeToolAgentModel implements AgentModel, AgentRunFinalizer {
               runId: request.scope.id,
               userPrompt: isFirstTurn ? promptBuilder(request) : request.text,
               toolResults: _toolResults(request.toolData),
+              allowToolCalls: request.allowToolCalls,
             ),
             onEvent: request.nativeStreamSink,
           )

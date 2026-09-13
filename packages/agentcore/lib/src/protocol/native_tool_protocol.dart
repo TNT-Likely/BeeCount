@@ -51,11 +51,15 @@ final class AgentNativeToolRequest {
     required this.runId,
     required List<AgentNativeToolResult> toolResults,
     required this.userPrompt,
+    this.allowToolCalls = true,
   }) : toolResults = UnmodifiableListView(List.of(toolResults));
 
   final String runId;
   final String userPrompt;
   final List<AgentNativeToolResult> toolResults;
+
+  /// When false, transports must omit the native tool catalog for this turn.
+  final bool allowToolCalls;
 }
 
 sealed class AgentNativeStreamEvent {
@@ -81,6 +85,7 @@ extension AgentRequestNativeStreaming on AgentRequest {
         scope: scope,
         toolData: toolData,
         context: {...context, _streamSinkKey: sink},
+        allowToolCalls: allowToolCalls,
       );
 
   AgentNativeEventSink? get nativeStreamSink =>

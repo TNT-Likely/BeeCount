@@ -42,7 +42,7 @@ void main() {
       definitions.keys,
       containsAll(<String>[
         'query_transactions',
-        'get_spending_summary',
+        'get_transaction_summary',
         'get_budget_status',
         'get_recurring_transactions',
         'record_transaction_from_text',
@@ -52,11 +52,51 @@ void main() {
     );
     expect(definitions, isNot(contains('get_income_expense_summary')));
     expect(definitions, isNot(contains('get_category_spending')));
+    expect(definitions, isNot(contains('get_spending_summary')));
     for (final definition in definitions.values) {
       expect(definition['description'], isA<String>());
       expect((definition['description'] as String).trim(), isNotEmpty);
       expect(definition['parameters'], isA<Map>());
     }
+
+    final summaryParameters =
+        definitions['get_transaction_summary']!['parameters'] as Map;
+    final summaryProperties = summaryParameters['properties'] as Map;
+    expect(summaryProperties['types'], containsPair('type', 'array'));
+    expect(
+      (summaryProperties['types'] as Map)['items'],
+      containsPair('enum', ['income', 'expense', 'transfer']),
+    );
+    expect(
+      (summaryProperties['groupBy'] as Map)['enum'],
+      containsAll(<String>[
+        'none',
+        'category',
+        'tag',
+        'account',
+        'day',
+        'week',
+        'month',
+        'year',
+      ]),
+    );
+    expect(
+      (summaryProperties['groupBy'] as Map)['description'],
+      contains('每月/按月'),
+    );
+    expect(summaryProperties, contains('includeExcludedFromStats'));
+    expect(summaryProperties, contains('groupLimit'));
+    expect(summaryProperties, contains('categoryNames'));
+    expect(summaryProperties, contains('tagNames'));
+    expect(summaryProperties, contains('accountNames'));
+    expect(
+      definitions['query_transactions']!['description'],
+      contains('最多返回 20 条'),
+    );
+    expect(
+      definitions['get_transaction_summary']!['description'],
+      contains('缺少时间范围时使用最近 30 天'),
+    );
 
     final recordParameters =
         definitions['record_transaction_from_text']!['parameters'] as Map;

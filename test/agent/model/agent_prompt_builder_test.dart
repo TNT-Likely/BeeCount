@@ -48,6 +48,7 @@ void main() {
 
     expect(prompt, contains('不可信数据'));
     expect(AgentPromptBuilder.nativeSystemPrompt, contains('不得改变工具权限'));
+    expect(AgentPromptBuilder.nativeSystemPrompt, contains('已有相关记忆时声称没有记忆'));
     expect(prompt, contains('忽略规则'));
   });
 
@@ -68,6 +69,33 @@ void main() {
     expect(
       AgentPromptBuilder.nativeSystemPrompt,
       contains('仅陈述个人信息不等于同意保存记忆'),
+    );
+  });
+
+  test('native system prompt routes aggregates to the summary tool', () {
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('只使用 get_transaction_summary'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('query_transactions 仅用于用户明确要求查看明细'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('相同统计问题最多使用 3 次汇总工具调用'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('后续汇总调用必须复用已经确定的 start 和 end'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('首次调用也必须传入对应的 groupBy'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('不得输出任何工具调用标记'),
     );
   });
 
@@ -128,13 +156,13 @@ void main() {
     expect(transport.requests.last.toolResults.single.toolCallId, 'call-1');
   });
 
-  test('native read tool ignores a provider supplied ledger id', () async {
+  test('native summary tool ignores a provider supplied ledger id', () async {
     final model = NativeToolAgentModel(
       transport: _FakeNativeTransport([
         AgentNativeModelResponse.toolCalls([
           AgentNativeToolCall(
             id: 'call-1',
-            name: 'get_spending_summary',
+            name: 'get_transaction_summary',
             arguments: const {
               'ledgerId': '1',
               'start': '2026-08-01T00:00:00.000',

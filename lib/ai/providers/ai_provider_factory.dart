@@ -90,16 +90,25 @@ class AIProviderFactory {
         '发起原生工具流式对话 (${config.name}, 模型: ${config.textModel})');
     final dio = _getDio(config);
     try {
+      final payload = <String, Object?>{
+        'model': config.textModel,
+        'messages': messages,
+        'temperature': 0.1,
+        'stream': true,
+      };
+      // Keep an explicit no-tool choice during finalization. DeepSeek-compatible
+      // gateways may otherwise emit their textual DSML tool markup when a
+      // previous turn contained tool calls but the next request omits the
+      // catalog entirely.
+      if (tools.isNotEmpty) {
+        payload['tools'] = tools;
+        payload['tool_choice'] = 'auto';
+      } else {
+        payload['tool_choice'] = 'none';
+      }
       final response = await dio.post<ResponseBody>(
         '/chat/completions',
-        data: {
-          'model': config.textModel,
-          'messages': messages,
-          'tools': tools,
-          'tool_choice': 'auto',
-          'temperature': 0.1,
-          'stream': true,
-        },
+        data: payload,
         options: Options(responseType: ResponseType.stream),
       );
       final body = response.data;

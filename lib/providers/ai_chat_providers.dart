@@ -48,6 +48,7 @@ final agentMemoryRepositoryProvider = Provider<AgentMemoryRepository>((ref) {
 final localAgentToolGatewayProvider = Provider<LocalAgentToolGateway>((ref) {
   return BeeCountLocalAgentToolGateway(
     repository: ref.watch(repositoryProvider),
+    database: ref.watch(databaseProvider),
     bookkeeper: ref.watch(aiBookkeeperProvider),
     memoryRepository: ref.watch(agentMemoryRepositoryProvider),
   );

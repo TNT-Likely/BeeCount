@@ -39,7 +39,9 @@ final class OpenAiCompatibleNativeToolTransport
     logSink?.call('turnStarted', {
       'runId': request.runId,
       'toolResultCount': request.toolResults.length,
+      'allowToolCalls': request.allowToolCalls,
       'toolDefinitions': _toolDefinitions
+          .where((_) => request.allowToolCalls)
           .map(
             (definition) => {
               'name': definition.name,
@@ -72,14 +74,62 @@ final class OpenAiCompatibleNativeToolTransport
         'content': result.content,
       });
     }
+    if (!request.allowToolCalls) {
+      // Some providers (notably DeepSeek-compatible gateways) may emit their
+      // proprietary textual tool markup when the catalog is absent. Make the
+      // finalization contract explicit in the message stream so that the
+      // provider returns a user-facing answer instead of raw DSML/XML tags.
+      messages.add({
+        'role': 'user',
+        'content':
+            '请基于以上工具结果直接给出当前用户的最终答复。此回合不允许调用工具，不得输出任何工具调用标记（包括 <｜DSML｜...> 等内部格式）。只输出自然语言答复，不要复述工具参数。',
+      });
+    }
     try {
-      final response = await _completeStream(
+      var response = await _completeStream(
         runId: request.runId,
         messages: messages,
-        tools: _toolDefinitions.map((item) => item.toOpenAiSchema()).toList(),
+        tools: request.allowToolCalls
+            ? _toolDefinitions.map((item) => item.toOpenAiSchema()).toList()
+            : const [],
+        emitTextDeltas: request.allowToolCalls,
         logTag: 'AgentNativeTools',
         onEvent: onEvent,
       );
+      if (!request.allowToolCalls &&
+          response is AgentNativeFinalTextResponse &&
+          _containsToolMarkup(response.text)) {
+        logSink?.call('invalidFinalText', {
+          'runId': request.runId,
+          'reason': 'tool_markup_in_final_text',
+          'textLength': response.text.length,
+        });
+        // A few gateways ignore tool_choice=none after a tool turn and emit
+        // their internal DSML syntax as ordinary content. Retry once with a
+        // stronger instruction; never stream the malformed text to the UI.
+        messages.add({
+          'role': 'user',
+          'content':
+              '上一条输出违反协议。请不要调用工具，也不要输出任何 XML、DSML 或工具标记；只根据已有工具结果返回简短的自然语言答复。',
+        });
+        response = await _completeStream(
+          runId: request.runId,
+          messages: messages,
+          tools: const [],
+          emitTextDeltas: false,
+          logTag: 'AgentNativeTools',
+          onEvent: onEvent,
+        );
+        if (response is AgentNativeFinalTextResponse &&
+            _containsToolMarkup(response.text)) {
+          logSink?.call('invalidFinalText', {
+            'runId': request.runId,
+            'reason': 'tool_markup_in_final_text_after_retry',
+            'textLength': response.text.length,
+          });
+          response = const AgentNativeFinalTextResponse('');
+        }
+      }
       if (response is AgentNativeFinalTextResponse) {
         logSink?.call('finalText', {
           'runId': request.runId,
@@ -124,6 +174,7 @@ final class OpenAiCompatibleNativeToolTransport
     required String runId,
     required List<Map<String, dynamic>> messages,
     required List<Map<String, dynamic>> tools,
+    required bool emitTextDeltas,
     required String logTag,
     AgentNativeEventSink? onEvent,
   }) {
@@ -176,7 +227,7 @@ final class OpenAiCompatibleNativeToolTransport
         final content = delta['content'];
         if (content is String && content.isNotEmpty) {
           text.write(content);
-          onEvent?.call(AgentNativeTextDelta(content));
+          if (emitTextDeltas) onEvent?.call(AgentNativeTextDelta(content));
         }
         final rawCalls = delta['tool_calls'];
         if (rawCalls is List) {
@@ -234,6 +285,12 @@ final class OpenAiCompatibleNativeToolTransport
     }
     return response.future;
   }
+
+  bool _containsToolMarkup(String text) =>
+      text.contains('<｜DSML｜tool_calls>') ||
+      text.contains('<｜DSML｜invoke') ||
+      text.contains('<|DSML|tool_calls>') ||
+      text.contains('<|DSML|invoke');
 
   AgentNativeToolCall _toToolCall(Map raw) {
     final function = Map<String, dynamic>.from(raw['function'] as Map);

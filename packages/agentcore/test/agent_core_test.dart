@@ -95,6 +95,32 @@ void main() {
     expect(model.requests, hasLength(2));
   });
 
+  test('reports a tool limit when the model ignores finalization mode',
+      () async {
+    final boundedCore = AgentCore(
+      model: model
+        ..turns = [
+          AgentTurn.toolCalls([
+            AgentToolCall(name: fakeTool.name),
+          ]),
+          AgentTurn.toolCalls([
+            AgentToolCall(name: fakeTool.name),
+          ]),
+        ],
+      tools: {fakeTool.name: fakeTool},
+      policy: const _FakePolicy(),
+      maximumToolCalls: 1,
+      maximumModelTurns: 1,
+    );
+
+    final result = await boundedCore.run(_requestFor('本月花了多少'));
+
+    expect(result.text, isEmpty);
+    expect(result.terminationReason,
+        AgentRunTerminationReason.toolCallLimitReached);
+    expect(model.requests.last.allowToolCalls, isFalse);
+  });
+
   test('returns completed batch data before asking for the final response',
       () async {
     final boundedCore = AgentCore(
@@ -129,6 +155,30 @@ void main() {
         'data': {'error': 'tool_call_limit_reached'},
       },
     ]);
+  });
+
+  test('reserves a finalization turn when planning turns are exhausted',
+      () async {
+    final boundedCore = AgentCore(
+      model: model
+        ..turns = [
+          AgentTurn.toolCalls([
+            AgentToolCall(id: 'summary', name: fakeTool.name),
+          ]),
+          const AgentTurn.finalText('已完成汇总。'),
+        ],
+      tools: {fakeTool.name: fakeTool},
+      policy: const _FakePolicy(),
+      maximumToolCalls: 4,
+      maximumModelTurns: 1,
+    );
+
+    final result = await boundedCore.run(_requestFor('汇总本月支出'));
+
+    expect(result.text, '已完成汇总。');
+    expect(result.executedCalls, hasLength(1));
+    expect(model.requests, hasLength(2));
+    expect(model.requests.last.allowToolCalls, isFalse);
   });
 
   test('returns an error result for every budget-exhausted call in a batch',
@@ -241,7 +291,8 @@ void main() {
 
     expect(fakeTool.calls, isEmpty);
     expect(result.deniedCalls, hasLength(4));
-    expect(model.requests, hasLength(4));
+    expect(model.requests, hasLength(5));
+    expect(model.requests.last.allowToolCalls, isFalse);
   });
 
   test('bounds repeated denied calls independently of executed calls',
@@ -258,7 +309,8 @@ void main() {
 
     expect(fakeTool.calls, isEmpty);
     expect(result.deniedCalls, hasLength(4));
-    expect(model.requests, hasLength(4));
+    expect(model.requests, hasLength(5));
+    expect(model.requests.last.allowToolCalls, isFalse);
   });
 
   test('does not repeat a single-use call within one tool-call turn', () async {
@@ -303,6 +355,48 @@ void main() {
     expect(fakeTool.calls, hasLength(1));
     expect(result.executedCalls, hasLength(1));
     expect(result.deniedCalls.single.call.id, 'call-2');
+  });
+
+  test('reuses an identical read result and finalizes a duplicate-only turn',
+      () async {
+    final deduplicatedCore = AgentCore(
+      model: model
+        ..turns = [
+          AgentTurn.toolCalls([
+            AgentToolCall(
+              id: 'summary-1',
+              name: fakeTool.name,
+              arguments: {'range': 'month'},
+            ),
+          ]),
+          AgentTurn.toolCalls([
+            AgentToolCall(
+              id: 'summary-2',
+              name: fakeTool.name,
+              arguments: {'range': 'month'},
+            ),
+          ]),
+          const AgentTurn.finalText('汇总完成'),
+        ],
+      tools: {fakeTool.name: fakeTool},
+      policy: const _FakePolicy(),
+      deduplicatedToolNames: {fakeTool.name},
+      singleUseToolNames: const {},
+      maximumModelTurns: 3,
+    );
+
+    final result = await deduplicatedCore.run(_requestFor('汇总本月'));
+
+    expect(fakeTool.calls, hasLength(1));
+    expect(result.text, '汇总完成');
+    expect(model.requests, hasLength(3));
+    expect(model.requests[2].toolData, [
+      {
+        'id': 'summary-2',
+        'name': fakeTool.name,
+        'data': {'recorded': true},
+      },
+    ]);
   });
 
   test('fails fast when a tool map key does not match the tool name', () async {
