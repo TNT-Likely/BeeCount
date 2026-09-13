@@ -2811,6 +2811,7 @@
   "txFlagExcludeFromBudgetHint": "不佔用預算額度",
   "txFlagExcludedTag": "不計收支",
   "txFlagBudgetExcludedTag": "不計預算",
+  "txContinueEntry": "再記一筆",
   "txCurrencyLabel": "幣種",
   "txRateLabel": "匯率",
   "txConvertedPreview": "≈ {amount} {currency}",

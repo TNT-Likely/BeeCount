@@ -196,6 +196,9 @@ typedef AmountEditorResult = ({
   // 与折本位币快照(同币种 == amount;外币 = amount × 汇率,缺汇率已在提交前阻断)。
   String? currencyCode,
   double? nativeAmount,
+  // 再记一笔(连续记账):为 true 时上层保存后不关闭弹窗/编辑器,清空表单
+  // 等待输入下一笔;为 false 时维持原行为(保存后关闭)。
+  bool continueEntry,
 });
 
 class AmountEditorSheet extends ConsumerStatefulWidget {
@@ -347,6 +350,67 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     setState(() {
       _frequentNotes = notes;
     });
+  }
+
+  /// 再记一笔:保存成功后不关闭弹窗,清空金额/备注/标签/附件与运算状态,
+  /// 保留分类上下文(账户/日期/标记/币种),等待录入下一笔。
+  void _resetForNextEntry() {
+    setState(() {
+      _amountStr = '0';
+      _acc = 0;
+      _op = null;
+      _noteCtrl.clear();
+      _selectedTagIds = [];
+      _pendingAttachments = [];
+      _isSubmitting = false;
+    });
+  }
+
+  /// 提交当前记录。continueEntry=true 时(再记一笔)提交后不关闭弹窗,
+  /// 清空表单继续录入下一笔;false 时由上层 onSubmit 完成后统一关闭。
+  /// 外币且汇率无效 → 阻断(L8)。
+  Future<void> _submit({required bool continueEntry}) async {
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+
+    // v30:折本位币快照
+    final cur = parsed();
+    final total = _op == null ? cur : _compute(_acc, _op!, cur);
+    final txCurrency = _txCurrency();
+    final ledgerBase = ref.read(currentLedgerCurrencyProvider);
+    double? nativeAmount;
+    if (txCurrency == ledgerBase) {
+      nativeAmount = total.abs();
+    } else {
+      final r = _currentRate();
+      if (r == null || r <= 0) {
+        setState(() => _isSubmitting = false);
+        showToast(context,
+            AppLocalizations.of(context).txRateMissingHint);
+        return;
+      }
+      nativeAmount = total.abs() * r;
+    }
+
+    HapticFeedback.lightImpact();
+    SystemSound.play(SystemSoundType.click);
+    widget.onSubmit((
+      amount: total.abs(), // 始终正数
+      note: _noteCtrl.text.isEmpty ? null : _noteCtrl.text,
+      date: _date,
+      accountId: _selectedAccountId,
+      tagIds: _selectedTagIds,
+      pendingAttachments: _pendingAttachments,
+      excludeFromStats: _excludeFromStats,
+      excludeFromBudget: _excludeFromBudget,
+      currencyCode: txCurrency,
+      nativeAmount: nativeAmount,
+      continueEntry: continueEntry,
+    ));
+
+    if (continueEntry) {
+      _resetForNextEntry();
+    }
   }
 
   Future<void> _loadAccountCurrency(int accountId) async {
@@ -549,6 +613,111 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     );
   }
 
+  /// 日期/时间选择按钮:位于备注框上方左侧,高度由 build 中外层
+  /// Row(crossAxisAlignment: stretch)拉伸,与右侧金额显示区等高。
+  Widget _buildDateButton(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final showTime = ref.watch(showTransactionTimeProvider);
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () {
+        SystemSound.play(SystemSoundType.click);
+        _pickDate();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: BeeTokens.surfaceKeySecondary(context),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: showTime
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _fmtDate(_date),
+                    style: text.labelSmall?.copyWith(
+                      color: BeeTokens.textPrimary(context),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _fmtTime(_date),
+                    style: text.labelSmall?.copyWith(
+                      color: BeeTokens.textSecondary(context),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              )
+            : Center(
+                child: Text(
+                  _fmtDate(_date),
+                  style: text.labelMedium?.copyWith(
+                    color: BeeTokens.textPrimary(context),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
+  /// 再记一笔(连续记账)键盘键:位于完成按钮上方。点击 = 直接保存当前
+  /// 记录并清空表单继续录入下一笔(单步提交,无需再点完成)。运算模式下
+  /// 先按等号结算再提交。编辑模式置灰不可用,布局恒定。
+  Widget _buildContinueEntryKey(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final editing = widget.editingTransactionId != null;
+    final cur = parsed();
+    final total = _op == null ? cur : _compute(_acc, _op!, cur);
+    final isInCalcMode = _op != null;
+    final enabled = !editing &&
+        (isInCalcMode ? true : total.abs() > 0) &&
+        !_isSubmitting;
+    return Padding(
+      padding: const EdgeInsets.all(6),
+      child: Material(
+        color: enabled
+            ? BeeTokens.surfaceKeySecondary(context)
+            : BeeTokens.surfaceDisabled(context),
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: enabled
+              ? () async {
+                  HapticFeedback.selectionClick();
+                  SystemSound.play(SystemSoundType.click);
+                  if (isInCalcMode) {
+                    applyEquals();
+                  }
+                  await _submit(continueEntry: true);
+                }
+              : null,
+          child: SizedBox(
+            height: 60,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  AppLocalizations.of(context).txContinueEntry,
+                  textAlign: TextAlign.center,
+                  style: text.labelSmall?.copyWith(
+                    color: enabled
+                        ? BeeTokens.textSecondary(context)
+                        : BeeTokens.textTertiary(context),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   void _append(String s) {
     setState(() {
       if (s == '.') {
@@ -643,6 +812,27 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     return r.round(scale: 2).toDouble();
   }
 
+  /// 当前金额串解析为数值(非法时按 0 处理)。
+  double parsed() => double.tryParse(_amountStr) ?? 0.0;
+
+  /// 计算等号:完成当前运算,将结果存入 _amountStr,清空运算状态。
+  void applyEquals() {
+    if (_op == null) return; // 没有运算符,不执行
+    final cur = parsed();
+    final total = _compute(_acc, _op!, cur);
+    // 格式化结果
+    final s = total.abs().toStringAsFixed(2);
+    final trimmed = s.contains('.')
+        ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '')
+        : s;
+    _amountStr = trimmed.isEmpty ? '0' : trimmed;
+    _acc = 0;
+    _op = null;
+    HapticFeedback.selectionClick();
+    SystemSound.play(SystemSoundType.click);
+    setState(() {});
+  }
+
   /// 运算符显示字形(减号用真减号 −,而非连字符 -)。
   String _opGlyph(String op) {
     switch (op) {
@@ -657,6 +847,11 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     }
   }
 
+  String _fmtDate(DateTime d) => '${d.year}/${d.month}/${d.day}';
+
+  String _fmtTime(DateTime d) =>
+      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}:${d.second.toString().padLeft(2, '0')}';
+
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
@@ -665,8 +860,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
 
     // 如果备注框有焦点且键盘弹出，固定增加100的padding
     final extraPadding = (_noteFieldHasFocus && keyboardHeight > 0) ? 100.0 : 0.0;
-
-    double parsed() => double.tryParse(_amountStr) ?? 0.0;
 
     void applyOp(String op) {
       final cur = parsed();
@@ -679,24 +872,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       }
       _op = op;
       _amountStr = '0';
-      HapticFeedback.selectionClick();
-      SystemSound.play(SystemSoundType.click);
-      setState(() {});
-    }
-
-    // 计算等号：完成当前运算，将结果存入 _amountStr，清空运算状态
-    void applyEquals() {
-      if (_op == null) return; // 没有运算符，不执行
-      final cur = parsed();
-      final total = _compute(_acc, _op!, cur);
-      // 格式化结果
-      final s = total.abs().toStringAsFixed(2);
-      final trimmed = s.contains('.')
-          ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '')
-          : s;
-      _amountStr = trimmed.isEmpty ? '0' : trimmed;
-      _acc = 0;
-      _op = null;
       HapticFeedback.selectionClick();
       SystemSound.play(SystemSoundType.click);
       setState(() {});
@@ -786,10 +961,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       );
     }
 
-    String fmtDate(DateTime d) => '${d.year}/${d.month}/${d.day}';
-    String fmtTime(DateTime d) => '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}:${d.second.toString().padLeft(2, '0')}';
-    final showTime = ref.watch(showTransactionTimeProvider);
-
     return SafeArea(
       top: false,
       child: AnimatedPadding(
@@ -804,94 +975,117 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 金额显示区域（表达式模式）
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                // 表达式行:左侧 = 共享账本作者头像(仅编辑模式 + 共享账本时
-                // 显示);右侧 = 金额表达式。新建 tx / 单人账本时左侧为空。
-                Row(
-                  children: [
-                    if (widget.editingTransactionId != null)
-                      _TxAuthorAvatars(
-                          editingTransactionId: widget.editingTransactionId!),
-                    const Spacer(),
-                    // v30 币种标:整个金额表达式的最左侧(反馈11:运算模式下
-                    // 不能夹在「10 + 20」中间),点开选币种。
-                    _buildCurrencyChip(context),
-                    const SizedBox(width: 6),
-                    if (_op != null) ...[
-                      // 显示累加值
-                      Text(
-                        (() {
-                          final s = _acc.abs().toStringAsFixed(2);
-                          final r1 = s.contains('.')
-                              ? s.replaceFirst(RegExp(r'0+$'), '')
-                              : s;
-                          return r1.endsWith('.') ? r1.substring(0, r1.length - 1) : r1;
-                        })(),
-                        style: text.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: BeeTokens.textSecondary(context),
-                        ),
-                      ),
-                      // 显示运算符
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          _opGlyph(_op!),
-                          style: text.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: primary,
+            // 顶部行:左侧日期按钮与右侧金额显示区等高对齐(stretch)。
+            // 金额显示区域(表达式模式)
+            // 注意:必须包 IntrinsicHeight——否则 stretch 会把整行拉伸到
+            // sheet 最大高度(有界约束),导致键盘等被挤出屏幕(全屏空白 bug)。
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(
+                    width: 88,
+                    child: _buildDateButton(context),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                      // 表达式行:左侧 = 共享账本作者头像(仅编辑模式 + 共享账本时
+                      // 显示);右侧 = 金额表达式。新建 tx / 单人账本时左侧为空。
+                      Row(
+                        children: [
+                          if (widget.editingTransactionId != null)
+                            _TxAuthorAvatars(
+                                editingTransactionId:
+                                    widget.editingTransactionId!),
+                          const Spacer(),
+                          // v30 币种标:整个金额表达式的最左侧(反馈11:运算模式下
+                          // 不能夹在「10 + 20」中间),点开选币种。
+                          _buildCurrencyChip(context),
+                          const SizedBox(width: 6),
+                          if (_op != null) ...[
+                            // 显示累加值
+                            Text(
+                              (() {
+                                final s = _acc.abs().toStringAsFixed(2);
+                                final r1 = s.contains('.')
+                                    ? s.replaceFirst(RegExp(r'0+$'), '')
+                                    : s;
+                                return r1.endsWith('.')
+                                    ? r1.substring(0, r1.length - 1)
+                                    : r1;
+                              })(),
+                              style: text.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: BeeTokens.textSecondary(context),
+                              ),
+                            ),
+                            // 显示运算符
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Text(
+                                _opGlyph(_op!),
+                                style: text.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                          // 当前输入值
+                          Text(
+                            _amountStr,
+                            style: text.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.0,
+                              color: BeeTokens.textPrimary(context),
+                            ),
                           ),
+                        ],
+                      ),
+                      // 等号行：仅在有运算符时显示
+                      if (_op != null) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              '= ',
+                              style: text.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: BeeTokens.textTertiary(context),
+                              ),
+                            ),
+                            Text(
+                              (() {
+                                final cur = parsed();
+                                final total = _compute(_acc, _op!, cur);
+                                final s = total.abs().toStringAsFixed(2);
+                                final r1 = s.contains('.')
+                                    ? s.replaceFirst(RegExp(r'0+$'), '')
+                                    : s;
+                                return r1.endsWith('.')
+                                    ? r1.substring(0, r1.length - 1)
+                                    : r1;
+                              })(),
+                              style: text.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: primary,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                    // 当前输入值
-                    Text(
-                      _amountStr,
-                      style: text.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.0,
-                        color: BeeTokens.textPrimary(context),
-                      ),
+                      ],
+                      // v30 折算预览:金额模块区域内、金额/等号下方(反馈11)。
+                      _buildCurrencySection(context),
+                      ],
                     ),
-                  ],
-                ),
-                // 等号行：仅在有运算符时显示
-                if (_op != null) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        '= ',
-                        style: text.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: BeeTokens.textTertiary(context),
-                        ),
-                      ),
-                      Text(
-                        (() {
-                          final cur = parsed();
-                          final total = _compute(_acc, _op!, cur);
-                          final s = total.abs().toStringAsFixed(2);
-                          final r1 = s.contains('.')
-                              ? s.replaceFirst(RegExp(r'0+$'), '')
-                              : s;
-                          return r1.endsWith('.') ? r1.substring(0, r1.length - 1) : r1;
-                        })(),
-                        style: text.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: primary,
-                        ),
-                      ),
-                    ],
                   ),
                 ],
-                // v30 折算预览:金额模块区域内、金额/等号下方(反馈11)。
-                _buildCurrencySection(context),
-              ],
+              ),
             ),
             const SizedBox(height: 10),
             // 备注输入区域 - 带历史备注图标前缀
@@ -993,50 +1187,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
             // 数字键盘
             LayoutBuilder(builder: (ctx, c) {
               final w = (c.maxWidth) / 4;
-              Widget dateKey() => Padding(
-                    padding: const EdgeInsets.all(6),
-                    child: Material(
-                      color: BeeTokens.surfaceKeySecondary(context),
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: () {
-                          SystemSound.play(SystemSoundType.click);
-                          _pickDate();
-                        },
-                        child: SizedBox(
-                          height: 60,
-                          child: Center(
-                            child: showTime
-                                ? Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        fmtDate(_date),
-                                        style: text.labelSmall?.copyWith(
-                                            color: BeeTokens.textPrimary(context),
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        fmtTime(_date),
-                                        style: text.labelSmall?.copyWith(
-                                            color: BeeTokens.textSecondary(context),
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    ],
-                                  )
-                                : Text(
-                                    fmtDate(_date),
-                                    style: text.labelMedium?.copyWith(
-                                        color: BeeTokens.textPrimary(context),
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
               Widget closeKey() => Padding(
                     padding: const EdgeInsets.all(6),
                     child: Material(
@@ -1077,51 +1227,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                                 applyEquals();
                                 return;
                               }
-
-                              // 正常模式：提交
-                              // 防重复点击
-                              if (_isSubmitting) return;
-                              setState(() => _isSubmitting = true);
-
-                              // v30:折本位币快照。外币且汇率无效 → 阻断(L8)。
-                              final txCurrency = _txCurrency();
-                              final ledgerBase =
-                                  ref.read(currentLedgerCurrencyProvider);
-                              double? nativeAmount;
-                              if (txCurrency == ledgerBase) {
-                                nativeAmount = total.abs();
-                              } else {
-                                final r = _currentRate();
-                                if (r == null || r <= 0) {
-                                  setState(() => _isSubmitting = false);
-                                  showToast(
-                                      context,
-                                      AppLocalizations.of(context)
-                                          .txRateMissingHint);
-                                  return;
-                                }
-                                nativeAmount = total.abs() * r;
-                              }
-
-                              HapticFeedback.lightImpact();
-                              SystemSound.play(SystemSoundType.click);
-                              widget.onSubmit((
-                                amount: total.abs(), // 始终正数
-                                note: _noteCtrl.text.isEmpty
-                                    ? null
-                                    : _noteCtrl.text,
-                                date: _date,
-                                accountId: _selectedAccountId,
-                                tagIds: _selectedTagIds,
-                                pendingAttachments: _pendingAttachments,
-                                excludeFromStats: _excludeFromStats,
-                                excludeFromBudget: _excludeFromBudget,
-                                currencyCode: txCurrency,
-                                nativeAmount: nativeAmount,
-                              ));
-
-                              // 注意：不需要在这里重置 _isSubmitting
-                              // 因为提交后整个 Sheet 会被关闭，State 会被销毁
+                              // 正常模式：提交(由上层关闭弹窗与编辑器页面)
+                              await _submit(continueEntry: false);
                             }
                           : null,
                       child: SizedBox(
@@ -1162,7 +1269,10 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                     SizedBox(
                         width: w,
                         child: keyBtn('9', onTap: () => _append('9'))),
-                    SizedBox(width: w, child: dateKey()),
+                    SizedBox(
+                        width: w,
+                        child: opKey('+', '×', _mulKey1,
+                            () => setState(() => _mulKey1 = !_mulKey1))),
                   ]),
                   const SizedBox(height: 2),
                   Row(children: [
@@ -1177,8 +1287,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                         child: keyBtn('6', onTap: () => _append('6'))),
                     SizedBox(
                         width: w,
-                        child: opKey('+', '×', _mulKey1,
-                            () => setState(() => _mulKey1 = !_mulKey1))),
+                        child: opKey('-', '÷', _mulKey2,
+                            () => setState(() => _mulKey2 = !_mulKey2))),
                   ]),
                   const SizedBox(height: 2),
                   Row(children: [
@@ -1193,8 +1303,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                         child: keyBtn('3', onTap: () => _append('3'))),
                     SizedBox(
                         width: w,
-                        child: opKey('-', '÷', _mulKey2,
-                            () => setState(() => _mulKey2 = !_mulKey2))),
+                        child: _buildContinueEntryKey(context)),
                   ]),
                   const SizedBox(height: 2),
                   Row(children: [

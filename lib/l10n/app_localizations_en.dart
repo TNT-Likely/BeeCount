@@ -7413,6 +7413,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txFlagBudgetExcludedTag => 'No budget';
 
   @override
+  String get txContinueEntry => 'Record another';
+
+  @override
   String get txCurrencyLabel => 'Currency';
 
   @override

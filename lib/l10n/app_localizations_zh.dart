@@ -7407,6 +7407,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txFlagBudgetExcludedTag => '不计预算';
 
   @override
+  String get txContinueEntry => '再记一笔';
+
+  @override
   String get txCurrencyLabel => '币种';
 
   @override
@@ -15030,6 +15033,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get txFlagBudgetExcludedTag => '不計預算';
+
+  @override
+  String get txContinueEntry => '再記一筆';
 
   @override
   String get txCurrencyLabel => '幣種';

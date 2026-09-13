@@ -404,8 +404,12 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
             updateAppWidget(ref, context);
           }
           // 先关闭页面，再播放反馈
-          if (ctx.mounted && Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
-          if (context.mounted && Navigator.of(context).canPop()) Navigator.of(context).pop();
+          // 再记一笔(连续记账):res.continueEntry 为 true 时不关闭,弹窗由
+          // sheet 内部清空表单复用,编辑器留在分类选择页方便继续录入。
+          if (!res.continueEntry) {
+            if (ctx.mounted && Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
+            if (context.mounted && Navigator.of(context).canPop()) Navigator.of(context).pop();
+          }
           // 反馈：轻微触感 + 系统点击音
           HapticFeedback.lightImpact();
           SystemSound.play(SystemSoundType.click);
