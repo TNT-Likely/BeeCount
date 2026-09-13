@@ -443,12 +443,12 @@ class Transactions extends Table {
 
 ## Commit Message Convention
 
-We use a commit convention based on [Conventional Commits](https://www.conventionalcommits.org/), **in Chinese**.
+We use a [Conventional Commits](https://www.conventionalcommits.org/) convention compatible with [commitlint](https://commitlint.js.org/). **Commit messages and PR titles must use Chinese.**
 
 ### Format
 
 ```
-<type>: <short description>
+<type>(<scope>): <short description>
 
 [optional detailed description]
 
@@ -468,27 +468,34 @@ We use a commit convention based on [Conventional Commits](https://www.conventio
 - `ci`: CI/CD configuration changes
 - `revert`: Revert previous commit
 
+### Scope
+
+Scopes identify the affected module and may be omitted when there is no clear module. Common scopes include:
+
+- `ai`, `cloud`, `sync`, `data`, `ui`, `i18n`
+- `docs`, `ci`, `deps`, `release`, `repo`
+
 ### Examples
 
 ```bash
 # New feature
-git commit -m "feat: 添加预算功能"
+git commit -m "feat(budget): 添加预算功能"
 
 # Bug fix
-git commit -m "fix: 修复云同步时数据丢失的问题"
+git commit -m "fix(sync): 修复云同步时数据丢失的问题"
 
 # With detailed description
-git commit -m "refactor: 重构数据库查询逻辑
+git commit -m "refactor(data): 重构数据库查询逻辑
 
 - 优化索引使用
 - 减少冗余查询
 - 提升查询性能约 30%"
 
 # Documentation update
-git commit -m "docs: 更新 Supabase 配置文档"
+git commit -m "docs(cloud): 更新 Supabase 配置文档"
 
 # Performance optimization
-git commit -m "perf: 优化首页列表渲染性能"
+git commit -m "perf(home): 优化首页列表渲染性能"
 ```
 
 ### Notes
@@ -497,14 +504,18 @@ git commit -m "perf: 优化首页列表渲染性能"
 - Short description under 50 characters
 - Use imperative mood ("add" not "added")
 - Detailed description explains "why" not "what"
+- Use `type(scope): subject`; `type: subject` is allowed when no scope fits
+- Do not end the subject with punctuation such as a period or exclamation mark
 
 ## Pull Request Process
 
 ### PR Title
 
-Follow commit message convention, e.g.:
-- `feat: 添加多币种支持`
-- `fix: 修复 WebDAV 同步失败问题`
+PR titles must be commitlint-compatible and use the same complete format as commit messages. A squash merge uses this title for its resulting commit. For example:
+- `feat(currency): 添加多币种支持`
+- `fix(sync): 修复 WebDAV 同步失败`
+
+Do not use titles without a type, such as `更新代码`, `修复问题`, or `AI助手体验升级`.
 
 ### PR Description Template
 

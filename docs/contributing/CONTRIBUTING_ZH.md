@@ -444,12 +444,12 @@ class Transactions extends Table {
 
 ## 提交信息规范
 
-我们使用基于 [约定式提交](https://www.conventionalcommits.org/zh-hans/) 的提交规范，**使用中文**。
+我们使用与 [commitlint](https://commitlint.js.org/) 兼容的 [约定式提交](https://www.conventionalcommits.org/zh-hans/) 规范，**提交信息与 PR 标题均须使用中文**。
 
 ### 格式
 
 ```
-<类型>: <简短描述>
+<类型>(<范围>): <简短描述>
 
 [可选的详细描述]
 
@@ -469,27 +469,34 @@ class Transactions extends Table {
 - `ci`: CI/CD 配置修改
 - `revert`: 回滚之前的提交
 
+### 范围
+
+范围用于指出变更所属模块；无明确模块时可省略。常用范围包括：
+
+- `ai`、`cloud`、`sync`、`data`、`ui`、`i18n`
+- `docs`、`ci`、`deps`、`release`、`repo`
+
 ### 示例
 
 ```bash
 # 新功能
-git commit -m "feat: 添加预算功能"
+git commit -m "feat(budget): 添加预算功能"
 
 # Bug 修复
-git commit -m "fix: 修复云同步时数据丢失的问题"
+git commit -m "fix(sync): 修复云同步时数据丢失的问题"
 
 # 带详细描述
-git commit -m "refactor: 重构数据库查询逻辑
+git commit -m "refactor(data): 重构数据库查询逻辑
 
 - 优化索引使用
 - 减少冗余查询
 - 提升查询性能约 30%"
 
 # 文档更新
-git commit -m "docs: 更新 Supabase 配置文档"
+git commit -m "docs(cloud): 更新 Supabase 配置文档"
 
 # 性能优化
-git commit -m "perf: 优化首页列表渲染性能"
+git commit -m "perf(home): 优化首页列表渲染性能"
 ```
 
 ### 注意事项
@@ -498,14 +505,18 @@ git commit -m "perf: 优化首页列表渲染性能"
 - 简短描述不超过 50 字符
 - 使用祈使句（"添加"而非"添加了"）
 - 详细描述说明"为什么"而非"是什么"
+- 标题使用 `type(scope): subject`；没有合适范围时可使用 `type: subject`
+- subject 后不加句号、感叹号等结尾标点
 
 ## Pull Request 流程
 
 ### PR 标题
 
-遵循提交信息规范，如：
-- `feat: 添加多币种支持`
-- `fix: 修复 WebDAV 同步失败问题`
+必须与 commitlint 兼容，并遵循与提交信息相同的完整格式；Squash merge 后会以该标题作为合并提交标题。例如：
+- `feat(currency): 添加多币种支持`
+- `fix(sync): 修复 WebDAV 同步失败`
+
+不要使用 `更新代码`、`修复问题`、`AI助手体验升级` 这类缺少 type 的标题。
 
 ### PR 描述模板
 
