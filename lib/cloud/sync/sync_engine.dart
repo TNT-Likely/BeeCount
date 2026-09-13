@@ -540,6 +540,11 @@ class SyncEngine implements app.SyncService {
   /// 同一会话共用一个 engine；切换会话不能复用旧服务器的 in-flight 结果。
   Completer<int>? _syncLedgersInFlight;
 
+  // Different engines using the same database must not interleave ledger
+  // lookup/insert/GC. Queue work, not results: a new session must fetch its own
+  // server's ledger list after the previous operation has finished.
+  static final _ledgerSyncTails = Expando<Future<void>>();
+
   Future<int> syncLedgersFromServer() async {
     if (_disposed) throw StateError('Cloud session closed');
     final existing = _syncLedgersInFlight;
@@ -550,7 +555,14 @@ class SyncEngine implements app.SyncService {
     final completer = Completer<int>();
     _syncLedgersInFlight = completer;
     try {
-      final n = await _syncLedgersFromServerLocked();
+      final previous = _ledgerSyncTails[db] ?? Future<void>.value();
+      final work = previous.then((_) async {
+        if (_disposed) return 0;
+        return _syncLedgersFromServerLocked();
+      });
+      _ledgerSyncTails[db] = work.then<void>((_) {},
+          onError: (Object error, StackTrace stack) {});
+      final n = await work;
       completer.complete(n);
       return n;
     } catch (e, st) {

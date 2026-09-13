@@ -39,6 +39,10 @@ void main() {
     final oldProvider =
         (await container.read(beecountCloudProviderInstance.future))!;
     final oldEngine = container.read(syncEngineProvider(oldProvider));
+    container.invalidate(activeCloudConfigProvider);
+    expect(await container.read(beecountCloudProviderInstance.future),
+        same(oldProvider));
+    expect(container.read(syncEngineProvider(oldProvider)), same(oldEngine));
     config = const CloudServiceConfig(
         type: CloudBackendType.beecountCloud,
         name: 'B',

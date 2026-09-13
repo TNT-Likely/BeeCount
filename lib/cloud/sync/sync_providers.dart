@@ -24,7 +24,9 @@ final changeTrackerProvider = Provider<ChangeTracker>((ref) {
 /// 装配 callback 后才启动,但 dispose 由 Riverpod GC family entry 时统一触发。
 final syncEngineProvider = Provider.family<SyncEngine, BeeCountCloudProvider>(
   (ref, provider) {
-    final session = ref.watch(activeCloudServicesProvider).valueOrNull;
+    // Loading with the same previous value is not a new session.
+    final session = ref.watch(activeCloudServicesProvider.select(
+        (value) => value.valueOrNull));
     if (session == null || session.isClosed ||
         !identical(session.services.provider, provider)) {
       throw StateError('SyncEngine requires the active cloud session');

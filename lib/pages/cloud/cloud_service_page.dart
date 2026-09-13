@@ -1809,6 +1809,15 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       String? errorDetail;
 
       try {
+        if (config.type == CloudBackendType.beecountCloud ||
+            config.type == CloudBackendType.s3) {
+          final active = ref.read(activeCloudServicesProvider);
+          // Retry initialization errors only. Keep healthy sessions and an
+          // already-running initialization shared with all other consumers.
+          if (active.hasError && !active.isLoading) {
+            ref.invalidate(activeCloudServicesProvider);
+          }
+        }
         switch (config.type) {
           case CloudBackendType.local:
             break;
