@@ -6002,6 +6002,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get budgetCategoryHint => '请选择预算分类';
 
   @override
+  String get budgetCategoryAlreadyExists => '该分类已设置预算';
+
+  @override
   String get budgetStartDayLabel => '起始日';
 
   @override
@@ -13625,6 +13628,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get budgetCategoryHint => '請選擇預算分類';
+
+  @override
+  String get budgetCategoryAlreadyExists => '該分類已設定預算';
 
   @override
   String get budgetStartDayLabel => '起始日';
