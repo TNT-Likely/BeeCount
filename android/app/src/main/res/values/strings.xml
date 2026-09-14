@@ -2,6 +2,7 @@
 <resources>
     <!-- 通用资源 -->
     <string name="app_name">蜜蜂记账</string>
+    <string name="app_name_test">蜜蜂记账测试版</string>
     <!-- 桌面小组件:选择器里显示的名称(android:label)。每个 receiver 各用一个,
          否则都继承 app_name「蜜蜂记账」、无法区分。 -->
     <string name="widget_name">收支速览·中</string>
