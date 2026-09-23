@@ -42,6 +42,9 @@ assets/config.json
 build/
 **/build/
 
+# FVM
+.fvm/
+
 # Symbolication related
 app.*.symbols
 
