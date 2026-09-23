@@ -1,7 +1,8 @@
 import 'ledger_repository.dart';
 import 'transaction_repository.dart';
 import 'category_repository.dart';
-import 'account_repository.dart';
+import 'account_repository.dart'
+    show AccountBalanceUpdateResult, AccountRepository;
 import 'statistics_repository.dart';
 import 'recurring_transaction_repository.dart';
 import 'ai_repository.dart';
@@ -31,6 +32,17 @@ abstract class BaseRepository
         BudgetRepository,
         AttachmentRepository,
         ExchangeRateRepository {
+  /// 将账户当前余额校准到目标值。该操作需要同时更新账户基线、交易和同步
+  /// 变更，属于聚合 Repository 的用例，不由账户子 Repository 单独实现。
+  Future<AccountBalanceUpdateResult> setAccountBalance({
+    required int ledgerId,
+    required int accountId,
+    required double targetBalance,
+    required bool createBalanceAdjustment,
+    DateTime? happenedAt,
+    String? note,
+  });
+
   // -------------------------------------------------------------------
   // v30 交易级多币种(.docs/multi-currency-ledger):重算 / 检测。
   // 声明在聚合层而非 TransactionRepository:这些方法要同时访问交易表与

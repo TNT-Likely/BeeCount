@@ -7322,6 +7322,54 @@ abstract class AppLocalizations {
   /// **'Balance'**
   String get accountBalance;
 
+  /// No description provided for @accountUpdateBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Balance'**
+  String get accountUpdateBalance;
+
+  /// No description provided for @accountBalanceAdjustmentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance Difference'**
+  String get accountBalanceAdjustmentTitle;
+
+  /// No description provided for @accountBalanceAdjustmentOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Update balance only'**
+  String get accountBalanceAdjustmentOnly;
+
+  /// No description provided for @accountBalanceAdjustmentOnlyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No transaction will be created. Historical balance trend will be recalculated from the new baseline.'**
+  String get accountBalanceAdjustmentOnlyMessage;
+
+  /// No description provided for @accountBalanceAdjustmentCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create balance adjustment'**
+  String get accountBalanceAdjustmentCreate;
+
+  /// No description provided for @accountBalanceAdjustmentCreateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a Balance transaction. It changes the account balance but is excluded from income, expense, and budget statistics.'**
+  String get accountBalanceAdjustmentCreateMessage;
+
+  /// No description provided for @accountBalanceUnchanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The balance has not changed'**
+  String get accountBalanceUnchanged;
+
+  /// No description provided for @balanceAdjustmentTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get balanceAdjustmentTransaction;
+
   /// No description provided for @accountEditTitle.
   ///
   /// In en, this message translates to:

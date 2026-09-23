@@ -82,8 +82,10 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           ? widget.account!.creditLimit!.toStringAsFixed(2)
           : '',
     );
-    _bankNameController = TextEditingController(text: widget.account?.bankName ?? '');
-    _cardLastFourController = TextEditingController(text: widget.account?.cardLastFour ?? '');
+    _bankNameController =
+        TextEditingController(text: widget.account?.bankName ?? '');
+    _cardLastFourController =
+        TextEditingController(text: widget.account?.cardLastFour ?? '');
     _noteController = TextEditingController(text: widget.account?.note ?? '');
     _selectedType = widget.account?.type ?? 'cash';
     _selectedCurrency = widget.account?.currency ?? 'CNY';
@@ -96,8 +98,10 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   Future<void> _loadReminderSettings() async {
     if (widget.account != null) {
       final prefs = await SharedPreferences.getInstance();
-      final enabled = prefs.getBool('cc_reminder_enabled_${widget.account!.id}') ?? false;
-      final daysBefore = prefs.getInt('cc_reminder_days_${widget.account!.id}') ?? 3;
+      final enabled =
+          prefs.getBool('cc_reminder_enabled_${widget.account!.id}') ?? false;
+      final daysBefore =
+          prefs.getInt('cc_reminder_days_${widget.account!.id}') ?? 3;
       if (mounted) {
         setState(() {
           _reminderEnabled = enabled;
@@ -184,7 +188,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
         _paymentDueDay = null;
         _reminderEnabled = false;
       }
-      final wasBankOrCredit = oldType == 'bank_card' || oldType == 'credit_card';
+      final wasBankOrCredit =
+          oldType == 'bank_card' || oldType == 'credit_card';
       final isBankOrCredit = type == 'bank_card' || type == 'credit_card';
       if (wasBankOrCredit && !isBankOrCredit) {
         _bankNameController.clear();
@@ -214,7 +219,9 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           padding: EdgeInsets.symmetric(vertical: 8.0.scaled(context, ref)),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: selected ? BeeTokens.surfaceElevated(context) : Colors.transparent,
+            color: selected
+                ? BeeTokens.surfaceElevated(context)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
@@ -241,7 +248,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
         _filledDecoration(context, primaryColor,
             label: label, hint: hint, prefix: prefix, errorText: errorText);
 
-    final typesForTab = _typeTab == 0 ? tradableAccountTypes : valuationAccountTypes;
+    final typesForTab =
+        _typeTab == 0 ? tradableAccountTypes : valuationAccountTypes;
     final isCreditCard = _selectedType == 'credit_card';
     final isBankCard = _selectedType == 'bank_card';
 
@@ -314,7 +322,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                                 isSelected: isSelected,
                                 primaryColor: primaryColor,
                                 disabled: disabled,
-                                onTap: disabled ? () {} : () => _selectType(type),
+                                onTap:
+                                    disabled ? () {} : () => _selectType(type),
                               );
                             }).toList(),
                           ),
@@ -359,7 +368,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                                   borderRadius: BorderRadius.circular(12),
                                   onTap: () async {
                                     // 同账单日：开选择器前先收键盘
-                                    FocusManager.instance.primaryFocus?.unfocus();
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
                                     if (isEditing) {
                                       final repo = ref.read(repositoryProvider);
                                       final hasTransactions = await repo
@@ -379,7 +389,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                                         context,
                                         initial: _selectedCurrency);
                                     if (picked != null) {
-                                      setState(() => _selectedCurrency = picked);
+                                      setState(
+                                          () => _selectedCurrency = picked);
                                     }
                                   },
                                   child: InputDecorator(
@@ -393,42 +404,48 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                                                 _selectedCurrency, context),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(fontSize: 16),
+                                            style:
+                                                const TextStyle(fontSize: 16),
                                           ),
                                         ),
                                         Icon(Icons.expand_more,
                                             size: 18.0.scaled(context, ref),
-                                            color:
-                                                BeeTokens.iconTertiary(context)),
+                                            color: BeeTokens.iconTertiary(
+                                                context)),
                                       ],
                                     ),
                                   ),
                                 ),
                               ),
                               SizedBox(width: 12.0.scaled(context, ref)),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _initialBalanceController,
-                                  decoration: filledDec(
-                                    label: _getInitialBalanceLabel(l10n),
-                                    hint: _getInitialBalanceHint(l10n),
-                                    prefix:
-                                        '${getCurrencySymbol(_selectedCurrency)} ',
-                                  ),
-                                  style: const TextStyle(fontSize: 16),
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                          decimal: true, signed: true),
-                                  validator: (value) {
-                                    if (value != null && value.trim().isNotEmpty) {
-                                      if (double.tryParse(value.trim()) == null) {
-                                        return '请输入有效的金额';
+                              if (!isEditing)
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _initialBalanceController,
+                                    decoration: filledDec(
+                                      label: _getInitialBalanceLabel(l10n),
+                                      hint: _getInitialBalanceHint(l10n),
+                                      prefix:
+                                          '${getCurrencySymbol(_selectedCurrency)} ',
+                                    ),
+                                    style: const TextStyle(fontSize: 16),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                            decimal: true, signed: true),
+                                    validator: (value) {
+                                      if (value != null &&
+                                          value.trim().isNotEmpty) {
+                                        if (double.tryParse(value.trim()) ==
+                                            null) {
+                                          return '请输入有效的金额';
+                                        }
                                       }
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
+                                      return null;
+                                    },
+                                  ),
+                                )
+                              else
+                                const Spacer(),
                             ],
                           ),
                         ],
@@ -446,7 +463,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l10n.creditCardSettings, style: _sectionTitle(context)),
+                            Text(l10n.creditCardSettings,
+                                style: _sectionTitle(context)),
                             SizedBox(height: 12.0.scaled(context, ref)),
                             // 信用额度（必填）
                             TextFormField(
@@ -454,15 +472,19 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                               decoration: filledDec(
                                 label: '${l10n.creditLimit} *',
                                 hint: l10n.creditLimitHint,
-                                prefix: '${getCurrencySymbol(_selectedCurrency)} ',
+                                prefix:
+                                    '${getCurrencySymbol(_selectedCurrency)} ',
                               ),
                               style: const TextStyle(fontSize: 16),
-                              keyboardType: const TextInputType.numberWithOptions(
-                                  decimal: true),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
                               validator: (value) {
                                 final t = value?.trim() ?? '';
                                 final parsed = double.tryParse(t);
-                                if (t.isEmpty || parsed == null || parsed <= 0) {
+                                if (t.isEmpty ||
+                                    parsed == null ||
+                                    parsed <= 0) {
                                   return l10n.creditLimitHint;
                                 }
                                 return null;
@@ -553,10 +575,11 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                               Wrap(
                                 spacing: 8.0.scaled(context, ref),
                                 children: [1, 3, 5, 7].map((days) {
-                                  final isSelected = _reminderDaysBefore == days;
+                                  final isSelected =
+                                      _reminderDaysBefore == days;
                                   return ChoiceChip(
-                                    label: Text(
-                                        l10n.creditCardReminderDaysBefore(days)),
+                                    label: Text(l10n
+                                        .creditCardReminderDaysBefore(days)),
                                     selected: isSelected,
                                     selectedColor:
                                         primaryColor.withValues(alpha: 0.15),
@@ -591,7 +614,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l10n.accountMetaInfo, style: _sectionTitle(context)),
+                            Text(l10n.accountMetaInfo,
+                                style: _sectionTitle(context)),
                             SizedBox(height: 12.0.scaled(context, ref)),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -695,12 +719,14 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                           foregroundColor: primaryColor,
                           side: BorderSide(color: primaryColor, width: 1.5),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                8.0.scaled(context, ref)),
+                            borderRadius:
+                                BorderRadius.circular(8.0.scaled(context, ref)),
                           ),
                         ),
                         child: Text(
-                          widget.account!.hidden ? l10n.accountUnhide : l10n.accountHide,
+                          widget.account!.hidden
+                              ? l10n.accountUnhide
+                              : l10n.accountHide,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -718,8 +744,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                           foregroundColor: Colors.red,
                           side: const BorderSide(color: Colors.red, width: 1.5),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                8.0.scaled(context, ref)),
+                            borderRadius:
+                                BorderRadius.circular(8.0.scaled(context, ref)),
                           ),
                         ),
                         child: Text(
@@ -777,7 +803,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
         String? currencyToUpdate;
         if (_selectedCurrency != widget.account!.currency) {
           // 币种变化了，需要再次检查是否有交易
-          final hasTransactions = await repo.hasTransactions(widget.account!.id);
+          final hasTransactions =
+              await repo.hasTransactions(widget.account!.id);
           if (hasTransactions) {
             if (mounted) {
               setState(() => _saving = false);
@@ -798,11 +825,15 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
         final clearCreditCardFields = wasCreditCard && !isCreditCard;
 
         // 元信息字段
-        final isBankOrCredit = _selectedType == 'bank_card' || _selectedType == 'credit_card';
-        final wasBankOrCredit = widget.account!.type == 'bank_card' || widget.account!.type == 'credit_card';
+        final isBankOrCredit =
+            _selectedType == 'bank_card' || _selectedType == 'credit_card';
+        final wasBankOrCredit = widget.account!.type == 'bank_card' ||
+            widget.account!.type == 'credit_card';
         final clearMetadataFields = wasBankOrCredit && !isBankOrCredit;
-        final bankName = isBankOrCredit ? _bankNameController.text.trim() : null;
-        final cardLastFour = isBankOrCredit ? _cardLastFourController.text.trim() : null;
+        final bankName =
+            isBankOrCredit ? _bankNameController.text.trim() : null;
+        final cardLastFour =
+            isBankOrCredit ? _cardLastFourController.text.trim() : null;
         final noteText = _noteController.text.trim();
 
         await repo.updateAccount(
@@ -810,13 +841,14 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           name: name,
           type: _selectedType,
           currency: currencyToUpdate,
-          initialBalance: initialBalance,
           creditLimit: isCreditCard ? creditLimit : null,
           billingDay: isCreditCard ? _billingDay : null,
           paymentDueDay: isCreditCard ? _paymentDueDay : null,
           clearCreditCardFields: clearCreditCardFields,
           bankName: bankName != null && bankName.isNotEmpty ? bankName : null,
-          cardLastFour: cardLastFour != null && cardLastFour.isNotEmpty ? cardLastFour : null,
+          cardLastFour: cardLastFour != null && cardLastFour.isNotEmpty
+              ? cardLastFour
+              : null,
           note: noteText.isNotEmpty ? noteText : null,
           clearMetadataFields: clearMetadataFields,
         );
@@ -826,9 +858,12 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           await _saveReminderSettings(widget.account!.id);
         }
       } else {
-        final isBankOrCredit = _selectedType == 'bank_card' || _selectedType == 'credit_card';
-        final bankNameText = isBankOrCredit ? _bankNameController.text.trim() : null;
-        final cardLastFourText = isBankOrCredit ? _cardLastFourController.text.trim() : null;
+        final isBankOrCredit =
+            _selectedType == 'bank_card' || _selectedType == 'credit_card';
+        final bankNameText =
+            isBankOrCredit ? _bankNameController.text.trim() : null;
+        final cardLastFourText =
+            isBankOrCredit ? _cardLastFourController.text.trim() : null;
         final noteText = _noteController.text.trim();
 
         final id = await repo.createAccount(
@@ -840,8 +875,12 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           creditLimit: creditLimit,
           billingDay: isCreditCard ? _billingDay : null,
           paymentDueDay: isCreditCard ? _paymentDueDay : null,
-          bankName: bankNameText != null && bankNameText.isNotEmpty ? bankNameText : null,
-          cardLastFour: cardLastFourText != null && cardLastFourText.isNotEmpty ? cardLastFourText : null,
+          bankName: bankNameText != null && bankNameText.isNotEmpty
+              ? bankNameText
+              : null,
+          cardLastFour: cardLastFourText != null && cardLastFourText.isNotEmpty
+              ? cardLastFourText
+              : null,
           note: noteText.isNotEmpty ? noteText : null,
         );
 
@@ -1057,7 +1096,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   }
 
   /// 显示币种选择器（复用账本页面的实现）
-  Future<String?> _showCurrencyPicker(BuildContext context, {String? initial}) async {
+  Future<String?> _showCurrencyPicker(BuildContext context,
+      {String? initial}) async {
     return showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -1256,9 +1296,7 @@ class _DayPickerTile extends ConsumerWidget {
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? primaryColor
-                              : Colors.transparent,
+                          color: isSelected ? primaryColor : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isSelected
@@ -1271,7 +1309,9 @@ class _DayPickerTile extends ConsumerWidget {
                           '$day',
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                             color: isSelected
                                 ? Colors.white
                                 : BeeTokens.textPrimary(ctx),

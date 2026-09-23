@@ -8,6 +8,7 @@ import '../../../utils/shared_ledger_picker_filter.dart';
 import '../../../services/system/logger_service.dart';
 import '../../../models/note_history.dart';
 import '../base_repository.dart';
+import '../account_repository.dart' show AccountBalanceUpdateResult;
 import '../budget_repository.dart';
 import '../transaction_repository.dart'
     show BatchAttachmentData, TransactionUpdateBySyncIdData;
@@ -22,6 +23,7 @@ import 'local_tag_repository.dart';
 import 'local_budget_repository.dart';
 import 'local_attachment_repository.dart';
 import 'local_exchange_rate_repository.dart';
+import '../../../utils/transaction_type_utils.dart';
 
 /// LocalRepository 本地数据库实现
 /// 基于 Drift 本地数据库实现所有 Repository 接口
@@ -1267,6 +1269,25 @@ class LocalRepository extends BaseRepository {
         note: note,
       );
 
+  @override
+  Future<int> createBalanceAdjustmentTransaction({
+    required int ledgerId,
+    required int accountId,
+    required double amount,
+    required DateTime happenedAt,
+    String? note,
+  }) =>
+      addTransaction(
+        ledgerId: ledgerId,
+        type: balanceAdjustmentTransactionType,
+        amount: amount,
+        accountId: accountId,
+        happenedAt: happenedAt,
+        note: note,
+        excludeFromStats: true,
+        excludeFromBudget: true,
+      );
+
   // ============================================
   // CategoryRepository 接口实现 - 委托给 LocalCategoryRepository
   // ============================================
@@ -1918,6 +1939,67 @@ class LocalRepository extends BaseRepository {
         action: 'update',
       );
     }
+  }
+
+  @override
+  Future<AccountBalanceUpdateResult> setAccountBalance({
+    required int ledgerId,
+    required int accountId,
+    required double targetBalance,
+    required bool createBalanceAdjustment,
+    DateTime? happenedAt,
+    String? note,
+  }) async {
+    final ledger = await getLedgerById(ledgerId);
+    if (ledger == null) {
+      throw StateError('账本不存在');
+    }
+    if (ledger.isShared && ledger.myRole != 'owner') {
+      throw StateError('共享账本成员不能修改账户余额');
+    }
+
+    final account = await getAccount(accountId);
+    if (account == null) {
+      throw StateError('账户不存在');
+    }
+    final oldBalance = await getAccountBalance(accountId);
+    final difference = targetBalance - oldBalance;
+    if (difference.abs() < 0.0000001) {
+      return AccountBalanceUpdateResult(
+        oldBalance: oldBalance,
+        newBalance: oldBalance,
+        difference: 0,
+      );
+    }
+
+    if (createBalanceAdjustment) {
+      final transactionId = await createBalanceAdjustmentTransaction(
+        ledgerId: ledgerId,
+        accountId: accountId,
+        amount: difference,
+        happenedAt: happenedAt ?? DateTime.now(),
+        note: note ?? '平账：$oldBalance → $targetBalance',
+      );
+      final tagId = await upsertTag(name: balanceAdjustmentTagName);
+      await addTagToTransaction(transactionId: transactionId, tagId: tagId);
+      return AccountBalanceUpdateResult(
+        oldBalance: oldBalance,
+        newBalance: targetBalance,
+        difference: difference,
+        transactionId: transactionId,
+      );
+    }
+
+    // 余额由 initialBalance + 交易净变动计算。仅修改余额时调整基线，
+    // 不产生任何交易，也不影响收入/支出统计。
+    final newInitialBalance =
+        targetBalance - (oldBalance - account.initialBalance);
+    await updateAccount(accountId, initialBalance: newInitialBalance);
+    return AccountBalanceUpdateResult(
+      oldBalance: oldBalance,
+      newBalance: targetBalance,
+      difference: difference,
+    );
   }
 
   /// 隐藏 / 恢复账户(账户隐藏 #240)。**必须**走 [updateAccount](本类上面这个

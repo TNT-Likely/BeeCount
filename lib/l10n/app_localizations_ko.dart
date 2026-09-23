@@ -3841,6 +3841,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountBalance => '잔액';
 
   @override
+  String get accountUpdateBalance => 'Update Balance';
+
+  @override
+  String get accountBalanceAdjustmentTitle => 'Balance Difference';
+
+  @override
+  String get accountBalanceAdjustmentOnly => 'Update balance only';
+
+  @override
+  String get accountBalanceAdjustmentOnlyMessage => 'No transaction will be created. Historical balance trend will be recalculated from the new baseline.';
+
+  @override
+  String get accountBalanceAdjustmentCreate => 'Create balance adjustment';
+
+  @override
+  String get accountBalanceAdjustmentCreateMessage => 'Create a Balance transaction. It changes the account balance but is excluded from income, expense, and budget statistics.';
+
+  @override
+  String get accountBalanceUnchanged => 'The balance has not changed';
+
+  @override
+  String get balanceAdjustmentTransaction => 'Balance';
+
+  @override
   String get accountEditTitle => '계정 편집';
 
   @override

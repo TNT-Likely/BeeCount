@@ -437,4 +437,13 @@ abstract class TransactionRepository {
     required DateTime happenedAt,
     String? note,
   });
+
+  /// 创建一笔专用平账交易。
+  Future<int> createBalanceAdjustmentTransaction({
+    required int ledgerId,
+    required int accountId,
+    required double amount,
+    required DateTime happenedAt,
+    String? note,
+  });
 }

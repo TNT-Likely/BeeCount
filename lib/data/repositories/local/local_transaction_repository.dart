@@ -1625,4 +1625,24 @@ class LocalTransactionRepository implements TransactionRepository {
       note: note,
     );
   }
+
+  @override
+  Future<int> createBalanceAdjustmentTransaction({
+    required int ledgerId,
+    required int accountId,
+    required double amount,
+    required DateTime happenedAt,
+    String? note,
+  }) async {
+    return addTransaction(
+      ledgerId: ledgerId,
+      type: 'balance_adjustment',
+      amount: amount,
+      accountId: accountId,
+      happenedAt: happenedAt,
+      note: note,
+      excludeFromStats: true,
+      excludeFromBudget: true,
+    );
+  }
 }

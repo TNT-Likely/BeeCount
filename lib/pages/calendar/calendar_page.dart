@@ -10,6 +10,7 @@ import '../../widgets/category_icon.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../utils/transaction_edit_utils.dart';
+import '../../utils/transaction_type_utils.dart';
 import '../../providers.dart';
 import '../../providers/calendar_providers.dart';
 import '../../l10n/app_localizations.dart';
@@ -496,7 +497,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   }
 
   // 构建选中日期的交易列表（上方含"日期 + 在该日记账"紧凑头）
-  Widget _buildDateTransactionsList(BuildContext context, int ledgerId, DateTime date) {
+  Widget _buildDateTransactionsList(
+      BuildContext context, int ledgerId, DateTime date) {
     final l10n = AppLocalizations.of(context);
     final primaryColor = ref.watch(primaryColorProvider);
     final localeName = Localizations.localeOf(context).toString();
@@ -551,8 +553,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -608,9 +610,13 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               final category = item.category;
               final isExpense = item.t.type == 'expense';
               final isTransfer = item.t.type == 'transfer';
+              final isBalanceAdjustment =
+                  isBalanceAdjustmentTransaction(item.t.type);
 
               // 分类名称
-              final categoryName = category?.name ?? l10n.commonUncategorized;
+              final categoryName = isBalanceAdjustment
+                  ? l10n.balanceAdjustmentTransaction
+                  : category?.name ?? l10n.commonUncategorized;
 
               // 备注作为副标题
               final subtitle = item.t.note ?? '';
@@ -621,12 +627,15 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   .toList();
 
               return TransactionListItem(
-                icon: getCategoryIconData(category: category, categoryName: categoryName),
-                category: category,
+                icon: isBalanceAdjustment
+                    ? Icons.tune
+                    : getCategoryIconData(
+                        category: category, categoryName: categoryName),
+                category: isBalanceAdjustment ? null : category,
                 title: isTransfer
                     ? (subtitle.isNotEmpty ? subtitle : l10n.transferTitle)
                     : (subtitle.isNotEmpty ? subtitle : categoryName),
-                categoryName: isTransfer
+                categoryName: isTransfer || isBalanceAdjustment
                     ? null
                     : (subtitle.isNotEmpty ? categoryName : null),
                 amount: item.t.amount,
@@ -634,11 +643,28 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 nativeAmount: item.t.nativeAmount,
                 isExpense: isExpense,
                 isTransfer: isTransfer,
+                isAdjustment: isBalanceAdjustment,
                 happenedAt: item.t.happenedAt,
                 accountName: item.account?.name,
                 tags: tagsList.isNotEmpty ? tagsList : null,
                 attachmentCount: item.attachments.length,
                 onTap: () async {
+                  if (isBalanceAdjustment) {
+                    await showDialog<void>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: Text(l10n.balanceAdjustmentTransaction),
+                        content: Text(item.t.note ?? ''),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: Text(l10n.commonOk),
+                          ),
+                        ],
+                      ),
+                    );
+                    return;
+                  }
                   await TransactionEditUtils.editTransaction(
                     context,
                     ref,
@@ -688,8 +714,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                       7,
                       (_) => const Expanded(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 4),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                           child: SkeletonBar(height: 56),
                         ),
                       ),

@@ -3841,6 +3841,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get accountBalance => '余额';
 
   @override
+  String get accountUpdateBalance => '修改余额';
+
+  @override
+  String get accountBalanceAdjustmentTitle => '发现余额差额';
+
+  @override
+  String get accountBalanceAdjustmentOnly => '仅修改余额';
+
+  @override
+  String get accountBalanceAdjustmentOnlyMessage => '不会创建交易，历史余额趋势会按新的余额基线重新计算。';
+
+  @override
+  String get accountBalanceAdjustmentCreate => '生成平账交易';
+
+  @override
+  String get accountBalanceAdjustmentCreateMessage => '生成一笔类型为“平账”的交易。它会影响账户余额，但不计入收入、支出和预算统计。';
+
+  @override
+  String get accountBalanceUnchanged => '余额未发生变化';
+
+  @override
+  String get balanceAdjustmentTransaction => '平账';
+
+  @override
   String get accountEditTitle => '编辑账户';
 
   @override
