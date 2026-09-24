@@ -6747,9 +6747,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get accountGroupValuation => '资产/负债';
 
   @override
-  String get adjustmentTransaction => '估值调整';
-
-  @override
   String creditCardBillingInfo(int billingDay, int paymentDueDay) {
     return '每月$billingDay日出账 · $paymentDueDay日还款';
   }
@@ -14370,9 +14367,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get accountGroupValuation => '資產/負債';
-
-  @override
-  String get adjustmentTransaction => '估值調整';
 
   @override
   String creditCardBillingInfo(int billingDay, int paymentDueDay) {

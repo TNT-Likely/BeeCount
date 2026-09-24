@@ -98,7 +98,6 @@
   "valuationDebtHint": "請輸入當前欠款金額",
   "accountGroupTradable": "日常帳戶",
   "accountGroupValuation": "資產/負債",
-  "adjustmentTransaction": "估值調整",
   "accountsEmptyMessage": "還沒有帳戶，點擊右上角添加",
   "accountsEnableFeature": "啟用帳戶功能",
   "accountHide": "隱藏帳戶",

@@ -2979,7 +2979,6 @@
   "valuationDebtHint": "Enter current debt amount",
   "accountGroupTradable": "Daily Accounts",
   "accountGroupValuation": "Assets/Liabilities",
-  "adjustmentTransaction": "Valuation Adjustment",
   "creditCardBillingInfo": "Bills on {billingDay}th · Due on {paymentDueDay}th",
   "@creditCardBillingInfo": {
     "placeholders": {

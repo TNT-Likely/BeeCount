@@ -6753,9 +6753,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountGroupValuation => 'Assets/Liabilities';
 
   @override
-  String get adjustmentTransaction => 'Valuation Adjustment';
-
-  @override
   String creditCardBillingInfo(int billingDay, int paymentDueDay) {
     return 'Bills on ${billingDay}th · Due on ${paymentDueDay}th';
   }

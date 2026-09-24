@@ -1254,22 +1254,6 @@ class LocalRepository extends BaseRepository {
     });
   }
 
-  @override
-  Future<int> createAdjustmentTransaction({
-    required int ledgerId,
-    required int accountId,
-    required double amount,
-    required DateTime happenedAt,
-    String? note,
-  }) =>
-      _transactionRepo.createAdjustmentTransaction(
-        ledgerId: ledgerId,
-        accountId: accountId,
-        amount: amount,
-        happenedAt: happenedAt,
-        note: note,
-      );
-
   // ============================================
   // CategoryRepository 接口实现 - 委托给 LocalCategoryRepository
   // ============================================

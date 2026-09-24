@@ -234,7 +234,7 @@ class RecentTransactionRow extends StatelessWidget {
     if (_isTransfer) {
       // 转账没有分类,直接用一个更贴切的图标而不是
       // CategoryService.getCategoryIcon(null) 兜底的通用图标(同主应用
-      // transaction_list.dart 对 isAdjustment 特判 Icons.tune 的做法一致)。
+      // 交易列表对转账使用专属图标的做法一致)。
       return Icon(Icons.swap_horiz, size: 16, color: themeColor);
     }
     return widgetCategoryIcon(icon: item.category?.icon, color: themeColor, size: 16);

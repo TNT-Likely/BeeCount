@@ -1607,22 +1607,4 @@ class LocalTransactionRepository implements TransactionRepository {
       return deleted;
     });
   }
-
-  @override
-  Future<int> createAdjustmentTransaction({
-    required int ledgerId,
-    required int accountId,
-    required double amount,
-    required DateTime happenedAt,
-    String? note,
-  }) async {
-    return await addTransaction(
-      ledgerId: ledgerId,
-      type: 'adjustment',
-      amount: amount,
-      accountId: accountId,
-      happenedAt: happenedAt,
-      note: note,
-    );
-  }
 }

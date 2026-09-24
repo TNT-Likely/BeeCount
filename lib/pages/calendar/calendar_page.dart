@@ -609,12 +609,9 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               final category = item.category;
               final isExpense = item.t.type == 'expense';
               final isTransfer = item.t.type == 'transfer';
-              final isAdjustment = item.t.type == 'adjustment';
 
               // 分类名称
-              final categoryName = isAdjustment
-                  ? l10n.adjustmentTransaction
-                  : category?.name ?? l10n.commonUncategorized;
+              final categoryName = category?.name ?? l10n.commonUncategorized;
 
               // 备注作为副标题
               final subtitle = item.t.note ?? '';
@@ -631,7 +628,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 title: isTransfer
                     ? (subtitle.isNotEmpty ? subtitle : l10n.transferTitle)
                     : (subtitle.isNotEmpty ? subtitle : categoryName),
-                categoryName: isTransfer || isAdjustment
+                categoryName: isTransfer
                     ? null
                     : (subtitle.isNotEmpty ? categoryName : null),
                 amount: item.t.amount,
@@ -639,7 +636,6 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 nativeAmount: item.t.nativeAmount,
                 isExpense: isExpense,
                 isTransfer: isTransfer,
-                isAdjustment: isAdjustment,
                 happenedAt: item.t.happenedAt,
                 accountName: item.account?.name,
                 tags: tagsList.isNotEmpty ? tagsList : null,

@@ -6753,9 +6753,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountGroupValuation => '자산/부채';
 
   @override
-  String get adjustmentTransaction => '평가액 조정';
-
-  @override
   String creditCardBillingInfo(int billingDay, int paymentDueDay) {
     return '매월 $billingDay일 결제 · $paymentDueDay일 만기';
   }

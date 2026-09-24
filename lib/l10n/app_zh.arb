@@ -2909,7 +2909,6 @@
   "valuationDebtHint": "请输入当前欠款金额",
   "accountGroupTradable": "日常账户",
   "accountGroupValuation": "资产/负债",
-  "adjustmentTransaction": "估值调整",
   "creditCardBillingInfo": "每月{billingDay}日出账 · {paymentDueDay}日还款",
   "@creditCardBillingInfo": {
     "placeholders": {

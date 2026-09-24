@@ -1976,7 +1976,6 @@
   "valuationDebtHint": "현재 채무액을 입력하세요",
   "accountGroupTradable": "일상 계정",
   "accountGroupValuation": "자산/부채",
-  "adjustmentTransaction": "평가액 조정",
   "creditCardBillingInfo": "매월 {billingDay}일 결제 · {paymentDueDay}일 만기",
   "creditCardDaysUntilPayment": "만기까지 {days}일",
   "creditCardPaymentDueToday": "오늘이 결제 만기일입니다",

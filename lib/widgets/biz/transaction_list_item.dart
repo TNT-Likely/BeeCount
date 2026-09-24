@@ -23,7 +23,6 @@ class TransactionListItem extends ConsumerWidget {
   final double? nativeAmount;
   final bool isExpense; // 决定正负号
   final bool isTransfer; // 是否为转账（转账不显示正负号）
-  final bool isAdjustment; // 是否为估值调整
   final bool? hide; // 改为可选,null时使用全局状态
   final VoidCallback? onTap;
   final VoidCallback? onCategoryTap; // 点击分类图标/名称的回调
@@ -60,7 +59,6 @@ class TransactionListItem extends ConsumerWidget {
       this.nativeAmount,
       required this.isExpense,
       this.isTransfer = false,
-      this.isAdjustment = false,
       this.hide,
       this.onTap,
       this.onCategoryTap,
@@ -80,7 +78,6 @@ class TransactionListItem extends ConsumerWidget {
       this.excludeFromStats = false,
       this.excludeFromBudget = false,
   });
-
 
   /// 检查是否有次要信息需要显示（时间、账户或附件）
   bool _hasSecondaryInfo(WidgetRef ref) {
@@ -345,9 +342,7 @@ class TransactionListItem extends ConsumerWidget {
               children: [
                 // 金额（转账不显示正负号）
                 AmountText(
-                    value: isAdjustment
-                        ? amount // adjustment 直接显示原始值（含正负）
-                        : isExpense ? -amount : amount,
+                    value: isExpense ? -amount : amount,
                     hide: hide,
                     signed: !isTransfer, // 转账不显示正负号
                     // v30:外币交易显示其币种符号(原币语义);本位币维持纯数字
@@ -355,15 +350,11 @@ class TransactionListItem extends ConsumerWidget {
                     currencyCode: currencyCode,
                     decimals: 2,
                     style: BeeTextTokens.title(context).copyWith(
-                      color: isAdjustment
-                          ? (amount >= 0
-                              ? BeeTokens.incomeColor(context, ref)
-                              : BeeTokens.expenseColor(context, ref))
-                          : isTransfer
-                              ? BeeTokens.textPrimary(context)
-                              : isExpense
-                                  ? BeeTokens.expenseColor(context, ref)
-                                  : BeeTokens.incomeColor(context, ref),
+                      color: isTransfer
+                          ? BeeTokens.textPrimary(context)
+                          : isExpense
+                              ? BeeTokens.expenseColor(context, ref)
+                              : BeeTokens.incomeColor(context, ref),
                     )),
                 // 标签行 + ≈折算小字(反馈15:折算放标签右边,同一行;无标签时
                 // 折算独占该行)。隐藏金额开关开启时折算同样遮蔽。

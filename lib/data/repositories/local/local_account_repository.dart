@@ -293,8 +293,6 @@ class LocalAccountRepository implements AccountRepository {
       } else if (t.type == 'transfer') {
         // 作为转出账户
         balance -= t.amount;
-      } else if (t.type == 'adjustment') {
-        balance += t.amount;
       }
     }
 
@@ -344,8 +342,6 @@ class LocalAccountRepository implements AccountRepository {
           balance -= tx.amount;
         } else if (tx.type == 'transfer') {
           balance -= tx.amount;
-        } else if (tx.type == 'adjustment') {
-          balance += tx.amount;
         }
       } else if (tx.toAccountId == accountId) {
         // 作为转入账户（转账）
@@ -376,8 +372,6 @@ class LocalAccountRepository implements AccountRepository {
           balance -= tx.amount;
         } else if (tx.type == 'transfer') {
           balance -= tx.amount;
-        } else if (tx.type == 'adjustment') {
-          balance += tx.amount;
         }
       } else if (tx.toAccountId == accountId) {
         // 作为转入账户（转账）
@@ -772,8 +766,6 @@ class LocalAccountRepository implements AccountRepository {
           runningBalance -= tx.amount;
         } else if (tx.type == 'transfer') {
           runningBalance -= tx.amount;
-        } else if (tx.type == 'adjustment') {
-          runningBalance += tx.amount;
         }
       }
       if (tx.toAccountId == accountId && tx.type == 'transfer') {
@@ -801,8 +793,6 @@ class LocalAccountRepository implements AccountRepository {
             runningBalance -= tx.amount;
           } else if (tx.type == 'transfer') {
             runningBalance -= tx.amount;
-          } else if (tx.type == 'adjustment') {
-            runningBalance += tx.amount;
           }
         }
         if (tx.toAccountId == accountId && tx.type == 'transfer') {

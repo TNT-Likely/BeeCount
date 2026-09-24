@@ -12878,12 +12878,6 @@ abstract class AppLocalizations {
   /// **'Assets/Liabilities'**
   String get accountGroupValuation;
 
-  /// No description provided for @adjustmentTransaction.
-  ///
-  /// In en, this message translates to:
-  /// **'Valuation Adjustment'**
-  String get adjustmentTransaction;
-
   /// No description provided for @creditCardBillingInfo.
   ///
   /// In en, this message translates to:
