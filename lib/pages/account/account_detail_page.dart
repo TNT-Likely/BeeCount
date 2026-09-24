@@ -12,7 +12,6 @@ import '../../utils/transaction_edit_utils.dart';
 import '../../utils/currencies.dart';
 import '../../widgets/category_icon.dart';
 import '../../utils/account_type_utils.dart';
-import '../../utils/transaction_type_utils.dart';
 import '../../widgets/charts/account_category_pie_chart.dart';
 import '../transaction/transaction_editor_page.dart';
 import 'account_edit_page.dart';
@@ -1216,23 +1215,6 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
 
   Future<void> _editTransaction(
       BuildContext context, WidgetRef ref, db.Transaction tx) async {
-    final l10n = AppLocalizations.of(context);
-    if (isBalanceAdjustmentTransaction(tx.type)) {
-      await showDialog<void>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(l10n.balanceAdjustmentTransaction),
-          content: Text(tx.note ?? ''),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(l10n.commonOk),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
     final categoryAsync = tx.categoryId != null
         ? await ref.read(categoriesProvider.future)
         : null;
@@ -1438,9 +1420,6 @@ class _TransactionTile extends ConsumerWidget {
     Color amountColor;
     final l10n = AppLocalizations.of(context);
     final transferCategory = ref.watch(transferCategoryProvider).valueOrNull;
-    final isBalanceAdjustment =
-        isBalanceAdjustmentTransaction(transaction.type);
-
     bool isTransferOut = false;
     bool isTransferIn = false;
     if (transaction.type == 'transfer' && currentAccountId != null) {
@@ -1460,25 +1439,18 @@ class _TransactionTile extends ConsumerWidget {
             ? BeeTokens.expenseColor(context, ref)
             : BeeTokens.incomeColor(context, ref);
         break;
-      case balanceAdjustmentTransactionType:
-        amountColor = transaction.amount >= 0
-            ? BeeTokens.incomeColor(context, ref)
-            : BeeTokens.expenseColor(context, ref);
-        break;
       default:
         amountColor = BeeTokens.textPrimary(context);
     }
 
     final category = transaction.type == 'transfer'
         ? transferCategory
-        : (isBalanceAdjustment
-            ? null
-            : transaction.categoryId != null
-                ? categories.cast<db.Category?>().firstWhere(
-                      (c) => c?.id == transaction.categoryId,
-                      orElse: () => null,
-                    )
-                : null);
+        : transaction.categoryId != null
+            ? categories.cast<db.Category?>().firstWhere(
+                  (c) => c?.id == transaction.categoryId,
+                  orElse: () => null,
+                )
+            : null;
 
     String displayTitle;
     String? displaySubtitle;
@@ -1505,11 +1477,6 @@ class _TransactionTile extends ConsumerWidget {
         if (fromAccountName != null) {
           displaySubtitle = '${l10n.transferFromPrefix} $fromAccountName';
         }
-      }
-    } else if (isBalanceAdjustment) {
-      displayTitle = l10n.balanceAdjustmentTransaction;
-      if (transaction.note?.isNotEmpty == true) {
-        noteSuffix = transaction.note;
       }
     } else {
       // 分类名常驻，备注接在分类名后面（对齐首页 / TransactionListItem）
@@ -1632,15 +1599,13 @@ class _TransactionTile extends ConsumerWidget {
               ),
             ),
             AmountText(
-              value: isBalanceAdjustment
-                  ? transaction.amount
-                  : transaction.type == 'expense'
-                      ? -transaction.amount
-                      : transaction.type == 'transfer'
-                          ? (isTransferOut
-                              ? -transaction.amount
-                              : transaction.amount)
-                          : transaction.amount,
+              value: transaction.type == 'expense'
+                  ? -transaction.amount
+                  : transaction.type == 'transfer'
+                      ? (isTransferOut
+                          ? -transaction.amount
+                          : transaction.amount)
+                      : transaction.amount,
               signed: true,
               showCurrency: false,
               currencyCode: currencyCode,

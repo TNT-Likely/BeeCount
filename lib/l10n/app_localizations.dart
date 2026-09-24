@@ -7355,7 +7355,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountBalanceAdjustmentCreateMessage.
   ///
   /// In en, this message translates to:
-  /// **'Create a Balance transaction. It changes the account balance but is excluded from income, expense, and budget statistics.'**
+  /// **'Create a regular income or expense transaction under the Balance category. It is included in income, expense, and budget statistics.'**
   String get accountBalanceAdjustmentCreateMessage;
 
   /// No description provided for @accountBalanceUnchanged.
@@ -7363,12 +7363,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The balance has not changed'**
   String get accountBalanceUnchanged;
-
-  /// No description provided for @balanceAdjustmentTransaction.
-  ///
-  /// In en, this message translates to:
-  /// **'Balance'**
-  String get balanceAdjustmentTransaction;
 
   /// No description provided for @accountEditTitle.
   ///

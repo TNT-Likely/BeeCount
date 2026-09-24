@@ -20,7 +20,6 @@ import '../../pages/attachment/attachment_preview_page.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/attachment_service.dart';
 import '../../utils/month_range.dart';
-import '../../utils/transaction_type_utils.dart';
 
 /// 可复用的交易列表组件
 /// 支持显示分组的交易列表，包含日期头部和交易项
@@ -461,16 +460,11 @@ class TransactionListState extends ConsumerState<TransactionList> {
                 })>;
             final isTransfer = it.t.type == 'transfer';
             final isExpense = it.t.type == 'expense';
-            final isBalanceAdjustment =
-                isBalanceAdjustmentTransaction(it.t.type);
-            final isAdjustment =
-                it.t.type == 'adjustment' || isBalanceAdjustment;
+            final isAdjustment = it.t.type == 'adjustment';
 
             // 获取分类显示名称
             final categoryName = isAdjustment
-                ? (isBalanceAdjustment
-                    ? AppLocalizations.of(context).balanceAdjustmentTransaction
-                    : AppLocalizations.of(context).adjustmentTransaction)
+                ? AppLocalizations.of(context).adjustmentTransaction
                 : CategoryUtils.getDisplayName(it.category?.name, context);
 
             final subtitle = it.t.note ?? '';
@@ -603,27 +597,6 @@ class TransactionListState extends ConsumerState<TransactionList> {
                         },
                         onTap: () async {
                           switchToStreamMode(); // 用户交互，切换到 Stream 模式
-                          if (isBalanceAdjustment) {
-                            await showDialog<void>(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                title: Text(
-                                  AppLocalizations.of(context)
-                                      .balanceAdjustmentTransaction,
-                                ),
-                                content: Text(it.t.note ?? ''),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(ctx),
-                                    child: Text(
-                                      AppLocalizations.of(context).commonOk,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                            return;
-                          }
                           await TransactionEditUtils.editTransaction(
                             context,
                             ref,

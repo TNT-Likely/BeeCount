@@ -293,7 +293,7 @@ class LocalAccountRepository implements AccountRepository {
       } else if (t.type == 'transfer') {
         // 作为转出账户
         balance -= t.amount;
-      } else if (t.type == 'adjustment' || t.type == 'balance_adjustment') {
+      } else if (t.type == 'adjustment') {
         balance += t.amount;
       }
     }
@@ -344,7 +344,7 @@ class LocalAccountRepository implements AccountRepository {
           balance -= tx.amount;
         } else if (tx.type == 'transfer') {
           balance -= tx.amount;
-        } else if (tx.type == 'adjustment' || tx.type == 'balance_adjustment') {
+        } else if (tx.type == 'adjustment') {
           balance += tx.amount;
         }
       } else if (tx.toAccountId == accountId) {
@@ -376,7 +376,7 @@ class LocalAccountRepository implements AccountRepository {
           balance -= tx.amount;
         } else if (tx.type == 'transfer') {
           balance -= tx.amount;
-        } else if (tx.type == 'adjustment' || tx.type == 'balance_adjustment') {
+        } else if (tx.type == 'adjustment') {
           balance += tx.amount;
         }
       } else if (tx.toAccountId == accountId) {
@@ -681,10 +681,9 @@ class LocalAccountRepository implements AccountRepository {
       {int limit = 50, int offset = 0, String? flow}) async {
     // flow 过滤按资金流向:支出视图含转出,收入视图含转入,null 为全部
     final where = switch (flow) {
-      'expense' =>
-        "account_id = ?1 AND type IN ('expense', 'transfer', 'balance_adjustment')",
+      'expense' => "account_id = ?1 AND type IN ('expense', 'transfer')",
       'income' =>
-        "(type IN ('income', 'balance_adjustment') AND account_id = ?1) OR (type = 'transfer' AND to_account_id = ?1)",
+        "(type = 'income' AND account_id = ?1) OR (type = 'transfer' AND to_account_id = ?1)",
       _ => 'account_id = ?1 OR to_account_id = ?1',
     };
     final results = await db.customSelect(
@@ -773,7 +772,7 @@ class LocalAccountRepository implements AccountRepository {
           runningBalance -= tx.amount;
         } else if (tx.type == 'transfer') {
           runningBalance -= tx.amount;
-        } else if (tx.type == 'adjustment' || tx.type == 'balance_adjustment') {
+        } else if (tx.type == 'adjustment') {
           runningBalance += tx.amount;
         }
       }
@@ -802,8 +801,7 @@ class LocalAccountRepository implements AccountRepository {
             runningBalance -= tx.amount;
           } else if (tx.type == 'transfer') {
             runningBalance -= tx.amount;
-          } else if (tx.type == 'adjustment' ||
-              tx.type == 'balance_adjustment') {
+          } else if (tx.type == 'adjustment') {
             runningBalance += tx.amount;
           }
         }

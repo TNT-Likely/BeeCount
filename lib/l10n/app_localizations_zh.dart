@@ -3856,13 +3856,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get accountBalanceAdjustmentCreate => '生成平账交易';
 
   @override
-  String get accountBalanceAdjustmentCreateMessage => '生成一笔类型为“平账”的交易。它会影响账户余额，但不计入收入、支出和预算统计。';
+  String get accountBalanceAdjustmentCreateMessage => '生成一笔普通收支交易，金额将归入“平账”分类，并计入收入、支出和预算统计。';
 
   @override
   String get accountBalanceUnchanged => '余额未发生变化';
-
-  @override
-  String get balanceAdjustmentTransaction => '平账';
 
   @override
   String get accountEditTitle => '编辑账户';

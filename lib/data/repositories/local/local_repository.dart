@@ -23,7 +23,8 @@ import 'local_tag_repository.dart';
 import 'local_budget_repository.dart';
 import 'local_attachment_repository.dart';
 import 'local_exchange_rate_repository.dart';
-import '../../../utils/transaction_type_utils.dart';
+
+const _balanceSettlementCategoryName = '平账';
 
 /// LocalRepository 本地数据库实现
 /// 基于 Drift 本地数据库实现所有 Repository 接口
@@ -1269,25 +1270,6 @@ class LocalRepository extends BaseRepository {
         note: note,
       );
 
-  @override
-  Future<int> createBalanceAdjustmentTransaction({
-    required int ledgerId,
-    required int accountId,
-    required double amount,
-    required DateTime happenedAt,
-    String? note,
-  }) =>
-      addTransaction(
-        ledgerId: ledgerId,
-        type: balanceAdjustmentTransactionType,
-        amount: amount,
-        accountId: accountId,
-        happenedAt: happenedAt,
-        note: note,
-        excludeFromStats: true,
-        excludeFromBudget: true,
-      );
-
   // ============================================
   // CategoryRepository 接口实现 - 委托给 LocalCategoryRepository
   // ============================================
@@ -1973,15 +1955,19 @@ class LocalRepository extends BaseRepository {
     }
 
     if (createBalanceAdjustment) {
-      final transactionId = await createBalanceAdjustmentTransaction(
+      final transactionType = difference > 0 ? 'income' : 'expense';
+      final categoryId = await _ensureBalanceSettlementCategory(
+        transactionType,
+      );
+      final transactionId = await addTransaction(
         ledgerId: ledgerId,
+        type: transactionType,
         accountId: accountId,
-        amount: difference,
+        amount: difference.abs(),
+        categoryId: categoryId,
         happenedAt: happenedAt ?? DateTime.now(),
         note: note ?? '平账：$oldBalance → $targetBalance',
       );
-      final tagId = await upsertTag(name: balanceAdjustmentTagName);
-      await addTagToTransaction(transactionId: transactionId, tagId: tagId);
       return AccountBalanceUpdateResult(
         oldBalance: oldBalance,
         newBalance: targetBalance,
@@ -1999,6 +1985,20 @@ class LocalRepository extends BaseRepository {
       oldBalance: oldBalance,
       newBalance: targetBalance,
       difference: difference,
+    );
+  }
+
+  Future<int> _ensureBalanceSettlementCategory(String kind) async {
+    final existing = (await getAllCategories()).where(
+      (category) =>
+          category.name == _balanceSettlementCategoryName &&
+          category.kind == kind,
+    );
+    final category = existing.isEmpty ? null : existing.first;
+    if (category != null) return category.id;
+    return createCategory(
+      name: _balanceSettlementCategoryName,
+      kind: kind,
     );
   }
 

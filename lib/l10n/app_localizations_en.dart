@@ -3856,13 +3856,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountBalanceAdjustmentCreate => 'Create balance adjustment';
 
   @override
-  String get accountBalanceAdjustmentCreateMessage => 'Create a Balance transaction. It changes the account balance but is excluded from income, expense, and budget statistics.';
+  String get accountBalanceAdjustmentCreateMessage => 'Create a regular income or expense transaction under the Balance category. It is included in income, expense, and budget statistics.';
 
   @override
   String get accountBalanceUnchanged => 'The balance has not changed';
-
-  @override
-  String get balanceAdjustmentTransaction => 'Balance';
 
   @override
   String get accountEditTitle => 'Edit Account';

@@ -56,7 +56,7 @@ void main() {
     expect(await repo.getTransactionCountByAccount(accountId), 1);
   });
 
-  test('生成平账交易时使用固定类型和标签，且不计入收支统计', () async {
+  test('生成平账交易时使用普通收支类型和固定分类', () async {
     final ledgerId = await seedLedger();
     final accountId = await seedAccount(ledgerId);
 
@@ -70,16 +70,37 @@ void main() {
     expect(result.difference, 25);
     expect(result.transactionId, isNotNull);
     final transaction = await repo.getTransactionById(result.transactionId!);
-    expect(transaction!.type, 'balance_adjustment');
+    expect(transaction!.type, 'income');
     expect(transaction.amount, 25);
-    expect(transaction.excludeFromStats, isTrue);
-    expect(transaction.excludeFromBudget, isTrue);
+    expect(transaction.categoryId, isNotNull);
+    final category = await repo.getCategoryById(transaction.categoryId!);
+    expect(category!.name, '平账');
+    expect(category.kind, 'income');
+    expect(transaction.excludeFromStats, isFalse);
+    expect(transaction.excludeFromBudget, isFalse);
     expect(await repo.getAccountBalance(accountId), 125);
-    expect((await repo.getAccountStats(accountId)).income, 0);
+    expect((await repo.getAccountStats(accountId)).income, 25);
     expect((await repo.getAccountStats(accountId)).expense, 0);
+  });
 
-    final tags = await repo.getTagsForTransaction(result.transactionId!);
-    expect(tags.map((tag) => tag.name), contains('平账'));
+  test('余额减少时生成普通支出和平账分类', () async {
+    final ledgerId = await seedLedger();
+    final accountId = await seedAccount(ledgerId);
+
+    final result = await repo.setAccountBalance(
+      ledgerId: ledgerId,
+      accountId: accountId,
+      targetBalance: 75,
+      createBalanceAdjustment: true,
+    );
+
+    final transaction = await repo.getTransactionById(result.transactionId!);
+    expect(transaction!.type, 'expense');
+    expect(transaction.amount, 25);
+    final category = await repo.getCategoryById(transaction.categoryId!);
+    expect(category!.name, '平账');
+    expect(category.kind, 'expense');
+    expect(await repo.getAccountBalance(accountId), 75);
   });
 
   test('目标余额没有变化时不写入', () async {

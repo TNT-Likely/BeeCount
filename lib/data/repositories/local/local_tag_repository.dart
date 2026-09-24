@@ -6,7 +6,6 @@ import 'package:uuid/uuid.dart';
 import '../../db.dart';
 import '../exceptions.dart';
 import '../tag_repository.dart';
-import '../../../utils/transaction_type_utils.dart';
 
 /// 本地标签Repository实现
 /// 基于 Drift 数据库实现
@@ -73,12 +72,6 @@ class LocalTagRepository implements TagRepository {
     String? color,
     int? sortOrder,
   }) async {
-    final existing = await getTagById(id);
-    if (existing?.name == balanceAdjustmentTagName &&
-        name != null &&
-        name != balanceAdjustmentTagName) {
-      throw StateError('系统标签“$balanceAdjustmentTagName”不能改名');
-    }
     await (db.update(db.tags)..where((t) => t.id.equals(id))).write(
       TagsCompanion(
         name: name != null ? d.Value(name) : const d.Value.absent(),
@@ -91,10 +84,6 @@ class LocalTagRepository implements TagRepository {
 
   @override
   Future<void> deleteTag(int id) async {
-    final existing = await getTagById(id);
-    if (existing?.name == balanceAdjustmentTagName) {
-      throw StateError('系统标签“$balanceAdjustmentTagName”不能删除');
-    }
     await db.transaction(() async {
       // 先删除关联关系
       await (db.delete(db.transactionTags)..where((t) => t.tagId.equals(id)))
@@ -172,15 +161,6 @@ class LocalTagRepository implements TagRepository {
     required int transactionId,
     required int tagId,
   }) async {
-    final tag = await getTagById(tagId);
-    final transaction = await (db.select(db.transactions)
-          ..where((t) => t.id.equals(transactionId)))
-        .getSingleOrNull();
-    if (tag?.name == balanceAdjustmentTagName &&
-        transaction != null &&
-        isBalanceAdjustmentTransaction(transaction.type)) {
-      throw StateError('平账交易必须保留“$balanceAdjustmentTagName”标签');
-    }
     await (db.delete(db.transactionTags)
           ..where((t) =>
               t.transactionId.equals(transactionId) & t.tagId.equals(tagId)))
@@ -189,18 +169,6 @@ class LocalTagRepository implements TagRepository {
 
   @override
   Future<void> removeAllTagsFromTransaction(int transactionId) async {
-    final transaction = await (db.select(db.transactions)
-          ..where((t) => t.id.equals(transactionId)))
-        .getSingleOrNull();
-    if (transaction != null &&
-        isBalanceAdjustmentTransaction(transaction.type)) {
-      final systemTagId = await upsertTag(name: balanceAdjustmentTagName);
-      await addTagToTransaction(
-        transactionId: transactionId,
-        tagId: systemTagId,
-      );
-      return;
-    }
     await (db.delete(db.transactionTags)
           ..where((t) => t.transactionId.equals(transactionId)))
         .go();
@@ -212,15 +180,7 @@ class LocalTagRepository implements TagRepository {
     required List<int> tagIds,
   }) async {
     await db.transaction(() async {
-      final transaction = await (db.select(db.transactions)
-            ..where((t) => t.id.equals(transactionId)))
-          .getSingleOrNull();
       var nextTagIds = tagIds.toSet().toList();
-      if (transaction != null &&
-          isBalanceAdjustmentTransaction(transaction.type)) {
-        final systemTagId = await upsertTag(name: balanceAdjustmentTagName);
-        nextTagIds = {...nextTagIds, systemTagId}.toList();
-      }
       // 先删除所有关联
       await removeAllTagsFromTransaction(transactionId);
       // 再添加新的关联

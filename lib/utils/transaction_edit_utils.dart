@@ -4,9 +4,7 @@ import '../data/db.dart';
 import '../pages/transaction/transaction_editor_page.dart';
 import '../data/repositories/local/local_repository.dart';
 import '../providers/database_providers.dart';
-import '../l10n/app_localizations.dart';
 import 'shared_ledger_picker_filter.dart' show syntheticIdForSyncId;
-import 'transaction_type_utils.dart';
 
 class TransactionEditUtils {
   static Future<void> editTransaction(
@@ -15,23 +13,6 @@ class TransactionEditUtils {
     Transaction transaction,
     Category? category,
   ) async {
-    if (isBalanceAdjustmentTransaction(transaction.type)) {
-      await showDialog<void>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title:
-              Text(AppLocalizations.of(context).balanceAdjustmentTransaction),
-          content: Text(transaction.note ?? ''),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(AppLocalizations.of(context).commonOk),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
     // 获取交易关联的标签ID(主表 + §7 override 表)
     final repo = ref.read(repositoryProvider);
     final tags = await repo.getTagsForTransaction(transaction.id);

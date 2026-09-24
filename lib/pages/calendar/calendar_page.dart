@@ -10,7 +10,6 @@ import '../../widgets/category_icon.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../utils/transaction_edit_utils.dart';
-import '../../utils/transaction_type_utils.dart';
 import '../../providers.dart';
 import '../../providers/calendar_providers.dart';
 import '../../l10n/app_localizations.dart';
@@ -610,12 +609,11 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               final category = item.category;
               final isExpense = item.t.type == 'expense';
               final isTransfer = item.t.type == 'transfer';
-              final isBalanceAdjustment =
-                  isBalanceAdjustmentTransaction(item.t.type);
+              final isAdjustment = item.t.type == 'adjustment';
 
               // 分类名称
-              final categoryName = isBalanceAdjustment
-                  ? l10n.balanceAdjustmentTransaction
+              final categoryName = isAdjustment
+                  ? l10n.adjustmentTransaction
                   : category?.name ?? l10n.commonUncategorized;
 
               // 备注作为副标题
@@ -627,15 +625,13 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   .toList();
 
               return TransactionListItem(
-                icon: isBalanceAdjustment
-                    ? Icons.tune
-                    : getCategoryIconData(
-                        category: category, categoryName: categoryName),
-                category: isBalanceAdjustment ? null : category,
+                icon: getCategoryIconData(
+                    category: category, categoryName: categoryName),
+                category: category,
                 title: isTransfer
                     ? (subtitle.isNotEmpty ? subtitle : l10n.transferTitle)
                     : (subtitle.isNotEmpty ? subtitle : categoryName),
-                categoryName: isTransfer || isBalanceAdjustment
+                categoryName: isTransfer || isAdjustment
                     ? null
                     : (subtitle.isNotEmpty ? categoryName : null),
                 amount: item.t.amount,
@@ -643,28 +639,12 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 nativeAmount: item.t.nativeAmount,
                 isExpense: isExpense,
                 isTransfer: isTransfer,
-                isAdjustment: isBalanceAdjustment,
+                isAdjustment: isAdjustment,
                 happenedAt: item.t.happenedAt,
                 accountName: item.account?.name,
                 tags: tagsList.isNotEmpty ? tagsList : null,
                 attachmentCount: item.attachments.length,
                 onTap: () async {
-                  if (isBalanceAdjustment) {
-                    await showDialog<void>(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: Text(l10n.balanceAdjustmentTransaction),
-                        content: Text(item.t.note ?? ''),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx),
-                            child: Text(l10n.commonOk),
-                          ),
-                        ],
-                      ),
-                    );
-                    return;
-                  }
                   await TransactionEditUtils.editTransaction(
                     context,
                     ref,
