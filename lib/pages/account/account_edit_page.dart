@@ -173,29 +173,274 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
     required AppLocalizations l10n,
   }) async {
     final difference = targetBalance - currentBalance;
+    final currencySymbol = getCurrencySymbol(_selectedCurrency);
+    String formatBalance(double value) {
+      final sign = value < 0 ? '−' : '';
+      return '$sign$currencySymbol${value.abs().toStringAsFixed(2)}';
+    }
+
     return showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.accountBalanceAdjustmentTitle),
-        content: Text(
-          '${l10n.accountBalance}: ${currentBalance.toStringAsFixed(2)}\n'
-          '→ ${targetBalance.toStringAsFixed(2)}\n\n'
-          '${difference > 0 ? '+' : ''}${difference.toStringAsFixed(2)}',
+      builder: (dialogContext) {
+        final differenceColor = difference > 0
+            ? BeeTokens.success(dialogContext)
+            : difference < 0
+                ? BeeTokens.error(dialogContext)
+                : BeeTokens.textSecondary(dialogContext);
+        final signedDifference =
+            '${difference > 0 ? '+' : difference < 0 ? '−' : ''}'
+            '$currencySymbol${difference.abs().toStringAsFixed(2)}';
+
+        return Dialog(
+          backgroundColor: BeeTokens.surface(dialogContext),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 24,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: SizedBox(
+              width: double.maxFinite,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: BeeTokens.surfaceSelected(dialogContext),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.account_balance_wallet_outlined,
+                            color: Theme.of(dialogContext).colorScheme.primary,
+                            size: 21,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            l10n.accountBalanceAdjustmentTitle,
+                            style: TextStyle(
+                              color: BeeTokens.textPrimary(dialogContext),
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          tooltip: l10n.commonCancel,
+                          onPressed: () => Navigator.pop(dialogContext),
+                          icon: Icon(
+                            Icons.close_rounded,
+                            color: BeeTokens.iconSecondary(dialogContext),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: BeeTokens.surfaceSecondary(dialogContext),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.accountBalance,
+                            style: TextStyle(
+                              color: BeeTokens.textSecondary(dialogContext),
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  formatBalance(currentBalance),
+                                  style: TextStyle(
+                                    color: BeeTokens.textPrimary(dialogContext),
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_rounded,
+                                color: BeeTokens.iconTertiary(dialogContext),
+                                size: 18,
+                              ),
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    formatBalance(targetBalance),
+                                    style: TextStyle(
+                                      color: Theme.of(dialogContext)
+                                          .colorScheme
+                                          .primary,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 9,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: differenceColor.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                signedDifference,
+                                style: TextStyle(
+                                  color: differenceColor,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    _balanceAdjustmentChoiceTile(
+                      context: dialogContext,
+                      icon: Icons.account_balance_outlined,
+                      title: l10n.accountBalanceAdjustmentOnly,
+                      description: l10n.accountBalanceAdjustmentOnlyMessage,
+                      onTap: () => Navigator.pop(dialogContext, false),
+                    ),
+                    const SizedBox(height: 10),
+                    _balanceAdjustmentChoiceTile(
+                      context: dialogContext,
+                      icon: Icons.receipt_long_outlined,
+                      title: l10n.accountBalanceAdjustmentCreate,
+                      description: l10n.accountBalanceAdjustmentCreateMessage,
+                      emphasized: true,
+                      onTap: () => Navigator.pop(dialogContext, true),
+                    ),
+                    const SizedBox(height: 6),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        child: Text(l10n.commonCancel),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _balanceAdjustmentChoiceTile({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String description,
+    required VoidCallback onTap,
+    bool emphasized = false,
+  }) {
+    final primary = Theme.of(context).colorScheme.primary;
+    final accent = emphasized ? primary : BeeTokens.iconSecondary(context);
+    final background = emphasized
+        ? BeeTokens.surfaceSelected(context)
+        : BeeTokens.surfaceSecondary(context);
+
+    return Material(
+      color: background,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: emphasized
+                  ? primary.withValues(alpha: 0.3)
+                  : BeeTokens.borderStrong(context),
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: emphasized
+                      ? primary.withValues(alpha: 0.12)
+                      : BeeTokens.surfaceElevated(context),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: accent, size: 20),
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: BeeTokens.textPrimary(context),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        color: BeeTokens.textSecondary(context),
+                        fontSize: 12,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              Padding(
+                padding: const EdgeInsets.only(top: 9),
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  color: BeeTokens.textTertiary(context),
+                  size: 20,
+                ),
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.commonCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l10n.accountBalanceAdjustmentOnly),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l10n.accountBalanceAdjustmentCreate),
-          ),
-        ],
       ),
     );
   }
