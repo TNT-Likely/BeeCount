@@ -13,6 +13,7 @@
 migrate_working_dir/
 .ai/*
 .claude/
+AGENTS.md
 CLAUDE.md
 PROJECT_IMPROVEMENTS.md
 assets/config.json
