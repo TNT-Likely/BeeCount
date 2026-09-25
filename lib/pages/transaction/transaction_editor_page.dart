@@ -22,7 +22,7 @@ import '../../services/data/tx_author_service.dart';
 /// 支持创建/编辑收入、支出和转账记录
 class TransactionEditorPage extends ConsumerStatefulWidget {
   final String initialKind; // 'expense', 'income', or 'transfer'
-  // quickAdd: 点击分类后在当前弹窗上叠加金额输入，保存成功后依次关闭两个弹窗
+  // quickAdd: 点击分类后在当前弹窗上叠加金额输入
   final bool quickAdd;
   final int? initialCategoryId;
   final String? initialNote; // 用于金额输入弹窗回填备注
@@ -257,6 +257,9 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
         initialExcludeFromBudget: widget.initialExcludeFromBudget,
         initialCurrencyCode: widget.initialCurrencyCode,
         initialNativeAmount: widget.initialNativeAmount,
+        allowContinueAdding: widget.quickAdd &&
+            widget.editingTransactionId == null &&
+            kind != 'transfer',
         onSubmit: (res) async {
           final repo = ref.read(repositoryProvider);
           final attachmentService = ref.read(attachmentServiceProvider);
@@ -403,9 +406,20 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
           if (context.mounted) {
             updateAppWidget(ref, context);
           }
-          // 先关闭页面，再播放反馈
+          // 双击完成：只收起金额面板，保留分类选择页供下一笔使用。
+          // 普通完成：按原流程关闭金额面板和分类选择页。
           if (ctx.mounted && Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
-          if (context.mounted && Navigator.of(context).canPop()) Navigator.of(context).pop();
+          if (!res.continueAdding &&
+              context.mounted &&
+              Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+          if (res.continueAdding && context.mounted) {
+            showToast(
+              context,
+              AppLocalizations.of(context).transactionSavedNextCategory,
+            );
+          }
           // 反馈：轻微触感 + 系统点击音
           HapticFeedback.lightImpact();
           SystemSound.play(SystemSoundType.click);

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -185,6 +186,7 @@ class _AvatarSlot extends StatelessWidget {
 
 typedef AmountEditorResult = ({
   double amount,
+  bool continueAdding,
   String? note,
   DateTime date,
   int? accountId,
@@ -208,6 +210,7 @@ class AmountEditorSheet extends ConsumerStatefulWidget {
   final int? initialAccountId;
   final List<int>? initialTagIds; // 初始标签ID列表
   final bool showAccountPicker; // 是否显示账户选择
+  final bool allowContinueAdding; // 双击完成后回到分类选择继续新建
   final ValueChanged<AmountEditorResult> onSubmit;
   final int ledgerId;
   final int? editingTransactionId; // 编辑模式时的交易ID，用于显示已有附件
@@ -230,6 +233,7 @@ class AmountEditorSheet extends ConsumerStatefulWidget {
     this.initialAccountId,
     this.initialTagIds,
     this.showAccountPicker = false,
+    this.allowContinueAdding = false,
     required this.onSubmit,
     required this.ledgerId,
     this.editingTransactionId,
@@ -266,6 +270,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
 
   // 防重复提交标志
   bool _isSubmitting = false;
+  Timer? _finishTapTimer;
 
   // 已选标签ID列表
   late List<int> _selectedTagIds;
@@ -328,6 +333,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
 
   @override
   void dispose() {
+    _finishTapTimer?.cancel();
     _noteFocusNode.dispose();
     super.dispose();
   }
@@ -579,6 +585,50 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       if (_amountStr.isEmpty) _amountStr = '0';
     });
     SystemSound.play(SystemSoundType.click);
+  }
+
+  void _submit({required bool continueAdding}) {
+    if (_isSubmitting || !mounted) return;
+
+    final current = double.tryParse(_amountStr) ?? 0.0;
+    final total = _op == null ? current : _compute(_acc, _op!, current);
+    if (total.abs() <= 0) return;
+
+    setState(() => _isSubmitting = true);
+
+    // v30:折本位币快照。外币且汇率无效 → 阻断(L8)。
+    final txCurrency = _txCurrency();
+    final ledgerBase = ref.read(currentLedgerCurrencyProvider);
+    double? nativeAmount;
+    if (txCurrency == ledgerBase) {
+      nativeAmount = total.abs();
+    } else {
+      final rate = _currentRate();
+      if (rate == null || rate <= 0) {
+        if (mounted) {
+          setState(() => _isSubmitting = false);
+          showToast(context, AppLocalizations.of(context).txRateMissingHint);
+        }
+        return;
+      }
+      nativeAmount = total.abs() * rate;
+    }
+
+    HapticFeedback.lightImpact();
+    SystemSound.play(SystemSoundType.click);
+    widget.onSubmit((
+      amount: total.abs(), // 始终正数
+      continueAdding: continueAdding,
+      note: _noteCtrl.text.isEmpty ? null : _noteCtrl.text,
+      date: _date,
+      accountId: _selectedAccountId,
+      tagIds: _selectedTagIds,
+      pendingAttachments: _pendingAttachments,
+      excludeFromStats: _excludeFromStats,
+      excludeFromBudget: _excludeFromBudget,
+      currencyCode: txCurrency,
+      nativeAmount: nativeAmount,
+    ));
   }
 
   // 旧 _toggleSign 已废弃，符号由类别含义决定
@@ -1063,6 +1113,31 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                 final isInCalcMode = _op != null;
                 final isEnabled = (isInCalcMode ? true : total.abs() > 0) && !_isSubmitting;
 
+                void handleTap() {
+                  if (isInCalcMode) {
+                    // 运算模式：点击等号计算结果，不触发连续记账。
+                    applyEquals();
+                    return;
+                  }
+
+                  if (!widget.allowContinueAdding) {
+                    _submit(continueAdding: false);
+                    return;
+                  }
+
+                  // 等待双击窗口：单击仍按原行为保存退出，双击保存后留在分类页。
+                  if (_finishTapTimer != null) {
+                    _finishTapTimer!.cancel();
+                    _finishTapTimer = null;
+                    _submit(continueAdding: true);
+                    return;
+                  }
+                  _finishTapTimer = Timer(const Duration(milliseconds: 300), () {
+                    _finishTapTimer = null;
+                    _submit(continueAdding: false);
+                  });
+                }
+
                 return Padding(
                   padding: const EdgeInsets.all(6),
                   child: Material(
@@ -1070,60 +1145,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                     borderRadius: BorderRadius.circular(12),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
-                      onTap: isEnabled
-                          ? () async {
-                              if (isInCalcMode) {
-                                // 运算模式：点击等号计算结果
-                                applyEquals();
-                                return;
-                              }
-
-                              // 正常模式：提交
-                              // 防重复点击
-                              if (_isSubmitting) return;
-                              setState(() => _isSubmitting = true);
-
-                              // v30:折本位币快照。外币且汇率无效 → 阻断(L8)。
-                              final txCurrency = _txCurrency();
-                              final ledgerBase =
-                                  ref.read(currentLedgerCurrencyProvider);
-                              double? nativeAmount;
-                              if (txCurrency == ledgerBase) {
-                                nativeAmount = total.abs();
-                              } else {
-                                final r = _currentRate();
-                                if (r == null || r <= 0) {
-                                  setState(() => _isSubmitting = false);
-                                  showToast(
-                                      context,
-                                      AppLocalizations.of(context)
-                                          .txRateMissingHint);
-                                  return;
-                                }
-                                nativeAmount = total.abs() * r;
-                              }
-
-                              HapticFeedback.lightImpact();
-                              SystemSound.play(SystemSoundType.click);
-                              widget.onSubmit((
-                                amount: total.abs(), // 始终正数
-                                note: _noteCtrl.text.isEmpty
-                                    ? null
-                                    : _noteCtrl.text,
-                                date: _date,
-                                accountId: _selectedAccountId,
-                                tagIds: _selectedTagIds,
-                                pendingAttachments: _pendingAttachments,
-                                excludeFromStats: _excludeFromStats,
-                                excludeFromBudget: _excludeFromBudget,
-                                currencyCode: txCurrency,
-                                nativeAmount: nativeAmount,
-                              ));
-
-                              // 注意：不需要在这里重置 _isSubmitting
-                              // 因为提交后整个 Sheet 会被关闭，State 会被销毁
-                            }
-                          : null,
+                      onTap: isEnabled ? handleTap : null,
                       child: SizedBox(
                         height: 60,
                         child: Center(
@@ -1136,13 +1158,58 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
                                 )
-                              : Text(
-                                  isInCalcMode ? '=' : AppLocalizations.of(context).commonFinish,
-                                  style: TextStyle(
-                                      color: isEnabled ? Colors.white : BeeTokens.textTertiary(context),
-                                      fontSize: isInCalcMode ? 24 : 16,
-                                      fontWeight: FontWeight.w700),
-                                ),
+                              : isInCalcMode
+                                  ? Text(
+                                      '=',
+                                      style: TextStyle(
+                                          color: isEnabled
+                                              ? Colors.white
+                                              : BeeTokens.textTertiary(context),
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w700),
+                                    )
+                                  : widget.allowContinueAdding
+                                      ? Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              AppLocalizations.of(context)
+                                                  .commonFinish,
+                                              style: TextStyle(
+                                                  color: isEnabled
+                                                      ? Colors.white
+                                                      : BeeTokens.textTertiary(
+                                                          context),
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700,
+                                                  height: 1.1),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              AppLocalizations.of(context)
+                                                  .transactionDoubleTapHint,
+                                              style: TextStyle(
+                                                  color: isEnabled
+                                                      ? Colors.white70
+                                                      : BeeTokens.textTertiary(
+                                                          context),
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.w500,
+                                                  height: 1),
+                                            ),
+                                          ],
+                                        )
+                                      : Text(
+                                          AppLocalizations.of(context)
+                                              .commonFinish,
+                                          style: TextStyle(
+                                              color: isEnabled
+                                                  ? Colors.white
+                                                  : BeeTokens.textTertiary(
+                                                      context),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700),
+                                        ),
                         ),
                       ),
                     ),

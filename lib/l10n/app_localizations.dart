@@ -14000,6 +14000,18 @@ abstract class AppLocalizations {
   /// **'Rate'**
   String get txRateLabel;
 
+  /// No description provided for @transactionDoubleTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Double tap'**
+  String get transactionDoubleTapHint;
+
+  /// No description provided for @transactionSavedNextCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. Choose another category.'**
+  String get transactionSavedNextCategory;
+
   /// No description provided for @txConvertedPreview.
   ///
   /// In en, this message translates to:

@@ -3255,6 +3255,8 @@
   "txFlagBudgetExcludedTag": "No budget",
   "txCurrencyLabel": "Currency",
   "txRateLabel": "Rate",
+  "transactionDoubleTapHint": "Double tap",
+  "transactionSavedNextCategory": "Saved. Choose another category.",
   "txConvertedPreview": "≈ {amount} {currency}",
   "@txConvertedPreview": { "placeholders": { "amount": {}, "currency": {} } },
   "txRateMissingHint": "Please enter the rate for this entry before saving",
