@@ -684,7 +684,6 @@ class _CloudSyncPageState extends ConsumerState<CloudSyncPage> {
 
                                             // 刷新认证服务和同步服务以触发状态更新
                                             ref.invalidate(authServiceProvider);
-                                            ref.invalidate(syncServiceProvider);
 
                                             ref
                                                 .read(syncStatusRefreshProvider

@@ -1,14 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' show Color;
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' hide SyncStatus;
 import '../cloud/sync_service.dart';
+import '../data/db.dart';
 import 'shared_ledger_providers.dart';
 import '../cloud/sync/sync_coordinator.dart';
 import '../cloud/sync/sync_engine.dart';
@@ -144,55 +147,360 @@ final s3ConfigProvider = FutureProvider<CloudServiceConfig?>((ref) async {
   return store.loadS3();
 });
 
-final authServiceProvider = FutureProvider<CloudAuthService>((ref) async {
-  final activeAsync = ref.watch(activeCloudConfigProvider);
-  if (!activeAsync.hasValue) {
-    return NoopAuthService();
+typedef CloudServicesFactory = Future<
+    ({CloudProvider? provider, CloudAuthService? auth})> Function(
+  CloudServiceConfig config,
+);
+
+final cloudServicesFactoryProvider = Provider<CloudServicesFactory>(
+  (ref) => createCloudServices,
+);
+
+/// Owns the one active provider/auth/sync graph for the app.
+class ActiveCloudRuntime {
+  ActiveCloudRuntime({
+    required this.config,
+    required this.provider,
+    required this.auth,
+    required this.syncService,
+    required this.identity,
+    this.syncEngine,
+  });
+
+  CloudServiceConfig config;
+  final CloudProvider? provider;
+  final CloudAuthService auth;
+  final SyncService syncService;
+  final SyncEngine? syncEngine;
+  final String identity;
+
+  Future<void> Function()? _syncBindingsClose;
+  Future<void>? _closeFuture;
+
+  void installSyncBindings(Future<void> Function() close) {
+    _syncBindingsClose = close;
   }
 
-  final config = activeAsync.value!;
-  if (!config.valid || config.type == CloudBackendType.local) {
-    return NoopAuthService();
+  void clearSyncBindings(Future<void> Function() close) {
+    if (identical(_syncBindingsClose, close)) _syncBindingsClose = null;
   }
 
-  try {
-    final services = await createCloudServices(config);
-    if (services.auth != null) {
-      return services.auth!;
+  void updateConfig(CloudServiceConfig next) {
+    config = next;
+    final beeAuth = auth;
+    if (beeAuth is BeeCountCloudAuthService) {
+      beeAuth.setRecoveryCredentials(
+        email: next.beecountCloudEmail,
+        password: next.beecountCloudPassword,
+      );
     }
-  } catch (e) {
-    // 初始化失败，返回 NoopAuthService
   }
 
-  return NoopAuthService();
+  Future<void> close() => _closeFuture ??= _close();
+
+  Future<void> _close() async {
+    final closeBindings = _syncBindingsClose;
+    _syncBindingsClose = null;
+    try {
+      await closeBindings?.call();
+    } finally {
+      try {
+        await syncEngine?.dispose();
+      } finally {
+        await provider?.dispose();
+      }
+    }
+  }
+
+  static String identityFor(CloudServiceConfig config) {
+    final fields = <String, Object?>{};
+    switch (config.type) {
+      case CloudBackendType.local:
+      case CloudBackendType.icloud:
+        break;
+      case CloudBackendType.beecountCloud:
+        fields['baseUrl'] = config.beecountCloudBaseUrl?.trim();
+        fields['apiPrefix'] = config.beecountCloudApiPrefix?.trim();
+        break;
+      case CloudBackendType.supabase:
+        fields['url'] = config.supabaseUrl;
+        fields['anonKey'] = config.supabaseAnonKey;
+        fields['bucket'] = config.supabaseBucket;
+        break;
+      case CloudBackendType.webdav:
+        fields['url'] = config.webdavUrl;
+        fields['username'] = config.webdavUsername;
+        fields['password'] = config.webdavPassword;
+        fields['remotePath'] = config.webdavRemotePath;
+        break;
+      case CloudBackendType.s3:
+        fields['endpoint'] = config.s3Endpoint;
+        fields['region'] = config.s3Region;
+        fields['accessKey'] = config.s3AccessKey;
+        fields['secretKey'] = config.s3SecretKey;
+        fields['bucket'] = config.s3Bucket;
+        fields['useSSL'] = config.s3UseSSL;
+        fields['port'] = config.s3Port;
+        break;
+    }
+    return sha256
+        .convert(utf8.encode('${config.type.name}:${jsonEncode(fields)}'))
+        .toString();
+  }
+}
+
+final activeCloudRuntimeProvider =
+    AsyncNotifierProvider<ActiveCloudRuntimeController, ActiveCloudRuntime?>(
+  ActiveCloudRuntimeController.new,
+);
+
+/// Serializes config mutations and tears down the current runtime before swap.
+class ActiveCloudRuntimeController extends AsyncNotifier<ActiveCloudRuntime?> {
+  ActiveCloudRuntime? _runtime;
+  late BeeDatabase _database;
+  Future<void> _mutationQueue = Future<void>.value();
+  bool _closing = false;
+
+  @override
+  Future<ActiveCloudRuntime?> build() async {
+    _database = ref.read(databaseProvider);
+    ref.onDispose(() {
+      _closing = true;
+      final old = _runtime;
+      _runtime = null;
+      if (old != null) unawaited(old.close());
+    });
+    try {
+      final config = await ref.read(cloudServiceStoreProvider).loadActive();
+      final runtime = await _open(config);
+      if (_closing) {
+        await runtime.close();
+        return null;
+      }
+      _runtime = runtime;
+      return runtime;
+    } catch (error, stack) {
+      Error.throwWithStackTrace(error, stack);
+    }
+  }
+
+  Future<bool> activate(CloudBackendType type) => _enqueue(() async {
+        await _ensureReady();
+        final store = ref.read(cloudServiceStoreProvider);
+        final success = await store.activate(type);
+        if (!success) return false;
+        await _refreshConfigProviders(type);
+        await _install(await store.loadActive());
+        return true;
+      });
+
+  Future<void> saveAndActivate(CloudServiceConfig config) =>
+      _enqueue(() async {
+        await _ensureReady();
+        await ref.read(cloudServiceStoreProvider).saveAndActivate(config);
+        await _refreshConfigProviders(config.type);
+        await _install(await ref.read(cloudServiceStoreProvider).loadActive());
+      });
+
+  Future<void> saveOnly(CloudServiceConfig config) => _enqueue(() async {
+        await _ensureReady();
+        final store = ref.read(cloudServiceStoreProvider);
+        await store.saveOnly(config);
+        _invalidateConfigFor(config.type);
+        final activeConfig = await store.loadActive();
+        if (activeConfig.type == config.type) {
+          ref.invalidate(activeCloudConfigProvider);
+          final refreshed = await ref.read(activeCloudConfigProvider.future);
+          await _install(refreshed);
+        }
+      });
+
+  Future<void> reloadActive() => _enqueue(() async {
+        await _ensureReady();
+        final config = await ref.read(cloudServiceStoreProvider).loadActive();
+        await _refreshConfigProviders(config.type);
+        await _install(config);
+      });
+
+  Future<void> _ensureReady() async {
+    if (_runtime != null) return;
+    try {
+      await ref.read(activeCloudRuntimeProvider.future);
+    } catch (_) {
+      // An invalid active configuration must not block save/activate from
+      // repairing it. _install will reopen the runtime with the new config.
+      if (_closing) rethrow;
+      return;
+    }
+    if (_runtime == null || _closing) {
+      throw StateError('Active cloud runtime is unavailable');
+    }
+  }
+
+  Future<T> _enqueue<T>(Future<T> Function() operation) {
+    final result = Completer<T>();
+    _mutationQueue = _mutationQueue.catchError((_) {}).then((_) async {
+      try {
+        result.complete(await operation());
+      } catch (error, stack) {
+        result.completeError(error, stack);
+      }
+    });
+    return result.future;
+  }
+
+  Future<void> _refreshConfigProviders(CloudBackendType type) async {
+    ref.invalidate(activeCloudConfigProvider);
+    _invalidateConfigFor(type);
+    await ref.read(activeCloudConfigProvider.future);
+  }
+
+  void _invalidateConfigFor(CloudBackendType type) {
+    switch (type) {
+      case CloudBackendType.local:
+      case CloudBackendType.icloud:
+        break;
+      case CloudBackendType.beecountCloud:
+        ref.invalidate(beecountCloudConfigProvider);
+        break;
+      case CloudBackendType.supabase:
+        ref.invalidate(supabaseConfigProvider);
+        break;
+      case CloudBackendType.webdav:
+        ref.invalidate(webdavConfigProvider);
+        break;
+      case CloudBackendType.s3:
+        ref.invalidate(s3ConfigProvider);
+        break;
+    }
+  }
+
+  Future<void> _install(CloudServiceConfig config) async {
+    final old = _runtime;
+    if (old != null && old.identity == ActiveCloudRuntime.identityFor(config)) {
+      old.updateConfig(config);
+      state = AsyncData(old);
+      return;
+    }
+
+    state = const AsyncLoading();
+    _runtime = null;
+    try {
+      await old?.close();
+      final next = await _open(config);
+      if (_closing) {
+        await next.close();
+        return;
+      }
+      _runtime = next;
+      state = AsyncData(next);
+    } catch (error, stack) {
+      state = AsyncError(error, stack);
+      Error.throwWithStackTrace(error, stack);
+    }
+  }
+
+  Future<ActiveCloudRuntime> _open(CloudServiceConfig config) async {
+    await ref.read(activeCloudConfigProvider.future);
+    final db = _database;
+    final repo = ref.read(repositoryProvider);
+
+    if (!config.valid || config.type == CloudBackendType.local) {
+      return ActiveCloudRuntime(
+        config: config,
+        provider: null,
+        auth: NoopAuthService(),
+        syncService: LocalOnlySyncService(),
+        identity: ActiveCloudRuntime.identityFor(config),
+      );
+    }
+
+    final services = await ref.read(cloudServicesFactoryProvider)(config);
+    final provider = services.provider;
+    final auth = services.auth ?? NoopAuthService();
+    if (provider == null) {
+      return ActiveCloudRuntime(
+        config: config,
+        provider: null,
+        auth: auth,
+        syncService: LocalOnlySyncService(),
+        identity: ActiveCloudRuntime.identityFor(config),
+      );
+    }
+
+    try {
+      if (provider is BeeCountCloudProvider) {
+        final beeAuth = provider.auth;
+        if (beeAuth is BeeCountCloudAuthService) {
+          beeAuth.setRecoveryCredentials(
+            email: config.beecountCloudEmail,
+            password: config.beecountCloudPassword,
+          );
+        }
+        try {
+          final user = await beeAuth.currentUser;
+          if (user != null) {
+            logger.info(
+                'CloudSync', 'BeeCount Cloud session ready: ${user.email}');
+          } else if ((config.beecountCloudEmail ?? '').isNotEmpty) {
+            logger.info('CloudSync', 'BeeCount Cloud 未登录,等首次 API 触发恢复');
+          }
+        } catch (error, stack) {
+          logger.warning('CloudSync',
+              'BeeCount Cloud 初始 currentUser 失败: $error', stack);
+        }
+        final engine = SyncEngine(
+          db: db,
+          provider: provider,
+          changeTracker: ref.read(sync_p.changeTrackerProvider),
+          repo: repo,
+        );
+        return ActiveCloudRuntime(
+          config: config,
+          provider: provider,
+          auth: beeAuth,
+          syncService: engine,
+          syncEngine: engine,
+          identity: ActiveCloudRuntime.identityFor(config),
+        );
+      }
+
+      return ActiveCloudRuntime(
+        config: config,
+        provider: provider,
+        auth: auth,
+        syncService: TransactionsSyncManager(
+          config: config,
+          db: db,
+          repo: repo,
+          provider: provider,
+        ),
+        identity: ActiveCloudRuntime.identityFor(config),
+      );
+    } catch (_) {
+      await provider.dispose();
+      rethrow;
+    }
+  }
+}
+
+final authServiceProvider = FutureProvider<CloudAuthService>((ref) async {
+  final runtime = await ref.watch(activeCloudRuntimeProvider.future);
+  return runtime?.auth ?? NoopAuthService();
 });
 
 // 防重入锁：避免 Provider 重建导致多个自动同步并发执行
 bool _autoSyncInProgress = false;
 
 final syncServiceProvider = Provider<SyncService>((ref) {
-  final activeAsync = ref.watch(activeCloudConfigProvider);
-  if (!activeAsync.hasValue) return LocalOnlySyncService();
-
-  final config = activeAsync.value!;
-  if (!config.valid || config.type == CloudBackendType.local) {
+  final runtimeAsync = ref.watch(activeCloudRuntimeProvider);
+  if (!runtimeAsync.hasValue || runtimeAsync.value == null) {
     return LocalOnlySyncService();
   }
-
-  // BeeCount Cloud → SyncEngine（增量同步）
-  if (config.type == CloudBackendType.beecountCloud) {
-    final providerAsync = ref.watch(beecountCloudProviderInstance);
-    if (!providerAsync.hasValue || providerAsync.value == null) {
-      // Provider 尚未初始化，返回 LocalOnly 等待
-      return LocalOnlySyncService();
-    }
-    final cloudProvider = providerAsync.value!;
-    final db = ref.watch(databaseProvider);
-    // SyncEngine 改走 family 缓存唯一实例 — 跟 shared_ledger_providers.dart
-    // / join_shared_ledger_page.dart 共享同一 engine。否则两个独立 engine
-    // 各跑各的 sync(同一 ledger 1 秒内 2-3 次)。disposal 归 family,这里
-    // 不再 ref.onDispose(engine.dispose())。
-    final engine = ref.watch(sync_p.syncEngineProvider(cloudProvider));
+  final runtime = runtimeAsync.value!;
+  final engine = runtime.syncEngine;
+  if (engine != null) {
+    final db = ref.read(databaseProvider);
 
     // PR 2/3:订阅 SyncEvent stream 替代 7 个 callback 绑定。
     //
@@ -312,8 +620,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
           await cloud.updateMyProfileAiConfig(aiConfig: snapshot);
           logger.info('CloudSync', 'AI 配置已推送到 server');
         } catch (e, st) {
-          logger.warning(
-              'CloudSync', 'AI 配置推送失败 (non-blocking): $e', st);
+          logger.warning('CloudSync', 'AI 配置推送失败 (non-blocking): $e', st);
         }
       }());
     };
@@ -356,13 +663,24 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       });
     });
 
-    // 当 Provider 被销毁时停止监听。engine.dispose 归 syncEngineProvider
-    // (family),这里只清本 provider 自己持有的资源。
+    // Runtime 关闭时先停止触发源，再关闭 engine 和 provider。
+    var closed = false;
+    Future<void>? closeFuture;
+    Future<void> closeBindings() => closeFuture ??= () async {
+          if (closed) return;
+          closed = true;
+          connectivityDebounce?.cancel();
+          coordinator.dispose();
+          await Future.wait<void>([
+            eventSub.cancel(),
+            connectivitySubscription.cancel(),
+          ]);
+        }();
+    runtime.installSyncBindings(closeBindings);
     ref.onDispose(() {
-      eventSub.cancel();
-      connectivityDebounce?.cancel();
-      connectivitySubscription.cancel();
-      coordinator.dispose();
+      unawaited(closeBindings().whenComplete(
+        () => runtime.clearSyncBindings(closeBindings),
+      ));
     });
 
     // Profile（含头像）同步和 ledger 同步解耦：新设备首次登录时，用户可能还
@@ -409,12 +727,10 @@ final syncServiceProvider = Provider<SyncService>((ref) {
             newLedgerCount = await engine.syncLedgersFromServer();
             if (newLedgerCount > 0) {
               ref.read(ledgerListRefreshProvider.notifier).state++;
-              logger.info(
-                  'SyncProvider', '从 server 拉回 $newLedgerCount 个新账本');
+              logger.info('SyncProvider', '从 server 拉回 $newLedgerCount 个新账本');
             }
           } catch (e, st) {
-            logger.warning(
-                'SyncProvider', 'syncLedgersFromServer 失败: $e', st);
+            logger.warning('SyncProvider', 'syncLedgersFromServer 失败: $e', st);
           }
 
           // Step 1.5: 如果有新账本插进来，要从 cursor=0 把 sync_changes 重放
@@ -425,22 +741,22 @@ final syncServiceProvider = Provider<SyncService>((ref) {
           if (newLedgerCount > 0) {
             try {
               final replayed = await engine.replayAllChanges();
-              logger.info(
-                  'SyncProvider', '重放 sync_changes 应用 $replayed 条历史变更');
+              logger.info('SyncProvider', '重放 sync_changes 应用 $replayed 条历史变更');
             } catch (e, st) {
-              logger.warning(
-                  'SyncProvider', 'replayAllChanges 失败: $e', st);
+              logger.warning('SyncProvider', 'replayAllChanges 失败: $e', st);
             }
           }
 
           // Step 2: 账本就绪后再跑全量同步。sync() 的 pull 里每条 tx change
           // 都能按 ledger_sync_id / 本地 id fallback 正确映射。
           logger.info('SyncProvider', '开始自动同步 ledger=$currentLedgerId');
-          final result = await engine.sync(ledgerId: currentLedgerId.toString());
+          final result =
+              await engine.sync(ledgerId: currentLedgerId.toString());
           if (result.hasError) {
             logger.error('SyncProvider', '自动同步返回错误: ${result.error}');
           } else {
-            logger.info('SyncProvider', '自动同步成功: pushed=${result.pushed}, pulled=${result.pulled}');
+            logger.info('SyncProvider',
+                '自动同步成功: pushed=${result.pushed}, pulled=${result.pulled}');
           }
           ref.read(syncStatusRefreshProvider.notifier).state++;
           ref.read(ledgerListRefreshProvider.notifier).state++;
@@ -473,8 +789,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
             logger.info('SyncProvider', '从 server 拉回 $inserted 个新账本');
           }
         } catch (e, st) {
-          logger.warning(
-              'SyncProvider', 'syncLedgersFromServer 失败: $e', st);
+          logger.warning('SyncProvider', 'syncLedgersFromServer 失败: $e', st);
         }
       });
     }
@@ -482,63 +797,16 @@ final syncServiceProvider = Provider<SyncService>((ref) {
     return engine;
   }
 
-  // 其他 provider → TransactionsSyncManager（快照同步）
-  final db = ref.watch(databaseProvider);
-  final repo = ref.watch(repositoryProvider);
-  return TransactionsSyncManager(config: config, db: db, repo: repo);
+  return runtime.syncService;
 });
 
 /// 已初始化的 BeeCountCloudProvider 实例
 /// 用于 SyncEngine 和其他需要直接访问 BeeCount Cloud API 的场景
 final beecountCloudProviderInstance =
     FutureProvider<BeeCountCloudProvider?>((ref) async {
-  final configAsync = ref.watch(activeCloudConfigProvider);
-  if (!configAsync.hasValue) return null;
-
-  final config = configAsync.value!;
-  if (!config.valid || config.type != CloudBackendType.beecountCloud) {
-    return null;
-  }
-
-  try {
-    final services = await createCloudServices(config);
-    if (services.provider is! BeeCountCloudProvider) return null;
-    final provider = services.provider as BeeCountCloudProvider;
-
-    final email = config.beecountCloudEmail;
-    final password = config.beecountCloudPassword;
-
-    // 把邮密交给 auth service,让它在任何时刻发现 session 失效都能自动重登。
-    // 这是解决"token 过期后必须到配置页点一下才能恢复"的关键:auth service
-    // 内部会在 currentUser / requireAccessToken 触发时尝试恢复,不再等 Provider
-    // 重建。
-    if (services.auth is BeeCountCloudAuthService) {
-      (services.auth as BeeCountCloudAuthService).setRecoveryCredentials(
-        email: email,
-        password: password,
-      );
-    }
-
-    // 双重保险:构造之后也触发一次 currentUser,让 initialize() 没恢复出
-    // session 的场景立刻走一次恢复登录(email+password 有时),减少用户第一次
-    // 操作时的卡顿感。currentUser 内部已经自带 _tryRecoveryLogin。
-    if (services.auth != null) {
-      try {
-        final user = await services.auth!.currentUser;
-        if (user != null) {
-          logger.info('CloudSync', 'BeeCount Cloud session ready: ${user.email}');
-        } else if (email != null && email.isNotEmpty) {
-          logger.info('CloudSync', 'BeeCount Cloud 未登录,等首次 API 触发恢复');
-        }
-      } catch (e, st) {
-        logger.warning('CloudSync', 'BeeCount Cloud 初始 currentUser 失败: $e', st);
-      }
-    }
-    return provider;
-  } catch (e, st) {
-    logger.error('CloudSync', 'BeeCountCloudProvider 初始化失败', e, st);
-  }
-  return null;
+  final runtime = await ref.watch(activeCloudRuntimeProvider.future);
+  final provider = runtime?.provider;
+  return provider is BeeCountCloudProvider ? provider : null;
 });
 
 /// BeeCount Cloud 服务端版本号。Mine 页面 / 云同步页都能直接用;失败就
@@ -549,8 +817,7 @@ final beecountCloudProviderInstance =
 /// 不需要重登/手动到云配置页点确认,下一次同步触发后版本号就更新了。
 ///
 /// /version 是个轻量 endpoint,跟着每次 sync 多发一次 HTTP 请求开销可忽略。
-final beecountCloudServerVersionProvider =
-    FutureProvider<String?>((ref) async {
+final beecountCloudServerVersionProvider = FutureProvider<String?>((ref) async {
   // server 升级后用户在 app 内做任何会触发同步的操作(加交易 / 切账本 / 进
   // Mine 页面 bump refresh 等)都能让版本号刷新。
   ref.watch(syncStatusRefreshProvider);
@@ -616,8 +883,8 @@ Future<void> reconcileProfileToServer({
       try {
         await cloud.updateMyProfileIncomeColorScheme(
             incomeIsRed: currentIncomeIsRed);
-        logger.info('CloudSync',
-            'reconcile: pushed income_is_red=$currentIncomeIsRed');
+        logger.info(
+            'CloudSync', 'reconcile: pushed income_is_red=$currentIncomeIsRed');
       } catch (e, st) {
         logger.warning('CloudSync', 'reconcile income 推送失败: $e', st);
       }
@@ -664,8 +931,8 @@ Future<void> reconcileProfileToServer({
         // 只在本地有实际内容时推 —— 新用户 providers 里只有默认 GLM 且
         // apiKey 为空,推上去也是空壳子,跳过避免污染。
         final providers = snapshot['providers'] as List? ?? const [];
-        final hasAnyValidProvider = providers.any((p) =>
-            p is Map && (p['apiKey'] as String?)?.isNotEmpty == true);
+        final hasAnyValidProvider = providers.any(
+            (p) => p is Map && (p['apiKey'] as String?)?.isNotEmpty == true);
         if (hasAnyValidProvider) {
           await cloud.updateMyProfileAiConfig(aiConfig: snapshot);
           logger.info('CloudSync',
@@ -807,9 +1074,10 @@ void _applyThemeColorFromServer(Ref ref, String hex) {
 void _applyIncomeColorFromServer(Ref ref, bool incomeIsRed) {
   final current = ref.read(incomeExpenseColorSchemeProvider);
   if (current == incomeIsRed) return;
-  runApplyingFromServer(
-      () => ref.read(incomeExpenseColorSchemeProvider.notifier).state = incomeIsRed);
-  logger.info('profile_sync', 'applied income_is_red from server: $incomeIsRed');
+  runApplyingFromServer(() =>
+      ref.read(incomeExpenseColorSchemeProvider.notifier).state = incomeIsRed);
+  logger.info(
+      'profile_sync', 'applied income_is_red from server: $incomeIsRed');
 }
 
 void _applyDisplayNameFromServer(Ref ref, String name) {
@@ -836,7 +1104,8 @@ Future<void> _applyBaseCurrencyFromServer(Ref ref, String code) async {
         () => ref.read(baseCurrencyProvider.notifier).state = normalized);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('baseCurrency', normalized);
-    logger.info('profile_sync', 'applied primary_currency from server: $normalized');
+    logger.info(
+        'profile_sync', 'applied primary_currency from server: $normalized');
   } catch (e, st) {
     logger.warning('profile_sync', 'apply primary currency failed: $e', st);
   }
@@ -884,7 +1153,8 @@ void _applyAppearanceFields(Ref ref, Map<String, dynamic> appearance) {
     // 推的)。认不出来就当没收到:写进去只会让本地又回到失效状态,和启动校正
     // 的降级来回打架 —— 本地降级成 none 推上去、server 又把旧 id 推下来。
     if (skin != kHeaderSkinNone && headerSkinById(skin) == null) {
-      logger.info('profile_sync', 'ignore unknown header_skin from server: $skin');
+      logger.info(
+          'profile_sync', 'ignore unknown header_skin from server: $skin');
     } else if (current != skin) {
       // 这里**只换皮肤 + 登记颜色意图**,颜色本身交给 _scheduleThemeSettle
       // 统一结算 —— 直接调 applyHeaderSkinWith 会和同批的 theme_color 事件
@@ -1094,7 +1364,8 @@ final remoteLedgersProvider =
     }
     return out;
   } catch (e, st) {
-    logger.warning('SyncProvider', 'remoteLedgersProvider: readLedgers 失败: $e', st);
+    logger.warning(
+        'SyncProvider', 'remoteLedgersProvider: readLedgers 失败: $e', st);
     return const [];
   }
 });

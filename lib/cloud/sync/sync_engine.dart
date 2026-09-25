@@ -359,10 +359,16 @@ class SyncEngine implements app.SyncService {
     );
   }
 
-  /// 释放资源
-  void dispose() {
-    stopListeningRealtime();
-    _eventsController.close();
+  /// 释放资源。Runtime 在释放底层 provider 前等待 realtime listener 关闭。
+  Future<void> dispose() async {
+    _pullDebounce?.cancel();
+    _pullDebounce = null;
+    _autoSyncDebounce?.cancel();
+    _autoSyncDebounce = null;
+    final subscription = _realtimeSubscription;
+    _realtimeSubscription = null;
+    await subscription?.cancel();
+    await _eventsController.close();
   }
 
   // ==================== 核心同步逻辑 ====================
@@ -533,10 +539,7 @@ class SyncEngine implements app.SyncService {
   ///
   /// 返回新增（非已存在）的账本数，调用方可据此决定要不要 bump 刷新信号。
   /// 并发互斥锁 — **static** 跨 SyncEngine 实例共享。
-  /// 关键 bug:join page 拿 syncEngineProvider(family) 的 engine,WS listener
-  /// 拿 cloudSyncServiceProvider 创建的 engine,两个不同 instance!instance-level
-  /// 字段互不知道,各跑各的。改 static 后整个进程同一时间只有一个 fetch-then-write
-  /// 在跑。
+  /// Runtime 已统一 engine 实例；static 锁同时兜住独立测试容器或并行调用方。
   static Completer<int>? _syncLedgersInFlight;
 
   Future<int> syncLedgersFromServer() async {

@@ -69,7 +69,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   Future<void> _saveCredentials(String email, String password) async {
     try {
       final cloudConfig = await ref.read(activeCloudConfigProvider.future);
-      final store = ref.read(cloudServiceStoreProvider);
 
       if (cloudConfig.type == CloudBackendType.supabase) {
         // Supabase 仍旧保留"记住账号"时同时存密码（老 SDK 没有 refresh token 持久化）。
@@ -82,9 +81,9 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           supabaseEmail: _rememberAccount ? email : null,
           supabasePassword: _rememberAccount ? password : null,
         );
-        await store.saveOnly(updatedConfig);
-        ref.invalidate(supabaseConfigProvider);
-        ref.invalidate(activeCloudConfigProvider);
+        await ref
+            .read(activeCloudRuntimeProvider.notifier)
+            .saveOnly(updatedConfig);
         logger.info('auth', 'Supabase 账号密码保存状态：${_rememberAccount ? "已保存" : "已清除"}');
         return;
       }
@@ -101,9 +100,9 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           beecountCloudEmail: _rememberAccount ? email : null,
           beecountCloudPassword: _rememberAccount ? password : null,
         );
-        await store.saveOnly(updatedConfig);
-        ref.invalidate(beecountCloudConfigProvider);
-        ref.invalidate(activeCloudConfigProvider);
+        await ref
+            .read(activeCloudRuntimeProvider.notifier)
+            .saveOnly(updatedConfig);
         logger.info('auth',
             'BeeCount Cloud 账号密码保存状态：${_rememberAccount ? "已保存" : "已清除"}');
       }
@@ -412,7 +411,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
                                             // 刷新认证服务和同步服务以触发状态更新
                                             ref.invalidate(authServiceProvider);
-                                            ref.invalidate(syncServiceProvider);
 
                                             // 刷新同步状态
                                             ref

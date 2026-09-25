@@ -31,7 +31,7 @@ Future<({CloudProvider? provider, CloudAuthService? auth})> createCloudServices(
 
     case CloudBackendType.beecountCloud:
       final provider = BeeCountCloudProvider();
-      await provider.initialize({
+      await _initializeProvider(provider, {
         'baseUrl': config.beecountCloudBaseUrl!,
         'apiPrefix': config.beecountCloudApiPrefix ?? '/api/v1',
       });
@@ -41,7 +41,7 @@ Future<({CloudProvider? provider, CloudAuthService? auth})> createCloudServices(
       // 创建并初始化 Supabase provider
       // 包内会处理重复初始化的问题
       final provider = SupabaseProvider();
-      await provider.initialize({
+      await _initializeProvider(provider, {
         'url': config.supabaseUrl!,
         'anonKey': config.supabaseAnonKey!,
         'bucket': config.supabaseBucket ?? 'beecount-backups', // 兼容老配置，提供默认值
@@ -55,7 +55,7 @@ Future<({CloudProvider? provider, CloudAuthService? auth})> createCloudServices(
 
     case CloudBackendType.webdav:
       final provider = WebDAVProvider();
-      await provider.initialize({
+      await _initializeProvider(provider, {
         'url': config.webdavUrl!,
         'username': config.webdavUsername!,
         'password': config.webdavPassword!,
@@ -74,7 +74,7 @@ Future<({CloudProvider? provider, CloudAuthService? auth})> createCloudServices(
 
       try {
         final provider = ICloudProvider();
-        await provider.initialize({});
+        await _initializeProvider(provider, {});
 
         final auth = provider.auth;
 
@@ -87,7 +87,7 @@ Future<({CloudProvider? provider, CloudAuthService? auth})> createCloudServices(
     case CloudBackendType.s3:
       // S3 初始化 - 不捕获异常，让错误向上传递以便调试
       final provider = S3Provider();
-      await provider.initialize({
+      await _initializeProvider(provider, {
         'endpoint': config.s3Endpoint!,
         'region': config.s3Region ?? 'us-east-1',
         'accessKey': config.s3AccessKey!,
@@ -100,6 +100,24 @@ Future<({CloudProvider? provider, CloudAuthService? auth})> createCloudServices(
       final auth = provider.auth;
 
       return (provider: provider, auth: auth);
+  }
+}
+
+/// 初始化失败时也释放 provider 已经申请的资源。
+Future<T> _initializeProvider<T extends CloudProvider>(
+  T provider,
+  Map<String, dynamic> config,
+) async {
+  try {
+    await provider.initialize(config);
+    return provider;
+  } catch (_) {
+    try {
+      await provider.dispose();
+    } catch (_) {
+      // Keep the initialization error as the one reported to the caller.
+    }
+    rethrow;
   }
 }
 

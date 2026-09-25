@@ -17,7 +17,6 @@ library;
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../cloud/sync/sync_providers.dart' as cloud_sync;
 import 'database_providers.dart';
 import 'sync_providers.dart';
 
@@ -162,8 +161,8 @@ Future<void> removeMemberAndRefresh(
   // 本地数据 stale → 首页 header / 账本列表 🤝 显示还是 2 人)。手动调
   // syncLedgersFromServer 让本地 ledger 字段对齐,然后 bump 所有相关 tick。
   try {
-    final engine = ref.read(cloud_sync.syncEngineProvider(cloud));
-    await engine.syncLedgersFromServer();
+    final runtime = await ref.read(activeCloudRuntimeProvider.future);
+    await runtime?.syncEngine?.syncLedgersFromServer();
   } catch (_) {}
   ref.invalidate(localLedgersProvider);
   ref.read(ledgerListRefreshProvider.notifier).state++;

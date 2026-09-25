@@ -20,9 +20,9 @@ class TransactionsSyncManager implements SyncService {
   final fcs.CloudServiceConfig config;
   final BeeDatabase db;
   final BaseRepository repo;
+  final fcs.CloudProvider _provider;
 
   fcs.CloudSyncManager<int>? _syncManager;
-  fcs.CloudProvider? _provider;
   bool _isInitializing = false;
   bool _isInitialized = false;
 
@@ -34,7 +34,8 @@ class TransactionsSyncManager implements SyncService {
     required this.config,
     required this.db,
     required this.repo,
-  });
+    required fcs.CloudProvider provider,
+  }) : _provider = provider;
 
   @override
   void clearStatusCache({int? ledgerId}) {
@@ -65,19 +66,10 @@ class TransactionsSyncManager implements SyncService {
     }
   }
 
-  /// 初始化 CloudProvider 和 SyncManager
+  /// 使用 runtime 注入的 CloudProvider 初始化快照同步管理器。
   Future<void> _initialize() async {
-    final services = await fcs.createCloudServices(config);
-    _provider = services.provider;
-
-    if (_provider == null) {
-      // Provider 创建失败（如 iCloud 未登录），标记为已初始化但无法使用
-      logger.warning('CloudSync', 'Provider not available for ${config.type}');
-      return;
-    }
-
     _syncManager = fcs.CloudSyncManager<int>(
-      provider: _provider!,
+      provider: _provider,
       serializer: _TransactionSerializer(db),
       logger: fcs.CloudSyncLogger(onLog: (level, message) {
         switch (level) {
@@ -193,16 +185,12 @@ class TransactionsSyncManager implements SyncService {
       downloadAndRestoreToCurrentLedger({required int ledgerId}) async {
     await _ensureInitialized();
 
-    if (_provider == null) {
-      throw fcs.CloudSyncException('云服务不可用，请检查配置或登录状态');
-    }
-
     try {
       logger.info('CloudSync', '开始下载账本 $ledgerId');
 
       // 直接使用 storage 下载原始 JSON 字符串
       final jsonStr =
-          await _provider!.storage.download(path: _pathForLedger(ledgerId));
+          await _provider.storage.download(path: _pathForLedger(ledgerId));
 
       if (jsonStr == null) {
         logger.warning('CloudSync', '云端备份不存在');
@@ -247,14 +235,10 @@ class TransactionsSyncManager implements SyncService {
   }) async {
     await _ensureInitialized();
 
-    if (_provider == null) {
-      throw fcs.CloudSyncException('云服务不可用，请检查配置或登录状态');
-    }
-
     logger.info('CloudSync', '开始下载预览: $ledgerId');
 
     final jsonStr =
-        await _provider!.storage.download(path: _pathForLedger(ledgerId));
+        await _provider.storage.download(path: _pathForLedger(ledgerId));
 
     if (jsonStr == null) {
       logger.warning('CloudSync', '云端备份不存在');
@@ -309,7 +293,7 @@ class TransactionsSyncManager implements SyncService {
     await _ensureInitialized();
 
     // 如果 provider 不可用，返回未登录状态
-    if (_syncManager == null || _provider == null) {
+    if (_syncManager == null) {
       return SyncStatus(
         diff: SyncDiff.notLoggedIn,
         localCount: 0,
@@ -600,7 +584,7 @@ class TransactionsSyncManager implements SyncService {
 
     // 直接从云端文件列表获取远程账本
     try {
-      final files = await _provider!.storage.list(path: '');
+      final files = await _provider.storage.list(path: '');
       logger.info('CloudSync', '云端文件列表: ${files.map((f) => f.name).toList()}');
       int remoteCount = 0;
 
@@ -624,7 +608,7 @@ class TransactionsSyncManager implements SyncService {
           // 下载文件获取账本元数据（使用 file.name 而非 file.path，避免路径重复）
           logger.info('CloudSync',
               '尝试下载远程账本: file.name=${file.name}, file.path=${file.path}');
-          final jsonStr = await _provider!.storage.download(path: file.name);
+          final jsonStr = await _provider.storage.download(path: file.name);
           if (jsonStr == null) {
             logger.warning('CloudSync', '下载结果为空: ${file.name}');
             continue;
@@ -798,7 +782,7 @@ class TransactionsSyncManager implements SyncService {
       }
 
       // 下载数据
-      final jsonStr = await _provider!.storage.download(path: remotePath);
+      final jsonStr = await _provider.storage.download(path: remotePath);
 
       if (jsonStr == null) {
         logger.warning('CloudSync', '云端账本不存在: $remotePath');
@@ -821,7 +805,7 @@ class TransactionsSyncManager implements SyncService {
         // 需要删除旧的云端文件，并上传新的（使用本地 ID）
         if (remoteId != null && remoteId != ledgerId) {
           try {
-            await _provider!.storage.delete(path: remotePath);
+            await _provider.storage.delete(path: remotePath);
             logger.info('CloudSync', '旧远程文件已删除: $remotePath (远程ID: $remoteId != 本地ID: $ledgerId)');
           } catch (e) {
             logger.warning('CloudSync', '删除旧远程文件失败（忽略）: $e');
@@ -842,7 +826,7 @@ class TransactionsSyncManager implements SyncService {
       } else {
         // 创建了新 ID，需要删除旧文件并上传新文件
         try {
-          await _provider!.storage.delete(path: remotePath);
+          await _provider.storage.delete(path: remotePath);
           logger.info('CloudSync', '旧远程文件已删除: $remotePath');
         } catch (e) {
           logger.warning('CloudSync', '删除旧远程文件失败（忽略）: $e');
@@ -871,7 +855,7 @@ class TransactionsSyncManager implements SyncService {
     try {
       logger.info('CloudSync', '删除远程账本: $remotePath');
 
-      await _provider!.storage.delete(path: remotePath);
+      await _provider.storage.delete(path: remotePath);
 
       logger.info('CloudSync', '删除完成: $remotePath');
     } catch (e) {
@@ -899,7 +883,7 @@ class TransactionsSyncManager implements SyncService {
       logger.info('CloudSync', '本地已存在账本: $localLedgerIds');
 
       // 列出所有远程账本文件
-      final files = await _provider!.storage.list(path: '');
+      final files = await _provider.storage.list(path: '');
 
       // 过滤出账本文件，并排除本地已存在的
       final ledgerFiles = files.where((file) {
@@ -929,7 +913,7 @@ class TransactionsSyncManager implements SyncService {
         ledgerFiles.map((file) async {
           try {
             // 下载文件内容以获取账本信息（使用 file.name 而非 file.path）
-            final jsonStr = await _provider!.storage.download(path: file.name);
+            final jsonStr = await _provider.storage.download(path: file.name);
             if (jsonStr == null) {
               logger.warning('CloudSync', '下载失败: ${file.name}');
               return false;

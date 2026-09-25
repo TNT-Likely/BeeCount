@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../cloud/sync/sync_engine.dart';  // for onInviteAccepted extension method
-import '../../cloud/sync/sync_providers.dart' as cloud_sync;
 import '../../l10n/app_localizations.dart';
 import '../../providers/shared_ledger_providers.dart';
 import '../../providers/sync_providers.dart';
@@ -95,10 +94,9 @@ class _JoinSharedLedgerPageState extends ConsumerState<JoinSharedLedgerPage> {
       // fetchSharedResources 全量灌进 SharedLedger* 镜像 + 拉历史 tx。失败
       // 不阻塞"加入成功"体验,下次启动会自动 sync。
       try {
-        final cloud =
-            await ref.read(beecountCloudProviderInstance.future);
-        if (cloud != null) {
-          final engine = ref.read(cloud_sync.syncEngineProvider(cloud));
+        final runtime = await ref.read(activeCloudRuntimeProvider.future);
+        final engine = runtime?.syncEngine;
+        if (engine != null) {
           await engine.onInviteAccepted(preview.ledgerExternalId);
         }
         // 强力 invalidate 所有 ledger 相关 provider,确保下一帧 UI 立即重渲染

@@ -82,17 +82,17 @@ class _DevicesPageState extends ConsumerState<DevicesPage> {
 
   /// 获取 BeeCountCloudProvider 实例（仅 beecountCloud 后端可用）
   Future<BeeCountCloudProvider> _getCloudProvider() async {
+    final unavailable =
+        AppLocalizations.of(context).cloudCollabUnavailableMessage;
     final config = await ref.read(activeCloudConfigProvider.future);
     if (!config.valid || config.type != CloudBackendType.beecountCloud) {
-      throw StateError(
-          AppLocalizations.of(context).cloudCollabUnavailableMessage);
+      throw StateError(unavailable);
     }
-    final services = await createCloudServices(config);
-    if (services.provider == null || services.provider is! BeeCountCloudProvider) {
-      throw StateError(
-          AppLocalizations.of(context).cloudCollabUnavailableMessage);
+    final provider = await ref.read(beecountCloudProviderInstance.future);
+    if (provider == null) {
+      throw StateError(unavailable);
     }
-    return services.provider as BeeCountCloudProvider;
+    return provider;
   }
 
   Future<void> _reload({bool keepLoadingState = true}) async {
