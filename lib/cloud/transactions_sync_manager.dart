@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart' as drift;
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' as fcs;
 
 import '../data/db.dart';
@@ -13,18 +12,6 @@ import '../services/system/logger_service.dart';
 import 'sync_diff_service.dart';
 import 'sync_service.dart';
 import 'transactions_json.dart';
-
-void _cloudSyncManagerInfo(String message) {
-  if (kDebugMode) logger.info('CloudSyncManager', message);
-}
-
-void _cloudSyncManagerDebug(String message) {
-  if (kDebugMode) logger.debug('CloudSyncManager', message);
-}
-
-String _cloudSyncManagerObjectId(Object? value) => value == null
-    ? 'none'
-    : identityHashCode(value).toRadixString(16);
 
 /// 账本交易的云同步管理器
 ///
@@ -50,12 +37,6 @@ class TransactionsSyncManager implements SyncService {
     required fcs.CloudProvider provider,
   }) : _provider = provider;
 
-  String get _runtimeDebugLabel =>
-      'service#${identityHashCode(this).toRadixString(16)} '
-      'backend=${config.type.name} '
-      'provider=${identityHashCode(_provider).toRadixString(16)} '
-      'manager=${_cloudSyncManagerObjectId(_syncManager)}';
-
   @override
   void clearStatusCache({int? ledgerId}) {
     if (ledgerId != null) {
@@ -67,14 +48,8 @@ class TransactionsSyncManager implements SyncService {
 
   /// 确保服务已初始化（延迟初始化）
   Future<void> _ensureInitialized() async {
-    if (_isInitialized) {
-      _cloudSyncManagerDebug('reuse initialized manager: $_runtimeDebugLabel');
-      return;
-    }
+    if (_isInitialized) return;
     if (_isInitializing) {
-      _cloudSyncManagerDebug(
-        'initialization in progress; waiting on same service: $_runtimeDebugLabel',
-      );
       // 等待初始化完成
       while (_isInitializing) {
         await Future.delayed(const Duration(milliseconds: 50));
@@ -84,10 +59,8 @@ class TransactionsSyncManager implements SyncService {
 
     _isInitializing = true;
     try {
-      _cloudSyncManagerInfo('initialize start: $_runtimeDebugLabel');
       await _initialize();
       _isInitialized = true;
-      _cloudSyncManagerInfo('initialize finished: $_runtimeDebugLabel');
     } finally {
       _isInitializing = false;
     }

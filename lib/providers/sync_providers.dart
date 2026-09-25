@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' show Color;
 
-import 'package:flutter/foundation.dart' show kDebugMode, visibleForTesting;
+import 'package:flutter/foundation.dart' show visibleForTesting;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crypto/crypto.dart';
@@ -38,14 +38,6 @@ import 'tag_providers.dart';
 import 'ui_state_providers.dart';
 import 'statistics_providers.dart';
 import 'currency_providers.dart';
-
-void _cloudRuntimeInfo(String message) {
-  if (kDebugMode) logger.info('CloudRuntime', message);
-}
-
-void _cloudRuntimeDebug(String message) {
-  if (kDebugMode) logger.debug('CloudRuntime', message);
-}
 
 /// SyncEngine 对外广播事件流(PR 1 引入)。
 ///
@@ -164,10 +156,6 @@ final cloudServicesFactoryProvider = Provider<CloudServicesFactory>(
   (ref) => createCloudServices,
 );
 
-String _cloudRuntimeObjectId(Object? value) => value == null
-    ? 'none'
-    : '${value.runtimeType}#${identityHashCode(value).toRadixString(16)}';
-
 /// Owns the one active provider/auth/sync graph for the app.
 class ActiveCloudRuntime {
   ActiveCloudRuntime({
@@ -185,13 +173,6 @@ class ActiveCloudRuntime {
   final SyncService syncService;
   final SyncEngine? syncEngine;
   final String identity;
-
-  String get debugLabel =>
-      'runtime=${_cloudRuntimeObjectId(this)} backend=${config.type.name} '
-      'provider=${_cloudRuntimeObjectId(provider)} '
-      'auth=${_cloudRuntimeObjectId(auth)} '
-      'sync=${_cloudRuntimeObjectId(syncService)} '
-      'engine=${_cloudRuntimeObjectId(syncEngine)}';
 
   Future<void> Function()? _syncBindingsClose;
   Future<void>? _closeFuture;
@@ -215,20 +196,7 @@ class ActiveCloudRuntime {
     }
   }
 
-  Future<void> close() {
-    final existing = _closeFuture;
-    if (existing != null) {
-      _cloudRuntimeDebug('dispose already scheduled: $debugLabel');
-      return existing;
-    }
-
-    _cloudRuntimeInfo('dispose start: $debugLabel');
-    final closing = _close().whenComplete(
-      () => _cloudRuntimeInfo('dispose finished: $debugLabel'),
-    );
-    _closeFuture = closing;
-    return closing;
-  }
+  Future<void> close() => _closeFuture ??= _close();
 
   Future<void> _close() async {
     final closeBindings = _syncBindingsClose;
@@ -409,19 +377,12 @@ class ActiveCloudRuntimeController extends AsyncNotifier<ActiveCloudRuntime?> {
 
   Future<void> _install(CloudServiceConfig config) async {
     final old = _runtime;
-    final nextIdentity = ActiveCloudRuntime.identityFor(config);
-    if (old != null && old.identity == nextIdentity) {
-      _cloudRuntimeInfo('reuse active runtime: ${old.debugLabel}');
+    if (old != null && old.identity == ActiveCloudRuntime.identityFor(config)) {
       old.updateConfig(config);
       state = AsyncData(old);
       return;
     }
 
-    _cloudRuntimeInfo(
-      'replace active runtime: '
-      'reason=${old == null ? 'initial_install' : 'identity_changed'} '
-      'old=${old?.debugLabel ?? 'none'} nextBackend=${config.type.name}',
-    );
     state = const AsyncLoading();
     _runtime = null;
     try {
@@ -439,44 +400,32 @@ class ActiveCloudRuntimeController extends AsyncNotifier<ActiveCloudRuntime?> {
     }
   }
 
-  ActiveCloudRuntime _logCreatedRuntime(ActiveCloudRuntime runtime) {
-    _cloudRuntimeInfo('runtime ready: ${runtime.debugLabel}');
-    return runtime;
-  }
-
   Future<ActiveCloudRuntime> _open(CloudServiceConfig config) async {
     await ref.read(activeCloudConfigProvider.future);
-    _cloudRuntimeInfo('runtime create start: backend=${config.type.name}');
     final db = _database;
     final repo = ref.read(repositoryProvider);
 
     if (!config.valid || config.type == CloudBackendType.local) {
-      return _logCreatedRuntime(ActiveCloudRuntime(
+      return ActiveCloudRuntime(
         config: config,
         provider: null,
         auth: NoopAuthService(),
         syncService: LocalOnlySyncService(),
         identity: ActiveCloudRuntime.identityFor(config),
-      ));
+      );
     }
 
-    _cloudRuntimeInfo('provider factory start: backend=${config.type.name}');
     final services = await ref.read(cloudServicesFactoryProvider)(config);
     final provider = services.provider;
     final auth = services.auth ?? NoopAuthService();
-    _cloudRuntimeInfo(
-      'provider factory ready: backend=${config.type.name} '
-      'provider=${_cloudRuntimeObjectId(provider)} '
-      'auth=${_cloudRuntimeObjectId(auth)}',
-    );
     if (provider == null) {
-      return _logCreatedRuntime(ActiveCloudRuntime(
+      return ActiveCloudRuntime(
         config: config,
         provider: null,
         auth: auth,
         syncService: LocalOnlySyncService(),
         identity: ActiveCloudRuntime.identityFor(config),
-      ));
+      );
     }
 
     try {
@@ -506,17 +455,17 @@ class ActiveCloudRuntimeController extends AsyncNotifier<ActiveCloudRuntime?> {
           changeTracker: ref.read(sync_p.changeTrackerProvider),
           repo: repo,
         );
-        return _logCreatedRuntime(ActiveCloudRuntime(
+        return ActiveCloudRuntime(
           config: config,
           provider: provider,
           auth: beeAuth,
           syncService: engine,
           syncEngine: engine,
           identity: ActiveCloudRuntime.identityFor(config),
-        ));
+        );
       }
 
-      return _logCreatedRuntime(ActiveCloudRuntime(
+      return ActiveCloudRuntime(
         config: config,
         provider: provider,
         auth: auth,
@@ -527,7 +476,7 @@ class ActiveCloudRuntimeController extends AsyncNotifier<ActiveCloudRuntime?> {
           provider: provider,
         ),
         identity: ActiveCloudRuntime.identityFor(config),
-      ));
+      );
     } catch (_) {
       await provider.dispose();
       rethrow;
@@ -537,12 +486,7 @@ class ActiveCloudRuntimeController extends AsyncNotifier<ActiveCloudRuntime?> {
 
 final authServiceProvider = FutureProvider<CloudAuthService>((ref) async {
   final runtime = await ref.watch(activeCloudRuntimeProvider.future);
-  if (runtime == null) {
-    _cloudRuntimeDebug('auth consumer resolved: no active runtime');
-    return NoopAuthService();
-  }
-  _cloudRuntimeDebug('auth consumer resolved: ${runtime.debugLabel}');
-  return runtime.auth;
+  return runtime?.auth ?? NoopAuthService();
 });
 
 // 防重入锁：避免 Provider 重建导致多个自动同步并发执行
@@ -551,13 +495,9 @@ bool _autoSyncInProgress = false;
 final syncServiceProvider = Provider<SyncService>((ref) {
   final runtimeAsync = ref.watch(activeCloudRuntimeProvider);
   if (!runtimeAsync.hasValue || runtimeAsync.value == null) {
-    _cloudRuntimeDebug(
-      'sync consumer resolved: no active runtime, using LocalOnlySyncService',
-    );
     return LocalOnlySyncService();
   }
   final runtime = runtimeAsync.value!;
-  _cloudRuntimeDebug('sync consumer resolved: ${runtime.debugLabel}');
   final engine = runtime.syncEngine;
   if (engine != null) {
     final db = ref.read(databaseProvider);
@@ -729,21 +669,14 @@ final syncServiceProvider = Provider<SyncService>((ref) {
     Future<void> closeBindings() => closeFuture ??= () async {
           if (closed) return;
           closed = true;
-          _cloudRuntimeInfo(
-            'sync bindings dispose start: ${runtime.debugLabel}',
-          );
           connectivityDebounce?.cancel();
           coordinator.dispose();
           await Future.wait<void>([
             eventSub.cancel(),
             connectivitySubscription.cancel(),
           ]);
-          _cloudRuntimeInfo(
-            'sync bindings dispose finished: ${runtime.debugLabel}',
-          );
         }();
     runtime.installSyncBindings(closeBindings);
-    _cloudRuntimeInfo('sync bindings attached: ${runtime.debugLabel}');
     ref.onDispose(() {
       unawaited(closeBindings().whenComplete(
         () => runtime.clearSyncBindings(closeBindings),
