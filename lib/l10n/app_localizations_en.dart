@@ -3841,6 +3841,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountBalance => 'Balance';
 
   @override
+  String get accountUpdateBalance => 'Update Balance';
+
+  @override
+  String get accountBalanceAdjustmentTitle => 'Confirm balance change';
+
+  @override
+  String get accountBalanceAdjustmentChooseAction => 'Choose how to save this balance change';
+
+  @override
+  String get accountBalanceAdjustmentOnly => 'Balance only';
+
+  @override
+  String get accountBalanceAdjustmentOnlyMessage => 'No transaction will be created. Historical balance trends will use the new balance as their baseline.';
+
+  @override
+  String get accountBalanceAdjustmentCreate => 'Create transaction';
+
+  @override
+  String get accountBalanceAdjustmentCreateMessage => 'Also add a regular income or expense under the Balance category, included in income, expense, and budget statistics.';
+
+  @override
+  String get accountBalanceAdjustmentConfirmOnly => 'Confirm balance only';
+
+  @override
+  String get accountBalanceAdjustmentConfirmCreate => 'Confirm and create transaction';
+
+  @override
+  String get accountBalanceCurrent => 'Current balance';
+
+  @override
+  String get accountBalanceAfterAdjustment => 'Adjusted balance';
+
+  @override
+  String get accountBalanceDifference => 'Difference';
+
+  @override
+  String get accountBalanceUnchanged => 'The balance has not changed';
+
+  @override
   String get accountEditTitle => 'Edit Account';
 
   @override
@@ -6730,9 +6769,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountGroupValuation => 'Assets/Liabilities';
-
-  @override
-  String get adjustmentTransaction => 'Valuation Adjustment';
 
   @override
   String creditCardBillingInfo(int billingDay, int paymentDueDay) {

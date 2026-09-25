@@ -42,6 +42,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   bool _reminderEnabled = false;
   int _reminderDaysBefore = 3;
   bool _saving = false;
+  bool _balanceLoaded = true;
+  bool _balanceLoadFailed = false;
   bool _isNameDuplicate = false;
   String? _nameErrorText;
   // 账户类型 Tab：0 = 日常账户，1 = 估值账户
@@ -71,8 +73,12 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.account?.name ?? '');
+    final hasEditableCurrentBalance = widget.account != null &&
+        !isValuationOnlyType(widget.account!.type);
+    _balanceLoaded = !hasEditableCurrentBalance;
     _initialBalanceController = TextEditingController(
-      text: widget.account?.initialBalance != null &&
+      text: !hasEditableCurrentBalance &&
+              widget.account?.initialBalance != null &&
               widget.account!.initialBalance != 0.0
           ? widget.account!.initialBalance.abs().toStringAsFixed(2)
           : '',
@@ -90,7 +96,25 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
     _billingDay = widget.account?.billingDay;
     _paymentDueDay = widget.account?.paymentDueDay;
     _typeTab = isValuationOnlyType(_selectedType) ? 1 : 0;
+    if (hasEditableCurrentBalance) _loadEditableCurrentBalance();
     _loadReminderSettings();
+  }
+
+  Future<void> _loadEditableCurrentBalance() async {
+    try {
+      final balance = await ref
+          .read(repositoryProvider)
+          .getAccountBalance(widget.account!.id);
+      if (!mounted) return;
+      setState(() {
+        _initialBalanceController.text = balance.toStringAsFixed(2);
+        _balanceLoaded = true;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _balanceLoadFailed = true);
+      showToast(context, '${AppLocalizations.of(context).commonError}: $error');
+    }
   }
 
   Future<void> _loadReminderSettings() async {
@@ -141,6 +165,222 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
       default:
         return l10n.accountInitialBalanceHint;
     }
+  }
+
+  Future<bool?> _promptBalanceAdjustmentChoice({
+    required double currentBalance,
+    required double targetBalance,
+    required AppLocalizations l10n,
+  }) async {
+    final difference = targetBalance - currentBalance;
+    final currencySymbol = getCurrencySymbol(_selectedCurrency);
+    String formatBalance(double value) {
+      final sign = value < 0 ? '−' : '';
+      return '$sign$currencySymbol${value.abs().toStringAsFixed(2)}';
+    }
+
+    return showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: BeeTokens.surface(context),
+      constraints: const BoxConstraints(maxWidth: 560),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (sheetContext) {
+        final differenceColor = difference > 0
+            ? BeeTokens.success(sheetContext)
+            : difference < 0
+                ? BeeTokens.error(sheetContext)
+                : BeeTokens.textSecondary(sheetContext);
+        final signedDifference =
+            '${difference > 0 ? '+' : difference < 0 ? '−' : ''}'
+            '$currencySymbol${difference.abs().toStringAsFixed(2)}';
+
+        return SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                8,
+                20,
+                12 + MediaQuery.of(sheetContext).viewInsets.bottom,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: BeeTokens.surfaceSelected(sheetContext),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.account_balance_wallet_outlined,
+                          color: Theme.of(sheetContext).colorScheme.primary,
+                          size: 23,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          l10n.accountBalanceAdjustmentTitle,
+                          style: TextStyle(
+                            color: BeeTokens.textPrimary(sheetContext),
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: l10n.commonCancel,
+                        onPressed: () => Navigator.pop(sheetContext),
+                        icon: Icon(
+                          Icons.close_rounded,
+                          color: BeeTokens.iconSecondary(sheetContext),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 56),
+                    child: Text(
+                      l10n.accountBalanceAdjustmentChooseAction,
+                      style: TextStyle(
+                        color: BeeTokens.textSecondary(sheetContext),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: BeeTokens.surfaceSecondary(sheetContext),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _balanceSummaryValue(
+                                context: sheetContext,
+                                label: l10n.accountBalanceCurrent,
+                                value: formatBalance(currentBalance),
+                                alignEnd: false,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 18),
+                              child: Icon(
+                                Icons.arrow_forward_rounded,
+                                color: BeeTokens.iconTertiary(sheetContext),
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: _balanceSummaryValue(
+                                context: sheetContext,
+                                label: l10n.accountBalanceAfterAdjustment,
+                                value: formatBalance(targetBalance),
+                                alignEnd: true,
+                                valueColor: Theme.of(sheetContext)
+                                    .colorScheme
+                                    .primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Divider(
+                          height: 1,
+                          color: BeeTokens.borderStrong(sheetContext),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              l10n.accountBalanceDifference,
+                              style: TextStyle(
+                                color: BeeTokens.textSecondary(sheetContext),
+                                fontSize: 13,
+                              ),
+                            ),
+                            Text(
+                              signedDifference,
+                              style: TextStyle(
+                                color: differenceColor,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+                  _BalanceAdjustmentModeSelector(
+                    l10n: l10n,
+                    difference: signedDifference,
+                    differenceColor: differenceColor,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _balanceSummaryValue({
+    required BuildContext context,
+    required String label,
+    required String value,
+    required bool alignEnd,
+    Color? valueColor,
+  }) {
+    return Column(
+      crossAxisAlignment:
+          alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          textAlign: alignEnd ? TextAlign.end : TextAlign.start,
+          style: TextStyle(
+            color: BeeTokens.textSecondary(context),
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(height: 7),
+        Text(
+          value,
+          textAlign: alignEnd ? TextAlign.end : TextAlign.start,
+          style: TextStyle(
+            color: valueColor ?? BeeTokens.textPrimary(context),
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _retryEditableCurrentBalance() {
+    setState(() => _balanceLoadFailed = false);
+    _loadEditableCurrentBalance();
   }
 
   /// v1.15.0: 检查账户名称是否重复
@@ -406,29 +646,79 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                                 ),
                               ),
                               SizedBox(width: 12.0.scaled(context, ref)),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _initialBalanceController,
-                                  decoration: filledDec(
-                                    label: _getInitialBalanceLabel(l10n),
-                                    hint: _getInitialBalanceHint(l10n),
-                                    prefix:
-                                        '${getCurrencySymbol(_selectedCurrency)} ',
+                              if (!isEditing)
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _initialBalanceController,
+                                    decoration: filledDec(
+                                      label: _getInitialBalanceLabel(l10n),
+                                      hint: _getInitialBalanceHint(l10n),
+                                      prefix:
+                                          '${getCurrencySymbol(_selectedCurrency)} ',
+                                    ),
+                                    style: const TextStyle(fontSize: 16),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                            decimal: true, signed: true),
+                                    validator: (value) {
+                                      if (value != null && value.trim().isNotEmpty) {
+                                        if (double.tryParse(value.trim()) == null) {
+                                          return '请输入有效的金额';
+                                        }
+                                      }
+                                      return null;
+                                    },
                                   ),
-                                  style: const TextStyle(fontSize: 16),
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                          decimal: true, signed: true),
-                                  validator: (value) {
-                                    if (value != null && value.trim().isNotEmpty) {
-                                      if (double.tryParse(value.trim()) == null) {
+                                )
+                              else if (!isValuationOnlyType(widget.account!.type) &&
+                                  !isValuationOnlyType(_selectedType))
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _initialBalanceController,
+                                    readOnly:
+                                        !_balanceLoaded || _balanceLoadFailed,
+                                    decoration: filledDec(
+                                      label: l10n.accountBalance,
+                                      prefix:
+                                          '${getCurrencySymbol(_selectedCurrency)} ',
+                                    ).copyWith(
+                                      suffixIcon: _balanceLoadFailed
+                                          ? IconButton(
+                                              tooltip: l10n.helpCenterRetry,
+                                              onPressed: _retryEditableCurrentBalance,
+                                              icon: const Icon(Icons.refresh),
+                                            )
+                                          : _balanceLoaded
+                                              ? null
+                                              : Padding(
+                                                  padding: EdgeInsets.all(
+                                                    12.0.scaled(context, ref),
+                                                  ),
+                                                  child:
+                                                      const CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                  ),
+                                                ),
+                                    ),
+                                    style: const TextStyle(fontSize: 16),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                      signed: true,
+                                    ),
+                                    validator: (value) {
+                                      final parsed = value == null
+                                          ? null
+                                          : double.tryParse(value.trim());
+                                      if (parsed == null || !parsed.isFinite) {
                                         return '请输入有效的金额';
                                       }
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
+                                      return null;
+                                    },
+                                  ),
+                                )
+                              else
+                                const Spacer(),
                             ],
                           ),
                         ],
@@ -653,7 +943,12 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                     width: double.infinity,
                     height: 48.0.scaled(context, ref),
                     child: ElevatedButton(
-                      onPressed: (_saving || _isNameDuplicate) ? null : _save,
+                      onPressed: (_saving ||
+                              _isNameDuplicate ||
+                              !_balanceLoaded ||
+                              _balanceLoadFailed)
+                          ? null
+                          : _save,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
                         foregroundColor: Colors.white,
@@ -742,6 +1037,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   }
 
   Future<void> _save() async {
+    if (!_balanceLoaded || _balanceLoadFailed) return;
     if (!_formKey.currentState!.validate()) return;
 
     // 信用卡：账单日 / 还款日必填（额度由表单 validator 拦截）
@@ -757,8 +1053,9 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
       final repo = ref.read(repositoryProvider);
       final name = _nameController.text.trim();
       final initialBalanceText = _initialBalanceController.text.trim();
-      var initialBalance =
+      final enteredBalance =
           initialBalanceText.isEmpty ? 0.0 : double.parse(initialBalanceText);
+      var initialBalance = enteredBalance;
 
       // 贷款类型：用户输入正数，存储为负数
       if (_selectedType == 'loan' && initialBalance > 0) {
@@ -793,6 +1090,26 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           currencyToUpdate = _selectedCurrency;
         }
 
+        var balanceNeedsUpdate = false;
+        var createBalanceAdjustment = false;
+        final targetBalance = enteredBalance;
+        if (!isValuationOnlyType(widget.account!.type) &&
+            !isValuationOnlyType(_selectedType)) {
+          final currentBalance =
+              await repo.getAccountBalance(widget.account!.id);
+          if (!mounted) return;
+          if ((targetBalance - currentBalance).abs() >= 0.0000001) {
+            final choice = await _promptBalanceAdjustmentChoice(
+              currentBalance: currentBalance,
+              targetBalance: targetBalance,
+              l10n: AppLocalizations.of(context),
+            );
+            if (!mounted || choice == null) return;
+            balanceNeedsUpdate = true;
+            createBalanceAdjustment = choice;
+          }
+        }
+
         // 如果从信用卡切换到其他类型，清空信用卡字段
         final wasCreditCard = widget.account!.type == 'credit_card';
         final clearCreditCardFields = wasCreditCard && !isCreditCard;
@@ -810,7 +1127,6 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           name: name,
           type: _selectedType,
           currency: currencyToUpdate,
-          initialBalance: initialBalance,
           creditLimit: isCreditCard ? creditLimit : null,
           billingDay: isCreditCard ? _billingDay : null,
           paymentDueDay: isCreditCard ? _paymentDueDay : null,
@@ -820,6 +1136,18 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           note: noteText.isNotEmpty ? noteText : null,
           clearMetadataFields: clearMetadataFields,
         );
+
+        if (balanceNeedsUpdate) {
+          await repo.setAccountBalance(
+            ledgerId: widget.ledgerId,
+            accountId: widget.account!.id,
+            targetBalance: targetBalance,
+            createBalanceAdjustment: createBalanceAdjustment,
+          );
+          ref.invalidate(accountStatsProvider(widget.account!.id));
+          ref.read(statsRefreshProvider.notifier).state++;
+          ref.read(tagListRefreshProvider.notifier).state++;
+        }
 
         // 保存还款提醒设置
         if (isCreditCard) {
@@ -1131,6 +1459,227 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           );
         });
       },
+    );
+  }
+}
+
+class _BalanceAdjustmentModeSelector extends StatefulWidget {
+  final AppLocalizations l10n;
+  final String difference;
+  final Color differenceColor;
+
+  const _BalanceAdjustmentModeSelector({
+    required this.l10n,
+    required this.difference,
+    required this.differenceColor,
+  });
+
+  @override
+  State<_BalanceAdjustmentModeSelector> createState() =>
+      _BalanceAdjustmentModeSelectorState();
+}
+
+class _BalanceAdjustmentModeSelectorState
+    extends State<_BalanceAdjustmentModeSelector> {
+  bool _createTransaction = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: BeeTokens.surfaceCapsule(context),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              _buildTab(
+                context: context,
+                createTransaction: false,
+                title: widget.l10n.accountBalanceAdjustmentOnly,
+              ),
+              _buildTab(
+                context: context,
+                createTransaction: true,
+                title: widget.l10n.accountBalanceAdjustmentCreate,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            child: _buildDescription(context),
+          ),
+        ),
+        const SizedBox(height: 18),
+        SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: FilledButton.icon(
+            onPressed: () => Navigator.pop(context, _createTransaction),
+            icon: const Icon(Icons.check_rounded),
+            label: Text(
+              _createTransaction
+                  ? widget.l10n.accountBalanceAdjustmentConfirmCreate
+                  : widget.l10n.accountBalanceAdjustmentConfirmOnly,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTab({
+    required BuildContext context,
+    required bool createTransaction,
+    required String title,
+  }) {
+    final selected = _createTransaction == createTransaction;
+    final primary = Theme.of(context).colorScheme.primary;
+
+    return Expanded(
+      child: Semantics(
+        button: true,
+        selected: selected,
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => setState(
+              () => _createTransaction = createTransaction,
+            ),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              height: 48,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: selected
+                    ? BeeTokens.surfaceSelected(context)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: selected
+                    ? Border.all(color: primary.withValues(alpha: 0.2))
+                    : null,
+              ),
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: selected
+                      ? BeeTokens.textPrimary(context)
+                      : BeeTokens.textSecondary(context),
+                  fontSize: 13,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDescription(BuildContext context) {
+    final l10n = widget.l10n;
+    final creating = _createTransaction;
+
+    return Container(
+      key: ValueKey(creating),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: BeeTokens.surfaceSecondary(context),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: BeeTokens.surfaceSelected(context),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  creating
+                      ? Icons.receipt_long_outlined
+                      : Icons.account_balance_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 21,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  creating
+                      ? l10n.accountBalanceAdjustmentCreate
+                      : l10n.accountBalanceAdjustmentOnly,
+                  style: TextStyle(
+                    color: BeeTokens.textPrimary(context),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            creating
+                ? l10n.accountBalanceAdjustmentCreateMessage
+                : l10n.accountBalanceAdjustmentOnlyMessage,
+            style: TextStyle(
+              color: BeeTokens.textSecondary(context),
+              fontSize: 13,
+              height: 1.4,
+            ),
+          ),
+          if (creating) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+              decoration: BoxDecoration(
+                color: BeeTokens.surface(context),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    l10n.accountBalanceDifference,
+                    style: TextStyle(
+                      color: BeeTokens.textSecondary(context),
+                      fontSize: 12,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    widget.difference,
+                    style: TextStyle(
+                      color: widget.differenceColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

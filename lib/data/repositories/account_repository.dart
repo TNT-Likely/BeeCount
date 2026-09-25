@@ -1,5 +1,20 @@
 import '../db.dart';
 
+/// 账户余额修改后的落库结果。
+class AccountBalanceUpdateResult {
+  final double oldBalance;
+  final double newBalance;
+  final double difference;
+  final int? transactionId;
+
+  const AccountBalanceUpdateResult({
+    required this.oldBalance,
+    required this.newBalance,
+    required this.difference,
+    this.transactionId,
+  });
+}
+
 /// 账户Repository接口
 /// 定义账户相关的所有数据操作
 abstract class AccountRepository {

@@ -3841,6 +3841,45 @@ class AppLocalizationsZh extends AppLocalizations {
   String get accountBalance => '余额';
 
   @override
+  String get accountUpdateBalance => '修改余额';
+
+  @override
+  String get accountBalanceAdjustmentTitle => '确认余额变更';
+
+  @override
+  String get accountBalanceAdjustmentChooseAction => '请选择这次余额变更的保存方式';
+
+  @override
+  String get accountBalanceAdjustmentOnly => '仅修改余额';
+
+  @override
+  String get accountBalanceAdjustmentOnlyMessage => '不创建交易；历史余额趋势会按新的余额基线重新计算。';
+
+  @override
+  String get accountBalanceAdjustmentCreate => '生成平账交易';
+
+  @override
+  String get accountBalanceAdjustmentCreateMessage => '同时新增一笔普通收入或支出，归入“平账”分类，并计入收支和预算统计。';
+
+  @override
+  String get accountBalanceAdjustmentConfirmOnly => '确认仅修改余额';
+
+  @override
+  String get accountBalanceAdjustmentConfirmCreate => '确认并生成平账交易';
+
+  @override
+  String get accountBalanceCurrent => '当前余额';
+
+  @override
+  String get accountBalanceAfterAdjustment => '调整后余额';
+
+  @override
+  String get accountBalanceDifference => '本次差额';
+
+  @override
+  String get accountBalanceUnchanged => '余额未发生变化';
+
+  @override
   String get accountEditTitle => '编辑账户';
 
   @override
@@ -6724,9 +6763,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get accountGroupValuation => '资产/负债';
-
-  @override
-  String get adjustmentTransaction => '估值调整';
 
   @override
   String creditCardBillingInfo(int billingDay, int paymentDueDay) {
@@ -14349,9 +14385,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get accountGroupValuation => '資產/負債';
-
-  @override
-  String get adjustmentTransaction => '估值調整';
 
   @override
   String creditCardBillingInfo(int billingDay, int paymentDueDay) {

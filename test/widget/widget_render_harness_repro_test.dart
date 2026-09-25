@@ -1,7 +1,7 @@
 /// 复现「recent / dashboard 桌面组件真机红屏」的全链路测试。
 ///
 /// 与各 view 的冒烟测试不同,这里走**真实管线**:内存 Drift 库播种真实形态的
-/// 数据(含转账、adjustment 估值调整、外币、空账本等边界)→ 真实
+/// 数据(含转账、外币、空账本等边界)→ 真实
 /// `WidgetDataService.gatherRecent/gatherDashboard` 取数 → 按 home_widget
 /// `renderFlutterWidget` 的**同款 harness 结构**包裹渲染(它把 widget 包在
 /// `Directionality > Column(mainAxisAlignment: center)` 里,子组件拿到的是
@@ -96,13 +96,6 @@ void main() {
         accountId: accBank,
         toAccountId: accCash,
         happenedAt: now.subtract(const Duration(days: 1)));
-    // 估值调整(真实数据存在的类型:无分类、走中性色分支)
-    await repo.addTransaction(
-        ledgerId: 1,
-        type: 'adjustment',
-        amount: 88,
-        accountId: accBank,
-        happenedAt: now.subtract(const Duration(days: 2)));
     return 1;
   }
 

@@ -175,11 +175,12 @@ class LocalTagRepository implements TagRepository {
     required List<int> tagIds,
   }) async {
     await db.transaction(() async {
+      var nextTagIds = tagIds.toSet().toList();
       // 先删除所有关联
       await removeAllTagsFromTransaction(transactionId);
       // 再添加新的关联
-      if (tagIds.isNotEmpty) {
-        await addTagsToTransaction(transactionId: transactionId, tagIds: tagIds);
+      if (nextTagIds.isNotEmpty) {
+        await addTagsToTransaction(transactionId: transactionId, tagIds: nextTagIds);
       }
     });
   }
