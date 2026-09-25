@@ -79,6 +79,7 @@ class TransactionListItem extends ConsumerWidget {
       this.excludeFromBudget = false,
   });
 
+
   /// 检查是否有次要信息需要显示（时间、账户或附件）
   bool _hasSecondaryInfo(WidgetRef ref) {
     // 显示完整日期模式

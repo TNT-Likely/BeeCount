@@ -38,13 +38,13 @@ class LocalTagRepository implements TagRepository {
       );
     }
     return await db.into(db.tags).insert(
-          TagsCompanion.insert(
-            name: name,
-            color: d.Value(color),
-            sortOrder: d.Value(sortOrder),
-            syncId: d.Value(syncId ?? _uuid.v4()),
-          ),
-        );
+      TagsCompanion.insert(
+        name: name,
+        color: d.Value(color),
+        sortOrder: d.Value(sortOrder),
+        syncId: d.Value(syncId ?? _uuid.v4()),
+      ),
+    );
   }
 
   @override
@@ -56,13 +56,13 @@ class LocalTagRepository implements TagRepository {
         await (db.select(db.tags)..where((t) => t.name.equals(name))).get();
     if (existing.isNotEmpty) return existing.first.id;
     return await db.into(db.tags).insert(
-          TagsCompanion.insert(
-            name: name,
-            color: d.Value(color),
-            sortOrder: const d.Value(0),
-            syncId: d.Value(_uuid.v4()),
-          ),
-        );
+      TagsCompanion.insert(
+        name: name,
+        color: d.Value(color),
+        sortOrder: const d.Value(0),
+        syncId: d.Value(_uuid.v4()),
+      ),
+    );
   }
 
   @override
@@ -76,8 +76,7 @@ class LocalTagRepository implements TagRepository {
       TagsCompanion(
         name: name != null ? d.Value(name) : const d.Value.absent(),
         color: color != null ? d.Value(color) : const d.Value.absent(),
-        sortOrder:
-            sortOrder != null ? d.Value(sortOrder) : const d.Value.absent(),
+        sortOrder: sortOrder != null ? d.Value(sortOrder) : const d.Value.absent(),
       ),
     );
   }
@@ -86,8 +85,8 @@ class LocalTagRepository implements TagRepository {
   Future<void> deleteTag(int id) async {
     await db.transaction(() async {
       // 先删除关联关系
-      await (db.delete(db.transactionTags)..where((t) => t.tagId.equals(id)))
-          .go();
+      await (db.delete(db.transactionTags)
+        ..where((t) => t.tagId.equals(id))).go();
       // 再删除标签
       await (db.delete(db.tags)..where((t) => t.id.equals(id))).go();
     });
@@ -95,21 +94,20 @@ class LocalTagRepository implements TagRepository {
 
   @override
   Future<Tag?> getTagById(int id) async {
-    return await (db.select(db.tags)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
+    return await (db.select(db.tags)
+      ..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
   @override
   Future<Tag?> getTagByName(String name) async {
-    return await (db.select(db.tags)..where((t) => t.name.equals(name)))
-        .getSingleOrNull();
+    return await (db.select(db.tags)
+      ..where((t) => t.name.equals(name))).getSingleOrNull();
   }
 
   @override
   Future<List<Tag>> getAllTags() async {
     return await (db.select(db.tags)
-          ..orderBy([(t) => d.OrderingTerm(expression: t.sortOrder)]))
-        .get();
+      ..orderBy([(t) => d.OrderingTerm(expression: t.sortOrder)])).get();
   }
 
   @override
@@ -130,17 +128,16 @@ class LocalTagRepository implements TagRepository {
   }) async {
     // 检查是否已存在
     final existing = await (db.select(db.transactionTags)
-          ..where((t) =>
-              t.transactionId.equals(transactionId) & t.tagId.equals(tagId)))
+      ..where((t) => t.transactionId.equals(transactionId) & t.tagId.equals(tagId)))
         .getSingleOrNull();
 
     if (existing == null) {
       await db.into(db.transactionTags).insert(
-            TransactionTagsCompanion.insert(
-              transactionId: transactionId,
-              tagId: tagId,
-            ),
-          );
+        TransactionTagsCompanion.insert(
+          transactionId: transactionId,
+          tagId: tagId,
+        ),
+      );
     }
   }
 
@@ -162,16 +159,14 @@ class LocalTagRepository implements TagRepository {
     required int tagId,
   }) async {
     await (db.delete(db.transactionTags)
-          ..where((t) =>
-              t.transactionId.equals(transactionId) & t.tagId.equals(tagId)))
+      ..where((t) => t.transactionId.equals(transactionId) & t.tagId.equals(tagId)))
         .go();
   }
 
   @override
   Future<void> removeAllTagsFromTransaction(int transactionId) async {
     await (db.delete(db.transactionTags)
-          ..where((t) => t.transactionId.equals(transactionId)))
-        .go();
+      ..where((t) => t.transactionId.equals(transactionId))).go();
   }
 
   @override
@@ -185,10 +180,7 @@ class LocalTagRepository implements TagRepository {
       await removeAllTagsFromTransaction(transactionId);
       // 再添加新的关联
       if (nextTagIds.isNotEmpty) {
-        await addTagsToTransaction(
-          transactionId: transactionId,
-          tagIds: nextTagIds,
-        );
+        await addTagsToTransaction(transactionId: transactionId, tagIds: nextTagIds);
       }
     });
   }
@@ -200,8 +192,7 @@ class LocalTagRepository implements TagRepository {
         db.transactionTags,
         db.transactionTags.tagId.equalsExp(db.tags.id),
       ),
-    ])
-      ..where(db.transactionTags.transactionId.equals(transactionId));
+    ])..where(db.transactionTags.transactionId.equals(transactionId));
 
     final rows = await query.get();
     final out = rows.map((row) => row.readTable(db.tags)).toList();
@@ -235,8 +226,7 @@ class LocalTagRepository implements TagRepository {
   }
 
   @override
-  Future<Map<int, List<Tag>>> getTagsForTransactions(
-      List<int> transactionIds) async {
+  Future<Map<int, List<Tag>>> getTagsForTransactions(List<int> transactionIds) async {
     if (transactionIds.isEmpty) return {};
 
     final query = db.select(db.transactionTags).join([
@@ -244,8 +234,7 @@ class LocalTagRepository implements TagRepository {
         db.tags,
         db.tags.id.equalsExp(db.transactionTags.tagId),
       ),
-    ])
-      ..where(db.transactionTags.transactionId.isIn(transactionIds));
+    ])..where(db.transactionTags.transactionId.isIn(transactionIds));
 
     final rows = await query.get();
 
@@ -309,8 +298,7 @@ class LocalTagRepository implements TagRepository {
   @override
   Future<List<int>> getTransactionIdsByTag(int tagId) async {
     final rows = await (db.select(db.transactionTags)
-          ..where((t) => t.tagId.equals(tagId)))
-        .get();
+      ..where((t) => t.tagId.equals(tagId))).get();
     return rows.map((r) => r.transactionId).toList();
   }
 
@@ -383,9 +371,8 @@ class LocalTagRepository implements TagRepository {
     if (ledgerId != null) vars.add(d.Variable.withInt(ledgerId));
     if (start != null) vars.add(d.Variable.withDateTime(start));
     if (end != null) vars.add(d.Variable.withDateTime(end));
-    final result = await db
-        .customSelect(
-          '''
+    final result = await db.customSelect(
+      '''
       SELECT
         COUNT(*) as count,
         COALESCE(SUM(CASE WHEN tx.type = 'expense' AND tx.exclude_from_stats = 0 THEN COALESCE(tx.native_amount, tx.amount) ELSE 0 END), 0) as expense,
@@ -394,10 +381,9 @@ class LocalTagRepository implements TagRepository {
       INNER JOIN transactions tx ON tt.transaction_id = tx.id
       WHERE tt.tag_id = ? $ledgerFilter $startFilter $endFilter
       ''',
-          variables: vars,
-          readsFrom: {db.transactionTags, db.transactions},
-        )
-        .getSingle();
+      variables: vars,
+      readsFrom: {db.transactionTags, db.transactions},
+    ).getSingle();
 
     int parseCount(dynamic v) {
       if (v is int) return v;
@@ -431,10 +417,7 @@ class LocalTagRepository implements TagRepository {
       ),
     ])
       ..where(db.transactionTags.tagId.equals(tagId))
-      ..orderBy([
-        d.OrderingTerm(
-            expression: db.transactions.happenedAt, mode: d.OrderingMode.desc)
-      ]);
+      ..orderBy([d.OrderingTerm(expression: db.transactions.happenedAt, mode: d.OrderingMode.desc)]);
 
     final rows = await query.get();
     return rows.map((row) => row.readTable(db.transactions)).toList();
@@ -454,13 +437,10 @@ class LocalTagRepository implements TagRepository {
     ])
       ..where(
         db.transactionTags.tagId.equals(tagId) &
-            db.transactions.happenedAt.isBiggerOrEqualValue(start) &
-            db.transactions.happenedAt.isSmallerThanValue(end),
+        db.transactions.happenedAt.isBiggerOrEqualValue(start) &
+        db.transactions.happenedAt.isSmallerThanValue(end),
       )
-      ..orderBy([
-        d.OrderingTerm(
-            expression: db.transactions.happenedAt, mode: d.OrderingMode.desc)
-      ]);
+      ..orderBy([d.OrderingTerm(expression: db.transactions.happenedAt, mode: d.OrderingMode.desc)]);
 
     final rows = await query.get();
     return rows.map((row) => row.readTable(db.transactions)).toList();
@@ -473,8 +453,7 @@ class LocalTagRepository implements TagRepository {
   @override
   Stream<List<Tag>> watchAllTags() {
     return (db.select(db.tags)
-          ..orderBy([(t) => d.OrderingTerm(expression: t.sortOrder)]))
-        .watch();
+      ..orderBy([(t) => d.OrderingTerm(expression: t.sortOrder)])).watch();
   }
 
   @override
@@ -520,8 +499,8 @@ class LocalTagRepository implements TagRepository {
     // 派生）。标签详情页传过来时去 shared 表反查转 synthetic Tag，跟
     // getTagsForTransaction 路径一致。
     if (tagId < 0) return _watchSharedTagBySyntheticId(tagId);
-    return (db.select(db.tags)..where((t) => t.id.equals(tagId)))
-        .watchSingleOrNull();
+    return (db.select(db.tags)
+      ..where((t) => t.id.equals(tagId))).watchSingleOrNull();
   }
 
   /// SharedLedgerTags 表变化时 re-emit。synthetic id 是派生，反查只能扫表。
@@ -615,13 +594,11 @@ class LocalTagRepository implements TagRepository {
 
     ctrl.onListen = () {
       emit();
-      sub = db
-          .tableUpdates(d.TableUpdateQuery.onAllTables([
-            db.transactions,
-            db.transactionTagOverrides,
-            db.sharedLedgerTags,
-          ]))
-          .listen((_) => emit());
+      sub = db.tableUpdates(d.TableUpdateQuery.onAllTables([
+        db.transactions,
+        db.transactionTagOverrides,
+        db.sharedLedgerTags,
+      ])).listen((_) => emit());
     };
     ctrl.onCancel = () async {
       await sub?.cancel();
@@ -675,30 +652,27 @@ class LocalTagRepository implements TagRepository {
 
   @override
   Stream<List<Tag>> watchTagsForTransaction(int transactionId) {
-    return db
-        .customSelect(
-          '''
+    return db.customSelect(
+      '''
       SELECT t.*
       FROM tags t
       INNER JOIN transaction_tags tt ON t.id = tt.tag_id
       WHERE tt.transaction_id = ?
       ORDER BY t.sort_order
       ''',
-          variables: [d.Variable.withInt(transactionId)],
-          readsFrom: {db.tags, db.transactionTags},
-        )
-        .watch()
-        .map((rows) {
-          return rows.map((row) {
-            return Tag(
-              id: row.read<int>('id'),
-              name: row.read<String>('name'),
-              color: row.read<String?>('color'),
-              sortOrder: row.read<int>('sort_order'),
-              createdAt: row.read<DateTime>('created_at'),
-            );
-          }).toList();
-        });
+      variables: [d.Variable.withInt(transactionId)],
+      readsFrom: {db.tags, db.transactionTags},
+    ).watch().map((rows) {
+      return rows.map((row) {
+        return Tag(
+          id: row.read<int>('id'),
+          name: row.read<String>('name'),
+          color: row.read<String?>('color'),
+          sortOrder: row.read<int>('sort_order'),
+          createdAt: row.read<DateTime>('created_at'),
+        );
+      }).toList();
+    });
   }
 
   @override
@@ -731,8 +705,9 @@ class LocalTagRepository implements TagRepository {
     if (end != null) {
       query.where(db.transactions.happenedAt.isSmallerThanValue(end));
     }
-    return query.watch().map(
-        (rows) => rows.map((row) => row.readTable(db.transactions)).toList());
+    return query
+        .watch()
+        .map((rows) => rows.map((row) => row.readTable(db.transactions)).toList());
   }
 
   // ============================================
@@ -756,8 +731,7 @@ class LocalTagRepository implements TagRepository {
   }
 
   @override
-  Future<void> updateTagSortOrders(
-      List<({int id, int sortOrder})> updates) async {
+  Future<void> updateTagSortOrders(List<({int id, int sortOrder})> updates) async {
     await db.transaction(() async {
       for (final update in updates) {
         await (db.update(db.tags)..where((t) => t.id.equals(update.id)))
