@@ -11534,6 +11534,12 @@ abstract class AppLocalizations {
   /// **'Select budget category'**
   String get budgetCategoryHint;
 
+  /// No description provided for @budgetCategoryAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This category already has a budget'**
+  String get budgetCategoryAlreadyExists;
+
   /// No description provided for @budgetStartDayLabel.
   ///
   /// In en, this message translates to:
