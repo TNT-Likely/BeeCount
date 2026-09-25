@@ -9,8 +9,10 @@ import '../../providers/shared_ledger_providers.dart';
 import '../../utils/category_utils.dart';
 import '../../utils/shared_ledger_picker_filter.dart';
 import '../../styles/tokens.dart';
+import '../../widgets/biz/app_empty.dart';
 import '../category_icon.dart';
 import '../../pages/category/category_manage_page.dart';
+import '../../pages/category/category_edit_page.dart';
 
 /// 分类选择器组件
 /// 用于选择收入或支出分类，支持二级分类原地展开
@@ -120,8 +122,14 @@ class _CategorySelectorState extends ConsumerState<CategorySelector> {
         final topLevelCategories = snapshot.data!;
 
         if (topLevelCategories.isEmpty) {
-          return Center(
-            child: Text(AppLocalizations.of(context).categoryEmpty),
+          final l10n = AppLocalizations.of(context);
+          return AppEmpty(
+            text: l10n.categoryEmpty,
+            action: FilledButton.icon(
+              onPressed: _createCategory,
+              icon: const Icon(Icons.add),
+              label: Text(l10n.categoryNew),
+            ),
           );
         }
 
@@ -256,47 +264,9 @@ class _CategorySelectorState extends ConsumerState<CategorySelector> {
               }
             }
 
-            // 添加设置按钮
+            // 添加分类管理入口
             displayItems.add(const SizedBox(height: 24));
-            displayItems.add(
-              Center(
-                child: InkWell(
-                  onTap: () {
-                    // expense: tab 0, income: tab 1
-                    final tabIndex = widget.kind == 'expense' ? 0 : 1;
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => CategoryManagePage(
-                          initialTabIndex: tabIndex,
-                        ),
-                      ),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(24),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.settings_outlined,
-                          size: 20,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          AppLocalizations.of(context).mineCategoryManagement,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
+            displayItems.add(_buildManageCategoriesButton());
             displayItems.add(const SizedBox(height: 12));
 
             return ListView(
@@ -306,6 +276,61 @@ class _CategorySelectorState extends ConsumerState<CategorySelector> {
           },
         );
       },
+    );
+  }
+
+  Future<void> _createCategory() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => CategoryEditPage(kind: widget.kind),
+      ),
+    );
+    if (!mounted) return;
+    setState(() {
+      _scrolled = false;
+      _keys.clear();
+    });
+  }
+
+  Widget _buildManageCategoriesButton() {
+    return Center(
+      child: InkWell(
+        onTap: () async {
+          final tabIndex = widget.kind == 'expense' ? 0 : 1;
+          await Navigator.of(context).push<void>(
+            MaterialPageRoute(
+              builder: (_) => CategoryManagePage(initialTabIndex: tabIndex),
+            ),
+          );
+          if (!mounted) return;
+          setState(() {
+            _scrolled = false;
+            _keys.clear();
+          });
+        },
+        borderRadius: BorderRadius.circular(24),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.settings_outlined,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                AppLocalizations.of(context).mineCategoryManagement,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

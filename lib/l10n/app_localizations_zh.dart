@@ -736,6 +736,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryTitle => '分类管理';
 
   @override
+  String get categoryGenerateDefault => '生成默认分类';
+
+  @override
+  String get categoryGenerateDefaultFlat => '一级分类';
+
+  @override
+  String get categoryGenerateDefaultHierarchical => '二级分类';
+
+  @override
+  String get categoryGenerateDefaultHint => '已有分类会保留，同名的默认分类会跳过。';
+
+  @override
+  String categoryGenerateDefaultSuccess(int count) {
+    return '已生成 $count 个默认分类';
+  }
+
+  @override
+  String get categoryGenerateDefaultNoChanges => '默认分类已存在，无需生成';
+
+  @override
+  String get categoryGenerateDefaultFailed => '生成默认分类失败，请重试';
+
+  @override
   String get categoryNew => '新建分类';
 
   @override
@@ -8570,6 +8593,29 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get categoryTitle => '分類管理';
+
+  @override
+  String get categoryGenerateDefault => '產生預設分類';
+
+  @override
+  String get categoryGenerateDefaultFlat => '一級分類';
+
+  @override
+  String get categoryGenerateDefaultHierarchical => '二級分類';
+
+  @override
+  String get categoryGenerateDefaultHint => '現有分類會保留，同名的預設分類會略過。';
+
+  @override
+  String categoryGenerateDefaultSuccess(int count) {
+    return '已產生 $count 個預設分類';
+  }
+
+  @override
+  String get categoryGenerateDefaultNoChanges => '預設分類已存在，無需產生';
+
+  @override
+  String get categoryGenerateDefaultFailed => '產生預設分類失敗，請重試';
 
   @override
   String get categoryNew => '新建分類';

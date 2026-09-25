@@ -360,6 +360,18 @@
     }
   },
   "categoryTitle": "Category Management",
+  "categoryGenerateDefault": "Generate Default Categories",
+  "categoryGenerateDefaultFlat": "Level 1 categories",
+  "categoryGenerateDefaultHierarchical": "Level 2 categories",
+  "categoryGenerateDefaultHint": "Existing categories are kept. Default categories with matching names are skipped.",
+  "categoryGenerateDefaultSuccess": "Generated {count} default categories",
+  "@categoryGenerateDefaultSuccess": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "categoryGenerateDefaultNoChanges": "Default categories already exist",
+  "categoryGenerateDefaultFailed": "Could not generate default categories. Try again.",
   "categoryNew": "New Category",
   "categoryExpense": "Expense",
   "categoryIncome": "Income",

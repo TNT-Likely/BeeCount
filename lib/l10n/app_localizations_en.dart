@@ -736,6 +736,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryTitle => 'Category Management';
 
   @override
+  String get categoryGenerateDefault => 'Generate Default Categories';
+
+  @override
+  String get categoryGenerateDefaultFlat => 'Level 1 categories';
+
+  @override
+  String get categoryGenerateDefaultHierarchical => 'Level 2 categories';
+
+  @override
+  String get categoryGenerateDefaultHint => 'Existing categories are kept. Default categories with matching names are skipped.';
+
+  @override
+  String categoryGenerateDefaultSuccess(int count) {
+    return 'Generated $count default categories';
+  }
+
+  @override
+  String get categoryGenerateDefaultNoChanges => 'Default categories already exist';
+
+  @override
+  String get categoryGenerateDefaultFailed => 'Could not generate default categories. Try again.';
+
+  @override
   String get categoryNew => 'New Category';
 
   @override

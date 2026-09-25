@@ -8,9 +8,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../providers.dart';
 import '../../widgets/ui/ui.dart';
+import '../../widgets/biz/app_empty.dart';
 import '../../data/db.dart' as db;
 import '../../services/billing/post_processor.dart';
 import '../../services/category_package_service.dart';
+import '../../services/data/seed_service.dart';
 import '../../services/system/logger_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/category_utils.dart';
@@ -94,10 +96,12 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
                     _CategoryGridView(
                       categoriesWithCount: categoriesWithCount,
                       kind: 'expense',
+                      onAddCategory: () => _addCategory(kind: 'expense'),
                     ),
                     _CategoryGridView(
                       categoriesWithCount: categoriesWithCount,
                       kind: 'income',
+                      onAddCategory: () => _addCategory(kind: 'income'),
                     ),
                   ],
                 );
@@ -109,11 +113,12 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
     );
   }
 
-  void _addCategory() async {
-    final kind = _tabController.index == 0 ? 'expense' : 'income';
+  void _addCategory({String? kind}) async {
+    final categoryKind =
+        kind ?? (_tabController.index == 0 ? 'expense' : 'income');
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => CategoryEditPage(kind: kind),
+        builder: (_) => CategoryEditPage(kind: categoryKind),
       ),
     );
     // 无需手动刷新，Repository 层会自动处理
@@ -137,6 +142,11 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
           icon: Icons.download_outlined,
           label: l10n.categoryImport,
         ),
+        BeeMenuItem.action(
+          value: 'generate_default',
+          icon: Icons.auto_awesome_outlined,
+          label: l10n.categoryGenerateDefault,
+        ),
         const BeeMenuItem.divider(),
         BeeMenuItem.action(
           value: 'clear_unused',
@@ -153,12 +163,97 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
           case 'import':
             _importCategories();
             break;
+          case 'generate_default':
+            _generateDefaultCategories();
+            break;
           case 'clear_unused':
             _clearUnusedCategories();
             break;
         }
       },
     );
+  }
+
+  Future<void> _generateDefaultCategories() async {
+    final l10n = AppLocalizations.of(context);
+    final kind = _tabController.index == 0 ? 'expense' : 'income';
+    final kindName =
+        kind == 'expense' ? l10n.categoryExpense : l10n.categoryIncome;
+    final useHierarchical = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        var selectedMode = false;
+        return StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: Text('${l10n.categoryGenerateDefault} · $kindName'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RadioListTile<bool>(
+                  contentPadding: EdgeInsets.zero,
+                  value: false,
+                  groupValue: selectedMode,
+                  title: Text(l10n.categoryGenerateDefaultFlat),
+                  onChanged: (value) =>
+                      setDialogState(() => selectedMode = value!),
+                ),
+                RadioListTile<bool>(
+                  contentPadding: EdgeInsets.zero,
+                  value: true,
+                  groupValue: selectedMode,
+                  title: Text(l10n.categoryGenerateDefaultHierarchical),
+                  onChanged: (value) =>
+                      setDialogState(() => selectedMode = value!),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    l10n.categoryGenerateDefaultHint,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(l10n.commonCancel),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(dialogContext, selectedMode),
+                child: Text(l10n.commonConfirm),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    if (useHierarchical == null || !mounted) return;
+
+    try {
+      final createdCount = await SeedService.addDefaultCategories(
+        repository: ref.read(repositoryProvider),
+        l10n: l10n,
+        kind: kind,
+        hierarchical: useHierarchical,
+      );
+      if (!mounted) return;
+      if (createdCount == 0) {
+        showToast(context, l10n.categoryGenerateDefaultNoChanges);
+        return;
+      }
+
+      final activeLedgerId = ref.read(currentLedgerIdProvider);
+      if (activeLedgerId > 0) {
+        unawaited(PostProcessor.sync(ref, ledgerId: activeLedgerId));
+      }
+      ref.invalidate(categoriesWithCountProvider);
+      showToast(context, l10n.categoryGenerateDefaultSuccess(createdCount));
+    } catch (e) {
+      logger.error('CategoryManage', '生成默认分类失败: $e');
+      if (!mounted) return;
+      showToast(context, l10n.categoryGenerateDefaultFailed);
+    }
   }
 
   /// 分享分类
@@ -548,10 +643,12 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
 class _CategoryGridView extends ConsumerStatefulWidget {
   final List<({db.Category category, int transactionCount})> categoriesWithCount;
   final String kind;
+  final VoidCallback onAddCategory;
 
   const _CategoryGridView({
     required this.categoriesWithCount,
     required this.kind,
+    required this.onAddCategory,
   });
 
   @override
@@ -630,23 +727,13 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
         .toList();
 
     if (topLevelCategories.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.category_outlined,
-              size: 64,
-              color: BeeTokens.textTertiary(context),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context).categoryEmpty,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: BeeTokens.textSecondary(context),
-              ),
-            ),
-          ],
+      final l10n = AppLocalizations.of(context);
+      return AppEmpty(
+        text: l10n.categoryEmpty,
+        action: FilledButton.icon(
+          onPressed: widget.onAddCategory,
+          icon: const Icon(Icons.add),
+          label: Text(l10n.categoryNew),
         ),
       );
     }
@@ -1176,4 +1263,3 @@ class _DialogSubCategoryCard extends StatelessWidget {
     );
   }
 }
-
