@@ -7331,31 +7331,43 @@ abstract class AppLocalizations {
   /// No description provided for @accountBalanceAdjustmentTitle.
   ///
   /// In en, this message translates to:
-  /// **'Balance Difference'**
+  /// **'Confirm balance change'**
   String get accountBalanceAdjustmentTitle;
+
+  /// No description provided for @accountBalanceAdjustmentChooseAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how to save this balance change'**
+  String get accountBalanceAdjustmentChooseAction;
+
+  /// No description provided for @accountBalanceAdjustmentDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'DEFAULT'**
+  String get accountBalanceAdjustmentDefault;
 
   /// No description provided for @accountBalanceAdjustmentOnly.
   ///
   /// In en, this message translates to:
-  /// **'Update balance only'**
+  /// **'Save balance only'**
   String get accountBalanceAdjustmentOnly;
 
   /// No description provided for @accountBalanceAdjustmentOnlyMessage.
   ///
   /// In en, this message translates to:
-  /// **'No transaction will be created. Historical balance trend will be recalculated from the new baseline.'**
+  /// **'No transaction will be created. Historical balance trends will use the new balance as their baseline.'**
   String get accountBalanceAdjustmentOnlyMessage;
 
   /// No description provided for @accountBalanceAdjustmentCreate.
   ///
   /// In en, this message translates to:
-  /// **'Create balance adjustment'**
+  /// **'Save and create adjustment transaction'**
   String get accountBalanceAdjustmentCreate;
 
   /// No description provided for @accountBalanceAdjustmentCreateMessage.
   ///
   /// In en, this message translates to:
-  /// **'Create a regular income or expense transaction under the Balance category. It is included in income, expense, and budget statistics.'**
+  /// **'Also add a regular income or expense under the Balance category, included in income, expense, and budget statistics.'**
   String get accountBalanceAdjustmentCreateMessage;
 
   /// No description provided for @accountBalanceCurrent.

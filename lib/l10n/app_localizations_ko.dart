@@ -3844,19 +3844,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountUpdateBalance => 'Update Balance';
 
   @override
-  String get accountBalanceAdjustmentTitle => 'Balance Difference';
+  String get accountBalanceAdjustmentTitle => 'Confirm balance change';
 
   @override
-  String get accountBalanceAdjustmentOnly => 'Update balance only';
+  String get accountBalanceAdjustmentChooseAction => 'Choose how to save this balance change';
 
   @override
-  String get accountBalanceAdjustmentOnlyMessage => 'No transaction will be created. Historical balance trend will be recalculated from the new baseline.';
+  String get accountBalanceAdjustmentDefault => 'DEFAULT';
 
   @override
-  String get accountBalanceAdjustmentCreate => 'Create balance adjustment';
+  String get accountBalanceAdjustmentOnly => 'Save balance only';
 
   @override
-  String get accountBalanceAdjustmentCreateMessage => 'Create a regular income or expense transaction under the Balance category. It is included in income, expense, and budget statistics.';
+  String get accountBalanceAdjustmentOnlyMessage => 'No transaction will be created. Historical balance trends will use the new balance as their baseline.';
+
+  @override
+  String get accountBalanceAdjustmentCreate => 'Save and create adjustment transaction';
+
+  @override
+  String get accountBalanceAdjustmentCreateMessage => 'Also add a regular income or expense under the Balance category, included in income, expense, and budget statistics.';
 
   @override
   String get accountBalanceCurrent => 'Current balance';
