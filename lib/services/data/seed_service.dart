@@ -1,4 +1,5 @@
 import '../../data/db.dart';
+import '../../data/repositories/category_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../system/logger_service.dart';
 import 'package:drift/drift.dart';
@@ -648,6 +649,140 @@ class SeedService {
         ),
       );
     }
+  }
+
+  /// 按指定类型和层级补充默认分类，已存在的 seed ID 或名称会被跳过。
+  static Future<int> addDefaultCategories({
+    required CategoryRepository repository,
+    required AppLocalizations l10n,
+    required String kind,
+    required bool hierarchical,
+  }) async {
+    if (kind != 'expense' && kind != 'income') {
+      throw ArgumentError.value(kind, 'kind', 'Expected expense or income');
+    }
+
+    final categories = (await repository.getAllCategories())
+        .where((category) => category.kind == kind)
+        .toList();
+    final bySyncId = <String, Category>{
+      for (final category in categories)
+        if (category.syncId != null) category.syncId!: category,
+    };
+    final byName = <String, Category>{
+      for (final category in categories) category.name: category,
+    };
+    var nextTopLevelOrder = categories
+            .where((category) => category.level == 1)
+            .fold<int>(
+              -1,
+              (maxOrder, category) => category.sortOrder > maxOrder
+                  ? category.sortOrder
+                  : maxOrder,
+            ) +
+        1;
+    var createdCount = 0;
+
+    if (!hierarchical) {
+      final keys = kind == 'expense'
+          ? flatExpenseCategoryKeys
+          : flatIncomeCategoryKeys;
+      for (final key in keys) {
+        final name = _getTranslatedCategoryName(key, kind, l10n);
+        final syncId = deterministicCategorySyncId(
+          kind: kind,
+          level: 1,
+          key: key,
+        );
+        if (bySyncId.containsKey(syncId) || byName.containsKey(name)) continue;
+
+        final id = await repository.createCategory(
+          name: name,
+          kind: kind,
+          icon: getDefaultIcon(key),
+          sortOrder: nextTopLevelOrder++,
+          syncId: syncId,
+        );
+        final category = await repository.getCategoryById(id);
+        if (category != null) {
+          if (category.syncId != null) bySyncId[category.syncId!] = category;
+          byName[category.name] = category;
+        }
+        createdCount++;
+      }
+      return createdCount;
+    }
+
+    final groups = kind == 'expense'
+        ? hierarchicalExpenseCategories
+        : hierarchicalIncomeCategories;
+    for (final entry in groups.entries) {
+      final parentKey = entry.key;
+      final parentName =
+          _getTranslatedParentCategoryName(parentKey, kind, l10n);
+      final parentSyncId = deterministicCategorySyncId(
+        kind: kind,
+        level: 1,
+        key: parentKey,
+      );
+
+      var parent = bySyncId[parentSyncId] ?? byName[parentName];
+      if (parent != null && parent.level != 1) {
+        // 不将已存在的二级分类转换为一级分类。
+        continue;
+      }
+      if (parent == null) {
+        final id = await repository.createCategory(
+          name: parentName,
+          kind: kind,
+          icon: getDefaultIcon(parentKey),
+          sortOrder: nextTopLevelOrder++,
+          syncId: parentSyncId,
+        );
+        parent = await repository.getCategoryById(id);
+        if (parent == null) continue;
+        if (parent.syncId != null) bySyncId[parent.syncId!] = parent;
+        byName[parent.name] = parent;
+        createdCount++;
+      }
+
+      final existingChildren = await repository.getSubCategories(parent.id);
+      var nextChildOrder = existingChildren
+              .fold<int>(
+                -1,
+                (maxOrder, category) => category.sortOrder > maxOrder
+                    ? category.sortOrder
+                    : maxOrder,
+              ) +
+          1;
+      for (final childKey in entry.value) {
+        final childName = _getTranslatedSubCategoryName(childKey, kind, l10n);
+        final childSyncId = deterministicCategorySyncId(
+          kind: kind,
+          level: 2,
+          key: childKey,
+        );
+        if (bySyncId.containsKey(childSyncId) || byName.containsKey(childName)) {
+          continue;
+        }
+
+        final id = await repository.createSubCategory(
+          parentId: parent.id,
+          name: childName,
+          kind: kind,
+          icon: getDefaultIcon(childKey),
+          sortOrder: nextChildOrder++,
+          syncId: childSyncId,
+        );
+        final category = await repository.getCategoryById(id);
+        if (category != null) {
+          if (category.syncId != null) bySyncId[category.syncId!] = category;
+          byName[category.name] = category;
+        }
+        createdCount++;
+      }
+    }
+    return createdCount;
   }
 
   /// 生成默认分类（二级分类模式）

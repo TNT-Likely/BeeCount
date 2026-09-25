@@ -5,7 +5,8 @@ import '../../l10n/app_localizations.dart';
 class AppEmpty extends StatelessWidget {
   final String? text;
   final String? subtext;
-  const AppEmpty({super.key, this.text, this.subtext});
+  final Widget? action;
+  const AppEmpty({super.key, this.text, this.subtext, this.action});
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +44,10 @@ class AppEmpty extends StatelessWidget {
             if (subtext != null) ...[
               const SizedBox(height: 6),
               Text(subtext!, style: theme.textTheme.bodySmall),
+            ],
+            if (action != null) ...[
+              const SizedBox(height: 20),
+              action!,
             ],
           ],
         ),

@@ -763,6 +763,18 @@
   "categorySubCategoryDescriptionEnabled": "此分類屬於某個一級分類",
   "categorySubCategoryTitle": "二級分類",
   "categoryTitle": "分類管理",
+  "categoryGenerateDefault": "產生預設分類",
+  "categoryGenerateDefaultFlat": "一級分類",
+  "categoryGenerateDefaultHierarchical": "二級分類",
+  "categoryGenerateDefaultHint": "現有分類會保留，同名的預設分類會略過。",
+  "categoryGenerateDefaultSuccess": "已產生 {count} 個預設分類",
+  "@categoryGenerateDefaultSuccess": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "categoryGenerateDefaultNoChanges": "預設分類已存在，無需產生",
+  "categoryGenerateDefaultFailed": "產生預設分類失敗，請重試",
   "categoryUpdated": "分類\"{name}\"已更新",
   "cloudAnonKeyLabel": "Anon Key",
   "cloudCannotOpenLink": "無法開啟連結",

@@ -1424,6 +1424,48 @@ abstract class AppLocalizations {
   /// **'Category Management'**
   String get categoryTitle;
 
+  /// No description provided for @categoryGenerateDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Default Categories'**
+  String get categoryGenerateDefault;
+
+  /// No description provided for @categoryGenerateDefaultFlat.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 1 categories'**
+  String get categoryGenerateDefaultFlat;
+
+  /// No description provided for @categoryGenerateDefaultHierarchical.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 2 categories'**
+  String get categoryGenerateDefaultHierarchical;
+
+  /// No description provided for @categoryGenerateDefaultHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing categories are kept. Default categories with matching names are skipped.'**
+  String get categoryGenerateDefaultHint;
+
+  /// No description provided for @categoryGenerateDefaultSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated {count} default categories'**
+  String categoryGenerateDefaultSuccess(int count);
+
+  /// No description provided for @categoryGenerateDefaultNoChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Default categories already exist'**
+  String get categoryGenerateDefaultNoChanges;
+
+  /// No description provided for @categoryGenerateDefaultFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not generate default categories. Try again.'**
+  String get categoryGenerateDefaultFailed;
+
   /// No description provided for @categoryNew.
   ///
   /// In en, this message translates to:

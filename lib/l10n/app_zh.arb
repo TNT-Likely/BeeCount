@@ -349,6 +349,18 @@
   "categoryEmpty": "暂无分类",
   "categoryDefault": "默认分类",
   "categoryReorderTip": "长按分类可拖拽调整顺序",
+  "categoryGenerateDefault": "生成默认分类",
+  "categoryGenerateDefaultFlat": "一级分类",
+  "categoryGenerateDefaultHierarchical": "二级分类",
+  "categoryGenerateDefaultHint": "已有分类会保留，同名的默认分类会跳过。",
+  "categoryGenerateDefaultSuccess": "已生成 {count} 个默认分类",
+  "@categoryGenerateDefaultSuccess": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "categoryGenerateDefaultNoChanges": "默认分类已存在，无需生成",
+  "categoryGenerateDefaultFailed": "生成默认分类失败，请重试",
   "categoryLoadFailed": "加载失败: {error}",
   "iconPickerTitle": "选择图标",
   "iconCategoryTransport": "交通",

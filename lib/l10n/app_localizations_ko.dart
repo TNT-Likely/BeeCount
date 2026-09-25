@@ -736,6 +736,29 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryTitle => '카테고리 관리';
 
   @override
+  String get categoryGenerateDefault => '기본 카테고리 생성';
+
+  @override
+  String get categoryGenerateDefaultFlat => '1단계 카테고리';
+
+  @override
+  String get categoryGenerateDefaultHierarchical => '2단계 카테고리';
+
+  @override
+  String get categoryGenerateDefaultHint => '기존 카테고리는 유지하고 이름이 같은 기본 카테고리는 건너뜁니다.';
+
+  @override
+  String categoryGenerateDefaultSuccess(int count) {
+    return '기본 카테고리 $count개를 생성했습니다';
+  }
+
+  @override
+  String get categoryGenerateDefaultNoChanges => '기본 카테고리가 이미 있습니다';
+
+  @override
+  String get categoryGenerateDefaultFailed => '기본 카테고리를 생성하지 못했습니다. 다시 시도하세요.';
+
+  @override
   String get categoryNew => '새 카테고리';
 
   @override
