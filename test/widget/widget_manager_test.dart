@@ -119,7 +119,8 @@ void main() {
       expect(matchInstalledSpecs(infos), [WidgetSpec.netWorthLarge]);
     });
 
-    test('glance 小号补全:iOS 同 kind 的 systemSmall family 命中 glanceSmall,'
+    test(
+        'glance 小号补全:iOS 同 kind 的 systemSmall family 命中 glanceSmall,'
         '不影响中号', () {
       expect(
         matchInstalledSpecs([
@@ -184,7 +185,8 @@ void main() {
       // 预热是 D5「只渲已安装」的显式例外:App 启动/切账本时把全部类型×尺寸的
       // 图备好,用户随后添加任何组件都立刻有图(修「添加后要等一会」)。
       expect(selectSpecsToRender(null, warmUpAll: true), WidgetSpec.catalog);
-      expect(selectSpecsToRender(const [], warmUpAll: true), WidgetSpec.catalog);
+      expect(
+          selectSpecsToRender(const [], warmUpAll: true), WidgetSpec.catalog);
       expect(
         selectSpecsToRender(const [WidgetSpec.glanceMedium], warmUpAll: true),
         WidgetSpec.catalog,

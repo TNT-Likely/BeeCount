@@ -16,6 +16,8 @@
     <string name="widget_recent_name">最近交易·中</string>
     <string name="widget_recent_large_name">最近交易·大</string>
     <string name="widget_dashboard_name">綜合儀表盤</string>
+    <string name="widget_consumption_rhythm_name">消費節奏</string>
+    <string name="widget_bee_trail_name">記帳連續蜂跡</string>
 
     <!-- 小組件描述(android:description) -->
     <string name="widget_description">查看今日和本月的收支情況</string>
@@ -25,4 +27,6 @@
     <string name="widget_budget_description">預算進度即時掌握</string>
     <string name="widget_recent_description">快速查看最近幾筆帳單</string>
     <string name="widget_dashboard_description">收支、趨勢與最近交易一屏看盡</string>
+    <string name="widget_consumption_rhythm_description">近 30 天消費節奏一眼看清</string>
+    <string name="widget_bee_trail_description">用蜂巢格養成每日記帳習慣</string>
 </resources>

@@ -16,6 +16,8 @@
     <string name="widget_recent_name">Recent (Medium)</string>
     <string name="widget_recent_large_name">Recent (Large)</string>
     <string name="widget_dashboard_name">Dashboard</string>
+    <string name="widget_consumption_rhythm_name">Spending Rhythm</string>
+    <string name="widget_bee_trail_name">Record Bee Trail</string>
 
     <!-- Widget descriptions (android:description) -->
     <string name="widget_description">Today\'s and this month\'s income &amp; expenses</string>
@@ -25,4 +27,6 @@
     <string name="widget_budget_description">Track budget progress at a glance</string>
     <string name="widget_recent_description">A quick look at your latest transactions</string>
     <string name="widget_dashboard_description">Income, trend, and recent activity in one view</string>
+    <string name="widget_consumption_rhythm_description">See your spending pace across the last 30 days</string>
+    <string name="widget_bee_trail_description">Build a daily recording habit with a honeycomb trail</string>
 </resources>

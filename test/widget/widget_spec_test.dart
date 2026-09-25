@@ -36,8 +36,8 @@ void main() {
   });
 
   group('WidgetSpec.catalog', () {
-    test('覆盖 plan.md §二 全部合法 (type,size) 组合,12 条', () {
-      expect(WidgetSpec.catalog.length, 12);
+    test('覆盖全部合法 (type,size) 组合,14 条', () {
+      expect(WidgetSpec.catalog.length, 14);
 
       const expected = <(HWType, HWSize)>{
         (HWType.glance, HWSize.small),
@@ -52,9 +52,10 @@ void main() {
         (HWType.recent, HWSize.medium),
         (HWType.recent, HWSize.large),
         (HWType.dashboard, HWSize.large),
+        (HWType.consumptionRhythm, HWSize.medium),
+        (HWType.beeTrail, HWSize.small),
       };
-      final actual =
-          WidgetSpec.catalog.map((s) => (s.type, s.size)).toSet();
+      final actual = WidgetSpec.catalog.map((s) => (s.type, s.size)).toSet();
       expect(actual, expected);
     });
 
@@ -70,6 +71,19 @@ void main() {
           .map((s) => s.size)
           .toSet();
       expect(recentSizes, {HWSize.medium, HWSize.large});
+    });
+
+    test('消费节奏仅中号、记账连续蜂迹仅小号', () {
+      expect(
+        WidgetSpec.catalog
+            .where((s) => s.type == HWType.consumptionRhythm)
+            .toList(),
+        [WidgetSpec.consumptionRhythmMedium],
+      );
+      expect(
+        WidgetSpec.catalog.where((s) => s.type == HWType.beeTrail).toList(),
+        [WidgetSpec.beeTrailSmall],
+      );
     });
   });
 
