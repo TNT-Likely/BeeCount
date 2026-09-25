@@ -3179,6 +3179,8 @@
   "txFlagBudgetExcludedTag": "不计预算",
   "txCurrencyLabel": "币种",
   "txRateLabel": "汇率",
+  "transactionDoubleTapHint": "双击再记",
+  "transactionSavedNextCategory": "已保存，请选下一笔分类",
   "txConvertedPreview": "≈ {amount} {currency}",
   "@txConvertedPreview": { "placeholders": { "amount": {}, "currency": {} } },
   "txRateMissingHint": "请手动填写本笔汇率后保存",

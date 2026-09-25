@@ -7394,6 +7394,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get txRateLabel => 'Rate';
 
   @override
+  String get transactionDoubleTapHint => 'Double tap';
+
+  @override
+  String get transactionSavedNextCategory => 'Saved. Choose another category.';
+
+  @override
   String txConvertedPreview(Object amount, Object currency) {
     return '≈ $amount $currency';
   }

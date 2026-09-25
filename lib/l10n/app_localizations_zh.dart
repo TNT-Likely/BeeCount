@@ -7388,6 +7388,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txRateLabel => '汇率';
 
   @override
+  String get transactionDoubleTapHint => '双击再记';
+
+  @override
+  String get transactionSavedNextCategory => '已保存，请选下一笔分类';
+
+  @override
   String txConvertedPreview(Object amount, Object currency) {
     return '≈ $amount $currency';
   }
