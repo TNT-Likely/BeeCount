@@ -1380,7 +1380,6 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
   }
 
   Future<void> _switchService(CloudBackendType type) async {
-    final store = ref.read(cloudServiceStoreProvider);
     final active = await ref.read(activeCloudConfigProvider.future);
 
     if (active.type == type) return; // 已经是当前类型
@@ -1430,6 +1429,8 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
           );
         }
         return;
+      } finally {
+        await icloudProvider.dispose();
       }
     }
 
@@ -1454,23 +1455,14 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       }
 
       // 激活新配置
-      final success = await store.activate(type);
+      final success =
+          await ref.read(activeCloudRuntimeProvider.notifier).activate(type);
       if (!success && type != CloudBackendType.local && type != CloudBackendType.icloud) {
         if (mounted) {
           await AppDialog.error(context, title: AppLocalizations.of(context).cloudSwitchFailedTitle, message: AppLocalizations.of(context).cloudSwitchFailedConfigMissing);
         }
         return;
       }
-
-      // 延迟刷新 providers，避免在 build 阶段触发 setState
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        ref.invalidate(activeCloudConfigProvider);
-        ref.invalidate(supabaseConfigProvider);
-        ref.invalidate(webdavConfigProvider);
-        ref.invalidate(authServiceProvider);
-        ref.invalidate(syncServiceProvider);
-      });
 
       if (mounted) {
         showToast(context, AppLocalizations.of(context).cloudSwitchedTo(_getTypeName(type)));
@@ -1540,10 +1532,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       }
 
       try {
-        await ref.read(cloudServiceStoreProvider).saveOnly(cfg);
-        ref.invalidate(beecountCloudConfigProvider);
-        ref.invalidate(activeCloudConfigProvider);
-        ref.invalidate(beecountCloudProviderInstance);
+        await ref.read(activeCloudRuntimeProvider.notifier).saveOnly(cfg);
         if (mounted) showToast(context, AppLocalizations.of(context).cloudConfigSaved);
 
         // 如果提供了邮箱和密码，尝试登录（恢复旧行为）
@@ -1559,7 +1548,6 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
                 password: password,
               );
               ref.invalidate(authServiceProvider);
-              ref.invalidate(syncServiceProvider);
 
               final prefs = await SharedPreferences.getInstance();
               await prefs.setBool('auto_sync', true);
@@ -1641,10 +1629,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       }
 
       try {
-        await ref.read(cloudServiceStoreProvider).saveOnly(cfg);
-        ref.invalidate(supabaseConfigProvider);
-        // 刷新激活配置，确保同步服务使用最新配置
-        ref.invalidate(activeCloudConfigProvider);
+        await ref.read(activeCloudRuntimeProvider.notifier).saveOnly(cfg);
         if (mounted) showToast(context, AppLocalizations.of(context).cloudConfigSaved);
       } catch (e) {
         if (mounted) {
@@ -1699,10 +1684,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       }
 
       try {
-        await ref.read(cloudServiceStoreProvider).saveOnly(cfg);
-        ref.invalidate(webdavConfigProvider);
-        // 刷新激活配置，确保同步服务使用最新配置
-        ref.invalidate(activeCloudConfigProvider);
+        await ref.read(activeCloudRuntimeProvider.notifier).saveOnly(cfg);
         if (mounted) showToast(context, AppLocalizations.of(context).cloudConfigSaved);
       } catch (e) {
         if (mounted) {
@@ -1769,10 +1751,7 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
       }
 
       try {
-        await ref.read(cloudServiceStoreProvider).saveOnly(cfg);
-        ref.invalidate(s3ConfigProvider);
-        // 刷新激活配置，确保同步服务使用最新配置
-        ref.invalidate(activeCloudConfigProvider);
+        await ref.read(activeCloudRuntimeProvider.notifier).saveOnly(cfg);
         if (mounted) showToast(context, AppLocalizations.of(context).cloudConfigSaved);
       } catch (e) {
         if (mounted) {
@@ -1868,8 +1847,11 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
           case CloudBackendType.icloud:
             // iCloud 连接测试
             final icloudProvider = ICloudProvider();
-            final isAvailable = await icloudProvider.isAvailable();
-            if (isAvailable) {
+            try {
+              final isAvailable = await icloudProvider.isAvailable();
+              if (!isAvailable) {
+                throw Exception('iCloud 不可用，请检查设备是否已登录 iCloud 并开启 iCloud Drive');
+              }
               // 尝试初始化容器
               try {
                 await icloudProvider.initialize({});
@@ -1877,20 +1859,31 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
               } catch (e) {
                 throw Exception('iCloud 容器初始化失败: $e');
               }
-            } else {
-              throw Exception('iCloud 不可用，请检查设备是否已登录 iCloud 并开启 iCloud Drive');
+            } finally {
+              await icloudProvider.dispose();
             }
             break;
 
           case CloudBackendType.beecountCloud:
-            // BeeCount Cloud 连接测试 - 调用健康检查接口
+            // /version 是公开健康端点。用轻量请求验证候选 URL，避免为连接
+            // 测试创建第二个 auth/provider 实例并竞争 rotating refresh token。
             try {
-              final services = await createCloudServices(config);
-              if (services.provider == null) {
-                throw Exception('BeeCount Cloud provider 初始化失败');
+              final l10n = AppLocalizations.of(context);
+              final baseUrl = config.beecountCloudBaseUrl!
+                  .trim()
+                  .replaceFirst(RegExp(r'/$'), '');
+              final apiPrefix =
+                  (config.beecountCloudApiPrefix ?? '/api/v1').trim();
+              final normalizedPrefix = apiPrefix.isEmpty
+                  ? '/api/v1'
+                  : '/${apiPrefix.replaceAll(RegExp(r'^/+|/+$'), '')}';
+              final response = await http
+                  .get(Uri.parse('$baseUrl$normalizedPrefix/version'))
+                  .timeout(const Duration(seconds: 10));
+              if (response.statusCode < 200 || response.statusCode >= 300) {
+                throw Exception(
+                    l10n.cloudErrorServerStatus('${response.statusCode}'));
               }
-              // 尝试列出文件验证连接
-              await services.provider!.storage.list(path: '');
               connectionSuccess = true;
             } catch (e) {
               String errorMsg = e.toString();
@@ -1929,11 +1922,16 @@ class _CloudServicePageState extends ConsumerState<CloudServicePage> {
 
               // 实际测试连接：尝试列出 bucket 中的文件
               // 这会触发真正的 S3 API 调用，验证凭证和连接
-              logger.info('CloudServicePage', 'S3 开始测试列出文件');
-              await services.provider!.storage.list(path: '');
+              final provider = services.provider!;
+              try {
+                logger.info('CloudServicePage', 'S3 开始测试列出文件');
+                await provider.storage.list(path: '');
 
-              logger.info('CloudServicePage', 'S3 连接测试成功');
-              connectionSuccess = true;
+                logger.info('CloudServicePage', 'S3 连接测试成功');
+                connectionSuccess = true;
+              } finally {
+                await provider.dispose();
+              }
             } catch (e, stackTrace) {
               logger.error('CloudServicePage', 'S3 连接测试失败: $e', e, stackTrace);
               // 提取最有用的错误信息
