@@ -15,7 +15,6 @@ import '../../utils/account_type_utils.dart';
 import '../../widgets/charts/account_category_pie_chart.dart';
 import '../transaction/transaction_editor_page.dart';
 import 'account_edit_page.dart';
-import '../../services/billing/post_processor.dart';
 
 // ============================================
 // Providers
@@ -145,8 +144,6 @@ class AccountDetailPage extends ConsumerStatefulWidget {
   ConsumerState<AccountDetailPage> createState() => _AccountDetailPageState();
 }
 
-enum _BalanceAdjustmentChoice { baselineOnly, createTransaction }
-
 class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
   final ScrollController _scrollController = ScrollController();
   /// 详情页图表 tab: 0=支出分布, 1=收入分布
@@ -216,18 +213,6 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
             showBack: true,
             compact: true,
             actions: [
-              if (!isValuation)
-                IconButton(
-                  icon: const Icon(Icons.tune_outlined),
-                  tooltip: l10n.accountUpdateBalance,
-                  onPressed: () => _showUpdateBalanceDialog(
-                    context,
-                    ref,
-                    account,
-                    currencyCode,
-                    l10n,
-                  ),
-                ),
               IconButton(
                 icon: Icon(
                   Icons.edit_outlined,
@@ -305,131 +290,6 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
         ],
       ),
     );
-  }
-
-  /// 修改可交易账户余额。差额计算和最终落库都由 repository 完成；UI 只负责
-  /// 在检测到差额后让用户选择是否留下平账交易。
-  Future<void> _showUpdateBalanceDialog(
-    BuildContext context,
-    WidgetRef ref,
-    db.Account account,
-    String currencyCode,
-    AppLocalizations l10n,
-  ) async {
-    final repo = ref.read(repositoryProvider);
-    final ledger = ref.read(currentLedgerProvider).asData?.value;
-    if (ledger == null) return;
-    final currentBalance = await repo.getAccountBalance(account.id);
-    if (!context.mounted) return;
-
-    final controller = TextEditingController(
-      text: currentBalance.toStringAsFixed(2),
-    );
-    final target = await showDialog<double>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.accountUpdateBalance),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          keyboardType: const TextInputType.numberWithOptions(
-            decimal: true,
-            signed: true,
-          ),
-          decoration: InputDecoration(
-            prefixText: '${getCurrencySymbol(currencyCode)} ',
-            labelText: l10n.accountBalance,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.commonCancel),
-          ),
-          FilledButton(
-            onPressed: () {
-              final value = double.tryParse(controller.text.trim());
-              if (value != null && value.isFinite) {
-                Navigator.pop(ctx, value);
-              }
-            },
-            child: Text(l10n.commonNext),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    if (target == null || !context.mounted) return;
-
-    final latestBalance = await repo.getAccountBalance(account.id);
-    final difference = target - latestBalance;
-    if (difference.abs() < 0.0000001) {
-      showToast(context, l10n.accountBalanceUnchanged);
-      return;
-    }
-
-    final choice = await showDialog<_BalanceAdjustmentChoice>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.accountBalanceAdjustmentTitle),
-        content: Text(
-          '${l10n.accountBalance}: ${latestBalance.toStringAsFixed(2)}\n'
-          '→ ${target.toStringAsFixed(2)}\n\n'
-          '差额：${difference.toStringAsFixed(2)}',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.commonCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(
-              ctx,
-              _BalanceAdjustmentChoice.baselineOnly,
-            ),
-            child: Text(l10n.accountBalanceAdjustmentOnly),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(
-              ctx,
-              _BalanceAdjustmentChoice.createTransaction,
-            ),
-            child: Text(l10n.accountBalanceAdjustmentCreate),
-          ),
-        ],
-      ),
-    );
-    if (choice == null || !context.mounted) return;
-
-    try {
-      await repo.setAccountBalance(
-        ledgerId: ledger.id,
-        accountId: account.id,
-        targetBalance: target,
-        createBalanceAdjustment:
-            choice == _BalanceAdjustmentChoice.createTransaction,
-      );
-      ref.invalidate(accountStatsProvider(account.id));
-      ref.invalidate(accountTransactionsPaginatedProvider(
-          (accountId: account.id, flow: _listFlow)));
-      ref.invalidate(accountCategoryStatsProvider(
-          (accountId: account.id, type: 'expense')));
-      ref.invalidate(accountCategoryStatsProvider(
-          (accountId: account.id, type: 'income')));
-      ref.read(statsRefreshProvider.notifier).state++;
-      ref.read(tagListRefreshProvider.notifier).state++;
-      PostProcessor.sync(ref, ledgerId: ledger.id);
-      if (context.mounted) {
-        showToast(context, l10n.commonSaved);
-        Navigator.pop(context, true);
-      }
-    } catch (error) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.commonFailed}: $error')),
-        );
-      }
-    }
   }
 
   /// 余额/收入/支出统计卡片

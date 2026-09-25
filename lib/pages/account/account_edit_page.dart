@@ -42,6 +42,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   bool _reminderEnabled = false;
   int _reminderDaysBefore = 3;
   bool _saving = false;
+  bool _balanceLoaded = true;
+  bool _balanceLoadFailed = false;
   bool _isNameDuplicate = false;
   String? _nameErrorText;
   // 账户类型 Tab：0 = 日常账户，1 = 估值账户
@@ -71,8 +73,12 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.account?.name ?? '');
+    final hasEditableCurrentBalance = widget.account != null &&
+        !isValuationOnlyType(widget.account!.type);
+    _balanceLoaded = !hasEditableCurrentBalance;
     _initialBalanceController = TextEditingController(
-      text: widget.account?.initialBalance != null &&
+      text: !hasEditableCurrentBalance &&
+              widget.account?.initialBalance != null &&
               widget.account!.initialBalance != 0.0
           ? widget.account!.initialBalance.abs().toStringAsFixed(2)
           : '',
@@ -90,7 +96,25 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
     _billingDay = widget.account?.billingDay;
     _paymentDueDay = widget.account?.paymentDueDay;
     _typeTab = isValuationOnlyType(_selectedType) ? 1 : 0;
+    if (hasEditableCurrentBalance) _loadEditableCurrentBalance();
     _loadReminderSettings();
+  }
+
+  Future<void> _loadEditableCurrentBalance() async {
+    try {
+      final balance = await ref
+          .read(repositoryProvider)
+          .getAccountBalance(widget.account!.id);
+      if (!mounted) return;
+      setState(() {
+        _initialBalanceController.text = balance.toStringAsFixed(2);
+        _balanceLoaded = true;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _balanceLoadFailed = true);
+      showToast(context, '${AppLocalizations.of(context).commonError}: $error');
+    }
   }
 
   Future<void> _loadReminderSettings() async {
@@ -141,6 +165,44 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
       default:
         return l10n.accountInitialBalanceHint;
     }
+  }
+
+  Future<bool?> _promptBalanceAdjustmentChoice({
+    required double currentBalance,
+    required double targetBalance,
+    required AppLocalizations l10n,
+  }) async {
+    final difference = targetBalance - currentBalance;
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.accountBalanceAdjustmentTitle),
+        content: Text(
+          '${l10n.accountBalance}: ${currentBalance.toStringAsFixed(2)}\n'
+          '→ ${targetBalance.toStringAsFixed(2)}\n\n'
+          '${difference > 0 ? '+' : ''}${difference.toStringAsFixed(2)}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.accountBalanceAdjustmentOnly),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.accountBalanceAdjustmentCreate),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _retryEditableCurrentBalance() {
+    setState(() => _balanceLoadFailed = false);
+    _loadEditableCurrentBalance();
   }
 
   /// v1.15.0: 检查账户名称是否重复
@@ -430,6 +492,53 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                                     },
                                   ),
                                 )
+                              else if (!isValuationOnlyType(widget.account!.type) &&
+                                  !isValuationOnlyType(_selectedType))
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _initialBalanceController,
+                                    readOnly:
+                                        !_balanceLoaded || _balanceLoadFailed,
+                                    decoration: filledDec(
+                                      label: l10n.accountBalance,
+                                      prefix:
+                                          '${getCurrencySymbol(_selectedCurrency)} ',
+                                    ).copyWith(
+                                      suffixIcon: _balanceLoadFailed
+                                          ? IconButton(
+                                              tooltip: l10n.helpCenterRetry,
+                                              onPressed: _retryEditableCurrentBalance,
+                                              icon: const Icon(Icons.refresh),
+                                            )
+                                          : _balanceLoaded
+                                              ? null
+                                              : Padding(
+                                                  padding: EdgeInsets.all(
+                                                    12.0.scaled(context, ref),
+                                                  ),
+                                                  child:
+                                                      const CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                  ),
+                                                ),
+                                    ),
+                                    style: const TextStyle(fontSize: 16),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                      signed: true,
+                                    ),
+                                    validator: (value) {
+                                      final parsed = value == null
+                                          ? null
+                                          : double.tryParse(value.trim());
+                                      if (parsed == null || !parsed.isFinite) {
+                                        return '请输入有效的金额';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                )
                               else
                                 const Spacer(),
                             ],
@@ -656,7 +765,12 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                     width: double.infinity,
                     height: 48.0.scaled(context, ref),
                     child: ElevatedButton(
-                      onPressed: (_saving || _isNameDuplicate) ? null : _save,
+                      onPressed: (_saving ||
+                              _isNameDuplicate ||
+                              !_balanceLoaded ||
+                              _balanceLoadFailed)
+                          ? null
+                          : _save,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
                         foregroundColor: Colors.white,
@@ -745,6 +859,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   }
 
   Future<void> _save() async {
+    if (!_balanceLoaded || _balanceLoadFailed) return;
     if (!_formKey.currentState!.validate()) return;
 
     // 信用卡：账单日 / 还款日必填（额度由表单 validator 拦截）
@@ -760,8 +875,9 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
       final repo = ref.read(repositoryProvider);
       final name = _nameController.text.trim();
       final initialBalanceText = _initialBalanceController.text.trim();
-      var initialBalance =
+      final enteredBalance =
           initialBalanceText.isEmpty ? 0.0 : double.parse(initialBalanceText);
+      var initialBalance = enteredBalance;
 
       // 贷款类型：用户输入正数，存储为负数
       if (_selectedType == 'loan' && initialBalance > 0) {
@@ -796,6 +912,26 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           currencyToUpdate = _selectedCurrency;
         }
 
+        var balanceNeedsUpdate = false;
+        var createBalanceAdjustment = false;
+        final targetBalance = enteredBalance;
+        if (!isValuationOnlyType(widget.account!.type) &&
+            !isValuationOnlyType(_selectedType)) {
+          final currentBalance =
+              await repo.getAccountBalance(widget.account!.id);
+          if (!mounted) return;
+          if ((targetBalance - currentBalance).abs() >= 0.0000001) {
+            final choice = await _promptBalanceAdjustmentChoice(
+              currentBalance: currentBalance,
+              targetBalance: targetBalance,
+              l10n: AppLocalizations.of(context),
+            );
+            if (!mounted || choice == null) return;
+            balanceNeedsUpdate = true;
+            createBalanceAdjustment = choice;
+          }
+        }
+
         // 如果从信用卡切换到其他类型，清空信用卡字段
         final wasCreditCard = widget.account!.type == 'credit_card';
         final clearCreditCardFields = wasCreditCard && !isCreditCard;
@@ -822,6 +958,18 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           note: noteText.isNotEmpty ? noteText : null,
           clearMetadataFields: clearMetadataFields,
         );
+
+        if (balanceNeedsUpdate) {
+          await repo.setAccountBalance(
+            ledgerId: widget.ledgerId,
+            accountId: widget.account!.id,
+            targetBalance: targetBalance,
+            createBalanceAdjustment: createBalanceAdjustment,
+          );
+          ref.invalidate(accountStatsProvider(widget.account!.id));
+          ref.read(statsRefreshProvider.notifier).state++;
+          ref.read(tagListRefreshProvider.notifier).state++;
+        }
 
         // 保存还款提醒设置
         if (isCreditCard) {
