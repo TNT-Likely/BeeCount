@@ -3859,6 +3859,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountBalanceAdjustmentCreateMessage => 'Create a regular income or expense transaction under the Balance category. It is included in income, expense, and budget statistics.';
 
   @override
+  String get accountBalanceCurrent => 'Current balance';
+
+  @override
+  String get accountBalanceAfterAdjustment => 'Adjusted balance';
+
+  @override
+  String get accountBalanceDifference => 'Difference';
+
+  @override
   String get accountBalanceUnchanged => 'The balance has not changed';
 
   @override

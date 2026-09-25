@@ -3859,6 +3859,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get accountBalanceAdjustmentCreateMessage => '生成一笔普通收支交易，金额将归入“平账”分类，并计入收入、支出和预算统计。';
 
   @override
+  String get accountBalanceCurrent => '当前余额';
+
+  @override
+  String get accountBalanceAfterAdjustment => '调整后余额';
+
+  @override
+  String get accountBalanceDifference => '本次差额';
+
+  @override
   String get accountBalanceUnchanged => '余额未发生变化';
 
   @override

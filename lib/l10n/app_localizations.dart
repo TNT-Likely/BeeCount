@@ -7358,6 +7358,24 @@ abstract class AppLocalizations {
   /// **'Create a regular income or expense transaction under the Balance category. It is included in income, expense, and budget statistics.'**
   String get accountBalanceAdjustmentCreateMessage;
 
+  /// No description provided for @accountBalanceCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance'**
+  String get accountBalanceCurrent;
+
+  /// No description provided for @accountBalanceAfterAdjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjusted balance'**
+  String get accountBalanceAfterAdjustment;
+
+  /// No description provided for @accountBalanceDifference.
+  ///
+  /// In en, this message translates to:
+  /// **'Difference'**
+  String get accountBalanceDifference;
+
   /// No description provided for @accountBalanceUnchanged.
   ///
   /// In en, this message translates to:
