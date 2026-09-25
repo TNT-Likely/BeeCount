@@ -7340,16 +7340,10 @@ abstract class AppLocalizations {
   /// **'Choose how to save this balance change'**
   String get accountBalanceAdjustmentChooseAction;
 
-  /// No description provided for @accountBalanceAdjustmentDefault.
-  ///
-  /// In en, this message translates to:
-  /// **'DEFAULT'**
-  String get accountBalanceAdjustmentDefault;
-
   /// No description provided for @accountBalanceAdjustmentOnly.
   ///
   /// In en, this message translates to:
-  /// **'Save balance only'**
+  /// **'Balance only'**
   String get accountBalanceAdjustmentOnly;
 
   /// No description provided for @accountBalanceAdjustmentOnlyMessage.
@@ -7361,7 +7355,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountBalanceAdjustmentCreate.
   ///
   /// In en, this message translates to:
-  /// **'Save and create adjustment transaction'**
+  /// **'Create transaction'**
   String get accountBalanceAdjustmentCreate;
 
   /// No description provided for @accountBalanceAdjustmentCreateMessage.
@@ -7369,6 +7363,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Also add a regular income or expense under the Balance category, included in income, expense, and budget statistics.'**
   String get accountBalanceAdjustmentCreateMessage;
+
+  /// No description provided for @accountBalanceAdjustmentConfirmOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm balance only'**
+  String get accountBalanceAdjustmentConfirmOnly;
+
+  /// No description provided for @accountBalanceAdjustmentConfirmCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm and create transaction'**
+  String get accountBalanceAdjustmentConfirmCreate;
 
   /// No description provided for @accountBalanceCurrent.
   ///
