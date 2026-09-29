@@ -707,7 +707,7 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
       if (mounted) {
         setState(() {
           _textTestStatus = TestStatus.failed;
-          _textTestError = '$e';
+          _textTestError = AIProviderFactory.userFacingError(e);
         });
       }
     }
@@ -741,7 +741,7 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
       if (mounted) {
         setState(() {
           _visionTestStatus = TestStatus.failed;
-          _visionTestError = '$e';
+          _visionTestError = AIProviderFactory.userFacingError(e);
         });
       }
     }
@@ -775,7 +775,7 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
       if (mounted) {
         setState(() {
           _speechTestStatus = TestStatus.failed;
-          _speechTestError = '$e';
+          _speechTestError = AIProviderFactory.userFacingError(e);
         });
       }
     }

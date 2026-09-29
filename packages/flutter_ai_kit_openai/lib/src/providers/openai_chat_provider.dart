@@ -5,6 +5,7 @@ import 'package:dio/io.dart';
 import 'package:flutter_ai_kit/flutter_ai_kit.dart';
 
 import '../config/openai_config.dart';
+import '../exceptions/openai_exception.dart';
 import '../models/chat_message.dart';
 import '../models/chat_request.dart';
 import '../models/chat_response.dart';
@@ -100,7 +101,14 @@ class OpenAIChatProvider implements AIProvider<String, String> {
       );
 
       // 解析响应
-      final chatResponse = ChatResponse.fromJson(response.data);
+      final rawData = response.data;
+      if (rawData is Map && rawData['error'] != null) {
+        throw OpenAIException.fromResponse(response.statusCode, rawData);
+      }
+      if (rawData is! Map) throw OpenAIException.invalidResponse();
+      final chatResponse = ChatResponse.fromJson(
+        Map<String, dynamic>.from(rawData),
+      );
       final content = chatResponse.choices.first.message.content as String;
       final tokensUsed = chatResponse.usage.totalTokens;
 
@@ -113,15 +121,21 @@ class OpenAIChatProvider implements AIProvider<String, String> {
           tokensUsed: tokensUsed,
         ),
       );
-    } on DioException catch (e) {
+    } on OpenAIException catch (e) {
       return AIResult.failure(
-        _parseError(e),
+        e.userMessage,
         DateTime.now().difference(startTime),
         metadata: AIResultMetadata(providerName: name),
       );
-    } catch (e) {
+    } on DioException catch (e) {
       return AIResult.failure(
-        e.toString(),
+        OpenAIException.fromDioException(e).userMessage,
+        DateTime.now().difference(startTime),
+        metadata: AIResultMetadata(providerName: name),
+      );
+    } catch (_) {
+      return AIResult.failure(
+        OpenAIException.invalidResponse().userMessage,
         DateTime.now().difference(startTime),
         metadata: AIResultMetadata(providerName: name),
       );
@@ -133,26 +147,5 @@ class OpenAIChatProvider implements AIProvider<String, String> {
     // 基于模型定价估算成本
     // TODO: 实现详细的成本估算逻辑
     return 0.0001; // 示例值
-  }
-
-  String _parseError(DioException e) {
-    if (e.type == DioExceptionType.connectionTimeout ||
-        e.type == DioExceptionType.receiveTimeout) {
-      return '请求超时，请检查网络连接';
-    }
-
-    if (e.type == DioExceptionType.connectionError) {
-      return '无法连接到服务器，请检查网络';
-    }
-
-    if (e.response?.data is Map) {
-      final data = e.response!.data as Map<String, dynamic>;
-      if (data['error'] is Map) {
-        final error = data['error'] as Map<String, dynamic>;
-        return error['message'] as String? ?? '未知错误';
-      }
-    }
-
-    return e.message ?? '网络请求失败';
   }
 }

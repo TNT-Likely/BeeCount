@@ -4,6 +4,8 @@ import 'package:agentcore/agentcore.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_ai_kit/flutter_ai_kit.dart';
+import 'package:flutter_ai_kit_openai/flutter_ai_kit_openai.dart'
+    show OpenAIException;
 import 'package:flutter_ai_kit_zhipu/flutter_ai_kit_zhipu.dart';
 
 import 'ai_provider_config.dart';
@@ -325,6 +327,24 @@ class AIProviderFactory {
         ),
       );
 
+  /// 把底层异常转换为可直接展示的文本，避免泄露 Dio/Dart 实现细节。
+  static String userFacingError(
+    Object error, {
+    String prefix = '验证失败',
+  }) {
+    final String detail;
+    if (error is AIException) {
+      detail = error.message;
+    } else if (error is OpenAIException) {
+      detail = error.userMessage;
+    } else if (error is DioException) {
+      detail = OpenAIException.fromDioException(error).userMessage;
+    } else {
+      detail = '服务商返回了无法识别的响应，请检查模型名称和接口兼容性';
+    }
+    return '$prefix：$detail';
+  }
+
   /// Classifies only explicit provider signals; a generic occurrence of the
   /// word "tool" is not enough to label a model as incompatible.
   @visibleForTesting
@@ -469,6 +489,7 @@ class AIProviderFactory {
     AIServiceProviderConfig config, {
     String? logTag,
     void Function(AgentModelCapabilities capabilities)? onCapabilities,
+    @visibleForTesting Dio? client,
   }) async {
     final tag = logTag ?? 'AIFactory';
     logger.info(tag, '验证文本能力: ${config.name}');
@@ -488,7 +509,13 @@ class AIProviderFactory {
       if (config.isBuiltIn) {
         response = await _chatZhipu(config, 'hi', null, 0.7);
       } else {
-        response = await _chatOpenAI(config, 'hi', null, 0.7);
+        response = await _chatOpenAI(
+          config,
+          'hi',
+          null,
+          0.7,
+          client: client,
+        );
       }
 
       if (response.isNotEmpty) {
@@ -496,6 +523,7 @@ class AIProviderFactory {
           config,
           probeStreaming: true,
           logTag: tag,
+          client: client,
         );
         onCapabilities?.call(capabilities);
         if (!capabilities.canRunNativeToolAgent) {
@@ -515,7 +543,7 @@ class AIProviderFactory {
       return (false, e.message);
     } catch (e, st) {
       logger.error(tag, '文本能力验证异常', e, st);
-      return (false, '验证异常: $e');
+      return (false, userFacingError(e));
     }
   }
 
@@ -528,6 +556,7 @@ class AIProviderFactory {
     AIServiceProviderConfig config, {
     bool probeStreaming = false,
     String? logTag,
+    @visibleForTesting Dio? client,
   }) async {
     if (!config.isValid || !config.supportsText) {
       return AgentModelCapabilities(
@@ -538,7 +567,7 @@ class AIProviderFactory {
         detail: config.isValid ? '未配置文本模型' : '未配置 API Key',
       );
     }
-    final dio = _getDio(config);
+    final dio = client ?? _getDio(config);
     const probeName = 'beecount_agent_capability_probe';
     const tools = <Map<String, Object?>>[
       {
@@ -626,7 +655,7 @@ class AIProviderFactory {
           text: AgentCapabilitySupport.supported,
           nativeToolCalls: AgentCapabilitySupport.unknown,
           forcedToolChoice: forced,
-          detail: '普通文本对话可用，但工具能力探测返回异常：$error',
+          detail: '普通文本对话可用，但${userFacingError(error, prefix: '工具能力探测失败')}',
         );
       }
     }
@@ -755,7 +784,7 @@ class AIProviderFactory {
       return (false, e.message);
     } catch (e, st) {
       logger.error(tag, '视觉能力验证异常', e, st);
-      return (false, '验证异常: $e');
+      return (false, userFacingError(e));
     }
   }
 
@@ -805,7 +834,7 @@ class AIProviderFactory {
       return (false, e.message);
     } catch (e, st) {
       logger.error(tag, '语音能力验证异常', e, st);
-      return (false, '验证异常: $e');
+      return (false, userFacingError(e));
     }
   }
 
@@ -1010,9 +1039,10 @@ class AIProviderFactory {
     AIServiceProviderConfig config,
     String prompt,
     String? systemPrompt,
-    double temperature,
-  ) async {
-    final dio = _getDio(config);
+    double temperature, {
+    Dio? client,
+  }) async {
+    final dio = client ?? _getDio(config);
 
     final messages = <Map<String, dynamic>>[];
     if (systemPrompt != null && systemPrompt.isNotEmpty) {
@@ -1029,10 +1059,7 @@ class AIProviderFactory {
         'temperature': temperature,
       });
 
-      final data = response.data as Map<String, dynamic>;
-      final choices = data['choices'] as List;
-      final message = choices.first['message'] as Map<String, dynamic>;
-      return message['content'] as String;
+      return _extractChatContent(response, capability: '文本');
     } on DioException catch (e) {
       throw AIException(_extractDioError(e));
     }
@@ -1072,10 +1099,7 @@ class AIProviderFactory {
         },
       );
 
-      final data = response.data as Map<String, dynamic>;
-      final choices = data['choices'] as List;
-      final message = choices.first['message'] as Map<String, dynamic>;
-      return message['content'] as String;
+      return _extractChatContent(response, capability: '视觉');
     } on DioException catch (e) {
       throw AIException(_extractDioError(e));
     }
@@ -1107,11 +1131,48 @@ class AIProviderFactory {
         ),
       );
 
-      final text = response.data['text'] as String;
+      final data = _responseData(response, capability: '语音');
+      final text = data['text'];
+      if (text is! String) {
+        throw AIException('服务商返回了无法识别的语音响应（缺少 text）');
+      }
       return text.trim();
     } on DioException catch (e) {
       throw AIException(_extractDioError(e));
     }
+  }
+
+  static Map<String, dynamic> _responseData(
+    Response<dynamic> response, {
+    required String capability,
+  }) {
+    final rawData = response.data;
+    if (rawData is! Map) {
+      throw AIException('服务商返回了无法识别的$capability响应（不是 JSON 对象）');
+    }
+    final data = Map<String, dynamic>.from(rawData);
+    if (data['error'] != null) {
+      throw AIException(
+        OpenAIException.fromResponse(response.statusCode, data).userMessage,
+      );
+    }
+    return data;
+  }
+
+  static String _extractChatContent(
+    Response<dynamic> response, {
+    required String capability,
+  }) {
+    final data = _responseData(response, capability: capability);
+    final choices = data['choices'];
+    if (choices is! List || choices.isEmpty || choices.first is! Map) {
+      throw AIException('服务商返回了无法识别的$capability响应（缺少 choices）');
+    }
+    final message = (choices.first as Map)['message'];
+    if (message is! Map || message['content'] is! String) {
+      throw AIException('服务商返回了无法识别的$capability响应（缺少消息内容）');
+    }
+    return message['content'] as String;
   }
 
   /// 提取 Dio 错误信息
@@ -1128,29 +1189,7 @@ class AIProviderFactory {
       logger.warning(tag, '  底层错误: ${e.error}');
     }
 
-    if (responseData is Map) {
-      final data = responseData as Map<String, dynamic>;
-      // OpenAI 格式: {"error": {"message": "...", "type": "..."}}
-      if (data['error'] is Map) {
-        final error = data['error'] as Map;
-        final message = error['message'] ?? error['msg'] ?? 'API调用失败';
-        return '[$statusCode] $message';
-      }
-      // 其他格式: {"message": "..."} 或 {"msg": "..."}
-      if (data['message'] != null) {
-        return '[$statusCode] ${data['message']}';
-      }
-      if (data['msg'] != null) {
-        return '[$statusCode] ${data['msg']}';
-      }
-    }
-
-    // 如果响应是字符串
-    if (responseData is String && responseData.isNotEmpty) {
-      return '[$statusCode] $responseData';
-    }
-
-    return '[$statusCode] ${e.message ?? 'API调用失败'}';
+    return OpenAIException.fromDioException(e).userMessage;
   }
 }
 

@@ -6,6 +6,7 @@ import 'package:dio/io.dart' as dio_io;
 import 'package:flutter_ai_kit/flutter_ai_kit.dart';
 
 import '../config/openai_config.dart';
+import '../exceptions/openai_exception.dart';
 import '../models/chat_message.dart';
 import '../models/chat_request.dart';
 import '../models/chat_response.dart';
@@ -104,7 +105,14 @@ class OpenAIVisionProvider implements AIProvider<File, String> {
       );
 
       // 4. 解析响应并返回结果
-      final chatResponse = ChatResponse.fromJson(response.data);
+      final rawData = response.data;
+      if (rawData is Map && rawData['error'] != null) {
+        throw OpenAIException.fromResponse(response.statusCode, rawData);
+      }
+      if (rawData is! Map) throw OpenAIException.invalidResponse();
+      final chatResponse = ChatResponse.fromJson(
+        Map<String, dynamic>.from(rawData),
+      );
       final content = chatResponse.choices.first.message.content as String;
 
       return AIResult.success(
@@ -116,15 +124,21 @@ class OpenAIVisionProvider implements AIProvider<File, String> {
           tokensUsed: chatResponse.usage.totalTokens,
         ),
       );
-    } on DioException catch (e) {
+    } on OpenAIException catch (e) {
       return AIResult.failure(
-        _parseError(e),
+        e.userMessage,
         DateTime.now().difference(startTime),
         metadata: AIResultMetadata(providerName: name),
       );
-    } catch (e) {
+    } on DioException catch (e) {
       return AIResult.failure(
-        e.toString(),
+        OpenAIException.fromDioException(e).userMessage,
+        DateTime.now().difference(startTime),
+        metadata: AIResultMetadata(providerName: name),
+      );
+    } catch (_) {
+      return AIResult.failure(
+        OpenAIException.invalidResponse().userMessage,
         DateTime.now().difference(startTime),
         metadata: AIResultMetadata(providerName: name),
       );
@@ -134,26 +148,5 @@ class OpenAIVisionProvider implements AIProvider<File, String> {
   @override
   Future<double> estimateCost(AITask<File, String> task) async {
     return 0.001; // 视觉任务通常更贵
-  }
-
-  String _parseError(DioException e) {
-    if (e.type == DioExceptionType.connectionTimeout ||
-        e.type == DioExceptionType.receiveTimeout) {
-      return '请求超时，请检查网络连接';
-    }
-
-    if (e.type == DioExceptionType.connectionError) {
-      return '无法连接到服务器，请检查网络';
-    }
-
-    if (e.response?.data is Map) {
-      final data = e.response!.data as Map<String, dynamic>;
-      if (data['error'] is Map) {
-        final error = data['error'] as Map<String, dynamic>;
-        return error['message'] as String? ?? '未知错误';
-      }
-    }
-
-    return e.message ?? '网络请求失败';
   }
 }

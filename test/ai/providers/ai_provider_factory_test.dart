@@ -111,6 +111,82 @@ void main() {
     });
   });
 
+  group('AIProviderFactory.validateTextCapability', () {
+    final config = AIServiceProviderConfig(
+      id: 'siliconflow',
+      name: '硅基流动',
+      apiKey: 'test-key',
+      baseUrl: 'https://api.siliconflow.cn/v1',
+      textModel: 'missing-model',
+      createdAt: DateTime.utc(2026),
+    );
+
+    test('优先展示服务商真实错误，不泄露 DioException', () async {
+      final client = Dio(BaseOptions(baseUrl: config.baseUrl))
+        ..httpClientAdapter = _StaticResponseAdapter(
+          statusCode: 404,
+          body: {
+            'error': {
+              'message': 'Model does not exist',
+              'code': 'model_not_found',
+            },
+          },
+        );
+
+      final result = await AIProviderFactory.validateTextCapability(
+        config,
+        client: client,
+      );
+
+      expect(result.$1, isFalse);
+      expect(result.$2, '[HTTP 404 / model_not_found] Model does not exist');
+      expect(result.$2, isNot(contains('DioException')));
+    });
+
+    test('200 响应内嵌错误时仍展示服务商真实错误', () async {
+      final client = Dio(BaseOptions(baseUrl: config.baseUrl))
+        ..httpClientAdapter = _StaticResponseAdapter(
+          statusCode: 200,
+          body: {
+            'error': {
+              'message': 'The selected model is unavailable',
+              'code': 'model_unavailable',
+            },
+          },
+        );
+
+      final result = await AIProviderFactory.validateTextCapability(
+        config,
+        client: client,
+      );
+
+      expect(result.$1, isFalse);
+      expect(
+        result.$2,
+        '[HTTP 200 / model_unavailable] The selected model is unavailable',
+      );
+      expect(result.$2, isNot(contains("is not a subtype")));
+    });
+
+    test('非预期成功响应转换为业务提示，不展示 Dart 类型错误', () async {
+      final client = Dio(BaseOptions(baseUrl: config.baseUrl))
+        ..httpClientAdapter = _StaticResponseAdapter(
+          statusCode: 200,
+          body: {'choices': <Object?>[]},
+        );
+
+      final result = await AIProviderFactory.validateTextCapability(
+        config,
+        client: client,
+      );
+
+      expect(result.$1, isFalse);
+      expect(result.$2, '服务商返回了无法识别的文本响应（缺少 choices）');
+      expect(result.$2, isNot(contains('type')));
+      expect(result.$2, isNot(contains('subtype')));
+    });
+  });
+
   test('tool stream falls back to a non-streaming tool completion', () async {
     final adapter = _StreamingRejectedAdapter();
     final client = Dio(BaseOptions(baseUrl: 'https://example.com/v1'))
@@ -196,6 +272,31 @@ final class _StreamingRejectedAdapter implements HttpClientAdapter {
         ],
       }),
       200,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+final class _StaticResponseAdapter implements HttpClientAdapter {
+  final int statusCode;
+  final Object body;
+
+  _StaticResponseAdapter({required this.statusCode, required this.body});
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    return ResponseBody.fromString(
+      jsonEncode(body),
+      statusCode,
       headers: {
         Headers.contentTypeHeader: ['application/json'],
       },
