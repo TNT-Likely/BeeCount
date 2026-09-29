@@ -793,6 +793,7 @@ final class LocalAgentTools {
         terms: const ['分类占比', '支出构成', '分类排行', '哪类最多', '分类对比', 'breakdown'],
         deduplicate: true,
         requiresExecutionOnMatch: true,
+        matcher: _looksLikeCategoryBreakdown,
       ),
       descriptor(
         'get_budget_status',
@@ -1289,4 +1290,20 @@ bool _looksLikeTransactionEntry(String query) {
     'paid',
   ];
   return cues.any(query.contains);
+}
+
+bool _looksLikeCategoryBreakdown(String query) {
+  const categoryCues = <String>['分类', '类别', '各类', '哪类', '品类', 'category'];
+  const breakdownCues = <String>[
+    '占比',
+    '比例',
+    '构成',
+    '分布',
+    '排行',
+    '排名',
+    '最多',
+    'breakdown',
+    'share',
+  ];
+  return categoryCues.any(query.contains) && breakdownCues.any(query.contains);
 }

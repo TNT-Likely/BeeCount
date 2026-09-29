@@ -310,6 +310,33 @@ void main() {
     expect(run.errorMessage, 'agent_required_tool_not_called');
   });
 
+  test('category breakdown satisfies a request that also mentions a period',
+      () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: _FakeModel([
+        AgentTurn.toolCalls([
+          AgentToolCall(
+            id: 'category-breakdown',
+            name: 'get_category_breakdown',
+            arguments: const {'period': 'current_month'},
+          ),
+        ]),
+        const AgentTurn.finalText('本月分类占比已生成'),
+      ]),
+    );
+
+    final response = await facade.processMessage(
+      message: '本月各分类支出占比',
+      ledgerId: 1,
+    );
+
+    expect(response.type, 'text');
+    expect(response.text, '本月分类占比已生成');
+  });
+
   test('ordinary conversation may finish without a ledger tool', () async {
     final facade = AgentAppFacade(
       memoryRepository: LocalAgentMemoryRepository(db),

@@ -106,12 +106,17 @@ void main() {
     final trend = registry.select('对比各月餐饮支出', maximumTools: 7);
     final budget = registry.select('这个月预算还能花多少', maximumTools: 7);
     final shortRecord = registry.select('午饭35', maximumTools: 7);
+    final breakdown = registry.select('本月各分类支出占比', maximumTools: 7);
 
     expect(trend.names, contains('get_spending_trend'));
     expect(trend.requiredToolNames, {'get_spending_trend'});
     expect(budget.names, contains('get_budget_status'));
     expect(budget.requiredToolNames, contains('get_budget_status'));
     expect(shortRecord.requiredToolNames, {'record_transaction_from_text'});
+    expect(
+      breakdown.requiredToolNames,
+      contains('get_category_breakdown'),
+    );
     expect(budget.names.length, lessThanOrEqualTo(7));
   });
 
