@@ -1,6 +1,6 @@
 /// 桌面小组件「选择器预览图」生成器(不是回归测试)。
 ///
-/// 用真实的 6 个 headless View + 示例数据渲染出静态 PNG,**中英双语两套**:
+/// 用真实的 headless View + 示例数据渲染出静态 PNG,**中英双语两套**:
 /// - 简体中文(默认) → `android/app/src/main/res/drawable-nodpi/`
 /// - 英文            → `android/app/src/main/res/drawable-en-nodpi/`
 ///
@@ -39,7 +39,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:beecount/data/db.dart' show Account, Category, Transaction;
 import 'package:beecount/data/repositories/budget_repository.dart'
     show BudgetOverview, BudgetUsage, CategoryBudgetUsage;
+import 'package:beecount/widget/views/bee_trail_view.dart';
 import 'package:beecount/widget/views/budget_view.dart';
+import 'package:beecount/widget/views/consumption_rhythm_view.dart';
 import 'package:beecount/widget/views/dashboard_view.dart';
 import 'package:beecount/widget/views/glance_view.dart';
 import 'package:beecount/widget/views/net_worth_view.dart';
@@ -48,6 +50,7 @@ import 'package:beecount/widget/views/recent_view.dart';
 import 'package:beecount/widget/widget_data_service.dart'
     show
         DashboardWidgetData,
+        DailyWidgetActivity,
         GlanceWidgetData,
         NetWorthAccountItem,
         QuickAddCategoryItem,
@@ -81,6 +84,18 @@ class _Pack {
   final String addLabel;
   final String budgetLabel, usedLabel, totalLabel, remainingLabel;
   final String recentLabel;
+  // consumption rhythm / bee trail
+  final String rhythmTitle,
+      rhythmRange,
+      rhythmStable,
+      rhythmIncrease,
+      rhythmDecrease,
+      rhythmEmpty;
+  final String beeTrailTitle,
+      beeTrailStreakSuffix,
+      beeTrailCompletion,
+      beeTrailEmpty;
+
   /// 餐饮/交通/购物/娱乐/医疗/居家/通讯 顺序;前 4 个给 glance/recent/
   /// dashboard 用,后 3 个只有快速记账中号(2×4 网格 7 分类)吃得下。
   final List<String> categoryNames;
@@ -110,6 +125,16 @@ class _Pack {
     required this.totalLabel,
     required this.remainingLabel,
     required this.recentLabel,
+    required this.rhythmTitle,
+    required this.rhythmRange,
+    required this.rhythmStable,
+    required this.rhythmIncrease,
+    required this.rhythmDecrease,
+    required this.rhythmEmpty,
+    required this.beeTrailTitle,
+    required this.beeTrailStreakSuffix,
+    required this.beeTrailCompletion,
+    required this.beeTrailEmpty,
     required this.categoryNames,
     required this.salaryName,
     required this.accountNames,
@@ -140,6 +165,16 @@ const _zh = _Pack(
   totalLabel: '总额',
   remainingLabel: '剩',
   recentLabel: '最近交易',
+  rhythmTitle: '消费节奏',
+  rhythmRange: '近 30 天',
+  rhythmStable: '消费很均匀',
+  rhythmIncrease: '比上周更快',
+  rhythmDecrease: '比上周更稳',
+  rhythmEmpty: '近 30 天还没有支出',
+  beeTrailTitle: '记账连续蜂迹',
+  beeTrailStreakSuffix: '天',
+  beeTrailCompletion: '近 28 天完成率',
+  beeTrailEmpty: '今天记一笔，点亮第一格',
   categoryNames: ['餐饮', '交通', '购物', '娱乐', '医疗', '居家', '通讯'],
   salaryName: '工资',
   accountNames: ['招商银行', '支付宝'],
@@ -169,8 +204,24 @@ const _en = _Pack(
   totalLabel: 'Total', // widgetBudgetTotal
   remainingLabel: 'Left', // widgetBudgetRemaining
   recentLabel: 'Recent Transactions', // widgetRecentTransactions
+  rhythmTitle: 'Spending Rhythm',
+  rhythmRange: 'Last 30 days',
+  rhythmStable: 'Spending is steady',
+  rhythmIncrease: 'Faster than last week',
+  rhythmDecrease: 'Steadier than last week',
+  rhythmEmpty: 'No spending in the last 30 days',
+  beeTrailTitle: 'Record Bee Trail',
+  beeTrailStreakSuffix: 'days',
+  beeTrailCompletion: '28-day completion',
+  beeTrailEmpty: 'Add a record to light the first cell',
   categoryNames: [
-    'Dining', 'Transport', 'Shopping', 'Movies', 'Health', 'Home', 'Phone',
+    'Dining',
+    'Transport',
+    'Shopping',
+    'Movies',
+    'Health',
+    'Home',
+    'Phone',
   ],
   salaryName: 'Salary',
   accountNames: ['Bank Card', 'Cash'],
@@ -214,8 +265,8 @@ Future<void> _loadMaterialIcons() async {
     }
     root = dir.path;
   }
-  final otf =
-      File('$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
+  final otf = File(
+      '$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
   if (!otf.existsSync()) return;
   final loader = FontLoader('MaterialIcons')
     ..addFont(Future.value(ByteData.view(otf.readAsBytesSync().buffer)));
@@ -321,15 +372,27 @@ Category _category(int id, String name, String icon) => Category(
 /// take(3) 截断。
 List<QuickAddCategoryItem> _quickAddCategories(_Pack p) => [
       QuickAddCategoryItem(
-          categoryId: 1, name: p.categoryNames[0], icon: 'restaurant', total: 1620),
+          categoryId: 1,
+          name: p.categoryNames[0],
+          icon: 'restaurant',
+          total: 1620),
       QuickAddCategoryItem(
-          categoryId: 2, name: p.categoryNames[1], icon: 'directions_car', total: 480),
+          categoryId: 2,
+          name: p.categoryNames[1],
+          icon: 'directions_car',
+          total: 480),
       QuickAddCategoryItem(
-          categoryId: 3, name: p.categoryNames[2], icon: 'shopping_cart', total: 2350),
+          categoryId: 3,
+          name: p.categoryNames[2],
+          icon: 'shopping_cart',
+          total: 2350),
       QuickAddCategoryItem(
           categoryId: 4, name: p.categoryNames[3], icon: 'movie', total: 300),
       QuickAddCategoryItem(
-          categoryId: 5, name: p.categoryNames[4], icon: 'local_hospital', total: 260),
+          categoryId: 5,
+          name: p.categoryNames[4],
+          icon: 'local_hospital',
+          total: 260),
       QuickAddCategoryItem(
           categoryId: 6, name: p.categoryNames[5], icon: 'home', total: 180),
       QuickAddCategoryItem(
@@ -363,23 +426,56 @@ List<RecentTransactionItem> _recentItems(_Pack p) {
   return [
     RecentTransactionItem(
       transaction: tx(
-          id: 1, type: 'expense', amount: 32, categoryId: 1, at: DateTime(2026, 7, 20, 9, 12)),
+          id: 1,
+          type: 'expense',
+          amount: 32,
+          categoryId: 1,
+          at: DateTime(2026, 7, 20, 9, 12)),
       category: cafe,
       account: main,
     ),
     RecentTransactionItem(
       transaction: tx(
-          id: 2, type: 'income', amount: 18500, categoryId: 2, at: DateTime(2026, 7, 19, 10, 0)),
+          id: 2,
+          type: 'income',
+          amount: 18500,
+          categoryId: 2,
+          at: DateTime(2026, 7, 19, 10, 0)),
       category: salary,
       account: main,
     ),
     RecentTransactionItem(
       transaction: tx(
-          id: 3, type: 'expense', amount: 156.8, categoryId: 3, at: DateTime(2026, 7, 19, 18, 40)),
+          id: 3,
+          type: 'expense',
+          amount: 156.8,
+          categoryId: 3,
+          at: DateTime(2026, 7, 19, 18, 40)),
       category: grocery,
       account: sub,
     ),
   ];
+}
+
+List<DailyWidgetActivity> _behaviorActivity() {
+  final start = DateTime(2026, 8, 1);
+  return List.generate(30, (index) {
+    final expense = switch (index % 6) {
+      0 => 0.0,
+      1 => 28.0,
+      2 => 96.0,
+      3 => 42.0,
+      4 => 180.0,
+      _ => 68.0,
+    };
+    return DailyWidgetActivity(
+      date: start.add(Duration(days: index)),
+      expenseTotal: expense,
+      // 保留几处未记账日，同时让末尾形成连续记录，预览能同时展示蜂巢
+      // 密度和当前 streak。
+      hasRecord: index >= 25 || index % 4 != 0,
+    );
+  });
 }
 
 Future<void> _generatePack(WidgetTester tester, _Pack p) async {
@@ -702,6 +798,46 @@ Future<void> _generatePack(WidgetTester tester, _Pack p) async {
     p.outDir,
     'widget_preview_dashboard',
   );
+
+  // 7) 消费节奏(中号)
+  await _capture(
+    tester,
+    ConsumptionRhythmView(
+      activity: _behaviorActivity(),
+      themeColor: _honey,
+      dark: false,
+      titleLabel: p.rhythmTitle,
+      rangeLabel: p.rhythmRange,
+      stableLabel: p.rhythmStable,
+      increaseLabel: p.rhythmIncrease,
+      decreaseLabel: p.rhythmDecrease,
+      emptyLabel: p.rhythmEmpty,
+      width: 364,
+      height: 169,
+    ),
+    const Size(364, 169),
+    p.outDir,
+    'widget_preview_consumption_rhythm',
+  );
+
+  // 8) 记账连续蜂迹(小号)
+  await _capture(
+    tester,
+    BeeTrailView(
+      activity: _behaviorActivity(),
+      themeColor: _honey,
+      dark: false,
+      titleLabel: p.beeTrailTitle,
+      streakSuffix: p.beeTrailStreakSuffix,
+      completionLabel: p.beeTrailCompletion,
+      emptyLabel: p.beeTrailEmpty,
+      width: 155,
+      height: 155,
+    ),
+    const Size(155, 155),
+    p.outDir,
+    'widget_preview_bee_trail',
+  );
 }
 
 void main() {
@@ -717,7 +853,7 @@ void main() {
   });
 
   testWidgets(
-    '生成中英双语 Android 选择器预览图(6 类 × 2 语言)',
+    '生成中英双语 Android/iOS 选择器预览图',
     (tester) async {
       await _generatePack(tester, _zh);
       await _generatePack(tester, _en);

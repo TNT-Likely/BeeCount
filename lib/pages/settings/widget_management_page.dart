@@ -10,6 +10,8 @@ import '../../providers.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../widget/views/budget_view.dart';
+import '../../widget/views/bee_trail_view.dart';
+import '../../widget/views/consumption_rhythm_view.dart';
 import '../../widget/views/dashboard_view.dart';
 import '../../widget/views/glance_view.dart';
 import '../../widget/views/net_worth_view.dart';
@@ -18,6 +20,7 @@ import '../../widget/views/recent_view.dart';
 import '../../widget/widget_data_service.dart'
     show
         DashboardWidgetData,
+        DailyWidgetActivity,
         GlanceWidgetData,
         NetWorthAccountItem,
         QuickAddCategoryItem,
@@ -248,6 +251,50 @@ class WidgetManagementPage extends ConsumerWidget {
                     titleLabel: l10n.widgetDashboardTitle,
                     width: 364,
                     height: 382,
+                  ),
+                ),
+                SizedBox(height: 12.0.scaled(context, ref)),
+
+                _buildGalleryCard(
+                  context,
+                  ref,
+                  title: l10n.widgetConsumptionRhythmTitle,
+                  subtitle: l10n.widgetGalleryConsumptionRhythmDesc,
+                  sizeLabel: l10n.widgetSizeMedium,
+                  previewSize: const Size(364, 169),
+                  preview: ConsumptionRhythmView(
+                    activity: _sampleDailyActivity(),
+                    themeColor: primaryColor,
+                    dark: dark,
+                    titleLabel: l10n.widgetConsumptionRhythmTitle,
+                    rangeLabel: l10n.widgetConsumptionRhythmRange,
+                    stableLabel: l10n.widgetConsumptionRhythmStable,
+                    increaseLabel: l10n.widgetConsumptionRhythmIncrease,
+                    decreaseLabel: l10n.widgetConsumptionRhythmDecrease,
+                    emptyLabel: l10n.widgetConsumptionRhythmEmpty,
+                    width: 364,
+                    height: 169,
+                  ),
+                ),
+                SizedBox(height: 12.0.scaled(context, ref)),
+
+                _buildGalleryCard(
+                  context,
+                  ref,
+                  title: l10n.widgetBeeTrailTitle,
+                  subtitle: l10n.widgetGalleryBeeTrailDesc,
+                  sizeLabel: l10n.widgetSizeSmall,
+                  previewSize: const Size(155, 155),
+                  preview: BeeTrailView(
+                    activity: _sampleDailyActivity(),
+                    themeColor: primaryColor,
+                    dark: dark,
+                    titleLabel: l10n.widgetBeeTrailTitle,
+                    streakSuffix: l10n.widgetBeeTrailStreakSuffix,
+                    completionLabel: l10n.widgetBeeTrailCompletion,
+                    emptyLabel: l10n.widgetBeeTrailEmpty,
+                    width: 155,
+                    height: 155,
                   ),
                 ),
                 SizedBox(height: 20.0.scaled(context, ref)),
@@ -641,7 +688,8 @@ Account _sampleAccount(
   );
 }
 
-Category _sampleCategory(int id, String name, {String? icon, String kind = 'expense'}) {
+Category _sampleCategory(int id, String name,
+    {String? icon, String kind = 'expense'}) {
   return Category(
     id: id,
     name: name,
@@ -693,6 +741,18 @@ List<({DateTime date, double assets, double liabilities, double net})>
   });
 }
 
+List<DailyWidgetActivity> _sampleDailyActivity() {
+  final start = DateTime.now().subtract(const Duration(days: 29));
+  return List.generate(
+    30,
+    (index) => DailyWidgetActivity(
+      date: DateTime(start.year, start.month, start.day + index),
+      expenseTotal: switch (index % 5) { 0 => 0, 1 => 35, 2 => 86, _ => 150 },
+      hasRecord: index % 4 != 0,
+    ),
+  );
+}
+
 /// 净资产大号卡的账户明细:含一个正常折算 + 一个现金账户,数值与
 /// net_worth_view_test.dart 的示例保持同一量级。
 List<NetWorthAccountItem> _sampleNetWorthAccounts() {
@@ -718,9 +778,12 @@ List<NetWorthAccountItem> _sampleNetWorthAccounts() {
 /// 快速记账 4 个常用分类(含一个 emoji 图标,展示 emoji/图标两种渲染路径)。
 List<QuickAddCategoryItem> _sampleQuickAddCategories() {
   return const [
-    QuickAddCategoryItem(categoryId: 1, name: '餐饮', icon: 'restaurant', total: 680),
-    QuickAddCategoryItem(categoryId: 2, name: '交通', icon: 'directions_car', total: 210),
-    QuickAddCategoryItem(categoryId: 3, name: '购物', icon: 'shopping_bag', total: 450),
+    QuickAddCategoryItem(
+        categoryId: 1, name: '餐饮', icon: 'restaurant', total: 680),
+    QuickAddCategoryItem(
+        categoryId: 2, name: '交通', icon: 'directions_car', total: 210),
+    QuickAddCategoryItem(
+        categoryId: 3, name: '购物', icon: 'shopping_bag', total: 450),
     QuickAddCategoryItem(categoryId: 4, name: '奶茶', icon: '🧋', total: 68),
   ];
 }

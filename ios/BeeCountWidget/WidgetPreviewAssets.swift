@@ -31,6 +31,8 @@ enum WidgetPreviewAssets {
         "widget_recent_medium": "widget_preview_recent",
         "widget_recent_large": "widget_preview_recent_large",
         "widget_dashboard_large": "widget_preview_dashboard",
+        "widget_consumptionRhythm_medium": "widget_preview_consumption_rhythm",
+        "widget_beeTrail_small": "widget_preview_bee_trail",
     ]
 
     /// 按系统语言(zh → 中文,其余 → 英文)返回 bundle 内预览 PNG 的路径;
