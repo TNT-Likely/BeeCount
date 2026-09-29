@@ -23,90 +23,82 @@ final class LocalAgentToolCatalog {
     'additionalProperties': false,
   };
 
-  static const _transactionSummaryParameters = <String, Object?>{
+  static const _periodProperties = <String, Object?>{
+    'period': {
+      'type': 'string',
+      'description': '常用时间范围。custom 使用 start/end；其他值由应用按当前时间和账本月起始日计算。',
+      'enum': [
+        'current_month',
+        'previous_month',
+        'current_year',
+        'previous_year',
+        'last_30_days',
+        'last_90_days',
+        'last_3_months',
+        'last_6_months',
+        'last_12_months',
+        'custom',
+      ],
+    },
+    'start': {
+      'type': 'string',
+      'description': '自定义查询开始时间，ISO 8601 格式（包含）。',
+    },
+    'end': {
+      'type': 'string',
+      'description': '自定义查询结束时间，ISO 8601 格式（不包含）。',
+    },
+  };
+
+  static const _periodOverviewParameters = <String, Object?>{
+    'type': 'object',
+    'properties': _periodProperties,
+    'additionalProperties': false,
+  };
+
+  static const _spendingTrendParameters = <String, Object?>{
     'type': 'object',
     'properties': {
-      'start': {
+      ..._periodProperties,
+      'interval': {
         'type': 'string',
-        'description': '查询开始时间，ISO 8601 格式（包含）。',
-      },
-      'end': {
-        'type': 'string',
-        'description': '查询结束时间，ISO 8601 格式（不包含）。',
-      },
-      'types': {
-        'type': 'array',
-        'description': '需要统计的交易类型；不传表示收入、支出和转账全部统计。',
-        'items': {
-          'type': 'string',
-          'enum': ['income', 'expense', 'transfer'],
-        },
-        'uniqueItems': true,
-      },
-      'groupBy': {
-        'type': 'string',
-        'description':
-            '可选分组维度；none 表示只返回总额。用户说“每天/按日”时传 day，“每周/按周”时传 week，“每月/按月”时传 month，“每年/按年”时传 year；趋势或分布问题首次调用也必须传入对应维度。',
-        'enum': [
-          'none',
-          'category',
-          'tag',
-          'account',
-          'day',
-          'week',
-          'month',
-          'year',
-        ],
-      },
-      'categoryLevel': {
-        'type': 'string',
-        'description': '按分类分组时使用 leaf 明细分类或 top 一级分类。',
-        'enum': ['leaf', 'top'],
-      },
-      'categoryIds': {
-        'type': 'array',
-        'description': '只统计指定分类 ID（转账账户不受此筛选影响）；与 categoryNames 为或关系。',
-        'items': {'type': 'integer', 'minimum': 1},
-        'uniqueItems': true,
+        'description': '趋势粒度，默认 month。',
+        'enum': ['day', 'week', 'month', 'year'],
       },
       'categoryNames': {
         'type': 'array',
-        'description': '按分类名称筛选，名称会去除首尾空格并忽略大小写；与 categoryIds 为或关系。',
+        'description': '可选支出分类；选择一级分类时自动包含全部子分类。',
         'items': {'type': 'string', 'minLength': 1},
         'uniqueItems': true,
       },
-      'tagIds': {
-        'type': 'array',
-        'description': '只统计带有任一指定标签 ID 的交易；与 tagNames 为或关系。',
-        'items': {'type': 'integer', 'minimum': 1},
-        'uniqueItems': true,
-      },
-      'tagNames': {
-        'type': 'array',
-        'description': '按标签名称筛选，名称会去除首尾空格并忽略大小写；与 tagIds 为或关系。',
-        'items': {'type': 'string', 'minLength': 1},
-        'uniqueItems': true,
-      },
-      'accountIds': {
-        'type': 'array',
-        'description': '只统计涉及任一指定账户 ID 的交易（转账会检查转出和转入账户）；与 accountNames 为或关系。',
-        'items': {'type': 'integer', 'minimum': 1},
-        'uniqueItems': true,
-      },
-      'accountNames': {
-        'type': 'array',
+      'comparison': {
+        'type': 'string',
         'description':
-            '按账户名称筛选，名称会去除首尾空格并忽略大小写（转账会检查转出和转入账户）；与 accountIds 为或关系。',
+            '比较方式；previous_point 为相邻周期环比，previous_year 为同比。默认 previous_point。',
+        'enum': ['none', 'previous_point', 'previous_year'],
+      },
+    },
+    'additionalProperties': false,
+  };
+
+  static const _categoryBreakdownParameters = <String, Object?>{
+    'type': 'object',
+    'properties': {
+      ..._periodProperties,
+      'categoryLevel': {
+        'type': 'string',
+        'description': '返回 leaf 明细分类或 top 一级分类，默认 top。',
+        'enum': ['leaf', 'top'],
+      },
+      'categoryNames': {
+        'type': 'array',
+        'description': '可选分类范围；一级分类会包含全部子分类。',
         'items': {'type': 'string', 'minLength': 1},
         'uniqueItems': true,
       },
-      'includeExcludedFromStats': {
-        'type': 'boolean',
-        'description': '是否包含标记为不计入统计的交易，默认 false。',
-      },
-      'groupLimit': {
+      'limit': {
         'type': 'integer',
-        'description': '最多返回的分组数量，超出部分合并到“其他”，默认 20，范围 1-50。',
+        'description': '最多返回的分类数量，默认 20，范围 1-50。',
         'minimum': 1,
         'maximum': 50,
       },
@@ -128,10 +120,22 @@ final class LocalAgentToolCatalog {
       parameters: _rangeParameters,
     ),
     core.AgentNativeToolDefinition(
-      name: 'get_transaction_summary',
+      name: 'get_period_overview',
       description:
-          '在数据库内直接聚合当前账本的交易，不受明细查询条数限制。只读，不会修改数据。start 包含、end 不包含；缺少时间范围时使用最近 30 天。types 不传表示收入、支出和转账全部统计；groupBy 不传表示只返回总额，也可按分类、标签、账户或日/周/月/年分组。可用 ID 或名称筛选分类、标签和账户；金额均为账本本位币。返回 currency、periodStart、periodEnd、types、totals、groups、truncated；按标签分组时交易可能出现在多个标签组，按账户分组时转账会分别提供 transferOut 和 transferIn。聚合问题优先使用本工具，不要用明细列表自行汇总。',
-      parameters: _transactionSummaryParameters,
+          '读取当前账本一个周期的收支概览，只读。应用负责解析本月、上月、今年等周期并遵守账本月起始日。返回本位币、准确区间、收入、支出、结余、储蓄率和交易笔数。询问“花了多少、收入多少、结余多少”时使用。',
+      parameters: _periodOverviewParameters,
+    ),
+    core.AgentNativeToolDefinition(
+      name: 'get_spending_trend',
+      description:
+          '读取当前账本支出趋势，只读。可按日、周、月、年分组并筛选一个或多个分类；一级分类自动包含子分类。返回支出金额、笔数以及环比或同比；按月时无交易月份补零。模型不要自行汇总明细或重新计算涨跌幅。询问“各月/趋势/环比/同比/某分类对比支出”时使用。',
+      parameters: _spendingTrendParameters,
+    ),
+    core.AgentNativeToolDefinition(
+      name: 'get_category_breakdown',
+      description:
+          '读取当前账本指定周期的支出分类构成，只读。可按一级分类或明细分类返回金额、笔数和占比；一级分类范围会自动包含子分类。询问“哪些分类花得最多、分类占比、支出构成”时使用。',
+      parameters: _categoryBreakdownParameters,
     ),
     core.AgentNativeToolDefinition(
       name: 'get_budget_status',
@@ -197,4 +201,7 @@ final class LocalAgentToolCatalog {
       },
     ),
   ];
+
+  static core.AgentNativeToolDefinition definition(String name) =>
+      definitions.firstWhere((definition) => definition.name == name);
 }

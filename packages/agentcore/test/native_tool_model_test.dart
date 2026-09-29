@@ -72,6 +72,24 @@ void main() {
     expect(transport.requests.single.allowToolCalls, isFalse);
   });
 
+  test('native model forwards a request-scoped native tool catalog', () async {
+    final transport = _FakeTransport([
+      const AgentNativeModelResponse.finalText('done'),
+    ]);
+    final model = NativeToolAgentModel(
+      transport: transport,
+      promptBuilder: (request) => request.text,
+    );
+
+    await model.nextTurn(AgentRequest(
+      text: 'budget',
+      scope: const AgentScope(id: 'run-selected-tools'),
+      availableToolNames: const {'read_report'},
+    ));
+
+    expect(transport.requests.single.availableToolNames, {'read_report'});
+  });
+
   test('openai-compatible transport aggregates SSE tool fragments', () async {
     final transport = OpenAiCompatibleNativeToolTransport(
       systemPrompt: 'system',
@@ -123,6 +141,42 @@ void main() {
     final call = (response as AgentNativeToolCallsResponse).calls.single;
     expect(call.name, 'read_report');
     expect(call.arguments, {'range': 'month'});
+  });
+
+  test('openai-compatible transport sends only request-selected schemas',
+      () async {
+    List<Map<String, dynamic>>? sentTools;
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: [
+        ...definitions,
+        const AgentNativeToolDefinition(
+          name: 'hidden',
+          description: 'Hidden tool',
+          parameters: {'type': 'object'},
+        ),
+      ],
+      toolStream: ({required messages, required tools, logTag}) {
+        sentTools = tools;
+        return Stream.value({
+          'choices': [
+            {
+              'delta': {'content': 'done'},
+            },
+          ],
+        });
+      },
+    );
+
+    await transport.complete(AgentNativeToolRequest(
+      runId: 'run-selected-schemas',
+      userPrompt: 'show',
+      toolResults: const [],
+      availableToolNames: const {'read_report'},
+    ));
+
+    expect(sentTools, hasLength(1));
+    expect((sentTools!.single['function'] as Map)['name'], 'read_report');
   });
 
   test('finalization request sends no tool definitions to the provider',

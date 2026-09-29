@@ -44,6 +44,7 @@ import 'package:beecount/agent/tools/local_agent_tools.dart';
 import 'package:beecount/data/db.dart' hide AgentToolCall;
 import 'package:beecount/l10n/app_localizations_en.dart';
 import 'package:beecount/services/ai/agent_app_facade.dart';
+import 'package:beecount/services/ai/ai_chat_service.dart';
 import 'package:beecount/services/system/logger_service.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -252,8 +253,120 @@ void main() {
     final response = await facade.processMessage(message: '午饭 35', ledgerId: 1);
 
     expect(response.type, 'error');
-    expect(response.text, contains('不支持 Agent 原生工具调用'));
+    expect(response.text, contains('不支持读取或操作账本所需的原生工具调用'));
+    expect(response.response.action, AIResponseAction.openProviderSettings);
     expect(gateway.recordedTexts, isEmpty);
+  });
+
+  test('capability preflight blocks an incompatible model before prompting it',
+      () async {
+    final model = _CapturingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: model,
+      modelCapabilityLoader: () async => AgentModelCapabilities(
+        text: AgentCapabilitySupport.supported,
+        nativeToolCalls: AgentCapabilitySupport.unsupported,
+      ),
+      runIdFactory: () => 'run-capability-blocked',
+    );
+
+    final response = await facade.processMessage(message: '你好', ledgerId: 1);
+    final run = await (db.select(db.agentRuns)
+          ..where((item) => item.runId.equals('run-capability-blocked')))
+        .getSingle();
+
+    expect(response.type, 'error');
+    expect(response.text, contains('服务商管理'));
+    expect(response.response.action, AIResponseAction.openProviderSettings);
+    expect(model.request, isNull);
+    expect(run.status, 'failed');
+  });
+
+  test('data intent rejects a final answer that used no required ledger tool',
+      () async {
+    final model = _CapturingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: model,
+      runIdFactory: () => 'run-ungrounded-data',
+    );
+
+    final response =
+        await facade.processMessage(message: '对比各月餐饮支出', ledgerId: 1);
+    final run = await (db.select(db.agentRuns)
+          ..where((item) => item.runId.equals('run-ungrounded-data')))
+        .getSingle();
+
+    expect(response.type, 'error');
+    expect(response.text, contains('没有调用账本工具'));
+    expect(response.response.action, AIResponseAction.openProviderSettings);
+    expect(model.request?.availableToolNames, contains('get_spending_trend'));
+    expect(run.status, 'failed');
+    expect(run.errorMessage, 'agent_required_tool_not_called');
+  });
+
+  test('ordinary conversation may finish without a ledger tool', () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: _CapturingModel(),
+    );
+
+    final response = await facade.processMessage(message: '你好', ledgerId: 1);
+
+    expect(response.type, 'text');
+    expect(response.text, '已完成');
+  });
+
+  test('short transaction text still requires the record tool', () async {
+    final model = _CapturingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: model,
+      runIdFactory: () => 'run-short-record-without-tool',
+    );
+
+    final response = await facade.processMessage(message: '午饭35', ledgerId: 1);
+
+    expect(response.type, 'error');
+    expect(response.response.action, AIResponseAction.openProviderSettings);
+    expect(
+      model.request?.availableToolNames,
+      contains('record_transaction_from_text'),
+    );
+    expect(gateway.recordedTexts, isEmpty);
+  });
+
+  test('history may select a tool without making it required for current chat',
+      () async {
+    final model = _CapturingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      conversationHistoryLoader: (_) async => const [
+        {'role': 'user', 'content': '请记账，午饭35'},
+        {'role': 'assistant', 'content': '已经记录。'},
+      ],
+      model: model,
+    );
+
+    final response = await facade.processMessage(
+      message: '谢谢',
+      ledgerId: 1,
+      conversationId: 42,
+    );
+
+    expect(response.type, 'text');
+    expect(response.text, '已完成');
   });
 
   test('loads scoped local memories into the Agent request context', () async {
@@ -1179,6 +1292,9 @@ final class _FakeGateway implements LocalAgentToolGateway {
 
   @override
   Future<String> getLedgerCurrency(int ledgerId) async => 'CNY';
+
+  @override
+  Future<int> getLedgerMonthStartDay(int ledgerId) async => 1;
 
   @override
   Future<List<AgentTransactionSummary>> queryTransactions({

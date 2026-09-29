@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' as d;
 
 import '../../data/db.dart';
+import '../../utils/month_range.dart';
 
 /// Executes bounded financial aggregates in SQLite so an Agent never has to
 /// infer totals from the detail-list tool's capped result set.
@@ -34,6 +35,10 @@ final class LocalAgentTransactionSummaryDataSource {
     final ledger = await (_database.select(_database.ledgers)
           ..where((row) => row.id.equals(ledgerId)))
         .getSingleOrNull();
+    final categoryFilter = await _expandedCategoryFilter(
+      ids: categoryIds,
+      names: categoryNames,
+    );
     final where = <String>[
       't.ledger_id = ?',
       't.happened_at >= ?',
@@ -51,8 +56,8 @@ final class LocalAgentTransactionSummaryDataSource {
       where,
       variables,
       column: 't.category_id',
-      ids: categoryIds,
-      names: categoryNames,
+      ids: categoryFilter.$1,
+      names: categoryFilter.$2,
       table: 'categories',
       tableAlias: 'filter_category',
     );
@@ -108,13 +113,33 @@ final class LocalAgentTransactionSummaryDataSource {
       'account' =>
         await _accountGroups(where, variables, groupLimit: groupLimit),
       'day' => await _timeGroups(where, variables,
-          kind: 'day', format: '%Y-%m-%d', groupLimit: groupLimit),
+          kind: 'day',
+          format: '%Y-%m-%d',
+          groupLimit: groupLimit,
+          start: start,
+          end: end,
+          monthStartDay: ledger?.monthStartDay ?? 1),
       'week' => await _timeGroups(where, variables,
-          kind: 'week', format: '%Y-W%W', groupLimit: groupLimit),
+          kind: 'week',
+          format: '%Y-W%W',
+          groupLimit: groupLimit,
+          start: start,
+          end: end,
+          monthStartDay: ledger?.monthStartDay ?? 1),
       'month' => await _timeGroups(where, variables,
-          kind: 'month', format: '%Y-%m', groupLimit: groupLimit),
+          kind: 'month',
+          format: '%Y-%m',
+          groupLimit: groupLimit,
+          start: start,
+          end: end,
+          monthStartDay: ledger?.monthStartDay ?? 1),
       'year' => await _timeGroups(where, variables,
-          kind: 'year', format: '%Y', groupLimit: groupLimit),
+          kind: 'year',
+          format: '%Y',
+          groupLimit: groupLimit,
+          start: start,
+          end: end,
+          monthStartDay: ledger?.monthStartDay ?? 1),
       _ => const <Map<String, Object?>>[],
     };
     final truncated = groups.any(
@@ -310,7 +335,20 @@ final class LocalAgentTransactionSummaryDataSource {
       List<String> where, List<d.Variable> variables,
       {required String kind,
       required String format,
-      required int groupLimit}) async {
+      required int groupLimit,
+      required DateTime start,
+      required DateTime end,
+      required int monthStartDay}) async {
+    if (kind == 'month') {
+      return _monthGroups(
+        where,
+        variables,
+        start: start,
+        end: end,
+        monthStartDay: monthStartDay,
+        groupLimit: groupLimit,
+      );
+    }
     final offsetSeconds = DateTime.now().timeZoneOffset.inSeconds;
     final offsetModifier =
         '${offsetSeconds >= 0 ? '+' : '-'}${offsetSeconds.abs()} seconds';
@@ -387,6 +425,134 @@ final class LocalAgentTransactionSummaryDataSource {
           .skip(sorted.length - groupLimit)
           .map((group) => group.toToolData()),
     ];
+  }
+
+  Future<List<Map<String, Object?>>> _monthGroups(
+    List<String> where,
+    List<d.Variable> variables, {
+    required DateTime start,
+    required DateTime end,
+    required int monthStartDay,
+    required int groupLimit,
+  }) async {
+    final rows = await _database
+        .customSelect(
+          '''
+      SELECT
+        t.happened_at AS happened_at,
+        t.type AS type,
+        ABS(COALESCE(t.native_amount, t.amount)) AS amount
+      FROM transactions t
+      WHERE ${where.join(' AND ')}
+      ORDER BY t.happened_at ASC
+      ''',
+          variables: variables,
+          readsFrom: {
+            _database.transactions,
+            _database.categories,
+            _database.accounts,
+            _database.transactionTags,
+            _database.tags,
+          },
+        )
+        .get();
+    final groups = <String, _SummaryGroup>{};
+    for (final row in rows) {
+      final happenedAt = _databaseDateTime(row.data['happened_at']);
+      if (happenedAt == null) continue;
+      final label = labelForDate(happenedAt.toLocal(), monthStartDay);
+      final key = _monthKey(label);
+      groups
+          .putIfAbsent(
+            key,
+            () => _SummaryGroup(
+              key: {'kind': 'month', 'value': key},
+            ),
+          )
+          .add(
+            type: row.read<String>('type'),
+            amount: _asDouble(row.data['amount']),
+            count: 1,
+          );
+    }
+
+    // Trend results are a time series, so represent months without matching
+    // transactions explicitly instead of making the model infer missing zeroes.
+    var label = labelForDate(start.toLocal(), monthStartDay);
+    while (periodForLabel(label.year, label.month, monthStartDay)
+        .start
+        .isBefore(end)) {
+      final key = _monthKey(label);
+      groups.putIfAbsent(
+        key,
+        () => _SummaryGroup(key: {'kind': 'month', 'value': key}),
+      );
+      label = DateTime(label.year, label.month + 1, 1);
+    }
+
+    final sorted = groups.values.toList()
+      ..sort((left, right) => (left.key['value'] as String)
+          .compareTo(right.key['value'] as String));
+    if (sorted.length <= groupLimit) {
+      return sorted.map((group) => group.toToolData()).toList();
+    }
+    final other = _SummaryGroup(
+      key: const {'kind': 'other', 'id': null, 'name': '更早期间'},
+    );
+    for (final group in sorted.take(sorted.length - groupLimit)) {
+      for (final type in const ['income', 'expense', 'transfer']) {
+        final total = group.totals[type]!;
+        other.add(
+          type: type,
+          amount: total['amount']! as double,
+          count: total['count']! as int,
+        );
+      }
+    }
+    return [
+      other.toToolData(),
+      ...sorted
+          .skip(sorted.length - groupLimit)
+          .map((group) => group.toToolData()),
+    ];
+  }
+
+  Future<(List<int>, List<String>)> _expandedCategoryFilter({
+    required List<int> ids,
+    required List<String> names,
+  }) async {
+    if (ids.isEmpty && names.isEmpty) {
+      return (const <int>[], const <String>[]);
+    }
+    final categories = await _database.select(_database.categories).get();
+    final normalizedNames = names
+        .map((name) => name.trim().toLowerCase())
+        .where((name) => name.isNotEmpty)
+        .toSet();
+    final matched = <int>{...ids};
+    for (final category in categories) {
+      if (normalizedNames.contains(category.name.trim().toLowerCase())) {
+        matched.add(category.id);
+      }
+    }
+    if (matched.isEmpty) {
+      // Preserve an unmatched name predicate so a typo cannot silently turn
+      // into an unfiltered all-category query.
+      return (const <int>[], normalizedNames.toList()..sort());
+    }
+    var changed = true;
+    while (changed) {
+      changed = false;
+      for (final category in categories) {
+        if (category.parentId != null &&
+            matched.contains(category.parentId) &&
+            matched.add(category.id)) {
+          changed = true;
+        }
+      }
+    }
+    final result = matched.toList()..sort();
+    return (result, const <String>[]);
   }
 
   String _accountKey(Map<String, Object?> row) =>
@@ -552,6 +718,17 @@ final class LocalAgentTransactionSummaryDataSource {
         AND (${predicates.join(' OR ')})
     )''');
   }
+}
+
+String _monthKey(DateTime value) =>
+    '${value.year.toString().padLeft(4, '0')}-${value.month.toString().padLeft(2, '0')}';
+
+DateTime? _databaseDateTime(Object? value) {
+  if (value is DateTime) return value;
+  if (value is! num) return null;
+  final raw = value.toInt();
+  final milliseconds = raw.abs() > 100000000000 ? raw : raw * 1000;
+  return DateTime.fromMillisecondsSinceEpoch(milliseconds, isUtc: true);
 }
 
 List<Map<String, Object?>> _sortedGroups(

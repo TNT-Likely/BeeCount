@@ -36,11 +36,12 @@ final class OpenAiCompatibleNativeToolTransport
     AgentNativeToolRequest request, {
     AgentNativeEventSink? onEvent,
   }) async {
+    final visibleDefinitions = _visibleDefinitions(request);
     logSink?.call('turnStarted', {
       'runId': request.runId,
       'toolResultCount': request.toolResults.length,
       'allowToolCalls': request.allowToolCalls,
-      'toolDefinitions': _toolDefinitions
+      'toolDefinitions': visibleDefinitions
           .where((_) => request.allowToolCalls)
           .map(
             (definition) => {
@@ -90,7 +91,7 @@ final class OpenAiCompatibleNativeToolTransport
         runId: request.runId,
         messages: messages,
         tools: request.allowToolCalls
-            ? _toolDefinitions.map((item) => item.toOpenAiSchema()).toList()
+            ? visibleDefinitions.map((item) => item.toOpenAiSchema()).toList()
             : const [],
         emitTextDeltas: request.allowToolCalls,
         logTag: 'AgentNativeTools',
@@ -168,6 +169,18 @@ final class OpenAiCompatibleNativeToolTransport
       }
       rethrow;
     }
+  }
+
+  List<AgentNativeToolDefinition> _visibleDefinitions(
+    AgentNativeToolRequest request,
+  ) {
+    if (!request.allowToolCalls) return const [];
+    final available = request.availableToolNames;
+    if (available == null) return _toolDefinitions;
+    return [
+      for (final definition in _toolDefinitions)
+        if (available.contains(definition.name)) definition,
+    ];
   }
 
   Future<AgentNativeModelResponse> _completeStream({

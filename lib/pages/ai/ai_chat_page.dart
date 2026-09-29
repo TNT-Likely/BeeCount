@@ -21,6 +21,7 @@ import '../../providers/ai_chat_providers.dart';
 import '../../ai/core/bill_info.dart';
 import '../../pages/transaction/transaction_editor_page.dart';
 import '../../pages/ai/ai_settings_page.dart';
+import '../../pages/ai/ai_provider_manage_page.dart';
 import '../../pages/ai/agent_assistant_settings_page.dart';
 import '../../pages/ai/agent_message_visibility.dart';
 import '../../pages/ai/agent_chat_scroll_coordinator.dart';
@@ -352,6 +353,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
   Widget _buildMessageBubble(Message message) {
     final isUser = message.role == 'user';
+    final responseAction = isUser ? null : _responseActionFor(message);
 
     // 只对正在播放动画的消息ID启用动画
     final shouldAnimate = !isUser && message.id == _animatingMessageId;
@@ -452,13 +454,20 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                           height: 1.5,
                         ),
                       )
-                    : AgentMarkdownText(
-                        data: message.content,
-                        style: TextStyle(
-                          color: BeeTokens.textPrimary(context),
-                          fontSize: 14.0.scaled(context, ref),
-                          height: 1.5,
-                        ),
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AgentMarkdownText(
+                            data: message.content,
+                            style: TextStyle(
+                              color: BeeTokens.textPrimary(context),
+                              fontSize: 14.0.scaled(context, ref),
+                              height: 1.5,
+                            ),
+                          ),
+                          if (responseAction != null)
+                            _buildResponseAction(responseAction),
+                        ],
                       ),
               ),
             ),
@@ -548,18 +557,65 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                 borderRadius: BorderRadius.circular(12.0.scaled(context, ref)),
                 border: Border.all(color: BeeTokens.border(context)),
               ),
-              child: AgentMarkdownText(
-                data: response.text,
-                style: TextStyle(
-                  color: BeeTokens.textPrimary(context),
-                  fontSize: 14.0.scaled(context, ref),
-                  height: 1.5,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AgentMarkdownText(
+                    data: response.text,
+                    style: TextStyle(
+                      color: BeeTokens.textPrimary(context),
+                      fontSize: 14.0.scaled(context, ref),
+                      height: 1.5,
+                    ),
+                  ),
+                  if (response.action != null)
+                    _buildResponseAction(response.action!),
+                ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  AIResponseAction? _responseActionFor(Message message) {
+    final metadata = message.metadata;
+    if (metadata == null || metadata.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(metadata);
+      if (decoded is! Map) return null;
+      final action = decoded['action'];
+      for (final candidate in AIResponseAction.values) {
+        if (candidate.name == action) return candidate;
+      }
+      return null;
+    } on Object {
+      return null;
+    }
+  }
+
+  Widget _buildResponseAction(AIResponseAction action) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: TextButton.icon(
+        onPressed: switch (action) {
+          AIResponseAction.openProviderSettings => _openProviderSettings,
+        },
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        icon: const Icon(Icons.settings_outlined, size: 16),
+        label: Text(AppLocalizations.of(context).aiProviderManageTitle),
+      ),
+    );
+  }
+
+  void _openProviderSettings() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const AIProviderManagePage()),
     );
   }
 
@@ -891,7 +947,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                   response.transactionIds,
                   const <int>{},
                 ))
-              : const Value.absent(),
+              : response.action == null
+                  ? const Value.absent()
+                  : Value(jsonEncode({'action': response.action!.name})),
           transactionId: response.transactionId != null
               ? Value(response.transactionId)
               : const Value.absent(),

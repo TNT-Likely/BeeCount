@@ -15,7 +15,17 @@ final class AgentToolPermissionCatalog {
       mutatesLocalData: false,
     ),
     AgentToolPermissionDescriptor(
-      toolName: 'get_transaction_summary',
+      toolName: 'get_period_overview',
+      defaultPermission: AgentToolPermission.alwaysAllow,
+      mutatesLocalData: false,
+    ),
+    AgentToolPermissionDescriptor(
+      toolName: 'get_spending_trend',
+      defaultPermission: AgentToolPermission.alwaysAllow,
+      mutatesLocalData: false,
+    ),
+    AgentToolPermissionDescriptor(
+      toolName: 'get_category_breakdown',
       defaultPermission: AgentToolPermission.alwaysAllow,
       mutatesLocalData: false,
     ),

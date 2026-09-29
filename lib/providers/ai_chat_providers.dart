@@ -10,6 +10,7 @@ import '../providers.dart';
 import '../data/db.dart';
 import '../agent/memory/agent_memory_repository.dart';
 import '../agent/memory/local_agent_memory_repository.dart';
+import '../agent/model/agent_model_capability_service.dart';
 import '../agent/runtime/agent_execution_settings.dart';
 import '../agent/runtime/shared_preferences_agent_execution_settings_store.dart';
 import '../agent/tools/local_agent_tools.dart';
@@ -67,6 +68,15 @@ final agentExecutionSettingsStoreProvider =
   ),
 );
 
+final agentModelCapabilityServiceProvider =
+    Provider<AgentModelCapabilityService>(
+  (_) => AgentModelCapabilityService(
+    store: SharedPreferencesAgentModelCapabilityStore(
+      getPreferences: SharedPreferences.getInstance,
+    ),
+  ),
+);
+
 final agentAppFacadeProvider = Provider<AgentAppFacade>((ref) {
   final repo = ref.watch(repositoryProvider);
   return AgentAppFacade(
@@ -74,6 +84,8 @@ final agentAppFacadeProvider = Provider<AgentAppFacade>((ref) {
     toolGateway: ref.watch(localAgentToolGatewayProvider),
     permissionStore: ref.watch(agentToolPermissionStoreProvider),
     executionSettingsStore: ref.watch(agentExecutionSettingsStoreProvider),
+    modelCapabilityLoader:
+        ref.watch(agentModelCapabilityServiceProvider).resolve,
     conversationHistoryLoader: (conversationId) async {
       final messages = await repo.watchMessages(conversationId).first;
       return [

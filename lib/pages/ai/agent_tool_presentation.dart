@@ -14,6 +14,9 @@ final class AgentToolPresentation {
         'query_transactions' => l10n.agentToolQueryTransactions,
         'get_spending_summary' => l10n.agentToolSpendingSummary,
         'get_transaction_summary' => l10n.agentToolTransactionSummary,
+        'get_period_overview' => l10n.agentToolTransactionSummary,
+        'get_spending_trend' => l10n.agentToolSpendingSummary,
+        'get_category_breakdown' => l10n.agentToolSpendingSummary,
         'get_budget_status' => l10n.agentToolBudgetStatus,
         'get_recurring_transactions' => l10n.agentToolRecurringTransactions,
         'record_transaction_from_text' => l10n.agentToolRecordTransaction,
@@ -28,6 +31,9 @@ final class AgentToolPresentation {
         'get_spending_summary' => l10n.agentToolSpendingSummaryDescription,
         'get_transaction_summary' =>
           l10n.agentToolTransactionSummaryDescription,
+        'get_period_overview' => l10n.agentToolTransactionSummaryDescription,
+        'get_spending_trend' => l10n.agentToolSpendingSummaryDescription,
+        'get_category_breakdown' => l10n.agentToolSpendingSummaryDescription,
         'get_budget_status' => l10n.agentToolBudgetStatusDescription,
         'get_recurring_transactions' =>
           l10n.agentToolRecurringTransactionsDescription,
@@ -53,7 +59,10 @@ final class AgentToolPresentation {
 
     if (toolName == 'query_transactions' ||
         toolName == 'get_spending_summary' ||
-        toolName == 'get_transaction_summary') {
+        toolName == 'get_transaction_summary' ||
+        toolName == 'get_period_overview' ||
+        toolName == 'get_spending_trend' ||
+        toolName == 'get_category_breakdown') {
       final start = arguments['start'];
       final end = arguments['end'];
       final result = <({String label, String value})>[];
@@ -65,7 +74,10 @@ final class AgentToolPresentation {
           ),
         );
       }
-      if (toolName == 'get_transaction_summary') {
+      if (toolName == 'get_transaction_summary' ||
+          toolName == 'get_period_overview' ||
+          toolName == 'get_spending_trend' ||
+          toolName == 'get_category_breakdown') {
         final types = arguments['types'];
         if (types is List && types.whereType<String>().isNotEmpty) {
           result.add(

@@ -10241,8 +10241,14 @@ abstract class AppLocalizations {
   /// No description provided for @agentNativeToolsUnsupported.
   ///
   /// In en, this message translates to:
-  /// **'This model does not support native Agent tools or streaming. Switch models in AI Settings.'**
+  /// **'This model can chat normally, but it does not support the native tool calls required to read or change ledger data. Open Settings > AI Settings > Provider Management to test or switch models.'**
   String get agentNativeToolsUnsupported;
+
+  /// No description provided for @agentRequiredToolNotCalled.
+  ///
+  /// In en, this message translates to:
+  /// **'The model did not call a ledger tool, so its answer cannot be trusted for this data request. Open Settings > AI Settings > Provider Management to test or switch to a model with native tool calling.'**
+  String get agentRequiredToolNotCalled;
 
   /// No description provided for @agentTurnTimedOut.
   ///

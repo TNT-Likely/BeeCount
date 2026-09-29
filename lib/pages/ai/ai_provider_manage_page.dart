@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:agentcore/agentcore.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../widgets/ui/ui.dart';
@@ -13,6 +14,7 @@ import '../../ai/providers/ai_provider_factory.dart';
 import '../../ai/providers/ai_constants.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/website_urls.dart';
+import '../../providers/ai_chat_providers.dart';
 
 /// AI 服务商管理刷新 Provider
 final aiProviderListRefreshProvider = StateProvider<int>((ref) => 0);
@@ -684,7 +686,16 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
 
     try {
       final config = _getCurrentConfig();
-      final (success, error) = await AIProviderFactory.validateTextCapability(config);
+      AgentModelCapabilities? capabilities;
+      final (success, error) = await AIProviderFactory.validateTextCapability(
+        config,
+        onCapabilities: (value) => capabilities = value,
+      );
+      if (capabilities != null) {
+        await ref
+            .read(agentModelCapabilityServiceProvider)
+            .cache(config, capabilities!);
+      }
 
       if (mounted) {
         setState(() {
@@ -871,19 +882,29 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
           ),
           onChanged: (_) => setState(() {}),
         ),
-        // 错误信息
-        if (testStatus == TestStatus.failed && testError != null) ...[
+        // 失败原因，或文本模型的 Agent/流式兼容性说明。
+        if ((testStatus == TestStatus.failed ||
+                testStatus == TestStatus.success) &&
+            testError != null) ...[
           const SizedBox(height: 8),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.red.withValues(alpha: 0.08),
+              color: (testStatus == TestStatus.success
+                      ? Colors.green
+                      : Colors.red)
+                  .withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               testError,
-              style: const TextStyle(fontSize: 12, color: Colors.red),
+              style: TextStyle(
+                fontSize: 12,
+                color: testStatus == TestStatus.success
+                    ? Colors.green
+                    : Colors.red,
+              ),
             ),
           ),
         ],

@@ -247,6 +247,8 @@ class AIConfigValidationResult {
 }
 
 /// AI 对话响应模型
+enum AIResponseAction { openProviderSettings }
+
 class AIResponse {
   final String type; // 'text' | 'bill_card' | 'error'
   final String text;
@@ -256,12 +258,14 @@ class AIResponse {
 
   /// 与 [bills] 一一对应的交易 ID
   final List<int> transactionIds;
+  final AIResponseAction? action;
 
   AIResponse({
     required this.type,
     required this.text,
     this.bills = const [],
     this.transactionIds = const [],
+    this.action,
   });
 
   /// 首个 BillInfo(兼容写入 messages.transactionId 列)
@@ -290,6 +294,9 @@ class AIResponse {
     );
   }
 
-  factory AIResponse.error(String message) =>
-      AIResponse(type: 'error', text: message);
+  factory AIResponse.error(
+    String message, {
+    AIResponseAction? action,
+  }) =>
+      AIResponse(type: 'error', text: message, action: action);
 }

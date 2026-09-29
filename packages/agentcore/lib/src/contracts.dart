@@ -21,16 +21,24 @@ final class AgentRequest {
     required this.scope,
     List<Map<String, Object?>> toolData = const [],
     Map<String, Object?> context = const {},
+    Iterable<String>? availableToolNames,
     this.allowToolCalls = true,
   })  : toolData = UnmodifiableListView(
           toolData.map((data) => UnmodifiableMapView(Map.of(data))),
         ),
-        context = UnmodifiableMapView(Map.of(context));
+        context = UnmodifiableMapView(Map.of(context)),
+        availableToolNames = availableToolNames == null
+            ? null
+            : UnmodifiableSetView(Set.of(availableToolNames));
 
   final String text;
   final AgentScope scope;
   final List<Map<String, Object?>> toolData;
   final Map<String, Object?> context;
+
+  /// The native tool schemas visible during this run. `null` means every
+  /// definition configured on the transport; an empty set means no tools.
+  final Set<String>? availableToolNames;
 
   /// Whether the next model request may return native tool calls.
   ///
@@ -43,6 +51,7 @@ final class AgentRequest {
         scope: scope,
         toolData: data,
         context: context,
+        availableToolNames: availableToolNames,
         allowToolCalls: allowToolCalls,
       );
 
@@ -51,6 +60,7 @@ final class AgentRequest {
         scope: scope,
         toolData: toolData,
         context: context,
+        availableToolNames: availableToolNames,
         allowToolCalls: false,
       );
 }

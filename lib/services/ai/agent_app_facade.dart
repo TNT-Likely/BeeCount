@@ -48,6 +48,7 @@ import 'ai_chat_service.dart';
 
 typedef AgentConversationHistoryLoader = Future<List<Map<String, Object?>>>
     Function(int conversationId);
+typedef AgentModelCapabilityLoader = Future<AgentModelCapabilities?> Function();
 
 /// App composition root for one foreground Agent message. It records local
 /// audit state before a model call and turns the bounded tool result back into
@@ -62,6 +63,7 @@ final class AgentAppFacade {
     AgentModel? model,
     AgentPolicy policy = const P0AgentPolicy(),
     String Function()? runIdFactory,
+    this.modelCapabilityLoader,
   })  : _memoryRepository = memoryRepository,
         _toolGateway = toolGateway,
         _permissionStore = permissionStore,
@@ -79,6 +81,7 @@ final class AgentAppFacade {
   final AgentToolPermissionStore _permissionStore;
   final AgentExecutionSettingsStore _executionSettingsStore;
   final AgentConversationHistoryLoader? conversationHistoryLoader;
+  final AgentModelCapabilityLoader? modelCapabilityLoader;
   final AgentModel _model;
   final AgentPolicy _policy;
   final String Function() _runIdFactory;
@@ -244,6 +247,12 @@ final class AgentAppFacade {
       userMessage: message,
     );
 
+    final unsupportedResponse = await _unsupportedCapabilityResponse(
+      runId: runId,
+      l10n: l10n,
+    );
+    if (unsupportedResponse != null) return unsupportedResponse;
+
     final scope = AgentScope(
       id: runId,
       ledgerId: ledgerId,
@@ -256,6 +265,7 @@ final class AgentAppFacade {
           P0AgentPolicy.hasExplicitMemoryIntent(message),
     );
     final localTools = LocalAgentTools(scope: scope, gateway: _toolGateway);
+    final toolRegistry = localTools.buildRegistry();
     final requestContext = Map<String, Object?>.of(context);
     requestContext['currentTime'] = DateTime.now().toIso8601String();
     await _loadConversationHistory(
@@ -280,12 +290,22 @@ final class AgentAppFacade {
       // into a write or prevent the user from receiving a safe response.
       requestContext['memories'] = const <String>[];
     }
+    final toolSelection = toolRegistry.select(
+      _toolSelectionQuery(message, requestContext),
+      requirementQuery: message,
+      maximumTools: 7,
+    );
+    logger.debug('AgentCore', '本次运行工具目录已选择', {
+      'runId': runId,
+      'tools': toolSelection.names.toList()..sort(),
+    });
     var request = AgentRequest(
       text: message,
       scope: scope,
       context: requestContext,
+      availableToolNames: toolSelection.names,
     );
-    if (emit != null) {
+    if (emit != null && toolSelection.requiredToolNames.isEmpty) {
       request = request.withStreamingTextDeltas((event) {
         if ((cancellationToken?.isCancelled) ?? false) return;
         if (event case AgentNativeTextDelta(:final text)) {
@@ -305,7 +325,7 @@ final class AgentAppFacade {
       final result = await AgentCore(
         model: _model,
         tools: _observedTools(
-          localTools.build(),
+          toolSelection.tools,
           emit,
           runId,
           onToolFailed: (call, error) {
@@ -323,8 +343,8 @@ final class AgentAppFacade {
         policy: authorization,
         maximumModelTurns: executionSettings.maximumModelTurns,
         maximumToolCalls: executionSettings.maximumToolCalls,
-        singleUseToolNames: const {'record_transaction_from_text'},
-        deduplicatedToolNames: const {'get_transaction_summary'},
+        singleUseToolNames: toolSelection.singleUseToolNames,
+        deduplicatedToolNames: toolSelection.deduplicatedToolNames,
         singleUseToolDenialReason: (_) => '同一条消息只能记账一次。',
         cancellationToken: cancellationToken,
       ).run(request);
@@ -340,6 +360,30 @@ final class AgentAppFacade {
           runId: runId,
           response: AIResponse.text(
             l10n?.agentRunCancelled ?? '本次操作已停止。',
+          ),
+        );
+      }
+      final requiredTools = toolSelection.requiredToolNames;
+      final calledRequiredTool = result.executedCalls
+              .any((call) => requiredTools.contains(call.name)) ||
+          result.deniedCalls
+              .any((denied) => requiredTools.contains(denied.call.name));
+      if (requiredTools.isNotEmpty && !calledRequiredTool) {
+        logger.warning('AgentCore', '数据意图未执行所需工具，拒绝未落地答案', {
+          'runId': runId,
+          'requiredTools': requiredTools.toList()..sort(),
+        });
+        await _memoryRepository.finishRun(
+          runId: runId,
+          status: 'failed',
+          errorMessage: 'agent_required_tool_not_called',
+        );
+        return AgentChatResponse(
+          runId: runId,
+          response: AIResponse.error(
+            l10n?.agentRequiredToolNotCalled ??
+                '当前模型没有调用账本工具，无法可靠回答这类数据问题。请前往“设置 > AI 设置 > 服务商管理”运行文本模型测试或切换支持原生工具调用的模型。',
+            action: AIResponseAction.openProviderSettings,
           ),
         );
       }
@@ -374,7 +418,8 @@ final class AgentAppFacade {
         runId: runId,
         response: AIResponse.error(
           l10n?.agentNativeToolsUnsupported ??
-              '当前模型不支持 Agent 原生工具调用或流式输出，请在 AI 设置中切换模型。',
+              '当前模型可以进行普通对话，但不支持读取或操作账本所需的原生工具调用。请前往“设置 > AI 设置 > 服务商管理”切换模型或运行文本模型测试。',
+          action: AIResponseAction.openProviderSettings,
         ),
       );
     } on AgentNativeToolTimeoutException {
@@ -404,6 +449,66 @@ final class AgentAppFacade {
         response: AIResponse.error(l10n?.agentRunFailed ?? 'AI 服务暂时不可用，请稍后重试。'),
       );
     }
+  }
+
+  Future<AgentChatResponse?> _unsupportedCapabilityResponse({
+    required String runId,
+    required AppLocalizations? l10n,
+  }) async {
+    final loader = modelCapabilityLoader;
+    if (loader == null) return null;
+    try {
+      final capabilities = await loader();
+      if (capabilities?.nativeToolCalls != AgentCapabilitySupport.unsupported) {
+        return null;
+      }
+      logger.warning('AgentCore', '能力探测确认模型不支持原生工具', {
+        'runId': runId,
+        'detail': capabilities?.detail,
+      });
+      await _memoryRepository.finishRun(
+        runId: runId,
+        status: 'failed',
+        errorMessage: 'agent_native_tools_unsupported',
+      );
+      return AgentChatResponse(
+        runId: runId,
+        response: AIResponse.error(
+          l10n?.agentNativeToolsUnsupported ??
+              '当前模型可以进行普通对话，但不支持读取或操作账本所需的原生工具调用。请前往“设置 > AI 设置 > 服务商管理”切换模型或运行文本模型测试。',
+          action: AIResponseAction.openProviderSettings,
+        ),
+      );
+    } on Object catch (error, stackTrace) {
+      // A transient probe/cache failure must not replace the real model call.
+      logger.warning('AgentCore', '模型能力预检失败，继续实际请求', {
+        'runId': runId,
+        'error': error.toString(),
+      });
+      logger.debug('AgentCore', '模型能力预检异常堆栈', {
+        'runId': runId,
+        'stackTrace': stackTrace.toString(),
+      });
+      return null;
+    }
+  }
+
+  String _toolSelectionQuery(
+    String message,
+    Map<String, Object?> requestContext,
+  ) {
+    final buffer = StringBuffer(message);
+    final recent = requestContext['recentMessages'];
+    if (recent is List) {
+      for (final item in recent.reversed.take(4)) {
+        if (item is Map && item['content'] is String) {
+          buffer
+            ..write('\n')
+            ..write(item['content']);
+        }
+      }
+    }
+    return buffer.toString();
   }
 
   Future<void> _loadConversationHistory({

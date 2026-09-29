@@ -72,10 +72,18 @@ void main() {
     );
   });
 
-  test('native system prompt routes aggregates to the summary tool', () {
+  test('native system prompt routes finance questions to narrow tools', () {
     expect(
       AgentPromptBuilder.nativeSystemPrompt,
-      contains('只使用 get_transaction_summary'),
+      contains('总收入、总支出、结余使用 get_period_overview'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('使用 get_spending_trend'),
+    );
+    expect(
+      AgentPromptBuilder.nativeSystemPrompt,
+      contains('使用 get_category_breakdown'),
     );
     expect(
       AgentPromptBuilder.nativeSystemPrompt,
@@ -83,15 +91,7 @@ void main() {
     );
     expect(
       AgentPromptBuilder.nativeSystemPrompt,
-      contains('相同统计问题最多使用 3 次汇总工具调用'),
-    );
-    expect(
-      AgentPromptBuilder.nativeSystemPrompt,
-      contains('后续汇总调用必须复用已经确定的 start 和 end'),
-    );
-    expect(
-      AgentPromptBuilder.nativeSystemPrompt,
-      contains('首次调用也必须传入对应的 groupBy'),
+      contains('不得凭空给出金额'),
     );
     expect(
       AgentPromptBuilder.nativeSystemPrompt,
@@ -156,13 +156,13 @@ void main() {
     expect(transport.requests.last.toolResults.single.toolCallId, 'call-1');
   });
 
-  test('native summary tool ignores a provider supplied ledger id', () async {
+  test('native ledger tool ignores a provider supplied ledger id', () async {
     final model = NativeToolAgentModel(
       transport: _FakeNativeTransport([
         AgentNativeModelResponse.toolCalls([
           AgentNativeToolCall(
             id: 'call-1',
-            name: 'get_transaction_summary',
+            name: 'get_spending_trend',
             arguments: const {
               'ledgerId': '1',
               'start': '2026-08-01T00:00:00.000',

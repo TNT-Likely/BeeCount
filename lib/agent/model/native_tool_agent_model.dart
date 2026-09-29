@@ -42,8 +42,7 @@ final class OpenAiCompatibleNativeToolTransport
           logSink: _log,
           isUnsupportedError: (error) =>
               error is AIException &&
-              (error.message.contains('不支持原生工具调用') ||
-                  error.message.toLowerCase().contains('tool')),
+              error.code == AIExceptionCode.nativeToolsUnsupported,
         );
 
   final core.OpenAiCompatibleNativeToolTransport _delegate;
@@ -100,7 +99,9 @@ final class NativeToolAgentModel
 
   static const _ledgerScopedTools = <String>{
     'query_transactions',
-    'get_transaction_summary',
+    'get_period_overview',
+    'get_spending_trend',
+    'get_category_breakdown',
     'get_budget_status',
     'get_recurring_transactions',
   };

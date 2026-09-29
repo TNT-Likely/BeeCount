@@ -42,7 +42,9 @@ void main() {
       definitions.keys,
       containsAll(<String>[
         'query_transactions',
-        'get_transaction_summary',
+        'get_period_overview',
+        'get_spending_trend',
+        'get_category_breakdown',
         'get_budget_status',
         'get_recurring_transactions',
         'record_transaction_from_text',
@@ -59,43 +61,41 @@ void main() {
       expect(definition['parameters'], isA<Map>());
     }
 
-    final summaryParameters =
-        definitions['get_transaction_summary']!['parameters'] as Map;
-    final summaryProperties = summaryParameters['properties'] as Map;
-    expect(summaryProperties['types'], containsPair('type', 'array'));
+    final overviewParameters =
+        definitions['get_period_overview']!['parameters'] as Map;
+    final overviewProperties = overviewParameters['properties'] as Map;
     expect(
-      (summaryProperties['types'] as Map)['items'],
-      containsPair('enum', ['income', 'expense', 'transfer']),
-    );
-    expect(
-      (summaryProperties['groupBy'] as Map)['enum'],
+      (overviewProperties['period'] as Map)['enum'],
       containsAll(<String>[
-        'none',
-        'category',
-        'tag',
-        'account',
-        'day',
-        'week',
-        'month',
-        'year',
+        'current_month',
+        'previous_month',
+        'current_year',
+        'last_12_months',
+        'custom',
       ]),
     );
+    final trendParameters =
+        definitions['get_spending_trend']!['parameters'] as Map;
+    final trendProperties = trendParameters['properties'] as Map;
     expect(
-      (summaryProperties['groupBy'] as Map)['description'],
-      contains('每月/按月'),
+      (trendProperties['interval'] as Map)['enum'],
+      ['day', 'week', 'month', 'year'],
     );
-    expect(summaryProperties, contains('includeExcludedFromStats'));
-    expect(summaryProperties, contains('groupLimit'));
-    expect(summaryProperties, contains('categoryNames'));
-    expect(summaryProperties, contains('tagNames'));
-    expect(summaryProperties, contains('accountNames'));
+    expect(trendProperties, contains('categoryNames'));
+    expect(trendProperties, contains('comparison'));
+    final breakdownParameters =
+        definitions['get_category_breakdown']!['parameters'] as Map;
+    expect(
+      (breakdownParameters['properties'] as Map),
+      contains('categoryLevel'),
+    );
     expect(
       definitions['query_transactions']!['description'],
       contains('最多返回 20 条'),
     );
     expect(
-      definitions['get_transaction_summary']!['description'],
-      contains('缺少时间范围时使用最近 30 天'),
+      definitions['get_spending_trend']!['description'],
+      contains('无交易月份补零'),
     );
 
     final recordParameters =

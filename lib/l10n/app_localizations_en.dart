@@ -5365,7 +5365,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentRunFailed => 'AI service is temporarily unavailable. Please try again later.';
 
   @override
-  String get agentNativeToolsUnsupported => 'This model does not support native Agent tools or streaming. Switch models in AI Settings.';
+  String get agentNativeToolsUnsupported => 'This model can chat normally, but it does not support the native tool calls required to read or change ledger data. Open Settings > AI Settings > Provider Management to test or switch models.';
+
+  @override
+  String get agentRequiredToolNotCalled => 'The model did not call a ledger tool, so its answer cannot be trusted for this data request. Open Settings > AI Settings > Provider Management to test or switch to a model with native tool calling.';
 
   @override
   String get agentTurnTimedOut => 'The AI response timed out. Please try again shortly.';

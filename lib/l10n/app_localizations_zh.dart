@@ -5365,7 +5365,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentRunFailed => 'AI 服务暂时不可用，请稍后重试。';
 
   @override
-  String get agentNativeToolsUnsupported => '当前模型不支持 Agent 原生工具调用或流式输出，请在 AI 设置中切换模型。';
+  String get agentNativeToolsUnsupported => '当前模型可以进行普通对话，但不支持读取或操作账本所需的原生工具调用。请前往“设置 > AI 设置 > 服务商管理”切换模型或运行文本模型测试。';
+
+  @override
+  String get agentRequiredToolNotCalled => '当前模型没有调用账本工具，无法可靠回答这类数据问题。请前往“设置 > AI 设置 > 服务商管理”运行文本模型测试或切换支持原生工具调用的模型。';
 
   @override
   String get agentTurnTimedOut => 'AI 响应超时，请稍后重试。';

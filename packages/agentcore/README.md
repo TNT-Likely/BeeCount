@@ -34,6 +34,8 @@ agentcore
 ├─ contracts.dart                     request / turn / tool / result 契约
 ├─ NativeToolAgentModel               模型回合与工具结果桥接
 ├─ OpenAiCompatibleNativeToolTransport 原生 tool-call + SSE 聚合
+├─ AgentToolRegistry                  常驻工具 + 请求级工具搜索
+├─ AgentModelCapabilityResolver       模型能力报告与缓存解析
 ├─ AgentTurnParser                    小型 JSON 回合解析器
 ├─ AgentAuthorizationPolicy           权限门禁组合器
 └─ AgentMemoryRepository               本地记忆与审计接口
@@ -185,6 +187,49 @@ const definitions = [
 在 BeeCount 中，这份业务目录位于
 `lib/agent/tools/local_agent_tool_catalog.dart`；执行器位于同目录的
 `local_agent_tools.dart`。修改工具时应同时更新这两处及对应 schema 测试。
+
+### 常驻工具与请求级工具搜索
+
+工具较多时，可用 `AgentToolRegistry` 把少量高频工具标记为 `isResident`，其余工具
+通过宿主提供的 `selectionTerms` 按当前请求选择。注册项同时绑定 schema、执行器、
+单次调用和去重元数据，避免业务层维护多份容易漂移的列表：
+
+```dart
+final registry = AgentToolRegistry([
+  AgentToolDescriptor(
+    definition: readOverviewDefinition,
+    tool: readOverviewTool,
+    isResident: true,
+    selectionTerms: const ['概览', '总额'],
+    requiresExecutionOnMatch: true,
+  ),
+  AgentToolDescriptor(
+    definition: readBudgetDefinition,
+    tool: readBudgetTool,
+    selectionTerms: const ['预算', 'budget'],
+  ),
+]);
+
+final selected = registry.select(
+  '$userText\n$recentContext',
+  requirementQuery: userText,
+  maximumTools: 7,
+);
+```
+
+将 `selected.names` 写入 `AgentRequest.availableToolNames` 后，原生 transport 只发送
+本次可见的 schema。`requiredToolNames` 只是一个通用的落地校验信号：是否拒绝模型
+“没有调用工具却直接回答数据”的文本，仍由宿主产品策略决定。
+`requirementQuery` 可限制强制执行信号只来自当前消息，避免历史对话中的“记账”等词
+误授权或误要求当前回合再次执行写工具。
+
+### 模型能力报告
+
+`AgentModelCapabilities` 分别记录文本、原生工具调用、流式输出和强制工具选择能力，
+每项都使用 `supported / unsupported / unknown` 三态，避免把网络错误误判为模型不兼容。
+宿主实现 `AgentModelCapabilityStore` 后，可用 `AgentModelCapabilityResolver` 按
+服务商、地址和模型组成的指纹缓存探测结果。探测请求和具体 HTTP 协议属于宿主；缓存
+中不应包含 API Key 或用户数据。
 
 ## OpenAI-compatible tool-call / SSE
 
