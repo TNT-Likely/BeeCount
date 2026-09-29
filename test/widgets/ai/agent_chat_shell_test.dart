@@ -17,6 +17,7 @@ void main() {
         child: MaterialApp(
           home: AgentChatShell(
             title: 'AI 助手',
+            showBetaBadge: true,
             onBack: () => backCount++,
             onOpenPermissions: () => permissionCount++,
             onClearHistory: () => clearCount++,
@@ -31,6 +32,11 @@ void main() {
     );
 
     expect(find.text('AI 助手'), findsOneWidget);
+    expect(find.text('BETA'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('agent-chat-beta-badge')),
+      findsOneWidget,
+    );
     expect(find.byKey(const ValueKey('agent-chat-content')), findsOneWidget);
     expect(find.byKey(const ValueKey('agent-chat-back')), findsOneWidget);
     expect(

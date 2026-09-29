@@ -17,6 +17,7 @@ class AgentChatShell extends StatelessWidget {
     this.backTooltip,
     this.permissionsTooltip,
     this.clearTooltip,
+    this.showBetaBadge = false,
   });
 
   final String title;
@@ -27,6 +28,7 @@ class AgentChatShell extends StatelessWidget {
   final String? backTooltip;
   final String? permissionsTooltip;
   final String? clearTooltip;
+  final bool showBetaBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +38,7 @@ class AgentChatShell extends StatelessWidget {
         children: [
           PrimaryHeader(
             title: title,
+            titleTrailing: showBetaBadge ? const _AgentBetaBadge() : null,
             compact: true,
             showBack: true,
             onBack: onBack,
@@ -57,6 +60,41 @@ class AgentChatShell extends StatelessWidget {
           ),
           Expanded(child: child),
         ],
+      ),
+    );
+  }
+}
+
+class _AgentBetaBadge extends StatelessWidget {
+  const _AgentBetaBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = BeeTokens.textPrimary(context);
+    return Semantics(
+      label: 'Beta',
+      child: ExcludeSemantics(
+        child: Container(
+          key: const ValueKey('agent-chat-beta-badge'),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: foreground.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: foreground.withValues(alpha: 0.22),
+            ),
+          ),
+          child: Text(
+            'BETA',
+            style: TextStyle(
+              color: foreground.withValues(alpha: 0.82),
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.6,
+              height: 1.1,
+            ),
+          ),
+        ),
       ),
     );
   }
