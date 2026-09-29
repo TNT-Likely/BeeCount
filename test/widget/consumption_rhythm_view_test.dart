@@ -28,6 +28,14 @@ void main() {
         child: SizedBox(width: size.width, height: size.height, child: child),
       );
 
+  Widget renderHarness(Widget child) => Directionality(
+        textDirection: TextDirection.ltr,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [child],
+        ),
+      );
+
   for (final dark in [false, true]) {
     testWidgets('364x169 ${dark ? "暗色" : "亮色"}显示热力图和节奏提示', (tester) async {
       await tester.pumpWidget(wrap(ConsumptionRhythmView(
@@ -74,5 +82,35 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('本月还没有支出'), findsOneWidget);
+  });
+
+  testWidgets('home_widget 离屏布局下 30 个热力格宽高均大于 0', (tester) async {
+    await tester.pumpWidget(renderHarness(ConsumptionRhythmView(
+      activity: activity(),
+      themeColor: const Color(0xFFF5A623),
+      dark: false,
+      titleLabel: '消费节奏',
+      stableLabel: '消费很均匀',
+      increaseLabel: '比上周更快',
+      decreaseLabel: '比上周更稳',
+      emptyLabel: '本月还没有支出',
+      width: size.width,
+      height: size.height,
+    )));
+    await tester.pump();
+
+    final decoratedBoxes = tester
+        .renderObjectList<RenderBox>(find.descendant(
+          of: find.byType(ConsumptionRhythmView),
+          matching: find.byType(DecoratedBox),
+        ))
+        .toList();
+    expect(decoratedBoxes.length, greaterThanOrEqualTo(30));
+    expect(
+      decoratedBoxes,
+      everyElement(predicate<RenderBox>(
+        (box) => box.size.width > 0 && box.size.height > 0,
+      )),
+    );
   });
 }

@@ -23,6 +23,16 @@ void main() {
         child: SizedBox(width: size.width, height: size.height, child: child),
       );
 
+  /// 与 HomeWidget.renderFlutterWidget 一致的离屏布局结构。固定 SizedBox
+  /// 冒烟测试无法暴露 Column 给子节点松散横向约束时 CustomPaint 宽度归零。
+  Widget renderHarness(Widget child) => Directionality(
+        textDirection: TextDirection.ltr,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [child],
+        ),
+      );
+
   for (final dark in [false, true]) {
     testWidgets('155x155 ${dark ? "暗色" : "亮色"}显示连续记账和完成率', (tester) async {
       await tester.pumpWidget(wrap(BeeTrailView(
@@ -61,6 +71,25 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('今天记一笔，点亮第一格'), findsOneWidget);
+  });
+
+  testWidgets('home_widget 离屏布局下蜂巢画布宽高均大于 0', (tester) async {
+    await tester.pumpWidget(renderHarness(BeeTrailView(
+      activity: activity(),
+      themeColor: const Color(0xFFF5A623),
+      dark: false,
+      titleLabel: '记账连续蜂迹',
+      streakSuffix: '天',
+      completionLabel: '本月完成率',
+      emptyLabel: '今天记一笔，点亮第一格',
+      width: size.width,
+      height: size.height,
+    )));
+    await tester.pump();
+
+    final paint = tester.renderObject<RenderBox>(find.byType(CustomPaint));
+    expect(paint.size.width, greaterThan(0));
+    expect(paint.size.height, greaterThan(0));
   });
 
   testWidgets('仅最早两天有记录时，28 天蜂巢显示为空状态', (tester) async {

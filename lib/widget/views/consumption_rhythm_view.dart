@@ -146,6 +146,10 @@ class _HeatMap extends StatelessWidget {
         for (var row = 0; row < 3; row++)
           Expanded(
             child: Row(
+              // 每个热力格都是无 child 的 DecoratedBox；Row 默认居中时它
+              // 会按自身固有高度 0 布局。撑满交叉轴，确保离屏 PNG 中每格
+              // 都拿到非零高度。
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (var column = 0; column < 10; column++)
                   Expanded(

@@ -351,6 +351,10 @@ dart run build_runner watch
 
 ## 代码规范
 
+### 桌面小组件
+
+新增或修改 iOS/Android 桌面小组件前，请遵循[桌面小组件开发规范](HOME_WIDGETS_ZH.md)。其中包含离屏渲染约束、双端预览资源、自动化测试和模拟器验收清单。
+
 ### Dart 代码风格
 
 遵循 [Effective Dart](https://dart.dev/guides/language/effective-dart) 规范：

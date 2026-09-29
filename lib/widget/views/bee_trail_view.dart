@@ -80,8 +80,15 @@ class BeeTrailView extends StatelessWidget {
                     height: 1.0)),
             const SizedBox(height: 4),
             Expanded(
-                child:
-                    CustomPaint(painter: _HivePainter(dots, themeColor, dark))),
+              // home_widget 的离屏树会给 Column 子节点松散的横向约束。
+              // CustomPaint 没有 child 时默认宽度为 0，必须显式撑满，否则
+              // PNG 里只会留下标题和完成率，看不到蜂巢。
+              child: SizedBox.expand(
+                child: CustomPaint(
+                  painter: _HivePainter(dots, themeColor, dark),
+                ),
+              ),
+            ),
             const SizedBox(height: 3),
             Row(
               children: [

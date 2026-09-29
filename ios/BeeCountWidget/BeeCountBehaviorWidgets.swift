@@ -28,16 +28,31 @@ private struct BehaviorWidgetEntry: TimelineEntry {
 private struct BehaviorWidgetProvider: TimelineProvider {
     let imageKey: String
 
-    private func entry() -> BehaviorWidgetEntry {
+    private func runtimeEntry() -> BehaviorWidgetEntry {
         let path = UserDefaults(suiteName: "group.com.tntlikely.beecount")?.string(forKey: imageKey) ?? ""
         return BehaviorWidgetEntry(date: Date(), imagePath: path)
     }
 
-    func placeholder(in context: Context) -> BehaviorWidgetEntry { entry() }
-    func getSnapshot(in context: Context, completion: @escaping (BehaviorWidgetEntry) -> ()) { completion(entry()) }
+    private func previewEntry() -> BehaviorWidgetEntry {
+        BehaviorWidgetEntry(
+            date: Date(),
+            imagePath: WidgetPreviewAssets.path(forImageKey: imageKey)
+        )
+    }
+
+    func placeholder(in context: Context) -> BehaviorWidgetEntry {
+        previewEntry()
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (BehaviorWidgetEntry) -> ()) {
+        // Widget gallery 的预览上下文无法稳定读取 App Group；与既有组件
+        // 一致，改读扩展 bundle 内的静态预览图。
+        completion(context.isPreview ? previewEntry() : runtimeEntry())
+    }
+
     func getTimeline(in context: Context, completion: @escaping (Timeline<BehaviorWidgetEntry>) -> ()) {
         let next = Calendar.current.date(byAdding: .minute, value: 30, to: Date())!
-        completion(Timeline(entries: [entry()], policy: .after(next)))
+        completion(Timeline(entries: [runtimeEntry()], policy: .after(next)))
     }
 }
 
@@ -73,7 +88,12 @@ struct BeeCountConsumptionRhythmWidget: Widget {
         let widgetTitle = title
         let widgetDescription = description
         return StaticConfiguration(kind: kind, provider: BehaviorWidgetProvider(imageKey: "widget_consumptionRhythm_medium")) { entry in
-            BehaviorWidgetEntryView(entry: entry, destination: URL(string: "beecount://open?page=statistics")!, symbol: "chart.bar.fill", label: widgetTitle)
+            if #available(iOS 17.0, *) {
+                BehaviorWidgetEntryView(entry: entry, destination: URL(string: "beecount://open?page=statistics")!, symbol: "chart.bar.fill", label: widgetTitle)
+                    .containerBackground(for: .widget) { Color.clear }
+            } else {
+                BehaviorWidgetEntryView(entry: entry, destination: URL(string: "beecount://open?page=statistics")!, symbol: "chart.bar.fill", label: widgetTitle)
+            }
         }
         .configurationDisplayName(widgetTitle).description(widgetDescription)
         .supportedFamilies([.systemMedium]).contentMarginsDisabled()
@@ -92,7 +112,12 @@ struct BeeCountBeeTrailWidget: Widget {
         let widgetTitle = title
         let widgetDescription = description
         return StaticConfiguration(kind: kind, provider: BehaviorWidgetProvider(imageKey: "widget_beeTrail_small")) { entry in
-            BehaviorWidgetEntryView(entry: entry, destination: URL(string: "beecount://open?page=transactions")!, symbol: "hexagon.fill", label: widgetTitle)
+            if #available(iOS 17.0, *) {
+                BehaviorWidgetEntryView(entry: entry, destination: URL(string: "beecount://open?page=transactions")!, symbol: "hexagon.fill", label: widgetTitle)
+                    .containerBackground(for: .widget) { Color.clear }
+            } else {
+                BehaviorWidgetEntryView(entry: entry, destination: URL(string: "beecount://open?page=transactions")!, symbol: "hexagon.fill", label: widgetTitle)
+            }
         }
         .configurationDisplayName(widgetTitle).description(widgetDescription)
         .supportedFamilies([.systemSmall]).contentMarginsDisabled()
