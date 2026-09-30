@@ -8025,6 +8025,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get agentQueryValidationFailed => '查询参数未能纠正，暂时无法给出可靠结果。请重试。';
+
+  @override
+  String get agentSuggestionsLess => '收起问题';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

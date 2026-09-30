@@ -316,15 +316,20 @@ final class AgentAppFacade {
       'runId': runId,
       'tools': toolSelection.names.toList()..sort(),
     });
+    var bufferQueryText = false;
     var request = AgentRequest(
       text: message,
       scope: scope,
       context: requestContext,
       availableToolNames: toolSelection.names,
     );
-    if (emit != null && toolSelection.requiredToolNames.isEmpty) {
+    if (emit != null) {
       request = request.withStreamingTextDeltas((event) {
-        if ((cancellationToken?.isCancelled) ?? false) return;
+        // Known invalid queries still need a verified final response; normal
+        // tool-backed answers must not be buffered by directory keywords.
+        if (bufferQueryText || ((cancellationToken?.isCancelled) ?? false)) {
+          return;
+        }
         if (event case AgentNativeTextDelta(:final text)) {
           emit(AgentTextDeltaEvent(text));
         }
@@ -348,6 +353,7 @@ final class AgentAppFacade {
           runId,
           onEvidence: suggestionEvidence.add,
           onToolFailed: (call, error) {
+            bufferQueryText = true;
             failedToolAudits.add(
               AgentToolCallAudit(
                 runId: runId,
@@ -366,7 +372,11 @@ final class AgentAppFacade {
         deduplicatedToolNames: toolSelection.deduplicatedToolNames,
         singleUseToolDenialReason: (_) => '同一条消息只能记账一次。',
         cancellationToken: cancellationToken,
-        validateToolCall: LedgerQueryCallValidator.validate,
+        validateToolCall: (request, call) {
+          final issue = LedgerQueryCallValidator.validate(request, call);
+          if (issue != null) bufferQueryText = true;
+          return issue;
+        },
       ).run(request);
       await _recordAudit(runId, result, failedToolAudits: failedToolAudits);
       if (result.wasCancelled) {
@@ -425,6 +435,11 @@ final class AgentAppFacade {
       });
 
       final baseResponse = _responseFor(result, localTools, l10n);
+      final canSuggest =
+          (baseResponse.type == 'text' || baseResponse.type == 'bill_card') &&
+              result.terminationReason == AgentRunTerminationReason.completed &&
+              result.deniedCalls.isEmpty &&
+              failedToolAudits.isEmpty;
       final recent = requestContext['recentMessages'];
       final suggestions = LedgerFollowUpSuggestions.generate(
         evidence: suggestionEvidence,
@@ -440,15 +455,10 @@ final class AgentAppFacade {
                 .map((row) => row['content'])
                 .whereType<String>()
             : const [],
-        enabled: (baseResponse.type == 'text' ||
-                baseResponse.type == 'bill_card') &&
-            result.terminationReason == AgentRunTerminationReason.completed &&
-            result.deniedCalls.isEmpty &&
-            failedToolAudits.isEmpty,
+        enabled: canSuggest,
       );
-      final response = suggestions.isEmpty
-          ? baseResponse
-          : baseResponse.withFollowUpSuggestions(suggestions);
+      final response = baseResponse.withFollowUpSuggestions(suggestions,
+          allowPromptSuggestions: canSuggest);
       logger.info('AgentCore', '运行结果已生成', {
         'runId': runId,
         'responseType': response.type,

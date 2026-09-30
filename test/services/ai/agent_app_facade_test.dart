@@ -92,6 +92,7 @@ void main() {
     expect(response.transactionIds, [42]);
     expect(response.response.followUpSuggestions.map((item) => item.id),
         ['followup-overview', 'followup-category']);
+    expect(response.response.allowPromptSuggestions, isTrue);
     expect(gateway.recordedTexts, ['午饭 35']);
     expect(
       logger.logs.any(
@@ -223,6 +224,102 @@ void main() {
     expect(gateway.recordedTexts, ['早饭花了8元']);
   });
 
+  test('ledger query streams native answer deltas before final completion',
+      () async {
+    final chunks = StreamController<Map<String, dynamic>>();
+    final answerStarted = Completer<void>();
+    final partialReceived = Completer<void>();
+    final completed = Completer<void>();
+    final events = <AgentRunEvent>[];
+    final transport = OpenAiCompatibleNativeToolTransport(
+      toolStream: ({required messages, required tools, logTag}) {
+        if (messages.any((message) => message['role'] == 'tool')) {
+          answerStarted.complete();
+          return chunks.stream;
+        }
+        return Stream<Map<String, dynamic>>.value({
+          'choices': [
+            {
+              'delta': {
+                'tool_calls': [
+                  {
+                    'index': 0,
+                    'id': 'overview-stream',
+                    'function': {
+                      'name': 'get_period_overview',
+                      'arguments': '{"period":"current_month"}',
+                    },
+                  }
+                ]
+              },
+            }
+          ],
+        });
+      },
+    );
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: NativeToolAgentModel(transport: transport),
+      runIdFactory: () => 'stream-query',
+    );
+    final subscription = facade
+        .processMessageEvents(message: '本月支出多少？', ledgerId: 1)
+        .listen((event) {
+      events.add(event);
+      if (event is AgentTextDeltaEvent && !partialReceived.isCompleted) {
+        partialReceived.complete();
+      }
+    }, onDone: completed.complete, onError: completed.completeError);
+    addTearDown(() async {
+      facade.cancelRun('stream-query');
+      await subscription.cancel();
+      if (!chunks.isClosed) await chunks.close();
+    });
+    await answerStarted.future.timeout(const Duration(seconds: 5));
+    chunks.add({
+      'choices': [
+        {
+          'delta': {'content': '本月支出'}
+        }
+      ]
+    });
+    await partialReceived.future.timeout(const Duration(seconds: 5));
+    expect(events.whereType<AgentToolCompletedEvent>(), hasLength(1));
+    expect(events.whereType<AgentTextDeltaEvent>().single.text, '本月支出');
+    expect(events.whereType<AgentRunCompletedEvent>(), isEmpty);
+    chunks.add({
+      'choices': [
+        {
+          'delta': {'content': '0元。'}
+        }
+      ]
+    });
+    await chunks.close();
+    await completed.future.timeout(const Duration(seconds: 5));
+    expect(events.whereType<AgentTextDeltaEvent>().map((event) => event.text),
+        ['本月支出', '0元。']);
+    expect((events.last as AgentRunCompletedEvent).result.text, '本月支出0元。');
+  });
+
+  test('unrepaired query errors do not leak misleading streamed text',
+      () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: _InvalidQueryStreamingModel(),
+    );
+    final events = await facade
+        .processMessageEvents(message: '本月餐饮按明细分类排行', ledgerId: 1)
+        .toList();
+    expect(events.whereType<AgentTextDeltaEvent>(), isEmpty);
+    expect((events.last as AgentRunCompletedEvent).result.type, 'error');
+    expect((events.last as AgentRunCompletedEvent).result.text,
+        contains('查询参数未能纠正'));
+  });
+
   test('a malformed model response creates no transaction and records failure',
       () async {
     final facade = AgentAppFacade(
@@ -310,6 +407,7 @@ void main() {
     expect(model.request?.availableToolNames, contains('get_spending_trend'));
     expect(run.status, 'completed');
     expect(run.errorMessage, isNull);
+    expect(response.response.allowPromptSuggestions, isTrue);
   });
 
   test('category breakdown satisfies a request that also mentions a period',
@@ -1195,6 +1293,25 @@ final class _ThrowingModel implements AgentModel {
   @override
   Future<AgentTurn> nextTurn(AgentRequest request) =>
       Future.error(const FormatException('bad response'));
+}
+
+final class _InvalidQueryStreamingModel implements AgentModel {
+  @override
+  Future<AgentTurn> nextTurn(AgentRequest request) async {
+    if (request.toolData.isEmpty) {
+      return AgentTurn.toolCalls([
+        AgentToolCall(
+            id: 'invalid',
+            name: 'get_category_breakdown',
+            arguments: const {
+              'period': 'current_month',
+              'categoryLevel': 'top'
+            }),
+      ]);
+    }
+    request.nativeStreamSink?.call(const AgentNativeTextDelta('没有子分类'));
+    return const AgentTurn.finalText('没有子分类');
+  }
 }
 
 final class _PendingModel implements AgentModel {

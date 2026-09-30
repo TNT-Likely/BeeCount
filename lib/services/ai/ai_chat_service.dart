@@ -140,6 +140,9 @@ class AIResponse {
   final AIResponseAction? action;
   final List<AgentPromptSuggestion> followUpSuggestions;
 
+  /// Trusted run outcome, not inferred from the model's final prose.
+  final bool allowPromptSuggestions;
+
   AIResponse({
     required this.type,
     required this.text,
@@ -147,6 +150,7 @@ class AIResponse {
     this.transactionIds = const [],
     this.action,
     this.followUpSuggestions = const [],
+    this.allowPromptSuggestions = false,
   });
 
   /// 首个 BillInfo(兼容写入 messages.transactionId 列)
@@ -163,13 +167,15 @@ class AIResponse {
           text: text,
           followUpSuggestions: List.unmodifiable(followUpSuggestions));
 
-  AIResponse withFollowUpSuggestions(List<AgentPromptSuggestion> suggestions) =>
+  AIResponse withFollowUpSuggestions(List<AgentPromptSuggestion> suggestions,
+          {bool allowPromptSuggestions = false}) =>
       AIResponse(
           type: type,
           text: text,
           bills: bills,
           transactionIds: transactionIds,
           action: action,
+          allowPromptSuggestions: allowPromptSuggestions,
           followUpSuggestions: List.unmodifiable(suggestions));
 
   /// 多笔/单笔统一入口。bills 与 txIds 必须等长且非空。

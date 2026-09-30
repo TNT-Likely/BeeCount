@@ -7,6 +7,18 @@ import '../l10n/app_localizations.dart';
 final class AssistantPromptSuggestions {
   const AssistantPromptSuggestions._();
 
+  /// Contextual questions come first. Analysis templates remain available
+  /// after any successful answer, without pretending to be query evidence.
+  static List<AgentPromptSuggestion> continuations(
+    AppLocalizations l10n, {
+    Iterable<AgentPromptSuggestion> contextual = const [],
+    Iterable<String> recentPrompts = const [],
+  }) =>
+      const AgentPromptSuggestionSelector(maximumCount: 9).select(
+        [...contextual, ...localized(l10n)],
+        recentPrompts: recentPrompts,
+      );
+
   static List<AgentPromptSuggestion> localized(AppLocalizations l10n) => [
         AgentPromptSuggestion(
           id: 'financial_health',

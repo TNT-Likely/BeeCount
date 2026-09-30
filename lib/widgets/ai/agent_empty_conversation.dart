@@ -1,4 +1,3 @@
-import 'package:agentcore/agentcore.dart' show AgentPromptSuggestion;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,36 +7,29 @@ import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../biz/amount_text.dart';
 import 'agent_brand_mark.dart';
-import 'ai_prompt_suggestions.dart';
 
 /// Quiet, ledger-aware starting point for an empty AI conversation.
 ///
-/// The input composer remains the primary action. A compact six-template
-/// catalog helps the user start; follow-ups belong to the latest answer.
+/// The input composer remains the primary action. Analysis templates and
+/// contextual follow-ups belong to the latest answer, not a second launcher.
 final class AgentEmptyConversation extends ConsumerWidget {
-  const AgentEmptyConversation({super.key, this.onSuggestionTap});
-
-  final ValueChanged<AgentPromptSuggestion>? onSuggestionTap;
+  const AgentEmptyConversation({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final summary = ref.watch(aiChatEmptyLedgerSummaryProvider);
     return summary.when(
-      data: (data) => _AgentEmptyConversationContent(
-          summary: data, onSuggestionTap: onSuggestionTap),
-      loading: () =>
-          _AgentEmptyConversationContent(onSuggestionTap: onSuggestionTap),
-      error: (_, __) =>
-          _AgentEmptyConversationContent(onSuggestionTap: onSuggestionTap),
+      data: (data) => _AgentEmptyConversationContent(summary: data),
+      loading: () => const _AgentEmptyConversationContent(),
+      error: (_, __) => const _AgentEmptyConversationContent(),
     );
   }
 }
 
 final class _AgentEmptyConversationContent extends ConsumerWidget {
-  const _AgentEmptyConversationContent({this.summary, this.onSuggestionTap});
+  const _AgentEmptyConversationContent({this.summary});
 
   final AiChatEmptyLedgerSummary? summary;
-  final ValueChanged<AgentPromptSuggestion>? onSuggestionTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -108,10 +100,6 @@ final class _AgentEmptyConversationContent extends ConsumerWidget {
                     ? l10n.aiChatEmptyQuestionExample
                     : l10n.aiChatEmptyFirstTransactionExample,
               ),
-              if (onSuggestionTap != null) ...[
-                const SizedBox(height: 18),
-                AIPromptSuggestions(onSuggestionTap: onSuggestionTap!),
-              ],
             ],
           ),
         ),

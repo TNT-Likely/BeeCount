@@ -7,6 +7,18 @@ import 'package:agentcore/agentcore.dart';
 final class AssistantFollowUpMetadata {
   const AssistantFollowUpMetadata._();
 
+  /// Older successful text messages can offer the generic catalog. New runs
+  /// explicitly opt out after cancellation, authorization denial or failure.
+  static bool allowsAnalysisTemplates(String? metadata) {
+    if (metadata == null) return true;
+    try {
+      final json = jsonDecode(metadata);
+      return json is Map && json['analysisTemplatesAllowed'] != false;
+    } on Object {
+      return false;
+    }
+  }
+
   static Map<String, Object?> encode(List<AgentPromptSuggestion> suggestions,
           {required int ledgerId}) =>
       {

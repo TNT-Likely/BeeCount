@@ -15229,6 +15229,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The query parameters could not be corrected, so a reliable result is unavailable. Please try again.'**
   String get agentQueryValidationFailed;
+
+  /// No description provided for @agentSuggestionsLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer questions'**
+  String get agentSuggestionsLess;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

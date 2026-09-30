@@ -13,9 +13,9 @@ import '../../widgets/biz/bee_icon.dart';
 import '../../widgets/ai/typewriter_text.dart';
 import '../../widgets/ai/agent_markdown_text.dart';
 import '../../widgets/ai/bill_card_widget.dart';
-import '../../widgets/ai/ai_prompt_suggestions.dart';
 import '../../widgets/ai/agent_follow_up_questions.dart';
 import '../../models/assistant_follow_up_metadata.dart';
+import '../../models/assistant_prompt_suggestions.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../services/billing/post_processor.dart';
@@ -281,8 +281,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                     }
 
                     if (displayMessages.isEmpty && !_hasLiveAgentMessage) {
-                      return AgentEmptyConversation(
-                          onSuggestionTap: _handlePromptSuggestion);
+                      return const AgentEmptyConversation();
                     }
 
                     return NotificationListener<ScrollMetricsNotification>(
@@ -307,11 +306,24 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                                   !_hasLiveAgentMessage &&
                                   index == displayMessages.length - 1 &&
                                   message.role == 'assistant' &&
+                                  AssistantFollowUpMetadata
+                                      .allowsAnalysisTemplates(
+                                          message.metadata) &&
                                   (message.messageType == 'text' ||
                                       message.messageType == 'bill_card')
-                              ? AssistantFollowUpMetadata.decode(
-                                  message.metadata,
-                                  ledgerId: ref.watch(currentLedgerIdProvider))
+                              ? AssistantPromptSuggestions.continuations(
+                                  l10n,
+                                  contextual: AssistantFollowUpMetadata.decode(
+                                      message.metadata,
+                                      ledgerId:
+                                          ref.watch(currentLedgerIdProvider)),
+                                  recentPrompts: displayMessages
+                                      .where((row) => row.role == 'user')
+                                      .map((row) => row.content)
+                                      .toList()
+                                      .reversed
+                                      .take(12),
+                                )
                               : const <AgentPromptSuggestion>[];
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -323,6 +335,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                                         left: 40.0.scaled(context, ref),
                                         bottom: 12),
                                     child: AgentFollowUpQuestions(
+                                      key: ValueKey('follow-ups-${message.id}'),
                                       suggestions: suggestions,
                                       onSuggestionTap: _handlePromptSuggestion,
                                     )),
@@ -708,10 +721,6 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         top: false, // 不保护顶部，避免额外空白
         child: Row(
           children: [
-            AIPromptSuggestionLauncher(
-              onSuggestionTap: _handlePromptSuggestion,
-              enabled: !_isLoading,
-            ),
             Expanded(
               child: TextField(
                 controller: _inputController,
@@ -977,7 +986,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   }
 
   Value<String?> _responseMetadata(AIResponse response, int ledgerId) {
-    final metadata = <String, Object?>{};
+    final metadata = <String, Object?>{
+      'analysisTemplatesAllowed': response.allowPromptSuggestions,
+    };
     if (response.bills.isNotEmpty) {
       metadata.addAll(Map<String, Object?>.from(jsonDecode(_encodeBillMetadata(
           response.bills, response.transactionIds, const <int>{})) as Map));

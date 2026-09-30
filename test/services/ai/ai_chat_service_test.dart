@@ -40,6 +40,22 @@ void main() {
       }
     }
   });
+  test('回答后的模板与上下文追问合并，优先动态范围并过滤已问问题', () {
+    for (final l10n in [AppLocalizationsZh(), AppLocalizationsEn()]) {
+      final templates = AssistantPromptSuggestions.localized(l10n);
+      final contextual = core.AgentPromptSuggestion(
+          id: 'scoped', title: 'Scoped', prompt: '2026-09-15 to 2026-10-15');
+      final items = AssistantPromptSuggestions.continuations(l10n,
+          contextual: [contextual, contextual],
+          recentPrompts: [templates.first.prompt]);
+      expect(items, hasLength(6));
+      expect(items.first.prompt, contextual.prompt);
+      expect(items.map((item) => item.id), isNot(contains(templates.first.id)));
+      expect(items.skip(1).map((item) => item.prompt),
+          templates.skip(1).map((item) => item.prompt));
+      expect(AssistantPromptSuggestions.continuations(l10n), hasLength(6));
+    }
+  });
   for (final testCase in cases) {
     final english = (testCase['tags'] as List).contains('en');
     final suggestions = AssistantPromptSuggestions.localized(

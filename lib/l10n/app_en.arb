@@ -3471,5 +3471,6 @@
   "agentActivityToolFailed": "Failed",
   "agentRunCancelled": "This run was stopped.",
   "agentRunStop": "Stop",
-  "agentQueryValidationFailed": "The query parameters could not be corrected, so a reliable result is unavailable. Please try again."
+  "agentQueryValidationFailed": "The query parameters could not be corrected, so a reliable result is unavailable. Please try again.",
+  "agentSuggestionsLess": "Fewer questions"
 }

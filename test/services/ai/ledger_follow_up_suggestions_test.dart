@@ -199,4 +199,19 @@ void main() {
       expect(AssistantFollowUpMetadata.decode(raw, ledgerId: 1), isEmpty);
     }
   });
+  test('generic templates respect trusted cancellation and failure metadata',
+      () {
+    expect(AssistantFollowUpMetadata.allowsAnalysisTemplates(null), isTrue);
+    expect(AssistantFollowUpMetadata.allowsAnalysisTemplates('{}'), isTrue);
+    expect(
+        AssistantFollowUpMetadata.allowsAnalysisTemplates(
+            '{"analysisTemplatesAllowed":true}'),
+        isTrue);
+    expect(
+        AssistantFollowUpMetadata.allowsAnalysisTemplates(
+            '{"analysisTemplatesAllowed":false}'),
+        isFalse);
+    expect(
+        AssistantFollowUpMetadata.allowsAnalysisTemplates('invalid'), isFalse);
+  });
 }

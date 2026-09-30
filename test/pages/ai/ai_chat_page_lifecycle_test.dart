@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:agentcore/agentcore.dart' as core;
@@ -18,6 +19,8 @@ import 'package:beecount/services/ai/ai_chat_service.dart';
 import 'package:beecount/services/ai/agent_app_facade.dart';
 import 'package:beecount/services/billing/bill_creation_service.dart';
 import 'package:beecount/widgets/ai/agent_brand_mark.dart';
+import 'package:beecount/widgets/ai/agent_execution_timeline.dart';
+import 'package:beecount/widgets/ai/agent_markdown_text.dart';
 import 'package:drift/drift.dart' hide Column, isNull;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -27,12 +30,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences.setMockInitialValues({});
 
   late BeeDatabase database;
   late LocalRepository repository;
 
   setUp(() {
+    // Permission-store futures must not retain a previous test's FakeAsync
+    // zone through the shared preferences instance.
+    SharedPreferences.setMockInitialValues({
+      // This suite tests chat lifecycle, not legacy provider migration (which
+      // schedules persistence/log timers independently of the disposed page).
+      'ai_capability_binding_v2': '{}',
+    });
     database = BeeDatabase.forTesting(NativeDatabase.memory());
     repository = LocalRepository(database);
   });
@@ -135,7 +144,7 @@ void main() {
     expect(find.text('从今天的第一笔开始'), findsOneWidget);
     expect(
       find.byKey(const ValueKey('ai-prompt-suggestion-0')),
-      findsOneWidget,
+      findsNothing,
     );
 
     await tester.pumpWidget(const SizedBox());
@@ -163,7 +172,7 @@ void main() {
     expect(find.text('1 笔'), findsOneWidget);
     expect(
       find.byKey(const ValueKey('ai-prompt-suggestion-0')),
-      findsOneWidget,
+      findsNothing,
     );
 
     await tester.pumpWidget(const SizedBox());
@@ -232,8 +241,12 @@ void main() {
         ProviderScope.containerOf(tester.element(find.byType(AIChatPage)));
     container.read(currentLedgerIdProvider.notifier).state = 2;
     await tester.pumpAndSettle();
-    expect(
-        find.byKey(const ValueKey('agent-follow-up-questions')), findsNothing);
+    expect(find.byKey(const ValueKey('agent-follow-up-questions')),
+        findsOneWidget); // Generic templates are safe under the current ledger.
+    expect(find.byKey(const ValueKey('agent-follow-up-followup-trend')),
+        findsNothing);
+    expect(find.byKey(const ValueKey('agent-follow-up-followup-compare')),
+        findsNothing);
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
@@ -266,16 +279,45 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('推荐提问保存完整问题，模型收到相同问题而非预载数据', (tester) async {
+  testWidgets('最新停止回复不显示分析模板，即使历史元数据里有追问', (tester) async {
+    final id = await repository.createConversation(
+        ConversationsCompanion.insert(title: const Value('测试')));
+    await repository.createMessage(MessagesCompanion.insert(
+      conversationId: id,
+      role: 'assistant',
+      content: '本次操作已停止。',
+      messageType: 'text',
+      metadata: const Value('{"analysisTemplatesAllowed":false}'),
+    ));
+    await tester.pumpWidget(host());
+    await tester.pumpAndSettle();
+    expect(
+        find.byKey(const ValueKey('agent-follow-up-questions')), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('分析模板仅在回答后提供，保存完整问题并进入只读对话', (tester) async {
     await repository.createLedger(name: '当前账本');
+    final conversation = await repository.createConversation(
+        ConversationsCompanion.insert(title: const Value('测试')));
+    await repository.createMessage(MessagesCompanion.insert(
+      conversationId: conversation,
+      role: 'assistant',
+      content: '可以继续聊聊账本。',
+      messageType: 'text',
+    ));
     final model = _CapturingModel();
     await tester.pumpWidget(host(model: model));
     await tester.pumpAndSettle();
-    await tester
-        .tap(find.byKey(const ValueKey('ai-prompt-suggestion-launcher')));
-    await tester.pumpAndSettle();
-    await tester
-        .tap(find.byKey(const ValueKey('ai-prompt-suggestion-sheet-item-0')));
+    expect(find.byKey(const ValueKey('ai-prompt-suggestion-launcher')),
+        findsNothing);
+    expect(
+        find.byKey(const ValueKey('ai-prompt-suggestion-sheet')), findsNothing);
+    final health =
+        find.byKey(const ValueKey('agent-follow-up-financial_health'));
+    await tester.ensureVisible(health);
+    await tester.tap(health);
     await tester.runAsync(() async {
       // Allow SQLite work and the normal message-save/run chain to complete.
       for (var attempt = 0; attempt < 50 && model.request == null; attempt++) {
@@ -299,6 +341,75 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('查询回答未完成时逐段显示文本，结束后才展示继续了解', (tester) async {
+    await repository.createLedger(name: '当前账本');
+    final model = _StreamingQueryModel();
+    addTearDown(() {
+      if (!model.answer.isCompleted) {
+        model.answer.complete(const core.AgentTurn.finalText('已停止'));
+      }
+    });
+    await tester.pumpWidget(host(model: model));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('ai-prompt-suggestion-launcher')),
+        findsNothing);
+    await tester.enterText(find.byType(TextField).first, '本月支出多少？');
+    await tester.testTextInput.receiveAction(TextInputAction.send);
+    await _pumpUntil(
+        tester,
+        () => find
+            .byWidgetPredicate((widget) =>
+                widget is AgentMarkdownText && widget.data == '查询后的第一段文本')
+            .evaluate()
+            .isNotEmpty);
+    expect(find.byType(AgentExecutionTimeline), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('agent-follow-up-questions')), findsNothing);
+    final before = await (database.select(database.messages)
+          ..where((row) => row.role.equals('assistant')))
+        .get();
+    expect(before, isEmpty);
+    model.answer.complete(const core.AgentTurn.finalText('完整回答：本月支出0元。'));
+    await _pumpUntil(
+        tester,
+        () => find
+            .byKey(const ValueKey('agent-follow-up-questions'))
+            .evaluate()
+            .isNotEmpty);
+    await tester.pumpAndSettle();
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is AgentMarkdownText && widget.data == '查询后的第一段文本'),
+        findsNothing);
+    expect(find.byType(AgentExecutionTimeline), findsNothing);
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is AgentMarkdownText && widget.data == '完整回答：本月支出0元。'),
+        findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+}
+
+final class _StreamingQueryModel implements core.AgentModel {
+  final answer = Completer<core.AgentTurn>();
+  @override
+  Future<core.AgentTurn> nextTurn(core.AgentRequest request) async {
+    if (request.toolData.isEmpty) {
+      return core.AgentTurn.toolCalls([
+        core.AgentToolCall(
+            id: 'overview',
+            name: 'get_period_overview',
+            arguments: const {'period': 'current_month'}),
+      ]);
+    }
+    request.nativeStreamSink
+        ?.call(const core.AgentNativeTextDelta('查询后的第一段文本'));
+    return answer.future;
+  }
 }
 
 final class _QueryModel implements core.AgentModel {
