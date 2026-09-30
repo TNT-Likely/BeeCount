@@ -43,6 +43,9 @@ final class P0AgentPolicy implements AgentPolicy {
     if (_readTools.contains(call.name)) {
       return const AgentPolicyDecision.allow();
     }
+    if (!request.scope.allowsMutations) {
+      return const AgentPolicyDecision.deny('推荐分析与追问仅允许只读查询。');
+    }
 
     if (call.name == 'record_transaction_from_text') {
       if (!request.scope.isForeground) {

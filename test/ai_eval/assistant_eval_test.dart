@@ -127,7 +127,7 @@ void main() {
               'model': live ? model : 'oracle-tools-no-language-evaluation',
               'sourceRevision': environment['AI_EVAL_REVISION'] ?? 'unknown',
               'sourceDirty': environment['AI_EVAL_DIRTY'] == 'true',
-              'assertionVersion': 1,
+              'assertionVersion': 2,
             },
             onResult: (result) => stdout.writeln(
                 '${result.passed ? 'PASS' : 'FAIL'} ${result.testCase.id} (${result.elapsedMilliseconds}ms)'),

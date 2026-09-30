@@ -56,9 +56,16 @@ void main() {
     final prompt = const AgentPromptBuilder().buildNative(requestWithContext());
 
     expect(AgentPromptBuilder.nativeSystemPrompt, isNot(contains('JSON')));
-    expect(AgentPromptBuilder.nativeSystemPrompt, contains('不要重复调用同一工具'));
+    expect(AgentPromptBuilder.nativeSystemPrompt, contains('不要重复调用工具'));
     expect(prompt, isNot(contains('"kind":"tool_calls"')));
     expect(prompt, contains('当前用户消息'));
+  });
+
+  test('compound analysis completes needed queries without expanding writes',
+      () {
+    expect(AgentPromptBuilder.nativeSystemPrompt, contains('先完成各项所需的不同查询'));
+    expect(AgentPromptBuilder.nativeSystemPrompt, contains('不创建或修改预算'));
+    expect(AgentPromptBuilder.nativeSystemPrompt, contains('不声称已扫描全部交易'));
   });
 
   test('native system prompt requires explicit consent for memory tools', () {

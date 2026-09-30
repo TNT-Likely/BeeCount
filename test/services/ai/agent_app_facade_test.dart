@@ -90,6 +90,8 @@ void main() {
 
     expect(response.type, 'bill_card');
     expect(response.transactionIds, [42]);
+    expect(response.response.followUpSuggestions.map((item) => item.id),
+        ['followup-overview', 'followup-category']);
     expect(gateway.recordedTexts, ['午饭 35']);
     expect(
       logger.logs.any(

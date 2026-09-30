@@ -44,8 +44,11 @@ import '../../agent/tools/local_agent_tools.dart';
 import '../../agent/tools/ledger_query_call_validator.dart';
 import '../../ai/core/bill_info.dart';
 import '../../l10n/app_localizations.dart';
+import '../../l10n/app_localizations_zh.dart';
+import '../../l10n/app_localizations_en.dart';
 import '../system/logger_service.dart';
 import 'ai_chat_service.dart';
+import 'ledger_follow_up_suggestions.dart';
 
 typedef AgentConversationHistoryLoader = Future<List<Map<String, Object?>>>
     Function(int conversationId);
@@ -135,6 +138,7 @@ final class AgentAppFacade {
     required int ledgerId,
     int? conversationId,
     bool allowsExplicitMemory = false,
+    bool readOnly = false,
     Map<String, Object?> context = const {},
     AppLocalizations? l10n,
   }) =>
@@ -142,6 +146,7 @@ final class AgentAppFacade {
         message: message,
         ledgerId: ledgerId,
         allowsExplicitMemory: allowsExplicitMemory,
+        readOnly: readOnly,
         context: context,
         l10n: l10n,
         conversationId: conversationId,
@@ -156,6 +161,7 @@ final class AgentAppFacade {
     String? runId,
     int? conversationId,
     bool allowsExplicitMemory = false,
+    bool readOnly = false,
     Map<String, Object?> context = const {},
     AppLocalizations? l10n,
   }) {
@@ -179,6 +185,7 @@ final class AgentAppFacade {
             message: message,
             ledgerId: ledgerId,
             allowsExplicitMemory: allowsExplicitMemory,
+            readOnly: readOnly,
             context: context,
             l10n: l10n,
             conversationId: conversationId,
@@ -231,6 +238,7 @@ final class AgentAppFacade {
     required String message,
     required int ledgerId,
     required bool allowsExplicitMemory,
+    required bool readOnly,
     required Map<String, Object?> context,
     required AppLocalizations? l10n,
     required int? conversationId,
@@ -261,6 +269,7 @@ final class AgentAppFacade {
       id: runId,
       ledgerId: ledgerId,
       isForeground: true,
+      allowsMutations: !readOnly,
       // The caller can grant this explicitly, while the foreground chat also
       // derives a narrow consent signal from the user's current message.
       // Ordinary messages remain unable to authorize a model-initiated memory
@@ -322,6 +331,7 @@ final class AgentAppFacade {
       });
     }
     final failedToolAudits = <AgentToolCallAudit>[];
+    final suggestionEvidence = <AgentSuggestionEvidence>[];
 
     try {
       final executionSettings = await _executionSettingsStore.read();
@@ -336,6 +346,7 @@ final class AgentAppFacade {
           toolSelection.tools,
           emit,
           runId,
+          onEvidence: suggestionEvidence.add,
           onToolFailed: (call, error) {
             failedToolAudits.add(
               AgentToolCallAudit(
@@ -405,7 +416,31 @@ final class AgentAppFacade {
         'finalText': result.text,
       });
 
-      final response = _responseFor(result, localTools, l10n);
+      final baseResponse = _responseFor(result, localTools, l10n);
+      final recent = requestContext['recentMessages'];
+      final suggestions = LedgerFollowUpSuggestions.generate(
+        evidence: suggestionEvidence,
+        l10n: l10n ??
+            (requestContext['languageCode'] == 'en'
+                ? AppLocalizationsEn()
+                : AppLocalizationsZh()),
+        currentPrompt: message,
+        recentPrompts: recent is List
+            ? recent
+                .whereType<Map>()
+                .where((row) => row['role'] == 'user')
+                .map((row) => row['content'])
+                .whereType<String>()
+            : const [],
+        enabled: (baseResponse.type == 'text' ||
+                baseResponse.type == 'bill_card') &&
+            result.terminationReason == AgentRunTerminationReason.completed &&
+            result.deniedCalls.isEmpty &&
+            failedToolAudits.isEmpty,
+      );
+      final response = suggestions.isEmpty
+          ? baseResponse
+          : baseResponse.withFollowUpSuggestions(suggestions);
       logger.info('AgentCore', '运行结果已生成', {
         'runId': runId,
         'responseType': response.type,
@@ -614,6 +649,7 @@ final class AgentAppFacade {
     Map<String, AgentTool> tools,
     void Function(AgentRunEvent event)? emit,
     String runId, {
+    required void Function(AgentSuggestionEvidence) onEvidence,
     void Function(AgentToolCall call, Object error)? onToolFailed,
   }) {
     return {
@@ -636,6 +672,14 @@ final class AgentAppFacade {
             );
           },
           onFinished: (call, result, error) {
+            if (error == null &&
+                result != null &&
+                !result.containsKey('error')) {
+              onEvidence(AgentSuggestionEvidence(
+                  toolName: call.name,
+                  arguments: call.arguments,
+                  result: result));
+            }
             final data = {
               'runId': runId,
               'callId': call.id,

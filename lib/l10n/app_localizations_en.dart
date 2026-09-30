@@ -9,6 +9,98 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get agentSuggestionsMore => 'More questions';
+
+  @override
+  String get agentSuggestionHealthTitle => 'Financial health';
+
+  @override
+  String get agentSuggestionHealthPrompt => 'Analyze this month\'s income, expenses, balance and savings rate, and list monthly spending for the last six months. Give financial health observations and suggestions based on tool results; explain any data limitations.';
+
+  @override
+  String get agentSuggestionSummaryTitle => 'Monthly spending summary';
+
+  @override
+  String get agentSuggestionSummaryPrompt => 'Summarize this month\'s spending, analyze the main top-level categories and their shares, and suggest ways to save. Use actual tool results and explain any data limitations.';
+
+  @override
+  String get agentSuggestionAnalysisTitle => 'Category analysis';
+
+  @override
+  String get agentSuggestionAnalysisPrompt => 'Analyze this month\'s top-level spending categories and shares, and suggest improvements. Do not judge spending as unreasonable from its share alone; explain any data limitations.';
+
+  @override
+  String get agentSuggestionBudgetTitle => 'Budget planning';
+
+  @override
+  String get agentSuggestionBudgetPrompt => 'Use this month\'s income, expenses and balance, top-level category spending shares, and monthly spending trend for the last six months to suggest next month\'s category budgets. Give advice only; do not create or modify budgets. Explain any data limitations.';
+
+  @override
+  String get agentSuggestionAnomalyTitle => 'Spending check';
+
+  @override
+  String get agentSuggestionAnomalyPrompt => 'Review transaction details and the income and expense overview for the last thirty days. Flag large or repeated transactions worth reviewing and explain the evidence. This is only a preliminary check of returned details, not a scan of all transactions; do not label normal purchases as abnormal.';
+
+  @override
+  String get agentSuggestionSavingTitle => 'Saving tips';
+
+  @override
+  String get agentSuggestionSavingPrompt => 'Analyze this month\'s top-level spending categories and shares and the monthly spending trend for the last six months. Offer three to five practical saving tips based on tool results, without inferring personal circumstances. Explain any data limitations.';
+
+  @override
+  String get agentFollowUpTitle => 'Explore further';
+
+  @override
+  String agentFollowUpRange(String start, String end) {
+    return '$start to $end (end exclusive)';
+  }
+
+  @override
+  String get agentFollowUpAllCategories => 'all spending categories';
+
+  @override
+  String get agentFollowUpCategoryTitle => 'View category shares';
+
+  @override
+  String agentFollowUpCategoryPrompt(String range) {
+    return 'Show top-level spending category shares for $range.';
+  }
+
+  @override
+  String get agentFollowUpTrendTitle => 'View spending trend';
+
+  @override
+  String agentFollowUpTrendPrompt(String category, String range) {
+    return 'List monthly spending for $category during $range, without month-over-month or year-over-year comparison.';
+  }
+
+  @override
+  String get agentFollowUpCompareTitle => 'Compare adjacent months';
+
+  @override
+  String agentFollowUpComparePrompt(String category, String range) {
+    return 'List monthly spending for $category during $range, with month-over-month changes between adjacent months.';
+  }
+
+  @override
+  String agentFollowUpLeafTitle(String category) {
+    return 'Explore $category';
+  }
+
+  @override
+  String agentFollowUpLeafPrompt(String category, String range) {
+    return 'Show subcategory spending shares within the category “$category” for $range.';
+  }
+
+  @override
+  String get agentFollowUpOverviewTitle => 'View income and expenses';
+
+  @override
+  String agentFollowUpOverviewPrompt(String range) {
+    return 'Show total income, expenses and balance for $range.';
+  }
+
+  @override
   String get aiConsentTitle => 'Before enabling AI features';
 
   @override

@@ -20,25 +20,26 @@ void main() {
         ),
       );
 
-  testWidgets('只展示三个推荐问题，点击返回完整问题而非标题', (tester) async {
+  testWidgets('恢复六类分析模板，点击返回完整问题而非标题', (tester) async {
     AgentPromptSuggestion? selected;
     await tester.pumpWidget(host(AIPromptSuggestions(
         onSuggestionTap: (suggestion) => selected = suggestion)));
     await tester.pumpAndSettle();
-    for (var index = 0; index < 3; index++) {
+    for (var index = 0; index < 6; index++) {
       expect(
           find.byKey(ValueKey('ai-prompt-suggestion-$index')), findsOneWidget);
     }
-    expect(find.byKey(const ValueKey('ai-prompt-suggestion-3')), findsNothing);
-    expect(find.text('财务健康分析'), findsNothing);
-    expect(find.text('预算规划建议'), findsNothing);
-    expect(find.text('异常支出提醒'), findsNothing);
+    expect(find.byKey(const ValueKey('ai-prompt-suggestion-6')), findsNothing);
+    expect(find.text('财务健康分析'), findsOneWidget);
+    expect(find.text('预算规划建议'), findsOneWidget);
+    expect(find.text('异常支出检查'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('ai-prompt-suggestion-0')));
-    expect(selected?.title, '本月收支');
-    expect(selected?.prompt, '总结本月收入、支出和结余。');
+    expect(selected?.title, '财务健康分析');
+    expect(selected?.prompt, contains('最近六个月'));
+    expect(selected?.prompt, isNot(contains('[monthlyStats]')));
   });
 
-  testWidgets('推荐问题保持紧凑两行布局和主题色', (tester) async {
+  testWidgets('推荐问题保持紧凑三行布局和主题色', (tester) async {
     const primary = Color(0xFF7E57C2);
     await tester.pumpWidget(host(
         Center(
@@ -59,7 +60,7 @@ void main() {
         primary.withValues(alpha: 0.14));
   });
 
-  testWidgets('输入框面板只保留三个问题，选择后关闭并返回真实问题', (tester) async {
+  testWidgets('更多问题面板保留六类模板，选择后关闭并返回真实问题', (tester) async {
     const primary = Color(0xFF7E57C2);
     AgentPromptSuggestion? selected;
     await tester.pumpWidget(host(
@@ -72,7 +73,9 @@ void main() {
     expect(find.text('推荐提问'), findsOneWidget);
     expect(find.byKey(const ValueKey('ai-prompt-suggestion-sheet-item-2')),
         findsOneWidget);
-    expect(find.byKey(const ValueKey('ai-prompt-suggestion-sheet-item-3')),
+    expect(find.byKey(const ValueKey('ai-prompt-suggestion-sheet-item-5')),
+        findsOneWidget);
+    expect(find.byKey(const ValueKey('ai-prompt-suggestion-sheet-item-6')),
         findsNothing);
     final icon = tester.widget<Container>(
         find.byKey(const ValueKey('ai-prompt-suggestion-sheet-header-icon')));
@@ -81,7 +84,7 @@ void main() {
     await tester
         .tap(find.byKey(const ValueKey('ai-prompt-suggestion-sheet-item-2')));
     await tester.pumpAndSettle();
-    expect(selected?.prompt, '按月列出最近六个月的支出。');
+    expect(selected?.prompt, contains('一级分类支出占比'));
     expect(
         find.byKey(const ValueKey('ai-prompt-suggestion-sheet')), findsNothing);
   });

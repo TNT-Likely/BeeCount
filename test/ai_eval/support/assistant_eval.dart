@@ -1,6 +1,8 @@
 import 'package:agentcore/agentcore.dart' as core;
 import 'package:beecount/agent/policy/p0_agent_policy.dart';
 import 'package:beecount/services/ai/agent_app_facade.dart';
+import 'package:beecount/l10n/app_localizations_en.dart';
+import 'package:beecount/l10n/app_localizations_zh.dart';
 
 import 'ledger_fixture.dart';
 
@@ -54,6 +56,10 @@ final class AssistantEvalExecutor {
         final calls = <Map<String, Object?>>[];
         final events = facade.processMessageEvents(
           message: prompt,
+          readOnly: true,
+          l10n: testCase.tags.contains('en')
+              ? AppLocalizationsEn()
+              : AppLocalizationsZh(),
           ledgerId: ledgerId,
           context: {
             'ledger': {
@@ -87,6 +93,9 @@ final class AssistantEvalExecutor {
             completed = {
               'responseType': event.result.type,
               'text': event.result.text,
+              'followUps': event.result.response.followUpSuggestions
+                  .map((item) => item.toJson())
+                  .toList(),
               'calls': calls
             };
             history.addAll([
@@ -182,6 +191,17 @@ final class AssistantEvalExecutor {
             name: 'numeric_and_scope',
             passed: matching,
             detail: matching ? null : differences.join('; ')));
+      }
+      final requiredFollowUps = expected['requiredFollowUpPrompts'];
+      if (requiredFollowUps is List) {
+        final suggestions =
+            (actual['followUps'] as List? ?? const []).cast<Map>();
+        checks.add(core.AgentEvalCheck(
+            name: 'grounded_followups',
+            passed: requiredFollowUps.every((prompt) =>
+                suggestions.any((item) => item['prompt'] == prompt)),
+            detail:
+                'Checks generated follow-up scope and category, not model prose.'));
       }
       checks.add(core.AgentEvalCheck(
           name: 'tool_execution',

@@ -2,26 +2,41 @@ import 'package:agentcore/agentcore.dart';
 
 import '../l10n/app_localizations.dart';
 
-/// BeeCount's small, read-only entry catalog. Suggestions contain only a real
+/// BeeCount's six read-only analysis templates. Suggestions contain only a real
 /// user question: no DB reads, hidden instructions or special execution mode.
 final class AssistantPromptSuggestions {
   const AssistantPromptSuggestions._();
 
   static List<AgentPromptSuggestion> localized(AppLocalizations l10n) => [
         AgentPromptSuggestion(
-          id: 'monthly_overview',
-          title: l10n.agentSuggestionOverviewTitle,
-          prompt: l10n.agentSuggestionOverviewPrompt,
+          id: 'financial_health',
+          title: l10n.agentSuggestionHealthTitle,
+          prompt: l10n.agentSuggestionHealthPrompt,
         ),
         AgentPromptSuggestion(
-          id: 'category_breakdown',
-          title: l10n.agentSuggestionCategoryTitle,
-          prompt: l10n.agentSuggestionCategoryPrompt,
+          id: 'monthly_expense_summary',
+          title: l10n.agentSuggestionSummaryTitle,
+          prompt: l10n.agentSuggestionSummaryPrompt,
         ),
         AgentPromptSuggestion(
-          id: 'spending_trend',
-          title: l10n.agentSuggestionTrendTitle,
-          prompt: l10n.agentSuggestionTrendPrompt,
+          id: 'category_analysis',
+          title: l10n.agentSuggestionAnalysisTitle,
+          prompt: l10n.agentSuggestionAnalysisPrompt,
+        ),
+        AgentPromptSuggestion(
+          id: 'budget_planning',
+          title: l10n.agentSuggestionBudgetTitle,
+          prompt: l10n.agentSuggestionBudgetPrompt,
+        ),
+        AgentPromptSuggestion(
+          id: 'abnormal_expense',
+          title: l10n.agentSuggestionAnomalyTitle,
+          prompt: l10n.agentSuggestionAnomalyPrompt,
+        ),
+        AgentPromptSuggestion(
+          id: 'saving_tips',
+          title: l10n.agentSuggestionSavingTitle,
+          prompt: l10n.agentSuggestionSavingPrompt,
         ),
       ];
 }

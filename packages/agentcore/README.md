@@ -85,6 +85,14 @@ AgentModel.nextTurn()
 宿主负责本地化和 UI；点击后应原样提交、保存 `prompt`，走正常 Agent 流程。
 它不预读数据、不指定工具、不绕过权限，也不引入另一条模型调用路径。
 
+`AgentPromptSuggestionSelector` 从宿主按优先级排列的候选项中去重、排除当前和
+近期已提问题，并限制数量（默认 3 个）；禁用时返回空列表。选择过程不调用模型。
+`AgentSuggestionEvidence` 承载宿主观察到的成功工具结果，业务规则不能从模型
+正文推测工具执行成功。推荐项支持 JSON 编解码，持久化格式和账本/租户隔离由宿主管理。
+
+只读入口可使用 `AgentScope.allowsMutations = false` 表达可信宿主限制。
+宿主硬策略必须对此拒绝写工具；不能靠推荐文案或模型承诺保证只读。
+
 ### 请求、工具和结果
 
 ```dart

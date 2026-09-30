@@ -89,6 +89,39 @@ void main() {
         contains('clean_answer'));
   });
 
+  test('追问断言必须检查完整问题，而非只有按钮标题', () {
+    const prompt = '查询 2026-09-01 至 2026-10-01（不含结束时间）中「餐饮」的明细分类支出占比。';
+    final original = (testCase.expected['turns'] as List).single as Map;
+    final withFollowUp =
+        AgentEvalCase(id: 'grounded-followups', input: {}, expected: {
+      'turns': [
+        {
+          ...original,
+          'requiredFollowUpPrompts': [prompt]
+        }
+      ],
+    });
+    final data = observed().data;
+    final turn = (data['turns'] as List).single as Map;
+    for (final candidate in [prompt, '细看餐饮', '查询本月餐饮']) {
+      final observation = AgentEvalObservation(data: {
+        ...data,
+        'turns': [
+          {
+            ...turn,
+            'followUps': [
+              {'id': 'leaf', 'title': '细看餐饮', 'prompt': candidate}
+            ]
+          },
+        ]
+      });
+      final check = const AssistantEvalExecutor(live: false)
+          .evaluate(withFollowUp, observation)
+          .singleWhere((check) => check.name == 'grounded_followups');
+      expect(check.passed, candidate == prompt);
+    }
+  });
+
   test('负金额事实断言兼容货币格式，不把正金额或其他金额判为正确', () {
     final suite = jsonDecode(
         File('test/ai_eval/fixtures/readonly_cases_v1.json')

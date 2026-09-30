@@ -145,7 +145,7 @@ final class AIPromptSuggestionLauncher extends ConsumerWidget {
     final primary = ref.watch(primaryColorProvider);
     return IconButton(
       key: const ValueKey('ai-prompt-suggestion-launcher'),
-      tooltip: l10n.agentSuggestionsOpen,
+      tooltip: l10n.agentSuggestionsMore,
       onPressed: enabled
           ? () async {
               final suggestion =
@@ -179,7 +179,7 @@ final class _AIPromptSuggestionsSheet extends ConsumerWidget {
       top: false,
       child: SizedBox(
         key: const ValueKey('ai-prompt-suggestion-sheet'),
-        height: 300.0.scaled(context, ref),
+        height: 404.0.scaled(context, ref),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -300,8 +300,11 @@ final class _AIPromptSuggestionsSheet extends ConsumerWidget {
 }
 
 IconData _iconFor(AgentPromptSuggestion suggestion) => switch (suggestion.id) {
-      'monthly_overview' => Icons.calendar_month_outlined,
-      'category_breakdown' => Icons.pie_chart_outline_rounded,
-      'spending_trend' => Icons.trending_up_rounded,
+      'financial_health' => Icons.health_and_safety_outlined,
+      'monthly_expense_summary' => Icons.calendar_month_outlined,
+      'category_analysis' => Icons.pie_chart_outline_rounded,
+      'budget_planning' => Icons.savings_outlined,
+      'abnormal_expense' => Icons.warning_amber_rounded,
+      'saving_tips' => Icons.lightbulb_outline,
       _ => Icons.chat_bubble_outline,
     };

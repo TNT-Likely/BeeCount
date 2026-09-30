@@ -1,3 +1,5 @@
+import 'package:agentcore/agentcore.dart' show AgentPromptSuggestion;
+
 import '../../ai/core/bill_info.dart';
 import '../../agent/permission/agent_authorization_gate.dart';
 import '../../ai/providers/ai_provider_config.dart';
@@ -54,6 +56,7 @@ class AIChatService {
     int? conversationId,
     String? languageCode,
     AppLocalizations? l10n,
+    bool readOnly = false,
   }) async {
     try {
       final result = await _agentFacade.processMessage(
@@ -62,6 +65,7 @@ class AIChatService {
         conversationId: conversationId,
         context: {'languageCode': languageCode},
         l10n: l10n,
+        readOnly: readOnly,
       );
       return result.response;
     } catch (error, stackTrace) {
@@ -77,6 +81,7 @@ class AIChatService {
     int? conversationId,
     String? languageCode,
     AppLocalizations? l10n,
+    bool readOnly = false,
   }) =>
       _agentFacade.processMessageEvents(
         message: userInput,
@@ -85,6 +90,7 @@ class AIChatService {
         conversationId: conversationId,
         context: {'languageCode': languageCode},
         l10n: l10n,
+        readOnly: readOnly,
       );
 
   /// Explicit UI undo, never a model-initiated mutation.
@@ -132,6 +138,7 @@ class AIResponse {
   /// 与 [bills] 一一对应的交易 ID
   final List<int> transactionIds;
   final AIResponseAction? action;
+  final List<AgentPromptSuggestion> followUpSuggestions;
 
   AIResponse({
     required this.type,
@@ -139,6 +146,7 @@ class AIResponse {
     this.bills = const [],
     this.transactionIds = const [],
     this.action,
+    this.followUpSuggestions = const [],
   });
 
   /// 首个 BillInfo(兼容写入 messages.transactionId 列)
@@ -148,7 +156,21 @@ class AIResponse {
   int? get transactionId =>
       transactionIds.isNotEmpty ? transactionIds.first : null;
 
-  factory AIResponse.text(String text) => AIResponse(type: 'text', text: text);
+  factory AIResponse.text(String text,
+          {List<AgentPromptSuggestion> followUpSuggestions = const []}) =>
+      AIResponse(
+          type: 'text',
+          text: text,
+          followUpSuggestions: List.unmodifiable(followUpSuggestions));
+
+  AIResponse withFollowUpSuggestions(List<AgentPromptSuggestion> suggestions) =>
+      AIResponse(
+          type: type,
+          text: text,
+          bills: bills,
+          transactionIds: transactionIds,
+          action: action,
+          followUpSuggestions: List.unmodifiable(suggestions));
 
   /// 多笔/单笔统一入口。bills 与 txIds 必须等长且非空。
   ///

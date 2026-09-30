@@ -14,6 +14,8 @@ import '../../widgets/ai/typewriter_text.dart';
 import '../../widgets/ai/agent_markdown_text.dart';
 import '../../widgets/ai/bill_card_widget.dart';
 import '../../widgets/ai/ai_prompt_suggestions.dart';
+import '../../widgets/ai/agent_follow_up_questions.dart';
+import '../../models/assistant_follow_up_metadata.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../services/billing/post_processor.dart';
@@ -279,7 +281,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                     }
 
                     if (displayMessages.isEmpty && !_hasLiveAgentMessage) {
-                      return const AgentEmptyConversation();
+                      return AgentEmptyConversation(
+                          onSuggestionTap: _handlePromptSuggestion);
                     }
 
                     return NotificationListener<ScrollMetricsNotification>(
@@ -299,7 +302,32 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                           if (index == displayMessages.length) {
                             return _buildLiveAgentBubble();
                           }
-                          return _buildMessageBubble(displayMessages[index]);
+                          final message = displayMessages[index];
+                          final suggestions = !_isLoading &&
+                                  !_hasLiveAgentMessage &&
+                                  index == displayMessages.length - 1 &&
+                                  message.role == 'assistant' &&
+                                  (message.messageType == 'text' ||
+                                      message.messageType == 'bill_card')
+                              ? AssistantFollowUpMetadata.decode(
+                                  message.metadata,
+                                  ledgerId: ref.watch(currentLedgerIdProvider))
+                              : const <AgentPromptSuggestion>[];
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildMessageBubble(message),
+                              if (suggestions.isNotEmpty)
+                                Padding(
+                                    padding: EdgeInsets.only(
+                                        left: 40.0.scaled(context, ref),
+                                        bottom: 12),
+                                    child: AgentFollowUpQuestions(
+                                      suggestions: suggestions,
+                                      onSuggestionTap: _handlePromptSuggestion,
+                                    )),
+                            ],
+                          );
                         },
                       ),
                     );
@@ -740,7 +768,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   /// Recommended questions use exactly the same visible/persisted text and
   /// Agent execution path as a manually typed question.
   Future<void> _handlePromptSuggestion(AgentPromptSuggestion suggestion) =>
-      _sendMessageText(suggestion.prompt);
+      _sendMessageText(suggestion.prompt, readOnly: true);
 
   Future<void> _sendMessage() async {
     final text = _inputController.text.trim();
@@ -753,7 +781,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   /// 发送消息文本
   ///
   /// [text] is both the visible user message and the Agent's current request.
-  Future<void> _sendMessageText(String text) async {
+  Future<void> _sendMessageText(String text, {bool readOnly = false}) async {
     if (!mounted || text.isEmpty || _isLoading) return;
 
     setState(() => _isLoading = true);
@@ -803,6 +831,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         conversationId: _conversationId,
         languageCode: currentLocale.languageCode,
         l10n: l10n,
+        readOnly: readOnly,
       )) {
         if (!mounted) break;
         switch (event) {
@@ -887,15 +916,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           role: 'assistant',
           content: response.text,
           messageType: response.type,
-          metadata: response.bills.isNotEmpty
-              ? Value(_encodeBillMetadata(
-                  response.bills,
-                  response.transactionIds,
-                  const <int>{},
-                ))
-              : response.action == null
-                  ? const Value.absent()
-                  : Value(jsonEncode({'action': response.action!.name})),
+          metadata: _responseMetadata(response, ledgerId),
           transactionId: response.transactionId != null
               ? Value(response.transactionId)
               : const Value.absent(),
@@ -953,6 +974,23 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         });
       }
     }
+  }
+
+  Value<String?> _responseMetadata(AIResponse response, int ledgerId) {
+    final metadata = <String, Object?>{};
+    if (response.bills.isNotEmpty) {
+      metadata.addAll(Map<String, Object?>.from(jsonDecode(_encodeBillMetadata(
+          response.bills, response.transactionIds, const <int>{})) as Map));
+    }
+    if (response.action != null) metadata['action'] = response.action!.name;
+    if (response.followUpSuggestions.isNotEmpty) {
+      metadata.addAll(AssistantFollowUpMetadata.encode(
+          response.followUpSuggestions,
+          ledgerId: ledgerId));
+    }
+    return metadata.isEmpty
+        ? const Value.absent()
+        : Value(jsonEncode(metadata));
   }
 
   List<AgentExecutionStep> _updateExecutionStep({

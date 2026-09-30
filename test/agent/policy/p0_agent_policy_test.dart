@@ -20,6 +20,37 @@ void main() {
         ),
       );
 
+  test(
+      'host read-only scope blocks all mutations, including current-text bookkeeping',
+      () {
+    final readOnly = AgentRequest(
+        text: '午饭 35',
+        scope: const AgentScope(
+            id: 'read-only',
+            ledgerId: 1,
+            allowsMutations: false,
+            allowsExplicitMemory: true));
+    for (final name in [
+      'record_transaction_from_text',
+      'save_explicit_memory',
+      'forget_memory'
+    ]) {
+      expect(
+          policy
+              .decide(
+                  readOnly,
+                  AgentToolCall(
+                      name: name, arguments: const {'sourceText': '午饭 35'}))
+              .isAllowed,
+          isFalse);
+    }
+    expect(
+        policy
+            .decide(readOnly, AgentToolCall(name: 'get_period_overview'))
+            .isAllowed,
+        isTrue);
+  });
+
   test('P0 policy permits record only for the current foreground user text',
       () {
     final allowed = policy.decide(

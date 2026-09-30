@@ -7,12 +7,16 @@ final class AgentScope {
     this.ledgerId,
     this.isForeground = true,
     this.allowsExplicitMemory = false,
+    this.allowsMutations = true,
   });
 
   final String id;
   final int? ledgerId;
   final bool isForeground;
   final bool allowsExplicitMemory;
+
+  /// Trusted host restriction; host policies must enforce it for write tools.
+  final bool allowsMutations;
 }
 
 final class AgentRequest {
