@@ -180,7 +180,6 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
     return AgentChatShell(
       title: l10n.aiChatTitle,
-      showBetaBadge: true,
       backTooltip: l10n.commonBack,
       permissionsTooltip: l10n.agentAssistantSettingsTitle,
       clearTooltip: l10n.aiChatClearHistory,
