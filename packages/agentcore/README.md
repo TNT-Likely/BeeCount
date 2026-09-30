@@ -38,7 +38,8 @@ agentcore
 ├─ AgentModelCapabilityResolver       模型能力报告与缓存解析
 ├─ AgentTurnParser                    小型 JSON 回合解析器
 ├─ AgentAuthorizationPolicy           权限门禁组合器
-└─ AgentMemoryRepository               本地记忆与审计接口
+├─ AgentMemoryRepository               本地记忆与审计接口
+└─ AgentEvalRunner / AgentEvalReport    业务无关评测与报告
 ```
 
 agentcore 不知道任何业务工具名。比如 `record_transaction_from_text` 只能存在于
@@ -326,7 +327,7 @@ agentcore 可以脱离 Flutter 和业务数据库运行：
 
 ```bash
 cd packages/agentcore
-flutter test
+dart test
 ```
 
 宿主 App 还应至少验证：
@@ -336,6 +337,33 @@ flutter test
 3. 未知工具、硬策略拒绝、用户拒绝和超时不会执行本地写操作；
 4. 本地记忆和工具审计按 scope 隔离，重复调用不会产生重复数据；
 5. provider 不支持 tool-call/SSE 时给出明确配置提示。
+
+## 通用评测
+
+`AgentEvalCase` 的 `input` / `expected` schema 由宿主决定；包不认识账本、工具名称或模型供应商。宿主注入执行器和检查器：
+
+```dart
+final report = await AgentEvalRunner(
+  execute: (testCase) async => AgentEvalObservation(
+    data: {'value': await myExecutor(testCase.input)},
+    metrics: {'requests': 1},
+  ),
+  evaluate: (testCase, observed) => [
+    AgentEvalCheck(
+      name: 'result',
+      passed: agentEvalMismatches(
+        testCase.expected, observed.data, numericTolerance: 1e-9,
+      ).isEmpty,
+    ),
+  ],
+).run(cases: myCases, metadata: {'fixtureVersion': 'v1'});
+final json = report.toJson();
+final markdown = report.toMarkdown();
+```
+
+Runner 顺序执行、逐例捕获异常并继续、拒绝空集合和重复 ID；空断言视为失败。报告含逐例检查、tag 汇总、耗时分位数及宿主 metrics 合计。对象断言采用子集匹配，数组严格检查顺序和长度，缺失字段不等于 null；数值仅接受有限值及显式非负容差。
+
+为避免异常对象中的凭证泄露，通用 runner 只记录异常类型。宿主负责超时、取消、隔离数据库、脱敏及提供安全诊断；报告会保留宿主主动提供的 observation/metadata，不自动脱敏。离线 oracle 测试不能解释为模型理解能力测试。BeeCount 接入示例和运行命令见 `test/ai_eval/README.md`。
 
 ## 版本与兼容性
 

@@ -1,0 +1,581 @@
+{
+  "schemaVersion": 1,
+  "fixtureVersion": "ledger-v1",
+  "now": "2026-09-30T12:00:00",
+  "ledgers": [
+    {
+      "key": "main",
+      "name": "AI Eval 日常账本",
+      "currency": "CNY",
+      "monthStartDay": 1
+    },
+    {
+      "key": "cycle",
+      "name": "AI Eval 15日起始账本",
+      "currency": "CNY",
+      "monthStartDay": 15
+    },
+    {
+      "key": "other",
+      "name": "AI Eval 隔离账本",
+      "currency": "CNY",
+      "monthStartDay": 1
+    }
+  ],
+  "categories": [
+    {
+      "key": "housing",
+      "name": "住房",
+      "kind": "expense"
+    },
+    {
+      "key": "dining",
+      "name": "餐饮",
+      "kind": "expense"
+    },
+    {
+      "key": "breakfast",
+      "name": "早餐",
+      "kind": "expense",
+      "parent": "dining"
+    },
+    {
+      "key": "lunch",
+      "name": "午餐",
+      "kind": "expense",
+      "parent": "dining"
+    },
+    {
+      "key": "shopping",
+      "name": "购物",
+      "kind": "expense"
+    },
+    {
+      "key": "transport",
+      "name": "交通",
+      "kind": "expense"
+    },
+    {
+      "key": "salary",
+      "name": "工资",
+      "kind": "income"
+    },
+    {
+      "key": "refund",
+      "name": "退款",
+      "kind": "income"
+    }
+  ],
+  "accounts": [
+    {
+      "key": "cash",
+      "ledger": "main",
+      "name": "现金",
+      "currency": "CNY"
+    },
+    {
+      "key": "bank",
+      "ledger": "main",
+      "name": "储蓄卡",
+      "currency": "CNY"
+    },
+    {
+      "key": "usd",
+      "ledger": "main",
+      "name": "美元现金",
+      "currency": "USD"
+    }
+  ],
+  "transactions": [
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-01-05T12:00:00",
+      "amount": 1000,
+      "category": "housing"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-02-05T12:00:00",
+      "amount": 1000,
+      "category": "housing"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-04-05T12:00:00",
+      "amount": 1000,
+      "category": "housing"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-05-05T12:00:00",
+      "amount": 1000,
+      "category": "housing"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-06-05T12:00:00",
+      "amount": 1000,
+      "category": "housing"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-07-05T12:00:00",
+      "amount": 1000,
+      "category": "housing"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-08-05T12:00:00",
+      "amount": 1000,
+      "category": "housing"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-05T12:00:00",
+      "amount": 1000,
+      "category": "housing"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-01-10T12:00:00",
+      "amount": 100,
+      "category": "lunch"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-02-10T12:00:00",
+      "amount": 150,
+      "category": "lunch"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-04-10T12:00:00",
+      "amount": 80,
+      "category": "lunch"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-05-10T12:00:00",
+      "amount": 200,
+      "category": "lunch"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-07-10T12:00:00",
+      "amount": 100,
+      "category": "lunch"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-08-10T12:00:00",
+      "amount": 300,
+      "category": "lunch"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-06T12:00:00",
+      "amount": 50,
+      "category": "breakfast",
+      "account": "cash"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-07T12:00:00",
+      "amount": 70,
+      "category": "lunch",
+      "account": "bank"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-08T12:00:00",
+      "amount": 28,
+      "category": "shopping"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-09T12:00:00",
+      "amount": 45,
+      "category": "transport"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-10T12:00:00",
+      "amount": 10,
+      "category": "transport",
+      "account": "usd",
+      "currency": "USD",
+      "nativeAmount": 72
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-11T12:00:00",
+      "amount": 5,
+      "category": null
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-12T12:00:00",
+      "amount": 0,
+      "category": "shopping"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 1"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 2"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 3"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 4"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 5"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 6"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 7"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 8"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 9"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 10"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 11"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 12"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 13"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 14"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 15"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 16"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 17"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 18"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 19"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 20"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 21"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 22"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 23"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 24"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-20T12:00:00",
+      "amount": 1,
+      "category": "shopping",
+      "note": "批量小额 25"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2026-09-21T12:00:00",
+      "amount": 99999,
+      "category": "shopping",
+      "excludeFromStats": true
+    },
+    {
+      "ledger": "main",
+      "type": "transfer",
+      "date": "2026-09-22T12:00:00",
+      "amount": 500,
+      "category": null,
+      "account": "cash",
+      "toAccount": "bank"
+    },
+    {
+      "ledger": "main",
+      "type": "income",
+      "date": "2026-01-01T12:00:00",
+      "amount": 4000,
+      "category": "salary"
+    },
+    {
+      "ledger": "main",
+      "type": "income",
+      "date": "2026-09-01T12:00:00",
+      "amount": 5000,
+      "category": "salary"
+    },
+    {
+      "ledger": "main",
+      "type": "income",
+      "date": "2026-09-13T12:00:00",
+      "amount": 20,
+      "category": "refund",
+      "note": "退款作为普通收入；不抵扣原支出"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2025-01-05T12:00:00",
+      "amount": 1000,
+      "category": "housing"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2025-02-05T12:00:00",
+      "amount": 1000,
+      "category": "housing"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2025-08-05T12:00:00",
+      "amount": 1000,
+      "category": "housing"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2025-09-05T12:00:00",
+      "amount": 1000,
+      "category": "housing"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2025-01-10T12:00:00",
+      "amount": 50,
+      "category": "lunch"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2025-02-10T12:00:00",
+      "amount": 100,
+      "category": "lunch"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2025-08-10T12:00:00",
+      "amount": 150,
+      "category": "lunch"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2025-09-10T12:00:00",
+      "amount": 60,
+      "category": "lunch"
+    },
+    {
+      "ledger": "main",
+      "type": "expense",
+      "date": "2027-01-01T12:00:00",
+      "amount": 54321,
+      "category": "shopping",
+      "note": "下一年边界"
+    },
+    {
+      "ledger": "cycle",
+      "type": "expense",
+      "date": "2026-09-14T12:00:00",
+      "amount": 10,
+      "category": "housing"
+    },
+    {
+      "ledger": "cycle",
+      "type": "expense",
+      "date": "2026-09-15T12:00:00",
+      "amount": 20,
+      "category": "housing"
+    },
+    {
+      "ledger": "cycle",
+      "type": "expense",
+      "date": "2026-10-14T12:00:00",
+      "amount": 30,
+      "category": "housing"
+    },
+    {
+      "ledger": "cycle",
+      "type": "expense",
+      "date": "2026-10-15T12:00:00",
+      "amount": 40,
+      "category": "housing"
+    },
+    {
+      "ledger": "other",
+      "type": "expense",
+      "date": "2026-09-05T12:00:00",
+      "amount": 888888,
+      "category": "housing"
+    }
+  ]
+}

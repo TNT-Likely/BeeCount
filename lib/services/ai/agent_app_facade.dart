@@ -63,6 +63,7 @@ final class AgentAppFacade {
     AgentModel? model,
     AgentPolicy policy = const P0AgentPolicy(),
     String Function()? runIdFactory,
+    DateTime Function()? now,
     this.modelCapabilityLoader,
   })  : _memoryRepository = memoryRepository,
         _toolGateway = toolGateway,
@@ -74,6 +75,7 @@ final class AgentAppFacade {
               transport: OpenAiCompatibleNativeToolTransport(),
             ),
         _policy = policy,
+        _now = now ?? DateTime.now,
         _runIdFactory = runIdFactory ?? const Uuid().v4;
 
   final AgentMemoryRepository _memoryRepository;
@@ -84,6 +86,7 @@ final class AgentAppFacade {
   final AgentModelCapabilityLoader? modelCapabilityLoader;
   final AgentModel _model;
   final AgentPolicy _policy;
+  final DateTime Function() _now;
   final String Function() _runIdFactory;
   final Map<String, AgentToolAuthorizationBroker> _pendingAuthorizations = {};
   final Map<String, _ActiveAgentRun> _activeRuns = {};
@@ -264,10 +267,14 @@ final class AgentAppFacade {
       allowsExplicitMemory: allowsExplicitMemory ||
           P0AgentPolicy.hasExplicitMemoryIntent(message),
     );
-    final localTools = LocalAgentTools(scope: scope, gateway: _toolGateway);
+    final localTools = LocalAgentTools(
+      scope: scope,
+      gateway: _toolGateway,
+      now: _now,
+    );
     final toolRegistry = localTools.buildRegistry();
     final requestContext = Map<String, Object?>.of(context);
-    requestContext['currentTime'] = DateTime.now().toIso8601String();
+    requestContext['currentTime'] = _now().toIso8601String();
     await _loadConversationHistory(
       conversationId: conversationId,
       requestContext: requestContext,

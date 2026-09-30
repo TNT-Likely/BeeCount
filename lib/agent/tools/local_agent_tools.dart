@@ -776,6 +776,8 @@ final class LocalAgentTools {
         terms: const [
           '趋势',
           '各月',
+          '各个月',
+          '按月',
           '每月',
           '逐月',
           '环比',
@@ -790,7 +792,15 @@ final class LocalAgentTools {
       descriptor(
         'get_category_breakdown',
         resident: true,
-        terms: const ['分类占比', '支出构成', '分类排行', '哪类最多', '分类对比', 'breakdown'],
+        terms: const [
+          '分类占比',
+          '支出构成',
+          '分类排行',
+          '哪类最多',
+          '分类对比',
+          '明细分类',
+          'breakdown',
+        ],
         deduplicate: true,
         requiresExecutionOnMatch: true,
         matcher: _looksLikeCategoryBreakdown,
