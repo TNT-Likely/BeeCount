@@ -303,8 +303,8 @@ void main() {
         .getSingle();
 
     expect(response.type, 'error');
-    expect(response.text, contains('没有调用账本工具'));
-    expect(response.response.action, AIResponseAction.openProviderSettings);
+    expect(response.text, contains('本次查询未执行'));
+    expect(response.response.action, isNull);
     expect(model.request?.availableToolNames, contains('get_spending_trend'));
     expect(run.status, 'failed');
     expect(run.errorMessage, 'agent_required_tool_not_called');
@@ -364,7 +364,7 @@ void main() {
     final response = await facade.processMessage(message: '午饭35', ledgerId: 1);
 
     expect(response.type, 'error');
-    expect(response.response.action, AIResponseAction.openProviderSettings);
+    expect(response.response.action, isNull);
     expect(
       model.request?.availableToolNames,
       contains('record_transaction_from_text'),

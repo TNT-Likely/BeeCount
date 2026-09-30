@@ -87,7 +87,8 @@ final class LocalAgentToolCatalog {
       ..._periodProperties,
       'categoryLevel': {
         'type': 'string',
-        'description': '返回 leaf 明细分类或 top 一级分类，默认 top。',
+        'description':
+            '必须明确选择：leaf 为明细/子分类，top 为一级分类。用户要求某分类内部、下属分类或明细分类时使用 leaf。',
         'enum': ['leaf', 'top'],
       },
       'categoryNames': {
@@ -103,6 +104,7 @@ final class LocalAgentToolCatalog {
         'maximum': 50,
       },
     },
+    'required': ['categoryLevel'],
     'additionalProperties': false,
   };
 

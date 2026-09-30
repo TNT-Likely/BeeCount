@@ -41,6 +41,7 @@ import '../../agent/permission/agent_tool_permission.dart';
 import '../../agent/runtime/agent_execution_settings.dart';
 import '../../agent/policy/p0_agent_policy.dart';
 import '../../agent/tools/local_agent_tools.dart';
+import '../../agent/tools/ledger_query_call_validator.dart';
 import '../../ai/core/bill_info.dart';
 import '../../l10n/app_localizations.dart';
 import '../system/logger_service.dart';
@@ -354,6 +355,7 @@ final class AgentAppFacade {
         deduplicatedToolNames: toolSelection.deduplicatedToolNames,
         singleUseToolDenialReason: (_) => '同一条消息只能记账一次。',
         cancellationToken: cancellationToken,
+        validateToolCall: LedgerQueryCallValidator.validate,
       ).run(request);
       await _recordAudit(runId, result, failedToolAudits: failedToolAudits);
       if (result.wasCancelled) {
@@ -375,7 +377,8 @@ final class AgentAppFacade {
               .any((call) => requiredTools.contains(call.name)) ||
           result.deniedCalls
               .any((denied) => requiredTools.contains(denied.call.name));
-      if (requiredTools.isNotEmpty && !calledRequiredTool) {
+      if ((requiredTools.isNotEmpty && !calledRequiredTool) ||
+          LedgerQueryCallValidator.hasUnresolvedIssue(result)) {
         logger.warning('AgentCore', '数据意图未执行所需工具，拒绝未落地答案', {
           'runId': runId,
           'requiredTools': requiredTools.toList()..sort(),
@@ -389,8 +392,7 @@ final class AgentAppFacade {
           runId: runId,
           response: AIResponse.error(
             l10n?.agentRequiredToolNotCalled ??
-                '当前模型没有调用账本工具，无法可靠回答这类数据问题。请前往“设置 > AI 设置 > 服务商管理”运行文本模型测试或切换支持原生工具调用的模型。',
-            action: AIResponseAction.openProviderSettings,
+                '本次查询未执行所需的数据工具，暂时无法给出可靠结果。请重试，或明确查询时间与分类范围。',
           ),
         );
       }
@@ -693,6 +695,17 @@ final class AgentAppFacade {
           toolName: denied.call.name,
           status: 'denied',
           detail: denied.reason,
+        ),
+      );
+    }
+    for (final rejected in result.rejectedCalls) {
+      await _memoryRepository.recordToolCall(
+        AgentToolCallAudit(
+          runId: runId,
+          callId: rejected.call.id,
+          toolName: rejected.call.name,
+          status: 'rejected',
+          detail: rejected.issue.code,
         ),
       );
     }

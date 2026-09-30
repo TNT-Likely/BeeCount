@@ -10247,7 +10247,7 @@ abstract class AppLocalizations {
   /// No description provided for @agentRequiredToolNotCalled.
   ///
   /// In en, this message translates to:
-  /// **'The model did not call a ledger tool, so its answer cannot be trusted for this data request. Open Settings > AI Settings > Provider Management to test or switch to a model with native tool calling.'**
+  /// **'This query did not run the required data tool, so a reliable answer is unavailable. Please retry or clarify the time and category range.'**
   String get agentRequiredToolNotCalled;
 
   /// No description provided for @agentTurnTimedOut.

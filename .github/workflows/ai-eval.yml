@@ -13,6 +13,7 @@ on:
       - 'lib/data/**'
       - 'lib/utils/**'
       - 'test/ai_eval/**'
+      - 'test/services/ai/**'
       - 'tool/ai_eval.dart'
       - 'pubspec.*'
   push:
@@ -27,6 +28,7 @@ on:
       - 'lib/data/**'
       - 'lib/utils/**'
       - 'test/ai_eval/**'
+      - 'test/services/ai/**'
       - 'tool/ai_eval.dart'
       - 'pubspec.*'
 
@@ -59,6 +61,7 @@ jobs:
       - name: 固定账本离线回归（不调用外部模型）
         run: |
           flutter test test/ai_eval/assertions_test.dart
+          flutter test test/services/ai/ai_chat_service_test.dart test/services/ai/agent_query_regression_test.dart test/services/ai/agent_app_facade_test.dart
           dart run tool/ai_eval.dart
       - name: 保存评测报告
         if: always()

@@ -101,6 +101,8 @@ final class AssistantEvalExecutor {
       final audits =
           await fixture.database.select(fixture.database.agentToolCalls).get();
       deniedCalls = audits.where((audit) => audit.status == 'denied').length;
+      final rejectedCalls =
+          audits.where((audit) => audit.status == 'rejected').length;
       return core.AgentEvalObservation(
         data: {
           'turns': turns,
@@ -108,11 +110,13 @@ final class AssistantEvalExecutor {
           'transactionsUnchanged':
               countBefore == await fixture.transactionCount(),
           'deniedCalls': deniedCalls,
+          'rejectedCalls': rejectedCalls,
         },
         metrics: {
           'modelTurns': modelTurns,
           'toolCalls': toolCalls,
-          'deniedCalls': deniedCalls
+          'deniedCalls': deniedCalls,
+          'rejectedCalls': rejectedCalls,
         },
       );
     } finally {

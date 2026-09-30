@@ -2318,7 +2318,7 @@
   "aiChatSendFailed": "Failed to send",
   "agentRunFailed": "AI service is temporarily unavailable. Please try again later.",
   "agentNativeToolsUnsupported": "This model can chat normally, but it does not support the native tool calls required to read or change ledger data. Open Settings > AI Settings > Provider Management to test or switch models.",
-  "agentRequiredToolNotCalled": "The model did not call a ledger tool, so its answer cannot be trusted for this data request. Open Settings > AI Settings > Provider Management to test or switch to a model with native tool calling.",
+  "agentRequiredToolNotCalled": "This query did not run the required data tool, so a reliable answer is unavailable. Please retry or clarify the time and category range.",
   "agentTurnTimedOut": "The AI response timed out. Please try again shortly.",
   "agentRecordIncomplete": "The transaction details are incomplete. Please include an amount and purpose, then try again.",
   "agentRecordCreated": "Created {count, plural, =1{1 transaction} other{{count} transactions}}.",

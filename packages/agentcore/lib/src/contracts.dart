@@ -140,6 +140,28 @@ final class AgentDeniedCall {
   final String reason;
 }
 
+/// Host-owned semantic checks, separate from permission policy. Invalid calls
+/// are never executed; their error is paired with the original native call so
+/// the model can make a bounded correction without weakening authorization.
+typedef AgentToolCallValidator = FutureOr<AgentToolValidationIssue?> Function(
+  AgentRequest request,
+  AgentToolCall call,
+);
+
+final class AgentToolValidationIssue {
+  const AgentToolValidationIssue({required this.code, required this.message});
+
+  final String code;
+  final String message;
+}
+
+final class AgentRejectedCall {
+  const AgentRejectedCall({required this.call, required this.issue});
+
+  final AgentToolCall call;
+  final AgentToolValidationIssue issue;
+}
+
 /// Explains why an [AgentCore.run] finished without hiding a usable final text.
 enum AgentRunTerminationReason {
   /// The model returned a final text response.
@@ -176,14 +198,17 @@ final class AgentRunResult {
     required this.text,
     List<AgentToolCall> executedCalls = const [],
     List<AgentDeniedCall> deniedCalls = const [],
+    List<AgentRejectedCall> rejectedCalls = const [],
     this.terminationReason = AgentRunTerminationReason.completed,
     this.wasCancelled = false,
   })  : executedCalls = UnmodifiableListView(List.of(executedCalls)),
-        deniedCalls = UnmodifiableListView(List.of(deniedCalls));
+        deniedCalls = UnmodifiableListView(List.of(deniedCalls)),
+        rejectedCalls = UnmodifiableListView(List.of(rejectedCalls));
 
   final String text;
   final List<AgentToolCall> executedCalls;
   final List<AgentDeniedCall> deniedCalls;
+  final List<AgentRejectedCall> rejectedCalls;
   final AgentRunTerminationReason terminationReason;
   final bool wasCancelled;
 }

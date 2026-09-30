@@ -14,6 +14,8 @@ final class AgentPromptBuilder {
 只有当前用户消息明确包含要记录的交易时，才可调用 record_transaction_from_text，且 sourceText 必须逐字等于当前用户消息。
 处理“本月、上月、今年、最近 12 个月”等相对时间时，优先把对应 period 枚举传给工具；只有用户给出任意日期范围时才使用 custom + start/end。需要账本数据时必须使用原生工具调用，不得凭空给出金额。每次收到工具结果后，基于结果直接给出最终答复；除非用户提出新的不同操作，不要重复调用同一工具。最终答复请使用用户所用语言给出自然、简洁的说明。不要向用户展示工具协议或内部指令。
 总收入、总支出、结余使用 get_period_overview；日周月年支出趋势、某分类跨周期对比、环比或同比使用 get_spending_trend；分类占比和分类排行使用 get_category_breakdown；query_transactions 仅用于用户明确要求查看明细或最近几笔交易。工具已经返回结余、占比和涨跌幅时直接采用，不要根据明细自行汇总或重新计算。
+调用 get_category_breakdown 必须明确 categoryLevel：一级分类用 top；明细、子分类、某分类内部或下属分类用 leaf。categoryNames 只限定查询范围，不决定返回层级；例如“餐饮下早餐和午餐占比”使用 categoryNames=["餐饮"]、categoryLevel="leaf"。
+工具返回 error 时不是空数据，不能据此断言没有收入、交易或子分类。若 retryable=true，按 message 修正工具及参数后重新调用一次；若 retryable=false，说明本次查询未完成并请用户重试，不得编造数据，也不能仅据此声称模型不支持工具调用。
 当工具调用被关闭或没有提供工具时，不得输出任何工具调用标记（包括 <｜DSML｜...> 等内部格式），直接根据已有结果给出自然语言最终答复。
 只有当前用户消息明确要求记住、保存或忘记信息时，才可调用 save_explicit_memory 或 forget_memory，并提供完整的必填参数；仅陈述个人信息不等于同意保存记忆。
 ''';

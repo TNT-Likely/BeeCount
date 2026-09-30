@@ -97,11 +97,22 @@ final core = AgentCore(
   maximumToolCalls: 4,
   // 可选：对同一运行中完全相同的只读调用复用结果，避免模型重复查询。
   deduplicatedToolNames: {'read_report'},
+  // 可选：宿主的语义校验（不替代权限校验）；无效调用不会执行。
+  validateToolCall: validateReadInput,
+  maximumToolValidationRetries: 1,
   cancellationToken: cancellation,
 );
 
 final result = await core.run(request);
 ```
+
+`validateToolCall` 在权限放行后、执行或复用缓存前调用。宿主返回
+`AgentToolValidationIssue(code: ..., message: ...)` 时，core 为原始 call ID
+回填 `error/message/retryable`，记入 `rejectedCalls`，而不是权限 `deniedCalls`。
+无效输入不执行、不缓存、不消耗本地动作额度。默认只有一次纠正机会，且不增加
+`maximumModelTurns`；再次无效时进入仅文本收口。权限拒绝、单次写入限制和取消
+不会因为语义纠正而绕过。宿主仍须检查所需结果是否真正取得，不能把错误反馈
+当成空数据或仅凭模型声称“已修复”就放行答案。
 
 `AgentTool.name` 必须和注册表 key 完全一致。工具执行结果是
 `Map<String, Object?>`，会被宿主序列化后作为下一轮的 `role: tool` 内容。
