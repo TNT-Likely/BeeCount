@@ -10088,6 +10088,54 @@ abstract class AppLocalizations {
   /// **'Try a task'**
   String get aiQuickCommandsTitle;
 
+  /// No description provided for @agentSuggestionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested questions'**
+  String get agentSuggestionsTitle;
+
+  /// No description provided for @agentSuggestionsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Show suggested questions'**
+  String get agentSuggestionsOpen;
+
+  /// No description provided for @agentSuggestionOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This month\'s totals'**
+  String get agentSuggestionOverviewTitle;
+
+  /// No description provided for @agentSuggestionOverviewPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize this month\'s income, expenses and balance.'**
+  String get agentSuggestionOverviewPrompt;
+
+  /// No description provided for @agentSuggestionCategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category shares'**
+  String get agentSuggestionCategoryTitle;
+
+  /// No description provided for @agentSuggestionCategoryPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'What are this month\'s spending shares by top-level category?'**
+  String get agentSuggestionCategoryPrompt;
+
+  /// No description provided for @agentSuggestionTrendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending trend'**
+  String get agentSuggestionTrendTitle;
+
+  /// No description provided for @agentSuggestionTrendPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'List monthly spending for the last six months.'**
+  String get agentSuggestionTrendPrompt;
+
   /// No description provided for @aiQuickCommandsOpen.
   ///
   /// In en, this message translates to:

@@ -104,7 +104,6 @@ final aiChatServiceProvider = Provider<AIChatService>((ref) {
   final repo = ref.watch(repositoryProvider);
   return AIChatService(
     repo: repo,
-    bookkeeper: ref.watch(aiBookkeeperProvider),
     agentFacade: ref.watch(agentAppFacadeProvider),
   );
 });

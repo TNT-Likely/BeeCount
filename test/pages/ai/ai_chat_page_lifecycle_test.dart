@@ -1,4 +1,8 @@
+import 'package:agentcore/agentcore.dart' as core;
 import 'package:beecount/ai/core/ai_extraction_engine.dart';
+import 'package:beecount/agent/memory/local_agent_memory_repository.dart';
+import 'package:beecount/agent/permission/shared_preferences_agent_tool_permission_store.dart';
+import 'package:beecount/agent/tools/local_agent_tools.dart';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
@@ -7,6 +11,7 @@ import 'package:beecount/providers/ai_chat_providers.dart';
 import 'package:beecount/providers/database_providers.dart';
 import 'package:beecount/services/ai/ai_bookkeeper.dart';
 import 'package:beecount/services/ai/ai_chat_service.dart';
+import 'package:beecount/services/ai/agent_app_facade.dart';
 import 'package:beecount/services/billing/bill_creation_service.dart';
 import 'package:beecount/widgets/ai/agent_brand_mark.dart';
 import 'package:drift/drift.dart' hide Column, isNull;
@@ -30,13 +35,27 @@ void main() {
 
   tearDown(() => database.close());
 
-  Widget host() {
+  Widget host({core.AgentModel? model}) {
+    final memory = LocalAgentMemoryRepository(database);
+    final bookkeeper = AiBookkeeper(
+      repository: repository,
+      engine: const DefaultAiExtractionEngine(),
+      persister: BillCreationService(repository),
+    );
     final chatService = AIChatService(
       repo: repository,
-      bookkeeper: AiBookkeeper(
-        repository: repository,
-        engine: const DefaultAiExtractionEngine(),
-        persister: BillCreationService(repository),
+      agentFacade: AgentAppFacade(
+        model: model,
+        memoryRepository: memory,
+        toolGateway: BeeCountLocalAgentToolGateway(
+          repository: repository,
+          database: database,
+          bookkeeper: bookkeeper,
+          memoryRepository: memory,
+        ),
+        permissionStore: SharedPreferencesAgentToolPermissionStore(
+          getPreferences: SharedPreferences.getInstance,
+        ),
       ),
     );
     return ProviderScope(
@@ -106,7 +125,7 @@ void main() {
     expect(find.byType(AgentBrandMark), findsOneWidget);
     expect(find.text('从今天的第一笔开始'), findsOneWidget);
     expect(
-      find.byKey(const ValueKey('ai-quick-command-suggestion-0')),
+      find.byKey(const ValueKey('ai-prompt-suggestion-0')),
       findsNothing,
     );
 
@@ -134,11 +153,51 @@ void main() {
     expect(find.text('¥32'), findsOneWidget);
     expect(find.text('1 笔'), findsOneWidget);
     expect(
-      find.byKey(const ValueKey('ai-quick-command-suggestion-0')),
+      find.byKey(const ValueKey('ai-prompt-suggestion-0')),
       findsNothing,
     );
 
     await tester.pumpWidget(const SizedBox());
     await tester.pumpAndSettle();
   });
+  testWidgets('推荐提问保存完整问题，模型收到相同问题而非预载数据', (tester) async {
+    await repository.createLedger(name: '当前账本');
+    final model = _CapturingModel();
+    await tester.pumpWidget(host(model: model));
+    await tester.pumpAndSettle();
+    await tester
+        .tap(find.byKey(const ValueKey('ai-prompt-suggestion-launcher')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('本月收支'));
+    await tester.runAsync(() async {
+      // Allow SQLite work and the normal message-save/run chain to complete.
+      for (var attempt = 0; attempt < 50 && model.request == null; attempt++) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+    });
+    await tester.pumpAndSettle();
+    const prompt = '总结本月收入、支出和结余。';
+    expect(model.request?.text, prompt);
+    expect(model.request?.toolData, isEmpty);
+    final users = await (database.select(database.messages)
+          ..where((row) => row.role.equals('user')))
+        .get();
+    expect(users.single.content, prompt);
+    final runs = await database.select(database.agentRuns).get();
+    expect(runs.single.userMessage, prompt);
+    expect(find.text(prompt), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+}
+
+final class _CapturingModel implements core.AgentModel {
+  core.AgentRequest? request;
+  @override
+  Future<core.AgentTurn> nextTurn(core.AgentRequest value) async {
+    request = value;
+    return const core.AgentTurn.finalText('未执行查询');
+  }
 }

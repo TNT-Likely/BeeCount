@@ -5286,6 +5286,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiQuickCommandsTitle => 'Try a task';
 
   @override
+  String get agentSuggestionsTitle => 'Suggested questions';
+
+  @override
+  String get agentSuggestionsOpen => 'Show suggested questions';
+
+  @override
+  String get agentSuggestionOverviewTitle => 'This month\'s totals';
+
+  @override
+  String get agentSuggestionOverviewPrompt => 'Summarize this month\'s income, expenses and balance.';
+
+  @override
+  String get agentSuggestionCategoryTitle => 'Category shares';
+
+  @override
+  String get agentSuggestionCategoryPrompt => 'What are this month\'s spending shares by top-level category?';
+
+  @override
+  String get agentSuggestionTrendTitle => 'Spending trend';
+
+  @override
+  String get agentSuggestionTrendPrompt => 'List monthly spending for the last six months.';
+
+  @override
   String get aiQuickCommandsOpen => 'Open suggestions';
 
   @override

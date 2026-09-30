@@ -10,10 +10,17 @@ on:
       - 'lib/agent/**'
       - 'lib/ai/**'
       - 'lib/services/ai/**'
+      - 'lib/models/assistant_prompt_suggestions.dart'
+      - 'lib/pages/ai/**'
+      - 'lib/widgets/ai/**'
+      - 'lib/providers/ai_chat_providers.dart'
+      - 'lib/l10n/**'
       - 'lib/data/**'
       - 'lib/utils/**'
       - 'test/ai_eval/**'
       - 'test/services/ai/**'
+      - 'test/pages/ai/**'
+      - 'test/widgets/ai/**'
       - 'tool/ai_eval.dart'
       - 'pubspec.*'
   push:
@@ -25,10 +32,17 @@ on:
       - 'lib/agent/**'
       - 'lib/ai/**'
       - 'lib/services/ai/**'
+      - 'lib/models/assistant_prompt_suggestions.dart'
+      - 'lib/pages/ai/**'
+      - 'lib/widgets/ai/**'
+      - 'lib/providers/ai_chat_providers.dart'
+      - 'lib/l10n/**'
       - 'lib/data/**'
       - 'lib/utils/**'
       - 'test/ai_eval/**'
       - 'test/services/ai/**'
+      - 'test/pages/ai/**'
+      - 'test/widgets/ai/**'
       - 'tool/ai_eval.dart'
       - 'pubspec.*'
 
@@ -61,7 +75,7 @@ jobs:
       - name: 固定账本离线回归（不调用外部模型）
         run: |
           flutter test test/ai_eval/assertions_test.dart
-          flutter test test/services/ai/ai_chat_service_test.dart test/services/ai/agent_query_regression_test.dart test/services/ai/agent_app_facade_test.dart
+          flutter test test/services/ai/ai_chat_service_test.dart test/services/ai/agent_query_regression_test.dart test/services/ai/agent_app_facade_test.dart test/widgets/ai/ai_prompt_suggestions_test.dart test/pages/ai/ai_chat_page_lifecycle_test.dart
           dart run tool/ai_eval.dart
       - name: 保存评测报告
         if: always()

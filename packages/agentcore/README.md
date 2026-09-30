@@ -32,6 +32,7 @@ Flutter、数据库或云服务代码。
 agentcore
 ├─ AgentCore                          有限回合执行循环
 ├─ contracts.dart                     request / turn / tool / result 契约
+├─ AgentPromptSuggestion              业务无关的推荐提问数据契约
 ├─ NativeToolAgentModel               模型回合与工具结果桥接
 ├─ OpenAiCompatibleNativeToolTransport 原生 tool-call + SSE 聚合
 ├─ AgentToolRegistry                  常驻工具 + 请求级工具搜索
@@ -77,6 +78,12 @@ AgentModel.nextTurn()
 `AgentRunTerminationReason.toolCallLimitReached` 结束。
 
 ## 核心契约
+
+### 推荐提问
+
+`AgentPromptSuggestion` 只包含稳定的 `id`、展示用 `title` 和完整的 `prompt`。
+宿主负责本地化和 UI；点击后应原样提交、保存 `prompt`，走正常 Agent 流程。
+它不预读数据、不指定工具、不绕过权限，也不引入另一条模型调用路径。
 
 ### 请求、工具和结果
 

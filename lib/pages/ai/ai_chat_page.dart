@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:agentcore/agentcore.dart' show AgentPromptSuggestion;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,7 +13,7 @@ import '../../widgets/biz/bee_icon.dart';
 import '../../widgets/ai/typewriter_text.dart';
 import '../../widgets/ai/agent_markdown_text.dart';
 import '../../widgets/ai/bill_card_widget.dart';
-import '../../widgets/ai/ai_quick_commands_bar.dart';
+import '../../widgets/ai/ai_prompt_suggestions.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../services/billing/post_processor.dart';
@@ -32,14 +33,12 @@ import '../../widgets/ai/agent_execution_timeline.dart';
 import '../../widgets/ai/agent_empty_conversation.dart';
 import '../../data/db.dart';
 import '../../l10n/app_localizations.dart';
-import '../../models/ai_quick_command.dart';
 import '../../services/ui/avatar_service.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/ai/ai_chat_service.dart';
 import '../../services/ai/agent_app_facade.dart';
 import '../../services/ai/bill_card_info_builder.dart';
 import '../../agent/permission/agent_authorization_gate.dart';
-import '../../services/ai/ai_quick_command_service.dart';
 
 /// AI 对话页面
 class AIChatPage extends ConsumerStatefulWidget {
@@ -681,8 +680,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         top: false, // 不保护顶部，避免额外空白
         child: Row(
           children: [
-            AIQuickCommandLauncher(
-              onCommandTap: _handleQuickCommand,
+            AIPromptSuggestionLauncher(
+              onSuggestionTap: _handlePromptSuggestion,
               enabled: !_isLoading,
             ),
             Expanded(
@@ -738,56 +737,10 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     }
   }
 
-  /// 处理快捷指令点击
-  Future<void> _handleQuickCommand(AIQuickCommand command) async {
-    if (_isLoading) return;
-
-    try {
-      final ledgerId = ref.read(currentLedgerIdProvider);
-      final commandService = ref.read(aiQuickCommandServiceProvider(ledgerId));
-      final l10n = AppLocalizations.of(context);
-
-      // 生成完整的 Prompt
-      final prompt = await commandService.generatePrompt(command, context);
-
-      // 获取快捷指令的标题作为显示文本
-      String displayText;
-      switch (command.titleKey) {
-        case 'aiQuickCommandFinancialHealthTitle':
-          displayText = l10n.aiQuickCommandFinancialHealthTitle;
-          break;
-        case 'aiQuickCommandMonthlyExpenseTitle':
-          displayText = l10n.aiQuickCommandMonthlyExpenseTitle;
-          break;
-        case 'aiQuickCommandCategoryAnalysisTitle':
-          displayText = l10n.aiQuickCommandCategoryAnalysisTitle;
-          break;
-        case 'aiQuickCommandBudgetPlanningTitle':
-          displayText = l10n.aiQuickCommandBudgetPlanningTitle;
-          break;
-        case 'aiQuickCommandAbnormalExpenseTitle':
-          displayText = l10n.aiQuickCommandAbnormalExpenseTitle;
-          break;
-        case 'aiQuickCommandSavingTipsTitle':
-          displayText = l10n.aiQuickCommandSavingTipsTitle;
-          break;
-        default:
-          displayText = command.titleKey;
-      }
-
-      // 发送完整prompt给AI，但在对话中只显示标题
-      await _sendMessageText(
-        prompt,
-        displayText: displayText,
-        forceChat: true,
-      );
-    } catch (e, st) {
-      logger.error('AIChat', '处理快捷指令失败', e, st);
-      if (mounted) {
-        showToast(context, '${AppLocalizations.of(context).commonFailed}: $e');
-      }
-    }
-  }
+  /// Recommended questions use exactly the same visible/persisted text and
+  /// Agent execution path as a manually typed question.
+  Future<void> _handlePromptSuggestion(AgentPromptSuggestion suggestion) =>
+      _sendMessageText(suggestion.prompt);
 
   Future<void> _sendMessage() async {
     final text = _inputController.text.trim();
@@ -799,14 +752,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
   /// 发送消息文本
   ///
-  /// [text] - 发送给AI的完整文本
-  /// [displayText] - 在对话框中显示的文本（可选，默认使用text）
-  /// [forceChat] - 强制为自由对话模式
-  Future<void> _sendMessageText(
-    String text, {
-    String? displayText,
-    bool forceChat = false,
-  }) async {
+  /// [text] is both the visible user message and the Agent's current request.
+  Future<void> _sendMessageText(String text) async {
     if (!mounted || text.isEmpty || _isLoading) return;
 
     setState(() => _isLoading = true);
@@ -814,12 +761,12 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     try {
       final repo = ref.read(repositoryProvider);
 
-      // 保存用户消息（使用displayText作为显示内容，如果没有则使用text）
+      // Persist the actual request, including period and scope, for follow-ups.
       await repo.createMessage(
         MessagesCompanion.insert(
           conversationId: _conversationId!,
           role: 'user',
-          content: displayText ?? text,
+          content: text,
           messageType: 'text',
           createdAt: Value(DateTime.now()),
         ),
@@ -855,7 +802,6 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         runId: agentRunId,
         conversationId: _conversationId,
         languageCode: currentLocale.languageCode,
-        forceChat: forceChat,
         l10n: l10n,
       )) {
         if (!mounted) break;

@@ -5286,6 +5286,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiQuickCommandsTitle => '试试这些';
 
   @override
+  String get agentSuggestionsTitle => '推荐提问';
+
+  @override
+  String get agentSuggestionsOpen => '查看推荐提问';
+
+  @override
+  String get agentSuggestionOverviewTitle => '本月收支';
+
+  @override
+  String get agentSuggestionOverviewPrompt => '总结本月收入、支出和结余。';
+
+  @override
+  String get agentSuggestionCategoryTitle => '分类占比';
+
+  @override
+  String get agentSuggestionCategoryPrompt => '本月一级分类支出占比是多少？';
+
+  @override
+  String get agentSuggestionTrendTitle => '支出趋势';
+
+  @override
+  String get agentSuggestionTrendPrompt => '按月列出最近六个月的支出。';
+
+  @override
   String get aiQuickCommandsOpen => '打开快捷指令';
 
   @override

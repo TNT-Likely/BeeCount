@@ -1,29 +1,27 @@
+import 'package:agentcore/agentcore.dart' show AgentPromptSuggestion;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../models/ai_quick_command.dart';
+import '../../models/assistant_prompt_suggestions.dart';
 import '../../providers/theme_providers.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 
-/// Four high-frequency prompts shown only while a conversation is empty.
-///
-/// They help a new user discover useful tasks without permanently occupying
-/// vertical space once the conversation has started.
-final class AIQuickCommandSuggestions extends ConsumerWidget {
-  const AIQuickCommandSuggestions({
+/// Compact presentation of the host's recommended questions.
+final class AIPromptSuggestions extends ConsumerWidget {
+  const AIPromptSuggestions({
     super.key,
-    required this.onCommandTap,
+    required this.onSuggestionTap,
   });
 
-  final ValueChanged<AIQuickCommand> onCommandTap;
+  final ValueChanged<AgentPromptSuggestion> onSuggestionTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final primary = ref.watch(primaryColorProvider);
-    final commands = AIQuickCommands.getAllCommands().take(4).toList();
+    final suggestions = AssistantPromptSuggestions.localized(l10n);
     final gap = 8.0.scaled(context, ref);
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -34,19 +32,19 @@ final class AIQuickCommandSuggestions extends ConsumerWidget {
             spacing: gap,
             runSpacing: gap,
             children: [
-              for (var index = 0; index < commands.length; index++)
+              for (var index = 0; index < suggestions.length; index++)
                 SizedBox(
                   width: itemWidth,
                   height: 38.0.scaled(context, ref),
-                  child: _AIQuickCommandSuggestionCard(
-                    key: ValueKey('ai-quick-command-suggestion-$index'),
+                  child: _AIPromptSuggestionCard(
+                    key: ValueKey('ai-prompt-suggestion-$index'),
                     iconKey: ValueKey(
-                      'ai-quick-command-suggestion-icon-$index',
+                      'ai-prompt-suggestion-icon-$index',
                     ),
-                    command: commands[index],
-                    title: _titleFor(commands[index], l10n),
+                    suggestion: suggestions[index],
+                    title: suggestions[index].title,
                     primary: primary,
-                    onTap: () => onCommandTap(commands[index]),
+                    onTap: () => onSuggestionTap(suggestions[index]),
                   ),
                 ),
             ],
@@ -57,18 +55,18 @@ final class AIQuickCommandSuggestions extends ConsumerWidget {
   }
 }
 
-final class _AIQuickCommandSuggestionCard extends StatelessWidget {
-  const _AIQuickCommandSuggestionCard({
+final class _AIPromptSuggestionCard extends StatelessWidget {
+  const _AIPromptSuggestionCard({
     super.key,
     required this.iconKey,
-    required this.command,
+    required this.suggestion,
     required this.title,
     required this.primary,
     required this.onTap,
   });
 
   final Key iconKey;
-  final AIQuickCommand command;
+  final AgentPromptSuggestion suggestion;
   final String title;
   final Color primary;
   final VoidCallback onTap;
@@ -105,7 +103,7 @@ final class _AIQuickCommandSuggestionCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(7),
                   ),
                   child: Icon(
-                    _iconFor(command),
+                    _iconFor(suggestion),
                     color: primary,
                     size: 14,
                   ),
@@ -130,15 +128,15 @@ final class _AIQuickCommandSuggestionCard extends StatelessWidget {
   }
 }
 
-/// A compact input-adjacent entry point for the full command catalog.
-final class AIQuickCommandLauncher extends ConsumerWidget {
-  const AIQuickCommandLauncher({
+/// Recommended questions remain available beside the input during a chat.
+final class AIPromptSuggestionLauncher extends ConsumerWidget {
+  const AIPromptSuggestionLauncher({
     super.key,
-    required this.onCommandTap,
+    required this.onSuggestionTap,
     this.enabled = true,
   });
 
-  final ValueChanged<AIQuickCommand> onCommandTap;
+  final ValueChanged<AgentPromptSuggestion> onSuggestionTap;
   final bool enabled;
 
   @override
@@ -146,20 +144,21 @@ final class AIQuickCommandLauncher extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final primary = ref.watch(primaryColorProvider);
     return IconButton(
-      key: const ValueKey('ai-quick-command-launcher'),
-      tooltip: l10n.aiQuickCommandsOpen,
+      key: const ValueKey('ai-prompt-suggestion-launcher'),
+      tooltip: l10n.agentSuggestionsOpen,
       onPressed: enabled
           ? () async {
-              final command = await showModalBottomSheet<AIQuickCommand>(
+              final suggestion =
+                  await showModalBottomSheet<AgentPromptSuggestion>(
                 context: context,
                 backgroundColor: BeeTokens.surfaceSheet(context),
                 barrierColor: BeeTokens.overlay(context),
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),
-                builder: (_) => const _AIQuickCommandsSheet(),
+                builder: (_) => const _AIPromptSuggestionsSheet(),
               );
-              if (command != null) onCommandTap(command);
+              if (suggestion != null) onSuggestionTap(suggestion);
             }
           : null,
       style: IconButton.styleFrom(foregroundColor: primary),
@@ -168,19 +167,19 @@ final class AIQuickCommandLauncher extends ConsumerWidget {
   }
 }
 
-final class _AIQuickCommandsSheet extends ConsumerWidget {
-  const _AIQuickCommandsSheet();
+final class _AIPromptSuggestionsSheet extends ConsumerWidget {
+  const _AIPromptSuggestionsSheet();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final primary = ref.watch(primaryColorProvider);
-    final commands = AIQuickCommands.getAllCommands();
+    final suggestions = AssistantPromptSuggestions.localized(l10n);
     return SafeArea(
       top: false,
       child: SizedBox(
-        key: const ValueKey('ai-quick-command-sheet'),
-        height: 404.0.scaled(context, ref),
+        key: const ValueKey('ai-prompt-suggestion-sheet'),
+        height: 300.0.scaled(context, ref),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -205,7 +204,8 @@ final class _AIQuickCommandsSheet extends ConsumerWidget {
               child: Row(
                 children: [
                   Container(
-                    key: const ValueKey('ai-quick-command-sheet-header-icon'),
+                    key: const ValueKey(
+                        'ai-prompt-suggestion-sheet-header-icon'),
                     width: 38.0.scaled(context, ref),
                     height: 38.0.scaled(context, ref),
                     decoration: BoxDecoration(
@@ -221,7 +221,7 @@ final class _AIQuickCommandsSheet extends ConsumerWidget {
                   ),
                   SizedBox(width: 12.0.scaled(context, ref)),
                   Text(
-                    l10n.aiQuickCommandsTitle,
+                    l10n.agentSuggestionsTitle,
                     style: BeeTextTokens.boldTitle(context),
                   ),
                 ],
@@ -229,7 +229,7 @@ final class _AIQuickCommandsSheet extends ConsumerWidget {
             ),
             Expanded(
               child: GridView.builder(
-                key: const ValueKey('ai-quick-command-sheet-grid'),
+                key: const ValueKey('ai-prompt-suggestion-sheet-grid'),
                 padding: EdgeInsets.fromLTRB(
                   16.0.scaled(context, ref),
                   0,
@@ -242,18 +242,18 @@ final class _AIQuickCommandsSheet extends ConsumerWidget {
                   crossAxisSpacing: 10.0.scaled(context, ref),
                   mainAxisExtent: 82.0.scaled(context, ref),
                 ),
-                itemCount: commands.length,
+                itemCount: suggestions.length,
                 itemBuilder: (context, index) {
-                  final command = commands[index];
+                  final suggestion = suggestions[index];
                   return Material(
-                    key: ValueKey('ai-quick-command-sheet-item-$index'),
+                    key: ValueKey('ai-prompt-suggestion-sheet-item-$index'),
                     color: primary.withValues(
                       alpha: BeeTokens.isDark(context) ? 0.18 : 0.08,
                     ),
                     borderRadius:
                         BorderRadius.circular(16.0.scaled(context, ref)),
                     child: InkWell(
-                      onTap: () => Navigator.of(context).pop(command),
+                      onTap: () => Navigator.of(context).pop(suggestion),
                       borderRadius:
                           BorderRadius.circular(16.0.scaled(context, ref)),
                       child: Padding(
@@ -270,7 +270,7 @@ final class _AIQuickCommandsSheet extends ConsumerWidget {
                                 ),
                               ),
                               child: Icon(
-                                Icons.auto_awesome_outlined,
+                                _iconFor(suggestion),
                                 color: primary,
                                 size: 16.0.scaled(context, ref),
                               ),
@@ -278,7 +278,7 @@ final class _AIQuickCommandsSheet extends ConsumerWidget {
                             SizedBox(width: 9.0.scaled(context, ref)),
                             Expanded(
                               child: Text(
-                                _titleFor(command, l10n),
+                                suggestion.title,
                                 style: BeeTextTokens.strongTitle(context),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -299,31 +299,9 @@ final class _AIQuickCommandsSheet extends ConsumerWidget {
   }
 }
 
-String _titleFor(AIQuickCommand command, AppLocalizations l10n) {
-  return switch (command.titleKey) {
-    'aiQuickCommandFinancialHealthTitle' =>
-      l10n.aiQuickCommandFinancialHealthTitle,
-    'aiQuickCommandMonthlyExpenseTitle' =>
-      l10n.aiQuickCommandMonthlyExpenseTitle,
-    'aiQuickCommandCategoryAnalysisTitle' =>
-      l10n.aiQuickCommandCategoryAnalysisTitle,
-    'aiQuickCommandBudgetPlanningTitle' =>
-      l10n.aiQuickCommandBudgetPlanningTitle,
-    'aiQuickCommandAbnormalExpenseTitle' =>
-      l10n.aiQuickCommandAbnormalExpenseTitle,
-    'aiQuickCommandSavingTipsTitle' => l10n.aiQuickCommandSavingTipsTitle,
-    _ => command.titleKey,
-  };
-}
-
-IconData _iconFor(AIQuickCommand command) {
-  return switch (command.titleKey) {
-    'aiQuickCommandFinancialHealthTitle' => Icons.monitor_heart_outlined,
-    'aiQuickCommandMonthlyExpenseTitle' => Icons.calendar_month_outlined,
-    'aiQuickCommandCategoryAnalysisTitle' => Icons.pie_chart_outline_rounded,
-    'aiQuickCommandBudgetPlanningTitle' => Icons.savings_outlined,
-    'aiQuickCommandAbnormalExpenseTitle' => Icons.trending_up_rounded,
-    'aiQuickCommandSavingTipsTitle' => Icons.lightbulb_outline_rounded,
-    _ => Icons.auto_awesome_outlined,
-  };
-}
+IconData _iconFor(AgentPromptSuggestion suggestion) => switch (suggestion.id) {
+      'monthly_overview' => Icons.calendar_month_outlined,
+      'category_breakdown' => Icons.pie_chart_outline_rounded,
+      'spending_trend' => Icons.trending_up_rounded,
+      _ => Icons.chat_bubble_outline,
+    };
