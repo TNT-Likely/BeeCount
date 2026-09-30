@@ -3470,5 +3470,6 @@
   "agentActivityToolDenied": "Denied",
   "agentActivityToolFailed": "Failed",
   "agentRunCancelled": "This run was stopped.",
-  "agentRunStop": "Stop"
+  "agentRunStop": "Stop",
+  "agentQueryValidationFailed": "The query parameters could not be corrected, so a reliable result is unavailable. Please try again."
 }

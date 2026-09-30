@@ -15223,6 +15223,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop'**
   String get agentRunStop;
+
+  /// No description provided for @agentQueryValidationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The query parameters could not be corrected, so a reliable result is unavailable. Please try again.'**
+  String get agentQueryValidationFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

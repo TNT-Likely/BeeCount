@@ -8028,4 +8028,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get agentRunStop => 'Stop';
+
+  @override
+  String get agentQueryValidationFailed => 'The query parameters could not be corrected, so a reliable result is unavailable. Please try again.';
 }

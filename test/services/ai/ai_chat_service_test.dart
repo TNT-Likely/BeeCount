@@ -226,15 +226,15 @@ void main() {
     });
   }
 
-  test('统一对话路径不接受没有调用工具的账本答案', () async {
+  test('统一对话路径不按工具名拦截文本，无查询证据不生成追问', () async {
     final fixture = await LedgerEvalFixture.create();
     addTearDown(fixture.close);
     final model = _ReplayModel([const core.AgentTurn.finalText('收入 123')]);
     final response = await AIChatService(
             repo: fixture.repository, agentFacade: _facade(fixture, model))
         .processMessage('本月总收入多少？', ledgerId: fixture.ledgers['main']!);
-    expect(response.type, 'error');
-    expect(response.text, contains('本次查询未执行'));
+    expect(response.type, 'text');
+    expect(response.text, '收入 123');
     expect(response.action, isNull);
     expect(response.followUpSuggestions, isEmpty);
   });

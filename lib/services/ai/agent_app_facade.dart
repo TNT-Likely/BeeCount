@@ -388,22 +388,30 @@ final class AgentAppFacade {
               .any((call) => requiredTools.contains(call.name)) ||
           result.deniedCalls
               .any((denied) => requiredTools.contains(denied.call.name));
-      if ((requiredTools.isNotEmpty && !calledRequiredTool) ||
-          LedgerQueryCallValidator.hasUnresolvedIssue(result)) {
-        logger.warning('AgentCore', '数据意图未执行所需工具，拒绝未落地答案', {
+      // Directory keyword matches are diagnostic hints, not a contract for
+      // which tool the model must use. Other queries or conversation context
+      // may already provide the requested information.
+      if (requiredTools.isNotEmpty && !calledRequiredTool) {
+        logger.debug('AgentCore', '未调用目录匹配工具，仅记录诊断，不拦截回答', {
           'runId': runId,
           'requiredTools': requiredTools.toList()..sort(),
+        });
+      }
+      if (LedgerQueryCallValidator.hasUnresolvedIssue(result)) {
+        logger.warning('AgentCore', '查询参数校验未纠正，拒绝错误答案', {
+          'runId': runId,
+          'issues':
+              result.rejectedCalls.map((call) => call.issue.code).toList(),
         });
         await _memoryRepository.finishRun(
           runId: runId,
           status: 'failed',
-          errorMessage: 'agent_required_tool_not_called',
+          errorMessage: 'agent_query_validation_failed',
         );
         return AgentChatResponse(
           runId: runId,
           response: AIResponse.error(
-            l10n?.agentRequiredToolNotCalled ??
-                '本次查询未执行所需的数据工具，暂时无法给出可靠结果。请重试，或明确查询时间与分类范围。',
+            l10n?.agentQueryValidationFailed ?? '查询参数未能纠正，暂时无法给出可靠结果。请重试。',
           ),
         );
       }

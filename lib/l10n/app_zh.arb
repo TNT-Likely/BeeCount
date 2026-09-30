@@ -3394,5 +3394,6 @@
   "agentActivityToolDenied": "已拒绝",
   "agentActivityToolFailed": "失败",
   "agentRunCancelled": "本次操作已停止。",
-  "agentRunStop": "停止"
+  "agentRunStop": "停止",
+  "agentQueryValidationFailed": "查询参数未能纠正，暂时无法给出可靠结果。请重试。"
 }

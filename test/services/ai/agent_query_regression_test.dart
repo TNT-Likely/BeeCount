@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:agentcore/agentcore.dart' as core;
 import 'package:beecount/agent/permission/shared_preferences_agent_tool_permission_store.dart';
 import 'package:beecount/services/ai/agent_app_facade.dart';
+import 'package:beecount/l10n/app_localizations_en.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -133,6 +134,53 @@ void main() {
     expect(response.response.action, isNull);
   });
 
+  test('单月按月追问允许使用分类查询，不因工具名不同拦截结果', () async {
+    final fixture = await LedgerEvalFixture.create();
+    addTearDown(fixture.close);
+    final events = await AgentAppFacade(
+      memoryRepository: fixture.memory,
+      toolGateway: fixture.gateway,
+      permissionStore: SharedPreferencesAgentToolPermissionStore(
+          getPreferences: SharedPreferences.getInstance),
+      now: () => fixture.now,
+      runIdFactory: () => 'single-month-category-followup',
+      model: _ReplayModel([
+        core.AgentTurn.toolCalls([
+          core.AgentToolCall(
+            id: 'category-query',
+            name: 'get_category_breakdown',
+            arguments: {
+              'period': 'custom',
+              'start': '2026-09-01T00:00:00.000',
+              'end': '2026-10-01T00:00:00.000',
+              'categoryLevel': 'top',
+            },
+          ),
+        ]),
+        const core.AgentTurn.finalText('9月支出总额1295，住房1000，餐饮120。'),
+      ]),
+    )
+        .processMessageEvents(
+          message: '按月列出 2026-09-01T00:00:00.000 至 '
+              '2026-10-01T00:00:00.000（不含结束时间） '
+              '中全部支出分类的支出，不做同比或环比比较。',
+          ledgerId: fixture.ledgers['main']!,
+          readOnly: true,
+        )
+        .toList();
+    final response = (events.last as AgentRunCompletedEvent).result;
+    expect(response.type, 'text');
+    expect(response.text, '9月支出总额1295，住房1000，餐饮120。');
+    final tool = events.whereType<AgentToolCompletedEvent>().single;
+    expect(tool.toolName, 'get_category_breakdown');
+    expect(tool.succeeded, isTrue);
+    expect(tool.result!['totalExpense'], 1295);
+    final runs =
+        await fixture.database.select(fixture.database.agentRuns).get();
+    expect(runs.single.status, 'completed');
+    expect(runs.single.errorMessage, isNull);
+  });
+
   test('纠正失败不虚构没有子分类，也不误报模型不支持工具', () async {
     final fixture = await LedgerEvalFixture.create();
     addTearDown(fixture.close);
@@ -159,10 +207,43 @@ void main() {
     ).processMessage(
         message: '本月餐饮按明细分类排行', ledgerId: fixture.ledgers['main']!);
     expect(response.type, 'error');
-    expect(response.text, contains('本次查询未执行'));
+    expect(response.text, contains('查询参数未能纠正'));
     expect(response.text, isNot(contains('没有子分类')));
     expect(response.response.action, isNull);
     expect(model.requests.last.allowToolCalls, isFalse);
+  });
+
+  test('英文参数纠正失败保留独立错误，不再报未调用指定工具', () async {
+    final fixture = await LedgerEvalFixture.create();
+    addTearDown(fixture.close);
+    final response = await AgentAppFacade(
+      memoryRepository: fixture.memory,
+      toolGateway: fixture.gateway,
+      permissionStore: SharedPreferencesAgentToolPermissionStore(
+          getPreferences: SharedPreferences.getInstance),
+      now: () => fixture.now,
+      runIdFactory: () => 'invalid-query-parameters',
+      model: _ReplayModel([
+        core.AgentTurn.toolCalls([
+          core.AgentToolCall(
+            id: 'wrong-leaf',
+            name: 'get_category_breakdown',
+            arguments: {'period': 'current_month', 'categoryLevel': 'top'},
+          ),
+        ]),
+        const core.AgentTurn.finalText('No subcategories.'),
+      ]),
+    ).processMessage(
+      message: 'List spending by subcategory this month.',
+      ledgerId: fixture.ledgers['main']!,
+      l10n: AppLocalizationsEn(),
+    );
+    expect(response.type, 'error');
+    expect(response.text, AppLocalizationsEn().agentQueryValidationFailed);
+    expect(response.response.action, isNull);
+    final runs =
+        await fixture.database.select(fixture.database.agentRuns).get();
+    expect(runs.single.errorMessage, 'agent_query_validation_failed');
   });
 }
 

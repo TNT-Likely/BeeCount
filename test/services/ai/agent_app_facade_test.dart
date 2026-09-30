@@ -287,7 +287,7 @@ void main() {
     expect(run.status, 'failed');
   });
 
-  test('data intent rejects a final answer that used no required ledger tool',
+  test('directory tool matches do not block a final answer without tool calls',
       () async {
     final model = _CapturingModel();
     final facade = AgentAppFacade(
@@ -304,12 +304,12 @@ void main() {
           ..where((item) => item.runId.equals('run-ungrounded-data')))
         .getSingle();
 
-    expect(response.type, 'error');
-    expect(response.text, contains('本次查询未执行'));
+    expect(response.type, 'text');
+    expect(response.text, '已完成');
     expect(response.response.action, isNull);
     expect(model.request?.availableToolNames, contains('get_spending_trend'));
-    expect(run.status, 'failed');
-    expect(run.errorMessage, 'agent_required_tool_not_called');
+    expect(run.status, 'completed');
+    expect(run.errorMessage, isNull);
   });
 
   test('category breakdown satisfies a request that also mentions a period',
@@ -353,7 +353,9 @@ void main() {
     expect(response.text, '已完成');
   });
 
-  test('short transaction text still requires the record tool', () async {
+  test(
+      'without a record call the reply remains text and creates no transaction',
+      () async {
     final model = _CapturingModel();
     final facade = AgentAppFacade(
       memoryRepository: LocalAgentMemoryRepository(db),
@@ -365,7 +367,9 @@ void main() {
 
     final response = await facade.processMessage(message: '午饭35', ledgerId: 1);
 
-    expect(response.type, 'error');
+    expect(response.type, 'text');
+    expect(response.text, '已完成');
+    expect(response.transactionIds, isEmpty);
     expect(response.response.action, isNull);
     expect(
       model.request?.availableToolNames,
