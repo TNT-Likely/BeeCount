@@ -4,17 +4,18 @@ import 'dart:io';
 import 'package:agentcore/agentcore.dart' show AgentPromptSuggestion;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_agent_ui/flutter_agent_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' hide Column;
 import 'package:uuid/uuid.dart';
 
 import '../../widgets/ui/ui.dart';
-import '../../widgets/biz/bee_icon.dart';
 import '../../widgets/ai/typewriter_text.dart';
 import '../../widgets/ai/agent_markdown_text.dart';
 import '../../widgets/ai/bill_card_widget.dart';
 import '../../widgets/ai/agent_follow_up_questions.dart';
 import '../../models/assistant_follow_up_metadata.dart';
+import '../../models/assistant_execution_metadata.dart';
 import '../../models/assistant_prompt_suggestions.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
@@ -63,6 +64,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   String? _userAvatarPath; // 用户头像路径
   AIConfigValidationResult? _apiValidation; // API配置验证结果
   bool _showScrollToBottom = false; // 是否显示"回到底部"按钮
+  bool _followLatest = true;
+  bool _isUserScrolling = false;
   bool _isFirstLoad = true; // 是否首次加载
   bool _hasLiveAgentMessage = false;
   String _streamingAgentText = '';
@@ -289,60 +292,83 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                         _chatScrollCoordinator.onScrollMetricsChanged();
                         return false;
                       },
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12.0.scaled(context, ref),
-                          vertical: 8.0.scaled(context, ref),
-                        ),
-                        itemCount: displayMessages.length +
-                            (_hasLiveAgentMessage ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (index == displayMessages.length) {
-                            return _buildLiveAgentBubble();
-                          }
-                          final message = displayMessages[index];
-                          final suggestions = !_isLoading &&
-                                  !_hasLiveAgentMessage &&
-                                  index == displayMessages.length - 1 &&
-                                  message.role == 'assistant' &&
-                                  AssistantFollowUpMetadata
-                                      .allowsAnalysisTemplates(
-                                          message.metadata) &&
-                                  (message.messageType == 'text' ||
-                                      message.messageType == 'bill_card')
-                              ? AssistantPromptSuggestions.continuations(
-                                  l10n,
-                                  contextual: AssistantFollowUpMetadata.decode(
-                                      message.metadata,
-                                      ledgerId:
-                                          ref.watch(currentLedgerIdProvider)),
-                                  recentPrompts: displayMessages
-                                      .where((row) => row.role == 'user')
-                                      .map((row) => row.content)
-                                      .toList()
-                                      .reversed
-                                      .take(12),
-                                )
-                              : const <AgentPromptSuggestion>[];
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _buildMessageBubble(message),
-                              if (suggestions.isNotEmpty)
-                                Padding(
-                                    padding: EdgeInsets.only(
-                                        left: 40.0.scaled(context, ref),
-                                        bottom: 12),
-                                    child: AgentFollowUpQuestions(
-                                      key: ValueKey('follow-ups-${message.id}'),
-                                      suggestions: suggestions,
-                                      onSuggestionTap: _handlePromptSuggestion,
-                                    )),
-                            ],
-                          );
-                        },
-                      ),
+                      child: NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            if (notification.depth != 0) return false;
+                            if (notification is ScrollStartNotification &&
+                                notification.dragDetails != null) {
+                              _isUserScrolling = true;
+                              _followLatest = false;
+                              _chatScrollCoordinator.onUserScroll();
+                            }
+                            if (notification is ScrollEndNotification &&
+                                _isUserScrolling) {
+                              _isUserScrolling = false;
+                              _followLatest = _scrollController.hasClients &&
+                                  _scrollController.position.extentAfter <= 50;
+                            }
+                            return false;
+                          },
+                          child: ListView.builder(
+                            controller: _scrollController,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 18.0.scaled(context, ref),
+                              vertical: 8.0.scaled(context, ref),
+                            ),
+                            itemCount: displayMessages.length +
+                                (_hasLiveAgentMessage ? 1 : 0),
+                            itemBuilder: (context, index) {
+                              if (index == displayMessages.length) {
+                                return _buildLiveAgentBubble();
+                              }
+                              final message = displayMessages[index];
+                              final suggestions = !_isLoading &&
+                                      !_hasLiveAgentMessage &&
+                                      index == displayMessages.length - 1 &&
+                                      message.role == 'assistant' &&
+                                      AssistantFollowUpMetadata
+                                          .allowsAnalysisTemplates(
+                                              message.metadata) &&
+                                      (message.messageType == 'text' ||
+                                          message.messageType == 'bill_card')
+                                  ? AssistantPromptSuggestions.sections(
+                                      l10n,
+                                      contextual:
+                                          AssistantFollowUpMetadata.decode(
+                                              message.metadata,
+                                              ledgerId: ref.watch(
+                                                  currentLedgerIdProvider)),
+                                      recentPrompts: displayMessages
+                                          .where((row) => row.role == 'user')
+                                          .map((row) => row.content)
+                                          .toList()
+                                          .reversed
+                                          .take(12),
+                                    )
+                                  : (
+                                      questions: const <AgentPromptSuggestion>[],
+                                      templates: const <AgentPromptSuggestion>[]
+                                    );
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  _buildMessageBubble(message),
+                                  if (suggestions.questions.isNotEmpty ||
+                                      suggestions.templates.isNotEmpty)
+                                    Padding(
+                                        padding: EdgeInsets.only(bottom: 12),
+                                        child: AgentFollowUpQuestions(
+                                          key: ValueKey(
+                                              'follow-ups-${message.id}'),
+                                          suggestions: suggestions.questions,
+                                          templates: suggestions.templates,
+                                          onSuggestionTap:
+                                              _handlePromptSuggestion,
+                                        )),
+                                ],
+                              );
+                            },
+                          )),
                     );
                   },
                   loading: () =>
@@ -355,30 +381,15 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                 // 回到底部按钮
                 if (_showScrollToBottom)
                   Positioned(
-                    right: 16.0.scaled(context, ref),
+                    left: 0,
+                    right: 0,
                     bottom: 16.0.scaled(context, ref),
-                    child: Material(
-                      color: ref.watch(primaryColorProvider),
-                      borderRadius:
-                          BorderRadius.circular(24.0.scaled(context, ref)),
-                      elevation: 8,
-                      shadowColor: Colors.black.withValues(alpha: 0.4),
-                      child: InkWell(
-                        onTap: _scrollToBottomWithAnimation,
-                        borderRadius:
-                            BorderRadius.circular(24.0.scaled(context, ref)),
-                        child: Container(
-                          width: 48.0.scaled(context, ref),
-                          height: 48.0.scaled(context, ref),
-                          alignment: Alignment.center,
-                          child: Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            color: Colors.white,
-                            size: 30.0.scaled(context, ref),
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: Center(
+                        child: AgentScrollToLatestButton(
+                      key: const ValueKey('agent-scroll-to-latest'),
+                      label: l10n.agentScrollToLatest,
+                      onPressed: _scrollToBottomWithAnimation,
+                    )),
                   ),
               ],
             ),
@@ -392,26 +403,16 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   }
 
   Widget _buildMessageBubble(Message message) {
-    final isUser = message.role == 'user';
-    final responseAction = isUser ? null : _responseActionFor(message);
-
-    // 只对正在播放动画的消息ID启用动画
-    final shouldAnimate = !isUser && message.id == _animatingMessageId;
-
-    // 记账卡片
     if (message.messageType == 'bill_card' && message.metadata != null) {
       final parsed = _parseBillMetadata(message);
-
-      // 单笔走原有 UI(保持视觉一致)
+      Widget cards;
       if (parsed.bills.length == 1) {
         final bill = parsed.bills.first;
         final txId = parsed.txIds.isNotEmpty ? parsed.txIds.first : null;
         final isUndone = txId != null && parsed.undoneIds.contains(txId);
-        return GestureDetector(
-          onLongPressStart: (details) => _showBillCardMenu(
-            details.globalPosition,
-            message,
-          ),
+        cards = GestureDetector(
+          onLongPressStart: (details) =>
+              _showBillCardMenu(details.globalPosition, message),
           child: BillCardWidget(
             billInfo: bill,
             transactionId: txId,
@@ -427,195 +428,170 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
                 : null,
           ),
         );
+      } else {
+        cards = _buildMultiBillBubble(message, parsed);
       }
-
-      // 多笔
-      return _buildMultiBillBubble(message, parsed);
+      return AgentAnswerView(
+          activity: _storedActivity(message), content: cards);
     }
 
-    // 普通文字消息 - 带头像
-    return Padding(
-      padding: EdgeInsets.only(bottom: 8.0.scaled(context, ref)),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          // AI头像（左侧）
-          if (!isUser) ...[
-            _buildAIAvatar(),
-            SizedBox(width: 8.0.scaled(context, ref)),
-          ],
-          // 消息气泡
-          Flexible(
-            child: GestureDetector(
-              onLongPressStart: (details) => _showTextMessageMenu(
-                details.globalPosition,
-                message,
-                isUser,
-              ),
-              child: Container(
-                margin: EdgeInsets.only(
-                  left: isUser ? 60.0.scaled(context, ref) : 0,
-                  right: isUser ? 0 : 60.0.scaled(context, ref),
-                ),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12.0.scaled(context, ref),
-                  vertical: 10.0.scaled(context, ref),
-                ),
-                decoration: BoxDecoration(
-                  color: isUser
-                      ? ref.watch(primaryColorProvider).withValues(alpha: 0.1)
-                      : BeeTokens.surface(context),
-                  borderRadius:
-                      BorderRadius.circular(12.0.scaled(context, ref)),
-                  border: Border.all(
-                    color: isUser
-                        ? ref.watch(primaryColorProvider).withValues(alpha: 0.3)
-                        : BeeTokens.border(context),
-                  ),
-                ),
-                child: isUser
-                    ? TypewriterText(
-                        text: message.content,
-                        animate: shouldAnimate,
-                        onTextChange:
-                            shouldAnimate ? _scrollToBottomSmooth : null,
-                        onComplete: shouldAnimate
-                            ? () {
-                                if (mounted) {
-                                  setState(() => _animatingMessageId = null);
-                                }
-                              }
-                            : null,
-                        style: TextStyle(
-                          color: BeeTokens.textPrimary(context),
-                          fontSize: 14.0.scaled(context, ref),
-                          height: 1.5,
-                        ),
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AgentMarkdownText(
-                            data: message.content,
-                            style: TextStyle(
-                              color: BeeTokens.textPrimary(context),
-                              fontSize: 14.0.scaled(context, ref),
-                              height: 1.5,
-                            ),
-                          ),
-                          if (responseAction != null)
-                            _buildResponseAction(responseAction),
-                        ],
-                      ),
-              ),
-            ),
-          ),
-          // 用户头像（右侧，仅在有头像时显示）
-          if (isUser && _userAvatarPath != null) ...[
-            SizedBox(width: 8.0.scaled(context, ref)),
-            _buildUserAvatar(),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLiveAgentBubble() {
-    final liveResponse = _liveAgentResponse;
-    if (liveResponse != null) {
-      return _buildLiveAgentResponse(liveResponse);
-    }
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: 8.0.scaled(context, ref)),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildAIAvatar(),
-          SizedBox(width: 8.0.scaled(context, ref)),
-          Flexible(
-            child: Container(
-              margin: EdgeInsets.only(right: 60.0.scaled(context, ref)),
-              padding: EdgeInsets.symmetric(
-                horizontal: 12.0.scaled(context, ref),
-                vertical: 10.0.scaled(context, ref),
-              ),
-              decoration: BoxDecoration(
-                color: BeeTokens.surface(context),
-                borderRadius: BorderRadius.circular(12.0.scaled(context, ref)),
-                border: Border.all(color: BeeTokens.border(context)),
-              ),
-              child: AgentExecutionTimeline(
-                steps: _agentExecutionSteps,
-                isStreaming: _isLoading,
-                streamingText: _streamingAgentText,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Keeps the completed response in the same list slot while its database
-  /// row and post-processing finish. This avoids a timeline/message double
-  /// render and lets the user see the final Markdown or bill card immediately.
-  Widget _buildLiveAgentResponse(AIResponse response) {
-    if (response.type == 'bill_card' && response.bills.isNotEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var index = 0; index < response.bills.length; index++)
-            BillCardWidget(
-              billInfo: response.bills[index],
-              transactionId: index < response.transactionIds.length
-                  ? response.transactionIds[index]
-                  : null,
-            ),
-        ],
+    if (message.role != 'user') {
+      final responseAction = _responseActionFor(message);
+      return AgentAnswerView(
+        key: ValueKey('agent-answer-${message.id}'),
+        activity: _storedActivity(message),
+        content: GestureDetector(
+          onLongPressStart: (details) =>
+              _showTextMessageMenu(details.globalPosition, message, false),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            _answerText(message.content),
+            if (responseAction != null) _buildResponseAction(responseAction),
+          ]),
+        ),
+        actions: _answerActions(message.content, message: message),
       );
     }
 
+    // User requests retain their right-aligned bubble; assistant answers do not.
     return Padding(
-      padding: EdgeInsets.only(bottom: 8.0.scaled(context, ref)),
+      padding: EdgeInsets.only(
+          top: 8.0.scaled(context, ref), bottom: 16.0.scaled(context, ref)),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildAIAvatar(),
-          SizedBox(width: 8.0.scaled(context, ref)),
-          Flexible(
-            child: Container(
-              margin: EdgeInsets.only(right: 60.0.scaled(context, ref)),
-              padding: EdgeInsets.symmetric(
-                horizontal: 12.0.scaled(context, ref),
-                vertical: 10.0.scaled(context, ref),
-              ),
-              decoration: BoxDecoration(
-                color: BeeTokens.surface(context),
-                borderRadius: BorderRadius.circular(12.0.scaled(context, ref)),
-                border: Border.all(color: BeeTokens.border(context)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AgentMarkdownText(
-                    data: response.text,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Flexible(
+                child: GestureDetector(
+              onLongPressStart: (details) =>
+                  _showTextMessageMenu(details.globalPosition, message, true),
+              child: Container(
+                margin: EdgeInsets.only(left: 60.0.scaled(context, ref)),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 12.0.scaled(context, ref),
+                    vertical: 10.0.scaled(context, ref)),
+                decoration: BoxDecoration(
+                  color: ref.watch(primaryColorProvider).withValues(alpha: 0.1),
+                  borderRadius:
+                      BorderRadius.circular(12.0.scaled(context, ref)),
+                  border: Border.all(
+                      color: ref
+                          .watch(primaryColorProvider)
+                          .withValues(alpha: 0.3)),
+                ),
+                child: TypewriterText(
+                    text: message.content,
+                    animate: message.id == _animatingMessageId,
                     style: TextStyle(
-                      color: BeeTokens.textPrimary(context),
-                      fontSize: 14.0.scaled(context, ref),
-                      height: 1.5,
-                    ),
-                  ),
-                  if (response.action != null)
-                    _buildResponseAction(response.action!),
-                ],
+                        color: BeeTokens.textPrimary(context),
+                        fontSize: 14.0.scaled(context, ref),
+                        height: 1.5)),
               ),
-            ),
-          ),
-        ],
+            )),
+            if (_userAvatarPath != null) ...[
+              SizedBox(width: 8.0.scaled(context, ref)),
+              _buildUserAvatar(),
+            ],
+          ]),
+    );
+  }
+
+  Widget _answerText(String text) => AgentMarkdownText(
+        data: text,
+        style: TextStyle(
+            color: BeeTokens.textPrimary(context),
+            fontSize: 14.0.scaled(context, ref),
+            height: 1.6),
+      );
+
+  Widget? _storedActivity(Message message) {
+    final steps = AssistantExecutionMetadata.decode(message.metadata);
+    if (steps.isEmpty) return null;
+    return AgentExecutionTimeline(
+      key: ValueKey('execution-${message.id}'),
+      steps: const [],
+      displaySteps: steps,
+      isStreaming: false,
+    );
+  }
+
+  Widget _answerActions(String text, {Message? message}) {
+    final l10n = AppLocalizations.of(context);
+    final color = BeeTokens.textTertiary(context);
+    return Row(children: [
+      IconButton(
+        key: message == null
+            ? null
+            : ValueKey('agent-answer-copy-${message.id}'),
+        tooltip: l10n.aiChatCopy,
+        icon: Icon(Icons.copy_rounded, size: 16, color: color),
+        onPressed: () {
+          Clipboard.setData(ClipboardData(text: text));
+          showToast(context, l10n.aiChatCopied);
+        },
       ),
+      if (message != null)
+        Builder(
+            builder: (buttonContext) => IconButton(
+                  key: ValueKey('agent-answer-more-${message.id}'),
+                  tooltip: l10n.commonMore,
+                  icon: Icon(Icons.more_horiz_rounded, size: 18, color: color),
+                  onPressed: () {
+                    final box = buttonContext.findRenderObject() as RenderBox;
+                    _showTextMessageMenu(
+                        box.localToGlobal(Offset(box.size.width, 0)),
+                        message,
+                        false);
+                  },
+                )),
+    ]);
+  }
+
+  Widget _buildLiveAgentBubble() {
+    final response = _liveAgentResponse;
+    if (response != null) return _buildLiveAgentResponse(response);
+    return AgentAnswerView(
+      key: const ValueKey('agent-live-answer'),
+      content: AgentExecutionTimeline(
+        key: ValueKey('execution-live-$_activeAgentRunId'),
+        steps: _agentExecutionSteps,
+        isStreaming: _isLoading,
+        streamingText: _streamingAgentText,
+      ),
+    );
+  }
+
+  /// The completed answer retains the same full-width list slot while the
+  /// database row and bill post-processing finish; no replayed typewriter.
+  Widget _buildLiveAgentResponse(AIResponse response) {
+    final activity = _agentExecutionSteps.isEmpty
+        ? null
+        : AgentExecutionTimeline(
+            steps: _agentExecutionSteps,
+            isStreaming: false,
+          );
+    if (response.type == 'bill_card' && response.bills.isNotEmpty) {
+      return AgentAnswerView(
+          activity: activity,
+          content:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            for (var index = 0; index < response.bills.length; index++)
+              BillCardWidget(
+                billInfo: response.bills[index],
+                transactionId: index < response.transactionIds.length
+                    ? response.transactionIds[index]
+                    : null,
+              ),
+          ]));
+    }
+    return AgentAnswerView(
+      activity: activity,
+      content:
+          Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        _answerText(response.text),
+        if (response.action != null) _buildResponseAction(response.action!),
+      ]),
+      actions: _answerActions(response.text),
     );
   }
 
@@ -656,28 +632,6 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   void _openProviderSettings() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const AIProviderManagePage()),
-    );
-  }
-
-  // 构建AI头像
-  Widget _buildAIAvatar() {
-    return Container(
-      width: 32.0.scaled(context, ref),
-      height: 32.0.scaled(context, ref),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: ref.watch(primaryColorProvider).withValues(alpha: 0.3),
-          width: 1.5,
-        ),
-        color: ref.watch(primaryColorProvider).withValues(alpha: 0.1),
-      ),
-      child: Center(
-        child: BeeIcon(
-          color: ref.watch(primaryColorProvider),
-          size: 18.0.scaled(context, ref),
-        ),
-      ),
     );
   }
 
@@ -793,10 +747,15 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   Future<void> _sendMessageText(String text, {bool readOnly = false}) async {
     if (!mounted || text.isEmpty || _isLoading) return;
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _followLatest = true;
+      _isUserScrolling = false;
+    });
 
     try {
       final repo = ref.read(repositoryProvider);
+      final ledgerId = ref.read(currentLedgerIdProvider);
 
       // Persist the actual request, including period and scope, for follow-ups.
       await repo.createMessage(
@@ -805,6 +764,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           role: 'user',
           content: text,
           messageType: 'text',
+          metadata: Value(jsonEncode({'contextLedgerId': ledgerId})),
           createdAt: Value(DateTime.now()),
         ),
       );
@@ -816,7 +776,6 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       // 当前账本可用分类 + 同币种账户,page 层不再预查。
       final chatService = _chatService;
       final currentLocale = Localizations.localeOf(context);
-      final ledgerId = ref.read(currentLedgerIdProvider);
       final l10n = AppLocalizations.of(context);
       final agentRunId = const Uuid().v4();
 
@@ -935,8 +894,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       if (!mounted) return;
       setState(() {
         _liveAssistantMessageId = assistantMessageId;
-        _pendingResponseMessageId = assistantMessageId;
-        _chatScrollCoordinator.request();
+        _pendingResponseMessageId = _followLatest ? assistantMessageId : null;
+        if (_followLatest) _chatScrollCoordinator.request();
       });
 
       // 如果是记账成功，刷新统计信息
@@ -987,8 +946,14 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
   Value<String?> _responseMetadata(AIResponse response, int ledgerId) {
     final metadata = <String, Object?>{
+      'contextLedgerId': ledgerId,
       'analysisTemplatesAllowed': response.allowPromptSuggestions,
     };
+    metadata.addAll(AssistantExecutionMetadata.encode(
+      AgentExecutionTimeline.projectSteps(
+          AppLocalizations.of(context), _agentExecutionSteps,
+          finished: true),
+    ));
     if (response.bills.isNotEmpty) {
       metadata.addAll(Map<String, Object?>.from(jsonDecode(_encodeBillMetadata(
           response.bills, response.transactionIds, const <int>{})) as Map));
@@ -1054,7 +1019,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
   void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients && mounted) {
+      if (_scrollController.hasClients && mounted && _followLatest) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 300),
@@ -1066,6 +1031,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
 
   /// 点击按钮时滚动到底部（立即执行）
   void _scrollToBottomWithAnimation() {
+    _followLatest = true;
+    _isUserScrolling = false;
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
@@ -1078,9 +1045,10 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   /// 平滑滚动到底部（用于打字机效果期间）
   /// 使用 jumpTo 避免频繁调用 animateTo 造成性能问题
   void _scrollToBottomSmooth() {
+    if (!_followLatest) return;
     // 使用 postFrameCallback 确保在布局完成后滚动
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients && mounted) {
+      if (_scrollController.hasClients && mounted && _followLatest) {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       }
     });
@@ -1147,6 +1115,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         parsed.bills,
         parsed.txIds,
         newUndone,
+        existingMetadata: message.metadata,
       )),
     ));
 
@@ -1263,6 +1232,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           newBills,
           parsed.txIds,
           parsed.undoneIds,
+          existingMetadata: message.metadata,
         )),
       ));
 
@@ -1323,6 +1293,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
               newBills,
               parsed.txIds,
               parsed.undoneIds,
+              existingMetadata: message.metadata,
             )),
           ));
         } else {
@@ -1473,9 +1444,12 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   String _encodeBillMetadata(
     List<BillInfo> bills,
     List<int> txIds,
-    Set<int> undoneIds,
-  ) {
+    Set<int> undoneIds, {
+    String? existingMetadata,
+  }) {
     return jsonEncode({
+      if (existingMetadata != null)
+        ...jsonDecode(existingMetadata) as Map<String, dynamic>,
       'bills': bills.map((b) => b.toJson()).toList(),
       'txIds': txIds,
       'undoneIds': undoneIds.toList(),

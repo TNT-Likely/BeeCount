@@ -31,7 +31,7 @@ class AgentChatShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BeeTokens.scaffoldBackground(context),
+      backgroundColor: BeeTokens.surface(context),
       body: Column(
         children: [
           PrimaryHeader(

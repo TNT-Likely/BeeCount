@@ -40,20 +40,24 @@ void main() {
       }
     }
   });
-  test('回答后的模板与上下文追问合并，优先动态范围并过滤已问问题', () {
+  test('上下文追问独立去重，六类完整模板可重复进入', () {
     for (final l10n in [AppLocalizationsZh(), AppLocalizationsEn()]) {
       final templates = AssistantPromptSuggestions.localized(l10n);
       final contextual = core.AgentPromptSuggestion(
           id: 'scoped', title: 'Scoped', prompt: '2026-09-15 to 2026-10-15');
-      final items = AssistantPromptSuggestions.continuations(l10n,
+      final items = AssistantPromptSuggestions.sections(l10n,
           contextual: [contextual, contextual],
           recentPrompts: [templates.first.prompt]);
-      expect(items, hasLength(6));
-      expect(items.first.prompt, contextual.prompt);
-      expect(items.map((item) => item.id), isNot(contains(templates.first.id)));
-      expect(items.skip(1).map((item) => item.prompt),
-          templates.skip(1).map((item) => item.prompt));
-      expect(AssistantPromptSuggestions.continuations(l10n), hasLength(6));
+      expect(items.questions, hasLength(1));
+      expect(items.questions.first.prompt, contextual.prompt);
+      expect(items.templates.map((item) => item.prompt),
+          templates.map((item) => item.prompt));
+      expect(items.templates, hasLength(6));
+      expect(
+          AssistantPromptSuggestions.sections(l10n,
+              contextual: [contextual],
+              recentPrompts: [contextual.prompt]).questions,
+          isEmpty);
     }
   });
   for (final testCase in cases) {

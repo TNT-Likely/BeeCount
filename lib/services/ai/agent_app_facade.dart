@@ -64,6 +64,7 @@ final class AgentAppFacade {
     required AgentToolPermissionStore permissionStore,
     AgentExecutionSettingsStore? executionSettingsStore,
     this.conversationHistoryLoader,
+    this.contextCompressor = const AgentConversationContextCompressor(),
     AgentModel? model,
     AgentPolicy policy = const P0AgentPolicy(),
     String Function()? runIdFactory,
@@ -87,6 +88,7 @@ final class AgentAppFacade {
   final AgentToolPermissionStore _permissionStore;
   final AgentExecutionSettingsStore _executionSettingsStore;
   final AgentConversationHistoryLoader? conversationHistoryLoader;
+  final AgentConversationContextCompressor contextCompressor;
   final AgentModelCapabilityLoader? modelCapabilityLoader;
   final AgentModel _model;
   final AgentPolicy _policy;
@@ -289,6 +291,9 @@ final class AgentAppFacade {
       conversationId: conversationId,
       requestContext: requestContext,
       runId: runId,
+      ledgerId: ledgerId,
+      currentMessage: message,
+      cancellation: cancellationToken,
     );
     try {
       final memories = await _loadMemories(
@@ -577,6 +582,9 @@ final class AgentAppFacade {
     required int? conversationId,
     required Map<String, Object?> requestContext,
     required String runId,
+    required int ledgerId,
+    required String currentMessage,
+    AgentCancellationToken? cancellation,
   }) async {
     final loader = conversationHistoryLoader;
     if (conversationId == null || loader == null) {
@@ -589,34 +597,20 @@ final class AgentAppFacade {
 
     try {
       final history = await loader(conversationId);
-      const maxMessageCharacters = 2000;
-      final safeHistory = <Map<String, Object?>>[];
-      for (final item in history) {
-        final role = item['role'];
-        final content = item['content'];
-        if ((role == 'user' || role == 'assistant') && content is String) {
-          final trimmed = content.trim();
-          if (trimmed.isNotEmpty) {
-            safeHistory.add({
-              'role': role as String,
-              'content': trimmed.length > maxMessageCharacters
-                  ? '${trimmed.substring(0, maxMessageCharacters)}…'
-                  : trimmed,
-            });
-          }
-        }
-      }
-      const maxRecentMessages = 12;
-      final start = safeHistory.length > maxRecentMessages
-          ? safeHistory.length - maxRecentMessages
-          : 0;
-      requestContext['recentMessages'] = List.unmodifiable(
-        safeHistory.sublist(start),
+      final prepared = await contextCompressor.prepare(
+        history: history,
+        currentMessage: currentMessage,
+        conversationId: conversationId.toString(),
+        scopeId: ledgerId.toString(),
+        cancellation: cancellation,
       );
+      requestContext['recentMessages'] = prepared.recentMessages;
+      requestContext['summary'] = prepared.summary;
       logger.debug('AgentCore', '会话上下文已加载', {
         'runId': runId,
         'conversationId': conversationId,
-        'count': safeHistory.length - start,
+        'count': prepared.recentMessages.length,
+        'hasSummary': prepared.summary != null,
       });
     } on Object catch (error, stackTrace) {
       // Conversation context is optional. A local history read failure must

@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 import '../../agent/permission/agent_tool_permission.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -8,6 +10,110 @@ import '../../l10n/app_localizations.dart';
 /// record's source text into guessed transaction fields.
 final class AgentToolPresentation {
   const AgentToolPresentation._();
+
+  /// Friendly display names. Authorization retains exact tool identifiers for
+  /// unknown tools; the conversation surface does not expose implementation names.
+  static String activityTitle(AppLocalizations l10n, String toolName) =>
+      switch (toolName) {
+        'get_period_overview' => l10n.agentActivityOverview,
+        'get_spending_trend' => l10n.agentActivityTrend,
+        'get_category_breakdown' => l10n.agentActivityCategories,
+        'query_transactions' ||
+        'get_spending_summary' ||
+        'get_transaction_summary' ||
+        'get_budget_status' ||
+        'get_recurring_transactions' ||
+        'record_transaction_from_text' ||
+        'save_explicit_memory' ||
+        'forget_memory' =>
+          label(l10n, toolName),
+        _ => l10n.agentActivityUnknownTool,
+      };
+
+  /// Only a bounded, human-readable projection is shown or persisted. Never
+  /// stringify arbitrary maps, transaction notes, source text or error objects.
+  static List<String> activityDetails(AppLocalizations l10n, String toolName,
+      Map<String, Object?> arguments, Map<String, Object?>? result) {
+    final lines = <String>[];
+    final queryTools = {
+      'query_transactions',
+      'get_spending_summary',
+      'get_transaction_summary',
+      'get_period_overview',
+      'get_spending_trend',
+      'get_category_breakdown'
+    };
+    if (!queryTools.contains(toolName)) return lines;
+    final start =
+        _displayDate(result?['periodStart'] ?? arguments['start'], l10n);
+    final end = _displayDate(result?['periodEnd'] ?? arguments['end'], l10n);
+    if (start != null && end != null) {
+      lines.add(l10n.agentFollowUpRange(start, end));
+    }
+    if (toolName == 'get_category_breakdown') {
+      lines.add(
+          (result?['categoryLevel'] ?? arguments['categoryLevel']) == 'leaf'
+              ? l10n.agentActivityLeafCategories
+              : l10n.categoryGenerateDefaultFlat);
+    }
+    final names = arguments['categoryNames'];
+    if (names is List) {
+      final safeNames = names
+          .whereType<String>()
+          .where((name) =>
+              name.trim().isNotEmpty &&
+              name.length <= 60 &&
+              !RegExp(r'[\x00-\x1f]').hasMatch(name))
+          .take(3)
+          .toList();
+      if (safeNames.isNotEmpty) {
+        lines.add(l10n.agentActivityCategoryScope(safeNames.join('、')));
+      }
+    }
+    if (result == null || result.containsKey('error')) return lines;
+    final items = result['items'];
+    final points = result['points'];
+    if (items is List) {
+      lines.add(toolName == 'query_transactions'
+          ? l10n.agentActivityReturnedRows(items.length)
+          : l10n.agentActivityReturnedGroups(items.length));
+    }
+    if (points is List) {
+      lines.add(l10n.agentActivityReturnedGroups(points.length));
+    }
+    final count = result['transactionCount'];
+    if (count is int && count >= 0) {
+      lines.add(l10n.agentActivityReturnedRows(count));
+    }
+    final currency = result['currency'];
+    if (currency is String && RegExp(r'^[A-Z]{3}$').hasMatch(currency)) {
+      final expense = result['totalExpense'] ?? result['expense'];
+      final income = result['income'];
+      final money =
+          NumberFormat.simpleCurrency(locale: l10n.localeName, name: currency);
+      if (income is num && income.isFinite) {
+        lines.add('${l10n.categoryIncome}：${money.format(income)}');
+      }
+      if (expense is num && expense.isFinite) {
+        lines.add('${l10n.categoryExpense}：${money.format(expense)}');
+      }
+    }
+    if (result['truncated'] == true) lines.add(l10n.agentActivityTruncated);
+    return List.unmodifiable(lines.take(8));
+  }
+
+  static String? _displayDate(Object? raw, AppLocalizations l10n) {
+    if (raw is! String) return null;
+    final date = DateTime.tryParse(raw);
+    if (date == null) return null;
+    final format = date.hour == 0 &&
+            date.minute == 0 &&
+            date.second == 0 &&
+            date.millisecond == 0
+        ? DateFormat.yMd(l10n.localeName)
+        : DateFormat.yMd(l10n.localeName).add_Hm();
+    return format.format(date);
+  }
 
   static String label(AppLocalizations l10n, String toolName) =>
       switch (toolName) {

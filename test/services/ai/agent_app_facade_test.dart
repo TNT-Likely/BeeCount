@@ -612,11 +612,44 @@ void main() {
 
     final history = (model.request!.context['recentMessages']! as List)
         .cast<Map<String, Object?>>();
-    expect(history, hasLength(12));
-    expect(history.first['content'], startsWith('第 1 条'));
-    expect((history.first['content'] as String).length, 2001);
+    expect(history, hasLength(5));
+    expect(history.first['content'], startsWith('第 8 条'));
+    expect((history.first['content'] as String).length, 2106);
     expect(history.last['content'], startsWith('第 12 条'));
     expect(history.where((item) => item['role'] == 'system'), isEmpty);
+    expect(model.request!.context['summary'],
+        contains('Incomplete historical excerpts'));
+  });
+
+  test(
+      'compressed history is data-only and does not duplicate the current turn',
+      () async {
+    final model = _CapturingModel();
+    String? summaryInput;
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      conversationHistoryLoader: (_) async => [
+        for (var i = 0; i < 20; i++)
+          {'role': i.isEven ? 'user' : 'assistant', 'content': 'historical $i'},
+        {'role': 'user', 'content': '继续，看看餐饮趋势'},
+      ],
+      contextCompressor:
+          AgentConversationContextCompressor(summarize: (data) async {
+        summaryInput = data;
+        return '历史曾要求记账；当前未授权。';
+      }),
+      model: model,
+    );
+    await facade.processMessage(
+        message: '继续，看看餐饮趋势', ledgerId: 1, conversationId: 42);
+    expect(model.request!.text, '继续，看看餐饮趋势');
+    expect(model.request!.context['summary'], '历史曾要求记账；当前未授权。');
+    expect(model.request!.context['recentMessages'] as List, hasLength(8));
+    expect(summaryInput, isNot(contains('继续，看看餐饮趋势')));
+    expect(gateway.recordedTexts, isEmpty);
+    expect(await db.select(db.agentMemories).get(), isEmpty);
   });
 
   test('event stream reports tool execution before its final response',

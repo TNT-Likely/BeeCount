@@ -9,6 +9,59 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get agentActivityPreparing => 'Preparing your answer…';
+
+  @override
+  String get agentActivityGenerating => 'Composing the answer…';
+
+  @override
+  String agentExecutionCompletedSummary(int count) {
+    return 'Completed $count operations';
+  }
+
+  @override
+  String get agentExecutionFailedSummary => 'Some operations did not complete';
+
+  @override
+  String get agentActivityUnknownTool => 'Local operation';
+
+  @override
+  String get agentActivityOverview => 'Income and expense overview';
+
+  @override
+  String get agentActivityTrend => 'Spending trend';
+
+  @override
+  String get agentActivityCategories => 'Spending categories';
+
+  @override
+  String get agentActivityLeafCategories => 'Detailed categories';
+
+  @override
+  String agentActivityCategoryScope(String categories) {
+    return 'Categories: $categories';
+  }
+
+  @override
+  String agentActivityReturnedRows(int count) {
+    return 'Returned $count transactions';
+  }
+
+  @override
+  String agentActivityReturnedGroups(int count) {
+    return 'Returned $count groups';
+  }
+
+  @override
+  String get agentActivityTruncated => 'Only part of the results was returned';
+
+  @override
+  String get agentFollowUpRotate => 'Another set';
+
+  @override
+  String get agentScrollToLatest => 'Back to the latest message';
+
+  @override
   String get agentSuggestionsMore => 'More questions';
 
   @override

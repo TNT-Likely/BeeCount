@@ -98,6 +98,96 @@ abstract class AppLocalizations {
     Locale('zh', 'TW')
   ];
 
+  /// No description provided for @agentActivityPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your answer…'**
+  String get agentActivityPreparing;
+
+  /// No description provided for @agentActivityGenerating.
+  ///
+  /// In en, this message translates to:
+  /// **'Composing the answer…'**
+  String get agentActivityGenerating;
+
+  /// No description provided for @agentExecutionCompletedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed {count} operations'**
+  String agentExecutionCompletedSummary(int count);
+
+  /// No description provided for @agentExecutionFailedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Some operations did not complete'**
+  String get agentExecutionFailedSummary;
+
+  /// No description provided for @agentActivityUnknownTool.
+  ///
+  /// In en, this message translates to:
+  /// **'Local operation'**
+  String get agentActivityUnknownTool;
+
+  /// No description provided for @agentActivityOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and expense overview'**
+  String get agentActivityOverview;
+
+  /// No description provided for @agentActivityTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending trend'**
+  String get agentActivityTrend;
+
+  /// No description provided for @agentActivityCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending categories'**
+  String get agentActivityCategories;
+
+  /// No description provided for @agentActivityLeafCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed categories'**
+  String get agentActivityLeafCategories;
+
+  /// No description provided for @agentActivityCategoryScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories: {categories}'**
+  String agentActivityCategoryScope(String categories);
+
+  /// No description provided for @agentActivityReturnedRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned {count} transactions'**
+  String agentActivityReturnedRows(int count);
+
+  /// No description provided for @agentActivityReturnedGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned {count} groups'**
+  String agentActivityReturnedGroups(int count);
+
+  /// No description provided for @agentActivityTruncated.
+  ///
+  /// In en, this message translates to:
+  /// **'Only part of the results was returned'**
+  String get agentActivityTruncated;
+
+  /// No description provided for @agentFollowUpRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Another set'**
+  String get agentFollowUpRotate;
+
+  /// No description provided for @agentScrollToLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the latest message'**
+  String get agentScrollToLatest;
+
   /// No description provided for @agentSuggestionsMore.
   ///
   /// In en, this message translates to:

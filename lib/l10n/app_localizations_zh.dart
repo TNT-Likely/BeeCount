@@ -9,6 +9,59 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get agentActivityPreparing => '正在处理你的问题…';
+
+  @override
+  String get agentActivityGenerating => '正在整理回答…';
+
+  @override
+  String agentExecutionCompletedSummary(int count) {
+    return '已完成 $count 项操作';
+  }
+
+  @override
+  String get agentExecutionFailedSummary => '部分操作未完成';
+
+  @override
+  String get agentActivityUnknownTool => '本地操作';
+
+  @override
+  String get agentActivityOverview => '收支概览';
+
+  @override
+  String get agentActivityTrend => '支出趋势';
+
+  @override
+  String get agentActivityCategories => '支出分类';
+
+  @override
+  String get agentActivityLeafCategories => '明细分类';
+
+  @override
+  String agentActivityCategoryScope(String categories) {
+    return '分类：$categories';
+  }
+
+  @override
+  String agentActivityReturnedRows(int count) {
+    return '已返回 $count 笔交易';
+  }
+
+  @override
+  String agentActivityReturnedGroups(int count) {
+    return '已返回 $count 个分组';
+  }
+
+  @override
+  String get agentActivityTruncated => '仅返回部分结果';
+
+  @override
+  String get agentFollowUpRotate => '换一组';
+
+  @override
+  String get agentScrollToLatest => '回到最新消息';
+
+  @override
   String get agentSuggestionsMore => '更多问题';
 
   @override
