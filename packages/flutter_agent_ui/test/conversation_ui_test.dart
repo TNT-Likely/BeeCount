@@ -183,6 +183,64 @@ void main() {
   });
 
   testWidgets(
+      'follow-up surface derives from primary and supports host palette overrides',
+      (tester) async {
+    Widget section({AgentFollowUpStyle style = const AgentFollowUpStyle()}) =>
+        AgentFollowUpSection(
+            questions: const [question],
+            templates: const [],
+            title: 'Explore',
+            rotateLabel: 'Another set',
+            onSelected: (_) {},
+            style: style);
+    for (final brightness in Brightness.values) {
+      final scheme =
+          ColorScheme.fromSeed(seedColor: Colors.purple, brightness: brightness)
+              .copyWith(primary: Colors.green);
+      await tester
+          .pumpWidget(host(section(), theme: ThemeData(colorScheme: scheme)));
+      await tester.pumpAndSettle();
+      final surface = tester
+          .widget<DecoratedBox>(
+              find.byKey(const ValueKey('agent-follow-up-surface')))
+          .decoration as BoxDecoration;
+      expect(
+          surface.color,
+          Color.alphaBlend(
+              Colors.green.withValues(
+                  alpha: brightness == Brightness.dark ? 0.15 : 0.08),
+              scheme.surface));
+      expect(surface.color, isNot(scheme.surfaceContainerLow));
+      expect(
+          (tester
+                  .widget<Container>(
+                      find.byKey(const ValueKey('agent-follow-up-accent')))
+                  .decoration as BoxDecoration)
+              .color,
+          Colors.green);
+    }
+    const custom = AgentFollowUpStyle(
+        surfaceColor: Colors.black,
+        accentColor: Colors.amber,
+        foregroundColor: Colors.white,
+        secondaryForegroundColor: Colors.grey,
+        separatorColor: Colors.orange);
+    await tester.pumpWidget(host(section(style: custom)));
+    await tester.pumpAndSettle();
+    expect(
+        (tester
+                .widget<DecoratedBox>(
+                    find.byKey(const ValueKey('agent-follow-up-surface')))
+                .decoration as BoxDecoration)
+            .color,
+        custom.surfaceColor);
+    expect(tester.widget<Text>(find.text('Explore details')).style?.color,
+        custom.foregroundColor);
+    expect(tester.widget<Text>(find.text('Explore')).style?.color,
+        custom.secondaryForegroundColor);
+  });
+
+  testWidgets(
       'manual navigation cancels initial positioning even during its stability window',
       (tester) async {
     final controller = ScrollController();

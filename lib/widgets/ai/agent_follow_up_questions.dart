@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_agent_ui/flutter_agent_ui.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../styles/tokens.dart';
 
 /// Host-localized adapter; rotating interaction and distinct surface are reusable.
 final class AgentFollowUpQuestions extends StatelessWidget {
@@ -27,6 +28,14 @@ final class AgentFollowUpQuestions extends StatelessWidget {
       templates: templates,
       title: l10n.agentFollowUpTitle,
       rotateLabel: l10n.agentFollowUpRotate,
+      style: AgentFollowUpStyle(
+        surfaceColor: Color.alphaBlend(
+            BeeTokens.surfaceSelected(context), BeeTokens.surface(context)),
+        accentColor: BeeTokens.primary(context),
+        foregroundColor: BeeTokens.textPrimary(context),
+        secondaryForegroundColor: BeeTokens.textSecondary(context),
+        separatorColor: BeeTokens.primary(context).withValues(alpha: 0.12),
+      ),
       enabled: enabled,
       onSelected: onSuggestionTap,
     );

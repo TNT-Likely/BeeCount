@@ -2,6 +2,8 @@ import 'package:agentcore/agentcore.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/l10n/app_localizations_zh.dart';
 import 'package:beecount/models/assistant_prompt_suggestions.dart';
+import 'package:beecount/styles/tokens.dart';
+import 'package:beecount/theme.dart';
 import 'package:beecount/widgets/ai/agent_follow_up_questions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,7 +14,8 @@ void main() {
       title: '查看分类占比',
       prompt: '查询 2026-09-15 至 2026-10-15（不含结束时间）的一级分类支出占比。');
   final templates = AssistantPromptSuggestions.localized(AppLocalizationsZh());
-  Widget host(Widget child) => MaterialApp(
+  Widget host(Widget child, {ThemeData? theme}) => MaterialApp(
+      theme: theme,
       locale: const Locale('zh'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -29,6 +32,66 @@ void main() {
     expect(find.byType(ActionChip), findsNothing);
     await tester.tap(find.text('查看分类占比'));
     expect(selected?.prompt, question.prompt);
+  });
+
+  testWidgets('主题浅底跟随金色蓝色绿色及亮暗模式，不沿用 Material 粉紫容器色', (tester) async {
+    for (final brightness in Brightness.values) {
+      for (final primary in [BeeTheme.honeyGold, Colors.blue, Colors.teal]) {
+        final base = brightness == Brightness.light
+            ? BeeTheme.lightTheme()
+            : BeeTheme.darkTheme();
+        final theme = base.copyWith(
+            colorScheme: base.colorScheme.copyWith(primary: primary));
+        await tester.pumpWidget(host(
+            AgentFollowUpQuestions(
+                suggestions: const [question],
+                templates: templates,
+                onSuggestionTap: (_) {}),
+            theme: theme));
+        await tester.pumpAndSettle();
+        final surface = find.byKey(const ValueKey('agent-follow-up-surface'));
+        final context = tester.element(surface);
+        final decoration =
+            tester.widget<DecoratedBox>(surface).decoration as BoxDecoration;
+        expect(
+            decoration.color,
+            Color.alphaBlend(BeeTokens.surfaceSelected(context),
+                BeeTokens.surface(context)));
+        expect(decoration.color, isNot(theme.colorScheme.surfaceContainerLow));
+        final accent = tester.widget<Container>(
+            find.byKey(const ValueKey('agent-follow-up-accent')));
+        expect((accent.decoration as BoxDecoration).color, primary);
+        expect(tester.widget<Text>(find.text('查看分类占比')).style?.color,
+            BeeTokens.textPrimary(context));
+        expect(tester.widget<Text>(find.text('继续了解')).style?.color,
+            BeeTokens.textSecondary(context));
+        expect(tester.widget<Divider>(find.byType(Divider)).color,
+            primary.withValues(alpha: 0.12));
+        expect(tester.takeException(), isNull);
+      }
+    }
+  });
+
+  testWidgets('切换主题不重置候选轮换，完整问题仍保持不变', (tester) async {
+    AgentPromptSuggestion? selected;
+    final widget = AgentFollowUpQuestions(
+        suggestions: const [],
+        templates: templates,
+        onSuggestionTap: (item) => selected = item);
+    await tester.pumpWidget(host(widget, theme: BeeTheme.lightTheme()));
+    await tester.tap(find.byKey(const ValueKey('agent-follow-up-rotate')));
+    await tester.pumpAndSettle();
+    final shown = templates[2];
+    expect(find.text(shown.title), findsOneWidget);
+    await tester.pumpWidget(host(widget,
+        theme: BeeTheme.darkTheme().copyWith(
+            colorScheme: BeeTheme.darkTheme()
+                .colorScheme
+                .copyWith(primary: Colors.blue))));
+    await tester.pumpAndSettle();
+    expect(find.text(shown.title), findsOneWidget);
+    await tester.tap(find.text(shown.title));
+    expect(selected?.prompt, shown.prompt);
   });
 
   testWidgets('空候选无区域，禁用时不能点击或换一组', (tester) async {
