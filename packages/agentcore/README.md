@@ -79,6 +79,19 @@ AgentModel.nextTurn()
 
 ## 核心契约
 
+### 模型流式活动
+
+`AgentRequest.withStreamingTextDeltas(sink)` 的请求级 sink 接收正文增量
+`AgentNativeTextDelta`，以及只携带阶段的 `AgentNativeModelActivity`。兼容传输在每次
+请求（含工具后的模型回合及协议重试）开始时发送 `awaitingResponse`；仅在收到非空
+`reasoning_content` / `reasoning` 时发送一次 `thinking`；首段正文到达时发送一次
+`generating`。普通模型没有思考事件，不用等待时间推断。阶段状态即使正文因收口协议
+校验被暂存仍可上报，不能据此绕过宿主的结果校验。
+
+思考事件没有文本载荷，传输不保存或转发推理原文，最终回答和后续工具上下文只包含
+公开正文/工具结果。宿主将状态映射为本地化文案，并继续通过工具观察器展示真实工具
+执行；不要用模型阶段代替成功工具结果或授权记录。
+
 ### 自动上下文压缩
 
 `AgentConversationContextCompressor` 在纯 Dart 中清洗历史、按字符和条数预算自动压缩，

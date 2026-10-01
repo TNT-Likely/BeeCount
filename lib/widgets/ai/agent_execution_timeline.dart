@@ -1,3 +1,4 @@
+import 'package:agentcore/agentcore.dart' show AgentNativeModelPhase;
 import 'package:flutter/material.dart';
 import 'package:flutter_agent_ui/flutter_agent_ui.dart';
 
@@ -63,12 +64,14 @@ final class AgentExecutionTimeline extends StatelessWidget {
     required this.isStreaming,
     this.streamingText,
     this.displaySteps,
+    this.modelPhase,
   });
 
   final List<AgentExecutionStep> steps;
   final bool isStreaming;
   final String? streamingText;
   final List<AgentActivityStep>? displaySteps;
+  final AgentNativeModelPhase? modelPhase;
 
   static List<AgentActivityStep> projectSteps(
           AppLocalizations l10n, List<AgentExecutionStep> steps,
@@ -121,14 +124,23 @@ final class AgentExecutionTimeline extends StatelessWidget {
         visibleSteps.any((step) => step.status == AgentActivityStatus.failed);
     final status = active?.status ??
         (isStreaming
-            ? (visibleSteps.isEmpty && text.isEmpty
-                ? AgentActivityStatus.preparing
-                : AgentActivityStatus.generating)
+            ? switch (modelPhase) {
+                AgentNativeModelPhase.awaitingResponse =>
+                  AgentActivityStatus.awaitingModel,
+                AgentNativeModelPhase.thinking => AgentActivityStatus.thinking,
+                AgentNativeModelPhase.generating =>
+                  AgentActivityStatus.generating,
+                null => visibleSteps.isEmpty && text.isEmpty
+                    ? AgentActivityStatus.preparing
+                    : AgentActivityStatus.generating,
+              }
             : failed
                 ? AgentActivityStatus.failed
                 : AgentActivityStatus.completed);
     final summary = switch (status) {
       AgentActivityStatus.preparing => l10n.agentActivityPreparing,
+      AgentActivityStatus.awaitingModel => l10n.agentActivityAwaitingModel,
+      AgentActivityStatus.thinking => l10n.agentActivityThinking,
       AgentActivityStatus.generating => l10n.agentActivityGenerating,
       AgentActivityStatus.waiting => l10n.agentPermissionWaiting,
       AgentActivityStatus.running => l10n.agentExecutingTool(active!.title),
@@ -142,7 +154,10 @@ final class AgentExecutionTimeline extends StatelessWidget {
         children: [
           if (isStreaming || visibleSteps.isNotEmpty)
             AgentActivityView(
-                summary: summary, status: status, steps: visibleSteps),
+                summary: summary,
+                status: status,
+                steps: visibleSteps,
+                expandWhileActive: isStreaming),
           if (text.isNotEmpty)
             Padding(
                 padding: const EdgeInsets.only(top: 4),

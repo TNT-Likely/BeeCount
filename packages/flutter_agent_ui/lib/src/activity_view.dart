@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 enum AgentActivityStatus {
   preparing,
+  awaitingModel,
+  thinking,
   waiting,
   running,
   generating,
@@ -60,19 +62,31 @@ class AgentActivityView extends StatefulWidget {
       required this.summary,
       required this.status,
       required this.steps,
-      this.initiallyExpanded = false});
+      this.initiallyExpanded = false,
+      this.expandWhileActive = false});
 
   final String summary;
   final AgentActivityStatus status;
   final List<AgentActivityStep> steps;
   final bool initiallyExpanded;
 
+  /// Automatically reveals execution details while active and collapses them
+  /// on completion. Explicit user expansion/collapse always takes precedence.
+  final bool expandWhileActive;
+
   @override
   State<AgentActivityView> createState() => _AgentActivityViewState();
 }
 
 class _AgentActivityViewState extends State<AgentActivityView> {
-  late bool _expanded = widget.initiallyExpanded;
+  bool? _userExpanded;
+
+  bool get _expanded =>
+      _userExpanded ??
+      (widget.initiallyExpanded ||
+          (widget.expandWhileActive &&
+              widget.status != AgentActivityStatus.completed &&
+              widget.status != AgentActivityStatus.failed));
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +96,8 @@ class _AgentActivityViewState extends State<AgentActivityView> {
         ? theme.colorScheme.error
         : muted;
     final busy = widget.status == AgentActivityStatus.preparing ||
+        widget.status == AgentActivityStatus.awaitingModel ||
+        widget.status == AgentActivityStatus.thinking ||
         widget.status == AgentActivityStatus.running ||
         widget.status == AgentActivityStatus.generating;
     final hasDetails = widget.steps.isNotEmpty;
@@ -93,7 +109,7 @@ class _AgentActivityViewState extends State<AgentActivityView> {
           child: InkWell(
             key: const ValueKey('agent-activity-toggle'),
             onTap: hasDetails
-                ? () => setState(() => _expanded = !_expanded)
+                ? () => setState(() => _userExpanded = !_expanded)
                 : null,
             borderRadius: BorderRadius.circular(8),
             child: ConstrainedBox(
@@ -179,6 +195,8 @@ IconData _icon(AgentActivityStatus status) => switch (status) {
       AgentActivityStatus.waiting => Icons.hourglass_empty_rounded,
       AgentActivityStatus.running ||
       AgentActivityStatus.preparing ||
+      AgentActivityStatus.awaitingModel ||
+      AgentActivityStatus.thinking ||
       AgentActivityStatus.generating =>
         Icons.sync_rounded,
       AgentActivityStatus.completed => Icons.check_circle_outline_rounded,

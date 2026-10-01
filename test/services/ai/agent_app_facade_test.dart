@@ -278,6 +278,15 @@ void main() {
       if (!chunks.isClosed) await chunks.close();
     });
     await answerStarted.future.timeout(const Duration(seconds: 5));
+    // The next model turn reports waiting even though the local tool completed
+    // too quickly to render an in-progress frame.
+    chunks.add({
+      'choices': [
+        {
+          'delta': {'reasoning_content': 'private reasoning'}
+        }
+      ]
+    });
     chunks.add({
       'choices': [
         {
@@ -288,6 +297,14 @@ void main() {
     await partialReceived.future.timeout(const Duration(seconds: 5));
     expect(events.whereType<AgentToolCompletedEvent>(), hasLength(1));
     expect(events.whereType<AgentTextDeltaEvent>().single.text, '本月支出');
+    expect(
+        events.whereType<AgentModelActivityEvent>().map((event) => event.phase),
+        [
+          AgentNativeModelPhase.awaitingResponse,
+          AgentNativeModelPhase.awaitingResponse,
+          AgentNativeModelPhase.thinking,
+          AgentNativeModelPhase.generating
+        ]);
     expect(events.whereType<AgentRunCompletedEvent>(), isEmpty);
     chunks.add({
       'choices': [

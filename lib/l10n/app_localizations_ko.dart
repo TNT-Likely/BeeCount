@@ -12,6 +12,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get agentActivityPreparing => 'Preparing your answer…';
 
   @override
+  String get agentActivityAwaitingModel => 'Waiting for the model…';
+
+  @override
+  String get agentActivityThinking => 'Model is thinking…';
+
+  @override
   String get agentActivityGenerating => 'Composing the answer…';
 
   @override

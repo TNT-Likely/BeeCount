@@ -16,6 +16,8 @@ import 'package:agentcore/agentcore.dart'
         AgentToolPermissionStore,
         AgentNativeEventSink,
         AgentNativeFinalTextResponse,
+        AgentNativeModelActivity,
+        AgentNativeModelPhase,
         AgentNativeModelResponse,
         AgentNativeProtocolException,
         AgentNativeStreamEvent,
@@ -332,11 +334,14 @@ final class AgentAppFacade {
       request = request.withStreamingTextDeltas((event) {
         // Known invalid queries still need a verified final response; normal
         // tool-backed answers must not be buffered by directory keywords.
-        if (bufferQueryText || ((cancellationToken?.isCancelled) ?? false)) {
+        if ((cancellationToken?.isCancelled) ?? false) {
           return;
         }
-        if (event case AgentNativeTextDelta(:final text)) {
-          emit(AgentTextDeltaEvent(text));
+        switch (event) {
+          case AgentNativeModelActivity(:final phase):
+            emit(AgentModelActivityEvent(phase));
+          case AgentNativeTextDelta(:final text):
+            if (!bufferQueryText) emit(AgentTextDeltaEvent(text));
         }
       });
     }
@@ -841,6 +846,12 @@ final class AgentTextDeltaEvent extends AgentRunEvent {
   const AgentTextDeltaEvent(this.text);
 
   final String text;
+}
+
+final class AgentModelActivityEvent extends AgentRunEvent {
+  const AgentModelActivityEvent(this.phase);
+
+  final AgentNativeModelPhase phase;
 }
 
 final class AgentToolStartedEvent extends AgentRunEvent {

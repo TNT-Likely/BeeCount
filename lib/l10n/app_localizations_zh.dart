@@ -12,6 +12,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentActivityPreparing => '正在处理你的问题…';
 
   @override
+  String get agentActivityAwaitingModel => '正在等待模型响应…';
+
+  @override
+  String get agentActivityThinking => '模型正在思考…';
+
+  @override
   String get agentActivityGenerating => '正在整理回答…';
 
   @override

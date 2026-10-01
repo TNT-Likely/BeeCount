@@ -1,6 +1,8 @@
 {
   "@@locale": "zh",
   "agentActivityPreparing": "正在处理你的问题…",
+  "agentActivityAwaitingModel": "正在等待模型响应…",
+  "agentActivityThinking": "模型正在思考…",
   "agentActivityGenerating": "正在整理回答…",
   "agentExecutionCompletedSummary": "已完成 {count} 项操作",
   "@agentExecutionCompletedSummary": {"placeholders":{"count":{"type":"int"}}},

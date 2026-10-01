@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:agentcore/agentcore.dart' show AgentPromptSuggestion;
+import 'package:agentcore/agentcore.dart'
+    show AgentNativeModelPhase, AgentPromptSuggestion;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_agent_ui/flutter_agent_ui.dart';
@@ -69,6 +70,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   bool _isFirstLoad = true; // 是否首次加载
   bool _hasLiveAgentMessage = false;
   String _streamingAgentText = '';
+  AgentNativeModelPhase? _agentModelPhase;
   List<AgentExecutionStep> _agentExecutionSteps = const [];
   AIResponse? _liveAgentResponse;
   int? _liveAssistantMessageId;
@@ -557,6 +559,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         steps: _agentExecutionSteps,
         isStreaming: _isLoading,
         streamingText: _streamingAgentText,
+        modelPhase: _agentModelPhase,
       ),
     );
   }
@@ -784,6 +787,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       setState(() {
         _hasLiveAgentMessage = true;
         _streamingAgentText = '';
+        _agentModelPhase = null;
         _agentExecutionSteps = const [];
         _liveAgentResponse = null;
         _liveAssistantMessageId = null;
@@ -803,12 +807,16 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       )) {
         if (!mounted) break;
         switch (event) {
+          case AgentModelActivityEvent(:final phase):
+            setState(() => _agentModelPhase = phase);
           case AgentTextDeltaEvent(:final text):
             setState(() {
               _streamingAgentText += text;
+              _agentModelPhase = AgentNativeModelPhase.generating;
             });
           case AgentToolAuthorizationRequestedEvent(:final request):
             setState(() {
+              _agentModelPhase = null;
               _agentExecutionSteps = [
                 ..._agentExecutionSteps,
                 AgentExecutionStep(
@@ -836,6 +844,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
               :final arguments
             ):
             setState(() {
+              _agentModelPhase = null;
               _agentExecutionSteps = _updateExecutionStep(
                 toolName: toolName,
                 callId: callId,
@@ -919,6 +928,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         _animatingMessageId = null;
         _hasLiveAgentMessage = false;
         _streamingAgentText = '';
+        _agentModelPhase = null;
         _agentExecutionSteps = const [];
         _liveAgentResponse = null;
         _liveAssistantMessageId = null;
@@ -934,6 +944,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           _isLoading = false;
           _hasLiveAgentMessage = false;
           _streamingAgentText = '';
+          _agentModelPhase = null;
           _agentExecutionSteps = const [];
           _liveAgentResponse = null;
           _liveAssistantMessageId = null;

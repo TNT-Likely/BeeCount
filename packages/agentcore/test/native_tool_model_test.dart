@@ -12,6 +12,128 @@ void main() {
     ),
   ];
 
+  test('provider phases are deduplicated and never expose reasoning text',
+      () async {
+    final events = <AgentNativeStreamEvent>[];
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      toolStream: ({required messages, required tools, logTag}) =>
+          Stream<Map<String, dynamic>>.fromIterable([
+        for (final delta in [
+          {'reasoning_content': 'private reasoning one'},
+          {'reasoning_content': 'private reasoning two'},
+          {'reasoning': 'private reasoning three'},
+          {'content': 'answer'},
+          {'content': ' complete'},
+          {'reasoning_content': 'late private reasoning'},
+        ])
+          {
+            'choices': [
+              {'delta': delta}
+            ]
+          },
+      ]),
+    );
+    final response = await transport.complete(
+      AgentNativeToolRequest(
+          runId: 'phases', userPrompt: 'question', toolResults: []),
+      onEvent: events.add,
+    );
+    expect(
+        events
+            .whereType<AgentNativeModelActivity>()
+            .map((event) => event.phase),
+        [
+          AgentNativeModelPhase.awaitingResponse,
+          AgentNativeModelPhase.thinking,
+          AgentNativeModelPhase.generating
+        ]);
+    expect(events.whereType<AgentNativeTextDelta>().map((event) => event.text),
+        ['answer', ' complete']);
+    expect((response as AgentNativeFinalTextResponse).text, 'answer complete');
+  });
+
+  test('ordinary models do not fabricate a thinking phase', () async {
+    final events = <AgentNativeStreamEvent>[];
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      toolStream: ({required messages, required tools, logTag}) =>
+          Stream<Map<String, dynamic>>.fromIterable([
+        for (final delta in [
+          {'reasoning_content': '', 'reasoning': ' '},
+          {
+            'reasoning_content': {'text': 'unsupported shape'}
+          },
+          {'content': 'answer'},
+        ])
+          {
+            'choices': [
+              {'delta': delta}
+            ]
+          },
+      ]),
+    );
+    await transport.complete(
+      AgentNativeToolRequest(
+          runId: 'ordinary', userPrompt: 'question', toolResults: []),
+      onEvent: events.add,
+    );
+    expect(
+        events
+            .whereType<AgentNativeModelActivity>()
+            .map((event) => event.phase),
+        [
+          AgentNativeModelPhase.awaitingResponse,
+          AgentNativeModelPhase.generating
+        ]);
+  });
+
+  test('buffered finalization still reports real model phases', () async {
+    final events = <AgentNativeStreamEvent>[];
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      toolStream: ({required messages, required tools, logTag}) =>
+          Stream<Map<String, dynamic>>.fromIterable([
+        {
+          'choices': [
+            {
+              'delta': {'reasoning_content': 'private reasoning'}
+            }
+          ]
+        },
+        {
+          'choices': [
+            {
+              'delta': {'content': 'answer'}
+            }
+          ]
+        },
+      ]),
+    );
+    final response = await transport.complete(
+      AgentNativeToolRequest(
+          runId: 'buffered-phases',
+          userPrompt: 'question',
+          toolResults: [],
+          allowToolCalls: false),
+      onEvent: events.add,
+    );
+    expect(
+        events
+            .whereType<AgentNativeModelActivity>()
+            .map((event) => event.phase),
+        [
+          AgentNativeModelPhase.awaitingResponse,
+          AgentNativeModelPhase.thinking,
+          AgentNativeModelPhase.generating
+        ]);
+    expect(events.whereType<AgentNativeTextDelta>(), isEmpty);
+    expect((response as AgentNativeFinalTextResponse).text, 'answer');
+  });
+
   test('native model uses injected prompt and scope rules', () async {
     final transport = _FakeTransport([
       AgentNativeModelResponse.toolCalls([

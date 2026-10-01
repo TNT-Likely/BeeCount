@@ -351,6 +351,122 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('原生模型的等待和思考可见，快速工具不会被下一回合状态隐藏', (tester) async {
+    await repository.createLedger(name: '当前账本');
+    final initial = StreamController<Map<String, dynamic>>();
+    final answer = StreamController<Map<String, dynamic>>();
+    addTearDown(() async {
+      await initial.close();
+      await answer.close();
+    });
+    var modelTurns = 0;
+    final transport = core.OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: const [
+        core.AgentNativeToolDefinition(
+            name: 'get_period_overview',
+            description: 'Read overview',
+            parameters: {'type': 'object'})
+      ],
+      toolStream: ({required messages, required tools, logTag}) {
+        modelTurns++;
+        return modelTurns == 1 ? initial.stream : answer.stream;
+      },
+    );
+    final model = core.NativeToolAgentModel(
+        transport: transport, promptBuilder: (request) => request.text);
+    await tester.pumpWidget(host(model: model));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '本月支出多少？');
+    await tester.testTextInput.receiveAction(TextInputAction.send);
+    await _pumpUntil(
+        tester, () => find.text('正在等待模型响应…').evaluate().isNotEmpty);
+    expect(find.text('模型正在思考…'), findsNothing);
+    initial.add({
+      'choices': [
+        {
+          'delta': {'reasoning_content': 'private reasoning'}
+        }
+      ]
+    });
+    await _pumpUntil(tester, () => find.text('模型正在思考…').evaluate().isNotEmpty);
+    expect(find.textContaining('private reasoning'), findsNothing);
+    initial.add({
+      'choices': [
+        {
+          'delta': {
+            'tool_calls': [
+              {
+                'index': 0,
+                'id': 'fast-overview',
+                'function': {
+                  'name': 'get_period_overview',
+                  'arguments': '{"period":"current_month"}'
+                }
+              }
+            ]
+          },
+          'finish_reason': 'tool_calls',
+        }
+      ]
+    });
+    await _pumpUntil(tester,
+        () => modelTurns == 2 && find.text('正在等待模型响应…').evaluate().isNotEmpty);
+    expect(find.text('收支概览'), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('agent-activity-details')), findsOneWidget);
+    answer.add({
+      'choices': [
+        {
+          'delta': {'reasoning': 'more private reasoning'}
+        }
+      ]
+    });
+    await _pumpUntil(tester, () => find.text('模型正在思考…').evaluate().isNotEmpty);
+    expect(find.text('收支概览'), findsOneWidget);
+    answer.add({
+      'choices': [
+        {
+          'delta': {'content': '本月支出'}
+        }
+      ]
+    });
+    await _pumpUntil(tester, () => find.text('正在整理回答…').evaluate().isNotEmpty);
+    expect(
+        find.byWidgetPredicate(
+            (widget) => widget is AgentMarkdownText && widget.data == '本月支出'),
+        findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
+    await tester.pump();
+    expect(find.text('收支概览'), findsNothing);
+    answer.add({
+      'choices': [
+        {
+          'delta': {'content': '0元。'},
+          'finish_reason': 'stop'
+        }
+      ]
+    });
+    await _pumpUntil(
+        tester, () => find.text('已完成 1 项操作').evaluate().isNotEmpty);
+    await tester.pumpAndSettle();
+    expect(find.text('模型正在思考…'), findsNothing);
+    expect(find.text('收支概览'), findsNothing);
+    expect(find.textContaining('private reasoning'), findsNothing);
+    final messages = await (database.select(database.messages)
+          ..where((row) => row.role.equals('assistant')))
+        .get();
+    expect(messages.single.content, '本月支出0元。');
+    expect(AssistantExecutionMetadata.decode(messages.single.metadata),
+        hasLength(1));
+    await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
+    await tester.pumpAndSettle();
+    expect(find.text('收支概览'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 3));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('查询回答未完成时逐段显示文本，结束后才展示继续了解', (tester) async {
     await repository.createLedger(name: '当前账本');
     final model = _StreamingQueryModel();
@@ -373,6 +489,9 @@ void main() {
             .evaluate()
             .isNotEmpty);
     expect(find.byType(AgentExecutionTimeline), findsOneWidget);
+    expect(find.text('收支概览'), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('agent-activity-details')), findsOneWidget);
     expect(
         find.byKey(const ValueKey('agent-follow-up-questions')), findsNothing);
     final before = await (database.select(database.messages)
@@ -393,6 +512,7 @@ void main() {
         findsNothing);
     expect(find.byType(AgentExecutionTimeline), findsOneWidget);
     expect(find.text('已完成 1 项操作'), findsOneWidget);
+    expect(find.text('收支概览'), findsNothing);
     expect(
         find.byWidgetPredicate((widget) =>
             widget is AgentMarkdownText && widget.data == '完整回答：本月支出0元。'),

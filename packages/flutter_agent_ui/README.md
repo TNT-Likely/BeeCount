@@ -10,6 +10,10 @@
 
 颜色和字号继承 Flutter `Theme` / `MediaQuery`。窄屏或大字号时标题栏自动换行；交互目标至少 44px。
 
+宿主可开启 `AgentActivityView.expandWhileActive`：执行中自动展开，即使本地工具很快完成，等待模型或生成正文时也继续显示明细；状态变为 `completed` / `failed` 后自动收起。用户手动展开/折叠优先，不随模型状态变化强制打开。新一轮运行应使用独立的 widget key，避免继承上一轮的手动选择。
+
+`awaitingModel`、`thinking` 和 `generating` 分别表示等待模型、收到真实思考信号和生成回答；`waiting` 用于等待用户授权，不显示忙碌转圈。宿主应根据真实事件映射状态，不用计时器虚构思考步骤，也不向组件传入模型推理原文。
+
 `AgentFollowUpStyle` 可注入宿主的背景、主题色、正文、次级文字与分隔线颜色。默认从 `ColorScheme.primary` 和 `surface` 合成浅底（亮色 8%、暗色 15%），不依赖未被宿主覆盖的 Material 默认容器色。宿主修改主题时会实时重绘，轮换进度不会重置。
 
 宿主必须在构造展示模型之前筛选敏感数据。不要向 `details` 传入原始参数、任意 JSON、交易备注、提示词或异常栈。`tryFromJson` 提供长度与形状校验，不承担业务脱敏。

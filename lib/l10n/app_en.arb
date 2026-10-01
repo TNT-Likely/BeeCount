@@ -1,6 +1,8 @@
 {
   "@@locale": "en",
   "agentActivityPreparing": "Preparing your answer…",
+  "agentActivityAwaitingModel": "Waiting for the model…",
+  "agentActivityThinking": "Model is thinking…",
   "agentActivityGenerating": "Composing the answer…",
   "agentExecutionCompletedSummary": "Completed {count} operations",
   "@agentExecutionCompletedSummary": {"placeholders":{"count":{"type":"int"}}},

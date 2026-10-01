@@ -11,6 +11,8 @@ export 'package:agentcore/agentcore.dart'
     show
         AgentNativeEventSink,
         AgentNativeFinalTextResponse,
+        AgentNativeModelActivity,
+        AgentNativeModelPhase,
         AgentNativeModelResponse,
         AgentNativeProtocolException,
         AgentNativeStreamEvent,

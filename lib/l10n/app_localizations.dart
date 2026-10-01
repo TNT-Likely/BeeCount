@@ -104,6 +104,18 @@ abstract class AppLocalizations {
   /// **'Preparing your answer…'**
   String get agentActivityPreparing;
 
+  /// No description provided for @agentActivityAwaitingModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the model…'**
+  String get agentActivityAwaitingModel;
+
+  /// No description provided for @agentActivityThinking.
+  ///
+  /// In en, this message translates to:
+  /// **'Model is thinking…'**
+  String get agentActivityThinking;
+
   /// No description provided for @agentActivityGenerating.
   ///
   /// In en, this message translates to:

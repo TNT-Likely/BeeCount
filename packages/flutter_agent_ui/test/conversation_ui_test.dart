@@ -83,6 +83,60 @@ void main() {
   });
 
   testWidgets(
+      'active execution auto-expands even when a fast tool already completed',
+      (tester) async {
+    Widget activity(
+            AgentActivityStatus status, List<AgentActivityStep> steps) =>
+        host(AgentActivityView(
+            summary: 'State',
+            status: status,
+            steps: steps,
+            expandWhileActive: true));
+    await tester.pumpWidget(activity(AgentActivityStatus.preparing, []));
+    expect(find.byKey(const ValueKey('agent-activity-details')), findsNothing);
+    for (final status in [
+      AgentActivityStatus.awaitingModel,
+      AgentActivityStatus.thinking,
+      AgentActivityStatus.generating
+    ]) {
+      await tester.pumpWidget(activity(status, [step]));
+      expect(find.text('Read local data'), findsOneWidget);
+      expect(find.text('September · 3 rows'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    }
+    await tester.pumpWidget(activity(AgentActivityStatus.completed, [step]));
+    expect(find.text('Read local data'), findsNothing);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
+    await tester.pump();
+    expect(find.text('Read local data'), findsOneWidget);
+  });
+
+  testWidgets('manual expansion choices override active automatic disclosure',
+      (tester) async {
+    Widget activity(AgentActivityStatus status) => host(AgentActivityView(
+        summary: 'State',
+        status: status,
+        steps: const [step],
+        expandWhileActive: true));
+    await tester.pumpWidget(activity(AgentActivityStatus.awaitingModel));
+    expect(find.text('Read local data'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
+    await tester.pump();
+    for (final status in [
+      AgentActivityStatus.thinking,
+      AgentActivityStatus.generating
+    ]) {
+      await tester.pumpWidget(activity(status));
+      expect(find.text('Read local data'), findsNothing);
+    }
+    await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
+    await tester.pump();
+    await tester.pumpWidget(activity(AgentActivityStatus.completed));
+    expect(find.text('Read local data'), findsOneWidget);
+  });
+
+  testWidgets(
       'answer content spans available width without bubble or avatar gutters',
       (tester) async {
     await tester.pumpWidget(host(SizedBox(
