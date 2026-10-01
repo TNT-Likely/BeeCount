@@ -29,7 +29,6 @@ import '../../pages/ai/ai_settings_page.dart';
 import '../../pages/ai/ai_provider_manage_page.dart';
 import '../../pages/ai/agent_assistant_settings_page.dart';
 import '../../pages/ai/agent_message_visibility.dart';
-import '../../pages/ai/agent_chat_scroll_coordinator.dart';
 import '../../widgets/biz/ledger_selector_dialog.dart';
 import '../../widgets/ai/agent_tool_authorization_dialog.dart';
 import '../../widgets/ai/agent_chat_shell.dart';
@@ -57,8 +56,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   late final AIChatService _chatService;
-  late final AgentChatScrollCoordinator _chatScrollCoordinator =
-      AgentChatScrollCoordinator(_scrollController);
+  late final AgentConversationScrollCoordinator _chatScrollCoordinator =
+      AgentConversationScrollCoordinator(_scrollController);
   int? _conversationId;
   bool _isLoading = false;
   int? _animatingMessageId; // 正在播放动画的消息ID

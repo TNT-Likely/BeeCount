@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -222,6 +223,137 @@ void main() {
     expect(((calls.single as Map)['function'] as Map)['name'], 'probe');
     expect(choice['finish_reason'], 'tool_calls');
   });
+
+  test('SSE DONE ends the response without waiting for HTTP teardown',
+      () async {
+    final stream = StreamController<Uint8List>();
+    final adapter = _SseResponseAdapter(body: () => stream.stream);
+    final client = Dio(BaseOptions(baseUrl: 'https://example.com/v1'))
+      ..httpClientAdapter = adapter;
+    stream.add(Uint8List.fromList(utf8.encode(
+      'data: {"choices":[{"delta":{"content":"answer"}}]}\n\n'
+      'data: [DONE]\n\n',
+    )));
+    try {
+      final chunks = await AIProviderFactory.chatWithToolsStreamForConfig(
+        config: _toolConfig(),
+        messages: const [],
+        tools: const [],
+        client: client,
+      ).toList().timeout(const Duration(seconds: 1));
+      expect(chunks, hasLength(1));
+      expect(stream.isClosed, isFalse);
+    } finally {
+      client.close(force: true);
+      await stream.close();
+    }
+  });
+
+  test('failed SSE requests retain the provider error without Dart type errors',
+      () async {
+    final client = Dio(BaseOptions(baseUrl: 'https://example.com/v1'))
+      ..httpClientAdapter = _StaticResponseAdapter(statusCode: 401, body: {
+        'error': {'message': 'Invalid API key', 'code': 'invalid_key'},
+      });
+    addTearDown(() => client.close(force: true));
+    await expectLater(
+        AIProviderFactory.chatWithToolsStreamForConfig(
+          config: _toolConfig(),
+          messages: const [],
+          tools: const [],
+          client: client,
+        ).toList(),
+        throwsA(isA<AIException>()
+            .having((error) => error.code, 'classification',
+                AIExceptionCode.unauthorized)
+            .having((error) => error.message, 'provider message',
+                '[HTTP 401 / invalid_key] Invalid API key')));
+  });
+
+  test('an optional tool_choice rejection preserves real SSE deltas', () async {
+    final adapter = _SseResponseAdapter(
+      rejectToolChoice: true,
+      body: () => Stream<Uint8List>.fromIterable([
+        for (final text in ['first', 'second'])
+          Uint8List.fromList(utf8.encode('data: ${jsonEncode({
+                'choices': [
+                  {
+                    'delta': {'content': text}
+                  }
+                ]
+              })}\n\n')),
+        Uint8List.fromList(utf8.encode('data: [DONE]\n\n')),
+      ]),
+    );
+    final client = Dio(BaseOptions(baseUrl: 'https://example.com/v1'))
+      ..httpClientAdapter = adapter;
+    addTearDown(() => client.close(force: true));
+    final chunks = await AIProviderFactory.chatWithToolsStreamForConfig(
+      config: _toolConfig(),
+      messages: const [],
+      tools: const [],
+      client: client,
+    ).toList();
+    expect(adapter.requests.map((request) => request['stream']), [true, true]);
+    expect(adapter.requests.last, isNot(contains('tool_choice')));
+    expect(
+        chunks.map((chunk) =>
+            ((chunk['choices'] as List).single as Map)['delta']['content']),
+        ['first', 'second']);
+  });
+}
+
+AIServiceProviderConfig _toolConfig() => AIServiceProviderConfig(
+      id: 'test',
+      name: 'test',
+      apiKey: 'key',
+      baseUrl: 'https://example.com/v1',
+      textModel: 'model',
+      createdAt: DateTime.utc(2026),
+    );
+
+final class _SseResponseAdapter implements HttpClientAdapter {
+  _SseResponseAdapter({required this.body, this.rejectToolChoice = false});
+  final Stream<Uint8List> Function() body;
+  final bool rejectToolChoice;
+  final requests = <Map<String, Object?>>[];
+
+  @override
+  Future<ResponseBody> fetch(RequestOptions options,
+      Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async {
+    final payload = Map<String, Object?>.from(options.data as Map);
+    requests.add(payload);
+    if (rejectToolChoice && payload.containsKey('tool_choice')) {
+      return ResponseBody.fromString(
+        jsonEncode({'error': 'Unsupported parameter: tool_choice'}),
+        400,
+        headers: {
+          Headers.contentTypeHeader: ['application/json']
+        },
+      );
+    }
+    if (payload['stream'] != true) {
+      return ResponseBody.fromString(
+        jsonEncode({
+          'choices': [
+            {
+              'message': {'content': 'firstsecond'}
+            }
+          ]
+        }),
+        200,
+        headers: {
+          Headers.contentTypeHeader: ['application/json']
+        },
+      );
+    }
+    return ResponseBody(body(), 200, headers: {
+      Headers.contentTypeHeader: ['text/event-stream']
+    });
+  }
+
+  @override
+  void close({bool force = false}) {}
 }
 
 final class _StreamingRejectedAdapter implements HttpClientAdapter {

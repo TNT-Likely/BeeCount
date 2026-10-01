@@ -20,6 +20,7 @@ on:
       - 'lib/utils/**'
       - 'test/ai_eval/**'
       - 'test/agent/**'
+      - 'test/ai/providers/**'
       - 'test/services/ai/**'
       - 'test/pages/ai/**'
       - 'test/widgets/ai/**'
@@ -44,6 +45,7 @@ on:
       - 'lib/utils/**'
       - 'test/ai_eval/**'
       - 'test/agent/**'
+      - 'test/ai/providers/**'
       - 'test/services/ai/**'
       - 'test/pages/ai/**'
       - 'test/widgets/ai/**'
@@ -83,11 +85,14 @@ jobs:
           flutter test --no-pub
       - name: 静态检查评测适配器
         run: dart analyze test/ai_eval tool/ai_eval.dart
+      - name: 通用服务商错误兼容测试
+        working-directory: packages/flutter_ai_kit_openai
+        run: |
+          flutter pub get
+          flutter test --no-pub
       - name: 固定账本离线回归（不调用外部模型）
         run: |
-          flutter test test/ai_eval/assertions_test.dart
-          flutter test --no-pub test/agent/memory/local_agent_conversation_summary_store_test.dart
-          flutter test --no-pub test/services/ai/ai_chat_service_test.dart test/services/ai/agent_query_regression_test.dart test/services/ai/agent_app_facade_test.dart test/widgets/ai/agent_execution_timeline_test.dart test/widgets/ai/agent_chat_shell_test.dart test/pages/ai/ai_chat_page_lifecycle_test.dart test/pages/ai/agent_chat_scroll_coordinator_test.dart test/services/ai/ledger_follow_up_suggestions_test.dart test/services/ai/assistant_execution_metadata_test.dart test/widgets/ai/agent_follow_up_questions_test.dart test/agent/policy/p0_agent_policy_test.dart
+          flutter test --no-pub test/agent test/ai/providers test/services/ai test/widgets/ai test/pages/ai test/ai_eval/assertions_test.dart
           dart run tool/ai_eval.dart
       - name: 保存评测报告
         if: always()

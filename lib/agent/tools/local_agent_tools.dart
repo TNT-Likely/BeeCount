@@ -709,7 +709,6 @@ final class LocalAgentTools {
       List<String> terms = const [],
       bool singleUse = false,
       bool deduplicate = false,
-      bool requiresExecutionOnMatch = false,
       AgentToolQueryMatcher? matcher,
     }) =>
         AgentToolDescriptor(
@@ -719,7 +718,6 @@ final class LocalAgentTools {
           selectionTerms: terms,
           singleUse: singleUse,
           deduplicate: deduplicate,
-          requiresExecutionOnMatch: requiresExecutionOnMatch,
           selectionMatcher: matcher,
         );
 
@@ -739,14 +737,12 @@ final class LocalAgentTools {
           'record',
         ],
         singleUse: true,
-        requiresExecutionOnMatch: true,
         matcher: _looksLikeTransactionEntry,
       ),
       descriptor(
         'query_transactions',
         resident: true,
         terms: const ['最近几笔', '明细', '交易记录', '账单', '哪几笔', 'details'],
-        requiresExecutionOnMatch: true,
       ),
       descriptor(
         'get_period_overview',
@@ -768,7 +764,6 @@ final class LocalAgentTools {
           'overview',
         ],
         deduplicate: true,
-        requiresExecutionOnMatch: true,
       ),
       descriptor(
         'get_spending_trend',
@@ -787,7 +782,6 @@ final class LocalAgentTools {
           'month by month',
         ],
         deduplicate: true,
-        requiresExecutionOnMatch: true,
       ),
       descriptor(
         'get_category_breakdown',
@@ -802,32 +796,27 @@ final class LocalAgentTools {
           'breakdown',
         ],
         deduplicate: true,
-        requiresExecutionOnMatch: true,
         matcher: _looksLikeCategoryBreakdown,
       ),
       descriptor(
         'get_budget_status',
         terms: const ['预算', '额度', '还能花', 'budget'],
         deduplicate: true,
-        requiresExecutionOnMatch: true,
       ),
       descriptor(
         'get_recurring_transactions',
         terms: const ['周期', '定期', '订阅', '自动记账', 'recurring', 'subscription'],
         deduplicate: true,
-        requiresExecutionOnMatch: true,
       ),
       descriptor(
         'save_explicit_memory',
         terms: const ['记住', '记下来', '保存记忆', 'remember', 'memorize'],
         singleUse: true,
-        requiresExecutionOnMatch: true,
       ),
       descriptor(
         'forget_memory',
         terms: const ['忘记', '忘掉', '删除记忆', '清除记忆', 'forget memory'],
         singleUse: true,
-        requiresExecutionOnMatch: true,
       ),
     ]);
   }

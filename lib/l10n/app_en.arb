@@ -21,7 +21,6 @@
   "agentActivityTruncated": "Only part of the results was returned",
   "agentFollowUpRotate": "Another set",
   "agentScrollToLatest": "Back to the latest message",
-  "agentSuggestionsMore": "More questions",
   "agentSuggestionHealthTitle": "Financial health",
   "agentSuggestionHealthPrompt": "Analyze this month's income, expenses, balance and savings rate, and list monthly spending for the last six months. Give financial health observations and suggestions based on tool results; explain any data limitations.",
   "agentSuggestionSummaryTitle": "Monthly spending summary",
@@ -2334,14 +2333,10 @@
   "aiChatClearHistoryDialogContent": "Are you sure you want to clear all conversation records? This action cannot be undone.",
   "aiChatInputHint": "e.g.: Bought a coffee for $35",
   "aiQuickCommandsTitle": "Try a task",
-  "agentSuggestionsTitle": "Suggested questions",
-  "agentSuggestionsOpen": "Show suggested questions",
   "agentSuggestionOverviewTitle": "This month's totals",
   "agentSuggestionOverviewPrompt": "Summarize this month's income, expenses and balance.",
   "agentSuggestionCategoryTitle": "Category shares",
   "agentSuggestionCategoryPrompt": "What are this month's spending shares by top-level category?",
-  "agentSuggestionTrendTitle": "Spending trend",
-  "agentSuggestionTrendPrompt": "List monthly spending for the last six months.",
   "aiQuickCommandsOpen": "Open suggestions",
   "aiChatEmptyMessages": "No messages yet",
   "aiChatEmptyCurrentLedger": "Current ledger",
@@ -2380,7 +2375,6 @@
   "aiChatSendFailed": "Failed to send",
   "agentRunFailed": "AI service is temporarily unavailable. Please try again later.",
   "agentNativeToolsUnsupported": "This model can chat normally, but it does not support the native tool calls required to read or change ledger data. Open Settings > AI Settings > Provider Management to test or switch models.",
-  "agentRequiredToolNotCalled": "This query did not run the required data tool, so a reliable answer is unavailable. Please retry or clarify the time and category range.",
   "agentTurnTimedOut": "The AI response timed out. Please try again shortly.",
   "agentRecordIncomplete": "The transaction details are incomplete. Please include an amount and purpose, then try again.",
   "agentRecordCreated": "Created {count, plural, =1{1 transaction} other{{count} transactions}}.",
@@ -3492,6 +3486,5 @@
   "agentActivityToolFailed": "Failed",
   "agentRunCancelled": "This run was stopped.",
   "agentRunStop": "Stop",
-  "agentQueryValidationFailed": "The query parameters could not be corrected, so a reliable result is unavailable. Please try again.",
-  "agentSuggestionsLess": "Fewer questions"
+  "agentQueryValidationFailed": "The query parameters could not be corrected, so a reliable result is unavailable. Please try again."
 }

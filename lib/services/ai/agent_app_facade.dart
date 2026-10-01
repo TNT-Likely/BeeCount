@@ -316,7 +316,6 @@ final class AgentAppFacade {
     }
     final toolSelection = toolRegistry.select(
       _toolSelectionQuery(message, requestContext),
-      requirementQuery: message,
       maximumTools: 7,
     );
     logger.debug('AgentCore', '本次运行工具目录已选择', {
@@ -402,20 +401,6 @@ final class AgentAppFacade {
             l10n?.agentRunCancelled ?? '本次操作已停止。',
           ),
         );
-      }
-      final requiredTools = toolSelection.requiredToolNames;
-      final calledRequiredTool = result.executedCalls
-              .any((call) => requiredTools.contains(call.name)) ||
-          result.deniedCalls
-              .any((denied) => requiredTools.contains(denied.call.name));
-      // Directory keyword matches are diagnostic hints, not a contract for
-      // which tool the model must use. Other queries or conversation context
-      // may already provide the requested information.
-      if (requiredTools.isNotEmpty && !calledRequiredTool) {
-        logger.debug('AgentCore', '未调用目录匹配工具，仅记录诊断，不拦截回答', {
-          'runId': runId,
-          'requiredTools': requiredTools.toList()..sort(),
-        });
       }
       if (LedgerQueryCallValidator.hasUnresolvedIssue(result)) {
         logger.warning('AgentCore', '查询参数校验未纠正，拒绝错误答案', {

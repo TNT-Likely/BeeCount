@@ -200,12 +200,6 @@ abstract class AppLocalizations {
   /// **'Back to the latest message'**
   String get agentScrollToLatest;
 
-  /// No description provided for @agentSuggestionsMore.
-  ///
-  /// In en, this message translates to:
-  /// **'More questions'**
-  String get agentSuggestionsMore;
-
   /// No description provided for @agentSuggestionHealthTitle.
   ///
   /// In en, this message translates to:
@@ -10346,18 +10340,6 @@ abstract class AppLocalizations {
   /// **'Try a task'**
   String get aiQuickCommandsTitle;
 
-  /// No description provided for @agentSuggestionsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Suggested questions'**
-  String get agentSuggestionsTitle;
-
-  /// No description provided for @agentSuggestionsOpen.
-  ///
-  /// In en, this message translates to:
-  /// **'Show suggested questions'**
-  String get agentSuggestionsOpen;
-
   /// No description provided for @agentSuggestionOverviewTitle.
   ///
   /// In en, this message translates to:
@@ -10381,18 +10363,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'What are this month\'s spending shares by top-level category?'**
   String get agentSuggestionCategoryPrompt;
-
-  /// No description provided for @agentSuggestionTrendTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Spending trend'**
-  String get agentSuggestionTrendTitle;
-
-  /// No description provided for @agentSuggestionTrendPrompt.
-  ///
-  /// In en, this message translates to:
-  /// **'List monthly spending for the last six months.'**
-  String get agentSuggestionTrendPrompt;
 
   /// No description provided for @aiQuickCommandsOpen.
   ///
@@ -10549,12 +10519,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This model can chat normally, but it does not support the native tool calls required to read or change ledger data. Open Settings > AI Settings > Provider Management to test or switch models.'**
   String get agentNativeToolsUnsupported;
-
-  /// No description provided for @agentRequiredToolNotCalled.
-  ///
-  /// In en, this message translates to:
-  /// **'This query did not run the required data tool, so a reliable answer is unavailable. Please retry or clarify the time and category range.'**
-  String get agentRequiredToolNotCalled;
 
   /// No description provided for @agentTurnTimedOut.
   ///
@@ -15331,12 +15295,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The query parameters could not be corrected, so a reliable result is unavailable. Please try again.'**
   String get agentQueryValidationFailed;
-
-  /// No description provided for @agentSuggestionsLess.
-  ///
-  /// In en, this message translates to:
-  /// **'Fewer questions'**
-  String get agentSuggestionsLess;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

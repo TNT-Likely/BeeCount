@@ -258,7 +258,6 @@ final registry = AgentToolRegistry([
     tool: readOverviewTool,
     isResident: true,
     selectionTerms: const ['概览', '总额'],
-    requiresExecutionOnMatch: true,
   ),
   AgentToolDescriptor(
     definition: readBudgetDefinition,
@@ -269,16 +268,13 @@ final registry = AgentToolRegistry([
 
 final selected = registry.select(
   '$userText\n$recentContext',
-  requirementQuery: userText,
   maximumTools: 7,
 );
 ```
 
 将 `selected.names` 写入 `AgentRequest.availableToolNames` 后，原生 transport 只发送
-本次可见的 schema。`requiredToolNames` 只是一个通用的落地校验信号：是否拒绝模型
-“没有调用工具却直接回答数据”的文本，仍由宿主产品策略决定。
-`requirementQuery` 可限制强制执行信号只来自当前消息，避免历史对话中的“记账”等词
-误授权或误要求当前回合再次执行写工具。
+本次可见的 schema。目录匹配仅用于选择工具，不强制模型执行某个工具，也不能作为
+写操作授权；权限和参数校验仍由独立的运行时策略负责。
 
 ### 模型能力报告
 

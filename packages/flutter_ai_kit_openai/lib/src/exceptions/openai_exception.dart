@@ -94,6 +94,28 @@ class OpenAIException implements Exception {
     }
   }
 
+  /// Decode a failed streaming response before synchronous error classification
+  /// or optional-parameter retries. Dio otherwise exposes a ResponseBody object
+  /// instead of the provider's actual error. Reading is bounded and never
+  /// replaces the original HTTP failure with a decoding exception.
+  static Future<void> decodeStreamErrorResponse(DioException error) async {
+    final response = error.response;
+    final body = response?.data;
+    if (body is! ResponseBody) return;
+    const maximumBytes = 64 * 1024;
+    final bytes = <int>[];
+    try {
+      await for (final chunk
+          in body.stream.timeout(const Duration(seconds: 10))) {
+        bytes.addAll(chunk.take(maximumBytes - bytes.length));
+        if (bytes.length >= maximumBytes) break;
+      }
+      response!.data = _normalizeData(utf8.decode(bytes, allowMalformed: true));
+    } on Object {
+      response!.data = null;
+    }
+  }
+
   /// 服务商返回了成功状态，但响应结构不是 OpenAI 兼容格式。
   factory OpenAIException.invalidResponse([String? detail]) => OpenAIException(
         message: detail == null || detail.trim().isEmpty

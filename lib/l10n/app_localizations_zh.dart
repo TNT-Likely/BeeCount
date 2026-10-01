@@ -68,9 +68,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentScrollToLatest => '回到最新消息';
 
   @override
-  String get agentSuggestionsMore => '更多问题';
-
-  @override
   String get agentSuggestionHealthTitle => '财务健康分析';
 
   @override
@@ -5437,12 +5434,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiQuickCommandsTitle => '试试这些';
 
   @override
-  String get agentSuggestionsTitle => '推荐提问';
-
-  @override
-  String get agentSuggestionsOpen => '查看推荐提问';
-
-  @override
   String get agentSuggestionOverviewTitle => '本月收支';
 
   @override
@@ -5453,12 +5444,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get agentSuggestionCategoryPrompt => '本月一级分类支出占比是多少？';
-
-  @override
-  String get agentSuggestionTrendTitle => '支出趋势';
-
-  @override
-  String get agentSuggestionTrendPrompt => '按月列出最近六个月的支出。';
 
   @override
   String get aiQuickCommandsOpen => '打开快捷指令';
@@ -5541,9 +5526,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get agentNativeToolsUnsupported => '当前模型可以进行普通对话，但不支持读取或操作账本所需的原生工具调用。请前往“设置 > AI 设置 > 服务商管理”切换模型或运行文本模型测试。';
-
-  @override
-  String get agentRequiredToolNotCalled => '本次查询未执行所需的数据工具，暂时无法给出可靠结果。请重试，或明确查询时间与分类范围。';
 
   @override
   String get agentTurnTimedOut => 'AI 响应超时，请稍后重试。';
@@ -8084,9 +8066,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get agentQueryValidationFailed => '查询参数未能纠正，暂时无法给出可靠结果。请重试。';
-
-  @override
-  String get agentSuggestionsLess => '收起问题';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

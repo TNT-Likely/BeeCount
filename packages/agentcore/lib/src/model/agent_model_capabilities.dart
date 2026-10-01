@@ -53,7 +53,10 @@ final class AgentModelCapabilities {
         streaming: _supportFrom(json['streaming']),
         forcedToolChoice: _supportFrom(json['forcedToolChoice']),
         detail: json['detail'] as String?,
-        checkedAt: DateTime.tryParse(json['checkedAt'] as String? ?? ''),
+        // A corrupt/missing cache timestamp must be stale, not silently reset
+        // to "now" on every read (which could block a model indefinitely).
+        checkedAt: DateTime.tryParse(json['checkedAt'] as String? ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
         metadata: json['metadata'] is Map
             ? Map<String, Object?>.from(json['metadata']! as Map)
             : const {},

@@ -41,56 +41,49 @@ void main() {
     expect(selection.deduplicatedToolNames, {'read'});
   });
 
-  test('reports only matched selected tools that require execution', () {
+  test('bounds the catalog while prioritizing resident and explicit tools', () {
     final selection = AgentToolRegistry([
       _descriptor(
         'trend',
         resident: true,
         terms: const ['各月'],
-        requiresExecutionOnMatch: true,
       ),
       _descriptor(
         'budget',
         terms: const ['预算'],
-        requiresExecutionOnMatch: true,
       ),
-      _descriptor('chat', resident: true),
-    ]).select('对比各月支出');
+      _descriptor('optional', terms: const ['支出']),
+    ]).select('对比各月支出', includeToolNames: ['budget'], maximumTools: 2);
 
-    expect(selection.requiredToolNames, {'trend'});
+    expect(selection.names, {'trend', 'budget'});
   });
 
   test('supports a host-defined deterministic query matcher', () {
     final selection = AgentToolRegistry([
       _descriptor(
         'record',
-        resident: true,
         matcher: (query) => RegExp(r'\d').hasMatch(query),
-        requiresExecutionOnMatch: true,
       ),
     ]).select('lunch 35');
 
-    expect(selection.requiredToolNames, {'record'});
+    expect(selection.names, {'record'});
   });
 
-  test('can search conversation context but require tools from current text',
+  test('can select tools using conversation context without execution gates',
       () {
     final registry = AgentToolRegistry([
       _descriptor(
         'record',
         terms: const ['记账'],
-        requiresExecutionOnMatch: true,
       ),
       _descriptor('budget', terms: const ['预算']),
     ]);
 
     final selection = registry.select(
       '谢谢\n上一轮请记账并查看预算',
-      requirementQuery: '谢谢',
     );
 
     expect(selection.names, {'record', 'budget'});
-    expect(selection.requiredToolNames, isEmpty);
   });
 }
 
@@ -100,7 +93,6 @@ AgentToolDescriptor _descriptor(
   List<String> terms = const [],
   bool singleUse = false,
   bool deduplicate = false,
-  bool requiresExecutionOnMatch = false,
   AgentToolQueryMatcher? matcher,
 }) =>
     AgentToolDescriptor(
@@ -114,7 +106,6 @@ AgentToolDescriptor _descriptor(
       selectionTerms: terms,
       singleUse: singleUse,
       deduplicate: deduplicate,
-      requiresExecutionOnMatch: requiresExecutionOnMatch,
       selectionMatcher: matcher,
     );
 

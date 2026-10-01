@@ -23,6 +23,19 @@ void main() {
     expect(restored.metadata, {'provider': 'example'});
   });
 
+  test('invalid cache timestamps do not renew an unsupported verdict', () {
+    final now = DateTime.utc(2026, 10, 1);
+    for (final timestamp in [null, '', 'invalid-date']) {
+      final report = AgentModelCapabilities.fromJson({
+        'nativeToolCalls': 'unsupported',
+        'checkedAt': timestamp,
+      });
+      expect(report.checkedAt,
+          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true));
+      expect(report.isFresh(const Duration(days: 7), now: now), isFalse);
+    }
+  });
+
   test('resolver reuses fresh reports and refreshes stale reports', () async {
     final now = DateTime.utc(2026, 9, 29);
     final store = _MemoryStore();

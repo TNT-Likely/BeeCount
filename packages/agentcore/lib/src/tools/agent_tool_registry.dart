@@ -20,7 +20,6 @@ final class AgentToolDescriptor {
     Iterable<String> selectionTerms = const [],
     this.singleUse = false,
     this.deduplicate = false,
-    this.requiresExecutionOnMatch = false,
     this.selectionMatcher,
   }) : selectionTerms = UnmodifiableListView(
           selectionTerms
@@ -43,25 +42,18 @@ final class AgentToolDescriptor {
   final bool singleUse;
   final bool deduplicate;
 
-  /// If one of [selectionTerms] matches, a host may reject an ungrounded final
-  /// answer when the model returns text without executing any local tool.
-  final bool requiresExecutionOnMatch;
   final AgentToolQueryMatcher? selectionMatcher;
 }
 
 /// The immutable subset of a registry made available to one Agent run.
 final class AgentToolSelection {
   AgentToolSelection(
-    Iterable<AgentToolDescriptor> descriptors, {
-    Iterable<String> requiredToolNames = const [],
-  })  : requiredToolNames =
-            UnmodifiableSetView(Set<String>.of(requiredToolNames)),
-        descriptors = UnmodifiableListView(
+    Iterable<AgentToolDescriptor> descriptors,
+  ) : descriptors = UnmodifiableListView(
           List<AgentToolDescriptor>.of(descriptors, growable: false),
         );
 
   final List<AgentToolDescriptor> descriptors;
-  final Set<String> requiredToolNames;
 
   Set<String> get names => UnmodifiableSetView(
         descriptors.map((descriptor) => descriptor.definition.name).toSet(),
@@ -119,34 +111,22 @@ final class AgentToolRegistry {
 
   AgentToolSelection select(
     String query, {
-    String? requirementQuery,
     Iterable<String> includeToolNames = const [],
     int? maximumTools,
   }) {
     final normalized = query.trim().toLowerCase();
-    final normalizedRequirement =
-        (requirementQuery ?? query).trim().toLowerCase();
     final explicitNames = includeToolNames.toSet();
     final scored = <({AgentToolDescriptor descriptor, int score})>[];
-    final requiredToolNames = <String>{};
     for (final descriptor in _descriptors) {
       var score = descriptor.isResident ? 100000 : 0;
       if (explicitNames.contains(descriptor.definition.name)) score += 100000;
-      var requirementMatched = false;
       for (final term in descriptor.selectionTerms) {
         if (normalized.contains(term)) {
           score += 1000 + term.length;
         }
-        if (normalizedRequirement.contains(term)) requirementMatched = true;
       }
       if (descriptor.selectionMatcher?.call(normalized) ?? false) {
         score += 2000;
-      }
-      if (descriptor.selectionMatcher?.call(normalizedRequirement) ?? false) {
-        requirementMatched = true;
-      }
-      if (requirementMatched && descriptor.requiresExecutionOnMatch) {
-        requiredToolNames.add(descriptor.definition.name);
       }
       if (score > 0) scored.add((descriptor: descriptor, score: score));
     }
@@ -159,10 +139,6 @@ final class AgentToolRegistry {
     final limit =
         maximumTools == null || maximumTools < 1 ? scored.length : maximumTools;
     final selected = scored.take(limit).map((item) => item.descriptor).toList();
-    final selectedNames = selected.map((item) => item.definition.name).toSet();
-    return AgentToolSelection(
-      selected,
-      requiredToolNames: requiredToolNames.intersection(selectedNames),
-    );
+    return AgentToolSelection(selected);
   }
 }

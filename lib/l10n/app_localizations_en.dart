@@ -68,9 +68,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentScrollToLatest => 'Back to the latest message';
 
   @override
-  String get agentSuggestionsMore => 'More questions';
-
-  @override
   String get agentSuggestionHealthTitle => 'Financial health';
 
   @override
@@ -5437,12 +5434,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiQuickCommandsTitle => 'Try a task';
 
   @override
-  String get agentSuggestionsTitle => 'Suggested questions';
-
-  @override
-  String get agentSuggestionsOpen => 'Show suggested questions';
-
-  @override
   String get agentSuggestionOverviewTitle => 'This month\'s totals';
 
   @override
@@ -5453,12 +5444,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get agentSuggestionCategoryPrompt => 'What are this month\'s spending shares by top-level category?';
-
-  @override
-  String get agentSuggestionTrendTitle => 'Spending trend';
-
-  @override
-  String get agentSuggestionTrendPrompt => 'List monthly spending for the last six months.';
 
   @override
   String get aiQuickCommandsOpen => 'Open suggestions';
@@ -5541,9 +5526,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get agentNativeToolsUnsupported => 'This model can chat normally, but it does not support the native tool calls required to read or change ledger data. Open Settings > AI Settings > Provider Management to test or switch models.';
-
-  @override
-  String get agentRequiredToolNotCalled => 'This query did not run the required data tool, so a reliable answer is unavailable. Please retry or clarify the time and category range.';
 
   @override
   String get agentTurnTimedOut => 'The AI response timed out. Please try again shortly.';
@@ -8090,7 +8072,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get agentQueryValidationFailed => 'The query parameters could not be corrected, so a reliable result is unavailable. Please try again.';
-
-  @override
-  String get agentSuggestionsLess => 'Fewer questions';
 }

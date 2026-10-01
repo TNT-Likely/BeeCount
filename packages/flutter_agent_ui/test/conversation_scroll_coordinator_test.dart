@@ -1,11 +1,11 @@
-import 'package:beecount/pages/ai/agent_chat_scroll_coordinator.dart';
+import 'package:flutter_agent_ui/flutter_agent_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('首帧加载历史消息后无需额外刷新也定位到最后一条', (tester) async {
     final controller = ScrollController();
-    final coordinator = AgentChatScrollCoordinator(controller);
+    final coordinator = AgentConversationScrollCoordinator(controller);
     addTearDown(coordinator.dispose);
     var requested = false;
 
@@ -36,7 +36,7 @@ void main() {
 
   testWidgets('助手消息进入列表后才滚动到底部', (tester) async {
     final controller = ScrollController();
-    final coordinator = AgentChatScrollCoordinator(controller);
+    final coordinator = AgentConversationScrollCoordinator(controller);
     addTearDown(coordinator.dispose);
     var itemCount = 3;
     late StateSetter updateItems;
@@ -76,7 +76,7 @@ void main() {
 
   testWidgets('首帧内容尚未形成滚动范围时，后续布局变化仍定位到底部', (tester) async {
     final controller = ScrollController();
-    final coordinator = AgentChatScrollCoordinator(controller);
+    final coordinator = AgentConversationScrollCoordinator(controller);
     addTearDown(coordinator.dispose);
     var itemCount = 1;
     var requested = false;
@@ -117,7 +117,7 @@ void main() {
 
   testWidgets('定位请求早于列表挂载时也会在后续帧定位到底部', (tester) async {
     final controller = ScrollController();
-    final coordinator = AgentChatScrollCoordinator(controller);
+    final coordinator = AgentConversationScrollCoordinator(controller);
     addTearDown(coordinator.dispose);
 
     await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
@@ -143,7 +143,7 @@ void main() {
 
   testWidgets('首屏内容延迟超过重试窗口后仍会定位到底部', (tester) async {
     final controller = ScrollController();
-    final coordinator = AgentChatScrollCoordinator(controller);
+    final coordinator = AgentConversationScrollCoordinator(controller);
     addTearDown(coordinator.dispose);
     var itemCount = 1;
     var requested = false;
@@ -187,7 +187,7 @@ void main() {
 
   testWidgets('首次定位后消息行高度变化仍会重新校正到底部', (tester) async {
     final controller = ScrollController();
-    final coordinator = AgentChatScrollCoordinator(controller);
+    final coordinator = AgentConversationScrollCoordinator(controller);
     addTearDown(coordinator.dispose);
     var itemHeight = 60.0;
     var requested = false;

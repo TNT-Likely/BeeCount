@@ -170,13 +170,42 @@ class AIProviderFactory {
 
   static Stream<Map<String, dynamic>> _streamToolCompletion(
     Dio dio,
-    Map<String, Object?> payload,
-  ) async* {
-    final response = await dio.post<ResponseBody>(
-      '/chat/completions',
-      data: payload,
-      options: Options(responseType: ResponseType.stream),
-    );
+    Map<String, Object?> payload, {
+    int strippedParameterCount = 0,
+  }) async* {
+    final Response<ResponseBody> response;
+    try {
+      response = await dio.post<ResponseBody>(
+        '/chat/completions',
+        data: payload,
+        options: Options(responseType: ResponseType.stream),
+      );
+    } on DioException catch (error) {
+      await OpenAIException.decodeStreamErrorResponse(error);
+      final rejected = rejectedChatParam(
+        Map<String, dynamic>.from(payload),
+        error.response?.statusCode,
+        error.response?.data?.toString() ?? '',
+      );
+      // Retry optional parameter incompatibilities in SSE mode first. Never
+      // strip the tool catalog or stream flag; genuine stream rejection still
+      // follows the existing bounded non-streaming fallback in the caller.
+      if ((error.response?.statusCode == 400 ||
+              error.response?.statusCode == 422) &&
+          rejected != null &&
+          rejected != 'tools' &&
+          rejected != 'stream' &&
+          strippedParameterCount < _maxParamStrips) {
+        logger.info('AgentNativeTools', '服务商不接受 $rejected，保留流式并移除参数重试');
+        yield* _streamToolCompletion(
+          dio,
+          Map<String, Object?>.of(payload)..remove(rejected),
+          strippedParameterCount: strippedParameterCount + 1,
+        );
+        return;
+      }
+      rethrow;
+    }
     final body = response.data;
     if (body == null) {
       throw AIException(
@@ -200,7 +229,8 @@ class AIProviderFactory {
         .transform(const LineSplitter())) {
       if (!line.startsWith('data:')) continue;
       final data = line.substring(5).trim();
-      if (data.isEmpty || data == '[DONE]') continue;
+      if (data == '[DONE]') return;
+      if (data.isEmpty) continue;
       final decoded = jsonDecode(data);
       if (decoded is Map) {
         final mapped = Map<String, dynamic>.from(decoded);
@@ -728,6 +758,7 @@ class AIProviderFactory {
           ? AgentCapabilitySupport.supported
           : AgentCapabilitySupport.unsupported;
     } on DioException catch (error) {
+      await OpenAIException.decodeStreamErrorResponse(error);
       return _mayRejectStreaming(error)
           ? AgentCapabilitySupport.unsupported
           : AgentCapabilitySupport.unknown;
