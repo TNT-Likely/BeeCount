@@ -36,11 +36,12 @@ final class OpenAiCompatibleNativeToolTransport
     AgentNativeToolRequest request, {
     AgentNativeEventSink? onEvent,
   }) async {
+    final visibleDefinitions = _visibleDefinitions(request);
     logSink?.call('turnStarted', {
       'runId': request.runId,
       'toolResultCount': request.toolResults.length,
       'allowToolCalls': request.allowToolCalls,
-      'toolDefinitions': _toolDefinitions
+      'toolDefinitions': visibleDefinitions
           .where((_) => request.allowToolCalls)
           .map(
             (definition) => {
@@ -90,7 +91,7 @@ final class OpenAiCompatibleNativeToolTransport
         runId: request.runId,
         messages: messages,
         tools: request.allowToolCalls
-            ? _toolDefinitions.map((item) => item.toOpenAiSchema()).toList()
+            ? visibleDefinitions.map((item) => item.toOpenAiSchema()).toList()
             : const [],
         emitTextDeltas: request.allowToolCalls,
         logTag: 'AgentNativeTools',
@@ -170,6 +171,18 @@ final class OpenAiCompatibleNativeToolTransport
     }
   }
 
+  List<AgentNativeToolDefinition> _visibleDefinitions(
+    AgentNativeToolRequest request,
+  ) {
+    if (!request.allowToolCalls) return const [];
+    final available = request.availableToolNames;
+    if (available == null) return _toolDefinitions;
+    return [
+      for (final definition in _toolDefinitions)
+        if (available.contains(definition.name)) definition,
+    ];
+  }
+
   Future<AgentNativeModelResponse> _completeStream({
     required String runId,
     required List<Map<String, dynamic>> messages,
@@ -182,6 +195,8 @@ final class OpenAiCompatibleNativeToolTransport
     final calls = <int, _StreamToolCall>{};
     final response = Completer<AgentNativeModelResponse>();
     StreamSubscription<Map<String, dynamic>>? subscription;
+    var reportedThinking = false;
+    var reportedGenerating = false;
 
     AgentNativeModelResponse buildResponse() {
       if (calls.isNotEmpty) {
@@ -224,8 +239,24 @@ final class OpenAiCompatibleNativeToolTransport
       final choice = choices.first as Map;
       final delta = choice['delta'];
       if (delta is Map) {
+        // Only report observed provider activity, never retain or forward its
+        // private reasoning. Ordinary models remain in awaitingResponse until
+        // answer content or a tool call actually arrives.
+        if (!reportedThinking &&
+            !reportedGenerating &&
+            [delta['reasoning_content'], delta['reasoning']]
+                .any((value) => value is String && value.trim().isNotEmpty)) {
+          reportedThinking = true;
+          onEvent?.call(
+              const AgentNativeModelActivity(AgentNativeModelPhase.thinking));
+        }
         final content = delta['content'];
         if (content is String && content.isNotEmpty) {
+          if (!reportedGenerating) {
+            reportedGenerating = true;
+            onEvent?.call(const AgentNativeModelActivity(
+                AgentNativeModelPhase.generating));
+          }
           text.write(content);
           if (emitTextDeltas) onEvent?.call(AgentNativeTextDelta(content));
         }
@@ -259,6 +290,8 @@ final class OpenAiCompatibleNativeToolTransport
       if (finishReason is String && finishReason.isNotEmpty) finish();
     }
 
+    onEvent?.call(
+        const AgentNativeModelActivity(AgentNativeModelPhase.awaitingResponse));
     subscription = _toolStream(
       messages: messages,
       tools: tools,

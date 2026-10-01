@@ -1,0 +1,6366 @@
+{
+  "schemaVersion": 1,
+  "id": "beecount-readonly-v1",
+  "fixtureVersion": "ledger-v1",
+  "cases": [
+    {
+      "id": "overview-current-1",
+      "tags": [
+        "overview",
+        "scope",
+        "excluded",
+        "currency"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "本月收支概览",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-current-2",
+      "tags": [
+        "overview",
+        "scope",
+        "excluded",
+        "currency"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "这个月总支出多少？",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-current-3",
+      "tags": [
+        "overview",
+        "scope",
+        "excluded",
+        "currency"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "September 2026 income and expenses?",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])5[,，]?020(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-previous-1",
+      "tags": [
+        "overview",
+        "relative-time"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "上月花了多少？",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "previous_month"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-08-01T00:00:00.000",
+                  "periodEnd": "2026-09-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 1300,
+                  "balance": -1300
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?300(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-previous-2",
+      "tags": [
+        "overview",
+        "relative-time"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "上月收支结余是多少？",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "previous_month"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-08-01T00:00:00.000",
+                  "periodEnd": "2026-09-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 1300,
+                  "balance": -1300
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?300(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-previous-3",
+      "tags": [
+        "overview",
+        "relative-time"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Show last month's overview",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "previous_month"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-08-01T00:00:00.000",
+                  "periodEnd": "2026-09-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 1300,
+                  "balance": -1300
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?300(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-year-1",
+      "tags": [
+        "overview",
+        "cross-year"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "今年收支合计",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_year"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 9020,
+                  "expense": 9225,
+                  "balance": -205
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])9[,，]?225(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-year-2",
+      "tags": [
+        "overview",
+        "cross-year"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "今年总支出多少？",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_year"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 9020,
+                  "expense": 9225,
+                  "balance": -205
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])9[,，]?225(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-year-3",
+      "tags": [
+        "overview",
+        "cross-year"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "今年总收入和结余？",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_year"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 9020,
+                  "expense": 9225,
+                  "balance": -205
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])9[,，]?020(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])[-−]\\s*[¥￥]?\\s*205(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-prior-year-1",
+      "tags": [
+        "overview",
+        "cross-year"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "去年收支概览",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "previous_year"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2025-01-01T00:00:00.000",
+                  "periodEnd": "2026-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 4360,
+                  "balance": -4360
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])4[,，]?360(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-prior-year-2",
+      "tags": [
+        "overview",
+        "cross-year"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "去年总支出多少？",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "previous_year"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2025-01-01T00:00:00.000",
+                  "periodEnd": "2026-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 4360,
+                  "balance": -4360
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])4[,，]?360(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-prior-year-3",
+      "tags": [
+        "overview",
+        "cross-year"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Show previous year's overview",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "previous_year"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2025-01-01T00:00:00.000",
+                  "periodEnd": "2026-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 4360,
+                  "balance": -4360
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])4[,，]?360(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-empty-1",
+      "tags": [
+        "overview",
+        "empty",
+        "boundary"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "2026年3月收支概览",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-03-01T00:00:00.000",
+                  "end": "2026-04-01T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-03-01T00:00:00.000",
+                  "periodEnd": "2026-04-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 0,
+                  "balance": 0
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])0(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-empty-2",
+      "tags": [
+        "overview",
+        "empty",
+        "boundary"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "3月1日到4月1日前的总支出",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-03-01T00:00:00.000",
+                  "end": "2026-04-01T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-03-01T00:00:00.000",
+                  "periodEnd": "2026-04-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 0,
+                  "balance": 0
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])0(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-empty-3",
+      "tags": [
+        "overview",
+        "empty",
+        "boundary"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Show March 2026 income and expenses",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-03-01T00:00:00.000",
+                  "end": "2026-04-01T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-03-01T00:00:00.000",
+                  "periodEnd": "2026-04-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 0,
+                  "balance": 0
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])0(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-refund-1",
+      "tags": [
+        "overview",
+        "refund",
+        "boundary"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "2026年9月13日收支概览",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-09-13T00:00:00.000",
+                  "end": "2026-09-14T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-13T00:00:00.000",
+                  "periodEnd": "2026-09-14T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 20,
+                  "expense": 0,
+                  "balance": 20
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])20(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-refund-2",
+      "tags": [
+        "overview",
+        "refund",
+        "boundary"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "9月13日总收入多少？",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-09-13T00:00:00.000",
+                  "end": "2026-09-14T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-13T00:00:00.000",
+                  "periodEnd": "2026-09-14T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 20,
+                  "expense": 0,
+                  "balance": 20
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])20(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-refund-3",
+      "tags": [
+        "overview",
+        "refund",
+        "boundary"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "9月13日到14日前的收支合计",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-09-13T00:00:00.000",
+                  "end": "2026-09-14T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-13T00:00:00.000",
+                  "periodEnd": "2026-09-14T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 20,
+                  "expense": 0,
+                  "balance": 20
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])20(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-transfer-1",
+      "tags": [
+        "overview",
+        "transfer"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "2026年9月22日收支概览",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-09-22T00:00:00.000",
+                  "end": "2026-09-23T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-22T00:00:00.000",
+                  "periodEnd": "2026-09-23T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 0,
+                  "balance": 0,
+                  "transactionCount": 1
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])0(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-transfer-2",
+      "tags": [
+        "overview",
+        "transfer"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "9月22日总支出多少？",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-09-22T00:00:00.000",
+                  "end": "2026-09-23T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-22T00:00:00.000",
+                  "periodEnd": "2026-09-23T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 0,
+                  "balance": 0,
+                  "transactionCount": 1
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])0(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-transfer-3",
+      "tags": [
+        "overview",
+        "transfer"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "9月22日到23日前的收入和支出合计",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-09-22T00:00:00.000",
+                  "end": "2026-09-23T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-22T00:00:00.000",
+                  "periodEnd": "2026-09-23T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 0,
+                  "balance": 0,
+                  "transactionCount": 1
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])0(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-cycle-1",
+      "tags": [
+        "overview",
+        "custom-month",
+        "scope"
+      ],
+      "input": {
+        "ledger": "cycle",
+        "steps": [
+          {
+            "prompt": "本月收支概览",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-15T00:00:00.000",
+                  "periodEnd": "2026-10-15T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 50,
+                  "balance": -50
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])50(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-cycle-2",
+      "tags": [
+        "overview",
+        "custom-month",
+        "scope"
+      ],
+      "input": {
+        "ledger": "cycle",
+        "steps": [
+          {
+            "prompt": "这个月总支出多少？",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-15T00:00:00.000",
+                  "periodEnd": "2026-10-15T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 50,
+                  "balance": -50
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])50(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overview-cycle-3",
+      "tags": [
+        "overview",
+        "custom-month",
+        "scope"
+      ],
+      "input": {
+        "ledger": "cycle",
+        "steps": [
+          {
+            "prompt": "本月结余多少？",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-15T00:00:00.000",
+                  "periodEnd": "2026-10-15T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 50,
+                  "balance": -50
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])50(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-dining-1",
+      "tags": [
+        "trend",
+        "category",
+        "empty-month"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "今年各个月餐饮支出分别是多少？",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "totalExpense": 1050,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 100
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 150
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 80
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 200
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 100
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 300
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 120
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])100(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])150(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])80(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])200(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])300(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-dining-2",
+      "tags": [
+        "trend",
+        "category",
+        "empty-month"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "按月对比今年餐饮支出，不用计算涨跌",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "none",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "totalExpense": 1050,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 100,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 150,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 80,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 200,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 100,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 300,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 120,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])100(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])150(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])80(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])200(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])300(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-dining-3",
+      "tags": [
+        "trend",
+        "category",
+        "empty-month"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Show month by month dining expense in 2026, no comparison",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "none",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "totalExpense": 1050,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 100,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 150,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 80,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 200,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 100,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 300,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 120,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])100(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])150(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])80(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])200(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])300(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-housing-1",
+      "tags": [
+        "trend",
+        "category",
+        "empty-month"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "今年住房每月支出是多少？不要涨跌比较",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "住房"
+                  ],
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "none",
+                  "categoryNames": [
+                    "住房"
+                  ],
+                  "totalExpense": 8000,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?000(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])0(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-housing-2",
+      "tags": [
+        "trend",
+        "category",
+        "empty-month"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "列出今年各月住房支出，包含空月份",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "住房"
+                  ],
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "categoryNames": [
+                    "住房"
+                  ],
+                  "totalExpense": 8000,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?000(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])0(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-housing-3",
+      "tags": [
+        "trend",
+        "category",
+        "empty-month"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "住房支出今年按月趋势，只列金额",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "住房"
+                  ],
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "none",
+                  "categoryNames": [
+                    "住房"
+                  ],
+                  "totalExpense": 8000,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 1000,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?000(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])0(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-mom-1",
+      "tags": [
+        "trend",
+        "comparison",
+        "zero-base"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "今年餐饮每月支出和环比",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "comparison": "previous_point"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "previous_point",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "totalExpense": 1050,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 100,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 150,
+                      "comparedAmount": 100,
+                      "changeAmount": 50,
+                      "changeRate": 0.5
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": 150,
+                      "changeAmount": -150,
+                      "changeRate": -1
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 80,
+                      "comparedAmount": 0,
+                      "changeAmount": 80,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 200,
+                      "comparedAmount": 80,
+                      "changeAmount": 120,
+                      "changeRate": 1.5
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0,
+                      "comparedAmount": 200,
+                      "changeAmount": -200,
+                      "changeRate": -1
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 100,
+                      "comparedAmount": 0,
+                      "changeAmount": 100,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 300,
+                      "comparedAmount": 100,
+                      "changeAmount": 200,
+                      "changeRate": 2
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 120,
+                      "comparedAmount": 300,
+                      "changeAmount": -180,
+                      "changeRate": -0.6
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": 120,
+                      "changeAmount": -120,
+                      "changeRate": -1
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])100(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])150(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])300(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-mom-2",
+      "tags": [
+        "trend",
+        "comparison",
+        "zero-base"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "按月列出今年餐饮支出的涨跌幅",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "comparison": "previous_point"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "previous_point",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "totalExpense": 1050,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 100,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 150,
+                      "comparedAmount": 100,
+                      "changeAmount": 50,
+                      "changeRate": 0.5
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": 150,
+                      "changeAmount": -150,
+                      "changeRate": -1
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 80,
+                      "comparedAmount": 0,
+                      "changeAmount": 80,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 200,
+                      "comparedAmount": 80,
+                      "changeAmount": 120,
+                      "changeRate": 1.5
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0,
+                      "comparedAmount": 200,
+                      "changeAmount": -200,
+                      "changeRate": -1
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 100,
+                      "comparedAmount": 0,
+                      "changeAmount": 100,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 300,
+                      "comparedAmount": 100,
+                      "changeAmount": 200,
+                      "changeRate": 2
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 120,
+                      "comparedAmount": 300,
+                      "changeAmount": -180,
+                      "changeRate": -0.6
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": 120,
+                      "changeAmount": -120,
+                      "changeRate": -1
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])100(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])150(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])300(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-mom-3",
+      "tags": [
+        "trend",
+        "comparison",
+        "zero-base"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "餐饮消费今年逐月环比是多少？",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "comparison": "previous_point"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "previous_point",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "totalExpense": 1050,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 100,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 150,
+                      "comparedAmount": 100,
+                      "changeAmount": 50,
+                      "changeRate": 0.5
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": 150,
+                      "changeAmount": -150,
+                      "changeRate": -1
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 80,
+                      "comparedAmount": 0,
+                      "changeAmount": 80,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 200,
+                      "comparedAmount": 80,
+                      "changeAmount": 120,
+                      "changeRate": 1.5
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0,
+                      "comparedAmount": 200,
+                      "changeAmount": -200,
+                      "changeRate": -1
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 100,
+                      "comparedAmount": 0,
+                      "changeAmount": 100,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 300,
+                      "comparedAmount": 100,
+                      "changeAmount": 200,
+                      "changeRate": 2
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 120,
+                      "comparedAmount": 300,
+                      "changeAmount": -180,
+                      "changeRate": -0.6
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": 120,
+                      "changeAmount": -120,
+                      "changeRate": -1
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])100(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])150(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])300(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-yoy-1",
+      "tags": [
+        "trend",
+        "comparison",
+        "cross-year"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "今年餐饮各月支出与去年同期相比",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "comparison": "previous_year"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "previous_year",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "totalExpense": 1050,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 100,
+                      "comparedAmount": 50,
+                      "changeAmount": 50,
+                      "changeRate": 1
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 150,
+                      "comparedAmount": 100,
+                      "changeAmount": 50,
+                      "changeRate": 0.5
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 80,
+                      "comparedAmount": 0,
+                      "changeAmount": 80,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 200,
+                      "comparedAmount": 0,
+                      "changeAmount": 200,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 100,
+                      "comparedAmount": 0,
+                      "changeAmount": 100,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 300,
+                      "comparedAmount": 150,
+                      "changeAmount": 150,
+                      "changeRate": 1
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 120,
+                      "comparedAmount": 60,
+                      "changeAmount": 60,
+                      "changeRate": 1
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])100(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])150(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-yoy-2",
+      "tags": [
+        "trend",
+        "comparison",
+        "cross-year"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "今年餐饮每月支出的同比是多少？",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "comparison": "previous_year"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "previous_year",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "totalExpense": 1050,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 100,
+                      "comparedAmount": 50,
+                      "changeAmount": 50,
+                      "changeRate": 1
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 150,
+                      "comparedAmount": 100,
+                      "changeAmount": 50,
+                      "changeRate": 0.5
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 80,
+                      "comparedAmount": 0,
+                      "changeAmount": 80,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 200,
+                      "comparedAmount": 0,
+                      "changeAmount": 200,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 100,
+                      "comparedAmount": 0,
+                      "changeAmount": 100,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 300,
+                      "comparedAmount": 150,
+                      "changeAmount": 150,
+                      "changeRate": 1
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 120,
+                      "comparedAmount": 60,
+                      "changeAmount": 60,
+                      "changeRate": 1
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])100(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])150(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-yoy-3",
+      "tags": [
+        "trend",
+        "comparison",
+        "cross-year"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Show 2026 monthly dining expense year over year",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "comparison": "previous_year"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "previous_year",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "totalExpense": 1050,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 100,
+                      "comparedAmount": 50,
+                      "changeAmount": 50,
+                      "changeRate": 1
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 150,
+                      "comparedAmount": 100,
+                      "changeAmount": 50,
+                      "changeRate": 0.5
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 80,
+                      "comparedAmount": 0,
+                      "changeAmount": 80,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 200,
+                      "comparedAmount": 0,
+                      "changeAmount": 200,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 100,
+                      "comparedAmount": 0,
+                      "changeAmount": 100,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 300,
+                      "comparedAmount": 150,
+                      "changeAmount": 150,
+                      "changeRate": 1
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 120,
+                      "comparedAmount": 60,
+                      "changeAmount": 60,
+                      "changeRate": 1
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": 0,
+                      "changeAmount": 0,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])100(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])150(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-missing-1",
+      "tags": [
+        "trend",
+        "empty",
+        "category"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "今年「太空旅行」分类的各月支出，只列金额",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "太空旅行"
+                  ],
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "none",
+                  "categoryNames": [
+                    "太空旅行"
+                  ],
+                  "totalExpense": 0,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])0(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-missing-2",
+      "tags": [
+        "trend",
+        "empty",
+        "category"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "「太空旅行」分类今年逐月支出，不做比较",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "太空旅行"
+                  ],
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "none",
+                  "categoryNames": [
+                    "太空旅行"
+                  ],
+                  "totalExpense": 0,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])0(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "trend-missing-3",
+      "tags": [
+        "trend",
+        "empty",
+        "category"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "列出2026年「太空旅行」分类每月支出",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "太空旅行"
+                  ],
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "comparison": "none",
+                  "categoryNames": [
+                    "太空旅行"
+                  ],
+                  "totalExpense": 0,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0,
+                      "comparedAmount": null,
+                      "changeAmount": null,
+                      "changeRate": null
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])0(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "breakdown-top-1",
+      "tags": [
+        "breakdown",
+        "share",
+        "currency",
+        "many-rows"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "本月各分类支出占比",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?000(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])117(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])53(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])5(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "breakdown-top-2",
+      "tags": [
+        "breakdown",
+        "share",
+        "currency",
+        "many-rows"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "9月支出构成，按一级分类列出金额",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?000(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])117(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])53(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])5(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "breakdown-top-3",
+      "tags": [
+        "breakdown",
+        "share",
+        "currency",
+        "many-rows"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "本月分类排行和占比",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?000(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])117(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])53(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])5(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "breakdown-leaf-1",
+      "tags": [
+        "breakdown",
+        "subcategory"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "本月餐饮的明细分类支出构成",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "leaf",
+                  "categoryNames": [
+                    "餐饮"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "leaf",
+                  "totalExpense": 120,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "午餐"
+                      },
+                      "amount": 70,
+                      "share": 0.5833333333333334
+                    },
+                    {
+                      "category": {
+                        "name": "早餐"
+                      },
+                      "amount": 50,
+                      "share": 0.4166666666666667
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])70(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])50(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "breakdown-leaf-2",
+      "tags": [
+        "breakdown",
+        "subcategory"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "9月餐饮下早餐和午餐的分类占比",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "leaf",
+                  "categoryNames": [
+                    "餐饮"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "leaf",
+                  "totalExpense": 120,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "午餐"
+                      },
+                      "amount": 70,
+                      "share": 0.5833333333333334
+                    },
+                    {
+                      "category": {
+                        "name": "早餐"
+                      },
+                      "amount": 50,
+                      "share": 0.4166666666666667
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])70(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])50(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "breakdown-leaf-3",
+      "tags": [
+        "breakdown",
+        "subcategory"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "本月餐饮按明细分类排行",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "leaf",
+                  "categoryNames": [
+                    "餐饮"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "leaf",
+                  "totalExpense": 120,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "午餐"
+                      },
+                      "amount": 70,
+                      "share": 0.5833333333333334
+                    },
+                    {
+                      "category": {
+                        "name": "早餐"
+                      },
+                      "amount": 50,
+                      "share": 0.4166666666666667
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])70(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])50(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "breakdown-empty-1",
+      "tags": [
+        "breakdown",
+        "empty"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "2026年3月各分类支出占比",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-03-01T00:00:00.000",
+                  "end": "2026-04-01T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-03-01T00:00:00.000",
+                  "periodEnd": "2026-04-01T00:00:00.000",
+                  "currency": "CNY",
+                  "totalExpense": 0,
+                  "items": []
+                }
+              }
+            ],
+            "answerPatterns": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "breakdown-empty-2",
+      "tags": [
+        "breakdown",
+        "empty"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "3月1日到4月1日前的分类排行",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-03-01T00:00:00.000",
+                  "end": "2026-04-01T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-03-01T00:00:00.000",
+                  "periodEnd": "2026-04-01T00:00:00.000",
+                  "currency": "CNY",
+                  "totalExpense": 0,
+                  "items": []
+                }
+              }
+            ],
+            "answerPatterns": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "breakdown-empty-3",
+      "tags": [
+        "breakdown",
+        "empty"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "March 2026 category breakdown",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-03-01T00:00:00.000",
+                  "end": "2026-04-01T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-03-01T00:00:00.000",
+                  "periodEnd": "2026-04-01T00:00:00.000",
+                  "currency": "CNY",
+                  "totalExpense": 0,
+                  "items": []
+                }
+              }
+            ],
+            "answerPatterns": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "details-empty-1",
+      "tags": [
+        "details",
+        "empty",
+        "boundary"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "列出2026年3月交易明细",
+            "oracleCalls": [
+              {
+                "name": "query_transactions",
+                "arguments": {
+                  "start": "2026-03-01T00:00:00.000",
+                  "end": "2026-04-01T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "query_transactions",
+                "result": {
+                  "items": []
+                }
+              }
+            ],
+            "answerPatterns": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "details-empty-2",
+      "tags": [
+        "details",
+        "empty",
+        "boundary"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "3月1日到4月1日前有哪几笔账单？",
+            "oracleCalls": [
+              {
+                "name": "query_transactions",
+                "arguments": {
+                  "start": "2026-03-01T00:00:00.000",
+                  "end": "2026-04-01T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "query_transactions",
+                "result": {
+                  "items": []
+                }
+              }
+            ],
+            "answerPatterns": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "details-empty-3",
+      "tags": [
+        "details",
+        "empty",
+        "boundary"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Show transaction details for March 2026",
+            "oracleCalls": [
+              {
+                "name": "query_transactions",
+                "arguments": {
+                  "start": "2026-03-01T00:00:00.000",
+                  "end": "2026-04-01T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "query_transactions",
+                "result": {
+                  "items": []
+                }
+              }
+            ],
+            "answerPatterns": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "details-cap-1",
+      "tags": [
+        "details",
+        "many-rows"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "查看9月最近几笔交易明细",
+            "oracleCalls": [
+              {
+                "name": "query_transactions",
+                "arguments": {
+                  "start": "2026-09-01T00:00:00.000",
+                  "end": "2026-10-01T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "query_transactions",
+                "result": {
+                  "itemCount": 20
+                }
+              }
+            ],
+            "answerPatterns": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "details-cap-2",
+      "tags": [
+        "details",
+        "many-rows"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "2026年9月1日至10月1日前的交易记录",
+            "oracleCalls": [
+              {
+                "name": "query_transactions",
+                "arguments": {
+                  "start": "2026-09-01T00:00:00.000",
+                  "end": "2026-10-01T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "query_transactions",
+                "result": {
+                  "itemCount": 20
+                }
+              }
+            ],
+            "answerPatterns": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "details-cap-3",
+      "tags": [
+        "details",
+        "many-rows"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Show September 2026 transaction details",
+            "oracleCalls": [
+              {
+                "name": "query_transactions",
+                "arguments": {
+                  "start": "2026-09-01T00:00:00.000",
+                  "end": "2026-10-01T00:00:00.000"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "query_transactions",
+                "result": {
+                  "itemCount": 20
+                }
+              }
+            ],
+            "answerPatterns": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "followup-category",
+      "tags": [
+        "multi-turn",
+        "followup-category"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "今年各个月餐饮支出分别是多少？",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "comparison": "none"
+                }
+              }
+            ]
+          },
+          {
+            "prompt": "那住房呢？",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "current_year",
+                  "interval": "month",
+                  "categoryNames": [
+                    "住房"
+                  ],
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "totalExpense": 1050,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 100
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 150
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 80
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 200
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 100
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 300
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 120
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])100(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])150(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])80(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])200(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])300(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          },
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-01-01T00:00:00.000",
+                  "periodEnd": "2027-01-01T00:00:00.000",
+                  "currency": "CNY",
+                  "interval": "month",
+                  "categoryNames": [
+                    "住房"
+                  ],
+                  "totalExpense": 8000,
+                  "points": [
+                    {
+                      "period": "2026-01",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-02",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-03",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-04",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-10",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-11",
+                      "amount": 0
+                    },
+                    {
+                      "period": "2026-12",
+                      "amount": 0
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?000(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "followup-time",
+      "tags": [
+        "multi-turn",
+        "followup-time"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "本月收支概览",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              }
+            ]
+          },
+          {
+            "prompt": "换成上月",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "previous_month"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          },
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-08-01T00:00:00.000",
+                  "periodEnd": "2026-09-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 0,
+                  "expense": 1300,
+                  "balance": -1300
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?300(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "followup-breakdown",
+      "tags": [
+        "multi-turn",
+        "followup-breakdown"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "本月各分类支出占比",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              }
+            ]
+          },
+          {
+            "prompt": "那餐饮内部呢？按明细分类",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryNames": [
+                    "餐饮"
+                  ],
+                  "categoryLevel": "leaf"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?000(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])117(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])53(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])5(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          },
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "totalExpense": 120,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "午餐"
+                      },
+                      "amount": 70
+                    },
+                    {
+                      "category": {
+                        "name": "早餐"
+                      },
+                      "amount": 50
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])70(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])50(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "entry-overview-zh",
+      "tags": [
+        "entry-prompt",
+        "overview",
+        "zh"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "总结本月收入、支出和结余。",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "entry-overview-en",
+      "tags": [
+        "entry-prompt",
+        "overview",
+        "en"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Summarize this month's income, expenses and balance.",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "entry-category-zh",
+      "tags": [
+        "entry-prompt",
+        "category",
+        "zh"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "本月一级分类支出占比是多少？",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?000(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])117(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])53(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])5(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "entry-category-en",
+      "tags": [
+        "entry-prompt",
+        "category",
+        "en"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "What are this month's spending shares by top-level category?",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?000(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])117(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])53(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])5(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "entry-trend-zh",
+      "tags": [
+        "entry-prompt",
+        "trend",
+        "zh"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "按月列出最近六个月的支出。",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "last_6_months",
+                  "interval": "month",
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-04-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "totalExpense": 6975,
+                  "points": [
+                    {
+                      "period": "2026-04",
+                      "amount": 1080
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 1200
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 1100
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 1300
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 1295
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?080(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])1[,，]?200(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])1[,，]?000(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])1[,，]?100(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])1[,，]?300(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "entry-trend-en",
+      "tags": [
+        "entry-prompt",
+        "trend",
+        "en"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "List monthly spending for the last six months.",
+            "oracleCalls": [
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "last_6_months",
+                  "interval": "month",
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-04-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "totalExpense": 6975,
+                  "points": [
+                    {
+                      "period": "2026-04",
+                      "amount": 1080
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 1200
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 1100
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 1300
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 1295
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?080(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])1[,，]?200(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])1[,，]?000(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])1[,，]?100(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])1[,，]?300(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-health-zh",
+      "tags": [
+        "analysis-template",
+        "health",
+        "zh"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "分析本月收支平衡和储蓄率，并按月列出最近六个月的支出趋势。基于查询结果给出财务健康分析和建议，数据不足时说明限制。",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              },
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "last_6_months",
+                  "interval": "month",
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              },
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-04-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "totalExpense": 6975,
+                  "points": [
+                    {
+                      "period": "2026-04",
+                      "amount": 1080
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 1200
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 1100
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 1300
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 1295
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-health-en",
+      "tags": [
+        "analysis-template",
+        "health",
+        "en"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Analyze this month's income, expenses, balance and savings rate, and list monthly spending for the last six months. Give financial health observations and suggestions based on tool results; explain any data limitations.",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              },
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "last_6_months",
+                  "interval": "month",
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              },
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-04-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "totalExpense": 6975,
+                  "points": [
+                    {
+                      "period": "2026-04",
+                      "amount": 1080
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 1200
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 1100
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 1300
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 1295
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-summary-zh",
+      "tags": [
+        "analysis-template",
+        "summary",
+        "zh"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "总结本月支出，分析主要一级分类及占比，并给出节约开支的建议。请依据实际查询结果，数据不足时说明限制。",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              },
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              },
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-summary-en",
+      "tags": [
+        "analysis-template",
+        "summary",
+        "en"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Summarize this month's spending, analyze the main top-level categories and their shares, and suggest ways to save. Use actual tool results and explain any data limitations.",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              },
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              },
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-analysis-zh",
+      "tags": [
+        "analysis-template",
+        "analysis",
+        "zh"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "分析本月一级分类支出占比和主要支出类别，给出优化建议。不要仅凭占比断言某项消费不合理，数据不足时说明限制。",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-analysis-en",
+      "tags": [
+        "analysis-template",
+        "analysis",
+        "en"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Analyze this month's top-level spending categories and shares, and suggest improvements. Do not judge spending as unreasonable from its share alone; explain any data limitations.",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-budget-zh",
+      "tags": [
+        "analysis-template",
+        "budget",
+        "zh"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "根据本月收支、一级分类支出占比和最近六个月的月度支出趋势，提供下月分类预算规划建议。仅提供建议，不创建或修改预算；数据不足时说明限制。",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              },
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              },
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "last_6_months",
+                  "interval": "month",
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              },
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              },
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-04-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "totalExpense": 6975,
+                  "points": [
+                    {
+                      "period": "2026-04",
+                      "amount": 1080
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 1200
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 1100
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 1300
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 1295
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-budget-en",
+      "tags": [
+        "analysis-template",
+        "budget",
+        "en"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Use this month's income, expenses and balance, top-level category spending shares, and monthly spending trend for the last six months to suggest next month's category budgets. Give advice only; do not create or modify budgets. Explain any data limitations.",
+            "oracleCalls": [
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "current_month"
+                }
+              },
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              },
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "last_6_months",
+                  "interval": "month",
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              },
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              },
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-04-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "totalExpense": 6975,
+                  "points": [
+                    {
+                      "period": "2026-04",
+                      "amount": 1080
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 1200
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 1100
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 1300
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 1295
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-anomaly-zh",
+      "tags": [
+        "analysis-template",
+        "anomaly",
+        "zh"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "查看最近三十天的交易明细及收支概览，指出其中值得关注的大额或重复交易，并说明判断依据。这只是返回明细范围内的初步检查，不代表全部交易的异常扫描，不把正常消费直接定性为异常。",
+            "oracleCalls": [
+              {
+                "name": "query_transactions",
+                "arguments": {
+                  "start": "2026-08-31T12:00:00.000",
+                  "end": "2026-09-30T12:00:00.000"
+                }
+              },
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "last_30_days"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "query_transactions",
+                "result": {
+                  "itemCount": 20
+                }
+              },
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-08-31T12:00:00.000",
+                  "periodEnd": "2026-09-30T12:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-anomaly-en",
+      "tags": [
+        "analysis-template",
+        "anomaly",
+        "en"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Review transaction details and the income and expense overview for the last thirty days. Flag large or repeated transactions worth reviewing and explain the evidence. This is only a preliminary check of returned details, not a scan of all transactions; do not label normal purchases as abnormal.",
+            "oracleCalls": [
+              {
+                "name": "query_transactions",
+                "arguments": {
+                  "start": "2026-08-31T12:00:00.000",
+                  "end": "2026-09-30T12:00:00.000"
+                }
+              },
+              {
+                "name": "get_period_overview",
+                "arguments": {
+                  "period": "last_30_days"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "query_transactions",
+                "result": {
+                  "itemCount": 20
+                }
+              },
+              {
+                "name": "get_period_overview",
+                "result": {
+                  "periodStart": "2026-08-31T12:00:00.000",
+                  "periodEnd": "2026-09-30T12:00:00.000",
+                  "currency": "CNY",
+                  "income": 5020,
+                  "expense": 1295,
+                  "balance": 3725
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-saving-zh",
+      "tags": [
+        "analysis-template",
+        "saving",
+        "zh"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "分析本月一级分类支出占比和最近六个月的月度支出趋势，给出三到五条实用的省钱建议。依据实际查询结果，不推断未提供的个人情况；数据不足时说明限制。",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              },
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "last_6_months",
+                  "interval": "month",
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              },
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-04-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "totalExpense": 6975,
+                  "points": [
+                    {
+                      "period": "2026-04",
+                      "amount": 1080
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 1200
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 1100
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 1300
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 1295
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-saving-en",
+      "tags": [
+        "analysis-template",
+        "saving",
+        "en"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Analyze this month's top-level spending categories and shares and the monthly spending trend for the last six months. Offer three to five practical saving tips based on tool results, without inferring personal circumstances. Explain any data limitations.",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top"
+                }
+              },
+              {
+                "name": "get_spending_trend",
+                "arguments": {
+                  "period": "last_6_months",
+                  "interval": "month",
+                  "comparison": "none"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 1295,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "住房"
+                      },
+                      "amount": 1000,
+                      "share": 0.7722007722007722
+                    },
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 0.09266409266409266
+                    },
+                    {
+                      "category": {
+                        "name": "交通"
+                      },
+                      "amount": 117,
+                      "share": 0.09034749034749034
+                    },
+                    {
+                      "category": {
+                        "name": "购物"
+                      },
+                      "amount": 53,
+                      "share": 0.040926640926640924
+                    },
+                    {
+                      "category": {
+                        "name": "未分类"
+                      },
+                      "amount": 5,
+                      "share": 0.003861003861003861
+                    }
+                  ],
+                  "truncated": false
+                }
+              },
+              {
+                "name": "get_spending_trend",
+                "result": {
+                  "periodStart": "2026-04-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "totalExpense": 6975,
+                  "points": [
+                    {
+                      "period": "2026-04",
+                      "amount": 1080
+                    },
+                    {
+                      "period": "2026-05",
+                      "amount": 1200
+                    },
+                    {
+                      "period": "2026-06",
+                      "amount": 1000
+                    },
+                    {
+                      "period": "2026-07",
+                      "amount": 1100
+                    },
+                    {
+                      "period": "2026-08",
+                      "amount": 1300
+                    },
+                    {
+                      "period": "2026-09",
+                      "amount": 1295
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])1[,，]?295(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "contextual-followup-zh",
+      "tags": [
+        "contextual-followup",
+        "zh"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "本月餐饮一级分类支出占比",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top",
+                  "categoryNames": [
+                    "餐饮"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "prompt": "查询 2026-09-01T00:00:00.000 至 2026-10-01T00:00:00.000（不含结束时间） 中「餐饮」的明细分类支出占比。",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-09-01T00:00:00.000",
+                  "end": "2026-10-01T00:00:00.000",
+                  "categoryLevel": "leaf",
+                  "categoryNames": [
+                    "餐饮"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 120,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 1
+                    }
+                  ]
+                }
+              }
+            ],
+            "requiredFollowUpPrompts": [
+              "查询 2026-09-01T00:00:00.000 至 2026-10-01T00:00:00.000（不含结束时间） 中「餐饮」的明细分类支出占比。"
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          },
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "leaf",
+                  "totalExpense": 120,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "午餐"
+                      },
+                      "amount": 70,
+                      "share": 0.5833333333333334
+                    },
+                    {
+                      "category": {
+                        "name": "早餐"
+                      },
+                      "amount": 50,
+                      "share": 0.4166666666666667
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])70(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])50(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "contextual-followup-en",
+      "tags": [
+        "contextual-followup",
+        "en"
+      ],
+      "input": {
+        "ledger": "main",
+        "steps": [
+          {
+            "prompt": "Show this month's top-level spending share for the category 餐饮.",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "current_month",
+                  "categoryLevel": "top",
+                  "categoryNames": [
+                    "餐饮"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "prompt": "Show subcategory spending shares within the category “餐饮” for 2026-09-01T00:00:00.000 to 2026-10-01T00:00:00.000 (end exclusive).",
+            "oracleCalls": [
+              {
+                "name": "get_category_breakdown",
+                "arguments": {
+                  "period": "custom",
+                  "start": "2026-09-01T00:00:00.000",
+                  "end": "2026-10-01T00:00:00.000",
+                  "categoryLevel": "leaf",
+                  "categoryNames": [
+                    "餐饮"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "turns": [
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "top",
+                  "totalExpense": 120,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "餐饮"
+                      },
+                      "amount": 120,
+                      "share": 1
+                    }
+                  ]
+                }
+              }
+            ],
+            "requiredFollowUpPrompts": [
+              "Show subcategory spending shares within the category “餐饮” for 2026-09-01T00:00:00.000 to 2026-10-01T00:00:00.000 (end exclusive)."
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])120(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          },
+          {
+            "responseType": "text",
+            "tools": [
+              {
+                "name": "get_category_breakdown",
+                "result": {
+                  "periodStart": "2026-09-01T00:00:00.000",
+                  "periodEnd": "2026-10-01T00:00:00.000",
+                  "currency": "CNY",
+                  "categoryLevel": "leaf",
+                  "totalExpense": 120,
+                  "items": [
+                    {
+                      "category": {
+                        "name": "午餐"
+                      },
+                      "amount": 70,
+                      "share": 0.5833333333333334
+                    },
+                    {
+                      "category": {
+                        "name": "早餐"
+                      },
+                      "amount": 50,
+                      "share": 0.4166666666666667
+                    }
+                  ]
+                }
+              }
+            ],
+            "answerPatterns": [
+              "(?<![\\d.])70(?:\\.0{1,2})?(?![\\d.])",
+              "(?<![\\d.])50(?:\\.0{1,2})?(?![\\d.])"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

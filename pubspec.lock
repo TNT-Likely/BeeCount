@@ -469,6 +469,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_agent_ui:
+    dependency: "direct main"
+    description:
+      path: "packages/flutter_agent_ui"
+      relative: true
+    source: path
+    version: "0.1.0"
   flutter_ai_kit:
     dependency: "direct main"
     description:

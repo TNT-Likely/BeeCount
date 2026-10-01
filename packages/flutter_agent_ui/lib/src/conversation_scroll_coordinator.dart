@@ -8,14 +8,24 @@ import 'package:flutter/material.dart';
 /// change that removes the live preview. Callers keep the request pending until
 /// that target row is present, then this class reads the final extent after
 /// layout instead of relying on a fixed delay.
-final class AgentChatScrollCoordinator {
-  AgentChatScrollCoordinator(this.controller);
+final class AgentConversationScrollCoordinator {
+  AgentConversationScrollCoordinator(this.controller, {this.onDebug});
 
   static const _initialRetryInterval = Duration(milliseconds: 120);
   static const _initialRetryTimeout = Duration(seconds: 3);
   static const _initialStabilityWindow = Duration(seconds: 2);
 
   final ScrollController controller;
+  final void Function(String, Map<String, Object?>)? onDebug;
+
+  /// Explicit user navigation takes precedence over pending automatic jumps.
+  void onUserScroll() {
+    _pending = false;
+    _initialPositioningRequested = false;
+    _initialStabilityDeadline = null;
+    _cancelInitialRetry();
+  }
+
   bool _pending = false;
   bool _frameScheduled = false;
   bool _disposed = false;
@@ -44,7 +54,7 @@ final class AgentChatScrollCoordinator {
     _initialPositioningRequested = true;
     _initialRetryFramesRemaining = 8;
     _initialRetryDeadline = DateTime.now().add(_initialRetryTimeout);
-    _debug('已请求初始定位');
+    _debug('Initial positioning requested');
     _scheduleScrollAttempt();
   }
 
@@ -83,7 +93,7 @@ final class AgentChatScrollCoordinator {
     if (_disposed || (!_pending && !_isInitialStabilityActive)) return;
     if (!controller.hasClients || !controller.position.hasContentDimensions) {
       _debug(
-        '等待消息列表挂载或完成布局',
+        'Waiting for message layout',
         hasClients: controller.hasClients,
         hasContentDimensions: controller.hasClients
             ? controller.position.hasContentDimensions
@@ -96,7 +106,7 @@ final class AgentChatScrollCoordinator {
     final target = controller.position.maxScrollExtent;
     if (target <= 0) {
       _debug(
-        '消息列表暂未形成滚动范围，保持待定位状态',
+        'Waiting for scroll extent',
         offset: controller.position.pixels,
         maxScrollExtent: target,
       );
@@ -115,7 +125,7 @@ final class AgentChatScrollCoordinator {
     if ((controller.position.pixels - target).abs() >= 0.5) {
       controller.jumpTo(target);
       _debug(
-        '已定位到消息列表底部',
+        'Positioned at latest message',
         offset: controller.position.pixels,
         maxScrollExtent: target,
       );
@@ -145,7 +155,7 @@ final class AgentChatScrollCoordinator {
 
     final remaining = deadline.difference(DateTime.now());
     if (remaining <= Duration.zero) {
-      _debug('初始定位等待超时，保留当前滚动位置');
+      _debug('Initial positioning timed out');
       _initialRetryDeadline = null;
       return;
     }
@@ -192,6 +202,6 @@ final class AgentChatScrollCoordinator {
       if (offset != null) 'offset': offset,
       if (maxScrollExtent != null) 'maxScrollExtent': maxScrollExtent,
     };
-    debugPrint('[AIChatScroll] $message | Data: $data');
+    onDebug?.call(message, data);
   }
 }

@@ -20,8 +20,7 @@ class LocalAIRepository implements AIRepository {
 
   @override
   Future<Conversation?> getConversationById(int id) async {
-    return await (db.select(db.conversations)
-          ..where((c) => c.id.equals(id)))
+    return await (db.select(db.conversations)..where((c) => c.id.equals(id)))
         .getSingleOrNull();
   }
 
@@ -37,7 +36,10 @@ class LocalAIRepository implements AIRepository {
 
   @override
   Future<void> deleteConversation(int id) async {
-    await (db.delete(db.conversations)..where((c) => c.id.equals(id))).go();
+    await db.transaction(() async {
+      await _clearSummaries(id);
+      await (db.delete(db.conversations)..where((c) => c.id.equals(id))).go();
+    });
   }
 
   @override
@@ -61,20 +63,35 @@ class LocalAIRepository implements AIRepository {
 
   @override
   Future<void> updateMessage(Message message) async {
-    await db.update(db.messages).replace(message);
+    await db.transaction(() async {
+      await _clearSummaries(message.conversationId);
+      await db.update(db.messages).replace(message);
+    });
   }
 
   @override
   Future<void> deleteMessagesByConversation(int conversationId) async {
-    await (db.delete(db.messages)
-          ..where((m) => m.conversationId.equals(conversationId)))
-        .go();
+    await db.transaction(() async {
+      await _clearSummaries(conversationId);
+      await (db.delete(db.messages)
+            ..where((m) => m.conversationId.equals(conversationId)))
+          .go();
+    });
   }
 
   @override
   Future<void> deleteMessage(int id) async {
-    await (db.delete(db.messages)..where((m) => m.id.equals(id))).go();
+    await db.transaction(() async {
+      final message = await getMessageById(id);
+      if (message != null) await _clearSummaries(message.conversationId);
+      await (db.delete(db.messages)..where((m) => m.id.equals(id))).go();
+    });
   }
+
+  Future<void> _clearSummaries(int conversationId) =>
+      (db.delete(db.agentConversationSummaries)
+            ..where((s) => s.conversationId.equals(conversationId)))
+          .go();
 
   @override
   Future<Message?> getMessageByTransactionId(int transactionId) async {

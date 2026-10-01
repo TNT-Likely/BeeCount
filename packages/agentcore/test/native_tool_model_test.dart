@@ -12,6 +12,128 @@ void main() {
     ),
   ];
 
+  test('provider phases are deduplicated and never expose reasoning text',
+      () async {
+    final events = <AgentNativeStreamEvent>[];
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      toolStream: ({required messages, required tools, logTag}) =>
+          Stream<Map<String, dynamic>>.fromIterable([
+        for (final delta in [
+          {'reasoning_content': 'private reasoning one'},
+          {'reasoning_content': 'private reasoning two'},
+          {'reasoning': 'private reasoning three'},
+          {'content': 'answer'},
+          {'content': ' complete'},
+          {'reasoning_content': 'late private reasoning'},
+        ])
+          {
+            'choices': [
+              {'delta': delta}
+            ]
+          },
+      ]),
+    );
+    final response = await transport.complete(
+      AgentNativeToolRequest(
+          runId: 'phases', userPrompt: 'question', toolResults: []),
+      onEvent: events.add,
+    );
+    expect(
+        events
+            .whereType<AgentNativeModelActivity>()
+            .map((event) => event.phase),
+        [
+          AgentNativeModelPhase.awaitingResponse,
+          AgentNativeModelPhase.thinking,
+          AgentNativeModelPhase.generating
+        ]);
+    expect(events.whereType<AgentNativeTextDelta>().map((event) => event.text),
+        ['answer', ' complete']);
+    expect((response as AgentNativeFinalTextResponse).text, 'answer complete');
+  });
+
+  test('ordinary models do not fabricate a thinking phase', () async {
+    final events = <AgentNativeStreamEvent>[];
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      toolStream: ({required messages, required tools, logTag}) =>
+          Stream<Map<String, dynamic>>.fromIterable([
+        for (final delta in [
+          {'reasoning_content': '', 'reasoning': ' '},
+          {
+            'reasoning_content': {'text': 'unsupported shape'}
+          },
+          {'content': 'answer'},
+        ])
+          {
+            'choices': [
+              {'delta': delta}
+            ]
+          },
+      ]),
+    );
+    await transport.complete(
+      AgentNativeToolRequest(
+          runId: 'ordinary', userPrompt: 'question', toolResults: []),
+      onEvent: events.add,
+    );
+    expect(
+        events
+            .whereType<AgentNativeModelActivity>()
+            .map((event) => event.phase),
+        [
+          AgentNativeModelPhase.awaitingResponse,
+          AgentNativeModelPhase.generating
+        ]);
+  });
+
+  test('buffered finalization still reports real model phases', () async {
+    final events = <AgentNativeStreamEvent>[];
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: definitions,
+      toolStream: ({required messages, required tools, logTag}) =>
+          Stream<Map<String, dynamic>>.fromIterable([
+        {
+          'choices': [
+            {
+              'delta': {'reasoning_content': 'private reasoning'}
+            }
+          ]
+        },
+        {
+          'choices': [
+            {
+              'delta': {'content': 'answer'}
+            }
+          ]
+        },
+      ]),
+    );
+    final response = await transport.complete(
+      AgentNativeToolRequest(
+          runId: 'buffered-phases',
+          userPrompt: 'question',
+          toolResults: [],
+          allowToolCalls: false),
+      onEvent: events.add,
+    );
+    expect(
+        events
+            .whereType<AgentNativeModelActivity>()
+            .map((event) => event.phase),
+        [
+          AgentNativeModelPhase.awaitingResponse,
+          AgentNativeModelPhase.thinking,
+          AgentNativeModelPhase.generating
+        ]);
+    expect(events.whereType<AgentNativeTextDelta>(), isEmpty);
+    expect((response as AgentNativeFinalTextResponse).text, 'answer');
+  });
+
   test('native model uses injected prompt and scope rules', () async {
     final transport = _FakeTransport([
       AgentNativeModelResponse.toolCalls([
@@ -72,6 +194,24 @@ void main() {
     expect(transport.requests.single.allowToolCalls, isFalse);
   });
 
+  test('native model forwards a request-scoped native tool catalog', () async {
+    final transport = _FakeTransport([
+      const AgentNativeModelResponse.finalText('done'),
+    ]);
+    final model = NativeToolAgentModel(
+      transport: transport,
+      promptBuilder: (request) => request.text,
+    );
+
+    await model.nextTurn(AgentRequest(
+      text: 'budget',
+      scope: const AgentScope(id: 'run-selected-tools'),
+      availableToolNames: const {'read_report'},
+    ));
+
+    expect(transport.requests.single.availableToolNames, {'read_report'});
+  });
+
   test('openai-compatible transport aggregates SSE tool fragments', () async {
     final transport = OpenAiCompatibleNativeToolTransport(
       systemPrompt: 'system',
@@ -123,6 +263,42 @@ void main() {
     final call = (response as AgentNativeToolCallsResponse).calls.single;
     expect(call.name, 'read_report');
     expect(call.arguments, {'range': 'month'});
+  });
+
+  test('openai-compatible transport sends only request-selected schemas',
+      () async {
+    List<Map<String, dynamic>>? sentTools;
+    final transport = OpenAiCompatibleNativeToolTransport(
+      systemPrompt: 'system',
+      toolDefinitions: [
+        ...definitions,
+        const AgentNativeToolDefinition(
+          name: 'hidden',
+          description: 'Hidden tool',
+          parameters: {'type': 'object'},
+        ),
+      ],
+      toolStream: ({required messages, required tools, logTag}) {
+        sentTools = tools;
+        return Stream.value({
+          'choices': [
+            {
+              'delta': {'content': 'done'},
+            },
+          ],
+        });
+      },
+    );
+
+    await transport.complete(AgentNativeToolRequest(
+      runId: 'run-selected-schemas',
+      userPrompt: 'show',
+      toolResults: const [],
+      availableToolNames: const {'read_report'},
+    ));
+
+    expect(sentTools, hasLength(1));
+    expect((sentTools!.single['function'] as Map)['name'], 'read_report');
   });
 
   test('finalization request sends no tool definitions to the provider',

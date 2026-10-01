@@ -9,6 +9,154 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get agentActivityPreparing => 'Preparing your answer…';
+
+  @override
+  String get agentActivityAwaitingModel => 'Waiting for the model…';
+
+  @override
+  String get agentActivityThinking => 'Model is thinking…';
+
+  @override
+  String get agentActivityGenerating => 'Composing the answer…';
+
+  @override
+  String agentExecutionCompletedSummary(int count) {
+    return 'Completed $count operations';
+  }
+
+  @override
+  String get agentExecutionFailedSummary => 'Some operations did not complete';
+
+  @override
+  String get agentActivityUnknownTool => 'Local operation';
+
+  @override
+  String get agentActivityOverview => 'Income and expense overview';
+
+  @override
+  String get agentActivityTrend => 'Spending trend';
+
+  @override
+  String get agentActivityCategories => 'Spending categories';
+
+  @override
+  String get agentActivityLeafCategories => 'Detailed categories';
+
+  @override
+  String agentActivityCategoryScope(String categories) {
+    return 'Categories: $categories';
+  }
+
+  @override
+  String agentActivityReturnedRows(int count) {
+    return 'Returned $count transactions';
+  }
+
+  @override
+  String agentActivityReturnedGroups(int count) {
+    return 'Returned $count groups';
+  }
+
+  @override
+  String get agentActivityTruncated => 'Only part of the results was returned';
+
+  @override
+  String get agentFollowUpRotate => 'Another set';
+
+  @override
+  String get agentScrollToLatest => 'Back to the latest message';
+
+  @override
+  String get agentSuggestionHealthTitle => 'Financial health';
+
+  @override
+  String get agentSuggestionHealthPrompt => 'Analyze this month\'s income, expenses, balance and savings rate, and list monthly spending for the last six months. Give financial health observations and suggestions based on tool results; explain any data limitations.';
+
+  @override
+  String get agentSuggestionSummaryTitle => 'Monthly spending summary';
+
+  @override
+  String get agentSuggestionSummaryPrompt => 'Summarize this month\'s spending, analyze the main top-level categories and their shares, and suggest ways to save. Use actual tool results and explain any data limitations.';
+
+  @override
+  String get agentSuggestionAnalysisTitle => 'Category analysis';
+
+  @override
+  String get agentSuggestionAnalysisPrompt => 'Analyze this month\'s top-level spending categories and shares, and suggest improvements. Do not judge spending as unreasonable from its share alone; explain any data limitations.';
+
+  @override
+  String get agentSuggestionBudgetTitle => 'Budget planning';
+
+  @override
+  String get agentSuggestionBudgetPrompt => 'Use this month\'s income, expenses and balance, top-level category spending shares, and monthly spending trend for the last six months to suggest next month\'s category budgets. Give advice only; do not create or modify budgets. Explain any data limitations.';
+
+  @override
+  String get agentSuggestionAnomalyTitle => 'Spending check';
+
+  @override
+  String get agentSuggestionAnomalyPrompt => 'Review transaction details and the income and expense overview for the last thirty days. Flag large or repeated transactions worth reviewing and explain the evidence. This is only a preliminary check of returned details, not a scan of all transactions; do not label normal purchases as abnormal.';
+
+  @override
+  String get agentSuggestionSavingTitle => 'Saving tips';
+
+  @override
+  String get agentSuggestionSavingPrompt => 'Analyze this month\'s top-level spending categories and shares and the monthly spending trend for the last six months. Offer three to five practical saving tips based on tool results, without inferring personal circumstances. Explain any data limitations.';
+
+  @override
+  String get agentFollowUpTitle => 'Explore further';
+
+  @override
+  String agentFollowUpRange(String start, String end) {
+    return '$start to $end (end exclusive)';
+  }
+
+  @override
+  String get agentFollowUpAllCategories => 'all spending categories';
+
+  @override
+  String get agentFollowUpCategoryTitle => 'View category shares';
+
+  @override
+  String agentFollowUpCategoryPrompt(String range) {
+    return 'Show top-level spending category shares for $range.';
+  }
+
+  @override
+  String get agentFollowUpTrendTitle => 'View spending trend';
+
+  @override
+  String agentFollowUpTrendPrompt(String category, String range) {
+    return 'List monthly spending for $category during $range, without month-over-month or year-over-year comparison.';
+  }
+
+  @override
+  String get agentFollowUpCompareTitle => 'Compare adjacent months';
+
+  @override
+  String agentFollowUpComparePrompt(String category, String range) {
+    return 'List monthly spending for $category during $range, with month-over-month changes between adjacent months.';
+  }
+
+  @override
+  String agentFollowUpLeafTitle(String category) {
+    return 'Explore $category';
+  }
+
+  @override
+  String agentFollowUpLeafPrompt(String category, String range) {
+    return 'Show subcategory spending shares within the category “$category” for $range.';
+  }
+
+  @override
+  String get agentFollowUpOverviewTitle => 'View income and expenses';
+
+  @override
+  String agentFollowUpOverviewPrompt(String range) {
+    return 'Show total income, expenses and balance for $range.';
+  }
+
+  @override
   String get aiConsentTitle => 'Before enabling AI features';
 
   @override
@@ -5286,6 +5434,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiQuickCommandsTitle => 'Try a task';
 
   @override
+  String get agentSuggestionOverviewTitle => 'This month\'s totals';
+
+  @override
+  String get agentSuggestionOverviewPrompt => 'Summarize this month\'s income, expenses and balance.';
+
+  @override
+  String get agentSuggestionCategoryTitle => 'Category shares';
+
+  @override
+  String get agentSuggestionCategoryPrompt => 'What are this month\'s spending shares by top-level category?';
+
+  @override
   String get aiQuickCommandsOpen => 'Open suggestions';
 
   @override
@@ -5365,7 +5525,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentRunFailed => 'AI service is temporarily unavailable. Please try again later.';
 
   @override
-  String get agentNativeToolsUnsupported => 'This model does not support native Agent tools or streaming. Switch models in AI Settings.';
+  String get agentNativeToolsUnsupported => 'This model can chat normally, but it does not support the native tool calls required to read or change ledger data. Open Settings > AI Settings > Provider Management to test or switch models.';
 
   @override
   String get agentTurnTimedOut => 'The AI response timed out. Please try again shortly.';
@@ -7909,4 +8069,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get agentRunStop => 'Stop';
+
+  @override
+  String get agentQueryValidationFailed => 'The query parameters could not be corrected, so a reliable result is unavailable. Please try again.';
 }

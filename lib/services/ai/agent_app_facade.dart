@@ -16,6 +16,8 @@ import 'package:agentcore/agentcore.dart'
         AgentToolPermissionStore,
         AgentNativeEventSink,
         AgentNativeFinalTextResponse,
+        AgentNativeModelActivity,
+        AgentNativeModelPhase,
         AgentNativeModelResponse,
         AgentNativeProtocolException,
         AgentNativeStreamEvent,
@@ -41,13 +43,18 @@ import '../../agent/permission/agent_tool_permission.dart';
 import '../../agent/runtime/agent_execution_settings.dart';
 import '../../agent/policy/p0_agent_policy.dart';
 import '../../agent/tools/local_agent_tools.dart';
+import '../../agent/tools/ledger_query_call_validator.dart';
 import '../../ai/core/bill_info.dart';
 import '../../l10n/app_localizations.dart';
+import '../../l10n/app_localizations_zh.dart';
+import '../../l10n/app_localizations_en.dart';
 import '../system/logger_service.dart';
 import 'ai_chat_service.dart';
+import 'ledger_follow_up_suggestions.dart';
 
 typedef AgentConversationHistoryLoader = Future<List<Map<String, Object?>>>
     Function(int conversationId);
+typedef AgentModelCapabilityLoader = Future<AgentModelCapabilities?> Function();
 
 /// App composition root for one foreground Agent message. It records local
 /// audit state before a model call and turns the bounded tool result back into
@@ -59,9 +66,12 @@ final class AgentAppFacade {
     required AgentToolPermissionStore permissionStore,
     AgentExecutionSettingsStore? executionSettingsStore,
     this.conversationHistoryLoader,
+    this.contextCompressor = const AgentConversationContextCompressor(),
     AgentModel? model,
     AgentPolicy policy = const P0AgentPolicy(),
     String Function()? runIdFactory,
+    DateTime Function()? now,
+    this.modelCapabilityLoader,
   })  : _memoryRepository = memoryRepository,
         _toolGateway = toolGateway,
         _permissionStore = permissionStore,
@@ -72,6 +82,7 @@ final class AgentAppFacade {
               transport: OpenAiCompatibleNativeToolTransport(),
             ),
         _policy = policy,
+        _now = now ?? DateTime.now,
         _runIdFactory = runIdFactory ?? const Uuid().v4;
 
   final AgentMemoryRepository _memoryRepository;
@@ -79,8 +90,11 @@ final class AgentAppFacade {
   final AgentToolPermissionStore _permissionStore;
   final AgentExecutionSettingsStore _executionSettingsStore;
   final AgentConversationHistoryLoader? conversationHistoryLoader;
+  final AgentConversationContextCompressor contextCompressor;
+  final AgentModelCapabilityLoader? modelCapabilityLoader;
   final AgentModel _model;
   final AgentPolicy _policy;
+  final DateTime Function() _now;
   final String Function() _runIdFactory;
   final Map<String, AgentToolAuthorizationBroker> _pendingAuthorizations = {};
   final Map<String, _ActiveAgentRun> _activeRuns = {};
@@ -128,6 +142,7 @@ final class AgentAppFacade {
     required int ledgerId,
     int? conversationId,
     bool allowsExplicitMemory = false,
+    bool readOnly = false,
     Map<String, Object?> context = const {},
     AppLocalizations? l10n,
   }) =>
@@ -135,6 +150,7 @@ final class AgentAppFacade {
         message: message,
         ledgerId: ledgerId,
         allowsExplicitMemory: allowsExplicitMemory,
+        readOnly: readOnly,
         context: context,
         l10n: l10n,
         conversationId: conversationId,
@@ -149,6 +165,7 @@ final class AgentAppFacade {
     String? runId,
     int? conversationId,
     bool allowsExplicitMemory = false,
+    bool readOnly = false,
     Map<String, Object?> context = const {},
     AppLocalizations? l10n,
   }) {
@@ -172,6 +189,7 @@ final class AgentAppFacade {
             message: message,
             ledgerId: ledgerId,
             allowsExplicitMemory: allowsExplicitMemory,
+            readOnly: readOnly,
             context: context,
             l10n: l10n,
             conversationId: conversationId,
@@ -224,6 +242,7 @@ final class AgentAppFacade {
     required String message,
     required int ledgerId,
     required bool allowsExplicitMemory,
+    required bool readOnly,
     required Map<String, Object?> context,
     required AppLocalizations? l10n,
     required int? conversationId,
@@ -244,10 +263,17 @@ final class AgentAppFacade {
       userMessage: message,
     );
 
+    final unsupportedResponse = await _unsupportedCapabilityResponse(
+      runId: runId,
+      l10n: l10n,
+    );
+    if (unsupportedResponse != null) return unsupportedResponse;
+
     final scope = AgentScope(
       id: runId,
       ledgerId: ledgerId,
       isForeground: true,
+      allowsMutations: !readOnly,
       // The caller can grant this explicitly, while the foreground chat also
       // derives a narrow consent signal from the user's current message.
       // Ordinary messages remain unable to authorize a model-initiated memory
@@ -255,13 +281,21 @@ final class AgentAppFacade {
       allowsExplicitMemory: allowsExplicitMemory ||
           P0AgentPolicy.hasExplicitMemoryIntent(message),
     );
-    final localTools = LocalAgentTools(scope: scope, gateway: _toolGateway);
+    final localTools = LocalAgentTools(
+      scope: scope,
+      gateway: _toolGateway,
+      now: _now,
+    );
+    final toolRegistry = localTools.buildRegistry();
     final requestContext = Map<String, Object?>.of(context);
-    requestContext['currentTime'] = DateTime.now().toIso8601String();
+    requestContext['currentTime'] = _now().toIso8601String();
     await _loadConversationHistory(
       conversationId: conversationId,
       requestContext: requestContext,
       runId: runId,
+      ledgerId: ledgerId,
+      currentMessage: message,
+      cancellation: cancellationToken,
     );
     try {
       final memories = await _loadMemories(
@@ -280,20 +314,38 @@ final class AgentAppFacade {
       // into a write or prevent the user from receiving a safe response.
       requestContext['memories'] = const <String>[];
     }
+    final toolSelection = toolRegistry.select(
+      _toolSelectionQuery(message, requestContext),
+      maximumTools: 7,
+    );
+    logger.debug('AgentCore', '本次运行工具目录已选择', {
+      'runId': runId,
+      'tools': toolSelection.names.toList()..sort(),
+    });
+    var bufferQueryText = false;
     var request = AgentRequest(
       text: message,
       scope: scope,
       context: requestContext,
+      availableToolNames: toolSelection.names,
     );
     if (emit != null) {
       request = request.withStreamingTextDeltas((event) {
-        if ((cancellationToken?.isCancelled) ?? false) return;
-        if (event case AgentNativeTextDelta(:final text)) {
-          emit(AgentTextDeltaEvent(text));
+        // Known invalid queries still need a verified final response; normal
+        // tool-backed answers must not be buffered by directory keywords.
+        if ((cancellationToken?.isCancelled) ?? false) {
+          return;
+        }
+        switch (event) {
+          case AgentNativeModelActivity(:final phase):
+            emit(AgentModelActivityEvent(phase));
+          case AgentNativeTextDelta(:final text):
+            if (!bufferQueryText) emit(AgentTextDeltaEvent(text));
         }
       });
     }
     final failedToolAudits = <AgentToolCallAudit>[];
+    final suggestionEvidence = <AgentSuggestionEvidence>[];
 
     try {
       final executionSettings = await _executionSettingsStore.read();
@@ -305,10 +357,12 @@ final class AgentAppFacade {
       final result = await AgentCore(
         model: _model,
         tools: _observedTools(
-          localTools.build(),
+          toolSelection.tools,
           emit,
           runId,
+          onEvidence: suggestionEvidence.add,
           onToolFailed: (call, error) {
+            bufferQueryText = true;
             failedToolAudits.add(
               AgentToolCallAudit(
                 runId: runId,
@@ -323,10 +377,15 @@ final class AgentAppFacade {
         policy: authorization,
         maximumModelTurns: executionSettings.maximumModelTurns,
         maximumToolCalls: executionSettings.maximumToolCalls,
-        singleUseToolNames: const {'record_transaction_from_text'},
-        deduplicatedToolNames: const {'get_transaction_summary'},
+        singleUseToolNames: toolSelection.singleUseToolNames,
+        deduplicatedToolNames: toolSelection.deduplicatedToolNames,
         singleUseToolDenialReason: (_) => '同一条消息只能记账一次。',
         cancellationToken: cancellationToken,
+        validateToolCall: (request, call) {
+          final issue = LedgerQueryCallValidator.validate(request, call);
+          if (issue != null) bufferQueryText = true;
+          return issue;
+        },
       ).run(request);
       await _recordAudit(runId, result, failedToolAudits: failedToolAudits);
       if (result.wasCancelled) {
@@ -343,6 +402,24 @@ final class AgentAppFacade {
           ),
         );
       }
+      if (LedgerQueryCallValidator.hasUnresolvedIssue(result)) {
+        logger.warning('AgentCore', '查询参数校验未纠正，拒绝错误答案', {
+          'runId': runId,
+          'issues':
+              result.rejectedCalls.map((call) => call.issue.code).toList(),
+        });
+        await _memoryRepository.finishRun(
+          runId: runId,
+          status: 'failed',
+          errorMessage: 'agent_query_validation_failed',
+        );
+        return AgentChatResponse(
+          runId: runId,
+          response: AIResponse.error(
+            l10n?.agentQueryValidationFailed ?? '查询参数未能纠正，暂时无法给出可靠结果。请重试。',
+          ),
+        );
+      }
       logger.info('AgentCore', '运行结束', {
         'runId': runId,
         'executedToolCalls': result.executedCalls.length,
@@ -352,7 +429,31 @@ final class AgentAppFacade {
         'finalText': result.text,
       });
 
-      final response = _responseFor(result, localTools, l10n);
+      final baseResponse = _responseFor(result, localTools, l10n);
+      final canSuggest =
+          (baseResponse.type == 'text' || baseResponse.type == 'bill_card') &&
+              result.terminationReason == AgentRunTerminationReason.completed &&
+              result.deniedCalls.isEmpty &&
+              failedToolAudits.isEmpty;
+      final recent = requestContext['recentMessages'];
+      final suggestions = LedgerFollowUpSuggestions.generate(
+        evidence: suggestionEvidence,
+        l10n: l10n ??
+            (requestContext['languageCode'] == 'en'
+                ? AppLocalizationsEn()
+                : AppLocalizationsZh()),
+        currentPrompt: message,
+        recentPrompts: recent is List
+            ? recent
+                .whereType<Map>()
+                .where((row) => row['role'] == 'user')
+                .map((row) => row['content'])
+                .whereType<String>()
+            : const [],
+        enabled: canSuggest,
+      );
+      final response = baseResponse.withFollowUpSuggestions(suggestions,
+          allowPromptSuggestions: canSuggest);
       logger.info('AgentCore', '运行结果已生成', {
         'runId': runId,
         'responseType': response.type,
@@ -374,7 +475,8 @@ final class AgentAppFacade {
         runId: runId,
         response: AIResponse.error(
           l10n?.agentNativeToolsUnsupported ??
-              '当前模型不支持 Agent 原生工具调用或流式输出，请在 AI 设置中切换模型。',
+              '当前模型可以进行普通对话，但不支持读取或操作账本所需的原生工具调用。请前往“设置 > AI 设置 > 服务商管理”切换模型或运行文本模型测试。',
+          action: AIResponseAction.openProviderSettings,
         ),
       );
     } on AgentNativeToolTimeoutException {
@@ -406,10 +508,73 @@ final class AgentAppFacade {
     }
   }
 
+  Future<AgentChatResponse?> _unsupportedCapabilityResponse({
+    required String runId,
+    required AppLocalizations? l10n,
+  }) async {
+    final loader = modelCapabilityLoader;
+    if (loader == null) return null;
+    try {
+      final capabilities = await loader();
+      if (capabilities?.nativeToolCalls != AgentCapabilitySupport.unsupported) {
+        return null;
+      }
+      logger.warning('AgentCore', '能力探测确认模型不支持原生工具', {
+        'runId': runId,
+        'detail': capabilities?.detail,
+      });
+      await _memoryRepository.finishRun(
+        runId: runId,
+        status: 'failed',
+        errorMessage: 'agent_native_tools_unsupported',
+      );
+      return AgentChatResponse(
+        runId: runId,
+        response: AIResponse.error(
+          l10n?.agentNativeToolsUnsupported ??
+              '当前模型可以进行普通对话，但不支持读取或操作账本所需的原生工具调用。请前往“设置 > AI 设置 > 服务商管理”切换模型或运行文本模型测试。',
+          action: AIResponseAction.openProviderSettings,
+        ),
+      );
+    } on Object catch (error, stackTrace) {
+      // A transient probe/cache failure must not replace the real model call.
+      logger.warning('AgentCore', '模型能力预检失败，继续实际请求', {
+        'runId': runId,
+        'error': error.toString(),
+      });
+      logger.debug('AgentCore', '模型能力预检异常堆栈', {
+        'runId': runId,
+        'stackTrace': stackTrace.toString(),
+      });
+      return null;
+    }
+  }
+
+  String _toolSelectionQuery(
+    String message,
+    Map<String, Object?> requestContext,
+  ) {
+    final buffer = StringBuffer(message);
+    final recent = requestContext['recentMessages'];
+    if (recent is List) {
+      for (final item in recent.reversed.take(4)) {
+        if (item is Map && item['content'] is String) {
+          buffer
+            ..write('\n')
+            ..write(item['content']);
+        }
+      }
+    }
+    return buffer.toString();
+  }
+
   Future<void> _loadConversationHistory({
     required int? conversationId,
     required Map<String, Object?> requestContext,
     required String runId,
+    required int ledgerId,
+    required String currentMessage,
+    AgentCancellationToken? cancellation,
   }) async {
     final loader = conversationHistoryLoader;
     if (conversationId == null || loader == null) {
@@ -422,34 +587,20 @@ final class AgentAppFacade {
 
     try {
       final history = await loader(conversationId);
-      const maxMessageCharacters = 2000;
-      final safeHistory = <Map<String, Object?>>[];
-      for (final item in history) {
-        final role = item['role'];
-        final content = item['content'];
-        if ((role == 'user' || role == 'assistant') && content is String) {
-          final trimmed = content.trim();
-          if (trimmed.isNotEmpty) {
-            safeHistory.add({
-              'role': role as String,
-              'content': trimmed.length > maxMessageCharacters
-                  ? '${trimmed.substring(0, maxMessageCharacters)}…'
-                  : trimmed,
-            });
-          }
-        }
-      }
-      const maxRecentMessages = 12;
-      final start = safeHistory.length > maxRecentMessages
-          ? safeHistory.length - maxRecentMessages
-          : 0;
-      requestContext['recentMessages'] = List.unmodifiable(
-        safeHistory.sublist(start),
+      final prepared = await contextCompressor.prepare(
+        history: history,
+        currentMessage: currentMessage,
+        conversationId: conversationId.toString(),
+        scopeId: ledgerId.toString(),
+        cancellation: cancellation,
       );
+      requestContext['recentMessages'] = prepared.recentMessages;
+      requestContext['summary'] = prepared.summary;
       logger.debug('AgentCore', '会话上下文已加载', {
         'runId': runId,
         'conversationId': conversationId,
-        'count': safeHistory.length - start,
+        'count': prepared.recentMessages.length,
+        'hasSummary': prepared.summary != null,
       });
     } on Object catch (error, stackTrace) {
       // Conversation context is optional. A local history read failure must
@@ -500,6 +651,7 @@ final class AgentAppFacade {
     Map<String, AgentTool> tools,
     void Function(AgentRunEvent event)? emit,
     String runId, {
+    required void Function(AgentSuggestionEvidence) onEvidence,
     void Function(AgentToolCall call, Object error)? onToolFailed,
   }) {
     return {
@@ -522,6 +674,14 @@ final class AgentAppFacade {
             );
           },
           onFinished: (call, result, error) {
+            if (error == null &&
+                result != null &&
+                !result.containsKey('error')) {
+              onEvidence(AgentSuggestionEvidence(
+                  toolName: call.name,
+                  arguments: call.arguments,
+                  result: result));
+            }
             final data = {
               'runId': runId,
               'callId': call.id,
@@ -581,6 +741,17 @@ final class AgentAppFacade {
           toolName: denied.call.name,
           status: 'denied',
           detail: denied.reason,
+        ),
+      );
+    }
+    for (final rejected in result.rejectedCalls) {
+      await _memoryRepository.recordToolCall(
+        AgentToolCallAudit(
+          runId: runId,
+          callId: rejected.call.id,
+          toolName: rejected.call.name,
+          status: 'rejected',
+          detail: rejected.issue.code,
         ),
       );
     }
@@ -660,6 +831,12 @@ final class AgentTextDeltaEvent extends AgentRunEvent {
   const AgentTextDeltaEvent(this.text);
 
   final String text;
+}
+
+final class AgentModelActivityEvent extends AgentRunEvent {
+  const AgentModelActivityEvent(this.phase);
+
+  final AgentNativeModelPhase phase;
 }
 
 final class AgentToolStartedEvent extends AgentRunEvent {

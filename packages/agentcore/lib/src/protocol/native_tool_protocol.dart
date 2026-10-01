@@ -51,12 +51,17 @@ final class AgentNativeToolRequest {
     required this.runId,
     required List<AgentNativeToolResult> toolResults,
     required this.userPrompt,
+    Iterable<String>? availableToolNames,
     this.allowToolCalls = true,
-  }) : toolResults = UnmodifiableListView(List.of(toolResults));
+  })  : toolResults = UnmodifiableListView(List.of(toolResults)),
+        availableToolNames = availableToolNames == null
+            ? null
+            : UnmodifiableSetView(Set.of(availableToolNames));
 
   final String runId;
   final String userPrompt;
   final List<AgentNativeToolResult> toolResults;
+  final Set<String>? availableToolNames;
 
   /// When false, transports must omit the native tool catalog for this turn.
   final bool allowToolCalls;
@@ -64,6 +69,15 @@ final class AgentNativeToolRequest {
 
 sealed class AgentNativeStreamEvent {
   const AgentNativeStreamEvent();
+}
+
+enum AgentNativeModelPhase { awaitingResponse, thinking, generating }
+
+/// Provider activity only. Reasoning text is never exposed to the host.
+final class AgentNativeModelActivity extends AgentNativeStreamEvent {
+  const AgentNativeModelActivity(this.phase);
+
+  final AgentNativeModelPhase phase;
 }
 
 final class AgentNativeTextDelta extends AgentNativeStreamEvent {
@@ -85,6 +99,7 @@ extension AgentRequestNativeStreaming on AgentRequest {
         scope: scope,
         toolData: toolData,
         context: {...context, _streamSinkKey: sink},
+        availableToolNames: availableToolNames,
         allowToolCalls: allowToolCalls,
       );
 

@@ -98,6 +98,258 @@ abstract class AppLocalizations {
     Locale('zh', 'TW')
   ];
 
+  /// No description provided for @agentActivityPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your answer…'**
+  String get agentActivityPreparing;
+
+  /// No description provided for @agentActivityAwaitingModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the model…'**
+  String get agentActivityAwaitingModel;
+
+  /// No description provided for @agentActivityThinking.
+  ///
+  /// In en, this message translates to:
+  /// **'Model is thinking…'**
+  String get agentActivityThinking;
+
+  /// No description provided for @agentActivityGenerating.
+  ///
+  /// In en, this message translates to:
+  /// **'Composing the answer…'**
+  String get agentActivityGenerating;
+
+  /// No description provided for @agentExecutionCompletedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed {count} operations'**
+  String agentExecutionCompletedSummary(int count);
+
+  /// No description provided for @agentExecutionFailedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Some operations did not complete'**
+  String get agentExecutionFailedSummary;
+
+  /// No description provided for @agentActivityUnknownTool.
+  ///
+  /// In en, this message translates to:
+  /// **'Local operation'**
+  String get agentActivityUnknownTool;
+
+  /// No description provided for @agentActivityOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and expense overview'**
+  String get agentActivityOverview;
+
+  /// No description provided for @agentActivityTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending trend'**
+  String get agentActivityTrend;
+
+  /// No description provided for @agentActivityCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending categories'**
+  String get agentActivityCategories;
+
+  /// No description provided for @agentActivityLeafCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed categories'**
+  String get agentActivityLeafCategories;
+
+  /// No description provided for @agentActivityCategoryScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories: {categories}'**
+  String agentActivityCategoryScope(String categories);
+
+  /// No description provided for @agentActivityReturnedRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned {count} transactions'**
+  String agentActivityReturnedRows(int count);
+
+  /// No description provided for @agentActivityReturnedGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned {count} groups'**
+  String agentActivityReturnedGroups(int count);
+
+  /// No description provided for @agentActivityTruncated.
+  ///
+  /// In en, this message translates to:
+  /// **'Only part of the results was returned'**
+  String get agentActivityTruncated;
+
+  /// No description provided for @agentFollowUpRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Another set'**
+  String get agentFollowUpRotate;
+
+  /// No description provided for @agentScrollToLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the latest message'**
+  String get agentScrollToLatest;
+
+  /// No description provided for @agentSuggestionHealthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial health'**
+  String get agentSuggestionHealthTitle;
+
+  /// No description provided for @agentSuggestionHealthPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze this month\'s income, expenses, balance and savings rate, and list monthly spending for the last six months. Give financial health observations and suggestions based on tool results; explain any data limitations.'**
+  String get agentSuggestionHealthPrompt;
+
+  /// No description provided for @agentSuggestionSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly spending summary'**
+  String get agentSuggestionSummaryTitle;
+
+  /// No description provided for @agentSuggestionSummaryPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize this month\'s spending, analyze the main top-level categories and their shares, and suggest ways to save. Use actual tool results and explain any data limitations.'**
+  String get agentSuggestionSummaryPrompt;
+
+  /// No description provided for @agentSuggestionAnalysisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category analysis'**
+  String get agentSuggestionAnalysisTitle;
+
+  /// No description provided for @agentSuggestionAnalysisPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze this month\'s top-level spending categories and shares, and suggest improvements. Do not judge spending as unreasonable from its share alone; explain any data limitations.'**
+  String get agentSuggestionAnalysisPrompt;
+
+  /// No description provided for @agentSuggestionBudgetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget planning'**
+  String get agentSuggestionBudgetTitle;
+
+  /// No description provided for @agentSuggestionBudgetPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this month\'s income, expenses and balance, top-level category spending shares, and monthly spending trend for the last six months to suggest next month\'s category budgets. Give advice only; do not create or modify budgets. Explain any data limitations.'**
+  String get agentSuggestionBudgetPrompt;
+
+  /// No description provided for @agentSuggestionAnomalyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending check'**
+  String get agentSuggestionAnomalyTitle;
+
+  /// No description provided for @agentSuggestionAnomalyPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Review transaction details and the income and expense overview for the last thirty days. Flag large or repeated transactions worth reviewing and explain the evidence. This is only a preliminary check of returned details, not a scan of all transactions; do not label normal purchases as abnormal.'**
+  String get agentSuggestionAnomalyPrompt;
+
+  /// No description provided for @agentSuggestionSavingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving tips'**
+  String get agentSuggestionSavingTitle;
+
+  /// No description provided for @agentSuggestionSavingPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze this month\'s top-level spending categories and shares and the monthly spending trend for the last six months. Offer three to five practical saving tips based on tool results, without inferring personal circumstances. Explain any data limitations.'**
+  String get agentSuggestionSavingPrompt;
+
+  /// No description provided for @agentFollowUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore further'**
+  String get agentFollowUpTitle;
+
+  /// No description provided for @agentFollowUpRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} to {end} (end exclusive)'**
+  String agentFollowUpRange(String start, String end);
+
+  /// No description provided for @agentFollowUpAllCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'all spending categories'**
+  String get agentFollowUpAllCategories;
+
+  /// No description provided for @agentFollowUpCategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View category shares'**
+  String get agentFollowUpCategoryTitle;
+
+  /// No description provided for @agentFollowUpCategoryPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Show top-level spending category shares for {range}.'**
+  String agentFollowUpCategoryPrompt(String range);
+
+  /// No description provided for @agentFollowUpTrendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View spending trend'**
+  String get agentFollowUpTrendTitle;
+
+  /// No description provided for @agentFollowUpTrendPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'List monthly spending for {category} during {range}, without month-over-month or year-over-year comparison.'**
+  String agentFollowUpTrendPrompt(String category, String range);
+
+  /// No description provided for @agentFollowUpCompareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare adjacent months'**
+  String get agentFollowUpCompareTitle;
+
+  /// No description provided for @agentFollowUpComparePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'List monthly spending for {category} during {range}, with month-over-month changes between adjacent months.'**
+  String agentFollowUpComparePrompt(String category, String range);
+
+  /// No description provided for @agentFollowUpLeafTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore {category}'**
+  String agentFollowUpLeafTitle(String category);
+
+  /// No description provided for @agentFollowUpLeafPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Show subcategory spending shares within the category “{category}” for {range}.'**
+  String agentFollowUpLeafPrompt(String category, String range);
+
+  /// No description provided for @agentFollowUpOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View income and expenses'**
+  String get agentFollowUpOverviewTitle;
+
+  /// No description provided for @agentFollowUpOverviewPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Show total income, expenses and balance for {range}.'**
+  String agentFollowUpOverviewPrompt(String range);
+
   /// No description provided for @aiConsentTitle.
   ///
   /// In en, this message translates to:
@@ -10088,6 +10340,30 @@ abstract class AppLocalizations {
   /// **'Try a task'**
   String get aiQuickCommandsTitle;
 
+  /// No description provided for @agentSuggestionOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This month\'s totals'**
+  String get agentSuggestionOverviewTitle;
+
+  /// No description provided for @agentSuggestionOverviewPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize this month\'s income, expenses and balance.'**
+  String get agentSuggestionOverviewPrompt;
+
+  /// No description provided for @agentSuggestionCategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category shares'**
+  String get agentSuggestionCategoryTitle;
+
+  /// No description provided for @agentSuggestionCategoryPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'What are this month\'s spending shares by top-level category?'**
+  String get agentSuggestionCategoryPrompt;
+
   /// No description provided for @aiQuickCommandsOpen.
   ///
   /// In en, this message translates to:
@@ -10241,7 +10517,7 @@ abstract class AppLocalizations {
   /// No description provided for @agentNativeToolsUnsupported.
   ///
   /// In en, this message translates to:
-  /// **'This model does not support native Agent tools or streaming. Switch models in AI Settings.'**
+  /// **'This model can chat normally, but it does not support the native tool calls required to read or change ledger data. Open Settings > AI Settings > Provider Management to test or switch models.'**
   String get agentNativeToolsUnsupported;
 
   /// No description provided for @agentTurnTimedOut.
@@ -15013,6 +15289,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop'**
   String get agentRunStop;
+
+  /// No description provided for @agentQueryValidationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The query parameters could not be corrected, so a reliable result is unavailable. Please try again.'**
+  String get agentQueryValidationFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

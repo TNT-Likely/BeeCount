@@ -96,12 +96,35 @@ void main() {
     ]);
   });
 
-  test('transaction summary delegates an all-type aggregate without rows',
+  test('tool registry keeps core tools resident and searches optional tools',
+      () {
+    final registry = LocalAgentTools(
+      scope: const AgentScope(id: 'user-1', ledgerId: 1),
+      gateway: gateway,
+    ).buildRegistry();
+
+    final trend = registry.select('对比各月餐饮支出', maximumTools: 7);
+    final budget = registry.select('这个月预算还能花多少', maximumTools: 7);
+    final shortRecord = registry.select('午饭35', maximumTools: 7);
+    final breakdown = registry.select('本月各分类支出占比', maximumTools: 7);
+
+    expect(trend.names, contains('get_spending_trend'));
+    expect(budget.names, contains('get_budget_status'));
+    expect(shortRecord.names, contains('record_transaction_from_text'));
+    expect(
+      breakdown.names,
+      contains('get_category_breakdown'),
+    );
+    expect(budget.names.length, lessThanOrEqualTo(7));
+  });
+
+  test('period overview resolves a custom range and returns derived metrics',
       () async {
-    final result = await tools['get_transaction_summary']!.execute(
+    final result = await tools['get_period_overview']!.execute(
       AgentToolCall(
-        name: 'get_transaction_summary',
+        name: 'get_period_overview',
         arguments: const {
+          'period': 'custom',
           'start': '2026-08-01T00:00:00.000',
           'end': '2026-08-31T23:59:59.999',
         },
@@ -110,104 +133,125 @@ void main() {
 
     expect(result, {
       'currency': 'CNY',
+      'period': 'custom',
       'periodStart': '2026-08-01T00:00:00.000',
       'periodEnd': '2026-08-31T23:59:59.999',
-      'types': ['income', 'expense', 'transfer'],
-      'totals': {
-        'income': {'amount': 1200.0, 'count': 2},
-        'expense': {'amount': 480.0, 'count': 4},
-        'transfer': {'amount': 300.0, 'count': 1},
-      },
-      'groupBy': 'none',
-      'groups': [],
-      'groupsMayOverlap': false,
-      'truncated': false,
+      'income': 1200.0,
+      'expense': 480.0,
+      'balance': 720.0,
+      'savingsRate': 0.6,
+      'transactionCount': 7,
     });
-    expect(gateway.summaryRequests, [
-      (
-        ledgerId: 1,
-        start: DateTime(2026, 8, 1),
-        end: DateTime(2026, 8, 31, 23, 59, 59, 999),
-        types: const {'income', 'expense', 'transfer'},
-        groupBy: 'none',
-        categoryLevel: 'leaf',
-        categoryIds: const <int>[],
-        categoryNames: const <String>[],
-        tagIds: const <int>[],
-        tagNames: const <String>[],
-        accountIds: const <int>[],
-        accountNames: const <String>[],
-        includeExcludedFromStats: false,
-        groupLimit: 20,
-      ),
-    ]);
+    final request = gateway.summaryRequests.single;
+    expect(request.start, DateTime(2026, 8, 1));
+    expect(request.end, DateTime(2026, 8, 31, 23, 59, 59, 999));
+    expect(request.types, {'income', 'expense', 'transfer'});
+    expect(request.groupBy, 'none');
   });
 
-  test('transaction summary forwards filters and the requested grouping',
+  test('spending trend forwards category filter and computes point changes',
       () async {
-    await tools['get_transaction_summary']!.execute(
+    gateway.summaryResult = const {
+      'currency': 'CNY',
+      'periodStart': '2026-01-01T00:00:00.000',
+      'periodEnd': '2027-01-01T00:00:00.000',
+      'totals': {
+        'expense': {'amount': 300.0, 'count': 3},
+      },
+      'groups': [
+        {
+          'key': {'kind': 'month', 'value': '2026-01'},
+          'totals': {
+            'expense': {'amount': 100.0, 'count': 1},
+          },
+        },
+        {
+          'key': {'kind': 'month', 'value': '2026-02'},
+          'totals': {
+            'expense': {'amount': 200.0, 'count': 2},
+          },
+        },
+      ],
+      'truncated': false,
+    };
+    final result = await tools['get_spending_trend']!.execute(
       AgentToolCall(
-        name: 'get_transaction_summary',
+        name: 'get_spending_trend',
         arguments: const {
-          'types': ['expense'],
-          'groupBy': 'tag',
-          'tagIds': [7],
-          'includeExcludedFromStats': true,
-          'groupLimit': 12,
+          'period': 'custom',
+          'start': '2026-01-01T00:00:00.000',
+          'end': '2027-01-01T00:00:00.000',
+          'interval': 'month',
+          'categoryNames': [' 餐饮 '],
         },
       ),
     );
 
     final request = gateway.summaryRequests.single;
     expect(request.types, {'expense'});
-    expect(request.groupBy, 'tag');
-    expect(request.tagIds, [7]);
-    expect(request.includeExcludedFromStats, isTrue);
-    expect(request.groupLimit, 12);
+    expect(request.groupBy, 'month');
+    expect(request.categoryNames, ['餐饮']);
+    expect(result['points'], [
+      {
+        'period': '2026-01',
+        'amount': 100.0,
+        'count': 1,
+        'comparedAmount': null,
+        'changeAmount': null,
+        'changeRate': null,
+      },
+      {
+        'period': '2026-02',
+        'amount': 200.0,
+        'count': 2,
+        'comparedAmount': 100.0,
+        'changeAmount': 100.0,
+        'changeRate': 1.0,
+      },
+    ]);
   });
 
-  test('transaction summary forwards normalized name filters', () async {
-    await tools['get_transaction_summary']!.execute(
+  test('category breakdown returns locally calculated shares', () async {
+    gateway.summaryResult = const {
+      'currency': 'CNY',
+      'periodStart': '2026-08-01T00:00:00.000',
+      'periodEnd': '2026-09-01T00:00:00.000',
+      'totals': {
+        'expense': {'amount': 400.0, 'count': 4},
+      },
+      'groups': [
+        {
+          'key': {'kind': 'category', 'id': 1, 'name': '餐饮'},
+          'totals': {
+            'expense': {'amount': 100.0, 'count': 2},
+          },
+        },
+      ],
+      'truncated': false,
+    };
+    final result = await tools['get_category_breakdown']!.execute(
       AgentToolCall(
-        name: 'get_transaction_summary',
+        name: 'get_category_breakdown',
         arguments: const {
-          'categoryNames': [' 投资收益 '],
-          'tagNames': ['出差'],
-          'accountNames': ['支付宝'],
+          'period': 'custom',
+          'start': '2026-08-01T00:00:00.000',
+          'end': '2026-09-01T00:00:00.000',
+          'categoryLevel': 'top',
         },
       ),
     );
 
     final request = gateway.summaryRequests.single;
-    expect(request.categoryNames, ['投资收益']);
-    expect(request.tagNames, ['出差']);
-    expect(request.accountNames, ['支付宝']);
-  });
-
-  test('transaction summary inherits the previous explicit date range',
-      () async {
-    final summaryTool = tools['get_transaction_summary']!;
-    await summaryTool.execute(
-      AgentToolCall(
-        name: 'get_transaction_summary',
-        arguments: const {
-          'start': '2026-01-01T00:00:00.000',
-          'end': '2026-10-01T00:00:00.000',
-          'groupBy': 'category',
-        },
-      ),
-    );
-    await summaryTool.execute(
-      AgentToolCall(
-        name: 'get_transaction_summary',
-        arguments: const {
-          'categoryNames': ['投资收益']
-        },
-      ),
-    );
-
-    expect(gateway.summaryRequests.last.start, DateTime(2026, 1, 1));
-    expect(gateway.summaryRequests.last.end, DateTime(2026, 10, 1));
+    expect(request.groupBy, 'category');
+    expect(request.categoryLevel, 'top');
+    expect(result['items'], [
+      {
+        'category': {'kind': 'category', 'id': 1, 'name': '餐饮'},
+        'amount': 100.0,
+        'count': 2,
+        'share': 0.25,
+      },
+    ]);
   });
 
   test('budget tool returns a stable, currency-aware budget snapshot',
@@ -254,7 +298,10 @@ void main() {
   test('P0 query tools exclude overlapping report summaries', () async {
     expect(tools, isNot(contains('get_income_expense_summary')));
     expect(tools, isNot(contains('get_category_spending')));
-    expect(tools, contains('get_transaction_summary'));
+    expect(tools, isNot(contains('get_transaction_summary')));
+    expect(tools, contains('get_period_overview'));
+    expect(tools, contains('get_spending_trend'));
+    expect(tools, contains('get_category_breakdown'));
 
     final recurring = await tools['get_recurring_transactions']!.execute(
       AgentToolCall(name: 'get_recurring_transactions'),
@@ -307,6 +354,21 @@ final class _FakeGateway implements LocalAgentToolGateway {
       })> summaryRequests = [];
   List<AgentTransactionSummary> transactions = [];
   String ledgerCurrency = 'CNY';
+  Map<String, Object?> summaryResult = const {
+    'currency': 'CNY',
+    'periodStart': '2026-08-01T00:00:00.000',
+    'periodEnd': '2026-08-31T23:59:59.999',
+    'types': ['income', 'expense', 'transfer'],
+    'totals': {
+      'income': {'amount': 1200.0, 'count': 2},
+      'expense': {'amount': 480.0, 'count': 4},
+      'transfer': {'amount': 300.0, 'count': 1},
+    },
+    'groupBy': 'none',
+    'groups': [],
+    'groupsMayOverlap': false,
+    'truncated': false,
+  };
   final List<AgentRecurringTransactionSummary> recurringTransactions = const [
     AgentRecurringTransactionSummary(
       type: 'expense',
@@ -332,6 +394,9 @@ final class _FakeGateway implements LocalAgentToolGateway {
 
   @override
   Future<String> getLedgerCurrency(int ledgerId) async => ledgerCurrency;
+
+  @override
+  Future<int> getLedgerMonthStartDay(int ledgerId) async => 1;
 
   @override
   Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
@@ -384,21 +449,7 @@ final class _FakeGateway implements LocalAgentToolGateway {
       includeExcludedFromStats: includeExcludedFromStats,
       groupLimit: groupLimit,
     ));
-    return const {
-      'currency': 'CNY',
-      'periodStart': '2026-08-01T00:00:00.000',
-      'periodEnd': '2026-08-31T23:59:59.999',
-      'types': ['income', 'expense', 'transfer'],
-      'totals': {
-        'income': {'amount': 1200.0, 'count': 2},
-        'expense': {'amount': 480.0, 'count': 4},
-        'transfer': {'amount': 300.0, 'count': 1},
-      },
-      'groupBy': 'none',
-      'groups': [],
-      'groupsMayOverlap': false,
-      'truncated': false,
-    };
+    return summaryResult;
   }
 
   @override

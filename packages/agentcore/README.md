@@ -32,11 +32,15 @@ Flutter、数据库或云服务代码。
 agentcore
 ├─ AgentCore                          有限回合执行循环
 ├─ contracts.dart                     request / turn / tool / result 契约
+├─ AgentPromptSuggestion              业务无关的推荐提问数据契约
 ├─ NativeToolAgentModel               模型回合与工具结果桥接
 ├─ OpenAiCompatibleNativeToolTransport 原生 tool-call + SSE 聚合
+├─ AgentToolRegistry                  常驻工具 + 请求级工具搜索
+├─ AgentModelCapabilityResolver       模型能力报告与缓存解析
 ├─ AgentTurnParser                    小型 JSON 回合解析器
 ├─ AgentAuthorizationPolicy           权限门禁组合器
-└─ AgentMemoryRepository               本地记忆与审计接口
+├─ AgentMemoryRepository               本地记忆与审计接口
+└─ AgentEvalRunner / AgentEvalReport    业务无关评测与报告
 ```
 
 agentcore 不知道任何业务工具名。比如 `record_transaction_from_text` 只能存在于
@@ -75,6 +79,50 @@ AgentModel.nextTurn()
 
 ## 核心契约
 
+### 模型流式活动
+
+`AgentRequest.withStreamingTextDeltas(sink)` 的请求级 sink 接收正文增量
+`AgentNativeTextDelta`，以及只携带阶段的 `AgentNativeModelActivity`。兼容传输在每次
+请求（含工具后的模型回合及协议重试）开始时发送 `awaitingResponse`；仅在收到非空
+`reasoning_content` / `reasoning` 时发送一次 `thinking`；首段正文到达时发送一次
+`generating`。普通模型没有思考事件，不用等待时间推断。阶段状态即使正文因收口协议
+校验被暂存仍可上报，不能据此绕过宿主的结果校验。
+
+思考事件没有文本载荷，传输不保存或转发推理原文，最终回答和后续工具上下文只包含
+公开正文/工具结果。宿主将状态映射为本地化文案，并继续通过工具观察器展示真实工具
+执行；不要用模型阶段代替成功工具结果或授权记录。
+
+### 自动上下文压缩
+
+`AgentConversationContextCompressor` 在纯 Dart 中清洗历史、按字符和条数预算自动压缩，
+保留最近原文。默认超过 16 条或 16000 字符触发，压缩后保留最近 8 条（大段文本还受
+12000 字符预算限制），摘要最多 4000 字符。字符预算是保守估算，不是模型精确 token 数。
+
+宿主注入独立的纯文本 `AgentHistorySummarizer` 与 `AgentConversationSummaryStore`；
+包不认识模型服务商、账本或数据库。摘要缓存按 conversationId 和 scopeId 隔离，用
+SHA-256 验证旧历史前缀，修改/删除后不复用。尾部仍在预算内时不请求摘要模型；再超限
+才增量压缩。摘要超时（默认 8 秒）、空结果或失败退回有界原文摘录，不阻断主回答；
+取消时立即结束等待且不保存晚到结果。短对话不调用摘要模型。
+
+摘要属于不可信历史上下文，不是显式长期记忆、金额事实或当前用户授权。宿主必须在
+系统提示中声明这些边界，金额现状仍通过业务工具重新查询。压缩不修改或删除聊天记录。
+历史可提供可选 `id` 与 `scopeId`；显式其他 scope 的消息被排除，旧无 scope 数据仍作为
+不可信上下文兼容读取。宿主清空/修改/删除对话时应同步清除派生缓存。
+
+### 推荐提问
+
+`AgentPromptSuggestion` 只包含稳定的 `id`、展示用 `title` 和完整的 `prompt`。
+宿主负责本地化和 UI；点击后应原样提交、保存 `prompt`，走正常 Agent 流程。
+它不预读数据、不指定工具、不绕过权限，也不引入另一条模型调用路径。
+
+`AgentPromptSuggestionSelector` 从宿主按优先级排列的候选项中去重、排除当前和
+近期已提问题，并限制数量（默认 3 个）；禁用时返回空列表。选择过程不调用模型。
+`AgentSuggestionEvidence` 承载宿主观察到的成功工具结果，业务规则不能从模型
+正文推测工具执行成功。推荐项支持 JSON 编解码，持久化格式和账本/租户隔离由宿主管理。
+
+只读入口可使用 `AgentScope.allowsMutations = false` 表达可信宿主限制。
+宿主硬策略必须对此拒绝写工具；不能靠推荐文案或模型承诺保证只读。
+
 ### 请求、工具和结果
 
 ```dart
@@ -94,11 +142,22 @@ final core = AgentCore(
   maximumToolCalls: 4,
   // 可选：对同一运行中完全相同的只读调用复用结果，避免模型重复查询。
   deduplicatedToolNames: {'read_report'},
+  // 可选：宿主的语义校验（不替代权限校验）；无效调用不会执行。
+  validateToolCall: validateReadInput,
+  maximumToolValidationRetries: 1,
   cancellationToken: cancellation,
 );
 
 final result = await core.run(request);
 ```
+
+`validateToolCall` 在权限放行后、执行或复用缓存前调用。宿主返回
+`AgentToolValidationIssue(code: ..., message: ...)` 时，core 为原始 call ID
+回填 `error/message/retryable`，记入 `rejectedCalls`，而不是权限 `deniedCalls`。
+无效输入不执行、不缓存、不消耗本地动作额度。默认只有一次纠正机会，且不增加
+`maximumModelTurns`；再次无效时进入仅文本收口。权限拒绝、单次写入限制和取消
+不会因为语义纠正而绕过。宿主仍须检查所需结果是否真正取得，不能把错误反馈
+当成空数据或仅凭模型声称“已修复”就放行答案。
 
 `AgentTool.name` 必须和注册表 key 完全一致。工具执行结果是
 `Map<String, Object?>`，会被宿主序列化后作为下一轮的 `role: tool` 内容。
@@ -185,6 +244,45 @@ const definitions = [
 在 BeeCount 中，这份业务目录位于
 `lib/agent/tools/local_agent_tool_catalog.dart`；执行器位于同目录的
 `local_agent_tools.dart`。修改工具时应同时更新这两处及对应 schema 测试。
+
+### 常驻工具与请求级工具搜索
+
+工具较多时，可用 `AgentToolRegistry` 把少量高频工具标记为 `isResident`，其余工具
+通过宿主提供的 `selectionTerms` 按当前请求选择。注册项同时绑定 schema、执行器、
+单次调用和去重元数据，避免业务层维护多份容易漂移的列表：
+
+```dart
+final registry = AgentToolRegistry([
+  AgentToolDescriptor(
+    definition: readOverviewDefinition,
+    tool: readOverviewTool,
+    isResident: true,
+    selectionTerms: const ['概览', '总额'],
+  ),
+  AgentToolDescriptor(
+    definition: readBudgetDefinition,
+    tool: readBudgetTool,
+    selectionTerms: const ['预算', 'budget'],
+  ),
+]);
+
+final selected = registry.select(
+  '$userText\n$recentContext',
+  maximumTools: 7,
+);
+```
+
+将 `selected.names` 写入 `AgentRequest.availableToolNames` 后，原生 transport 只发送
+本次可见的 schema。目录匹配仅用于选择工具，不强制模型执行某个工具，也不能作为
+写操作授权；权限和参数校验仍由独立的运行时策略负责。
+
+### 模型能力报告
+
+`AgentModelCapabilities` 分别记录文本、原生工具调用、流式输出和强制工具选择能力，
+每项都使用 `supported / unsupported / unknown` 三态，避免把网络错误误判为模型不兼容。
+宿主实现 `AgentModelCapabilityStore` 后，可用 `AgentModelCapabilityResolver` 按
+服务商、地址和模型组成的指纹缓存探测结果。探测请求和具体 HTTP 协议属于宿主；缓存
+中不应包含 API Key 或用户数据。
 
 ## OpenAI-compatible tool-call / SSE
 
@@ -281,7 +379,7 @@ agentcore 可以脱离 Flutter 和业务数据库运行：
 
 ```bash
 cd packages/agentcore
-flutter test
+dart test
 ```
 
 宿主 App 还应至少验证：
@@ -291,6 +389,33 @@ flutter test
 3. 未知工具、硬策略拒绝、用户拒绝和超时不会执行本地写操作；
 4. 本地记忆和工具审计按 scope 隔离，重复调用不会产生重复数据；
 5. provider 不支持 tool-call/SSE 时给出明确配置提示。
+
+## 通用评测
+
+`AgentEvalCase` 的 `input` / `expected` schema 由宿主决定；包不认识账本、工具名称或模型供应商。宿主注入执行器和检查器：
+
+```dart
+final report = await AgentEvalRunner(
+  execute: (testCase) async => AgentEvalObservation(
+    data: {'value': await myExecutor(testCase.input)},
+    metrics: {'requests': 1},
+  ),
+  evaluate: (testCase, observed) => [
+    AgentEvalCheck(
+      name: 'result',
+      passed: agentEvalMismatches(
+        testCase.expected, observed.data, numericTolerance: 1e-9,
+      ).isEmpty,
+    ),
+  ],
+).run(cases: myCases, metadata: {'fixtureVersion': 'v1'});
+final json = report.toJson();
+final markdown = report.toMarkdown();
+```
+
+Runner 顺序执行、逐例捕获异常并继续、拒绝空集合和重复 ID；空断言视为失败。报告含逐例检查、tag 汇总、耗时分位数及宿主 metrics 合计。对象断言采用子集匹配，数组严格检查顺序和长度，缺失字段不等于 null；数值仅接受有限值及显式非负容差。
+
+为避免异常对象中的凭证泄露，通用 runner 只记录异常类型。宿主负责超时、取消、隔离数据库、脱敏及提供安全诊断；报告会保留宿主主动提供的 observation/metadata，不自动脱敏。离线 oracle 测试不能解释为模型理解能力测试。BeeCount 接入示例和运行命令见 `test/ai_eval/README.md`。
 
 ## 版本与兼容性
 

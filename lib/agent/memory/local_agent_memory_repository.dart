@@ -82,6 +82,9 @@ final class LocalAgentMemoryRepository implements AgentMemoryRepository {
 
   @override
   Future<void> clearForLedger(int ledgerId) async {
+    await (_db.delete(_db.agentConversationSummaries)
+          ..where((summary) => summary.ledgerId.equals(ledgerId)))
+        .go();
     final rows = await (_db.select(_db.agentMemories)
           ..where((memory) => memory.ledgerId.equals(ledgerId)))
         .get();

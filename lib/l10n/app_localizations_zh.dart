@@ -9,6 +9,154 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get agentActivityPreparing => '正在处理你的问题…';
+
+  @override
+  String get agentActivityAwaitingModel => '正在等待模型响应…';
+
+  @override
+  String get agentActivityThinking => '模型正在思考…';
+
+  @override
+  String get agentActivityGenerating => '正在整理回答…';
+
+  @override
+  String agentExecutionCompletedSummary(int count) {
+    return '已完成 $count 项操作';
+  }
+
+  @override
+  String get agentExecutionFailedSummary => '部分操作未完成';
+
+  @override
+  String get agentActivityUnknownTool => '本地操作';
+
+  @override
+  String get agentActivityOverview => '收支概览';
+
+  @override
+  String get agentActivityTrend => '支出趋势';
+
+  @override
+  String get agentActivityCategories => '支出分类';
+
+  @override
+  String get agentActivityLeafCategories => '明细分类';
+
+  @override
+  String agentActivityCategoryScope(String categories) {
+    return '分类：$categories';
+  }
+
+  @override
+  String agentActivityReturnedRows(int count) {
+    return '已返回 $count 笔交易';
+  }
+
+  @override
+  String agentActivityReturnedGroups(int count) {
+    return '已返回 $count 个分组';
+  }
+
+  @override
+  String get agentActivityTruncated => '仅返回部分结果';
+
+  @override
+  String get agentFollowUpRotate => '换一组';
+
+  @override
+  String get agentScrollToLatest => '回到最新消息';
+
+  @override
+  String get agentSuggestionHealthTitle => '财务健康分析';
+
+  @override
+  String get agentSuggestionHealthPrompt => '分析本月收支平衡和储蓄率，并按月列出最近六个月的支出趋势。基于查询结果给出财务健康分析和建议，数据不足时说明限制。';
+
+  @override
+  String get agentSuggestionSummaryTitle => '本月支出总结';
+
+  @override
+  String get agentSuggestionSummaryPrompt => '总结本月支出，分析主要一级分类及占比，并给出节约开支的建议。请依据实际查询结果，数据不足时说明限制。';
+
+  @override
+  String get agentSuggestionAnalysisTitle => '分类占比分析';
+
+  @override
+  String get agentSuggestionAnalysisPrompt => '分析本月一级分类支出占比和主要支出类别，给出优化建议。不要仅凭占比断言某项消费不合理，数据不足时说明限制。';
+
+  @override
+  String get agentSuggestionBudgetTitle => '预算规划建议';
+
+  @override
+  String get agentSuggestionBudgetPrompt => '根据本月收支、一级分类支出占比和最近六个月的月度支出趋势，提供下月分类预算规划建议。仅提供建议，不创建或修改预算；数据不足时说明限制。';
+
+  @override
+  String get agentSuggestionAnomalyTitle => '异常支出检查';
+
+  @override
+  String get agentSuggestionAnomalyPrompt => '查看最近三十天的交易明细及收支概览，指出其中值得关注的大额或重复交易，并说明判断依据。这只是返回明细范围内的初步检查，不代表全部交易的异常扫描，不把正常消费直接定性为异常。';
+
+  @override
+  String get agentSuggestionSavingTitle => '省钱小贴士';
+
+  @override
+  String get agentSuggestionSavingPrompt => '分析本月一级分类支出占比和最近六个月的月度支出趋势，给出三到五条实用的省钱建议。依据实际查询结果，不推断未提供的个人情况；数据不足时说明限制。';
+
+  @override
+  String get agentFollowUpTitle => '继续了解';
+
+  @override
+  String agentFollowUpRange(String start, String end) {
+    return '$start 至 $end（不含结束时间）';
+  }
+
+  @override
+  String get agentFollowUpAllCategories => '全部支出分类';
+
+  @override
+  String get agentFollowUpCategoryTitle => '查看分类占比';
+
+  @override
+  String agentFollowUpCategoryPrompt(String range) {
+    return '查询 $range 的一级分类支出占比。';
+  }
+
+  @override
+  String get agentFollowUpTrendTitle => '查看支出趋势';
+
+  @override
+  String agentFollowUpTrendPrompt(String category, String range) {
+    return '按月列出 $range 中$category的支出，不做同比或环比比较。';
+  }
+
+  @override
+  String get agentFollowUpCompareTitle => '查看环比变化';
+
+  @override
+  String agentFollowUpComparePrompt(String category, String range) {
+    return '按月列出 $range 中$category的支出及相邻月份环比变化。';
+  }
+
+  @override
+  String agentFollowUpLeafTitle(String category) {
+    return '细看$category';
+  }
+
+  @override
+  String agentFollowUpLeafPrompt(String category, String range) {
+    return '查询 $range 中「$category」的明细分类支出占比。';
+  }
+
+  @override
+  String get agentFollowUpOverviewTitle => '查看收支概览';
+
+  @override
+  String agentFollowUpOverviewPrompt(String range) {
+    return '查询 $range 的总收入、总支出和结余。';
+  }
+
+  @override
   String get aiConsentTitle => '开启 AI 功能前,请知悉';
 
   @override
@@ -5286,6 +5434,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiQuickCommandsTitle => '试试这些';
 
   @override
+  String get agentSuggestionOverviewTitle => '本月收支';
+
+  @override
+  String get agentSuggestionOverviewPrompt => '总结本月收入、支出和结余。';
+
+  @override
+  String get agentSuggestionCategoryTitle => '分类占比';
+
+  @override
+  String get agentSuggestionCategoryPrompt => '本月一级分类支出占比是多少？';
+
+  @override
   String get aiQuickCommandsOpen => '打开快捷指令';
 
   @override
@@ -5365,7 +5525,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentRunFailed => 'AI 服务暂时不可用，请稍后重试。';
 
   @override
-  String get agentNativeToolsUnsupported => '当前模型不支持 Agent 原生工具调用或流式输出，请在 AI 设置中切换模型。';
+  String get agentNativeToolsUnsupported => '当前模型可以进行普通对话，但不支持读取或操作账本所需的原生工具调用。请前往“设置 > AI 设置 > 服务商管理”切换模型或运行文本模型测试。';
 
   @override
   String get agentTurnTimedOut => 'AI 响应超时，请稍后重试。';
@@ -7903,6 +8063,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get agentRunStop => '停止';
+
+  @override
+  String get agentQueryValidationFailed => '查询参数未能纠正，暂时无法给出可靠结果。请重试。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

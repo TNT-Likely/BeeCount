@@ -78,6 +78,8 @@ dependencies:
     path: packages/flutter_ai_kit_openai
   agentcore:
     path: packages/agentcore
+  flutter_agent_ui:
+    path: packages/flutter_agent_ui
   flutter_cloud_sync:
     path: packages/flutter_cloud_sync
   flutter_cloud_sync_supabase:

@@ -1,0 +1,103 @@
+name: AI Eval
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/ai-eval.yml'
+      - 'packages/agentcore/**'
+      - 'packages/flutter_agent_ui/**'
+      - 'packages/flutter_ai_kit*/**'
+      - 'lib/agent/**'
+      - 'lib/ai/**'
+      - 'lib/services/ai/**'
+      - 'lib/models/assistant_*.dart'
+      - 'lib/pages/ai/**'
+      - 'lib/widgets/ai/**'
+      - 'lib/providers/ai_chat_providers.dart'
+      - 'lib/l10n/**'
+      - 'lib/data/**'
+      - 'lib/utils/**'
+      - 'test/ai_eval/**'
+      - 'test/agent/**'
+      - 'test/ai/providers/**'
+      - 'test/services/ai/**'
+      - 'test/pages/ai/**'
+      - 'test/widgets/ai/**'
+      - 'tool/ai_eval.dart'
+      - 'pubspec.*'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ai-eval.yml'
+      - 'packages/agentcore/**'
+      - 'packages/flutter_agent_ui/**'
+      - 'packages/flutter_ai_kit*/**'
+      - 'lib/agent/**'
+      - 'lib/ai/**'
+      - 'lib/services/ai/**'
+      - 'lib/models/assistant_*.dart'
+      - 'lib/pages/ai/**'
+      - 'lib/widgets/ai/**'
+      - 'lib/providers/ai_chat_providers.dart'
+      - 'lib/l10n/**'
+      - 'lib/data/**'
+      - 'lib/utils/**'
+      - 'test/ai_eval/**'
+      - 'test/agent/**'
+      - 'test/ai/providers/**'
+      - 'test/services/ai/**'
+      - 'test/pages/ai/**'
+      - 'test/widgets/ai/**'
+      - 'tool/ai_eval.dart'
+      - 'pubspec.*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.3'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: 通用 Agent 包测试
+        working-directory: packages/agentcore
+        run: |
+          dart pub get
+          dart analyze
+          dart test
+      - name: 通用 Agent UI 组件检查与测试
+        working-directory: packages/flutter_agent_ui
+        run: |
+          flutter pub get
+          flutter analyze --no-pub
+          flutter test --no-pub
+      - name: 静态检查评测适配器
+        run: dart analyze test/ai_eval tool/ai_eval.dart
+      - name: 通用服务商错误兼容测试
+        working-directory: packages/flutter_ai_kit_openai
+        run: |
+          flutter pub get
+          flutter test --no-pub
+      - name: 固定账本离线回归（不调用外部模型）
+        run: |
+          flutter test --no-pub test/agent test/ai/providers test/services/ai test/widgets/ai test/pages/ai test/ai_eval/assertions_test.dart
+          dart run tool/ai_eval.dart
+      - name: 保存评测报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-eval-offline
+          path: build/ai-eval/offline.*
+          if-no-files-found: warn

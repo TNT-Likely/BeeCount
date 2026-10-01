@@ -13,6 +13,8 @@ final class AgentCore {
     this.singleUseToolDenialReason = _defaultSingleUseToolDenialReason,
     this.deduplicatedToolNames = const {},
     this.cancellationToken,
+    this.validateToolCall,
+    this.maximumToolValidationRetries = 1,
   });
 
   final AgentModel model;
@@ -30,25 +32,37 @@ final class AgentCore {
   final Set<String> deduplicatedToolNames;
   final AgentCancellationToken? cancellationToken;
 
+  final AgentToolCallValidator? validateToolCall;
+
+  /// Invalid batches receive at most this many correction opportunities,
+  /// within (not in addition to) the existing model-turn budget.
+  final int maximumToolValidationRetries;
+
   Future<AgentRunResult> run(AgentRequest request) async {
     _validateToolRegistry();
     if (maximumToolCalls <= 0 || maximumModelTurns <= 0) {
       throw ArgumentError('AgentCore 执行上限必须大于 0。');
     }
+    if (maximumToolValidationRetries < 0) {
+      throw ArgumentError.value(maximumToolValidationRetries,
+          'maximumToolValidationRetries', 'Must not be negative.');
+    }
 
     var nextRequest = request;
     final executedCalls = <AgentToolCall>[];
     final deniedCalls = <AgentDeniedCall>[];
+    final rejectedCalls = <AgentRejectedCall>[];
     final executedSingleUseTools = <String>{};
     final cachedToolResults = <String, Map<String, Object?>>{};
     var modelTurns = 0;
     var finalizationPending = false;
     var toolCallLimitReached = false;
+    var invalidBatches = 0;
 
     try {
       while (modelTurns < maximumModelTurns || finalizationPending) {
         if (_isCancelled) {
-          return _cancelledResult(executedCalls, deniedCalls);
+          return _cancelledResult(executedCalls, deniedCalls, rejectedCalls);
         }
         final isFinalizationTurn = finalizationPending;
         finalizationPending = false;
@@ -59,7 +73,7 @@ final class AgentCore {
           ),
         );
         if (turn == null || _isCancelled) {
-          return _cancelledResult(executedCalls, deniedCalls);
+          return _cancelledResult(executedCalls, deniedCalls, rejectedCalls);
         }
         switch (turn) {
           case AgentFinalTextTurn(:final text):
@@ -67,6 +81,7 @@ final class AgentCore {
               text: text,
               executedCalls: executedCalls,
               deniedCalls: deniedCalls,
+              rejectedCalls: rejectedCalls,
               terminationReason: AgentRunTerminationReason.completed,
             );
           case AgentToolCallsTurn(:final calls):
@@ -77,6 +92,7 @@ final class AgentCore {
                 text: '',
                 executedCalls: executedCalls,
                 deniedCalls: deniedCalls,
+                rejectedCalls: rejectedCalls,
                 terminationReason: toolCallLimitReached
                     ? AgentRunTerminationReason.toolCallLimitReached
                     : AgentRunTerminationReason.modelTurnLimitReached,
@@ -85,9 +101,11 @@ final class AgentCore {
             final data = <Map<String, Object?>>[];
             var executedNewTool = false;
             var reusedCachedTool = false;
+            var rejectedBatch = false;
             for (final call in calls) {
               if (_isCancelled) {
-                return _cancelledResult(executedCalls, deniedCalls);
+                return _cancelledResult(
+                    executedCalls, deniedCalls, rejectedCalls);
               }
               if (executedCalls.length >= maximumToolCalls) {
                 // Native providers require one tool result for every call in an
@@ -119,24 +137,13 @@ final class AgentCore {
                   : null;
               final cachedResult =
                   duplicateKey == null ? null : cachedToolResults[duplicateKey];
-              if (cachedResult != null) {
-                // Preserve the call/result pairing expected by native
-                // providers, but do not spend another local action on an
-                // identical read. A duplicate-only turn is finalized below.
-                data.add({
-                  'id': call.id,
-                  'name': call.name,
-                  'data': cachedResult,
-                });
-                reusedCachedTool = true;
-                continue;
-              }
               final decision = await _awaitUnlessCancelled(
                 Future<AgentPolicyDecision>.value(
                     policy.decide(nextRequest, call)),
               );
               if (decision == null || _isCancelled) {
-                return _cancelledResult(executedCalls, deniedCalls);
+                return _cancelledResult(
+                    executedCalls, deniedCalls, rejectedCalls);
               }
               final tool = tools[call.name];
               if (!decision.isAllowed || tool == null) {
@@ -152,7 +159,48 @@ final class AgentCore {
                 continue;
               }
               if (_isCancelled) {
-                return _cancelledResult(executedCalls, deniedCalls);
+                return _cancelledResult(
+                    executedCalls, deniedCalls, rejectedCalls);
+              }
+              final validator = validateToolCall;
+              if (validator != null) {
+                final issue = await _awaitUnlessCancelled(
+                  Future<AgentToolValidationIssue?>.value(
+                    validator(nextRequest, call),
+                  ),
+                );
+                if (_isCancelled) {
+                  return _cancelledResult(
+                      executedCalls, deniedCalls, rejectedCalls);
+                }
+                if (issue != null) {
+                  rejectedBatch = true;
+                  rejectedCalls
+                      .add(AgentRejectedCall(call: call, issue: issue));
+                  data.add({
+                    'id': call.id,
+                    'name': call.name,
+                    'data': {
+                      'error': issue.code,
+                      'message': issue.message,
+                      'retryable':
+                          invalidBatches < maximumToolValidationRetries &&
+                              modelTurns < maximumModelTurns,
+                    },
+                  });
+                  continue;
+                }
+              }
+              if (cachedResult != null) {
+                // Cached reads still pass the current permission and semantic
+                // checks. Preserve native pairing without repeating an action.
+                data.add({
+                  'id': call.id,
+                  'name': call.name,
+                  'data': cachedResult,
+                });
+                reusedCachedTool = true;
+                continue;
               }
               final result = await tool.execute(call);
               executedCalls.add(call);
@@ -166,6 +214,12 @@ final class AgentCore {
               data.add({'id': call.id, 'name': call.name, 'data': result});
             }
             nextRequest = nextRequest.withToolData(data);
+            if (rejectedBatch) {
+              invalidBatches += 1;
+              if (invalidBatches > maximumToolValidationRetries) {
+                finalizationPending = true;
+              }
+            }
             if (executedCalls.length >= maximumToolCalls) {
               toolCallLimitReached = true;
             }
@@ -175,7 +229,7 @@ final class AgentCore {
               // turn so a provider cannot consume another local action.
               finalizationPending = true;
             }
-            if (!executedNewTool && reusedCachedTool) {
+            if (!executedNewTool && reusedCachedTool && !rejectedBatch) {
               // A model that only repeats already answered reads is stuck;
               // give it one bounded text-only turn instead of another loop.
               finalizationPending = true;
@@ -187,6 +241,7 @@ final class AgentCore {
         text: '',
         executedCalls: executedCalls,
         deniedCalls: deniedCalls,
+        rejectedCalls: rejectedCalls,
         terminationReason: toolCallLimitReached
             ? AgentRunTerminationReason.toolCallLimitReached
             : AgentRunTerminationReason.modelTurnLimitReached,
@@ -212,11 +267,13 @@ final class AgentCore {
   AgentRunResult _cancelledResult(
     List<AgentToolCall> executedCalls,
     List<AgentDeniedCall> deniedCalls,
+    List<AgentRejectedCall> rejectedCalls,
   ) =>
       AgentRunResult(
         text: '',
         executedCalls: executedCalls,
         deniedCalls: deniedCalls,
+        rejectedCalls: rejectedCalls,
         terminationReason: AgentRunTerminationReason.cancelled,
         wasCancelled: true,
       );

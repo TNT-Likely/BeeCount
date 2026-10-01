@@ -44,6 +44,7 @@ import 'package:beecount/agent/tools/local_agent_tools.dart';
 import 'package:beecount/data/db.dart' hide AgentToolCall;
 import 'package:beecount/l10n/app_localizations_en.dart';
 import 'package:beecount/services/ai/agent_app_facade.dart';
+import 'package:beecount/services/ai/ai_chat_service.dart';
 import 'package:beecount/services/system/logger_service.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -89,6 +90,9 @@ void main() {
 
     expect(response.type, 'bill_card');
     expect(response.transactionIds, [42]);
+    expect(response.response.followUpSuggestions.map((item) => item.id),
+        ['followup-overview', 'followup-category']);
+    expect(response.response.allowPromptSuggestions, isTrue);
     expect(gateway.recordedTexts, ['午饭 35']);
     expect(
       logger.logs.any(
@@ -220,6 +224,119 @@ void main() {
     expect(gateway.recordedTexts, ['早饭花了8元']);
   });
 
+  test('ledger query streams native answer deltas before final completion',
+      () async {
+    final chunks = StreamController<Map<String, dynamic>>();
+    final answerStarted = Completer<void>();
+    final partialReceived = Completer<void>();
+    final completed = Completer<void>();
+    final events = <AgentRunEvent>[];
+    final transport = OpenAiCompatibleNativeToolTransport(
+      toolStream: ({required messages, required tools, logTag}) {
+        if (messages.any((message) => message['role'] == 'tool')) {
+          answerStarted.complete();
+          return chunks.stream;
+        }
+        return Stream<Map<String, dynamic>>.value({
+          'choices': [
+            {
+              'delta': {
+                'tool_calls': [
+                  {
+                    'index': 0,
+                    'id': 'overview-stream',
+                    'function': {
+                      'name': 'get_period_overview',
+                      'arguments': '{"period":"current_month"}',
+                    },
+                  }
+                ]
+              },
+            }
+          ],
+        });
+      },
+    );
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: NativeToolAgentModel(transport: transport),
+      runIdFactory: () => 'stream-query',
+    );
+    final subscription = facade
+        .processMessageEvents(message: '本月支出多少？', ledgerId: 1)
+        .listen((event) {
+      events.add(event);
+      if (event is AgentTextDeltaEvent && !partialReceived.isCompleted) {
+        partialReceived.complete();
+      }
+    }, onDone: completed.complete, onError: completed.completeError);
+    addTearDown(() async {
+      facade.cancelRun('stream-query');
+      await subscription.cancel();
+      if (!chunks.isClosed) await chunks.close();
+    });
+    await answerStarted.future.timeout(const Duration(seconds: 5));
+    // The next model turn reports waiting even though the local tool completed
+    // too quickly to render an in-progress frame.
+    chunks.add({
+      'choices': [
+        {
+          'delta': {'reasoning_content': 'private reasoning'}
+        }
+      ]
+    });
+    chunks.add({
+      'choices': [
+        {
+          'delta': {'content': '本月支出'}
+        }
+      ]
+    });
+    await partialReceived.future.timeout(const Duration(seconds: 5));
+    expect(events.whereType<AgentToolCompletedEvent>(), hasLength(1));
+    expect(events.whereType<AgentTextDeltaEvent>().single.text, '本月支出');
+    expect(
+        events.whereType<AgentModelActivityEvent>().map((event) => event.phase),
+        [
+          AgentNativeModelPhase.awaitingResponse,
+          AgentNativeModelPhase.awaitingResponse,
+          AgentNativeModelPhase.thinking,
+          AgentNativeModelPhase.generating
+        ]);
+    expect(events.whereType<AgentRunCompletedEvent>(), isEmpty);
+    chunks.add({
+      'choices': [
+        {
+          'delta': {'content': '0元。'}
+        }
+      ]
+    });
+    await chunks.close();
+    await completed.future.timeout(const Duration(seconds: 5));
+    expect(events.whereType<AgentTextDeltaEvent>().map((event) => event.text),
+        ['本月支出', '0元。']);
+    expect((events.last as AgentRunCompletedEvent).result.text, '本月支出0元。');
+  });
+
+  test('unrepaired query errors do not leak misleading streamed text',
+      () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: _InvalidQueryStreamingModel(),
+    );
+    final events = await facade
+        .processMessageEvents(message: '本月餐饮按明细分类排行', ledgerId: 1)
+        .toList();
+    expect(events.whereType<AgentTextDeltaEvent>(), isEmpty);
+    expect((events.last as AgentRunCompletedEvent).result.type, 'error');
+    expect((events.last as AgentRunCompletedEvent).result.text,
+        contains('查询参数未能纠正'));
+  });
+
   test('a malformed model response creates no transaction and records failure',
       () async {
     final facade = AgentAppFacade(
@@ -252,8 +369,152 @@ void main() {
     final response = await facade.processMessage(message: '午饭 35', ledgerId: 1);
 
     expect(response.type, 'error');
-    expect(response.text, contains('不支持 Agent 原生工具调用'));
+    expect(response.text, contains('不支持读取或操作账本所需的原生工具调用'));
+    expect(response.response.action, AIResponseAction.openProviderSettings);
     expect(gateway.recordedTexts, isEmpty);
+  });
+
+  test('capability preflight blocks an incompatible model before prompting it',
+      () async {
+    final model = _CapturingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: model,
+      modelCapabilityLoader: () async => AgentModelCapabilities(
+        text: AgentCapabilitySupport.supported,
+        nativeToolCalls: AgentCapabilitySupport.unsupported,
+      ),
+      runIdFactory: () => 'run-capability-blocked',
+    );
+
+    final response = await facade.processMessage(message: '你好', ledgerId: 1);
+    final run = await (db.select(db.agentRuns)
+          ..where((item) => item.runId.equals('run-capability-blocked')))
+        .getSingle();
+
+    expect(response.type, 'error');
+    expect(response.text, contains('服务商管理'));
+    expect(response.response.action, AIResponseAction.openProviderSettings);
+    expect(model.request, isNull);
+    expect(run.status, 'failed');
+  });
+
+  test('directory tool matches do not block a final answer without tool calls',
+      () async {
+    final model = _CapturingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: model,
+      runIdFactory: () => 'run-ungrounded-data',
+    );
+
+    final response =
+        await facade.processMessage(message: '对比各月餐饮支出', ledgerId: 1);
+    final run = await (db.select(db.agentRuns)
+          ..where((item) => item.runId.equals('run-ungrounded-data')))
+        .getSingle();
+
+    expect(response.type, 'text');
+    expect(response.text, '已完成');
+    expect(response.response.action, isNull);
+    expect(model.request?.availableToolNames, contains('get_spending_trend'));
+    expect(run.status, 'completed');
+    expect(run.errorMessage, isNull);
+    expect(response.response.allowPromptSuggestions, isTrue);
+  });
+
+  test('category breakdown satisfies a request that also mentions a period',
+      () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: _FakeModel([
+        AgentTurn.toolCalls([
+          AgentToolCall(
+            id: 'category-breakdown',
+            name: 'get_category_breakdown',
+            arguments: const {'period': 'current_month'},
+          ),
+        ]),
+        const AgentTurn.finalText('本月分类占比已生成'),
+      ]),
+    );
+
+    final response = await facade.processMessage(
+      message: '本月各分类支出占比',
+      ledgerId: 1,
+    );
+
+    expect(response.type, 'text');
+    expect(response.text, '本月分类占比已生成');
+  });
+
+  test('ordinary conversation may finish without a ledger tool', () async {
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: _CapturingModel(),
+    );
+
+    final response = await facade.processMessage(message: '你好', ledgerId: 1);
+
+    expect(response.type, 'text');
+    expect(response.text, '已完成');
+  });
+
+  test(
+      'without a record call the reply remains text and creates no transaction',
+      () async {
+    final model = _CapturingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: model,
+      runIdFactory: () => 'run-short-record-without-tool',
+    );
+
+    final response = await facade.processMessage(message: '午饭35', ledgerId: 1);
+
+    expect(response.type, 'text');
+    expect(response.text, '已完成');
+    expect(response.transactionIds, isEmpty);
+    expect(response.response.action, isNull);
+    expect(
+      model.request?.availableToolNames,
+      contains('record_transaction_from_text'),
+    );
+    expect(gateway.recordedTexts, isEmpty);
+  });
+
+  test('history may select a tool without making it required for current chat',
+      () async {
+    final model = _CapturingModel();
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      conversationHistoryLoader: (_) async => const [
+        {'role': 'user', 'content': '请记账，午饭35'},
+        {'role': 'assistant', 'content': '已经记录。'},
+      ],
+      model: model,
+    );
+
+    final response = await facade.processMessage(
+      message: '谢谢',
+      ledgerId: 1,
+      conversationId: 42,
+    );
+
+    expect(response.type, 'text');
+    expect(response.text, '已完成');
   });
 
   test('loads scoped local memories into the Agent request context', () async {
@@ -368,11 +629,44 @@ void main() {
 
     final history = (model.request!.context['recentMessages']! as List)
         .cast<Map<String, Object?>>();
-    expect(history, hasLength(12));
-    expect(history.first['content'], startsWith('第 1 条'));
-    expect((history.first['content'] as String).length, 2001);
+    expect(history, hasLength(5));
+    expect(history.first['content'], startsWith('第 8 条'));
+    expect((history.first['content'] as String).length, 2106);
     expect(history.last['content'], startsWith('第 12 条'));
     expect(history.where((item) => item['role'] == 'system'), isEmpty);
+    expect(model.request!.context['summary'],
+        contains('Incomplete historical excerpts'));
+  });
+
+  test(
+      'compressed history is data-only and does not duplicate the current turn',
+      () async {
+    final model = _CapturingModel();
+    String? summaryInput;
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      conversationHistoryLoader: (_) async => [
+        for (var i = 0; i < 20; i++)
+          {'role': i.isEven ? 'user' : 'assistant', 'content': 'historical $i'},
+        {'role': 'user', 'content': '继续，看看餐饮趋势'},
+      ],
+      contextCompressor:
+          AgentConversationContextCompressor(summarize: (data) async {
+        summaryInput = data;
+        return '历史曾要求记账；当前未授权。';
+      }),
+      model: model,
+    );
+    await facade.processMessage(
+        message: '继续，看看餐饮趋势', ledgerId: 1, conversationId: 42);
+    expect(model.request!.text, '继续，看看餐饮趋势');
+    expect(model.request!.context['summary'], '历史曾要求记账；当前未授权。');
+    expect(model.request!.context['recentMessages'] as List, hasLength(8));
+    expect(summaryInput, isNot(contains('继续，看看餐饮趋势')));
+    expect(gateway.recordedTexts, isEmpty);
+    expect(await db.select(db.agentMemories).get(), isEmpty);
   });
 
   test('event stream reports tool execution before its final response',
@@ -1051,6 +1345,25 @@ final class _ThrowingModel implements AgentModel {
       Future.error(const FormatException('bad response'));
 }
 
+final class _InvalidQueryStreamingModel implements AgentModel {
+  @override
+  Future<AgentTurn> nextTurn(AgentRequest request) async {
+    if (request.toolData.isEmpty) {
+      return AgentTurn.toolCalls([
+        AgentToolCall(
+            id: 'invalid',
+            name: 'get_category_breakdown',
+            arguments: const {
+              'period': 'current_month',
+              'categoryLevel': 'top'
+            }),
+      ]);
+    }
+    request.nativeStreamSink?.call(const AgentNativeTextDelta('没有子分类'));
+    return const AgentTurn.finalText('没有子分类');
+  }
+}
+
 final class _PendingModel implements AgentModel {
   final started = Completer<void>();
   final pending = Completer<AgentTurn>();
@@ -1179,6 +1492,9 @@ final class _FakeGateway implements LocalAgentToolGateway {
 
   @override
   Future<String> getLedgerCurrency(int ledgerId) async => 'CNY';
+
+  @override
+  Future<int> getLedgerMonthStartDay(int ledgerId) async => 1;
 
   @override
   Future<List<AgentTransactionSummary>> queryTransactions({

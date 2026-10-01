@@ -10,8 +10,8 @@ import 'agent_brand_mark.dart';
 
 /// Quiet, ledger-aware starting point for an empty AI conversation.
 ///
-/// The input composer remains the primary action. This widget only gives the
-/// user enough current-ledger context to start a useful conversation.
+/// The input composer remains the primary action. Analysis templates and
+/// contextual follow-ups belong to the latest answer, not a second launcher.
 final class AgentEmptyConversation extends ConsumerWidget {
   const AgentEmptyConversation({super.key});
 
@@ -41,7 +41,8 @@ final class _AgentEmptyConversationContent extends ConsumerWidget {
     final maxWidth = 280.0.scaled(context, ref);
 
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
+          child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 28.0.scaled(context, ref)),
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth),
@@ -102,7 +103,7 @@ final class _AgentEmptyConversationContent extends ConsumerWidget {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 }

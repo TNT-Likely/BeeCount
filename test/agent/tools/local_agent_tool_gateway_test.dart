@@ -422,6 +422,106 @@ void main() {
     expect(totals['income'], {'amount': 100.0, 'count': 1});
   });
 
+  test('category name filter includes every descendant of a parent category',
+      () async {
+    final ledgerId = await repository.createLedger(name: '测试账本');
+    final parentId = await repository.createCategory(
+      name: '生活',
+      kind: 'expense',
+    );
+    final childId = await repository.createSubCategory(
+      parentId: parentId,
+      name: '餐饮',
+      kind: 'expense',
+    );
+    final unrelatedId = await repository.createCategory(
+      name: '旅行',
+      kind: 'expense',
+    );
+    await repository.addTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 35,
+      categoryId: childId,
+      happenedAt: DateTime(2026, 9, 1),
+    );
+    await repository.addTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 80,
+      categoryId: unrelatedId,
+      happenedAt: DateTime(2026, 9, 2),
+    );
+
+    final result = await _summarizeGateway(
+      gateway,
+      ledgerId: ledgerId,
+      start: DateTime(2026, 9, 1),
+      end: DateTime(2026, 10, 1),
+      types: const {'expense'},
+      categoryNames: const ['生活'],
+    );
+
+    expect((result['totals'] as Map)['expense'], {
+      'amount': 35.0,
+      'count': 1,
+    });
+  });
+
+  test('month trend honors ledger start day and fills empty periods', () async {
+    final ledgerId = await repository.createLedger(name: '测试账本');
+    await repository.updateLedger(id: ledgerId, monthStartDay: 15);
+    await repository.addTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 10,
+      happenedAt: DateTime(2026, 5, 14),
+    );
+    await repository.addTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 20,
+      happenedAt: DateTime(2026, 5, 15),
+    );
+    await repository.addTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 30,
+      happenedAt: DateTime(2026, 7, 16),
+    );
+
+    final result = await _summarizeGateway(
+      gateway,
+      ledgerId: ledgerId,
+      start: DateTime(2026, 5, 1),
+      end: DateTime(2026, 8, 1),
+      types: const {'expense'},
+      groupBy: 'month',
+    );
+    final groups = (result['groups'] as List).cast<Map>();
+
+    expect(
+      groups.map((group) => (group['key'] as Map)['value']),
+      ['2026-04', '2026-05', '2026-06', '2026-07'],
+    );
+    expect((groups[0]['totals'] as Map)['expense'], {
+      'amount': 10.0,
+      'count': 1,
+    });
+    expect((groups[1]['totals'] as Map)['expense'], {
+      'amount': 20.0,
+      'count': 1,
+    });
+    expect((groups[2]['totals'] as Map)['expense'], {
+      'amount': 0.0,
+      'count': 0,
+    });
+    expect((groups[3]['totals'] as Map)['expense'], {
+      'amount': 30.0,
+      'count': 1,
+    });
+  });
+
   test('transaction summary rolls leaf categories up to their top category',
       () async {
     final ledgerId = await repository.createLedger(name: '测试账本');
