@@ -110,10 +110,12 @@ class AutoBillingService {
 
   /// 核心：处理截图并自动记账
   /// [imagePath] 截图文件路径
+  /// [recognitionImagePath] 可选的识别副本路径，附件仍保存 [imagePath]。
   /// [showNotification] 是否显示通知（默认true）
   /// 返回：交易记录ID，失败返回null
   Future<int?> processScreenshot(
     String imagePath, {
+    String? recognitionImagePath,
     bool showNotification = true,
   }) async {
     final totalStartTime = DateTime.now().millisecondsSinceEpoch;
@@ -252,7 +254,7 @@ class AutoBillingService {
       final autoAddAttachment =
           _container.read(smartBillingAutoAttachmentProvider);
       final result = await _container.read(aiBookkeeperProvider).fromImage(
-        image: file,
+        image: recognitionImagePath == null ? file : File(recognitionImagePath),
         ledgerId: ledgerId,
         billGuard: PromptBuilder.billGuardForImage,
         billingTypes: const [

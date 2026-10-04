@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,6 +8,7 @@ import '../ai/providers/ai_provider_manager.dart';
 import '../l10n/app_localizations.dart';
 import '../providers.dart';
 import '../providers/ai_chat_providers.dart';
+import '../services/ai/billing_image_service.dart';
 import '../services/attachment_service.dart';
 import '../services/billing/post_processor.dart';
 import '../services/data/tag_seed_service.dart';
@@ -36,16 +36,16 @@ class ImageBillingHelper {
     ImageSource source,
   ) async {
     final l10n = AppLocalizations.of(context);
+    final imageService = BillingImageService();
+    BillingImageFiles? images;
 
     try {
       // 1. 选图
-      final pickedFile = await ImagePicker().pickImage(
-        source: source,
-        maxWidth: 1920,
-        maxHeight: 1920,
-        imageQuality: 85,
-      );
-      if (pickedFile == null) return;
+      final keepOriginal =
+          await ref.read(attachmentKeepOriginalProvider.future);
+      final imageFile =
+          await imageService.pickImage(source, keepOriginal: keepOriginal);
+      if (imageFile == null) return;
       if (!context.mounted) return;
 
       // 2. 显示 loading
@@ -68,8 +68,6 @@ class ImageBillingHelper {
           ),
         ),
       );
-
-      final imageFile = File(pickedFile.path);
 
       // 3. AI vision 兜底
       if (!await AIProviderManager.isCapabilityConfigured(
@@ -100,8 +98,10 @@ class ImageBillingHelper {
 
       final attachmentService = ref.read(attachmentServiceProvider);
       final bookkeeper = ref.read(aiBookkeeperProvider);
+      images =
+          await imageService.prepare(imageFile, keepOriginal: keepOriginal);
       final result = await bookkeeper.fromImage(
-        image: imageFile,
+        image: images.recognition,
         ledgerId: currentLedger.id,
         billGuard: PromptBuilder.billGuardForImage,
         billingTypes: billingTypes,
@@ -110,7 +110,7 @@ class ImageBillingHelper {
         onSaved: autoAddAttachment
             ? (txId, _) => attachmentService.saveAttachment(
                   transactionId: txId,
-                  sourceFile: imageFile,
+                  sourceFile: images!.attachment,
                   index: 0,
                 )
             : null,
@@ -154,6 +154,8 @@ class ImageBillingHelper {
       if (!context.mounted) return;
       Navigator.of(context).popUntil((route) => route.isFirst);
       showToast(context, l10n.aiOcrFailed(e.toString()));
+    } finally {
+      await images?.dispose();
     }
   }
 }

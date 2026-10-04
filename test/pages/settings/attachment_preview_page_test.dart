@@ -11,6 +11,18 @@ import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/settings/attachment_preview_page.dart';
 import 'package:beecount/services/attachment_export_import_service.dart';
 
+Future<void> _waitForImageInfo(WidgetTester tester, String fileSize) async {
+  // File I/O and engine image headers complete outside the fake test clock.
+  for (var attempt = 0;
+      attempt < 50 && find.text(fileSize).evaluate().isEmpty;
+      attempt++) {
+    await tester
+        .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+    await tester.pump();
+  }
+  await tester.pumpAndSettle();
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late Directory directory;
@@ -26,7 +38,7 @@ void main() {
     ui.Canvas(recorder)
         .drawPaint(ui.Paint()..color = const ui.Color(0xFF123456));
     final picture = recorder.endRecording();
-    final image = await picture.toImage(10, 10);
+    final image = await picture.toImage(40, 120);
     final png = await image.toByteData(format: ui.ImageByteFormat.png);
     image.dispose();
     picture.dispose();
@@ -43,7 +55,7 @@ void main() {
 
   for (final fromArchive in [false, true]) {
     testWidgets(
-        '${fromArchive ? 'archive' : 'export'} preview shows actual image sizes in grid and detail',
+        '${fromArchive ? 'archive' : 'export'} preview shows actual file sizes and dimensions in grid and detail',
         (tester) async {
       tester.view.physicalSize = const Size(430, 932);
       tester.view.devicePixelRatio = 1;
@@ -77,13 +89,10 @@ void main() {
           home: page,
         ),
       ));
-      await tester.runAsync(() async {
-        await attachment.length();
-        await icon.length();
-      });
-      await tester.pumpAndSettle();
+      await _waitForImageInfo(tester, '2.00 KB');
 
       expect(find.text('2.00 KB'), findsOneWidget);
+      expect(find.text('40 × 120'), findsOneWidget);
       await tester.tap(find.text('2.00 KB'));
       await tester.pumpAndSettle();
       expect(
@@ -91,13 +100,17 @@ void main() {
               of: find.byType(Dialog), matching: find.text('2.00 KB')),
           findsOneWidget);
       expect(find.text('receipt.png'), findsOneWidget);
+      expect(
+          find.descendant(
+              of: find.byType(Dialog), matching: find.text('40 × 120')),
+          findsOneWidget);
       await tester.tap(find.byIcon(Icons.close));
       await tester.pumpAndSettle();
       await tester.tap(find.text('自定义图标 (1)'));
       await tester.pumpAndSettle();
-      await tester.runAsync(() async => icon.length());
-      await tester.pumpAndSettle();
+      await _waitForImageInfo(tester, '1.50 MB');
       expect(find.text('1.50 MB'), findsOneWidget);
+      expect(find.text('40 × 120'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }

@@ -13,11 +13,21 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:beecount/data/db.dart';
+import 'package:beecount/ai/core/bill_info.dart';
+import 'package:beecount/ai/providers/ai_provider_config.dart';
+import 'package:beecount/ai/providers/ai_provider_manager.dart';
+import 'package:beecount/cloud/sync_service.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/providers.dart';
+import 'package:beecount/providers/ai_chat_providers.dart';
+import 'package:beecount/services/ai/ai_bookkeeper.dart';
+import 'package:beecount/services/ai/bookkeeping_result.dart';
 import 'package:beecount/services/attachment_service.dart';
+import 'package:beecount/services/automation/auto_billing_service.dart';
 
 class _MockImagePicker extends Mock implements ImagePicker {}
+
+class _MockBookkeeper extends Mock implements AiBookkeeper {}
 
 class _Compressor extends UnsupportedFlutterImageCompress {
   final Uint8List output;
@@ -74,6 +84,7 @@ Future<Uint8List> png(int width, int height) async {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   registerFallbackValue(ImageSource.camera);
+  registerFallbackValue(File('/unused-image'));
 
   late Directory directory;
   late BeeDatabase db;
@@ -322,4 +333,64 @@ void main() {
             .readAsBytes(),
         originalBytes);
   });
+
+  for (final separateRecognition in [false, true]) {
+    test(
+        'automatic billing ${separateRecognition ? 'uses an AI copy' : 'receives shared or screenshot bytes'} while saving the source attachment',
+        () async {
+      await keepOriginal(true);
+      await AIProviderManager.updateProvider(
+          AIServiceProviderConfig.zhipuDefault.copyWith(apiKey: 'test-key'));
+      final recognition = await File('${directory.path}/recognition.jpg')
+          .writeAsBytes(compressedBytes);
+      final bookkeeper = _MockBookkeeper();
+      when(() => bookkeeper.fromImage(
+            image: any(named: 'image'),
+            ledgerId: 1,
+            billingTypes: any(named: 'billingTypes'),
+            billGuard: any(named: 'billGuard'),
+            l10n: any(named: 'l10n'),
+            onSaved: any(named: 'onSaved'),
+          )).thenAnswer((call) async {
+        final image = call.namedArguments[#image] as File;
+        expect(await image.readAsBytes(),
+            separateRecognition ? compressedBytes : originalBytes);
+        final onSaved =
+            call.namedArguments[#onSaved] as Future<void> Function(int, int);
+        await onSaved(transactionId, 0);
+        return BookkeepingResult(
+          savedBills: [BillInfo(amount: -1, type: BillType.expense)],
+          transactionIds: [transactionId],
+        );
+      });
+      final automaticContainer = ProviderContainer(overrides: [
+        repositoryProvider.overrideWithValue(LocalRepository(db)),
+        attachmentServiceProvider.overrideWith(
+            (ref) => _TestAttachmentService(ref, directory, picker)),
+        aiBookkeeperProvider.overrideWithValue(bookkeeper),
+        syncServiceProvider.overrideWithValue(LocalOnlySyncService()),
+      ]);
+      final automaticBilling = AutoBillingService(automaticContainer);
+      try {
+        final result = await automaticBilling.processScreenshot(source.path,
+            recognitionImagePath: separateRecognition ? recognition.path : null,
+            showNotification: false);
+        expect(result, transactionId);
+        final attachments = await db.select(db.transactionAttachments).get();
+        expect(attachments, hasLength(1));
+        final attachment = attachments.single;
+        expect(attachment.fileSize, originalBytes.length);
+        expect(attachment.originalName, 'long-receipt.png');
+        expect(
+            await File('${directory.path}/attachments/${attachment.fileName}')
+                .readAsBytes(),
+            originalBytes);
+        expect(await source.readAsBytes(), originalBytes);
+        expect(compressor.calls, isEmpty);
+      } finally {
+        automaticBilling.dispose();
+        automaticContainer.dispose();
+      }
+    });
+  }
 }
