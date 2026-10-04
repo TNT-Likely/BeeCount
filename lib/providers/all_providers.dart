@@ -38,3 +38,6 @@ export 'tag_providers.dart';
 
 // 智能记账相关
 export 'smart_billing_providers.dart';
+
+// 附件设置
+export 'attachment_settings_providers.dart';

@@ -15463,6 +15463,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scan to download BeeCount and start bookkeeping'**
   String get annualReportDownloadHint;
+
+  /// No description provided for @attachmentKeepOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Original Attachments'**
+  String get attachmentKeepOriginal;
+
+  /// No description provided for @attachmentKeepOriginalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Save new attachments without compression, preserving their original dimensions and quality. Uses more storage and sync data.'**
+  String get attachmentKeepOriginalDesc;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

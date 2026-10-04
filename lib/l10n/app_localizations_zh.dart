@@ -8164,6 +8164,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get annualReportDownloadHint => '扫码下载蜜蜂记账，开启你的记账之旅';
+
+  @override
+  String get attachmentKeepOriginal => '附件保存原图';
+
+  @override
+  String get attachmentKeepOriginalDesc => '新添加的附件不再压缩，保留原始尺寸与画质；会占用更多存储空间和同步流量。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

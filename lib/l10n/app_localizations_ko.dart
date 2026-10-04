@@ -8172,4 +8172,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get annualReportDownloadHint => 'Scan to download BeeCount and start bookkeeping';
+
+  @override
+  String get attachmentKeepOriginal => 'Keep Original Attachments';
+
+  @override
+  String get attachmentKeepOriginalDesc => 'Save new attachments without compression, preserving their original dimensions and quality. Uses more storage and sync data.';
 }
