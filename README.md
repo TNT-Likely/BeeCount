@@ -50,7 +50,7 @@
 | ❌ 高级功能付费墙 | ✅ **完全免费**(包括 AI / OCR / 语音记账) |
 | ❌ 广告 / 理财推荐 | ✅ **零广告 / 零追踪 / 零数据收集** |
 
-> **平台支持**:🤖 Android 5.0+ · 🍎 iOS 15.5+ · 🌐 Web(BeeCount Cloud 自带,见下文)
+> **平台支持**:🤖 Android 6.0+(GitHub APK)/Android 7.0+(Google Play) · 🍎 iOS 15.5+ · 🌐 Web(BeeCount Cloud 自带,见下文)
 >
 > ~~📱 HarmonyOS — [已停止更新](https://github.com/TNT-Likely/beecount-openharmony)~~
 

@@ -50,7 +50,7 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 | ❌ Premium features behind paywalls | ✅ **Completely free** (including AI / OCR / voice input) |
 | ❌ Ads / financial product recommendations | ✅ **Zero ads / zero tracking / zero data collection** |
 
-> **Platform support**: 🤖 Android 5.0+ · 🍎 iOS 15.5+ · 🌐 Web (built into BeeCount Cloud, see below)
+> **Platform support**: 🤖 Android 6.0+ (GitHub APK) / Android 7.0+ (Google Play) · 🍎 iOS 15.5+ · 🌐 Web (built into BeeCount Cloud, see below)
 >
 > ~~📱 HarmonyOS — [Discontinued](https://github.com/TNT-Likely/beecount-openharmony)~~
 
