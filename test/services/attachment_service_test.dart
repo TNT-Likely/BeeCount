@@ -173,26 +173,14 @@ void main() {
     expect(await source.readAsBytes(), originalBytes);
   });
 
-  test(
-      'original mode keeps picker compression and skips compression when saving',
+  test('original mode preserves picker input and skips compression when saving',
       () async {
     await keepOriginal(true);
-    // The picker returns an already compressed image; saving must retain it.
-    await source.writeAsBytes(compressedBytes);
     final service = container.read(attachmentServiceProvider);
     final selected = await service.pickFromGallery();
     await service.takePhoto();
-    verify(() => picker.pickMultiImage(
-          maxWidth: 1920,
-          maxHeight: 1920,
-          imageQuality: 80,
-        )).called(1);
-    verify(() => picker.pickImage(
-          source: ImageSource.camera,
-          maxWidth: 1920,
-          maxHeight: 1920,
-          imageQuality: 80,
-        )).called(1);
+    verify(() => picker.pickMultiImage()).called(1);
+    verify(() => picker.pickImage(source: ImageSource.camera)).called(1);
     final saved = await service.saveAttachment(
       transactionId: transactionId,
       sourceFile: selected.single,
@@ -200,12 +188,12 @@ void main() {
     );
     expect(saved, isNotNull);
     expect(compressor.calls, isEmpty);
-    expect(saved!.width, 20);
-    expect(saved.height, 200);
+    expect(saved!.width, 100);
+    expect(saved.height, 5000);
     expect(
         await File(await service.getAttachmentPath(saved.fileName))
             .readAsBytes(),
-        compressedBytes);
+        originalBytes);
   });
 
   test('original long image retains bytes, dimensions, extension and metadata',
@@ -275,19 +263,43 @@ void main() {
     expect(compressor.calls, hasLength(1));
   });
 
-  test('switching off restores compression for subsequent attachments',
+  test('toggling settings takes effect in the same service without restarting',
       () async {
-    await keepOriginal(true);
     final service = container.read(attachmentServiceProvider);
-    final original = await service.saveAttachment(
+    await service.pickFromGallery();
+    await service.takePhoto();
+    final initial = await service.saveAttachment(
         transactionId: transactionId, sourceFile: source, index: 0);
-    await keepOriginal(false);
-    final compressed = await service.saveAttachment(
+    await keepOriginal(true);
+    await service.pickFromGallery();
+    await service.takePhoto();
+    final original = await service.saveAttachment(
         transactionId: transactionId, sourceFile: source, index: 1);
+    await keepOriginal(false);
+    await service.pickFromGallery();
+    await service.takePhoto();
+    final compressed = await service.saveAttachment(
+        transactionId: transactionId, sourceFile: source, index: 2);
     expect(original!.fileName, isNot(compressed!.fileName));
+    expect(initial!.fileName, compressed.fileName);
+    expect(initial.fileSize, compressedBytes.length);
+    expect(original.fileSize, originalBytes.length);
     expect(original.height, 5000);
     expect(compressed.height, 200);
-    expect(compressor.calls, hasLength(1));
+    expect(compressor.calls, hasLength(2));
+    verify(() => picker.pickMultiImage(
+          maxWidth: 1920,
+          maxHeight: 1920,
+          imageQuality: 80,
+        )).called(2);
+    verify(() => picker.pickImage(
+          source: ImageSource.camera,
+          maxWidth: 1920,
+          maxHeight: 1920,
+          imageQuality: 80,
+        )).called(2);
+    verify(() => picker.pickMultiImage()).called(1);
+    verify(() => picker.pickImage(source: ImageSource.camera)).called(1);
     expect(
         await File(await service.getAttachmentPath(original.fileName))
             .readAsBytes(),

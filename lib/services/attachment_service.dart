@@ -51,10 +51,12 @@ class AttachmentService {
   /// 返回选择的图片文件列表
   Future<List<File>> pickFromGallery({int maxCount = 9}) async {
     try {
+      final keepOriginal =
+          await ref.read(attachmentKeepOriginalProvider.future);
       final images = await _picker.pickMultiImage(
-        maxWidth: maxWidth.toDouble(),
-        maxHeight: maxHeight.toDouble(),
-        imageQuality: quality,
+        maxWidth: keepOriginal ? null : maxWidth.toDouble(),
+        maxHeight: keepOriginal ? null : maxHeight.toDouble(),
+        imageQuality: keepOriginal ? null : quality,
       );
       return images.map((x) => File(x.path)).toList();
     } catch (e) {
@@ -66,11 +68,13 @@ class AttachmentService {
   /// 拍照
   Future<File?> takePhoto() async {
     try {
+      final keepOriginal =
+          await ref.read(attachmentKeepOriginalProvider.future);
       final image = await _picker.pickImage(
         source: ImageSource.camera,
-        maxWidth: maxWidth.toDouble(),
-        maxHeight: maxHeight.toDouble(),
-        imageQuality: quality,
+        maxWidth: keepOriginal ? null : maxWidth.toDouble(),
+        maxHeight: keepOriginal ? null : maxHeight.toDouble(),
+        imageQuality: keepOriginal ? null : quality,
       );
       return image != null ? File(image.path) : null;
     } catch (e) {

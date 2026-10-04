@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,19 +29,23 @@ class AttachmentPreviewPage extends ConsumerStatefulWidget {
         );
 
   @override
-  ConsumerState<AttachmentPreviewPage> createState() => _AttachmentPreviewPageState();
+  ConsumerState<AttachmentPreviewPage> createState() =>
+      _AttachmentPreviewPageState();
 }
 
 class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int? _selectedIndex;
+  final Map<String, Future<int>> _fileSizes = {};
 
-  int get attachmentCount => widget.exportData?.attachments.length ??
+  int get attachmentCount =>
+      widget.exportData?.attachments.length ??
       widget.archiveData?.attachments.length ??
       0;
 
-  int get customIconCount => widget.exportData?.customIcons.length ??
+  int get customIconCount =>
+      widget.exportData?.customIcons.length ??
       widget.archiveData?.customIcons.length ??
       0;
 
@@ -159,10 +165,67 @@ class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage>
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: _buildImage(index, isAttachment),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              _buildImage(index, isAttachment),
+              Positioned(
+                right: 4,
+                bottom: 4,
+                child: _buildFileSize(index, isAttachment, badge: true),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  String _formatFileSize(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(2)} KB';
+    }
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
+    }
+    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+  }
+
+  Widget _buildFileSize(int index, bool isAttachment, {bool badge = false}) {
+    Widget sizeLabel(int bytes) {
+      final text = Text(
+        _formatFileSize(bytes),
+        style: const TextStyle(color: Colors.white, fontSize: 11),
+        maxLines: 1,
+      );
+      if (!badge) return text;
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: text,
+      );
+    }
+
+    if (widget.exportData != null) {
+      final File file = isAttachment
+          ? widget.exportData!.attachments[index]
+          : widget.exportData!.customIcons[index];
+      return FutureBuilder<int>(
+        future: _fileSizes.putIfAbsent(file.path, file.length),
+        builder: (context, snapshot) => snapshot.hasData
+            ? sizeLabel(snapshot.data!)
+            : const SizedBox.shrink(),
+      );
+    }
+
+    final item = isAttachment
+        ? widget.archiveData!.attachments[index]
+        : widget.archiveData!.customIcons[index];
+    return sizeLabel(item.bytes.length);
   }
 
   Widget _buildImage(int index, bool isAttachment) {
@@ -256,13 +319,20 @@ class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage>
                 color: Colors.black54,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
-                fileName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
-                textAlign: TextAlign.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    fileName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  _buildFileSize(index, isAttachment),
+                ],
               ),
             ),
           ],
