@@ -22,9 +22,10 @@ class AttachmentService {
   static const int thumbnailSize = 200;
 
   final Ref ref;
-  final ImagePicker _picker = ImagePicker();
+  final ImagePicker _picker;
 
-  AttachmentService(this.ref);
+  AttachmentService(this.ref, {ImagePicker? picker})
+      : _picker = picker ?? ImagePicker();
 
   /// 获取附件存储目录
   Future<Directory> getAttachmentDirectory() async {
@@ -50,10 +51,12 @@ class AttachmentService {
   /// 返回选择的图片文件列表
   Future<List<File>> pickFromGallery({int maxCount = 9}) async {
     try {
+      final keepOriginal =
+          await ref.read(attachmentKeepOriginalProvider.future);
       final images = await _picker.pickMultiImage(
-        maxWidth: maxWidth.toDouble(),
-        maxHeight: maxHeight.toDouble(),
-        imageQuality: quality,
+        maxWidth: keepOriginal ? null : maxWidth.toDouble(),
+        maxHeight: keepOriginal ? null : maxHeight.toDouble(),
+        imageQuality: keepOriginal ? null : quality,
       );
       return images.map((x) => File(x.path)).toList();
     } catch (e) {
@@ -65,11 +68,13 @@ class AttachmentService {
   /// 拍照
   Future<File?> takePhoto() async {
     try {
+      final keepOriginal =
+          await ref.read(attachmentKeepOriginalProvider.future);
       final image = await _picker.pickImage(
         source: ImageSource.camera,
-        maxWidth: maxWidth.toDouble(),
-        maxHeight: maxHeight.toDouble(),
-        imageQuality: quality,
+        maxWidth: keepOriginal ? null : maxWidth.toDouble(),
+        maxHeight: keepOriginal ? null : maxHeight.toDouble(),
+        imageQuality: keepOriginal ? null : quality,
       );
       return image != null ? File(image.path) : null;
     } catch (e) {
@@ -80,7 +85,7 @@ class AttachmentService {
 
   /// 保存附件
   ///
-  /// 将图片压缩后保存到附件目录，并在数据库中创建记录。
+  /// 按原图设置决定是否再次压缩传入图片，并在数据库中创建记录。
   ///
   /// [urgent] 紧急模式:跳过 `FlutterImageCompress`,直接 sync 文件复制。
   /// 用于 iOS 后台 launch 场景 —— `FlutterImageCompress` 是 platform channel,
@@ -119,21 +124,31 @@ class AttachmentService {
         }
         fileSize = savedFile.lengthSync();
       } else {
-        // 先压缩到临时文件,再按压缩后内容 sha256 命名(同图去重)
-        final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-        final tempPath = '${dir.path}/_tmp_${timestamp}_$index$finalExt';
-        final compressedFile = await _compressImage(sourceFile, tempPath);
-        if (compressedFile == null) {
-          logger.error('AttachmentService', '图片压缩失败');
-          return null;
+        final keepOriginal =
+            await ref.read(attachmentKeepOriginalProvider.future);
+        final File fileToStore;
+        if (keepOriginal) {
+          fileToStore = sourceFile;
+        } else {
+          // 先压缩到临时文件，再按实际保存内容的 sha256 命名（同图去重）。
+          final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+          final tempPath = '${dir.path}/_tmp_${timestamp}_$index$finalExt';
+          final compressedFile = await _compressImage(sourceFile, tempPath);
+          if (compressedFile == null) {
+            logger.error('AttachmentService', '图片压缩失败');
+            return null;
+          }
+          fileToStore = compressedFile;
         }
-        final bytes = await compressedFile.readAsBytes();
+        final bytes = await fileToStore.readAsBytes();
         fileName = 'sha_${sha256.convert(bytes)}$finalExt';
         final destPath = '${dir.path}/$fileName';
         if (await File(destPath).exists()) {
-          await compressedFile.delete();
+          if (!keepOriginal) await fileToStore.delete();
+        } else if (keepOriginal) {
+          await sourceFile.copy(destPath);
         } else {
-          await compressedFile.rename(destPath);
+          await fileToStore.rename(destPath);
         }
         savedFile = File(destPath);
         final imageInfo = await _getImageInfo(savedFile.path);
@@ -218,7 +233,8 @@ class AttachmentService {
 
   /// 对一组 fileName 逐个按引用计数删物理文件(清空/删账本后,精准清理该账本
   /// 关联的附件文件;其他账本/交易仍引用同一 fileName 的不会被删)。
-  Future<void> deletePhysicalFilesIfUnreferenced(Iterable<String> fileNames) async {
+  Future<void> deletePhysicalFilesIfUnreferenced(
+      Iterable<String> fileNames) async {
     for (final fileName in fileNames) {
       await _deletePhysicalFileIfUnreferenced(fileName);
     }
@@ -379,16 +395,21 @@ class AttachmentService {
 
   /// 获取图片尺寸信息
   Future<({int width, int height})?> _getImageInfo(String imagePath) async {
+    ui.ImmutableBuffer? buffer;
+    ui.ImageDescriptor? descriptor;
     try {
       final bytes = await File(imagePath).readAsBytes();
-      final codec = await ui.instantiateImageCodec(bytes);
-      final frame = await codec.getNextFrame();
-      final image = frame.image;
+      // 只读取尺寸，避免为长截图解码整张原图而占用大量内存。
+      buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
+      descriptor = await ui.ImageDescriptor.encoded(buffer);
 
-      return (width: image.width, height: image.height);
+      return (width: descriptor.width, height: descriptor.height);
     } catch (e) {
       logger.error('AttachmentService', '获取图片尺寸失败', e);
       return null;
+    } finally {
+      descriptor?.dispose();
+      buffer?.dispose();
     }
   }
 
@@ -415,7 +436,8 @@ final attachmentServiceProvider = Provider<AttachmentService>((ref) {
 });
 
 /// 交易附件列表 Provider
-final transactionAttachmentsProvider = StreamProvider.family<List<TransactionAttachment>, int>(
+final transactionAttachmentsProvider =
+    StreamProvider.family<List<TransactionAttachment>, int>(
   (ref, transactionId) {
     final repo = ref.watch(repositoryProvider);
     return repo.watchAttachmentsByTransaction(transactionId);
@@ -435,7 +457,8 @@ final attachmentCountProvider = FutureProvider.family<int, int>(
 );
 
 /// 批量获取交易附件数量 Provider
-final attachmentCountsProvider = FutureProvider.family<Map<int, int>, List<int>>(
+final attachmentCountsProvider =
+    FutureProvider.family<Map<int, int>, List<int>>(
   (ref, transactionIds) async {
     if (transactionIds.isEmpty) return {};
     final repo = ref.read(repositoryProvider);

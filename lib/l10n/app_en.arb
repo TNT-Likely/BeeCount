@@ -3528,5 +3528,7 @@
   "annualReportMonthlyExpenseTrend": "Monthly Spending Trend",
   "annualReportAchieved": "Achieved",
   "annualReportNotAchieved": "Not Achieved",
-  "annualReportDownloadHint": "Scan to download BeeCount and start bookkeeping"
+  "annualReportDownloadHint": "Scan to download BeeCount and start bookkeeping",
+  "attachmentKeepOriginal": "Keep Original Attachments",
+  "attachmentKeepOriginalDesc": "Uses more storage and sync data"
 }

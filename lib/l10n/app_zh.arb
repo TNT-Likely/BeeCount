@@ -3452,5 +3452,7 @@
   "annualReportMonthlyExpenseTrend": "月度支出趋势",
   "annualReportAchieved": "已达成",
   "annualReportNotAchieved": "未达成",
-  "annualReportDownloadHint": "扫码下载蜜蜂记账，开启你的记账之旅"
+  "annualReportDownloadHint": "扫码下载蜜蜂记账，开启你的记账之旅",
+  "attachmentKeepOriginal": "附件保存原图",
+  "attachmentKeepOriginalDesc": "保留原图，增加存储和同步流量"
 }

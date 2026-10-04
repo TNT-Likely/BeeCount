@@ -226,7 +226,8 @@ class AppLinkService {
         final imagePath = data['imagePath'] as String?;
         if (imagePath != null && imagePath.isNotEmpty) {
           logger.info('AppLink', '处理快捷指令图片: $imagePath');
-          await _handleScreenshotBilling(imagePath);
+          await _handleScreenshotBilling(imagePath,
+              recognitionImagePath: data['recognitionImagePath'] as String?);
         } else {
           logger.warning('AppLink', 'auto-billing 未提供图片路径');
         }
@@ -239,10 +240,12 @@ class AppLinkService {
   }
 
   /// 处理快捷指令截图记账
-  Future<void> _handleScreenshotBilling(String imagePath) async {
+  Future<void> _handleScreenshotBilling(String imagePath,
+      {String? recognitionImagePath}) async {
     try {
       await _autoBillingService.processScreenshot(
         imagePath,
+        recognitionImagePath: recognitionImagePath,
         showNotification: true,
       );
       logger.info('AppLink', '快捷指令截图记账完成');

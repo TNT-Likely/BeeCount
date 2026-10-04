@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,6 +7,7 @@ import '../../widgets/ui/ui.dart';
 import '../../styles/tokens.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/ui_scale_extensions.dart';
+import '../../utils/image_file_info.dart';
 import '../../services/attachment_export_import_service.dart';
 import '../../providers.dart';
 
@@ -27,19 +30,23 @@ class AttachmentPreviewPage extends ConsumerStatefulWidget {
         );
 
   @override
-  ConsumerState<AttachmentPreviewPage> createState() => _AttachmentPreviewPageState();
+  ConsumerState<AttachmentPreviewPage> createState() =>
+      _AttachmentPreviewPageState();
 }
 
 class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int? _selectedIndex;
+  final Map<String, Future<ImageFileInfo>> _imageInfo = {};
 
-  int get attachmentCount => widget.exportData?.attachments.length ??
+  int get attachmentCount =>
+      widget.exportData?.attachments.length ??
       widget.archiveData?.attachments.length ??
       0;
 
-  int get customIconCount => widget.exportData?.customIcons.length ??
+  int get customIconCount =>
+      widget.exportData?.customIcons.length ??
       widget.archiveData?.customIcons.length ??
       0;
 
@@ -159,9 +166,79 @@ class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage>
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: _buildImage(index, isAttachment),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              _buildImage(index, isAttachment),
+              Positioned(
+                right: 4,
+                bottom: 4,
+                child: _buildImageInfo(index, isAttachment, badge: true),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  String _formatFileSize(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(2)} KB';
+    }
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
+    }
+    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+  }
+
+  Widget _buildImageInfo(int index, bool isAttachment, {bool badge = false}) {
+    Widget infoLabel(ImageFileInfo info) {
+      const style = TextStyle(color: Colors.white, fontSize: 11);
+      final label = Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment:
+            badge ? CrossAxisAlignment.end : CrossAxisAlignment.center,
+        children: [
+          if (info.width != null && info.height != null)
+            Text('${info.width} × ${info.height}', style: style, maxLines: 1),
+          Text(_formatFileSize(info.fileSize), style: style, maxLines: 1),
+        ],
+      );
+      if (!badge) return label;
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: label,
+      );
+    }
+
+    if (widget.exportData != null) {
+      final File file = isAttachment
+          ? widget.exportData!.attachments[index]
+          : widget.exportData!.customIcons[index];
+      return FutureBuilder<ImageFileInfo>(
+        future: _imageInfo.putIfAbsent(
+            file.path, () => ImageFileInfo.fromFile(file)),
+        builder: (context, snapshot) => snapshot.hasData
+            ? infoLabel(snapshot.data!)
+            : const SizedBox.shrink(),
+      );
+    }
+
+    final item = isAttachment
+        ? widget.archiveData!.attachments[index]
+        : widget.archiveData!.customIcons[index];
+    return FutureBuilder<ImageFileInfo>(
+      future: _imageInfo.putIfAbsent('archive:$isAttachment:$index',
+          () => ImageFileInfo.fromBytes(item.bytes)),
+      builder: (context, snapshot) => snapshot.hasData
+          ? infoLabel(snapshot.data!)
+          : const SizedBox.shrink(),
     );
   }
 
@@ -256,19 +333,27 @@ class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage>
                 color: Colors.black54,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
-                fileName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
-                textAlign: TextAlign.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    fileName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  _buildImageInfo(index, isAttachment),
+                ],
               ),
             ),
           ],
         ),
       ),
     ).then((_) {
+      if (!mounted) return;
       setState(() {
         _selectedIndex = null;
       });
