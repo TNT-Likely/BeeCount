@@ -28,7 +28,7 @@ Sync via BeeCount Cloud (self-hosted) / iCloud / Supabase / WebDAV / S3
 <br/>
 <br/>
 
-[🌐 Website](https://count.beejz.com/en/) · [📖 Docs](https://count.beejz.com/en/docs/intro) · [💝 Donate](#-donate) · [💬 Telegram](https://t.me/beecount) · [📦 APK](https://github.com/TNT-Likely/BeeCount/releases/latest) · [🚀 TestFlight](https://testflight.apple.com/join/Eaw2rWxa)
+[🌐 Website](https://count.beejz.com/en/) · [📖 Docs](https://count.beejz.com/en/docs/intro) · [💝 Donate](#-donate) · [🤝 Business](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry) · [💬 Telegram](https://t.me/beecount) · [📦 APK](https://github.com/TNT-Likely/BeeCount/releases/latest) · [🚀 TestFlight](https://testflight.apple.com/join/Eaw2rWxa)
 
 </div>
 
@@ -304,7 +304,7 @@ For more details, see [docs/cloud-setup_EN.md](docs/cloud-setup_EN.md) or [Issue
 
 ## 💝 Donate
 
-BeeCount is completely free and open-source — **no ads, no paid features**. If you find it useful, buy the developer a coffee ☕ to support continued development.
+BeeCount and BeeCount Cloud are maintained by the same developer. If these projects help you, consider buying the developer a coffee ☕ to support continued development.
 
 ### How to Donate
 
@@ -318,26 +318,35 @@ BeeCount is completely free and open-source — **no ads, no paid features**. If
 
 </details>
 
-**USDT (TRC20)**: `TKBV69B2AoU67p3vDhnJUbMJtZ1DxuUF5C` · <details><summary>Binance QR code</summary>![Binance](docs/donate/binance.png)</details>
+**USDT (TRC20)**: `TKBV69B2AoU67p3vDhnJUbMJtZ1DxuUF5C`
 
-### Cost Transparency
+<details>
+<summary>Binance QR code</summary>
 
-| Item | Amount |
-|---|---|
-| Apple Developer Account renewal | ¥688 / year |
-| Lightweight cloud server (ICP filing) | ¥79 / year |
-| Domain | ¥80 / year |
-| Google Play Developer Account (one-time) | ¥177 |
-| **Annual recurring cost** | **¥847 / year** |
+![Binance](docs/donate/binance.png)
+
+</details>
 
 ### Supporters
 
-| | | | | | | | | | | | | |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| <img src="assets/avatars/qiao.svg" width="44"/> | <img src="assets/avatars/rui.svg" width="44"/> | <a href="https://github.com/fishdivinity"><img src="assets/avatars/fishdivinity.png" width="44"/></a> | <img src="assets/avatars/shao.svg" width="44"/> | <img src="assets/avatars/ge.svg" width="44"/> | <img src="assets/avatars/te.svg" width="44"/> | <img src="assets/avatars/wen.svg" width="44"/> | <img src="assets/avatars/anon.svg" width="44"/> | <a href="https://github.com/birdnofoots"><img src="https://github.com/birdnofoots.png" width="44"/></a> | <a href="https://github.com/charieswang72-pro"><img src="https://github.com/charieswang72-pro.png" width="44"/></a> | <a href="https://github.com/542474846"><img src="https://github.com/542474846.png" width="44"/></a> | <a href="https://github.com/JOHN-2025"><img src="https://github.com/JOHN-2025.png" width="44"/></a> | <a href="https://github.com/HowcanoeWang"><img src="https://github.com/HowcanoeWang.png" width="44"/></a> |
-| *Qiao ¥12 | *Rui ¥720 | fishdivinity ¥100 | *Shao ¥15 | *Ge ¥6 | *Te ¥15 | *Wen ¥50 | Anonymous ¥50 | birdnofoots ¥10 | Charies ¥10 | 542474846 ¥66 | JOHN-2025 ¥30 | HowcanoeWang ¥98 |
+<p>
+  <a href="https://github.com/fishdivinity"><img src="assets/avatars/fishdivinity.png" width="44" height="44" alt="fishdivinity" /></a>
+  <a href="https://github.com/birdnofoots"><img src="https://github.com/birdnofoots.png" width="44" height="44" alt="birdnofoots" /></a>
+  <a href="https://github.com/charieswang72-pro"><img src="https://github.com/charieswang72-pro.png" width="44" height="44" alt="charieswang72-pro" /></a>
+  <a href="https://github.com/542474846"><img src="https://github.com/542474846.png" width="44" height="44" alt="542474846" /></a>
+  <a href="https://github.com/JOHN-2025"><img src="https://github.com/JOHN-2025.png" width="44" height="44" alt="JOHN-2025" /></a>
+  <a href="https://github.com/HowcanoeWang"><img src="https://github.com/HowcanoeWang.png" width="44" height="44" alt="HowcanoeWang" /></a>
+</p>
 
-> 💡 Already donated? [Submit info](https://github.com/TNT-Likely/BeeCount/issues/new?template=donation_info.yml) to be displayed in the list.
+> 💡 Already donated? [Submit info](https://github.com/TNT-Likely/BeeCount/issues/new?template=donation_info.yml) with a link to your profile to appear in the supporter list.
+
+---
+
+## 🤝 Business Inquiries
+
+For commercial licensing, deployment assistance, custom development, or partnerships, email us with a brief description of your needs and use case.
+
+**[📧 sunxiaoyes@outlook.com](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry)**
 
 ---
 
