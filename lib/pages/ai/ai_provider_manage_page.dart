@@ -1048,9 +1048,11 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
     );
   }
 
-  /// 打开智谱 GLM 网站
+  /// 打开智谱 GLM 邀请注册链接
   Future<void> _openGlmWebsite() async {
-    final uri = Uri.parse('https://open.bigmodel.cn/usercenter/proj-mgmt/apikeys');
+    final uri = Uri.parse(
+      'https://www.bigmodel.cn/invite?icode=sxVvBZcZQdcWqFB86%2BAy37C%2Fk7jQAKmT1mpEiZXXnFw%3D',
+    );
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
