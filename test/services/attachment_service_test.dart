@@ -174,14 +174,38 @@ void main() {
   });
 
   test(
-      'original mode disables gallery and camera resizing and quality reduction',
+      'original mode keeps picker compression and skips compression when saving',
       () async {
     await keepOriginal(true);
+    // The picker returns an already compressed image; saving must retain it.
+    await source.writeAsBytes(compressedBytes);
     final service = container.read(attachmentServiceProvider);
-    await service.pickFromGallery();
+    final selected = await service.pickFromGallery();
     await service.takePhoto();
-    verify(() => picker.pickMultiImage()).called(1);
-    verify(() => picker.pickImage(source: ImageSource.camera)).called(1);
+    verify(() => picker.pickMultiImage(
+          maxWidth: 1920,
+          maxHeight: 1920,
+          imageQuality: 80,
+        )).called(1);
+    verify(() => picker.pickImage(
+          source: ImageSource.camera,
+          maxWidth: 1920,
+          maxHeight: 1920,
+          imageQuality: 80,
+        )).called(1);
+    final saved = await service.saveAttachment(
+      transactionId: transactionId,
+      sourceFile: selected.single,
+      index: 0,
+    );
+    expect(saved, isNotNull);
+    expect(compressor.calls, isEmpty);
+    expect(saved!.width, 20);
+    expect(saved.height, 200);
+    expect(
+        await File(await service.getAttachmentPath(saved.fileName))
+            .readAsBytes(),
+        compressedBytes);
   });
 
   test('original long image retains bytes, dimensions, extension and metadata',

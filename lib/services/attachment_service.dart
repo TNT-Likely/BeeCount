@@ -51,12 +51,10 @@ class AttachmentService {
   /// 返回选择的图片文件列表
   Future<List<File>> pickFromGallery({int maxCount = 9}) async {
     try {
-      final keepOriginal =
-          await ref.read(attachmentKeepOriginalProvider.future);
       final images = await _picker.pickMultiImage(
-        maxWidth: keepOriginal ? null : maxWidth.toDouble(),
-        maxHeight: keepOriginal ? null : maxHeight.toDouble(),
-        imageQuality: keepOriginal ? null : quality,
+        maxWidth: maxWidth.toDouble(),
+        maxHeight: maxHeight.toDouble(),
+        imageQuality: quality,
       );
       return images.map((x) => File(x.path)).toList();
     } catch (e) {
@@ -68,13 +66,11 @@ class AttachmentService {
   /// 拍照
   Future<File?> takePhoto() async {
     try {
-      final keepOriginal =
-          await ref.read(attachmentKeepOriginalProvider.future);
       final image = await _picker.pickImage(
         source: ImageSource.camera,
-        maxWidth: keepOriginal ? null : maxWidth.toDouble(),
-        maxHeight: keepOriginal ? null : maxHeight.toDouble(),
-        imageQuality: keepOriginal ? null : quality,
+        maxWidth: maxWidth.toDouble(),
+        maxHeight: maxHeight.toDouble(),
+        imageQuality: quality,
       );
       return image != null ? File(image.path) : null;
     } catch (e) {
@@ -85,7 +81,7 @@ class AttachmentService {
 
   /// 保存附件
   ///
-  /// 按原图设置保存图片到附件目录，并在数据库中创建记录。
+  /// 按原图设置决定是否再次压缩传入图片，并在数据库中创建记录。
   ///
   /// [urgent] 紧急模式:跳过 `FlutterImageCompress`,直接 sync 文件复制。
   /// 用于 iOS 后台 launch 场景 —— `FlutterImageCompress` 是 platform channel,
