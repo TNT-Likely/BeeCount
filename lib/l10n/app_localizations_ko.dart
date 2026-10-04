@@ -8177,5 +8177,5 @@ class AppLocalizationsKo extends AppLocalizations {
   String get attachmentKeepOriginal => 'Keep Original Attachments';
 
   @override
-  String get attachmentKeepOriginalDesc => 'Save new attachments without compression, preserving their original dimensions and quality. Uses more storage and sync data.';
+  String get attachmentKeepOriginalDesc => 'Uses more storage and sync data';
 }

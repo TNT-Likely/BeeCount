@@ -8169,7 +8169,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get attachmentKeepOriginal => '附件保存原图';
 
   @override
-  String get attachmentKeepOriginalDesc => '新添加的附件不再压缩，保留原始尺寸与画质；会占用更多存储空间和同步流量。';
+  String get attachmentKeepOriginalDesc => '保留原图，增加存储和同步流量';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

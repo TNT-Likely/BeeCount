@@ -415,6 +415,7 @@ class SmartBillingPage extends ConsumerWidget {
                       AppListTile(
                         leading: Icons.high_quality_outlined,
                         title: l10n.attachmentKeepOriginal,
+                        subtitle: l10n.attachmentKeepOriginalDesc,
                         trailing: Switch.adaptive(
                           value: keepOriginal.valueOrNull ?? false,
                           activeColor: ref.watch(primaryColorProvider),
@@ -432,16 +433,6 @@ class SmartBillingPage extends ConsumerWidget {
                                   }
                                 }
                               : null,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(48, 0, 0, 12),
-                        child: Text(
-                          l10n.attachmentKeepOriginalDesc,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: BeeTokens.textSecondary(context),
-                          ),
                         ),
                       ),
                     ],

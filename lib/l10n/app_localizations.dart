@@ -15473,7 +15473,7 @@ abstract class AppLocalizations {
   /// No description provided for @attachmentKeepOriginalDesc.
   ///
   /// In en, this message translates to:
-  /// **'Save new attachments without compression, preserving their original dimensions and quality. Uses more storage and sync data.'**
+  /// **'Uses more storage and sync data'**
   String get attachmentKeepOriginalDesc;
 }
 

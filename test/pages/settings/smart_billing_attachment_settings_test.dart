@@ -30,7 +30,7 @@ void main() {
     await tester.scrollUntilVisible(title, 100);
     expect(tester.getTopLeft(title).dy,
         greaterThan(tester.getTopLeft(find.text('自动添加附件')).dy));
-    expect(find.text('新添加的附件不再压缩，保留原始尺寸与画质；会占用更多存储空间和同步流量。'), findsOneWidget);
+    expect(find.text('保留原图，增加存储和同步流量'), findsOneWidget);
     final tile = find.ancestor(of: title, matching: find.byType(AppListTile));
     final toggle = find.descendant(of: tile, matching: find.byType(Switch));
     expect(tester.widget<Switch>(toggle).value, isFalse);

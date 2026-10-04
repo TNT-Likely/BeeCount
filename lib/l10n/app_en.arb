@@ -3530,5 +3530,5 @@
   "annualReportNotAchieved": "Not Achieved",
   "annualReportDownloadHint": "Scan to download BeeCount and start bookkeeping",
   "attachmentKeepOriginal": "Keep Original Attachments",
-  "attachmentKeepOriginalDesc": "Save new attachments without compression, preserving their original dimensions and quality. Uses more storage and sync data."
+  "attachmentKeepOriginalDesc": "Uses more storage and sync data"
 }

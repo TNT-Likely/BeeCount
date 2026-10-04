@@ -3454,5 +3454,5 @@
   "annualReportNotAchieved": "未达成",
   "annualReportDownloadHint": "扫码下载蜜蜂记账，开启你的记账之旅",
   "attachmentKeepOriginal": "附件保存原图",
-  "attachmentKeepOriginalDesc": "新添加的附件不再压缩，保留原始尺寸与画质；会占用更多存储空间和同步流量。"
+  "attachmentKeepOriginalDesc": "保留原图，增加存储和同步流量"
 }
