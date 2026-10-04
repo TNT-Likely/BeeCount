@@ -8072,4 +8072,104 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get agentQueryValidationFailed => 'The query parameters could not be corrected, so a reliable result is unavailable. Please try again.';
+
+  @override
+  String get annualReportInsightsTitle => 'Annual Insights';
+
+  @override
+  String get annualReportInsightsSubtitle => 'Discover your spending habits through data';
+
+  @override
+  String get annualReportAveragePerRecord => 'Average Spending per Record';
+
+  @override
+  String get annualReportAveragePerRecordDesc => 'Average amount per bookkeeping record';
+
+  @override
+  String get annualReportDailyAverage => 'Daily Average Spending';
+
+  @override
+  String get annualReportDailyAverageDesc => 'Average amount spent each day';
+
+  @override
+  String get annualReportMonthlyAverage => 'Monthly Average Spending';
+
+  @override
+  String get annualReportMonthlyAverageDesc => 'Average amount spent each month';
+
+  @override
+  String get annualReportBusiestMonth => 'Most Active Month';
+
+  @override
+  String get annualReportBusiestMonthDesc => 'Month with the most bookkeeping activity';
+
+  @override
+  String get annualReportCategoryCount => 'Spending Categories';
+
+  @override
+  String get annualReportCategoryCountDesc => 'Number of spending categories used';
+
+  @override
+  String annualReportCategoryCountValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count categories',
+      one: '1 category',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get annualReportSavingsRate => 'Savings Rate';
+
+  @override
+  String get annualReportSavingsRatePositive => 'The share of your income saved this year';
+
+  @override
+  String get annualReportSavingsRateNegative => 'Spending exceeded income this year';
+
+  @override
+  String get annualReportComparisonTitle => 'Income vs. Expense';
+
+  @override
+  String get annualReportComparisonSubtitle => 'Compare monthly income and expenses';
+
+  @override
+  String get annualReportHighestIncome => 'Highest Income';
+
+  @override
+  String get annualReportHighestExpense => 'Highest Expense';
+
+  @override
+  String get annualReportConsistency => 'Bookkeeping Streak';
+
+  @override
+  String annualReportDaysValue(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get annualReportSavingsPositive => 'Congratulations on your savings';
+
+  @override
+  String get annualReportSavingsNegative => 'Spending exceeded income this year';
+
+  @override
+  String get annualReportMonthlyExpenseTrend => 'Monthly Spending Trend';
+
+  @override
+  String get annualReportAchieved => 'Achieved';
+
+  @override
+  String get annualReportNotAchieved => 'Not Achieved';
+
+  @override
+  String get annualReportDownloadHint => 'Scan to download BeeCount and start bookkeeping';
 }

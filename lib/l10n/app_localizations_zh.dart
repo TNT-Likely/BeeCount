@@ -8066,6 +8066,104 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get agentQueryValidationFailed => '查询参数未能纠正，暂时无法给出可靠结果。请重试。';
+
+  @override
+  String get annualReportInsightsTitle => '年度洞察';
+
+  @override
+  String get annualReportInsightsSubtitle => '从数据中发现你的消费习惯';
+
+  @override
+  String get annualReportAveragePerRecord => '平均每笔消费';
+
+  @override
+  String get annualReportAveragePerRecordDesc => '你每次记账的平均金额';
+
+  @override
+  String get annualReportDailyAverage => '日均支出';
+
+  @override
+  String get annualReportDailyAverageDesc => '平均每天花费金额';
+
+  @override
+  String get annualReportMonthlyAverage => '月均支出';
+
+  @override
+  String get annualReportMonthlyAverageDesc => '平均每月花费金额';
+
+  @override
+  String get annualReportBusiestMonth => '最活跃月份';
+
+  @override
+  String get annualReportBusiestMonthDesc => '记账活动最频繁的月份';
+
+  @override
+  String get annualReportCategoryCount => '消费分类数';
+
+  @override
+  String get annualReportCategoryCountDesc => '你使用过的消费分类数量';
+
+  @override
+  String annualReportCategoryCountValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count个',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get annualReportSavingsRate => '储蓄率';
+
+  @override
+  String get annualReportSavingsRatePositive => '今年你攒下了收入的这个比例';
+
+  @override
+  String get annualReportSavingsRateNegative => '今年支出超过了收入';
+
+  @override
+  String get annualReportComparisonTitle => '收支对比';
+
+  @override
+  String get annualReportComparisonSubtitle => '每月收入与支出的对比';
+
+  @override
+  String get annualReportHighestIncome => '收入最高';
+
+  @override
+  String get annualReportHighestExpense => '支出最高';
+
+  @override
+  String get annualReportConsistency => '记账坚持';
+
+  @override
+  String annualReportDaysValue(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days天',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get annualReportSavingsPositive => '恭喜你攒下了';
+
+  @override
+  String get annualReportSavingsNegative => '今年花超了';
+
+  @override
+  String get annualReportMonthlyExpenseTrend => '月度支出趋势';
+
+  @override
+  String get annualReportAchieved => '已达成';
+
+  @override
+  String get annualReportNotAchieved => '未达成';
+
+  @override
+  String get annualReportDownloadHint => '扫码下载蜜蜂记账，开启你的记账之旅';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -15550,4 +15648,102 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get currencyMRU => '毛里塔尼亞烏吉亞';
+
+  @override
+  String get annualReportInsightsTitle => '年度洞察';
+
+  @override
+  String get annualReportInsightsSubtitle => '從資料中發現你的消費習慣';
+
+  @override
+  String get annualReportAveragePerRecord => '平均每筆消費';
+
+  @override
+  String get annualReportAveragePerRecordDesc => '你每次記帳的平均金額';
+
+  @override
+  String get annualReportDailyAverage => '日均支出';
+
+  @override
+  String get annualReportDailyAverageDesc => '平均每天花費金額';
+
+  @override
+  String get annualReportMonthlyAverage => '月均支出';
+
+  @override
+  String get annualReportMonthlyAverageDesc => '平均每月花費金額';
+
+  @override
+  String get annualReportBusiestMonth => '最活躍月份';
+
+  @override
+  String get annualReportBusiestMonthDesc => '記帳活動最頻繁的月份';
+
+  @override
+  String get annualReportCategoryCount => '消費分類數';
+
+  @override
+  String get annualReportCategoryCountDesc => '你使用過的消費分類數量';
+
+  @override
+  String annualReportCategoryCountValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count個',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get annualReportSavingsRate => '儲蓄率';
+
+  @override
+  String get annualReportSavingsRatePositive => '今年你存下了收入的這個比例';
+
+  @override
+  String get annualReportSavingsRateNegative => '今年支出超過了收入';
+
+  @override
+  String get annualReportComparisonTitle => '收支對比';
+
+  @override
+  String get annualReportComparisonSubtitle => '每月收入與支出的對比';
+
+  @override
+  String get annualReportHighestIncome => '收入最高';
+
+  @override
+  String get annualReportHighestExpense => '支出最高';
+
+  @override
+  String get annualReportConsistency => '記帳堅持';
+
+  @override
+  String annualReportDaysValue(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days天',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get annualReportSavingsPositive => '恭喜你存下了';
+
+  @override
+  String get annualReportSavingsNegative => '今年花超了';
+
+  @override
+  String get annualReportMonthlyExpenseTrend => '月度支出趨勢';
+
+  @override
+  String get annualReportAchieved => '已達成';
+
+  @override
+  String get annualReportNotAchieved => '未達成';
+
+  @override
+  String get annualReportDownloadHint => '掃碼下載蜜蜂記帳，開啟你的記帳之旅';
 }
