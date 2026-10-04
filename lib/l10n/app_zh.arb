@@ -3410,5 +3410,47 @@
   "agentActivityToolFailed": "失败",
   "agentRunCancelled": "本次操作已停止。",
   "agentRunStop": "停止",
-  "agentQueryValidationFailed": "查询参数未能纠正，暂时无法给出可靠结果。请重试。"
+  "agentQueryValidationFailed": "查询参数未能纠正，暂时无法给出可靠结果。请重试。",
+  "annualReportInsightsTitle": "年度洞察",
+  "annualReportInsightsSubtitle": "从数据中发现你的消费习惯",
+  "annualReportAveragePerRecord": "平均每笔消费",
+  "annualReportAveragePerRecordDesc": "你每次记账的平均金额",
+  "annualReportDailyAverage": "日均支出",
+  "annualReportDailyAverageDesc": "平均每天花费金额",
+  "annualReportMonthlyAverage": "月均支出",
+  "annualReportMonthlyAverageDesc": "平均每月花费金额",
+  "annualReportBusiestMonth": "最活跃月份",
+  "annualReportBusiestMonthDesc": "记账活动最频繁的月份",
+  "annualReportCategoryCount": "消费分类数",
+  "annualReportCategoryCountDesc": "你使用过的消费分类数量",
+  "annualReportCategoryCountValue": "{count, plural, other{{count}个}}",
+  "@annualReportCategoryCountValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "annualReportSavingsRate": "储蓄率",
+  "annualReportSavingsRatePositive": "今年你攒下了收入的这个比例",
+  "annualReportSavingsRateNegative": "今年支出超过了收入",
+  "annualReportComparisonTitle": "收支对比",
+  "annualReportComparisonSubtitle": "每月收入与支出的对比",
+  "annualReportHighestIncome": "收入最高",
+  "annualReportHighestExpense": "支出最高",
+  "annualReportConsistency": "记账坚持",
+  "annualReportDaysValue": "{days, plural, other{{days}天}}",
+  "@annualReportDaysValue": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "annualReportSavingsPositive": "恭喜你攒下了",
+  "annualReportSavingsNegative": "今年花超了",
+  "annualReportMonthlyExpenseTrend": "月度支出趋势",
+  "annualReportAchieved": "已达成",
+  "annualReportNotAchieved": "未达成",
+  "annualReportDownloadHint": "扫码下载蜜蜂记账，开启你的记账之旅"
 }

@@ -2935,5 +2935,47 @@
   "currencyLSL": "萊索托洛蒂",
   "currencySZL": "斯威士蘭里蘭吉尼",
   "currencyMGA": "马達加斯加阿里亞里",
-  "currencyMRU": "毛里塔尼亞烏吉亞"
+  "currencyMRU": "毛里塔尼亞烏吉亞",
+  "annualReportInsightsTitle": "年度洞察",
+  "annualReportInsightsSubtitle": "從資料中發現你的消費習慣",
+  "annualReportAveragePerRecord": "平均每筆消費",
+  "annualReportAveragePerRecordDesc": "你每次記帳的平均金額",
+  "annualReportDailyAverage": "日均支出",
+  "annualReportDailyAverageDesc": "平均每天花費金額",
+  "annualReportMonthlyAverage": "月均支出",
+  "annualReportMonthlyAverageDesc": "平均每月花費金額",
+  "annualReportBusiestMonth": "最活躍月份",
+  "annualReportBusiestMonthDesc": "記帳活動最頻繁的月份",
+  "annualReportCategoryCount": "消費分類數",
+  "annualReportCategoryCountDesc": "你使用過的消費分類數量",
+  "annualReportCategoryCountValue": "{count, plural, other{{count}個}}",
+  "@annualReportCategoryCountValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "annualReportSavingsRate": "儲蓄率",
+  "annualReportSavingsRatePositive": "今年你存下了收入的這個比例",
+  "annualReportSavingsRateNegative": "今年支出超過了收入",
+  "annualReportComparisonTitle": "收支對比",
+  "annualReportComparisonSubtitle": "每月收入與支出的對比",
+  "annualReportHighestIncome": "收入最高",
+  "annualReportHighestExpense": "支出最高",
+  "annualReportConsistency": "記帳堅持",
+  "annualReportDaysValue": "{days, plural, other{{days}天}}",
+  "@annualReportDaysValue": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "annualReportSavingsPositive": "恭喜你存下了",
+  "annualReportSavingsNegative": "今年花超了",
+  "annualReportMonthlyExpenseTrend": "月度支出趨勢",
+  "annualReportAchieved": "已達成",
+  "annualReportNotAchieved": "未達成",
+  "annualReportDownloadHint": "掃碼下載蜜蜂記帳，開啟你的記帳之旅"
 }

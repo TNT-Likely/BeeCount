@@ -15295,6 +15295,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The query parameters could not be corrected, so a reliable result is unavailable. Please try again.'**
   String get agentQueryValidationFailed;
+
+  /// No description provided for @annualReportInsightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual Insights'**
+  String get annualReportInsightsTitle;
+
+  /// No description provided for @annualReportInsightsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover your spending habits through data'**
+  String get annualReportInsightsSubtitle;
+
+  /// No description provided for @annualReportAveragePerRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Spending per Record'**
+  String get annualReportAveragePerRecord;
+
+  /// No description provided for @annualReportAveragePerRecordDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Average amount per bookkeeping record'**
+  String get annualReportAveragePerRecordDesc;
+
+  /// No description provided for @annualReportDailyAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Average Spending'**
+  String get annualReportDailyAverage;
+
+  /// No description provided for @annualReportDailyAverageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Average amount spent each day'**
+  String get annualReportDailyAverageDesc;
+
+  /// No description provided for @annualReportMonthlyAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Average Spending'**
+  String get annualReportMonthlyAverage;
+
+  /// No description provided for @annualReportMonthlyAverageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Average amount spent each month'**
+  String get annualReportMonthlyAverageDesc;
+
+  /// No description provided for @annualReportBusiestMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Active Month'**
+  String get annualReportBusiestMonth;
+
+  /// No description provided for @annualReportBusiestMonthDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Month with the most bookkeeping activity'**
+  String get annualReportBusiestMonthDesc;
+
+  /// No description provided for @annualReportCategoryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending Categories'**
+  String get annualReportCategoryCount;
+
+  /// No description provided for @annualReportCategoryCountDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of spending categories used'**
+  String get annualReportCategoryCountDesc;
+
+  /// No description provided for @annualReportCategoryCountValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 category} other{{count} categories}}'**
+  String annualReportCategoryCountValue(int count);
+
+  /// No description provided for @annualReportSavingsRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings Rate'**
+  String get annualReportSavingsRate;
+
+  /// No description provided for @annualReportSavingsRatePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'The share of your income saved this year'**
+  String get annualReportSavingsRatePositive;
+
+  /// No description provided for @annualReportSavingsRateNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending exceeded income this year'**
+  String get annualReportSavingsRateNegative;
+
+  /// No description provided for @annualReportComparisonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Income vs. Expense'**
+  String get annualReportComparisonTitle;
+
+  /// No description provided for @annualReportComparisonSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare monthly income and expenses'**
+  String get annualReportComparisonSubtitle;
+
+  /// No description provided for @annualReportHighestIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest Income'**
+  String get annualReportHighestIncome;
+
+  /// No description provided for @annualReportHighestExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest Expense'**
+  String get annualReportHighestExpense;
+
+  /// No description provided for @annualReportConsistency.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookkeeping Streak'**
+  String get annualReportConsistency;
+
+  /// No description provided for @annualReportDaysValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, one{1 day} other{{days} days}}'**
+  String annualReportDaysValue(int days);
+
+  /// No description provided for @annualReportSavingsPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Congratulations on your savings'**
+  String get annualReportSavingsPositive;
+
+  /// No description provided for @annualReportSavingsNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending exceeded income this year'**
+  String get annualReportSavingsNegative;
+
+  /// No description provided for @annualReportMonthlyExpenseTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Spending Trend'**
+  String get annualReportMonthlyExpenseTrend;
+
+  /// No description provided for @annualReportAchieved.
+  ///
+  /// In en, this message translates to:
+  /// **'Achieved'**
+  String get annualReportAchieved;
+
+  /// No description provided for @annualReportNotAchieved.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Achieved'**
+  String get annualReportNotAchieved;
+
+  /// No description provided for @annualReportDownloadHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan to download BeeCount and start bookkeeping'**
+  String get annualReportDownloadHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
