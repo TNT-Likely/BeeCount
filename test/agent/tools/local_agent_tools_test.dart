@@ -254,6 +254,103 @@ void main() {
     ]);
   });
 
+  test('category breakdown forwards income flow and reports totalIncome',
+      () async {
+    gateway.summaryResult = const {
+      'currency': 'CNY',
+      'periodStart': '2026-01-01T00:00:00.000',
+      'periodEnd': '2026-10-01T00:00:00.000',
+      'totals': {
+        'income': {'amount': 500.0, 'count': 2},
+      },
+      'groups': [
+        {
+          'key': {'kind': 'category', 'id': 9, 'name': '开源募资'},
+          'totals': {
+            'income': {'amount': 500.0, 'count': 2},
+          },
+        },
+      ],
+      'truncated': false,
+    };
+    final result = await tools['get_category_breakdown']!.execute(
+      AgentToolCall(
+        name: 'get_category_breakdown',
+        arguments: const {
+          'period': 'custom',
+          'start': '2026-01-01T00:00:00.000',
+          'end': '2026-10-01T00:00:00.000',
+          'categoryLevel': 'top',
+          'flowType': 'income',
+          'categoryNames': ['开源募资'],
+        },
+      ),
+    );
+
+    final request = gateway.summaryRequests.single;
+    expect(request.types, {'income'});
+    expect(request.categoryNames, ['开源募资']);
+    expect(result['flowType'], 'income');
+    expect(result['totalIncome'], 500.0);
+    expect(result.containsKey('totalExpense'), isFalse);
+    expect(result['items'], [
+      {
+        'category': {'kind': 'category', 'id': 9, 'name': '开源募资'},
+        'amount': 500.0,
+        'count': 2,
+        'share': 1.0,
+      },
+    ]);
+  });
+
+  test('spending trend forwards income flow and reports totalIncome',
+      () async {
+    gateway.summaryResult = const {
+      'currency': 'CNY',
+      'periodStart': '2026-01-01T00:00:00.000',
+      'periodEnd': '2027-01-01T00:00:00.000',
+      'totals': {
+        'income': {'amount': 900.0, 'count': 3},
+      },
+      'groups': [
+        {
+          'key': {'kind': 'month', 'value': '2026-01'},
+          'totals': {
+            'income': {'amount': 900.0, 'count': 3},
+          },
+        },
+      ],
+      'truncated': false,
+    };
+    final result = await tools['get_spending_trend']!.execute(
+      AgentToolCall(
+        name: 'get_spending_trend',
+        arguments: const {
+          'period': 'custom',
+          'start': '2026-01-01T00:00:00.000',
+          'end': '2027-01-01T00:00:00.000',
+          'interval': 'month',
+          'flowType': 'income',
+        },
+      ),
+    );
+
+    final request = gateway.summaryRequests.single;
+    expect(request.types, {'income'});
+    expect(result['flowType'], 'income');
+    expect(result['totalIncome'], 900.0);
+    expect(result['points'], [
+      {
+        'period': '2026-01',
+        'amount': 900.0,
+        'count': 3,
+        'comparedAmount': null,
+        'changeAmount': null,
+        'changeRate': null,
+      },
+    ]);
+  });
+
   test('budget tool returns a stable, currency-aware budget snapshot',
       () async {
     final result = await tools['get_budget_status']!.execute(

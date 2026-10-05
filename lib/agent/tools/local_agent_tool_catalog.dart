@@ -56,10 +56,22 @@ final class LocalAgentToolCatalog {
     'additionalProperties': false,
   };
 
+  static const _flowTypeProperties = <String, Object?>{
+    'flowType': {
+      'type': 'string',
+      'description':
+          '资金方向：expense 为支出（默认），income 为收入。用户询问收入分类'
+              '（如捐赠、募资、薪资、副业等分类下都是收入）的金额、趋势、占比或构成时，'
+              '必须传 income，否则查不到数据。',
+      'enum': ['expense', 'income'],
+    },
+  };
+
   static const _spendingTrendParameters = <String, Object?>{
     'type': 'object',
     'properties': {
       ..._periodProperties,
+      ..._flowTypeProperties,
       'interval': {
         'type': 'string',
         'description': '趋势粒度，默认 month。',
@@ -67,7 +79,7 @@ final class LocalAgentToolCatalog {
       },
       'categoryNames': {
         'type': 'array',
-        'description': '可选支出分类；选择一级分类时自动包含全部子分类。',
+        'description': '可选分类；选择一级分类时自动包含全部子分类。收入分类须搭配 flowType="income"。',
         'items': {'type': 'string', 'minLength': 1},
         'uniqueItems': true,
       },
@@ -85,6 +97,7 @@ final class LocalAgentToolCatalog {
     'type': 'object',
     'properties': {
       ..._periodProperties,
+      ..._flowTypeProperties,
       'categoryLevel': {
         'type': 'string',
         'description':
@@ -93,7 +106,7 @@ final class LocalAgentToolCatalog {
       },
       'categoryNames': {
         'type': 'array',
-        'description': '可选分类范围；一级分类会包含全部子分类。',
+        'description': '可选分类范围；一级分类会包含全部子分类。收入分类须搭配 flowType="income"。',
         'items': {'type': 'string', 'minLength': 1},
         'uniqueItems': true,
       },
@@ -130,13 +143,13 @@ final class LocalAgentToolCatalog {
     core.AgentNativeToolDefinition(
       name: 'get_spending_trend',
       description:
-          '读取当前账本支出趋势，只读。可按日、周、月、年分组并筛选一个或多个分类；一级分类自动包含子分类。返回支出金额、笔数以及环比或同比；按月时无交易月份补零。模型不要自行汇总明细或重新计算涨跌幅。询问“各月/趋势/环比/同比/某分类对比支出”时使用。',
+          '读取当前账本支出或收入的趋势，只读。默认统计支出；查询收入分类（如捐赠、募资、薪资）时传 flowType="income"。可按日、周、月、年分组并筛选一个或多个分类；一级分类自动包含子分类。返回金额、笔数以及环比或同比；按月时无交易月份补零。模型不要自行汇总明细或重新计算涨跌幅。询问“各月/趋势/环比/同比/某分类对比支出或收入”时使用。',
       parameters: _spendingTrendParameters,
     ),
     core.AgentNativeToolDefinition(
       name: 'get_category_breakdown',
       description:
-          '读取当前账本指定周期的支出分类构成，只读。可按一级分类或明细分类返回金额、笔数和占比；一级分类范围会自动包含子分类。询问“哪些分类花得最多、分类占比、支出构成”时使用。',
+          '读取当前账本指定周期的支出或收入分类构成，只读。默认统计支出；查询收入分类（分类下都是收入）时传 flowType="income"。可按一级分类或明细分类返回金额、笔数和占比；一级分类范围会自动包含子分类。询问“哪些分类花得最多、分类占比、支出/收入构成”时使用。',
       parameters: _categoryBreakdownParameters,
     ),
     core.AgentNativeToolDefinition(
