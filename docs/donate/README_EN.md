@@ -20,20 +20,28 @@ Thank you for using BeeCount! If you find this project helpful, consider buying 
 
 <https://paypal.me/sunxiaoyes>
 
+### Ko-fi
+
+<https://ko-fi.com/sunxiao>
+
 ---
 
 ## 🪙 Cryptocurrency
 
-### USDT (TRC20)
+### USDT (TRC20, any TRON wallet)
 
 ```
 TKBV69B2AoU67p3vDhnJUbMJtZ1DxuUF5C
 ```
 
-### Binance
+<div align="center">
+  <img src="trc20.png" width="300" alt="USDT TRC20 address QR code">
+</div>
+
+### Binance Pay (scan with the Binance app)
 
 <div align="center">
-  <img src="binance.png" width="300" alt="Binance QR Code">
+  <img src="binance.png" width="300" alt="Binance Pay QR code">
 </div>
 
 ---
