@@ -20,20 +20,28 @@
 
 <https://paypal.me/sunxiaoyes>
 
+### Ko-fi
+
+<https://ko-fi.com/sunxiao>
+
 ---
 
 ## 🪙 加密货币
 
-### USDT (TRC20)
+### USDT（TRC20，任意 TRON 钱包）
 
 ```
 TKBV69B2AoU67p3vDhnJUbMJtZ1DxuUF5C
 ```
 
-### 币安
+<div align="center">
+  <img src="trc20.png" width="300" alt="USDT TRC20 地址二维码">
+</div>
+
+### 币安 Pay（币安 App 内扫码）
 
 <div align="center">
-  <img src="binance.png" width="300" alt="币安二维码">
+  <img src="binance.png" width="300" alt="币安 Pay 收款码">
 </div>
 
 ---

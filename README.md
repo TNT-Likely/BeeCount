@@ -309,6 +309,7 @@ BeeCount 和 BeeCount Cloud 由同一作者维护。如果这些项目对你有�
 ### 捐赠方式
 
 [![PayPal](https://img.shields.io/badge/PayPal-Donate-0070BA?logo=paypal&logoColor=white&style=for-the-badge)](https://paypal.me/sunxiaoyes)
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/sunxiao)
 
 <details><summary>支付宝 / 微信二维码</summary>
 
@@ -318,12 +319,18 @@ BeeCount 和 BeeCount Cloud 由同一作者维护。如果这些项目对你有�
 
 </details>
 
-**USDT (TRC20)**: `TKBV69B2AoU67p3vDhnJUbMJtZ1DxuUF5C`
-
 <details>
-<summary>币安二维码</summary>
+<summary>USDT</summary>
 
-![币安](docs/donate/binance.png)
+**币安 Pay**（币安 App 内扫码转账）：
+
+<img src="docs/donate/binance.png" width="220" alt="币安 Pay 收款码"/>
+
+**链上 USDT（TRC20）**——任意 TRON 钱包扫码：
+
+地址：`TKBV69B2AoU67p3vDhnJUbMJtZ1DxuUF5C`
+
+<img src="docs/donate/trc20.png" width="220" alt="USDT TRC20 地址二维码"/>
 
 </details>
 

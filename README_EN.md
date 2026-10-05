@@ -309,6 +309,7 @@ BeeCount and BeeCount Cloud are maintained by the same developer. If these proje
 ### How to Donate
 
 [![PayPal](https://img.shields.io/badge/PayPal-Donate-0070BA?logo=paypal&logoColor=white&style=for-the-badge)](https://paypal.me/sunxiaoyes)
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/sunxiao)
 
 <details><summary>Alipay / WeChat QR codes</summary>
 
@@ -318,12 +319,18 @@ BeeCount and BeeCount Cloud are maintained by the same developer. If these proje
 
 </details>
 
-**USDT (TRC20)**: `TKBV69B2AoU67p3vDhnJUbMJtZ1DxuUF5C`
-
 <details>
-<summary>Binance QR code</summary>
+<summary>USDT</summary>
 
-![Binance](docs/donate/binance.png)
+**Binance Pay** — scan with the Binance app:
+
+<img src="docs/donate/binance.png" width="220" alt="Binance Pay QR code"/>
+
+**On-chain USDT (TRC20)** — scan with any TRON wallet:
+
+Address: `TKBV69B2AoU67p3vDhnJUbMJtZ1DxuUF5C`
+
+<img src="docs/donate/trc20.png" width="220" alt="USDT TRC20 address QR code"/>
 
 </details>
 
