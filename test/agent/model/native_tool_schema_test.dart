@@ -83,11 +83,19 @@ void main() {
     );
     expect(trendProperties, contains('categoryNames'));
     expect(trendProperties, contains('comparison'));
+    expect(
+      (trendProperties['flowType'] as Map)['enum'],
+      ['expense', 'income'],
+    );
     final breakdownParameters =
         definitions['get_category_breakdown']!['parameters'] as Map;
     expect(
       (breakdownParameters['properties'] as Map),
       contains('categoryLevel'),
+    );
+    expect(
+      ((breakdownParameters['properties'] as Map)['flowType'] as Map)['enum'],
+      ['expense', 'income'],
     );
     expect(
       definitions['query_transactions']!['description'],

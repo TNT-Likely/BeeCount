@@ -88,7 +88,7 @@ final class AgentToolPresentation {
     final currency = result['currency'];
     if (currency is String && RegExp(r'^[A-Z]{3}$').hasMatch(currency)) {
       final expense = result['totalExpense'] ?? result['expense'];
-      final income = result['income'];
+      final income = result['totalIncome'] ?? result['income'];
       final money =
           NumberFormat.simpleCurrency(locale: l10n.localeName, name: currency);
       if (income is num && income.isFinite) {

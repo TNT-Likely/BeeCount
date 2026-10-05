@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:agentcore/agentcore.dart';
@@ -5,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/section_card.dart';
+import '../../services/system/logger_service.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../providers/theme_providers.dart';
@@ -34,6 +37,13 @@ class AIProviderManagePage extends ConsumerStatefulWidget {
 }
 
 class _AIProviderManagePageState extends ConsumerState<AIProviderManagePage> {
+  @override
+  void initState() {
+    super.initState();
+    // 打开管理页时后台静默刷新 GLM 邀请链接池(6h 节流,失败静默)。
+    unawaited(ref.read(glmInviteLinkServiceProvider).refreshIfNeeded());
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -1048,13 +1058,19 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
     );
   }
 
-  /// 打开智谱 GLM 邀请注册链接
+  /// 打开智谱 GLM 邀请注册链接(从链接池随机取一条)
   Future<void> _openGlmWebsite() async {
-    final uri = Uri.parse(
-      'https://www.bigmodel.cn/invite?icode=sxVvBZcZQdcWqFB86%2BAy37C%2Fk7jQAKmT1mpEiZXXnFw%3D',
-    );
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final link = await ref.read(glmInviteLinkServiceProvider).pickLink();
+    final uri = Uri.tryParse(link);
+    if (uri == null) return;
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        logger.warning('AIProviderEditPage', '无法打开邀请链接: $link');
+      }
+    } catch (e) {
+      logger.error('AIProviderEditPage', '打开邀请链接失败: $link', e);
     }
   }
 

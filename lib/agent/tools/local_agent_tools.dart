@@ -878,9 +878,11 @@ final class LocalAgentTools {
     final range = await _financialRangeFor(call, defaultPeriod: 'current_year');
     final interval = _trendIntervalFor(call);
     final categoryNames = _stringListArgument(call, 'categoryNames');
-    final summary = await _expenseSummary(
+    final flowType = _flowTypeFor(call);
+    final summary = await _flowSummary(
       range: range,
       groupBy: interval,
+      flowType: flowType,
       categoryNames: categoryNames,
       groupLimit: 50,
     );
@@ -891,9 +893,10 @@ final class LocalAgentTools {
     };
     Map<String, Map<String, Object?>> previousYearGroups = const {};
     if (comparison == 'previous_year') {
-      final previous = await _expenseSummary(
+      final previous = await _flowSummary(
         range: (_shiftYear(range.$1, -1), _shiftYear(range.$2, -1)),
         groupBy: interval,
+        flowType: flowType,
         categoryNames: categoryNames,
         groupLimit: 50,
       );
@@ -908,17 +911,17 @@ final class LocalAgentTools {
     for (var index = 0; index < rawGroups.length; index++) {
       final item = rawGroups[index];
       final period = _periodValue(item)!;
-      final amount = _groupAmount(item, 'expense');
-      final count = _groupCount(item, 'expense');
+      final amount = _groupAmount(item, flowType);
+      final count = _groupCount(item, flowType);
       double? comparedAmount;
       if (comparison == 'previous_point' && index > 0) {
-        comparedAmount = _groupAmount(rawGroups[index - 1], 'expense');
+        comparedAmount = _groupAmount(rawGroups[index - 1], flowType);
       } else if (comparison == 'previous_year') {
         final previousKey = _previousYearPeriod(period, interval);
         final previous =
             previousKey == null ? null : previousYearGroups[previousKey];
         if (previous != null) {
-          comparedAmount = _groupAmount(previous, 'expense');
+          comparedAmount = _groupAmount(previous, flowType);
         }
       }
       final change = comparedAmount == null ? null : amount - comparedAmount;
@@ -935,16 +938,23 @@ final class LocalAgentTools {
     }
     return {
       'currency': summary['currency'],
+      'flowType': flowType,
       'period': call.arguments['period'] ?? 'current_year',
       'periodStart': summary['periodStart'],
       'periodEnd': summary['periodEnd'],
       'interval': interval,
       'categoryNames': categoryNames,
       'comparison': comparison,
-      'totalExpense': _summaryAmount(
-        summary['totals'] as Map<String, Object?>? ?? const {},
-        'expense',
-      ),
+      if (flowType == 'income')
+        'totalIncome': _summaryAmount(
+          summary['totals'] as Map<String, Object?>? ?? const {},
+          'income',
+        )
+      else
+        'totalExpense': _summaryAmount(
+          summary['totals'] as Map<String, Object?>? ?? const {},
+          'expense',
+        ),
       'points': points,
       'truncated': summary['truncated'] == true,
     };
@@ -956,46 +966,54 @@ final class LocalAgentTools {
     final range =
         await _financialRangeFor(call, defaultPeriod: 'current_month');
     final categoryNames = _stringListArgument(call, 'categoryNames');
-    final summary = await _expenseSummary(
+    final flowType = _flowTypeFor(call);
+    final summary = await _flowSummary(
       range: range,
       groupBy: 'category',
+      flowType: flowType,
       categoryNames: categoryNames,
       categoryLevel: call.arguments['categoryLevel'] == 'leaf' ? 'leaf' : 'top',
       groupLimit: _boundedIntArgument(call, 'limit', fallback: 20),
     );
     final total = _summaryAmount(
       summary['totals'] as Map<String, Object?>? ?? const {},
-      'expense',
+      flowType,
     );
     final items = <Map<String, Object?>>[];
     for (final raw
         in (summary['groups'] as List? ?? const []).whereType<Map>()) {
       final group = Map<String, Object?>.from(raw);
-      final amount = _groupAmount(group, 'expense');
+      final amount = _groupAmount(group, flowType);
       items.add({
         'category': group['key'],
         'amount': amount,
-        'count': _groupCount(group, 'expense'),
+        'count': _groupCount(group, flowType),
         'share': total == 0 ? null : amount / total,
       });
     }
     return {
       'currency': summary['currency'],
+      'flowType': flowType,
       'period': call.arguments['period'] ?? 'current_month',
       'periodStart': summary['periodStart'],
       'periodEnd': summary['periodEnd'],
       'categoryLevel':
           call.arguments['categoryLevel'] == 'leaf' ? 'leaf' : 'top',
       'categoryNames': categoryNames,
-      'totalExpense': total,
+      if (flowType == 'income') 'totalIncome': total else 'totalExpense': total,
       'items': items,
       'truncated': summary['truncated'] == true,
     };
   }
 
-  Future<Map<String, Object?>> _expenseSummary({
+  /// 用户未显式指定资金方向时默认统计支出（与历史行为一致）。
+  String _flowTypeFor(AgentToolCall call) =>
+      call.arguments['flowType'] == 'income' ? 'income' : 'expense';
+
+  Future<Map<String, Object?>> _flowSummary({
     required (DateTime, DateTime) range,
     required String groupBy,
+    required String flowType,
     required List<String> categoryNames,
     String categoryLevel = 'leaf',
     required int groupLimit,
@@ -1004,7 +1022,7 @@ final class LocalAgentTools {
         ledgerId: _ledgerId,
         start: range.$1,
         end: range.$2,
-        types: const {'expense'},
+        types: {flowType},
         groupBy: groupBy,
         categoryLevel: categoryLevel,
         categoryIds: const [],
