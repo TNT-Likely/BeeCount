@@ -884,6 +884,57 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryTitle => '分类管理';
 
   @override
+  String get categoryIconGroupBasic => '基础';
+
+  @override
+  String get categoryIconGroupFoodDining => '餐饮美食';
+
+  @override
+  String get categoryIconGroupTransportation => '交通出行';
+
+  @override
+  String get categoryIconGroupShopping => '购物消费';
+
+  @override
+  String get categoryIconGroupHomeLiving => '居住生活';
+
+  @override
+  String get categoryIconGroupCommunicationDevices => '通讯设备';
+
+  @override
+  String get categoryIconGroupEntertainmentLeisure => '娱乐休闲';
+
+  @override
+  String get categoryIconGroupHealthMedical => '健康医疗';
+
+  @override
+  String get categoryIconGroupEducationLearning => '教育学习';
+
+  @override
+  String get categoryIconGroupPetsAnimals => '宠物动物';
+
+  @override
+  String get categoryIconGroupClothingBeauty => '服装美容';
+
+  @override
+  String get categoryIconGroupOtherMiscellaneous => '其他杂项';
+
+  @override
+  String get categoryIconGroupWorkCareer => '工作职业';
+
+  @override
+  String get categoryIconGroupFinance => '金融理财';
+
+  @override
+  String get categoryIconGroupRewardsGifts => '奖励礼品';
+
+  @override
+  String get categoryIconGroupInvestmentReturns => '投资收益';
+
+  @override
+  String get categoryIconGroupOtherIncome => '其他收入';
+
+  @override
   String get categoryGenerateDefault => '生成默认分类';
 
   @override
