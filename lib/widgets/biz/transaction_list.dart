@@ -93,12 +93,12 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
   Future<void> _showTransactionActions(
     Transaction transaction,
-    Offset position,
+    BuildContext rowContext,
   ) async {
     if (_showingTransactionActions) return;
     _showingTransactionActions = true;
     try {
-      final action = await _pickTransactionAction(position);
+      final action = await _pickTransactionAction(rowContext);
       if (action == 'copy' && mounted) {
         switchToStreamMode();
         await TransactionEditUtils.copyTransaction(context, ref, transaction);
@@ -111,27 +111,19 @@ class TransactionListState extends ConsumerState<TransactionList> {
     }
   }
 
-  Future<String?> _pickTransactionAction(Offset position) async {
+  Future<String?> _pickTransactionAction(BuildContext rowContext) async {
     try {
       final overlay =
           Overlay.of(context).context.findRenderObject() as RenderBox;
-      return await showMenu<String>(
+      final row = rowContext.findRenderObject() as RenderBox;
+      return await BeePopupMenu.showForAnchor(
         context: context,
-        position: RelativeRect.fromRect(
-          Rect.fromLTWH(position.dx, position.dy, 0, 0),
-          Offset.zero & overlay.size,
-        ),
+        anchor: row.localToGlobal(Offset.zero, ancestor: overlay) & row.size,
         items: [
-          PopupMenuItem(
+          BeeMenuItem.action(
             value: 'copy',
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.copy_outlined, size: 20),
-                const SizedBox(width: 12),
-                Text(AppLocalizations.of(context).transactionCopyAction),
-              ],
-            ),
+            icon: Icons.copy_outlined,
+            label: AppLocalizations.of(context).transactionCopyAction,
           ),
         ],
       );
@@ -599,8 +591,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
                             it.category,
                           );
                         },
-                        onLongPressStart: (details) =>
-                            _showTransactionActions(it.t, details.globalPosition),
+                        onLongPressStart: (_) =>
+                            _showTransactionActions(it.t, context),
                         onCategoryTap: !isTransfer && it.category?.id != null
                             ? () async {
                                 switchToStreamMode(); // 用户交互，切换到 Stream 模式

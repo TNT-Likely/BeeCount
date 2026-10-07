@@ -13,6 +13,7 @@ import 'package:beecount/providers/theme_providers.dart';
 import 'package:beecount/providers/language_provider.dart';
 import 'package:beecount/providers/ui_state_providers.dart';
 import 'package:beecount/theme.dart';
+import 'package:beecount/styles/tokens.dart';
 import 'package:beecount/services/attachment_service.dart';
 import 'package:beecount/widgets/biz/amount_editor_sheet.dart';
 import 'package:beecount/widgets/biz/transaction_list_item.dart';
@@ -231,7 +232,8 @@ void main() {
         (widget) => widget is TransactionListItem && widget.title == note,
         skipOffstage: false);
 
-    Future<void> openCopy(String note, {String label = copyLabel}) async {
+    Future<void> openCopy(String note,
+        {String label = copyLabel, String? menuScreenshot}) async {
       // Route removal completes after its animation; allow the previous sheet
       // and editor barriers to leave before sending another pointer sequence.
       await tester.pump(const Duration(milliseconds: 350));
@@ -249,7 +251,18 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       await tester.pump(const Duration(milliseconds: 200));
       expect(find.byType(PopupMenuItem<String>), findsOneWidget);
-      if (note == 'QA 原交易' && cases.isEmpty) {
+      final menuFinder = find
+          .ancestor(
+              of: find.byType(PopupMenuItem<String>),
+              matching: find.byType(Material))
+          .first;
+      final menu = tester.widget<Material>(menuFinder);
+      expect(menu.color, BeeTokens.surfaceElevated(tester.element(row)));
+      expect(menu.surfaceTintColor, Colors.transparent);
+      expect(tester.getRect(menuFinder).overlaps(tester.getRect(row)), isFalse);
+      if (menuScreenshot != null) {
+        await capture(menuScreenshot);
+      } else if (note == 'QA 原交易' && cases.isEmpty) {
         await capture('01-copy-menu');
       }
       await tester.tap(find.text(label));
@@ -596,7 +609,9 @@ void main() {
 
     container.read(currentLedgerIdProvider.notifier).state = ledgerId;
     await host(mode: ThemeMode.dark, locale: const Locale('en'));
-    await openCopy('QA 原交易', label: 'Copy as new transaction');
+    await openCopy('QA 原交易',
+        label: 'Copy as new transaction',
+        menuScreenshot: '07-dark-english-menu');
     await capture('05-dark-english-copy');
     Navigator.of(tester.element(find.byType(AmountEditorSheet)))
         .popUntil((route) => route.isFirst);
@@ -604,7 +619,7 @@ void main() {
     // Keep production UI visible for a final simulator screenshot.
     await host();
     pass('T13',
-        'Production MainApp theme: Chinese/light and English/dark retain configured primary color; row tap/selection covered by widget tests');
+        'Production MainApp: Chinese/light and English/dark menus use BeeTokens surface without tint, avoid covering the source row and retain configured primary color; row tap/selection covered by widget tests');
     binding.reportData!['source_sync_id'] = baseline.syncId;
     binding.reportData!['copy_sync_id'] = copied.syncId;
     binding.reportData!['cloud_baseline'] = cloudBaseline;
