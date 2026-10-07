@@ -2,14 +2,17 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:beecount/app.dart';
+import 'package:beecount/main.dart' show MainApp;
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
-import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/main/home_page.dart';
 import 'package:beecount/providers/database_providers.dart';
 import 'package:beecount/providers/sync_providers.dart';
 import 'package:beecount/providers/statistics_providers.dart';
+import 'package:beecount/providers/theme_providers.dart';
+import 'package:beecount/providers/language_provider.dart';
+import 'package:beecount/providers/ui_state_providers.dart';
+import 'package:beecount/theme.dart';
 import 'package:beecount/services/attachment_service.dart';
 import 'package:beecount/widgets/biz/amount_editor_sheet.dart';
 import 'package:beecount/widgets/biz/transaction_list_item.dart';
@@ -90,7 +93,7 @@ void main() {
     });
     await HomeWidget.setAppGroupId('group.com.tntlikely.beecount.qa');
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('language', 'zh');
+    await prefs.setString('selected_language', 'zh');
     await prefs.setBool('account_feature_enabled', true);
     await prefs.setBool('welcome_shown', true);
     // Show synthetic notes so reviewers can distinguish the source and copy.
@@ -197,19 +200,20 @@ void main() {
     Future<void> host(
         {ThemeMode mode = ThemeMode.light,
         Locale locale = const Locale('zh')}) async {
+      await container.read(primaryColorInitProvider.future);
+      await container.read(themeModeInitProvider.future);
+      container.read(themeModeProvider.notifier).state = mode;
+      await container.read(languageProvider.notifier).setLanguage(locale);
+      // Fixtures initialized the real runtime/database already. Use the
+      // production root for themes, typography, scaling and navigation.
+      container.read(appInitStateProvider.notifier).state = AppInitState.ready;
       await tester.pumpWidget(UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            locale: locale,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            theme: ThemeData.light(),
-            darkTheme: ThemeData.dark(),
-            themeMode: mode,
-            home: const BeeApp(),
-          )));
+          container: container, child: const MainApp()));
       await waitFor(() => find.byType(HomePage).evaluate().isNotEmpty);
       await tester.pump(const Duration(seconds: 1));
+      expect(
+          Theme.of(tester.element(find.byType(HomePage))).colorScheme.primary,
+          BeeTheme.honeyGold);
     }
 
     Future<void> capture(String name) async {
@@ -251,11 +255,18 @@ void main() {
       await tester.tap(find.text(label));
       await waitFor(() => find.byType(AmountEditorSheet).evaluate().isNotEmpty);
       await tester.pump(const Duration(milliseconds: 500));
-      await waitFor(() => find.descendant(
-          of: find.byType(AmountEditorSheet),
-          matching: find.byType(CircularProgressIndicator)).evaluate().isEmpty);
+      await waitFor(() => find
+          .descendant(
+              of: find.byType(AmountEditorSheet),
+              matching: find.byType(CircularProgressIndicator))
+          .evaluate()
+          .isEmpty);
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
+      final editorTheme =
+          Theme.of(tester.element(find.byType(AmountEditorSheet)));
+      expect(editorTheme.colorScheme.primary,
+          container.read(primaryColorProvider));
     }
 
     Future<Transaction> saveCopy(String note, {bool doubleTap = false}) async {
@@ -593,7 +604,7 @@ void main() {
     // Keep production UI visible for a final simulator screenshot.
     await host();
     pass('T13',
-        'Chinese/light and English/dark menus render; row tap/selection covered by widget tests');
+        'Production MainApp theme: Chinese/light and English/dark retain configured primary color; row tap/selection covered by widget tests');
     binding.reportData!['source_sync_id'] = baseline.syncId;
     binding.reportData!['copy_sync_id'] = copied.syncId;
     binding.reportData!['cloud_baseline'] = cloudBaseline;
