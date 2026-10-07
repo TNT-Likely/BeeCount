@@ -220,7 +220,11 @@ void main() {
       await waitFor(() => rowFor(note).evaluate().isNotEmpty);
       final row = rowFor(note);
       await tester.ensureVisible(row);
-      await tester.longPress(row);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 300));
+      final position = tester.getTopLeft(row) + const Offset(100, 16);
+      debugPrint('QA long press: $note at $position');
+      await tester.longPressAt(position);
       await waitFor(() => find.text(label).evaluate().isNotEmpty);
       await tester.pump(const Duration(milliseconds: 200));
       await tester.pump(const Duration(milliseconds: 200));
