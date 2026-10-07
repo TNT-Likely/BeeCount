@@ -3547,5 +3547,7 @@
   "annualReportNotAchieved": "Not Achieved",
   "annualReportDownloadHint": "Scan to download BeeCount and start bookkeeping",
   "attachmentKeepOriginal": "Keep Original Attachments",
-  "attachmentKeepOriginalDesc": "Uses more storage and sync data"
+  "attachmentKeepOriginalDesc": "Uses more storage and sync data",
+  "transactionCopyAction": "Copy as new transaction",
+  "transactionCopyUnavailable": "This transaction cannot be copied. Check the ledger and your access."
 }

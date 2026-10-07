@@ -89,6 +89,58 @@ class TransactionListState extends ConsumerState<TransactionList> {
     return widget.transactions ?? [];
   }
 
+  bool _showingTransactionActions = false;
+
+  Future<void> _showTransactionActions(
+    Transaction transaction,
+    Offset position,
+  ) async {
+    logger.debug('TransactionList', '长按交易菜单: showing=$_showingTransactionActions');
+    if (_showingTransactionActions) return;
+    _showingTransactionActions = true;
+    try {
+      final action = await _pickTransactionAction(position);
+      if (action == 'copy' && mounted) {
+        switchToStreamMode();
+        await TransactionEditUtils.copyTransaction(context, ref, transaction);
+      }
+    } catch (error, stack) {
+      logger.error('TransactionList', '打开交易操作失败', error, stack);
+      if (mounted) {
+        showToast(context, AppLocalizations.of(context).transactionCopyUnavailable);
+      }
+    }
+  }
+
+  Future<String?> _pickTransactionAction(Offset position) async {
+    try {
+      final overlay =
+          Overlay.of(context).context.findRenderObject() as RenderBox;
+      return await showMenu<String>(
+        context: context,
+        position: RelativeRect.fromRect(
+          Rect.fromLTWH(position.dx, position.dy, 0, 0),
+          Offset.zero & overlay.size,
+        ),
+        items: [
+          PopupMenuItem(
+            value: 'copy',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.copy_outlined, size: 20),
+                const SizedBox(width: 12),
+                Text(AppLocalizations.of(context).transactionCopyAction),
+              ],
+            ),
+          ),
+        ],
+      );
+    } finally {
+      _showingTransactionActions = false;
+    }
+  }
+
   /// 预加载数据的 ID 集合（用于快速判断某条交易是否有预加载详情）
   Set<int>? _preloadedIds;
   Set<int> get _preloadedIdSet {
@@ -548,6 +600,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
                             it.category,
                           );
                         },
+                        onLongPressStart: (details) =>
+                            _showTransactionActions(it.t, details.globalPosition),
                         onCategoryTap: !isTransfer && it.category?.id != null
                             ? () async {
                                 switchToStreamMode(); // 用户交互，切换到 Stream 模式

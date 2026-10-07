@@ -3471,5 +3471,7 @@
   "annualReportNotAchieved": "未达成",
   "annualReportDownloadHint": "扫码下载蜜蜂记账，开启你的记账之旅",
   "attachmentKeepOriginal": "附件保存原图",
-  "attachmentKeepOriginalDesc": "保留原图，增加存储和同步流量"
+  "attachmentKeepOriginalDesc": "保留原图，增加存储和同步流量",
+  "transactionCopyAction": "复制为新交易",
+  "transactionCopyUnavailable": "无法复制这笔交易，请检查账本和访问权限。"
 }

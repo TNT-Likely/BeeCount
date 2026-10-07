@@ -25,6 +25,7 @@ class TransactionListItem extends ConsumerWidget {
   final bool isTransfer; // 是否为转账（转账不显示正负号）
   final bool? hide; // 改为可选,null时使用全局状态
   final VoidCallback? onTap;
+  final GestureLongPressStartCallback? onLongPressStart;
   final VoidCallback? onCategoryTap; // 点击分类图标/名称的回调
   final String? categoryName; // 分类名称，用于显示
   final String? ledgerName; // 账本名称（仅"全部账本"模式下显示标签）
@@ -61,6 +62,7 @@ class TransactionListItem extends ConsumerWidget {
       this.isTransfer = false,
       this.hide,
       this.onTap,
+      this.onLongPressStart,
       this.onCategoryTap,
       this.categoryName,
       this.ledgerName,
@@ -402,6 +404,13 @@ class TransactionListItem extends ConsumerWidget {
         ),
       ),
     );
+
+    if (!isSelectionMode && onLongPressStart != null) {
+      child = GestureDetector(
+        onLongPressStart: onLongPressStart,
+        child: child,
+      );
+    }
 
     // 如果提供了删除回调，则包装在Dismissible中支持侧滑删除
     if (onDelete != null) {

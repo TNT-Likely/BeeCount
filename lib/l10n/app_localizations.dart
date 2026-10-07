@@ -15577,6 +15577,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Uses more storage and sync data'**
   String get attachmentKeepOriginalDesc;
+
+  /// No description provided for @transactionCopyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy as new transaction'**
+  String get transactionCopyAction;
+
+  /// No description provided for @transactionCopyUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This transaction cannot be copied. Check the ledger and your access.'**
+  String get transactionCopyUnavailable;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

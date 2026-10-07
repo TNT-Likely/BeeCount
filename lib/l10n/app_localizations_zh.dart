@@ -8221,6 +8221,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get attachmentKeepOriginalDesc => '保留原图，增加存储和同步流量';
+
+  @override
+  String get transactionCopyAction => '复制为新交易';
+
+  @override
+  String get transactionCopyUnavailable => '无法复制这笔交易，请检查账本和访问权限。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

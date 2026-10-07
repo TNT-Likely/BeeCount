@@ -8229,4 +8229,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get attachmentKeepOriginalDesc => 'Uses more storage and sync data';
+
+  @override
+  String get transactionCopyAction => 'Copy as new transaction';
+
+  @override
+  String get transactionCopyUnavailable => 'This transaction cannot be copied. Check the ledger and your access.';
 }
