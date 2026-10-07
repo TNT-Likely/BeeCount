@@ -13,13 +13,16 @@ final class QASmoke: XCTestCase {
             }
         }
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 20))
-        let copied = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", "QA Cloud 修改后")).firstMatch
+        let expectedMarkers = ["QA Cloud 修改后", "55.5"]
+        let copied = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", expectedMarkers[0])).firstMatch
         for _ in 0..<6 {
             if copied.waitForExistence(timeout: 2) && copied.isHittable { break }
             app.swipeUp()
         }
-        XCTAssertTrue(copied.exists && copied.isHittable, "Synchronized copy must be visible in normal homepage")
-        XCTAssertTrue(app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", "55.5")).firstMatch.exists)
+        XCTAssertTrue(copied.exists && copied.isHittable, "Synchronized fixture must be visible in normal homepage")
+        for marker in expectedMarkers {
+            XCTAssertTrue(app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", marker)).firstMatch.exists)
+        }
         let picture = XCTAttachment(screenshot: app.screenshot())
         picture.lifetime = .keepAlways
         add(picture)

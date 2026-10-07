@@ -23,6 +23,10 @@ import urllib.request
 APP_ID = 'com.tntlikely.beecount.qa'
 GROUP_ID = 'group.com.tntlikely.beecount.qa'
 PROJECT = Path(__file__).resolve().parents[2]
+SCENARIOS = {
+    'transaction-copy': 'integration_test/transaction_copy_live_test.dart',
+    'category-parent': 'integration_test/category_parent_live_test.dart',
+}
 
 
 def command(args, **kwargs):
@@ -102,6 +106,7 @@ def prepare(args):
                     runtime=args.runtime, device_name=f'BeeCount-QA-{run_id}',
                     protected_udids=[d['udid'] for ds in devices.values() for d in ds],
                     app_sha=command(['git', '-C', PROJECT, 'rev-parse', 'HEAD']))
+    manifest['scenario'] = args.scenario
     manifest['tool_versions'] = dict(
         flutter=json.loads(command([args.flutter, '--version', '--machine']))['frameworkVersion'],
         xcode=command(['xcodebuild', '-version']),
@@ -280,7 +285,7 @@ def verify_artifact(root, manifest):
 def build(root, manifest, flutter):
     source = snapshot(root, manifest)
     commands = [[flutter, 'pub', 'get'], [flutter, 'build', 'ios', '--debug', '--simulator',
-                '--target', 'integration_test/transaction_copy_live_test.dart',
+                '--target', SCENARIOS[manifest.get('scenario', 'transaction-copy')],
                 f'--dart-define-from-file={root / "defines.json"}']]
     for index, args in enumerate(commands):
         print(f'QA build stage {index + 1}; logs stay in private run directory', flush=True)
@@ -333,7 +338,7 @@ def run(root, manifest, flutter):
     env = dict(os.environ, QA_EVIDENCE_DIR=str(root / 'evidence'))
     args = [flutter, 'drive', '-d', manifest['udid'], '--use-application-binary', str(app),
             '--driver', 'test_driver/transaction_copy_live_test.dart',
-            '--target', 'integration_test/transaction_copy_live_test.dart', '--keep-app-running']
+            '--target', SCENARIOS[manifest.get('scenario', 'transaction-copy')], '--keep-app-running']
     print('Running UI and live Cloud acceptance on the owned QA simulator', flush=True)
     with (root / 'raw-logs/drive.log').open('w') as log:
         result = subprocess.run(args, cwd=root / 'app-source', env=env, stdout=log, stderr=log)
@@ -351,7 +356,9 @@ def run(root, manifest, flutter):
                                            'created_by_user_id, tag_sync_ids_json, attachments_json '
                                            'FROM read_tx_projection ORDER BY sync_id')]
         migration = db.execute('SELECT version_num FROM alembic_version').fetchone()[0]
-    write_json(root / 'evidence/cloud-projection.json', dict(migration=migration, transactions=rows))
+        categories = [dict(r) for r in db.execute('SELECT sync_id, name, kind, level, parent_name, parent_sync_id '
+                                                'FROM user_category_projection ORDER BY sync_id')]
+    write_json(root / 'evidence/cloud-projection.json', dict(migration=migration, transactions=rows, categories=categories))
     public = {k: manifest[k] for k in ('run_id', 'app_id', 'app_sha', 'cloud_sha', 'runtime', 'udid',
                                       'cloud_origin', 'source_hash', 'artifact_hash', 'verified_bundles', 'drive_exit_code')}
     public.update(tool_versions=manifest.get('tool_versions'), skill_sha=manifest.get('skill_sha'))
@@ -572,7 +579,15 @@ def normal_ui_check(root, manifest):
     source = inside(root, root / 'app-source')
     native = inside(root, root / 'native-smoke')
     native.mkdir()  # Each run gets one fresh native test project and result bundle.
-    shutil.copyfile(source / 'scripts/qa/normal_app_smoke.swift', native / 'QASmoke.swift')
+    report = json.loads((root / 'evidence/acceptance.json').read_text())
+    markers = report.get('normal_ui_markers', ['QA Cloud 修改后', '55.5'])
+    if not isinstance(markers, list) or not 1 <= len(markers) <= 5 or any(
+            not isinstance(s, str) or not s or len(s) > 100 for s in markers):
+        raise ValueError('Normal UI markers must be a short list of visible synthetic text')
+    swift = (source / 'scripts/qa/normal_app_smoke.swift').read_text()
+    swift = swift.replace('let expectedMarkers = ["QA Cloud 修改后", "55.5"]',
+                          'let expectedMarkers = ' + json.dumps(markers, ensure_ascii=False))
+    (native / 'QASmoke.swift').write_text(swift)
     subprocess.run(['ruby', str(source / 'scripts/qa/create_smoke_project.rb'), str(native)], check=True)
     args = ['xcodebuild', '-project', str(native / 'QASmoke.xcodeproj'), '-scheme', 'QASmoke',
             '-configuration', 'Debug', '-sdk', 'iphonesimulator',
@@ -628,10 +643,23 @@ def restart_check(root, manifest, flutter):
         rows = [dict(sync_id=r[0], note=r[1], amount=r[2]) for r in db.execute(
             'SELECT sync_id, note, amount FROM transactions ORDER BY sync_id')]
     report = json.loads((root / 'evidence/acceptance.json').read_text())
-    copy = next(r for r in rows if r['sync_id'] == report['copy_sync_id'])
-    if copy['note'] != 'QA Cloud 修改后' or copy['amount'] != 55.5:
-        raise ValueError('Normal App restart did not retain the synchronized copy')
-    report['cases'].append(dict(id='T10-restart', status='PASS', detail='Normal lib/main.dart entry retains synchronized data; native UI dismisses OS permissions and verifies visible copy and 55.5 amount'))
+    if manifest.get('scenario', 'transaction-copy') == 'transaction-copy':
+        copy = next(r for r in rows if r['sync_id'] == report['copy_sync_id'])
+        if copy['note'] != 'QA Cloud 修改后' or copy['amount'] != 55.5:
+            raise ValueError('Normal App restart did not retain the synchronized copy')
+    else:
+        with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
+            db.row_factory = sqlite3.Row
+            parent = db.execute('SELECT id, name FROM categories WHERE sync_id = ?',
+                                (report['parent_sync_id'],)).fetchone()
+            if parent is None or parent['name'] != report['parent_name']:
+                raise ValueError('Normal App restart lost the synchronized parent category')
+            for sid in report['child_sync_ids']:
+                child = db.execute('SELECT parent_id, level FROM categories WHERE sync_id = ?', (sid,)).fetchone()
+                if child is None or child['parent_id'] != parent['id'] or child['level'] != 2:
+                    raise ValueError('Normal App restart lost a stable child category relationship')
+        rows = dict(transactions=rows, parent_name=parent['name'], child_sync_ids=report['child_sync_ids'])
+    report['cases'].append(dict(id='normal-restart', status='PASS', detail='Normal lib/main.dart entry preserves synchronized data and native UI verifies the scenario markers'))
     write_json(root / 'evidence/acceptance.json', report)
     write_json(root / 'evidence/restart-persistence.json', rows)
     environment = json.loads((root / 'evidence/environment.json').read_text())
@@ -648,6 +676,7 @@ def main():
     parser.add_argument('--run')
     parser.add_argument('--cloud-repo')
     parser.add_argument('--cloud-ref', default='origin/main')
+    parser.add_argument('--scenario', choices=tuple(SCENARIOS), default='transaction-copy')
     parser.add_argument('--skill-repo', help='Record the skill repository HEAD used for this run')
     parser.add_argument('--runtime', default='com.apple.CoreSimulator.SimRuntime.iOS-26-5')
     parser.add_argument('--flutter', default=shutil.which('flutter'))
