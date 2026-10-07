@@ -884,6 +884,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryTitle => 'Category Management';
 
   @override
+  String get categoryIconGroupBasic => 'Basics';
+
+  @override
+  String get categoryIconGroupFoodDining => 'Food & Dining';
+
+  @override
+  String get categoryIconGroupTransportation => 'Transportation';
+
+  @override
+  String get categoryIconGroupShopping => 'Shopping';
+
+  @override
+  String get categoryIconGroupHomeLiving => 'Home & Living';
+
+  @override
+  String get categoryIconGroupCommunicationDevices => 'Communication & Devices';
+
+  @override
+  String get categoryIconGroupEntertainmentLeisure => 'Entertainment & Leisure';
+
+  @override
+  String get categoryIconGroupHealthMedical => 'Health & Medicine';
+
+  @override
+  String get categoryIconGroupEducationLearning => 'Education & Learning';
+
+  @override
+  String get categoryIconGroupPetsAnimals => 'Pets & Animals';
+
+  @override
+  String get categoryIconGroupClothingBeauty => 'Clothing & Beauty';
+
+  @override
+  String get categoryIconGroupOtherMiscellaneous => 'Other';
+
+  @override
+  String get categoryIconGroupWorkCareer => 'Work & Career';
+
+  @override
+  String get categoryIconGroupFinance => 'Finance';
+
+  @override
+  String get categoryIconGroupRewardsGifts => 'Rewards & Gifts';
+
+  @override
+  String get categoryIconGroupInvestmentReturns => 'Investment Returns';
+
+  @override
+  String get categoryIconGroupOtherIncome => 'Other Income';
+
+  @override
   String get categoryGenerateDefault => 'Generate Default Categories';
 
   @override

@@ -1676,6 +1676,108 @@ abstract class AppLocalizations {
   /// **'Category Management'**
   String get categoryTitle;
 
+  /// No description provided for @categoryIconGroupBasic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basics'**
+  String get categoryIconGroupBasic;
+
+  /// No description provided for @categoryIconGroupFoodDining.
+  ///
+  /// In en, this message translates to:
+  /// **'Food & Dining'**
+  String get categoryIconGroupFoodDining;
+
+  /// No description provided for @categoryIconGroupTransportation.
+  ///
+  /// In en, this message translates to:
+  /// **'Transportation'**
+  String get categoryIconGroupTransportation;
+
+  /// No description provided for @categoryIconGroupShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping'**
+  String get categoryIconGroupShopping;
+
+  /// No description provided for @categoryIconGroupHomeLiving.
+  ///
+  /// In en, this message translates to:
+  /// **'Home & Living'**
+  String get categoryIconGroupHomeLiving;
+
+  /// No description provided for @categoryIconGroupCommunicationDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Communication & Devices'**
+  String get categoryIconGroupCommunicationDevices;
+
+  /// No description provided for @categoryIconGroupEntertainmentLeisure.
+  ///
+  /// In en, this message translates to:
+  /// **'Entertainment & Leisure'**
+  String get categoryIconGroupEntertainmentLeisure;
+
+  /// No description provided for @categoryIconGroupHealthMedical.
+  ///
+  /// In en, this message translates to:
+  /// **'Health & Medicine'**
+  String get categoryIconGroupHealthMedical;
+
+  /// No description provided for @categoryIconGroupEducationLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'Education & Learning'**
+  String get categoryIconGroupEducationLearning;
+
+  /// No description provided for @categoryIconGroupPetsAnimals.
+  ///
+  /// In en, this message translates to:
+  /// **'Pets & Animals'**
+  String get categoryIconGroupPetsAnimals;
+
+  /// No description provided for @categoryIconGroupClothingBeauty.
+  ///
+  /// In en, this message translates to:
+  /// **'Clothing & Beauty'**
+  String get categoryIconGroupClothingBeauty;
+
+  /// No description provided for @categoryIconGroupOtherMiscellaneous.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get categoryIconGroupOtherMiscellaneous;
+
+  /// No description provided for @categoryIconGroupWorkCareer.
+  ///
+  /// In en, this message translates to:
+  /// **'Work & Career'**
+  String get categoryIconGroupWorkCareer;
+
+  /// No description provided for @categoryIconGroupFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get categoryIconGroupFinance;
+
+  /// No description provided for @categoryIconGroupRewardsGifts.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards & Gifts'**
+  String get categoryIconGroupRewardsGifts;
+
+  /// No description provided for @categoryIconGroupInvestmentReturns.
+  ///
+  /// In en, this message translates to:
+  /// **'Investment Returns'**
+  String get categoryIconGroupInvestmentReturns;
+
+  /// No description provided for @categoryIconGroupOtherIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Income'**
+  String get categoryIconGroupOtherIncome;
+
   /// No description provided for @categoryGenerateDefault.
   ///
   /// In en, this message translates to:
