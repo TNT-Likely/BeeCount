@@ -100,7 +100,7 @@ void main() {
           BeeTokens.textPrimary(context));
       expect(find.byType(PopupMenuItem<String>), findsOneWidget);
       final bounds = tester.getRect(menuSurface());
-      expect(bounds.bottom, lessThan(opened.row.top));
+      expect(bounds.top, greaterThan(opened.row.bottom));
       expect(bounds.right, closeTo(374, 1));
       expect(tester.takeException(), isNull);
       await tester.tap(find.text(label));

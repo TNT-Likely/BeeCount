@@ -86,7 +86,7 @@ class BeePopupMenu extends StatelessWidget {
     this.tooltip,
   });
 
-  /// 长按菜单贴近来源行，优先在上方显示，避开正在操作的内容。
+  /// 长按菜单贴近来源行，优先在下方显示，避开正在操作的内容。
   /// [anchor] 使用当前 Navigator 的 Overlay 坐标。
   static Future<String?> showForAnchor({
     required BuildContext context,
@@ -136,9 +136,9 @@ class BeePopupMenu extends StatelessWidget {
     final safeBottom = overlay.size.height -
         math.max(media.padding.bottom, media.viewInsets.bottom) -
         gap;
-    final top = anchor.top - height - gap >= safeTop
-        ? anchor.top - height - gap
-        : anchor.bottom + gap;
+    final top = anchor.bottom + gap + height <= safeBottom
+        ? anchor.bottom + gap
+        : anchor.top - height - gap;
     final left = direction == TextDirection.ltr
         ? anchor.right - margin - width
         : anchor.left + margin;

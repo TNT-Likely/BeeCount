@@ -575,37 +575,49 @@ void main() {
         'Real owner/editor accounts, invite acceptance, shared resources and editor author survive synchronization');
     binding.reportData!['shared_transactions'] = sharedRows;
 
-    // Locally known read-only membership must stop before the new editor opens.
-    await (db.update(db.ledgers)..where((l) => l.id.equals(sharedLedger.id)))
-        .write(const LedgersCompanion(myRole: d.Value('viewer')));
-    final beforeBlocked = (await db.select(db.transactions).get()).length;
-    final blockedRow = rowFor('QA Owner 原交易');
-    await tester.longPress(blockedRow);
-    await waitFor(() => find.text(copyLabel).evaluate().isNotEmpty);
-    await tester.tap(find.text(copyLabel));
-    await tester.pump(const Duration(seconds: 1));
-    expect(find.byType(AmountEditorSheet), findsNothing);
-    expect((await db.select(db.transactions).get()).length, beforeBlocked);
-    pass('T12',
-        'Known read-only ledger blocks copying before creating a local or remote entity');
-    await (db.update(db.ledgers)..where((l) => l.id.equals(sharedLedger.id)))
-        .write(const LedgersCompanion(myRole: d.Value('editor')));
+    // These two guards deliberately exercise locally known state. The current
+    // Cloud only supports owner/editor, so freeze this fixture using the owned
+    // QA service, and drain any in-flight ledger refresh before changing it.
+    // All real synchronization assertions above ran against the live service.
+    await api('POST', '/__qa__/fault',
+        body: {'run_id': runId, 'offline': true});
+    await engine.syncLedgersFromServer();
+    try {
+      await (db.update(db.ledgers)..where((l) => l.id.equals(sharedLedger.id)))
+          .write(const LedgersCompanion(myRole: d.Value('viewer')));
+      final beforeBlocked = (await db.select(db.transactions).get()).length;
+      final blockedRow = rowFor('QA Owner 原交易');
+      await tester.longPress(blockedRow);
+      await waitFor(() => find.text(copyLabel).evaluate().isNotEmpty);
+      await tester.tap(find.text(copyLabel));
+      await tester.pump(const Duration(seconds: 1));
+      expect((await repo.getLedgerById(sharedLedger.id))!.myRole, 'viewer');
+      expect(find.byType(AmountEditorSheet), findsNothing);
+      expect((await db.select(db.transactions).get()).length, beforeBlocked);
+      pass('T12',
+          'Known local viewer role blocks copying; QA 503 freezes the local fixture against background refresh');
+      await (db.update(db.ledgers)..where((l) => l.id.equals(sharedLedger.id)))
+          .write(const LedgersCompanion(myRole: d.Value('editor')));
 
-    final removedResource = await (db.select(db.sharedLedgerCategories)
-          ..where((c) => c.syncId.equals(ownerCat['entity_id'] as String)))
-        .getSingle();
-    await (db.delete(db.sharedLedgerCategories)
-          ..where((c) => c.syncId.equals(removedResource.syncId)))
-        .go();
-    await tester.longPress(blockedRow);
-    await waitFor(() => find.text(copyLabel).evaluate().isNotEmpty);
-    await tester.tap(find.text(copyLabel));
-    await tester.pump(const Duration(seconds: 1));
-    expect(find.byType(AmountEditorSheet), findsNothing);
-    expect((await db.select(db.transactions).get()).length, beforeBlocked);
-    await db.into(db.sharedLedgerCategories).insert(removedResource);
-    pass('T12-resource',
-        'Missing shared category blocks copying without silently changing references');
+      final removedResource = await (db.select(db.sharedLedgerCategories)
+            ..where((c) => c.syncId.equals(ownerCat['entity_id'] as String)))
+          .getSingle();
+      await (db.delete(db.sharedLedgerCategories)
+            ..where((c) => c.syncId.equals(removedResource.syncId)))
+          .go();
+      await tester.longPress(blockedRow);
+      await waitFor(() => find.text(copyLabel).evaluate().isNotEmpty);
+      await tester.tap(find.text(copyLabel));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byType(AmountEditorSheet), findsNothing);
+      expect((await db.select(db.transactions).get()).length, beforeBlocked);
+      await db.into(db.sharedLedgerCategories).insert(removedResource);
+      pass('T12-resource',
+          'Known missing shared category blocks copying; QA 503 freezes the local resource fixture');
+    } finally {
+      await api('POST', '/__qa__/fault',
+          body: {'run_id': runId, 'offline': false});
+    }
 
     container.read(currentLedgerIdProvider.notifier).state = ledgerId;
     await host(mode: ThemeMode.dark, locale: const Locale('en'));
