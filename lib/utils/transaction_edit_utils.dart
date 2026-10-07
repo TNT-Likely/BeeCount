@@ -4,7 +4,6 @@ import '../data/db.dart';
 import '../pages/transaction/transaction_editor_page.dart';
 import '../data/repositories/local/local_repository.dart';
 import '../providers/database_providers.dart';
-import '../providers/currency_providers.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/ui/toast.dart';
 import 'shared_ledger_picker_filter.dart' show syntheticIdForSyncId;
@@ -126,19 +125,20 @@ class TransactionEditUtils {
         : transaction.toAccountId;
 
     if (!context.mounted) return;
+    // The copy entry belongs to the current homepage ledger. Recheck after
+    // loading references so an asynchronously changed selection cannot redirect
+    // this new transaction to another ledger.
+    if (asCopy && ref.read(currentLedgerIdProvider) != transaction.ledgerId) {
+      showToast(
+          context, AppLocalizations.of(context).transactionCopyUnavailable);
+      return;
+    }
 
     // 所有类型（收入/支出/转账）都使用交易编辑器页面
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ProviderScope(
-          overrides: [
-            currentLedgerIdProvider.overrideWith((ref) => transaction.ledgerId),
-            currentLedgerProvider
-                .overrideWith((ref) => repo.watchLedger(transaction.ledgerId)),
-            if (ledger != null)
-              currentLedgerCurrencyProvider.overrideWithValue(ledger.currency),
-          ],
-          child: asCopy
+        builder: (_) {
+          final editor = asCopy
               ? TransactionEditorPage.copy(source: transaction, tagIds: tagIds)
               : TransactionEditorPage(
                   initialKind:
@@ -160,8 +160,9 @@ class TransactionEditUtils {
                   // v30 多币种:编辑外币交易时汇率行按隐含汇率回显
                   initialCurrencyCode: transaction.currencyCode,
                   initialNativeAmount: transaction.nativeAmount,
-                ),
-        ),
+                );
+          return editor;
+        },
       ),
     );
   }
