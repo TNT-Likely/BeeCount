@@ -16,7 +16,7 @@ import 'package:beecount/widgets/biz/transaction_list_item.dart';
 import 'package:beecount/widgets/biz/transaction_list.dart';
 import 'package:drift/drift.dart' as d;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,6 +66,7 @@ Future<Map<String, dynamic>> api(String method, String path,
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  debugPrintGestureArenaDiagnostics = true;
   final cases = <Map<String, dynamic>>[];
   binding.reportData = {'run_id': runId, 'cases': cases};
 
@@ -225,6 +226,9 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       final position = tester.getTopLeft(row) + const Offset(100, 16);
       debugPrint('QA long press: $note at $position');
+      final rowWidget = tester.widget<TransactionListItem>(row);
+      debugPrint(
+          'QA row: selection=${rowWidget.isSelectionMode}, longPress=${rowWidget.onLongPressStart != null}');
       debugPrint(
           'QA pointer targets: ${tester.hitTestOnBinding(position).path.map((entry) => entry.target is RenderObject ? (entry.target as RenderObject).debugCreator.toString() : entry.target.runtimeType.toString()).join(' | ')}');
       final gesture = await tester.startGesture(position);
