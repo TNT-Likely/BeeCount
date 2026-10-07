@@ -112,6 +112,7 @@ void main() {
     await repo.createCategory(
         name: 'QA购物', kind: 'expense', icon: 'shopping_bag');
     await repo.createCategory(name: 'QA餐饮', kind: 'income', icon: 'wallet');
+    await repo.createCategory(name: '转账', kind: 'transfer', icon: 'swap_horiz');
     final txId = await repo.addTransaction(
         ledgerId: ledgerId,
         type: 'expense',
@@ -225,7 +226,18 @@ void main() {
     await tapText('保存');
     await waitUi(() => find.byType(CategoryEditPage).evaluate().isEmpty);
     await sync();
-    final appRenamed = await snapshot();
+    var appRenamed = await snapshot();
+    for (var i = 0; i < 60; i++) {
+      if (category(appRenamed, parent.syncId!)['name'] == 'QA App伙食' &&
+          [breakfastSyncId, lunchSyncId].every(
+              (sid) => category(appRenamed, sid)['parentName'] == 'QA App伙食')) {
+        break;
+      }
+      await tester.pump(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(seconds: 1));
+      appRenamed = await snapshot();
+    }
+    expect(category(appRenamed, parent.syncId!)['name'], 'QA App伙食');
     for (final sid in [breakfastSyncId, lunchSyncId]) {
       expect(category(appRenamed, sid)['parentSyncId'], parent.syncId);
       expect(category(appRenamed, sid)['parentName'], 'QA App伙食');
