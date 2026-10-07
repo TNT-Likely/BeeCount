@@ -95,7 +95,6 @@ class TransactionListState extends ConsumerState<TransactionList> {
     Transaction transaction,
     Offset position,
   ) async {
-    logger.debug('TransactionList', '长按交易菜单: showing=$_showingTransactionActions');
     if (_showingTransactionActions) return;
     _showingTransactionActions = true;
     try {
