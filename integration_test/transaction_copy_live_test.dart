@@ -93,6 +93,8 @@ void main() {
     await prefs.setString('language', 'zh');
     await prefs.setBool('account_feature_enabled', true);
     await prefs.setBool('welcome_shown', true);
+    // Show synthetic notes so reviewers can distinguish the source and copy.
+    await prefs.setString('noteDisplayMode', 'note');
     await CloudServiceStore().saveAndActivate(const CloudServiceConfig(
       type: CloudBackendType.beecountCloud,
       name: 'Isolated QA Cloud',
@@ -240,6 +242,11 @@ void main() {
       await tester.tap(find.text(label));
       await waitFor(() => find.byType(AmountEditorSheet).evaluate().isNotEmpty);
       await tester.pump(const Duration(milliseconds: 500));
+      await waitFor(() => find.descendant(
+          of: find.byType(AmountEditorSheet),
+          matching: find.byType(CircularProgressIndicator)).evaluate().isEmpty);
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
     }
 
     Future<Transaction> saveCopy(String note, {bool doubleTap = false}) async {
