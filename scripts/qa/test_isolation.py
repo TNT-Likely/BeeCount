@@ -11,6 +11,15 @@ import isolated_app_cloud as qa
 
 
 class IsolationTests(unittest.TestCase):
+    def test_native_smoke_cannot_use_a_production_identity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            native = Path(directory)
+            runner = native / 'build/Build/Products/Debug-iphonesimulator/QASmoke-Runner.app'
+            runner.mkdir(parents=True)
+            (runner / 'Info.plist').write_bytes(plistlib.dumps({'CFBundleIdentifier': qa.APP_ID}))
+            with self.assertRaises(ValueError):
+                qa.verify_smoke_bundles(native)
+
     def test_path_escape_and_symlink_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

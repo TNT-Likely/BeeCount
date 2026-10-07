@@ -212,6 +212,15 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
     }
 
+    Future<void> capture(String name) async {
+      // Native screenshots can precede the raster of a just-rebuilt Flutter
+      // frame. Advance two frames and allow the simulator compositor to finish.
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pump(const Duration(milliseconds: 200));
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      await binding.takeScreenshot(name);
+    }
+
     // flutter_list_view 1.x leaves debugVisitOnstageChildren empty. Traverse
     // its actual elements, then ensureVisible before sending a real gesture.
     Finder rowFor(String note) => find.byWidgetPredicate(
@@ -237,7 +246,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       expect(find.byType(PopupMenuItem<String>), findsOneWidget);
       if (note == 'QA 原交易' && cases.isEmpty) {
-        await binding.takeScreenshot('01-copy-menu');
+        await capture('01-copy-menu');
       }
       await tester.tap(find.text(label));
       await waitFor(() => find.byType(AmountEditorSheet).evaluate().isNotEmpty);
@@ -270,7 +279,7 @@ void main() {
         cases.add({'id': id, 'status': 'PASS', 'detail': detail});
 
     await host();
-    await binding.takeScreenshot('00-initial-home');
+    await capture('00-initial-home');
     await openCopy('QA 原交易');
     final prefill =
         tester.widget<AmountEditorSheet>(find.byType(AmountEditorSheet));
@@ -284,7 +293,7 @@ void main() {
     expect(prefill.initialDate.month, today.month);
     expect(prefill.initialDate.day, today.day);
     expect(prefill.allowContinueAdding, isFalse);
-    await binding.takeScreenshot('02-prefilled-new-transaction');
+    await capture('02-prefilled-new-transaction');
     // Close the sheet and then the category route without creating anything.
     final nav = Navigator.of(tester.element(find.byType(AmountEditorSheet)));
     nav.pop();
@@ -330,7 +339,7 @@ void main() {
         'Home long press, prefilled new editor, edited note, independent ID, real push');
     pass('T06',
         'Original receipt and recurring relation remain; copy inherits neither');
-    await binding.takeScreenshot('03-original-and-copy');
+    await capture('03-original-and-copy');
 
     final full = await api(
         'GET', '/api/v1/sync/full?ledger_id=${ledger.syncId}',
@@ -353,7 +362,7 @@ void main() {
         cloudBaseline);
     container.read(statsRefreshProvider.notifier).state++;
     await waitFor(() => rowFor('QA Cloud 修改后').evaluate().isNotEmpty);
-    await binding.takeScreenshot('04-cloud-change-pulled-back');
+    await capture('04-cloud-change-pulled-back');
     pass('T09',
         'Real web write API update is pulled into App; original remains unchanged');
     await sync();
@@ -577,7 +586,7 @@ void main() {
     container.read(currentLedgerIdProvider.notifier).state = ledgerId;
     await host(mode: ThemeMode.dark, locale: const Locale('en'));
     await openCopy('QA 原交易', label: 'Copy as new transaction');
-    await binding.takeScreenshot('05-dark-english-copy');
+    await capture('05-dark-english-copy');
     Navigator.of(tester.element(find.byType(AmountEditorSheet)))
         .popUntil((route) => route.isFirst);
     await tester.pump(const Duration(milliseconds: 400));

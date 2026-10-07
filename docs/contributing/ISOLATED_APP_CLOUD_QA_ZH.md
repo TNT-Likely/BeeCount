@@ -6,6 +6,7 @@
 
 - macOS、Xcode、已安装的 iOS runtime（默认 iOS 26.5）、项目支持的 Flutter；不得安装到现用模拟器。
 - Python 3.12+；Cloud checkout 已 fetch `origin/main`，其 `.venv/bin/python` 包含兼容该版本的依赖。验收只读取这套 Python 运行时，不切换 Cloud 当前分支，不修改已有环境文件。
+- Ruby 的 `xcodeproj`（项目 CocoaPods 已使用）：用于生成独立的 QA 原生 UI 测试工程，处理正常入口首次系统权限弹窗并断言主页交易可见。
 - QA 资源写入新建的系统临时目录，至少留出两个 App 构建及容器备份的空间。
 
 ## 执行
@@ -41,7 +42,7 @@ python3 scripts/qa/isolated_app_cloud.py stop --run "$qa_run_dir"
 
 `run` 用 `flutter drive --use-application-binary` 安装已经检查的同一产物，并明确指定新 UDID。测试使用生产首页、编辑器、真实 Repository、真实运行时 provider、SyncEngine 和鉴权，fixture 为合成数据。测试用例不得在普通 `flutter test -d <现用设备>` 下运行。
 
-`restart-check` 构建正常 `lib/main.dart` 入口，先私密备份 QA 容器，核验新产物后只在本次 QA 设备安装/启动，读取 QA sandbox 确认交易持久化并截取实际 App 画面。
+`restart-check` 构建正常 `lib/main.dart` 入口，先私密备份 QA 容器，核验新产物后只在本次 QA 设备安装/启动。独立 `.qa.smoke.xctrunner` / `.qa.smoke` 原生测试产物先核验身份，再在同一新 UDID 处理系统权限弹窗、断言主页修改后的复制交易和 55.5 金额可见；读取 QA sandbox 确认持久化并截取实际 App 画面。原生测试不启用并行设备克隆，结果包仍为私有证据。
 
 `stop` 只停止 manifest 中 PID/启动时间/命令匹配的 QA 服务以及对应 QA 模拟器，保留数据和证据。失败后同样可执行 stop；禁止使用全局 shutdown、默认 compose volume 清理或按进程名批量 kill。
 

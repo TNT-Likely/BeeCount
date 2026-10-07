@@ -373,6 +373,40 @@ def stop(root, manifest):
     print('Owned QA Cloud and simulator stopped; data and evidence retained', flush=True)
 
 
+def verify_smoke_bundles(native):
+    runner = native / 'build/Build/Products/Debug-iphonesimulator/QASmoke-Runner.app'
+    for bundle, expected in [(runner, APP_ID + '.smoke.xctrunner'),
+                             (runner / 'PlugIns/QASmoke.xctest', APP_ID + '.smoke')]:
+        if plistlib.loads((bundle / 'Info.plist').read_bytes())['CFBundleIdentifier'] != expected:
+            raise ValueError('Native UI test bundle must have an independent QA identity')
+
+
+def normal_ui_check(root, manifest):
+    """Handle first-launch OS permission dialogs and assert the real home UI."""
+    device(manifest)
+    source = inside(root, root / 'app-source')
+    native = inside(root, root / 'native-smoke')
+    native.mkdir()  # Each run gets one fresh native test project and result bundle.
+    shutil.copyfile(source / 'scripts/qa/normal_app_smoke.swift', native / 'QASmoke.swift')
+    subprocess.run(['ruby', str(source / 'scripts/qa/create_smoke_project.rb'), str(native)], check=True)
+    args = ['xcodebuild', '-project', str(native / 'QASmoke.xcodeproj'), '-scheme', 'QASmoke',
+            '-configuration', 'Debug', '-sdk', 'iphonesimulator',
+            '-destination', f'id={manifest["udid"]}', '-derivedDataPath', str(native / 'build'),
+            '-parallel-testing-enabled', 'NO', 'CODE_SIGNING_ALLOWED=NO']
+    with (root / 'raw-logs/native-smoke-build.log').open('w') as log:
+        subprocess.run([args[0], 'build-for-testing', *args[1:]], stdout=log, stderr=log, check=True)
+    verify_smoke_bundles(native)  # Before xcodebuild is allowed to install its UI runner.
+    device(manifest)
+    with (root / 'raw-logs/native-smoke-test.log').open('w') as log:
+        result = subprocess.run([args[0], 'test-without-building', *args[1:],
+                                 '-resultBundlePath', str(native / 'result.xcresult')],
+                                stdout=log, stderr=log)
+    manifest['native_smoke_exit_code'] = result.returncode
+    write_json(root / 'manifest.json', manifest)
+    if result.returncode:
+        raise RuntimeError('Normal entry UI assertion failed; private native logs retained')
+
+
 def restart_check(root, manifest, flutter):
     """Launch a normal app entry after integration and check actual sandbox persistence."""
     device(manifest)
@@ -400,6 +434,7 @@ def restart_check(root, manifest, flutter):
         raise ValueError('Normal QA application is no longer running')
     manifest['normal_launch_pid'] = pid
     write_json(root / 'manifest.json', manifest)
+    normal_ui_check(root, manifest)
     subprocess.run(['xcrun', 'simctl', 'io', manifest['udid'], 'screenshot',
                     str(root / 'evidence/06-normal-app-restart.png')], check=True)
     container = Path(command(['xcrun', 'simctl', 'get_app_container', manifest['udid'], APP_ID, 'data']))
@@ -411,11 +446,12 @@ def restart_check(root, manifest, flutter):
     copy = next(r for r in rows if r['sync_id'] == report['copy_sync_id'])
     if copy['note'] != 'QA Cloud 修改后' or copy['amount'] != 55.5:
         raise ValueError('Normal App restart did not retain the synchronized copy')
-    report['cases'].append(dict(id='T10-restart', status='PASS', detail='Normal lib/main.dart entry retains QA transactions after reinstall/launch'))
+    report['cases'].append(dict(id='T10-restart', status='PASS', detail='Normal lib/main.dart entry retains synchronized data; native UI dismisses OS permissions and verifies visible copy and 55.5 amount'))
     write_json(root / 'evidence/acceptance.json', report)
     write_json(root / 'evidence/restart-persistence.json', rows)
     environment = json.loads((root / 'evidence/environment.json').read_text())
-    environment.update(normal_artifact_hash=manifest['normal_artifact_hash'], normal_launch_alive=True)
+    environment.update(normal_artifact_hash=manifest['normal_artifact_hash'], normal_launch_alive=True,
+                       normal_ui_passed=True, native_smoke_exit_code=manifest['native_smoke_exit_code'])
     write_json(root / 'evidence/environment.json', environment)
     backup_app(root, manifest)
     print('Normal QA App launch and persistent sandbox data verified', flush=True)
