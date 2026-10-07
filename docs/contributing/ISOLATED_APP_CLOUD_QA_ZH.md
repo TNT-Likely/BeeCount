@@ -7,6 +7,7 @@
 - macOS、Xcode、已安装的 iOS runtime（默认 iOS 26.5）、项目支持的 Flutter；不得安装到现用模拟器。
 - Python 3.12+；Cloud checkout 已 fetch `origin/main`，其 `.venv/bin/python` 包含兼容该版本的依赖。验收只读取这套 Python 运行时，不切换 Cloud 当前分支，不修改已有环境文件。
 - Ruby 的 `xcodeproj`（项目 CocoaPods 已使用）：用于生成独立的 QA 原生 UI 测试工程，处理正常入口首次系统权限弹窗并断言主页交易可见。
+- Node.js 20+ 与 pnpm：人工 Cloud 验收前在本次源码副本构建 web 前端，API 使用同一 QA origin，不能连接默认开发端口或现用 Cloud。
 - QA 资源写入新建的系统临时目录，至少留出两个 App 构建及容器备份的空间。
 
 ## 执行
@@ -35,7 +36,7 @@ python3 scripts/qa/isolated_app_cloud.py build --run "$qa_run_dir"
 python3 scripts/qa/isolated_app_cloud.py preflight --run "$qa_run_dir"
 python3 scripts/qa/isolated_app_cloud.py run --run "$qa_run_dir"
 python3 scripts/qa/isolated_app_cloud.py restart-check --run "$qa_run_dir"
-python3 scripts/qa/isolated_app_cloud.py stop --run "$qa_run_dir"
+python3 scripts/qa/isolated_app_cloud.py review --run "$qa_run_dir"
 ```
 
 `build` 对当前 tracked 文件与 QA 入口生成源码副本，构建后核验实际主包和扩展的 ID / 签名 entitlement。改代码后创建新 run，再构建；不要将旧 artifact 当作新代码已通过。
@@ -44,7 +45,19 @@ python3 scripts/qa/isolated_app_cloud.py stop --run "$qa_run_dir"
 
 `restart-check` 构建正常 `lib/main.dart` 入口，先私密备份 QA 容器，核验新产物后只在本次 QA 设备安装/启动。独立 `.qa.smoke.xctrunner` / `.qa.smoke` 原生测试产物先核验身份，再在同一新 UDID 处理系统权限弹窗、断言主页修改后的复制交易和 55.5 金额可见；读取 QA sandbox 确认持久化并截取实际 App 画面。原生测试不启用并行设备克隆，结果包仍为私有证据。
 
-`stop` 只停止 manifest 中 PID/启动时间/命令匹配的 QA 服务以及对应 QA 模拟器，保留数据和证据。失败后同样可执行 stop；禁止使用全局 shutdown、默认 compose volume 清理或按进程名批量 kill。
+`review` 是自动验收后的人工验收交接：核验当前安装的正常入口产物，启动本次 Cloud 和模拟器，打开 QA App，保持环境运行。复用同一数据库、凭证、origin 和现有 App；不执行迁移、重装、重新准备 fixture 或自动用例，不覆盖用户手工验收数据。旧 run 没有记录 Python 路径时加 `--cloud-repo <原 Cloud checkout>`。
+
+交接前构建同一 Cloud SHA 的 web 前端，静态产物仅放到本次 `cloud-data/static`。构建子进程使用明确环境与同源 `/api/v1`，不继承现用 Vite API 设置。新环境启动 API 前就创建静态目录，保证网页路由已注册；QA 身份路由优先于 SPA fallback。已经交接的环境复用原网页产物，不重复安装或构建。
+
+打开 QA Cloud 的浏览器页面，使用本次私有凭证登录和 App 相同的 QA 账号，选中同一账本并展示交易列表。凭证只在内存与授权的 QA 登录表单中使用，不打印到聊天、日志或公开报告。保留登录页面供用户继续操作；自动验收、浏览器页面查看与用户人工验收分开记录。
+
+自动验收或报告打包完成后不要关闭本地服务和模拟器。交付时说明 App 入口、Cloud 地址、run 身份及版本，标记等待用户验收；用户明确确认验收完成或要求关闭后，才执行：
+
+```sh
+python3 scripts/qa/isolated_app_cloud.py stop --run "$qa_run_dir"
+```
+
+`stop` 只停止 manifest 中 PID/启动时间/命令匹配的 QA 服务以及对应 QA 模拟器，保留数据和证据。结束聊天、开 PR 或输出报告都不代表用户验收完成。禁止使用全局 shutdown、默认 compose volume 清理或按进程名批量 kill。
 
 ## 隔离保证
 
@@ -74,6 +87,8 @@ python3 scripts/qa/isolated_app_cloud.py stop --run "$qa_run_dir"
 报告逐项标记 `PASS / FAIL / 未执行`，注明实际 App/Cloud/skill SHA、命令和退出码。不能将计划、fake 测试或接口 200 当作实服同步通过；需要核对交易身份、笔数、业务字段与原交易未改变。区分真实权限与本地缓存 fixture、Cloud 写 API 与 web 前端、503 与实际断网。
 
 完整包包含 `index.html`、打开说明、合成数据截图、脱敏 JSON、文件 manifest 与 SHA256 校验表，压缩为独立 ZIP。打包前检查凭证、token、私人绝对路径与文件清单，解压后核验校验表并检查报告布局。不要将原始 run manifest 直接复制到公开包，其中包含私有路径。
+
+报告是自动验收时的证据快照，人工验收后的数据可能变化。报告中单列当前环境交接状态；生成 ZIP 不要求先停止服务，也不能将正在运行的环境写成已清理。
 
 PR 只保留简短验收摘要、范围限制、相关仓依赖和报告下载链接。用户授权上传时，使用独立附件保存 ZIP；附件不进入 Git 历史，也不为报告创建应用发版。上传后核对下载文件与本地 ZIP 的 SHA256；上传受限时交付本地包并说明实际限制。
 

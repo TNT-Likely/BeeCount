@@ -17,6 +17,7 @@ import sys
 import tarfile
 import tempfile
 import time
+import urllib.parse
 import urllib.request
 
 APP_ID = 'com.tntlikely.beecount.qa'
@@ -113,6 +114,7 @@ def prepare(args):
                        jwt_secret=secrets.token_hex(32), admin_password=secrets.token_urlsafe(24))
     write_json(root / 'credentials.json', credentials)
     data = root / 'cloud-data'
+    (data / 'static').mkdir(mode=0o700)
     paths = dict(DATA_DIR=str(data), DATABASE_URL=f'sqlite:///{data}/beecount.db',
                  ATTACHMENT_STORAGE_DIR=str(data / 'attachments'),
                  BACKUP_STORAGE_DIR=str(data / 'backups'),
@@ -128,6 +130,7 @@ def prepare(args):
                EXCHANGE_RATE_PROXY_ENABLED='false', EMBEDDING_API_KEY='', **paths)
     write_json(root / 'cloud-env.json', env)
     python = cloud / '.venv/bin/python'
+    manifest['cloud_python'] = str(python)
     migration = (
         'from alembic.config import Config; from alembic import command; '
         f'c=Config({str(root / "cloud-source/alembic.ini")!r}); '
@@ -168,6 +171,7 @@ async def qa_set_fault(request: Request):
 @app.get('/__qa__/identity')
 def qa_identity():
     return {{'run_id': {run_id!r}, 'cloud_sha': {sha!r}, 'database_is_isolated': True}}
+app.router.routes.sort(key=lambda route: 0 if getattr(route, 'path', '').startswith('/__qa__/') else 1)
 '''
     (root / 'cloud-runtime/qa_server.py').write_text(wrapper)
     with (root / 'raw-logs/cloud.log').open('w') as log:
@@ -355,6 +359,186 @@ def run(root, manifest, flutter):
     print(f'Acceptance passed; evidence: {root / "evidence"}', flush=True)
 
 
+def review_web(root, manifest):
+    """Build the fixed Cloud frontend inside the run, without touching its data."""
+    static = inside(root / 'cloud-data', root / 'cloud-data/static')
+    if not (static / 'index.html').is_file():
+        frontend = inside(root, root / 'cloud-source/frontend')
+        if not shutil.which('pnpm'):
+            raise ValueError('Human Cloud acceptance requires pnpm and Node.js')
+        env = dict(PATH=os.environ['PATH'], LANG='en_US.UTF-8', VITE_API_BASE_URL='/api/v1')
+        print('Preparing the isolated Cloud web UI; build logs remain private', flush=True)
+        with (root / f'raw-logs/web-review-{time.time_ns()}.log').open('w') as log:
+            for args in (['pnpm', 'install', '--frozen-lockfile'],
+                         ['pnpm', '-C', 'apps/web', 'build']):
+                subprocess.run(args, cwd=frontend, env=env, stdout=log, stderr=log, check=True)
+        dist = inside(root, frontend / 'apps/web/dist')
+        for path in dist.rglob('*'):
+            inside(dist, path)
+        shutil.copytree(dist, static, dirs_exist_ok=True)
+    wrapper = inside(root, root / 'cloud-runtime/qa_server.py')
+    wrapper_source = wrapper.read_text()
+    requires_reload = False
+    if 'app.router.routes.sort(' not in wrapper_source or 'getattr(route' not in wrapper_source:
+        wrapper_source = '\n'.join(line for line in wrapper_source.splitlines()
+                                   if not line.startswith('app.router.routes.sort('))
+        wrapper_source += "\napp.router.routes.sort(key=lambda route: 0 if getattr(route, 'path', '').startswith('/__qa__/') else 1)\n"
+        wrapper.write_text(wrapper_source)
+        requires_reload = True
+    digest = hashlib.sha256()
+    for path in sorted(static.rglob('*')):
+        inside(static, path)
+        if path.is_file():
+            digest.update(str(path.relative_to(static)).encode())
+            digest.update(path.read_bytes())
+    manifest.update(web_build_cloud_sha=manifest['cloud_sha'], web_artifact_hash=digest.hexdigest())
+    write_json(root / 'manifest.json', manifest)
+    return requires_reload
+
+
+def cloud_identity(manifest):
+    with urllib.request.urlopen(manifest['cloud_origin'] + '/__qa__/identity', timeout=2) as response:
+        identity = json.load(response)
+    if (identity.get('run_id') != manifest['run_id'] or
+            identity.get('cloud_sha') != manifest['cloud_sha'] or
+            identity.get('database_is_isolated') is not True):
+        raise ValueError('Cloud ownership probe failed')
+
+
+def review(root, manifest, cloud_repo=None):
+    """Resume the existing QA service and normal App for human acceptance."""
+    owned_device = device(manifest)
+    if not manifest.get('normal_artifact_hash'):
+        raise ValueError('Complete the normal-entry restart check before handing off')
+    runtime = inside(root, root / 'cloud-runtime')
+    env = json.loads(inside(root, root / 'cloud-env.json').read_text())
+    data = inside(root, root / 'cloud-data')
+    database = inside(data, data / 'beecount.db')
+    if not database.is_file() or env.get('DATABASE_URL') != f'sqlite:///{database}':
+        raise ValueError('Review must reuse the existing isolated QA database')
+    if env.get('DATA_DIR') != str(data) or env.get('PYTHONPATH') != str(root / 'cloud-source'):
+        raise ValueError('QA runtime paths no longer match this run')
+    for key in ('ATTACHMENT_STORAGE_DIR', 'BACKUP_STORAGE_DIR', 'BACKUP_STAGING_DIR',
+                'RESTORE_DIR', 'RCLONE_CONFIG_PATH', 'RAG_INDEX_CACHE_DIR', 'WEB_STATIC_DIR'):
+        inside(data, env[key])
+    if any((runtime / name).exists() for name in ('.env', '.env.local')):
+        raise ValueError('QA runtime must not load local environment files')
+    allowed = {'PATH', 'PYTHONPATH', 'PYTHONDONTWRITEBYTECODE', 'APP_ENV', 'TZ', 'JWT_SECRET',
+               'BOOTSTRAP_ADMIN_EMAIL', 'BOOTSTRAP_ADMIN_PASSWORD', 'REGISTRATION_ENABLED',
+               'ALLOW_APP_RW_SCOPES', 'BACKUP_SCHEDULER_ENABLED', 'RAG_INDEX_REFRESH_INTERVAL_SECONDS',
+               'EXCHANGE_RATE_PROXY_ENABLED', 'EMBEDDING_API_KEY', 'DATA_DIR', 'DATABASE_URL',
+               'ATTACHMENT_STORAGE_DIR', 'BACKUP_STORAGE_DIR', 'BACKUP_STAGING_DIR',
+               'RESTORE_DIR', 'RCLONE_CONFIG_PATH', 'RAG_INDEX_CACHE_DIR', 'WEB_STATIC_DIR'}
+    if set(env) - allowed or env.get('APP_ENV') != 'test':
+        raise ValueError('Unexpected environment in QA runtime')
+    if (env.get('BACKUP_SCHEDULER_ENABLED') != 'false' or
+            env.get('RAG_INDEX_REFRESH_INTERVAL_SECONDS') != '0' or
+            env.get('EXCHANGE_RATE_PROXY_ENABLED') != 'false' or env.get('EMBEDDING_API_KEY')):
+        raise ValueError('QA background services or external credentials are enabled')
+    requires_reload = review_web(root, manifest)
+    origin = urllib.parse.urlparse(manifest['cloud_origin'])
+    if origin.scheme != 'http' or origin.hostname != '127.0.0.1' or not origin.port:
+        raise ValueError('Expected the original loopback QA origin')
+    pid = manifest.get('cloud_pid')
+    current = subprocess.run(['ps', '-p', str(pid), '-o', 'lstart='],
+                             capture_output=True, text=True) if pid else None
+    if current and current.returncode == 0:
+        if (current.stdout.strip() != manifest['cloud_process_start'] or
+                'uvicorn qa_server:app' not in command(['ps', '-p', str(pid), '-o', 'args='])):
+            raise ValueError('QA Cloud process identity no longer matches')
+        if not requires_reload:
+            cloud_identity(manifest)
+        try:
+            with urllib.request.urlopen(manifest['cloud_origin'] + '/', timeout=2) as response:
+                if 'text/html' not in response.headers.get('Content-Type', ''):
+                    raise ValueError('QA Cloud frontend is not available at its own origin')
+        except urllib.error.HTTPError as error:
+            if error.code != 404:
+                raise
+            requires_reload = True
+        if requires_reload:
+            os.kill(pid, signal.SIGTERM)
+            for _ in range(60):
+                if subprocess.run(['ps', '-p', str(pid), '-o', 'lstart='],
+                                  capture_output=True).returncode:
+                    break
+                time.sleep(0.25)
+            else:
+                raise RuntimeError('Owned QA Cloud reload did not finish')
+            current = None
+    if not current or current.returncode != 0:
+        with socket.socket() as probe:
+            probe.bind(('127.0.0.1', origin.port))
+        python = manifest.get('cloud_python')
+        if not python:
+            if not cloud_repo:
+                raise ValueError('Older runs require --cloud-repo to locate the existing Python runtime')
+            python = str(Path(cloud_repo).resolve() / '.venv/bin/python')
+        if not Path(python).is_file():
+            raise ValueError('Existing Cloud Python runtime is unavailable')
+        with (root / f'raw-logs/cloud-review-{time.time_ns()}.log').open('w') as log:
+            proc = subprocess.Popen([python, '-m', 'uvicorn', 'qa_server:app', '--host',
+                                     '127.0.0.1', '--port', str(origin.port)], cwd=runtime,
+                                    env=env, stdout=log, stderr=log, start_new_session=True)
+        manifest.update(cloud_pid=proc.pid, cloud_python=python,
+                        cloud_process_start=command(['ps', '-p', str(proc.pid), '-o', 'lstart=']),
+                        stopped=False)
+        write_json(root / 'manifest.json', manifest)
+        for _ in range(40):
+            if proc.poll() is not None:
+                raise RuntimeError('QA Cloud startup failed; inspect the private review log')
+            try:
+                cloud_identity(manifest)
+                break
+            except OSError:
+                time.sleep(0.5)
+        else:
+            raise RuntimeError('QA Cloud startup timed out; owned resources are preserved')
+    fault = urllib.request.Request(manifest['cloud_origin'] + '/__qa__/fault',
+                                   data=json.dumps(dict(run_id=manifest['run_id'], offline=False)).encode(),
+                                   headers={'Content-Type': 'application/json'}, method='POST')
+    with urllib.request.urlopen(fault, timeout=2) as response:
+        if json.load(response).get('offline') is not False:
+            raise ValueError('QA Cloud must be online for human acceptance')
+    if owned_device['state'] != 'Booted':
+        subprocess.run(['xcrun', 'simctl', 'boot', manifest['udid']], check=True)
+    subprocess.run(['xcrun', 'simctl', 'bootstatus', manifest['udid'], '-b'], check=True)
+    installed = Path(command(['xcrun', 'simctl', 'get_app_container', manifest['udid'], APP_ID, 'app']))
+    info = plistlib.loads((installed / 'Info.plist').read_bytes())
+    if (info.get('CFBundleIdentifier') != APP_ID or
+            hashlib.sha256((installed / 'Runner').read_bytes()).hexdigest() != manifest['normal_artifact_hash']):
+        raise ValueError('Installed QA App does not match the verified normal-entry artifact')
+    bundles = [installed] + list((installed / 'PlugIns').glob('*.appex'))
+    bundle_ids = []
+    for bundle in bundles:
+        bundle_info = plistlib.loads((bundle / 'Info.plist').read_bytes())
+        bundle_ids.append(bundle_info['CFBundleIdentifier'])
+        if 'NSUbiquitousContainers' in bundle_info:
+            raise ValueError('Installed QA bundle retains an iCloud container')
+        ent = subprocess.run(['codesign', '-d', '--entitlements', '-', '--xml', str(bundle)],
+                             capture_output=True, check=True).stdout
+        rights = plistlib.loads(ent)
+        if (rights.get('com.apple.security.application-groups') != [GROUP_ID] or
+                any('icloud' in key.lower() or 'ubiquity' in key.lower() for key in rights)):
+            raise ValueError('Installed QA application has unsafe shared-container rights')
+    if sorted(bundle_ids) != sorted([APP_ID, APP_ID + '.BeeCountWidgetExtension']):
+        raise ValueError('Installed QA extension identities no longer match')
+    launched = command(['xcrun', 'simctl', 'launch', manifest['udid'], APP_ID])
+    if not launched.startswith(APP_ID + ': '):
+        raise ValueError('Unexpected QA App launch identity')
+    app_pid = int(launched.rsplit(': ', 1)[1])
+    time.sleep(2)
+    if 'Runner.app/Runner' not in command(['ps', '-p', str(app_pid), '-o', 'comm=']):
+        raise ValueError('Normal QA App is no longer running')
+    manifest.update(normal_launch_pid=app_pid, stopped=False,
+                    review_pending=True, review_started_at=time.time())
+    write_json(root / 'manifest.json', manifest)
+    subprocess.run(['open', '-a', 'Simulator', '--args', '-CurrentDeviceUDID', manifest['udid']], check=True)
+    print(f'QA review ready: {manifest["device_name"]}', flush=True)
+    print(f'Cloud remains available: {manifest["cloud_origin"]}', flush=True)
+    print('Normal QA App and Cloud stay running until the user confirms acceptance is complete.', flush=True)
+
+
 def stop(root, manifest):
     pid = manifest.get('cloud_pid')
     if pid:
@@ -369,6 +553,7 @@ def stop(root, manifest):
     if manifest.get('udid') and device(manifest)['state'] == 'Booted':
         subprocess.run(['xcrun', 'simctl', 'shutdown', manifest['udid']], check=True)
     manifest['stopped'] = True
+    manifest['review_pending'] = False
     write_json(root / 'manifest.json', manifest)
     print('Owned QA Cloud and simulator stopped; data and evidence retained', flush=True)
 
@@ -459,7 +644,7 @@ def restart_check(root, manifest, flutter):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('prepare', 'build', 'preflight', 'run', 'restart-check', 'stop'))
+    parser.add_argument('action', choices=('prepare', 'build', 'preflight', 'run', 'restart-check', 'review', 'stop'))
     parser.add_argument('--run')
     parser.add_argument('--cloud-repo')
     parser.add_argument('--cloud-ref', default='origin/main')
@@ -485,6 +670,8 @@ def main():
             run(root, manifest, args.flutter)
         elif args.action == 'restart-check':
             restart_check(root, manifest, args.flutter)
+        elif args.action == 'review':
+            review(root, manifest, args.cloud_repo)
         else:
             stop(root, manifest)
 
