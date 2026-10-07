@@ -16,6 +16,7 @@ import 'package:beecount/widgets/biz/transaction_list_item.dart';
 import 'package:beecount/widgets/biz/transaction_list.dart';
 import 'package:drift/drift.dart' as d;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -224,7 +225,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       final position = tester.getTopLeft(row) + const Offset(100, 16);
       debugPrint('QA long press: $note at $position');
-      await tester.longPressAt(position);
+      debugPrint(
+          'QA pointer targets: ${tester.hitTestOnBinding(position).path.map((entry) => entry.target is RenderObject ? (entry.target as RenderObject).debugCreator.toString() : entry.target.runtimeType.toString()).join(' | ')}');
+      final gesture = await tester.startGesture(position);
+      await tester.pump(const Duration(milliseconds: 1000));
+      await gesture.up();
       await waitFor(() => find.text(label).evaluate().isNotEmpty);
       await tester.pump(const Duration(milliseconds: 200));
       await tester.pump(const Duration(milliseconds: 200));
