@@ -89,6 +89,49 @@ class TransactionListState extends ConsumerState<TransactionList> {
     return widget.transactions ?? [];
   }
 
+  bool _showingTransactionActions = false;
+
+  Future<void> _showTransactionActions(
+    Transaction transaction,
+    BuildContext rowContext,
+  ) async {
+    if (_showingTransactionActions) return;
+    _showingTransactionActions = true;
+    try {
+      final action = await _pickTransactionAction(rowContext);
+      if (action == 'copy' && mounted) {
+        switchToStreamMode();
+        await TransactionEditUtils.copyTransaction(context, ref, transaction);
+      }
+    } catch (error, stack) {
+      logger.error('TransactionList', '打开交易操作失败', error, stack);
+      if (mounted) {
+        showToast(context, AppLocalizations.of(context).transactionCopyUnavailable);
+      }
+    }
+  }
+
+  Future<String?> _pickTransactionAction(BuildContext rowContext) async {
+    try {
+      final overlay =
+          Overlay.of(context).context.findRenderObject() as RenderBox;
+      final row = rowContext.findRenderObject() as RenderBox;
+      return await BeePopupMenu.showForAnchor(
+        context: context,
+        anchor: row.localToGlobal(Offset.zero, ancestor: overlay) & row.size,
+        items: [
+          BeeMenuItem.action(
+            value: 'copy',
+            icon: Icons.copy_outlined,
+            label: AppLocalizations.of(context).transactionCopyAction,
+          ),
+        ],
+      );
+    } finally {
+      _showingTransactionActions = false;
+    }
+  }
+
   /// 预加载数据的 ID 集合（用于快速判断某条交易是否有预加载详情）
   Set<int>? _preloadedIds;
   Set<int> get _preloadedIdSet {
@@ -548,6 +591,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
                             it.category,
                           );
                         },
+                        onLongPressStart: (_) =>
+                            _showTransactionActions(it.t, context),
                         onCategoryTap: !isTransfer && it.category?.id != null
                             ? () async {
                                 switchToStreamMode(); // 用户交互，切换到 Stream 模式

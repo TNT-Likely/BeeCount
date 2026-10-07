@@ -19,6 +19,11 @@ import '../ui/ui.dart';
 /// 转账表单组件
 /// 用于创建或编辑转账记录
 class TransferForm extends ConsumerStatefulWidget {
+  final bool initialExcludeFromStats;
+  final bool initialExcludeFromBudget;
+  final String? initialCurrencyCode;
+  final double? initialNativeAmount;
+
   /// 转账完成回调
   final VoidCallback onTransferComplete;
 
@@ -45,6 +50,10 @@ class TransferForm extends ConsumerStatefulWidget {
 
   const TransferForm({
     super.key,
+    this.initialExcludeFromStats = false,
+    this.initialExcludeFromBudget = false,
+    this.initialCurrencyCode,
+    this.initialNativeAmount,
     required this.onTransferComplete,
     this.initialFromAccountId,
     this.initialToAccountId,
@@ -72,8 +81,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
     _toAccountId = widget.initialToAccountId;
 
     // 如果是编辑模式且两个账户都已选择，自动打开金额编辑弹窗
-    if (widget.editingTransactionId != null &&
-        _fromAccountId != null &&
+    if (_fromAccountId != null &&
         _toAccountId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (mounted && !_autoOpened) {
@@ -163,6 +171,10 @@ class _TransferFormState extends ConsumerState<TransferForm> {
         ledgerId: ledgerId,
         editingTransactionId: widget.editingTransactionId,
         transactionKind: 'transfer',
+        initialExcludeFromStats: widget.initialExcludeFromStats,
+        initialExcludeFromBudget: widget.initialExcludeFromBudget,
+        initialCurrencyCode: widget.initialCurrencyCode,
+        initialNativeAmount: widget.initialNativeAmount,
         onSubmit: (result) async {
           final attachmentService = ref.read(attachmentServiceProvider);
           // 获取虚拟转账分类ID
@@ -194,6 +206,10 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                 categoryId: transferCategoryId, // 使用虚拟转账分类ID
                 note: result.note,
                 happenedAt: result.date,
+                excludeFromStats: result.excludeFromStats,
+                excludeFromBudget: result.excludeFromBudget,
+                currencyCode: result.currencyCode,
+                nativeAmount: result.nativeAmount,
                 accountId: d.Value<int?>(fromAccountForAdd),
                 accountSyncIdOverride: fromOverride,
               );
@@ -255,6 +271,10 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                 toAccountSyncIdOverride: toOverride,
                 note: result.note,
                 happenedAt: result.date,
+                excludeFromStats: result.excludeFromStats,
+                excludeFromBudget: result.excludeFromBudget,
+                currencyCode: result.currencyCode,
+                nativeAmount: result.nativeAmount,
               );
               // 共享账本:本地立即标记创建人 + 编辑人
               await TxAuthorService.markCreated(ref, txId);
@@ -328,7 +348,8 @@ class _TransferFormState extends ConsumerState<TransferForm> {
       accounts = await repo.db.filterAccountsForLedger(allAccounts, ctx);
     }
 
-    if (widget.editingTransactionId != null) {
+    if (widget.editingTransactionId != null ||
+        widget.initialFromAccountId != null || widget.initialToAccountId != null) {
       for (final pinnedId in {
         widget.initialFromAccountId,
         widget.initialToAccountId,

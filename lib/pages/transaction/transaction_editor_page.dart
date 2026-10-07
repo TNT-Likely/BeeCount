@@ -21,6 +21,7 @@ import '../../services/data/tx_author_service.dart';
 /// 交易编辑器页面
 /// 支持创建/编辑收入、支出和转账记录
 class TransactionEditorPage extends ConsumerStatefulWidget {
+  final bool isCopy;
   final String initialKind; // 'expense', 'income', or 'transfer'
   // quickAdd: 点击分类后在当前弹窗上叠加金额输入
   final bool quickAdd;
@@ -40,6 +41,7 @@ class TransactionEditorPage extends ConsumerStatefulWidget {
 
   const TransactionEditorPage({
     super.key,
+    this.isCopy = false,
     required this.initialKind,
     this.quickAdd = false,
     this.initialCategoryId,
@@ -55,6 +57,35 @@ class TransactionEditorPage extends ConsumerStatefulWidget {
     this.initialCurrencyCode,
     this.initialNativeAmount,
   });
+
+  /// Reuse business fields only; saving takes the normal creation path.
+  factory TransactionEditorPage.copy({
+    required Transaction source,
+    required List<int> tagIds,
+    DateTime? now,
+  }) =>
+      TransactionEditorPage(
+        isCopy: true,
+        initialKind: source.type,
+        quickAdd: true,
+        initialCategoryId: source.categorySyncIdOverride == null
+            ? source.categoryId
+            : syntheticIdForSyncId(source.categorySyncIdOverride!),
+        initialAccountId: source.accountSyncIdOverride == null
+            ? source.accountId
+            : syntheticIdForSyncId(source.accountSyncIdOverride!),
+        initialToAccountId: source.toAccountSyncIdOverride == null
+            ? source.toAccountId
+            : syntheticIdForSyncId(source.toAccountSyncIdOverride!),
+        initialAmount: source.amount,
+        initialDate: now ?? DateTime.now(),
+        initialNote: source.note,
+        initialTagIds: List.unmodifiable(tagIds),
+        initialExcludeFromStats: source.excludeFromStats,
+        initialExcludeFromBudget: source.excludeFromBudget,
+        initialCurrencyCode: source.currencyCode,
+        initialNativeAmount: source.nativeAmount,
+      );
 
   @override
   ConsumerState<TransactionEditorPage> createState() => _TransactionEditorPageState();
@@ -179,6 +210,10 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
                   initialNote: widget.initialNote,
                   initialDate: widget.initialDate,
                   initialTagIds: widget.initialTagIds,
+                  initialExcludeFromStats: widget.initialExcludeFromStats,
+                  initialExcludeFromBudget: widget.initialExcludeFromBudget,
+                  initialCurrencyCode: widget.initialCurrencyCode,
+                  initialNativeAmount: widget.initialNativeAmount,
                 ),
               ],
             ),
@@ -228,7 +263,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
 
     // 确定初始账户ID（新建时使用默认账户，编辑时保持原值）
     int? initialAccountId = widget.initialAccountId;
-    if (widget.editingTransactionId == null && widget.initialAccountId == null) {
+    if (!widget.isCopy && widget.editingTransactionId == null && widget.initialAccountId == null) {
       // 新建模式：尝试获取默认账户
       initialAccountId = await _getDefaultAccountId(kind, ledgerId);
     }
@@ -258,6 +293,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
         initialCurrencyCode: widget.initialCurrencyCode,
         initialNativeAmount: widget.initialNativeAmount,
         allowContinueAdding: widget.quickAdd &&
+            !widget.isCopy &&
             widget.editingTransactionId == null &&
             kind != 'transfer',
         onSubmit: (res) async {
