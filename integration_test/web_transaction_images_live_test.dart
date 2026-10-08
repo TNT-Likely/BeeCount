@@ -196,8 +196,9 @@ void main() {
         final s = await snapshot();
         final hits = transactions(s).where((tx) => tx['note'] == note).toList();
         if (hits.length == 1 &&
-            ((hits.single['attachments'] as List?) ?? []).length == count)
+            ((hits.single['attachments'] as List?) ?? []).length == count) {
           return hits.single;
+        }
         await tester.pump(const Duration(milliseconds: 100));
         await Future<void>.delayed(const Duration(seconds: 1));
       }
