@@ -12,6 +12,7 @@ import 'package:beecount/main.dart' show MainApp;
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/pages/main/home_page.dart';
 import 'package:beecount/providers/database_providers.dart';
+import 'package:beecount/providers/statistics_providers.dart';
 import 'package:beecount/providers/language_provider.dart';
 import 'package:beecount/providers/sync_providers.dart';
 import 'package:beecount/providers/theme_providers.dart';
@@ -233,18 +234,23 @@ void main() {
           'sortOrder': row.sortOrder
         });
       }
+      container.read(statsRefreshProvider.notifier).state++;
       return evidence;
     }
 
     Future<void> openPreview(String note, String screenshot) async {
       await waitUi(() => find.byType(HomePage).evaluate().isNotEmpty);
-      final title = find.textContaining(note, findRichText: true);
-      await waitUi(() => title.evaluate().isNotEmpty);
-      final row = find
-          .ancestor(of: title.first, matching: find.byType(TransactionListItem))
-          .first;
+      // flutter_list_view exposes its rendered rows only with skipOffstage:false.
+      // Match the transaction widget identity, then send a real gesture to its image icon.
+      final row = find.byWidgetPredicate(
+          (widget) => widget is TransactionListItem && widget.title == note,
+          skipOffstage: false);
+      await waitUi(() => row.evaluate().isNotEmpty);
       final icon = find
-          .descendant(of: row, matching: find.byIcon(Icons.image_outlined))
+          .descendant(
+              of: row.first,
+              matching: find.byIcon(Icons.image_outlined, skipOffstage: false),
+              skipOffstage: false)
           .first;
       await tester.ensureVisible(icon);
       await tester.tap(icon);
@@ -318,7 +324,7 @@ void main() {
     await openPreview('QA Web重传图片', '04-app-reuploaded-image');
     await tester.tap(find.byIcon(Icons.delete_outline).last);
     await tester.pump(const Duration(milliseconds: 500));
-    await tapText('删除');
+    await tapText('确定');
     await tester.pump(const Duration(milliseconds: 800));
     await home();
     await sync();
