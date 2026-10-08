@@ -5,9 +5,8 @@ import 'dart:ui' as ui;
 import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:beecount/services/attachment_service.dart';
-import 'package:beecount/pages/transaction/transaction_editor_page.dart';
+import 'package:beecount/widgets/biz/transaction_list_item.dart';
 import 'package:beecount/pages/attachment/attachment_preview_page.dart';
-import 'package:beecount/widgets/biz/attachment_picker.dart';
 
 import 'package:beecount/main.dart' show MainApp;
 import 'package:beecount/data/repositories/local/local_repository.dart';
@@ -239,17 +238,16 @@ void main() {
 
     Future<void> openPreview(String note, String screenshot) async {
       await waitUi(() => find.byType(HomePage).evaluate().isNotEmpty);
-      await tapText(note);
-      await waitUi(() =>
-          find.byType(TransactionEditorPage).evaluate().isNotEmpty &&
-          find.byType(AttachmentPicker).evaluate().isNotEmpty);
-      final picker = find.byType(AttachmentPicker).first;
-      await tester.ensureVisible(picker);
-      await tester.pump(const Duration(milliseconds: 600));
-      final gesture = find
-          .descendant(of: picker, matching: find.byType(GestureDetector))
+      final title = find.textContaining(note, findRichText: true);
+      await waitUi(() => title.evaluate().isNotEmpty);
+      final row = find
+          .ancestor(of: title.first, matching: find.byType(TransactionListItem))
           .first;
-      await tester.tap(gesture);
+      final icon = find
+          .descendant(of: row, matching: find.byIcon(Icons.image_outlined))
+          .first;
+      await tester.ensureVisible(icon);
+      await tester.tap(icon);
       await waitUi(() =>
           find.byType(AttachmentPreviewPage).evaluate().isNotEmpty &&
           find.byType(InteractiveViewer).evaluate().isNotEmpty);
