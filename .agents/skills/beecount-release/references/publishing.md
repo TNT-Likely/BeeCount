@@ -21,7 +21,7 @@ git -C <App checkout> tag <App-X.Y.Z> <已确认的App-SHA>
 git -C <App checkout> push origin refs/tags/<App-X.Y.Z>
 ```
 
-只发布一端时仅执行该端。双端先确认 Cloud CI 和镜像可用，再触发 App。Cloud CI 产出 `sunxiao0721/beecount-cloud:<版本>`；App CI 注入版本并生成 Android/iOS 产物。是否自动发布 `latest`、tag 前缀和构建目标以当前 workflow 为准。
+只发布一端时仅执行该端。双端默认连续推送两个 tag，让 Cloud 与 App CI 并行运行；不将 Cloud CI 完成作为 App 构建的前置条件。用户部署与升级先 Cloud、后 App。只有实际兼容性检查明确要求 Cloud 已发布后才能发 App 时，才等待 Cloud 成功，并说明具体依赖。Cloud CI 产出 `sunxiao0721/beecount-cloud:<版本>`；App CI 注入版本并生成 Android/iOS 产物。是否自动发布 `latest`、tag 前缀和构建目标以当前 workflow 为准。
 
 记录确切 tag、源码 SHA 和 Actions run。触发后立即进入文案和日志工作，不空等构建，也不等完整 changelog 写好才启动发布。
 
