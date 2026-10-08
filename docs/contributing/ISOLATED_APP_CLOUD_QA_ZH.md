@@ -1,6 +1,6 @@
 # App 与 Cloud 隔离验收
 
-用于需要真实 iOS App UI、真实 Cloud 数据持久化和双向同步的验收。当前入口用例是首页复制交易。单元/widget 测试与 fake-provider 同步测试仍是快速回归层，实服同步另行执行。
+用于需要真实 iOS App UI、真实 Cloud 数据持久化和双向同步的验收。当前支持首页复制交易与父子分类改名同步两种场景。单元/widget 测试与 fake-provider 同步测试仍是快速回归层，实服同步另行执行。
 
 ## 环境要求
 
@@ -25,6 +25,10 @@ flutter test test/utils/transaction_copy_test.dart test/widgets/transaction_copy
 git -C ../BeeCount-Cloud fetch origin main
 python3 scripts/qa/isolated_app_cloud.py prepare --cloud-repo ../BeeCount-Cloud
 ```
+
+默认场景为 `transaction-copy`；分类关联修复使用 `prepare --scenario category-parent`。分类场景在真实 App 分类管理页改名父分类，等待浏览器在同一 QA 账本将父分类改为「QA Web伙食」、子分类「QA早餐」改为「QA早饭」，再通过实际同步引擎拉回并核对父子身份。网页操作由浏览器实际执行，不能以直接写 API 替代这两项 Web UI 验收。
+
+分类场景的正常入口检查断言主页合成交易可见，并读取 QA 数据库核对父分类名称、子分类稳定身份与本地 `parent_id` 关系。两种场景共用隔离措施，执行结果与截图仍只进入独立报告包。
 
 Cloud 默认取 `origin/main`；需要联调独立修复分支时，通过 `--cloud-ref <分支或 SHA>` 指定已提交的版本。manifest 记录解析后的实际 SHA，Cloud 当前 checkout 不切换。
 

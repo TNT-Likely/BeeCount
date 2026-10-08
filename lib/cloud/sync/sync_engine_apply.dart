@@ -437,28 +437,39 @@ extension SyncEngineApplyExt on SyncEngine {
 
     // upsert
     final payload = change.payload!;
-    final name = payload['name'] as String? ?? '';
-    final kind = payload['kind'] as String? ?? 'expense';
-    final level = (payload['level'] as num?)?.toInt() ?? 1;
+    var existing = await (db.select(db.categories)
+          ..where((c) => c.syncId.equals(syncId)))
+        .getSingleOrNull();
+    final name = payload['name'] as String? ?? existing?.name ?? '';
+    final kind = payload['kind'] as String? ?? existing?.kind ?? 'expense';
+    final level = (payload['level'] as num?)?.toInt() ?? existing?.level ?? 1;
     final sortOrder = (payload['sortOrder'] as num?)?.toInt() ?? 0;
     final icon = payload['icon'] as String?;
     final iconType = payload['iconType'] as String? ?? 'material';
     final parentName = payload['parentName'] as String?;
+    final parentSyncId = (payload['parentSyncId'] as String?)?.trim();
 
-    // 解析 parentId
+    // 名称是展示/旧协议兜底；有稳定 ID 时不按过期名字挂到另一个分类。
     int? parentId;
-    if (parentName != null && parentName.isNotEmpty) {
+    if (parentSyncId != null && parentSyncId.isNotEmpty) {
+      final parent = await (db.select(db.categories)
+            ..where((c) => c.syncId.equals(parentSyncId))
+            ..where((c) => c.kind.equals(kind))
+            ..where((c) => c.level.equals(1)))
+          .getSingleOrNull();
+      if (parent?.id != existing?.id) parentId = parent?.id;
+    } else if (parentName != null && parentName.isNotEmpty) {
       final parent = await (db.select(db.categories)
             ..where((c) => c.name.equals(parentName))
             ..where((c) => c.kind.equals(kind))
             ..where((c) => c.level.equals(1)))
           .getSingleOrNull();
       parentId = parent?.id;
+    } else if (level == 2 &&
+        !payload.containsKey('parentSyncId') &&
+        !payload.containsKey('parentName')) {
+      parentId = existing?.parentId;
     }
-
-    var existing = await (db.select(db.categories)
-          ..where((c) => c.syncId.equals(syncId)))
-        .getSingleOrNull();
 
     // Fallback：syncId 查不到 → 本地可能是 seed 默认分类（syncId 为 NULL）。
     // 按 name + kind 匹配 NULL syncId 行，把 syncId 补上。避免 device B 首次
