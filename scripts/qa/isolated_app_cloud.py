@@ -292,6 +292,7 @@ def build(root, manifest, flutter):
         print(f'QA build stage {index + 1}; logs stay in private run directory', flush=True)
         with (root / f'raw-logs/build-{index}.log').open('w') as log:
             subprocess.run(args, cwd=source, stdout=log, stderr=log, check=True)
+    manifest['resolved_lock_sha256'] = hashlib.sha256((source / 'pubspec.lock').read_bytes()).hexdigest()
     app = source / 'build/ios/iphonesimulator/Runner.app'
     for bundle, entitlements in [(p, source / 'ios/BeeCountWidgetExtension.entitlements')
                                  for p in (app / 'PlugIns').glob('*.appex')] + [
@@ -362,7 +363,7 @@ def run(root, manifest, flutter):
     write_json(root / 'evidence/cloud-projection.json', dict(migration=migration, transactions=rows, categories=categories))
     public = {k: manifest[k] for k in ('run_id', 'app_id', 'app_sha', 'cloud_sha', 'runtime', 'udid',
                                       'cloud_origin', 'source_hash', 'artifact_hash', 'verified_bundles', 'drive_exit_code')}
-    public.update(tool_versions=manifest.get('tool_versions'), skill_sha=manifest.get('skill_sha'))
+    public.update(tool_versions=manifest.get('tool_versions'), skill_sha=manifest.get('skill_sha'), resolved_lock_sha256=manifest.get('resolved_lock_sha256'))
     write_json(root / 'evidence/environment.json', public)
     print(f'Acceptance passed; evidence: {root / "evidence"}', flush=True)
 
@@ -615,6 +616,7 @@ def restart_check(root, manifest, flutter):
     with (root / 'raw-logs/normal-build.log').open('w') as log:
         subprocess.run([flutter, 'build', 'ios', '--debug', '--simulator', '--target', 'lib/main.dart'],
                        cwd=source, stdout=log, stderr=log, check=True)
+    manifest['resolved_lock_sha256'] = hashlib.sha256((source / 'pubspec.lock').read_bytes()).hexdigest()
     app = source / 'build/ios/iphonesimulator/Runner.app'
     for bundle, entitlements in [(p, source / 'ios/BeeCountWidgetExtension.entitlements')
                                  for p in (app / 'PlugIns').glob('*.appex')] + [
