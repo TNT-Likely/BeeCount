@@ -6317,6 +6317,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetCategoryHint => 'Select budget category';
 
   @override
+  String get budgetCategoryAlreadyExists => 'This category already has a budget';
+
+  @override
   String get budgetStartDayLabel => 'Start Day';
 
   @override
