@@ -98,9 +98,13 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 
 <div align="center">
   <img src="demo/videos/en/01-add-transaction.gif" alt="Add transaction" width="200" />
-  <img src="demo/videos/en/02-ocr-recognition.gif" alt="AI OCR" width="200" />
+  <img src="demo/videos/en/02-ai-text.gif" alt="AI text bookkeeping" width="200" />
   <img src="demo/videos/en/04-data-analysis.gif" alt="Analytics" width="200" />
+  <img src="demo/videos/en/05-copy-transaction.gif" alt="Long press to copy a transaction" width="200" />
 </div>
+
+> Captured from App 3.8.6 and Cloud 1.7.0 in an isolated demo environment using fictional data. AI demos use real model responses; waiting times are shortened in the demos.
+
 
 ### Home Widgets
 
@@ -116,7 +120,7 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 </details>
 
 <details>
-<summary>More screenshots (9 themes / dark mode)</summary>
+<summary>More screenshots (core features / dark mode)</summary>
 
 ### 9 Core Themes
 
@@ -141,10 +145,10 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 ### Dark Mode
 
 <div align="center">
-  <img src="preview/dark/01-home.png" alt="Home dark" width="200" />
-  <img src="preview/dark/02-chart-analysis.png" alt="Charts dark" width="200" />
-  <img src="preview/dark/04-profile.png" alt="Profile dark" width="200" />
-  <img src="preview/dark/05-ai-chat.png" alt="AI chat dark" width="200" />
+  <img src="preview/dark/en/01-home.png" alt="Home dark" width="200" />
+  <img src="preview/dark/en/02-chart-analysis.png" alt="Charts dark" width="200" />
+  <img src="preview/dark/en/04-profile.png" alt="Profile dark" width="200" />
+  <img src="preview/dark/en/05-ai-chat.png" alt="AI chat dark" width="200" />
 </div>
 
 </details>
@@ -205,9 +209,13 @@ Full Docker Compose deployment, backup system, PWA, and ops details live in the 
 <br/>
 
 <div align="center">
-  <img src="preview/web/en-03-devices.png" alt="Web devices" width="600" />
+  <img src="preview/web/en-05-assets.png" alt="Web assets" width="600" />
   <br/>
-  <sub>📱 Online devices + backup archive management</sub>
+  <sub>💳 Account balances, asset composition and liabilities</sub>
+</div>
+
+<div align="center">
+  <img src="preview/web/en-04-attachments.png" alt="Web receipt preview" width="600" />
 </div>
 
 </details>

@@ -98,9 +98,13 @@
 
 <div align="center">
   <img src="demo/videos/zh/01-add-transaction.gif" alt="快速记账" width="200" />
-  <img src="demo/videos/zh/02-ocr-recognition.gif" alt="AI OCR 智能识别" width="200" />
+  <img src="demo/videos/zh/02-ocr-recognition.gif" alt="AI 图片记账" width="200" />
   <img src="demo/videos/zh/04-data-analysis.gif" alt="数据分析" width="200" />
+  <img src="demo/videos/zh/05-copy-transaction.gif" alt="长按复制交易" width="200" />
 </div>
+
+> 素材来自 App 3.8.6 与 Cloud 1.7.0 的独立演示环境，全部为虚构数据。图片记账使用真实 AI 识别；动图剪短了等待时间。
+
 
 ### 桌面小组件
 
@@ -116,7 +120,7 @@
 </details>
 
 <details>
-<summary>更多截图(9 大主题 / 暗黑模式)</summary>
+<summary>更多截图（主要功能 / 暗黑模式）</summary>
 
 ### 9 大功能主题
 
@@ -141,10 +145,10 @@
 ### 暗黑模式
 
 <div align="center">
-  <img src="preview/dark/01-home.png" alt="首页-暗黑" width="200" />
-  <img src="preview/dark/02-chart-analysis.png" alt="图表分析-暗黑" width="200" />
-  <img src="preview/dark/04-profile.png" alt="我的-暗黑" width="200" />
-  <img src="preview/dark/05-ai-chat.png" alt="AI对话-暗黑" width="200" />
+  <img src="preview/dark/zh/01-home.png" alt="首页-暗黑" width="200" />
+  <img src="preview/dark/zh/02-chart-analysis.png" alt="图表分析-暗黑" width="200" />
+  <img src="preview/dark/zh/04-profile.png" alt="我的-暗黑" width="200" />
+  <img src="preview/dark/zh/05-ai-chat.png" alt="AI对话-暗黑" width="200" />
 </div>
 
 </details>
@@ -205,9 +209,13 @@
 <br/>
 
 <div align="center">
-  <img src="preview/web/zh-03-devices.png" alt="Web 在线设备" width="600" />
+  <img src="preview/web/zh-05-assets.png" alt="Web 资产管理" width="600" />
   <br/>
-  <sub>📱 在线设备 + 备份归档管理</sub>
+  <sub>💳 账户余额、资产构成与负债总览</sub>
+</div>
+
+<div align="center">
+  <img src="preview/web/zh-04-attachments.png" alt="Web 小票附件预览" width="600" />
 </div>
 
 </details>
