@@ -1,0 +1,4 @@
+interface:
+  display_name: "BeeCount 发布"
+  short_description: "管理 BeeCount App 与 Cloud 发版、版本说明和官网双语更新日志"
+  default_prompt: "使用 $beecount-release 完成本次 BeeCount App 或 Cloud 发布准备，核对版本和更新日志，并按用户授权执行发布。"
