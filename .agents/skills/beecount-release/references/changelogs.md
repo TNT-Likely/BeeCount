@@ -1,0 +1,42 @@
+# App / Cloud 更新日志
+
+## 文件职责
+
+| 内容 | 位置 | 是否提交 |
+|---|---|---|
+| App Store / Google Play 可粘贴文案 | BeeCount `.docs/changelogs/<App版本>.txt` | 否 |
+| Cloud 待发布说明草稿 | BeeCount `.docs/changelogs/cloud-<版本>.md` | 否 |
+| Cloud 完整发布说明、产物与升级说明 | Cloud GitHub Release | 随发版发布 |
+| App 官网亮点 | BeeCount-Website `docs/changelog.md` | 是 |
+| Cloud 官网发布历史 | BeeCount-Website `docs/cloud-changelog.md` | 是 |
+| 官网英文镜像 | `i18n/en/docusaurus-plugin-content-docs/current/` 下同名页面 | 是 |
+
+App 与 Cloud 使用独立版本序列。App 页面可以说明某项 App 能力最低需要哪个 Cloud 版本，但不要把 Cloud 发布条目写成 App 版本亮点。Cloud 仓库不另建重复的 `CHANGELOG.md`；官网展示用户可读的版本记录，完整发布详情以 GitHub Release 为依据。
+
+## Cloud 每次发布
+
+1. 根据上一个已发布 tag 到本次目标 SHA 的提交，归纳用户可感知变化和升级影响。
+2. 在忽略的 `.docs/changelogs/cloud-<版本>.md` 准备发布说明。尚未确定版本时用 `cloud-unreleased.md`；标记待发布，写明新功能、关键修复、兼容性/配置/迁移影响，不把开发工具调整包装成用户能力。
+3. 核对真实 Release 成功后，将草稿摘要和升级说明补入该版本的 GitHub Release，保留 CI 自动提交列表与产物信息。记录 GitHub `publishedAt` 的 UTC 日期和确切 Release 链接。
+4. 官网中文和英文 Cloud 页面同步对应版本；纯修复版本可以是一句维护摘要，不强行写功能亮点。
+5. 若涉及 App 升级顺序或最低版本，同步相关功能/部署页面；核对来源，无法确认时不推测数字。
+
+官网格式建议：`## <版本> · <YYYY-MM-DD>`，下方 1–4 条变化。页面开头保留一个完整 GitHub Releases 入口，各版本下不重复放 Release 链接；版本锚点尽量保留。核对依据中的确切版本 Release 链接保存在本地取证记录。Cloud 列表不包含仅合并到 main 的未发布功能。
+
+官网条目只保留用户可感知的功能、体验、关键修复和需要用户调整的兼容性变化。过滤 CI / 构建平台、依赖锁定、内部重构或迁移整理、提交人展示、协议文档，以及合作/宣传/接入帮助链接等非功能内容。按用户影响描述修复，不照抄内部实现名词；某个版本仅有此类内部维护时，可从官网精选记录中略过，完整记录仍在 GitHub Release。
+
+## 历史补录
+
+从 `gh release list/view --repo TNT-Likely/BeeCount-Cloud` 的版本、日期、正文取得事实；必要时读取对应 tag 的 README、提交 diff 或 compare 区间。不要按当前代码回填到早期版本。核心发布可精选，未逐条补录的维护版保留完整 Releases 入口。
+
+补录时按上述用户影响标准筛选，不把自动提交列表逐条搬到官网。不重打 tag、不编辑历史 Release、不改发布日期。中文和英文涵盖相同版本与变化，注意 MCP 1.5.3 的传输层升级等需要迁移配置的版本。
+
+## App 文案
+
+保留既有单文件两段格式：第一段按简体中文、繁體中文、English 提供 App Store 文案；第二段为 Google Play 的 `<en-US>`、`<zh-CN>`、`<zh-HK>`。Google Play 中不包含纯 iOS 条目，两种商店都不写自建服务端运维内容。
+
+这是商店文案，不要求修改 App 的韩文/繁体 ARB 翻译。只做本次用户授权的文案和 locale 变更。
+
+## 核对
+
+确认 App/Cloud 版本归属、真实发布时间与 Release 链接、中英镜像和侧栏入口、升级说明、未发布项归属。官网构建可用于检查 Markdown 链接与两种语言页面；如本次需要运行构建或人工页面验收，记录实际结果及范围。记录准备完成、Release 成功和官网上线三个不同状态。

@@ -1,5 +1,7 @@
 # App 与 Cloud 隔离验收
 
+流程 skill 随项目维护在 `.agents/skills/isolated-app-cloud-qa`；Codex 与 Claude Code 项目安装见 [项目 skill](PROJECT_SKILLS_ZH.md)。不再需要 honeycomb 或全局安装。新 run 自动记录 skill 仓库 SHA、完整目录 hash 与版本，并保存私有源码副本；可用 `--skill-dir` 指定另一份源码。旧 `--skill-repo` 仅保留兼容，已存在 run 的 manifest 和数据不会迁移。
+
 用于需要真实 iOS App UI、真实 Cloud 数据持久化和双向同步的验收。当前支持首页复制交易、父子分类改名同步、Web 交易图片和 MCP 小票附件四种场景。单元/widget 测试与 fake-provider 同步测试仍是快速回归层，实服同步另行执行。
 
 ## 环境要求
