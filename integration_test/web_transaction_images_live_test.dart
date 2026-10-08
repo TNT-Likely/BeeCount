@@ -219,6 +219,10 @@ void main() {
             .cast<Map<String, dynamic>>()
             .singleWhere((r) => r['fileName'] == row.fileName);
         expect(row.cloudFileId, ref['cloudFileId']);
+        expect(row.sortOrder, ref['sortOrder']);
+        expect(row.originalName, ref['originalName']);
+        expect(row.width, ref['width']);
+        expect(row.height, ref['height']);
         final path = await container
             .read(attachmentServiceProvider)
             .getAttachmentPath(row.fileName);
@@ -294,6 +298,14 @@ void main() {
     await verifyLocal(remote);
     pass('I03',
         'Web appended image; both ordered references and files match in App');
+    remote = await waitWeb('QA Web移除一张', 1, 'WEB_REMOVE_ONE');
+    await verifyLocal(remote);
+    pass('I03-remove',
+        'Removing the first Web image preserves the remaining file identity and updates its App sort order to zero');
+    remote = await waitWeb('QA Web移除后追加', 2, 'WEB_ADD_AFTER_REMOVE');
+    await verifyLocal(remote);
+    pass('I03-append',
+        'Appending after a removal keeps consecutive matching App/Cloud sort orders');
     final beforeReplace = await repo.getAttachmentsByTransaction(
         (await repo.getTransactionsByLedger(ledgerId))
             .singleWhere((tx) => tx.syncId == webSid)

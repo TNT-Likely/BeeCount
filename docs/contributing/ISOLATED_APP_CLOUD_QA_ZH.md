@@ -28,7 +28,7 @@ python3 scripts/qa/isolated_app_cloud.py prepare --cloud-repo ../BeeCount-Cloud
 
 默认场景为 `transaction-copy`；分类关联修复使用 `prepare --scenario category-parent`。分类场景在真实 App 分类管理页改名父分类，等待浏览器在同一 QA 账本将父分类改为「QA Web伙食」、子分类「QA早餐」改为「QA早饭」，再通过实际同步引擎拉回并核对父子身份。网页操作由浏览器实际执行，不能以直接写 API 替代这两项 Web UI 验收。
 
-图片场景使用 `prepare --scenario web-transaction-images --cloud-ref <Cloud 功能提交 SHA>`。先通过 App 的实际附件服务保存合成图片并由真实引擎上传，再在同源 QA 网页完成新建、追加、替换、删除全部和重新上传；每个阶段由 App 引擎拉回，核对附件身份、顺序和文件 SHA256，并打开生产预览页确认显示。App 预览页实际删除后，再核对 Web 附件为空。最终通过网页留下两张图片供人工验收，正常入口重启时再次核对元数据和文件内容。
+图片场景使用 `prepare --scenario web-transaction-images --cloud-ref <Cloud 功能提交 SHA>`。先通过 App 的实际附件服务保存合成图片并由真实引擎上传，再在同源 QA 网页完成新建、追加、单张移除后再追加、替换、删除全部和重新上传；每个阶段由 App 引擎拉回，核对附件身份、顺序和文件 SHA256，并打开生产预览页确认显示。App 预览页实际删除后，再核对 Web 附件为空。最终通过网页留下两张图片供人工验收，正常入口重启时再次核对元数据和文件内容。
 
 测试在日志中输出 `QA_STAGE_READY_WEB_*` 等待实际浏览器操作。禁止用直接写 API 替代 Web 上传、移除和替换的前端验收。初始 App 图片是通过实际附件服务建立的合成 fixture，不代表系统相册选择器已经测试；该范围必须在报告中明确。Web 的取消、非法文件、失败重试、重复图片及窄屏预览另由浏览器实际执行，证据进入本次独立报告。
 

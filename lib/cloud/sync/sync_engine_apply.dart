@@ -1041,12 +1041,33 @@ extension SyncEngineApplyExt on SyncEngine {
 
       if (existingByFileName.containsKey(fileName)) {
         final ex = existingByFileName[fileName]!;
-        if (cloudFileId != null && ex.cloudFileId != cloudFileId) {
+        // Web 移除前面的图片或复用同一文件重新上传时，身份可以保持不变，
+        // 但顺序/原始名称/尺寸仍可能更新。缺失字段兼容旧端，不清空本地值。
+        final originalName = attMap.containsKey('originalName')
+            ? attMap['originalName'] as String? : ex.originalName;
+        final fileSize = attMap.containsKey('fileSize')
+            ? attMap['fileSize'] as int? : ex.fileSize;
+        final width = attMap.containsKey('width')
+            ? attMap['width'] as int? : ex.width;
+        final height = attMap.containsKey('height')
+            ? attMap['height'] as int? : ex.height;
+        final sortOrder = attMap['sortOrder'] as int? ?? ex.sortOrder;
+        final nextFileId = cloudFileId ?? ex.cloudFileId;
+        final nextSha = cloudFileId != null && cloudFileId != ex.cloudFileId
+            ? cloudSha256 : cloudSha256 ?? ex.cloudSha256;
+        if (ex.cloudFileId != nextFileId || ex.cloudSha256 != nextSha ||
+            ex.originalName != originalName || ex.fileSize != fileSize ||
+            ex.width != width || ex.height != height || ex.sortOrder != sortOrder) {
           updates.add((
             id: ex.id,
             data: TransactionAttachmentsCompanion(
-              cloudFileId: d.Value(cloudFileId),
-              cloudSha256: d.Value(cloudSha256),
+              cloudFileId: d.Value(nextFileId),
+              cloudSha256: d.Value(nextSha),
+              originalName: d.Value(originalName),
+              fileSize: d.Value(fileSize),
+              width: d.Value(width),
+              height: d.Value(height),
+              sortOrder: d.Value(sortOrder),
             ),
           ));
         }
