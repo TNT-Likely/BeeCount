@@ -1,6 +1,6 @@
 # App 与 Cloud 隔离验收
 
-用于需要真实 iOS App UI、真实 Cloud 数据持久化和双向同步的验收。当前支持首页复制交易、父子分类改名同步和 Web 交易图片三种场景。单元/widget 测试与 fake-provider 同步测试仍是快速回归层，实服同步另行执行。
+用于需要真实 iOS App UI、真实 Cloud 数据持久化和双向同步的验收。当前支持首页复制交易、父子分类改名同步、Web 交易图片和 MCP 小票附件四种场景。单元/widget 测试与 fake-provider 同步测试仍是快速回归层，实服同步另行执行。
 
 ## 环境要求
 
@@ -31,6 +31,8 @@ python3 scripts/qa/isolated_app_cloud.py prepare --cloud-repo ../BeeCount-Cloud
 图片场景使用 `prepare --scenario web-transaction-images --cloud-ref <Cloud 功能提交 SHA>`。先通过 App 的实际附件服务保存合成图片并由真实引擎上传，再在同源 QA 网页完成新建、追加、单张移除后再追加、替换、删除全部和重新上传；每个阶段由 App 引擎拉回，核对附件身份、顺序和文件 SHA256，并打开生产预览页确认显示。App 预览页实际删除后，再核对 Web 附件为空。最终通过网页留下两张图片供人工验收，正常入口重启时再次核对元数据和文件内容。
 
 测试在日志中输出 `QA_STAGE_READY_WEB_*` 等待实际浏览器操作。禁止用直接写 API 替代 Web 上传、移除和替换的前端验收。初始 App 图片是通过实际附件服务建立的合成 fixture，不代表系统相册选择器已经测试；该范围必须在报告中明确。Web 的取消、非法文件、失败重试、重复图片及窄屏预览另由浏览器实际执行，证据进入本次独立报告。
+
+MCP 小票使用 `prepare --scenario mcp-receipt-attachments --cloud-ref <Cloud 功能提交 SHA>`。用新私有 PAT 经真实 Streamable HTTP 初始化、发现工具、上传两张同名合成小票并创建交易；由生产引擎拉回，实际打开 App 图片预览。覆盖不传/null 保留、重排、移除后追加、替换、清空、App 预览页删除上传、只读 PAT 与非法引用拒绝、重复同步和正常入口重启。此场景不等待 Web 操作；Web 查看与预览另由浏览器验收。
 
 分类场景的正常入口检查断言主页合成交易可见，并读取 QA 数据库核对父分类名称、子分类稳定身份与本地 `parent_id` 关系。两种场景共用隔离措施，执行结果与截图仍只进入独立报告包。
 

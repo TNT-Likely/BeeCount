@@ -27,6 +27,7 @@ SCENARIOS = {
     'transaction-copy': 'integration_test/transaction_copy_live_test.dart',
     'category-parent': 'integration_test/category_parent_live_test.dart',
     'web-transaction-images': 'integration_test/web_transaction_images_live_test.dart',
+    'mcp-receipt-attachments': 'integration_test/mcp_receipt_attachments_live_test.dart',
 }
 
 
@@ -665,10 +666,12 @@ def restart_check(root, manifest, flutter):
     else:
         with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
             db.row_factory = sqlite3.Row
-            tx = db.execute('SELECT id, note, amount FROM transactions WHERE sync_id = ?',
-                            (report['web_transaction_sync_id'],)).fetchone()
-            if tx is None or tx['note'] != 'QA Web最终图片' or tx['amount'] != 45.6:
-                raise ValueError('Normal App restart lost the Web image transaction')
+            is_mcp = manifest.get('scenario') == 'mcp-receipt-attachments'
+            sid = report['mcp_transaction_sync_id'] if is_mcp else report['web_transaction_sync_id']
+            note, amount = ('QA MCP最终小票', 78.8) if is_mcp else ('QA Web最终图片', 45.6)
+            tx = db.execute('SELECT id, note, amount FROM transactions WHERE sync_id = ?', (sid,)).fetchone()
+            if tx is None or tx['note'] != note or tx['amount'] != amount:
+                raise ValueError('Normal App restart lost the synchronized image transaction')
             attachments = [dict(r) for r in db.execute('SELECT file_name, cloud_file_id, cloud_sha256, sort_order FROM transaction_attachments WHERE transaction_id = ? ORDER BY sort_order', (tx['id'],))]
             expected = report['final_app_files']
             if len(attachments) != len(expected):
