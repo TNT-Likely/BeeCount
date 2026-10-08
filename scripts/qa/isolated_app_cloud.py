@@ -26,6 +26,7 @@ PROJECT = Path(__file__).resolve().parents[2]
 SCENARIOS = {
     'transaction-copy': 'integration_test/transaction_copy_live_test.dart',
     'category-parent': 'integration_test/category_parent_live_test.dart',
+    'web-transaction-images': 'integration_test/web_transaction_images_live_test.dart',
 }
 
 
@@ -647,7 +648,7 @@ def restart_check(root, manifest, flutter):
         copy = next(r for r in rows if r['sync_id'] == report['copy_sync_id'])
         if copy['note'] != 'QA Cloud 修改后' or copy['amount'] != 55.5:
             raise ValueError('Normal App restart did not retain the synchronized copy')
-    else:
+    elif manifest.get('scenario') == 'category-parent':
         with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
             db.row_factory = sqlite3.Row
             parent = db.execute('SELECT id, name FROM categories WHERE sync_id = ?',
@@ -659,6 +660,22 @@ def restart_check(root, manifest, flutter):
                 if child is None or child['parent_id'] != parent['id'] or child['level'] != 2:
                     raise ValueError('Normal App restart lost a stable child category relationship')
         rows = dict(transactions=rows, parent_name=parent['name'], child_sync_ids=report['child_sync_ids'])
+    else:
+        with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
+            db.row_factory = sqlite3.Row
+            tx = db.execute('SELECT id, note, amount FROM transactions WHERE sync_id = ?',
+                            (report['web_transaction_sync_id'],)).fetchone()
+            if tx is None or tx['note'] != 'QA Web最终图片' or tx['amount'] != 45.6:
+                raise ValueError('Normal App restart lost the Web image transaction')
+            attachments = [dict(r) for r in db.execute('SELECT file_name, cloud_file_id, cloud_sha256, sort_order FROM transaction_attachments WHERE transaction_id = ? ORDER BY sort_order', (tx['id'],))]
+            expected = report['final_app_files']
+            if len(attachments) != len(expected):
+                raise ValueError('Normal App restart lost attachment metadata')
+            for row, ref in zip(attachments, expected):
+                file = container / 'Documents/attachments' / row['file_name']
+                if row['cloud_file_id'] != ref['cloudFileId'] or row['cloud_sha256'] != ref['sha256'] or not file.is_file() or hashlib.sha256(file.read_bytes()).hexdigest() != ref['sha256']:
+                    raise ValueError('Normal App restart attachment identity/bytes mismatch')
+        rows = dict(transactions=rows, attachments=attachments)
     report['cases'].append(dict(id='normal-restart', status='PASS', detail='Normal lib/main.dart entry preserves synchronized data and native UI verifies the scenario markers'))
     write_json(root / 'evidence/acceptance.json', report)
     write_json(root / 'evidence/restart-persistence.json', rows)
