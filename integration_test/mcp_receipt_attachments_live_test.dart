@@ -179,9 +179,13 @@ void main() {
           credential: credential);
       expect(result['isError'] == true, error);
       if (error) return result;
-      return (result['structuredContent'] ??
+      final value = (result['structuredContent'] ??
               jsonDecode(result['content'][0]['text'] as String))
           as Map<String, dynamic>;
+      // FastMCP wraps nullable return types in structuredContent.result.
+      return value.length == 1 && value.containsKey('result')
+          ? value['result'] as Map<String, dynamic>
+          : value;
     }
 
     await rpc('initialize', {
