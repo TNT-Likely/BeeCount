@@ -534,6 +534,74 @@ void main() {
     });
   });
 
+  test('同一附件身份同步更新顺序和元数据，未提供的字段保持本地值', () async {
+    final ledgerId = await db.into(db.ledgers).insert(LedgersCompanion.insert(
+        name: 'L', syncId: const Value('attachment-L')));
+    await db.into(db.categories).insert(CategoriesCompanion.insert(
+        name: 'C', kind: 'expense', syncId: const Value('attachment-C')));
+    void remote(List<Map<String, dynamic>> attachments) =>
+        provider.pushFakeChange(
+          entityType: 'transaction',
+          entitySyncId: 'attachment-tx',
+          ledgerId: 'attachment-L',
+          payload: {
+            'syncId': 'attachment-tx',
+            'type': 'expense',
+            'amount': 12.5,
+            'happenedAt': '2026-05-01T10:00:00Z',
+            'categoryName': 'C',
+            'categoryKind': 'expense',
+            'categoryId': 'attachment-C',
+            'attachments': attachments
+          },
+        );
+    remote([
+      {'fileName': 'qa-order-a.png', 'cloudFileId': 'file-a', 'sortOrder': 0},
+      {
+        'fileName': 'qa-order-b.png',
+        'cloudFileId': 'file-b',
+        'cloudSha256': 'sha-b',
+        'sortOrder': 1,
+        'originalName': 'B.png',
+        'width': 100,
+        'height': 80,
+        'fileSize': 200
+      },
+    ]);
+    await engine.pull(ledgerId.toString());
+    final before = (await db.select(db.transactionAttachments).get())
+        .singleWhere((a) => a.cloudFileId == 'file-b');
+    remote([
+      {
+        'fileName': 'qa-order-b.png',
+        'cloudFileId': 'file-b',
+        'cloudSha256': 'sha-b',
+        'sortOrder': 0,
+        'originalName': 'B renamed.png',
+        'width': 120,
+        'height': 90,
+        'fileSize': 240
+      }
+    ]);
+    await engine.pull(ledgerId.toString());
+    final updated = (await db.select(db.transactionAttachments).get()).single;
+    expect(updated.id, before.id);
+    expect(updated.sortOrder, 0);
+    expect(updated.originalName, 'B renamed.png');
+    expect(updated.width, 120);
+    expect(updated.height, 90);
+    expect(updated.fileSize, 240);
+    remote([
+      {'fileName': 'qa-order-b.png', 'cloudFileId': 'file-b', 'sortOrder': 0}
+    ]);
+    await engine.pull(ledgerId.toString());
+    final legacy = (await db.select(db.transactionAttachments).get()).single;
+    expect(legacy.id, before.id);
+    expect(legacy.originalName, updated.originalName);
+    expect(legacy.width, updated.width);
+    expect(legacy.cloudSha256, 'sha-b');
+  });
+
   group('apply 各种 entity type', () {
     test('account / category / tag insert', () async {
       provider.pushFakeChange(
