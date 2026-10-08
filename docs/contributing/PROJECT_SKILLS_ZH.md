@@ -57,6 +57,6 @@ python3 scripts/agents/project_skills.py migrate-global --project <已安装项�
 
 ## 发布和验收的来源
 
-发布时查看 App/Cloud 独立版本和各自真实 Release，Cloud 日志位于 Cloud 仓 `CHANGELOG.md`，官网 App 和 Cloud 分页且中英同步。
+发布时查看 App/Cloud 独立版本和各自真实 Release。Cloud 完整发布说明保存在 GitHub Release，待发布草稿留在 BeeCount 忽略的 `.docs/changelogs/cloud-<版本>.md`；官网 App 和 Cloud 分页且中英同步。Cloud 仓库不另维护重复的 `CHANGELOG.md`。
 
 QA runner 默认读取项目 skill 并记录仓库 SHA、目录内容 hash、版本和私有源码快照；显式来源可用 `--skill-dir`，旧 `--skill-repo` 保留兼容。skill 的迁移不改已有 run、数据库、模拟器或正在运行的服务。
