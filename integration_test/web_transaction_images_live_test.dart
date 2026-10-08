@@ -141,7 +141,6 @@ void main() {
           .sync(ledgerId: ledgerId.toString())
           .timeout(const Duration(seconds: 90));
       expect(result.error, isNull);
-      await engine.downloadAttachments(ledgerId: ledgerId);
     }
 
     await sync();
