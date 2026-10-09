@@ -370,6 +370,7 @@ def run(root, manifest, flutter):
         subprocess.run(['xcrun', 'simctl', 'boot', manifest['udid']], check=True)
     subprocess.run(['xcrun', 'simctl', 'bootstatus', manifest['udid'], '-b'], check=True)
     backup_app(root, manifest)
+    permission_process, permission_log = integration_permissions(root, manifest)
     env = dict(os.environ, QA_EVIDENCE_DIR=str(root / 'evidence'))
     args = [flutter, 'drive', '-d', manifest['udid'], '--use-application-binary', str(app),
             '--driver', 'test_driver/transaction_copy_live_test.dart',
@@ -377,10 +378,13 @@ def run(root, manifest, flutter):
     print('Running UI and live Cloud acceptance on the owned QA simulator', flush=True)
     with (root / 'raw-logs/drive.log').open('w') as log:
         result = subprocess.run(args, cwd=root / 'app-source', env=env, stdout=log, stderr=log)
+    permission_exit = permission_process.wait(timeout=150)
+    permission_log.close()
+    manifest['integration_permissions_exit_code'] = permission_exit
     manifest['drive_exit_code'] = result.returncode
     write_json(root / 'manifest.json', manifest)
     backup_app(root, manifest)
-    if result.returncode:
+    if result.returncode or permission_exit:
         raise RuntimeError(f'Acceptance failed; QA data and private logs preserved in {root}')
     db_path = inside(root, root / 'cloud-data/beecount.db')
     with sqlite3.connect(f'file:{db_path}?mode=ro', uri=True) as db:
@@ -608,6 +612,29 @@ def verify_smoke_bundles(native):
                              (runner / 'PlugIns/QASmoke.xctest', APP_ID + '.smoke')]:
         if plistlib.loads((bundle / 'Info.plist').read_bytes())['CFBundleIdentifier'] != expected:
             raise ValueError('Native UI test bundle must have an independent QA identity')
+
+
+def integration_permissions(root, manifest):
+    """Watch only notification prompts on the owned QA simulator during Flutter UI tests."""
+    device(manifest)
+    source = inside(root, root / 'app-source')
+    native = inside(root, root / 'native-integration-permissions')
+    native.mkdir()
+    shutil.copy2(source / 'scripts/qa/integration_permissions.swift', native / 'QASmoke.swift')
+    subprocess.run(['ruby', str(source / 'scripts/qa/create_smoke_project.rb'), str(native)], check=True)
+    args = ['xcodebuild', '-project', str(native / 'QASmoke.xcodeproj'), '-scheme', 'QASmoke',
+            '-configuration', 'Debug', '-sdk', 'iphonesimulator',
+            '-destination', f'id={manifest["udid"]}', '-derivedDataPath', str(native / 'build'),
+            '-parallel-testing-enabled', 'NO', 'CODE_SIGNING_ALLOWED=NO']
+    with (root / 'raw-logs/integration-permissions-build.log').open('w') as log:
+        subprocess.run([args[0], 'build-for-testing', *args[1:]], stdout=log, stderr=log, check=True)
+    verify_smoke_bundles(native)
+    device(manifest)
+    log = (root / 'raw-logs/integration-permissions-test.log').open('w')
+    proc = subprocess.Popen([args[0], 'test-without-building', *args[1:],
+                             '-resultBundlePath', str(native / 'result.xcresult')],
+                            stdout=log, stderr=log)
+    return proc, log
 
 
 def normal_ui_check(root, manifest):

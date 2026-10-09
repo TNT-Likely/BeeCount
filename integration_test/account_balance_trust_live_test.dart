@@ -388,6 +388,14 @@ void main() {
     await waitUi(() => find.text('确认账户币种').evaluate().isNotEmpty);
     expect(find.text('QA日元 · JPY'), findsOneWidget);
     await capture('06-app-currency-preview');
+    final beforeImportCount =
+        (await database.select(database.transactions).get()).length;
+    await tap('取消');
+    expect((await repo.getAllAccounts()).any((a) => a.name == 'QA日元'), false);
+    expect((await database.select(database.transactions).get()).length,
+        beforeImportCount);
+    await tap('开始导入');
+    await waitUi(() => find.text('确认账户币种').evaluate().isNotEmpty);
     await tap('开始导入');
     await waitUi(() => find.byType(ImportConfirmPage).evaluate().isEmpty);
     final jpy =
