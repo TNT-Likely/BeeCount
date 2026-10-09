@@ -22,6 +22,7 @@ import 'package:agentcore/agentcore.dart'
         AgentNativeProtocolException,
         AgentNativeStreamEvent,
         AgentNativeTextDelta,
+        AgentNativeReasoningDelta,
         AgentNativeToolCall,
         AgentNativeToolCallsResponse,
         AgentNativeToolDefinition,
@@ -339,6 +340,8 @@ final class AgentAppFacade {
         switch (event) {
           case AgentNativeModelActivity(:final phase):
             emit(AgentModelActivityEvent(phase));
+          case AgentNativeReasoningDelta(:final text):
+            emit(AgentReasoningDeltaEvent(text));
           case AgentNativeTextDelta(:final text):
             if (!bufferQueryText) emit(AgentTextDeltaEvent(text));
         }
@@ -825,6 +828,11 @@ final class AgentToolAuthorizationRequestedEvent extends AgentRunEvent {
   const AgentToolAuthorizationRequestedEvent(this.request);
 
   final AgentToolAuthorizationRequest request;
+}
+
+final class AgentReasoningDeltaEvent extends AgentRunEvent {
+  const AgentReasoningDeltaEvent(this.text);
+  final String text;
 }
 
 final class AgentTextDeltaEvent extends AgentRunEvent {

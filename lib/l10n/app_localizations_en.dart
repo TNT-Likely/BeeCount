@@ -8235,4 +8235,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transactionCopyUnavailable => 'This transaction cannot be copied. Check the ledger and your access.';
+
+  @override
+  String get aiMiMoModelsMissingKey => 'Enter an API Key to automatically load available models';
+
+  @override
+  String get aiMiMoModelsLoading => 'Loading available models…';
+
+  @override
+  String get aiMiMoModelsUnauthorized => 'Invalid API Key or insufficient permission; model list not refreshed';
+
+  @override
+  String get aiMiMoModelsFailed => 'Could not load models; saved models retained. Please retry';
+
+  @override
+  String get aiMiMoModelsEmpty => 'No models available for this account';
+
+  @override
+  String get aiMiMoModelsLoaded => 'Available account models loaded';
+
+  @override
+  String get aiMiMoModelsRefresh => 'Refresh models';
+
+  @override
+  String get aiMiMoModelUnavailable => 'Saved model unavailable; an available replacement was selected. Review before saving';
+
+  @override
+  String get aiDeepSeekModelsHint => 'Models are loaded from DeepSeek and filtered by supported input type.';
+
+  @override
+  String get aiMiMoModelsHint => 'Models are loaded from Xiaomi. Uses the pay-as-you-go API.';
+
+  @override
+  String get aiMiMoQuickThinking => 'Quick billing Thinking';
+
+  @override
+  String get aiMiMoAssistantThinking => 'Assistant Thinking';
+
+  @override
+  String get aiReasoningTitle => 'Thinking process';
 }

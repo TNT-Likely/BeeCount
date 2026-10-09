@@ -3549,5 +3549,18 @@
   "attachmentKeepOriginal": "Keep Original Attachments",
   "attachmentKeepOriginalDesc": "Uses more storage and sync data",
   "transactionCopyAction": "Copy as new transaction",
-  "transactionCopyUnavailable": "This transaction cannot be copied. Check the ledger and your access."
+  "transactionCopyUnavailable": "This transaction cannot be copied. Check the ledger and your access.",
+  "aiMiMoModelsMissingKey": "Enter an API Key to automatically load available models",
+  "aiMiMoModelsLoading": "Loading available models…",
+  "aiMiMoModelsUnauthorized": "Invalid API Key or insufficient permission; model list not refreshed",
+  "aiMiMoModelsFailed": "Could not load models; saved models retained. Please retry",
+  "aiMiMoModelsEmpty": "No models available for this account",
+  "aiMiMoModelsLoaded": "Available account models loaded",
+  "aiMiMoModelsRefresh": "Refresh models",
+  "aiMiMoModelUnavailable": "Saved model unavailable; an available replacement was selected. Review before saving",
+  "aiDeepSeekModelsHint": "Models are loaded from DeepSeek and filtered by supported input type.",
+  "aiMiMoModelsHint": "Models are loaded from Xiaomi. Uses the pay-as-you-go API.",
+  "aiMiMoQuickThinking": "Quick billing Thinking",
+  "aiMiMoAssistantThinking": "Assistant Thinking",
+  "aiReasoningTitle": "Thinking process"
 }

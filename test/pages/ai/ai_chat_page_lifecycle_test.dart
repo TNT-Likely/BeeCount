@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:agentcore/agentcore.dart' as core;
 import 'package:beecount/models/assistant_follow_up_metadata.dart';
+import 'package:beecount/models/assistant_reasoning_metadata.dart';
+import 'package:beecount/widgets/ai/agent_reasoning_panel.dart';
 import 'package:beecount/models/assistant_execution_metadata.dart';
 import 'package:beecount/ai/core/ai_extraction_engine.dart';
 import 'package:beecount/ai/core/bill_info.dart';
@@ -459,12 +461,51 @@ void main() {
     expect(messages.single.content, '本月支出0元。');
     expect(AssistantExecutionMetadata.decode(messages.single.metadata),
         hasLength(1));
+    expect(AssistantReasoningMetadata.decode(messages.single.metadata),
+        'private reasoning\n\nmore private reasoning');
+    await Scrollable.ensureVisible(
+        tester.element(find.byKey(const ValueKey('agent-activity-toggle'))),
+        alignment: 0.5);
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
     await tester.pumpAndSettle();
     expect(find.text('收支概览'), findsOneWidget);
+    expect(find.text('思考过程'), findsOneWidget);
+    await tester.tap(find.text('思考过程'));
+    await tester.pumpAndSettle();
+    expect(find.text('private reasoning\n\nmore private reasoning'),
+        findsOneWidget);
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 3));
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('historical reasoning is restored separately from answer content',
+      (tester) async {
+    await repository.createLedger(name: '当前账本');
+    final conversationId = await repository.createConversation(
+        ConversationsCompanion.insert(title: const Value('历史对话')));
+    await database.into(database.messages).insert(MessagesCompanion.insert(
+          conversationId: conversationId,
+          role: 'assistant',
+          messageType: 'text',
+          content: '纯回答',
+          metadata:
+              const Value('{"reasoning":"历史推理","action":{"type":"unknown"}}'),
+        ));
+    await tester.pumpWidget(host());
+    await tester.pumpAndSettle();
+    expect(find.byType(AgentReasoningPanel), findsOneWidget);
+    expect(find.text('历史推理'), findsNothing);
+    await tester.tap(find.text('思考过程'));
+    await tester.pumpAndSettle();
+    expect(find.text('历史推理'), findsOneWidget);
+    expect(
+        find.byWidgetPredicate(
+            (widget) => widget is AgentMarkdownText && widget.data == '纯回答'),
+        findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 3));
   });
 
   testWidgets('查询回答未完成时逐段显示文本，结束后才展示继续了解', (tester) async {

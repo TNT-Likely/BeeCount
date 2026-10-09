@@ -4,6 +4,10 @@ import 'dart:ui';
 ///
 /// 统一管理官网链接，方便未来域名变更
 class WebsiteUrls {
+  static const xiaomiMiMoApiKeys =
+      'https://platform.xiaomimimo.com/console/api-keys';
+  static const deepSeekApiKeys = 'https://platform.deepseek.com/api_keys';
+
   WebsiteUrls._();
 
   /// 官网基础域名

@@ -8235,4 +8235,43 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get transactionCopyUnavailable => 'This transaction cannot be copied. Check the ledger and your access.';
+
+  @override
+  String get aiMiMoModelsMissingKey => 'API Key를 입력하면 사용 가능한 모델을 자동으로 가져옵니다';
+
+  @override
+  String get aiMiMoModelsLoading => '모델을 가져오는 중…';
+
+  @override
+  String get aiMiMoModelsUnauthorized => 'API Key가 잘못되었거나 권한이 없습니다. 목록을 새로 고치지 못했습니다';
+
+  @override
+  String get aiMiMoModelsFailed => '모델을 가져오지 못했습니다. 저장된 모델을 유지합니다. 다시 시도하세요';
+
+  @override
+  String get aiMiMoModelsEmpty => '이 계정에 사용 가능한 모델이 없습니다';
+
+  @override
+  String get aiMiMoModelsLoaded => '사용 가능한 계정 모델을 가져왔습니다';
+
+  @override
+  String get aiMiMoModelsRefresh => '모델 새로 고침';
+
+  @override
+  String get aiMiMoModelUnavailable => '저장된 모델을 사용할 수 없어 대체 모델을 선택했습니다. 저장 전에 확인하세요';
+
+  @override
+  String get aiDeepSeekModelsHint => 'DeepSeek에서 모델을 가져오며 지원되는 입력 유형으로 필터링합니다.';
+
+  @override
+  String get aiMiMoModelsHint => 'Xiaomi에서 모델을 가져옵니다. 종량제 API를 사용합니다.';
+
+  @override
+  String get aiMiMoQuickThinking => '빠른 기록 깊은 사고';
+
+  @override
+  String get aiMiMoAssistantThinking => 'AI 어시스턴트 깊은 사고';
+
+  @override
+  String get aiReasoningTitle => '사고 과정';
 }

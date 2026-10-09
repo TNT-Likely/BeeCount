@@ -192,6 +192,7 @@ final class OpenAiCompatibleNativeToolTransport
     AgentNativeEventSink? onEvent,
   }) {
     final text = StringBuffer();
+    final reasoning = StringBuffer();
     final calls = <int, _StreamToolCall>{};
     final response = Completer<AgentNativeModelResponse>();
     StreamSubscription<Map<String, dynamic>>? subscription;
@@ -205,7 +206,8 @@ final class OpenAiCompatibleNativeToolTransport
         final rawCalls = toolCalls.map((entry) => entry.value.toRaw()).toList();
         messages.add({
           'role': 'assistant',
-          'content': null,
+          'content': text.isEmpty ? null : text.toString(),
+          if (reasoning.isNotEmpty) 'reasoning_content': reasoning.toString(),
           'tool_calls': rawCalls,
         });
         return AgentNativeModelResponse.toolCalls(
@@ -239,16 +241,21 @@ final class OpenAiCompatibleNativeToolTransport
       final choice = choices.first as Map;
       final delta = choice['delta'];
       if (delta is Map) {
-        // Only report observed provider activity, never retain or forward its
-        // private reasoning. Ordinary models remain in awaitingResponse until
-        // answer content or a tool call actually arrives.
-        if (!reportedThinking &&
-            !reportedGenerating &&
-            [delta['reasoning_content'], delta['reasoning']]
-                .any((value) => value is String && value.trim().isNotEmpty)) {
-          reportedThinking = true;
-          onEvent?.call(
-              const AgentNativeModelActivity(AgentNativeModelPhase.thinking));
+        final primaryReasoning = delta['reasoning_content'];
+        final reasoningDelta =
+            primaryReasoning is String && primaryReasoning.isNotEmpty
+                ? primaryReasoning
+                : delta['reasoning'];
+        if (reasoningDelta is String && reasoningDelta.isNotEmpty) {
+          if (!reportedThinking &&
+              !reportedGenerating &&
+              reasoningDelta.trim().isNotEmpty) {
+            reportedThinking = true;
+            onEvent?.call(
+                const AgentNativeModelActivity(AgentNativeModelPhase.thinking));
+          }
+          reasoning.write(reasoningDelta);
+          onEvent?.call(AgentNativeReasoningDelta(reasoningDelta));
         }
         final content = delta['content'];
         if (content is String && content.isNotEmpty) {

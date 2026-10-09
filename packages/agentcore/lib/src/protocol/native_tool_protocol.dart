@@ -73,7 +73,7 @@ sealed class AgentNativeStreamEvent {
 
 enum AgentNativeModelPhase { awaitingResponse, thinking, generating }
 
-/// Provider activity only. Reasoning text is never exposed to the host.
+/// Observed provider activity, separate from text and reasoning deltas.
 final class AgentNativeModelActivity extends AgentNativeStreamEvent {
   const AgentNativeModelActivity(this.phase);
 
@@ -83,6 +83,12 @@ final class AgentNativeModelActivity extends AgentNativeStreamEvent {
 final class AgentNativeTextDelta extends AgentNativeStreamEvent {
   const AgentNativeTextDelta(this.text);
 
+  final String text;
+}
+
+/// Reasoning is display/protocol data, never executable tool input.
+final class AgentNativeReasoningDelta extends AgentNativeStreamEvent {
+  const AgentNativeReasoningDelta(this.text);
   final String text;
 }
 
