@@ -379,7 +379,7 @@ void main() {
     await open(const ImportPage());
     await open(const ImportConfirmPage(
         csvText:
-            '日期,类型,金额,币种,账户,备注\n2026-10-09,支出,2000,JPY,QA日元,QA 日元导入\n2026-10-09,支出,10,CNY,QA人民币,QA 人民币导入',
+            '日期,类型,金额,币种,分类,账户,备注\n2026-10-09,支出,2000,JPY,QA消费,QA日元,QA 日元导入\n2026-10-09,支出,10,CNY,QA消费,QA人民币,QA 人民币导入',
         hasHeader: true,
         billType: BillSourceType.generic));
     await waitUi(() => find.text('下一步').evaluate().isNotEmpty);
