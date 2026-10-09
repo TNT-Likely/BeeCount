@@ -87,7 +87,7 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 
 - **Dark mode** — Pure black + theme accent borders, OLED-friendly
 - **Multi-language** — official Simplified/Traditional Chinese & English, community-contributed Korean, with localized formatting
-- **Home widgets** — 6 types × 12 variants (overview / net assets / quick add / budget / recent / dashboard), dark-mode, multi-language & theme-color aware, [see the full lineup](#home-widgets)
+- **Home widgets** — 8 types and 14 variants (overview / net assets / quick add / budget / recent / dashboard / Spending Rhythm / Record Bee Trail), dark-mode, multi-language & theme-color aware, [see the full lineup](#home-widgets)
 - **Theme customization** — Multiple primary colors
 
 </details>
@@ -98,25 +98,26 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 
 <div align="center">
   <img src="demo/videos/en/01-add-transaction.gif" alt="Add transaction" width="200" />
-  <img src="demo/videos/en/02-ocr-recognition.gif" alt="AI OCR" width="200" />
+  <img src="demo/videos/en/02-ai-text.gif" alt="AI text bookkeeping" width="200" />
   <img src="demo/videos/en/04-data-analysis.gif" alt="Analytics" width="200" />
+  <img src="demo/videos/en/05-copy-transaction.gif" alt="Long press to copy a transaction" width="200" />
 </div>
 
 ### Home Widgets
 
-6 content types × 12 variants — check your books and add records right from the home screen:
+8 content types and 14 variants — check your books and add records right from the home screen:
 
 <details>
-<summary>View the widget lineup (6 types × 12 variants)</summary>
+<summary>View the widget lineup (8 types, 14 variants)</summary>
 
 <div align="center">
-  <img src="demo/widgets/widgets-showcase-en.png" alt="Home widget lineup: overview / net assets / quick add / budget / recent transactions / dashboard" width="820" />
+  <img src="demo/widgets/widgets-showcase-en.png" alt="Home widget lineup: overview / net assets / quick add / budget / recent transactions / dashboard / Spending Rhythm / Record Bee Trail" width="820" />
 </div>
 
 </details>
 
 <details>
-<summary>More screenshots (9 themes / dark mode)</summary>
+<summary>More screenshots (core features / dark mode)</summary>
 
 ### 9 Core Themes
 
@@ -141,10 +142,10 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 ### Dark Mode
 
 <div align="center">
-  <img src="preview/dark/01-home.png" alt="Home dark" width="200" />
-  <img src="preview/dark/02-chart-analysis.png" alt="Charts dark" width="200" />
-  <img src="preview/dark/04-profile.png" alt="Profile dark" width="200" />
-  <img src="preview/dark/05-ai-chat.png" alt="AI chat dark" width="200" />
+  <img src="preview/dark/en/01-home.png" alt="Home dark" width="200" />
+  <img src="preview/dark/en/02-chart-analysis.png" alt="Charts dark" width="200" />
+  <img src="preview/dark/en/04-profile.png" alt="Profile dark" width="200" />
+  <img src="preview/dark/en/05-ai-chat.png" alt="AI chat dark" width="200" />
 </div>
 
 </details>
@@ -205,9 +206,13 @@ Full Docker Compose deployment, backup system, PWA, and ops details live in the 
 <br/>
 
 <div align="center">
-  <img src="preview/web/en-03-devices.png" alt="Web devices" width="600" />
+  <img src="preview/web/en-05-assets.png" alt="Web assets" width="600" />
   <br/>
-  <sub>📱 Online devices + backup archive management</sub>
+  <sub>💳 Account balances, asset composition and liabilities</sub>
+</div>
+
+<div align="center">
+  <img src="preview/web/en-04-attachments.png" alt="Web receipt preview" width="600" />
 </div>
 
 </details>

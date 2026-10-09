@@ -87,7 +87,7 @@
 
 - **暗黑模式** — 纯黑 + 主题色边框,OLED 友好
 - **多语言** — 官方简中 / 繁中 / English,社区贡献韩语,本地化日期/数字格式
-- **桌面小组件** — 6 类 × 12 种规格(收支速览/净资产/快速记账/预算/最近交易/仪表盘),暗黑/多语言/主题色全跟随,[全家福预览](#桌面小组件)
+- **桌面小组件** — 8 类内容、14 种规格(收支速览/净资产/快速记账/预算/最近交易/仪表盘/消费节奏/记账连续蜂迹),暗黑/多语言/主题色全跟随,[全家福预览](#桌面小组件)
 - **主题装扮** — 多主题色
 
 </details>
@@ -98,25 +98,26 @@
 
 <div align="center">
   <img src="demo/videos/zh/01-add-transaction.gif" alt="快速记账" width="200" />
-  <img src="demo/videos/zh/02-ocr-recognition.gif" alt="AI OCR 智能识别" width="200" />
+  <img src="demo/videos/zh/02-ocr-recognition.gif" alt="AI 图片记账" width="200" />
   <img src="demo/videos/zh/04-data-analysis.gif" alt="数据分析" width="200" />
+  <img src="demo/videos/zh/05-copy-transaction.gif" alt="长按复制交易" width="200" />
 </div>
 
 ### 桌面小组件
 
-6 类内容 × 12 种规格,不打开 App 也能看账、一点直达记账:
+8 类内容、14 种规格,不打开 App 也能看账、一点直达记账:
 
 <details>
-<summary>查看桌面小组件全家福(6 类 × 12 规格)</summary>
+<summary>查看桌面小组件全家福(8 类、14 规格)</summary>
 
 <div align="center">
-  <img src="demo/widgets/widgets-showcase-zh.png" alt="桌面小组件全家福:收支速览 / 净资产 / 快速记账 / 预算进度 / 最近交易 / 综合仪表盘" width="820" />
+  <img src="demo/widgets/widgets-showcase-zh.png" alt="桌面小组件全家福:收支速览 / 净资产 / 快速记账 / 预算进度 / 最近交易 / 综合仪表盘 / 消费节奏 / 记账连续蜂迹" width="820" />
 </div>
 
 </details>
 
 <details>
-<summary>更多截图(9 大主题 / 暗黑模式)</summary>
+<summary>更多截图（主要功能 / 暗黑模式）</summary>
 
 ### 9 大功能主题
 
@@ -141,10 +142,10 @@
 ### 暗黑模式
 
 <div align="center">
-  <img src="preview/dark/01-home.png" alt="首页-暗黑" width="200" />
-  <img src="preview/dark/02-chart-analysis.png" alt="图表分析-暗黑" width="200" />
-  <img src="preview/dark/04-profile.png" alt="我的-暗黑" width="200" />
-  <img src="preview/dark/05-ai-chat.png" alt="AI对话-暗黑" width="200" />
+  <img src="preview/dark/zh/01-home.png" alt="首页-暗黑" width="200" />
+  <img src="preview/dark/zh/02-chart-analysis.png" alt="图表分析-暗黑" width="200" />
+  <img src="preview/dark/zh/04-profile.png" alt="我的-暗黑" width="200" />
+  <img src="preview/dark/zh/05-ai-chat.png" alt="AI对话-暗黑" width="200" />
 </div>
 
 </details>
@@ -205,9 +206,13 @@
 <br/>
 
 <div align="center">
-  <img src="preview/web/zh-03-devices.png" alt="Web 在线设备" width="600" />
+  <img src="preview/web/zh-05-assets.png" alt="Web 资产管理" width="600" />
   <br/>
-  <sub>📱 在线设备 + 备份归档管理</sub>
+  <sub>💳 账户余额、资产构成与负债总览</sub>
+</div>
+
+<div align="center">
+  <img src="preview/web/zh-04-attachments.png" alt="Web 小票附件预览" width="600" />
 </div>
 
 </details>
