@@ -8235,4 +8235,46 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get transactionCopyUnavailable => 'This transaction cannot be copied. Check the ledger and your access.';
+
+  @override
+  String get creditCardOverpayment => 'Overpayment';
+
+  @override
+  String get creditCardDebtHint => 'Enter your total outstanding debt as a positive amount; enter 0 if none.';
+
+  @override
+  String get creditCardOverpaymentHint => 'Enter the positive amount remaining on the card after overpaying.';
+
+  @override
+  String get creditCardAmountInvalid => 'Enter a valid amount; credit-card debt or overpayment must be non-negative.';
+
+  @override
+  String get creditCardReminderDueRequired => 'Set a payment due day before enabling reminders.';
+
+  @override
+  String get creditCardEstimateHint => 'Estimated from recorded transactions; check your bank for the actual available amount.';
+
+  @override
+  String get accountAllFlows => 'All transactions';
+
+  @override
+  String get accountOutflows => 'Expenses & transfers out';
+
+  @override
+  String get accountInflows => 'Income & transfers in';
+
+  @override
+  String get positiveAssetBalance => 'Positive asset balances';
+
+  @override
+  String get negativeAssetBalanceHint => 'Negative account balances are deducted from total assets.';
+
+  @override
+  String get importAccountCurrencyPreview => 'Confirm account currencies';
+
+  @override
+  String get importAccountCurrencyPreviewHint => 'Accounts use statement currencies. Conflicting currencies are split without changing existing accounts. Missing currencies follow an existing account, an unambiguous account currency, or the ledger currency.';
+
+  @override
+  String get importCurrencyInvalid => 'Invalid currency; correct this row:';
 }

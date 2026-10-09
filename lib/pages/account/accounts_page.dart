@@ -18,6 +18,7 @@ import '../../l10n/app_localizations.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../utils/account_type_utils.dart';
+import '../../utils/credit_card_amounts.dart';
 import '../../utils/currencies.dart';
 import '../../widgets/charts/asset_composition_chart.dart';
 import '../../widgets/charts/line_chart.dart';
@@ -2240,18 +2241,19 @@ class _AccountCard extends ConsumerWidget {
   }
 
   Widget _buildCreditCardStats(BuildContext context, WidgetRef ref, AppLocalizations l10n, bool isDark) {
-    final used = stats!.balance < 0 ? -stats!.balance : 0.0;
+    final amounts = CreditCardAmounts(stats!.balance, limit: account.creditLimit);
+    final used = amounts.debt;
     final textColor = isDark ? Colors.white.withValues(alpha: 0.9) : Colors.white;
     final labelColor = isDark ? Colors.white.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.8);
 
     // 信用卡按 type 判定;无额度时仅显示当前欠款,不再 fallthrough 到收入/支出卡
     final creditLimit = account.creditLimit;
-    if (creditLimit == null) {
+    if (creditLimit == null || creditLimit <= 0) {
       return Align(
         alignment: Alignment.centerLeft,
         child: _CardStat(
-          label: l10n.creditCardOwed,
-          value: used,
+          label: amounts.overpayment > 0 ? l10n.creditCardOverpayment : l10n.creditCardOwed,
+          value: amounts.overpayment > 0 ? amounts.overpayment : used,
           textColor: textColor,
           labelColor: labelColor,
           ref: ref,
@@ -2295,8 +2297,8 @@ class _AccountCard extends ConsumerWidget {
             ),
             Expanded(
               child: _CardStat(
-                label: l10n.creditUsed,
-                value: used,
+                label: amounts.overpayment > 0 ? l10n.creditCardOverpayment : l10n.creditCardOwed,
+                value: amounts.overpayment > 0 ? amounts.overpayment : used,
                 textColor: textColor,
                 labelColor: labelColor,
                 ref: ref,
@@ -2311,7 +2313,7 @@ class _AccountCard extends ConsumerWidget {
             Expanded(
               child: _CardStat(
                 label: l10n.creditAvailable,
-                value: creditLimit - used,
+                value: amounts.estimatedAvailable ?? 0,
                 textColor: textColor,
                 labelColor: labelColor,
                 ref: ref,

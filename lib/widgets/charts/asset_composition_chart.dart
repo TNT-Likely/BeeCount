@@ -136,7 +136,7 @@ class _AssetCompositionChartState extends ConsumerState<AssetCompositionChart> {
                         ? (selectedSlice.type == '_other_'
                             ? l10n.commonOther
                             : getAccountTypeLabel(context, selectedSlice.type))
-                        : l10n.assetComposition,
+                        : l10n.positiveAssetBalance,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: BeeTokens.textTertiary(context),
                           fontSize: 10,
@@ -159,6 +159,11 @@ class _AssetCompositionChartState extends ConsumerState<AssetCompositionChart> {
               ),
             ],
           ),
+        ),
+        if (widget.data.any((d) => d.totalBalance < 0)) Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(l10n.negativeAssetBalanceHint,
+            style: TextStyle(fontSize: 11, color: BeeTokens.textTertiary(context))),
         ),
         const SizedBox(height: 8),
         Wrap(

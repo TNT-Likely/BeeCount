@@ -3021,8 +3021,8 @@
   "billingDay": "Billing Day",
   "paymentDueDay": "Payment Due Day",
   "creditUsed": "Used",
-  "creditAvailable": "Available",
-  "creditCardOwed": "Owed",
+  "creditAvailable": "Est. available",
+  "creditCardOwed": "Current debt",
   "dayOfMonth": "{day}th of each month",
   "@dayOfMonth": {
     "placeholders": {
@@ -3549,5 +3549,19 @@
   "attachmentKeepOriginal": "Keep Original Attachments",
   "attachmentKeepOriginalDesc": "Uses more storage and sync data",
   "transactionCopyAction": "Copy as new transaction",
-  "transactionCopyUnavailable": "This transaction cannot be copied. Check the ledger and your access."
+  "transactionCopyUnavailable": "This transaction cannot be copied. Check the ledger and your access.",
+  "creditCardOverpayment": "Overpayment",
+  "creditCardDebtHint": "Enter your total outstanding debt as a positive amount; enter 0 if none.",
+  "creditCardOverpaymentHint": "Enter the positive amount remaining on the card after overpaying.",
+  "creditCardAmountInvalid": "Enter a valid amount; credit-card debt or overpayment must be non-negative.",
+  "creditCardReminderDueRequired": "Set a payment due day before enabling reminders.",
+  "creditCardEstimateHint": "Estimated from recorded transactions; check your bank for the actual available amount.",
+  "accountAllFlows": "All transactions",
+  "accountOutflows": "Expenses & transfers out",
+  "accountInflows": "Income & transfers in",
+  "positiveAssetBalance": "Positive asset balances",
+  "negativeAssetBalanceHint": "Negative account balances are deducted from total assets.",
+  "importAccountCurrencyPreview": "Confirm account currencies",
+  "importAccountCurrencyPreviewHint": "Accounts use statement currencies. Conflicting currencies are split without changing existing accounts. Missing currencies follow an existing account, an unambiguous account currency, or the ledger currency.",
+  "importCurrencyInvalid": "Invalid currency; correct this row:"
 }

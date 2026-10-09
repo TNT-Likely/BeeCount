@@ -2951,8 +2951,8 @@
   "billingDay": "账单日",
   "paymentDueDay": "还款日",
   "creditUsed": "已用额度",
-  "creditAvailable": "可用额度",
-  "creditCardOwed": "待还款",
+  "creditAvailable": "估算可用",
+  "creditCardOwed": "当前欠款",
   "dayOfMonth": "每月{day}日",
   "@dayOfMonth": {
     "placeholders": {
@@ -3473,5 +3473,19 @@
   "attachmentKeepOriginal": "附件保存原图",
   "attachmentKeepOriginalDesc": "保留原图，增加存储和同步流量",
   "transactionCopyAction": "复制为新交易",
-  "transactionCopyUnavailable": "无法复制这笔交易，请检查账本和访问权限。"
+  "transactionCopyUnavailable": "无法复制这笔交易，请检查账本和访问权限。",
+  "creditCardOverpayment": "溢缴款",
+  "creditCardDebtHint": "填写当前总欠款，输入正数；没有欠款填 0。",
+  "creditCardOverpaymentHint": "填写多还后留在信用卡里的金额，输入正数。",
+  "creditCardAmountInvalid": "请输入有效金额；信用卡欠款或溢缴款请填写非负数。",
+  "creditCardReminderDueRequired": "开启提醒前，请填写还款日。",
+  "creditCardEstimateHint": "按已记流水估算，实际可用金额以银行为准。",
+  "accountAllFlows": "全部流水",
+  "accountOutflows": "支出与转出",
+  "accountInflows": "收入与转入",
+  "positiveAssetBalance": "正余额资产",
+  "negativeAssetBalanceHint": "账户负余额已从总资产扣减。",
+  "importAccountCurrencyPreview": "确认账户币种",
+  "importAccountCurrencyPreviewHint": "根据账单币种建立或复用账户；同名多币种及已有账户冲突会按币种拆分，不修改旧账户。缺失币种继承已有账户，否则使用可确定的账户币种或账本币种。",
+  "importCurrencyInvalid": "币种无效，请修正对应行："
 }

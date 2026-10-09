@@ -2,7 +2,7 @@
 
 流程 skill 随项目维护在 `.agents/skills/isolated-app-cloud-qa`；Codex 与 Claude Code 项目安装见 [项目 skill](PROJECT_SKILLS_ZH.md)。不再需要 honeycomb 或全局安装。新 run 自动记录 skill 仓库 SHA、完整目录 hash 与版本，并保存私有源码副本；可用 `--skill-dir` 指定另一份源码。旧 `--skill-repo` 仅保留兼容，已存在 run 的 manifest 和数据不会迁移。
 
-用于需要真实 iOS App UI、真实 Cloud 数据持久化和双向同步的验收。当前支持首页复制交易、父子分类改名同步、Web 交易图片和 MCP 小票附件四种场景。单元/widget 测试与 fake-provider 同步测试仍是快速回归层，实服同步另行执行。
+用于需要真实 iOS App UI、真实 Cloud 数据持久化和双向同步的验收。当前支持首页复制交易、父子分类改名同步、Web 交易图片、MCP 小票附件和账户金额可信度五种场景。单元/widget 测试与 fake-provider 同步测试仍是快速回归层，实服同步另行执行。
 
 ## 环境要求
 
@@ -37,6 +37,8 @@ python3 scripts/qa/isolated_app_cloud.py prepare --cloud-repo ../BeeCount-Cloud
 MCP 小票使用 `prepare --scenario mcp-receipt-attachments --cloud-ref <Cloud 功能提交 SHA>`。用新私有 PAT 经真实 Streamable HTTP 初始化、发现工具、上传两张同名合成小票并创建交易；由生产引擎拉回，实际打开 App 图片预览。覆盖不传/null 保留、重排、移除后追加、替换、清空、App 预览页删除上传、只读 PAT 与非法引用拒绝、重复同步和正常入口重启。此场景不等待 Web 操作；Web 查看与预览另由浏览器验收。
 
 分类场景的正常入口检查断言主页合成交易可见，并读取 QA 数据库核对父分类名称、子分类稳定身份与本地 `parent_id` 关系。两种场景共用隔离措施，执行结果与截图仍只进入独立报告包。
+
+账户金额可信度使用 `prepare --scenario account-balance-trust --cloud-ref <Cloud 功能提交 SHA>`。真实 App 页面创建欠款卡与溢缴卡、消费、超额还款、再次消费、检查普通账户全部流水及导入外币 CSV；上传后等待 `QA_STAGE_READY_WEB_ACCOUNT_TRUST`。在同一 QA 网页把「QA信用卡」改名为「QA Web信用卡」，并用正数 5000 创建欠款卡「QA Web欠款卡」，再由 App 拉回，核对账户身份、初始余额、交易关系、币种与重复同步。Web 首页另核验账户全局余额与当前账本交易排行。正常入口重启核验导入交易可见及最终账户字段持久化。
 
 Cloud 默认取 `origin/main`；需要联调独立修复分支时，通过 `--cloud-ref <分支或 SHA>` 指定已提交的版本。manifest 记录解析后的实际 SHA，Cloud 当前 checkout 不切换。
 

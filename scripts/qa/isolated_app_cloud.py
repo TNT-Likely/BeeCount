@@ -24,6 +24,7 @@ APP_ID = 'com.tntlikely.beecount.qa'
 GROUP_ID = 'group.com.tntlikely.beecount.qa'
 PROJECT = Path(__file__).resolve().parents[2]
 SCENARIOS = {
+    'account-balance-trust': 'integration_test/account_balance_trust_live_test.dart',
     'transaction-copy': 'integration_test/transaction_copy_live_test.dart',
     'category-parent': 'integration_test/category_parent_live_test.dart',
     'web-transaction-images': 'integration_test/web_transaction_images_live_test.dart',
@@ -389,9 +390,10 @@ def run(root, manifest, flutter):
                                            'created_by_user_id, tag_sync_ids_json, attachments_json '
                                            'FROM read_tx_projection ORDER BY sync_id')]
         migration = db.execute('SELECT version_num FROM alembic_version').fetchone()[0]
+        accounts = [dict(r) for r in db.execute('SELECT sync_id, name, account_type, currency, initial_balance, credit_limit, billing_day, payment_due_day FROM user_account_projection ORDER BY sync_id')]
         categories = [dict(r) for r in db.execute('SELECT sync_id, name, kind, level, parent_name, parent_sync_id '
                                                 'FROM user_category_projection ORDER BY sync_id')]
-    write_json(root / 'evidence/cloud-projection.json', dict(migration=migration, transactions=rows, categories=categories))
+    write_json(root / 'evidence/cloud-projection.json', dict(migration=migration, transactions=rows, categories=categories, accounts=accounts))
     public = {k: manifest[k] for k in ('run_id', 'app_id', 'app_sha', 'cloud_sha', 'runtime', 'udid',
                                       'cloud_origin', 'source_hash', 'artifact_hash', 'verified_bundles', 'drive_exit_code')}
     public.update(tool_versions=manifest.get('tool_versions'), skill_sha=manifest.get('skill_sha'), resolved_lock_sha256=manifest.get('resolved_lock_sha256'))
@@ -682,6 +684,15 @@ def restart_check(root, manifest, flutter):
         copy = next(r for r in rows if r['sync_id'] == report['copy_sync_id'])
         if copy['note'] != 'QA Cloud 修改后' or copy['amount'] != 55.5:
             raise ValueError('Normal App restart did not retain the synchronized copy')
+    elif manifest.get('scenario') == 'account-balance-trust':
+        with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
+            db.row_factory = sqlite3.Row
+            accounts = [dict(r) for r in db.execute('SELECT sync_id, name, type, currency, initial_balance FROM accounts ORDER BY sync_id')]
+            for expected in report['final_accounts']:
+                actual = next((a for a in accounts if a['sync_id'] == expected['sync_id']), None)
+                if actual is None or any(actual[k] != expected[k] for k in ('name', 'type', 'currency', 'initial_balance')):
+                    raise ValueError('Normal restart lost synchronized account identity or fields')
+        rows = dict(transactions=rows, accounts=accounts)
     elif manifest.get('scenario') == 'category-parent':
         with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
             db.row_factory = sqlite3.Row

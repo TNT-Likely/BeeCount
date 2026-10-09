@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/db.dart';
 import '../providers.dart';
+import '../utils/credit_card_amounts.dart';
 
 /// 所有信用卡账户
 final creditCardAccountsProvider = FutureProvider<List<Account>>((ref) async {
@@ -27,6 +28,6 @@ final creditCardAvailableAmountProvider =
   final account = await repo.getAccount(accountId);
   if (account == null || account.creditLimit == null) return null;
 
-  final usedAmount = await ref.watch(creditCardUsedAmountProvider(accountId).future);
-  return account.creditLimit! - usedAmount;
+  final balance = await repo.getAccountBalance(accountId);
+  return CreditCardAmounts(balance, limit: account.creditLimit).estimatedAvailable;
 });
