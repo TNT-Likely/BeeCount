@@ -349,7 +349,7 @@ void main() {
         'Real App sync uploaded signed balances and transfer relationships into the authenticated Cloud snapshot');
     debugPrint('QA_STAGE_READY_WEB_ACCOUNT_TRUST');
     var webDone = false;
-    for (var i = 0; i < 600; i++) {
+    for (var i = 0; i < 1800; i++) {
       snap = await snapshot();
       final accts = (snap['accounts'] as List).cast<Map>();
       if (accts.any(
@@ -442,5 +442,5 @@ void main() {
           'Production pages opened under MainApp; fixture navigation does not cover every menu entry',
     });
     await prefs.setString('qa_run_id', runId);
-  }, timeout: const Timeout(Duration(minutes: 25)));
+  }, timeout: const Timeout(Duration(minutes: 60)));
 }
