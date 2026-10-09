@@ -103,9 +103,6 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
   <img src="demo/videos/en/05-copy-transaction.gif" alt="Long press to copy a transaction" width="200" />
 </div>
 
-> Captured from App 3.8.6 and Cloud 1.7.0 in an isolated demo environment using fictional data. AI demos use real model responses; waiting times are shortened in the demos.
-
-
 ### Home Widgets
 
 6 content types × 12 variants — check your books and add records right from the home screen:

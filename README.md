@@ -103,9 +103,6 @@
   <img src="demo/videos/zh/05-copy-transaction.gif" alt="长按复制交易" width="200" />
 </div>
 
-> 素材来自 App 3.8.6 与 Cloud 1.7.0 的独立演示环境，全部为虚构数据。图片记账使用真实 AI 识别；动图剪短了等待时间。
-
-
 ### 桌面小组件
 
 6 类内容 × 12 种规格,不打开 App 也能看账、一点直达记账:
