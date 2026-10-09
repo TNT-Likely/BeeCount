@@ -12,6 +12,8 @@ import 'package:uuid/uuid.dart';
 
 import '../../widgets/ui/ui.dart';
 import '../../widgets/ai/typewriter_text.dart';
+import '../../widgets/ai/agent_reasoning_panel.dart';
+import '../../models/assistant_reasoning_metadata.dart';
 import '../../widgets/ai/agent_markdown_text.dart';
 import '../../widgets/ai/bill_card_widget.dart';
 import '../../widgets/ai/agent_follow_up_questions.dart';
@@ -69,6 +71,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
   bool _isFirstLoad = true; // 是否首次加载
   bool _hasLiveAgentMessage = false;
   String _streamingAgentText = '';
+  String _streamingReasoning = '';
+  bool _reasoningRoundStarted = false;
   AgentNativeModelPhase? _agentModelPhase;
   List<AgentExecutionStep> _agentExecutionSteps = const [];
   AIResponse? _liveAgentResponse;
@@ -433,7 +437,14 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         cards = _buildMultiBillBubble(message, parsed);
       }
       return AgentAnswerView(
-          activity: _storedActivity(message), content: cards);
+          activity: _storedActivity(message),
+          content:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            AgentReasoningPanel(
+                key: ValueKey('reasoning-${message.id}'),
+                reasoning: AssistantReasoningMetadata.decode(message.metadata)),
+            cards,
+          ]));
     }
 
     if (message.role != 'user') {
@@ -446,6 +457,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
               _showTextMessageMenu(details.globalPosition, message, false),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            AgentReasoningPanel(
+                key: ValueKey('reasoning-${message.id}'),
+                reasoning: AssistantReasoningMetadata.decode(message.metadata)),
             _answerText(message.content),
             if (responseAction != null) _buildResponseAction(responseAction),
           ]),
@@ -553,13 +567,19 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
     if (response != null) return _buildLiveAgentResponse(response);
     return AgentAnswerView(
       key: const ValueKey('agent-live-answer'),
-      content: AgentExecutionTimeline(
-        key: ValueKey('execution-live-$_activeAgentRunId'),
-        steps: _agentExecutionSteps,
-        isStreaming: _isLoading,
-        streamingText: _streamingAgentText,
-        modelPhase: _agentModelPhase,
-      ),
+      content:
+          Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        AgentReasoningPanel(
+            key: ValueKey('reasoning-live-$_activeAgentRunId'),
+            reasoning: _streamingReasoning),
+        AgentExecutionTimeline(
+          key: ValueKey('execution-live-$_activeAgentRunId'),
+          steps: _agentExecutionSteps,
+          isStreaming: _isLoading,
+          streamingText: _streamingAgentText,
+          modelPhase: _agentModelPhase,
+        ),
+      ]),
     );
   }
 
@@ -577,6 +597,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           activity: activity,
           content:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            AgentReasoningPanel(
+                key: ValueKey('reasoning-complete-$_activeAgentRunId'),
+                reasoning: _streamingReasoning),
             for (var index = 0; index < response.bills.length; index++)
               BillCardWidget(
                 billInfo: response.bills[index],
@@ -590,6 +613,9 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       activity: activity,
       content:
           Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        AgentReasoningPanel(
+            key: ValueKey('reasoning-complete-$_activeAgentRunId'),
+            reasoning: _streamingReasoning),
         _answerText(response.text),
         if (response.action != null) _buildResponseAction(response.action!),
       ]),
@@ -786,6 +812,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       setState(() {
         _hasLiveAgentMessage = true;
         _streamingAgentText = '';
+        _streamingReasoning = '';
+        _reasoningRoundStarted = false;
         _agentModelPhase = null;
         _agentExecutionSteps = const [];
         _liveAgentResponse = null;
@@ -807,7 +835,20 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         if (!mounted) break;
         switch (event) {
           case AgentModelActivityEvent(:final phase):
-            setState(() => _agentModelPhase = phase);
+            setState(() {
+              _agentModelPhase = phase;
+              if (phase == AgentNativeModelPhase.awaitingResponse) {
+                _reasoningRoundStarted = false;
+              }
+            });
+          case AgentReasoningDeltaEvent(:final text):
+            setState(() {
+              if (!_reasoningRoundStarted && _streamingReasoning.isNotEmpty) {
+                _streamingReasoning += '\n\n';
+              }
+              _reasoningRoundStarted = true;
+              _streamingReasoning += text;
+            });
           case AgentTextDeltaEvent(:final text):
             setState(() {
               _streamingAgentText += text;
@@ -927,6 +968,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
         _animatingMessageId = null;
         _hasLiveAgentMessage = false;
         _streamingAgentText = '';
+        _streamingReasoning = '';
+        _reasoningRoundStarted = false;
         _agentModelPhase = null;
         _agentExecutionSteps = const [];
         _liveAgentResponse = null;
@@ -943,6 +986,8 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
           _isLoading = false;
           _hasLiveAgentMessage = false;
           _streamingAgentText = '';
+          _streamingReasoning = '';
+          _reasoningRoundStarted = false;
           _agentModelPhase = null;
           _agentExecutionSteps = const [];
           _liveAgentResponse = null;
@@ -959,6 +1004,7 @@ class _AIChatPageState extends ConsumerState<AIChatPage>
       'contextLedgerId': ledgerId,
       'analysisTemplatesAllowed': response.allowPromptSuggestions,
     };
+    metadata.addAll(AssistantReasoningMetadata.encode(_streamingReasoning));
     metadata.addAll(AssistantExecutionMetadata.encode(
       AgentExecutionTimeline.projectSteps(
           AppLocalizations.of(context), _agentExecutionSteps,

@@ -12,7 +12,8 @@ void main() {
     ),
   ];
 
-  test('provider phases are deduplicated and never expose reasoning text',
+  test(
+      'provider phases are deduplicated and reasoning stays separate from content',
       () async {
     final events = <AgentNativeStreamEvent>[];
     final transport = OpenAiCompatibleNativeToolTransport(
@@ -51,6 +52,12 @@ void main() {
         ]);
     expect(events.whereType<AgentNativeTextDelta>().map((event) => event.text),
         ['answer', ' complete']);
+    expect(events.whereType<AgentNativeReasoningDelta>().map((e) => e.text), [
+      'private reasoning one',
+      'private reasoning two',
+      'private reasoning three',
+      'late private reasoning'
+    ]);
     expect((response as AgentNativeFinalTextResponse).text, 'answer complete');
   });
 

@@ -8227,6 +8227,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get transactionCopyUnavailable => '无法复制这笔交易，请检查账本和访问权限。';
+
+  @override
+  String get aiMiMoModelsMissingKey => '输入 API Key 后自动获取可用模型';
+
+  @override
+  String get aiMiMoModelsLoading => '正在获取可用模型…';
+
+  @override
+  String get aiMiMoModelsUnauthorized => 'API Key 无效或无权限；模型列表尚未刷新';
+
+  @override
+  String get aiMiMoModelsFailed => '网络获取模型失败；保留已保存模型，请重试';
+
+  @override
+  String get aiMiMoModelsEmpty => '获取成功，当前账号没有可用模型';
+
+  @override
+  String get aiMiMoModelsLoaded => '已获取当前账号可用模型';
+
+  @override
+  String get aiMiMoModelsRefresh => '重新获取模型';
+
+  @override
+  String get aiMiMoModelUnavailable => '已保存的模型不可用，已选择可用替代模型；请确认后保存';
+
+  @override
+  String get aiDeepSeekModelsHint => '模型由 DeepSeek 官方接口获取，仅显示支持对应输入类型的模型。';
+
+  @override
+  String get aiMiMoModelsHint => '模型由 Xiaomi 官方接口获取，支持按量 API。';
+
+  @override
+  String get aiMiMoQuickThinking => '快速记账深度思考';
+
+  @override
+  String get aiMiMoAssistantThinking => 'AI 助手深度思考';
+
+  @override
+  String get aiReasoningTitle => '思考过程';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -15809,4 +15848,43 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get annualReportDownloadHint => '掃碼下載蜜蜂記帳，開啟你的記帳之旅';
+
+  @override
+  String get aiMiMoModelsMissingKey => '輸入 API Key 後自動取得可用模型';
+
+  @override
+  String get aiMiMoModelsLoading => '正在取得可用模型…';
+
+  @override
+  String get aiMiMoModelsUnauthorized => 'API Key 無效或無權限；模型清單尚未更新';
+
+  @override
+  String get aiMiMoModelsFailed => '網路取得模型失敗；保留已儲存模型，請重試';
+
+  @override
+  String get aiMiMoModelsEmpty => '取得成功，目前帳號沒有可用模型';
+
+  @override
+  String get aiMiMoModelsLoaded => '已取得目前帳號可用模型';
+
+  @override
+  String get aiMiMoModelsRefresh => '重新取得模型';
+
+  @override
+  String get aiMiMoModelUnavailable => '已儲存的模型不可用，已選擇可用替代模型；請確認後儲存';
+
+  @override
+  String get aiDeepSeekModelsHint => '模型由 DeepSeek 官方介面取得，僅顯示支援對應輸入類型的模型。';
+
+  @override
+  String get aiMiMoModelsHint => '模型由 Xiaomi 官方介面取得，支援按量 API。';
+
+  @override
+  String get aiMiMoQuickThinking => '快速記帳深度思考';
+
+  @override
+  String get aiMiMoAssistantThinking => 'AI 助手深度思考';
+
+  @override
+  String get aiReasoningTitle => '思考過程';
 }

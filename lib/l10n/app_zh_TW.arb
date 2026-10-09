@@ -2977,5 +2977,18 @@
   "annualReportMonthlyExpenseTrend": "月度支出趨勢",
   "annualReportAchieved": "已達成",
   "annualReportNotAchieved": "未達成",
-  "annualReportDownloadHint": "掃碼下載蜜蜂記帳，開啟你的記帳之旅"
+  "annualReportDownloadHint": "掃碼下載蜜蜂記帳，開啟你的記帳之旅",
+  "aiMiMoModelsMissingKey": "輸入 API Key 後自動取得可用模型",
+  "aiMiMoModelsLoading": "正在取得可用模型…",
+  "aiMiMoModelsUnauthorized": "API Key 無效或無權限；模型清單尚未更新",
+  "aiMiMoModelsFailed": "網路取得模型失敗；保留已儲存模型，請重試",
+  "aiMiMoModelsEmpty": "取得成功，目前帳號沒有可用模型",
+  "aiMiMoModelsLoaded": "已取得目前帳號可用模型",
+  "aiMiMoModelsRefresh": "重新取得模型",
+  "aiMiMoModelUnavailable": "已儲存的模型不可用，已選擇可用替代模型；請確認後儲存",
+  "aiDeepSeekModelsHint": "模型由 DeepSeek 官方介面取得，僅顯示支援對應輸入類型的模型。",
+  "aiMiMoModelsHint": "模型由 Xiaomi 官方介面取得，支援按量 API。",
+  "aiMiMoQuickThinking": "快速記帳深度思考",
+  "aiMiMoAssistantThinking": "AI 助手深度思考",
+  "aiReasoningTitle": "思考過程"
 }

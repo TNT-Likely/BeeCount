@@ -6,12 +6,15 @@ import 'package:agentcore/agentcore.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../widgets/ui/ui.dart';
+import '../../widgets/ai/provider_model_settings.dart';
 import '../../widgets/biz/section_card.dart';
 import '../../services/system/logger_service.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../providers/theme_providers.dart';
 import '../../ai/providers/ai_provider_config.dart';
+import '../../ai/providers/xiaomi_mimo_profile.dart';
+import '../../ai/providers/deepseek_profile.dart';
 import '../../ai/providers/ai_provider_manager.dart';
 import '../../ai/providers/ai_provider_factory.dart';
 import '../../ai/providers/ai_constants.dart';
@@ -23,7 +26,8 @@ import '../../providers/ai_chat_providers.dart';
 final aiProviderListRefreshProvider = StateProvider<int>((ref) => 0);
 
 /// AI 服务商列表 Provider
-final aiProvidersProvider = FutureProvider<List<AIServiceProviderConfig>>((ref) async {
+final aiProvidersProvider =
+    FutureProvider<List<AIServiceProviderConfig>>((ref) async {
   ref.watch(aiProviderListRefreshProvider);
   return AIProviderManager.getProviders();
 });
@@ -33,7 +37,8 @@ class AIProviderManagePage extends ConsumerStatefulWidget {
   const AIProviderManagePage({super.key});
 
   @override
-  ConsumerState<AIProviderManagePage> createState() => _AIProviderManagePageState();
+  ConsumerState<AIProviderManagePage> createState() =>
+      _AIProviderManagePageState();
 }
 
 class _AIProviderManagePageState extends ConsumerState<AIProviderManagePage> {
@@ -135,7 +140,9 @@ class _AIProviderManagePageState extends ConsumerState<AIProviderManagePage> {
                 children: [
                   Icon(
                     provider.isBuiltIn ? Icons.verified : Icons.cloud_outlined,
-                    color: provider.isBuiltIn ? primaryColor : BeeTokens.textSecondary(context),
+                    color: provider.isBuiltIn
+                        ? primaryColor
+                        : BeeTokens.textSecondary(context),
                     size: 20,
                   ),
                   const SizedBox(width: 8),
@@ -150,7 +157,8 @@ class _AIProviderManagePageState extends ConsumerState<AIProviderManagePage> {
                   ),
                   if (provider.isBuiltIn)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
@@ -209,11 +217,13 @@ class _AIProviderManagePageState extends ConsumerState<AIProviderManagePage> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.warning_amber, size: 16, color: Colors.orange[700]),
+                      Icon(Icons.warning_amber,
+                          size: 16, color: Colors.orange[700]),
                       const SizedBox(width: 6),
                       Text(
                         l10n.aiProviderNoApiKey,
-                        style: TextStyle(fontSize: 12, color: Colors.orange[700]),
+                        style:
+                            TextStyle(fontSize: 12, color: Colors.orange[700]),
                       ),
                     ],
                   ),
@@ -291,7 +301,8 @@ class _AIProviderManagePageState extends ConsumerState<AIProviderManagePage> {
     }
   }
 
-  Future<void> _editProvider(BuildContext context, AIServiceProviderConfig provider) async {
+  Future<void> _editProvider(
+      BuildContext context, AIServiceProviderConfig provider) async {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
@@ -304,7 +315,8 @@ class _AIProviderManagePageState extends ConsumerState<AIProviderManagePage> {
     }
   }
 
-  Future<void> _deleteProvider(BuildContext context, AIServiceProviderConfig provider) async {
+  Future<void> _deleteProvider(
+      BuildContext context, AIServiceProviderConfig provider) async {
     final l10n = AppLocalizations.of(context);
 
     final confirmed = await showDialog<bool>(
@@ -331,7 +343,7 @@ class _AIProviderManagePageState extends ConsumerState<AIProviderManagePage> {
       final success = await AIProviderManager.deleteProvider(provider.id);
       if (success) {
         ref.read(aiProviderListRefreshProvider.notifier).state++;
-        if (mounted) {
+        if (mounted && context.mounted) {
           showToast(context, deletedMessage);
         }
       }
@@ -342,8 +354,9 @@ class _AIProviderManagePageState extends ConsumerState<AIProviderManagePage> {
 /// AI 服务商编辑页面
 class AIProviderEditPage extends ConsumerStatefulWidget {
   final AIServiceProviderConfig? provider;
+  final ProviderModelLoader? modelLoader;
 
-  const AIProviderEditPage({super.key, this.provider});
+  const AIProviderEditPage({super.key, this.provider, this.modelLoader});
 
   @override
   ConsumerState<AIProviderEditPage> createState() => _AIProviderEditPageState();
@@ -360,6 +373,11 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
   late final TextEditingController _visionModelController;
   late final TextEditingController _audioModelController;
 
+  bool _thinkingEnabled = true;
+  bool _assistantThinkingEnabled = true;
+  bool get _isDeepSeek => widget.provider?.isDeepSeek ?? false;
+  bool get _supportsThinking =>
+      widget.provider?.supportsThinkingControl ?? false;
   bool _obscureApiKey = true;
   bool _saving = false;
 
@@ -382,16 +400,24 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
   void initState() {
     super.initState();
     final p = widget.provider;
+    _thinkingEnabled = p?.thinkingEnabled ?? true;
+    _assistantThinkingEnabled = p?.assistantThinkingEnabled ?? true;
     _nameController = TextEditingController(text: p?.name ?? '');
     _apiKeyController = TextEditingController(text: p?.apiKey ?? '');
     _baseUrlController = TextEditingController(text: p?.baseUrl ?? '');
     _textModelController = TextEditingController(text: p?.textModel ?? '');
     _visionModelController = TextEditingController(text: p?.visionModel ?? '');
     _audioModelController = TextEditingController(text: p?.audioModel ?? '');
+    _apiKeyController.addListener(_keyChanged);
+  }
+
+  void _keyChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _apiKeyController.removeListener(_keyChanged);
     _nameController.dispose();
     _apiKeyController.dispose();
     _baseUrlController.dispose();
@@ -411,7 +437,8 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
       body: Column(
         children: [
           PrimaryHeader(
-            title: _isEditing ? l10n.aiProviderEditTitle : l10n.aiProviderAddTitle,
+            title:
+                _isEditing ? l10n.aiProviderEditTitle : l10n.aiProviderAddTitle,
             showBack: true,
             actions: [
               TextButton(
@@ -469,27 +496,32 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
                             border: const OutlineInputBorder(),
                             isDense: true,
                             focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: primaryColor, width: 2),
+                              borderSide:
+                                  BorderSide(color: primaryColor, width: 2),
                             ),
                           ),
                         ),
                         const SizedBox(height: 16),
 
-                        // Base URL（内置服务商不可编辑）
-                        TextField(
-                          controller: _baseUrlController,
-                          enabled: !_isBuiltIn,
-                          decoration: InputDecoration(
-                            labelText: 'Base URL',
-                            hintText: 'https://api.example.com/v1',
-                            helperText: _isBuiltIn ? null : l10n.aiCustomBaseUrlHelper,
-                            border: const OutlineInputBorder(),
-                            isDense: true,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: primaryColor, width: 2),
+                        // 内置 MiMo / DeepSeek 使用固定 endpoint。
+                        if (!_supportsThinking)
+                          TextField(
+                            controller: _baseUrlController,
+                            enabled: !_isBuiltIn,
+                            decoration: InputDecoration(
+                              labelText: 'Base URL',
+                              hintText: 'https://api.example.com/v1',
+                              helperText: _isBuiltIn
+                                  ? null
+                                  : l10n.aiCustomBaseUrlHelper,
+                              border: const OutlineInputBorder(),
+                              isDense: true,
+                              focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: primaryColor, width: 2),
+                              ),
                             ),
                           ),
-                        ),
                         const SizedBox(height: 16),
 
                         // API Key 标题行（带测试按钮）
@@ -497,7 +529,8 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
                           children: [
                             const Text(
                               'API Key',
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w500),
                             ),
                             const Spacer(),
                             _buildInlineTestButton(
@@ -516,22 +549,51 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
                             border: const OutlineInputBorder(),
                             isDense: true,
                             focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: primaryColor, width: 2),
+                              borderSide:
+                                  BorderSide(color: primaryColor, width: 2),
                             ),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscureApiKey ? Icons.visibility_off : Icons.visibility,
+                                _obscureApiKey
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
                                 size: 20,
                               ),
                               onPressed: () {
-                                setState(() => _obscureApiKey = !_obscureApiKey);
+                                setState(
+                                    () => _obscureApiKey = !_obscureApiKey);
                               },
                             ),
                           ),
                         ),
 
+                        if (_supportsThinking) ...[
+                          TextButton.icon(
+                            onPressed: () => launchUrl(
+                                Uri.parse(_isDeepSeek
+                                    ? WebsiteUrls.deepSeekApiKeys
+                                    : WebsiteUrls.xiaomiMiMoApiKeys),
+                                mode: LaunchMode.externalApplication),
+                            icon: const Icon(Icons.open_in_new),
+                            label: Text(l10n.aiCloudApiGetKey),
+                          ),
+                          SwitchListTile(
+                            title: Text(l10n.aiMiMoQuickThinking),
+                            value: _thinkingEnabled,
+                            onChanged: (value) =>
+                                setState(() => _thinkingEnabled = value),
+                          ),
+                          SwitchListTile(
+                            title: Text(l10n.aiMiMoAssistantThinking),
+                            value: _assistantThinkingEnabled,
+                            onChanged: (value) => setState(
+                                () => _assistantThinkingEnabled = value),
+                          ),
+                        ],
+
                         // 文本测试错误信息
-                        if (_textTestStatus == TestStatus.failed && _textTestError != null) ...[
+                        if (_textTestStatus == TestStatus.failed &&
+                            _textTestError != null) ...[
                           const SizedBox(height: 8),
                           Container(
                             width: double.infinity,
@@ -542,13 +604,14 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
                             ),
                             child: Text(
                               _textTestError!,
-                              style: const TextStyle(fontSize: 12, color: Colors.red),
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.red),
                             ),
                           ),
                         ],
 
                         // 内置服务商显示获取Key和教程链接
-                        if (_isBuiltIn) ...[
+                        if (_isBuiltIn && !_supportsThinking) ...[
                           const SizedBox(height: 8),
                           Text(
                             l10n.aiCloudApiKeyHelper,
@@ -567,7 +630,8 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
                                 style: TextButton.styleFrom(
                                   foregroundColor: primaryColor,
                                   textStyle: const TextStyle(fontSize: 13),
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 4),
                                 ),
                               ),
                               const Spacer(),
@@ -578,7 +642,8 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
                                 style: TextButton.styleFrom(
                                   foregroundColor: primaryColor,
                                   textStyle: const TextStyle(fontSize: 13),
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 4),
                                 ),
                               ),
                             ],
@@ -608,7 +673,11 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          l10n.aiProviderModelsHint,
+                          _isDeepSeek
+                              ? l10n.aiDeepSeekModelsHint
+                              : _supportsThinking
+                                  ? l10n.aiMiMoModelsHint
+                                  : l10n.aiProviderModelsHint,
                           style: TextStyle(
                             fontSize: 12,
                             color: BeeTokens.textTertiary(context),
@@ -616,38 +685,65 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // 文本模型
-                        _buildModelInputWithTest(
-                          controller: _textModelController,
-                          label: l10n.aiTextModelTitle,
-                          hintText: _isBuiltIn ? AIConstants.defaultGlmModel : 'gpt-4o-mini',
-                          testStatus: _textTestStatus,
-                          testError: _textTestError,
-                          onTest: _testTextCapability,
-                        ),
-                        const SizedBox(height: 16),
+                        if (_supportsThinking)
+                          ProviderModelSettings(
+                            apiKey: _apiKeyController.text,
+                            textModel: _textModelController.text,
+                            visionModel: _visionModelController.text,
+                            audioModel: _audioModelController.text,
+                            loadModels: widget.modelLoader ??
+                                (_isDeepSeek
+                                    ? DeepSeekProfile.discover
+                                    : XiaomiMiMoProfile.discover),
+                            preferredModel: _isDeepSeek
+                                ? DeepSeekProfile.generationModel
+                                : XiaomiMiMoProfile.generationModel,
+                            showSpeech: !_isDeepSeek,
+                            onChanged: (text, vision, speech) => setState(() {
+                              _textModelController.text = text;
+                              _visionModelController.text = vision;
+                              _audioModelController.text = speech;
+                            }),
+                          ),
+                        if (!_supportsThinking) ...[
+                          // 文本模型
+                          _buildModelInputWithTest(
+                            controller: _textModelController,
+                            label: l10n.aiTextModelTitle,
+                            hintText: _isBuiltIn
+                                ? AIConstants.defaultGlmModel
+                                : 'gpt-4o-mini',
+                            testStatus: _textTestStatus,
+                            testError: _textTestError,
+                            onTest: _testTextCapability,
+                          ),
+                          const SizedBox(height: 16),
 
-                        // 视觉模型
-                        _buildModelInputWithTest(
-                          controller: _visionModelController,
-                          label: l10n.aiVisionModelTitle,
-                          hintText: _isBuiltIn ? AIConstants.defaultGlmVisionModel : 'gpt-4o',
-                          testStatus: _visionTestStatus,
-                          testError: _visionTestError,
-                          onTest: _testVisionCapability,
-                        ),
-                        const SizedBox(height: 16),
+                          // 视觉模型
+                          _buildModelInputWithTest(
+                            controller: _visionModelController,
+                            label: l10n.aiVisionModelTitle,
+                            hintText: _isBuiltIn
+                                ? AIConstants.defaultGlmVisionModel
+                                : 'gpt-4o',
+                            testStatus: _visionTestStatus,
+                            testError: _visionTestError,
+                            onTest: _testVisionCapability,
+                          ),
+                          const SizedBox(height: 16),
 
-                        // 语音模型
-                        _buildModelInputWithTest(
-                          controller: _audioModelController,
-                          label: l10n.aiAudioModelTitle,
-                          hintText: _isBuiltIn ? AIConstants.defaultGlmAudioModel : 'whisper-1',
-                          testStatus: _speechTestStatus,
-                          testError: _speechTestError,
-                          onTest: _testSpeechCapability,
-                        ),
-
+                          // 语音模型
+                          _buildModelInputWithTest(
+                            controller: _audioModelController,
+                            label: l10n.aiAudioModelTitle,
+                            hintText: _isBuiltIn
+                                ? AIConstants.defaultGlmAudioModel
+                                : 'whisper-1',
+                            testStatus: _speechTestStatus,
+                            testError: _speechTestError,
+                            onTest: _testSpeechCapability,
+                          ),
+                        ],
                         // 一键测试按钮
                         const SizedBox(height: 16),
                         _buildTestAllButton(),
@@ -671,6 +767,9 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
       id: widget.provider?.id ?? 'test',
       name: _nameController.text,
       isBuiltIn: _isBuiltIn,
+      dialect: widget.provider?.dialect ?? AIProviderDialect.openAiCompatible,
+      thinkingEnabled: _thinkingEnabled,
+      assistantThinkingEnabled: _assistantThinkingEnabled,
       apiKey: _apiKeyController.text,
       baseUrl: _baseUrlController.text,
       textModel: _textModelController.text,
@@ -739,7 +838,8 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
 
     try {
       final config = _getCurrentConfig();
-      final (success, error) = await AIProviderFactory.validateVisionCapability(config);
+      final (success, error) =
+          await AIProviderFactory.validateVisionCapability(config);
 
       if (mounted) {
         setState(() {
@@ -773,7 +873,8 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
 
     try {
       final config = _getCurrentConfig();
-      final (success, error) = await AIProviderFactory.validateSpeechCapability(config);
+      final (success, error) =
+          await AIProviderFactory.validateSpeechCapability(config);
 
       if (mounted) {
         setState(() {
@@ -818,6 +919,8 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
           textModel: _textModelController.text.trim(),
           visionModel: _visionModelController.text.trim(),
           audioModel: _audioModelController.text.trim(),
+          thinkingEnabled: _thinkingEnabled,
+          assistantThinkingEnabled: _assistantThinkingEnabled,
         );
         await AIProviderManager.updateProvider(updated);
       } else {
@@ -873,7 +976,8 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
             _buildInlineTestButton(
               status: testStatus,
               onTest: onTest,
-              enabled: _apiKeyController.text.isNotEmpty && controller.text.isNotEmpty,
+              enabled: _apiKeyController.text.isNotEmpty &&
+                  controller.text.isNotEmpty,
             ),
           ],
         ),
@@ -883,7 +987,8 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
           controller: controller,
           decoration: InputDecoration(
             hintText: hintText,
-            helperText: controller.text.isEmpty ? l10n.aiModelInputHelper : null,
+            helperText:
+                controller.text.isEmpty ? l10n.aiModelInputHelper : null,
             border: const OutlineInputBorder(),
             isDense: true,
             focusedBorder: OutlineInputBorder(
@@ -901,10 +1006,9 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: (testStatus == TestStatus.success
-                      ? Colors.green
-                      : Colors.red)
-                  .withValues(alpha: 0.08),
+              color:
+                  (testStatus == TestStatus.success ? Colors.green : Colors.red)
+                      .withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -933,7 +1037,7 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
 
     final allSuccess = _textTestStatus == TestStatus.success &&
         _visionTestStatus == TestStatus.success &&
-        _speechTestStatus == TestStatus.success;
+        (_isDeepSeek || _speechTestStatus == TestStatus.success);
 
     final anyFailed = _textTestStatus == TestStatus.failed ||
         _visionTestStatus == TestStatus.failed ||
@@ -993,7 +1097,7 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
     await Future.wait([
       _testTextCapability(),
       _testVisionCapability(),
-      _testSpeechCapability(),
+      if (!_isDeepSeek) _testSpeechCapability(),
     ]);
   }
 
@@ -1038,7 +1142,8 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
           ? SizedBox(
               width: 14,
               height: 14,
-              child: CircularProgressIndicator(strokeWidth: 2, color: primaryColor),
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: primaryColor),
             )
           : Icon(
               status == TestStatus.success

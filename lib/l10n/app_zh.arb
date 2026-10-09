@@ -3473,5 +3473,18 @@
   "attachmentKeepOriginal": "附件保存原图",
   "attachmentKeepOriginalDesc": "保留原图，增加存储和同步流量",
   "transactionCopyAction": "复制为新交易",
-  "transactionCopyUnavailable": "无法复制这笔交易，请检查账本和访问权限。"
+  "transactionCopyUnavailable": "无法复制这笔交易，请检查账本和访问权限。",
+  "aiMiMoModelsMissingKey": "输入 API Key 后自动获取可用模型",
+  "aiMiMoModelsLoading": "正在获取可用模型…",
+  "aiMiMoModelsUnauthorized": "API Key 无效或无权限；模型列表尚未刷新",
+  "aiMiMoModelsFailed": "网络获取模型失败；保留已保存模型，请重试",
+  "aiMiMoModelsEmpty": "获取成功，当前账号没有可用模型",
+  "aiMiMoModelsLoaded": "已获取当前账号可用模型",
+  "aiMiMoModelsRefresh": "重新获取模型",
+  "aiMiMoModelUnavailable": "已保存的模型不可用，已选择可用替代模型；请确认后保存",
+  "aiDeepSeekModelsHint": "模型由 DeepSeek 官方接口获取，仅显示支持对应输入类型的模型。",
+  "aiMiMoModelsHint": "模型由 Xiaomi 官方接口获取，支持按量 API。",
+  "aiMiMoQuickThinking": "快速记账深度思考",
+  "aiMiMoAssistantThinking": "AI 助手深度思考",
+  "aiReasoningTitle": "思考过程"
 }

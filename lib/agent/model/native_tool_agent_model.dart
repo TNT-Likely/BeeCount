@@ -1,6 +1,8 @@
 import 'package:agentcore/agentcore.dart' as core;
 
 import '../../ai/providers/ai_provider_factory.dart';
+import '../../ai/providers/ai_provider_config.dart';
+import '../../ai/providers/ai_provider_manager.dart';
 import '../../services/system/logger_service.dart';
 import 'agent_prompt_builder.dart';
 import '../tools/local_agent_tool_catalog.dart';
@@ -17,6 +19,7 @@ export 'package:agentcore/agentcore.dart'
         AgentNativeProtocolException,
         AgentNativeStreamEvent,
         AgentNativeTextDelta,
+        AgentNativeReasoningDelta,
         AgentNativeToolCall,
         AgentNativeToolCallsResponse,
         AgentNativeToolDefinition,
@@ -37,27 +40,66 @@ final class OpenAiCompatibleNativeToolTransport
     core.AgentNativeToolStream? toolStream,
     List<core.AgentNativeToolDefinition>? toolDefinitions,
     String? systemPrompt,
-  }) : _delegate = core.OpenAiCompatibleNativeToolTransport(
-          toolStream: toolStream ?? AIProviderFactory.chatWithToolsStream,
-          toolDefinitions: toolDefinitions ?? LocalAgentToolCatalog.definitions,
-          systemPrompt: systemPrompt ?? AgentPromptBuilder.nativeSystemPrompt,
-          logSink: _log,
-          isUnsupportedError: (error) =>
-              error is AIException &&
-              error.code == AIExceptionCode.nativeToolsUnsupported,
-        );
+    Future<AIServiceProviderConfig?> Function()? loadConfig,
+    core.AgentNativeToolStream Function(AIServiceProviderConfig)? createStream,
+  })  : _toolStream = toolStream,
+        _toolDefinitions = toolDefinitions ?? LocalAgentToolCatalog.definitions,
+        _systemPrompt = systemPrompt ?? AgentPromptBuilder.nativeSystemPrompt,
+        _createStream = createStream,
+        _loadConfig = loadConfig ??
+            (() => AIProviderManager.getProviderForCapability(
+                AICapabilityType.text));
 
-  final core.OpenAiCompatibleNativeToolTransport _delegate;
+  final core.AgentNativeToolStream? _toolStream;
+  final core.AgentNativeToolStream Function(AIServiceProviderConfig)?
+      _createStream;
+  final List<core.AgentNativeToolDefinition> _toolDefinitions;
+  final String _systemPrompt;
+  final Future<AIServiceProviderConfig?> Function() _loadConfig;
+  final _delegates =
+      <String, Future<core.OpenAiCompatibleNativeToolTransport>>{};
+
+  Future<core.OpenAiCompatibleNativeToolTransport> _createDelegate() async {
+    var stream = _toolStream;
+    if (stream == null) {
+      // Capture provider and Assistant Thinking once for all rounds in this run.
+      final config = await _loadConfig();
+      if (config == null || !config.isValid || !config.supportsText) {
+        throw AIException('未配置可用的文本对话服务商');
+      }
+      stream = _createStream?.call(config) ??
+          (({required messages, required tools, logTag}) =>
+              AIProviderFactory.chatWithToolsStreamForConfig(
+                  config: config,
+                  messages: messages,
+                  tools: tools,
+                  logTag: logTag));
+    }
+    return core.OpenAiCompatibleNativeToolTransport(
+        toolStream: stream,
+        toolDefinitions: _toolDefinitions,
+        systemPrompt: _systemPrompt,
+        logSink: _log,
+        isUnsupportedError: (error) =>
+            error is AIException &&
+            error.code == AIExceptionCode.nativeToolsUnsupported);
+  }
 
   @override
   Future<core.AgentNativeModelResponse> complete(
-    core.AgentNativeToolRequest request, {
-    core.AgentNativeEventSink? onEvent,
-  }) =>
-      _delegate.complete(request, onEvent: onEvent);
+      core.AgentNativeToolRequest request,
+      {core.AgentNativeEventSink? onEvent}) async {
+    final delegate =
+        await _delegates.putIfAbsent(request.runId, _createDelegate);
+    return delegate.complete(request, onEvent: onEvent);
+  }
 
   @override
-  void disposeRun(String runId) => _delegate.disposeRun(runId);
+  void disposeRun(String runId) {
+    final pending = _delegates.remove(runId);
+    pending?.then((delegate) => delegate.disposeRun(runId),
+        onError: (Object _) {});
+  }
 
   static void _log(String event, Map<String, Object?> data) {
     switch (event) {
