@@ -253,7 +253,8 @@ def snapshot(root, manifest):
               for p in (PROJECT / directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts]
     digest = hashlib.sha256()
     for name in sorted(set(files)):
-        if not name or name == 'AGENTS.md':
+        # Tool entry aliases are metadata, not App source; keep code symlink rejection intact.
+        if not name or name == 'AGENTS.md' or name.startswith('.claude/skills/'):
             continue
         source = inside(PROJECT, PROJECT / name)
         if not source.is_file():
