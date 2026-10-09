@@ -87,7 +87,7 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 
 - **Dark mode** — Pure black + theme accent borders, OLED-friendly
 - **Multi-language** — official Simplified/Traditional Chinese & English, community-contributed Korean, with localized formatting
-- **Home widgets** — 6 types × 12 variants (overview / net assets / quick add / budget / recent / dashboard), dark-mode, multi-language & theme-color aware, [see the full lineup](#home-widgets)
+- **Home widgets** — 8 types and 14 variants (overview / net assets / quick add / budget / recent / dashboard / Spending Rhythm / Record Bee Trail), dark-mode, multi-language & theme-color aware, [see the full lineup](#home-widgets)
 - **Theme customization** — Multiple primary colors
 
 </details>
@@ -105,13 +105,13 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 
 ### Home Widgets
 
-6 content types × 12 variants — check your books and add records right from the home screen:
+8 content types and 14 variants — check your books and add records right from the home screen:
 
 <details>
-<summary>View the widget lineup (6 types × 12 variants)</summary>
+<summary>View the widget lineup (8 types, 14 variants)</summary>
 
 <div align="center">
-  <img src="demo/widgets/widgets-showcase-en.png" alt="Home widget lineup: overview / net assets / quick add / budget / recent transactions / dashboard" width="820" />
+  <img src="demo/widgets/widgets-showcase-en.png" alt="Home widget lineup: overview / net assets / quick add / budget / recent transactions / dashboard / Spending Rhythm / Record Bee Trail" width="820" />
 </div>
 
 </details>
