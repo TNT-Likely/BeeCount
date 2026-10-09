@@ -421,6 +421,30 @@ void main() {
     expect(
         (await database.select(database.transactions).get()).length, txCount);
     pass('A08', 'Repeated real synchronization did not duplicate transactions');
+    await api('POST', '/__qa__/fault',
+        body: {'run_id': runId, 'offline': true});
+    try {
+      await record('expense', 10, 'QA 故障后消费');
+      final unavailable = await engine.sync(ledgerId: ledgerId.toString());
+      expect(unavailable.error, isNotNull);
+      expect(await repo.getAccountBalance(card.id), -110);
+    } finally {
+      await api('POST', '/__qa__/fault',
+          body: {'run_id': runId, 'offline': false});
+    }
+    await sync();
+    await sync();
+    snap = await snapshot();
+    final recovered = (snap['items'] as List)
+        .cast<Map>()
+        .where((t) => t['note'] == 'QA 故障后消费')
+        .toList();
+    expect(recovered.length, 1);
+    expect(recovered.single['amount'], 10);
+    expect((await database.select(database.transactions).get()).length,
+        txCount + 1);
+    pass('A09',
+        'QA Cloud API 503 simulation: production UI saved expense locally; recovery synchronized it exactly once, retaining card balance -110');
     await home();
     await tap('明细');
     await capture('07-app-home-final');
