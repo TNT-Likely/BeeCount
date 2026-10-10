@@ -227,13 +227,16 @@ void main() {
       await open(AccountEditPage(ledgerId: ledgerId));
       if (!overpayment) {
         final group = find.byKey(const ValueKey('account-type-group'));
-        await tester.tap(find.descendant(
-            of: group, matching: find.text('估值账户')));
-        await tester.pump();
+        final valuation = find.descendant(
+            of: group, matching: find.text('估值账户'));
+        await waitUi(() => valuation.evaluate().isNotEmpty);
+        await tester.ensureVisible(valuation);
+        await tester.tap(valuation);
+        await tester.pump(const Duration(milliseconds: 600));
         expect(find.text('信用卡'), findsNothing);
         await tester.tap(find.descendant(
             of: group, matching: find.text('日常账户')));
-        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 600));
       }
       await tap('信用卡');
       await fill('account-name', name);
