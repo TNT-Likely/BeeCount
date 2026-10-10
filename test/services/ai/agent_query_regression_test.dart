@@ -1,3 +1,4 @@
+import 'dart:ui' show Locale;
 import 'dart:convert';
 import 'dart:io';
 
@@ -12,6 +13,9 @@ import '../../ai_eval/support/ledger_fixture.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // 固定测试 locale 为 zh:部分用例断言 resolver 的中文兜底文案。
+  TestWidgetsFlutterBinding.instance.platformDispatcher.localeTestValue =
+      const Locale('zh');
   SharedPreferences.setMockInitialValues({});
   final suite = jsonDecode(File('test/ai_eval/fixtures/readonly_cases_v1.json')
       .readAsStringSync()) as Map;

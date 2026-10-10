@@ -1,5 +1,6 @@
-import 'dart:ui' show Locale, PlatformDispatcher;
+import 'dart:ui' show Locale;
 
+import 'package:flutter/widgets.dart' show WidgetsBinding;
 import '../l10n/app_localizations.dart';
 
 /// 无 BuildContext 场景(顶层恢复路径、后台服务、Provider)解析本地化文案。
@@ -8,10 +9,12 @@ import '../l10n/app_localizations.dart';
 /// `AppLocalizations.supportedLocales.first`(en),与 MaterialApp 未提供
 /// localeListResolutionCallback 时的默认解析结果一致。
 ///
-/// 已知局限:跟随系统时只看 `PlatformDispatcher.instance.locale` 单一首选
-/// 语言,不遍历完整系统语言偏好列表(与 widget 层 resolver 相同)。
+/// 已知局限:跟随系统时只读 `WidgetsBinding.instance.platformDispatcher`
+/// 的单一首选语言,不遍历完整系统语言偏好列表(与 widget 层 resolver 相同)。
+/// 读 binding 而非 dart:ui 静态,是为了让测试能通过
+/// `TestPlatformDispatcher.localeTestValue` 固定 locale。
 AppLocalizations resolveAppLocalizations(Locale? explicitLocale) {
-  final candidate = explicitLocale ?? PlatformDispatcher.instance.locale;
+  final candidate = explicitLocale ?? WidgetsBinding.instance.platformDispatcher.locale;
 
   for (final supported in AppLocalizations.supportedLocales) {
     if (supported.languageCode == candidate.languageCode &&
