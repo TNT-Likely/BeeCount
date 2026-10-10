@@ -274,21 +274,20 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
                   SizedBox(height: 12.0.scaled(context, ref)),
 
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Wrap(spacing: 8, children: [
-                      for (final entry in <String?, String>{
-                        null: l10n.accountAllFlows,
-                        'expense': l10n.accountOutflows,
-                        'income': l10n.accountInflows,
-                      }.entries)
-                        ChoiceChip(
-                          label: Text(entry.value),
-                          selected: _listFlow == entry.key,
-                          onSelected: (_) => setState(() => _listFlow = entry.key),
-                        ),
-                    ]),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: BeeDimens.p12.scaled(context, ref)),
+                    child: CapsuleSwitcher<String?>(
+                      selectedValue: _listFlow,
+                      height: 44.0.scaled(context, ref),
+                      options: [
+                        CapsuleOption(value: null, label: l10n.accountAllFlows),
+                        CapsuleOption(value: 'expense', label: l10n.accountOutflows),
+                        CapsuleOption(value: 'income', label: l10n.accountInflows),
+                      ],
+                      onChanged: (flow) => setState(() => _listFlow = flow),
+                    ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: BeeDimens.p8.scaled(context, ref)),
                   // 交易列表（分页）
                   _buildTransactionList(
                     context,
@@ -993,6 +992,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
               children: [
                 if (index > 0) BeeTokens.cardDivider(context),
                 _TransactionTile(
+                  key: ValueKey('account-transaction-${tx.id}'),
                   transaction: tx,
                   currencyCode: currencyCode,
                   primaryColor: primaryColor,
@@ -1235,6 +1235,7 @@ class _TransactionTile extends ConsumerWidget {
   final int? currentAccountId;
 
   const _TransactionTile({
+    super.key,
     required this.transaction,
     required this.currencyCode,
     required this.primaryColor,
@@ -1265,9 +1266,8 @@ class _TransactionTile extends ConsumerWidget {
         amountColor = BeeTokens.expenseColor(context, ref);
         break;
       case 'transfer':
-        amountColor = isTransferOut
-            ? BeeTokens.expenseColor(context, ref)
-            : BeeTokens.incomeColor(context, ref);
+        // 正负号说明当前账户的资金方向，转账本身不属于收入或支出。
+        amountColor = BeeTokens.textPrimary(context);
         break;
       default:
         amountColor = BeeTokens.textPrimary(context);
@@ -1284,30 +1284,20 @@ class _TransactionTile extends ConsumerWidget {
 
     String displayTitle;
     String? displaySubtitle;
-    String? noteSuffix; // 非转账时，备注接在分类名后面（对齐首页）
+    String? noteSuffix; // 备注接在分类或转账名称后面。
 
     if (transaction.type == 'transfer') {
-      if (transaction.note?.isNotEmpty == true) {
-        displayTitle = transaction.note!;
-      } else {
-        displayTitle = l10n.transferTitle;
+      displayTitle = l10n.transferTitle;
+      if (transaction.note?.isNotEmpty == true && transaction.note != displayTitle) {
+        noteSuffix = transaction.note;
       }
-
-      if (isTransferOut && transaction.toAccountId != null) {
-        final toAccountAsync =
-            ref.watch(accountByIdProvider(transaction.toAccountId!));
-        final toAccountName = toAccountAsync.value?.name;
-        if (toAccountName != null) {
-          displaySubtitle = '${l10n.transferToPrefix} $toAccountName';
-        }
-      } else if (isTransferIn && transaction.accountId != null) {
-        final fromAccountAsync =
-            ref.watch(accountByIdProvider(transaction.accountId!));
-        final fromAccountName = fromAccountAsync.value?.name;
-        if (fromAccountName != null) {
-          displaySubtitle = '${l10n.transferFromPrefix} $fromAccountName';
-        }
-      }
+      final fromName = transaction.accountId == null
+          ? null
+          : ref.watch(accountByIdProvider(transaction.accountId!)).value?.name;
+      final toName = transaction.toAccountId == null
+          ? null
+          : ref.watch(accountByIdProvider(transaction.toAccountId!)).value?.name;
+      displaySubtitle = '${fromName ?? '-'} → ${toName ?? '-'}';
     } else {
       // 分类名常驻，备注接在分类名后面（对齐首页 / TransactionListItem）
       displayTitle = category != null
@@ -1381,7 +1371,8 @@ class _TransactionTile extends ConsumerWidget {
                       ),
                       if (ledgerName.isNotEmpty) ...[
                         SizedBox(width: 6.0.scaled(context, ref)),
-                        Container(
+                        Flexible(
+                          child: Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 6.0.scaled(context, ref),
                             vertical: 2.0.scaled(context, ref),
@@ -1393,11 +1384,14 @@ class _TransactionTile extends ConsumerWidget {
                           ),
                           child: Text(
                             ledgerName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 11,
                               color: primaryColor,
                               fontWeight: FontWeight.w500,
                             ),
+                          ),
                           ),
                         ),
                       ],
@@ -1433,11 +1427,12 @@ class _TransactionTile extends ConsumerWidget {
               value: transaction.type == 'expense'
                   ? -transaction.amount
                   : transaction.type == 'transfer'
-                      ? (isTransferOut
+                      ? (isTransferOut && !isTransferIn
                           ? -transaction.amount
                           : transaction.amount)
                       : transaction.amount,
-              signed: true,
+              signed: transaction.type != 'transfer' ||
+                  (isTransferOut != isTransferIn),
               showCurrency: false,
               currencyCode: currencyCode,
               style: TextStyle(

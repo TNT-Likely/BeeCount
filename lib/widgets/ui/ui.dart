@@ -10,3 +10,4 @@ export 'searchable_dropdown.dart';
 export 'message_popover_menu.dart';
 export 'bee_popup_menu.dart';
 export 'skeleton.dart';
+export 'capsule_switcher.dart';

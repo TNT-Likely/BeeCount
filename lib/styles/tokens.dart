@@ -309,6 +309,12 @@ class BeeTokens {
   static Color primary(BuildContext context) =>
       Theme.of(context).colorScheme.primary;
 
+  /// 实色背景上的文字，兼容用户自定义主题色。
+  static Color textOnColor(Color background) =>
+      ThemeData.estimateBrightnessForColor(background) == Brightness.light
+          ? primaryTextStatic
+          : Colors.white;
+
   /// 辅助色
   static Color secondary(BuildContext context) =>
       Theme.of(context).colorScheme.secondary;

@@ -313,6 +313,12 @@ void main() {
     expect((await repo.getAccountStats(card.id)).expense, 1000);
     await open(AccountDetailPage(account: (await repo.getAccount(card.id))!));
     await waitUi(() => find.text('溢缴款').evaluate().isNotEmpty);
+    await tester.ensureVisible(find.text('全部流水'));
+    await tap('收入与转入');
+    await waitUi(() => find.textContaining('QA 信用还款', findRichText: true).evaluate().isNotEmpty);
+    expect(find.text('QA 银行卡 → QA信用卡'), findsOneWidget);
+    expect(find.text('+2,200'), findsOneWidget);
+    await tap('全部流水');
     await capture('03-app-after-overpayment');
     await home();
     await record('expense', 300, 'QA 溢缴后消费');
@@ -326,10 +332,12 @@ void main() {
         'Production consumption/payment UI recorded expenses once; paying 2200 created +200 overpayment, then spending 300 restored -100 debt; CNY assets/debt/net = 8000/100/7900');
     await open(AccountDetailPage(account: (await repo.getAccount(bankId))!));
     await waitUi(() => find.text('全部流水').evaluate().isNotEmpty);
-    expect(find.text('QA 信用还款'), findsWidgets);
+    expect(find.textContaining('QA 信用还款', findRichText: true), findsWidgets);
     await tap('收入与转入');
     await tap('全部流水');
-    await waitUi(() => find.text('QA 信用还款').evaluate().isNotEmpty);
+    await waitUi(() => find.textContaining('QA 信用还款', findRichText: true).evaluate().isNotEmpty);
+    expect(find.text('QA 银行卡 → QA信用卡'), findsOneWidget);
+    expect(find.text('-2,200'), findsOneWidget);
     await capture('04-app-all-flows');
     await home();
     pass('A04',
