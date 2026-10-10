@@ -270,6 +270,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get voiceRecordingSuccess => '음성 기록 성공';
 
   @override
+  String get voiceMicPermissionRestricted => 'Microphone access is restricted by device management policy';
+
+  @override
   String get voiceRecordingNoLedger => '가계부를 찾을 수 없습니다';
 
   @override
@@ -461,6 +464,36 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get widgetTodayExpense => '오늘 지출';
+
+  @override
+  String get widgetConsumptionRhythmTitle => '소비 리듬';
+
+  @override
+  String get widgetConsumptionRhythmRange => '최근 30일';
+
+  @override
+  String get widgetConsumptionRhythmStable => '소비가 안정적이에요';
+
+  @override
+  String get widgetConsumptionRhythmIncrease => '지난주보다 빨라요';
+
+  @override
+  String get widgetConsumptionRhythmDecrease => '지난주보다 안정적이에요';
+
+  @override
+  String get widgetConsumptionRhythmEmpty => '최근 30일 지출이 없어요';
+
+  @override
+  String get widgetBeeTrailTitle => '기록 꿀벌 궤적';
+
+  @override
+  String get widgetBeeTrailStreakSuffix => '일';
+
+  @override
+  String get widgetBeeTrailCompletion => '최근 28일 완료율';
+
+  @override
+  String get widgetBeeTrailEmpty => '첫 칸을 밝히려면 기록을 추가하세요';
 
   @override
   String get widgetTodayIncome => '오늘 수입';
@@ -2582,6 +2615,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get reminderDailySubtitle => '활성화하면 지정한 시간에 기록하라는 알림을 보냅니다';
 
   @override
+  String get reminderDailyBody => 'Don\'t forget to record today\'s income and expenses 💰';
+
+  @override
   String get reminderTimeTitle => '알림 시간';
 
   @override
@@ -4304,36 +4340,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get widgetGalleryDashboardDesc => 'Income, trend and recent transactions in one view';
-
-  @override
-  String get widgetConsumptionRhythmTitle => '소비 리듬';
-
-  @override
-  String get widgetConsumptionRhythmRange => '최근 30일';
-
-  @override
-  String get widgetConsumptionRhythmStable => '소비가 안정적이에요';
-
-  @override
-  String get widgetConsumptionRhythmIncrease => '지난주보다 빨라요';
-
-  @override
-  String get widgetConsumptionRhythmDecrease => '지난주보다 안정적이에요';
-
-  @override
-  String get widgetConsumptionRhythmEmpty => '최근 30일 지출이 없어요';
-
-  @override
-  String get widgetBeeTrailTitle => '기록 꿀벌 궤적';
-
-  @override
-  String get widgetBeeTrailStreakSuffix => '일';
-
-  @override
-  String get widgetBeeTrailCompletion => '최근 28일 완료율';
-
-  @override
-  String get widgetBeeTrailEmpty => '첫 칸을 밝히려면 기록을 추가하세요';
 
   @override
   String get widgetGalleryConsumptionRhythmDesc => '최근 30일의 소비 흐름을 확인하세요';
@@ -8235,4 +8241,378 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get transactionCopyUnavailable => 'This transaction cannot be copied. Check the ledger and your access.';
+
+  @override
+  String get aiChatGenericFailure => 'Sorry, something went wrong. Please try again.';
+
+  @override
+  String get aiChatRecordSuccessOne => '✅ Transaction recorded';
+
+  @override
+  String aiChatRecordSuccessMany(int count) {
+    return '✅ Recorded $count transactions';
+  }
+
+  @override
+  String get agentEmptyFinalReply => 'Done.';
+
+  @override
+  String creditCardReminderDueSoonTitle(String accountName) {
+    return '$accountName payment due soon';
+  }
+
+  @override
+  String creditCardReminderDueBody(int paymentDueDay) {
+    return 'Payment due on day $paymentDueDay of each month, please repay on time';
+  }
+
+  @override
+  String get reminderBackupChannelName => 'Recording reminder (backup)';
+
+  @override
+  String get reminderBackupChannelDescription => 'Backup channel for recording reminders';
+
+  @override
+  String get autoBillingChannelName => 'Screenshot recognition';
+
+  @override
+  String get autoBillingChannelDescription => 'Notifications for automatic screenshot recognition';
+
+  @override
+  String get appLinkOpenVoiceBilling => 'Open voice billing';
+
+  @override
+  String get appLinkOpenImageBilling => 'Open image billing';
+
+  @override
+  String get appLinkOpenCameraBilling => 'Open camera billing';
+
+  @override
+  String get appLinkOpenAiAssistant => 'Open AI assistant';
+
+  @override
+  String get appLinkOpenManualBilling => 'Open manual billing';
+
+  @override
+  String get appLinkNoTargetPage => 'No target page provided';
+
+  @override
+  String appLinkOpenPage(String page) {
+    return 'Open page: $page';
+  }
+
+  @override
+  String appLinkUnknownAction(String action) {
+    return 'Unknown action: $action';
+  }
+
+  @override
+  String get appLinkNoLedger => 'Select a ledger first';
+
+  @override
+  String get appLinkMissingAmount => 'Not recorded: enter a valid amount';
+
+  @override
+  String get appLinkMissingCategory => 'Not recorded: specify a category';
+
+  @override
+  String appLinkCategoryNotFound(String name) {
+    return 'Not recorded: category \"$name\" does not exist';
+  }
+
+  @override
+  String get appLinkTypeIncome => 'Income';
+
+  @override
+  String get appLinkTypeExpense => 'Expense';
+
+  @override
+  String get appLinkTypeTransfer => 'Transfer';
+
+  @override
+  String appLinkRecorded(String type, String amount) {
+    return 'Recorded $type $amount';
+  }
+
+  @override
+  String get appLinkRecordSuccess => 'Transaction recorded';
+
+  @override
+  String appLinkParamError(String message) {
+    return 'Invalid parameters: $message';
+  }
+
+  @override
+  String appLinkRecordFailed(String error) {
+    return 'Recording failed: $error';
+  }
+
+  @override
+  String get appLinkTextDone => 'Text processing done';
+
+  @override
+  String appLinkTextFailed(String error) {
+    return 'Text billing failed: $error';
+  }
+
+  @override
+  String get appLinkNoText => 'No text content provided';
+
+  @override
+  String orphanBudgetTitle(String id) {
+    return 'Budget #$id';
+  }
+
+  @override
+  String orphanBudgetNoLedger(String type, String amount, String id) {
+    return '$type · ¥$amount · ledger deleted (id=$id)';
+  }
+
+  @override
+  String orphanAttachmentRowTitle(String id) {
+    return 'Attachment row #$id';
+  }
+
+  @override
+  String orphanAttachmentNoTx(String fileName, String id) {
+    return '$fileName · transaction deleted (txId=$id)';
+  }
+
+  @override
+  String orphanTagLinkTitle(String id) {
+    return 'Tag link #$id';
+  }
+
+  @override
+  String orphanTagLinkNoTx(String txId, String tagId) {
+    return 'transaction deleted (txId=$txId, tagId=$tagId)';
+  }
+
+  @override
+  String orphanTagLinkNoTag(String txId, String tagId) {
+    return 'tag deleted (txId=$txId, tagId=$tagId)';
+  }
+
+  @override
+  String orphanTxTitle(String id) {
+    return 'Transaction #$id';
+  }
+
+  @override
+  String orphanTxNoMissing(String type, String amount, String missing) {
+    return '$type · ¥$amount · $missing deleted';
+  }
+
+  @override
+  String orphanTxNoCategory(String type, String amount, String id) {
+    return '$type · ¥$amount · category deleted (categoryId=$id)';
+  }
+
+  @override
+  String orphanSubcategoryTitle(String name, String id) {
+    return 'Subcategory \"$name\" #$id';
+  }
+
+  @override
+  String orphanSubcategoryNoParent(String kind, String id) {
+    return '$kind · parent category deleted (parentId=$id)';
+  }
+
+  @override
+  String orphanBudgetNoCategory(String type, String amount, String id) {
+    return '$type · ¥$amount · category deleted (categoryId=$id)';
+  }
+
+  @override
+  String orphanSharedSubcategoryTitle(String name) {
+    return 'Shared subcategory \"$name\"';
+  }
+
+  @override
+  String orphanSharedSubcategoryNoParent(String id) {
+    return 'parent category deleted (parentSyncId=$id)';
+  }
+
+  @override
+  String get orphanSharedTagOverrideTitle => 'Shared tag override';
+
+  @override
+  String orphanSharedTagNoTx(String txId, String tagId) {
+    return 'transaction deleted (txSyncId=$txId, tagSyncId=$tagId)';
+  }
+
+  @override
+  String get orphanFileNoRef => 'Attachment file has no DB reference';
+
+  @override
+  String get orphanCustomIconNoRef => 'Category custom icon has no DB reference';
+
+  @override
+  String get orphanSharedIconNoRef => 'Shared category icon cache has no DB reference';
+
+  @override
+  String orphanSyncChangeTitle(String id) {
+    return 'Sync change #$id';
+  }
+
+  @override
+  String orphanSyncChangeNoEntity(String entityType, String action, String id) {
+    return '$entityType · $action · entity deleted (syncId=$id)';
+  }
+
+  @override
+  String get customIconFileMissing => 'Image file does not exist';
+
+  @override
+  String get customIconFileTooLarge => 'Image file is too large (max 5MB)';
+
+  @override
+  String get customIconUnsupportedFormat => 'Unsupported image format';
+
+  @override
+  String get customIconCompressFailed => 'Image compression failed';
+
+  @override
+  String customIconSaveFailed(String error) {
+    return 'Failed to save icon: $error';
+  }
+
+  @override
+  String get sharePosterAppText => 'BeeCount - Simple Ledger';
+
+  @override
+  String get sharePosterDefaultLedgerName => 'Default Ledger';
+
+  @override
+  String get aiProviderNotConfiguredText => 'No text chat provider configured';
+
+  @override
+  String aiProviderMissingTextModelFor(String name) {
+    return 'Provider $name has no text model configured';
+  }
+
+  @override
+  String get aiProviderNotConfiguredTextUsable => 'No usable text chat provider configured';
+
+  @override
+  String get aiProviderNotConfiguredVision => 'No vision provider configured';
+
+  @override
+  String get aiProviderNotConfiguredSpeech => 'No speech-to-text provider configured';
+
+  @override
+  String get aiProviderNoVisionModel => 'No vision model configured';
+
+  @override
+  String get aiProviderNoSpeechModel => 'No speech model configured';
+
+  @override
+  String get aiProviderEmptyResponse => 'API returned an empty response';
+
+  @override
+  String get xlsxEmptyFile => 'The Excel file is empty or unreadable';
+
+  @override
+  String get xlsxEmptySheet => 'The worksheet is empty';
+
+  @override
+  String xlsxParseFailed(String error) {
+    return 'Failed to parse Excel file: $error';
+  }
+
+  @override
+  String rateFetchAllSourcesFailed(String errors) {
+    return 'All sources failed: $errors';
+  }
+
+  @override
+  String rateFetchSourcePayloadInvalid(String source) {
+    return 'Unexpected payload from exchange rate source $source';
+  }
+
+  @override
+  String donationPurchaseFailedWith(String error) {
+    return 'Purchase failed: $error';
+  }
+
+  @override
+  String get donationPurchaseRequestFailed => 'Purchase request failed';
+
+  @override
+  String get donationUnknownError => 'Unknown error';
+
+  @override
+  String get donationVerificationFailed => 'Purchase verification failed';
+
+  @override
+  String donationRestoreFailed(String error) {
+    return 'Restore purchases failed: $error';
+  }
+
+  @override
+  String get updateDownloadDone => 'Done';
+
+  @override
+  String get attachmentArchiveMissing => 'The archive file does not exist';
+
+  @override
+  String get attachmentArchiveInvalidFormat => 'Invalid archive format: metadata.json is missing';
+
+  @override
+  String get categoryPackageCompressFailed => 'Compression failed';
+
+  @override
+  String get categoryPackageFileMissing => 'The file does not exist';
+
+  @override
+  String get categoryPackageMissingYaml => 'Invalid category package: categories.yaml is missing';
+
+  @override
+  String get categoryPackageInvalidFormat => 'Invalid configuration file format';
+
+  @override
+  String get configExportInvalidYaml => 'Invalid YAML format';
+
+  @override
+  String get configExportTransferCategoryMissing => 'The transfer category does not exist';
+
+  @override
+  String configExportFileMissing(String path) {
+    return 'The file does not exist: $path';
+  }
+
+  @override
+  String ledgerTargetIdExists(String id) {
+    return 'Target ledger ID already exists: $id';
+  }
+
+  @override
+  String get ledgerMissing => 'The ledger does not exist';
+
+  @override
+  String get sharedLedgerBalanceRestricted => 'Shared-ledger members cannot update account balances';
+
+  @override
+  String get accountMissing => 'The account does not exist';
+
+  @override
+  String get syncCloudUnavailable => 'Cloud service unavailable. Check your configuration or sign-in';
+
+  @override
+  String syncHealthLedgerMissing(String id) {
+    return 'Ledger $id not found locally';
+  }
+
+  @override
+  String get logExportTitle => '=== BeeCount log export ===';
+
+  @override
+  String logExportTime(String time) {
+    return 'Exported at: $time';
+  }
+
+  @override
+  String logExportCount(int count) {
+    return 'Log entries: $count';
+  }
 }

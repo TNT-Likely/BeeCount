@@ -491,7 +491,7 @@ class _DownloadConfirmDialog extends StatefulWidget {
 }
 
 class _DownloadConfirmDialogState extends State<_DownloadConfirmDialog> {
-  String _currentMirrorName = 'GitHub 直连';
+  String _currentMirrorName = '';
 
   @override
   void initState() {
@@ -502,8 +502,9 @@ class _DownloadConfirmDialogState extends State<_DownloadConfirmDialog> {
   Future<void> _loadCurrentMirror() async {
     final mirror = await GitHubMirrorService.getSelectedMirror();
     if (mounted) {
+      final isZh = Localizations.localeOf(context).languageCode == 'zh';
       setState(() {
-        _currentMirrorName = mirror.name;
+        _currentMirrorName = isZh ? mirror.name : mirror.nameEn;
       });
     }
   }
@@ -511,8 +512,9 @@ class _DownloadConfirmDialogState extends State<_DownloadConfirmDialog> {
   Future<void> _openMirrorSelect() async {
     final result = await UpdateDialogs.showMirrorSelectDialog(context);
     if (result != null && mounted) {
+      final isZh = Localizations.localeOf(context).languageCode == 'zh';
       setState(() {
-        _currentMirrorName = result.name;
+        _currentMirrorName = isZh ? result.name : result.nameEn;
       });
     }
   }
@@ -586,7 +588,11 @@ class _DownloadConfirmDialogState extends State<_DownloadConfirmDialog> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              _currentMirrorName,
+                              _currentMirrorName.isEmpty
+                                  ? (Localizations.localeOf(context).languageCode == 'zh'
+                                      ? 'GitHub 直连'
+                                      : 'GitHub Direct')
+                                  : _currentMirrorName,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Theme.of(context).colorScheme.primary,

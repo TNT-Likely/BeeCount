@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import '../../utils/app_localizations_resolver.dart';
 import '../system/logger_service.dart';
 import '../../l10n/app_localizations.dart';
 import 'update_result.dart';
@@ -228,10 +229,10 @@ class UpdateDownloader {
       await Future.delayed(const Duration(milliseconds: 800));
 
       logger.info('UpdateDownloader', '下载完成: $filePath');
-      onProgress?.call(0.9, '下载完成');
+      onProgress?.call(0.9, resolveAppLocalizations(null).updateDownloadComplete);
 
       await UpdateNotifications.showDownloadCompleteNotification(filePath);
-      onProgress?.call(1.0, '完成');
+      onProgress?.call(1.0, resolveAppLocalizations(null).updateDownloadDone);
       return UpdateResult.downloadSuccess(filePath);
     } catch (e) {
       // 检查是否是用户取消导致的异常

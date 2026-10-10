@@ -12,6 +12,7 @@ import 'theme.dart';
 import 'providers.dart';
 import 'providers/currency_providers.dart';
 import 'providers/font_scale_provider.dart';
+import 'utils/app_localizations_resolver.dart';
 import 'providers/cloud_mode_providers.dart';
 import 'providers/ui_state_providers.dart';
 import 'utils/notification_factory.dart';
@@ -237,10 +238,18 @@ Future<void> _restoreUserReminder() async {
 
       try {
         final notificationUtil = NotificationFactory.getInstance();
+        // 冷启动时 languageProvider 的异步加载可能未完成,直接读同一组
+        // 偏好键(与 provider 共用常量),让应用内语言覆盖在恢复路径同样生效。
+        final languageCode = prefs.getString(LanguageNotifier.languagePrefKey);
+        final countryCode =
+            prefs.getString(LanguageNotifier.languagePrefCountryKey);
+        final l10n = resolveAppLocalizations(languageCode == null
+            ? null
+            : Locale(languageCode, countryCode));
         await notificationUtil.scheduleDailyReminder(
           id: 1001,
-          title: '记账提醒',
-          body: '别忘了记录今天的收支哦 💰',
+          title: l10n.reminderTitle,
+          body: l10n.reminderDailyBody,
           hour: hour,
           minute: minute,
         );

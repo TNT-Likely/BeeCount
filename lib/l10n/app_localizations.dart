@@ -572,6 +572,12 @@ abstract class AppLocalizations {
   /// **'Voice billing successful'**
   String get voiceRecordingSuccess;
 
+  /// No description provided for @voiceMicPermissionRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone access is restricted by device management policy'**
+  String get voiceMicPermissionRestricted;
+
   /// No description provided for @voiceRecordingNoLedger.
   ///
   /// In en, this message translates to:
@@ -925,6 +931,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Today\'s Expense'**
   String get widgetTodayExpense;
+
+  /// No description provided for @widgetConsumptionRhythmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending Rhythm'**
+  String get widgetConsumptionRhythmTitle;
+
+  /// No description provided for @widgetConsumptionRhythmRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get widgetConsumptionRhythmRange;
+
+  /// No description provided for @widgetConsumptionRhythmStable.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending is steady'**
+  String get widgetConsumptionRhythmStable;
+
+  /// No description provided for @widgetConsumptionRhythmIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Faster than last week'**
+  String get widgetConsumptionRhythmIncrease;
+
+  /// No description provided for @widgetConsumptionRhythmDecrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Steadier than last week'**
+  String get widgetConsumptionRhythmDecrease;
+
+  /// No description provided for @widgetConsumptionRhythmEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending in the last 30 days'**
+  String get widgetConsumptionRhythmEmpty;
+
+  /// No description provided for @widgetBeeTrailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record Bee Trail'**
+  String get widgetBeeTrailTitle;
+
+  /// No description provided for @widgetBeeTrailStreakSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get widgetBeeTrailStreakSuffix;
+
+  /// No description provided for @widgetBeeTrailCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'28-day completion'**
+  String get widgetBeeTrailCompletion;
+
+  /// No description provided for @widgetBeeTrailEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a record to light the first cell'**
+  String get widgetBeeTrailEmpty;
 
   /// No description provided for @widgetTodayIncome.
   ///
@@ -4892,6 +4958,12 @@ abstract class AppLocalizations {
   /// **'When enabled, will remind you to record at specified time'**
   String get reminderDailySubtitle;
 
+  /// No description provided for @reminderDailyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t forget to record today\'s income and expenses 💰'**
+  String get reminderDailyBody;
+
   /// No description provided for @reminderTimeTitle.
   ///
   /// In en, this message translates to:
@@ -6023,7 +6095,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateDownloadComplete.
   ///
   /// In en, this message translates to:
-  /// **'Download Complete'**
+  /// **'Download complete'**
   String get updateDownloadComplete;
 
   /// No description provided for @updateInstallStarted.
@@ -8191,66 +8263,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Income, trend and recent transactions in one view'**
   String get widgetGalleryDashboardDesc;
-
-  /// No description provided for @widgetConsumptionRhythmTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Spending Rhythm'**
-  String get widgetConsumptionRhythmTitle;
-
-  /// No description provided for @widgetConsumptionRhythmRange.
-  ///
-  /// In en, this message translates to:
-  /// **'Last 30 days'**
-  String get widgetConsumptionRhythmRange;
-
-  /// No description provided for @widgetConsumptionRhythmStable.
-  ///
-  /// In en, this message translates to:
-  /// **'Spending is steady'**
-  String get widgetConsumptionRhythmStable;
-
-  /// No description provided for @widgetConsumptionRhythmIncrease.
-  ///
-  /// In en, this message translates to:
-  /// **'Faster than last week'**
-  String get widgetConsumptionRhythmIncrease;
-
-  /// No description provided for @widgetConsumptionRhythmDecrease.
-  ///
-  /// In en, this message translates to:
-  /// **'Steadier than last week'**
-  String get widgetConsumptionRhythmDecrease;
-
-  /// No description provided for @widgetConsumptionRhythmEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'No spending in the last 30 days'**
-  String get widgetConsumptionRhythmEmpty;
-
-  /// No description provided for @widgetBeeTrailTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Record Bee Trail'**
-  String get widgetBeeTrailTitle;
-
-  /// No description provided for @widgetBeeTrailStreakSuffix.
-  ///
-  /// In en, this message translates to:
-  /// **'days'**
-  String get widgetBeeTrailStreakSuffix;
-
-  /// No description provided for @widgetBeeTrailCompletion.
-  ///
-  /// In en, this message translates to:
-  /// **'28-day completion'**
-  String get widgetBeeTrailCompletion;
-
-  /// No description provided for @widgetBeeTrailEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a record to light the first cell'**
-  String get widgetBeeTrailEmpty;
 
   /// No description provided for @widgetGalleryConsumptionRhythmDesc.
   ///
@@ -15589,6 +15601,594 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This transaction cannot be copied. Check the ledger and your access.'**
   String get transactionCopyUnavailable;
+
+  /// No description provided for @aiChatGenericFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorry, something went wrong. Please try again.'**
+  String get aiChatGenericFailure;
+
+  /// No description provided for @aiChatRecordSuccessOne.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Transaction recorded'**
+  String get aiChatRecordSuccessOne;
+
+  /// No description provided for @aiChatRecordSuccessMany.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Recorded {count} transactions'**
+  String aiChatRecordSuccessMany(int count);
+
+  /// No description provided for @agentEmptyFinalReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Done.'**
+  String get agentEmptyFinalReply;
+
+  /// No description provided for @creditCardReminderDueSoonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{accountName} payment due soon'**
+  String creditCardReminderDueSoonTitle(String accountName);
+
+  /// No description provided for @creditCardReminderDueBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment due on day {paymentDueDay} of each month, please repay on time'**
+  String creditCardReminderDueBody(int paymentDueDay);
+
+  /// No description provided for @reminderBackupChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording reminder (backup)'**
+  String get reminderBackupChannelName;
+
+  /// No description provided for @reminderBackupChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup channel for recording reminders'**
+  String get reminderBackupChannelDescription;
+
+  /// No description provided for @autoBillingChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Screenshot recognition'**
+  String get autoBillingChannelName;
+
+  /// No description provided for @autoBillingChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications for automatic screenshot recognition'**
+  String get autoBillingChannelDescription;
+
+  /// No description provided for @appLinkOpenVoiceBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Open voice billing'**
+  String get appLinkOpenVoiceBilling;
+
+  /// No description provided for @appLinkOpenImageBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Open image billing'**
+  String get appLinkOpenImageBilling;
+
+  /// No description provided for @appLinkOpenCameraBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Open camera billing'**
+  String get appLinkOpenCameraBilling;
+
+  /// No description provided for @appLinkOpenAiAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Open AI assistant'**
+  String get appLinkOpenAiAssistant;
+
+  /// No description provided for @appLinkOpenManualBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Open manual billing'**
+  String get appLinkOpenManualBilling;
+
+  /// No description provided for @appLinkNoTargetPage.
+  ///
+  /// In en, this message translates to:
+  /// **'No target page provided'**
+  String get appLinkNoTargetPage;
+
+  /// No description provided for @appLinkOpenPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Open page: {page}'**
+  String appLinkOpenPage(String page);
+
+  /// No description provided for @appLinkUnknownAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown action: {action}'**
+  String appLinkUnknownAction(String action);
+
+  /// No description provided for @appLinkNoLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a ledger first'**
+  String get appLinkNoLedger;
+
+  /// No description provided for @appLinkMissingAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recorded: enter a valid amount'**
+  String get appLinkMissingAmount;
+
+  /// No description provided for @appLinkMissingCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recorded: specify a category'**
+  String get appLinkMissingCategory;
+
+  /// No description provided for @appLinkCategoryNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recorded: category \"{name}\" does not exist'**
+  String appLinkCategoryNotFound(String name);
+
+  /// No description provided for @appLinkTypeIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get appLinkTypeIncome;
+
+  /// No description provided for @appLinkTypeExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get appLinkTypeExpense;
+
+  /// No description provided for @appLinkTypeTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get appLinkTypeTransfer;
+
+  /// No description provided for @appLinkRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded {type} {amount}'**
+  String appLinkRecorded(String type, String amount);
+
+  /// No description provided for @appLinkRecordSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction recorded'**
+  String get appLinkRecordSuccess;
+
+  /// No description provided for @appLinkParamError.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid parameters: {message}'**
+  String appLinkParamError(String message);
+
+  /// No description provided for @appLinkRecordFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording failed: {error}'**
+  String appLinkRecordFailed(String error);
+
+  /// No description provided for @appLinkTextDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Text processing done'**
+  String get appLinkTextDone;
+
+  /// No description provided for @appLinkTextFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Text billing failed: {error}'**
+  String appLinkTextFailed(String error);
+
+  /// No description provided for @appLinkNoText.
+  ///
+  /// In en, this message translates to:
+  /// **'No text content provided'**
+  String get appLinkNoText;
+
+  /// No description provided for @orphanBudgetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget #{id}'**
+  String orphanBudgetTitle(String id);
+
+  /// No description provided for @orphanBudgetNoLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} · ¥{amount} · ledger deleted (id={id})'**
+  String orphanBudgetNoLedger(String type, String amount, String id);
+
+  /// No description provided for @orphanAttachmentRowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachment row #{id}'**
+  String orphanAttachmentRowTitle(String id);
+
+  /// No description provided for @orphanAttachmentNoTx.
+  ///
+  /// In en, this message translates to:
+  /// **'{fileName} · transaction deleted (txId={id})'**
+  String orphanAttachmentNoTx(String fileName, String id);
+
+  /// No description provided for @orphanTagLinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag link #{id}'**
+  String orphanTagLinkTitle(String id);
+
+  /// No description provided for @orphanTagLinkNoTx.
+  ///
+  /// In en, this message translates to:
+  /// **'transaction deleted (txId={txId}, tagId={tagId})'**
+  String orphanTagLinkNoTx(String txId, String tagId);
+
+  /// No description provided for @orphanTagLinkNoTag.
+  ///
+  /// In en, this message translates to:
+  /// **'tag deleted (txId={txId}, tagId={tagId})'**
+  String orphanTagLinkNoTag(String txId, String tagId);
+
+  /// No description provided for @orphanTxTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction #{id}'**
+  String orphanTxTitle(String id);
+
+  /// No description provided for @orphanTxNoMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} · ¥{amount} · {missing} deleted'**
+  String orphanTxNoMissing(String type, String amount, String missing);
+
+  /// No description provided for @orphanTxNoCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} · ¥{amount} · category deleted (categoryId={id})'**
+  String orphanTxNoCategory(String type, String amount, String id);
+
+  /// No description provided for @orphanSubcategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subcategory \"{name}\" #{id}'**
+  String orphanSubcategoryTitle(String name, String id);
+
+  /// No description provided for @orphanSubcategoryNoParent.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} · parent category deleted (parentId={id})'**
+  String orphanSubcategoryNoParent(String kind, String id);
+
+  /// No description provided for @orphanBudgetNoCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} · ¥{amount} · category deleted (categoryId={id})'**
+  String orphanBudgetNoCategory(String type, String amount, String id);
+
+  /// No description provided for @orphanSharedSubcategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared subcategory \"{name}\"'**
+  String orphanSharedSubcategoryTitle(String name);
+
+  /// No description provided for @orphanSharedSubcategoryNoParent.
+  ///
+  /// In en, this message translates to:
+  /// **'parent category deleted (parentSyncId={id})'**
+  String orphanSharedSubcategoryNoParent(String id);
+
+  /// No description provided for @orphanSharedTagOverrideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared tag override'**
+  String get orphanSharedTagOverrideTitle;
+
+  /// No description provided for @orphanSharedTagNoTx.
+  ///
+  /// In en, this message translates to:
+  /// **'transaction deleted (txSyncId={txId}, tagSyncId={tagId})'**
+  String orphanSharedTagNoTx(String txId, String tagId);
+
+  /// No description provided for @orphanFileNoRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachment file has no DB reference'**
+  String get orphanFileNoRef;
+
+  /// No description provided for @orphanCustomIconNoRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Category custom icon has no DB reference'**
+  String get orphanCustomIconNoRef;
+
+  /// No description provided for @orphanSharedIconNoRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared category icon cache has no DB reference'**
+  String get orphanSharedIconNoRef;
+
+  /// No description provided for @orphanSyncChangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync change #{id}'**
+  String orphanSyncChangeTitle(String id);
+
+  /// No description provided for @orphanSyncChangeNoEntity.
+  ///
+  /// In en, this message translates to:
+  /// **'{entityType} · {action} · entity deleted (syncId={id})'**
+  String orphanSyncChangeNoEntity(String entityType, String action, String id);
+
+  /// No description provided for @customIconFileMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Image file does not exist'**
+  String get customIconFileMissing;
+
+  /// No description provided for @customIconFileTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Image file is too large (max 5MB)'**
+  String get customIconFileTooLarge;
+
+  /// No description provided for @customIconUnsupportedFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported image format'**
+  String get customIconUnsupportedFormat;
+
+  /// No description provided for @customIconCompressFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Image compression failed'**
+  String get customIconCompressFailed;
+
+  /// No description provided for @customIconSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save icon: {error}'**
+  String customIconSaveFailed(String error);
+
+  /// No description provided for @sharePosterAppText.
+  ///
+  /// In en, this message translates to:
+  /// **'BeeCount - Simple Ledger'**
+  String get sharePosterAppText;
+
+  /// No description provided for @sharePosterDefaultLedgerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Ledger'**
+  String get sharePosterDefaultLedgerName;
+
+  /// No description provided for @aiProviderNotConfiguredText.
+  ///
+  /// In en, this message translates to:
+  /// **'No text chat provider configured'**
+  String get aiProviderNotConfiguredText;
+
+  /// No description provided for @aiProviderMissingTextModelFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider {name} has no text model configured'**
+  String aiProviderMissingTextModelFor(String name);
+
+  /// No description provided for @aiProviderNotConfiguredTextUsable.
+  ///
+  /// In en, this message translates to:
+  /// **'No usable text chat provider configured'**
+  String get aiProviderNotConfiguredTextUsable;
+
+  /// No description provided for @aiProviderNotConfiguredVision.
+  ///
+  /// In en, this message translates to:
+  /// **'No vision provider configured'**
+  String get aiProviderNotConfiguredVision;
+
+  /// No description provided for @aiProviderNotConfiguredSpeech.
+  ///
+  /// In en, this message translates to:
+  /// **'No speech-to-text provider configured'**
+  String get aiProviderNotConfiguredSpeech;
+
+  /// No description provided for @aiProviderNoVisionModel.
+  ///
+  /// In en, this message translates to:
+  /// **'No vision model configured'**
+  String get aiProviderNoVisionModel;
+
+  /// No description provided for @aiProviderNoSpeechModel.
+  ///
+  /// In en, this message translates to:
+  /// **'No speech model configured'**
+  String get aiProviderNoSpeechModel;
+
+  /// No description provided for @aiProviderEmptyResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'API returned an empty response'**
+  String get aiProviderEmptyResponse;
+
+  /// No description provided for @xlsxEmptyFile.
+  ///
+  /// In en, this message translates to:
+  /// **'The Excel file is empty or unreadable'**
+  String get xlsxEmptyFile;
+
+  /// No description provided for @xlsxEmptySheet.
+  ///
+  /// In en, this message translates to:
+  /// **'The worksheet is empty'**
+  String get xlsxEmptySheet;
+
+  /// No description provided for @xlsxParseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to parse Excel file: {error}'**
+  String xlsxParseFailed(String error);
+
+  /// No description provided for @rateFetchAllSourcesFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'All sources failed: {errors}'**
+  String rateFetchAllSourcesFailed(String errors);
+
+  /// No description provided for @rateFetchSourcePayloadInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected payload from exchange rate source {source}'**
+  String rateFetchSourcePayloadInvalid(String source);
+
+  /// No description provided for @donationPurchaseFailedWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase failed: {error}'**
+  String donationPurchaseFailedWith(String error);
+
+  /// No description provided for @donationPurchaseRequestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase request failed'**
+  String get donationPurchaseRequestFailed;
+
+  /// No description provided for @donationUnknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error'**
+  String get donationUnknownError;
+
+  /// No description provided for @donationVerificationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase verification failed'**
+  String get donationVerificationFailed;
+
+  /// No description provided for @donationRestoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases failed: {error}'**
+  String donationRestoreFailed(String error);
+
+  /// No description provided for @updateDownloadDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get updateDownloadDone;
+
+  /// No description provided for @attachmentArchiveMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The archive file does not exist'**
+  String get attachmentArchiveMissing;
+
+  /// No description provided for @attachmentArchiveInvalidFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid archive format: metadata.json is missing'**
+  String get attachmentArchiveInvalidFormat;
+
+  /// No description provided for @categoryPackageCompressFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Compression failed'**
+  String get categoryPackageCompressFailed;
+
+  /// No description provided for @categoryPackageFileMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The file does not exist'**
+  String get categoryPackageFileMissing;
+
+  /// No description provided for @categoryPackageMissingYaml.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid category package: categories.yaml is missing'**
+  String get categoryPackageMissingYaml;
+
+  /// No description provided for @categoryPackageInvalidFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid configuration file format'**
+  String get categoryPackageInvalidFormat;
+
+  /// No description provided for @configExportInvalidYaml.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid YAML format'**
+  String get configExportInvalidYaml;
+
+  /// No description provided for @configExportTransferCategoryMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The transfer category does not exist'**
+  String get configExportTransferCategoryMissing;
+
+  /// No description provided for @configExportFileMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The file does not exist: {path}'**
+  String configExportFileMissing(String path);
+
+  /// No description provided for @ledgerTargetIdExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Target ledger ID already exists: {id}'**
+  String ledgerTargetIdExists(String id);
+
+  /// No description provided for @ledgerMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The ledger does not exist'**
+  String get ledgerMissing;
+
+  /// No description provided for @sharedLedgerBalanceRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared-ledger members cannot update account balances'**
+  String get sharedLedgerBalanceRestricted;
+
+  /// No description provided for @accountMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The account does not exist'**
+  String get accountMissing;
+
+  /// No description provided for @syncCloudUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud service unavailable. Check your configuration or sign-in'**
+  String get syncCloudUnavailable;
+
+  /// No description provided for @syncHealthLedgerMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger {id} not found locally'**
+  String syncHealthLedgerMissing(String id);
+
+  /// No description provided for @logExportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'=== BeeCount log export ==='**
+  String get logExportTitle;
+
+  /// No description provided for @logExportTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Exported at: {time}'**
+  String logExportTime(String time);
+
+  /// No description provided for @logExportCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Log entries: {count}'**
+  String logExportCount(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

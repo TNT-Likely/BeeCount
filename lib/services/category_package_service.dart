@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:archive/archive.dart';
 import 'package:drift/drift.dart';
+import '../utils/app_localizations_resolver.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:yaml/yaml.dart';
@@ -114,7 +115,7 @@ class CategoryPackageService {
     // 5. 压缩并保存
     final zipData = ZipEncoder().encode(archive);
     if (zipData == null) {
-      throw Exception('压缩失败');
+      throw Exception(resolveAppLocalizations(null).categoryPackageCompressFailed);
     }
 
     final outputFile = File(outputPath);
@@ -135,7 +136,7 @@ class CategoryPackageService {
 
     final file = File(filePath);
     if (!await file.exists()) {
-      throw Exception('文件不存在');
+      throw Exception(resolveAppLocalizations(null).categoryPackageFileMissing);
     }
 
     final bytes = await file.readAsBytes();
@@ -144,14 +145,14 @@ class CategoryPackageService {
     // 1. 读取配置文件
     final configFile = archive.findFile('categories.yaml');
     if (configFile == null) {
-      throw Exception('无效的分类包：缺少 categories.yaml');
+      throw Exception(resolveAppLocalizations(null).categoryPackageMissingYaml);
     }
 
     final yamlContent = utf8.decode(configFile.content as List<int>);
     final config = loadYaml(yamlContent);
 
     if (config is! Map) {
-      throw Exception('无效的配置文件格式');
+      throw Exception(resolveAppLocalizations(null).categoryPackageInvalidFormat);
     }
 
     final version = config['version'] as int? ?? 1;

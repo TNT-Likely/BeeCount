@@ -270,6 +270,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get voiceRecordingSuccess => '语音记账成功';
 
   @override
+  String get voiceMicPermissionRestricted => '设备管理策略限制了麦克风权限';
+
+  @override
   String get voiceRecordingNoLedger => '未找到当前账本';
 
   @override
@@ -461,6 +464,36 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get widgetTodayExpense => '今日支出';
+
+  @override
+  String get widgetConsumptionRhythmTitle => '消费节奏';
+
+  @override
+  String get widgetConsumptionRhythmRange => '近 30 天';
+
+  @override
+  String get widgetConsumptionRhythmStable => '消费很均匀';
+
+  @override
+  String get widgetConsumptionRhythmIncrease => '比上周更快';
+
+  @override
+  String get widgetConsumptionRhythmDecrease => '比上周更稳';
+
+  @override
+  String get widgetConsumptionRhythmEmpty => '近 30 天还没有支出';
+
+  @override
+  String get widgetBeeTrailTitle => '记账连续蜂迹';
+
+  @override
+  String get widgetBeeTrailStreakSuffix => '天';
+
+  @override
+  String get widgetBeeTrailCompletion => '近 28 天完成率';
+
+  @override
+  String get widgetBeeTrailEmpty => '今天记一笔，点亮第一格';
 
   @override
   String get widgetTodayIncome => '今日收入';
@@ -2582,6 +2615,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reminderDailySubtitle => '开启后将在指定时间提醒您记账';
 
   @override
+  String get reminderDailyBody => '别忘了记录今天的收支哦 💰';
+
+  @override
   String get reminderTimeTitle => '提醒时间';
 
   @override
@@ -4304,36 +4340,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get widgetGalleryDashboardDesc => '收支、趋势与最近交易一屏看尽';
-
-  @override
-  String get widgetConsumptionRhythmTitle => '消费节奏';
-
-  @override
-  String get widgetConsumptionRhythmRange => '近 30 天';
-
-  @override
-  String get widgetConsumptionRhythmStable => '消费很均匀';
-
-  @override
-  String get widgetConsumptionRhythmIncrease => '比上周更快';
-
-  @override
-  String get widgetConsumptionRhythmDecrease => '比上周更稳';
-
-  @override
-  String get widgetConsumptionRhythmEmpty => '近 30 天还没有支出';
-
-  @override
-  String get widgetBeeTrailTitle => '记账连续蜂迹';
-
-  @override
-  String get widgetBeeTrailStreakSuffix => '天';
-
-  @override
-  String get widgetBeeTrailCompletion => '近 28 天完成率';
-
-  @override
-  String get widgetBeeTrailEmpty => '今天记一笔，点亮第一格';
 
   @override
   String get widgetGalleryConsumptionRhythmDesc => '近 30 天消费节奏一眼看清';
@@ -8227,11 +8233,533 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get transactionCopyUnavailable => '无法复制这笔交易，请检查账本和访问权限。';
+
+  @override
+  String get aiChatGenericFailure => '抱歉,处理失败,请重试';
+
+  @override
+  String get aiChatRecordSuccessOne => '✅ 记账成功';
+
+  @override
+  String aiChatRecordSuccessMany(int count) {
+    return '✅ 已记账 $count 笔';
+  }
+
+  @override
+  String get agentEmptyFinalReply => '已完成。';
+
+  @override
+  String creditCardReminderDueSoonTitle(String accountName) {
+    return '$accountName还款日即将到来';
+  }
+
+  @override
+  String creditCardReminderDueBody(int paymentDueDay) {
+    return '还款日为每月$paymentDueDay日，请及时还款';
+  }
+
+  @override
+  String get reminderBackupChannelName => '记账提醒备用';
+
+  @override
+  String get reminderBackupChannelDescription => '记账提醒备用通道';
+
+  @override
+  String get autoBillingChannelName => '截图识别';
+
+  @override
+  String get autoBillingChannelDescription => '截图自动识别通知';
+
+  @override
+  String get appLinkOpenVoiceBilling => '打开语音记账';
+
+  @override
+  String get appLinkOpenImageBilling => '打开图片记账';
+
+  @override
+  String get appLinkOpenCameraBilling => '打开拍照记账';
+
+  @override
+  String get appLinkOpenAiAssistant => '打开AI小助手';
+
+  @override
+  String get appLinkOpenManualBilling => '打开手动记账';
+
+  @override
+  String get appLinkNoTargetPage => '未提供目标页面';
+
+  @override
+  String appLinkOpenPage(String page) {
+    return '打开页面: $page';
+  }
+
+  @override
+  String appLinkUnknownAction(String action) {
+    return '未知的操作: $action';
+  }
+
+  @override
+  String get appLinkNoLedger => '请先选择账本';
+
+  @override
+  String get appLinkMissingAmount => '未记账:请填写有效金额';
+
+  @override
+  String get appLinkMissingCategory => '未记账:请指定分类';
+
+  @override
+  String appLinkCategoryNotFound(String name) {
+    return '未记账:分类「$name」不存在';
+  }
+
+  @override
+  String get appLinkTypeIncome => '收入';
+
+  @override
+  String get appLinkTypeExpense => '支出';
+
+  @override
+  String get appLinkTypeTransfer => '转账';
+
+  @override
+  String appLinkRecorded(String type, String amount) {
+    return '已记录 $type $amount 元';
+  }
+
+  @override
+  String get appLinkRecordSuccess => '记账成功';
+
+  @override
+  String appLinkParamError(String message) {
+    return '参数错误: $message';
+  }
+
+  @override
+  String appLinkRecordFailed(String error) {
+    return '记账失败: $error';
+  }
+
+  @override
+  String get appLinkTextDone => '文本处理完成';
+
+  @override
+  String appLinkTextFailed(String error) {
+    return '文本记账失败: $error';
+  }
+
+  @override
+  String get appLinkNoText => '未提供文本内容';
+
+  @override
+  String orphanBudgetTitle(String id) {
+    return '预算 #$id';
+  }
+
+  @override
+  String orphanBudgetNoLedger(String type, String amount, String id) {
+    return '$type · ¥$amount · 账本已删 (ledgerId=$id)';
+  }
+
+  @override
+  String orphanAttachmentRowTitle(String id) {
+    return '附件行 #$id';
+  }
+
+  @override
+  String orphanAttachmentNoTx(String fileName, String id) {
+    return '$fileName · 交易已删 (txId=$id)';
+  }
+
+  @override
+  String orphanTagLinkTitle(String id) {
+    return '标签关联 #$id';
+  }
+
+  @override
+  String orphanTagLinkNoTx(String txId, String tagId) {
+    return '交易已删 (txId=$txId, tagId=$tagId)';
+  }
+
+  @override
+  String orphanTagLinkNoTag(String txId, String tagId) {
+    return '标签已删 (txId=$txId, tagId=$tagId)';
+  }
+
+  @override
+  String orphanTxTitle(String id) {
+    return '交易 #$id';
+  }
+
+  @override
+  String orphanTxNoMissing(String type, String amount, String missing) {
+    return '$type · ¥$amount · $missing 已删';
+  }
+
+  @override
+  String orphanTxNoCategory(String type, String amount, String id) {
+    return '$type · ¥$amount · 分类已删 (categoryId=$id)';
+  }
+
+  @override
+  String orphanSubcategoryTitle(String name, String id) {
+    return '二级分类「$name」#$id';
+  }
+
+  @override
+  String orphanSubcategoryNoParent(String kind, String id) {
+    return '$kind · 父分类已删 (parentId=$id)';
+  }
+
+  @override
+  String orphanBudgetNoCategory(String type, String amount, String id) {
+    return '$type · ¥$amount · 分类已删 (categoryId=$id)';
+  }
+
+  @override
+  String orphanSharedSubcategoryTitle(String name) {
+    return '共享二级分类「$name」';
+  }
+
+  @override
+  String orphanSharedSubcategoryNoParent(String id) {
+    return '父分类已删 (parentSyncId=$id)';
+  }
+
+  @override
+  String get orphanSharedTagOverrideTitle => '共享标签 override';
+
+  @override
+  String orphanSharedTagNoTx(String txId, String tagId) {
+    return '交易已删 (txSyncId=$txId, tagSyncId=$tagId)';
+  }
+
+  @override
+  String get orphanFileNoRef => '附件文件无 DB 引用';
+
+  @override
+  String get orphanCustomIconNoRef => '分类自定义图标无 DB 引用';
+
+  @override
+  String get orphanSharedIconNoRef => '共享分类图标缓存无 DB 引用';
+
+  @override
+  String orphanSyncChangeTitle(String id) {
+    return '同步变更 #$id';
+  }
+
+  @override
+  String orphanSyncChangeNoEntity(String entityType, String action, String id) {
+    return '$entityType · $action · 实体已删 (syncId=$id)';
+  }
+
+  @override
+  String get customIconFileMissing => '图片文件不存在';
+
+  @override
+  String get customIconFileTooLarge => '图片文件过大，最大支持 5MB';
+
+  @override
+  String get customIconUnsupportedFormat => '不支持的图片格式';
+
+  @override
+  String get customIconCompressFailed => '图片压缩失败';
+
+  @override
+  String customIconSaveFailed(String error) {
+    return '保存图标失败: $error';
+  }
+
+  @override
+  String get sharePosterAppText => 'BeeCount - 蜜蜂记账';
+
+  @override
+  String get sharePosterDefaultLedgerName => '默认账本';
+
+  @override
+  String get aiProviderNotConfiguredText => '未配置文本对话服务商';
+
+  @override
+  String aiProviderMissingTextModelFor(String name) {
+    return '服务商 $name 未配置文本模型';
+  }
+
+  @override
+  String get aiProviderNotConfiguredTextUsable => '未配置可用的文本对话服务商';
+
+  @override
+  String get aiProviderNotConfiguredVision => '未配置图片理解服务商';
+
+  @override
+  String get aiProviderNotConfiguredSpeech => '未配置语音转文字服务商';
+
+  @override
+  String get aiProviderNoVisionModel => '未配置视觉模型';
+
+  @override
+  String get aiProviderNoSpeechModel => '未配置语音模型';
+
+  @override
+  String get aiProviderEmptyResponse => 'API返回空响应';
+
+  @override
+  String get xlsxEmptyFile => 'Excel 文件为空或无法读取';
+
+  @override
+  String get xlsxEmptySheet => '工作表为空';
+
+  @override
+  String xlsxParseFailed(String error) {
+    return '解析 Excel 文件失败: $error';
+  }
+
+  @override
+  String rateFetchAllSourcesFailed(String errors) {
+    return '全部源失败: $errors';
+  }
+
+  @override
+  String rateFetchSourcePayloadInvalid(String source) {
+    return '汇率源 $source 返回格式异常';
+  }
+
+  @override
+  String donationPurchaseFailedWith(String error) {
+    return '购买失败: $error';
+  }
+
+  @override
+  String get donationPurchaseRequestFailed => '购买请求失败';
+
+  @override
+  String get donationUnknownError => '未知错误';
+
+  @override
+  String get donationVerificationFailed => '购买验证失败';
+
+  @override
+  String donationRestoreFailed(String error) {
+    return '恢复购买失败: $error';
+  }
+
+  @override
+  String get updateDownloadDone => '完成';
+
+  @override
+  String get attachmentArchiveMissing => '归档文件不存在';
+
+  @override
+  String get attachmentArchiveInvalidFormat => '归档格式错误：缺少 metadata.json';
+
+  @override
+  String get categoryPackageCompressFailed => '压缩失败';
+
+  @override
+  String get categoryPackageFileMissing => '文件不存在';
+
+  @override
+  String get categoryPackageMissingYaml => '无效的分类包：缺少 categories.yaml';
+
+  @override
+  String get categoryPackageInvalidFormat => '无效的配置文件格式';
+
+  @override
+  String get configExportInvalidYaml => '无效的YAML格式';
+
+  @override
+  String get configExportTransferCategoryMissing => '转账分类不存在';
+
+  @override
+  String configExportFileMissing(String path) {
+    return '文件不存在: $path';
+  }
+
+  @override
+  String ledgerTargetIdExists(String id) {
+    return '目标账本ID已存在: $id';
+  }
+
+  @override
+  String get ledgerMissing => '账本不存在';
+
+  @override
+  String get sharedLedgerBalanceRestricted => '共享账本成员不能修改账户余额';
+
+  @override
+  String get accountMissing => '账户不存在';
+
+  @override
+  String get syncCloudUnavailable => '云服务不可用，请检查配置或登录状态';
+
+  @override
+  String syncHealthLedgerMissing(String id) {
+    return '本地找不到 ledger=$id';
+  }
+
+  @override
+  String get logExportTitle => '=== BeeCount 日志导出 ===';
+
+  @override
+  String logExportTime(String time) {
+    return '导出时间: $time';
+  }
+
+  @override
+  String logExportCount(int count) {
+    return '日志数量: $count';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
 class AppLocalizationsZhTw extends AppLocalizationsZh {
   AppLocalizationsZhTw(): super('zh_TW');
+
+  @override
+  String get agentActivityPreparing => '正在處理你的問題…';
+
+  @override
+  String get agentActivityAwaitingModel => '正在等待模型回應…';
+
+  @override
+  String get agentActivityThinking => '模型正在思考…';
+
+  @override
+  String get agentActivityGenerating => '正在整理回答…';
+
+  @override
+  String agentExecutionCompletedSummary(int count) {
+    return '已完成 $count 項操作';
+  }
+
+  @override
+  String get agentExecutionFailedSummary => '部分操作未完成';
+
+  @override
+  String get agentActivityUnknownTool => '本機操作';
+
+  @override
+  String get agentActivityOverview => '收支概覽';
+
+  @override
+  String get agentActivityTrend => '支出趨勢';
+
+  @override
+  String get agentActivityCategories => '支出分類';
+
+  @override
+  String get agentActivityLeafCategories => '明細分類';
+
+  @override
+  String agentActivityCategoryScope(String categories) {
+    return '分類：$categories';
+  }
+
+  @override
+  String agentActivityReturnedRows(int count) {
+    return '已傳回 $count 筆交易';
+  }
+
+  @override
+  String agentActivityReturnedGroups(int count) {
+    return '已傳回 $count 個分組';
+  }
+
+  @override
+  String get agentActivityTruncated => '僅傳回部分結果';
+
+  @override
+  String get agentFollowUpRotate => '換一組';
+
+  @override
+  String get agentScrollToLatest => '回到最新訊息';
+
+  @override
+  String get agentSuggestionHealthTitle => '財務健康分析';
+
+  @override
+  String get agentSuggestionHealthPrompt => '分析本月收支平衡和儲蓄率，並按月列出最近六個月的支出趨勢。根據查詢結果給出財務健康分析和建議，資料不足時說明限制。';
+
+  @override
+  String get agentSuggestionSummaryTitle => '本月支出總結';
+
+  @override
+  String get agentSuggestionSummaryPrompt => '總結本月支出，分析主要一級分類及佔比，並給出節約開支的建議。請依據實際查詢結果，資料不足時說明限制。';
+
+  @override
+  String get agentSuggestionAnalysisTitle => '分類佔比分析';
+
+  @override
+  String get agentSuggestionAnalysisPrompt => '分析本月一級分類支出佔比和主要支出類別，給出最佳化建議。不要僅憑佔比斷言某項消費不合理，資料不足時說明限制。';
+
+  @override
+  String get agentSuggestionBudgetTitle => '預算規劃建議';
+
+  @override
+  String get agentSuggestionBudgetPrompt => '根據本月收支、一級分類支出佔比和最近六個月的月度支出趨勢，提供下月分類預算規劃建議。僅提供建議，不會建立或修改預算；資料不足時說明限制。';
+
+  @override
+  String get agentSuggestionAnomalyTitle => '異常支出檢查';
+
+  @override
+  String get agentSuggestionAnomalyPrompt => '查看最近三十天的交易明細及收支概覽，指出其中值得關注的大額或重複交易，並說明判斷依據。這只是傳回明細範圍內的初步檢查，不代表全部交易的異常掃描，不把正常消費直接定性為異常。';
+
+  @override
+  String get agentSuggestionSavingTitle => '省錢小訣竅';
+
+  @override
+  String get agentSuggestionSavingPrompt => '分析本月一級分類支出佔比和最近六個月的月度支出趨勢，給出三到五條實用的省錢建議。依據實際查詢結果，不推斷未提供的個人情況；資料不足時說明限制。';
+
+  @override
+  String get agentFollowUpTitle => '繼續了解';
+
+  @override
+  String agentFollowUpRange(String start, String end) {
+    return '$start 至 $end（不含結束時間）';
+  }
+
+  @override
+  String get agentFollowUpAllCategories => '全部支出分類';
+
+  @override
+  String get agentFollowUpCategoryTitle => '查看分類佔比';
+
+  @override
+  String agentFollowUpCategoryPrompt(String range) {
+    return '查詢 $range 的一級分類支出佔比。';
+  }
+
+  @override
+  String get agentFollowUpTrendTitle => '查看支出趨勢';
+
+  @override
+  String agentFollowUpTrendPrompt(String category, String range) {
+    return '按月列出 $range 中$category的支出，不做年增或月增比較。';
+  }
+
+  @override
+  String get agentFollowUpCompareTitle => '查看逐月變化';
+
+  @override
+  String agentFollowUpComparePrompt(String category, String range) {
+    return '按月列出 $range 中$category的支出及相鄰月份相比的變化。';
+  }
+
+  @override
+  String agentFollowUpLeafTitle(String category) {
+    return '細看$category';
+  }
+
+  @override
+  String agentFollowUpLeafPrompt(String category, String range) {
+    return '查詢 $range 中「$category」的明細分類支出佔比。';
+  }
+
+  @override
+  String get agentFollowUpOverviewTitle => '查看收支概覽';
+
+  @override
+  String agentFollowUpOverviewPrompt(String range) {
+    return '查詢 $range 的總收入、總支出和結餘。';
+  }
 
   @override
   String get aiConsentTitle => '開啟 AI 功能前,請知悉';
@@ -8345,6 +8873,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get voiceRecordingSuccess => '語音記帳成功';
+
+  @override
+  String get voiceMicPermissionRestricted => '裝置管理原則限制了麥克風權限';
 
   @override
   String get voiceRecordingNoLedger => '未找到當前帳本';
@@ -8538,6 +9069,36 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get widgetTodayExpense => '今日支出';
+
+  @override
+  String get widgetConsumptionRhythmTitle => '消費節奏';
+
+  @override
+  String get widgetConsumptionRhythmRange => '近 30 天';
+
+  @override
+  String get widgetConsumptionRhythmStable => '消費很均勻';
+
+  @override
+  String get widgetConsumptionRhythmIncrease => '比上週更快';
+
+  @override
+  String get widgetConsumptionRhythmDecrease => '比上週更穩';
+
+  @override
+  String get widgetConsumptionRhythmEmpty => '本月還沒有支出';
+
+  @override
+  String get widgetBeeTrailTitle => '記帳連續蜂跡';
+
+  @override
+  String get widgetBeeTrailStreakSuffix => '天';
+
+  @override
+  String get widgetBeeTrailCompletion => '本月完成率';
+
+  @override
+  String get widgetBeeTrailEmpty => '今天記一筆，點亮第一格';
 
   @override
   String get widgetTodayIncome => '今日收入';
@@ -8959,6 +9520,57 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get categoryTitle => '分類管理';
+
+  @override
+  String get categoryIconGroupBasic => '基礎';
+
+  @override
+  String get categoryIconGroupFoodDining => '餐飲美食';
+
+  @override
+  String get categoryIconGroupTransportation => '交通出行';
+
+  @override
+  String get categoryIconGroupShopping => '購物消費';
+
+  @override
+  String get categoryIconGroupHomeLiving => '居住生活';
+
+  @override
+  String get categoryIconGroupCommunicationDevices => '通訊裝置';
+
+  @override
+  String get categoryIconGroupEntertainmentLeisure => '娛樂休閒';
+
+  @override
+  String get categoryIconGroupHealthMedical => '健康醫療';
+
+  @override
+  String get categoryIconGroupEducationLearning => '教育學習';
+
+  @override
+  String get categoryIconGroupPetsAnimals => '寵物動物';
+
+  @override
+  String get categoryIconGroupClothingBeauty => '服飾美容';
+
+  @override
+  String get categoryIconGroupOtherMiscellaneous => '其他雜項';
+
+  @override
+  String get categoryIconGroupWorkCareer => '工作職業';
+
+  @override
+  String get categoryIconGroupFinance => '金融理財';
+
+  @override
+  String get categoryIconGroupRewardsGifts => '獎勵禮品';
+
+  @override
+  String get categoryIconGroupInvestmentReturns => '投資收益';
+
+  @override
+  String get categoryIconGroupOtherIncome => '其他收入';
 
   @override
   String get categoryGenerateDefault => '產生預設分類';
@@ -10608,6 +11220,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get reminderDailySubtitle => '開啟後將在指定時間提醒您記帳';
 
   @override
+  String get reminderDailyBody => '別忘了記錄今天的收支哦 💰';
+
+  @override
   String get reminderTimeTitle => '提醒時間';
 
   @override
@@ -12089,6 +12704,45 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get accountBalance => '餘額';
 
   @override
+  String get accountUpdateBalance => '修改餘額';
+
+  @override
+  String get accountBalanceAdjustmentTitle => '確認餘額變更';
+
+  @override
+  String get accountBalanceAdjustmentChooseAction => '請選擇這次餘額變更的儲存方式';
+
+  @override
+  String get accountBalanceAdjustmentOnly => '僅修改餘額';
+
+  @override
+  String get accountBalanceAdjustmentOnlyMessage => '不會建立交易；歷史餘額趨勢會按新的餘額基準重新計算。';
+
+  @override
+  String get accountBalanceAdjustmentCreate => '產生平帳交易';
+
+  @override
+  String get accountBalanceAdjustmentCreateMessage => '同時新增一筆普通收入或支出，歸入「平帳」分類，並計入收支和預算統計。';
+
+  @override
+  String get accountBalanceAdjustmentConfirmOnly => '確認僅修改餘額';
+
+  @override
+  String get accountBalanceAdjustmentConfirmCreate => '確認並產生平帳交易';
+
+  @override
+  String get accountBalanceCurrent => '目前餘額';
+
+  @override
+  String get accountBalanceAfterAdjustment => '調整後餘額';
+
+  @override
+  String get accountBalanceDifference => '本次差額';
+
+  @override
+  String get accountBalanceUnchanged => '餘額沒有變化';
+
+  @override
   String get accountEditTitle => '編輯帳戶';
 
   @override
@@ -12291,36 +12945,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get widgetGalleryDashboardDesc => '收支、趨勢與最近交易一屏看盡';
-
-  @override
-  String get widgetConsumptionRhythmTitle => '消費節奏';
-
-  @override
-  String get widgetConsumptionRhythmRange => '近 30 天';
-
-  @override
-  String get widgetConsumptionRhythmStable => '消費很均勻';
-
-  @override
-  String get widgetConsumptionRhythmIncrease => '比上週更快';
-
-  @override
-  String get widgetConsumptionRhythmDecrease => '比上週更穩';
-
-  @override
-  String get widgetConsumptionRhythmEmpty => '近 30 天還沒有支出';
-
-  @override
-  String get widgetBeeTrailTitle => '記帳連續蜂跡';
-
-  @override
-  String get widgetBeeTrailStreakSuffix => '天';
-
-  @override
-  String get widgetBeeTrailCompletion => '近 28 天完成率';
-
-  @override
-  String get widgetBeeTrailEmpty => '今天記一筆，點亮第一格';
 
   @override
   String get widgetGalleryConsumptionRhythmDesc => '近 30 天消費節奏一眼看清';
@@ -13469,6 +14093,64 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get aiChatInputHint => '例如：買了杯咖啡35元';
 
   @override
+  String get aiQuickCommandsTitle => '試試這些';
+
+  @override
+  String get agentSuggestionOverviewTitle => '本月收支';
+
+  @override
+  String get agentSuggestionOverviewPrompt => '總結本月收入、支出和結餘。';
+
+  @override
+  String get agentSuggestionCategoryTitle => '分類佔比';
+
+  @override
+  String get agentSuggestionCategoryPrompt => '本月一級分類支出佔比是多少？';
+
+  @override
+  String get aiQuickCommandsOpen => '開啟快捷指令';
+
+  @override
+  String get aiChatEmptyMessages => '目前沒有訊息';
+
+  @override
+  String get aiChatEmptyCurrentLedger => '目前帳本';
+
+  @override
+  String get aiChatEmptyStartTitle => '從一筆帳，或一個問題開始';
+
+  @override
+  String get aiChatEmptyStartDescription => '我會根據目前帳本回答，並在需要時請求你的授權。';
+
+  @override
+  String get aiChatEmptyMonthExpense => '本月支出';
+
+  @override
+  String get aiChatEmptyRecordedTransactions => '已記錄交易';
+
+  @override
+  String aiChatEmptyTransactionCount(int count) {
+    return '$count 筆';
+  }
+
+  @override
+  String get aiChatEmptyQuestionExample => '試著問：本月哪一項花費最多？';
+
+  @override
+  String get aiChatEmptyFirstTransactionTitle => '從今天的第一筆開始';
+
+  @override
+  String get aiChatEmptyFirstTransactionDescription => '直接告訴我金額和用途，我會幫你完成記帳。';
+
+  @override
+  String get aiChatEmptyFirstTransactionExample => '例如：午餐花了 28 元';
+
+  @override
+  String aiChatMessagesLoadFailed(String error) {
+    return '載入失敗：$error';
+  }
+
+  @override
   String get aiChatThinking => '思考中...';
 
   @override
@@ -13502,6 +14184,198 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get aiChatSendFailed => '發送失敗';
 
   @override
+  String get agentRunFailed => 'AI 服務暫時無法使用，請稍後重試。';
+
+  @override
+  String get agentNativeToolsUnsupported => '目前模型可以進行一般對話，但不支援讀取或操作帳本所需的原生工具呼叫。請前往「設定 > AI 設定 > 服務供應商管理」切換模型或執行文字模型測試。';
+
+  @override
+  String get agentTurnTimedOut => 'AI 回應逾時，請稍後重試。';
+
+  @override
+  String get agentRecordIncomplete => '未識別到完整的記帳資訊，請補充金額和用途後重試。';
+
+  @override
+  String agentRecordCreated(int count) {
+    return '已建立 $count 筆帳單。';
+  }
+
+  @override
+  String get agentStepsExceeded => '這次操作步驟過多，請簡化後重試。';
+
+  @override
+  String agentExecutingTool(Object tool) {
+    return '正在執行：$tool';
+  }
+
+  @override
+  String agentToolCompleted(Object tool) {
+    return '已完成：$tool';
+  }
+
+  @override
+  String agentToolFailed(Object tool) {
+    return '執行失敗：$tool';
+  }
+
+  @override
+  String get agentToolQueryTransactions => '查詢交易';
+
+  @override
+  String get agentToolSpendingSummary => '彙總支出';
+
+  @override
+  String get agentToolTransactionSummary => '彙總交易';
+
+  @override
+  String get agentToolBudgetStatus => '查詢預算';
+
+  @override
+  String get agentToolRecurringTransactions => '查看週期帳單';
+
+  @override
+  String get agentToolRecordTransaction => '記錄交易';
+
+  @override
+  String get agentToolSaveMemory => '儲存記憶';
+
+  @override
+  String get agentToolForgetMemory => '遺忘記憶';
+
+  @override
+  String get agentPermissionsTitle => 'AI 助理權限';
+
+  @override
+  String get agentPermissionsIntro => '在這裡管理 AI 助理可以執行的操作。查詢類工具只會讀取資料，修改類工具會在執行前請求授權。';
+
+  @override
+  String get agentPermissionsReadOnlySection => '唯讀工具';
+
+  @override
+  String get agentPermissionsReadOnlySectionDescription => '查看帳本資訊，不會修改任何資料。';
+
+  @override
+  String get agentPermissionsWriteSection => '資料修改工具';
+
+  @override
+  String get agentPermissionsWriteSectionDescription => '會改變帳本或本機記憶，建議保持每次詢問。';
+
+  @override
+  String get agentPermissionsDefaultsActive => '所有工具都在使用預設政策';
+
+  @override
+  String agentPermissionsModifiedCount(int count) {
+    return '已自訂 $count 項設定';
+  }
+
+  @override
+  String get agentPermissionsRestoreDefaults => '恢復預設';
+
+  @override
+  String get agentPermissionsRestoreTitle => '恢復預設權限？';
+
+  @override
+  String get agentPermissionsRestoreDescription => '這會清除所有「一律允許」設定，並恢復每個工具的預設權限。';
+
+  @override
+  String get agentPermissionsRestoreConfirm => '恢復';
+
+  @override
+  String get agentPermissionAsk => '每次詢問';
+
+  @override
+  String get agentPermissionAlwaysAllow => '一律允許';
+
+  @override
+  String get agentPermissionWaiting => '等待你的授權';
+
+  @override
+  String get agentPermissionWriteFailed => '權限設定儲存失敗，請重試。';
+
+  @override
+  String get agentAuthorizationPersistenceFailed => '權限儲存失敗，本次操作仍依你的選擇處理。';
+
+  @override
+  String get agentToolQueryTransactionsDescription => '查看目前帳本內指定時間範圍的交易。';
+
+  @override
+  String get agentToolSpendingSummaryDescription => '彙總目前帳本在指定時間範圍內的支出。';
+
+  @override
+  String get agentToolTransactionSummaryDescription => '按類型、分類、標籤、帳戶或時間週期彙總目前帳本的交易。';
+
+  @override
+  String get agentToolBudgetStatusDescription => '查看目前帳本的預算狀態。';
+
+  @override
+  String get agentToolRecurringTransactionsDescription => '查看目前帳本啟用中的週期帳單。';
+
+  @override
+  String get agentToolRecordTransactionDescription => '根據你傳送的原始文字記錄一筆交易。';
+
+  @override
+  String get agentToolSaveMemoryDescription => '儲存你明確要求助理記住的內容。';
+
+  @override
+  String get agentToolForgetMemoryDescription => '刪除一條已儲存的本機記憶。';
+
+  @override
+  String get agentToolUnknownDescription => '執行本機 Agent 工具。';
+
+  @override
+  String get agentAuthorizationTitle => '允許 Agent 執行操作？';
+
+  @override
+  String agentAuthorizationCurrentLedger(int ledgerId) {
+    return '帳本：目前帳本（ID $ledgerId）';
+  }
+
+  @override
+  String get agentAuthorizationAllLedgers => '帳本：所有可存取的帳本';
+
+  @override
+  String get agentAuthorizationParameters => '本次會使用的資訊';
+
+  @override
+  String get agentAuthorizationNoParameters => '沒有需要顯示的參數。';
+
+  @override
+  String get agentAuthorizationSourceText => '原始記帳文字';
+
+  @override
+  String get agentAuthorizationTimeRange => '查詢時間範圍';
+
+  @override
+  String get agentAuthorizationSummaryTypes => '交易類型';
+
+  @override
+  String get agentAuthorizationSummaryGroupBy => '分組方式';
+
+  @override
+  String get agentAuthorizationCategoryIds => '分類編號';
+
+  @override
+  String get agentAuthorizationTagIds => '標籤編號';
+
+  @override
+  String get agentAuthorizationAccountIds => '帳戶編號';
+
+  @override
+  String get agentAuthorizationMemoryContent => '記憶內容';
+
+  @override
+  String get agentAuthorizationMemoryId => '記憶編號';
+
+  @override
+  String get agentAuthorizationDeny => '拒絕';
+
+  @override
+  String get agentAuthorizationAllowOnce => '本次允許';
+
+  @override
+  String get agentAuthorizationAlwaysAllow => '一律允許';
+
+  @override
   String get billCardSuccess => '記帳成功';
 
   @override
@@ -13521,6 +14395,27 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get billCardAccount => '💳 帳戶';
+
+  @override
+  String get billCardTransferAccounts => '🔁 轉帳帳戶';
+
+  @override
+  String get billCardType => '↕️ 類型';
+
+  @override
+  String get billCardExpense => '支出';
+
+  @override
+  String get billCardIncome => '收入';
+
+  @override
+  String get billCardTransfer => '轉帳';
+
+  @override
+  String get billCardCurrency => '💱 幣別';
+
+  @override
+  String get billCardTags => '🏷️ 標籤';
 
   @override
   String get billCardUndo => '撤銷';
@@ -15351,6 +16246,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get txRateLabel => '匯率';
 
   @override
+  String get transactionDoubleTapHint => '雙擊再記';
+
+  @override
+  String get transactionSavedNextCategory => '已儲存，請選下一筆分類';
+
+  @override
   String txConvertedPreview(Object amount, Object currency) {
     return '≈ $amount $currency';
   }
@@ -15713,6 +16614,122 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencyMRU => '毛里塔尼亞烏吉亞';
 
   @override
+  String get agentAssistantSettingsTitle => 'AI 助理';
+
+  @override
+  String get agentAssistantSettingsSubtitle => '管理助理如何使用本機資料和工具。';
+
+  @override
+  String get agentAssistantPermissionsEntry => '權限';
+
+  @override
+  String get agentAssistantPermissionsEntryDescription => '設定修改資料的工具何時需要你的授權。';
+
+  @override
+  String get agentAssistantMemoryEntry => '本機記憶';
+
+  @override
+  String get agentAssistantMemoryEntryDescription => '查看和移除僅儲存在本機的記憶。';
+
+  @override
+  String get agentAssistantActivityEntry => '最近活動';
+
+  @override
+  String get agentAssistantActivityEntryDescription => '查看本機工具呼叫及其結果。';
+
+  @override
+  String get agentExecutionDepthEntry => '執行深度';
+
+  @override
+  String get agentExecutionDepthEntryDescription => '更高的上限可處理更多步驟，但回應可能較慢。';
+
+  @override
+  String agentExecutionDepthSelected(int turns) {
+    return '最多 $turns 個模型回合';
+  }
+
+  @override
+  String get agentExecutionDepthChooseTitle => '執行深度';
+
+  @override
+  String get agentExecutionDepthQuick => '快速';
+
+  @override
+  String get agentExecutionDepthStandard => '標準';
+
+  @override
+  String get agentExecutionDepthDeep => '深入';
+
+  @override
+  String get agentExecutionDepthCustom => '自訂';
+
+  @override
+  String get agentMemoryTitle => '本機記憶';
+
+  @override
+  String get agentMemoryIntro => '這些記憶僅儲存在本機，並且只會用於目前帳本。';
+
+  @override
+  String get agentMemoryEmpty => '目前沒有本機記憶。';
+
+  @override
+  String get agentMemoryDeleteTitle => '刪除這條記憶？';
+
+  @override
+  String get agentMemoryDeleteDescription => '刪除後，AI 助理將不再使用這條記憶。';
+
+  @override
+  String get agentMemoryClear => '清空目前帳本記憶';
+
+  @override
+  String get agentMemoryClearTitle => '清空目前帳本的全部記憶？';
+
+  @override
+  String get agentMemoryClearDescription => '這會移除目前帳本的所有本機記憶，且無法復原。';
+
+  @override
+  String get agentActivityTitle => '最近活動';
+
+  @override
+  String get agentActivityIntro => '活動紀錄僅儲存在本機，不會參與同步。';
+
+  @override
+  String get agentActivityEmpty => '目前沒有助理活動。';
+
+  @override
+  String get agentActivityCompleted => '已完成';
+
+  @override
+  String get agentActivityFailed => '失敗';
+
+  @override
+  String get agentActivityRunning => '進行中';
+
+  @override
+  String get agentActivityCancelled => '已取消';
+
+  @override
+  String get agentActivityTools => '工具';
+
+  @override
+  String get agentActivityToolCompleted => '已完成';
+
+  @override
+  String get agentActivityToolDenied => '已拒絕';
+
+  @override
+  String get agentActivityToolFailed => '失敗';
+
+  @override
+  String get agentRunCancelled => '本次操作已停止。';
+
+  @override
+  String get agentRunStop => '停止';
+
+  @override
+  String get agentQueryValidationFailed => '查詢參數未能修正，目前無法給出可靠結果。請重試。';
+
+  @override
   String get annualReportInsightsTitle => '年度洞察';
 
   @override
@@ -15809,4 +16826,390 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get annualReportDownloadHint => '掃碼下載蜜蜂記帳，開啟你的記帳之旅';
+
+  @override
+  String get attachmentKeepOriginal => '附件保留原圖';
+
+  @override
+  String get attachmentKeepOriginalDesc => '保留原圖，增加儲存和同步流量';
+
+  @override
+  String get transactionCopyAction => '複製為新交易';
+
+  @override
+  String get transactionCopyUnavailable => '無法複製這筆交易，請檢查帳本和存取權限。';
+
+  @override
+  String get aiChatGenericFailure => '抱歉，處理失敗，請重試。';
+
+  @override
+  String get aiChatRecordSuccessOne => '✅ 記帳成功';
+
+  @override
+  String aiChatRecordSuccessMany(int count) {
+    return '✅ 已記帳 $count 筆';
+  }
+
+  @override
+  String get agentEmptyFinalReply => '已完成。';
+
+  @override
+  String creditCardReminderDueSoonTitle(String accountName) {
+    return '$accountName繳款日即將到來';
+  }
+
+  @override
+  String creditCardReminderDueBody(int paymentDueDay) {
+    return '繳款日為每月$paymentDueDay日，請及時還款';
+  }
+
+  @override
+  String get reminderBackupChannelName => '記帳提醒備用';
+
+  @override
+  String get reminderBackupChannelDescription => '記帳提醒備用頻道';
+
+  @override
+  String get autoBillingChannelName => '螢幕截圖辨識';
+
+  @override
+  String get autoBillingChannelDescription => '螢幕截圖自動辨識通知';
+
+  @override
+  String get appLinkOpenVoiceBilling => '開啟語音記帳';
+
+  @override
+  String get appLinkOpenImageBilling => '開啟圖片記帳';
+
+  @override
+  String get appLinkOpenCameraBilling => '開啟拍照記帳';
+
+  @override
+  String get appLinkOpenAiAssistant => '開啟 AI 小助理';
+
+  @override
+  String get appLinkOpenManualBilling => '開啟手動記帳';
+
+  @override
+  String get appLinkNoTargetPage => '未提供目標頁面';
+
+  @override
+  String appLinkOpenPage(String page) {
+    return '開啟頁面：$page';
+  }
+
+  @override
+  String appLinkUnknownAction(String action) {
+    return '未知的操作：$action';
+  }
+
+  @override
+  String get appLinkNoLedger => '請先選擇帳本';
+
+  @override
+  String get appLinkMissingAmount => '未記帳：請填寫有效金額';
+
+  @override
+  String get appLinkMissingCategory => '未記帳：請指定分類';
+
+  @override
+  String appLinkCategoryNotFound(String name) {
+    return '未記帳：分類「$name」不存在';
+  }
+
+  @override
+  String get appLinkTypeIncome => '收入';
+
+  @override
+  String get appLinkTypeExpense => '支出';
+
+  @override
+  String get appLinkTypeTransfer => '轉帳';
+
+  @override
+  String appLinkRecorded(String type, String amount) {
+    return '已記錄 $type $amount 元';
+  }
+
+  @override
+  String get appLinkRecordSuccess => '記帳成功';
+
+  @override
+  String appLinkParamError(String message) {
+    return '參數錯誤：$message';
+  }
+
+  @override
+  String appLinkRecordFailed(String error) {
+    return '記帳失敗：$error';
+  }
+
+  @override
+  String get appLinkTextDone => '文字處理完成';
+
+  @override
+  String appLinkTextFailed(String error) {
+    return '文字記帳失敗：$error';
+  }
+
+  @override
+  String get appLinkNoText => '未提供文字內容';
+
+  @override
+  String orphanBudgetTitle(String id) {
+    return '預算 #$id';
+  }
+
+  @override
+  String orphanBudgetNoLedger(String type, String amount, String id) {
+    return '$type · ¥$amount · 帳本已刪除（id=$id）';
+  }
+
+  @override
+  String orphanAttachmentRowTitle(String id) {
+    return '附件行 #$id';
+  }
+
+  @override
+  String orphanAttachmentNoTx(String fileName, String id) {
+    return '$fileName · 交易已刪除（txId=$id）';
+  }
+
+  @override
+  String orphanTagLinkTitle(String id) {
+    return '標籤關聯 #$id';
+  }
+
+  @override
+  String orphanTagLinkNoTx(String txId, String tagId) {
+    return '交易已刪除（txId=$txId, tagId=$tagId）';
+  }
+
+  @override
+  String orphanTagLinkNoTag(String txId, String tagId) {
+    return '標籤已刪除（txId=$txId, tagId=$tagId）';
+  }
+
+  @override
+  String orphanTxTitle(String id) {
+    return '交易 #$id';
+  }
+
+  @override
+  String orphanTxNoMissing(String type, String amount, String missing) {
+    return '$type · ¥$amount · $missing 已刪除';
+  }
+
+  @override
+  String orphanTxNoCategory(String type, String amount, String id) {
+    return '$type · ¥$amount · 分類已刪除（categoryId=$id）';
+  }
+
+  @override
+  String orphanSubcategoryTitle(String name, String id) {
+    return '子分類「$name」#$id';
+  }
+
+  @override
+  String orphanSubcategoryNoParent(String kind, String id) {
+    return '$kind · 父分類已刪除（parentId=$id）';
+  }
+
+  @override
+  String orphanBudgetNoCategory(String type, String amount, String id) {
+    return '$type · ¥$amount · 分類已刪除（categoryId=$id）';
+  }
+
+  @override
+  String orphanSharedSubcategoryTitle(String name) {
+    return '共享子分類「$name」';
+  }
+
+  @override
+  String orphanSharedSubcategoryNoParent(String id) {
+    return '父分類已刪除（parentSyncId=$id）';
+  }
+
+  @override
+  String get orphanSharedTagOverrideTitle => '共享標籤覆寫';
+
+  @override
+  String orphanSharedTagNoTx(String txId, String tagId) {
+    return '交易已刪除（txSyncId=$txId, tagSyncId=$tagId）';
+  }
+
+  @override
+  String get orphanFileNoRef => '附件檔案無資料庫引用';
+
+  @override
+  String get orphanCustomIconNoRef => '分類自訂圖示無資料庫引用';
+
+  @override
+  String get orphanSharedIconNoRef => '共享分類圖示快取無資料庫引用';
+
+  @override
+  String orphanSyncChangeTitle(String id) {
+    return '同步變更 #$id';
+  }
+
+  @override
+  String orphanSyncChangeNoEntity(String entityType, String action, String id) {
+    return '$entityType · $action · 實體已刪除（syncId=$id）';
+  }
+
+  @override
+  String get customIconFileMissing => '圖片檔案不存在';
+
+  @override
+  String get customIconFileTooLarge => '圖片檔案過大，最大支援 5MB';
+
+  @override
+  String get customIconUnsupportedFormat => '不支援的圖片格式';
+
+  @override
+  String get customIconCompressFailed => '圖片壓縮失敗';
+
+  @override
+  String customIconSaveFailed(String error) {
+    return '儲存圖示失敗：$error';
+  }
+
+  @override
+  String get sharePosterAppText => 'BeeCount - 蜜蜂記帳';
+
+  @override
+  String get sharePosterDefaultLedgerName => '預設帳本';
+
+  @override
+  String get aiProviderNotConfiguredText => '未設定文字對話服務商';
+
+  @override
+  String aiProviderMissingTextModelFor(String name) {
+    return '服務商 $name 未設定文字模型';
+  }
+
+  @override
+  String get aiProviderNotConfiguredTextUsable => '未設定可用的文字對話服務商';
+
+  @override
+  String get aiProviderNotConfiguredVision => '未設定圖像理解服務商';
+
+  @override
+  String get aiProviderNotConfiguredSpeech => '未設定語音轉文字服務商';
+
+  @override
+  String get aiProviderNoVisionModel => '未設定視覺模型';
+
+  @override
+  String get aiProviderNoSpeechModel => '未設定語音模型';
+
+  @override
+  String get aiProviderEmptyResponse => 'API 回傳空回應';
+
+  @override
+  String get xlsxEmptyFile => 'Excel 檔案為空或無法讀取';
+
+  @override
+  String get xlsxEmptySheet => '工作表為空';
+
+  @override
+  String xlsxParseFailed(String error) {
+    return '解析 Excel 檔案失敗：$error';
+  }
+
+  @override
+  String rateFetchAllSourcesFailed(String errors) {
+    return '全部來源失敗：$errors';
+  }
+
+  @override
+  String rateFetchSourcePayloadInvalid(String source) {
+    return '匯率來源 $source 回傳格式異常';
+  }
+
+  @override
+  String donationPurchaseFailedWith(String error) {
+    return '購買失敗：$error';
+  }
+
+  @override
+  String get donationPurchaseRequestFailed => '購買請求失敗';
+
+  @override
+  String get donationUnknownError => '未知錯誤';
+
+  @override
+  String get donationVerificationFailed => '購買驗證失敗';
+
+  @override
+  String donationRestoreFailed(String error) {
+    return '恢復購買失敗：$error';
+  }
+
+  @override
+  String get updateDownloadDone => '完成';
+
+  @override
+  String get attachmentArchiveMissing => '附件歸檔檔案不存在';
+
+  @override
+  String get attachmentArchiveInvalidFormat => '附件歸檔格式錯誤：缺少 metadata.json';
+
+  @override
+  String get categoryPackageCompressFailed => '壓縮失敗';
+
+  @override
+  String get categoryPackageFileMissing => '檔案不存在';
+
+  @override
+  String get categoryPackageMissingYaml => '無效的分類包：缺少 categories.yaml';
+
+  @override
+  String get categoryPackageInvalidFormat => '無效的設定檔格式';
+
+  @override
+  String get configExportInvalidYaml => '無效的 YAML 格式';
+
+  @override
+  String get configExportTransferCategoryMissing => '轉帳分類不存在';
+
+  @override
+  String configExportFileMissing(String path) {
+    return '檔案不存在：$path';
+  }
+
+  @override
+  String ledgerTargetIdExists(String id) {
+    return '目標帳本 ID 已存在：$id';
+  }
+
+  @override
+  String get ledgerMissing => '帳本不存在';
+
+  @override
+  String get sharedLedgerBalanceRestricted => '共享帳本成員無法修改帳戶餘額';
+
+  @override
+  String get accountMissing => '帳戶不存在';
+
+  @override
+  String get syncCloudUnavailable => '雲端服務無法使用，請檢查設定或登入狀態';
+
+  @override
+  String syncHealthLedgerMissing(String id) {
+    return '本機找不到 ledger=$id';
+  }
+
+  @override
+  String get logExportTitle => '=== BeeCount 日誌匯出 ===';
+
+  @override
+  String logExportTime(String time) {
+    return '匯出時間：$time';
+  }
+
+  @override
+  String logExportCount(int count) {
+    return '日誌數量：$count';
+  }
 }

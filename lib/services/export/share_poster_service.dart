@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import '../../utils/app_localizations_resolver.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gal/gal.dart';
@@ -116,7 +117,7 @@ class SharePosterService {
       // 分享文件
       await Share.shareXFiles(
         [XFile(file.path)],
-        text: 'BeeCount - 蜜蜂记账',
+        text: resolveAppLocalizations(null).sharePosterAppText,
       );
     } catch (e) {
       // 忽略错误

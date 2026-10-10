@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
+import '../utils/app_localizations_resolver.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
@@ -123,20 +124,21 @@ class CustomIconService {
   Future<void> validateImage(File file) async {
     // 检查文件是否存在
     if (!await file.exists()) {
-      throw CustomIconException('图片文件不存在');
+      throw CustomIconException(resolveAppLocalizations(null).customIconFileMissing);
     }
 
     // 检查文件大小
     final fileSize = await file.length();
     if (fileSize > maxUploadSize) {
-      throw CustomIconException('图片文件过大，最大支持 5MB');
+      throw CustomIconException(
+          resolveAppLocalizations(null).customIconFileTooLarge);
     }
 
     // 检查文件扩展名
     final ext = path.extension(file.path).toLowerCase();
     final validExts = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
     if (!validExts.contains(ext)) {
-      throw CustomIconException('不支持的图片格式');
+      throw CustomIconException(resolveAppLocalizations(null).customIconUnsupportedFormat);
     }
   }
 
@@ -167,7 +169,7 @@ class CustomIconService {
       );
 
       if (result == null) {
-        throw CustomIconException('图片压缩失败');
+        throw CustomIconException(resolveAppLocalizations(null).customIconCompressFailed);
       }
 
       // 4. 删除源文件（如果是临时文件）
@@ -187,7 +189,8 @@ class CustomIconService {
     } catch (e) {
       if (e is CustomIconException) rethrow;
       logger.error('CustomIconService', '保存自定义图标失败', e);
-      throw CustomIconException('保存图标失败: $e');
+      throw CustomIconException(resolveAppLocalizations(null)
+          .customIconSaveFailed(e.toString()));
     }
   }
 

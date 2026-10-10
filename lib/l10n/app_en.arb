@@ -100,6 +100,7 @@
     }
   },
   "voiceRecordingSuccess": "Voice billing successful",
+  "voiceMicPermissionRestricted": "Microphone access is restricted by device management policy",
   "voiceRecordingNoLedger": "No ledger found",
   "voiceRecordingNoInfo": "No billing information recognized",
   "voiceRecordingPermissionDenied": "Microphone permission required",
@@ -215,6 +216,16 @@
   },
   "homeAnnualReportView": "View",
   "widgetTodayExpense": "Today's Expense",
+  "widgetConsumptionRhythmTitle": "Spending Rhythm",
+  "widgetConsumptionRhythmRange": "Last 30 Days",
+  "widgetConsumptionRhythmStable": "Steady spending",
+  "widgetConsumptionRhythmIncrease": "Faster than last week",
+  "widgetConsumptionRhythmDecrease": "Slower than last week",
+  "widgetConsumptionRhythmEmpty": "No spending this month yet",
+  "widgetBeeTrailTitle": "Recording Bee Trail",
+  "widgetBeeTrailStreakSuffix": "days",
+  "widgetBeeTrailCompletion": "This month's completion",
+  "widgetBeeTrailEmpty": "Log today's entry to light it up",
   "widgetTodayIncome": "Today's Income",
   "widgetMonthExpense": "Month's Expense",
   "widgetMonthIncome": "Month's Income",
@@ -1046,6 +1057,7 @@
   "reminderSubtitle": "Set daily recording reminder time",
   "reminderDailyTitle": "Daily Recording Reminder",
   "reminderDailySubtitle": "When enabled, will remind you to record at specified time",
+  "reminderDailyBody": "Don't forget to record today's income and expenses 💰",
   "reminderTimeTitle": "Reminder Time",
   "commonSelectTime": "Select Time",
   "reminderTestNotification": "Send Test Notification",
@@ -3549,5 +3561,321 @@
   "attachmentKeepOriginal": "Keep Original Attachments",
   "attachmentKeepOriginalDesc": "Uses more storage and sync data",
   "transactionCopyAction": "Copy as new transaction",
-  "transactionCopyUnavailable": "This transaction cannot be copied. Check the ledger and your access."
+  "transactionCopyUnavailable": "This transaction cannot be copied. Check the ledger and your access.",
+  "aiChatGenericFailure": "Sorry, something went wrong. Please try again.",
+  "aiChatRecordSuccessOne": "✅ Transaction recorded",
+  "aiChatRecordSuccessMany": "✅ Recorded {count} transactions",
+  "@aiChatRecordSuccessMany": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "agentEmptyFinalReply": "Done.",
+  "creditCardReminderDueSoonTitle": "{accountName} payment due soon",
+  "@creditCardReminderDueSoonTitle": {
+    "placeholders": {
+      "accountName": { "type": "String" }
+    }
+  },
+  "creditCardReminderDueBody": "Payment due on day {paymentDueDay} of each month, please repay on time",
+  "@creditCardReminderDueBody": {
+    "placeholders": {
+      "paymentDueDay": { "type": "int" }
+    }
+  },
+  "reminderBackupChannelName": "Recording reminder (backup)",
+  "reminderBackupChannelDescription": "Backup channel for recording reminders",
+  "autoBillingChannelName": "Screenshot recognition",
+  "autoBillingChannelDescription": "Notifications for automatic screenshot recognition",
+  "appLinkOpenVoiceBilling": "Open voice billing",
+  "appLinkOpenImageBilling": "Open image billing",
+  "appLinkOpenCameraBilling": "Open camera billing",
+  "appLinkOpenAiAssistant": "Open AI assistant",
+  "appLinkOpenManualBilling": "Open manual billing",
+  "appLinkNoTargetPage": "No target page provided",
+  "appLinkOpenPage": "Open page: {page}",
+  "@appLinkOpenPage": {
+    "placeholders": {
+      "page": { "type": "String" }
+    }
+  },
+  "appLinkUnknownAction": "Unknown action: {action}",
+  "@appLinkUnknownAction": {
+    "placeholders": {
+      "action": { "type": "String" }
+    }
+  },
+  "appLinkNoLedger": "Select a ledger first",
+  "appLinkMissingAmount": "Not recorded: enter a valid amount",
+  "appLinkMissingCategory": "Not recorded: specify a category",
+  "appLinkCategoryNotFound": "Not recorded: category \"{name}\" does not exist",
+  "@appLinkCategoryNotFound": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "appLinkTypeIncome": "Income",
+  "appLinkTypeExpense": "Expense",
+  "appLinkTypeTransfer": "Transfer",
+  "appLinkRecorded": "Recorded {type} {amount}",
+  "@appLinkRecorded": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "appLinkRecordSuccess": "Transaction recorded",
+  "appLinkParamError": "Invalid parameters: {message}",
+  "@appLinkParamError": {
+    "placeholders": {
+      "message": { "type": "String" }
+    }
+  },
+  "appLinkRecordFailed": "Recording failed: {error}",
+  "@appLinkRecordFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "appLinkTextDone": "Text processing done",
+  "appLinkTextFailed": "Text billing failed: {error}",
+  "@appLinkTextFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "appLinkNoText": "No text content provided",
+  "orphanBudgetTitle": "Budget #{id}",
+  "@orphanBudgetTitle": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "orphanBudgetNoLedger": "{type} · ¥{amount} · ledger deleted (id={id})",
+  "@orphanBudgetNoLedger": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "amount": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "orphanAttachmentRowTitle": "Attachment row #{id}",
+  "@orphanAttachmentRowTitle": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "orphanAttachmentNoTx": "{fileName} · transaction deleted (txId={id})",
+  "@orphanAttachmentNoTx": {
+    "placeholders": {
+      "fileName": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "orphanTagLinkTitle": "Tag link #{id}",
+  "@orphanTagLinkTitle": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "orphanTagLinkNoTx": "transaction deleted (txId={txId}, tagId={tagId})",
+  "@orphanTagLinkNoTx": {
+    "placeholders": {
+      "txId": { "type": "String" },
+      "tagId": { "type": "String" }
+    }
+  },
+  "orphanTagLinkNoTag": "tag deleted (txId={txId}, tagId={tagId})",
+  "@orphanTagLinkNoTag": {
+    "placeholders": {
+      "txId": { "type": "String" },
+      "tagId": { "type": "String" }
+    }
+  },
+  "orphanTxTitle": "Transaction #{id}",
+  "@orphanTxTitle": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "orphanTxNoMissing": "{type} · ¥{amount} · {missing} deleted",
+  "@orphanTxNoMissing": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "amount": { "type": "String" },
+      "missing": { "type": "String" }
+    }
+  },
+  "orphanTxNoCategory": "{type} · ¥{amount} · category deleted (categoryId={id})",
+  "@orphanTxNoCategory": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "amount": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "orphanSubcategoryTitle": "Subcategory \"{name}\" #{id}",
+  "@orphanSubcategoryTitle": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "orphanSubcategoryNoParent": "{kind} · parent category deleted (parentId={id})",
+  "@orphanSubcategoryNoParent": {
+    "placeholders": {
+      "kind": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "orphanBudgetNoCategory": "{type} · ¥{amount} · category deleted (categoryId={id})",
+  "@orphanBudgetNoCategory": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "amount": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "orphanSharedSubcategoryTitle": "Shared subcategory \"{name}\"",
+  "@orphanSharedSubcategoryTitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "orphanSharedSubcategoryNoParent": "parent category deleted (parentSyncId={id})",
+  "@orphanSharedSubcategoryNoParent": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "orphanSharedTagOverrideTitle": "Shared tag override",
+  "orphanSharedTagNoTx": "transaction deleted (txSyncId={txId}, tagSyncId={tagId})",
+  "@orphanSharedTagNoTx": {
+    "placeholders": {
+      "txId": { "type": "String" },
+      "tagId": { "type": "String" }
+    }
+  },
+  "orphanFileNoRef": "Attachment file has no DB reference",
+  "orphanCustomIconNoRef": "Category custom icon has no DB reference",
+  "orphanSharedIconNoRef": "Shared category icon cache has no DB reference",
+  "orphanSyncChangeTitle": "Sync change #{id}",
+  "@orphanSyncChangeTitle": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "orphanSyncChangeNoEntity": "{entityType} · {action} · entity deleted (syncId={id})",
+  "@orphanSyncChangeNoEntity": {
+    "placeholders": {
+      "entityType": { "type": "String" },
+      "action": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "customIconFileMissing": "Image file does not exist",
+  "customIconFileTooLarge": "Image file is too large (max 5MB)",
+  "customIconUnsupportedFormat": "Unsupported image format",
+  "customIconCompressFailed": "Image compression failed",
+  "customIconSaveFailed": "Failed to save icon: {error}",
+  "@customIconSaveFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "sharePosterAppText": "BeeCount - Simple Ledger",
+  "sharePosterDefaultLedgerName": "Default Ledger",
+  "aiProviderNotConfiguredText": "No text chat provider configured",
+  "aiProviderMissingTextModelFor": "Provider {name} has no text model configured",
+  "@aiProviderMissingTextModelFor": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "aiProviderNotConfiguredTextUsable": "No usable text chat provider configured",
+  "aiProviderNotConfiguredVision": "No vision provider configured",
+  "aiProviderNotConfiguredSpeech": "No speech-to-text provider configured",
+  "aiProviderNoVisionModel": "No vision model configured",
+  "aiProviderNoSpeechModel": "No speech model configured",
+  "aiProviderEmptyResponse": "API returned an empty response",
+  "xlsxEmptyFile": "The Excel file is empty or unreadable",
+  "xlsxEmptySheet": "The worksheet is empty",
+  "xlsxParseFailed": "Failed to parse Excel file: {error}",
+  "@xlsxParseFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "rateFetchAllSourcesFailed": "All sources failed: {errors}",
+  "@rateFetchAllSourcesFailed": {
+    "placeholders": {
+      "errors": { "type": "String" }
+    }
+  },
+  "rateFetchSourcePayloadInvalid": "Unexpected payload from exchange rate source {source}",
+  "@rateFetchSourcePayloadInvalid": {
+    "placeholders": {
+      "source": { "type": "String" }
+    }
+  },
+  "donationPurchaseFailedWith": "Purchase failed: {error}",
+  "@donationPurchaseFailedWith": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "donationPurchaseRequestFailed": "Purchase request failed",
+  "donationUnknownError": "Unknown error",
+  "donationVerificationFailed": "Purchase verification failed",
+  "donationRestoreFailed": "Restore purchases failed: {error}",
+  "@donationRestoreFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "updateDownloadComplete": "Download complete",
+  "updateDownloadDone": "Done",
+  "attachmentArchiveMissing": "The archive file does not exist",
+  "attachmentArchiveInvalidFormat": "Invalid archive format: metadata.json is missing",
+  "categoryPackageCompressFailed": "Compression failed",
+  "categoryPackageFileMissing": "The file does not exist",
+  "categoryPackageMissingYaml": "Invalid category package: categories.yaml is missing",
+  "categoryPackageInvalidFormat": "Invalid configuration file format",
+  "configExportInvalidYaml": "Invalid YAML format",
+  "configExportTransferCategoryMissing": "The transfer category does not exist",
+  "configExportFileMissing": "The file does not exist: {path}",
+  "@configExportFileMissing": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "ledgerTargetIdExists": "Target ledger ID already exists: {id}",
+  "@ledgerTargetIdExists": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "ledgerMissing": "The ledger does not exist",
+  "sharedLedgerBalanceRestricted": "Shared-ledger members cannot update account balances",
+  "accountMissing": "The account does not exist",
+  "syncCloudUnavailable": "Cloud service unavailable. Check your configuration or sign-in",
+  "syncHealthLedgerMissing": "Ledger {id} not found locally",
+  "@syncHealthLedgerMissing": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "logExportTitle": "=== BeeCount log export ===",
+  "logExportTime": "Exported at: {time}",
+  "@logExportTime": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "logExportCount": "Log entries: {count}",
+  "@logExportCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }

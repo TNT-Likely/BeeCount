@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../utils/app_localizations_resolver.dart';
 import '../../utils/notification_factory.dart';
 
 /// 记账提醒监控服务
@@ -70,10 +71,13 @@ class ReminderMonitorService with WidgetsBindingObserver {
         final hour = prefs.getInt('reminder_hour') ?? 21;
         final minute = prefs.getInt('reminder_minute') ?? 0;
 
+        // 后台监控服务没有 BuildContext,跟随系统语言(已知局限见
+        // resolveAppLocalizations 文档)。
+        final l10n = resolveAppLocalizations(null);
         await notificationUtil.scheduleDailyReminder(
           id: 1001,
-          title: '记账提醒',
-          body: '别忘了记录今天的收支哦 💰',
+          title: l10n.reminderTitle,
+          body: l10n.reminderDailyBody,
           hour: hour,
           minute: minute,
         );

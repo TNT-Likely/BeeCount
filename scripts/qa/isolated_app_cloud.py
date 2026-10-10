@@ -254,6 +254,12 @@ def snapshot(root, manifest):
     for name in sorted(set(files)):
         if not name or name == 'AGENTS.md':
             continue
+        if (PROJECT / name).is_symlink():
+            # Tracked skill symlinks (.claude/skills/* -> .agents/skills/*, #539)
+            # are contributor tooling, not app source; record and skip them
+            # instead of failing the whole snapshot.
+            manifest.setdefault('skipped_symlinks', []).append(name)
+            continue
         source = inside(PROJECT, PROJECT / name)
         if not source.is_file():
             continue
