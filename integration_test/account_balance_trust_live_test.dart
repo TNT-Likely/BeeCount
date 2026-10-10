@@ -225,11 +225,22 @@ void main() {
     Future<schema.Account> createCard(String name, String amount,
         {bool overpayment = false, String? limit}) async {
       await open(AccountEditPage(ledgerId: ledgerId));
+      if (!overpayment) {
+        final group = find.byKey(const ValueKey('account-type-group'));
+        await tester.tap(find.descendant(
+            of: group, matching: find.text('估值账户')));
+        await tester.pump();
+        expect(find.text('信用卡'), findsNothing);
+        await tester.tap(find.descendant(
+            of: group, matching: find.text('日常账户')));
+        await tester.pump();
+      }
       await tap('信用卡');
       await fill('account-name', name);
       if (overpayment) {
         final toggle = find.descendant(
-            of: find.byType(SegmentedButton<bool>), matching: find.text('溢缴款'));
+            of: find.byKey(const ValueKey('account-credit-balance-kind')),
+            matching: find.text('溢缴款'));
         await tester.ensureVisible(toggle);
         await tester.tap(toggle);
         await tester.pump();

@@ -214,6 +214,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
             compact: true,
             actions: [
               IconButton(
+                tooltip: l10n.accountEditTitle,
                 icon: Icon(
                   Icons.edit_outlined,
                   color: BeeTokens.iconPrimary(context),

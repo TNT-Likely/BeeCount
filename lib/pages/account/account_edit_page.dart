@@ -469,37 +469,6 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
         color: BeeTokens.textPrimary(context),
       );
 
-  /// 资产/负债 分段标签
-  Widget _segTab(BuildContext context,
-      {required String label,
-      required bool selected,
-      required Color primaryColor,
-      required VoidCallback onTap}) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: EdgeInsets.symmetric(vertical: 8.0.scaled(context, ref)),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selected ? BeeTokens.surfaceElevated(context) : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-              color: selected ? primaryColor : BeeTokens.textSecondary(context),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -535,7 +504,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                       MediaQuery.of(context).padding.bottom,
                 ),
                 children: [
-                  // ===== 账户类型（资产/负债 Tab + 缩小网格）=====
+                  // ===== 账户类型（日常/估值 Tab + 缩小网格）=====
                   SectionCard(
                     margin: EdgeInsets.zero,
                     child: Padding(
@@ -543,26 +512,15 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: BeeTokens.surfaceInput(context),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              children: [
-                                _segTab(context,
-                                    label: l10n.accountGroupTradable,
-                                    selected: _typeTab == 0,
-                                    primaryColor: primaryColor,
-                                    onTap: () => setState(() => _typeTab = 0)),
-                                _segTab(context,
-                                    label: l10n.accountTabValuation,
-                                    selected: _typeTab == 1,
-                                    primaryColor: primaryColor,
-                                    onTap: () => setState(() => _typeTab = 1)),
-                              ],
-                            ),
+                          CapsuleSwitcher<int>(
+                            key: const ValueKey('account-type-group'),
+                            selectedValue: _typeTab,
+                            height: 44.0.scaled(context, ref),
+                            options: [
+                              CapsuleOption(value: 0, label: l10n.accountGroupTradable),
+                              CapsuleOption(value: 1, label: l10n.accountTabValuation),
+                            ],
+                            onChanged: (value) => setState(() => _typeTab = value),
                           ),
                           SizedBox(height: 16.0.scaled(context, ref)),
                           GridView.count(
@@ -750,14 +708,16 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SegmentedButton<bool>(
-                          segments: [
-                            ButtonSegment(value: false, label: Text(l10n.creditCardOwed)),
-                            ButtonSegment(value: true, label: Text(l10n.creditCardOverpayment)),
+                        CapsuleSwitcher<bool>(
+                          key: const ValueKey('account-credit-balance-kind'),
+                          selectedValue: _creditOverpayment,
+                          height: 44.0.scaled(context, ref),
+                          options: [
+                            CapsuleOption(value: false, label: l10n.creditCardOwed),
+                            CapsuleOption(value: true, label: l10n.creditCardOverpayment),
                           ],
-                          selected: {_creditOverpayment},
-                          onSelectionChanged: (selection) =>
-                              setState(() => _creditOverpayment = selection.single),
+                          onChanged: (value) =>
+                              setState(() => _creditOverpayment = value),
                         ),
                         const SizedBox(height: 8),
                         Text(_getInitialBalanceHint(l10n),
@@ -881,29 +841,17 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                             ),
                             if (_reminderEnabled) ...[
                               SizedBox(height: 4.0.scaled(context, ref)),
-                              Wrap(
-                                spacing: 8.0.scaled(context, ref),
-                                children: [1, 3, 5, 7].map((days) {
-                                  final isSelected = _reminderDaysBefore == days;
-                                  return ChoiceChip(
-                                    label: Text(
-                                        l10n.creditCardReminderDaysBefore(days)),
-                                    selected: isSelected,
-                                    selectedColor:
-                                        primaryColor.withValues(alpha: 0.15),
-                                    labelStyle: TextStyle(
-                                      fontSize: 12,
-                                      color: isSelected
-                                          ? primaryColor
-                                          : BeeTokens.textSecondary(context),
-                                      fontWeight: isSelected
-                                          ? FontWeight.w600
-                                          : FontWeight.normal,
-                                    ),
-                                    onSelected: (_) => setState(
-                                        () => _reminderDaysBefore = days),
-                                  );
-                                }).toList(),
+                              CapsuleSwitcher<int>(
+                                key: const ValueKey('account-credit-reminder-days'),
+                                selectedValue: _reminderDaysBefore,
+                                height: 44.0.scaled(context, ref),
+                                options: [
+                                  for (final days in [1, 3, 5, 7])
+                                    CapsuleOption(value: days,
+                                        label: l10n.creditCardReminderDaysBefore(days)),
+                                ],
+                                onChanged: (days) => setState(
+                                    () => _reminderDaysBefore = days),
                               ),
                             ],
                           ],
