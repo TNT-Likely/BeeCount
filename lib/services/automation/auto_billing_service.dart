@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../ai/core/prompt_builder.dart';
 import '../../ai/providers/ai_provider_config.dart';
+import '../../utils/app_localizations_resolver.dart';
 import '../../ai/providers/ai_provider_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
@@ -497,17 +498,18 @@ class AutoBillingService {
     required String title,
     required String body,
   }) async {
-    const androidDetails = AndroidNotificationDetails(
+    final l10n = resolveAppLocalizations(null);
+    final androidDetails = AndroidNotificationDetails(
       'screenshot_ocr',
-      '截图识别',
-      channelDescription: '截图自动识别通知',
+      l10n.autoBillingChannelName,
+      channelDescription: l10n.autoBillingChannelDescription,
       importance: Importance.high,
       priority: Priority.high,
     );
 
     const iosDetails = DarwinNotificationDetails();
 
-    const details = NotificationDetails(
+    final details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );

@@ -70,6 +70,7 @@ final class AgentAppFacade {
     AgentModel? model,
     AgentPolicy policy = const P0AgentPolicy(),
     String Function()? runIdFactory,
+    String? emptyFinalText,
     DateTime Function()? now,
     this.modelCapabilityLoader,
   })  : _memoryRepository = memoryRepository,
@@ -80,6 +81,7 @@ final class AgentAppFacade {
         _model = model ??
             NativeToolAgentModel(
               transport: OpenAiCompatibleNativeToolTransport(),
+              emptyFinalText: emptyFinalText ?? '已完成。',
             ),
         _policy = policy,
         _now = now ?? DateTime.now,
@@ -783,7 +785,7 @@ final class AgentAppFacade {
           .map((bill) => BillInfo.fromJson(Map<String, dynamic>.from(bill)))
           .toList();
       if (bills.isNotEmpty && bills.length == recorded.transactionIds.length) {
-        return AIResponse.billCards(bills, recorded.transactionIds);
+        return AIResponse.billCards(bills, recorded.transactionIds, l10n: l10n);
       }
       return AIResponse.text(
         l10n?.agentRecordCreated(recorded.transactionIds.length) ??

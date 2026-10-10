@@ -15601,6 +15601,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This transaction cannot be copied. Check the ledger and your access.'**
   String get transactionCopyUnavailable;
+
+  /// No description provided for @aiChatGenericFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorry, something went wrong. Please try again.'**
+  String get aiChatGenericFailure;
+
+  /// No description provided for @aiChatRecordSuccessOne.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Transaction recorded'**
+  String get aiChatRecordSuccessOne;
+
+  /// No description provided for @aiChatRecordSuccessMany.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Recorded {count} transactions'**
+  String aiChatRecordSuccessMany(int count);
+
+  /// No description provided for @agentEmptyFinalReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Done.'**
+  String get agentEmptyFinalReply;
+
+  /// No description provided for @creditCardReminderDueSoonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{accountName} payment due soon'**
+  String creditCardReminderDueSoonTitle(String accountName);
+
+  /// No description provided for @creditCardReminderDueBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment due on day {paymentDueDay} of each month, please repay on time'**
+  String creditCardReminderDueBody(int paymentDueDay);
+
+  /// No description provided for @reminderBackupChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording reminder (backup)'**
+  String get reminderBackupChannelName;
+
+  /// No description provided for @reminderBackupChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup channel for recording reminders'**
+  String get reminderBackupChannelDescription;
+
+  /// No description provided for @autoBillingChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Screenshot recognition'**
+  String get autoBillingChannelName;
+
+  /// No description provided for @autoBillingChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications for automatic screenshot recognition'**
+  String get autoBillingChannelDescription;
+
+  /// No description provided for @appLinkOpenVoiceBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Open voice billing'**
+  String get appLinkOpenVoiceBilling;
+
+  /// No description provided for @appLinkOpenImageBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Open image billing'**
+  String get appLinkOpenImageBilling;
+
+  /// No description provided for @appLinkOpenCameraBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Open camera billing'**
+  String get appLinkOpenCameraBilling;
+
+  /// No description provided for @appLinkOpenAiAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Open AI assistant'**
+  String get appLinkOpenAiAssistant;
+
+  /// No description provided for @appLinkOpenManualBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Open manual billing'**
+  String get appLinkOpenManualBilling;
+
+  /// No description provided for @appLinkNoTargetPage.
+  ///
+  /// In en, this message translates to:
+  /// **'No target page provided'**
+  String get appLinkNoTargetPage;
+
+  /// No description provided for @appLinkOpenPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Open page: {page}'**
+  String appLinkOpenPage(String page);
+
+  /// No description provided for @appLinkUnknownAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown action: {action}'**
+  String appLinkUnknownAction(String action);
+
+  /// No description provided for @appLinkNoLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a ledger first'**
+  String get appLinkNoLedger;
+
+  /// No description provided for @appLinkMissingAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recorded: enter a valid amount'**
+  String get appLinkMissingAmount;
+
+  /// No description provided for @appLinkMissingCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recorded: specify a category'**
+  String get appLinkMissingCategory;
+
+  /// No description provided for @appLinkCategoryNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recorded: category \"{name}\" does not exist'**
+  String appLinkCategoryNotFound(String name);
+
+  /// No description provided for @appLinkTypeIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get appLinkTypeIncome;
+
+  /// No description provided for @appLinkTypeExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get appLinkTypeExpense;
+
+  /// No description provided for @appLinkTypeTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get appLinkTypeTransfer;
+
+  /// No description provided for @appLinkRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded {type} {amount}'**
+  String appLinkRecorded(String type, String amount);
+
+  /// No description provided for @appLinkRecordSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction recorded'**
+  String get appLinkRecordSuccess;
+
+  /// No description provided for @appLinkParamError.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid parameters: {message}'**
+  String appLinkParamError(String message);
+
+  /// No description provided for @appLinkRecordFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording failed: {error}'**
+  String appLinkRecordFailed(String error);
+
+  /// No description provided for @appLinkTextDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Text processing done'**
+  String get appLinkTextDone;
+
+  /// No description provided for @appLinkTextFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Text billing failed: {error}'**
+  String appLinkTextFailed(String error);
+
+  /// No description provided for @appLinkNoText.
+  ///
+  /// In en, this message translates to:
+  /// **'No text content provided'**
+  String get appLinkNoText;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -4,6 +4,7 @@ import '../../ai/core/bill_info.dart';
 import '../../agent/permission/agent_authorization_gate.dart';
 import '../../ai/providers/ai_provider_config.dart';
 import '../../ai/providers/ai_provider_manager.dart';
+import '../../utils/app_localizations_resolver.dart';
 import '../../data/repositories/base_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../system/logger_service.dart';
@@ -70,7 +71,8 @@ class AIChatService {
       return result.response;
     } catch (error, stackTrace) {
       logger.error('AIChat', '处理失败', error, stackTrace);
-      return AIResponse.error('抱歉,处理失败,请重试');
+      return AIResponse.error(l10n?.aiChatGenericFailure ??
+          resolveAppLocalizations(null).aiChatGenericFailure);
     }
   }
 
@@ -182,11 +184,14 @@ class AIResponse {
   ///
   /// [note] 附加在成功文案后的一行提示(目前用于多币种「缺汇率按 1:1 暂记」)。
   factory AIResponse.billCards(List<BillInfo> bills, List<int> txIds,
-      {String? note}) {
+      {String? note, AppLocalizations? l10n}) {
     assert(bills.length == txIds.length && bills.isNotEmpty,
         'bills/txIds 必须等长且非空');
     final n = bills.length;
-    final base = n == 1 ? '✅ 记账成功' : '✅ 已记账 $n 笔';
+    final l10nEff = l10n ?? resolveAppLocalizations(null);
+    final base = n == 1
+        ? l10nEff.aiChatRecordSuccessOne
+        : l10nEff.aiChatRecordSuccessMany(n);
     return AIResponse(
       type: 'bill_card',
       text: (note == null || note.isEmpty) ? base : '$base\n$note',

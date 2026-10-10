@@ -3551,5 +3551,88 @@
   "attachmentKeepOriginal": "Keep Original Attachments",
   "attachmentKeepOriginalDesc": "Uses more storage and sync data",
   "transactionCopyAction": "Copy as new transaction",
-  "transactionCopyUnavailable": "This transaction cannot be copied. Check the ledger and your access."
+  "transactionCopyUnavailable": "This transaction cannot be copied. Check the ledger and your access.",
+  "aiChatGenericFailure": "Sorry, something went wrong. Please try again.",
+  "aiChatRecordSuccessOne": "✅ Transaction recorded",
+  "aiChatRecordSuccessMany": "✅ Recorded {count} transactions",
+  "@aiChatRecordSuccessMany": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "agentEmptyFinalReply": "Done.",
+  "creditCardReminderDueSoonTitle": "{accountName} payment due soon",
+  "@creditCardReminderDueSoonTitle": {
+    "placeholders": {
+      "accountName": { "type": "String" }
+    }
+  },
+  "creditCardReminderDueBody": "Payment due on day {paymentDueDay} of each month, please repay on time",
+  "@creditCardReminderDueBody": {
+    "placeholders": {
+      "paymentDueDay": { "type": "int" }
+    }
+  },
+  "reminderBackupChannelName": "Recording reminder (backup)",
+  "reminderBackupChannelDescription": "Backup channel for recording reminders",
+  "autoBillingChannelName": "Screenshot recognition",
+  "autoBillingChannelDescription": "Notifications for automatic screenshot recognition",
+  "appLinkOpenVoiceBilling": "Open voice billing",
+  "appLinkOpenImageBilling": "Open image billing",
+  "appLinkOpenCameraBilling": "Open camera billing",
+  "appLinkOpenAiAssistant": "Open AI assistant",
+  "appLinkOpenManualBilling": "Open manual billing",
+  "appLinkNoTargetPage": "No target page provided",
+  "appLinkOpenPage": "Open page: {page}",
+  "@appLinkOpenPage": {
+    "placeholders": {
+      "page": { "type": "String" }
+    }
+  },
+  "appLinkUnknownAction": "Unknown action: {action}",
+  "@appLinkUnknownAction": {
+    "placeholders": {
+      "action": { "type": "String" }
+    }
+  },
+  "appLinkNoLedger": "Select a ledger first",
+  "appLinkMissingAmount": "Not recorded: enter a valid amount",
+  "appLinkMissingCategory": "Not recorded: specify a category",
+  "appLinkCategoryNotFound": "Not recorded: category \"{name}\" does not exist",
+  "@appLinkCategoryNotFound": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "appLinkTypeIncome": "Income",
+  "appLinkTypeExpense": "Expense",
+  "appLinkTypeTransfer": "Transfer",
+  "appLinkRecorded": "Recorded {type} {amount}",
+  "@appLinkRecorded": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "appLinkRecordSuccess": "Transaction recorded",
+  "appLinkParamError": "Invalid parameters: {message}",
+  "@appLinkParamError": {
+    "placeholders": {
+      "message": { "type": "String" }
+    }
+  },
+  "appLinkRecordFailed": "Recording failed: {error}",
+  "@appLinkRecordFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "appLinkTextDone": "Text processing done",
+  "appLinkTextFailed": "Text billing failed: {error}",
+  "@appLinkTextFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "appLinkNoText": "No text content provided"
 }

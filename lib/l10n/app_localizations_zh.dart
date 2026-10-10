@@ -8233,6 +8233,122 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get transactionCopyUnavailable => '无法复制这笔交易，请检查账本和访问权限。';
+
+  @override
+  String get aiChatGenericFailure => '抱歉,处理失败,请重试';
+
+  @override
+  String get aiChatRecordSuccessOne => '✅ 记账成功';
+
+  @override
+  String aiChatRecordSuccessMany(int count) {
+    return '✅ 已记账 $count 笔';
+  }
+
+  @override
+  String get agentEmptyFinalReply => '已完成。';
+
+  @override
+  String creditCardReminderDueSoonTitle(String accountName) {
+    return '$accountName还款日即将到来';
+  }
+
+  @override
+  String creditCardReminderDueBody(int paymentDueDay) {
+    return '还款日为每月$paymentDueDay日，请及时还款';
+  }
+
+  @override
+  String get reminderBackupChannelName => '记账提醒备用';
+
+  @override
+  String get reminderBackupChannelDescription => '记账提醒备用通道';
+
+  @override
+  String get autoBillingChannelName => '截图识别';
+
+  @override
+  String get autoBillingChannelDescription => '截图自动识别通知';
+
+  @override
+  String get appLinkOpenVoiceBilling => '打开语音记账';
+
+  @override
+  String get appLinkOpenImageBilling => '打开图片记账';
+
+  @override
+  String get appLinkOpenCameraBilling => '打开拍照记账';
+
+  @override
+  String get appLinkOpenAiAssistant => '打开AI小助手';
+
+  @override
+  String get appLinkOpenManualBilling => '打开手动记账';
+
+  @override
+  String get appLinkNoTargetPage => '未提供目标页面';
+
+  @override
+  String appLinkOpenPage(String page) {
+    return '打开页面: $page';
+  }
+
+  @override
+  String appLinkUnknownAction(String action) {
+    return '未知的操作: $action';
+  }
+
+  @override
+  String get appLinkNoLedger => '请先选择账本';
+
+  @override
+  String get appLinkMissingAmount => '未记账:请填写有效金额';
+
+  @override
+  String get appLinkMissingCategory => '未记账:请指定分类';
+
+  @override
+  String appLinkCategoryNotFound(String name) {
+    return '未记账:分类「$name」不存在';
+  }
+
+  @override
+  String get appLinkTypeIncome => '收入';
+
+  @override
+  String get appLinkTypeExpense => '支出';
+
+  @override
+  String get appLinkTypeTransfer => '转账';
+
+  @override
+  String appLinkRecorded(String type, String amount) {
+    return '已记录 $type $amount 元';
+  }
+
+  @override
+  String get appLinkRecordSuccess => '记账成功';
+
+  @override
+  String appLinkParamError(String message) {
+    return '参数错误: $message';
+  }
+
+  @override
+  String appLinkRecordFailed(String error) {
+    return '记账失败: $error';
+  }
+
+  @override
+  String get appLinkTextDone => '文本处理完成';
+
+  @override
+  String appLinkTextFailed(String error) {
+    return '文本记账失败: $error';
+  }
+
+  @override
+  String get appLinkNoText => '未提供文本内容';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

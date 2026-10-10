@@ -8241,4 +8241,120 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get transactionCopyUnavailable => 'This transaction cannot be copied. Check the ledger and your access.';
+
+  @override
+  String get aiChatGenericFailure => 'Sorry, something went wrong. Please try again.';
+
+  @override
+  String get aiChatRecordSuccessOne => '✅ Transaction recorded';
+
+  @override
+  String aiChatRecordSuccessMany(int count) {
+    return '✅ Recorded $count transactions';
+  }
+
+  @override
+  String get agentEmptyFinalReply => 'Done.';
+
+  @override
+  String creditCardReminderDueSoonTitle(String accountName) {
+    return '$accountName payment due soon';
+  }
+
+  @override
+  String creditCardReminderDueBody(int paymentDueDay) {
+    return 'Payment due on day $paymentDueDay of each month, please repay on time';
+  }
+
+  @override
+  String get reminderBackupChannelName => 'Recording reminder (backup)';
+
+  @override
+  String get reminderBackupChannelDescription => 'Backup channel for recording reminders';
+
+  @override
+  String get autoBillingChannelName => 'Screenshot recognition';
+
+  @override
+  String get autoBillingChannelDescription => 'Notifications for automatic screenshot recognition';
+
+  @override
+  String get appLinkOpenVoiceBilling => 'Open voice billing';
+
+  @override
+  String get appLinkOpenImageBilling => 'Open image billing';
+
+  @override
+  String get appLinkOpenCameraBilling => 'Open camera billing';
+
+  @override
+  String get appLinkOpenAiAssistant => 'Open AI assistant';
+
+  @override
+  String get appLinkOpenManualBilling => 'Open manual billing';
+
+  @override
+  String get appLinkNoTargetPage => 'No target page provided';
+
+  @override
+  String appLinkOpenPage(String page) {
+    return 'Open page: $page';
+  }
+
+  @override
+  String appLinkUnknownAction(String action) {
+    return 'Unknown action: $action';
+  }
+
+  @override
+  String get appLinkNoLedger => 'Select a ledger first';
+
+  @override
+  String get appLinkMissingAmount => 'Not recorded: enter a valid amount';
+
+  @override
+  String get appLinkMissingCategory => 'Not recorded: specify a category';
+
+  @override
+  String appLinkCategoryNotFound(String name) {
+    return 'Not recorded: category \"$name\" does not exist';
+  }
+
+  @override
+  String get appLinkTypeIncome => 'Income';
+
+  @override
+  String get appLinkTypeExpense => 'Expense';
+
+  @override
+  String get appLinkTypeTransfer => 'Transfer';
+
+  @override
+  String appLinkRecorded(String type, String amount) {
+    return 'Recorded $type $amount';
+  }
+
+  @override
+  String get appLinkRecordSuccess => 'Transaction recorded';
+
+  @override
+  String appLinkParamError(String message) {
+    return 'Invalid parameters: $message';
+  }
+
+  @override
+  String appLinkRecordFailed(String error) {
+    return 'Recording failed: $error';
+  }
+
+  @override
+  String get appLinkTextDone => 'Text processing done';
+
+  @override
+  String appLinkTextFailed(String error) {
+    return 'Text billing failed: $error';
+  }
+
+  @override
+  String get appLinkNoText => 'No text content provided';
 }

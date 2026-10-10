@@ -82,12 +82,13 @@ final class NativeToolAgentModel
     required core.AgentNativeToolTransport transport,
     AgentPromptBuilder promptBuilder = const AgentPromptBuilder(),
     Duration toolTurnTimeout = const Duration(seconds: 45),
+    String emptyFinalText = '已完成。',
   }) : _delegate = core.NativeToolAgentModel(
           transport: transport,
           promptBuilder: promptBuilder.buildNative,
           ledgerScopedToolNames: _ledgerScopedTools,
           toolTurnTimeout: toolTurnTimeout,
-          emptyFinalText: '已完成。',
+          emptyFinalText: emptyFinalText,
         );
 
   final core.NativeToolAgentModel _delegate;
