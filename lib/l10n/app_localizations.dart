@@ -932,6 +932,66 @@ abstract class AppLocalizations {
   /// **'Today\'s Expense'**
   String get widgetTodayExpense;
 
+  /// No description provided for @widgetConsumptionRhythmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending Rhythm'**
+  String get widgetConsumptionRhythmTitle;
+
+  /// No description provided for @widgetConsumptionRhythmRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get widgetConsumptionRhythmRange;
+
+  /// No description provided for @widgetConsumptionRhythmStable.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending is steady'**
+  String get widgetConsumptionRhythmStable;
+
+  /// No description provided for @widgetConsumptionRhythmIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Faster than last week'**
+  String get widgetConsumptionRhythmIncrease;
+
+  /// No description provided for @widgetConsumptionRhythmDecrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Steadier than last week'**
+  String get widgetConsumptionRhythmDecrease;
+
+  /// No description provided for @widgetConsumptionRhythmEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending in the last 30 days'**
+  String get widgetConsumptionRhythmEmpty;
+
+  /// No description provided for @widgetBeeTrailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record Bee Trail'**
+  String get widgetBeeTrailTitle;
+
+  /// No description provided for @widgetBeeTrailStreakSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get widgetBeeTrailStreakSuffix;
+
+  /// No description provided for @widgetBeeTrailCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'28-day completion'**
+  String get widgetBeeTrailCompletion;
+
+  /// No description provided for @widgetBeeTrailEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a record to light the first cell'**
+  String get widgetBeeTrailEmpty;
+
   /// No description provided for @widgetTodayIncome.
   ///
   /// In en, this message translates to:
@@ -6035,7 +6095,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateDownloadComplete.
   ///
   /// In en, this message translates to:
-  /// **'Download Complete'**
+  /// **'Download complete'**
   String get updateDownloadComplete;
 
   /// No description provided for @updateInstallStarted.
@@ -8203,66 +8263,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Income, trend and recent transactions in one view'**
   String get widgetGalleryDashboardDesc;
-
-  /// No description provided for @widgetConsumptionRhythmTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Spending Rhythm'**
-  String get widgetConsumptionRhythmTitle;
-
-  /// No description provided for @widgetConsumptionRhythmRange.
-  ///
-  /// In en, this message translates to:
-  /// **'Last 30 days'**
-  String get widgetConsumptionRhythmRange;
-
-  /// No description provided for @widgetConsumptionRhythmStable.
-  ///
-  /// In en, this message translates to:
-  /// **'Spending is steady'**
-  String get widgetConsumptionRhythmStable;
-
-  /// No description provided for @widgetConsumptionRhythmIncrease.
-  ///
-  /// In en, this message translates to:
-  /// **'Faster than last week'**
-  String get widgetConsumptionRhythmIncrease;
-
-  /// No description provided for @widgetConsumptionRhythmDecrease.
-  ///
-  /// In en, this message translates to:
-  /// **'Steadier than last week'**
-  String get widgetConsumptionRhythmDecrease;
-
-  /// No description provided for @widgetConsumptionRhythmEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'No spending in the last 30 days'**
-  String get widgetConsumptionRhythmEmpty;
-
-  /// No description provided for @widgetBeeTrailTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Record Bee Trail'**
-  String get widgetBeeTrailTitle;
-
-  /// No description provided for @widgetBeeTrailStreakSuffix.
-  ///
-  /// In en, this message translates to:
-  /// **'days'**
-  String get widgetBeeTrailStreakSuffix;
-
-  /// No description provided for @widgetBeeTrailCompletion.
-  ///
-  /// In en, this message translates to:
-  /// **'28-day completion'**
-  String get widgetBeeTrailCompletion;
-
-  /// No description provided for @widgetBeeTrailEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a record to light the first cell'**
-  String get widgetBeeTrailEmpty;
 
   /// No description provided for @widgetGalleryConsumptionRhythmDesc.
   ///
@@ -15967,6 +15967,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default Ledger'**
   String get sharePosterDefaultLedgerName;
+
+  /// No description provided for @aiProviderNotConfiguredText.
+  ///
+  /// In en, this message translates to:
+  /// **'No text chat provider configured'**
+  String get aiProviderNotConfiguredText;
+
+  /// No description provided for @aiProviderMissingTextModelFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider {name} has no text model configured'**
+  String aiProviderMissingTextModelFor(String name);
+
+  /// No description provided for @aiProviderNotConfiguredTextUsable.
+  ///
+  /// In en, this message translates to:
+  /// **'No usable text chat provider configured'**
+  String get aiProviderNotConfiguredTextUsable;
+
+  /// No description provided for @aiProviderNotConfiguredVision.
+  ///
+  /// In en, this message translates to:
+  /// **'No vision provider configured'**
+  String get aiProviderNotConfiguredVision;
+
+  /// No description provided for @aiProviderNotConfiguredSpeech.
+  ///
+  /// In en, this message translates to:
+  /// **'No speech-to-text provider configured'**
+  String get aiProviderNotConfiguredSpeech;
+
+  /// No description provided for @aiProviderNoVisionModel.
+  ///
+  /// In en, this message translates to:
+  /// **'No vision model configured'**
+  String get aiProviderNoVisionModel;
+
+  /// No description provided for @aiProviderNoSpeechModel.
+  ///
+  /// In en, this message translates to:
+  /// **'No speech model configured'**
+  String get aiProviderNoSpeechModel;
+
+  /// No description provided for @aiProviderEmptyResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'API returned an empty response'**
+  String get aiProviderEmptyResponse;
+
+  /// No description provided for @xlsxEmptyFile.
+  ///
+  /// In en, this message translates to:
+  /// **'The Excel file is empty or unreadable'**
+  String get xlsxEmptyFile;
+
+  /// No description provided for @xlsxEmptySheet.
+  ///
+  /// In en, this message translates to:
+  /// **'The worksheet is empty'**
+  String get xlsxEmptySheet;
+
+  /// No description provided for @xlsxParseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to parse Excel file: {error}'**
+  String xlsxParseFailed(String error);
+
+  /// No description provided for @rateFetchAllSourcesFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'All sources failed: {errors}'**
+  String rateFetchAllSourcesFailed(String errors);
+
+  /// No description provided for @rateFetchSourcePayloadInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected payload from exchange rate source {source}'**
+  String rateFetchSourcePayloadInvalid(String source);
+
+  /// No description provided for @donationPurchaseFailedWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase failed: {error}'**
+  String donationPurchaseFailedWith(String error);
+
+  /// No description provided for @donationPurchaseRequestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase request failed'**
+  String get donationPurchaseRequestFailed;
+
+  /// No description provided for @donationUnknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error'**
+  String get donationUnknownError;
+
+  /// No description provided for @donationVerificationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase verification failed'**
+  String get donationVerificationFailed;
+
+  /// No description provided for @donationRestoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases failed: {error}'**
+  String donationRestoreFailed(String error);
+
+  /// No description provided for @updateDownloadDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get updateDownloadDone;
+
+  /// No description provided for @attachmentArchiveMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The archive file does not exist'**
+  String get attachmentArchiveMissing;
+
+  /// No description provided for @attachmentArchiveInvalidFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid archive format: metadata.json is missing'**
+  String get attachmentArchiveInvalidFormat;
+
+  /// No description provided for @categoryPackageCompressFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Compression failed'**
+  String get categoryPackageCompressFailed;
+
+  /// No description provided for @categoryPackageFileMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The file does not exist'**
+  String get categoryPackageFileMissing;
+
+  /// No description provided for @categoryPackageMissingYaml.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid category package: categories.yaml is missing'**
+  String get categoryPackageMissingYaml;
+
+  /// No description provided for @categoryPackageInvalidFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid configuration file format'**
+  String get categoryPackageInvalidFormat;
+
+  /// No description provided for @configExportInvalidYaml.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid YAML format'**
+  String get configExportInvalidYaml;
+
+  /// No description provided for @configExportTransferCategoryMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The transfer category does not exist'**
+  String get configExportTransferCategoryMissing;
+
+  /// No description provided for @configExportFileMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The file does not exist: {path}'**
+  String configExportFileMissing(String path);
+
+  /// No description provided for @ledgerTargetIdExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Target ledger ID already exists: {id}'**
+  String ledgerTargetIdExists(String id);
+
+  /// No description provided for @ledgerMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The ledger does not exist'**
+  String get ledgerMissing;
+
+  /// No description provided for @sharedLedgerBalanceRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared-ledger members cannot update account balances'**
+  String get sharedLedgerBalanceRestricted;
+
+  /// No description provided for @accountMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The account does not exist'**
+  String get accountMissing;
+
+  /// No description provided for @syncCloudUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud service unavailable. Check your configuration or sign-in'**
+  String get syncCloudUnavailable;
+
+  /// No description provided for @syncHealthLedgerMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger {id} not found locally'**
+  String syncHealthLedgerMissing(String id);
+
+  /// No description provided for @logExportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'=== BeeCount log export ==='**
+  String get logExportTitle;
+
+  /// No description provided for @logExportTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Exported at: {time}'**
+  String logExportTime(String time);
+
+  /// No description provided for @logExportCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Log entries: {count}'**
+  String logExportCount(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

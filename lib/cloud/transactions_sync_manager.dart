@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' as fcs;
+import '../utils/app_localizations_resolver.dart';
 
 import '../data/db.dart';
 import '../data/repositories/base_repository.dart';
@@ -120,7 +121,8 @@ class TransactionsSyncManager implements SyncService {
     await _ensureInitialized();
 
     if (_syncManager == null) {
-      throw fcs.CloudSyncException('云服务不可用，请检查配置或登录状态');
+      throw fcs.CloudSyncException(
+          resolveAppLocalizations(null).syncCloudUnavailable);
     }
 
     try {
@@ -518,7 +520,8 @@ class TransactionsSyncManager implements SyncService {
     await _ensureInitialized();
 
     if (_syncManager == null) {
-      throw fcs.CloudSyncException('云服务不可用，请检查配置或登录状态');
+      throw fcs.CloudSyncException(
+          resolveAppLocalizations(null).syncCloudUnavailable);
     }
 
     try {

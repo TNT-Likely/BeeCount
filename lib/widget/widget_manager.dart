@@ -229,6 +229,15 @@ class WidgetManager {
     // "只渲已安装"的快路径,不受影响。
     bool warmUpAllSpecs = false,
   }) async {
+    // GRAY 防御:标签参数缺省值为中文,若调用方未传本地化文案,debug 期告警,
+    // 避免未来调用方漏传导致英文环境的小组件露出中文。
+    assert(() {
+      final isZh = PlatformDispatcher.instance.locale.languageCode.startsWith('zh');
+      if (!isZh && glanceTitleLabel == '收支速览') {
+        logger.warning(_tag, 'widget 标签使用了中文默认值:调用方未传本地化文案');
+      }
+      return true;
+    }());
     // 排队进串行门(动机见 _renderGate 文档);gate 在 finally 里必然放行,
     // 前一批次即使异常也不会卡死队列。
     final prev = _renderGate;

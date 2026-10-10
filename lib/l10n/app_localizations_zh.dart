@@ -466,6 +466,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetTodayExpense => '今日支出';
 
   @override
+  String get widgetConsumptionRhythmTitle => '消费节奏';
+
+  @override
+  String get widgetConsumptionRhythmRange => '近 30 天';
+
+  @override
+  String get widgetConsumptionRhythmStable => '消费很均匀';
+
+  @override
+  String get widgetConsumptionRhythmIncrease => '比上周更快';
+
+  @override
+  String get widgetConsumptionRhythmDecrease => '比上周更稳';
+
+  @override
+  String get widgetConsumptionRhythmEmpty => '近 30 天还没有支出';
+
+  @override
+  String get widgetBeeTrailTitle => '记账连续蜂迹';
+
+  @override
+  String get widgetBeeTrailStreakSuffix => '天';
+
+  @override
+  String get widgetBeeTrailCompletion => '近 28 天完成率';
+
+  @override
+  String get widgetBeeTrailEmpty => '今天记一笔，点亮第一格';
+
+  @override
   String get widgetTodayIncome => '今日收入';
 
   @override
@@ -4310,36 +4340,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get widgetGalleryDashboardDesc => '收支、趋势与最近交易一屏看尽';
-
-  @override
-  String get widgetConsumptionRhythmTitle => '消费节奏';
-
-  @override
-  String get widgetConsumptionRhythmRange => '近 30 天';
-
-  @override
-  String get widgetConsumptionRhythmStable => '消费很均匀';
-
-  @override
-  String get widgetConsumptionRhythmIncrease => '比上周更快';
-
-  @override
-  String get widgetConsumptionRhythmDecrease => '比上周更稳';
-
-  @override
-  String get widgetConsumptionRhythmEmpty => '近 30 天还没有支出';
-
-  @override
-  String get widgetBeeTrailTitle => '记账连续蜂迹';
-
-  @override
-  String get widgetBeeTrailStreakSuffix => '天';
-
-  @override
-  String get widgetBeeTrailCompletion => '近 28 天完成率';
-
-  @override
-  String get widgetBeeTrailEmpty => '今天记一笔，点亮第一格';
 
   @override
   String get widgetGalleryConsumptionRhythmDesc => '近 30 天消费节奏一眼看清';
@@ -8474,6 +8474,139 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get sharePosterDefaultLedgerName => '默认账本';
+
+  @override
+  String get aiProviderNotConfiguredText => '未配置文本对话服务商';
+
+  @override
+  String aiProviderMissingTextModelFor(String name) {
+    return '服务商 $name 未配置文本模型';
+  }
+
+  @override
+  String get aiProviderNotConfiguredTextUsable => '未配置可用的文本对话服务商';
+
+  @override
+  String get aiProviderNotConfiguredVision => '未配置图片理解服务商';
+
+  @override
+  String get aiProviderNotConfiguredSpeech => '未配置语音转文字服务商';
+
+  @override
+  String get aiProviderNoVisionModel => '未配置视觉模型';
+
+  @override
+  String get aiProviderNoSpeechModel => '未配置语音模型';
+
+  @override
+  String get aiProviderEmptyResponse => 'API返回空响应';
+
+  @override
+  String get xlsxEmptyFile => 'Excel 文件为空或无法读取';
+
+  @override
+  String get xlsxEmptySheet => '工作表为空';
+
+  @override
+  String xlsxParseFailed(String error) {
+    return '解析 Excel 文件失败: $error';
+  }
+
+  @override
+  String rateFetchAllSourcesFailed(String errors) {
+    return '全部源失败: $errors';
+  }
+
+  @override
+  String rateFetchSourcePayloadInvalid(String source) {
+    return '汇率源 $source 返回格式异常';
+  }
+
+  @override
+  String donationPurchaseFailedWith(String error) {
+    return '购买失败: $error';
+  }
+
+  @override
+  String get donationPurchaseRequestFailed => '购买请求失败';
+
+  @override
+  String get donationUnknownError => '未知错误';
+
+  @override
+  String get donationVerificationFailed => '购买验证失败';
+
+  @override
+  String donationRestoreFailed(String error) {
+    return '恢复购买失败: $error';
+  }
+
+  @override
+  String get updateDownloadDone => '完成';
+
+  @override
+  String get attachmentArchiveMissing => '归档文件不存在';
+
+  @override
+  String get attachmentArchiveInvalidFormat => '归档格式错误：缺少 metadata.json';
+
+  @override
+  String get categoryPackageCompressFailed => '压缩失败';
+
+  @override
+  String get categoryPackageFileMissing => '文件不存在';
+
+  @override
+  String get categoryPackageMissingYaml => '无效的分类包：缺少 categories.yaml';
+
+  @override
+  String get categoryPackageInvalidFormat => '无效的配置文件格式';
+
+  @override
+  String get configExportInvalidYaml => '无效的YAML格式';
+
+  @override
+  String get configExportTransferCategoryMissing => '转账分类不存在';
+
+  @override
+  String configExportFileMissing(String path) {
+    return '文件不存在: $path';
+  }
+
+  @override
+  String ledgerTargetIdExists(String id) {
+    return '目标账本ID已存在: $id';
+  }
+
+  @override
+  String get ledgerMissing => '账本不存在';
+
+  @override
+  String get sharedLedgerBalanceRestricted => '共享账本成员不能修改账户余额';
+
+  @override
+  String get accountMissing => '账户不存在';
+
+  @override
+  String get syncCloudUnavailable => '云服务不可用，请检查配置或登录状态';
+
+  @override
+  String syncHealthLedgerMissing(String id) {
+    return '本地找不到 ledger=$id';
+  }
+
+  @override
+  String get logExportTitle => '=== BeeCount 日志导出 ===';
+
+  @override
+  String logExportTime(String time) {
+    return '导出时间: $time';
+  }
+
+  @override
+  String logExportCount(int count) {
+    return '日志数量: $count';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -8936,6 +9069,36 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get widgetTodayExpense => '今日支出';
+
+  @override
+  String get widgetConsumptionRhythmTitle => '消費節奏';
+
+  @override
+  String get widgetConsumptionRhythmRange => '近 30 天';
+
+  @override
+  String get widgetConsumptionRhythmStable => '消費很均勻';
+
+  @override
+  String get widgetConsumptionRhythmIncrease => '比上週更快';
+
+  @override
+  String get widgetConsumptionRhythmDecrease => '比上週更穩';
+
+  @override
+  String get widgetConsumptionRhythmEmpty => '本月還沒有支出';
+
+  @override
+  String get widgetBeeTrailTitle => '記帳連續蜂跡';
+
+  @override
+  String get widgetBeeTrailStreakSuffix => '天';
+
+  @override
+  String get widgetBeeTrailCompletion => '本月完成率';
+
+  @override
+  String get widgetBeeTrailEmpty => '今天記一筆，點亮第一格';
 
   @override
   String get widgetTodayIncome => '今日收入';
@@ -12782,36 +12945,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get widgetGalleryDashboardDesc => '收支、趨勢與最近交易一屏看盡';
-
-  @override
-  String get widgetConsumptionRhythmTitle => '消費節奏';
-
-  @override
-  String get widgetConsumptionRhythmRange => '近 30 天';
-
-  @override
-  String get widgetConsumptionRhythmStable => '消費很均勻';
-
-  @override
-  String get widgetConsumptionRhythmIncrease => '比上週更快';
-
-  @override
-  String get widgetConsumptionRhythmDecrease => '比上週更穩';
-
-  @override
-  String get widgetConsumptionRhythmEmpty => '近 30 天還沒有支出';
-
-  @override
-  String get widgetBeeTrailTitle => '記帳連續蜂跡';
-
-  @override
-  String get widgetBeeTrailStreakSuffix => '天';
-
-  @override
-  String get widgetBeeTrailCompletion => '近 28 天完成率';
-
-  @override
-  String get widgetBeeTrailEmpty => '今天記一筆，點亮第一格';
 
   @override
   String get widgetGalleryConsumptionRhythmDesc => '近 30 天消費節奏一眼看清';
@@ -16946,4 +17079,137 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get sharePosterDefaultLedgerName => '預設帳本';
+
+  @override
+  String get aiProviderNotConfiguredText => '未設定文字對話服務商';
+
+  @override
+  String aiProviderMissingTextModelFor(String name) {
+    return '服務商 $name 未設定文字模型';
+  }
+
+  @override
+  String get aiProviderNotConfiguredTextUsable => '未設定可用的文字對話服務商';
+
+  @override
+  String get aiProviderNotConfiguredVision => '未設定圖像理解服務商';
+
+  @override
+  String get aiProviderNotConfiguredSpeech => '未設定語音轉文字服務商';
+
+  @override
+  String get aiProviderNoVisionModel => '未設定視覺模型';
+
+  @override
+  String get aiProviderNoSpeechModel => '未設定語音模型';
+
+  @override
+  String get aiProviderEmptyResponse => 'API 回傳空回應';
+
+  @override
+  String get xlsxEmptyFile => 'Excel 檔案為空或無法讀取';
+
+  @override
+  String get xlsxEmptySheet => '工作表為空';
+
+  @override
+  String xlsxParseFailed(String error) {
+    return '解析 Excel 檔案失敗：$error';
+  }
+
+  @override
+  String rateFetchAllSourcesFailed(String errors) {
+    return '全部來源失敗：$errors';
+  }
+
+  @override
+  String rateFetchSourcePayloadInvalid(String source) {
+    return '匯率來源 $source 回傳格式異常';
+  }
+
+  @override
+  String donationPurchaseFailedWith(String error) {
+    return '購買失敗：$error';
+  }
+
+  @override
+  String get donationPurchaseRequestFailed => '購買請求失敗';
+
+  @override
+  String get donationUnknownError => '未知錯誤';
+
+  @override
+  String get donationVerificationFailed => '購買驗證失敗';
+
+  @override
+  String donationRestoreFailed(String error) {
+    return '恢復購買失敗：$error';
+  }
+
+  @override
+  String get updateDownloadDone => '完成';
+
+  @override
+  String get attachmentArchiveMissing => '附件歸檔檔案不存在';
+
+  @override
+  String get attachmentArchiveInvalidFormat => '附件歸檔格式錯誤：缺少 metadata.json';
+
+  @override
+  String get categoryPackageCompressFailed => '壓縮失敗';
+
+  @override
+  String get categoryPackageFileMissing => '檔案不存在';
+
+  @override
+  String get categoryPackageMissingYaml => '無效的分類包：缺少 categories.yaml';
+
+  @override
+  String get categoryPackageInvalidFormat => '無效的設定檔格式';
+
+  @override
+  String get configExportInvalidYaml => '無效的 YAML 格式';
+
+  @override
+  String get configExportTransferCategoryMissing => '轉帳分類不存在';
+
+  @override
+  String configExportFileMissing(String path) {
+    return '檔案不存在：$path';
+  }
+
+  @override
+  String ledgerTargetIdExists(String id) {
+    return '目標帳本 ID 已存在：$id';
+  }
+
+  @override
+  String get ledgerMissing => '帳本不存在';
+
+  @override
+  String get sharedLedgerBalanceRestricted => '共享帳本成員無法修改帳戶餘額';
+
+  @override
+  String get accountMissing => '帳戶不存在';
+
+  @override
+  String get syncCloudUnavailable => '雲端服務無法使用，請檢查設定或登入狀態';
+
+  @override
+  String syncHealthLedgerMissing(String id) {
+    return '本機找不到 ledger=$id';
+  }
+
+  @override
+  String get logExportTitle => '=== BeeCount 日誌匯出 ===';
+
+  @override
+  String logExportTime(String time) {
+    return '匯出時間：$time';
+  }
+
+  @override
+  String logExportCount(int count) {
+    return '日誌數量：$count';
+  }
 }

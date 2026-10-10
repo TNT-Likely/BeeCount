@@ -466,6 +466,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetTodayExpense => 'Today\'s Expense';
 
   @override
+  String get widgetConsumptionRhythmTitle => 'Spending Rhythm';
+
+  @override
+  String get widgetConsumptionRhythmRange => 'Last 30 days';
+
+  @override
+  String get widgetConsumptionRhythmStable => 'Spending is steady';
+
+  @override
+  String get widgetConsumptionRhythmIncrease => 'Faster than last week';
+
+  @override
+  String get widgetConsumptionRhythmDecrease => 'Steadier than last week';
+
+  @override
+  String get widgetConsumptionRhythmEmpty => 'No spending in the last 30 days';
+
+  @override
+  String get widgetBeeTrailTitle => 'Record Bee Trail';
+
+  @override
+  String get widgetBeeTrailStreakSuffix => 'days';
+
+  @override
+  String get widgetBeeTrailCompletion => '28-day completion';
+
+  @override
+  String get widgetBeeTrailEmpty => 'Add a record to light the first cell';
+
+  @override
   String get widgetTodayIncome => 'Today\'s Income';
 
   @override
@@ -3186,7 +3216,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateInstallingCachedApk => 'Installing cached APK';
 
   @override
-  String get updateDownloadComplete => 'Download Complete';
+  String get updateDownloadComplete => 'Download complete';
 
   @override
   String get updateInstallStarted => 'Download complete, installer started';
@@ -4310,36 +4340,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get widgetGalleryDashboardDesc => 'Income, trend and recent transactions in one view';
-
-  @override
-  String get widgetConsumptionRhythmTitle => 'Spending Rhythm';
-
-  @override
-  String get widgetConsumptionRhythmRange => 'Last 30 days';
-
-  @override
-  String get widgetConsumptionRhythmStable => 'Spending is steady';
-
-  @override
-  String get widgetConsumptionRhythmIncrease => 'Faster than last week';
-
-  @override
-  String get widgetConsumptionRhythmDecrease => 'Steadier than last week';
-
-  @override
-  String get widgetConsumptionRhythmEmpty => 'No spending in the last 30 days';
-
-  @override
-  String get widgetBeeTrailTitle => 'Record Bee Trail';
-
-  @override
-  String get widgetBeeTrailStreakSuffix => 'days';
-
-  @override
-  String get widgetBeeTrailCompletion => '28-day completion';
-
-  @override
-  String get widgetBeeTrailEmpty => 'Add a record to light the first cell';
 
   @override
   String get widgetGalleryConsumptionRhythmDesc => 'See your spending pace across the last 30 days';
@@ -8482,4 +8482,137 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sharePosterDefaultLedgerName => 'Default Ledger';
+
+  @override
+  String get aiProviderNotConfiguredText => 'No text chat provider configured';
+
+  @override
+  String aiProviderMissingTextModelFor(String name) {
+    return 'Provider $name has no text model configured';
+  }
+
+  @override
+  String get aiProviderNotConfiguredTextUsable => 'No usable text chat provider configured';
+
+  @override
+  String get aiProviderNotConfiguredVision => 'No vision provider configured';
+
+  @override
+  String get aiProviderNotConfiguredSpeech => 'No speech-to-text provider configured';
+
+  @override
+  String get aiProviderNoVisionModel => 'No vision model configured';
+
+  @override
+  String get aiProviderNoSpeechModel => 'No speech model configured';
+
+  @override
+  String get aiProviderEmptyResponse => 'API returned an empty response';
+
+  @override
+  String get xlsxEmptyFile => 'The Excel file is empty or unreadable';
+
+  @override
+  String get xlsxEmptySheet => 'The worksheet is empty';
+
+  @override
+  String xlsxParseFailed(String error) {
+    return 'Failed to parse Excel file: $error';
+  }
+
+  @override
+  String rateFetchAllSourcesFailed(String errors) {
+    return 'All sources failed: $errors';
+  }
+
+  @override
+  String rateFetchSourcePayloadInvalid(String source) {
+    return 'Unexpected payload from exchange rate source $source';
+  }
+
+  @override
+  String donationPurchaseFailedWith(String error) {
+    return 'Purchase failed: $error';
+  }
+
+  @override
+  String get donationPurchaseRequestFailed => 'Purchase request failed';
+
+  @override
+  String get donationUnknownError => 'Unknown error';
+
+  @override
+  String get donationVerificationFailed => 'Purchase verification failed';
+
+  @override
+  String donationRestoreFailed(String error) {
+    return 'Restore purchases failed: $error';
+  }
+
+  @override
+  String get updateDownloadDone => 'Done';
+
+  @override
+  String get attachmentArchiveMissing => 'The archive file does not exist';
+
+  @override
+  String get attachmentArchiveInvalidFormat => 'Invalid archive format: metadata.json is missing';
+
+  @override
+  String get categoryPackageCompressFailed => 'Compression failed';
+
+  @override
+  String get categoryPackageFileMissing => 'The file does not exist';
+
+  @override
+  String get categoryPackageMissingYaml => 'Invalid category package: categories.yaml is missing';
+
+  @override
+  String get categoryPackageInvalidFormat => 'Invalid configuration file format';
+
+  @override
+  String get configExportInvalidYaml => 'Invalid YAML format';
+
+  @override
+  String get configExportTransferCategoryMissing => 'The transfer category does not exist';
+
+  @override
+  String configExportFileMissing(String path) {
+    return 'The file does not exist: $path';
+  }
+
+  @override
+  String ledgerTargetIdExists(String id) {
+    return 'Target ledger ID already exists: $id';
+  }
+
+  @override
+  String get ledgerMissing => 'The ledger does not exist';
+
+  @override
+  String get sharedLedgerBalanceRestricted => 'Shared-ledger members cannot update account balances';
+
+  @override
+  String get accountMissing => 'The account does not exist';
+
+  @override
+  String get syncCloudUnavailable => 'Cloud service unavailable. Check your configuration or sign-in';
+
+  @override
+  String syncHealthLedgerMissing(String id) {
+    return 'Ledger $id not found locally';
+  }
+
+  @override
+  String get logExportTitle => '=== BeeCount log export ===';
+
+  @override
+  String logExportTime(String time) {
+    return 'Exported at: $time';
+  }
+
+  @override
+  String logExportCount(int count) {
+    return 'Log entries: $count';
+  }
 }

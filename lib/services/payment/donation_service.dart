@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
+import '../../utils/app_localizations_resolver.dart';
 
 import '../system/logger_service.dart';
 
@@ -130,7 +131,8 @@ class DonationService {
         },
         onError: (error) {
           logger.error('Donation', '购买流错误', error);
-          _errorController.add('购买失败: $error');
+          _errorController.add(resolveAppLocalizations(null)
+              .donationPurchaseFailedWith(error.toString()));
         },
       );
 
@@ -227,13 +229,15 @@ class DonationService {
 
       if (!success) {
         logger.error('Donation', '发起购买请求失败');
-        _errorController.add('购买请求失败');
+        _errorController.add(
+            resolveAppLocalizations(null).donationPurchaseRequestFailed);
       }
 
       return success;
     } catch (e, stackTrace) {
       logger.error('Donation', '发起打赏异常', e, stackTrace);
-      _errorController.add('购买失败: $e');
+      _errorController.add(resolveAppLocalizations(null)
+          .donationPurchaseFailedWith(e.toString()));
       return false;
     }
   }
@@ -251,9 +255,11 @@ class DonationService {
 
         case PurchaseStatus.error:
           // 购买失败
-          final errorMsg = purchase.error?.message ?? '未知错误';
+          final errorMsg = purchase.error?.message ??
+              resolveAppLocalizations(null).donationUnknownError;
           logger.error('Donation', '购买失败: $errorMsg');
-          _errorController.add('购买失败: $errorMsg');
+          _errorController.add(resolveAppLocalizations(null)
+              .donationPurchaseFailedWith(errorMsg));
           break;
 
         case PurchaseStatus.canceled:
@@ -288,14 +294,14 @@ class DonationService {
 
     if (receipt.isEmpty) {
       logger.warning('Donation', '购买凭证为空，可能是伪造购买');
-      _errorController.add('购买验证失败');
+      _errorController.add(resolveAppLocalizations(null).donationVerificationFailed);
       return;
     }
 
     // 检查receipt长度（正常的receipt通常很长）
     if (receipt.length < 100) {
       logger.warning('Donation', '购买凭证异常，长度过短: ${receipt.length}');
-      _errorController.add('购买验证失败');
+      _errorController.add(resolveAppLocalizations(null).donationVerificationFailed);
       return;
     }
 
@@ -316,7 +322,8 @@ class DonationService {
       await _iap.restorePurchases();
     } catch (e, stackTrace) {
       logger.error('Donation', '恢复购买失败', e, stackTrace);
-      _errorController.add('恢复购买失败: $e');
+      _errorController.add(resolveAppLocalizations(null)
+          .donationRestoreFailed(e.toString()));
     }
   }
 

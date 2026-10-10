@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../utils/app_localizations_resolver.dart';
 
 import '../system/logger_service.dart';
 
@@ -116,7 +117,8 @@ class ExchangeRateService {
         logger.warning('ExchangeRate', '源失败,下滑: ${src.id}: $e');
       }
     }
-    throw RateFetchException('全部源失败: ${errors.join('; ')}');
+    throw RateFetchException(resolveAppLocalizations(null)
+        .rateFetchAllSourcesFailed(errors.join('; ')));
   }
 
   /// fawazahmed0:{"date":"2026-06-10","cny":{"usd":0.1477,...}} —— 键小写。
@@ -125,7 +127,8 @@ class ExchangeRateService {
     final date = data['date']?.toString() ?? '';
     final table = data[base.toLowerCase()];
     if (date.isEmpty || table is! Map) {
-      throw RateFetchException('fawazahmed0 payload 结构异常');
+      throw RateFetchException(resolveAppLocalizations(null)
+          .rateFetchSourcePayloadInvalid('fawazahmed0'));
     }
     final rates = <String, String>{
       for (final e in table.entries)
@@ -141,7 +144,8 @@ class ExchangeRateService {
     final date = data['date']?.toString() ?? '';
     final table = data['rates'];
     if (date.isEmpty || table is! Map) {
-      throw RateFetchException('frankfurter payload 结构异常');
+      throw RateFetchException(resolveAppLocalizations(null)
+          .rateFetchSourcePayloadInvalid('frankfurter'));
     }
     final rates = <String, String>{
       for (final e in table.entries)

@@ -43,6 +43,7 @@ import '../../agent/permission/agent_tool_permission.dart';
 import '../../agent/runtime/agent_execution_settings.dart';
 import '../../agent/policy/p0_agent_policy.dart';
 import '../../agent/tools/local_agent_tools.dart';
+import '../../utils/app_localizations_resolver.dart';
 import '../../agent/tools/ledger_query_call_validator.dart';
 import '../../ai/core/bill_info.dart';
 import '../../l10n/app_localizations.dart';
@@ -400,7 +401,8 @@ final class AgentAppFacade {
         return AgentChatResponse(
           runId: runId,
           response: AIResponse.text(
-            l10n?.agentRunCancelled ?? '本次操作已停止。',
+            l10n?.agentRunCancelled ??
+                resolveAppLocalizations(null).agentRunCancelled,
           ),
         );
       }
@@ -418,7 +420,8 @@ final class AgentAppFacade {
         return AgentChatResponse(
           runId: runId,
           response: AIResponse.error(
-            l10n?.agentQueryValidationFailed ?? '查询参数未能纠正，暂时无法给出可靠结果。请重试。',
+            l10n?.agentQueryValidationFailed ??
+                resolveAppLocalizations(null).agentQueryValidationFailed,
           ),
         );
       }
@@ -477,7 +480,7 @@ final class AgentAppFacade {
         runId: runId,
         response: AIResponse.error(
           l10n?.agentNativeToolsUnsupported ??
-              '当前模型可以进行普通对话，但不支持读取或操作账本所需的原生工具调用。请前往“设置 > AI 设置 > 服务商管理”切换模型或运行文本模型测试。',
+              resolveAppLocalizations(null).agentNativeToolsUnsupported,
           action: AIResponseAction.openProviderSettings,
         ),
       );
@@ -492,7 +495,8 @@ final class AgentAppFacade {
       return AgentChatResponse(
         runId: runId,
         response: AIResponse.error(
-          l10n?.agentTurnTimedOut ?? 'AI 响应超时，请稍后重试。',
+          l10n?.agentTurnTimedOut ??
+              resolveAppLocalizations(null).agentTurnTimedOut,
         ),
       );
     } catch (error, stackTrace) {
@@ -505,7 +509,8 @@ final class AgentAppFacade {
       );
       return AgentChatResponse(
         runId: runId,
-        response: AIResponse.error(l10n?.agentRunFailed ?? 'AI 服务暂时不可用，请稍后重试。'),
+        response: AIResponse.error(l10n?.agentRunFailed ??
+            resolveAppLocalizations(null).agentRunFailed),
       );
     }
   }
@@ -534,7 +539,7 @@ final class AgentAppFacade {
         runId: runId,
         response: AIResponse.error(
           l10n?.agentNativeToolsUnsupported ??
-              '当前模型可以进行普通对话，但不支持读取或操作账本所需的原生工具调用。请前往“设置 > AI 设置 > 服务商管理”切换模型或运行文本模型测试。',
+              resolveAppLocalizations(null).agentNativeToolsUnsupported,
           action: AIResponseAction.openProviderSettings,
         ),
       );
@@ -778,7 +783,8 @@ final class AgentAppFacade {
       final recorded = tools.recordResultFor(call);
       if (recorded == null || !recorded.success) {
         return AIResponse.text(
-          l10n?.agentRecordIncomplete ?? '未识别到完整的记账信息，请补充金额和用途后重试。',
+          l10n?.agentRecordIncomplete ??
+              resolveAppLocalizations(null).agentRecordIncomplete,
         );
       }
       final bills = recorded.bills
@@ -794,7 +800,8 @@ final class AgentAppFacade {
     }
     return AIResponse.text(
       result.text.isEmpty
-          ? (l10n?.agentStepsExceeded ?? '这次操作步骤过多，请简化后重试。')
+          ? (l10n?.agentStepsExceeded ??
+              resolveAppLocalizations(null).agentStepsExceeded)
           : result.text,
     );
   }
