@@ -270,6 +270,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get voiceRecordingSuccess => '语音记账成功';
 
   @override
+  String get voiceMicPermissionRestricted => '设备管理策略限制了麦克风权限';
+
+  @override
   String get voiceRecordingNoLedger => '未找到当前账本';
 
   @override
@@ -2580,6 +2583,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reminderDailySubtitle => '开启后将在指定时间提醒您记账';
+
+  @override
+  String get reminderDailyBody => '别忘了记录今天的收支哦 💰';
 
   @override
   String get reminderTimeTitle => '提醒时间';

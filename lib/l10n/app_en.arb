@@ -100,6 +100,7 @@
     }
   },
   "voiceRecordingSuccess": "Voice billing successful",
+  "voiceMicPermissionRestricted": "Microphone access is restricted by device management policy",
   "voiceRecordingNoLedger": "No ledger found",
   "voiceRecordingNoInfo": "No billing information recognized",
   "voiceRecordingPermissionDenied": "Microphone permission required",
@@ -1046,6 +1047,7 @@
   "reminderSubtitle": "Set daily recording reminder time",
   "reminderDailyTitle": "Daily Recording Reminder",
   "reminderDailySubtitle": "When enabled, will remind you to record at specified time",
+  "reminderDailyBody": "Don't forget to record today's income and expenses 💰",
   "reminderTimeTitle": "Reminder Time",
   "commonSelectTime": "Select Time",
   "reminderTestNotification": "Send Test Notification",

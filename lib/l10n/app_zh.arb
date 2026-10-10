@@ -97,6 +97,7 @@
     }
   },
   "voiceRecordingSuccess": "语音记账成功",
+  "voiceMicPermissionRestricted": "设备管理策略限制了麦克风权限",
   "voiceRecordingNoLedger": "未找到当前账本",
   "voiceRecordingNoInfo": "未识别到记账信息",
   "voiceRecordingPermissionDenied": "需要麦克风权限才能录音",
@@ -999,6 +1000,7 @@
   "reminderSubtitle": "设置每日记账提醒时间",
   "reminderDailyTitle": "每日记账提醒",
   "reminderDailySubtitle": "开启后将在指定时间提醒您记账",
+  "reminderDailyBody": "别忘了记录今天的收支哦 💰",
   "reminderTimeTitle": "提醒时间",
   "commonSelectTime": "选择时间",
   "reminderTestNotification": "发送测试通知",

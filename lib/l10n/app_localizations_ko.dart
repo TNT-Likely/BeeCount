@@ -270,6 +270,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get voiceRecordingSuccess => '음성 기록 성공';
 
   @override
+  String get voiceMicPermissionRestricted => 'Microphone access is restricted by device management policy';
+
+  @override
   String get voiceRecordingNoLedger => '가계부를 찾을 수 없습니다';
 
   @override
@@ -2580,6 +2583,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get reminderDailySubtitle => '활성화하면 지정한 시간에 기록하라는 알림을 보냅니다';
+
+  @override
+  String get reminderDailyBody => 'Don\'t forget to record today\'s income and expenses 💰';
 
   @override
   String get reminderTimeTitle => '알림 시간';

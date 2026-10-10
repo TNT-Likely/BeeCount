@@ -572,6 +572,12 @@ abstract class AppLocalizations {
   /// **'Voice billing successful'**
   String get voiceRecordingSuccess;
 
+  /// No description provided for @voiceMicPermissionRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone access is restricted by device management policy'**
+  String get voiceMicPermissionRestricted;
+
   /// No description provided for @voiceRecordingNoLedger.
   ///
   /// In en, this message translates to:
@@ -4891,6 +4897,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'When enabled, will remind you to record at specified time'**
   String get reminderDailySubtitle;
+
+  /// No description provided for @reminderDailyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t forget to record today\'s income and expenses 💰'**
+  String get reminderDailyBody;
 
   /// No description provided for @reminderTimeTitle.
   ///

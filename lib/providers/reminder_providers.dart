@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_localizations.dart';
+import '../utils/app_localizations_resolver.dart';
 import '../utils/notification_factory.dart';
+import 'language_provider.dart';
 
 /// 记账提醒设置
 class ReminderSettings {
@@ -55,9 +58,14 @@ class ReminderSettings {
 
 /// 记账提醒设置的StateNotifier
 class ReminderSettingsNotifier extends StateNotifier<ReminderSettings> {
-  ReminderSettingsNotifier() : super(ReminderSettings.defaultSettings()) {
+  ReminderSettingsNotifier(this._ref) : super(ReminderSettings.defaultSettings()) {
     _loadSettings();
   }
+
+  final Ref _ref;
+
+  /// 通知文案按应用内语言设置取(ref 由 provider 注入);见 resolveAppLocalizations。
+  AppLocalizations get _l10n => resolveAppLocalizations(_ref.read(languageProvider));
 
   static const String _keyEnabled = 'reminder_enabled';
   static const String _keyHour = 'reminder_hour';
@@ -102,8 +110,8 @@ class ReminderSettingsNotifier extends StateNotifier<ReminderSettings> {
     if (enabled) {
       await notificationUtil.scheduleDailyReminder(
         id: 1001,
-        title: '记账提醒',
-        body: '别忘了记录今天的收支哦 💰',
+        title: _l10n.reminderTitle,
+        body: _l10n.reminderDailyBody,
         hour: state.hour,
         minute: state.minute,
       );
@@ -122,8 +130,8 @@ class ReminderSettingsNotifier extends StateNotifier<ReminderSettings> {
       final notificationUtil = NotificationFactory.getInstance();
       await notificationUtil.scheduleDailyReminder(
         id: 1001,
-        title: '记账提醒',
-        body: '别忘了记录今天的收支哦 💰',
+        title: _l10n.reminderTitle,
+        body: _l10n.reminderDailyBody,
         hour: hour,
         minute: minute,
       );
@@ -139,8 +147,8 @@ class ReminderSettingsNotifier extends StateNotifier<ReminderSettings> {
     if (settings.isEnabled) {
       await notificationUtil.scheduleDailyReminder(
         id: 1001,
-        title: '记账提醒',
-        body: '别忘了记录今天的收支哦 💰',
+        title: _l10n.reminderTitle,
+        body: _l10n.reminderDailyBody,
         hour: settings.hour,
         minute: settings.minute,
       );
@@ -152,5 +160,5 @@ class ReminderSettingsNotifier extends StateNotifier<ReminderSettings> {
 
 /// 记账提醒设置Provider
 final reminderSettingsProvider = StateNotifierProvider<ReminderSettingsNotifier, ReminderSettings>((ref) {
-  return ReminderSettingsNotifier();
+  return ReminderSettingsNotifier(ref);
 });

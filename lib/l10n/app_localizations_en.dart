@@ -270,6 +270,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get voiceRecordingSuccess => 'Voice billing successful';
 
   @override
+  String get voiceMicPermissionRestricted => 'Microphone access is restricted by device management policy';
+
+  @override
   String get voiceRecordingNoLedger => 'No ledger found';
 
   @override
@@ -2580,6 +2583,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderDailySubtitle => 'When enabled, will remind you to record at specified time';
+
+  @override
+  String get reminderDailyBody => 'Don\'t forget to record today\'s income and expenses 💰';
 
   @override
   String get reminderTimeTitle => 'Reminder Time';
