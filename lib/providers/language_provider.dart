@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
+import '../utils/app_localizations_resolver.dart';
 
 // 语言设置提供者
 final languageProvider = StateNotifierProvider<LanguageNotifier, Locale?>((ref) {
@@ -15,6 +16,11 @@ class LanguageNotifier extends StateNotifier<Locale?> {
 
   static const String _languageKey = 'selected_language';
 
+  /// 偏好键的公开别名:供无 BuildContext 的冷启动路径(如提醒恢复)读取
+  /// 同一组偏好,与应用内语言保持一致。
+  static const String languagePrefKey = _languageKey;
+  static const String languagePrefCountryKey = '${_languageKey}_country';
+
   // 加载保存的语言设置
   Future<void> _loadLanguage() async {
     try {
@@ -24,6 +30,8 @@ class LanguageNotifier extends StateNotifier<Locale?> {
       if (languageCode != null) {
         state = Locale(languageCode, countryCode);
       }
+      // 同步无 context 路径的应用内语言(通知/异常/导出等)。
+      setAppLocaleOverride(state);
     } catch (e) {
       // 如果加载失败，保持默认值（null，跟随系统）
     }
@@ -47,6 +55,8 @@ class LanguageNotifier extends StateNotifier<Locale?> {
         }
       }
       state = locale;
+      // 同步无 context 路径的应用内语言。
+      setAppLocaleOverride(locale);
     } catch (e) {
       // 设置失败时不更新状态
     }

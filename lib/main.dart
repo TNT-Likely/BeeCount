@@ -238,9 +238,14 @@ Future<void> _restoreUserReminder() async {
 
       try {
         final notificationUtil = NotificationFactory.getInstance();
-        // 顶层恢复路径没有 BuildContext,跟随系统语言(已知局限:不感知
-        // 应用内语言覆盖,见 resolveAppLocalizations 文档)。
-        final l10n = resolveAppLocalizations(null);
+        // 冷启动时 languageProvider 的异步加载可能未完成,直接读同一组
+        // 偏好键(与 provider 共用常量),让应用内语言覆盖在恢复路径同样生效。
+        final languageCode = prefs.getString(LanguageNotifier.languagePrefKey);
+        final countryCode =
+            prefs.getString(LanguageNotifier.languagePrefCountryKey);
+        final l10n = resolveAppLocalizations(languageCode == null
+            ? null
+            : Locale(languageCode, countryCode));
         await notificationUtil.scheduleDailyReminder(
           id: 1001,
           title: l10n.reminderTitle,

@@ -9,13 +9,19 @@ import '../l10n/app_localizations.dart';
 /// `AppLocalizations.supportedLocales.first`(en),与 MaterialApp 未提供
 /// localeListResolutionCallback 时的默认解析结果一致。
 ///
+/// 应用内语言覆盖:languageProvider 在加载/切换语言时同步到此,使所有
+/// 无 BuildContext 路径(通知/异常/导出/生物识别)与界面语言保持一致;
+/// 空表示跟随系统。纯单测(未初始化 binding)经 [_platformLocale] 退回
+/// dart:ui 静态,并可用 `localeTestValue` 固定 locale。
+Locale? _appLocaleOverride;
+
+/// 由 [LanguageNotifier]-侧在加载与切换语言时同步(见 language_provider)。
+void setAppLocaleOverride(Locale? locale) => _appLocaleOverride = locale;
+
 /// 已知局限:跟随系统时只读 binding platformDispatcher 的单一首选语言,
 /// 不遍历完整系统语言偏好列表(与 widget 层 resolver 相同)。
-/// 读 binding 而非 dart:ui 静态,是为了让测试能通过
-/// `TestPlatformDispatcher.localeTestValue` 固定 locale;纯单测(未初始化
-/// binding)则经 [_platformLocale] 退回 dart:ui 静态。
 AppLocalizations resolveAppLocalizations(Locale? explicitLocale) {
-  final candidate = explicitLocale ?? _platformLocale();
+  final candidate = explicitLocale ?? _appLocaleOverride ?? _platformLocale();
 
   for (final supported in AppLocalizations.supportedLocales) {
     if (supported.languageCode == candidate.languageCode &&
