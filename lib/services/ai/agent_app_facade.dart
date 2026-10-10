@@ -82,7 +82,8 @@ final class AgentAppFacade {
         _model = model ??
             NativeToolAgentModel(
               transport: OpenAiCompatibleNativeToolTransport(),
-              emptyFinalText: emptyFinalText ?? '已完成。',
+              emptyFinalText: emptyFinalText ??
+                  resolveAppLocalizations(null).agentEmptyFinalReply,
             ),
         _policy = policy,
         _now = now ?? DateTime.now,
