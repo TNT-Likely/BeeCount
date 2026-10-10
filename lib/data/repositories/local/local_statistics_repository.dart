@@ -3,6 +3,7 @@ import 'package:drift/drift.dart' as d;
 import '../../db.dart';
 import '../../../utils/month_range.dart';
 import '../../../utils/shared_ledger_picker_filter.dart';
+import '../../../utils/app_localizations_resolver.dart';
 import '../statistics_repository.dart';
 
 /// 本地统计Repository实现
@@ -38,7 +39,7 @@ class LocalStatisticsRepository implements StatisticsRepository {
       final t = r.readTable(db.transactions);
       final c = r.readTableOrNull(db.categories);
       int? id = c?.id;
-      String name = c?.name ?? '未分类';
+      String name = c?.name ?? resolveAppLocalizations(null).commonUncategorized;
       String? icon = c?.icon;
       // §7 共享账本:Editor 写的 tx categoryId 为空,但 categorySyncIdOverride
       // 指向 Owner 的分类 syncId — 查 SharedLedgerCategories 兜底。
@@ -56,7 +57,7 @@ class LocalStatisticsRepository implements StatisticsRepository {
           ifAbsent: () => t.nativeAmount ?? t.amount);
     }
     final list = map.entries
-        .map((e) => (id: e.key, name: names[e.key] ?? '未分类', icon: icons[e.key], total: e.value))
+        .map((e) => (id: e.key, name: names[e.key] ?? resolveAppLocalizations(null).commonUncategorized, icon: icons[e.key], total: e.value))
         .toList()
       ..sort((a, b) => b.total.compareTo(a.total));
     return list;
@@ -164,7 +165,7 @@ class LocalStatisticsRepository implements StatisticsRepository {
         );
       } else {
         categoryInfo[id] = (
-          name: '未分类',
+          name: resolveAppLocalizations(null).commonUncategorized,
           icon: null,
           parentId: null,
           level: 1,

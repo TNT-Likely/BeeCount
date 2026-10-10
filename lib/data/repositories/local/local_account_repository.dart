@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../../db.dart';
 import '../../../services/system/logger_service.dart';
 import '../../../utils/account_type_utils.dart';
+import '../../../utils/app_localizations_resolver.dart';
 import '../account_repository.dart';
 import '../exceptions.dart';
 
@@ -794,7 +795,7 @@ class LocalAccountRepository implements AccountRepository {
     return results.map((row) {
       return (
         id: row.data['id'] as int?,
-        name: (row.data['name'] as String?) ?? '未分类',
+        name: (row.data['name'] as String?) ?? resolveAppLocalizations(null).commonUncategorized,
         icon: row.data['icon'] as String?,
         total: (row.data['total'] as num).toDouble(),
       );

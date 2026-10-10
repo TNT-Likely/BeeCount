@@ -15793,6 +15793,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No text content provided'**
   String get appLinkNoText;
+
+  /// No description provided for @orphanBudgetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget #{id}'**
+  String orphanBudgetTitle(String id);
+
+  /// No description provided for @orphanBudgetNoLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} · ¥{amount} · ledger deleted (id={id})'**
+  String orphanBudgetNoLedger(String type, String amount, String id);
+
+  /// No description provided for @orphanAttachmentRowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachment row #{id}'**
+  String orphanAttachmentRowTitle(String id);
+
+  /// No description provided for @orphanAttachmentNoTx.
+  ///
+  /// In en, this message translates to:
+  /// **'{fileName} · transaction deleted (txId={id})'**
+  String orphanAttachmentNoTx(String fileName, String id);
+
+  /// No description provided for @orphanTagLinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag link #{id}'**
+  String orphanTagLinkTitle(String id);
+
+  /// No description provided for @orphanTagLinkNoTx.
+  ///
+  /// In en, this message translates to:
+  /// **'transaction deleted (txId={txId}, tagId={tagId})'**
+  String orphanTagLinkNoTx(String txId, String tagId);
+
+  /// No description provided for @orphanTagLinkNoTag.
+  ///
+  /// In en, this message translates to:
+  /// **'tag deleted (txId={txId}, tagId={tagId})'**
+  String orphanTagLinkNoTag(String txId, String tagId);
+
+  /// No description provided for @orphanTxTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction #{id}'**
+  String orphanTxTitle(String id);
+
+  /// No description provided for @orphanTxNoMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} · ¥{amount} · {missing} deleted'**
+  String orphanTxNoMissing(String type, String amount, String missing);
+
+  /// No description provided for @orphanTxNoCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} · ¥{amount} · category deleted (categoryId={id})'**
+  String orphanTxNoCategory(String type, String amount, String id);
+
+  /// No description provided for @orphanSubcategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subcategory \"{name}\" #{id}'**
+  String orphanSubcategoryTitle(String name, String id);
+
+  /// No description provided for @orphanSubcategoryNoParent.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} · parent category deleted (parentId={id})'**
+  String orphanSubcategoryNoParent(String kind, String id);
+
+  /// No description provided for @orphanBudgetNoCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} · ¥{amount} · category deleted (categoryId={id})'**
+  String orphanBudgetNoCategory(String type, String amount, String id);
+
+  /// No description provided for @orphanSharedSubcategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared subcategory \"{name}\"'**
+  String orphanSharedSubcategoryTitle(String name);
+
+  /// No description provided for @orphanSharedSubcategoryNoParent.
+  ///
+  /// In en, this message translates to:
+  /// **'parent category deleted (parentSyncId={id})'**
+  String orphanSharedSubcategoryNoParent(String id);
+
+  /// No description provided for @orphanSharedTagOverrideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared tag override'**
+  String get orphanSharedTagOverrideTitle;
+
+  /// No description provided for @orphanSharedTagNoTx.
+  ///
+  /// In en, this message translates to:
+  /// **'transaction deleted (txSyncId={txId}, tagSyncId={tagId})'**
+  String orphanSharedTagNoTx(String txId, String tagId);
+
+  /// No description provided for @orphanFileNoRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachment file has no DB reference'**
+  String get orphanFileNoRef;
+
+  /// No description provided for @orphanCustomIconNoRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Category custom icon has no DB reference'**
+  String get orphanCustomIconNoRef;
+
+  /// No description provided for @orphanSharedIconNoRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared category icon cache has no DB reference'**
+  String get orphanSharedIconNoRef;
+
+  /// No description provided for @orphanSyncChangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync change #{id}'**
+  String orphanSyncChangeTitle(String id);
+
+  /// No description provided for @orphanSyncChangeNoEntity.
+  ///
+  /// In en, this message translates to:
+  /// **'{entityType} · {action} · entity deleted (syncId={id})'**
+  String orphanSyncChangeNoEntity(String entityType, String action, String id);
+
+  /// No description provided for @customIconFileMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Image file does not exist'**
+  String get customIconFileMissing;
+
+  /// No description provided for @customIconFileTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Image file is too large (max 5MB)'**
+  String get customIconFileTooLarge;
+
+  /// No description provided for @customIconUnsupportedFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported image format'**
+  String get customIconUnsupportedFormat;
+
+  /// No description provided for @customIconCompressFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Image compression failed'**
+  String get customIconCompressFailed;
+
+  /// No description provided for @customIconSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save icon: {error}'**
+  String customIconSaveFailed(String error);
+
+  /// No description provided for @sharePosterAppText.
+  ///
+  /// In en, this message translates to:
+  /// **'BeeCount - Simple Ledger'**
+  String get sharePosterAppText;
+
+  /// No description provided for @sharePosterDefaultLedgerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Ledger'**
+  String get sharePosterDefaultLedgerName;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

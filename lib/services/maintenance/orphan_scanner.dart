@@ -18,15 +18,21 @@ import 'package:path_provider/path_provider.dart';
 import '../../data/db.dart';
 import '../system/logger_service.dart';
 import 'orphan_record.dart';
+import '../../l10n/app_localizations.dart';
+import '../../utils/app_localizations_resolver.dart';
 
 class OrphanScanner {
   OrphanScanner({
     required this.db,
     this.attachmentsDirOverride,
     this.iconsDirOverride,
-  });
+    AppLocalizations Function()? l10n,
+  }) : l10n = l10n ?? (() => resolveAppLocalizations(null));
 
   final BeeDatabase db;
+
+  /// 孤儿记录文案按应用内语言取（provider 注入；缺省跟随系统语言）。
+  final AppLocalizations Function() l10n;
 
   /// 测试用:覆盖附件目录路径。生产环境从 path_provider 拿。
   final String? attachmentsDirOverride;
@@ -85,8 +91,9 @@ class OrphanScanner {
         type: OrphanType.budgetMissingLedger,
         localId: budgetId,
         syncId: row.readNullable<String>('sync_id'),
-        title: '预算 #$budgetId',
-        subtitle: '$budgetType · ¥${amount.toStringAsFixed(0)} · 账本已删 (ledgerId=$ledgerId)',
+        title: l10n().orphanBudgetTitle(budgetId.toString()),
+        subtitle: l10n().orphanBudgetNoLedger(
+            budgetType, amount.toStringAsFixed(0), ledgerId.toString()),
       );
     }).toList();
   }
@@ -110,8 +117,8 @@ class OrphanScanner {
       return OrphanRecord(
         type: OrphanType.attachmentMissingTx,
         localId: attId,
-        title: '附件行 #$attId',
-        subtitle: '$fileName · 交易已删 (txId=$txId)',
+        title: l10n().orphanAttachmentRowTitle(attId.toString()),
+        subtitle: l10n().orphanAttachmentNoTx(fileName, txId.toString()),
         sizeBytes: size,
         extra: {'fileName': fileName},
       );
@@ -136,8 +143,8 @@ class OrphanScanner {
       return OrphanRecord(
         type: OrphanType.txTagMissingTx,
         localId: linkId,
-        title: '标签关联 #$linkId',
-        subtitle: '交易已删 (txId=$txId, tagId=$tagId)',
+        title: l10n().orphanTagLinkTitle(linkId.toString()),
+        subtitle: l10n().orphanTagLinkNoTx(txId.toString(), tagId.toString()),
       );
     }).toList();
   }
@@ -160,8 +167,8 @@ class OrphanScanner {
       return OrphanRecord(
         type: OrphanType.txTagMissingTag,
         localId: linkId,
-        title: '标签关联 #$linkId',
-        subtitle: '标签已删 (txId=$txId, tagId=$tagId)',
+        title: l10n().orphanTagLinkTitle(linkId.toString()),
+        subtitle: l10n().orphanTagLinkNoTag(txId.toString(), tagId.toString()),
       );
     }).toList();
   }
@@ -199,8 +206,9 @@ class OrphanScanner {
       return OrphanRecord(
         type: OrphanType.txMissingAccount,
         localId: txId,
-        title: '交易 #$txId',
-        subtitle: '$txType · ¥${amount.toStringAsFixed(2)} · $missing 已删',
+        title: l10n().orphanTxTitle(txId.toString()),
+        subtitle: l10n()
+            .orphanTxNoMissing(txType, amount.toStringAsFixed(2), missing),
         extra: {
           'accountMissing': accId != null && accHit == null,
           'toAccountMissing': toAccId != null && toAccHit == null,
@@ -228,8 +236,9 @@ class OrphanScanner {
       return OrphanRecord(
         type: OrphanType.txMissingCategory,
         localId: txId,
-        title: '交易 #$txId',
-        subtitle: '$txType · ¥${amount.toStringAsFixed(2)} · 分类已删 (categoryId=$catId)',
+        title: l10n().orphanTxTitle(txId.toString()),
+        subtitle: l10n().orphanTxNoCategory(
+            txType, amount.toStringAsFixed(2), catId.toString()),
       );
     }).toList();
   }
@@ -253,8 +262,8 @@ class OrphanScanner {
       return OrphanRecord(
         type: OrphanType.categoryMissingParent,
         localId: catId,
-        title: '二级分类「$name」#$catId',
-        subtitle: '$kind · 父分类已删 (parentId=$parentId)',
+        title: l10n().orphanSubcategoryTitle(name, catId.toString()),
+        subtitle: l10n().orphanSubcategoryNoParent(kind, parentId.toString()),
       );
     }).toList();
   }
@@ -278,8 +287,9 @@ class OrphanScanner {
       return OrphanRecord(
         type: OrphanType.budgetMissingCategory,
         localId: budgetId,
-        title: '预算 #$budgetId',
-        subtitle: '$budgetType · ¥${amount.toStringAsFixed(0)} · 分类已删 (categoryId=$catId)',
+        title: l10n().orphanBudgetTitle(budgetId.toString()),
+        subtitle: l10n().orphanBudgetNoCategory(
+            budgetType, amount.toStringAsFixed(0), catId.toString()),
       );
     }).toList();
   }
@@ -310,8 +320,8 @@ class OrphanScanner {
       return OrphanRecord(
         type: OrphanType.sharedCategoryMissingParent,
         syncId: syncId,
-        title: '共享二级分类「$name」',
-        subtitle: '父分类已删 (parentSyncId=$parentSyncId)',
+        title: l10n().orphanSharedSubcategoryTitle(name),
+        subtitle: l10n().orphanSharedSubcategoryNoParent(parentSyncId),
         extra: {'ledgerSyncId': ledgerSyncId},
       );
     }).toList();
@@ -335,8 +345,9 @@ class OrphanScanner {
       return OrphanRecord(
         type: OrphanType.txTagOverrideMissingTx,
         syncId: txSyncId,
-        title: '共享标签 override',
-        subtitle: '交易已删 (txSyncId=$txSyncId, tagSyncId=$tagSyncId)',
+        title: l10n().orphanSharedTagOverrideTitle,
+        subtitle:
+            l10n().orphanSharedTagNoTx(txSyncId, tagSyncId),
         extra: {'tagSyncId': tagSyncId},
       );
     }).toList();
@@ -375,7 +386,7 @@ class OrphanScanner {
       result.add(OrphanRecord(
         type: OrphanType.fileOrphanAttachment,
         title: name,
-        subtitle: '附件文件无 DB 引用',
+        subtitle: l10n().orphanFileNoRef,
         filePath: f.path,
         sizeBytes: size,
       ));
@@ -420,7 +431,7 @@ class OrphanScanner {
       result.add(OrphanRecord(
         type: OrphanType.fileOrphanCustomIcon,
         title: name,
-        subtitle: '分类自定义图标无 DB 引用',
+        subtitle: l10n().orphanCustomIconNoRef,
         filePath: f.path,
         sizeBytes: size,
       ));
@@ -466,7 +477,7 @@ class OrphanScanner {
       result.add(OrphanRecord(
         type: OrphanType.fileOrphanSharedIcon,
         title: name,
-        subtitle: '共享分类图标缓存无 DB 引用',
+        subtitle: l10n().orphanSharedIconNoRef,
         filePath: f.path,
         sizeBytes: size,
       ));
@@ -536,8 +547,9 @@ class OrphanScanner {
         type: OrphanType.localChangeMissingEntity,
         localId: lcId,
         syncId: entitySyncId,
-        title: '同步变更 #$lcId',
-        subtitle: '$entityType · $action · 实体已删 (syncId=$entitySyncId)',
+        title: l10n().orphanSyncChangeTitle(lcId.toString()),
+        subtitle: l10n()
+            .orphanSyncChangeNoEntity(entityType, action, entitySyncId),
       );
     }).toList();
   }

@@ -3634,5 +3634,145 @@
       "error": { "type": "String" }
     }
   },
-  "appLinkNoText": "No text content provided"
+  "appLinkNoText": "No text content provided",
+  "orphanBudgetTitle": "Budget #{id}",
+  "@orphanBudgetTitle": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "orphanBudgetNoLedger": "{type} · ¥{amount} · ledger deleted (id={id})",
+  "@orphanBudgetNoLedger": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "amount": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "orphanAttachmentRowTitle": "Attachment row #{id}",
+  "@orphanAttachmentRowTitle": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "orphanAttachmentNoTx": "{fileName} · transaction deleted (txId={id})",
+  "@orphanAttachmentNoTx": {
+    "placeholders": {
+      "fileName": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "orphanTagLinkTitle": "Tag link #{id}",
+  "@orphanTagLinkTitle": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "orphanTagLinkNoTx": "transaction deleted (txId={txId}, tagId={tagId})",
+  "@orphanTagLinkNoTx": {
+    "placeholders": {
+      "txId": { "type": "String" },
+      "tagId": { "type": "String" }
+    }
+  },
+  "orphanTagLinkNoTag": "tag deleted (txId={txId}, tagId={tagId})",
+  "@orphanTagLinkNoTag": {
+    "placeholders": {
+      "txId": { "type": "String" },
+      "tagId": { "type": "String" }
+    }
+  },
+  "orphanTxTitle": "Transaction #{id}",
+  "@orphanTxTitle": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "orphanTxNoMissing": "{type} · ¥{amount} · {missing} deleted",
+  "@orphanTxNoMissing": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "amount": { "type": "String" },
+      "missing": { "type": "String" }
+    }
+  },
+  "orphanTxNoCategory": "{type} · ¥{amount} · category deleted (categoryId={id})",
+  "@orphanTxNoCategory": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "amount": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "orphanSubcategoryTitle": "Subcategory \"{name}\" #{id}",
+  "@orphanSubcategoryTitle": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "orphanSubcategoryNoParent": "{kind} · parent category deleted (parentId={id})",
+  "@orphanSubcategoryNoParent": {
+    "placeholders": {
+      "kind": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "orphanBudgetNoCategory": "{type} · ¥{amount} · category deleted (categoryId={id})",
+  "@orphanBudgetNoCategory": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "amount": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "orphanSharedSubcategoryTitle": "Shared subcategory \"{name}\"",
+  "@orphanSharedSubcategoryTitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "orphanSharedSubcategoryNoParent": "parent category deleted (parentSyncId={id})",
+  "@orphanSharedSubcategoryNoParent": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "orphanSharedTagOverrideTitle": "Shared tag override",
+  "orphanSharedTagNoTx": "transaction deleted (txSyncId={txId}, tagSyncId={tagId})",
+  "@orphanSharedTagNoTx": {
+    "placeholders": {
+      "txId": { "type": "String" },
+      "tagId": { "type": "String" }
+    }
+  },
+  "orphanFileNoRef": "Attachment file has no DB reference",
+  "orphanCustomIconNoRef": "Category custom icon has no DB reference",
+  "orphanSharedIconNoRef": "Shared category icon cache has no DB reference",
+  "orphanSyncChangeTitle": "Sync change #{id}",
+  "@orphanSyncChangeTitle": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "orphanSyncChangeNoEntity": "{entityType} · {action} · entity deleted (syncId={id})",
+  "@orphanSyncChangeNoEntity": {
+    "placeholders": {
+      "entityType": { "type": "String" },
+      "action": { "type": "String" },
+      "id": { "type": "String" }
+    }
+  },
+  "customIconFileMissing": "Image file does not exist",
+  "customIconFileTooLarge": "Image file is too large (max 5MB)",
+  "customIconUnsupportedFormat": "Unsupported image format",
+  "customIconCompressFailed": "Image compression failed",
+  "customIconSaveFailed": "Failed to save icon: {error}",
+  "@customIconSaveFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "sharePosterAppText": "BeeCount - Simple Ledger",
+  "sharePosterDefaultLedgerName": "Default Ledger"
 }

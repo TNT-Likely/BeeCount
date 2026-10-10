@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:drift/drift.dart' as d;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import '../../../utils/app_localizations_resolver.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../db.dart';
@@ -916,7 +917,7 @@ class LocalCategoryRepository implements CategoryRepository {
     logger.warning('LocalCategoryRepository', '转账分类不存在，正在创建...');
     final id = await db.into(db.categories).insert(
       CategoriesCompanion.insert(
-        name: '转账', // 使用中文默认名称
+        name: resolveAppLocalizations(null).appLinkTypeTransfer, // 兜底创建（seed 通常已建）
         kind: 'transfer',
         icon: const d.Value('swap_horiz'),
         sortOrder: const d.Value(-1),

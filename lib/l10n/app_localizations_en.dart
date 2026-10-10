@@ -8357,4 +8357,129 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appLinkNoText => 'No text content provided';
+
+  @override
+  String orphanBudgetTitle(String id) {
+    return 'Budget #$id';
+  }
+
+  @override
+  String orphanBudgetNoLedger(String type, String amount, String id) {
+    return '$type · ¥$amount · ledger deleted (id=$id)';
+  }
+
+  @override
+  String orphanAttachmentRowTitle(String id) {
+    return 'Attachment row #$id';
+  }
+
+  @override
+  String orphanAttachmentNoTx(String fileName, String id) {
+    return '$fileName · transaction deleted (txId=$id)';
+  }
+
+  @override
+  String orphanTagLinkTitle(String id) {
+    return 'Tag link #$id';
+  }
+
+  @override
+  String orphanTagLinkNoTx(String txId, String tagId) {
+    return 'transaction deleted (txId=$txId, tagId=$tagId)';
+  }
+
+  @override
+  String orphanTagLinkNoTag(String txId, String tagId) {
+    return 'tag deleted (txId=$txId, tagId=$tagId)';
+  }
+
+  @override
+  String orphanTxTitle(String id) {
+    return 'Transaction #$id';
+  }
+
+  @override
+  String orphanTxNoMissing(String type, String amount, String missing) {
+    return '$type · ¥$amount · $missing deleted';
+  }
+
+  @override
+  String orphanTxNoCategory(String type, String amount, String id) {
+    return '$type · ¥$amount · category deleted (categoryId=$id)';
+  }
+
+  @override
+  String orphanSubcategoryTitle(String name, String id) {
+    return 'Subcategory \"$name\" #$id';
+  }
+
+  @override
+  String orphanSubcategoryNoParent(String kind, String id) {
+    return '$kind · parent category deleted (parentId=$id)';
+  }
+
+  @override
+  String orphanBudgetNoCategory(String type, String amount, String id) {
+    return '$type · ¥$amount · category deleted (categoryId=$id)';
+  }
+
+  @override
+  String orphanSharedSubcategoryTitle(String name) {
+    return 'Shared subcategory \"$name\"';
+  }
+
+  @override
+  String orphanSharedSubcategoryNoParent(String id) {
+    return 'parent category deleted (parentSyncId=$id)';
+  }
+
+  @override
+  String get orphanSharedTagOverrideTitle => 'Shared tag override';
+
+  @override
+  String orphanSharedTagNoTx(String txId, String tagId) {
+    return 'transaction deleted (txSyncId=$txId, tagSyncId=$tagId)';
+  }
+
+  @override
+  String get orphanFileNoRef => 'Attachment file has no DB reference';
+
+  @override
+  String get orphanCustomIconNoRef => 'Category custom icon has no DB reference';
+
+  @override
+  String get orphanSharedIconNoRef => 'Shared category icon cache has no DB reference';
+
+  @override
+  String orphanSyncChangeTitle(String id) {
+    return 'Sync change #$id';
+  }
+
+  @override
+  String orphanSyncChangeNoEntity(String entityType, String action, String id) {
+    return '$entityType · $action · entity deleted (syncId=$id)';
+  }
+
+  @override
+  String get customIconFileMissing => 'Image file does not exist';
+
+  @override
+  String get customIconFileTooLarge => 'Image file is too large (max 5MB)';
+
+  @override
+  String get customIconUnsupportedFormat => 'Unsupported image format';
+
+  @override
+  String get customIconCompressFailed => 'Image compression failed';
+
+  @override
+  String customIconSaveFailed(String error) {
+    return 'Failed to save icon: $error';
+  }
+
+  @override
+  String get sharePosterAppText => 'BeeCount - Simple Ledger';
+
+  @override
+  String get sharePosterDefaultLedgerName => 'Default Ledger';
 }

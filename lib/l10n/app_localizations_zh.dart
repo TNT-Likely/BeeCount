@@ -8349,6 +8349,131 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get appLinkNoText => '未提供文本内容';
+
+  @override
+  String orphanBudgetTitle(String id) {
+    return '预算 #$id';
+  }
+
+  @override
+  String orphanBudgetNoLedger(String type, String amount, String id) {
+    return '$type · ¥$amount · 账本已删 (ledgerId=$id)';
+  }
+
+  @override
+  String orphanAttachmentRowTitle(String id) {
+    return '附件行 #$id';
+  }
+
+  @override
+  String orphanAttachmentNoTx(String fileName, String id) {
+    return '$fileName · 交易已删 (txId=$id)';
+  }
+
+  @override
+  String orphanTagLinkTitle(String id) {
+    return '标签关联 #$id';
+  }
+
+  @override
+  String orphanTagLinkNoTx(String txId, String tagId) {
+    return '交易已删 (txId=$txId, tagId=$tagId)';
+  }
+
+  @override
+  String orphanTagLinkNoTag(String txId, String tagId) {
+    return '标签已删 (txId=$txId, tagId=$tagId)';
+  }
+
+  @override
+  String orphanTxTitle(String id) {
+    return '交易 #$id';
+  }
+
+  @override
+  String orphanTxNoMissing(String type, String amount, String missing) {
+    return '$type · ¥$amount · $missing 已删';
+  }
+
+  @override
+  String orphanTxNoCategory(String type, String amount, String id) {
+    return '$type · ¥$amount · 分类已删 (categoryId=$id)';
+  }
+
+  @override
+  String orphanSubcategoryTitle(String name, String id) {
+    return '二级分类「$name」#$id';
+  }
+
+  @override
+  String orphanSubcategoryNoParent(String kind, String id) {
+    return '$kind · 父分类已删 (parentId=$id)';
+  }
+
+  @override
+  String orphanBudgetNoCategory(String type, String amount, String id) {
+    return '$type · ¥$amount · 分类已删 (categoryId=$id)';
+  }
+
+  @override
+  String orphanSharedSubcategoryTitle(String name) {
+    return '共享二级分类「$name」';
+  }
+
+  @override
+  String orphanSharedSubcategoryNoParent(String id) {
+    return '父分类已删 (parentSyncId=$id)';
+  }
+
+  @override
+  String get orphanSharedTagOverrideTitle => '共享标签 override';
+
+  @override
+  String orphanSharedTagNoTx(String txId, String tagId) {
+    return '交易已删 (txSyncId=$txId, tagSyncId=$tagId)';
+  }
+
+  @override
+  String get orphanFileNoRef => '附件文件无 DB 引用';
+
+  @override
+  String get orphanCustomIconNoRef => '分类自定义图标无 DB 引用';
+
+  @override
+  String get orphanSharedIconNoRef => '共享分类图标缓存无 DB 引用';
+
+  @override
+  String orphanSyncChangeTitle(String id) {
+    return '同步变更 #$id';
+  }
+
+  @override
+  String orphanSyncChangeNoEntity(String entityType, String action, String id) {
+    return '$entityType · $action · 实体已删 (syncId=$id)';
+  }
+
+  @override
+  String get customIconFileMissing => '图片文件不存在';
+
+  @override
+  String get customIconFileTooLarge => '图片文件过大，最大支持 5MB';
+
+  @override
+  String get customIconUnsupportedFormat => '不支持的图片格式';
+
+  @override
+  String get customIconCompressFailed => '图片压缩失败';
+
+  @override
+  String customIconSaveFailed(String error) {
+    return '保存图标失败: $error';
+  }
+
+  @override
+  String get sharePosterAppText => 'BeeCount - 蜜蜂记账';
+
+  @override
+  String get sharePosterDefaultLedgerName => '默认账本';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -16696,4 +16821,129 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get appLinkNoText => '未提供文字內容';
+
+  @override
+  String orphanBudgetTitle(String id) {
+    return '預算 #$id';
+  }
+
+  @override
+  String orphanBudgetNoLedger(String type, String amount, String id) {
+    return '$type · ¥$amount · 帳本已刪除（id=$id）';
+  }
+
+  @override
+  String orphanAttachmentRowTitle(String id) {
+    return '附件行 #$id';
+  }
+
+  @override
+  String orphanAttachmentNoTx(String fileName, String id) {
+    return '$fileName · 交易已刪除（txId=$id）';
+  }
+
+  @override
+  String orphanTagLinkTitle(String id) {
+    return '標籤關聯 #$id';
+  }
+
+  @override
+  String orphanTagLinkNoTx(String txId, String tagId) {
+    return '交易已刪除（txId=$txId, tagId=$tagId）';
+  }
+
+  @override
+  String orphanTagLinkNoTag(String txId, String tagId) {
+    return '標籤已刪除（txId=$txId, tagId=$tagId）';
+  }
+
+  @override
+  String orphanTxTitle(String id) {
+    return '交易 #$id';
+  }
+
+  @override
+  String orphanTxNoMissing(String type, String amount, String missing) {
+    return '$type · ¥$amount · $missing 已刪除';
+  }
+
+  @override
+  String orphanTxNoCategory(String type, String amount, String id) {
+    return '$type · ¥$amount · 分類已刪除（categoryId=$id）';
+  }
+
+  @override
+  String orphanSubcategoryTitle(String name, String id) {
+    return '子分類「$name」#$id';
+  }
+
+  @override
+  String orphanSubcategoryNoParent(String kind, String id) {
+    return '$kind · 父分類已刪除（parentId=$id）';
+  }
+
+  @override
+  String orphanBudgetNoCategory(String type, String amount, String id) {
+    return '$type · ¥$amount · 分類已刪除（categoryId=$id）';
+  }
+
+  @override
+  String orphanSharedSubcategoryTitle(String name) {
+    return '共享子分類「$name」';
+  }
+
+  @override
+  String orphanSharedSubcategoryNoParent(String id) {
+    return '父分類已刪除（parentSyncId=$id）';
+  }
+
+  @override
+  String get orphanSharedTagOverrideTitle => '共享標籤覆寫';
+
+  @override
+  String orphanSharedTagNoTx(String txId, String tagId) {
+    return '交易已刪除（txSyncId=$txId, tagSyncId=$tagId）';
+  }
+
+  @override
+  String get orphanFileNoRef => '附件檔案無資料庫引用';
+
+  @override
+  String get orphanCustomIconNoRef => '分類自訂圖示無資料庫引用';
+
+  @override
+  String get orphanSharedIconNoRef => '共享分類圖示快取無資料庫引用';
+
+  @override
+  String orphanSyncChangeTitle(String id) {
+    return '同步變更 #$id';
+  }
+
+  @override
+  String orphanSyncChangeNoEntity(String entityType, String action, String id) {
+    return '$entityType · $action · 實體已刪除（syncId=$id）';
+  }
+
+  @override
+  String get customIconFileMissing => '圖片檔案不存在';
+
+  @override
+  String get customIconFileTooLarge => '圖片檔案過大，最大支援 5MB';
+
+  @override
+  String get customIconUnsupportedFormat => '不支援的圖片格式';
+
+  @override
+  String get customIconCompressFailed => '圖片壓縮失敗';
+
+  @override
+  String customIconSaveFailed(String error) {
+    return '儲存圖示失敗：$error';
+  }
+
+  @override
+  String get sharePosterAppText => 'BeeCount - 蜜蜂記帳';
+
+  @override
+  String get sharePosterDefaultLedgerName => '預設帳本';
 }
