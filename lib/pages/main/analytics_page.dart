@@ -601,6 +601,13 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
             bottom: Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
               child: CapsuleSwitcher<String>(
+                // 洞察顶部沿用原来的选中配色与高度，其他页面使用组件默认样式。
+                height: 40,
+                selectedBackgroundColor: BeeTokens.isDark(context)
+                    ? BeeTokens.primary(context)
+                    : Colors.black,
+                selectedTextColor: Colors.white,
+                unselectedTextColor: BeeTokens.textPrimary(context),
                 selectedValue: _scope,
                 options: [
                   CapsuleOption(
