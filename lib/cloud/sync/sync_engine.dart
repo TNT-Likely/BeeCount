@@ -38,6 +38,7 @@ part 'sync_engine_status.dart';
 part 'sync_engine_realtime.dart';
 part 'sync_engine_profile.dart';
 part 'sync_engine_apply.dart';
+part 'sync_engine_category_guard.dart';
 part 'sync_engine_serialization.dart';
 part 'sync_engine_pull.dart';
 
@@ -1180,6 +1181,14 @@ class SyncEngine implements app.SyncService {
       logger.info('SyncEngine',
           'pull #$pageIndex: applied ${outcome.applied}/${result.changes.length} (apply ${applyMs}ms, page total ${DateTime.now().difference(pageStart).inMilliseconds}ms)');
       totalApplied += outcome.applied;
+      if (outcome.deferred) {
+        // Replay may start behind the saved cursor. Persist the retry point,
+        // not the old cursor, so the next ordinary pull can retry this page.
+        await appCursor.commit(nextSince ?? 0);
+        logger.info('SyncEngine',
+            'pull deferred at cursor=$nextSince until local category changes are pushed');
+        break;
+      }
       if (outcome.blocked) {
         logger.warning(
             'SyncEngine', 'pull 被错误阻塞 cursor 停在 $nextSince — UI 应显示同步异常');
@@ -1213,6 +1222,7 @@ class SyncEngine implements app.SyncService {
   }
 
   /// 单页 apply。整页事务 try/catch:
+  /// - 待上传分类变更 → 整页暂缓,保留 cursor,不记录同步错误
   /// - 不可恢复异常 → rollback + 错误入 [pullErrors] + return blocked
   /// - SQLite busy/locked → 单条 retry 2 次
   Future<_PullPageOutcome> _applyPullPage(
@@ -1223,6 +1233,7 @@ class SyncEngine implements app.SyncService {
 
     try {
       await db.transaction(() async {
+        await _ensureNoPendingCategoryChanges(changes);
         for (final ch in changes) {
           failingChange = ch;
           final ok = await _applyOneWithBusyRetry(ch);
@@ -1237,6 +1248,10 @@ class SyncEngine implements app.SyncService {
         logger.info('SyncEngine', 'pull: 应用 $applied / 跳过 $skipped (本页)');
       }
       return _PullPageOutcome(applied: applied, blocked: false);
+    } on _PendingCategoryChange catch (e) {
+      logger.info(
+          'SyncEngine', 'pull page deferred for unpushed category ${e.syncId}');
+      return const _PullPageOutcome(applied: 0, blocked: false, deferred: true);
     } catch (e, st) {
       // 整页 rollback 已自动完成(Drift transaction 抛错回滚)
       logger.error(
@@ -1473,11 +1488,18 @@ class SyncHealthReport {
 
 /// pull 单页处理结果。详见 [SyncEngine._applyPullPage]。
 class _PullPageOutcome {
-  const _PullPageOutcome({required this.applied, required this.blocked});
+  const _PullPageOutcome({
+    required this.applied,
+    required this.blocked,
+    this.deferred = false,
+  });
 
   /// 本页成功 apply 的条数。整页 rollback 时为 0。
   final int applied;
 
   /// 是否被错误阻塞(整页 rollback,cursor 不推进)。
   final bool blocked;
+
+  /// The page waits for local category changes to leave the outbox.
+  final bool deferred;
 }
