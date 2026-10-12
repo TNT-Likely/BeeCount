@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/system/logger_service.dart';
+import '../utils/app_localizations_resolver.dart';
 import '../utils/notification_factory.dart';
 
 /// 信用卡还款提醒服务
@@ -74,10 +75,11 @@ class CreditCardReminderService {
         minute: minute,
       );
 
+      final l10n = resolveAppLocalizations(null);
       await notificationUtil.scheduleOnceReminder(
         id: notificationId,
-        title: '$accountName还款日即将到来',
-        body: '还款日为每月$paymentDueDay日，请及时还款',
+        title: l10n.creditCardReminderDueSoonTitle(accountName),
+        body: l10n.creditCardReminderDueBody(paymentDueDay),
         scheduledDate: scheduledDate,
       );
 

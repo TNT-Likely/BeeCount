@@ -2,6 +2,7 @@ import 'dart:convert';
 import '../data/db.dart';
 import '../data/repositories/base_repository.dart';
 import '../services/data_import_service.dart';
+import '../utils/app_localizations_resolver.dart';
 import '../services/system/logger_service.dart';
 
 /// 账本交易数据的 JSON 导入导出工具
@@ -276,7 +277,7 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
   // 检查账本是否存在
   if (ledger == null) {
     logger.error('TransactionsJson', '账本 $ledgerId 不存在！');
-    throw Exception('账本 $ledgerId 不存在');
+    throw Exception(resolveAppLocalizations(null).ledgerMissing);
   }
 
   final payload = {

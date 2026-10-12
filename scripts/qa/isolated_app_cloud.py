@@ -256,6 +256,12 @@ def snapshot(root, manifest):
         # Tool entry aliases are metadata, not App source; keep code symlink rejection intact.
         if not name or name == 'AGENTS.md' or name.startswith('.claude/skills/'):
             continue
+        if (PROJECT / name).is_symlink():
+            # Tracked skill symlinks (.claude/skills/* -> .agents/skills/*, #539)
+            # are contributor tooling, not app source; record and skip them
+            # instead of failing the whole snapshot.
+            manifest.setdefault('skipped_symlinks', []).append(name)
+            continue
         source = inside(PROJECT, PROJECT / name)
         if not source.is_file():
             continue

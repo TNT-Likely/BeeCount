@@ -9,6 +9,8 @@ import '../ai/core/ai_extraction_engine.dart';
 import '../services/ai/ai_bookkeeper.dart';
 import '../services/ai/ai_chat_service.dart';
 import '../services/ai/agent_app_facade.dart';
+import '../utils/app_localizations_resolver.dart';
+import 'language_provider.dart';
 import '../services/ai/glm_invite_link_service.dart';
 import '../services/billing/bill_creation_service.dart';
 import '../providers.dart';
@@ -87,6 +89,8 @@ final agentModelCapabilityServiceProvider =
 final agentAppFacadeProvider = Provider<AgentAppFacade>((ref) {
   final repo = ref.watch(repositoryProvider);
   return AgentAppFacade(
+    emptyFinalText:
+        resolveAppLocalizations(ref.read(languageProvider)).agentEmptyFinalReply,
     memoryRepository: ref.watch(agentMemoryRepositoryProvider),
     toolGateway: ref.watch(localAgentToolGatewayProvider),
     permissionStore: ref.watch(agentToolPermissionStoreProvider),

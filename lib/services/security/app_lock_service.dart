@@ -3,6 +3,7 @@ import 'package:crypto/crypto.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../system/logger_service.dart';
+import '../../utils/app_localizations_resolver.dart';
 
 class AppLockService {
   static const _keyEnabled = 'app_lock_enabled';
@@ -136,11 +137,11 @@ class AppLockService {
   }
 
   /// 执行生物识别认证
-  static Future<bool> authenticateWithBiometrics(
-      {String reason = '请验证身份以解锁应用'}) async {
+  static Future<bool> authenticateWithBiometrics({String? reason}) async {
     try {
       return await _localAuth.authenticate(
-        localizedReason: reason,
+        localizedReason: reason ??
+            resolveAppLocalizations(null).appLockBiometricReason,
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: true,

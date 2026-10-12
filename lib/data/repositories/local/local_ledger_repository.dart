@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../db.dart';
 import '../ledger_repository.dart';
+import '../../../utils/app_localizations_resolver.dart';
 
 const _uuid = Uuid();
 
@@ -218,7 +219,8 @@ class LocalLedgerRepository implements LedgerRepository {
           ..where((l) => l.id.equals(toId)))
         .getSingleOrNull();
     if (existsTo != null) {
-      throw StateError('目标账本ID已存在: $toId');
+      throw StateError(resolveAppLocalizations(null)
+          .ledgerTargetIdExists(toId.toString()));
     }
     await db.transaction(() async {
       // 先迁移子表中的外键引用

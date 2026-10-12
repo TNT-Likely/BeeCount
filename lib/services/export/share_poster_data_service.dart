@@ -4,6 +4,7 @@ library;
 import '../../data/repositories/base_repository.dart';
 import '../../utils/month_range.dart';
 import '../ui/avatar_service.dart';
+import '../../utils/app_localizations_resolver.dart';
 import 'share_poster_types.dart';
 
 /// 海报数据计算服务
@@ -223,7 +224,7 @@ class SharePosterDataService {
 
     // 获取账本名称
     final ledger = await repository.getLedgerById(ledgerId);
-    final ledgerName = ledger?.name ?? '默认账本';
+    final ledgerName = ledger?.name ?? resolveAppLocalizations(null).sharePosterDefaultLedgerName;
 
     // 使用年度序列来计算所有年份的收支
     final yearSeries = await repository.totalsByYearSeries(
@@ -338,7 +339,7 @@ class SharePosterDataService {
 
     // 获取当前账本信息
     final ledger = await repository.getLedgerById(ledgerId);
-    final ledgerName = ledger?.name ?? '默认账本';
+    final ledgerName = ledger?.name ?? resolveAppLocalizations(null).sharePosterDefaultLedgerName;
 
     // 获取所有账本数量
     final allLedgers = await repository.getAllLedgers();

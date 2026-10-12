@@ -2,6 +2,7 @@ import 'package:agentcore/agentcore.dart' as core;
 
 import '../../ai/providers/ai_provider_factory.dart';
 import '../../services/system/logger_service.dart';
+import '../../utils/app_localizations_resolver.dart';
 import 'agent_prompt_builder.dart';
 import '../tools/local_agent_tool_catalog.dart';
 
@@ -82,12 +83,15 @@ final class NativeToolAgentModel
     required core.AgentNativeToolTransport transport,
     AgentPromptBuilder promptBuilder = const AgentPromptBuilder(),
     Duration toolTurnTimeout = const Duration(seconds: 45),
+    String? emptyFinalText,
   }) : _delegate = core.NativeToolAgentModel(
           transport: transport,
           promptBuilder: promptBuilder.buildNative,
           ledgerScopedToolNames: _ledgerScopedTools,
           toolTurnTimeout: toolTurnTimeout,
-          emptyFinalText: '已完成。',
+          // 缺省按语言解析(测试可经 localeTestValue 固定),不再硬编码中文。
+          emptyFinalText:
+              emptyFinalText ?? resolveAppLocalizations(null).agentEmptyFinalReply,
         );
 
   final core.NativeToolAgentModel _delegate;

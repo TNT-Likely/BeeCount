@@ -67,7 +67,7 @@ class VoiceBillingHelper {
       if (status.isRestricted) {
         logger.warning('VoiceBilling', '麦克风权限被设备管理策略限制');
         if (!context.mounted) return;
-        showToast(context, '设备管理策略限制了麦克风权限');
+        showToast(context, AppLocalizations.of(context)!.voiceMicPermissionRestricted);
         return;
       }
 

@@ -1,3 +1,4 @@
+import 'dart:ui' show Locale;
 import 'dart:async';
 
 import 'package:agentcore/agentcore.dart'
@@ -55,6 +56,9 @@ import 'package:shared_preferences_platform_interface/shared_preferences_platfor
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // 固定测试 locale 为 zh:部分用例断言 resolver 的中文兜底文案。
+  TestWidgetsFlutterBinding.instance.platformDispatcher.localeTestValue =
+      const Locale('zh');
   SharedPreferences.setMockInitialValues({});
   late BeeDatabase db;
   late _FakeGateway gateway;

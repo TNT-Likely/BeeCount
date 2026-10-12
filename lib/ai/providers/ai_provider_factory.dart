@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:agentcore/agentcore.dart';
 import 'package:dio/dio.dart';
+import '../../utils/app_localizations_resolver.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_ai_kit/flutter_ai_kit.dart';
 import 'package:flutter_ai_kit_openai/flutter_ai_kit_openai.dart'
@@ -59,11 +60,12 @@ class AIProviderFactory {
     );
 
     if (config == null || !config.isValid) {
-      throw AIException('未配置文本对话服务商');
+      throw AIException(resolveAppLocalizations(null).aiProviderNotConfiguredText);
     }
 
     if (!config.supportsText) {
-      throw AIException('服务商 ${config.name} 未配置文本模型');
+      throw AIException(resolveAppLocalizations(null)
+          .aiProviderMissingTextModelFor(config.name));
     }
 
     logger.debug(tag, '发起文本对话 (${config.name}, 模型: ${config.textModel})');
@@ -87,7 +89,7 @@ class AIProviderFactory {
       AICapabilityType.text,
     );
     if (config == null || !config.isValid || !config.supportsText) {
-      throw AIException('未配置可用的文本对话服务商');
+      throw AIException(resolveAppLocalizations(null).aiProviderNotConfiguredTextUsable);
     }
     logger.debug(logTag ?? 'AgentNativeTools',
         '发起原生工具流式对话 (${config.name}, 模型: ${config.textModel})');
@@ -443,7 +445,7 @@ class AIProviderFactory {
     );
 
     if (config == null || !config.isValid) {
-      throw AIException('未配置图片理解服务商');
+      throw AIException(resolveAppLocalizations(null).aiProviderNotConfiguredVision);
     }
 
     if (!config.supportsVision) {
@@ -475,7 +477,7 @@ class AIProviderFactory {
     );
 
     if (config == null || !config.isValid) {
-      throw AIException('未配置语音转文字服务商');
+      throw AIException(resolveAppLocalizations(null).aiProviderNotConfiguredSpeech);
     }
 
     if (!config.supportsSpeech) {
@@ -527,7 +529,7 @@ class AIProviderFactory {
     logger.debug(tag, '  模型: ${config.textModel}');
 
     if (!config.isValid) {
-      return (false, '未配置 API Key');
+      return (false, resolveAppLocalizations(null).aiProviderNoApiKey);
     }
 
     if (!config.supportsText) {
@@ -566,7 +568,7 @@ class AIProviderFactory {
         logger.info(tag, '文本与 Agent 工具能力验证成功: ${config.name}');
         return (true, capabilities.detail);
       } else {
-        return (false, 'API返回空响应');
+        return (false, resolveAppLocalizations(null).aiProviderEmptyResponse);
       }
     } on AIException catch (e) {
       logger.warning(tag, '文本能力验证失败: ${e.message}');
@@ -776,11 +778,11 @@ class AIProviderFactory {
     logger.debug(tag, '  模型: ${config.visionModel}');
 
     if (!config.isValid) {
-      return (false, '未配置 API Key');
+      return (false, resolveAppLocalizations(null).aiProviderNoApiKey);
     }
 
     if (!config.supportsVision) {
-      return (false, '未配置视觉模型');
+      return (false, resolveAppLocalizations(null).aiProviderNoVisionModel);
     }
 
     try {
@@ -802,7 +804,7 @@ class AIProviderFactory {
           logger.info(tag, '视觉能力验证成功: ${config.name}');
           return (true, null);
         } else {
-          return (false, 'API返回空响应');
+          return (false, resolveAppLocalizations(null).aiProviderEmptyResponse);
         }
       } finally {
         // 清理测试图片
@@ -830,11 +832,11 @@ class AIProviderFactory {
     logger.debug(tag, '  模型: ${config.audioModel}');
 
     if (!config.isValid) {
-      return (false, '未配置 API Key');
+      return (false, resolveAppLocalizations(null).aiProviderNoApiKey);
     }
 
     if (!config.supportsSpeech) {
-      return (false, '未配置语音模型');
+      return (false, resolveAppLocalizations(null).aiProviderNoSpeechModel);
     }
 
     try {

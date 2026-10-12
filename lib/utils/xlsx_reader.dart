@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:excel/excel.dart';
+import 'app_localizations_resolver.dart';
 
 /// XLSX 文件读取工具
 ///
@@ -19,14 +20,14 @@ class XlsxReader {
 
       // 获取第一个工作表（通常账单数据在第一个表）
       if (excel.tables.isEmpty) {
-        throw Exception('Excel 文件为空或无法读取');
+        throw Exception(resolveAppLocalizations(null).xlsxEmptyFile);
       }
 
       final sheetName = excel.tables.keys.first;
       final sheet = excel.tables[sheetName];
 
       if (sheet == null || sheet.rows.isEmpty) {
-        throw Exception('工作表为空');
+        throw Exception(resolveAppLocalizations(null).xlsxEmptySheet);
       }
 
       // 转换为 CSV 格式
@@ -86,7 +87,8 @@ class XlsxReader {
 
       return csvLines.join('\n');
     } catch (e) {
-      throw Exception('解析 Excel 文件失败: $e');
+      throw Exception(resolveAppLocalizations(null)
+          .xlsxParseFailed(e.toString()));
     }
   }
 }

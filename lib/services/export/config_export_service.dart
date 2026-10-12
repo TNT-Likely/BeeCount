@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yaml/yaml.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:drift/drift.dart' as d;
+import '../../utils/app_localizations_resolver.dart';
 import '../../data/db.dart';
 import '../../data/repositories/base_repository.dart';
 import '../system/logger_service.dart';
@@ -2220,7 +2221,7 @@ class ConfigExportService {
     final doc = loadYaml(yamlContent);
 
     if (doc is! Map) {
-      throw const FormatException('无效的YAML格式');
+      throw FormatException(resolveAppLocalizations(null).configExportInvalidYaml);
     }
 
     final config = AppConfig.fromYaml(doc);
@@ -2516,7 +2517,8 @@ class ConfigExportService {
           try {
             final existingTransfer = existingCategories.firstWhere(
               (c) => c.kind == 'transfer',
-              orElse: () => throw Exception('转账分类不存在'),
+              orElse: () => throw Exception(
+                  resolveAppLocalizations(null).configExportTransferCategoryMissing),
             );
             // 更新现有转账分类的图标设置
             await repository.updateCategoryIcon(
@@ -2884,7 +2886,8 @@ class ConfigExportService {
   }) async {
     final file = File(filePath);
     if (!await file.exists()) {
-      throw Exception('文件不存在: $filePath');
+      throw Exception(resolveAppLocalizations(null)
+          .configExportFileMissing(filePath));
     }
 
     final yamlContent = await file.readAsString();

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
+import '../utils/app_localizations_resolver.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -255,7 +256,7 @@ class AttachmentExportImportService {
           skipped: 0,
           failed: 0,
           overwritten: 0,
-          message: '归档文件不存在',
+          message: resolveAppLocalizations(null).attachmentArchiveMissing,
         );
       }
 
@@ -284,7 +285,7 @@ class AttachmentExportImportService {
           skipped: 0,
           failed: 0,
           overwritten: 0,
-          message: '归档格式错误：缺少 metadata.json',
+          message: resolveAppLocalizations(null).attachmentArchiveInvalidFormat,
         );
       }
 

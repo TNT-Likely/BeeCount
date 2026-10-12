@@ -10,6 +10,9 @@ import '../../providers/database_providers.dart';
 import '../automation/auto_billing_service.dart';
 import '../billing/post_processor.dart';
 import '../system/logger_service.dart';
+import '../../l10n/app_localizations.dart';
+import '../../providers/language_provider.dart';
+import '../../utils/app_localizations_resolver.dart';
 
 /// AppLink 动作类型
 enum AppLinkAction {
@@ -168,6 +171,10 @@ class AppLinkResult {
 /// 同时监听 iOS AppIntents EventChannel 处理快捷指令传入的图片
 class AppLinkService {
   final ProviderContainer _container;
+
+  /// 深链文案按应用内语言取（container 由 main 注入）。
+  AppLocalizations get _l10n =>
+      resolveAppLocalizations(_container.read(languageProvider));
   late final AutoBillingService _autoBillingService;
 
   /// iOS AppIntents 事件通道（用于接收快捷指令传入的图片路径）
@@ -305,22 +312,22 @@ class AppLinkService {
       case AppLinkAction.voice:
         logger.info('AppLink', '打开语音记账');
         onNavigate?.call(AppLinkAction.voice);
-        return AppLinkResult.success(message: '打开语音记账');
+        return AppLinkResult.success(message: _l10n.appLinkOpenVoiceBilling);
 
       case AppLinkAction.image:
         logger.info('AppLink', '打开图片记账');
         onNavigate?.call(AppLinkAction.image);
-        return AppLinkResult.success(message: '打开图片记账');
+        return AppLinkResult.success(message: _l10n.appLinkOpenImageBilling);
 
       case AppLinkAction.camera:
         logger.info('AppLink', '打开拍照记账');
         onNavigate?.call(AppLinkAction.camera);
-        return AppLinkResult.success(message: '打开拍照记账');
+        return AppLinkResult.success(message: _l10n.appLinkOpenCameraBilling);
 
       case AppLinkAction.aiChat:
         logger.info('AppLink', '打开AI小助手');
         onNavigate?.call(AppLinkAction.aiChat);
-        return AppLinkResult.success(message: '打开AI小助手');
+        return AppLinkResult.success(message: _l10n.appLinkOpenAiAssistant);
 
       case AppLinkAction.add:
         logger.info('AppLink', '自动记账: $queryParams');
@@ -338,17 +345,17 @@ class AppLinkService {
           AppLinkAction.newTransaction,
           params: AddTransactionParams(amount: 0, type: type, categoryId: categoryId),
         );
-        return AppLinkResult.success(message: '打开手动记账');
+        return AppLinkResult.success(message: _l10n.appLinkOpenManualBilling);
 
       case AppLinkAction.open:
         final page = queryParams['page'] ?? '';
         logger.info('AppLink', '打开页面: page=$page');
         if (page.isEmpty) {
           logger.warning('AppLink', 'open 未提供 page 参数');
-          return AppLinkResult.failure('未提供目标页面');
+          return AppLinkResult.failure(_l10n.appLinkNoTargetPage);
         }
         onNavigate?.call(AppLinkAction.open, params: AddTransactionParams(amount: 0, page: page));
-        return AppLinkResult.success(message: '打开页面: $page');
+        return AppLinkResult.success(message: _l10n.appLinkOpenPage(page));
 
       case AppLinkAction.autoBilling:
         // 兼容旧版
@@ -357,11 +364,11 @@ class AppLinkService {
       case AppLinkAction.quickBilling:
         // 兼容旧版，等同于图片记账
         onNavigate?.call(AppLinkAction.image);
-        return AppLinkResult.success(message: '打开图片记账');
+        return AppLinkResult.success(message: _l10n.appLinkOpenImageBilling);
 
       case AppLinkAction.unknown:
         logger.warning('AppLink', '未知的action: ${uri.host}');
-        return AppLinkResult.failure('未知的操作: ${uri.host}');
+        return AppLinkResult.failure(_l10n.appLinkUnknownAction(uri.host));
     }
   }
 
@@ -382,7 +389,7 @@ class AppLinkService {
       if (currentLedger == null) {
         logger.warning('AppLink',
             '自动记账失败:未找到当前账本 (ledgerId=${_container.read(currentLedgerIdProvider)})');
-        return AppLinkResult.failure('请先选择账本');
+        return AppLinkResult.failure(_l10n.appLinkNoLedger);
       }
 
       final ledgerId = currentLedger.id;
@@ -393,19 +400,20 @@ class AppLinkService {
       final parsedAmount = double.tryParse(params['amount'] ?? '');
       if (parsedAmount == null || parsedAmount <= 0) {
         logger.warning('AppLink', '已拦截:金额无效 (amount=${params['amount']})');
-        return AppLinkResult.failure('未记账:请填写有效金额');
+        return AppLinkResult.failure(_l10n.appLinkMissingAmount);
       }
       if (type != 'transfer') {
         final categoryName = params['category'];
         if (categoryName == null || categoryName.isEmpty) {
           logger.warning('AppLink', '已拦截:缺少分类');
-          return AppLinkResult.failure('未记账:请指定分类');
+          return AppLinkResult.failure(_l10n.appLinkMissingCategory);
         }
         final matched = await _findCategoryId(
             repo, categoryName, type == 'income' ? 'income' : 'expense');
         if (matched == null) {
           logger.warning('AppLink', '已拦截:分类「$categoryName」不存在');
-          return AppLinkResult.failure('未记账:分类「$categoryName」不存在');
+          return AppLinkResult.failure(
+              _l10n.appLinkCategoryNotFound(categoryName));
         }
       }
 
@@ -474,20 +482,25 @@ class AppLinkService {
       await PostProcessor.runC(_container, ledgerId: ledgerId, tags: hasTags);
 
       if (!txParams.silent) {
-        final typeText = txParams.type == 'income' ? '收入' : (txParams.type == 'transfer' ? '转账' : '支出');
-        onShowToast?.call('已记录 $typeText ${txParams.amount.toStringAsFixed(2)} 元');
+        final typeText = txParams.type == 'income'
+            ? _l10n.appLinkTypeIncome
+            : (txParams.type == 'transfer'
+                ? _l10n.appLinkTypeTransfer
+                : _l10n.appLinkTypeExpense);
+        onShowToast?.call(_l10n.appLinkRecorded(
+            typeText, txParams.amount.toStringAsFixed(2)));
       }
 
       return AppLinkResult.success(
-        message: '记账成功',
+        message: _l10n.appLinkRecordSuccess,
         transactionId: transactionId,
       );
     } on ArgumentError catch (e) {
       logger.warning('AppLink', '参数错误: $e');
-      return AppLinkResult.failure('参数错误: ${e.message}');
+      return AppLinkResult.failure(_l10n.appLinkParamError(e.message));
     } catch (e, st) {
       logger.error('AppLink', '自动记账失败', e, st);
-      return AppLinkResult.failure('记账失败: $e');
+      return AppLinkResult.failure(_l10n.appLinkRecordFailed(e.toString()));
     }
   }
 
@@ -523,14 +536,14 @@ class AppLinkService {
           text,
           showNotification: true,
         );
-        return AppLinkResult.success(message: '文本处理完成');
+        return AppLinkResult.success(message: _l10n.appLinkTextDone);
       } catch (e, st) {
         logger.error('AppLink', '文本记账失败', e, st);
-        return AppLinkResult.failure('文本记账失败: $e');
+        return AppLinkResult.failure(_l10n.appLinkTextFailed(e.toString()));
       }
     } else {
       logger.warning('AppLink', 'auto-billing 未提供文本');
-      return AppLinkResult.failure('未提供文本内容');
+      return AppLinkResult.failure(_l10n.appLinkNoText);
     }
   }
 

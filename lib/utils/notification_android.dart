@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'app_localizations_resolver.dart';
 import 'notification_util.dart' as util;
 
 /// Android 特定的通知实现
@@ -64,13 +65,14 @@ class AndroidNotificationUtil implements util.NotificationUtil {
     final scheduledDate = util.calculateNextReminderTime(hour, minute);
     final tzScheduledDate = util.convertToTZDateTime(scheduledDate);
 
-    const androidDetails = AndroidNotificationDetails(
+    final l10n = resolveAppLocalizations(null);
+    final androidDetails = AndroidNotificationDetails(
       'accounting_reminder',
-      '记账提醒',
-      channelDescription: '每日记账提醒',
+      l10n.reminderTitle,
+      channelDescription: l10n.reminderDailyTitle,
       importance: Importance.max,
       priority: Priority.max,
-      ticker: '记账提醒',
+      ticker: l10n.reminderTitle,
       icon: '@mipmap/ic_launcher',
       enableVibration: true,
       playSound: true,
@@ -83,7 +85,7 @@ class AndroidNotificationUtil implements util.NotificationUtil {
       showWhen: true,
     );
 
-    const notificationDetails = NotificationDetails(android: androidDetails);
+    final notificationDetails = NotificationDetails(android: androidDetails);
 
     try {
       // 使用 exactAllowWhileIdle 确保休眠时也能触发
@@ -128,13 +130,14 @@ class AndroidNotificationUtil implements util.NotificationUtil {
 
     final tzScheduledDate = util.convertToTZDateTime(scheduledDate);
 
-    const androidDetails = AndroidNotificationDetails(
+    final l10n = resolveAppLocalizations(null);
+    final androidDetails = AndroidNotificationDetails(
       'accounting_reminder',
-      '记账提醒',
-      channelDescription: '每日记账提醒',
+      l10n.reminderTitle,
+      channelDescription: l10n.reminderDailyTitle,
       importance: Importance.max,
       priority: Priority.max,
-      ticker: '记账提醒',
+      ticker: l10n.reminderTitle,
       icon: '@mipmap/ic_launcher',
       enableVibration: true,
       playSound: true,
@@ -144,7 +147,7 @@ class AndroidNotificationUtil implements util.NotificationUtil {
       visibility: NotificationVisibility.public,
     );
 
-    const notificationDetails = NotificationDetails(android: androidDetails);
+    final notificationDetails = NotificationDetails(android: androidDetails);
 
     await _plugin.zonedSchedule(
       id,
@@ -204,20 +207,21 @@ class AndroidNotificationUtil implements util.NotificationUtil {
   }) async {
     if (!_initialized) await initialize();
 
-    const androidDetails = AndroidNotificationDetails(
+    final l10n = resolveAppLocalizations(null);
+    final androidDetails = AndroidNotificationDetails(
       'accounting_reminder',
-      '记账提醒',
-      channelDescription: '每日记账提醒',
+      l10n.reminderTitle,
+      channelDescription: l10n.reminderDailyTitle,
       importance: Importance.max,
       priority: Priority.max,
-      ticker: '记账提醒',
+      ticker: l10n.reminderTitle,
       icon: '@mipmap/ic_launcher',
       enableVibration: true,
       playSound: true,
       enableLights: true,
     );
 
-    const notificationDetails = NotificationDetails(android: androidDetails);
+    final notificationDetails = NotificationDetails(android: androidDetails);
 
     await _plugin.show(id, title, body, notificationDetails);
     print('[Android] 即时通知已显示: $title');
@@ -259,13 +263,14 @@ class AndroidNotificationUtil implements util.NotificationUtil {
 
         print('[Android] 📅 设置备用提醒 $i/7 (ID: $backupId): $backupDate');
 
-        const androidDetails = AndroidNotificationDetails(
+        final l10n = resolveAppLocalizations(null);
+        final androidDetails = AndroidNotificationDetails(
           'accounting_reminder_backup',
-          '记账提醒备用',
-          channelDescription: '记账提醒备用通道',
+          l10n.reminderBackupChannelName,
+          channelDescription: l10n.reminderBackupChannelDescription,
           importance: Importance.max,
           priority: Priority.max,
-          ticker: '记账提醒',
+          ticker: l10n.reminderTitle,
           icon: '@mipmap/ic_launcher',
           enableVibration: true,
           playSound: true,
@@ -274,7 +279,7 @@ class AndroidNotificationUtil implements util.NotificationUtil {
           visibility: NotificationVisibility.public,
         );
 
-        const notificationDetails = NotificationDetails(android: androidDetails);
+        final notificationDetails = NotificationDetails(android: androidDetails);
 
         await _plugin.zonedSchedule(
           backupId,

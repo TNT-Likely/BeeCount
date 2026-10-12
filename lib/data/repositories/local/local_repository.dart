@@ -5,6 +5,7 @@ import '../../db.dart';
 import '../../../cloud/sync/change_tracker.dart';
 import '../../../services/currency/rate_math.dart';
 import '../../../utils/shared_ledger_picker_filter.dart';
+import '../../../utils/app_localizations_resolver.dart';
 import '../../../services/system/logger_service.dart';
 import '../../../models/note_history.dart';
 import '../base_repository.dart';
@@ -1918,15 +1919,15 @@ class LocalRepository extends BaseRepository {
   }) async {
     final ledger = await getLedgerById(ledgerId);
     if (ledger == null) {
-      throw StateError('账本不存在');
+      throw StateError(resolveAppLocalizations(null).ledgerMissing);
     }
     if (ledger.isShared && ledger.myRole != 'owner') {
-      throw StateError('共享账本成员不能修改账户余额');
+      throw StateError(resolveAppLocalizations(null).sharedLedgerBalanceRestricted);
     }
 
     final account = await getAccount(accountId);
     if (account == null) {
-      throw StateError('账户不存在');
+      throw StateError(resolveAppLocalizations(null).accountMissing);
     }
     final oldBalance = await getAccountBalance(accountId);
     final difference = targetBalance - oldBalance;
