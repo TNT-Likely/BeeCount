@@ -1,16 +1,6 @@
 {
   "donors": [
     {
-      "id": "qiao",
-      "name": "桥",
-      "name_en": "Qiao",
-      "amount": 12,
-      "currency": "CNY",
-      "avatar": "qiao.svg",
-      "profile": null,
-      "date": null
-    },
-    {
       "id": "rui",
       "name": "睿",
       "name_en": "Rui",
@@ -24,40 +14,30 @@
       "id": "fishdivinity",
       "name": "fishdivinity",
       "name_en": "fishdivinity",
-      "amount": 50,
+      "amount": 150,
       "currency": "CNY",
       "avatar": "fishdivinity.png",
       "profile": "https://github.com/fishdivinity",
       "date": null
     },
     {
-      "id": "shao",
-      "name": "邵",
-      "name_en": "Shao",
-      "amount": 15,
+      "id": "HowcanoeWang",
+      "name": "浩瀚猫",
+      "name_en": "HowcanoeWang",
+      "amount": 98,
       "currency": "CNY",
-      "avatar": "shao.svg",
-      "profile": null,
+      "avatar": "https://github.com/HowcanoeWang.png",
+      "profile": "https://github.com/HowcanoeWang",
       "date": null
     },
     {
-      "id": "ge",
-      "name": "哥",
-      "name_en": "Ge",
-      "amount": 6,
+      "id": "542474846",
+      "name": "542474846",
+      "name_en": "542474846",
+      "amount": 66,
       "currency": "CNY",
-      "avatar": "ge.svg",
-      "profile": null,
-      "date": null
-    },
-    {
-      "id": "te",
-      "name": "特",
-      "name_en": "Te",
-      "amount": 15,
-      "currency": "CNY",
-      "avatar": "te.svg",
-      "profile": null,
+      "avatar": "https://github.com/542474846.png",
+      "profile": "https://github.com/542474846",
       "date": null
     },
     {
@@ -81,13 +61,83 @@
       "date": null
     },
     {
-      "id": "542474846",
-      "name": "542474846",
-      "name_en": "542474846",
-      "amount": 66,
+      "id": "JOHN-2025",
+      "name": "JOHN-2025",
+      "name_en": "JOHN-2025",
+      "amount": 30,
       "currency": "CNY",
-      "avatar": "https://github.com/542474846.png",
-      "profile": "https://github.com/542474846",
+      "avatar": "https://github.com/JOHN-2025.png",
+      "profile": "https://github.com/JOHN-2025",
+      "date": null
+    },
+    {
+      "id": "shao",
+      "name": "邵",
+      "name_en": "Shao",
+      "amount": 15,
+      "currency": "CNY",
+      "avatar": "shao.svg",
+      "profile": null,
+      "date": null
+    },
+    {
+      "id": "te",
+      "name": "特",
+      "name_en": "Te",
+      "amount": 15,
+      "currency": "CNY",
+      "avatar": "te.svg",
+      "profile": null,
+      "date": null
+    },
+    {
+      "id": "qiao",
+      "name": "桥",
+      "name_en": "Qiao",
+      "amount": 12,
+      "currency": "CNY",
+      "avatar": "qiao.svg",
+      "profile": null,
+      "date": null
+    },
+    {
+      "id": "birdnofoots",
+      "name": "birdnofoots",
+      "name_en": "birdnofoots",
+      "amount": 10,
+      "currency": "CNY",
+      "avatar": "https://github.com/birdnofoots.png",
+      "profile": "https://github.com/birdnofoots",
+      "date": null
+    },
+    {
+      "id": "charieswang72-pro",
+      "name": "Charies",
+      "name_en": "Charies",
+      "amount": 10,
+      "currency": "CNY",
+      "avatar": "https://github.com/charieswang72-pro.png",
+      "profile": "https://github.com/charieswang72-pro",
+      "date": null
+    },
+    {
+      "id": "ge",
+      "name": "哥",
+      "name_en": "Ge",
+      "amount": 6,
+      "currency": "CNY",
+      "avatar": "ge.svg",
+      "profile": null,
+      "date": null
+    },
+    {
+      "id": "zifengfanzhuo",
+      "name": "紫风",
+      "name_en": "Zifeng",
+      "amount": 5,
+      "currency": "CNY",
+      "avatar": "https://github.com/zifengfanzhuo.png",
+      "profile": "https://github.com/zifengfanzhuo",
       "date": null
     }
   ]

@@ -341,16 +341,25 @@ Address: `TKBV69B2AoU67p3vDhnJUbMJtZ1DxuUF5C`
 
 ### Supporters
 
-<p>
-  <a href="https://github.com/fishdivinity"><img src="assets/avatars/fishdivinity.png" width="44" height="44" alt="fishdivinity" /></a>
-  <a href="https://github.com/birdnofoots"><img src="https://github.com/birdnofoots.png" width="44" height="44" alt="birdnofoots" /></a>
-  <a href="https://github.com/charieswang72-pro"><img src="https://github.com/charieswang72-pro.png" width="44" height="44" alt="charieswang72-pro" /></a>
-  <a href="https://github.com/542474846"><img src="https://github.com/542474846.png" width="44" height="44" alt="542474846" /></a>
-  <a href="https://github.com/JOHN-2025"><img src="https://github.com/JOHN-2025.png" width="44" height="44" alt="JOHN-2025" /></a>
-  <a href="https://github.com/HowcanoeWang"><img src="https://github.com/HowcanoeWang.png" width="44" height="44" alt="HowcanoeWang" /></a>
-</p>
+Sorted by total donation amount, highest first. Anonymous donors are not listed.
 
-> 💡 Already donated? [Submit info](https://github.com/TNT-Likely/BeeCount/issues/new?template=donation_info.yml) with a link to your profile to appear in the supporter list.
+| Avatar | Supporter | Total donated (CNY) |
+|:---:|:---|---:|
+| <img src="assets/avatars/rui.svg" width="40" height="40" alt="Rui" /> | \*Rui | ¥720 |
+| <a href="https://github.com/fishdivinity"><img src="assets/avatars/fishdivinity.png" width="40" height="40" alt="fishdivinity" /></a> | [fishdivinity](https://github.com/fishdivinity) | ¥150 |
+| <a href="https://github.com/HowcanoeWang"><img src="https://github.com/HowcanoeWang.png" width="40" height="40" alt="HowcanoeWang" /></a> | [HowcanoeWang](https://github.com/HowcanoeWang) | ¥98 |
+| <a href="https://github.com/542474846"><img src="https://github.com/542474846.png" width="40" height="40" alt="542474846" /></a> | [542474846](https://github.com/542474846) | ¥66 |
+| <img src="assets/avatars/wen.svg" width="40" height="40" alt="Wen" /> | \*Wen | ¥50 |
+| <a href="https://github.com/JOHN-2025"><img src="https://github.com/JOHN-2025.png" width="40" height="40" alt="JOHN-2025" /></a> | [JOHN-2025](https://github.com/JOHN-2025) | ¥30 |
+| <img src="assets/avatars/shao.svg" width="40" height="40" alt="Shao" /> | \*Shao | ¥15 |
+| <img src="assets/avatars/te.svg" width="40" height="40" alt="Te" /> | \*Te | ¥15 |
+| <img src="assets/avatars/qiao.svg" width="40" height="40" alt="Qiao" /> | \*Qiao | ¥12 |
+| <a href="https://github.com/birdnofoots"><img src="https://github.com/birdnofoots.png" width="40" height="40" alt="birdnofoots" /></a> | [birdnofoots](https://github.com/birdnofoots) | ¥10 |
+| <a href="https://github.com/charieswang72-pro"><img src="https://github.com/charieswang72-pro.png" width="40" height="40" alt="Charies" /></a> | [Charies](https://github.com/charieswang72-pro) | ¥10 |
+| <img src="assets/avatars/ge.svg" width="40" height="40" alt="Ge" /> | \*Ge | ¥6 |
+| <a href="https://github.com/zifengfanzhuo"><img src="https://github.com/zifengfanzhuo.png" width="40" height="40" alt="Zifeng" /></a> | [Zifeng](https://github.com/zifengfanzhuo) | ¥5 |
+
+> 💡 Already donated? [Submit info](https://github.com/TNT-Likely/BeeCount/issues/new?template=donation_info.yml) to appear in the supporter list.
 
 ---
 

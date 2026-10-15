@@ -341,16 +341,25 @@ BeeCount 和 BeeCount Cloud 由同一作者维护。如果这些项目对你有�
 
 ### 感谢支持者
 
-<p>
-  <a href="https://github.com/fishdivinity"><img src="assets/avatars/fishdivinity.png" width="44" height="44" alt="fishdivinity" /></a>
-  <a href="https://github.com/birdnofoots"><img src="https://github.com/birdnofoots.png" width="44" height="44" alt="birdnofoots" /></a>
-  <a href="https://github.com/charieswang72-pro"><img src="https://github.com/charieswang72-pro.png" width="44" height="44" alt="charieswang72-pro" /></a>
-  <a href="https://github.com/542474846"><img src="https://github.com/542474846.png" width="44" height="44" alt="542474846" /></a>
-  <a href="https://github.com/JOHN-2025"><img src="https://github.com/JOHN-2025.png" width="44" height="44" alt="JOHN-2025" /></a>
-  <a href="https://github.com/HowcanoeWang"><img src="https://github.com/HowcanoeWang.png" width="44" height="44" alt="HowcanoeWang" /></a>
-</p>
+按累计捐赠金额从高到低排序，匿名捐赠者不展示。
 
-> 💡 已捐赠?[提交信息](https://github.com/TNT-Likely/BeeCount/issues/new?template=donation_info.yml) 提供个人主页链接，展示在支持者列表中。
+| 头像 | 支持者 | 累计金额（人民币） |
+|:---:|:---|---:|
+| <img src="assets/avatars/rui.svg" width="40" height="40" alt="睿" /> | \*睿 | ¥720 |
+| <a href="https://github.com/fishdivinity"><img src="assets/avatars/fishdivinity.png" width="40" height="40" alt="fishdivinity" /></a> | [fishdivinity](https://github.com/fishdivinity) | ¥150 |
+| <a href="https://github.com/HowcanoeWang"><img src="https://github.com/HowcanoeWang.png" width="40" height="40" alt="浩瀚猫" /></a> | [浩瀚猫](https://github.com/HowcanoeWang) | ¥98 |
+| <a href="https://github.com/542474846"><img src="https://github.com/542474846.png" width="40" height="40" alt="542474846" /></a> | [542474846](https://github.com/542474846) | ¥66 |
+| <img src="assets/avatars/wen.svg" width="40" height="40" alt="文" /> | \*文 | ¥50 |
+| <a href="https://github.com/JOHN-2025"><img src="https://github.com/JOHN-2025.png" width="40" height="40" alt="JOHN-2025" /></a> | [JOHN-2025](https://github.com/JOHN-2025) | ¥30 |
+| <img src="assets/avatars/shao.svg" width="40" height="40" alt="邵" /> | \*邵 | ¥15 |
+| <img src="assets/avatars/te.svg" width="40" height="40" alt="特" /> | \*特 | ¥15 |
+| <img src="assets/avatars/qiao.svg" width="40" height="40" alt="桥" /> | \*桥 | ¥12 |
+| <a href="https://github.com/birdnofoots"><img src="https://github.com/birdnofoots.png" width="40" height="40" alt="birdnofoots" /></a> | [birdnofoots](https://github.com/birdnofoots) | ¥10 |
+| <a href="https://github.com/charieswang72-pro"><img src="https://github.com/charieswang72-pro.png" width="40" height="40" alt="Charies" /></a> | [Charies](https://github.com/charieswang72-pro) | ¥10 |
+| <img src="assets/avatars/ge.svg" width="40" height="40" alt="哥" /> | \*哥 | ¥6 |
+| <a href="https://github.com/zifengfanzhuo"><img src="https://github.com/zifengfanzhuo.png" width="40" height="40" alt="紫风" /></a> | [紫风](https://github.com/zifengfanzhuo) | ¥5 |
+
+> 💡 已捐赠?[提交信息](https://github.com/TNT-Likely/BeeCount/issues/new?template=donation_info.yml) 展示在支持者列表中。
 
 ---
 
