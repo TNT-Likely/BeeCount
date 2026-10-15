@@ -250,12 +250,14 @@ void main() {
           (widget) => widget is TransactionListItem && widget.title == note,
           skipOffstage: false);
       await waitUi(() => row.evaluate().isNotEmpty);
-      final icon = find
-          .descendant(
-              of: row.first,
-              matching: find.byIcon(Icons.image_outlined, skipOffstage: false),
-              skipOffstage: false)
-          .first;
+      final icons = find.descendant(
+          of: row.first,
+          matching: find.byIcon(Icons.image_outlined, skipOffstage: false),
+          skipOffstage: false);
+      // 附件元数据已同步时，首页的异步附件计数仍可能晚一帧才显示图标。
+      // 等实际可交互目标出现，再执行原有的可见性检查与触摸手势。
+      await waitUi(() => icons.evaluate().isNotEmpty);
+      final icon = icons.first;
       await tester.ensureVisible(icon);
       await tester.tap(icon);
       await waitUi(() =>
