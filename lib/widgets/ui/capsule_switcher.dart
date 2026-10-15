@@ -18,7 +18,7 @@ class CapsuleOption<T> {
   });
 }
 
-/// 通用单选切换器：主题色胶囊、等宽选项与可访问的选中状态。
+/// 通用单选切换器：日间黑色选中胶囊、等宽选项与可访问的选中状态。
 ///
 /// 标签能完整放下时等宽铺满；窄屏或大字号时横向滚动，不截断标签。
 /// 由调用方持有选中值，组件不承载筛选业务。
@@ -50,10 +50,11 @@ class CapsuleSwitcher<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     if (options.isEmpty) return const SizedBox.shrink();
     final bg = backgroundColor ?? BeeTokens.surfaceCapsule(context);
-    final selectedBg = selectedBackgroundColor ?? BeeTokens.primary(context);
+    final selectedBg = selectedBackgroundColor ??
+        (BeeTokens.isDark(context) ? BeeTokens.primary(context) : Colors.black);
     final selectedFg = selectedTextColor ?? BeeTokens.textOnColor(selectedBg);
     final unselectedFg =
-        unselectedTextColor ?? BeeTokens.textSecondary(context);
+        unselectedTextColor ?? BeeTokens.textPrimary(context);
     final textStyle = (Theme.of(context).textTheme.bodyMedium ??
             const TextStyle(fontSize: 14))
         .copyWith(fontWeight: FontWeight.w600);
