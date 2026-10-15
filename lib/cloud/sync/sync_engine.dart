@@ -494,6 +494,12 @@ class SyncEngine implements app.SyncService {
       if (ledgerIdInt > 0) {
         clearStatusCache(ledgerId: ledgerIdInt);
       }
+      // 手动 sync 也会拉回新附件；元数据与原件就绪后发出同一完成事件，
+      // 避免只依赖 WS auto-pull 的刷新使首页继续显示删除前的零附件计数。
+      if (pulled > 0) {
+        _emit(PullCompleted(
+            ledgerId: ledgerRow.syncId ?? ledgerId, applied: pulled));
+      }
       // 缓存清掉只是让下次 getStatus 会重算;还得有人触发 syncStatusProvider 去重读。
       // push 上传了本地变更时 emit PushCompleted,listener 收到后 bump
       // syncStatusRefresh → 重读 getStatus(缓存已清 → 重算为 inSync)。

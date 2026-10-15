@@ -766,6 +766,43 @@ void main() {
   });
 
   group('SyncEvent stream(PR 1 解耦改造)', () {
+    test('手动同步拉回附件后通知 UI，空同步不重复通知', () async {
+      final ledgerId = await db.into(db.ledgers).insert(
+            LedgersCompanion.insert(
+                name: 'L', syncId: const Value('manual-pull-ledger')),
+          );
+      provider.pushFakeLedgerSnapshot(ledgerId: 'manual-pull-ledger');
+      provider.pushFakeChange(
+        entityType: 'transaction',
+        entitySyncId: 'tx-manual-attachment',
+        ledgerId: 'manual-pull-ledger',
+        payload: {
+          'syncId': 'tx-manual-attachment',
+          'type': 'expense',
+          'amount': 12.5,
+          'happenedAt': '2026-10-01T10:00:00Z',
+          'attachments': [
+            {'fileName': 'manual-receipt.png', 'sortOrder': 0}
+          ],
+        },
+      );
+      final received = <SyncEvent>[];
+      final sub = engine.events.listen(received.add);
+      final result = await engine.sync(ledgerId: ledgerId.toString());
+      expect(result.hasError, isFalse);
+      expect(result.pulled, greaterThan(0));
+      final tx = await repo.getTransactionBySyncId('tx-manual-attachment');
+      expect(await repo.getAttachmentCountByTransaction(tx!.id), 1);
+      final pulls = received.whereType<PullCompleted>().toList();
+      expect(pulls, hasLength(1), reason: '数据写入后必须通知真实 UI 刷新附件计数');
+      expect(pulls.single.applied, result.pulled);
+      expect(pulls.single.ledgerId, 'manual-pull-ledger');
+      received.clear();
+      await engine.sync(ledgerId: ledgerId.toString());
+      expect(received.whereType<PullCompleted>(), isEmpty);
+      await sub.cancel();
+    });
+
     test('WS pull 完成 emit PullCompleted 到 events stream', () async {
       await db.into(db.ledgers).insert(LedgersCompanion.insert(
           name: 'L', syncId: const Value('L1')));
