@@ -13175,13 +13175,13 @@ abstract class AppLocalizations {
   /// No description provided for @creditAvailable.
   ///
   /// In en, this message translates to:
-  /// **'Available'**
+  /// **'Est. available'**
   String get creditAvailable;
 
   /// No description provided for @creditCardOwed.
   ///
   /// In en, this message translates to:
-  /// **'Owed'**
+  /// **'Current debt'**
   String get creditCardOwed;
 
   /// No description provided for @dayOfMonth.
@@ -16189,6 +16189,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log entries: {count}'**
   String logExportCount(int count);
+
+  /// No description provided for @creditCardOverpayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Overpayment'**
+  String get creditCardOverpayment;
+
+  /// No description provided for @creditCardDebtHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your total outstanding debt as a positive amount; enter 0 if none.'**
+  String get creditCardDebtHint;
+
+  /// No description provided for @creditCardOverpaymentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the positive amount remaining on the card after overpaying.'**
+  String get creditCardOverpaymentHint;
+
+  /// No description provided for @creditCardAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount; credit-card debt or overpayment must be non-negative.'**
+  String get creditCardAmountInvalid;
+
+  /// No description provided for @creditCardReminderDueRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a payment due day before enabling reminders.'**
+  String get creditCardReminderDueRequired;
+
+  /// No description provided for @creditCardEstimateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated from recorded transactions; check your bank for the actual available amount.'**
+  String get creditCardEstimateHint;
+
+  /// No description provided for @accountAllFlows.
+  ///
+  /// In en, this message translates to:
+  /// **'All transactions'**
+  String get accountAllFlows;
+
+  /// No description provided for @accountOutflows.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses & transfers out'**
+  String get accountOutflows;
+
+  /// No description provided for @accountInflows.
+  ///
+  /// In en, this message translates to:
+  /// **'Income & transfers in'**
+  String get accountInflows;
+
+  /// No description provided for @positiveAssetBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Positive asset balances'**
+  String get positiveAssetBalance;
+
+  /// No description provided for @negativeAssetBalanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Negative account balances are deducted from total assets.'**
+  String get negativeAssetBalanceHint;
+
+  /// No description provided for @importAccountCurrencyPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm account currencies'**
+  String get importAccountCurrencyPreview;
+
+  /// No description provided for @importAccountCurrencyPreviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts use statement currencies. Conflicting currencies are split without changing existing accounts. Missing currencies follow an existing account, an unambiguous account currency, or the ledger currency.'**
+  String get importAccountCurrencyPreviewHint;
+
+  /// No description provided for @importCurrencyInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid currency; correct this row:'**
+  String get importCurrencyInvalid;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

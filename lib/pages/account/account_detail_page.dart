@@ -12,6 +12,7 @@ import '../../utils/transaction_edit_utils.dart';
 import '../../utils/currencies.dart';
 import '../../widgets/category_icon.dart';
 import '../../utils/account_type_utils.dart';
+import '../../utils/credit_card_amounts.dart';
 import '../../widgets/charts/account_category_pie_chart.dart';
 import '../transaction/transaction_editor_page.dart';
 import 'account_edit_page.dart';
@@ -64,13 +65,14 @@ class AccountTransactionsPaginationNotifier
       final repo = ref.read(repositoryProvider);
       final transactions = await repo.getAccountTransactions(
           accountId, limit: _pageSize, offset: 0, flow: flow);
+      if (!mounted) return;
       state = AccountTransactionsPaginationState(
         transactions: transactions,
         isLoading: false,
         hasMore: transactions.length >= _pageSize,
       );
     } catch (_) {
-      state = state.copyWith(isLoading: false);
+      if (mounted) state = state.copyWith(isLoading: false);
     }
   }
 
@@ -85,13 +87,14 @@ class AccountTransactionsPaginationNotifier
         offset: state.transactions.length,
         flow: flow,
       );
+      if (!mounted) return;
       state = state.copyWith(
         transactions: [...state.transactions, ...transactions],
         isLoading: false,
         hasMore: transactions.length >= _pageSize,
       );
     } catch (_) {
-      state = state.copyWith(isLoading: false);
+      if (mounted) state = state.copyWith(isLoading: false);
     }
   }
 
@@ -101,13 +104,14 @@ class AccountTransactionsPaginationNotifier
       final repo = ref.read(repositoryProvider);
       final transactions = await repo.getAccountTransactions(
           accountId, limit: _pageSize, offset: 0, flow: flow);
+      if (!mounted) return;
       state = AccountTransactionsPaginationState(
         transactions: transactions,
         isLoading: false,
         hasMore: transactions.length >= _pageSize,
       );
     } catch (_) {
-      state = state.copyWith(isLoading: false);
+      if (mounted) state = state.copyWith(isLoading: false);
     }
   }
 }
@@ -162,12 +166,8 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
     super.dispose();
   }
 
-  /// 列表的资金流向过滤,跟随图表 tab:支出=支出+转出,收入=收入+转入。
-  /// 信用卡没有 tab 切换,保持展示全部交易(消费+还款转账)。
-  String? get _listFlow {
-    if (widget.account.type == 'credit_card') return null;
-    return _detailChartTab == 0 ? 'expense' : 'income';
-  }
+  String? _listFlow;
+
 
   void _onScroll() {
     if (_scrollController.position.pixels >=
@@ -214,6 +214,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
             compact: true,
             actions: [
               IconButton(
+                tooltip: l10n.accountEditTitle,
                 icon: Icon(
                   Icons.edit_outlined,
                   color: BeeTokens.iconPrimary(context),
@@ -273,6 +274,21 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
 
                   SizedBox(height: 12.0.scaled(context, ref)),
 
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: BeeDimens.p12.scaled(context, ref)),
+                    child: CapsuleSwitcher<String?>(
+                      selectedValue: _listFlow,
+                      height: 44.0.scaled(context, ref),
+                      options: [
+                        CapsuleOption(value: null, label: l10n.accountAllFlows),
+                        CapsuleOption(value: 'expense', label: l10n.accountOutflows),
+                        CapsuleOption(value: 'income', label: l10n.accountInflows),
+                      ],
+                      onChanged: (flow) => setState(() => _listFlow = flow),
+                    ),
+                  ),
+                  SizedBox(height: BeeDimens.p8.scaled(context, ref)),
                   // 交易列表（分页）
                   _buildTransactionList(
                     context,
@@ -629,7 +645,8 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
   ) {
     if (account.type == 'credit_card') {
       final creditLimit = account.creditLimit;
-      final usedAmount = stats.balance < 0 ? -stats.balance : 0.0;
+      final amounts = CreditCardAmounts(stats.balance, limit: creditLimit);
+      final usedAmount = amounts.debt;
       final usageRate = (creditLimit != null && creditLimit > 0)
           ? (usedAmount / creditLimit).clamp(0.0, 1.0)
           : 0.0;
@@ -657,12 +674,12 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
           Row(
             children: [
               Text(
-                l10n.creditCardOwed,
+                amounts.overpayment > 0 ? l10n.creditCardOverpayment : l10n.creditCardOwed,
                 style: TextStyle(fontSize: 13, color: BeeTokens.textSecondary(context)),
               ),
               const Spacer(),
               AmountText(
-                value: usedAmount,
+                value: amounts.overpayment > 0 ? amounts.overpayment : usedAmount,
                 signed: false,
                 showCurrency: false,
                 useCompactFormat: ref.watch(compactAmountProvider),
@@ -676,13 +693,12 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
             ],
           ),
           // 额度/已用/可用 + 进度条 —— 仅设过额度时
-          if (creditLimit != null) ...[
+          if (amounts.estimatedAvailable != null) ...[
             SizedBox(height: 12.0.scaled(context, ref)),
             Row(
               children: [
-                Expanded(child: _OverviewStatCell(label: l10n.creditLimit, value: creditLimit)),
-                Expanded(child: _OverviewStatCell(label: l10n.creditUsed, value: usedAmount)),
-                Expanded(child: _OverviewStatCell(label: l10n.creditAvailable, value: creditLimit - usedAmount)),
+                Expanded(child: _OverviewStatCell(label: l10n.creditLimit, value: creditLimit!)),
+                Expanded(child: _OverviewStatCell(label: l10n.creditAvailable, value: amounts.estimatedAvailable!)),
               ],
             ),
             SizedBox(height: 8.0.scaled(context, ref)),
@@ -700,6 +716,11 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
               ),
             ),
           ],
+          if (amounts.estimatedAvailable != null) Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(l10n.creditCardEstimateHint,
+              style: TextStyle(fontSize: 11, color: BeeTokens.textTertiary(context))),
+          ),
           // 账单日/还款日信息
           if (hasBillingInfo || account.paymentDueDay != null) ...[
             SizedBox(height: 10.0.scaled(context, ref)),
@@ -972,6 +993,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
               children: [
                 if (index > 0) BeeTokens.cardDivider(context),
                 _TransactionTile(
+                  key: ValueKey('account-transaction-${tx.id}'),
                   transaction: tx,
                   currencyCode: currencyCode,
                   primaryColor: primaryColor,
@@ -1041,13 +1063,13 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
         (accountId: widget.account.id, type: 'income')));
   }
 
-  void _quickTransfer(
+  Future<void> _quickTransfer(
     BuildContext context,
     db.Account account, {
     int? toAccountId,
     int? fromAccountId,
-  }) {
-    Navigator.push(
+  }) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => TransactionEditorPage(
@@ -1058,6 +1080,10 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
         ),
       ),
     );
+    if (!mounted) return;
+    ref.invalidate(accountStatsProvider(widget.account.id));
+    ref.invalidate(accountTransactionsPaginatedProvider);
+    ref.invalidate(accountCategoryStatsProvider);
   }
 
 }
@@ -1210,6 +1236,7 @@ class _TransactionTile extends ConsumerWidget {
   final int? currentAccountId;
 
   const _TransactionTile({
+    super.key,
     required this.transaction,
     required this.currencyCode,
     required this.primaryColor,
@@ -1240,9 +1267,8 @@ class _TransactionTile extends ConsumerWidget {
         amountColor = BeeTokens.expenseColor(context, ref);
         break;
       case 'transfer':
-        amountColor = isTransferOut
-            ? BeeTokens.expenseColor(context, ref)
-            : BeeTokens.incomeColor(context, ref);
+        // 正负号说明当前账户的资金方向，转账本身不属于收入或支出。
+        amountColor = BeeTokens.textPrimary(context);
         break;
       default:
         amountColor = BeeTokens.textPrimary(context);
@@ -1259,30 +1285,20 @@ class _TransactionTile extends ConsumerWidget {
 
     String displayTitle;
     String? displaySubtitle;
-    String? noteSuffix; // 非转账时，备注接在分类名后面（对齐首页）
+    String? noteSuffix; // 备注接在分类或转账名称后面。
 
     if (transaction.type == 'transfer') {
-      if (transaction.note?.isNotEmpty == true) {
-        displayTitle = transaction.note!;
-      } else {
-        displayTitle = l10n.transferTitle;
+      displayTitle = l10n.transferTitle;
+      if (transaction.note?.isNotEmpty == true && transaction.note != displayTitle) {
+        noteSuffix = transaction.note;
       }
-
-      if (isTransferOut && transaction.toAccountId != null) {
-        final toAccountAsync =
-            ref.watch(accountByIdProvider(transaction.toAccountId!));
-        final toAccountName = toAccountAsync.value?.name;
-        if (toAccountName != null) {
-          displaySubtitle = '${l10n.transferToPrefix} $toAccountName';
-        }
-      } else if (isTransferIn && transaction.accountId != null) {
-        final fromAccountAsync =
-            ref.watch(accountByIdProvider(transaction.accountId!));
-        final fromAccountName = fromAccountAsync.value?.name;
-        if (fromAccountName != null) {
-          displaySubtitle = '${l10n.transferFromPrefix} $fromAccountName';
-        }
-      }
+      final fromName = transaction.accountId == null
+          ? null
+          : ref.watch(accountByIdProvider(transaction.accountId!)).value?.name;
+      final toName = transaction.toAccountId == null
+          ? null
+          : ref.watch(accountByIdProvider(transaction.toAccountId!)).value?.name;
+      displaySubtitle = '${fromName ?? '-'} → ${toName ?? '-'}';
     } else {
       // 分类名常驻，备注接在分类名后面（对齐首页 / TransactionListItem）
       displayTitle = category != null
@@ -1356,7 +1372,8 @@ class _TransactionTile extends ConsumerWidget {
                       ),
                       if (ledgerName.isNotEmpty) ...[
                         SizedBox(width: 6.0.scaled(context, ref)),
-                        Container(
+                        Flexible(
+                          child: Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 6.0.scaled(context, ref),
                             vertical: 2.0.scaled(context, ref),
@@ -1368,11 +1385,14 @@ class _TransactionTile extends ConsumerWidget {
                           ),
                           child: Text(
                             ledgerName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 11,
                               color: primaryColor,
                               fontWeight: FontWeight.w500,
                             ),
+                          ),
                           ),
                         ),
                       ],
@@ -1408,11 +1428,12 @@ class _TransactionTile extends ConsumerWidget {
               value: transaction.type == 'expense'
                   ? -transaction.amount
                   : transaction.type == 'transfer'
-                      ? (isTransferOut
+                      ? (isTransferOut && !isTransferIn
                           ? -transaction.amount
                           : transaction.amount)
                       : transaction.amount,
-              signed: true,
+              signed: transaction.type != 'transfer' ||
+                  (isTransferOut != isTransferIn),
               showCurrency: false,
               currencyCode: currencyCode,
               style: TextStyle(

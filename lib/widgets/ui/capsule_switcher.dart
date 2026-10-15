@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import '../../styles/tokens.dart';
 
@@ -16,7 +18,10 @@ class CapsuleOption<T> {
   });
 }
 
-/// 通用胶囊切换器组件
+/// 通用单选切换器：日间黑色选中胶囊、等宽选项与可访问的选中状态。
+///
+/// 标签能完整放下时等宽铺满；窄屏或大字号时横向滚动，不截断标签。
+/// 由调用方持有选中值，组件不承载筛选业务。
 class CapsuleSwitcher<T> extends StatelessWidget {
   final T selectedValue;
   final List<CapsuleOption<T>> options;
@@ -37,76 +42,118 @@ class CapsuleSwitcher<T> extends StatelessWidget {
     this.selectedBackgroundColor,
     this.selectedTextColor,
     this.unselectedTextColor,
-    this.height = 40,
+    this.height = 44,
     this.borderRadius,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isDark = BeeTokens.isDark(context);
+    if (options.isEmpty) return const SizedBox.shrink();
     final bg = backgroundColor ?? BeeTokens.surfaceCapsule(context);
-    final selectedBg = selectedBackgroundColor ?? (isDark ? BeeTokens.primary(context) : Colors.black);
-    final selectedFg = selectedTextColor ?? Colors.white;
-    final unselectedFg = unselectedTextColor ?? BeeTokens.textPrimary(context);
-    final radius = borderRadius ?? BorderRadius.circular(20);
+    final selectedBg = selectedBackgroundColor ??
+        (BeeTokens.isDark(context) ? BeeTokens.primary(context) : Colors.black);
+    final selectedFg = selectedTextColor ?? BeeTokens.textOnColor(selectedBg);
+    final unselectedFg =
+        unselectedTextColor ?? BeeTokens.textPrimary(context);
+    final textStyle = (Theme.of(context).textTheme.bodyMedium ??
+            const TextStyle(fontSize: 14))
+        .copyWith(fontWeight: FontWeight.w600);
+    final textScaler = MediaQuery.textScalerOf(context);
+    final widths = <double>[];
+    var textHeight = 0.0;
+    for (final option in options) {
+      final painter = TextPainter(
+        text: TextSpan(text: option.label, style: textStyle),
+        textDirection: Directionality.of(context),
+        textScaler: textScaler,
+      )..layout();
+      widths.add(painter.width.ceilToDouble() +
+          BeeDimens.p12 * 2 +
+          (option.showArrow && option.onTap != null ? 22 : 0));
+      textHeight = math.max(textHeight, painter.height);
+      painter.dispose();
+    }
+    final controlHeight = math.max(height, textHeight + BeeDimens.p16 + 6);
+    final radius = borderRadius ?? BorderRadius.circular(controlHeight / 2);
+    final segmentRadius = BorderRadius.circular((controlHeight - 6) / 2);
+    final duration = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 160);
 
     Widget buildSegment(CapsuleOption<T> option) {
       final selected = selectedValue == option.value;
-      return Expanded(
-        child: GestureDetector(
-          onTap: () => onChanged(option.value),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 160),
-            height: height - 6, // 减去padding
-            decoration: BoxDecoration(
-              color: selected ? selectedBg : Colors.transparent,
-              borderRadius: BorderRadius.circular((height - 6) / 2),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Text(
-                  option.label,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: selected ? selectedFg : unselectedFg,
-                        fontWeight: FontWeight.w600,
+      final fg = selected ? selectedFg : unselectedFg;
+      return Semantics(
+        button: true,
+        selected: selected,
+        inMutuallyExclusiveGroup: true,
+        child: AnimatedContainer(
+          duration: duration,
+          height: controlHeight - 6,
+          decoration: BoxDecoration(
+            color: selected ? selectedBg : Colors.transparent,
+            borderRadius: segmentRadius,
+          ),
+          child: Material(
+            type: MaterialType.transparency,
+            borderRadius: segmentRadius,
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              borderRadius: segmentRadius,
+              hoverColor: BeeTokens.surfaceHover(context),
+              focusColor: BeeTokens.surfaceHover(context),
+              onTap: () => onChanged(option.value),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: BeeDimens.p12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(option.label,
+                        maxLines: 1, style: textStyle.copyWith(color: fg)),
+                    if (option.showArrow && option.onTap != null) ...[
+                      const SizedBox(width: 4),
+                      InkWell(
+                        onTap: option.onTap,
+                        borderRadius: BorderRadius.circular(BeeDimens.radius12),
+                        child: Icon(Icons.arrow_drop_down, size: 18, color: fg),
                       ),
+                    ],
+                  ],
                 ),
-                if (option.showArrow && option.onTap != null) ...[
-                  const SizedBox(width: 4),
-                  InkWell(
-                    onTap: option.onTap,
-                    borderRadius: BorderRadius.circular(12),
-                    child: Icon(
-                      Icons.arrow_drop_down,
-                      size: 18,
-                      color: selected ? selectedFg : unselectedFg,
-                    ),
-                  ),
-                ]
-              ],
+              ),
             ),
           ),
         ),
       );
     }
 
-    return Container(
-      height: height,
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: radius,
-      ),
-      child: Row(
-        children: options
-            .map((option) => buildSegment(option))
-            .expand((widget) => [widget, const SizedBox(width: 4)])
-            .take(options.length * 2 - 1) // 移除最后一个SizedBox
-            .toList(),
-      ),
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      final equalWidth = constraints.hasBoundedWidth &&
+          widths.reduce(math.max) * options.length +
+                  4 * (options.length - 1) +
+                  6 <=
+              constraints.maxWidth;
+      final children = <Widget>[
+        for (var i = 0; i < options.length; i++) ...[
+          if (i > 0) const SizedBox(width: 4),
+          if (equalWidth)
+            Expanded(child: buildSegment(options[i]))
+          else
+            SizedBox(width: widths[i], child: buildSegment(options[i])),
+        ],
+      ];
+      final row = Container(
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(color: bg, borderRadius: radius),
+        child: Row(mainAxisSize: MainAxisSize.min, children: children),
+      );
+      return equalWidth
+          ? row
+          : ClipRRect(
+              borderRadius: radius,
+              child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal, child: row),
+            );
+    });
   }
 }

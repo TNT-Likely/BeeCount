@@ -6912,10 +6912,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get creditUsed => '已用额度';
 
   @override
-  String get creditAvailable => '可用额度';
+  String get creditAvailable => '估算可用';
 
   @override
-  String get creditCardOwed => '待还款';
+  String get creditCardOwed => '当前欠款';
 
   @override
   String dayOfMonth(int day) {
@@ -8607,6 +8607,48 @@ class AppLocalizationsZh extends AppLocalizations {
   String logExportCount(int count) {
     return '日志数量: $count';
   }
+
+  @override
+  String get creditCardOverpayment => '溢缴款';
+
+  @override
+  String get creditCardDebtHint => '填写当前总欠款，输入正数；没有欠款填 0。';
+
+  @override
+  String get creditCardOverpaymentHint => '填写多还后留在信用卡里的金额，输入正数。';
+
+  @override
+  String get creditCardAmountInvalid => '请输入有效金额；信用卡欠款或溢缴款请填写非负数。';
+
+  @override
+  String get creditCardReminderDueRequired => '开启提醒前，请填写还款日。';
+
+  @override
+  String get creditCardEstimateHint => '按已记流水估算，实际可用金额以银行为准。';
+
+  @override
+  String get accountAllFlows => '全部流水';
+
+  @override
+  String get accountOutflows => '支出与转出';
+
+  @override
+  String get accountInflows => '收入与转入';
+
+  @override
+  String get positiveAssetBalance => '正余额资产';
+
+  @override
+  String get negativeAssetBalanceHint => '账户负余额已从总资产扣减。';
+
+  @override
+  String get importAccountCurrencyPreview => '确认账户币种';
+
+  @override
+  String get importAccountCurrencyPreviewHint => '根据账单币种建立或复用账户；同名多币种及已有账户冲突会按币种拆分，不修改旧账户。缺失币种继承已有账户，否则使用可确定的账户币种或账本币种。';
+
+  @override
+  String get importCurrencyInvalid => '币种无效，请修正对应行：';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

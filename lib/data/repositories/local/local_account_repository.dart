@@ -190,9 +190,9 @@ class LocalAccountRepository implements AccountRepository {
         type: type != null ? d.Value(type) : const d.Value.absent(),
         currency: currency != null ? d.Value(currency) : const d.Value.absent(),
         initialBalance: initialBalance != null ? d.Value(initialBalance) : const d.Value.absent(),
-        creditLimit: clearCreditCardFields ? const d.Value(null) : (creditLimit != null ? d.Value(creditLimit) : const d.Value.absent()),
-        billingDay: clearCreditCardFields ? const d.Value(null) : (billingDay != null ? d.Value(billingDay) : const d.Value.absent()),
-        paymentDueDay: clearCreditCardFields ? const d.Value(null) : (paymentDueDay != null ? d.Value(paymentDueDay) : const d.Value.absent()),
+        creditLimit: clearCreditCardFields ? d.Value(creditLimit) : (creditLimit != null ? d.Value(creditLimit) : const d.Value.absent()),
+        billingDay: clearCreditCardFields ? d.Value(billingDay) : (billingDay != null ? d.Value(billingDay) : const d.Value.absent()),
+        paymentDueDay: clearCreditCardFields ? d.Value(paymentDueDay) : (paymentDueDay != null ? d.Value(paymentDueDay) : const d.Value.absent()),
         bankName: clearMetadataFields ? const d.Value(null) : (bankName != null ? d.Value(bankName) : const d.Value.absent()),
         cardLastFour: clearMetadataFields ? const d.Value(null) : (cardLastFour != null ? d.Value(cardLastFour) : const d.Value.absent()),
         note: clearMetadataFields ? const d.Value(null) : (note != null ? d.Value(note) : const d.Value.absent()),
@@ -810,7 +810,7 @@ class LocalAccountRepository implements AccountRepository {
 
     for (final account in accounts) {
       final balance = await getAccountBalance(account.id);
-      if (isAssetType(account.type)) {
+      if (isAssetBalance(account.type, balance)) {
         totalAssets += balance;
       } else {
         totalLiabilities += balance;
@@ -834,7 +834,7 @@ class LocalAccountRepository implements AccountRepository {
       final currency = account.currency.toUpperCase();
       final prev = result[currency] ?? (totalAssets: 0.0, totalLiabilities: 0.0, netWorth: 0.0);
 
-      if (isAssetType(account.type)) {
+      if (isAssetBalance(account.type, balance)) {
         result[currency] = (
           totalAssets: prev.totalAssets + balance,
           totalLiabilities: prev.totalLiabilities,
@@ -921,7 +921,7 @@ class LocalAccountRepository implements AccountRepository {
           final rate = ratesToBase[account.currency.toUpperCase()];
           if (rate == null) continue;
           final bal = balances[dayIndex].balance * rate;
-          if (isAssetType(account.type)) {
+          if (isAssetBalance(account.type, bal)) {
             assets += bal;
           } else {
             liabilities += bal;
@@ -942,7 +942,10 @@ class LocalAccountRepository implements AccountRepository {
 
     for (final account in accounts) {
       final balance = await getAccountBalance(account.id);
-      typeBalances.update(account.type, (v) => v + balance, ifAbsent: () => balance);
+      final type = positiveAssetCompositionType(account.type, balance) ??
+          (isAssetType(account.type) && balance < 0 ? '_negative_assets_' : null);
+      if (type == null) continue;
+      typeBalances.update(type, (v) => v + balance, ifAbsent: () => balance);
     }
 
     return typeBalances.entries
@@ -959,7 +962,10 @@ class LocalAccountRepository implements AccountRepository {
 
     for (final account in accounts) {
       final balance = await getAccountBalance(account.id);
-      final key = (type: account.type, currency: account.currency.toUpperCase());
+      final type = positiveAssetCompositionType(account.type, balance) ??
+          (isAssetType(account.type) && balance < 0 ? '_negative_assets_' : null);
+      if (type == null) continue;
+      final key = (type: type, currency: account.currency.toUpperCase());
       balances.update(key, (v) => v + balance, ifAbsent: () => balance);
     }
 

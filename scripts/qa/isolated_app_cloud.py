@@ -24,6 +24,7 @@ APP_ID = 'com.tntlikely.beecount.qa'
 GROUP_ID = 'group.com.tntlikely.beecount.qa'
 PROJECT = Path(__file__).resolve().parents[2]
 SCENARIOS = {
+    'account-balance-trust': 'integration_test/account_balance_trust_live_test.dart',
     'transaction-copy': 'integration_test/transaction_copy_live_test.dart',
     'category-parent': 'integration_test/category_parent_live_test.dart',
     'web-transaction-images': 'integration_test/web_transaction_images_live_test.dart',
@@ -252,7 +253,8 @@ def snapshot(root, manifest):
               for p in (PROJECT / directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts]
     digest = hashlib.sha256()
     for name in sorted(set(files)):
-        if not name or name == 'AGENTS.md':
+        # Tool entry aliases are metadata, not App source; keep code symlink rejection intact.
+        if not name or name == 'AGENTS.md' or name.startswith('.claude/skills/'):
             continue
         if (PROJECT / name).is_symlink():
             # Tracked skill symlinks (.claude/skills/* -> .agents/skills/*, #539)
@@ -374,6 +376,7 @@ def run(root, manifest, flutter):
         subprocess.run(['xcrun', 'simctl', 'boot', manifest['udid']], check=True)
     subprocess.run(['xcrun', 'simctl', 'bootstatus', manifest['udid'], '-b'], check=True)
     backup_app(root, manifest)
+    permission_process, permission_log = integration_permissions(root, manifest)
     env = dict(os.environ, QA_EVIDENCE_DIR=str(root / 'evidence'))
     args = [flutter, 'drive', '-d', manifest['udid'], '--use-application-binary', str(app),
             '--driver', 'test_driver/transaction_copy_live_test.dart',
@@ -381,10 +384,13 @@ def run(root, manifest, flutter):
     print('Running UI and live Cloud acceptance on the owned QA simulator', flush=True)
     with (root / 'raw-logs/drive.log').open('w') as log:
         result = subprocess.run(args, cwd=root / 'app-source', env=env, stdout=log, stderr=log)
+    permission_exit = permission_process.wait(timeout=150)
+    permission_log.close()
+    manifest['integration_permissions_exit_code'] = permission_exit
     manifest['drive_exit_code'] = result.returncode
     write_json(root / 'manifest.json', manifest)
     backup_app(root, manifest)
-    if result.returncode:
+    if result.returncode or permission_exit:
         raise RuntimeError(f'Acceptance failed; QA data and private logs preserved in {root}')
     db_path = inside(root, root / 'cloud-data/beecount.db')
     with sqlite3.connect(f'file:{db_path}?mode=ro', uri=True) as db:
@@ -395,9 +401,10 @@ def run(root, manifest, flutter):
                                            'created_by_user_id, tag_sync_ids_json, attachments_json '
                                            'FROM read_tx_projection ORDER BY sync_id')]
         migration = db.execute('SELECT version_num FROM alembic_version').fetchone()[0]
+        accounts = [dict(r) for r in db.execute('SELECT sync_id, name, account_type, currency, initial_balance, credit_limit, billing_day, payment_due_day FROM user_account_projection ORDER BY sync_id')]
         categories = [dict(r) for r in db.execute('SELECT sync_id, name, kind, level, parent_name, parent_sync_id '
                                                 'FROM user_category_projection ORDER BY sync_id')]
-    write_json(root / 'evidence/cloud-projection.json', dict(migration=migration, transactions=rows, categories=categories))
+    write_json(root / 'evidence/cloud-projection.json', dict(migration=migration, transactions=rows, categories=categories, accounts=accounts))
     public = {k: manifest[k] for k in ('run_id', 'app_id', 'app_sha', 'cloud_sha', 'runtime', 'udid',
                                       'cloud_origin', 'source_hash', 'artifact_hash', 'verified_bundles', 'drive_exit_code')}
     public.update(tool_versions=manifest.get('tool_versions'), skill_sha=manifest.get('skill_sha'), resolved_lock_sha256=manifest.get('resolved_lock_sha256'))
@@ -613,6 +620,29 @@ def verify_smoke_bundles(native):
             raise ValueError('Native UI test bundle must have an independent QA identity')
 
 
+def integration_permissions(root, manifest):
+    """Watch only notification prompts on the owned QA simulator during Flutter UI tests."""
+    device(manifest)
+    source = inside(root, root / 'app-source')
+    native = inside(root, root / 'native-integration-permissions')
+    native.mkdir()
+    shutil.copy2(source / 'scripts/qa/integration_permissions.swift', native / 'QASmoke.swift')
+    subprocess.run(['ruby', str(source / 'scripts/qa/create_smoke_project.rb'), str(native)], check=True)
+    args = ['xcodebuild', '-project', str(native / 'QASmoke.xcodeproj'), '-scheme', 'QASmoke',
+            '-configuration', 'Debug', '-sdk', 'iphonesimulator',
+            '-destination', f'id={manifest["udid"]}', '-derivedDataPath', str(native / 'build'),
+            '-parallel-testing-enabled', 'NO', 'CODE_SIGNING_ALLOWED=NO']
+    with (root / 'raw-logs/integration-permissions-build.log').open('w') as log:
+        subprocess.run([args[0], 'build-for-testing', *args[1:]], stdout=log, stderr=log, check=True)
+    verify_smoke_bundles(native)
+    device(manifest)
+    log = (root / 'raw-logs/integration-permissions-test.log').open('w')
+    proc = subprocess.Popen([args[0], 'test-without-building', *args[1:],
+                             '-resultBundlePath', str(native / 'result.xcresult')],
+                            stdout=log, stderr=log)
+    return proc, log
+
+
 def normal_ui_check(root, manifest):
     """Handle first-launch OS permission dialogs and assert the real home UI."""
     device(manifest)
@@ -688,6 +718,15 @@ def restart_check(root, manifest, flutter):
         copy = next(r for r in rows if r['sync_id'] == report['copy_sync_id'])
         if copy['note'] != 'QA Cloud 修改后' or copy['amount'] != 55.5:
             raise ValueError('Normal App restart did not retain the synchronized copy')
+    elif manifest.get('scenario') == 'account-balance-trust':
+        with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
+            db.row_factory = sqlite3.Row
+            accounts = [dict(r) for r in db.execute('SELECT sync_id, name, type, currency, initial_balance FROM accounts ORDER BY sync_id')]
+            for expected in report['final_accounts']:
+                actual = next((a for a in accounts if a['sync_id'] == expected['sync_id']), None)
+                if actual is None or any(actual[k] != expected[k] for k in ('name', 'type', 'currency', 'initial_balance')):
+                    raise ValueError('Normal restart lost synchronized account identity or fields')
+        rows = dict(transactions=rows, accounts=accounts)
     elif manifest.get('scenario') == 'category-parent':
         with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
             db.row_factory = sqlite3.Row

@@ -20,6 +20,13 @@ Container(
 )
 ```
 
+同页的单选视图／流水筛选统一使用 `widgets/ui/ui.dart` 导出的
+`CapsuleSwitcher<T>`：灰色 `surfaceCapsule` 轨道，日间默认黑底白字选中，
+暗色模式使用主题色选中胶囊；选中文字由 `textOnColor` 根据背景明暗决定。
+各页面直接使用组件默认配色。调用方持有选中值和业务筛选；
+不另用默认 Material `ChoiceChip` 拼装 tabs。选项能完整放下时等宽，
+窄屏或大字号下横向滚动；组件提供选中语义并遵循系统减少动画设置。
+
 ---
 
 ## 1. 背景色 Token (Surface)

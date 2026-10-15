@@ -9,7 +9,6 @@ import '../../widgets/charts/line_chart.dart';
 import '../../widgets/charts/category_pie_chart.dart';
 import '../../widgets/analytics/analytics_summary.dart';
 import '../../widgets/analytics/category_rank_row.dart';
-import '../../widgets/ui/capsule_switcher.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/export/share_poster_service.dart';
 import '../../data/db.dart' as db;
@@ -601,6 +600,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
             bottom: Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
               child: CapsuleSwitcher<String>(
+                height: 40,
                 selectedValue: _scope,
                 options: [
                   CapsuleOption(

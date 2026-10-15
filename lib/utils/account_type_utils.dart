@@ -15,6 +15,16 @@ AccountClassification getAccountClassification(String type) {
 /// 是否为资产类型
 bool isAssetType(String type) => !isLiabilityType(type);
 
+/// Credit-card overpayments are assets, without offsetting another card's debt.
+bool isAssetBalance(String type, double balance) =>
+    isAssetType(type) || (type == 'credit_card' && balance > 0);
+
+/// Composition shows positive positions, not absolute negative balances.
+String? positiveAssetCompositionType(String type, double balance) {
+  if (balance <= 0 || !isAssetBalance(type, balance)) return null;
+  return type == 'credit_card' ? 'credit_card_overpayment' : type;
+}
+
 /// 是否为负债类型
 bool isLiabilityType(String type) {
   return type == 'credit_card' || type == 'loan';
@@ -93,6 +103,8 @@ IconData getIconForAccountType(String type) {
 String getAccountTypeLabel(BuildContext context, String type) {
   final l10n = AppLocalizations.of(context);
   switch (type) {
+    case 'credit_card_overpayment':
+      return l10n.creditCardOverpayment;
     case 'cash':
       return l10n.accountTypeCash;
     case 'bank_card':

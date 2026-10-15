@@ -44,6 +44,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   bool _saving = false;
   bool _balanceLoaded = true;
   bool _balanceLoadFailed = false;
+  bool _creditOverpayment = false;
+  double? _loadedCurrentBalance;
   bool _isNameDuplicate = false;
   String? _nameErrorText;
   // 账户类型 Tab：0 = 日常账户，1 = 估值账户
@@ -107,7 +109,10 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           .getAccountBalance(widget.account!.id);
       if (!mounted) return;
       setState(() {
-        _initialBalanceController.text = balance.toStringAsFixed(2);
+        _loadedCurrentBalance = balance;
+        _creditOverpayment = balance > 0;
+        _initialBalanceController.text = (_selectedType == 'credit_card'
+            ? balance.abs() : balance).toStringAsFixed(2);
         _balanceLoaded = true;
       });
     } catch (error) {
@@ -144,7 +149,21 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
 
   bool get isEditing => widget.account != null;
 
+  String? _validateBalance(String? value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty && !isEditing) return null;
+    final parsed = double.tryParse(text);
+    if (parsed == null || !parsed.isFinite ||
+        (_selectedType == 'credit_card' && parsed < 0)) {
+      return AppLocalizations.of(context).creditCardAmountInvalid;
+    }
+    return null;
+  }
+
   String _getInitialBalanceLabel(AppLocalizations l10n) {
+    if (_selectedType == 'credit_card') {
+      return _creditOverpayment ? l10n.creditCardOverpayment : l10n.creditCardOwed;
+    }
     if (isValuationOnlyType(_selectedType)) {
       return isLiabilityType(_selectedType)
           ? l10n.valuationCurrentDebt
@@ -161,7 +180,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
     }
     switch (_selectedType) {
       case 'credit_card':
-        return l10n.creditCardInitialBalanceHint;
+        return _creditOverpayment
+            ? l10n.creditCardOverpaymentHint : l10n.creditCardDebtHint;
       default:
         return l10n.accountInitialBalanceHint;
     }
@@ -417,6 +437,16 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
   void _selectType(String type) {
     setState(() {
       final oldType = _selectedType;
+      if (oldType != type && (oldType == 'credit_card' || type == 'credit_card')) {
+        final parsed = double.tryParse(_initialBalanceController.text);
+        if (parsed != null) {
+          final signed = oldType == 'credit_card'
+              ? (_creditOverpayment ? parsed : -parsed) : parsed;
+          _creditOverpayment = signed > 0;
+          _initialBalanceController.text =
+              (type == 'credit_card' ? signed.abs() : signed).toStringAsFixed(2);
+        }
+      }
       _selectedType = type;
       if (oldType == 'credit_card' && type != 'credit_card') {
         _creditLimitController.clear();
@@ -438,37 +468,6 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
         fontWeight: FontWeight.w600,
         color: BeeTokens.textPrimary(context),
       );
-
-  /// 资产/负债 分段标签
-  Widget _segTab(BuildContext context,
-      {required String label,
-      required bool selected,
-      required Color primaryColor,
-      required VoidCallback onTap}) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: EdgeInsets.symmetric(vertical: 8.0.scaled(context, ref)),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selected ? BeeTokens.surfaceElevated(context) : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-              color: selected ? primaryColor : BeeTokens.textSecondary(context),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -505,7 +504,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                       MediaQuery.of(context).padding.bottom,
                 ),
                 children: [
-                  // ===== 账户类型（资产/负债 Tab + 缩小网格）=====
+                  // ===== 账户类型（日常/估值 Tab + 缩小网格）=====
                   SectionCard(
                     margin: EdgeInsets.zero,
                     child: Padding(
@@ -513,26 +512,15 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: BeeTokens.surfaceInput(context),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              children: [
-                                _segTab(context,
-                                    label: l10n.accountGroupTradable,
-                                    selected: _typeTab == 0,
-                                    primaryColor: primaryColor,
-                                    onTap: () => setState(() => _typeTab = 0)),
-                                _segTab(context,
-                                    label: l10n.accountTabValuation,
-                                    selected: _typeTab == 1,
-                                    primaryColor: primaryColor,
-                                    onTap: () => setState(() => _typeTab = 1)),
-                              ],
-                            ),
+                          CapsuleSwitcher<int>(
+                            key: const ValueKey('account-type-group'),
+                            selectedValue: _typeTab,
+                            height: 44.0.scaled(context, ref),
+                            options: [
+                              CapsuleOption(value: 0, label: l10n.accountGroupTradable),
+                              CapsuleOption(value: 1, label: l10n.accountTabValuation),
+                            ],
+                            onChanged: (value) => setState(() => _typeTab = value),
                           ),
                           SizedBox(height: 16.0.scaled(context, ref)),
                           GridView.count(
@@ -574,6 +562,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TextFormField(
+                            key: const ValueKey('account-name'),
                             controller: _nameController,
                             decoration: filledDec(
                               label: l10n.accountNameLabel,
@@ -649,6 +638,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                               if (!isEditing)
                                 Expanded(
                                   child: TextFormField(
+                                    key: const ValueKey('account-balance-amount'),
                                     controller: _initialBalanceController,
                                     decoration: filledDec(
                                       label: _getInitialBalanceLabel(l10n),
@@ -660,25 +650,20 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                                     keyboardType:
                                         const TextInputType.numberWithOptions(
                                             decimal: true, signed: true),
-                                    validator: (value) {
-                                      if (value != null && value.trim().isNotEmpty) {
-                                        if (double.tryParse(value.trim()) == null) {
-                                          return '请输入有效的金额';
-                                        }
-                                      }
-                                      return null;
-                                    },
+                                    validator: _validateBalance,
                                   ),
                                 )
                               else if (!isValuationOnlyType(widget.account!.type) &&
                                   !isValuationOnlyType(_selectedType))
                                 Expanded(
                                   child: TextFormField(
+                                    key: const ValueKey('account-balance-amount'),
                                     controller: _initialBalanceController,
                                     readOnly:
                                         !_balanceLoaded || _balanceLoadFailed,
                                     decoration: filledDec(
-                                      label: l10n.accountBalance,
+                                      label: _selectedType == 'credit_card'
+                                          ? _getInitialBalanceLabel(l10n) : l10n.accountBalance,
                                       prefix:
                                           '${getCurrencySymbol(_selectedCurrency)} ',
                                     ).copyWith(
@@ -706,15 +691,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                                       decimal: true,
                                       signed: true,
                                     ),
-                                    validator: (value) {
-                                      final parsed = value == null
-                                          ? null
-                                          : double.tryParse(value.trim());
-                                      if (parsed == null || !parsed.isFinite) {
-                                        return '请输入有效的金额';
-                                      }
-                                      return null;
-                                    },
+                                    validator: _validateBalance,
                                   ),
                                 )
                               else
@@ -726,6 +703,28 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                     ),
                   ),
 
+                  if (isCreditCard) Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CapsuleSwitcher<bool>(
+                          key: const ValueKey('account-credit-balance-kind'),
+                          selectedValue: _creditOverpayment,
+                          height: 44.0.scaled(context, ref),
+                          options: [
+                            CapsuleOption(value: false, label: l10n.creditCardOwed),
+                            CapsuleOption(value: true, label: l10n.creditCardOverpayment),
+                          ],
+                          onChanged: (value) =>
+                              setState(() => _creditOverpayment = value),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(_getInitialBalanceHint(l10n),
+                            style: TextStyle(fontSize: 12, color: BeeTokens.textSecondary(context))),
+                      ],
+                    ),
+                  ),
                   // ===== 信用卡信息（仅 credit_card）=====
                   if (isCreditCard) ...[
                     SizedBox(height: 8.0.scaled(context, ref)),
@@ -740,9 +739,10 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                             SizedBox(height: 12.0.scaled(context, ref)),
                             // 信用额度（必填）
                             TextFormField(
+                              key: const ValueKey('account-credit-limit'),
                               controller: _creditLimitController,
                               decoration: filledDec(
-                                label: '${l10n.creditLimit} *',
+                                label: l10n.creditLimit,
                                 hint: l10n.creditLimitHint,
                                 prefix: '${getCurrencySymbol(_selectedCurrency)} ',
                               ),
@@ -752,7 +752,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                               validator: (value) {
                                 final t = value?.trim() ?? '';
                                 final parsed = double.tryParse(t);
-                                if (t.isEmpty || parsed == null || parsed <= 0) {
+                                if (t.isEmpty) return null;
+                                if (parsed == null || !parsed.isFinite || parsed <= 0) {
                                   return l10n.creditLimitHint;
                                 }
                                 return null;
@@ -764,7 +765,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                               children: [
                                 Expanded(
                                   child: _DayPickerTile(
-                                    label: '${l10n.billingDay} *',
+                                    label: l10n.billingDay,
                                     value: _billingDay,
                                     primaryColor: primaryColor,
                                     onChanged: (day) =>
@@ -774,7 +775,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                                 SizedBox(width: 12.0.scaled(context, ref)),
                                 Expanded(
                                   child: _DayPickerTile(
-                                    label: '${l10n.paymentDueDay} *',
+                                    label: l10n.paymentDueDay,
                                     value: _paymentDueDay,
                                     primaryColor: primaryColor,
                                     onChanged: (day) =>
@@ -840,29 +841,17 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                             ),
                             if (_reminderEnabled) ...[
                               SizedBox(height: 4.0.scaled(context, ref)),
-                              Wrap(
-                                spacing: 8.0.scaled(context, ref),
-                                children: [1, 3, 5, 7].map((days) {
-                                  final isSelected = _reminderDaysBefore == days;
-                                  return ChoiceChip(
-                                    label: Text(
-                                        l10n.creditCardReminderDaysBefore(days)),
-                                    selected: isSelected,
-                                    selectedColor:
-                                        primaryColor.withValues(alpha: 0.15),
-                                    labelStyle: TextStyle(
-                                      fontSize: 12,
-                                      color: isSelected
-                                          ? primaryColor
-                                          : BeeTokens.textSecondary(context),
-                                      fontWeight: isSelected
-                                          ? FontWeight.w600
-                                          : FontWeight.normal,
-                                    ),
-                                    onSelected: (_) => setState(
-                                        () => _reminderDaysBefore = days),
-                                  );
-                                }).toList(),
+                              CapsuleSwitcher<int>(
+                                key: const ValueKey('account-credit-reminder-days'),
+                                selectedValue: _reminderDaysBefore,
+                                height: 44.0.scaled(context, ref),
+                                options: [
+                                  for (final days in [1, 3, 5, 7])
+                                    CapsuleOption(value: days,
+                                        label: l10n.creditCardReminderDaysBefore(days)),
+                                ],
+                                onChanged: (days) => setState(
+                                    () => _reminderDaysBefore = days),
                               ),
                             ],
                           ],
@@ -1040,10 +1029,8 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
     if (!_balanceLoaded || _balanceLoadFailed) return;
     if (!_formKey.currentState!.validate()) return;
 
-    // 信用卡：账单日 / 还款日必填（额度由表单 validator 拦截）
-    if (_selectedType == 'credit_card' &&
-        (_billingDay == null || _paymentDueDay == null)) {
-      showToast(context, AppLocalizations.of(context).creditCardDaysRequired);
+    if (_selectedType == 'credit_card' && _reminderEnabled && _paymentDueDay == null) {
+      showToast(context, AppLocalizations.of(context).creditCardReminderDueRequired);
       return;
     }
 
@@ -1056,6 +1043,10 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
       final enteredBalance =
           initialBalanceText.isEmpty ? 0.0 : double.parse(initialBalanceText);
       var initialBalance = enteredBalance;
+      if (_selectedType == 'credit_card') {
+        initialBalance = enteredBalance == 0 ? 0 :
+            (_creditOverpayment ? enteredBalance : -enteredBalance);
+      }
 
       // 贷款类型：用户输入正数，存储为负数
       if (_selectedType == 'loan' && initialBalance > 0) {
@@ -1092,13 +1083,14 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
 
         var balanceNeedsUpdate = false;
         var createBalanceAdjustment = false;
-        final targetBalance = enteredBalance;
+        final targetBalance = initialBalance;
         if (!isValuationOnlyType(widget.account!.type) &&
             !isValuationOnlyType(_selectedType)) {
           final currentBalance =
               await repo.getAccountBalance(widget.account!.id);
           if (!mounted) return;
-          if ((targetBalance - currentBalance).abs() >= 0.0000001) {
+          // Metadata saves must not overwrite transactions added meanwhile.
+          if ((targetBalance - (_loadedCurrentBalance ?? currentBalance)).abs() >= 0.0000001) {
             final choice = await _promptBalanceAdjustmentChoice(
               currentBalance: currentBalance,
               targetBalance: targetBalance,
@@ -1112,7 +1104,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
 
         // 如果从信用卡切换到其他类型，清空信用卡字段
         final wasCreditCard = widget.account!.type == 'credit_card';
-        final clearCreditCardFields = wasCreditCard && !isCreditCard;
+        final clearCreditCardFields = wasCreditCard;
 
         // 元信息字段
         final isBankOrCredit = _selectedType == 'bank_card' || _selectedType == 'credit_card';
@@ -1753,6 +1745,11 @@ class _DayPickerTile extends ConsumerWidget {
                       : BeeTokens.textTertiary(context),
                 ),
               ),
+            ),
+            if (hasValue) IconButton(
+              tooltip: l10n.commonRemove,
+              icon: const Icon(Icons.close, size: 16),
+              onPressed: () => onChanged(null),
             ),
             Icon(Icons.expand_more,
                 size: 18.0.scaled(context, ref),
