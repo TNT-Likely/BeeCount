@@ -341,16 +341,24 @@ BeeCount 和 BeeCount Cloud 由同一作者维护。如果这些项目对你有�
 
 ### 感谢支持者
 
-<p>
-  <a href="https://github.com/fishdivinity"><img src="assets/avatars/fishdivinity.png" width="44" height="44" alt="fishdivinity" /></a>
-  <a href="https://github.com/birdnofoots"><img src="https://github.com/birdnofoots.png" width="44" height="44" alt="birdnofoots" /></a>
-  <a href="https://github.com/charieswang72-pro"><img src="https://github.com/charieswang72-pro.png" width="44" height="44" alt="charieswang72-pro" /></a>
-  <a href="https://github.com/542474846"><img src="https://github.com/542474846.png" width="44" height="44" alt="542474846" /></a>
-  <a href="https://github.com/JOHN-2025"><img src="https://github.com/JOHN-2025.png" width="44" height="44" alt="JOHN-2025" /></a>
-  <a href="https://github.com/HowcanoeWang"><img src="https://github.com/HowcanoeWang.png" width="44" height="44" alt="HowcanoeWang" /></a>
-</p>
+<div>
+  <table align="left"><tr><td align="center"><img src="assets/avatars/rui.svg" width="44" height="44" alt="*睿" /><br/>¥720</td></tr></table>
+  <table align="left"><tr><td align="center"><a href="https://github.com/fishdivinity"><img src="assets/avatars/fishdivinity.png" width="44" height="44" alt="fishdivinity" /></a><br/>¥150</td></tr></table>
+  <table align="left"><tr><td align="center"><a href="https://github.com/HowcanoeWang"><img src="https://github.com/HowcanoeWang.png" width="44" height="44" alt="浩瀚猫" /></a><br/>¥98</td></tr></table>
+  <table align="left"><tr><td align="center"><a href="https://github.com/542474846"><img src="https://github.com/542474846.png" width="44" height="44" alt="542474846" /></a><br/>¥66</td></tr></table>
+  <table align="left"><tr><td align="center"><img src="assets/avatars/wen.svg" width="44" height="44" alt="*文" /><br/>¥50</td></tr></table>
+  <table align="left"><tr><td align="center"><a href="https://github.com/JOHN-2025"><img src="https://github.com/JOHN-2025.png" width="44" height="44" alt="JOHN-2025" /></a><br/>¥30</td></tr></table>
+  <table align="left"><tr><td align="center"><img src="assets/avatars/shao.svg" width="44" height="44" alt="*邵" /><br/>¥15</td></tr></table>
+  <table align="left"><tr><td align="center"><img src="assets/avatars/te.svg" width="44" height="44" alt="*特" /><br/>¥15</td></tr></table>
+  <table align="left"><tr><td align="center"><img src="assets/avatars/qiao.svg" width="44" height="44" alt="*桥" /><br/>¥12</td></tr></table>
+  <table align="left"><tr><td align="center"><a href="https://github.com/birdnofoots"><img src="https://github.com/birdnofoots.png" width="44" height="44" alt="birdnofoots" /></a><br/>¥10</td></tr></table>
+  <table align="left"><tr><td align="center"><a href="https://github.com/charieswang72-pro"><img src="https://github.com/charieswang72-pro.png" width="44" height="44" alt="Charies" /></a><br/>¥10</td></tr></table>
+  <table align="left"><tr><td align="center"><img src="assets/avatars/ge.svg" width="44" height="44" alt="*哥" /><br/>¥6</td></tr></table>
+  <table align="left"><tr><td align="center"><a href="https://github.com/zifengfanzhuo"><img src="https://github.com/zifengfanzhuo.png" width="44" height="44" alt="紫风" /></a><br/>¥5</td></tr></table>
+  <br clear="all"/>
+</div>
 
-> 💡 已捐赠?[提交信息](https://github.com/TNT-Likely/BeeCount/issues/new?template=donation_info.yml) 提供个人主页链接，展示在支持者列表中。
+> 💡 已捐赠?[提交信息](https://github.com/TNT-Likely/BeeCount/issues/new?template=donation_info.yml) 展示在支持者列表中。
 
 ---
 
