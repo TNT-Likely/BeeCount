@@ -250,7 +250,7 @@ void main() {
       await waitFor(() => find.text(label).evaluate().isNotEmpty);
       await tester.pump(const Duration(milliseconds: 200));
       await tester.pump(const Duration(milliseconds: 200));
-      expect(find.byType(PopupMenuItem<String>), findsOneWidget);
+      expect(find.byType(PopupMenuItem<String>), findsNWidgets(2));
       final menuFinder = find
           .ancestor(
               of: find.byType(PopupMenuItem<String>),

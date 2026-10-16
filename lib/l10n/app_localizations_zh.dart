@@ -8649,6 +8649,30 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get importCurrencyInvalid => '币种无效，请修正对应行：';
+
+  @override
+  String get transactionReceiptAction => '生成小票';
+
+  @override
+  String get transactionReceiptTitle => '记账小票';
+
+  @override
+  String get transactionReceiptFields => '选择小票中展示的信息';
+
+  @override
+  String get transactionReceiptLedger => '账本';
+
+  @override
+  String get transactionReceiptTags => '标签';
+
+  @override
+  String get transactionReceiptFooter => '认真记录，好好生活';
+
+  @override
+  String get transactionReceiptUnavailable => '无法生成小票，请检查这笔交易是否仍然存在。';
+
+  @override
+  String get transactionReceiptShareFailed => '分享失败，请重试。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

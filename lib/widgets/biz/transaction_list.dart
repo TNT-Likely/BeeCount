@@ -17,6 +17,7 @@ import '../category_icon.dart';
 import '../../pages/transaction/category_detail_page.dart';
 import '../../pages/tag/tag_detail_page.dart';
 import '../../pages/attachment/attachment_preview_page.dart';
+import '../../widgets/biz/transaction_receipt_dialog.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/attachment_service.dart';
 import '../../utils/month_range.dart';
@@ -102,6 +103,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
       if (action == 'copy' && mounted) {
         switchToStreamMode();
         await TransactionEditUtils.copyTransaction(context, ref, transaction);
+      } else if (action == 'receipt' && mounted) {
+        await TransactionReceiptDialog.open(context, ref, transaction);
       }
     } catch (error, stack) {
       logger.error('TransactionList', '打开交易操作失败', error, stack);
@@ -124,6 +127,11 @@ class TransactionListState extends ConsumerState<TransactionList> {
             value: 'copy',
             icon: Icons.copy_outlined,
             label: AppLocalizations.of(context).transactionCopyAction,
+          ),
+          BeeMenuItem.action(
+            value: 'receipt',
+            icon: Icons.receipt_long_outlined,
+            label: AppLocalizations.of(context).transactionReceiptAction,
           ),
         ],
       );

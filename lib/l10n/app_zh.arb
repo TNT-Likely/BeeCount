@@ -3598,5 +3598,13 @@
   "negativeAssetBalanceHint": "账户负余额已从总资产扣减。",
   "importAccountCurrencyPreview": "确认账户币种",
   "importAccountCurrencyPreviewHint": "根据账单币种建立或复用账户；同名多币种及已有账户冲突会按币种拆分，不修改旧账户。缺失币种继承已有账户，否则使用可确定的账户币种或账本币种。",
-  "importCurrencyInvalid": "币种无效，请修正对应行："
+  "importCurrencyInvalid": "币种无效，请修正对应行：",
+  "transactionReceiptAction": "生成小票",
+  "transactionReceiptTitle": "记账小票",
+  "transactionReceiptFields": "选择小票中展示的信息",
+  "transactionReceiptLedger": "账本",
+  "transactionReceiptTags": "标签",
+  "transactionReceiptFooter": "认真记录，好好生活",
+  "transactionReceiptUnavailable": "无法生成小票，请检查这笔交易是否仍然存在。",
+  "transactionReceiptShareFailed": "分享失败，请重试。"
 }

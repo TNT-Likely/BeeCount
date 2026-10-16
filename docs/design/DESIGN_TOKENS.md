@@ -27,6 +27,11 @@ Container(
 不另用默认 Material `ChoiceChip` 拼装 tabs。选项能完整放下时等宽，
 窄屏或大字号下横向滚动；组件提供选中语义并遵循系统减少动画设置。
 
+独立多选使用同一入口导出的 `BeeMultiSelect<T>`：日间黑底白字、暗色主题色选中，
+未选项使用 `surfaceCapsule`，通过勾选/加号区分状态。选项自动换行，触控高度至少
+44，提供复选语义并遵循减少动画设置。调用方持有选中集合，组件不修改输入集合；
+不要用默认 Material `FilterChip` 拼装多选字段。
+
 ---
 
 ## 1. 背景色 Token (Surface)

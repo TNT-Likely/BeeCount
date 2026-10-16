@@ -2,7 +2,7 @@
 
 流程 skill 随项目维护在 `.agents/skills/isolated-app-cloud-qa`；Codex 与 Claude Code 项目安装见 [项目 skill](PROJECT_SKILLS_ZH.md)。不再需要 honeycomb 或全局安装。新 run 自动记录 skill 仓库 SHA、完整目录 hash 与版本，并保存私有源码副本；可用 `--skill-dir` 指定另一份源码。旧 `--skill-repo` 仅保留兼容，已存在 run 的 manifest 和数据不会迁移。
 
-用于需要真实 iOS App UI、真实 Cloud 数据持久化和双向同步的验收。当前支持首页复制交易、父子分类改名同步、Web 交易图片、MCP 小票附件和账户金额可信度五种场景。单元/widget 测试与 fake-provider 同步测试仍是快速回归层，实服同步另行执行。
+用于需要真实 iOS App UI、真实 Cloud 数据持久化和双向同步的验收。当前支持首页复制交易、交易小票、父子分类改名同步、Web 交易图片、MCP 小票附件和账户金额可信度六种场景。单元/widget 测试与 fake-provider 同步测试仍是快速回归层，实服同步另行执行。
 
 ## 环境要求
 
@@ -29,6 +29,8 @@ python3 scripts/qa/isolated_app_cloud.py prepare --cloud-repo ../BeeCount-Cloud
 ```
 
 默认场景为 `transaction-copy`；分类关联修复使用 `prepare --scenario category-parent`。分类场景在真实 App 分类管理页改名父分类，等待浏览器在同一 QA 账本将父分类改为「QA Web伙食」、子分类「QA早餐」改为「QA早饭」，再通过实际同步引擎拉回并核对父子身份。网页操作由浏览器实际执行，不能以直接写 API 替代这两项 Web UI 验收。
+
+交易小票使用 `prepare --scenario transaction-receipt`。真实首页长按生成小票，核对字段开关及默认隐藏账户/账本；实际保存到相册、打开系统分享并由隔离原生 UI runner 取消，反复进入后检查原交易和 Cloud snapshot 未改变。覆盖美元收入原币金额、日元精度、转账双账户及暗色模式；经真实编辑器修改备注上传，再用真实 Cloud web 写 API 修改金额/备注并拉回，重新生成小票并核对。正常入口重启保留四笔交易和最终同步字段。系统分享取消不代表向外部联系人发送过图片；Android、真机、iPad 与相册权限拒绝需另行验收。
 
 图片场景使用 `prepare --scenario web-transaction-images --cloud-ref <Cloud 功能提交 SHA>`。先通过 App 的实际附件服务保存合成图片并由真实引擎上传，再在同源 QA 网页完成新建、追加、单张移除后再追加、替换、删除全部和重新上传；每个阶段由 App 引擎拉回，核对附件身份、顺序和文件 SHA256，并打开生产预览页确认显示。App 预览页实际删除后，再核对 Web 附件为空。最终通过网页留下两张图片供人工验收，正常入口重启时再次核对元数据和文件内容。
 

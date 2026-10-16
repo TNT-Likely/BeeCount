@@ -8657,4 +8657,28 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get importCurrencyInvalid => 'Invalid currency; correct this row:';
+
+  @override
+  String get transactionReceiptAction => 'Generate receipt';
+
+  @override
+  String get transactionReceiptTitle => 'Transaction receipt';
+
+  @override
+  String get transactionReceiptFields => 'Choose what appears on your receipt';
+
+  @override
+  String get transactionReceiptLedger => 'Ledger';
+
+  @override
+  String get transactionReceiptTags => 'Tags';
+
+  @override
+  String get transactionReceiptFooter => 'Little moments, thoughtfully recorded';
+
+  @override
+  String get transactionReceiptUnavailable => 'Unable to generate a receipt. Check that this transaction still exists.';
+
+  @override
+  String get transactionReceiptShareFailed => 'Unable to share. Please try again.';
 }
