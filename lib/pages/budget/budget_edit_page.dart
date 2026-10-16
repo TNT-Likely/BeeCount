@@ -196,9 +196,11 @@ class _BudgetEditPageState extends ConsumerState<BudgetEditPage> {
                       SizedBox(height: 12.0.scaled(context, ref)),
                       TextField(
                         controller: _amountController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d+\.?\d{0,2}')),
                         ],
                         style: TextStyle(
                           fontSize: 24,
@@ -257,7 +259,8 @@ class _BudgetEditPageState extends ConsumerState<BudgetEditPage> {
                 : BeeTokens.surface(context),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected && !disabled ? primary : BeeTokens.border(context),
+              color:
+                  isSelected && !disabled ? primary : BeeTokens.border(context),
               width: isSelected && !disabled ? 2 : 1,
             ),
           ),
@@ -266,15 +269,21 @@ class _BudgetEditPageState extends ConsumerState<BudgetEditPage> {
               Icon(
                 icon,
                 size: 32.0.scaled(context, ref),
-                color: isSelected && !disabled ? primary : BeeTokens.iconSecondary(context),
+                color: isSelected && !disabled
+                    ? primary
+                    : BeeTokens.iconSecondary(context),
               ),
               SizedBox(height: 8.0.scaled(context, ref)),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: isSelected && !disabled ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected && !disabled ? primary : BeeTokens.textSecondary(context),
+                  fontWeight: isSelected && !disabled
+                      ? FontWeight.w600
+                      : FontWeight.w400,
+                  color: isSelected && !disabled
+                      ? primary
+                      : BeeTokens.textSecondary(context),
                 ),
               ),
             ],
@@ -302,7 +311,10 @@ class _BudgetEditPageState extends ConsumerState<BudgetEditPage> {
                 width: 36.0.scaled(context, ref),
                 height: 36.0.scaled(context, ref),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -350,11 +362,22 @@ class _BudgetEditPageState extends ConsumerState<BudgetEditPage> {
 
   Future<void> _selectCategory() async {
     final repo = ref.read(repositoryProvider);
+    final ledgerId = ref.read(currentLedgerIdProvider);
     final categories = await repo.getAllCategories();
+    final existingBudgets = await repo.getCategoryBudgets(ledgerId);
+    final usedCategoryIds = existingBudgets
+        .where((b) => b.id != widget.budget?.id && b.categoryId != null)
+        .map((b) => b.categoryId!)
+        .toSet();
 
-    // 只显示支出类父分类
+    // 只显示尚未设置预算的支出类父分类。此前所有分类始终可选，导致同一
+    // 分类能生成多个 syncId；Cloud 读接口会去重，所以表现为同步计数增加、
+    // Web 列表却看不到新增记录。
     final expenseCategories = categories
-        .where((c) => c.kind == 'expense' && c.parentId == null)
+        .where((c) =>
+            c.kind == 'expense' &&
+            c.parentId == null &&
+            !usedCategoryIds.contains(c.id))
         .toList();
 
     if (!mounted) return;
@@ -461,12 +484,26 @@ class _BudgetEditPageState extends ConsumerState<BudgetEditPage> {
       return;
     }
 
+    final repo = ref.read(repositoryProvider);
+    final ledgerId = ref.read(currentLedgerIdProvider);
+
+    // 选择器过滤负责正常交互；保存前再检查一次，防止弹窗打开期间另一设备
+    // 同步进同分类预算，或旧数据/并发操作绕过 UI 造成重复。
+    if (!_isEditing && _type == 'category') {
+      final existing =
+          await repo.getBudgetByCategory(ledgerId, _selectedCategoryId!);
+      if (existing != null) {
+        if (mounted) {
+          showToast(context, l10n.budgetCategoryAlreadyExists);
+        }
+        return;
+      }
+    }
+
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
-      final repo = ref.read(repositoryProvider);
-      final ledgerId = ref.read(currentLedgerIdProvider);
-
       if (_isEditing) {
         await repo.updateBudget(
           widget.budget!.id,
