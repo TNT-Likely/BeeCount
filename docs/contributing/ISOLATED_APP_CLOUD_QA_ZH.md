@@ -65,13 +65,15 @@ python3 scripts/qa/isolated_app_cloud.py review --run "$qa_run_dir"
 
 打开 QA Cloud 的浏览器页面，使用本次私有凭证登录和 App 相同的 QA 账号，选中同一账本并展示交易列表。凭证只在内存与授权的 QA 登录表单中使用，不打印到聊天、日志或公开报告。保留登录页面供用户继续操作；自动验收、浏览器页面查看与用户人工验收分开记录。
 
-自动验收或报告打包完成后不要关闭本地服务和模拟器。交付时说明 App 入口、Cloud 地址、run 身份及版本，标记等待用户验收；用户明确确认验收完成或要求关闭后，才执行：
+自动验收或报告打包完成后保持本地服务和模拟器运行。交付时说明 App 入口、Cloud 地址、run 身份及版本，标记等待用户验收。关联 PR 全部确认已合并后，默认视为本轮验收结束，立即停止并完整删除测试环境，无需再次等待关闭确认；用户提前确认验收结束或要求完整清理时也执行，明确要求继续保留环境时除外。
+
+以下命令只用于临时停止，不属于完整清理：
 
 ```sh
 python3 scripts/qa/isolated_app_cloud.py stop --run "$qa_run_dir"
 ```
 
-`stop` 只停止 manifest 中 PID/启动时间/命令匹配的 QA 服务以及对应 QA 模拟器，保留数据和证据。结束聊天、开 PR 或输出报告都不代表用户验收完成。禁止使用全局 shutdown、默认 compose volume 清理或按进程名批量 kill。
+`stop` 只停止 manifest 中 PID/启动时间/命令匹配的 QA 服务以及对应 QA 模拟器，保留数据和证据。验收结束时必须再按[完整清理说明](../../.agents/skills/isolated-app-cloud-qa/references/cleanup.md)删除本轮所有 run（含失败、重试和替代环境）的模拟器本身、数据库、附件、私有备份、源码副本、构建缓存和专用浏览器 profile。只保留 run 外已校验的独立报告、ZIP 和最小清理回执；已发布包不改写。结束聊天、创建 PR 或输出报告不触发清理。禁止使用全局 shutdown、默认 compose volume 清理或按进程名批量 kill。
 
 ## 隔离保证
 
