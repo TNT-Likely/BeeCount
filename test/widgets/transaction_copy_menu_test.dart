@@ -53,7 +53,10 @@ void main() {
     final row = find.byType(TransactionListItem, skipOffstage: false);
     await tester.longPress(row);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('复制为新交易'));
+    await tester.runAsync(() async {
+      await tester.tap(find.text('复制为新交易'));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
     await tester.pumpAndSettle();
     expect(find.byType(AmountEditorSheet), findsOneWidget);
     final nav = Navigator.of(tester.element(find.byType(AmountEditorSheet)));

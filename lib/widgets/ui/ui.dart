@@ -11,3 +11,4 @@ export 'message_popover_menu.dart';
 export 'bee_popup_menu.dart';
 export 'skeleton.dart';
 export 'capsule_switcher.dart';
+export 'bee_multi_select.dart';

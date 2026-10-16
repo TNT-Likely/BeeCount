@@ -24,6 +24,7 @@ APP_ID = 'com.tntlikely.beecount.qa'
 GROUP_ID = 'group.com.tntlikely.beecount.qa'
 PROJECT = Path(__file__).resolve().parents[2]
 SCENARIOS = {
+    'transaction-receipt': 'integration_test/transaction_receipt_live_test.dart',
     'account-balance-trust': 'integration_test/account_balance_trust_live_test.dart',
     'transaction-copy': 'integration_test/transaction_copy_live_test.dart',
     'category-parent': 'integration_test/category_parent_live_test.dart',
@@ -626,7 +627,9 @@ def integration_permissions(root, manifest):
     source = inside(root, root / 'app-source')
     native = inside(root, root / 'native-integration-permissions')
     native.mkdir()
-    shutil.copy2(source / 'scripts/qa/integration_permissions.swift', native / 'QASmoke.swift')
+    native_source = ('receipt_native_share.swift' if manifest.get('scenario') == 'transaction-receipt'
+                     else 'integration_permissions.swift')
+    shutil.copy2(source / 'scripts/qa' / native_source, native / 'QASmoke.swift')
     subprocess.run(['ruby', str(source / 'scripts/qa/create_smoke_project.rb'), str(native)], check=True)
     args = ['xcodebuild', '-project', str(native / 'QASmoke.xcodeproj'), '-scheme', 'QASmoke',
             '-configuration', 'Debug', '-sdk', 'iphonesimulator',
@@ -718,6 +721,10 @@ def restart_check(root, manifest, flutter):
         copy = next(r for r in rows if r['sync_id'] == report['copy_sync_id'])
         if copy['note'] != 'QA Cloud 修改后' or copy['amount'] != 55.5:
             raise ValueError('Normal App restart did not retain the synchronized copy')
+    elif manifest.get('scenario') == 'transaction-receipt':
+        tx = next(r for r in rows if r['sync_id'] == report['receipt_transaction_sync_id'])
+        if tx['note'] != 'QA Cloud 小票更新' or tx['amount'] != 55.5 or len(rows) != 4:
+            raise ValueError('Normal App restart lost the synchronized receipt transaction')
     elif manifest.get('scenario') == 'account-balance-trust':
         with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
             db.row_factory = sqlite3.Row

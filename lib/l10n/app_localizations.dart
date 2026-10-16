@@ -16273,6 +16273,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid currency; correct this row:'**
   String get importCurrencyInvalid;
+
+  /// No description provided for @transactionReceiptAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate receipt'**
+  String get transactionReceiptAction;
+
+  /// No description provided for @transactionReceiptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction receipt'**
+  String get transactionReceiptTitle;
+
+  /// No description provided for @transactionReceiptFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what appears on your receipt'**
+  String get transactionReceiptFields;
+
+  /// No description provided for @transactionReceiptLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger'**
+  String get transactionReceiptLedger;
+
+  /// No description provided for @transactionReceiptTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get transactionReceiptTags;
+
+  /// No description provided for @transactionReceiptFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Little moments, thoughtfully recorded'**
+  String get transactionReceiptFooter;
+
+  /// No description provided for @transactionReceiptUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to generate a receipt. Check that this transaction still exists.'**
+  String get transactionReceiptUnavailable;
+
+  /// No description provided for @transactionReceiptShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to share. Please try again.'**
+  String get transactionReceiptShareFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
