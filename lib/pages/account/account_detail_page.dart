@@ -394,41 +394,39 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
 
   Future<void> _reviewLoan(db.Account account) async {
     final l10n = AppLocalizations.of(context);
-    final controller = TextEditingController(
-        text: account.initialBalance.abs().toStringAsFixed(2));
+    double? debt = account.initialBalance.abs();
     final since = DateTime.now();
-    final confirm = await showDialog<bool>(
+    final value = await showDialog<double>(
         context: context,
-        builder: (dialogContext) => StatefulBuilder(
-            builder: (dialogContext, _) => AlertDialog(
-                    title: Text(l10n.loanReviewTitle),
-                    content: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Text(l10n.loanReviewHint),
-                      TextField(
-                          controller: controller,
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
-                          decoration:
-                              InputDecoration(labelText: l10n.loanCurrentDebt)),
-                      Text(
-                          '${l10n.loanBaselineDate}: ${since.year}-${since.month}-${since.day}')
-                    ]),
-                    actions: [
-                      TextButton(
-                          onPressed: () => Navigator.pop(dialogContext),
-                          child: Text(l10n.commonCancel)),
-                      TextButton(
-                          onPressed: () {
-                            final value =
-                                double.tryParse(controller.text.trim());
-                            if (value != null && value.isFinite && value >= 0)
-                              Navigator.pop(dialogContext, true);
-                          },
-                          child: Text(l10n.commonConfirm))
-                    ])));
-    final value = double.tryParse(controller.text.trim());
-    controller.dispose();
-    if (confirm != true || value == null) return;
+        builder: (dialogContext) => AlertDialog(
+                title: Text(l10n.loanReviewTitle),
+                content: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Text(l10n.loanReviewHint),
+                  TextFormField(
+                      initialValue:
+                          account.initialBalance.abs().toStringAsFixed(2),
+                      onChanged: (text) => debt = double.tryParse(text.trim()),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      decoration:
+                          InputDecoration(labelText: l10n.loanCurrentDebt)),
+                  Text(
+                      '${l10n.loanBaselineDate}: ${since.year}-${since.month}-${since.day}')
+                ]),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: Text(l10n.commonCancel)),
+                  TextButton(
+                      onPressed: () {
+                        final value = debt;
+                        if (value != null && value.isFinite && value >= 0) {
+                          Navigator.pop(dialogContext, value);
+                        }
+                      },
+                      child: Text(l10n.commonConfirm))
+                ]));
+    if (value == null || !mounted) return;
     try {
       await ref
           .read(repositoryProvider)
