@@ -31,9 +31,6 @@ concurrency:
 permissions:
   contents: write
 
-env:
-  FLUTTER_VERSION: "3.27.3"
-
 jobs:
   check-branch:
     name: Check if main branch
@@ -99,9 +96,16 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: "stable"
+          flutter-version-file: .fvmrc
           cache: true
+
+      - name: Assert Flutter matches .fvmrc
+        run: |
+          set -euo pipefail
+          want=$(python3 -c "import json;print(json.load(open('.fvmrc'))['flutter'])")
+          got=$(flutter --version --machine | python3 -c "import json,sys;print(json.load(sys.stdin)['frameworkVersion'])")
+          echo "want=$want got=$got"
+          [ "$want" = "$got" ]
 
       - name: Flutter pub get
         run: flutter pub get
@@ -407,18 +411,25 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: "stable"
+          flutter-version-file: .fvmrc
           cache: false
+
+      - name: Assert Flutter matches .fvmrc
+        run: |
+          set -euo pipefail
+          want=$(python3 -c "import json;print(json.load(open('.fvmrc'))['flutter'])")
+          got=$(flutter --version --machine | python3 -c "import json,sys;print(json.load(sys.stdin)['frameworkVersion'])")
+          echo "want=$want got=$got"
+          [ "$want" = "$got" ]
 
       # 手动缓存 pub 依赖
       - name: Cache pub dependencies
         uses: actions/cache@v4
         with:
           path: ~/.pub-cache
-          key: pub-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-${{ github.sha }}
+          key: pub-${{ runner.os }}-${{ hashFiles('.fvmrc') }}-${{ github.sha }}
           restore-keys: |
-            pub-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-
+            pub-${{ runner.os }}-${{ hashFiles('.fvmrc') }}-
 
       - name: Flutter pub get
         run: flutter pub get
