@@ -1,6 +1,8 @@
 import 'dart:convert';
 import '../data/db.dart';
 import '../data/repositories/base_repository.dart';
+import '../data/repositories/local/local_repository.dart';
+import '../data/repositories/local/local_account_repository.dart';
 import '../services/data_import_service.dart';
 import '../utils/app_localizations_resolver.dart';
 import '../services/system/logger_service.dart';
@@ -126,14 +128,35 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
       accountIdToName[a.id] = _sanitizeString(a.name);
     }
   }
-  final accountItems = accounts
-      .map((a) => {
-            'name': _sanitizeString(a.name),
-            'type': a.type,
-            'currency': a.currency,
-            'initialBalance': a.initialBalance,
-          })
-      .toList();
+  final accountItems = <Map<String, dynamic>>[];
+  for (final account in accounts) {
+    var baseline = account.initialBalance;
+    if (account.type == 'loan' && account.loanBalanceVersion == 1) {
+      final balance =
+          await LocalAccountRepository(db).getAccountBalance(account.id);
+      var includedMovement = 0.0;
+      for (final tx in txs) {
+        if (account.loanBalanceSince != null &&
+            tx.happenedAt.isBefore(account.loanBalanceSince!)) continue;
+        if (tx.accountId == account.id)
+          includedMovement += tx.type == 'income' ? tx.amount : -tx.amount;
+        else if (tx.type == 'transfer' && tx.toAccountId == account.id)
+          includedMovement += tx.amount;
+      }
+      // 单账本备份也保留当前本金，其他账本的变动折入导出基线。
+      baseline = balance - includedMovement;
+    }
+    accountItems.add({
+      'name': _sanitizeString(account.name),
+      'type': account.type,
+      'currency': account.currency,
+      'initialBalance': baseline,
+      if (account.type == 'loan')
+        'loanBalanceVersion': account.loanBalanceVersion,
+      if (account.loanBalanceSince != null)
+        'loanBalanceSince': account.loanBalanceSince!.toUtc().toIso8601String(),
+    });
+  }
 
   final items = txs.map((t) {
     // 安全获取分类信息（分类可能已被删除）
@@ -141,9 +164,10 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
 
     // 记录分类缺失的交易（用于排查数据问题）
     if (t.categoryId != null && catInfo == null) {
-      logger.warning('TransactionsJson',
-        '交易 ${t.id} 引用了不存在的分类 ${t.categoryId}, '
-        'amount=${t.amount}, note=${t.note}, happenedAt=${t.happenedAt}');
+      logger.warning(
+          'TransactionsJson',
+          '交易 ${t.id} 引用了不存在的分类 ${t.categoryId}, '
+              'amount=${t.amount}, note=${t.note}, happenedAt=${t.happenedAt}');
     }
 
     final item = <String, dynamic>{
@@ -182,7 +206,8 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
   }).toList();
 
   // v1.20.0: 导出附件元数据
-  final attachmentsMap = <int, List<Map<String, dynamic>>>{}; // transactionId -> attachments
+  final attachmentsMap =
+      <int, List<Map<String, dynamic>>>{}; // transactionId -> attachments
   if (txIds.isNotEmpty) {
     final allAttachments = await (db.select(db.transactionAttachments)
           ..where((a) => a.transactionId.isIn(txIds)))
@@ -294,7 +319,8 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
     'items': items,
   };
 
-  logger.debug('TransactionsJson', '导出完成: ${items.length} 条交易, ${categoryItems.length} 个分类');
+  logger.debug('TransactionsJson',
+      '导出完成: ${items.length} 条交易, ${categoryItems.length} 个分类');
   return jsonEncode(payload);
 }
 
@@ -314,6 +340,10 @@ ImportData parseJsonToImportData(String jsonStr) {
         type: acc['type'] as String?,
         currency: acc['currency'] as String?,
         initialBalance: (acc['initialBalance'] as num?)?.toDouble(),
+        loanBalanceVersion: (acc['loanBalanceVersion'] as num?)?.toInt() ?? 0,
+        loanBalanceSince:
+            DateTime.tryParse(acc['loanBalanceSince'] as String? ?? '')
+                ?.toLocal(),
       ));
     }
   }
@@ -358,7 +388,11 @@ ImportData parseJsonToImportData(String jsonStr) {
       List<String>? tagNames;
       final tagsStr = it['tags'] as String?;
       if (tagsStr != null && tagsStr.trim().isNotEmpty) {
-        tagNames = tagsStr.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+        tagNames = tagsStr
+            .split(',')
+            .map((s) => s.trim())
+            .where((s) => s.isNotEmpty)
+            .toList();
       }
 
       // 解析附件元数据
@@ -389,8 +423,10 @@ ImportData parseJsonToImportData(String jsonStr) {
         note: it['note'] as String?,
         // 账户信息：转账用 fromAccountName/toAccountName，其他用 accountName
         accountName: type != 'transfer' ? it['accountName'] as String? : null,
-        fromAccountName: type == 'transfer' ? it['fromAccountName'] as String? : null,
-        toAccountName: type == 'transfer' ? it['toAccountName'] as String? : null,
+        fromAccountName:
+            type == 'transfer' ? it['fromAccountName'] as String? : null,
+        toAccountName:
+            type == 'transfer' ? it['toAccountName'] as String? : null,
         tagNames: tagNames,
         attachments: attachments,
         syncId: it['syncId'] as String?,
@@ -433,14 +469,24 @@ Future<({int inserted})> importTransactionsJson(
   // [recordChanges] 默认 true 兼容 CSV 导入路径(`data_import_service` 会
   // 通过 LocalRepository 写 local_changes 让本地变更能推到云端)。
   // SyncEngine.runFullPull 走"从云端拉数据"路径,显式传 false 避免反向回流。
-  final result = await dataImportService.importData(
-    repo,
-    ledgerId,
-    importData,
-    defaultCurrency: importData.currency ?? 'CNY',
-    onProgress: onProgress,
-    recordChanges: recordChanges,
-  );
+  Future<ImportResult> restore() => dataImportService.importData(
+        repo,
+        ledgerId,
+        importData,
+        defaultCurrency: importData.currency ?? 'CNY',
+        onProgress: onProgress,
+        recordChanges: recordChanges,
+      );
+
+  final result = repo is LocalRepository &&
+          importData.accounts.any((a) => a.type == 'loan')
+      ? await repo.restoreLoanSnapshot(() async {
+          final restored = await restore();
+          if (restored.failed != 0)
+            throw StateError('Loan snapshot restore is incomplete');
+          return restored;
+        })
+      : await restore();
 
   return (inserted: result.inserted,);
 }

@@ -26,6 +26,7 @@ PROJECT = Path(__file__).resolve().parents[2]
 SCENARIOS = {
     'transaction-receipt': 'integration_test/transaction_receipt_live_test.dart',
     'account-balance-trust': 'integration_test/account_balance_trust_live_test.dart',
+    'loan-account': 'integration_test/loan_account_live_test.dart',
     'transaction-copy': 'integration_test/transaction_copy_live_test.dart',
     'category-parent': 'integration_test/category_parent_live_test.dart',
     'web-transaction-images': 'integration_test/web_transaction_images_live_test.dart',
@@ -402,7 +403,7 @@ def run(root, manifest, flutter):
                                            'created_by_user_id, tag_sync_ids_json, attachments_json '
                                            'FROM read_tx_projection ORDER BY sync_id')]
         migration = db.execute('SELECT version_num FROM alembic_version').fetchone()[0]
-        accounts = [dict(r) for r in db.execute('SELECT sync_id, name, account_type, currency, initial_balance, credit_limit, billing_day, payment_due_day FROM user_account_projection ORDER BY sync_id')]
+        accounts = [dict(r) for r in db.execute('SELECT sync_id, name, account_type, currency, initial_balance, credit_limit, billing_day, payment_due_day, loan_balance_version, loan_balance_since FROM user_account_projection ORDER BY sync_id')]
         categories = [dict(r) for r in db.execute('SELECT sync_id, name, kind, level, parent_name, parent_sync_id '
                                                 'FROM user_category_projection ORDER BY sync_id')]
     write_json(root / 'evidence/cloud-projection.json', dict(migration=migration, transactions=rows, categories=categories, accounts=accounts))
@@ -733,6 +734,26 @@ def restart_check(root, manifest, flutter):
                 actual = next((a for a in accounts if a['sync_id'] == expected['sync_id']), None)
                 if actual is None or any(actual[k] != expected[k] for k in ('name', 'type', 'currency', 'initial_balance')):
                     raise ValueError('Normal restart lost synchronized account identity or fields')
+        rows = dict(transactions=rows, accounts=accounts)
+    elif manifest.get('scenario') == 'loan-account':
+        with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
+            db.row_factory = sqlite3.Row
+            accounts = [dict(r) for r in db.execute('SELECT id, sync_id, name, type, currency, initial_balance, loan_balance_version, loan_balance_since FROM accounts ORDER BY sync_id')]
+            for expected in report['final_accounts']:
+                actual = next((a for a in accounts if a['sync_id'] == expected['sync_id']), None)
+                if actual is None or any(actual[k] != expected[k] for k in ('name', 'type', 'currency', 'initial_balance', 'loan_balance_version')):
+                    raise ValueError('Normal restart lost loan metadata or identity')
+                balance = actual['initial_balance']
+                if actual['type'] not in ('real_estate', 'vehicle', 'investment', 'insurance', 'social_fund') and not (actual['type'] == 'loan' and actual['loan_balance_version'] == 0):
+                    for tx in db.execute('SELECT type, amount, account_id, to_account_id, happened_at FROM transactions WHERE account_id = ? OR to_account_id = ?', (actual['id'], actual['id'])):
+                        if actual['type'] == 'loan' and actual['loan_balance_since'] is not None and tx['happened_at'] < actual['loan_balance_since']:
+                            continue
+                        if tx['account_id'] == actual['id']:
+                            balance += tx['amount'] if tx['type'] == 'income' else -tx['amount']
+                        elif tx['type'] == 'transfer':
+                            balance += tx['amount']
+                if abs(balance - expected['balance']) > 0.000001:
+                    raise ValueError('Normal restart changed synchronized loan or ordinary account balance')
         rows = dict(transactions=rows, accounts=accounts)
     elif manifest.get('scenario') == 'category-parent':
         with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:

@@ -201,6 +201,8 @@ typedef AmountEditorResult = ({
 });
 
 class AmountEditorSheet extends ConsumerStatefulWidget {
+  final String? helperText;
+  final String Function(double amount)? amountSummaryBuilder;
   final String categoryName; // 仅用于上层提交，不在UI展示
   final int? categoryId; // 当前本地分类ID，用于筛选历史备注
   final String? categorySyncId; // 共享账本分类同步ID，用于筛选历史备注
@@ -225,6 +227,8 @@ class AmountEditorSheet extends ConsumerStatefulWidget {
   const AmountEditorSheet({
     super.key,
     required this.categoryName,
+    this.helperText,
+    this.amountSummaryBuilder,
     this.categoryId,
     this.categorySyncId,
     required this.initialDate,
@@ -420,7 +424,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     );
     if (picked == null || !mounted) return;
     setState(() {
-      _pickedCurrency = picked.toUpperCase() == base ? null : picked.toUpperCase();
+      _pickedCurrency =
+          picked.toUpperCase() == base ? null : picked.toUpperCase();
       // 换币种后隐含/手改汇率作废,重新带有效汇率
       _rateStr = null;
       _rateManuallySet = false;
@@ -444,7 +449,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
-            hintText: '1 ${_txCurrency()} = ? ${ref.read(currentLedgerCurrencyProvider)}',
+            hintText:
+                '1 ${_txCurrency()} = ? ${ref.read(currentLedgerCurrencyProvider)}',
           ),
         ),
         actions: [
@@ -714,7 +720,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
     // 如果备注框有焦点且键盘弹出，固定增加100的padding
-    final extraPadding = (_noteFieldHasFocus && keyboardHeight > 0) ? 100.0 : 0.0;
+    final extraPadding =
+        (_noteFieldHasFocus && keyboardHeight > 0) ? 100.0 : 0.0;
 
     double parsed() => double.tryParse(_amountStr) ?? 0.0;
 
@@ -781,8 +788,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     // 运算符键:同时显示「加减」与「乘除」两组运算符;当前激活的一组用主色高亮、
     // 另一组用次级色弱化(主次区分,也作为"长按可切到乘除"的提示)。单击应用激活
     // 运算符,长按切换加减 ↔ 乘除。
-    Widget opKey(String addSubOp, String mulDivOp, bool isMul,
-        VoidCallback onToggle) {
+    Widget opKey(
+        String addSubOp, String mulDivOp, bool isMul, VoidCallback onToggle) {
       final activeOp = isMul ? mulDivOp : addSubOp;
       // 激活的运算符与数字键完全一致(字号 18 / w600),保证视觉粗细相同 —— 字号
       // 更大即使同 weight 笔画也会更粗。未激活更小(14)+ 灰色以分主次。
@@ -837,7 +844,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     }
 
     String fmtDate(DateTime d) => '${d.year}/${d.month}/${d.day}';
-    String fmtTime(DateTime d) => '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}:${d.second.toString().padLeft(2, '0')}';
+    String fmtTime(DateTime d) =>
+        '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}:${d.second.toString().padLeft(2, '0')}';
     final showTime = ref.watch(showTransactionTimeProvider);
 
     return SafeArea(
@@ -878,7 +886,9 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                           final r1 = s.contains('.')
                               ? s.replaceFirst(RegExp(r'0+$'), '')
                               : s;
-                          return r1.endsWith('.') ? r1.substring(0, r1.length - 1) : r1;
+                          return r1.endsWith('.')
+                              ? r1.substring(0, r1.length - 1)
+                              : r1;
                         })(),
                         style: text.titleMedium?.copyWith(
                           fontWeight: FontWeight.w500,
@@ -929,7 +939,9 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                           final r1 = s.contains('.')
                               ? s.replaceFirst(RegExp(r'0+$'), '')
                               : s;
-                          return r1.endsWith('.') ? r1.substring(0, r1.length - 1) : r1;
+                          return r1.endsWith('.')
+                              ? r1.substring(0, r1.length - 1)
+                              : r1;
                         })(),
                         style: text.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
@@ -941,6 +953,18 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                 ],
                 // v30 折算预览:金额模块区域内、金额/等号下方(反馈11)。
                 _buildCurrencySection(context),
+                if (widget.helperText != null)
+                  Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(widget.helperText!,
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: BeeTokens.textSecondary(context)))),
+                if (widget.amountSummaryBuilder != null)
+                  Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(widget.amountSummaryBuilder!(parsed()),
+                          style: const TextStyle(fontSize: 12))),
               ],
             ),
             const SizedBox(height: 10),
@@ -1064,14 +1088,16 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                                       Text(
                                         fmtDate(_date),
                                         style: text.labelSmall?.copyWith(
-                                            color: BeeTokens.textPrimary(context),
+                                            color:
+                                                BeeTokens.textPrimary(context),
                                             fontWeight: FontWeight.w600),
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
                                         fmtTime(_date),
                                         style: text.labelSmall?.copyWith(
-                                            color: BeeTokens.textSecondary(context),
+                                            color: BeeTokens.textSecondary(
+                                                context),
                                             fontWeight: FontWeight.w500),
                                       ),
                                     ],
@@ -1111,7 +1137,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
 
                 // 判断是否处于运算模式
                 final isInCalcMode = _op != null;
-                final isEnabled = (isInCalcMode ? true : total.abs() > 0) && !_isSubmitting;
+                final isEnabled =
+                    (isInCalcMode ? true : total.abs() > 0) && !_isSubmitting;
 
                 void handleTap() {
                   if (isInCalcMode) {
@@ -1132,7 +1159,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                     _submit(continueAdding: true);
                     return;
                   }
-                  _finishTapTimer = Timer(const Duration(milliseconds: 300), () {
+                  _finishTapTimer =
+                      Timer(const Duration(milliseconds: 300), () {
                     _finishTapTimer = null;
                     _submit(continueAdding: false);
                   });
@@ -1141,7 +1169,9 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                 return Padding(
                   padding: const EdgeInsets.all(6),
                   child: Material(
-                    color: isEnabled ? primary : BeeTokens.surfaceDisabled(context),
+                    color: isEnabled
+                        ? primary
+                        : BeeTokens.surfaceDisabled(context),
                     borderRadius: BorderRadius.circular(12),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
@@ -1155,7 +1185,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
                                   ),
                                 )
                               : isInCalcMode
@@ -1292,13 +1323,13 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     final allTags = allTagsAsync.valueOrNull ?? [];
 
     // 获取已选中的标签详情
-    final selectedTags = allTags
-        .where((t) => _selectedTagIds.contains(t.id))
-        .toList();
+    final selectedTags =
+        allTags.where((t) => _selectedTagIds.contains(t.id)).toList();
 
     // 获取附件数量
     if (widget.editingTransactionId != null) {
-      final attachmentsAsync = ref.watch(transactionAttachmentsProvider(widget.editingTransactionId!));
+      final attachmentsAsync = ref
+          .watch(transactionAttachmentsProvider(widget.editingTransactionId!));
       // 同样使用 valueOrNull 避免闪烁
       final attachments = attachmentsAsync.valueOrNull ?? [];
       final totalCount = attachments.length + _pendingAttachments.length;
@@ -1408,7 +1439,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     );
   }
 
-  Widget _buildRowContent(List<Tag> selectedTags, int attachmentCount, List<TransactionAttachment> savedAttachments) {
+  Widget _buildRowContent(List<Tag> selectedTags, int attachmentCount,
+      List<TransactionAttachment> savedAttachments) {
     final l10n = AppLocalizations.of(context);
     final hasAttachments = attachmentCount > 0;
 
@@ -1524,7 +1556,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     ];
   }
 
-  Future<void> _handleAttachmentTap(List<TransactionAttachment> savedAttachments) async {
+  Future<void> _handleAttachmentTap(
+      List<TransactionAttachment> savedAttachments) async {
     final totalCount = savedAttachments.length + _pendingAttachments.length;
 
     if (totalCount == 0) {
@@ -1593,7 +1626,8 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
               title: Text(l10n.attachmentChooseFromGallery),
               onTap: () async {
                 Navigator.pop(context);
-                final files = await service.pickFromGallery(maxCount: 9 - _pendingAttachments.length);
+                final files = await service.pickFromGallery(
+                    maxCount: 9 - _pendingAttachments.length);
                 if (files.isNotEmpty && mounted) {
                   if (widget.editingTransactionId != null) {
                     // 编辑模式：直接保存

@@ -356,6 +356,7 @@ Account _account(int id, String name, {String type = 'bank'}) => Account(
       initialBalance: 0,
       sortOrder: id,
       hidden: false,
+    loanBalanceVersion: 0,
     );
 
 Category _category(int id, String name, String icon) => Category(

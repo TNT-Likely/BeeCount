@@ -2042,7 +2042,7 @@ class _AccountCard extends ConsumerWidget {
                     if (account.type == 'credit_card' && stats != null)
                       _buildCreditCardStats(context, ref, l10n, isDark)
                     // 估值账户：仅显示当前估值
-                    else if (isValuationOnlyType(account.type) && stats != null)
+                    else if ((isValuationOnlyType(account.type) || account.type == 'loan') && stats != null)
                       _buildValuationStats(context, ref, l10n, isDark)
                     // 普通账户：余额/收入/支出
                     else if (stats != null)

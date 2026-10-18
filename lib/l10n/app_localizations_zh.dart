@@ -8673,6 +8673,63 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get transactionReceiptShareFailed => '分享失败，请重试。';
+
+  @override
+  String get loanCurrentDebt => '当前欠款本金';
+
+  @override
+  String get loanRepayPrincipal => '归还本金';
+
+  @override
+  String get loanBorrowPrincipal => '借入本金';
+
+  @override
+  String get loanPrincipalHint => '还款仅填写归还本金，利息和手续费请另记支出。';
+
+  @override
+  String get loanReviewTitle => '核对贷款欠款';
+
+  @override
+  String get loanReviewHint => '核对实际未还本金后，从现在开始接续记账；旧流水保留展示，不再重复计算本金。';
+
+  @override
+  String get loanBaselineDate => '开始完整记录日期';
+
+  @override
+  String get loanCalibrationHint => '仅校准当前欠款，不新增收支。历史趋势可能随基准变化；实际还款请记录归还本金。';
+
+  @override
+  String get loanNeedsReview => '请先核对贷款当前欠款，再记录借款或还款。';
+
+  @override
+  String get loanTransferOnly => '贷款本金请通过借款或还款转账记录。';
+
+  @override
+  String get loanPersonalLedgerOnly => '贷款借还请在个人账本记录。';
+
+  @override
+  String get loanSameCurrencyOnly => '贷款与资金账户须使用同一币种。';
+
+  @override
+  String get loanBeforeBaseline => '这笔记录早于贷款接续日期，请先核对欠款基准与历史记录。';
+
+  @override
+  String get loanRepaymentExceedsDebt => '归还本金超过当前欠款，请核对本金、利息及欠款金额。';
+
+  @override
+  String get accountGroupDailyAssets => '日常资金';
+
+  @override
+  String get accountGroupValuationAssets => '估值资产';
+
+  @override
+  String get loanDebtAfter => '预计剩余本金';
+
+  @override
+  String get loanDebtDecrease => '本金减少';
+
+  @override
+  String get loanDebtIncrease => '本金增加';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
