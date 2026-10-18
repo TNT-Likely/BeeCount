@@ -187,6 +187,7 @@ void main() {
       await waitUi(() => find.text(text).evaluate().isNotEmpty);
       final target = find.text(text).last;
       await tester.ensureVisible(target);
+      await tester.pump(const Duration(milliseconds: 400));
       await tester.tap(target);
       await tester.pump(const Duration(milliseconds: 600));
     }
@@ -318,9 +319,18 @@ void main() {
         scrollable: find.descendant(of: find.byType(AccountsPage), matching: find.byType(Scrollable)).first,
         maxScrolls: 20);
     await tester.ensureVisible(repayAction);
-    await tester.tap(repayAction);
     await tester.pump(const Duration(milliseconds: 600));
+    for (var i = 0; i < 12 && repayAction.hitTestable().evaluate().isEmpty; i++) {
+      await tester.drag(find.descendant(of: find.byType(AccountsPage), matching: find.byType(Scrollable)).first, const Offset(0, -220));
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+    expect(repayAction.hitTestable(), findsOneWidget);
+    await capture('02c-loan-card-repay-entry');
+    await tester.tap(repayAction.hitTestable());
+    await tester.pump(const Duration(milliseconds: 600));
+    await waitUi(() => find.byType(TransactionEditorPage).evaluate().isNotEmpty);
     await tester.ensureVisible(find.text('QA 银行卡').first);
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.tap(find.text('QA 银行卡').first);
     await tester.pump(const Duration(milliseconds: 600));
     await finishAmount(1000, 'QA 归还本金');
