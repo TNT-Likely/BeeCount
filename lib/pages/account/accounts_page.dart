@@ -26,6 +26,7 @@ import '../../utils/net_worth_trend_utils.dart';
 import '../currency/exchange_rate_page.dart';
 import 'account_edit_page.dart';
 import 'account_detail_page.dart';
+import '../transaction/transaction_editor_page.dart';
 import 'net_worth_trend_page.dart';
 
 class AccountsPage extends ConsumerStatefulWidget {
@@ -2185,7 +2186,7 @@ class _AccountCard extends ConsumerWidget {
     final labelColor = isDark ? Colors.white.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.8);
     final isLiability = isLiabilityType(account.type);
     final displayValue = isLiability ? stats!.balance.abs() : stats!.balance;
-    final label = isLiability ? l10n.valuationCurrentDebt : l10n.valuationCurrentValue;
+    final label = account.type == 'loan' ? l10n.loanCurrentDebt : isLiability ? l10n.valuationCurrentDebt : l10n.valuationCurrentValue;
 
     return Row(
       children: [
@@ -2217,7 +2218,31 @@ class _AccountCard extends ConsumerWidget {
             ],
           ),
         ),
-        if (account.updatedAt != null)
+        if (account.type == 'loan' && !account.hidden)
+          TextButton(
+            key: ValueKey('loan-repay-${account.id}'),
+            style: TextButton.styleFrom(
+                foregroundColor: textColor,
+                backgroundColor: Colors.white.withValues(alpha: 0.14)),
+            onPressed: account.loanBalanceVersion != 1
+                ? onTap
+                : () async {
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => TransactionEditorPage(
+                                initialKind: 'transfer',
+                                quickAdd: true,
+                                initialToAccountId: account.id)));
+                    if (!context.mounted) return;
+                    ref.invalidate(allAccountStatsProvider);
+                    ref.invalidate(accountStatsProvider(account.id));
+                  },
+            child: Text(account.loanBalanceVersion == 1
+                ? l10n.loanRepayPrincipal
+                : l10n.loanReviewTitle),
+          ),
+        if (account.type != 'loan' && account.updatedAt != null)
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [

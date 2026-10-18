@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import re
 import secrets
 import shutil
 import signal
@@ -324,15 +325,26 @@ def verify_artifact(root, manifest):
     return app
 
 
+def flutter_environment(source):
+    # 镜像 URL 改变会触发 Pub 重解析并升级依赖；沿用项目锁文件的 hosted 来源。
+    env = dict(os.environ)
+    lock = (source / 'pubspec.lock').read_text()
+    hosts = set(re.findall(r'url:\s*["\']?([^"\'\s]+)["\']?\s*\n\s+source: hosted', lock))
+    if len(hosts) != 1:
+        raise ValueError('QA requires one explicit hosted registry in pubspec.lock')
+    env['PUB_HOSTED_URL'] = hosts.pop()
+    return env
+
+
 def build(root, manifest, flutter):
     source = snapshot(root, manifest)
-    commands = [[flutter, 'pub', 'get'], [flutter, 'build', 'ios', '--debug', '--simulator',
+    commands = [[flutter, 'pub', 'get', '--enforce-lockfile'], [flutter, 'build', 'ios', '--debug', '--simulator',
                 '--target', SCENARIOS[manifest.get('scenario', 'transaction-copy')],
                 f'--dart-define-from-file={root / "defines.json"}']]
     for index, args in enumerate(commands):
         print(f'QA build stage {index + 1}; logs stay in private run directory', flush=True)
         with (root / f'raw-logs/build-{index}.log').open('w') as log:
-            subprocess.run(args, cwd=source, stdout=log, stderr=log, check=True)
+            subprocess.run(args, cwd=source, env=flutter_environment(source), stdout=log, stderr=log, check=True)
     manifest['resolved_lock_sha256'] = hashlib.sha256((source / 'pubspec.lock').read_bytes()).hexdigest()
     app = source / 'build/ios/iphonesimulator/Runner.app'
     for bundle, entitlements in [(p, source / 'ios/BeeCountWidgetExtension.entitlements')
@@ -380,7 +392,7 @@ def run(root, manifest, flutter):
     backup_app(root, manifest)
     permission_process, permission_log = integration_permissions(root, manifest)
     env = dict(os.environ, QA_EVIDENCE_DIR=str(root / 'evidence'))
-    args = [flutter, 'drive', '-d', manifest['udid'], '--use-application-binary', str(app),
+    args = [flutter, 'drive', '--no-pub', '-d', manifest['udid'], '--use-application-binary', str(app),
             '--driver', 'test_driver/transaction_copy_live_test.dart',
             '--target', SCENARIOS[manifest.get('scenario', 'transaction-copy')], '--keep-app-running']
     print('Running UI and live Cloud acceptance on the owned QA simulator', flush=True)
@@ -686,8 +698,8 @@ def restart_check(root, manifest, flutter):
     device(manifest)
     source = inside(root, root / 'app-source')
     with (root / 'raw-logs/normal-build.log').open('w') as log:
-        subprocess.run([flutter, 'build', 'ios', '--debug', '--simulator', '--target', 'lib/main.dart'],
-                       cwd=source, stdout=log, stderr=log, check=True)
+        subprocess.run([flutter, 'build', 'ios', '--no-pub', '--debug', '--simulator', '--target', 'lib/main.dart'],
+                       cwd=source, env=flutter_environment(source), stdout=log, stderr=log, check=True)
     manifest['resolved_lock_sha256'] = hashlib.sha256((source / 'pubspec.lock').read_bytes()).hexdigest()
     app = source / 'build/ios/iphonesimulator/Runner.app'
     for bundle, entitlements in [(p, source / 'ios/BeeCountWidgetExtension.entitlements')
