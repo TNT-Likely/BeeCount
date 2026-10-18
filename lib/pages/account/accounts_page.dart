@@ -2232,6 +2232,7 @@ class _AccountCard extends ConsumerWidget {
                         MaterialPageRoute(
                             builder: (_) => TransactionEditorPage(
                                 initialKind: 'transfer',
+                                initialCurrencyCode: account.currency,
                                 quickAdd: true,
                                 initialToAccountId: account.id)));
                     if (!context.mounted) return;

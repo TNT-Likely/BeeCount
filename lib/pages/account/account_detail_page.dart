@@ -437,6 +437,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
           await ref.read(repositoryProvider).getAccount(account.id);
       if (!mounted) return;
       setState(() => _refreshedLoan = refreshed);
+      ref.read(statsRefreshProvider.notifier).state++;
       ref.invalidate(accountStatsProvider(account.id));
     } catch (error) {
       if (mounted) showToast(context, error.toString());
@@ -1254,6 +1255,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
       MaterialPageRoute(
         builder: (_) => TransactionEditorPage(
           initialKind: 'transfer',
+          initialCurrencyCode: account.currency,
           initialAccountId: fromAccountId,
           initialToAccountId: toAccountId,
           quickAdd: true,

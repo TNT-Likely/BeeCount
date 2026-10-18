@@ -1264,6 +1264,7 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
         }
       }
 
+      ref.read(statsRefreshProvider.notifier).state++;
       // 触发账本同步(后台异步,不阻塞页面关闭)
       if (mounted) {
         PostProcessor.sync(ref, ledgerId: widget.ledgerId);

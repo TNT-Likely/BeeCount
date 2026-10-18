@@ -12,6 +12,7 @@ import 'package:beecount/widgets/biz/amount_editor_sheet.dart';
 import 'package:beecount/data/db.dart' as schema;
 import 'package:beecount/pages/main/home_page.dart';
 import 'package:beecount/providers/database_providers.dart';
+import 'package:beecount/providers/statistics_providers.dart';
 import 'package:beecount/providers/language_provider.dart';
 import 'package:beecount/providers/sync_providers.dart';
 import 'package:beecount/providers/theme_providers.dart';
@@ -311,7 +312,11 @@ void main() {
     await home();
     await open(AccountsPage());
     final repayAction = find.byKey(ValueKey('loan-repay-${loan.id}'));
-    await waitUi(() => repayAction.evaluate().isNotEmpty);
+    expect((await container.read(netWorthBreakdownByCurrencyProvider.future))['CNY']!.totalLiabilities, -81000);
+    await capture('02b-account-totals-after-creation');
+    await tester.scrollUntilVisible(repayAction, 350,
+        scrollable: find.descendant(of: find.byType(AccountsPage), matching: find.byType(Scrollable)).first,
+        maxScrolls: 20);
     await tester.ensureVisible(repayAction);
     await tester.tap(repayAction);
     await tester.pump(const Duration(milliseconds: 600));
