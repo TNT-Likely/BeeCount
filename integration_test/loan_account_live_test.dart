@@ -379,7 +379,7 @@ void main() {
             .first,
         '30000');
     FocusManager.instance.primaryFocus?.unfocus();
-    await tap('确认');
+    await tap('确定');
     await waitUi(() => find.byType(AlertDialog).evaluate().isEmpty);
     await capture('03-legacy-loan-reconciled');
     await home();
@@ -412,6 +412,7 @@ void main() {
         .textContaining('QA 归还本金', findRichText: true)
         .evaluate()
         .isNotEmpty);
+    await waitUi(() => find.textContaining('本金减少', findRichText: true).evaluate().isNotEmpty && find.textContaining('本金增加', findRichText: true).evaluate().isNotEmpty);
     expect(find.textContaining('本金减少', findRichText: true), findsWidgets);
     expect(find.textContaining('本金增加', findRichText: true), findsWidgets);
     await capture('04-loan-principal-history');
