@@ -8723,9 +8723,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get accountGroupValuationAssets => '估值资产';
 
   @override
-  String get loanDebtAfter => '预计剩余本金';
-
-  @override
   String get loanDebtDecrease => '本金减少';
 
   @override

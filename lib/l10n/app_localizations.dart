@@ -16418,12 +16418,6 @@ abstract class AppLocalizations {
   /// **'Valued assets'**
   String get accountGroupValuationAssets;
 
-  /// No description provided for @loanDebtAfter.
-  ///
-  /// In en, this message translates to:
-  /// **'Principal after this transfer'**
-  String get loanDebtAfter;
-
   /// No description provided for @loanDebtDecrease.
   ///
   /// In en, this message translates to:

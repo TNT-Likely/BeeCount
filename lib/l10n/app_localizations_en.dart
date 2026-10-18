@@ -8731,9 +8731,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountGroupValuationAssets => 'Valued assets';
 
   @override
-  String get loanDebtAfter => 'Principal after this transfer';
-
-  @override
   String get loanDebtDecrease => 'Principal decreased';
 
   @override

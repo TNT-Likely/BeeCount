@@ -154,21 +154,6 @@ class _TransferFormState extends ConsumerState<TransferForm> {
     final repo = ref.read(repositoryProvider);
     final ledgerId = ref.read(currentLedgerIdProvider);
 
-    final fromAccount = await _lookupAccount(_fromAccountId!);
-    final toAccount = await _lookupAccount(_toAccountId!);
-    final loan = toAccount?.type == 'loan'
-        ? toAccount
-        : fromAccount?.type == 'loan'
-            ? fromAccount
-            : null;
-    var debtBefore =
-        loan == null ? 0.0 : -(await repo.getAccountBalance(loan.id));
-    if (loan != null && widget.editingTransactionId != null) {
-      if (loan.id == widget.initialFromAccountId)
-        debtBefore -= widget.initialAmount ?? 0;
-      if (loan.id == widget.initialToAccountId)
-        debtBefore += widget.initialAmount ?? 0;
-    }
     if (!mounted) return;
 
     await showModalBottomSheet(
@@ -176,16 +161,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
       isScrollControlled: true,
       backgroundColor: BeeTokens.surfaceSheet(context),
       builder: (context) => AmountEditorSheet(
-        categoryName: loan == null
-            ? l10n.transferTitle
-            : toAccount?.type == 'loan'
-                ? l10n.loanRepayPrincipal
-                : l10n.loanBorrowPrincipal,
-        helperText: loan == null ? null : l10n.loanPrincipalHint,
-        amountSummaryBuilder: loan == null
-            ? null
-            : (amount) =>
-                '${l10n.loanDebtAfter}: ${(toAccount?.type == 'loan' ? debtBefore - amount : debtBefore + amount).toStringAsFixed(2)} ${loan.currency}',
+        categoryName: l10n.transferTitle,
         initialDate: widget.initialDate ?? DateTime.now(),
         initialAmount: widget.initialAmount,
         initialNote: widget.initialNote,

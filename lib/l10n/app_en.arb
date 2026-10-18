@@ -3916,7 +3916,6 @@
   "loanRepaymentExceedsDebt": "Principal repayment exceeds the outstanding debt. Check principal, interest and the loan balance.",
   "accountGroupDailyAssets": "Everyday funds",
   "accountGroupValuationAssets": "Valued assets",
-  "loanDebtAfter": "Principal after this transfer",
   "loanDebtDecrease": "Principal decreased",
   "loanDebtIncrease": "Principal increased"
 }

@@ -3623,7 +3623,6 @@
   "loanRepaymentExceedsDebt": "归还本金超过当前欠款，请核对本金、利息及欠款金额。",
   "accountGroupDailyAssets": "日常资金",
   "accountGroupValuationAssets": "估值资产",
-  "loanDebtAfter": "预计剩余本金",
   "loanDebtDecrease": "本金减少",
   "loanDebtIncrease": "本金增加"
 }
