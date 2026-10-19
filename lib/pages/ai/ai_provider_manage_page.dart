@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:agentcore/agentcore.dart';
@@ -37,13 +35,6 @@ class AIProviderManagePage extends ConsumerStatefulWidget {
 }
 
 class _AIProviderManagePageState extends ConsumerState<AIProviderManagePage> {
-  @override
-  void initState() {
-    super.initState();
-    // 打开管理页时后台静默刷新 GLM 邀请链接池(6h 节流,失败静默)。
-    unawaited(ref.read(glmInviteLinkServiceProvider).refreshIfNeeded());
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -1058,19 +1049,18 @@ class _AIProviderEditPageState extends ConsumerState<AIProviderEditPage> {
     );
   }
 
-  /// 打开智谱 GLM 邀请注册链接(从链接池随机取一条)
+  /// 打开智谱 GLM 邀请注册链接:与官网教程同一入口(cfg.beejz.com/invite,
+  /// Worker 302 到池内当前该用的码:置顶 → 未满),App 侧不再维护链接池
   Future<void> _openGlmWebsite() async {
-    final link = await ref.read(glmInviteLinkServiceProvider).pickLink();
-    final uri = Uri.tryParse(link);
-    if (uri == null) return;
+    final uri = Uri.parse(WebsiteUrls.glmInvite);
     try {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        logger.warning('AIProviderEditPage', '无法打开邀请链接: $link');
+        logger.warning('AIProviderEditPage', '无法打开邀请链接: $uri');
       }
     } catch (e) {
-      logger.error('AIProviderEditPage', '打开邀请链接失败: $link', e);
+      logger.error('AIProviderEditPage', '打开邀请链接失败: $uri', e);
     }
   }
 
