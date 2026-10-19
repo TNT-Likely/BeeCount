@@ -11,7 +11,6 @@ import '../services/ai/ai_chat_service.dart';
 import '../services/ai/agent_app_facade.dart';
 import '../utils/app_localizations_resolver.dart';
 import 'language_provider.dart';
-import '../services/ai/glm_invite_link_service.dart';
 import '../services/billing/bill_creation_service.dart';
 import '../providers.dart';
 import '../data/db.dart';
@@ -199,8 +198,3 @@ final aiChatEmptyLedgerSummaryProvider =
     );
   });
 });
-
-/// GLM 邀请链接池服务(「获取 Key」按钮)。无状态依赖,全局复用。
-final glmInviteLinkServiceProvider = Provider<GlmInviteLinkService>(
-  (ref) => GlmInviteLinkService(),
-);

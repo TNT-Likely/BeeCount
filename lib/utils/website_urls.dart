@@ -10,6 +10,10 @@ class WebsiteUrls {
   /// 未来换域名时只需修改这里
   static const String baseUrl = 'https://count.beejz.com';
 
+  /// GLM 邀请注册入口:cfg.beejz.com Worker 302 到池内当前该用的邀请码
+  /// (置顶 → 未满),与官网教程共用同一入口,服务端有兜底永不落空
+  static const String glmInvite = 'https://cfg.beejz.com/invite';
+
   /// 获取语言前缀
   /// 中文不需要前缀，英文需要 /en 前缀
   static String _langPrefix(Locale? locale) {
