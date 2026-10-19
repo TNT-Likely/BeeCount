@@ -1269,27 +1269,29 @@ class LocalRepository extends BaseRepository {
     int? parentId,
     String? syncId,
   }) async {
-    final id = await _categoryRepo.createCategory(
-      name: name,
-      kind: kind,
-      icon: icon,
-      sortOrder: sortOrder,
-      level: level,
-      parentId: parentId,
-      syncId: syncId,
-    );
-    if (changeTracker != null) {
-      final cat = await _categoryRepo.getCategoryById(id);
-      if (cat?.syncId != null) {
-        await changeTracker!.recordUserGlobalChange(
-          entityType: 'category',
-          entityId: id,
-          entitySyncId: cat!.syncId!,
-          action: 'create',
-        );
+    return db.transaction(() async {
+      final id = await _categoryRepo.createCategory(
+        name: name,
+        kind: kind,
+        icon: icon,
+        sortOrder: sortOrder,
+        level: level,
+        parentId: parentId,
+        syncId: syncId,
+      );
+      if (changeTracker != null) {
+        final cat = await _categoryRepo.getCategoryById(id);
+        if (cat?.syncId != null) {
+          await changeTracker!.recordUserGlobalChange(
+            entityType: 'category',
+            entityId: id,
+            entitySyncId: cat!.syncId!,
+            action: 'create',
+          );
+        }
       }
-    }
-    return id;
+      return id;
+    });
   }
 
   @override
@@ -1301,43 +1303,48 @@ class LocalRepository extends BaseRepository {
     int? sortOrder,
     String? syncId,
   }) async {
-    final id = await _categoryRepo.createSubCategory(
-      parentId: parentId,
-      name: name,
-      kind: kind,
-      icon: icon,
-      sortOrder: sortOrder,
-      syncId: syncId,
-    );
-    if (changeTracker != null) {
-      final cat = await _categoryRepo.getCategoryById(id);
-      if (cat?.syncId != null) {
-        await changeTracker!.recordUserGlobalChange(
-          entityType: 'category',
-          entityId: id,
-          entitySyncId: cat!.syncId!,
-          action: 'create',
-        );
+    return db.transaction(() async {
+      final id = await _categoryRepo.createSubCategory(
+        parentId: parentId,
+        name: name,
+        kind: kind,
+        icon: icon,
+        sortOrder: sortOrder,
+        syncId: syncId,
+      );
+      if (changeTracker != null) {
+        final cat = await _categoryRepo.getCategoryById(id);
+        if (cat?.syncId != null) {
+          await changeTracker!.recordUserGlobalChange(
+            entityType: 'category',
+            entityId: id,
+            entitySyncId: cat!.syncId!,
+            action: 'create',
+          );
+        }
       }
-    }
-    return id;
+      return id;
+    });
   }
 
   @override
   Future<void> updateCategory(int id,
       {String? name, String? icon, int? parentId, int? level}) async {
-    final cat =
-        changeTracker != null ? await _categoryRepo.getCategoryById(id) : null;
-    await _categoryRepo.updateCategory(id,
-        name: name, icon: icon, parentId: parentId, level: level);
-    if (cat?.syncId != null) {
-      await changeTracker!.recordUserGlobalChange(
-        entityType: 'category',
-        entityId: id,
-        entitySyncId: cat!.syncId!,
-        action: 'update',
-      );
-    }
+    await db.transaction(() async {
+      final cat = changeTracker != null
+          ? await _categoryRepo.getCategoryById(id)
+          : null;
+      await _categoryRepo.updateCategory(id,
+          name: name, icon: icon, parentId: parentId, level: level);
+      if (cat?.syncId != null) {
+        await changeTracker!.recordUserGlobalChange(
+          entityType: 'category',
+          entityId: id,
+          entitySyncId: cat!.syncId!,
+          action: 'update',
+        );
+      }
+    });
   }
 
   @override
@@ -1653,42 +1660,49 @@ class LocalRepository extends BaseRepository {
     String? customIconPath,
     String? communityIconId,
   }) async {
-    await _categoryRepo.updateCategoryIcon(
-      id,
-      iconType: iconType,
-      icon: icon,
-      customIconPath: customIconPath,
-      communityIconId: communityIconId,
-    );
-    // 图标改动也需要 push 到服务端 —— 否则 mobile 改了图标 web 永远看不到。
-    // ledgerId=0：分类是 user-scoped，和 name 改动走同一条 push 通道。
-    if (changeTracker != null) {
-      final cat = await _categoryRepo.getCategoryById(id);
-      if (cat?.syncId != null) {
-        await changeTracker!.recordUserGlobalChange(
-          entityType: 'category',
-          entityId: id,
-          entitySyncId: cat!.syncId!,
-          action: 'update',
-        );
+    // Commit the edit and outbox marker together, so pull cannot observe an
+    // edited category without the pending change that protects it.
+    await db.transaction(() async {
+      await _categoryRepo.updateCategoryIcon(
+        id,
+        iconType: iconType,
+        icon: icon,
+        customIconPath: customIconPath,
+        communityIconId: communityIconId,
+      );
+      // 图标改动也需要 push 到服务端 —— 否则 mobile 改了图标 web 永远看不到。
+      // ledgerId=0：分类是 user-scoped，和 name 改动走同一条 push 通道。
+      if (changeTracker != null) {
+        final cat = await _categoryRepo.getCategoryById(id);
+        if (cat?.syncId != null) {
+          await changeTracker!.recordUserGlobalChange(
+            entityType: 'category',
+            entityId: id,
+            entitySyncId: cat!.syncId!,
+            action: 'update',
+          );
+        }
       }
-    }
+    });
   }
 
   @override
   Future<void> clearCategoryCustomIcon(int id, {String? materialIcon}) async {
-    await _categoryRepo.clearCategoryCustomIcon(id, materialIcon: materialIcon);
-    if (changeTracker != null) {
-      final cat = await _categoryRepo.getCategoryById(id);
-      if (cat?.syncId != null) {
-        await changeTracker!.recordUserGlobalChange(
-          entityType: 'category',
-          entityId: id,
-          entitySyncId: cat!.syncId!,
-          action: 'update',
-        );
+    await db.transaction(() async {
+      await _categoryRepo.clearCategoryCustomIcon(id,
+          materialIcon: materialIcon);
+      if (changeTracker != null) {
+        final cat = await _categoryRepo.getCategoryById(id);
+        if (cat?.syncId != null) {
+          await changeTracker!.recordUserGlobalChange(
+            entityType: 'category',
+            entityId: id,
+            entitySyncId: cat!.syncId!,
+            action: 'update',
+          );
+        }
       }
-    }
+    });
   }
 
   @override
@@ -1922,7 +1936,8 @@ class LocalRepository extends BaseRepository {
       throw StateError(resolveAppLocalizations(null).ledgerMissing);
     }
     if (ledger.isShared && ledger.myRole != 'owner') {
-      throw StateError(resolveAppLocalizations(null).sharedLedgerBalanceRestricted);
+      throw StateError(
+          resolveAppLocalizations(null).sharedLedgerBalanceRestricted);
     }
 
     final account = await getAccount(accountId);
