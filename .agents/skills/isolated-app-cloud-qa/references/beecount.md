@@ -1,6 +1,18 @@
 # BeeCount 项目适配
 
-App 仓维护 `scripts/qa/isolated_app_cloud.py`、`scripts/qa/test_isolation.py`、`integration_test/*_live_test.dart` 和 `docs/contributing/ISOLATED_APP_CLOUD_QA_ZH.md`。执行前读项目 guide 与当前 runner，以下命令中的路径和 ref 按本次 checkout 替换。
+App 仓维护 `scripts/qa/isolated_app_cloud.py`、`scripts/qa/test_isolation.py`、`integration_test/*_live_test.dart` 和 `docs/contributing/ISOLATED_APP_CLOUD_QA_ZH.md`。执行前读项目 guide 与当前 runner，先选择验收范围，以下命令中的路径和 ref 按本次 checkout 替换。
+
+## 仅 App
+
+纯 App 改动默认使用独立设备、本地新数据库和合成数据，执行相关真实 UI、正常入口重启及持久化检查，不启动 Cloud、不创建服务账号、不构建 Web，也无需 Cloud checkout、服务端 Python 依赖或 pnpm。报告注明 Cloud 与双向同步“不适用（仅 App）”。
+
+保留同样的隔离身份核验：私有 run 与所有权标记、源码/skill hash、原有设备保护名单、新 UDID/serial、独立包和共享容器、安装前产物核验及已有 QA 数据备份。按被测功能设置本地 fixture 和可见断言；交接同一正常入口 App，清理实际创建的本轮资源。
+
+`isolated_app_cloud.py prepare` 目前是联调入口，会无条件准备并启动 Cloud；没有仅 App 开关。仅 App 不执行下方联调命令，也不为套用默认交易复制用例而启动 Cloud。复用所需的源码副本、产物和设备核验能力，按实际独立 App 入口执行；需要适配测试驱动时移除 Cloud 探针、鉴权、同步 fixture 及 Cloud 特有的可见文字依赖，不能伪造服务成功结果。现有 `notification_badge_check.py` 依赖已完成联调的正常入口 App，仅用于复用该类 run，不作为纯 App 验收必须启动 Cloud 的理由。
+
+## App 与 Cloud 联调
+
+仅当修改 Cloud，或验收目标明确涉及真实接口、同步链路和跨端往返时执行以下流程，并记录选择联调的原因。
 
 ```sh
 python3 -m unittest discover -s scripts/qa -p 'test_*.py' -v
@@ -48,6 +60,6 @@ QA 主包 `com.tntlikely.beecount.qa`，扩展 `.qa.BeeCountWidgetExtension`，A
 
 ## 报告交付
 
-完整验收结果在忽略目录或仓库外制作离线 HTML 与 ZIP，不提交到功能分支。用界面截图、操作流程和 App/Cloud 对照展示结论，按场景分组列实际断言，技术元数据与 JSON 放折叠附录。包内加入打开说明、manifest 与 SHA256 校验表；不得复制包含私人路径的原始 run manifest。
+完整验收结果在忽略目录或仓库外制作离线 HTML 与 ZIP，不提交到功能分支。用界面截图、操作流程和本地结果展示结论，联调时再附 App/Cloud 对照；仅 App 无需 Cloud projection 或 Web 交接。按场景分组列实际断言，技术元数据与 JSON 放折叠附录。包内加入打开说明、manifest 与 SHA256 校验表；不得复制包含私人路径的原始 run manifest。
 
 PR 保留简短结论、覆盖边界、跨仓依赖和报告下载链接。已授权上传时按 [GitHub PR 附件交付](github-pr-attachments.md)，通过网页文件选择器上传独立 ZIP，链接直接放进 PR 描述并回下载核对 SHA256。上传失败则给出本地完整包及限制，不创建应用发版或提交报告文件。

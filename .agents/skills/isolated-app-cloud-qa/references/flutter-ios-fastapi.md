@@ -1,5 +1,7 @@
 # Flutter iOS 与 FastAPI 适配要点
 
+先按验收目标选择范围。仅 App 只执行设备、产物与本地数据部分；以下 FastAPI/Cloud 初始化、实服同步和网页步骤仅用于联调，不是纯 App 验收的前置条件。
+
 ## 产物与配置
 
 - 在源码副本修改主包、测试包、widget extension、App Group 和硬编码组名；正式 checkout 的 iOS 配置不改写。移除正式 iCloud/ubiquity entitlement 与 Info 配置。
@@ -7,7 +9,7 @@
 - `flutter drive --use-application-binary` 可以安装并验证已检查的同一产物；显式指定新 UDID。不要用 `-d booted` 或全局 `simctl shutdown all`。
 - `get_app_container` 查不到容器时，区分“首次安装不存在”与“已有应用无法备份”。已有应用需同时备份 data 和 App Group。
 
-## Cloud 初始化
+## Cloud 初始化（仅联调）
 
 在无 `.env` 的独立 cwd 中执行迁移与启动；对子进程使用环境变量白名单，源码通过固定提交导出，Python 运行时可只读复用。不要先 import 服务再检查数据库路径，模块 import 可能已创建数据库或启动后台任务。
 
