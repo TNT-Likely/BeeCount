@@ -4,7 +4,9 @@
 
 先按改动范围选择验收：纯 App 改动默认只使用独立设备、本地合成数据和相关真实 UI，不需要启动 Cloud 测试环境；仅当修改 Cloud，或验收目标明确需要真实接口、同步链路和跨端往返时，才执行 App 与 Cloud 联调。是否启动 Cloud 不取决于 App 本身是否具有同步功能。
 
-仅 App 仍需独立包及共享容器、产物身份核验、新设备保护、正常入口重启、脱敏报告和完整清理。Cloud 身份、Web 交接及双向同步在报告中标记“不适用（仅 App）”，无需 Cloud checkout、服务端依赖或 pnpm。当前 `isolated_app_cloud.py prepare` 是会启动 Cloud 的联调入口，没有仅 App 开关；纯 App 验收使用实际独立 App 入口并复用适用的隔离核验，不能为了运行下面的联调用例而额外启动 Cloud。现有角标脚本依赖联调 fixture，按纯 App 场景使用前需改用本地可见断言，不能沿用 Cloud 探针。
+仅 App 仍需独立包及共享容器、产物身份核验、新设备保护、正常入口重启、脱敏报告和完整清理。Cloud 身份、Web 交接及双向同步在报告中标记“不适用（仅 App）”，无需 Cloud checkout、服务端依赖或 pnpm。当前 `isolated_app_cloud.py prepare` 是会启动 Cloud 的联调入口，没有仅 App 开关；纯 App 验收使用实际独立 App 入口并复用适用的隔离核验，不能为了运行下面的联调用例而额外启动 Cloud。现有 iOS 角标脚本 `notification_badge_check.py` 依赖联调 fixture，按纯 App 场景使用前需改用本地可见断言，不能沿用 Cloud 探针。
+
+Android 角标已有仅 App 入口 `scripts/qa/android_notification_badge.py`，提供 `prepare / build / run / review`。它创建私有 Android AVD 和独立 QA 包，使用正常入口 APK 验证实际桌面角标、点击通知、持续任务及未来提醒，不启动 Cloud。环境要求、命令与范围见 [Android 角标专项](../../.agents/skills/isolated-app-cloud-qa/references/beecount.md#android-角标专项)。交接后只使用 `review`，不重放 fixture。
 
 以下环境和命令用于联调。当前支持首页复制交易、交易小票、父子分类改名同步、Web 交易图片、MCP 小票附件和账户金额可信度六种联调场景。单元/widget 测试与 fake-provider 同步测试仍是快速回归层，实服同步另行执行。
 

@@ -16,6 +16,7 @@
 1. 停止身份匹配的本轮服务和 QA 设备。联调 run 使用 runner 的 `stop --run <确切目录>`；仅 App 使用其实际独立入口，不执行要求 Cloud 的停止命令。确认进程退出，不能只发信号就删除仍在使用的目录；超时先检查本次进程的实际状态。
 2. 关闭本轮创建的浏览器标签页。专用浏览器进程只在命令中的 `--user-data-dir` 精确属于该 run 时停止；核对其子进程也已退出后，再删除 profile。日常浏览器只关闭本轮标签页，不删除用户 profile、不停止其他会话。
 3. 再次确认 UDID 不在该 run 的 `protected_udids` 中，且当前设备名称/runtime 与 manifest 一致。对这个确切 UDID 执行 `xcrun simctl shutdown <UDID>`（若仍在运行），然后 `xcrun simctl delete <UDID>`。只 shutdown 或 uninstall App 都不能回收整个模拟器。不得使用 `booted`、`all`、`unavailable` 或设备名称匹配批量删除。
+   Android run 核对 serial 不在 `protected_serials` 中、`adb -s <serial> emu avd name` 与 manifest 相符、模拟器 PID/启动时间匹配后，仅对该 serial 执行 `adb -s <serial> emu kill`；退出后随 run 删除私有 AVD 注册和设备目录。端口被其他 AVD 复用时不关闭它，只按已核验的私有目录回收已退出的旧资源；不删除全局 AVD 或操作已连接手机。
 4. 对核验后的确切 run 根目录执行受路径约束的递归删除，涵盖数据库、附件、凭证/env、私有备份、原始日志、测试证据副本、源码快照、App/原生 UI 构建与 xcresult、前端依赖与产物、专用浏览器 profile。目录中的链接只删除链接本身，不跟随删除目标。准备阶段未创建 UDID 的 run 不操作任何设备，仅回收可核验的服务和目录。
 5. 本轮额外创建的临时 Git worktree，只有在工作区干净、所需提交已合并或另行保存、没有进程继续使用它时才归档/移除；托管 worktree 使用对应归档工具。保留常驻 checkout、其他任务的 worktree、全局 Flutter/Xcode/runtime、pnpm 缓存及共享虚拟环境。
 

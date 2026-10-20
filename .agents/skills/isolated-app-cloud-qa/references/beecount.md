@@ -10,6 +10,22 @@ App 仓维护 `scripts/qa/isolated_app_cloud.py`、`scripts/qa/test_isolation.py
 
 `isolated_app_cloud.py prepare` 目前是联调入口，会无条件准备并启动 Cloud；没有仅 App 开关。仅 App 不执行下方联调命令，也不为套用默认交易复制用例而启动 Cloud。复用所需的源码副本、产物和设备核验能力，按实际独立 App 入口执行；需要适配测试驱动时移除 Cloud 探针、鉴权、同步 fixture 及 Cloud 特有的可见文字依赖，不能伪造服务成功结果。现有 `notification_badge_check.py` 依赖已完成联调的正常入口 App，仅用于复用该类 run，不作为纯 App 验收必须启动 Cloud 的理由。
 
+### Android 角标专项
+
+`scripts/qa/android_notification_badge.py` 是仅 App 入口，在 macOS 本机已安装的 Android SDK / API 37.2 镜像上创建私有 Pixel AVD；不启动 Cloud。保护全部已有 adb serial 和 AVD，主包为 `com.tntlikely.beecount.qa.dev.debug`，测试包再加 `.test`。安装前核对 APK 实际包名、FileProvider、instrumentation 目标和两包一致的签名；不是只检查 Gradle 配置。
+
+```sh
+python3 scripts/qa/android_notification_badge.py prepare
+qa_run_dir='<本次输出的Android私有run目录>'
+python3 scripts/qa/android_notification_badge.py build --run "$qa_run_dir"
+python3 scripts/qa/android_notification_badge.py run --run "$qa_run_dir"
+python3 scripts/qa/android_notification_badge.py review --run "$qa_run_dir"
+```
+
+使用正常 `lib/main.dart` APK，由独立原生 runner 点击真实桌面图标、展开通知栏并点击通知；核对旧版通知、带 tag 通知、前后台切换、桌面角标、持续任务、不显示角标的渠道，以及前台清理后未来真实闹钟仍可触发。合成通知和闹钟由测试 fixture 准备，不代表 Flutter 每日重复调度或各厂商桌面都已实测。Android 17 的系统分组摘要不计入 fixture 通知身份。
+
+失败证据按 attempt 保留。`run` 是自动 fixture 回放，交接后禁止再运行；`review` 只核对已安装产物并恢复同一正常 App，不重装或改写人工数据。清理时按实际 serial、AVD 名称、PID 和本轮私有目录核对，只关闭该模拟器并删除私有 AVD / run，不删除 SDK、已有 AVD 或已连接手机上的 App。
+
 ## App 与 Cloud 联调
 
 仅当修改 Cloud，或验收目标明确涉及真实接口、同步链路和跨端往返时执行以下流程，并记录选择联调的原因。

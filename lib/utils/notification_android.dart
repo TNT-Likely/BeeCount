@@ -80,7 +80,7 @@ class AndroidNotificationUtil implements util.NotificationUtil {
       fullScreenIntent: true,
       category: AndroidNotificationCategory.reminder,
       visibility: NotificationVisibility.public,
-      autoCancel: false,
+      autoCancel: true,
       ongoing: false,
       showWhen: true,
     );
