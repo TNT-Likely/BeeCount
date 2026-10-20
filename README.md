@@ -189,16 +189,16 @@
 ### Web 管理端预览
 
 <div align="center">
-  <img src="preview/web/zh-01-home.png" alt="Web 首页" width="600" />
+  <img src="preview/web/zh-01-home.png" alt="Web 首页完整页面" width="800" />
   <br/>
-  <sub>💰 首页:收支、资产构成、分类热力、趋势 — 一屏总览(暗黑模式)</sub>
+  <sub>💰 首页：收支、资产构成、分类热力、趋势与排行榜完整展示（浅色模式）</sub>
 </div>
 
 <details>
 <summary>更多 Web 截图</summary>
 
 <div align="center">
-  <img src="preview/web/zh-02-transactions.png" alt="Web 交易列表" width="600" />
+  <img src="preview/web/zh-02-transactions.png" alt="Web 交易列表与完整分页" width="800" />
   <br/>
   <sub>📒 交易列表:关键字 / 分类 / 账户 / 日期 / 标签多维筛选</sub>
 </div>
@@ -206,13 +206,23 @@
 <br/>
 
 <div align="center">
-  <img src="preview/web/zh-05-assets.png" alt="Web 资产管理" width="600" />
+  <img src="preview/web/zh-05-assets.png" alt="Web 资产管理完整页面" width="800" />
   <br/>
   <sub>💳 账户余额、资产构成与负债总览</sub>
 </div>
 
 <div align="center">
-  <img src="preview/web/zh-04-attachments.png" alt="Web 小票附件预览" width="600" />
+  <img src="preview/web/zh-04-attachments.png" alt="Web 小票原图、关联流水与预览工具" width="800" />
+  <br/>
+  <sub>🧾 完整小票预览、关联流水、缩放与原件下载</sub>
+</div>
+
+<div align="center">
+  <img src="preview/web/zh-03-devices.png" alt="Web 设备与会话管理" width="800" />
+</div>
+
+<div align="center">
+  <img src="preview/web/zh-01-home-dark.png" alt="Web 首页完整页面（暗黑模式）" width="800" />
 </div>
 
 </details>

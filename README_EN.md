@@ -189,16 +189,16 @@ Full Docker Compose deployment, backup system, PWA, and ops details live in the 
 ### Web Admin Preview
 
 <div align="center">
-  <img src="preview/web/en-01-home.png" alt="Web home" width="600" />
+  <img src="preview/web/en-01-home.png" alt="Complete Web dashboard" width="800" />
   <br/>
-  <sub>💰 Home: income/expense, asset breakdown, category heatmap, trends — at a glance (dark mode)</sub>
+  <sub>💰 Complete dashboard: income/expense, asset breakdown, category heatmap, trends and rankings (light mode)</sub>
 </div>
 
 <details>
 <summary>More Web screenshots</summary>
 
 <div align="center">
-  <img src="preview/web/en-02-transactions.png" alt="Web transactions" width="600" />
+  <img src="preview/web/en-02-transactions.png" alt="Web transactions with complete pagination" width="800" />
   <br/>
   <sub>📒 Transactions: keyword / category / account / date / tag multi-filter</sub>
 </div>
@@ -206,13 +206,23 @@ Full Docker Compose deployment, backup system, PWA, and ops details live in the 
 <br/>
 
 <div align="center">
-  <img src="preview/web/en-05-assets.png" alt="Web assets" width="600" />
+  <img src="preview/web/en-05-assets.png" alt="Complete Web assets page" width="800" />
   <br/>
   <sub>💳 Account balances, asset composition and liabilities</sub>
 </div>
 
 <div align="center">
-  <img src="preview/web/en-04-attachments.png" alt="Web receipt preview" width="600" />
+  <img src="preview/web/en-04-attachments.png" alt="Full receipt, related transaction and preview controls" width="800" />
+  <br/>
+  <sub>🧾 Complete receipt preview, related transactions, zoom and original file download</sub>
+</div>
+
+<div align="center">
+  <img src="preview/web/en-03-devices.png" alt="Web device and session management" width="800" />
+</div>
+
+<div align="center">
+  <img src="preview/web/en-01-home-dark.png" alt="Complete Web dashboard in dark mode" width="800" />
 </div>
 
 </details>
