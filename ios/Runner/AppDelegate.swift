@@ -49,6 +49,23 @@ import UserNotifications
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
+  override func applicationDidBecomeActive(_ application: UIApplication) {
+    super.applicationDidBecomeActive(application)
+    clearNotificationBadge()
+  }
+
+  private func clearNotificationBadge() {
+    if #available(iOS 16.0, *) {
+      UNUserNotificationCenter.current().setBadgeCount(0) { error in
+        if let error = error {
+          LoggerPlugin.info(tag: "AppDelegate", message: "清除通知角标失败: \(error.localizedDescription)")
+        }
+      }
+    } else {
+      UIApplication.shared.applicationIconBadgeNumber = 0
+    }
+  }
+
   // 前台显示通知
   @available(iOS 10.0, *)
   override func userNotificationCenter(
@@ -56,11 +73,11 @@ import UserNotifications
     willPresent notification: UNNotification,
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
-    // 在前台也显示通知
+    // 前台保留横幅和声音，避免正在使用 App 时重新留下未读角标。
     if #available(iOS 14.0, *) {
-      completionHandler([.banner, .sound, .badge])
+      completionHandler([.banner, .sound])
     } else {
-      completionHandler([.alert, .sound, .badge])
+      completionHandler([.alert, .sound])
     }
   }
 
@@ -71,6 +88,7 @@ import UserNotifications
     didReceive response: UNNotificationResponse,
     withCompletionHandler completionHandler: @escaping () -> Void
   ) {
+    clearNotificationBadge()
     completionHandler()
   }
 }

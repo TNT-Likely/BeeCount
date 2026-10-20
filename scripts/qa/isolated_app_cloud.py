@@ -130,6 +130,7 @@ def prepare(args):
         (root / name).mkdir(mode=0o700)
     shutil.copytree(skill_source, root / 'skill-source')
     cloud = Path(args.cloud_repo).resolve()
+    python = Path(args.cloud_python).absolute() if args.cloud_python else cloud / '.venv/bin/python'
     sha = command(['git', '-C', cloud, 'rev-parse', args.cloud_ref])
     export_commit(cloud, sha, root / 'cloud-source')
     with socket.socket() as sock:
@@ -146,7 +147,7 @@ def prepare(args):
         flutter=json.loads(command([args.flutter, '--version', '--machine']))['frameworkVersion'],
         xcode=command(['xcodebuild', '-version']),
         host_python=sys.version.split()[0],
-        cloud_python=command([cloud / '.venv/bin/python', '-c', 'import sys; print(sys.version.split()[0])']))
+        cloud_python=command([python, '-c', 'import sys; print(sys.version.split()[0])']))
     manifest.update(skill_identity)
     write_json(root / 'manifest.json', manifest)
     credentials = dict(email=f'{run_id}@qa.example.com', password=secrets.token_urlsafe(24),
@@ -168,7 +169,6 @@ def prepare(args):
                BACKUP_SCHEDULER_ENABLED='false', RAG_INDEX_REFRESH_INTERVAL_SECONDS='0',
                EXCHANGE_RATE_PROXY_ENABLED='false', EMBEDDING_API_KEY='', **paths)
     write_json(root / 'cloud-env.json', env)
-    python = cloud / '.venv/bin/python'
     manifest['cloud_python'] = str(python)
     migration = (
         'from alembic.config import Config; from alembic import command; '
@@ -780,6 +780,7 @@ def main():
     parser.add_argument('action', choices=('prepare', 'build', 'preflight', 'run', 'restart-check', 'review', 'stop'))
     parser.add_argument('--run')
     parser.add_argument('--cloud-repo')
+    parser.add_argument('--cloud-python', help='Read-only Python runtime override; defaults to the Cloud checkout .venv')
     parser.add_argument('--cloud-ref', default='origin/main')
     parser.add_argument('--scenario', choices=tuple(SCENARIOS), default='transaction-copy')
     parser.add_argument('--skill-dir', help='QA skill directory; defaults to the App project .agents/skills')

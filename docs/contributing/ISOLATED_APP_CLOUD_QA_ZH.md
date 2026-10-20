@@ -55,6 +55,14 @@ python3 scripts/qa/isolated_app_cloud.py restart-check --run "$qa_run_dir"
 python3 scripts/qa/isolated_app_cloud.py review --run "$qa_run_dir"
 ```
 
+通知角标回归（issue #557）在 `restart-check` 成功后，使用同一正常入口 QA App 执行：
+
+```sh
+python3 scripts/qa/notification_badge_check.py --run "$qa_run_dir"
+```
+
+原生 UI runner 核对新设备和正常入口二进制身份，向独立 QA 包注入合成 APNs 通知，实际读取主屏幕角标并验证冷启动、后台返回、前台横幅、点击通知和重复切换。该命令不重装 App，证据写入 `notification-badge.json` 和 `badge-*.png`；不将 APNs 注入写成本地定时提醒投递验收，也不代表 iOS 15 或真机已经验收。执行后运行 `review` 保留同一环境。
+
 `build` 对当前 tracked 文件与 QA 入口生成源码副本，构建后核验实际主包和扩展的 ID / 签名 entitlement。改代码后创建新 run，再构建；不要将旧 artifact 当作新代码已通过。
 
 `run` 用 `flutter drive --use-application-binary` 安装已经检查的同一产物，并明确指定新 UDID。测试使用生产首页、编辑器、真实 Repository、真实运行时 provider、SyncEngine 和鉴权，fixture 为合成数据。测试用例不得在普通 `flutter test -d <现用设备>` 下运行。
