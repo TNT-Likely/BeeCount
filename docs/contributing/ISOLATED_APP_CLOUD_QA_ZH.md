@@ -2,9 +2,15 @@
 
 流程 skill 随项目维护在 `.agents/skills/isolated-app-cloud-qa`；Codex 与 Claude Code 项目安装见 [项目 skill](PROJECT_SKILLS_ZH.md)。不再需要 honeycomb 或全局安装。新 run 自动记录 skill 仓库 SHA、完整目录 hash 与版本，并保存私有源码副本；可用 `--skill-dir` 指定另一份源码。旧 `--skill-repo` 仅保留兼容，已存在 run 的 manifest 和数据不会迁移。
 
-用于需要真实 iOS App UI、真实 Cloud 数据持久化和双向同步的验收。当前支持首页复制交易、交易小票、父子分类改名同步、Web 交易图片、MCP 小票附件和账户金额可信度六种场景。单元/widget 测试与 fake-provider 同步测试仍是快速回归层，实服同步另行执行。
+先按改动范围选择验收：纯 App 改动默认只使用独立设备、本地合成数据和相关真实 UI，不需要启动 Cloud 测试环境；仅当修改 Cloud，或验收目标明确需要真实接口、同步链路和跨端往返时，才执行 App 与 Cloud 联调。是否启动 Cloud 不取决于 App 本身是否具有同步功能。
 
-## 环境要求
+仅 App 仍需独立包及共享容器、产物身份核验、新设备保护、正常入口重启、脱敏报告和完整清理。Cloud 身份、Web 交接及双向同步在报告中标记“不适用（仅 App）”，无需 Cloud checkout、服务端依赖或 pnpm。当前 `isolated_app_cloud.py prepare` 是会启动 Cloud 的联调入口，没有仅 App 开关；纯 App 验收使用实际独立 App 入口并复用适用的隔离核验，不能为了运行下面的联调用例而额外启动 Cloud。现有 iOS 角标脚本 `notification_badge_check.py` 依赖联调 fixture，按纯 App 场景使用前需改用本地可见断言，不能沿用 Cloud 探针。
+
+Android 角标已有仅 App 入口 `scripts/qa/android_notification_badge.py`，提供 `prepare / build / run / review`。它创建私有 Android AVD 和独立 QA 包，使用正常入口 APK 验证实际桌面角标、点击通知、持续任务及未来提醒，不启动 Cloud。环境要求、命令与范围见 [Android 角标专项](../../.agents/skills/isolated-app-cloud-qa/references/beecount.md#android-角标专项)。交接后只使用 `review`，不重放 fixture。
+
+以下环境和命令用于联调。当前支持首页复制交易、交易小票、父子分类改名同步、Web 交易图片、MCP 小票附件和账户金额可信度六种联调场景。单元/widget 测试与 fake-provider 同步测试仍是快速回归层，实服同步另行执行。
+
+## 联调环境要求
 
 - macOS、Xcode、已安装的 iOS runtime（默认 iOS 26.5）、项目支持的 Flutter；不得安装到现用模拟器。
 - Python 3.12+；Cloud checkout 已 fetch `origin/main`，其 `.venv/bin/python` 包含兼容该版本的依赖。验收只读取这套 Python 运行时，不切换 Cloud 当前分支，不修改已有环境文件。
@@ -12,7 +18,7 @@
 - Node.js 20+ 与 pnpm：人工 Cloud 验收前在本次源码副本构建 web 前端，API 使用同一 QA origin，不能连接默认开发端口或现用 Cloud。
 - QA 资源写入新建的系统临时目录，至少留出两个 App 构建及容器备份的空间。
 
-## 执行
+## 联调执行
 
 先运行不接触设备/服务端数据的脚本保护测试及功能回归：
 
@@ -54,6 +60,14 @@ python3 scripts/qa/isolated_app_cloud.py run --run "$qa_run_dir"
 python3 scripts/qa/isolated_app_cloud.py restart-check --run "$qa_run_dir"
 python3 scripts/qa/isolated_app_cloud.py review --run "$qa_run_dir"
 ```
+
+通知角标回归（issue #557）在 `restart-check` 成功后，使用同一正常入口 QA App 执行：
+
+```sh
+python3 scripts/qa/notification_badge_check.py --run "$qa_run_dir"
+```
+
+原生 UI runner 核对新设备和正常入口二进制身份，向独立 QA 包注入合成 APNs 通知，实际读取主屏幕角标并验证冷启动、后台返回、前台横幅、点击通知和重复切换。该命令不重装 App，证据写入 `notification-badge.json` 和 `badge-*.png`；不将 APNs 注入写成本地定时提醒投递验收，也不代表 iOS 15 或真机已经验收。执行后运行 `review` 保留同一环境。
 
 `build` 对当前 tracked 文件与 QA 入口生成源码副本，构建后核验实际主包和扩展的 ID / 签名 entitlement。改代码后创建新 run，再构建；不要将旧 artifact 当作新代码已通过。
 

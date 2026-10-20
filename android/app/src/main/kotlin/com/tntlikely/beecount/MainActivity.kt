@@ -1,6 +1,7 @@
 package com.tntlikely.beecount
 
 import android.app.AlarmManager
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -38,6 +39,34 @@ class MainActivity: FlutterFragmentActivity() {
         setIntent(intent) // 重要：更新当前intent
         handleNotificationIntent(intent)
         handleSharedImage(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        clearReadNotificationBadges()
+    }
+
+    private fun clearReadNotificationBadges() {
+        try {
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val protectedFlags = Notification.FLAG_ONGOING_EVENT or
+                Notification.FLAG_FOREGROUND_SERVICE or Notification.FLAG_NO_CLEAR
+            for (active in manager.activeNotifications) {
+                val notification = active.notification
+                // Android 的角标来自已投递通知。保留持续任务和不显示角标的渠道，
+                // 只移除已读通知，不调用会取消未来提醒的 Flutter cancel/cancelAll。
+                val showsBadge = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    manager.getNotificationChannel(notification.channelId)?.canShowBadge() != false
+                } else {
+                    true
+                }
+                if (showsBadge && (notification.flags and protectedFlags) == 0) {
+                    manager.cancel(active.tag, active.id)
+                }
+            }
+        } catch (e: Exception) {
+            LoggerPlugin.warning("MainActivity", "清除通知角标失败: ${e.message}")
+        }
     }
 
     private fun handleSharedImage(intent: Intent?) {

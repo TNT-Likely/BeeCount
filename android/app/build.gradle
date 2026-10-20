@@ -46,6 +46,7 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         manifestPlaceholders += [appName: "@string/app_name"]
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     // 当未在命令行指定 --flavor 时，默认选择 dev 风味，避免 Flutter 调试找不到 APK。
     missingDimensionStrategy "env", "dev"
     }
@@ -212,6 +213,10 @@ flutter {
 }
 
 dependencies {
+    // 与 Flutter integration_test 传递依赖的 AndroidX Test 版本保持一致。
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
     // Java language desugaring support for older Android devices.
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 
