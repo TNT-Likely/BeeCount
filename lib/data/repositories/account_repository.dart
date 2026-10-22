@@ -18,6 +18,8 @@ class AccountBalanceUpdateResult {
 /// 账户Repository接口
 /// 定义账户相关的所有数据操作
 abstract class AccountRepository {
+  /// 在原账户接续已确认的当前本金；旧流水通过基准抵消，不重复影响欠款。
+  Future<void> activateLoanAccount(int accountId, {required double debt, DateTime? since});
   /// 获取指定账本下的所有账户（Stream版本）
   Stream<List<Account>> watchAccountsForLedger(int ledgerId);
 

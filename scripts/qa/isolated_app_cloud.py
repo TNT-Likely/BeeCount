@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import re
 import secrets
 import shutil
 import signal
@@ -26,6 +27,7 @@ PROJECT = Path(__file__).resolve().parents[2]
 SCENARIOS = {
     'transaction-receipt': 'integration_test/transaction_receipt_live_test.dart',
     'account-balance-trust': 'integration_test/account_balance_trust_live_test.dart',
+    'loan-account': 'integration_test/loan_account_live_test.dart',
     'transaction-copy': 'integration_test/transaction_copy_live_test.dart',
     'category-parent': 'integration_test/category_parent_live_test.dart',
     'web-transaction-images': 'integration_test/web_transaction_images_live_test.dart',
@@ -323,15 +325,26 @@ def verify_artifact(root, manifest):
     return app
 
 
+def flutter_environment(source):
+    # 镜像 URL 改变会触发 Pub 重解析并升级依赖；沿用项目锁文件的 hosted 来源。
+    env = dict(os.environ)
+    lock = (source / 'pubspec.lock').read_text()
+    hosts = set(re.findall(r'url:\s*["\']?([^"\'\s]+)["\']?\s*\n\s+source: hosted', lock))
+    if len(hosts) != 1:
+        raise ValueError('QA requires one explicit hosted registry in pubspec.lock')
+    env['PUB_HOSTED_URL'] = hosts.pop()
+    return env
+
+
 def build(root, manifest, flutter):
     source = snapshot(root, manifest)
-    commands = [[flutter, 'pub', 'get'], [flutter, 'build', 'ios', '--debug', '--simulator',
+    commands = [[flutter, 'pub', 'get', '--enforce-lockfile'], [flutter, 'build', 'ios', '--debug', '--simulator',
                 '--target', SCENARIOS[manifest.get('scenario', 'transaction-copy')],
                 f'--dart-define-from-file={root / "defines.json"}']]
     for index, args in enumerate(commands):
         print(f'QA build stage {index + 1}; logs stay in private run directory', flush=True)
         with (root / f'raw-logs/build-{index}.log').open('w') as log:
-            subprocess.run(args, cwd=source, stdout=log, stderr=log, check=True)
+            subprocess.run(args, cwd=source, env=flutter_environment(source), stdout=log, stderr=log, check=True)
     manifest['resolved_lock_sha256'] = hashlib.sha256((source / 'pubspec.lock').read_bytes()).hexdigest()
     app = source / 'build/ios/iphonesimulator/Runner.app'
     for bundle, entitlements in [(p, source / 'ios/BeeCountWidgetExtension.entitlements')
@@ -379,7 +392,7 @@ def run(root, manifest, flutter):
     backup_app(root, manifest)
     permission_process, permission_log = integration_permissions(root, manifest)
     env = dict(os.environ, QA_EVIDENCE_DIR=str(root / 'evidence'))
-    args = [flutter, 'drive', '-d', manifest['udid'], '--use-application-binary', str(app),
+    args = [flutter, 'drive', '--no-pub', '-d', manifest['udid'], '--use-application-binary', str(app),
             '--driver', 'test_driver/transaction_copy_live_test.dart',
             '--target', SCENARIOS[manifest.get('scenario', 'transaction-copy')], '--keep-app-running']
     print('Running UI and live Cloud acceptance on the owned QA simulator', flush=True)
@@ -402,7 +415,7 @@ def run(root, manifest, flutter):
                                            'created_by_user_id, tag_sync_ids_json, attachments_json '
                                            'FROM read_tx_projection ORDER BY sync_id')]
         migration = db.execute('SELECT version_num FROM alembic_version').fetchone()[0]
-        accounts = [dict(r) for r in db.execute('SELECT sync_id, name, account_type, currency, initial_balance, credit_limit, billing_day, payment_due_day FROM user_account_projection ORDER BY sync_id')]
+        accounts = [dict(r) for r in db.execute('SELECT sync_id, name, account_type, currency, initial_balance, credit_limit, billing_day, payment_due_day, loan_balance_version, loan_balance_since FROM user_account_projection ORDER BY sync_id')]
         categories = [dict(r) for r in db.execute('SELECT sync_id, name, kind, level, parent_name, parent_sync_id '
                                                 'FROM user_category_projection ORDER BY sync_id')]
     write_json(root / 'evidence/cloud-projection.json', dict(migration=migration, transactions=rows, categories=categories, accounts=accounts))
@@ -685,8 +698,8 @@ def restart_check(root, manifest, flutter):
     device(manifest)
     source = inside(root, root / 'app-source')
     with (root / 'raw-logs/normal-build.log').open('w') as log:
-        subprocess.run([flutter, 'build', 'ios', '--debug', '--simulator', '--target', 'lib/main.dart'],
-                       cwd=source, stdout=log, stderr=log, check=True)
+        subprocess.run([flutter, 'build', 'ios', '--no-pub', '--debug', '--simulator', '--target', 'lib/main.dart'],
+                       cwd=source, env=flutter_environment(source), stdout=log, stderr=log, check=True)
     manifest['resolved_lock_sha256'] = hashlib.sha256((source / 'pubspec.lock').read_bytes()).hexdigest()
     app = source / 'build/ios/iphonesimulator/Runner.app'
     for bundle, entitlements in [(p, source / 'ios/BeeCountWidgetExtension.entitlements')
@@ -733,6 +746,26 @@ def restart_check(root, manifest, flutter):
                 actual = next((a for a in accounts if a['sync_id'] == expected['sync_id']), None)
                 if actual is None or any(actual[k] != expected[k] for k in ('name', 'type', 'currency', 'initial_balance')):
                     raise ValueError('Normal restart lost synchronized account identity or fields')
+        rows = dict(transactions=rows, accounts=accounts)
+    elif manifest.get('scenario') == 'loan-account':
+        with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
+            db.row_factory = sqlite3.Row
+            accounts = [dict(r) for r in db.execute('SELECT id, sync_id, name, type, currency, initial_balance, loan_balance_version, loan_balance_since FROM accounts ORDER BY sync_id')]
+            for expected in report['final_accounts']:
+                actual = next((a for a in accounts if a['sync_id'] == expected['sync_id']), None)
+                if actual is None or any(actual[k] != expected[k] for k in ('name', 'type', 'currency', 'initial_balance', 'loan_balance_version')):
+                    raise ValueError('Normal restart lost loan metadata or identity')
+                balance = actual['initial_balance']
+                if actual['type'] not in ('real_estate', 'vehicle', 'investment', 'insurance', 'social_fund') and not (actual['type'] == 'loan' and actual['loan_balance_version'] == 0):
+                    for tx in db.execute('SELECT type, amount, account_id, to_account_id, happened_at FROM transactions WHERE account_id = ? OR to_account_id = ?', (actual['id'], actual['id'])):
+                        if actual['type'] == 'loan' and actual['loan_balance_since'] is not None and tx['happened_at'] < actual['loan_balance_since']:
+                            continue
+                        if tx['account_id'] == actual['id']:
+                            balance += tx['amount'] if tx['type'] == 'income' else -tx['amount']
+                        elif tx['type'] == 'transfer':
+                            balance += tx['amount']
+                if abs(balance - expected['balance']) > 0.000001:
+                    raise ValueError('Normal restart changed synchronized loan or ordinary account balance')
         rows = dict(transactions=rows, accounts=accounts)
     elif manifest.get('scenario') == 'category-parent':
         with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
