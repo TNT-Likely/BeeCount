@@ -47,8 +47,8 @@ class _BeeChoicePickerState<T> extends State<BeeChoicePicker<T>> {
             .contains(query.toLowerCase()))
         .toList();
     return Column(mainAxisSize: MainAxisSize.min, children: [
-      BeeField(
-          label: widget.searchLabel,
+      BeeSearchField(
+          hint: widget.searchLabel,
           onChanged: (v) => setState(() => query = v)),
       const SizedBox(height: 8),
       if (widget.loading)

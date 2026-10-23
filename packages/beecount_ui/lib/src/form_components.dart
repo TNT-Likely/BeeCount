@@ -51,7 +51,9 @@ class _BeeSearchFieldState extends State<BeeSearchField> {
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(13),
                       borderSide: BorderSide.none),
-                  prefixIcon: const BeeLineIcon('Search', size: 18),
+                  prefixIcon: const Padding(
+                      padding: EdgeInsets.all(14),
+                      child: BeeLineIcon('Search', size: 18)),
                   suffixIcon: widget.clearLabel != null && value.text.isNotEmpty
                       ? BeeIconButton(
                           label: widget.clearLabel!,
