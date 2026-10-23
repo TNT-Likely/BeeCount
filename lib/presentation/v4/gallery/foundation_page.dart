@@ -40,6 +40,7 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
   double slider = .6;
   String filter = '本月';
   bool iconSelected = false, passwordHidden = true, demoMotion = false;
+  bool statusDismissed = false;
   Set<int> choices = {0, 2};
   String pickerMode = 'data';
   int picked = 0;
@@ -190,6 +191,20 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                 tone: BeeTone.error,
                 action:
                     BeeButton(label: '重试', onPressed: () => record('重试已触发'))),
+            const SizedBox(height: 16),
+            if (!statusDismissed)
+              BeeStatus(
+                  label: '可关闭的提示',
+                  action: TextButton(
+                      onPressed: () => record('查看提示'), child: const Text('查看')),
+                  onDismiss: () => setState(() {
+                        statusDismissed = true;
+                        event = '提示已关闭';
+                      }))
+            else
+              TextButton(
+                  onPressed: () => setState(() => statusDismissed = false),
+                  child: const Text('恢复提示')),
             const SizedBox(height: 24),
             const BeeProgress(value: .64, label: '本月预算', trailing: '64%'),
             BeeEmptyState(

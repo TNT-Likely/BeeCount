@@ -377,11 +377,16 @@ class BeeStatus extends StatelessWidget {
       required this.label,
       this.detail,
       this.tone = BeeTone.neutral,
-      this.action});
+      this.action,
+      this.icon,
+      this.onDismiss,
+      this.dismissLabel});
   final String label;
   final String? detail;
   final BeeTone tone;
-  final Widget? action;
+  final Widget? action, icon;
+  final VoidCallback? onDismiss;
+  final String? dismissLabel;
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
@@ -396,7 +401,9 @@ class BeeStatus extends StatelessWidget {
     return Semantics(
         liveRegion: true,
         child: Row(children: [
-          if (tone == BeeTone.busy)
+          if (icon != null)
+            icon!
+          else if (tone == BeeTone.busy)
             const SizedBox(
                 width: 20,
                 height: 20,
@@ -427,6 +434,12 @@ class BeeStatus extends StatelessWidget {
                           fontSize: 11, color: Theme.of(context).hintColor))
               ])),
           if (action != null) action!,
+          if (onDismiss != null)
+            BeeIconButton(
+                label: dismissLabel ??
+                    MaterialLocalizations.of(context).closeButtonTooltip,
+                icon: const BeeLineIcon('X', size: 16),
+                onPressed: onDismiss),
         ]));
   }
 }
