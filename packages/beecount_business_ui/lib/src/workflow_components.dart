@@ -204,7 +204,51 @@ class _BeeAttachmentViewerState extends State<BeeAttachmentViewer> {
                           image: widget.items[i].image,
                           fit: BoxFit.contain,
                           errorBuilder: (_, e, s) => _error(context))))));
-  Widget _thumbnails(BuildContext context) => SizedBox(
+  Widget _thumbnails(BuildContext context) {
+    if (widget.fullScreen) {
+      return SizedBox(
+          key: const ValueKey('attachment-viewer-thumbnails'),
+          height: 55,
+          width: double.infinity,
+          child: Center(
+              child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemCount: widget.items.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 10),
+                  itemBuilder: (context, i) => Semantics(
+                      selected: i == index,
+                      button: true,
+                      label:
+                          '${i + 1} / ${widget.items.length} · ${widget.items[i].label}',
+                      child: InkWell(
+                          onTap: () => pages.animateToPage(i,
+                              duration: const Duration(milliseconds: 180),
+                              curve: Curves.easeOut),
+                          child: Container(
+                              width: 55,
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                  color: const Color(0xff222222),
+                                  borderRadius: BorderRadius.circular(9),
+                                  border: Border.all(
+                                      width: 2,
+                                      color: i == index
+                                          ? Colors.white
+                                          : Colors.transparent)),
+                              child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(5),
+                                  child: Image(
+                                      image: widget.items[i].image,
+                                      fit: BoxFit.cover,
+                                      alignment: Alignment.topCenter,
+                                      errorBuilder: (_, a, b) =>
+                                          const BeeLineIcon('ImageOff', color: Colors.white54)))))))));
+    }
+    return _inlineThumbnails(context);
+  }
+
+  Widget _inlineThumbnails(BuildContext context) => SizedBox(
       height: 64,
       child: ListView(
           scrollDirection: Axis.horizontal,
@@ -250,78 +294,101 @@ class _BeeAttachmentViewerState extends State<BeeAttachmentViewer> {
   Widget build(BuildContext context) {
     if (widget.fullScreen) {
       return ColoredBox(
-          color: Colors.black,
+          color: const Color(0xff050505),
           child: AbsorbPointer(
               absorbing: widget.busy,
-              child: Stack(children: [
-                Positioned.fill(child: _viewport(context)),
-                Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: DecoratedBox(
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                              Colors.black.withValues(alpha: .7),
-                              Colors.transparent
-                            ])),
-                        child: SafeArea(
-                            bottom: false,
-                            child: SizedBox(
-                                height: 56,
-                                child: Stack(
-                                    alignment: Alignment.center,
+              child: SafeArea(
+                  minimum: const EdgeInsets.all(20),
+                  child: Stack(children: [
+                    Column(
+                        key: const ValueKey('attachment-viewer-frame'),
+                        children: [
+                          SizedBox(
+                              key: const ValueKey('attachment-viewer-toolbar'),
+                              height: 56,
+                              child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  child: Row(children: [
+                                    SizedBox(
+                                        width: 44,
+                                        height: 44,
+                                        child: widget.onClose == null
+                                            ? null
+                                            : BeeIconButton(
+                                                label: MaterialLocalizations.of(
+                                                        context)
+                                                    .closeButtonTooltip,
+                                                icon: const BeeLineIcon('X',
+                                                    color: Colors.white),
+                                                onPressed: widget.onClose)),
+                                    Expanded(
+                                        child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                          if (widget.items.isNotEmpty) ...[
+                                            Text(widget.items[index].label,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                    fontSize: 10,
+                                                    height: 1.5,
+                                                    color: Color(0xffaaaaaa))),
+                                            const SizedBox(height: 3),
+                                          ],
+                                          FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(
+                                                  widget.items.isEmpty
+                                                      ? widget.emptyLabel
+                                                      : '${index + 1} / ${widget.items.length}',
+                                                  maxLines: 1,
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      height: 1.5,
+                                                      color: Colors.white))),
+                                        ])),
+                                    if (widget.actions.isEmpty)
+                                      const SizedBox(width: 44)
+                                    else
+                                      ...widget.actions.map((action) =>
+                                          SizedBox(
+                                              width: 44,
+                                              height: 44,
+                                              child: action)),
+                                  ]))),
+                          Expanded(
+                              child: SizedBox.expand(
+                                  key:
+                                      const ValueKey('attachment-viewer-stage'),
+                                  child: _viewport(context))),
+                          if (widget.items.isNotEmpty)
+                            Padding(
+                                key: const ValueKey('attachment-viewer-footer'),
+                                padding:
+                                    const EdgeInsets.fromLTRB(12, 8, 12, 16),
+                                child: Column(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text(
-                                          widget.items.isEmpty
-                                              ? widget.emptyLabel
-                                              : '${index + 1} / ${widget.items.length}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.white)),
-                                      Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8),
-                                          child: Row(children: [
-                                            if (widget.onClose != null)
-                                              BeeIconButton(
-                                                  label:
-                                                      MaterialLocalizations.of(
-                                                              context)
-                                                          .closeButtonTooltip,
-                                                  icon: const BeeLineIcon('X',
-                                                      color: Colors.white),
-                                                  onPressed: widget.onClose),
-                                            const Spacer(),
-                                            ...widget.actions,
-                                          ])),
-                                    ]))))),
-                if (widget.items.isNotEmpty)
-                  Positioned(
-                      bottom: 12,
-                      left: 0,
-                      right: 0,
-                      child: SafeArea(
-                          top: false,
+                                      if (widget.items[index].info.isNotEmpty)
+                                        Text(widget.items[index].info,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                                fontSize: 11,
+                                                height: 1.5,
+                                                color: Color(0xffbbbbbb))),
+                                      if (widget.items.length > 1) ...[
+                                        const SizedBox(height: 8),
+                                        _thumbnails(context),
+                                      ],
+                                    ])),
+                        ]),
+                    if (widget.busy)
+                      const Center(
                           child:
-                              Column(mainAxisSize: MainAxisSize.min, children: [
-                            if (widget.items[index].info.isNotEmpty)
-                              Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Text(widget.items[index].info,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.white70))),
-                            if (widget.items.length > 1) _thumbnails(context),
-                          ]))),
-                if (widget.busy)
-                  const Center(
-                      child: CircularProgressIndicator(color: Colors.white)),
-              ])));
+                              CircularProgressIndicator(color: Colors.white)),
+                  ]))));
     }
     if (widget.items.isEmpty) {
       return widget.placeholder ?? const SizedBox.shrink();
