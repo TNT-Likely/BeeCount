@@ -367,6 +367,13 @@
         "title": "转账账户对",
         "nativeCase": 33,
         "nativeLabel": "转账账户对"
+      },
+      {
+        "id": "spec-52",
+        "code": "B30",
+        "title": "搜索汇总与批量操作",
+        "nativeCase": 34,
+        "nativeLabel": "搜索汇总与批量操作"
       }
     ]
   }

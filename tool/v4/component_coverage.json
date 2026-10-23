@@ -442,5 +442,15 @@
     ],
     "page": "foundation",
     "case": 4
+  },
+  {
+    "design_key": "searchBatch",
+    "components": [
+      "BeeSearchSummary",
+      "BeeBatchSelection",
+      "BeeBatchActionBar"
+    ],
+    "page": "business",
+    "case": 34
   }
 ]
