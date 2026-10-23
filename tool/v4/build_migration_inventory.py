@@ -53,6 +53,7 @@ for r in rows:
 for flow in config['associatedFlows']:
     assert (root/flow['source']).is_file(), flow['source']
 priority_counts=collections.Counter(r['priority'] for r in rows)
+completed_count=sum(r['status']=='已完成' for r in rows)
 audit={'date':config['updated'],'branch':config['branch'],'pageFiles':len(rows),'helperFiles':helpers,'designSceneExports':len(manifest),'flowDefinitions':len(flows),'priorityCounts':dict(sorted(priority_counts.items())),'plannedPages':config['plannedPages'],'associatedFlows':config['associatedFlows'],'rows':rows}
 (d/'page-inventory.json').write_text(json.dumps(audit,ensure_ascii=False,indent=2)+'\n')
 head=config['baselineCommit'];backup=d/'backup'/('pre-v4-'+head[:12]);
@@ -148,7 +149,7 @@ page=f"""# V4 完整页面迁移清单与优先级
 
 现有 **{len(rows)} 个产品页面源文件**（{counts_text}），另有 **{len(config['plannedPages'])} 个新设计页面待新增**、{len(helpers)} 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
-当前只有收支录入采用 v4 试点布局，状态为“部分迁移·待人工验收”；转账仍走旧表单。其余现有页面均待迁移。“组件已实现”“设计已覆盖”“新增调试入口”均不等于页面迁移完成。
+当前完整完成页面为 **{completed_count}**。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
 
 ## 优先级与顺序
 

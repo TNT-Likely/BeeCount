@@ -48,7 +48,7 @@
       "name": "转账表单（同币种/跨币种）",
       "source": "lib/widgets/transaction/transfer_form.dart",
       "priority": "P0",
-      "status": "待迁移",
+      "status": "部分接入·待完整验收",
       "designRoutes": [
         "editor"
       ],
@@ -58,7 +58,7 @@
       "name": "金额与元信息表单",
       "source": "lib/widgets/biz/amount_editor_sheet.dart",
       "priority": "P0",
-      "status": "部分迁移·待人工验收",
+      "status": "部分迁移·完整验收中",
       "designRoutes": [
         "editor",
         "flow-foreign-editor"
@@ -69,7 +69,7 @@
       "name": "账单行、长按与滑动菜单",
       "source": "lib/widgets/biz/transaction_list.dart",
       "priority": "P0",
-      "status": "组件就绪·页面待接入",
+      "status": "部分接入·待完整验收",
       "designRoutes": [
         "home",
         "search",
@@ -91,7 +91,7 @@
       "name": "账户选择弹窗",
       "source": "lib/widgets/biz/account_selector.dart",
       "priority": "P0",
-      "status": "新版组件就绪·旧消费者待迁移",
+      "status": "部分接入·待完整验收",
       "designRoutes": [
         "flow-account-picker"
       ],
@@ -208,7 +208,7 @@
       "classes": [
         "AccountEditPage"
       ],
-      "lines": 1911,
+      "lines": 1902,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "flow-account-edit",
@@ -217,7 +217,7 @@
       "designMapping": "已定位",
       "components": "账户卡、金额、账户类型、表单与交易列表",
       "acceptance": "保留账户类型/币种/余额、隐藏状态、余额调整、转账关联与历史记录。",
-      "status": "待迁移",
+      "status": "部分迁移·待设计对齐与完整验收",
       "name": "新增与编辑账户",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
@@ -231,7 +231,7 @@
       "classes": [
         "AccountsPage"
       ],
-      "lines": 2542,
+      "lines": 1361,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "assets",
@@ -240,7 +240,7 @@
       "designMapping": "已定位",
       "components": "资产汇总、账户卡、类型分组与操作菜单",
       "acceptance": "资产/负债/净资产口径、账户余额/币种、隐藏状态、新建/编辑、转账与详情入口。",
-      "status": "待迁移",
+      "status": "部分迁移·待设计对齐与完整验收",
       "name": "资产与账户列表",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
@@ -473,7 +473,7 @@
       "classes": [
         "AppLockScreen"
       ],
-      "lines": 150,
+      "lines": 154,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-lock"
@@ -481,7 +481,7 @@
       "designMapping": "已定位",
       "components": "安全输入、错误反馈与解锁状态",
       "acceptance": "保持原 PIN/生物识别、锁定/失败策略、恢复入口；不修改认证和安全存储。",
-      "status": "待迁移",
+      "status": "部分迁移·待设计对齐与完整验收",
       "name": "应用锁解锁",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
@@ -516,7 +516,7 @@
       "classes": [
         "PinSetupPage"
       ],
-      "lines": 168,
+      "lines": 170,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-pin"
@@ -524,7 +524,7 @@
       "designMapping": "已定位",
       "components": "PIN 输入、确认步骤与错误状态",
       "acceptance": "设置/确认、二次不一致、取消、返回、原存储和隐私策略。",
-      "status": "待迁移",
+      "status": "部分迁移·待设计对齐与完整验收",
       "name": "PIN 设置与确认",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
@@ -537,7 +537,7 @@
       "classes": [
         "SplashPage"
       ],
-      "lines": 144,
+      "lines": 80,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-splash"
@@ -545,7 +545,7 @@
       "designMapping": "已定位",
       "components": "品牌与加载/错误状态",
       "acceptance": "启动后进入初始化/解锁/首页的原分支、失败重试，避免改变初始化和同步时序。",
-      "status": "待迁移",
+      "status": "部分迁移·待设计对齐与完整验收",
       "name": "启动页",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
@@ -558,7 +558,7 @@
       "classes": [
         "WelcomePage"
       ],
-      "lines": 1207,
+      "lines": 633,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "welcome",
@@ -572,7 +572,7 @@
       "designMapping": "已定位",
       "components": "居中欢迎步骤、语言/币种/分类选择、恢复与云同步说明",
       "acceptance": "语言、币种/默认账本、分类模式、云同步、隐私开源、配置/附件恢复；返回保持选择。",
-      "status": "待迁移",
+      "status": "部分迁移·待设计对齐与完整验收",
       "name": "欢迎与初始化全流程",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
@@ -722,7 +722,7 @@
       "classes": [
         "CategoryManagePage"
       ],
-      "lines": 1265,
+      "lines": 1210,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "leaf:分类管理",
@@ -734,7 +734,7 @@
       "designMapping": "已定位",
       "components": "分类层级、图标/图片、表单、排序与工具弹窗",
       "acceptance": "一级/二级图标、自定义图片、转账图标入口、展开、排序和原工具弹窗。",
-      "status": "待迁移",
+      "status": "部分迁移·待设计对齐与完整验收",
       "name": "分类管理与工具",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
@@ -1059,7 +1059,7 @@
       "classes": [
         "HomePage"
       ],
-      "lines": 1146,
+      "lines": 813,
       "batch": "M2 首页与列表",
       "designRoutes": [
         "home",
@@ -1068,7 +1068,7 @@
       "designMapping": "已定位",
       "components": "品牌/无品牌、汇总、账单行、日期筛选、快捷记账与底部导航",
       "acceptance": "AI/搜索入口、月份滚轮、标签/时间/外币、分类图标导航、长按菜单/左滑删除、记账长按快捷入口。",
-      "status": "待迁移",
+      "status": "部分迁移·待设计对齐与完整验收",
       "name": "首页明细",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
@@ -1092,7 +1092,7 @@
       "designMapping": "已定位",
       "components": "账本卡、当前态、选择器、成员入口与操作菜单",
       "acceptance": "个人/共享账本、当前选中、右下操作与长按同菜单、预算/成员/编辑、新建/删除权限。",
-      "status": "待迁移",
+      "status": "部分迁移·待设计对齐与完整验收",
       "name": "账本管理与切换",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
@@ -1107,7 +1107,7 @@
       "classes": [
         "MinePage"
       ],
-      "lines": 1220,
+      "lines": 647,
       "batch": "M2 首页与列表",
       "designRoutes": [
         "mine",
@@ -1118,7 +1118,7 @@
       "designMapping": "已定位",
       "components": "昵称、紧凑账本余额、同步状态与分组菜单",
       "acceptance": "昵称编辑、当前账本累计余额/隐私、全部同步状态/异常/重试；完整原菜单和平台条件。",
-      "status": "待迁移",
+      "status": "部分迁移·待设计对齐与完整验收",
       "name": "我的、昵称与当前账本",
       "priority": "P0",
       "reason": "四个主要导航入口之一，需包含昵称、当前账本余额和完整同步状态。",
@@ -1750,10 +1750,10 @@
       "designMapping": "已定位",
       "components": "金额/折算、计算器、两行元信息、分类/资源选择器与转账账户组合",
       "acceptance": "支出/收入/转账、新建/编辑/复制、再记一笔、防重保存、草稿、历史汇率、共享权限、附件和系统键盘。",
-      "status": "部分迁移·待人工验收",
+      "status": "部分迁移·完整验收中",
       "name": "记账、新增、编辑与复制",
       "priority": "P0",
-      "reason": "最高频录入：支出/收入已有试点；转账沿用旧表单，附件系统能力仍待真机验收。",
+      "reason": "优先作为完整验收样板：已接入收支、编辑和转账组合；继续核对 R8 设计、全部原有入口及实际设备数据闭环。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=editor",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-foreign-editor",
