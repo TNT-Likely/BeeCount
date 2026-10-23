@@ -1717,7 +1717,7 @@
       "classes": [
         "SearchPage"
       ],
-      "lines": 1234,
+      "lines": 1206,
       "batch": "M2 首页与列表",
       "designRoutes": [
         "search",
@@ -1740,7 +1740,7 @@
       "classes": [
         "TransactionEditorPage"
       ],
-      "lines": 388,
+      "lines": 421,
       "batch": "M1 记账闭环",
       "designRoutes": [
         "editor",

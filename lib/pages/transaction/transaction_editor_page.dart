@@ -351,7 +351,9 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
           ref, index == 1 ? 'income' : 'expense', _cardLedgerId);
       if (!mounted ||
           _selectedType != previousIndex ||
-          _cardLedgerId != previousLedger) return;
+          _cardLedgerId != previousLedger) {
+        return;
+      }
       // Input may have changed while the default account was loading.
       hadChanges = _cardCategory != null ||
           (_cardEditorKey.currentState?.hasDraftChanges ?? false);
@@ -364,7 +366,9 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
     }
     if (!mounted ||
         _selectedType != previousIndex ||
-        _cardLedgerId != previousLedger) return;
+        _cardLedgerId != previousLedger) {
+      return;
+    }
     setState(() {
       _selectedType = index;
       _cardCategory = null;
