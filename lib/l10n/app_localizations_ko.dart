@@ -8681,4 +8681,42 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get transactionReceiptShareFailed => 'Unable to share. Please try again.';
+
+  @override
+  String get v4RecordingMoreCategories => 'More categories';
+
+  @override
+  String get v4RecordingCalculationHint => 'Calculate with + − × ÷';
+
+  @override
+  String get v4RecordingSaveNext => 'Save & add another';
+
+  @override
+  String get v4RecordingClearAmount => 'Clear amount';
+
+  @override
+  String get v4RecordingSelectCategory => 'Choose a category';
+
+  @override
+  String get v4RecordingSaveFailed => 'Could not save. Please try again.';
+
+  @override
+  String get v4RecordingCategoriesFailed => 'Could not load categories';
+
+  @override
+  String get v4RecordingRetry => 'Retry';
+
+  @override
+  String get v4RecordingDiscardTitle => 'Discard this entry?';
+
+  @override
+  String get v4RecordingDiscardMessage => 'Your unsaved amount, note and selections will be cleared.';
+
+  @override
+  String get v4RateInvalid => 'Enter a valid exchange rate greater than 0';
+
+  @override
+  String v4RecordingConvertedLabel(String currency) {
+    return 'In $currency';
+  }
 }

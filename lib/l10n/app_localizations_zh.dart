@@ -8673,6 +8673,44 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get transactionReceiptShareFailed => '分享失败，请重试。';
+
+  @override
+  String get v4RecordingMoreCategories => '更多分类';
+
+  @override
+  String get v4RecordingCalculationHint => '支持 + − × ÷ 四则运算';
+
+  @override
+  String get v4RecordingSaveNext => '再记一笔';
+
+  @override
+  String get v4RecordingClearAmount => '清空金额';
+
+  @override
+  String get v4RecordingSelectCategory => '请选择分类';
+
+  @override
+  String get v4RecordingSaveFailed => '保存失败，请重试';
+
+  @override
+  String get v4RecordingCategoriesFailed => '分类加载失败';
+
+  @override
+  String get v4RecordingRetry => '重试';
+
+  @override
+  String get v4RecordingDiscardTitle => '放弃本次记账？';
+
+  @override
+  String get v4RecordingDiscardMessage => '尚未保存的金额、备注和选择将被清除。';
+
+  @override
+  String get v4RateInvalid => '请输入大于 0 的有效汇率';
+
+  @override
+  String v4RecordingConvertedLabel(String currency) {
+    return '折合 $currency';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

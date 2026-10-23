@@ -3606,5 +3606,24 @@
   "transactionReceiptTags": "标签",
   "transactionReceiptFooter": "认真记录，好好生活",
   "transactionReceiptUnavailable": "无法生成小票，请检查这笔交易是否仍然存在。",
-  "transactionReceiptShareFailed": "分享失败，请重试。"
+  "transactionReceiptShareFailed": "分享失败，请重试。",
+  "v4RecordingMoreCategories": "更多分类",
+  "v4RecordingCalculationHint": "支持 + − × ÷ 四则运算",
+  "v4RecordingSaveNext": "再记一笔",
+  "v4RecordingClearAmount": "清空金额",
+  "v4RecordingSelectCategory": "请选择分类",
+  "v4RecordingSaveFailed": "保存失败，请重试",
+  "v4RecordingCategoriesFailed": "分类加载失败",
+  "v4RecordingRetry": "重试",
+  "v4RecordingDiscardTitle": "放弃本次记账？",
+  "v4RecordingDiscardMessage": "尚未保存的金额、备注和选择将被清除。",
+  "v4RateInvalid": "请输入大于 0 的有效汇率",
+  "v4RecordingConvertedLabel": "折合 {currency}",
+  "@v4RecordingConvertedLabel": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  }
 }

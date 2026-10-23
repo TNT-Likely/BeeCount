@@ -16321,6 +16321,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to share. Please try again.'**
   String get transactionReceiptShareFailed;
+
+  /// No description provided for @v4RecordingMoreCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'More categories'**
+  String get v4RecordingMoreCategories;
+
+  /// No description provided for @v4RecordingCalculationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate with + − × ÷'**
+  String get v4RecordingCalculationHint;
+
+  /// No description provided for @v4RecordingSaveNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Save & add another'**
+  String get v4RecordingSaveNext;
+
+  /// No description provided for @v4RecordingClearAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear amount'**
+  String get v4RecordingClearAmount;
+
+  /// No description provided for @v4RecordingSelectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get v4RecordingSelectCategory;
+
+  /// No description provided for @v4RecordingSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Please try again.'**
+  String get v4RecordingSaveFailed;
+
+  /// No description provided for @v4RecordingCategoriesFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load categories'**
+  String get v4RecordingCategoriesFailed;
+
+  /// No description provided for @v4RecordingRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get v4RecordingRetry;
+
+  /// No description provided for @v4RecordingDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this entry?'**
+  String get v4RecordingDiscardTitle;
+
+  /// No description provided for @v4RecordingDiscardMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your unsaved amount, note and selections will be cleared.'**
+  String get v4RecordingDiscardMessage;
+
+  /// No description provided for @v4RateInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid exchange rate greater than 0'**
+  String get v4RateInvalid;
+
+  /// No description provided for @v4RecordingConvertedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'In {currency}'**
+  String v4RecordingConvertedLabel(String currency);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
