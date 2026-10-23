@@ -381,20 +381,20 @@
   },
   {
     "route": "flow-lock",
-    "slug": "flow-lock",
     "title": "应用锁",
     "group": "补齐 · 首次使用与安全",
-    "fullHeight": 844,
+    "slug": "flow-lock",
+    "fullHeight": 895,
     "viewport": "screens/viewport/flow-lock.png",
     "full": "screens/full/flow-lock.png",
     "svg": "figma/flow-lock.svg"
   },
   {
     "route": "flow-pin",
-    "slug": "flow-pin",
-    "title": "设置 PIN 码",
+    "title": "设置密码",
     "group": "补齐 · 首次使用与安全",
-    "fullHeight": 844,
+    "slug": "flow-pin",
+    "fullHeight": 895,
     "viewport": "screens/viewport/flow-pin.png",
     "full": "screens/full/flow-pin.png",
     "svg": "figma/flow-pin.svg"
@@ -1852,5 +1852,45 @@
     "viewport": "screens/viewport/flow-config-import.png",
     "full": "screens/full/flow-config-import.png",
     "svg": "figma/flow-config-import.svg"
+  },
+  {
+    "route": "flow-pin-change",
+    "title": "修改密码 · 验证旧 PIN",
+    "group": "其他",
+    "slug": "flow-pin-change",
+    "fullHeight": 895,
+    "viewport": "screens/viewport/flow-pin-change.png",
+    "full": "screens/full/flow-pin-change.png",
+    "svg": "figma/flow-pin-change.svg"
+  },
+  {
+    "route": "flow-lock-bio",
+    "title": "应用锁 · 生物识别可用",
+    "group": "其他",
+    "slug": "flow-lock-bio",
+    "fullHeight": 895,
+    "viewport": "screens/viewport/flow-lock-bio.png",
+    "full": "screens/full/flow-lock-bio.png",
+    "svg": "figma/flow-lock-bio.svg"
+  },
+  {
+    "route": "flow-config-error",
+    "title": "配置导入失败 · 弹窗",
+    "group": "其他",
+    "slug": "flow-config-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-config-error.png",
+    "full": "screens/full/flow-config-error.png",
+    "svg": "figma/flow-config-error.svg"
+  },
+  {
+    "route": "flow-config-done",
+    "title": "需要重启 · 弹窗",
+    "group": "其他",
+    "slug": "flow-config-done",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-config-done.png",
+    "full": "screens/full/flow-config-done.png",
+    "svg": "figma/flow-config-done.svg"
   }
 ]

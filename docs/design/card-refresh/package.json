@@ -18,7 +18,8 @@
     "preexport": "node scripts/prepare-output.cjs",
     "preguide": "node scripts/prepare-output.cjs",
     "precheck": "node scripts/prepare-output.cjs",
-    "export:selected": "node scripts/export-selected.cjs"
+    "export:selected": "node scripts/export-selected.cjs",
+    "check:security": "node scripts/validate-security.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

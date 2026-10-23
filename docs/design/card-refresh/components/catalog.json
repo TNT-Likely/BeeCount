@@ -388,6 +388,13 @@
         "title": "配置选择与预览",
         "nativeCase": 36,
         "nativeLabel": "配置选择与预览"
+      },
+      {
+        "id": "spec-55",
+        "code": "B33",
+        "title": "安全输入与验证",
+        "nativeCase": 26,
+        "nativeLabel": "安全输入"
       }
     ]
   }
