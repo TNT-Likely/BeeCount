@@ -1,0 +1,22 @@
+{
+  "source": "docs/design/card-refresh/prototype/demo.html?page=flow-pin",
+  "measuredWith": "Chromium computed styles, default skin, 2026-10-24",
+  "geometry": [
+    {
+      "viewport": "398x844",
+      "width": 108,
+      "height": 57,
+      "radius": 17,
+      "font": 25,
+      "gridGap": 9
+    },
+    {
+      "viewport": "320x568",
+      "width": 82,
+      "height": 48,
+      "radius": 17,
+      "font": 22,
+      "gridGap": 9
+    }
+  ]
+}

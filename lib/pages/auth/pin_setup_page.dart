@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../styles/tokens.dart';
-import '../../utils/ui_scale_extensions.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import '../../providers/security_providers.dart';
 import '../../services/security/app_lock_service.dart';
 import '../../widgets/ui/ui.dart';
@@ -27,6 +26,7 @@ class _PinSetupPageState extends ConsumerState<PinSetupPage> {
   String _pin = '';
   String _firstPin = '';
   bool _isError = false;
+  bool _busy = false;
 
   @override
   void initState() {
@@ -42,7 +42,7 @@ class _PinSetupPageState extends ConsumerState<PinSetupPage> {
   }
 
   void _onNumberTap(String number) {
-    if (_pin.length >= 4) return;
+    if (_busy || _isError || _pin.length >= 4) return;
     setState(() {
       _isError = false;
       _pin += number;
@@ -53,7 +53,7 @@ class _PinSetupPageState extends ConsumerState<PinSetupPage> {
   }
 
   void _onDelete() {
-    if (_pin.isEmpty) return;
+    if (_busy || _isError || _pin.isEmpty) return;
     setState(() {
       _isError = false;
       _pin = _pin.substring(0, _pin.length - 1);
@@ -63,7 +63,10 @@ class _PinSetupPageState extends ConsumerState<PinSetupPage> {
   Future<void> _handlePinComplete() async {
     if (_step == 0) {
       // 验证旧 PIN
+      setState(() => _busy = true);
       final valid = await AppLockService.verifyPin(_pin);
+      if (!mounted) return;
+      setState(() => _busy = false);
       if (valid) {
         setState(() {
           _step = 1;
@@ -82,7 +85,9 @@ class _PinSetupPageState extends ConsumerState<PinSetupPage> {
     } else {
       // 确认 PIN
       if (_pin == _firstPin) {
+        setState(() => _busy = true);
         await AppLockService.setPin(_pin);
+        if (!mounted) return;
         ref.read(appLockEnabledProvider.notifier).state = true;
         if (mounted) {
           showToast(context, AppLocalizations.of(context).appLockPinSetSuccess);
@@ -116,55 +121,34 @@ class _PinSetupPageState extends ConsumerState<PinSetupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: BeeTokens.scaffoldBackground(context),
-      body: Column(
-        children: [
-          PrimaryHeader(
-            title: widget.mode == PinSetupMode.create
-                ? AppLocalizations.of(context).appLockSetPin
-                : AppLocalizations.of(context).appLockChangePin,
-            showBack: true,
-          ),
+        backgroundColor: BeeCardTheme.of(context).canvas,
+        body: Column(children: [
+          BeePageHeader(
+              title: widget.mode == PinSetupMode.create
+                  ? l.appLockSetPin
+                  : l.appLockChangePin,
+              leading: const BackButton()),
           Expanded(
-            child: SafeArea(
-              top: false,
-              child: Column(
-                children: [
-                  const Spacer(flex: 2),
-                  // 步骤提示
-                  Text(
-                    _title,
-                    style: TextStyle(
-                      fontSize: 18.0.scaled(context, ref),
-                      fontWeight: FontWeight.w600,
-                      color: BeeTokens.textPrimary(context),
-                    ),
-                  ),
-                  SizedBox(height: 32.0.scaled(context, ref)),
-                  Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 400),
-                          child: BeePinPad(
-                            length: 4,
-                            filled: _pin.length,
-                            invalid: _isError,
-                            deleteLabel:
-                                AppLocalizations.of(context).commonDelete,
-                            onDigit: (v) {
-                              HapticFeedback.lightImpact();
-                              _onNumberTap(v);
-                            },
-                            onDelete: _onDelete,
-                          ))),
-                  SizedBox(height: 32.0.scaled(context, ref)),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+              child: SafeArea(
+                  top: false,
+                  child: BeeSecurityPanel(
+                      title: _title,
+                      subtitle: l.appLockDesc,
+                      inputBuilder: (compact) => BeePinPad(
+                          length: 4,
+                          filled: _pin.length,
+                          invalid: _isError,
+                          enabled: !_busy && !_isError,
+                          cardKeys: true,
+                          compact: compact,
+                          deleteLabel: l.commonDelete,
+                          onDigit: (value) {
+                            HapticFeedback.lightImpact();
+                            _onNumberTap(value);
+                          },
+                          onDelete: _onDelete))))
+        ]));
   }
 }

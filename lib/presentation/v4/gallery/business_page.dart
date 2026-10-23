@@ -1017,22 +1017,29 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                   title: '等待用户确认', tone: BeeTone.warning, detail: '确认后才会保存')
             ])
           ]),
-        26 => BeeSurface(
-              child: Column(children: [
-            const Text('安全输入 · 展示与认证逻辑分离'),
-            const SizedBox(height: 16),
-            BeePinPad(
-                length: 6,
-                filled: pin.length,
-                deleteLabel: '退格',
-                onDigit: (v) => setState(() => pin += v),
-                onDelete: () => setState(() =>
-                    pin = pin.isEmpty ? '' : pin.substring(0, pin.length - 1))),
+        26 => Column(children: [
+            SizedBox(
+                height: 580,
+                child: ColoredBox(
+                    color: BeeCardTheme.of(context).canvas,
+                    child: BeeSecurityPanel(
+                        title: '请设置新密码',
+                        subtitle: 'PIN码与生物识别保护隐私',
+                        inputBuilder: (compact) => BeePinPad(
+                            length: 4,
+                            cardKeys: true,
+                            compact: compact,
+                            filled: pin.length,
+                            deleteLabel: '退格',
+                            onDigit: (v) => setState(() => pin += v),
+                            onDelete: () => setState(() => pin = pin.isEmpty
+                                ? ''
+                                : pin.substring(0, pin.length - 1)))))),
             BeeButton(
                 label: '重置输入',
                 kind: BeeButtonKind.quiet,
                 onPressed: () => setState(() => pin = ''))
-          ])),
+          ]),
         27 => BeeSurface(
             child: SizedBox(
                 height: 430,
