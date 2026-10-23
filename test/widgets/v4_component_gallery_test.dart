@@ -660,7 +660,7 @@ void main() {
     await open(tester, const BusinessAcceptancePage(isolatedCase: 6));
     await tester.tap(find.text('选择标签'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(BeeTag, '旅行'));
+    await tester.tap(find.widgetWithText(BeeTag, '旅行').first);
     await tester.tap(find.byType(CloseButton));
     await tester.pumpAndSettle();
     expect(find.text('旅行'), findsNothing);
@@ -669,7 +669,7 @@ void main() {
     await tester.enterText(find.byType(TextField), '旅行');
     await tester.pumpAndSettle();
     expect(find.text('网购'), findsNothing);
-    await tester.tap(find.widgetWithText(BeeTag, '旅行'));
+    await tester.tap(find.widgetWithText(BeeTag, '旅行').first);
     await tester.tap(find.text('使用所选标签'));
     await tester.pumpAndSettle();
     expect(find.text('旅行'), findsOneWidget);

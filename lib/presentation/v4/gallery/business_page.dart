@@ -423,6 +423,9 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                                   demoTags[i % 5].color))
                         ],
                         initial: tags,
+                        recent: [demoTags[0], demoTags[2]],
+                        recentLabel: '最近使用',
+                        allLabel: '全部标签',
                         searchLabel: '搜索标签',
                         selectionLabel: '可选择多个标签',
                         clearLabel: '清空',
