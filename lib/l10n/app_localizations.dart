@@ -16405,6 +16405,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sort, import, share and default categories'**
   String get v4CategoryToolsHint;
+
+  /// No description provided for @v4AttachmentPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending save'**
+  String get v4AttachmentPending;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

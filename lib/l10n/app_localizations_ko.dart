@@ -8725,4 +8725,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4CategoryToolsHint => 'Sort, import, share and default categories';
+
+  @override
+  String get v4AttachmentPending => 'Pending save';
 }

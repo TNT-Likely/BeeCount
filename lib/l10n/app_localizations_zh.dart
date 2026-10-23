@@ -8717,6 +8717,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4CategoryToolsHint => '排序、导入、分享与默认分类';
+
+  @override
+  String get v4AttachmentPending => '待保存';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

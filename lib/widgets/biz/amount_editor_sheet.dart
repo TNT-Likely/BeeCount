@@ -30,6 +30,7 @@ import '../currency/currency_flag.dart';
 import '../ui/toast.dart';
 import 'tag_chip.dart';
 import '../../pages/attachment/attachment_preview_page.dart';
+import '../../presentation/v4/bindings/attachment_source.dart';
 
 final _recordingAccountProvider =
     FutureProvider.autoDispose.family<Account?, int>((ref, id) async {
@@ -565,7 +566,13 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   /// 币种标(金额表达式最左):点开即选(币种优先联动:选后账户重置、账户
   /// 列表按新币种过滤)。转账不显示:转账币种恒=账户币种,选了也会被忽略。
   Widget _buildCurrencyChip(BuildContext context) {
-    if (widget.transactionKind == 'transfer') return const SizedBox.shrink();
+    if (widget.transactionKind == 'transfer') {
+      return widget.cardLayout
+          ? Text(_txCurrency(),
+              style:
+                  TextStyle(fontSize: 12, color: Theme.of(context).hintColor))
+          : const SizedBox.shrink();
+    }
     final text = Theme.of(context).textTheme;
     ref.watch(currentLedgerCurrencyProvider); // 账本切换时重建
     final txCurrency = _txCurrency();
@@ -623,7 +630,9 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   /// 折算预览(仅外币时出现,金额下方右对齐一行,反馈9):`≈ 86.40 CNY`。
   /// 汇率数字不展示(自动拉取内部使用);获取失败时本行变错误提示,可点手填(L8)。
   Widget _buildCurrencySection(BuildContext context) {
-    if (widget.transactionKind == 'transfer') return const SizedBox.shrink();
+    if (widget.transactionKind == 'transfer' && !widget.cardLayout) {
+      return const SizedBox.shrink();
+    }
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final ledgerBase = ref.watch(currentLedgerCurrencyProvider);
@@ -1957,6 +1966,7 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   /// 可见性(01 §三):不计入收支 对 income/expense 显示;不计入预算 仅 expense。
   /// 转账两个开关都不显示 → 旗标图标本身不渲染,不会触发此弹窗。
   Future<void> _showFlagsDialog() async {
+    if (widget.transactionKind == 'transfer') return;
     final l10n = AppLocalizations.of(context);
     final primary = ref.watch(primaryColorProvider);
     final kind = widget.transactionKind;
@@ -2187,8 +2197,11 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
             attachments: savedAttachments,
             initialIndex: 0,
             allowDelete: true,
-            allowAdd: true,
+            allowAdd: totalCount < AttachmentService.maxAttachments,
             pendingFiles: _pendingAttachments,
+            onPendingFilesChanged: (files) {
+              if (mounted) setState(() => _pendingAttachments = files);
+            },
             transactionId: widget.editingTransactionId,
           ),
         ),
@@ -2205,65 +2218,75 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   Future<void> _showAddAttachmentOptions() async {
     final l10n = AppLocalizations.of(context);
     final service = ref.read(attachmentServiceProvider);
+    if (widget.cardLayout) {
+      final savedCount = widget.editingTransactionId == null
+          ? 0
+          : await ref.read(
+              attachmentCountProvider(widget.editingTransactionId!).future);
+      if (!mounted) return;
+      final files = await pickAttachmentFiles(context, ref,
+          remaining: AttachmentService.maxAttachments -
+              savedCount -
+              _pendingAttachments.length);
+      if (files.isEmpty || !mounted) return;
+      if (widget.editingTransactionId != null) {
+        await service.saveAttachments(
+            transactionId: widget.editingTransactionId!,
+            sourceFiles: files,
+            startIndex: savedCount);
+        ref.read(attachmentListRefreshProvider.notifier).state++;
+      } else {
+        setState(
+            () => _pendingAttachments = [..._pendingAttachments, ...files]);
+      }
+      return;
+    }
+    Future<void> camera() async {
+      Navigator.pop(context);
+      final file = await service.takePhoto();
+      if (file != null && mounted) {
+        if (widget.editingTransactionId != null) {
+          await service.saveAttachment(
+              transactionId: widget.editingTransactionId!,
+              sourceFile: file,
+              index: 0);
+          ref.read(attachmentListRefreshProvider.notifier).state++;
+        } else {
+          setState(() => _pendingAttachments = [..._pendingAttachments, file]);
+        }
+      }
+    }
 
-    await showModalBottomSheet(
-      context: context,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: Text(l10n.attachmentTakePhoto),
-              onTap: () async {
-                Navigator.pop(context);
-                final file = await service.takePhoto();
-                if (file != null && mounted) {
-                  if (widget.editingTransactionId != null) {
-                    // 编辑模式：直接保存
-                    await service.saveAttachment(
-                      transactionId: widget.editingTransactionId!,
-                      sourceFile: file,
-                      index: 0,
-                    );
-                    ref.read(attachmentListRefreshProvider.notifier).state++;
-                  } else {
-                    // 新建模式：添加到待上传列表
-                    setState(() {
-                      _pendingAttachments = [..._pendingAttachments, file];
-                    });
-                  }
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: Text(l10n.attachmentChooseFromGallery),
-              onTap: () async {
-                Navigator.pop(context);
-                final files = await service.pickFromGallery(
-                    maxCount: 9 - _pendingAttachments.length);
-                if (files.isNotEmpty && mounted) {
-                  if (widget.editingTransactionId != null) {
-                    // 编辑模式：直接保存
-                    await service.saveAttachments(
-                      transactionId: widget.editingTransactionId!,
-                      sourceFiles: files,
-                      startIndex: 0,
-                    );
-                    ref.read(attachmentListRefreshProvider.notifier).state++;
-                  } else {
-                    // 新建模式：添加到待上传列表
-                    setState(() {
-                      _pendingAttachments = [..._pendingAttachments, ...files];
-                    });
-                  }
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+    Future<void> gallery() async {
+      Navigator.pop(context);
+      final files = await service.pickFromGallery(
+          maxCount: 9 - _pendingAttachments.length);
+      if (files.isNotEmpty && mounted) {
+        if (widget.editingTransactionId != null) {
+          await service.saveAttachments(
+              transactionId: widget.editingTransactionId!,
+              sourceFiles: files,
+              startIndex: 0);
+          ref.read(attachmentListRefreshProvider.notifier).state++;
+        } else {
+          setState(
+              () => _pendingAttachments = [..._pendingAttachments, ...files]);
+        }
+      }
+    }
+
+    await showModalBottomSheet<void>(
+        context: context,
+        builder: (_) => SafeArea(
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+              ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: Text(l10n.attachmentTakePhoto),
+                  onTap: camera),
+              ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: Text(l10n.attachmentChooseFromGallery),
+                  onTap: gallery),
+            ])));
   }
 }

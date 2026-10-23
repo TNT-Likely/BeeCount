@@ -160,6 +160,9 @@ class _TransferFormState extends ConsumerState<TransferForm> {
     final fromAccount = await _lookupAccount(_fromAccountId!);
     final toAccount = await _lookupAccount(_toAccountId!);
     if (!mounted) return;
+    final originalPair = widget.editingTransactionId != null &&
+        _fromAccountId == widget.initialFromAccountId &&
+        _toAccountId == widget.initialToAccountId;
 
     await showModalBottomSheet(
       context: context,
@@ -176,10 +179,9 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w600))),
                   BeeIconButton(
-                      label: l10n.txFlagMoreOptions,
-                      icon: const BeeLineIcon('Ellipsis', size: 21),
-                      onPressed: () =>
-                          _amountEditorKey.currentState?.showRecordingOptions())
+                      label: l10n.commonClose,
+                      icon: const BeeLineIcon('X', size: 21),
+                      onPressed: () => Navigator.pop(context))
                 ])),
             Expanded(
                 child: AmountEditorSheet(
@@ -201,8 +203,11 @@ class _TransferFormState extends ConsumerState<TransferForm> {
               transactionKind: 'transfer',
               initialExcludeFromStats: widget.initialExcludeFromStats,
               initialExcludeFromBudget: widget.initialExcludeFromBudget,
-              initialCurrencyCode: widget.initialCurrencyCode,
-              initialNativeAmount: widget.initialNativeAmount,
+              initialCurrencyCode: originalPair
+                  ? widget.initialCurrencyCode ?? fromAccount?.currency
+                  : fromAccount?.currency,
+              initialNativeAmount:
+                  originalPair ? widget.initialNativeAmount : null,
               onSubmit: (result) async {
                 final attachmentService = ref.read(attachmentServiceProvider);
                 // 获取虚拟转账分类ID

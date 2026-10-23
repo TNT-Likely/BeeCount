@@ -443,11 +443,14 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
                                   .toList()),
                         ),
                       ))),
-                      BeeIconButton(
-                          label: l10n.txFlagMoreOptions,
-                          icon: const BeeLineIcon('Ellipsis', size: 22),
-                          onPressed: () => _cardEditorKey.currentState
-                              ?.showRecordingOptions()),
+                      if (kind == 'transfer')
+                        const SizedBox(width: 44)
+                      else
+                        BeeIconButton(
+                            label: l10n.txFlagMoreOptions,
+                            icon: const BeeLineIcon('Ellipsis', size: 22),
+                            onPressed: () => _cardEditorKey.currentState
+                                ?.showRecordingOptions()),
                     ]),
                   )),
               Expanded(

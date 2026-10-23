@@ -3920,5 +3920,6 @@
     }
   },
   "v4CategoryToolsTitle": "Category tools",
-  "v4CategoryToolsHint": "Sort, import, share and default categories"
+  "v4CategoryToolsHint": "Sort, import, share and default categories",
+  "v4AttachmentPending": "Pending save"
 }
