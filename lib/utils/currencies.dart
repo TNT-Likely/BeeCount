@@ -186,12 +186,21 @@ const List<_Cur> _kCurrencyDefs = [
 ];
 
 /// 货币代码列表（自动派生,无需手动维护）
-final List<String> kCurrencyCodes =
-    _kCurrencyDefs.map((d) => d.code).toList();
+final List<String> kCurrencyCodes = _kCurrencyDefs.map((d) => d.code).toList();
 
 /// 常用币种(置顶显示;顺序即展示顺序)。中国用户 + 出境/外贸高频币种。
 const List<String> kCommonCurrencyCodes = [
-  'CNY', 'USD', 'EUR', 'JPY', 'HKD', 'GBP', 'KRW', 'AUD', 'CAD', 'SGD', 'THB',
+  'CNY',
+  'USD',
+  'EUR',
+  'JPY',
+  'HKD',
+  'GBP',
+  'KRW',
+  'AUD',
+  'CAD',
+  'SGD',
+  'THB',
 ];
 
 /// symbol 查找表（自动派生）
@@ -223,8 +232,6 @@ final Map<String, String> _enNameMap = {
   for (final d in _kCurrencyDefs) d.code: d.enName,
 };
 
-
-
 /// 获取本地化的货币信息列表。
 /// 名称优先用本地化覆盖(主流币种,见 [_buildNameMap]),长尾币种回退英文名。
 List<CurrencyInfo> getCurrencies(BuildContext context) {
@@ -254,6 +261,13 @@ String currencyEnglishName(String code) =>
 String getCurrencySymbol(String code) {
   return _symbolMap[code.toUpperCase()] ?? code;
 }
+
+/// Foreign transaction rows must distinguish dollars and yen from the ledger currency.
+String getDistinctCurrencySymbol(String code) => switch (code.toUpperCase()) {
+      'USD' => 'US\$',
+      'JPY' => 'JP¥',
+      _ => getCurrencySymbol(code),
+    };
 
 /// l10n 本地化名称覆盖映射(仅主流币种;长尾币种用英文名兜底,无需在此登记)。
 Map<String, String> _buildNameMap(BuildContext context) {

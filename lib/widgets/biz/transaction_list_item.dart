@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart' as db;
 import '../../l10n/app_localizations.dart';
-import '../../styles/tokens.dart';
 import '../../widgets/ui/ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
@@ -109,9 +108,10 @@ class TransactionListItem extends ConsumerWidget {
         categoryName: categoryName,
         title: title);
     final value = isTransfer ? amount : (isExpense ? -amount : amount);
-    final money =
-        '${foreign ? getCurrencySymbol(currencyCode!.toUpperCase()) : ''}'
-        '${formatMoneyCompact(value, signed: !isTransfer)}';
+    final sign = value < 0 ? '−' : (isTransfer || value == 0 ? '' : '+');
+    final money = '$sign'
+        '${foreign ? getDistinctCurrencySymbol(currencyCode!) : ''}'
+        '${formatMoneyCompact(value.abs(), trimZeros: false)}';
     final hasConversion =
         foreign && nativeAmount != null && nativeAmount != amount;
     final row = BeeTransactionRow(
@@ -119,12 +119,10 @@ class TransactionListItem extends ConsumerWidget {
       note: composed.parenNote,
       amount: money,
       hidden: hidden,
-      amountColor: isTransfer
-          ? BeeTokens.textPrimary(context)
-          : isExpense
-              ? BeeTokens.expenseColor(context, ref)
-              : BeeTokens.incomeColor(context, ref),
-      converted: hasConversion ? '≈${nativeAmount!.toStringAsFixed(2)}' : null,
+      incomeIsRed: ref.watch(incomeExpenseColorSchemeProvider),
+      converted: hasConversion
+          ? '≈ ${getDistinctCurrencySymbol(base)}${formatMoneyCompact(nativeAmount!, trimZeros: false)}'
+          : null,
       icon: Container(
           width: 34,
           height: 34,
@@ -145,6 +143,7 @@ class TransactionListItem extends ConsumerWidget {
               ? BeeTransactionKind.expense
               : BeeTransactionKind.income,
       accountName: accountName,
+      categoryLabel: composed.primary != categoryName ? categoryName : null,
       ledgerName: ledgerName,
       happenedAt: happenedAt,
       showTime: ref.watch(showTransactionTimeProvider),
@@ -156,6 +155,22 @@ class TransactionListItem extends ConsumerWidget {
               (t) => BeeTagData('${t.id}', t.name, _tagColor(t.color, context)))
           .toList(),
       onTagTap: (t) => onTagTap?.call(int.parse(t.id), t.label),
+      onMoreTagsTap: () => showBeeSheet<void>(context,
+          title: l10n.tagSelectAllTags,
+          child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: (tags ?? [])
+                  .map((t) => BeeTag(
+                      tag: BeeTagData(
+                          '${t.id}', t.name, _tagColor(t.color, context)),
+                      onTap: onTagTap == null
+                          ? null
+                          : () {
+                              Navigator.pop(context);
+                              onTagTap!(t.id, t.name);
+                            }))
+                  .toList())),
       attachmentCount: attachmentCount,
       onAttachmentTap: onAttachmentTap,
       statusLabels: [
