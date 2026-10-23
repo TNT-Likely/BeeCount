@@ -70,7 +70,7 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
           hint: widget.searchLabel,
           onChanged: (v) => setState(() => query = v)),
       const SizedBox(height: 8),
-      Flexible(
+      Expanded(
           child: visible.isEmpty
               ? BeeEmptyState(title: widget.emptyLabel)
               : SingleChildScrollView(

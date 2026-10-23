@@ -506,8 +506,10 @@ void main() {
     await tester.tap(find.text('使用分类'));
     await tester.pumpAndSettle();
     expect(find.text('已确认分类 dinner'), findsOneWidget);
+    final confirmRect = tester.getRect(find.text('使用分类'));
     await tester.enterText(find.byType(TextField), '奶茶');
     await tester.pumpAndSettle();
+    expect(tester.getRect(find.text('使用分类')), confirmRect);
     expect(find.widgetWithText(RecordingSubcategoryChip, '奶茶'), findsOneWidget);
     expect(find.widgetWithText(RecordingSubcategoryChip, '午餐'), findsNothing);
     expect(tester.takeException(), isNull);
