@@ -326,8 +326,9 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
   }
 
   Future<void> _changeType(int index) async {
-    if (_selectedType == index) return;
+    if (!_cardReady || _cardSaving || _selectedType == index) return;
     final previousIndex = _selectedType;
+    final previousLedger = _cardLedgerId;
     if (index == 2 || _selectedType == 2) {
       final l10n = AppLocalizations.of(context);
       final discard = await showBeeConfirm(context,
@@ -348,7 +349,9 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
         widget.initialCurrencyCode == null) {
       final accountId = await defaultRecordingAccount(
           ref, index == 1 ? 'income' : 'expense', _cardLedgerId);
-      if (!mounted || _selectedType != previousIndex) return;
+      if (!mounted ||
+          _selectedType != previousIndex ||
+          _cardLedgerId != previousLedger) return;
       // Input may have changed while the default account was loading.
       hadChanges = _cardCategory != null ||
           (_cardEditorKey.currentState?.hasDraftChanges ?? false);
@@ -359,7 +362,9 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
         _cardInitialAccountId = accountId;
       }
     }
-    if (!mounted || _selectedType != previousIndex) return;
+    if (!mounted ||
+        _selectedType != previousIndex ||
+        _cardLedgerId != previousLedger) return;
     setState(() {
       _selectedType = index;
       _cardCategory = null;
