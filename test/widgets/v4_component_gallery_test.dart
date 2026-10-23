@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:beecount/theme.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount/presentation/v4/gallery/foundation_page.dart';
@@ -932,5 +933,25 @@ void main() {
     await tester.pump();
     expect(taps, 1);
     expect(tester.takeException(), isNull);
+  });
+  testWidgets('真实 App 与组件页统一中性分隔线，不受旧 Material 种子色影响', (tester) async {
+    for (final brightness in [Brightness.light, Brightness.dark]) {
+      final source = brightness == Brightness.light
+          ? BeeTheme.lightTheme()
+          : BeeTheme.darkTheme();
+      final theme = applyBeeCardTheme(source.copyWith(
+          colorScheme:
+              source.colorScheme.copyWith(primary: const Color(0xff26a69a))));
+      final token = BeeCardTheme.fromBrightness(brightness).divider;
+      expect(theme.dividerTheme.color, token);
+      expect(theme.dividerColor, token);
+      expect(theme.colorScheme.primary, const Color(0xff26a69a));
+      await tester.pumpWidget(
+          MaterialApp(theme: theme, home: const Scaffold(body: Divider())));
+      await tester.pumpAndSettle();
+      final ctx = tester.element(find.byType(Divider));
+      expect(DividerTheme.of(ctx).color, token);
+      expect(tester.takeException(), isNull);
+    }
   });
 }

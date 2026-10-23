@@ -21,6 +21,7 @@ ThemeData beeTheme(
   final scheme = ColorScheme.fromSeed(seedColor: accent, brightness: brightness)
       .copyWith(
           surface: cards.surface,
+          outlineVariant: cards.divider,
           onSurface: brightness == Brightness.light
               ? const Color(0xff262829)
               : const Color(0xffe5e7eb),
@@ -39,9 +40,8 @@ ThemeData beeTheme(
           backgroundColor: cards.surface,
           indicatorColor: accent.withValues(alpha: .16)),
       extensions: [cards],
-      dividerColor: brightness == Brightness.light
-          ? const Color(0xffe9ebed)
-          : const Color(0xff373e46),
+      dividerColor: cards.divider,
+      dividerTheme: DividerThemeData(color: cards.divider, thickness: .6),
       inputDecorationTheme: InputDecorationTheme(
           labelStyle: TextStyle(color: scheme.onSurfaceVariant),
           floatingLabelStyle:
@@ -726,4 +726,47 @@ class BeeBottomBar extends StatelessWidget {
                                                         : null))
                                           ]))))))
                       .toList()))));
+}
+
+/// Shared by the real App and component previews; the source keeps platform typography.
+ThemeData applyBeeCardTheme(ThemeData source) {
+  final cards = BeeCardTheme.fromBrightness(source.brightness);
+  final contrast =
+      ThemeData.estimateBrightnessForColor(source.colorScheme.primary) ==
+              Brightness.light
+          ? const Color(0xff25282c)
+          : Colors.white;
+  return source.copyWith(
+    scaffoldBackgroundColor: cards.canvas,
+    dividerColor: cards.divider,
+    dividerTheme:
+        source.dividerTheme.copyWith(color: cards.divider, thickness: .6),
+    extensions: [
+      ...source.extensions.values.where((e) => e is! BeeCardTheme),
+      cards
+    ],
+    colorScheme: source.colorScheme.copyWith(
+        surface: cards.surface,
+        onPrimary: contrast,
+        outlineVariant: cards.divider),
+    appBarTheme: source.appBarTheme.copyWith(
+        backgroundColor: cards.canvas,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false),
+    filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+            backgroundColor: source.colorScheme.primary,
+            foregroundColor: contrast,
+            minimumSize: const Size(44, 44),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15)))),
+    cardTheme: source.cardTheme.copyWith(
+        color: cards.surface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
+    dialogTheme: source.dialogTheme.copyWith(
+        backgroundColor: cards.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
+  );
 }

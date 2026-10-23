@@ -513,7 +513,6 @@ class MainApp extends ConsumerWidget {
       colorScheme: base.colorScheme.copyWith(primary: primary),
       primaryColor: primary,
       scaffoldBackgroundColor: Colors.white,
-      dividerColor: Colors.black.withOpacity(0.06),
       listTileTheme: ListTileThemeData(
         dense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
@@ -574,9 +573,9 @@ class MainApp extends ConsumerWidget {
         onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
         scrollBehavior: const NoGlowScrollBehavior(),
         debugShowCheckedModeBanner: false,
-        theme: _cardPageTheme(theme),
+        theme: applyBeeCardTheme(theme),
         darkTheme:
-            _cardPageTheme(BeeTheme.darkTheme(platform: platform).copyWith(
+            applyBeeCardTheme(BeeTheme.darkTheme(platform: platform).copyWith(
           colorScheme: BeeTheme.darkTheme(platform: platform)
               .colorScheme
               .copyWith(primary: primary),
@@ -745,42 +744,4 @@ Future<void> _runOrphanFileGcOnce(ProviderContainer container) async {
     // 任何异常都不该影响 app 启动。下次启动还会重试(因为没设 flag)。
     logger.warning('OrphanGC', '一次性清理异常(会在下次启动重试): $e\n$st');
   }
-}
-
-/// Retain the app typography, platform conventions and selected accent.
-ThemeData _cardPageTheme(ThemeData source) {
-  final cards = BeeCardTheme.fromBrightness(source.brightness);
-  final contrast =
-      ThemeData.estimateBrightnessForColor(source.colorScheme.primary) ==
-              Brightness.light
-          ? const Color(0xff25282c)
-          : Colors.white;
-  return source.copyWith(
-    scaffoldBackgroundColor: cards.canvas,
-    extensions: [
-      ...source.extensions.values.where((e) => e is! BeeCardTheme),
-      cards
-    ],
-    colorScheme: source.colorScheme
-        .copyWith(surface: cards.surface, onPrimary: contrast),
-    appBarTheme: source.appBarTheme.copyWith(
-        backgroundColor: cards.canvas,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: false),
-    filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-            backgroundColor: source.colorScheme.primary,
-            foregroundColor: contrast,
-            minimumSize: const Size(44, 44),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15)))),
-    cardTheme: source.cardTheme.copyWith(
-        color: cards.surface,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
-    dialogTheme: source.dialogTheme.copyWith(
-        backgroundColor: cards.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
-  );
 }

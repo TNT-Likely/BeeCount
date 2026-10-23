@@ -14,14 +14,18 @@ export 'src/page_components.dart';
 @immutable
 class BeeCardTheme extends ThemeExtension<BeeCardTheme> {
   const BeeCardTheme(
-      {required this.canvas, required this.surface, required this.soft});
+      {required this.canvas,
+      required this.surface,
+      required this.soft,
+      this.divider = const Color(0xffeceeef)});
 
   factory BeeCardTheme.fromBrightness(Brightness brightness) =>
       brightness == Brightness.dark
           ? const BeeCardTheme(
               canvas: Color(0xff181c20),
               surface: Color(0xff23282e),
-              soft: Color(0xff2c3239))
+              soft: Color(0xff2c3239),
+              divider: Color(0xff373e46))
           : const BeeCardTheme(
               canvas: Color(0xfff5f6f7),
               surface: Colors.white,
@@ -30,17 +34,20 @@ class BeeCardTheme extends ThemeExtension<BeeCardTheme> {
   final Color canvas;
   final Color surface;
   final Color soft;
+  final Color divider;
 
   static BeeCardTheme of(BuildContext context) =>
       Theme.of(context).extension<BeeCardTheme>() ??
       BeeCardTheme.fromBrightness(Theme.of(context).brightness);
 
   @override
-  BeeCardTheme copyWith({Color? canvas, Color? surface, Color? soft}) =>
+  BeeCardTheme copyWith(
+          {Color? canvas, Color? surface, Color? soft, Color? divider}) =>
       BeeCardTheme(
           canvas: canvas ?? this.canvas,
           surface: surface ?? this.surface,
-          soft: soft ?? this.soft);
+          soft: soft ?? this.soft,
+          divider: divider ?? this.divider);
 
   @override
   BeeCardTheme lerp(covariant BeeCardTheme? other, double t) => other == null
@@ -48,7 +55,8 @@ class BeeCardTheme extends ThemeExtension<BeeCardTheme> {
       : BeeCardTheme(
           canvas: Color.lerp(canvas, other.canvas, t)!,
           surface: Color.lerp(surface, other.surface, t)!,
-          soft: Color.lerp(soft, other.soft, t)!);
+          soft: Color.lerp(soft, other.soft, t)!,
+          divider: Color.lerp(divider, other.divider, t)!);
 }
 
 class BeeSurface extends StatelessWidget {
