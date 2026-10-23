@@ -638,10 +638,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get searchSummaryIncome => 'Income';
+  String get searchSummaryIncome => 'Income total';
 
   @override
-  String get searchSummaryExpense => 'Expense';
+  String get searchSummaryExpense => 'Expense total';
 
   @override
   String get searchFilterTitle => 'Filter';
@@ -8800,4 +8800,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4SearchFilterActive => 'Filters applied';
+
+  @override
+  String v4SearchSelected(int count) {
+    return '$count selected transactions';
+  }
 }

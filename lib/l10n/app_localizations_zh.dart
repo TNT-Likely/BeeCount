@@ -638,10 +638,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get searchSummaryIncome => '收入';
+  String get searchSummaryIncome => '收入合计';
 
   @override
-  String get searchSummaryExpense => '支出';
+  String get searchSummaryExpense => '支出合计';
 
   @override
   String get searchFilterTitle => '筛选';
@@ -8792,6 +8792,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4SearchFilterActive => '已应用筛选';
+
+  @override
+  String v4SearchSelected(int count) {
+    return '已选择 $count 笔';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

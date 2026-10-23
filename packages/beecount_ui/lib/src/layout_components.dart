@@ -109,49 +109,76 @@ class BeeChoiceChip extends StatelessWidget {
       required this.label,
       required this.selected,
       required this.onSelected,
-      this.leading});
+      this.leading,
+      this.trailing,
+      this.compact = false});
   final String label;
-  final bool selected;
+  final bool selected, compact;
   final ValueChanged<bool>? onSelected;
-  final Widget? leading;
+  final Widget? leading, trailing;
   @override
   Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(compact ? 10 : 13);
     final content = Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: EdgeInsets.symmetric(
+            horizontal: compact ? 10 : 12, vertical: compact ? 7 : 10),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          if (leading != null) ...[leading!, const SizedBox(width: 6)],
+          if (leading != null) ...[leading!, SizedBox(width: compact ? 5 : 6)],
           if (selected) ...[
-            const BeeLineIcon('Check', size: 16),
+            BeeLineIcon('Check', size: compact ? 12 : 16),
             const SizedBox(width: 6)
           ],
-          Flexible(child: Text(label, style: const TextStyle(fontSize: 13))),
+          Flexible(
+              child: Text(label,
+                  style: TextStyle(
+                      fontSize: compact ? 11 : 13,
+                      height: compact ? 1.5 : null,
+                      color: compact && !selected
+                          ? Theme.of(context).hintColor
+                          : null))),
+          if (trailing != null) ...[const SizedBox(width: 5), trailing!],
         ]));
+    final shape = RoundedRectangleBorder(
+        borderRadius: radius,
+        side: BorderSide(
+            color: selected
+                ? Theme.of(context).colorScheme.primary
+                : Colors.transparent));
+    final color = selected
+        ? Theme.of(context).colorScheme.primary.withValues(alpha: .14)
+        : BeeCardTheme.of(context).soft;
+    void tap() => onSelected?.call(!selected);
+    final visual = Material(
+        key: const ValueKey('bee-choice-chip-visual'),
+        color: color,
+        shape: shape,
+        child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: compact ? 34 : 44),
+            child: content));
     return Semantics(
         checked: selected,
         enabled: onSelected != null,
+        button: true,
         child: Opacity(
             opacity: onSelected == null ? .45 : 1,
-            child: Material(
-                color: selected
-                    ? Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withValues(alpha: .14)
-                    : BeeCardTheme.of(context).soft,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(13),
-                    side: BorderSide(
-                        color: selected
-                            ? Theme.of(context).colorScheme.primary
-                            : Colors.transparent)),
-                child: InkWell(
-                    onTap: onSelected == null
-                        ? null
-                        : () => onSelected!(!selected),
-                    borderRadius: BorderRadius.circular(13),
+            child: compact
+                ? GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: onSelected == null ? null : tap,
                     child: ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 44),
-                        child: content)))));
+                        constraints:
+                            const BoxConstraints(minWidth: 44, minHeight: 44),
+                        child: Center(
+                            widthFactor: 1, heightFactor: 1, child: visual)))
+                : Material(
+                    color: color,
+                    shape: shape,
+                    child: InkWell(
+                        onTap: onSelected == null ? null : tap,
+                        borderRadius: radius,
+                        child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 44),
+                            child: content)))));
   }
 }
 

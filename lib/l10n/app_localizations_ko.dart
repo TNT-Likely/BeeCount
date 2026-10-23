@@ -8800,4 +8800,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4SearchFilterActive => 'Filters applied';
+
+  @override
+  String v4SearchSelected(int count) {
+    return '$count selected transactions';
+  }
 }

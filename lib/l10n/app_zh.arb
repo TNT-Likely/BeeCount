@@ -329,8 +329,8 @@
       }
     }
   },
-  "searchSummaryIncome": "收入",
-  "searchSummaryExpense": "支出",
+  "searchSummaryIncome": "收入合计",
+  "searchSummaryExpense": "支出合计",
   "searchFilterTitle": "筛选",
   "searchAmountFilter": "金额筛选",
   "searchDateFilter": "时间筛选",
@@ -3652,5 +3652,7 @@
   "v4SearchTagsSaved": "所选账单的标签已更新",
   "v4SearchAll": "全部",
   "v4SearchHint": "搜索备注、分类、金额、标签",
-  "v4SearchFilterActive": "已应用筛选"
+  "v4SearchFilterActive": "已应用筛选",
+  "v4SearchSelected": "已选择 {count} 笔",
+  "@v4SearchSelected": {"placeholders": {"count": {"type": "int"}}}
 }

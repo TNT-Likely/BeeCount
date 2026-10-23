@@ -1235,13 +1235,13 @@ abstract class AppLocalizations {
   /// No description provided for @searchSummaryIncome.
   ///
   /// In en, this message translates to:
-  /// **'Income'**
+  /// **'Income total'**
   String get searchSummaryIncome;
 
   /// No description provided for @searchSummaryExpense.
   ///
   /// In en, this message translates to:
-  /// **'Expense'**
+  /// **'Expense total'**
   String get searchSummaryExpense;
 
   /// No description provided for @searchFilterTitle.
@@ -16555,6 +16555,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Filters applied'**
   String get v4SearchFilterActive;
+
+  /// No description provided for @v4SearchSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected transactions'**
+  String v4SearchSelected(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

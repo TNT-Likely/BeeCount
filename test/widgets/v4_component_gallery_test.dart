@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -872,6 +873,64 @@ void main() {
         .onChanged(2025);
     await tester.pumpAndSettle();
     expect(date, DateTime(2025, 2, 28));
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('搜索汇总卡与冻结 HTML 尺寸一致', (tester) async {
+    final fixture = jsonDecode(
+            File('test/fixtures/v4-search-geometry.json').readAsStringSync())
+        as Map<String, dynamic>;
+    final geometry = fixture['summary'] as Map<String, dynamic>;
+    await open(
+        tester,
+        Center(
+            child: SizedBox(
+                width: (geometry['width'] as num).toDouble(),
+                child: BeeSearchSummary(
+                    title: '1 笔匹配账单',
+                    expenseLabel: '支出合计',
+                    expense: '¥124.25',
+                    incomeLabel: '收入合计',
+                    income: '¥0.00',
+                    actionLabel: '批量操作',
+                    onAction: () {}))));
+    final card = tester.getSize(find.byType(BeeSearchSummary));
+    expect(
+        card.height,
+        closeTo((geometry['height'] as num).toDouble(),
+            (fixture['flutterParagraphRoundingTolerance'] as num).toDouble()));
+    final amount = tester.getSize(find.text('¥124.25'));
+    expect(
+        tester
+            .getSize(find
+                .ancestor(
+                    of: find.text('¥124.25'), matching: find.byType(Column))
+                .first)
+            .width,
+        (geometry['metricWidth'] as num).toDouble());
+    expect(
+        amount.height,
+        closeTo((geometry['amountLineHeight'] as num).toDouble(),
+            (fixture['flutterParagraphRoundingTolerance'] as num).toDouble()));
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('紧凑筛选视觉 34 并保留 44 触控区，边缘点击只触发一次', (tester) async {
+    var taps = 0;
+    await open(
+        tester,
+        Center(
+            child: BeeChoiceChip(
+                label: '筛选',
+                selected: false,
+                compact: true,
+                trailing: const BeeLineIcon('X', size: 12),
+                onSelected: (_) => taps++)));
+    final chip = find.byType(BeeChoiceChip);
+    final visual = find.byKey(const ValueKey('bee-choice-chip-visual'));
+    expect(tester.getSize(visual).height, 34);
+    expect(tester.getSize(chip).height, 44);
+    await tester.tapAt(tester.getTopLeft(chip) + const Offset(3, 2));
+    await tester.pump();
+    expect(taps, 1);
     expect(tester.takeException(), isNull);
   });
 }

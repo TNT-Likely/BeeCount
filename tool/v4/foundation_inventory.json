@@ -417,7 +417,9 @@
         "unselected",
         "leading",
         "disabled",
-        "wrapping"
+        "wrapping",
+        "compact visual 34 / touch target 44",
+        "trailing"
       ],
       "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
     },

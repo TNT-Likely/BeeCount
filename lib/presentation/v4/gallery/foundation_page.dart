@@ -508,6 +508,14 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                                     ? {...choices, i}
                                     : ({...choices}..remove(i)))))),
                 const SizedBox(height: 8),
+                Wrap(spacing: 6, children: [
+                  BeeChoiceChip(
+                      label: '紧凑筛选',
+                      selected: false,
+                      compact: true,
+                      trailing: const BeeLineIcon('X', size: 12),
+                      onSelected: (_) => record('紧凑筛选')),
+                ]),
                 BeeCheckTile(
                     label: '全选可用项',
                     subtitle: '部分选中时显示半选状态',

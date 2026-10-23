@@ -224,11 +224,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       if (f.start != null || f.end != null) 'date': l.searchDateFilter,
     };
     return labels.entries
-        .map((e) => InputChip(
-            label: Text(e.value, style: const TextStyle(fontSize: 11)),
-            onDeleted: _writing
+        .map((e) => BeeChoiceChip(
+            compact: true,
+            label: e.value,
+            selected: false,
+            trailing: const BeeLineIcon('X', size: 12),
+            onSelected: _writing
                 ? null
-                : () => c.applyFilter(TransactionSearchFilter(
+                : (_) => c.applyFilter(TransactionSearchFilter(
                     category: e.key == 'category' ? null : f.category,
                     accountId: e.key == 'account' ? null : f.accountId,
                     tagId: e.key == 'tag' ? null : f.tagId,
@@ -272,16 +275,16 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 body: Column(children: [
                   BeePageHeader(
                       title: c.batch ? l.searchBatchMode : l.v4SearchTitle,
-                      leading: c.batch
-                          ? null
-                          : BackButton(
-                              onPressed: _writing
-                                  ? null
-                                  : () => Navigator.pop(context)),
-                      subtitle: c.batch
-                          ? l.searchBatchModeWithCount(
-                              c.selected.length, c.results.length)
-                          : null,
+                      leading: BackButton(
+                          onPressed: _writing
+                              ? null
+                              : () {
+                                  if (c.batch && !widget.initialBatchMode) {
+                                    c.toggleBatch();
+                                  } else {
+                                    Navigator.pop(context);
+                                  }
+                                }),
                       actions: [
                         BeeIconButton(
                             label: c.batch
@@ -317,11 +320,15 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                   onSubmitted: (_) => c.remember()),
                               const SizedBox(height: 8),
                               Wrap(spacing: 6, runSpacing: 6, children: [
-                                TextButton.icon(
-                                    onPressed: _writing ? null : _filters,
-                                    icon: const BeeLineIcon('SlidersHorizontal',
-                                        size: 14),
-                                    label: Text(l.searchFilterTitle)),
+                                BeeChoiceChip(
+                                    compact: true,
+                                    label: l.searchFilterTitle,
+                                    selected: false,
+                                    leading: const BeeLineIcon(
+                                        'SlidersHorizontal',
+                                        size: 12),
+                                    onSelected:
+                                        _writing ? null : (_) => _filters()),
                                 ..._filterChips(c, l)
                               ]),
                             ])),

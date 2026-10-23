@@ -1193,15 +1193,15 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 expense: '¥1,268.50',
                 incomeLabel: '收入合计',
                 income: '¥0.00',
-                action: TextButton(
-                    onPressed: () => record('进入批量操作'),
-                    child: const Text('批量操作'))),
+                actionLabel: '批量操作',
+                onAction: () => record('进入批量操作')),
             const SizedBox(height: 12),
             BeeBatchSelection(
                 label: selected ? '已选择 12 笔' : '已选择 0 笔',
                 total: selected ? '¥1,268.50' : '¥0.00',
                 actions: ['全选', '反选', '调整范围']
                     .map((label) => BeeChoiceChip(
+                        compact: true,
                         label: label,
                         selected: false,
                         onSelected: (_) {

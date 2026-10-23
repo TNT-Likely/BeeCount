@@ -76,10 +76,10 @@ void main() {
     await open(tester);
     expect(find.byType(TransactionListItem), findsNWidgets(2));
     final l10n = AppLocalizations.of(tester.element(find.byType(SearchPage)));
-    expect(find.text(l10n.searchBatchModeWithCount(0, 2)), findsOneWidget);
+    expect(find.text(l10n.v4SearchSelected(0)), findsOneWidget);
     await tester.tap(find.text(l10n.searchSelectAll).first);
     await tester.pumpAndSettle();
-    expect(find.text(l10n.searchBatchModeWithCount(2, 2)), findsOneWidget);
+    expect(find.text(l10n.v4SearchSelected(2)), findsOneWidget);
     await repo.addTransaction(
         ledgerId: 1,
         type: 'income',
@@ -87,7 +87,8 @@ void main() {
         happenedAt: DateTime(2026, 10, 24),
         note: '实时新增');
     await tester.pumpAndSettle();
-    expect(find.text(l10n.searchBatchModeWithCount(2, 3)), findsOneWidget);
+    expect(find.text(l10n.v4SearchSelected(2)), findsOneWidget);
+    expect(find.textContaining(l10n.searchResultsCount(3)), findsOneWidget);
     await tester.tap(find.byTooltip(l10n.searchExitBatchMode));
     await tester.pumpAndSettle();
     expect(find.byType(SearchPage), findsNothing);
@@ -103,7 +104,7 @@ void main() {
     container.read(currentLedgerIdProvider.notifier).state = 99;
     await open(tester);
     final l10n = AppLocalizations.of(tester.element(find.byType(SearchPage)));
-    expect(find.text(l10n.searchBatchModeWithCount(0, 0)), findsOneWidget);
+    expect(find.text(l10n.v4SearchSelected(0)), findsOneWidget);
     expect(find.byTooltip(l10n.searchExitBatchMode), findsOneWidget);
     await tester.tap(find.byTooltip(l10n.searchExitBatchMode));
     await tester.pumpAndSettle();
@@ -174,7 +175,7 @@ void main() {
     expect((await repo.getTransactionById(id))!.toJson(),
         {...before, 'note': '统一备注'});
     expect((await repo.getAttachmentById(attachment))!.fileSize, 20);
-    expect(find.text(l10n.searchBatchModeWithCount(0, 3)), findsOneWidget);
+    expect(find.text(l10n.v4SearchSelected(0)), findsOneWidget);
     expect(await repo.getTransactionsByLedger(2), hasLength(1));
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());

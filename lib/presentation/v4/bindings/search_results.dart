@@ -52,8 +52,9 @@ class SearchResults extends ConsumerWidget {
                 style: TextStyle(
                     fontSize: 11, color: Theme.of(context).hintColor))),
         BeeBatchSelection(
-            label: l.searchSelectedCount(c.selected.length),
-            total: money(c.selectedTotal),
+            label: l.v4SearchSelected(c.selected.length),
+            total:
+                '${l.v4RecordingConvertedLabel(ledger?.currency ?? 'CNY')} ${money(c.selectedTotal)}',
             actions: [
               for (final a in [
                 (
@@ -66,6 +67,7 @@ class SearchResults extends ConsumerWidget {
                 (l.v4SearchScope, onScope)
               ])
                 BeeChoiceChip(
+                    compact: true,
                     label: a.$1,
                     selected: false,
                     onSelected: writing ? null : (_) => a.$2()),
@@ -77,16 +79,14 @@ class SearchResults extends ConsumerWidget {
             expense: money(c.expense),
             incomeLabel: l.searchSummaryIncome,
             income: money(c.income),
-            action: TextButton(
-                onPressed: c.results.isEmpty
-                    ? null
-                    : () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        unawaited(c.remember());
-                        c.toggleBatch();
-                      },
-                child: Text(l.searchBatchMode,
-                    style: const TextStyle(fontSize: 11))))
+            actionLabel: l.searchBatchMode,
+            onAction: c.results.isEmpty
+                ? null
+                : () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    unawaited(c.remember());
+                    c.toggleBatch();
+                  })
       else ...[
         if (c.history.isNotEmpty)
           BeeSurface(
@@ -109,6 +109,7 @@ class SearchResults extends ConsumerWidget {
                     runSpacing: 6,
                     children: c.history
                         .map((q) => BeeChoiceChip(
+                            compact: true,
                             label: q,
                             selected: false,
                             onSelected: (_) => onQuery(q)))
