@@ -480,7 +480,7 @@
       "classes": [
         "AppLockScreen"
       ],
-      "lines": 134,
+      "lines": 135,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-lock",
@@ -489,7 +489,7 @@
       "designMapping": "已定位",
       "components": "安全输入、错误反馈与解锁状态",
       "acceptance": "保持原 PIN/生物识别、锁定/失败策略、恢复入口；不修改认证和安全存储。",
-      "status": "部分迁移·新版锁屏回归通过，待真机验收",
+      "status": "部分迁移·R25 解锁闭环及 R28 皮肤真机通过，待整页清单收口",
       "name": "应用锁解锁",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
@@ -525,7 +525,7 @@
       "classes": [
         "PinSetupPage"
       ],
-      "lines": 154,
+      "lines": 155,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-pin",
@@ -534,7 +534,7 @@
       "designMapping": "已定位",
       "components": "PIN 输入、确认步骤与错误状态",
       "acceptance": "设置/确认、二次不一致、取消、返回、原存储和隐私策略。",
-      "status": "部分迁移·四位创建修改回归通过，待真机验收",
+      "status": "部分迁移·R25 创建修改及 R28 皮肤真机通过，待整页清单收口",
       "name": "PIN 设置与确认",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
@@ -1118,7 +1118,7 @@
       "classes": [
         "MinePage"
       ],
-      "lines": 134,
+      "lines": 135,
       "batch": "M2 首页与列表",
       "designRoutes": [
         "mine",
@@ -1129,7 +1129,7 @@
       "designMapping": "已定位",
       "components": "昵称、紧凑账本余额、同步状态与分组菜单",
       "acceptance": "昵称编辑、当前账本累计余额/隐私、全部同步状态/异常/重试；完整原菜单和平台条件。",
-      "status": "部分迁移·R23 核心检查通过，待皮肤适配",
+      "status": "部分迁移·R23 原菜单与 R28 皮肤真机通过，待头像等整页清单收口",
       "name": "我的、昵称与当前账本",
       "priority": "P0",
       "reason": "四个主要导航入口之一，需包含昵称、当前账本余额和完整同步状态。",
@@ -1294,7 +1294,7 @@
       "classes": [
         "ConfigImportExportPage"
       ],
-      "lines": 140,
+      "lines": 141,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-config",
@@ -1308,7 +1308,7 @@
       "designMapping": "已定位",
       "components": "配置范围选择、文件读取/预览、导入导出状态",
       "acceptance": "原备份范围与格式、初始化恢复、文件选择/预览、取消、失败恢复和附件联动。",
-      "status": "部分迁移·R25 文件闭环通过，待皮肤适配",
+      "status": "部分迁移·R25 文件闭环及 R28 皮肤真机通过，待整页清单收口",
       "name": "配置导入导出与恢复",
       "priority": "P0",
       "reason": "旧用户恢复配置与首次使用衔接，优先保证导入/取消/恢复路径。",
@@ -1673,7 +1673,7 @@
       "classes": [
         "CategoryDetailPage"
       ],
-      "lines": 297,
+      "lines": 298,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "categoryDetail"
@@ -1736,7 +1736,7 @@
       "classes": [
         "SearchPage"
       ],
-      "lines": 393,
+      "lines": 394,
       "batch": "M2 首页与列表",
       "designRoutes": [
         "search",
