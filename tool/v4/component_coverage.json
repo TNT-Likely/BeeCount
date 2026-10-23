@@ -52,7 +52,8 @@
     "design_key": "summary",
     "components": [
       "BeeSummaryCard",
-      "BeeProgress"
+      "BeeProgress",
+      "BeeBudgetStrip"
     ],
     "page": "business",
     "case": 1
@@ -415,5 +416,21 @@
     ],
     "page": "business",
     "case": 6
+  },
+  {
+    "design_key": "streamHeader",
+    "components": [
+      "BeeTransactionStreamHeader"
+    ],
+    "page": "business",
+    "case": 2
+  },
+  {
+    "design_key": "dayHeader",
+    "components": [
+      "BeeTransactionDayHeader"
+    ],
+    "page": "business",
+    "case": 2
   }
 ]

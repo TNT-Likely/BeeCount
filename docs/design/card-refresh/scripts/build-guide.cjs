@@ -12,7 +12,7 @@ const sections=[
  card('08 · 输入与校验','标签、输入值、提示文字与错误信息分层显示。',`<label class="f-field">账本名称<input value="日常生活"></label><label class="f-field">分类<select><option>饮品 / 奶茶</option></select></label><label class="f-field">备注<textarea>周末下午的一杯奶茶</textarea></label><label class="f-field spec-invalid">金额<input value="abc"><small>请输入有效金额</small></label><label class="f-field">不可编辑<input value="CNY" disabled></label>`),
  card('09 · 列表与开关','统一图标槽、主副标题、分隔线、尾部操作与开关。',samples.menu),
  card('10 · 金额汇总卡片','首页收支、预算进度与账本切换共用视觉层次。',samples.summary),
- card('11 · 账单行','原币为主，折算与标签为辅；分类图标与账单内容使用独立点击区。',samples.entry+samples.entryForeign),
+ card('11 · 账单行','原币为主，折算与标签为辅；分类图标与账单内容使用独立点击区。',(samples.streamHeader||'')+(samples.dayHeader||'')+samples.entry+samples.entryForeign),
  card('12 · 分类与二级分类','一级、二级分类都展示图标；展开后仍保持选择上下文。',samples.categories),
  card('13 · 自定义分类图片','透明 PNG 完整显示；方形图片裁切；加载和失败有固定占位。',samples.customIcons),
  card('14 · 底部导航','五项胶囊布局、选中态与 44 点击区；业务快捷入口单独组合。',samples.nav),
