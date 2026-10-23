@@ -432,5 +432,14 @@
     ],
     "page": "business",
     "case": 2
+  },
+  {
+    "design_key": "dismissibleStatus",
+    "components": [
+      "BeeStatus",
+      "BeeIconButton"
+    ],
+    "page": "foundation",
+    "case": 4
   }
 ]

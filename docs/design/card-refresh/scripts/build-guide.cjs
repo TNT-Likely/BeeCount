@@ -27,7 +27,7 @@ const sections=[
  card('23 · 紧凑导入字段','双列映射，核心字段和原始数据预览同屏，额外字段展开。',samples.mapping),
  card('24 · 初始化选择','品牌、标题、说明居中；选择内容左对齐，选中态保持主题一致。',samples.onboarding),
  card('25 · 小票与分享','收支、分类、账户、标签和原始备注完整传递。',samples.receipt),
- card('26 · 持续状态与空态','成功、警告、失败均使用图标和文字；失败原因与重试入口保留在页面。',samples.feedbackStatus+`<div class="p-empty">${icon('search-x')}没有找到匹配账单</div>`),
+ card('26 · 持续状态与空态','成功、警告、失败均使用图标和文字；失败原因与重试入口保留在页面。',samples.feedbackStatus+samples.dismissibleStatus+`<div class="p-empty">${icon('search-x')}没有找到匹配账单</div>`),
  card('27 · 首页品牌','有品牌与无品牌两种状态；预览和个性化设置均可切换，其他功能共用。',samples.brand+samples.brandOff),
  card('28 · 币种选择','常用币种、搜索、汇率提示与选中态；切换币种后清空不兼容账户。',samples.currency),
  card('29 · 汇率缺失弹窗','保留账单上下文，正数校验；取消不写入，确认后恢复折算预览。',samples.rate),
