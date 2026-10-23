@@ -3932,5 +3932,18 @@
   "v4HomeMonthIncome": "Monthly income",
   "v4HomeMonthBalance": "Monthly balance",
   "v4AmountsShow": "Show amounts",
-  "v4AmountsHide": "Hide amounts"
+  "v4AmountsHide": "Hide amounts",
+  "v4SearchTitle": "Search transactions",
+  "v4SearchRecent": "Recent searches",
+  "v4SearchClearHistory": "Clear search history",
+  "v4SearchInvert": "Invert selection",
+  "v4SearchScope": "Change scope",
+  "v4SearchOriginalAmount": "Original amount",
+  "v4SearchLedgerAmount": "Converted amount",
+  "v4SearchInvalidRange": "Enter valid nonnegative amounts and check the range",
+  "v4SearchSetTags": "Set tags",
+  "v4SearchTagsSaved": "Tags updated for selected transactions",
+  "v4SearchAll": "All",
+  "v4SearchHint": "Search notes, categories, amounts or tags",
+  "v4SearchFilterActive": "Filters applied"
 }

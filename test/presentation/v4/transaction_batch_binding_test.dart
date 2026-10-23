@@ -188,4 +188,63 @@ void main() {
         0);
     expect(await snapshot(), after);
   });
+  test('批量标签仅替换关联，个人标签与清空均保留财务字段和附件', () async {
+    final before = await snapshot();
+    final tag = await repo.createTag(name: '新标签', color: '#112233');
+    await binding.replaceTags(
+        ledgerId: 1, transactionIds: [expense, transfer], tagIds: [tag, tag]);
+    expect((await repo.getTagsForTransaction(expense)).single.id, tag);
+    expect((await repo.getTagsForTransaction(transfer)).single.id, tag);
+    expect((await snapshot())['transactions'], before['transactions']);
+    expect((await snapshot())['attachments'], before['attachments']);
+    final changes = (await db.select(db.localChanges).get())
+        .skip((before['changes'] as List).length)
+        .where((change) => change.entityType == 'transaction')
+        .toList();
+    expect(changes.map((c) => c.entityId), [expense, transfer]);
+    await binding
+        .replaceTags(ledgerId: 1, transactionIds: [expense], tagIds: []);
+    expect(await repo.getTagsForTransaction(expense), isEmpty);
+  });
+  test('共享标签使用当前账本镜像，清空同时清理 override，拒绝越界标签', () async {
+    await db.customStatement(
+        "UPDATE ledgers SET is_shared=1,my_role='editor' WHERE id=1");
+    await db.customStatement(
+        "INSERT INTO shared_ledger_tags(ledger_sync_id,sync_id,name,color,updated_at) VALUES('ledger-1','owner-tag','共享旅行','#112233',1792713600),('ledger-2','other-tag','其他账本','#445566',1792713600)");
+    final before = (await repo.getTransactionById(expense))!.toJson();
+    final id = syntheticIdForSyncId('owner-tag');
+    await binding
+        .replaceTags(ledgerId: 1, transactionIds: [expense], tagIds: [id]);
+    expect(
+        (await repo.getTagsForTransaction(expense)).single.syncId, 'owner-tag');
+    expect(await db.select(db.transactionTags).get(), isEmpty);
+    expect((await repo.getTransactionById(expense))!.toJson(), before);
+    final unchanged = await snapshot();
+    await expectLater(
+        binding.replaceTags(
+            ledgerId: 1,
+            transactionIds: [expense],
+            tagIds: [syntheticIdForSyncId('other-tag')]),
+        throwsStateError);
+    expect(await snapshot(), unchanged);
+    await binding
+        .replaceTags(ledgerId: 1, transactionIds: [expense], tagIds: []);
+    expect(await db.select(db.transactionTagOverrides).get(), isEmpty);
+  });
+  test('批量标签第二笔失败时全部关联与同步队列回滚', () async {
+    final tag = await repo.createTag(name: '回滚标签');
+    await db.customStatement(
+        "CREATE TRIGGER fail_batch_tags BEFORE INSERT ON transaction_tags WHEN NEW.transaction_id=$transfer BEGIN SELECT RAISE(ABORT,'reject second row'); END");
+    final before = await snapshot();
+    await expectLater(
+        binding.replaceTags(
+            ledgerId: 1, transactionIds: [expense, transfer], tagIds: [tag]),
+        throwsA(isA<Exception>()));
+    expect(await snapshot(), before);
+    await expectLater(
+        binding.replaceTags(
+            ledgerId: 1, transactionIds: [expense, outside], tagIds: [tag]),
+        throwsStateError);
+    expect(await snapshot(), before);
+  });
 }

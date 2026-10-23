@@ -206,4 +206,69 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
   });
+  testWidgets('小屏大字批量操作始终贴底，滚动只移动结果且无选择时禁用', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 568);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    for (var i = 0; i < 20; i++) {
+      await repo.addTransaction(
+          ledgerId: 1,
+          type: 'expense',
+          amount: i + 1,
+          happenedAt: DateTime(2026, 10, 24),
+          note: '滚动$i');
+    }
+    await open(tester, scale: 1.4);
+    final bar = find.byType(BeeBatchActionBar);
+    final rect = tester.getRect(bar);
+    expect(rect.bottom, 568);
+    expect(
+        tester
+            .widgetList<TextButton>(
+                find.descendant(of: bar, matching: find.byType(TextButton)))
+            .every((b) => b.onPressed == null),
+        isTrue);
+    await tester.drag(find.byType(ListView), const Offset(0, -300));
+    await tester.pumpAndSettle();
+    expect(tester.getRect(bar), rect);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+  });
+  testWidgets('真实批量标签走横排选择器，取消不写入，确认保留交易其他字段', (tester) async {
+    final tag = await repo.createTag(name: '周末', color: '#219c9c');
+    final before = await repo.getTransactionsByLedger(1);
+    await open(tester);
+    final l = AppLocalizations.of(tester.element(find.byType(SearchPage)));
+    await tester.tap(find.text(l.searchSelectAll));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.v4SearchSetTags));
+    await tester.pumpAndSettle();
+    expect(find.byType(BeeTagPicker), findsOneWidget);
+    await tester.tap(find.text('周末').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(CloseButton).last);
+    await tester.pumpAndSettle();
+    for (final tx in before) {
+      expect(await repo.getTagsForTransaction(tx.id), isEmpty);
+    }
+    await tester.tap(find.text(l.v4SearchSetTags));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('周末').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.descendant(
+        of: find.byType(BeeTagPicker), matching: find.text(l.commonConfirm)));
+    await tester.pumpAndSettle();
+    for (final tx in before) {
+      expect((await repo.getTagsForTransaction(tx.id)).single.id, tag);
+    }
+    expect(await repo.getTransactionsByLedger(1), before);
+    expect(await repo.getTagsForTransaction(3), isEmpty);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+  });
 }

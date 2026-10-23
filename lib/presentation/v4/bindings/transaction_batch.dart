@@ -9,6 +9,58 @@ class TransactionBatchBinding {
   const TransactionBatchBinding(this.repository);
   final BaseRepository repository;
 
+  Future<int> replaceTags(
+      {required int ledgerId,
+      required Iterable<int> transactionIds,
+      required Iterable<int> tagIds}) async {
+    final ids = tagIds.toSet();
+    final repo = repository;
+    var available = await repo.getAllTags();
+    if (repo is LocalRepository) {
+      final scope = await repo.db.loadLedgerPickerContext(ledgerId);
+      available = await repo.db.filterTagsForLedger(available, scope);
+    }
+    final byId = {for (final tag in available) tag.id: tag};
+    if (ids.any((id) => !byId.containsKey(id))) {
+      throw StateError('The selected tag is no longer available');
+    }
+    return _edit(
+        ledgerId: ledgerId,
+        transactionIds: transactionIds,
+        validate: (transactions) {
+          if (ids.any((id) => id < 0) &&
+              (repo is! LocalRepository ||
+                  transactions.any((t) => t.syncId == null))) {
+            throw StateError(
+                'Shared tags require a synchronized transaction identity');
+          }
+        },
+        update: (transaction) async {
+          await repo.updateTransactionTags(
+              transactionId: transaction.id,
+              tagIds: ids.where((id) => id >= 0).toList());
+          if (repo is LocalRepository && transaction.syncId != null) {
+            await (repo.db.delete(repo.db.transactionTagOverrides)
+                  ..where(
+                      (t) => t.transactionSyncId.equals(transaction.syncId!)))
+                .go();
+            for (final id in ids.where((id) => id < 0)) {
+              await repo.db.into(repo.db.transactionTagOverrides).insert(
+                  TransactionTagOverridesCompanion.insert(
+                      transactionSyncId: transaction.syncId!,
+                      tagSyncId: byId[id]!.syncId!,
+                      createdAt: DateTime.now().toUtc()));
+            }
+            await repo.changeTracker?.recordLedgerChange(
+                entityType: 'transaction',
+                entityId: transaction.id,
+                entitySyncId: transaction.syncId!,
+                ledgerId: ledgerId,
+                action: 'update');
+          }
+        });
+  }
+
   Future<int> replaceNotes({
     required int ledgerId,
     required Iterable<int> transactionIds,
@@ -43,6 +95,7 @@ class TransactionBatchBinding {
     required Iterable<int> transactionIds,
     required Future<void> Function(Transaction) update,
     Category? category,
+    void Function(List<Transaction>)? validate,
   }) async {
     final ids = transactionIds.toSet();
     if (ids.isEmpty) return 0;
@@ -55,6 +108,7 @@ class TransactionBatchBinding {
         }
         transactions.add(transaction);
       }
+      validate?.call(transactions);
       if (category != null) {
         if (transactions
             .any((t) => t.type == 'transfer' || t.type != category.kind)) {

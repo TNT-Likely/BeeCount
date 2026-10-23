@@ -8753,6 +8753,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4AmountsHide => '隐藏金额';
+
+  @override
+  String get v4SearchTitle => '账单搜索';
+
+  @override
+  String get v4SearchRecent => '最近搜索';
+
+  @override
+  String get v4SearchClearHistory => '清除搜索历史';
+
+  @override
+  String get v4SearchInvert => '反选';
+
+  @override
+  String get v4SearchScope => '调整范围';
+
+  @override
+  String get v4SearchOriginalAmount => '原币金额';
+
+  @override
+  String get v4SearchLedgerAmount => '折算金额';
+
+  @override
+  String get v4SearchInvalidRange => '请填写有效的非负金额，并确认起止范围正确';
+
+  @override
+  String get v4SearchSetTags => '设置标签';
+
+  @override
+  String get v4SearchTagsSaved => '所选账单的标签已更新';
+
+  @override
+  String get v4SearchAll => '全部';
+
+  @override
+  String get v4SearchHint => '搜索备注、分类、金额、标签';
+
+  @override
+  String get v4SearchFilterActive => '已应用筛选';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

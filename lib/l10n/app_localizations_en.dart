@@ -8761,4 +8761,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4AmountsHide => 'Hide amounts';
+
+  @override
+  String get v4SearchTitle => 'Search transactions';
+
+  @override
+  String get v4SearchRecent => 'Recent searches';
+
+  @override
+  String get v4SearchClearHistory => 'Clear search history';
+
+  @override
+  String get v4SearchInvert => 'Invert selection';
+
+  @override
+  String get v4SearchScope => 'Change scope';
+
+  @override
+  String get v4SearchOriginalAmount => 'Original amount';
+
+  @override
+  String get v4SearchLedgerAmount => 'Converted amount';
+
+  @override
+  String get v4SearchInvalidRange => 'Enter valid nonnegative amounts and check the range';
+
+  @override
+  String get v4SearchSetTags => 'Set tags';
+
+  @override
+  String get v4SearchTagsSaved => 'Tags updated for selected transactions';
+
+  @override
+  String get v4SearchAll => 'All';
+
+  @override
+  String get v4SearchHint => 'Search notes, categories, amounts or tags';
+
+  @override
+  String get v4SearchFilterActive => 'Filters applied';
 }

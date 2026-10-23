@@ -16477,6 +16477,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide amounts'**
   String get v4AmountsHide;
+
+  /// No description provided for @v4SearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search transactions'**
+  String get v4SearchTitle;
+
+  /// No description provided for @v4SearchRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent searches'**
+  String get v4SearchRecent;
+
+  /// No description provided for @v4SearchClearHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search history'**
+  String get v4SearchClearHistory;
+
+  /// No description provided for @v4SearchInvert.
+  ///
+  /// In en, this message translates to:
+  /// **'Invert selection'**
+  String get v4SearchInvert;
+
+  /// No description provided for @v4SearchScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Change scope'**
+  String get v4SearchScope;
+
+  /// No description provided for @v4SearchOriginalAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Original amount'**
+  String get v4SearchOriginalAmount;
+
+  /// No description provided for @v4SearchLedgerAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Converted amount'**
+  String get v4SearchLedgerAmount;
+
+  /// No description provided for @v4SearchInvalidRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter valid nonnegative amounts and check the range'**
+  String get v4SearchInvalidRange;
+
+  /// No description provided for @v4SearchSetTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Set tags'**
+  String get v4SearchSetTags;
+
+  /// No description provided for @v4SearchTagsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags updated for selected transactions'**
+  String get v4SearchTagsSaved;
+
+  /// No description provided for @v4SearchAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get v4SearchAll;
+
+  /// No description provided for @v4SearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search notes, categories, amounts or tags'**
+  String get v4SearchHint;
+
+  /// No description provided for @v4SearchFilterActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters applied'**
+  String get v4SearchFilterActive;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

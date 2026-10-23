@@ -1,1209 +1,383 @@
+import 'dart:async';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:beecount_ui/beecount_ui.dart' show BeeDialog, BeeTone;
-import '../../presentation/v4/bindings/transaction_batch.dart';
-import '../../services/billing/post_processor.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/db.dart';
+import '../../l10n/app_localizations.dart';
+import '../../presentation/v4/bindings/search_results.dart';
+import '../../presentation/v4/bindings/transaction_batch.dart';
+import '../../presentation/v4/bindings/transaction_search.dart';
+import '../../presentation/v4/bindings/transaction_search_filter.dart';
 import '../../providers.dart';
 import '../../providers/budget_providers.dart';
-import '../../widgets/biz/biz.dart';
-import '../../widgets/ui/ui.dart';
-import '../../styles/tokens.dart';
+import '../../services/billing/post_processor.dart';
 import '../../utils/category_utils.dart';
-import '../../l10n/app_localizations.dart';
-import '../../utils/transaction_edit_utils.dart';
-import '../../utils/ui_scale_extensions.dart';
-import '../../widgets/category_icon.dart';
-import 'category_detail_page.dart';
+import '../../widgets/biz/category_selector_dialog.dart';
+import '../tag/widgets/tag_selector.dart';
 
-typedef SearchTransaction = ({
-  Transaction t,
-  Category? category,
-  Account? account,
-  Account? toAccount
-});
+export '../../presentation/v4/bindings/transaction_search.dart'
+    show SearchTransaction;
 
-/// 搜索页面
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage(
       {super.key,
       this.initialBatchMode = false,
       this.initialOpenFilter = false});
   final bool initialBatchMode, initialOpenFilter;
-
   @override
   ConsumerState<SearchPage> createState() => _SearchPageState();
 }
 
 class _SearchPageState extends ConsumerState<SearchPage> {
-  final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _noteController = TextEditingController();
-
-  List<SearchTransaction> _searchResults = [];
-  List<SearchTransaction> _allTransactions = [];
-  Stream<List<SearchTransaction>>? _transactionStream;
-  int? _streamLedgerId;
-  bool _isSearching = false;
-  String _searchText = '';
-
-  // 筛选条件
-  double? _minAmount;
-  double? _maxAmount;
-  DateTime? _startDate;
-  DateTime? _endDate;
-  Category? _selectedCategory;
-  bool _hasScheduledSearch = false; // 防止重复调度搜索
-
-  // 缓存汇总金额，避免每次 build() 重复计算
-  double _totalExpense = 0.0;
-  double _totalIncome = 0.0;
-
-  // 批量操作相关
-  bool _isBatchMode = false;
-  bool _isBatchWriting = false;
-  final Set<int> _selectedIds = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(_onSearchChanged);
-    _isBatchMode = widget.initialBatchMode;
-    if (widget.initialOpenFilter) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _showFilterDialog();
-      });
-    }
-  }
-
+  final _text = TextEditingController();
+  TransactionSearchController? _data;
+  bool _writing = false, _openedFilter = false;
   @override
   void dispose() {
-    _searchController.dispose();
-    _noteController.dispose();
+    _text.dispose();
+    _data?.dispose();
     super.dispose();
   }
 
-  void _onSearchChanged() {
-    setState(() {
-      _searchText = _searchController.text.trim();
-    });
-    _performSearch();
+  void _ensureData(int ledgerId, AppLocalizations l) {
+    if (_data?.ledgerId == ledgerId) return;
+    _data?.dispose();
+    _text.clear();
+    _data = TransactionSearchController(
+        repository: ref.read(repositoryProvider),
+        ledgerId: ledgerId,
+        initialBatch: widget.initialBatchMode,
+        categoryLabel: (c) =>
+            CategoryUtils.displayName(c?.name, l, kind: c?.kind ?? 'expense'));
+    unawaited(_data!.start());
+    if (widget.initialOpenFilter && !_openedFilter) {
+      _openedFilter = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _filters();
+      });
+    }
   }
 
-  /// 执行搜索
-  void _performSearch() {
-    // 如果没有任何搜索条件，清空结果
-    if (!widget.initialBatchMode &&
-        _searchText.isEmpty &&
-        _minAmount == null &&
-        _maxAmount == null &&
-        _startDate == null &&
-        _endDate == null &&
-        _selectedCategory == null) {
-      setState(() {
-        _searchResults = [];
-        _totalExpense = 0.0;
-        _totalIncome = 0.0;
-        _isSearching = false;
-        _hasScheduledSearch = false;
-      });
+  Future<void> _filters() async {
+    if (_writing) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    final c = _data!;
+    final filter = await showDialog<TransactionSearchFilter>(
+        context: context,
+        builder: (_) => TransactionSearchFilterDialog(
+            initial: c.filter,
+            accounts: c.accounts,
+            tags: c.availableTags,
+            currency: ref.read(currentLedgerProvider).valueOrNull?.currency ??
+                'CNY'));
+    if (mounted && identical(_data, c) && filter != null) c.applyFilter(filter);
+  }
+
+  Future<void> _write(Future<int> Function() action,
+      String Function(int) success, String Function(String) failure) async {
+    final c = _data!;
+    if (_writing ||
+        c.selected.isEmpty ||
+        ref.read(currentLedgerIdProvider) != c.ledgerId) {
       return;
     }
-
-    setState(() {
-      _isSearching = true;
-      _hasScheduledSearch = false;
-    });
-
-    final results = _allTransactions.where((item) {
-      final transaction = item.t;
-      final category = item.category;
-
-      // 文本搜索
-      bool textMatch = true;
-      if (_searchText.isNotEmpty) {
-        final searchLower = _searchText.toLowerCase();
-        final note = transaction.note?.toLowerCase() ?? '';
-        final categoryName =
-            CategoryUtils.getDisplayName(category?.name, context).toLowerCase();
-        final amountStr = transaction.amount.toString();
-
-        textMatch = note.contains(searchLower) ||
-            categoryName.contains(searchLower) ||
-            amountStr.contains(searchLower);
-      }
-
-      // 分类筛选：选择一级分类时，同时包含其二级分类交易。
-      final categoryMatch = _selectedCategory == null ||
-          category?.id == _selectedCategory!.id ||
-          category?.parentId == _selectedCategory!.id;
-
-      // 金额范围搜索
-      bool amountMatch = true;
-      if (_minAmount != null || _maxAmount != null) {
-        final amount = transaction.amount.abs();
-        if (_minAmount != null && amount < _minAmount!) {
-          amountMatch = false;
-        }
-        if (_maxAmount != null && amount > _maxAmount!) {
-          amountMatch = false;
+    setState(() => _writing = true);
+    try {
+      final count = await action();
+      if (!mounted) return;
+      ref.invalidate(countsForLedgerProvider(c.ledgerId));
+      ref.read(statsRefreshProvider.notifier).state++;
+      ref.read(budgetRefreshProvider.notifier).state++;
+      ref.read(tagListRefreshProvider.notifier).state++;
+      PostProcessor.sync(ref, ledgerId: c.ledgerId);
+      if (mounted && identical(_data, c)) {
+        c.afterWrite();
+        await c.refresh();
+        if (mounted) {
+          showBeeToast(context, success(count), tone: BeeTone.success);
         }
       }
-
-      // 时间范围搜索
-      bool dateMatch = true;
-      if (_startDate != null || _endDate != null) {
-        final happenedAt = transaction.happenedAt;
-        if (_startDate != null) {
-          final startOfDay =
-              DateTime(_startDate!.year, _startDate!.month, _startDate!.day);
-          if (happenedAt.isBefore(startOfDay)) {
-            dateMatch = false;
-          }
-        }
-        if (_endDate != null) {
-          final endOfDay = DateTime(
-              _endDate!.year, _endDate!.month, _endDate!.day, 23, 59, 59);
-          if (happenedAt.isAfter(endOfDay)) {
-            dateMatch = false;
-          }
-        }
+    } catch (e) {
+      if (mounted) {
+        showBeeToast(context, failure(e.toString()), tone: BeeTone.error);
       }
-
-      return textMatch && categoryMatch && amountMatch && dateMatch;
-    }).toList();
-
-    setState(() {
-      _searchResults = results;
-      _selectedIds.retainAll(results.map((item) => item.t.id));
-      _totalExpense = results
-          .where((e) => e.t.type == 'expense')
-          .fold(0.0, (sum, e) => sum + (e.t.nativeAmount ?? e.t.amount).abs());
-      _totalIncome = results
-          .where((e) => e.t.type == 'income')
-          .fold(0.0, (sum, e) => sum + (e.t.nativeAmount ?? e.t.amount).abs());
-      _isSearching = false;
-    });
-  }
-
-  /// 切换批量操作模式
-  void _toggleBatchMode() {
-    if (_isBatchWriting) return;
-    setState(() {
-      _isBatchMode = !_isBatchMode;
-      if (!_isBatchMode) {
-        _selectedIds.clear();
-      }
-    });
-  }
-
-  /// 切换选择
-  void _toggleSelection(int id) {
-    if (_isBatchWriting) return;
-    setState(() {
-      if (_selectedIds.contains(id)) {
-        _selectedIds.remove(id);
-      } else {
-        _selectedIds.add(id);
-      }
-    });
-  }
-
-  /// 全选/取消全选
-  void _toggleSelectAll() {
-    if (_isBatchWriting) return;
-    setState(() {
-      if (_selectedIds.length == _searchResults.length) {
-        _selectedIds.clear();
-      } else {
-        _selectedIds.clear();
-        _selectedIds.addAll(_searchResults.map((e) => e.t.id));
-      }
-    });
-  }
-
-  /// 显示筛选弹窗
-  Future<void> _showFilterDialog() async {
-    FocusManager.instance.primaryFocus?.unfocus();
-    final l10n = AppLocalizations.of(context);
-    double? tempMinAmount = _minAmount;
-    double? tempMaxAmount = _maxAmount;
-    DateTime? tempStartDate = _startDate;
-    DateTime? tempEndDate = _endDate;
-    Category? tempSelectedCategory = _selectedCategory;
-
-    await showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          return BeeDialog(
-            title: Text(l10n.searchFilterTitle),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                    title: Text(l10n.searchCategoryFilter),
-                    subtitle: Text(tempSelectedCategory != null
-                        ? CategoryUtils.getDisplayName(
-                            tempSelectedCategory!.name, context)
-                        : l10n.searchNotSet),
-                    onTap: () async {
-                      final selected = await showCategorySelector(
-                        context,
-                        type: 'all',
-                        currentCategoryId: tempSelectedCategory?.id,
-                        includeParentCategories: true,
-                        expandChildrenByDefault: true,
-                        title: l10n.searchCategoryFilter,
-                      );
-                      if (selected != null) {
-                        setState(() {
-                          tempSelectedCategory = selected;
-                        });
-                      }
-                    },
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (tempSelectedCategory != null)
-                          IconButton(
-                            icon: const Icon(Icons.clear, size: 20),
-                            onPressed: () {
-                              setState(() {
-                                tempSelectedCategory = null;
-                              });
-                            },
-                          ),
-                        const Icon(Icons.chevron_right, size: 24),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // 金额筛选
-                  Text(l10n.searchAmountFilter,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            labelText: l10n.searchMinAmount,
-                            border: const OutlineInputBorder(),
-                            isDense: true,
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
-                          controller: TextEditingController(
-                              text: tempMinAmount?.toString() ?? ''),
-                          onChanged: (value) {
-                            tempMinAmount = double.tryParse(value);
-                          },
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        child: Text('~'),
-                      ),
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            labelText: l10n.searchMaxAmount,
-                            border: const OutlineInputBorder(),
-                            isDense: true,
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
-                          controller: TextEditingController(
-                              text: tempMaxAmount?.toString() ?? ''),
-                          onChanged: (value) {
-                            tempMaxAmount = double.tryParse(value);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // 时间筛选
-                  Text(l10n.searchDateFilter,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                    title: Text(l10n.searchStartDate),
-                    subtitle: Text(tempStartDate != null
-                        ? '${tempStartDate!.year}-${tempStartDate!.month.toString().padLeft(2, '0')}-${tempStartDate!.day.toString().padLeft(2, '0')}'
-                        : l10n.searchNotSet),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (tempStartDate != null)
-                          IconButton(
-                            icon: const Icon(Icons.clear, size: 20),
-                            onPressed: () {
-                              setState(() {
-                                tempStartDate = null;
-                              });
-                            },
-                          ),
-                        IconButton(
-                          icon: const Icon(Icons.calendar_today, size: 20),
-                          onPressed: () async {
-                            final date = await showWheelDatePicker(
-                              context,
-                              initial: tempStartDate ?? DateTime.now(),
-                              mode: WheelDatePickerMode.ymd,
-                              minDate: DateTime(2000),
-                              maxDate: DateTime.now(),
-                            );
-                            if (date != null) {
-                              setState(() {
-                                tempStartDate = date;
-                              });
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                    title: Text(l10n.searchEndDate),
-                    subtitle: Text(tempEndDate != null
-                        ? '${tempEndDate!.year}-${tempEndDate!.month.toString().padLeft(2, '0')}-${tempEndDate!.day.toString().padLeft(2, '0')}'
-                        : l10n.searchNotSet),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (tempEndDate != null)
-                          IconButton(
-                            icon: const Icon(Icons.clear, size: 20),
-                            onPressed: () {
-                              setState(() {
-                                tempEndDate = null;
-                              });
-                            },
-                          ),
-                        IconButton(
-                          icon: const Icon(Icons.calendar_today, size: 20),
-                          onPressed: () async {
-                            final date = await showWheelDatePicker(
-                              context,
-                              initial: tempEndDate ?? DateTime.now(),
-                              mode: WheelDatePickerMode.ymd,
-                              minDate: DateTime(2000),
-                              maxDate: DateTime.now(),
-                            );
-                            if (date != null) {
-                              setState(() {
-                                tempEndDate = date;
-                              });
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text(l10n.commonCancel),
-              ),
-              TextButton(
-                onPressed: () {
-                  // 清空筛选
-                  setState(() {
-                    tempMinAmount = null;
-                    tempMaxAmount = null;
-                    tempStartDate = null;
-                    tempEndDate = null;
-                    tempSelectedCategory = null;
-                  });
-                },
-                child: Text(l10n.searchClearFilter),
-              ),
-              TextButton(
-                onPressed: () {
-                  this.setState(() {
-                    _minAmount = tempMinAmount;
-                    _maxAmount = tempMaxAmount;
-                    _startDate = tempStartDate;
-                    _endDate = tempEndDate;
-                    _selectedCategory = tempSelectedCategory;
-                  });
-                  _performSearch();
-                  Navigator.pop(context);
-                },
-                child: Text(l10n.commonConfirm),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  /// 批量操作完成后刷新
-  Future<void> _refreshAfterBatchOperation(int count, String operation) async {
-    if (mounted) {
-      showToast(context, operation, tone: BeeTone.success);
-      setState(() {
-        _selectedIds.clear();
-        _isBatchMode = widget.initialBatchMode;
-      });
-      // The existing ledger stream delivers the committed rows. Do not open a
-      // second watch just to await first/cancel while the page is already live.
-      _performSearch();
+    } finally {
+      if (mounted) setState(() => _writing = false);
     }
   }
 
-  /// 批量删除对话框
-  void _showBatchDeleteDialog() {
+  Future<void> _note() async {
+    final c = _data!,
+        ids = _data!.selected.toList(),
+        l = AppLocalizations.of(context);
     FocusManager.instance.primaryFocus?.unfocus();
-    final count = _selectedIds.length;
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => BeeDialog(
-        title: Text(l10n.searchBatchDeleteConfirmTitle),
-        content: Text(l10n.searchBatchDeleteConfirmMessage(count)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.commonCancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _executeBatchDelete();
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(l10n.commonDelete),
-          ),
-        ],
-      ),
-    );
+    final note = await showDialog<String>(
+        context: context, builder: (_) => _BatchNoteDialog(count: ids.length));
+    if (!mounted || !identical(c, _data) || note == null) return;
+    await _write(
+        () => TransactionBatchBinding(ref.read(repositoryProvider))
+            .replaceNotes(
+                ledgerId: c.ledgerId, transactionIds: ids, note: note),
+        l.searchBatchSetNoteSuccess,
+        l.searchBatchSetNoteFailed);
   }
 
-  /// 执行批量删除
-  Future<void> _executeBatchDelete() async {
-    final ids = List<int>.of(_selectedIds);
-    final l10n = AppLocalizations.of(context);
-    await _runBatch(() async {
+  Future<void> _category() async {
+    final c = _data!,
+        ids = _data!.selected.toList(),
+        l = AppLocalizations.of(context);
+    final kinds = c.results
+        .where((r) => ids.contains(r.t.id))
+        .map((r) => r.t.type)
+        .toSet();
+    if (kinds.contains('transfer') || kinds.length != 1) {
+      showBeeToast(
+          context,
+          kinds.contains('transfer')
+              ? l.searchBatchCategoryTransferError
+              : l.searchBatchCategoryTypeError);
+      return;
+    }
+    final category = await showCategorySelector(context,
+        type: kinds.single,
+        includeParentCategories: false,
+        showTransactionCount: true,
+        ledgerId: c.ledgerId);
+    if (!mounted || !identical(c, _data) || category == null) return;
+    await _write(
+        () => TransactionBatchBinding(ref.read(repositoryProvider))
+            .changeCategory(
+                ledgerId: c.ledgerId, transactionIds: ids, category: category),
+        l.searchBatchChangeCategorySuccess,
+        l.searchBatchChangeCategoryFailed);
+  }
+
+  Future<void> _tags() async {
+    final c = _data!,
+        ids = _data!.selected.toList(),
+        l = AppLocalizations.of(context);
+    final initial = ids.isEmpty
+        ? <int>{}
+        : (c.tags[ids.first] ?? []).map((t) => t.id).toSet();
+    for (final id in ids.skip(1)) {
+      initial.retainAll((c.tags[id] ?? []).map((t) => t.id));
+    }
+    final tags =
+        await TagSelector.show(context, selectedTagIds: initial.toList());
+    if (!mounted || !identical(c, _data) || tags == null) return;
+    await _write(
+        () => TransactionBatchBinding(ref.read(repositoryProvider)).replaceTags(
+            ledgerId: c.ledgerId, transactionIds: ids, tagIds: tags),
+        (_) => l.v4SearchTagsSaved,
+        (error) => '${l.commonError}: $error');
+  }
+
+  Future<void> _delete() async {
+    final c = _data!,
+        ids = _data!.selected.toList(),
+        l = AppLocalizations.of(context);
+    final confirmed = await showBeeConfirm(context,
+        title: l.searchBatchDeleteConfirmTitle,
+        message: l.searchBatchDeleteConfirmMessage(ids.length),
+        confirmLabel: l.commonDelete,
+        cancelLabel: l.commonCancel,
+        danger: true);
+    if (!mounted || !identical(c, _data) || !confirmed) return;
+    await _write(() async {
       final repo = ref.read(repositoryProvider);
+      // Check every identity before deleting the first selected row.
+      for (final id in ids) {
+        if ((await repo.getTransactionById(id))?.ledgerId != c.ledgerId) {
+          throw StateError('Batch scope changed');
+        }
+      }
       for (final id in ids) {
         await repo.deleteTransaction(id);
       }
       return ids.length;
-    },
-        success: l10n.searchBatchDeleteSuccess,
-        failure: l10n.searchBatchDeleteFailed);
+    }, l.searchBatchDeleteSuccess, l.searchBatchDeleteFailed);
   }
 
-  /// 批量设置备注对话框
-  void _showBatchSetNoteDialog() {
-    FocusManager.instance.primaryFocus?.unfocus();
-    _noteController.clear();
-    final count = _selectedIds.length;
-    final l10n = AppLocalizations.of(context);
-
-    showDialog(
-      context: context,
-      builder: (context) => BeeDialog(
-        title: Text(l10n.searchBatchSetNoteTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.searchBatchSetNoteMessage(count)),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _noteController,
-              decoration: InputDecoration(
-                hintText: l10n.searchBatchSetNoteHint,
-                border: const OutlineInputBorder(),
-              ),
-              maxLines: 3,
-              autofocus: true,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.commonCancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              final note = _noteController.text.trim();
-              Navigator.pop(context);
-              await _executeBatchSetNote(note);
-            },
-            child: Text(l10n.commonConfirm),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 执行批量设置备注
-  Future<void> _executeBatchSetNote(String note) async {
-    final ids = List<int>.of(_selectedIds);
-    final ledgerId = ref.read(currentLedgerIdProvider);
-    final l10n = AppLocalizations.of(context);
-    await _runBatch(
-        () => TransactionBatchBinding(ref.read(repositoryProvider))
-            .replaceNotes(ledgerId: ledgerId, transactionIds: ids, note: note),
-        success: l10n.searchBatchSetNoteSuccess,
-        failure: l10n.searchBatchSetNoteFailed);
-  }
-
-  /// 批量调整分类对话框
-  Future<void> _showBatchChangeCategoryDialog() async {
-    final l10n = AppLocalizations.of(context);
-
-    // 检查选中的交易类型是否一致
-    final selectedTransactions = _searchResults
-        .where((item) => _selectedIds.contains(item.t.id))
+  List<Widget> _filterChips(TransactionSearchController c, AppLocalizations l) {
+    final f = c.filter;
+    final labels = <String, String>{
+      if (f.category != null)
+        'category': CategoryUtils.displayName(f.category!.name, l,
+            kind: f.category!.kind),
+      if (f.accountId != null)
+        'account':
+            c.accounts.where((a) => a.id == f.accountId).firstOrNull?.name ??
+                l.exportCsvHeaderAccount,
+      if (f.tagId != null)
+        'tag':
+            c.availableTags.where((t) => t.id == f.tagId).firstOrNull?.name ??
+                l.exportCsvHeaderTags,
+      if (f.kind != null)
+        'kind': f.kind == 'income'
+            ? l.exportTypeIncome
+            : f.kind == 'expense'
+                ? l.exportTypeExpense
+                : l.transferTitle,
+      if (f.minimum != null || f.maximum != null)
+        'amount':
+            '${f.basis == SearchAmountBasis.original ? l.v4SearchOriginalAmount : l.v4SearchLedgerAmount}: ${f.minimum ?? 0} — ${f.maximum ?? '∞'}',
+      if (f.start != null || f.end != null) 'date': l.searchDateFilter,
+    };
+    return labels.entries
+        .map((e) => InputChip(
+            label: Text(e.value, style: const TextStyle(fontSize: 11)),
+            onDeleted: _writing
+                ? null
+                : () => c.applyFilter(TransactionSearchFilter(
+                    category: e.key == 'category' ? null : f.category,
+                    accountId: e.key == 'account' ? null : f.accountId,
+                    tagId: e.key == 'tag' ? null : f.tagId,
+                    kind: e.key == 'kind' ? null : f.kind,
+                    basis: f.basis,
+                    minimum: e.key == 'amount' ? null : f.minimum,
+                    maximum: e.key == 'amount' ? null : f.maximum,
+                    start: e.key == 'date' ? null : f.start,
+                    end: e.key == 'date' ? null : f.end))))
         .toList();
-
-    // 获取所有选中交易的类型
-    final types = selectedTransactions.map((item) => item.t.type).toSet();
-
-    // 如果包含转账类型或类型不一致，则不允许修改分类
-    if (types.isEmpty || _isBatchWriting) return;
-    if (types.contains('transfer')) {
-      showToast(context, l10n.searchBatchCategoryTransferError);
-      return;
-    }
-
-    if (types.length > 1) {
-      showToast(context, l10n.searchBatchCategoryTypeError);
-      return;
-    }
-
-    // 获取统一的交易类型
-    final transactionType = types.first;
-
-    // 显示分类选择器
-    final selectedCategory = await showCategorySelector(
-      context,
-      type: transactionType,
-      includeParentCategories: false, // 不包含有子分类的父分类
-      showTransactionCount: true, // 显示笔数
-      ledgerId: ref.read(currentLedgerIdProvider),
-    );
-
-    if (selectedCategory != null) {
-      await _executeBatchChangeCategory(selectedCategory);
-    }
-  }
-
-  /// 执行批量调整分类
-  Future<void> _executeBatchChangeCategory(Category category) async {
-    final ids = List<int>.of(_selectedIds);
-    final ledgerId = ref.read(currentLedgerIdProvider);
-    final l10n = AppLocalizations.of(context);
-    await _runBatch(
-        () => TransactionBatchBinding(ref.read(repositoryProvider))
-            .changeCategory(
-                ledgerId: ledgerId, transactionIds: ids, category: category),
-        success: l10n.searchBatchChangeCategorySuccess,
-        failure: l10n.searchBatchChangeCategoryFailed);
-  }
-
-  Future<void> _runBatch(Future<int> Function() write,
-      {required String Function(int) success,
-      required String Function(String) failure}) async {
-    if (_isBatchWriting || _selectedIds.isEmpty) return;
-    final ledgerId = ref.read(currentLedgerIdProvider);
-    setState(() => _isBatchWriting = true);
-    try {
-      final count = await write();
-      if (!mounted) return;
-      ref.invalidate(countsForLedgerProvider(ledgerId));
-      ref.read(statsRefreshProvider.notifier).state++;
-      ref.read(budgetRefreshProvider.notifier).state++;
-      PostProcessor.sync(ref, ledgerId: ledgerId);
-      await _refreshAfterBatchOperation(count, success(count));
-    } catch (e) {
-      if (mounted) {
-        showToast(context, failure(e.toString()), tone: BeeTone.error);
-      }
-    } finally {
-      if (mounted) setState(() => _isBatchWriting = false);
-    }
-  }
-
-  /// 构建收入/支出汇总标签
-  Widget _buildSummaryChip({
-    required String label,
-    required double amount,
-    required Color color,
-  }) {
-    final style = TextStyle(fontSize: 12.0.scaled(context, ref), color: color);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // label 固定展示，金额部分由 AmountText 处理隐藏/单位/币种
-        Text('$label ', style: style),
-        Flexible(
-          child: AmountText(
-            value: amount,
-            signed: false,
-            showCurrency: true,
-            useCompactFormat: true,
-            style: style,
-          ),
-        ),
-      ],
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final repo = ref.watch(repositoryProvider);
-    final ledgerId = ref.watch(currentLedgerIdProvider);
-    final hide = ref.watch(hideAmountsProvider);
-    final accountsEnabled =
-        ref.watch(accountFeatureEnabledProvider).valueOrNull ?? true;
-    final l10n = AppLocalizations.of(context);
-    if (_transactionStream == null || _streamLedgerId != ledgerId) {
-      _transactionStream = repo.transactionsWithCategoryAll(ledgerId: ledgerId);
-      _streamLedgerId = ledgerId;
-    }
-
-    return Scaffold(
-      backgroundColor: BeeTokens.scaffoldBackground(context),
-      body: Column(
-        children: [
-          PopScope(
-              canPop: !_isBatchWriting,
-              child: _isBatchWriting
-                  ? const LinearProgressIndicator(minHeight: 2)
-                  : const SizedBox.shrink()),
-          // 使用PrimaryHeader
-          PrimaryHeader(
-            title: _isBatchMode
-                ? l10n.searchBatchModeWithCount(
-                    _selectedIds.length, _searchResults.length)
-                : l10n.searchTitle,
-            showBack: !_isBatchMode,
-            actions: _isBatchMode
-                ? [
-                    if (_searchResults.isNotEmpty)
-                      TextButton(
-                        onPressed: _toggleSelectAll,
-                        child: Text(
-                          _selectedIds.length == _searchResults.length
-                              ? l10n.searchDeselectAll
-                              : l10n.searchSelectAll,
-                          style:
-                              TextStyle(color: ref.watch(primaryColorProvider)),
-                        ),
-                      ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: _isBatchWriting
-                          ? null
-                          : widget.initialBatchMode
-                              ? () => Navigator.pop(context)
-                              : _toggleBatchMode,
-                      tooltip: l10n.searchExitBatchMode,
-                    ),
-                  ]
-                : null,
-          ),
-          // 搜索框区域
-          if (!_isBatchMode) // 批量模式下隐藏搜索框
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-              decoration: BoxDecoration(
-                color: BeeTokens.surfaceElevated(context),
-                boxShadow: BeeTokens.isDark(context)
+    final l = AppLocalizations.of(context),
+        ledgerId = ref.watch(currentLedgerIdProvider);
+    ref.watch(hideAmountsProvider);
+    _ensureData(ledgerId, l);
+    final c = _data!;
+    return AnimatedBuilder(
+        animation: c,
+        builder: (context, _) => PopScope(
+            canPop: !_writing,
+            child: Scaffold(
+                backgroundColor: BeeCardTheme.of(context).canvas,
+                bottomNavigationBar: !c.batch
                     ? null
-                    : [
-                        BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-              ),
-              child: Column(
-                children: [
-                  // 搜索框和筛选按钮
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText: AppLocalizations.of(context).searchHint,
-                            prefixIcon: Icon(Icons.search,
-                                color: BeeTokens.textTertiary(context)),
-                            suffixIcon: _searchController.text.isNotEmpty
-                                ? IconButton(
-                                    onPressed: () {
-                                      _searchController.clear();
-                                    },
-                                    icon: Icon(Icons.clear,
-                                        color: BeeTokens.textTertiary(context)),
-                                  )
-                                : null,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                  color: Colors.grey.withValues(alpha: 0.3)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 16),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // 筛选按钮
-                      IconButton(
-                        onPressed: _showFilterDialog,
-                        icon: Icon(
-                          Icons.filter_list,
-                          color: (_minAmount != null ||
-                                  _maxAmount != null ||
-                                  _startDate != null ||
-                                  _endDate != null ||
-                                  _selectedCategory != null)
-                              ? ref.watch(primaryColorProvider)
-                              : BeeTokens.iconPrimary(context),
-                        ),
-                        tooltip: l10n.searchFilterTitle,
-                      ),
-                    ],
-                  ),
-                  // 显示已选筛选条件
-                  if (_minAmount != null ||
-                      _maxAmount != null ||
-                      _startDate != null ||
-                      _endDate != null ||
-                      _selectedCategory != null) ...[
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        if (_selectedCategory != null)
-                          Chip(
-                            label: Text(
-                              '${l10n.searchCategoryFilter}: ${CategoryUtils.getDisplayName(_selectedCategory!.name, context)}',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: ref.watch(primaryColorProvider)),
-                            ),
-                            backgroundColor: ref
-                                .watch(primaryColorProvider)
-                                .withValues(alpha: 0.1),
-                            side: BorderSide(
-                                color: ref.watch(primaryColorProvider),
-                                width: 1),
-                            deleteIconColor: ref.watch(primaryColorProvider),
-                            deleteIcon: const Icon(Icons.close, size: 16),
-                            onDeleted: () {
-                              setState(() {
-                                _selectedCategory = null;
-                              });
-                              _performSearch();
-                            },
-                          ),
-                        if (_minAmount != null || _maxAmount != null)
-                          Chip(
-                            label: Text(
-                              '${l10n.searchAmountFilter}: ${_minAmount?.toStringAsFixed(2) ?? '0'} ~ ${_maxAmount?.toStringAsFixed(2) ?? '∞'}',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: ref.watch(primaryColorProvider)),
-                            ),
-                            backgroundColor: ref
-                                .watch(primaryColorProvider)
-                                .withValues(alpha: 0.1),
-                            side: BorderSide(
-                                color: ref.watch(primaryColorProvider),
-                                width: 1),
-                            deleteIconColor: ref.watch(primaryColorProvider),
-                            deleteIcon: const Icon(Icons.close, size: 16),
-                            onDeleted: () {
-                              setState(() {
-                                _minAmount = null;
-                                _maxAmount = null;
-                              });
-                              _performSearch();
-                            },
-                          ),
-                        if (_startDate != null || _endDate != null)
-                          Chip(
-                            label: Text(
-                              '${l10n.searchDateFilter}: ${_startDate != null ? '${_startDate!.year}-${_startDate!.month.toString().padLeft(2, '0')}-${_startDate!.day.toString().padLeft(2, '0')}' : l10n.searchDateStart} ~ ${_endDate != null ? '${_endDate!.year}-${_endDate!.month.toString().padLeft(2, '0')}-${_endDate!.day.toString().padLeft(2, '0')}' : l10n.searchDateEnd}',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: ref.watch(primaryColorProvider)),
-                            ),
-                            backgroundColor: ref
-                                .watch(primaryColorProvider)
-                                .withValues(alpha: 0.1),
-                            side: BorderSide(
-                                color: ref.watch(primaryColorProvider),
-                                width: 1),
-                            deleteIconColor: ref.watch(primaryColorProvider),
-                            deleteIcon: const Icon(Icons.close, size: 16),
-                            onDeleted: () {
-                              setState(() {
-                                _startDate = null;
-                                _endDate = null;
-                              });
-                              _performSearch();
-                            },
-                          ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          // 搜索结果
-          Expanded(
-            child: StreamBuilder<List<SearchTransaction>>(
-              key: ValueKey(ledgerId),
-              stream: _transactionStream,
-              builder: (context, snapshot) {
-                if (snapshot.hasData &&
-                    !identical(_allTransactions, snapshot.data)) {
-                  _allTransactions = snapshot.data!;
-                  if (!_hasScheduledSearch) {
-                    _hasScheduledSearch = true;
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) _performSearch();
-                    });
-                  }
-                }
-
-                if (_isSearching) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (!widget.initialBatchMode &&
-                    _searchText.isEmpty &&
-                    _minAmount == null &&
-                    _maxAmount == null &&
-                    _startDate == null &&
-                    _endDate == null &&
-                    _selectedCategory == null) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.search,
-                            size: 64, color: BeeTokens.textTertiary(context)),
-                        const SizedBox(height: 16),
-                        Text(
-                          AppLocalizations.of(context).searchNoInput,
-                          style: TextStyle(
-                              color: BeeTokens.textTertiary(context),
-                              fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (_searchResults.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.search_off,
-                            size: 64, color: BeeTokens.textTertiary(context)),
-                        const SizedBox(height: 16),
-                        Text(
-                          AppLocalizations.of(context).searchNoResults,
-                          style: TextStyle(
-                              color: BeeTokens.textTertiary(context),
-                              fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                // 显示搜索结果列表
-                return Column(
-                  children: [
-                    // 批量操作入口 - 仅在非批量模式且有搜索结果时显示
-                    if (!_isBatchMode)
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                        decoration: BoxDecoration(
-                          color: BeeTokens.surfaceElevated(context),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              l10n.searchResultsCount(_searchResults.length),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    color: BeeTokens.textTertiary(context),
-                                  ),
-                            ),
-                            SizedBox(width: 8.0.scaled(context, ref)),
-                            // 支出/收入汇总：Expanded 占满剩余空间，内层 Flexible(loose) 让 chip 正常取自然宽度，超长时截断而非溢出
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  // 支出汇总
-                                  Flexible(
-                                    fit: FlexFit.loose,
-                                    child: _buildSummaryChip(
-                                      label: l10n.searchSummaryExpense,
-                                      amount: _totalExpense,
-                                      color:
-                                          BeeTokens.expenseColor(context, ref),
-                                    ),
-                                  ),
-                                  SizedBox(width: 6.0.scaled(context, ref)),
-                                  // 收入汇总
-                                  Flexible(
-                                    fit: FlexFit.loose,
-                                    child: _buildSummaryChip(
-                                      label: l10n.searchSummaryIncome,
-                                      amount: _totalIncome,
-                                      color:
-                                          BeeTokens.incomeColor(context, ref),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: _toggleBatchMode,
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.blue,
-                              ),
-                              child: Text(l10n.searchBatchMode),
-                            ),
-                          ],
-                        ),
-                      ),
-                    // 批量模式下的操作栏
-                    if (_isBatchMode)
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                        decoration: BoxDecoration(
-                          color: BeeTokens.surfaceElevated(context),
-                        ),
+                    : BeeBatchActionBar(busy: _writing, actions: [
+                        for (final action in [
+                          (l.searchBatchSetNote, 'PencilLine', _note),
+                          (l.searchBatchChangeCategory, 'Shapes', _category),
+                          (l.v4SearchSetTags, 'Tag', _tags),
+                          (l.commonDelete, 'Trash2', _delete)
+                        ])
+                          BeeBatchAction(
+                              label: action.$1,
+                              icon: BeeLineIcon(action.$2, size: 19),
+                              danger: action.$2 == 'Trash2',
+                              onPressed: c.selected.isEmpty ? null : action.$3),
+                      ]),
+                body: Column(children: [
+                  BeePageHeader(
+                      title: c.batch ? l.searchBatchMode : l.v4SearchTitle,
+                      leading: c.batch
+                          ? null
+                          : BackButton(
+                              onPressed: _writing
+                                  ? null
+                                  : () => Navigator.pop(context)),
+                      subtitle: c.batch
+                          ? l.searchBatchModeWithCount(
+                              c.selected.length, c.results.length)
+                          : null,
+                      actions: [
+                        BeeIconButton(
+                            label: c.batch
+                                ? l.searchExitBatchMode
+                                : l.searchFilterTitle,
+                            icon: BeeLineIcon(
+                                c.batch ? 'X' : 'SlidersHorizontal',
+                                size: 20),
+                            onPressed: _writing
+                                ? null
+                                : c.batch
+                                    ? () {
+                                        if (widget.initialBatchMode) {
+                                          Navigator.pop(context);
+                                        } else {
+                                          c.toggleBatch();
+                                        }
+                                      }
+                                    : _filters)
+                      ]),
+                  if (!c.batch)
+                    Padding(
+                        padding: const EdgeInsets.fromLTRB(17, 0, 17, 8),
                         child: Column(
-                          children: [
-                            // 全选按钮
-                            Row(
-                              children: [
-                                Text(
-                                  l10n.searchSelectedCount(_selectedIds.length),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        color: BeeTokens.textTertiary(context),
-                                      ),
-                                ),
-                                const Spacer(),
-                                TextButton(
-                                  onPressed: _toggleSelectAll,
-                                  style: TextButton.styleFrom(
-                                    foregroundColor:
-                                        ref.watch(primaryColorProvider),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    minimumSize: const Size(0, 32),
-                                  ),
-                                  child: Text(
-                                    _selectedIds.length == _searchResults.length
-                                        ? l10n.searchDeselectAll
-                                        : l10n.searchSelectAll,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            // 批量操作按钮 - 始终显示，未选择时禁用
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton.icon(
-                                    onPressed:
-                                        _isBatchWriting || _selectedIds.isEmpty
-                                            ? null
-                                            : _showBatchSetNoteDialog,
-                                    icon: const Icon(Icons.edit_note, size: 16),
-                                    label: Text(l10n.searchBatchSetNote,
-                                        style: const TextStyle(fontSize: 13)),
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor:
-                                          ref.watch(primaryColorProvider),
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 6, horizontal: 8),
-                                      minimumSize: const Size(0, 36),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: OutlinedButton.icon(
-                                    onPressed:
-                                        _isBatchWriting || _selectedIds.isEmpty
-                                            ? null
-                                            : _showBatchChangeCategoryDialog,
-                                    icon: const Icon(Icons.category, size: 16),
-                                    label: Text(l10n.searchBatchChangeCategory,
-                                        style: const TextStyle(fontSize: 13)),
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor:
-                                          ref.watch(primaryColorProvider),
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 6, horizontal: 8),
-                                      minimumSize: const Size(0, 36),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: OutlinedButton.icon(
-                                    onPressed:
-                                        _isBatchWriting || _selectedIds.isEmpty
-                                            ? null
-                                            : _showBatchDeleteDialog,
-                                    icon: const Icon(Icons.delete_outline,
-                                        size: 16),
-                                    label: Text(l10n.commonDelete,
-                                        style: const TextStyle(fontSize: 13)),
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: Colors.red,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 6, horizontal: 8),
-                                      minimumSize: const Size(0, 36),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    // 列表
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                        itemCount: _searchResults.length,
-                        itemBuilder: (context, index) {
-                          final item = _searchResults[index];
-                          final isTransfer = item.t.type == 'transfer';
-                          final isExpense = item.t.type == 'expense';
-
-                          // 获取分类显示名称
-                          final categoryName = CategoryUtils.getDisplayName(
-                              item.category?.name, context);
-
-                          final subtitle = item.t.note ?? '';
-                          final isSelected = _selectedIds.contains(item.t.id);
-
-                          final iconData = getCategoryIconData(
-                              category: item.category,
-                              categoryName: categoryName);
-
-                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              TransactionListItem(
-                                icon: iconData,
-                                category: item.category,
-                                title: isTransfer && subtitle.isEmpty
-                                    ? l10n.transferTitle
-                                    : subtitle,
-                                categoryName: isTransfer ? null : categoryName,
-                                accountName: !accountsEnabled
-                                    ? null
-                                    : isTransfer
-                                        ? (item.account != null &&
-                                                item.toAccount != null
-                                            ? '${item.account!.name} → ${item.toAccount!.name}'
-                                            : null)
-                                        : item.account?.name,
-                                excludeFromStats: item.t.excludeFromStats,
-                                excludeFromBudget: item.t.excludeFromBudget,
-                                amount: item.t.amount,
-                                currencyCode: item.t.currencyCode,
-                                nativeAmount: item.t.nativeAmount,
-                                isExpense: isExpense,
-                                isTransfer: isTransfer,
-                                hide: hide,
-                                happenedAt: item.t.happenedAt,
-                                showFullDate: true,
-                                isSelectionMode: _isBatchMode,
-                                isSelected: isSelected,
-                                onSelectionChanged: () =>
-                                    _toggleSelection(item.t.id),
-                                onTap: _isBatchMode
-                                    ? null
-                                    : () async {
-                                        await TransactionEditUtils
-                                            .editTransaction(
-                                          context,
-                                          ref,
-                                          item.t,
-                                          item.category,
-                                        );
-                                      },
-                                onCategoryTap: _isBatchMode ||
-                                        isTransfer ||
-                                        item.category?.id == null
-                                    ? null
-                                    : () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (_) => CategoryDetailPage(
-                                              categoryId: item.category!.id,
-                                              categoryName: categoryName,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                              ),
-                              if (index < _searchResults.length - 1)
-                                BeeDivider.short(
-                                    indent: 56 + 16, endIndent: 16),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
+                              BeeSearchField(
+                                  controller: _text,
+                                  hint: l.v4SearchHint,
+                                  clearLabel: l.commonRemove,
+                                  enabled: !_writing,
+                                  onChanged: c.search,
+                                  onSubmitted: (_) => c.remember()),
+                              const SizedBox(height: 8),
+                              Wrap(spacing: 6, runSpacing: 6, children: [
+                                TextButton.icon(
+                                    onPressed: _writing ? null : _filters,
+                                    icon: const BeeLineIcon('SlidersHorizontal',
+                                        size: 14),
+                                    label: Text(l.searchFilterTitle)),
+                                ..._filterChips(c, l)
+                              ]),
+                            ])),
+                  Expanded(
+                      child: SearchResults(
+                          data: c,
+                          writing: _writing,
+                          onScope: _filters,
+                          onQuery: (query) {
+                            _text.text = query;
+                            c.search(query);
+                          },
+                          onRetry: () => setState(() {
+                                c.dispose();
+                                _data = null;
+                              }))),
+                ]))));
+  }
+}
+
+class _BatchNoteDialog extends StatefulWidget {
+  const _BatchNoteDialog({required this.count});
+  final int count;
+  @override
+  State<_BatchNoteDialog> createState() => _BatchNoteState();
+}
+
+class _BatchNoteState extends State<_BatchNoteDialog> {
+  final text = TextEditingController();
+  @override
+  void dispose() {
+    text.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return BeeDialog(
+        title: Text(l.searchBatchSetNoteTitle),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text(l.searchBatchSetNoteMessage(widget.count)),
+          const SizedBox(height: 16),
+          TextField(
+              controller: text,
+              maxLines: 3,
+              autofocus: true,
+              decoration: InputDecoration(hintText: l.searchBatchSetNoteHint)),
+        ]),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l.commonCancel)),
+          TextButton(
+              onPressed: () => Navigator.pop(context, text.text),
+              child: Text(l.commonConfirm))
+        ]);
   }
 }
