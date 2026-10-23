@@ -16,3 +16,5 @@ export 'src/transfer_components.dart';
 export 'src/journal_components.dart';
 
 export 'src/search_components.dart';
+
+export 'src/resource_components.dart';

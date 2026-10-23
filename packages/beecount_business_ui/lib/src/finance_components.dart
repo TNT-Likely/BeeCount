@@ -115,6 +115,7 @@ class BeeMoney extends StatelessWidget {
       {super.key,
       required this.amount,
       this.prefix,
+      this.prefixSize,
       this.converted,
       this.hidden = false,
       this.size = 28,
@@ -124,6 +125,7 @@ class BeeMoney extends StatelessWidget {
   final String? prefix, converted;
   final bool hidden;
   final double size;
+  final double? prefixSize;
   final double? lineHeight;
   final Color? color;
   @override
@@ -140,7 +142,7 @@ class BeeMoney extends StatelessWidget {
                         TextSpan(
                             text: '$prefix ',
                             style: TextStyle(
-                                fontSize: size * .6,
+                                fontSize: prefixSize ?? size * .6,
                                 fontWeight: FontWeight.w400)),
                       TextSpan(text: hidden ? '••••' : amount)
                     ]),
