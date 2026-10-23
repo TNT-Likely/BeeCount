@@ -13,6 +13,13 @@ import '../../utils/ui_scale_extensions.dart';
 import '../../widgets/category_icon.dart';
 import 'category_detail_page.dart';
 
+typedef SearchTransaction = ({
+  Transaction t,
+  Category? category,
+  Account? account,
+  Account? toAccount
+});
+
 /// 搜索页面
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage(
@@ -29,20 +36,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
 
-  List<
-      ({
-        Transaction t,
-        Category? category,
-        Account? account,
-        Account? toAccount
-      })> _searchResults = [];
-  List<
-      ({
-        Transaction t,
-        Category? category,
-        Account? account,
-        Account? toAccount
-      })> _allTransactions = [];
+  List<SearchTransaction> _searchResults = [];
+  List<SearchTransaction> _allTransactions = [];
+  Stream<List<SearchTransaction>>? _transactionStream;
+  int? _streamLedgerId;
   bool _isSearching = false;
   String _searchText = '';
 
@@ -91,7 +88,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   /// 执行搜索
   void _performSearch() {
     // 如果没有任何搜索条件，清空结果
-    if (_searchText.isEmpty &&
+    if (!widget.initialBatchMode &&
+        _searchText.isEmpty &&
         _minAmount == null &&
         _maxAmount == null &&
         _startDate == null &&
@@ -476,7 +474,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       showToast(context, operation);
       setState(() {
         _selectedIds.clear();
-        _isBatchMode = false;
+        _isBatchMode = widget.initialBatchMode;
       });
       // 从数据库重新加载最新数据并执行搜索
       await _performSearchFromDb();
@@ -713,6 +711,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final hide = ref.watch(hideAmountsProvider);
     final l10n = AppLocalizations.of(context);
+    if (_transactionStream == null || _streamLedgerId != ledgerId) {
+      _transactionStream = repo.transactionsWithCategoryAll(ledgerId: ledgerId);
+      _streamLedgerId = ledgerId;
+    }
 
     return Scaffold(
       backgroundColor: BeeTokens.scaffoldBackground(context),
@@ -725,21 +727,24 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     _selectedIds.length, _searchResults.length)
                 : l10n.searchTitle,
             showBack: !_isBatchMode,
-            actions: _isBatchMode && _searchResults.isNotEmpty
+            actions: _isBatchMode
                 ? [
-                    TextButton(
-                      onPressed: _toggleSelectAll,
-                      child: Text(
-                        _selectedIds.length == _searchResults.length
-                            ? l10n.searchDeselectAll
-                            : l10n.searchSelectAll,
-                        style:
-                            TextStyle(color: ref.watch(primaryColorProvider)),
+                    if (_searchResults.isNotEmpty)
+                      TextButton(
+                        onPressed: _toggleSelectAll,
+                        child: Text(
+                          _selectedIds.length == _searchResults.length
+                              ? l10n.searchDeselectAll
+                              : l10n.searchSelectAll,
+                          style:
+                              TextStyle(color: ref.watch(primaryColorProvider)),
+                        ),
                       ),
-                    ),
                     IconButton(
                       icon: const Icon(Icons.close),
-                      onPressed: _toggleBatchMode,
+                      onPressed: widget.initialBatchMode
+                          ? () => Navigator.pop(context)
+                          : _toggleBatchMode,
                       tooltip: l10n.searchExitBatchMode,
                     ),
                   ]
@@ -905,32 +910,17 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             ),
           // 搜索结果
           Expanded(
-            child: StreamBuilder<
-                List<
-                    ({
-                      Transaction t,
-                      Category? category,
-                      Account? account,
-                      Account? toAccount
-                    })>>(
-              stream: repo.transactionsWithCategoryAll(ledgerId: ledgerId),
+            child: StreamBuilder<List<SearchTransaction>>(
+              key: ValueKey(ledgerId),
+              stream: _transactionStream,
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
+                if (snapshot.hasData &&
+                    !identical(_allTransactions, snapshot.data)) {
                   _allTransactions = snapshot.data!;
-                  if ((_searchText.isNotEmpty ||
-                          _minAmount != null ||
-                          _maxAmount != null ||
-                          _startDate != null ||
-                          _endDate != null ||
-                          _selectedCategory != null) &&
-                      _searchResults.isEmpty &&
-                      !_isSearching &&
-                      !_hasScheduledSearch) {
+                  if (!_hasScheduledSearch) {
                     _hasScheduledSearch = true;
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) {
-                        _performSearch();
-                      }
+                      if (mounted) _performSearch();
                     });
                   }
                 }
@@ -939,7 +929,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (_searchText.isEmpty &&
+                if (!widget.initialBatchMode &&
+                    _searchText.isEmpty &&
                     _minAmount == null &&
                     _maxAmount == null &&
                     _startDate == null &&
