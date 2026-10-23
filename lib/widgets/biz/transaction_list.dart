@@ -52,6 +52,7 @@ class TransactionList extends ConsumerStatefulWidget {
 
   /// 列表控制器（可选，用于精准跳转）
   final FlutterListViewController? controller;
+  final bool flatSurface;
 
   const TransactionList({
     super.key,
@@ -62,6 +63,7 @@ class TransactionList extends ConsumerStatefulWidget {
     this.onDateVisibilityChanged,
     this.emptyWidget,
     this.controller,
+    this.flatSurface = false,
   }) : assert(transactionsWithDetails != null || transactions != null,
             'Either transactionsWithDetails or transactions must be provided');
 
@@ -473,6 +475,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
                   income: dayIncome,
                   expense: dayExpense,
                   hide: widget.hideAmounts,
+                  flatSurface: widget.flatSurface,
                 ),
               ],
             );
@@ -535,14 +538,17 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
             return Container(
               key: Key('tx-${it.t.id}-$index'),
-              margin: const EdgeInsets.symmetric(horizontal: 17),
+              margin: widget.flatSurface
+                  ? EdgeInsets.zero
+                  : const EdgeInsets.symmetric(horizontal: 17),
               decoration: BoxDecoration(
                   color: BeeCardTheme.of(context).surface,
                   borderRadius: BorderRadius.vertical(
-                      top: allItemsInDay.first.t.id == it.t.id
+                      top: !widget.flatSurface &&
+                              allItemsInDay.first.t.id == it.t.id
                           ? const Radius.circular(22)
                           : Radius.zero,
-                      bottom: isLastInGroup
+                      bottom: !widget.flatSurface && isLastInGroup
                           ? const Radius.circular(22)
                           : Radius.zero)),
               clipBehavior: Clip.antiAlias,

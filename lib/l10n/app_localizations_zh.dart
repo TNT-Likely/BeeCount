@@ -8723,6 +8723,36 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4ClearSelection => '清空选择';
+
+  @override
+  String get v4HomeAllTransactions => '全部明细';
+
+  @override
+  String get v4HomeBatch => '批量';
+
+  @override
+  String get v4HomeMonthShare => '月账单分享';
+
+  @override
+  String get v4HomeBrandShow => '显示蜜蜂记账品牌';
+
+  @override
+  String get v4HomeBrandHide => '隐藏蜜蜂记账品牌';
+
+  @override
+  String get v4HomeMonthExpense => '本月支出';
+
+  @override
+  String get v4HomeMonthIncome => '本月收入';
+
+  @override
+  String get v4HomeMonthBalance => '本月结余';
+
+  @override
+  String get v4AmountsShow => '显示金额';
+
+  @override
+  String get v4AmountsHide => '隐藏金额';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

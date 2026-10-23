@@ -8731,4 +8731,34 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4ClearSelection => 'Clear selection';
+
+  @override
+  String get v4HomeAllTransactions => 'All transactions';
+
+  @override
+  String get v4HomeBatch => 'Batch';
+
+  @override
+  String get v4HomeMonthShare => 'Share monthly summary';
+
+  @override
+  String get v4HomeBrandShow => 'Show BeeCount branding';
+
+  @override
+  String get v4HomeBrandHide => 'Hide BeeCount branding';
+
+  @override
+  String get v4HomeMonthExpense => 'Monthly expenses';
+
+  @override
+  String get v4HomeMonthIncome => 'Monthly income';
+
+  @override
+  String get v4HomeMonthBalance => 'Monthly balance';
+
+  @override
+  String get v4AmountsShow => 'Show amounts';
+
+  @override
+  String get v4AmountsHide => 'Hide amounts';
 }

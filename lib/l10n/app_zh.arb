@@ -3629,5 +3629,15 @@
   "v4CategoryToolsTitle": "分类工具",
   "v4CategoryToolsHint": "排序、导入、分享与默认分类",
   "v4AttachmentPending": "待保存",
-  "v4ClearSelection": "清空选择"
+  "v4ClearSelection": "清空选择",
+  "v4HomeAllTransactions": "全部明细",
+  "v4HomeBatch": "批量",
+  "v4HomeMonthShare": "月账单分享",
+  "v4HomeBrandShow": "显示蜜蜂记账品牌",
+  "v4HomeBrandHide": "隐藏蜜蜂记账品牌",
+  "v4HomeMonthExpense": "本月支出",
+  "v4HomeMonthIncome": "本月收入",
+  "v4HomeMonthBalance": "本月结余",
+  "v4AmountsShow": "显示金额",
+  "v4AmountsHide": "隐藏金额"
 }

@@ -16417,6 +16417,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear selection'**
   String get v4ClearSelection;
+
+  /// No description provided for @v4HomeAllTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'All transactions'**
+  String get v4HomeAllTransactions;
+
+  /// No description provided for @v4HomeBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch'**
+  String get v4HomeBatch;
+
+  /// No description provided for @v4HomeMonthShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share monthly summary'**
+  String get v4HomeMonthShare;
+
+  /// No description provided for @v4HomeBrandShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show BeeCount branding'**
+  String get v4HomeBrandShow;
+
+  /// No description provided for @v4HomeBrandHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide BeeCount branding'**
+  String get v4HomeBrandHide;
+
+  /// No description provided for @v4HomeMonthExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly expenses'**
+  String get v4HomeMonthExpense;
+
+  /// No description provided for @v4HomeMonthIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly income'**
+  String get v4HomeMonthIncome;
+
+  /// No description provided for @v4HomeMonthBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly balance'**
+  String get v4HomeMonthBalance;
+
+  /// No description provided for @v4AmountsShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show amounts'**
+  String get v4AmountsShow;
+
+  /// No description provided for @v4AmountsHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide amounts'**
+  String get v4AmountsHide;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

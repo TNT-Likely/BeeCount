@@ -3922,5 +3922,15 @@
   "v4CategoryToolsTitle": "Category tools",
   "v4CategoryToolsHint": "Sort, import, share and default categories",
   "v4AttachmentPending": "Pending save",
-  "v4ClearSelection": "Clear selection"
+  "v4ClearSelection": "Clear selection",
+  "v4HomeAllTransactions": "All transactions",
+  "v4HomeBatch": "Batch",
+  "v4HomeMonthShare": "Share monthly summary",
+  "v4HomeBrandShow": "Show BeeCount branding",
+  "v4HomeBrandHide": "Hide BeeCount branding",
+  "v4HomeMonthExpense": "Monthly expenses",
+  "v4HomeMonthIncome": "Monthly income",
+  "v4HomeMonthBalance": "Monthly balance",
+  "v4AmountsShow": "Show amounts",
+  "v4AmountsHide": "Hide amounts"
 }
