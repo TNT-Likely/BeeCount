@@ -3625,5 +3625,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "v4CategoryToolsTitle": "分类工具",
+  "v4CategoryToolsHint": "排序、导入、分享与默认分类"
 }

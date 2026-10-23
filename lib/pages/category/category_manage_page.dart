@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reorderable_grid_view/reorderable_grid_view.dart';
+import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import '../../presentation/v4/bindings/recording_category_icon.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -32,7 +34,8 @@ class CategoryManagePage extends ConsumerStatefulWidget {
   ConsumerState<CategoryManagePage> createState() => _CategoryManagePageState();
 }
 
-class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with TickerProviderStateMixin {
+class _CategoryManagePageState extends ConsumerState<CategoryManagePage>
+    with TickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -68,27 +71,27 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
             showBack: true,
             actions: [
               IconButton(
-                onPressed: _shareCategories,
-                icon: const Icon(Icons.share_outlined),
-                tooltip: l10n.categoryShare,
+                onPressed: _addCategory,
+                icon: const Icon(Icons.add),
+                tooltip: l10n.categoryNew,
               ),
               _buildMoreMenu(context, l10n, primaryColor),
             ],
           ),
-          TabBar(
-            controller: _tabController,
-            labelColor: BeeTokens.textPrimary(context),
-            unselectedLabelColor: BeeTokens.textSecondary(context),
-            tabs: [
-              Tab(text: l10n.categoryExpense),
-              Tab(text: l10n.categoryIncome),
-            ],
-          ),
-          _buildTransferIconSetting(context, l10n, primaryColor),
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 6),
+              child: BeeSegmented<int>(
+                  items: [
+                    BeeSegment(0, l10n.categoryExpense),
+                    BeeSegment(1, l10n.categoryIncome)
+                  ],
+                  value: _tabController.index,
+                  onChanged: (v) => _tabController.animateTo(v))),
           Expanded(
             child: categoriesWithCountAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(child: Text(l10n.categoryLoadFailed(error.toString()))),
+              error: (error, stack) => Center(
+                  child: Text(l10n.categoryLoadFailed(error.toString()))),
               data: (categoriesWithCount) {
                 return TabBarView(
                   controller: _tabController,
@@ -96,11 +99,19 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
                     _CategoryGridView(
                       categoriesWithCount: categoriesWithCount,
                       kind: 'expense',
+                      tools: _buildMoreMenu(context, l10n, primaryColor,
+                          guide: true),
+                      transferSetting: _buildTransferIconSetting(
+                          context, l10n, primaryColor),
                       onAddCategory: () => _addCategory(kind: 'expense'),
                     ),
                     _CategoryGridView(
                       categoriesWithCount: categoriesWithCount,
                       kind: 'income',
+                      tools: _buildMoreMenu(context, l10n, primaryColor,
+                          guide: true),
+                      transferSetting: _buildTransferIconSetting(
+                          context, l10n, primaryColor),
                       onAddCategory: () => _addCategory(kind: 'income'),
                     ),
                   ],
@@ -125,11 +136,36 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
   }
 
   /// 构建美化的更多菜单
-  Widget _buildMoreMenu(BuildContext context, AppLocalizations l10n, Color primaryColor) {
+  Widget _buildMoreMenu(
+      BuildContext context, AppLocalizations l10n, Color primaryColor,
+      {bool guide = false}) {
     return BeePopupMenu(
+      child: guide
+          ? Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              child: Row(children: [
+                const BeeLineIcon('Settings2', size: 21),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                      Text(l10n.v4CategoryToolsTitle,
+                          style: const TextStyle(fontSize: 14)),
+                      Text(l10n.v4CategoryToolsHint,
+                          style: TextStyle(
+                              fontSize: 11, color: Theme.of(context).hintColor))
+                    ])),
+                const BeeLineIcon('ChevronRight', size: 17)
+              ]))
+          : null,
       tooltip: l10n.commonMore,
       primaryColor: primaryColor,
       items: [
+        BeeMenuItem.action(
+            value: 'share',
+            icon: Icons.share_outlined,
+            label: l10n.categoryShare),
         BeeMenuItem.tip(label: l10n.categoryReorderTip),
         const BeeMenuItem.divider(),
         BeeMenuItem.action(
@@ -157,6 +193,9 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
       ],
       onSelected: (value) {
         switch (value) {
+          case 'share':
+            _shareCategories();
+            break;
           case 'add':
             _addCategory();
             break;
@@ -303,7 +342,11 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
       }
 
       // 生成文件名
-      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').split('.').first;
+      final timestamp = DateTime.now()
+          .toIso8601String()
+          .replaceAll(':', '-')
+          .split('.')
+          .first;
       final fileName = 'beecount_categories_$timestamp.zip';
 
       String outputPath;
@@ -329,7 +372,10 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
       if (!mounted) return;
 
       if (Platform.isAndroid) {
-        showToast(context, l10n.categoryShareSuccess(outputPath.replaceAll('/storage/emulated/0/', '')));
+        showToast(
+            context,
+            l10n.categoryShareSuccess(
+                outputPath.replaceAll('/storage/emulated/0/', '')));
       } else {
         await Share.shareXFiles(
           [XFile(outputPath)],
@@ -444,7 +490,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
   /// 清空未使用的分类
   Future<void> _clearUnusedCategories() async {
     final l10n = AppLocalizations.of(context);
-    final categoriesWithCount = ref.read(categoriesWithCountProvider).valueOrNull ?? [];
+    final categoriesWithCount =
+        ref.read(categoriesWithCountProvider).valueOrNull ?? [];
 
     // 找出交易数为0的分类（统计已包含子分类交易数）
     final unusedCategories = categoriesWithCount
@@ -459,7 +506,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
     // 收集将被删除的分类信息（包括子分类）
     final toDeleteList = <String>[];
     for (final item in unusedCategories) {
-      final categoryName = CategoryUtils.getDisplayName(item.category.name, context);
+      final categoryName =
+          CategoryUtils.getDisplayName(item.category.name, context);
       toDeleteList.add(categoryName);
 
       // 如果是父分类，添加其所有将被删除的子分类
@@ -468,7 +516,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
             .where((c) => c.category.parentId == item.category.id)
             .toList();
         for (final child in children) {
-          final childName = CategoryUtils.getDisplayName(child.category.name, context);
+          final childName =
+              CategoryUtils.getDisplayName(child.category.name, context);
           toDeleteList.add('  ├─ $childName');
         }
       }
@@ -535,7 +584,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
 
   /// 静默清空未使用的分类（用于覆盖导入）
   Future<void> _clearUnusedCategoriesSilent() async {
-    final categoriesWithCount = ref.read(categoriesWithCountProvider).valueOrNull ?? [];
+    final categoriesWithCount =
+        ref.read(categoriesWithCountProvider).valueOrNull ?? [];
     final unusedCategories = categoriesWithCount
         .where((item) => item.transactionCount == 0)
         .toList();
@@ -556,7 +606,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
   }
 
   /// 构建转账图标设置区域
-  Widget _buildTransferIconSetting(BuildContext context, AppLocalizations l10n, Color primaryColor) {
+  Widget _buildTransferIconSetting(
+      BuildContext context, AppLocalizations l10n, Color primaryColor) {
     return FutureBuilder<db.Category>(
       future: ref.read(repositoryProvider).getTransferCategory(),
       builder: (context, snapshot) {
@@ -572,8 +623,8 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
             color: BeeTokens.surface(context),
             border: Border.all(
               color: BeeTokens.isDark(context)
-                ? primaryColor.withValues(alpha: 0.3)
-                : BeeTokens.border(context),
+                  ? primaryColor.withValues(alpha: 0.3)
+                  : BeeTokens.border(context),
             ),
             borderRadius: BorderRadius.circular(12),
           ),
@@ -641,13 +692,17 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage> with Ti
 }
 
 class _CategoryGridView extends ConsumerStatefulWidget {
-  final List<({db.Category category, int transactionCount})> categoriesWithCount;
+  final Widget tools, transferSetting;
+  final List<({db.Category category, int transactionCount})>
+      categoriesWithCount;
   final String kind;
   final VoidCallback onAddCategory;
 
   const _CategoryGridView({
     required this.categoriesWithCount,
     required this.kind,
+    required this.tools,
+    required this.transferSetting,
     required this.onAddCategory,
   });
 
@@ -679,12 +734,12 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
     // 获取当前类型的一级分类
     final topLevelCategories = widget.categoriesWithCount
         .where((item) =>
-            item.category.kind == widget.kind &&
-            item.category.level == 1)
+            item.category.kind == widget.kind && item.category.level == 1)
         .toList();
 
     // 按 sortOrder 排序
-    topLevelCategories.sort((a, b) => a.category.sortOrder.compareTo(b.category.sortOrder));
+    topLevelCategories
+        .sort((a, b) => a.category.sortOrder.compareTo(b.category.sortOrder));
 
     // 构建父分类ID集合，用于快速判断是否有子分类
     final parentIds = widget.categoriesWithCount
@@ -722,9 +777,8 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
     }
 
     // 过滤出一级分类
-    final topLevelCategories = _flatList
-        .where((item) => !item.isSubCategory && !item.isActionButtons)
-        .toList();
+    final topLevelCategories =
+        _flatList.where((item) => !item.isSubCategory).toList();
 
     if (topLevelCategories.isEmpty) {
       final l10n = AppLocalizations.of(context);
@@ -738,30 +792,48 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
       );
     }
 
-    return ReorderableGridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1,
-      ),
-      itemCount: topLevelCategories.length,
-      onReorder: (oldIndex, newIndex) {
-        _onReorderTopLevel(oldIndex, newIndex, topLevelCategories);
-      },
-      itemBuilder: (context, index) {
-        final item = topLevelCategories[index];
-        return _CategoryCard(
-          key: ValueKey(item.category.id),
-          item: item,
-          onTap: () => _onCategoryTap(item),
-        );
-      },
+    final l10n = AppLocalizations.of(context);
+    final byId = {
+      for (final row in widget.categoriesWithCount)
+        row.category.id: row.category
+    };
+    BeeManagedCategory data(db.Category cat, int count,
+            {List<BeeManagedCategory> children = const [],
+            bool isDefault = false}) =>
+        BeeManagedCategory(
+            id: '${cat.id}',
+            name: CategoryUtils.getDisplayName(cat.name, context),
+            icon: RecordingCategoryIcon(
+                category: cat,
+                size: 19,
+                color: Theme.of(context).colorScheme.onSurface),
+            detail:
+                '${children.isEmpty ? '' : '${children.length} ${l10n.categorySubCategoryTitle} · '}${l10n.ledgersRecords('$count')}',
+            children: children,
+            isDefault: isDefault);
+    return BeeCategoryManagementList(
+      manageLabel: l10n.commonMore,
+      items: topLevelCategories
+          .map((item) => data(item.category, item.transactionCount,
+              isDefault: item.isDefault,
+              children: (widget.categoriesWithCount
+                      .where((r) => r.category.parentId == item.category.id)
+                      .toList()
+                    ..sort((a, b) =>
+                        a.category.sortOrder.compareTo(b.category.sortOrder)))
+                  .map((r) => data(r.category, r.transactionCount))
+                  .toList()))
+          .toList(),
+      onEdit: (id) => _onEditCategory(byId[int.parse(id)]!),
+      onManageChildren: (id) => _showSubcategoryDialog(byId[int.parse(id)]!),
+      onReorder: (oldIndex, newIndex) =>
+          _onReorderTopLevel(oldIndex, newIndex, topLevelCategories),
+      footer: Column(children: [widget.transferSetting, widget.tools]),
     );
   }
 
-  Future<void> _onReorderTopLevel(int oldIndex, int newIndex, List<_CategoryItem> topLevelCategories) async {
+  Future<void> _onReorderTopLevel(int oldIndex, int newIndex,
+      List<_CategoryItem> topLevelCategories) async {
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
@@ -791,21 +863,6 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
 
     // 3. 刷新 provider 以同步其他地方的数据
     ref.invalidate(categoriesWithCountProvider);
-  }
-
-
-  void _onCategoryTap(_CategoryItem item) async {
-    if (item.isSubCategory) {
-      await _onEditCategory(item.category);
-    } else {
-      if (item.hasSubCategories) {
-        // 有子分类：弹出对话框
-        await _showSubcategoryDialog(item.category);
-      } else {
-        // 无子分类：直接编辑
-        await _onEditCategory(item.category);
-      }
-    }
   }
 
   /// 显示子分类对话框
@@ -860,137 +917,21 @@ class _CategoryItem {
   final int transactionCount;
   final bool isDefault;
   final bool isSubCategory;
-  final db.Category? parent;
   final bool hasSubCategories;
-  final bool isActionButtons; // 是否为操作按钮项
 
   _CategoryItem({
     required this.category,
     required this.transactionCount,
     required this.isDefault,
     required this.isSubCategory,
-    this.parent,
     this.hasSubCategories = false,
-    this.isActionButtons = false,
   });
 }
 
-class _CategoryCard extends ConsumerWidget {
-  final _CategoryItem item;
-  final VoidCallback onTap;
-
-  const _CategoryCard({
-    super.key,
-    required this.item,
-    required this.onTap,
-  });
-
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // 二级分类：使用浅色背景
-    final backgroundColor = item.isSubCategory
-        ? Colors.orange[50]
-        : Theme.of(context).colorScheme.surface;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: item.isSubCategory
-                ? Colors.orange.withValues(alpha: 0.3)
-                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-            width: 1,
-          ),
-        ),
-        child: Stack(
-          children: [
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: item.isSubCategory ? 28 : 32,
-                    height: item.isSubCategory ? 28 : 32,
-                    decoration: BoxDecoration(
-                      color: item.isSubCategory
-                          ? Colors.orange.withValues(alpha: 0.2)
-                          : Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: CategoryIconWidget(
-                      category: item.category,
-                      size: item.isSubCategory ? 16.0 : 18.0,
-                      color: item.isSubCategory
-                          ? Colors.orange[700]!
-                          : Theme.of(context).colorScheme.primary,
-                      circular: true,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      CategoryUtils.getDisplayName(item.category.name, context),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            fontSize: item.isSubCategory ? 10 : 12,
-                            color: item.isSubCategory ? Colors.orange[900] : null,
-                          ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    AppLocalizations.of(context).categoryMigrationTransactionLabel(item.transactionCount),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: item.isSubCategory
-                              ? Colors.orange[700]
-                              : Theme.of(context).colorScheme.outline,
-                          fontSize: item.isSubCategory ? 9 : 10,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-            // 有子分类的一级分类：右下角显示指示器
-            if (!item.isSubCategory && item.hasSubCategories)
-              Positioned(
-                right: 4,
-                bottom: 4,
-                child: Container(
-                  width: 18,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.more_horiz,
-                    size: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 子分类对话框
 class _SubcategoryDialog extends ConsumerStatefulWidget {
   final db.Category parentCategory;
-  final List<({db.Category category, int transactionCount})> categoriesWithCount;
+  final List<({db.Category category, int transactionCount})>
+      categoriesWithCount;
   final Function(db.Category) onSubCategoryTap;
   final VoidCallback onAddSubCategory;
   final VoidCallback onEditParentCategory;
@@ -1010,7 +951,6 @@ class _SubcategoryDialog extends ConsumerStatefulWidget {
 class _SubcategoryDialogState extends ConsumerState<_SubcategoryDialog> {
   List<({db.Category category, int transactionCount})>? _subCategories;
   bool _isLoading = true;
-
 
   @override
   void initState() {
@@ -1076,10 +1016,11 @@ class _SubcategoryDialogState extends ConsumerState<_SubcategoryDialog> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    CategoryUtils.getDisplayName(widget.parentCategory.name, context),
+                    CategoryUtils.getDisplayName(
+                        widget.parentCategory.name, context),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                 ),
                 IconButton(
@@ -1087,7 +1028,8 @@ class _SubcategoryDialogState extends ConsumerState<_SubcategoryDialog> {
                   icon: const Icon(Icons.close),
                   iconSize: 20,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  constraints:
+                      const BoxConstraints(minWidth: 32, minHeight: 32),
                 ),
               ],
             ),
@@ -1204,7 +1146,6 @@ class _DialogSubCategoryCard extends StatelessWidget {
     required this.onTap,
   });
 
-
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
@@ -1244,18 +1185,22 @@ class _DialogSubCategoryCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Text(
                 CategoryUtils.getDisplayName(category.name, context),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 10),
+                style: Theme.of(context)
+                    .textTheme
+                    .labelSmall
+                    ?.copyWith(fontSize: 10),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             Text(
-              AppLocalizations.of(context).categoryMigrationTransactionLabel(transactionCount),
+              AppLocalizations.of(context)
+                  .categoryMigrationTransactionLabel(transactionCount),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context).colorScheme.outline,
-                fontSize: 9,
-              ),
+                    color: Theme.of(context).colorScheme.outline,
+                    fontSize: 9,
+                  ),
             ),
           ],
         ),

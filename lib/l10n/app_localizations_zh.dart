@@ -8711,6 +8711,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String v4RecordingConvertedLabel(String currency) {
     return '折合 $currency';
   }
+
+  @override
+  String get v4CategoryToolsTitle => '分类工具';
+
+  @override
+  String get v4CategoryToolsHint => '排序、导入、分享与默认分类';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

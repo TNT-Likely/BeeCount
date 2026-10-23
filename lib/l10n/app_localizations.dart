@@ -16393,6 +16393,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'In {currency}'**
   String v4RecordingConvertedLabel(String currency);
+
+  /// No description provided for @v4CategoryToolsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category tools'**
+  String get v4CategoryToolsTitle;
+
+  /// No description provided for @v4CategoryToolsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort, import, share and default categories'**
+  String get v4CategoryToolsHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

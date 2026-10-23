@@ -8719,4 +8719,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String v4RecordingConvertedLabel(String currency) {
     return 'In $currency';
   }
+
+  @override
+  String get v4CategoryToolsTitle => 'Category tools';
+
+  @override
+  String get v4CategoryToolsHint => 'Sort, import, share and default categories';
 }
