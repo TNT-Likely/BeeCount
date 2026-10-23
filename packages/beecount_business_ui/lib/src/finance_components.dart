@@ -192,8 +192,10 @@ class BeeTransactionRow extends StatelessWidget {
       this.happenedAt,
       this.showTime = false,
       this.amountColor,
+      this.incomeIsRed = true,
       this.showFullDate = false,
       this.accountName,
+      this.categoryLabel,
       this.ledgerName,
       this.note,
       this.onTagTap,
@@ -213,10 +215,16 @@ class BeeTransactionRow extends StatelessWidget {
       this.statusLabels = const [],
       this.attachmentCount = 0});
   final String title, amount;
-  final String? subtitle, converted, deleteLabel, note, accountName, ledgerName;
+  final String? subtitle,
+      converted,
+      deleteLabel,
+      note,
+      accountName,
+      categoryLabel,
+      ledgerName;
   final DateTime? happenedAt;
   final Color? amountColor;
-  final bool showTime, showFullDate;
+  final bool showTime, showFullDate, incomeIsRed;
   final ValueChanged<BeeTagData>? onTagTap;
   final VoidCallback? onMoreTagsTap, onAttachmentTap;
   final Widget icon;
@@ -235,12 +243,19 @@ class BeeTransactionRow extends StatelessWidget {
     final theme = Theme.of(context);
     final timestamp = formatBeeTransactionTimestamp(happenedAt,
         showTime: showTime, showFullDate: showFullDate);
-    final secondary = [timestamp, accountName ?? subtitle]
+    final secondary = [timestamp, categoryLabel, accountName ?? subtitle]
         .whereType<String>()
         .where((s) => s.isNotEmpty)
         .join(' · ');
     final dark = theme.brightness == Brightness.dark;
-    final moneyColor = switch (kind) {
+    final colorKind = incomeIsRed
+        ? kind
+        : switch (kind) {
+            BeeTransactionKind.expense => BeeTransactionKind.income,
+            BeeTransactionKind.income => BeeTransactionKind.expense,
+            BeeTransactionKind.transfer => BeeTransactionKind.transfer,
+          };
+    final moneyColor = switch (colorKind) {
       BeeTransactionKind.expense =>
         dark ? const Color(0xff79c8ad) : const Color(0xff25856d),
       BeeTransactionKind.income =>
