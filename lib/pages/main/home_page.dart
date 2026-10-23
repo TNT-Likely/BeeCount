@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
+import '../../presentation/v4/gallery/component_gallery_page.dart';
 import '../../presentation/v4/bindings/home_reminders.dart';
 import '../../presentation/v4/bindings/home_overview.dart';
 import '../../presentation/v4/bindings/home_journal.dart';
@@ -48,7 +50,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   // home build 缓存的 tx stream。repo.transactionsWithCategoryAll 内部每次调
   // 都 new StreamController,如果在 build 里直接调,只要 home 因任何 setState
-  // (例如 _showBudgetSetupHint / _showLastMonthReminder 异步加载完成)重 build,
+  // (例如主题或金额隐私偏好变化)重 build,
   // StreamBuilder 看到 stream 引用变了就重新订阅 → snapshot.data 短暂为 null
   // → fallback 到 cachedFullData(只有前 20 条预加载)→ 等 Drift 推数据 → 切回
   // 完整列表,视觉上"整页闪一下"。这里把 stream 缓存到 State,只在 ledgerId
@@ -205,6 +207,17 @@ class _HomePageState extends ConsumerState<HomePage> {
       case 'ledgers':
         Navigator.push(
             context, MaterialPageRoute(builder: (_) => const LedgersPageNew()));
+      case 'components':
+        if (kDebugMode) {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const ComponentGalleryPage()));
+        }
+      case 'theme':
+        if (kDebugMode) {
+          final current = ref.read(themeModeProvider);
+          ref.read(themeModeProvider.notifier).state =
+              current == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+        }
       case 'brand':
         unawaited(
             setHomeBrandVisible(ref, !ref.read(homeBrandVisibleProvider)));
@@ -339,6 +352,19 @@ class _HomePageState extends ConsumerState<HomePage> {
                             label: ref.watch(homeBrandVisibleProvider)
                                 ? AppLocalizations.of(context).v4HomeBrandHide
                                 : AppLocalizations.of(context).v4HomeBrandShow),
+                        if (kDebugMode &&
+                            const bool.fromEnvironment(
+                                'BEECOUNT_V4_RECORDING')) ...[
+                          const BeeMenuItem.divider(),
+                          const BeeMenuItem.action(
+                              value: 'components',
+                              icon: Icons.widgets_outlined,
+                              label: 'V4 组件验收'),
+                          const BeeMenuItem.action(
+                              value: 'theme',
+                              icon: Icons.brightness_6_outlined,
+                              label: '切换深浅色'),
+                        ],
                       ],
                       onSelected: _openHomeTool),
                 ],
@@ -384,14 +410,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                   builder: (context, snapshot) {
                     // Stream 数据到来前，使用预加载数据；到来后使用 Stream 数据
                     final streamData = snapshot.data;
-                    final hasStreamData =
-                        streamData != null && streamData.isNotEmpty;
+                    final hasStreamData = streamData != null;
 
                     // 如果 Stream 没数据，从预加载数据构建基础列表
                     final transactions = hasStreamData
                         ? streamData
                         : (cachedFullData
-                                ?.map((item) => (
+                                ?.where((item) => item.t.ledgerId == ledgerId)
+                                .map((item) => (
                                       t: item.t,
                                       category: item.category,
                                       account: item.account,

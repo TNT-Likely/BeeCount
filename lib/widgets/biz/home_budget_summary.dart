@@ -21,8 +21,9 @@ class HomeBudgetSummary extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final hidden = ref.watch(hideAmountsProvider);
     final symbol = getCurrencySymbol(ref.watch(currentLedgerCurrencyProvider));
-    String amount(double value) =>
-        hidden ? '••••' : '$symbol${formatMoneyCompact(value)}';
+    String amount(double value) => hidden
+        ? '••••'
+        : '$symbol${formatMoneyCompact(value, trimZeros: false)}';
     return BeeBudgetStrip(
         label: '${l10n.budgetMonthlyBudget} ${amount(usage.budget)}',
         remaining: '${l10n.budgetRemaining} ${amount(usage.remaining)}',

@@ -1,3 +1,7 @@
+import 'package:beecount/widgets/biz/transaction_list.dart';
+import 'package:visibility_detector/visibility_detector.dart';
+import 'package:beecount/pages/main/home_page.dart';
+import 'package:beecount/widgets/biz/transaction_list_item.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:beecount/cloud/sync_service.dart';
@@ -136,6 +140,8 @@ void main() {
     expect(find.byType(BeeIcon), findsNothing);
     expect(find.text('明细'), findsOneWidget);
     expect(find.text('2笔'), findsOneWidget);
+    expect(find.text('12,000.00'), findsOneWidget);
+    expect(find.textContaining('5,000.00'), findsOneWidget);
     await tester.tap(find.text('日常生活'));
     await tester.tap(find.text('2026年 10月'));
     await tester.tap(find.bySemanticsLabel('日历'));
@@ -180,6 +186,87 @@ void main() {
     container.invalidate(homeBrandPreferenceInitProvider);
     await tester.pumpAndSettle();
     expect(find.byType(BeeIcon), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+  testWidgets('首页真实列表收到空流时不回退到旧启动缓存', (tester) async {
+    tester.view.physicalSize = const Size(398, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final interval = VisibilityDetectorController.instance.updateInterval;
+    VisibilityDetectorController.instance.updateInterval = Duration.zero;
+    addTearDown(
+        () => VisibilityDetectorController.instance.updateInterval = interval);
+    final recent =
+        await repo.getRecentTransactionsWithCategory(ledgerId: 1, limit: 20);
+    expect(recent, hasLength(2));
+    container.read(cachedTransactionsProvider.notifier).state = recent
+        .map((row) => (
+              t: row.t,
+              category: row.category,
+              account: row.account,
+              toAccount: row.toAccount,
+              tags: <Tag>[],
+              attachmentCount: 0,
+              accountName: row.account?.name,
+              toAccountName: row.toAccount?.name,
+            ))
+        .toList();
+    await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+            theme: beeTheme(),
+            locale: const Locale('zh'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const HomePage())));
+    await tester.pumpAndSettle();
+    for (var i = 0;
+        i < 20 &&
+            find
+                    .byType(TransactionListItem, skipOffstage: false)
+                    .evaluate()
+                    .length !=
+                2;
+        i++) {
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 10)));
+      await tester.pump(const Duration(milliseconds: 20));
+    }
+    // 该自定义 sliver 未实现 debugVisitOnstageChildren，显式遍历并核对绘制位置。
+    expect(find.byType(TransactionListItem, skipOffstage: false),
+        findsNWidgets(2));
+    final viewport = tester.getRect(find.byType(TransactionList));
+    for (final row
+        in find.byType(TransactionListItem, skipOffstage: false).evaluate()) {
+      expect(
+          tester
+              .getRect(find.byWidget(row.widget, skipOffstage: false))
+              .overlaps(viewport),
+          isTrue);
+    }
+    for (final row in recent) {
+      await repo.deleteTransaction(row.t.id);
+    }
+    await tester.pumpAndSettle();
+    for (var i = 0;
+        i < 20 &&
+            find
+                .byType(TransactionListItem, skipOffstage: false)
+                .evaluate()
+                .isNotEmpty;
+        i++) {
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 10)));
+      await tester.pump(const Duration(milliseconds: 20));
+    }
+    expect(find.byType(TransactionListItem, skipOffstage: false), findsNothing);
+    final l10n = AppLocalizations.of(tester.element(find.byType(HomePage)));
+    expect(find.text(l10n.homeNoRecords), findsOneWidget);
+    // 启动缓存有意保留为旧值，验证真实空流的优先级而非清缓存掩盖问题。
+    expect(container.read(cachedTransactionsProvider), hasLength(2));
+    expect((await repo.getCountsForLedger(ledgerId: 1)).txCount, 0);
     expect(tester.takeException(), isNull);
     await close(tester);
   });
