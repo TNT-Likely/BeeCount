@@ -11,7 +11,7 @@
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
   "designSceneExports": 187,
-  "flowDefinitions": 104,
+  "flowDefinitions": 110,
   "priorityCounts": {
     "P0": 16,
     "P1": 42,
@@ -483,7 +483,8 @@
       "lines": 134,
       "batch": "M7 初始化与数据",
       "designRoutes": [
-        "flow-lock"
+        "flow-lock",
+        "flow-lock-bio"
       ],
       "designMapping": "已定位",
       "components": "安全输入、错误反馈与解锁状态",
@@ -493,7 +494,8 @@
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-bio"
       ]
     },
     {
@@ -526,7 +528,8 @@
       "lines": 154,
       "batch": "M7 初始化与数据",
       "designRoutes": [
-        "flow-pin"
+        "flow-pin",
+        "flow-pin-change"
       ],
       "designMapping": "已定位",
       "components": "PIN 输入、确认步骤与错误状态",
@@ -536,7 +539,8 @@
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-pin"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-pin",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-pin-change"
       ]
     },
     {
@@ -1295,7 +1299,11 @@
       "designRoutes": [
         "flow-config",
         "flow-config-preview",
-        "flow-export-scope"
+        "flow-export-scope",
+        "flow-config-select",
+        "flow-config-import",
+        "flow-config-error",
+        "flow-config-done"
       ],
       "designMapping": "已定位",
       "components": "配置范围选择、文件读取/预览、导入导出状态",
@@ -1307,7 +1315,11 @@
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-config",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-config-preview",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-scope"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-scope",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-config-select",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-config-import",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-config-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-config-done"
       ]
     },
     {

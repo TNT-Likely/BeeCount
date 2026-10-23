@@ -1836,7 +1836,7 @@
   {
     "route": "flow-config-select",
     "title": "选择导出内容 · 弹窗",
-    "group": "其他",
+    "group": "补齐 · 导入导出与维护",
     "slug": "flow-config-select",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-config-select.png",
@@ -1846,7 +1846,7 @@
   {
     "route": "flow-config-import",
     "title": "导入预览 · 弹窗",
-    "group": "其他",
+    "group": "补齐 · 导入导出与维护",
     "slug": "flow-config-import",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-config-import.png",
@@ -1856,7 +1856,7 @@
   {
     "route": "flow-pin-change",
     "title": "修改密码 · 验证旧 PIN",
-    "group": "其他",
+    "group": "补齐 · 首次使用与安全",
     "slug": "flow-pin-change",
     "fullHeight": 895,
     "viewport": "screens/viewport/flow-pin-change.png",
@@ -1866,7 +1866,7 @@
   {
     "route": "flow-lock-bio",
     "title": "应用锁 · 生物识别可用",
-    "group": "其他",
+    "group": "补齐 · 首次使用与安全",
     "slug": "flow-lock-bio",
     "fullHeight": 895,
     "viewport": "screens/viewport/flow-lock-bio.png",
@@ -1876,7 +1876,7 @@
   {
     "route": "flow-config-error",
     "title": "配置导入失败 · 弹窗",
-    "group": "其他",
+    "group": "补齐 · 导入导出与维护",
     "slug": "flow-config-error",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-config-error.png",
@@ -1886,7 +1886,7 @@
   {
     "route": "flow-config-done",
     "title": "需要重启 · 弹窗",
-    "group": "其他",
+    "group": "补齐 · 导入导出与维护",
     "slug": "flow-config-done",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-config-done.png",

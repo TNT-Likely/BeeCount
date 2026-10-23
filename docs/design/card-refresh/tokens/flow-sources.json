@@ -25,7 +25,7 @@
   },
   {
     "route": "flow-pin",
-    "title": "设置 PIN 码",
+    "title": "设置密码",
     "group": "首次使用与安全",
     "source": "auth/pin_setup_page.dart"
   },
@@ -622,5 +622,41 @@
     "title": "账单行 · 全部场景用例",
     "group": "组件验收",
     "source": "widgets/biz/transaction_list_item.dart"
+  },
+  {
+    "route": "flow-pin-change",
+    "title": "修改密码",
+    "group": "首次使用与安全",
+    "source": "auth/pin_setup_page.dart"
+  },
+  {
+    "route": "flow-lock-bio",
+    "title": "应用锁 · 生物识别可用",
+    "group": "首次使用与安全",
+    "source": "auth/app_lock_screen.dart"
+  },
+  {
+    "route": "flow-config-select",
+    "title": "选择导出内容",
+    "group": "导入导出与维护",
+    "source": "settings/config_import_export_page.dart"
+  },
+  {
+    "route": "flow-config-import",
+    "title": "导入预览",
+    "group": "导入导出与维护",
+    "source": "settings/config_import_export_page.dart"
+  },
+  {
+    "route": "flow-config-error",
+    "title": "配置导入失败",
+    "group": "导入导出与维护",
+    "source": "settings/config_import_export_page.dart"
+  },
+  {
+    "route": "flow-config-done",
+    "title": "需要重启",
+    "group": "导入导出与维护",
+    "source": "settings/config_import_export_page.dart"
   }
 ]

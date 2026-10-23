@@ -8,8 +8,9 @@
     return `<div class="s-security" data-compact="${compact}" data-invalid="${state.sPinError}" style="min-height:${Math.max(0,qPreview.height-100)}px"><div class="w-symbol">${icon('lock')}</div><h2>${title}</h2><p>PIN码与生物识别保护隐私</p><div class="f-pin-dots" aria-label="${state.fPin.length} / 4">${Array.from({length:4},(_,i)=>`<span class="${i<state.fPin.length?'filled':''}"></span>`).join('')}</div><div class="f-pin-grid">${['1','2','3','4','5','6','7','8','9','bio','0','backspace'].map(k=>k==='bio'&&!biometric?'<span></span>':btn('s-pin:'+k,k==='backspace'?icon('delete'):k==='bio'?icon('fingerprint'):k,k==='backspace'?'删除':k==='bio'?'生物识别解锁':'输入'+k,'',state.sPinError?'disabled':'')).join('')}</div></div>`;
   };
   fDefs.pin.title='设置密码';
-  fDefine('pin-change','修改密码','首次使用与安全','auth/pin_setup_page.dart',()=>fPinPage(false));picker.add(new Option('修改密码 · 验证旧 PIN','flow-pin-change'));
-  fDefine('lock-bio','应用锁 · 生物识别可用','首次使用与安全','auth/app_lock_screen.dart',()=>fPinPage(true));picker.add(new Option('应用锁 · 生物识别可用','flow-lock-bio'));
+  let sPreviewGroup=[...picker.querySelectorAll('optgroup')].find(g=>g.label==='补齐 · 首次使用与安全');if(!sPreviewGroup){sPreviewGroup=document.createElement('optgroup');sPreviewGroup.label='补齐 · 首次使用与安全';picker.appendChild(sPreviewGroup);}
+  fDefine('pin-change','修改密码','首次使用与安全','auth/pin_setup_page.dart',()=>fPinPage(false));sPreviewGroup.appendChild(new Option('修改密码 · 验证旧 PIN','flow-pin-change'));
+  fDefine('lock-bio','应用锁 · 生物识别可用','首次使用与安全','auth/app_lock_screen.dart',()=>fPinPage(true));sPreviewGroup.appendChild(new Option('应用锁 · 生物识别可用','flow-lock-bio'));
   const sPreviousRender=fRender;
   fRender=function(key){if(key==='lock'||key==='lock-bio')return `<div class="bc-subhead"><h2>应用锁</h2></div>${fPinPage(true)}`;return sPreviousRender(key);};
   let sPinTimer;
