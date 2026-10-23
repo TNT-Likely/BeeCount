@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:beecount_ui/beecount_ui.dart' show BeeTone;
+import '../../presentation/v4/bindings/transaction_batch.dart';
+import '../../services/billing/post_processor.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart';
 import '../../providers.dart';
@@ -57,6 +60,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   // 批量操作相关
   bool _isBatchMode = false;
+  bool _isBatchWriting = false;
   final Set<int> _selectedIds = {};
 
   @override
@@ -170,6 +174,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
     setState(() {
       _searchResults = results;
+      _selectedIds.retainAll(results.map((item) => item.t.id));
       _totalExpense = results
           .where((e) => e.t.type == 'expense')
           .fold(0.0, (sum, e) => sum + (e.t.nativeAmount ?? e.t.amount).abs());
@@ -180,32 +185,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     });
   }
 
-  /// 从数据库重新加载并执行搜索
-  Future<void> _performSearchFromDb() async {
-    if (!mounted) return;
-
-    final repo = ref.read(repositoryProvider);
-    final ledgerId = ref.read(currentLedgerIdProvider);
-
-    setState(() {
-      _isSearching = true;
-    });
-
-    // 从数据库重新获取所有交易
-    final allTransactions =
-        await repo.transactionsWithCategoryAll(ledgerId: ledgerId).first;
-
-    if (!mounted) return;
-
-    // 更新_allTransactions
-    _allTransactions = allTransactions;
-
-    // 执行搜索筛选
-    _performSearch();
-  }
-
   /// 切换批量操作模式
   void _toggleBatchMode() {
+    if (_isBatchWriting) return;
     setState(() {
       _isBatchMode = !_isBatchMode;
       if (!_isBatchMode) {
@@ -216,6 +198,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   /// 切换选择
   void _toggleSelection(int id) {
+    if (_isBatchWriting) return;
     setState(() {
       if (_selectedIds.contains(id)) {
         _selectedIds.remove(id);
@@ -227,6 +210,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   /// 全选/取消全选
   void _toggleSelectAll() {
+    if (_isBatchWriting) return;
     setState(() {
       if (_selectedIds.length == _searchResults.length) {
         _selectedIds.clear();
@@ -471,13 +455,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   /// 批量操作完成后刷新
   Future<void> _refreshAfterBatchOperation(int count, String operation) async {
     if (mounted) {
-      showToast(context, operation);
+      showToast(context, operation, tone: BeeTone.success);
       setState(() {
         _selectedIds.clear();
         _isBatchMode = widget.initialBatchMode;
       });
-      // 从数据库重新加载最新数据并执行搜索
-      await _performSearchFromDb();
+      // The existing ledger stream delivers the committed rows. Do not open a
+      // second watch just to await first/cancel while the page is already live.
+      _performSearch();
     }
   }
 
@@ -510,23 +495,17 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   /// 执行批量删除
   Future<void> _executeBatchDelete() async {
-    final count = _selectedIds.length;
+    final ids = List<int>.of(_selectedIds);
     final l10n = AppLocalizations.of(context);
-
-    try {
+    await _runBatch(() async {
       final repo = ref.read(repositoryProvider);
-      // 批量删除交易
-      for (final id in _selectedIds) {
+      for (final id in ids) {
         await repo.deleteTransaction(id);
       }
-      ref.read(budgetRefreshProvider.notifier).state++;
-      await _refreshAfterBatchOperation(
-          count, l10n.searchBatchDeleteSuccess(count));
-    } catch (e) {
-      if (mounted) {
-        showToast(context, l10n.searchBatchDeleteFailed(e.toString()));
-      }
-    }
+      return ids.length;
+    },
+        success: l10n.searchBatchDeleteSuccess,
+        failure: l10n.searchBatchDeleteFailed);
   }
 
   /// 批量设置备注对话框
@@ -576,35 +555,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   /// 执行批量设置备注
   Future<void> _executeBatchSetNote(String note) async {
-    final repo = ref.read(repositoryProvider);
-    final count = _selectedIds.length;
+    final ids = List<int>.of(_selectedIds);
+    final ledgerId = ref.read(currentLedgerIdProvider);
     final l10n = AppLocalizations.of(context);
-
-    try {
-      // 批量更新备注
-      for (final id in _selectedIds) {
-        // 先获取交易详情
-        final tx = await repo.getTransactionById(id);
-        if (tx != null) {
-          // 更新交易（保持其他字段不变）
-          await repo.updateTransaction(
-            id: id,
-            type: tx.type,
-            amount: tx.amount,
-            categoryId: tx.categoryId,
-            note: note.isEmpty ? null : note,
-            happenedAt: tx.happenedAt,
-            accountId: tx.accountId,
-          );
-        }
-      }
-      await _refreshAfterBatchOperation(
-          count, l10n.searchBatchSetNoteSuccess(count));
-    } catch (e) {
-      if (mounted) {
-        showToast(context, l10n.searchBatchSetNoteFailed(e.toString()));
-      }
-    }
+    await _runBatch(
+        () => TransactionBatchBinding(ref.read(repositoryProvider))
+            .replaceNotes(ledgerId: ledgerId, transactionIds: ids, note: note),
+        success: l10n.searchBatchSetNoteSuccess,
+        failure: l10n.searchBatchSetNoteFailed);
   }
 
   /// 批量调整分类对话框
@@ -620,6 +578,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     final types = selectedTransactions.map((item) => item.t.type).toSet();
 
     // 如果包含转账类型或类型不一致，则不允许修改分类
+    if (types.isEmpty || _isBatchWriting) return;
     if (types.contains('transfer')) {
       showToast(context, l10n.searchBatchCategoryTransferError);
       return;
@@ -643,40 +602,43 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     );
 
     if (selectedCategory != null) {
-      await _executeBatchChangeCategory(selectedCategory.id);
+      await _executeBatchChangeCategory(selectedCategory);
     }
   }
 
   /// 执行批量调整分类
-  Future<void> _executeBatchChangeCategory(int categoryId) async {
-    final repo = ref.read(repositoryProvider);
-    final count = _selectedIds.length;
+  Future<void> _executeBatchChangeCategory(Category category) async {
+    final ids = List<int>.of(_selectedIds);
+    final ledgerId = ref.read(currentLedgerIdProvider);
     final l10n = AppLocalizations.of(context);
+    await _runBatch(
+        () => TransactionBatchBinding(ref.read(repositoryProvider))
+            .changeCategory(
+                ledgerId: ledgerId, transactionIds: ids, category: category),
+        success: l10n.searchBatchChangeCategorySuccess,
+        failure: l10n.searchBatchChangeCategoryFailed);
+  }
 
+  Future<void> _runBatch(Future<int> Function() write,
+      {required String Function(int) success,
+      required String Function(String) failure}) async {
+    if (_isBatchWriting || _selectedIds.isEmpty) return;
+    final ledgerId = ref.read(currentLedgerIdProvider);
+    setState(() => _isBatchWriting = true);
     try {
-      // 批量更新分类
-      for (final id in _selectedIds) {
-        // 先获取交易详情
-        final tx = await repo.getTransactionById(id);
-        if (tx != null) {
-          // 更新交易（保持其他字段不变）
-          await repo.updateTransaction(
-            id: id,
-            type: tx.type,
-            amount: tx.amount,
-            categoryId: categoryId,
-            note: tx.note,
-            happenedAt: tx.happenedAt,
-            accountId: tx.accountId,
-          );
-        }
-      }
-      await _refreshAfterBatchOperation(
-          count, l10n.searchBatchChangeCategorySuccess(count));
+      final count = await write();
+      if (!mounted) return;
+      ref.invalidate(countsForLedgerProvider(ledgerId));
+      ref.read(statsRefreshProvider.notifier).state++;
+      ref.read(budgetRefreshProvider.notifier).state++;
+      PostProcessor.sync(ref, ledgerId: ledgerId);
+      await _refreshAfterBatchOperation(count, success(count));
     } catch (e) {
       if (mounted) {
-        showToast(context, l10n.searchBatchChangeCategoryFailed(e.toString()));
+        showToast(context, failure(e.toString()), tone: BeeTone.error);
       }
+    } finally {
+      if (mounted) setState(() => _isBatchWriting = false);
     }
   }
 
@@ -722,6 +684,11 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       backgroundColor: BeeTokens.scaffoldBackground(context),
       body: Column(
         children: [
+          PopScope(
+              canPop: !_isBatchWriting,
+              child: _isBatchWriting
+                  ? const LinearProgressIndicator(minHeight: 2)
+                  : const SizedBox.shrink()),
           // 使用PrimaryHeader
           PrimaryHeader(
             title: _isBatchMode
@@ -744,9 +711,11 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                       ),
                     IconButton(
                       icon: const Icon(Icons.close),
-                      onPressed: widget.initialBatchMode
-                          ? () => Navigator.pop(context)
-                          : _toggleBatchMode,
+                      onPressed: _isBatchWriting
+                          ? null
+                          : widget.initialBatchMode
+                              ? () => Navigator.pop(context)
+                              : _toggleBatchMode,
                       tooltip: l10n.searchExitBatchMode,
                     ),
                   ]
@@ -1080,9 +1049,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                               children: [
                                 Expanded(
                                   child: OutlinedButton.icon(
-                                    onPressed: _selectedIds.isEmpty
-                                        ? null
-                                        : _showBatchSetNoteDialog,
+                                    onPressed:
+                                        _isBatchWriting || _selectedIds.isEmpty
+                                            ? null
+                                            : _showBatchSetNoteDialog,
                                     icon: const Icon(Icons.edit_note, size: 16),
                                     label: Text(l10n.searchBatchSetNote,
                                         style: const TextStyle(fontSize: 13)),
@@ -1098,9 +1068,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: OutlinedButton.icon(
-                                    onPressed: _selectedIds.isEmpty
-                                        ? null
-                                        : _showBatchChangeCategoryDialog,
+                                    onPressed:
+                                        _isBatchWriting || _selectedIds.isEmpty
+                                            ? null
+                                            : _showBatchChangeCategoryDialog,
                                     icon: const Icon(Icons.category, size: 16),
                                     label: Text(l10n.searchBatchChangeCategory,
                                         style: const TextStyle(fontSize: 13)),
@@ -1116,9 +1087,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: OutlinedButton.icon(
-                                    onPressed: _selectedIds.isEmpty
-                                        ? null
-                                        : _showBatchDeleteDialog,
+                                    onPressed:
+                                        _isBatchWriting || _selectedIds.isEmpty
+                                            ? null
+                                            : _showBatchDeleteDialog,
                                     icon: const Icon(Icons.delete_outline,
                                         size: 16),
                                     label: Text(l10n.commonDelete,

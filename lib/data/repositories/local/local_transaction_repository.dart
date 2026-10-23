@@ -964,6 +964,11 @@ class LocalTransactionRepository implements TransactionRepository {
     String? toAccountSyncIdOverride,
     bool writeAccountSyncIdOverride = false,
     bool writeToAccountSyncIdOverride = false,
+    int? categoryId,
+    String? categorySyncIdOverride,
+    bool writeCategory = false,
+    String? note,
+    bool writeNote = false,
   }) async {
     // accountId / toAccountId 接受 null(absent / 不更新)、int(直接写)、
     // `d.Value<int?>`(显式 null 清空)三种语义,跟 updateTransaction 对齐。
@@ -985,6 +990,12 @@ class LocalTransactionRepository implements TransactionRepository {
     }
     await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(
+        categoryId:
+            writeCategory ? d.Value(categoryId) : const d.Value.absent(),
+        categorySyncIdOverride: writeCategory
+            ? d.Value(categorySyncIdOverride)
+            : const d.Value.absent(),
+        note: writeNote ? d.Value(note) : const d.Value.absent(),
         accountId: accountIdValue,
         toAccountId: toAccountIdValue,
         // override 写入只在调用方明确要求时才动(否则保留 Drift 老值),
@@ -1094,8 +1105,8 @@ class LocalTransactionRepository implements TransactionRepository {
     for (final row in results) {
       final date = row.read<String?>('date');
       if (date == null) continue; // 跳过null日期
-      final income = row.read<double>('income') ?? 0.0;
-      final expense = row.read<double>('expense') ?? 0.0;
+      final income = row.read<double>('income');
+      final expense = row.read<double>('expense');
       map[date] = (income, expense);
     }
 
@@ -1264,7 +1275,9 @@ class LocalTransactionRepository implements TransactionRepository {
       final list = await (db.select(db.sharedLedgerCategories)
             ..where((t) => t.syncId.isIn(catSyncIds.toList())))
           .get();
-      for (final s in list) sharedCatBySyncId[s.syncId] = s;
+      for (final s in list) {
+        sharedCatBySyncId[s.syncId] = s;
+      }
     }
 
     // 批量查共享账户
@@ -1273,7 +1286,9 @@ class LocalTransactionRepository implements TransactionRepository {
       final list = await (db.select(db.sharedLedgerAccounts)
             ..where((t) => t.syncId.isIn(accSyncIds.toList())))
           .get();
-      for (final s in list) sharedAccBySyncId[s.syncId] = s;
+      for (final s in list) {
+        sharedAccBySyncId[s.syncId] = s;
+      }
     }
 
     // 批量查 tag overrides + shared tags
@@ -1293,7 +1308,9 @@ class LocalTransactionRepository implements TransactionRepository {
         final sharedTags = await (db.select(db.sharedLedgerTags)
               ..where((t) => t.syncId.isIn(tagSids)))
             .get();
-        for (final s in sharedTags) sharedTagBySyncId[s.syncId] = s;
+        for (final s in sharedTags) {
+          sharedTagBySyncId[s.syncId] = s;
+        }
       }
     }
 

@@ -139,4 +139,40 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
   });
+
+  testWidgets('真实批量备注入口只修改备注，不丢外币快照、共享引用与附件', (tester) async {
+    final id = await repo.addTransaction(
+        ledgerId: 1,
+        type: 'expense',
+        amount: 12,
+        currencyCode: 'USD',
+        nativeAmount: 85.2,
+        categorySyncIdOverride: 'shared-category',
+        accountSyncIdOverride: 'shared-account',
+        happenedAt: DateTime(2026, 10, 24, 12, 34, 56),
+        note: '外币旧备注',
+        excludeFromStats: true,
+        excludeFromBudget: true);
+    final attachment = await repo.createAttachment(
+        transactionId: id, fileName: 'synthetic.png', fileSize: 20);
+    final before = (await repo.getTransactionById(id))!.toJson();
+    await open(tester);
+    final l10n = AppLocalizations.of(tester.element(find.byType(SearchPage)));
+    await tester.tap(find.text(l10n.searchSelectAll).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.searchBatchSetNote));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '统一备注');
+    await tester.tap(find.widgetWithText(TextButton, l10n.commonConfirm));
+    await tester.pumpAndSettle();
+    expect((await repo.getTransactionById(id))!.toJson(),
+        {...before, 'note': '统一备注'});
+    expect((await repo.getAttachmentById(attachment))!.fileSize, 20);
+    expect(find.text(l10n.searchBatchModeWithCount(0, 3)), findsOneWidget);
+    expect(await repo.getTransactionsByLedger(2), hasLength(1));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+  });
 }
