@@ -1,0 +1,392 @@
+[
+  {
+    "design_key": "primary",
+    "components": [
+      "BeeButton"
+    ],
+    "page": "foundation",
+    "case": 0
+  },
+  {
+    "design_key": "nav",
+    "components": [
+      "BeeBottomBar"
+    ],
+    "page": "foundation",
+    "case": 7
+  },
+  {
+    "design_key": "entry",
+    "components": [
+      "BeeTransactionRow"
+    ],
+    "page": "business",
+    "case": 2
+  },
+  {
+    "design_key": "entryForeign",
+    "components": [
+      "BeeTransactionRow",
+      "BeeMoney"
+    ],
+    "page": "business",
+    "case": 2
+  },
+  {
+    "design_key": "brand",
+    "components": [
+      "BeeHomeIdentity"
+    ],
+    "page": "business",
+    "case": 0
+  },
+  {
+    "design_key": "brandOff",
+    "components": [
+      "BeeHomeIdentity"
+    ],
+    "page": "business",
+    "case": 0
+  },
+  {
+    "design_key": "summary",
+    "components": [
+      "BeeSummaryCard",
+      "BeeProgress"
+    ],
+    "page": "business",
+    "case": 1
+  },
+  {
+    "design_key": "categories",
+    "components": [
+      "RecordingCategoryTile",
+      "RecordingSubcategoryChip",
+      "BeeCategoryRanking"
+    ],
+    "page": "business",
+    "case": 3
+  },
+  {
+    "design_key": "keypad",
+    "components": [
+      "RecordingKeypad",
+      "RecordingAmountCard"
+    ],
+    "page": "business",
+    "case": 5
+  },
+  {
+    "design_key": "metadata",
+    "components": [
+      "RecordingDetailsCard",
+      "BeeTag"
+    ],
+    "page": "business",
+    "case": 5
+  },
+  {
+    "design_key": "menu",
+    "components": [
+      "BeeMenuRow",
+      "BeeActionMenu"
+    ],
+    "page": "foundation",
+    "case": 3
+  },
+  {
+    "design_key": "segments",
+    "components": [
+      "BeeSegmented"
+    ],
+    "page": "foundation",
+    "case": 1
+  },
+  {
+    "design_key": "mapping",
+    "components": [
+      "BeeImportMapping"
+    ],
+    "page": "business",
+    "case": 14
+  },
+  {
+    "design_key": "auth",
+    "components": [
+      "BeeAuthorization",
+      "BeeField"
+    ],
+    "page": "business",
+    "case": 16
+  },
+  {
+    "design_key": "wheel",
+    "components": [
+      "BeeWheel",
+      "BeeDateWheels"
+    ],
+    "page": "business",
+    "case": 17
+  },
+  {
+    "design_key": "fields",
+    "components": [
+      "BeeField",
+      "BeeSearchField",
+      "BeeToggleRow",
+      "BeeCheckTile"
+    ],
+    "page": "foundation",
+    "case": 2
+  },
+  {
+    "design_key": "receipt",
+    "components": [
+      "BeeReceipt",
+      "BeeAnnualSummary"
+    ],
+    "page": "business",
+    "case": 18
+  },
+  {
+    "design_key": "onboarding",
+    "components": [
+      "BeeOnboardingStep"
+    ],
+    "page": "business",
+    "case": 15
+  },
+  {
+    "design_key": "tags",
+    "components": [
+      "BeeTagPicker",
+      "BeeTag"
+    ],
+    "page": "business",
+    "case": 6
+  },
+  {
+    "design_key": "ledger",
+    "components": [
+      "BeeLedgerCard"
+    ],
+    "page": "business",
+    "case": 9
+  },
+  {
+    "design_key": "ledgerMenu",
+    "components": [
+      "BeeActionMenu"
+    ],
+    "page": "business",
+    "case": 9
+  },
+  {
+    "design_key": "sync",
+    "components": [
+      "BeeSyncStatus"
+    ],
+    "page": "business",
+    "case": 10
+  },
+  {
+    "design_key": "customIcons",
+    "components": [
+      "BeeCategoryIcon"
+    ],
+    "page": "business",
+    "case": 3
+  },
+  {
+    "design_key": "quickAdd",
+    "components": [
+      "BeeQuickAddTrigger",
+      "BeeQuickAdd"
+    ],
+    "page": "business",
+    "case": 20
+  },
+  {
+    "design_key": "currency",
+    "components": [
+      "BeeCurrencyPicker",
+      "BeeChoicePicker"
+    ],
+    "page": "business",
+    "case": 7
+  },
+  {
+    "design_key": "rate",
+    "components": [
+      "BeeValidatedInput",
+      "BeeStatus",
+      "RecordingConversionSummary"
+    ],
+    "page": "business",
+    "case": 8
+  },
+  {
+    "design_key": "mineProfile",
+    "components": [
+      "BeeProfile"
+    ],
+    "page": "business",
+    "case": 11
+  },
+  {
+    "design_key": "ledgerBalance",
+    "components": [
+      "BeeLedgerBalance"
+    ],
+    "page": "business",
+    "case": 11
+  },
+  {
+    "design_key": "nickname",
+    "components": [
+      "BeeValidatedInput"
+    ],
+    "page": "business",
+    "case": 12
+  },
+  {
+    "design_key": "attachments",
+    "components": [
+      "BeeAttachments"
+    ],
+    "page": "business",
+    "case": 13
+  },
+  {
+    "design_key": "attachmentViewer",
+    "components": [
+      "BeeAttachmentViewer"
+    ],
+    "page": "business",
+    "case": 13
+  },
+  {
+    "design_key": "feedbackToast",
+    "components": [
+      "BeeToast"
+    ],
+    "page": "foundation",
+    "case": 9
+  },
+  {
+    "design_key": "feedbackStatus",
+    "components": [
+      "BeeStatus"
+    ],
+    "page": "foundation",
+    "case": 4
+  },
+  {
+    "design_key": "iconActions",
+    "components": [
+      "BeeIconButton",
+      "BeeBadge"
+    ],
+    "page": "foundation",
+    "case": 12
+  },
+  {
+    "design_key": "choiceChips",
+    "components": [
+      "BeeChoiceChip",
+      "BeeCheckTile"
+    ],
+    "page": "foundation",
+    "case": 13
+  },
+  {
+    "design_key": "searchChoice",
+    "components": [
+      "BeeChoicePicker"
+    ],
+    "page": "foundation",
+    "case": 14
+  },
+  {
+    "design_key": "inputStates",
+    "components": [
+      "BeeField",
+      "BeeSearchField"
+    ],
+    "page": "foundation",
+    "case": 15
+  },
+  {
+    "design_key": "layoutPrimitives",
+    "components": [
+      "BeePageHeader",
+      "BeeSurface",
+      "BeeDivider",
+      "BeeAvatar"
+    ],
+    "page": "foundation",
+    "case": 16
+  },
+  {
+    "design_key": "actionBar",
+    "components": [
+      "BeeActionBar"
+    ],
+    "page": "foundation",
+    "case": 17
+  },
+  {
+    "design_key": "loadingStates",
+    "components": [
+      "BeeProgress",
+      "BeeStatus",
+      "BeeSkeleton"
+    ],
+    "page": "foundation",
+    "case": 18
+  },
+  {
+    "design_key": "categoryPicker",
+    "components": [
+      "BeeCategoryPicker"
+    ],
+    "page": "business",
+    "case": 27
+  },
+  {
+    "design_key": "accountPicker",
+    "components": [
+      "BeeAccountPicker"
+    ],
+    "page": "business",
+    "case": 28
+  },
+  {
+    "design_key": "transactionStates",
+    "components": [
+      "BeeTransactionRow"
+    ],
+    "page": "business",
+    "case": 29
+  },
+  {
+    "design_key": "liveBinding",
+    "components": [
+      "BeeLedgerBalance",
+      "BeeLedgerPicker",
+      "BeeCategoryPicker",
+      "BeeAccountPicker",
+      "BeeTransactionRow"
+    ],
+    "page": "business",
+    "case": 30
+  },
+  {
+    "design_key": "ledgerPicker",
+    "components": [
+      "BeeLedgerPicker"
+    ],
+    "page": "business",
+    "case": 31
+  }
+]

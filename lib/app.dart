@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'presentation/v4/gallery/component_gallery_page.dart';
 import 'pages/main/home_page.dart';
 import 'pages/main/analytics_page.dart';
 import 'pages/account/accounts_page.dart';
@@ -875,6 +876,18 @@ class _BeeAppState extends ConsumerState<BeeApp>
               onCenterLongPressEnd: _onLongPressEnd,
             ),
           ),
+          if (kDebugMode && const bool.fromEnvironment('BEECOUNT_V4_RECORDING'))
+            Positioned(
+                right: 16,
+                bottom: 160,
+                child: FloatingActionButton.small(
+                    heroTag: 'v4ComponentGallery',
+                    tooltip: 'V4 组件验收',
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const ComponentGalleryPage())),
+                    child: const Icon(Icons.widgets_outlined))),
           // 开发模式下的主题切换按钮
           if (kDebugMode)
             Positioned(

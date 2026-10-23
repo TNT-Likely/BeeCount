@@ -1,4 +1,6 @@
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kDebugMode;
+import '../../presentation/v4/gallery/component_gallery_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -324,6 +326,20 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                       ],
                     ),
                   ),
+                  if (kDebugMode)
+                    Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: SectionCard(
+                            child: AppListTile(
+                          leading: Icons.widgets_outlined,
+                          title: 'V4 组件验收',
+                          subtitle: '基础组件与业务组件 · 仅调试版',
+                          onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      const ComponentGalleryPage())),
+                        ))),
                   // ===== 相关产品 =====
                   SizedBox(height: 28.0.scaled(context, ref)),
                   Padding(

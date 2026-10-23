@@ -1,0 +1,495 @@
+{
+  "scope": "Current v4 foundational primitives; does not imply all legacy pages migrated",
+  "components": [
+    {
+      "component": "BeeSurface",
+      "cases": [
+        0,
+        16
+      ],
+      "supportedStates": [
+        "default",
+        "nested"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeLineIcon",
+      "cases": [
+        8,
+        12
+      ],
+      "supportedStates": [
+        "default",
+        "inherited-color",
+        "explicit-color"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeButton",
+      "cases": [
+        0,
+        17
+      ],
+      "supportedStates": [
+        "primary",
+        "secondary",
+        "quiet",
+        "danger",
+        "disabled",
+        "loading",
+        "compact"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeField",
+      "cases": [
+        2,
+        15
+      ],
+      "supportedStates": [
+        "default",
+        "focus",
+        "disabled",
+        "readonly",
+        "helper",
+        "error",
+        "validator",
+        "password",
+        "multiline",
+        "counter",
+        "input-format",
+        "submit"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSegmented",
+      "cases": [
+        1,
+        14
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "disabled",
+        "long-label-scroll"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeMenuRow",
+      "cases": [
+        3,
+        6
+      ],
+      "supportedStates": [
+        "title",
+        "subtitle",
+        "leading",
+        "trailing",
+        "selected",
+        "danger",
+        "divider"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSection",
+      "cases": [
+        16
+      ],
+      "supportedStates": [
+        "title",
+        "action"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeStatus",
+      "cases": [
+        4,
+        18
+      ],
+      "supportedStates": [
+        "neutral",
+        "success",
+        "warning",
+        "error",
+        "busy",
+        "detail",
+        "retry"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeEmptyState",
+      "cases": [
+        4
+      ],
+      "supportedStates": [
+        "empty",
+        "search-empty",
+        "action"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeProgress",
+      "cases": [
+        4,
+        18
+      ],
+      "supportedStates": [
+        "zero",
+        "partial",
+        "complete",
+        "indeterminate"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSheet",
+      "cases": [
+        6,
+        14
+      ],
+      "supportedStates": [
+        "short-content",
+        "scrolling",
+        "close",
+        "cancel",
+        "keyboard"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeWheel",
+      "cases": [
+        5
+      ],
+      "supportedStates": [
+        "scroll",
+        "tap",
+        "keyboard",
+        "controlled"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeBottomBar",
+      "cases": [
+        7
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "long-press"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeDialog",
+      "cases": [
+        6
+      ],
+      "supportedStates": [
+        "confirm",
+        "danger",
+        "editing",
+        "close",
+        "cancel",
+        "content-scroll"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeMenuButton",
+      "cases": [
+        9
+      ],
+      "supportedStates": [
+        "action",
+        "disabled",
+        "danger"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeToast",
+      "cases": [
+        9
+      ],
+      "supportedStates": [
+        "neutral",
+        "success",
+        "warning",
+        "error",
+        "replacement",
+        "auto-dismiss"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeRadioTile",
+      "cases": [
+        11
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "disabled"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSliderField",
+      "cases": [
+        11
+      ],
+      "supportedStates": [
+        "value",
+        "steps",
+        "zero",
+        "max",
+        "disabled"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeAccordion",
+      "cases": [
+        10
+      ],
+      "supportedStates": [
+        "collapsed",
+        "expanded"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeFilterBar",
+      "cases": [
+        10
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "horizontal-scroll"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSelectField",
+      "cases": [
+        10,
+        14
+      ],
+      "supportedStates": [
+        "selected",
+        "disabled",
+        "error"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSearchField",
+      "cases": [
+        2
+      ],
+      "supportedStates": [
+        "default",
+        "typing",
+        "clear",
+        "submit",
+        "disabled",
+        "controller-owned-by-host"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeToggleRow",
+      "cases": [
+        2,
+        13
+      ],
+      "supportedStates": [
+        "on",
+        "off",
+        "disabled"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeCheckTile",
+      "cases": [
+        2,
+        13
+      ],
+      "supportedStates": [
+        "checked",
+        "unchecked",
+        "mixed",
+        "disabled"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeAvatar",
+      "cases": [
+        8,
+        16
+      ],
+      "supportedStates": [
+        "default",
+        "image",
+        "error-fallback"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeePageHeader",
+      "cases": [
+        16
+      ],
+      "supportedStates": [
+        "primary",
+        "compact",
+        "back",
+        "actions",
+        "long-title-ellipsis"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSkeleton",
+      "cases": [
+        4,
+        18
+      ],
+      "supportedStates": [
+        "rows",
+        "semantics"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeIconButton",
+      "cases": [
+        12,
+        15
+      ],
+      "supportedStates": [
+        "default",
+        "selected",
+        "disabled",
+        "danger",
+        "loading",
+        "tooltip",
+        "44-touch"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeBadge",
+      "cases": [
+        12
+      ],
+      "supportedStates": [
+        "dot",
+        "count",
+        "99-plus",
+        "hidden-zero",
+        "no-hit-interception"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeChoiceChip",
+      "cases": [
+        13
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "leading",
+        "disabled",
+        "wrapping"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeDivider",
+      "cases": [
+        12,
+        16
+      ],
+      "supportedStates": [
+        "default",
+        "inset",
+        "label"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeActionBar",
+      "cases": [
+        17
+      ],
+      "supportedStates": [
+        "single",
+        "double",
+        "disabled",
+        "loading",
+        "safe-area",
+        "fixed-host-slot"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeChoicePicker",
+      "cases": [
+        14
+      ],
+      "supportedStates": [
+        "search",
+        "selected",
+        "long-list",
+        "empty",
+        "loading",
+        "error",
+        "retry",
+        "cancel"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeValidatedInput",
+      "cases": [
+        6
+      ],
+      "supportedStates": [
+        "draft",
+        "invalid",
+        "confirm",
+        "cancel"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeDateWheels",
+      "cases": [
+        5
+      ],
+      "supportedStates": [
+        "date",
+        "year-month",
+        "time",
+        "leap-clamp"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    }
+  ]
+}
