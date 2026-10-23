@@ -1,3 +1,4 @@
+import '../../presentation/v4/bindings/page_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -122,7 +123,7 @@ class _PinSetupPageState extends ConsumerState<PinSetupPage> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Scaffold(
+    return V4PageScaffold(
         backgroundColor: BeeCardTheme.of(context).canvas,
         body: Column(children: [
           BeePageHeader(

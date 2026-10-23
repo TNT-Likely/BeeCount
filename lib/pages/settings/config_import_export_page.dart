@@ -1,3 +1,4 @@
+import '../../presentation/v4/bindings/page_scaffold.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'dart:io';
@@ -31,7 +32,7 @@ class _ConfigImportExportPageState extends ConsumerState<ConfigImportExportPage>
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context), busy = _isExporting || _isImporting;
-    return Scaffold(
+    return V4PageScaffold(
         backgroundColor: BeeCardTheme.of(context).canvas,
         body: Column(children: [
           BeePageHeader(

@@ -1,3 +1,4 @@
+import '../../presentation/v4/bindings/page_scaffold.dart';
 import 'dart:async';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
@@ -183,7 +184,7 @@ class _CategoryDetailState extends ConsumerState<CategoryDetailPage> {
     final c = _data!;
     return AnimatedBuilder(
         animation: c,
-        builder: (context, _) => Scaffold(
+        builder: (context, _) => V4PageScaffold(
             backgroundColor: BeeCardTheme.of(context).canvas,
             body: Column(children: [
               BeePageHeader(

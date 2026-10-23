@@ -1,3 +1,4 @@
+import '../../presentation/v4/bindings/page_scaffold.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -56,7 +57,7 @@ class MinePage extends ConsumerWidget {
         ]);
     final stars = ref.watch(githubStarCountProvider).valueOrNull ??
         githubStarFallbackCount;
-    return Scaffold(
+    return V4PageScaffold(
         backgroundColor: BeeCardTheme.of(context).canvas,
         body: Column(children: [
           BeePageHeader(title: l.mineTitle, actions: [

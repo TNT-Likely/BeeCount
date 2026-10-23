@@ -1,3 +1,4 @@
+import '../../presentation/v4/bindings/page_scaffold.dart';
 import 'dart:async';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
@@ -258,7 +259,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         animation: c,
         builder: (context, _) => PopScope(
             canPop: !_writing,
-            child: Scaffold(
+            child: V4PageScaffold(
                 backgroundColor: BeeCardTheme.of(context).canvas,
                 bottomNavigationBar: !c.batch
                     ? null
