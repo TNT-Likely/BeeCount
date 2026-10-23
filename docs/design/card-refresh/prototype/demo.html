@@ -1735,6 +1735,11 @@
 #bee-immersive-suite .bc-phone[data-z-editor=true] .z-conversion>span{flex:1;min-width:0}
 #bee-immersive-suite .bc-phone[data-z-editor=true] .z-conversion b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
 #bee-immersive-suite .bc-phone[data-z-editor=true] .z-conversion>svg{flex:none}
+
+#bee-immersive-suite .bc-phone .z-note-history{display:flex;align-items:center;justify-content:center;flex:0 0 16px;width:16px;height:44px;padding:0!important;color:var(--bc-muted)}
+#bee-immersive-suite .bc-phone .z-note-history svg{width:16px;height:16px}
+#bee-immersive-suite .bc-phone .z-history-choices{display:flex;flex-wrap:wrap;gap:8px}
+#bee-immersive-suite .bc-phone .z-history-choices button{padding:8px 12px!important;border-radius:12px}
 </style>
 <script>
 (() => {
@@ -3186,7 +3191,7 @@
     const account=btn('record-account',`${icon('wallet')}<span>${esc(state.recordAccount||'选择账户')}</span>`,'选择账户','z-account');
     const noteToggle=compact?btn('z-note-toggle',`${icon(state.zNoteExpanded?'chevron-up':'pencil-line')}${state.note?'<i class="z-note-dot" aria-hidden="true"></i>':''}`,state.zNoteExpanded?'收起备注':'展开备注，直接编辑','z-note-toggle'):'';
     meta.dataset.noteExpanded=String(expanded);
-    meta.innerHTML=expanded?`<div class="z-note-top"><label class="z-note-field">${icon('pencil-line')}<input data-z-note value="${esc(state.note)}" placeholder="添加备注" aria-label="直接编辑账单备注" maxlength="120" autocomplete="off"></label>${noteToggle}${attachment}</div><div class="z-reference-row">${account}${date}${tagChoice}</div>`:`<div class="z-reference-row z-reference-folded">${noteToggle}${account}${date}${tagChoice}${attachment}</div>`;
+    meta.innerHTML=expanded?`<div class="z-note-top"><label class="z-note-field">${btn('z-note-history',icon('pencil-line'),'历史备注','z-note-history')}<input data-z-note value="${esc(state.note)}" placeholder="添加备注" aria-label="直接编辑账单备注" maxlength="120" autocomplete="off"></label>${noteToggle}${attachment}</div><div class="z-reference-row">${account}${date}${tagChoice}</div>`:`<div class="z-reference-row z-reference-folded">${noteToggle}${account}${date}${tagChoice}${attachment}</div>`;
     if(qPreview.height<720){
       amount.classList.add('z-amount-compact');
       const header=amount.querySelector('.bc-between'),line=amount.querySelector('.p-amount-line'),ledger=header.querySelector('.bc-mini-ledger'),row=document.createElement('div');row.className='z-compact-amount-row';
@@ -3202,6 +3207,16 @@
   root.addEventListener('input',e=>{if(e.target.matches('[data-z-note]'))state.note=e.target.value;if(zPinned()&&e.target.dataset.pField==='expression'){const s=phone.querySelector('[data-z-summary]');if(s){s.innerHTML=zConversion();globalThis.lucide?.createIcons({attrs:{width:16,height:16}});}}});
 
   root.addEventListener('click',e=>{if(e.target.closest('[data-action="z-note-toggle"]')){e.preventDefault();e.stopImmediatePropagation();state.zNoteExpanded=!state.zNoteExpanded;render();if(state.zNoteExpanded)phone.querySelector('[data-z-note]')?.focus({preventScroll:true});}},true);
+
+  root.addEventListener('click',e=>{
+    const action=e.target.closest('[data-action]')?.dataset.action;
+    if(action!=='z-note-history'&&!action?.startsWith('z-history:'))return;
+    e.preventDefault();e.stopImmediatePropagation();
+    if(action==='z-note-history'){
+      const notes=[...new Set([state.note,...state.additions.map(r=>r.note),'午餐','一杯拿铁','地铁通勤'].filter(Boolean))];
+      sheet('历史备注',`<div class="z-history-choices">${notes.map(n=>btn('z-history:'+n,esc(n),'使用备注：'+n,'bc-secondary')).join('')}</div>`);
+    }else{state.note=action.slice('z-history:'.length);closeSheet();render();}
+  },true);
 
   // Content and modal boundaries follow the existing Flutter pages.
   Object.assign(state,{nPlatform:'android',nChannel:'direct',nVoice:'auto',nLevels:['DEBUG','INFO','WARN','ERROR'],nLogPlatforms:['Flutter','Android'],nLogQuery:'',nLogCleared:false});

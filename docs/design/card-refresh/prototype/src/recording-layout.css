@@ -137,3 +137,8 @@
 #bee-immersive-suite .bc-phone[data-z-editor=true] .z-conversion>span{flex:1;min-width:0}
 #bee-immersive-suite .bc-phone[data-z-editor=true] .z-conversion b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
 #bee-immersive-suite .bc-phone[data-z-editor=true] .z-conversion>svg{flex:none}
+
+#bee-immersive-suite .bc-phone .z-note-history{display:flex;align-items:center;justify-content:center;flex:0 0 16px;width:16px;height:44px;padding:0!important;color:var(--bc-muted)}
+#bee-immersive-suite .bc-phone .z-note-history svg{width:16px;height:16px}
+#bee-immersive-suite .bc-phone .z-history-choices{display:flex;flex-wrap:wrap;gap:8px}
+#bee-immersive-suite .bc-phone .z-history-choices button{padding:8px 12px!important;border-radius:12px}
