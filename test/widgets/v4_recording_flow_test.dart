@@ -140,7 +140,8 @@ void main() {
         overrides: [
           databaseProvider.overrideWithValue(db),
           repositoryProvider.overrideWithValue(repo),
-          currentLedgerProvider.overrideWith((ref) => repo.watchLedger(1)),
+          currentLedgerProvider.overrideWith(
+              (ref) => repo.watchLedger(ref.watch(currentLedgerIdProvider))),
           beecountCloudProviderInstance.overrideWith((ref) async => null),
           accountFeatureEnabledProvider
               .overrideWith((ref) async => accountsEnabled),
@@ -409,6 +410,49 @@ void main() {
     expect(saved.type, 'income');
     expect(saved.categoryId, incomeId);
     expect(saved.amount, 32);
+    expect(tester.takeException(), isNull);
+  });
+
+  recordingTest('账本切换取消保留草稿，确认后切换本位币并重置后按新账本保存', (tester) async {
+    await db.customStatement(
+        "INSERT INTO ledgers (id,name,currency) VALUES(2,'美元旅行','USD')");
+    await open(tester);
+    await category(tester, foodId);
+    await category(tester, lunchId);
+    await key(tester, '7');
+    await tester.tap(find.text('日常生活'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('美元旅行'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('取消'));
+    await tester.pumpAndSettle();
+    expect(find.text('7'), findsWidgets);
+    expect(find.text('日常生活'), findsOneWidget);
+    expect(await db.select(db.transactions).get(), isEmpty);
+    await tester.tap(find.text('日常生活'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('美元旅行'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('确定'));
+    await tester.pumpAndSettle();
+    expect(find.text('美元旅行'), findsOneWidget);
+    expect(find.text('USD'), findsOneWidget);
+    expect(
+        tester
+            .widget<Text>(find.byKey(const ValueKey('recording-amount')))
+            .data,
+        '0.00');
+    await category(tester, foodId);
+    await category(tester, lunchId);
+    await key(tester, '9');
+    await press(tester, 'recording-save');
+    await tester.pumpAndSettle();
+    final saved = (await db.select(db.transactions).get()).single;
+    expect(saved.ledgerId, 2);
+    expect(saved.currencyCode, 'USD');
+    expect(saved.amount, 9);
+    expect(saved.nativeAmount, 9);
+    expect(saved.categoryId, lunchId);
     expect(tester.takeException(), isNull);
   });
 
