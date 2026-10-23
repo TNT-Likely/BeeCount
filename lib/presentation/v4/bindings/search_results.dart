@@ -7,7 +7,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../providers.dart';
 import '../../../utils/currencies.dart';
 import '../../../widgets/biz/format_money.dart';
-import 'search_transaction_tile.dart';
+import 'transaction_tile.dart';
 import 'transaction_search.dart';
 
 /// Lazy rows retain the original list's behavior for large ledgers.
@@ -151,7 +151,8 @@ class SearchResults extends ConsumerWidget {
                           .formatMediumDate(row.t.happenedAt),
                       date: '',
                       totals: const []),
-                SearchTransactionTile(
+                TransactionTileBinding(
+                    fullDate: true,
                     row: row,
                     tags: c.tags[row.t.id] ?? const [],
                     attachmentCount: c.attachments[row.t.id] ?? 0,

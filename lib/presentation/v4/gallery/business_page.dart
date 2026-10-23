@@ -39,7 +39,8 @@ const businessCases = [
   '账本选择器',
   '分类管理列表',
   '转账账户对',
-  '搜索汇总与批量操作'
+  '搜索汇总与批量操作',
+  '分类账户标签详情'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -1186,7 +1187,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             toName: '招商银行',
             onFrom: () => record('选择转出账户'),
             onTo: () => record('选择转入账户')),
-        _ => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        34 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             BeeSearchSummary(
                 title: '12 笔匹配账单',
                 expenseLabel: '支出合计',
@@ -1223,6 +1224,44 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     danger: action.$2 == 'Trash2',
                     onPressed: selected ? () => record(action.$1) : null)
             ]),
+          ]),
+        _ => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const BeeResourceHero(
+                title: '餐饮',
+                caption: '一级分类 · 4 个二级分类 · 日常生活',
+                icon: BeeLineIcon('Utensils', size: 22),
+                amountLabel: '本月支出',
+                prefix: '¥',
+                amount: '1,199.57',
+                metrics: [
+                  BeeResourceMetric(label: '记录笔数', value: '38笔'),
+                  BeeResourceMetric(label: '单笔均额', value: '¥31.57'),
+                  BeeResourceMetric(label: '占总支出', value: '36.5%')
+                ]),
+            const SizedBox(height: 12),
+            BeeSurface(
+                child: BeeResourceBreakdown(items: const [
+              BeeResourceBreakdownItem(
+                  id: 'lunch',
+                  label: '午餐',
+                  amount: '¥620.00',
+                  detail: '20笔 · 51.7%',
+                  fraction: .517,
+                  icon: BeeLineIcon('Utensils', size: 18)),
+              BeeResourceBreakdownItem(
+                  id: 'coffee',
+                  label: '咖啡',
+                  amount: '¥160.00',
+                  detail: '8笔 · 13.3%',
+                  fraction: .133,
+                  icon: BeeLineIcon('Coffee', size: 18))
+            ], onSelected: (id) => record('打开二级分类 $id'))),
+            const SizedBox(height: 12),
+            const BeeSurface(
+                child: BeeResourceTrend(
+                    values: [0, 280, 400, 730, 920, 1199.57],
+                    label: '累计支出趋势',
+                    axisLabels: ['10.01', '10.10', '10.20']))
           ]),
       };
   void _editRate() => showBeeDialog<void>(context,

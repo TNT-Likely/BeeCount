@@ -1,0 +1,36 @@
+{
+  "source": "docs/design/card-refresh/prototype/demo.html?page=categoryDetail",
+  "measuredWith": "Chromium computed styles, default skin, 2026-10-24",
+  "sizes": [
+    {
+      "viewportWidth": 398,
+      "width": 362,
+      "padding": 20,
+      "radius": 22,
+      "identityIcon": 44,
+      "identityGap": 11,
+      "identityBottom": 21,
+      "titleFont": 18,
+      "amountFont": 33,
+      "prefixFont": 19,
+      "amountLineHeight": 47.85,
+      "statsTopPadding": 15,
+      "statsGap": 9
+    },
+    {
+      "viewportWidth": 320,
+      "width": 284,
+      "padding": 16,
+      "radius": 22,
+      "identityIcon": 44,
+      "identityGap": 11,
+      "identityBottom": 21,
+      "titleFont": 18,
+      "amountFont": 29,
+      "prefixFont": 19,
+      "amountLineHeight": 42.05,
+      "statsTopPadding": 15,
+      "statsGap": 6
+    }
+  ]
+}

@@ -8797,6 +8797,53 @@ class AppLocalizationsZh extends AppLocalizations {
   String v4SearchSelected(int count) {
     return '已选择 $count 笔';
   }
+
+  @override
+  String get v4DetailMonth => '本月';
+
+  @override
+  String get v4DetailYear => '本年';
+
+  @override
+  String get v4DetailCumulative => '累计';
+
+  @override
+  String get v4DetailCustom => '指定周期';
+
+  @override
+  String get v4DetailTrend => '累计金额趋势';
+
+  @override
+  String get v4DetailShare => '占比';
+
+  @override
+  String get v4DetailMissingCategory => '分类已不存在';
+
+  @override
+  String get v4DetailRecent => '近期账单';
+
+  @override
+  String get v4DetailCollapse => '收起明细';
+
+  @override
+  String v4DetailCategoryChildren(int count) {
+    return '一级分类 · $count 个二级分类';
+  }
+
+  @override
+  String v4DetailAmountLabel(String period, String kind) {
+    return '$period$kind';
+  }
+
+  @override
+  String v4DetailAllTransactions(int count) {
+    return '查看全部 $count 笔';
+  }
+
+  @override
+  String v4DetailRecord(String name) {
+    return '记一笔 · $name';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

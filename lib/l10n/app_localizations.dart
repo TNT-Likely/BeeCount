@@ -16561,6 +16561,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} selected transactions'**
   String v4SearchSelected(int count);
+
+  /// No description provided for @v4DetailMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get v4DetailMonth;
+
+  /// No description provided for @v4DetailYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get v4DetailYear;
+
+  /// No description provided for @v4DetailCumulative.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get v4DetailCumulative;
+
+  /// No description provided for @v4DetailCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom range'**
+  String get v4DetailCustom;
+
+  /// No description provided for @v4DetailTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Cumulative amount'**
+  String get v4DetailTrend;
+
+  /// No description provided for @v4DetailShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get v4DetailShare;
+
+  /// No description provided for @v4DetailMissingCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'This category no longer exists'**
+  String get v4DetailMissingCategory;
+
+  /// No description provided for @v4DetailRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent transactions'**
+  String get v4DetailRecent;
+
+  /// No description provided for @v4DetailCollapse.
+  ///
+  /// In en, this message translates to:
+  /// **'Show fewer'**
+  String get v4DetailCollapse;
+
+  /// No description provided for @v4DetailCategoryChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent category · {count} subcategories'**
+  String v4DetailCategoryChildren(int count);
+
+  /// No description provided for @v4DetailAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} · {period}'**
+  String v4DetailAmountLabel(String period, String kind);
+
+  /// No description provided for @v4DetailAllTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'View all {count} transactions'**
+  String v4DetailAllTransactions(int count);
+
+  /// No description provided for @v4DetailRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record in {name}'**
+  String v4DetailRecord(String name);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

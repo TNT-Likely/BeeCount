@@ -3947,5 +3947,22 @@
   "v4SearchHint": "Search notes, categories, amounts or tags",
   "v4SearchFilterActive": "Filters applied",
   "v4SearchSelected": "{count} selected transactions",
-  "@v4SearchSelected": {"placeholders": {"count": {"type": "int"}}}
+  "@v4SearchSelected": {"placeholders": {"count": {"type": "int"}}},
+  "v4DetailMonth": "Month",
+  "v4DetailYear": "Year",
+  "v4DetailCumulative": "All time",
+  "v4DetailCustom": "Custom range",
+  "v4DetailTrend": "Cumulative amount",
+  "v4DetailShare": "Share",
+  "v4DetailMissingCategory": "This category no longer exists",
+  "v4DetailRecent": "Recent transactions",
+  "v4DetailCollapse": "Show fewer",
+  "v4DetailCategoryChildren": "Parent category · {count} subcategories",
+  "@v4DetailCategoryChildren": {"placeholders": {"count": {"type": "int"}}},
+  "v4DetailAmountLabel": "{kind} · {period}",
+  "@v4DetailAmountLabel": {"placeholders": {"period": {"type": "String"}, "kind": {"type": "String"}}},
+  "v4DetailAllTransactions": "View all {count} transactions",
+  "@v4DetailAllTransactions": {"placeholders": {"count": {"type": "int"}}},
+  "v4DetailRecord": "Record in {name}",
+  "@v4DetailRecord": {"placeholders": {"name": {"type": "String"}}}
 }

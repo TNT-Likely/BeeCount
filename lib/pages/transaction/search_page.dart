@@ -22,8 +22,10 @@ class SearchPage extends ConsumerStatefulWidget {
   const SearchPage(
       {super.key,
       this.initialBatchMode = false,
+      this.initialFilter = const TransactionSearchFilter(),
       this.initialOpenFilter = false});
   final bool initialBatchMode, initialOpenFilter;
+  final TransactionSearchFilter initialFilter;
   @override
   ConsumerState<SearchPage> createState() => _SearchPageState();
 }
@@ -49,6 +51,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         initialBatch: widget.initialBatchMode,
         categoryLabel: (c) =>
             CategoryUtils.displayName(c?.name, l, kind: c?.kind ?? 'expense'));
+    _data!.filter = widget.initialFilter;
     unawaited(_data!.start());
     if (widget.initialOpenFilter && !_openedFilter) {
       _openedFilter = true;

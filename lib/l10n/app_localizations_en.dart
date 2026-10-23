@@ -8805,4 +8805,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String v4SearchSelected(int count) {
     return '$count selected transactions';
   }
+
+  @override
+  String get v4DetailMonth => 'Month';
+
+  @override
+  String get v4DetailYear => 'Year';
+
+  @override
+  String get v4DetailCumulative => 'All time';
+
+  @override
+  String get v4DetailCustom => 'Custom range';
+
+  @override
+  String get v4DetailTrend => 'Cumulative amount';
+
+  @override
+  String get v4DetailShare => 'Share';
+
+  @override
+  String get v4DetailMissingCategory => 'This category no longer exists';
+
+  @override
+  String get v4DetailRecent => 'Recent transactions';
+
+  @override
+  String get v4DetailCollapse => 'Show fewer';
+
+  @override
+  String v4DetailCategoryChildren(int count) {
+    return 'Parent category · $count subcategories';
+  }
+
+  @override
+  String v4DetailAmountLabel(String period, String kind) {
+    return '$kind · $period';
+  }
+
+  @override
+  String v4DetailAllTransactions(int count) {
+    return 'View all $count transactions';
+  }
+
+  @override
+  String v4DetailRecord(String name) {
+    return 'Record in $name';
+  }
 }

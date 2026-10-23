@@ -11,21 +11,34 @@ import '../../../widgets/biz/transaction_list_item.dart';
 import '../../../widgets/category_icon.dart';
 import 'transaction_search.dart';
 
-class SearchTransactionTile extends ConsumerWidget {
-  const SearchTransactionTile(
+class TransactionTileBinding extends ConsumerWidget {
+  const TransactionTileBinding(
       {super.key,
       required this.row,
       required this.tags,
       required this.attachmentCount,
-      required this.batch,
-      required this.selected,
-      required this.onSelect,
-      required this.accountsEnabled,
+      this.batch = false,
+      this.selected = false,
+      this.onSelect,
+      this.fullDate = false,
+      this.allLedgers = false,
+      this.ledgerName,
+      this.baseCurrency,
+      this.onDelete,
+      this.allowCategoryNavigation = true,
+      this.accountsEnabled = true,
       required this.onReturned});
   final SearchTransaction row;
   final List<Tag> tags;
   final int attachmentCount;
-  final bool batch, selected, accountsEnabled;
+  final bool batch,
+      selected,
+      accountsEnabled,
+      fullDate,
+      allLedgers,
+      allowCategoryNavigation;
+  final String? ledgerName, baseCurrency;
+  final Future<void> Function()? onDelete;
   final VoidCallback? onSelect;
   final VoidCallback onReturned;
   @override
@@ -43,6 +56,10 @@ class SearchTransactionTile extends ConsumerWidget {
     return TransactionListItem(
         icon: getCategoryIconData(category: row.category, categoryName: name),
         category: row.category,
+        ledgerName: ledgerName,
+        baseCurrencyCode: baseCurrency,
+        alwaysShowCurrency: allLedgers,
+        onDelete: onDelete,
         title: transfer && (t.note?.isEmpty ?? true)
             ? l.transferTitle
             : t.note ?? '',
@@ -62,7 +79,7 @@ class SearchTransactionTile extends ConsumerWidget {
         excludeFromStats: t.excludeFromStats,
         excludeFromBudget: t.excludeFromBudget,
         happenedAt: t.happenedAt,
-        showFullDate: true,
+        showFullDate: fullDate,
         tags: tags
             .map((tag) => (id: tag.id, name: tag.name, color: tag.color))
             .toList(),
@@ -73,7 +90,8 @@ class SearchTransactionTile extends ConsumerWidget {
                 transactionId: t.id, allowDelete: false)),
         onTagTap: batch
             ? null
-            : (id, name) => open(TagDetailPage(tagId: id, tagName: name)),
+            : (id, name) => open(TagDetailPage(
+                tagId: id, tagName: name, allLedgers: allLedgers)),
         isSelectionMode: batch,
         isSelected: selected,
         onSelectionChanged: onSelect,
@@ -84,9 +102,14 @@ class SearchTransactionTile extends ConsumerWidget {
                     context, ref, t, row.category);
                 onReturned();
               },
-        onCategoryTap: batch || transfer || row.category == null
+        onCategoryTap: !allowCategoryNavigation ||
+                batch ||
+                transfer ||
+                row.category == null
             ? null
             : () => open(CategoryDetailPage(
-                categoryId: row.category!.id, categoryName: name)));
+                categoryId: row.category!.id,
+                categoryName: name,
+                allLedgers: allLedgers)));
   }
 }

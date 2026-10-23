@@ -34,6 +34,8 @@ void main() {
 
   Future<void> open(WidgetTester tester,
       {double? converted = 85.2,
+      String? baseCurrency,
+      bool allCurrencies = false,
       bool hide = false,
       List<({int id, String name, String? color})>? tags,
       void Function(int, String)? onTag}) async {
@@ -53,6 +55,8 @@ void main() {
                         categoryName: '咖啡',
                         amount: 12,
                         currencyCode: 'USD',
+                        baseCurrencyCode: baseCurrency,
+                        alwaysShowCurrency: allCurrencies,
                         nativeAmount: converted,
                         isExpense: true,
                         hide: hide,
@@ -120,6 +124,16 @@ void main() {
     await tester.pumpAndSettle();
     expect(visits, [3]);
     expect(find.text('全部标签'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+  testWidgets('全部账本按交易来源本位币展示折算，同币种也保留币种标识', (tester) async {
+    await open(tester, baseCurrency: 'EUR', allCurrencies: true);
+    expect(find.text('≈ €85.20'), findsOneWidget);
+    expect(find.text('≈ ¥85.20'), findsNothing);
+    await open(tester, baseCurrency: 'USD', allCurrencies: true, converted: 12);
+    expect(tester.widget<BeeMoney>(find.byType(BeeMoney)).amount, '−US\$12.00');
+    expect(find.textContaining('≈ '), findsNothing);
     expect(tester.takeException(), isNull);
     await close(tester);
   });

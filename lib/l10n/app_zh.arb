@@ -3654,5 +3654,22 @@
   "v4SearchHint": "搜索备注、分类、金额、标签",
   "v4SearchFilterActive": "已应用筛选",
   "v4SearchSelected": "已选择 {count} 笔",
-  "@v4SearchSelected": {"placeholders": {"count": {"type": "int"}}}
+  "@v4SearchSelected": {"placeholders": {"count": {"type": "int"}}},
+  "v4DetailMonth": "本月",
+  "v4DetailYear": "本年",
+  "v4DetailCumulative": "累计",
+  "v4DetailCustom": "指定周期",
+  "v4DetailTrend": "累计金额趋势",
+  "v4DetailShare": "占比",
+  "v4DetailMissingCategory": "分类已不存在",
+  "v4DetailRecent": "近期账单",
+  "v4DetailCollapse": "收起明细",
+  "v4DetailCategoryChildren": "一级分类 · {count} 个二级分类",
+  "@v4DetailCategoryChildren": {"placeholders": {"count": {"type": "int"}}},
+  "v4DetailAmountLabel": "{period}{kind}",
+  "@v4DetailAmountLabel": {"placeholders": {"period": {"type": "String"}, "kind": {"type": "String"}}},
+  "v4DetailAllTransactions": "查看全部 {count} 笔",
+  "@v4DetailAllTransactions": {"placeholders": {"count": {"type": "int"}}},
+  "v4DetailRecord": "记一笔 · {name}",
+  "@v4DetailRecord": {"placeholders": {"name": {"type": "String"}}}
 }

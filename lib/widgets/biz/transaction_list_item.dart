@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart' as db;
@@ -21,6 +22,8 @@ class TransactionListItem extends ConsumerWidget {
   /// v30 多币种:交易原币种(null/等于账本本位币 → 维持无符号纯数字;
   /// 外币 → 金额前显示其币种符号,如 JP¥/US$,一眼区分原币)。
   final String? currencyCode;
+  final String? baseCurrencyCode;
+  final bool alwaysShowCurrency;
 
   /// v30 多币种:折账本本位币快照。外币交易在金额右下角显示 ≈ 折算小字(反馈13)。
   final double? nativeAmount;
@@ -32,7 +35,7 @@ class TransactionListItem extends ConsumerWidget {
   final VoidCallback? onCategoryTap; // 点击分类图标/名称的回调
   final String? categoryName; // 分类名称，用于显示
   final String? ledgerName; // 账本名称（仅"全部账本"模式下显示标签）
-  final VoidCallback? onDelete; // 删除回调
+  final FutureOr<void> Function()? onDelete; // 删除回调
   final String? accountName; // 账户名称，用于显示
   final DateTime? happenedAt; // 交易时间，用于显示时分
 
@@ -60,6 +63,8 @@ class TransactionListItem extends ConsumerWidget {
     required this.title,
     required this.amount,
     this.currencyCode,
+    this.baseCurrencyCode,
+    this.alwaysShowCurrency = false,
     this.nativeAmount,
     required this.isExpense,
     this.isTransfer = false,
@@ -97,9 +102,10 @@ class TransactionListItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final hidden = hide ?? ref.watch(hideAmountsProvider) ?? false;
-    final base = currencyCode == null || currencyCode!.isEmpty
-        ? 'CNY'
-        : ref.watch(currentLedgerProvider).valueOrNull?.currency ?? 'CNY';
+    final base = baseCurrencyCode ??
+        (currencyCode == null || currencyCode!.isEmpty
+            ? 'CNY'
+            : ref.watch(currentLedgerProvider).valueOrNull?.currency ?? 'CNY');
     final foreign = currencyCode != null &&
         currencyCode!.isNotEmpty &&
         currencyCode!.toUpperCase() != base.toUpperCase();
@@ -110,7 +116,7 @@ class TransactionListItem extends ConsumerWidget {
     final value = isTransfer ? amount : (isExpense ? -amount : amount);
     final sign = value < 0 ? '−' : (isTransfer || value == 0 ? '' : '+');
     final money = '$sign'
-        '${foreign ? getDistinctCurrencySymbol(currencyCode!) : ''}'
+        '${foreign || alwaysShowCurrency ? getDistinctCurrencySymbol(currencyCode?.isNotEmpty == true ? currencyCode! : base) : ''}'
         '${formatMoneyCompact(value.abs(), trimZeros: false)}';
     final hasConversion =
         foreign && nativeAmount != null && nativeAmount != amount;
@@ -186,7 +192,7 @@ class TransactionListItem extends ConsumerWidget {
               final confirmed = await AppDialog.confirm<bool>(context,
                   title: l10n.deleteConfirmTitle,
                   message: l10n.deleteConfirmMessage);
-              if (confirmed == true) onDelete!();
+              if (confirmed == true) await onDelete!();
             },
     );
     return GestureDetector(
