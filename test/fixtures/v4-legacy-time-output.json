@@ -1,0 +1,25 @@
+{
+  "baselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
+  "expected": {
+    "time-only": "12:34:56",
+    "time-minute": "12:34:00",
+    "time-seconds-only": "00:00:07",
+    "time-account": "12:34:56",
+    "time-all-secondary": "12:34:56",
+    "time-transfer": "12:34:56",
+    "time-foreign": "12:34:56",
+    "full-date-midnight": "2026-10-20 00:00",
+    "time-missing-date": null,
+    "time-ledger": "12:34:56",
+    "time-batch": "2026-10-20 12:34",
+    "time-hidden": "12:34:56",
+    "time-readonly": "12:34:56",
+    "full-date-long-account": "2026-10-20 12:34",
+    "category-note": "12:34:56",
+    "note-first": "12:34:56",
+    "full-date": "2026-10-20 12:34",
+    "midnight": null,
+    "time-off": null,
+    "account-hidden": "2026-10-01 09:30"
+  }
+}

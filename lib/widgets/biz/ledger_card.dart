@@ -8,10 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/ledger_display_item.dart';
 import '../../cloud/sync_service.dart';
-import '../../providers/theme_providers.dart';
-import '../../providers/sync_providers.dart';
+import '../../providers.dart';
+import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import '../../utils/format_utils.dart';
-import '../../utils/currencies.dart';
 import '../../l10n/app_localizations.dart';
 import '../../styles/tokens.dart';
 
@@ -47,7 +47,8 @@ class LedgerCard extends ConsumerWidget {
 
     // 检查是否正在上传
     final uploadingIds = ref.watch(uploadingLedgerIdsProvider);
-    final isUploading = !ledger.isRemoteOnly && uploadingIds.contains(ledger.id);
+    final isUploading =
+        !ledger.isRemoteOnly && uploadingIds.contains(ledger.id);
 
     // 判断同步状态
     final isRemote = ledger.isRemoteOnly;
@@ -59,220 +60,53 @@ class LedgerCard extends ConsumerWidget {
         syncStatus.diff != SyncDiff.noRemote &&
         syncStatus.diff != SyncDiff.notConfigured;
 
-    return GestureDetector(
-      onTap: onTap,
-      onLongPress: onLongPress,
-      child: Container(
-        margin: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 4,
-        ),
-        decoration: BoxDecoration(
-          color: BeeTokens.surface(context),
-          borderRadius: BorderRadius.circular(12),
-          border: BeeTokens.isDark(context)
-              ? Border.all(color: BeeTokens.border(context), width: 1)
-              : null,
-          boxShadow: BeeTokens.isDark(context)
-              ? null
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Stack(
-            children: [
-              // 左侧色条：仅选中时显示
-              if (selected)
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: Container(
-                    width: 4,
-                    decoration: BoxDecoration(
-                      color: primaryColor,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        bottomLeft: Radius.circular(12),
-                      ),
-                    ),
-                  ),
-                ),
-
-              // 底层：账本信息（始终显示）
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 顶部：名称 + 状态图标
-                    Row(
-                      children: [
-                        // 账本名称
-                        Expanded(
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: translateLedgerName(context, ledger.name),
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: BeeTokens.textPrimary(context),
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: ' (ID:${ledger.id})',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: isRemote
-                                        ? primaryColor.withValues(alpha: 0.8)
-                                        : BeeTokens.textSecondary(context),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // v24: 共享账本 🤝 角标 + 成员数
-                        if (ledger.isShared) ...[
-                          const SizedBox(width: 6),
-                          Icon(
-                            Icons.handshake,
-                            size: 14,
-                            color: primaryColor,
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            '${ledger.memberCount}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: primaryColor,
-                            ),
-                          ),
-                        ],
-
-                        const SizedBox(width: 8),
-
-                        // 状态图标
-                        _buildStatusIcon(
-                          context,
-                          ref,
-                          primaryColor,
-                          isSynced,
-                          isNotSynced,
-                          isRemote,
-                          isUploading,
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // 统计数据（本地和远程都显示）
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 币种
-                        Text(
-                          '${l10n.ledgersCurrency}：${getCurrencyName(ledger.currency, context)}（${ledger.currency}）',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: BeeTokens.textSecondary(context),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        // 记账笔数
-                        Text(
-                          l10n.ledgersRecords('${ledger.transactionCount}'),
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: BeeTokens.textSecondary(context),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        // 余额（根据设置使用简洁或完整格式）
-                        Text(
-                          l10n.ledgersBalance(
-                            ref.watch(compactAmountProvider)
-                              ? formatBalance(
-                                  ledger.balance,
-                                  ledger.currency,
-                                  isChineseLocale: Localizations.localeOf(context).languageCode == 'zh',
-                                )
-                              : formatBalanceFull(ledger.balance, ledger.currency),
-                          ),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: ledger.balance >= 0 ? BeeTokens.success(context) : BeeTokens.error(context),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // 蒙层：仅远程账本显示
-              if (isRemote)
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: BeeTokens.surface(context).withValues(alpha: 0.85),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.cloud_download,
-                          size: 48,
-                          color: primaryColor,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.ledgerCardDownloadCloud,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: primaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // 右下角操作按钮(长按菜单的可见等价入口;放蒙层之后保证远程账本也可点)
-              if (onMore != null)
-                Positioned(
-                  right: 4,
-                  bottom: 4,
-                  child: IconButton(
-                    onPressed: onMore,
-                    tooltip: l10n.ledgersActions,
-                    icon: Icon(
-                      Icons.more_horiz,
-                      size: 20,
-                      color: BeeTokens.iconSecondary(context),
-                    ),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
+    final params = (
+      ledgerId: ledger.id,
+      month: DateTime(DateTime.now().year, DateTime.now().month)
     );
+    final totals = ledger.isRemoteOnly
+        ? null
+        : ref.watch(monthlyTotalsProvider(params)).valueOrNull;
+    final hidden = ref.watch(hideAmountsProvider);
+    String money(double value) =>
+        hidden ? '••••' : formatBalanceFull(value, ledger.currency);
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 5),
+        child: BeeLedgerCard(
+          name: translateLedgerName(context, ledger.name),
+          subtitle:
+              '${ledger.currency} · ${l10n.ledgersRecords('${ledger.transactionCount}')} · ID:${ledger.id}'
+              '${ledger.isShared ? ' · ${ledger.memberCount}' : ''}',
+          icon: BeeLineIcon(ledger.isShared ? 'Users' : 'BookOpen', size: 21),
+          current: selected,
+          currentLabel: l10n.commonCurrent,
+          expenseLabel: l10n.homeExpense,
+          incomeLabel: l10n.homeIncome,
+          expense: totals == null ? '—' : money(totals.$2),
+          income: totals == null ? '—' : money(totals.$1),
+          onSelect: onTap ?? () {},
+          onMenu: onMore ?? onLongPress ?? () {},
+          status: _buildStatusIcon(context, ref, primaryColor, isSynced,
+              isNotSynced, isRemote, isUploading),
+          footer: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                  isRemote
+                      ? l10n.ledgerCardDownloadCloud
+                      : l10n.ledgersBalance(money(ledger.balance)),
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: isRemote
+                          ? primaryColor
+                          : BeeTokens.textSecondary(context)))),
+          actions: [
+            BeeButton(
+                label: l10n.ledgersActions,
+                kind: BeeButtonKind.secondary,
+                compact: true,
+                onPressed: onMore ?? onLongPress)
+          ],
+        ));
   }
 
   /// 状态图标
@@ -326,5 +160,4 @@ class LedgerCard extends ConsumerWidget {
       );
     }
   }
-
 }

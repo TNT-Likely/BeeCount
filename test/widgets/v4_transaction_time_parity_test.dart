@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +17,10 @@ void main() {
         .toList();
   });
 
-  testWidgets('全部时间样例与原 TransactionListItem 的实际输出一致', (tester) async {
+  testWidgets('迁移后交易行保留冻结的原版时间输出', (tester) async {
+    final expected = (jsonDecode(
+            File('test/fixtures/v4-legacy-time-output.json').readAsStringSync())
+        as Map)['expected'] as Map;
     final pattern = RegExp(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}|\d{2}:\d{2}:\d{2}');
     for (final s in cases) {
       final at = s['happenedAt'] == null
@@ -66,7 +71,8 @@ void main() {
       final oldStamp =
           pattern.firstMatch(content(TransactionListItem))?.group(0);
       final newStamp = pattern.firstMatch(content(BeeTransactionRow))?.group(0);
-      expect(newStamp, oldStamp, reason: s['id'] as String);
+      expect(oldStamp, expected[s['id']], reason: s['id'] as String);
+      expect(newStamp, expected[s['id']], reason: s['id'] as String);
       expect(
           formatBeeTransactionTimestamp(at,
               showTime: s['showTime'] == true,

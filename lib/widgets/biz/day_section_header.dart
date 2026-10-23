@@ -56,7 +56,7 @@ class DaySectionHeader extends ConsumerWidget {
       // 不设背景色:与交易行一样透明,显示同一外层列表背景。否则暗黑下 header
       // 是 surface 深灰(#1C1C1E)、交易行是纯黑 scaffold 底,两者不协调。
       padding: const EdgeInsets.symmetric(
-          horizontal: 12, vertical: BeeDimens.listHeaderVertical),
+          horizontal: 21, vertical: BeeDimens.listHeaderVertical),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -82,7 +82,8 @@ class DaySectionHeader extends ConsumerWidget {
                       .textTheme
                       .labelMedium
                       ?.copyWith(color: grey, fontSize: 12)),
-            if (shouldHide == false && fmt(income).isNotEmpty) const SizedBox(width: 12),
+            if (shouldHide == false && fmt(income).isNotEmpty)
+              const SizedBox(width: 12),
             if (shouldHide == false && fmt(income).isNotEmpty)
               Text('${l10n.homeIncome} ${fmt(income)}',
                   style: Theme.of(context)

@@ -1,3 +1,4 @@
+import '../../presentation/v4/bindings/account_sections.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -7,18 +8,14 @@ import 'package:collection/collection.dart';
 import '../../providers.dart';
 import '../../services/billing/post_processor.dart';
 import '../../services/currency/rate_math.dart';
-import '../../services/marketing/product_promos.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/amount_text.dart';
-import '../../widgets/biz/format_money.dart';
 import '../../widgets/biz/section_card.dart';
-import '../../widgets/biz/product_promo_card.dart';
 import '../../data/db.dart' as db;
 import '../../l10n/app_localizations.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../utils/account_type_utils.dart';
-import '../../utils/credit_card_amounts.dart';
 import '../../utils/currencies.dart';
 import '../../widgets/charts/asset_composition_chart.dart';
 import '../../widgets/charts/line_chart.dart';
@@ -57,7 +54,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     return grouped;
   }
 
-  void _onReorder(String type, List<db.Account> groupAccounts, int oldIndex, int newIndex) {
+  void _onReorder(
+      String type, List<db.Account> groupAccounts, int oldIndex, int newIndex) {
     if (oldIndex < newIndex) newIndex -= 1;
     if (oldIndex == newIndex) return;
 
@@ -100,7 +98,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     final accountFeatureAsync = ref.watch(accountFeatureEnabledProvider);
     final primaryColor = ref.watch(primaryColorProvider);
     final allStatsAsync = ref.watch(allAccountStatsProvider);
-    final netWorthByCurrencyAsync = ref.watch(netWorthBreakdownByCurrencyProvider);
+    final netWorthByCurrencyAsync =
+        ref.watch(netWorthBreakdownByCurrencyProvider);
 
     // 资产构成数据
     final compositionAsync = ref.watch(assetCompositionProvider);
@@ -125,9 +124,10 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
               ),
               // 蜜蜂家当 BeeAssets 入口 — 行为走 ProductPromoLauncher
               // (iOS 跳商店 / Android 弹窗)。
-              _BeeAssetsHeaderEntry(),
+              BeeAssetsHeaderEntryBinding(),
               IconButton(
-                onPressed: () => _showSettingsSheet(context, ref, accountFeatureAsync, accountsAsync),
+                onPressed: () => _showSettingsSheet(
+                    context, ref, accountFeatureAsync, accountsAsync),
                 icon: const Icon(Icons.settings_outlined),
                 tooltip: l10n.commonSettings,
               ),
@@ -147,7 +147,10 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                     right: 12.0.scaled(context, ref),
                     top: 8.0.scaled(context, ref),
                     bottom: widget.asTab
-                        ? 8.0.scaled(context, ref) + 56 + MediaQuery.of(context).padding.bottom + 24
+                        ? 8.0.scaled(context, ref) +
+                            56 +
+                            MediaQuery.of(context).padding.bottom +
+                            24
                         : 8.0.scaled(context, ref),
                   ),
                   children: [
@@ -173,7 +176,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                               ),
                               SizedBox(height: 24.0.scaled(context, ref)),
                               ElevatedButton.icon(
-                                onPressed: () => _addAccount(context, ref, ledgerId),
+                                onPressed: () =>
+                                    _addAccount(context, ref, ledgerId),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: primaryColor,
                                   foregroundColor: Colors.white,
@@ -188,7 +192,11 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                     else ...[
                       // 0. 净资产汇总 + 资产构成（合并卡片）
                       _buildNetWorthAndCompositionCard(
-                        context, ref, netWorthByCurrencyAsync, compositionAsync, primaryColor,
+                        context,
+                        ref,
+                        netWorthByCurrencyAsync,
+                        compositionAsync,
+                        primaryColor,
                       ),
 
                       // 2. 资产账户分组
@@ -227,7 +235,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                           .map((type) {
                         final groupList =
                             groups[type]!.where((a) => !a.hidden).toList();
-                        return _AccountTypeGroup(
+                        return AccountTypeGroupBinding(
                           type: type,
                           accounts: groupList,
                           primaryColor: primaryColor,
@@ -243,7 +251,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
 
                       // 5. 已隐藏账户分区(账户隐藏 #240,D2:主列表退场,
                       // 分区头小计与净资产卡差额对账)
-                      _HiddenAccountsSection(
+                      HiddenAccountsSectionBinding(
                         accounts: accounts.where((a) => a.hidden).toList(),
                         allStats: allStatsAsync.valueOrNull,
                         primaryColor: primaryColor,
@@ -273,7 +281,15 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
   Widget _buildNetWorthAndCompositionCard(
     BuildContext context,
     WidgetRef ref,
-    AsyncValue<Map<String, ({double totalAssets, double totalLiabilities, double netWorth})>> netWorthAsync,
+    AsyncValue<
+            Map<
+                String,
+                ({
+                  double totalAssets,
+                  double totalLiabilities,
+                  double netWorth
+                })>>
+        netWorthAsync,
     AsyncValue<List<({String type, double totalBalance})>> compositionAsync,
     Color primaryColor,
   ) {
@@ -295,10 +311,12 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
           // 净资产部分
           netWorthAsync.when(
             skipLoadingOnReload: true,
-            data: (nwByCurrency) => _buildNetWorthContent(context, ref, nwByCurrency),
+            data: (nwByCurrency) =>
+                _buildNetWorthContent(context, ref, nwByCurrency),
             loading: () => SizedBox(
               height: 80.0.scaled(context, ref),
-              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              child: const Center(
+                  child: CircularProgressIndicator(strokeWidth: 2)),
             ),
             error: (_, __) => const SizedBox.shrink(),
           ),
@@ -306,7 +324,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
           // - showComposition=true（单币种 或 折算态）：可在「净值走势」「资产构成」间切换，记住偏好；
           // - showComposition=false（多币种非折算，构成无法合并）：只展示走势（净值裸加）。
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.0.scaled(context, ref)),
+            padding:
+                EdgeInsets.symmetric(horizontal: 12.0.scaled(context, ref)),
             child: Divider(height: 1, color: BeeTokens.divider(context)),
           ),
           Builder(builder: (context) {
@@ -318,8 +337,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                 if (showComposition)
                   Padding(
                     padding: EdgeInsets.only(top: 10.0.scaled(context, ref)),
-                    child:
-                        _trendCompositionToggle(context, ref, view, primaryColor),
+                    child: _trendCompositionToggle(
+                        context, ref, view, primaryColor),
                   ),
                 Padding(
                   padding: EdgeInsets.all(12.0.scaled(context, ref)),
@@ -350,7 +369,9 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
   Widget _buildNetWorthContent(
     BuildContext context,
     WidgetRef ref,
-    Map<String, ({double totalAssets, double totalLiabilities, double netWorth})> nwByCurrency,
+    Map<String,
+            ({double totalAssets, double totalLiabilities, double netWorth})>
+        nwByCurrency,
   ) {
     final l10n = AppLocalizations.of(context);
     final useCompact = ref.watch(compactAmountProvider);
@@ -359,7 +380,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     final multiCurrencyActive = ref.watch(multiCurrencyActiveProvider);
     final converted = ref.watch(convertedNetWorthProvider).valueOrNull;
     if (multiCurrencyActive && converted != null) {
-      return _buildConvertedNetWorthContent(context, ref, converted, useCompact);
+      return _buildConvertedNetWorthContent(
+          context, ref, converted, useCompact);
     }
 
     final isSingleCurrency = nwByCurrency.length <= 1;
@@ -399,7 +421,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
             final currency = mapEntry.value.key;
             final nw = mapEntry.value.value;
             return Padding(
-              padding: EdgeInsets.only(top: isFirst ? 0 : 2.0.scaled(context, ref)),
+              padding:
+                  EdgeInsets.only(top: isFirst ? 0 : 2.0.scaled(context, ref)),
               child: AmountText(
                 value: nw.netWorth,
                 signed: false,
@@ -423,7 +446,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
           Row(
             children: [
               Expanded(
-                child: _StatCell(
+                child: StatCellBinding(
                   label: l10n.totalAssets,
                   value: singleNw.totalAssets,
                   valueColor: BeeTokens.incomeColor(context, ref),
@@ -435,7 +458,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                 color: BeeTokens.divider(context),
               ),
               Expanded(
-                child: _StatCell(
+                child: StatCellBinding(
                   label: l10n.totalLiabilities,
                   value: singleNw.totalLiabilities.abs(),
                   valueColor: BeeTokens.expenseColor(context, ref),
@@ -461,10 +484,12 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                       ),
                       SizedBox(height: 2.0.scaled(context, ref)),
                       _buildMultiCurrencyAmountRow(
-                        context, ref,
+                        context,
+                        ref,
                         entries: nwByCurrency.entries
                             .where((e) => e.value.totalAssets != 0)
-                            .map((e) => (currency: e.key, value: e.value.totalAssets))
+                            .map((e) =>
+                                (currency: e.key, value: e.value.totalAssets))
                             .toList(),
                         valueColor: BeeTokens.incomeColor(context, ref),
                         useCompact: useCompact,
@@ -489,10 +514,14 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                       ),
                       SizedBox(height: 2.0.scaled(context, ref)),
                       _buildMultiCurrencyAmountRow(
-                        context, ref,
+                        context,
+                        ref,
                         entries: nwByCurrency.entries
                             .where((e) => e.value.totalLiabilities != 0)
-                            .map((e) => (currency: e.key, value: e.value.totalLiabilities.abs()))
+                            .map((e) => (
+                                  currency: e.key,
+                                  value: e.value.totalLiabilities.abs()
+                                ))
                             .toList(),
                         valueColor: BeeTokens.expenseColor(context, ref),
                         useCompact: useCompact,
@@ -515,8 +544,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
   Widget _buildNetWorthChartInline(BuildContext context, WidgetRef ref) {
     final now = trendTodayAnchor();
     final start = DateTime(now.year, now.month - 11, 1);
-    final seriesAsync = ref.watch(
-        netWorthTrendSeriesProvider((startDate: start, endDate: now)));
+    final seriesAsync = ref
+        .watch(netWorthTrendSeriesProvider((startDate: start, endDate: now)));
     final hide = ref.watch(hideAmountsProvider);
     final primary = ref.watch(primaryColorProvider);
     final l10n = AppLocalizations.of(context);
@@ -580,8 +609,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
       );
 
   /// 走势 / 构成 切换控件（主题色分段胶囊）。
-  Widget _trendCompositionToggle(BuildContext context, WidgetRef ref,
-      AssetTrendView view, Color primary) {
+  Widget _trendCompositionToggle(
+      BuildContext context, WidgetRef ref, AssetTrendView view, Color primary) {
     final l10n = AppLocalizations.of(context);
     Widget seg(AssetTrendView v, String label) {
       final on = view == v;
@@ -628,7 +657,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
   ) {
     final l10n = AppLocalizations.of(context);
     final base = ref.watch(baseCurrencyProvider).toUpperCase();
-    final nwByCurrency = ref.watch(netWorthBreakdownByCurrencyProvider).valueOrNull ?? const {};
+    final nwByCurrency =
+        ref.watch(netWorthBreakdownByCurrencyProvider).valueOrNull ?? const {};
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -649,7 +679,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                 alignment: Alignment.centerRight,
                 child: InkWell(
                   onTap: () => _showNetWorthConversionDetail(
-                    context, ref, converted, nwByCurrency, base, useCompact),
+                      context, ref, converted, nwByCurrency, base, useCompact),
                   borderRadius: BorderRadius.circular(4.0.scaled(context, ref)),
                   child: Padding(
                     padding: EdgeInsets.symmetric(
@@ -716,7 +746,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
         Row(
           children: [
             Expanded(
-              child: _ConvertedStatCell(
+              child: ConvertedStatCellBinding(
                 label: l10n.totalAssets,
                 value: converted.totalAssets,
                 currencyCode: base,
@@ -730,7 +760,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
               color: BeeTokens.divider(context),
             ),
             Expanded(
-              child: _ConvertedStatCell(
+              child: ConvertedStatCellBinding(
                 label: l10n.totalLiabilities,
                 value: converted.totalLiabilities.abs(),
                 currencyCode: base,
@@ -746,12 +776,13 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     );
   }
 
-  /// 净资产折算明细弹窗:每币种原币净值 + 折算后/未折算。复用 _showConversionDetailSheet。
+  /// 净资产折算明细弹窗:每币种原币净值 + 折算后/未折算。复用 showAccountConversionDetailSheet。
   void _showNetWorthConversionDetail(
     BuildContext context,
     WidgetRef ref,
     ConvertedNetWorth converted,
-    Map<String, ({double totalAssets, double totalLiabilities, double netWorth})>
+    Map<String,
+            ({double totalAssets, double totalLiabilities, double netWorth})>
         nwByCurrency,
     String base,
     bool useCompact,
@@ -760,7 +791,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     final baseSymbol = getCurrencySymbol(base);
     final entries = nwByCurrency.entries.map((e) {
       final code = e.key.toUpperCase();
-      return _ConversionDetailEntry(
+      return AccountConversionEntry(
         code: code,
         originalValue: e.value.netWorth,
         convertedValue: converted.netByCurrency[code],
@@ -798,7 +829,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
         ),
       ),
     );
-    _showConversionDetailSheet(
+    showAccountConversionDetailSheet(
       context,
       ref,
       title: l10n.conversionDetailTitle,
@@ -832,7 +863,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
 
     return InkWell(
       onTap: () => _showGroupConversionDetail(
-        context, ref,
+        context,
+        ref,
         groupTitle: groupTitle,
         subtotalByCurrency: subtotalByCurrency,
         result: result,
@@ -885,20 +917,24 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     );
   }
 
-  /// 分组小计折算明细弹窗:每币种原币小计 + 折算后/未折算。复用 _showConversionDetailSheet。
+  /// 分组小计折算明细弹窗:每币种原币小计 + 折算后/未折算。复用 showAccountConversionDetailSheet。
   void _showGroupConversionDetail(
     BuildContext context,
     WidgetRef ref, {
     required String groupTitle,
     required Map<String, double> subtotalByCurrency,
-    required ({double total, Map<String, double> convertedByCurrency, List<String> missingCurrencies}) result,
+    required ({
+      double total,
+      Map<String, double> convertedByCurrency,
+      List<String> missingCurrencies
+    }) result,
     required String baseSymbol,
     required String base,
     required bool useCompact,
   }) {
     final entries = subtotalByCurrency.entries.map((e) {
       final code = e.key.toUpperCase();
-      return _ConversionDetailEntry(
+      return AccountConversionEntry(
         code: code,
         originalValue: e.value,
         convertedValue: result.convertedByCurrency[code],
@@ -906,7 +942,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
         isMissing: result.missingCurrencies.contains(code),
       );
     }).toList();
-    _showConversionDetailSheet(
+    showAccountConversionDetailSheet(
       context,
       ref,
       title: groupTitle,
@@ -943,7 +979,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
           for (int i = 0; i < entries.length; i++) ...[
             if (i > 0)
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.0.scaled(context, ref)),
+                padding:
+                    EdgeInsets.symmetric(horizontal: 4.0.scaled(context, ref)),
                 child: Text(
                   '·',
                   style: TextStyle(
@@ -980,12 +1017,13 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     required Color iconColor,
     required List<String> typeOrder,
     required Map<String, List<db.Account>> groups,
-    required Map<int, ({double balance, double expense, double income})>? allStats,
+    required Map<int, ({double balance, double expense, double income})>?
+        allStats,
     required Color primaryColor,
     required int ledgerId,
   }) {
     // 检查此分类下是否有在用(非隐藏)账户 —— 账户隐藏 #240:隐藏账户移入
-    // 底部「已隐藏」分区(_HiddenAccountsSection),此处只看在用账户。
+    // 底部「已隐藏」分区(HiddenAccountsSectionBinding),此处只看在用账户。
     final hasAccounts = typeOrder.any((type) =>
         groups.containsKey(type) && groups[type]!.any((a) => !a.hidden));
     if (!hasAccounts) return [];
@@ -1046,7 +1084,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: _buildGroupConvertedSubtotal(
-                    context, ref,
+                    context,
+                    ref,
                     groupTitle: title,
                     subtotalByCurrency: subtotalByCurrency,
                     rates: rates,
@@ -1071,7 +1110,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
             else
               Flexible(
                 child: _buildMultiCurrencyAmountRow(
-                  context, ref,
+                  context,
+                  ref,
                   entries: subtotalByCurrency.entries
                       .map((e) => (currency: e.key, value: e.value))
                       .toList(),
@@ -1088,17 +1128,15 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
               groups.containsKey(type) && groups[type]!.any((a) => !a.hidden))
           .map((type) {
         final groupList = groups[type]!.where((a) => !a.hidden).toList();
-        return _AccountTypeGroup(
+        return AccountTypeGroupBinding(
           type: type,
           accounts: groupList,
           primaryColor: primaryColor,
           allStats: allStats,
           onReorder: (oldIndex, newIndex) =>
               _onReorder(type, groupList, oldIndex, newIndex),
-          onTap: (account) =>
-              _viewAccountDetail(context, ref, account),
-          onEdit: (account) =>
-              _editAccount(context, ref, account, ledgerId),
+          onTap: (account) => _viewAccountDetail(context, ref, account),
+          onEdit: (account) => _editAccount(context, ref, account, ledgerId),
         );
       }),
     ];
@@ -1114,12 +1152,11 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     final l10n = AppLocalizations.of(context);
     final primaryColor = ref.read(primaryColorProvider);
     // 默认收/支账户选择器排除隐藏账户(账户隐藏 #240 §四):列表本身不出现,
-    // 且若当前默认恰好指向隐藏账户,下方 _CompactDefaultAccount 找不到匹配项
+    // 且若当前默认恰好指向隐藏账户,下方 CompactDefaultAccountBinding 找不到匹配项
     // 会自动显示「不设置」,兜底 E3。
-    final accounts =
-        (accountsAsync.asData?.value ?? const <db.Account>[])
-            .where((a) => !a.hidden)
-            .toList();
+    final accounts = (accountsAsync.asData?.value ?? const <db.Account>[])
+        .where((a) => !a.hidden)
+        .toList();
 
     showModalBottomSheet(
       context: context,
@@ -1143,13 +1180,15 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: BeeTokens.textTertiary(context).withValues(alpha: 0.3),
+                      color: BeeTokens.textTertiary(context)
+                          .withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                   // 标题
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Text(
                       l10n.commonSettings,
                       style: TextStyle(
@@ -1186,7 +1225,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                   // (多币种恒折算,与 Web 端对齐),这里只保留汇率管理入口。
                   Consumer(
                     builder: (context, ref, _) {
-                      final used = ref.watch(usedCurrenciesProvider).valueOrNull;
+                      final used =
+                          ref.watch(usedCurrenciesProvider).valueOrNull;
                       if (used == null || used.length < 2) {
                         return const SizedBox.shrink();
                       }
@@ -1233,7 +1273,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                       endIndent: 16,
                       color: BeeTokens.divider(context),
                     ),
-                    _CompactDefaultAccount(
+                    CompactDefaultAccountBinding(
                       accounts: accounts,
                       primaryColor: primaryColor,
                       type: 'expense',
@@ -1244,7 +1284,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
                       endIndent: 16,
                       color: BeeTokens.divider(context),
                     ),
-                    _CompactDefaultAccount(
+                    CompactDefaultAccountBinding(
                       accounts: accounts,
                       primaryColor: primaryColor,
                       type: 'income',
@@ -1260,7 +1300,8 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
     );
   }
 
-  Future<void> _addAccount(BuildContext context, WidgetRef ref, int ledgerId) async {
+  Future<void> _addAccount(
+      BuildContext context, WidgetRef ref, int ledgerId) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => AccountEditPage(ledgerId: ledgerId),
@@ -1318,1225 +1359,3 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
 }
 
 /// Header 内统计项（白色文字）
-class _StatCell extends ConsumerWidget {
-  final String label;
-  final double value;
-  final Color? valueColor;
-
-  const _StatCell({
-    required this.label,
-    required this.value,
-    this.valueColor,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: BeeTokens.textTertiary(context),
-          ),
-        ),
-        SizedBox(height: 2.0.scaled(context, ref)),
-        AmountText(
-          value: value,
-          signed: false,
-          showCurrency: false,
-          useCompactFormat: ref.watch(compactAmountProvider),
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: valueColor ?? BeeTokens.textPrimary(context),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// 折算视图里「≈ 符号+数值」的灰色小字（每币种折算行尾随）。
-/// 这是派生金额文本，需跟 AmountText 一样响应隐藏金额开关。
-class _ApproxConvertedText extends ConsumerWidget {
-  final String text;
-
-  const _ApproxConvertedText({required this.text});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final hide = ref.watch(hideAmountsProvider);
-    return Text(
-      hide ? '≈ ****' : text,
-      style: TextStyle(
-        fontSize: 12,
-        color: BeeTokens.textTertiary(context),
-      ),
-    );
-  }
-}
-
-/// 折算详情弹窗的一行数据：原币 + 折算后/缺失标示。
-/// 净资产明细弹窗与分组小计明细弹窗共用同一渲染(redline:两处一份代码)。
-class _ConversionDetailEntry {
-  final String code; // 大写币种码
-  final double originalValue; // 原币金额(符号保持调用方口径)
-  final double? convertedValue; // 折算后(base 自身/可折算才有);缺失为 null
-  final bool isBase;
-  final bool isMissing;
-  const _ConversionDetailEntry({
-    required this.code,
-    required this.originalValue,
-    required this.convertedValue,
-    required this.isBase,
-    required this.isMissing,
-  });
-}
-
-/// 折算详情弹窗的单行:左 币种码+本地化名 / 中 原币值 / 右 base 空·缺失 badge·≈折算灰字。
-class _ConversionDetailRow extends ConsumerWidget {
-  final _ConversionDetailEntry entry;
-  final String baseSymbol;
-  final bool useCompact;
-
-  const _ConversionDetailRow({
-    required this.entry,
-    required this.baseSymbol,
-    required this.useCompact,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 16.0.scaled(context, ref),
-        vertical: 10.0.scaled(context, ref),
-      ),
-      child: Row(
-        children: [
-          // 左:币种码 + 本地化名
-          Expanded(
-            child: Row(
-              children: [
-                Text(
-                  entry.code,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: BeeTokens.textPrimary(context),
-                  ),
-                ),
-                SizedBox(width: 6.0.scaled(context, ref)),
-                Flexible(
-                  child: Text(
-                    getCurrencyName(entry.code, context),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: BeeTokens.textTertiary(context),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 8.0.scaled(context, ref)),
-          // 中:原币净值
-          AmountText(
-            value: entry.originalValue,
-            signed: false,
-            showCurrency: true,
-            currencyCode: entry.code,
-            useCompactFormat: useCompact,
-            style: TextStyle(
-              fontSize: 14,
-              color: BeeTokens.textSecondary(context),
-            ),
-          ),
-          SizedBox(width: 8.0.scaled(context, ref)),
-          // 右:base 自身空 / 缺失橙 badge / ≈ 折算 灰字
-          if (entry.isBase)
-            const SizedBox.shrink()
-          else if (entry.isMissing)
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 6.0.scaled(context, ref),
-                vertical: 1.0.scaled(context, ref),
-              ),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.orange, width: 1),
-                borderRadius: BorderRadius.circular(4.0.scaled(context, ref)),
-              ),
-              child: Text(
-                l10n.unconvertedBadge,
-                style: const TextStyle(fontSize: 11, color: Colors.orange),
-              ),
-            )
-          else if (entry.convertedValue != null)
-            // abs:与同行原币 AmountText(signed:false) 的绝对值口径一致(负债不带负号)。
-            _ApproxConvertedText(
-              text: '≈ $baseSymbol${entry.convertedValue!.abs().toStringAsFixed(2)}',
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// 折算详情弹窗(骨架照 _showSettingsSheet:拖拽条 + 标题 + SafeArea)。
-/// 净资产明细 / 分组小计明细共用;[entries] 已是 UI 所需的每币种行数据。
-void _showConversionDetailSheet(
-  BuildContext context,
-  WidgetRef ref, {
-  required String title,
-  required List<_ConversionDetailEntry> entries,
-  required String baseSymbol,
-  required bool useCompact,
-  Widget? footer,
-}) {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: BeeTokens.surfaceSheet(context),
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
-    builder: (sheetContext) {
-      return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 拖拽条
-            Container(
-              margin: const EdgeInsets.only(top: 8, bottom: 4),
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: BeeTokens.textTertiary(sheetContext)
-                    .withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            // 标题
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: BeeTokens.textPrimary(sheetContext),
-                ),
-              ),
-            ),
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (final e in entries)
-                      _ConversionDetailRow(
-                        entry: e,
-                        baseSymbol: baseSymbol,
-                        useCompact: useCompact,
-                      ),
-                    if (footer != null) footer,
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 8.0.scaled(sheetContext, ref)),
-          ],
-        ),
-      );
-    },
-  );
-}
-
-/// 折算视图的总资产/总负债单元格：≈(灰) 前缀 + 折算后金额(主币种)。
-class _ConvertedStatCell extends ConsumerWidget {
-  final String label;
-  final double value;
-  final String currencyCode;
-  final Color valueColor;
-  final bool useCompact;
-
-  const _ConvertedStatCell({
-    required this.label,
-    required this.value,
-    required this.currencyCode,
-    required this.valueColor,
-    required this.useCompact,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: BeeTokens.textTertiary(context),
-          ),
-        ),
-        SizedBox(height: 2.0.scaled(context, ref)),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '≈ ',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: BeeTokens.textTertiary(context),
-              ),
-            ),
-            Flexible(
-              child: AmountText(
-                value: value,
-                signed: false,
-                showCurrency: true,
-                currencyCode: currencyCode,
-                useCompactFormat: useCompact,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: valueColor,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-/// 账户类型分组（可折叠，默认展开）
-class _AccountTypeGroup extends ConsumerStatefulWidget {
-  final String type;
-  final List<db.Account> accounts;
-  final Color primaryColor;
-  final Map<int, ({double balance, double expense, double income})>? allStats;
-  final void Function(int oldIndex, int newIndex) onReorder;
-  final void Function(db.Account account) onTap;
-  final void Function(db.Account account) onEdit;
-
-  const _AccountTypeGroup({
-    required this.type,
-    required this.accounts,
-    required this.primaryColor,
-    this.allStats,
-    required this.onReorder,
-    required this.onTap,
-    required this.onEdit,
-  });
-
-  @override
-  ConsumerState<_AccountTypeGroup> createState() => _AccountTypeGroupState();
-}
-
-class _AccountTypeGroupState extends ConsumerState<_AccountTypeGroup> {
-  bool _expanded = true;
-
-  @override
-  Widget build(BuildContext context) {
-    final typeColor = getColorForAccountType(widget.type, widget.primaryColor);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 类型标题栏（点击展开/折叠）
-        GestureDetector(
-          onTap: () => setState(() => _expanded = !_expanded),
-          behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: EdgeInsets.only(
-              top: 12.0.scaled(context, ref),
-              bottom: 6.0.scaled(context, ref),
-              left: 4.0.scaled(context, ref),
-              right: 4.0.scaled(context, ref),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 28.0.scaled(context, ref),
-                  height: 28.0.scaled(context, ref),
-                  decoration: BoxDecoration(
-                    color: typeColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(7.0.scaled(context, ref)),
-                  ),
-                  child: Center(
-                    child: AccountTypeIcon(
-                      type: widget.type,
-                      size: 16.0.scaled(context, ref),
-                      color: typeColor,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.0.scaled(context, ref)),
-                Text(
-                  getAccountTypeLabel(context, widget.type),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: BeeTokens.textPrimary(context),
-                  ),
-                ),
-                SizedBox(width: 6.0.scaled(context, ref)),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 5.0.scaled(context, ref),
-                    vertical: 1.0.scaled(context, ref),
-                  ),
-                  decoration: BoxDecoration(
-                    color: BeeTokens.textTertiary(context).withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8.0.scaled(context, ref)),
-                  ),
-                  child: Text(
-                    '${widget.accounts.length}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: BeeTokens.textTertiary(context),
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                AnimatedRotation(
-                  turns: _expanded ? 0.25 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    Icons.chevron_right,
-                    size: 18.0.scaled(context, ref),
-                    color: BeeTokens.iconTertiary(context),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        // 账户卡片列表
-        if (_expanded)
-          ...widget.accounts.map((account) {
-            return _AccountCard(
-              key: ValueKey(account.id),
-              account: account,
-              primaryColor: widget.primaryColor,
-              typeColor: typeColor,
-              stats: widget.allStats?[account.id],
-              onTap: () => widget.onTap(account),
-              onEdit: () => widget.onEdit(account),
-            );
-          }),
-      ],
-    );
-  }
-}
-
-/// 「已隐藏」账户分区(账户隐藏 #240,产品设计 01 §4.1)。置于所有在用分组
-/// 之后,默认折叠;分区头显示「已隐藏(N)· 合计 ¥x」(小计口径同净资产卡:
-/// 多币种折算跳过缺汇率币种,复用 [convertAmountsToBase],与资产/负债分组
-/// 小计同一函数,保证与净资产汇总卡的差额天然对上账)。隐藏卡复用
-/// [_AccountCard],传入中性灰 typeColor 弱化视觉权重 + onRestore 回调。
-class _HiddenAccountsSection extends ConsumerStatefulWidget {
-  final List<db.Account> accounts;
-  final Map<int, ({double balance, double expense, double income})>? allStats;
-  final Color primaryColor;
-  final void Function(db.Account account) onTap;
-  final void Function(db.Account account) onEdit;
-  final void Function(db.Account account) onRestore;
-
-  const _HiddenAccountsSection({
-    required this.accounts,
-    required this.allStats,
-    required this.primaryColor,
-    required this.onTap,
-    required this.onEdit,
-    required this.onRestore,
-  });
-
-  @override
-  ConsumerState<_HiddenAccountsSection> createState() =>
-      _HiddenAccountsSectionState();
-}
-
-class _HiddenAccountsSectionState
-    extends ConsumerState<_HiddenAccountsSection> {
-  // 默认折叠(产品设计 01 §4.1)。
-  bool _expanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.accounts.isEmpty) return const SizedBox.shrink();
-
-    final l10n = AppLocalizations.of(context);
-    final isDark = BeeTokens.isDark(context);
-    // 中性灰(暗黑/明亮各一档),弱化隐藏卡视觉权重,不用账户类型主题色
-    // (0xFF48484A 沿用 tokens.dart 里同款暗黑中性灰,见 surfaceCategoryIcon)。
-    final mutedColor = isDark ? const Color(0xFF48484A) : Colors.grey.shade400;
-
-    // 按币种分组计算小计,口径同 _buildClassificationSection(仅隐藏账户)。
-    final Map<String, double> subtotalByCurrency = {};
-    for (final account in widget.accounts) {
-      final balance = widget.allStats?[account.id]?.balance ?? 0;
-      subtotalByCurrency.update(
-        account.currency,
-        (v) => v + balance,
-        ifAbsent: () => balance,
-      );
-    }
-    final multiCurrencyActive = ref.watch(multiCurrencyActiveProvider);
-    final rates = ref.watch(effectiveRatesProvider).valueOrNull;
-    final base = ref.watch(baseCurrencyProvider).toUpperCase();
-    final hide = ref.watch(hideAmountsProvider);
-
-    final totalText = hide
-        ? '****'
-        : _subtotalText(subtotalByCurrency, multiCurrencyActive, rates, base);
-    final summary =
-        l10n.accountHiddenSectionSummary(widget.accounts.length, totalText);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        GestureDetector(
-          onTap: () => setState(() => _expanded = !_expanded),
-          behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: EdgeInsets.only(
-              top: 16.0.scaled(context, ref),
-              bottom: 4.0.scaled(context, ref),
-              left: 4.0.scaled(context, ref),
-              right: 4.0.scaled(context, ref),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.visibility_off_outlined,
-                    size: 18.0.scaled(context, ref),
-                    color: BeeTokens.textTertiary(context)),
-                SizedBox(width: 6.0.scaled(context, ref)),
-                Expanded(
-                  child: Text(
-                    summary,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: BeeTokens.textSecondary(context),
-                    ),
-                  ),
-                ),
-                AnimatedRotation(
-                  turns: _expanded ? 0.25 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(Icons.chevron_right,
-                      size: 18.0.scaled(context, ref),
-                      color: BeeTokens.iconTertiary(context)),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (_expanded)
-          ...widget.accounts.map((account) => _AccountCard(
-                key: ValueKey('hidden_${account.id}'),
-                account: account,
-                primaryColor: widget.primaryColor,
-                typeColor: mutedColor,
-                stats: widget.allStats?[account.id],
-                onTap: () => widget.onTap(account),
-                onEdit: () => widget.onEdit(account),
-                onRestore: () => widget.onRestore(account),
-              )),
-      ],
-    );
-  }
-
-  /// 小计文本:与净资产卡同口径。单币种直接格式化;跨币种且折算态就绪时,
-  /// 折到主币种(与 _buildGroupConvertedSubtotal 同一个 convertAmountsToBase)。
-  String _subtotalText(
-    Map<String, double> subtotalByCurrency,
-    bool multiCurrencyActive,
-    Map<String, EffectiveRate>? rates,
-    String base,
-  ) {
-    final isSingleCurrency = subtotalByCurrency.length <= 1;
-    if (multiCurrencyActive && rates != null && !isSingleCurrency) {
-      final result = convertAmountsToBase(
-        amounts: subtotalByCurrency,
-        rates: rates,
-        base: base,
-      );
-      return '${getCurrencySymbol(base)}${result.total.abs().toStringAsFixed(2)}';
-    }
-    final currency = subtotalByCurrency.keys.firstOrNull ?? base;
-    final value = subtotalByCurrency.values.firstOrNull ?? 0;
-    return '${getCurrencySymbol(currency)}${formatMoneyCompact(value, maxDecimals: 2, signed: false)}';
-  }
-}
-
-/// 账户卡片
-class _AccountCard extends ConsumerWidget {
-  final db.Account account;
-  final Color primaryColor;
-  final Color typeColor;
-  final ({double balance, double expense, double income})? stats;
-  final VoidCallback onTap;
-  final VoidCallback onEdit;
-  /// 「已隐藏」分区卡片的恢复回调(账户隐藏 #240)。非空时才渲染「已隐藏」
-  /// 灰标 + 恢复按钮;在用卡片(account.hidden==false)不受影响。
-  final VoidCallback? onRestore;
-
-  const _AccountCard({
-    super.key,
-    required this.account,
-    required this.primaryColor,
-    required this.typeColor,
-    this.stats,
-    required this.onTap,
-    required this.onEdit,
-    this.onRestore,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final isDark = BeeTokens.isDark(context);
-
-    return GestureDetector(
-      onTap: onTap,
-      onLongPress: onEdit,
-      child: Container(
-        margin: EdgeInsets.only(bottom: 8.0.scaled(context, ref)),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: isDark
-                ? [
-                    typeColor.withValues(alpha: 0.25),
-                    typeColor.withValues(alpha: 0.12),
-                  ]
-                : [typeColor, typeColor.withValues(alpha: 0.8)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12.0.scaled(context, ref)),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: typeColor.withValues(alpha: 0.15),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12.0.scaled(context, ref)),
-          child: Stack(
-            children: [
-              // 装饰圆圈
-              Positioned(
-                right: -20,
-                top: -20,
-                child: Container(
-                  width: 80.0.scaled(context, ref),
-                  height: 80.0.scaled(context, ref),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.1),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 14.0.scaled(context, ref),
-                  vertical: 12.0.scaled(context, ref),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 顶部行：图标 + 名称 + 编辑
-                    Row(
-                      children: [
-                        Container(
-                          width: 32.0.scaled(context, ref),
-                          height: 32.0.scaled(context, ref),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: AccountTypeIcon(
-                              type: account.type,
-                              size: 18.0.scaled(context, ref),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 10.0.scaled(context, ref)),
-                        Expanded(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  account.name,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.white.withValues(alpha: 0.9) : Colors.white,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              SizedBox(width: 8.0.scaled(context, ref)),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 5.0.scaled(context, ref),
-                                  vertical: 1.0.scaled(context, ref),
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(4.0.scaled(context, ref)),
-                                ),
-                                child: Text(
-                                  getCurrencyName(account.currency, context),
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: isDark ? Colors.white.withValues(alpha: 0.8) : Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: onEdit,
-                          child: Container(
-                            padding: EdgeInsets.all(6.0.scaled(context, ref)),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.edit,
-                              color: isDark ? Colors.white.withValues(alpha: 0.8) : Colors.white,
-                              size: 14.0.scaled(context, ref),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10.0.scaled(context, ref)),
-                    // 已隐藏标签 + 恢复按钮(账户隐藏 #240,D2)
-                    if (account.hidden) ...[
-                      _buildHiddenBadgeRow(context, ref, l10n, isDark),
-                      SizedBox(height: 8.0.scaled(context, ref)),
-                    ],
-                    // 信用卡：进度条 + 额度信息
-                    if (account.type == 'credit_card' && stats != null)
-                      _buildCreditCardStats(context, ref, l10n, isDark)
-                    // 估值账户：仅显示当前估值
-                    else if (isValuationOnlyType(account.type) && stats != null)
-                      _buildValuationStats(context, ref, l10n, isDark)
-                    // 普通账户：余额/收入/支出
-                    else if (stats != null)
-                      _buildNormalStats(context, ref, l10n, isDark)
-                    else
-                      Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 4.0.scaled(context, ref)),
-                          child: const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              strokeWidth: 2,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 「已隐藏」灰标 + 恢复按钮(账户隐藏 #240)。仅 account.hidden==true 时被调用。
-  Widget _buildHiddenBadgeRow(
-      BuildContext context, WidgetRef ref, AppLocalizations l10n, bool isDark) {
-    final textColor = isDark ? Colors.white.withValues(alpha: 0.9) : Colors.white;
-    return Row(
-      children: [
-        Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 6.0.scaled(context, ref),
-            vertical: 2.0.scaled(context, ref),
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.18),
-            borderRadius: BorderRadius.circular(4.0.scaled(context, ref)),
-          ),
-          child: Text(
-            l10n.accountHiddenTag,
-            style: TextStyle(
-              fontSize: 11,
-              color: textColor,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        const Spacer(),
-        if (onRestore != null)
-          GestureDetector(
-            onTap: onRestore,
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 10.0.scaled(context, ref),
-                vertical: 4.0.scaled(context, ref),
-              ),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.25),
-                borderRadius: BorderRadius.circular(12.0.scaled(context, ref)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.replay,
-                      size: 12.0.scaled(context, ref), color: textColor),
-                  SizedBox(width: 4.0.scaled(context, ref)),
-                  Text(
-                    l10n.accountRestore,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: textColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildNormalStats(BuildContext context, WidgetRef ref, AppLocalizations l10n, bool isDark) {
-    final textColor = isDark ? Colors.white.withValues(alpha: 0.9) : Colors.white;
-    final labelColor = isDark ? Colors.white.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.8);
-
-    return Row(
-      children: [
-        Expanded(
-          child: _CardStat(
-            label: l10n.accountBalance,
-            value: stats!.balance,
-            textColor: textColor,
-            labelColor: labelColor,
-            ref: ref,
-            currencyCode: account.currency,
-          ),
-        ),
-        Container(
-          width: 1,
-          height: 24.0.scaled(context, ref),
-          color: Colors.white.withValues(alpha: 0.2),
-        ),
-        Expanded(
-          child: _CardStat(
-            label: l10n.homeIncome,
-            value: stats!.income,
-            textColor: textColor,
-            labelColor: labelColor,
-            ref: ref,
-            currencyCode: account.currency,
-          ),
-        ),
-        Container(
-          width: 1,
-          height: 24.0.scaled(context, ref),
-          color: Colors.white.withValues(alpha: 0.2),
-        ),
-        Expanded(
-          child: _CardStat(
-            label: l10n.homeExpense,
-            value: stats!.expense,
-            textColor: textColor,
-            labelColor: labelColor,
-            ref: ref,
-            currencyCode: account.currency,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildValuationStats(BuildContext context, WidgetRef ref, AppLocalizations l10n, bool isDark) {
-    final textColor = isDark ? Colors.white.withValues(alpha: 0.9) : Colors.white;
-    final labelColor = isDark ? Colors.white.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.8);
-    final isLiability = isLiabilityType(account.type);
-    final displayValue = isLiability ? stats!.balance.abs() : stats!.balance;
-    final label = isLiability ? l10n.valuationCurrentDebt : l10n.valuationCurrentValue;
-
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: labelColor,
-                ),
-              ),
-              SizedBox(height: 2.0.scaled(context, ref)),
-              AmountText(
-                value: displayValue,
-                signed: false,
-                showCurrency: false,
-                useCompactFormat: ref.watch(compactAmountProvider),
-                currencyCode: account.currency,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (account.updatedAt != null)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Icon(
-                Icons.update,
-                size: 14.0.scaled(context, ref),
-                color: labelColor,
-              ),
-              SizedBox(height: 2.0.scaled(context, ref)),
-              Text(
-                '${account.updatedAt!.month.toString().padLeft(2, '0')}-${account.updatedAt!.day.toString().padLeft(2, '0')}',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: labelColor,
-                ),
-              ),
-            ],
-          ),
-      ],
-    );
-  }
-
-  Widget _buildCreditCardStats(BuildContext context, WidgetRef ref, AppLocalizations l10n, bool isDark) {
-    final amounts = CreditCardAmounts(stats!.balance, limit: account.creditLimit);
-    final used = amounts.debt;
-    final textColor = isDark ? Colors.white.withValues(alpha: 0.9) : Colors.white;
-    final labelColor = isDark ? Colors.white.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.8);
-
-    // 信用卡按 type 判定;无额度时仅显示当前欠款,不再 fallthrough 到收入/支出卡
-    final creditLimit = account.creditLimit;
-    if (creditLimit == null || creditLimit <= 0) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: _CardStat(
-          label: amounts.overpayment > 0 ? l10n.creditCardOverpayment : l10n.creditCardOwed,
-          value: amounts.overpayment > 0 ? amounts.overpayment : used,
-          textColor: textColor,
-          labelColor: labelColor,
-          ref: ref,
-          currencyCode: account.currency,
-        ),
-      );
-    }
-
-    final usageRate = creditLimit > 0 ? (used / creditLimit).clamp(0.0, 1.0) : 0.0;
-    return Column(
-      children: [
-        // 进度条
-        ClipRRect(
-          borderRadius: BorderRadius.circular(3.0.scaled(context, ref)),
-          child: LinearProgressIndicator(
-            value: usageRate,
-            backgroundColor: Colors.white.withValues(alpha: 0.2),
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Colors.white.withValues(alpha: 0.8),
-            ),
-            minHeight: 4.0.scaled(context, ref),
-          ),
-        ),
-        SizedBox(height: 8.0.scaled(context, ref)),
-        Row(
-          children: [
-            Expanded(
-              child: _CardStat(
-                label: l10n.creditLimit,
-                value: creditLimit,
-                textColor: textColor,
-                labelColor: labelColor,
-                ref: ref,
-                currencyCode: account.currency,
-              ),
-            ),
-            Container(
-              width: 1,
-              height: 24.0.scaled(context, ref),
-              color: Colors.white.withValues(alpha: 0.2),
-            ),
-            Expanded(
-              child: _CardStat(
-                label: amounts.overpayment > 0 ? l10n.creditCardOverpayment : l10n.creditCardOwed,
-                value: amounts.overpayment > 0 ? amounts.overpayment : used,
-                textColor: textColor,
-                labelColor: labelColor,
-                ref: ref,
-                currencyCode: account.currency,
-              ),
-            ),
-            Container(
-              width: 1,
-              height: 24.0.scaled(context, ref),
-              color: Colors.white.withValues(alpha: 0.2),
-            ),
-            Expanded(
-              child: _CardStat(
-                label: l10n.creditAvailable,
-                value: amounts.estimatedAvailable ?? 0,
-                textColor: textColor,
-                labelColor: labelColor,
-                ref: ref,
-                currencyCode: account.currency,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-/// 卡片内统计项
-class _CardStat extends StatelessWidget {
-  final String label;
-  final double value;
-  final Color textColor;
-  final Color labelColor;
-  final WidgetRef ref;
-  /// 账户的货币代码 — 用来锁住 formatBalance 的格式;不传则 fallback 到账本货币。
-  final String? currencyCode;
-
-  const _CardStat({
-    required this.label,
-    required this.value,
-    required this.textColor,
-    required this.labelColor,
-    required this.ref,
-    this.currencyCode,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        AmountText(
-          value: value,
-          signed: false,
-          showCurrency: false,
-          useCompactFormat: ref.watch(compactAmountProvider),
-          currencyCode: currencyCode,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: labelColor,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// 紧凑默认账户选择行
-class _CompactDefaultAccount extends ConsumerWidget {
-  final List<db.Account> accounts;
-  final Color primaryColor;
-  final String type;
-
-  const _CompactDefaultAccount({
-    required this.accounts,
-    required this.primaryColor,
-    required this.type,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final isIncome = type == 'income';
-    final defaultAccountIdAsync = isIncome
-        ? ref.watch(defaultIncomeAccountIdProvider)
-        : ref.watch(defaultExpenseAccountIdProvider);
-
-    return defaultAccountIdAsync.when(
-      data: (defaultAccountId) {
-        db.Account? defaultAccount;
-        if (defaultAccountId != null) {
-          defaultAccount = accounts.where((a) => a.id == defaultAccountId).firstOrNull;
-        }
-
-        final title = isIncome
-            ? l10n.accountDefaultIncomeTitle
-            : l10n.accountDefaultExpenseTitle;
-
-        return InkWell(
-          onTap: () => _showPicker(context, ref, accounts, defaultAccountId),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.0.scaled(context, ref),
-              vertical: 10.0.scaled(context, ref),
-            ),
-            child: Row(
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: BeeTokens.textPrimary(context),
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  defaultAccount?.name ?? l10n.accountDefaultNone,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: BeeTokens.textTertiary(context),
-                  ),
-                ),
-                SizedBox(width: 2.0.scaled(context, ref)),
-                Icon(
-                  Icons.chevron_right,
-                  size: 16.0.scaled(context, ref),
-                  color: BeeTokens.iconTertiary(context),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
-    );
-  }
-
-  void _showPicker(BuildContext context, WidgetRef ref, List<db.Account> accounts, int? currentDefaultId) {
-    final l10n = AppLocalizations.of(context);
-    final isIncome = type == 'income';
-    final title = isIncome ? l10n.accountDefaultIncomeTitle : l10n.accountDefaultExpenseTitle;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: BeeTokens.surfaceElevated(context),
-        title: Text(title, style: TextStyle(color: BeeTokens.textPrimary(context))),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                dense: true,
-                leading: Icon(Icons.block, color: BeeTokens.iconSecondary(context)),
-                title: Text(
-                  l10n.accountDefaultNone,
-                  style: TextStyle(
-                    color: currentDefaultId == null ? primaryColor : BeeTokens.textPrimary(context),
-                    fontWeight: currentDefaultId == null ? FontWeight.w600 : FontWeight.normal,
-                  ),
-                ),
-                trailing: currentDefaultId == null ? Icon(Icons.check, color: primaryColor) : null,
-                onTap: () async {
-                  if (isIncome) {
-                    await ref.read(defaultAccountSetterProvider).setDefaultIncomeAccountId(null);
-                    ref.invalidate(defaultIncomeAccountIdProvider);
-                  } else {
-                    await ref.read(defaultAccountSetterProvider).setDefaultExpenseAccountId(null);
-                    ref.invalidate(defaultExpenseAccountIdProvider);
-                  }
-                  if (context.mounted) Navigator.pop(context);
-                },
-              ),
-              ...accounts.map((account) {
-                final isSelected = account.id == currentDefaultId;
-                return ListTile(
-                  dense: true,
-                  leading: AccountTypeIcon(
-                    type: account.type,
-                    size: 24,
-                  ),
-                  title: Text(
-                    account.name,
-                    style: TextStyle(
-                      color: isSelected ? primaryColor : BeeTokens.textPrimary(context),
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    ),
-                  ),
-                  trailing: isSelected ? Icon(Icons.check, color: primaryColor) : null,
-                  onTap: () async {
-                    if (isIncome) {
-                      await ref.read(defaultAccountSetterProvider).setDefaultIncomeAccountId(account.id);
-                      ref.invalidate(defaultIncomeAccountIdProvider);
-                    } else {
-                      await ref.read(defaultAccountSetterProvider).setDefaultExpenseAccountId(account.id);
-                      ref.invalidate(defaultExpenseAccountIdProvider);
-                    }
-                    if (context.mounted) Navigator.pop(context);
-                  },
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 资产管理页 header 右上角的「蜜蜂家当」入口。
-///
-/// 用 Material 标准的 Premium / 进阶版图标(`workspace_premium_outlined`),
-/// 跟 setting / add 等 outlined 图标视觉重量完全一致;语义上暗示「升级 /
-/// 进阶版本」,鼓励点击。颜色自适应 header 背景。点击进入介绍弹窗。
-class _BeeAssetsHeaderEntry extends StatelessWidget {
-  const _BeeAssetsHeaderEntry();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final info = beeAssetsPromo(context);
-    final texts = buildPromoTexts(context, l10n.aboutBeeAssets);
-
-    return IconButton(
-      onPressed: () => ProductPromoLauncher.open(context, info, texts),
-      tooltip: info.title,
-      icon: const Icon(Icons.auto_awesome_outlined),
-    );
-  }
-}
-

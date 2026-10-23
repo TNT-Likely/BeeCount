@@ -1,3 +1,4 @@
+import '../../presentation/v4/bindings/home_overview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
@@ -11,19 +12,15 @@ import '../settings/personalize_page.dart' show headerStyleProvider;
 import '../../data/db.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/biz.dart';
-import '../../widgets/biz/bee_icon.dart';
-import '../../styles/tokens.dart';
 import '../transaction/search_page.dart';
 import '../ai/ai_chat_page.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/system/logger_service.dart';
-import '../../utils/format_utils.dart';
 import '../../utils/month_range.dart';
 import '../../services/export/share_poster_service.dart';
 import '../report/annual_report_page.dart';
 import '../calendar/calendar_page.dart';
 import '../../widgets/biz/ledger_picker_sheet.dart';
-import '../../widgets/biz/home_budget_summary.dart';
 import '../../widgets/ai/agent_entry_card.dart';
 import 'ledgers_page_new.dart';
 import '../../providers/shared_ledger_providers.dart';
@@ -636,7 +633,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     // 预加载数据（含标签、附件、账户，仅前 N 条）
     final cachedFullData = ref.watch(cachedTransactionsProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
-    final month = ref.watch(selectedMonthProvider);
     final hide = ref.watch(hideAmountsProvider);
     final aiEnabledAsync = ref.watch(aiAssistantEnabledProvider);
     final aiEnabled = aiEnabledAsync.asData?.value ?? true; // 默认开启
@@ -688,320 +684,49 @@ class _HomePageState extends ConsumerState<HomePage> {
         children: [
           Consumer(builder: (context, ref, _) {
             ref.watch(headerStyleProvider);
-            final hide = ref.watch(hideAmountsProvider);
             return PrimaryHeader(
               title: '',
               showTitleSection: false,
-              content: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // 头部 - 左: BeeIcon + 账本切换, 右: 操作按钮
-                  SizedBox(
-                    height: 48,
-                    child: Row(
-                      children: [
-                        // 左侧：BeeIcon + 标题 + 账本切换胶囊（用 Expanded 包住，
-                        // 标题在空间富余时显示自然宽度，仅在不够时 ellipsis）
-                        BeeIcon(
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 28,
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              // 标题取自然宽度,溢出时优先压缩账本名而不是 app 名
-                              Text(
-                                AppLocalizations.of(context).homeAppTitle,
-                                maxLines: 1,
-                                softWrap: false,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge
-                                          ?.color,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Align(
-                                  alignment: AlignmentDirectional.centerStart,
-                                  child: Consumer(builder: (context, ref, _) {
-                                    final currentLedger =
-                                        ref.watch(currentLedgerProvider);
-                                    return currentLedger.when(
-                                      // invalidate(远端改名 / 改币种)期间继续
-                                      // 显示旧值,避免账本名胶囊瞬间消失再出现 —
-                                      // 用户感知"首页全量刷新"的主要来源。
-                                      skipLoadingOnReload: true,
-                                      data: (ledger) {
-                                        // ledger == null:还没有账本(welcome 未勾默认账本
-                                        // / 老用户导入配置不含账本),胶囊直接显示「新建账本」
-                                        // + 加号图标,点击 push LedgersPage 并自动弹创建对
-                                        // 话框,省两步点击。
-                                        final isEmpty = ledger == null;
-                                        return GestureDetector(
-                                          onTap: () {
-                                            if (isEmpty) {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      const LedgersPageNew(
-                                                          autoOpenCreateDialog:
-                                                              true),
-                                                ),
-                                              );
-                                            } else {
-                                              showLedgerPicker(context);
-                                            }
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 6),
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(context)
-                                                          .brightness ==
-                                                      Brightness.dark
-                                                  ? Colors.white
-                                                      .withValues(alpha: 0.1)
-                                                  : Colors.black
-                                                      .withValues(alpha: 0.05),
-                                              borderRadius:
-                                                  BorderRadius.circular(14),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                if (isEmpty) ...[
-                                                  Icon(
-                                                    Icons.add,
-                                                    size: 16,
-                                                    color: Theme.of(context)
-                                                        .textTheme
-                                                        .bodyLarge
-                                                        ?.color,
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                ],
-                                                Flexible(
-                                                  child: Text(
-                                                    isEmpty
-                                                        ? AppLocalizations.of(
-                                                                context)
-                                                            .ledgersNew
-                                                        : translateLedgerName(
-                                                            context,
-                                                            ledger.name),
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    softWrap: false,
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: Theme.of(context)
-                                                          .textTheme
-                                                          .bodyLarge
-                                                          ?.color,
-                                                    ),
-                                                  ),
-                                                ),
-                                                // v24 共享账本:header 也显示 🤝 角标 + 成员数
-                                                if (!isEmpty &&
-                                                    ledger.isShared) ...[
-                                                  const SizedBox(width: 4),
-                                                  Icon(
-                                                    Icons.handshake,
-                                                    size: 12,
-                                                    color: Theme.of(context)
-                                                        .textTheme
-                                                        .bodyMedium
-                                                        ?.color
-                                                        ?.withOpacity(0.7),
-                                                  ),
-                                                  const SizedBox(width: 1),
-                                                  Text(
-                                                    '${ledger.memberCount}',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Theme.of(context)
-                                                          .textTheme
-                                                          .bodyMedium
-                                                          ?.color
-                                                          ?.withOpacity(0.7),
-                                                    ),
-                                                  ),
-                                                ],
-                                                // 没账本时不显示下拉箭头(没东西可选)
-                                                if (!isEmpty) ...[
-                                                  const SizedBox(width: 2),
-                                                  Icon(
-                                                    Icons.keyboard_arrow_down,
-                                                    size: 16,
-                                                    color: Theme.of(context)
-                                                        .textTheme
-                                                        .bodyMedium
-                                                        ?.color
-                                                        ?.withOpacity(0.5),
-                                                  ),
-                                                ],
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      loading: () => const SizedBox.shrink(),
-                                      error: (_, __) => const SizedBox.shrink(),
-                                    );
-                                  }),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // 右侧操作按钮
-                        if (aiEnabled)
-                          AgentEntryButton(
-                            tooltip: AppLocalizations.of(context).aiChatTitle,
-                            onTap: _openAIChat,
-                          ),
-                        IconButton(
-                          tooltip: AppLocalizations.of(context).calendarTitle,
-                          padding: const EdgeInsets.all(6),
-                          style: IconButton.styleFrom(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            minimumSize: Size.zero,
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const CalendarPage(),
-                              ),
-                            );
-                          },
-                          icon: Icon(
-                            Icons.calendar_month_outlined,
-                            size: 20,
-                            color: Theme.of(context).iconTheme.color,
-                          ),
-                        ),
-                        IconButton(
-                          tooltip: AppLocalizations.of(context).homeSearch,
-                          padding: const EdgeInsets.all(6),
-                          style: IconButton.styleFrom(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            minimumSize: Size.zero,
-                          ),
-                          onPressed: () {
-                            _transactionListKey.currentState
-                                ?.switchToStreamMode();
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const SearchPage(),
-                              ),
-                            );
-                          },
-                          icon: Icon(
-                            Icons.search,
-                            size: 20,
-                            color: Theme.of(context).iconTheme.color,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  // 第二行 - 月份显示和统计
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      InkWell(
-                        borderRadius: BorderRadius.circular(8),
-                        onTap: _isJumping ? null : _handleDateSelection,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                AppLocalizations.of(context)
-                                    .homeYear(month.year),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.color
-                                            ?.withOpacity(0.6), // ⭐ 自适应次要文字颜色
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500)),
-                            const SizedBox(height: 2),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context).homeMonth(
-                                      month.month.toString().padLeft(2, '0')),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .textTheme
-                                              .bodyLarge
-                                              ?.color, // ⭐ 自适应主文字颜色
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500),
-                                ),
-                                const SizedBox(width: 4),
-                                // 月份旁边的向下三角形（日期选择）
-                                _isJumping
-                                    ? SizedBox(
-                                        width: 12,
-                                        height: 12,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 1.5,
-                                          color: Theme.of(context)
-                                              .textTheme
-                                              .bodyLarge
-                                              ?.color, // ⭐ 自适应颜色
-                                        ),
-                                      )
-                                    : Icon(
-                                        Icons.keyboard_arrow_down,
-                                        size: 16,
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.color
-                                            ?.withOpacity(0.6), // ⭐ 自适应次要颜色
-                                      ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 12),
-                        width: 1,
-                        height: 36,
-                        color: Theme.of(context).dividerTheme.color ??
-                            Theme.of(context).dividerColor, // ⭐ 自适应分割线颜色
-                      ),
-                      const Expanded(child: _HeaderCenterSummary()),
-                    ],
-                  ),
+              content: HomeOverview(
+                jumping: _isJumping,
+                onMonthTap: _handleDateSelection,
+                onLedgerTap: () {
+                  final ledger = ref.read(currentLedgerProvider).valueOrNull;
+                  if (ledger == null) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const LedgersPageNew(
+                                autoOpenCreateDialog: true)));
+                  } else {
+                    showLedgerPicker(context);
+                  }
+                },
+                actions: [
+                  if (aiEnabled)
+                    AgentEntryButton(
+                        tooltip: AppLocalizations.of(context).aiChatTitle,
+                        onTap: _openAIChat),
+                  IconButton(
+                      tooltip: AppLocalizations.of(context).calendarTitle,
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const CalendarPage())),
+                      icon:
+                          const Icon(Icons.calendar_month_outlined, size: 21)),
+                  IconButton(
+                      tooltip: AppLocalizations.of(context).homeSearch,
+                      onPressed: () {
+                        _transactionListKey.currentState?.switchToStreamMode();
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const SearchPage()));
+                      },
+                      icon: const Icon(Icons.search, size: 21)),
                 ],
               ),
-              bottom: const HomeBudgetSummary(),
             );
           }),
           const SizedBox(height: 0),
@@ -1083,64 +808,6 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _HeaderCenterSummary extends ConsumerWidget {
-  const _HeaderCenterSummary();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final ledgerId = ref.watch(currentLedgerIdProvider);
-    final month = ref.watch(selectedMonthProvider);
-    final params = (ledgerId: ledgerId, month: month);
-
-    ref.watch(monthlyTotalsProvider(params));
-    final cachedTotals = ref.watch(lastMonthlyTotalsProvider(params));
-    final (income, expense) = cachedTotals ?? (0.0, 0.0);
-    final balance = income - expense;
-
-    final amountStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).textTheme.bodyLarge?.color,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ) ??
-        TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).textTheme.bodyLarge?.color,
-        );
-
-    Widget item(String title, double value) => Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title,
-                textAlign: TextAlign.left, style: BeeTextTokens.label(context)),
-            const SizedBox(height: 2),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: AmountText(
-                value: value,
-                signed: false,
-                decimals: 2,
-                style: amountStyle,
-              ),
-            ),
-          ],
-        );
-    return Row(
-      children: [
-        Expanded(child: item(AppLocalizations.of(context).homeIncome, income)),
-        const SizedBox(width: 4),
-        Expanded(
-            child: item(AppLocalizations.of(context).homeExpense, expense)),
-        const SizedBox(width: 4),
-        Expanded(
-            child: item(AppLocalizations.of(context).homeBalance, balance)),
-      ],
     );
   }
 }

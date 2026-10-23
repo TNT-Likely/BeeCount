@@ -4,11 +4,13 @@ import '../../data/db.dart' as db;
 import '../../l10n/app_localizations.dart';
 import '../../styles/tokens.dart';
 import '../../widgets/ui/ui.dart';
-import '../../widgets/category_icon.dart';
+import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import '../../presentation/v4/bindings/recording_category_icon.dart';
+import '../../utils/currencies.dart';
 import '../../providers/database_providers.dart';
 import '../../providers/theme_providers.dart';
-import 'amount_text.dart';
-import 'tag_chip.dart';
+import 'format_money.dart';
 import 'transaction_row_title.dart';
 
 class TransactionListItem extends ConsumerWidget {
@@ -16,9 +18,11 @@ class TransactionListItem extends ConsumerWidget {
   final db.Category? category; // 可选的分类对象，用于显示自定义图标
   final String title;
   final double amount;
+
   /// v30 多币种:交易原币种(null/等于账本本位币 → 维持无符号纯数字;
   /// 外币 → 金额前显示其币种符号,如 JP¥/US$,一眼区分原币)。
   final String? currencyCode;
+
   /// v30 多币种:折账本本位币快照。外币交易在金额右下角显示 ≈ 折算小字(反馈13)。
   final double? nativeAmount;
   final bool isExpense; // 决定正负号
@@ -51,397 +55,128 @@ class TransactionListItem extends ConsumerWidget {
   final bool excludeFromBudget; // 不计入预算:第二行显示「不计预算」标签
 
   const TransactionListItem({
-      super.key,
-      required this.icon,
-      this.category,
-      required this.title,
-      required this.amount,
-      this.currencyCode,
-      this.nativeAmount,
-      required this.isExpense,
-      this.isTransfer = false,
-      this.hide,
-      this.onTap,
-      this.onLongPressStart,
-      this.onCategoryTap,
-      this.categoryName,
-      this.ledgerName,
-      this.onDelete,
-      this.accountName,
-      this.happenedAt,
-      this.isSelectionMode = false,
-      this.isSelected = false,
-      this.onSelectionChanged,
-      this.showFullDate = false,
-      this.tags,
-      this.onTagTap,
-      this.attachmentCount = 0,
-      this.onAttachmentTap,
-      this.excludeFromStats = false,
-      this.excludeFromBudget = false,
+    super.key,
+    required this.icon,
+    this.category,
+    required this.title,
+    required this.amount,
+    this.currencyCode,
+    this.nativeAmount,
+    required this.isExpense,
+    this.isTransfer = false,
+    this.hide,
+    this.onTap,
+    this.onLongPressStart,
+    this.onCategoryTap,
+    this.categoryName,
+    this.ledgerName,
+    this.onDelete,
+    this.accountName,
+    this.happenedAt,
+    this.isSelectionMode = false,
+    this.isSelected = false,
+    this.onSelectionChanged,
+    this.showFullDate = false,
+    this.tags,
+    this.onTagTap,
+    this.attachmentCount = 0,
+    this.onAttachmentTap,
+    this.excludeFromStats = false,
+    this.excludeFromBudget = false,
   });
 
-
-  /// 检查是否有次要信息需要显示（时间、账户或附件）
-  bool _hasSecondaryInfo(WidgetRef ref) {
-    // 显示完整日期模式
-    if (showFullDate && happenedAt != null) return true;
-
-    // 显示时间（设置开启 + 有数据 + 不是00:00:00）
-    final showTime = ref.watch(showTransactionTimeProvider) &&
-        happenedAt != null &&
-        (happenedAt!.hour != 0 || happenedAt!.minute != 0 || happenedAt!.second != 0);
-
-    return showTime ||
-        accountName != null ||
-        attachmentCount > 0 ||
-        excludeFromStats ||
-        excludeFromBudget;
-  }
-
-  /// 「不计收支 / 不计预算」标记的小 pill（中性灰底，de-emphasis）
-  /// 视觉对齐 TagChip(small)：pill 圆角 + 低透明度填充 + fontSize 11
-  Widget _flagChip(BuildContext context, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: BeeTokens.isDark(context)
-            ? Colors.white.withValues(alpha: 0.1)
-            : Colors.black.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11,
-          color: BeeTokens.textTertiary(context),
-        ),
-      ),
-    );
-  }
-
-  /// 构建次要信息小部件（时间 · 账户 + 附件图标）
-  Widget _buildSecondaryInfo(BuildContext context, WidgetRef ref) {
-    final parts = <String>[];
-
-    // 时间部分
-    if (happenedAt != null) {
-      if (showFullDate) {
-        // 完整日期模式
-        parts.add(
-          '${happenedAt!.year}-${happenedAt!.month.toString().padLeft(2, '0')}-${happenedAt!.day.toString().padLeft(2, '0')} '
-          '${happenedAt!.hour.toString().padLeft(2, '0')}:${happenedAt!.minute.toString().padLeft(2, '0')}',
-        );
-      } else if (ref.watch(showTransactionTimeProvider) &&
-          (happenedAt!.hour != 0 || happenedAt!.minute != 0 || happenedAt!.second != 0)) {
-        // 完整时间模式（HH:mm:ss）
-        parts.add(
-          '${happenedAt!.hour.toString().padLeft(2, '0')}:${happenedAt!.minute.toString().padLeft(2, '0')}:${happenedAt!.second.toString().padLeft(2, '0')}',
-        );
-      }
-    }
-
-    // 账户部分
-    if (accountName != null) {
-      parts.add(accountName!);
-    }
-
-    final textStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-      color: BeeTokens.textTertiary(context),
-      fontSize: 11,
-    );
-
-    // 构建附件图标部件（可点击）
-    Widget buildAttachmentWidget() {
-      final widget = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.image_outlined,
-            size: 12,
-            color: BeeTokens.textTertiary(context),
-          ),
-          const SizedBox(width: 2),
-          Text('$attachmentCount', style: textStyle),
-        ],
-      );
-      if (onAttachmentTap != null) {
-        return GestureDetector(
-          onTap: onAttachmentTap,
-          behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-            child: widget,
-          ),
-        );
-      }
-      return widget;
-    }
-
-    // 「不计收支 / 不计预算」标签:第二行末尾的次要标签，改为与标签 chip 一致的
-    // 中性 pill 样式（de-emphasis，沿用 TagChip 的中性灰底 + pill 圆角）
-    final flagTags = <Widget>[
-      if (excludeFromStats)
-        _flagChip(context, AppLocalizations.of(context).txFlagExcludedTag),
-      if (excludeFromBudget)
-        _flagChip(context, AppLocalizations.of(context).txFlagBudgetExcludedTag),
-    ];
-
-    // 如果只有附件 / 标签，没有时间·账户文字
-    if (parts.isEmpty) {
-      final children = <Widget>[
-        if (attachmentCount > 0) buildAttachmentWidget(),
-        ...flagTags,
-      ];
-      // 用 Wrap 避免次要行溢出（标签可能与附件并排）
-      return Wrap(
-        spacing: 6,
-        runSpacing: 2,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: children,
-      );
-    }
-
-    // 有时间·账户文字时:文字 + 附件保持原有 ' · ' 风格，标签紧随其后
-    return Wrap(
-      spacing: 6,
-      runSpacing: 2,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(parts.join(' · '), style: textStyle),
-            if (attachmentCount > 0) ...[
-              Text(' · ', style: textStyle),
-              buildAttachmentWidget(),
-            ],
-          ],
-        ),
-        ...flagTags,
-      ],
-    );
-  }
-
-  bool _isForeign(WidgetRef ref) {
-    final cc = currencyCode;
-    if (cc == null || cc.isEmpty) return false;
-    final base =
-        ref.watch(currentLedgerProvider).asData?.value?.currency ?? 'CNY';
-    return cc.toUpperCase() != base.toUpperCase();
+  Color _tagColor(String? value, BuildContext context) {
+    if (value == null) return Theme.of(context).colorScheme.primary;
+    final hex = value.replaceFirst('#', '');
+    final parsed = int.tryParse(hex.length == 6 ? 'ff$hex' : hex, radix: 16);
+    return parsed == null
+        ? Theme.of(context).colorScheme.primary
+        : Color(parsed);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Widget child = InkWell(
-      onTap: isSelectionMode ? onSelectionChanged : onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 12, vertical: BeeDimens.listRowVertical),
-        child: Row(
-          children: [
-            // 选择模式下显示复选框，否则显示分类图标
-            if (isSelectionMode)
-              Checkbox(
-                value: isSelected,
-                onChanged: (_) => onSelectionChanged?.call(),
-                activeColor: Theme.of(context).colorScheme.primary,
-              )
-            else
-              // 分类图标，支持点击跳转
-              GestureDetector(
-                onTap: onCategoryTap,
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: CategoryIconWidget(
-                    category: category,
-                    size: 18,
-                  ),
-                ),
-              ),
-            const SizedBox(width: 12),
-            // 左侧：分类名称 + 备注 + 时间·账户
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 第一行：分类名（常驻）+ 备注接在后面（括号、次要色、整体单行省略，对齐 web 端）
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Consumer(builder: (context, ref, _) {
-                            final composed = composeTransactionRowTitle(
-                              mode: ref.watch(noteDisplayModeProvider),
-                              categoryName: categoryName,
-                              title: title,
-                            );
-                            return Text.rich(
-                              TextSpan(
-                                text: composed.primary,
-                                style: BeeTextTokens.title(context),
-                                children: [
-                                  if (composed.parenNote != null)
-                                    TextSpan(
-                                      text: '  (${composed.parenNote})',
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: BeeTokens.textSecondary(context),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            );
-                          }),
-                        ),
-                        // 全部账本模式：展示账本名标签（参考账户详情页）
-                        if (ledgerName != null && ledgerName!.isNotEmpty) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: ref.watch(primaryColorProvider).withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              ledgerName!,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: ref.watch(primaryColorProvider),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    // 第三行：时间 · 账户 · 附件
-                    if (_hasSecondaryInfo(ref))
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: _buildSecondaryInfo(context, ref),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            // 右侧：金额 + 标签
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 金额（转账不显示正负号）
-                AmountText(
-                    value: isExpense ? -amount : amount,
-                    hide: hide,
-                    signed: !isTransfer, // 转账不显示正负号
-                    // v30:外币交易显示其币种符号(原币语义);本位币维持纯数字
-                    showCurrency: _isForeign(ref),
-                    currencyCode: currencyCode,
-                    decimals: 2,
-                    style: BeeTextTokens.title(context).copyWith(
-                      color: isTransfer
-                          ? BeeTokens.textPrimary(context)
-                          : isExpense
-                              ? BeeTokens.expenseColor(context, ref)
-                              : BeeTokens.incomeColor(context, ref),
-                    )),
-                // 标签行 + ≈折算小字(反馈15:折算放标签右边,同一行;无标签时
-                // 折算独占该行)。隐藏金额开关开启时折算同样遮蔽。
-                // 反馈16:有折算时标签最多展示 1 个(挤位),无折算保持 2 个。
-                Builder(builder: (context) {
-                  final showConverted = _isForeign(ref) &&
-                      nativeAmount != null &&
-                      nativeAmount != amount &&
-                      hide != true;
-                  final hasTags = tags != null && tags!.isNotEmpty;
-                  if (!showConverted && !hasTags) {
-                    return const SizedBox.shrink();
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (hasTags)
-                          TagChipList(
-                            tags: tags!,
-                            maxDisplay: showConverted ? 1 : 2,
-                            size: TagChipSize.small,
-                            spacing: 4,
-                            onTagTap: onTagTap,
-                          ),
-                        if (hasTags && showConverted)
-                          const SizedBox(width: 6),
-                        if (showConverted)
-                          Text(
-                            '≈${nativeAmount!.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: BeeTokens.textTertiary(context),
-                            ),
-                          ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ],
-        ),
-      ),
+    final l10n = AppLocalizations.of(context);
+    final hidden = hide ?? ref.watch(hideAmountsProvider) ?? false;
+    final base = currencyCode == null || currencyCode!.isEmpty
+        ? 'CNY'
+        : ref.watch(currentLedgerProvider).valueOrNull?.currency ?? 'CNY';
+    final foreign = currencyCode != null &&
+        currencyCode!.isNotEmpty &&
+        currencyCode!.toUpperCase() != base.toUpperCase();
+    final composed = composeTransactionRowTitle(
+        mode: ref.watch(noteDisplayModeProvider),
+        categoryName: categoryName,
+        title: title);
+    final value = isTransfer ? amount : (isExpense ? -amount : amount);
+    final money =
+        '${foreign ? getCurrencySymbol(currencyCode!.toUpperCase()) : ''}'
+        '${formatMoneyCompact(value, signed: !isTransfer)}';
+    final hasConversion =
+        foreign && nativeAmount != null && nativeAmount != amount;
+    final row = BeeTransactionRow(
+      title: composed.primary,
+      note: composed.parenNote,
+      amount: money,
+      hidden: hidden,
+      amountColor: isTransfer
+          ? BeeTokens.textPrimary(context)
+          : isExpense
+              ? BeeTokens.expenseColor(context, ref)
+              : BeeTokens.incomeColor(context, ref),
+      converted: hasConversion ? '≈${nativeAmount!.toStringAsFixed(2)}' : null,
+      icon: Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+              color: BeeCardTheme.of(context).soft,
+              borderRadius: BorderRadius.circular(12)),
+          child: Center(
+              child: category == null
+                  ? Icon(icon,
+                      size: 19, color: Theme.of(context).colorScheme.onSurface)
+                  : RecordingCategoryIcon(
+                      category: category!,
+                      size: 19,
+                      color: Theme.of(context).colorScheme.onSurface))),
+      kind: isTransfer
+          ? BeeTransactionKind.transfer
+          : isExpense
+              ? BeeTransactionKind.expense
+              : BeeTransactionKind.income,
+      accountName: accountName,
+      ledgerName: ledgerName,
+      happenedAt: happenedAt,
+      showTime: ref.watch(showTransactionTimeProvider),
+      showFullDate: showFullDate,
+      selected: isSelectionMode ? isSelected : null,
+      onSelected: (_) => onSelectionChanged?.call(),
+      tags: (tags ?? [])
+          .map(
+              (t) => BeeTagData('${t.id}', t.name, _tagColor(t.color, context)))
+          .toList(),
+      onTagTap: (t) => onTagTap?.call(int.parse(t.id), t.label),
+      attachmentCount: attachmentCount,
+      onAttachmentTap: onAttachmentTap,
+      statusLabels: [
+        if (excludeFromStats) l10n.txFlagExcludedTag,
+        if (excludeFromBudget) l10n.txFlagBudgetExcludedTag
+      ],
+      onTap: onTap ?? () {},
+      onCategoryTap: onCategoryTap ?? () {},
+      deleteLabel: l10n.commonDelete,
+      onDeleteRequested: onDelete == null || isSelectionMode
+          ? null
+          : () async {
+              final confirmed = await AppDialog.confirm<bool>(context,
+                  title: l10n.deleteConfirmTitle,
+                  message: l10n.deleteConfirmMessage);
+              if (confirmed == true) onDelete!();
+            },
     );
-
-    if (!isSelectionMode && onLongPressStart != null) {
-      child = GestureDetector(
-        onLongPressStart: onLongPressStart,
-        child: child,
-      );
-    }
-
-    // 如果提供了删除回调，则包装在Dismissible中支持侧滑删除
-    if (onDelete != null) {
-      return Dismissible(
-        key: ValueKey('transaction_$title${amount.toString()}'),
-        direction: DismissDirection.endToStart,
-        background: Container(
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 20),
-          color: Colors.red,
-          child: const Icon(
-            Icons.delete,
-            color: Colors.white,
-            size: 24,
-          ),
-        ),
-        confirmDismiss: (direction) async {
-          // 显示确认对话框
-          return await AppDialog.confirm<bool>(
-            context,
-            title: '确认删除',
-            message: '确定要删除这笔交易吗？此操作无法撤销。',
-          ) ?? false;
-        },
-        onDismissed: (direction) {
-          onDelete!();
-        },
-        child: child,
-      );
-    }
-
-    return child;
+    return GestureDetector(
+      onLongPressStart: isSelectionMode ? null : onLongPressStart,
+      child: Padding(padding: const EdgeInsets.only(right: 12), child: row),
+    );
   }
 }
