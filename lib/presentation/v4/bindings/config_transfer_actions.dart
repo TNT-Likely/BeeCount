@@ -102,8 +102,7 @@ mixin _ConfigTransferActions on ConsumerState<ConfigImportExportPage> {
     } catch (e) {
       logger.error('ConfigExport', '导出配置失败: $e');
       if (!mounted) return;
-      await AppDialog.error(
-        context,
+      await _showConfigMessage(
         title: AppLocalizations.of(context).configExportFailed,
         message: e.toString(),
       );
@@ -211,15 +210,13 @@ mixin _ConfigTransferActions on ConsumerState<ConfigImportExportPage> {
 
       // 提示需要重启应用（部分设置可能仍需重启）
       if (!mounted) return;
-      await AppDialog.info(
-        context,
+      await _showConfigMessage(
         title: AppLocalizations.of(context).configImportRestartTitle,
         message: AppLocalizations.of(context).configImportRestartMessage,
       );
     } catch (e) {
       if (!mounted) return;
-      await AppDialog.error(
-        context,
+      await _showConfigMessage(
         title: AppLocalizations.of(context).configImportFailed,
         message: e.toString(),
       );
@@ -229,6 +226,21 @@ mixin _ConfigTransferActions on ConsumerState<ConfigImportExportPage> {
       }
     }
   }
+
+  Future<void> _showConfigMessage({
+    required String title,
+    required String message,
+  }) =>
+      showDialog<void>(
+          context: context,
+          builder: (dialogContext) => BeeDialog(
+                  title: Text(title),
+                  content: Text(message.replaceAll(r'\n', '\n')),
+                  actions: [
+                    BeeButton(
+                        label: AppLocalizations.of(dialogContext).commonOk,
+                        onPressed: () => Navigator.pop(dialogContext))
+                  ]));
 
   /// 导入后刷新相关的 Provider 状态
   Future<void> _refreshProvidersAfterImport() async {
