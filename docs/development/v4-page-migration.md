@@ -123,8 +123,8 @@
 | **分类选择弹窗**<br>[lib/widgets/biz/category_selector_dialog.dart](../../lib/widgets/biz/category_selector_dialog.dart) | P0 / 新版组件就绪·旧消费者待迁移 | 二级图标、自定义图片、搜索、更多分类、取消不提交。 |
 | **账户选择弹窗**<br>[lib/widgets/biz/account_selector.dart](../../lib/widgets/biz/account_selector.dart) | P0 / 部分接入·待完整验收 | 按币种筛选、未设置、隐藏历史账户、共享权限、搜索和草稿。 |
 | **账本选择弹层**<br>[lib/widgets/biz/ledger_picker_sheet.dart](../../lib/widgets/biz/ledger_picker_sheet.dart) | P0 / 新版组件就绪·旧消费者待迁移 | 当前态、个人/共享、币种与搜索、切换账本不丢草稿。 |
-| **币种选择弹层与汇率编辑**<br>[lib/widgets/currency/currency_picker_sheet.dart](../../lib/widgets/currency/currency_picker_sheet.dart) | P0 / 部分复用原弹层·待统一视觉 | 搜索、同币种账户联动、历史快照、汇率缺失和正数校验。 |
-| **标签横排选择**<br>[lib/pages/tag/widgets/tag_selector.dart](../../lib/pages/tag/widgets/tag_selector.dart) | P0 / 部分复用原弹层·待统一视觉 | 多选、搜索、取消不提交、新建标签、长标签与 +N。 |
+| **币种选择弹层与汇率编辑**<br>[lib/widgets/currency/currency_picker_sheet.dart](../../lib/widgets/currency/currency_picker_sheet.dart) | P0 / 真实业务组件已接入·待完整验收 | 搜索、同币种账户联动、历史快照、汇率缺失和正数校验。 |
+| **标签横排选择**<br>[lib/pages/tag/widgets/tag_selector.dart](../../lib/pages/tag/widgets/tag_selector.dart) | P0 / 真实业务组件已接入·待完整验收 | 多选、搜索、取消不提交、新建标签、长标签与 +N。 |
 | **日期与时间滚轮**<br>[lib/widgets/ui/wheel_date_picker.dart](../../lib/widgets/ui/wheel_date_picker.dart) | P0 / 已复用·待全消费者核对 | 月末/闰年、时间开关、取消和系统安全区。 |
 | **历史备注选择**<br>[lib/widgets/biz/note_picker_dialog.dart](../../lib/widgets/biz/note_picker_dialog.dart) | P1 / 待迁移 | 常用备注筛选/排序、直接输入与选择后的草稿一致性。 |
 | **账单小票弹窗**<br>[lib/widgets/biz/transaction_receipt_dialog.dart](../../lib/widgets/biz/transaction_receipt_dialog.dart) | P1 / 待迁移 | 原币与折算、标签/附件、隐私、图片生成和系统分享，沿用弹窗。 |

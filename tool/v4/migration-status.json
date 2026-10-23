@@ -666,7 +666,7 @@
       "name": "币种选择弹层与汇率编辑",
       "source": "lib/widgets/currency/currency_picker_sheet.dart",
       "priority": "P0",
-      "status": "部分复用原弹层·待统一视觉",
+      "status": "真实业务组件已接入·待完整验收",
       "designRoutes": [
         "flow-currency-picker",
         "flow-exchange-rate"
@@ -677,7 +677,7 @@
       "name": "标签横排选择",
       "source": "lib/pages/tag/widgets/tag_selector.dart",
       "priority": "P0",
-      "status": "部分复用原弹层·待统一视觉",
+      "status": "真实业务组件已接入·待完整验收",
       "designRoutes": [
         "flow-tag-picker-many"
       ],
