@@ -1,3 +1,4 @@
+import 'package:beecount_ui/beecount_ui.dart';
 import '../../../utils/format_utils.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import '../../../utils/currencies.dart';
@@ -29,8 +30,18 @@ class _EditDisplayNameDialogState extends State<_EditDisplayNameDialog> {
   late final TextEditingController _controller =
       TextEditingController(text: widget.initial);
 
+  final _focus = FocusNode();
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focus.requestFocus();
+    });
+  }
+
   @override
   void dispose() {
+    _focus.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -38,14 +49,14 @@ class _EditDisplayNameDialogState extends State<_EditDisplayNameDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return AlertDialog(
+    return BeeDialog(
       title: Text(l10n.mineDisplayNameEditTitle),
-      content: TextField(
+      content: BeeField(
+        label: l10n.mineDisplayNameHint,
+        focusNode: _focus,
         controller: _controller,
-        autofocus: true,
         maxLength: 20,
         textInputAction: TextInputAction.done,
-        decoration: InputDecoration(hintText: l10n.mineDisplayNameHint),
         onSubmitted: (v) {
           if (v.trim().isNotEmpty) Navigator.pop(context, v);
         },
@@ -108,31 +119,31 @@ class MineProfileBindingState extends ConsumerState<MineProfileBinding> {
     final l10n = AppLocalizations.of(context);
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => BeeDialog(
         title: Text(l10n.mineProfileEditTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.badge_outlined),
-              title: Text(l10n.mineDisplayNameEditTitle),
+            BeeMenuRow(
+              leading: const BeeLineIcon('PencilLine', size: 19),
+              title: l10n.mineDisplayNameEditTitle,
               onTap: () => Navigator.pop(context, 'nickname'),
             ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: Text(l10n.mineAvatarFromGallery),
+            BeeMenuRow(
+              leading: const BeeLineIcon('ImagePlus', size: 19),
+              title: l10n.mineAvatarFromGallery,
               onTap: () => Navigator.pop(context, 'gallery'),
             ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: Text(l10n.mineAvatarFromCamera),
+            BeeMenuRow(
+              leading: const BeeLineIcon('Camera', size: 19),
+              title: l10n.mineAvatarFromCamera,
               onTap: () => Navigator.pop(context, 'camera'),
             ),
             if (_avatarPath != null)
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: Text(l10n.mineAvatarDelete,
-                    style: const TextStyle(color: Colors.red)),
+              BeeMenuRow(
+                danger: true,
+                leading: const BeeLineIcon('Trash2', size: 19),
+                title: l10n.mineAvatarDelete,
                 onTap: () => Navigator.pop(context, 'delete'),
               ),
           ],

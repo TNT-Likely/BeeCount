@@ -16639,6 +16639,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Record in {name}'**
   String v4DetailRecord(String name);
+
+  /// No description provided for @v4MineCloudGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud and sync'**
+  String get v4MineCloudGroup;
+
+  /// No description provided for @v4MineFeaturesGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get v4MineFeaturesGroup;
+
+  /// No description provided for @v4MineHelpGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Help and information'**
+  String get v4MineHelpGroup;
+
+  /// No description provided for @v4MineSupportGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Support us'**
+  String get v4MineSupportGroup;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

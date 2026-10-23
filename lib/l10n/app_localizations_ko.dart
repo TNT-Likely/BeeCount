@@ -8852,4 +8852,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String v4DetailRecord(String name) {
     return 'Record in $name';
   }
+
+  @override
+  String get v4MineCloudGroup => 'Cloud and sync';
+
+  @override
+  String get v4MineFeaturesGroup => 'Features';
+
+  @override
+  String get v4MineHelpGroup => 'Help and information';
+
+  @override
+  String get v4MineSupportGroup => 'Support us';
 }

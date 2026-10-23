@@ -8844,6 +8844,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String v4DetailRecord(String name) {
     return '记一笔 · $name';
   }
+
+  @override
+  String get v4MineCloudGroup => '云服务与同步';
+
+  @override
+  String get v4MineFeaturesGroup => '功能管理';
+
+  @override
+  String get v4MineHelpGroup => '帮助与信息';
+
+  @override
+  String get v4MineSupportGroup => '支持我们';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
