@@ -327,6 +327,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
 
   Future<void> _changeType(int index) async {
     if (_selectedType == index) return;
+    final previousIndex = _selectedType;
     if (index == 2 || _selectedType == 2) {
       final l10n = AppLocalizations.of(context);
       final discard = await showBeeConfirm(context,
@@ -336,10 +337,33 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
           cancelLabel: l10n.commonCancel);
       if (!discard || !mounted) return;
     }
+    var hadChanges = _cardCategory != null ||
+        (_cardEditorKey.currentState?.hasDraftChanges ?? false);
+    if (!hadChanges &&
+        previousIndex != 2 &&
+        index != 2 &&
+        widget.editingTransactionId == null &&
+        !widget.isCopy &&
+        widget.initialAccountId == null &&
+        widget.initialCurrencyCode == null) {
+      final accountId = await defaultRecordingAccount(
+          ref, index == 1 ? 'income' : 'expense', _cardLedgerId);
+      if (!mounted || _selectedType != previousIndex) return;
+      // Input may have changed while the default account was loading.
+      hadChanges = _cardCategory != null ||
+          (_cardEditorKey.currentState?.hasDraftChanges ?? false);
+      if (!hadChanges &&
+          (_cardEditorKey.currentState
+                  ?.applyDefaultAccountIfUntouched(accountId) ??
+              false)) {
+        _cardInitialAccountId = accountId;
+      }
+    }
+    if (!mounted || _selectedType != previousIndex) return;
     setState(() {
       _selectedType = index;
       _cardCategory = null;
-      _cardDirty = true;
+      _cardDirty = hadChanges;
     });
   }
 

@@ -281,6 +281,22 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   late String _amountStr;
   late DateTime _date;
   int? _selectedAccountId;
+  bool _accountChoiceTouched = false;
+
+  bool get hasDraftChanges => _hasCardDraft;
+
+  /// A blank new editor can follow the income/expense default. User choices,
+  /// including explicitly choosing no account, remain part of the draft.
+  bool applyDefaultAccountIfUntouched(int? accountId) {
+    if (_isSubmitting || _accountChoiceTouched || _hasCardDraft) return false;
+    setState(() {
+      _selectedAccountId = accountId;
+      _selectedAccountCurrency = null;
+    });
+    if (accountId != null) _loadAccountCurrency(accountId);
+    return true;
+  }
+
   final TextEditingController _noteCtrl = TextEditingController();
   // 运算缓存：支持简单 + / - 键入累计
   double _acc = 0;
@@ -1191,6 +1207,7 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                         pinnedAccountId: widget.initialAccountId,
                         onAccountSelected: (accountId) {
                           setState(() {
+                            _accountChoiceTouched = true;
                             _selectedAccountId = accountId;
                             _selectedAccountCurrency = null; // 异步刷新
                           });
@@ -1520,6 +1537,7 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
               pinnedAccountId: widget.initialAccountId,
               onAccountSelected: (id) {
                 setState(() {
+                  _accountChoiceTouched = true;
                   _selectedAccountId = id;
                   _selectedAccountCurrency = null;
                 });

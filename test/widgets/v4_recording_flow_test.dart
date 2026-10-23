@@ -413,6 +413,56 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  recordingTest('空白收支切换使用对应默认账户，已有金额草稿保留账户', (tester) async {
+    final expenseAccount =
+        await repo.createAccount(ledgerId: 1, name: '支出默认', currency: 'CNY');
+    final incomeAccount =
+        await repo.createAccount(ledgerId: 1, name: '收入默认', currency: 'CNY');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('default_expense_account_id', expenseAccount);
+    await prefs.setInt('default_income_account_id', incomeAccount);
+    await open(tester, accountsEnabled: true);
+    expect(find.text('支出默认'), findsOneWidget);
+    await tester.tap(find.text('收入'));
+    await tester.pumpAndSettle();
+    expect(find.text('收入默认'), findsOneWidget);
+    expect(find.byType(BeeDialog), findsNothing);
+    await tester.tap(find.text('支出'));
+    await tester.pumpAndSettle();
+    expect(find.text('支出默认'), findsOneWidget);
+    await key(tester, '7');
+    await tester.tap(find.text('收入'));
+    await tester.pumpAndSettle();
+    expect(find.text('支出默认'), findsOneWidget);
+    expect(
+        tester
+            .widget<Text>(find.byKey(const ValueKey('recording-amount')))
+            .data,
+        '7.00');
+    expect(await db.select(db.transactions).get(), isEmpty);
+    expect(tester.takeException(), isNull);
+  });
+
+  recordingTest('明确选择不设置账户后，空白切换类型也不会补入默认账户', (tester) async {
+    final incomeAccount =
+        await repo.createAccount(ledgerId: 1, name: '收入默认', currency: 'CNY');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('default_income_account_id', incomeAccount);
+    await open(tester, accountsEnabled: true);
+    final l10n =
+        AppLocalizations.of(tester.element(find.byType(TransactionEditorPage)));
+    await tester.tap(find.text(l10n.accountNone));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.accountNone).last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('收入'));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.accountNone), findsOneWidget);
+    expect(find.text('收入默认'), findsNothing);
+    expect(await db.select(db.transactions).get(), isEmpty);
+    expect(tester.takeException(), isNull);
+  });
+
   recordingTest('账本切换取消保留草稿，确认后切换本位币并重置后按新账本保存', (tester) async {
     await db.customStatement(
         "INSERT INTO ledgers (id,name,currency) VALUES(2,'美元旅行','USD')");
