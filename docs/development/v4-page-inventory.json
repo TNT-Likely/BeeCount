@@ -1717,7 +1717,7 @@
       "classes": [
         "SearchPage"
       ],
-      "lines": 383,
+      "lines": 390,
       "batch": "M2 首页与列表",
       "designRoutes": [
         "search",
@@ -1729,7 +1729,7 @@
       "status": "部分迁移·待设计对齐与完整验收",
       "name": "账单搜索与批量操作",
       "priority": "P0",
-      "reason": "已按新稿重组搜索汇总、日期分组、批量选择和固定操作栏；接入真实标签/附件、双账户检索、原币/折算筛选与原子批量标签。119 项相关回归通过，整页视觉与新产物真机验收继续进行；成功撤销待 Q08。",
+      "reason": "已按新稿重组搜索汇总、日期分组、批量选择和固定操作栏；接入真实标签/附件、双账户检索、原币/折算筛选与原子批量标签。121 项相关回归通过，R18 已通过实际标签修改、取消、仅删除自有副本和正常重启，其余 51 笔及附件保持。视觉修正后的新产物复验继续进行；成功撤销待 Q08。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=search",
         "../../docs/design/card-refresh/prototype/demo.html?page=batch"

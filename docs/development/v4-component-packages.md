@@ -133,3 +133,5 @@ HTML 规范同样拆成 **基础 22 组、业务 30 组视觉样例**，合计 5
 `RecordingConversionSummary` 是两列紧布局的折算摘要，左侧说明、右侧金额与箭头；数据和汇率仍由 App 提供。完整剩余页面与优先级见 [迁移清单](v4-page-migration.md)。
 
 搜索页新增 `BeeSearchSummary`、`BeeBatchSelection`、`BeeBatchActionBar`，Flutter 第 35 分区与 HTML B30 同步展示。真实检索、标签/附件关系及筛选草稿留在 App binding；批量更新继续沿用原 Repository 与同步队列。
+
+搜索组件已从 HTML 实测冻结尺寸：汇总卡 362×142.5、17 内边距、19 号金额与分隔线；Flutter 字段排版允许 1px 取整差异。紧凑 `BeeChoiceChip` 视觉 34、高度 44 的触控区，并支持尾部图标。批量底栏保留 17 页面留边与 17 圆角。对应实际渲染与边缘点击回归。
