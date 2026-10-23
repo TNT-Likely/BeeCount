@@ -762,6 +762,30 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('仅删除本地'), findsOneWidget);
   });
+  testWidgets('附件来源弹层：拍照、相册与取消回到原组件', (tester) async {
+    await open(tester, const BusinessAcceptancePage(isolatedCase: 13));
+    final add = find.text('添加示例图片');
+    await tester.ensureVisible(add);
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(BeeMenuRow, '拍照'));
+    await tester.pumpAndSettle();
+    expect(find.text('选择拍照来源'), findsOneWidget);
+    await tester.ensureVisible(add);
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(BeeMenuRow, '从相册选择'));
+    await tester.pumpAndSettle();
+    expect(find.text('选择相册来源'), findsOneWidget);
+    await tester.ensureVisible(add);
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(CloseButton));
+    await tester.pumpAndSettle();
+    expect(find.text('选择相册来源'), findsOneWidget);
+    expect(find.byType(BeeSheet), findsNothing);
+  });
+
   testWidgets('附件数量布局与预览缩略图切换', (tester) async {
     await open(
         tester,

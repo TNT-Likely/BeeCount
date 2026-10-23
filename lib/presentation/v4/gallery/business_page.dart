@@ -94,12 +94,12 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
         BeeAction(
             id: 'local',
             label: '仅删除本地',
-            icon: BeeLineIcon('Delete'),
+            icon: BeeLineIcon('Trash2'),
             danger: true),
         BeeAction(
             id: 'delete',
             label: '删除账本',
-            icon: BeeLineIcon('Delete'),
+            icon: BeeLineIcon('Trash2'),
             danger: true)
       ];
   Future<void> menu() => showBeeSheet<void>(context,
@@ -619,7 +619,35 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                               items: attachments.take(n).toList(),
                               initialIndex: i)))),
               const SizedBox(height: 12)
-            ]
+            ],
+            BeeButton(
+                label: '添加示例图片',
+                onPressed: () => showBeeSheet<void>(context,
+                    title: '添加图片',
+                    child: BeeAttachmentSources(
+                        cameraLabel: '拍照',
+                        galleryLabel: '从相册选择',
+                        onCamera: () {
+                          Navigator.pop(context);
+                          record('选择拍照来源');
+                        },
+                        onGallery: () {
+                          Navigator.pop(context);
+                          record('选择相册来源');
+                        }))),
+            const SizedBox(height: 8),
+            BeeButton(
+                label: '全屏图片预览',
+                kind: BeeButtonKind.secondary,
+                onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                        builder: (screenContext) => Scaffold(
+                            body: BeeAttachmentViewer(
+                                items: attachments,
+                                fullScreen: true,
+                                onClose: () =>
+                                    Navigator.pop(screenContext)))))),
           ]),
         14 => BeeSurface(
             child: BeeImportMapping(

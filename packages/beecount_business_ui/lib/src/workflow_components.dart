@@ -2,6 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'finance_components.dart';
 
+/// The host owns permissions, platform pickers and attachment persistence.
+class BeeAttachmentSources extends StatelessWidget {
+  const BeeAttachmentSources(
+      {super.key,
+      required this.cameraLabel,
+      required this.galleryLabel,
+      required this.onCamera,
+      required this.onGallery});
+  final String cameraLabel, galleryLabel;
+  final VoidCallback onCamera, onGallery;
+
+  @override
+  Widget build(BuildContext context) =>
+      Column(mainAxisSize: MainAxisSize.min, children: [
+        BeeMenuRow(
+            title: cameraLabel,
+            leading: const BeeLineIcon('Camera', size: 21),
+            divider: true,
+            onTap: onCamera),
+        BeeMenuRow(
+            title: galleryLabel,
+            leading: const BeeLineIcon('ImagePlus', size: 21),
+            onTap: onGallery),
+      ]);
+}
+
 class BeeAttachment {
   const BeeAttachment(
       {required this.id,
@@ -84,62 +110,230 @@ class BeeAttachments extends StatelessWidget {
 
 class BeeAttachmentViewer extends StatefulWidget {
   const BeeAttachmentViewer(
-      {super.key, required this.items, this.initialIndex = 0});
+      {super.key,
+      required this.items,
+      this.initialIndex = 0,
+      this.currentIndex,
+      this.onIndexChanged,
+      this.fullScreen = false,
+      this.onClose,
+      this.onImageTap,
+      this.actions = const [],
+      this.busy = false,
+      this.emptyLabel = '',
+      this.errorLabel,
+      this.placeholder,
+      this.maxScale = 5});
   final List<BeeAttachment> items;
   final int initialIndex;
+  final int? currentIndex;
+  final ValueChanged<int>? onIndexChanged;
+  final bool fullScreen, busy;
+  final VoidCallback? onClose, onImageTap;
+  final List<Widget> actions;
+  final String emptyLabel;
+  final String? errorLabel;
+  final Widget? placeholder;
+  final double maxScale;
   @override
   State<BeeAttachmentViewer> createState() => _BeeAttachmentViewerState();
 }
 
 class _BeeAttachmentViewerState extends State<BeeAttachmentViewer> {
-  late int index = widget.initialIndex
-      .clamp(0, widget.items.isEmpty ? 0 : widget.items.length - 1);
+  late int index = _bounded(widget.currentIndex ?? widget.initialIndex);
+  late final PageController pages = PageController(initialPage: index);
+  int _bounded(int value) =>
+      value.clamp(0, widget.items.isEmpty ? 0 : widget.items.length - 1);
+  @override
+  void dispose() {
+    pages.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant BeeAttachmentViewer old) {
+    super.didUpdateWidget(old);
+    final next = _bounded(widget.currentIndex ?? index);
+    if (next != index || old.items.length != widget.items.length) {
+      index = next;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && pages.hasClients && widget.items.isNotEmpty) {
+          pages.jumpToPage(index);
+        }
+      });
+    }
+  }
+
+  void _changed(int value) {
+    setState(() => index = value);
+    widget.onIndexChanged?.call(value);
+  }
+
+  Widget _error(BuildContext context) =>
+      Column(mainAxisSize: MainAxisSize.min, children: [
+        BeeLineIcon('ImageOff',
+            size: 40, color: widget.fullScreen ? Colors.white54 : null),
+        if (widget.errorLabel != null) ...[
+          const SizedBox(height: 8),
+          Text(widget.errorLabel!,
+              style: TextStyle(
+                  fontSize: 12,
+                  color: widget.fullScreen
+                      ? Colors.white54
+                      : Theme.of(context).hintColor))
+        ],
+      ]);
+  Widget _viewport(BuildContext context) => widget.items.isEmpty
+      ? Center(
+          child: widget.placeholder ??
+              Text(widget.emptyLabel,
+                  style: TextStyle(
+                      color: widget.fullScreen ? Colors.white70 : null)))
+      : GestureDetector(
+          onTap: widget.onImageTap,
+          child: PageView.builder(
+              controller: pages,
+              itemCount: widget.items.length,
+              onPageChanged: _changed,
+              itemBuilder: (context, i) => InteractiveViewer(
+                  key: ValueKey('${widget.items[i].id}-$i'),
+                  minScale: .5,
+                  maxScale: widget.maxScale,
+                  child: Center(
+                      child: Image(
+                          image: widget.items[i].image,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, e, s) => _error(context))))));
+  Widget _thumbnails(BuildContext context) => SizedBox(
+      height: 64,
+      child: ListView(
+          scrollDirection: Axis.horizontal,
+          shrinkWrap: true,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          children: widget.items
+              .asMap()
+              .entries
+              .map((e) => Semantics(
+                  selected: e.key == index,
+                  button: true,
+                  label:
+                      '${e.key + 1} / ${widget.items.length} · ${e.value.label}',
+                  child: InkWell(
+                      onTap: () => pages.animateToPage(e.key,
+                          duration: const Duration(milliseconds: 180),
+                          curve: Curves.easeOut),
+                      child: Container(
+                          width: 56,
+                          margin: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(9),
+                              border: Border.all(
+                                  width: 2,
+                                  color: e.key == index
+                                      ? widget.fullScreen
+                                          ? Colors.white
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                      : Colors.transparent)),
+                          clipBehavior: Clip.antiAlias,
+                          child: Image(
+                              image: e.value.image,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, a, b) => BeeLineIcon('ImageOff',
+                                  color: widget.fullScreen
+                                      ? Colors.white54
+                                      : null))))))
+              .toList()));
+
   @override
   Widget build(BuildContext context) {
-    if (widget.items.isEmpty) return const SizedBox.shrink();
+    if (widget.fullScreen) {
+      return ColoredBox(
+          color: Colors.black,
+          child: AbsorbPointer(
+              absorbing: widget.busy,
+              child: Stack(children: [
+                Positioned.fill(child: _viewport(context)),
+                Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: DecoratedBox(
+                        decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                              Colors.black.withValues(alpha: .7),
+                              Colors.transparent
+                            ])),
+                        child: SafeArea(
+                            bottom: false,
+                            child: SizedBox(
+                                height: 56,
+                                child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Text(
+                                          widget.items.isEmpty
+                                              ? widget.emptyLabel
+                                              : '${index + 1} / ${widget.items.length}',
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.white)),
+                                      Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8),
+                                          child: Row(children: [
+                                            if (widget.onClose != null)
+                                              BeeIconButton(
+                                                  label:
+                                                      MaterialLocalizations.of(
+                                                              context)
+                                                          .closeButtonTooltip,
+                                                  icon: const BeeLineIcon('X',
+                                                      color: Colors.white),
+                                                  onPressed: widget.onClose),
+                                            const Spacer(),
+                                            ...widget.actions,
+                                          ])),
+                                    ]))))),
+                if (widget.items.isNotEmpty)
+                  Positioned(
+                      bottom: 12,
+                      left: 0,
+                      right: 0,
+                      child: SafeArea(
+                          top: false,
+                          child:
+                              Column(mainAxisSize: MainAxisSize.min, children: [
+                            if (widget.items[index].info.isNotEmpty)
+                              Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Text(widget.items[index].info,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.white70))),
+                            if (widget.items.length > 1) _thumbnails(context),
+                          ]))),
+                if (widget.busy)
+                  const Center(
+                      child: CircularProgressIndicator(color: Colors.white)),
+              ])));
+    }
+    if (widget.items.isEmpty) {
+      return widget.placeholder ?? const SizedBox.shrink();
+    }
     final item = widget.items[index];
     return Column(mainAxisSize: MainAxisSize.min, children: [
       Text('${index + 1} / ${widget.items.length} · ${item.label}'),
       const SizedBox(height: 8),
-      Flexible(
-          child: InteractiveViewer(
-              minScale: .5,
-              maxScale: 5,
-              child: Image(
-                  image: item.image,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, e, s) =>
-                      const BeeLineIcon('ImagePlus', size: 48)))),
+      Flexible(child: _viewport(context)),
       const SizedBox(height: 8),
       Text(item.info, style: const TextStyle(fontSize: 11)),
-      SizedBox(
-          height: 64,
-          child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: widget.items
-                  .asMap()
-                  .entries
-                  .map((e) => Semantics(
-                      selected: e.key == index,
-                      child: InkWell(
-                          onTap: () => setState(() => index = e.key),
-                          child: Container(
-                              width: 56,
-                              margin: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      width: 2,
-                                      color: e.key == index
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .primary
-                                          : Colors.transparent)),
-                              child: Image(
-                                  image: e.value.image,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, a, b) =>
-                                      const BeeLineIcon('ImagePlus'))))))
-                  .toList()))
+      _thumbnails(context),
     ]);
   }
 }

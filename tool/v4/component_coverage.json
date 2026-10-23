@@ -252,7 +252,8 @@
   {
     "design_key": "attachments",
     "components": [
-      "BeeAttachments"
+      "BeeAttachments",
+      "BeeAttachmentSources"
     ],
     "page": "business",
     "case": 13
