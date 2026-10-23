@@ -12,6 +12,9 @@ class BeeLineIcon extends StatelessWidget {
   Widget build(BuildContext context) => SvgPicture.asset(
         'assets/icons/$name.svg',
         package: 'beecount_ui',
+        // The parent control owns its label and role. An unlabeled decorative
+        // SVG must not turn a text field or a button into an image for TalkBack.
+        excludeFromSemantics: true,
         width: size,
         height: size,
         colorFilter: ColorFilter.mode(

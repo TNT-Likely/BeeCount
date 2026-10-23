@@ -51,6 +51,14 @@ class _BeeSearchFieldState extends State<BeeSearchField> {
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(13),
                       borderSide: BorderSide.none),
+                  disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(13),
+                      borderSide: BorderSide.none),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(13),
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 1.2)),
                   prefixIcon: const Padding(
                       padding: EdgeInsets.all(14),
                       child: BeeLineIcon('Search', size: 18)),

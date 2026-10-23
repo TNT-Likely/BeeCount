@@ -432,6 +432,7 @@ void main() {
     expect(tester.widget<BeeCheckTile>(all).mixed, isTrue);
   });
   testWidgets('搜索清空与外部 controller 所有权', (tester) async {
+    final semantics = tester.ensureSemantics();
     final controller = TextEditingController(text: '查询');
     String query = '查询';
     await open(
@@ -441,6 +442,10 @@ void main() {
             hint: '搜索',
             clearLabel: '清空搜索',
             onChanged: (v) => query = v));
+    final input = tester.getSemantics(find.byType(EditableText));
+    expect(input.hasFlag(ui.SemanticsFlag.isTextField), isTrue);
+    expect(input.hasFlag(ui.SemanticsFlag.isImage), isFalse);
+    semantics.dispose();
     await tester.tap(find.byTooltip('清空搜索'));
     await tester.pumpAndSettle();
     expect(controller.text, isEmpty);
