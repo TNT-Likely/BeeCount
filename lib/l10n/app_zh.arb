@@ -5,13 +5,7 @@
   "agentActivityThinking": "模型正在思考…",
   "agentActivityGenerating": "正在整理回答…",
   "agentExecutionCompletedSummary": "已完成 {count} 项操作",
-  "@agentExecutionCompletedSummary": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@agentExecutionCompletedSummary": {"placeholders":{"count":{"type":"int"}}},
   "agentExecutionFailedSummary": "部分操作未完成",
   "agentActivityUnknownTool": "本地操作",
   "agentActivityOverview": "收支概览",
@@ -19,29 +13,11 @@
   "agentActivityCategories": "支出分类",
   "agentActivityLeafCategories": "明细分类",
   "agentActivityCategoryScope": "分类：{categories}",
-  "@agentActivityCategoryScope": {
-    "placeholders": {
-      "categories": {
-        "type": "String"
-      }
-    }
-  },
+  "@agentActivityCategoryScope": {"placeholders":{"categories":{"type":"String"}}},
   "agentActivityReturnedRows": "已返回 {count} 笔交易",
-  "@agentActivityReturnedRows": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@agentActivityReturnedRows": {"placeholders":{"count":{"type":"int"}}},
   "agentActivityReturnedGroups": "已返回 {count} 个分组",
-  "@agentActivityReturnedGroups": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@agentActivityReturnedGroups": {"placeholders":{"count":{"type":"int"}}},
   "agentActivityTruncated": "仅返回部分结果",
   "agentFollowUpRotate": "换一组",
   "agentScrollToLatest": "回到最新消息",
@@ -59,78 +35,24 @@
   "agentSuggestionSavingPrompt": "分析本月一级分类支出占比和最近六个月的月度支出趋势，给出三到五条实用的省钱建议。依据实际查询结果，不推断未提供的个人情况；数据不足时说明限制。",
   "agentFollowUpTitle": "继续了解",
   "agentFollowUpRange": "{start} 至 {end}（不含结束时间）",
-  "@agentFollowUpRange": {
-    "placeholders": {
-      "start": {
-        "type": "String"
-      },
-      "end": {
-        "type": "String"
-      }
-    }
-  },
+  "@agentFollowUpRange": {"placeholders":{"start":{"type":"String"},"end":{"type":"String"}}},
   "agentFollowUpAllCategories": "全部支出分类",
   "agentFollowUpCategoryTitle": "查看分类占比",
   "agentFollowUpCategoryPrompt": "查询 {range} 的一级分类支出占比。",
-  "@agentFollowUpCategoryPrompt": {
-    "placeholders": {
-      "range": {
-        "type": "String"
-      }
-    }
-  },
+  "@agentFollowUpCategoryPrompt": {"placeholders":{"range":{"type":"String"}}},
   "agentFollowUpTrendTitle": "查看支出趋势",
   "agentFollowUpTrendPrompt": "按月列出 {range} 中{category}的支出，不做同比或环比比较。",
-  "@agentFollowUpTrendPrompt": {
-    "placeholders": {
-      "range": {
-        "type": "String"
-      },
-      "category": {
-        "type": "String"
-      }
-    }
-  },
+  "@agentFollowUpTrendPrompt": {"placeholders":{"range":{"type":"String"},"category":{"type":"String"}}},
   "agentFollowUpCompareTitle": "查看环比变化",
   "agentFollowUpComparePrompt": "按月列出 {range} 中{category}的支出及相邻月份环比变化。",
-  "@agentFollowUpComparePrompt": {
-    "placeholders": {
-      "range": {
-        "type": "String"
-      },
-      "category": {
-        "type": "String"
-      }
-    }
-  },
+  "@agentFollowUpComparePrompt": {"placeholders":{"range":{"type":"String"},"category":{"type":"String"}}},
   "agentFollowUpLeafTitle": "细看{category}",
-  "@agentFollowUpLeafTitle": {
-    "placeholders": {
-      "category": {
-        "type": "String"
-      }
-    }
-  },
+  "@agentFollowUpLeafTitle": {"placeholders":{"category":{"type":"String"}}},
   "agentFollowUpLeafPrompt": "查询 {range} 中「{category}」的明细分类支出占比。",
-  "@agentFollowUpLeafPrompt": {
-    "placeholders": {
-      "range": {
-        "type": "String"
-      },
-      "category": {
-        "type": "String"
-      }
-    }
-  },
+  "@agentFollowUpLeafPrompt": {"placeholders":{"range":{"type":"String"},"category":{"type":"String"}}},
   "agentFollowUpOverviewTitle": "查看收支概览",
   "agentFollowUpOverviewPrompt": "查询 {range} 的总收入、总支出和结余。",
-  "@agentFollowUpOverviewPrompt": {
-    "placeholders": {
-      "range": {
-        "type": "String"
-      }
-    }
-  },
+  "@agentFollowUpOverviewPrompt": {"placeholders":{"range":{"type":"String"}}},
   "aiConsentTitle": "开启 AI 功能前,请知悉",
   "aiConsentBody": "AI 功能需将相关数据发送给你所配置的第三方 AI 服务商进行处理:\n\n• 发送给谁:默认「智谱 GLM」(open.bigmodel.cn,由智谱华章运营);若你自行配置了其它第三方 AI 服务商,则发送给你填写的服务商。\n• 发送什么:你主动用于识别/对话的内容 —— 账单图片、语音录音、你输入的文字,以及为完成识别/分析所需的分类名称、账户名称和相关交易记录。\n• 用途:仅用于账单识别、记账与你发起的对话分析;蜜蜂记账自身不收集、不存储这些数据。\n\n数据由该第三方服务商按其隐私政策处理。开启即表示你同意上述数据共享。",
   "aiConsentAgree": "同意并开启",
@@ -282,10 +204,10 @@
   "widgetConsumptionRhythmStable": "消费很均匀",
   "widgetConsumptionRhythmIncrease": "比上周更快",
   "widgetConsumptionRhythmDecrease": "比上周更稳",
-  "widgetConsumptionRhythmEmpty": "近 30 天还没有支出",
+  "widgetConsumptionRhythmEmpty": "本月还没有支出",
   "widgetBeeTrailTitle": "记账连续蜂迹",
   "widgetBeeTrailStreakSuffix": "天",
-  "widgetBeeTrailCompletion": "近 28 天完成率",
+  "widgetBeeTrailCompletion": "本月完成率",
   "widgetBeeTrailEmpty": "今天记一笔，点亮第一格",
   "widgetTodayIncome": "今日收入",
   "widgetMonthExpense": "本月支出",
@@ -515,9 +437,7 @@
   "categoryGenerateDefaultSuccess": "已生成 {count} 个默认分类",
   "@categoryGenerateDefaultSuccess": {
     "placeholders": {
-      "count": {
-        "type": "int"
-      }
+      "count": { "type": "int" }
     }
   },
   "categoryGenerateDefaultNoChanges": "默认分类已存在，无需生成",
@@ -587,11 +507,7 @@
   "headerSkinFixedPalette": "自带配色",
   "personalizeLockedBySkin": "当前皮肤「{skin}」自带配色,主题色已随皮肤设定,暂不可更改。换回其它皮肤即可恢复你原来的颜色。",
   "@personalizeLockedBySkin": {
-    "placeholders": {
-      "skin": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "skin": { "type": "String" } }
   },
   "personalizeFixedSkinAction": "换皮肤",
   "headerSkinAurora": "极光",
@@ -1784,6 +1700,16 @@
   "widgetGalleryDashboardTitle": "综合仪表盘",
   "widgetDashboardTitle": "本月概览",
   "widgetGalleryDashboardDesc": "收支、趋势与最近交易一屏看尽",
+  "widgetConsumptionRhythmTitle": "消费节奏",
+  "widgetConsumptionRhythmRange": "近 30 天",
+  "widgetConsumptionRhythmStable": "消费很均匀",
+  "widgetConsumptionRhythmIncrease": "比上周更快",
+  "widgetConsumptionRhythmDecrease": "比上周更稳",
+  "widgetConsumptionRhythmEmpty": "近 30 天还没有支出",
+  "widgetBeeTrailTitle": "记账连续蜂迹",
+  "widgetBeeTrailStreakSuffix": "天",
+  "widgetBeeTrailCompletion": "近 28 天完成率",
+  "widgetBeeTrailEmpty": "今天记一笔，点亮第一格",
   "widgetGalleryConsumptionRhythmDesc": "近 30 天消费节奏一眼看清",
   "widgetGalleryBeeTrailDesc": "用蜂巢格养成每日记账习惯",
   "widgetSizeSmall": "小号",
@@ -1902,79 +1828,43 @@
   "autoBillingNotifyProcessFailedTitle": "❌ 处理失败",
   "autoBillingNotifyProcessFailedBody": "错误：{error}",
   "@autoBillingNotifyProcessFailedBody": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "error": { "type": "String" } }
   },
   "autoBillingNotifySuccessSingleTitle": "✅ 自动记账成功 ¥{amount}",
   "@autoBillingNotifySuccessSingleTitle": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "amount": { "type": "String" } }
   },
   "autoBillingNotifySuccessMultiTitle": "✅ 自动记账成功 {count} 笔",
   "@autoBillingNotifySuccessMultiTitle": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+    "placeholders": { "count": { "type": "int" } }
   },
   "autoBillingNotifySuccessMultiBody": "合计 ¥{amount}",
   "@autoBillingNotifySuccessMultiBody": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "amount": { "type": "String" } }
   },
   "autoBillingNotifySuccessSingleBodyNote": "备注：{note}",
   "@autoBillingNotifySuccessSingleBodyNote": {
-    "placeholders": {
-      "note": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "note": { "type": "String" } }
   },
   "autoBillingNotifySuccessSingleBodyDefault": "已自动创建记录",
   "aiOcrNoLedger": "未找到账本",
   "aiBillingRateMissingHint": "⚠️ 未取到 {currency} 汇率，已按 1:1 暂记，可在统计页「补折算」修正",
   "@aiBillingRateMissingHint": {
-    "placeholders": {
-      "currency": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "currency": { "type": "String" } }
   },
   "aiPromptVarCurrencies": "账本主币种 + 已在用的外币账户",
   "aiPromptVarBillGuard": "账单过滤段（仅截图 / 自动记账时注入）",
   "aiPromptMissingVarsHint": "你的自定义模板缺少这些变量，对应能力会失效：{vars}",
   "@aiPromptMissingVarsHint": {
-    "placeholders": {
-      "vars": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "vars": { "type": "String" } }
   },
   "aiPromptInsertVarSection": "插入 {name} 段落",
   "@aiPromptInsertVarSection": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "name": { "type": "String" } }
   },
   "aiPromptVarSectionInserted": "已追加 {name} 段落，确认后保存",
   "@aiPromptVarSectionInserted": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "name": { "type": "String" } }
   },
   "aiOcrSuccess": "✅ {type}账单创建成功 ¥{amount}",
   "@aiOcrSuccess": {
@@ -2025,12 +1915,8 @@
   "cloudSyncComplete": "同步完成：推送 {pushed} 条，拉取 {pulled} 条",
   "@cloudSyncComplete": {
     "placeholders": {
-      "pushed": {
-        "type": "int"
-      },
-      "pulled": {
-        "type": "int"
-      }
+      "pushed": {"type": "int"},
+      "pulled": {"type": "int"}
     }
   },
   "cloudAutoSyncHint": "数据变更后自动同步到云端",
@@ -2109,17 +1995,13 @@
   "productPromoEmailSubject": "申请内测 - {productName}",
   "@productPromoEmailSubject": {
     "placeholders": {
-      "productName": {
-        "type": "String"
-      }
+      "productName": { "type": "String" }
     }
   },
   "productPromoEmailBody": "你好,\n\n我希望加入「{productName}」的 Google Play 内测,我的 Google 账号邮箱是:\n\n(请填写你的 Gmail / Google 账号邮箱)\n\n谢谢!",
   "@productPromoEmailBody": {
     "placeholders": {
-      "productName": {
-        "type": "String"
-      }
+      "productName": { "type": "String" }
     }
   },
   "logCenterTitle": "日志中心",
@@ -2424,9 +2306,7 @@
   "aiChatEmptyTransactionCount": "{count} 笔",
   "@aiChatEmptyTransactionCount": {
     "placeholders": {
-      "count": {
-        "type": "int"
-      }
+      "count": {"type": "int"}
     }
   },
   "aiChatEmptyQuestionExample": "试着问：本月哪项花得最多？",
@@ -2458,30 +2338,20 @@
   "agentRecordIncomplete": "未识别到完整的记账信息，请补充金额和用途后重试。",
   "agentRecordCreated": "已创建 {count} 笔账单。",
   "@agentRecordCreated": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+    "placeholders": {"count": {"type": "int"}}
   },
   "agentStepsExceeded": "这次操作步骤过多，请简化后重试。",
   "agentExecutingTool": "正在执行：{tool}",
   "@agentExecutingTool": {
-    "placeholders": {
-      "tool": {}
-    }
+    "placeholders": {"tool": {}}
   },
   "agentToolCompleted": "已完成：{tool}",
   "@agentToolCompleted": {
-    "placeholders": {
-      "tool": {}
-    }
+    "placeholders": {"tool": {}}
   },
   "agentToolFailed": "执行失败：{tool}",
   "@agentToolFailed": {
-    "placeholders": {
-      "tool": {}
-    }
+    "placeholders": {"tool": {}}
   },
   "agentToolQueryTransactions": "查询交易",
   "agentToolSpendingSummary": "汇总支出",
@@ -2500,11 +2370,7 @@
   "agentPermissionsDefaultsActive": "所有工具都在使用默认策略",
   "agentPermissionsModifiedCount": "已自定义 {count} 项设置",
   "@agentPermissionsModifiedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+    "placeholders": {"count": {"type": "int"}}
   },
   "agentPermissionsRestoreDefaults": "恢复默认",
   "agentPermissionsRestoreTitle": "恢复默认权限？",
@@ -2527,11 +2393,7 @@
   "agentAuthorizationTitle": "允许 Agent 执行操作？",
   "agentAuthorizationCurrentLedger": "账本：当前账本（ID {ledgerId}）",
   "@agentAuthorizationCurrentLedger": {
-    "placeholders": {
-      "ledgerId": {
-        "type": "int"
-      }
-    }
+    "placeholders": {"ledgerId": {"type": "int"}}
   },
   "agentAuthorizationAllLedgers": "账本：所有可访问账本",
   "agentAuthorizationParameters": "本次会使用的信息",
@@ -3188,6 +3050,8 @@
   "budgetManagementDesc": "设置月度预算，控制支出",
   "budgetSetupHint": "设置预算，轻松掌控每月开支",
   "budgetSetupAction": "去设置",
+
+
   "syncHealthTitle": "同步状态",
   "cloudSyncHelpTitle": "同步说明 · 为什么有时同步不动？",
   "cloudSyncHelpModesTitle": "三种同步方式",
@@ -3202,9 +3066,7 @@
   "syncHealthCheckFailed": "检测失败：{msg}",
   "@syncHealthCheckFailed": {
     "placeholders": {
-      "msg": {
-        "type": "String"
-      }
+      "msg": { "type": "String" }
     }
   },
   "syncHealthHasDiff": "检测到差异，已自动同步",
@@ -3222,22 +3084,17 @@
   "syncHealthValue": "本地 {local} · 云端 {remote}",
   "@syncHealthValue": {
     "placeholders": {
-      "local": {
-        "type": "int"
-      },
-      "remote": {
-        "type": "int"
-      }
+      "local": { "type": "int" },
+      "remote": { "type": "int" }
     }
   },
   "syncHealthValueRemoteMissing": "本地 {local} · 云端 —",
   "@syncHealthValueRemoteMissing": {
     "placeholders": {
-      "local": {
-        "type": "int"
-      }
+      "local": { "type": "int" }
     }
   },
+
   "twofaChallengeTitle": "二次验证",
   "twofaMethodTotp": "动态码",
   "twofaMethodRecovery": "恢复码",
@@ -3248,9 +3105,7 @@
   "twofaCountdown": "剩余时间 {time}",
   "@twofaCountdown": {
     "placeholders": {
-      "time": {
-        "type": "String"
-      }
+      "time": { "type": "String" }
     }
   },
   "twofaVerifyButton": "验证",
@@ -3260,9 +3115,7 @@
   "twofaStatusEnabledAt": "启用于 {date}",
   "@twofaStatusEnabledAt": {
     "placeholders": {
-      "date": {
-        "type": "String"
-      }
+      "date": { "type": "String" }
     }
   },
   "twofaStatusManageHint": "请前往 Web 端管理(启用 / 禁用 / 重新生成恢复码)",
@@ -3279,53 +3132,17 @@
   "sharedJoinPreviewButton": "验证邀请码",
   "sharedJoinAcceptButton": "加入账本",
   "sharedJoinInvitedBy": "{name} 邀请你加入",
-  "@sharedJoinInvitedBy": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@sharedJoinInvitedBy": { "placeholders": { "name": { "type": "String" } } },
   "sharedJoinRoleLine": "角色:{role}",
-  "@sharedJoinRoleLine": {
-    "placeholders": {
-      "role": {
-        "type": "String"
-      }
-    }
-  },
+  "@sharedJoinRoleLine": { "placeholders": { "role": { "type": "String" } } },
   "sharedJoinExpiresInMinutes": "有效期还剩 {n} 分钟",
-  "@sharedJoinExpiresInMinutes": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
+  "@sharedJoinExpiresInMinutes": { "placeholders": { "n": { "type": "int" } } },
   "sharedJoinExpiresInHours": "有效期还剩 {n} 小时",
-  "@sharedJoinExpiresInHours": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
+  "@sharedJoinExpiresInHours": { "placeholders": { "n": { "type": "int" } } },
   "sharedJoinExpiresInDays": "有效期还剩 {n} 天",
-  "@sharedJoinExpiresInDays": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
+  "@sharedJoinExpiresInDays": { "placeholders": { "n": { "type": "int" } } },
   "sharedJoinSuccess": "已加入「{name}」",
-  "@sharedJoinSuccess": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@sharedJoinSuccess": { "placeholders": { "name": { "type": "String" } } },
   "sharedJoinCodeFormatError": "邀请码格式不对,请输入 6 位字母数字",
   "sharedJoinInvalidOrExpired": "邀请码无效或已过期,请向邀请人索取新码",
   "sharedJoinAlreadyMember": "你已经是该账本成员",
@@ -3334,48 +3151,24 @@
   "sharedInviteFormRole": "角色",
   "sharedInviteFormExpiry": "有效期",
   "sharedInviteExpiryHours": "{n} 小时",
-  "@sharedInviteExpiryHours": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
+  "@sharedInviteExpiryHours": { "placeholders": { "n": { "type": "int" } } },
   "sharedInviteExpiryDays": "{n} 天",
-  "@sharedInviteExpiryDays": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
+  "@sharedInviteExpiryDays": { "placeholders": { "n": { "type": "int" } } },
   "sharedInviteGenerate": "生成邀请码",
   "sharedInviteGenerateAnother": "生成另一个邀请码",
   "sharedInviteCopyCode": "复制邀请码",
   "sharedInviteCopyLink": "复制链接",
   "sharedInviteShareLink": "分享给好友",
   "sharedInviteExpiresAt": "邀请将在 {dt} 失效",
-  "@sharedInviteExpiresAt": {
-    "placeholders": {
-      "dt": {
-        "type": "String"
-      }
-    }
-  },
+  "@sharedInviteExpiresAt": { "placeholders": { "dt": { "type": "String" } } },
   "sharedInviteWarning": "⚠️ 不要把邀请码发到公开群 / 朋友圈。拿到码的任何人都可加入账本;泄露后请到成员管理页撤销并重新生成。",
   "sharedInviteInstruction": "把邀请码或短链发给对方。对方装上 BeeCount 后,点击链接或在「我的 → 加入共享账本」输入码即可加入。",
   "sharedInviteShareText": "邀请你加入 BeeCount 共享账本「{ledger}」\n\n邀请码:{code}\n链接:{url}\n\n点击链接或在 BeeCount → 我的 → 加入共享账本输入此码即可。",
   "@sharedInviteShareText": {
     "placeholders": {
-      "ledger": {
-        "type": "String"
-      },
-      "code": {
-        "type": "String"
-      },
-      "url": {
-        "type": "String"
-      }
+      "ledger": { "type": "String" },
+      "code": { "type": "String" },
+      "url": { "type": "String" }
     }
   },
   "sharedMembersPageTitle": "成员管理",
@@ -3384,69 +3177,27 @@
   "sharedMembersLeaveCta": "退出账本",
   "sharedMembersLeaveTitle": "退出账本",
   "sharedMembersLeaveConfirm": "退出「{name}」后将无法再访问其中的交易。确定继续吗?",
-  "@sharedMembersLeaveConfirm": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@sharedMembersLeaveConfirm": { "placeholders": { "name": { "type": "String" } } },
   "sharedMembersLeaveDone": "已退出账本",
   "sharedMembersRemoveTitle": "移除成员",
   "sharedMembersRemoveCta": "移除该成员",
   "sharedMembersRemoveConfirm": "确定移除 {name}?ta 将立即失去对该账本的访问。",
-  "@sharedMembersRemoveConfirm": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@sharedMembersRemoveConfirm": { "placeholders": { "name": { "type": "String" } } },
   "sharedMembersRemoved": "已移除成员",
   "sharedMembersTransferTitle": "转让所有权",
   "sharedMembersTransferTo": "转让给该成员",
   "sharedMembersTransferConfirm": "把账本所有权转给 {name}?你将变为编辑者,无法再邀请人 / 改账本名 / 删账本。",
-  "@sharedMembersTransferConfirm": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@sharedMembersTransferConfirm": { "placeholders": { "name": { "type": "String" } } },
   "sharedMembersTransferConfirmCta": "确认转让",
   "sharedMembersTransferDone": "已转让所有权",
   "sharedTxRecordedBy": "{name} 记的",
-  "@sharedTxRecordedBy": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@sharedTxRecordedBy": { "placeholders": { "name": { "type": "String" } } },
   "sharedTxCreatedBy": "{name} 创建",
-  "@sharedTxCreatedBy": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@sharedTxCreatedBy": { "placeholders": { "name": { "type": "String" } } },
   "sharedTxEditedBy": "{name} 最后编辑",
-  "@sharedTxEditedBy": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@sharedTxEditedBy": { "placeholders": { "name": { "type": "String" } } },
   "sharedTxCreatedAndEditedBy": "{name} 创建并编辑",
-  "@sharedTxCreatedAndEditedBy": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@sharedTxCreatedAndEditedBy": { "placeholders": { "name": { "type": "String" } } },
   "sharedRequiresCloudSync": "请先启用云同步",
   "sharedMembersStatsTitle": "成员收支",
   "sharedMembersStatsEmpty": "本期暂无记账",
@@ -3454,13 +3205,7 @@
   "sharedMembersStatsIncome": "总收入",
   "sharedMembersStatsExpense": "总支出",
   "sharedMembersStatsTxCount": "{count}笔",
-  "@sharedMembersStatsTxCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@sharedMembersStatsTxCount": { "placeholders": { "count": { "type": "int" } } },
   "maintenanceOrphanCleanupTitle": "数据清理",
   "maintenanceOrphanCleanupSubtitle": "检查并清理本地孤儿数据",
   "maintenanceOrphanRescan": "重新扫描",
@@ -3469,81 +3214,27 @@
   "maintenanceOrphanGroupFile": "磁盘文件孤儿",
   "maintenanceOrphanGroupSync": "同步状态孤儿",
   "maintenanceOrphanSummary": "发现 {count} 项异常",
-  "@maintenanceOrphanSummary": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@maintenanceOrphanSummary": { "placeholders": { "count": { "type": "int" } } },
   "maintenanceOrphanSummarySize": "可释放空间约 {size}",
-  "@maintenanceOrphanSummarySize": {
-    "placeholders": {
-      "size": {
-        "type": "String"
-      }
-    }
-  },
+  "@maintenanceOrphanSummarySize": { "placeholders": { "size": { "type": "String" } } },
   "maintenanceOrphanSelectAll": "全选",
   "maintenanceOrphanDeselectAll": "取消全选",
   "maintenanceOrphanDeleteOne": "删除此项",
   "maintenanceOrphanSelectedHint": "已选 {count} 项",
-  "@maintenanceOrphanSelectedHint": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@maintenanceOrphanSelectedHint": { "placeholders": { "count": { "type": "int" } } },
   "maintenanceOrphanCleanSelected": "清理已选",
   "maintenanceOrphanConfirmTitle": "确认清理",
   "maintenanceOrphanConfirmDeleteOne": "确定清理「{title}」吗？操作不可撤销。",
-  "@maintenanceOrphanConfirmDeleteOne": {
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
+  "@maintenanceOrphanConfirmDeleteOne": { "placeholders": { "title": { "type": "String" } } },
   "maintenanceOrphanConfirmDeleteBatch": "确定清理选中的 {count} 项吗？操作不可撤销。",
-  "@maintenanceOrphanConfirmDeleteBatch": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@maintenanceOrphanConfirmDeleteBatch": { "placeholders": { "count": { "type": "int" } } },
   "maintenanceOrphanCleanSuccess": "已清理 {count} 项",
-  "@maintenanceOrphanCleanSuccess": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@maintenanceOrphanCleanSuccess": { "placeholders": { "count": { "type": "int" } } },
   "maintenanceOrphanCleanPartial": "成功 {ok} 项,失败 {fail} 项",
-  "@maintenanceOrphanCleanPartial": {
-    "placeholders": {
-      "ok": {
-        "type": "int"
-      },
-      "fail": {
-        "type": "int"
-      }
-    }
-  },
+  "@maintenanceOrphanCleanPartial": { "placeholders": { "ok": { "type": "int" }, "fail": { "type": "int" } } },
   "syncProgressTitle": "正在同步",
   "syncProgressCount": "{applied} / {total} 条",
-  "@syncProgressCount": {
-    "placeholders": {
-      "applied": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@syncProgressCount": { "placeholders": { "applied": { "type": "int" }, "total": { "type": "int" } } },
   "exchangeRatePageTitle": "汇率管理",
   "exchangeRateEntrySubtitle": "自动获取汇率，支持手动修正",
   "baseCurrencyLabel": "主币种",
@@ -3589,37 +3280,20 @@
   "transactionDoubleTapHint": "双击再记",
   "transactionSavedNextCategory": "已保存，请选下一笔分类",
   "txConvertedPreview": "≈ {amount} {currency}",
-  "@txConvertedPreview": {
-    "placeholders": {
-      "amount": {},
-      "currency": {}
-    }
-  },
+  "@txConvertedPreview": { "placeholders": { "amount": {}, "currency": {} } },
   "txRateMissingHint": "请手动填写本笔汇率后保存",
   "txCrossCurrencyTransferBlocked": "暂不支持跨币种转账,请分别记两笔或使用同币种账户",
   "ledgerBaseCurrencyLabel": "主币种",
   "statsConvertedFootnote": "含外币,已按各笔记账时汇率折算为 {currency}",
-  "@statsConvertedFootnote": {
-    "placeholders": {
-      "currency": {}
-    }
-  },
+  "@statsConvertedFootnote": { "placeholders": { "currency": {} } },
   "ledgerCurrencyChangeRecalcHint": "修改本位币将按当前汇率重算全部历史交易的折算值",
   "recalcForeignTxBanner": "检测到该账本有未折算的外币交易",
   "recalcForeignTxAction": "按当前汇率重算折算",
   "recalcForeignTxDone": "已重算 {count} 笔外币交易的折算值",
-  "@recalcForeignTxDone": {
-    "placeholders": {
-      "count": {}
-    }
-  },
+  "@recalcForeignTxDone": { "placeholders": { "count": {} } },
   "txCurrencyPickerTitle": "选择币种",
   "recalcSyncCountHint": "将重算并同步 {count} 笔交易",
-  "@recalcSyncCountHint": {
-    "placeholders": {
-      "count": {}
-    }
-  },
+  "@recalcSyncCountHint": { "placeholders": { "count": {} } },
   "exportCsvHeaderCurrency": "币种",
   "importFieldCurrency": "币种",
   "currencyMOP": "澳门元",
@@ -3738,13 +3412,7 @@
   "agentExecutionDepthEntry": "执行深度",
   "agentExecutionDepthEntryDescription": "更高的上限可处理更多步骤，但响应可能更慢。",
   "agentExecutionDepthSelected": "最多 {turns} 个模型回合",
-  "@agentExecutionDepthSelected": {
-    "placeholders": {
-      "turns": {
-        "type": "int"
-      }
-    }
-  },
+  "@agentExecutionDepthSelected": {"placeholders": {"turns": {"type": "int"}}},
   "agentExecutionDepthChooseTitle": "执行深度",
   "agentExecutionDepthQuick": "快速",
   "agentExecutionDepthStandard": "标准",
@@ -3897,6 +3565,7 @@
   "donationUnknownError": "未知错误",
   "donationVerificationFailed": "购买验证失败",
   "donationRestoreFailed": "恢复购买失败: {error}",
+  "updateDownloadComplete": "下载完成",
   "updateDownloadDone": "完成",
   "attachmentArchiveMissing": "归档文件不存在",
   "attachmentArchiveInvalidFormat": "归档格式错误：缺少 metadata.json",
@@ -3985,13 +3654,7 @@
   "v4SearchHint": "搜索备注、分类、金额、标签",
   "v4SearchFilterActive": "已应用筛选",
   "v4SearchSelected": "已选择 {count} 笔",
-  "@v4SearchSelected": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@v4SearchSelected": {"placeholders": {"count": {"type": "int"}}},
   "v4DetailMonth": "本月",
   "v4DetailYear": "本年",
   "v4DetailCumulative": "累计",
@@ -4002,40 +3665,13 @@
   "v4DetailRecent": "近期账单",
   "v4DetailCollapse": "收起明细",
   "v4DetailCategoryChildren": "一级分类 · {count} 个二级分类",
-  "@v4DetailCategoryChildren": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@v4DetailCategoryChildren": {"placeholders": {"count": {"type": "int"}}},
   "v4DetailAmountLabel": "{period}{kind}",
-  "@v4DetailAmountLabel": {
-    "placeholders": {
-      "period": {
-        "type": "String"
-      },
-      "kind": {
-        "type": "String"
-      }
-    }
-  },
+  "@v4DetailAmountLabel": {"placeholders": {"period": {"type": "String"}, "kind": {"type": "String"}}},
   "v4DetailAllTransactions": "查看全部 {count} 笔",
-  "@v4DetailAllTransactions": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@v4DetailAllTransactions": {"placeholders": {"count": {"type": "int"}}},
   "v4DetailRecord": "记一笔 · {name}",
-  "@v4DetailRecord": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@v4DetailRecord": {"placeholders": {"name": {"type": "String"}}},
   "v4MineCloudGroup": "云服务与同步",
   "v4MineFeaturesGroup": "功能管理",
   "v4MineHelpGroup": "帮助与信息",
