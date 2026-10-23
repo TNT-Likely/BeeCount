@@ -137,9 +137,31 @@ VoidCallback showBeeToast(BuildContext context, String message,
     {Duration duration = const Duration(seconds: 2),
     BeeTone tone = BeeTone.neutral}) {
   final overlay = Overlay.of(context);
-  _activeToasts[overlay]?.call();
   // Capture inherited themes now; the caller may leave before the toast expires.
   final themes = InheritedTheme.capture(from: context, to: overlay.context);
+  return _showBeeToast(
+      overlay, themes.wrap(BeeToast(message: message, tone: tone)), duration);
+}
+
+/// Global services can use the navigator overlay without a descendant context.
+VoidCallback showBeeToastOnOverlay(OverlayState overlay, String message,
+    {Duration duration = const Duration(seconds: 2),
+    BeeTone tone = BeeTone.neutral,
+    Brightness? brightness}) {
+  final theme = Theme.of(overlay.context);
+  return _showBeeToast(
+      overlay,
+      Theme(
+          data: brightness == null
+              ? theme
+              : theme.copyWith(brightness: brightness),
+          child: BeeToast(message: message, tone: tone)),
+      duration);
+}
+
+VoidCallback _showBeeToast(
+    OverlayState overlay, Widget toast, Duration duration) {
+  _activeToasts[overlay]?.call();
   var closed = false;
   Timer? timer;
   late OverlayEntry entry;
@@ -159,9 +181,7 @@ VoidCallback showBeeToast(BuildContext context, String message,
                   child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
                       child: Align(
-                          alignment: Alignment.topCenter,
-                          child: themes.wrap(
-                              BeeToast(message: message, tone: tone))))))));
+                          alignment: Alignment.topCenter, child: toast))))));
   overlay.insert(entry);
   _activeToasts[overlay] = close;
   timer = Timer(duration, close);

@@ -750,7 +750,8 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       if (rate == null || rate <= 0) {
         if (mounted) {
           setState(() => _isSubmitting = false);
-          showToast(context, AppLocalizations.of(context).txRateMissingHint);
+          showToast(context, AppLocalizations.of(context).txRateMissingHint,
+              tone: BeeTone.warning);
         }
         return;
       }
@@ -758,7 +759,8 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     }
     if (!nativeAmount.isFinite) {
       setState(() => _isSubmitting = false);
-      showToast(context, AppLocalizations.of(context).v4RecordingSaveFailed);
+      showToast(context, AppLocalizations.of(context).v4RecordingSaveFailed,
+          tone: BeeTone.error);
       return;
     }
 
@@ -781,7 +783,8 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       ));
     } catch (_) {
       if (mounted) {
-        showToast(context, AppLocalizations.of(context).v4RecordingSaveFailed);
+        showToast(context, AppLocalizations.of(context).v4RecordingSaveFailed,
+            tone: BeeTone.error);
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);

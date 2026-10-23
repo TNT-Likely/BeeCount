@@ -146,7 +146,8 @@ class _TransferFormState extends ConsumerState<TransferForm> {
           _toAccountId == widget.initialToAccountId;
       if (!isOriginalPair) {
         if (mounted) {
-          showToast(context, l10n.transferDifferentCurrencyError);
+          showToast(context, l10n.transferDifferentCurrencyError,
+              tone: BeeTone.error);
           // 重置转入账户
           setState(() => _toAccountId = null);
         }
@@ -292,7 +293,8 @@ class _TransferFormState extends ConsumerState<TransferForm> {
 
                     if (!context.mounted) return;
                     Navigator.of(context).pop(); // 关闭金额输入弹窗
-                    showToast(context, l10n.transferUpdateSuccess);
+                    showToast(context, l10n.transferUpdateSuccess,
+                        tone: BeeTone.success);
                     widget.onTransferComplete();
                   } else {
                     // 创建模式：新建转账记录
@@ -344,7 +346,8 @@ class _TransferFormState extends ConsumerState<TransferForm> {
 
                     if (!context.mounted) return;
                     Navigator.of(context).pop(); // 关闭金额输入弹窗
-                    showToast(context, l10n.transferCreateSuccess);
+                    showToast(context, l10n.transferCreateSuccess,
+                        tone: BeeTone.success);
 
                     // 重置状态
                     setState(() {
@@ -357,7 +360,8 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                 } catch (e) {
                   if (context.mounted) {
                     Navigator.of(context).pop();
-                    showToast(context, '${l10n.commonError}: $e');
+                    showToast(context, '${l10n.commonError}: $e',
+                        tone: BeeTone.error);
                   }
                 }
               },

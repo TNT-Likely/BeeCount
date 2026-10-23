@@ -844,6 +844,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
       showToast(
         context,
         AppLocalizations.of(context).transactionSavedNextCategory,
+        tone: BeeTone.success,
       );
     }
     // 反馈：轻微触感 + 系统点击音
