@@ -144,6 +144,36 @@ void main() {
     await close(tester);
   });
 
+  testWidgets('双指缩放实际改变图片矩阵，不误触关闭或切换并保持原附件', (tester) async {
+    await open(
+        tester,
+        const AttachmentPreviewPage.fromTransaction(
+            transactionId: 1, allowDelete: false));
+    final viewer = find.byType(InteractiveViewer).first;
+    final center = tester.getCenter(viewer);
+    final left =
+        await tester.startGesture(center - const Offset(40, 0), pointer: 1);
+    final right =
+        await tester.startGesture(center + const Offset(40, 0), pointer: 2);
+    await tester.pump();
+    await left.moveTo(center - const Offset(140, 0));
+    await right.moveTo(center + const Offset(140, 0));
+    await tester.pump(const Duration(milliseconds: 50));
+    final transforms = tester.widgetList<Transform>(
+        find.descendant(of: viewer, matching: find.byType(Transform)));
+    expect(
+        transforms.any((t) => t.transform.getMaxScaleOnAxis() > 1.5), isTrue);
+    await left.up();
+    await right.up();
+    await tester.pumpAndSettle();
+    expect(find.text('1 / 2'), findsOneWidget);
+    expect(find.byType(AttachmentPreviewPage), findsOneWidget);
+    expect(await repo.getAttachmentsByTransaction(1), rows);
+    expect(pending.every((file) => file.existsSync()), isTrue);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+
   testWidgets('删除取消不改数据，确认只删当前引用并保留共享图片', (tester) async {
     await open(
         tester, const AttachmentPreviewPage.fromTransaction(transactionId: 1));
