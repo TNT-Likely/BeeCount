@@ -97,40 +97,63 @@ class _RecordingCategorySectionState
   }
 
   Future<void> _more() async {
-    final result = await showModalBottomSheet<Category>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: BeeCardTheme.of(context).canvas,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      builder: (context) => SizedBox(
-          height: MediaQuery.sizeOf(context).height * .75,
-          child: Column(children: [
-            Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 8, 0),
-                child: Row(children: [
-                  Expanded(
-                      child: Text(
-                          AppLocalizations.of(context)
-                              .v4RecordingMoreCategories,
-                          style: Theme.of(context).textTheme.titleMedium)),
-                  IconButton(
-                      tooltip: AppLocalizations.of(context).commonClose,
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close)),
-                ])),
-            Expanded(
-                child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(12),
-                    child: RecordingCategorySection(
-                        ledgerId: widget.ledgerId,
-                        kind: widget.kind,
-                        selectedId: widget.selectedId,
-                        showAll: true,
-                        onSelected: (category) =>
-                            Navigator.pop(context, category)))),
-          ])),
+    final l10n = AppLocalizations.of(context);
+    final query = (ledgerId: widget.ledgerId, kind: widget.kind);
+    final result = await showBeeSheet<Category>(
+      context,
+      title: l10n.v4RecordingMoreCategories,
+      child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * .65,
+          child: Consumer(
+              builder: (sheetContext, ref, _) => ref
+                  .watch(recordingCategoriesProvider(query))
+                  .when(
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (_, __) => BeeStatus(
+                          label: l10n.v4RecordingCategoriesFailed,
+                          tone: BeeTone.error,
+                          action: BeeButton(
+                              label: l10n.v4RecordingRetry,
+                              onPressed: () => ref.invalidate(
+                                  recordingCategoriesProvider(query)))),
+                      data: (all) {
+                        BeeCategoryChoice choice(Category category,
+                                {bool withChildren = false}) =>
+                            BeeCategoryChoice(
+                                id: '${category.id}',
+                                label: CategoryUtils.getDisplayName(
+                                    category.name, context),
+                                icon: RecordingCategoryIcon(
+                                    category: category, size: 18),
+                                children: withChildren
+                                    ? all
+                                        .where((c) => c.parentId == category.id)
+                                        .map((c) => choice(c))
+                                        .toList()
+                                    : const []);
+                        return Column(children: [
+                          Expanded(
+                              child: BeeCategoryPicker(
+                                  items: all
+                                      .where((c) => c.level == 1)
+                                      .map((c) => choice(c, withChildren: true))
+                                      .toList(),
+                                  selected: widget.selectedId?.toString(),
+                                  searchLabel: l10n.searchCategoryHint,
+                                  emptyLabel: l10n.categoryEmpty,
+                                  confirmLabel: l10n.commonConfirm,
+                                  cancelLabel: l10n.commonCancel,
+                                  onConfirm: (id) => Navigator.pop(sheetContext,
+                                      all.firstWhere((c) => '${c.id}' == id)),
+                                  onCancel: () => Navigator.pop(sheetContext))),
+                          TextButton.icon(
+                              onPressed: _manage,
+                              icon: const BeeLineIcon('SlidersHorizontal',
+                                  size: 18),
+                              label: Text(l10n.mineCategoryManagement)),
+                        ]);
+                      }))),
     );
     if (result != null && mounted) {
       setState(() => _expandedId = result.parentId ?? result.id);
@@ -141,6 +164,10 @@ class _RecordingCategorySectionState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final narrow = MediaQuery.sizeOf(context).width <= 340 &&
+        MediaQuery.sizeOf(context).height -
+                MediaQuery.viewPaddingOf(context).vertical <
+            720;
     final query = (ledgerId: widget.ledgerId, kind: widget.kind);
     return ref.watch(recordingCategoriesProvider(query)).when(
           loading: () => const BeeSurface(
@@ -189,6 +216,7 @@ class _RecordingCategorySectionState
               final selected = widget.selectedId == category.id ||
                   (!child && activeParent == category.id);
               return RecordingCategoryTile(
+                  compact: narrow,
                   key: ValueKey('recording-category-${category.id}'),
                   label: CategoryUtils.getDisplayName(category.name, context),
                   selected: selected,
@@ -217,6 +245,7 @@ class _RecordingCategorySectionState
             final entries = <Widget>[...visible.map(tile)];
             if (!widget.showAll) {
               entries.add(RecordingCategoryTile(
+                  compact: narrow,
                   key: const ValueKey('recording-more-categories'),
                   label: l10n.v4RecordingMoreCategories,
                   icon: const BeeLineIcon('Grid2x2', size: 18),
@@ -243,7 +272,7 @@ class _RecordingCategorySectionState
                     .toList();
                 if (parent != null && children.isNotEmpty) {
                   rows.add(Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    margin: const EdgeInsets.symmetric(vertical: 6),
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                         color: BeeCardTheme.of(context).soft,
@@ -308,8 +337,8 @@ class _RecordingCategorySectionState
                   label: Text(l10n.mineCategoryManagement)));
             }
             return BeeSurface(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 13, vertical: narrow ? 2 : 10),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: rows));

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:beecount_ui/beecount_ui.dart';
@@ -12,6 +14,7 @@ import 'package:beecount/providers.dart';
 import 'package:beecount/utils/shared_ledger_picker_filter.dart';
 import 'package:beecount/widgets/biz/amount_editor_sheet.dart';
 import 'package:beecount/widgets/biz/account_selector.dart';
+import 'package:beecount/widgets/biz/note_picker_dialog.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -102,13 +105,14 @@ void main() {
     Size size = const Size(390, 844),
     bool accountsEnabled = false,
     double safeTop = 0,
+    double safeBottom = 0,
     double textScale = 1,
     Brightness brightness = Brightness.light,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = size;
-    tester.view.padding = FakeViewPadding(top: safeTop);
-    tester.view.viewPadding = FakeViewPadding(top: safeTop);
+    tester.view.padding = FakeViewPadding(top: safeTop, bottom: safeBottom);
+    tester.view.viewPadding = FakeViewPadding(top: safeTop, bottom: safeBottom);
     addTearDown(tester.view.resetPadding);
     addTearDown(tester.view.resetViewPadding);
     addTearDown(tester.view.resetPhysicalSize);
@@ -211,6 +215,49 @@ void main() {
     });
   }
 
+  final frozenDesign = jsonDecode(
+      File('test/fixtures/v4-recording-design-geometry.json')
+          .readAsStringSync()) as Map<String, dynamic>;
+  for (final entry in frozenDesign['cases'] as List<dynamic>) {
+    final id = entry['id'] as String;
+    final boxes = entry['geometry'] as Map<String, dynamic>;
+    recordingTest('对齐 R8 HTML 已冻结尺寸：$id', (tester) async {
+      final size = Size((boxes['phone']['w'] as num).toDouble(),
+          (boxes['phone']['h'] as num).toDouble());
+      final compact = size.height < 720;
+      await open(tester,
+          size: size,
+          accountsEnabled: true,
+          safeTop: compact ? 21 : 37,
+          safeBottom: compact ? 1 : 12,
+          textScale: id == 'usd-large-text' ? 1.4 : 1,
+          page: TransactionEditorPage(
+              initialKind: 'expense',
+              quickAdd: true,
+              useV4: true,
+              initialAmount: id.startsWith('usd') ? 12 : 32,
+              initialCurrencyCode: id.startsWith('usd') ? 'USD' : 'CNY',
+              initialNativeAmount: id.startsWith('usd') ? 85.2 : 32));
+      final finders = {
+        'amount': find.byType(RecordingAmountCard),
+        'category': find.byKey(const ValueKey('recording-content')),
+        'metadata': find.byKey(const ValueKey('recording-details')),
+        'keypad': find.byType(RecordingKeypad),
+        'save': find.byKey(const ValueKey('recording-save')),
+      };
+      for (final part in finders.entries) {
+        final actual = tester.getRect(part.value);
+        final expected = boxes[part.key] as Map<String, dynamic>;
+        expect(actual.top, closeTo((expected['y'] as num).toDouble(), .1),
+            reason: '$id ${part.key} top');
+        expect(actual.height, closeTo((expected['h'] as num).toDouble(), .1),
+            reason: '$id ${part.key} height');
+      }
+      await capture(tester, 'design-contract-$id');
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   recordingTest('真实录入：二级分类、四则运算、备注、连续保存和正常退出', (tester) async {
     await open(tester);
     expect(
@@ -266,6 +313,36 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  recordingTest('备注图标保留历史备注，选择后仍可直接修改并保存', (tester) async {
+    await repo.addTransaction(
+        ledgerId: 1,
+        type: 'expense',
+        amount: 8,
+        categoryId: foodId,
+        happenedAt: DateTime.now(),
+        note: '历史午餐');
+    await open(tester,
+        page: TransactionEditorPage(
+            initialCategoryId: foodId,
+            initialKind: 'expense',
+            quickAdd: true,
+            useV4: true));
+    await tester.tap(find.byKey(const ValueKey('recording-note-history')));
+    await tester.pumpAndSettle();
+    expect(find.byType(NotePickerDialog), findsOneWidget);
+    await tester.tap(find.text('历史午餐 · 1'));
+    await tester.pumpAndSettle();
+    final note = find.byKey(const ValueKey('recording-note'));
+    expect(tester.widget<TextField>(note).controller!.text, '历史午餐');
+    await tester.enterText(note, '历史午餐修改');
+    await key(tester, '9');
+    await press(tester, 'recording-save');
+    await tester.pumpAndSettle();
+    expect((await db.select(db.transactions).get()).map((t) => t.note),
+        containsAll(['历史午餐', '历史午餐修改']));
+    expect(tester.takeException(), isNull);
+  });
+
   recordingTest('两行表单：备注直接编辑、附件右上角、间距和顶部标记入口', (tester) async {
     await open(tester, accountsEnabled: true);
     final amount =
@@ -315,6 +392,9 @@ void main() {
         of: find.byType(BottomSheet), matching: find.text('其他'));
     expect(other, findsOneWidget);
     await tester.tap(other);
+    await tester.pumpAndSettle();
+    await tester.tap(find.descendant(
+        of: find.byType(BottomSheet), matching: find.text('确定')));
     await tester.pumpAndSettle();
     expect(
         tester
@@ -587,8 +667,10 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 100));
     });
     await tester.pumpAndSettle();
-    final fallback =
-        find.descendant(of: tile, matching: find.byIcon(Icons.category));
+    final fallback = find.descendant(
+        of: tile,
+        matching: find
+            .byWidgetPredicate((w) => w is BeeLineIcon && w.name == 'Shapes'));
     for (var frame = 0; frame < 10 && fallback.evaluate().isEmpty; frame++) {
       await tester.runAsync(() async {
         await Future<void>.delayed(const Duration(milliseconds: 25));

@@ -1,0 +1,377 @@
+{
+  "source": "docs/design/card-refresh/boards/recording-review.html · R8; Chromium measured boxes before Flutter alignment",
+  "coordinateNote": "37/21px top includes the HTML phone 1px border; 12/1px bottom normalizes its safe region. Horizontal frame border is excluded.",
+  "cases": [
+    {
+      "id": "cny-standard",
+      "geometry": {
+        "phone": {
+          "w": 398,
+          "h": 844
+        },
+        "mainOverflow": 0,
+        "category": {
+          "y": 216,
+          "h": 249,
+          "bottom": 465
+        },
+        "amount": {
+          "y": 87,
+          "h": 121,
+          "bottom": 208
+        },
+        "metadata": {
+          "y": 473,
+          "h": 89,
+          "bottom": 562
+        },
+        "keypad": {
+          "y": 570,
+          "h": 199,
+          "bottom": 769
+        },
+        "save": {
+          "y": 776,
+          "h": 44,
+          "bottom": 820
+        },
+        "keys": [
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46
+        ]
+      }
+    },
+    {
+      "id": "usd-long",
+      "geometry": {
+        "phone": {
+          "w": 398,
+          "h": 900
+        },
+        "mainOverflow": 0,
+        "category": {
+          "y": 216,
+          "h": 305,
+          "bottom": 521
+        },
+        "amount": {
+          "y": 87,
+          "h": 121,
+          "bottom": 208
+        },
+        "metadata": {
+          "y": 529,
+          "h": 89,
+          "bottom": 618
+        },
+        "keypad": {
+          "y": 626,
+          "h": 199,
+          "bottom": 825
+        },
+        "save": {
+          "y": 832,
+          "h": 44,
+          "bottom": 876
+        },
+        "keys": [
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46
+        ]
+      }
+    },
+    {
+      "id": "usd-standard",
+      "geometry": {
+        "phone": {
+          "w": 398,
+          "h": 844
+        },
+        "mainOverflow": 0,
+        "category": {
+          "y": 216,
+          "h": 249,
+          "bottom": 465
+        },
+        "amount": {
+          "y": 87,
+          "h": 121,
+          "bottom": 208
+        },
+        "metadata": {
+          "y": 473,
+          "h": 89,
+          "bottom": 562
+        },
+        "keypad": {
+          "y": 570,
+          "h": 199,
+          "bottom": 769
+        },
+        "save": {
+          "y": 776,
+          "h": 44,
+          "bottom": 820
+        },
+        "keys": [
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46,
+          46
+        ]
+      }
+    },
+    {
+      "id": "usd-short",
+      "geometry": {
+        "phone": {
+          "w": 375,
+          "h": 667
+        },
+        "mainOverflow": 0,
+        "category": {
+          "y": 137,
+          "h": 215,
+          "bottom": 352
+        },
+        "amount": {
+          "y": 67,
+          "h": 62,
+          "bottom": 129
+        },
+        "metadata": {
+          "y": 360,
+          "h": 44,
+          "bottom": 404
+        },
+        "keypad": {
+          "y": 412,
+          "h": 191,
+          "bottom": 603
+        },
+        "save": {
+          "y": 610,
+          "h": 44,
+          "bottom": 654
+        },
+        "keys": [
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44
+        ]
+      }
+    },
+    {
+      "id": "usd-small",
+      "geometry": {
+        "phone": {
+          "w": 320,
+          "h": 568
+        },
+        "mainOverflow": 0,
+        "category": {
+          "y": 133,
+          "h": 124,
+          "bottom": 257
+        },
+        "amount": {
+          "y": 65,
+          "h": 62,
+          "bottom": 127
+        },
+        "metadata": {
+          "y": 263,
+          "h": 44,
+          "bottom": 307
+        },
+        "keypad": {
+          "y": 315,
+          "h": 191,
+          "bottom": 506
+        },
+        "save": {
+          "y": 511,
+          "h": 44,
+          "bottom": 555
+        },
+        "keys": [
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44
+        ]
+      }
+    },
+    {
+      "id": "cny-small",
+      "geometry": {
+        "phone": {
+          "w": 320,
+          "h": 568
+        },
+        "mainOverflow": 0,
+        "category": {
+          "y": 115,
+          "h": 142,
+          "bottom": 257
+        },
+        "amount": {
+          "y": 65,
+          "h": 44,
+          "bottom": 109
+        },
+        "metadata": {
+          "y": 263,
+          "h": 44,
+          "bottom": 307
+        },
+        "keypad": {
+          "y": 315,
+          "h": 191,
+          "bottom": 506
+        },
+        "save": {
+          "y": 511,
+          "h": 44,
+          "bottom": 555
+        },
+        "keys": [
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44
+        ]
+      }
+    },
+    {
+      "id": "usd-large-text",
+      "geometry": {
+        "phone": {
+          "w": 320,
+          "h": 568
+        },
+        "mainOverflow": 0,
+        "category": {
+          "y": 133,
+          "h": 124,
+          "bottom": 257
+        },
+        "amount": {
+          "y": 65,
+          "h": 62,
+          "bottom": 127
+        },
+        "metadata": {
+          "y": 263,
+          "h": 44,
+          "bottom": 307
+        },
+        "keypad": {
+          "y": 315,
+          "h": 191,
+          "bottom": 506
+        },
+        "save": {
+          "y": 511,
+          "h": 44,
+          "bottom": 555
+        },
+        "keys": [
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44
+        ]
+      }
+    }
+  ]
+}

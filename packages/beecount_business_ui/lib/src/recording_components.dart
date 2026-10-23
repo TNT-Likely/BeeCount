@@ -194,7 +194,9 @@ class RecordingCategoryTile extends StatelessWidget {
       required this.onTap,
       this.selected = false,
       this.expanded = false,
-      this.hasChildren = false});
+      this.hasChildren = false,
+      this.compact = false});
+  final bool compact;
   final String label;
   final Widget icon;
   final VoidCallback onTap;
@@ -211,41 +213,44 @@ class RecordingCategoryTile extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(14),
-          child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                      width: 34,
-                      height: 34,
-                      decoration: BoxDecoration(
-                          color: selected
-                              ? theme.colorScheme.primary
-                              : BeeCardTheme.of(context).soft,
-                          borderRadius: BorderRadius.circular(12)),
-                      child: Stack(children: [
-                        Center(child: icon),
-                        if (hasChildren)
-                          Positioned(
-                              right: 0,
-                              bottom: 0,
-                              child: Icon(
-                                  expanded
-                                      ? Icons.keyboard_arrow_up
-                                      : Icons.keyboard_arrow_down,
-                                  size: 13)),
-                      ])),
-                  const SizedBox(height: 4),
-                  Text(label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          fontWeight:
-                              selected ? FontWeight.w600 : FontWeight.w400)),
-                ],
-              )),
+          child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: compact ? 61 : 64),
+              child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: compact ? 3 : 6),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                              color: selected
+                                  ? theme.colorScheme.primary
+                                  : BeeCardTheme.of(context).soft,
+                              borderRadius: BorderRadius.circular(12)),
+                          child: Stack(children: [
+                            Center(child: icon),
+                            if (hasChildren)
+                              Positioned(
+                                  right: 0,
+                                  bottom: 0,
+                                  child: Icon(
+                                      expanded
+                                          ? Icons.keyboard_arrow_up
+                                          : Icons.keyboard_arrow_down,
+                                      size: 13)),
+                          ])),
+                      const SizedBox(height: 4),
+                      Text(label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                              fontSize: compact ? 10 : 11,
+                              fontWeight: selected
+                                  ? FontWeight.w600
+                                  : FontWeight.w400)),
+                    ],
+                  ))),
         ));
   }
 }

@@ -1,3 +1,4 @@
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
@@ -10,6 +11,7 @@ import '../../providers.dart';
 /// 支持本地与共享账本分类标识，用于筛选历史备注。
 class NotePickerDialog extends ConsumerStatefulWidget {
   final int ledgerId;
+  final bool useV4;
   final int? categoryId; // 可选：本地分类ID
   final String? categorySyncId; // 可选：共享账本分类同步ID
   final ValueChanged<String> onNotePicked;
@@ -18,6 +20,7 @@ class NotePickerDialog extends ConsumerStatefulWidget {
     super.key,
     required this.ledgerId,
     this.categoryId,
+    this.useV4 = false,
     this.categorySyncId,
     required this.onNotePicked,
   });
@@ -65,6 +68,46 @@ class _NotePickerDialogState extends ConsumerState<NotePickerDialog> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
+    if (widget.useV4) {
+      return BeeDialog(
+          title: Text(l10n.appearanceNoteHistory),
+          content: SizedBox(
+              width: 320,
+              child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                      maxHeight: MediaQuery.sizeOf(context).height * .45),
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _notes.isEmpty
+                          ? BeeEmptyState(title: l10n.commonEmpty)
+                          : SingleChildScrollView(
+                              child: Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: _notes
+                                      .map((item) => ActionChip(
+                                          label: Text(
+                                              '${item.note} · ${item.usageCount}',
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis),
+                                          side: BorderSide.none,
+                                          backgroundColor:
+                                              BeeCardTheme.of(context).soft,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12)),
+                                          onPressed: () {
+                                            widget.onNotePicked(item.note);
+                                            Navigator.pop(context);
+                                          }))
+                                      .toList())))),
+          actions: [
+            BeeButton(
+                label: l10n.commonClose,
+                kind: BeeButtonKind.secondary,
+                onPressed: () => Navigator.pop(context))
+          ]);
+    }
     return AlertDialog(
       backgroundColor: BeeTokens.surfaceElevated(context),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

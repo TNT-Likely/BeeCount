@@ -37,14 +37,6 @@ class BeeCategoryPicker extends StatefulWidget {
 class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
   late String? draft = widget.selected;
   String query = '';
-  final expanded = <String>{};
-  @override
-  void initState() {
-    super.initState();
-    for (final i in widget.items) {
-      if (i.children.any((c) => c.id == draft)) expanded.add(i.id);
-    }
-  }
 
   @override
   void didUpdateWidget(covariant BeeCategoryPicker old) {
@@ -60,8 +52,19 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
             i.label.toLowerCase().contains(q) ||
             i.children.any((c) => c.label.toLowerCase().contains(q)))
         .toList();
+    final parent = visible
+            .where((i) => i.id == draft || i.children.any((c) => c.id == draft))
+            .firstOrNull ??
+        visible.firstOrNull;
     final valid = widget.items
         .any((i) => i.id == draft || i.children.any((c) => c.id == draft));
+    final children = parent?.children
+            .where((c) =>
+                q.isEmpty ||
+                parent.label.toLowerCase().contains(q) ||
+                c.label.toLowerCase().contains(q))
+            .toList() ??
+        <BeeCategoryChoice>[];
     return Column(mainAxisSize: MainAxisSize.min, children: [
       BeeSearchField(
           hint: widget.searchLabel,
@@ -70,54 +73,57 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
       Flexible(
           child: visible.isEmpty
               ? BeeEmptyState(title: widget.emptyLabel)
-              : ListView(
-                  shrinkWrap: true,
-                  children: visible.map((i) {
-                    final open = expanded.contains(i.id) || q.isNotEmpty;
-                    final children = i.children
-                        .where((c) =>
-                            q.isEmpty ||
-                            i.label.toLowerCase().contains(q) ||
-                            c.label.toLowerCase().contains(q))
-                        .toList();
-                    return Column(mainAxisSize: MainAxisSize.min, children: [
-                      BeeMenuRow(
-                          title: i.label,
-                          leading: i.icon,
-                          onTap: () => setState(() {
-                                draft = i.id;
-                                if (i.children.isNotEmpty) expanded.add(i.id);
-                              }),
-                          trailing:
-                              Row(mainAxisSize: MainAxisSize.min, children: [
-                            if (draft == i.id)
-                              const BeeLineIcon('Check', size: 18),
-                            if (i.children.isNotEmpty)
-                              BeeIconButton(
-                                  label: '${open ? '收起' : '展开'} ${i.label}',
-                                  icon: BeeLineIcon(
-                                      open ? 'ChevronUp' : 'ChevronDown',
-                                      size: 18),
-                                  onPressed: () => setState(() => open
-                                      ? expanded.remove(i.id)
-                                      : expanded.add(i.id)))
-                          ])),
-                      if (open && children.isNotEmpty)
-                        Padding(
-                            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                            child: Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: children
-                                    .map((c) => RecordingSubcategoryChip(
-                                        label: c.label,
-                                        icon: c.icon,
-                                        selected: draft == c.id,
-                                        onTap: () =>
-                                            setState(() => draft = c.id)))
-                                    .toList())),
-                    ]);
-                  }).toList())),
+              : SingleChildScrollView(
+                  child: BeeSurface(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            LayoutBuilder(
+                                builder: (context, constraints) => Wrap(
+                                    children: visible
+                                        .map((i) => SizedBox(
+                                            width: constraints.maxWidth / 4,
+                                            child: RecordingCategoryTile(
+                                                label: i.label,
+                                                icon: i.icon,
+                                                selected: i.id == draft ||
+                                                    i.children.any(
+                                                        (c) => c.id == draft),
+                                                onTap: () => setState(
+                                                    () => draft = i.id))))
+                                        .toList())),
+                            if (parent != null && children.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                      color: BeeCardTheme.of(context).soft,
+                                      borderRadius: BorderRadius.circular(14)),
+                                  child: LayoutBuilder(
+                                      builder: (context, constraints) {
+                                    final choices = [parent, ...children];
+                                    final columns =
+                                        constraints.maxWidth < 270 ? 2 : 4;
+                                    return Wrap(
+                                        spacing: 4,
+                                        runSpacing: 4,
+                                        children: choices
+                                            .map((c) => SizedBox(
+                                                width: (constraints.maxWidth -
+                                                        (columns - 1) * 4) /
+                                                    columns,
+                                                height: 44,
+                                                child: RecordingSubcategoryChip(
+                                                    label: c.label,
+                                                    icon: c.icon,
+                                                    selected: draft == c.id,
+                                                    onTap: () => setState(
+                                                        () => draft = c.id))))
+                                            .toList());
+                                  }))
+                            ],
+                          ])))),
       const SizedBox(height: 12),
       Row(children: [
         Expanded(
@@ -132,7 +138,7 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
         Expanded(
             child: BeeButton(
                 label: widget.confirmLabel,
-                onPressed: valid ? () => widget.onConfirm(draft!) : null))
+                onPressed: valid ? () => widget.onConfirm(draft!) : null)),
       ])
     ]);
   }

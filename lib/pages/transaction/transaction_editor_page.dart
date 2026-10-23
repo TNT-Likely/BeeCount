@@ -28,7 +28,7 @@ class TransactionEditorPage extends ConsumerStatefulWidget {
   // quickAdd: 点击分类后在当前弹窗上叠加金额输入
   final bool quickAdd;
 
-  /// Development opt-in; the production entry remains on the existing UI.
+  /// Kept for explicit legacy comparisons; v4 is the normal page.
   final bool useV4;
   final int? initialCategoryId;
   final String? initialNote; // 用于金额输入弹窗回填备注
@@ -49,7 +49,7 @@ class TransactionEditorPage extends ConsumerStatefulWidget {
     this.isCopy = false,
     required this.initialKind,
     this.quickAdd = false,
-    this.useV4 = const bool.fromEnvironment('BEECOUNT_V4_RECORDING'),
+    this.useV4 = true,
     this.initialCategoryId,
     this.initialNote,
     this.initialAmount,
@@ -102,7 +102,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
     with SingleTickerProviderStateMixin {
   late TabController _tab;
   bool _autoOpened = false;
-  bool get _usesCardEditor => widget.useV4 && widget.quickAdd;
+  bool get _usesCardEditor => widget.useV4;
   Category? _cardCategory;
   GlobalKey<AmountEditorSheetState> _cardEditorKey =
       GlobalKey<AmountEditorSheetState>();
@@ -340,13 +340,13 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
                   height: MediaQuery.sizeOf(context).height -
                               MediaQuery.viewPaddingOf(context).vertical <
                           720
-                      ? 44
+                      ? (MediaQuery.sizeOf(context).width <= 340 ? 44 : 46)
                       : 50,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Row(children: [
-                      IconButton(
-                          tooltip: l10n.commonBack,
+                      BeeIconButton(
+                          label: l10n.commonBack,
                           icon: const BeeLineIcon('ChevronLeft', size: 22),
                           onPressed: () => Navigator.maybePop(context)),
                       Expanded(
@@ -443,8 +443,8 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage>
                                   .toList()),
                         ),
                       ))),
-                      IconButton(
-                          tooltip: l10n.txFlagMoreOptions,
+                      BeeIconButton(
+                          label: l10n.txFlagMoreOptions,
                           icon: const BeeLineIcon('Ellipsis', size: 22),
                           onPressed: () => _cardEditorKey.currentState
                               ?.showRecordingOptions()),

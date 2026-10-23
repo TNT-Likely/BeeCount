@@ -1495,45 +1495,42 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
 
   Future<void> _pickCardAccount() async {
     FocusManager.instance.primaryFocus?.unfocus();
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: BeeCardTheme.of(context).surface,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (sheetContext) => SafeArea(
-          child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(children: [
-                    Expanded(
-                        child: Text(
-                            AppLocalizations.of(context).accountSelectTitle,
-                            style: Theme.of(context).textTheme.titleMedium)),
-                    IconButton(
-                        onPressed: () => Navigator.pop(sheetContext),
-                        icon: const BeeLineIcon('ChevronDown'))
-                  ]),
-                  const SizedBox(height: 12),
-                  AccountSelector(
-                      selectedAccountId: _selectedAccountId,
-                      ledgerId: widget.ledgerId,
-                      filterCurrency: _txCurrency(),
-                      pinnedAccountId: widget.initialAccountId,
-                      onAccountSelected: (id) {
-                        setState(() {
-                          _selectedAccountId = id;
-                          _selectedAccountCurrency = null;
-                        });
-                        if (id != null) _loadAccountCurrency(id);
-                        Navigator.pop(sheetContext);
-                      }),
-                  const SizedBox(height: 12),
-                ],
-              ))),
+    await showBeeSheet<void>(
+      context,
+      title: AppLocalizations.of(context).accountSelectTitle,
+      child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * .55,
+          child: AccountSelector(
+              expandedPicker: true,
+              selectedAccountId: _selectedAccountId,
+              ledgerId: widget.ledgerId,
+              filterCurrency: _txCurrency(),
+              pinnedAccountId: widget.initialAccountId,
+              onAccountSelected: (id) {
+                setState(() {
+                  _selectedAccountId = id;
+                  _selectedAccountCurrency = null;
+                });
+                if (id != null) _loadAccountCurrency(id);
+                Navigator.pop(context);
+              })),
     );
+  }
+
+  Future<void> _pickCardHistory() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    await showDialog<void>(
+        context: context,
+        builder: (_) => NotePickerDialog(
+            useV4: true,
+            ledgerId: widget.ledgerId,
+            categoryId: widget.categoryId,
+            categorySyncId: widget.categorySyncId,
+            onNotePicked: (note) => setState(() {
+                  _noteCtrl.text = note;
+                  _noteCtrl.selection =
+                      TextSelection.collapsed(offset: note.length);
+                })));
   }
 
   Future<void> _pickCardTags() async {
@@ -1546,34 +1543,32 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   Future<void> _pickCardLedger() async {
     if (widget.onLedgerChanged == null) return;
     FocusManager.instance.primaryFocus?.unfocus();
-    final selected = await showModalBottomSheet<int>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: BeeCardTheme.of(context).surface,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (context) => SafeArea(
-          child: SizedBox(
-        height: MediaQuery.sizeOf(context).height * .5,
+    final l10n = AppLocalizations.of(context);
+    final selected = await showBeeSheet<int>(
+      context,
+      title: l10n.homeSwitchLedger,
+      child: SizedBox(
+        height: MediaQuery.sizeOf(context).height * .55,
         child: Consumer(
             builder: (context, ref, _) => ref.watch(ledgersStreamProvider).when(
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
-                  error: (_, __) => Center(
-                      child: Text(AppLocalizations.of(context).commonFailed)),
-                  data: (ledgers) => ListView(
-                      children: ledgers
-                          .map((ledger) => ListTile(
-                              leading: const BeeLineIcon('BookOpen'),
-                              title: Text(ledger.name),
-                              subtitle: Text(ledger.currency),
-                              trailing: ledger.id == widget.ledgerId
-                                  ? const BeeLineIcon('Check')
-                                  : null,
-                              onTap: () => Navigator.pop(context, ledger.id)))
-                          .toList()),
+                  error: (_, __) => Center(child: Text(l10n.commonFailed)),
+                  data: (ledgers) => BeeLedgerPicker(
+                      ledgers: ledgers
+                          .map((ledger) => BeeLedgerChoice(
+                              id: '${ledger.id}',
+                              name: ledger.name,
+                              currency: ledger.currency))
+                          .toList(),
+                      currentId: '${widget.ledgerId}',
+                      searchLabel: l10n.commonSearch,
+                      emptyLabel: l10n.ledgersEmpty,
+                      currentLabel: l10n.commonCurrent,
+                      onSelected: (id) =>
+                          Navigator.pop(context, int.parse(id))),
                 )),
-      )),
+      ),
     );
     if (!mounted || selected == null || selected == widget.ledgerId) return;
     if (_hasCardDraft) {
@@ -1654,7 +1649,10 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                       child: Text(label,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 11))),
+                          style: TextStyle(
+                              fontSize: MediaQuery.sizeOf(context).width <= 340
+                                  ? 11
+                                  : 12))),
               ])),
         );
     Widget action(String key, Widget label, VoidCallback? onPressed,
@@ -1683,7 +1681,8 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     final amountCard = RecordingAmountCard(
         compact: compact,
         currency: _buildCurrencyChip(context),
-        symbol: getCurrencySymbol(_txCurrency()),
+        symbol:
+            _txCurrency() == 'USD' ? 'US\$' : getCurrencySymbol(_txCurrency()),
         ledger: InkWell(
             key: const ValueKey('recording-ledger'),
             onTap: widget.onLedgerChanged == null ? null : _pickCardLedger,
@@ -1708,7 +1707,7 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     final noteExpanded = !compact || _cardNoteExpanded;
     final narrow = MediaQuery.sizeOf(context).width <= 340;
     final dateLabel =
-        '${DateFormat.MMMd(l10n.localeName).format(_date)}${ref.watch(showTransactionTimeProvider) ? ' ${_date.hour.toString().padLeft(2, '0')}:${_date.minute.toString().padLeft(2, '0')}' : ''}';
+        '${narrow ? '${_date.month}.${_date.day.toString().padLeft(2, '0')}' : DateFormat.MMMd(l10n.localeName).format(_date)}${ref.watch(showTransactionTimeProvider) ? ' ${_date.hour.toString().padLeft(2, '0')}:${_date.minute.toString().padLeft(2, '0')}' : ''}';
     final metadata = RecordingDetailsCard(
       noteExpanded: noteExpanded,
       noteToggle: compact
@@ -1742,16 +1741,22 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
               contentPadding: const EdgeInsets.symmetric(vertical: 12),
               prefixIconConstraints:
                   const BoxConstraints(minWidth: 24, minHeight: 32),
-              prefixIcon: Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: BeeLineIcon('PencilLine',
-                      size: 16, color: theme.hintColor)))),
-      attachment: IconButton(
+              prefixIcon: Tooltip(
+                  message: l10n.appearanceNoteHistory,
+                  child: Semantics(
+                      label: l10n.appearanceNoteHistory,
+                      button: true,
+                      child: InkWell(
+                          key: const ValueKey('recording-note-history'),
+                          onTap: _pickCardHistory,
+                          child: Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: BeeLineIcon('PencilLine',
+                                  size: 16, color: theme.hintColor))))))),
+      attachment: BeeIconButton(
           key: const ValueKey('recording-attachments'),
-          tooltip:
+          label:
               '${l10n.attachmentAdd}${attachmentCount == 0 ? '' : ' · $attachmentCount'}',
-          constraints: const BoxConstraints.tightFor(width: 32, height: 44),
-          padding: EdgeInsets.zero,
           onPressed: () => _handleAttachmentTap(savedAttachments),
           icon: Badge(
               isLabelVisible: attachmentCount > 0,
@@ -1766,7 +1771,10 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                     child: Text(account?.name ?? l10n.accountNone,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 11))),
+                        style: TextStyle(
+                            fontSize: MediaQuery.sizeOf(context).width <= 340
+                                ? 11
+                                : 12))),
                 const SizedBox(width: 3),
                 const BeeLineIcon('ChevronDown', size: 12),
               ]))
@@ -1811,7 +1819,7 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
           Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: amountCard),
-          const SizedBox(height: 8),
+          SizedBox(height: compact && narrow ? 6 : 8),
           Expanded(
               child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1834,7 +1842,7 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                                           editingTransactionId:
                                               widget.editingTransactionId!),
                                   ])))))),
-          const SizedBox(height: 8),
+          SizedBox(height: compact && narrow ? 6 : 8),
           Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: metadata),
@@ -1849,12 +1857,13 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                     children: [
                       if (!editingText)
                         RecordingKeypad(
+                            compact: compact,
                             onDigit: _append,
                             onOperator: applyOp,
                             onBackspace: _backspace,
                             onClear: _clearCardAmount,
                             deleteLabel: l10n.commonDelete),
-                      const SizedBox(height: 7),
+                      SizedBox(height: compact && narrow ? 5 : 7),
                       Row(children: [
                         if (widget.allowContinueAdding) ...[
                           Expanded(

@@ -36,6 +36,7 @@ class CategoryIconWidget extends ConsumerWidget {
   final Color? color;
   final Color? backgroundColor;
   final bool showBackground;
+  final Widget? fallback;
   final bool circular; // 是否使用完全圆形（50%圆角），默认为微圆角（20%）
 
   const CategoryIconWidget({
@@ -46,6 +47,7 @@ class CategoryIconWidget extends ConsumerWidget {
     this.color,
     this.backgroundColor,
     this.showBackground = false,
+    this.fallback,
     this.circular = false,
   });
 
@@ -55,12 +57,15 @@ class CategoryIconWidget extends ConsumerWidget {
     final iconColor = color ?? primaryColor;
 
     // 检查是否有自定义图标
-    if (category != null && category!.iconType == 'custom' && category!.customIconPath != null) {
+    if (category != null &&
+        category!.iconType == 'custom' &&
+        category!.customIconPath != null) {
       return _buildCustomIcon(category!.customIconPath!, iconColor);
     }
 
     // 使用 Material Icon
-    final iconData = getCategoryIconData(category: category, categoryName: categoryName);
+    final iconData =
+        getCategoryIconData(category: category, categoryName: categoryName);
 
     if (showBackground) {
       return Container(
@@ -86,11 +91,12 @@ class CategoryIconWidget extends ConsumerWidget {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           // 加载中,显示占位图标
-          return Icon(
-            Icons.category,
-            size: size,
-            color: fallbackColor,
-          );
+          return fallback ??
+              Icon(
+                Icons.category,
+                size: size,
+                color: fallbackColor,
+              );
         }
 
         final absolutePath = snapshot.data!;
@@ -102,11 +108,13 @@ class CategoryIconWidget extends ConsumerWidget {
           width: size,
           height: size,
           fit: BoxFit.cover, // 填满整个区域，保持1:1比例
-          errorBuilder: (_, __, ___) => Icon(
-            Icons.category,
-            size: size,
-            color: fallbackColor,
-          ),
+          errorBuilder: (_, __, ___) =>
+              fallback ??
+              Icon(
+                Icons.category,
+                size: size,
+                color: fallbackColor,
+              ),
         );
 
         if (showBackground) {
