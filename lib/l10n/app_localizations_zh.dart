@@ -8720,6 +8720,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4AttachmentPending => '待保存';
+
+  @override
+  String get v4ClearSelection => '清空选择';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

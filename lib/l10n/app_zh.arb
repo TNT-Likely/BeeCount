@@ -3628,5 +3628,6 @@
   },
   "v4CategoryToolsTitle": "分类工具",
   "v4CategoryToolsHint": "排序、导入、分享与默认分类",
-  "v4AttachmentPending": "待保存"
+  "v4AttachmentPending": "待保存",
+  "v4ClearSelection": "清空选择"
 }

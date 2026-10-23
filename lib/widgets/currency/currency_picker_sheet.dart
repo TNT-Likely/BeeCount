@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
-import '../../providers/currency_providers.dart';
-import '../../styles/tokens.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import '../../utils/currencies.dart';
 import 'currency_flag.dart';
 import '../ui/ui.dart';
@@ -22,132 +22,51 @@ Future<String?> showCurrencyPickerSheet(
   String? rateBase,
 }) {
   final current = selected.toUpperCase();
-  return showModalBottomSheet<String>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: BeeTokens.surfaceSheet(context),
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
-    builder: (bctx) {
-      String query = '';
-      final sheetTitle = title ?? AppLocalizations.of(bctx).baseCurrencyLabel;
-      return StatefulBuilder(builder: (sctx, setSheetState) {
-        // 常用币种置顶(kCommonCurrencyCodes 顺序),其余按地区原顺序。
-        final allCur = getCurrencies(bctx);
-        final ordered = <CurrencyInfo>[];
-        for (final code in kCommonCurrencyCodes) {
-          final hit = allCur.where((c) => c.code == code);
-          if (hit.isNotEmpty) ordered.add(hit.first);
-        }
-        ordered.addAll(
-            allCur.where((c) => !kCommonCurrencyCodes.contains(c.code)));
-        final filtered = ordered.where((c) {
-          final q = query.trim();
-          if (q.isEmpty) return true;
-          final uq = q.toUpperCase();
-          return c.code.contains(uq) || c.name.contains(q);
-        }).toList();
-
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 12,
-            bottom: 16 + MediaQuery.of(bctx).viewInsets.bottom,
-          ),
-          child: SizedBox(
-            height: 440,
-            child: Column(
-              children: [
-                Container(
-                  width: 36,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(
-                    color: BeeTokens.textTertiary(bctx).withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                Text(
-                  sheetTitle,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: BeeTokens.textPrimary(bctx),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search),
-                    hintText: AppLocalizations.of(bctx).ledgersSearchCurrency,
-                  ),
-                  onChanged: (v) => setSheetState(() => query = v),
-                ),
-                const SizedBox(height: 8),
-                Expanded(
-                  // 汇率展示:rateBase 传入时用 Consumer 拿全量汇率;否则空 map。
-                  child: Consumer(builder: (cctx, ref, _) {
-                    final rates = rateBase == null
-                        ? const <String, double>{}
-                        : (ref
-                                .watch(currencyPickerRatesProvider(
-                                    rateBase.toUpperCase()))
-                                .valueOrNull ??
-                            const <String, double>{});
-                    return ListView.builder(
-                      itemCount: filtered.length,
-                      itemBuilder: (_, i) {
-                        final c = filtered[i];
-                        final sel = c.code == current;
-                        // 汇率行:1 该币种 ≈ x rateBase(base 自身/缺失不显示)
-                        String? rateText;
-                        if (rateBase != null &&
-                            c.code != rateBase!.toUpperCase()) {
-                          final r = rates[c.code];
-                          if (r != null) {
-                            rateText =
-                                '1 ${c.code} ≈ ${r.toStringAsPrecision(4)} ${rateBase!.toUpperCase()}';
-                          }
-                        }
-                        return ListTile(
-                          leading: currencyFlag(cctx, c.code),
-                          title: Text(
-                            '${c.name} (${c.code})',
-                            style: TextStyle(
-                              color: sel
-                                  ? primaryColor
-                                  : BeeTokens.textPrimary(bctx),
-                              fontWeight:
-                                  sel ? FontWeight.w600 : FontWeight.normal,
-                            ),
-                          ),
-                          subtitle: rateText == null
-                              ? null
-                              : Text(
-                                  rateText,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: BeeTokens.textTertiary(cctx),
-                                  ),
-                                ),
-                          trailing: sel
-                              ? Icon(Icons.check, color: primaryColor)
-                              : null,
-                          onTap: () => Navigator.pop(bctx, c.code),
-                        );
-                      },
-                    );
-                  }),
-                ),
-              ],
-            ),
-          ),
-        );
-      });
-    },
-  );
+  return showBeeSheet<String>(context,
+      title: title ?? AppLocalizations.of(context).baseCurrencyLabel,
+      child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * .6,
+          child: Consumer(builder: (bctx, ref, _) {
+            final l10n = AppLocalizations.of(bctx);
+            final currencies = getCurrencies(bctx);
+            final ordered = [
+              for (final code in kCommonCurrencyCodes)
+                ...currencies.where((item) => item.code == code),
+              ...currencies
+                  .where((item) => !kCommonCurrencyCodes.contains(item.code)),
+            ];
+            final rates = rateBase == null
+                ? const <String, double>{}
+                : ref
+                        .watch(
+                            currencyPickerRatesProvider(rateBase.toUpperCase()))
+                        .valueOrNull ??
+                    const <String, double>{};
+            return Theme(
+                data: Theme.of(bctx).copyWith(
+                    colorScheme: Theme.of(bctx)
+                        .colorScheme
+                        .copyWith(primary: primaryColor)),
+                child: BeeCurrencyPicker(
+                    currencies: ordered.map((currency) {
+                      final rate = rates[currency.code];
+                      return BeeCurrencyChoice(
+                          code: currency.code,
+                          name: currency.name,
+                          symbol: getCurrencySymbol(currency.code),
+                          common: kCommonCurrencyCodes.contains(currency.code),
+                          icon: currencyFlag(bctx, currency.code),
+                          rateHint: rateBase != null &&
+                                  currency.code != rateBase.toUpperCase() &&
+                                  rate != null
+                              ? '1 ${currency.code} ≈ ${rate.toStringAsPrecision(4)} ${rateBase.toUpperCase()}'
+                              : null);
+                    }).toList(),
+                    selected: current,
+                    searchLabel: l10n.ledgersSearchCurrency,
+                    emptyLabel: l10n.commonEmpty,
+                    onSelected: (code) => Navigator.pop(bctx, code)));
+          })));
 }
 
 /// 应用主币种选择:同值跳过 / set provider / 已有手动汇率提示 / force 重拉自动汇率。

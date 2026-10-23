@@ -16411,6 +16411,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pending save'**
   String get v4AttachmentPending;
+
+  /// No description provided for @v4ClearSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear selection'**
+  String get v4ClearSelection;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

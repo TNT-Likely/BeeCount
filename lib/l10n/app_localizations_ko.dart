@@ -8728,4 +8728,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4AttachmentPending => 'Pending save';
+
+  @override
+  String get v4ClearSelection => 'Clear selection';
 }
