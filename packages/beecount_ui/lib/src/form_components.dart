@@ -138,32 +138,6 @@ class BeeAvatar extends StatelessWidget {
                           const Center(child: BeeLineIcon('Baby'))))));
 }
 
-class BeePageHeader extends StatelessWidget {
-  const BeePageHeader(
-      {super.key,
-      required this.title,
-      this.onBack,
-      this.actions = const [],
-      this.compact = false});
-  final String title;
-  final bool compact;
-  final VoidCallback? onBack;
-  final List<Widget> actions;
-  @override
-  Widget build(BuildContext context) => SizedBox(
-      height: compact ? 44 : 56,
-      child: Row(children: [
-        if (onBack != null) BackButton(onPressed: onBack),
-        Expanded(
-            child: Text(title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    fontSize: compact ? 16 : 24, fontWeight: FontWeight.w600))),
-        ...actions
-      ]));
-}
-
 class BeeSkeleton extends StatelessWidget {
   const BeeSkeleton({super.key, required this.label, this.rows = 3});
   final String label;

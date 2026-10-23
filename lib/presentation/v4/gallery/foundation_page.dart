@@ -311,7 +311,23 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                             width: s,
                             height: s,
                             color: Theme.of(context).colorScheme.primary))
-                        .toList())
+                        .toList()),
+                BeeIconChoiceGrid<int>(
+                    value: sort,
+                    items: const [
+                      BeeIconChoice(
+                          value: 0, label: '现金', icon: BeeLineIcon('Wallet')),
+                      BeeIconChoice(
+                          value: 1,
+                          label: '银行卡',
+                          icon: BeeLineIcon('CreditCard')),
+                      BeeIconChoice(
+                          value: 2,
+                          label: '禁用',
+                          icon: BeeLineIcon('Lock'),
+                          enabled: false),
+                    ],
+                    onChanged: (v) => setState(() => sort = v)),
               ])),
         9 => BeeSurface(
               child: Column(children: [
@@ -636,6 +652,13 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                       BeeDivider(inset: 12),
                       Text('展示内容保持同一套留白', style: TextStyle(fontSize: 12)),
                     ]))),
+            const SizedBox(height: 12),
+            const SizedBox(
+                height: 150,
+                child: BeePageBody(children: [
+                  BeeSurface(child: Text('页面分组一')),
+                  BeeSurface(child: Text('页面分组二')),
+                ])),
             const SizedBox(height: 12),
             const BeeSurface(
                 child: Row(children: [

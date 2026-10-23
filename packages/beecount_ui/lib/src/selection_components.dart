@@ -209,3 +209,82 @@ class BeeDateWheels extends StatelessWidget {
         ],
       ]);
 }
+
+class BeeIconChoice<T> {
+  const BeeIconChoice(
+      {required this.value,
+      required this.label,
+      required this.icon,
+      this.enabled = true});
+  final T value;
+  final String label;
+  final Widget icon;
+  final bool enabled;
+}
+
+/// Compact icon selection for account types and icon libraries.
+class BeeIconChoiceGrid<T> extends StatelessWidget {
+  const BeeIconChoiceGrid(
+      {super.key,
+      required this.items,
+      required this.value,
+      required this.onChanged,
+      this.columns = 4});
+  final List<BeeIconChoice<T>> items;
+  final T value;
+  final ValueChanged<T> onChanged;
+  final int columns;
+  @override
+  Widget build(BuildContext context) => GridView.count(
+      shrinkWrap: true,
+      padding: EdgeInsets.zero,
+      primary: false,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: columns,
+      mainAxisSpacing: 6,
+      crossAxisSpacing: 6,
+      childAspectRatio: 1.05,
+      children: items
+          .map((item) => Semantics(
+              selected: item.value == value,
+              enabled: item.enabled,
+              button: true,
+              child: Opacity(
+                  opacity: item.enabled ? 1 : .4,
+                  child: Material(
+                      color: item.value == value
+                          ? Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withValues(alpha: .12)
+                          : Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(13),
+                          side: BorderSide(
+                              color: item.value == value
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.transparent)),
+                      child: InkWell(
+                          borderRadius: BorderRadius.circular(13),
+                          onTap:
+                              item.enabled ? () => onChanged(item.value) : null,
+                          child: Padding(
+                              padding: const EdgeInsets.all(4),
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: item.icon),
+                                    const SizedBox(height: 5),
+                                    Flexible(
+                                        child: Text(item.label,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center,
+                                            style:
+                                                const TextStyle(fontSize: 11))),
+                                  ])))))))
+          .toList());
+}

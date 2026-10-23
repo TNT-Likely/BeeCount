@@ -490,6 +490,29 @@
         "leap-clamp"
       ],
       "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeePageBody",
+      "supportedStates": [
+        "统一页边距",
+        "底部安全区",
+        "保留滚动控制器"
+      ],
+      "cases": [
+        16
+      ]
+    },
+    {
+      "component": "BeeIconChoiceGrid",
+      "cases": [
+        8
+      ],
+      "supportedStates": [
+        "选中",
+        "未选中",
+        "禁用",
+        "文字省略与换行"
+      ]
     }
   ]
 }

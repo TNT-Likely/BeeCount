@@ -8,6 +8,7 @@ export 'src/controls.dart';
 export 'src/form_components.dart';
 export 'src/selection_components.dart';
 export 'src/layout_components.dart';
+export 'src/page_components.dart';
 
 /// Local v4 surfaces. The app supplies its existing accent and brightness.
 @immutable
@@ -54,14 +55,16 @@ class BeeSurface extends StatelessWidget {
   const BeeSurface(
       {super.key,
       required this.child,
-      this.padding = const EdgeInsets.all(16)});
+      this.padding = const EdgeInsets.all(16),
+      this.borderRadius = const BorderRadius.all(Radius.circular(22))});
   final Widget child;
   final EdgeInsetsGeometry padding;
+  final BorderRadius borderRadius;
 
   @override
   Widget build(BuildContext context) => Material(
         color: BeeCardTheme.of(context).surface,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: borderRadius,
         child: Padding(padding: padding, child: child),
       );
 }
