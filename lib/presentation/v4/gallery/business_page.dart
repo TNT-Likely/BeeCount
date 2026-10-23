@@ -162,6 +162,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
         0 => Column(children: [
             BeeHomeIdentity(
                 name: '蜜蜂记账',
+                pageTitle: '明细',
                 ledger: ledger,
                 logo: Image.asset('assets/logo2.png'),
                 showBrand: brand,
@@ -200,14 +201,33 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 expense: '8,713.50',
                 hidden: hidden,
                 onContextTap: () => record('选择月份'),
-                budget: const BeeProgress(
-                    value: .64, label: '本月预算', trailing: '剩余 ¥1,713.50')),
+                budget: BeeBudgetStrip(
+                    progress: .64,
+                    label: hidden ? '月预算 ••••' : '月预算 ¥5,000.00',
+                    remaining: hidden ? '剩余 ••••' : '剩余 ¥1,713.50',
+                    onTap: () => record('预算管理'))),
             SwitchListTile(
                 title: const Text('隐藏金额与折算'),
                 value: hidden,
                 onChanged: (v) => setState(() => hidden = v))
           ]),
         2 => Column(children: [
+            BeeTransactionStreamHeader(title: '全部明细', count: '27笔', actions: [
+              BeeIconButton(
+                  label: '账单日历',
+                  icon: const BeeLineIcon('CalendarDays', size: 17),
+                  onPressed: () => record('日历')),
+              BeeIconButton(
+                  label: '筛选账单',
+                  icon: const BeeLineIcon('SlidersHorizontal', size: 17),
+                  onPressed: () => record('筛选')),
+              TextButton(
+                  onPressed: () => record('批量操作'), child: const Text('批量')),
+            ]),
+            BeeTransactionDayHeader(
+                title: '今天',
+                date: '10月20日',
+                totals: hidden ? const [] : const ['支出 123.20']),
             BeeSurface(
                 padding: EdgeInsets.zero,
                 child: BeeTransactionRow(

@@ -118,11 +118,13 @@ class BeeMoney extends StatelessWidget {
       this.converted,
       this.hidden = false,
       this.size = 28,
-      this.color});
+      this.color,
+      this.lineHeight});
   final String amount;
   final String? prefix, converted;
   final bool hidden;
   final double size;
+  final double? lineHeight;
   final Color? color;
   @override
   Widget build(BuildContext context) => Column(
@@ -145,6 +147,7 @@ class BeeMoney extends StatelessWidget {
                     maxLines: 1,
                     style: TextStyle(
                         fontSize: size,
+                        height: lineHeight,
                         color: color,
                         fontWeight: FontWeight.w600,
                         fontFeatures: const [FontFeature.tabularFigures()]))),
@@ -532,25 +535,27 @@ class BeeSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) => BeeSurface(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Row(children: [
-          Expanded(
-              child: InkWell(
-                  onTap: onContextTap,
-                  child: Row(children: [
-                    Flexible(
-                        child:
-                            Text(title, style: const TextStyle(fontSize: 13))),
-                    if (onContextTap != null) ...[
-                      const SizedBox(width: 5),
-                      const BeeLineIcon('ChevronDown', size: 14)
-                    ]
-                  ]))),
-          if (currencyLabel != null)
-            Text(currencyLabel!,
-                style:
-                    TextStyle(fontSize: 11, color: Theme.of(context).hintColor))
-        ]),
-        const SizedBox(height: 5),
+        ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 27),
+            child: Row(children: [
+              Expanded(
+                  child: InkWell(
+                      onTap: onContextTap,
+                      child: Row(children: [
+                        Flexible(
+                            child: Text(title,
+                                style: const TextStyle(fontSize: 13))),
+                        if (onContextTap != null) ...[
+                          const SizedBox(width: 5),
+                          const BeeLineIcon('ChevronDown', size: 14)
+                        ]
+                      ]))),
+              if (currencyLabel != null)
+                Text(currencyLabel!,
+                    style: TextStyle(
+                        fontSize: 11, color: Theme.of(context).hintColor))
+            ])),
+        const SizedBox(height: 13),
         if (amountLabel != null)
           Row(children: [
             Text(amountLabel!,
@@ -559,7 +564,7 @@ class BeeSummaryCard extends StatelessWidget {
             if (onPrivacyTap != null)
               SizedBox(
                   width: 30,
-                  height: 28,
+                  height: 26,
                   child: IconButton(
                       tooltip: privacyLabel,
                       style: IconButton.styleFrom(padding: EdgeInsets.zero),
@@ -567,24 +572,24 @@ class BeeSummaryCard extends StatelessWidget {
                       icon: BeeLineIcon(hidden ? 'EyeOff' : 'Eye',
                           size: 14, color: Theme.of(context).hintColor)))
           ]),
+        const SizedBox(height: 6),
         Align(
             alignment: Alignment.centerLeft,
             child: BeeMoney(
-                amount: amount, prefix: prefix, hidden: hidden, size: 36)),
-        const SizedBox(height: 16),
+                amount: amount,
+                prefix: prefix,
+                hidden: hidden,
+                size: 36,
+                lineHeight: 1.3)),
+        const SizedBox(height: 17),
         Row(children: [
           Expanded(
               child: _Metric(incomeLabel, hidden ? '••••' : income,
-                  size: 16, labelSize: 12)),
+                  size: 15, labelSize: 11, gap: 4, lineHeight: 1.5)),
+          const SizedBox(width: 10),
           Expanded(
-              child: Container(
-                  padding: const EdgeInsets.only(left: 20),
-                  decoration: BoxDecoration(
-                      border: Border(
-                          left: BorderSide(
-                              color: Theme.of(context).dividerColor))),
-                  child: _Metric(expenseLabel, hidden ? '••••' : expense,
-                      size: 16, labelSize: 12)))
+              child: _Metric(expenseLabel, hidden ? '••••' : expense,
+                  size: 15, labelSize: 11, gap: 4, lineHeight: 1.5))
         ]),
         if (budget != null) ...[
           const SizedBox(height: 17),
@@ -597,18 +602,25 @@ class BeeSummaryCard extends StatelessWidget {
 }
 
 class _Metric extends StatelessWidget {
-  const _Metric(this.label, this.value, {this.size = 12, this.labelSize = 10});
+  const _Metric(this.label, this.value,
+      {this.size = 12, this.labelSize = 10, this.gap = 3, this.lineHeight});
   final String label, value;
-  final double size, labelSize;
+  final double size, labelSize, gap;
+  final double? lineHeight;
   @override
   Widget build(BuildContext context) =>
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label,
             style: TextStyle(
-                fontSize: labelSize, color: Theme.of(context).hintColor)),
-        const SizedBox(height: 3),
+                fontSize: labelSize,
+                height: lineHeight,
+                color: Theme.of(context).hintColor)),
+        SizedBox(height: gap),
         Text(value,
-            style: TextStyle(fontSize: size, fontWeight: FontWeight.w600))
+            style: TextStyle(
+                fontSize: size,
+                height: lineHeight,
+                fontWeight: FontWeight.w600))
       ]);
 }
 
@@ -951,12 +963,28 @@ class BeeHomeIdentity extends StatelessWidget {
       required this.logo,
       required this.onLedgerTap,
       required this.actions,
-      this.showBrand = true});
+      this.showBrand = true,
+      this.pageTitle});
   final String name, ledger;
+  final String? pageTitle;
   final Widget logo;
   final VoidCallback onLedgerTap;
   final List<Widget> actions;
   final bool showBrand;
+  Widget _ledger(BuildContext context) => InkWell(
+      onTap: onLedgerTap,
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Flexible(
+            child: Text(ledger,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    fontSize: showBrand ? 11 : 13,
+                    color: Theme.of(context).hintColor))),
+        const SizedBox(width: 5),
+        BeeLineIcon('ChevronDown',
+            size: 15, color: Theme.of(context).hintColor),
+      ]));
   @override
   Widget build(BuildContext context) => Row(children: [
         if (showBrand) ...[
@@ -964,19 +992,29 @@ class BeeHomeIdentity extends StatelessWidget {
           const SizedBox(width: 8)
         ],
         Expanded(
-            child: InkWell(
-                onTap: onLedgerTap,
-                child: Column(
+            child: showBrand
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (showBrand)
                         Text(name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w600)),
-                      Text(ledger,
-                          style: TextStyle(fontSize: showBrand ? 11 : 18))
-                    ]))),
-        ...actions
+                        _ledger(context),
+                      ])
+                : Row(children: [
+                    Flexible(
+                        child: Text(pageTitle ?? name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 23, fontWeight: FontWeight.w600))),
+                    const SizedBox(width: 8),
+                    Flexible(child: _ledger(context)),
+                  ])),
+        ...actions,
       ]);
 }
 
