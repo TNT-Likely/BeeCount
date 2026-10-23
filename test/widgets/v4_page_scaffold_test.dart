@@ -47,6 +47,16 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
       expect(scroll.offset, 180);
       expect(find.text('项目 3，false'), findsOneWidget);
+      final base = tester.widget<ColoredBox>(find
+          .descendant(
+              of: find.byType(V4PageScaffold),
+              matching: find.byType(ColoredBox))
+          .first);
+      expect(
+          base.color,
+          skin == 'none'
+              ? const Color(0xfff5f6f7)
+              : beeTheme().colorScheme.primary);
       if (skin != 'none') {
         expect(find.byType(SkinAnimationScope), findsOneWidget);
         final scopedQuery = find.descendant(

@@ -28,7 +28,11 @@ class V4PageScaffold extends ConsumerWidget {
             child: skin.builder(theme.colorScheme.primary,
                 theme.brightness == Brightness.dark));
     return ColoredBox(
-        color: backgroundColor ?? BeeCardTheme.of(context).canvas,
+        color: skin == null
+            ? backgroundColor ?? BeeCardTheme.of(context).canvas
+            : theme.brightness == Brightness.dark
+                ? Colors.black
+                : theme.colorScheme.primary,
         child: Stack(fit: StackFit.expand, children: [
           Positioned.fill(
               child: IgnorePointer(
