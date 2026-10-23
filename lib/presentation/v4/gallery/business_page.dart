@@ -38,7 +38,8 @@ const businessCases = [
   '真实账本联动',
   '账本选择器',
   '分类管理列表',
-  '转账账户对'
+  '转账账户对',
+  '搜索汇总与批量操作'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -1178,13 +1179,51 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 footer: TextButton(
                     onPressed: () => record('分类工具弹窗'),
                     child: const Text('分类工具')))),
-        _ => BeeTransferAccountPair(
+        33 => BeeTransferAccountPair(
             fromLabel: '转出账户',
             toLabel: '转入账户',
             fromName: '人民币现金',
             toName: '招商银行',
             onFrom: () => record('选择转出账户'),
             onTo: () => record('选择转入账户')),
+        _ => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            BeeSearchSummary(
+                title: '12 笔匹配账单',
+                expenseLabel: '支出合计',
+                expense: '¥1,268.50',
+                incomeLabel: '收入合计',
+                income: '¥0.00',
+                action: TextButton(
+                    onPressed: () => record('进入批量操作'),
+                    child: const Text('批量操作'))),
+            const SizedBox(height: 12),
+            BeeBatchSelection(
+                label: selected ? '已选择 12 笔' : '已选择 0 笔',
+                total: selected ? '¥1,268.50' : '¥0.00',
+                actions: ['全选', '反选', '调整范围']
+                    .map((label) => BeeChoiceChip(
+                        label: label,
+                        selected: false,
+                        onSelected: (_) {
+                          setState(() => selected = !selected);
+                          record(label);
+                        }))
+                    .toList()),
+            const SizedBox(height: 12),
+            BeeBatchActionBar(actions: [
+              for (final action in [
+                ('设置备注', 'PencilLine'),
+                ('调整分类', 'Shapes'),
+                ('设置标签', 'Tag'),
+                ('删除', 'Trash2')
+              ])
+                BeeBatchAction(
+                    label: action.$1,
+                    icon: BeeLineIcon(action.$2, size: 19),
+                    danger: action.$2 == 'Trash2',
+                    onPressed: selected ? () => record(action.$1) : null)
+            ]),
+          ]),
       };
   void _editRate() => showBeeDialog<void>(context,
       title: '补充本笔汇率',

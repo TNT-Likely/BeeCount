@@ -14,3 +14,5 @@ export 'src/selector_components.dart';
 export 'src/category_management.dart';
 export 'src/transfer_components.dart';
 export 'src/journal_components.dart';
+
+export 'src/search_components.dart';
