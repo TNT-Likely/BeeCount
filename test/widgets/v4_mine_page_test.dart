@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:beecount/cloud/sync_service.dart';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
@@ -16,6 +18,39 @@ import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' hide SyncStatus;
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  test('我的页面及其菜单引用的线性图标均已实际打包', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final manifest =
+        jsonDecode(await rootBundle.loadString('AssetManifest.json')) as Map;
+    for (final name in [
+      'Settings2',
+      'Sparkles',
+      'Database',
+      'Clock',
+      'Palette',
+      'Info',
+      'CircleHelp',
+      'Heart',
+      'Star',
+      'ChartNoAxesCombined',
+      'Share2',
+      'Copy',
+      'Cloud',
+      'CloudSync',
+      'PencilLine',
+      'Camera',
+      'ImagePlus',
+      'Trash2',
+      'Eye',
+      'EyeOff',
+      'BookOpen'
+    ]) {
+      final path = 'packages/beecount_ui/assets/icons/$name.svg';
+      expect(manifest.containsKey(path), isTrue, reason: name);
+      expect(await rootBundle.loadString(path), contains('<svg'));
+    }
+  });
+
   late BeeDatabase db;
   late LocalRepository repo;
   late ProviderContainer container;
