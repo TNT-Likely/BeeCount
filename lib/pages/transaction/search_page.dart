@@ -710,6 +710,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     final repo = ref.watch(repositoryProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final hide = ref.watch(hideAmountsProvider);
+    final accountsEnabled =
+        ref.watch(accountFeatureEnabledProvider).valueOrNull ?? true;
     final l10n = AppLocalizations.of(context);
     if (_transactionStream == null || _streamLedgerId != ledgerId) {
       _transactionStream = repo.transactionsWithCategoryAll(ledgerId: ledgerId);
@@ -1160,12 +1162,25 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                               TransactionListItem(
                                 icon: iconData,
                                 category: item.category,
-                                title: subtitle,
-                                categoryName: categoryName,
+                                title: isTransfer && subtitle.isEmpty
+                                    ? l10n.transferTitle
+                                    : subtitle,
+                                categoryName: isTransfer ? null : categoryName,
+                                accountName: !accountsEnabled
+                                    ? null
+                                    : isTransfer
+                                        ? (item.account != null &&
+                                                item.toAccount != null
+                                            ? '${item.account!.name} → ${item.toAccount!.name}'
+                                            : null)
+                                        : item.account?.name,
+                                excludeFromStats: item.t.excludeFromStats,
+                                excludeFromBudget: item.t.excludeFromBudget,
                                 amount: item.t.amount,
                                 currencyCode: item.t.currencyCode,
                                 nativeAmount: item.t.nativeAmount,
                                 isExpense: isExpense,
+                                isTransfer: isTransfer,
                                 hide: hide,
                                 happenedAt: item.t.happenedAt,
                                 showFullDate: true,

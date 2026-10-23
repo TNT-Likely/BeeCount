@@ -6,6 +6,7 @@ import 'package:beecount/pages/transaction/search_page.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/widgets/biz/transaction_list_item.dart';
 import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,6 +37,7 @@ void main() {
       currentLedgerIdProvider.overrideWith((ref) => 1),
       currentLedgerProvider.overrideWith((ref) => repo.watchLedger(1)),
       syncServiceProvider.overrideWithValue(LocalOnlySyncService()),
+      accountFeatureEnabledProvider.overrideWith((ref) async => true),
     ]);
   });
   tearDown(() async {
@@ -105,6 +107,33 @@ void main() {
     await open(tester, batch: false);
     expect(find.text(l10n.searchNoInput), findsOneWidget);
     expect(find.byType(TransactionListItem), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+  });
+  testWidgets('批量列表将真实转账作为中性金额，保留双账户与原有标记', (tester) async {
+    final from =
+        await repo.createAccount(ledgerId: 1, name: '转出账户', currency: 'CNY');
+    final to =
+        await repo.createAccount(ledgerId: 1, name: '转入账户', currency: 'CNY');
+    await repo.addTransaction(
+        ledgerId: 1,
+        type: 'transfer',
+        amount: 25,
+        accountId: from,
+        toAccountId: to,
+        happenedAt: DateTime(2026, 10, 24),
+        excludeFromStats: true,
+        excludeFromBudget: true);
+    await open(tester);
+    expect(find.text('25.00', findRichText: true), findsOneWidget);
+    expect(find.text('+25.00', findRichText: true), findsNothing);
+    expect(find.textContaining('转出账户 → 转入账户'), findsOneWidget);
+    final transfer = tester
+        .widgetList<BeeTransactionRow>(find.byType(BeeTransactionRow))
+        .singleWhere((row) => row.kind == BeeTransactionKind.transfer);
+    expect(transfer.statusLabels, hasLength(2));
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 3));
