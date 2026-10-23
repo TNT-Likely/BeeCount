@@ -450,7 +450,7 @@
       "classes": [
         "AttachmentPreviewPage"
       ],
-      "lines": 495,
+      "lines": 63,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-attachment-viewer",
@@ -459,10 +459,10 @@
       "designMapping": "已定位",
       "components": "附件网格、大图、缩略图与状态",
       "acceptance": "查看原图、切换、加载失败、删除权限、返回原账单；系统附件能力另在真机验收。",
-      "status": "待迁移",
+      "status": "部分迁移·完整验收中",
       "name": "账单附件大图预览",
       "priority": "P0",
-      "reason": "记账、账单详情的附件查看直接依赖；与全局附件库分开迁移。",
+      "reason": "全屏预览、缩略图及来源选择已组件化；继续以同一隔离包验证真实添加、删除和正常入口重启。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-viewer",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachments"
@@ -1740,7 +1740,7 @@
       "classes": [
         "TransactionEditorPage"
       ],
-      "lines": 871,
+      "lines": 874,
       "batch": "M1 记账闭环",
       "designRoutes": [
         "editor",
