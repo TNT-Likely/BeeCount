@@ -1,0 +1,39 @@
+/* Compact recording is a layout variant, not a scaled phone screenshot. */
+#bee-immersive-suite .bc-phone[data-q-size]:not([data-q-size="398x844"]) { width:var(--q-width);height:var(--q-height);min-height:var(--q-height);max-height:var(--q-height); }
+#bee-immersive-suite .bc-phone[data-q-compact="true"] .bc-status{height:20px;min-height:20px;padding:0 17px;font-size:10px;line-height:20px}
+#bee-immersive-suite .bc-phone[data-q-compact="true"] .bc-status svg{width:12px!important;height:12px!important}
+#bee-immersive-suite .bc-phone[data-q-compact="true"] .bc-home-indicator{display:none}
+#bee-immersive-suite .bc-phone[data-q-compact="true"] .bc-main{display:flex;flex-direction:column;height:calc(100% - 20px);min-height:0;max-height:none;padding:0 16px 12px;overflow:hidden;gap:0}
+#bee-immersive-suite [data-q-compact="true"] .p-editor-head{height:56px;min-height:56px;flex:none}
+#bee-immersive-suite [data-q-compact="true"] .p-type-tabs button{font-size:calc(13px * var(--q-scale))}
+#bee-immersive-suite [data-q-compact="true"] .p-amount-card{flex:none;margin:0;padding:7px 15px;border-radius:22px}
+#bee-immersive-suite [data-q-compact="true"] .p-amount-card>.bc-between{height:32px;margin:0}
+#bee-immersive-suite [data-q-compact="true"] .p-amount-card .bc-mini-ledger{font-size:calc(11px * var(--q-scale));min-width:0;max-width:55%}
+#bee-immersive-suite [data-q-compact="true"] .v-currency-chip{font-size:calc(12px * var(--q-scale));min-height:29px;padding:4px 8px!important}
+#bee-immersive-suite [data-q-compact="true"] .p-amount-line{height:34px;min-height:34px;gap:6px}
+#bee-immersive-suite [data-q-compact="true"] .p-amount-line>span{font-size:17px}
+#bee-immersive-suite [data-q-compact="true"] .p-amount-line input{font-size:27px;line-height:34px}
+#bee-immersive-suite [data-q-compact="true"] .p-expression{display:none}
+#bee-immersive-suite [data-q-compact="true"] .v-editor-conversion:empty{display:none}
+#bee-immersive-suite [data-q-compact="true"] .q-category-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;border-radius:22px;margin:8px 0 6px}
+#bee-immersive-suite [data-q-compact="true"] .p-category-card{padding:10px 13px;margin:0;min-height:100%}
+#bee-immersive-suite [data-q-compact="true"] .p-category{min-height:62px;font-size:calc(11px * var(--q-scale));padding:6px 0!important}
+#bee-immersive-suite [data-q-compact="true"] .p-subcategories{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));max-height:92px;overflow:auto;gap:4px;padding:8px;margin:8px 0;border-radius:16px}
+#bee-immersive-suite [data-q-compact="true"] .p-subcategories button{min-height:44px;min-width:0;gap:5px;padding:7px!important;justify-content:flex-start;font-size:calc(11px * var(--q-scale));overflow:hidden}
+#bee-immersive-suite [data-q-compact="true"] .p-subcategories button>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bee-immersive-suite [data-q-compact="true"][data-q-narrow="true"] .p-subcategories{grid-template-columns:repeat(2,minmax(0,1fr))}
+#bee-immersive-suite [data-q-compact="true"] .q-quickbar{flex:none;display:flex;height:44px;border-radius:22px;background:var(--bc-paper);padding:0 4px;margin:0 0 6px}
+#bee-immersive-suite [data-q-compact="true"] .q-quickbar button{flex:1;min-width:0;min-height:44px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;padding:2px!important;font-size:calc(10px * var(--q-scale));border-radius:10px;line-height:1.2}
+#bee-immersive-suite [data-q-compact="true"] .q-quickbar button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bee-immersive-suite [data-q-compact="true"] .q-quickbar svg{width:17px!important;height:17px!important}
+#bee-immersive-suite [data-q-compact="true"] .p-keypad{flex:none;margin:0;gap:5px}
+#bee-immersive-suite [data-q-compact="true"] .p-keypad button{height:44px;min-height:44px;line-height:1;font-size:calc(23px * var(--q-scale))}
+#bee-immersive-suite [data-q-compact="true"] .p-calc-footer{display:flex;flex:none;height:44px;min-height:44px;margin:7px 0 0;gap:6px}
+#bee-immersive-suite [data-q-compact="true"] .p-calc-footer button{height:44px;min-height:44px;min-width:0;padding:5px!important;font-size:calc(12px * var(--q-scale));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bee-immersive-suite [data-q-compact="true"] .p-calc-footer .p-equals{font-size:23px}
+#bee-immersive-suite [data-q-compact="true"] .p-inline-error:empty{display:none}
+#bee-immersive-suite [data-q-compact="true"] .bc-modal{max-height:calc(var(--q-height) - 48px);overflow:auto}
+
+#bee-immersive-suite [data-q-compact="true"] .p-calc-footer button:nth-child(1){flex:100}
+#bee-immersive-suite [data-q-compact="true"] .p-calc-footer button:nth-child(2){flex:75}
+#bee-immersive-suite [data-q-compact="true"] .p-calc-footer button:nth-child(3){flex:160}

@@ -1,0 +1,25 @@
+{
+  "name": "beecount-card-refresh-design",
+  "private": true,
+  "scripts": {
+    "build": "node prototype/build.cjs",
+    "check": "node scripts/validate.cjs && node scripts/validate-management.cjs && node scripts/validate-currency.cjs && node scripts/validate-profile-detail.cjs",
+    "export": "node scripts/export.cjs && node scripts/build-responsive.cjs && node scripts/build-feedback.cjs",
+    "guide": "node scripts/build-foundation-samples.cjs && node scripts/build-selector-samples.cjs && node scripts/build-guide.cjs",
+    "index": "node scripts/build-index.cjs",
+    "figma:sources": "node scripts/build-figma-import.cjs && node scripts/build-figma-guide.cjs",
+    "responsive": "node scripts/build-responsive.cjs",
+    "check:links": "node scripts/validate-preview-links.cjs",
+    "check:guide": "node scripts/validate-guide.cjs",
+    "check:parity": "node scripts/validate-source-parity.cjs",
+    "review:recording": "node scripts/build-recording-review.cjs",
+    "check:pinned": "node scripts/validate-recording-pinned.cjs",
+    "prebuild": "node scripts/prepare-output.cjs",
+    "preexport": "node scripts/prepare-output.cjs",
+    "preguide": "node scripts/prepare-output.cjs",
+    "precheck": "node scripts/prepare-output.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

@@ -1,0 +1,57 @@
+#bee-immersive-suite .v-brand{display:flex;align-items:center;gap:8px;min-width:0}
+#bee-immersive-suite .v-brand>img{width:29px;height:35px;object-fit:contain;flex:none}
+#bee-immersive-suite .v-brand h2{font-size:18px;line-height:24px;letter-spacing:.3px;white-space:nowrap}
+#bee-immersive-suite .v-brand .bc-mini-ledger{min-height:23px;font-size:11px;color:var(--bc-muted);padding:0;gap:3px;max-width:130px}
+#bee-immersive-suite .v-brand .bc-mini-ledger>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bee-immersive-suite .v-brand .bc-mini-ledger svg{width:12px!important;height:12px!important}
+#bee-immersive-suite .v-entry{display:flex;gap:0;padding:4px 0;min-height:69px;align-items:stretch}
+#bee-immersive-suite .v-entry-category{display:grid;place-items:center;width:49px;min-height:53px;flex:none;padding:0;background:transparent;border:0;color:var(--bc-strong)}
+#bee-immersive-suite .v-entry-category .bc-entry-icon{background:var(--bc-tint);color:var(--bc-strong);width:36px;height:36px;border-radius:13px}
+#bee-immersive-suite .v-entry-open{flex:1;min-width:0;border:0;padding:9px 0 9px 5px;background:transparent;color:inherit;text-align:left}
+#bee-immersive-suite .v-entry-copy{min-width:0;flex:1}
+#bee-immersive-suite .v-entry-copy .bc-entry-title,#bee-immersive-suite .v-entry-copy .bc-entry-meta{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bee-immersive-suite .v-entry .bc-entry-description{gap:10px;width:100%;align-items:center}
+#bee-immersive-suite .v-entry .bc-entry-money{flex:none;max-width:52%;white-space:nowrap}
+#bee-immersive-suite .v-original{display:block}
+#bee-immersive-suite .v-entry-secondary{display:flex;align-items:center;justify-content:flex-end;gap:5px;flex-wrap:wrap;margin-top:4px}
+#bee-immersive-suite .v-entry-secondary:empty{display:none}
+#bee-immersive-suite .v-entry-secondary .bc-tag{margin:0!important}
+#bee-immersive-suite .v-converted{font-size:11px;font-weight:400;color:var(--bc-muted);line-height:17px}
+#bee-immersive-suite .p-batch-row .bc-entry-icon{background:var(--bc-tint);color:var(--bc-strong)}
+#bee-immersive-suite .p-batch-row .bc-entry-money{max-width:45%;flex:none}
+#bee-immersive-suite .bc-phone .v-currency-chip{display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:4px 10px;border:1px solid color-mix(in srgb,var(--bc-strong) 15%,transparent);border-radius:12px;background:color-mix(in srgb,var(--bc-paper) 80%,transparent);color:var(--bc-ink);font-size:12px}
+#bee-immersive-suite .v-currency-chip>span{font-size:11px;color:var(--bc-strong)}
+#bee-immersive-suite .v-currency-chip svg{width:13px!important;height:13px!important}
+#bee-immersive-suite .p-amount-line>span{font-size:22px;flex:none}
+#bee-immersive-suite .v-editor-conversion{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:4px;font-size:14px;color:var(--bc-ink)}
+#bee-immersive-suite .v-editor-conversion:empty{display:none}
+#bee-immersive-suite .v-editor-conversion>small{font-size:10px;color:var(--bc-muted)}
+#bee-immersive-suite .bc-phone .v-rate-error{display:flex;align-items:center;gap:5px;min-height:32px;padding:0;border:0;background:transparent;color:var(--bc-red);font-size:11px}
+#bee-immersive-suite .v-rate-error svg{width:14px!important;height:14px!important}
+#bee-immersive-suite .v-currency-search{margin:0 0 12px}
+#bee-immersive-suite .v-currency-list{max-height:355px;overflow:auto;overscroll-behavior:contain}
+#bee-immersive-suite .v-currency-list h4{font-size:11px;font-weight:500;color:var(--bc-muted);margin:12px 0 5px}
+#bee-immersive-suite .v-currency-row{display:flex;align-items:center;gap:11px;border:0;border-bottom:1px solid var(--bc-line);background:transparent;color:var(--bc-ink);padding:10px 0;width:100%;min-height:61px;text-align:left}
+#bee-immersive-suite .v-currency-symbol{display:grid;place-items:center;width:37px;height:37px;flex:none;border-radius:13px;background:var(--bc-soft);font-size:12px;font-weight:600}
+#bee-immersive-suite .v-currency-copy{flex:1;min-width:0}
+#bee-immersive-suite .v-currency-copy b{display:flex;gap:9px;align-items:center;font-size:13px;font-weight:600}
+#bee-immersive-suite .v-currency-copy b>span{font-size:12px;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bee-immersive-suite .v-currency-copy small{display:block;font-size:10px;color:var(--bc-muted);margin-top:4px}
+#bee-immersive-suite .v-currency-check{width:20px;flex:none;color:var(--bc-strong)}
+#bee-immersive-suite .v-currency-row[aria-pressed=true] .v-currency-symbol{background:var(--bc-tint);color:var(--bc-strong)}
+#bee-immersive-suite .v-currency-foot{font-size:10px;line-height:1.5;color:var(--bc-muted);margin:13px 0 0}
+#bee-immersive-suite .v-rate-caption{font-size:13px;line-height:1.8;color:var(--bc-muted);margin:0 0 20px}
+#bee-immersive-suite .v-rate-equation{display:flex;align-items:center;gap:10px;font-size:14px}
+#bee-immersive-suite .v-rate-equation>span{white-space:nowrap}
+#bee-immersive-suite .v-rate-equation label{display:flex;align-items:center;gap:6px;min-width:0;flex:1;background:var(--bc-soft);border-radius:13px;padding:12px}
+#bee-immersive-suite .v-rate-equation input{width:100%;min-width:0;background:transparent;color:var(--bc-ink);border:0;font:inherit;font-size:16px}
+#bee-immersive-suite .v-rate-equation label>span{font-size:11px;color:var(--bc-muted)}
+#bee-immersive-suite .v-rate-hint,#bee-immersive-suite .v-account-filter{font-size:11px;color:var(--bc-muted);line-height:1.6}
+#bee-immersive-suite .v-rate-hint{margin:12px 0 0}
+#bee-immersive-suite .v-detail-conversion{text-align:center;margin-top:10px}
+#bee-immersive-suite .v-detail-conversion .v-converted{font-size:16px}
+#bee-immersive-suite .v-detail-conversion>small{display:block;font-size:11px;color:var(--bc-muted);margin-top:7px}
+#bee-immersive-suite .v-receipt-conversion{text-align:center;margin-top:-12px;margin-bottom:14px}
+@media(max-width:420px){#bee-immersive-suite .v-brand{gap:6px}#bee-immersive-suite .v-brand h2{font-size:16px}#bee-immersive-suite .v-brand>img{width:26px;height:32px}#bee-immersive-suite .v-entry .bc-entry-description{gap:6px}#bee-immersive-suite .v-entry-secondary{gap:3px}}
+
+#bee-immersive-suite .v-original{direction:ltr;unicode-bidi:isolate}

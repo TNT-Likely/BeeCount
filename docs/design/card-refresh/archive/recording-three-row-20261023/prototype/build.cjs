@@ -1,0 +1,47 @@
+const fs=require('fs'),path=require('path');
+const here=__dirname;let html=fs.readFileSync(path.join(here,'src/layout.fragment.html'),'utf8');
+function change(a,b){if(!html.includes(a))throw Error('Missing '+a.slice(0,90));html=html.replace(a,()=>b);}
+change('<script>','<style>'+['interactions.css','category-icons.css','management.css','home-currency.css','profile-detail.css','responsive.css','feedback.css','foundation.css','recording-layout.css'].map(n=>fs.readFileSync(path.join(here,'src',n),'utf8')).join('\n')+'</style>\n<script>');
+change('  function rModalBody(key){','  function jPreviousModalBody(key){');
+change('  function rBuildModal(){','  function jPreviousBuildModal(){');
+change('  function rDismiss(){','  function jPreviousDismiss(){');
+change('  function rAfterRender(){','  function jPreviousAfterRender(){');
+change('  function dataManagement() {','  function nPreviousDataManagement() {');
+change('  function smart() {','  function nPreviousSmart() {');
+change('  function dCategoryManager(){','  function nPreviousCategoryManager(){');
+change('  function mine() {','  function jPreviousMine() {');
+change('  function ledgers() {','  function jPreviousLedgers() {');
+change('  function gOriginalCategoryGrid(){','  function jPreviousCategoryGrid(){');
+const categoryImages={coffee:'data:image/png;base64,'+fs.readFileSync(path.join(here,'assets/category-coffee.png')).toString('base64'),milk:'data:image/png;base64,'+fs.readFileSync(path.join(here,'assets/category-milk-tea.png')).toString('base64'),photo:'data:image/png;base64,'+fs.readFileSync(path.join(here,'assets/category-photo.png')).toString('base64')};
+const categoryJs=fs.readFileSync(path.join(here,'src/category-icons.js'),'utf8').replace('__CATEGORY_IMAGE_DATA__',JSON.stringify(categoryImages));
+const attachmentImages=Object.fromEntries(['payment','receipt','order'].map(name=>[name,'data:image/png;base64,'+fs.readFileSync(path.join(here,'assets','attachment-'+name+'.png')).toString('base64')]));
+const profileJs=fs.readFileSync(path.join(here,'src/profile-detail.js'),'utf8').replace('__ATTACHMENT_IMAGE_DATA__',()=>JSON.stringify(attachmentImages));
+change('  function notice(text) {','  function previousNotice(text) {');
+change('  const views={categoryPicker:',fs.readFileSync(path.join(here,'src/interactions.js'),'utf8')+'\n'+categoryJs+'\n'+fs.readFileSync(path.join(here,'src/management.js'),'utf8')+'\n'+fs.readFileSync(path.join(here,'src/home-currency.js'),'utf8')+'\n'+profileJs+'\n'+fs.readFileSync(path.join(here,'src/responsive.js'),'utf8')+'\n'+fs.readFileSync(path.join(here,'src/feedback.js'),'utf8')+'\n'+fs.readFileSync(path.join(here,'src/selectors.js'),'utf8')+'\n'+fs.readFileSync(path.join(here,'src/recording-layout.js'),'utf8')+'\n'+fs.readFileSync(path.join(here,'src/source-parity.js'),'utf8')+'\n  fDefine("transaction-states","账单行 · 全部场景用例","组件验收","widgets/biz/transaction_list_item.dart",()=>'+JSON.stringify(require('./src/business-samples.cjs').transactionStates)+');\n  const views={categoryPicker:');
+change('    <label class="form-label">外观<select class="form-select" id="bee-skin-mode"','    <label class="form-label" id="bee-sync-preview-control" hidden>同步状态<select class="form-select" id="bee-sync-preview" aria-label="预览同步状态"></select></label>\n    <label class="form-label">外观<select class="form-select" id="bee-skin-mode"');
+html=html.replaceAll('${icon(row.icon)}','${jCategoryVisual(row.subcategory||row.category,row.icon)}');
+html=html.replaceAll('<span class="bc-entry-icon">${icon(i)}</span><span>${esc(n)}</span>','<span class="bc-entry-icon">${jCategoryVisual(n,i)}</span><span>${esc(n)}</span>');
+change('btn(`w-picker-child:${n}`,esc(n),', 'btn(`w-picker-child:${n}`,`${jCategoryVisual(n)}<span>${esc(n)}</span>`,');
+change('${icon(g.icon)}</span><span class="d-child-copy">', '${jCategoryVisual(c.name,g.icon)}</span><span class="d-child-copy">');
+change('<span class="d-branch"></span><span class="d-child-copy">', '<span class="d-branch"></span><span class="bc-entry-icon">${jCategoryVisual(c.name,g.icon)}</span><span class="d-child-copy">');
+change('<div class="d-identity"><span class="bc-entry-icon warm">${icon(g.icon)}</span>', '<div class="d-identity"><span class="bc-entry-icon warm">${jCategoryVisual(state.dSub||g.name,g.icon)}</span>');
+change("spec.kind==='sheet'?' · 底部弹层':' · 弹窗'", "spec.kind==='sheet'?' · 底部弹层':spec.kind==='fan'?' · 长按菜单':' · 弹窗'");
+change("page:'welcome',previous:'home'", "page:'home',previous:'home'");
+change('  function render() {','  function render() {\n    zRememberCategoryScroll();');
+change('    rAfterRender();','    rAfterRender();\n    qAfterRender();');
+change("if([8,9,10].includes(data.month))state.month=data.month;", "if(Number.isInteger(data.month)&&data.month>=1&&data.month<=12)state.month=data.month;");
+html=html.replaceAll('onboarding-polished-v6','card-refresh-v7');
+html=html.replaceAll('2026年 ${state.month}', '${state.year}年 ${state.month}').replaceAll('2026年${state.month}', '${state.year}年${state.month}').replaceAll('2026-${String(state.month)', '${state.year}-${String(state.month)').replaceAll('2026-${state.month}', '${state.year}-${state.month}').replaceAll('2026${state.dPeriod}', '${state.year}${state.dPeriod}');
+change("const dataRows=()=>[...state.additions.filter(r=>r.ledger===state.ledger&&r.month===state.month),...(state.ledger==='日常生活'?items:familyItems)];", "const jHasPeriod=()=>state.year===2026&&[8,9,10].includes(state.month);\n  const dataRows=()=>[...state.additions.filter(r=>r.ledger===state.ledger&&(r.year||2026)===state.year&&r.month===state.month),...(jHasPeriod()?(state.ledger==='日常生活'?items:familyItems):[])];");
+change("const extra=state.additions.filter(r=>r.ledger===state.ledger&&r.month===state.month);", "const extra=state.additions.filter(r=>r.ledger===state.ledger&&(r.year||2026)===state.year&&r.month===state.month);");
+change("const expense=(state.ledger==='日常生活'?({10:3286.5,9:4125,8:3895.25}[state.month]??3286.5):6800.8)", "const expense=(jHasPeriod()?(state.ledger==='日常生活'?({10:3286.5,9:4125,8:3895.25}[state.month]??3286.5):6800.8):0)");
+change("const income=(state.ledger==='日常生活'?12000:24000)", "const income=(jHasPeriod()?(state.ledger==='日常生活'?12000:24000):0)");
+
+const previewCss=fs.readFileSync(path.join(here,'src/standalone.css'),'utf8');
+change('  restore(window.openai?.widgetState);\n  render();','  restore(window.openai?.widgetState);\n'+fs.readFileSync(path.join(here,'src/preview-links.js'),'utf8')+'\n  const qInitialScene=qApplyPreviewLink();\n  render();\n  qReplayPreviewScene(qInitialScene);');
+const bridge=`window.openai={widgetState:null,setWidgetState:async function(snapshot){this.widgetState=snapshot;}};`;
+fs.writeFileSync(path.join(here,'source.fragment.html'),html);
+const standalone='<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BeeCount · 卡片设计交互原型</title><style>'+previewCss+'</style><script src="vendor/lucide.min.js"></script><script src="scene-presets.js"></script><script>'+bridge+'</script></head><body>'+html+'</body></html>';
+fs.writeFileSync(path.join(here,'demo.html'),standalone);
+const inline=process.argv.indexOf('--inline');if(inline>=0){const dest=process.argv[inline+1];if(!dest)throw Error('Missing --inline path');fs.writeFileSync(dest,html);}
+console.log(JSON.stringify({fragmentBytes:Buffer.byteLength(html),demo:path.join(here,'demo.html')}));

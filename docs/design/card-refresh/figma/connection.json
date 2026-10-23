@@ -1,0 +1,23 @@
+{
+  "plugin": "Figma",
+  "installed": true,
+  "status": "ENABLED",
+  "userConfirmedConnected": true,
+  "bridge": "Layerwright",
+  "bridgeConnected": true,
+  "checkedAt": "2026-10-23",
+  "figmaToolsExposedInSession": [
+    "figma_status",
+    "figma_import_html",
+    "import_html_to_plan",
+    "figma_execute_plan"
+  ],
+  "nativeFileCreated": true,
+  "fallbackFiles": "SVG exports with text, shapes, icons and discrete images; PNG visual references",
+  "fileKey": "s7bi4zexefEZkHf6TlHiWX",
+  "fileUrl": "https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount",
+  "sceneCount": 159,
+  "componentSheets": 2,
+  "offlineFigSaved": false,
+  "componentGroups": 32
+}

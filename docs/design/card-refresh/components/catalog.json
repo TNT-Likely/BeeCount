@@ -1,0 +1,359 @@
+[
+  {
+    "id": "foundation",
+    "title": "基础组件",
+    "package": "beecount_ui",
+    "cards": [
+      {
+        "id": "spec-1",
+        "code": "F01",
+        "title": "基础色与主题",
+        "nativeCase": 8,
+        "nativeLabel": "令牌与图标"
+      },
+      {
+        "id": "spec-2",
+        "code": "F02",
+        "title": "27 种主题色",
+        "nativeCase": 8,
+        "nativeLabel": "令牌与图标"
+      },
+      {
+        "id": "spec-3",
+        "code": "F03",
+        "title": "字体与数字",
+        "nativeCase": 8,
+        "nativeLabel": "令牌与图标"
+      },
+      {
+        "id": "spec-4",
+        "code": "F04",
+        "title": "间距、圆角与触控",
+        "nativeCase": 8,
+        "nativeLabel": "令牌与图标"
+      },
+      {
+        "id": "spec-5",
+        "code": "F05",
+        "title": "操作按钮",
+        "nativeCase": 0,
+        "nativeLabel": "按钮"
+      },
+      {
+        "id": "spec-6",
+        "code": "F06",
+        "title": "胶囊单选",
+        "nativeCase": 1,
+        "nativeLabel": "切换与选择"
+      },
+      {
+        "id": "spec-8",
+        "code": "F07",
+        "title": "输入与校验",
+        "nativeCase": 2,
+        "nativeLabel": "表单"
+      },
+      {
+        "id": "spec-9",
+        "code": "F08",
+        "title": "列表与开关",
+        "nativeCase": 3,
+        "nativeLabel": "分组列表"
+      },
+      {
+        "id": "spec-14",
+        "code": "F09",
+        "title": "底部导航",
+        "nativeCase": 7,
+        "nativeLabel": "底部导航"
+      },
+      {
+        "id": "spec-17",
+        "code": "F10",
+        "title": "日期与月份滚轮",
+        "nativeCase": 5,
+        "nativeLabel": "滚轮"
+      },
+      {
+        "id": "spec-26",
+        "code": "F11",
+        "title": "持续状态与空态",
+        "nativeCase": 4,
+        "nativeLabel": "反馈与空态"
+      },
+      {
+        "id": "spec-33",
+        "code": "F12",
+        "title": "成功与失败轻提示",
+        "nativeCase": 9,
+        "nativeLabel": "菜单与轻提示"
+      },
+      {
+        "id": "spec-34",
+        "code": "F13",
+        "title": "图标按钮与角标",
+        "nativeCase": 12,
+        "nativeLabel": "图标按钮与角标"
+      },
+      {
+        "id": "spec-35",
+        "code": "F14",
+        "title": "标签块与通用多选",
+        "nativeCase": 13,
+        "nativeLabel": "标签块与多选"
+      },
+      {
+        "id": "spec-36",
+        "code": "F15",
+        "title": "搜索选择与长列表",
+        "nativeCase": 14,
+        "nativeLabel": "搜索选择"
+      },
+      {
+        "id": "spec-37",
+        "code": "F16",
+        "title": "表单完整状态",
+        "nativeCase": 15,
+        "nativeLabel": "输入与校验状态"
+      },
+      {
+        "id": "spec-38",
+        "code": "F17",
+        "title": "页头、卡片与分隔",
+        "nativeCase": 16,
+        "nativeLabel": "卡片、分隔与页头"
+      },
+      {
+        "id": "spec-39",
+        "code": "F18",
+        "title": "固定底部操作栏",
+        "nativeCase": 17,
+        "nativeLabel": "底部操作栏"
+      },
+      {
+        "id": "spec-40",
+        "code": "F19",
+        "title": "加载与进度状态",
+        "nativeCase": 18,
+        "nativeLabel": "加载与进度状态"
+      },
+      {
+        "id": "spec-42",
+        "code": "F20",
+        "title": "确认与编辑弹窗",
+        "nativeCase": 6,
+        "nativeLabel": "弹窗与弹层"
+      },
+      {
+        "id": "spec-43",
+        "code": "F21",
+        "title": "单选、开关与滑杆",
+        "nativeCase": 11,
+        "nativeLabel": "单选与滑杆"
+      },
+      {
+        "id": "spec-44",
+        "code": "F22",
+        "title": "筛选与折叠",
+        "nativeCase": 10,
+        "nativeLabel": "折叠与筛选"
+      }
+    ]
+  },
+  {
+    "id": "business",
+    "title": "业务组件",
+    "package": "beecount_business_ui",
+    "cards": [
+      {
+        "id": "spec-7",
+        "code": "B01",
+        "title": "语义标签",
+        "nativeCase": 6,
+        "nativeLabel": "标签多选"
+      },
+      {
+        "id": "spec-10",
+        "code": "B02",
+        "title": "金额汇总卡片",
+        "nativeCase": 1,
+        "nativeLabel": "金额与预算"
+      },
+      {
+        "id": "spec-11",
+        "code": "B03",
+        "title": "账单行",
+        "nativeCase": 2,
+        "nativeLabel": "账单行与批量操作"
+      },
+      {
+        "id": "spec-12",
+        "code": "B04",
+        "title": "分类与二级分类",
+        "nativeCase": 3,
+        "nativeLabel": "分类与自定义图标"
+      },
+      {
+        "id": "spec-13",
+        "code": "B05",
+        "title": "自定义分类图片",
+        "nativeCase": 3,
+        "nativeLabel": "分类与自定义图标"
+      },
+      {
+        "id": "spec-15",
+        "code": "B06",
+        "title": "金额计算器",
+        "nativeCase": 5,
+        "nativeLabel": "计算器与记账表单"
+      },
+      {
+        "id": "spec-16",
+        "code": "B07",
+        "title": "账单辅助信息",
+        "nativeCase": 5,
+        "nativeLabel": "计算器与记账表单"
+      },
+      {
+        "id": "spec-18",
+        "code": "B08",
+        "title": "授权弹窗",
+        "nativeCase": 16,
+        "nativeLabel": "AI 授权与配置"
+      },
+      {
+        "id": "spec-19",
+        "code": "B09",
+        "title": "配置编辑弹窗",
+        "nativeCase": 16,
+        "nativeLabel": "AI 授权与配置"
+      },
+      {
+        "id": "spec-20",
+        "code": "B10",
+        "title": "账本选中态",
+        "nativeCase": 9,
+        "nativeLabel": "账本与操作菜单"
+      },
+      {
+        "id": "spec-21",
+        "code": "B11",
+        "title": "账本操作菜单",
+        "nativeCase": 9,
+        "nativeLabel": "账本与操作菜单"
+      },
+      {
+        "id": "spec-22",
+        "code": "B12",
+        "title": "同步状态",
+        "nativeCase": 10,
+        "nativeLabel": "同步全部状态"
+      },
+      {
+        "id": "spec-23",
+        "code": "B13",
+        "title": "紧凑导入字段",
+        "nativeCase": 14,
+        "nativeLabel": "导入字段映射"
+      },
+      {
+        "id": "spec-24",
+        "code": "B14",
+        "title": "初始化选择",
+        "nativeCase": 15,
+        "nativeLabel": "初始化五步"
+      },
+      {
+        "id": "spec-25",
+        "code": "B15",
+        "title": "小票与分享",
+        "nativeCase": 18,
+        "nativeLabel": "小票与分享"
+      },
+      {
+        "id": "spec-27",
+        "code": "B16",
+        "title": "首页品牌",
+        "nativeCase": 0,
+        "nativeLabel": "首页品牌"
+      },
+      {
+        "id": "spec-28",
+        "code": "B17",
+        "title": "币种选择",
+        "nativeCase": 7,
+        "nativeLabel": "币种与账户选择"
+      },
+      {
+        "id": "spec-29",
+        "code": "B18",
+        "title": "汇率缺失弹窗",
+        "nativeCase": 8,
+        "nativeLabel": "补充汇率"
+      },
+      {
+        "id": "spec-30",
+        "code": "B19",
+        "title": "昵称与当前账本",
+        "nativeCase": 11,
+        "nativeLabel": "资料与紧凑余额"
+      },
+      {
+        "id": "spec-31",
+        "code": "B20",
+        "title": "昵称编辑弹窗",
+        "nativeCase": 12,
+        "nativeLabel": "昵称编辑"
+      },
+      {
+        "id": "spec-32",
+        "code": "B21",
+        "title": "附件图片平铺",
+        "nativeCase": 13,
+        "nativeLabel": "附件平铺与预览"
+      },
+      {
+        "id": "spec-41",
+        "code": "B22",
+        "title": "记账快捷入口",
+        "nativeCase": 20,
+        "nativeLabel": "快捷记账"
+      },
+      {
+        "id": "spec-45",
+        "code": "B23",
+        "title": "分类选择器",
+        "nativeCase": 27,
+        "nativeLabel": "分类选择器"
+      },
+      {
+        "id": "spec-46",
+        "code": "B24",
+        "title": "账户选择器",
+        "nativeCase": 28,
+        "nativeLabel": "账户选择器"
+      },
+      {
+        "id": "spec-47",
+        "code": "B25",
+        "title": "交易行状态全集",
+        "nativeCase": 29,
+        "nativeLabel": "交易行状态全集"
+      },
+      {
+        "id": "spec-48",
+        "code": "B26",
+        "title": "真实账本数据联动",
+        "nativeCase": 30,
+        "nativeLabel": "真实账本联动"
+      },
+      {
+        "id": "spec-49",
+        "code": "B27",
+        "title": "账本选择器",
+        "nativeCase": 31,
+        "nativeLabel": "账本选择器"
+      }
+    ]
+  }
+]
