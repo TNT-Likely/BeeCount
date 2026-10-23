@@ -8,7 +8,7 @@ const sections=[
  card('04 · 间距、圆角与触控','页面内边距 17；卡片 22；主要触控目标至少 44。',`<div class="spec-space">${tokens.spacing.map(x=>`<div><span>${x}</span><i style="width:${x*5}px"></i></div>`).join('')}</div><div class="spec-radii">${[8,13,15,22].map(x=>`<div style="border-radius:${x}px">${x}</div>`).join('')}</div>`),
  card('05 · 操作按钮','主操作、次要操作、禁用、处理中及危险文字操作。',`<div class="spec-stack">${primary}<div class="spec-pair">${secondary}<button class="bc-secondary">${icon('plus')}添加一项</button></div>${primary.replace('<button ','<button disabled ').replace('下一步','不可操作')}<button class="bc-primary" disabled>${icon('loader-circle')}正在处理</button><button class="bc-secondary spec-danger">${icon('trash-2')}删除</button></div>`),
  card('06 · 胶囊单选','长标签可横向滚动；禁用项不参与选择。',samples.segments),
- card('07 · 语义标签','标签颜色跨列表、选择器、详情和分享保持一致。',`<div class="spec-tags">${[['工作日','amber'],['日常','green'],['网购','purple'],['聚餐','pink'],['旅行','teal'],['阅读','blue']].map(tag).join('')}</div>`),
+ card('07 · 语义标签与横排选择','语义色保持一致；选择器保留最近使用、横排多选、搜索与确认草稿。',`<div class="spec-tags">${[['工作日','amber'],['日常','green'],['网购','purple'],['聚餐','pink'],['旅行','teal'],['阅读','blue']].map(tag).join('')}</div>`+(samples.tagPicker||'')),
  card('08 · 输入与校验','标签、输入值、提示文字与错误信息分层显示。',`<label class="f-field">账本名称<input value="日常生活"></label><label class="f-field">分类<select><option>饮品 / 奶茶</option></select></label><label class="f-field">备注<textarea>周末下午的一杯奶茶</textarea></label><label class="f-field spec-invalid">金额<input value="abc"><small>请输入有效金额</small></label><label class="f-field">不可编辑<input value="CNY" disabled></label>`),
  card('09 · 列表与开关','统一图标槽、主副标题、分隔线、尾部操作与开关。',samples.menu),
  card('10 · 金额汇总卡片','首页收支、预算进度与账本切换共用视觉层次。',samples.summary),

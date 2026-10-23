@@ -168,7 +168,7 @@
       {
         "id": "spec-7",
         "code": "B01",
-        "title": "语义标签",
+        "title": "语义标签与横排选择",
         "nativeCase": 6,
         "nativeLabel": "标签多选"
       },

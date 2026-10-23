@@ -406,5 +406,14 @@
     ],
     "page": "business",
     "case": 33
+  },
+  {
+    "design_key": "tagPicker",
+    "components": [
+      "BeeTagPicker",
+      "BeeTag"
+    ],
+    "page": "business",
+    "case": 6
   }
 ]

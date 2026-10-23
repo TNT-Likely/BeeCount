@@ -31,7 +31,7 @@
 #bee-immersive-suite .j-tag-search { margin:0 0 13px; }
 #bee-immersive-suite .j-tag-summary { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:11px; color:var(--bc-muted); margin-bottom:14px; }
 #bee-immersive-suite .j-tag-cloud { display:flex; flex-wrap:wrap; gap:9px; align-content:flex-start; max-height:270px; overflow-y:auto; margin-bottom:21px; padding:3px; }
-#bee-immersive-suite .j-tag-chip { display:inline-flex; align-items:center; gap:6px; min-height:39px; padding:8px 11px!important; border-radius:12px; border:1px solid transparent!important; background:var(--bc-soft)!important; color:var(--bc-ink)!important; font-size:12px!important; }
+#bee-immersive-suite .j-tag-chip { display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:8px 11px!important; border-radius:12px; border:1px solid transparent!important; background:var(--bc-soft)!important; color:var(--bc-ink)!important; font-size:12px!important; }
 #bee-immersive-suite .j-tag-chip svg { --icon-size:13px; opacity:.6; }
 #bee-immersive-suite .j-tag-chip[aria-checked="true"] { border-color:currentColor!important; }
 #bee-immersive-suite .j-tag-chip[aria-checked="true"] svg { opacity:1; }
@@ -48,3 +48,7 @@
 @keyframes j-sync-spin { to { transform:rotate(360deg); } }
 @media(prefers-reduced-motion:reduce) { #bee-immersive-suite .j-sync-trailing svg { animation:none!important; } }
 @media(max-width:380px) { #bee-immersive-suite .j-ledger-card { padding:12px; } #bee-immersive-suite .j-ledger-actions { gap:5px; } #bee-immersive-suite .j-current-ledger { font-size:9px; } #bee-immersive-suite .j-ledger-select { gap:7px; } #bee-immersive-suite .j-ledger-select h3 { font-size:14px; } #bee-immersive-suite .j-ledger-select .bc-entry-icon { width:32px; height:32px; border-radius:11px; } }
+
+#bee-immersive-suite .j-tag-groups{max-height:270px;overflow-y:auto;margin-bottom:21px}
+#bee-immersive-suite .j-tag-groups h4{font-size:12px;font-weight:400;color:var(--bc-muted);margin:9px 3px 10px}
+#bee-immersive-suite .j-tag-groups .j-tag-cloud{max-height:none;overflow:visible;margin-bottom:8px}
