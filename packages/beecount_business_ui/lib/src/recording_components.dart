@@ -17,14 +17,16 @@ class RecordingConversionSummary extends StatelessWidget {
   Widget build(BuildContext context) => InkWell(
       onTap: onTap,
       child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 24),
+          constraints: const BoxConstraints(minHeight: 18),
           child: Row(children: [
             Expanded(
                 child: Text(label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                        fontSize: 11, color: Theme.of(context).hintColor))),
+                        fontSize: 11,
+                        height: 1.2,
+                        color: Theme.of(context).hintColor))),
             const SizedBox(width: 8),
             Expanded(
                 flex: 2,
@@ -37,6 +39,7 @@ class RecordingConversionSummary extends StatelessWidget {
                           textAlign: TextAlign.right,
                           style: TextStyle(
                               fontSize: 12,
+                              height: 1.2,
                               color: isError
                                   ? Theme.of(context).colorScheme.error
                                   : null))),
@@ -88,7 +91,8 @@ class RecordingAmountCard extends StatelessWidget {
                       fontWeight: FontWeight.w600)),
             ]));
     return BeeSurface(
-        padding: EdgeInsets.fromLTRB(15, compact ? 0 : 9, 15, compact ? 0 : 9),
+        padding: EdgeInsets.fromLTRB(compact ? 12 : 16, compact ? 0 : 9,
+            compact ? 12 : 16, compact ? 0 : 6),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -105,19 +109,29 @@ class RecordingAmountCard extends StatelessWidget {
                         child: ledger),
                   ]))
             else ...[
-              Row(children: [
-                currency,
-                const SizedBox(width: 12),
-                Expanded(child: ledger)
-              ]),
-              const SizedBox(height: 4),
+              SizedBox(
+                  height: 32,
+                  child: Row(children: [
+                    currency,
+                    const SizedBox(width: 12),
+                    Expanded(child: ledger)
+                  ])),
               SizedBox(height: 44, child: amountLine),
             ],
-            if (conversion == null && !compact)
-              Text(hint,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontSize: 11, color: Theme.of(context).hintColor)),
-            if (conversion != null) conversion!,
+            if (!compact || conversion != null)
+              SizedBox(
+                height: compact ? 18 : 30,
+                child: conversion ??
+                    Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(hint,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    fontSize: 11,
+                                    color: Theme.of(context).hintColor))),
+              ),
           ],
         ));
   }
@@ -141,6 +155,7 @@ class RecordingDetailsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BeeSurface(
       key: const ValueKey('recording-details'),
+      borderRadius: BorderRadius.circular(noteExpanded ? 18 : 15),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         if (noteExpanded) ...[
@@ -289,7 +304,9 @@ class RecordingKeypad extends StatelessWidget {
       required this.onOperator,
       required this.onBackspace,
       required this.onClear,
-      required this.deleteLabel});
+      required this.deleteLabel,
+      this.compact = false});
+  final bool compact;
   final ValueChanged<String> onDigit;
   final ValueChanged<String> onOperator;
   final VoidCallback onBackspace;
@@ -333,6 +350,13 @@ class RecordingKeypad extends StatelessWidget {
                       padding: EdgeInsets.only(right: column == 3 ? 0 : 5),
                       child: Semantics(
                         label: value == '⌫' ? deleteLabel : value,
+                        excludeSemantics: true,
+                        onTap: () => value == '⌫'
+                            ? onBackspace()
+                            : op
+                                ? onOperator(value)
+                                : onDigit(value),
+                        onLongPress: value == '⌫' ? onClear : null,
                         button: true,
                         child: Material(
                           color: op
@@ -354,7 +378,7 @@ class RecordingKeypad extends StatelessWidget {
                                     ? onOperator(value)
                                     : onDigit(value),
                             child: SizedBox(
-                                height: 44,
+                                height: compact ? 44 : 46,
                                 child: Center(
                                     child: value == '⌫'
                                         ? const BeeLineIcon('Delete', size: 20)
@@ -369,7 +393,11 @@ class RecordingKeypad extends StatelessWidget {
                                                         .42)
                                                     : theme
                                                         .colorScheme.onSurface,
-                                                fontSize: op ? 25 : 23,
+                                                fontSize: op
+                                                    ? 25
+                                                    : compact
+                                                        ? 23
+                                                        : 24,
                                                 fontWeight: FontWeight.w500)))),
                           ),
                         ),

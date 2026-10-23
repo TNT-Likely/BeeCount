@@ -143,9 +143,11 @@ class BeeAccountChoice {
       {required this.id,
       required this.name,
       required this.currency,
-      required this.balance,
+      this.balance = '',
+      this.detail,
       this.icon});
   final String id, name, currency, balance;
+  final String? detail;
   final Widget? icon;
 }
 
@@ -176,7 +178,11 @@ class BeeAccountPicker extends StatelessWidget {
                 .map((a) => BeeChoice<String?>(
                     value: a.id,
                     title: a.name,
-                    subtitle: '${a.currency} · ${a.balance}',
+                    subtitle: [
+                      a.currency,
+                      if (a.balance.isNotEmpty) a.balance,
+                      if (a.detail != null) a.detail!
+                    ].join(' · '),
                     leading: a.icon ?? const BeeLineIcon('Wallet'),
                     searchText: a.currency))
           ],
