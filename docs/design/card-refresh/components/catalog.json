@@ -374,6 +374,13 @@
         "title": "搜索汇总与批量操作",
         "nativeCase": 34,
         "nativeLabel": "搜索汇总与批量操作"
+      },
+      {
+        "id": "spec-53",
+        "code": "B31",
+        "title": "分类账户标签详情",
+        "nativeCase": 35,
+        "nativeLabel": "分类账户标签详情"
       }
     ]
   }

@@ -1475,6 +1475,12 @@
 #bee-immersive-suite [data-q-compact="true"] .p-calc-footer button:nth-child(2){flex:75}
 #bee-immersive-suite [data-q-compact="true"] .p-calc-footer button:nth-child(3){flex:160}
 
+/* Detail pages follow the simulated phone width as well as browser media queries. */
+#bee-immersive-suite .bc-phone:is([data-q-size="320x568"],[data-q-size="375x667"]) .d-hero { padding:16px; }
+#bee-immersive-suite .bc-phone:is([data-q-size="320x568"],[data-q-size="375x667"]) .d-amount { font-size:29px; }
+#bee-immersive-suite .bc-phone:is([data-q-size="320x568"],[data-q-size="375x667"]) .d-hero-stats { gap:6px; }
+#bee-immersive-suite .bc-phone:is([data-q-size="320x568"],[data-q-size="375x667"]) .d-hero-stats strong { font-size:12px; }
+
 /* Shared feedback spec: inverse toast, content-sized status; no layout shift. */
 #bee-immersive-suite .bc-notice{position:absolute;top:47px;left:20px;right:20px;z-index:40;width:max-content;max-width:calc(100% - 40px);margin:auto;min-height:44px;padding:12px 14px;background:light-dark(#262829,#f0f1ed);color:light-dark(#ffffff,#262829);border-radius:14px;font-size:calc(13px * var(--q-scale,1));line-height:1.5;display:flex;align-items:center;gap:8px;text-align:left;box-shadow:0 4px 16px #0002;pointer-events:none}
 #bee-immersive-suite .bc-notice svg{width:20px!important;height:20px!important;flex-shrink:0}

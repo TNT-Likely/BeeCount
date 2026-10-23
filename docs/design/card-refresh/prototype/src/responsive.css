@@ -37,3 +37,9 @@
 #bee-immersive-suite [data-q-compact="true"] .p-calc-footer button:nth-child(1){flex:100}
 #bee-immersive-suite [data-q-compact="true"] .p-calc-footer button:nth-child(2){flex:75}
 #bee-immersive-suite [data-q-compact="true"] .p-calc-footer button:nth-child(3){flex:160}
+
+/* Detail pages follow the simulated phone width as well as browser media queries. */
+#bee-immersive-suite .bc-phone:is([data-q-size="320x568"],[data-q-size="375x667"]) .d-hero { padding:16px; }
+#bee-immersive-suite .bc-phone:is([data-q-size="320x568"],[data-q-size="375x667"]) .d-amount { font-size:29px; }
+#bee-immersive-suite .bc-phone:is([data-q-size="320x568"],[data-q-size="375x667"]) .d-hero-stats { gap:6px; }
+#bee-immersive-suite .bc-phone:is([data-q-size="320x568"],[data-q-size="375x667"]) .d-hero-stats strong { font-size:12px; }
