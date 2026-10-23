@@ -25,7 +25,7 @@ class V4PageScaffold extends ConsumerWidget {
     final decoration = skin == null
         ? const SizedBox.expand()
         : SkinAnimationScope(
-            child: skin.builder(theme.colorScheme.primary,
+            child: (skin.pageBuilder ?? skin.builder)(theme.colorScheme.primary,
                 theme.brightness == Brightness.dark));
     return ColoredBox(
         color: skin == null
