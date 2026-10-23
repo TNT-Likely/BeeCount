@@ -25,8 +25,8 @@
 | **新增与编辑账户**<br>[lib/pages/account/account_edit_page.dart](../../lib/pages/account/account_edit_page.dart) | 部分迁移·待设计对齐与完整验收 | M3 | 账户卡、金额、账户类型、表单与交易列表 | 保留账户类型/币种/余额、隐藏状态、余额调整、转账关联与历史记录。<br>设计：`flow-account-edit`、`flow-balance-adjust`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **资产与账户列表**<br>[lib/pages/account/accounts_page.dart](../../lib/pages/account/accounts_page.dart) | 部分迁移·待设计对齐与完整验收 | M3 | 资产汇总、账户卡、类型分组与操作菜单 | 资产/负债/净资产口径、账户余额/币种、隐藏状态、新建/编辑、转账与详情入口。<br>设计：`assets`、`flow-account-settings`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **账单附件大图预览**<br>[lib/pages/attachment/attachment_preview_page.dart](../../lib/pages/attachment/attachment_preview_page.dart) | 已完成 | M7 | 附件网格、大图、缩略图与状态 | 7 项真实文件/数据库 widget 回归及冻结 HTML 尺寸通过；真机预览/切换/缩略图、保存附件删除与重新添加、文件 SHA256 和重启持久化通过。双指缩放通过实际 widget 手势；原生拍照及原生双指手势未执行，作为设备覆盖边界记录。<br>设计：`flow-attachment-viewer`、`flow-attachments`<br>优先理由：已对齐 HTML 全屏留白、文件名、计数和缩略图；R13 在同一隔离包完成删除取消、实际删除/系统相册重加与正常入口重启，50 笔交易及其余附件保持不变。 |
-| **应用锁解锁**<br>[lib/pages/auth/app_lock_screen.dart](../../lib/pages/auth/app_lock_screen.dart) | 部分迁移·待设计对齐与完整验收 | M7 | 安全输入、错误反馈与解锁状态 | 保持原 PIN/生物识别、锁定/失败策略、恢复入口；不修改认证和安全存储。<br>设计：`flow-lock`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
-| **PIN 设置与确认**<br>[lib/pages/auth/pin_setup_page.dart](../../lib/pages/auth/pin_setup_page.dart) | 部分迁移·待设计对齐与完整验收 | M7 | PIN 输入、确认步骤与错误状态 | 设置/确认、二次不一致、取消、返回、原存储和隐私策略。<br>设计：`flow-pin`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
+| **应用锁解锁**<br>[lib/pages/auth/app_lock_screen.dart](../../lib/pages/auth/app_lock_screen.dart) | 部分迁移·新版锁屏回归通过，待真机验收 | M7 | 安全输入、错误反馈与解锁状态 | 保持原 PIN/生物识别、锁定/失败策略、恢复入口；不修改认证和安全存储。<br>设计：`flow-lock`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
+| **PIN 设置与确认**<br>[lib/pages/auth/pin_setup_page.dart](../../lib/pages/auth/pin_setup_page.dart) | 部分迁移·四位创建修改回归通过，待真机验收 | M7 | PIN 输入、确认步骤与错误状态 | 设置/确认、二次不一致、取消、返回、原存储和隐私策略。<br>设计：`flow-pin`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **启动页**<br>[lib/pages/auth/splash_page.dart](../../lib/pages/auth/splash_page.dart) | 部分迁移·待设计对齐与完整验收 | M7 | 品牌与加载/错误状态 | 启动后进入初始化/解锁/首页的原分支、失败重试，避免改变初始化和同步时序。<br>设计：`flow-splash`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **欢迎与初始化全流程**<br>[lib/pages/auth/welcome_page.dart](../../lib/pages/auth/welcome_page.dart) | 部分迁移·待设计对齐与完整验收 | M7 | 居中欢迎步骤、语言/币种/分类选择、恢复与云同步说明 | 语言、币种/默认账本、分类模式、云同步、隐私开源、配置/附件恢复；返回保持选择。<br>设计：`welcome`、`welcomeCurrency`、`welcomeCategories`、`welcomeCloud`、`welcomePrivacy`、`welcomeDone`、`flow-welcome-bridge`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **新增与编辑分类**<br>[lib/pages/category/category_edit_page.dart](../../lib/pages/category/category_edit_page.dart) | 待迁移 | M3 | 分类层级、图标/图片、表单、排序与工具弹窗 | 一级/二级图标、自定义图片、转账图标入口、展开、排序和原工具弹窗。<br>设计：`flow-category-edit`、`flow-category-icons`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
@@ -130,6 +130,7 @@
 | **账单小票弹窗**<br>[lib/widgets/biz/transaction_receipt_dialog.dart](../../lib/widgets/biz/transaction_receipt_dialog.dart) | P1 / 待迁移 | 原币与折算、标签/附件、隐私、图片生成和系统分享，沿用弹窗。 |
 | **AI 授权弹窗**<br>[lib/widgets/ai/agent_tool_authorization_dialog.dart](../../lib/widgets/ai/agent_tool_authorization_dialog.dart) | P1 / 样式就绪·真实消费者待迁移 | 实际动作、权限、金额与上下文，拒绝和允许不丢任务。 |
 | **检查升级弹窗**<br>[lib/services/update/update_dialogs.dart](../../lib/services/update/update_dialogs.dart) | P2 / 待迁移 | 保持原弹窗，检查中/最新/可升级/错误与下载入口。 |
+| **关闭应用锁前的私有密码验证页**<br>[lib/pages/settings/app_lock_settings_page.dart](../../lib/pages/settings/app_lock_settings_page.dart) | P1 / 待迁移 | 保留四位旧密码验证、失败半秒恢复、取消返回 false；只在验证成功后清除 PIN 和关闭生物识别，不改变锁定策略。 |
 
 ## 页面旁辅助文件
 

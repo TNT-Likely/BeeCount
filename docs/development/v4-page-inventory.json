@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 183,
+  "designSceneExports": 187,
   "flowDefinitions": 104,
   "priorityCounts": {
     "P0": 16,
@@ -177,6 +177,13 @@
         "flow-update-check"
       ],
       "acceptance": "保持原弹窗，检查中/最新/可升级/错误与下载入口。"
+    },
+    {
+      "name": "关闭应用锁前的私有密码验证页",
+      "source": "lib/pages/settings/app_lock_settings_page.dart",
+      "priority": "P1",
+      "status": "待迁移",
+      "acceptance": "保留四位旧密码验证、失败半秒恢复、取消返回 false；只在验证成功后清除 PIN 和关闭生物识别，不改变锁定策略。"
     }
   ],
   "rows": [
@@ -473,7 +480,7 @@
       "classes": [
         "AppLockScreen"
       ],
-      "lines": 154,
+      "lines": 134,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-lock"
@@ -481,7 +488,7 @@
       "designMapping": "已定位",
       "components": "安全输入、错误反馈与解锁状态",
       "acceptance": "保持原 PIN/生物识别、锁定/失败策略、恢复入口；不修改认证和安全存储。",
-      "status": "部分迁移·待设计对齐与完整验收",
+      "status": "部分迁移·新版锁屏回归通过，待真机验收",
       "name": "应用锁解锁",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
@@ -516,7 +523,7 @@
       "classes": [
         "PinSetupPage"
       ],
-      "lines": 170,
+      "lines": 154,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-pin"
@@ -524,7 +531,7 @@
       "designMapping": "已定位",
       "components": "PIN 输入、确认步骤与错误状态",
       "acceptance": "设置/确认、二次不一致、取消、返回、原存储和隐私策略。",
-      "status": "部分迁移·待设计对齐与完整验收",
+      "status": "部分迁移·四位创建修改回归通过，待真机验收",
       "name": "PIN 设置与确认",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
