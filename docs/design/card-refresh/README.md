@@ -1,6 +1,6 @@
 # BeeCount 卡片方案 · 设计资源
 
-更新：2026-10-24。当前本地设计为 181 个页面/交互场景、51 组组件规范。默认无皮肤，支持主题色、浅深色及两款可选动态皮肤。HTML 使用合成数据；实际 App 仅收支录入与组件验收试点已接入，其余页面按 [迁移清单](../../development/v4-page-migration.md) 推进。
+更新：2026-10-24。当前本地设计为 183 个页面/交互场景、54 组组件规范。默认无皮肤，支持主题色、浅深色及两款可选动态皮肤。HTML 使用合成数据；实际 App 已迁移部分核心流程、搜索、分类详情、我的与配置界面；整页验收状态按 [迁移清单](../../development/v4-page-migration.md) 推进。
 
 ## 查看入口
 
@@ -53,6 +53,7 @@ qa/                     临时检查结果，不进入 Git
 npm ci
 npm run build
 npm run export
+npm run export:selected -- flow-config flow-config-select flow-config-preview flow-config-import
 npm run guide
 npm run review:recording
 npm run index
@@ -61,6 +62,8 @@ npm run check:guide
 npm run check:links
 npm run check:parity
 ```
+
+`export:selected -- <route...>` 仅更新指定页面的 PNG/SVG、场景预设、资源索引及总览大图，保留其他场景。配置导入导出保持页面内八项范围选择、预览和导入确认弹窗。
 
 `build` 从 prototype/src 生成完整 demo；`export` 生成逐页 PNG/SVG 和页面大图；`guide` 更新组件规范；`review:recording` 更新十个记账参考场景；`index` 更新总入口。输出目录由 npm 的 prebuild/preexport 自动准备。主题、字号或布局改动需要重新生成相应参考图。
 

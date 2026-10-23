@@ -651,9 +651,9 @@
   },
   {
     "route": "flow-config",
-    "slug": "flow-config",
     "title": "配置导入导出",
     "group": "补齐 · 导入导出与维护",
+    "slug": "flow-config",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-config.png",
     "full": "screens/full/flow-config.png",
@@ -661,9 +661,9 @@
   },
   {
     "route": "flow-config-preview",
-    "slug": "flow-config-preview",
-    "title": "配置导出预览 · 弹窗",
+    "title": "导出预览 · 弹窗",
     "group": "补齐 · 导入导出与维护",
+    "slug": "flow-config-preview",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-config-preview.png",
     "full": "screens/full/flow-config-preview.png",
@@ -1832,5 +1832,25 @@
     "viewport": "screens/viewport/feedback-small-large-text.png",
     "full": "screens/full/feedback-small-large-text.png",
     "svg": "figma/feedback-small-large-text.svg"
+  },
+  {
+    "route": "flow-config-select",
+    "title": "选择导出内容 · 弹窗",
+    "group": "其他",
+    "slug": "flow-config-select",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-config-select.png",
+    "full": "screens/full/flow-config-select.png",
+    "svg": "figma/flow-config-select.svg"
+  },
+  {
+    "route": "flow-config-import",
+    "title": "导入预览 · 弹窗",
+    "group": "其他",
+    "slug": "flow-config-import",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-config-import.png",
+    "full": "screens/full/flow-config-import.png",
+    "svg": "figma/flow-config-import.svg"
   }
 ]

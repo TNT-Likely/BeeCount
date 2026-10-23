@@ -381,6 +381,13 @@
         "title": "分类账户标签详情",
         "nativeCase": 35,
         "nativeLabel": "分类账户标签详情"
+      },
+      {
+        "id": "spec-54",
+        "code": "B32",
+        "title": "配置选择与预览",
+        "nativeCase": 36,
+        "nativeLabel": "配置选择与预览"
       }
     ]
   }
