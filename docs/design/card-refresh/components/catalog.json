@@ -308,7 +308,7 @@
       {
         "id": "spec-32",
         "code": "B21",
-        "title": "附件图片平铺",
+        "title": "附件图片与来源选择",
         "nativeCase": 13,
         "nativeLabel": "附件平铺与预览"
       },

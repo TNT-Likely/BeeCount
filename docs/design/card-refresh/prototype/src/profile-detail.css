@@ -58,3 +58,21 @@
 #bee-immersive-suite .u-ledger-compact .u-ledger-stats strong{font-size:13px;font-weight:500}
 #bee-immersive-suite .u-ledger-compact .u-ledger-stats span{font-size:10px}
 @media(max-width:420px){#bee-immersive-suite .u-ledger-compact .u-ledger-balance{font-size:23px}#bee-immersive-suite .u-ledger-compact .u-ledger-stats{gap:8px}#bee-immersive-suite .u-ledger-compact .u-ledger-stats>div,#bee-immersive-suite .u-ledger-compact .u-ledger-stats>button{gap:2px}#bee-immersive-suite .u-ledger-summary .u-ledger-switch{font-size:11px}#bee-immersive-suite .u-ledger-heading .u-balance-label{font-size:11px}}
+
+/* Photo viewing stays full screen; selecting a source is a separate bottom sheet. */
+#bee-immersive-suite .u-viewer-full{position:relative;display:flex;flex-direction:column;height:420px;background:#050505;color:#fff;overflow:hidden;border-radius:16px}
+#bee-immersive-suite .u-viewer-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;height:56px;padding:4px 8px;flex:none}
+#bee-immersive-suite .u-viewer-toolbar>button,#bee-immersive-suite .u-viewer-toolbar-spacer{width:44px;height:44px;flex:none}
+#bee-immersive-suite .u-viewer-toolbar>button{display:grid;place-items:center;color:#fff}
+#bee-immersive-suite .u-viewer-full .u-viewer-title{display:flex;flex-direction:column;align-items:center;gap:3px;margin:0;font-size:14px}
+#bee-immersive-suite .u-viewer-full .u-viewer-title>span:last-child{color:#fff}
+#bee-immersive-suite .u-viewer-filename{font-size:10px;color:#aaa}
+#bee-immersive-suite .u-viewer-full .u-attachment-stage{flex:1;min-height:0;height:auto;border-radius:0;background:transparent;touch-action:pan-y pinch-zoom}
+#bee-immersive-suite .u-viewer-footer{padding:8px 12px 16px;flex:none}
+#bee-immersive-suite .u-viewer-full .u-viewer-meta{text-align:center;margin:0;color:#bbb}
+#bee-immersive-suite .u-viewer-full .u-viewer-thumbs{justify-content:center;margin-top:8px}
+#bee-immersive-suite .u-viewer-full .u-viewer-thumbs button{background:#222}
+#bee-immersive-suite .u-viewer-full .u-viewer-thumbs button[aria-pressed=true]{border-color:#fff}
+#bee-immersive-suite .u-fullscreen-layer{padding:0;background:#050505;align-items:stretch}
+#bee-immersive-suite .u-fullscreen-layer .bc-sheet{width:100%;height:100%;max-height:none;padding:0;border-radius:0;background:#050505;overflow:hidden}
+#bee-immersive-suite .u-fullscreen-layer .u-viewer-full{height:100%;border-radius:0}

@@ -60,3 +60,14 @@
       sheet('历史备注',`<div class="z-history-choices">${notes.map(n=>btn('z-history:'+n,esc(n),'使用备注：'+n,'bc-secondary')).join('')}</div>`);
     }else{state.note=action.slice('z-history:'.length);closeSheet();render();}
   },true);
+
+  // Native source choices share the same sheet composition as Flutter.
+  root.addEventListener('click',e=>{
+    if(!zReview||state.page!=='editor'||e.target.closest('[data-action]')?.dataset.action!=='record-attachment')return;
+    e.preventDefault();e.stopImmediatePropagation();
+    sheet('添加图片',`${[['camera','拍照','capture="environment"'],['image-plus','从相册选择','multiple']].map(([i,t,a])=>`<label class="bc-menu-row"><span class="bc-menu-symbol">${icon(i)}</span><span class="bc-menu-copy"><b>${t}</b></span><span class="bc-menu-arrow">${icon('chevron-right')}</span><input data-z-source-file type="file" accept="image/*" ${a} hidden aria-label="${t}"></label>`).join('')}`);
+  },true);
+  root.addEventListener('change',e=>{
+    if(!e.target.matches('[data-z-source-file]')||!e.target.files?.length)return;
+    const count=Math.min(e.target.files.length,9);closeSheet();notice(`已选择 ${count} 张图片 · 设计预览`);
+  });

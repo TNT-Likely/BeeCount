@@ -1413,6 +1413,24 @@
 #bee-immersive-suite .u-ledger-compact .u-ledger-stats span{font-size:10px}
 @media(max-width:420px){#bee-immersive-suite .u-ledger-compact .u-ledger-balance{font-size:23px}#bee-immersive-suite .u-ledger-compact .u-ledger-stats{gap:8px}#bee-immersive-suite .u-ledger-compact .u-ledger-stats>div,#bee-immersive-suite .u-ledger-compact .u-ledger-stats>button{gap:2px}#bee-immersive-suite .u-ledger-summary .u-ledger-switch{font-size:11px}#bee-immersive-suite .u-ledger-heading .u-balance-label{font-size:11px}}
 
+/* Photo viewing stays full screen; selecting a source is a separate bottom sheet. */
+#bee-immersive-suite .u-viewer-full{position:relative;display:flex;flex-direction:column;height:420px;background:#050505;color:#fff;overflow:hidden;border-radius:16px}
+#bee-immersive-suite .u-viewer-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;height:56px;padding:4px 8px;flex:none}
+#bee-immersive-suite .u-viewer-toolbar>button,#bee-immersive-suite .u-viewer-toolbar-spacer{width:44px;height:44px;flex:none}
+#bee-immersive-suite .u-viewer-toolbar>button{display:grid;place-items:center;color:#fff}
+#bee-immersive-suite .u-viewer-full .u-viewer-title{display:flex;flex-direction:column;align-items:center;gap:3px;margin:0;font-size:14px}
+#bee-immersive-suite .u-viewer-full .u-viewer-title>span:last-child{color:#fff}
+#bee-immersive-suite .u-viewer-filename{font-size:10px;color:#aaa}
+#bee-immersive-suite .u-viewer-full .u-attachment-stage{flex:1;min-height:0;height:auto;border-radius:0;background:transparent;touch-action:pan-y pinch-zoom}
+#bee-immersive-suite .u-viewer-footer{padding:8px 12px 16px;flex:none}
+#bee-immersive-suite .u-viewer-full .u-viewer-meta{text-align:center;margin:0;color:#bbb}
+#bee-immersive-suite .u-viewer-full .u-viewer-thumbs{justify-content:center;margin-top:8px}
+#bee-immersive-suite .u-viewer-full .u-viewer-thumbs button{background:#222}
+#bee-immersive-suite .u-viewer-full .u-viewer-thumbs button[aria-pressed=true]{border-color:#fff}
+#bee-immersive-suite .u-fullscreen-layer{padding:0;background:#050505;align-items:stretch}
+#bee-immersive-suite .u-fullscreen-layer .bc-sheet{width:100%;height:100%;max-height:none;padding:0;border-radius:0;background:#050505;overflow:hidden}
+#bee-immersive-suite .u-fullscreen-layer .u-viewer-full{height:100%;border-radius:0}
+
 /* Compact recording is a layout variant, not a scaled phone screenshot. */
 #bee-immersive-suite .bc-phone[data-q-size]:not([data-q-size="398x844"]) { width:var(--q-width);height:var(--q-height);min-height:var(--q-height);max-height:var(--q-height); }
 #bee-immersive-suite .bc-phone[data-q-compact="true"] .bc-status{height:20px;min-height:20px;padding:0 17px;font-size:10px;line-height:20px}
@@ -2904,7 +2922,7 @@
   function rModalBody(key){if(key==='compact-note')return qNoteBody();if(key==='attachment-viewer')return uAttachmentViewer();if(key==='currency-picker')return vCurrencyBody();if(key==='exchange-rate')return vRateBody();if(key==='month-picker')return jMonthBody();if(key==='date-picker')return jDateBody();if(key==='ledger-actions')return jLedgerMenu();if(key==='tag-picker'||key==='tag-picker-many')return jTagBody(key==='tag-picker-many');return jPreviousModalBody(key);}
   function jWheelRead(wheel){const options=[...wheel.querySelectorAll('.j-wheel-option')],index=Math.max(0,Math.min(options.length-1,Math.round(wheel.scrollTop/44))),value=Number(options[index]?.dataset.value),d=state.jWheel;if(!d||!Number.isFinite(value))return;d[wheel.dataset.jWheel]=value;options.forEach((o,i)=>o.setAttribute('aria-selected',String(i===index)));const s=phone.querySelector('[data-j-wheel-summary]');if(s)s.textContent=d.kind==='month'?`${d.year}年${d.month}月`:`${d.year}年${d.month}月${Math.min(d.day,jDays(d.year,d.month))}日 ${jPad(d.hour)}:${jPad(d.minute)}`;if(d.kind==='date'&&['year','month'].includes(wheel.dataset.jWheel)){const dayWheel=phone.querySelector('[data-j-wheel="day"]'),days=jDays(d.year,d.month);d.day=Math.min(d.day,days);if(dayWheel&&dayWheel.children.length!==days){dayWheel.innerHTML=jRange(days,1).map(n=>btn(`j-wheel:day:${n}`,n+'日',n+'日','j-wheel-option',`role="option" aria-selected="${n===d.day}" data-value="${n}"`)).join('');dayWheel.scrollTop=(d.day-1)*44;}}}
   function jMountWheels(){for(const w of phone.querySelectorAll('[data-j-wheel]')){const options=[...w.querySelectorAll('[data-value]')],index=options.findIndex(o=>Number(o.dataset.value)===state.jWheel?.[w.dataset.jWheel]);w.scrollTop=Math.max(index,0)*44;w.addEventListener('scroll',()=>jWheelRead(w),{passive:true});w.addEventListener('keydown',e=>{if(!['ArrowUp','ArrowDown','Home','End'].includes(e.key))return;e.preventDefault();const current=Math.round(w.scrollTop/44),next=e.key==='Home'?0:e.key==='End'?options.length-1:Math.max(0,Math.min(options.length-1,current+(e.key==='ArrowDown'?1:-1)));w.scrollTo({top:next*44,behavior:'instant'});jWheelRead(w);options[next]?.focus({preventScroll:true});});}}
-  function rBuildModal(){if(state.rModal==='quick-add'){jBuildQuickAdd();return;}jPreviousBuildModal();jMountWheels();}
+  function rBuildModal(){if(state.rModal==='quick-add'){jBuildQuickAdd();return;}jPreviousBuildModal();if(state.rModal==='attachment-viewer'){const layer=phone.querySelector('.bc-sheet-layer');layer.classList.add('u-fullscreen-layer');layer.querySelector('.bc-sheet-title')?.remove();layer.querySelector('[data-action="close"]')?.focus({preventScroll:true});}jMountWheels();}
   function rDismiss(){jPreviousDismiss();state.jWheel=null;state.jTagDraft=null;state.jTagQuery='';}
   function jOpenMonth(){state.jWheel=null;rOpenModal('month-picker');}
   function jOpenDate(){state.jWheel=null;state.jDatePart='date';rOpenModal('date-picker');}
@@ -3079,7 +3097,7 @@
   const uAttachmentExamples=[{src:uAttachmentImages.payment,title:'付款凭证',type:'支付截图',size:'128 KB'},{src:uAttachmentImages.receipt,title:'午餐小票',type:'票据照片',size:'256 KB'},{src:uAttachmentImages.order,title:'订单详情',type:'订单截图',size:'186 KB'}];
   rSpecs['nickname-edit']={title:'编辑昵称',host:'mine',kind:'dialog'};
   rSpecs['profile-edit']={title:'编辑个人资料',host:'mine',kind:'sheet'};
-  rSpecs['attachment-viewer']={title:'附件预览',host:'detail',kind:'sheet'};
+  rSpecs['attachment-viewer']={title:'附件预览',host:'detail',kind:'viewer'};
   fDefine('nickname-edit','编辑昵称','交互补充','main/mine_page.dart',()=>uNicknameBody());
   fDefine('profile-edit','编辑个人资料','交互补充','main/mine_page.dart',()=>uProfileBody());
   fDefine('attachment-grid','账单详情 · 多张附件','交互补充','../widgets/biz/transaction_list_item.dart',()=>dBillDetail());
@@ -3092,7 +3110,7 @@
   function uAttachments(r){if(!r?.attachment)return [];return Array.isArray(r.attachments)?r.attachments:state.uAttachmentCount&&r.id===1?uAttachmentExamples.slice(0,state.uAttachmentCount):[uAttachmentExamples[0]];}
   function uAttachmentGrid(r){const images=uAttachments(r);if(!images.length)return '';return surface(`<div class="bc-between"><h3>附件</h3><span class="bc-small">${images.length}张</span></div><div class="u-attachment-grid" data-count="${images.length}">${images.map((a,index)=>btn(`u-attachment:${r.id}:${index}`,`<img src="${a.src}" alt="${esc(a.title)}" loading="eager"><span>${icon('expand')}</span>`,`查看附件${index+1}，${a.title}`,'u-attachment-tile')).join('')}</div>`,'u-attachments');}
   function uEnhanceBillDetail(html){const r=pRows().find(r=>r.id===state.detailId)||pRows()[0]||items[0],t=document.createElement('template');t.innerHTML=html;const hero=t.content.querySelector('.bc-detail-amount')?.parentElement.querySelector('.bc-entry-icon');if(hero)hero.innerHTML=jCategoryVisual(r.subcategory||r.category,r.icon);const legacy=t.content.querySelector('[data-action="attachment-preview"]');if(legacy)legacy.closest('.bc-surface').outerHTML=uAttachmentGrid(r);return t.innerHTML;}
-  function uAttachmentViewer(){const r=pRows().find(r=>r.id===state.uAttachmentBill)||items[0],images=uAttachments(r);state.uAttachmentIndex=Math.max(0,Math.min(images.length-1,state.uAttachmentIndex));const a=images[state.uAttachmentIndex];if(!a)return '<div class="p-empty">此账单暂无附件</div>';return `<div class="u-viewer-title"><span>${esc(a.title)}</span><span>${state.uAttachmentIndex+1} / ${images.length}</span></div><div class="u-attachment-stage"><img src="${a.src}" alt="${esc(a.title)}完整图片"></div><div class="u-viewer-meta">${esc(a.type)} · ${esc(a.size)}</div>${images.length>1?`<div class="u-viewer-thumbs" aria-label="切换附件">${images.map((image,index)=>btn('u-attachment-select:'+index,`<img src="${image.src}" alt="${esc(image.title)}">`,'查看第'+(index+1)+'张附件','',`aria-pressed="${index===state.uAttachmentIndex}"`)).join('')}</div>`:''}`;}
+  function uAttachmentViewer(){const r=pRows().find(r=>r.id===state.uAttachmentBill)||items[0],images=uAttachments(r);state.uAttachmentIndex=Math.max(0,Math.min(images.length-1,state.uAttachmentIndex));const a=images[state.uAttachmentIndex];if(!a)return '<div class="p-empty">此账单暂无附件</div>';return `<div class="u-viewer-full"><header class="u-viewer-toolbar">${btn('close',icon('x'),'关闭附件预览')}<div class="u-viewer-title"><span class="u-viewer-filename">${esc(a.title)}</span><span>${state.uAttachmentIndex+1} / ${images.length}</span></div><span class="u-viewer-toolbar-spacer"></span></header><div class="u-attachment-stage" data-u-swipe-viewer><img src="${a.src}" alt="${esc(a.title)}完整图片" draggable="false"></div><footer class="u-viewer-footer"><div class="u-viewer-meta">${esc(a.type)} · ${esc(a.size)}</div>${images.length>1?`<div class="u-viewer-thumbs" aria-label="切换附件">${images.map((image,index)=>btn('u-attachment-select:'+index,`<img src="${image.src}" alt="${esc(image.title)}">`,'查看第'+(index+1)+'张附件','',`aria-pressed="${index===state.uAttachmentIndex}"`)).join('')}</div>`:''}</footer></div>`;}
   root.addEventListener('input',e=>{if(!e.target.matches('[data-u-nickname]'))return;state.uNicknameDraft=e.target.value;const layer=e.target.closest('[role="dialog"]');layer.querySelector('[data-u-name-count]').textContent=Array.from(e.target.value).length;layer.querySelector('[data-action="u-name-save"]').disabled=!e.target.value.trim();layer.querySelector('[data-u-nickname-error]').textContent='';});
   root.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el)return;const [action,...parts]=el.dataset.action.split(':'),arg=parts.join(':');if(action!=='profile'&&!action.startsWith('u-'))return;e.preventDefault();e.stopImmediatePropagation();
     if(action==='profile')rOpenModal('profile-edit');
@@ -3102,6 +3120,12 @@
     else if(action==='u-attachment-select'){state.uAttachmentIndex=Number(arg);rBuildModal();}
     persist();
   },true);
+
+  // Full-screen preview keeps the original photo browsing path and bill context.
+  let uSwipeStart=null;
+  root.addEventListener('pointerdown',e=>{if(e.target.closest('[data-u-swipe-viewer]'))uSwipeStart={x:e.clientX,y:e.clientY};});
+  root.addEventListener('pointerup',e=>{if(!uSwipeStart)return;const start=uSwipeStart;uSwipeStart=null;if(!e.target.closest('[data-u-swipe-viewer]'))return;const dx=e.clientX-start.x,dy=e.clientY-start.y;if(Math.abs(dx)<50||Math.abs(dx)<Math.abs(dy))return;const row=pRows().find(r=>r.id===state.uAttachmentBill)||items[0],images=uAttachments(row);state.uAttachmentIndex=Math.max(0,Math.min(images.length-1,state.uAttachmentIndex+(dx<0?1:-1)));rBuildModal();});
+  root.addEventListener('pointercancel',()=>uSwipeStart=null);
 
   const qPreview={width:398,height:844,scale:1};
   const qParams=new URLSearchParams(location.search),qSize=qParams.get('viewport');
@@ -3217,6 +3241,17 @@
       sheet('历史备注',`<div class="z-history-choices">${notes.map(n=>btn('z-history:'+n,esc(n),'使用备注：'+n,'bc-secondary')).join('')}</div>`);
     }else{state.note=action.slice('z-history:'.length);closeSheet();render();}
   },true);
+
+  // Native source choices share the same sheet composition as Flutter.
+  root.addEventListener('click',e=>{
+    if(!zReview||state.page!=='editor'||e.target.closest('[data-action]')?.dataset.action!=='record-attachment')return;
+    e.preventDefault();e.stopImmediatePropagation();
+    sheet('添加图片',`${[['camera','拍照','capture="environment"'],['image-plus','从相册选择','multiple']].map(([i,t,a])=>`<label class="bc-menu-row"><span class="bc-menu-symbol">${icon(i)}</span><span class="bc-menu-copy"><b>${t}</b></span><span class="bc-menu-arrow">${icon('chevron-right')}</span><input data-z-source-file type="file" accept="image/*" ${a} hidden aria-label="${t}"></label>`).join('')}`);
+  },true);
+  root.addEventListener('change',e=>{
+    if(!e.target.matches('[data-z-source-file]')||!e.target.files?.length)return;
+    const count=Math.min(e.target.files.length,9);closeSheet();notice(`已选择 ${count} 张图片 · 设计预览`);
+  });
 
   // Content and modal boundaries follow the existing Flutter pages.
   Object.assign(state,{nPlatform:'android',nChannel:'direct',nVoice:'auto',nLevels:['DEBUG','INFO','WARN','ERROR'],nLogPlatforms:['Flutter','Android'],nLogQuery:'',nLogCleared:false});
