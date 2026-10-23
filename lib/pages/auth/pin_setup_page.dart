@@ -6,7 +6,8 @@ import '../../utils/ui_scale_extensions.dart';
 import '../../providers/security_providers.dart';
 import '../../services/security/app_lock_service.dart';
 import '../../widgets/ui/ui.dart';
-import '../../widgets/biz/pin_entry_pad.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:flutter/services.dart';
 import '../../l10n/app_localizations.dart';
 
 enum PinSetupMode { create, change }
@@ -141,21 +142,22 @@ class _PinSetupPageState extends ConsumerState<PinSetupPage> {
                     ),
                   ),
                   SizedBox(height: 32.0.scaled(context, ref)),
-                  // PIN 圆点
-                  PinDotIndicator(
-                    filledCount: _pin.length,
-                    isError: _isError,
-                  ),
-                  const Spacer(flex: 1),
-                  // 数字键盘
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 40.0.scaled(context, ref)),
-                    child: NumberPad(
-                      onNumberTap: _onNumberTap,
-                      onDelete: _onDelete,
-                    ),
-                  ),
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 400),
+                          child: BeePinPad(
+                            length: 4,
+                            filled: _pin.length,
+                            invalid: _isError,
+                            deleteLabel:
+                                AppLocalizations.of(context).commonDelete,
+                            onDigit: (v) {
+                              HapticFeedback.lightImpact();
+                              _onNumberTap(v);
+                            },
+                            onDelete: _onDelete,
+                          ))),
                   SizedBox(height: 32.0.scaled(context, ref)),
                 ],
               ),

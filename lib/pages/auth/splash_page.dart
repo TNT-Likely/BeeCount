@@ -1,144 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/biz/bee_icon.dart';
 
+/// Initialization remains owned by appSplashInitProvider in the application root.
 class SplashPage extends ConsumerWidget {
   const SplashPage({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final primaryColor = theme.primaryColor;
-    
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: primaryColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
-          child: Column(
-            children: [
-              const Spacer(flex: 2),
-              
-              // Logo区域
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Image.asset(
-                    'assets/logo2.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // 应用名称
-              Text(
-                AppLocalizations.of(context).splashAppName,
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Slogan
-              Text(
-                AppLocalizations.of(context).splashSlogan,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: Colors.white.withOpacity(0.9),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              
-              const Spacer(flex: 3),
-              
-              // 数据安全说明
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.security_outlined,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          AppLocalizations.of(context).splashSecurityTitle,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '${AppLocalizations.of(context).splashSecurityFeature1}\n'
-                      '${AppLocalizations.of(context).splashSecurityFeature2}\n'
-                      '${AppLocalizations.of(context).splashSecurityFeature3}',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withOpacity(0.9),
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // 加载指示器
-              SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  strokeWidth: 2,
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              Text(
-                AppLocalizations.of(context).splashInitializing,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withOpacity(0.8),
-                ),
-              ),
-              
-              const Spacer(flex: 1),
-            ],
-          ),
-        ),
-      ),
-    );
+        body: SafeArea(
+            child: LayoutBuilder(
+                builder: (context, bounds) => SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: ConstrainedBox(
+                        constraints:
+                            BoxConstraints(minHeight: bounds.maxHeight - 48),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                  width: 76,
+                                  height: 76,
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: .12),
+                                      borderRadius: BorderRadius.circular(24)),
+                                  child: Center(
+                                      child: BeeIcon(
+                                          size: 48,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary))),
+                              const SizedBox(height: 20),
+                              Text(l10n.splashAppName,
+                                  style: const TextStyle(
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 8),
+                              Text(l10n.splashSlogan,
+                                  style: TextStyle(
+                                      color: Theme.of(context).hintColor)),
+                              const SizedBox(height: 32),
+                              BeeSurface(
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                    BeeMenuRow(
+                                        title: l10n.splashSecurityTitle,
+                                        leading: const BeeLineIcon(
+                                            'ShieldCheck',
+                                            size: 20)),
+                                    Text(
+                                        '${l10n.splashSecurityFeature1}\n${l10n.splashSecurityFeature2}\n${l10n.splashSecurityFeature3}',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            height: 1.8,
+                                            color:
+                                                Theme.of(context).hintColor)),
+                                  ])),
+                              const SizedBox(height: 28),
+                              const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2)),
+                              const SizedBox(height: 12),
+                              Text(l10n.splashInitializing,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context).hintColor)),
+                            ]))))));
   }
 }
