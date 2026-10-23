@@ -1654,7 +1654,7 @@
       "classes": [
         "CategoryDetailPage"
       ],
-      "lines": 676,
+      "lines": 297,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "categoryDetail"
@@ -1662,10 +1662,10 @@
       "designMapping": "已定位",
       "components": "分类信息/父子展开、统计、日期筛选与账单行",
       "acceptance": "一级与二级分类图标、跨账本标记、收入/支出、日期/时间、备注/标签与详情导航。",
-      "status": "待迁移",
+      "status": "部分迁移·待真机验收",
       "name": "分类详情",
       "priority": "P0",
-      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "reason": "父子分类真实统计、分布、历史快照趋势、周期/排序、账单元信息及原编辑/迁移入口已实现；分类搜索继承范围。模型、页面及冻结 HTML 尺寸已回归；同一隔离设备验收中，Q10/Q11 保留原行为待确认。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=categoryDetail"
       ]
@@ -1717,7 +1717,7 @@
       "classes": [
         "SearchPage"
       ],
-      "lines": 390,
+      "lines": 393,
       "batch": "M2 首页与列表",
       "designRoutes": [
         "search",
@@ -1729,7 +1729,7 @@
       "status": "部分迁移·待设计对齐与完整验收",
       "name": "账单搜索与批量操作",
       "priority": "P0",
-      "reason": "已按新稿重组搜索汇总、日期分组、批量选择和固定操作栏；接入真实标签/附件、双账户检索、原币/折算筛选与原子批量标签。121 项相关回归通过，R18 已通过实际标签修改、取消、仅删除自有副本和正常重启，其余 51 笔及附件保持。视觉修正后的新产物复验继续进行；成功撤销待 Q08。",
+      "reason": "已按新稿重组搜索汇总、日期分组、批量选择和固定操作栏；真实标签/附件、双账户检索、原币/折算筛选与原子批量标签已接入。122 项相关回归及 R18 实际标签/删除、R19/R20 视觉修正产物和正常重启通过，其余 51 笔及 5 个附件保持。成功撤销策略待 Q08。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=search",
         "../../docs/design/card-refresh/prototype/demo.html?page=batch"
