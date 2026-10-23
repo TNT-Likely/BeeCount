@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:beecount_ui/beecount_ui.dart' show BeeTone;
+import 'package:beecount_ui/beecount_ui.dart' show BeeDialog, BeeTone;
 import '../../presentation/v4/bindings/transaction_batch.dart';
 import '../../services/billing/post_processor.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -223,6 +223,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   /// 显示筛选弹窗
   Future<void> _showFilterDialog() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final l10n = AppLocalizations.of(context);
     double? tempMinAmount = _minAmount;
     double? tempMaxAmount = _maxAmount;
@@ -234,7 +235,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
-          return AlertDialog(
+          return BeeDialog(
             title: Text(l10n.searchFilterTitle),
             content: SingleChildScrollView(
               child: Column(
@@ -468,11 +469,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   /// 批量删除对话框
   void _showBatchDeleteDialog() {
+    FocusManager.instance.primaryFocus?.unfocus();
     final count = _selectedIds.length;
     final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => BeeDialog(
         title: Text(l10n.searchBatchDeleteConfirmTitle),
         content: Text(l10n.searchBatchDeleteConfirmMessage(count)),
         actions: [
@@ -510,13 +512,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   /// 批量设置备注对话框
   void _showBatchSetNoteDialog() {
+    FocusManager.instance.primaryFocus?.unfocus();
     _noteController.clear();
     final count = _selectedIds.length;
     final l10n = AppLocalizations.of(context);
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => BeeDialog(
         title: Text(l10n.searchBatchSetNoteTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,

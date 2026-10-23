@@ -45,11 +45,16 @@ void main() {
     await db.close();
   });
 
-  Future<void> open(WidgetTester tester, {bool batch = true}) async {
+  Future<void> open(WidgetTester tester,
+      {bool batch = true, bool filter = false, double scale = 1}) async {
     await tester.pumpWidget(UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
             theme: beeTheme(),
+            builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: TextScaler.linear(scale)),
+                child: child!),
             locale: const Locale('zh'),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
@@ -59,8 +64,9 @@ void main() {
                         onPressed: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (_) =>
-                                    SearchPage(initialBatchMode: batch))),
+                                builder: (_) => SearchPage(
+                                    initialBatchMode: batch,
+                                    initialOpenFilter: filter))),
                         child: const Text('打开明细')))))));
     await tester.tap(find.text('打开明细'));
     await tester.pumpAndSettle();
@@ -170,6 +176,31 @@ void main() {
     expect((await repo.getAttachmentById(attachment))!.fileSize, 20);
     expect(find.text(l10n.searchBatchModeWithCount(0, 3)), findsOneWidget);
     expect(await repo.getTransactionsByLedger(2), hasLength(1));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('小屏大字筛选使用规范弹窗，取消不应用输入或修改账单', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 568);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final before = await repo.getTransactionsByLedger(1);
+    await open(tester, batch: false, filter: true, scale: 1.4);
+    expect(find.byType(BeeDialog), findsOneWidget);
+    final fields = find.descendant(
+        of: find.byType(BeeDialog), matching: find.byType(TextField));
+    expect(fields, findsNWidgets(2));
+    await tester.enterText(fields.first, '100');
+    final l10n = AppLocalizations.of(tester.element(find.byType(SearchPage)));
+    await tester.tap(find.descendant(
+        of: find.byType(BeeDialog), matching: find.text(l10n.commonCancel)));
+    await tester.pumpAndSettle();
+    expect(find.byType(BeeDialog), findsNothing);
+    expect(find.text(l10n.searchNoInput), findsOneWidget);
+    expect(await repo.getTransactionsByLedger(1), before);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 3));
