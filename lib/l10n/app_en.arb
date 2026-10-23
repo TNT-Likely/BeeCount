@@ -3968,5 +3968,6 @@
   "v4MineCloudGroup": "Cloud and sync",
   "v4MineFeaturesGroup": "Features",
   "v4MineHelpGroup": "Help and information",
-  "v4MineSupportGroup": "Support us"
+  "v4MineSupportGroup": "Support us",
+  "v4ConfigImportWarning": "Import replaces existing configuration. Back up your current configuration first."
 }

@@ -40,7 +40,8 @@ const businessCases = [
   '分类管理列表',
   '转账账户对',
   '搜索汇总与批量操作',
-  '分类账户标签详情'
+  '分类账户标签详情',
+  '配置选择与预览'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -73,6 +74,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
       calc = '0',
       rate = '7.20';
   String recordingNote = '午餐';
+  Set<String> configScopes = {'ledgers', 'accounts', 'categories', 'tags'};
   String pin = '';
   DateTime date = DateTime(2026, 10, 23, 12, 30);
   Set<String> tags = {'work'}, expanded = {};
@@ -1225,7 +1227,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     onPressed: selected ? () => record(action.$1) : null)
             ]),
           ]),
-        _ => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        35 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const BeeResourceHero(
                 title: '餐饮',
                 caption: '一级分类 · 4 个二级分类 · 日常生活',
@@ -1262,6 +1264,22 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     values: [0, 280, 400, 730, 920, 1199.57],
                     label: '累计支出趋势',
                     axisLabels: ['10.01', '10.10', '10.20']))
+          ]),
+        _ => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            BeeConfigurationOptions(
+                items: const [
+                  BeeConfigurationChoice(id: 'ledgers', label: '账本'),
+                  BeeConfigurationChoice(id: 'accounts', label: '账户'),
+                  BeeConfigurationChoice(id: 'categories', label: '分类'),
+                  BeeConfigurationChoice(id: 'tags', label: '标签')
+                ],
+                selected: configScopes,
+                onChanged: (v) => setState(() => configScopes = v)),
+            const SizedBox(height: 12),
+            const BeeConfigurationPreview(
+                content:
+                    'version: 1\nledgers:\n  items:\n    - name: 日常生活\n      currency: CNY',
+                label: 'YAML 配置预览'),
           ]),
       };
   void _editRate() => showBeeDialog<void>(context,

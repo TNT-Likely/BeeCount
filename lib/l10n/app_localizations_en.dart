@@ -8864,4 +8864,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4MineSupportGroup => 'Support us';
+
+  @override
+  String get v4ConfigImportWarning => 'Import replaces existing configuration. Back up your current configuration first.';
 }

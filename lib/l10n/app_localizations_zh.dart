@@ -8856,6 +8856,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4MineSupportGroup => '支持我们';
+
+  @override
+  String get v4ConfigImportWarning => '导入将覆盖现有配置，建议先备份当前配置。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

@@ -16663,6 +16663,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Support us'**
   String get v4MineSupportGroup;
+
+  /// No description provided for @v4ConfigImportWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Import replaces existing configuration. Back up your current configuration first.'**
+  String get v4ConfigImportWarning;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

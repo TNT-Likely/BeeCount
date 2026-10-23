@@ -3675,5 +3675,6 @@
   "v4MineCloudGroup": "云服务与同步",
   "v4MineFeaturesGroup": "功能管理",
   "v4MineHelpGroup": "帮助与信息",
-  "v4MineSupportGroup": "支持我们"
+  "v4MineSupportGroup": "支持我们",
+  "v4ConfigImportWarning": "导入将覆盖现有配置，建议先备份当前配置。"
 }
