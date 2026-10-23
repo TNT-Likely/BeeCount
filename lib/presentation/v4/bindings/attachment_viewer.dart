@@ -117,7 +117,7 @@ class _AttachmentViewerBindingState
         ..._pending.map((f) => BeeAttachment(
             id: 'pending-${f.path}',
             image: FileImage(f),
-            label: l10n.v4AttachmentPending,
+            label: l10n.attachmentPreview,
             info: l10n.v4AttachmentPending)),
       ];
 

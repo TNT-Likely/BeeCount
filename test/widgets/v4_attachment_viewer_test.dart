@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'dart:ui' as ui;
 
 import 'package:beecount/data/db.dart';
@@ -140,6 +141,36 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('2 / 2'), findsOneWidget);
     expect(await repo.getAttachmentsByTransaction(1), hasLength(2));
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+
+  testWidgets('全屏附件区域与冻结 HTML 对齐，文件名和选中缩略图留白完整', (tester) async {
+    tester.view.physicalSize = const Size(398, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await open(
+        tester,
+        Container(
+            decoration: BoxDecoration(border: Border.all()),
+            child:
+                const AttachmentPreviewPage.fromTransaction(transactionId: 1)));
+    final contract = jsonDecode(
+        File('test/fixtures/v4-attachment-viewer-geometry.json')
+            .readAsStringSync()) as Map<String, dynamic>;
+    final boxes = contract['boxes'] as Map<String, dynamic>;
+    for (final name in ['frame', 'toolbar', 'stage', 'footer', 'thumbnails']) {
+      final actual =
+          tester.getRect(find.byKey(ValueKey('attachment-viewer-$name')));
+      final expected = boxes[name] as Map<String, dynamic>;
+      expect(actual.left, closeTo(expected['x'] as num, 1), reason: name);
+      expect(actual.top, closeTo(expected['y'] as num, 1), reason: name);
+      expect(actual.width, closeTo(expected['width'] as num, 1), reason: name);
+      expect(actual.height, closeTo(expected['height'] as num, 1),
+          reason: name);
+    }
+    expect(find.text('synthetic-0.png'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await close(tester);
   });

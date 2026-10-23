@@ -1,0 +1,13 @@
+{
+  "source": "docs/design/card-refresh/prototype/demo.html?page=flow-attachment-grid, then open u-attachment:1:1",
+  "designCommit": "7dbda6a",
+  "measurement": "Chromium computed bounding boxes; normalized to the phone, 1 px phone border, no platform safe-area inset",
+  "viewport": {"width": 398, "height": 844},
+  "boxes": {
+    "frame": {"x": 21, "y": 21, "width": 356, "height": 802},
+    "toolbar": {"x": 21, "y": 21, "width": 356, "height": 56},
+    "stage": {"x": 21, "y": 77, "width": 356, "height": 642.5},
+    "footer": {"x": 21, "y": 719.5, "width": 356, "height": 103.5},
+    "thumbnails": {"x": 33, "y": 752, "width": 332, "height": 55}
+  }
+}
