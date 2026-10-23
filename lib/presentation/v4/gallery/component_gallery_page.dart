@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'foundation_page.dart';
+import 'page_migration_gallery.dart';
 import 'business_page.dart';
 import '../bindings/live_business_preview.dart';
 
@@ -28,6 +29,14 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                   appBar: AppBar(
                       title: Text(tab == 0 ? '基础组件验收' : '业务组件验收'),
                       actions: [
+                        BeeIconButton(
+                            label: '页面迁移验收',
+                            icon: const Icon(Icons.pages_outlined),
+                            onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        const PageMigrationGallery()))),
                         PopupMenuButton<Color>(
                             tooltip: '切换主题色',
                             onSelected: (v) => setState(() => accent = v),
