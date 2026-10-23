@@ -1,6 +1,61 @@
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 
+/// Recording navigation has no draft or repository ownership.
+class RecordingHeader extends StatelessWidget {
+  const RecordingHeader(
+      {super.key,
+      required this.labels,
+      required this.selectedIndex,
+      required this.onChanged,
+      required this.backLabel,
+      required this.onBack,
+      this.moreLabel,
+      this.onMore,
+      this.height = 50})
+      : assert(labels.length == 3);
+
+  final List<String> labels;
+  final int selectedIndex;
+  final ValueChanged<int> onChanged;
+  final String backLabel;
+  final VoidCallback onBack;
+  final String? moreLabel;
+  final VoidCallback? onMore;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+      height: height,
+      child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(children: [
+            BeeIconButton(
+                label: backLabel,
+                icon: const BeeLineIcon('ChevronLeft', size: 22),
+                onPressed: onBack),
+            Expanded(
+                child: Center(
+                    child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 240),
+                        child: BeeSegmented<int>(
+                            dense: true,
+                            items: [
+                              for (var i = 0; i < labels.length; i++)
+                                BeeSegment(i, labels[i])
+                            ],
+                            value: selectedIndex,
+                            onChanged: onChanged)))),
+            if (onMore == null)
+              const SizedBox(width: 44)
+            else
+              BeeIconButton(
+                  label: moreLabel ?? '',
+                  icon: const BeeLineIcon('Ellipsis', size: 22),
+                  onPressed: onMore),
+          ])));
+}
+
 /// Keep both columns tight so a short value cannot leave trailing empty space.
 class RecordingConversionSummary extends StatelessWidget {
   const RecordingConversionSummary(

@@ -216,10 +216,14 @@ class BeeSegmented<T> extends StatelessWidget {
       {super.key,
       required this.items,
       required this.value,
-      required this.onChanged});
+      required this.onChanged,
+      this.dense = false});
   final List<BeeSegment<T>> items;
   final T value;
   final ValueChanged<T>? onChanged;
+
+  /// Compact editor toolbars keep the same selection style in a 42px track.
+  final bool dense;
   @override
   Widget build(BuildContext context) =>
       LayoutBuilder(builder: (context, bounds) {
@@ -249,18 +253,35 @@ class BeeSegmented<T> extends StatelessWidget {
                       color: item.value == value
                           ? BeeCardTheme.of(context).surface
                           : Colors.transparent,
+                      elevation: dense && item.value == value ? 1 : 0,
+                      shadowColor: Colors.black12,
                       borderRadius: BorderRadius.circular(9),
                       child: InkWell(
                           onTap: enabled ? () => onChanged!(item.value) : null,
                           borderRadius: BorderRadius.circular(9),
                           child: ConstrainedBox(
-                              constraints: const BoxConstraints(minHeight: 44),
+                              constraints:
+                                  BoxConstraints(minHeight: dense ? 34 : 44),
                               child: Center(
                                   child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 8),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: dense ? 0 : 8),
                                       child: Text(item.label,
-                                          style: style, maxLines: 1))))))));
+                                          style: dense
+                                              ? style.copyWith(
+                                                  fontWeight:
+                                                      item.value == value
+                                                          ? FontWeight.w500
+                                                          : FontWeight.w400,
+                                                  color: item.value == value
+                                                      ? Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurface
+                                                      : Theme.of(context)
+                                                          .hintColor)
+                                              : style,
+                                          maxLines: 1))))))));
         }
 
         final row = Row(

@@ -72,7 +72,8 @@
     "design_key": "keypad",
     "components": [
       "RecordingKeypad",
-      "RecordingAmountCard"
+      "RecordingAmountCard",
+      "RecordingHeader"
     ],
     "page": "business",
     "case": 5

@@ -100,8 +100,8 @@ void main() {
 
   Future<void> open(
     WidgetTester tester, {
-    TransactionEditorPage page = const TransactionEditorPage(
-        initialKind: 'expense', quickAdd: true, useV4: true),
+    TransactionEditorPage page =
+        const TransactionEditorPage(initialKind: 'expense', quickAdd: true),
     Size size = const Size(390, 844),
     bool accountsEnabled = false,
     double safeTop = 0,
@@ -234,7 +234,6 @@ void main() {
           page: TransactionEditorPage(
               initialKind: 'expense',
               quickAdd: true,
-              useV4: true,
               initialAmount: id.startsWith('usd') ? 12 : 32,
               initialCurrencyCode: id.startsWith('usd') ? 'USD' : 'CNY',
               initialNativeAmount: id.startsWith('usd') ? 85.2 : 32));
@@ -323,10 +322,10 @@ void main() {
         note: '历史午餐');
     await open(tester,
         page: TransactionEditorPage(
-            initialCategoryId: foodId,
-            initialKind: 'expense',
-            quickAdd: true,
-            useV4: true));
+          initialCategoryId: foodId,
+          initialKind: 'expense',
+          quickAdd: true,
+        ));
     await tester.tap(find.byKey(const ValueKey('recording-note-history')));
     await tester.pumpAndSettle();
     expect(find.byType(NotePickerDialog), findsOneWidget);
@@ -427,7 +426,6 @@ void main() {
         page: TransactionEditorPage(
             initialKind: 'expense',
             quickAdd: true,
-            useV4: true,
             editingTransactionId: id,
             initialCategoryId: lunchId,
             initialAmount: 12,
@@ -490,7 +488,6 @@ void main() {
         page: TransactionEditorPage(
             initialKind: 'expense',
             quickAdd: true,
-            useV4: true,
             initialAccountId: cnyAccount));
     await key(tester, '1');
     await key(tester, '0');
@@ -549,10 +546,7 @@ void main() {
     final tagId = await repo.createTag(name: '工作日');
     await open(tester,
         page: TransactionEditorPage(
-            initialKind: 'expense',
-            quickAdd: true,
-            useV4: true,
-            initialTagIds: [tagId]));
+            initialKind: 'expense', quickAdd: true, initialTagIds: [tagId]));
     await category(tester, foodId);
     await key(tester, '8');
     await press(tester, 'recording-save');
@@ -690,7 +684,6 @@ void main() {
             page: TransactionEditorPage(
                 initialKind: 'expense',
                 quickAdd: true,
-                useV4: true,
                 initialCategoryId: foodId,
                 initialAmount: 12,
                 initialCurrencyCode: 'USD',
@@ -728,7 +721,6 @@ void main() {
         page: TransactionEditorPage(
             initialKind: 'expense',
             quickAdd: true,
-            useV4: true,
             initialCategoryId: foodId,
             initialAmount: 10,
             initialCurrencyCode: 'USD',
@@ -767,20 +759,14 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  recordingTest('关闭 v4 开关仍走原有分类与金额弹窗保存流程', (tester) async {
+  recordingTest('原有默认入口直接进入新版完整记账并保存二级分类', (tester) async {
     await open(tester,
-        page: const TransactionEditorPage(
-            initialKind: 'expense', quickAdd: true, useV4: false));
-    expect(find.byKey(const ValueKey('recording-amount')), findsNothing);
-    await tester.tap(find.text('餐饮'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('午餐'));
-    await tester.pumpAndSettle();
-    expect(find.byType(AmountEditorSheet), findsOneWidget);
-    await tester.tap(find.text('8'));
-    await tester.pump();
-    await tester.tap(find.text('完成'));
-    await tester.pump(const Duration(milliseconds: 350));
+        page: const TransactionEditorPage(initialKind: 'expense'));
+    expect(find.byKey(const ValueKey('recording-amount')), findsOneWidget);
+    await category(tester, foodId);
+    await category(tester, lunchId);
+    await key(tester, '8');
+    await press(tester, 'recording-save');
     await tester.pumpAndSettle();
     final saved = (await db.select(db.transactions).get()).single;
     expect(saved.amount, 8);

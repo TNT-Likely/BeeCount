@@ -57,7 +57,7 @@ class BusinessAcceptancePage extends StatefulWidget {
 }
 
 class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
-  int step = 0;
+  int step = 0, recordingType = 0;
   String? chosenCategory = 'lunch', chosenAccount = 'wechat';
   bool brand = true,
       hidden = false,
@@ -375,6 +375,14 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                       : expanded.add(id)),
                   onDetail: (v) => record('分类详情 $v'))),
         5 => Column(children: [
+            RecordingHeader(
+                labels: const ['支出', '收入', '转账'],
+                selectedIndex: recordingType,
+                onChanged: (v) => setState(() => recordingType = v),
+                backLabel: '返回',
+                onBack: () => record('返回'),
+                moreLabel: '更多选项',
+                onMore: () => record('记账选项')),
             RecordingAmountCard(
                 currency: Text(currency),
                 ledger: Text(ledger),

@@ -2,7 +2,7 @@
 
 V4 业务展示组件包。仅依赖 Flutter 和 `beecount_ui`，不依赖主 App、Riverpod、数据库、HTTP 或 Cloud SDK。
 
-- 记账：`RecordingAmountCard`、`RecordingCategoryTile`、`RecordingSubcategoryChip`、`RecordingKeypad`。
+- 记账：`RecordingHeader`、`RecordingAmountCard`、`RecordingCategoryTile`、`RecordingSubcategoryChip`、`RecordingKeypad`。
 - 明细与统计：`BeeMoney`、`BeeTransactionRow`、`BeeBatchBar`、`BeeSummaryCard`、`BeeCategoryRanking`、`BeeBarChart`、`BeeDonutChart`、`BeeTrendChart`。
 - 分类与选择：`BeeCategoryIcon`、`BeeTag`、`BeeTagPicker`、`BeeChoicePicker<T>`、`BeeCurrencyPicker`、`BeeValidatedInput`、`BeeDateWheels`。
 - 账本与资料：`BeeLedgerCard`、`BeeLedgerBalance`、`BeeSyncStatus`、`BeeHomeIdentity`、`BeeProfile`。
@@ -21,3 +21,5 @@ App 内验收：[ComponentGalleryPage](../../lib/presentation/v4/gallery/compone
 `RecordingDetailsCard` 提供固定在键盘上方的两行表单，备注、账户、日期、标签、附件由宿主传入；小屏支持备注折叠与直接展开编辑。`BeeTag(compact: true)` 保留 21px 可见色块，选择器默认使用 44px 选择项。
 
 `RecordingConversionSummary` 保持左侧说明、右侧金额/箭头的双列紧布局；短金额、长金额、小屏、大字体均固定右边界。汇率和折算数值由宿主提供。
+
+`RecordingHeader` 使用基础包的紧凑 `BeeSegmented`，显示收支/转账类型、返回与更多操作。切换草稿前的确认和写入由 App 处理。生产记账页与平铺验收页面使用同一个组件；真实保存、共享资源引用与失败重试放在 App 的 `recording_save.dart` binding。

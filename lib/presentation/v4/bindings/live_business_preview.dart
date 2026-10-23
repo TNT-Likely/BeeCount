@@ -116,7 +116,6 @@ class _LiveBusinessPreviewState extends ConsumerState<LiveBusinessPreview> {
         MaterialPageRoute(
             builder: (_) => TransactionEditorPage(
                 initialKind: 'expense',
-                useV4: true,
                 initialCategoryId: int.tryParse(categoryId ?? ''),
                 initialAccountId: int.tryParse(accountId ?? ''))));
     if (mounted) ref.invalidate(galleryLedgerDataProvider(id));

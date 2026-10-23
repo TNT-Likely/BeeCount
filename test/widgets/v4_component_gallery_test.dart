@@ -146,7 +146,8 @@ void main() {
     await tester.tap(find.text('业务组件').last);
     await tester.pump(const Duration(milliseconds: 450));
     expect(find.text('业务组件验收'), findsOneWidget);
-    await tester.tap(find.byTooltip('返回'));
+    await tester.tap(find.descendant(
+        of: find.byType(AppBar), matching: find.byTooltip('返回')));
     await tester.pumpAndSettle();
     expect(find.text('组件验收入口'), findsOneWidget);
     expect(find.byType(ComponentGalleryPage), findsNothing);

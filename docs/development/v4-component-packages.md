@@ -49,7 +49,7 @@ Flutter 与浏览器字体的栅格化存在差异；不能只靠目录映射脚
 | `brandOff` | `BeeHomeIdentity` | business / 0 |
 | `summary` | `BeeSummaryCard, BeeProgress` | business / 1 |
 | `categories` | `RecordingCategoryTile, RecordingSubcategoryChip, BeeCategoryRanking` | business / 3 |
-| `keypad` | `RecordingKeypad, RecordingAmountCard` | business / 5 |
+| `keypad` | `RecordingKeypad, RecordingAmountCard, RecordingHeader` | business / 5 |
 | `metadata` | `RecordingDetailsCard, BeeTag` | business / 5 |
 | `menu` | `BeeMenuRow, BeeActionMenu` | foundation / 3 |
 | `segments` | `BeeSegmented` | foundation / 1 |
