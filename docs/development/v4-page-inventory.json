@@ -1,0 +1,1764 @@
+{
+  "date": "2026-10-24",
+  "branch": "v4",
+  "pageFiles": 71,
+  "helperFiles": [
+    "lib/pages/ai/agent_message_visibility.dart",
+    "lib/pages/ai/agent_tool_presentation.dart",
+    "lib/pages/budget/widgets/budget_progress_bar.dart",
+    "lib/pages/budget/widgets/category_budget_tile.dart",
+    "lib/pages/cloud/sync_preview_dialog.dart",
+    "lib/pages/tag/widgets/tag_selector.dart"
+  ],
+  "designSceneExports": 181,
+  "flowDefinitions": 104,
+  "priorityCounts": {
+    "P0": 16,
+    "P1": 42,
+    "P2": 13
+  },
+  "plannedPages": [
+    {
+      "name": "账单详情",
+      "source": "lib/pages/transaction/transaction_detail_page.dart",
+      "priority": "P0",
+      "status": "待新增",
+      "batch": "M2 首页与列表",
+      "designRoutes": [
+        "detail",
+        "flow-foreign-detail",
+        "flow-attachment-grid"
+      ],
+      "reason": "原列表点击进入编辑，原代码没有独立详情 Page；新版需落地已设计的详情入口、附件、复制、编辑和小票。"
+    },
+    {
+      "name": "分享卡片",
+      "source": "lib/pages/report/share_card_page.dart",
+      "priority": "P1",
+      "status": "待新增",
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "poster"
+      ],
+      "reason": "新稿有独立卡片预览与样式切换；原分享服务继续复用，页面只组合内容与导出。"
+    }
+  ],
+  "associatedFlows": [
+    {
+      "name": "转账表单（同币种/跨币种）",
+      "source": "lib/widgets/transaction/transfer_form.dart",
+      "priority": "P0",
+      "status": "待迁移",
+      "designRoutes": [
+        "editor"
+      ],
+      "acceptance": "转出/转入账户、币种与汇率、金额、备注、标签、统计、余额与保存防重；先提取账户组合组件。"
+    },
+    {
+      "name": "金额与元信息表单",
+      "source": "lib/widgets/biz/amount_editor_sheet.dart",
+      "priority": "P0",
+      "status": "部分迁移·待人工验收",
+      "designRoutes": [
+        "editor",
+        "flow-foreign-editor"
+      ],
+      "acceptance": "键盘贴底、8px 间距、备注直接修改、附件右上角、分类独立滚动、折算右对齐。"
+    },
+    {
+      "name": "账单行、长按与滑动菜单",
+      "source": "lib/widgets/biz/transaction_list.dart",
+      "priority": "P0",
+      "status": "组件就绪·页面待接入",
+      "designRoutes": [
+        "home",
+        "search",
+        "batch"
+      ],
+      "acceptance": "真实列表绑定、分类图标导航、时间/折算/标签/附件、批量与只读、长按菜单和删除确认。"
+    },
+    {
+      "name": "分类选择弹窗",
+      "source": "lib/widgets/biz/category_selector_dialog.dart",
+      "priority": "P0",
+      "status": "新版组件就绪·旧消费者待迁移",
+      "designRoutes": [
+        "categoryPicker"
+      ],
+      "acceptance": "二级图标、自定义图片、搜索、更多分类、取消不提交。"
+    },
+    {
+      "name": "账户选择弹窗",
+      "source": "lib/widgets/biz/account_selector.dart",
+      "priority": "P0",
+      "status": "新版组件就绪·旧消费者待迁移",
+      "designRoutes": [
+        "flow-account-picker"
+      ],
+      "acceptance": "按币种筛选、未设置、隐藏历史账户、共享权限、搜索和草稿。"
+    },
+    {
+      "name": "账本选择弹层",
+      "source": "lib/widgets/biz/ledger_picker_sheet.dart",
+      "priority": "P0",
+      "status": "新版组件就绪·旧消费者待迁移",
+      "designRoutes": [
+        "flow-ledger-picker"
+      ],
+      "acceptance": "当前态、个人/共享、币种与搜索、切换账本不丢草稿。"
+    },
+    {
+      "name": "币种选择弹层与汇率编辑",
+      "source": "lib/widgets/currency/currency_picker_sheet.dart",
+      "priority": "P0",
+      "status": "部分复用原弹层·待统一视觉",
+      "designRoutes": [
+        "flow-currency-picker",
+        "flow-exchange-rate"
+      ],
+      "acceptance": "搜索、同币种账户联动、历史快照、汇率缺失和正数校验。"
+    },
+    {
+      "name": "标签横排选择",
+      "source": "lib/pages/tag/widgets/tag_selector.dart",
+      "priority": "P0",
+      "status": "部分复用原弹层·待统一视觉",
+      "designRoutes": [
+        "flow-tag-picker-many"
+      ],
+      "acceptance": "多选、搜索、取消不提交、新建标签、长标签与 +N。"
+    },
+    {
+      "name": "日期与时间滚轮",
+      "source": "lib/widgets/ui/wheel_date_picker.dart",
+      "priority": "P0",
+      "status": "已复用·待全消费者核对",
+      "designRoutes": [
+        "flow-date-picker"
+      ],
+      "acceptance": "月末/闰年、时间开关、取消和系统安全区。"
+    },
+    {
+      "name": "历史备注选择",
+      "source": "lib/widgets/biz/note_picker_dialog.dart",
+      "priority": "P1",
+      "status": "待迁移",
+      "designRoutes": [
+        "editor"
+      ],
+      "acceptance": "常用备注筛选/排序、直接输入与选择后的草稿一致性。"
+    },
+    {
+      "name": "账单小票弹窗",
+      "source": "lib/widgets/biz/transaction_receipt_dialog.dart",
+      "priority": "P1",
+      "status": "待迁移",
+      "designRoutes": [
+        "receipt"
+      ],
+      "acceptance": "原币与折算、标签/附件、隐私、图片生成和系统分享，沿用弹窗。"
+    },
+    {
+      "name": "AI 授权弹窗",
+      "source": "lib/widgets/ai/agent_tool_authorization_dialog.dart",
+      "priority": "P1",
+      "status": "样式就绪·真实消费者待迁移",
+      "designRoutes": [
+        "flow-authorization"
+      ],
+      "acceptance": "实际动作、权限、金额与上下文，拒绝和允许不丢任务。"
+    },
+    {
+      "name": "检查升级弹窗",
+      "source": "lib/services/update/update_dialogs.dart",
+      "priority": "P2",
+      "status": "待迁移",
+      "designRoutes": [
+        "flow-update-check"
+      ],
+      "acceptance": "保持原弹窗，检查中/最新/可升级/错误与下载入口。"
+    }
+  ],
+  "rows": [
+    {
+      "source": "lib/pages/account/account_detail_page.dart",
+      "classes": [
+        "AccountDetailPage"
+      ],
+      "lines": 1463,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "accountDetail",
+        "flow-valuation"
+      ],
+      "designMapping": "已定位",
+      "components": "账户信息、余额、统计与过滤账单列表",
+      "acceptance": "历史隐藏账户、币种/余额、编辑/调整余额、转账双账户、时间范围和账单导航。",
+      "status": "待迁移",
+      "name": "账户详情",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=accountDetail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-valuation"
+      ]
+    },
+    {
+      "source": "lib/pages/account/account_edit_page.dart",
+      "classes": [
+        "AccountEditPage"
+      ],
+      "lines": 1911,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-account-edit",
+        "flow-balance-adjust"
+      ],
+      "designMapping": "已定位",
+      "components": "账户卡、金额、账户类型、表单与交易列表",
+      "acceptance": "保留账户类型/币种/余额、隐藏状态、余额调整、转账关联与历史记录。",
+      "status": "待迁移",
+      "name": "新增与编辑账户",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-balance-adjust"
+      ]
+    },
+    {
+      "source": "lib/pages/account/accounts_page.dart",
+      "classes": [
+        "AccountsPage"
+      ],
+      "lines": 2542,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "assets",
+        "flow-account-settings"
+      ],
+      "designMapping": "已定位",
+      "components": "资产汇总、账户卡、类型分组与操作菜单",
+      "acceptance": "资产/负债/净资产口径、账户余额/币种、隐藏状态、新建/编辑、转账与详情入口。",
+      "status": "待迁移",
+      "name": "资产与账户列表",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=assets",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-settings"
+      ]
+    },
+    {
+      "source": "lib/pages/account/net_worth_trend_page.dart",
+      "classes": [
+        "NetWorthTrendPage"
+      ],
+      "lines": 266,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "flow-networth"
+      ],
+      "designMapping": "已定位",
+      "components": "净资产汇总、趋势图、时间范围与明细",
+      "acceptance": "资产/负债/净资产和折算口径、范围切换、无数据与历史点选择。",
+      "status": "待迁移",
+      "name": "净资产趋势",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-networth"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/agent_activity_page.dart",
+      "classes": [
+        "AgentActivityPage"
+      ],
+      "lines": 273,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-activity"
+      ],
+      "designMapping": "已定位",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
+      "status": "待迁移",
+      "name": "AI 活动记录",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-activity"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/agent_assistant_settings_page.dart",
+      "classes": [
+        "AgentAssistantSettingsPage"
+      ],
+      "lines": 226,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-assistant-settings",
+        "flow-execution-depth"
+      ],
+      "designMapping": "已定位",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
+      "status": "待迁移",
+      "name": "AI 助手设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-assistant-settings",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-execution-depth"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/agent_memory_page.dart",
+      "classes": [
+        "AgentMemoryPage"
+      ],
+      "lines": 226,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-memory"
+      ],
+      "designMapping": "已定位",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
+      "status": "待迁移",
+      "name": "AI 记忆管理",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-memory"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/agent_permissions_page.dart",
+      "classes": [
+        "AgentPermissionsPage"
+      ],
+      "lines": 492,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-permissions"
+      ],
+      "designMapping": "已定位",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
+      "status": "待迁移",
+      "name": "AI 权限管理",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-permissions"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/ai_chat_page.dart",
+      "classes": [
+        "AIChatPage"
+      ],
+      "lines": 1524,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "ai"
+      ],
+      "designMapping": "已定位",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
+      "status": "待迁移",
+      "name": "AI 对话与执行",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=ai"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/ai_prompt_edit_page.dart",
+      "classes": [
+        "AIPromptEditPage"
+      ],
+      "lines": 631,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-prompt"
+      ],
+      "designMapping": "已定位",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
+      "status": "待迁移",
+      "name": "AI 提示词编辑",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/ai_provider_manage_page.dart",
+      "classes": [
+        "AIProviderManagePage",
+        "AIProviderEditPage"
+      ],
+      "lines": 1075,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-providers",
+        "flow-provider-edit"
+      ],
+      "designMapping": "已定位",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
+      "status": "待迁移",
+      "name": "AI 服务商管理",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-edit"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/ai_settings_page.dart",
+      "classes": [
+        "AISettingsPage"
+      ],
+      "lines": 529,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-ai-settings",
+        "flow-capabilities"
+      ],
+      "designMapping": "已定位",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
+      "status": "待迁移",
+      "name": "AI 设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-settings",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-capabilities"
+      ]
+    },
+    {
+      "source": "lib/pages/attachment/attachment_preview_page.dart",
+      "classes": [
+        "AttachmentPreviewPage"
+      ],
+      "lines": 495,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-attachment-viewer",
+        "flow-attachments"
+      ],
+      "designMapping": "已定位",
+      "components": "附件网格、大图、缩略图与状态",
+      "acceptance": "查看原图、切换、加载失败、删除权限、返回原账单；系统附件能力另在真机验收。",
+      "status": "待迁移",
+      "name": "账单附件大图预览",
+      "priority": "P0",
+      "reason": "记账、账单详情的附件查看直接依赖；与全局附件库分开迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-viewer",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachments"
+      ]
+    },
+    {
+      "source": "lib/pages/auth/app_lock_screen.dart",
+      "classes": [
+        "AppLockScreen"
+      ],
+      "lines": 150,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-lock"
+      ],
+      "designMapping": "已定位",
+      "components": "安全输入、错误反馈与解锁状态",
+      "acceptance": "保持原 PIN/生物识别、锁定/失败策略、恢复入口；不修改认证和安全存储。",
+      "status": "待迁移",
+      "name": "应用锁解锁",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock"
+      ]
+    },
+    {
+      "source": "lib/pages/auth/login_page.dart",
+      "classes": [
+        "AuthPage",
+        "LoginPage"
+      ],
+      "lines": 509,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-login"
+      ],
+      "designMapping": "已定位",
+      "components": "登录表单、安全输入、验证码与错误反馈",
+      "acceptance": "原账号/验证方式、合法输入、加载防重、取消、登录失败/恢复和实际鉴权。",
+      "status": "待迁移",
+      "name": "云账号登录",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-login"
+      ]
+    },
+    {
+      "source": "lib/pages/auth/pin_setup_page.dart",
+      "classes": [
+        "PinSetupPage"
+      ],
+      "lines": 168,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-pin"
+      ],
+      "designMapping": "已定位",
+      "components": "PIN 输入、确认步骤与错误状态",
+      "acceptance": "设置/确认、二次不一致、取消、返回、原存储和隐私策略。",
+      "status": "待迁移",
+      "name": "PIN 设置与确认",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-pin"
+      ]
+    },
+    {
+      "source": "lib/pages/auth/splash_page.dart",
+      "classes": [
+        "SplashPage"
+      ],
+      "lines": 144,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-splash"
+      ],
+      "designMapping": "已定位",
+      "components": "品牌与加载/错误状态",
+      "acceptance": "启动后进入初始化/解锁/首页的原分支、失败重试，避免改变初始化和同步时序。",
+      "status": "待迁移",
+      "name": "启动页",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-splash"
+      ]
+    },
+    {
+      "source": "lib/pages/auth/welcome_page.dart",
+      "classes": [
+        "WelcomePage"
+      ],
+      "lines": 1207,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "welcome",
+        "welcomeCurrency",
+        "welcomeCategories",
+        "welcomeCloud",
+        "welcomePrivacy",
+        "welcomeDone",
+        "flow-welcome-bridge"
+      ],
+      "designMapping": "已定位",
+      "components": "居中欢迎步骤、语言/币种/分类选择、恢复与云同步说明",
+      "acceptance": "语言、币种/默认账本、分类模式、云同步、隐私开源、配置/附件恢复；返回保持选择。",
+      "status": "待迁移",
+      "name": "欢迎与初始化全流程",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcome",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomeCurrency",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomeCategories",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomeCloud",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomePrivacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomeDone",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-welcome-bridge"
+      ]
+    },
+    {
+      "source": "lib/pages/automation/auto_billing_settings_page.dart",
+      "classes": [
+        "AutoBillingSettingsPage",
+        "AndroidAutoBillingPage"
+      ],
+      "lines": 519,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-android-auto",
+        "flow-auto-platform"
+      ],
+      "designMapping": "已定位",
+      "components": "平台引导、开关、选择项与配置表单",
+      "acceptance": "保留 Android/iOS/渠道条件、权限检查、设置跳转、默认值与失败反馈。",
+      "status": "待迁移",
+      "name": "Android 自动记账设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-android-auto",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-platform"
+      ]
+    },
+    {
+      "source": "lib/pages/automation/ios_auto_billing_page.dart",
+      "classes": [
+        "IOSAutoBillingPage"
+      ],
+      "lines": 459,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-ios-auto"
+      ],
+      "designMapping": "已定位",
+      "components": "平台引导、开关、选择项与配置表单",
+      "acceptance": "保留 Android/iOS/渠道条件、权限检查、设置跳转、默认值与失败反馈。",
+      "status": "待迁移",
+      "name": "iOS 自动记账设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ios-auto"
+      ]
+    },
+    {
+      "source": "lib/pages/budget/budget_edit_page.dart",
+      "classes": [
+        "BudgetEditPage"
+      ],
+      "lines": 556,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "flow-budget-edit"
+      ],
+      "designMapping": "已定位",
+      "components": "预算汇总、分类额度、进度与编辑表单",
+      "acceptance": "总预算/分类预算、周期、超支与剩余口径，取消/保存及统计数据一致。",
+      "status": "待迁移",
+      "name": "预算编辑",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-edit"
+      ]
+    },
+    {
+      "source": "lib/pages/budget/budget_page.dart",
+      "classes": [
+        "BudgetPage"
+      ],
+      "lines": 379,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "budget"
+      ],
+      "designMapping": "已定位",
+      "components": "预算汇总、分类额度、进度与编辑表单",
+      "acceptance": "总预算/分类预算、周期、超支与剩余口径，取消/保存及统计数据一致。",
+      "status": "待迁移",
+      "name": "预算总览",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=budget"
+      ]
+    },
+    {
+      "source": "lib/pages/calendar/calendar_page.dart",
+      "classes": [
+        "CalendarPage"
+      ],
+      "lines": 721,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "calendar"
+      ],
+      "designMapping": "已定位",
+      "components": "月历、日期选择、金额汇总与账单行",
+      "acceptance": "月切换、日期格/选中/账单标记、当天明细与币种统计，保留查看和编辑入口。",
+      "status": "待迁移",
+      "name": "账单日历",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=calendar"
+      ]
+    },
+    {
+      "source": "lib/pages/category/category_edit_page.dart",
+      "classes": [
+        "CategoryEditPage"
+      ],
+      "lines": 1845,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-category-edit",
+        "flow-category-icons"
+      ],
+      "designMapping": "已定位",
+      "components": "分类层级、图标/图片、表单、排序与工具弹窗",
+      "acceptance": "一级/二级图标、自定义图片、转账图标入口、展开、排序和原工具弹窗。",
+      "status": "待迁移",
+      "name": "新增与编辑分类",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-icons"
+      ]
+    },
+    {
+      "source": "lib/pages/category/category_manage_page.dart",
+      "classes": [
+        "CategoryManagePage"
+      ],
+      "lines": 1265,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "leaf:分类管理",
+        "flow-category-tools",
+        "flow-taxonomy-import",
+        "flow-category-order",
+        "flow-transfer-icon"
+      ],
+      "designMapping": "已定位",
+      "components": "分类层级、图标/图片、表单、排序与工具弹窗",
+      "acceptance": "一级/二级图标、自定义图片、转账图标入口、展开、排序和原工具弹窗。",
+      "status": "待迁移",
+      "name": "分类管理与工具",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=leaf:分类管理",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-tools",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-taxonomy-import",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-order",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-transfer-icon"
+      ]
+    },
+    {
+      "source": "lib/pages/category/category_migration_page.dart",
+      "classes": [
+        "CategoryMigrationPage"
+      ],
+      "lines": 506,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-category-migration"
+      ],
+      "designMapping": "已定位",
+      "components": "源/目标分类选择、预览、确认与结果",
+      "acceptance": "父子分类、账单迁移范围/数量、目标约束、取消/防重和关联标签规则。",
+      "status": "待迁移",
+      "name": "分类迁移",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-migration"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/beecount_cloud_sync_page.dart",
+      "classes": [
+        "BeeCountCloudSyncPage"
+      ],
+      "lines": 653,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-cloud-sync",
+        "flow-sync-health",
+        "flow-twofa"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
+      "status": "待迁移",
+      "name": "BeeCount Cloud 同步",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-sync",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-sync-health",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-twofa"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/cloud_service_page.dart",
+      "classes": [
+        "CloudServicePage"
+      ],
+      "lines": 2487,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-cloud-config"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
+      "status": "待迁移",
+      "name": "云服务配置与账号",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/cloud_sync_page.dart",
+      "classes": [
+        "CloudSyncPage"
+      ],
+      "lines": 746,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-backup",
+        "flow-failure"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
+      "status": "待迁移",
+      "name": "云端备份与同步",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-failure"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/invite_page.dart",
+      "classes": [
+        "InvitePage"
+      ],
+      "lines": 247,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-invite"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
+      "status": "待迁移",
+      "name": "共享账本邀请",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-invite"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/join_shared_ledger_page.dart",
+      "classes": [
+        "JoinSharedLedgerPage"
+      ],
+      "lines": 368,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-join"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
+      "status": "待迁移",
+      "name": "加入共享账本",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-join"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/member_list_page.dart",
+      "classes": [
+        "MemberListPage"
+      ],
+      "lines": 342,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-members"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
+      "status": "待迁移",
+      "name": "共享成员管理",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-members"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/member_stats_page.dart",
+      "classes": [
+        "MemberStatsPage"
+      ],
+      "lines": 323,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-member-stats"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
+      "status": "待迁移",
+      "name": "共享成员统计",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-member-stats"
+      ]
+    },
+    {
+      "source": "lib/pages/currency/exchange_rate_page.dart",
+      "classes": [
+        "ExchangeRatePage"
+      ],
+      "lines": 522,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-rates"
+      ],
+      "designMapping": "已定位",
+      "components": "币种列表、汇率表单、校验与更新状态",
+      "acceptance": "保留账本本位币、自定义汇率/来源、正数校验和当前历史快照规则。",
+      "status": "待迁移",
+      "name": "汇率管理",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-rates"
+      ]
+    },
+    {
+      "source": "lib/pages/data/export_page.dart",
+      "classes": [
+        "ExportPage"
+      ],
+      "lines": 286,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-export"
+      ],
+      "designMapping": "已定位",
+      "components": "导入选择、字段映射、预览、任务状态与结果",
+      "acceptance": "原格式和字段、分类映射、错误/部分成功、进度取消、恢复与导出范围。",
+      "status": "待迁移",
+      "name": "账单导出",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export"
+      ]
+    },
+    {
+      "source": "lib/pages/data/import_confirm_page.dart",
+      "classes": [
+        "ImportConfirmPage"
+      ],
+      "lines": 1057,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-mapping",
+        "flow-category-map",
+        "flow-import-preview",
+        "flow-import-progress",
+        "flow-result"
+      ],
+      "designMapping": "已定位",
+      "components": "导入选择、字段映射、预览、任务状态与结果",
+      "acceptance": "原格式和字段、分类映射、错误/部分成功、进度取消、恢复与导出范围。",
+      "status": "待迁移",
+      "name": "导入映射、预览与结果",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-mapping",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-map",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-preview",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-progress",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-result"
+      ]
+    },
+    {
+      "source": "lib/pages/data/import_page.dart",
+      "classes": [
+        "ImportPage"
+      ],
+      "lines": 266,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-import"
+      ],
+      "designMapping": "已定位",
+      "components": "导入选择、字段映射、预览、任务状态与结果",
+      "acceptance": "原格式和字段、分类映射、错误/部分成功、进度取消、恢复与导出范围。",
+      "status": "待迁移",
+      "name": "账单导入入口",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import"
+      ]
+    },
+    {
+      "source": "lib/pages/donation/donation_page.dart",
+      "classes": [
+        "DonationPage"
+      ],
+      "lines": 377,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-donation"
+      ],
+      "designMapping": "已定位",
+      "components": "支持选项、支付入口和说明",
+      "acceptance": "原支持选项、平台入口、复制/跳转与返回，沿用实际服务。",
+      "status": "待迁移",
+      "name": "打赏支持",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-donation"
+      ]
+    },
+    {
+      "source": "lib/pages/main/analytics_page.dart",
+      "classes": [
+        "AnalyticsPage"
+      ],
+      "lines": 1267,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "report"
+      ],
+      "designMapping": "已定位",
+      "components": "日期范围、统计汇总、趋势/环图/排行与分类展开",
+      "acceptance": "月份/范围、本位币合计、一级/二级排行图标、分类详情、统计开关与空数据。",
+      "status": "待迁移",
+      "name": "统计与洞察",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=report"
+      ]
+    },
+    {
+      "source": "lib/pages/main/home_page.dart",
+      "classes": [
+        "HomePage"
+      ],
+      "lines": 1146,
+      "batch": "M2 首页与列表",
+      "designRoutes": [
+        "home",
+        "flow-empty"
+      ],
+      "designMapping": "已定位",
+      "components": "品牌/无品牌、汇总、账单行、日期筛选、快捷记账与底部导航",
+      "acceptance": "AI/搜索入口、月份滚轮、标签/时间/外币、分类图标导航、长按菜单/左滑删除、记账长按快捷入口。",
+      "status": "待迁移",
+      "name": "首页明细",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=home",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-empty"
+      ]
+    },
+    {
+      "source": "lib/pages/main/ledgers_page_new.dart",
+      "classes": [
+        "LedgersPageNew"
+      ],
+      "lines": 1646,
+      "batch": "M2 首页与列表",
+      "designRoutes": [
+        "ledgers",
+        "flow-ledger-edit",
+        "flow-ledger-actions"
+      ],
+      "designMapping": "已定位",
+      "components": "账本卡、当前态、选择器、成员入口与操作菜单",
+      "acceptance": "个人/共享账本、当前选中、右下操作与长按同菜单、预算/成员/编辑、新建/删除权限。",
+      "status": "待迁移",
+      "name": "账本管理与切换",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=ledgers",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledger-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledger-actions"
+      ]
+    },
+    {
+      "source": "lib/pages/main/mine_page.dart",
+      "classes": [
+        "MinePage"
+      ],
+      "lines": 1220,
+      "batch": "M2 首页与列表",
+      "designRoutes": [
+        "mine",
+        "flow-sync-states",
+        "flow-nickname-edit",
+        "flow-profile-edit"
+      ],
+      "designMapping": "已定位",
+      "components": "昵称、紧凑账本余额、同步状态与分组菜单",
+      "acceptance": "昵称编辑、当前账本累计余额/隐私、全部同步状态/异常/重试；完整原菜单和平台条件。",
+      "status": "待迁移",
+      "name": "我的、昵称与当前账本",
+      "priority": "P0",
+      "reason": "四个主要导航入口之一，需包含昵称、当前账本余额和完整同步状态。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=mine",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-sync-states",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-nickname-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-profile-edit"
+      ]
+    },
+    {
+      "source": "lib/pages/maintenance/orphan_cleanup_page.dart",
+      "classes": [
+        "OrphanCleanupPage"
+      ],
+      "lines": 429,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-orphan"
+      ],
+      "designMapping": "已定位",
+      "components": "清理概览、选择、确认与结果状态",
+      "acceptance": "沿用实际孤儿数据判断，预览/取消/确认、数量、失败反馈和数据安全。",
+      "status": "待迁移",
+      "name": "孤儿数据清理",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-orphan"
+      ]
+    },
+    {
+      "source": "lib/pages/report/annual_report_page.dart",
+      "classes": [
+        "AnnualReportPage"
+      ],
+      "lines": 2114,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "annual"
+      ],
+      "designMapping": "已定位",
+      "components": "年度汇总、趋势、排行与分享内容",
+      "acceptance": "年度选择、金额/笔数统计口径、隐私、分享卡与真实图片导出。",
+      "status": "待迁移",
+      "name": "年度账单",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=annual"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/about_page.dart",
+      "classes": [
+        "AboutPage"
+      ],
+      "lines": 567,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "about",
+        "flow-update-check"
+      ],
+      "designMapping": "已定位",
+      "components": "版本/链接/分组菜单与升级弹窗",
+      "acceptance": "完整原菜单、检查升级的检查中/最新/可升级/错误、平台入口；调试组件入口不计页面迁移完成。",
+      "status": "待迁移",
+      "name": "关于与检查更新",
+      "priority": "P2",
+      "reason": "仅新增了调试验收入口，关于页本身未翻新；检查更新保持弹窗。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=about",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-update-check"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/app_lock_settings_page.dart",
+      "classes": [
+        "AppLockSettingsPage"
+      ],
+      "lines": 421,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-lock-settings"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "应用锁设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-settings"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/appearance_settings_page.dart",
+      "classes": [
+        "AppearanceSettingsPage"
+      ],
+      "lines": 815,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "appearance"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "显示与外观设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=appearance"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/attachment_preview_page.dart",
+      "classes": [
+        "AttachmentPreviewPage"
+      ],
+      "lines": 362,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-attachment-library"
+      ],
+      "designMapping": "已定位",
+      "components": "附件库网格、筛选/选择、预览和任务状态",
+      "acceptance": "完整附件入口、筛选、来源关联、空态、加载失败、批量选择和导入导出。",
+      "status": "待迁移",
+      "name": "全局附件库",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/automation_page.dart",
+      "classes": [
+        "AutomationPage"
+      ],
+      "lines": 68,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "automation"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "自动化功能入口",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=automation"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/config_import_export_page.dart",
+      "classes": [
+        "ConfigImportExportPage"
+      ],
+      "lines": 1430,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-config",
+        "flow-config-preview",
+        "flow-export-scope"
+      ],
+      "designMapping": "已定位",
+      "components": "配置范围选择、文件读取/预览、导入导出状态",
+      "acceptance": "原备份范围与格式、初始化恢复、文件选择/预览、取消、失败恢复和附件联动。",
+      "status": "待迁移",
+      "name": "配置导入导出与恢复",
+      "priority": "P0",
+      "reason": "旧用户恢复配置与首次使用衔接，优先保证导入/取消/恢复路径。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-config",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-config-preview",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-scope"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/data_management_page.dart",
+      "classes": [
+        "DataManagementPage"
+      ],
+      "lines": 714,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "data",
+        "flow-attachment-transfer"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "数据管理入口",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=data",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-transfer"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/font_settings_page.dart",
+      "classes": [
+        "FontSettingsPage"
+      ],
+      "lines": 422,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-font"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "字体设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-font"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/header_skin_page.dart",
+      "classes": [
+        "HeaderSkinPage"
+      ],
+      "lines": 456,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "skins"
+      ],
+      "designMapping": "已定位",
+      "components": "皮肤预览、选择与主题适配",
+      "acceptance": "默认无皮肤，两款动态皮肤浅深色、主题色、预览、应用/取消、减少动画。",
+      "status": "待迁移",
+      "name": "皮肤选择与预览",
+      "priority": "P1",
+      "reason": "承接本轮两款动态皮肤与主题预览；默认无皮肤，保留旧主题迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=skins"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/help_center_page.dart",
+      "classes": [
+        "HelpCenterPage"
+      ],
+      "lines": 243,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-help"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "帮助中心",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-help"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/language_settings_page.dart",
+      "classes": [
+        "LanguageSettingsPage"
+      ],
+      "lines": 144,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-language"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "语言设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-language"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/log_center_page.dart",
+      "classes": [
+        "LogCenterPage"
+      ],
+      "lines": 554,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-logs",
+        "flow-log-detail"
+      ],
+      "designMapping": "已定位",
+      "components": "级别/来源多选、搜索、统计、日志行与堆栈详情",
+      "acceptance": "保留 DEBUG/INFO/WARN/ERROR、Flutter/当前平台、多选/搜索、详情/复制、导出与清空确认。",
+      "status": "待迁移",
+      "name": "日志中心",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-logs",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-log-detail"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/personalize_page.dart",
+      "classes": [
+        "PersonalizePage"
+      ],
+      "lines": 512,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "appearance"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "个性化设置入口",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=appearance"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/privacy_policy_page.dart",
+      "classes": [
+        "PrivacyPolicyPage"
+      ],
+      "lines": 173,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "leaf:隐私政策"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "隐私政策",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=leaf:隐私政策"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/reminder_settings_page.dart",
+      "classes": [
+        "ReminderSettingsPage"
+      ],
+      "lines": 398,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-reminder"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "记账提醒",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/shortcuts_guide_page.dart",
+      "classes": [
+        "ShortcutsGuidePage"
+      ],
+      "lines": 582,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-shortcuts"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "快捷指令引导",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shortcuts"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/smart_billing_page.dart",
+      "classes": [
+        "SmartBillingPage"
+      ],
+      "lines": 526,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "smart",
+        "flow-capture",
+        "flow-feature-guide",
+        "flow-voice-trigger"
+      ],
+      "designMapping": "已定位",
+      "components": "智能记账入口、功能引导弹窗、默认行为开关与语音设置",
+      "acceptance": "平台/渠道入口、原三个默认开关、自动/按住语音、静音时长、配置弹窗与识别入口。",
+      "status": "待迁移",
+      "name": "智能记账入口与识别偏好",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=smart",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-capture",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-feature-guide",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-voice-trigger"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/storage_management_page.dart",
+      "classes": [
+        "StorageManagementPage"
+      ],
+      "lines": 282,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-storage"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "存储空间管理",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-storage"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/widget_management_page.dart",
+      "classes": [
+        "WidgetManagementPage"
+      ],
+      "lines": 903,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-widgets"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "status": "待迁移",
+      "name": "桌面小组件管理",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-widgets"
+      ]
+    },
+    {
+      "source": "lib/pages/tag/tag_detail_page.dart",
+      "classes": [
+        "TagDetailPage"
+      ],
+      "lines": 567,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "tagDetail"
+      ],
+      "designMapping": "已定位",
+      "components": "语义标签、关联分类、统计/筛选和账单行",
+      "acceptance": "标签颜色、全部账本/时间、相关分类、金额隐私、过滤与编辑/删除权限。",
+      "status": "待迁移",
+      "name": "标签详情",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=tagDetail"
+      ]
+    },
+    {
+      "source": "lib/pages/tag/tag_edit_page.dart",
+      "classes": [
+        "TagEditPage"
+      ],
+      "lines": 308,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-tag-edit"
+      ],
+      "designMapping": "已定位",
+      "components": "语义标签、表单、列表与账单行",
+      "acceptance": "标签颜色、长名称、新建/编辑/删除、分类关联、引用和当前账本权限。",
+      "status": "待迁移",
+      "name": "新增与编辑标签",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-edit"
+      ]
+    },
+    {
+      "source": "lib/pages/tag/tag_manage_page.dart",
+      "classes": [
+        "TagManagePage"
+      ],
+      "lines": 633,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-tag-tools"
+      ],
+      "designMapping": "已定位",
+      "components": "语义标签、表单、列表与账单行",
+      "acceptance": "标签颜色、长名称、新建/编辑/删除、分类关联、引用和当前账本权限。",
+      "status": "待迁移",
+      "name": "标签管理",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-tools"
+      ]
+    },
+    {
+      "source": "lib/pages/transaction/category_detail_page.dart",
+      "classes": [
+        "CategoryDetailPage"
+      ],
+      "lines": 676,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "categoryDetail"
+      ],
+      "designMapping": "已定位",
+      "components": "分类信息/父子展开、统计、日期筛选与账单行",
+      "acceptance": "一级与二级分类图标、跨账本标记、收入/支出、日期/时间、备注/标签与详情导航。",
+      "status": "待迁移",
+      "name": "分类详情",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=categoryDetail"
+      ]
+    },
+    {
+      "source": "lib/pages/transaction/recurring_transaction_edit_page.dart",
+      "classes": [
+        "RecurringTransactionEditPage"
+      ],
+      "lines": 930,
+      "batch": "M1 记账闭环",
+      "designRoutes": [
+        "flow-recurring-edit"
+      ],
+      "designMapping": "已定位",
+      "components": "周期编辑表单、金额/币种/账户、日期与频率选择",
+      "acceptance": "周期/频率/起止/下次执行、币种/账户/标签/备注、取消和调度更新。",
+      "status": "待迁移",
+      "name": "周期账单编辑",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit"
+      ]
+    },
+    {
+      "source": "lib/pages/transaction/recurring_transaction_page.dart",
+      "classes": [
+        "RecurringTransactionPage"
+      ],
+      "lines": 465,
+      "batch": "M1 记账闭环",
+      "designRoutes": [
+        "flow-recurring"
+      ],
+      "designMapping": "已定位",
+      "components": "周期任务列表、状态、菜单与空态",
+      "acceptance": "周期/下一次、启用停用、编辑/删除和已有任务状态，调度与执行服务不变。",
+      "status": "待迁移",
+      "name": "周期账单列表",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring"
+      ]
+    },
+    {
+      "source": "lib/pages/transaction/search_page.dart",
+      "classes": [
+        "SearchPage"
+      ],
+      "lines": 1157,
+      "batch": "M2 首页与列表",
+      "designRoutes": [
+        "search",
+        "batch"
+      ],
+      "designMapping": "已定位",
+      "components": "搜索、筛选/日期范围、账单行和批量操作栏",
+      "acceptance": "关键字/账户/分类/标签/账本/币种/日期、批量选择/改动/删除、合计折算与只读。",
+      "status": "待迁移",
+      "name": "账单搜索与批量操作",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=search",
+        "../../docs/design/card-refresh/prototype/demo.html?page=batch"
+      ]
+    },
+    {
+      "source": "lib/pages/transaction/transaction_editor_page.dart",
+      "classes": [
+        "TransactionEditorPage"
+      ],
+      "lines": 871,
+      "batch": "M1 记账闭环",
+      "designRoutes": [
+        "editor",
+        "flow-foreign-editor",
+        "flow-recognition-result"
+      ],
+      "designMapping": "已定位",
+      "components": "金额/折算、计算器、两行元信息、分类/资源选择器与转账账户组合",
+      "acceptance": "支出/收入/转账、新建/编辑/复制、再记一笔、防重保存、草稿、历史汇率、共享权限、附件和系统键盘。",
+      "status": "部分迁移·待人工验收",
+      "name": "记账、新增、编辑与复制",
+      "priority": "P0",
+      "reason": "最高频录入：支出/收入已有试点；转账沿用旧表单，附件系统能力仍待真机验收。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=editor",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-foreign-editor",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recognition-result"
+      ]
+    }
+  ]
+}

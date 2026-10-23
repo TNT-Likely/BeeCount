@@ -1,0 +1,737 @@
+{
+  "updated": "2026-10-24",
+  "branch": "v4",
+  "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
+  "pages": {
+    "account/account_detail_page.dart": {
+      "name": "账户详情",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "账户信息、余额、统计与过滤账单列表",
+      "acceptance": "历史隐藏账户、币种/余额、编辑/调整余额、转账双账户、时间范围和账单导航。"
+    },
+    "account/account_edit_page.dart": {
+      "name": "新增与编辑账户",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "status": "待迁移",
+      "components": "账户卡、金额、账户类型、表单与交易列表",
+      "acceptance": "保留账户类型/币种/余额、隐藏状态、余额调整、转账关联与历史记录。"
+    },
+    "account/accounts_page.dart": {
+      "name": "资产与账户列表",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "status": "待迁移",
+      "components": "资产汇总、账户卡、类型分组与操作菜单",
+      "acceptance": "资产/负债/净资产口径、账户余额/币种、隐藏状态、新建/编辑、转账与详情入口。"
+    },
+    "account/net_worth_trend_page.dart": {
+      "name": "净资产趋势",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "净资产汇总、趋势图、时间范围与明细",
+      "acceptance": "资产/负债/净资产和折算口径、范围切换、无数据与历史点选择。"
+    },
+    "ai/agent_activity_page.dart": {
+      "name": "AI 活动记录",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "status": "待迁移",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。"
+    },
+    "ai/agent_assistant_settings_page.dart": {
+      "name": "AI 助手设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。"
+    },
+    "ai/agent_memory_page.dart": {
+      "name": "AI 记忆管理",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "status": "待迁移",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。"
+    },
+    "ai/agent_permissions_page.dart": {
+      "name": "AI 权限管理",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "status": "待迁移",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。"
+    },
+    "ai/ai_chat_page.dart": {
+      "name": "AI 对话与执行",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。"
+    },
+    "ai/ai_prompt_edit_page.dart": {
+      "name": "AI 提示词编辑",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。"
+    },
+    "ai/ai_provider_manage_page.dart": {
+      "name": "AI 服务商管理",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。"
+    },
+    "ai/ai_settings_page.dart": {
+      "name": "AI 设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。"
+    },
+    "attachment/attachment_preview_page.dart": {
+      "name": "账单附件大图预览",
+      "priority": "P0",
+      "reason": "记账、账单详情的附件查看直接依赖；与全局附件库分开迁移。",
+      "status": "待迁移",
+      "components": "附件网格、大图、缩略图与状态",
+      "acceptance": "查看原图、切换、加载失败、删除权限、返回原账单；系统附件能力另在真机验收。"
+    },
+    "auth/app_lock_screen.dart": {
+      "name": "应用锁解锁",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "status": "待迁移",
+      "components": "安全输入、错误反馈与解锁状态",
+      "acceptance": "保持原 PIN/生物识别、锁定/失败策略、恢复入口；不修改认证和安全存储。"
+    },
+    "auth/login_page.dart": {
+      "name": "云账号登录",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "登录表单、安全输入、验证码与错误反馈",
+      "acceptance": "原账号/验证方式、合法输入、加载防重、取消、登录失败/恢复和实际鉴权。"
+    },
+    "auth/pin_setup_page.dart": {
+      "name": "PIN 设置与确认",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "status": "待迁移",
+      "components": "PIN 输入、确认步骤与错误状态",
+      "acceptance": "设置/确认、二次不一致、取消、返回、原存储和隐私策略。"
+    },
+    "auth/splash_page.dart": {
+      "name": "启动页",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "status": "待迁移",
+      "components": "品牌与加载/错误状态",
+      "acceptance": "启动后进入初始化/解锁/首页的原分支、失败重试，避免改变初始化和同步时序。"
+    },
+    "auth/welcome_page.dart": {
+      "name": "欢迎与初始化全流程",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "status": "待迁移",
+      "components": "居中欢迎步骤、语言/币种/分类选择、恢复与云同步说明",
+      "acceptance": "语言、币种/默认账本、分类模式、云同步、隐私开源、配置/附件恢复；返回保持选择。"
+    },
+    "automation/auto_billing_settings_page.dart": {
+      "name": "Android 自动记账设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "平台引导、开关、选择项与配置表单",
+      "acceptance": "保留 Android/iOS/渠道条件、权限检查、设置跳转、默认值与失败反馈。"
+    },
+    "automation/ios_auto_billing_page.dart": {
+      "name": "iOS 自动记账设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "平台引导、开关、选择项与配置表单",
+      "acceptance": "保留 Android/iOS/渠道条件、权限检查、设置跳转、默认值与失败反馈。"
+    },
+    "budget/budget_edit_page.dart": {
+      "name": "预算编辑",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "预算汇总、分类额度、进度与编辑表单",
+      "acceptance": "总预算/分类预算、周期、超支与剩余口径，取消/保存及统计数据一致。"
+    },
+    "budget/budget_page.dart": {
+      "name": "预算总览",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "预算汇总、分类额度、进度与编辑表单",
+      "acceptance": "总预算/分类预算、周期、超支与剩余口径，取消/保存及统计数据一致。"
+    },
+    "calendar/calendar_page.dart": {
+      "name": "账单日历",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "月历、日期选择、金额汇总与账单行",
+      "acceptance": "月切换、日期格/选中/账单标记、当天明细与币种统计，保留查看和编辑入口。"
+    },
+    "category/category_edit_page.dart": {
+      "name": "新增与编辑分类",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "status": "待迁移",
+      "components": "分类层级、图标/图片、表单、排序与工具弹窗",
+      "acceptance": "一级/二级图标、自定义图片、转账图标入口、展开、排序和原工具弹窗。"
+    },
+    "category/category_manage_page.dart": {
+      "name": "分类管理与工具",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "status": "待迁移",
+      "components": "分类层级、图标/图片、表单、排序与工具弹窗",
+      "acceptance": "一级/二级图标、自定义图片、转账图标入口、展开、排序和原工具弹窗。"
+    },
+    "category/category_migration_page.dart": {
+      "name": "分类迁移",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "源/目标分类选择、预览、确认与结果",
+      "acceptance": "父子分类、账单迁移范围/数量、目标约束、取消/防重和关联标签规则。"
+    },
+    "cloud/beecount_cloud_sync_page.dart": {
+      "name": "BeeCount Cloud 同步",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。"
+    },
+    "cloud/cloud_service_page.dart": {
+      "name": "云服务配置与账号",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。"
+    },
+    "cloud/cloud_sync_page.dart": {
+      "name": "云端备份与同步",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。"
+    },
+    "cloud/invite_page.dart": {
+      "name": "共享账本邀请",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。"
+    },
+    "cloud/join_shared_ledger_page.dart": {
+      "name": "加入共享账本",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。"
+    },
+    "cloud/member_list_page.dart": {
+      "name": "共享成员管理",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。"
+    },
+    "cloud/member_stats_page.dart": {
+      "name": "共享成员统计",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "status": "待迁移",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。"
+    },
+    "currency/exchange_rate_page.dart": {
+      "name": "汇率管理",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "币种列表、汇率表单、校验与更新状态",
+      "acceptance": "保留账本本位币、自定义汇率/来源、正数校验和当前历史快照规则。"
+    },
+    "data/export_page.dart": {
+      "name": "账单导出",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "导入选择、字段映射、预览、任务状态与结果",
+      "acceptance": "原格式和字段、分类映射、错误/部分成功、进度取消、恢复与导出范围。"
+    },
+    "data/import_confirm_page.dart": {
+      "name": "导入映射、预览与结果",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "导入选择、字段映射、预览、任务状态与结果",
+      "acceptance": "原格式和字段、分类映射、错误/部分成功、进度取消、恢复与导出范围。"
+    },
+    "data/import_page.dart": {
+      "name": "账单导入入口",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "导入选择、字段映射、预览、任务状态与结果",
+      "acceptance": "原格式和字段、分类映射、错误/部分成功、进度取消、恢复与导出范围。"
+    },
+    "donation/donation_page.dart": {
+      "name": "打赏支持",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "status": "待迁移",
+      "components": "支持选项、支付入口和说明",
+      "acceptance": "原支持选项、平台入口、复制/跳转与返回，沿用实际服务。"
+    },
+    "main/analytics_page.dart": {
+      "name": "统计与洞察",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "日期范围、统计汇总、趋势/环图/排行与分类展开",
+      "acceptance": "月份/范围、本位币合计、一级/二级排行图标、分类详情、统计开关与空数据。"
+    },
+    "main/home_page.dart": {
+      "name": "首页明细",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "status": "待迁移",
+      "components": "品牌/无品牌、汇总、账单行、日期筛选、快捷记账与底部导航",
+      "acceptance": "AI/搜索入口、月份滚轮、标签/时间/外币、分类图标导航、长按菜单/左滑删除、记账长按快捷入口。"
+    },
+    "main/ledgers_page_new.dart": {
+      "name": "账本管理与切换",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "status": "待迁移",
+      "components": "账本卡、当前态、选择器、成员入口与操作菜单",
+      "acceptance": "个人/共享账本、当前选中、右下操作与长按同菜单、预算/成员/编辑、新建/删除权限。"
+    },
+    "main/mine_page.dart": {
+      "name": "我的、昵称与当前账本",
+      "priority": "P0",
+      "reason": "四个主要导航入口之一，需包含昵称、当前账本余额和完整同步状态。",
+      "status": "待迁移",
+      "components": "昵称、紧凑账本余额、同步状态与分组菜单",
+      "acceptance": "昵称编辑、当前账本累计余额/隐私、全部同步状态/异常/重试；完整原菜单和平台条件。"
+    },
+    "maintenance/orphan_cleanup_page.dart": {
+      "name": "孤儿数据清理",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "status": "待迁移",
+      "components": "清理概览、选择、确认与结果状态",
+      "acceptance": "沿用实际孤儿数据判断，预览/取消/确认、数量、失败反馈和数据安全。"
+    },
+    "report/annual_report_page.dart": {
+      "name": "年度账单",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "年度汇总、趋势、排行与分享内容",
+      "acceptance": "年度选择、金额/笔数统计口径、隐私、分享卡与真实图片导出。"
+    },
+    "settings/about_page.dart": {
+      "name": "关于与检查更新",
+      "priority": "P2",
+      "reason": "仅新增了调试验收入口，关于页本身未翻新；检查更新保持弹窗。",
+      "status": "待迁移",
+      "components": "版本/链接/分组菜单与升级弹窗",
+      "acceptance": "完整原菜单、检查升级的检查中/最新/可升级/错误、平台入口；调试组件入口不计页面迁移完成。"
+    },
+    "settings/app_lock_settings_page.dart": {
+      "name": "应用锁设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "settings/appearance_settings_page.dart": {
+      "name": "显示与外观设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "settings/attachment_preview_page.dart": {
+      "name": "全局附件库",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "附件库网格、筛选/选择、预览和任务状态",
+      "acceptance": "完整附件入口、筛选、来源关联、空态、加载失败、批量选择和导入导出。"
+    },
+    "settings/automation_page.dart": {
+      "name": "自动化功能入口",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "settings/config_import_export_page.dart": {
+      "name": "配置导入导出与恢复",
+      "priority": "P0",
+      "reason": "旧用户恢复配置与首次使用衔接，优先保证导入/取消/恢复路径。",
+      "status": "待迁移",
+      "components": "配置范围选择、文件读取/预览、导入导出状态",
+      "acceptance": "原备份范围与格式、初始化恢复、文件选择/预览、取消、失败恢复和附件联动。"
+    },
+    "settings/data_management_page.dart": {
+      "name": "数据管理入口",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "settings/font_settings_page.dart": {
+      "name": "字体设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "settings/header_skin_page.dart": {
+      "name": "皮肤选择与预览",
+      "priority": "P1",
+      "reason": "承接本轮两款动态皮肤与主题预览；默认无皮肤，保留旧主题迁移。",
+      "status": "待迁移",
+      "components": "皮肤预览、选择与主题适配",
+      "acceptance": "默认无皮肤，两款动态皮肤浅深色、主题色、预览、应用/取消、减少动画。"
+    },
+    "settings/help_center_page.dart": {
+      "name": "帮助中心",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "settings/language_settings_page.dart": {
+      "name": "语言设置",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "settings/log_center_page.dart": {
+      "name": "日志中心",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "status": "待迁移",
+      "components": "级别/来源多选、搜索、统计、日志行与堆栈详情",
+      "acceptance": "保留 DEBUG/INFO/WARN/ERROR、Flutter/当前平台、多选/搜索、详情/复制、导出与清空确认。"
+    },
+    "settings/personalize_page.dart": {
+      "name": "个性化设置入口",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "settings/privacy_policy_page.dart": {
+      "name": "隐私政策",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "settings/reminder_settings_page.dart": {
+      "name": "记账提醒",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "settings/shortcuts_guide_page.dart": {
+      "name": "快捷指令引导",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "settings/smart_billing_page.dart": {
+      "name": "智能记账入口与识别偏好",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "智能记账入口、功能引导弹窗、默认行为开关与语音设置",
+      "acceptance": "平台/渠道入口、原三个默认开关、自动/按住语音、静音时长、配置弹窗与识别入口。"
+    },
+    "settings/storage_management_page.dart": {
+      "name": "存储空间管理",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "settings/widget_management_page.dart": {
+      "name": "桌面小组件管理",
+      "priority": "P2",
+      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "status": "待迁移",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+    },
+    "tag/tag_detail_page.dart": {
+      "name": "标签详情",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "语义标签、关联分类、统计/筛选和账单行",
+      "acceptance": "标签颜色、全部账本/时间、相关分类、金额隐私、过滤与编辑/删除权限。"
+    },
+    "tag/tag_edit_page.dart": {
+      "name": "新增与编辑标签",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "语义标签、表单、列表与账单行",
+      "acceptance": "标签颜色、长名称、新建/编辑/删除、分类关联、引用和当前账本权限。"
+    },
+    "tag/tag_manage_page.dart": {
+      "name": "标签管理",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "语义标签、表单、列表与账单行",
+      "acceptance": "标签颜色、长名称、新建/编辑/删除、分类关联、引用和当前账本权限。"
+    },
+    "transaction/category_detail_page.dart": {
+      "name": "分类详情",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "status": "待迁移",
+      "components": "分类信息/父子展开、统计、日期筛选与账单行",
+      "acceptance": "一级与二级分类图标、跨账本标记、收入/支出、日期/时间、备注/标签与详情导航。"
+    },
+    "transaction/recurring_transaction_edit_page.dart": {
+      "name": "周期账单编辑",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "周期编辑表单、金额/币种/账户、日期与频率选择",
+      "acceptance": "周期/频率/起止/下次执行、币种/账户/标签/备注、取消和调度更新。"
+    },
+    "transaction/recurring_transaction_page.dart": {
+      "name": "周期账单列表",
+      "priority": "P1",
+      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "status": "待迁移",
+      "components": "周期任务列表、状态、菜单与空态",
+      "acceptance": "周期/下一次、启用停用、编辑/删除和已有任务状态，调度与执行服务不变。"
+    },
+    "transaction/search_page.dart": {
+      "name": "账单搜索与批量操作",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "status": "待迁移",
+      "components": "搜索、筛选/日期范围、账单行和批量操作栏",
+      "acceptance": "关键字/账户/分类/标签/账本/币种/日期、批量选择/改动/删除、合计折算与只读。"
+    },
+    "transaction/transaction_editor_page.dart": {
+      "name": "记账、新增、编辑与复制",
+      "priority": "P0",
+      "reason": "最高频录入：支出/收入已有试点；转账沿用旧表单，附件系统能力仍待真机验收。",
+      "status": "部分迁移·待人工验收",
+      "components": "金额/折算、计算器、两行元信息、分类/资源选择器与转账账户组合",
+      "acceptance": "支出/收入/转账、新建/编辑/复制、再记一笔、防重保存、草稿、历史汇率、共享权限、附件和系统键盘。"
+    }
+  },
+  "plannedPages": [
+    {
+      "name": "账单详情",
+      "source": "lib/pages/transaction/transaction_detail_page.dart",
+      "priority": "P0",
+      "status": "待新增",
+      "batch": "M2 首页与列表",
+      "designRoutes": [
+        "detail",
+        "flow-foreign-detail",
+        "flow-attachment-grid"
+      ],
+      "reason": "原列表点击进入编辑，原代码没有独立详情 Page；新版需落地已设计的详情入口、附件、复制、编辑和小票。"
+    },
+    {
+      "name": "分享卡片",
+      "source": "lib/pages/report/share_card_page.dart",
+      "priority": "P1",
+      "status": "待新增",
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "poster"
+      ],
+      "reason": "新稿有独立卡片预览与样式切换；原分享服务继续复用，页面只组合内容与导出。"
+    }
+  ],
+  "associatedFlows": [
+    {
+      "name": "转账表单（同币种/跨币种）",
+      "source": "lib/widgets/transaction/transfer_form.dart",
+      "priority": "P0",
+      "status": "待迁移",
+      "designRoutes": [
+        "editor"
+      ],
+      "acceptance": "转出/转入账户、币种与汇率、金额、备注、标签、统计、余额与保存防重；先提取账户组合组件。"
+    },
+    {
+      "name": "金额与元信息表单",
+      "source": "lib/widgets/biz/amount_editor_sheet.dart",
+      "priority": "P0",
+      "status": "部分迁移·待人工验收",
+      "designRoutes": [
+        "editor",
+        "flow-foreign-editor"
+      ],
+      "acceptance": "键盘贴底、8px 间距、备注直接修改、附件右上角、分类独立滚动、折算右对齐。"
+    },
+    {
+      "name": "账单行、长按与滑动菜单",
+      "source": "lib/widgets/biz/transaction_list.dart",
+      "priority": "P0",
+      "status": "组件就绪·页面待接入",
+      "designRoutes": [
+        "home",
+        "search",
+        "batch"
+      ],
+      "acceptance": "真实列表绑定、分类图标导航、时间/折算/标签/附件、批量与只读、长按菜单和删除确认。"
+    },
+    {
+      "name": "分类选择弹窗",
+      "source": "lib/widgets/biz/category_selector_dialog.dart",
+      "priority": "P0",
+      "status": "新版组件就绪·旧消费者待迁移",
+      "designRoutes": [
+        "categoryPicker"
+      ],
+      "acceptance": "二级图标、自定义图片、搜索、更多分类、取消不提交。"
+    },
+    {
+      "name": "账户选择弹窗",
+      "source": "lib/widgets/biz/account_selector.dart",
+      "priority": "P0",
+      "status": "新版组件就绪·旧消费者待迁移",
+      "designRoutes": [
+        "flow-account-picker"
+      ],
+      "acceptance": "按币种筛选、未设置、隐藏历史账户、共享权限、搜索和草稿。"
+    },
+    {
+      "name": "账本选择弹层",
+      "source": "lib/widgets/biz/ledger_picker_sheet.dart",
+      "priority": "P0",
+      "status": "新版组件就绪·旧消费者待迁移",
+      "designRoutes": [
+        "flow-ledger-picker"
+      ],
+      "acceptance": "当前态、个人/共享、币种与搜索、切换账本不丢草稿。"
+    },
+    {
+      "name": "币种选择弹层与汇率编辑",
+      "source": "lib/widgets/currency/currency_picker_sheet.dart",
+      "priority": "P0",
+      "status": "部分复用原弹层·待统一视觉",
+      "designRoutes": [
+        "flow-currency-picker",
+        "flow-exchange-rate"
+      ],
+      "acceptance": "搜索、同币种账户联动、历史快照、汇率缺失和正数校验。"
+    },
+    {
+      "name": "标签横排选择",
+      "source": "lib/pages/tag/widgets/tag_selector.dart",
+      "priority": "P0",
+      "status": "部分复用原弹层·待统一视觉",
+      "designRoutes": [
+        "flow-tag-picker-many"
+      ],
+      "acceptance": "多选、搜索、取消不提交、新建标签、长标签与 +N。"
+    },
+    {
+      "name": "日期与时间滚轮",
+      "source": "lib/widgets/ui/wheel_date_picker.dart",
+      "priority": "P0",
+      "status": "已复用·待全消费者核对",
+      "designRoutes": [
+        "flow-date-picker"
+      ],
+      "acceptance": "月末/闰年、时间开关、取消和系统安全区。"
+    },
+    {
+      "name": "历史备注选择",
+      "source": "lib/widgets/biz/note_picker_dialog.dart",
+      "priority": "P1",
+      "status": "待迁移",
+      "designRoutes": [
+        "editor"
+      ],
+      "acceptance": "常用备注筛选/排序、直接输入与选择后的草稿一致性。"
+    },
+    {
+      "name": "账单小票弹窗",
+      "source": "lib/widgets/biz/transaction_receipt_dialog.dart",
+      "priority": "P1",
+      "status": "待迁移",
+      "designRoutes": [
+        "receipt"
+      ],
+      "acceptance": "原币与折算、标签/附件、隐私、图片生成和系统分享，沿用弹窗。"
+    },
+    {
+      "name": "AI 授权弹窗",
+      "source": "lib/widgets/ai/agent_tool_authorization_dialog.dart",
+      "priority": "P1",
+      "status": "样式就绪·真实消费者待迁移",
+      "designRoutes": [
+        "flow-authorization"
+      ],
+      "acceptance": "实际动作、权限、金额与上下文，拒绝和允许不丢任务。"
+    },
+    {
+      "name": "检查升级弹窗",
+      "source": "lib/services/update/update_dialogs.dart",
+      "priority": "P2",
+      "status": "待迁移",
+      "designRoutes": [
+        "flow-update-check"
+      ],
+      "acceptance": "保持原弹窗，检查中/最新/可升级/错误与下载入口。"
+    }
+  ]
+}
