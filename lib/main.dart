@@ -1,3 +1,4 @@
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
@@ -37,10 +38,10 @@ import 'dart:ui';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-
 /// 全局 navigator key — 给 service 层(没有 BuildContext)push 路由使用。
 /// 当前用途:BeeCount Cloud 登录拿到 requires_2fa 时弹出 [Login2FAChallengeView]。
-final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> globalNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -233,7 +234,8 @@ Future<void> _restoreUserReminder() async {
     if (isEnabled) {
       final hour = prefs.getInt('reminder_hour') ?? 21;
       final minute = prefs.getInt('reminder_minute') ?? 0;
-      print('✅ 发现用户已启用记账提醒: ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}');
+      print(
+          '✅ 发现用户已启用记账提醒: ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}');
       print('🔔 正在重新设置提醒任务...');
 
       try {
@@ -243,9 +245,8 @@ Future<void> _restoreUserReminder() async {
         final languageCode = prefs.getString(LanguageNotifier.languagePrefKey);
         final countryCode =
             prefs.getString(LanguageNotifier.languagePrefCountryKey);
-        final l10n = resolveAppLocalizations(languageCode == null
-            ? null
-            : Locale(languageCode, countryCode));
+        final l10n = resolveAppLocalizations(
+            languageCode == null ? null : Locale(languageCode, countryCode));
         await notificationUtil.scheduleDailyReminder(
           id: 1001,
           title: l10n.reminderTitle,
@@ -322,7 +323,6 @@ Future<void> _initializeAppMode(ProviderContainer container) async {
   }
 }
 
-
 /// 设置图片分享处理（Android专属）
 ///
 /// 初始化 ImageShareHandlerService 以接收从相册或其他应用分享的图片
@@ -363,7 +363,8 @@ void _setupUrlListener(ProviderContainer container) {
     appLinkService.onNavigate = (action, {params}) {
       logger.info('AppLink', '触发导航: $action');
       if (action == AppLinkAction.newTransaction && params != null) {
-        container.read(pendingNewTransactionTypeProvider.notifier).state = params.type;
+        container.read(pendingNewTransactionTypeProvider.notifier).state =
+            params.type;
         container.read(pendingNewTransactionCategoryIdProvider.notifier).state =
             params.categoryId;
       }
@@ -573,12 +574,15 @@ class MainApp extends ConsumerWidget {
         onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
         scrollBehavior: const NoGlowScrollBehavior(),
         debugShowCheckedModeBanner: false,
-        theme: theme,
-        darkTheme: BeeTheme.darkTheme(platform: platform).copyWith(
-          colorScheme: BeeTheme.darkTheme(platform: platform).colorScheme.copyWith(primary: primary),
+        theme: _cardPageTheme(theme),
+        darkTheme:
+            _cardPageTheme(BeeTheme.darkTheme(platform: platform).copyWith(
+          colorScheme: BeeTheme.darkTheme(platform: platform)
+              .colorScheme
+              .copyWith(primary: primary),
           primaryColor: primary,
-        ),                                                // ⭐ 暗黑主题（使用动态主题色）
-        themeMode: ref.watch(themeModeProvider),         // ⭐ 使用 provider 支持手动切换
+        )), // ⭐ 暗黑主题（使用动态主题色）
+        themeMode: ref.watch(themeModeProvider), // ⭐ 使用 provider 支持手动切换
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -741,4 +745,42 @@ Future<void> _runOrphanFileGcOnce(ProviderContainer container) async {
     // 任何异常都不该影响 app 启动。下次启动还会重试(因为没设 flag)。
     logger.warning('OrphanGC', '一次性清理异常(会在下次启动重试): $e\n$st');
   }
+}
+
+/// Retain the app typography, platform conventions and selected accent.
+ThemeData _cardPageTheme(ThemeData source) {
+  final cards = BeeCardTheme.fromBrightness(source.brightness);
+  final contrast =
+      ThemeData.estimateBrightnessForColor(source.colorScheme.primary) ==
+              Brightness.light
+          ? const Color(0xff25282c)
+          : Colors.white;
+  return source.copyWith(
+    scaffoldBackgroundColor: cards.canvas,
+    extensions: [
+      ...source.extensions.values.where((e) => e is! BeeCardTheme),
+      cards
+    ],
+    colorScheme: source.colorScheme
+        .copyWith(surface: cards.surface, onPrimary: contrast),
+    appBarTheme: source.appBarTheme.copyWith(
+        backgroundColor: cards.canvas,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false),
+    filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+            backgroundColor: source.colorScheme.primary,
+            foregroundColor: contrast,
+            minimumSize: const Size(44, 44),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15)))),
+    cardTheme: source.cardTheme.copyWith(
+        color: cards.surface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22))),
+    dialogTheme: source.dialogTheme.copyWith(
+        backgroundColor: cards.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
+  );
 }
