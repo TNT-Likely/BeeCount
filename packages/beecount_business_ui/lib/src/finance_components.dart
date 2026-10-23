@@ -188,6 +188,7 @@ class BeeTransactionRow extends StatelessWidget {
       this.subtitle,
       this.happenedAt,
       this.showTime = false,
+      this.amountColor,
       this.showFullDate = false,
       this.accountName,
       this.ledgerName,
@@ -211,6 +212,7 @@ class BeeTransactionRow extends StatelessWidget {
   final String title, amount;
   final String? subtitle, converted, deleteLabel, note, accountName, ledgerName;
   final DateTime? happenedAt;
+  final Color? amountColor;
   final bool showTime, showFullDate;
   final ValueChanged<BeeTagData>? onTagTap;
   final VoidCallback? onMoreTagsTap, onAttachmentTap;
@@ -430,7 +432,8 @@ class BeeTransactionRow extends StatelessWidget {
                                                   amount: amount,
                                                   hidden: hidden,
                                                   size: 16,
-                                                  color: moneyColor),
+                                                  color: amountColor ??
+                                                      moneyColor),
                                               if (converted != null ||
                                                   tags.isNotEmpty) ...[
                                                 const SizedBox(height: 4),
@@ -623,6 +626,8 @@ class BeeLedgerCard extends StatelessWidget {
       required this.onSelect,
       required this.onMenu,
       this.current = false,
+      this.status,
+      this.footer,
       this.actions = const []});
   final String name,
       subtitle,
@@ -632,6 +637,7 @@ class BeeLedgerCard extends StatelessWidget {
       expenseLabel,
       currentLabel;
   final Widget icon;
+  final Widget? status, footer;
   final bool current;
   final VoidCallback onSelect, onMenu;
   final List<Widget> actions;
@@ -689,6 +695,10 @@ class BeeLedgerCard extends StatelessWidget {
                                       style: TextStyle(
                                           fontSize: 11, color: theme.hintColor))
                                 ])),
+                            if (status != null) ...[
+                              status!,
+                              const SizedBox(width: 8)
+                            ],
                             if (current)
                               Container(
                                   padding: const EdgeInsets.symmetric(
@@ -712,6 +722,10 @@ class BeeLedgerCard extends StatelessWidget {
                         Expanded(child: _Metric(expenseLabel, expense)),
                         Expanded(child: _Metric(incomeLabel, income))
                       ]),
+                      if (footer != null) ...[
+                        const SizedBox(height: 12),
+                        footer!
+                      ],
                       const SizedBox(height: 14),
                       Row(children: [
                         for (var i = 0; i < actions.length; i++) ...[

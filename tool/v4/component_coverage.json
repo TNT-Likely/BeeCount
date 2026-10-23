@@ -388,5 +388,22 @@
     ],
     "page": "business",
     "case": 31
+  },
+  {
+    "design_key": "categoryManagement",
+    "components": [
+      "BeeCategoryManagementList",
+      "BeeManagedCategory"
+    ],
+    "page": "business",
+    "case": 32
+  },
+  {
+    "design_key": "transferAccounts",
+    "components": [
+      "BeeTransferAccountPair"
+    ],
+    "page": "business",
+    "case": 33
   }
 ]

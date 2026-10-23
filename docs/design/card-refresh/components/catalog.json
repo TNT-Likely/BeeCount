@@ -353,6 +353,20 @@
         "title": "账本选择器",
         "nativeCase": 31,
         "nativeLabel": "账本选择器"
+      },
+      {
+        "id": "spec-50",
+        "code": "B28",
+        "title": "分类管理列表",
+        "nativeCase": 32,
+        "nativeLabel": "分类管理列表"
+      },
+      {
+        "id": "spec-51",
+        "code": "B29",
+        "title": "转账账户对",
+        "nativeCase": 33,
+        "nativeLabel": "转账账户对"
       }
     ]
   }

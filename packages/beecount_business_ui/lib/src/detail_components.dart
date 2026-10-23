@@ -72,10 +72,12 @@ class BeeAccountCard extends StatelessWidget {
       required this.actions,
       required this.onAction,
       this.hidden = false,
+      this.footer,
       this.excludedLabel,
       this.liabilityLabel});
   final String name, currency, balance, kind, menuLabel;
   final Widget icon;
+  final Widget? footer;
   final VoidCallback onTap;
   final bool hidden;
   final String? excludedLabel, liabilityLabel;
@@ -115,6 +117,7 @@ class BeeAccountCard extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 11, color: Theme.of(context).colorScheme.error))
         ]),
+        if (footer != null) ...[const SizedBox(height: 12), footer!],
         if (excludedLabel != null) ...[
           const SizedBox(height: 8),
           Align(
@@ -269,13 +272,16 @@ class BeePinPad extends StatelessWidget {
       required this.onDigit,
       required this.onDelete,
       this.error,
+      this.invalid = false,
+      this.auxiliaryKey,
       this.enabled = true});
   final int length, filled;
   final String deleteLabel;
   final ValueChanged<String> onDigit;
   final VoidCallback onDelete;
   final String? error;
-  final bool enabled;
+  final bool enabled, invalid;
+  final Widget? auxiliaryKey;
   @override
   Widget build(BuildContext context) => Column(children: [
         Semantics(
@@ -290,9 +296,11 @@ class BeePinPad extends StatelessWidget {
                         margin: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: i < filled
-                                ? Theme.of(context).colorScheme.onSurface
-                                : BeeCardTheme.of(context).soft,
+                            color: invalid
+                                ? Theme.of(context).colorScheme.error
+                                : i < filled
+                                    ? Theme.of(context).colorScheme.onSurface
+                                    : BeeCardTheme.of(context).soft,
                             border: Border.all(
                                 color: Theme.of(context).dividerColor)))))),
         if (error != null)
@@ -315,7 +323,7 @@ class BeePinPad extends StatelessWidget {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 3),
                               child: v.isEmpty
-                                  ? const SizedBox(height: 44)
+                                  ? auxiliaryKey ?? const SizedBox(height: 44)
                                   : BeeButton(
                                       label: v == 'delete' ? deleteLabel : v,
                                       kind: BeeButtonKind.secondary,

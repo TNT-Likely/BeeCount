@@ -159,17 +159,21 @@ class BeeAccountPicker extends StatelessWidget {
       required this.searchLabel,
       required this.emptyLabel,
       required this.unsetLabel,
-      required this.onSelected});
+      required this.onSelected,
+      this.filterByCurrency = true,
+      this.allowUnset = true});
   final List<BeeAccountChoice> accounts;
+  final bool filterByCurrency, allowUnset;
   final String currency, searchLabel, emptyLabel, unsetLabel;
   final String? selected;
   final ValueChanged<String?> onSelected;
   @override
   Widget build(BuildContext context) => BeeChoicePicker<String?>(
           items: [
-            BeeChoice<String?>(value: null, title: unsetLabel),
-            ...accounts.where((a) => a.currency == currency).map((a) =>
-                BeeChoice<String?>(
+            if (allowUnset) BeeChoice<String?>(value: null, title: unsetLabel),
+            ...accounts
+                .where((a) => !filterByCurrency || a.currency == currency)
+                .map((a) => BeeChoice<String?>(
                     value: a.id,
                     title: a.name,
                     subtitle: '${a.currency} · ${a.balance}',

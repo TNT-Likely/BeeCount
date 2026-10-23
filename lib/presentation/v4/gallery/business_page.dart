@@ -36,7 +36,9 @@ const businessCases = [
   '账户选择器',
   '交易行状态全集',
   '真实账本联动',
-  '账本选择器'
+  '账本选择器',
+  '分类管理列表',
+  '转账账户对'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -1053,7 +1055,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             const BeeSurface(
                 child: Text('从 App 内打开组件验收，可使用当前账本数据。',
                     style: TextStyle(fontSize: 13))),
-        _ => BeeSurface(
+        31 => BeeSurface(
             child: SizedBox(
                 height: 350,
                 child: BeeLedgerPicker(
@@ -1082,6 +1084,48 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                           ledger = v;
                           event = '切换账本 $v';
                         })))),
+        32 => SizedBox(
+            height: 330,
+            child: BeeCategoryManagementList(
+                items: const [
+                  BeeManagedCategory(
+                      id: 'food',
+                      name: '餐饮',
+                      detail: '4 个二级分类',
+                      icon: BeeLineIcon('Utensils', size: 19),
+                      isDefault: true,
+                      children: [
+                        BeeManagedCategory(
+                            id: 'breakfast',
+                            name: '早餐',
+                            detail: '',
+                            icon: BeeLineIcon('Coffee', size: 16)),
+                        BeeManagedCategory(
+                            id: 'lunch',
+                            name: '午餐',
+                            detail: '',
+                            icon: BeeLineIcon('Utensils', size: 16))
+                      ]),
+                  BeeManagedCategory(
+                      id: 'travel',
+                      name: '交通',
+                      detail: '3 个二级分类',
+                      icon: BeeLineIcon('TrainFront', size: 19))
+                ],
+                onEdit: (id) => record('编辑分类 $id'),
+                onManageChildren: (id) => record('管理二级分类 $id'),
+                onReorder: (a, b) => record('分类排序 $a → $b'),
+                manageLabel: '管理',
+                footer: TextButton(
+                    onPressed: () => record('分类工具弹窗'),
+                    child: const Text('分类工具')))),
+        _ => BeeTransferAccountPair(
+            fromLabel: '转出账户',
+            toLabel: '转入账户',
+            fromName: '人民币现金',
+            toName: '招商银行',
+            onFrom: () => record('选择转出账户'),
+            onTo: () => record('选择转入账户')),
       };
   void _editRate() => showBeeDialog<void>(context,
       title: '补充本笔汇率',
