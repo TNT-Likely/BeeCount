@@ -351,9 +351,9 @@
   },
   {
     "route": "flow-splash",
-    "slug": "flow-splash",
     "title": "启动页",
     "group": "补齐 · 首次使用与安全",
+    "slug": "flow-splash",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-splash.png",
     "full": "screens/full/flow-splash.png",
