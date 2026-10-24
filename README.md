@@ -40,13 +40,16 @@
 
 ## ❤️ 赞助商
 
-<div align="center">
-  <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW">
-    <img src="docs/sponsor/crazytoken/cn-wide.png" alt="CrazyToken" width="728"/>
-  </a>
-</div>
-
-❤️ 感谢 [**CrazyToken**](https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW) 赞助支持 **BeeCount**！CrazyToken 提供 Claude、GPT、Gemini、DeepSeek 等主流大模型 API（低至 0.05×），为 AI 记账与票据识别提供模型支持。新用户通过[专属链接](https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW)注册即赠 $20 体验额度。
+<table>
+  <tr>
+    <td width="190" align="center">
+      <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><img src="docs/sponsor/crazytoken/logo-cn.png" width="160" alt="CrazyToken"/></a>
+    </td>
+    <td>
+      <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><b>CrazyToken</b></a> 提供 Claude、GPT、Gemini、DeepSeek 等主流大模型 API（低至 0.05×），为 AI 记账与票据识别提供模型支持。新用户通过<a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW">专属链接</a>注册即赠 $20 体验额度。
+    </td>
+  </tr>
+</table>
 
 > 🤝 想在这里展示你的项目？[商务合作](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry)
 

@@ -40,13 +40,16 @@ Sync via BeeCount Cloud (self-hosted) / iCloud / Supabase / WebDAV / S3
 
 ## ❤️ Sponsor
 
-<div align="center">
-  <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW">
-    <img src="docs/sponsor/crazytoken/en-wide.png" alt="CrazyToken" width="728"/>
-  </a>
-</div>
-
-❤️ Thank you to [**CrazyToken**](https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW) for sponsoring **BeeCount**! CrazyToken offers APIs for Claude, GPT, Gemini, DeepSeek and more (as low as 0.05×) to power AI bookkeeping and receipt recognition. New users get a `$20` signup bonus via the [exclusive link](https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW).
+<table>
+  <tr>
+    <td width="190" align="center">
+      <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><img src="docs/sponsor/crazytoken/logo-en.png" width="160" alt="CrazyToken"/></a>
+    </td>
+    <td>
+      <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><b>CrazyToken</b></a> offers APIs for Claude, GPT, Gemini, DeepSeek and more (as low as 0.05×) to power AI bookkeeping and receipt recognition. New users get a <b>$20</b> signup bonus via the <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW">exclusive link</a>.
+    </td>
+  </tr>
+</table>
 
 > 🤝 Want your project here? [Business inquiry](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry)
 
