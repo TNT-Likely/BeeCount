@@ -141,10 +141,10 @@
   },
   {
     "route": "calendar",
-    "slug": "calendar",
     "title": "账单日历",
     "group": "常用流程",
-    "fullHeight": 922,
+    "slug": "calendar",
+    "fullHeight": 1182,
     "viewport": "screens/viewport/calendar.png",
     "full": "screens/full/calendar.png",
     "svg": "figma/calendar.svg"
@@ -3022,5 +3022,85 @@
     "viewport": "screens/viewport/flow-decimal-two-digits.png",
     "full": "screens/full/flow-decimal-two-digits.png",
     "svg": "figma/flow-decimal-two-digits.svg"
+  },
+  {
+    "route": "flow-calendar",
+    "title": "账单日历",
+    "group": "补齐 · 常用流程",
+    "slug": "flow-calendar",
+    "fullHeight": 1182,
+    "viewport": "screens/viewport/flow-calendar.png",
+    "full": "screens/full/flow-calendar.png",
+    "svg": "figma/flow-calendar.svg"
+  },
+  {
+    "route": "flow-calendar-unselected",
+    "title": "日历 · 切月未选中",
+    "group": "补齐 · 常用流程",
+    "slug": "flow-calendar-unselected",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-calendar-unselected.png",
+    "full": "screens/full/flow-calendar-unselected.png",
+    "svg": "figma/flow-calendar-unselected.svg"
+  },
+  {
+    "route": "flow-calendar-empty",
+    "title": "日历 · 无交易",
+    "group": "补齐 · 常用流程",
+    "slug": "flow-calendar-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-calendar-empty.png",
+    "full": "screens/full/flow-calendar-empty.png",
+    "svg": "figma/flow-calendar-empty.svg"
+  },
+  {
+    "route": "flow-calendar-loading",
+    "title": "日历 · 读取中",
+    "group": "补齐 · 常用流程",
+    "slug": "flow-calendar-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-calendar-loading.png",
+    "full": "screens/full/flow-calendar-loading.png",
+    "svg": "figma/flow-calendar-loading.svg"
+  },
+  {
+    "route": "flow-calendar-error",
+    "title": "日历 · 读取失败",
+    "group": "补齐 · 常用流程",
+    "slug": "flow-calendar-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-calendar-error.png",
+    "full": "screens/full/flow-calendar-error.png",
+    "svg": "figma/flow-calendar-error.svg"
+  },
+  {
+    "route": "flow-calendar-earliest",
+    "title": "日历 · 2000年下界",
+    "group": "补齐 · 常用流程",
+    "slug": "flow-calendar-earliest",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-calendar-earliest.png",
+    "full": "screens/full/flow-calendar-earliest.png",
+    "svg": "figma/flow-calendar-earliest.svg"
+  },
+  {
+    "route": "flow-calendar-latest",
+    "title": "日历 · 未来一年上界",
+    "group": "补齐 · 常用流程",
+    "slug": "flow-calendar-latest",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-calendar-latest.png",
+    "full": "screens/full/flow-calendar-latest.png",
+    "svg": "figma/flow-calendar-latest.svg"
+  },
+  {
+    "route": "flow-cl-month",
+    "title": "选择月份 · 底部弹层",
+    "group": "补齐 · 常用流程",
+    "slug": "flow-cl-month",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-cl-month.png",
+    "full": "screens/full/flow-cl-month.png",
+    "svg": "figma/flow-cl-month.svg"
   }
 ]

@@ -30,7 +30,8 @@
     "check:category-migration": "node scripts/validate-category-migration.cjs",
     "check:rates": "node scripts/validate-exchange-rates.cjs",
     "check:budget": "node scripts/validate-budget.cjs",
-    "check:budget-editor": "node scripts/validate-budget-editor.cjs"
+    "check:budget-editor": "node scripts/validate-budget-editor.cjs",
+    "check:calendar": "node scripts/validate-calendar.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

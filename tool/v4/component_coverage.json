@@ -651,5 +651,15 @@
     ],
     "page": "business",
     "case": 50
+  },
+  {
+    "design_key": "calendar",
+    "components": [
+      "BeeCalendarMonthHeading",
+      "BeeCalendarDayCell",
+      "BeeCalendarDayHeading"
+    ],
+    "page": "business",
+    "case": 51
   }
 ]

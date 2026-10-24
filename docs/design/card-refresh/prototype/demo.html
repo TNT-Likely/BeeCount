@@ -2250,6 +2250,45 @@
 
 #bee-immersive-suite .bc-phone .bge-danger{flex:1;border:0;border-radius:13px;min-height:44px;padding:12px 16px;font-size:13px;font-weight:600}
 
+#bee-immersive-suite .bc-main:has(.cl-shell){height:calc(100% - 35px);display:flex;flex-direction:column;overflow:hidden;padding-bottom:0}
+#bee-immersive-suite .cl-shell{display:flex;flex-direction:column;min-height:0;flex:1}
+#bee-immersive-suite .cl-scroll{min-height:0;overflow:auto;padding-bottom:24px}
+#bee-immersive-suite .cl-month-card{padding:8px 10px 12px}
+#bee-immersive-suite .cl-month-heading{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;align-items:center}
+#bee-immersive-suite .cl-month-heading button{height:48px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:calc(16px * var(--q-scale,1));font-weight:600;min-width:0}
+#bee-immersive-suite .cl-month-heading button:disabled{opacity:.35}
+#bee-immersive-suite .cl-month-heading button svg{width:20px;height:20px}
+#bee-immersive-suite .cl-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center}
+#bee-immersive-suite .cl-weekday{height:calc(30px + 12px * (var(--q-scale,1) - 1));display:grid;place-items:center;font-size:calc(12px * var(--q-scale,1));color:var(--bc-muted)}
+#bee-immersive-suite .cl-day{height:calc(64px * var(--q-scale,1) - 4px);margin:2px 1px;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;border-radius:12px;font-size:calc(14px * var(--q-scale,1));font-weight:400}
+#bee-immersive-suite .cl-day>span{line-height:1.2}
+#bee-immersive-suite .cl-day small{font-size:calc(10px * var(--q-scale,1));line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1px;font-weight:600}
+#bee-immersive-suite .cl-day small:first-of-type{margin-top:3px}
+#bee-immersive-suite .cl-expense{color:var(--bc-green)}
+#bee-immersive-suite .cl-income{color:var(--bc-red)}
+#bee-immersive-suite .cl-day[data-outside=true]{opacity:.35}
+#bee-immersive-suite .cl-day[data-today=true]{background:var(--bc-tint);box-shadow:inset 0 0 0 1px var(--bc-accent)}
+#bee-immersive-suite .cl-day[aria-pressed=true]{background:var(--bc-accent);color:var(--bc-on-accent);font-weight:600}
+#bee-immersive-suite .cl-day[aria-pressed=true] small{color:var(--bc-on-accent)}
+#bee-immersive-suite .cl-day-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:12px 0 10px}
+#bee-immersive-suite .cl-day-heading b{font-size:calc(15px * var(--q-scale,1));font-weight:600}
+#bee-immersive-suite .cl-day-heading small{font-size:calc(12px * var(--q-scale,1));color:var(--bc-muted)}
+#bee-immersive-suite .cl-day-heading button{min-height:44px;padding:8px 12px;font-size:calc(13px * var(--q-scale,1))}
+#bee-immersive-suite .cl-transactions{padding:0 12px}
+#bee-immersive-suite .cl-transaction{display:flex;align-items:center;gap:10px;min-height:70px;width:100%;border-bottom:1px solid var(--bc-line);text-align:left}
+#bee-immersive-suite .cl-row-copy{flex:1;min-width:0}
+#bee-immersive-suite .cl-row-copy b{display:block;font-size:calc(14px * var(--q-scale,1));font-weight:500}
+#bee-immersive-suite .cl-row-copy small,.cl-money small{display:block;font-size:calc(11px * var(--q-scale,1));color:var(--bc-muted);margin-top:4px}
+#bee-immersive-suite .cl-money{text-align:right;font-size:calc(15px * var(--q-scale,1))}
+#bee-immersive-suite .cl-empty{padding:28px 16px;text-align:center;color:var(--bc-muted)}
+#bee-immersive-suite .cl-loading{height:458px;display:grid;place-items:center;background:var(--bc-paper);border-radius:22px}
+#bee-immersive-suite .bc-phone .cl-grid button.cl-day{width:calc(100% - 2px)!important}
+#bee-immersive-suite .bc-phone .cl-day-heading>button{width:auto}
+#bee-immersive-suite .cl-day-heading[data-stacked=true]{flex-direction:column;align-items:stretch}
+#bee-immersive-suite .bc-phone .cl-day-heading[data-stacked=true]>button{width:100%}
+#bee-immersive-suite .cl-transaction[data-kind=expense] .cl-money>b{color:var(--bc-green)}
+#bee-immersive-suite .cl-transaction[data-kind=income] .cl-money>b{color:var(--bc-red)}
+
 #bee-immersive-suite .bc-phone .bc-main:has(.o-shell:is([data-step],[data-restore])){height:calc(var(--q-height,844px) - 34px);min-height:0;display:flex;flex-direction:column;padding:0 21px 16px!important;overflow:hidden}
 #bee-immersive-suite .bc-phone .o-shell:is([data-step],[data-restore]){padding:7px 0 0;min-height:0;flex:1;min-width:0}
 #bee-immersive-suite .bc-phone .o-shell:is([data-step],[data-restore])>.o-top,#bee-immersive-suite .bc-phone .o-shell:is([data-step],[data-restore])>.o-progress,#bee-immersive-suite .bc-phone .o-shell:is([data-step],[data-restore])>.o-footer{flex:none}
@@ -5660,6 +5699,26 @@
   fDefine('decimal-two-digits','基础输入 · 可选两位小数','组件规范','packages/beecount_ui/lib/src/form_components.dart',()=>surface(fdDecimalSample(state.fdLimited,true)));
   const fdDecimalGroup=document.createElement('optgroup');fdDecimalGroup.label='基础输入 · 输入法兼容';fdDecimalGroup.appendChild(new Option('小数与输入法 · 保留组合态','flow-decimal-input'));picker.appendChild(fdDecimalGroup);
   root.addEventListener('input',event=>{if(!event.target.matches('[data-decimal-demo]'))return;const raw=event.target.value;if(!event.isComposing)event.target.value=fdDecimalNormalize(raw).replace(/[^0-9.]/g,'');if(!event.isComposing&&event.target.dataset.decimalLimit)event.target.value=event.target.value.match(/^\d+\.?\d{0,2}/)?.[0]||'';if(event.target.dataset.decimalLimit)state.fdLimited=event.target.value;state.fdDecimalRaw=event.target.value;const result=event.target.closest('.bc-surface')?.querySelector('[data-decimal-result]');if(result)result.textContent='当前草稿：'+state.fdDecimalRaw;});
+  Object.assign(state,{clScene:'',clMode:'ready',clSelected:20});
+  const clToday={year:2026,month:10,day:20},clLast={year:2027,month:10};
+  const clScenes=[['calendar','账单日历','ready',20],['calendar-unselected','日历 · 切月未选中','ready',null],['calendar-empty','日历 · 无交易','empty',20],['calendar-loading','日历 · 读取中','loading',20],['calendar-error','日历 · 读取失败','error',20],['calendar-earliest','日历 · 2000年下界','ready',null],['calendar-latest','日历 · 未来一年上界','ready',null]];
+  function clPrepare(key){const s=clScenes.find(s=>s[0]===key);if(s&&state.clScene!==key)Object.assign(state,{clScene:key,clMode:s[2],clSelected:s[3],year:key.endsWith('earliest')?2000:key.endsWith('latest')?2027:2026,month:key.endsWith('earliest')?1:10,day:20});}
+  function clRows(){if(state.clMode==='empty'||state.year!==2026||state.month!==10)return [];return [...pRows(),{id:74001,day:20,time:'09:15',title:'工资收入',category:'工资',account:'招商银行',icon:'briefcase-business',amount:12000,type:'income',tag:'工作日'},{id:74002,day:20,time:'10:20',title:'账户互转',category:'转账',account:'微信 → 招商银行',icon:'arrow-left-right',amount:500,type:'transfer',tag:''},{id:74003,day:20,time:'11:30',title:'美元午餐',category:'餐饮',account:'美元账户',icon:'utensils',amount:12,currency:'USD',currencyCode:'USD',nativeAmount:85.2,type:'expense',tag:''},{id:74004,day:20,time:'16:00',title:'不计收支仍然显示',category:'餐饮',account:'微信',icon:'utensils',amount:30,type:'expense',excludeStats:true,tag:''}];}
+  function clCompact(n,sign){return sign+(n>=10000?(n/10000).toFixed(1)+'w':n>=1000?(n/1000).toFixed(1)+'k':Math.trunc(n));}
+  function clTotals(day){return clRows().filter(r=>r.day===day&&!r.excludeStats).reduce((s,r)=>{if(r.type==='income')s.income+=vNative(r);else if(r.type!=='transfer')s.expense+=vNative(r);return s;},{income:0,expense:0});}
+  function clGrid(){const first=new Date(state.year,state.month-1,1),offset=(first.getDay()+6)%7,days=new Date(state.year,state.month,0).getDate(),count=Math.ceil((offset+days)/7)*7;return `<div class="cl-grid">${['一','二','三','四','五','六','日'].map(w=>`<span class="cl-weekday">${w}</span>`).join('')}${Array.from({length:count},(_,i)=>{const date=new Date(state.year,state.month-1,i-offset+1),day=date.getDate(),outside=date.getMonth()+1!==state.month,t=outside?{income:0,expense:0}:clTotals(day),selected=!outside&&state.clSelected===day,today=!outside&&state.year===clToday.year&&state.month===clToday.month&&day===clToday.day;return btn(`cl-day:${day}`,`<span>${day}</span><small class="cl-expense">${t.expense?clCompact(t.expense,'-'):'&nbsp;'}</small><small class="cl-income">${t.income?clCompact(t.income,'+'):'&nbsp;'}</small>`,`${date.getFullYear()}年${date.getMonth()+1}月${day}日 收入${t.income.toFixed(2)} 支出${t.expense.toFixed(2)}`,'cl-day',`aria-pressed="${selected}" data-today="${today}" ${outside?'disabled data-outside="true"':''}`);}).join('')}</div>`;}
+  function clFixtureRow(r){return btn(`cl-row:${r.id}`,`<span class="bc-entry-icon">${icon(r.icon)}</span><span class="cl-row-copy"><b>${esc(r.title)}</b><small>${esc(r.time)} · ${esc(r.account)}${r.excludeStats?' · 不计收支':''}</small></span><span class="cl-money"><b>${r.type==='transfer'?'':r.type==='income'?'+':'-'}${r.currencyCode==='USD'?'US$':''}${r.amount.toFixed(2)}</b>${r.currencyCode==='USD'?`<small>≈ ¥${r.nativeAmount.toFixed(2)}</small>`:''}</span>`,r.title,'cl-transaction',`data-kind="${r.type||'expense'}"`);}
+  function clSelected(){if(state.clSelected==null)return '';const rows=clRows().filter(r=>r.day===state.clSelected).sort((a,b)=>b.time.localeCompare(a.time)),date=new Date(state.year,state.month-1,state.clSelected);return `<div class="cl-day-heading" data-stacked="${qPreview.width<344||qPreview.scale>1.2}"><span><b>${state.month}月${state.clSelected}日</b><small> ${['周日','周一','周二','周三','周四','周五','周六'][date.getDay()]}</small></span>${btn('cl-add',`${icon('plus')}在该日记账`,'在该日记账','bc-secondary')}</div>${surface(rows.length?rows.map(r=>r.id>=74000?clFixtureRow(r):entry(r)).join(''):'<div class="cl-empty">当天无交易</div>','cl-transactions')}`;}
+  function clPage(){const index=state.year*12+state.month,lower=2000*12+1,upper=clLast.year*12+clLast.month,body=state.clMode==='loading'?'<div class="cl-loading" role="status">正在读取日历…</div>':state.clMode==='error'?`<div class="cl-empty"><p>Error: 日历读取失败</p>${btn('cl-retry','重试','重试','bc-primary')}</div>`:surface(`<div class="cl-month-heading">${btn('cl-prev',icon('chevron-left'),'上个月','',index<=lower?'disabled':'')}${btn('cl-month',`${state.year}年${state.month}月${icon('chevron-down')}`,'选择日历月份','')}${btn('cl-next',icon('chevron-right'),'下个月','',index>=upper?'disabled':'')}</div>${clGrid()}`,'cl-month-card');return `<div class="cl-shell">${subhead('日历','cl-today').replace(icon('ellipsis'),'今天').replace('更多操作','今天')}<div class="cl-scroll">${body}${state.clMode==='ready'||state.clMode==='empty'?clSelected():''}</div></div>`;}
+  calendar=function(){clPrepare('calendar');return clPage();};
+  for(const[key,title]of clScenes)fDefine(key,title,'常用流程','calendar/calendar_page.dart',clPage);
+  const clPreviousRender=fRender;fRender=function(key){if(clScenes.some(s=>s[0]===key)){clPrepare(key);return clPage();}return clPreviousRender(key);};
+  rSpecs['cl-month']={title:'选择月份',host:'calendar',kind:'sheet'};
+  function clMonthBody(){const d=jDraft('month'),years=Array.from({length:clLast.year-1999},(_,i)=>2000+i),months=Array.from({length:d.year===clLast.year?clLast.month:12},(_,i)=>i+1);return `<div class="j-picker-summary">${d.year}年${d.month}月</div>${jWheelGroup(jWheel('year',years,d.year,'年','年份')+jWheel('month',months,d.month,'月','月份'))}<p class="bc-small">可浏览2000年1月至2027年10月（今天后365天）</p><div class="j-picker-actions">${btn('r-close','取消','取消选择月份','bc-secondary')}${btn('cl-confirm-month','确定','确定日历月份','bc-primary')}</div>`;}
+  const clPreviousModal=rModalBody;rModalBody=function(key){return key==='cl-month'?clMonthBody():clPreviousModal(key);};
+  fDefine('cl-month','日历 · 原年月滚轮','常用流程','calendar/calendar_page.dart',clMonthBody);
+  const clReadWheel=jWheelRead;jWheelRead=function(w){clReadWheel(w);if(state.rModal==='cl-month'&&w.dataset.jWheel==='year'){const d=state.jWheel,max=d.year===clLast.year?clLast.month:12;d.month=Math.min(d.month,max);const wheel=phone.querySelector('[data-j-wheel="month"]');wheel.innerHTML=Array.from({length:max},(_,i)=>i+1).map(n=>btn(`j-wheel:month:${n}`,n+'月',n+'月','j-wheel-option',`role="option" aria-selected="${n===d.month}" data-value="${n}"`)).join('');wheel.scrollTop=(d.month-1)*44;}};
+  root.addEventListener('click',e=>{const el=e.target.closest('[data-action]'),action=el?.dataset.action;if(!action?.startsWith('cl-'))return;e.preventDefault();e.stopImmediatePropagation();const[key,value]=action.split(':');if(key==='cl-prev'||key==='cl-next'){const d=new Date(state.year,state.month-1+(key==='cl-next'?1:-1),1);state.year=d.getFullYear();state.month=d.getMonth()+1;state.clSelected=null;}else if(key==='cl-today')Object.assign(state,{...clToday,clSelected:clToday.day});else if(key==='cl-day'){state.day=Number(value);state.clSelected=state.day;}else if(key==='cl-month'){state.jWheel={kind:'month',year:state.year,month:state.month};rOpenModal('cl-month');return;}else if(key==='cl-confirm-month'){for(const w of phone.querySelectorAll('[data-j-wheel]'))jWheelRead(w);state.year=state.jWheel.year;state.month=state.jWheel.month;state.clSelected=null;rDismiss();}else if(key==='cl-retry')state.clMode='ready';else if(key==='cl-add'||key==='cl-row'){const row=key==='cl-row'?clRows().find(r=>r.id===Number(value)):null;state.day=state.clSelected||clToday.day;state.fForm.recordDate=`${state.year}-${jPad(state.month)}-${jPad(state.day)}`;state.fForm.recordTime=row?.time||'12:00';state.recordTime=state.fForm.recordTime;state.note=row?.title||'';state.expression=String(row?.amount||0);state.recordType=row?.type||'expense';navigate('editor');return;}render();},true);
   Object.assign(state,{wWelcomeCurrencyQuery:''});
   function wWelcomeCurrencies(){const q=state.wWelcomeCurrencyQuery.trim().toLowerCase();return `<label class="p-search-box v-currency-search">${icon('search')}<input data-ow-currency-query placeholder="搜索币种名称、代码或符号" aria-label="搜索初始化币种" value="${esc(state.wWelcomeCurrencyQuery)}"></label><div class="v-currency-list">${wCurrencies.filter(c=>!q||[c.code,wCurrencyName(c),c.symbol].join(' ').toLowerCase().includes(q)).map(c=>btn('ow-currency:'+c.code,`<span class="v-currency-symbol">${esc(c.symbol)}</span><span class="v-currency-copy"><b>${c.code}<span>${esc(wCurrencyName(c))}</span></b></span><span class="v-currency-check">${state.wCurrency===c.code?icon('check'):''}</span>`,'选择'+c.code,'v-currency-row',`aria-pressed="${state.wCurrency===c.code}"`)).join('')||'<p class="p-empty">没有找到此币种</p>'}</div>`;}
   rSpecs['welcome-currency-picker']={title:'全部币种',host:'welcome',kind:'sheet'};

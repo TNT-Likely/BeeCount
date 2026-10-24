@@ -514,6 +514,13 @@
         "title": "预算编辑与分类草稿",
         "nativeCase": 50,
         "nativeLabel": "预算编辑与分类草稿"
+      },
+      {
+        "id": "spec-73",
+        "code": "B48",
+        "title": "账单日历与按日汇总",
+        "nativeCase": 51,
+        "nativeLabel": "账单日历与按日汇总"
       }
     ]
   }

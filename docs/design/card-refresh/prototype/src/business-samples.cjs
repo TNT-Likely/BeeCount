@@ -37,3 +37,5 @@ module.exports.exchangeRates=require('./exchange-rates-samples.cjs');
 module.exports.budgetOverview=require('./budget-overview-samples.cjs');
 
 module.exports.budgetEditor=require('./budget-editor-samples.cjs');
+
+module.exports.calendar=require('./calendar-samples.cjs');
