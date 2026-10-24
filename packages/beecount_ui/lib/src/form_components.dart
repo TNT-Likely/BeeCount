@@ -84,9 +84,11 @@ class BeeToggleRow extends StatelessWidget {
       required this.title,
       required this.value,
       required this.onChanged,
-      this.subtitle});
+      this.subtitle,
+      this.leading});
   final String title;
   final String? subtitle;
+  final Widget? leading;
   final bool value;
   final ValueChanged<bool>? onChanged;
   @override
@@ -109,6 +111,10 @@ class BeeToggleRow extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         child: Row(children: [
+                          if (leading != null) ...[
+                            SizedBox(width: 28, child: leading!),
+                            const SizedBox(width: 10),
+                          ],
                           Expanded(
                               child: Column(
                                   mainAxisSize: MainAxisSize.min,

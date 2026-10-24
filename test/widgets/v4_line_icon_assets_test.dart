@@ -13,7 +13,22 @@ void main() {
       ...categoryLineIconNames.values,
       'Grid2x2',
       'Network',
-      'Plus'
+      'Plus',
+      'SunMoon',
+      'Sun',
+      'Moon',
+      'Maximize',
+      'Minimize',
+      'List',
+      'History',
+      'ArrowLeftRight',
+      'Banknote',
+      'Image',
+      'Languages',
+      'Palette',
+      'Settings2',
+      'TrendingUp',
+      'TrendingDown'
     };
     final literal = RegExp(r"BeeLineIcon\(\s*'([A-Za-z][A-Za-z0-9]*)'");
     for (final root in [

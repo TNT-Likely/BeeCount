@@ -156,6 +156,7 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                 onChanged: (v) => record('搜索 $v')),
             BeeToggleRow(
                 title: '隐藏金额',
+                leading: const BeeLineIcon('Eye'),
                 value: toggle,
                 onChanged: (v) => setState(() => toggle = v)),
             BeeCheckTile(
