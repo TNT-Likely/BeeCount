@@ -22,7 +22,8 @@
     "check:security": "node scripts/validate-security.cjs",
     "check:category-editor": "node scripts/validate-category-editor.cjs",
     "check:account-types": "node scripts/validate-account-types.cjs",
-    "check:account-editor": "node scripts/validate-account-editor.cjs"
+    "check:account-editor": "node scripts/validate-account-editor.cjs",
+    "check:launch": "node scripts/validate-launch.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

@@ -1,0 +1,18 @@
+#bee-immersive-suite .bc-phone[data-page="flow-splash"] .bc-main{height:calc(var(--q-height,844px) - 45px);padding:0!important;overflow-y:auto}
+#bee-immersive-suite .bc-phone .l-launch{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:24px;box-sizing:border-box;text-align:center}
+#bee-immersive-suite .bc-phone .l-brand{display:grid;place-items:center;width:76px;height:76px;min-height:76px;border-radius:24px;background:color-mix(in srgb,var(--bc-accent) 12%,transparent);color:var(--bc-accent)}
+#bee-immersive-suite .bc-phone .l-brand svg{width:48px;height:48px}
+#bee-immersive-suite .bc-phone .l-brand{position:relative}
+#bee-immersive-suite .bc-phone .l-brand[data-dark="true"]::before{content:"";position:absolute;width:52.8px;height:52.8px;border-radius:50%;background:rgba(255,255,255,.15)}
+#bee-immersive-suite .bc-phone .l-brand svg{position:relative}
+#bee-immersive-suite .bc-phone .l-launch>h2{font-size:calc(25px * var(--q-scale,1));line-height:1.2;font-weight:600;margin:20px 0 0}
+#bee-immersive-suite .bc-phone .l-slogan{font-size:calc(14px * var(--q-scale,1));line-height:1.4;color:var(--bc-muted);margin:8px 0 32px}
+#bee-immersive-suite .bc-phone .l-security{width:100%;padding:16px;margin:0!important;text-align:left;border-radius:22px}
+#bee-immersive-suite .bc-phone .l-security-title{display:flex;align-items:center;gap:10px;min-height:53px;padding:10px 12px;font-size:calc(14px * var(--q-scale,1));font-weight:400}
+#bee-immersive-suite .bc-phone .l-security-title>span{display:grid;place-items:center;width:28px;flex:0 0 28px}
+#bee-immersive-suite .bc-phone .l-security-title svg{width:20px;height:20px}
+#bee-immersive-suite .bc-phone .l-security>p{font-size:calc(12px * var(--q-scale,1));line-height:1.8;color:var(--bc-muted);margin:0}
+#bee-immersive-suite .bc-phone .l-spinner{flex:none;width:22px;height:22px;margin:28px 0 0;border:2px solid color-mix(in srgb,var(--bc-accent) 22%,transparent);border-top-color:var(--bc-accent);border-radius:50%;animation:l-spin 1s linear infinite}
+#bee-immersive-suite .bc-phone .l-status{font-size:calc(12px * var(--q-scale,1));line-height:1.4;color:var(--bc-muted);margin:12px 0 0}
+@keyframes l-spin{to{transform:rotate(1turn)}}
+@media(prefers-reduced-motion:reduce){#bee-immersive-suite .bc-phone .l-spinner{animation:none}}

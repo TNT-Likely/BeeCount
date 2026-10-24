@@ -1,5 +1,7 @@
 const fs=require('fs'),path=require('path'),{pathToFileURL}=require('url'),{chromium}=require('playwright'),toSvg=require('./dom-to-svg.cjs');const root=path.resolve(__dirname,'..'),samples=JSON.parse(fs.readFileSync(path.join(root,'components/samples.json'),'utf8')),tokens=JSON.parse(fs.readFileSync(path.join(root,'tokens/design-tokens.json'),'utf8'));
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),icon=n=>`<i data-lucide="${n}" aria-hidden="true"></i>`,card=(title,description,html)=>({id:Number(title.split(' · ')[0]),title:title.split(' · ').slice(1).join(' · '),description,html});
+const brandSvg=fs.readFileSync(path.resolve(root,'../../../assets/bee.svg'),'utf8');
+const brandMarks='<div class="g-brand-marks">'+[[76,24,48,'启动'],[56,19,34,'欢迎']].map(([size,corner,art,label])=>`<figure><div style="width:${size}px;height:${size}px;border-radius:${corner}px"><span style="width:${art}px;height:${art}px">${brandSvg}</span></div><figcaption>${label} · ${size}</figcaption></figure>`).join('')+'</div>';
 const primary=samples.primary.replace('data-action="w-next"','data-action="spec"'),secondary='<button class="bc-secondary">次要操作</button>',tag=n=>`<span class="bc-tag" data-color="${n[1]}">${n[0]}</span>`;
 const sections=[
  card('01 · 基础色与主题','中性色构建层次；主题色作用于主操作、进度与选中态。',`<div class="spec-swatches">${Object.entries(tokens.color.light).map(([n,v])=>`<div><i style="background:${v}"></i><span>${n}</span><small>${v}</small></div>`).join('')}</div>`),
@@ -25,7 +27,7 @@ const sections=[
  card('21 · 账本操作菜单','卡片右下角与长按共用；区分本地/共享与创建者/成员。',samples.ledgerMenu),
  card('22 · 同步状态','原有八种 SyncDiff + 检查中、同步中与离线细分。',samples.sync),
  card('23 · 紧凑导入字段','双列映射，核心字段和原始数据预览同屏，额外字段展开。',samples.mapping),
- card('24 · 初始化选择','品牌、标题、说明居中；选择内容左对齐，选中态保持主题一致。',samples.onboarding),
+ card('24 · 初始化选择','品牌、标题、说明居中；选择内容左对齐，选中态保持主题一致。',brandMarks+samples.onboarding),
  card('25 · 小票与分享','收支、分类、账户、标签和原始备注完整传递。',samples.receipt),
  card('26 · 持续状态与空态','成功、警告、失败均使用图标和文字；失败原因与重试入口保留在页面。',samples.feedbackStatus+samples.dismissibleStatus+`<div class="p-empty">${icon('search-x')}没有找到匹配账单</div>`),
  card('27 · 首页品牌','有品牌与无品牌两种状态；预览和个性化设置均可切换，其他功能共用。',samples.brand+samples.brandOff),
