@@ -2,6 +2,7 @@ library;
 
 import 'package:flutter/material.dart';
 export 'src/line_icon.dart';
+export 'src/line_chart.dart';
 export 'src/foundations.dart';
 export 'src/dialogs.dart';
 export 'src/controls.dart';

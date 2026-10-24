@@ -22,7 +22,8 @@ const foundationCases = [
   '输入与校验状态',
   '卡片、分隔与页头',
   '底部操作栏',
-  '加载与进度状态'
+  '加载与进度状态',
+  '折线图'
 ];
 
 class FoundationAcceptancePage extends StatefulWidget {
@@ -40,7 +41,7 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
   double slider = .6;
   String filter = '本月';
   bool iconSelected = false, passwordHidden = true, demoMotion = false;
-  bool statusDismissed = false;
+  bool statusDismissed = false, chartHidden = false;
   Set<int> choices = {0, 2};
   String pickerMode = 'data';
   int picked = 0;
@@ -733,6 +734,65 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
             const BeeActionBar(
                 primaryLabel: '禁用操作', onPrimary: null, safeArea: false),
           ]),
+        19 => BeeSurface(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                BeeButton(
+                    label: chartHidden ? '显示图中金额' : '隐藏图中金额',
+                    kind: BeeButtonKind.secondary,
+                    onPressed: () =>
+                        setState(() => chartHidden = !chartHidden)),
+                const SizedBox(height: 12),
+                SizedBox(
+                    height: 180,
+                    child: BeeLineChart(
+                        values: const [100, 0, -50, 120],
+                        secondaryValues: const [20, 40, 0, 80],
+                        secondaryColor: Colors.blue,
+                        xLabels: const ['1月', '2月', '3月', '4月'],
+                        highlightIndex: 3,
+                        onSwipeLeft: () => record('下一周期'),
+                        onSwipeRight: () => record('上一周期'),
+                        onPrimaryLineTap: () => record('主线'),
+                        onSecondaryLineTap: () => record('副线'),
+                        hideAmounts: chartHidden,
+                        whiteBg: false,
+                        themeColor: Theme.of(context).colorScheme.primary)),
+                const SizedBox(height: 12),
+                const Text('负值 / 单点 / 空数据 / 内嵌图不拦截外层点击'),
+                SizedBox(
+                    height: 120,
+                    child: BeeLineChart(
+                        values: const [-40, -20, -60, -10],
+                        xLabels: const ['1', '2', '3', '4'],
+                        highlightIndex: 3,
+                        onSwipeLeft: () {},
+                        onSwipeRight: () {},
+                        themeColor: Theme.of(context).colorScheme.primary,
+                        minimal: true,
+                        interactive: false,
+                        hideAmounts: chartHidden)),
+                SizedBox(
+                    height: 100,
+                    child: BeeLineChart(
+                        values: const [30],
+                        xLabels: const ['单点'],
+                        highlightIndex: 0,
+                        onSwipeLeft: () {},
+                        onSwipeRight: () {},
+                        themeColor: Theme.of(context).colorScheme.primary,
+                        hideAmounts: chartHidden)),
+                SizedBox(
+                    height: 60,
+                    child: BeeLineChart(
+                        values: const [],
+                        xLabels: const [],
+                        highlightIndex: null,
+                        onSwipeLeft: () {},
+                        onSwipeRight: () {},
+                        themeColor: Theme.of(context).colorScheme.primary)),
+              ])),
         _ => BeeSurface(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

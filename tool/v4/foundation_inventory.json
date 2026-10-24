@@ -537,6 +537,26 @@
         "controlled-callback"
       ],
       "sampleCoverage": "Flat token section and tag editor, unit/widget and same retained QA acceptance tracked per page"
+    },
+    {
+      "component": "BeeLineChart",
+      "cases": [
+        19
+      ],
+      "supportedStates": [
+        "dual-line",
+        "negative",
+        "zero",
+        "single",
+        "empty",
+        "dark",
+        "hidden",
+        "privacy-repaint",
+        "swipe",
+        "primary-secondary-tap",
+        "pass-through"
+      ],
+      "sampleCoverage": "Flutter平铺示例和原图四组像素基准；App数据由原Provider和Repository提供"
     }
   ]
 }
