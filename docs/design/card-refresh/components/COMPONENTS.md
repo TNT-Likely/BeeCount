@@ -152,3 +152,10 @@ HTML 分为“基础组件 / beecount_ui”和“业务组件 / beecount_busines
 ## 搜索与批量操作补充（2026-10-24）
 
 HTML B30 对应 Flutter 业务组件第 35 分区：`BeeSearchSummary`、`BeeBatchSelection`、`BeeBatchActionBar`。汇总展示本位币合计，账单行保留原币 / 折算、完整日期、标签和附件；底部操作独立于列表滚动。原币金额筛选继续保留，并提供明确的本位币筛选选项。真实请求与批量字段验证在 App binding，展示包不访问 Repository。成功撤销策略待 Q08 确认。
+
+
+## 皮肤卡片（R70）
+
+`BeeSkinChoice` 与 `BeeSkinCard` 接收实际预览 Widget、名称、选中身份、动态/固定配色标记与受控回调；组件包不读取 Provider、不保存偏好。App binding 读取原注册表与当前主题，继续调用原 `applyHeaderSkin`。标签换行，预览移除状态栏内边距；只读卡片保留身份且禁用点击。Flutter 业务目录第 45 节包含演示、只读、当前真实皮肤及真实设置入口，HTML 对应 B41。
+
+皮肤页保留全部/动态/静态三种筛选、五个原系列及基础纯色。正式版 22 项（含纯色），调试版保留原 SVG 示例，共 23 项。`tokens/skin-registry.json` 冻结旧身份、系列、名称与亮暗缩略图 SHA；两款固定配色动态皮肤及恢复记忆主题色的逻辑沿用原服务。HTML 缩略图引用原 Flutter 导出，动态预览仍使用已有 Canvas 画面；静态缩略图基准为原蜜蜂黄，其他主题的实际绘制以 Flutter 为准。

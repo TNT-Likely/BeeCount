@@ -585,5 +585,14 @@
     ],
     "page": "foundation",
     "case": 21
+  },
+  {
+    "design_key": "skinCard",
+    "components": [
+      "BeeSkinCard",
+      "BeeSkinChoice"
+    ],
+    "page": "business",
+    "case": 44
   }
 ]

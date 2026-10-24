@@ -465,6 +465,13 @@
         "title": "历史备注偏好",
         "nativeCase": 43,
         "nativeLabel": "历史备注偏好"
+      },
+      {
+        "id": "spec-66",
+        "code": "B41",
+        "title": "皮肤预览与选择",
+        "nativeCase": 44,
+        "nativeLabel": "皮肤预览与选择"
       }
     ]
   }

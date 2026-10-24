@@ -181,10 +181,10 @@
   },
   {
     "route": "skins",
-    "slug": "skins",
     "title": "皮肤选择",
     "group": "设置与管理",
-    "fullHeight": 2276,
+    "slug": "skins",
+    "fullHeight": 2722,
     "viewport": "screens/viewport/skins.png",
     "full": "screens/full/skins.png",
     "svg": "figma/skins.svg"
@@ -2472,5 +2472,35 @@
     "viewport": "screens/viewport/flow-theme-locked.png",
     "full": "screens/full/flow-theme-locked.png",
     "svg": "figma/flow-theme-locked.svg"
+  },
+  {
+    "route": "flow-skins-animated",
+    "title": "皮肤 · 动态与固定配色",
+    "group": "皮肤 · 筛选与调试",
+    "slug": "flow-skins-animated",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-skins-animated.png",
+    "full": "screens/full/flow-skins-animated.png",
+    "svg": "figma/flow-skins-animated.svg"
+  },
+  {
+    "route": "flow-skins-static",
+    "title": "皮肤 · 静态系列",
+    "group": "皮肤 · 筛选与调试",
+    "slug": "flow-skins-static",
+    "fullHeight": 2468,
+    "viewport": "screens/viewport/flow-skins-static.png",
+    "full": "screens/full/flow-skins-static.png",
+    "svg": "figma/flow-skins-static.svg"
+  },
+  {
+    "route": "flow-skins-debug",
+    "title": "皮肤 · 调试SVG示例",
+    "group": "皮肤 · 筛选与调试",
+    "slug": "flow-skins-debug",
+    "fullHeight": 2722,
+    "viewport": "screens/viewport/flow-skins-debug.png",
+    "full": "screens/full/flow-skins-debug.png",
+    "svg": "figma/flow-skins-debug.svg"
   }
 ]
