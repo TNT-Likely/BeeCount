@@ -12,7 +12,7 @@ manual={
 'category/category_manage_page.dart':['flow-category-management','flow-category-children','flow-category-tools','flow-category-share','flow-taxonomy-import','flow-category-defaults','flow-category-clear','flow-category-empty'],'settings/about_page.dart':['about'],'settings/data_management_page.dart':['data'],
 'settings/reminder_settings_page.dart':['flow-reminder','flow-reminder-ios','flow-reminder-time','flow-reminder-battery','flow-reminder-channel','flow-reminder-battery-warning','flow-reminder-channel-warning'],
 'settings/smart_billing_page.dart':['smart'],'settings/automation_page.dart':['automation'],'settings/personalize_page.dart':['appearance'],
-'settings/appearance_settings_page.dart':['appearance'],'settings/header_skin_page.dart':['skins'],'settings/language_settings_page.dart':['flow-language'],
+'settings/appearance_settings_page.dart':['appearance','flow-appearance-mode','flow-appearance-amount','flow-appearance-note','flow-appearance-history','flow-appearance-scheme','flow-appearance-currency'],'settings/header_skin_page.dart':['skins'],'settings/language_settings_page.dart':['flow-language'],
 'settings/privacy_policy_page.dart':['leaf:隐私政策'],'report/annual_report_page.dart':['annual'],
 'donation/donation_page.dart':['flow-donation'],'settings/attachment_preview_page.dart':['flow-attachment-library'],
 'attachment/attachment_preview_page.dart':['flow-attachment-viewer'],

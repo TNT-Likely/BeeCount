@@ -161,10 +161,10 @@
   },
   {
     "route": "appearance",
-    "slug": "appearance",
     "title": "个性化设置",
     "group": "设置与管理",
-    "fullHeight": 1402,
+    "slug": "appearance",
+    "fullHeight": 1195,
     "viewport": "screens/viewport/appearance.png",
     "full": "screens/full/appearance.png",
     "svg": "figma/appearance.svg"
@@ -2392,5 +2392,65 @@
     "viewport": "screens/viewport/flow-reminder-channel-warning.png",
     "full": "screens/full/flow-reminder-channel-warning.png",
     "svg": "figma/flow-reminder-channel-warning.svg"
+  },
+  {
+    "route": "flow-appearance-mode",
+    "title": "外观模式 · 弹窗",
+    "group": "显示与外观 · 原配置弹窗",
+    "slug": "flow-appearance-mode",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-appearance-mode.png",
+    "full": "screens/full/flow-appearance-mode.png",
+    "svg": "figma/flow-appearance-mode.svg"
+  },
+  {
+    "route": "flow-appearance-amount",
+    "title": "余额显示格式 · 弹窗",
+    "group": "显示与外观 · 原配置弹窗",
+    "slug": "flow-appearance-amount",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-appearance-amount.png",
+    "full": "screens/full/flow-appearance-amount.png",
+    "svg": "figma/flow-appearance-amount.svg"
+  },
+  {
+    "route": "flow-appearance-note",
+    "title": "备注显示方式 · 弹窗",
+    "group": "显示与外观 · 原配置弹窗",
+    "slug": "flow-appearance-note",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-appearance-note.png",
+    "full": "screens/full/flow-appearance-note.png",
+    "svg": "figma/flow-appearance-note.svg"
+  },
+  {
+    "route": "flow-appearance-history",
+    "title": "历史备注 · 弹窗",
+    "group": "显示与外观 · 原配置弹窗",
+    "slug": "flow-appearance-history",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-appearance-history.png",
+    "full": "screens/full/flow-appearance-history.png",
+    "svg": "figma/flow-appearance-history.svg"
+  },
+  {
+    "route": "flow-appearance-scheme",
+    "title": "收支颜色方案 · 弹窗",
+    "group": "显示与外观 · 原配置弹窗",
+    "slug": "flow-appearance-scheme",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-appearance-scheme.png",
+    "full": "screens/full/flow-appearance-scheme.png",
+    "svg": "figma/flow-appearance-scheme.svg"
+  },
+  {
+    "route": "flow-appearance-currency",
+    "title": "主币种 · 底部弹层",
+    "group": "显示与外观 · 原配置弹窗",
+    "slug": "flow-appearance-currency",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-appearance-currency.png",
+    "full": "screens/full/flow-appearance-currency.png",
+    "svg": "figma/flow-appearance-currency.svg"
   }
 ]

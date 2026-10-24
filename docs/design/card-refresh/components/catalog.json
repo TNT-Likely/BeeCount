@@ -451,6 +451,13 @@
         "title": "记账提醒设置",
         "nativeCase": 42,
         "nativeLabel": "记账提醒设置"
+      },
+      {
+        "id": "spec-64",
+        "code": "B40",
+        "title": "历史备注偏好",
+        "nativeCase": 43,
+        "nativeLabel": "历史备注偏好"
       }
     ]
   }
