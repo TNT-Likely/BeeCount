@@ -30,13 +30,14 @@ class BeeCategoryPicker extends StatefulWidget {
       required this.cancelLabel,
       required this.onConfirm,
       required this.onCancel,
-      this.immediate = false});
+      this.immediate = false,
+      this.expandAllChildren = false});
   final List<BeeCategoryChoice> items;
   final String? selected;
   final String searchLabel, emptyLabel, confirmLabel, cancelLabel;
   final ValueChanged<String> onConfirm;
   final VoidCallback onCancel;
-  final bool immediate;
+  final bool immediate, expandAllChildren;
   @override
   State<BeeCategoryPicker> createState() => _BeeCategoryPickerState();
 }
@@ -50,10 +51,14 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
     if (old.selected != widget.selected) draft = widget.selected;
   }
 
-  void choose(BeeCategoryChoice item) {
+  void choose(BeeCategoryChoice item, {bool direct = false}) {
     if (!item.enabled && item.children.isEmpty) return;
     if (widget.immediate) {
-      if (item.enabled) widget.onConfirm(item.id);
+      if (!direct && item.children.isNotEmpty) {
+        setState(() => draft = item.id);
+      } else if (item.enabled) {
+        widget.onConfirm(item.id);
+      }
     } else {
       setState(() => draft = item.id);
     }
@@ -72,7 +77,7 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
                   label: item.label,
                   icon: item.icon,
                   selected: selected,
-                  onTap: () => choose(item)),
+                  onTap: navigable ? () => choose(item) : null),
               if (item.detail != null)
                 Padding(
                     padding: const EdgeInsets.only(bottom: 8),
@@ -98,13 +103,15 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
     final valid = widget.items.any((i) =>
         (i.id == draft && i.enabled) ||
         i.children.any((c) => c.id == draft && c.enabled));
-    final children = parent?.children
+    List<BeeCategoryChoice> childrenOf(BeeCategoryChoice parent) =>
+        parent.children
             .where((c) =>
                 q.isEmpty ||
                 parent.label.toLowerCase().contains(q) ||
                 c.label.toLowerCase().contains(q))
-            .toList() ??
-        <BeeCategoryChoice>[];
+            .toList();
+    final expanded =
+        widget.expandAllChildren ? visible : [if (parent != null) parent];
     return Column(mainAxisSize: MainAxisSize.min, children: [
       BeeSearchField(
           hint: widget.searchLabel,
@@ -126,40 +133,76 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
                                             width: constraints.maxWidth / 4,
                                             child: tile(i)))
                                         .toList())),
-                            if (parent != null && children.isNotEmpty) ...[
-                              const SizedBox(height: 8),
-                              Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                      color: BeeCardTheme.of(context).soft,
-                                      borderRadius: BorderRadius.circular(14)),
-                                  child: LayoutBuilder(
-                                      builder: (context, constraints) {
-                                    final choices = [parent, ...children],
-                                        columns =
-                                            constraints.maxWidth < 270 ? 2 : 4;
-                                    return Wrap(
-                                        spacing: 4,
-                                        runSpacing: 4,
-                                        children: choices
-                                            .map((c) => SizedBox(
-                                                width: (constraints.maxWidth -
-                                                        (columns - 1) * 4) /
-                                                    columns,
-                                                height: 44,
-                                                child: Opacity(
-                                                    opacity: c.enabled ? 1 : .4,
-                                                    child:
-                                                        RecordingSubcategoryChip(
-                                                            label: c.label,
-                                                            icon: c.icon,
-                                                            selected:
-                                                                draft == c.id,
-                                                            onTap: () =>
-                                                                choose(c)))))
-                                            .toList());
-                                  }))
-                            ]
+                            for (final group in expanded)
+                              if (childrenOf(group).isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        color: BeeCardTheme.of(context).soft,
+                                        borderRadius:
+                                            BorderRadius.circular(14)),
+                                    child: LayoutBuilder(
+                                        builder: (context, constraints) {
+                                      final choices = [
+                                            group,
+                                            ...childrenOf(group)
+                                          ],
+                                          columns = constraints.maxWidth < 270
+                                              ? 2
+                                              : 4;
+                                      return Wrap(
+                                          spacing: 4,
+                                          runSpacing: 4,
+                                          children: choices
+                                              .map((c) => SizedBox(
+                                                  width: (constraints.maxWidth -
+                                                          (columns - 1) * 4) /
+                                                      columns,
+                                                  child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        SizedBox(
+                                                            height: 44,
+                                                            child: Opacity(
+                                                                opacity:
+                                                                    c.enabled
+                                                                        ? 1
+                                                                        : .4,
+                                                                child: RecordingSubcategoryChip(
+                                                                    label:
+                                                                        c.label,
+                                                                    icon:
+                                                                        c.icon,
+                                                                    selected:
+                                                                        draft ==
+                                                                            c
+                                                                                .id,
+                                                                    onTap: c.enabled
+                                                                        ? () => choose(
+                                                                            c,
+                                                                            direct:
+                                                                                true)
+                                                                        : null))),
+                                                        if (c.detail != null)
+                                                          Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                      top: 3),
+                                                              child: Text(
+                                                                  c.detail!,
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          10,
+                                                                      color: Theme.of(
+                                                                              context)
+                                                                          .hintColor))),
+                                                      ])))
+                                              .toList());
+                                    }))
+                              ]
                           ])))),
       if (!widget.immediate) ...[
         const SizedBox(height: 12),

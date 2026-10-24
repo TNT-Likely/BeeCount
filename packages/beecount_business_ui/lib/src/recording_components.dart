@@ -254,7 +254,7 @@ class RecordingCategoryTile extends StatelessWidget {
   final bool compact;
   final String label;
   final Widget icon;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final bool selected;
   final bool expanded;
   final bool hasChildren;
@@ -264,6 +264,7 @@ class RecordingCategoryTile extends StatelessWidget {
     final theme = Theme.of(context);
     return Semantics(
         selected: selected,
+        enabled: onTap != null,
         button: true,
         child: InkWell(
           onTap: onTap,
@@ -320,11 +321,12 @@ class RecordingSubcategoryChip extends StatelessWidget {
   final String label;
   final Widget icon;
   final bool selected;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) => Semantics(
         selected: selected,
+        enabled: onTap != null,
         button: true,
         child: Material(
           color:
