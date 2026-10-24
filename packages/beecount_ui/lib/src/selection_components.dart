@@ -357,3 +357,33 @@ class BeeIconChoiceGrid<T> extends StatelessWidget {
                                   ])))))))
           .toList());
 }
+
+/// A controlled 24-hour picker. The host owns its draft and confirm/cancel;
+/// changing either wheel never persists preferences or schedules a reminder.
+class BeeTimeWheels extends StatelessWidget {
+  const BeeTimeWheels(
+      {super.key, required this.value, required this.onChanged});
+  final TimeOfDay value;
+  final ValueChanged<TimeOfDay> onChanged;
+  @override
+  Widget build(BuildContext context) => Row(children: [
+        Expanded(
+            child: BeeWheel<int>(
+                values: List.generate(24, (i) => i),
+                value: value.hour,
+                label: (v) => v.toString().padLeft(2, '0'),
+                onChanged: (v) =>
+                    onChanged(TimeOfDay(hour: v, minute: value.minute)))),
+        const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Text(':',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500))),
+        Expanded(
+            child: BeeWheel<int>(
+                values: List.generate(60, (i) => i),
+                value: value.minute,
+                label: (v) => v.toString().padLeft(2, '0'),
+                onChanged: (v) =>
+                    onChanged(TimeOfDay(hour: value.hour, minute: v)))),
+      ]);
+}

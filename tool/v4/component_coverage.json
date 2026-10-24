@@ -548,5 +548,24 @@
     ],
     "page": "foundation",
     "case": 19
+  },
+  {
+    "design_key": "timeWheels",
+    "components": [
+      "BeeTimeWheels",
+      "BeeWheel"
+    ],
+    "page": "foundation",
+    "case": 20
+  },
+  {
+    "design_key": "reminderSettings",
+    "components": [
+      "BeeReminderPreferences",
+      "BeeToggleRow",
+      "BeeMenuRow"
+    ],
+    "page": "business",
+    "case": 42
   }
 ]

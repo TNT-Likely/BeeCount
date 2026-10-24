@@ -23,7 +23,8 @@ const foundationCases = [
   '卡片、分隔与页头',
   '底部操作栏',
   '加载与进度状态',
-  '折线图'
+  '折线图',
+  '时间滚轮'
 ];
 
 class FoundationAcceptancePage extends StatefulWidget {
@@ -734,6 +735,19 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
             const BeeActionBar(
                 primaryLabel: '禁用操作', onPrimary: null, safeArea: false),
           ]),
+        20 => BeeSurface(
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const Text('24小时制 · 小时00–23 / 分钟00–59'),
+            BeeTimeWheels(
+                value: TimeOfDay.fromDateTime(pickedDate),
+                onChanged: (v) => setState(() => pickedDate = DateTime(
+                    pickedDate.year,
+                    pickedDate.month,
+                    pickedDate.day,
+                    v.hour,
+                    v.minute))),
+            const Text('宿主管理草稿；确认才保存，取消保持原值。'),
+          ])),
         19 => BeeSurface(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

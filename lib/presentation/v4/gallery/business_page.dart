@@ -48,7 +48,8 @@ const businessCases = [
   '账户类型选择',
   '账户余额调整',
   '资产总览与账户设置',
-  '标签管理库'
+  '标签管理库',
+  '记账提醒设置'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -60,14 +61,20 @@ const demoTags = [
 
 class BusinessAcceptancePage extends StatefulWidget {
   const BusinessAcceptancePage(
-      {super.key, this.isolatedCase, this.liveData, this.tagLibraryData});
-  final Widget? liveData, tagLibraryData;
+      {super.key,
+      this.isolatedCase,
+      this.liveData,
+      this.tagLibraryData,
+      this.reminderData});
+  final Widget? liveData, tagLibraryData, reminderData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
 }
 
 class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
+  bool reminderEnabled = false;
+  TimeOfDay reminderTime = const TimeOfDay(hour: 21, minute: 0);
   int step = 0, recordingType = 0, onboardingChoice = 0;
   int ledgerMonthStart = 1;
   final ledgerNameController = TextEditingController(text: '日常生活');
@@ -75,6 +82,23 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
   void dispose() {
     ledgerNameController.dispose();
     super.dispose();
+  }
+
+  Future<void> _reminderTime() async {
+    var draft = reminderTime;
+    final value = await showBeeSheet<TimeOfDay>(context,
+        title: '选择时间',
+        child: StatefulBuilder(
+            builder: (context, update) => BeeTimeWheels(
+                value: draft, onChanged: (v) => update(() => draft = v))),
+        footer: BeeButton(
+            label: '使用所选时间', onPressed: () => Navigator.pop(context, draft)));
+    if (mounted && value != null) {
+      setState(() {
+        reminderTime = value;
+        event = '提醒时间 ${value.format(context)}';
+      });
+    }
   }
 
   String? chosenCategory = 'lunch', chosenAccount = 'wechat';
@@ -1819,6 +1843,33 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     onIncomeAccount: () => record('选择默认收入账户'),
                     rateLabel: '汇率管理',
                     onRates: () => record('管理汇率'))),
+          ]),
+        42 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const Text('受控展示示例：不调度系统通知'),
+            const SizedBox(height: 12),
+            BeeReminderPreferences(
+                enabled: reminderEnabled,
+                enabledLabel: '每日记账提醒',
+                enabledDescription: '开启后将在指定时间提醒您记账',
+                timeLabel: '提醒时间',
+                time: reminderTime.format(context),
+                onEnabled: (v) => setState(() {
+                      reminderEnabled = v;
+                      event = v ? '演示开启' : '演示关闭';
+                    }),
+                onTime: _reminderTime),
+            const SizedBox(height: 12),
+            const Text('处理中 / 只读状态'),
+            const BeeReminderPreferences(
+                enabled: true,
+                enabledLabel: '每日记账提醒',
+                enabledDescription: '等待宿主完成操作',
+                timeLabel: '提醒时间',
+                time: '21:00',
+                onEnabled: null,
+                onTime: null),
+            const SizedBox(height: 12),
+            widget.reminderData ?? const Text('从App组件验收入口读取真实提醒偏好并进入真实设置。'),
           ]),
         41 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             SizedBox(

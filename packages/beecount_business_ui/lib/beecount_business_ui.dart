@@ -1,5 +1,7 @@
 library;
 
+export 'src/reminder_preferences.dart';
+
 export 'src/account_type_picker.dart';
 export 'src/account_balance_adjustment.dart';
 export 'src/asset_overview.dart';
