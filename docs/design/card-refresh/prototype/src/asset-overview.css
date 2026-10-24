@@ -1,14 +1,15 @@
 #bee-immersive-suite .g-asset-overview{display:grid;gap:12px}
 #bee-immersive-suite .g-asset-overview [hidden]{display:none!important}
 #bee-immersive-suite .g-asset-summary{padding:20px}
-#bee-immersive-suite .g-asset-summary>.bc-between{min-height:44px}
+#bee-immersive-suite .g-asset-summary>.bc-between{min-height:44px;margin:0}
 #bee-immersive-suite .g-asset-summary .bc-icon{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:var(--bc-ink);border:0}
 #bee-immersive-suite .g-asset-amount{font-size:34px;line-height:1.4;font-weight:600;margin-top:2px;overflow-wrap:anywhere}
 #bee-immersive-suite .g-asset-amount .av-approx{font-size:19px;font-weight:400}
 #bee-immersive-suite .g-asset-metrics{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
 #bee-immersive-suite .g-asset-metrics small{display:block;font-size:11px;color:var(--bc-muted);line-height:1.4}
 #bee-immersive-suite .g-asset-metrics strong{display:block;margin-top:5px;font-size:16px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}
-#bee-immersive-suite .g-asset-chart{padding:18px}
+#bee-immersive-suite .g-asset-chart{padding:16px}
+#bee-immersive-suite .g-asset-chart>.bc-between{margin:0}
 #bee-immersive-suite .g-asset-chart h3{font-size:16px;font-weight:600;margin:0}
 #bee-immersive-suite .g-asset-chart .bc-link{min-height:44px;font-size:11px}
 #bee-immersive-suite .g-asset-tabs{display:flex;gap:4px;border-radius:13px;background:var(--bc-soft);padding:4px;margin-top:12px}
@@ -58,7 +59,7 @@
 #bee-immersive-suite .av-hidden-caption{margin-top:8px;color:var(--bc-muted);font-size:11px}
 #bee-immersive-suite .av-trend{height:180px;margin-top:12px}
 #bee-immersive-suite .av-trend svg{width:100%;height:150px;display:block}
-#bee-immersive-suite .av-trend-note{font-size:11px;color:var(--bc-muted);line-height:1.5;margin:8px 0 0}
+#bee-immersive-suite .g-asset-chart>.av-trend-note{font-size:11px;color:var(--bc-muted);line-height:1.5;margin:8px 0 0}
 #bee-immersive-suite .av-composition{text-align:center;margin-top:12px;min-height:180px}
 #bee-immersive-suite .av-empty{display:grid;justify-items:center;gap:16px;padding:36px 16px;color:var(--bc-muted);font-size:13px}
 #bee-immersive-suite .av-popup{position:absolute;z-index:30;width:150px;padding:8px;border-radius:13px;background:var(--bc-paper);box-shadow:0 6px 28px #0002}
