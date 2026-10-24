@@ -594,5 +594,15 @@
     ],
     "page": "business",
     "case": 44
+  },
+  {
+    "design_key": "fileTransfer",
+    "components": [
+      "BeeFileTransferStatus",
+      "BeeArchiveSummary",
+      "BeeFileTaskState"
+    ],
+    "page": "business",
+    "case": 45
   }
 ]

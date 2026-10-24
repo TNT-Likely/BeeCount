@@ -159,3 +159,10 @@ HTML B30 对应 Flutter 业务组件第 35 分区：`BeeSearchSummary`、`BeeBat
 `BeeSkinChoice` 与 `BeeSkinCard` 接收实际预览 Widget、名称、选中身份、动态/固定配色标记与受控回调；组件包不读取 Provider、不保存偏好。App binding 读取原注册表与当前主题，继续调用原 `applyHeaderSkin`。标签换行，预览移除状态栏内边距；只读卡片保留身份且禁用点击。Flutter 业务目录第 45 节包含演示、只读、当前真实皮肤及真实设置入口，HTML 对应 B41。
 
 皮肤页保留全部/动态/静态三种筛选、五个原系列及基础纯色。正式版 22 项（含纯色），调试版保留原 SVG 示例，共 23 项。`tokens/skin-registry.json` 冻结旧身份、系列、名称与亮暗缩略图 SHA；两款固定配色动态皮肤及恢复记忆主题色的逻辑沿用原服务。HTML 缩略图引用原 Flutter 导出，动态预览仍使用已有 Canvas 画面；静态缩略图基准为原蜜蜂黄，其他主题的实际绘制以 Flutter 为准。
+
+
+## 文件任务与归档确认（R71）
+
+`BeeFileTransferStatus` 覆盖就绪、处理中、成功、部分失败与失败，传入真实任务状态、进度、结果及独立预览回调。`BeeArchiveSummary` 展示文件名、附件/图标/头像信息及跳过/覆盖草稿，确认/预览/取消继续在原弹窗内。两个组件不请求数据、不读写归档；App `AttachmentTransferActions` 调用原服务，`LiveFileWorkflowPreview` 读取原文件扫描和后台导入 Provider。Flutter 业务第46节和 HTML B42 同时覆盖这些状态。
+
+原跳过策略同时检查文件及数据库记录；存在记录但文件缺失时也跳过，覆盖模式会重建附件记录。临时真实数据库/文件回归验证此契约。归档实际格式为 TAR.GZ，原文件选择器还允许 `.tar`，服务固定 gzip 解码的差异记入 Q16；本轮不宣称原始 TAR 导入已实现。平台文件选择与分享留在 App，图标与原型使用相同 Lucide 路径。

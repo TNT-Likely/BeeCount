@@ -472,6 +472,13 @@
         "title": "皮肤预览与选择",
         "nativeCase": 44,
         "nativeLabel": "皮肤预览与选择"
+      },
+      {
+        "id": "spec-67",
+        "code": "B42",
+        "title": "文件导入导出任务",
+        "nativeCase": 45,
+        "nativeLabel": "文件导入导出任务"
       }
     ]
   }

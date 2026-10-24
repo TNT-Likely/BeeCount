@@ -748,31 +748,31 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T00:54:00+08:00",
-    "scheduledReportAt": "2026-10-25T00:54:00+08:00",
-    "engineeringEstimatePercent": 43,
+    "reportedAt": "2026-10-25T01:54:00+08:00",
+    "scheduledReportAt": "2026-10-25T01:54:00+08:00",
+    "engineeringEstimatePercent": 44,
     "engineeringEstimateRange": [
-      41,
-      45
+      42,
+      46
     ],
-    "completedPages": 23,
+    "completedPages": 24,
     "totalPages": 73,
     "completedP0Pages": 13,
     "totalExistingP0Pages": 16,
     "newlyCompletedSincePreviousReport": [
-      "主题色R69"
+      "皮肤选择R70"
     ],
     "inProgress": [
-      "皮肤R70原456行已备份；原22项正式/23项调试注册、三筛选、分组和原主题恢复绑定已接入，尚未真机，不计整页",
-      "BeeSkinCard与当前真实皮肤只读预览抽离；原Flutter亮暗46张缩略图已冻结，HTML与完整回归待收口",
-      "同一QA保持57笔/当前53/24账户/5附件，R69全部偏好与数据逐项恢复，报告已封存",
-      "PR575仍CLOSED；后续AI测试按用户授权的智谱glm-5.3-flash，私有凭据不入库"
+      "数据管理R71原714行已备份，原归档服务与平台动作保持，受控文件任务和归档确认、实际文件/后台任务只读binding已接入；49项/5文件及8文件静态0问题，新产物已装同一QA，尚无真实归档闭环，不计整页",
+      "HTML增加原TAR.GZ归档确认、后台导入状态和附件进度；254场景与67组规范、41个基础控件核对通过",
+      "R70全部23项真实选择、回调前重启极光选中、业务45真实只读入口及原默认恢复报告16图19文件已封存，57/53/24/5与原偏好保持",
+      "v4已推送822b6a6b，后续R71产品提交4f17bb70；PR575仍CLOSED，Q16原始TAR选择器/服务差异记录，智谱私有凭据不入库"
     ],
     "remainingEffortEstimateHours": [
-      27,
-      47
+      26,
+      46
     ],
-    "remainingEffortChangeReason": "较23:54的28–48减少约1实际工时。R69真实选色、重启、HSV、两款固定皮肤与恢复闭环封存；R70原绘制与业务卡片已接入但未完整验收。后续AI、Cloud与共享权限仍有浮动；这是实际工作量区间。"
+    "remainingEffortChangeReason": "较00:54的27–47减少约1实际工时。R70新增独立卡片语义范围修正、全部23项真实选择/重启与报告闭环；R71已完成页面与真实归档服务回归并装机，后续还需原生文件选择、保存与数据对照。后续AI/Cloud/共享权限仍有浮动，区间是实际工作量而非固定上线时刻。"
   },
   "pullRequest": {
     "number": 575,

@@ -191,10 +191,10 @@
   },
   {
     "route": "data",
-    "slug": "data",
     "title": "数据管理",
     "group": "设置与管理",
-    "fullHeight": 1077,
+    "slug": "data",
+    "fullHeight": 1117,
     "viewport": "screens/viewport/data.png",
     "full": "screens/full/data.png",
     "svg": "figma/data.svg"
@@ -681,9 +681,9 @@
   },
   {
     "route": "flow-attachment-transfer",
-    "slug": "flow-attachment-transfer",
     "title": "附件导入导出",
     "group": "补齐 · 导入导出与维护",
+    "slug": "flow-attachment-transfer",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-attachment-transfer.png",
     "full": "screens/full/flow-attachment-transfer.png",
@@ -2502,5 +2502,65 @@
     "viewport": "screens/viewport/flow-skins-debug.png",
     "full": "screens/full/flow-skins-debug.png",
     "svg": "figma/flow-skins-debug.svg"
+  },
+  {
+    "route": "flow-attachment-import-confirm",
+    "title": "导入附件 · 弹窗",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-attachment-import-confirm",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-attachment-import-confirm.png",
+    "full": "screens/full/flow-attachment-import-confirm.png",
+    "svg": "figma/flow-attachment-import-confirm.svg"
+  },
+  {
+    "route": "flow-data-import-running",
+    "title": "数据管理 · 后台导入中",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-data-import-running",
+    "fullHeight": 1162,
+    "viewport": "screens/viewport/flow-data-import-running.png",
+    "full": "screens/full/flow-data-import-running.png",
+    "svg": "figma/flow-data-import-running.svg"
+  },
+  {
+    "route": "flow-data-import-success",
+    "title": "数据管理 · 原导入完成",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-data-import-success",
+    "fullHeight": 1162,
+    "viewport": "screens/viewport/flow-data-import-success.png",
+    "full": "screens/full/flow-data-import-success.png",
+    "svg": "figma/flow-data-import-success.svg"
+  },
+  {
+    "route": "flow-data-import-partial",
+    "title": "数据管理 · 部分失败",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-data-import-partial",
+    "fullHeight": 1117,
+    "viewport": "screens/viewport/flow-data-import-partial.png",
+    "full": "screens/full/flow-data-import-partial.png",
+    "svg": "figma/flow-data-import-partial.svg"
+  },
+  {
+    "route": "flow-attachment-export-progress",
+    "title": "数据管理 · 附件导出进度",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-attachment-export-progress",
+    "fullHeight": 1162,
+    "viewport": "screens/viewport/flow-attachment-export-progress.png",
+    "full": "screens/full/flow-attachment-export-progress.png",
+    "svg": "figma/flow-attachment-export-progress.svg"
+  },
+  {
+    "route": "flow-attachment-import-progress",
+    "title": "数据管理 · 附件导入进度",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-attachment-import-progress",
+    "fullHeight": 1162,
+    "viewport": "screens/viewport/flow-attachment-import-progress.png",
+    "full": "screens/full/flow-attachment-import-progress.png",
+    "svg": "figma/flow-attachment-import-progress.svg"
   }
 ]
