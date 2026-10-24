@@ -8910,6 +8910,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get welcomeAttachmentBackupDescription => 'TAR.GZ · 票据、截图等附件';
+
+  @override
+  String get welcomeImportAttachmentsContinue => '导入附件并完成';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

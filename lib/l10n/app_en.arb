@@ -3988,5 +3988,6 @@
   "welcomeRestoreSettings": "App settings and preferences",
   "welcomeAttachmentRestoreTitle": "Bring your memories back, too.",
   "welcomeAttachmentRestoreDescription": "Restore receipts and their transaction links, or import them later.",
-  "welcomeAttachmentBackupDescription": "TAR.GZ · Receipts, screenshots and attachments"
+  "welcomeAttachmentBackupDescription": "TAR.GZ · Receipts, screenshots and attachments",
+  "welcomeImportAttachmentsContinue": "Import attachments and finish"
 }

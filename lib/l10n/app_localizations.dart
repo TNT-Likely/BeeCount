@@ -16771,6 +16771,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'TAR.GZ · Receipts, screenshots and attachments'**
   String get welcomeAttachmentBackupDescription;
+
+  /// No description provided for @welcomeImportAttachmentsContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Import attachments and finish'**
+  String get welcomeImportAttachmentsContinue;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

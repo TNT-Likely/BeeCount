@@ -8918,4 +8918,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get welcomeAttachmentBackupDescription => 'TAR.GZ · Receipts, screenshots and attachments';
+
+  @override
+  String get welcomeImportAttachmentsContinue => 'Import attachments and finish';
 }

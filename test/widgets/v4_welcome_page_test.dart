@@ -365,14 +365,14 @@ void main() {
         () =>
             find.text(text.welcomeImportAttachmentTitle).evaluate().isNotEmpty);
     final action =
-        find.widgetWithText(BeeButton, text.welcomeImportAttachmentButton);
+        find.widgetWithText(BeeButton, text.welcomeImportAttachmentsContinue);
     expect(t.widget<BeeButton>(action).onPressed, isNull);
     final invalid = File('${owned.path}/invalid.tar.gz');
     await t.runAsync(() => invalid.writeAsString('invalid archive'));
     picker.path = invalid.path;
     await tap(t, text.welcomeSelectBackup);
     expect(container.read(shouldShowWelcomeProvider), true);
-    await tap(t, text.welcomeImportAttachmentButton);
+    await tap(t, text.welcomeImportAttachmentsContinue);
     await settled(t, () => t.widget<BeeButton>(action).onPressed != null);
     expect(container.read(shouldShowWelcomeProvider), true);
     final metadata =
@@ -384,7 +384,7 @@ void main() {
         .writeAsBytes(GZipEncoder().encode(TarEncoder().encode(archive))!));
     picker.path = valid.path;
     await tap(t, text.welcomeSelectBackup);
-    await tap(t, text.welcomeImportAttachmentButton);
+    await tap(t, text.welcomeImportAttachmentsContinue);
     await settled(t, () => !container.read(shouldShowWelcomeProvider));
     expect(await repo.getAllLedgers(), isEmpty);
     expect(await repo.getAllTags(), isEmpty);

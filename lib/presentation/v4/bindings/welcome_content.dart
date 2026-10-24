@@ -281,7 +281,7 @@ mixin _WelcomeContent on ConsumerState<WelcomePage>, _WelcomeActions {
       footer: SizedBox(
           height: 48,
           child: BeeButton(
-              label: l.welcomeImportAttachmentButton,
+              label: l.welcomeImportAttachmentsContinue,
               loading: _isImportingAttachment,
               onPressed: _isImportingAttachment || _attachmentFilePath == null
                   ? null
