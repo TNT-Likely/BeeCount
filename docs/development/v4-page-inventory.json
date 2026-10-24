@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 271,
+  "designSceneExports": 277,
   "flowDefinitions": 183,
   "priorityCounts": {
     "P0": 16,
@@ -706,7 +706,7 @@
       "classes": [
         "BudgetPage"
       ],
-      "lines": 379,
+      "lines": 62,
       "batch": "M4 统计与分享",
       "designRoutes": [
         "budget"

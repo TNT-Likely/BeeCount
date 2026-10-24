@@ -748,32 +748,33 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T03:54:57+08:00",
-    "scheduledReportAt": "2026-10-25T03:54:00+08:00",
-    "engineeringEstimatePercent": 47,
+    "reportedAt": "2026-10-25T04:54:27+08:00",
+    "scheduledReportAt": "2026-10-25T04:54:00+08:00",
+    "engineeringEstimatePercent": 48,
     "engineeringEstimateRange": [
-      45,
-      49
+      46,
+      50
     ],
-    "completedPages": 26,
+    "completedPages": 28,
     "totalPages": 73,
     "completedP0Pages": 13,
     "totalExistingP0Pages": 16,
     "newlyCompletedSincePreviousReport": [
-      "全局附件与自定义图标预览R72"
+      "应用锁设置R73",
+      "分类迁移R74"
     ],
     "inProgress": [
-      "R72正式封存13图16文件报告，60项/7文件提交源码回归与11文件静态0问题、真实7文件/归档/业务47全部状态/生产入口/重启与独立57/53/24/5保持；ZIP59233d26faeac0d70e7ba04fdd6cd994d799538b66e422986a8193c46440c6ab",
-      "R73原421行及SHA备份，806产品文件/17项2文件提交源码回归/4文件静态0问题，HTML264场景与原四档底部弹层；真实创建取消/确认、旧PIN错误、新草稿取消、替换保存、4超时及选中取消通过",
-      "R73正常启动要求PIN、旧密码无法解锁与替换密码进入53笔首页通过，正在验证错误关闭/取消、正确关闭、有效超时恢复及最终重启；未封存不计整页",
-      "P0三页与标签详情的既有产品待确认项继续记录，独立推进其余P1；同一QA数据与两个文件级标记的公共文件保持，不重置环境",
-      "v4已推送ac526bac，PR575仍CLOSED；本地R73产品9f4b7602已安装验收，未重开PR"
+      "R73与R74完整报告封存，严格28/73；R74实际专用tx55/56正反迁移恢复，原财务/关系与文件保持，仅原服务追踪队列两笔允许变化，15图18文件ZIP6872ece9e205ac5d1a0d6cc403d82d6b0aff1000375b825089ae931a9f08205a",
+      "R75原522行及SHA备份；最终源83a325b7的815产品文件/63项6文件提交源码回归与10文件静态0问题，277场景/70规范组与41基础控件。3px行高差已对齐冻结HTML，最终产物85416285344adf6a078b89d8224b24cef0924a33208a696ceaebfe7dd41f3074核对并安装",
+      "R75实际USD手动原值回填、取消/零拒绝/9位精度保存后恢复7.1及主币种USD已通过；正在核对微信输入法对ADB标点注入与恢复自动，未封存不计完成。当前同一QA临时USD，后续会经UI恢复原CNY；原交易和账户快照未重算",
+      "R76原预算4文件1114行备份；按现有环形预算稿组合原用量、排除标记、账本起始日及共享权限，10项2文件真实SQLite/只读/空错/短屏回归已通过，未安装验收不计整页",
+      "源码和设计已推送927a15c3，PR575仍CLOSED；P0既有产品待确认项继续记录，独立推进P1，同一QA与两个公共文件级所有权标记保持，无reset"
     ],
     "remainingEffortEstimateHours": [
-      26,
-      46
+      25,
+      45
     ],
-    "remainingEffortChangeReason": "较02:54的27–47减少约1个实际工作小时。R72新增发现并修复关闭语义合并与内嵌滚动陷阱，已在已提交源码副本和新产物完整复验；R73已进入原生收尾。剩余45个现有页约26743行及2个计划页，不能按代码行数换算完成率；Cloud/AI实际联调、复杂统计/年度账单导出和逐页数据校验仍有浮动。该区间是实际工作量，不是承诺的自然上线时刻。"
+    "remainingEffortChangeReason": "较03:54的26–46减少约1个实际工作小时，新增R73/R74完整闭环；R75发现并修复3px行高差，真机输入法与硬件键事件正在核对。43个现有待完整验收页和2个计划页仍包括Cloud/AI、复杂统计及年度导出，区间保留联调与逐页数据校验浮动；不按代码量或打开次数算完成率，也不承诺自然上线时刻。"
   },
   "pullRequest": {
     "number": 575,
