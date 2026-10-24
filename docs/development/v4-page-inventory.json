@@ -1430,7 +1430,7 @@
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "待迁移",
+      "status": "迁移中·原422行页面与缩放Provider已备份，八档/精细调整和原缩放关系核对中",
       "name": "字体设置",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
@@ -1491,12 +1491,12 @@
         "flow-language"
       ],
       "designMapping": "已定位",
-      "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "迁移中·原五项与语言/地区偏好保留，规范选择卡片和刷新检查收口",
+      "components": "V4页头/整页背景、BeeSurface与BeeOnboardingChoice，原LanguageNotifier和updateAppWidget",
+      "acceptance": "16项/3文件相关回归、2文件静态检查0问题及3组HTML通过。真实UI核对英语、zh/TW、韩语、简体、跟随系统及选中语义；系统清两键，其他语言清旧TW，英语父页副标题与正常重启持久化。原简体和主题恢复，原57笔/当前53/24账户/5附件及标签26不变。9图/12文件报告language-r63三宽度与ZIP校验通过，SHA256 3a2be7bbac79ff68d9ed9ffc15522a9aff7fb838992bfff58a76fdb55f4355b4。Cloud/iOS、实际桌面组件图片渲染未执行；刷新本地化参数由生产函数和捕获OS渲染器的widget验证。",
+      "status": "已完成",
       "name": "语言设置",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "原144行备份保持，新统一选择卡片复用初始化组件；原五项、语言/地区持久化及桌面组件刷新保留。R63同一QA实际五语言选择、英语重启与恢复原偏好完成。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-language"
       ]
