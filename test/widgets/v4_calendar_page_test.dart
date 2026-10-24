@@ -190,6 +190,49 @@ void main() {
     expect(t.takeException(), isNull);
     await close(t);
   });
+
+  testWidgets('分类图标默认沿用账单编辑；正文点击同样回填原交易并取消不写', (t) async {
+    await open(t);
+    await select15(t);
+    final row = find.byWidgetPredicate(
+        (w) => w is TransactionListItem && w.currencyCode == 'USD');
+    for (final icon in [true, false]) {
+      final target = icon
+          ? find
+              .descendant(
+                  of: row,
+                  matching: find.byWidgetPredicate((w) =>
+                      w is Semantics &&
+                      w.properties.button == true &&
+                      w.properties.label == '合成餐饮'))
+              .first
+          : find
+              .descendant(
+                  of: row,
+                  matching: find.textContaining('外币午餐', findRichText: true))
+              .first;
+      await t.ensureVisible(target);
+      await t.tap(target);
+      await t.pumpAndSettle();
+      final editor =
+          t.widget<TransactionEditorPage>(find.byType(TransactionEditorPage));
+      expect(editor.editingTransactionId, 1);
+      expect(editor.initialAmount, 12);
+      expect(editor.initialCurrencyCode, 'USD');
+      expect(editor.initialNativeAmount, 85.2);
+      Navigator.of(t.element(find.byType(TransactionEditorPage))).pop();
+      await t.pumpAndSettle();
+      await ready(t, row);
+    }
+    expect(
+        await db
+            .customSelect('SELECT count(*) AS n FROM transactions')
+            .getSingle()
+            .then((r) => r.read<int>('n')),
+        5);
+    expect(t.takeException(), isNull);
+    await close(t);
+  });
   testWidgets('左右切月清除选中、今天恢复月份与日期，不改交易', (t) async {
     await open(t);
     await select15(t);

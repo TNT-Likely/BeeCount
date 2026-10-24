@@ -192,7 +192,7 @@ class TransactionListItem extends ConsumerWidget {
         if (excludeFromBudget) l10n.txFlagBudgetExcludedTag
       ],
       onTap: onTap ?? () {},
-      onCategoryTap: onCategoryTap ?? () {},
+      onCategoryTap: onCategoryTap ?? onTap ?? () {},
       deleteLabel: l10n.commonDelete,
       onDeleteRequested: onDelete == null || isSelectionMode
           ? null
