@@ -841,9 +841,9 @@ void main() {
     expect(find.text('取消'), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 2));
     await tester.pump();
-    expect(find.text('取消'), findsNWidgets(2));
-    await gesture
-        .moveTo(tester.getCenter(find.widgetWithText(BeeButton, '语音').last));
+    expect(find.byType(BeeQuickAddFan), findsOneWidget);
+    await gesture.moveTo(
+        tester.getCenter(find.byKey(const ValueKey('quick-fan-voice'))));
     await gesture.up();
     await tester.pumpAndSettle();
     expect(find.text('滑动选择 voice'), findsOneWidget);
@@ -855,9 +855,9 @@ void main() {
     expect(find.text('已取消快捷菜单'), findsOneWidget);
     await tester.tap(find.byTooltip('快捷记账菜单'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(BeeButton, '图片').last);
+    await tester.tap(find.byKey(const ValueKey('quick-fan-gallery')));
     await tester.pumpAndSettle();
-    expect(find.text('滑动选择 image'), findsOneWidget);
+    expect(find.text('滑动选择 gallery'), findsOneWidget);
   });
   testWidgets('日期滚轮切换闰年与月份夹取有效日期', (tester) async {
     DateTime date = DateTime(2024, 1, 31);
@@ -1019,4 +1019,70 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     }
   });
+  for (final dark in [false, true]) {
+    testWidgets('扇形菜单与冻结HTML尺寸一致，独立标签和禁用回调 ${dark ? '小屏深色大字' : '标准屏'}',
+        (tester) async {
+      final contract = jsonDecode(
+          File('test/fixtures/v4-quick-add-design-geometry.json')
+              .readAsStringSync()) as Map<String, dynamic>;
+      final semantics = tester.ensureSemantics();
+      final selected = <String>[];
+      var dismissed = 0;
+      const origin = Offset(160, 450);
+      try {
+        await open(
+            tester,
+            BeeQuickAddFan(
+                origin: origin,
+                title: '快捷记账',
+                hint: '长按后滑向目标，松手进入',
+                cancelLabel: '取消',
+                actions: const [
+                  BeeAction(
+                      id: 'camera', label: '拍照', icon: BeeLineIcon('Camera')),
+                  BeeAction(
+                      id: 'gallery', label: '相册', icon: BeeLineIcon('Images')),
+                  BeeAction(id: 'voice', label: '语音', icon: BeeLineIcon('Mic')),
+                ],
+                disabled: const {'gallery'},
+                onSelected: selected.add,
+                onDismiss: () => dismissed++),
+            size: const Size(320, 568),
+            brightness: dark ? Brightness.dark : Brightness.light,
+            scale: dark ? 1.4 : 1);
+        for (final value in contract['actions'] as List) {
+          final button = find.byKey(ValueKey('quick-fan-${value['method']}'));
+          final circle = find.descendant(
+              of: button,
+              matching: find.byWidgetPredicate((w) =>
+                  w is Container &&
+                  w.decoration is BoxDecoration &&
+                  (w.decoration! as BoxDecoration).shape == BoxShape.circle));
+          final rect = tester.getRect(circle);
+          expect(rect.width, closeTo((value['width'] as num).toDouble(), .01));
+          expect(
+              rect.height, closeTo((value['height'] as num).toDouble(), .01));
+          expect(rect.center.dx - origin.dx,
+              closeTo((value['dx'] as num).toDouble(), .01));
+          expect(rect.center.dy - origin.dy,
+              closeTo((value['dy'] as num).toDouble(), .01));
+          expect(tester.getSemantics(button).hasFlag(ui.SemanticsFlag.isButton),
+              isTrue);
+          expect(tester.getSemantics(button).hasFlag(ui.SemanticsFlag.isImage),
+              isFalse);
+        }
+        final disabled = tester
+            .getSemantics(find.byKey(const ValueKey('quick-fan-gallery')));
+        expect(disabled.hasFlag(ui.SemanticsFlag.isEnabled), isFalse);
+        await tester.tap(find.byKey(const ValueKey('quick-fan-camera')));
+        expect(selected, ['camera']);
+        await tester.tap(find.byKey(const ValueKey('quick-fan-dismiss')));
+        expect(dismissed, 1);
+        expect(tester.takeException(), isNull);
+      } finally {
+        semantics.dispose();
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+    });
+  }
 }

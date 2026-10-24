@@ -212,6 +212,7 @@
     "design_key": "quickAdd",
     "components": [
       "BeeQuickAddTrigger",
+      "BeeQuickAddFan",
       "BeeQuickAdd"
     ],
     "page": "business",

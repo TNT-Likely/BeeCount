@@ -1111,16 +1111,14 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             BeeQuickAddTrigger(
                 label: '记一笔',
                 menuLabel: '快捷记账菜单',
+                hint: '长按后滑向目标，松手进入',
                 cancelLabel: '取消',
                 actions: const [
                   BeeAction(
-                      id: 'ai', label: 'AI 记账', icon: BeeLineIcon('Shapes')),
+                      id: 'camera', label: '拍照', icon: BeeLineIcon('Camera')),
+                  BeeAction(id: 'voice', label: '语音', icon: BeeLineIcon('Mic')),
                   BeeAction(
-                      id: 'voice',
-                      label: '语音',
-                      icon: BeeLineIcon('Smartphone')),
-                  BeeAction(
-                      id: 'image', label: '图片', icon: BeeLineIcon('ImagePlus'))
+                      id: 'gallery', label: '相册', icon: BeeLineIcon('Images'))
                 ],
                 onTap: () => record('普通记账'),
                 onSelected: (v) => record('滑动选择 $v'),

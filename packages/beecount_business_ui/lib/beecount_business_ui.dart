@@ -32,3 +32,4 @@ export 'src/onboarding_components.dart';
 
 export 'src/ledger_management.dart';
 export 'src/home_layout.dart';
+export 'src/quick_add_fan.dart';
