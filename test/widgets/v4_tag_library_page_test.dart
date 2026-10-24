@@ -2,7 +2,9 @@ import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/tag/tag_manage_page.dart';
+import 'package:beecount/pages/tag/tag_edit_page.dart';
 import 'package:beecount/presentation/v4/bindings/tag_library_files.dart';
+import 'package:beecount/presentation/v4/bindings/tag_library_preview.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/services/export/config_export_service.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
@@ -78,7 +80,8 @@ void main() {
     container.dispose();
     await db.close();
   });
-  Future<void> open(WidgetTester t, {bool compact = false}) async {
+  Future<void> open(WidgetTester t,
+      {bool compact = false, Widget? page}) async {
     t.view.devicePixelRatio = 1;
     t.view.physicalSize = compact ? const Size(320, 568) : const Size(398, 844);
     addTearDown(t.view.resetDevicePixelRatio);
@@ -95,7 +98,7 @@ void main() {
                 data: MediaQuery.of(context)
                     .copyWith(textScaler: TextScaler.linear(compact ? 1.4 : 1)),
                 child: child!),
-            home: TagManagePage(files: files))));
+            home: page ?? TagManagePage(files: files))));
     await t.pumpAndSettle();
   }
 
@@ -112,6 +115,40 @@ void main() {
     await t.pumpAndSettle();
   }
 
+  testWidgets('业务组件真实预览读取计数颜色、进入原写入流程且空态可用', (t) async {
+    await open(t, page: const LiveTagLibraryPreview());
+    final preview = t.widget<BeeTagLibrary>(find.byType(BeeTagLibrary));
+    expect(preview.enabled, isFalse);
+    expect(preview.items.singleWhere((x) => x.tag.id == '$used').count, '1笔');
+    expect(preview.items.singleWhere((x) => x.tag.id == '$used').tag.color,
+        const Color(0xff219c9c));
+    await t.tap(find.widgetWithText(BeeButton, '标签管理'));
+    await t.pumpAndSettle();
+    expect(find.byType(TagManagePage), findsOneWidget);
+    await tool(t, '新增标签');
+    expect(find.byType(TagEditPage), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
+    await close(t);
+    await repo.deleteTag(used);
+    await repo.deleteTag(unused);
+    await open(t, page: const LiveTagLibraryPreview());
+    expect(find.byType(BeeEmptyState), findsOneWidget);
+    await close(t);
+  });
+  testWidgets('标签导入拒绝错误扩展和无标签内容，不写仓库', (t) async {
+    await open(t);
+    files.selection = '/qa.txt';
+    await tool(t, '导入标签');
+    expect(await repo.getAllTags(), hasLength(2));
+    expect(find.byType(BeeDialog), findsNothing);
+    files.selection = '/qa.yml';
+    files.content = 'ledgers:\n  items:\n    - name: Wrong scope\n';
+    await tool(t, '导入标签');
+    expect(await repo.getAllTags(), hasLength(2));
+    expect(await db.customSelect('SELECT * FROM ledgers').get(), hasLength(1));
+    expect(find.byType(BeeDialog), findsNothing);
+    await close(t);
+  });
   testWidgets('真实计数与原标签颜色，独立删除取消/确认不丢账单', (t) async {
     await open(t);
     final library = t.widget<BeeTagLibrary>(find.byType(BeeTagLibrary));
