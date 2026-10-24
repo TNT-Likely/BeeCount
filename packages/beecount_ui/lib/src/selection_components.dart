@@ -229,11 +229,13 @@ class BeeIconChoiceGrid<T> extends StatelessWidget {
       required this.items,
       required this.value,
       required this.onChanged,
-      this.columns = 4});
+      this.columns = 4,
+      this.showLabels = true});
   final List<BeeIconChoice<T>> items;
   final T value;
   final ValueChanged<T> onChanged;
   final int columns;
+  final bool showLabels;
   @override
   Widget build(BuildContext context) => GridView.count(
       shrinkWrap: true,
@@ -243,9 +245,10 @@ class BeeIconChoiceGrid<T> extends StatelessWidget {
       crossAxisCount: columns,
       mainAxisSpacing: 6,
       crossAxisSpacing: 6,
-      childAspectRatio: 1.05,
+      childAspectRatio: showLabels ? 1.05 : 1,
       children: items
           .map((item) => Semantics(
+              label: showLabels ? null : item.label,
               selected: item.value == value,
               enabled: item.enabled,
               button: true,
@@ -277,14 +280,15 @@ class BeeIconChoiceGrid<T> extends StatelessWidget {
                                         width: 24,
                                         height: 24,
                                         child: item.icon),
-                                    const SizedBox(height: 5),
-                                    Flexible(
-                                        child: Text(item.label,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            textAlign: TextAlign.center,
-                                            style:
-                                                const TextStyle(fontSize: 11))),
+                                    if (showLabels) const SizedBox(height: 5),
+                                    if (showLabels)
+                                      Flexible(
+                                          child: Text(item.label,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(
+                                                  fontSize: 11))),
                                   ])))))))
           .toList());
 }

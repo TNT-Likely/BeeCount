@@ -21,3 +21,4 @@ export 'src/resource_components.dart';
 
 export 'src/configuration_components.dart';
 export 'src/security_components.dart';
+export 'src/category_icon_editor.dart';

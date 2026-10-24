@@ -41,7 +41,8 @@ const businessCases = [
   '转账账户对',
   '搜索汇总与批量操作',
   '分类账户标签详情',
-  '配置选择与预览'
+  '配置选择与预览',
+  '分类图标编辑'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -76,6 +77,8 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
   String recordingNote = '午餐';
   Set<String> configScopes = {'ledgers', 'accounts', 'categories', 'tags'};
   String pin = '';
+  String categoryIcon = 'coffee';
+  BeeCategoryIconSource categoryIconSource = BeeCategoryIconSource.preset;
   DateTime date = DateTime(2026, 10, 23, 12, 30);
   Set<String> tags = {'work'}, expanded = {};
   Map<String, String?> mapping = {
@@ -1272,7 +1275,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     label: '累计支出趋势',
                     axisLabels: ['10.01', '10.10', '10.20']))
           ]),
-        _ => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        36 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             BeeConfigurationOptions(
                 items: const [
                   BeeConfigurationChoice(id: 'ledgers', label: '账本'),
@@ -1288,6 +1291,40 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     'version: 1\nledgers:\n  items:\n    - name: 日常生活\n      currency: CNY',
                 label: 'YAML 配置预览'),
           ]),
+        _ => BeeSurface(
+            child: BeeCategoryIconEditor(
+                source: categoryIconSource,
+                value: categoryIcon,
+                presetLabel: '预设图标',
+                customLabel: '自定义图标',
+                commonLabel: '常用',
+                imageHint: '保留图片原色与透明背景，选择后裁剪为正方形。',
+                chooseImageLabel: '选择图片',
+                preview: Image.asset('assets/logo2.png', fit: BoxFit.contain),
+                commonItems: const [
+                  BeeIconChoice(
+                      value: 'food',
+                      label: '餐饮',
+                      icon: BeeLineIcon('Utensils')),
+                  BeeIconChoice(
+                      value: 'coffee', label: '咖啡', icon: BeeLineIcon('Coffee'))
+                ],
+                groups: const [
+                  BeeCategoryIconGroup(id: 'travel', label: '出行', items: [
+                    BeeIconChoice(
+                        value: 'train',
+                        label: '地铁',
+                        icon: BeeLineIcon('TrainFront')),
+                    BeeIconChoice(
+                        value: 'plane', label: '飞机', icon: BeeLineIcon('Plane'))
+                  ])
+                ],
+                onSourceChanged: (v) => setState(() => categoryIconSource = v),
+                onChanged: (v) => setState(() {
+                      categoryIcon = v;
+                      record('选择分类图标 $v');
+                    }),
+                onChooseImage: () => record('图片选择由 App 调用系统相册并裁剪'))),
       };
   void _editRate() => showBeeDialog<void>(context,
       title: '补充本笔汇率',

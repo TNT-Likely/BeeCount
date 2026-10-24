@@ -343,6 +343,20 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                           enabled: false),
                     ],
                     onChanged: (v) => setState(() => sort = v)),
+                const SizedBox(height: 12),
+                const Text('紧凑图标网格 · 保留语义标签'),
+                BeeIconChoiceGrid<int>(
+                    showLabels: false,
+                    value: sort,
+                    items: const [
+                      BeeIconChoice(
+                          value: 0, label: '现金', icon: BeeLineIcon('Wallet')),
+                      BeeIconChoice(
+                          value: 1,
+                          label: '银行卡',
+                          icon: BeeLineIcon('CreditCard'))
+                    ],
+                    onChanged: (v) => setState(() => sort = v)),
               ])),
         9 => BeeSurface(
               child: Column(children: [
