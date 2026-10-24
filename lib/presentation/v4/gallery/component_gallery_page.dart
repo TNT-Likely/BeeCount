@@ -27,6 +27,7 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
   int tab = 0;
   Brightness? brightness;
   Color? accent;
+  bool motionPaused = false;
   @override
   Widget build(BuildContext context) {
     final host = Theme.of(context);
@@ -47,19 +48,30 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                                 MaterialPageRoute(
                                     builder: (_) =>
                                         const PageMigrationGallery()))),
-                        PopupMenuButton<Color>(
-                            tooltip: '切换主题色',
-                            onSelected: (v) => setState(() => accent = v),
-                            itemBuilder: (_) => const [
-                                  PopupMenuItem(
+                        PopupMenuButton<Object>(
+                            tooltip: '主题色与动效',
+                            onSelected: (v) => setState(() {
+                                  if (v is Color) {
+                                    accent = v;
+                                  } else if (v == 'motion') {
+                                    motionPaused = !motionPaused;
+                                  }
+                                }),
+                            itemBuilder: (_) => [
+                                  const PopupMenuItem(
                                       value: Color(0xfffacb16),
                                       child: Text('蜜蜂黄')),
-                                  PopupMenuItem(
+                                  const PopupMenuItem(
                                       value: Color(0xff49a396),
                                       child: Text('薄荷绿')),
-                                  PopupMenuItem(
+                                  const PopupMenuItem(
                                       value: Color(0xff7771db),
-                                      child: Text('鸢尾紫'))
+                                      child: Text('鸢尾紫')),
+                                  const PopupMenuDivider(),
+                                  PopupMenuItem(
+                                      value: 'motion',
+                                      child: Text(
+                                          motionPaused ? '播放示例动效' : '暂停示例动效'))
                                 ]),
                         IconButton(
                             tooltip: '切换深浅色',
@@ -76,10 +88,13 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                           constraints: const BoxConstraints(maxWidth: 560),
                           child: IndexedStack(index: tab, children: [
                             TickerMode(
-                                enabled: tab == 0,
+                                key: const ValueKey(
+                                    'gallery-foundation-tickers'),
+                                enabled: tab == 0 && !motionPaused,
                                 child: const FoundationAcceptancePage()),
                             TickerMode(
-                                enabled: tab == 1,
+                                key: const ValueKey('gallery-business-tickers'),
+                                enabled: tab == 1 && !motionPaused,
                                 child: BusinessAcceptancePage(
                                     budgetEditorData: widget.enableLiveData
                                         ? const LiveBudgetEditorPreview()
