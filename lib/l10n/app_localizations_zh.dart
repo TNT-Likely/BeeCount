@@ -8934,6 +8934,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4TagOriginalLedgerTotals => '按原账本金额汇总';
+
+  @override
+  String get v4TagToolsTitle => '标签工具';
+
+  @override
+  String get v4TagToolsHint => '新增、导入、默认生成与清理';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

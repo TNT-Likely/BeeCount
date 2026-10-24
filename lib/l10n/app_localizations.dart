@@ -16819,6 +16819,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Totals use each ledger’s original amounts'**
   String get v4TagOriginalLedgerTotals;
+
+  /// No description provided for @v4TagToolsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag tools'**
+  String get v4TagToolsTitle;
+
+  /// No description provided for @v4TagToolsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add, import, generate defaults and clean up'**
+  String get v4TagToolsHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

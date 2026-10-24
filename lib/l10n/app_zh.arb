@@ -3703,5 +3703,7 @@
   "v4TagCategories": "关联分类",
   "v4TagRecord": "使用此标签记一笔",
   "v4TagDistribution": "分类分布",
-  "v4TagOriginalLedgerTotals": "按原账本金额汇总"
+  "v4TagOriginalLedgerTotals": "按原账本金额汇总",
+  "v4TagToolsTitle": "标签工具",
+  "v4TagToolsHint": "新增、导入、默认生成与清理"
 }

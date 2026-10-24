@@ -8942,4 +8942,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4TagOriginalLedgerTotals => 'Totals use each ledger’s original amounts';
+
+  @override
+  String get v4TagToolsTitle => 'Tag tools';
+
+  @override
+  String get v4TagToolsHint => 'Add, import, generate defaults and clean up';
 }

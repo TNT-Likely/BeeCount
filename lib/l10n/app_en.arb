@@ -3996,5 +3996,7 @@
   "v4TagCategories": "Linked categories",
   "v4TagRecord": "Record with this tag",
   "v4TagDistribution": "Category distribution",
-  "v4TagOriginalLedgerTotals": "Totals use each ledger’s original amounts"
+  "v4TagOriginalLedgerTotals": "Totals use each ledger’s original amounts",
+  "v4TagToolsTitle": "Tag tools",
+  "v4TagToolsHint": "Add, import, generate defaults and clean up"
 }

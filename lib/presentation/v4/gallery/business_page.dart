@@ -47,7 +47,8 @@ const businessCases = [
   '分类图标编辑',
   '账户类型选择',
   '账户余额调整',
-  '资产总览与账户设置'
+  '资产总览与账户设置',
+  '标签管理库'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -58,8 +59,9 @@ const demoTags = [
 ];
 
 class BusinessAcceptancePage extends StatefulWidget {
-  const BusinessAcceptancePage({super.key, this.isolatedCase, this.liveData});
-  final Widget? liveData;
+  const BusinessAcceptancePage(
+      {super.key, this.isolatedCase, this.liveData, this.tagLibraryData});
+  final Widget? liveData, tagLibraryData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
@@ -1804,6 +1806,30 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     onIncomeAccount: () => record('选择默认收入账户'),
                     rateLabel: '汇率管理',
                     onRates: () => record('管理汇率'))),
+          ]),
+        41 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            SizedBox(
+                height: 300,
+                child: BeeTagLibrary(
+                    items: const [
+                      BeeTagLibraryItem(
+                          tag: BeeTagData('work', '工作日', Color(0xffaa8b29)),
+                          count: '31笔'),
+                      BeeTagLibraryItem(
+                          tag: BeeTagData('travel', '旅行', Color(0xff219c9c)),
+                          count: '17笔'),
+                      BeeTagLibraryItem(
+                          tag:
+                              BeeTagData('unused', '未使用的标签', Color(0xff826acb)),
+                          count: '0笔')
+                    ],
+                    deleteLabel: '删除',
+                    onOpen: (id) => record('查看标签 $id'),
+                    onDelete: (id) => record('删除前确认 $id'))),
+            const Text('上方为受控组件样例；实际写入从真实标签管理页面确认。',
+                style: TextStyle(fontSize: 12)),
+            const SizedBox(height: 12),
+            widget.tagLibraryData ?? const Text('从 App 的组件验收入口查看真实标签库。')
           ]),
         _ => const SizedBox.shrink(),
       };

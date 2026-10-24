@@ -4,6 +4,7 @@ import 'foundation_page.dart';
 import 'page_migration_gallery.dart';
 import 'business_page.dart';
 import '../bindings/live_business_preview.dart';
+import '../bindings/tag_library_preview.dart';
 
 /// Debug route inside BeeCount's existing navigator, theme and localization scope.
 class ComponentGalleryPage extends StatefulWidget {
@@ -71,6 +72,9 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                             TickerMode(
                                 enabled: tab == 1,
                                 child: BusinessAcceptancePage(
+                                    tagLibraryData: widget.enableLiveData
+                                        ? const LiveTagLibraryPreview()
+                                        : null,
                                     liveData: widget.enableLiveData
                                         ? const LiveBusinessPreview()
                                         : null))
