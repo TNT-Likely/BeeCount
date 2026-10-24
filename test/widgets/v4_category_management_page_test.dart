@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'dart:convert';
+import 'package:archive/archive.dart';
+import 'package:flutter/services.dart';
 import 'package:beecount/cloud/sync_service.dart';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
@@ -340,6 +343,67 @@ void main() {
     expect(tester.takeException(), isNull);
     await close(tester);
   });
+  for (final overwrite in [false, true]) {
+    testWidgets('真实 ZIP ${overwrite ? '覆盖' : '合并'}导入保存父子关系，保护已用分类及账单',
+        (tester) async {
+      const channel = MethodChannel('plugins.flutter.io/path_provider');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (_) async => owned.path);
+      addTearDown(() => TestDefaultBinaryMessengerBinding
+          .instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null));
+      final parent = await repo.createCategory(name: '保留父级', kind: 'expense');
+      final child = await repo.createCategory(
+          name: '保留子级', kind: 'expense', level: 2, parentId: parent);
+      final unused = await repo.createCategory(name: '未用收入', kind: 'income');
+      await repo.addTransaction(
+          ledgerId: 1,
+          type: 'expense',
+          amount: 17,
+          categoryId: child,
+          happenedAt: DateTime(2026, 10, 24));
+      final beforeTransactions = await repo.getTransactionsByLedger(1);
+      final bytes = utf8.encode(jsonEncode({
+        'version': 1,
+        'categories': [
+          {'name': '包内父级', 'kind': 'expense', 'level': 1, 'icon': 'restaurant'},
+          {
+            'name': '包内子级',
+            'kind': 'expense',
+            'level': 2,
+            'parent_name': '包内父级',
+            'icon': 'local_cafe'
+          },
+        ]
+      }));
+      final archive = Archive()
+        ..addFile(ArchiveFile('categories.yaml', bytes.length, bytes));
+      final zip = File('${owned.path}/synthetic.zip');
+      await tester
+          .runAsync(() => zip.writeAsBytes(ZipEncoder().encode(archive)!));
+      picker.path = zip.path;
+      await open(tester);
+      final l = strings(tester);
+      await tools(tester);
+      await choose(tester, l.categoryImport);
+      await ready(tester, find.text(l.categoryImportModeTitle));
+      await choose(
+          tester,
+          overwrite
+              ? l.categoryImportModeOverwrite
+              : l.categoryImportModeMerge);
+      await ready(tester, find.text('包内父级'));
+      final rows = await repo.getAllCategories();
+      expect(rows.any((c) => c.id == unused), !overwrite);
+      expect(rows.singleWhere((c) => c.id == child).parentId, parent);
+      final importedParent = rows.singleWhere((c) => c.name == '包内父级');
+      expect(rows.singleWhere((c) => c.name == '包内子级').parentId,
+          importedParent.id);
+      expect(await repo.getTransactionsByLedger(1), beforeTransactions);
+      expect(tester.takeException(), isNull);
+      await close(tester);
+    });
+  }
   testWidgets('导入选择取消、无效扩展名和模式取消均保持原分类及账单', (tester) async {
     await repo.createCategory(name: '合成已有', kind: 'expense');
     await open(tester);
