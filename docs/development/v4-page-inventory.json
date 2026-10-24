@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-24",
+  "date": "2026-10-25",
   "branch": "v4",
   "pageFiles": 71,
   "helperFiles": [
@@ -1541,7 +1541,7 @@
       "classes": [
         "PersonalizePage"
       ],
-      "lines": 108,
+      "lines": 120,
       "batch": "M8 设置与收尾",
       "designRoutes": [
         "colors",
@@ -1549,12 +1549,12 @@
         "flow-theme-locked"
       ],
       "designMapping": "已定位",
-      "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "迁移中·原512行已备份，27种原色值/HSV/固定皮肤锁定接入，短屏大字回归中",
+      "components": "可见名称色板、受控HSV/RGB预览、统一自定义弹窗、固定皮肤说明与原换皮肤入口",
+      "acceptance": "74项/10文件回归（7主题专项）、7文件静态0问题；真实3组HTML外观字号、245链接/65规范/41基础控件通过。真机27原名称、橙/青柠实际保存及重启选中、三HSV通道取消/确认红色、两款动态皮肤绑定/禁用/换纯色恢复自定义红、基础第22节回调及最终重启通过。原主题/记忆色/皮肤与全部所选偏好精确恢复，57/53/24/5和原业务表/附件hash不变。2026-10-25主题报告17图/20文件三宽度及ZIP SHA256 d0748bb841b37867680f35e3981438353153dcf74594d4e5f82bdd626f925522。Cloud/原生iOS/物理短屏未执行或不适用；未计独立皮肤页完成。",
+      "status": "已完成",
       "name": "主题色与自定义配色",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "原512行/27原色值和中英文名称冻结，自定义HSV草稿/原持久化/两款动态皮肤锁定恢复保留；R69同一QA真实UI、独立偏好/数据库/附件和正常重启已封存。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=colors",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-theme-custom",
