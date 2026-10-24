@@ -49,3 +49,5 @@ export 'src/category_migration_pair.dart';
 export 'src/exchange_rate_components.dart';
 
 export 'src/budget_components.dart';
+
+export 'src/calendar_components.dart';
