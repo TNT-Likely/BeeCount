@@ -101,7 +101,7 @@
       "name": "账本选择弹层",
       "source": "lib/widgets/biz/ledger_picker_sheet.dart",
       "priority": "P0",
-      "status": "真实业务组件已接入·R49完整验收中",
+      "status": "已完成·本地真实选择与原管理入口",
       "designRoutes": [
         "flow-ledger-picker"
       ],
@@ -1111,12 +1111,12 @@
         "flow-empty"
       ],
       "designMapping": "已定位",
-      "components": "品牌/无品牌、汇总、账单行、日期筛选、快捷记账与底部导航",
-      "acceptance": "AI/搜索入口、月份滚轮、标签/时间/外币、分类图标导航、长按菜单/左滑删除、记账长按快捷入口。 R49已补真实账本居中弹窗、紧凑屏与独立语义；278项相关回归通过，最终同环境真机及独立报告仍进行中，不计全页完成。",
-      "status": "部分迁移·R49整页验收中",
+      "components": "BeeHomeLayout、身份/月汇总/预算、真实账本选择、虚拟账单流、受控扇形菜单与原底部栏",
+      "acceptance": "280项相关回归/36文件通过；R50品牌重启、隐私、滚轮取消、分类/标签/附件目标、批量48/筛选/日历、复制取消、小票实际关闭、空USD切换/缓存、左滑删除取消、原长按动作取消和正常重启通过。独立SQL核对支出3421.56/收入264.27及预算已用3220.72；原52笔/当前48/5附件/2分类图片及全部原业务行不变。报告home-r50，22图/三宽度/ZIP通过。Cloud/iOS/付费AI和独立目的页不计本页范围；Q01/Q07保留原规则。",
+      "status": "已完成",
       "name": "首页明细",
       "priority": "P0",
-      "reason": "首页汇总、预算、无品牌/品牌和明细工具栏已对齐；继续核对月份/账本切换、行操作、空态及正常入口重启。",
+      "reason": "R50实际生产UI、独立SQL/文件、原数据保持、正常launcher重启与独立报告闭环；Q01行点击保留原编辑，新增独立详情另列。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=home",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-empty"

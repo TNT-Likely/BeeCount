@@ -8,6 +8,13 @@
   home=function(){
     const host=document.createElement('div');host.innerHTML=hPreviousHome();
     if(qParams.get('records')==='empty'){host.querySelector('.bc-budget')?.remove();const count=host.querySelector('.bc-stream-head small');if(count)count.textContent='0笔';}
+    // A visual fixture for the original distinction between statistical expense
+    // and budget expense; financial calculations are independently checked in App QA.
+    if(qParams.get('budget')==='exceeded'){
+      const hero=host.querySelector('.bc-hero-value');if(hero)hero.innerHTML='<span style="font-size:22px;font-weight:400">¥ </span>'+shown(3421.56);
+      const metrics=host.querySelectorAll('.bc-dual strong');if(metrics[0])metrics[0].textContent=shown(264.27);if(metrics[1])metrics[1].textContent=shown(-3157.29);
+      const budget=host.querySelector('.bc-budget');if(budget){budget.querySelector('.bc-between>span').textContent='月预算 ¥'+shown(2000);const remaining=budget.querySelector('.bc-between button');if(remaining){remaining.innerHTML='剩余 ¥'+shown(-1220.72)+icon('chevron-right');remaining.style.color='var(--bc-red)';}const track=budget.querySelector('.bc-budget-track>span');track.style.width='100%';track.style.background='var(--bc-red)';track.parentElement.setAttribute('aria-valuenow','100');}
+    }
     const list=host.querySelector('.bc-stream>div:last-child');
     list.classList.add('h-journal-list');list.setAttribute('aria-label','账单列表，可滚动');
     if(!pRows().length&&!state.query)list.innerHTML=`<div class="h-empty">${icon('receipt-text')}<h3>还没有记账</h3><p>点击底部加号，马上记一笔</p></div>`;
