@@ -422,10 +422,10 @@
     "settings/header_skin_page.dart": {
       "name": "皮肤选择与预览",
       "priority": "P1",
-      "reason": "承接本轮两款动态皮肤与主题预览；默认无皮肤，保留旧主题迁移。",
-      "status": "待迁移",
-      "components": "皮肤预览、选择与主题适配",
-      "acceptance": "默认无皮肤，两款动态皮肤浅深色、主题色、预览、应用/取消、减少动画。"
+      "reason": "原456行及SHA已备份；原三筛选/正式22项调试23项/五系列/默认纯色/两款固定配色与原恢复服务保留。R70同一QA全部23项真实选择、重启和组件真实预览闭环完成。",
+      "status": "已完成",
+      "components": "BeeSkinChoice/BeeSkinCard、原registry绑定、当前皮肤只读与显式生产入口",
+      "acceptance": "83项/6文件相关回归、7文件静态0问题；HTML三组实际外观字号与66组规范/41基础控件/248链接通过。全部23项实际选择持久化；正常launcher重启后，在任何选择回调前原极光仍选中；业务45实际受控回调只改样例，当前真实皮肤只读与生产入口通过。原选中偏好和57/53/24/5及全部业务表/附件hash精确保持，最终正常重启纯色和53笔首页。16图/19文件报告三宽度和ZIP校验通过，SHA256 063ac6de12c7e2a095a67b740df97a6462b05b409bddd9a50e02a0b396f5c51c。Q15保留原缩略图动效开关作用范围等待集中确认；Cloud/iOS/物理短屏未执行或不适用，正式22项由原kDebugMode/冻结注册验证，未另装release包。"
     },
     "settings/help_center_page.dart": {
       "name": "帮助中心",
@@ -748,31 +748,31 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-24T23:54:00+08:00",
-    "scheduledReportAt": "2026-10-24T23:54:00+08:00",
-    "engineeringEstimatePercent": 42,
+    "reportedAt": "2026-10-25T00:54:00+08:00",
+    "scheduledReportAt": "2026-10-25T00:54:00+08:00",
+    "engineeringEstimatePercent": 43,
     "engineeringEstimateRange": [
-      40,
-      44
+      41,
+      45
     ],
-    "completedPages": 22,
+    "completedPages": 23,
     "totalPages": 73,
     "completedP0Pages": 13,
     "totalExistingP0Pages": 16,
     "newlyCompletedSincePreviousReport": [
-      "显示与外观设置R68"
+      "主题色R69"
     ],
     "inProgress": [
-      "主题色R69原512行备份、27种存储色值和原HSV/固定皮肤锁定接入；当前五项通过，一项英文320深色140%固定皮肤提示溢出待修，尚无真机，不计整页",
-      "基础命名色板与受控HSV草稿已抽出；目录基础22/业务44，规范65组/41基础控件；HTML新主题场景导出后仍需交互复验",
-      "R68同一QA57笔/当前53/24账户/5附件及历史业务表保持，仅原自动汇率exchange_rates缓存更新；原生效偏好恢复，四项新增显式默认",
-      "v4继续分批提交推送；PR575仍CLOSED，准备好再恢复；Q08/Q09/Q10/Q11及AI/Cloud/平台范围仍保留"
+      "皮肤R70原456行已备份；原22项正式/23项调试注册、三筛选、分组和原主题恢复绑定已接入，尚未真机，不计整页",
+      "BeeSkinCard与当前真实皮肤只读预览抽离；原Flutter亮暗46张缩略图已冻结，HTML与完整回归待收口",
+      "同一QA保持57笔/当前53/24账户/5附件，R69全部偏好与数据逐项恢复，报告已封存",
+      "PR575仍CLOSED；后续AI测试按用户授权的智谱glm-5.3-flash，私有凭据不入库"
     ],
     "remainingEffortEstimateHours": [
-      28,
-      48
+      27,
+      47
     ],
-    "remainingEffortChangeReason": "较22:54的29–49减少约1实际工时。R68完成十五项/弹窗/生产目的页、USD恢复CNY、真实只读预览、正常重启和独立报告；卡片分隔密度与原生语义/脚本边界已收口。R69仍需修短屏大字溢出与真实设备闭环，后续AI/Cloud/共享权限复杂度仍有浮动；这是实际工作量区间，不是上线时刻。"
+    "remainingEffortChangeReason": "较23:54的28–48减少约1实际工时。R69真实选色、重启、HSV、两款固定皮肤与恢复闭环封存；R70原绘制与业务卡片已接入但未完整验收。后续AI、Cloud与共享权限仍有浮动；这是实际工作量区间。"
   },
   "pullRequest": {
     "number": 575,
