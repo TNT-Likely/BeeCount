@@ -43,7 +43,7 @@
 <table>
   <tr>
     <td width="190" align="center">
-      <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><img src="docs/sponsor/crazytoken/logo-cn-v3.png" width="160" alt="CrazyToken"/></a>
+      <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><img src="docs/sponsor/crazytoken/logo-cn-v4.png" width="160" alt="CrazyToken"/></a>
     </td>
     <td>
       <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><b>CrazyToken</b></a> 提供 Claude、GPT、Gemini、Kimi、GLM、DeepSeek、Qwen、Grok 等主流模型 API，为 AI 对话记账、票据图片识别与收支信息整理提供模型支持。<br/>
