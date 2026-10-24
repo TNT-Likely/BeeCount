@@ -153,7 +153,8 @@
   {
     "design_key": "onboarding",
     "components": [
-      "BeeOnboardingStep"
+      "BeeOnboardingStep",
+      "BeeBrandMark"
     ],
     "page": "business",
     "case": 15
@@ -491,5 +492,22 @@
     ],
     "page": "business",
     "case": 26
+  },
+  {
+    "design_key": "accountTypes",
+    "components": [
+      "BeeAccountTypePicker",
+      "BeeIconChoiceGrid"
+    ],
+    "page": "business",
+    "case": 38
+  },
+  {
+    "design_key": "balanceAdjustment",
+    "components": [
+      "BeeAccountBalanceAdjustment"
+    ],
+    "page": "business",
+    "case": 39
   }
 ]

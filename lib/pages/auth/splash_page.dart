@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/biz/bee_icon.dart';
 
@@ -11,6 +12,7 @@ class SplashPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
+        backgroundColor: BeeCardTheme.of(context).canvas,
         body: SafeArea(
             child: LayoutBuilder(
                 builder: (context, bounds) => SingleChildScrollView(
@@ -21,21 +23,12 @@ class SplashPage extends ConsumerWidget {
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
-                                  width: 76,
-                                  height: 76,
-                                  decoration: BoxDecoration(
+                              BeeBrandMark(
+                                  mark: BeeIcon(
+                                      size: 48,
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .primary
-                                          .withValues(alpha: .12),
-                                      borderRadius: BorderRadius.circular(24)),
-                                  child: Center(
-                                      child: BeeIcon(
-                                          size: 48,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary))),
+                                          .primary)),
                               const SizedBox(height: 20),
                               Text(l10n.splashAppName,
                                   style: const TextStyle(

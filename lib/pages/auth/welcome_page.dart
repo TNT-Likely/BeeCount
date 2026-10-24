@@ -137,21 +137,13 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                           total: _isExistingUserFlow ? 1 : 5,
                           title: title,
                           description: description,
-                          illustration: Container(
-                              width: 56,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withValues(alpha: .12),
-                                  borderRadius: BorderRadius.circular(19)),
-                              child: Center(
-                                  child: BeeIcon(
-                                      size: 34,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary))),
+                          illustration: BeeBrandMark(
+                              size: 56,
+                              corner: 19,
+                              mark: BeeIcon(
+                                  size: 34,
+                                  color:
+                                      Theme.of(context).colorScheme.primary)),
                           options: options,
                           next: const SizedBox.shrink(),
                           restore: const SizedBox.shrink())))));
@@ -232,8 +224,9 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                       final currency = await showCurrencyPickerSheet(context,
                           selected: _selectedCurrency,
                           primaryColor: theme.colorScheme.primary);
-                      if (currency != null && mounted)
+                      if (currency != null && mounted) {
                         setState(() => _selectedCurrency = currency);
+                      }
                     }),
               ])),
           const SizedBox(height: 12),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'gallery_catalog.dart';
 import '../../../utils/account_type_utils.dart';
+import '../../../widgets/biz/bee_icon.dart';
 import 'transaction_row_states.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
@@ -720,7 +721,14 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     hint: '0',
                     keyboardType: TextInputType.number))),
         15 => BeeSurface(
-            child: BeeOnboardingStep(
+              child: Column(children: [
+            const Text('启动品牌 · 76', style: TextStyle(fontSize: 12)),
+            const SizedBox(height: 8),
+            BeeBrandMark(
+                mark: BeeIcon(
+                    size: 48, color: Theme.of(context).colorScheme.primary)),
+            const SizedBox(height: 24),
+            BeeOnboardingStep(
                 step: step,
                 total: 5,
                 title: const [
@@ -731,7 +739,12 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                   '准备好开始记录'
                 ][step],
                 description: '简单记录每一天，选项稍后也可修改',
-                illustration: Image.asset('assets/logo2.png', height: 70),
+                illustration: BeeBrandMark(
+                    size: 56,
+                    corner: 19,
+                    mark: BeeIcon(
+                        size: 34,
+                        color: Theme.of(context).colorScheme.primary)),
                 options: Column(children: [
                   BeeMenuRow(
                       title: step == 1
@@ -761,7 +774,8 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                         })),
                 restore: TextButton(
                     onPressed: () => record('恢复已有数据'),
-                    child: const Text('已有数据？恢复备份')))),
+                    child: const Text('已有数据？恢复备份')))
+          ])),
         16 => BeeSurface(
               child: Column(children: [
             BeeButton(
@@ -1336,7 +1350,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                       record('选择分类图标 $v');
                     }),
                 onChooseImage: () => record('图片选择由 App 调用系统相册并裁剪'))),
-        _ => BeeSurface(
+        38 => BeeSurface(
               child: BeeAccountTypePicker(
                   groups: [
                 for (final group in ['daily', 'valuation'])
@@ -1374,7 +1388,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                         accountType = value;
                         record('选择账户类型 $value');
                       }))),
-        _ => BeeSurface(
+        39 => BeeSurface(
             child: BeeAccountBalanceAdjustment(
                 currentLabel: '当前余额',
                 currentAmount: '¥50.00',
@@ -1399,6 +1413,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 onModeChanged: (v) =>
                     setState(() => balanceAdjustmentRecord = v),
                 onConfirm: (v) => record(v ? '确认新增平账记录' : '确认仅修改余额'))),
+        _ => const SizedBox.shrink(),
       };
   void _editRate() => showBeeDialog<void>(context,
       title: '补充本笔汇率',
