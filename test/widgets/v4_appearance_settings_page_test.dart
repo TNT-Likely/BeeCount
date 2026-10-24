@@ -99,6 +99,8 @@ void main() {
 
   testWidgets('原15项/四组与五种弹窗、即时偏好及取消不改值', (t) async {
     await mount(t);
+    expect(t.getSize(find.byType(BeeSurface).first).height, lessThan(300),
+        reason: 'HTML同卡片使用紧凑分隔，防止默认24px分组间距混入五行菜单');
     final s = l(t);
     await choose(t, s.appearanceThemeMode, s.appearanceThemeModeDark);
     expect(container.read(themeModeProvider), ThemeMode.dark);

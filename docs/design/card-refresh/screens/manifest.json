@@ -164,7 +164,7 @@
     "title": "个性化设置",
     "group": "设置与管理",
     "slug": "appearance",
-    "fullHeight": 1195,
+    "fullHeight": 1059,
     "viewport": "screens/viewport/appearance.png",
     "full": "screens/full/appearance.png",
     "svg": "figma/appearance.svg"
