@@ -171,10 +171,10 @@
   },
   {
     "route": "colors",
-    "slug": "colors",
     "title": "主题色",
     "group": "设置与管理",
-    "fullHeight": 1265,
+    "slug": "colors",
+    "fullHeight": 844,
     "viewport": "screens/viewport/colors.png",
     "full": "screens/full/colors.png",
     "svg": "figma/colors.svg"
@@ -2452,5 +2452,25 @@
     "viewport": "screens/viewport/flow-appearance-currency.png",
     "full": "screens/full/flow-appearance-currency.png",
     "svg": "figma/flow-appearance-currency.svg"
+  },
+  {
+    "route": "flow-theme-custom",
+    "title": "自定义 · 弹窗",
+    "group": "主题色 · 自定义与锁定",
+    "slug": "flow-theme-custom",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-theme-custom.png",
+    "full": "screens/full/flow-theme-custom.png",
+    "svg": "figma/flow-theme-custom.svg"
+  },
+  {
+    "route": "flow-theme-locked",
+    "title": "主题色 · 固定皮肤",
+    "group": "主题色 · 自定义与锁定",
+    "slug": "flow-theme-locked",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-theme-locked.png",
+    "full": "screens/full/flow-theme-locked.png",
+    "svg": "figma/flow-theme-locked.svg"
   }
 ]

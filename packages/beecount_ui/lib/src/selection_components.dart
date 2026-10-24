@@ -16,54 +16,83 @@ class BeeColorPalette<T> extends StatelessWidget {
       {super.key,
       required this.items,
       required this.value,
-      required this.onChanged});
+      required this.onChanged,
+      this.showLabels = false});
   final List<BeeColorOption<T>> items;
   final T value;
   final ValueChanged<T>? onChanged;
+  final bool showLabels;
   @override
-  Widget build(BuildContext context) =>
-      Wrap(spacing: 8, runSpacing: 8, children: [
-        for (final item in items)
-          Semantics(
-              label: item.label,
-              selected: item.value == value,
-              button: true,
-              enabled: onChanged != null,
-              child: ExcludeSemantics(
-                  child: Tooltip(
-                      message: item.label,
-                      child: InkWell(
-                          borderRadius: BorderRadius.circular(22),
-                          onTap: onChanged == null
-                              ? null
-                              : () => onChanged!(item.value),
-                          child: SizedBox(
-                              width: 44,
-                              height: 44,
-                              child: Center(
-                                  child: Container(
-                                      width: 36,
-                                      height: 36,
-                                      decoration: BoxDecoration(
-                                          color: item.color,
-                                          shape: BoxShape.circle,
-                                          border: item.value == value
-                                              ? Border.all(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface,
-                                                  width: 2)
-                                              : null),
-                                      child: item.value == value
-                                          ? Icon(Icons.check,
-                                              size: 20,
-                                              color: item.color
-                                                          .computeLuminance() >
-                                                      .5
-                                                  ? Colors.black
-                                                  : Colors.white)
-                                          : null)))))))
-      ]);
+  Widget build(BuildContext context) => LayoutBuilder(
+      builder: (context, box) => Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final item in items)
+              Semantics(
+                  label: item.label,
+                  selected: item.value == value,
+                  button: true,
+                  enabled: onChanged != null,
+                  child: ExcludeSemantics(
+                      child: Tooltip(
+                          message: item.label,
+                          child: Opacity(
+                              opacity: onChanged == null ? .42 : 1,
+                              child: InkWell(
+                                  borderRadius: BorderRadius.circular(13),
+                                  onTap: onChanged == null
+                                      ? null
+                                      : () => onChanged!(item.value),
+                                  child: SizedBox(
+                                      width: showLabels
+                                          ? (box.maxWidth - 16) / 3
+                                          : 44,
+                                      child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            SizedBox(
+                                                width: 44,
+                                                height: 44,
+                                                child: Center(
+                                                    child: Container(
+                                                        width: 36,
+                                                        height: 36,
+                                                        decoration: BoxDecoration(
+                                                            color: item.color,
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            border: item.value ==
+                                                                    value
+                                                                ? Border.all(
+                                                                    color: Theme.of(context)
+                                                                        .colorScheme
+                                                                        .onSurface,
+                                                                    width: 2)
+                                                                : null),
+                                                        child: item.value == value
+                                                            ? Icon(Icons.check,
+                                                                size: 20,
+                                                                color: item.color
+                                                                            .computeLuminance() >
+                                                                        .5
+                                                                    ? Colors
+                                                                        .black
+                                                                    : Colors
+                                                                        .white)
+                                                            : null))),
+                                            if (showLabels)
+                                              Padding(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          3, 4, 3, 8),
+                                                  child: Text(item.label,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                          fontSize: 12))),
+                                          ])))))))
+          ]));
 }
 
 class BeeChoice<T> {

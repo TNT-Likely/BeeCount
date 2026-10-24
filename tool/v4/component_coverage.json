@@ -576,5 +576,14 @@
     ],
     "page": "business",
     "case": 43
+  },
+  {
+    "design_key": "hsvPalette",
+    "components": [
+      "BeeHsvColorPicker",
+      "BeeColorPalette"
+    ],
+    "page": "foundation",
+    "case": 21
   }
 ]

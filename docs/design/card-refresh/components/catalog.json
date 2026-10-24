@@ -171,6 +171,13 @@
         "title": "时间滚轮",
         "nativeCase": 20,
         "nativeLabel": "时间滚轮"
+      },
+      {
+        "id": "spec-65",
+        "code": "F25",
+        "title": "HSV配色与命名色板",
+        "nativeCase": 21,
+        "nativeLabel": "HSV配色与命名色板"
       }
     ]
   },

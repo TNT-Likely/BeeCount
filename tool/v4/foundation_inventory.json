@@ -529,14 +529,16 @@
     {
       "component": "BeeColorPalette",
       "cases": [
-        8
+        8,
+        21
       ],
       "supportedStates": [
         "selected",
         "unselected",
         "disabled",
         "long-label-semantics",
-        "controlled-callback"
+        "controlled-callback",
+        "可选显示完整名称/三列色板；默认圆点保持"
       ],
       "sampleCoverage": "Flat token section and tag editor, unit/widget and same retained QA acceptance tracked per page"
     },
@@ -575,6 +577,21 @@
         "large-text"
       ],
       "sampleCoverage": "基础第21节独立时间滚轮、HTML独立规范和真实提醒页弹层；偏好/OS调度留在App。"
+    },
+    {
+      "component": "BeeHsvColorPicker",
+      "cases": [
+        21
+      ],
+      "supportedStates": [
+        "controlled-hsv",
+        "RGB-hex-byte-correct",
+        "hue-0-360",
+        "saturation-brightness-0-1",
+        "disabled",
+        "short-screen-scroll-host"
+      ],
+      "sampleCoverage": "Foundation22 HSV/multiline named palette, production theme dialog and widget tests"
     }
   ]
 }

@@ -24,7 +24,8 @@ const foundationCases = [
   '底部操作栏',
   '加载与进度状态',
   '折线图',
-  '时间滚轮'
+  '时间滚轮',
+  'HSV配色与命名色板'
 ];
 
 class FoundationAcceptancePage extends StatefulWidget {
@@ -40,6 +41,7 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
   String event = '等待操作';
   bool loading = false, toggle = true, checked = false;
   double slider = .6;
+  HSVColor hsv = HSVColor.fromColor(Colors.blue);
   String filter = '本月';
   bool iconSelected = false, passwordHidden = true, demoMotion = false;
   bool statusDismissed = false, chartHidden = false;
@@ -298,6 +300,39 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                     event = '底栏 $v';
                   }),
               onRecordLongPress: () => record('长按记账：快捷操作')),
+        21 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            BeeColorPalette<int>(
+                items: const [
+                  BeeColorOption(value: 0, color: Colors.teal, label: '蓝绿'),
+                  BeeColorOption(
+                      value: 1, color: Colors.orange, label: '较长的主题颜色名称'),
+                  BeeColorOption(value: 2, color: Colors.purple, label: '紫色')
+                ],
+                value: colorChoice,
+                showLabels: true,
+                onChanged: (v) => setState(() => colorChoice = v)),
+            const SizedBox(height: 16),
+            BeeHsvColorPicker(
+                value: hsv,
+                hueLabel: '色相 ${hsv.hue.round()}°',
+                saturationLabel: '饱和度 ${(hsv.saturation * 100).round()}%',
+                brightnessLabel: '亮度 ${(hsv.value * 100).round()}%',
+                onChanged: (v) => setState(() => hsv = v)),
+            const SizedBox(height: 12),
+            const Text('禁用的HSV通道'),
+            BeeHsvColorPicker(
+                value: HSVColor.fromColor(Colors.blue),
+                hueLabel: '色相 207°',
+                saturationLabel: '饱和度 86%',
+                brightnessLabel: '亮度 95%',
+                onChanged: null),
+            const SizedBox(height: 12),
+            const Text('禁用的命名色板'),
+            const BeeColorPalette<int>(items: [
+              BeeColorOption(value: 0, color: Colors.teal, label: '蓝绿'),
+              BeeColorOption(value: 1, color: Colors.orange, label: '橙色')
+            ], value: 0, showLabels: true, onChanged: null),
+          ]),
         8 => BeeSurface(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
