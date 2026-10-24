@@ -4,7 +4,7 @@
 
 现有 **71 个产品页面源文件**（P0 16 页、P1 42 页、P2 13 页），另有 **2 个新设计页面待新增**、6 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
-当前完整完成页面为 **2**（账单附件大图预览、新增与编辑分类）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
+当前完整完成页面为 **3**（账单附件大图预览、新增与编辑分类、我的、昵称与当前账本）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
 
 ## 优先级与顺序
 
@@ -33,7 +33,7 @@
 | **分类管理与工具**<br>[lib/pages/category/category_manage_page.dart](../../lib/pages/category/category_manage_page.dart) | 部分迁移·待设计对齐与完整验收 | M3 | 分类层级、图标/图片、表单、排序与工具弹窗 | 一级/二级图标、自定义图片、转账图标入口、展开、排序和原工具弹窗。<br>设计：`leaf:分类管理`、`flow-category-tools`、`flow-taxonomy-import`、`flow-category-order`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **首页明细**<br>[lib/pages/main/home_page.dart](../../lib/pages/main/home_page.dart) | 部分迁移·待设计对齐与完整验收 | M2 | 品牌/无品牌、汇总、账单行、日期筛选、快捷记账与底部导航 | AI/搜索入口、月份滚轮、标签/时间/外币、分类图标导航、长按菜单/左滑删除、记账长按快捷入口。<br>设计：`home`、`flow-empty`<br>优先理由：首页汇总、预算、无品牌/品牌和明细工具栏已对齐；继续核对月份/账本切换、行操作、空态及正常入口重启。 |
 | **账本管理与切换**<br>[lib/pages/main/ledgers_page_new.dart](../../lib/pages/main/ledgers_page_new.dart) | 部分迁移·待设计对齐与完整验收 | M2 | 账本卡、当前态、选择器、成员入口与操作菜单 | 个人/共享账本、当前选中、右下操作与长按同菜单、预算/成员/编辑、新建/删除权限。<br>设计：`ledgers`、`flow-ledger-edit`、`flow-ledger-actions`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
-| **我的、昵称与当前账本**<br>[lib/pages/main/mine_page.dart](../../lib/pages/main/mine_page.dart) | 部分迁移·头像闭环通过，余额及整页皮肤复验中 | M2 | 昵称、紧凑账本余额、同步状态与分组菜单 | 昵称编辑、当前账本累计余额/隐私、全部同步状态/异常/重试；完整原菜单和平台条件。<br>设计：`mine`、`flow-sync-states`、`flow-nickname-edit`、`flow-profile-edit`<br>优先理由：四个主要导航入口之一，需包含昵称、当前账本余额和完整同步状态。 |
+| **我的、昵称与当前账本**<br>[lib/pages/main/mine_page.dart](../../lib/pages/main/mine_page.dart) | 已完成 | M2 | 昵称、紧凑账本余额、同步状态与分组菜单 | R22/R23 昵称保存/取消、隐私、账本切换和全部菜单入口有独立版本证据；菜单/云 binding 与 R35 相同。R35 当前产物实际头像、文件/偏好、负数币种与紧凑统计、两款皮肤/深色和恢复默认后重启通过。398/320 冻结尺寸与相关 184 项回归通过。原生拍照/iOS/真实 Cloud 未执行，关联目标页仍按各自清单迁移。<br>设计：`mine`、`flow-sync-states`、`flow-nickname-edit`、`flow-profile-edit`<br>优先理由：已对齐紧凑资料与累计结余、全部原菜单、同步状态及整页皮肤；R35 实际头像系统相册/文件保存/删除恢复、笔数导航和正常重启通过，原 51 笔与 5 附件保持。 |
 | **配置导入导出与恢复**<br>[lib/pages/settings/config_import_export_page.dart](../../lib/pages/settings/config_import_export_page.dart) | 部分迁移·R25 文件闭环及 R28 皮肤真机通过，待整页清单收口 | M7 | 配置范围选择、文件读取/预览、导入导出状态 | 原备份范围与格式、初始化恢复、文件选择/预览、取消、失败恢复和附件联动。<br>设计：`flow-config`、`flow-config-preview`、`flow-export-scope`、`flow-config-select`、`flow-config-import`、`flow-config-error`、`flow-config-done`<br>优先理由：旧用户恢复配置与首次使用衔接，优先保证导入/取消/恢复路径。 |
 | **分类详情**<br>[lib/pages/transaction/category_detail_page.dart](../../lib/pages/transaction/category_detail_page.dart) | 部分迁移·R21 真机检查通过，待口径确认 | M3 | 分类信息/父子展开、统计、日期筛选与账单行 | 一级与二级分类图标、跨账本标记、收入/支出、日期/时间、备注/标签与详情导航。<br>设计：`categoryDetail`<br>优先理由：父子分类真实统计、分布、历史快照趋势、周期/排序、账单元信息及原编辑/迁移入口已实现；分类搜索继承范围。模型、页面及冻结 HTML 尺寸已回归；同一隔离设备验收中，Q10/Q11 保留原行为待确认。 |
 | **账单搜索与批量操作**<br>[lib/pages/transaction/search_page.dart](../../lib/pages/transaction/search_page.dart) | 部分迁移·待设计对齐与完整验收 | M2 | 搜索、筛选/日期范围、账单行和批量操作栏 | 保留当前账本的关键词、分类含二级、金额和日期筛选；对齐设计扩展项。批量备注/分类/删除需保留币种快照、转账目标、共享分类与账户引用、标签和附件；检查取消、合计与空态。<br>设计：`search`、`batch`<br>优先理由：已按新稿重组搜索汇总、日期分组、批量选择和固定操作栏；真实标签/附件、双账户检索、原币/折算筛选与原子批量标签已接入。122 项相关回归及 R18 实际标签/删除、R19/R20 视觉修正产物和正常重启通过，其余 51 笔及 5 个附件保持。成功撤销策略待 Q08。 |

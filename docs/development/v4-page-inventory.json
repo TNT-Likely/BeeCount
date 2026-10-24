@@ -215,7 +215,7 @@
       "classes": [
         "AccountEditPage"
       ],
-      "lines": 1902,
+      "lines": 1900,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "flow-account-edit",
@@ -1132,11 +1132,11 @@
       ],
       "designMapping": "已定位",
       "components": "昵称、紧凑账本余额、同步状态与分组菜单",
-      "acceptance": "昵称编辑、当前账本累计余额/隐私、全部同步状态/异常/重试；完整原菜单和平台条件。",
-      "status": "部分迁移·头像闭环通过，余额及整页皮肤复验中",
+      "acceptance": "R22/R23 昵称保存/取消、隐私、账本切换和全部菜单入口有独立版本证据；菜单/云 binding 与 R35 相同。R35 当前产物实际头像、文件/偏好、负数币种与紧凑统计、两款皮肤/深色和恢复默认后重启通过。398/320 冻结尺寸与相关 184 项回归通过。原生拍照/iOS/真实 Cloud 未执行，关联目标页仍按各自清单迁移。",
+      "status": "已完成",
       "name": "我的、昵称与当前账本",
       "priority": "P0",
-      "reason": "四个主要导航入口之一，需包含昵称、当前账本余额和完整同步状态。",
+      "reason": "已对齐紧凑资料与累计结余、全部原菜单、同步状态及整页皮肤；R35 实际头像系统相册/文件保存/删除恢复、笔数导航和正常重启通过，原 51 笔与 5 附件保持。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=mine",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-sync-states",
