@@ -1,3 +1,4 @@
+import 'gallery_still_asset.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
@@ -38,8 +39,9 @@ class _BudgetEditorSampleState extends State<BudgetEditorSample> {
             symbol: '¥',
             categoryName: selected ? '自定义咖啡' : null,
             categoryIcon: selected
-                ? Image.asset('assets/v4_gallery/category-coffee.png',
-                    width: 24, height: 24)
+                ? const GalleryStillAsset(
+                    'assets/v4_gallery/category-coffee.png',
+                    label: '自定义分类图片')
                 : null,
             onType: (value) => setState(() => type = value),
             onCategory: () => setState(() => selected = true)),
