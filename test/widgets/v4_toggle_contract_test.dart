@@ -51,7 +51,9 @@ void main() {
         final i = (y * picture.width + x) * 4;
         if ((data.getUint8(i) - 38).abs() < 8 &&
             (data.getUint8(i + 1) - 166).abs() < 8 &&
-            (data.getUint8(i + 2) - 154).abs() < 8) row.add(x);
+            (data.getUint8(i + 2) - 154).abs() < 8) {
+          row.add(x);
+        }
       }
       expect(row, isNotEmpty);
       // HTML frozen stylesheet: 36px track, 22px height, 14px thumb. Allow one

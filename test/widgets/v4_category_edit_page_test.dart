@@ -318,6 +318,31 @@ void main() {
     expect((await repo.getTransactionsByLedger(1)).length, 1);
     await close(tester);
   });
+  testWidgets('收入允许与支出同名，转账编辑保留类型与原图标身份', (tester) async {
+    final expenseId = await repo.createCategory(name: '同名类型', kind: 'expense');
+    final expense = (await repo.getCategoryById(expenseId))!;
+    await open(tester, const CategoryEditPage(kind: 'income'));
+    await tester.enterText(find.byType(TextFormField), '同名类型');
+    await idle(tester);
+    expect(find.text(l(tester).categoryNameDuplicate), findsNothing);
+    await touch(tester, find.text(l(tester).commonSave));
+    final sameNames =
+        (await repo.getAllCategories()).where((c) => c.name == '同名类型').toList();
+    expect(sameNames.map((c) => c.kind).toSet(), {'expense', 'income'});
+    final transferId = await repo.createCategory(
+        name: '转账', kind: 'transfer', icon: 'swap_horiz');
+    final transfer = (await repo.getCategoryById(transferId))!;
+    await open(tester, CategoryEditPage(kind: 'transfer', category: transfer));
+    await tester.enterText(find.byType(TextFormField), '转账显示');
+    await touch(tester, find.text(l(tester).commonSave));
+    final updated = (await repo.getCategoryById(transferId))!;
+    expect(updated.kind, 'transfer');
+    expect(updated.icon, transfer.icon);
+    expect(updated.syncId, transfer.syncId);
+    expect(updated.name, '转账显示');
+    expect((await repo.getCategoryById(expenseId))!.toJson(), expense.toJson());
+    await close(tester);
+  });
   testWidgets('父分类选择保留有子分类或无直接账单的规则，排除一级直属账单分类', (tester) async {
     final usedId = await repo.createCategory(name: '直接记账父分类', kind: 'expense');
     final emptyId = await repo.createCategory(name: '可选空分类', kind: 'expense');
