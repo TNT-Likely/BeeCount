@@ -749,7 +749,7 @@
       "classes": [
         "CalendarPage"
       ],
-      "lines": 75,
+      "lines": 85,
       "batch": "M4 统计与分享",
       "designRoutes": [
         "calendar",
@@ -763,12 +763,12 @@
         "flow-cl-month"
       ],
       "designMapping": "已定位",
-      "components": "月历、日期选择、金额汇总与账单行",
-      "acceptance": "月切换、日期格/选中/账单标记、当天明细与币种统计，保留查看和编辑入口。",
-      "status": "部分迁移·R78组件/HTML与相关回归通过，待同一QA真机闭环",
+      "components": "月历整卡、双金额日期槽、按日标题与完整原账单行、年月滚轮及选日记账",
+      "acceptance": "最终提交副本70项/7文件相关回归、16文件静态0问题；14组HTML和308场景/73组规范/41基础控件及三宽度通过。真机日收入42.45/支出455.71、原转账编辑与选日新增取消、次月/横滑/今天/滚轮取消和确认9月、原USD32→227.20均与独立SQL一致；Flutter52真实3天只读与正式入口、正常launcher重启通过。原57/53/24/5、金融表/追踪/偏好/图片和公共文件hash保持。18图/21文件报告calendar-r78三宽度与密钥逐字节扫描封存，ZIP d4ca4c578710d86ddd2235a97c40ffa78e1f3f838ce7beae104a5c13c757f396。物理短屏/iOS未执行，Cloud不适用。",
+      "status": "已完成",
       "name": "账单日历",
       "priority": "P1",
-      "reason": "保留原年月滚轮2000年至今天后365天、切月清空/今天恢复、选中日中午新增、原统计和编辑回调；原页面已完整备份，纯组件与App绑定已实现。",
+      "reason": "原721行页面与70行Provider完整备份；原统计口径不变，薄页面与纯日历业务组件完成。R78同一QA真实UI、独立SQL/文件、正常重启及封存报告闭环。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=calendar",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-calendar",
