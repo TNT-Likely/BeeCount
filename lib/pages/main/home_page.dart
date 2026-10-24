@@ -4,14 +4,15 @@ import '../../presentation/v4/gallery/component_gallery_page.dart';
 import '../../presentation/v4/bindings/home_reminders.dart';
 import '../../presentation/v4/bindings/home_overview.dart';
 import '../../presentation/v4/bindings/home_journal.dart';
-import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
+import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'dart:async';
 import '../budget/budget_page.dart';
 import '../../providers.dart';
-import '../settings/personalize_page.dart' show headerStyleProvider;
+import '../../presentation/v4/bindings/home_header.dart';
 import '../../data/db.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/biz.dart';
@@ -37,6 +38,7 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   late FlutterListViewController _listController;
+  final _pageScrollController = ScrollController();
   bool _isJumping = false;
   final GlobalKey<TransactionListState> _transactionListKey =
       GlobalKey<TransactionListState>();
@@ -83,6 +85,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   void dispose() {
     _debounceTimer?.cancel();
     _listController.dispose();
+    _pageScrollController.dispose();
     super.dispose();
   }
 
@@ -232,8 +235,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     final cachedFullData = ref.watch(cachedTransactionsProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final hide = ref.watch(hideAmountsProvider);
-    final aiEnabledAsync = ref.watch(aiAssistantEnabledProvider);
-    final aiEnabled = aiEnabledAsync.asData?.value ?? true; // 默认开启
 
     // 检测账本切换，强制刷新 StreamBuilder 并清空缓存
     if (_lastLedgerId != null && _lastLedgerId != ledgerId) {
@@ -250,6 +251,9 @@ class _HomePageState extends ConsumerState<HomePage> {
     // 监听滚动到顶部的信号
     ref.listen<int>(homeScrollToTopProvider, (previous, next) {
       if (previous != next) {
+        if (_pageScrollController.hasClients) {
+          _pageScrollController.jumpTo(0);
+        }
         // 滚动到列表顶部
         _transactionListKey.currentState?.jumpToTop();
       }
@@ -278,175 +282,97 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return V4PageScaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor, // ⭐ 自适应背景色
-      body: Column(
-        children: [
-          Consumer(builder: (context, ref, _) {
-            ref.watch(headerStyleProvider);
-            return PrimaryHeader(
-              title: '',
-              showTitleSection: false,
-              padding: const EdgeInsets.fromLTRB(17, 6, 17, 8),
-              content: HomeOverview(
-                jumping: _isJumping,
-                onMonthTap: _handleDateSelection,
-                onLedgerTap: () {
-                  final ledger = ref.read(currentLedgerProvider).valueOrNull;
-                  if (ledger == null) {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const LedgersPageNew(
-                                autoOpenCreateDialog: true)));
-                  } else {
-                    showLedgerPicker(context);
-                  }
-                },
-                actions: [
-                  if (aiEnabled)
-                    Tooltip(
-                        message: AppLocalizations.of(context).aiChatTitle,
-                        child: TextButton.icon(
-                            onPressed: _openAIChat,
-                            style: TextButton.styleFrom(
-                                minimumSize: const Size(40, 44),
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 5),
-                                foregroundColor: Color.lerp(
-                                    Theme.of(context).colorScheme.primary,
-                                    Theme.of(context).colorScheme.onSurface,
-                                    .4)),
-                            icon: const BeeLineIcon('Sparkles', size: 18),
-                            label: const Text('AI',
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600)))),
-                  BeeIconButton(
-                      label: AppLocalizations.of(context).homeSearch,
-                      icon: const BeeLineIcon('Search', size: 21),
-                      onPressed: _openJournalSearch),
-                  BeePopupMenu(
-                      tooltip: AppLocalizations.of(context).commonMore,
-                      icon: const BeeLineIcon('Ellipsis', size: 21),
-                      items: [
-                        BeeMenuItem.action(
-                            value: 'calendar',
-                            icon: Icons.calendar_month_outlined,
-                            label: AppLocalizations.of(context).calendarTitle),
-                        BeeMenuItem.action(
-                            value: 'share',
-                            icon: Icons.image_outlined,
-                            label:
-                                AppLocalizations.of(context).v4HomeMonthShare),
-                        BeeMenuItem.action(
-                            value: 'annual',
-                            icon: Icons.insights_outlined,
-                            label:
-                                AppLocalizations.of(context).annualReportTitle),
-                        BeeMenuItem.action(
-                            value: 'ledgers',
-                            icon: Icons.menu_book_outlined,
-                            label:
-                                AppLocalizations.of(context).homeManageLedgers),
-                        BeeMenuItem.action(
-                            value: 'brand',
-                            icon: Icons.hive_outlined,
-                            label: ref.watch(homeBrandVisibleProvider)
-                                ? AppLocalizations.of(context).v4HomeBrandHide
-                                : AppLocalizations.of(context).v4HomeBrandShow),
-                        if (kDebugMode &&
-                            const bool.fromEnvironment(
-                                'BEECOUNT_V4_RECORDING')) ...[
-                          const BeeMenuItem.divider(),
-                          const BeeMenuItem.action(
-                              value: 'components',
-                              icon: Icons.widgets_outlined,
-                              label: 'V4 组件验收'),
-                          const BeeMenuItem.action(
-                              value: 'theme',
-                              icon: Icons.brightness_6_outlined,
-                              label: '切换深浅色'),
-                        ],
-                      ],
-                      onSelected: _openHomeTool),
-                ],
-              ),
-            );
-          }),
-          HomeReminders(
-              onMonthly: (month) =>
-                  SharePosterService.showPosterCarouselPreview(context,
-                      year: month.year, month: month.month),
-              onAnnual: (year) => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => AnnualReportPage(initialYear: year))),
-              onBudget: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const BudgetPage()))),
-          Expanded(
-            child: HomeJournalFrame(
-                onCalendar: () => _openHomeTool('calendar'),
-                onFilter: () => _openJournalSearch(filters: true),
-                onBatch: () => _openJournalSearch(batch: true),
-                child: StreamBuilder<
-                    List<
-                        ({
-                          Transaction t,
-                          Category? category,
-                          Account? account,
-                          Account? toAccount
-                        })>>(
-                  key: ValueKey(
-                      'transactions_$_streamBuilderKey'), // 使用递增key强制重建
-                  stream: () {
-                    // ledgerId 变了或第一次进来才重建 stream;无关 setState(预算
-                    // 提示卡片、月度提醒等)的 home rebuild 复用同一 stream 引用,
-                    // StreamBuilder 不会重新订阅,不会闪到 fallback 数据。
-                    if (_txStream == null || _txStreamLedgerId != ledgerId) {
-                      _txStream =
-                          repo.transactionsWithCategoryAll(ledgerId: ledgerId);
-                      _txStreamLedgerId = ledgerId;
-                    }
-                    return _txStream;
-                  }(),
-                  builder: (context, snapshot) {
-                    // Stream 数据到来前，使用预加载数据；到来后使用 Stream 数据
-                    final streamData = snapshot.data;
-                    final hasStreamData = streamData != null;
+      body: BeeHomeLayout(
+        controller: _pageScrollController,
+        header: HomeHeaderBinding(
+            jumping: _isJumping,
+            onMonth: _handleDateSelection,
+            onAI: _openAIChat,
+            onSearch: _openJournalSearch,
+            onTool: _openHomeTool,
+            onLedger: () {
+              final ledger = ref.read(currentLedgerProvider).valueOrNull;
+              if (ledger == null) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) =>
+                            const LedgersPageNew(autoOpenCreateDialog: true)));
+              } else {
+                showLedgerPicker(context);
+              }
+            }),
+        reminders: HomeReminders(
+            onMonthly: (month) => SharePosterService.showPosterCarouselPreview(
+                context,
+                year: month.year,
+                month: month.month),
+            onAnnual: (year) => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => AnnualReportPage(initialYear: year))),
+            onBudget: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const BudgetPage()))),
+        journal: HomeJournalFrame(
+            onCalendar: () => _openHomeTool('calendar'),
+            onFilter: () => _openJournalSearch(filters: true),
+            onBatch: () => _openJournalSearch(batch: true),
+            child: StreamBuilder<
+                List<
+                    ({
+                      Transaction t,
+                      Category? category,
+                      Account? account,
+                      Account? toAccount
+                    })>>(
+              key: ValueKey('transactions_$_streamBuilderKey'), // 使用递增key强制重建
+              stream: () {
+                // ledgerId 变了或第一次进来才重建 stream;无关 setState(预算
+                // 提示卡片、月度提醒等)的 home rebuild 复用同一 stream 引用,
+                // StreamBuilder 不会重新订阅,不会闪到 fallback 数据。
+                if (_txStream == null || _txStreamLedgerId != ledgerId) {
+                  _txStream =
+                      repo.transactionsWithCategoryAll(ledgerId: ledgerId);
+                  _txStreamLedgerId = ledgerId;
+                }
+                return _txStream;
+              }(),
+              builder: (context, snapshot) {
+                // Stream 数据到来前，使用预加载数据；到来后使用 Stream 数据
+                final streamData = snapshot.data;
+                final hasStreamData = streamData != null;
 
-                    // 如果 Stream 没数据，从预加载数据构建基础列表
-                    final transactions = hasStreamData
-                        ? streamData
-                        : (cachedFullData
-                                ?.where((item) => item.t.ledgerId == ledgerId)
-                                .map((item) => (
-                                      t: item.t,
-                                      category: item.category,
-                                      account: item.account,
-                                      toAccount: item.toAccount,
-                                    ))
-                                .toList() ??
-                            []);
+                // 如果 Stream 没数据，从预加载数据构建基础列表
+                final transactions = hasStreamData
+                    ? streamData
+                    : (cachedFullData
+                            ?.where((item) => item.t.ledgerId == ledgerId)
+                            .map((item) => (
+                                  t: item.t,
+                                  category: item.category,
+                                  account: item.account,
+                                  toAccount: item.toAccount,
+                                ))
+                            .toList() ??
+                        []);
 
-                    return TransactionList(
-                      key: _transactionListKey,
-                      transactions: transactions,
-                      // 传入预加载数据供详情使用（标签、附件、账户）
-                      transactionsWithDetails: cachedFullData,
-                      hideAmounts: hide,
-                      flatSurface: true,
-                      enableVisibilityTracking: true,
-                      onDateVisibilityChanged: _onHeaderVisibilityChanged,
-                      controller: _listController,
-                      emptyWidget: AppEmpty(
-                        text: AppLocalizations.of(context).homeNoRecords,
-                        subtext:
-                            AppLocalizations.of(context).homeNoRecordsSubtext,
-                      ),
-                    );
-                  },
-                )),
-          ),
-        ],
+                return TransactionList(
+                  key: _transactionListKey,
+                  transactions: transactions,
+                  // 传入预加载数据供详情使用（标签、附件、账户）
+                  transactionsWithDetails: cachedFullData,
+                  hideAmounts: hide,
+                  flatSurface: true,
+                  enableVisibilityTracking: true,
+                  onDateVisibilityChanged: _onHeaderVisibilityChanged,
+                  controller: _listController,
+                  emptyWidget: BeeEmptyState(
+                    title: AppLocalizations.of(context).homeNoRecords,
+                    message: AppLocalizations.of(context).homeNoRecordsSubtext,
+                  ),
+                );
+              },
+            )),
       ),
     );
   }

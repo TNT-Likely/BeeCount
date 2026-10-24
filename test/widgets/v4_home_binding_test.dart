@@ -1,3 +1,4 @@
+import 'dart:ui' show SemanticsFlag;
 import 'package:beecount/widgets/biz/transaction_list.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:beecount/pages/main/home_page.dart';
@@ -270,4 +271,88 @@ void main() {
     expect(tester.takeException(), isNull);
     await close(tester);
   });
+  for (final small in [false, true]) {
+    testWidgets('首页更多菜单与品牌偏好完整可达，${small ? '320深色大字' : '标准屏'}', (tester) async {
+      tester.view.physicalSize =
+          small ? const Size(320, 568) : const Size(398, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final interval = VisibilityDetectorController.instance.updateInterval;
+      VisibilityDetectorController.instance.updateInterval = Duration.zero;
+      final semantics = tester.ensureSemantics();
+      try {
+        await tester.pumpWidget(UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+                theme: beeTheme(
+                    brightness: small ? Brightness.dark : Brightness.light),
+                builder: (context, child) => MediaQuery(
+                    data: MediaQuery.of(context).copyWith(
+                        textScaler: TextScaler.linear(small ? 1.4 : 1)),
+                    child: child!),
+                locale: const Locale('zh'),
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                home: const Scaffold(
+                    body: HomePage(),
+                    bottomNavigationBar: SizedBox(height: 76)))));
+        await tester.pumpAndSettle();
+        final l = AppLocalizations.of(tester.element(find.byType(HomePage)));
+        final menu = find.byType(BeeMenuButton<String>);
+        expect(menu, findsOneWidget);
+        expect(
+            tester.getSemantics(menu).hasFlag(SemanticsFlag.isButton), isTrue);
+        expect(
+            tester.getSemantics(menu).hasFlag(SemanticsFlag.isImage), isFalse);
+        await tester.tap(menu);
+        await tester.pumpAndSettle();
+        for (final title in [
+          l.calendarTitle,
+          l.v4HomeMonthShare,
+          l.annualReportTitle,
+          l.homeManageLedgers,
+          l.v4HomeBrandShow
+        ]) {
+          expect(find.text(title), findsOneWidget);
+        }
+        await tester.tap(find.text(l.v4HomeBrandShow));
+        await tester.pumpAndSettle();
+        expect(
+            (await SharedPreferences.getInstance())
+                .getBool('v4_home_show_brand'),
+            isTrue);
+        expect(
+            tester
+                .widget<BeeHomeIdentity>(find.byType(BeeHomeIdentity))
+                .showBrand,
+            isTrue);
+        await tester.tap(menu);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l.v4HomeBrandHide));
+        await tester.pumpAndSettle();
+        expect(
+            (await SharedPreferences.getInstance())
+                .getBool('v4_home_show_brand'),
+            isFalse);
+        if (small) {
+          final layout =
+              tester.widget<BeeHomeLayout>(find.byType(BeeHomeLayout));
+          expect(layout.controller!.hasClients, isTrue);
+          await tester.drag(find.byType(BeeHomeLayout), const Offset(0, -350));
+          await tester.pumpAndSettle();
+          expect(layout.controller!.offset, greaterThan(0));
+          container.read(homeScrollToTopProvider.notifier).state++;
+          await tester.pumpAndSettle();
+          expect(layout.controller!.offset, 0);
+        }
+        expect((await repo.getCountsForLedger(ledgerId: 1)).txCount, 2);
+        expect(tester.takeException(), isNull);
+      } finally {
+        semantics.dispose();
+        await close(tester);
+        VisibilityDetectorController.instance.updateInterval = interval;
+      }
+    });
+  }
 }
