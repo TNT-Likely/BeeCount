@@ -19,66 +19,6 @@ import '../../../utils/credit_card_amounts.dart';
 import '../../../utils/currencies.dart';
 
 /// Account-specific data formatting, credit/valuation sections and list groups.
-class StatCellBinding extends ConsumerWidget {
-  final String label;
-  final double value;
-  final Color? valueColor;
-
-  const StatCellBinding({
-    super.key,
-    required this.label,
-    required this.value,
-    this.valueColor,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: BeeTokens.textTertiary(context),
-          ),
-        ),
-        SizedBox(height: 2.0.scaled(context, ref)),
-        AmountText(
-          value: value,
-          signed: false,
-          showCurrency: false,
-          useCompactFormat: ref.watch(compactAmountProvider),
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: valueColor ?? BeeTokens.textPrimary(context),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// 折算视图里「≈ 符号+数值」的灰色小字（每币种折算行尾随）。
-/// 这是派生金额文本，需跟 AmountText 一样响应隐藏金额开关。
-class ApproxConvertedTextBinding extends ConsumerWidget {
-  final String text;
-
-  const ApproxConvertedTextBinding({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final hide = ref.watch(hideAmountsProvider);
-    return Text(
-      hide ? '≈ ****' : text,
-      style: TextStyle(
-        fontSize: 12,
-        color: BeeTokens.textTertiary(context),
-      ),
-    );
-  }
-}
-
 /// 折算详情弹窗的一行数据：原币 + 折算后/缺失标示。
 /// 净资产明细弹窗与分组小计明细弹窗共用同一渲染(redline:两处一份代码)。
 class AccountConversionEntry {
@@ -111,86 +51,30 @@ class ConversionDetailRowBinding extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 16.0.scaled(context, ref),
-        vertical: 10.0.scaled(context, ref),
-      ),
-      child: Row(
-        children: [
-          // 左:币种码 + 本地化名
-          Expanded(
-            child: Row(
-              children: [
-                Text(
-                  entry.code,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: BeeTokens.textPrimary(context),
-                  ),
-                ),
-                SizedBox(width: 6.0.scaled(context, ref)),
-                Flexible(
-                  child: Text(
-                    getCurrencyName(entry.code, context),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: BeeTokens.textTertiary(context),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 8.0.scaled(context, ref)),
-          // 中:原币净值
-          AmountText(
-            value: entry.originalValue,
-            signed: false,
-            showCurrency: true,
+    final l = AppLocalizations.of(context);
+    final selectedLocale = ref.watch(languageProvider);
+    final chinese = selectedLocale?.languageCode == 'zh' ||
+        (selectedLocale == null &&
+            Localizations.localeOf(context).languageCode == 'zh');
+    return BeeAccountConversionRow(
+        code: entry.code,
+        currencyName: getCurrencyName(entry.code, context),
+        original: formatDisplayAmount(entry.originalValue,
             currencyCode: entry.code,
+            showCurrency: true,
             useCompactFormat: useCompact,
-            style: TextStyle(
-              fontSize: 14,
-              color: BeeTokens.textSecondary(context),
-            ),
-          ),
-          SizedBox(width: 8.0.scaled(context, ref)),
-          // 右:base 自身空 / 缺失橙 badge / ≈ 折算 灰字
-          if (entry.isBase)
-            const SizedBox.shrink()
-          else if (entry.isMissing)
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 6.0.scaled(context, ref),
-                vertical: 1.0.scaled(context, ref),
-              ),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.orange, width: 1),
-                borderRadius: BorderRadius.circular(4.0.scaled(context, ref)),
-              ),
-              child: Text(
-                l10n.unconvertedBadge,
-                style: const TextStyle(fontSize: 11, color: Colors.orange),
-              ),
-            )
-          else if (entry.convertedValue != null)
-            // abs:与同行原币 AmountText(signed:false) 的绝对值口径一致(负债不带负号)。
-            ApproxConvertedTextBinding(
-              text:
-                  '≈ $baseSymbol${entry.convertedValue!.abs().toStringAsFixed(2)}',
-            ),
-        ],
-      ),
-    );
+            isChineseLocale: chinese,
+            signed: false),
+        hidden: ref.watch(hideAmountsProvider),
+        missingLabel: entry.isMissing ? l.unconvertedBadge : null,
+        converted:
+            entry.isBase || entry.isMissing || entry.convertedValue == null
+                ? null
+                : '≈ $baseSymbol${entry.convertedValue!.toStringAsFixed(2)}');
   }
 }
 
-/// 折算详情弹窗(骨架照 _showSettingsSheet:拖拽条 + 标题 + SafeArea)。
+/// 折算详情沿用底部弹层，外观由基础 BeeSheet 提供。
 /// 净资产明细 / 分组小计明细共用;[entries] 已是 UI 所需的每币种行数据。
 void showAccountConversionDetailSheet(
   BuildContext context,
@@ -201,126 +85,17 @@ void showAccountConversionDetailSheet(
   required bool useCompact,
   Widget? footer,
 }) {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: BeeTokens.surfaceSheet(context),
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
-    builder: (sheetContext) {
-      return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 拖拽条
-            Container(
-              margin: const EdgeInsets.only(top: 8, bottom: 4),
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color:
-                    BeeTokens.textTertiary(sheetContext).withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            // 标题
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: BeeTokens.textPrimary(sheetContext),
-                ),
-              ),
-            ),
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (final e in entries)
-                      ConversionDetailRowBinding(
-                        entry: e,
-                        baseSymbol: baseSymbol,
-                        useCompact: useCompact,
-                      ),
-                    if (footer != null) footer,
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 8.0.scaled(sheetContext, ref)),
-          ],
-        ),
-      );
-    },
-  );
+  showBeeSheet<void>(context,
+      title: title,
+      child: SingleChildScrollView(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+        for (final e in entries)
+          ConversionDetailRowBinding(
+              entry: e, baseSymbol: baseSymbol, useCompact: useCompact),
+        if (footer != null) footer,
+      ])));
 }
 
-/// 折算视图的总资产/总负债单元格：≈(灰) 前缀 + 折算后金额(主币种)。
-class ConvertedStatCellBinding extends ConsumerWidget {
-  final String label;
-  final double value;
-  final String currencyCode;
-  final Color valueColor;
-  final bool useCompact;
-
-  const ConvertedStatCellBinding({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.currencyCode,
-    required this.valueColor,
-    required this.useCompact,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: BeeTokens.textTertiary(context),
-          ),
-        ),
-        SizedBox(height: 2.0.scaled(context, ref)),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '≈ ',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: BeeTokens.textTertiary(context),
-              ),
-            ),
-            Flexible(
-              child: AmountText(
-                value: value,
-                signed: false,
-                showCurrency: true,
-                currencyCode: currencyCode,
-                useCompactFormat: useCompact,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: valueColor,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-/// 账户类型分组（可折叠，默认展开）
 class AccountTypeGroupBinding extends ConsumerStatefulWidget {
   final String type;
   final List<db.Account> accounts;
@@ -356,78 +131,17 @@ class _AccountTypeGroupState extends ConsumerState<AccountTypeGroupBinding> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 类型标题栏（点击展开/折叠）
-        GestureDetector(
-          onTap: () => setState(() => _expanded = !_expanded),
-          behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: EdgeInsets.only(
-              top: 12.0.scaled(context, ref),
-              bottom: 6.0.scaled(context, ref),
-              left: 4.0.scaled(context, ref),
-              right: 4.0.scaled(context, ref),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 28.0.scaled(context, ref),
-                  height: 28.0.scaled(context, ref),
-                  decoration: BoxDecoration(
-                    color: typeColor.withValues(alpha: 0.12),
-                    borderRadius:
-                        BorderRadius.circular(7.0.scaled(context, ref)),
-                  ),
-                  child: Center(
-                    child: AccountTypeIcon(
-                      type: widget.type,
-                      size: 16.0.scaled(context, ref),
-                      color: typeColor,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.0.scaled(context, ref)),
-                Text(
-                  getAccountTypeLabel(context, widget.type),
+        BeeMenuRow(
+            title: getAccountTypeLabel(context, widget.type),
+            leading: AccountTypeIcon(type: widget.type, size: 23),
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+              Text('${widget.accounts.length}',
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: BeeTokens.textPrimary(context),
-                  ),
-                ),
-                SizedBox(width: 6.0.scaled(context, ref)),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 5.0.scaled(context, ref),
-                    vertical: 1.0.scaled(context, ref),
-                  ),
-                  decoration: BoxDecoration(
-                    color:
-                        BeeTokens.textTertiary(context).withValues(alpha: 0.12),
-                    borderRadius:
-                        BorderRadius.circular(8.0.scaled(context, ref)),
-                  ),
-                  child: Text(
-                    '${widget.accounts.length}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: BeeTokens.textTertiary(context),
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                AnimatedRotation(
-                  turns: _expanded ? 0.25 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    Icons.chevron_right,
-                    size: 18.0.scaled(context, ref),
-                    color: BeeTokens.iconTertiary(context),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+                      fontSize: 11, color: Theme.of(context).hintColor)),
+              const SizedBox(width: 8),
+              BeeLineIcon(_expanded ? 'ChevronUp' : 'ChevronDown', size: 17),
+            ]),
+            onTap: () => setState(() => _expanded = !_expanded)),
         // 账户卡片列表
         if (_expanded)
           ...widget.accounts.map((account) {
@@ -513,45 +227,12 @@ class _HiddenAccountsSectionState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(
-          onTap: () => setState(() => _expanded = !_expanded),
-          behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: EdgeInsets.only(
-              top: 16.0.scaled(context, ref),
-              bottom: 4.0.scaled(context, ref),
-              left: 4.0.scaled(context, ref),
-              right: 4.0.scaled(context, ref),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.visibility_off_outlined,
-                    size: 18.0.scaled(context, ref),
-                    color: BeeTokens.textTertiary(context)),
-                SizedBox(width: 6.0.scaled(context, ref)),
-                Expanded(
-                  child: Text(
-                    summary,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: BeeTokens.textSecondary(context),
-                    ),
-                  ),
-                ),
-                AnimatedRotation(
-                  turns: _expanded ? 0.25 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(Icons.chevron_right,
-                      size: 18.0.scaled(context, ref),
-                      color: BeeTokens.iconTertiary(context)),
-                ),
-              ],
-            ),
-          ),
-        ),
+        BeeMenuRow(
+            title: summary,
+            leading: const BeeLineIcon('EyeOff', size: 20),
+            trailing:
+                BeeLineIcon(_expanded ? 'ChevronUp' : 'ChevronDown', size: 17),
+            onTap: () => setState(() => _expanded = !_expanded)),
         if (_expanded)
           ...widget.accounts.map((account) => AccountCardBinding(
                 key: ValueKey('hidden_${account.id}'),
@@ -894,174 +575,6 @@ class CardStatBinding extends StatelessWidget {
 }
 
 /// 紧凑默认账户选择行
-class CompactDefaultAccountBinding extends ConsumerWidget {
-  final List<db.Account> accounts;
-  final Color primaryColor;
-  final String type;
-
-  const CompactDefaultAccountBinding({
-    super.key,
-    required this.accounts,
-    required this.primaryColor,
-    required this.type,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final isIncome = type == 'income';
-    final defaultAccountIdAsync = isIncome
-        ? ref.watch(defaultIncomeAccountIdProvider)
-        : ref.watch(defaultExpenseAccountIdProvider);
-
-    return defaultAccountIdAsync.when(
-      data: (defaultAccountId) {
-        db.Account? defaultAccount;
-        if (defaultAccountId != null) {
-          defaultAccount =
-              accounts.where((a) => a.id == defaultAccountId).firstOrNull;
-        }
-
-        final title = isIncome
-            ? l10n.accountDefaultIncomeTitle
-            : l10n.accountDefaultExpenseTitle;
-
-        return InkWell(
-          onTap: () => _showPicker(context, ref, accounts, defaultAccountId),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.0.scaled(context, ref),
-              vertical: 10.0.scaled(context, ref),
-            ),
-            child: Row(
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: BeeTokens.textPrimary(context),
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  defaultAccount?.name ?? l10n.accountDefaultNone,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: BeeTokens.textTertiary(context),
-                  ),
-                ),
-                SizedBox(width: 2.0.scaled(context, ref)),
-                Icon(
-                  Icons.chevron_right,
-                  size: 16.0.scaled(context, ref),
-                  color: BeeTokens.iconTertiary(context),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
-    );
-  }
-
-  void _showPicker(BuildContext context, WidgetRef ref,
-      List<db.Account> accounts, int? currentDefaultId) {
-    final l10n = AppLocalizations.of(context);
-    final isIncome = type == 'income';
-    final title = isIncome
-        ? l10n.accountDefaultIncomeTitle
-        : l10n.accountDefaultExpenseTitle;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: BeeTokens.surfaceElevated(context),
-        title: Text(title,
-            style: TextStyle(color: BeeTokens.textPrimary(context))),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                dense: true,
-                leading:
-                    Icon(Icons.block, color: BeeTokens.iconSecondary(context)),
-                title: Text(
-                  l10n.accountDefaultNone,
-                  style: TextStyle(
-                    color: currentDefaultId == null
-                        ? primaryColor
-                        : BeeTokens.textPrimary(context),
-                    fontWeight: currentDefaultId == null
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                  ),
-                ),
-                trailing: currentDefaultId == null
-                    ? Icon(Icons.check, color: primaryColor)
-                    : null,
-                onTap: () async {
-                  if (isIncome) {
-                    await ref
-                        .read(defaultAccountSetterProvider)
-                        .setDefaultIncomeAccountId(null);
-                    ref.invalidate(defaultIncomeAccountIdProvider);
-                  } else {
-                    await ref
-                        .read(defaultAccountSetterProvider)
-                        .setDefaultExpenseAccountId(null);
-                    ref.invalidate(defaultExpenseAccountIdProvider);
-                  }
-                  if (context.mounted) Navigator.pop(context);
-                },
-              ),
-              ...accounts.map((account) {
-                final isSelected = account.id == currentDefaultId;
-                return ListTile(
-                  dense: true,
-                  leading: AccountTypeIcon(
-                    type: account.type,
-                    size: 24,
-                  ),
-                  title: Text(
-                    account.name,
-                    style: TextStyle(
-                      color: isSelected
-                          ? primaryColor
-                          : BeeTokens.textPrimary(context),
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.normal,
-                    ),
-                  ),
-                  trailing: isSelected
-                      ? Icon(Icons.check, color: primaryColor)
-                      : null,
-                  onTap: () async {
-                    if (isIncome) {
-                      await ref
-                          .read(defaultAccountSetterProvider)
-                          .setDefaultIncomeAccountId(account.id);
-                      ref.invalidate(defaultIncomeAccountIdProvider);
-                    } else {
-                      await ref
-                          .read(defaultAccountSetterProvider)
-                          .setDefaultExpenseAccountId(account.id);
-                      ref.invalidate(defaultExpenseAccountIdProvider);
-                    }
-                    if (context.mounted) Navigator.pop(context);
-                  },
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// 资产管理页 header 右上角的「蜜蜂家当」入口。
 ///
 /// 用 Material 标准的 Premium / 进阶版图标(`workspace_premium_outlined`),
@@ -1079,7 +592,7 @@ class BeeAssetsHeaderEntryBinding extends StatelessWidget {
     return IconButton(
       onPressed: () => ProductPromoLauncher.open(context, info, texts),
       tooltip: info.title,
-      icon: const Icon(Icons.auto_awesome_outlined),
+      icon: const BeeLineIcon('Sparkles'),
     );
   }
 }
