@@ -150,6 +150,7 @@ class TransactionListItem extends ConsumerWidget {
               : BeeTransactionKind.income,
       accountName: accountName,
       categoryLabel: composed.primary != categoryName ? categoryName : null,
+      categoryActionLabel: categoryName,
       ledgerName: ledgerName,
       happenedAt: happenedAt,
       showTime: ref.watch(showTransactionTimeProvider),

@@ -198,6 +198,7 @@ class BeeTransactionRow extends StatelessWidget {
       this.showFullDate = false,
       this.accountName,
       this.categoryLabel,
+      this.categoryActionLabel,
       this.ledgerName,
       this.note,
       this.onTagTap,
@@ -223,6 +224,7 @@ class BeeTransactionRow extends StatelessWidget {
       note,
       accountName,
       categoryLabel,
+      categoryActionLabel,
       ledgerName;
   final DateTime? happenedAt;
   final Color? amountColor;
@@ -279,7 +281,12 @@ class BeeTransactionRow extends StatelessWidget {
                         : (v) => onSelected!(v ?? false)),
               if (selected == null)
                 Semantics(
+                    container: true,
                     button: true,
+                    label: categoryActionLabel ?? categoryLabel ?? title,
+                    excludeSemantics: true,
+                    onTap: onCategoryTap,
+                    onLongPress: readOnly ? null : onMenu,
                     child: InkWell(
                         onTap: onCategoryTap,
                         onLongPress:
@@ -582,12 +589,17 @@ class BeeSummaryCard extends StatelessWidget {
               SizedBox(
                   width: 30,
                   height: 26,
-                  child: IconButton(
-                      tooltip: privacyLabel,
-                      style: IconButton.styleFrom(padding: EdgeInsets.zero),
-                      onPressed: onPrivacyTap,
-                      icon: BeeLineIcon(hidden ? 'EyeOff' : 'Eye',
-                          size: 14, color: Theme.of(context).hintColor)))
+                  child: Semantics(
+                      button: true,
+                      label: privacyLabel,
+                      excludeSemantics: true,
+                      onTap: onPrivacyTap,
+                      child: IconButton(
+                          tooltip: privacyLabel,
+                          style: IconButton.styleFrom(padding: EdgeInsets.zero),
+                          onPressed: onPrivacyTap,
+                          icon: BeeLineIcon(hidden ? 'EyeOff' : 'Eye',
+                              size: 14, color: Theme.of(context).hintColor))))
           ]),
         const SizedBox(height: 6),
         Align(

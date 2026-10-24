@@ -980,4 +980,43 @@ void main() {
     expect(retries, 1);
     expect(tester.takeException(), isNull);
   });
+  testWidgets('分类图标和隐私操作保留独立按钮语义与回调', (tester) async {
+    final semantics = tester.ensureSemantics();
+    var category = 0, privacy = 0;
+    try {
+      await open(
+          tester,
+          Column(children: [
+            BeeSummaryCard(
+                title: '10月',
+                amount: '32.00',
+                amountLabel: '本月支出',
+                incomeLabel: '收入',
+                income: '0.00',
+                expenseLabel: '结余',
+                expense: '-32.00',
+                privacyLabel: '隐藏金额',
+                onPrivacyTap: () => privacy++),
+            BeeTransactionRow(
+                title: '午餐备注',
+                categoryActionLabel: '餐饮 / 午餐',
+                amount: '32.00',
+                icon: const BeeLineIcon('Utensils'),
+                onCategoryTap: () => category++,
+                onTap: () {})
+          ]));
+      for (final label in ['隐藏金额', '餐饮 / 午餐']) {
+        final node = tester.getSemantics(find.bySemanticsLabel(label));
+        expect(node.hasFlag(ui.SemanticsFlag.isButton), isTrue);
+        expect(node.hasFlag(ui.SemanticsFlag.isImage), isFalse);
+        await tester.tap(find.bySemanticsLabel(label));
+      }
+      expect(category, 1);
+      expect(privacy, 1);
+      expect(tester.takeException(), isNull);
+    } finally {
+      semantics.dispose();
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
 }
