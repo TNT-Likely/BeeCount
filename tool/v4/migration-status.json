@@ -748,26 +748,28 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-24T17:55:00+08:00",
-    "engineeringEstimatePercent": 35,
+    "reportedAt": "2026-10-24T18:54:00+08:00",
+    "engineeringEstimatePercent": 36,
     "engineeringEstimateRange": [
-      33,
-      37
+      34,
+      38
     ],
-    "completedPages": 13,
+    "completedPages": 14,
     "totalPages": 73,
     "completedP0Pages": 13,
     "totalExistingP0Pages": 16,
-    "newlyCompletedSincePreviousReport": [],
+    "newlyCompletedSincePreviousReport": [
+      "账户详情"
+    ],
     "inProgress": [
-      "P1账户详情：263行页主体、独立绑定与信用卡/估值/原币流水组件已完成；修复旧手工映射丢币种、折算及共享引用字段",
-      "同一QA已实际验证人民币/美元、编辑取消、资金流向、1元还款和两类估值取消/保存；当前57笔/24账户/5原附件，未重置数据",
-      "322项主回归通过，图表中性色及选中样式另7项；223场景、59规范与18个账户组合通过，最后产物重启和离线报告收口中，尚不计第14页"
+      "标签详情R60实际UI/SQL/文件/正常重启和14图离线报告完成；Q11跨本位币汇总待确认，未新增严格整页",
+      "标签编辑原308行备份保持，新137行与原真实保存/20色/重复检查及返回值完成；350项主回归、6组HTML通过，新版真机尚未执行",
+      "同一QA57笔/当前53/24账户/5附件，未重置；共享标签负身份写入旧服务缺口新增Q13，后续Cloud范围核对"
     ],
     "remainingEffortEstimateHours": [
-      33,
-      53
+      32,
+      52
     ],
-    "remainingEffortChangeReason": "较16:54的34–54减少约1实际工时。账户详情复杂分支基本收口，旧手工查询映射遗漏字段已修复并用真实DB/真机验证；最后视觉产物与报告仍在收尾。P1/P2平台、共享及外部依赖仍使估计浮动，非上线承诺。"
+    "remainingEffortChangeReason": "较17:55的33–53减少约1实际工时。账户详情缓存失败已修复并实机两次复验，标签详情可执行范围封存，标签编辑复用组件进入新真机批次。P1/P2云、共享权限及平台服务仍有浮动，非上线承诺。"
   }
 }

@@ -21,6 +21,8 @@
 
 | Q12 | 云端独立账本删除 | 原账本页的远端删除仅处理旧 TransactionsSyncManager，当前 remote-only 来源为 BeeCount Cloud / SyncEngine；直接删除会进入原“不支持”错误。云端级联删除的所有者、成员与附件范围需要沿用服务端既有规则核对。 | 本次保留原入口与错误路径，不把哈希占位ID当真实server身份，也不伪造云端删除通过；在后续P1云端联调中核对并处理，App本地删除/仅删本地按原规则完成。 | 已知技术遗留／待云端范围核对 |
 
+| Q13 | 共享目录标签的编辑与删除 | 原详情支持负synthetic标签读取，但原updateTag/deleteTag/getTagById只操作本地Tags；旧页可能无实际变更却提示成功。需要按所属账本成员权限与既有Cloud资源接口核对共享写入。 | 本地用户标签按原通道迁移，保留共享只读水合；不将负身份写入当作共享修改通过，也不复制为正ID。新的保存结果缺失会报错，不伪造成功。P1云与成员资源联调时处理。 | 已知技术遗留／待共享服务范围核对 |
+
 ## 原页面备份
 
 完整源码备份位于本地忽略目录 `.docs/v4-ui-migration/backup/pre-full-migration-20261024-9b87aa0`，包含 420 个文件及逐文件 SHA256。准备上线前保留。远端基线、完整页面清单和迁移状态分别见 `tool/v4/migration-status.json`、`docs/development/v4-page-migration.md`。
