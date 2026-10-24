@@ -1,3 +1,4 @@
+import 'package:beecount_ui/beecount_ui.dart';
 import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -177,11 +178,11 @@ class _TransactionReceiptDialogState extends State<TransactionReceiptDialog> {
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
                         color: BeeTokens.textPrimary(context)))),
-            IconButton(
+            BeeIconButton(
                 key: const ValueKey('receipt-close'),
-                tooltip: l10n.commonClose,
+                label: l10n.commonClose,
                 onPressed: _busy ? null : () => Navigator.of(context).pop(),
-                icon: Icon(Icons.close_rounded,
+                icon: BeeLineIcon('X',
                     size: 21, color: BeeTokens.iconSecondary(context))),
           ]),
         ),

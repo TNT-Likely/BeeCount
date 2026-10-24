@@ -356,37 +356,53 @@ void main() {
       }
     });
   }
-  testWidgets('首页账本弹窗真实列表、当前状态、搜索与选择保持原数据', (tester) async {
-    await db.customStatement(
-        "INSERT INTO ledgers(id,name,currency) VALUES(2,'旅行','USD')");
-    await tester.pumpWidget(UncontrolledProviderScope(
-        container: container,
-        child: MaterialApp(
-            theme: beeTheme(),
-            locale: const Locale('zh'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const HomePage())));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('日常生活').first);
-    await tester.pumpAndSettle();
-    final picker = tester.widget<BeeLedgerPicker>(find.byType(BeeLedgerPicker));
-    expect(picker.currentId, '1');
-    expect(picker.ledgers.map((l) => l.name), ['日常生活', '旅行']);
-    expect(picker.ledgers.first.detail, '2笔');
-    await tester.enterText(
-        find.descendant(
-            of: find.byType(BeeSearchField), matching: find.byType(TextField)),
-        '旅行');
-    await tester.pumpAndSettle();
-    expect(find.text('日常生活'), findsOneWidget); // underlying home identity
-    await tester.tap(find.widgetWithText(BeeMenuRow, '旅行'));
-    await tester.pumpAndSettle();
-    expect(find.byType(BeeLedgerPicker), findsNothing);
-    expect(container.read(currentLedgerIdProvider), 2);
-    expect((await repo.getCountsForLedger(ledgerId: 1)).txCount, 2);
-    expect((await repo.getCountsForLedger(ledgerId: 2)).txCount, 0);
-    expect(tester.takeException(), isNull);
-    await close(tester);
-  });
+  for (final small in [false, true]) {
+    testWidgets('首页账本弹窗真实列表、当前状态、搜索与选择保持原数据 ${small ? '小屏键盘大字' : '标准屏'}',
+        (tester) async {
+      tester.view.physicalSize =
+          small ? const Size(320, 568) : const Size(398, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await db.customStatement(
+          "INSERT INTO ledgers(id,name,currency) VALUES(2,'旅行','USD')");
+      await tester.pumpWidget(UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+              builder: (context, child) => MediaQuery(
+                  data: MediaQuery.of(context).copyWith(
+                      textScaler: TextScaler.linear(small ? 1.4 : 1),
+                      viewInsets: EdgeInsets.only(bottom: small ? 180 : 0)),
+                  child: child!),
+              theme: beeTheme(),
+              locale: const Locale('zh'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: const HomePage())));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('日常生活').first);
+      await tester.pumpAndSettle();
+      final picker =
+          tester.widget<BeeLedgerPicker>(find.byType(BeeLedgerPicker));
+      expect(picker.currentId, '1');
+      expect(picker.ledgers.map((l) => l.name), ['日常生活', '旅行']);
+      expect(picker.ledgers.first.detail, '2笔');
+      await tester.enterText(
+          find.descendant(
+              of: find.byType(BeeSearchField),
+              matching: find.byType(TextField)),
+          '旅行');
+      await tester.pumpAndSettle();
+      expect(find.text('日常生活'), findsOneWidget); // underlying home identity
+      await tester.ensureVisible(find.widgetWithText(BeeMenuRow, '旅行'));
+      await tester.tap(find.widgetWithText(BeeMenuRow, '旅行'));
+      await tester.pumpAndSettle();
+      expect(find.byType(BeeLedgerPicker), findsNothing);
+      expect(container.read(currentLedgerIdProvider), 2);
+      expect((await repo.getCountsForLedger(ledgerId: 1)).txCount, 2);
+      expect((await repo.getCountsForLedger(ledgerId: 2)).txCount, 0);
+      expect(tester.takeException(), isNull);
+      await close(tester);
+    });
+  }
 }

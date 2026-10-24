@@ -1,3 +1,4 @@
+import 'dart:ui' show SemanticsFlag;
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
@@ -135,8 +136,18 @@ void main() {
       expect(find.byType(Dialog), findsOneWidget);
       expect(find.byType(TransactionList), findsOneWidget,
           reason: 'The existing list stays visible beneath the modal preview');
-      Navigator.of(tester.element(find.byType(TransactionReceiptDialog))).pop();
-      await tester.pumpAndSettle();
+      final semantics = tester.ensureSemantics();
+      try {
+        final close = find.byKey(const ValueKey('receipt-close'));
+        expect(
+            tester.getSemantics(close).hasFlag(SemanticsFlag.isButton), isTrue);
+        expect(tester.getSemantics(close).label, '关闭');
+        await tester.tap(close);
+        await tester.pumpAndSettle();
+        expect(find.byType(TransactionReceiptDialog), findsNothing);
+      } finally {
+        semantics.dispose();
+      }
     }
     expect(
         await repo.getTransactionById(data.transaction.id), data.transaction);
