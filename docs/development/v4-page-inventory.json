@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 205,
+  "designSceneExports": 206,
   "flowDefinitions": 112,
   "priorityCounts": {
     "P0": 16,
@@ -583,7 +583,7 @@
       "classes": [
         "WelcomePage"
       ],
-      "lines": 155,
+      "lines": 160,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "welcome",
@@ -591,23 +591,29 @@
         "welcomeCategories",
         "welcomeCloud",
         "welcomePrivacy",
+        "welcomeImport",
+        "welcomeAttachments",
         "welcomeDone",
+        "flow-welcome-currency-picker",
         "flow-welcome-bridge"
       ],
       "designMapping": "已定位",
       "components": "居中欢迎步骤、语言/币种/分类选择、恢复与云同步说明",
-      "acceptance": "语言、币种/默认账本、分类模式、云同步、隐私开源、配置/附件恢复；返回保持选择。",
+      "acceptance": "250项相关回归（33文件）通过；本页11项含全部151币种搜索取消/选择、真实种子父子关系/币种/无账本、原TAR.GZ导入、失败回滚和320深色140%。HTML206场景/59组规范及交互链接通过。实际生产UI与正常重启尚未全部完成，仍不计整页完成。",
       "status": "部分迁移·待设计对齐与完整验收",
       "name": "欢迎与初始化全流程",
       "priority": "P0",
-      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "reason": "居中五步、完整语言/币种、三种分类和两步恢复已接新版组件；保留原SeedService/导入格式与服务，加入完成守卫和失败事务回滚，R43同环境真机验收中。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=welcome",
         "../../docs/design/card-refresh/prototype/demo.html?page=welcomeCurrency",
         "../../docs/design/card-refresh/prototype/demo.html?page=welcomeCategories",
         "../../docs/design/card-refresh/prototype/demo.html?page=welcomeCloud",
         "../../docs/design/card-refresh/prototype/demo.html?page=welcomePrivacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomeImport",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomeAttachments",
         "../../docs/design/card-refresh/prototype/demo.html?page=welcomeDone",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-welcome-currency-picker",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-welcome-bridge"
       ]
     },
