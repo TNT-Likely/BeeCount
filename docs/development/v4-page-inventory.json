@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 231,
+  "designSceneExports": 237,
   "flowDefinitions": 150,
   "priorityCounts": {
     "P0": 16,
@@ -1571,20 +1571,32 @@
       "classes": [
         "ReminderSettingsPage"
       ],
-      "lines": 398,
+      "lines": 155,
       "batch": "M8 设置与收尾",
       "designRoutes": [
-        "flow-reminder"
+        "flow-reminder",
+        "flow-reminder-ios",
+        "flow-reminder-time",
+        "flow-reminder-battery",
+        "flow-reminder-channel",
+        "flow-reminder-battery-warning",
+        "flow-reminder-channel-warning"
       ],
       "designMapping": "已定位",
-      "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "迁移中·原398行与通知Provider已备份，保留滚轮/诊断弹窗/系统入口",
+      "components": "BeeTimeWheels、BeeReminderPreferences、固定操作区诊断弹窗、实际偏好只读预览及生产入口",
+      "acceptance": "79项/12文件相关回归、10文件静态0问题；3组实际外观字号HTML、iOS门控、237链接/63组规范/40基础控件通过。R67实际取消/确认21:01、8条1001–1008待处理记录及取消、9999系统通知记录、硬件诊断、渠道与MIUI系统设置往返、恢复关闭21:00和正常重启通过。57/53/24/5及原业务表/附件hash保持；原未设置三键变显式false/21/0。15图/18文件报告三宽度及ZIP SHA256 be40ee7984f36bf64646123ed92b6c07f9b73c547d382c78b9f2957c08f740ba。未等待次日送达、额外Native备用未来触发、原生iOS/物理短屏；Q14原iOS说明后续核对。Cloud不适用。",
+      "status": "已完成",
       "name": "记账提醒",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "原398行与Provider完整备份；受控时间滚轮/提醒组件与App诊断、真实偏好、原调度和平台分支保留。R67同一QA生产UI/独立OS记录/业务数据/正常重启闭环完成。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder-time",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder-battery",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder-channel",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder-battery-warning",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder-channel-warning"
       ]
     },
     {
