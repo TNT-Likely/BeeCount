@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:beecount/cloud/sync_service.dart';
 import 'package:beecount/data/db.dart';
@@ -164,6 +165,44 @@ void main() {
     expect(tester.takeException(), isNull);
     await close(tester);
   });
+  final geometry = jsonDecode(
+          File('test/fixtures/v4-profile-geometry.json').readAsStringSync())
+      as Map<String, dynamic>;
+  for (final values in geometry['geometry'] as List) {
+    testWidgets('紧凑余额卡对齐 HTML 字体内边距和圆角 ${values['viewport']}', (tester) async {
+      final dimensions =
+          (values['viewport'] as String).split('x').map(double.parse).toList();
+      await open(tester, size: Size(dimensions[0], dimensions[1]));
+      final card = find.byType(BeeLedgerBalance);
+      final surface = tester.widget<BeeSurface>(
+          find.descendant(of: card, matching: find.byType(BeeSurface)));
+      final padding = surface.padding as EdgeInsets;
+      expect([padding.left, padding.top, padding.right, padding.bottom],
+          values['padding']);
+      expect(surface.borderRadius,
+          BorderRadius.circular((values['radius'] as num).toDouble()));
+      final amount = tester.widget<BeeMoney>(
+          find.descendant(of: card, matching: find.byType(BeeMoney)));
+      expect(amount.size, values['amountFont']);
+      expect(amount.prefixSize, values['prefixFont']);
+      final texts = tester.widgetList<Text>(
+          find.descendant(of: card, matching: find.byType(Text)));
+      expect(
+          texts.where((text) => text.data == '2').every(
+              (text) => text.style?.fontSize == values['statsValueFont']),
+          isTrue);
+      final l = AppLocalizations.of(tester.element(card));
+      expect(
+          texts
+              .singleWhere((text) => text.data == l.sharePosterUnitDay)
+              .style
+              ?.fontSize,
+          values['statsLabelFont']);
+      expect(tester.getSize(card).height, lessThan(110));
+      expect(tester.takeException(), isNull);
+      await close(tester);
+    });
+  }
   testWidgets('昵称规范弹窗取消不修改，确认去首尾空格且不改交易', (tester) async {
     final before = await repo.getTransactionsByLedger(1);
     await open(tester);
