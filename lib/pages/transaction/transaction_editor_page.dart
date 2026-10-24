@@ -1,3 +1,4 @@
+import '../../presentation/v4/bindings/page_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -182,7 +183,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
                 .where((extension) => extension is! BeeCardTheme),
             cards
           ]),
-      child: Scaffold(
+      child: V4PageScaffold(
           backgroundColor: cards.canvas,
           body: SafeArea(
               child: AbsorbPointer(

@@ -6,6 +6,7 @@ import '../../providers/theme_providers.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import '../../styles/header_skins.dart';
 import 'skin_animation_scope.dart';
+import 'page_skin_scope.dart';
 
 class PrimaryHeader extends ConsumerWidget {
   final String title;
@@ -55,6 +56,7 @@ class PrimaryHeader extends ConsumerWidget {
     final primary = ref.watch(primaryColorProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final skin = headerSkinById(ref.watch(headerSkinProvider));
+    final pageOwnsSkin = PageSkinBackdropScope.contains(context);
     final header = BeePageHeader(
       title: title,
       subtitle: subtitle,
@@ -101,9 +103,12 @@ class PrimaryHeader extends ConsumerWidget {
             color: Colors.transparent,
             child: DecoratedBox(
                 decoration: decoration ??
-                    BoxDecoration(color: BeeCardTheme.of(context).canvas),
+                    BoxDecoration(
+                        color: pageOwnsSkin
+                            ? Colors.transparent
+                            : BeeCardTheme.of(context).canvas),
                 child: Stack(children: [
-                  if (skin != null)
+                  if (skin != null && !pageOwnsSkin)
                     Positioned.fill(
                         child: SkinAnimationScope(
                             child: skin.builder(primary, isDark))),

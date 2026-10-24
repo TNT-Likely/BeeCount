@@ -1,12 +1,59 @@
 import 'package:beecount/presentation/v4/bindings/page_scaffold.dart';
 import 'package:beecount/providers/theme_providers.dart';
 import 'package:beecount/widgets/ui/skin_animation_scope.dart';
+import 'package:beecount/widgets/ui/primary_header.dart';
+import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('整页皮肤不重复绘制头部，旧路由仍保留原头部与显式装饰', (tester) async {
+    final container = ProviderContainer(overrides: [
+      headerSkinProvider.overrideWith((ref) => 'anniv_cake'),
+      skinAnimationEnabledProvider.overrideWith((ref) => false)
+    ]);
+    addTearDown(container.dispose);
+    Future<void> render(Widget home) async {
+      await tester.pumpWidget(UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+              theme: beeTheme(),
+              locale: const Locale('zh'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: home)));
+      await tester.pumpAndSettle();
+    }
+
+    const header = PrimaryHeader(title: '页面标题');
+    await render(const V4PageScaffold(
+        body: Column(children: [header, Expanded(child: SizedBox())])));
+    expect(find.byType(SkinAnimationScope), findsOneWidget);
+    expect(
+        find.descendant(
+            of: find.byType(PrimaryHeader),
+            matching: find.byType(SkinAnimationScope)),
+        findsNothing);
+    await render(const Scaffold(body: header));
+    expect(
+        find.descendant(
+            of: find.byType(PrimaryHeader),
+            matching: find.byType(SkinAnimationScope)),
+        findsOneWidget);
+    await render(const V4PageScaffold(
+        body: PrimaryHeader(
+            title: '定制标题',
+            decoration: BoxDecoration(color: Color(0xff123456)))));
+    expect(
+        tester.widgetList<DecoratedBox>(find.byType(DecoratedBox)).any((box) =>
+            box.decoration is BoxDecoration &&
+            (box.decoration as BoxDecoration).color == const Color(0xff123456)),
+        isTrue);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
   testWidgets('无皮肤与两款动态皮肤共用原偏好，切换不重置列表位置或吞掉操作', (tester) async {
     final container = ProviderContainer(overrides: [
       headerSkinProvider.overrideWith((ref) => 'none'),

@@ -1,3 +1,4 @@
+import '../../presentation/v4/bindings/page_scaffold.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import '../../presentation/v4/gallery/component_gallery_page.dart';
 import '../../presentation/v4/bindings/home_reminders.dart';
@@ -275,7 +276,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       }
     });
 
-    return Scaffold(
+    return V4PageScaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor, // ⭐ 自适应背景色
       body: Column(
         children: [

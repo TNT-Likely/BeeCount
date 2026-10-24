@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/theme_providers.dart';
 import '../../../styles/header_skins.dart';
 import '../../../widgets/ui/skin_animation_scope.dart';
+import '../../../widgets/ui/page_skin_scope.dart';
 
 /// Reuses the original skin preference and painter across the full card canvas.
 /// Background stays in a fixed slot so switching skins preserves page state.
@@ -27,21 +28,22 @@ class V4PageScaffold extends ConsumerWidget {
         : SkinAnimationScope(
             child: (skin.pageBuilder ?? skin.builder)(theme.colorScheme.primary,
                 theme.brightness == Brightness.dark));
-    return ColoredBox(
-        color: skin == null
-            ? backgroundColor ?? BeeCardTheme.of(context).canvas
-            : theme.brightness == Brightness.dark
-                ? Colors.black
-                : theme.colorScheme.primary,
-        child: Stack(fit: StackFit.expand, children: [
-          Positioned.fill(
-              child: IgnorePointer(
-                  child: ExcludeSemantics(
-                      child: RepaintBoundary(child: decoration)))),
-          Scaffold(
-              backgroundColor: Colors.transparent,
-              bottomNavigationBar: bottomNavigationBar,
-              body: body)
-        ]));
+    return PageSkinBackdropScope(
+        child: ColoredBox(
+            color: skin == null
+                ? backgroundColor ?? BeeCardTheme.of(context).canvas
+                : theme.brightness == Brightness.dark
+                    ? Colors.black
+                    : theme.colorScheme.primary,
+            child: Stack(fit: StackFit.expand, children: [
+              Positioned.fill(
+                  child: IgnorePointer(
+                      child: ExcludeSemantics(
+                          child: RepaintBoundary(child: decoration)))),
+              Scaffold(
+                  backgroundColor: Colors.transparent,
+                  bottomNavigationBar: bottomNavigationBar,
+                  body: body)
+            ])));
   }
 }
