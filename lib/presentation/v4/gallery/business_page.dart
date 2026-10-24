@@ -49,7 +49,8 @@ const businessCases = [
   '账户余额调整',
   '资产总览与账户设置',
   '标签管理库',
-  '记账提醒设置'
+  '记账提醒设置',
+  '历史备注偏好'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -65,14 +66,18 @@ class BusinessAcceptancePage extends StatefulWidget {
       this.isolatedCase,
       this.liveData,
       this.tagLibraryData,
-      this.reminderData});
-  final Widget? liveData, tagLibraryData, reminderData;
+      this.reminderData,
+      this.noteHistoryData});
+  final Widget? liveData, tagLibraryData, reminderData, noteHistoryData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
 }
 
 class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
+  int historyScope = 0, historySort = 0;
+  String historyLimit = '20';
+  bool historyInvalid = false;
   bool reminderEnabled = false;
   TimeOfDay reminderTime = const TimeOfDay(hour: 21, minute: 0);
   int step = 0, recordingType = 0, onboardingChoice = 0;
@@ -1843,6 +1848,30 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     onIncomeAccount: () => record('选择默认收入账户'),
                     rateLabel: '汇率管理',
                     onRates: () => record('管理汇率'))),
+          ]),
+        43 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const Text('受控展示示例：不写入真实偏好'),
+            const SizedBox(height: 12),
+            BeeNoteHistoryPreferences(
+                scopeLabel: '查询范围',
+                scopeOptions: const ['全部分类', '当前分类'],
+                selectedScope: historyScope,
+                onScope: (v) => setState(() => historyScope = v),
+                sortLabel: '排序方式',
+                sortOptions: const ['使用频次', '最近使用'],
+                selectedSort: historySort,
+                onSort: (v) => setState(() => historySort = v),
+                limitLabel: '展示数量',
+                limitHint: '有效范围为1–100条',
+                limit: historyLimit,
+                limitError: historyInvalid ? '请输入1–100的整数' : null,
+                onLimit: (v) => setState(() {
+                      final n = int.tryParse(v);
+                      historyInvalid = n == null || n < 1 || n > 100;
+                      if (!historyInvalid) historyLimit = v;
+                    })),
+            const SizedBox(height: 16),
+            widget.noteHistoryData ?? const Text('从App组件验收入口读取真实历史备注偏好。'),
           ]),
         42 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const Text('受控展示示例：不调度系统通知'),

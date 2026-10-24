@@ -567,5 +567,14 @@
     ],
     "page": "business",
     "case": 42
+  },
+  {
+    "design_key": "noteHistoryPreferences",
+    "components": [
+      "BeeNoteHistoryPreferences",
+      "BeeRadioTile"
+    ],
+    "page": "business",
+    "case": 43
   }
 ]

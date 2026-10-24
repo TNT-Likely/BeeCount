@@ -325,7 +325,8 @@
         "disabled",
         "tap-and-drag",
         "36x22-track-with-44-touch-target",
-        "semantic-boundary"
+        "semantic-boundary",
+        "可选前置图标，与同卡片菜单行对齐；默认无图标行为不变"
       ],
       "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
     },
