@@ -47,10 +47,10 @@
     </td>
     <td>
       <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><b>CrazyToken</b></a> 提供 Claude、GPT、Gemini、Kimi、GLM、DeepSeek、Qwen、Grok 等主流模型 API，为 AI 对话记账、票据图片识别与收支信息整理提供模型支持。<br/>
-      💰 低至 <b>0.05×</b>、最高省 99%，Token 级账单透明可查。<br/>
-      ✨ 官方原生通道，不掺水、不混模、不压缩长上下文。<br/>
-      ⚡ 稳定高速、高并发不限流，记账对话与票据识别响应更顺畅。<br/>
-      🎁 新用户通过<a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW">专属链接</a>注册即赠 <b>$20</b> 体验额度，充值额外加赠，并提供 <b>1 对 1 真人远程配置服务</b>，协助完成模型 API 接入。
+      💰 <b>低至 0.05×</b>：最高省 99%，Token 级账单透明可查。<br/>
+      ✨ <b>官方原生通道</b>：不掺水、不混模、不压缩长上下文，保持模型原生输出体验。<br/>
+      ⚡ <b>稳定高速，高并发不限流</b>：让记账对话与票据识别响应更顺畅。<br/>
+      🎁 <b>新用户注册赠送 $20</b>：通过<a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW">专属链接</a>注册即领体验额度，充值额外加赠；提供 <b>1 对 1 真人远程配置服务</b>，协助完成模型 API 接入。
     </td>
   </tr>
 </table>

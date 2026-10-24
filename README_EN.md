@@ -47,10 +47,10 @@ Sync via BeeCount Cloud (self-hosted) / iCloud / Supabase / WebDAV / S3
     </td>
     <td>
       <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><b>CrazyToken</b></a> provides APIs for Claude, GPT, Gemini, Kimi, GLM, DeepSeek, Qwen, Grok, and other leading models to power conversational bookkeeping, receipt image recognition, and income &amp; expense organization.<br/>
-      💰 As low as <b>0.05×</b> — save up to 99% with transparent token-level billing.<br/>
-      ✨ Official native access — no quality loss, no model substitution, no context compression.<br/>
-      ⚡ Fast, stable, and no concurrency caps — smoother bookkeeping conversations and receipt recognition.<br/>
-      🎁 New users get a <b>$20</b> signup bonus via the <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW">exclusive link</a>, plus top-up bonuses and <b>1-on-1 remote setup assistance</b> to help connect your model API.
+      💰 <b>As low as 0.05×</b>: save up to 99% with transparent token-level billing.<br/>
+      ✨ <b>Official native access</b>: no quality loss, no model substitution, no context compression—preserving the native model experience.<br/>
+      ⚡ <b>Fast &amp; stable, no concurrency caps</b>: smoother bookkeeping conversations and receipt recognition.<br/>
+      🎁 <b>$20 signup gift for new users</b>: register via the <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW">exclusive link</a> to receive trial credits, plus top-up bonuses and <b>1-on-1 remote setup assistance</b> to help connect your model API.
     </td>
   </tr>
 </table>
