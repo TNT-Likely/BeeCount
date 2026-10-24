@@ -49,7 +49,7 @@ const sections=[
  card('43 · 单选、开关与滑杆','选中、未选、禁用；滑杆支持边界值和步进。',`<div class="v4-stack"><div><label class="v4-control-row"><input class="v4-control" type="radio" checked name="spec-radio">默认选项</label><label class="v4-control-row"><input class="v4-control" type="radio" name="spec-radio">其他选项</label><label class="v4-control-row" data-disabled="true"><input class="v4-control" type="radio" disabled>禁用选项</label><label class="v4-control-row"><input class="v4-control" type="checkbox" checked>复选状态</label><label class="v4-control-row"><input class="v4-switch" type="checkbox" role="switch" checked>开关状态</label></div><div class="v4-range-field"><label class="v4-range-label">提醒阈值<output>60%</output></label><input class="v4-range" type="range" aria-label="范围" min="0" max="100" step="10" value="60"></div><p class="v4-small">受控状态互相独立</p></div>`),
  card('44 · 筛选与折叠','横向筛选与折叠字段保留选择；不隐藏主要操作。',`<div class="v4-wrap"><button class="v4-chip" data-selected="true">本月</button><button class="v4-chip">上月</button><button class="v4-chip">自定义时间</button></div><div class="v4-divider"></div><details class="v4-accordion"><summary><span>更多选项<small>保持主要字段紧凑</small></span>${icon('chevron-down')}</summary><label class="v4-input">备注关键词<input placeholder="请输入"></label></details>`)
 ,
- card('45 · 分类选择器','一级与二级图标、自定义图片、搜索、展开与确认/取消草稿。',samples.categoryPicker),
+ card('45 · 分类选择器','一级与二级图标、自定义图片、搜索、草稿确认，以及保留笔数/禁用规则的即时选择。',samples.categoryPicker),
  card('46 · 账户选择器','当前记账币种、账户余额、暂不设置、搜索与选中。',samples.accountPicker),
  card('47 · 交易行状态全集','支出、收入、转账、外币、标签附件、统计标记、共享、隐私、批量、只读与长文本。',samples.transactionStates),
  card('48 · 真实账本数据联动','真实数据绑定在 App；展示组件接收参数与回调，写入复用现有业务。',samples.liveBinding),

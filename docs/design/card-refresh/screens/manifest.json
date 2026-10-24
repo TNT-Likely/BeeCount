@@ -2182,5 +2182,15 @@
     "viewport": "screens/viewport/flow-ledger-remote-actions.png",
     "full": "screens/full/flow-ledger-remote-actions.png",
     "svg": "figma/flow-ledger-remote-actions.svg"
+  },
+  {
+    "route": "flow-category-select",
+    "title": "支出 · 弹窗",
+    "group": "补齐 · 记账选择与弹层",
+    "slug": "flow-category-select",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-category-select.png",
+    "full": "screens/full/flow-category-select.png",
+    "svg": "figma/flow-category-select.svg"
   }
 ]
