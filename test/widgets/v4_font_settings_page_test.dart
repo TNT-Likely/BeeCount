@@ -23,21 +23,22 @@ void main() {
     addTearDown(t.view.resetPhysicalSize);
     await t.pumpWidget(UncontrolledProviderScope(
         container: container,
-        child: Consumer(
-            builder: (context, ref, _) => MaterialApp(
-                  locale: const Locale('zh'),
-                  theme: beeTheme(
-                      brightness: compact ? Brightness.dark : Brightness.light),
-                  localizationsDelegates:
-                      AppLocalizations.localizationsDelegates,
-                  supportedLocales: AppLocalizations.supportedLocales,
-                  builder: (context, child) => MediaQuery(
-                      data: MediaQuery.of(context).copyWith(
-                          textScaler: TextScaler.linear((compact ? 1.4 : 1) *
-                              ref.watch(effectiveFontScaleProvider))),
-                      child: child!),
-                  home: const FontSettingsPage(),
-                ))));
+        child: Consumer(builder: (context, ref, _) {
+          ref.watch(fontScaleInitProvider);
+          return MaterialApp(
+            locale: const Locale('zh'),
+            theme: beeTheme(
+                brightness: compact ? Brightness.dark : Brightness.light),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                    textScaler: TextScaler.linear((compact ? 1.4 : 1) *
+                        ref.watch(effectiveFontScaleProvider))),
+                child: child!),
+            home: const FontSettingsPage(),
+          );
+        })));
     await t.pumpAndSettle();
   }
 

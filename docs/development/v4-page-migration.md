@@ -4,7 +4,7 @@
 
 现有 **71 个产品页面源文件**（P0 16 页、P1 42 页、P2 13 页），另有 **2 个新设计页面待新增**、6 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
-当前完整完成页面为 **17**（账户详情、新增与编辑账户、资产与账户列表、账单附件大图预览、应用锁解锁、PIN 设置与确认、启动页、欢迎与初始化全流程、新增与编辑分类、分类管理与工具、首页明细、账本管理与切换、我的、昵称与当前账本、配置导入导出与恢复、语言设置、新增与编辑标签、标签管理）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
+当前完整完成页面为 **18**（账户详情、新增与编辑账户、资产与账户列表、账单附件大图预览、应用锁解锁、PIN 设置与确认、启动页、欢迎与初始化全流程、新增与编辑分类、分类管理与工具、首页明细、账本管理与切换、我的、昵称与当前账本、配置导入导出与恢复、字体设置、语言设置、新增与编辑标签、标签管理）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
 
 ## 优先级与顺序
 
@@ -74,7 +74,7 @@
 | **全局附件库**<br>[lib/pages/settings/attachment_preview_page.dart](../../lib/pages/settings/attachment_preview_page.dart) | 待迁移 | M7 | 附件库网格、筛选/选择、预览和任务状态 | 完整附件入口、筛选、来源关联、空态、加载失败、批量选择和导入导出。<br>设计：`flow-attachment-library`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **自动化功能入口**<br>[lib/pages/settings/automation_page.dart](../../lib/pages/settings/automation_page.dart) | 待迁移 | M6 | 分组菜单、输入/选择/开关、弹窗与状态 | 逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。<br>设计：`automation`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **数据管理入口**<br>[lib/pages/settings/data_management_page.dart](../../lib/pages/settings/data_management_page.dart) | 待迁移 | M7 | 分组菜单、输入/选择/开关、弹窗与状态 | 逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。<br>设计：`data`、`flow-attachment-transfer`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
-| **字体设置**<br>[lib/pages/settings/font_settings_page.dart](../../lib/pages/settings/font_settings_page.dart) | 迁移中·原422行页面与缩放Provider已备份，八档/精细调整和原缩放关系核对中 | M8 | 分组菜单、输入/选择/开关、弹窗与状态 | 逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。<br>设计：`flow-font`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
+| **字体设置**<br>[lib/pages/settings/font_settings_page.dart](../../lib/pages/settings/font_settings_page.dart) | 已完成 | M8 | BeeChoiceChip/BeeSliderField/BeeAccordion/BeeSurface、完整文字数字列表预览和真实缩放Provider | 373项/55文件主回归、5文件静态检查、HTML3组合通过；补真实root订阅最终6项目标检查0问题（计数重叠）。R64实际八档checked/保存值、自定义滑杆1.23、正常重启保留、标准重选/重置/适配及七项设备信息通过。原57笔/当前53/24账户/5附件与标签26保持；原生效0/1恢复，仅QA新存两项显式默认。9图/12文件报告font-r64三宽度及ZIP校验通过，SHA256 2e8eaf3fc7c9dccc78664133f788941c4d67b9d0db447da188208e43570c8adb。300ms提前读盘中间值已纠正并用稳定值及重启证明，不冒充产品再次失败；Cloud/iOS未执行。<br>设计：`flow-font`<br>优先理由：原422行及缩放Provider备份保持，新64行页组合既有基础组件和专用预览Section；八档、0.01自定义、完整预览、设备信息及重置/适配保留，旧互相重置已修复。R64同一QA实际UI/独立偏好/正常重启闭环完成。 |
 | **皮肤选择与预览**<br>[lib/pages/settings/header_skin_page.dart](../../lib/pages/settings/header_skin_page.dart) | 待迁移 | M8 | 皮肤预览、选择与主题适配 | 默认无皮肤，两款动态皮肤浅深色、主题色、预览、应用/取消、减少动画。<br>设计：`skins`<br>优先理由：承接本轮两款动态皮肤与主题预览；默认无皮肤，保留旧主题迁移。 |
 | **语言设置**<br>[lib/pages/settings/language_settings_page.dart](../../lib/pages/settings/language_settings_page.dart) | 已完成 | M8 | V4页头/整页背景、BeeSurface与BeeOnboardingChoice，原LanguageNotifier和updateAppWidget | 16项/3文件相关回归、2文件静态检查0问题及3组HTML通过。真实UI核对英语、zh/TW、韩语、简体、跟随系统及选中语义；系统清两键，其他语言清旧TW，英语父页副标题与正常重启持久化。原简体和主题恢复，原57笔/当前53/24账户/5附件及标签26不变。9图/12文件报告language-r63三宽度与ZIP校验通过，SHA256 3a2be7bbac79ff68d9ed9ffc15522a9aff7fb838992bfff58a76fdb55f4355b4。Cloud/iOS、实际桌面组件图片渲染未执行；刷新本地化参数由生产函数和捕获OS渲染器的widget验证。<br>设计：`flow-language`<br>优先理由：原144行备份保持，新统一选择卡片复用初始化组件；原五项、语言/地区持久化及桌面组件刷新保留。R63同一QA实际五语言选择、英语重启与恢复原偏好完成。 |
 | **个性化设置入口**<br>[lib/pages/settings/personalize_page.dart](../../lib/pages/settings/personalize_page.dart) | 待迁移 | M8 | 分组菜单、输入/选择/开关、弹窗与状态 | 逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。<br>设计：`appearance`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
