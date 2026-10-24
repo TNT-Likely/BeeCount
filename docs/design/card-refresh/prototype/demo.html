@@ -4651,7 +4651,7 @@
     if(aEditorRoute===route&&aEditorDraft)return aEditorDraft;
     aEditorRoute=route;
     const fresh=route==='account-new',credit=route==='account-credit',valuation=route==='account-valuation';
-    return aEditorDraft={fresh,group:valuation?'valuation':'daily',lockedGroup:valuation?'valuation':'daily',type:valuation?'investment':credit?'credit_card':fresh?'cash':'bank_card',name:fresh?'':valuation?'长期投资':credit?'日常信用卡':'招商银行',currency:'CNY',balance:fresh?'':valuation?'50000.00':credit?'3200.00':'28640.50',original:credit?-3200:28640.5,overpayment:false,creditLimit:credit?'20000':'',billingDay:credit?12:null,paymentDueDay:credit?28:null,bankName:fresh?'':'招商银行',lastFour:fresh?'':'8862',note:fresh?'':'日常使用',reminder:false,lead:3,hidden:false};
+    return aEditorDraft={fresh,hasTransactions:!fresh&&!credit&&!valuation,group:valuation?'valuation':'daily',lockedGroup:valuation?'valuation':'daily',type:valuation?'investment':credit?'credit_card':fresh?'cash':'bank_card',name:fresh?'':valuation?'长期投资':credit?'日常信用卡':'招商银行',currency:'CNY',balance:fresh?'':valuation?'50000.00':credit?'3200.00':'28640.50',original:credit?-3200:28640.5,overpayment:false,creditLimit:credit?'20000':'',billingDay:credit?12:null,paymentDueDay:credit?28:null,bankName:fresh?'':'招商银行',lastFour:fresh?'':'8862',note:fresh?'':'日常使用',reminder:false,lead:3,hidden:false};
   }
   function aEditorField(key,label,{number=false,required=false,maxlength='',multiline=false,prefix=''}={}){
     const d=aEditorInit(),attrs=`data-ae-field="${key}" aria-label="${label}" ${required?'required':''} ${maxlength?`maxlength="${maxlength}"`:''}`;
@@ -4683,7 +4683,7 @@
       const target=Number(d.balance)*(d.type==='credit_card'&&!d.overpayment?-1:1),difference=target-d.original,symbol=d.currency==='USD'?'US$':'¥',money=n=>(n<0?'−':'')+symbol+Math.abs(n).toFixed(2);
       return `<p class="ae-adjust-caption">请选择这次余额变更的保存方式</p><div class="ae-balance-summary"><div class="ae-balance-pair"><div><small>当前余额</small><strong>${money(d.original)}</strong></div>${icon('arrow-right')}<div><small>调整后余额</small><strong>${money(target)}</strong></div></div><hr><div class="ae-difference"><span>本次差额</span><strong style="color:${difference>0?'#22c55e':difference<0?'#ef4444':'var(--bc-muted)'}">${difference>0?'+':''}${money(difference)}</strong></div></div><div class="bc-segment ae-adjust-modes">${[[false,'仅修改余额'],[true,'生成平账交易']].map(([mode,title])=>btn('ae-adjust-mode:'+mode,title,'选择'+title,'',`aria-pressed="${aEditorMode===mode}"`)).join('')}</div><p class="ae-adjust-caption">${aEditorMode?'同时新增一笔普通收入或支出，归入“平账”分类，并计入收支和预算统计。':'不创建交易；历史余额趋势会按新的余额基线重新计算。'}</p>${btn('ae-confirm-save',`${icon('check')}${aEditorMode?'确认并生成平账交易':'确认仅修改余额'}`,'确认保存账户','bc-primary ae-wide')}`;
     }
-    if(key==='ae-hide'||key==='ae-delete')return `<p>${key==='ae-delete'?'删除账户后无法恢复，历史账单按原有规则保留。':'隐藏后保留历史流水，并清除该账户的默认收支选择。'}</p>`+rModalActions('r-close','取消',key==='ae-hide'?'ae-confirm-hide':'ae-confirm-delete','确认');
+    if(key==='ae-hide'||key==='ae-delete')return `<p>${key==='ae-delete'?(d.hasTransactions?'该账户有 8 笔关联交易，删除后交易记录中的账户信息将被清空。确认删除吗？':'确认删除该账户吗？'):'隐藏后无法再记账到它，新增记账时也不再显示；历史交易与余额保留，可随时恢复。'}</p>`+rModalActions('r-close','取消',key==='ae-hide'?'ae-confirm-hide':'ae-confirm-delete','确认');
     return '';
   };
   for(const [key,title,kind] of [['ae-day','选择日期','sheet'],['ae-currency','选择币种','sheet'],['ae-locked','提示','dialog'],['ae-adjust','确认余额变更','sheet'],['ae-hide','隐藏账户','dialog'],['ae-delete','删除账户','dialog']])rSpecs[key]={title,host:'flow-account-edit',kind};
@@ -4700,9 +4700,9 @@
     else if(action==='ae-day'){aEditorDay=arg;rSpecs['ae-day'].title=arg==='billingDay'?'账单日':'还款日';rOpenModal('ae-day');}
     else if(action==='ae-clear-day'){d[arg]=null;aEditorRedraw();}
     else if(action==='ae-pick-day'){d[aEditorDay]=Number(arg);rDismiss();aEditorRedraw();}
-    else if(action==='ae-currency')rOpenModal(!d.fresh?'ae-locked':'ae-currency');
+    else if(action==='ae-currency')rOpenModal(d.hasTransactions?'ae-locked':'ae-currency');
     else if(action==='ae-pick-currency'){d.currency=arg;rDismiss();aEditorRedraw();}
-    else if(action==='ae-hide'||action==='ae-delete')rOpenModal(action);
+    else if(action==='ae-hide'||action==='ae-delete'){rSpecs[action].title=action==='ae-hide'?'隐藏此账户？':d.hasTransactions?'确认删除':'确定';rOpenModal(action);}
     else if(action==='ae-confirm-hide'){d.hidden=true;rDismiss();aEditorRedraw();notice('账户已隐藏（演示草稿）');}
     else if(action==='ae-confirm-delete'){rDismiss();notice('账户已删除（演示草稿）');navigate('accounts');}
     else if(action==='ae-adjust-mode'){aEditorMode=arg==='true';rBuildModal();}
