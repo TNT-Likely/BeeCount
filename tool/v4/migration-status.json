@@ -398,10 +398,10 @@
     "settings/config_import_export_page.dart": {
       "name": "配置导入导出与恢复",
       "priority": "P0",
-      "reason": "旧用户恢复配置与首次使用衔接，优先保证导入/取消/恢复路径。",
-      "status": "部分迁移·R25 文件闭环及 R28 皮肤真机通过，待整页清单收口",
+      "reason": "R35 当前产物完成八项范围、真实仅标签 YAML/SQL 字段核对、实际复制粘贴与正常重启；R24/R25 真实系统导入、取消、无效 YAML 拒绝与合成标签保存有固定版本证据，生产数据 binding 与 R35 相同。",
+      "status": "已完成",
       "components": "配置范围选择、文件读取/预览、导入导出状态",
-      "acceptance": "原备份范围与格式、初始化恢复、文件选择/预览、取消、失败恢复和附件联动。"
+      "acceptance": "页面、范围选择/预览/确认和完成错误均使用新版卡片与规范弹窗；四项真实 Repository/文件 widget 及 R35 184 项相关回归通过。同一隔离包实际导出文件、剪贴板内容逐字核对与重启，原 51 笔/5 附件和全部业务表/文件保持。iOS 系统分享未执行；Cloud 不适用（仅 App）。"
     },
     "settings/data_management_page.dart": {
       "name": "数据管理入口",
