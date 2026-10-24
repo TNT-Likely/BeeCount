@@ -8948,4 +8948,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4TagToolsHint => 'Add, import, generate defaults and clean up';
+
+  @override
+  String get v4TrendClosing => 'Closing balance';
+
+  @override
+  String get v4TrendOpening => 'Opening balance';
+
+  @override
+  String get v4TrendChange => 'Period change';
+
+  @override
+  String get v4TrendChangeRate => 'Change rate';
 }

@@ -3343,7 +3343,7 @@
   "netWorthTrendLineNet": "Net Worth",
   "netWorthTrendLineAssets": "Total Assets",
   "netWorthTrendLineLiabilities": "Total Liabilities",
-  "netWorthTrendMultiCurrencyNote": "Historical net worth is the raw sum of each currency, not converted",
+  "netWorthTrendMultiCurrencyNote": "Converted to the base currency at current rates. Accounts without a rate are excluded.",
   "txFlagExcludeFromStats": "Exclude from income/expense",
   "txFlagExcludeFromBudget": "Exclude from budget",
   "txFlagMoreOptions": "More options",
@@ -3998,5 +3998,9 @@
   "v4TagDistribution": "Category distribution",
   "v4TagOriginalLedgerTotals": "Totals use each ledger’s original amounts",
   "v4TagToolsTitle": "Tag tools",
-  "v4TagToolsHint": "Add, import, generate defaults and clean up"
+  "v4TagToolsHint": "Add, import, generate defaults and clean up",
+  "v4TrendClosing": "Closing balance",
+  "v4TrendOpening": "Opening balance",
+  "v4TrendChange": "Period change",
+  "v4TrendChangeRate": "Change rate"
 }

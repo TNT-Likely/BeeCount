@@ -7617,7 +7617,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get netWorthTrendLineLiabilities => 'Total Liabilities';
 
   @override
-  String get netWorthTrendMultiCurrencyNote => 'Historical net worth is the raw sum of each currency, not converted';
+  String get netWorthTrendMultiCurrencyNote => 'Converted to the base currency at current rates. Accounts without a rate are excluded.';
 
   @override
   String get txFlagExcludeFromStats => 'Exclude from income/expense';
@@ -8948,4 +8948,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4TagToolsHint => 'Add, import, generate defaults and clean up';
+
+  @override
+  String get v4TrendClosing => 'Closing balance';
+
+  @override
+  String get v4TrendOpening => 'Opening balance';
+
+  @override
+  String get v4TrendChange => 'Period change';
+
+  @override
+  String get v4TrendChangeRate => 'Change rate';
 }

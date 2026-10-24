@@ -7611,7 +7611,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netWorthTrendLineLiabilities => '总负债';
 
   @override
-  String get netWorthTrendMultiCurrencyNote => '历史净值为各币种原值相加,未折算';
+  String get netWorthTrendMultiCurrencyNote => '按当前汇率折算为主币种；缺少汇率的账户暂不计入。';
 
   @override
   String get txFlagExcludeFromStats => '不计入收支';
@@ -8940,6 +8940,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4TagToolsHint => '新增、导入、默认生成与清理';
+
+  @override
+  String get v4TrendClosing => '期末金额';
+
+  @override
+  String get v4TrendOpening => '期初金额';
+
+  @override
+  String get v4TrendChange => '期间变化';
+
+  @override
+  String get v4TrendChangeRate => '变化比例';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

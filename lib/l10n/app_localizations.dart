@@ -14405,7 +14405,7 @@ abstract class AppLocalizations {
   /// No description provided for @netWorthTrendMultiCurrencyNote.
   ///
   /// In en, this message translates to:
-  /// **'Historical net worth is the raw sum of each currency, not converted'**
+  /// **'Converted to the base currency at current rates. Accounts without a rate are excluded.'**
   String get netWorthTrendMultiCurrencyNote;
 
   /// No description provided for @txFlagExcludeFromStats.
@@ -16831,6 +16831,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add, import, generate defaults and clean up'**
   String get v4TagToolsHint;
+
+  /// No description provided for @v4TrendClosing.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing balance'**
+  String get v4TrendClosing;
+
+  /// No description provided for @v4TrendOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance'**
+  String get v4TrendOpening;
+
+  /// No description provided for @v4TrendChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Period change'**
+  String get v4TrendChange;
+
+  /// No description provided for @v4TrendChangeRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Change rate'**
+  String get v4TrendChangeRate;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
