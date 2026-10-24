@@ -876,6 +876,7 @@
   "categoryDeleteConfirmMessage": "确定要删除分类\"{name}\"吗？此操作无法撤销。",
   "categoryDeleteError": "删除失败",
   "categoryDeleted": "分类\"{name}\"已删除",
+  "categoryManageChildren": "管理",
   "categorySubCategoryTitle": "二级分类",
   "categorySubCategoryDescriptionEnabled": "此分类属于某个一级分类",
   "categorySubCategoryDescriptionDisabled": "此分类为独立的一级分类",

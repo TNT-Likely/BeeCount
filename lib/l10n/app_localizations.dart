@@ -4154,6 +4154,12 @@ abstract class AppLocalizations {
   /// **'Category \"{name}\" deleted'**
   String categoryDeleted(Object name);
 
+  /// No description provided for @categoryManageChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get categoryManageChildren;
+
   /// No description provided for @categorySubCategoryTitle.
   ///
   /// In en, this message translates to:

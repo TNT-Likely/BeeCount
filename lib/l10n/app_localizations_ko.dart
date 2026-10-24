@@ -2201,6 +2201,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get categoryManageChildren => 'Manage';
+
+  @override
   String get categorySubCategoryTitle => '하위 카테고리';
 
   @override

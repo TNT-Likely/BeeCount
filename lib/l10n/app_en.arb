@@ -923,6 +923,7 @@
   "categoryDeleteConfirmMessage": "Are you sure you want to delete category \"{name}\"? This action cannot be undone.",
   "categoryDeleteError": "Delete failed",
   "categoryDeleted": "Category \"{name}\" deleted",
+  "categoryManageChildren": "Manage",
   "categorySubCategoryTitle": "Subcategory",
   "categorySubCategoryDescriptionEnabled": "This category belongs to a parent category",
   "categorySubCategoryDescriptionDisabled": "This is an independent top-level category",

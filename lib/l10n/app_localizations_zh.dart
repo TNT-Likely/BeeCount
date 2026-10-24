@@ -2201,6 +2201,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get categoryManageChildren => '管理';
+
+  @override
   String get categorySubCategoryTitle => '二级分类';
 
   @override
