@@ -1624,6 +1624,11 @@
 #bee-immersive-suite .bc-phone .g-swipe:not(.g-open):not(.g-dragging)>.g-swipe-delete{visibility:hidden}
 #bee-immersive-suite .bc-phone .g-gesture-example{padding:12px;border-radius:16px;background:var(--bc-soft)}
 
+/* Match BeeToggleRow's semantic contrast across all theme colors. */
+#bee-immersive-suite .bc-phone [role="switch"][aria-checked="true"]>.bc-switch::after{background:var(--bc-on-accent)}
+#bee-immersive-suite .bc-phone [role="switch"][aria-checked="false"]>.bc-switch{border:1px solid var(--bc-muted)}
+#bee-immersive-suite .bc-phone [role="switch"][aria-checked="false"]>.bc-switch::after{background:var(--bc-muted)}
+
 /* Proposal opt-in: ?editorLayout=pinned. Fixed region sizes, category gets the remainder. */
 #bee-immersive-suite .bc-phone[data-z-editor=true]{display:flex;flex-direction:column;height:var(--q-height,844px);min-height:var(--q-height,844px);max-height:var(--q-height,844px)}
 #bee-immersive-suite .bc-phone[data-z-editor=true] .bc-status{flex:none;height:36px;min-height:36px;padding-top:10px}

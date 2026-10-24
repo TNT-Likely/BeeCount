@@ -374,10 +374,10 @@
     "settings/appearance_settings_page.dart": {
       "name": "显示与外观设置",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "待迁移",
-      "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+      "reason": "原815行完整备份，四组15项、五种配置弹窗、主币种选择及七条生产路由与Provider/持久化/同步保留；R68同一QA真实偏好/业务目录/正常重启闭环已封存。",
+      "status": "已完成",
+      "components": "规范页头/菜单/带图标开关、可配置分隔、BeeNoteHistoryPreferences、真实只读预览及原配置弹窗",
+      "acceptance": "66项/9文件回归，最终5项间距目标检查（重叠不相加）、11文件静态0问题；3组实际外观字号HTML、243链接/64规范/40基础控件通过。真机三种主题、四种单选/两个开关、范围/排序/37重开恢复20、原七目的页往返、搜索USD恢复CNY、业务第44项实际disabled只读37和重启通过。57/53/24/5及历史业务表/附件hash保持；原自动汇率缓存exchange_rates更新、四键新增显式默认单列。23图/26文件报告appearance-r68三宽度及ZIP SHA256 1bca13984fb5850ac29ea04d9195c6432fe26536b80f91b2d766b0d18a5d884d。逐字101保留中途有效10，不冒充原子替换；Cloud/原生iOS未执行或不适用。"
     },
     "settings/attachment_preview_page.dart": {
       "name": "全局附件库",
