@@ -741,9 +741,9 @@
   },
   {
     "route": "flow-category-tools",
-    "slug": "flow-category-tools",
     "title": "分类工具 · 弹窗",
     "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-tools",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-category-tools.png",
     "full": "screens/full/flow-category-tools.png",
@@ -751,9 +751,9 @@
   },
   {
     "route": "flow-taxonomy-import",
-    "slug": "flow-taxonomy-import",
-    "title": "导入分类与标签",
+    "title": "选择导入模式 · 弹窗",
     "group": "补齐 · 分类标签与预算",
+    "slug": "flow-taxonomy-import",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-taxonomy-import.png",
     "full": "screens/full/flow-taxonomy-import.png",
@@ -1942,5 +1942,65 @@
     "viewport": "screens/viewport/flow-account-valuation.png",
     "full": "screens/full/flow-account-valuation.png",
     "svg": "figma/flow-account-valuation.svg"
+  },
+  {
+    "route": "flow-category-management",
+    "title": "分类管理",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-management",
+    "fullHeight": 1389,
+    "viewport": "screens/viewport/flow-category-management.png",
+    "full": "screens/full/flow-category-management.png",
+    "svg": "figma/flow-category-management.svg"
+  },
+  {
+    "route": "flow-category-empty",
+    "title": "分类管理 · 空分类",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-category-empty.png",
+    "full": "screens/full/flow-category-empty.png",
+    "svg": "figma/flow-category-empty.svg"
+  },
+  {
+    "route": "flow-category-children",
+    "title": "饮品 · 弹窗",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-children",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-category-children.png",
+    "full": "screens/full/flow-category-children.png",
+    "svg": "figma/flow-category-children.svg"
+  },
+  {
+    "route": "flow-category-share",
+    "title": "选择分享范围 · 弹窗",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-share",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-category-share.png",
+    "full": "screens/full/flow-category-share.png",
+    "svg": "figma/flow-category-share.svg"
+  },
+  {
+    "route": "flow-category-defaults",
+    "title": "生成默认分类 · 支出 · 弹窗",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-defaults",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-category-defaults.png",
+    "full": "screens/full/flow-category-defaults.png",
+    "svg": "figma/flow-category-defaults.svg"
+  },
+  {
+    "route": "flow-category-clear",
+    "title": "清空未使用分类 · 弹窗",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-clear",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-category-clear.png",
+    "full": "screens/full/flow-category-clear.png",
+    "svg": "figma/flow-category-clear.svg"
   }
 ]

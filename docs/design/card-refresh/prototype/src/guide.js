@@ -25,3 +25,11 @@ for(const adjustment of document.querySelectorAll('[data-balance-adjustment]'))a
  if(mode){for(const button of adjustment.querySelectorAll('[data-balance-mode]'))button.setAttribute('aria-pressed',String(button===mode));for(const description of adjustment.querySelectorAll('[data-balance-description]'))description.hidden=description.dataset.balanceDescription!==mode.dataset.balanceMode;adjustment.querySelector('[data-balance-confirm]').textContent=mode.dataset.confirmLabel;return;}
  if(event.target.closest('[data-balance-confirm]'))adjustment.querySelector('[data-balance-result]').textContent='已确认：'+adjustment.querySelector('[data-balance-mode][aria-pressed=true]').textContent;
 });
+for(const manager of document.querySelectorAll('[data-category-management]'))manager.addEventListener('click',event=>{
+ const expand=event.target.closest('[data-management-expand]');
+ if(expand){const on=expand.getAttribute('aria-expanded')!=='true';expand.setAttribute('aria-expanded',String(on));manager.querySelector('.g-management-children').hidden=!on;return;}
+ const edit=event.target.closest('[data-management-edit]');
+ if(edit)manager.querySelector('[data-management-result]').textContent='已选择：'+edit.dataset.managementEdit+'（示例草稿）';
+ if(event.target.closest('[data-management-open]'))manager.querySelector('.g-management-dialog').scrollIntoView({block:'center'});
+ if(event.target.closest('[data-management-open-tools]'))manager.querySelector('[data-management-result]').textContent='分类工具：分享分类、新建分类、导入分类 ZIP、生成默认分类、清空未使用分类。完整弹窗见交互预览。';
+});

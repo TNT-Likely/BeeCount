@@ -8,7 +8,7 @@ manual={
 'main/home_page.dart':['home'],'main/analytics_page.dart':['report'],'main/mine_page.dart':['mine'],'main/ledgers_page_new.dart':['ledgers'],
 'account/accounts_page.dart':['assets'],'account/account_detail_page.dart':['accountDetail'],'calendar/calendar_page.dart':['calendar'],'transaction/transaction_editor_page.dart':['editor','flow-foreign-editor'],
 'auth/welcome_page.dart':['welcome','welcomeCurrency','welcomeCategories','welcomeCloud','welcomePrivacy','welcomeDone'],
-'category/category_manage_page.dart':['leaf:分类管理'],'settings/about_page.dart':['about'],'settings/data_management_page.dart':['data'],
+'category/category_manage_page.dart':['flow-category-management','flow-category-children','flow-category-tools','flow-category-share','flow-taxonomy-import','flow-category-defaults','flow-category-clear','flow-category-empty'],'settings/about_page.dart':['about'],'settings/data_management_page.dart':['data'],
 'settings/smart_billing_page.dart':['smart'],'settings/automation_page.dart':['automation'],'settings/personalize_page.dart':['appearance'],
 'settings/appearance_settings_page.dart':['appearance'],'settings/header_skin_page.dart':['skins'],'settings/language_settings_page.dart':['flow-language'],
 'settings/privacy_policy_page.dart':['leaf:隐私政策'],'report/annual_report_page.dart':['annual'],
