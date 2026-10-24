@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 243,
+  "designSceneExports": 245,
   "flowDefinitions": 150,
   "priorityCounts": {
     "P0": 16,
@@ -1541,20 +1541,24 @@
       "classes": [
         "PersonalizePage"
       ],
-      "lines": 512,
+      "lines": 108,
       "batch": "M8 设置与收尾",
       "designRoutes": [
-        "appearance"
+        "colors",
+        "flow-theme-custom",
+        "flow-theme-locked"
       ],
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "待迁移",
-      "name": "个性化设置入口",
+      "status": "迁移中·原512行已备份，27种原色值/HSV/固定皮肤锁定接入，短屏大字回归中",
+      "name": "主题色与自定义配色",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=appearance"
+        "../../docs/design/card-refresh/prototype/demo.html?page=colors",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-theme-custom",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-theme-locked"
       ]
     },
     {
