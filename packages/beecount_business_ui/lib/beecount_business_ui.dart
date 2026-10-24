@@ -51,3 +51,4 @@ export 'src/exchange_rate_components.dart';
 export 'src/budget_components.dart';
 
 export 'src/calendar_components.dart';
+export 'src/analytics_components.dart';

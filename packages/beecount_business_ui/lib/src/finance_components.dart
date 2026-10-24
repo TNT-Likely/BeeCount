@@ -1169,8 +1169,10 @@ class BeeRankItem {
       required this.amount,
       required this.fraction,
       required this.icon,
+      this.description,
       this.children = const []});
   final String id, label, amount;
+  final String? description;
   final double fraction;
   final Widget icon;
   final List<BeeRankItem> children;
@@ -1204,10 +1206,24 @@ class BeeCategoryRanking extends StatelessWidget {
                               : onExpand(item.id),
                           child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: BeeProgress(
-                                  value: item.fraction,
-                                  label: item.label,
-                                  trailing: item.amount)))),
+                              child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    BeeProgress(
+                                        value: item.fraction,
+                                        label: item.label,
+                                        trailing: item.amount),
+                                    if (item.description != null)
+                                      Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 4),
+                                          child: Text(item.description!,
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: Theme.of(context)
+                                                      .hintColor)))
+                                  ])))),
                   if (item.children.isNotEmpty)
                     IconButton(
                         onPressed: () => onExpand(item.id),
