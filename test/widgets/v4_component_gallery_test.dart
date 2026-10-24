@@ -842,6 +842,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 2));
     await tester.pump();
     expect(find.byType(BeeQuickAddFan), findsOneWidget);
+    final fan = tester.widget<BeeQuickAddFan>(find.byType(BeeQuickAddFan));
+    final design = jsonDecode(
+        File('test/fixtures/v4-quick-add-design-geometry.json')
+            .readAsStringSync());
+    expect(fan.actions.map((a) => a.id),
+        (design['actions'] as List).map((a) => a['method']));
     await gesture.moveTo(
         tester.getCenter(find.byKey(const ValueKey('quick-fan-voice'))));
     await gesture.up();

@@ -1116,9 +1116,9 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 actions: const [
                   BeeAction(
                       id: 'camera', label: '拍照', icon: BeeLineIcon('Camera')),
-                  BeeAction(id: 'voice', label: '语音', icon: BeeLineIcon('Mic')),
                   BeeAction(
-                      id: 'gallery', label: '相册', icon: BeeLineIcon('Images'))
+                      id: 'gallery', label: '相册', icon: BeeLineIcon('Images')),
+                  BeeAction(id: 'voice', label: '语音', icon: BeeLineIcon('Mic')),
                 ],
                 onTap: () => record('普通记账'),
                 onSelected: (v) => record('滑动选择 $v'),
