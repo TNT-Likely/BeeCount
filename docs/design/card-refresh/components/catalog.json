@@ -507,6 +507,13 @@
         "title": "预算概览与分类预算",
         "nativeCase": 49,
         "nativeLabel": "预算概览与分类进度"
+      },
+      {
+        "id": "spec-72",
+        "code": "B47",
+        "title": "预算编辑与分类草稿",
+        "nativeCase": 50,
+        "nativeLabel": "预算编辑与分类草稿"
       }
     ]
   }

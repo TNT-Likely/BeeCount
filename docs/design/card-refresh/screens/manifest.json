@@ -791,9 +791,9 @@
   },
   {
     "route": "flow-budget-edit",
-    "slug": "flow-budget-edit",
     "title": "编辑预算",
     "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-edit",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-budget-edit.png",
     "full": "screens/full/flow-budget-edit.png",
@@ -2902,5 +2902,125 @@
     "viewport": "screens/viewport/flow-budget-usd.png",
     "full": "screens/full/flow-budget-usd.png",
     "svg": "figma/flow-budget-usd.svg"
+  },
+  {
+    "route": "flow-budget-edit-existing-total",
+    "title": "添加分类预算 · 已有总预算",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-edit-existing-total",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-edit-existing-total.png",
+    "full": "screens/full/flow-budget-edit-existing-total.png",
+    "svg": "figma/flow-budget-edit-existing-total.svg"
+  },
+  {
+    "route": "flow-budget-edit-total",
+    "title": "编辑总预算 · 保留原始精度",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-edit-total",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-edit-total.png",
+    "full": "screens/full/flow-budget-edit-total.png",
+    "svg": "figma/flow-budget-edit-total.svg"
+  },
+  {
+    "route": "flow-budget-edit-category",
+    "title": "编辑分类预算",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-edit-category",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-edit-category.png",
+    "full": "screens/full/flow-budget-edit-category.png",
+    "svg": "figma/flow-budget-edit-category.svg"
+  },
+  {
+    "route": "flow-budget-edit-custom",
+    "title": "编辑预算 · 自定义分类图片",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-edit-custom",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-edit-custom.png",
+    "full": "screens/full/flow-budget-edit-custom.png",
+    "svg": "figma/flow-budget-edit-custom.svg"
+  },
+  {
+    "route": "flow-budget-edit-empty-categories",
+    "title": "添加预算 · 无可选父分类",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-edit-empty-categories",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-edit-empty-categories.png",
+    "full": "screens/full/flow-budget-edit-empty-categories.png",
+    "svg": "figma/flow-budget-edit-empty-categories.svg"
+  },
+  {
+    "route": "flow-budget-edit-loading",
+    "title": "预算编辑 · 读取中",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-edit-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-edit-loading.png",
+    "full": "screens/full/flow-budget-edit-loading.png",
+    "svg": "figma/flow-budget-edit-loading.svg"
+  },
+  {
+    "route": "flow-budget-edit-error",
+    "title": "预算编辑 · 读取失败",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-edit-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-edit-error.png",
+    "full": "screens/full/flow-budget-edit-error.png",
+    "svg": "figma/flow-budget-edit-error.svg"
+  },
+  {
+    "route": "flow-budget-edit-write-error",
+    "title": "预算编辑 · 写入失败保留草稿",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-edit-write-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-edit-write-error.png",
+    "full": "screens/full/flow-budget-edit-write-error.png",
+    "svg": "figma/flow-budget-edit-write-error.svg"
+  },
+  {
+    "route": "flow-budget-edit-readonly",
+    "title": "预算编辑 · 共享成员只读",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-edit-readonly",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-edit-readonly.png",
+    "full": "screens/full/flow-budget-edit-readonly.png",
+    "svg": "figma/flow-budget-edit-readonly.svg"
+  },
+  {
+    "route": "flow-bge-category",
+    "title": "选择分类 · 底部弹层",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-bge-category",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-bge-category.png",
+    "full": "screens/full/flow-bge-category.png",
+    "svg": "figma/flow-bge-category.svg"
+  },
+  {
+    "route": "flow-bge-delete",
+    "title": "删除 · 弹窗",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-bge-delete",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-bge-delete.png",
+    "full": "screens/full/flow-bge-delete.png",
+    "svg": "figma/flow-bge-delete.svg"
+  },
+  {
+    "route": "flow-decimal-two-digits",
+    "title": "基础输入 · 可选两位小数",
+    "group": "补齐 · 组件规范",
+    "slug": "flow-decimal-two-digits",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-decimal-two-digits.png",
+    "full": "screens/full/flow-decimal-two-digits.png",
+    "svg": "figma/flow-decimal-two-digits.svg"
   }
 ]
