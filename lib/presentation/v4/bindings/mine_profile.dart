@@ -1,5 +1,6 @@
 import 'package:beecount_ui/beecount_ui.dart';
 import '../../../utils/format_utils.dart';
+import '../../../styles/tokens.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import '../../../utils/currencies.dart';
 import '../../../widgets/biz/ledger_picker_sheet.dart';
@@ -329,11 +330,14 @@ class MineProfileBindingState extends ConsumerState<MineProfileBinding> {
         amount: formatMoneyCompact(balance),
         prefix: getCurrencySymbol(ledger?.currency ?? 'CNY'),
         stats: '',
-        balanceLabel: l10n.mineCurrentBalance,
+        balanceLabel:
+            '${l10n.mineCurrentBalance} · ${ledger?.currency ?? 'CNY'}',
+        amountColor: balance < 0 ? BeeTokens.error(context) : null,
         days: '${counts?.dayCount ?? 0}',
         count: '${counts?.txCount ?? 0}',
-        daysLabel: l10n.mineDaysCount,
-        countLabel: l10n.mineTotalRecords,
+        daysLabel: l10n.sharePosterUnitDay,
+        countLabel: l10n.sharePosterUnitCount,
+        onCountTap: () => ref.read(bottomTabIndexProvider.notifier).state = 0,
         hidden: hidden,
         privacyLabel: l10n.mineCurrentBalance,
         onLedgerTap: () => showLedgerPicker(context),

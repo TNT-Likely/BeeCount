@@ -128,11 +128,39 @@ void main() {
     expect(balance.amount, '14.8');
     expect(balance.count, '2');
     expect(balance.days, '2');
+    final l = AppLocalizations.of(tester.element(find.byType(MinePage)));
+    expect(balance.daysLabel, l.sharePosterUnitDay);
+    expect(balance.countLabel, l.sharePosterUnitCount);
+    expect(balance.balanceLabel, contains('CNY'));
+    container.read(bottomTabIndexProvider.notifier).state = 3;
+    await tester.tap(find
+        .descendant(of: find.byType(BeeLedgerBalance), matching: find.text('2'))
+        .last);
+    await tester.pump();
+    expect(container.read(bottomTabIndexProvider), 0);
     expect(find.text('验收昵称'), findsOneWidget);
     final sync = tester.widget<BeeSyncStatus>(find.byType(BeeSyncStatus));
     expect(sync.state, BeeSyncState.unconfigured);
     expect(sync.onTap, isNull);
     expect(await repo.getTransactionsByLedger(1), before);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+  testWidgets('累计结余为负时保留原语义色，币种和紧凑统计仍可见', (tester) async {
+    await repo.addTransaction(
+        ledgerId: 1,
+        type: 'expense',
+        amount: 20,
+        happenedAt: DateTime(2026, 10, 24));
+    await open(tester);
+    final balance =
+        tester.widget<BeeLedgerBalance>(find.byType(BeeLedgerBalance));
+    expect(balance.amount, '-5.2');
+    expect(balance.amountColor, isNotNull);
+    final amount = tester.widget<BeeMoney>(find.descendant(
+        of: find.byType(BeeLedgerBalance), matching: find.byType(BeeMoney)));
+    expect(amount.color, balance.amountColor);
+    expect(amount.prefixSize, 15);
     expect(tester.takeException(), isNull);
     await close(tester);
   });

@@ -895,11 +895,15 @@ class BeeLedgerBalance extends StatelessWidget {
       this.count,
       this.daysLabel,
       this.countLabel,
+      this.onCountTap,
+      this.amountColor,
       this.prefix,
       this.hidden = false});
   final String ledger, amount, stats, privacyLabel;
   final String? balanceLabel, days, count, daysLabel, countLabel, prefix;
   final VoidCallback onLedgerTap, onPrivacyTap;
+  final VoidCallback? onCountTap;
+  final Color? amountColor;
   final bool hidden;
   @override
   Widget build(BuildContext context) => BeeSurface(
@@ -943,6 +947,8 @@ class BeeLedgerBalance extends StatelessWidget {
                   child: BeeMoney(
                       amount: amount,
                       prefix: prefix,
+                      prefixSize: 15,
+                      color: amountColor,
                       hidden: hidden,
                       size: 23))),
           const SizedBox(width: 10),
@@ -950,7 +956,12 @@ class BeeLedgerBalance extends StatelessWidget {
             Row(children: [
               _stat(context, days!, daysLabel ?? ''),
               const SizedBox(width: 8),
-              _stat(context, count!, countLabel ?? '')
+              if (onCountTap == null)
+                _stat(context, count!, countLabel ?? '')
+              else
+                InkWell(
+                    onTap: onCountTap,
+                    child: _stat(context, count!, countLabel ?? ''))
             ])
           else
             Text(stats,
