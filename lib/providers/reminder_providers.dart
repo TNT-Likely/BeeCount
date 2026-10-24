@@ -3,12 +3,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/app_localizations_resolver.dart';
 import '../utils/notification_factory.dart';
+import '../utils/notification_util.dart';
 import 'language_provider.dart';
+
+/// OS boundary only; preference storage and reminder state remain real.
+final reminderNotificationsProvider =
+    Provider<NotificationUtil>((ref) => NotificationFactory.getInstance());
 
 /// 记账提醒设置
 class ReminderSettings {
   final bool isEnabled;
-  final int hour;  // 0-23
+  final int hour; // 0-23
   final int minute; // 0-59
 
   const ReminderSettings({
@@ -58,14 +63,16 @@ class ReminderSettings {
 
 /// 记账提醒设置的StateNotifier
 class ReminderSettingsNotifier extends StateNotifier<ReminderSettings> {
-  ReminderSettingsNotifier(this._ref) : super(ReminderSettings.defaultSettings()) {
+  ReminderSettingsNotifier(this._ref)
+      : super(ReminderSettings.defaultSettings()) {
     _loadSettings();
   }
 
   final Ref _ref;
 
   /// 通知文案按应用内语言设置取(ref 由 provider 注入);见 resolveAppLocalizations。
-  AppLocalizations get _l10n => resolveAppLocalizations(_ref.read(languageProvider));
+  AppLocalizations get _l10n =>
+      resolveAppLocalizations(_ref.read(languageProvider));
 
   static const String _keyEnabled = 'reminder_enabled';
   static const String _keyHour = 'reminder_hour';
@@ -106,7 +113,7 @@ class ReminderSettingsNotifier extends StateNotifier<ReminderSettings> {
     state = state.copyWith(isEnabled: enabled);
     await _saveSettings();
 
-    final notificationUtil = NotificationFactory.getInstance();
+    final notificationUtil = _ref.read(reminderNotificationsProvider);
     if (enabled) {
       await notificationUtil.scheduleDailyReminder(
         id: 1001,
@@ -127,7 +134,7 @@ class ReminderSettingsNotifier extends StateNotifier<ReminderSettings> {
 
     // 如果提醒已启用，重新设置通知
     if (state.isEnabled) {
-      final notificationUtil = NotificationFactory.getInstance();
+      final notificationUtil = _ref.read(reminderNotificationsProvider);
       await notificationUtil.scheduleDailyReminder(
         id: 1001,
         title: _l10n.reminderTitle,
@@ -143,7 +150,7 @@ class ReminderSettingsNotifier extends StateNotifier<ReminderSettings> {
     state = settings;
     await _saveSettings();
 
-    final notificationUtil = NotificationFactory.getInstance();
+    final notificationUtil = _ref.read(reminderNotificationsProvider);
     if (settings.isEnabled) {
       await notificationUtil.scheduleDailyReminder(
         id: 1001,
@@ -159,6 +166,7 @@ class ReminderSettingsNotifier extends StateNotifier<ReminderSettings> {
 }
 
 /// 记账提醒设置Provider
-final reminderSettingsProvider = StateNotifierProvider<ReminderSettingsNotifier, ReminderSettings>((ref) {
+final reminderSettingsProvider =
+    StateNotifierProvider<ReminderSettingsNotifier, ReminderSettings>((ref) {
   return ReminderSettingsNotifier(ref);
 });
