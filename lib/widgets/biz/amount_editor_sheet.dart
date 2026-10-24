@@ -1496,6 +1496,12 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
 
   Future<void> _confirmCardDiscard() async {
     if (_isSubmitting || _discardConfirmed) return;
+    // Android may deliver the same back action after hiding the IME. Dismiss
+    // inline editing first, keeping the draft and custom keypad in place.
+    if (_noteFocusNode.hasFocus) {
+      _noteFocusNode.unfocus();
+      return;
+    }
     final l10n = AppLocalizations.of(context);
     final discard = await showDialog<bool>(
         context: context,

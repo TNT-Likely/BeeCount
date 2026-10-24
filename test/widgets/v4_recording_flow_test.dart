@@ -383,6 +383,33 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  recordingTest('原位备注的首次返回收起键盘，第二次返回才确认放弃草稿', (tester) async {
+    await open(tester);
+    await key(tester, '3');
+    await key(tester, '2');
+    await category(tester, foodId);
+    await category(tester, lunchId);
+    final note = find.byKey(const ValueKey('recording-note'));
+    await tester.enterText(note, '保留原位备注');
+    tester.view.viewInsets = const FakeViewPadding(bottom: 250);
+    addTearDown(tester.view.resetViewInsets);
+    await tester.pumpAndSettle();
+    await tester.binding.handlePopRoute();
+    tester.view.resetViewInsets();
+    await tester.pumpAndSettle();
+    expect(find.text('放弃本次记账？'), findsNothing);
+    expect(find.text('保留原位备注'), findsOneWidget);
+    expect(find.byKey(const ValueKey('recording-key-7')), findsOneWidget);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('放弃本次记账？'), findsOneWidget);
+    await tester.tap(find.text('取消'));
+    await tester.pumpAndSettle();
+    expect(find.text('保留原位备注'), findsOneWidget);
+    expect(await db.select(db.transactions).get(), isEmpty);
+    expect(tester.takeException(), isNull);
+  });
+
   recordingTest('更多分类返回保留金额；切换收入后保存使用收入分类', (tester) async {
     await open(tester);
     await key(tester, '3');
