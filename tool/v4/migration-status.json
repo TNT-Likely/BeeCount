@@ -748,31 +748,33 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-24T20:54:00+08:00",
-    "engineeringEstimatePercent": 38,
+    "reportedAt": "2026-10-24T21:56:00+08:00",
+    "scheduledReportAt": "2026-10-24T21:54:00+08:00",
+    "engineeringEstimatePercent": 40,
     "engineeringEstimateRange": [
-      36,
-      40
+      38,
+      42
     ],
-    "completedPages": 18,
+    "completedPages": 20,
     "totalPages": 73,
     "completedP0Pages": 13,
     "totalExistingP0Pages": 16,
     "newlyCompletedSincePreviousReport": [
-      "语言设置",
-      "显示缩放"
+      "净值趋势",
+      "自动化入口"
     ],
     "inProgress": [
-      "净值趋势R65：原266行和559行折线图已备份，四组旧图逐像素通过；真实仓库和HTML实现中，尚未完成真机闭环",
-      "标签详情Q11、记账Q09、搜索Q08、分类详情Q10/Q11继续保留原行为并单独记录待确认",
-      "同一QA环境57笔/当前53/24账户/5附件及保留标签26，无重置",
-      "PR575保持CLOSED，v4继续推送；准备完成再重开"
+      "提醒设置R67：79项/12文件相关回归、10文件静态0问题，真正切换外观/字号的HTML长短屏、滚轮取消/23:59确认、诊断与滚动位置通过；原生通知和调度尚未验收，不计整页",
+      "基础时间滚轮和业务提醒设置已抽出并接真实Provider；目录基础21/业务43，规范基础24/业务39共63组、40基础控件",
+      "Q08/Q09/Q10/Q11和共享/云端待核对范围继续保留；新增Q14保留原iOS说明待后续核对",
+      "同一QA57笔/当前53/24账户/5附件及标签26无重置；R67原提醒三个键均未设置",
+      "v4已推送至二十页文档，PR575保持CLOSED，准备好再恢复"
     ],
     "remainingEffortEstimateHours": [
-      30,
-      50
+      29,
+      49
     ],
-    "remainingEffortChangeReason": "较19:54的31–51减少约1实际工时。本小时语言设置与显示缩放通过真实UI/偏好/独立SQL和文件/正常入口重启及独立报告；显示缩放修复原Provider互相重置。净值趋势在迁移中。AI、Cloud、共享权限和平台相关验证仍有浮动；该范围为实际工作量而非上线时刻承诺。"
+    "remainingEffortChangeReason": "较20:54的30–50减少约1实际工时。净值趋势/自动化入口完成真实UI、独立SQL/偏好/附件与正常重启及独立报告，图表和高额短屏补齐组件/设计；提醒页新增完整UI/诊断与IO边界测试但原生闭环未完成。AI、Cloud、共享权限及平台验证仍有浮动，范围是实际工作量，不是上线时刻承诺。"
   },
   "pullRequest": {
     "number": 575,
