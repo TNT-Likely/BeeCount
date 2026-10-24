@@ -551,6 +551,40 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final snapshot in [12.0, 85.23456789]) {
+    recordingTest('仅编辑备注保留美元历史快照 $snapshot，包括汇率为一的情况', (tester) async {
+      final id = await repo.addTransaction(
+          ledgerId: 1,
+          type: 'expense',
+          amount: 12,
+          categoryId: lunchId,
+          happenedAt: DateTime(2026, 10, 20),
+          currencyCode: 'USD',
+          nativeAmount: snapshot);
+      await open(tester,
+          page: TransactionEditorPage(
+              initialKind: 'expense',
+              editingTransactionId: id,
+              initialCategoryId: lunchId,
+              initialAmount: 12,
+              initialCurrencyCode: 'USD',
+              initialNativeAmount: snapshot,
+              initialDate: DateTime(2026, 10, 20)));
+      await tester.enterText(
+          find.byKey(const ValueKey('recording-note')), '只改备注');
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      await press(tester, 'recording-save');
+      await tester.pumpAndSettle();
+      final row = (await db.select(db.transactions).get()).single;
+      expect(row.id, id);
+      expect(row.amount, 12);
+      expect(row.nativeAmount, closeTo(snapshot, .00000000001));
+      expect(row.note, '只改备注');
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   recordingTest('共享账本分类使用 Owner 镜像和二级图标，不混入个人分类', (tester) async {
     await db.customStatement(
         "UPDATE ledgers SET is_shared = 1, my_role = 'editor', sync_id = 'shared-1' WHERE id = 1");

@@ -1,18 +1,15 @@
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
-import 'package:drift/drift.dart' as d;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/db.dart';
 import '../../data/repositories/local/local_repository.dart';
 import '../../providers.dart';
+import '../../presentation/v4/bindings/recording_save.dart';
 import '../../providers/shared_ledger_providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../styles/tokens.dart';
-import '../../services/billing/post_processor.dart';
-import '../../services/attachment_service.dart';
-import '../../services/data/tx_author_service.dart';
 import '../biz/amount_editor_sheet.dart';
 import '../../utils/account_type_utils.dart';
 import '../../utils/shared_ledger_picker_filter.dart';
@@ -74,6 +71,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
   int? _fromAccountId;
   int? _toAccountId;
   bool _autoOpened = false;
+  int? _retryTransactionId;
   final _amountEditorKey = GlobalKey<AmountEditorSheetState>();
 
   @override
@@ -113,25 +111,6 @@ class _TransferFormState extends ConsumerState<TransferForm> {
     return repo.db.findAccountBySyntheticId(accountId);
   }
 
-  /// 把 synthetic accountId(负数)反查回 Owner 的 syncId(正数 id 时返 null)。
-  /// 用 ledger.syncId 限定 SharedLedgerAccounts 的查询范围。
-  Future<String?> _resolveSyncIdByAccountId(int accountId, int ledgerId) async {
-    if (accountId >= 0) return null;
-    final repo = ref.read(repositoryProvider);
-    if (repo is! LocalRepository) return null;
-    final ledger = await (repo.db.select(repo.db.ledgers)
-          ..where((l) => l.id.equals(ledgerId)))
-        .getSingleOrNull();
-    if (ledger?.syncId == null) return null;
-    final rows = await (repo.db.select(repo.db.sharedLedgerAccounts)
-          ..where((t) => t.ledgerSyncId.equals(ledger!.syncId!)))
-        .get();
-    for (final r in rows) {
-      if (syntheticIdForSyncId(r.syncId) == accountId) return r.syncId;
-    }
-    return null;
-  }
-
   // 当两个账户都选择后，自动弹出金额输入弹窗
   Future<void> _openAmountSheet() async {
     final l10n = AppLocalizations.of(context);
@@ -155,7 +134,6 @@ class _TransferFormState extends ConsumerState<TransferForm> {
       }
     }
 
-    final repo = ref.read(repositoryProvider);
     final ledgerId = ref.read(currentLedgerIdProvider);
 
     final fromAccount = await _lookupAccount(_fromAccountId!);
@@ -169,204 +147,90 @@ class _TransferFormState extends ConsumerState<TransferForm> {
       context: context,
       isScrollControlled: true,
       backgroundColor: BeeCardTheme.of(context).canvas,
-      builder: (context) => SizedBox(
-          height: MediaQuery.sizeOf(context).height * .88,
-          child: Column(children: [
-            Padding(
-                padding: const EdgeInsets.fromLTRB(17, 6, 8, 0),
-                child: Row(children: [
-                  Expanded(
-                      child: Text(l10n.transferTitle,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600))),
-                  BeeIconButton(
-                      label: l10n.commonClose,
-                      icon: const BeeLineIcon('X', size: 21),
-                      onPressed: () => Navigator.pop(context))
-                ])),
-            Expanded(
-                child: AmountEditorSheet(
-              key: _amountEditorKey,
-              cardLayout: true,
-              categorySection: BeeTransferAccountPair(
-                  fromLabel: l10n.transferFromAccount,
-                  toLabel: l10n.transferToAccount,
-                  fromName: fromAccount?.name ?? l10n.transferSelectAccount,
-                  toName: toAccount?.name ?? l10n.transferSelectAccount),
-              categoryName: l10n.transferTitle,
-              initialDate: widget.initialDate ?? DateTime.now(),
-              initialAmount: widget.initialAmount,
-              initialNote: widget.initialNote,
-              initialTagIds: widget.initialTagIds,
-              showAccountPicker: false,
-              ledgerId: ledgerId,
-              editingTransactionId: widget.editingTransactionId,
-              transactionKind: 'transfer',
-              initialExcludeFromStats: widget.initialExcludeFromStats,
-              initialExcludeFromBudget: widget.initialExcludeFromBudget,
-              initialCurrencyCode: originalPair
-                  ? widget.initialCurrencyCode ?? fromAccount?.currency
-                  : fromAccount?.currency,
-              initialNativeAmount:
-                  originalPair ? widget.initialNativeAmount : null,
-              onSubmit: (result) async {
-                final attachmentService = ref.read(attachmentServiceProvider);
-                // 获取虚拟转账分类ID
-                final transferCategory =
-                    await ref.read(transferCategoryProvider.future);
-                final transferCategoryId = transferCategory.id;
-
-                // §7 共享账本:Editor picker 给的是 synthetic Account(负数 id)。
-                // 写本地 Drift 时 accountId / toAccountId 留 null,override 字段
-                // 走 Owner 的 syncId;push 序列化时按 override 输出 payload。
-                final isSyntheticFrom =
-                    _fromAccountId != null && _fromAccountId! < 0;
-                final isSyntheticTo = _toAccountId != null && _toAccountId! < 0;
-                final fromAccountForAdd =
-                    isSyntheticFrom ? null : _fromAccountId;
-                final toAccountForAdd = isSyntheticTo ? null : _toAccountId;
-                final fromOverride = isSyntheticFrom
-                    ? await _resolveSyncIdByAccountId(_fromAccountId!, ledgerId)
-                    : null;
-                final toOverride = isSyntheticTo
-                    ? await _resolveSyncIdByAccountId(_toAccountId!, ledgerId)
-                    : null;
-
-                try {
-                  if (widget.editingTransactionId != null) {
-                    // 编辑模式：更新现有转账记录
-                    await repo.updateTransaction(
-                      id: widget.editingTransactionId!,
-                      type: 'transfer',
-                      amount: result.amount,
-                      categoryId: transferCategoryId, // 使用虚拟转账分类ID
-                      note: result.note,
-                      happenedAt: result.date,
-                      excludeFromStats: result.excludeFromStats,
-                      excludeFromBudget: result.excludeFromBudget,
-                      currencyCode: result.currencyCode,
-                      nativeAmount: result.nativeAmount,
-                      accountId: d.Value<int?>(fromAccountForAdd),
-                      accountSyncIdOverride: fromOverride,
-                    );
-                    // 更新 toAccountId(同时写 toAccountSyncIdOverride,共享账本场景)
-                    await repo.updateTransactionFields(
-                      id: widget.editingTransactionId!,
-                      toAccountId: d.Value<int?>(toAccountForAdd),
-                      toAccountSyncIdOverride: toOverride,
-                      writeToAccountSyncIdOverride: true,
-                    );
-                    // 共享账本:回填编辑人,UI 头像组立即展示
-                    await TxAuthorService.markEdited(
-                        ref, widget.editingTransactionId!);
-                    // 更新标签
-                    if (result.tagIds.isNotEmpty) {
-                      await repo.updateTransactionTags(
-                        transactionId: widget.editingTransactionId!,
-                        tagIds: result.tagIds,
-                      );
-                      // 刷新标签列表缓存
-                      ref.read(tagListRefreshProvider.notifier).state++;
-                    } else {
-                      // 编辑模式：如果没有选择标签，清除原有标签
-                      await repo.removeAllTagsFromTransaction(
-                          widget.editingTransactionId!);
-                      ref.read(tagListRefreshProvider.notifier).state++;
-                    }
-
-                    // 保存待上传的附件
-                    if (result.pendingAttachments.isNotEmpty) {
-                      await attachmentService.saveAttachments(
-                        transactionId: widget.editingTransactionId!,
-                        sourceFiles: result.pendingAttachments,
-                        startIndex: 0,
-                      );
-                      // 刷新附件列表缓存
-                      ref.read(attachmentListRefreshProvider.notifier).state++;
-                    }
-
-                    // 统一处理：自动/手动同步与状态刷新
-                    await PostProcessor.sync(ref, ledgerId: ledgerId);
-                    // 刷新统计
-                    ref.invalidate(countsForLedgerProvider(ledgerId));
-                    ref.read(statsRefreshProvider.notifier).state++;
-
+      builder: (context) => Padding(
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+              height: MediaQuery.sizeOf(context).height * .88,
+              child: Column(children: [
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(17, 6, 8, 0),
+                    child: Row(children: [
+                      Expanded(
+                          child: Text(l10n.transferTitle,
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w600))),
+                      BeeIconButton(
+                          label: l10n.commonClose,
+                          icon: const BeeLineIcon('X', size: 21),
+                          onPressed: () => Navigator.pop(context))
+                    ])),
+                Expanded(
+                    child: AmountEditorSheet(
+                  key: _amountEditorKey,
+                  cardLayout: true,
+                  systemKeyboardVisible:
+                      MediaQuery.viewInsetsOf(context).bottom >
+                          kMinInteractiveDimension,
+                  categorySection: BeeTransferAccountPair(
+                      fromLabel: l10n.transferFromAccount,
+                      toLabel: l10n.transferToAccount,
+                      fromName: fromAccount?.name ?? l10n.transferSelectAccount,
+                      toName: toAccount?.name ?? l10n.transferSelectAccount,
+                      fromDetail: fromAccount?.hidden == true
+                          ? l10n.accountHiddenTag
+                          : null,
+                      toDetail: toAccount?.hidden == true
+                          ? l10n.accountHiddenTag
+                          : null),
+                  categoryName: l10n.transferTitle,
+                  initialDate: widget.initialDate ?? DateTime.now(),
+                  initialAmount: widget.initialAmount,
+                  initialNote: widget.initialNote,
+                  initialTagIds: widget.initialTagIds,
+                  showAccountPicker: false,
+                  ledgerId: ledgerId,
+                  editingTransactionId: widget.editingTransactionId,
+                  transactionKind: 'transfer',
+                  initialExcludeFromStats: widget.initialExcludeFromStats,
+                  initialExcludeFromBudget: widget.initialExcludeFromBudget,
+                  initialCurrencyCode: originalPair
+                      ? widget.initialCurrencyCode ?? fromAccount?.currency
+                      : fromAccount?.currency,
+                  initialNativeAmount:
+                      originalPair ? widget.initialNativeAmount : null,
+                  onSubmit: (result) async {
+                    await persistTransferDraft(ref,
+                        ledgerId: ledgerId,
+                        fromAccountId: _fromAccountId!,
+                        toAccountId: _toAccountId!,
+                        result: result,
+                        editingId:
+                            widget.editingTransactionId ?? _retryTransactionId,
+                        onCreated: (id) => _retryTransactionId = id);
+                    _retryTransactionId = null;
                     if (!context.mounted) return;
-                    Navigator.of(context).pop(); // 关闭金额输入弹窗
-                    showToast(context, l10n.transferUpdateSuccess,
-                        tone: BeeTone.success);
-                    widget.onTransferComplete();
-                  } else {
-                    // 创建模式：新建转账记录
-                    final txId = await repo.addTransaction(
-                      ledgerId: ledgerId,
-                      type: 'transfer',
-                      amount: result.amount,
-                      categoryId: transferCategoryId, // 使用虚拟转账分类ID
-                      accountId: fromAccountForAdd,
-                      toAccountId: toAccountForAdd,
-                      accountSyncIdOverride: fromOverride,
-                      toAccountSyncIdOverride: toOverride,
-                      note: result.note,
-                      happenedAt: result.date,
-                      excludeFromStats: result.excludeFromStats,
-                      excludeFromBudget: result.excludeFromBudget,
-                      currencyCode: result.currencyCode,
-                      nativeAmount: result.nativeAmount,
-                    );
-                    // 共享账本:本地立即标记创建人 + 编辑人
-                    await TxAuthorService.markCreated(ref, txId);
-
-                    // 关联标签
-                    if (result.tagIds.isNotEmpty) {
-                      await repo.updateTransactionTags(
-                        transactionId: txId,
-                        tagIds: result.tagIds,
-                      );
-                      // 刷新标签列表缓存
-                      ref.read(tagListRefreshProvider.notifier).state++;
-                    }
-
-                    // 保存待上传的附件
-                    if (result.pendingAttachments.isNotEmpty) {
-                      await attachmentService.saveAttachments(
-                        transactionId: txId,
-                        sourceFiles: result.pendingAttachments,
-                        startIndex: 0,
-                      );
-                      // 刷新附件列表缓存
-                      ref.read(attachmentListRefreshProvider.notifier).state++;
-                    }
-
-                    // 统一处理：自动/手动同步与状态刷新
-                    await PostProcessor.sync(ref, ledgerId: ledgerId);
-                    // 刷新统计
-                    ref.invalidate(countsForLedgerProvider(ledgerId));
-                    ref.read(statsRefreshProvider.notifier).state++;
-
-                    if (!context.mounted) return;
-                    Navigator.of(context).pop(); // 关闭金额输入弹窗
-                    showToast(context, l10n.transferCreateSuccess,
-                        tone: BeeTone.success);
-
-                    // 重置状态
-                    setState(() {
-                      _fromAccountId = null;
-                      _toAccountId = null;
-                    });
-
-                    widget.onTransferComplete();
-                  }
-                } catch (e) {
-                  if (context.mounted) {
                     Navigator.of(context).pop();
-                    showToast(context, '${l10n.commonError}: $e',
-                        tone: BeeTone.error);
-                  }
-                }
-              },
-            )),
-          ])),
+                    showToast(
+                        context,
+                        widget.editingTransactionId == null
+                            ? l10n.transferCreateSuccess
+                            : l10n.transferUpdateSuccess,
+                        tone: BeeTone.success);
+                    if (widget.editingTransactionId == null && mounted) {
+                      setState(() {
+                        _fromAccountId = null;
+                        _toAccountId = null;
+                      });
+                    }
+                    widget.onTransferComplete();
+                  },
+                )),
+              ])),
+        ),
+      ),
     );
   }
 
@@ -478,6 +342,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                           name: a.name,
                           currency: a.currency,
                           balance: '',
+                          detail: a.hidden ? l10n.accountHiddenTag : null,
                           icon: AccountTypeIcon(type: a.type, size: 24)))
                       .toList(),
                   selected: '${from ? _fromAccountId : _toAccountId}',
@@ -505,6 +370,8 @@ class _TransferFormState extends ConsumerState<TransferForm> {
               toLabel: l10n.transferToAccount,
               fromName: from?.name ?? l10n.transferSelectAccount,
               toName: to?.name ?? l10n.transferSelectAccount,
+              fromDetail: from?.hidden == true ? l10n.accountHiddenTag : null,
+              toDetail: to?.hidden == true ? l10n.accountHiddenTag : null,
               fromIcon: from == null
                   ? null
                   : AccountTypeIcon(type: from.type, size: 24),

@@ -10,10 +10,13 @@ class BeeTransferAccountPair extends StatelessWidget {
       required this.toName,
       this.onFrom,
       this.onTo,
+      this.fromDetail,
+      this.toDetail,
       this.fromIcon,
       this.toIcon});
   final String fromLabel, toLabel, fromName, toName;
   final VoidCallback? onFrom, onTo;
+  final String? fromDetail, toDetail;
   final Widget? fromIcon, toIcon;
   @override
   Widget build(BuildContext context) => BeeSurface(
@@ -21,7 +24,8 @@ class BeeTransferAccountPair extends StatelessWidget {
       child: Column(children: [
         BeeMenuRow(
             title: fromName,
-            subtitle: fromLabel,
+            subtitle:
+                [fromLabel, if (fromDetail != null) fromDetail!].join(' · '),
             leading: fromIcon ?? const BeeLineIcon('Wallet', size: 21),
             onTap: onFrom),
         Row(children: [
@@ -33,7 +37,7 @@ class BeeTransferAccountPair extends StatelessWidget {
         ]),
         BeeMenuRow(
             title: toName,
-            subtitle: toLabel,
+            subtitle: [toLabel, if (toDetail != null) toDetail!].join(' · '),
             leading: toIcon ?? const BeeLineIcon('Wallet', size: 21),
             onTap: onTo),
       ]));

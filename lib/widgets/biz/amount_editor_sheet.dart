@@ -350,8 +350,10 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     // 只改备注/分类时折算基准不漂移(01 §4.2)。
     final initAmount = widget.initialAmount ?? 0;
     final initNative = widget.initialNativeAmount;
-    if (initNative != null && initAmount > 0 && initNative != initAmount) {
-      _rateStr = (initNative / initAmount).toStringAsPrecision(6);
+    if (initNative != null && initAmount > 0) {
+      // Equal amounts can be a valid historical foreign-currency rate of 1.
+      // Keep the full double precision when changing only metadata.
+      _rateStr = (initNative / initAmount).toString();
       _rateManuallySet = true;
     }
     if (widget.initialAccountId != null) {

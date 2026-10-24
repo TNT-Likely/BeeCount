@@ -36,7 +36,6 @@ Future<void> persistRecordingDraft(
     throw StateError('Selected category is no longer available');
   }
   final repo = ref.read(repositoryProvider);
-  final attachmentService = ref.read(attachmentServiceProvider);
   int transactionId;
   // §7 v25:Category 是来自 SharedLedger* 的 synthetic (id<0)时,
   // categoryId 留 null,override 走 syncId。同理对 account/toAccount。
@@ -96,16 +95,100 @@ Future<void> persistRecordingDraft(
     // 共享账本:新建本地 tx 也回填创建人 + 编辑人(同一个 user)
     await TxAuthorService.markCreated(ref, transactionId);
   }
-  // 保存待上传的附件
-  if (res.pendingAttachments.isNotEmpty) {
-    await attachmentService.saveAttachments(
-      transactionId: transactionId,
-      sourceFiles: res.pendingAttachments,
-      startIndex: 0,
-    );
-    // 刷新附件列表缓存
-    ref.read(attachmentListRefreshProvider.notifier).state++;
+  await _persistRecordingMetadata(ref,
+      transactionId: transactionId, result: res, editing: editingId != null);
+  // 统一处理：自动/手动同步与状态刷新（后台静默）
+  PostProcessor.sync(ref, ledgerId: ledgerId);
+  // 刷新：账本笔数与全局统计
+  ref.invalidate(countsForLedgerProvider(ledgerId));
+  ref.read(statsRefreshProvider.notifier).state++;
+  // 刷新：预算数据
+  ref.read(budgetRefreshProvider.notifier).state++;
+}
+
+/// App-owned transfer persistence; the caller retains a created identity on
+/// metadata failure so retry updates that row instead of creating another.
+Future<void> persistTransferDraft(
+  WidgetRef ref, {
+  required int ledgerId,
+  required int fromAccountId,
+  required int toAccountId,
+  required AmountEditorResult result,
+  required int? editingId,
+  required ValueChanged<int> onCreated,
+}) async {
+  if (ledgerId != ref.read(currentLedgerIdProvider)) {
+    throw StateError('Ledger context changed during transfer');
   }
+  final repo = ref.read(repositoryProvider);
+  final category = await ref.read(transferCategoryProvider.future);
+  final fromOverride = fromAccountId < 0
+      ? await _resolveSyncIdByAccountId(ref, fromAccountId, ledgerId)
+      : null;
+  final toOverride = toAccountId < 0
+      ? await _resolveSyncIdByAccountId(ref, toAccountId, ledgerId)
+      : null;
+  final fromId = fromAccountId < 0 ? null : fromAccountId;
+  final toId = toAccountId < 0 ? null : toAccountId;
+  late final int transactionId;
+  if (editingId == null) {
+    transactionId = await repo.addTransaction(
+      ledgerId: ledgerId,
+      type: 'transfer',
+      amount: result.amount,
+      categoryId: category.id,
+      accountId: fromId,
+      toAccountId: toId,
+      accountSyncIdOverride: fromOverride,
+      toAccountSyncIdOverride: toOverride,
+      happenedAt: result.date,
+      note: result.note,
+      excludeFromStats: result.excludeFromStats,
+      excludeFromBudget: result.excludeFromBudget,
+      currencyCode: result.currencyCode,
+      nativeAmount: result.nativeAmount,
+    );
+    onCreated(transactionId);
+    await TxAuthorService.markCreated(ref, transactionId);
+  } else {
+    transactionId = editingId;
+    await repo.updateTransaction(
+      id: transactionId,
+      type: 'transfer',
+      amount: result.amount,
+      categoryId: category.id,
+      accountId: d.Value<int?>(fromId),
+      accountSyncIdOverride: fromOverride,
+      happenedAt: result.date,
+      note: result.note,
+      excludeFromStats: result.excludeFromStats,
+      excludeFromBudget: result.excludeFromBudget,
+      currencyCode: result.currencyCode,
+      nativeAmount: result.nativeAmount,
+    );
+    await repo.updateTransactionFields(
+      id: transactionId,
+      toAccountId: d.Value<int?>(toId),
+      toAccountSyncIdOverride: toOverride,
+      writeToAccountSyncIdOverride: true,
+    );
+    await TxAuthorService.markEdited(ref, transactionId);
+  }
+  await _persistRecordingMetadata(ref,
+      transactionId: transactionId, result: result, editing: editingId != null);
+  await PostProcessor.sync(ref, ledgerId: ledgerId);
+  ref.invalidate(countsForLedgerProvider(ledgerId));
+  ref.read(statsRefreshProvider.notifier).state++;
+}
+
+Future<void> _persistRecordingMetadata(
+  WidgetRef ref, {
+  required int transactionId,
+  required AmountEditorResult result,
+  required bool editing,
+}) async {
+  final repo = ref.read(repositoryProvider);
+  final res = result;
   // 更新标签关联
   // §7 共享账本:tag.id < 0 是 synthetic(Owner tag from SharedLedger*),
   // 主表 Tags 没该行,不能直接写 transaction_tags.tag_id。分两类:
@@ -120,7 +203,7 @@ Future<void> persistRecordingDraft(
       tagIds: normalTagIds,
     );
     ref.read(tagListRefreshProvider.notifier).state++;
-  } else if (editingId != null) {
+  } else if (editing) {
     // 编辑模式没主表 tag → 清掉旧主表关联
     await repo.removeAllTagsFromTransaction(transactionId);
     ref.read(tagListRefreshProvider.notifier).state++;
@@ -167,13 +250,17 @@ Future<void> persistRecordingDraft(
       // 创建 tx 时 1 秒内 2 条 identical upsert)。直接砍。
     }
   }
-  // 统一处理：自动/手动同步与状态刷新（后台静默）
-  PostProcessor.sync(ref, ledgerId: ledgerId);
-  // 刷新：账本笔数与全局统计
-  ref.invalidate(countsForLedgerProvider(ledgerId));
-  ref.read(statsRefreshProvider.notifier).state++;
-  // 刷新：预算数据
-  ref.read(budgetRefreshProvider.notifier).state++;
+  // Save files after tag writes, so a failed tag retry cannot duplicate them.
+  if (res.pendingAttachments.isNotEmpty) {
+    final attachmentService = ref.read(attachmentServiceProvider);
+    await attachmentService.saveAttachments(
+      transactionId: transactionId,
+      sourceFiles: res.pendingAttachments,
+      startIndex: 0,
+    );
+    // 刷新附件列表缓存
+    ref.read(attachmentListRefreshProvider.notifier).state++;
+  }
 }
 
 /// 获取默认账户ID（验证币种匹配）
