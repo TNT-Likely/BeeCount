@@ -1292,12 +1292,12 @@
         "flow-pin-verify"
       ],
       "designMapping": "已定位",
-      "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "迁移中",
+      "components": "应用锁受控设置、原认证与PIN校验、安全输入、四档超时底部弹层和能力门控",
+      "acceptance": "已提交源码副本17项/2文件回归、4文件静态0问题；398/320深色140%、原PIN几何、264链接/68规范组/41基础控件通过。真机实际创建取消/确认、错误旧PIN/新草稿取消、替换保存、四档超时/选中取消、启用启动旧PIN拒绝/新PIN解锁、错误关闭取消/正确关闭和最终无PIN正常启动通过。原57/53/24/5及3图片hash/外观偏好/公共文件保持，原有效安全值恢复；超时原键缺失则保留显式默认0，PIN与哈希已清除。13图16文件报告三宽度/ZIP封存，SHA256 2162f4f022369f1614d7471ed7cc459a6898ba358403d9e2627822b953933d75。物理生物识别未执行；MethodChannel成功/失败不计真实指纹/FaceID通过，Cloud/iOS未执行或不适用。",
+      "status": "已完成",
       "name": "应用锁设置",
       "priority": "P1",
-      "reason": "原421行及SHA备份，原服务/认证门控/四档超时保留；17项/2文件提交源码回归与4文件静态0问题、264场景HTML和真实创建/替换/超时/启用启动门控通过，正在关闭恢复与最终重启，不计整页。",
+      "reason": "原421行及SHA备份，基础开关/菜单和安全Panel复用，原认证服务/能力门控/四档超时保留；R73同一QA真实UI、正常启动门控、验证关闭、数据/有效安全设置恢复与最终重启闭环通过。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-settings",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-settings-on",

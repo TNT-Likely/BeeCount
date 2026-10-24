@@ -247,6 +247,6 @@ App 的 `AttachmentLibraryData` 继续读取原本地文件或归档字节，缓
 基础 `BeeSegmented` 允许宿主滚动控制，单个长标签限制在可视宽度内；`BeeIconButton` 保持独立语义边界，避免关闭按钮与整张弹窗合并。HTML spec68/B43 与 Flutter 业务47对应，当前 HTML 260 场景、68 规范组（基础25/业务43）、41 基础控件，Flutter 基础22/业务47节。数量不代表完成页面数；R72 页面验收仍以独立报告为准。
 
 
-## 应用锁设置与安全验证（R73进行中）
+## 应用锁设置与安全验证（R73 App范围完成）
 
-应用锁页复用已有BeeSurface、BeeToggleRow、BeeMenuRow与BeeSecurityPanel/BeePinPad，不为单页新增大型包装组件。原能力探测、PIN服务、Provider和偏好写入留在App动作绑定；私有验证页复用安全输入，原四档超时保持底部弹层。取消、错误恢复、真实原哈希/偏好与MethodChannel生物识别成功失败在17项相关回归中验证；原生正在收尾，尚不计整页完成。
+应用锁页复用已有BeeSurface、BeeToggleRow、BeeMenuRow与BeeSecurityPanel/BeePinPad，不为单页新增大型包装组件。原能力探测、PIN服务、Provider和偏好写入留在App动作绑定；私有验证页复用安全输入，原四档超时保持底部弹层。取消、错误恢复、真实原哈希/偏好与MethodChannel生物识别成功失败在17项相关回归中验证；R73实际创建/替换/取消、四档超时、正常启动门控与验证关闭/恢复/重启已闭环；物理生物认证未执行，边界与独立报告见页面完成文档。
