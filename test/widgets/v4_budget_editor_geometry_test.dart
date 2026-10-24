@@ -49,6 +49,23 @@ void main() {
             .minimumSize!
             .resolve({})!.height,
         f['saveVisualMinimumHeight']);
+    // Frozen HTML uses a plain amount on the card surface. Resolve the global
+    // filled-input theme too, so it cannot silently add a second gray plate.
+    final decoration = t
+        .widget<TextField>(find.byType(TextField))
+        .decoration!
+        .applyDefaults(
+            Theme.of(t.element(find.byType(TextField))).inputDecorationTheme);
+    expect(f['amountFieldFill'], 'surface');
+    expect(decoration.filled, false);
+    for (final border in [
+      decoration.border,
+      decoration.enabledBorder,
+      decoration.focusedBorder,
+      decoration.disabledBorder
+    ]) {
+      expect(border, InputBorder.none, reason: f['amountFieldBorders']);
+    }
     expect(t.takeException(), isNull);
     await t.pumpWidget(const SizedBox.shrink());
     controller.dispose();

@@ -339,6 +339,10 @@ class BeeBudgetEditorForm extends StatelessWidget {
                       prefixText: '$symbol ',
                       hintText: amountHint,
                       constraints: const BoxConstraints(minHeight: 64),
+                      filled: false,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
                       border: InputBorder.none,
                       contentPadding:
                           const EdgeInsets.symmetric(vertical: 12))),

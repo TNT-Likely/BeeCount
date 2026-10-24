@@ -13,5 +13,7 @@
   "amountInputHeight": 64,
   "amountCardHeight": 128,
   "saveButtonHeight": 48,
-  "saveVisualMinimumHeight": 44
+  "saveVisualMinimumHeight": 44,
+  "amountFieldFill": "surface",
+  "amountFieldBorders": "none"
 }
