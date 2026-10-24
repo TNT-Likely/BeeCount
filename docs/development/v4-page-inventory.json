@@ -10,8 +10,8 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 226,
-  "flowDefinitions": 149,
+  "designSceneExports": 227,
+  "flowDefinitions": 150,
   "priorityCounts": {
     "P0": 16,
     "P1": 42,
@@ -1712,17 +1712,19 @@
       "lines": 137,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
-        "flow-tag-edit"
+        "flow-tag-edit",
+        "flow-tag-new"
       ],
       "designMapping": "已定位",
-      "components": "语义标签、表单、列表与账单行",
-      "acceptance": "标签颜色、长名称、新建/编辑/删除、分类关联、引用和当前账本权限。",
-      "status": "迁移中·原308行备份已核对，受控颜色选择与真实保存抽离中",
+      "components": "规范表单、语义标签实时预览、受控20色选择与真实保存结果",
+      "acceptance": "九图独立报告tag-edit-r61，三宽度及12文件/ZIP校验通过，SHA256 d0fa699ae10b111fc5c924ff69df3c68b67da48d66f27fe7b878da93ffe7e7d1。原57笔/当前53/24账户/5附件和全部原标签关系保持。长标签20字素320深色140%回归通过，颜色44触控/36色块。Cloud/iOS及共享负身份写入不属于本地编辑已通过范围，旧服务缺口Q13保留。",
+      "status": "已完成",
       "name": "新增与编辑标签",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "原308行备份保持，新137行页与真实保存绑定完成，20色/旧自定义色/查重/返回值保留。350项主回归与最终样式10项、6组HTML通过；R61同一QA实际必填/重名拒绝、新建选色、同身份改名换色、取消/专属目标删除和正常重启闭环通过。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-edit"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-new"
       ]
     },
     {
@@ -1738,7 +1740,7 @@
       "designMapping": "已定位",
       "components": "语义标签、表单、列表与账单行",
       "acceptance": "标签颜色、长名称、新建/编辑/删除、分类关联、引用和当前账本权限。",
-      "status": "待迁移",
+      "status": "迁移中·原633行备份已核对，工具/导入/分享与标签网格拆分中",
       "name": "标签管理",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",

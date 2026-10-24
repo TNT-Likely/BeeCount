@@ -4,7 +4,7 @@
 
 现有 **71 个产品页面源文件**（P0 16 页、P1 42 页、P2 13 页），另有 **2 个新设计页面待新增**、6 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
-当前完整完成页面为 **14**（账户详情、新增与编辑账户、资产与账户列表、账单附件大图预览、应用锁解锁、PIN 设置与确认、启动页、欢迎与初始化全流程、新增与编辑分类、分类管理与工具、首页明细、账本管理与切换、我的、昵称与当前账本、配置导入导出与恢复）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
+当前完整完成页面为 **15**（账户详情、新增与编辑账户、资产与账户列表、账单附件大图预览、应用锁解锁、PIN 设置与确认、启动页、欢迎与初始化全流程、新增与编辑分类、分类管理与工具、首页明细、账本管理与切换、我的、昵称与当前账本、配置导入导出与恢复、新增与编辑标签）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
 
 ## 优先级与顺序
 
@@ -81,8 +81,8 @@
 | **记账提醒**<br>[lib/pages/settings/reminder_settings_page.dart](../../lib/pages/settings/reminder_settings_page.dart) | 待迁移 | M8 | 分组菜单、输入/选择/开关、弹窗与状态 | 逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。<br>设计：`flow-reminder`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **智能记账入口与识别偏好**<br>[lib/pages/settings/smart_billing_page.dart](../../lib/pages/settings/smart_billing_page.dart) | 待迁移 | M6 | 智能记账入口、功能引导弹窗、默认行为开关与语音设置 | 平台/渠道入口、原三个默认开关、自动/按住语音、静音时长、配置弹窗与识别入口。<br>设计：`smart`、`flow-capture`、`flow-feature-guide`、`flow-voice-trigger`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **标签详情**<br>[lib/pages/tag/tag_detail_page.dart](../../lib/pages/tag/tag_detail_page.dart) | 部分迁移·R60可执行范围闭环完成，Q11待确认 | M3 | 语义标签、关联分类、统计/筛选和账单行 | 14图独立报告tag-r60三宽度及17文件/ZIP校验通过，SHA256 4a89da66479ba71deef351711289fa187e849ad7916a56a51b3e93346009e3ee。原57笔/当前53/24账户/5附件及全部原表保持。实际保留标签只关联账本1，不冒充原生多账本聚合；两个账本与synthetic共享字段由真实DB/widget覆盖。Cloud/iOS未执行。<br>设计：`tagDetail`、`flow-tag-foreign-detail`、`flow-tag-all-ledgers-detail`、`flow-tag-empty-detail`<br>优先理由：原567行备份保持，新213行页面接入真实统计/流/批量元信息/共享账户水合，保留全部默认、月年与自定义周期。R60同一QA当前范围、滚轮/编辑/删除取消、带标签记账取消、专属空标签创建与确认删除、原31笔标签全范围及正常重启通过。340项/46文件、12组HTML及独立几何通过，跨本位币合计沿用旧口径，Q11不擅自改。 |
-| **新增与编辑标签**<br>[lib/pages/tag/tag_edit_page.dart](../../lib/pages/tag/tag_edit_page.dart) | 迁移中·原308行备份已核对，受控颜色选择与真实保存抽离中 | M3 | 语义标签、表单、列表与账单行 | 标签颜色、长名称、新建/编辑/删除、分类关联、引用和当前账本权限。<br>设计：`flow-tag-edit`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
-| **标签管理**<br>[lib/pages/tag/tag_manage_page.dart](../../lib/pages/tag/tag_manage_page.dart) | 待迁移 | M3 | 语义标签、表单、列表与账单行 | 标签颜色、长名称、新建/编辑/删除、分类关联、引用和当前账本权限。<br>设计：`flow-tag-tools`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
+| **新增与编辑标签**<br>[lib/pages/tag/tag_edit_page.dart](../../lib/pages/tag/tag_edit_page.dart) | 已完成 | M3 | 规范表单、语义标签实时预览、受控20色选择与真实保存结果 | 九图独立报告tag-edit-r61，三宽度及12文件/ZIP校验通过，SHA256 d0fa699ae10b111fc5c924ff69df3c68b67da48d66f27fe7b878da93ffe7e7d1。原57笔/当前53/24账户/5附件和全部原标签关系保持。长标签20字素320深色140%回归通过，颜色44触控/36色块。Cloud/iOS及共享负身份写入不属于本地编辑已通过范围，旧服务缺口Q13保留。<br>设计：`flow-tag-edit`、`flow-tag-new`<br>优先理由：原308行备份保持，新137行页与真实保存绑定完成，20色/旧自定义色/查重/返回值保留。350项主回归与最终样式10项、6组HTML通过；R61同一QA实际必填/重名拒绝、新建选色、同身份改名换色、取消/专属目标删除和正常重启闭环通过。 |
+| **标签管理**<br>[lib/pages/tag/tag_manage_page.dart](../../lib/pages/tag/tag_manage_page.dart) | 迁移中·原633行备份已核对，工具/导入/分享与标签网格拆分中 | M3 | 语义标签、表单、列表与账单行 | 标签颜色、长名称、新建/编辑/删除、分类关联、引用和当前账本权限。<br>设计：`flow-tag-tools`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **周期账单编辑**<br>[lib/pages/transaction/recurring_transaction_edit_page.dart](../../lib/pages/transaction/recurring_transaction_edit_page.dart) | 待迁移 | M1 | 周期编辑表单、金额/币种/账户、日期与频率选择 | 周期/频率/起止/下次执行、币种/账户/标签/备注、取消和调度更新。<br>设计：`flow-recurring-edit`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **周期账单列表**<br>[lib/pages/transaction/recurring_transaction_page.dart](../../lib/pages/transaction/recurring_transaction_page.dart) | 待迁移 | M1 | 周期任务列表、状态、菜单与空态 | 周期/下一次、启用停用、编辑/删除和已有任务状态，调度与执行服务不变。<br>设计：`flow-recurring`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 
