@@ -366,7 +366,7 @@
     "settings/app_lock_settings_page.dart": {
       "name": "应用锁设置",
       "priority": "P1",
-      "reason": "原421行及SHA备份，页面复用基础开关/菜单、安全Panel与原认证服务，原生物识别门控和四档超时保持；17项回归和4文件静态0问题已通过，HTML/真机闭环待完成，不计整页。",
+      "reason": "原421行及SHA备份，原服务/认证门控/四档超时保留；17项/2文件提交源码回归与4文件静态0问题、264场景HTML和真实创建/替换/超时/启用启动门控通过，正在关闭恢复与最终重启，不计整页。",
       "status": "迁移中",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
@@ -748,31 +748,32 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T02:54:38+08:00",
-    "scheduledReportAt": "2026-10-25T02:54:00+08:00",
-    "engineeringEstimatePercent": 45,
+    "reportedAt": "2026-10-25T03:54:57+08:00",
+    "scheduledReportAt": "2026-10-25T03:54:00+08:00",
+    "engineeringEstimatePercent": 47,
     "engineeringEstimateRange": [
-      43,
-      47
+      45,
+      49
     ],
-    "completedPages": 25,
+    "completedPages": 26,
     "totalPages": 73,
     "completedP0Pages": 13,
     "totalExistingP0Pages": 16,
     "newlyCompletedSincePreviousReport": [
-      "数据管理与归档弹窗R71"
+      "全局附件与自定义图标预览R72"
     ],
     "inProgress": [
-      "附件预览R72原362行及SHA已备份，原文件/归档字节来源与元信息缓存保持；受控懒加载预览库、元信息和原单图缩放弹窗组件接入，9项已有回归通过，尚无新产物原生验收，不计整页",
-      "组件预览增加附件库平铺状态，原附件/自定义图标双页签及横向滑动保留，HTML与新边界回归待补",
-      "R71真实导出元数据与hash、浏览同包/归档弹窗/真实跳过5+2/损坏拒绝、8路由和业务46完成；18图21文件报告封存，原57/53/24/5与3图片hash及所选/头像偏好保持",
-      "v4已推送e0bd02ae；PR575仍CLOSED。两个公共测试文件按文件级所有权保留，禁止清理其共享父目录；原始TAR Q16待集中决定"
+      "R72正式封存13图16文件报告，60项/7文件提交源码回归与11文件静态0问题、真实7文件/归档/业务47全部状态/生产入口/重启与独立57/53/24/5保持；ZIP59233d26faeac0d70e7ba04fdd6cd994d799538b66e422986a8193c46440c6ab",
+      "R73原421行及SHA备份，806产品文件/17项2文件提交源码回归/4文件静态0问题，HTML264场景与原四档底部弹层；真实创建取消/确认、旧PIN错误、新草稿取消、替换保存、4超时及选中取消通过",
+      "R73正常启动要求PIN、旧密码无法解锁与替换密码进入53笔首页通过，正在验证错误关闭/取消、正确关闭、有效超时恢复及最终重启；未封存不计整页",
+      "P0三页与标签详情的既有产品待确认项继续记录，独立推进其余P1；同一QA数据与两个文件级标记的公共文件保持，不重置环境",
+      "v4已推送ac526bac，PR575仍CLOSED；本地R73产品9f4b7602已安装验收，未重开PR"
     ],
     "remainingEffortEstimateHours": [
-      27,
-      47
+      26,
+      46
     ],
-    "remainingEffortChangeReason": "较01:54的26–46调高约1小时：计入MIUI文件选择/最近索引与路径过渡、归档原身份/元数据保护的实际验收成本，并增加后续数据流程风险余量。R71已完成并封存，后续可复用已验证的选择器驱动；AI/Cloud/共享权限仍有浮动。区间为实际工作量，不是固定上线时刻。"
+    "remainingEffortChangeReason": "较02:54的27–47减少约1个实际工作小时。R72新增发现并修复关闭语义合并与内嵌滚动陷阱，已在已提交源码副本和新产物完整复验；R73已进入原生收尾。剩余45个现有页约26743行及2个计划页，不能按代码行数换算完成率；Cloud/AI实际联调、复杂统计/年度账单导出和逐页数据校验仍有浮动。该区间是实际工作量，不是承诺的自然上线时刻。"
   },
   "pullRequest": {
     "number": 575,

@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 260,
+  "designSceneExports": 264,
   "flowDefinitions": 183,
   "priorityCounts": {
     "P0": 16,
@@ -1285,7 +1285,11 @@
       "lines": 81,
       "batch": "M8 设置与收尾",
       "designRoutes": [
-        "flow-lock-settings"
+        "flow-lock-settings",
+        "flow-lock-settings-on",
+        "flow-lock-settings-no-bio",
+        "flow-lock-timeout",
+        "flow-pin-verify"
       ],
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
@@ -1293,9 +1297,13 @@
       "status": "迁移中",
       "name": "应用锁设置",
       "priority": "P1",
-      "reason": "原421行及SHA备份，页面复用基础开关/菜单、安全Panel与原认证服务，原生物识别门控和四档超时保持；17项回归和4文件静态0问题已通过，HTML/真机闭环待完成，不计整页。",
+      "reason": "原421行及SHA备份，原服务/认证门控/四档超时保留；17项/2文件提交源码回归与4文件静态0问题、264场景HTML和真实创建/替换/超时/启用启动门控通过，正在关闭恢复与最终重启，不计整页。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-settings"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-settings",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-settings-on",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-settings-no-bio",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-timeout",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-pin-verify"
       ]
     },
     {

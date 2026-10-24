@@ -25,7 +25,8 @@
     "check:account-editor": "node scripts/validate-account-editor.cjs",
     "check:onboarding": "node scripts/validate-onboarding.cjs",
     "check:launch": "node scripts/validate-launch.cjs",
-    "check:accounts": "node scripts/validate-accounts-page.cjs && node scripts/validate-asset-overview.cjs"
+    "check:accounts": "node scripts/validate-accounts-page.cjs && node scripts/validate-asset-overview.cjs",
+    "check:app-lock": "node scripts/validate-app-lock-settings.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

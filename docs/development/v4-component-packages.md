@@ -245,3 +245,8 @@ App的诊断适配复用原Android接口，平台门控、全部硬件/渠道字
 App 的 `AttachmentLibraryData` 继续读取原本地文件或归档字节，缓存真实图片头/文件大小；`LiveAttachmentLibraryPreview` 从原附件服务读取当前 5 附件/2 分类图标，并提供生产预览入口。文件访问、归档解析和真实数据留在 App binding；纯展示包不导入 Repository、Provider 或平台 I/O。两种来源均只读，原横滑分组、完整文件名、尺寸大小、单图缩放与关闭保留。内嵌目录使用 shrinkWrap 和不可独立滚动的网格，让整页接管手势；正式库默认仍使用惰性独立滚动，避免内嵌滚动陷阱。
 
 基础 `BeeSegmented` 允许宿主滚动控制，单个长标签限制在可视宽度内；`BeeIconButton` 保持独立语义边界，避免关闭按钮与整张弹窗合并。HTML spec68/B43 与 Flutter 业务47对应，当前 HTML 260 场景、68 规范组（基础25/业务43）、41 基础控件，Flutter 基础22/业务47节。数量不代表完成页面数；R72 页面验收仍以独立报告为准。
+
+
+## 应用锁设置与安全验证（R73进行中）
+
+应用锁页复用已有BeeSurface、BeeToggleRow、BeeMenuRow与BeeSecurityPanel/BeePinPad，不为单页新增大型包装组件。原能力探测、PIN服务、Provider和偏好写入留在App动作绑定；私有验证页复用安全输入，原四档超时保持底部弹层。取消、错误恢复、真实原哈希/偏好与MethodChannel生物识别成功失败在17项相关回归中验证；原生正在收尾，尚不计整页完成。

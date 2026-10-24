@@ -401,9 +401,9 @@
   },
   {
     "route": "flow-lock-settings",
-    "slug": "flow-lock-settings",
     "title": "应用锁设置",
     "group": "补齐 · 首次使用与安全",
+    "slug": "flow-lock-settings",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-lock-settings.png",
     "full": "screens/full/flow-lock-settings.png",
@@ -2622,5 +2622,45 @@
     "viewport": "screens/viewport/flow-attachment-library-long.png",
     "full": "screens/full/flow-attachment-library-long.png",
     "svg": "figma/flow-attachment-library-long.svg"
+  },
+  {
+    "route": "flow-lock-settings-on",
+    "title": "应用锁 · 已启用",
+    "group": "补齐 · 首次使用与安全",
+    "slug": "flow-lock-settings-on",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-lock-settings-on.png",
+    "full": "screens/full/flow-lock-settings-on.png",
+    "svg": "figma/flow-lock-settings-on.svg"
+  },
+  {
+    "route": "flow-lock-settings-no-bio",
+    "title": "应用锁 · 无生物识别",
+    "group": "补齐 · 首次使用与安全",
+    "slug": "flow-lock-settings-no-bio",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-lock-settings-no-bio.png",
+    "full": "screens/full/flow-lock-settings-no-bio.png",
+    "svg": "figma/flow-lock-settings-no-bio.svg"
+  },
+  {
+    "route": "flow-lock-timeout",
+    "title": "自动锁定时间 · 底部弹层",
+    "group": "补齐 · 首次使用与安全",
+    "slug": "flow-lock-timeout",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-lock-timeout.png",
+    "full": "screens/full/flow-lock-timeout.png",
+    "svg": "figma/flow-lock-timeout.svg"
+  },
+  {
+    "route": "flow-pin-verify",
+    "title": "验证密码",
+    "group": "补齐 · 首次使用与安全",
+    "slug": "flow-pin-verify",
+    "fullHeight": 895,
+    "viewport": "screens/viewport/flow-pin-verify.png",
+    "full": "screens/full/flow-pin-verify.png",
+    "svg": "figma/flow-pin-verify.svg"
   }
 ]

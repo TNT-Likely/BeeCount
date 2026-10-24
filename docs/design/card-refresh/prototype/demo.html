@@ -2151,6 +2151,8 @@
 
 #bee-immersive-suite .al-viewer header{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;text-align:center}
 
+#bee-immersive-suite .sl-scroll{display:grid;gap:12px;padding:12px 0 24px}#bee-immersive-suite .sl-scroll>.bc-menu-card{padding:3px 4px!important;margin:0}#bee-immersive-suite .bc-phone .sl-scroll .bc-menu-row{min-height:53px;padding:10px 12px!important;gap:10px}#bee-immersive-suite .sl-scroll .bc-menu-row b{font-size:calc(14px * var(--q-scale,1));font-weight:400;line-height:1.4}#bee-immersive-suite .sl-scroll .bc-menu-row small{font-size:calc(11px * var(--q-scale,1));line-height:1.5}#bee-immersive-suite .bc-phone .sl-scroll .bc-menu-row[role=switch]{min-height:56px;padding:6px 12px!important}#bee-immersive-suite .sl-scroll .bc-menu-row[role=switch] small{margin-top:2px}#bee-immersive-suite .sl-scroll .bc-menu-symbol{width:28px}#bee-immersive-suite .sl-scroll .bc-switch{width:36px;height:22px;margin:11px 4px;flex:none}#bee-immersive-suite .sl-choices button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;border:0;background:transparent;color:var(--bc-ink);min-height:53px;padding:10px 12px;font:inherit;font-size:calc(14px * var(--q-scale,1));text-align:left}#bee-immersive-suite .sl-choices button>span:last-child{color:var(--bc-accent);width:18px}#bee-immersive-suite .sl-choices button svg{width:18px;height:18px}
+
 #bee-immersive-suite .bc-phone .bc-main:has(.o-shell:is([data-step],[data-restore])){height:calc(var(--q-height,844px) - 34px);min-height:0;display:flex;flex-direction:column;padding:0 21px 16px!important;overflow:hidden}
 #bee-immersive-suite .bc-phone .o-shell:is([data-step],[data-restore]){padding:7px 0 0;min-height:0;flex:1;min-width:0}
 #bee-immersive-suite .bc-phone .o-shell:is([data-step],[data-restore])>.o-top,#bee-immersive-suite .bc-phone .o-shell:is([data-step],[data-restore])>.o-progress,#bee-immersive-suite .bc-phone .o-shell:is([data-step],[data-restore])>.o-footer{flex:none}
@@ -3818,11 +3820,11 @@
 
   // Match the existing four-digit PIN contract; this prototype never stores an App credential.
   Object.assign(state,{sPinMode:'',sPinStep:1,sPinError:false,sPinDemo:'1234'});
-  function sSecurityMode(){return fCurrent()==='pin-change'?'change':fCurrent().startsWith('lock')?'lock':'create';}
+  function sSecurityMode(){return fCurrent()==='pin-verify'?'verify':fCurrent()==='pin-change'?'change':fCurrent().startsWith('lock')?'lock':'create';}
   function sSecurityReset(mode){state.sPinMode=mode;state.sPinStep=mode==='change'?0:1;state.fPin='';state.fNewPin='';state.sPinError=false;}
   fPinPage=function(locked){
     const mode=sSecurityMode();if(state.sPinMode!==mode)sSecurityReset(mode);
-    const compact=qPreview.height-100<620,title=locked?'请输入密码':state.sPinStep===0?'请输入当前密码':state.sPinStep===1?'请设置新密码':'请再次输入密码',biometric=locked&&fCurrent()==='lock-bio';
+    const compact=qPreview.height-100<620,title=mode==='verify'?'请输入当前密码':locked?'请输入密码':state.sPinStep===0?'请输入当前密码':state.sPinStep===1?'请设置新密码':'请再次输入密码',biometric=locked&&fCurrent()==='lock-bio';
     return `<div class="s-security" data-compact="${compact}" data-invalid="${state.sPinError}" style="min-height:${Math.max(0,qPreview.height-100)}px"><div class="w-symbol">${icon('lock')}</div><h2>${title}</h2><p>PIN码与生物识别保护隐私</p><div class="f-pin-dots" aria-label="${state.fPin.length} / 4">${Array.from({length:4},(_,i)=>`<span class="${i<state.fPin.length?'filled':''}"></span>`).join('')}</div><div class="f-pin-grid">${['1','2','3','4','5','6','7','8','9','bio','0','backspace'].map(k=>k==='bio'&&!biometric?'<span></span>':btn('s-pin:'+k,k==='backspace'?icon('delete'):k==='bio'?icon('fingerprint'):k,k==='backspace'?'删除':k==='bio'?'生物识别解锁':'输入'+k,'',state.sPinError?'disabled':'')).join('')}</div></div>`;
   };
   fDefs.pin.title='设置密码';
@@ -3840,9 +3842,9 @@
     else if(value==='bio'){if(fCurrent()==='lock-bio'){state.fPin='';navigate('home');}return;}
     else if(state.fPin.length<4)state.fPin+=value;
     if(state.fPin.length===4){
-      if(mode==='lock'||state.sPinStep===0){if(state.fPin===state.sPinDemo){state.fPin='';if(mode==='lock'){navigate('home');return;}state.sPinStep=1;}else state.sPinError=true;}
+      if(mode==='lock'||mode==='verify'||state.sPinStep===0){if(state.fPin===state.sPinDemo){state.fPin='';if(mode==='verify'){state.slEnabled=false;state.slBio=false;slReturnFromPin();return;}if(mode==='lock'){navigate('home');return;}state.sPinStep=1;}else state.sPinError=true;}
       else if(state.sPinStep===1){state.fNewPin=state.fPin;state.fPin='';state.sPinStep=2;}
-      else if(state.fNewPin===state.fPin){state.sPinDemo=state.fPin;state.fPin='';state.sPinMode='';fResult('密码设置成功','应用锁现在可以使用新的密码。','lock-settings');return;}
+      else if(state.fNewPin===state.fPin){state.sPinDemo=state.fPin;state.slEnabled=true;state.fPin='';state.sPinMode='';fResult('密码设置成功','应用锁现在可以使用新的密码。','lock-settings');return;}
       else state.sPinError=true;
     }
     render();
@@ -5456,6 +5458,24 @@
   root.addEventListener('pointerup',event=>{alPointers.delete(event.pointerId);if(!alSwipe)return;const start=alSwipe;alSwipe=null;const dx=event.clientX-start.x,dy=event.clientY-start.y;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){state.alGroup=dx<0?1:0;render();}});
   root.addEventListener('pointercancel',()=>{alSwipe=null;alPointers.clear();});
   root.addEventListener('wheel',event=>{const stage=event.target.closest('[data-al-zoom]');if(!stage)return;event.preventDefault();alScale=Math.max(.5,Math.min(2.5,alScale-event.deltaY*.003));const image=stage.querySelector('img');if(image)image.style.transform=`scale(${alScale})`;},{passive:false});
+  const slTexts={"appLockTitle":"应用锁","appLockDesc":"PIN码与生物识别保护隐私","appLockEnable":"启用应用锁","appLockEnableDesc":"启动和切回应用时需要验证身份","appLockSetPin":"设置密码","appLockChangePin":"修改密码","appLockVerifyPin":"验证密码","appLockVerifyCurrentPin":"请输入当前密码","appLockSetNewPin":"请设置新密码","appLockConfirmPin":"请再次输入密码","appLockEnterPin":"请输入密码","appLockPinSetSuccess":"密码设置成功","appLockDisabled":"应用锁已关闭","appLockBiometric":"生物识别解锁","appLockBiometricDesc":"使用Face ID或指纹快速解锁","appLockBiometricReason":"请验证身份以解锁蜜蜂记账","appLockTimeout":"自动锁定时间","appLockTimeoutImmediate":"立即","appLockTimeout1Min":"1分钟后","appLockTimeout5Min":"5分钟后","appLockTimeout15Min":"15分钟后"};
+  Object.assign(state,{slEnabled:false,slBio:false,slSupported:true,slTimeout:0});
+  const slOptions=[[0,'appLockTimeoutImmediate'],[60,'appLockTimeout1Min'],[300,'appLockTimeout5Min'],[900,'appLockTimeout15Min']];
+  const slLabel=seconds=>slTexts[slOptions.find(o=>o[0]===seconds)?.[1]]||seconds+'s';
+  function slToggle(action,checked,name,title,description){return btn(action,`<span class="bc-menu-symbol">${icon(name)}</span><span class="bc-menu-copy"><b>${esc(title)}</b><small>${esc(description)}</small></span><span class="bc-switch" aria-hidden="true"></span>`,title,'bc-menu-row',`role="switch" aria-checked="${checked}"`);}
+  function slSettings(){return `${subhead(slTexts.appLockTitle)}<div class="sl-scroll">${surface(slToggle('sl-enable',state.slEnabled,'lock',slTexts.appLockEnable,slTexts.appLockEnableDesc),'bc-menu-card')}${state.slEnabled?surface(menuRow('sl-change','keyboard',slTexts.appLockChangePin),'bc-menu-card')+surface((state.slSupported?slToggle('sl-bio',state.slBio,'fingerprint',slTexts.appLockBiometric,slTexts.appLockBiometricDesc):'')+menuRow('sl-timeout','clock',slTexts.appLockTimeout,slLabel(state.slTimeout)),'bc-menu-card'):''}</div>`;}
+  function slReturnFromPin(){const index=state.history.map(x=>x.page).findLastIndex(p=>p.startsWith('flow-lock-settings'));if(index>=0){const target=state.history[index];state.history=state.history.slice(0,index);state.page=target.page;state.leaf=target.leaf;}else state.page='flow-lock-settings';render();persist();}
+  fDefs['lock-settings'].body=slSettings;
+  const slScenes=[['lock-settings-on','应用锁 · 已启用',true],['lock-settings-no-bio','应用锁 · 无生物识别',false]];
+  for(const[key,title]of slScenes)fDefine(key,title,'首次使用与安全','settings/app_lock_settings_page.dart',slSettings);
+  const slPreviousRender=fRender;fRender=function(key){if(key==='lock-settings'||slScenes.some(s=>s[0]===key)){if(state.slScene!==key){state.slScene=key;const scene=slScenes.find(s=>s[0]===key);if(scene){state.slEnabled=true;state.slSupported=scene[2];}}return slSettings();}return slPreviousRender(key);};
+  function slTimeout(){return `<div class="sl-choices">${slOptions.map(([seconds,label])=>btn('sl-seconds:'+seconds,`<span>${esc(slTexts[label])}</span><span>${seconds===state.slTimeout?icon('check'):''}</span>`,slTexts[label],'',`aria-pressed="${seconds===state.slTimeout}"`)).join('')}</div>`;}
+  rSpecs['lock-timeout']={title:slTexts.appLockTimeout,host:'flow-lock-settings-on',kind:'sheet'};
+  fDefine('lock-timeout','应用锁 · 原四档超时弹层','首次使用与安全','settings/app_lock_settings_page.dart',slTimeout);
+  fDefine('pin-verify',slTexts.appLockVerifyPin,'首次使用与安全','settings/app_lock_settings_page.dart',()=>fPinPage(true));
+  const slPrevModal=rModalBody;rModalBody=function(key){return key==='lock-timeout'?slTimeout():slPrevModal(key);};
+  const slPicker=document.createElement('optgroup');slPicker.label='应用锁 · 原设置与验证';for(const[key,title]of [...slScenes,['lock-timeout','应用锁 · 四档超时'],['pin-verify','应用锁 · 关闭前验证']])slPicker.appendChild(new Option(title,'flow-'+key));picker.appendChild(slPicker);
+  root.addEventListener('click',event=>{const el=event.target.closest('[data-action]');if(!el?.dataset.action.startsWith('sl-'))return;event.preventDefault();event.stopImmediatePropagation();const[action,value]=el.dataset.action.split(':');if(action==='sl-enable'){state.sPinMode='';navigate(state.slEnabled?'flow-pin-verify':'flow-pin');}else if(action==='sl-change'){state.sPinMode='';navigate('flow-pin-change');}else if(action==='sl-bio'){state.slBio=!state.slBio;render();}else if(action==='sl-timeout')rOpenModal('lock-timeout');else if(action==='sl-seconds'){state.slTimeout=Number(value);rClose();}},true);
   Object.assign(state,{wWelcomeCurrencyQuery:''});
   function wWelcomeCurrencies(){const q=state.wWelcomeCurrencyQuery.trim().toLowerCase();return `<label class="p-search-box v-currency-search">${icon('search')}<input data-ow-currency-query placeholder="搜索币种名称、代码或符号" aria-label="搜索初始化币种" value="${esc(state.wWelcomeCurrencyQuery)}"></label><div class="v-currency-list">${wCurrencies.filter(c=>!q||[c.code,wCurrencyName(c),c.symbol].join(' ').toLowerCase().includes(q)).map(c=>btn('ow-currency:'+c.code,`<span class="v-currency-symbol">${esc(c.symbol)}</span><span class="v-currency-copy"><b>${c.code}<span>${esc(wCurrencyName(c))}</span></b></span><span class="v-currency-check">${state.wCurrency===c.code?icon('check'):''}</span>`,'选择'+c.code,'v-currency-row',`aria-pressed="${state.wCurrency===c.code}"`)).join('')||'<p class="p-empty">没有找到此币种</p>'}</div>`;}
   rSpecs['welcome-currency-picker']={title:'全部币种',host:'welcome',kind:'sheet'};
