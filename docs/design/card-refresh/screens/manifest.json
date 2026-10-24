@@ -1,10 +1,10 @@
 [
   {
     "route": "home",
-    "slug": "home",
     "title": "明细首页",
     "group": "主要页面",
-    "fullHeight": 3336,
+    "slug": "home",
+    "fullHeight": 3316,
     "viewport": "screens/viewport/home.png",
     "full": "screens/full/home.png",
     "svg": "figma/home.svg"
@@ -1361,9 +1361,9 @@
   },
   {
     "route": "flow-ledger-picker",
-    "slug": "flow-ledger-picker",
-    "title": "选择账本 · 底部弹层",
+    "title": "选择账本 · 弹窗",
     "group": "补齐 · 交互补充",
+    "slug": "flow-ledger-picker",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-ledger-picker.png",
     "full": "screens/full/flow-ledger-picker.png",
