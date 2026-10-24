@@ -6,7 +6,7 @@ flows=json.loads((root/'docs/design/card-refresh/tokens/flow-sources.json').read
 manual={
 'ai/ai_chat_page.dart':['ai'],'budget/budget_page.dart':['budget'],'tag/tag_detail_page.dart':['tagDetail'],'transaction/category_detail_page.dart':['categoryDetail'],'transaction/search_page.dart':['search','batch'],
 'main/home_page.dart':['home'],'main/analytics_page.dart':['report'],'main/mine_page.dart':['mine'],'main/ledgers_page_new.dart':['ledgers'],
-'account/accounts_page.dart':['assets'],'account/account_detail_page.dart':['accountDetail'],'calendar/calendar_page.dart':['calendar'],'transaction/transaction_editor_page.dart':['editor','flow-foreign-editor'],
+'account/accounts_page.dart':['assets','flow-assets-single','flow-assets-missing','flow-assets-empty','flow-assets-hidden','flow-assets-valuation','flow-account-settings','flow-asset-default','flow-asset-conversion'],'account/account_detail_page.dart':['accountDetail'],'calendar/calendar_page.dart':['calendar'],'transaction/transaction_editor_page.dart':['editor','flow-foreign-editor'],
 'auth/welcome_page.dart':['welcome','welcomeCurrency','welcomeCategories','welcomeCloud','welcomePrivacy','welcomeDone'],
 'category/category_manage_page.dart':['flow-category-management','flow-category-children','flow-category-tools','flow-category-share','flow-taxonomy-import','flow-category-defaults','flow-category-clear','flow-category-empty'],'settings/about_page.dart':['about'],'settings/data_management_page.dart':['data'],
 'settings/smart_billing_page.dart':['smart'],'settings/automation_page.dart':['automation'],'settings/personalize_page.dart':['appearance'],

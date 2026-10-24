@@ -33,3 +33,15 @@ for(const manager of document.querySelectorAll('[data-category-management]'))man
  if(event.target.closest('[data-management-open]'))manager.querySelector('.g-management-dialog').scrollIntoView({block:'center'});
  if(event.target.closest('[data-management-open-tools]'))manager.querySelector('[data-management-result]').textContent='分类工具：分享分类、新建分类、导入分类 ZIP、生成默认分类、清空未使用分类。完整弹窗见交互预览。';
 });
+for(const overview of document.querySelectorAll('[data-asset-overview]')){
+ overview.addEventListener('click',event=>{
+  const privacy=event.target.closest('[data-asset-privacy]');
+  if(privacy){const hide=overview.dataset.hidden!=='true';overview.dataset.hidden=String(hide);for(const amount of overview.querySelectorAll('[data-asset-money]'))amount.textContent=hide?'••••':amount.dataset.assetMoney;privacy.setAttribute('aria-label',hide?'显示资产金额':'隐藏资产金额');privacy.innerHTML='<i data-lucide="'+(hide?'eye-off':'eye')+'"></i>';lucide.createIcons({attrs:{width:18,height:18}});return;}
+  const chart=event.target.closest('[data-asset-chart]');
+  if(chart){for(const tab of overview.querySelectorAll('[data-asset-chart]'))tab.setAttribute('aria-pressed',String(tab===chart));for(const panel of overview.querySelectorAll('[data-asset-chart-panel]'))panel.hidden=panel.dataset.assetChartPanel!==chart.dataset.assetChart;overview.querySelector('[data-asset-chart-title]').textContent=chart.textContent;return;}
+  const choice=event.target.closest('[data-asset-default]');
+  if(choice)overview.querySelector('[data-asset-result]').textContent='已打开默认'+choice.dataset.assetDefault+'账户选择（示例草稿）';
+  if(event.target.closest('[data-asset-detail]'))overview.querySelector('[data-asset-result]').textContent='已选择查看明细；真实 App 保留原折算与净值详情路径。';
+ });
+ overview.addEventListener('change',event=>{if(event.target.matches('[data-asset-enabled]'))overview.querySelector('[data-asset-defaults]').hidden=!event.target.checked;});
+}

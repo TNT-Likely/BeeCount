@@ -23,7 +23,8 @@
     "check:category-editor": "node scripts/validate-category-editor.cjs",
     "check:account-types": "node scripts/validate-account-types.cjs",
     "check:account-editor": "node scripts/validate-account-editor.cjs",
-    "check:launch": "node scripts/validate-launch.cjs"
+    "check:launch": "node scripts/validate-launch.cjs",
+    "check:accounts": "node scripts/validate-accounts-page.cjs && node scripts/validate-asset-overview.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

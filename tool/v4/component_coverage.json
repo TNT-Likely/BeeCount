@@ -510,5 +510,16 @@
     ],
     "page": "business",
     "case": 39
+  },
+  {
+    "design_key": "assetOverview",
+    "components": [
+      "BeeAssetSummary",
+      "BeeAssetChartSection",
+      "BeeAccountPreferences",
+      "BeeAccountConversionRow"
+    ],
+    "page": "business",
+    "case": 40
   }
 ]

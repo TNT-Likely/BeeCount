@@ -416,6 +416,13 @@
         "title": "账户余额调整",
         "nativeCase": 39,
         "nativeLabel": "账户余额调整"
+      },
+      {
+        "id": "spec-59",
+        "code": "B37",
+        "title": "资产总览与账户设置",
+        "nativeCase": 40,
+        "nativeLabel": "资产总览与账户设置"
       }
     ]
   }

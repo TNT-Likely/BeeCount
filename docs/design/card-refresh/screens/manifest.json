@@ -61,10 +61,10 @@
   },
   {
     "route": "assets",
-    "slug": "assets",
     "title": "资产账户",
     "group": "主要页面",
-    "fullHeight": 1117,
+    "slug": "assets",
+    "fullHeight": 2233,
     "viewport": "screens/viewport/assets.png",
     "full": "screens/full/assets.png",
     "svg": "figma/assets.svg"
@@ -451,9 +451,9 @@
   },
   {
     "route": "flow-account-settings",
-    "slug": "flow-account-settings",
-    "title": "账户设置 · 底部弹层",
+    "title": "设置 · 底部弹层",
     "group": "补齐 · 账户与资产",
+    "slug": "flow-account-settings",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-account-settings.png",
     "full": "screens/full/flow-account-settings.png",
@@ -2002,5 +2002,75 @@
     "viewport": "screens/viewport/flow-category-clear.png",
     "full": "screens/full/flow-category-clear.png",
     "svg": "figma/flow-category-clear.svg"
+  },
+  {
+    "route": "flow-assets-single",
+    "title": "资产 · 单币种",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-assets-single",
+    "fullHeight": 1827,
+    "viewport": "screens/viewport/flow-assets-single.png",
+    "full": "screens/full/flow-assets-single.png",
+    "svg": "figma/flow-assets-single.svg"
+  },
+  {
+    "route": "flow-assets-missing",
+    "title": "资产 · 缺失汇率",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-assets-missing",
+    "fullHeight": 2233,
+    "viewport": "screens/viewport/flow-assets-missing.png",
+    "full": "screens/full/flow-assets-missing.png",
+    "svg": "figma/flow-assets-missing.svg"
+  },
+  {
+    "route": "flow-assets-empty",
+    "title": "资产 · 空账户",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-assets-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-assets-empty.png",
+    "full": "screens/full/flow-assets-empty.png",
+    "svg": "figma/flow-assets-empty.svg"
+  },
+  {
+    "route": "flow-assets-hidden",
+    "title": "资产 · 隐藏账户",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-assets-hidden",
+    "fullHeight": 2056,
+    "viewport": "screens/viewport/flow-assets-hidden.png",
+    "full": "screens/full/flow-assets-hidden.png",
+    "svg": "figma/flow-assets-hidden.svg"
+  },
+  {
+    "route": "flow-assets-valuation",
+    "title": "资产 · 估值账户",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-assets-valuation",
+    "fullHeight": 2462,
+    "viewport": "screens/viewport/flow-assets-valuation.png",
+    "full": "screens/full/flow-assets-valuation.png",
+    "svg": "figma/flow-assets-valuation.svg"
+  },
+  {
+    "route": "flow-asset-default",
+    "title": "默认支出账户 · 弹窗",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-asset-default",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-asset-default.png",
+    "full": "screens/full/flow-asset-default.png",
+    "svg": "figma/flow-asset-default.svg"
+  },
+  {
+    "route": "flow-asset-conversion",
+    "title": "折算明细 · 底部弹层",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-asset-conversion",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-asset-conversion.png",
+    "full": "screens/full/flow-asset-conversion.png",
+    "svg": "figma/flow-asset-conversion.svg"
   }
 ]
