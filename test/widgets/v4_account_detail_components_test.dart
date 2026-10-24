@@ -1,4 +1,5 @@
 import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:beecount/presentation/v4/gallery/business_page.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -124,6 +125,20 @@ void main() {
     await tester.pump();
     expect(tapped, 0);
     await open(tester, const BeeDonutChart(items: [], centerLabel: '无数据'));
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('App内图表验收示例实际更新选中分类和中心金额', (tester) async {
+    await open(tester, const BusinessAcceptancePage(isolatedCase: 21));
+    final chip = find.widgetWithText(ActionChip, '购物 ¥920.22');
+    await tester.ensureVisible(chip);
+    await tester.tap(chip);
+    await tester.pumpAndSettle();
+    expect(tester.widget<BeeDonutChart>(find.byType(BeeDonutChart)).centerLabel,
+        '购物\n¥920.22');
+    expect(
+        tester.widget<BeeDonutChart>(find.byType(BeeDonutChart)).selected, 1);
+    expect(tester.widget<ActionChip>(chip).backgroundColor,
+        beeTheme(brightness: Brightness.dark).colorScheme.surface);
     expect(tester.takeException(), isNull);
   });
 }

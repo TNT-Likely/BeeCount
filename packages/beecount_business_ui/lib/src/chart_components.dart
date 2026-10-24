@@ -89,6 +89,11 @@ class BeeDonutChart extends StatelessWidget {
                 .map((e) => Semantics(
                     selected: selected == e.key,
                     child: ActionChip(
+                        backgroundColor: Theme.of(context).colorScheme.surface,
+                        surfaceTintColor: Colors.transparent,
+                        side: BorderSide(color: Theme.of(context).dividerColor),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(9)),
                         onPressed: onSelected == null
                             ? null
                             : () => onSelected!(e.key),

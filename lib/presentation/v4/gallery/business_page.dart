@@ -93,6 +93,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
   bool balanceAdjustmentRecord = false;
   bool overviewHidden = false, accountsEnabled = true;
   int overviewChart = 0;
+  int _chartSlice = -1;
   String accountType = 'cash', accountTypeGroup = 'daily';
   String categoryIcon = 'coffee';
   BeeCategoryIconSource categoryIconSource = BeeCategoryIconSource.preset;
@@ -1085,23 +1086,36 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             footer: '蜜蜂记账 · 我的年度账单'),
         21 => BeeSurface(
               child: Column(children: [
-            BeeDonutChart(items: const [
-              BeeChartSlice(
-                  label: '餐饮',
-                  value: 1199.57,
-                  color: Color(0xfffacb16),
-                  valueLabel: '¥1,199.57'),
-              BeeChartSlice(
-                  label: '购物',
-                  value: 920.22,
-                  color: Color(0xff57afa2),
-                  valueLabel: '¥920.22'),
-              BeeChartSlice(
-                  label: '居家',
-                  value: 640.87,
-                  color: Color(0xff9486d4),
-                  valueLabel: '¥640.87')
-            ], centerLabel: '本月支出', onSelected: (v) => record('统计分类 $v')),
+            BeeDonutChart(
+                items: const [
+                  BeeChartSlice(
+                      label: '餐饮',
+                      value: 1199.57,
+                      color: Color(0xfffacb16),
+                      valueLabel: '¥1,199.57'),
+                  BeeChartSlice(
+                      label: '购物',
+                      value: 920.22,
+                      color: Color(0xff57afa2),
+                      valueLabel: '¥920.22'),
+                  BeeChartSlice(
+                      label: '居家',
+                      value: 640.87,
+                      color: Color(0xff9486d4),
+                      valueLabel: '¥640.87')
+                ],
+                centerLabel: _chartSlice < 0
+                    ? '本月支出'
+                    : const [
+                        '餐饮\n¥1,199.57',
+                        '购物\n¥920.22',
+                        '居家\n¥640.87'
+                      ][_chartSlice],
+                selected: _chartSlice,
+                onSelected: (v) {
+                  setState(() => _chartSlice = v);
+                  record(v < 0 ? '取消图表选中' : '统计分类 $v');
+                }),
             const SizedBox(height: 20),
             const BeeTrendChart(
                 values: [12, 8, 24, 16, 30, 21, 34], label: '本月开支趋势')
