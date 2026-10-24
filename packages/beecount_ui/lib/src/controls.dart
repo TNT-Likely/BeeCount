@@ -34,7 +34,8 @@ Future<T?> showBeeContextMenu<T>(BuildContext context,
               height: 44,
               child: Row(children: [
                 if (item.icon != null) ...[
-                  SizedBox(width: 20, child: item.icon),
+                  SizedBox(
+                      width: 20, child: ExcludeSemantics(child: item.icon!)),
                   const SizedBox(width: 10)
                 ],
                 Flexible(

@@ -954,4 +954,30 @@ void main() {
       expect(tester.takeException(), isNull);
     }
   });
+  testWidgets('受限高度空态大字可滚到动作，保留页面尺寸且不溢出', (tester) async {
+    var retries = 0;
+    await tester.pumpWidget(MaterialApp(
+        theme: beeTheme(brightness: Brightness.dark),
+        builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(1.4)),
+            child: child!),
+        home: Scaffold(
+            body: Center(
+                child: SizedBox(
+                    width: 260,
+                    height: 90,
+                    child: BeeEmptyState(
+                        title: '还没有账单',
+                        message: '记录第一笔，保留长说明和原动作。',
+                        action: BeeButton(
+                            label: '重试', onPressed: () => retries++)))))));
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(BeeEmptyState)), const Size(260, 90));
+    await tester.ensureVisible(find.text('重试'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('重试'));
+    expect(retries, 1);
+    expect(tester.takeException(), isNull);
+  });
 }

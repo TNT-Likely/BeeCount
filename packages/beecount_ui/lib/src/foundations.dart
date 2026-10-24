@@ -476,21 +476,30 @@ class BeeEmptyState extends StatelessWidget {
   final String? message;
   final Widget? icon, action;
   @override
-  Widget build(BuildContext context) => Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        icon ?? const BeeLineIcon('ReceiptText', size: 36),
-        const SizedBox(height: 12),
-        Text(title, style: const TextStyle(fontSize: 16)),
-        if (message != null) ...[
-          const SizedBox(height: 6),
-          Text(message!,
-              textAlign: TextAlign.center,
-              style:
-                  TextStyle(color: Theme.of(context).hintColor, fontSize: 12))
-        ],
-        if (action != null) ...[const SizedBox(height: 12), action!],
-      ]));
+  Widget build(BuildContext context) {
+    final content = Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          icon ?? const BeeLineIcon('ReceiptText', size: 36),
+          const SizedBox(height: 12),
+          Text(title, style: const TextStyle(fontSize: 16)),
+          if (message != null) ...[
+            const SizedBox(height: 6),
+            Text(message!,
+                textAlign: TextAlign.center,
+                style:
+                    TextStyle(color: Theme.of(context).hintColor, fontSize: 12))
+          ],
+          if (action != null) ...[const SizedBox(height: 12), action!],
+        ]));
+    return LayoutBuilder(builder: (context, constraints) {
+      if (!constraints.hasBoundedHeight) return content;
+      return SingleChildScrollView(
+          child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Center(child: content)));
+    });
+  }
 }
 
 class BeeProgress extends StatelessWidget {
