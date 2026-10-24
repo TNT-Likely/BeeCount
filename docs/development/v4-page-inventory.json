@@ -192,7 +192,7 @@
       "classes": [
         "AccountDetailPage"
       ],
-      "lines": 1463,
+      "lines": 1422,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "accountDetail",
@@ -201,10 +201,10 @@
       "designMapping": "已定位",
       "components": "账户信息、余额、统计与过滤账单列表",
       "acceptance": "历史隐藏账户、币种/余额、编辑/调整余额、转账双账户、时间范围和账单导航。",
-      "status": "待迁移",
+      "status": "迁移中·已核对原备份，抽离统计绑定与信用卡组件",
       "name": "账户详情",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "P0可执行范围检查点收口后进入P1。原账户详情1463行与backup SHA一致；先抽离原分页/分类统计绑定并保留public exports，补受控信用卡额度/还款组件及Flutter平铺示例。页主体、HTML场景、12类账户/信用卡/估值/转账方向/分页和同一QA真机完整验收仍在进行，不计完整页。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=accountDetail",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-valuation"
@@ -1735,10 +1735,12 @@
       "designMapping": "已定位",
       "components": "分类信息/父子展开、统计、日期筛选与账单行",
       "acceptance": "一级与二级分类图标、跨账本标记、收入/支出、日期/时间、备注/标签与详情导航。",
-      "status": "部分迁移·R21 真机检查通过，待口径确认",
+      "status": "部分迁移·R55当前产物复核通过，Q10/Q11待确认",
       "name": "分类详情",
       "priority": "P0",
-      "reason": "父子分类真实统计、分布、历史快照趋势、周期/排序、账单元信息及原编辑/迁移入口已实现；分类搜索继承范围。模型、页面及冻结 HTML 尺寸已回归；同一隔离设备验收中，Q10/Q11 保留原行为待确认。",
+      "reason": "R55同一产物复核父子自定义图标、独立SQL两笔/15.50、月年全部、滚轮取消、排序、编辑/迁移预填取消、父子范围搜索、记账预填取消及正常launcher重启；56笔/5附件SHA保持。逻辑除整页Scaffold外与R21一致，R21实际新增/删除保留对应版本证据，Q10/Q11不擅自改口径。",
+      "checkpointReport": ".docs/acceptance/v4-migration/2026-10-24/category-r55/index.html",
+      "checkpointZipSha256": "a4cfbad0d465a4175bb36755cb51942a7f3a10ee44126ca58a4e86e12ca6d354",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=categoryDetail"
       ]
