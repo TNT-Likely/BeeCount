@@ -16885,6 +16885,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Custom icons'**
   String get v4CustomIcons;
+
+  /// No description provided for @v4AnalyticsTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and expense trend'**
+  String get v4AnalyticsTrend;
+
+  /// No description provided for @v4AnalyticsShowRanking.
+  ///
+  /// In en, this message translates to:
+  /// **'Show category ranking'**
+  String get v4AnalyticsShowRanking;
+
+  /// No description provided for @v4AnalyticsShowPie.
+  ///
+  /// In en, this message translates to:
+  /// **'Show category chart'**
+  String get v4AnalyticsShowPie;
+
+  /// No description provided for @v4AnalyticsView.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics view'**
+  String get v4AnalyticsView;
+
+  /// No description provided for @v4AnalyticsRecalculate.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert now'**
+  String get v4AnalyticsRecalculate;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

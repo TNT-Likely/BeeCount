@@ -8975,4 +8975,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4CustomIcons => 'Custom icons';
+
+  @override
+  String get v4AnalyticsTrend => 'Income and expense trend';
+
+  @override
+  String get v4AnalyticsShowRanking => 'Show category ranking';
+
+  @override
+  String get v4AnalyticsShowPie => 'Show category chart';
+
+  @override
+  String get v4AnalyticsView => 'Statistics view';
+
+  @override
+  String get v4AnalyticsRecalculate => 'Convert now';
 }

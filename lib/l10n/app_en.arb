@@ -4007,5 +4007,10 @@
   "v4DataCategories": "Categories and tags",
   "v4DataConfiguration": "Configuration and storage",
   "v4DataAttachments": "Attachments",
-  "v4CustomIcons": "Custom icons"
+  "v4CustomIcons": "Custom icons",
+  "v4AnalyticsTrend": "Income and expense trend",
+  "v4AnalyticsShowRanking": "Show category ranking",
+  "v4AnalyticsShowPie": "Show category chart",
+  "v4AnalyticsView": "Statistics view",
+  "v4AnalyticsRecalculate": "Convert now"
 }
