@@ -23,6 +23,11 @@
 #bee-immersive-suite .cm-manager-scroll{flex:1;min-height:0;overflow-y:auto;padding:8px 17px 24px}
 #bee-immersive-suite .cm-manager-scroll>.bc-surface{margin:0 0 12px}
 #bee-immersive-suite .cm-manager-scroll .d-manage-row{min-height:70px}
+#bee-immersive-suite .cm-manager-scroll .bc-entry-icon{width:36px;height:36px;border-radius:12px}
+#bee-immersive-suite .cm-manager-scroll .bc-entry-icon :is(svg,img){width:19px;height:19px;object-fit:contain}
+#bee-immersive-suite [data-r-key="category-children"] .bc-sheet-title h3{display:flex;align-items:center;gap:10px}
+#bee-immersive-suite .cm-parent-icon{display:grid;place-items:center;width:32px;height:32px;flex:none}
+#bee-immersive-suite .cm-parent-icon :is(svg,img){width:32px;height:32px;object-fit:contain}
 #bee-immersive-suite .cm-manager-scroll .d-detail-arrow{min-width:48px;min-height:48px}
 #bee-immersive-suite .cm-manager-scroll .d-manage-children{padding:0 0 10px 42px;gap:6px}
 #bee-immersive-suite .cm-manager-scroll .d-manage-children button{font-size:12px;min-height:44px;border-radius:11px}

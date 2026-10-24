@@ -49,6 +49,8 @@ html{scroll-behavior:smooth}.spec{width:100%;max-width:1664px;padding:32px}.spec
 .g-management-children button{display:flex;align-items:center;gap:6px;min-height:44px;border:0;border-radius:11px;background:var(--bc-soft);color:var(--bc-ink);font-size:12px;padding:8px 10px}
 .g-management-children :is(svg,img){width:15px;height:15px;object-fit:contain}
 .g-management-dialog{padding:20px!important}
+.g-management-parent-title{display:flex;align-items:center;gap:10px}
+.g-management-parent-title>span,.g-management-parent-title svg{width:32px;height:32px}
 .g-management-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:16px}
 .g-management-grid>button{display:flex;flex-direction:column;align-items:center;background:transparent;border:0;color:var(--bc-ink);padding:4px;min-height:99px;min-width:0}
 .g-management-grid>button>span{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--bc-soft);margin-bottom:5px}

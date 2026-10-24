@@ -102,15 +102,23 @@ void main() {
     expect(target, findsWidgets);
   }
 
-  Future<void> open(WidgetTester tester, {int tab = 0}) async {
-    tester.view.physicalSize = const Size(398, 844);
+  Future<void> open(WidgetTester tester,
+      {int tab = 0,
+      Size size = const Size(398, 844),
+      Brightness brightness = Brightness.light,
+      double textScale = 1}) async {
+    tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
-            theme: beeTheme(),
+            theme: beeTheme(brightness: brightness),
+            builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: TextScaler.linear(textScale)),
+                child: child!),
             locale: const Locale('zh'),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
@@ -306,6 +314,21 @@ void main() {
     expect(remaining.contains(unused), false);
     expect(remaining.contains(unusedChild), false);
     expect(await repo.getTransactionsByLedger(1), tx);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+  testWidgets('320短屏深色大字体保留头部、空态、转账与工具弹窗', (tester) async {
+    await open(tester,
+        size: const Size(320, 568),
+        brightness: Brightness.dark,
+        textScale: 1.4);
+    final l = strings(tester);
+    await ready(tester, find.text(l.transferIconSettings));
+    expect(find.byTooltip(l.categoryNew), findsOneWidget);
+    await tester.ensureVisible(find.text(l.transferIconSettings));
+    await tools(tester);
+    await tester.ensureVisible(find.text(l.categoryClearUnused));
+    expect(find.byType(BeeDialog), findsOneWidget);
     expect(tester.takeException(), isNull);
     await close(tester);
   });

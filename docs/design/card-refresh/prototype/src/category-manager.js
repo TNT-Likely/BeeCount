@@ -27,6 +27,15 @@
     return `<div class="cm-manager-page">${head?.outerHTML||''}${tabs?.outerHTML||''}<div class="cm-manager-scroll">${t.innerHTML}<input hidden type="file" data-cm-import accept=".zip" aria-label="选择分类 ZIP 包"></div></div>`;
   }
   dCategoryManager=cmManager;
+  const cmPreviousBuildModal=rBuildModal;
+  rBuildModal=function(){
+    cmPreviousBuildModal();
+    if(state.rModal==='category-children'){
+      const title=phone.querySelector('.bc-sheet-title h3');
+      if(title)title.innerHTML=`<span class="cm-parent-icon">${jCategoryVisual(state.cmParent,pIcon(state.cmParent))}</span><span>${esc(state.cmParent)}</span>`;
+      if(globalThis.lucide)globalThis.lucide.createIcons({attrs:{width:20,height:20}});
+    }
+  };
   function cmChildrenBody(){return `<div class="cm-child-grid">${cmChildren(state.cmParent).map((name,index)=>btn('cm-edit',`<span class="cm-child-icon">${jCategoryVisual(name,pIcon(state.cmParent))}</span><span class="cm-child-name">${esc(name)}</span><small>${[8,14,2,0][index]??0}笔</small>`,'编辑'+name,'',`data-cm-parent="${esc(state.cmParent)}" data-cm-child="${esc(name)}"`)).join('')}</div><div class="cm-peer-actions">${btn('cm-new-child',`${icon('plus')}添加`,'添加二级分类','bc-secondary')}${btn('cm-edit-parent',`${icon('pencil-line')}编辑`,'编辑父分类','bc-secondary')}</div>`;}
   function cmToolsBody(){return `<p class="cm-tip">长按分类图标拖动可调整顺序，二级分类跟随父分类展示。</p>${menuCard([['cm-share','share-2','分享分类'],['cm-new-category','plus','新建分类'],['cm-import','download','导入分类'],['cm-default','sparkles','生成默认分类'],['cm-clear','trash-2','清空未使用分类']])}`;}
   const cmPreviousModal=rModalBody;
