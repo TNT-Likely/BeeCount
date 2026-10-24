@@ -1,0 +1,76 @@
+{
+  "source": "docs/design/card-refresh/prototype/demo.html",
+  "measuredWith": "Chromium computed account cards, 2026-10-24; frozen independently from Flutter",
+  "phoneBorderPx": 1,
+  "glyphMetricHeightTolerancePx": 3,
+  "sourceSha256": {
+    "account-detail.css": "639fb4b41b670f92a6ff03d58180fc7568736f1fa6a6d9c004b8aeed81e38051",
+    "account-detail.js": "7f06e11528a8070e355546e9bc6e1f4b595822f449e42362fbe5a3fdbcd3a658"
+  },
+  "cases": [
+    {
+      "route": "account-credit-detail",
+      "profile": {
+        "width": 398,
+        "height": 844,
+        "scale": 1,
+        "appearance": "light"
+      },
+      "geometry": {
+        "width": 362,
+        "height": 249.03125,
+        "padding": 20,
+        "amountFont": 33,
+        "metrics": 2
+      }
+    },
+    {
+      "route": "account-no-limit-detail",
+      "profile": {
+        "width": 398,
+        "height": 844,
+        "scale": 1,
+        "appearance": "light"
+      },
+      "geometry": {
+        "width": 362,
+        "height": 174.03125,
+        "padding": 20,
+        "amountFont": 33,
+        "metrics": 0
+      }
+    },
+    {
+      "route": "account-credit-detail",
+      "profile": {
+        "width": 320,
+        "height": 568,
+        "scale": 1,
+        "appearance": "light"
+      },
+      "geometry": {
+        "width": 284,
+        "height": 232.234375,
+        "padding": 16,
+        "amountFont": 29,
+        "metrics": 2
+      }
+    },
+    {
+      "route": "account-no-limit-detail",
+      "profile": {
+        "width": 320,
+        "height": 568,
+        "scale": 1,
+        "appearance": "light"
+      },
+      "geometry": {
+        "width": 284,
+        "height": 160.234375,
+        "padding": 16,
+        "amountFont": 29,
+        "metrics": 0
+      }
+    }
+  ]
+}
