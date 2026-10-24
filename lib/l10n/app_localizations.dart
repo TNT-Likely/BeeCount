@@ -3881,7 +3881,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryNameTooLong.
   ///
   /// In en, this message translates to:
-  /// **'Category name cannot exceed 4 characters'**
+  /// **'Category name cannot exceed 10 characters'**
   String get categoryNameTooLong;
 
   /// No description provided for @categoryNameDuplicate.
@@ -16669,6 +16669,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Import replaces existing configuration. Back up your current configuration first.'**
   String get v4ConfigImportWarning;
+
+  /// No description provided for @v4CategoryPresetIcons.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset icons'**
+  String get v4CategoryPresetIcons;
+
+  /// No description provided for @v4CategoryCommonIcons.
+  ///
+  /// In en, this message translates to:
+  /// **'Common'**
+  String get v4CategoryCommonIcons;
+
+  /// No description provided for @v4CategoryImageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep original colors and transparency. Crop to a square after choosing.'**
+  String get v4CategoryImageHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

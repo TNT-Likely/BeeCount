@@ -8867,4 +8867,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4ConfigImportWarning => 'Import replaces existing configuration. Back up your current configuration first.';
+
+  @override
+  String get v4CategoryPresetIcons => 'Preset icons';
+
+  @override
+  String get v4CategoryCommonIcons => 'Common';
+
+  @override
+  String get v4CategoryImageHint => 'Keep original colors and transparency. Crop to a square after choosing.';
 }

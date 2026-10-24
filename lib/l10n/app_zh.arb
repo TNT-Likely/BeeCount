@@ -796,7 +796,7 @@
   "categoryNameLabel": "分类名称",
   "categoryNameHint": "请输入分类名称",
   "categoryNameRequired": "请输入分类名称",
-  "categoryNameTooLong": "分类名称不能超过4个字",
+  "categoryNameTooLong": "分类名称不能超过10个字",
   "categoryNameDuplicate": "分类名称已存在",
   "categoryIconLabel": "分类图标",
   "categoryCustomIconTitle": "自定义图标",
@@ -3676,5 +3676,8 @@
   "v4MineFeaturesGroup": "功能管理",
   "v4MineHelpGroup": "帮助与信息",
   "v4MineSupportGroup": "支持我们",
-  "v4ConfigImportWarning": "导入将覆盖现有配置，建议先备份当前配置。"
+  "v4ConfigImportWarning": "导入将覆盖现有配置，建议先备份当前配置。",
+  "v4CategoryPresetIcons": "预设图标",
+  "v4CategoryCommonIcons": "常用",
+  "v4CategoryImageHint": "保留图片原色与透明背景，选择后裁剪为正方形。"
 }

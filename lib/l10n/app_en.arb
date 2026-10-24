@@ -864,7 +864,7 @@
   "categoryNameLabel": "Category Name",
   "categoryNameHint": "Enter category name",
   "categoryNameRequired": "Please enter category name",
-  "categoryNameTooLong": "Category name cannot exceed 4 characters",
+  "categoryNameTooLong": "Category name cannot exceed 10 characters",
   "categoryNameDuplicate": "Category name already exists",
   "categoryIconLabel": "Category Icon",
   "categoryCustomIconTitle": "Custom Icon",
@@ -3969,5 +3969,8 @@
   "v4MineFeaturesGroup": "Features",
   "v4MineHelpGroup": "Help and information",
   "v4MineSupportGroup": "Support us",
-  "v4ConfigImportWarning": "Import replaces existing configuration. Back up your current configuration first."
+  "v4ConfigImportWarning": "Import replaces existing configuration. Back up your current configuration first.",
+  "v4CategoryPresetIcons": "Preset icons",
+  "v4CategoryCommonIcons": "Common",
+  "v4CategoryImageHint": "Keep original colors and transparency. Crop to a square after choosing."
 }

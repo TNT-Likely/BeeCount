@@ -2045,7 +2045,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryNameRequired => '请输入分类名称';
 
   @override
-  String get categoryNameTooLong => '分类名称不能超过4个字';
+  String get categoryNameTooLong => '分类名称不能超过10个字';
 
   @override
   String get categoryNameDuplicate => '分类名称已存在';
@@ -8859,6 +8859,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4ConfigImportWarning => '导入将覆盖现有配置，建议先备份当前配置。';
+
+  @override
+  String get v4CategoryPresetIcons => '预设图标';
+
+  @override
+  String get v4CategoryCommonIcons => '常用';
+
+  @override
+  String get v4CategoryImageHint => '保留图片原色与透明背景，选择后裁剪为正方形。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

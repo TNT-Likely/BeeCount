@@ -2045,7 +2045,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryNameRequired => 'Please enter category name';
 
   @override
-  String get categoryNameTooLong => 'Category name cannot exceed 4 characters';
+  String get categoryNameTooLong => 'Category name cannot exceed 10 characters';
 
   @override
   String get categoryNameDuplicate => 'Category name already exists';
@@ -8867,4 +8867,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4ConfigImportWarning => 'Import replaces existing configuration. Back up your current configuration first.';
+
+  @override
+  String get v4CategoryPresetIcons => 'Preset icons';
+
+  @override
+  String get v4CategoryCommonIcons => 'Common';
+
+  @override
+  String get v4CategoryImageHint => 'Keep original colors and transparency. Crop to a square after choosing.';
 }
