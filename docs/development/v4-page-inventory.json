@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 264,
+  "designSceneExports": 271,
   "flowDefinitions": 183,
   "priorityCounts": {
     "P0": 16,
@@ -182,8 +182,8 @@
       "name": "关闭应用锁前的私有密码验证页",
       "source": "lib/pages/settings/app_lock_settings_page.dart",
       "priority": "P1",
-      "status": "待迁移",
-      "acceptance": "保留四位旧密码验证、失败半秒恢复、取消返回 false；只在验证成功后清除 PIN 和关闭生物识别，不改变锁定策略。"
+      "status": "已完成·R73原PIN验证与关闭闭环",
+      "acceptance": "R73实际错误PIN/取消保持锁，正确验证后清除PIN和关闭生物识别；四位原服务、错误半秒恢复和未知超时均保留，报告app-lock-settings-r73封存。"
     }
   ],
   "rows": [
@@ -814,18 +814,18 @@
       "classes": [
         "CategoryMigrationPage"
       ],
-      "lines": 506,
+      "lines": 120,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "flow-category-migration"
       ],
       "designMapping": "已定位",
-      "components": "源/目标分类选择、预览、确认与结果",
-      "acceptance": "父子分类、账单迁移范围/数量、目标约束、取消/防重和关联标签规则。",
-      "status": "待迁移",
+      "components": "分类迁移选择对、类型、规范确认/结果弹窗、固定操作栏和真实迁移信息预览",
+      "acceptance": "已提交源码62项/5文件回归，8文件静态0问题；398/320深色140%与固定操作/图标约束、271场景链接、69规范组/41基础组件边界通过。真机专用tx55/56分类216→217→216、确认取消/空来源拒绝/类型清空、业务48真实读取与预选入口、正常启动53笔通过；57/53/24/5和3图片/prefs/公共文件保持，仅两笔原服务同步追踪合法变化。15图18文件报告category-migration-r74三宽度通过，ZIP SHA256 6872ece9e205ac5d1a0d6cc403d82d6b0aff1000375b825089ae931a9f08205a。跨双币种账本由真实SQLite widget覆盖；共享负分类原服务范围记Q17，Cloud/iOS未执行。",
+      "status": "已完成",
       "name": "分类迁移",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "原506行和SHA备份；120行组合页与分类选择对、App动作/真实预览分层。R74同一QA原分类弹窗、实际2笔正反迁移、独立业务字段/关系/hash与正常重启闭环完成，保留原全账本查询/本地迁移。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-migration"
       ]
@@ -988,7 +988,7 @@
       "classes": [
         "ExchangeRatePage"
       ],
-      "lines": 522,
+      "lines": 140,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "flow-rates"

@@ -4,7 +4,7 @@
 
 现有 **71 个产品页面源文件**（P0 16 页、P1 42 页、P2 13 页），另有 **2 个新设计页面待新增**、6 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
-当前完整完成页面为 **27**（账户详情、新增与编辑账户、资产与账户列表、净资产趋势、账单附件大图预览、应用锁解锁、PIN 设置与确认、启动页、欢迎与初始化全流程、新增与编辑分类、分类管理与工具、首页明细、账本管理与切换、我的、昵称与当前账本、应用锁设置、显示与外观设置、全局附件库、自动化功能入口、配置导入导出与恢复、数据管理入口、字体设置、皮肤选择与预览、语言设置、主题色与自定义配色、记账提醒、新增与编辑标签、标签管理）。已完整验收的页面按表标记；记账/转账、搜索与分类/标签详情的待确认项保留当前行为，其余页面逐页迁移并独立验收。全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
+当前完整完成页面为 **28**（账户详情、新增与编辑账户、资产与账户列表、净资产趋势、账单附件大图预览、应用锁解锁、PIN 设置与确认、启动页、欢迎与初始化全流程、新增与编辑分类、分类管理与工具、分类迁移、首页明细、账本管理与切换、我的、昵称与当前账本、应用锁设置、显示与外观设置、全局附件库、自动化功能入口、配置导入导出与恢复、数据管理入口、字体设置、皮肤选择与预览、语言设置、主题色与自定义配色、记账提醒、新增与编辑标签、标签管理）。已完整验收的页面按表标记；记账/转账、搜索与分类/标签详情的待确认项保留当前行为，其余页面逐页迁移并独立验收。全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
 
 ## 优先级与顺序
 
@@ -56,7 +56,7 @@
 | **预算编辑**<br>[lib/pages/budget/budget_edit_page.dart](../../lib/pages/budget/budget_edit_page.dart) | 待迁移 | M4 | 预算汇总、分类额度、进度与编辑表单 | 总预算/分类预算、周期、超支与剩余口径，取消/保存及统计数据一致。<br>设计：`flow-budget-edit`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **预算总览**<br>[lib/pages/budget/budget_page.dart](../../lib/pages/budget/budget_page.dart) | 待迁移 | M4 | 预算汇总、分类额度、进度与编辑表单 | 总预算/分类预算、周期、超支与剩余口径，取消/保存及统计数据一致。<br>设计：`budget`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **账单日历**<br>[lib/pages/calendar/calendar_page.dart](../../lib/pages/calendar/calendar_page.dart) | 待迁移 | M4 | 月历、日期选择、金额汇总与账单行 | 月切换、日期格/选中/账单标记、当天明细与币种统计，保留查看和编辑入口。<br>设计：`calendar`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
-| **分类迁移**<br>[lib/pages/category/category_migration_page.dart](../../lib/pages/category/category_migration_page.dart) | 待迁移 | M3 | 源/目标分类选择、预览、确认与结果 | 父子分类、账单迁移范围/数量、目标约束、取消/防重和关联标签规则。<br>设计：`flow-category-migration`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
+| **分类迁移**<br>[lib/pages/category/category_migration_page.dart](../../lib/pages/category/category_migration_page.dart) | 已完成 | M3 | 分类迁移选择对、类型、规范确认/结果弹窗、固定操作栏和真实迁移信息预览 | 已提交源码62项/5文件回归，8文件静态0问题；398/320深色140%与固定操作/图标约束、271场景链接、69规范组/41基础组件边界通过。真机专用tx55/56分类216→217→216、确认取消/空来源拒绝/类型清空、业务48真实读取与预选入口、正常启动53笔通过；57/53/24/5和3图片/prefs/公共文件保持，仅两笔原服务同步追踪合法变化。15图18文件报告category-migration-r74三宽度通过，ZIP SHA256 6872ece9e205ac5d1a0d6cc403d82d6b0aff1000375b825089ae931a9f08205a。跨双币种账本由真实SQLite widget覆盖；共享负分类原服务范围记Q17，Cloud/iOS未执行。<br>设计：`flow-category-migration`<br>优先理由：原506行和SHA备份；120行组合页与分类选择对、App动作/真实预览分层。R74同一QA原分类弹窗、实际2笔正反迁移、独立业务字段/关系/hash与正常重启闭环完成，保留原全账本查询/本地迁移。 |
 | **BeeCount Cloud 同步**<br>[lib/pages/cloud/beecount_cloud_sync_page.dart](../../lib/pages/cloud/beecount_cloud_sync_page.dart) | 待迁移 | M5 | 同步状态、配置、成员列表与权限操作 | 沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。<br>设计：`flow-cloud-sync`、`flow-sync-health`、`flow-twofa`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **云服务配置与账号**<br>[lib/pages/cloud/cloud_service_page.dart](../../lib/pages/cloud/cloud_service_page.dart) | 待迁移 | M5 | 同步状态、配置、成员列表与权限操作 | 沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。<br>设计：`flow-cloud-config`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **云端备份与同步**<br>[lib/pages/cloud/cloud_sync_page.dart](../../lib/pages/cloud/cloud_sync_page.dart) | 待迁移 | M5 | 同步状态、配置、成员列表与权限操作 | 沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。<br>设计：`flow-backup`、`flow-failure`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
@@ -130,7 +130,7 @@
 | **账单小票弹窗**<br>[lib/widgets/biz/transaction_receipt_dialog.dart](../../lib/widgets/biz/transaction_receipt_dialog.dart) | P1 / 待迁移 | 原币与折算、标签/附件、隐私、图片生成和系统分享，沿用弹窗。 |
 | **AI 授权弹窗**<br>[lib/widgets/ai/agent_tool_authorization_dialog.dart](../../lib/widgets/ai/agent_tool_authorization_dialog.dart) | P1 / 样式就绪·真实消费者待迁移 | 实际动作、权限、金额与上下文，拒绝和允许不丢任务。 |
 | **检查升级弹窗**<br>[lib/services/update/update_dialogs.dart](../../lib/services/update/update_dialogs.dart) | P2 / 待迁移 | 保持原弹窗，检查中/最新/可升级/错误与下载入口。 |
-| **关闭应用锁前的私有密码验证页**<br>[lib/pages/settings/app_lock_settings_page.dart](../../lib/pages/settings/app_lock_settings_page.dart) | P1 / 待迁移 | 保留四位旧密码验证、失败半秒恢复、取消返回 false；只在验证成功后清除 PIN 和关闭生物识别，不改变锁定策略。 |
+| **关闭应用锁前的私有密码验证页**<br>[lib/pages/settings/app_lock_settings_page.dart](../../lib/pages/settings/app_lock_settings_page.dart) | P1 / 已完成·R73原PIN验证与关闭闭环 | R73实际错误PIN/取消保持锁，正确验证后清除PIN和关闭生物识别；四位原服务、错误半秒恢复和未知超时均保留，报告app-lock-settings-r73封存。 |
 
 ## 页面旁辅助文件
 
