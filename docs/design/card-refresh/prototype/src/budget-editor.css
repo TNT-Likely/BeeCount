@@ -30,3 +30,6 @@
 
 #bee-immersive-suite .bge-sample>.bc-surface{margin:0 0 12px;padding:16px;border:0}
 #bee-immersive-suite .bge-sample>.bge-category-card{padding:3px 4px}
+#bee-immersive-suite .r-modal-layer [data-action=bge-confirm-delete]{background:light-dark(#f9dedc,#8c1d18);color:light-dark(#410e0b,#f9dedc)}
+
+#bee-immersive-suite .bc-phone .bge-danger{flex:1;border:0;border-radius:13px;min-height:44px;padding:12px 16px;font-size:13px;font-weight:600}
