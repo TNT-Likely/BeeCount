@@ -27,7 +27,7 @@ class _LiveAnalyticsPreviewState extends ConsumerState<LiveAnalyticsPreview> {
         month = DateTime(DateTime.now().year, DateTime.now().month),
         hide = ref.watch(hideAmountsProvider),
         base = ref.watch(currentLedgerCurrencyProvider);
-    final key = (id, sd, tick, repo, month);
+    final key = (id, sd, tick, repo, month, DateUtils.dateOnly(now));
     if (queryKey != key) {
       queryKey = key;
       query = loadAnalyticsData(repo,

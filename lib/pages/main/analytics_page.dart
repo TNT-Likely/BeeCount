@@ -30,7 +30,16 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         month = ref.watch(selectedMonthProvider),
         sd = ref.watch(currentMonthStartDayProvider),
         tick = ref.watch(statsRefreshProvider);
-    final key = (repo, id, month, _scope, _type, sd, tick);
+    final key = (
+      repo,
+      id,
+      month,
+      _scope,
+      _type,
+      sd,
+      tick,
+      DateUtils.dateOnly(DateTime.now())
+    );
     if (_queryKey != key) {
       _queryKey = key;
       _query = loadAnalyticsData(repo,
