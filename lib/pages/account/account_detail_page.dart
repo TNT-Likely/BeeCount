@@ -94,6 +94,9 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
           widget.account.id,
           isLiabilityType(widget.account.type) ? -value.abs() : value);
       if (!mounted) return;
+      // The parent doesn't consume this route's result. Refresh its balances
+      // through the shared tick while retaining its current scroll state.
+      ref.read(statsRefreshProvider.notifier).state++;
       _refresh();
       showBeeToast(context, l.commonSave, tone: BeeTone.success);
       Navigator.pop(context, true);

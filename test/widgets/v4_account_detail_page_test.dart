@@ -2,6 +2,7 @@ import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/account/account_detail_page.dart';
+import 'package:beecount/pages/account/accounts_page.dart';
 import 'package:beecount/pages/transaction/transaction_editor_page.dart';
 import 'package:beecount/presentation/v4/bindings/account_detail.dart';
 import 'package:beecount/providers.dart';
@@ -390,6 +391,51 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.widget<BeeDonutChart>(find.byType(BeeDonutChart)).centerLabel,
         '其他\n3.00');
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+
+  testWidgets('估值弹窗保存返回真实资产页时立即刷新全局余额缓存', (tester) async {
+    final loan = await repo.createAccount(
+        ledgerId: 1, name: '住房贷款', type: 'loan', initialBalance: -200);
+    await repo.upsertAutoRates(
+        base: 'CNY',
+        rateDate: '2026-10-24',
+        rates: {'USD': '7.1'},
+        source: 'synthetic-local',
+        fetchedAt: DateTime.now().toUtc());
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(398, 844);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
+    await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+            theme: beeTheme(),
+            locale: const Locale('zh'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const AccountsPage())));
+    await tester.pumpAndSettle();
+    await tester.runAsync(() => container.read(allAccountStatsProvider.future));
+    await tester.pumpAndSettle();
+    expect(container.read(allAccountStatsProvider).requireValue[loan]!.balance,
+        -200);
+    await tester.scrollUntilVisible(find.text('住房贷款'), 350,
+        scrollable: find.byType(Scrollable).first, maxScrolls: 30);
+    await tester.tap(find.text('住房贷款'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('更新欠款'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '190');
+    await tester.tap(find.widgetWithText(FilledButton, '确定'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AccountsPage), findsOneWidget);
+    final global = await tester
+        .runAsync(() => container.read(allAccountStatsProvider.future));
+    expect(global![loan]!.balance, -190);
+    expect((await repo.getAccount(loan))!.initialBalance, -190);
+    expect(await repo.getTransactionsByLedger(1), isEmpty);
     expect(tester.takeException(), isNull);
     await close(tester);
   });
