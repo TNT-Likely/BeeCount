@@ -29,3 +29,5 @@ module.exports.accountTypes = require('./account-type-samples.cjs');
 module.exports.balanceAdjustment = `<div data-balance-adjustment><div class="g-balance-summary"><div class="g-balance-pair"><div><small>当前余额</small><strong>¥50.00</strong></div><i data-lucide="arrow-right"></i><div><small>调整后余额</small><strong>¥60.00</strong></div></div><div class="v4-divider"></div><div class="g-balance-difference"><span>调整差额</span><strong>+¥10.00</strong></div></div><div class="g-choice-tabs"><button data-balance-mode="false" data-confirm-label="确认修改余额" aria-pressed="true">只修改余额</button><button data-balance-mode="true" data-confirm-label="确认新增平账记录" aria-pressed="false">新增平账记录</button></div><p class="v4-small" data-balance-description="false">调整期初余额，不新增收支记录。</p><p class="v4-small" data-balance-description="true" hidden>在当前账本生成一笔平账收支记录，账户余额随记录变化。</p><button class="bc-primary" data-balance-confirm>确认修改余额</button><p class="v4-small" data-balance-result aria-live="polite">等待确认 · 这里只改变示例草稿</p></div>`;
 
 module.exports.assetOverview = require('./asset-overview-samples.cjs');
+
+module.exports.categoryMigration=require('./category-migration-samples.cjs');

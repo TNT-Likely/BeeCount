@@ -486,6 +486,13 @@
         "title": "附件与图标预览库",
         "nativeCase": 46,
         "nativeLabel": "附件与图标预览库"
+      },
+      {
+        "id": "spec-69",
+        "code": "B44",
+        "title": "分类迁移选择对",
+        "nativeCase": 47,
+        "nativeLabel": "分类迁移选择对"
       }
     ]
   }

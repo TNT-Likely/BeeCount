@@ -26,7 +26,8 @@
     "check:onboarding": "node scripts/validate-onboarding.cjs",
     "check:launch": "node scripts/validate-launch.cjs",
     "check:accounts": "node scripts/validate-accounts-page.cjs && node scripts/validate-asset-overview.cjs",
-    "check:app-lock": "node scripts/validate-app-lock-settings.cjs"
+    "check:app-lock": "node scripts/validate-app-lock-settings.cjs",
+    "check:category-migration": "node scripts/validate-category-migration.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

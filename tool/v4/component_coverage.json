@@ -614,5 +614,13 @@
     ],
     "page": "business",
     "case": 46
+  },
+  {
+    "design_key": "categoryMigration",
+    "components": [
+      "BeeCategoryMigrationPair"
+    ],
+    "page": "business",
+    "case": 47
   }
 ]

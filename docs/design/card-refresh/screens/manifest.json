@@ -761,9 +761,9 @@
   },
   {
     "route": "flow-category-migration",
-    "slug": "flow-category-migration",
     "title": "分类迁移",
     "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-migration",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-category-migration.png",
     "full": "screens/full/flow-category-migration.png",
@@ -2662,5 +2662,75 @@
     "viewport": "screens/viewport/flow-pin-verify.png",
     "full": "screens/full/flow-pin-verify.png",
     "svg": "figma/flow-pin-verify.svg"
+  },
+  {
+    "route": "flow-category-migration-from",
+    "title": "分类迁移 · 自定义图标来源",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-migration-from",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-category-migration-from.png",
+    "full": "screens/full/flow-category-migration-from.png",
+    "svg": "figma/flow-category-migration-from.svg"
+  },
+  {
+    "route": "flow-category-migration-ready",
+    "title": "分类迁移 · 已选择目标",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-migration-ready",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-category-migration-ready.png",
+    "full": "screens/full/flow-category-migration-ready.png",
+    "svg": "figma/flow-category-migration-ready.svg"
+  },
+  {
+    "route": "flow-category-migration-empty",
+    "title": "分类迁移 · 来源没有账单",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-migration-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-category-migration-empty.png",
+    "full": "screens/full/flow-category-migration-empty.png",
+    "svg": "figma/flow-category-migration-empty.svg"
+  },
+  {
+    "route": "flow-cgm-select",
+    "title": "选择分类 · 弹窗",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-cgm-select",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-cgm-select.png",
+    "full": "screens/full/flow-cgm-select.png",
+    "svg": "figma/flow-cgm-select.svg"
+  },
+  {
+    "route": "flow-cgm-confirm",
+    "title": "确认迁移 · 弹窗",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-cgm-confirm",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-cgm-confirm.png",
+    "full": "screens/full/flow-cgm-confirm.png",
+    "svg": "figma/flow-cgm-confirm.svg"
+  },
+  {
+    "route": "flow-cgm-complete",
+    "title": "迁移完成 · 弹窗",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-cgm-complete",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-cgm-complete.png",
+    "full": "screens/full/flow-cgm-complete.png",
+    "svg": "figma/flow-cgm-complete.svg"
+  },
+  {
+    "route": "flow-cgm-cannot",
+    "title": "无法迁移 · 弹窗",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-cgm-cannot",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-cgm-cannot.png",
+    "full": "screens/full/flow-cgm-cannot.png",
+    "svg": "figma/flow-cgm-cannot.svg"
   }
 ]
