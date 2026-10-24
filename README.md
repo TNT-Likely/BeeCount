@@ -38,6 +38,29 @@
 
 ---
 
+## ❤️ 赞助商
+
+<div align="center">
+  <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW">
+    <img src="docs/sponsor/crazytoken/cn-wide.png" alt="CrazyToken" width="728"/>
+  </a>
+</div>
+
+❤️ 感谢 [**CrazyToken**](https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW) 赞助支持 **BeeCount**！
+
+#### CrazyToken | 接入全球主流大模型，让 AI 记账更省心，低至0.05x，最高省99%
+
+CrazyToken 提供 **Claude、GPT、Gemini、Kimi、GLM、DeepSeek、Qwen、Grok** 等主流模型 API，为 AI 对话记账、票据图片识别与收支信息整理提供模型支持，按需选择文本或视觉模型，让日常记账更省心。
+
+- 💰 **低至 `0.05×`**：最高省99%，Token 级账单透明可查。
+- ✨ **官方原生通道**：不掺水、不混模、不压缩长上下文，保持模型原生输出体验。
+- ⚡ **稳定高速，高并发不限流**：让记账对话与票据识别响应更顺畅。
+- 🎁 **新用户注册赠送 `$20`**：通过[专属链接](https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW)注册即领体验额度，充值额外加赠；提供 **1 对 1 真人远程配置服务**，协助完成模型 API 接入。
+
+> 🤝 想在这里展示你的项目？[商务合作](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry)
+
+---
+
 ## 💡 为什么选择蜜蜂记账
 
 一款轻量、开源、隐私可控的**个人财务管理**和**支出追踪** App。

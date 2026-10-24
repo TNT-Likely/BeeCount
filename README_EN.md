@@ -38,6 +38,29 @@ Sync via BeeCount Cloud (self-hosted) / iCloud / Supabase / WebDAV / S3
 
 ---
 
+## ❤️ Sponsor
+
+<div align="center">
+  <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW">
+    <img src="docs/sponsor/crazytoken/en-wide.png" alt="CrazyToken" width="728"/>
+  </a>
+</div>
+
+❤️ Thank you to [**CrazyToken**](https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW) for sponsoring **BeeCount**!
+
+#### CrazyToken | Access leading AI models for easier bookkeeping—as low as 0.05x, save up to 99%
+
+CrazyToken provides APIs for **Claude, GPT, Gemini, Kimi, GLM, DeepSeek, Qwen, Grok**, and other leading models to power conversational bookkeeping, receipt image recognition, and income and expense organization. Choose text or vision models to suit your needs and make everyday bookkeeping easier.
+
+- 💰 **As low as `0.05×`**: Save up to 99%, with transparent token-level billing.
+- ✨ **Official model access**: No degraded performance, model substitution, or long-context compression—preserving the native model experience.
+- ⚡ **Fast, stable, and no concurrency caps**: Keep bookkeeping conversations and receipt recognition running smoothly.
+- 🎁 **`$20` signup gift for new users**: Register through the [exclusive link](https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW) to receive trial credits, plus top-up bonuses and **one-on-one remote setup assistance** from a real person to help connect your model API.
+
+> 🤝 Want your project here? [Business inquiry](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry)
+
+---
+
 ## 💡 Why BeeCount
 
 A lightweight, open-source, privacy-first **personal finance** and **expense tracking** app.
