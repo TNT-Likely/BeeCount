@@ -1,6 +1,71 @@
 import 'package:flutter/material.dart';
 import '../beecount_ui.dart';
 
+class BeeColorOption<T> {
+  const BeeColorOption(
+      {required this.value, required this.color, required this.label});
+  final T value;
+  final Color color;
+  final String label;
+}
+
+/// A controlled palette with a stable 44px target. Color identity and labels are
+/// supplied by the host; neither selection nor disabled state changes the hue.
+class BeeColorPalette<T> extends StatelessWidget {
+  const BeeColorPalette(
+      {super.key,
+      required this.items,
+      required this.value,
+      required this.onChanged});
+  final List<BeeColorOption<T>> items;
+  final T value;
+  final ValueChanged<T>? onChanged;
+  @override
+  Widget build(BuildContext context) =>
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        for (final item in items)
+          Semantics(
+              label: item.label,
+              selected: item.value == value,
+              button: true,
+              enabled: onChanged != null,
+              child: ExcludeSemantics(
+                  child: Tooltip(
+                      message: item.label,
+                      child: InkWell(
+                          borderRadius: BorderRadius.circular(22),
+                          onTap: onChanged == null
+                              ? null
+                              : () => onChanged!(item.value),
+                          child: SizedBox(
+                              width: 44,
+                              height: 44,
+                              child: Center(
+                                  child: Container(
+                                      width: 36,
+                                      height: 36,
+                                      decoration: BoxDecoration(
+                                          color: item.color,
+                                          shape: BoxShape.circle,
+                                          border: item.value == value
+                                              ? Border.all(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                                  width: 2)
+                                              : null),
+                                      child: item.value == value
+                                          ? Icon(Icons.check,
+                                              size: 20,
+                                              color: item.color
+                                                          .computeLuminance() >
+                                                      .5
+                                                  ? Colors.black
+                                                  : Colors.white)
+                                          : null)))))))
+      ]);
+}
+
 class BeeChoice<T> {
   const BeeChoice(
       {required this.value,

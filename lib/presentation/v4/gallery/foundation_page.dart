@@ -44,6 +44,7 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
   Set<int> choices = {0, 2};
   String pickerMode = 'data';
   int picked = 0;
+  int colorChoice = 0;
   DateTime pickedDate = DateTime(2026, 10, 23, 12, 30);
   final form = GlobalKey<FormState>();
   final nameController = TextEditingController();
@@ -303,6 +304,20 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                     label: '示例头像', image: AssetImage('assets/logo2.png')),
                 const SizedBox(height: 12),
                 const Text('圆角 22 / 13 / 15 / 25；触控区 ≥ 44'),
+                const SizedBox(height: 12),
+                BeeColorPalette<int>(
+                    items: const [
+                      BeeColorOption(value: 0, color: Colors.teal, label: '蓝绿'),
+                      BeeColorOption(
+                          value: 1, color: Colors.orange, label: '橙色'),
+                      BeeColorOption(
+                          value: 2, color: Colors.purple, label: '紫色')
+                    ],
+                    value: colorChoice,
+                    onChanged: (value) => setState(() {
+                          colorChoice = value;
+                          event = '选择颜色 $value';
+                        })),
                 const SizedBox(height: 12),
                 Wrap(
                     spacing: 12,
