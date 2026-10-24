@@ -40,20 +40,18 @@
 
 ## ❤️ 赞助商
 
-<table>
-  <tr>
-    <td width="190" align="center">
-      <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><img src="docs/sponsor/crazytoken/logo-cn-v4.png" width="160" alt="CrazyToken"/></a>
-    </td>
-    <td>
-      <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><b>CrazyToken</b></a> 提供 Claude、GPT、Gemini、Kimi、GLM、DeepSeek、Qwen、Grok 等主流模型 API，为 AI 对话记账、票据图片识别与收支信息整理提供模型支持。<br/>
-      💰 <b>低至 0.05×</b>：最高省 99%，Token 级账单透明可查。<br/>
-      ✨ <b>官方原生通道</b>：不掺水、不混模、不压缩长上下文，保持模型原生输出体验。<br/>
-      ⚡ <b>稳定高速，高并发不限流</b>：让记账对话与票据识别响应更顺畅。<br/>
-      🎁 <b>新用户注册赠送 $20</b>：通过<a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW">专属链接</a>注册即领体验额度，充值额外加赠；提供 <b>1 对 1 真人远程配置服务</b>，协助完成模型 API 接入。
-    </td>
-  </tr>
-</table>
+<div align="center">
+  <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW">
+    <img src="docs/sponsor/crazytoken/banner-cn.png" alt="CrazyToken" width="600"/>
+  </a>
+</div>
+
+[**CrazyToken**](https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW) 提供 Claude、GPT、Gemini、Kimi、GLM、DeepSeek、Qwen、Grok 等主流模型 API，为 AI 对话记账、票据图片识别与收支信息整理提供模型支持。
+
+- 💰 **低至 0.05×**：最高省 99%，Token 级账单透明可查。
+- ✨ **官方原生通道**：不掺水、不混模、不压缩长上下文，保持模型原生输出体验。
+- ⚡ **稳定高速，高并发不限流**：让记账对话与票据识别响应更顺畅。
+- 🎁 **新用户注册赠送 $20**：通过[专属链接](https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW)注册即领体验额度，充值额外加赠；提供 **1 对 1 真人远程配置服务**，协助完成模型 API 接入。
 
 > 🤝 想在这里展示你的项目？[商务合作](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry)
 
