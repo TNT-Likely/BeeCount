@@ -2031,6 +2031,10 @@
 #bee-immersive-suite .j-ledger-actions .bc-secondary{min-height:44px}
 #bee-immersive-suite .j-ledger-menu .bc-menu-row{min-height:53px}
 #bee-immersive-suite .j-ledger-menu [data-action$=":local"]{color:var(--bc-red)}
+/* Flutter paints the 2px selection stroke inside Material without consuming
+   content padding. An inset outline keeps the HTML's content inset at 15px. */
+#bee-immersive-suite .j-ledger-card{border:0;outline:2px solid transparent;outline-offset:-2px}
+#bee-immersive-suite .j-ledger-card[data-current="true"]{outline-color:var(--bc-accent)}
 </style>
 <script>
 (() => {

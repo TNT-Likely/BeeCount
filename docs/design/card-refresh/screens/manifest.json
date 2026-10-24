@@ -2098,7 +2098,7 @@
     "title": "账本 · 云端独立账本",
     "group": "其他",
     "slug": "flow-ledgers-remote",
-    "fullHeight": 1046,
+    "fullHeight": 1034,
     "viewport": "screens/viewport/flow-ledgers-remote.png",
     "full": "screens/full/flow-ledgers-remote.png",
     "svg": "figma/flow-ledgers-remote.svg"
@@ -2108,7 +2108,7 @@
     "title": "账本 · 云端加载本地可用",
     "group": "其他",
     "slug": "flow-ledgers-loading",
-    "fullHeight": 845,
+    "fullHeight": 844,
     "viewport": "screens/viewport/flow-ledgers-loading.png",
     "full": "screens/full/flow-ledgers-loading.png",
     "svg": "figma/flow-ledgers-loading.svg"
@@ -2118,7 +2118,7 @@
     "title": "账本 · 云端错误与重试",
     "group": "其他",
     "slug": "flow-ledgers-error",
-    "fullHeight": 900,
+    "fullHeight": 892,
     "viewport": "screens/viewport/flow-ledgers-error.png",
     "full": "screens/full/flow-ledgers-error.png",
     "svg": "figma/flow-ledgers-error.svg"
