@@ -50,6 +50,16 @@ void main() {
             .enabled,
         false);
     expect(find.text('51 组组件 · 全部平铺'), findsOneWidget);
+    await t.tap(find.byKey(const ValueKey('business-case')));
+    await t.pumpAndSettle();
+    final lastItem = find.widgetWithText(BeeButton, '51 · 预算编辑与分类草稿');
+    await t.ensureVisible(lastItem);
+    await t.tap(lastItem);
+    await t.pumpAndSettle();
+    final lastSection = find.byKey(const ValueKey('business-section-50'));
+    expect(t.getTopLeft(lastSection).dy, greaterThan(100));
+    expect(t.getTopLeft(lastSection).dy, lessThan(550));
+
     await t.tap(find.byTooltip('主题色与动效'));
     await t.pump();
     await t.pump(const Duration(milliseconds: 400));

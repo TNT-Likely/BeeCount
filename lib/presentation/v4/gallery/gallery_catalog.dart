@@ -36,9 +36,10 @@ class _GalleryCatalogState extends State<GalleryCatalog> {
     if (target == null) return;
     Scrollable.ensureVisible(target,
         alignment: 0,
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : const Duration(milliseconds: 280),
+        duration:
+            !TickerMode.of(context) || MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 280),
         curve: Curves.easeOutCubic);
   }
 
