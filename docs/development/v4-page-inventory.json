@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 227,
+  "designSceneExports": 231,
   "flowDefinitions": 150,
   "priorityCounts": {
     "P0": 16,
@@ -1485,7 +1485,7 @@
       "classes": [
         "LanguageSettingsPage"
       ],
-      "lines": 144,
+      "lines": 66,
       "batch": "M8 设置与收尾",
       "designRoutes": [
         "flow-language"
@@ -1493,7 +1493,7 @@
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "待迁移",
+      "status": "迁移中·原五项与语言/地区偏好保留，规范选择卡片和刷新检查收口",
       "name": "语言设置",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
@@ -1732,19 +1732,27 @@
       "classes": [
         "TagManagePage"
       ],
-      "lines": 633,
+      "lines": 170,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
+        "flow-tag-management",
+        "flow-tag-management-empty",
+        "flow-tag-management-error",
+        "flow-tag-management-loading",
         "flow-tag-tools"
       ],
       "designMapping": "已定位",
-      "components": "语义标签、表单、列表与账单行",
-      "acceptance": "标签颜色、长名称、新建/编辑/删除、分类关联、引用和当前账本权限。",
-      "status": "迁移中·原633行备份已核对，工具/导入/分享与标签网格拆分中",
+      "components": "受控BeeTagLibrary、真实标签预览、上下文工具菜单、确认/模式弹窗、原子标签导入与平台文件适配",
+      "acceptance": "361项/51文件主回归、最终9项目标检查、12组HTML与独立网格几何通过；10文件主静态检查及最终测试复核0问题。R62实际23标签仅标签YAML导出、系统/模式取消、两标签合并、原同名颜色保持、新增入口取消、专属删除取消/确认及正常重启通过。原57笔/当前53/24账户/5附件与全部旧行保持，只保留橙色合成标签26。15图/18文件独立报告tag-library-r62三宽度与ZIP校验通过，SHA256 4bb4871bdc0f1854919b2f06beb64e901e9e1e2e6c2f86021ccbefab8941870b。Cloud/iOS未执行；清理/覆盖实际写入由真实Repository/widget覆盖。",
+      "status": "已完成",
       "name": "标签管理",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "原633行备份保持，新170行编排真实标签网格和四项工具；原生成/导入/清理/分享与全局计数保留。R62同一QA实际UI、独立SQL/文件和正常重启闭环完成。",
       "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-management",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-management-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-management-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-management-loading",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-tools"
       ]
     },

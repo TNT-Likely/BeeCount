@@ -1081,9 +1081,9 @@
   },
   {
     "route": "flow-language",
-    "slug": "flow-language",
     "title": "语言设置",
     "group": "补齐 · 外观与辅助",
+    "slug": "flow-language",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-language.png",
     "full": "screens/full/flow-language.png",
