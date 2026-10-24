@@ -160,48 +160,51 @@ class BeeField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final AutovalidateMode autovalidateMode;
   @override
-  Widget build(BuildContext context) => TextFormField(
-      controller: controller,
-      readOnly: readOnly,
-      focusNode: focusNode,
-      validator: validator,
-      onSaved: onSaved,
-      onFieldSubmitted: onSubmitted,
-      textInputAction: textInputAction,
-      inputFormatters: inputFormatters,
-      autovalidateMode: autovalidateMode,
-      enabled: enabled,
-      obscureText: obscure,
-      onChanged: onChanged,
-      keyboardType: keyboardType,
-      maxLength: maxLength,
-      maxLines: maxLines,
-      style: const TextStyle(fontSize: 13),
-      decoration: InputDecoration(
-          prefixIcon: prefixIcon,
-          suffixIcon: suffixIcon,
-          labelText: label,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          labelStyle: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).colorScheme.onSurfaceVariant),
-          floatingLabelStyle: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).colorScheme.onSurfaceVariant),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          hintText: hint,
-          helperText: helper,
-          errorText: error,
-          filled: true,
-          fillColor: BeeCardTheme.of(context).soft,
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(13),
-              borderSide: BorderSide.none),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(13),
-              borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.primary, width: 1.2))));
+  Widget build(BuildContext context) => Semantics(
+      container: true,
+      child: TextFormField(
+          controller: controller,
+          readOnly: readOnly,
+          focusNode: focusNode,
+          validator: validator,
+          onSaved: onSaved,
+          onFieldSubmitted: onSubmitted,
+          textInputAction: textInputAction,
+          inputFormatters: inputFormatters,
+          autovalidateMode: autovalidateMode,
+          enabled: enabled,
+          obscureText: obscure,
+          onChanged: onChanged,
+          keyboardType: keyboardType,
+          maxLength: maxLength,
+          maxLines: maxLines,
+          style: const TextStyle(fontSize: 13),
+          decoration: InputDecoration(
+              prefixIcon: prefixIcon,
+              suffixIcon: suffixIcon,
+              labelText: label,
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              labelStyle: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              floatingLabelStyle: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              hintText: hint,
+              helperText: helper,
+              errorText: error,
+              filled: true,
+              fillColor: BeeCardTheme.of(context).soft,
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(13),
+                  borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(13),
+                  borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 1.2)))));
 }
 
 class BeeSegment<T> {

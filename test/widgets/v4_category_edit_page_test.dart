@@ -135,6 +135,15 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
   }
 
+  testWidgets('名称输入框的无障碍边界只包含字段，不吞并类型和二级分类', (tester) async {
+    final handle = tester.ensureSemantics();
+    await open(tester, const CategoryEditPage(kind: 'expense'));
+    final node = tester.getSemantics(find.byType(TextFormField));
+    expect(node.label, isNot(contains(l(tester).categoryExpenseType)));
+    expect(node.rect.height, lessThan(120));
+    handle.dispose();
+    await close(tester);
+  });
   testWidgets('必填、同类型全局重名和连续保存，真实仓储只创建一条', (tester) async {
     await repo.createCategory(name: '已存在', kind: 'expense');
     await open(tester, const CategoryEditPage(kind: 'expense'));
