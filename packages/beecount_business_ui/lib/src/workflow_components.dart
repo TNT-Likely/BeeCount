@@ -480,54 +480,6 @@ class BeeImportMapping extends StatelessWidget {
       ]);
 }
 
-class BeeOnboardingStep extends StatelessWidget {
-  const BeeOnboardingStep(
-      {super.key,
-      required this.step,
-      required this.total,
-      required this.title,
-      required this.description,
-      required this.illustration,
-      required this.options,
-      required this.next,
-      required this.restore});
-  final int step, total;
-  final String title, description;
-  final Widget illustration, options, next, restore;
-  @override
-  Widget build(BuildContext context) =>
-      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Center(child: illustration),
-        const SizedBox(height: 20),
-        Text(title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w600)),
-        const SizedBox(height: 8),
-        Text(description,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: Theme.of(context).hintColor)),
-        const SizedBox(height: 16),
-        Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-                total,
-                (i) => Container(
-                    width: i == step ? 18 : 6,
-                    height: 6,
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                    decoration: BoxDecoration(
-                        color: i == step
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).dividerColor,
-                        borderRadius: BorderRadius.circular(3))))),
-        const SizedBox(height: 20),
-        options,
-        const SizedBox(height: 20),
-        next,
-        restore
-      ]);
-}
-
 /// Includes account/tag/note only when supplied: the host controls sharing privacy.
 class BeeReceipt extends StatelessWidget {
   const BeeReceipt(

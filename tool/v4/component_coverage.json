@@ -154,7 +154,10 @@
     "design_key": "onboarding",
     "components": [
       "BeeOnboardingStep",
-      "BeeBrandMark"
+      "BeeOnboardingChoice",
+      "BeeOnboardingModeCard",
+      "BeeBrandMark",
+      "BeeBackupFileCard"
     ],
     "page": "business",
     "case": 15

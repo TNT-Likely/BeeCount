@@ -66,7 +66,7 @@ class BusinessAcceptancePage extends StatefulWidget {
 }
 
 class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
-  int step = 0, recordingType = 0;
+  int step = 0, recordingType = 0, onboardingChoice = 0;
   String? chosenCategory = 'lunch', chosenAccount = 'wechat';
   bool brand = true,
       hidden = false,
@@ -784,36 +784,58 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             BeeOnboardingStep(
                 step: step,
                 total: 5,
+                brandTitle: '蜜蜂记账',
+                onStep: (v) => setState(() {
+                      step = v;
+                      onboardingChoice = 0;
+                    }),
                 title: const [
                   '欢迎使用蜜蜂记账',
-                  '选择语言',
-                  '设置基础货币',
-                  '选择主题色',
-                  '准备好开始记录'
+                  '币种',
+                  '选择分类模式',
+                  '可选的云同步',
+                  '开源透明 · 社群驱动'
                 ][step],
                 description: '简单记录每一天，选项稍后也可修改',
-                illustration: BeeBrandMark(
-                    size: 56,
-                    corner: 19,
-                    mark: BeeIcon(
-                        size: 34,
-                        color: Theme.of(context).colorScheme.primary)),
+                illustration: BeeIcon(
+                    size: 27, color: Theme.of(context).colorScheme.primary),
                 options: Column(children: [
-                  BeeMenuRow(
-                      title: step == 1
-                          ? '简体中文'
-                          : step == 2
-                              ? '人民币 CNY'
-                              : '沿用默认设置',
-                      selected: true,
-                      onTap: () => record('选择初始化选项')),
-                  BeeMenuRow(
-                      title: step == 1
-                          ? 'English'
-                          : step == 2
-                              ? '美元 USD'
-                              : '查看更多选项',
-                      onTap: () => record('选择其他选项'))
+                  for (var i = 0; i < (step == 2 ? 3 : 2); i++)
+                    if (step == 2)
+                      Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: BeeOnboardingModeCard(
+                              title: const ['一级分类', '二级分类', '不创建分类'][i],
+                              description: const [
+                                '简单直观，快速记账',
+                                '精细管理，清晰明了',
+                                '完全自定义，按需添加'
+                              ][i],
+                              icon: BeeLineIcon(
+                                  const ['Grid2x2', 'Network', 'Plus'][i]),
+                              preview: const Text('保留原分类模式及其说明',
+                                  style: TextStyle(fontSize: 10)),
+                              selected: onboardingChoice == i,
+                              onTap: () => setState(() {
+                                    onboardingChoice = i;
+                                    event = '选择分类模式';
+                                  })))
+                    else
+                      BeeOnboardingChoice(
+                          title: const [
+                            ['简体中文', 'English'],
+                            ['人民币', '美元'],
+                            ['一级分类', '二级分类'],
+                            ['完全离线使用', '可选云同步'],
+                            ['开源透明', '隐私优先']
+                          ][step][i],
+                          subtitle: step == 1 ? const ['CNY', 'USD'][i] : null,
+                          compact: step == 1,
+                          selected: onboardingChoice == i,
+                          onTap: () => setState(() {
+                                onboardingChoice = i;
+                                event = '选择初始化选项';
+                              })),
                 ]),
                 next: BeeButton(
                     label: step == 4 ? '完成' : '继续',
@@ -827,7 +849,15 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                         })),
                 restore: TextButton(
                     onPressed: () => record('恢复已有数据'),
-                    child: const Text('已有数据？恢复备份')))
+                    child: const Text('已有数据？恢复备份'))),
+            const SizedBox(height: 20),
+            BeeBackupFileCard(
+                title: '配置备份',
+                description: 'YAML · 账本与应用配置',
+                icon: const BeeLineIcon('FileCode2'),
+                actionLabel: '选择备份文件',
+                fileName: event == '选择备份文件' ? 'beecount-config.yml' : null,
+                onChoose: () => record('选择备份文件')),
           ])),
         16 => BeeSurface(
               child: Column(children: [
