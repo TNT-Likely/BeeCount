@@ -67,6 +67,14 @@ class BusinessAcceptancePage extends StatefulWidget {
 
 class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
   int step = 0, recordingType = 0, onboardingChoice = 0;
+  int ledgerMonthStart = 1;
+  final ledgerNameController = TextEditingController(text: '日常生活');
+  @override
+  void dispose() {
+    ledgerNameController.dispose();
+    super.dispose();
+  }
+
   String? chosenCategory = 'lunch', chosenAccount = 'wechat';
   bool brand = true,
       hidden = false,
@@ -194,16 +202,21 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
               record('账本操作 $id');
             }
           }));
-  Future<void> _openLedgerMenu(BuildContext anchorContext) async {
-    final box = anchorContext.findRenderObject()! as RenderBox;
-    final id = await showBeeContextMenu<String>(context,
-        anchor: box.localToGlobal(Offset(box.size.width, box.size.height)),
-        items: actions
-            .map((a) => BeeMenuAction(
-                value: a.id, label: a.label, icon: a.icon, danger: a.danger))
-            .toList());
+  Future<void> _openLedgerMenu(BuildContext _, {String? name}) async {
+    final selected = name ?? ledger;
+    final id = await showBeeDialog<String>(context,
+        title: '账本操作',
+        child: BeeLedgerActions(
+            name: selected,
+            subtitle: 'CNY · 48 笔',
+            shared: selected == '家庭账本',
+            details: const Text('ID: 1'),
+            actions: actions,
+            onSelected: (id) => Navigator.pop(context, id)));
     if (!mounted || id == null) return;
-    if (id == 'delete' || id == 'local') {
+    if (id == 'edit') {
+      await _openLedgerEditor(selected);
+    } else if (id == 'delete' || id == 'local') {
       final confirmed = await showBeeConfirm(context,
           title: id == 'local' ? '仅删除本地副本？' : '删除整个账本？',
           message: id == 'local' ? '云端数据会保留。' : '此操作会移除所选账本，请确认。',
@@ -214,6 +227,73 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
     } else {
       record('账本操作 $id');
     }
+  }
+
+  Future<void> _pickLedgerCurrency() async {
+    final next = await showBeeSheet<String>(context,
+        title: '账本本位币',
+        child: SizedBox(
+            height: 280,
+            child: BeeCurrencyPicker(
+                currencies: const [
+                  BeeCurrencyChoice(code: 'CNY', name: '人民币', symbol: '¥'),
+                  BeeCurrencyChoice(code: 'USD', name: '美元', symbol: 'US＄'),
+                  BeeCurrencyChoice(code: 'EUR', name: '欧元', symbol: '€')
+                ],
+                selected: currency,
+                searchLabel: '搜索币种',
+                emptyLabel: '没有匹配币种',
+                onSelected: (code) => Navigator.pop(context, code))));
+    if (next != null && mounted) setState(() => currency = next);
+  }
+
+  Future<void> _pickLedgerDay() async {
+    final day = await showBeeSheet<int>(context,
+        title: '月起始日',
+        child: SingleChildScrollView(
+            child: BeeMonthStartDayGrid(
+                value: ledgerMonthStart,
+                hint: '每月1–28日，保留原账本周期范围。',
+                onSelected: (day) => Navigator.pop(context, day))));
+    if (day != null && mounted) setState(() => ledgerMonthStart = day);
+  }
+
+  Future<void> _openLedgerEditor(String name) async {
+    ledgerNameController.text = name;
+    await showDialog<void>(
+        context: context,
+        barrierColor: Colors.black.withValues(alpha: .26),
+        builder: (ctx) => StatefulBuilder(
+            builder: (ctx, update) => BeeDialog(
+                    title: const Text('编辑账本'),
+                    content: BeeLedgerEditorForm(
+                        nameController: ledgerNameController,
+                        nameLabel: '名称',
+                        currencyLabel: '账本本位币',
+                        currency: currency,
+                        periodLabel: '月起始日',
+                        period: '每月 $ledgerMonthStart 日',
+                        onCurrency: () async {
+                          await _pickLedgerCurrency();
+                          if (ctx.mounted) update(() {});
+                        },
+                        onPeriod: () async {
+                          await _pickLedgerDay();
+                          if (ctx.mounted) update(() {});
+                        }),
+                    actions: [
+                      BeeButton(
+                          label: '取消',
+                          kind: BeeButtonKind.secondary,
+                          onPressed: () => Navigator.pop(ctx)),
+                      BeeButton(
+                          label: '保存',
+                          onPressed: () {
+                            final name = ledgerNameController.text;
+                            Navigator.pop(ctx);
+                            record('账本草稿 $name');
+                          })
+                    ])));
   }
 
   @override
@@ -606,44 +686,59 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             const SizedBox(height: 12),
             Text('当前示例汇率 $rate')
           ])),
-        9 => Column(
-            children: ['日常生活', '家庭账本']
-                .map((s) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Builder(
-                        builder: (cardContext) => BeeLedgerCard(
-                                name: s,
-                                subtitle:
-                                    s == '家庭账本' ? '共享账本 · 2位成员' : '个人账本 · 人民币',
-                                icon: const BeeLineIcon('BookOpen', size: 18),
-                                income: '¥12,000.00',
-                                expense: '¥3,286.50',
-                                incomeLabel: '本月收入',
-                                expenseLabel: '本月支出',
-                                currentLabel: '当前',
-                                current: ledger == s,
-                                onSelect: () => setState(() => ledger = s),
-                                onMenu: () => _openLedgerMenu(cardContext),
-                                actions: [
-                                  BeeButton(
-                                      label: '预算管理',
-                                      compact: true,
-                                      icon: const BeeLineIcon('ChartPie',
-                                          size: 14),
-                                      kind: BeeButtonKind.secondary,
-                                      onPressed: () => record('$s 预算')),
-                                  BeeButton(
-                                      label: s == '家庭账本' ? '成员管理' : '编辑账本',
-                                      compact: true,
-                                      icon: BeeLineIcon(
-                                          s == '家庭账本'
-                                              ? 'Users'
-                                              : 'SlidersHorizontal',
-                                          size: 14),
-                                      kind: BeeButtonKind.secondary,
-                                      onPressed: () => record('$s 管理'))
-                                ]))))
-                .toList()),
+        9 => Column(children: [
+            ...['日常生活', '家庭账本'].map((s) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Builder(
+                    builder: (cardContext) => BeeLedgerCard(
+                            name: s,
+                            subtitle:
+                                s == '家庭账本' ? '共享账本 · 2位成员' : '个人账本 · 人民币',
+                            icon: const BeeLineIcon('BookOpen', size: 18),
+                            income: '¥12,000.00',
+                            expense: '¥3,286.50',
+                            incomeLabel: '本月收入',
+                            expenseLabel: '本月支出',
+                            currentLabel: '当前',
+                            current: ledger == s,
+                            onSelect: () => setState(() => ledger = s),
+                            onMenu: () => _openLedgerMenu(cardContext, name: s),
+                            actions: [
+                              BeeButton(
+                                  label: '预算管理',
+                                  compact: true,
+                                  icon: const BeeLineIcon('ChartPie', size: 14),
+                                  kind: BeeButtonKind.secondary,
+                                  onPressed: () => record('$s 预算')),
+                              BeeButton(
+                                  label: s == '家庭账本' ? '成员管理' : '编辑账本',
+                                  compact: true,
+                                  icon: BeeLineIcon(
+                                      s == '家庭账本'
+                                          ? 'Users'
+                                          : 'SlidersHorizontal',
+                                      size: 14),
+                                  kind: BeeButtonKind.secondary,
+                                  onPressed: () => _openLedgerEditor(s))
+                            ])))),
+            BeeSurface(
+                child: BeeLedgerEditorForm(
+                    nameController: ledgerNameController,
+                    nameLabel: '名称',
+                    currencyLabel: '账本本位币',
+                    currency: currency,
+                    periodLabel: '月起始日',
+                    period: '每月 $ledgerMonthStart 日',
+                    onCurrency: _pickLedgerCurrency,
+                    onPeriod: _pickLedgerDay)),
+            const SizedBox(height: 12),
+            BeeSurface(
+                child: BeeMonthStartDayGrid(
+                    value: ledgerMonthStart,
+                    hint: '月起始日：1–28，选择仅修改草稿。',
+                    onSelected: (day) =>
+                        setState(() => ledgerMonthStart = day))),
+          ]),
         10 => BeeSurface(
             padding: EdgeInsets.zero,
             child: Column(

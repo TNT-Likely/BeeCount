@@ -174,7 +174,9 @@
   {
     "design_key": "ledger",
     "components": [
-      "BeeLedgerCard"
+      "BeeLedgerCard",
+      "BeeLedgerEditorForm",
+      "BeeMonthStartDayGrid"
     ],
     "page": "business",
     "case": 9
@@ -182,6 +184,7 @@
   {
     "design_key": "ledgerMenu",
     "components": [
+      "BeeLedgerActions",
       "BeeActionMenu"
     ],
     "page": "business",

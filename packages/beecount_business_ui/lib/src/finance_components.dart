@@ -706,7 +706,8 @@ class BeeLedgerCard extends StatelessWidget {
                                     color: theme.colorScheme.primary
                                         .withValues(alpha: .1),
                                     borderRadius: BorderRadius.circular(14)),
-                                child: Center(child: icon)),
+                                child: Center(
+                                    child: ExcludeSemantics(child: icon))),
                             const SizedBox(width: 10),
                             Expanded(
                                 child: Column(
@@ -748,8 +749,12 @@ class BeeLedgerCard extends StatelessWidget {
                           ])),
                       const SizedBox(height: 19),
                       Row(children: [
-                        Expanded(child: _Metric(expenseLabel, expense)),
-                        Expanded(child: _Metric(incomeLabel, income))
+                        Expanded(
+                            child: _Metric(expenseLabel, expense,
+                                size: 15, labelSize: 11)),
+                        Expanded(
+                            child: _Metric(incomeLabel, income,
+                                size: 15, labelSize: 11))
                       ]),
                       if (footer != null) ...[
                         const SizedBox(height: 12),
@@ -765,16 +770,16 @@ class BeeLedgerCard extends StatelessWidget {
                         SizedBox(
                             width: 44,
                             height: 44,
-                            child: IconButton(
-                                onPressed: onMenu,
-                                tooltip: MaterialLocalizations.of(context)
-                                    .showMenuTooltip,
-                                style: IconButton.styleFrom(
-                                    backgroundColor: colors.soft,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12))),
-                                icon: const BeeLineIcon('Ellipsis', size: 19)))
+                            child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                    color: colors.soft,
+                                    borderRadius: BorderRadius.circular(12)),
+                                child: BeeIconButton(
+                                    onPressed: onMenu,
+                                    label: MaterialLocalizations.of(context)
+                                        .showMenuTooltip,
+                                    icon: const BeeLineIcon('Ellipsis',
+                                        size: 19))))
                       ]),
                     ])))));
   }
