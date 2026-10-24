@@ -8921,4 +8921,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get welcomeImportAttachmentsContinue => 'Import attachments and finish';
+
+  @override
+  String get v4QuickAddSlideHint => 'Hold, slide to an action, and release';
 }

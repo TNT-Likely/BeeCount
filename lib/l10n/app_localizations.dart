@@ -16777,6 +16777,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Import attachments and finish'**
   String get welcomeImportAttachmentsContinue;
+
+  /// No description provided for @v4QuickAddSlideHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold, slide to an action, and release'**
+  String get v4QuickAddSlideHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

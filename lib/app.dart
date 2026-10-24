@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -672,7 +673,6 @@ class _BeeAppState extends ConsumerState<BeeApp>
         ],
         animation: _expandAnimation,
         hoveredIndex: _hoveredIndex,
-        backgroundColor: ref.read(primaryColorProvider),
         onDismiss: _dismissOverlay,
       ),
     );
@@ -692,25 +692,12 @@ class _BeeAppState extends ConsumerState<BeeApp>
       buttonPosition.dy + buttonSize.height / 2,
     );
 
-    final angles = [210.0, 270.0, 330.0];
-    const distance = 85.0;
-    const buttonRadius = 26.0;
-
+    final origin =
+        BeeQuickAddFan.safeOrigin(buttonCenter, MediaQuery.sizeOf(context));
     int? newHoveredIndex;
-    for (int i = 0; i < 3 && i < angles.length; i++) {
-      final angle = angles[i];
-      final radians = angle * math.pi / 180;
-      final offsetX = distance * math.cos(radians);
-      final offsetY = distance * math.sin(radians);
-
-      final actionCenter = Offset(
-        buttonCenter.dx + offsetX,
-        buttonCenter.dy + offsetY,
-      );
-
-      final distanceToButton = (globalPosition - actionCenter).distance;
-
-      if (distanceToButton <= buttonRadius) {
+    for (var i = 0; i < 3; i++) {
+      if ((globalPosition - BeeQuickAddFan.centerFor(origin, i)).distance <=
+          27) {
         newHoveredIndex = i;
         break;
       }
@@ -1170,109 +1157,53 @@ class _BeeBottomBar extends StatelessWidget {
   }
 }
 
-/// 扇形菜单覆盖层
+/// Adapts original platform actions/animation to the shared controlled fan.
 class _SpeedDialOverlay extends StatelessWidget {
+  const _SpeedDialOverlay(
+      {required this.buttonPosition,
+      required this.buttonSize,
+      required this.actions,
+      required this.animation,
+      required this.hoveredIndex,
+      this.onDismiss});
   final Offset buttonPosition;
   final Size buttonSize;
   final List<SpeedDialAction> actions;
   final Animation<double> animation;
   final int? hoveredIndex;
-  final Color backgroundColor;
   final VoidCallback? onDismiss;
-
-  const _SpeedDialOverlay({
-    required this.buttonPosition,
-    required this.buttonSize,
-    required this.actions,
-    required this.animation,
-    required this.hoveredIndex,
-    required this.backgroundColor,
-    this.onDismiss,
-  });
-
   @override
   Widget build(BuildContext context) {
-    final buttonCenter = Offset(
-      buttonPosition.dx + buttonSize.width / 2,
-      buttonPosition.dy + buttonSize.height / 2,
-    );
-
-    final angles = [210.0, 270.0, 330.0];
-    const distance = 85.0;
-
+    final l = AppLocalizations.of(context);
+    final origin = BeeQuickAddFan.safeOrigin(
+        buttonPosition + Offset(buttonSize.width / 2, buttonSize.height / 2),
+        MediaQuery.sizeOf(context));
     return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        if (animation.value == 0) {
-          return const SizedBox.shrink();
-        }
-
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: onDismiss,
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.3 * animation.value),
-                ),
-              ),
-            ),
-            for (int i = 0; i < actions.length && i < angles.length; i++)
-              Builder(builder: (context) {
-                final angle = angles[i];
-                final radians = angle * math.pi / 180;
-                final progress = animation.value;
-                final offsetX = progress * distance * math.cos(radians);
-                final offsetY = progress * distance * math.sin(radians);
-
-                const btnSize = 48.0;
-                final left = buttonCenter.dx + offsetX - btnSize / 2;
-                final top = buttonCenter.dy + offsetY - btnSize / 2;
-
-                final isEnabled = actions[i].enabled;
-                final bgColor =
-                    isEnabled ? backgroundColor : Colors.grey.shade400;
-                final isHovered = i == hoveredIndex;
-
-                return Positioned(
-                  left: left,
-                  top: top,
-                  child: Transform.scale(
-                    scale: progress,
-                    child: Opacity(
-                      opacity: progress,
-                      child: AnimatedScale(
-                        scale: isHovered ? 1.2 : 1.0,
-                        duration: const Duration(milliseconds: 150),
-                        child: Material(
-                          color: bgColor,
-                          shape: const CircleBorder(),
-                          elevation: isHovered ? 8 : 4,
-                          child: Container(
-                            width: btnSize,
-                            height: btnSize,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: isHovered
-                                  ? Border.all(color: Colors.white, width: 3)
-                                  : null,
-                            ),
-                            child: Icon(
-                              actions[i].icon,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-          ],
-        );
-      },
-    );
+        animation: animation,
+        builder: (context, _) => BeeQuickAddFan(
+            origin: origin,
+            progress: animation.value,
+            hoveredIndex: hoveredIndex,
+            title: l.widgetQuickEntryTitle,
+            hint: l.v4QuickAddSlideHint,
+            cancelLabel: l.commonClose,
+            actions: [
+              for (var i = 0; i < actions.length && i < 3; i++)
+                BeeAction(
+                    id: '$i',
+                    label: actions[i].label,
+                    icon: BeeLineIcon(['Camera', 'Images', 'Mic'][i], size: 24))
+            ],
+            disabled: {
+              for (var i = 0; i < actions.length; i++)
+                if (!actions[i].enabled) '$i'
+            },
+            onDismiss: () => onDismiss?.call(),
+            onSelected: (id) {
+              final action = actions[int.parse(id)];
+              onDismiss?.call();
+              if (action.enabled) action.onTap?.call();
+            }));
   }
 }
 

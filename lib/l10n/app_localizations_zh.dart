@@ -8913,6 +8913,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get welcomeImportAttachmentsContinue => '导入附件并完成';
+
+  @override
+  String get v4QuickAddSlideHint => '长按后滑向目标，松手进入';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
