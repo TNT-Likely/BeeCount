@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 216,
+  "designSceneExports": 217,
   "flowDefinitions": 112,
   "priorityCounts": {
     "P0": 16,
@@ -1790,7 +1790,7 @@
       "classes": [
         "SearchPage"
       ],
-      "lines": 394,
+      "lines": 395,
       "batch": "M2 首页与列表",
       "designRoutes": [
         "search",
@@ -1799,10 +1799,12 @@
       "designMapping": "已定位",
       "components": "搜索、筛选/日期范围、账单行和批量操作栏",
       "acceptance": "保留当前账本的关键词、分类含二级、金额和日期筛选；对齐设计扩展项。批量备注/分类/删除需保留币种快照、转账目标、共享分类与账户引用、标签和附件；检查取消、合计与空态。",
-      "status": "部分迁移·待设计对齐与完整验收",
+      "status": "部分迁移·App可执行范围R55通过，Q08待确认",
       "name": "账单搜索与批量操作",
       "priority": "P0",
-      "reason": "已按新稿重组搜索汇总、日期分组、批量选择和固定操作栏；真实标签/附件、双账户检索、原币/折算筛选与原子批量标签已接入。122 项相关回归及 R18 实际标签/删除、R19/R20 视觉修正产物和正常重启通过，其余 51 笔及 5 个附件保持。成功撤销策略待 Q08。",
+      "reason": "R54/R55同一隔离App实际搜索/完整时间、组合筛选草稿取消、全选反选、批量备注/标签/同类型分类、混合转账分类守卫、独占新建目标删除取消/确认及正常launcher重启通过；逐字段SQL保留原52笔、四笔增量及5附件SHA。302项相关回归和22图脱敏离线报告通过；Q08成功后撤销仍跳过，不计严格新增整页。",
+      "checkpointReport": ".docs/acceptance/v4-migration/2026-10-24/search-r55/index.html",
+      "checkpointZipSha256": "e1c785304f48b4c2eabcd67af71abe8a91244277f51fe2c87da8c50277525d80",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=search",
         "../../docs/design/card-refresh/prototype/demo.html?page=batch"
