@@ -531,5 +531,14 @@
     ],
     "page": "business",
     "case": 40
+  },
+  {
+    "design_key": "tagLibrary",
+    "components": [
+      "BeeTagLibrary",
+      "BeeTagLibraryItem"
+    ],
+    "page": "business",
+    "case": 41
   }
 ]

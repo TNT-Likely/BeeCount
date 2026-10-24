@@ -47,3 +47,5 @@ for(const overview of document.querySelectorAll('[data-asset-overview]')){
 }
 
 for(const palette of document.querySelectorAll('[data-color-palette]'))palette.addEventListener('click',event=>{const button=event.target.closest('button');if(!button||button.disabled)return;for(const item of palette.querySelectorAll('button')){item.setAttribute('aria-pressed',String(item===button));item.querySelector('span').innerHTML=item===button?'<i data-lucide="check"></i>':'';}palette.nextElementSibling.textContent='已选择：'+button.getAttribute('aria-label');lucide.createIcons({attrs:{width:18,height:18}});});
+
+document.addEventListener('click',event=>{const open=event.target.closest('[data-tag-library-open]'),remove=event.target.closest('[data-tag-library-delete]');if(!open&&!remove)return;const host=(open||remove).closest('.g-tag-library'),name=open?.dataset.tagLibraryOpen||remove.dataset.tagLibraryDelete;host.querySelector('[data-tag-library-result]').textContent=open?'查看标签 '+name+'（受控样例）':'删除 '+name+' 需要确认；完整流程见交互页面';});

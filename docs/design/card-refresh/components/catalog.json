@@ -423,6 +423,13 @@
         "title": "资产总览与账户设置",
         "nativeCase": 40,
         "nativeLabel": "资产总览与账户设置"
+      },
+      {
+        "id": "spec-60",
+        "code": "B38",
+        "title": "标签管理库",
+        "nativeCase": 41,
+        "nativeLabel": "标签管理库"
       }
     ]
   }

@@ -781,10 +781,10 @@
   },
   {
     "route": "flow-tag-tools",
-    "slug": "flow-tag-tools",
     "title": "标签工具",
     "group": "补齐 · 分类标签与预算",
-    "fullHeight": 844,
+    "slug": "flow-tag-tools",
+    "fullHeight": 892,
     "viewport": "screens/viewport/flow-tag-tools.png",
     "full": "screens/full/flow-tag-tools.png",
     "svg": "figma/flow-tag-tools.svg"
@@ -2292,5 +2292,45 @@
     "viewport": "screens/viewport/flow-tag-new.png",
     "full": "screens/full/flow-tag-new.png",
     "svg": "figma/flow-tag-new.svg"
+  },
+  {
+    "route": "flow-tag-management",
+    "title": "标签管理 · 完整工具",
+    "group": "补齐 · 标签与分类",
+    "slug": "flow-tag-management",
+    "fullHeight": 892,
+    "viewport": "screens/viewport/flow-tag-management.png",
+    "full": "screens/full/flow-tag-management.png",
+    "svg": "figma/flow-tag-management.svg"
+  },
+  {
+    "route": "flow-tag-management-empty",
+    "title": "标签管理 · 空态",
+    "group": "补齐 · 标签与分类",
+    "slug": "flow-tag-management-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-tag-management-empty.png",
+    "full": "screens/full/flow-tag-management-empty.png",
+    "svg": "figma/flow-tag-management-empty.svg"
+  },
+  {
+    "route": "flow-tag-management-error",
+    "title": "标签管理 · 重试",
+    "group": "补齐 · 标签与分类",
+    "slug": "flow-tag-management-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-tag-management-error.png",
+    "full": "screens/full/flow-tag-management-error.png",
+    "svg": "figma/flow-tag-management-error.svg"
+  },
+  {
+    "route": "flow-tag-management-loading",
+    "title": "标签管理 · 加载",
+    "group": "补齐 · 标签与分类",
+    "slug": "flow-tag-management-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-tag-management-loading.png",
+    "full": "screens/full/flow-tag-management-loading.png",
+    "svg": "figma/flow-tag-management-loading.svg"
   }
 ]
