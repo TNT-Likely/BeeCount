@@ -108,18 +108,35 @@ class BeePageBody extends StatelessWidget {
       required this.children,
       this.controller,
       this.bottomInset = 24,
-      this.physics});
+      this.physics,
+      this.eager = false});
   final List<Widget> children;
   final ScrollController? controller;
   final double bottomInset;
   final ScrollPhysics? physics;
+
+  /// Form fields keep their validation and focus state while scrolled away.
+  final bool eager;
   @override
-  Widget build(BuildContext context) => ListView.separated(
-      controller: controller,
-      physics: physics,
-      padding: EdgeInsets.fromLTRB(
-          17, 8, 17, bottomInset + MediaQuery.paddingOf(context).bottom),
-      itemCount: children.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, index) => children[index]);
+  Widget build(BuildContext context) => eager
+      ? SingleChildScrollView(
+          controller: controller,
+          physics: physics,
+          padding: EdgeInsets.fromLTRB(
+              17, 8, 17, bottomInset + MediaQuery.paddingOf(context).bottom),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) const SizedBox(height: 12),
+              children[i]
+            ]
+          ]))
+      : ListView.separated(
+          controller: controller,
+          physics: physics,
+          padding: EdgeInsets.fromLTRB(
+              17, 8, 17, bottomInset + MediaQuery.paddingOf(context).bottom),
+          itemCount: children.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (_, index) => children[index]);
 }
