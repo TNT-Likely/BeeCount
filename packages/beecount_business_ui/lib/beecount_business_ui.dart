@@ -2,6 +2,7 @@ library;
 
 export 'src/account_type_picker.dart';
 export 'src/account_balance_adjustment.dart';
+export 'src/asset_overview.dart';
 export 'src/brand_mark.dart';
 
 export 'src/recording_components.dart';

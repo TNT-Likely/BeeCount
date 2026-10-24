@@ -46,7 +46,8 @@ const businessCases = [
   '配置选择与预览',
   '分类图标编辑',
   '账户类型选择',
-  '账户余额调整'
+  '账户余额调整',
+  '资产总览与账户设置'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -82,6 +83,8 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
   Set<String> configScopes = {'ledgers', 'accounts', 'categories', 'tags'};
   String pin = '';
   bool balanceAdjustmentRecord = false;
+  bool overviewHidden = false, accountsEnabled = true;
+  int overviewChart = 0;
   String accountType = 'cash', accountTypeGroup = 'daily';
   String categoryIcon = 'coffee';
   BeeCategoryIconSource categoryIconSource = BeeCategoryIconSource.preset;
@@ -1480,6 +1483,76 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 onModeChanged: (v) =>
                     setState(() => balanceAdjustmentRecord = v),
                 onConfirm: (v) => record(v ? '确认新增平账记录' : '确认仅修改余额'))),
+        40 => Column(mainAxisSize: MainAxisSize.min, children: [
+            BeeAssetSummary(
+                title: '净资产（折 CNY）',
+                balances: const [
+                  BeeAssetAmount('¥30,890.00', approximate: true)
+                ],
+                assetsLabel: '总资产',
+                assets: const ['¥32,750.82'],
+                liabilitiesLabel: '总负债',
+                liabilities: const ['¥1,860.82'],
+                hidden: overviewHidden,
+                privacyLabel: overviewHidden ? '显示资产金额' : '隐藏资产金额',
+                onPrivacy: () =>
+                    setState(() => overviewHidden = !overviewHidden),
+                detailLabel: '查看折算明细',
+                onDetails: () => record('查看折算明细')),
+            const SizedBox(height: 12),
+            BeeAssetChartSection<int>(
+                title: overviewChart == 0 ? '净值趋势' : '资产构成',
+                segments: const [BeeSegment(0, '净值趋势'), BeeSegment(1, '资产构成')],
+                selected: overviewChart,
+                onSelected: (v) => setState(() => overviewChart = v),
+                detailLabel: '查看详情',
+                onDetails: () => record('查看净值详情'),
+                child: overviewChart == 0
+                    ? const BeeTrendChart(
+                        values: [12, 18, 16, 24, 29, 31], label: '最近六个月净资产')
+                    : BeeDonutChart(items: [
+                        BeeChartSlice(
+                            label: '现金',
+                            value: 30,
+                            color: const Color(0xfffacb16),
+                            valueLabel: overviewHidden ? '••••' : '¥3,000'),
+                        BeeChartSlice(
+                            label: '银行卡',
+                            value: 70,
+                            color: const Color(0xff26a69a),
+                            valueLabel: overviewHidden ? '••••' : '¥7,000'),
+                      ], centerLabel: overviewHidden ? '****' : '¥10,000')),
+            const SizedBox(height: 12),
+            BeeSurface(
+                child: Column(children: [
+              BeeAccountConversionRow(
+                  code: 'USD',
+                  currencyName: '美元',
+                  original: '\$-12.50',
+                  converted: '≈ ¥-88.75',
+                  hidden: overviewHidden),
+              BeeAccountConversionRow(
+                  code: 'EUR',
+                  currencyName: '欧元',
+                  original: '€50.00',
+                  missingLabel: '未折算',
+                  hidden: overviewHidden),
+            ])),
+            const SizedBox(height: 12),
+            BeeSurface(
+                child: BeeAccountPreferences(
+                    enabled: accountsEnabled,
+                    enableLabel: '启用账户功能',
+                    onEnabled: (v) => setState(() => accountsEnabled = v),
+                    expenseLabel: '默认支出账户',
+                    expenseAccount: '微信',
+                    onExpenseAccount: () => record('选择默认支出账户'),
+                    incomeLabel: '默认收入账户',
+                    incomeAccount: '人民币现金',
+                    onIncomeAccount: () => record('选择默认收入账户'),
+                    rateLabel: '汇率管理',
+                    onRates: () => record('管理汇率'))),
+          ]),
         _ => const SizedBox.shrink(),
       };
   void _editRate() => showBeeDialog<void>(context,

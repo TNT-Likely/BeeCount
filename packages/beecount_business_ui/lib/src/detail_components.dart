@@ -84,25 +84,25 @@ class BeeAccountCard extends StatelessWidget {
   final List<BeeMenuAction<String>> actions;
   final ValueChanged<String> onAction;
   @override
-  Widget build(BuildContext context) => BeeSurface(
+  Widget build(BuildContext context) => GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: BeeSurface(
           child: Column(children: [
         Row(children: [
           icon,
           const SizedBox(width: 10),
           Expanded(
-              child: InkWell(
-                  onTap: onTap,
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(name,
-                            style: const TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.w600)),
-                        Text('$kind · $currency',
-                            style: TextStyle(
-                                fontSize: 11,
-                                color: Theme.of(context).hintColor))
-                      ]))),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Text(name,
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w600)),
+                Text('$kind · $currency',
+                    style: TextStyle(
+                        fontSize: 11, color: Theme.of(context).hintColor))
+              ])),
           BeeMenuButton<String>(
               label: menuLabel, items: actions, onSelected: onAction)
         ]),
@@ -126,7 +126,7 @@ class BeeAccountCard extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 11, color: Theme.of(context).hintColor)))
         ]
-      ]));
+      ])));
 }
 
 class BeeBudgetCard extends StatelessWidget {
