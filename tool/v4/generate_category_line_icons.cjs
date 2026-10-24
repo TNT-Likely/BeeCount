@@ -29,7 +29,7 @@ for(const key of [...new Set([...names,...Object.keys(aliases)])]){
  mapped[key]=name;
 }
 const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('"','&quot;');
-for(const name of new Set([...Object.values(mapped),'Trash2','ImageOff','ArrowRight','ListFilter','Layers','GitMerge','Archive','FileCode2','Network','ListX','FolderMinus','CloudDownload','Images','Mic'])){
+for(const name of new Set([...Object.values(mapped),'Trash2','ImageOff','ArrowRight','ListFilter','Layers','GitMerge','Archive','FileCode2','Network','ListX','FolderMinus','CloudDownload','Images','Mic','Repeat2','Bell'])){
  const children=icons[name].map(([tag,attrs])=>`<${tag} ${Object.entries(attrs).map(([k,v])=>`${k}="${esc(v)}"`).join(' ')}/>`).join('');
  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#262829" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${children}</svg>\n`;
  fs.writeFileSync(path.join(root,'packages/beecount_ui/assets/icons',name+'.svg'),svg);
