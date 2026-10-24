@@ -217,7 +217,7 @@
   },
   {
     "route": "flow-taxonomy-import",
-    "title": "导入分类与标签",
+    "title": "导入分类包 · ZIP",
     "group": "分类标签与预算",
     "source": "category/category_manage_page.dart"
   },
@@ -573,7 +573,13 @@
     "route": "flow-ledger-picker",
     "title": "账本选择器",
     "group": "交互补充",
-    "source": "presentation/v4/bindings/live_business_preview.dart"
+    "source": "widgets/biz/ledger_picker_sheet.dart"
+  },
+  {
+    "route": "flow-category-select",
+    "title": "分类选择 · 即时选择与笔数",
+    "group": "记账选择与弹层",
+    "source": "widgets/biz/category_selector_dialog.dart"
   },
   {
     "route": "flow-update-check",
@@ -664,6 +670,222 @@
     "title": "选择父分类",
     "group": "分类标签与预算",
     "source": "category/category_edit_page.dart"
+  },
+  {
+    "route": "flow-account-new",
+    "title": "新建账户",
+    "group": "账户与资产",
+    "source": "account/account_edit_page.dart"
+  },
+  {
+    "route": "flow-account-credit",
+    "title": "编辑信用卡",
+    "group": "账户与资产",
+    "source": "account/account_edit_page.dart"
+  },
+  {
+    "route": "flow-account-valuation",
+    "title": "编辑估值账户",
+    "group": "账户与资产",
+    "source": "account/account_edit_page.dart"
+  },
+  {
+    "route": "flow-category-management",
+    "title": "分类管理",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-category-empty",
+    "title": "分类管理 · 空分类",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-category-children",
+    "title": "管理二级分类 · 图标与图片",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-category-share",
+    "title": "选择分享范围",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-category-defaults",
+    "title": "生成默认分类 · 模式",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-category-clear",
+    "title": "清空未使用分类",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-assets-single",
+    "title": "资产 · 单币种",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-assets-missing",
+    "title": "资产 · 缺失汇率",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-assets-empty",
+    "title": "资产 · 空账户",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-assets-hidden",
+    "title": "资产 · 隐藏账户",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-assets-valuation",
+    "title": "资产 · 估值账户",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-asset-default",
+    "title": "默认账户选择",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-asset-conversion",
+    "title": "资产折算明细",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-account-credit-detail",
+    "title": "账户详情 · 信用卡",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-account-overpayment-detail",
+    "title": "账户详情 · 溢缴款",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-account-no-limit-detail",
+    "title": "账户详情 · 未设额度",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-account-valuation-detail",
+    "title": "账户详情 · 估值",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-account-loan-detail",
+    "title": "账户详情 · 贷款",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-account-empty-detail",
+    "title": "账户详情 · 空流水",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-tag-foreign-detail",
+    "title": "标签详情 · 原币与多状态",
+    "group": "标签与分类",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-tag-all-ledgers-detail",
+    "title": "标签详情 · 全部账本",
+    "group": "标签与分类",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-tag-empty-detail",
+    "title": "标签详情 · 空记录",
+    "group": "标签与分类",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-welcome-currency-picker",
+    "title": "欢迎 · 全部币种与搜索",
+    "group": "启动与分享",
+    "source": "auth/welcome_page.dart"
+  },
+  {
+    "route": "flow-ledgers-empty",
+    "title": "账本 · 无账本与创建",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledgers-remote",
+    "title": "账本 · 云端独立账本",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledgers-loading",
+    "title": "账本 · 云端加载本地可用",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledgers-error",
+    "title": "账本 · 云端错误与重试",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledgers-editor",
+    "title": "账本 · 编辑者操作范围",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledger-create",
+    "title": "账本 · 新建美元与28日起始日",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledger-remote-actions",
+    "title": "账本 · 云端操作菜单",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledger-period",
+    "title": "账本 · 月起始日选择",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledger-currencies",
+    "title": "账本 · 全部币种选择",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledger-conflict",
+    "title": "账本 · 冲突处理",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
   },
   {
     "route": "flow-transaction-states",

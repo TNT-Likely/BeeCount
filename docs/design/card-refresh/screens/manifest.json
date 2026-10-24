@@ -91,10 +91,10 @@
   },
   {
     "route": "tagDetail",
-    "slug": "tagDetail",
     "title": "标签详情",
     "group": "主要页面",
-    "fullHeight": 1420,
+    "slug": "tagDetail",
+    "fullHeight": 1873,
     "viewport": "screens/viewport/tagDetail.png",
     "full": "screens/full/tagDetail.png",
     "svg": "figma/tagDetail.svg"
@@ -2252,5 +2252,35 @@
     "viewport": "screens/viewport/flow-account-empty-detail.png",
     "full": "screens/full/flow-account-empty-detail.png",
     "svg": "figma/flow-account-empty-detail.svg"
+  },
+  {
+    "route": "flow-tag-foreign-detail",
+    "title": "标签详情 · 原币与多状态",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-tag-foreign-detail",
+    "fullHeight": 1486,
+    "viewport": "screens/viewport/flow-tag-foreign-detail.png",
+    "full": "screens/full/flow-tag-foreign-detail.png",
+    "svg": "figma/flow-tag-foreign-detail.svg"
+  },
+  {
+    "route": "flow-tag-all-ledgers-detail",
+    "title": "标签详情 · 全部账本",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-tag-all-ledgers-detail",
+    "fullHeight": 1504,
+    "viewport": "screens/viewport/flow-tag-all-ledgers-detail.png",
+    "full": "screens/full/flow-tag-all-ledgers-detail.png",
+    "svg": "figma/flow-tag-all-ledgers-detail.svg"
+  },
+  {
+    "route": "flow-tag-empty-detail",
+    "title": "标签详情 · 空记录",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-tag-empty-detail",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-tag-empty-detail.png",
+    "full": "screens/full/flow-tag-empty-detail.png",
+    "svg": "figma/flow-tag-empty-detail.svg"
   }
 ]
