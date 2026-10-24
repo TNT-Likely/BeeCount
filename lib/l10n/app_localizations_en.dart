@@ -8879,4 +8879,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4CategoryImageHint => 'Keep original colors and transparency. Crop to a square after choosing.';
+
+  @override
+  String get welcomePreferencesLater => 'You can change these preferences later.';
+
+  @override
+  String get welcomeRestoreTitle => 'Welcome back.';
+
+  @override
+  String get welcomeRestoreDescription => 'Restore your familiar ledgers and keep recording your days.';
+
+  @override
+  String get welcomeReadyDescription => 'Record your days with confidence. Your data stays in your control.';
+
+  @override
+  String get welcomeCloudLater => 'No setup is needed now. Enable it later in Me > Cloud services.';
+
+  @override
+  String get welcomeSelectBackup => 'Choose backup file';
+
+  @override
+  String get welcomeRestoreContinue => 'Import and continue';
+
+  @override
+  String get welcomeRestoreLedgersAccounts => 'Ledgers and accounts';
+
+  @override
+  String get welcomeRestoreCategoriesTags => 'Categories and tags';
+
+  @override
+  String get welcomeRestoreSettings => 'App settings and preferences';
+
+  @override
+  String get welcomeAttachmentRestoreTitle => 'Bring your memories back, too.';
+
+  @override
+  String get welcomeAttachmentRestoreDescription => 'Restore receipts and their transaction links, or import them later.';
+
+  @override
+  String get welcomeAttachmentBackupDescription => 'TAR.GZ · Receipts, screenshots and attachments';
 }

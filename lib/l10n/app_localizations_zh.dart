@@ -8871,6 +8871,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4CategoryImageHint => '保留图片原色与透明背景，选择后裁剪为正方形。';
+
+  @override
+  String get welcomePreferencesLater => '这些偏好之后都可以修改。';
+
+  @override
+  String get welcomeRestoreTitle => '欢迎回来。';
+
+  @override
+  String get welcomeRestoreDescription => '恢复熟悉的账本，接着记录你的日常。';
+
+  @override
+  String get welcomeReadyDescription => '放心记下日常，数据始终由你掌控。';
+
+  @override
+  String get welcomeCloudLater => '无需现在配置。进入后可在「我的 · 云服务」中开启。';
+
+  @override
+  String get welcomeSelectBackup => '选择备份文件';
+
+  @override
+  String get welcomeRestoreContinue => '导入配置并继续';
+
+  @override
+  String get welcomeRestoreLedgersAccounts => '账本与账户';
+
+  @override
+  String get welcomeRestoreCategoriesTags => '分类与标签';
+
+  @override
+  String get welcomeRestoreSettings => '应用设置与偏好';
+
+  @override
+  String get welcomeAttachmentRestoreTitle => '把回忆也带回来。';
+
+  @override
+  String get welcomeAttachmentRestoreDescription => '恢复票据与账单的关联，也可以稍后再导入。';
+
+  @override
+  String get welcomeAttachmentBackupDescription => 'TAR.GZ · 票据、截图等附件';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

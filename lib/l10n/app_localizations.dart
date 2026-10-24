@@ -16693,6 +16693,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep original colors and transparency. Crop to a square after choosing.'**
   String get v4CategoryImageHint;
+
+  /// No description provided for @welcomePreferencesLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change these preferences later.'**
+  String get welcomePreferencesLater;
+
+  /// No description provided for @welcomeRestoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back.'**
+  String get welcomeRestoreTitle;
+
+  /// No description provided for @welcomeRestoreDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore your familiar ledgers and keep recording your days.'**
+  String get welcomeRestoreDescription;
+
+  /// No description provided for @welcomeReadyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Record your days with confidence. Your data stays in your control.'**
+  String get welcomeReadyDescription;
+
+  /// No description provided for @welcomeCloudLater.
+  ///
+  /// In en, this message translates to:
+  /// **'No setup is needed now. Enable it later in Me > Cloud services.'**
+  String get welcomeCloudLater;
+
+  /// No description provided for @welcomeSelectBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose backup file'**
+  String get welcomeSelectBackup;
+
+  /// No description provided for @welcomeRestoreContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Import and continue'**
+  String get welcomeRestoreContinue;
+
+  /// No description provided for @welcomeRestoreLedgersAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledgers and accounts'**
+  String get welcomeRestoreLedgersAccounts;
+
+  /// No description provided for @welcomeRestoreCategoriesTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories and tags'**
+  String get welcomeRestoreCategoriesTags;
+
+  /// No description provided for @welcomeRestoreSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'App settings and preferences'**
+  String get welcomeRestoreSettings;
+
+  /// No description provided for @welcomeAttachmentRestoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring your memories back, too.'**
+  String get welcomeAttachmentRestoreTitle;
+
+  /// No description provided for @welcomeAttachmentRestoreDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore receipts and their transaction links, or import them later.'**
+  String get welcomeAttachmentRestoreDescription;
+
+  /// No description provided for @welcomeAttachmentBackupDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'TAR.GZ · Receipts, screenshots and attachments'**
+  String get welcomeAttachmentBackupDescription;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

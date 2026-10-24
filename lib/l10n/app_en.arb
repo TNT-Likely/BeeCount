@@ -3973,5 +3973,20 @@
   "v4ConfigImportWarning": "Import replaces existing configuration. Back up your current configuration first.",
   "v4CategoryPresetIcons": "Preset icons",
   "v4CategoryCommonIcons": "Common",
-  "v4CategoryImageHint": "Keep original colors and transparency. Crop to a square after choosing."
+  "v4CategoryImageHint": "Keep original colors and transparency. Crop to a square after choosing.",
+
+  "welcomePreferencesLater": "You can change these preferences later.",
+  "welcomeRestoreTitle": "Welcome back.",
+  "welcomeRestoreDescription": "Restore your familiar ledgers and keep recording your days.",
+  "welcomeReadyDescription": "Record your days with confidence. Your data stays in your control.",
+  "welcomeCloudLater": "No setup is needed now. Enable it later in Me > Cloud services.",
+  "welcomeSelectBackup": "Choose backup file",
+  "welcomeRestoreContinue": "Import and continue",
+
+  "welcomeRestoreLedgersAccounts": "Ledgers and accounts",
+  "welcomeRestoreCategoriesTags": "Categories and tags",
+  "welcomeRestoreSettings": "App settings and preferences",
+  "welcomeAttachmentRestoreTitle": "Bring your memories back, too.",
+  "welcomeAttachmentRestoreDescription": "Restore receipts and their transaction links, or import them later.",
+  "welcomeAttachmentBackupDescription": "TAR.GZ · Receipts, screenshots and attachments"
 }
