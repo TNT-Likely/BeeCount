@@ -131,10 +131,10 @@
   },
   {
     "route": "budget",
-    "slug": "budget",
     "title": "预算管理",
     "group": "常用流程",
-    "fullHeight": 855,
+    "slug": "budget",
+    "fullHeight": 844,
     "viewport": "screens/viewport/budget.png",
     "full": "screens/full/budget.png",
     "svg": "figma/budget.svg"
@@ -2802,5 +2802,105 @@
     "viewport": "screens/viewport/flow-decimal-input.png",
     "full": "screens/full/flow-decimal-input.png",
     "svg": "figma/flow-decimal-input.svg"
+  },
+  {
+    "route": "flow-budget",
+    "title": "预算管理",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget.png",
+    "full": "screens/full/flow-budget.png",
+    "svg": "figma/flow-budget.svg"
+  },
+  {
+    "route": "flow-budget-warning",
+    "title": "预算 · 接近上限",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-warning",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-warning.png",
+    "full": "screens/full/flow-budget-warning.png",
+    "svg": "figma/flow-budget-warning.svg"
+  },
+  {
+    "route": "flow-budget-danger",
+    "title": "预算 · 即将超支",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-danger",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-danger.png",
+    "full": "screens/full/flow-budget-danger.png",
+    "svg": "figma/flow-budget-danger.svg"
+  },
+  {
+    "route": "flow-budget-exceeded",
+    "title": "预算 · 超支负剩余",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-exceeded",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-exceeded.png",
+    "full": "screens/full/flow-budget-exceeded.png",
+    "svg": "figma/flow-budget-exceeded.svg"
+  },
+  {
+    "route": "flow-budget-empty",
+    "title": "预算 · 空态",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-empty.png",
+    "full": "screens/full/flow-budget-empty.png",
+    "svg": "figma/flow-budget-empty.svg"
+  },
+  {
+    "route": "flow-budget-readonly",
+    "title": "预算 · 共享成员只读",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-readonly",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-readonly.png",
+    "full": "screens/full/flow-budget-readonly.png",
+    "svg": "figma/flow-budget-readonly.svg"
+  },
+  {
+    "route": "flow-budget-empty-readonly",
+    "title": "预算 · 共享成员空态",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-empty-readonly",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-empty-readonly.png",
+    "full": "screens/full/flow-budget-empty-readonly.png",
+    "svg": "figma/flow-budget-empty-readonly.svg"
+  },
+  {
+    "route": "flow-budget-loading",
+    "title": "预算 · 读取中",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-loading.png",
+    "full": "screens/full/flow-budget-loading.png",
+    "svg": "figma/flow-budget-loading.svg"
+  },
+  {
+    "route": "flow-budget-error",
+    "title": "预算 · 读取失败",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-error.png",
+    "full": "screens/full/flow-budget-error.png",
+    "svg": "figma/flow-budget-error.svg"
+  },
+  {
+    "route": "flow-budget-usd",
+    "title": "预算 · 美元账本",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-budget-usd",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-budget-usd.png",
+    "full": "screens/full/flow-budget-usd.png",
+    "svg": "figma/flow-budget-usd.svg"
   }
 ]

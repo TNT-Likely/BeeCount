@@ -28,7 +28,8 @@
     "check:accounts": "node scripts/validate-accounts-page.cjs && node scripts/validate-asset-overview.cjs",
     "check:app-lock": "node scripts/validate-app-lock-settings.cjs",
     "check:category-migration": "node scripts/validate-category-migration.cjs",
-    "check:rates": "node scripts/validate-exchange-rates.cjs"
+    "check:rates": "node scripts/validate-exchange-rates.cjs",
+    "check:budget": "node scripts/validate-budget.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"
