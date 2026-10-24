@@ -12,6 +12,7 @@ import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,6 +77,13 @@ void main() {
   testWidgets('冻结原23项调试/22项正式注册、名称、系列与固定色', (t) async {
     await mount(t);
     final loc = l(t);
+    final handle = t.ensureSemantics();
+    final card = find.byType(BeeSkinCard).first;
+    final semantics = t.getSemantics(card);
+    expect(semantics.label, loc.headerSkinNone);
+    expect(semantics.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+    expect(semantics.rect.width, t.getSize(card).width);
+    handle.dispose();
     final ids = ['none', ...kVisibleHeaderSkins.map((s) => s.id)];
     expect(ids, legacy.map((o) => o['id']).toList());
     expect(legacy.where((o) => o['debugOnly'] != true), hasLength(22));

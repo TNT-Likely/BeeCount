@@ -53,6 +53,7 @@ class BeeSkinCard extends StatelessWidget {
       if (item.cornerBadge != null) item.cornerBadge!
     ].join(' · ');
     return Semantics(
+        container: true,
         label: label,
         selected: selected,
         button: true,
