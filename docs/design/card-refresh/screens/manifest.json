@@ -81,10 +81,10 @@
   },
   {
     "route": "accountDetail",
-    "slug": "accountDetail",
     "title": "账户详情",
     "group": "主要页面",
-    "fullHeight": 1488,
+    "slug": "accountDetail",
+    "fullHeight": 1250,
     "viewport": "screens/viewport/accountDetail.png",
     "full": "screens/full/accountDetail.png",
     "svg": "figma/accountDetail.svg"
@@ -2192,5 +2192,65 @@
     "viewport": "screens/viewport/flow-category-select.png",
     "full": "screens/full/flow-category-select.png",
     "svg": "figma/flow-category-select.svg"
+  },
+  {
+    "route": "flow-account-credit-detail",
+    "title": "账户详情 · 信用卡",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-account-credit-detail",
+    "fullHeight": 1231,
+    "viewport": "screens/viewport/flow-account-credit-detail.png",
+    "full": "screens/full/flow-account-credit-detail.png",
+    "svg": "figma/flow-account-credit-detail.svg"
+  },
+  {
+    "route": "flow-account-overpayment-detail",
+    "title": "账户详情 · 溢缴款",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-account-overpayment-detail",
+    "fullHeight": 1231,
+    "viewport": "screens/viewport/flow-account-overpayment-detail.png",
+    "full": "screens/full/flow-account-overpayment-detail.png",
+    "svg": "figma/flow-account-overpayment-detail.svg"
+  },
+  {
+    "route": "flow-account-no-limit-detail",
+    "title": "账户详情 · 未设额度",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-account-no-limit-detail",
+    "fullHeight": 1053,
+    "viewport": "screens/viewport/flow-account-no-limit-detail.png",
+    "full": "screens/full/flow-account-no-limit-detail.png",
+    "svg": "figma/flow-account-no-limit-detail.svg"
+  },
+  {
+    "route": "flow-account-valuation-detail",
+    "title": "账户详情 · 估值",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-account-valuation-detail",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-account-valuation-detail.png",
+    "full": "screens/full/flow-account-valuation-detail.png",
+    "svg": "figma/flow-account-valuation-detail.svg"
+  },
+  {
+    "route": "flow-account-loan-detail",
+    "title": "账户详情 · 贷款",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-account-loan-detail",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-account-loan-detail.png",
+    "full": "screens/full/flow-account-loan-detail.png",
+    "svg": "figma/flow-account-loan-detail.svg"
+  },
+  {
+    "route": "flow-account-empty-detail",
+    "title": "账户详情 · 空流水",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-account-empty-detail",
+    "fullHeight": 862,
+    "viewport": "screens/viewport/flow-account-empty-detail.png",
+    "full": "screens/full/flow-account-empty-detail.png",
+    "svg": "figma/flow-account-empty-detail.svg"
   }
 ]
