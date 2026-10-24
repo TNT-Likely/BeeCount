@@ -35,7 +35,8 @@
   {
     "design_key": "brand",
     "components": [
-      "BeeHomeIdentity"
+      "BeeHomeIdentity",
+      "BeeHomeLayout"
     ],
     "page": "business",
     "case": 0
@@ -43,7 +44,8 @@
   {
     "design_key": "brandOff",
     "components": [
-      "BeeHomeIdentity"
+      "BeeHomeIdentity",
+      "BeeHomeLayout"
     ],
     "page": "business",
     "case": 0

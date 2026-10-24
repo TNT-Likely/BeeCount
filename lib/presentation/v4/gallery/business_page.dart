@@ -330,7 +330,28 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             SwitchListTile(
                 title: const Text('显示品牌'),
                 value: brand,
-                onChanged: (v) => setState(() => brand = v))
+                onChanged: (v) => setState(() => brand = v)),
+            const Text('紧凑屏：上滑顶部卡片，保留账单列表的滚动区域'),
+            const SizedBox(height: 8),
+            SizedBox(
+                height: 300,
+                child: BeeHomeLayout(
+                    header: const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: BeeMoney(amount: '3,286.50', prefix: '¥')),
+                    reminders: const SizedBox.shrink(),
+                    journal: BeeSurface(
+                        child: Column(children: [
+                      const BeeTransactionStreamHeader(
+                          title: '全部账单', count: '3 笔', actions: []),
+                      Expanded(
+                          child: ListView(
+                              children: [
+                        '午餐 · ¥32.00',
+                        '咖啡 · ¥18.00',
+                        '交通 · ¥6.00'
+                      ].map((text) => ListTile(title: Text(text))).toList()))
+                    ])))),
           ]),
         1 => Column(children: [
             BeeSummaryCard(
