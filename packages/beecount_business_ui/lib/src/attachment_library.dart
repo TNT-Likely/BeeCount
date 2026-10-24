@@ -13,6 +13,8 @@ class BeeAttachmentLibrary extends StatelessWidget {
       this.metadataBuilder,
       this.imageBuilder,
       this.controller,
+      this.physics,
+      this.shrinkWrap = false,
       this.loading = false,
       this.loadingLabel = ''});
   final List<BeeAttachment> items;
@@ -21,6 +23,8 @@ class BeeAttachmentLibrary extends StatelessWidget {
   final ValueChanged<int>? onOpen;
   final Widget Function(int)? metadataBuilder, imageBuilder;
   final ScrollController? controller;
+  final ScrollPhysics? physics;
+  final bool shrinkWrap;
   final bool loading;
   final String loadingLabel;
   @override
@@ -42,6 +46,8 @@ class BeeAttachmentLibrary extends StatelessWidget {
     return GridView.builder(
         primary: false,
         controller: controller,
+        physics: physics,
+        shrinkWrap: shrinkWrap,
         padding: const EdgeInsets.all(17),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 8),

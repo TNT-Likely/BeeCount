@@ -63,14 +63,14 @@ class _LibraryPreviewState extends State<_LibraryPreview> {
             0, '${l.v4DataAttachments} (${widget.files.attachments.length})'),
         BeeSegment(1, '${l.v4CustomIcons} (${widget.files.customIcons.length})')
       ], value: group, onChanged: (v) => setState(() => group = v)),
-      SizedBox(
-          height: 240,
-          child: BeeAttachmentLibrary(
-              items: data.items(group),
-              emptyLabel: l.attachmentPreviewEmpty,
-              onOpen: open,
-              selectedId: selected,
-              metadataBuilder: (index) => data.metadata(group, index))),
+      BeeAttachmentLibrary(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          items: data.items(group),
+          emptyLabel: l.attachmentPreviewEmpty,
+          onOpen: open,
+          selectedId: selected,
+          metadataBuilder: (index) => data.metadata(group, index)),
       BeeButton(
           label: '打开真实导出预览',
           onPressed: () => Navigator.push(
