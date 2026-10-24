@@ -78,7 +78,7 @@ class _AppearanceSettingsPageState
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Column(children: [
           for (var i = 0; i < rows.length; i++) ...[
-            if (i > 0) const BeeDivider(inset: 12),
+            if (i > 0) const BeeDivider(inset: 12, height: .6),
             rows[i]
           ]
         ]));

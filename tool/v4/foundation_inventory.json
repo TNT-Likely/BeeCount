@@ -439,7 +439,8 @@
       "supportedStates": [
         "default",
         "inset",
-        "label"
+        "label",
+        "分隔行高度可配置；默认24，卡片内可用0.6"
       ],
       "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
     },

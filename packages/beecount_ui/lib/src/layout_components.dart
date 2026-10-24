@@ -183,14 +183,14 @@ class BeeChoiceChip extends StatelessWidget {
 }
 
 class BeeDivider extends StatelessWidget {
-  const BeeDivider({super.key, this.label, this.inset = 0});
+  const BeeDivider({super.key, this.label, this.inset = 0, this.height = 24});
   final String? label;
-  final double inset;
+  final double inset, height;
   @override
   Widget build(BuildContext context) => Padding(
       padding: EdgeInsets.symmetric(horizontal: inset),
       child: label == null
-          ? const Divider(height: 24, thickness: .6)
+          ? Divider(height: height, thickness: .6)
           : Row(children: [
               const Expanded(child: Divider(thickness: .6)),
               Padding(
