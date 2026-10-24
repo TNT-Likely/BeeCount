@@ -8916,6 +8916,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4QuickAddSlideHint => '长按后滑向目标，松手进入';
+
+  @override
+  String get v4AccountDetailTitle => '账户详情';
+
+  @override
+  String get v4AmountInvalid => '请输入有效金额';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

@@ -8924,4 +8924,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4QuickAddSlideHint => 'Hold, slide to an action, and release';
+
+  @override
+  String get v4AccountDetailTitle => 'Account details';
+
+  @override
+  String get v4AmountInvalid => 'Enter a valid amount';
 }

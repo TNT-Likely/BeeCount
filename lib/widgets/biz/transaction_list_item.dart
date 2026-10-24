@@ -29,6 +29,8 @@ class TransactionListItem extends ConsumerWidget {
   final double? nativeAmount;
   final bool isExpense; // 决定正负号
   final bool isTransfer; // 是否为转账（转账不显示正负号）
+  /// Account history: -1 out, 1 in, 0 same account. Other lists stay neutral.
+  final int? transferDirection;
   final bool? hide; // 改为可选,null时使用全局状态
   final VoidCallback? onTap;
   final GestureLongPressStartCallback? onLongPressStart;
@@ -68,6 +70,7 @@ class TransactionListItem extends ConsumerWidget {
     this.nativeAmount,
     required this.isExpense,
     this.isTransfer = false,
+    this.transferDirection,
     this.hide,
     this.onTap,
     this.onLongPressStart,
@@ -113,8 +116,12 @@ class TransactionListItem extends ConsumerWidget {
         mode: ref.watch(noteDisplayModeProvider),
         categoryName: categoryName,
         title: title);
-    final value = isTransfer ? amount : (isExpense ? -amount : amount);
-    final sign = value < 0 ? '−' : (isTransfer || value == 0 ? '' : '+');
+    final value = isTransfer
+        ? (transferDirection == -1 ? -amount : amount)
+        : (isExpense ? -amount : amount);
+    final sign = value < 0
+        ? '−'
+        : (value == 0 || (isTransfer && transferDirection != 1) ? '' : '+');
     final money = '$sign'
         '${foreign || alwaysShowCurrency ? getDistinctCurrencySymbol(currencyCode?.isNotEmpty == true ? currencyCode! : base) : ''}'
         '${formatMoneyCompact(value.abs(), trimZeros: false)}';

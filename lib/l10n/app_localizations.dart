@@ -16783,6 +16783,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hold, slide to an action, and release'**
   String get v4QuickAddSlideHint;
+
+  /// No description provided for @v4AccountDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account details'**
+  String get v4AccountDetailTitle;
+
+  /// No description provided for @v4AmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get v4AmountInvalid;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

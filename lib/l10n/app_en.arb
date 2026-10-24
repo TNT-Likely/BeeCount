@@ -3990,5 +3990,7 @@
   "welcomeAttachmentRestoreDescription": "Restore receipts and their transaction links, or import them later.",
   "welcomeAttachmentBackupDescription": "TAR.GZ · Receipts, screenshots and attachments",
   "welcomeImportAttachmentsContinue": "Import attachments and finish",
-  "v4QuickAddSlideHint": "Hold, slide to an action, and release"
+  "v4QuickAddSlideHint": "Hold, slide to an action, and release",
+  "v4AccountDetailTitle": "Account details",
+  "v4AmountInvalid": "Enter a valid amount"
 }

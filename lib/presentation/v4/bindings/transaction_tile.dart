@@ -24,6 +24,7 @@ class TransactionTileBinding extends ConsumerWidget {
       this.allLedgers = false,
       this.ledgerName,
       this.baseCurrency,
+      this.transferDirection,
       this.onDelete,
       this.allowCategoryNavigation = true,
       this.accountsEnabled = true,
@@ -38,6 +39,7 @@ class TransactionTileBinding extends ConsumerWidget {
       allLedgers,
       allowCategoryNavigation;
   final String? ledgerName, baseCurrency;
+  final int? transferDirection;
   final Future<void> Function()? onDelete;
   final VoidCallback? onSelect;
   final VoidCallback onReturned;
@@ -76,6 +78,7 @@ class TransactionTileBinding extends ConsumerWidget {
         nativeAmount: t.nativeAmount,
         isExpense: t.type == 'expense',
         isTransfer: transfer,
+        transferDirection: transferDirection,
         excludeFromStats: t.excludeFromStats,
         excludeFromBudget: t.excludeFromBudget,
         happenedAt: t.happenedAt,

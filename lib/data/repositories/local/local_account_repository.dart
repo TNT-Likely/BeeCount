@@ -665,24 +665,8 @@ class LocalAccountRepository implements AccountRepository {
       readsFrom: {db.transactions},
     ).get();
 
-    return results.map((row) {
-      return Transaction(
-        id: row.data['id'] as int,
-        ledgerId: row.data['ledger_id'] as int,
-        type: row.data['type'] as String,
-        amount: (row.data['amount'] as num).toDouble(),
-        categoryId: row.data['category_id'] as int?,
-        accountId: row.data['account_id'] as int?,
-        toAccountId: row.data['to_account_id'] as int?,
-        happenedAt: DateTime.fromMillisecondsSinceEpoch(
-            (row.data['happened_at'] as int) * 1000),
-        note: row.data['note'] as String?,
-        recurringId: row.data['recurring_id'] as int?,
-        syncId: row.data['sync_id'] as String?,
-        excludeFromStats: (row.data['exclude_from_stats'] as int? ?? 0) != 0,
-        excludeFromBudget: (row.data['exclude_from_budget'] as int? ?? 0) != 0,
-      );
-    }).toList();
+    // Generated mapping retains every snapshot/reference column for editing.
+    return results.map((row) => db.transactions.map(row.data)).toList();
   }
 
   @override

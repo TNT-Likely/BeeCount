@@ -37,6 +37,8 @@ void main() {
       String? baseCurrency,
       bool allCurrencies = false,
       bool hide = false,
+      bool transfer = false,
+      int? transferDirection,
       List<({int id, String name, String? color})>? tags,
       void Function(int, String)? onTag}) async {
     await tester.pumpWidget(UncontrolledProviderScope(
@@ -59,6 +61,8 @@ void main() {
                         alwaysShowCurrency: allCurrencies,
                         nativeAmount: converted,
                         isExpense: true,
+                        isTransfer: transfer,
+                        transferDirection: transferDirection,
                         hide: hide,
                         accountName: '美元账户',
                         happenedAt: DateTime(2026, 10, 24, 12, 34, 56),
@@ -103,6 +107,23 @@ void main() {
     expect(find.text('−US\$12.00', findRichText: true), findsNothing);
     expect(find.text('••••', findRichText: true), findsNWidgets(2));
     await close(tester);
+  });
+
+  testWidgets('账户转账方向显示流出负号、流入正号，同账户和其他列表保持中性', (tester) async {
+    for (final sample in <int?, String>{
+      -1: '−US\$12.00',
+      1: '+US\$12.00',
+      0: 'US\$12.00',
+      null: 'US\$12.00'
+    }.entries) {
+      await open(tester, transfer: true, transferDirection: sample.key);
+      expect(
+          tester.widget<BeeMoney>(find.byType(BeeMoney)).amount, sample.value);
+      expect(tester.widget<BeeMoney>(find.byType(BeeMoney)).color,
+          beeTheme().colorScheme.onSurfaceVariant);
+      expect(tester.takeException(), isNull);
+      await close(tester);
+    }
   });
 
   testWidgets('更多标签可以展开横排完整列表，并进入被折叠标签的原有详情回调', (tester) async {
