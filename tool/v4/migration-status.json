@@ -744,17 +744,24 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-24T09:54:00+08:00",
-    "engineeringEstimatePercent": 24,
+    "reportedAt": "2026-10-24T10:54:00+08:00",
+    "engineeringEstimatePercent": 25,
     "engineeringEstimateRange": [
-      22,
-      26
+      23,
+      27
     ],
-    "completedPages": 6,
+    "completedPages": 9,
     "totalPages": 73,
+    "completedP0Pages": 9,
+    "totalExistingP0Pages": 16,
+    "newlyCompletedSincePreviousReport": [
+      "新增与编辑账户",
+      "启动页",
+      "分类管理与工具"
+    ],
     "inProgress": [
-      "新增与编辑账户：删除、正常重启与独立报告收尾",
-      "首页、记账、搜索等仍未整页完成"
+      "资产与账户列表：核对旧多币种汇总、净值趋势/构成、隐藏与默认账户路径，先抽业务组件",
+      "首页、记账、搜索及其他待确认页面仍未整页完成"
     ]
   }
 }
