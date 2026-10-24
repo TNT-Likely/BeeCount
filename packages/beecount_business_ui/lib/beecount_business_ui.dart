@@ -1,5 +1,7 @@
 library;
 
+export 'src/account_type_picker.dart';
+
 export 'src/recording_components.dart';
 
 export 'src/finance_components.dart';

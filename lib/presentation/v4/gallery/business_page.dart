@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'gallery_catalog.dart';
+import '../../../utils/account_type_utils.dart';
 import 'transaction_row_states.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
@@ -42,7 +43,8 @@ const businessCases = [
   '搜索汇总与批量操作',
   '分类账户标签详情',
   '配置选择与预览',
-  '分类图标编辑'
+  '分类图标编辑',
+  '账户类型选择'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -77,6 +79,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
   String recordingNote = '午餐';
   Set<String> configScopes = {'ledgers', 'accounts', 'categories', 'tags'};
   String pin = '';
+  String accountType = 'cash', accountTypeGroup = 'daily';
   String categoryIcon = 'coffee';
   BeeCategoryIconSource categoryIconSource = BeeCategoryIconSource.preset;
   DateTime date = DateTime(2026, 10, 23, 12, 30);
@@ -1297,7 +1300,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     'version: 1\nledgers:\n  items:\n    - name: 日常生活\n      currency: CNY',
                 label: 'YAML 配置预览'),
           ]),
-        _ => BeeSurface(
+        37 => BeeSurface(
             child: BeeCategoryIconEditor(
                 source: categoryIconSource,
                 value: categoryIcon,
@@ -1331,6 +1334,44 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                       record('选择分类图标 $v');
                     }),
                 onChooseImage: () => record('图片选择由 App 调用系统相册并裁剪'))),
+        _ => BeeSurface(
+              child: BeeAccountTypePicker(
+                  groups: [
+                for (final group in ['daily', 'valuation'])
+                  BeeAccountTypeGroup(
+                      id: group,
+                      label: group == 'daily' ? '日常账户' : '估值账户',
+                      choices: accountTypeOrder
+                          .where((type) =>
+                              isValuationOnlyType(type) ==
+                              (group == 'valuation'))
+                          .map((type) => BeeIconChoice(
+                              value: type,
+                              label: const {
+                                'cash': '现金',
+                                'bank_card': '银行卡',
+                                'credit_card': '信用卡',
+                                'alipay': '支付宝',
+                                'wechat': '微信',
+                                'other': '其他',
+                                'real_estate': '房产',
+                                'vehicle': '车辆',
+                                'investment': '投资',
+                                'insurance': '保险',
+                                'social_fund': '社保公积金',
+                                'loan': '贷款',
+                              }[type]!,
+                              icon: AccountTypeIcon(type: type, size: 24)))
+                          .toList())
+              ],
+                  group: accountTypeGroup,
+                  value: accountType,
+                  onGroupChanged: (value) =>
+                      setState(() => accountTypeGroup = value),
+                  onChanged: (value) => setState(() {
+                        accountType = value;
+                        record('选择账户类型 $value');
+                      }))),
       };
   void _editRate() => showBeeDialog<void>(context,
       title: '补充本笔汇率',

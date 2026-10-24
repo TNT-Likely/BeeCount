@@ -1,4 +1,5 @@
 import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -493,8 +494,6 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
         _filledDecoration(context, primaryColor,
             label: label, hint: hint, prefix: prefix, errorText: errorText);
 
-    final typesForTab =
-        _typeTab == 0 ? tradableAccountTypes : valuationAccountTypes;
     final isCreditCard = _selectedType == 'credit_card';
     final isBankCard = _selectedType == 'bank_card';
 
@@ -527,35 +526,34 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CapsuleSwitcher<int>(
-                            key: const ValueKey('account-type-group'),
-                            selectedValue: _typeTab,
-                            height: 44.0.scaled(context, ref),
-                            options: [
-                              CapsuleOption(
-                                  value: 0, label: l10n.accountGroupTradable),
-                              CapsuleOption(
-                                  value: 1, label: l10n.accountTabValuation),
-                            ],
-                            onChanged: (value) =>
-                                setState(() => _typeTab = value),
-                          ),
-                          SizedBox(height: 16.0.scaled(context, ref)),
-                          BeeIconChoiceGrid<String>(
+                          BeeAccountTypePicker(
+                              key: const ValueKey('account-type-group'),
+                              groups: [
+                                for (final group in [0, 1])
+                                  BeeAccountTypeGroup(
+                                      id: group == 0 ? 'daily' : 'valuation',
+                                      label: group == 0
+                                          ? l10n.accountGroupTradable
+                                          : l10n.accountTabValuation,
+                                      choices: (group == 0
+                                              ? tradableAccountTypes
+                                              : valuationAccountTypes)
+                                          .map((type) => BeeIconChoice(
+                                              value: type,
+                                              label: getAccountTypeLabel(
+                                                  context, type),
+                                              icon: AccountTypeIcon(
+                                                  type: type, size: 24),
+                                              enabled: !isEditing ||
+                                                  isValuationOnlyType(type) ==
+                                                      isValuationOnlyType(widget
+                                                          .account!.type)))
+                                          .toList()),
+                              ],
+                              group: _typeTab == 0 ? 'daily' : 'valuation',
                               value: _selectedType,
-                              items: typesForTab
-                                  .map((type) => BeeIconChoice(
-                                        value: type,
-                                        label:
-                                            getAccountTypeLabel(context, type),
-                                        icon: AccountTypeIcon(
-                                            type: type, size: 24),
-                                        enabled: !isEditing ||
-                                            isValuationOnlyType(type) ==
-                                                isValuationOnlyType(
-                                                    widget.account!.type),
-                                      ))
-                                  .toList(),
+                              onGroupChanged: (value) => setState(
+                                  () => _typeTab = value == 'daily' ? 0 : 1),
                               onChanged: _selectType),
                         ],
                       ),
