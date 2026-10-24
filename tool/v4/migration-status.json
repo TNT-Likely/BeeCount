@@ -270,10 +270,10 @@
     "currency/exchange_rate_page.dart": {
       "name": "汇率管理",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "待迁移",
-      "components": "币种列表、汇率表单、校验与更新状态",
-      "acceptance": "保留账本本位币、自定义汇率/来源、正数校验和当前历史快照规则。"
+      "reason": "原币种列表/151搜索底部选择/手动精度与反向/24h节流强刷保留；R75同一QA真实生产UI、独立SQL/文件与正常重启闭环通过。",
+      "status": "已完成",
+      "components": "汇率行、原始精度输入与规范编辑弹窗、基础IME兼容小数输入、真实只读缓存和实际动作绑定",
+      "acceptance": "已提交源码71项/7文件、13文件静态0问题；HTML278场景/70组规范/41基础控件、三宽度和364×72冻结对照通过。真机实际高精度保存取消/零拒绝、原7.1恢复、临时USD:CNY小于1手动值保存与恢复自动、151搜索主币种往返、公网刷新及Flutter49/正常重启通过。57/53/24/5与关系/图片/偏好/公共文件保持，原override身份raw恢复，合法updatedAt/tracking/cache变化分列。18图/21文件报告exchange-rate-r75，ZIP SHA256 e4d34c4b34d80683c4031efa01d4acf5ee16cd790e10e513b0ce9634f2f9da58。Widget网络明确合成transport；Cloud/iOS未执行。"
     },
     "data/export_page.dart": {
       "name": "账单导出",
