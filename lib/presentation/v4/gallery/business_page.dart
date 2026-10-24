@@ -1431,13 +1431,26 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                           onTap: () => record('分类工具弹窗')),
                     ]))),
           ]),
-        33 => BeeTransferAccountPair(
-            fromLabel: '转出账户',
-            toLabel: '转入账户',
-            fromName: '人民币现金',
-            toName: '招商银行',
-            onFrom: () => record('选择转出账户'),
-            onTo: () => record('选择转入账户')),
+        33 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            BeeTransferAccountPair(
+                fromLabel: '转出账户',
+                toLabel: '转入账户',
+                fromName: '人民币现金',
+                toName: '招商银行',
+                onFrom: () => record('选择转出账户'),
+                onTo: () => record('选择转入账户')),
+            const SizedBox(height: 12),
+            const Text('历史隐藏账户'),
+            const SizedBox(height: 8),
+            BeeTransferAccountPair(
+                fromLabel: '转出账户',
+                toLabel: '转入账户',
+                fromName: '人民币现金',
+                toName: '旧银行卡',
+                toDetail: '已隐藏',
+                onFrom: () => record('选择转出账户'),
+                onTo: () => record('保留历史隐藏账户')),
+          ]),
         34 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             BeeSearchSummary(
                 title: '12 笔匹配账单',
