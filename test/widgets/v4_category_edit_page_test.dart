@@ -24,7 +24,7 @@ class _IconService extends CustomIconService {
   @override
   Future<String> saveCustomIcon(File sourceFile, int categoryId) async {
     await validateImage(sourceFile);
-    final path = 'saved-${categoryId}-${++saves}.png';
+    final path = 'saved-$categoryId-${++saves}.png';
     await sourceFile.copy('${root.path}/$path');
     return path;
   }
