@@ -421,10 +421,10 @@
   },
   {
     "route": "flow-account-edit",
-    "slug": "flow-account-edit",
     "title": "编辑账户",
     "group": "补齐 · 账户与资产",
-    "fullHeight": 1354,
+    "slug": "flow-account-edit",
+    "fullHeight": 1156,
     "viewport": "screens/viewport/flow-account-edit.png",
     "full": "screens/full/flow-account-edit.png",
     "svg": "figma/flow-account-edit.svg"
@@ -1912,5 +1912,35 @@
     "viewport": "screens/viewport/flow-category-parent-picker.png",
     "full": "screens/full/flow-category-parent-picker.png",
     "svg": "figma/flow-category-parent-picker.svg"
+  },
+  {
+    "route": "flow-account-new",
+    "title": "新建账户 · 完整表单",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-account-new",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-account-new.png",
+    "full": "screens/full/flow-account-new.png",
+    "svg": "figma/flow-account-new.svg"
+  },
+  {
+    "route": "flow-account-credit",
+    "title": "编辑信用卡 · 完整表单",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-account-credit",
+    "fullHeight": 1440,
+    "viewport": "screens/viewport/flow-account-credit.png",
+    "full": "screens/full/flow-account-credit.png",
+    "svg": "figma/flow-account-credit.svg"
+  },
+  {
+    "route": "flow-account-valuation",
+    "title": "编辑估值账户 · 完整表单",
+    "group": "补齐 · 账户与资产",
+    "slug": "flow-account-valuation",
+    "fullHeight": 946,
+    "viewport": "screens/viewport/flow-account-valuation.png",
+    "full": "screens/full/flow-account-valuation.png",
+    "svg": "figma/flow-account-valuation.svg"
   }
 ]

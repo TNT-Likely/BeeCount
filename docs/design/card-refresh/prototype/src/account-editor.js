@@ -10,7 +10,7 @@
   }
   function aEditorField(key,label,{number=false,required=false,maxlength='',multiline=false,prefix=''}={}){
     const d=aEditorInit(),attrs=`data-ae-field="${key}" aria-label="${label}" ${required?'required':''} ${maxlength?`maxlength="${maxlength}"`:''}`;
-    return `<label class="f-field ae-field"><span>${label}</span><div class="ae-input-wrap">${prefix?`<span>${esc(prefix)}</span>`:''}${multiline?`<textarea ${attrs} rows="3">${esc(d[key])}</textarea>`:`<input ${attrs} type="${number?'number':'text'}" ${number?'step="any"':''} value="${esc(d[key])}">`}</div></label>`;
+    return `<label class="f-field ae-field"><span>${label}</span><div class="ae-input-wrap">${prefix?`<span>${esc(prefix)}</span>`:''}${multiline?`<textarea ${attrs} rows="3">${esc(d[key])}</textarea>`:`<input ${attrs} type="${number?'number':'text'}" ${number?'step="any"':''} ${number&&key==='balance'&&d.type==='credit_card'?'min="0"':''} ${key==='creditLimit'?'min="0.0000001"':''} value="${esc(d[key])}">`}</div>${key==='lastFour'?`<small class="ae-counter">${d[key].length}/4</small>`:''}</label>`;
   }
   function aEditorDayField(key,label){const d=aEditorInit();return `<div class="ae-day-row">${btn('ae-day:'+key,`<span>${label}<small>${d[key]===null?'请选择日期':`每月 ${d[key]} 日`}</small></span>${icon('chevron-down')}`,'选择'+label)}${d[key]===null?'':btn('ae-clear-day:'+key,icon('x'),'清除'+label)}</div>`;}
   function aEditorBody(){
@@ -34,19 +34,22 @@
     if(key==='ae-day')return `<div class="ae-day-grid">${Array.from({length:28},(_,i)=>btn('ae-pick-day:'+(i+1),i+1,`${i+1}日`,'',`aria-pressed="${d[aEditorDay]===i+1}"`)).join('')}</div>`;
     if(key==='ae-currency')return `<label class="ae-search">${icon('search')}<input aria-label="搜索账户币种" placeholder="搜索币种" data-ae-query></label><div class="ae-currencies">${wCurrencies.map(c=>btn('ae-pick-currency:'+c.code,`${esc(wCurrencyName(c))} (${c.code})${c.code===d.currency?icon('check'):''}`,c.code,'',`data-ae-code="${c.code} ${esc(wCurrencyName(c))}"`)).join('')}</div>`;
     if(key==='ae-locked')return '<p>该账户已有交易，无法修改币种。</p>'+rModalActions('r-close','取消','r-close','确定');
-    if(key==='ae-adjust')return `<div class="ae-balance-summary"><small>当前余额 → 调整后余额</small><strong>${d.currency} ${d.original.toFixed(2)} → ${(Number(d.balance)*(d.type==='credit_card'&&!d.overpayment?-1:1)).toFixed(2)}</strong></div>${[[false,'仅修改余额','修改初始余额，不生成账单。'],[true,'生成平账记录','差额生成一笔收入或支出，历史账单保留。']].map(([mode,title,desc])=>btn('ae-adjust-mode:'+mode,`<span class="ae-radio">${aEditorMode===mode?'●':'○'}</span><span>${title}<small>${desc}</small></span>`,'选择'+title,'ae-adjust-option',`aria-pressed="${aEditorMode===mode}"`)).join('')}${btn('ae-confirm-save',aEditorMode?'生成平账记录并保存':'仅修改余额并保存','确认保存账户','bc-primary ae-wide')}`;
+    if(key==='ae-adjust'){
+      const target=Number(d.balance)*(d.type==='credit_card'&&!d.overpayment?-1:1),difference=target-d.original,symbol=d.currency==='USD'?'US$':'¥',money=n=>(n<0?'−':'')+symbol+Math.abs(n).toFixed(2);
+      return `<p class="ae-adjust-caption">请选择这次余额变更的保存方式</p><div class="ae-balance-summary"><div class="ae-balance-pair"><div><small>当前余额</small><strong>${money(d.original)}</strong></div>${icon('arrow-right')}<div><small>调整后余额</small><strong>${money(target)}</strong></div></div><hr><div class="ae-difference"><span>本次差额</span><strong style="color:${difference>0?'#22c55e':difference<0?'#ef4444':'var(--bc-muted)'}">${difference>0?'+':''}${money(difference)}</strong></div></div><div class="bc-segment ae-adjust-modes">${[[false,'仅修改余额'],[true,'生成平账交易']].map(([mode,title])=>btn('ae-adjust-mode:'+mode,title,'选择'+title,'',`aria-pressed="${aEditorMode===mode}"`)).join('')}</div><p class="ae-adjust-caption">${aEditorMode?'同时新增一笔普通收入或支出，归入“平账”分类，并计入收支和预算统计。':'不创建交易；历史余额趋势会按新的余额基线重新计算。'}</p>${btn('ae-confirm-save',`${icon('check')}${aEditorMode?'确认并生成平账交易':'确认仅修改余额'}`,'确认保存账户','bc-primary ae-wide')}`;
+    }
     if(key==='ae-hide'||key==='ae-delete')return `<p>${key==='ae-delete'?'删除账户后无法恢复，历史账单按原有规则保留。':'隐藏后保留历史流水，并清除该账户的默认收支选择。'}</p>`+rModalActions('r-close','取消',key==='ae-hide'?'ae-confirm-hide':'ae-confirm-delete','确认');
     return '';
   };
-  for(const [key,title,kind] of [['ae-day','选择日期','sheet'],['ae-currency','选择币种','sheet'],['ae-locked','提示','dialog'],['ae-adjust','调整账户余额','sheet'],['ae-hide','隐藏账户','dialog'],['ae-delete','删除账户','dialog']])rSpecs[key]={title,host:'flow-account-edit',kind};
+  for(const [key,title,kind] of [['ae-day','选择日期','sheet'],['ae-currency','选择币种','sheet'],['ae-locked','提示','dialog'],['ae-adjust','确认余额变更','sheet'],['ae-hide','隐藏账户','dialog'],['ae-delete','删除账户','dialog']])rSpecs[key]={title,host:'flow-account-edit',kind};
   function aEditorRedraw(){const scroll=phone.querySelector('.ae-scroll')?.scrollTop||0;render();phone.querySelector('.ae-scroll')?.scrollTo(0,scroll);}
-  root.addEventListener('input',e=>{if(e.target.matches('[data-ae-field]')){aEditorInit()[e.target.dataset.aeField]=e.target.value;e.target.setCustomValidity('');}if(e.target.matches('[data-ae-query]'))for(const b of phone.querySelectorAll('[data-ae-code]'))b.hidden=!b.dataset.aeCode.toLowerCase().includes(e.target.value.toLowerCase());});
+  root.addEventListener('input',e=>{if(e.target.matches('[data-ae-field]')){aEditorInit()[e.target.dataset.aeField]=e.target.value;e.target.setCustomValidity('');const counter=e.target.closest('label')?.querySelector('.ae-counter');if(counter)counter.textContent=e.target.value.length+'/4';}if(e.target.matches('[data-ae-query]'))for(const b of phone.querySelectorAll('[data-ae-code]'))b.hidden=!b.dataset.aeCode.toLowerCase().includes(e.target.value.toLowerCase());});
   root.addEventListener('change',e=>{if(e.target.matches('[data-ae-reminder]')){aEditorInit().reminder=e.target.checked;aEditorRedraw();}});
   root.addEventListener('click',e=>{
     const el=e.target.closest('[data-action^="ae-"]');if(!el)return;e.preventDefault();e.stopImmediatePropagation();
     const [action,arg]=el.dataset.action.split(':'),d=aEditorInit();
     if(action==='ae-group'){d.group=arg;aEditorRedraw();}
-    else if(action==='ae-type'){const previous=d.type;d.type=arg;if(previous==='credit_card'&&arg!=='credit_card'){d.creditLimit='';d.billingDay=null;d.paymentDueDay=null;d.reminder=false;}if(!['bank_card','credit_card'].includes(arg)){d.bankName='';d.lastFour='';}aEditorRedraw();}
+    else if(action==='ae-type'){const previous=d.type;if(previous!==arg&&(previous==='credit_card'||arg==='credit_card')){const signed=Number(d.balance)*(previous==='credit_card'&&!d.overpayment?-1:1);d.overpayment=signed>0;d.balance=String(arg==='credit_card'?Math.abs(signed):signed);}d.type=arg;if(previous==='credit_card'&&arg!=='credit_card'){d.creditLimit='';d.billingDay=null;d.paymentDueDay=null;d.reminder=false;}if(!['bank_card','credit_card'].includes(arg)){d.bankName='';d.lastFour='';}aEditorRedraw();}
     else if(action==='ae-overpayment'){d.overpayment=arg==='true';aEditorRedraw();}
     else if(action==='ae-lead'){d.lead=Number(arg);aEditorRedraw();}
     else if(action==='ae-day'){aEditorDay=arg;rSpecs['ae-day'].title=arg==='billingDay'?'账单日':'还款日';rOpenModal('ae-day');}

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:beecount/cloud/sync_service.dart';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
@@ -135,6 +137,49 @@ void main() {
     return (await repo.getAccount(id))!;
   }
 
+  final geometry = jsonDecode(
+      File('test/fixtures/v4-account-editor-geometry.json')
+          .readAsStringSync()) as Map<String, dynamic>;
+  for (final raw in geometry['sizes'] as List) {
+    final m = raw as Map<String, dynamic>;
+    testWidgets('账户表单与浏览器冻结图标格、字段和币种行一致 ${m['width']} / ${m['scale']}',
+        (tester) async {
+      await open(tester,
+          size: Size(
+              (m['width'] as num).toDouble(), (m['height'] as num).toDouble()),
+          scale: (m['scale'] as num).toDouble());
+      // The browser phone frame has a 1px border on each side; Flutter owns the full canvas.
+      expect(
+          tester
+              .getSize(find.byKey(const ValueKey('account-section-type')))
+              .height,
+          closeTo(m['typeCardHeight'] as num, 2));
+      expect(tester.getSize(find.byType(GridView)).height,
+          closeTo(m['gridHeight'] as num, 2));
+      expect(tester.getSize(find.byKey(const ValueKey('account-name'))).height,
+          closeTo(m['nameHeight'] as num, 2));
+      final note = tester.widget<TextField>(find.descendant(
+          of: find.byKey(const ValueKey('account-note')),
+          matching: find.byType(TextField)));
+      // Ahem test glyphs have different line metrics from native CJK fonts.
+      // Keep three editable lines and 12px padding; native 69dp is checked separately.
+      expect(note.maxLines, 3);
+      expect(note.style!.fontSize, 13);
+      expect(note.decoration!.contentPadding,
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 12));
+      final currency = find.byKey(const ValueKey('account-currency'));
+      expect(tester.getSize(currency).height,
+          greaterThanOrEqualTo(m['currencyHeight'] as num));
+      final rowLabels = tester
+          .widgetList<Text>(
+              find.descendant(of: currency, matching: find.byType(Text)))
+          .toList();
+      expect(rowLabels[0].style!.fontSize, 14);
+      expect(rowLabels[1].style!.fontSize, 11);
+      expect(tester.takeException(), isNull);
+      await close(tester);
+    });
+  }
   testWidgets('新建账户校验必填且保存真实币种、类型和初始金额，不生成账单', (tester) async {
     await open(tester);
     await save(tester);
@@ -244,8 +289,8 @@ void main() {
     await tester.ensureVisible(currency);
     await tester.tap(currency);
     await modal(tester);
-    final usd =
-        find.descendant(of: find.byType(BeeSheet), matching: find.textContaining('(USD)'));
+    final usd = find.descendant(
+        of: find.byType(BeeSheet), matching: find.textContaining('(USD)'));
     await tester.ensureVisible(usd);
     await tester.tap(usd);
     await tester.pumpAndSettle();

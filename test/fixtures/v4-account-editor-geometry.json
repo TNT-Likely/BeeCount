@@ -1,0 +1,25 @@
+{
+  "source": "prototype/demo.html?page=flow-account-new; Chrome rendered values, frame border remains outside Flutter canvas",
+  "sizes": [
+    {
+      "width": 398,
+      "height": 844,
+      "scale": 1,
+      "typeCardHeight": 250.5625,
+      "gridHeight": 154.5625,
+      "nameHeight": 48,
+      "noteHeight": 69,
+      "currencyHeight": 53
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "scale": 1.4,
+      "typeCardHeight": 254.375,
+      "gridHeight": 158.375,
+      "nameHeight": 51.296875,
+      "noteHeight": 87,
+      "currencyHeight": 53
+    }
+  ]
+}

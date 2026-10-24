@@ -2,9 +2,11 @@ const path = require('path'), assert = require('node:assert/strict');
 const { pathToFileURL } = require('url');
 const { chromium } = require('playwright');
 const root = path.resolve(__dirname, '..');
+const fs = require('fs');
+const geometryFile = path.resolve(root, '../../../test/fixtures/v4-account-editor-geometry.json');
 (async () => {
   const browser = await chromium.launch({channel:'chrome',headless:true});
-  const errors=[];
+  const errors=[], geometry=[];
   try {
     for(const [width,height,scale] of [[398,844,1],[320,568,1.4]]) {
       const page=await browser.newPage({viewport:{width:1280,height:1100}});
@@ -24,6 +26,10 @@ const root = path.resolve(__dirname, '..');
         if(route!=='account-new'&&route!=='account-valuation')assert.equal(await phone.locator('.ae-type-grid button:disabled').count(),6);
         await phone.locator('[data-action="ae-group:daily"]').click();
         if(route==='account-new') {
+          geometry.push(await phone.evaluate((el, config) => {
+            const height = selector => el.querySelector(selector).getBoundingClientRect().height;
+            return {...config, typeCardHeight: height('.ae-scroll>.bc-surface'), gridHeight: height('.ae-type-grid'), nameHeight: height('[data-ae-field="name"]'), noteHeight: height('[data-ae-field="note"]'), currencyHeight: height('.ae-menu')};
+          }, {width,height,scale}));
           await phone.locator('[data-ae-field="name"]').fill('美元测试');
           await phone.locator('[data-action="ae-currency"]').click();
           await phone.locator('[data-ae-query]').fill('USD');
@@ -50,6 +56,8 @@ const root = path.resolve(__dirname, '..');
       await page.close();
     }
     assert.deepEqual(errors,[]);
+    if(process.argv.includes('--freeze')) fs.writeFileSync(geometryFile, JSON.stringify({source:'prototype/demo.html?page=flow-account-new; Chrome rendered values, frame border remains outside Flutter canvas',sizes:geometry},null,2)+'\n');
+    else assert.deepEqual(geometry,JSON.parse(fs.readFileSync(geometryFile)).sizes);
     console.log(JSON.stringify({status:'PASS',routes:4,viewports:2,originalTypes:12,dayRange:[1,28],reminderLead:[1,3,5,7],usdSelection:true,balanceModes:true,fixedSave:true}));
   } finally {await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
