@@ -152,6 +152,7 @@ void main() {
     var cards =
         tester.widgetList<BeeLedgerCard>(find.byType(BeeLedgerCard)).toList();
     expect(cards.first.current, isTrue);
+    expect(cards.first.expenseLabel, '本月支出'); expect(cards.first.incomeLabel, '本月收入');
     expect(cards.first.expense, '¥10.00');
     expect(cards.first.income, '¥20.00');
     expect(find.text('加入共享账本'), findsNothing);
