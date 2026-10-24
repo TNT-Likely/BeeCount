@@ -22,6 +22,37 @@ void main() {
       expect(result.selection.end, expected.length);
     });
   }
+  for (final (raw, expected) in [
+    ('12.345', '12.34'),
+    ('12。345', '12.34'),
+    ('1.2.3', '1.2'),
+    ('.25', '')
+  ]) {
+    test('可选两位精度沿用预算输入规则 $raw', () {
+      const limited = BeeDecimalInputFormatter(maxFractionDigits: 2);
+      expect(
+          limited
+              .formatEditUpdate(
+                  TextEditingValue.empty,
+                  TextEditingValue(
+                      text: raw,
+                      selection: TextSelection.collapsed(offset: raw.length)))
+              .text,
+          expected);
+    });
+  }
+  test('两位输入也保留组合态，提交时才限制精度', () {
+    const limited = BeeDecimalInputFormatter(maxFractionDigits: 2),
+        preedit = TextEditingValue(
+            text: '12。345', composing: TextRange(start: 0, end: 6));
+    expect(limited.formatEditUpdate(TextEditingValue.empty, preedit), preedit);
+    expect(
+        limited
+            .formatEditUpdate(
+                preedit, preedit.copyWith(composing: TextRange.empty))
+            .text,
+        '12.34');
+  });
   test('IME组合态不截断或移动光标，提交后规范化为小数点', () {
     const preedit = TextEditingValue(
         text: '0。149',

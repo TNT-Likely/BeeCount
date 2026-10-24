@@ -1,3 +1,4 @@
+import 'budget_editor_sample.dart';
 import 'package:flutter/material.dart';
 import 'gallery_catalog.dart';
 import 'exchange_rate_sample.dart';
@@ -58,7 +59,8 @@ const businessCases = [
   '附件与图标预览库',
   '分类迁移选择对',
   '全局汇率与编辑',
-  '预算概览与分类进度'
+  '预算概览与分类进度',
+  '预算编辑与分类草稿'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -81,7 +83,8 @@ class BusinessAcceptancePage extends StatefulWidget {
       this.attachmentLibraryData,
       this.categoryMigrationData,
       this.exchangeRateData,
-      this.budgetData});
+      this.budgetData,
+      this.budgetEditorData});
   final Widget? liveData,
       tagLibraryData,
       reminderData,
@@ -91,7 +94,8 @@ class BusinessAcceptancePage extends StatefulWidget {
       attachmentLibraryData,
       categoryMigrationData,
       exchangeRateData,
-      budgetData;
+      budgetData,
+      budgetEditorData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
@@ -1875,6 +1879,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     rateLabel: '汇率管理',
                     onRates: () => record('管理汇率'))),
           ]),
+        50 => BudgetEditorSample(liveData: widget.budgetEditorData),
         49 => BudgetSample(
             liveData: widget.budgetData, onEdit: () => record('选择预算编辑')),
         48 => ExchangeRateSample(liveData: widget.exchangeRateData),

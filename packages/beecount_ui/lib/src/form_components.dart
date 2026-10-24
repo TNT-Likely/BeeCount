@@ -5,7 +5,9 @@ import '../beecount_ui.dart';
 /// Keep IME preedit intact. Normalize unambiguous full stops on commit;
 /// range/precision validation belongs to the host form.
 class BeeDecimalInputFormatter extends TextInputFormatter {
-  const BeeDecimalInputFormatter();
+  const BeeDecimalInputFormatter({this.maxFractionDigits})
+      : assert(maxFractionDigits == null || maxFractionDigits >= 0);
+  final int? maxFractionDigits;
   static String normalize(String text) =>
       text.replaceAll('。', '.').replaceAll('．', '.');
   static final _digits = FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'));
@@ -15,8 +17,12 @@ class BeeDecimalInputFormatter extends TextInputFormatter {
     if (newValue.composing.isValid && !newValue.composing.isCollapsed) {
       return newValue;
     }
-    return _digits.formatEditUpdate(
+    final normalized = _digits.formatEditUpdate(
         oldValue, newValue.copyWith(text: normalize(newValue.text)));
+    if (maxFractionDigits == null) return normalized;
+    return FilteringTextInputFormatter.allow(
+            RegExp('^\\d+\\.?\\d{0,$maxFractionDigits}'))
+        .formatEditUpdate(oldValue, normalized);
   }
 }
 

@@ -1,3 +1,4 @@
+import '../bindings/budget_editor_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'foundation_page.dart';
@@ -80,6 +81,9 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                             TickerMode(
                                 enabled: tab == 1,
                                 child: BusinessAcceptancePage(
+                                    budgetEditorData: widget.enableLiveData
+                                        ? const LiveBudgetEditorPreview()
+                                        : null,
                                     budgetData: widget.enableLiveData
                                         ? const LiveBudgetPreview()
                                         : null,

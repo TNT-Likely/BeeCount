@@ -709,6 +709,15 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                               TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [BeeDecimalInputFormatter()]),
                       const SizedBox(height: 12),
+                      const BeeField(
+                          label: '预算两位小数',
+                          helper: '沿用预算两位输入规则，组合态提交后再限制；历史原值初始化不截断。',
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [
+                            BeeDecimalInputFormatter(maxFractionDigits: 2)
+                          ]),
+                      const SizedBox(height: 12),
                       BeeButton(
                           label: '校验并保存',
                           onPressed: () {

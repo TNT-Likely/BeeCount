@@ -643,5 +643,13 @@
     ],
     "page": "business",
     "case": 49
+  },
+  {
+    "design_key": "budgetEditor",
+    "components": [
+      "BeeBudgetEditorForm"
+    ],
+    "page": "business",
+    "case": 50
   }
 ]

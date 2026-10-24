@@ -254,3 +254,104 @@ class BeeBudgetCategoryRow extends StatelessWidget {
                             ]))
                       ]))))));
 }
+
+/// The App supplies the existing identity, permitted type choices and drafts.
+class BeeBudgetEditorForm extends StatelessWidget {
+  const BeeBudgetEditorForm(
+      {super.key,
+      required this.amountController,
+      required this.type,
+      required this.totalLabel,
+      required this.categoryTypeLabel,
+      required this.categoryLabel,
+      required this.categoryHint,
+      required this.amountLabel,
+      required this.amountHint,
+      required this.symbol,
+      this.categoryName,
+      this.categoryIcon,
+      this.amountError,
+      this.onType,
+      this.onCategory,
+      this.onAmountChanged,
+      this.editing = false,
+      this.totalUnavailable = false,
+      this.enabled = true});
+  final TextEditingController amountController;
+  final String type,
+      totalLabel,
+      categoryTypeLabel,
+      categoryLabel,
+      categoryHint,
+      amountLabel,
+      amountHint,
+      symbol;
+  final String? categoryName, amountError;
+  final Widget? categoryIcon;
+  final bool editing, totalUnavailable, enabled;
+  final ValueChanged<String>? onType, onAmountChanged;
+  final VoidCallback? onCategory;
+  @override
+  Widget build(BuildContext context) =>
+      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        if (!editing) ...[
+          BeeSurface(
+              child: BeeSegmented<String>(items: [
+            BeeSegment('total', totalLabel, enabled: !totalUnavailable),
+            BeeSegment('category', categoryTypeLabel)
+          ], value: type, onChanged: enabled ? onType : null)),
+          const SizedBox(height: 12)
+        ],
+        if (type == 'category') ...[
+          BeeSurface(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+              child: BeeMenuRow(
+                  title: categoryLabel,
+                  subtitle: categoryName ?? categoryHint,
+                  leading:
+                      categoryIcon ?? const BeeLineIcon('Shapes', size: 20),
+                  onTap: enabled ? onCategory : null)),
+          const SizedBox(height: 12)
+        ],
+        BeeSurface(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+              Text(amountLabel,
+                  style: TextStyle(
+                      fontSize: 14,
+                      height: 1.4,
+                      color: Theme.of(context).hintColor)),
+              const SizedBox(height: 12),
+              TextField(
+                  controller: amountController,
+                  enabled: enabled,
+                  onChanged: onAmountChanged,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.done,
+                  inputFormatters: const [
+                    BeeDecimalInputFormatter(maxFractionDigits: 2)
+                  ],
+                  style: const TextStyle(
+                      fontSize: 24, height: 1.4, fontWeight: FontWeight.w600),
+                  decoration: InputDecoration(
+                      prefixText: '$symbol ',
+                      hintText: amountHint,
+                      constraints: const BoxConstraints(minHeight: 64),
+                      border: InputBorder.none,
+                      contentPadding:
+                          const EdgeInsets.symmetric(vertical: 12))),
+              if (amountError != null) ...[
+                const SizedBox(height: 8),
+                Semantics(
+                    liveRegion: true,
+                    child: Text(amountError!,
+                        style: TextStyle(
+                            fontSize: 12,
+                            height: 1.4,
+                            color: Theme.of(context).colorScheme.error)))
+              ]
+            ]))
+      ]);
+}
