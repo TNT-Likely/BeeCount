@@ -1040,58 +1040,76 @@ class BeeProfile extends StatelessWidget {
       {super.key,
       required this.nickname,
       this.greeting,
+      this.profileLabel,
+      this.editLabel,
       required this.subtitle,
       required this.avatar,
       required this.onEdit,
       required this.onTap});
   final String nickname, subtitle;
-  final String? greeting;
+  final String? greeting, profileLabel, editLabel;
   final Widget avatar;
   final VoidCallback onEdit, onTap;
   @override
-  Widget build(BuildContext context) => Row(children: [
-        InkWell(
+  Widget build(BuildContext context) => Semantics(
+      container: true,
+      child: Row(children: [
+        Semantics(
+            container: true,
+            button: true,
+            label: profileLabel ?? nickname,
+            excludeSemantics: true,
             onTap: onTap,
-            child: Container(
-                width: 54,
-                height: 54,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withValues(alpha: .1),
-                    borderRadius: BorderRadius.circular(18)),
-                child: avatar)),
+            child: InkWell(
+                onTap: onTap,
+                child: Container(
+                    width: 54,
+                    height: 54,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withValues(alpha: .1),
+                        borderRadius: BorderRadius.circular(18)),
+                    child: avatar))),
         const SizedBox(width: 12),
         Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          InkWell(
-              onTap: onEdit,
-              child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    if (greeting != null) ...[
-                      Text(greeting!,
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).hintColor)),
-                      const SizedBox(width: 8)
-                    ],
-                    Flexible(
-                        child: Text(nickname,
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w600))),
-                    const SizedBox(width: 6),
-                    const BeeLineIcon('PencilLine', size: 13)
-                  ]))),
+          Semantics(
+              container: true,
+              button: true,
+              label: editLabel,
+              child: InkWell(
+                  onTap: onEdit,
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        if (greeting != null) ...[
+                          Text(greeting!,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).hintColor)),
+                          const SizedBox(width: 8)
+                        ],
+                        Flexible(
+                            child: Text(nickname,
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600))),
+                        const SizedBox(width: 6),
+                        const BeeLineIcon('PencilLine', size: 13)
+                      ])))),
           Text(subtitle,
               style:
                   TextStyle(fontSize: 11, color: Theme.of(context).hintColor))
         ])),
-        IconButton(onPressed: onTap, icon: const BeeLineIcon('ChevronRight'))
-      ]);
+        IconButton(
+            tooltip: profileLabel,
+            onPressed: onTap,
+            icon: const BeeLineIcon('ChevronRight'))
+      ]));
 }
 
 class BeeRankItem {

@@ -301,6 +301,8 @@ class MineProfileBindingState extends ConsumerState<MineProfileBinding> {
     final l10n = AppLocalizations.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       BeeProfile(
+          profileLabel: l10n.mineProfileEditTitle,
+          editLabel: l10n.mineDisplayNameEditTitle,
           nickname: name.isEmpty ? l10n.appTitle : name,
           greeting: name.isEmpty ? null : _greeting(l10n).text,
           subtitle: l10n.mineSlogan,
