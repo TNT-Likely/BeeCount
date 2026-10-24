@@ -241,79 +241,79 @@
   },
   {
     "route": "welcome",
-    "slug": "welcome",
     "title": "欢迎 · 语言选择",
     "group": "启动与分享",
-    "fullHeight": 844,
+    "slug": "welcome",
+    "fullHeight": 855,
     "viewport": "screens/viewport/welcome.png",
     "full": "screens/full/welcome.png",
     "svg": "figma/welcome.svg"
   },
   {
     "route": "welcomeCurrency",
-    "slug": "welcomeCurrency",
     "title": "欢迎 · 币种与默认账本",
     "group": "启动与分享",
-    "fullHeight": 844,
+    "slug": "welcomeCurrency",
+    "fullHeight": 855,
     "viewport": "screens/viewport/welcomeCurrency.png",
     "full": "screens/full/welcomeCurrency.png",
     "svg": "figma/welcomeCurrency.svg"
   },
   {
     "route": "welcomeCategories",
-    "slug": "welcomeCategories",
     "title": "欢迎 · 分类模式",
     "group": "启动与分享",
-    "fullHeight": 844,
+    "slug": "welcomeCategories",
+    "fullHeight": 855,
     "viewport": "screens/viewport/welcomeCategories.png",
     "full": "screens/full/welcomeCategories.png",
     "svg": "figma/welcomeCategories.svg"
   },
   {
     "route": "welcomeCloud",
-    "slug": "welcomeCloud",
     "title": "欢迎 · 云同步说明",
     "group": "启动与分享",
-    "fullHeight": 844,
+    "slug": "welcomeCloud",
+    "fullHeight": 855,
     "viewport": "screens/viewport/welcomeCloud.png",
     "full": "screens/full/welcomeCloud.png",
     "svg": "figma/welcomeCloud.svg"
   },
   {
     "route": "welcomePrivacy",
-    "slug": "welcomePrivacy",
     "title": "欢迎 · 隐私与开源",
     "group": "启动与分享",
-    "fullHeight": 844,
+    "slug": "welcomePrivacy",
+    "fullHeight": 855,
     "viewport": "screens/viewport/welcomePrivacy.png",
     "full": "screens/full/welcomePrivacy.png",
     "svg": "figma/welcomePrivacy.svg"
   },
   {
     "route": "welcomeImport",
-    "slug": "welcomeImport",
     "title": "老用户 · 导入配置",
     "group": "启动与分享",
-    "fullHeight": 844,
+    "slug": "welcomeImport",
+    "fullHeight": 855,
     "viewport": "screens/viewport/welcomeImport.png",
     "full": "screens/full/welcomeImport.png",
     "svg": "figma/welcomeImport.svg"
   },
   {
     "route": "welcomeAttachments",
-    "slug": "welcomeAttachments",
     "title": "老用户 · 导入附件",
     "group": "启动与分享",
-    "fullHeight": 844,
+    "slug": "welcomeAttachments",
+    "fullHeight": 855,
     "viewport": "screens/viewport/welcomeAttachments.png",
     "full": "screens/full/welcomeAttachments.png",
     "svg": "figma/welcomeAttachments.svg"
   },
   {
     "route": "welcomeDone",
-    "slug": "welcomeDone",
     "title": "欢迎 · 完成设置",
     "group": "启动与分享",
+    "slug": "welcomeDone",
     "fullHeight": 844,
     "viewport": "screens/viewport/welcomeDone.png",
     "full": "screens/full/welcomeDone.png",
@@ -2072,5 +2072,15 @@
     "viewport": "screens/viewport/flow-asset-conversion.png",
     "full": "screens/full/flow-asset-conversion.png",
     "svg": "figma/flow-asset-conversion.svg"
+  },
+  {
+    "route": "flow-welcome-currency-picker",
+    "title": "全部币种 · 底部弹层",
+    "group": "启动与分享",
+    "slug": "flow-welcome-currency-picker",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-welcome-currency-picker.png",
+    "full": "screens/full/flow-welcome-currency-picker.png",
+    "svg": "figma/flow-welcome-currency-picker.svg"
   }
 ]
