@@ -211,9 +211,9 @@
   },
   {
     "route": "automation",
-    "slug": "automation",
     "title": "自动化功能",
     "group": "设置与管理",
+    "slug": "automation",
     "fullHeight": 844,
     "viewport": "screens/viewport/automation.png",
     "full": "screens/full/automation.png",
@@ -464,7 +464,7 @@
     "title": "净值趋势",
     "group": "补齐 · 账户与资产",
     "slug": "flow-networth",
-    "fullHeight": 872,
+    "fullHeight": 854,
     "viewport": "screens/viewport/flow-networth.png",
     "full": "screens/full/flow-networth.png",
     "svg": "figma/flow-networth.svg"
