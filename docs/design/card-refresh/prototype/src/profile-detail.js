@@ -2,7 +2,7 @@
   const uAttachmentImages=__ATTACHMENT_IMAGE_DATA__;
   const uAttachmentExamples=[{src:uAttachmentImages.payment,title:'付款凭证',type:'支付截图',size:'128 KB'},{src:uAttachmentImages.receipt,title:'午餐小票',type:'票据照片',size:'256 KB'},{src:uAttachmentImages.order,title:'订单详情',type:'订单截图',size:'186 KB'}];
   rSpecs['nickname-edit']={title:'编辑昵称',host:'mine',kind:'dialog'};
-  rSpecs['profile-edit']={title:'编辑个人资料',host:'mine',kind:'sheet'};
+  rSpecs['profile-edit']={title:'编辑个人资料',host:'mine',kind:'dialog'};
   rSpecs['attachment-viewer']={title:'附件预览',host:'detail',kind:'viewer'};
   fDefine('nickname-edit','编辑昵称','交互补充','main/mine_page.dart',()=>uNicknameBody());
   fDefine('profile-edit','编辑个人资料','交互补充','main/mine_page.dart',()=>uProfileBody());

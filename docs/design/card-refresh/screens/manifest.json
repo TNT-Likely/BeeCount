@@ -1341,9 +1341,9 @@
   },
   {
     "route": "flow-profile-edit",
-    "slug": "flow-profile-edit",
-    "title": "编辑个人资料 · 底部弹层",
+    "title": "编辑个人资料 · 弹窗",
     "group": "补齐 · 交互补充",
+    "slug": "flow-profile-edit",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-profile-edit.png",
     "full": "screens/full/flow-profile-edit.png",
