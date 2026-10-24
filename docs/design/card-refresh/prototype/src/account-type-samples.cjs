@@ -18,6 +18,6 @@ function sample(locked) {
     }).join('');
     return `<div class="g-account-type-grid" data-account-panel="${group}" ${group === 'daily' ? '' : 'hidden'}>${choices}</div>`;
   }).join('');
-  return `<div data-account-types data-locked="${locked}"><h4>${locked ? '编辑已有日常账户' : '新建账户'}</h4><div class="g-account-type-tabs">${tabs}</div>${panels}<p class="v4-small" data-account-draft>当前草稿：现金</p><p class="v4-small">${locked ? '允许浏览其他分组；已有账户不能跨日常与估值分组改变类型。' : '共 12 种原有类型；浏览分组不会修改选择。'}</p></div>`;
+  return `<div data-account-types data-locked="${locked}"><h4>${locked ? '编辑已有日常账户' : '新建账户'}</h4><div class="g-choice-tabs">${tabs}</div>${panels}<p class="v4-small" data-account-draft>当前草稿：现金</p><p class="v4-small">${locked ? '允许浏览其他分组；已有账户不能跨日常与估值分组改变类型。' : '共 12 种原有类型；浏览分组不会修改选择。'}</p></div>`;
 }
 module.exports = `<div class="v4-stack">${sample(false)}<div class="v4-divider"></div>${sample(true)}</div>`;

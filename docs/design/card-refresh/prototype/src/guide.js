@@ -19,3 +19,9 @@ for(const picker of document.querySelectorAll('[data-account-types]'))picker.add
  for(const button of picker.querySelectorAll('[data-account-type]'))button.setAttribute('aria-pressed',String(button===type));
  picker.querySelector('[data-account-draft]').textContent='当前草稿：'+type.textContent;
 });
+
+for(const adjustment of document.querySelectorAll('[data-balance-adjustment]'))adjustment.addEventListener('click',event=>{
+ const mode=event.target.closest('[data-balance-mode]');
+ if(mode){for(const button of adjustment.querySelectorAll('[data-balance-mode]'))button.setAttribute('aria-pressed',String(button===mode));for(const description of adjustment.querySelectorAll('[data-balance-description]'))description.hidden=description.dataset.balanceDescription!==mode.dataset.balanceMode;adjustment.querySelector('[data-balance-confirm]').textContent=mode.dataset.confirmLabel;return;}
+ if(event.target.closest('[data-balance-confirm]'))adjustment.querySelector('[data-balance-result]').textContent='已确认：'+adjustment.querySelector('[data-balance-mode][aria-pressed=true]').textContent;
+});

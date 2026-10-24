@@ -409,6 +409,13 @@
         "title": "账户类型选择",
         "nativeCase": 38,
         "nativeLabel": "账户类型选择"
+      },
+      {
+        "id": "spec-58",
+        "code": "B36",
+        "title": "账户余额调整",
+        "nativeCase": 39,
+        "nativeLabel": "账户余额调整"
       }
     ]
   }

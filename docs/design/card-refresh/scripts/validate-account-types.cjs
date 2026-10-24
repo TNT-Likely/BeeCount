@@ -20,6 +20,13 @@ const root = path.resolve(__dirname, '..');
       await edit.locator('[data-account-group="valuation"]').click();
       assert.equal(await edit.locator('[data-account-panel="valuation"] button:disabled').count(), 6);
       assert.match(await edit.locator('[data-account-draft]').textContent(), /现金/);
+      const adjustment = page.locator('[data-balance-adjustment]');
+      await adjustment.locator('[data-balance-mode="true"]').click();
+      await adjustment.locator('[data-balance-confirm]').click();
+      assert.match(await adjustment.locator('[data-balance-result]').textContent(), /新增平账记录/);
+      await adjustment.locator('[data-balance-mode="false"]').click();
+      await adjustment.locator('[data-balance-confirm]').click();
+      assert.match(await adjustment.locator('[data-balance-result]').textContent(), /只修改余额/);
       for (const mode of ['light', 'dark']) {
         await page.locator('#spec-mode').selectOption(mode);
         assert.equal(await create.evaluate(el => el.scrollWidth > el.clientWidth), false);

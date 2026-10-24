@@ -11,9 +11,9 @@ html{scroll-behavior:smooth}.spec{width:100%;max-width:1664px;padding:32px}.spec
 @media(min-width:1000px){#bee-immersive-suite #spec-47 .g-state-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 22px}}
 
 [data-account-types]{container-type:inline-size}
-.g-account-type-tabs{display:flex;background:var(--bc-soft);padding:4px;border-radius:12px;margin:12px 0}
-.g-account-type-tabs>button{flex:1;min-height:44px;border-radius:9px;font-size:13px}
-.g-account-type-tabs>button[aria-pressed=true]{background:var(--bc-paper)}
+.g-choice-tabs{display:flex;background:var(--bc-soft);padding:4px;border-radius:12px;margin:12px 0}
+.g-choice-tabs>button{flex:1;min-height:44px;border-radius:9px;font-size:13px}
+.g-choice-tabs>button[aria-pressed=true]{background:var(--bc-paper)}
 .g-account-type-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .g-account-type-grid[hidden]{display:none}
 .g-account-type-grid>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:64px;aspect-ratio:1.05;padding:10px 4px;border:1px solid transparent;border-radius:13px;font-size:11px}
@@ -21,3 +21,14 @@ html{scroll-behavior:smooth}.spec{width:100%;max-width:1664px;padding:32px}.spec
 .g-account-type-grid>button:disabled{opacity:.4;cursor:default}
 .g-account-type-grid img{width:24px;height:24px;object-fit:contain}
 @container(max-width:299px){.g-account-type-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+.g-balance-summary{background:var(--bc-soft);border-radius:18px;padding:16px}
+.g-balance-pair,.g-balance-difference{display:flex;align-items:center;gap:10px}
+.g-balance-pair>div{flex:1;min-width:0}
+.g-balance-pair>div:last-child{text-align:right}
+.g-balance-pair small{display:block;font-size:11px;color:var(--bc-muted);margin-bottom:6px}
+.g-balance-pair strong{font-size:22px;font-weight:600}
+.g-balance-difference{justify-content:space-between;font-size:12px}
+.g-balance-difference strong{font-size:14px;color:#25856d}
+[data-balance-description]{min-height:40px;margin:12px 0 20px}
+[data-balance-description][hidden]{display:none}
