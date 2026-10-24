@@ -1,3 +1,4 @@
+import '../bindings/calendar_preview.dart';
 import '../bindings/budget_editor_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:beecount_ui/beecount_ui.dart';
@@ -96,6 +97,9 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                                 key: const ValueKey('gallery-business-tickers'),
                                 enabled: tab == 1 && !motionPaused,
                                 child: BusinessAcceptancePage(
+                                    calendarData: widget.enableLiveData
+                                        ? const LiveCalendarPreview()
+                                        : null,
                                     budgetEditorData: widget.enableLiveData
                                         ? const LiveBudgetEditorPreview()
                                         : null,

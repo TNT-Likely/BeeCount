@@ -1,0 +1,16 @@
+{
+  "source": "prototype/demo.html?page=calendar",
+  "viewport": [398, 844],
+  "textScale": 1,
+  "previewFrameBorderExcluded": true,
+  "pageInset": 17,
+  "monthCardWidth": 364,
+  "monthCardHorizontalPadding": 10,
+  "monthHeadingHeight": 48,
+  "weekdayHeight": 30,
+  "rowHeight": 64,
+  "dayRadius": 12,
+  "dayVisualHeight": 60,
+  "dayColumnWidth": 49.142857142857146,
+  "dayHorizontalMargin": 1
+}
