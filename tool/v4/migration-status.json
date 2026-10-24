@@ -30,10 +30,10 @@
     "account/net_worth_trend_page.dart": {
       "name": "净资产趋势",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "待迁移",
-      "components": "净资产汇总、趋势图、时间范围与明细",
-      "acceptance": "资产/负债/净资产和折算口径、范围切换、无数据与历史点选择。"
+      "reason": "原四范围/三条线/月末降采样和期初期末变化保留；基础折线图抽离并冻结旧图。R65最终同一QA真实UI、独立SQL/偏好/文件与正常重启闭环通过。",
+      "status": "已完成",
+      "components": "净值摘要、四种时间范围、三种资产维度、基础折线图、隐私和主币种说明",
+      "acceptance": "100项/13文件相关回归、最终49项目录/真实数据目标检查（重叠不相加）、11文件静态0问题；四组旧图逐像素、真正选择字号/外观的3组HTML、61组规范/39基础控件和231场景链接通过。真机12组合期初/期末/变化独立SQL一致，实际隐藏恢复/默认12个月重启、原57/53/24/5及标签26保持。8图/11文件报告networth-r65三宽度通过，ZIP SHA256 a7cf294cd75bccf73caa279d11e3c470834a74422ba31d8cee5f014d5ff9eafa。跨币种缺汇率/美元账本符号/空错与短屏大字高额由真实仓库/widget覆盖；原全屏没有点选回调，不新增该行为。Cloud/iOS未执行。"
     },
     "ai/agent_activity_page.dart": {
       "name": "AI 活动记录",
@@ -391,7 +391,7 @@
       "name": "自动化功能入口",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "待迁移",
+      "status": "迁移中·原68行已备份，统一分组入口并保留原两条路由",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
     },
@@ -748,31 +748,31 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-24T19:54:00+08:00",
-    "engineeringEstimatePercent": 37,
+    "reportedAt": "2026-10-24T20:54:00+08:00",
+    "engineeringEstimatePercent": 38,
     "engineeringEstimateRange": [
-      35,
-      39
+      36,
+      40
     ],
-    "completedPages": 16,
+    "completedPages": 18,
     "totalPages": 73,
     "completedP0Pages": 13,
     "totalExistingP0Pages": 16,
     "newlyCompletedSincePreviousReport": [
-      "新增与编辑标签",
-      "标签管理"
+      "语言设置",
+      "显示缩放"
     ],
     "inProgress": [
-      "标签详情R60可执行范围已封存，Q11待确认；记账Q09、搜索Q08、分类详情Q10/Q11继续保留原行为",
-      "语言设置下一页开工：原144行备份一致，原五项/偏好/桌面组件语言刷新逐项核对",
-      "同一QA57笔/当前53/24账户/5附件；R62仅新增保留标签26，所有原行和文件保持，无重置",
-      "PR575按用户要求暂时关闭，当前AI Eval已请求取消；v4继续推进，准备完成再恢复PR"
+      "净值趋势R65：原266行和559行折线图已备份，四组旧图逐像素通过；真实仓库和HTML实现中，尚未完成真机闭环",
+      "标签详情Q11、记账Q09、搜索Q08、分类详情Q10/Q11继续保留原行为并单独记录待确认",
+      "同一QA环境57笔/当前53/24账户/5附件及保留标签26，无重置",
+      "PR575保持CLOSED，v4继续推送；准备完成再重开"
     ],
     "remainingEffortEstimateHours": [
-      31,
-      51
+      30,
+      50
     ],
-    "remainingEffortChangeReason": "较18:54的32–52减少约1实际工时。本小时标签编辑与标签管理的真实UI/独立SQL/文件/正常重启和固定报告完成；P1/P2云同步、共享权限、AI与平台服务仍有不确定性，31–51为实际工作量范围，不是上线时刻承诺。"
+    "remainingEffortChangeReason": "较19:54的31–51减少约1实际工时。本小时语言设置与显示缩放通过真实UI/偏好/独立SQL和文件/正常入口重启及独立报告；显示缩放修复原Provider互相重置。净值趋势在迁移中。AI、Cloud、共享权限和平台相关验证仍有浮动；该范围为实际工作量而非上线时刻承诺。"
   },
   "pullRequest": {
     "number": 575,

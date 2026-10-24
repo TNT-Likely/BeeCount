@@ -293,18 +293,18 @@
       "classes": [
         "NetWorthTrendPage"
       ],
-      "lines": 266,
+      "lines": 72,
       "batch": "M4 统计与分享",
       "designRoutes": [
         "flow-networth"
       ],
       "designMapping": "已定位",
-      "components": "净资产汇总、趋势图、时间范围与明细",
-      "acceptance": "资产/负债/净资产和折算口径、范围切换、无数据与历史点选择。",
-      "status": "待迁移",
+      "components": "净值摘要、四种时间范围、三种资产维度、基础折线图、隐私和主币种说明",
+      "acceptance": "100项/13文件相关回归、最终49项目录/真实数据目标检查（重叠不相加）、11文件静态0问题；四组旧图逐像素、真正选择字号/外观的3组HTML、61组规范/39基础控件和231场景链接通过。真机12组合期初/期末/变化独立SQL一致，实际隐藏恢复/默认12个月重启、原57/53/24/5及标签26保持。8图/11文件报告networth-r65三宽度通过，ZIP SHA256 a7cf294cd75bccf73caa279d11e3c470834a74422ba31d8cee5f014d5ff9eafa。跨币种缺汇率/美元账本符号/空错与短屏大字高额由真实仓库/widget覆盖；原全屏没有点选回调，不新增该行为。Cloud/iOS未执行。",
+      "status": "已完成",
       "name": "净资产趋势",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "原四范围/三条线/月末降采样和期初期末变化保留；基础折线图抽离并冻结旧图。R65最终同一QA真实UI、独立SQL/偏好/文件与正常重启闭环通过。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-networth"
       ]
@@ -1345,7 +1345,7 @@
       "classes": [
         "AutomationPage"
       ],
-      "lines": 68,
+      "lines": 43,
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "automation"
@@ -1353,7 +1353,7 @@
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "待迁移",
+      "status": "迁移中·原68行已备份，统一分组入口并保留原两条路由",
       "name": "自动化功能入口",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
