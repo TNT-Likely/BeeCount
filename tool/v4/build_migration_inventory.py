@@ -9,10 +9,10 @@ manual={
 'tag/tag_manage_page.dart':['flow-tag-management','flow-tag-management-empty','flow-tag-management-error','flow-tag-management-loading','flow-tag-tools'],
 'account/accounts_page.dart':['assets','flow-assets-single','flow-assets-missing','flow-assets-empty','flow-assets-hidden','flow-assets-valuation','flow-account-settings','flow-asset-default','flow-asset-conversion'],'account/account_detail_page.dart':['accountDetail','flow-account-credit-detail','flow-account-overpayment-detail','flow-account-no-limit-detail','flow-account-valuation-detail','flow-account-loan-detail','flow-account-empty-detail'],'calendar/calendar_page.dart':['calendar'],'transaction/transaction_editor_page.dart':['editor','flow-foreign-editor'],
 'auth/welcome_page.dart':['welcome','welcomeCurrency','welcomeCategories','welcomeCloud','welcomePrivacy','welcomeImport','welcomeAttachments','welcomeDone','flow-welcome-currency-picker'],
-'category/category_manage_page.dart':['flow-category-management','flow-category-children','flow-category-tools','flow-category-share','flow-taxonomy-import','flow-category-defaults','flow-category-clear','flow-category-empty'],'settings/about_page.dart':['about'],'settings/data_management_page.dart':['data'],
+'category/category_manage_page.dart':['flow-category-management','flow-category-children','flow-category-tools','flow-category-share','flow-taxonomy-import','flow-category-defaults','flow-category-clear','flow-category-empty'],'settings/about_page.dart':['about'],'settings/data_management_page.dart':['data','flow-attachment-transfer','flow-attachment-import-confirm','flow-data-import-running','flow-data-import-success','flow-data-import-partial','flow-attachment-export-progress','flow-attachment-import-progress'],
 'settings/reminder_settings_page.dart':['flow-reminder','flow-reminder-ios','flow-reminder-time','flow-reminder-battery','flow-reminder-channel','flow-reminder-battery-warning','flow-reminder-channel-warning'],
 'settings/smart_billing_page.dart':['smart'],'settings/automation_page.dart':['automation'],'settings/personalize_page.dart':['colors','flow-theme-custom','flow-theme-locked'],
-'settings/appearance_settings_page.dart':['appearance','flow-appearance-mode','flow-appearance-amount','flow-appearance-note','flow-appearance-history','flow-appearance-scheme','flow-appearance-currency'],'settings/header_skin_page.dart':['skins'],'settings/language_settings_page.dart':['flow-language'],
+'settings/appearance_settings_page.dart':['appearance','flow-appearance-mode','flow-appearance-amount','flow-appearance-note','flow-appearance-history','flow-appearance-scheme','flow-appearance-currency'],'settings/header_skin_page.dart':['skins','flow-skins-animated','flow-skins-static','flow-skins-debug'],'settings/language_settings_page.dart':['flow-language'],
 'settings/privacy_policy_page.dart':['leaf:隐私政策'],'report/annual_report_page.dart':['annual'],
 'donation/donation_page.dart':['flow-donation'],'settings/attachment_preview_page.dart':['flow-attachment-library'],
 'attachment/attachment_preview_page.dart':['flow-attachment-viewer'],
@@ -152,7 +152,7 @@ page=f"""# V4 完整页面迁移清单与优先级
 
 现有 **{len(rows)} 个产品页面源文件**（{counts_text}），另有 **{len(config['plannedPages'])} 个新设计页面待新增**、{len(helpers)} 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
-当前完整完成页面为 **{completed_count}**（{completed_names}）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
+当前完整完成页面为 **{completed_count}**（{completed_names}）。已完整验收的页面按表标记；记账/转账、搜索与分类/标签详情的待确认项保留当前行为，其余页面逐页迁移并独立验收。全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
 
 ## 优先级与顺序
 
