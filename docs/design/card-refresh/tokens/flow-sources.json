@@ -822,6 +822,12 @@
     "source": "tag/tag_detail_page.dart"
   },
   {
+    "route": "flow-tag-new",
+    "title": "新建标签",
+    "group": "分类标签与预算",
+    "source": "tag/tag_edit_page.dart"
+  },
+  {
     "route": "flow-welcome-currency-picker",
     "title": "欢迎 · 全部币种与搜索",
     "group": "启动与分享",

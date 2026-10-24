@@ -771,9 +771,9 @@
   },
   {
     "route": "flow-tag-edit",
-    "slug": "flow-tag-edit",
     "title": "编辑标签",
     "group": "补齐 · 分类标签与预算",
+    "slug": "flow-tag-edit",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-tag-edit.png",
     "full": "screens/full/flow-tag-edit.png",
@@ -2282,5 +2282,15 @@
     "viewport": "screens/viewport/flow-tag-empty-detail.png",
     "full": "screens/full/flow-tag-empty-detail.png",
     "svg": "figma/flow-tag-empty-detail.svg"
+  },
+  {
+    "route": "flow-tag-new",
+    "title": "新增标签",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-tag-new",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-tag-new.png",
+    "full": "screens/full/flow-tag-new.png",
+    "svg": "figma/flow-tag-new.svg"
   }
 ]

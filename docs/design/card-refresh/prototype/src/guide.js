@@ -45,3 +45,5 @@ for(const overview of document.querySelectorAll('[data-asset-overview]')){
  });
  overview.addEventListener('change',event=>{if(event.target.matches('[data-asset-enabled]'))overview.querySelector('[data-asset-defaults]').hidden=!event.target.checked;});
 }
+
+for(const palette of document.querySelectorAll('[data-color-palette]'))palette.addEventListener('click',event=>{const button=event.target.closest('button');if(!button||button.disabled)return;for(const item of palette.querySelectorAll('button')){item.setAttribute('aria-pressed',String(item===button));item.querySelector('span').innerHTML=item===button?'<i data-lucide="check"></i>':'';}palette.nextElementSibling.textContent='已选择：'+button.getAttribute('aria-label');lucide.createIcons({attrs:{width:18,height:18}});});
