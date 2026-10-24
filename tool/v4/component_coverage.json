@@ -397,7 +397,8 @@
     "design_key": "categoryManagement",
     "components": [
       "BeeCategoryManagementList",
-      "BeeManagedCategory"
+      "BeeManagedCategory",
+      "BeeCategoryChildrenGrid"
     ],
     "page": "business",
     "case": 32

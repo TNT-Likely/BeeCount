@@ -92,6 +92,56 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
     'date': '交易时间',
     'category': '类别'
   };
+  bool categoryEmpty = false;
+  final categoryOrder = ['food', 'travel'];
+  List<BeeManagedCategory> get demoCategoryChildren => [
+        const BeeManagedCategory(
+            id: 'breakfast',
+            name: '早餐',
+            detail: '8 笔',
+            icon: BeeLineIcon('Coffee', size: 20)),
+        const BeeManagedCategory(
+            id: 'lunch',
+            name: '午餐',
+            detail: '14 笔',
+            icon: BeeLineIcon('Utensils', size: 20)),
+        const BeeManagedCategory(
+            id: 'coffee',
+            name: '咖啡',
+            detail: '2 笔',
+            icon: BeeLineIcon('Coffee', size: 20)),
+        BeeManagedCategory(
+            id: 'milk',
+            name: '奶茶',
+            detail: '0 笔',
+            icon: Image.asset('assets/v4_gallery/category-milk-tea.png',
+                fit: BoxFit.contain)),
+      ];
+  Future<void> demoManageChildren(String parent) => showBeeDialog<void>(context,
+          title: '餐饮',
+          child: BeeCategoryChildrenGrid(
+              items: demoCategoryChildren,
+              emptyLabel: '暂无二级分类',
+              onEdit: (id) {
+                Navigator.pop(context);
+                record('编辑二级分类 $id');
+              }),
+          actions: [
+            BeeButton(
+                label: '新增',
+                kind: BeeButtonKind.secondary,
+                onPressed: () {
+                  Navigator.pop(context);
+                  record('新增二级分类 $parent');
+                }),
+            BeeButton(
+                label: '编辑父分类',
+                kind: BeeButtonKind.secondary,
+                onPressed: () {
+                  Navigator.pop(context);
+                  record('编辑一级分类 $parent');
+                }),
+          ]);
   List<BeeAttachment> get attachments => ['payment', 'receipt', 'order']
       .map((s) => BeeAttachment(
           id: s,
@@ -1182,41 +1232,58 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                           ledger = v;
                           event = '切换账本 $v';
                         })))),
-        32 => SizedBox(
-            height: 330,
-            child: BeeCategoryManagementList(
-                items: const [
-                  BeeManagedCategory(
-                      id: 'food',
-                      name: '餐饮',
-                      detail: '4 个二级分类',
-                      icon: BeeLineIcon('Utensils', size: 19),
-                      isDefault: true,
-                      children: [
-                        BeeManagedCategory(
-                            id: 'breakfast',
-                            name: '早餐',
-                            detail: '',
-                            icon: BeeLineIcon('Coffee', size: 16)),
-                        BeeManagedCategory(
-                            id: 'lunch',
-                            name: '午餐',
-                            detail: '',
-                            icon: BeeLineIcon('Utensils', size: 16))
-                      ]),
-                  BeeManagedCategory(
-                      id: 'travel',
-                      name: '交通',
-                      detail: '3 个二级分类',
-                      icon: BeeLineIcon('TrainFront', size: 19))
-                ],
-                onEdit: (id) => record('编辑分类 $id'),
-                onManageChildren: (id) => record('管理二级分类 $id'),
-                onReorder: (a, b) => record('分类排序 $a → $b'),
-                manageLabel: '管理',
-                footer: TextButton(
-                    onPressed: () => record('分类工具弹窗'),
-                    child: const Text('分类工具')))),
+        32 => Column(children: [
+            BeeCheckTile(
+                label: '预览空分类状态',
+                value: categoryEmpty,
+                onChanged: (v) => setState(() => categoryEmpty = v)),
+            SizedBox(
+                height: 330,
+                child: BeeCategoryManagementList(
+                    items: categoryEmpty
+                        ? const []
+                        : [
+                            for (final id in categoryOrder)
+                              id == 'food'
+                                  ? BeeManagedCategory(
+                                      id: 'food',
+                                      name: '餐饮',
+                                      detail: '4 个二级分类 · 24 笔',
+                                      icon: const BeeLineIcon('Utensils',
+                                          size: 19),
+                                      isDefault: true,
+                                      children: demoCategoryChildren)
+                                  : const BeeManagedCategory(
+                                      id: 'travel',
+                                      name: '交通',
+                                      detail: '3 个二级分类 · 8 笔',
+                                      icon:
+                                          BeeLineIcon('TrainFront', size: 19)),
+                          ],
+                    empty: BeeStatus(
+                        label: '暂无分类',
+                        action: BeeButton(
+                            label: '新建分类', onPressed: () => record('新建分类'))),
+                    onEdit: (id) => record('编辑分类 $id'),
+                    onManageChildren: demoManageChildren,
+                    onReorder: (a, b) => setState(() {
+                          if (a < b) b--;
+                          final item = categoryOrder.removeAt(a);
+                          categoryOrder.insert(b, item);
+                          event = '分类排序 $a → $b';
+                        }),
+                    manageLabel: '管理',
+                    footer: Column(children: [
+                      BeeMenuRow(
+                          title: '转账分类图标',
+                          leading: const BeeLineIcon('ArrowLeftRight'),
+                          onTap: () => record('编辑转账分类')),
+                      BeeMenuRow(
+                          title: '分类工具',
+                          leading: const BeeLineIcon('Settings2'),
+                          onTap: () => record('分类工具弹窗')),
+                    ]))),
+          ]),
         33 => BeeTransferAccountPair(
             fromLabel: '转出账户',
             toLabel: '转入账户',
