@@ -597,7 +597,7 @@
     "route": "flow-transfer-icon",
     "title": "转账图标设置",
     "group": "分类标签与预算",
-    "source": "category/category_manage_page.dart"
+    "source": "category/category_edit_page.dart"
   },
   {
     "route": "flow-attachment-library",
@@ -616,24 +616,6 @@
     "title": "日志详情",
     "group": "帮助与信息",
     "source": "settings/log_center_page.dart"
-  },
-  {
-    "route": "flow-transaction-states",
-    "title": "账单行 · 全部场景用例",
-    "group": "组件验收",
-    "source": "widgets/biz/transaction_list_item.dart"
-  },
-  {
-    "route": "flow-pin-change",
-    "title": "修改密码",
-    "group": "首次使用与安全",
-    "source": "auth/pin_setup_page.dart"
-  },
-  {
-    "route": "flow-lock-bio",
-    "title": "应用锁 · 生物识别可用",
-    "group": "首次使用与安全",
-    "source": "auth/app_lock_screen.dart"
   },
   {
     "route": "flow-config-select",
@@ -658,5 +640,35 @@
     "title": "需要重启",
     "group": "导入导出与维护",
     "source": "settings/config_import_export_page.dart"
+  },
+  {
+    "route": "flow-pin-change",
+    "title": "修改密码",
+    "group": "首次使用与安全",
+    "source": "auth/pin_setup_page.dart"
+  },
+  {
+    "route": "flow-lock-bio",
+    "title": "应用锁 · 生物识别可用",
+    "group": "首次使用与安全",
+    "source": "auth/app_lock_screen.dart"
+  },
+  {
+    "route": "flow-category-new",
+    "title": "新建分类",
+    "group": "分类标签与预算",
+    "source": "category/category_edit_page.dart"
+  },
+  {
+    "route": "flow-category-parent-picker",
+    "title": "选择父分类",
+    "group": "分类标签与预算",
+    "source": "category/category_edit_page.dart"
+  },
+  {
+    "route": "flow-transaction-states",
+    "title": "账单行 · 全部场景用例",
+    "group": "组件验收",
+    "source": "widgets/biz/transaction_list_item.dart"
   }
 ]

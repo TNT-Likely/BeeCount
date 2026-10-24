@@ -19,7 +19,8 @@
     "preguide": "node scripts/prepare-output.cjs",
     "precheck": "node scripts/prepare-output.cjs",
     "export:selected": "node scripts/export-selected.cjs",
-    "check:security": "node scripts/validate-security.cjs"
+    "check:security": "node scripts/validate-security.cjs",
+    "check:category-editor": "node scripts/validate-category-editor.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

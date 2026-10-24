@@ -514,7 +514,8 @@
         "选中",
         "未选中",
         "禁用",
-        "文字省略与换行"
+        "文字省略与换行",
+        "compact-icons-with-semantic-labels"
       ]
     }
   ]

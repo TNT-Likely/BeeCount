@@ -395,6 +395,13 @@
         "title": "安全输入与验证",
         "nativeCase": 26,
         "nativeLabel": "安全输入"
+      },
+      {
+        "id": "spec-56",
+        "code": "B34",
+        "title": "分类图标编辑",
+        "nativeCase": 37,
+        "nativeLabel": "分类图标编辑"
       }
     ]
   }

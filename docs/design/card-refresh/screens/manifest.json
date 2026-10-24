@@ -731,10 +731,10 @@
   },
   {
     "route": "flow-category-edit",
-    "slug": "flow-category-edit",
     "title": "编辑分类",
     "group": "补齐 · 分类标签与预算",
-    "fullHeight": 959,
+    "slug": "flow-category-edit",
+    "fullHeight": 855,
     "viewport": "screens/viewport/flow-category-edit.png",
     "full": "screens/full/flow-category-edit.png",
     "svg": "figma/flow-category-edit.svg"
@@ -811,10 +811,10 @@
   },
   {
     "route": "flow-transfer-icon",
-    "slug": "flow-transfer-icon",
     "title": "转账图标设置",
     "group": "补齐 · 分类标签与预算",
-    "fullHeight": 844,
+    "slug": "flow-transfer-icon",
+    "fullHeight": 855,
     "viewport": "screens/viewport/flow-transfer-icon.png",
     "full": "screens/full/flow-transfer-icon.png",
     "svg": "figma/flow-transfer-icon.svg"
@@ -1241,9 +1241,9 @@
   },
   {
     "route": "flow-category-icons",
-    "slug": "flow-category-icons",
     "title": "分类图标与自定义图片",
     "group": "补齐 · 交互补充",
+    "slug": "flow-category-icons",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-category-icons.png",
     "full": "screens/full/flow-category-icons.png",
@@ -1892,5 +1892,25 @@
     "viewport": "screens/viewport/flow-config-done.png",
     "full": "screens/full/flow-config-done.png",
     "svg": "figma/flow-config-done.svg"
+  },
+  {
+    "route": "flow-category-new",
+    "title": "新建分类 · 完整图标与父分类",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-new",
+    "fullHeight": 855,
+    "viewport": "screens/viewport/flow-category-new.png",
+    "full": "screens/full/flow-category-new.png",
+    "svg": "figma/flow-category-new.svg"
+  },
+  {
+    "route": "flow-category-parent-picker",
+    "title": "选择父分类 · 底部弹层",
+    "group": "补齐 · 分类标签与预算",
+    "slug": "flow-category-parent-picker",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-category-parent-picker.png",
+    "full": "screens/full/flow-category-parent-picker.png",
+    "svg": "figma/flow-category-parent-picker.svg"
   }
 ]

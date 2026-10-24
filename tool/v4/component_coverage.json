@@ -452,5 +452,44 @@
     ],
     "page": "business",
     "case": 34
+  },
+  {
+    "design_key": "categoryIconEditor",
+    "components": [
+      "BeeCategoryIconEditor",
+      "BeeCategoryIconGroup",
+      "BeeCategoryIconSource",
+      "BeeIconChoiceGrid"
+    ],
+    "page": "business",
+    "case": 37
+  },
+  {
+    "design_key": "resourceDetail",
+    "components": [
+      "BeeResourceHero",
+      "BeeResourceBreakdown",
+      "BeeResourceTrend"
+    ],
+    "page": "business",
+    "case": 35
+  },
+  {
+    "design_key": "configuration",
+    "components": [
+      "BeeConfigurationOptions",
+      "BeeConfigurationPreview"
+    ],
+    "page": "business",
+    "case": 36
+  },
+  {
+    "design_key": "security",
+    "components": [
+      "BeeSecurityPanel",
+      "BeePinPad"
+    ],
+    "page": "business",
+    "case": 26
   }
 ]
