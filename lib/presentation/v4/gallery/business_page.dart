@@ -1049,6 +1049,12 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 child: BeeCategoryPicker(
                     items: const [
                       BeeCategoryChoice(
+                          id: 'disabled',
+                          label: '不可选分类',
+                          icon: BeeCategoryIcon(name: 'ShoppingBasket'),
+                          enabled: false,
+                          detail: '8 笔'),
+                      BeeCategoryChoice(
                           id: 'food',
                           label: '餐饮',
                           icon: BeeCategoryIcon(name: 'Utensils'),

@@ -7,13 +7,18 @@ class BeeCategoryChoice {
       {required this.id,
       required this.label,
       required this.icon,
-      this.children = const []});
+      this.children = const [],
+      this.enabled = true,
+      this.detail});
   final String id, label;
   final Widget icon;
   final List<BeeCategoryChoice> children;
+  final bool enabled;
+  final String? detail;
 }
 
-/// Hierarchy and image widgets come from the host; confirmation commits the draft.
+/// Controlled hierarchy. The host supplies permission/eligibility decisions and
+/// real counts; immediate selection is available for the original parent picker.
 class BeeCategoryPicker extends StatefulWidget {
   const BeeCategoryPicker(
       {super.key,
@@ -24,12 +29,14 @@ class BeeCategoryPicker extends StatefulWidget {
       required this.confirmLabel,
       required this.cancelLabel,
       required this.onConfirm,
-      required this.onCancel});
+      required this.onCancel,
+      this.immediate = false});
   final List<BeeCategoryChoice> items;
   final String? selected;
   final String searchLabel, emptyLabel, confirmLabel, cancelLabel;
   final ValueChanged<String> onConfirm;
   final VoidCallback onCancel;
+  final bool immediate;
   @override
   State<BeeCategoryPicker> createState() => _BeeCategoryPickerState();
 }
@@ -37,11 +44,43 @@ class BeeCategoryPicker extends StatefulWidget {
 class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
   late String? draft = widget.selected;
   String query = '';
-
   @override
   void didUpdateWidget(covariant BeeCategoryPicker old) {
     super.didUpdateWidget(old);
     if (old.selected != widget.selected) draft = widget.selected;
+  }
+
+  void choose(BeeCategoryChoice item) {
+    if (!item.enabled && item.children.isEmpty) return;
+    if (widget.immediate) {
+      if (item.enabled) widget.onConfirm(item.id);
+    } else {
+      setState(() => draft = item.id);
+    }
+  }
+
+  Widget tile(BeeCategoryChoice item) {
+    final selected =
+        item.id == draft || item.children.any((c) => c.id == draft);
+    final navigable = item.enabled || item.children.isNotEmpty;
+    return Semantics(
+        enabled: navigable,
+        child: Opacity(
+            opacity: navigable ? 1 : .4,
+            child: Column(children: [
+              RecordingCategoryTile(
+                  label: item.label,
+                  icon: item.icon,
+                  selected: selected,
+                  onTap: () => choose(item)),
+              if (item.detail != null)
+                Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(item.detail!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 10, color: Theme.of(context).hintColor)))
+            ])));
   }
 
   @override
@@ -56,8 +95,9 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
             .where((i) => i.id == draft || i.children.any((c) => c.id == draft))
             .firstOrNull ??
         visible.firstOrNull;
-    final valid = widget.items
-        .any((i) => i.id == draft || i.children.any((c) => c.id == draft));
+    final valid = widget.items.any((i) =>
+        (i.id == draft && i.enabled) ||
+        i.children.any((c) => c.id == draft && c.enabled));
     final children = parent?.children
             .where((c) =>
                 q.isEmpty ||
@@ -84,14 +124,7 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
                                     children: visible
                                         .map((i) => SizedBox(
                                             width: constraints.maxWidth / 4,
-                                            child: RecordingCategoryTile(
-                                                label: i.label,
-                                                icon: i.icon,
-                                                selected: i.id == draft ||
-                                                    i.children.any(
-                                                        (c) => c.id == draft),
-                                                onTap: () => setState(
-                                                    () => draft = i.id))))
+                                            child: tile(i)))
                                         .toList())),
                             if (parent != null && children.isNotEmpty) ...[
                               const SizedBox(height: 8),
@@ -102,9 +135,9 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
                                       borderRadius: BorderRadius.circular(14)),
                                   child: LayoutBuilder(
                                       builder: (context, constraints) {
-                                    final choices = [parent, ...children];
-                                    final columns =
-                                        constraints.maxWidth < 270 ? 2 : 4;
+                                    final choices = [parent, ...children],
+                                        columns =
+                                            constraints.maxWidth < 270 ? 2 : 4;
                                     return Wrap(
                                         spacing: 4,
                                         runSpacing: 4,
@@ -114,32 +147,38 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
                                                         (columns - 1) * 4) /
                                                     columns,
                                                 height: 44,
-                                                child: RecordingSubcategoryChip(
-                                                    label: c.label,
-                                                    icon: c.icon,
-                                                    selected: draft == c.id,
-                                                    onTap: () => setState(
-                                                        () => draft = c.id))))
+                                                child: Opacity(
+                                                    opacity: c.enabled ? 1 : .4,
+                                                    child:
+                                                        RecordingSubcategoryChip(
+                                                            label: c.label,
+                                                            icon: c.icon,
+                                                            selected:
+                                                                draft == c.id,
+                                                            onTap: () =>
+                                                                choose(c)))))
                                             .toList());
                                   }))
-                            ],
+                            ]
                           ])))),
-      const SizedBox(height: 12),
-      Row(children: [
-        Expanded(
-            child: BeeButton(
-                label: widget.cancelLabel,
-                kind: BeeButtonKind.secondary,
-                onPressed: () {
-                  setState(() => draft = widget.selected);
-                  widget.onCancel();
-                })),
-        const SizedBox(width: 8),
-        Expanded(
-            child: BeeButton(
-                label: widget.confirmLabel,
-                onPressed: valid ? () => widget.onConfirm(draft!) : null)),
-      ])
+      if (!widget.immediate) ...[
+        const SizedBox(height: 12),
+        Row(children: [
+          Expanded(
+              child: BeeButton(
+                  label: widget.cancelLabel,
+                  kind: BeeButtonKind.secondary,
+                  onPressed: () {
+                    setState(() => draft = widget.selected);
+                    widget.onCancel();
+                  })),
+          const SizedBox(width: 8),
+          Expanded(
+              child: BeeButton(
+                  label: widget.confirmLabel,
+                  onPressed: valid ? () => widget.onConfirm(draft!) : null))
+        ])
+      ]
     ]);
   }
 }
