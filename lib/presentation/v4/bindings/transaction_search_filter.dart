@@ -14,11 +14,13 @@ class TransactionSearchFilterDialog extends StatefulWidget {
       required this.initial,
       required this.accounts,
       required this.tags,
+      this.ledgerId,
       required this.currency});
   final TransactionSearchFilter initial;
   final List<Account> accounts;
   final List<Tag> tags;
   final String currency;
+  final int? ledgerId;
   @override
   State<TransactionSearchFilterDialog> createState() => _FilterState();
 }
@@ -129,6 +131,7 @@ class _FilterState extends State<TransactionSearchFilterDialog> {
                         type: 'all',
                         currentCategoryId: category?.id,
                         includeParentCategories: true,
+                        ledgerId: widget.ledgerId,
                         expandChildrenByDefault: true,
                         title: l.searchCategoryFilter);
                     if (picked != null && mounted) {
@@ -235,7 +238,7 @@ class _FilterState extends State<TransactionSearchFilterDialog> {
                     error = null;
                   }),
               child: Text(l.searchClearFilter)),
-          TextButton(onPressed: _submit, child: Text(l.commonConfirm)),
+          FilledButton(onPressed: _submit, child: Text(l.commonConfirm)),
         ]);
   }
 }

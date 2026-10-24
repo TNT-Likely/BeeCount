@@ -72,6 +72,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             initial: c.filter,
             accounts: c.accounts,
             tags: c.availableTags,
+            ledgerId: c.ledgerId,
             currency: ref.read(currentLedgerProvider).valueOrNull?.currency ??
                 'CNY'));
     if (mounted && identical(_data, c) && filter != null) c.applyFilter(filter);
@@ -386,7 +387,7 @@ class _BatchNoteState extends State<_BatchNoteDialog> {
           TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(l.commonCancel)),
-          TextButton(
+          FilledButton(
               onPressed: () => Navigator.pop(context, text.text),
               child: Text(l.commonConfirm))
         ]);

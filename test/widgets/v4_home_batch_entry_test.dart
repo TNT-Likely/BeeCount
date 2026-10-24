@@ -170,7 +170,7 @@ void main() {
     await tester.tap(find.text(l10n.searchBatchSetNote));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '统一备注');
-    await tester.tap(find.widgetWithText(TextButton, l10n.commonConfirm));
+    await tester.tap(find.widgetWithText(FilledButton, l10n.commonConfirm));
     await tester.pumpAndSettle();
     expect((await repo.getTransactionById(id))!.toJson(),
         {...before, 'note': '统一备注'});
@@ -191,6 +191,10 @@ void main() {
     final before = await repo.getTransactionsByLedger(1);
     await open(tester, batch: false, filter: true, scale: 1.4);
     expect(find.byType(BeeDialog), findsOneWidget);
+    final dialogL10n =
+        AppLocalizations.of(tester.element(find.byType(SearchPage)));
+    expect(find.widgetWithText(FilledButton, dialogL10n.commonConfirm),
+        findsOneWidget);
     final fields = find.descendant(
         of: find.byType(BeeDialog), matching: find.byType(TextField));
     expect(fields, findsNWidgets(2));
@@ -270,6 +274,33 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+  });
+  testWidgets('搜索分类筛选传递账本范围，只显示共享拥有者分类并保留负数身份', (tester) async {
+    await repo.createCategory(name: '个人私有分类', kind: 'expense');
+    await db.customStatement(
+        "UPDATE ledgers SET sync_id='filter-ledger',is_shared=1,my_role='editor' WHERE id=1");
+    await db.customStatement(
+        "INSERT INTO shared_ledger_categories(ledger_sync_id,sync_id,name,kind,icon,level,sort_order,updated_at) VALUES('filter-ledger','filter-parent','共享筛选父类','expense','restaurant',1,0,1792713600)");
+    await db.customStatement(
+        "INSERT INTO shared_ledger_categories(ledger_sync_id,sync_id,name,kind,icon,level,parent_sync_id,sort_order,updated_at) VALUES('filter-ledger','filter-child','共享筛选子类','expense','coffee',2,'filter-parent',0,1792713600)");
+    final before = await db.select(db.transactions).get();
+    await open(tester, batch: false, filter: true);
+    final l = AppLocalizations.of(tester.element(find.byType(SearchPage)));
+    await tester.tap(find.widgetWithText(BeeMenuRow, l.searchCategoryFilter));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(RecordingCategoryTile, '个人私有分类'), findsNothing);
+    expect(
+        find.widgetWithText(RecordingCategoryTile, '共享筛选父类'), findsOneWidget);
+    await tester.tap(find.widgetWithText(RecordingSubcategoryChip, '共享筛选子类'));
+    await tester.pumpAndSettle();
+    expect(find.text('共享筛选子类'), findsOneWidget);
+    await tester.tap(find.text(l.commonConfirm));
+    await tester.pumpAndSettle();
+    expect(find.text('共享筛选子类'), findsOneWidget);
+    expect(await db.select(db.transactions).get(), before);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   });
 }
