@@ -748,33 +748,31 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-24T21:56:00+08:00",
-    "scheduledReportAt": "2026-10-24T21:54:00+08:00",
-    "engineeringEstimatePercent": 40,
+    "reportedAt": "2026-10-24T22:54:00+08:00",
+    "scheduledReportAt": "2026-10-24T22:54:00+08:00",
+    "engineeringEstimatePercent": 41,
     "engineeringEstimateRange": [
-      38,
-      42
+      39,
+      43
     ],
-    "completedPages": 20,
+    "completedPages": 21,
     "totalPages": 73,
     "completedP0Pages": 13,
     "totalExistingP0Pages": 16,
     "newlyCompletedSincePreviousReport": [
-      "净值趋势",
-      "自动化入口"
+      "记账提醒R67"
     ],
     "inProgress": [
-      "提醒设置R67：79项/12文件相关回归、10文件静态0问题，真正切换外观/字号的HTML长短屏、滚轮取消/23:59确认、诊断与滚动位置通过；原生通知和调度尚未验收，不计整页",
-      "基础时间滚轮和业务提醒设置已抽出并接真实Provider；目录基础21/业务43，规范基础24/业务39共63组、40基础控件",
-      "Q08/Q09/Q10/Q11和共享/云端待核对范围继续保留；新增Q14保留原iOS说明待后续核对",
-      "同一QA57笔/当前53/24账户/5附件及标签26无重置；R67原提醒三个键均未设置",
-      "v4已推送至二十页文档，PR575保持CLOSED，准备好再恢复"
+      "显示与外观设置：逐项盘点原分组、五种弹窗、实时偏好、主币种/汇率和原目的页；未完成不计数",
+      "基础21/业务43平铺项、63规范分组、40基础控件；提醒真实预览和生产配置共享Provider",
+      "同一QA57笔/当前53/24账户/5附件，原业务表/文件保持；提醒恢复关闭21:00，三键仅新增显式默认",
+      "v4继续分批提交推送，PR575保持CLOSED，准备好再恢复；Q08/Q09/Q10/Q11及Cloud/平台待确认保留"
     ],
     "remainingEffortEstimateHours": [
       29,
       49
     ],
-    "remainingEffortChangeReason": "较20:54的30–50减少约1实际工时。净值趋势/自动化入口完成真实UI、独立SQL/偏好/附件与正常重启及独立报告，图表和高额短屏补齐组件/设计；提醒页新增完整UI/诊断与IO边界测试但原生闭环未完成。AI、Cloud、共享权限及平台验证仍有浮动，范围是实际工作量，不是上线时刻承诺。"
+    "remainingEffortChangeReason": "较21:56的29–49保持。提醒页完成真实8条OS调度登记/取消、9999通知记录、MIUI系统设置作用域与正常重启封存；OEM隐藏参数/遮蔽URI导致额外隔离证据工作，不能按通过一个页面机械减少工时。后续AI、Cloud、共享权限与平台路径仍有浮动；该范围是实际工作量，不是上线时刻。"
   },
   "pullRequest": {
     "number": 575,
