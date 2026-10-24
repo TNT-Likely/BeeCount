@@ -25,7 +25,9 @@ void main() {
             const Text('账本结余 ¥12,860.50')
           ]))));
       await tester.pumpAndSettle();
-      final avatar = find.bySemanticsLabel('编辑资料').first;
+      final profileButtons = find.bySemanticsLabel('编辑资料');
+      expect(profileButtons, findsNWidgets(2));
+      final avatar = profileButtons.first;
       final name = find.bySemanticsLabel(RegExp(r'^设置昵称')).first;
       final avatarNode = tester.getSemantics(avatar),
           nameNode = tester.getSemantics(name);
@@ -36,9 +38,11 @@ void main() {
       expect(nameNode.rect.height, lessThan(80));
       await tester.tap(avatar);
       await tester.pump();
+      await tester.tap(profileButtons.last);
+      await tester.pump();
       await tester.tap(name);
       await tester.pump();
-      expect(profiles, 1);
+      expect(profiles, 2);
       expect(nicknames, 1);
       expect(tester.takeException(), isNull);
     } finally {

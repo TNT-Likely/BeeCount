@@ -1105,10 +1105,16 @@ class BeeProfile extends StatelessWidget {
               style:
                   TextStyle(fontSize: 11, color: Theme.of(context).hintColor))
         ])),
-        IconButton(
-            tooltip: profileLabel,
-            onPressed: onTap,
-            icon: const BeeLineIcon('ChevronRight'))
+        Semantics(
+            container: true,
+            button: true,
+            label: profileLabel ?? nickname,
+            excludeSemantics: true,
+            onTap: onTap,
+            child: IconButton(
+                tooltip: profileLabel,
+                onPressed: onTap,
+                icon: const BeeLineIcon('ChevronRight')))
       ]));
 }
 
