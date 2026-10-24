@@ -192,6 +192,12 @@ void main() {
         await tester.ensureVisible(zero);
         await tester.pumpAndSettle();
         expect(tester.getBottomRight(zero).dy, lessThanOrEqualTo(size.height));
+        final deleteIcon = tester
+            .widgetList<BeeLineIcon>(find.byType(BeeLineIcon))
+            .singleWhere((icon) => icon.name == 'Delete');
+        final context = tester.element(find.byType(BeePinPad));
+        expect(deleteIcon.color, Theme.of(context).colorScheme.onSurface,
+            reason: '数字按钮的图标不能继承导航页的黑色 IconTheme');
         expect(tester.takeException(), isNull);
         await disposePage(tester);
       });

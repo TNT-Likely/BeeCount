@@ -392,8 +392,10 @@ class BeePinPad extends StatelessWidget {
             child: deleting
                 ? Semantics(
                     label: deleteLabel,
-                    child: const ExcludeSemantics(
-                        child: BeeLineIcon('Delete', size: 21)))
+                    child: ExcludeSemantics(
+                        child: BeeLineIcon('Delete',
+                            size: 21,
+                            color: Theme.of(context).colorScheme.onSurface)))
                 : Text(value,
                     style: TextStyle(
                         fontSize: compact ? 22 : 25,
