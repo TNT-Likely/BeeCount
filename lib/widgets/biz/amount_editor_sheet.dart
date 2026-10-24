@@ -28,6 +28,7 @@ import 'account_selector.dart';
 import '../currency/currency_picker_sheet.dart';
 import '../currency/currency_flag.dart';
 import '../ui/toast.dart';
+import '../ui/page_skin_scope.dart';
 import 'tag_chip.dart';
 import '../../pages/attachment/attachment_preview_page.dart';
 import '../../presentation/v4/bindings/attachment_source.dart';
@@ -1877,7 +1878,9 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: metadata),
           Material(
-              color: colors.canvas,
+              color: PageSkinBackdropScope.contains(context)
+                  ? Colors.transparent
+                  : colors.canvas,
               child: Padding(
                 key: const ValueKey('recording-dock'),
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),

@@ -108,6 +108,7 @@ void main() {
     double safeBottom = 0,
     double textScale = 1,
     Brightness brightness = Brightness.light,
+    String skin = 'none',
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = size;
@@ -138,6 +139,8 @@ void main() {
     }
     await tester.pumpWidget(ProviderScope(
         overrides: [
+          headerSkinProvider.overrideWith((ref) => skin),
+          skinAnimationEnabledProvider.overrideWith((ref) => false),
           databaseProvider.overrideWithValue(db),
           repositoryProvider.overrideWithValue(repo),
           currentLedgerProvider.overrideWith(
@@ -894,6 +897,25 @@ void main() {
     expect(saved.categoryId, lastId);
     expect(tester.takeException(), isNull);
   });
+
+  for (final skin in ['none', 'anniversary', 'anniv_cake']) {
+    recordingTest('整页皮肤 $skin 可以透过键盘间隙，固定保存区仍可操作', (tester) async {
+      await open(tester, skin: skin);
+      final dock = find.byKey(const ValueKey('recording-dock'));
+      final material = tester.widget<Material>(
+          find.ancestor(of: dock, matching: find.byType(Material)).first);
+      expect(material.color, Colors.transparent, reason: '不再用实色画布遮住整页动态背景');
+      final save = find.byKey(const ValueKey('recording-save'));
+      final before = tester.getRect(save);
+      await category(tester, foodId);
+      await key(tester, '1');
+      expect(tester.getRect(save), before);
+      await press(tester, 'recording-save');
+      await tester.pumpAndSettle();
+      expect((await repo.getTransactionsByLedger(1)).single.amount, 1);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   for (final size in [const Size(390, 844), const Size(320, 568)]) {
     recordingTest('键盘与保存固定底部，分类展开和滚动不移动 $size', (tester) async {
