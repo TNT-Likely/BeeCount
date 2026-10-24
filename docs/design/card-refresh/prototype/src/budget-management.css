@@ -45,3 +45,5 @@
 #bee-immersive-suite .bgt-ring b,#bee-immersive-suite .bgt-ring small,#bee-immersive-suite .bgt-bottom strong{line-height:1.4}
 #bee-immersive-suite .bgt-category-card .bgt-heading h3{font-size:calc(15px * var(--q-scale,1))}
 #bee-immersive-suite .bgt-remaining small:last-child{line-height:1.5}
+
+#bee-immersive-suite .bgt-shell,#bee-immersive-suite .bgt-sample{--bgt-error:light-dark(#b3261e,#f2b8b5)}

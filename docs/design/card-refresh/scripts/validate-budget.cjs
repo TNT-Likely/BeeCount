@@ -11,7 +11,7 @@ for(const[size,scale,mode]of [['398x844','1','light'],['320x568','1.4','dark']])
   else {
    assert.equal(await shell.locator('.bgt-ring').count(),1);assert.equal(await shell.locator('.bgt-category').count(),3);assert.equal(await shell.locator('.bgt-category-icon img').count(),1);
    if(scene==='budget-readonly'){assert.equal(await shell.locator('.bgt-edit').count(),0);assert.equal(await shell.locator('.bgt-category:disabled').count(),3);assert.equal(await shell.locator('[data-action=bgt-add]').count(),0);}
-   if(scene==='budget-exceeded'){assert((await shell.locator('.bgt-remaining strong').innerText()).includes('-1250.00'));assert.equal(await shell.locator('.bgt-ring b').innerText(),'125%');}
+   if(scene==='budget-exceeded'){assert((await shell.locator('.bgt-remaining strong').innerText()).includes('-1250.00'));assert.equal(await shell.locator('.bgt-ring b').innerText(),'125%');assert.equal(await shell.locator('.bgt-remaining strong').evaluate(e=>getComputedStyle(e).color),mode==='dark'?'rgb(242, 184, 181)':'rgb(179, 38, 30)');}
    if(scene==='budget-usd'){assert.equal(await shell.locator('.bgt-remaining strong').innerText(),'$-15.20');assert.equal(await shell.locator('.bgt-bottom>div:first-child strong').innerText(),'$215.20');}
    const toggle=shell.locator('[data-action=bgt-home]');const initial=await toggle.getAttribute('aria-checked');await toggle.click();assert.notEqual(await toggle.getAttribute('aria-checked'),initial);await toggle.click();assert.equal(await toggle.getAttribute('aria-checked'),initial);
    if(size==='398x844'&&scene==='budget'){
