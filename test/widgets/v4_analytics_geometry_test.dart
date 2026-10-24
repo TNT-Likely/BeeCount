@@ -41,6 +41,8 @@ void main() {
       final surface = t.widget<BeeSurface>(find.byType(BeeSurface));
       expect(surface.padding,
           EdgeInsets.all((f['summaryPadding'] as num).toDouble()));
+      expect(t.getBottomRight(find.widgetWithText(TextButton, '支出')).dx,
+          size.width - 17 - 18);
       expect(t.takeException(), isNull);
     });
   }

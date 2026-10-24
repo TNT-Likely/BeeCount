@@ -48,8 +48,12 @@ class _AnalyticsRankingState extends ConsumerState<AnalyticsRanking> {
                     borderRadius: BorderRadius.circular(11)),
                 child: Center(
                     child: category == null
-                        ? const BeeLineIcon('Shapes', size: 18)
-                        : RecordingCategoryIcon(category: category))),
+                        ? BeeLineIcon('Shapes',
+                            size: 18,
+                            color: Theme.of(context).colorScheme.onSurface)
+                        : RecordingCategoryIcon(
+                            category: category,
+                            color: Theme.of(context).colorScheme.onSurface))),
             children: children);
     final list = widget.data.categories
         .map((e) => item(

@@ -41,9 +41,10 @@ class BeeAnalyticsSummary extends StatelessWidget {
                   style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w600))),
           if (action != null)
-            const Padding(
-                padding: EdgeInsets.only(left: 4),
-                child: BeeLineIcon('ChevronDown', size: 14))
+            Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: BeeLineIcon('ChevronDown',
+                    size: 14, color: Theme.of(context).colorScheme.onSurface))
         ]));
     Widget metric(String label, String value) => Expanded(
             child:
@@ -65,7 +66,10 @@ class BeeAnalyticsSummary extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: selector(period, onPeriod))),
             const SizedBox(width: 8),
-            Flexible(child: selector(viewLabel, onView))
+            Expanded(
+                child: Align(
+                    alignment: Alignment.centerRight,
+                    child: selector(viewLabel, onView)))
           ]),
           const SizedBox(height: 4),
           Text(totalLabel, style: TextStyle(fontSize: 11, color: muted)),

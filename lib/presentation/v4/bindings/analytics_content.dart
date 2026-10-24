@@ -170,7 +170,7 @@ class AnalyticsContent extends ConsumerWidget {
                           hideAmounts: hide,
                           averageColor: t.hintColor.withValues(alpha: .55),
                           gridColor: t.dividerColor,
-                          backgroundColor: BeeCardTheme.of(context).soft,
+                          backgroundColor: BeeCardTheme.of(context).surface,
                           textColor: t.colorScheme.onSurface,
                           mutedColor: t.hintColor)),
                   if (chartHint != null) chartHint
