@@ -31,3 +31,5 @@ module.exports.balanceAdjustment = `<div data-balance-adjustment><div class="g-b
 module.exports.assetOverview = require('./asset-overview-samples.cjs');
 
 module.exports.categoryMigration=require('./category-migration-samples.cjs');
+
+module.exports.exchangeRates=require('./exchange-rates-samples.cjs');

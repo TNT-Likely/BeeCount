@@ -493,6 +493,13 @@
         "title": "分类迁移选择对",
         "nativeCase": 47,
         "nativeLabel": "分类迁移选择对"
+      },
+      {
+        "id": "spec-70",
+        "code": "B45",
+        "title": "全局汇率与编辑",
+        "nativeCase": 48,
+        "nativeLabel": "全局汇率与编辑"
       }
     ]
   }

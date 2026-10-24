@@ -622,5 +622,14 @@
     ],
     "page": "business",
     "case": 47
+  },
+  {
+    "design_key": "exchangeRates",
+    "components": [
+      "BeeExchangeRateRow",
+      "BeeExchangeRateField"
+    ],
+    "page": "business",
+    "case": 48
   }
 ]

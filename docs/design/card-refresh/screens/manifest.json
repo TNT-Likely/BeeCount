@@ -1071,10 +1071,10 @@
   },
   {
     "route": "flow-rates",
-    "slug": "flow-rates",
     "title": "汇率管理",
     "group": "补齐 · 外观与辅助",
-    "fullHeight": 875,
+    "slug": "flow-rates",
+    "fullHeight": 844,
     "viewport": "screens/viewport/flow-rates.png",
     "full": "screens/full/flow-rates.png",
     "svg": "figma/flow-rates.svg"
@@ -2732,5 +2732,65 @@
     "viewport": "screens/viewport/flow-cgm-cannot.png",
     "full": "screens/full/flow-cgm-cannot.png",
     "svg": "figma/flow-cgm-cannot.svg"
+  },
+  {
+    "route": "flow-rates-empty",
+    "title": "汇率管理 · 单币种空态",
+    "group": "汇率管理 · 原流程与状态",
+    "slug": "flow-rates-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-rates-empty.png",
+    "full": "screens/full/flow-rates-empty.png",
+    "svg": "figma/flow-rates-empty.svg"
+  },
+  {
+    "route": "flow-rates-loading",
+    "title": "汇率管理 · 读取中",
+    "group": "汇率管理 · 原流程与状态",
+    "slug": "flow-rates-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-rates-loading.png",
+    "full": "screens/full/flow-rates-loading.png",
+    "svg": "figma/flow-rates-loading.svg"
+  },
+  {
+    "route": "flow-rates-error",
+    "title": "汇率管理 · 读取失败",
+    "group": "汇率管理 · 原流程与状态",
+    "slug": "flow-rates-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-rates-error.png",
+    "full": "screens/full/flow-rates-error.png",
+    "svg": "figma/flow-rates-error.svg"
+  },
+  {
+    "route": "flow-rates-refresh-error",
+    "title": "汇率管理 · 刷新失败",
+    "group": "汇率管理 · 原流程与状态",
+    "slug": "flow-rates-refresh-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-rates-refresh-error.png",
+    "full": "screens/full/flow-rates-refresh-error.png",
+    "svg": "figma/flow-rates-refresh-error.svg"
+  },
+  {
+    "route": "flow-xrm-base",
+    "title": "主币种 · 底部弹层",
+    "group": "汇率管理 · 原流程与状态",
+    "slug": "flow-xrm-base",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-xrm-base.png",
+    "full": "screens/full/flow-xrm-base.png",
+    "svg": "figma/flow-xrm-base.svg"
+  },
+  {
+    "route": "flow-xrm-rate-edit",
+    "title": "编辑汇率 · 弹窗",
+    "group": "汇率管理 · 原流程与状态",
+    "slug": "flow-xrm-rate-edit",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-xrm-rate-edit.png",
+    "full": "screens/full/flow-xrm-rate-edit.png",
+    "svg": "figma/flow-xrm-rate-edit.svg"
   }
 ]
