@@ -56,7 +56,8 @@ class BeeExchangeRateRow extends StatelessWidget {
                 color: cards.surface,
                 child: InkWell(
                     onTap: onTap,
-                    child: Padding(
+                    child: Container(
+                        constraints: const BoxConstraints(minHeight: 72),
                         padding: const EdgeInsets.all(14),
                         child: LayoutBuilder(builder: (context, box) {
                           final narrow = box.maxWidth < 320 ||
