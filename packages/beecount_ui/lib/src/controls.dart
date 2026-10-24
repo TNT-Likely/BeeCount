@@ -59,8 +59,8 @@ class BeeMenuButton<T> extends StatelessWidget {
   final ValueChanged<T> onSelected;
   @override
   Widget build(BuildContext context) => Builder(
-      builder: (context) => IconButton(
-          tooltip: label,
+      builder: (context) => BeeIconButton(
+          label: label,
           icon: const BeeLineIcon('Ellipsis'),
           onPressed: () async {
             final box = context.findRenderObject()! as RenderBox;

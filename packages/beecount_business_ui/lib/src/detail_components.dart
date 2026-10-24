@@ -90,7 +90,7 @@ class BeeAccountCard extends StatelessWidget {
       child: BeeSurface(
           child: Column(children: [
         Row(children: [
-          icon,
+          ExcludeSemantics(child: icon),
           const SizedBox(width: 10),
           Expanded(
               child: Column(
@@ -103,8 +103,10 @@ class BeeAccountCard extends StatelessWidget {
                     style: TextStyle(
                         fontSize: 11, color: Theme.of(context).hintColor))
               ])),
-          BeeMenuButton<String>(
-              label: menuLabel, items: actions, onSelected: onAction)
+          Semantics(
+              container: true,
+              child: BeeMenuButton<String>(
+                  label: menuLabel, items: actions, onSelected: onAction))
         ]),
         const SizedBox(height: 12),
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [

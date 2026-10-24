@@ -4,6 +4,8 @@ import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/semantics.dart';
+import 'package:beecount/utils/account_type_utils.dart';
 
 void main() {
   testWidgets('账户卡整卡点击恢复原详情入口，菜单操作不会触发详情', (tester) async {
@@ -30,6 +32,39 @@ void main() {
     expect([opened, edited], [1, 1]);
     await tester.tap(find.text('测试卡'));
     expect(opened, 2);
+  });
+  testWidgets('彩色SVG和整卡长按不能吞掉独立账户菜单语义', (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pumpWidget(MaterialApp(
+          theme: beeTheme(),
+          home: Scaffold(
+            body: GestureDetector(
+                onLongPress: () {},
+                child: BeeAccountCard(
+                  name: '贷款',
+                  currency: 'CNY',
+                  balance: '-¥200.00',
+                  kind: '贷款',
+                  icon: const AccountTypeIcon(type: 'loan'),
+                  onTap: () {},
+                  menuLabel: '账户操作',
+                  actions: const [BeeMenuAction(value: 'restore', label: '恢复')],
+                  onAction: (_) {},
+                )),
+          )));
+      await tester.pumpAndSettle();
+      final card = tester.getSemantics(find.byType(BeeAccountCard));
+      expect(card.hasFlag(SemanticsFlag.isImage), false);
+      final node = tester.getSemantics(find.byType(BeeMenuButton<String>));
+      expect(node.hasFlag(SemanticsFlag.isImage), false);
+      expect(node.hasFlag(SemanticsFlag.isButton), true);
+      expect(node.getSemanticsData().hasAction(SemanticsAction.tap), true);
+      expect(node.label, '账户操作');
+    } finally {
+      semantics.dispose();
+    }
+    await tester.pumpWidget(const SizedBox.shrink());
   });
   test('共用金额文本保留原币符号、负数、小数、缩写和无币种回退', () {
     expect(

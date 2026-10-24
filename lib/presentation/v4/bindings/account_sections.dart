@@ -589,9 +589,9 @@ class BeeAssetsHeaderEntryBinding extends StatelessWidget {
     final info = beeAssetsPromo(context);
     final texts = buildPromoTexts(context, l10n.aboutBeeAssets);
 
-    return IconButton(
+    return BeeIconButton(
       onPressed: () => ProductPromoLauncher.open(context, info, texts),
-      tooltip: info.title,
+      label: info.title,
       icon: const BeeLineIcon('Sparkles'),
     );
   }
