@@ -8922,6 +8922,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4AmountInvalid => '请输入有效金额';
+
+  @override
+  String get v4TagCategories => '关联分类';
+
+  @override
+  String get v4TagRecord => '使用此标签记一笔';
+
+  @override
+  String get v4TagDistribution => '分类分布';
+
+  @override
+  String get v4TagOriginalLedgerTotals => '按原账本金额汇总';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

@@ -3992,5 +3992,9 @@
   "welcomeImportAttachmentsContinue": "Import attachments and finish",
   "v4QuickAddSlideHint": "Hold, slide to an action, and release",
   "v4AccountDetailTitle": "Account details",
-  "v4AmountInvalid": "Enter a valid amount"
+  "v4AmountInvalid": "Enter a valid amount",
+  "v4TagCategories": "Linked categories",
+  "v4TagRecord": "Record with this tag",
+  "v4TagDistribution": "Category distribution",
+  "v4TagOriginalLedgerTotals": "Totals use each ledger’s original amounts"
 }

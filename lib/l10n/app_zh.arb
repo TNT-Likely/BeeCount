@@ -3699,5 +3699,9 @@
   "welcomeImportAttachmentsContinue": "导入附件并完成",
   "v4QuickAddSlideHint": "长按后滑向目标，松手进入",
   "v4AccountDetailTitle": "账户详情",
-  "v4AmountInvalid": "请输入有效金额"
+  "v4AmountInvalid": "请输入有效金额",
+  "v4TagCategories": "关联分类",
+  "v4TagRecord": "使用此标签记一笔",
+  "v4TagDistribution": "分类分布",
+  "v4TagOriginalLedgerTotals": "按原账本金额汇总"
 }

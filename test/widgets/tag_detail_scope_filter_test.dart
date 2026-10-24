@@ -11,7 +11,7 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/tag/tag_detail_page.dart';
 import 'package:beecount/providers/database_providers.dart';
-import 'package:beecount/widgets/biz/biz.dart' show TransactionListItem;
+import 'package:beecount/presentation/v4/bindings/tag_detail_sections.dart';
 
 void main() {
   late BeeDatabase db;
@@ -68,31 +68,56 @@ void main() {
     await tester.pumpAndSettle();
 
     // 默认「全部」:3 笔全显示(保持旧行为)
-    expect(find.byType(TransactionListItem), findsNWidgets(3));
-    expect(find.text('3笔'), findsOneWidget);
+    // The new list builds lazily. Check the full real stream projection rather
+    // than requiring offscreen rows to remain mounted.
+    expect(
+        tester
+            .widget<TagDetailSections>(find.byType(TagDetailSections))
+            .data
+            .requireValue
+            .rows,
+        hasLength(3));
+    expect(find.text('3笔'), findsWidgets);
 
     // 切「月」:只剩本月 1 笔
     await tester.tap(find.text('月'));
     await tester.pumpAndSettle();
-    expect(find.byType(TransactionListItem), findsNWidgets(1));
-    expect(find.text('1笔'), findsOneWidget);
+    expect(
+        tester
+            .widget<TagDetailSections>(find.byType(TagDetailSections))
+            .data
+            .requireValue
+            .rows,
+        hasLength(1));
+    expect(find.text('1笔'), findsWidgets);
     // 显示当前周期标签,可再点开选择器换周期
-    final monthLabel =
-        '${now.year}-${now.month.toString().padLeft(2, '0')}';
+    final monthLabel = '${now.year}-${now.month.toString().padLeft(2, '0')}';
     expect(find.text(monthLabel), findsOneWidget);
 
     // 切「年」:本年 2 笔
     await tester.tap(find.text('年'));
     await tester.pumpAndSettle();
-    expect(find.byType(TransactionListItem), findsNWidgets(2));
-    expect(find.text('2笔'), findsOneWidget);
+    expect(
+        tester
+            .widget<TagDetailSections>(find.byType(TagDetailSections))
+            .data
+            .requireValue
+            .rows,
+        hasLength(2));
+    expect(find.text('2笔'), findsWidgets);
     expect(find.text('${now.year}'), findsOneWidget);
 
     // 切回「全部」:恢复 3 笔
     await tester.tap(find.text('全部'));
     await tester.pumpAndSettle();
-    expect(find.byType(TransactionListItem), findsNWidgets(3));
-    expect(find.text('3笔'), findsOneWidget);
+    expect(
+        tester
+            .widget<TagDetailSections>(find.byType(TagDetailSections))
+            .data
+            .requireValue
+            .rows,
+        hasLength(3));
+    expect(find.text('3笔'), findsWidgets);
 
     // 手动拆树:drift QueryStream 取消订阅时会排一个 zero-duration Timer,
     // 留给框架自动拆树会触发 "A Timer is still pending" 断言。

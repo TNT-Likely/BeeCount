@@ -1602,7 +1602,25 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             BeeCreditCardTerms(
                 paymentLabel: '今天是还款日 · 未设置额度',
                 repayLabel: '记一笔还款',
-                onRepay: () => record('未设置额度也可还款'))
+                onRepay: () => record('未设置额度也可还款')),
+            const SizedBox(height: 12),
+            const BeeResourceHero(
+                title: '旅行',
+                titleWidget: Align(
+                    alignment: Alignment.centerLeft,
+                    child: BeeTag(
+                        tag: BeeTagData('travel', '旅行', Color(0xff219c9c)),
+                        compact: true)),
+                caption: '日常生活',
+                icon: BeeLineIcon('Tag', color: Color(0xff219c9c)),
+                amountLabel: '总支出',
+                prefix: '¥',
+                amount: '85.20',
+                metrics: [
+                  BeeResourceMetric(label: '总收入', value: '¥9.00'),
+                  BeeResourceMetric(label: '关联分类', value: '3'),
+                  BeeResourceMetric(label: '交易笔数', value: '4笔')
+                ])
           ]),
         36 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             BeeConfigurationOptions(

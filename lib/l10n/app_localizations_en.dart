@@ -8930,4 +8930,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4AmountInvalid => 'Enter a valid amount';
+
+  @override
+  String get v4TagCategories => 'Linked categories';
+
+  @override
+  String get v4TagRecord => 'Record with this tag';
+
+  @override
+  String get v4TagDistribution => 'Category distribution';
+
+  @override
+  String get v4TagOriginalLedgerTotals => 'Totals use each ledger’s original amounts';
 }

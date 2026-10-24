@@ -16795,6 +16795,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter a valid amount'**
   String get v4AmountInvalid;
+
+  /// No description provided for @v4TagCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked categories'**
+  String get v4TagCategories;
+
+  /// No description provided for @v4TagRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record with this tag'**
+  String get v4TagRecord;
+
+  /// No description provided for @v4TagDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Category distribution'**
+  String get v4TagDistribution;
+
+  /// No description provided for @v4TagOriginalLedgerTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'Totals use each ledger’s original amounts'**
+  String get v4TagOriginalLedgerTotals;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
