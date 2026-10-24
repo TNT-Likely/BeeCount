@@ -14,6 +14,7 @@ import '../../../pages/transaction/category_detail_page.dart';
 import '../../../pages/attachment/attachment_preview_page.dart';
 import '../../../pages/tag/tag_detail_page.dart';
 import '../../../widgets/biz/transaction_row_title.dart';
+import '../../../widgets/biz/category_selector_dialog.dart';
 import 'recording_category_section.dart';
 import 'recording_category_icon.dart';
 
@@ -235,6 +236,23 @@ class _LiveBusinessPreviewState extends ConsumerState<LiveBusinessPreview> {
                                       },
                                       onCancel: () =>
                                           Navigator.pop(context))))),
+                      const SizedBox(height: 8),
+                      BeeButton(
+                          label: '分类即时选择与笔数',
+                          kind: BeeButtonKind.secondary,
+                          onPressed: () async {
+                            final selected = await showCategorySelector(context,
+                                type: 'expense',
+                                currentCategoryId:
+                                    int.tryParse(categoryId ?? ''),
+                                ledgerId: id,
+                                showTransactionCount: true);
+                            if (mounted &&
+                                selected != null &&
+                                ref.read(currentLedgerIdProvider) == id) {
+                              setState(() => categoryId = '${selected.id}');
+                            }
+                          }),
                       const SizedBox(height: 8),
                       BeeButton(
                           label:

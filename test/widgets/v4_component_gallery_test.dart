@@ -515,7 +515,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('已确认分类 dinner'), findsOneWidget);
     final confirmRect = tester.getRect(find.text('使用分类'));
-    await tester.enterText(find.byType(TextField), '奶茶');
+    final draftPicker = find.byWidgetPredicate(
+        (w) => w is BeeCategoryPicker && !w.immediate);
+    await tester.enterText(find.descendant(
+        of: draftPicker, matching: find.byType(TextField)), '奶茶');
     await tester.pumpAndSettle();
     expect(tester.getRect(find.text('使用分类')), confirmRect);
     expect(find.widgetWithText(RecordingSubcategoryChip, '奶茶'), findsOneWidget);

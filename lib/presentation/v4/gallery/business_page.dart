@@ -1259,62 +1259,100 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 kind: BeeButtonKind.quiet,
                 onPressed: () => setState(() => pin = ''))
           ]),
-        27 => BeeSurface(
-            child: SizedBox(
-                height: 430,
-                child: BeeCategoryPicker(
-                    items: const [
-                      BeeCategoryChoice(
-                          id: 'disabled',
-                          label: '不可选分类',
-                          icon: BeeCategoryIcon(name: 'ShoppingBasket'),
-                          enabled: false,
-                          detail: '8 笔'),
-                      BeeCategoryChoice(
-                          id: 'food',
-                          label: '餐饮',
-                          icon: BeeCategoryIcon(name: 'Utensils'),
-                          children: [
-                            BeeCategoryChoice(
-                                id: 'lunch',
-                                label: '午餐',
-                                icon: BeeLineIcon('Utensils', size: 16)),
-                            BeeCategoryChoice(
-                                id: 'dinner',
-                                label: '晚餐',
-                                icon: BeeLineIcon('Utensils', size: 16))
-                          ]),
-                      BeeCategoryChoice(
-                          id: 'drink',
-                          label: '饮品',
-                          icon: BeeCategoryIcon(name: 'Coffee'),
-                          children: [
-                            BeeCategoryChoice(
-                                id: 'coffee',
-                                label: '咖啡',
-                                icon: BeeCategoryIcon(
-                                    image: AssetImage('assets/logo2.png'),
-                                    size: 20)),
-                            BeeCategoryChoice(
-                                id: 'tea',
-                                label: '奶茶',
-                                icon: BeeLineIcon('Coffee', size: 16))
-                          ]),
-                      BeeCategoryChoice(
-                          id: 'travel',
-                          label: '交通',
-                          icon: BeeCategoryIcon(name: 'TrainFront')),
-                    ],
-                    selected: chosenCategory,
-                    searchLabel: '搜索一级或二级分类',
-                    emptyLabel: '没有匹配分类',
-                    confirmLabel: '使用分类',
-                    cancelLabel: '取消选择',
-                    onConfirm: (v) => setState(() {
-                          chosenCategory = v;
-                          event = '已确认分类 $v';
-                        }),
-                    onCancel: () => record('分类草稿已取消')))),
+        27 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            BeeSurface(
+                child: SizedBox(
+                    height: 430,
+                    child: BeeCategoryPicker(
+                        items: const [
+                          BeeCategoryChoice(
+                              id: 'disabled',
+                              label: '不可选分类',
+                              icon: BeeCategoryIcon(name: 'ShoppingBasket'),
+                              enabled: false,
+                              detail: '8 笔'),
+                          BeeCategoryChoice(
+                              id: 'food',
+                              label: '餐饮',
+                              icon: BeeCategoryIcon(name: 'Utensils'),
+                              children: [
+                                BeeCategoryChoice(
+                                    id: 'lunch',
+                                    label: '午餐',
+                                    icon: BeeLineIcon('Utensils', size: 16)),
+                                BeeCategoryChoice(
+                                    id: 'dinner',
+                                    label: '晚餐',
+                                    icon: BeeLineIcon('Utensils', size: 16))
+                              ]),
+                          BeeCategoryChoice(
+                              id: 'drink',
+                              label: '饮品',
+                              icon: BeeCategoryIcon(name: 'Coffee'),
+                              children: [
+                                BeeCategoryChoice(
+                                    id: 'coffee',
+                                    label: '咖啡',
+                                    icon: BeeCategoryIcon(
+                                        image: AssetImage('assets/logo2.png'),
+                                        size: 20)),
+                                BeeCategoryChoice(
+                                    id: 'tea',
+                                    label: '奶茶',
+                                    icon: BeeLineIcon('Coffee', size: 16))
+                              ]),
+                          BeeCategoryChoice(
+                              id: 'travel',
+                              label: '交通',
+                              icon: BeeCategoryIcon(name: 'TrainFront')),
+                        ],
+                        selected: chosenCategory,
+                        searchLabel: '搜索一级或二级分类',
+                        emptyLabel: '没有匹配分类',
+                        confirmLabel: '使用分类',
+                        cancelLabel: '取消选择',
+                        onConfirm: (v) => setState(() {
+                              chosenCategory = v;
+                              event = '已确认分类 $v';
+                            }),
+                        onCancel: () => record('分类草稿已取消')))),
+            const SizedBox(height: 12),
+            const Text('即时选择、笔数与禁用规则'),
+            const SizedBox(height: 8),
+            BeeSurface(
+                child: SizedBox(
+                    height: 300,
+                    child: BeeCategoryPicker(
+                      items: const [
+                        BeeCategoryChoice(
+                            id: 'home-sample',
+                            label: '家居样例',
+                            icon: BeeLineIcon('House'),
+                            enabled: false,
+                            detail: '3笔',
+                            children: [
+                              BeeCategoryChoice(
+                                  id: 'furniture-sample',
+                                  label: '家具样例',
+                                  icon: BeeLineIcon('Armchair'),
+                                  detail: '3笔'),
+                              BeeCategoryChoice(
+                                  id: 'disabled-sample',
+                                  label: '停用样例',
+                                  icon: BeeLineIcon('Shapes'),
+                                  enabled: false),
+                            ])
+                      ],
+                      selected: null,
+                      immediate: true,
+                      searchLabel: '搜索即时选择样例',
+                      emptyLabel: '没有匹配分类',
+                      confirmLabel: '选择',
+                      cancelLabel: '取消',
+                      onConfirm: (value) => record('即时选择 $value'),
+                      onCancel: () => record('取消即时选择'),
+                    ))),
+          ]),
         28 => BeeSurface(
             child: SizedBox(
                 height: 360,
