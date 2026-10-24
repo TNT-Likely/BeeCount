@@ -137,11 +137,29 @@ void main() {
 
   testWidgets('名称输入框的无障碍边界只包含字段，不吞并类型和二级分类', (tester) async {
     final handle = tester.ensureSemantics();
-    await open(tester, const CategoryEditPage(kind: 'expense'));
-    final node = tester.getSemantics(find.byType(TextFormField));
-    expect(node.label, isNot(contains(l(tester).categoryExpenseType)));
-    expect(node.rect.height, lessThan(120));
-    handle.dispose();
+    try {
+      await open(tester, const CategoryEditPage(kind: 'expense'));
+      final node = tester.getSemantics(find.byType(TextFormField));
+      expect(node.label, isNot(contains(l(tester).categoryExpenseType)));
+      expect(node.rect.height, lessThan(120));
+      await tester.tap(find.text(l(tester).categorySubCategoryTitle));
+      await idle(tester);
+      final parent = tester.getSemantics(find.widgetWithText(
+          BeeMenuRow, l(tester).categoryParentCategoryTitle));
+      expect(parent.label, contains(l(tester).categoryParentCategoryTitle));
+      expect(parent.label, isNot(contains(l(tester).categoryExpenseType)));
+      expect(parent.rect.height, lessThan(100));
+      await tester.tap(find.text(l(tester).categoryParentCategoryTitle));
+      await idle(tester);
+      final search = tester.getSemantics(find.byType(TextField).last);
+      expect(
+          search.label, isNot(contains(l(tester).categorySelectParentTitle)));
+      expect(search.rect.height, lessThan(100));
+      await tester.tap(find.byType(CloseButton));
+      await idle(tester);
+    } finally {
+      handle.dispose();
+    }
     await close(tester);
   });
   testWidgets('必填、同类型全局重名和连续保存，真实仓储只创建一条', (tester) async {

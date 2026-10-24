@@ -35,44 +35,47 @@ class _BeeSearchFieldState extends State<BeeSearchField> {
   Widget build(BuildContext context) =>
       ValueListenableBuilder<TextEditingValue>(
           valueListenable: controller,
-          builder: (context, value, _) => TextField(
-              controller: controller,
-              enabled: widget.enabled,
-              onChanged: widget.onChanged,
-              onSubmitted: widget.onSubmitted,
-              textInputAction: TextInputAction.search,
-              style: const TextStyle(fontSize: 13),
-              decoration: InputDecoration(
-                  hintText: widget.hint,
-                  filled: true,
-                  fillColor: BeeCardTheme.of(context).soft,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(13),
-                      borderSide: BorderSide.none),
-                  disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(13),
-                      borderSide: BorderSide.none),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(13),
-                      borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1.2)),
-                  prefixIcon: const Padding(
-                      padding: EdgeInsets.all(14),
-                      child: BeeLineIcon('Search', size: 18)),
-                  suffixIcon: widget.clearLabel != null && value.text.isNotEmpty
-                      ? BeeIconButton(
-                          label: widget.clearLabel!,
-                          icon: const BeeLineIcon('X', size: 18),
-                          onPressed: widget.enabled
-                              ? () {
-                                  controller.clear();
-                                  widget.onChanged('');
-                                }
-                              : null)
-                      : null)));
+          builder: (context, value, _) => Semantics(
+              container: true,
+              child: TextField(
+                  controller: controller,
+                  enabled: widget.enabled,
+                  onChanged: widget.onChanged,
+                  onSubmitted: widget.onSubmitted,
+                  textInputAction: TextInputAction.search,
+                  style: const TextStyle(fontSize: 13),
+                  decoration: InputDecoration(
+                      hintText: widget.hint,
+                      filled: true,
+                      fillColor: BeeCardTheme.of(context).soft,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(13),
+                          borderSide: BorderSide.none),
+                      disabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(13),
+                          borderSide: BorderSide.none),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(13),
+                          borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 1.2)),
+                      prefixIcon: const Padding(
+                          padding: EdgeInsets.all(14),
+                          child: BeeLineIcon('Search', size: 18)),
+                      suffixIcon:
+                          widget.clearLabel != null && value.text.isNotEmpty
+                              ? BeeIconButton(
+                                  label: widget.clearLabel!,
+                                  icon: const BeeLineIcon('X', size: 18),
+                                  onPressed: widget.enabled
+                                      ? () {
+                                          controller.clear();
+                                          widget.onChanged('');
+                                        }
+                                      : null)
+                              : null))));
 }
 
 class BeeToggleRow extends StatelessWidget {
@@ -87,14 +90,73 @@ class BeeToggleRow extends StatelessWidget {
   final bool value;
   final ValueChanged<bool>? onChanged;
   @override
-  Widget build(BuildContext context) => SwitchListTile.adaptive(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-      title: Text(title, style: const TextStyle(fontSize: 14)),
-      subtitle: subtitle == null
-          ? null
-          : Text(subtitle!, style: const TextStyle(fontSize: 11)),
-      value: value,
-      onChanged: onChanged);
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context), cards = BeeCardTheme.of(context);
+    final accent = theme.colorScheme.primary;
+    final ink = theme.colorScheme.onPrimary;
+    const scale = 36 / 52;
+    return MergeSemantics(
+        child: Semantics(
+            toggled: value,
+            enabled: onChanged != null,
+            child: Opacity(
+                opacity: onChanged == null ? .4 : 1,
+                child: InkWell(
+                    onTap: onChanged == null ? null : () => onChanged!(!value),
+                    borderRadius: BorderRadius.circular(13),
+                    child: Container(
+                        constraints: const BoxConstraints(minHeight: 56),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        child: Row(children: [
+                          Expanded(
+                              child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                Text(title,
+                                    style: const TextStyle(
+                                        fontSize: 14, height: 1.4)),
+                                if (subtitle != null) ...[
+                                  const SizedBox(height: 2),
+                                  Text(subtitle!,
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          height: 1.5,
+                                          color: theme.hintColor))
+                                ]
+                              ])),
+                          const SizedBox(width: 12),
+                          SizedBox(
+                              width: 44,
+                              height: 44,
+                              child: Center(
+                                  child: Transform.scale(
+                                      scale: scale,
+                                      child: Switch(
+                                          value: value,
+                                          onChanged: onChanged,
+                                          materialTapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                          trackOutlineWidth:
+                                              WidgetStatePropertyAll(1 / scale),
+                                          trackOutlineColor:
+                                              WidgetStatePropertyAll(value
+                                                  ? accent
+                                                  : theme.hintColor),
+                                          trackColor: WidgetStatePropertyAll(
+                                              value ? accent : cards.soft),
+                                          thumbColor:
+                                              const WidgetStatePropertyAll(
+                                                  Colors.transparent),
+                                          thumbIcon: WidgetStatePropertyAll(
+                                              Icon(Icons.circle,
+                                                  size: 14 / scale,
+                                                  color: value
+                                                      ? ink
+                                                      : theme.hintColor))))))
+                        ]))))));
+  }
 }
 
 class BeeCheckTile extends StatelessWidget {

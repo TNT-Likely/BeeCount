@@ -61,7 +61,8 @@
         "multiline",
         "counter",
         "input-format",
-        "submit"
+        "submit",
+        "own-semantic-boundary"
       ],
       "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
     },
@@ -93,7 +94,8 @@
         "trailing",
         "selected",
         "danger",
-        "divider"
+        "divider",
+        "own-semantic-boundary"
       ],
       "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
     },
@@ -306,7 +308,8 @@
         "clear",
         "submit",
         "disabled",
-        "controller-owned-by-host"
+        "controller-owned-by-host",
+        "own-semantic-boundary"
       ],
       "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
     },
@@ -319,7 +322,10 @@
       "supportedStates": [
         "on",
         "off",
-        "disabled"
+        "disabled",
+        "tap-and-drag",
+        "36x22-track-with-44-touch-target",
+        "semantic-boundary"
       ],
       "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
     },

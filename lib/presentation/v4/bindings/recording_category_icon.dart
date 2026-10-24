@@ -16,11 +16,12 @@ class RecordingCategoryIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final line = categoryLineIconNames[category.icon];
     if (category.iconType == 'custom') {
-      return CategoryIconWidget(
-          category: category,
-          size: size,
-          color: color,
-          fallback: BeeLineIcon('Shapes', size: size, color: color));
+      return ExcludeSemantics(
+          child: CategoryIconWidget(
+              category: category,
+              size: size,
+              color: color,
+              fallback: BeeLineIcon('Shapes', size: size, color: color)));
     }
     return BeeLineIcon(line ?? 'Shapes', size: size, color: color);
   }

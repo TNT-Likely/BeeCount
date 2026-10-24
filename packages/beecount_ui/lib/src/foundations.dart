@@ -326,6 +326,7 @@ class BeeMenuRow extends StatelessWidget {
   final bool selected, danger, divider;
   @override
   Widget build(BuildContext context) => Semantics(
+      container: true,
       selected: selected,
       child: InkWell(
           onTap: onTap,
