@@ -44,7 +44,8 @@ const businessCases = [
   '分类账户标签详情',
   '配置选择与预览',
   '分类图标编辑',
-  '账户类型选择'
+  '账户类型选择',
+  '账户余额调整'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -79,6 +80,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
   String recordingNote = '午餐';
   Set<String> configScopes = {'ledgers', 'accounts', 'categories', 'tags'};
   String pin = '';
+  bool balanceAdjustmentRecord = false;
   String accountType = 'cash', accountTypeGroup = 'daily';
   String categoryIcon = 'coffee';
   BeeCategoryIconSource categoryIconSource = BeeCategoryIconSource.preset;
@@ -1372,6 +1374,31 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                         accountType = value;
                         record('选择账户类型 $value');
                       }))),
+        _ => BeeSurface(
+            child: BeeAccountBalanceAdjustment(
+                currentLabel: '当前余额',
+                currentAmount: '¥50.00',
+                targetLabel: '调整后余额',
+                targetAmount: '¥60.00',
+                differenceLabel: '调整差额',
+                differenceAmount: '+¥10.00',
+                differenceColor: const Color(0xff25856d),
+                options: const [
+                  BeeBalanceAdjustmentOption(
+                      createTransaction: false,
+                      title: '只修改余额',
+                      description: '调整期初余额，不新增收支记录。',
+                      confirmLabel: '确认修改余额'),
+                  BeeBalanceAdjustmentOption(
+                      createTransaction: true,
+                      title: '新增平账记录',
+                      description: '在当前账本生成一笔平账收支记录。',
+                      confirmLabel: '确认新增平账记录'),
+                ],
+                createTransaction: balanceAdjustmentRecord,
+                onModeChanged: (v) =>
+                    setState(() => balanceAdjustmentRecord = v),
+                onConfirm: (v) => record(v ? '确认新增平账记录' : '确认仅修改余额'))),
       };
   void _editRate() => showBeeDialog<void>(context,
       title: '补充本笔汇率',

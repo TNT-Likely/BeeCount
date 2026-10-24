@@ -1,6 +1,7 @@
 library;
 
 export 'src/account_type_picker.dart';
+export 'src/account_balance_adjustment.dart';
 
 export 'src/recording_components.dart';
 

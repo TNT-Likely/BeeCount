@@ -204,208 +204,53 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
     required AppLocalizations l10n,
   }) async {
     final difference = targetBalance - currentBalance;
-    final currencySymbol = getCurrencySymbol(_selectedCurrency);
-    String formatBalance(double value) {
-      final sign = value < 0 ? '−' : '';
-      return '$sign$currencySymbol${value.abs().toStringAsFixed(2)}';
-    }
-
-    return showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      backgroundColor: BeeTokens.surface(context),
-      constraints: const BoxConstraints(maxWidth: 560),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (sheetContext) {
-        final differenceColor = difference > 0
-            ? BeeTokens.success(sheetContext)
-            : difference < 0
-                ? BeeTokens.error(sheetContext)
-                : BeeTokens.textSecondary(sheetContext);
-        final signedDifference =
-            '${difference > 0 ? '+' : difference < 0 ? '−' : ''}'
-            '$currencySymbol${difference.abs().toStringAsFixed(2)}';
-
-        return SafeArea(
-          top: false,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                8,
-                20,
-                12 + MediaQuery.of(sheetContext).viewInsets.bottom,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: BeeTokens.surfaceSelected(sheetContext),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.account_balance_wallet_outlined,
-                          color: Theme.of(sheetContext).colorScheme.primary,
-                          size: 23,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          l10n.accountBalanceAdjustmentTitle,
-                          style: TextStyle(
-                            color: BeeTokens.textPrimary(sheetContext),
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: l10n.commonCancel,
-                        onPressed: () => Navigator.pop(sheetContext),
-                        icon: Icon(
-                          Icons.close_rounded,
-                          color: BeeTokens.iconSecondary(sheetContext),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 56),
-                    child: Text(
-                      l10n.accountBalanceAdjustmentChooseAction,
-                      style: TextStyle(
-                        color: BeeTokens.textSecondary(sheetContext),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: BeeTokens.surfaceSecondary(sheetContext),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _balanceSummaryValue(
-                                context: sheetContext,
-                                label: l10n.accountBalanceCurrent,
-                                value: formatBalance(currentBalance),
-                                alignEnd: false,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 18),
-                              child: Icon(
-                                Icons.arrow_forward_rounded,
-                                color: BeeTokens.iconTertiary(sheetContext),
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _balanceSummaryValue(
-                                context: sheetContext,
-                                label: l10n.accountBalanceAfterAdjustment,
-                                value: formatBalance(targetBalance),
-                                alignEnd: true,
-                                valueColor:
-                                    Theme.of(sheetContext).colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        Divider(
-                          height: 1,
-                          color: BeeTokens.borderStrong(sheetContext),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              l10n.accountBalanceDifference,
-                              style: TextStyle(
-                                color: BeeTokens.textSecondary(sheetContext),
-                                fontSize: 13,
-                              ),
-                            ),
-                            Text(
-                              signedDifference,
-                              style: TextStyle(
-                                color: differenceColor,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 22),
-                  _BalanceAdjustmentModeSelector(
-                    l10n: l10n,
-                    difference: signedDifference,
-                    differenceColor: differenceColor,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _balanceSummaryValue({
-    required BuildContext context,
-    required String label,
-    required String value,
-    required bool alignEnd,
-    Color? valueColor,
-  }) {
-    return Column(
-      crossAxisAlignment:
-          alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          textAlign: alignEnd ? TextAlign.end : TextAlign.start,
-          style: TextStyle(
-            color: BeeTokens.textSecondary(context),
-            fontSize: 12,
-          ),
-        ),
-        const SizedBox(height: 7),
-        Text(
-          value,
-          textAlign: alignEnd ? TextAlign.end : TextAlign.start,
-          style: TextStyle(
-            color: valueColor ?? BeeTokens.textPrimary(context),
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
+    final symbol = getCurrencySymbol(_selectedCurrency);
+    String amount(double value) =>
+        '${value < 0 ? '−' : ''}$symbol${value.abs().toStringAsFixed(2)}';
+    final signedDifference =
+        '${difference > 0 ? '+' : difference < 0 ? '−' : ''}'
+        '$symbol${difference.abs().toStringAsFixed(2)}';
+    var createTransaction = false;
+    return showBeeSheet<bool>(context,
+        title: l10n.accountBalanceAdjustmentTitle,
+        child: StatefulBuilder(builder: (sheetContext, setChoice) {
+      return SingleChildScrollView(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text(l10n.accountBalanceAdjustmentChooseAction,
+            style: TextStyle(
+                fontSize: 12, color: Theme.of(sheetContext).hintColor)),
+        const SizedBox(height: 16),
+        BeeAccountBalanceAdjustment(
+            currentLabel: l10n.accountBalanceCurrent,
+            currentAmount: amount(currentBalance),
+            targetLabel: l10n.accountBalanceAfterAdjustment,
+            targetAmount: amount(targetBalance),
+            differenceLabel: l10n.accountBalanceDifference,
+            differenceAmount: signedDifference,
+            differenceColor: difference > 0
+                ? BeeTokens.success(sheetContext)
+                : difference < 0
+                    ? BeeTokens.error(sheetContext)
+                    : BeeTokens.textSecondary(sheetContext),
+            options: [
+              BeeBalanceAdjustmentOption(
+                  createTransaction: false,
+                  title: l10n.accountBalanceAdjustmentOnly,
+                  description: l10n.accountBalanceAdjustmentOnlyMessage,
+                  confirmLabel: l10n.accountBalanceAdjustmentConfirmOnly),
+              BeeBalanceAdjustmentOption(
+                  createTransaction: true,
+                  title: l10n.accountBalanceAdjustmentCreate,
+                  description: l10n.accountBalanceAdjustmentCreateMessage,
+                  confirmLabel: l10n.accountBalanceAdjustmentConfirmCreate),
+            ],
+            createTransaction: createTransaction,
+            onModeChanged: (value) =>
+                setChoice(() => createTransaction = value),
+            onConfirm: (value) => Navigator.pop(sheetContext, value)),
+      ]));
+    }));
   }
 
   void _retryEditableCurrentBalance() {
@@ -1511,227 +1356,6 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage> {
           );
         });
       },
-    );
-  }
-}
-
-class _BalanceAdjustmentModeSelector extends StatefulWidget {
-  final AppLocalizations l10n;
-  final String difference;
-  final Color differenceColor;
-
-  const _BalanceAdjustmentModeSelector({
-    required this.l10n,
-    required this.difference,
-    required this.differenceColor,
-  });
-
-  @override
-  State<_BalanceAdjustmentModeSelector> createState() =>
-      _BalanceAdjustmentModeSelectorState();
-}
-
-class _BalanceAdjustmentModeSelectorState
-    extends State<_BalanceAdjustmentModeSelector> {
-  bool _createTransaction = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: BeeTokens.surfaceCapsule(context),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              _buildTab(
-                context: context,
-                createTransaction: false,
-                title: widget.l10n.accountBalanceAdjustmentOnly,
-              ),
-              _buildTab(
-                context: context,
-                createTransaction: true,
-                title: widget.l10n.accountBalanceAdjustmentCreate,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-        AnimatedSize(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          alignment: Alignment.topCenter,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 180),
-            child: _buildDescription(context),
-          ),
-        ),
-        const SizedBox(height: 18),
-        SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: FilledButton.icon(
-            onPressed: () => Navigator.pop(context, _createTransaction),
-            icon: const Icon(Icons.check_rounded),
-            label: Text(
-              _createTransaction
-                  ? widget.l10n.accountBalanceAdjustmentConfirmCreate
-                  : widget.l10n.accountBalanceAdjustmentConfirmOnly,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTab({
-    required BuildContext context,
-    required bool createTransaction,
-    required String title,
-  }) {
-    final selected = _createTransaction == createTransaction;
-    final primary = Theme.of(context).colorScheme.primary;
-
-    return Expanded(
-      child: Semantics(
-        button: true,
-        selected: selected,
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () => setState(
-              () => _createTransaction = createTransaction,
-            ),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              height: 48,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: selected
-                    ? BeeTokens.surfaceSelected(context)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
-                border: selected
-                    ? Border.all(color: primary.withValues(alpha: 0.2))
-                    : null,
-              ),
-              child: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: selected
-                      ? BeeTokens.textPrimary(context)
-                      : BeeTokens.textSecondary(context),
-                  fontSize: 13,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDescription(BuildContext context) {
-    final l10n = widget.l10n;
-    final creating = _createTransaction;
-
-    return Container(
-      key: ValueKey(creating),
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: BeeTokens.surfaceSecondary(context),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: BeeTokens.surfaceSelected(context),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  creating
-                      ? Icons.receipt_long_outlined
-                      : Icons.account_balance_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 21,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  creating
-                      ? l10n.accountBalanceAdjustmentCreate
-                      : l10n.accountBalanceAdjustmentOnly,
-                  style: TextStyle(
-                    color: BeeTokens.textPrimary(context),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            creating
-                ? l10n.accountBalanceAdjustmentCreateMessage
-                : l10n.accountBalanceAdjustmentOnlyMessage,
-            style: TextStyle(
-              color: BeeTokens.textSecondary(context),
-              fontSize: 13,
-              height: 1.4,
-            ),
-          ),
-          if (creating) ...[
-            const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-              decoration: BoxDecoration(
-                color: BeeTokens.surface(context),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    l10n.accountBalanceDifference,
-                    style: TextStyle(
-                      color: BeeTokens.textSecondary(context),
-                      fontSize: 12,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    widget.difference,
-                    style: TextStyle(
-                      color: widget.differenceColor,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
     );
   }
 }
