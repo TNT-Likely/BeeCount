@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:async';
 import 'package:beecount/cloud/sync_service.dart';
 import 'package:beecount/data/db.dart';
@@ -135,6 +137,15 @@ void main() {
     await t.tap(find.text('open'));
     await ready(t,
         error ? find.byType(BeeEmptyState) : find.byType(BeeBudgetEditorForm));
+    final frozen = jsonDecode(
+        File('test/fixtures/v4-budget-editor-geometry.json')
+            .readAsStringSync());
+    final strings = AppLocalizations.of(t.element(find.byType(BudgetEditPage)));
+    final saveButton = find.widgetWithText(BeeButton, strings.commonSave);
+    expect(t.getSize(saveButton).width,
+        (narrow ? 320 : 398) - 2 * (frozen['pageInset'] as num),
+        reason: 'HTML固定保存栏应撑满内容宽度');
+    expect(t.getSize(saveButton).height, frozen['saveButtonHeight']);
   }
 
   AppLocalizations l(WidgetTester t) =>

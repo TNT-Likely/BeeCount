@@ -31,7 +31,7 @@ class _BudgetEditPageState extends ConsumerState<BudgetEditPage>
         ledger = ref.watch(currentLedgerProvider).asData?.value;
     final permitted = canEditLedgerBudget(ref);
     return V4PageScaffold(
-        body: Column(children: [
+        body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       BeePageHeader(
           title: widget.budget == null ? l.budgetAddTitle : l.budgetEditTitle,
           leading: BackButton(

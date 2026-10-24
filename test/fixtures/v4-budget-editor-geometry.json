@@ -15,5 +15,6 @@
   "saveButtonHeight": 48,
   "saveVisualMinimumHeight": 44,
   "amountFieldFill": "surface",
-  "amountFieldBorders": "none"
+  "amountFieldBorders": "none",
+  "saveButtonWidth": 364
 }
