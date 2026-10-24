@@ -326,10 +326,10 @@
     "main/ledgers_page_new.dart": {
       "name": "账本管理与切换",
       "priority": "P0",
-      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "reason": "标准卡片、选中态、直接预算/编辑/成员与原角色操作弹窗接入真实Provider；保留渐进本地/远端、原财务/同步/附件规则。R45同环境设备闭环待执行。",
       "status": "部分迁移·待设计对齐与完整验收",
-      "components": "账本卡、当前态、选择器、成员入口与操作菜单",
-      "acceptance": "个人/共享账本、当前选中、右下操作与长按同菜单、预算/成员/编辑、新建/删除权限。"
+      "components": "受控账本卡/编辑草稿/28日起始日格/上下文菜单，原真实统计、权限、服务和Repository在App binding",
+      "acceptance": "267项相关回归（35文件）通过；本页14项含真实创建/修改/切换、币种重算确认取消、清空/删除及跨账本附件引用、创建事务回滚重试、首次无账本、编辑者权限、远端慢/失败/取消和冲突防重。HTML216场景、59组规范及320深色大字通过；R45整页生产UI、独立数据/文件与正常重启未结束，不计整页完成。"
     },
     "main/mine_page.dart": {
       "name": "我的、昵称与当前账本",
@@ -744,22 +744,26 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-24T11:54:00+08:00",
-    "engineeringEstimatePercent": 26,
+    "reportedAt": "2026-10-24T12:54:00+08:00",
+    "engineeringEstimatePercent": 27,
     "engineeringEstimateRange": [
-      24,
-      28
+      25,
+      29
     ],
-    "completedPages": 10,
+    "completedPages": 11,
     "totalPages": 73,
-    "completedP0Pages": 10,
+    "completedP0Pages": 11,
     "totalExistingP0Pages": 16,
     "newlyCompletedSincePreviousReport": [
-      "资产与账户列表"
+      "欢迎与初始化全流程"
     ],
     "inProgress": [
-      "欢迎与初始化：居中五步/完整语言币种/三种分类模式/恢复入口已实现；9项真实仓库测试通过，待完整回归、设计对照及同环境真机",
-      "账本管理、首页、记账、搜索、分类详情及新增账单详情继续按P0收口；Q01–Q11保留原业务规则待末尾确认"
+      "账本管理：组件和真实本地数据操作已实现；267项相关回归/9文件静态检查通过，R45同环境真机正在验收，未计整页完成",
+      "首页、记账、搜索、分类详情及新增账单详情继续按P0核对；待确认差异沿用原行为，P1/P2尚未逐页完成"
+    ],
+    "remainingEffortEstimateHours": [
+      30,
+      50
     ]
   }
 }
