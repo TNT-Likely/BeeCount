@@ -53,7 +53,8 @@ const businessCases = [
   '历史备注偏好',
   '皮肤预览与选择',
   '文件导入导出任务',
-  '附件与图标预览库'
+  '附件与图标预览库',
+  '分类迁移选择对'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -73,14 +74,16 @@ class BusinessAcceptancePage extends StatefulWidget {
       this.noteHistoryData,
       this.skinData,
       this.fileWorkflowData,
-      this.attachmentLibraryData});
+      this.attachmentLibraryData,
+      this.categoryMigrationData});
   final Widget? liveData,
       tagLibraryData,
       reminderData,
       noteHistoryData,
       skinData,
       fileWorkflowData,
-      attachmentLibraryData;
+      attachmentLibraryData,
+      categoryMigrationData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
@@ -1863,6 +1866,32 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     onIncomeAccount: () => record('选择默认收入账户'),
                     rateLabel: '汇率管理',
                     onRates: () => record('管理汇率'))),
+          ]),
+        47 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const Text('受控样例：空、单边选择、就绪与禁用'),
+            for (final state in [0, 1, 2, 3]) ...[
+              const SizedBox(height: 16),
+              BeeCategoryMigrationPair(
+                  fromLabel: '迁出分类',
+                  toLabel: '迁入分类',
+                  fromHint: '选择要迁出的分类',
+                  toHint: state == 0 ? '请先选择迁出分类' : '选择迁入的分类',
+                  fromName: state == 0 ? null : '饮品 / 自定义咖啡',
+                  toName: state < 2 ? null : '餐饮 / 午餐',
+                  fromIcon: state == 0
+                      ? null
+                      : Image.asset('assets/v4_gallery/category-coffee.png',
+                          width: 24, height: 24, fit: BoxFit.contain),
+                  toIcon: state < 2
+                      ? null
+                      : const BeeLineIcon('Utensils', size: 24),
+                  onFrom: state == 3 ? null : () => record('选择迁出分类'),
+                  onTo:
+                      state == 0 || state == 3 ? null : () => record('选择迁入分类')),
+            ],
+            const SizedBox(height: 20),
+            widget.categoryMigrationData ??
+                const Text('从 App 内组件验收读取实际分类与迁移信息。'),
           ]),
         46 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const Text('受控展示：预览、尺寸/大小与选中态'),

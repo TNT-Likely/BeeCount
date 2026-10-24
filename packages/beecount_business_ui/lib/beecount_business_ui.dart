@@ -43,3 +43,5 @@ export 'src/skin_card.dart';
 export 'src/file_transfer_components.dart';
 
 export 'src/attachment_library.dart';
+
+export 'src/category_migration_pair.dart';
