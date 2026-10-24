@@ -46,11 +46,11 @@ class BeeFileTransferStatus extends StatelessWidget {
           leading: IconTheme(
               data: IconThemeData(color: statusColor, size: 20),
               child: leading ??
-                  Icon(switch (state) {
-                    BeeFileTaskState.success => Icons.check_circle_outline,
-                    BeeFileTaskState.partial => Icons.info_outline,
-                    BeeFileTaskState.error => Icons.error_outline,
-                    _ => Icons.file_upload_outlined
+                  BeeLineIcon(switch (state) {
+                    BeeFileTaskState.success => 'CircleCheck',
+                    BeeFileTaskState.partial => 'Info',
+                    BeeFileTaskState.error => 'CircleAlert',
+                    _ => 'FileUp'
                   })),
           trailing: busy
               ? const SizedBox(
@@ -59,11 +59,11 @@ class BeeFileTransferStatus extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2))
               : onPreview != null
                   ? BeeIconButton(
-                      icon: const Icon(Icons.preview_outlined, size: 20),
+                      icon: const BeeLineIcon('Eye', size: 20),
                       label: previewLabel ?? title,
                       onPressed: onPreview)
                   : onTap != null
-                      ? const Icon(Icons.chevron_right, size: 18)
+                      ? const BeeLineIcon('ChevronRight', size: 18)
                       : const SizedBox.shrink(),
           onTap: busy ? null : onTap),
       if (busy || state == BeeFileTaskState.success)
@@ -98,7 +98,7 @@ class BeeArchiveSummary extends StatelessWidget {
   Widget build(BuildContext context) =>
       Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
-          const Icon(Icons.archive_outlined, size: 20),
+          const BeeLineIcon('Archive', size: 20),
           const SizedBox(width: 8),
           Expanded(
               child: Text(fileName,

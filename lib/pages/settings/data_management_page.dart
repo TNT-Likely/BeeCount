@@ -31,11 +31,11 @@ class _DataManagementPageState extends ConsumerState<DataManagementPage>
         p = ref.watch(importProgressProvider);
     final complete = !p.running && p.total > 0,
         allOk = complete && p.done == p.total && p.fail == 0;
-    Widget menu(String title, IconData icon, Widget page, [String? subtitle]) =>
+    Widget menu(String title, String icon, Widget page, [String? subtitle]) =>
         BeeMenuRow(
             title: title,
             subtitle: subtitle,
-            leading: Icon(icon, size: 20),
+            leading: BeeLineIcon(icon, size: 20),
             onTap: () => open(page));
     Widget section(String title, List<Widget> children) =>
         Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -82,14 +82,14 @@ class _DataManagementPageState extends ConsumerState<DataManagementPage>
               BeeFileTransferStatus(
                   title: importTitle,
                   subtitle: importSubtitle,
-                  leading: Icon(
+                  leading: BeeLineIcon(
                       p.running
-                          ? Icons.upload_outlined
+                          ? 'FileUp'
                           : allOk
-                              ? Icons.check_circle_outline
+                              ? 'CircleCheck'
                               : complete
-                                  ? Icons.info_outline
-                                  : Icons.file_upload_outlined,
+                                  ? 'Info'
+                                  : 'FileUp',
                       size: 20),
                   state: p.running
                       ? BeeFileTaskState.running
@@ -104,40 +104,36 @@ class _DataManagementPageState extends ConsumerState<DataManagementPage>
                   onTap: !p.running && p.total == 0
                       ? () => open(const ImportPage())
                       : null),
-              menu(l.mineExport, Icons.file_download_outlined,
-                  const ExportPage())
+              menu(l.mineExport, 'FileDown', const ExportPage())
             ]),
             section(l.v4DataCategories, [
-              menu(l.mineCategoryManagement, Icons.category_outlined,
+              menu(l.mineCategoryManagement, 'Shapes',
                   const CategoryManagePage(), l.mineCategoryManagementSubtitle),
               menu(
                   l.mineCategoryMigration,
-                  Icons.swap_horiz,
+                  'ArrowLeftRight',
                   const CategoryMigrationPage(),
                   l.mineCategoryMigrationSubtitle),
-              menu(l.tagManageTitle, Icons.label_outline, const TagManagePage(),
+              menu(l.tagManageTitle, 'Tags', const TagManagePage(),
                   l.tagManageSubtitle)
             ]),
             section(l.v4DataConfiguration, [
-              menu(l.configImportExportTitle, Icons.settings_backup_restore,
+              menu(l.configImportExportTitle, 'FileCog',
                   const ConfigImportExportPage(), l.configImportExportSubtitle),
-              menu(l.storageManagementTitle, Icons.storage_outlined,
+              menu(l.storageManagementTitle, 'HardDrive',
                   const StorageManagementPage(), l.storageManagementSubtitle),
-              menu(
-                  l.maintenanceOrphanCleanupTitle,
-                  Icons.cleaning_services_outlined,
-                  const OrphanCleanupPage(),
-                  l.maintenanceOrphanCleanupSubtitle)
+              menu(l.maintenanceOrphanCleanupTitle, 'BrushCleaning',
+                  const OrphanCleanupPage(), l.maintenanceOrphanCleanupSubtitle)
             ]),
             section(l.v4DataAttachments, [
               BeeMenuRow(
                   title: l.attachmentPreview,
-                  leading: const Icon(Icons.preview_outlined, size: 20),
+                  leading: const BeeLineIcon('Eye', size: 20),
                   onTap: isExporting ? null : previewExportAttachments),
               BeeFileTransferStatus(
                   title: l.attachmentExportTitle,
                   subtitle: l.attachmentExportSubtitle,
-                  leading: const Icon(Icons.upload_file_outlined, size: 20),
+                  leading: const BeeLineIcon('Archive', size: 20),
                   state: isExporting
                       ? BeeFileTaskState.running
                       : BeeFileTaskState.ready,
@@ -158,7 +154,7 @@ class _DataManagementPageState extends ConsumerState<DataManagementPage>
               BeeFileTransferStatus(
                   title: l.attachmentImportTitle,
                   subtitle: l.attachmentImportSubtitle,
-                  leading: const Icon(Icons.download_outlined, size: 20),
+                  leading: const BeeLineIcon('FolderInput', size: 20),
                   state: isImporting
                       ? BeeFileTaskState.running
                       : BeeFileTaskState.ready,
