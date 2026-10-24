@@ -8964,6 +8964,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4DataAttachments => '账单附件';
+
+  @override
+  String get v4CustomIcons => '自定义图标';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

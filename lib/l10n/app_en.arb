@@ -4006,5 +4006,6 @@
   "v4DataBills": "Transactions",
   "v4DataCategories": "Categories and tags",
   "v4DataConfiguration": "Configuration and storage",
-  "v4DataAttachments": "Attachments"
+  "v4DataAttachments": "Attachments",
+  "v4CustomIcons": "Custom icons"
 }

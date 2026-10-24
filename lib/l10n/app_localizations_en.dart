@@ -8972,4 +8972,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4DataAttachments => 'Attachments';
+
+  @override
+  String get v4CustomIcons => 'Custom icons';
 }

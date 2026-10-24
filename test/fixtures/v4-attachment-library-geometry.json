@@ -1,0 +1,15 @@
+{
+  "reference": "HTML attachment-library.css frozen three-column geometry at logical viewport width, 2026-10-25",
+  "pageInset": 17,
+  "columns": 3,
+  "gap": 8,
+  "radius": 13,
+  "metadataFont": 11,
+  "segmentMinHeight": 44,
+  "398": {
+    "tileWidth": 116
+  },
+  "320": {
+    "tileWidth": 90
+  }
+}

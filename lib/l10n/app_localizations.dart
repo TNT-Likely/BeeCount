@@ -16879,6 +16879,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Attachments'**
   String get v4DataAttachments;
+
+  /// No description provided for @v4CustomIcons.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom icons'**
+  String get v4CustomIcons;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

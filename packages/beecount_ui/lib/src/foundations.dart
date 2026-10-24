@@ -220,13 +220,15 @@ class BeeSegmented<T> extends StatelessWidget {
       required this.items,
       required this.value,
       required this.onChanged,
-      this.dense = false});
+      this.dense = false,
+      this.scrollController});
   final List<BeeSegment<T>> items;
   final T value;
   final ValueChanged<T>? onChanged;
 
   /// Compact editor toolbars keep the same selection style in a 42px track.
   final bool dense;
+  final ScrollController? scrollController;
   @override
   Widget build(BuildContext context) =>
       LayoutBuilder(builder: (context, bounds) {
@@ -284,7 +286,9 @@ class BeeSegmented<T> extends StatelessWidget {
                                                       : Theme.of(context)
                                                           .hintColor)
                                               : style,
-                                          maxLines: 1))))))));
+                                          maxLines: 1,
+                                          overflow:
+                                              TextOverflow.ellipsis))))))));
         }
 
         final row = Row(
@@ -292,7 +296,12 @@ class BeeSegmented<T> extends StatelessWidget {
             children: items
                 .map((item) => equal
                     ? Expanded(child: segment(item))
-                    : IntrinsicWidth(child: segment(item)))
+                    : ConstrainedBox(
+                        constraints: BoxConstraints(
+                            maxWidth: bounds.hasBoundedWidth
+                                ? bounds.maxWidth - 8
+                                : double.infinity),
+                        child: IntrinsicWidth(child: segment(item))))
                 .toList());
         return DecoratedBox(
             decoration: BoxDecoration(
@@ -303,7 +312,9 @@ class BeeSegmented<T> extends StatelessWidget {
                 child: equal
                     ? row
                     : SingleChildScrollView(
-                        scrollDirection: Axis.horizontal, child: row)));
+                        controller: scrollController,
+                        scrollDirection: Axis.horizontal,
+                        child: row)));
       });
 }
 

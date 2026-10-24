@@ -3713,5 +3713,6 @@
   "v4DataBills": "账单数据",
   "v4DataCategories": "分类与标签",
   "v4DataConfiguration": "应用配置与空间",
-  "v4DataAttachments": "账单附件"
+  "v4DataAttachments": "账单附件",
+  "v4CustomIcons": "自定义图标"
 }

@@ -118,6 +118,8 @@ class BeeAttachmentViewer extends StatefulWidget {
       this.fullScreen = false,
       this.onClose,
       this.onImageTap,
+      this.metadataBuilder,
+      this.showHeaderLabel = true,
       this.actions = const [],
       this.busy = false,
       this.emptyLabel = '',
@@ -130,6 +132,8 @@ class BeeAttachmentViewer extends StatefulWidget {
   final ValueChanged<int>? onIndexChanged;
   final bool fullScreen, busy;
   final VoidCallback? onClose, onImageTap;
+  final Widget Function(int)? metadataBuilder;
+  final bool showHeaderLabel;
   final List<Widget> actions;
   final String emptyLabel;
   final String? errorLabel;
@@ -327,7 +331,8 @@ class _BeeAttachmentViewerState extends State<BeeAttachmentViewer> {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
-                                          if (widget.items.isNotEmpty) ...[
+                                          if (widget.items.isNotEmpty &&
+                                              widget.showHeaderLabel) ...[
                                             Text(widget.items[index].label,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
@@ -371,7 +376,10 @@ class _BeeAttachmentViewerState extends State<BeeAttachmentViewer> {
                                 child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      if (widget.items[index].info.isNotEmpty)
+                                      if (widget.metadataBuilder != null)
+                                        widget.metadataBuilder!(index)
+                                      else if (widget
+                                          .items[index].info.isNotEmpty)
                                         Text(widget.items[index].info,
                                             textAlign: TextAlign.center,
                                             style: const TextStyle(
@@ -399,7 +407,8 @@ class _BeeAttachmentViewerState extends State<BeeAttachmentViewer> {
       const SizedBox(height: 8),
       Flexible(child: _viewport(context)),
       const SizedBox(height: 8),
-      Text(item.info, style: const TextStyle(fontSize: 11)),
+      widget.metadataBuilder?.call(index) ??
+          Text(item.info, style: const TextStyle(fontSize: 11)),
       _thumbnails(context),
     ]);
   }

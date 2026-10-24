@@ -52,7 +52,8 @@ const businessCases = [
   '记账提醒设置',
   '历史备注偏好',
   '皮肤预览与选择',
-  '文件导入导出任务'
+  '文件导入导出任务',
+  '附件与图标预览库'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -71,19 +72,22 @@ class BusinessAcceptancePage extends StatefulWidget {
       this.reminderData,
       this.noteHistoryData,
       this.skinData,
-      this.fileWorkflowData});
+      this.fileWorkflowData,
+      this.attachmentLibraryData});
   final Widget? liveData,
       tagLibraryData,
       reminderData,
       noteHistoryData,
       skinData,
-      fileWorkflowData;
+      fileWorkflowData,
+      attachmentLibraryData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
 }
 
 class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
+  String? librarySelectedId;
   bool overwriteArchive = false;
   String demoSkin = 'none';
   int historyScope = 0, historySort = 0;
@@ -1859,6 +1863,69 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     onIncomeAccount: () => record('选择默认收入账户'),
                     rateLabel: '汇率管理',
                     onRates: () => record('管理汇率'))),
+          ]),
+        46 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const Text('受控展示：预览、尺寸/大小与选中态'),
+            SizedBox(
+                height: 220,
+                child: BeeAttachmentLibrary(
+                    items: const [
+                      BeeAttachment(
+                          id: 'receipt',
+                          image: AssetImage('assets/logo2.png'),
+                          label: 'receipt.png',
+                          info: '320 × 480 · 12.00 KB'),
+                      BeeAttachment(
+                          id: 'icon',
+                          image: AssetImage('assets/logo2.png'),
+                          label: 'custom-icon.png',
+                          info: '216 × 216 · 4.50 KB')
+                    ],
+                    emptyLabel: '暂无附件',
+                    selectedId: librarySelectedId,
+                    onOpen: (i) => setState(() =>
+                        librarySelectedId = i == 0 ? 'receipt' : 'icon'))),
+            const Text('空态'),
+            const SizedBox(
+                height: 180,
+                child: BeeAttachmentLibrary(
+                    items: [], emptyLabel: '暂无附件', onOpen: null)),
+            const Text('加载中'),
+            const SizedBox(
+                height: 120,
+                child: BeeAttachmentLibrary(
+                    items: [],
+                    emptyLabel: '暂无附件',
+                    onOpen: null,
+                    loading: true,
+                    loadingLabel: '正在读取图片')),
+            const Text('图片加载失败'),
+            SizedBox(
+                height: 150,
+                child: BeeAttachmentLibrary(
+                    items: [
+                      BeeAttachment(
+                          id: 'bad',
+                          image: const AssetImage('assets/logo2.png'),
+                          label: 'bad-image.png',
+                          info: '3 B')
+                    ],
+                    imageBuilder: (_) =>
+                        const Center(child: BeeLineIcon('ImageOff', size: 28)),
+                    emptyLabel: '暂无附件',
+                    onOpen: (_) => record('图片加载失败示例'))),
+            const Text('不可操作预览'),
+            const SizedBox(
+                height: 150,
+                child: BeeAttachmentLibrary(items: [
+                  BeeAttachment(
+                      id: 'readonly',
+                      image: AssetImage('assets/logo2.png'),
+                      label: 'readonly.png',
+                      info: '216 × 216 · 4.50 KB')
+                ], emptyLabel: '暂无附件', onOpen: null)),
+            const SizedBox(height: 16),
+            widget.attachmentLibraryData ?? const Text('从App组件验收读取真实附件与图标。'),
           ]),
         45 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const Text('受控示例：不读写文件、不运行导入'),
