@@ -1051,10 +1051,10 @@
   },
   {
     "route": "flow-font",
-    "slug": "flow-font",
-    "title": "显示与字号",
+    "title": "显示缩放",
     "group": "补齐 · 外观与辅助",
-    "fullHeight": 844,
+    "slug": "flow-font",
+    "fullHeight": 1074,
     "viewport": "screens/viewport/flow-font.png",
     "full": "screens/full/flow-font.png",
     "svg": "figma/flow-font.svg"
