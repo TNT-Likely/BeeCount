@@ -64,7 +64,7 @@
     "title": "资产账户",
     "group": "主要页面",
     "slug": "assets",
-    "fullHeight": 2233,
+    "fullHeight": 2249,
     "viewport": "screens/viewport/assets.png",
     "full": "screens/full/assets.png",
     "svg": "figma/assets.svg"
@@ -2018,7 +2018,7 @@
     "title": "资产 · 缺失汇率",
     "group": "补齐 · 账户与资产",
     "slug": "flow-assets-missing",
-    "fullHeight": 2233,
+    "fullHeight": 2249,
     "viewport": "screens/viewport/flow-assets-missing.png",
     "full": "screens/full/flow-assets-missing.png",
     "svg": "figma/flow-assets-missing.svg"
@@ -2038,7 +2038,7 @@
     "title": "资产 · 隐藏账户",
     "group": "补齐 · 账户与资产",
     "slug": "flow-assets-hidden",
-    "fullHeight": 2056,
+    "fullHeight": 2073,
     "viewport": "screens/viewport/flow-assets-hidden.png",
     "full": "screens/full/flow-assets-hidden.png",
     "svg": "figma/flow-assets-hidden.svg"
@@ -2048,7 +2048,7 @@
     "title": "资产 · 估值账户",
     "group": "补齐 · 账户与资产",
     "slug": "flow-assets-valuation",
-    "fullHeight": 2462,
+    "fullHeight": 2479,
     "viewport": "screens/viewport/flow-assets-valuation.png",
     "full": "screens/full/flow-assets-valuation.png",
     "svg": "figma/flow-assets-valuation.svg"
