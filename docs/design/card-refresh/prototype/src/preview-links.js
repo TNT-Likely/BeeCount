@@ -10,7 +10,7 @@
     return scene;
   }
   function qReplayPreviewScene(scene){
-    if(!scene&&(qParams.has('expanded')||qParams.has('quote'))){if(qParams.has('expanded'))state.expandedCategory=qParams.get('expanded');if(qParams.has('quote'))state.vQuoteStatus=qParams.get('quote');render();}
+    if(!scene&&(qParams.has('expanded')||qParams.has('quote')||qParams.has('rate'))){if(qParams.has('expanded'))state.expandedCategory=qParams.get('expanded');if(qParams.has('quote'))state.vQuoteStatus=qParams.get('quote');const rate=Number(qParams.get('rate'));if(qParams.has('rate')&&Number.isFinite(rate)&&rate>0&&rate<=1e9){state.fRecordRate=String(rate);state.vQuoteStatus='ready';}render();}
     if(scene?.contextMenu)xContext(scene.contextMenu);
     if(scene?.toast)notice(scene.toast.text,scene.toast.tone);
     if(state.rModal==='category-tools'&&!state.leaf){state.leaf='分类管理';render();}
