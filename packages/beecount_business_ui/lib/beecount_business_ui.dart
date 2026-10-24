@@ -38,3 +38,4 @@ export 'src/quick_add_fan.dart';
 export 'src/account_detail.dart';
 export 'src/tag_library.dart';
 export 'src/note_history_preferences.dart';
+export 'src/skin_card.dart';

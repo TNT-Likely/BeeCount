@@ -50,7 +50,8 @@ const businessCases = [
   '资产总览与账户设置',
   '标签管理库',
   '记账提醒设置',
-  '历史备注偏好'
+  '历史备注偏好',
+  '皮肤预览与选择'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -67,14 +68,20 @@ class BusinessAcceptancePage extends StatefulWidget {
       this.liveData,
       this.tagLibraryData,
       this.reminderData,
-      this.noteHistoryData});
-  final Widget? liveData, tagLibraryData, reminderData, noteHistoryData;
+      this.noteHistoryData,
+      this.skinData});
+  final Widget? liveData,
+      tagLibraryData,
+      reminderData,
+      noteHistoryData,
+      skinData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
 }
 
 class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
+  String demoSkin = 'none';
   int historyScope = 0, historySort = 0;
   String historyLimit = '20';
   bool historyInvalid = false;
@@ -1848,6 +1855,51 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     onIncomeAccount: () => record('选择默认收入账户'),
                     rateLabel: '汇率管理',
                     onRates: () => record('管理汇率'))),
+          ]),
+        44 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const Text('受控展示示例：只改变演示选中态，不写入真实皮肤'),
+            const SizedBox(height: 12),
+            LayoutBuilder(
+                builder: (context, box) =>
+                    Wrap(spacing: 10, runSpacing: 10, children: [
+                      for (final item in const [
+                        BeeSkinChoice(
+                            id: 'none',
+                            name: '纯色',
+                            preview: ColoredBox(color: Color(0xfff8c91c))),
+                        BeeSkinChoice(
+                            id: 'animated',
+                            name: '动态皮肤与固定配色',
+                            animated: true,
+                            fixedPalette: true,
+                            cornerBadge: '1st',
+                            preview: ColoredBox(color: Color(0xffff7a45))),
+                      ])
+                        SizedBox(
+                            width: (box.maxWidth - 10) / 2,
+                            child: BeeSkinCard(
+                                item: item,
+                                selected: demoSkin == item.id,
+                                animatedLabel: '动态',
+                                fixedLabel: '固定配色',
+                                onTap: () =>
+                                    setState(() => demoSkin = item.id)))
+                    ])),
+            const SizedBox(height: 12),
+            const Text('只读 / 处理中'),
+            const BeeSkinCard(
+                item: BeeSkinChoice(
+                    id: 'readonly',
+                    name: '只读皮肤预览',
+                    animated: true,
+                    fixedPalette: true,
+                    preview: ColoredBox(color: Color(0xff7e57c2))),
+                selected: true,
+                animatedLabel: '动态',
+                fixedLabel: '固定配色',
+                onTap: null),
+            const SizedBox(height: 16),
+            widget.skinData ?? const Text('从App组件验收入口读取当前真实皮肤。'),
           ]),
         43 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const Text('受控展示示例：不写入真实偏好'),
