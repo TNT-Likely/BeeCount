@@ -19,9 +19,11 @@ class BeeResourceHero extends StatelessWidget {
       required this.amountLabel,
       required this.amount,
       required this.metrics,
+      this.titleWidget,
       this.prefix = ''});
   final String title, caption, amountLabel, amount, prefix;
   final Widget icon;
+  final Widget? titleWidget;
   final List<BeeResourceMetric> metrics;
   @override
   Widget build(BuildContext context) {
@@ -50,9 +52,10 @@ class BeeResourceHero extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                      Text(title,
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w600)),
+                      titleWidget ??
+                          Text(title,
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 3),
                       Text(caption,
                           style: TextStyle(
