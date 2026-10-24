@@ -4,7 +4,7 @@
 
 现有 **71 个产品页面源文件**（P0 16 页、P1 42 页、P2 13 页），另有 **2 个新设计页面待新增**、6 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
-当前完整完成页面为 **13**（新增与编辑账户、资产与账户列表、账单附件大图预览、应用锁解锁、PIN 设置与确认、启动页、欢迎与初始化全流程、新增与编辑分类、分类管理与工具、首页明细、账本管理与切换、我的、昵称与当前账本、配置导入导出与恢复）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
+当前完整完成页面为 **14**（账户详情、新增与编辑账户、资产与账户列表、账单附件大图预览、应用锁解锁、PIN 设置与确认、启动页、欢迎与初始化全流程、新增与编辑分类、分类管理与工具、首页明细、账本管理与切换、我的、昵称与当前账本、配置导入导出与恢复）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
 
 ## 优先级与顺序
 
@@ -43,7 +43,7 @@
 
 | 页面 / 源码 | 状态 | 批次 | 组件与关联流程 | 必须保留 / 验收 |
 | --- | --- | --- | --- | --- |
-| **账户详情**<br>[lib/pages/account/account_detail_page.dart](../../lib/pages/account/account_detail_page.dart) | 迁移中·R56功能闭环通过，最终重启与报告收口 | M3 | 账户信息、余额、统计与过滤账单列表 | 历史隐藏账户、币种/余额、编辑/调整余额、转账双账户、时间范围和账单导航。<br>设计：`accountDetail`、`flow-account-credit-detail`、`flow-account-overpayment-detail`、`flow-account-no-limit-detail`、`flow-account-valuation-detail`、`flow-account-loan-detail`、`flow-account-empty-detail`、`flow-valuation`<br>优先理由：263行页面与独立统计/分页/元信息绑定，信用卡还款、估值、完整原币快照及转账方向已实现。原备份SHA保持；同一QA实际人民币、美元、编辑取消、资金流向、信用卡1元还款和投资/贷款取消保存通过。322项主回归、最终样式7项及HTML18组合通过；57笔/24账户/5原附件保留，最终产物重启与离线报告尚未收口，不计完整页。 |
+| **账户详情**<br>[lib/pages/account/account_detail_page.dart](../../lib/pages/account/account_detail_page.dart) | 已完成 | M3 | 账户信息、余额、统计与过滤账单列表 | 323项/42文件相关回归、4文件静态检查及18组HTML通过；398/320关键几何独立冻结对照。R56实际CNY/USD、编辑取消、资金流向、1元信用卡还款和两类估值取消保存；R59实际投资+50、欠款减少10后父页SQL一致，图例中心及正常重启57笔/24账户/5附件保持。20图离线报告account-r59三宽度通过，ZIP SHA256 1ddceb4cf99b7f0831e2e1167de6743cdf9f6db1812448a3b1279ffb107aa1ef。Cloud/iOS及提醒送达未执行。<br>设计：`accountDetail`、`flow-account-credit-detail`、`flow-account-overpayment-detail`、`flow-account-no-limit-detail`、`flow-account-valuation-detail`、`flow-account-loan-detail`、`flow-account-empty-detail`、`flow-valuation`<br>优先理由：266行组合页，原分页/统计/资金流向、信用卡/估值及完整原币字段保留；R56/R59同一QA真实UI、独立SQL/文件和正常重启完成。R56发现父页缓存未刷新，R59已实际再次修改投资/贷款并确认无需重启两次立即更新。 |
 | **净资产趋势**<br>[lib/pages/account/net_worth_trend_page.dart](../../lib/pages/account/net_worth_trend_page.dart) | 待迁移 | M4 | 净资产汇总、趋势图、时间范围与明细 | 资产/负债/净资产和折算口径、范围切换、无数据与历史点选择。<br>设计：`flow-networth`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **AI 助手设置**<br>[lib/pages/ai/agent_assistant_settings_page.dart](../../lib/pages/ai/agent_assistant_settings_page.dart) | 待迁移 | M6 | 消息、配置表单、授权、任务状态与列表 | 沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。<br>设计：`flow-assistant-settings`、`flow-execution-depth`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **AI 对话与执行**<br>[lib/pages/ai/ai_chat_page.dart](../../lib/pages/ai/ai_chat_page.dart) | 待迁移 | M6 | 消息、配置表单、授权、任务状态与列表 | 沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。<br>设计：`ai`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
@@ -80,7 +80,7 @@
 | **个性化设置入口**<br>[lib/pages/settings/personalize_page.dart](../../lib/pages/settings/personalize_page.dart) | 待迁移 | M8 | 分组菜单、输入/选择/开关、弹窗与状态 | 逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。<br>设计：`appearance`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **记账提醒**<br>[lib/pages/settings/reminder_settings_page.dart](../../lib/pages/settings/reminder_settings_page.dart) | 待迁移 | M8 | 分组菜单、输入/选择/开关、弹窗与状态 | 逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。<br>设计：`flow-reminder`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **智能记账入口与识别偏好**<br>[lib/pages/settings/smart_billing_page.dart](../../lib/pages/settings/smart_billing_page.dart) | 待迁移 | M6 | 智能记账入口、功能引导弹窗、默认行为开关与语音设置 | 平台/渠道入口、原三个默认开关、自动/按住语音、静音时长、配置弹窗与识别入口。<br>设计：`smart`、`flow-capture`、`flow-feature-guide`、`flow-voice-trigger`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
-| **标签详情**<br>[lib/pages/tag/tag_detail_page.dart](../../lib/pages/tag/tag_detail_page.dart) | 待迁移 | M3 | 语义标签、关联分类、统计/筛选和账单行 | 标签颜色、全部账本/时间、相关分类、金额隐私、过滤与编辑/删除权限。<br>设计：`tagDetail`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
+| **标签详情**<br>[lib/pages/tag/tag_detail_page.dart](../../lib/pages/tag/tag_detail_page.dart) | 迁移中·原567行备份已核对，真实数据绑定与新版页面实现中 | M3 | 语义标签、关联分类、统计/筛选和账单行 | 标签颜色、全部账本/时间、相关分类、金额隐私、过滤与编辑/删除权限。<br>设计：`tagDetail`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **新增与编辑标签**<br>[lib/pages/tag/tag_edit_page.dart](../../lib/pages/tag/tag_edit_page.dart) | 待迁移 | M3 | 语义标签、表单、列表与账单行 | 标签颜色、长名称、新建/编辑/删除、分类关联、引用和当前账本权限。<br>设计：`flow-tag-edit`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **标签管理**<br>[lib/pages/tag/tag_manage_page.dart](../../lib/pages/tag/tag_manage_page.dart) | 待迁移 | M3 | 语义标签、表单、列表与账单行 | 标签颜色、长名称、新建/编辑/删除、分类关联、引用和当前账本权限。<br>设计：`flow-tag-tools`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |
 | **周期账单编辑**<br>[lib/pages/transaction/recurring_transaction_edit_page.dart](../../lib/pages/transaction/recurring_transaction_edit_page.dart) | 待迁移 | M1 | 周期编辑表单、金额/币种/账户、日期与频率选择 | 周期/频率/起止/下次执行、币种/账户/标签/备注、取消和调度更新。<br>设计：`flow-recurring-edit`<br>优先理由：常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。 |

@@ -192,7 +192,7 @@
       "classes": [
         "AccountDetailPage"
       ],
-      "lines": 263,
+      "lines": 266,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "accountDetail",
@@ -206,11 +206,11 @@
       ],
       "designMapping": "已定位",
       "components": "账户信息、余额、统计与过滤账单列表",
-      "acceptance": "历史隐藏账户、币种/余额、编辑/调整余额、转账双账户、时间范围和账单导航。",
-      "status": "迁移中·R56功能闭环通过，最终重启与报告收口",
+      "acceptance": "323项/42文件相关回归、4文件静态检查及18组HTML通过；398/320关键几何独立冻结对照。R56实际CNY/USD、编辑取消、资金流向、1元信用卡还款和两类估值取消保存；R59实际投资+50、欠款减少10后父页SQL一致，图例中心及正常重启57笔/24账户/5附件保持。20图离线报告account-r59三宽度通过，ZIP SHA256 1ddceb4cf99b7f0831e2e1167de6743cdf9f6db1812448a3b1279ffb107aa1ef。Cloud/iOS及提醒送达未执行。",
+      "status": "已完成",
       "name": "账户详情",
       "priority": "P1",
-      "reason": "263行页面与独立统计/分页/元信息绑定，信用卡还款、估值、完整原币快照及转账方向已实现。原备份SHA保持；同一QA实际人民币、美元、编辑取消、资金流向、信用卡1元还款和投资/贷款取消保存通过。322项主回归、最终样式7项及HTML18组合通过；57笔/24账户/5原附件保留，最终产物重启与离线报告尚未收口，不计完整页。",
+      "reason": "266行组合页，原分页/统计/资金流向、信用卡/估值及完整原币字段保留；R56/R59同一QA真实UI、独立SQL/文件和正常重启完成。R56发现父页缓存未刷新，R59已实际再次修改投资/贷款并确认无需重启两次立即更新。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=accountDetail",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-credit-detail",
@@ -1676,7 +1676,7 @@
       "classes": [
         "TagDetailPage"
       ],
-      "lines": 567,
+      "lines": 210,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "tagDetail"
@@ -1684,7 +1684,7 @@
       "designMapping": "已定位",
       "components": "语义标签、关联分类、统计/筛选和账单行",
       "acceptance": "标签颜色、全部账本/时间、相关分类、金额隐私、过滤与编辑/删除权限。",
-      "status": "待迁移",
+      "status": "迁移中·原567行备份已核对，真实数据绑定与新版页面实现中",
       "name": "标签详情",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
