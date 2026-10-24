@@ -26,6 +26,7 @@ class LedgerCard extends ConsumerWidget {
   /// 必须有一个可见的等价入口。
   final VoidCallback? onMore;
   final bool selected;
+  final VoidCallback? onBudget, onEdit, onMembers;
 
   const LedgerCard({
     super.key,
@@ -34,6 +35,9 @@ class LedgerCard extends ConsumerWidget {
     this.onLongPress,
     this.onMore,
     this.selected = false,
+    this.onBudget,
+    this.onEdit,
+    this.onMembers,
   });
 
   @override
@@ -55,11 +59,28 @@ class LedgerCard extends ConsumerWidget {
     final isSynced = syncStatus?.diff == SyncDiff.inSync;
 
     // 非同步状态：除了inSync和noRemote之外的所有状态
-    final isNotSynced = syncStatus != null &&
-        syncStatus.diff != SyncDiff.inSync &&
-        syncStatus.diff != SyncDiff.noRemote &&
-        syncStatus.diff != SyncDiff.notConfigured;
+    final isNotSynced = syncStatusAsync.hasError ||
+        syncStatus != null &&
+            syncStatus.diff != SyncDiff.inSync &&
+            syncStatus.diff != SyncDiff.noRemote &&
+            syncStatus.diff != SyncDiff.notConfigured;
 
+    final statusLabel = isUploading
+        ? l10n.mineUploadInProgress
+        : isRemote
+            ? l10n.ledgerCardDownloadCloud
+            : syncStatusAsync.hasError
+                ? l10n.mineSyncError
+                : switch (syncStatus?.diff) {
+                    SyncDiff.notLoggedIn => l10n.mineSyncNotLoggedIn,
+                    SyncDiff.noRemote => l10n.mineSyncNoRemote,
+                    SyncDiff.inSync => l10n.mineSyncInSyncSimple,
+                    SyncDiff.localNewer => l10n.mineSyncLocalNewerSimple,
+                    SyncDiff.cloudNewer => l10n.mineSyncCloudNewerSimple,
+                    SyncDiff.different => l10n.mineSyncDifferent,
+                    SyncDiff.error => l10n.mineSyncError,
+                    _ => l10n.mineSyncNotConfigured,
+                  };
     final params = (
       ledgerId: ledger.id,
       month: DateTime(DateTime.now().year, DateTime.now().month)
@@ -70,43 +91,69 @@ class LedgerCard extends ConsumerWidget {
     final hidden = ref.watch(hideAmountsProvider);
     String money(double value) =>
         hidden ? '••••' : formatBalanceFull(value, ledger.currency);
-    return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 5),
-        child: BeeLedgerCard(
-          name: translateLedgerName(context, ledger.name),
-          subtitle:
-              '${ledger.currency} · ${l10n.ledgersRecords('${ledger.transactionCount}')} · ID:${ledger.id}'
-              '${ledger.isShared ? ' · ${ledger.memberCount}' : ''}',
-          icon: BeeLineIcon(ledger.isShared ? 'Users' : 'BookOpen', size: 21),
-          current: selected,
-          currentLabel: l10n.commonCurrent,
-          expenseLabel: l10n.homeExpense,
-          incomeLabel: l10n.homeIncome,
-          expense: totals == null ? '—' : money(totals.$2),
-          income: totals == null ? '—' : money(totals.$1),
-          onSelect: onTap ?? () {},
-          onMenu: onMore ?? onLongPress ?? () {},
-          status: _buildStatusIcon(context, ref, primaryColor, isSynced,
-              isNotSynced, isRemote, isUploading),
-          footer: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                  isRemote
-                      ? l10n.ledgerCardDownloadCloud
-                      : l10n.ledgersBalance(money(ledger.balance)),
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: isRemote
-                          ? primaryColor
-                          : BeeTokens.textSecondary(context)))),
-          actions: [
-            BeeButton(
-                label: l10n.ledgersActions,
-                kind: BeeButtonKind.secondary,
-                compact: true,
-                onPressed: onMore ?? onLongPress)
-          ],
-        ));
+    return BeeLedgerCard(
+      name: translateLedgerName(context, ledger.name),
+      subtitle:
+          '${ledger.currency} · ${l10n.ledgersRecords('${ledger.transactionCount}')}'
+          '${ledger.isShared ? ' · ${ledger.memberCount}' : ''}',
+      icon: BeeLineIcon(ledger.isShared ? 'Users' : 'BookOpen', size: 21),
+      current: selected,
+      currentLabel: l10n.commonCurrent,
+      expenseLabel: l10n.homeExpense,
+      incomeLabel: l10n.homeIncome,
+      expense: totals == null ? '—' : money(totals.$2),
+      income: totals == null ? '—' : money(totals.$1),
+      onSelect: onTap ?? () {},
+      onMenu: onMore ?? onLongPress ?? () {},
+      status: Semantics(
+          label: statusLabel,
+          child: Tooltip(
+              message: statusLabel,
+              child: ExcludeSemantics(
+                  child: _buildStatusIcon(context, ref, primaryColor, isSynced,
+                      isNotSynced, isRemote, isUploading)))),
+      footer: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+              isRemote
+                  ? l10n.ledgerCardDownloadCloud
+                  : l10n.ledgersBalance(money(ledger.balance)),
+              style: TextStyle(
+                  fontSize: 12,
+                  color: isRemote
+                      ? primaryColor
+                      : BeeTokens.textSecondary(context)))),
+      actions: [
+        if (onBudget != null)
+          BeeButton(
+              label: l10n.budgetManagement,
+              icon: const BeeLineIcon('ChartPie', size: 14),
+              kind: BeeButtonKind.secondary,
+              compact: true,
+              onPressed: onBudget),
+        if (onMembers != null)
+          BeeButton(
+              label: l10n.sharedMembersPageTitle,
+              icon: const BeeLineIcon('Users', size: 14),
+              kind: BeeButtonKind.secondary,
+              compact: true,
+              onPressed: onMembers)
+        else if (onEdit != null)
+          BeeButton(
+              label: l10n.ledgersEdit,
+              icon: const BeeLineIcon('Settings2', size: 14),
+              kind: BeeButtonKind.secondary,
+              compact: true,
+              onPressed: onEdit),
+        if (isRemote)
+          BeeButton(
+              label: l10n.ledgersDownload,
+              icon: const BeeLineIcon('CloudDownload', size: 14),
+              kind: BeeButtonKind.secondary,
+              compact: true,
+              onPressed: onTap),
+      ],
+    );
   }
 
   /// 状态图标
