@@ -4,7 +4,7 @@
 
 现有 **71 个产品页面源文件**（P0 16 页、P1 42 页、P2 13 页），另有 **2 个新设计页面待新增**、6 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
-当前完整完成页面为 **1**（账单附件大图预览）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
+当前完整完成页面为 **2**（账单附件大图预览、新增与编辑分类）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
 
 ## 优先级与顺序
 
@@ -29,7 +29,7 @@
 | **PIN 设置与确认**<br>[lib/pages/auth/pin_setup_page.dart](../../lib/pages/auth/pin_setup_page.dart) | 部分迁移·R25 创建修改及 R28 皮肤真机通过，待整页清单收口 | M7 | PIN 输入、确认步骤与错误状态 | 设置/确认、二次不一致、取消、返回、原存储和隐私策略。<br>设计：`flow-pin`、`flow-pin-change`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **启动页**<br>[lib/pages/auth/splash_page.dart](../../lib/pages/auth/splash_page.dart) | 部分迁移·待设计对齐与完整验收 | M7 | 品牌与加载/错误状态 | 启动后进入初始化/解锁/首页的原分支、失败重试，避免改变初始化和同步时序。<br>设计：`flow-splash`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **欢迎与初始化全流程**<br>[lib/pages/auth/welcome_page.dart](../../lib/pages/auth/welcome_page.dart) | 部分迁移·待设计对齐与完整验收 | M7 | 居中欢迎步骤、语言/币种/分类选择、恢复与云同步说明 | 语言、币种/默认账本、分类模式、云同步、隐私开源、配置/附件恢复；返回保持选择。<br>设计：`welcome`、`welcomeCurrency`、`welcomeCategories`、`welcomeCloud`、`welcomePrivacy`、`welcomeDone`、`flow-welcome-bridge`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
-| **新增与编辑分类**<br>[lib/pages/category/category_edit_page.dart](../../lib/pages/category/category_edit_page.dart) | 部分迁移·完整图标与原子保存回归通过，待 R29 真机验收 | M3 | 名称与类型、原 237 图标目录、自定义图片草稿、父分类选择与删除保护 | 9 项真实 Repository/文件回归通过，含重复保存、父分类可选性、取消保留原图、保存失败回滚与冻结 HTML 图标格尺寸；R29 同一 QA 包继续实际创建/编辑/删除及相册裁剪。<br>设计：`flow-category-edit`、`flow-category-icons`、`flow-transfer-icon`、`flow-category-new`、`flow-category-parent-picker`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
+| **新增与编辑分类**<br>[lib/pages/category/category_edit_page.dart](../../lib/pages/category/category_edit_page.dart) | 已完成 | M3 | 名称与类型、原 237 图标目录、自定义图片草稿、父分类选择与删除保护 | 原 237 图标与分组、收支同名规则、转账类型、父分类禁用和层级、原生相册/裁剪/图片草稿取消、名称图标原子保存与失败回滚、删除保护均已核对。R30/R31 同一 QA 包实际创建/编辑二级分类、图片保存/替换取消、删除取消/确认及原转账入口，正常重启后原 51 笔、5 附件、业务表及图标文件保持。176 项相关回归通过；原生 iOS 与真实 Cloud 未执行。<br>设计：`flow-category-edit`、`flow-category-icons`、`flow-transfer-icon`、`flow-category-new`、`flow-category-parent-picker`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **分类管理与工具**<br>[lib/pages/category/category_manage_page.dart](../../lib/pages/category/category_manage_page.dart) | 部分迁移·待设计对齐与完整验收 | M3 | 分类层级、图标/图片、表单、排序与工具弹窗 | 一级/二级图标、自定义图片、转账图标入口、展开、排序和原工具弹窗。<br>设计：`leaf:分类管理`、`flow-category-tools`、`flow-taxonomy-import`、`flow-category-order`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **首页明细**<br>[lib/pages/main/home_page.dart](../../lib/pages/main/home_page.dart) | 部分迁移·待设计对齐与完整验收 | M2 | 品牌/无品牌、汇总、账单行、日期筛选、快捷记账与底部导航 | AI/搜索入口、月份滚轮、标签/时间/外币、分类图标导航、长按菜单/左滑删除、记账长按快捷入口。<br>设计：`home`、`flow-empty`<br>优先理由：首页汇总、预算、无品牌/品牌和明细工具栏已对齐；继续核对月份/账本切换、行操作、空态及正常入口重启。 |
 | **账本管理与切换**<br>[lib/pages/main/ledgers_page_new.dart](../../lib/pages/main/ledgers_page_new.dart) | 部分迁移·待设计对齐与完整验收 | M2 | 账本卡、当前态、选择器、成员入口与操作菜单 | 个人/共享账本、当前选中、右下操作与长按同菜单、预算/成员/编辑、新建/删除权限。<br>设计：`ledgers`、`flow-ledger-edit`、`flow-ledger-actions`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
