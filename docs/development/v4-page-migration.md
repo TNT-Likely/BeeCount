@@ -4,7 +4,7 @@
 
 现有 **71 个产品页面源文件**（P0 16 页、P1 42 页、P2 13 页），另有 **2 个新设计页面待新增**、6 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
-当前完整完成页面为 **3**（账单附件大图预览、新增与编辑分类、我的、昵称与当前账本）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
+当前完整完成页面为 **5**（账单附件大图预览、应用锁解锁、PIN 设置与确认、新增与编辑分类、我的、昵称与当前账本）。记账/转账、首页/我的/账户/账本、分类管理/账户编辑和初始化/安全页已部分接入新组件，仍需设计对齐和完整功能验收。其余页面待逐页迁移；全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
 
 ## 优先级与顺序
 
@@ -25,8 +25,8 @@
 | **新增与编辑账户**<br>[lib/pages/account/account_edit_page.dart](../../lib/pages/account/account_edit_page.dart) | 部分迁移·待设计对齐与完整验收 | M3 | 账户卡、金额、账户类型、表单与交易列表 | 保留账户类型/币种/余额、隐藏状态、余额调整、转账关联与历史记录。<br>设计：`flow-account-edit`、`flow-balance-adjust`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **资产与账户列表**<br>[lib/pages/account/accounts_page.dart](../../lib/pages/account/accounts_page.dart) | 部分迁移·待设计对齐与完整验收 | M3 | 资产汇总、账户卡、类型分组与操作菜单 | 资产/负债/净资产口径、账户余额/币种、隐藏状态、新建/编辑、转账与详情入口。<br>设计：`assets`、`flow-account-settings`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **账单附件大图预览**<br>[lib/pages/attachment/attachment_preview_page.dart](../../lib/pages/attachment/attachment_preview_page.dart) | 已完成 | M7 | 附件网格、大图、缩略图与状态 | 7 项真实文件/数据库 widget 回归及冻结 HTML 尺寸通过；真机预览/切换/缩略图、保存附件删除与重新添加、文件 SHA256 和重启持久化通过。双指缩放通过实际 widget 手势；原生拍照及原生双指手势未执行，作为设备覆盖边界记录。<br>设计：`flow-attachment-viewer`、`flow-attachments`<br>优先理由：已对齐 HTML 全屏留白、文件名、计数和缩略图；R13 在同一隔离包完成删除取消、实际删除/系统相册重加与正常入口重启，50 笔交易及其余附件保持不变。 |
-| **应用锁解锁**<br>[lib/pages/auth/app_lock_screen.dart](../../lib/pages/auth/app_lock_screen.dart) | 部分迁移·R25 解锁闭环及 R28 皮肤真机通过，待整页清单收口 | M7 | 安全输入、错误反馈与解锁状态 | 保持原 PIN/生物识别、锁定/失败策略、恢复入口；不修改认证和安全存储。<br>设计：`flow-lock`、`flow-lock-bio`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
-| **PIN 设置与确认**<br>[lib/pages/auth/pin_setup_page.dart](../../lib/pages/auth/pin_setup_page.dart) | 部分迁移·R25 创建修改及 R28 皮肤真机通过，待整页清单收口 | M7 | PIN 输入、确认步骤与错误状态 | 设置/确认、二次不一致、取消、返回、原存储和隐私策略。<br>设计：`flow-pin`、`flow-pin-change`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
+| **应用锁解锁**<br>[lib/pages/auth/app_lock_screen.dart](../../lib/pages/auth/app_lock_screen.dart) | 已完成 | M7 | 安全输入、错误反馈与解锁状态 | 四位 PIN、原哈希与生物识别可用性条件不变；398/320 HTML 冻结键盘、浅深色 140% 字体和相关 184 项回归通过。R35 真实 UI 与独立偏好/业务表/文件核对、正常重启通过；原生 iOS、真实设备生物识别未执行。关闭锁前私有验证页仍单独列为设置关联迁移。<br>设计：`flow-lock`、`flow-lock-bio`<br>优先理由：R35 当前独立 Android 产物已完成真实 PIN 创建取消/不一致/保存、旧密码验证/修改、正常重启锁定/解锁、验证关闭锁与移除验收 PIN；原认证规则与所有业务数据保持。 |
+| **PIN 设置与确认**<br>[lib/pages/auth/pin_setup_page.dart](../../lib/pages/auth/pin_setup_page.dart) | 已完成 | M7 | PIN 输入、确认步骤与错误状态 | 四位 PIN、原哈希与生物识别可用性条件不变；398/320 HTML 冻结键盘、浅深色 140% 字体和相关 184 项回归通过。R35 真实 UI 与独立偏好/业务表/文件核对、正常重启通过；原生 iOS、真实设备生物识别未执行。关闭锁前私有验证页仍单独列为设置关联迁移。<br>设计：`flow-pin`、`flow-pin-change`<br>优先理由：R35 当前独立 Android 产物已完成真实 PIN 创建取消/不一致/保存、旧密码验证/修改、正常重启锁定/解锁、验证关闭锁与移除验收 PIN；原认证规则与所有业务数据保持。 |
 | **启动页**<br>[lib/pages/auth/splash_page.dart](../../lib/pages/auth/splash_page.dart) | 部分迁移·待设计对齐与完整验收 | M7 | 品牌与加载/错误状态 | 启动后进入初始化/解锁/首页的原分支、失败重试，避免改变初始化和同步时序。<br>设计：`flow-splash`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **欢迎与初始化全流程**<br>[lib/pages/auth/welcome_page.dart](../../lib/pages/auth/welcome_page.dart) | 部分迁移·待设计对齐与完整验收 | M7 | 居中欢迎步骤、语言/币种/分类选择、恢复与云同步说明 | 语言、币种/默认账本、分类模式、云同步、隐私开源、配置/附件恢复；返回保持选择。<br>设计：`welcome`、`welcomeCurrency`、`welcomeCategories`、`welcomeCloud`、`welcomePrivacy`、`welcomeDone`、`flow-welcome-bridge`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **新增与编辑分类**<br>[lib/pages/category/category_edit_page.dart](../../lib/pages/category/category_edit_page.dart) | 已完成 | M3 | 名称与类型、原 237 图标目录、自定义图片草稿、父分类选择与删除保护 | 原 237 图标与分组、收支同名规则、转账类型、父分类禁用和层级、原生相册/裁剪/图片草稿取消、名称图标原子保存与失败回滚、删除保护均已核对。R30/R31 同一 QA 包实际创建/编辑二级分类、图片保存/替换取消、删除取消/确认及原转账入口，正常重启后原 51 笔、5 附件、业务表及图标文件保持。176 项相关回归通过；原生 iOS 与真实 Cloud 未执行。<br>设计：`flow-category-edit`、`flow-category-icons`、`flow-transfer-icon`、`flow-category-new`、`flow-category-parent-picker`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
