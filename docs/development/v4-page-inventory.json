@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 189,
+  "designSceneExports": 192,
   "flowDefinitions": 112,
   "priorityCounts": {
     "P0": 16,
@@ -215,16 +215,16 @@
       "classes": [
         "AccountEditPage"
       ],
-      "lines": 1900,
+      "lines": 381,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "flow-account-edit",
         "flow-balance-adjust"
       ],
       "designMapping": "已定位",
-      "components": "账户卡、金额、账户类型、表单与交易列表",
+      "components": "账户类型选择、规范表单、余额调整双模式、信用卡日期与提醒、币种选择和确认弹窗",
       "acceptance": "保留账户类型/币种/余额、隐藏状态、余额调整、转账关联与历史记录。",
-      "status": "部分迁移·待设计对齐与完整验收",
+      "status": "已实现·隔离真机验收中",
       "name": "新增与编辑账户",
       "priority": "P0",
       "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",

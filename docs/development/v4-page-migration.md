@@ -22,7 +22,7 @@
 
 | 页面 / 源码 | 状态 | 批次 | 组件与关联流程 | 必须保留 / 验收 |
 | --- | --- | --- | --- | --- |
-| **新增与编辑账户**<br>[lib/pages/account/account_edit_page.dart](../../lib/pages/account/account_edit_page.dart) | 部分迁移·待设计对齐与完整验收 | M3 | 账户卡、金额、账户类型、表单与交易列表 | 保留账户类型/币种/余额、隐藏状态、余额调整、转账关联与历史记录。<br>设计：`flow-account-edit`、`flow-balance-adjust`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
+| **新增与编辑账户**<br>[lib/pages/account/account_edit_page.dart](../../lib/pages/account/account_edit_page.dart) | 已实现·隔离真机验收中 | M3 | 账户类型选择、规范表单、余额调整双模式、信用卡日期与提醒、币种选择和确认弹窗 | 保留账户类型/币种/余额、隐藏状态、余额调整、转账关联与历史记录。<br>设计：`flow-account-edit`、`flow-balance-adjust`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **资产与账户列表**<br>[lib/pages/account/accounts_page.dart](../../lib/pages/account/accounts_page.dart) | 部分迁移·待设计对齐与完整验收 | M3 | 资产汇总、账户卡、类型分组与操作菜单 | 资产/负债/净资产口径、账户余额/币种、隐藏状态、新建/编辑、转账与详情入口。<br>设计：`assets`、`flow-account-settings`<br>优先理由：日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。 |
 | **账单附件大图预览**<br>[lib/pages/attachment/attachment_preview_page.dart](../../lib/pages/attachment/attachment_preview_page.dart) | 已完成 | M7 | 附件网格、大图、缩略图与状态 | 7 项真实文件/数据库 widget 回归及冻结 HTML 尺寸通过；真机预览/切换/缩略图、保存附件删除与重新添加、文件 SHA256 和重启持久化通过。双指缩放通过实际 widget 手势；原生拍照及原生双指手势未执行，作为设备覆盖边界记录。<br>设计：`flow-attachment-viewer`、`flow-attachments`<br>优先理由：已对齐 HTML 全屏留白、文件名、计数和缩略图；R13 在同一隔离包完成删除取消、实际删除/系统相册重加与正常入口重启，50 笔交易及其余附件保持不变。 |
 | **应用锁解锁**<br>[lib/pages/auth/app_lock_screen.dart](../../lib/pages/auth/app_lock_screen.dart) | 已完成 | M7 | 安全输入、错误反馈与解锁状态 | 四位 PIN、原哈希与生物识别可用性条件不变；398/320 HTML 冻结键盘、浅深色 140% 字体和相关 184 项回归通过。R35 真实 UI 与独立偏好/业务表/文件核对、正常重启通过；原生 iOS、真实设备生物识别未执行。关闭锁前私有验证页仍单独列为设置关联迁移。<br>设计：`flow-lock`、`flow-lock-bio`<br>优先理由：R35 当前独立 Android 产物已完成真实 PIN 创建取消/不一致/保存、旧密码验证/修改、正常重启锁定/解锁、验证关闭锁与移除验收 PIN；原认证规则与所有业务数据保持。 |
