@@ -461,10 +461,10 @@
   },
   {
     "route": "flow-networth",
-    "slug": "flow-networth",
-    "title": "净资产趋势",
+    "title": "净值趋势",
     "group": "补齐 · 账户与资产",
-    "fullHeight": 844,
+    "slug": "flow-networth",
+    "fullHeight": 872,
     "viewport": "screens/viewport/flow-networth.png",
     "full": "screens/full/flow-networth.png",
     "svg": "figma/flow-networth.svg"

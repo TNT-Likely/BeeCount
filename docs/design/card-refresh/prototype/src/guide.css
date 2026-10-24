@@ -64,3 +64,5 @@ html{scroll-behavior:smooth}.spec{width:100%;max-width:1664px;padding:32px}.spec
 .g-management-footer{display:flex;align-items:center;gap:12px;width:100%;min-height:66px;background:transparent;color:var(--bc-ink);border:0;text-align:left;font-size:14px}
 .g-management-footer>span{flex:1}
 @media(max-width:375px){.g-management-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+#bee-immersive-suite .spec-component svg.g-linechart{width:100%;height:180px;display:block}

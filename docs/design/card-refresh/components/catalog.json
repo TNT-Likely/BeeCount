@@ -157,6 +157,13 @@
         "title": "筛选与折叠",
         "nativeCase": 10,
         "nativeLabel": "折叠与筛选"
+      },
+      {
+        "id": "spec-61",
+        "code": "F23",
+        "title": "折线图",
+        "nativeCase": 19,
+        "nativeLabel": "折线图"
       }
     ]
   },

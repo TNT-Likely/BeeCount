@@ -540,5 +540,13 @@
     ],
     "page": "business",
     "case": 41
+  },
+  {
+    "design_key": "lineChart",
+    "components": [
+      "BeeLineChart"
+    ],
+    "page": "foundation",
+    "case": 19
   }
 ]
