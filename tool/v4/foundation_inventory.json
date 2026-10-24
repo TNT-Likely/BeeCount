@@ -398,7 +398,8 @@
         "danger",
         "loading",
         "tooltip",
-        "44-touch"
+        "44-touch",
+        "own-semantic-boundary"
       ],
       "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
     },

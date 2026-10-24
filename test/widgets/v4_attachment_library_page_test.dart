@@ -64,68 +64,80 @@ void main() {
     testWidgets(
         '原归档字节、完整长文件名、真实元信息与只读缩放/关闭 ${compact ? '320英文深色140%' : '398中文'}',
         (t) async {
-      final name = '${'收据' * 30}-20261025-20261025-20261025.png',
-          bytes = Uint8List.fromList(png);
-      await mount(
-          t,
-          ArchivePreviewData(attachments: [
-            AttachmentPreviewItem(fileName: name, bytes: bytes)
-          ], customIcons: [
-            AttachmentPreviewItem(fileName: 'icon.png', bytes: png)
-          ]),
-          compact: compact);
-      await waitInfo(t, '2.00 KB');
-      final geometry = jsonDecode(
-          File('test/fixtures/v4-attachment-library-geometry.json')
-              .readAsStringSync()) as Map<String, dynamic>;
-      final grid = t.widget<GridView>(find.byType(GridView).first);
-      expect(grid.padding,
-          EdgeInsets.all((geometry['pageInset'] as num).toDouble()));
-      final tile = find
-          .descendant(
-              of: find.byType(BeeAttachmentLibrary).first,
-              matching: find.byType(InkWell))
-          .first;
-      expect(t.getSize(tile).width,
-          closeTo(geometry[compact ? '320' : '398']['tileWidth'] as num, .01));
-      expect(t.getRect(tile).left, geometry['pageInset']);
-      await t.tap(find.text('2.00 KB'));
-      await t.pumpAndSettle();
-      expect(find.byType(Dialog), findsOneWidget);
-      expect(find.text(name), findsOneWidget);
-      expect(
-          find.descendant(
-              of: find.byType(Dialog), matching: find.text('40 × 120')),
-          findsOneWidget);
-      expect(
-          t.widget<InteractiveViewer>(find.byType(InteractiveViewer)).maxScale,
-          2.5);
-      final center = t.getCenter(find.byType(InteractiveViewer)),
-          left = await t.createGesture(pointer: 1),
-          right = await t.createGesture(pointer: 2);
-      await left.down(center - const Offset(20, 0));
-      await right.down(center + const Offset(20, 0));
-      await t.pump();
-      await left.moveTo(center - const Offset(65, 0));
-      await right.moveTo(center + const Offset(65, 0));
-      await t.pump();
-      await left.up();
-      await right.up();
-      await t.pumpAndSettle();
-      final transforms = t
-          .widgetList<Transform>(find.descendant(
-              of: find.byType(InteractiveViewer),
-              matching: find.byType(Transform)))
-          .map((w) => w.transform.getMaxScaleOnAxis());
-      expect(transforms.any((s) => s > 1 && s <= 2.5 + .001), isTrue);
-      final close = MaterialLocalizations.of(t.element(find.byType(Dialog)))
-          .closeButtonTooltip;
-      await t.tap(find.byTooltip(close));
-      await t.pumpAndSettle();
-      expect(find.byType(Dialog), findsNothing);
-      expect(bytes, png);
-      expect(find.byTooltip('删除'), findsNothing);
-      expect(t.takeException(), isNull);
+      final semantics = t.ensureSemantics();
+      try {
+        final name = '${'收据' * 30}-20261025-20261025-20261025.png',
+            bytes = Uint8List.fromList(png);
+        await mount(
+            t,
+            ArchivePreviewData(attachments: [
+              AttachmentPreviewItem(fileName: name, bytes: bytes)
+            ], customIcons: [
+              AttachmentPreviewItem(fileName: 'icon.png', bytes: png)
+            ]),
+            compact: compact);
+        await waitInfo(t, '2.00 KB');
+        final geometry = jsonDecode(
+            File('test/fixtures/v4-attachment-library-geometry.json')
+                .readAsStringSync()) as Map<String, dynamic>;
+        final grid = t.widget<GridView>(find.byType(GridView).first);
+        expect(grid.padding,
+            EdgeInsets.all((geometry['pageInset'] as num).toDouble()));
+        final tile = find
+            .descendant(
+                of: find.byType(BeeAttachmentLibrary).first,
+                matching: find.byType(InkWell))
+            .first;
+        expect(
+            t.getSize(tile).width,
+            closeTo(
+                geometry[compact ? '320' : '398']['tileWidth'] as num, .01));
+        expect(t.getRect(tile).left, geometry['pageInset']);
+        await t.tap(find.text('2.00 KB'));
+        await t.pumpAndSettle();
+        expect(find.byType(Dialog), findsOneWidget);
+        expect(find.text(name), findsOneWidget);
+        expect(
+            find.descendant(
+                of: find.byType(Dialog), matching: find.text('40 × 120')),
+            findsOneWidget);
+        expect(
+            t
+                .widget<InteractiveViewer>(find.byType(InteractiveViewer))
+                .maxScale,
+            2.5);
+        final center = t.getCenter(find.byType(InteractiveViewer)),
+            left = await t.createGesture(pointer: 1),
+            right = await t.createGesture(pointer: 2);
+        await left.down(center - const Offset(20, 0));
+        await right.down(center + const Offset(20, 0));
+        await t.pump();
+        await left.moveTo(center - const Offset(65, 0));
+        await right.moveTo(center + const Offset(65, 0));
+        await t.pump();
+        await left.up();
+        await right.up();
+        await t.pumpAndSettle();
+        final transforms = t
+            .widgetList<Transform>(find.descendant(
+                of: find.byType(InteractiveViewer),
+                matching: find.byType(Transform)))
+            .map((w) => w.transform.getMaxScaleOnAxis());
+        expect(transforms.any((s) => s > 1 && s <= 2.5 + .001), isTrue);
+        final close = MaterialLocalizations.of(t.element(find.byType(Dialog)))
+            .closeButtonTooltip;
+        final closeNode = t.getSemantics(find.byType(BeeIconButton).first);
+        expect(closeNode.label, close);
+        expect(closeNode.rect.width, lessThanOrEqualTo(48));
+        await t.tap(find.byTooltip(close));
+        await t.pumpAndSettle();
+        expect(find.byType(Dialog), findsNothing);
+        expect(bytes, png);
+        expect(find.byTooltip('删除'), findsNothing);
+        expect(t.takeException(), isNull);
+      } finally {
+        semantics.dispose();
+      }
     });
     testWidgets('左右滑动保留、空组可切换，小屏选中标签完整可见 ${compact ? '320英文深色140%' : '398中文'}',
         (t) async {

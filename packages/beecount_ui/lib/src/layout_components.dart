@@ -21,6 +21,7 @@ class BeeIconButton extends StatelessWidget {
     final color =
         danger ? theme.colorScheme.error : theme.colorScheme.onSurface;
     return Semantics(
+        container: true,
         label: label,
         button: true,
         enabled: onPressed != null && !loading,
