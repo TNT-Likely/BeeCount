@@ -188,7 +188,15 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
                   MaterialPageRoute(builder: (_) => const NetWorthTrendPage()))
               : null,
           child: view == AssetTrendView.trend
-              ? _buildNetWorthChartInline(context, ref)
+              ? Column(mainAxisSize: MainAxisSize.min, children: [
+                  _buildNetWorthChartInline(context, ref),
+                  if (multiCurrency) ...[
+                    const SizedBox(height: 8),
+                    Text(l.netWorthTrendMultiCurrencyNote,
+                        style: TextStyle(
+                            fontSize: 11, color: Theme.of(context).hintColor)),
+                  ],
+                ])
               : composition.when(
                   skipLoadingOnReload: true,
                   data: (data) =>

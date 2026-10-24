@@ -105,7 +105,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage>
     return V4PageScaffold(
         body: Column(children: [
       BeePageHeader(
-          title: l.accountsTitle,
+          title: widget.asTab ? l.tabAssets : l.accountsTitle,
           leading: widget.asTab ? null : const BackButton(),
           actions: [
             BeeIconButton(
