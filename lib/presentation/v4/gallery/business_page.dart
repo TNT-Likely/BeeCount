@@ -1563,7 +1563,32 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 child: BeeResourceTrend(
                     values: [0, 280, 400, 730, 920, 1199.57],
                     label: '累计支出趋势',
-                    axisLabels: ['10.01', '10.10', '10.20']))
+                    axisLabels: ['10.01', '10.10', '10.20'])),
+            const SizedBox(height: 12),
+            const BeeResourceHero(
+                title: '日常信用卡',
+                caption: '信用卡 · CNY · 尾号8862',
+                icon: BeeLineIcon('CreditCard', size: 22),
+                amountLabel: '当前欠款',
+                prefix: '¥',
+                amount: '3,200.00',
+                metrics: [
+                  BeeResourceMetric(label: '信用额度', value: '¥20,000.00'),
+                  BeeResourceMetric(label: '可用额度', value: '¥16,800.00')
+                ]),
+            const SizedBox(height: 12),
+            BeeCreditCardTerms(
+                usage: .16,
+                estimateHint: '可用额度为估算值，以银行账单为准',
+                billingLabel: '账单日12日 · 还款日28日',
+                paymentLabel: '距还款日还有4天',
+                repayLabel: '记一笔还款',
+                onRepay: () => record('保留信用卡目标，进入转账')),
+            const SizedBox(height: 12),
+            BeeCreditCardTerms(
+                paymentLabel: '今天是还款日 · 未设置额度',
+                repayLabel: '记一笔还款',
+                onRepay: () => record('未设置额度也可还款'))
           ]),
         36 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             BeeConfigurationOptions(

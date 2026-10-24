@@ -34,17 +34,51 @@ class BeeDonutChart extends StatelessWidget {
             child: SizedBox(
                 width: 160,
                 height: 160,
-                child: CustomPaint(
-                    painter:
-                        _DonutPainter(items, Theme.of(context).dividerColor),
-                    child: Center(
-                        child: Padding(
-                            padding: const EdgeInsets.all(32),
-                            child: Text(centerLabel,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600))))))),
+                child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTapUp: onSelected == null
+                        ? null
+                        : (details) {
+                            final offset =
+                                details.localPosition - const Offset(80, 80);
+                            if (offset.distance < 45 || offset.distance > 80) {
+                              onSelected!(-1);
+                              return;
+                            }
+                            final total = items.fold<double>(
+                                0,
+                                (sum, item) =>
+                                    sum +
+                                    (item.value.isFinite && item.value > 0
+                                        ? item.value
+                                        : 0));
+                            if (total <= 0 || !total.isFinite) return;
+                            final fraction = (math.atan2(offset.dy, offset.dx) +
+                                    math.pi * 2.5) %
+                                (math.pi * 2) /
+                                (math.pi * 2);
+                            var end = 0.0;
+                            for (var i = 0; i < items.length; i++) {
+                              final value = items[i].value;
+                              if (!value.isFinite || value <= 0) continue;
+                              end += value / total;
+                              if (fraction < end) {
+                                onSelected!(i);
+                                return;
+                              }
+                            }
+                          },
+                    child: CustomPaint(
+                        painter: _DonutPainter(
+                            items, Theme.of(context).dividerColor, selected),
+                        child: Center(
+                            child: Padding(
+                                padding: const EdgeInsets.all(32),
+                                child: Text(centerLabel,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600)))))))),
         const SizedBox(height: 12),
         Wrap(
             spacing: 8,
@@ -67,9 +101,10 @@ class BeeDonutChart extends StatelessWidget {
 }
 
 class _DonutPainter extends CustomPainter {
-  _DonutPainter(this.items, this.track);
+  _DonutPainter(this.items, this.track, this.selected);
   final List<BeeChartSlice> items;
   final Color track;
+  final int? selected;
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
@@ -82,9 +117,11 @@ class _DonutPainter extends CustomPainter {
         0, (v, s) => v + (s.value.isFinite && s.value > 0 ? s.value : 0));
     if (total <= 0 || !total.isFinite) return;
     var start = -math.pi / 2;
-    for (final item in items) {
+    for (var i = 0; i < items.length; i++) {
+      final item = items[i];
       if (!item.value.isFinite || item.value <= 0) continue;
       final sweep = item.value / total * 2 * math.pi;
+      paint.strokeWidth = selected == i ? 23 : 18;
       canvas.drawArc(arc, start, sweep, false, paint..color = item.color);
       start += sweep;
     }
@@ -92,7 +129,7 @@ class _DonutPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _DonutPainter old) =>
-      old.items != items || old.track != track;
+      old.items != items || old.track != track || old.selected != selected;
 }
 
 class BeeTrendChart extends StatelessWidget {

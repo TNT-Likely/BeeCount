@@ -70,31 +70,33 @@ class BeeResourceHero extends StatelessWidget {
                       prefixSize: 19,
                       size: compact ? 29 : 33,
                       lineHeight: 1.45)),
-              const SizedBox(height: 18),
-              const Divider(height: 1, thickness: 1),
-              const SizedBox(height: 15),
-              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                for (var i = 0; i < metrics.length; i++) ...[
-                  if (i > 0) SizedBox(width: compact ? 6 : 9),
-                  Expanded(
-                      child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                        Text(metrics[i].label,
-                            style: TextStyle(
-                                fontSize: 10, height: 1.5, color: muted)),
-                        const SizedBox(height: 5),
-                        Text(metrics[i].value,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontSize: compact ? 12 : 14,
-                                fontWeight: FontWeight.w500,
-                                height: 1.5)),
-                      ])),
-                ],
-              ]),
+              if (metrics.isNotEmpty) ...[
+                const SizedBox(height: 18),
+                const Divider(height: 1, thickness: 1),
+                const SizedBox(height: 15),
+                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  for (var i = 0; i < metrics.length; i++) ...[
+                    if (i > 0) SizedBox(width: compact ? 6 : 9),
+                    Expanded(
+                        child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Text(metrics[i].label,
+                              style: TextStyle(
+                                  fontSize: 10, height: 1.5, color: muted)),
+                          const SizedBox(height: 5),
+                          Text(metrics[i].value,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: compact ? 12 : 14,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.5)),
+                        ])),
+                  ],
+                ]),
+              ],
             ]));
   }
 }

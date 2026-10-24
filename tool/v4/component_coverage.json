@@ -480,7 +480,8 @@
     "components": [
       "BeeResourceHero",
       "BeeResourceBreakdown",
-      "BeeResourceTrend"
+      "BeeResourceTrend",
+      "BeeCreditCardTerms"
     ],
     "page": "business",
     "case": 35
