@@ -198,7 +198,8 @@ void main() {
               .style
               ?.fontSize,
           values['statsLabelFont']);
-      expect(tester.getSize(card).height, lessThan(110));
+      expect(tester.getSize(card).height,
+          closeTo((values['height'] as num).toDouble(), 1));
       expect(tester.takeException(), isNull);
       await close(tester);
     });

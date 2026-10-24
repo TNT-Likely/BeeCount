@@ -906,69 +906,71 @@ class BeeLedgerBalance extends StatelessWidget {
   final Color? amountColor;
   final bool hidden;
   @override
-  Widget build(BuildContext context) => BeeSurface(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-      child: Column(children: [
-        Row(children: [
-          Expanded(
-              child: InkWell(
-                  onTap: onLedgerTap,
-                  child: ConstrainedBox(
-                      constraints: const BoxConstraints(minHeight: 30),
-                      child: Row(children: [
-                        const BeeLineIcon('BookOpen', size: 14),
-                        const SizedBox(width: 6),
-                        Flexible(
-                            child: Text(ledger,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 11))),
-                        const SizedBox(width: 4),
-                        const BeeLineIcon('ChevronDown', size: 14)
-                      ])))),
-          if (balanceLabel != null)
-            Text(balanceLabel!,
-                style: TextStyle(
-                    fontSize: 11, color: Theme.of(context).hintColor)),
-          SizedBox(
-              width: 32,
-              height: 30,
-              child: IconButton(
-                  tooltip: privacyLabel,
-                  onPressed: onPrivacyTap,
-                  padding: EdgeInsets.zero,
-                  icon: BeeLineIcon(hidden ? 'EyeOff' : 'Eye', size: 16)))
-        ]),
-        const SizedBox(height: 3),
-        Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          Expanded(
-              child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: BeeMoney(
-                      amount: amount,
-                      prefix: prefix,
-                      prefixSize: 15,
-                      color: amountColor,
-                      hidden: hidden,
-                      size: 23))),
-          const SizedBox(width: 10),
-          if (days != null && count != null)
+  Widget build(BuildContext context) => ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 96),
+      child: BeeSurface(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+          child: Column(children: [
             Row(children: [
-              _stat(context, days!, daysLabel ?? ''),
-              const SizedBox(width: 8),
-              if (onCountTap == null)
-                _stat(context, count!, countLabel ?? '')
+              Expanded(
+                  child: InkWell(
+                      onTap: onLedgerTap,
+                      child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 30),
+                          child: Row(children: [
+                            const BeeLineIcon('BookOpen', size: 14),
+                            const SizedBox(width: 6),
+                            Flexible(
+                                child: Text(ledger,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 11))),
+                            const SizedBox(width: 4),
+                            const BeeLineIcon('ChevronDown', size: 14)
+                          ])))),
+              if (balanceLabel != null)
+                Text(balanceLabel!,
+                    style: TextStyle(
+                        fontSize: 11, color: Theme.of(context).hintColor)),
+              SizedBox(
+                  width: 32,
+                  height: 30,
+                  child: IconButton(
+                      tooltip: privacyLabel,
+                      onPressed: onPrivacyTap,
+                      padding: EdgeInsets.zero,
+                      icon: BeeLineIcon(hidden ? 'EyeOff' : 'Eye', size: 16)))
+            ]),
+            const SizedBox(height: 3),
+            Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              Expanded(
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: BeeMoney(
+                          amount: amount,
+                          prefix: prefix,
+                          prefixSize: 15,
+                          color: amountColor,
+                          hidden: hidden,
+                          size: 23))),
+              const SizedBox(width: 10),
+              if (days != null && count != null)
+                Row(children: [
+                  _stat(context, days!, daysLabel ?? ''),
+                  const SizedBox(width: 8),
+                  if (onCountTap == null)
+                    _stat(context, count!, countLabel ?? '')
+                  else
+                    InkWell(
+                        onTap: onCountTap,
+                        child: _stat(context, count!, countLabel ?? ''))
+                ])
               else
-                InkWell(
-                    onTap: onCountTap,
-                    child: _stat(context, count!, countLabel ?? ''))
-            ])
-          else
-            Text(stats,
-                style:
-                    TextStyle(fontSize: 10, color: Theme.of(context).hintColor))
-        ]),
-      ]));
+                Text(stats,
+                    style: TextStyle(
+                        fontSize: 10, color: Theme.of(context).hintColor))
+            ]),
+          ])));
   Widget _stat(BuildContext context, String value, String label) => Row(
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
