@@ -31,7 +31,8 @@
     "check:rates": "node scripts/validate-exchange-rates.cjs",
     "check:budget": "node scripts/validate-budget.cjs",
     "check:budget-editor": "node scripts/validate-budget-editor.cjs",
-    "check:calendar": "node scripts/validate-calendar.cjs"
+    "check:calendar": "node scripts/validate-calendar.cjs",
+    "check:analytics": "node scripts/validate-analytics.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

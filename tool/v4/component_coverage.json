@@ -661,5 +661,17 @@
     ],
     "page": "business",
     "case": 51
+  },
+  {
+    "design_key": "analytics",
+    "components": [
+      "BeeAnalyticsSummary",
+      "BeeAnalyticsHint",
+      "BeeCategoryRanking",
+      "BeeDonutChart",
+      "BeeLineChart"
+    ],
+    "page": "business",
+    "case": 52
   }
 ]

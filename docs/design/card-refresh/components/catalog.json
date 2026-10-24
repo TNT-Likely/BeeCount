@@ -521,6 +521,13 @@
         "title": "账单日历与按日汇总",
         "nativeCase": 51,
         "nativeLabel": "账单日历与按日汇总"
+      },
+      {
+        "id": "spec-74",
+        "code": "B49",
+        "title": "洞察汇总与分类排行",
+        "nativeCase": 52,
+        "nativeLabel": "洞察汇总与分类排行"
       }
     ]
   }

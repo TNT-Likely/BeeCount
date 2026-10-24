@@ -11,10 +11,10 @@
   },
   {
     "route": "report",
-    "slug": "report",
     "title": "洞察统计",
     "group": "主要页面",
-    "fullHeight": 1712,
+    "slug": "report",
+    "fullHeight": 1775,
     "viewport": "screens/viewport/report.png",
     "full": "screens/full/report.png",
     "svg": "figma/report.svg"
@@ -3102,5 +3102,95 @@
     "viewport": "screens/viewport/flow-cl-month.png",
     "full": "screens/full/flow-cl-month.png",
     "svg": "figma/flow-cl-month.svg"
+  },
+  {
+    "route": "flow-analytics-income",
+    "title": "洞察 · 收入",
+    "group": "补齐 · 主要页面",
+    "slug": "flow-analytics-income",
+    "fullHeight": 1274,
+    "viewport": "screens/viewport/flow-analytics-income.png",
+    "full": "screens/full/flow-analytics-income.png",
+    "svg": "figma/flow-analytics-income.svg"
+  },
+  {
+    "route": "flow-analytics-balance",
+    "title": "洞察 · 结余",
+    "group": "补齐 · 主要页面",
+    "slug": "flow-analytics-balance",
+    "fullHeight": 1055,
+    "viewport": "screens/viewport/flow-analytics-balance.png",
+    "full": "screens/full/flow-analytics-balance.png",
+    "svg": "figma/flow-analytics-balance.svg"
+  },
+  {
+    "route": "flow-analytics-year",
+    "title": "洞察 · 年度",
+    "group": "补齐 · 主要页面",
+    "slug": "flow-analytics-year",
+    "fullHeight": 1798,
+    "viewport": "screens/viewport/flow-analytics-year.png",
+    "full": "screens/full/flow-analytics-year.png",
+    "svg": "figma/flow-analytics-year.svg"
+  },
+  {
+    "route": "flow-analytics-all",
+    "title": "洞察 · 全部年份",
+    "group": "补齐 · 主要页面",
+    "slug": "flow-analytics-all",
+    "fullHeight": 1798,
+    "viewport": "screens/viewport/flow-analytics-all.png",
+    "full": "screens/full/flow-analytics-all.png",
+    "svg": "figma/flow-analytics-all.svg"
+  },
+  {
+    "route": "flow-analytics-empty",
+    "title": "洞察 · 空周期",
+    "group": "补齐 · 主要页面",
+    "slug": "flow-analytics-empty",
+    "fullHeight": 881,
+    "viewport": "screens/viewport/flow-analytics-empty.png",
+    "full": "screens/full/flow-analytics-empty.png",
+    "svg": "figma/flow-analytics-empty.svg"
+  },
+  {
+    "route": "flow-analytics-loading",
+    "title": "洞察 · 加载中",
+    "group": "补齐 · 主要页面",
+    "slug": "flow-analytics-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-analytics-loading.png",
+    "full": "screens/full/flow-analytics-loading.png",
+    "svg": "figma/flow-analytics-loading.svg"
+  },
+  {
+    "route": "flow-analytics-error",
+    "title": "洞察 · 读取失败",
+    "group": "补齐 · 主要页面",
+    "slug": "flow-analytics-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-analytics-error.png",
+    "full": "screens/full/flow-analytics-error.png",
+    "svg": "figma/flow-analytics-error.svg"
+  },
+  {
+    "route": "flow-analytics-pie",
+    "title": "洞察 · 分类环图",
+    "group": "补齐 · 主要页面",
+    "slug": "flow-analytics-pie",
+    "fullHeight": 1439,
+    "viewport": "screens/viewport/flow-analytics-pie.png",
+    "full": "screens/full/flow-analytics-pie.png",
+    "svg": "figma/flow-analytics-pie.svg"
+  },
+  {
+    "route": "flow-analytics-foreign",
+    "title": "洞察 · 补折算确认",
+    "group": "补齐 · 主要页面",
+    "slug": "flow-analytics-foreign",
+    "fullHeight": 1900,
+    "viewport": "screens/viewport/flow-analytics-foreign.png",
+    "full": "screens/full/flow-analytics-foreign.png",
+    "svg": "figma/flow-analytics-foreign.svg"
   }
 ]
