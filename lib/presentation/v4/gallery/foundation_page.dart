@@ -701,6 +701,13 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                           maxLines: 2,
                           maxLength: 20,
                           helper: '达到上限后不再接受新字符'),
+                      const SizedBox(height: 16),
+                      const BeeField(
+                          label: '小数与输入法',
+                          helper: '支持0.149与中文/全角小数点；组合输入提交后规范化。',
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [BeeDecimalInputFormatter()]),
                       const SizedBox(height: 12),
                       BeeButton(
                           label: '校验并保存',

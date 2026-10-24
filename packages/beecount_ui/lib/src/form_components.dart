@@ -1,5 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../beecount_ui.dart';
+
+/// Keep IME preedit intact. Normalize unambiguous full stops on commit;
+/// range/precision validation belongs to the host form.
+class BeeDecimalInputFormatter extends TextInputFormatter {
+  const BeeDecimalInputFormatter();
+  static String normalize(String text) =>
+      text.replaceAll('。', '.').replaceAll('．', '.');
+  static final _digits = FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'));
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.composing.isValid && !newValue.composing.isCollapsed) {
+      return newValue;
+    }
+    return _digits.formatEditUpdate(
+        oldValue, newValue.copyWith(text: normalize(newValue.text)));
+  }
+}
 
 /// Owns a controller only when the host does not provide one.
 class BeeSearchField extends StatefulWidget {

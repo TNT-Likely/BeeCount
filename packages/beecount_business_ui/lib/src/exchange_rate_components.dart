@@ -1,6 +1,5 @@
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 /// Values, names, timestamps and rate precedence are supplied by the App.
 class BeeExchangeRateRow extends StatelessWidget {
@@ -121,9 +120,7 @@ class BeeExchangeRateField extends StatelessWidget {
                 autofocus: autofocus,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))
-                ],
+                inputFormatters: [const BeeDecimalInputFormatter()],
                 onChanged: onChanged,
                 style: const TextStyle(fontSize: 16),
                 decoration: InputDecoration(

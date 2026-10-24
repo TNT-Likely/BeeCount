@@ -31,7 +31,8 @@ class _ExchangeRateEditorState extends State<ExchangeRateEditor> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context),
-        parsed = double.tryParse(controller.text.trim());
+        parsed = double.tryParse(
+            BeeDecimalInputFormatter.normalize(controller.text.trim()));
     final inverse = parsed != null && parsed > 0
         ? (1 / parsed).toStringAsPrecision(6)
         : '—';
@@ -67,8 +68,9 @@ class _ExchangeRateEditorState extends State<ExchangeRateEditor> {
           BeeButton(
               label: l.commonSave,
               onPressed: () {
-                final raw = controller.text.trim(),
-                    value = double.tryParse(controller.text.trim());
+                final raw = BeeDecimalInputFormatter.normalize(
+                        controller.text.trim()),
+                    value = double.tryParse(raw);
                 if (value == null || value <= 1e-6 || value >= 1e9) {
                   setState(() => error = l.commonError);
                   return;

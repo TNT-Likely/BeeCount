@@ -351,6 +351,17 @@ void main() {
     expect(find.byType(BeeExchangeRateRow), findsNWidgets(3));
     await close(t);
   });
+  testWidgets('IME全角小数点提交保留原始精度，真实仓库保存规范数字', (t) async {
+    await open(t);
+    await editor(t, 'USD');
+    await t.enterText(find.byType(TextField), '0。149123456789');
+    await t.pump();
+    expect(t.widget<TextField>(find.byType(TextField)).controller!.text,
+        '0.149123456789');
+    await button(t, l(t).commonSave);
+    expect((await repo.getOverrides('CNY')).single.rate, '0.149123456789');
+    await close(t);
+  });
   test('6位有效数字与原7天陈旧阈值保留', () {
     expect(formatExchangeRate('7.10000000'), '7.10000');
     expect(formatExchangeRate('bad'), 'bad');
