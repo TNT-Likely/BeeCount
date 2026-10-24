@@ -744,24 +744,22 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-24T10:54:00+08:00",
-    "engineeringEstimatePercent": 25,
+    "reportedAt": "2026-10-24T11:54:00+08:00",
+    "engineeringEstimatePercent": 26,
     "engineeringEstimateRange": [
-      23,
-      27
+      24,
+      28
     ],
-    "completedPages": 9,
+    "completedPages": 10,
     "totalPages": 73,
-    "completedP0Pages": 9,
+    "completedP0Pages": 10,
     "totalExistingP0Pages": 16,
     "newlyCompletedSincePreviousReport": [
-      "新增与编辑账户",
-      "启动页",
-      "分类管理与工具"
+      "资产与账户列表"
     ],
     "inProgress": [
-      "资产与账户列表：核对旧多币种汇总、净值趋势/构成、隐藏与默认账户路径，先抽业务组件",
-      "首页、记账、搜索及其他待确认页面仍未整页完成"
+      "欢迎与初始化：居中五步/完整语言币种/三种分类模式/恢复入口已实现；9项真实仓库测试通过，待完整回归、设计对照及同环境真机",
+      "账本管理、首页、记账、搜索、分类详情及新增账单详情继续按P0收口；Q01–Q11保留原业务规则待末尾确认"
     ]
   }
 }
