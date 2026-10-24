@@ -35,4 +35,4 @@ Figma 导入使用可用的 Noto Sans SC，并统一为 Regular / Bold，避免�
 
 当前保存的是原生在线 Figma Design 文件，没有将 SVG 改后缀伪装成 `.fig`。本地离线 `.fig` 尚未导出；如需离线副本，可在 Figma 的文件菜单执行 **Save local copy**。
 
-当前本地为 206 个场景、59 组规范，以及第 8 版记账布局；新增补充尚未同步在线 Figma。连接/文件信息保存在 `connection.json`；qa 下旧同步过程记录和截图只保留本地。逐页 SVG、导入 HTML 和字体不首次提交到 Git，按脚本在本机生成。
+当前本地为 216 个场景、59 组规范，以及第 8 版记账布局；新增补充尚未同步在线 Figma。连接/文件信息保存在 `connection.json`；qa 下旧同步过程记录和截图只保留本地。逐页 SVG、导入 HTML 和字体不首次提交到 Git，按脚本在本机生成。

@@ -121,9 +121,9 @@
   },
   {
     "route": "ledgers",
-    "slug": "ledgers",
     "title": "账本管理",
     "group": "常用流程",
+    "slug": "ledgers",
     "fullHeight": 844,
     "viewport": "screens/viewport/ledgers.png",
     "full": "screens/full/ledgers.png",
@@ -481,9 +481,9 @@
   },
   {
     "route": "flow-ledger-edit",
-    "slug": "flow-ledger-edit",
     "title": "编辑账本 · 弹窗",
     "group": "补齐 · 账本与共享",
+    "slug": "flow-ledger-edit",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-ledger-edit.png",
     "full": "screens/full/flow-ledger-edit.png",
@@ -1251,9 +1251,9 @@
   },
   {
     "route": "flow-ledger-actions",
-    "slug": "flow-ledger-actions",
     "title": "账本操作 · 弹窗",
     "group": "补齐 · 交互补充",
+    "slug": "flow-ledger-actions",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-ledger-actions.png",
     "full": "screens/full/flow-ledger-actions.png",
@@ -2082,5 +2082,105 @@
     "viewport": "screens/viewport/flow-welcome-currency-picker.png",
     "full": "screens/full/flow-welcome-currency-picker.png",
     "svg": "figma/flow-welcome-currency-picker.svg"
+  },
+  {
+    "route": "flow-ledgers-empty",
+    "title": "账本 · 无账本与创建",
+    "group": "其他",
+    "slug": "flow-ledgers-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ledgers-empty.png",
+    "full": "screens/full/flow-ledgers-empty.png",
+    "svg": "figma/flow-ledgers-empty.svg"
+  },
+  {
+    "route": "flow-ledgers-remote",
+    "title": "账本 · 云端独立账本",
+    "group": "其他",
+    "slug": "flow-ledgers-remote",
+    "fullHeight": 1046,
+    "viewport": "screens/viewport/flow-ledgers-remote.png",
+    "full": "screens/full/flow-ledgers-remote.png",
+    "svg": "figma/flow-ledgers-remote.svg"
+  },
+  {
+    "route": "flow-ledgers-loading",
+    "title": "账本 · 云端加载本地可用",
+    "group": "其他",
+    "slug": "flow-ledgers-loading",
+    "fullHeight": 845,
+    "viewport": "screens/viewport/flow-ledgers-loading.png",
+    "full": "screens/full/flow-ledgers-loading.png",
+    "svg": "figma/flow-ledgers-loading.svg"
+  },
+  {
+    "route": "flow-ledgers-error",
+    "title": "账本 · 云端错误与重试",
+    "group": "其他",
+    "slug": "flow-ledgers-error",
+    "fullHeight": 900,
+    "viewport": "screens/viewport/flow-ledgers-error.png",
+    "full": "screens/full/flow-ledgers-error.png",
+    "svg": "figma/flow-ledgers-error.svg"
+  },
+  {
+    "route": "flow-ledgers-editor",
+    "title": "账本 · 编辑者操作范围",
+    "group": "其他",
+    "slug": "flow-ledgers-editor",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ledgers-editor.png",
+    "full": "screens/full/flow-ledgers-editor.png",
+    "svg": "figma/flow-ledgers-editor.svg"
+  },
+  {
+    "route": "flow-ledger-period",
+    "title": "每月起始日 · 底部弹层",
+    "group": "其他",
+    "slug": "flow-ledger-period",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ledger-period.png",
+    "full": "screens/full/flow-ledger-period.png",
+    "svg": "figma/flow-ledger-period.svg"
+  },
+  {
+    "route": "flow-ledger-currencies",
+    "title": "选择货币 · 底部弹层",
+    "group": "其他",
+    "slug": "flow-ledger-currencies",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ledger-currencies.png",
+    "full": "screens/full/flow-ledger-currencies.png",
+    "svg": "figma/flow-ledger-currencies.svg"
+  },
+  {
+    "route": "flow-ledger-conflict",
+    "title": "同步冲突 · 弹窗",
+    "group": "其他",
+    "slug": "flow-ledger-conflict",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ledger-conflict.png",
+    "full": "screens/full/flow-ledger-conflict.png",
+    "svg": "figma/flow-ledger-conflict.svg"
+  },
+  {
+    "route": "flow-ledger-create",
+    "title": "新建账本 · 弹窗",
+    "group": "其他",
+    "slug": "flow-ledger-create",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ledger-create.png",
+    "full": "screens/full/flow-ledger-create.png",
+    "svg": "figma/flow-ledger-create.svg"
+  },
+  {
+    "route": "flow-ledger-remote-actions",
+    "title": "账本操作 · 弹窗",
+    "group": "其他",
+    "slug": "flow-ledger-remote-actions",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ledger-remote-actions.png",
+    "full": "screens/full/flow-ledger-remote-actions.png",
+    "svg": "figma/flow-ledger-remote-actions.svg"
   }
 ]
