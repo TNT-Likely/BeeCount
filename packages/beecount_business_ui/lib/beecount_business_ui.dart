@@ -34,3 +34,4 @@ export 'src/ledger_management.dart';
 export 'src/home_layout.dart';
 export 'src/quick_add_fan.dart';
 export 'src/account_detail.dart';
+export 'src/tag_library.dart';
