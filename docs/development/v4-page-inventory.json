@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 245,
+  "designSceneExports": 254,
   "flowDefinitions": 150,
   "priorityCounts": {
     "P0": 16,
@@ -1411,22 +1411,34 @@
       "classes": [
         "DataManagementPage"
       ],
-      "lines": 714,
+      "lines": 170,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "data",
-        "flow-attachment-transfer"
+        "flow-attachment-transfer",
+        "flow-attachment-import-confirm",
+        "flow-data-import-running",
+        "flow-data-import-success",
+        "flow-data-import-partial",
+        "flow-attachment-export-progress",
+        "flow-attachment-import-progress"
       ],
       "designMapping": "已定位",
-      "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "待迁移",
+      "components": "BeeFileTransferStatus五状态、BeeArchiveSummary原归档确认弹窗、真实文件/任务只读绑定与原平台动作",
+      "acceptance": "49项/5文件回归、8文件静态0问题，HTML实际53px最小行高与140%字体、254链接/67组规范/41基础控件通过。实际导出5附件2图标，与原SQL的id/关联/名称/大小/宽高/顺序/创建时间及图片hash完整一致；同包浏览选取、确认默认跳过、覆盖草稿取消、归档预览、真实跳过5+2、专属损坏拒绝、8目的页与业务46/原右侧预览图标通过。正常重启后原57/53/24/5、全部业务表、3图标/头像hash与所选/头像偏好保持；仅新增2个文件级拥有的公共测试文件。18图/21文件独立报告三宽度与ZIP校验通过，SHA256 1b81d943febbc1504e617d38ebdd8845a508b20f7c7f52f4f8e976b9bbd70ba8。实际覆盖/缺文件修复/头像图标往返为临时真实DB/文件服务回归，原生覆盖只验草稿取消；原始TAR Q16、iOS/物理短屏/原生CSV后台执行未执行或待确认，Cloud不适用。",
+      "status": "已完成",
       "name": "数据管理入口",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "原714行及SHA已备份；新版四组、原提示/八路由/附件导入导出/右侧预览与显式预览、原后台Provider及平台服务保持。R71同一QA真实UI、独立归档/SQL/图片与正常重启闭环完成。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=data",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-transfer"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-transfer",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-import-confirm",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-data-import-running",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-data-import-success",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-data-import-partial",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-export-progress",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-import-progress"
       ]
     },
     {
@@ -1455,20 +1467,26 @@
       "classes": [
         "HeaderSkinPage"
       ],
-      "lines": 456,
+      "lines": 101,
       "batch": "M8 设置与收尾",
       "designRoutes": [
-        "skins"
+        "skins",
+        "flow-skins-animated",
+        "flow-skins-static",
+        "flow-skins-debug"
       ],
       "designMapping": "已定位",
-      "components": "皮肤预览、选择与主题适配",
-      "acceptance": "默认无皮肤，两款动态皮肤浅深色、主题色、预览、应用/取消、减少动画。",
-      "status": "待迁移",
+      "components": "BeeSkinChoice/BeeSkinCard、原registry绑定、当前皮肤只读与显式生产入口",
+      "acceptance": "83项/6文件相关回归、7文件静态0问题；HTML三组实际外观字号与66组规范/41基础控件/248链接通过。全部23项实际选择持久化；正常launcher重启后，在任何选择回调前原极光仍选中；业务45实际受控回调只改样例，当前真实皮肤只读与生产入口通过。原选中偏好和57/53/24/5及全部业务表/附件hash精确保持，最终正常重启纯色和53笔首页。16图/19文件报告三宽度和ZIP校验通过，SHA256 063ac6de12c7e2a095a67b740df97a6462b05b409bddd9a50e02a0b396f5c51c。Q15保留原缩略图动效开关作用范围等待集中确认；Cloud/iOS/物理短屏未执行或不适用，正式22项由原kDebugMode/冻结注册验证，未另装release包。",
+      "status": "已完成",
       "name": "皮肤选择与预览",
       "priority": "P1",
-      "reason": "承接本轮两款动态皮肤与主题预览；默认无皮肤，保留旧主题迁移。",
+      "reason": "原456行及SHA已备份；原三筛选/正式22项调试23项/五系列/默认纯色/两款固定配色与原恢复服务保留。R70同一QA全部23项真实选择、重启和组件真实预览闭环完成。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=skins"
+        "../../docs/design/card-refresh/prototype/demo.html?page=skins",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-skins-animated",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-skins-static",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-skins-debug"
       ]
     },
     {
