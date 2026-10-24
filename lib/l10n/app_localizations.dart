@@ -16855,6 +16855,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change rate'**
   String get v4TrendChangeRate;
+
+  /// No description provided for @v4DataBills.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get v4DataBills;
+
+  /// No description provided for @v4DataCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories and tags'**
+  String get v4DataCategories;
+
+  /// No description provided for @v4DataConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration and storage'**
+  String get v4DataConfiguration;
+
+  /// No description provided for @v4DataAttachments.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments'**
+  String get v4DataAttachments;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -8960,4 +8960,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4TrendChangeRate => 'Change rate';
+
+  @override
+  String get v4DataBills => 'Transactions';
+
+  @override
+  String get v4DataCategories => 'Categories and tags';
+
+  @override
+  String get v4DataConfiguration => 'Configuration and storage';
+
+  @override
+  String get v4DataAttachments => 'Attachments';
 }

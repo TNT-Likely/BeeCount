@@ -8952,6 +8952,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4TrendChangeRate => '变化比例';
+
+  @override
+  String get v4DataBills => '账单数据';
+
+  @override
+  String get v4DataCategories => '分类与标签';
+
+  @override
+  String get v4DataConfiguration => '应用配置与空间';
+
+  @override
+  String get v4DataAttachments => '账单附件';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

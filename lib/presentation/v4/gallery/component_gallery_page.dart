@@ -7,6 +7,7 @@ import '../bindings/live_business_preview.dart';
 import '../bindings/tag_library_preview.dart';
 import '../bindings/reminder_preview.dart';
 import '../bindings/skin_preview.dart';
+import '../bindings/file_workflow_preview.dart';
 import '../bindings/note_history_preview.dart';
 
 /// Debug route inside BeeCount's existing navigator, theme and localization scope.
@@ -75,6 +76,9 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                             TickerMode(
                                 enabled: tab == 1,
                                 child: BusinessAcceptancePage(
+                                    fileWorkflowData: widget.enableLiveData
+                                        ? const LiveFileWorkflowPreview()
+                                        : null,
                                     skinData: widget.enableLiveData
                                         ? const LiveSkinPreview()
                                         : null,

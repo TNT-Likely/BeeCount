@@ -3709,5 +3709,9 @@
   "v4TrendClosing": "期末金额",
   "v4TrendOpening": "期初金额",
   "v4TrendChange": "期间变化",
-  "v4TrendChangeRate": "变化比例"
+  "v4TrendChangeRate": "变化比例",
+  "v4DataBills": "账单数据",
+  "v4DataCategories": "分类与标签",
+  "v4DataConfiguration": "应用配置与空间",
+  "v4DataAttachments": "账单附件"
 }

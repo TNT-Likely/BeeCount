@@ -51,7 +51,8 @@ const businessCases = [
   '标签管理库',
   '记账提醒设置',
   '历史备注偏好',
-  '皮肤预览与选择'
+  '皮肤预览与选择',
+  '文件导入导出任务'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -69,18 +70,21 @@ class BusinessAcceptancePage extends StatefulWidget {
       this.tagLibraryData,
       this.reminderData,
       this.noteHistoryData,
-      this.skinData});
+      this.skinData,
+      this.fileWorkflowData});
   final Widget? liveData,
       tagLibraryData,
       reminderData,
       noteHistoryData,
-      skinData;
+      skinData,
+      fileWorkflowData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
 }
 
 class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
+  bool overwriteArchive = false;
   String demoSkin = 'none';
   int historyScope = 0, historySort = 0;
   String historyLimit = '20';
@@ -1855,6 +1859,47 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     onIncomeAccount: () => record('选择默认收入账户'),
                     rateLabel: '汇率管理',
                     onRates: () => record('管理汇率'))),
+          ]),
+        45 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const Text('受控示例：不读写文件、不运行导入'),
+            for (final state in BeeFileTaskState.values)
+              BeeSurface(
+                  child: BeeFileTransferStatus(
+                      title: switch (state) {
+                        BeeFileTaskState.ready => '导出附件',
+                        BeeFileTaskState.running => '正在导入',
+                        BeeFileTaskState.success => '导入完成',
+                        BeeFileTaskState.partial => '导入部分失败',
+                        BeeFileTaskState.error => '导入失败'
+                      },
+                      state: state,
+                      subtitle: '附件与自定义图标',
+                      progress: state == BeeFileTaskState.running ? 0.4 : 1,
+                      progressLabel: state == BeeFileTaskState.running
+                          ? '已处理4/10'
+                          : state == BeeFileTaskState.partial
+                              ? '成功8 · 失败2'
+                              : state == BeeFileTaskState.error
+                                  ? '请检查归档后重试'
+                                  : '准备就绪',
+                      onTap: state == BeeFileTaskState.ready
+                          ? () => record('演示导出附件')
+                          : null,
+                      onPreview: state == BeeFileTaskState.ready
+                          ? () => record('演示附件预览')
+                          : null,
+                      previewLabel: '预览附件')),
+            const SizedBox(height: 12),
+            BeeArchiveSummary(
+                fileName: 'beecount_attachments_20261025.tar.gz',
+                details: const ['5张附件 · 2026-10-25 09:41', '自定义图标: 2个', '包含头像'],
+                strategyLabel: '文件冲突时',
+                skipLabel: '跳过已有文件',
+                overwriteLabel: '覆盖已有文件',
+                overwrite: overwriteArchive,
+                onOverwrite: (v) => setState(() => overwriteArchive = v)),
+            const SizedBox(height: 16),
+            widget.fileWorkflowData ?? const Text('从App组件验收入口读取真实文件和后台任务。')
           ]),
         44 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const Text('受控展示示例：只改变演示选中态，不写入真实皮肤'),

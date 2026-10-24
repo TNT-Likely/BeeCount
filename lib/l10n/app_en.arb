@@ -4002,5 +4002,9 @@
   "v4TrendClosing": "Closing balance",
   "v4TrendOpening": "Opening balance",
   "v4TrendChange": "Period change",
-  "v4TrendChangeRate": "Change rate"
+  "v4TrendChangeRate": "Change rate",
+  "v4DataBills": "Transactions",
+  "v4DataCategories": "Categories and tags",
+  "v4DataConfiguration": "Configuration and storage",
+  "v4DataAttachments": "Attachments"
 }
