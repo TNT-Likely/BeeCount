@@ -566,7 +566,7 @@
     "transaction/transaction_editor_page.dart": {
       "name": "记账、新增、编辑与复制",
       "priority": "P0",
-      "reason": "优先作为完整验收样板：已接入收支、编辑和转账组合；继续核对 R8 设计、全部原有入口及实际设备数据闭环。",
+      "reason": "两行表单、固定底部与独立分类滚动已对齐R8；R51补历史汇率为1和精度、转账元信息失败重试、共享标签引用、隐藏账户提示及系统键盘。37文件289项相关回归通过，同一QA包实际UI收口中；Q09结构待确认，不计整页完成。",
       "status": "部分迁移·完整验收中",
       "components": "金额/折算、计算器、两行元信息、分类/资源选择器与转账账户组合",
       "acceptance": "支出/收入/转账、新建/编辑/复制、再记一笔、防重保存、草稿、历史汇率、共享权限、附件和系统键盘。"
@@ -744,26 +744,27 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-24T13:54:00+08:00",
-    "engineeringEstimatePercent": 29,
+    "reportedAt": "2026-10-24T14:54:00+08:00",
+    "engineeringEstimatePercent": 31,
     "engineeringEstimateRange": [
-      27,
-      31
+      29,
+      33
     ],
-    "completedPages": 12,
+    "completedPages": 13,
     "totalPages": 73,
-    "completedP0Pages": 12,
+    "completedP0Pages": 13,
     "totalExistingP0Pages": 16,
     "newlyCompletedSincePreviousReport": [
-      "账本管理（R46已封存）"
+      "首页明细（R50已封存，22图/独立SQL与文件/正常重启）"
     ],
     "inProgress": [
-      "首页：紧凑屏、真实账本选择弹窗、分类/隐私语义和小票关闭修复已提交；278项相关回归通过，最终R49同环境真机验收中，未计整页完成",
-      "记账、搜索、分类详情和新增账单详情继续按P0收口；P1/P2尚未逐页完成，不以修改文件数计完成"
+      "记账R51：历史汇率、转账保存重试、共享标签和隐藏账户、系统键盘修复；37文件289项相关回归通过，新产物已按身份/备份流程覆盖同一QA包，实际生产UI验收中，未计整页完成",
+      "搜索、分类详情及新增账单详情继续按P0收口；P1/P2尚未逐页完成"
     ],
     "remainingEffortEstimateHours": [
       30,
       50
-    ]
+    ],
+    "remainingEffortChangeReason": "较13:54仍为30–50实际工时：首页闭环后，转账保存、隐藏账户和弹层键盘的新增兼容修复增加了回归；后续P1/P2服务配置、异常与平台流程仍不确定。不按页面数线性外推。"
   }
 }

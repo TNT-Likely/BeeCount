@@ -1826,7 +1826,7 @@
       "status": "部分迁移·完整验收中",
       "name": "记账、新增、编辑与复制",
       "priority": "P0",
-      "reason": "优先作为完整验收样板：已接入收支、编辑和转账组合；继续核对 R8 设计、全部原有入口及实际设备数据闭环。",
+      "reason": "两行表单、固定底部与独立分类滚动已对齐R8；R51补历史汇率为1和精度、转账元信息失败重试、共享标签引用、隐藏账户提示及系统键盘。37文件289项相关回归通过，同一QA包实际UI收口中；Q09结构待确认，不计整页完成。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=editor",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-foreign-editor",
