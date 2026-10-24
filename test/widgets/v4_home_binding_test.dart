@@ -53,7 +53,8 @@ void main() {
       databaseProvider.overrideWithValue(db),
       repositoryProvider.overrideWithValue(repo),
       currentLedgerIdProvider.overrideWith((ref) => 1),
-      currentLedgerProvider.overrideWith((ref) => repo.watchLedger(1)),
+      currentLedgerProvider.overrideWith(
+          (ref) => repo.watchLedger(ref.watch(currentLedgerIdProvider))),
       selectedMonthProvider.overrideWith((ref) => DateTime(2026, 10)),
       syncServiceProvider.overrideWithValue(LocalOnlySyncService()),
       budgetOverviewProvider.overrideWith((ref) async => BudgetOverview(
@@ -355,4 +356,37 @@ void main() {
       }
     });
   }
+  testWidgets('首页账本弹窗真实列表、当前状态、搜索与选择保持原数据', (tester) async {
+    await db.customStatement(
+        "INSERT INTO ledgers(id,name,currency) VALUES(2,'旅行','USD')");
+    await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+            theme: beeTheme(),
+            locale: const Locale('zh'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const HomePage())));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('日常生活').first);
+    await tester.pumpAndSettle();
+    final picker = tester.widget<BeeLedgerPicker>(find.byType(BeeLedgerPicker));
+    expect(picker.currentId, '1');
+    expect(picker.ledgers.map((l) => l.name), ['日常生活', '旅行']);
+    expect(picker.ledgers.first.detail, '2笔');
+    await tester.enterText(
+        find.descendant(
+            of: find.byType(BeeSearchField), matching: find.byType(TextField)),
+        '旅行');
+    await tester.pumpAndSettle();
+    expect(find.text('日常生活'), findsOneWidget); // underlying home identity
+    await tester.tap(find.widgetWithText(BeeMenuRow, '旅行'));
+    await tester.pumpAndSettle();
+    expect(find.byType(BeeLedgerPicker), findsNothing);
+    expect(container.read(currentLedgerIdProvider), 2);
+    expect((await repo.getCountsForLedger(ledgerId: 1)).txCount, 2);
+    expect((await repo.getCountsForLedger(ledgerId: 2)).txCount, 0);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
 }
