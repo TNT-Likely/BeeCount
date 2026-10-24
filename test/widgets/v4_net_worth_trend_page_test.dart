@@ -8,6 +8,7 @@ import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -194,6 +195,24 @@ void main() {
     expect(hero.metrics, hasLength(2));
     expect(hero.amount, '¥10');
     await t.pump(const Duration(seconds: 2));
+  });
+  testWidgets('320大字高额摘要在卡片内保持单行，货币符号不单独折行', (t) async {
+    await fixture();
+    await db.customStatement(
+        'UPDATE accounts SET initial_balance=125000000 WHERE id=1');
+    await open(t, compact: true);
+    final value = find.text('¥125,000,400');
+    expect(value, findsOneWidget);
+    final paragraph = t.renderObject<RenderParagraph>(value);
+    expect(
+        paragraph.getBoxesForSelection(
+            const TextSelection(baseOffset: 0, extentOffset: 12)),
+        hasLength(1));
+    final box = t.getRect(value),
+        hero = t.getRect(find.byType(BeeResourceHero));
+    expect(box.left, greaterThanOrEqualTo(hero.left + 15));
+    expect(box.right, lessThanOrEqualTo(hero.right - 15));
+    expect(t.takeException(), isNull);
   });
   test('无交易全部范围回退12月', () {
     expect(NetWorthRange.all.dates(null), NetWorthRange.m12.dates(null));

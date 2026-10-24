@@ -20,10 +20,12 @@ class BeeResourceHero extends StatelessWidget {
       required this.amount,
       required this.metrics,
       this.titleWidget,
+      this.fitMetricValues = false,
       this.prefix = ''});
   final String title, caption, amountLabel, amount, prefix;
   final Widget icon;
   final Widget? titleWidget;
+  final bool fitMetricValues;
   final List<BeeResourceMetric> metrics;
   @override
   Widget build(BuildContext context) {
@@ -89,13 +91,28 @@ class BeeResourceHero extends StatelessWidget {
                               style: TextStyle(
                                   fontSize: 10, height: 1.5, color: muted)),
                           const SizedBox(height: 5),
-                          Text(metrics[i].value,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  fontSize: compact ? 12 : 14,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1.5)),
+                          if (fitMetricValues)
+                            Align(
+                                alignment: Alignment.centerLeft,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(metrics[i].value,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: compact ? 12 : 14,
+                                          fontWeight: FontWeight.w500,
+                                          height: 1.5)),
+                                ))
+                          else
+                            Text(metrics[i].value,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: compact ? 12 : 14,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.5)),
                         ])),
                   ],
                 ]),

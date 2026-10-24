@@ -1622,7 +1622,20 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                   BeeResourceMetric(label: '总收入', value: '¥9.00'),
                   BeeResourceMetric(label: '关联分类', value: '3'),
                   BeeResourceMetric(label: '交易笔数', value: '4笔')
-                ])
+                ]),
+            const SizedBox(height: 12),
+            const BeeResourceHero(
+                title: '净资产',
+                caption: 'CNY · 12个月 · 高额单行适配',
+                icon: BeeLineIcon('ChartNoAxesCombined'),
+                amountLabel: '期末金额',
+                amount: '¥125,000,370',
+                fitMetricValues: true,
+                metrics: [
+                  BeeResourceMetric(label: '期初金额', value: '¥125,000,400'),
+                  BeeResourceMetric(label: '期间变化', value: '¥-30'),
+                  BeeResourceMetric(label: '变化比例', value: '-0.0%'),
+                ]),
           ]),
         36 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             BeeConfigurationOptions(

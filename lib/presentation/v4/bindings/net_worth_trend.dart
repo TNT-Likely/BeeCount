@@ -80,6 +80,7 @@ class V4NetWorthTrendContent extends StatelessWidget {
             title: line.label(l),
             caption: '$currency · ${range.label(l)}',
             icon: const BeeLineIcon('ChartNoAxesCombined', size: 22),
+            fitMetricValues: true,
             amountLabel: l.v4TrendClosing,
             amount: amount(last),
             metrics: [
