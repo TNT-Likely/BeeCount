@@ -2792,5 +2792,15 @@
     "viewport": "screens/viewport/flow-xrm-rate-edit.png",
     "full": "screens/full/flow-xrm-rate-edit.png",
     "svg": "figma/flow-xrm-rate-edit.svg"
+  },
+  {
+    "route": "flow-decimal-input",
+    "title": "小数与输入法 · 保留组合态",
+    "group": "基础输入 · 输入法兼容",
+    "slug": "flow-decimal-input",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-decimal-input.png",
+    "full": "screens/full/flow-decimal-input.png",
+    "svg": "figma/flow-decimal-input.svg"
   }
 ]

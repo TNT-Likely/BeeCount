@@ -64,3 +64,5 @@ for(const demo of document.querySelectorAll('[data-hsv-demo]')){function refresh
 document.addEventListener("click",event=>{const card=event.target.closest("[data-skin-card]");if(!card||card.disabled)return;card.closest(".ss-grid").querySelectorAll("[data-skin-card]").forEach(c=>{c.setAttribute("aria-pressed",String(c===card));const old=c.querySelector(".ss-selected");if(old)old.remove();});const check=document.createElement("span");check.className="ss-selected";check.textContent="✓";card.querySelector(".ss-art").appendChild(check);});
 
 document.addEventListener("click",event=>{const choice=event.target.closest("[data-archive-demo] [role=radio]");if(!choice)return;choice.parentElement.querySelectorAll("[role=radio]").forEach(c=>{c.setAttribute("aria-checked",String(c===choice));c.querySelector(".dm-radio").textContent=c===choice?"●":"○";});});
+
+document.addEventListener('input',event=>{if(!event.target.matches('[data-decimal-demo]')||event.isComposing)return;event.target.value=event.target.value.replaceAll('。','.').replaceAll('．','.').replace(/[^0-9.]/g,'');});

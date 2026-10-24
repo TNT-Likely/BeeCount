@@ -40,7 +40,7 @@ const sections=[
  card('34 · 图标按钮与角标','默认、选中、禁用、危险、处理中与角标；操作区至少 44。',samples.iconActions),
  card('35 · 标签块与通用多选','自动换行、选择与禁用，复选半选和全选。',samples.choiceChips),
  card('36 · 搜索选择与长列表','通用数据模型；支持副标题、选中项、搜索、空态与重试。',samples.searchChoice),
- card('37 · 表单完整状态','聚焦、只读、禁用、密码、校验、数字过滤与计数。',samples.inputStates),
+ card('37 · 表单完整状态','聚焦、只读、禁用、密码、校验、数字过滤、计数与IME组合输入。',samples.inputStates+`<label class="f-field">小数与输入法<input data-decimal-demo inputmode="decimal" value="0.149" aria-label="小数与输入法"><small>组合输入不截断，中文/全角点提交后规范化；范围由业务表单校验。</small></label><a href="../prototype/demo.html?page=flow-decimal-input">打开小数交互预览</a>`),
  card('38 · 页头、卡片与分隔','主页面与二级页头、分组、头像、普通及内缩分隔。',samples.layoutPrimitives),
  card('39 · 固定底部操作栏','主次操作、单操作、禁用和处理中，尊重安全区。',samples.actionBar),
  card('40 · 加载与进度状态','未知进度不显示百分比；占位、完成与刷新状态分别表达。',samples.loadingStates),
