@@ -43,7 +43,7 @@ Sync via BeeCount Cloud (self-hosted) / iCloud / Supabase / WebDAV / S3
 <table>
   <tr>
     <td width="190" align="center">
-      <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><img src="docs/sponsor/crazytoken/logo-en.png" width="160" alt="CrazyToken"/></a>
+      <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><img src="docs/sponsor/crazytoken/logo-en-v2.png" width="160" alt="CrazyToken"/></a>
     </td>
     <td>
       <a href="https://www.aiyoyoo.com/register?aff=QEE6VZQ5X6BW"><b>CrazyToken</b></a> provides APIs for Claude, GPT, Gemini, Kimi, GLM, DeepSeek, Qwen, Grok, and other leading models to power conversational bookkeeping, receipt image recognition, and income &amp; expense organization.<br/>
