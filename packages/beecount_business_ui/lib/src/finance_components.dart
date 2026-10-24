@@ -90,9 +90,12 @@ class BeeTag extends StatelessWidget {
           BeeLineIcon(selected ? 'Check' : 'Tag', size: 13, color: tag.color),
           const SizedBox(width: 4)
         ],
-        Text(tag.label,
-            style: TextStyle(
-                fontSize: inline ? 10 : 12, height: 1.5, color: tag.color)),
+        Flexible(
+            child: Text(tag.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    fontSize: inline ? 10 : 12, height: 1.5, color: tag.color))),
       ]),
     );
     if (compact && onTap != null) {
