@@ -4,6 +4,7 @@ import 'foundation_page.dart';
 import 'page_migration_gallery.dart';
 import 'business_page.dart';
 import '../bindings/exchange_rate_preview.dart';
+import '../bindings/budget_preview.dart';
 import '../bindings/live_business_preview.dart';
 import '../bindings/tag_library_preview.dart';
 import '../bindings/reminder_preview.dart';
@@ -79,6 +80,9 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                             TickerMode(
                                 enabled: tab == 1,
                                 child: BusinessAcceptancePage(
+                                    budgetData: widget.enableLiveData
+                                        ? const LiveBudgetPreview()
+                                        : null,
                                     exchangeRateData: widget.enableLiveData
                                         ? const LiveExchangeRatePreview()
                                         : null,

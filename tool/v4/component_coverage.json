@@ -632,5 +632,16 @@
     ],
     "page": "business",
     "case": 48
+  },
+  {
+    "design_key": "budgetOverview",
+    "components": [
+      "BeeBudgetTone",
+      "BeeBudgetProgress",
+      "BeeBudgetOverview",
+      "BeeBudgetCategoryRow"
+    ],
+    "page": "business",
+    "case": 49
   }
 ]

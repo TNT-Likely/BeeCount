@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'gallery_catalog.dart';
 import 'exchange_rate_sample.dart';
+import 'budget_sample.dart';
 import '../../../utils/account_type_utils.dart';
 import '../../../widgets/biz/bee_icon.dart';
 import 'transaction_row_states.dart';
@@ -56,7 +57,8 @@ const businessCases = [
   '文件导入导出任务',
   '附件与图标预览库',
   '分类迁移选择对',
-  '全局汇率与编辑'
+  '全局汇率与编辑',
+  '预算概览与分类进度'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -78,7 +80,8 @@ class BusinessAcceptancePage extends StatefulWidget {
       this.fileWorkflowData,
       this.attachmentLibraryData,
       this.categoryMigrationData,
-      this.exchangeRateData});
+      this.exchangeRateData,
+      this.budgetData});
   final Widget? liveData,
       tagLibraryData,
       reminderData,
@@ -87,7 +90,8 @@ class BusinessAcceptancePage extends StatefulWidget {
       fileWorkflowData,
       attachmentLibraryData,
       categoryMigrationData,
-      exchangeRateData;
+      exchangeRateData,
+      budgetData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
@@ -1871,6 +1875,8 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     rateLabel: '汇率管理',
                     onRates: () => record('管理汇率'))),
           ]),
+        49 => BudgetSample(
+            liveData: widget.budgetData, onEdit: () => record('选择预算编辑')),
         48 => ExchangeRateSample(liveData: widget.exchangeRateData),
         47 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const Text('受控样例：空、单边选择、就绪与禁用'),
