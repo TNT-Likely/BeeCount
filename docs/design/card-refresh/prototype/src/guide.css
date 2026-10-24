@@ -9,3 +9,15 @@ html{scroll-behavior:smooth}.spec{width:100%;max-width:1664px;padding:32px}.spec
 
 #spec-47{grid-column:1/-1}
 @media(min-width:1000px){#bee-immersive-suite #spec-47 .g-state-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 22px}}
+
+[data-account-types]{container-type:inline-size}
+.g-account-type-tabs{display:flex;background:var(--bc-soft);padding:4px;border-radius:12px;margin:12px 0}
+.g-account-type-tabs>button{flex:1;min-height:44px;border-radius:9px;font-size:13px}
+.g-account-type-tabs>button[aria-pressed=true]{background:var(--bc-paper)}
+.g-account-type-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.g-account-type-grid[hidden]{display:none}
+.g-account-type-grid>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:64px;aspect-ratio:1.05;padding:10px 4px;border:1px solid transparent;border-radius:13px;font-size:11px}
+.g-account-type-grid>button[aria-pressed=true]{border-color:var(--bc-accent);background:var(--bc-tint)}
+.g-account-type-grid>button:disabled{opacity:.4;cursor:default}
+.g-account-type-grid img{width:24px;height:24px;object-fit:contain}
+@container(max-width:299px){.g-account-type-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}

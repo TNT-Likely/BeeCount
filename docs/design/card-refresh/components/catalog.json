@@ -402,6 +402,13 @@
         "title": "分类图标编辑",
         "nativeCase": 37,
         "nativeLabel": "分类图标编辑"
+      },
+      {
+        "id": "spec-57",
+        "code": "B35",
+        "title": "账户类型选择",
+        "nativeCase": 38,
+        "nativeLabel": "账户类型选择"
       }
     ]
   }

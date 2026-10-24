@@ -22,3 +22,5 @@ ledgers:
       currency: CNY</pre><p class="v4-small">配置范围、YAML 预览和确认均保留弹窗。解析、敏感配置与实际导入导出在 App binding。</p></div>`;
 
 module.exports.security = `<div style="text-align:center;padding:20px 0"><div class="w-symbol">${icon("Lock")}</div><h3>请设置新密码</h3><p class="v4-small" style="margin:10px 0 22px">PIN码与生物识别保护隐私</p><div style="display:flex;justify-content:center;gap:14px;margin-bottom:20px">${[1,1,0,0].map(v=>`<span style="display:block;width:12px;height:12px;border-radius:50%;border:1px solid var(--bc-line);background:${v?"var(--bc-accent)":"transparent"}"></span>`).join("")}</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px">${["1","2","3","4","5","6","7","8","9","","0","删除"].map(n=>n?`<button class="bc-secondary" style="height:57px;background:var(--bc-paper);color:var(--bc-ink);font-size:${n==="删除"?13:25}px;border-radius:17px">${n==="删除"?icon("Delete"):n}</button>`:"<span></span>").join("")}</div><p class="v4-small" style="margin-top:14px">四位原密码验证 / 新密码 / 再次确认 / 错误恢复；认证与持久化由 App 执行。</p></div>`;
+
+module.exports.accountTypes = require('./account-type-samples.cjs');

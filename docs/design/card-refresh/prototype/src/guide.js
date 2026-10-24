@@ -11,3 +11,11 @@ window.beeComponentCatalog={groups:['foundation','business'],filter:specFilter,g
 
 for(const input of document.querySelectorAll('[data-v4-mixed]'))input.indeterminate=true;
 for(const input of document.querySelectorAll('.v4-range'))input.addEventListener('input',()=>{input.style.setProperty('--v4-value',input.value+'%');input.closest('.v4-range-field').querySelector('output').textContent=input.value+'%';});
+
+for(const picker of document.querySelectorAll('[data-account-types]'))picker.addEventListener('click',event=>{
+ const group=event.target.closest('[data-account-group]');
+ if(group){for(const button of picker.querySelectorAll('[data-account-group]'))button.setAttribute('aria-pressed',String(button===group));for(const panel of picker.querySelectorAll('[data-account-panel]'))panel.hidden=panel.dataset.accountPanel!==group.dataset.accountGroup;return;}
+ const type=event.target.closest('[data-account-type]');if(!type||type.disabled)return;
+ for(const button of picker.querySelectorAll('[data-account-type]'))button.setAttribute('aria-pressed',String(button===type));
+ picker.querySelector('[data-account-draft]').textContent='当前草稿：'+type.textContent;
+});
