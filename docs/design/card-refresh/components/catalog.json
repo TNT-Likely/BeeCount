@@ -164,6 +164,13 @@
         "title": "折线图",
         "nativeCase": 19,
         "nativeLabel": "折线图"
+      },
+      {
+        "id": "spec-62",
+        "code": "F24",
+        "title": "时间滚轮",
+        "nativeCase": 20,
+        "nativeLabel": "时间滚轮"
       }
     ]
   },
@@ -437,6 +444,13 @@
         "title": "标签管理库",
         "nativeCase": 41,
         "nativeLabel": "标签管理库"
+      },
+      {
+        "id": "spec-63",
+        "code": "B39",
+        "title": "记账提醒设置",
+        "nativeCase": 42,
+        "nativeLabel": "记账提醒设置"
       }
     ]
   }

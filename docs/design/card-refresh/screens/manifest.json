@@ -871,10 +871,10 @@
   },
   {
     "route": "flow-reminder",
-    "slug": "flow-reminder",
     "title": "记账提醒",
     "group": "补齐 · 自动化与识别",
-    "fullHeight": 844,
+    "slug": "flow-reminder",
+    "fullHeight": 974,
     "viewport": "screens/viewport/flow-reminder.png",
     "full": "screens/full/flow-reminder.png",
     "svg": "figma/flow-reminder.svg"
@@ -2332,5 +2332,65 @@
     "viewport": "screens/viewport/flow-tag-management-loading.png",
     "full": "screens/full/flow-tag-management-loading.png",
     "svg": "figma/flow-tag-management-loading.svg"
+  },
+  {
+    "route": "flow-reminder-ios",
+    "title": "记账提醒 · iOS",
+    "group": "记账提醒 · 平台与弹窗",
+    "slug": "flow-reminder-ios",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-reminder-ios.png",
+    "full": "screens/full/flow-reminder-ios.png",
+    "svg": "figma/flow-reminder-ios.svg"
+  },
+  {
+    "route": "flow-reminder-time",
+    "title": "选择时间 · 底部弹层",
+    "group": "记账提醒 · 平台与弹窗",
+    "slug": "flow-reminder-time",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-reminder-time.png",
+    "full": "screens/full/flow-reminder-time.png",
+    "svg": "figma/flow-reminder-time.svg"
+  },
+  {
+    "route": "flow-reminder-battery",
+    "title": "电池优化状态 · 弹窗",
+    "group": "记账提醒 · 平台与弹窗",
+    "slug": "flow-reminder-battery",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-reminder-battery.png",
+    "full": "screens/full/flow-reminder-battery.png",
+    "svg": "figma/flow-reminder-battery.svg"
+  },
+  {
+    "route": "flow-reminder-channel",
+    "title": "通知渠道状态 · 弹窗",
+    "group": "记账提醒 · 平台与弹窗",
+    "slug": "flow-reminder-channel",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-reminder-channel.png",
+    "full": "screens/full/flow-reminder-channel.png",
+    "svg": "figma/flow-reminder-channel.svg"
+  },
+  {
+    "route": "flow-reminder-battery-warning",
+    "title": "电池优化 · 待设置 · 弹窗",
+    "group": "记账提醒 · 平台与弹窗",
+    "slug": "flow-reminder-battery-warning",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-reminder-battery-warning.png",
+    "full": "screens/full/flow-reminder-battery-warning.png",
+    "svg": "figma/flow-reminder-battery-warning.svg"
+  },
+  {
+    "route": "flow-reminder-channel-warning",
+    "title": "通知渠道 · 异常 · 弹窗",
+    "group": "记账提醒 · 平台与弹窗",
+    "slug": "flow-reminder-channel-warning",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-reminder-channel-warning.png",
+    "full": "screens/full/flow-reminder-channel-warning.png",
+    "svg": "figma/flow-reminder-channel-warning.svg"
   }
 ]
