@@ -366,8 +366,8 @@
     "settings/app_lock_settings_page.dart": {
       "name": "应用锁设置",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "待迁移",
+      "reason": "原421行及SHA备份，页面复用基础开关/菜单、安全Panel与原认证服务，原生物识别门控和四档超时保持；17项回归和4文件静态0问题已通过，HTML/真机闭环待完成，不计整页。",
+      "status": "迁移中",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
     },
@@ -382,10 +382,10 @@
     "settings/attachment_preview_page.dart": {
       "name": "全局附件库",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "待迁移",
-      "components": "附件库网格、筛选/选择、预览和任务状态",
-      "acceptance": "完整附件入口、筛选、来源关联、空态、加载失败、批量选择和导入导出。"
+      "reason": "原362行及SHA已备份，两来源/双分组/真实元信息/只读缩放保留；受控预览库与App文件绑定完成。R72同一QA真实UI、全部原数据/文件/偏好和正常重启闭环通过。",
+      "status": "已完成",
+      "components": "惰性三列附件库、实际尺寸/大小、完整长文件名、只读缩放、分组与空错、真实服务预览",
+      "acceptance": "最终已提交源码副本60项/7文件回归、11文件静态0问题；398/320深色140%、7场景/260链接/68规范组/41基础控件通过。真机逐一验证7个文件真实头/字节/名称、横滑/准确关闭、同TAR.GZ归档两组、业务47全部平铺状态/真实5+2/生产入口和正常重启，原57/53/24/5及3图标头像hash/偏好/公共文件保持。修复并复验基础关闭节点语义合并和内嵌网格滚动陷阱。13图16文件报告三宽度/ZIP封存，SHA256 59233d26faeac0d70e7ba04fdd6cd994d799538b66e422986a8193c46440c6ab。Cloud/iOS/物理短屏/原生双指缩放未执行或不适用。"
     },
     "settings/automation_page.dart": {
       "name": "自动化功能入口",
@@ -748,31 +748,31 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T01:54:00+08:00",
-    "scheduledReportAt": "2026-10-25T01:54:00+08:00",
-    "engineeringEstimatePercent": 44,
+    "reportedAt": "2026-10-25T02:54:38+08:00",
+    "scheduledReportAt": "2026-10-25T02:54:00+08:00",
+    "engineeringEstimatePercent": 45,
     "engineeringEstimateRange": [
-      42,
-      46
+      43,
+      47
     ],
-    "completedPages": 24,
+    "completedPages": 25,
     "totalPages": 73,
     "completedP0Pages": 13,
     "totalExistingP0Pages": 16,
     "newlyCompletedSincePreviousReport": [
-      "皮肤选择R70"
+      "数据管理与归档弹窗R71"
     ],
     "inProgress": [
-      "数据管理R71原714行已备份，原归档服务与平台动作保持，受控文件任务和归档确认、实际文件/后台任务只读binding已接入；49项/5文件及8文件静态0问题，新产物已装同一QA，尚无真实归档闭环，不计整页",
-      "HTML增加原TAR.GZ归档确认、后台导入状态和附件进度；254场景与67组规范、41个基础控件核对通过",
-      "R70全部23项真实选择、回调前重启极光选中、业务45真实只读入口及原默认恢复报告16图19文件已封存，57/53/24/5与原偏好保持",
-      "v4已推送822b6a6b，后续R71产品提交4f17bb70；PR575仍CLOSED，Q16原始TAR选择器/服务差异记录，智谱私有凭据不入库"
+      "附件预览R72原362行及SHA已备份，原文件/归档字节来源与元信息缓存保持；受控懒加载预览库、元信息和原单图缩放弹窗组件接入，9项已有回归通过，尚无新产物原生验收，不计整页",
+      "组件预览增加附件库平铺状态，原附件/自定义图标双页签及横向滑动保留，HTML与新边界回归待补",
+      "R71真实导出元数据与hash、浏览同包/归档弹窗/真实跳过5+2/损坏拒绝、8路由和业务46完成；18图21文件报告封存，原57/53/24/5与3图片hash及所选/头像偏好保持",
+      "v4已推送e0bd02ae；PR575仍CLOSED。两个公共测试文件按文件级所有权保留，禁止清理其共享父目录；原始TAR Q16待集中决定"
     ],
     "remainingEffortEstimateHours": [
-      26,
-      46
+      27,
+      47
     ],
-    "remainingEffortChangeReason": "较00:54的27–47减少约1实际工时。R70新增独立卡片语义范围修正、全部23项真实选择/重启与报告闭环；R71已完成页面与真实归档服务回归并装机，后续还需原生文件选择、保存与数据对照。后续AI/Cloud/共享权限仍有浮动，区间是实际工作量而非固定上线时刻。"
+    "remainingEffortChangeReason": "较01:54的26–46调高约1小时：计入MIUI文件选择/最近索引与路径过渡、归档原身份/元数据保护的实际验收成本，并增加后续数据流程风险余量。R71已完成并封存，后续可复用已验证的选择器驱动；AI/Cloud/共享权限仍有浮动。区间为实际工作量，不是固定上线时刻。"
   },
   "pullRequest": {
     "number": 575,

@@ -604,5 +604,15 @@
     ],
     "page": "business",
     "case": 45
+  },
+  {
+    "design_key": "attachmentLibrary",
+    "components": [
+      "BeeAttachmentLibrary",
+      "BeeAttachmentFileMetadata",
+      "BeeAttachmentViewer"
+    ],
+    "page": "business",
+    "case": 46
   }
 ]

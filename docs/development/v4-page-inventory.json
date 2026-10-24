@@ -10,8 +10,8 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 254,
-  "flowDefinitions": 150,
+  "designSceneExports": 260,
+  "flowDefinitions": 183,
   "priorityCounts": {
     "P0": 16,
     "P1": 42,
@@ -1282,7 +1282,7 @@
       "classes": [
         "AppLockSettingsPage"
       ],
-      "lines": 421,
+      "lines": 81,
       "batch": "M8 设置与收尾",
       "designRoutes": [
         "flow-lock-settings"
@@ -1290,10 +1290,10 @@
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "待迁移",
+      "status": "迁移中",
       "name": "应用锁设置",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "原421行及SHA备份，页面复用基础开关/菜单、安全Panel与原认证服务，原生物识别门控和四档超时保持；17项回归和4文件静态0问题已通过，HTML/真机闭环待完成，不计整页。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-settings"
       ]
@@ -1336,20 +1336,32 @@
       "classes": [
         "AttachmentPreviewPage"
       ],
-      "lines": 362,
+      "lines": 106,
       "batch": "M7 初始化与数据",
       "designRoutes": [
-        "flow-attachment-library"
+        "flow-attachment-library",
+        "flow-attachment-library-archive",
+        "flow-attachment-library-empty",
+        "flow-attachment-library-empty-group",
+        "flow-attachment-library-broken",
+        "flow-attachment-library-loading",
+        "flow-attachment-library-long"
       ],
       "designMapping": "已定位",
-      "components": "附件库网格、筛选/选择、预览和任务状态",
-      "acceptance": "完整附件入口、筛选、来源关联、空态、加载失败、批量选择和导入导出。",
-      "status": "待迁移",
+      "components": "惰性三列附件库、实际尺寸/大小、完整长文件名、只读缩放、分组与空错、真实服务预览",
+      "acceptance": "最终已提交源码副本60项/7文件回归、11文件静态0问题；398/320深色140%、7场景/260链接/68规范组/41基础控件通过。真机逐一验证7个文件真实头/字节/名称、横滑/准确关闭、同TAR.GZ归档两组、业务47全部平铺状态/真实5+2/生产入口和正常重启，原57/53/24/5及3图标头像hash/偏好/公共文件保持。修复并复验基础关闭节点语义合并和内嵌网格滚动陷阱。13图16文件报告三宽度/ZIP封存，SHA256 59233d26faeac0d70e7ba04fdd6cd994d799538b66e422986a8193c46440c6ab。Cloud/iOS/物理短屏/原生双指缩放未执行或不适用。",
+      "status": "已完成",
       "name": "全局附件库",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "原362行及SHA已备份，两来源/双分组/真实元信息/只读缩放保留；受控预览库与App文件绑定完成。R72同一QA真实UI、全部原数据/文件/偏好和正常重启闭环通过。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library-archive",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library-empty-group",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library-broken",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library-long"
       ]
     },
     {

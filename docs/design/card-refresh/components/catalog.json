@@ -479,6 +479,13 @@
         "title": "文件导入导出任务",
         "nativeCase": 45,
         "nativeLabel": "文件导入导出任务"
+      },
+      {
+        "id": "spec-68",
+        "code": "B43",
+        "title": "附件与图标预览库",
+        "nativeCase": 46,
+        "nativeLabel": "附件与图标预览库"
       }
     ]
   }

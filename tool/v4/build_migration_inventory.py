@@ -14,7 +14,7 @@ manual={
 'settings/smart_billing_page.dart':['smart'],'settings/automation_page.dart':['automation'],'settings/personalize_page.dart':['colors','flow-theme-custom','flow-theme-locked'],
 'settings/appearance_settings_page.dart':['appearance','flow-appearance-mode','flow-appearance-amount','flow-appearance-note','flow-appearance-history','flow-appearance-scheme','flow-appearance-currency'],'settings/header_skin_page.dart':['skins','flow-skins-animated','flow-skins-static','flow-skins-debug'],'settings/language_settings_page.dart':['flow-language'],
 'settings/privacy_policy_page.dart':['leaf:隐私政策'],'report/annual_report_page.dart':['annual'],
-'donation/donation_page.dart':['flow-donation'],'settings/attachment_preview_page.dart':['flow-attachment-library'],
+'donation/donation_page.dart':['flow-donation'],'settings/attachment_preview_page.dart':['flow-attachment-library','flow-attachment-library-archive','flow-attachment-library-empty','flow-attachment-library-empty-group','flow-attachment-library-broken','flow-attachment-library-loading','flow-attachment-library-long'],
 'attachment/attachment_preview_page.dart':['flow-attachment-viewer'],
 }
 # Migration batches include every Page/Screen source; helper files remain alongside consumers.

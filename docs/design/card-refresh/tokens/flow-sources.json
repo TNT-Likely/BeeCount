@@ -61,7 +61,7 @@
   },
   {
     "route": "flow-networth",
-    "title": "净资产趋势",
+    "title": "净值趋势",
     "group": "账户与资产",
     "source": "account/net_worth_trend_page.dart"
   },
@@ -349,7 +349,7 @@
   },
   {
     "route": "flow-font",
-    "title": "显示与字号",
+    "title": "显示缩放",
     "group": "外观与辅助",
     "source": "settings/font_settings_page.dart"
   },
@@ -823,9 +823,207 @@
   },
   {
     "route": "flow-tag-new",
-    "title": "新建标签",
+    "title": "新增标签",
     "group": "分类标签与预算",
     "source": "tag/tag_edit_page.dart"
+  },
+  {
+    "route": "flow-tag-management",
+    "title": "标签管理 · 完整工具",
+    "group": "标签与分类",
+    "source": "tag/tag_manage_page.dart"
+  },
+  {
+    "route": "flow-tag-management-empty",
+    "title": "标签管理 · 空态",
+    "group": "标签与分类",
+    "source": "tag/tag_manage_page.dart"
+  },
+  {
+    "route": "flow-tag-management-error",
+    "title": "标签管理 · 重试",
+    "group": "标签与分类",
+    "source": "tag/tag_manage_page.dart"
+  },
+  {
+    "route": "flow-tag-management-loading",
+    "title": "标签管理 · 加载",
+    "group": "标签与分类",
+    "source": "tag/tag_manage_page.dart"
+  },
+  {
+    "route": "flow-reminder-ios",
+    "title": "记账提醒 · iOS",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-reminder-time",
+    "title": "选择时间",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-reminder-battery",
+    "title": "电池优化状态",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-reminder-channel",
+    "title": "通知渠道状态",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-reminder-battery-warning",
+    "title": "电池优化 · 待设置",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-reminder-channel-warning",
+    "title": "通知渠道 · 异常",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-appearance-mode",
+    "title": "外观模式",
+    "group": "显示与外观",
+    "source": "settings/appearance_settings_page.dart"
+  },
+  {
+    "route": "flow-appearance-amount",
+    "title": "余额显示格式",
+    "group": "显示与外观",
+    "source": "settings/appearance_settings_page.dart"
+  },
+  {
+    "route": "flow-appearance-note",
+    "title": "备注显示方式",
+    "group": "显示与外观",
+    "source": "settings/appearance_settings_page.dart"
+  },
+  {
+    "route": "flow-appearance-history",
+    "title": "历史备注",
+    "group": "显示与外观",
+    "source": "settings/appearance_settings_page.dart"
+  },
+  {
+    "route": "flow-appearance-scheme",
+    "title": "收支颜色方案",
+    "group": "显示与外观",
+    "source": "settings/appearance_settings_page.dart"
+  },
+  {
+    "route": "flow-appearance-currency",
+    "title": "主币种",
+    "group": "显示与外观",
+    "source": "settings/appearance_settings_page.dart"
+  },
+  {
+    "route": "flow-theme-custom",
+    "title": "自定义",
+    "group": "显示与外观",
+    "source": "settings/personalize_page.dart"
+  },
+  {
+    "route": "flow-theme-locked",
+    "title": "主题色 · 皮肤固定配色",
+    "group": "显示与外观",
+    "source": "settings/personalize_page.dart"
+  },
+  {
+    "route": "flow-skins-animated",
+    "title": "皮肤 · 动态与固定配色",
+    "group": "显示与外观",
+    "source": "settings/header_skin_page.dart"
+  },
+  {
+    "route": "flow-skins-static",
+    "title": "皮肤 · 静态系列",
+    "group": "显示与外观",
+    "source": "settings/header_skin_page.dart"
+  },
+  {
+    "route": "flow-skins-debug",
+    "title": "皮肤 · 调试SVG示例",
+    "group": "显示与外观",
+    "source": "settings/header_skin_page.dart"
+  },
+  {
+    "route": "flow-attachment-import-confirm",
+    "title": "附件导入 · 原归档确认弹窗",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-data-import-running",
+    "title": "数据管理 · 后台导入中",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-data-import-success",
+    "title": "数据管理 · 原导入完成",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-data-import-partial",
+    "title": "数据管理 · 部分失败",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-attachment-export-progress",
+    "title": "数据管理 · 附件导出进度",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-attachment-import-progress",
+    "title": "数据管理 · 附件导入进度",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-attachment-library-archive",
+    "title": "附件 · 归档字节预览",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-attachment-library-empty",
+    "title": "附件 · 全部为空",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-attachment-library-empty-group",
+    "title": "附件 · 空分组",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-attachment-library-broken",
+    "title": "附件 · 图片加载失败",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-attachment-library-loading",
+    "title": "附件 · 加载中",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-attachment-library-long",
+    "title": "附件 · 完整长文件名",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
   },
   {
     "route": "flow-welcome-currency-picker",

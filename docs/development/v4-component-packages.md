@@ -236,3 +236,12 @@ App的诊断适配复用原Android接口，平台门控、全部硬件/渠道字
 `BeeColorPalette.showLabels`可选显示完整名称，默认44px圆点行为保持；`BeeHsvColorPicker`接收HSV值、三个本地化标签和受控回调，RGB预览按真实字节，禁用时不接收更改。基础第22节平铺可用/禁用色板、可用/禁用HSV，HTML基础第25组对应；业务仍44节。App继续持有原27选项、Provider/持久化/皮肤绑定与草稿确认，不把它们移入基础包。
 
 原27颜色与中英文名从旧提交独立冻结；App按稳定RGB身份显示选中，避免ColorSwatch/浮点重载不一致，自定义确认保存与预览一致的字节。样例回调只改样例，真实主题写入从生产页面完成。当前65规范组（基础25/业务40）、41基础控件、Flutter基础22/业务44节；R69真实原生、独立偏好/数据和正常重启证据另列，不能把这些数量相加当页面完成率。
+
+
+## 附件与图标预览库（R72）
+
+`BeeAttachmentLibrary` 是三列惰性预览网格，接收图片、选中身份、元信息、加载/空态与打开回调；坏图回退、禁用和宿主图片槽在同一分区平铺。`BeeAttachmentFileMetadata` 统一缩略图右下尺寸/大小与弹窗完整文件名。`BeeAttachmentViewer.metadataBuilder`、`showHeaderLabel` 为可选扩展，原账单附件查看器默认行为保持。
+
+App 的 `AttachmentLibraryData` 继续读取原本地文件或归档字节，缓存真实图片头/文件大小；`LiveAttachmentLibraryPreview` 从原附件服务读取当前 5 附件/2 分类图标，并提供生产预览入口。文件访问、归档解析和真实数据留在 App binding；纯展示包不导入 Repository、Provider 或平台 I/O。两种来源均只读，原横滑分组、完整文件名、尺寸大小、单图缩放与关闭保留。内嵌目录使用 shrinkWrap 和不可独立滚动的网格，让整页接管手势；正式库默认仍使用惰性独立滚动，避免内嵌滚动陷阱。
+
+基础 `BeeSegmented` 允许宿主滚动控制，单个长标签限制在可视宽度内；`BeeIconButton` 保持独立语义边界，避免关闭按钮与整张弹窗合并。HTML spec68/B43 与 Flutter 业务47对应，当前 HTML 260 场景、68 规范组（基础25/业务43）、41 基础控件，Flutter 基础22/业务47节。数量不代表完成页面数；R72 页面验收仍以独立报告为准。

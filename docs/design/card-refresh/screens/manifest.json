@@ -721,9 +721,9 @@
   },
   {
     "route": "flow-attachment-library",
-    "slug": "flow-attachment-library",
     "title": "附件预览",
     "group": "补齐 · 导入导出与维护",
+    "slug": "flow-attachment-library",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-attachment-library.png",
     "full": "screens/full/flow-attachment-library.png",
@@ -2562,5 +2562,65 @@
     "viewport": "screens/viewport/flow-attachment-import-progress.png",
     "full": "screens/full/flow-attachment-import-progress.png",
     "svg": "figma/flow-attachment-import-progress.svg"
+  },
+  {
+    "route": "flow-attachment-library-archive",
+    "title": "附件 · 归档字节预览",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-attachment-library-archive",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-attachment-library-archive.png",
+    "full": "screens/full/flow-attachment-library-archive.png",
+    "svg": "figma/flow-attachment-library-archive.svg"
+  },
+  {
+    "route": "flow-attachment-library-empty",
+    "title": "附件 · 全部为空",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-attachment-library-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-attachment-library-empty.png",
+    "full": "screens/full/flow-attachment-library-empty.png",
+    "svg": "figma/flow-attachment-library-empty.svg"
+  },
+  {
+    "route": "flow-attachment-library-empty-group",
+    "title": "附件 · 空分组",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-attachment-library-empty-group",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-attachment-library-empty-group.png",
+    "full": "screens/full/flow-attachment-library-empty-group.png",
+    "svg": "figma/flow-attachment-library-empty-group.svg"
+  },
+  {
+    "route": "flow-attachment-library-broken",
+    "title": "附件 · 图片加载失败",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-attachment-library-broken",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-attachment-library-broken.png",
+    "full": "screens/full/flow-attachment-library-broken.png",
+    "svg": "figma/flow-attachment-library-broken.svg"
+  },
+  {
+    "route": "flow-attachment-library-loading",
+    "title": "附件 · 加载中",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-attachment-library-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-attachment-library-loading.png",
+    "full": "screens/full/flow-attachment-library-loading.png",
+    "svg": "figma/flow-attachment-library-loading.svg"
+  },
+  {
+    "route": "flow-attachment-library-long",
+    "title": "附件 · 完整长文件名",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-attachment-library-long",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-attachment-library-long.png",
+    "full": "screens/full/flow-attachment-library-long.png",
+    "svg": "figma/flow-attachment-library-long.svg"
   }
 ]
