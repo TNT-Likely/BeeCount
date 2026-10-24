@@ -1,3 +1,4 @@
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +7,6 @@ import '../../presentation/v4/bindings/calendar_month_view.dart';
 import '../../presentation/v4/bindings/calendar_transactions.dart';
 import '../../presentation/v4/bindings/page_scaffold.dart';
 import '../../providers.dart';
-import '../../styles/tokens.dart';
 import '../../providers/calendar_providers.dart';
 import '../../widgets/ui/wheel_date_picker.dart';
 import '../transaction/transaction_editor_page.dart';
@@ -36,7 +36,11 @@ class _CalendarPageState extends ConsumerState<CalendarPage>
           title: l.calendarTitle,
           leading: const BackButton(),
           actions: [
-            TextButton(onPressed: _jumpToToday, child: Text(l.calendarToday))
+            TextButton(
+                onPressed: _jumpToToday,
+                style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.onSurface),
+                child: Text(l.calendarToday))
           ]),
       Expanded(
           child: BeePageBody(eager: true, children: [
@@ -53,8 +57,14 @@ class _CalendarPageState extends ConsumerState<CalendarPage>
                     onPressed: () =>
                         ref.invalidate(dailyTotalsByMonthProvider(key)))),
             data: (values) => CalendarMonthView(
-                incomeColor: BeeTokens.incomeColor(context, ref),
-                expenseColor: BeeTokens.expenseColor(context, ref),
+                incomeLabel: l.homeIncome,
+                expenseLabel: l.homeExpense,
+                incomeColor: beeTransactionColor(
+                    context, BeeTransactionKind.income,
+                    incomeIsRed: ref.watch(incomeExpenseColorSchemeProvider)),
+                expenseColor: beeTransactionColor(
+                    context, BeeTransactionKind.expense,
+                    incomeIsRed: ref.watch(incomeExpenseColorSchemeProvider)),
                 focusedMonth: _focusedMonth,
                 firstDay: _CalendarActions._calFirstDay,
                 lastDay: _calLastDay,

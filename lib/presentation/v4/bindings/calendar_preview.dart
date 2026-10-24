@@ -7,7 +7,6 @@ import '../../../l10n/app_localizations.dart';
 import '../../../pages/calendar/calendar_page.dart';
 import '../../../providers.dart';
 import '../../../providers/calendar_providers.dart';
-import '../../../styles/tokens.dart';
 import 'calendar_month_view.dart';
 
 class LiveCalendarPreview extends ConsumerWidget {
@@ -50,8 +49,14 @@ class LiveCalendarPreview extends ConsumerWidget {
                             income: values[key]!.$1 > 0
                                 ? calendarCompactAmount(values[key]!.$1, '+')
                                 : null,
-                            expenseColor: BeeTokens.expenseColor(context, ref),
-                            incomeColor: BeeTokens.incomeColor(context, ref),
+                            expenseColor: beeTransactionColor(
+                                context, BeeTransactionKind.expense,
+                                incomeIsRed: ref
+                                    .watch(incomeExpenseColorSchemeProvider)),
+                            incomeColor: beeTransactionColor(
+                                context, BeeTransactionKind.income,
+                                incomeIsRed: ref
+                                    .watch(incomeExpenseColorSchemeProvider)),
                             today: key == calendarDateKey(now)))
                 ]));
           }),

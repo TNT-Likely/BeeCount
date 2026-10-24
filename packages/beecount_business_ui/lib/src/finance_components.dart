@@ -95,7 +95,9 @@ class BeeTag extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                    fontSize: inline ? 10 : 12, height: 1.5, color: tag.color))),
+                    fontSize: inline ? 10 : 12,
+                    height: 1.5,
+                    color: tag.color))),
       ]),
     );
     if (compact && onTap != null) {
@@ -168,6 +170,28 @@ class BeeMoney extends StatelessWidget {
 /// Category icon and content remain independent hit targets.
 
 enum BeeTransactionKind { expense, income, transfer }
+
+/// Shared semantic palette. Reversing the user's color convention changes the
+/// mapping without changing signs, amounts or transaction kinds.
+Color beeTransactionColor(BuildContext context, BeeTransactionKind kind,
+    {bool incomeIsRed = true}) {
+  final dark = Theme.of(context).brightness == Brightness.dark;
+  final mapped = incomeIsRed
+      ? kind
+      : switch (kind) {
+          BeeTransactionKind.expense => BeeTransactionKind.income,
+          BeeTransactionKind.income => BeeTransactionKind.expense,
+          BeeTransactionKind.transfer => BeeTransactionKind.transfer,
+        };
+  return switch (mapped) {
+    BeeTransactionKind.expense =>
+      dark ? const Color(0xff79c8ad) : const Color(0xff25856d),
+    BeeTransactionKind.income =>
+      dark ? const Color(0xffe49a8d) : const Color(0xffbd5d50),
+    BeeTransactionKind.transfer =>
+      Theme.of(context).colorScheme.onSurfaceVariant,
+  };
+}
 
 /// Mirrors the existing transaction row: full date overrides the time switch;
 /// a time-only row suppresses exact midnight, but keeps non-zero seconds.
@@ -254,21 +278,8 @@ class BeeTransactionRow extends StatelessWidget {
         .whereType<String>()
         .where((s) => s.isNotEmpty)
         .join(' · ');
-    final dark = theme.brightness == Brightness.dark;
-    final colorKind = incomeIsRed
-        ? kind
-        : switch (kind) {
-            BeeTransactionKind.expense => BeeTransactionKind.income,
-            BeeTransactionKind.income => BeeTransactionKind.expense,
-            BeeTransactionKind.transfer => BeeTransactionKind.transfer,
-          };
-    final moneyColor = switch (colorKind) {
-      BeeTransactionKind.expense =>
-        dark ? const Color(0xff79c8ad) : const Color(0xff25856d),
-      BeeTransactionKind.income =>
-        dark ? const Color(0xffe49a8d) : const Color(0xffbd5d50),
-      BeeTransactionKind.transfer => theme.colorScheme.onSurfaceVariant,
-    };
+    final moneyColor =
+        beeTransactionColor(context, kind, incomeIsRed: incomeIsRed);
     final row = Material(
         color: selected == true
             ? theme.colorScheme.primary.withValues(alpha: .1)

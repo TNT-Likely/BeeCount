@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:async';
 import 'package:beecount/cloud/sync_service.dart';
 import 'package:beecount/data/db.dart';
@@ -127,6 +129,39 @@ void main() {
     expect(detail.last.t.nativeAmount, 85.2);
     expect(detail.where((r) => r.t.excludeFromStats).length, 1);
     expect(detail.where((r) => r.t.excludeFromBudget).length, 1);
+  });
+
+  for (final dark in [false, true]) {
+    for (final redIncome in [false, true]) {
+      testWidgets('日历与冻结设计语义色一致且保留颜色反转 dark=$dark redIncome=$redIncome',
+          (t) async {
+        c.read(incomeExpenseColorSchemeProvider.notifier).state = redIncome;
+        await open(t, narrow: dark);
+        final tokens = jsonDecode(
+            File('docs/design/card-refresh/tokens/design-tokens.json')
+                .readAsStringSync())['color'][dark ? 'dark' : 'light'];
+        Color color(String key) =>
+            Color(int.parse((tokens[key] as String).replaceFirst('#', 'ff'),
+                radix: 16));
+        final cell = t.widget<BeeCalendarDayCell>(find.byWidgetPredicate((w) =>
+            w is BeeCalendarDayCell &&
+            w.day == '15' &&
+            w.expense == '-95' &&
+            w.income == '+1.2w'));
+        expect(cell.expenseColor, color(redIncome ? 'expense' : 'income'));
+        expect(cell.incomeColor, color(redIncome ? 'income' : 'expense'));
+        expect(t.takeException(), isNull);
+        await close(t);
+      });
+    }
+  }
+  testWidgets('原生朗读树保留日期以及未缩略的实际日收支', (t) async {
+    final semantics = t.ensureSemantics();
+    await open(t);
+    expect(find.bySemanticsLabel(RegExp(r'.*收入 12000.00 支出 95.20.*')),
+        findsWidgets);
+    await close(t);
+    semantics.dispose();
   });
   test('原整数与k/w缩略阈值保持', () {
     expect(calendarCompactAmount(999.99, '-'), '-999');

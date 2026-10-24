@@ -36,7 +36,8 @@ class BeeCalendarMonthHeading extends StatelessWidget {
                               fontSize: 16,
                               fontWeight: FontWeight.w600))),
                   const SizedBox(width: 4),
-                  const BeeLineIcon('ChevronDown', size: 16)
+                  BeeLineIcon('ChevronDown',
+                      size: 16, color: Theme.of(context).colorScheme.onSurface)
                 ]))),
         BeeIconButton(
             label: nextLabel,

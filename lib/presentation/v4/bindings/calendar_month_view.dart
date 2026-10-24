@@ -26,15 +26,18 @@ class CalendarMonthView extends StatelessWidget {
       required this.onPage,
       required this.onMonth,
       required this.onJump,
-      this.incomeColor = const Color(0xffbd5d50),
-      this.expenseColor = const Color(0xff25856d)});
+      this.incomeColor,
+      this.expenseColor,
+      this.incomeLabel = '+',
+      this.expenseLabel = '-'});
   final DateTime focusedMonth, firstDay, lastDay;
   final DateTime? selectedDay;
   final Map<String, (double, double)> totals;
   final void Function(DateTime, DateTime) onSelect;
   final ValueChanged<DateTime> onPage, onJump;
   final VoidCallback onMonth;
-  final Color incomeColor, expenseColor;
+  final Color? incomeColor, expenseColor;
+  final String incomeLabel, expenseLabel;
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).toString();
@@ -47,8 +50,10 @@ class CalendarMonthView extends StatelessWidget {
           day: '${day.day}',
           semanticLabel:
               '${DateFormat.yMd(locale).format(day)} +${income.toStringAsFixed(2)} -${expense.toStringAsFixed(2)}',
-          expenseColor: expenseColor,
-          incomeColor: incomeColor,
+          expenseColor: expenseColor ??
+              beeTransactionColor(context, BeeTransactionKind.expense),
+          incomeColor: incomeColor ??
+              beeTransactionColor(context, BeeTransactionKind.income),
           expense: expense > 0 ? calendarCompactAmount(expense, '-') : null,
           income: income > 0 ? calendarCompactAmount(income, '+') : null,
           selected: isSameDay(day, selectedDay),
@@ -76,6 +81,8 @@ class CalendarMonthView extends StatelessWidget {
               lastDay: lastDay,
               focusedDay: focusedMonth,
               headerVisible: false,
+              pageAnimationEnabled: TickerMode.of(context) &&
+                  !MediaQuery.disableAnimationsOf(context),
               startingDayOfWeek: StartingDayOfWeek.monday,
               calendarFormat: CalendarFormat.month,
               availableGestures: AvailableGestures.horizontalSwipe,
@@ -90,6 +97,19 @@ class CalendarMonthView extends StatelessWidget {
                   weekendStyle: TextStyle(
                       fontSize: 12, color: Theme.of(context).hintColor)),
               calendarBuilders: CalendarBuilders<void>(
+                  markerBuilder: (context, day, events) {
+                    final value = totals[calendarDateKey(day)];
+                    if (value == null ||
+                        day.month != focusedMonth.month ||
+                        day.year != focusedMonth.year) {
+                      return null;
+                    }
+                    return IgnorePointer(
+                        child: Semantics(
+                            label:
+                                '${DateFormat.yMd(locale).format(day)} $incomeLabel ${value.$1.toStringAsFixed(2)} $expenseLabel ${value.$2.toStringAsFixed(2)}',
+                            child: const SizedBox.expand()));
+                  },
                   defaultBuilder: cell,
                   todayBuilder: cell,
                   selectedBuilder: cell,
