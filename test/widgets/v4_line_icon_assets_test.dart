@@ -9,7 +9,12 @@ void main() {
   test('生产页面固定图标与全部分类映射均已实际打包', () async {
     final manifest =
         jsonDecode(await rootBundle.loadString('AssetManifest.json')) as Map;
-    final names = {...categoryLineIconNames.values};
+    final names = {
+      ...categoryLineIconNames.values,
+      'Grid2x2',
+      'Network',
+      'Plus'
+    };
     final literal = RegExp(r"BeeLineIcon\(\s*'([A-Za-z][A-Za-z0-9]*)'");
     for (final root in [
       'lib',
