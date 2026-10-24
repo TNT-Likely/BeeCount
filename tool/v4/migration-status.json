@@ -744,27 +744,26 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-24T14:54:00+08:00",
-    "engineeringEstimatePercent": 31,
+    "reportedAt": "2026-10-24T15:54:00+08:00",
+    "engineeringEstimatePercent": 32,
     "engineeringEstimateRange": [
-      29,
-      33
+      30,
+      34
     ],
     "completedPages": 13,
     "totalPages": 73,
     "completedP0Pages": 13,
     "totalExistingP0Pages": 16,
-    "newlyCompletedSincePreviousReport": [
-      "首页明细（R50已封存，22图/独立SQL与文件/正常重启）"
-    ],
+    "newlyCompletedSincePreviousReport": [],
     "inProgress": [
-      "记账R51：历史汇率、转账保存重试、共享标签和隐藏账户、系统键盘修复；37文件289项相关回归通过，新产物已按身份/备份流程覆盖同一QA包，实际生产UI验收中，未计整页完成",
-      "搜索、分类详情及新增账单详情继续按P0收口；P1/P2尚未逐页完成"
+      "记账App可执行范围R52/R53通过，23图独立报告已封存；Q09转账结构待最终决定，不计新增整页",
+      "统一旧通用分类选择弹窗：8项独立真实DB用例和相关59项通过；新增示例导致原整套回归的一处搜索框定位失效，正在修正并复验，未记为全部通过",
+      "搜索/批量、分类详情与新增账单详情继续P0收口；P1/P2尚未逐页完成"
     ],
     "remainingEffortEstimateHours": [
-      30,
-      50
+      35,
+      55
     ],
-    "remainingEffortChangeReason": "较13:54仍为30–50实际工时：首页闭环后，转账保存、隐藏账户和弹层键盘的新增兼容修复增加了回归；后续P1/P2服务配置、异常与平台流程仍不确定。不按页面数线性外推。"
+    "remainingEffortChangeReason": "较14:54的30–50上调约5实际工时：发现搜索/分类迁移/周期共用690行旧分类弹窗，需保留全部排除/计数/禁用/共享规则并统一；P1账户详情信用卡、估值等独立分支需逐项补设计和验收。估算非承诺，不按页面数线性外推。"
   }
 }
