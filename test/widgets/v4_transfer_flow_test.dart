@@ -6,6 +6,7 @@ import 'package:beecount/providers.dart';
 import 'package:beecount/utils/shared_ledger_picker_filter.dart';
 import 'package:beecount/widgets/transaction/transfer_form.dart';
 import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -128,6 +129,29 @@ void main() {
       await tester.pumpAndSettle();
     });
   }
+
+  testWidgets('历史外币账户对关闭金额弹层后仍显示并保留在选择器中', (tester) async {
+    tester.view.physicalSize = const Size(398, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await open(tester, editingId: 99, nativeAmount: 86.4);
+    await tester.tap(find.byTooltip('关闭'));
+    await tester.pumpAndSettle();
+    final pair = find.byType(BeeTransferAccountPair);
+    expect(find.text('美元现金'), findsOneWidget);
+    expect(find.text('美元银行卡'), findsOneWidget);
+    await tester.tap(
+        find.descendant(of: pair, matching: find.byType(BeeMenuRow)).first);
+    await tester.pumpAndSettle();
+    final picker =
+        tester.widget<BeeAccountPicker>(find.byType(BeeAccountPicker));
+    expect(picker.accounts.map((a) => a.id), containsAll(['$fromId', '$toId']));
+    expect(picker.selected, '$fromId');
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
 
   testWidgets('转账元信息失败保留弹层与草稿，重试沿用同一身份并保存标签', (tester) async {
     tester.view.physicalSize = const Size(398, 900);

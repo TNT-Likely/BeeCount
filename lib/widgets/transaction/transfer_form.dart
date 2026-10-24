@@ -301,6 +301,9 @@ class _TransferFormState extends ConsumerState<TransferForm> {
         // 又被这里的过滤吃掉(跟 AccountSelector 的钉住语义一致)。
         final accounts = allAccounts
             .where((account) =>
+                (widget.editingTransactionId != null &&
+                    (account.id == widget.initialFromAccountId ||
+                        account.id == widget.initialToAccountId)) ||
                 account.hidden ||
                 (account.currency == currentCurrency &&
                     isTradableType(account.type)))

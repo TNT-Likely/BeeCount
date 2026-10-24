@@ -443,6 +443,47 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final size in [const Size(398, 844), const Size(320, 568)]) {
+    recordingTest('更多分类选中末尾二级后完整露出，表单与键盘保持固定 $size', (tester) async {
+      for (var i = 0; i < 6; i++) {
+        await repo.createCategory(
+            name: '补充分类$i', kind: 'expense', sortOrder: 30 + i);
+      }
+      final parent = await repo.createCategory(
+          name: '末项父类', kind: 'expense', sortOrder: 999);
+      final child = await repo.createSubCategory(
+          parentId: parent, name: '末项子类', kind: 'expense', icon: 'coffee');
+      await open(tester, size: size);
+      final details = find.byKey(const ValueKey('recording-details'));
+      final save = find.byKey(const ValueKey('recording-save'));
+      final detailsRect = tester.getRect(details),
+          saveRect = tester.getRect(save);
+      await tester.ensureVisible(
+          find.byKey(const ValueKey('recording-more-categories')));
+      await tester.tap(find.byKey(const ValueKey('recording-more-categories')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+          find.descendant(
+              of: find.byType(BottomSheet), matching: find.byType(TextField)),
+          '末项子类');
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(RecordingSubcategoryChip, '末项子类'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.descendant(
+          of: find.byType(BottomSheet), matching: find.text('确定')));
+      await tester.pumpAndSettle();
+      final categoryArea =
+          tester.getRect(find.byKey(const ValueKey('recording-content')));
+      final selected =
+          tester.getRect(find.byKey(ValueKey('recording-category-$child')));
+      expect(selected.top, greaterThanOrEqualTo(categoryArea.top - .1));
+      expect(selected.bottom, lessThanOrEqualTo(categoryArea.bottom + .1));
+      expect(tester.getRect(details), detailsRect);
+      expect(tester.getRect(save), saveRect);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   recordingTest('空白收支切换使用对应默认账户，已有金额草稿保留账户', (tester) async {
     final expenseAccount =
         await repo.createAccount(ledgerId: 1, name: '支出默认', currency: 'CNY');

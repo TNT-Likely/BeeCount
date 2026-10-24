@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +54,7 @@ class _RecordingCategorySectionState
     extends ConsumerState<RecordingCategorySection> {
   int? _expandedId;
   final _childScroll = ScrollController();
+  final _selectedChildAnchor = GlobalKey();
   int? _revealedParent, _revealedChild;
 
   @override
@@ -60,18 +63,21 @@ class _RecordingCategorySectionState
     super.dispose();
   }
 
-  void _revealChild(int parentId, List<Category> items, int columns) {
+  void _revealChild(int parentId) {
     if (_revealedParent == parentId && _revealedChild == widget.selectedId) {
       return;
     }
     _revealedParent = parentId;
     _revealedChild = widget.selectedId;
-    final index = items.indexWhere((c) => c.id == widget.selectedId);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_childScroll.hasClients) return;
-      final offset = ((index < 0 ? 0 : index ~/ columns) - 1) * 48.0;
-      _childScroll
-          .jumpTo(offset.clamp(0, _childScroll.position.maxScrollExtent));
+      if (!mounted) return;
+      final target = _selectedChildAnchor.currentContext;
+      if (target == null) return;
+      // Reveal through both the child strip and the main category viewport.
+      // The amount, details and keypad live outside these scrollables.
+      unawaited(Scrollable.ensureVisible(target,
+          duration: const Duration(milliseconds: 180),
+          alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd));
     });
   }
 
@@ -285,6 +291,9 @@ class _RecordingCategorySectionState
                           runSpacing: 4,
                           children: items
                               .map((category) => SizedBox(
+                                    key: category.id == widget.selectedId
+                                        ? _selectedChildAnchor
+                                        : null,
                                     width: (constraints.maxWidth -
                                             (columns - 1) * 4) /
                                         columns,
@@ -312,7 +321,7 @@ class _RecordingCategorySectionState
                                   ))
                               .toList());
                       if (widget.showAll) return content;
-                      _revealChild(parent.id, items, columns);
+                      _revealChild(parent.id);
                       // Two touch-sized rows; large taxonomies do not grow the
                       // main editor. The full picker stays freely expandable.
                       return ConstrainedBox(
