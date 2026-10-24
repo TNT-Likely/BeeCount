@@ -319,9 +319,9 @@
       "name": "首页明细",
       "priority": "P0",
       "reason": "首页汇总、预算、无品牌/品牌和明细工具栏已对齐；继续核对月份/账本切换、行操作、空态及正常入口重启。",
-      "status": "部分迁移·待设计对齐与完整验收",
+      "status": "部分迁移·R49整页验收中",
       "components": "品牌/无品牌、汇总、账单行、日期筛选、快捷记账与底部导航",
-      "acceptance": "AI/搜索入口、月份滚轮、标签/时间/外币、分类图标导航、长按菜单/左滑删除、记账长按快捷入口。"
+      "acceptance": "AI/搜索入口、月份滚轮、标签/时间/外币、分类图标导航、长按菜单/左滑删除、记账长按快捷入口。 R49已补真实账本居中弹窗、紧凑屏与独立语义；278项相关回归通过，最终同环境真机及独立报告仍进行中，不计全页完成。"
     },
     "main/ledgers_page_new.dart": {
       "name": "账本管理与切换",
@@ -656,7 +656,7 @@
       "name": "账本选择弹层",
       "source": "lib/widgets/biz/ledger_picker_sheet.dart",
       "priority": "P0",
-      "status": "新版组件就绪·旧消费者待迁移",
+      "status": "真实业务组件已接入·R49完整验收中",
       "designRoutes": [
         "flow-ledger-picker"
       ],
@@ -744,22 +744,22 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-24T12:54:00+08:00",
-    "engineeringEstimatePercent": 27,
+    "reportedAt": "2026-10-24T13:54:00+08:00",
+    "engineeringEstimatePercent": 29,
     "engineeringEstimateRange": [
-      25,
-      29
+      27,
+      31
     ],
-    "completedPages": 11,
+    "completedPages": 12,
     "totalPages": 73,
-    "completedP0Pages": 11,
+    "completedP0Pages": 12,
     "totalExistingP0Pages": 16,
     "newlyCompletedSincePreviousReport": [
-      "欢迎与初始化全流程"
+      "账本管理（R46已封存）"
     ],
     "inProgress": [
-      "账本管理：组件和真实本地数据操作已实现；267项相关回归/9文件静态检查通过，R45同环境真机正在验收，未计整页完成",
-      "首页、记账、搜索、分类详情及新增账单详情继续按P0核对；待确认差异沿用原行为，P1/P2尚未逐页完成"
+      "首页：紧凑屏、真实账本选择弹窗、分类/隐私语义和小票关闭修复已提交；278项相关回归通过，最终R49同环境真机验收中，未计整页完成",
+      "记账、搜索、分类详情和新增账单详情继续按P0收口；P1/P2尚未逐页完成，不以修改文件数计完成"
     ],
     "remainingEffortEstimateHours": [
       30,

@@ -101,7 +101,7 @@
       "name": "账本选择弹层",
       "source": "lib/widgets/biz/ledger_picker_sheet.dart",
       "priority": "P0",
-      "status": "新版组件就绪·旧消费者待迁移",
+      "status": "真实业务组件已接入·R49完整验收中",
       "designRoutes": [
         "flow-ledger-picker"
       ],
@@ -1104,7 +1104,7 @@
       "classes": [
         "HomePage"
       ],
-      "lines": 377,
+      "lines": 379,
       "batch": "M2 首页与列表",
       "designRoutes": [
         "home",
@@ -1112,8 +1112,8 @@
       ],
       "designMapping": "已定位",
       "components": "品牌/无品牌、汇总、账单行、日期筛选、快捷记账与底部导航",
-      "acceptance": "AI/搜索入口、月份滚轮、标签/时间/外币、分类图标导航、长按菜单/左滑删除、记账长按快捷入口。",
-      "status": "部分迁移·待设计对齐与完整验收",
+      "acceptance": "AI/搜索入口、月份滚轮、标签/时间/外币、分类图标导航、长按菜单/左滑删除、记账长按快捷入口。 R49已补真实账本居中弹窗、紧凑屏与独立语义；278项相关回归通过，最终同环境真机及独立报告仍进行中，不计全页完成。",
+      "status": "部分迁移·R49整页验收中",
       "name": "首页明细",
       "priority": "P0",
       "reason": "首页汇总、预算、无品牌/品牌和明细工具栏已对齐；继续核对月份/账本切换、行操作、空态及正常入口重启。",
