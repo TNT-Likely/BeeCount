@@ -138,7 +138,7 @@ void main() {
     expect(
         tester.widget<BeeDonutChart>(find.byType(BeeDonutChart)).selected, 1);
     expect(tester.widget<ActionChip>(chip).backgroundColor,
-        beeTheme(brightness: Brightness.dark).colorScheme.surface);
+        BeeCardTheme.of(tester.element(chip)).soft);
     expect(tester.takeException(), isNull);
   });
 }

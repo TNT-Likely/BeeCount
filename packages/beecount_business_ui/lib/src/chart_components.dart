@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 
 class BeeChartSlice {
@@ -89,9 +90,14 @@ class BeeDonutChart extends StatelessWidget {
                 .map((e) => Semantics(
                     selected: selected == e.key,
                     child: ActionChip(
-                        backgroundColor: Theme.of(context).colorScheme.surface,
+                        backgroundColor: selected == e.key
+                            ? BeeCardTheme.of(context).soft
+                            : Theme.of(context).colorScheme.surface,
                         surfaceTintColor: Colors.transparent,
-                        side: BorderSide(color: Theme.of(context).dividerColor),
+                        side: BorderSide(
+                            color: selected == e.key
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).dividerColor),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(9)),
                         onPressed: onSelected == null
