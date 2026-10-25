@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T15:30:48+08:00",
+  "updated": "2026-10-25T15:58:54+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -536,11 +536,13 @@
     "tag/tag_detail_page.dart": {
       "name": "标签详情",
       "priority": "P1",
-      "reason": "原567行备份保持，新213行页面接入真实统计/流/批量元信息/共享账户水合，保留全部默认、月年与自定义周期。R60同一QA当前范围、滚轮/编辑/删除取消、带标签记账取消、专属空标签创建与确认删除、原31笔标签全范围及正常重启通过。340项/46文件、12组HTML及独立几何通过，跨本位币合计沿用旧口径，Q11不擅自改。 用户已确认统一为当前账本币种，保留各账本历史native金额并按查询时汇率汇总；历史账单不回写。当前统一汇总与缺失汇率提示待实施，不能按决定本身计完整页。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "Q10/Q11/Q23及原已确认决定已落地；R98真实当前/全部账本、父子/分类分布、CNY76.80与USD11.00、退款/历史native/已有quotes不回写、周期/滚轮取消与导航及正常launcher重启通过。保留旧R55/R60相应CUD的版本证据，新汇总变更以R98实际覆盖，不冒充全部旧动作重复执行。",
+      "status": "已完成",
       "components": "语义标签、关联分类、统计/筛选和账单行",
-      "acceptance": "14图独立报告tag-r60三宽度及17文件/ZIP校验通过，SHA256 4a89da66479ba71deef351711289fa187e849ad7916a56a51b3e93346009e3ee。原57笔/当前53/24账户/5附件及全部原表保持。实际保留标签只关联账本1，不冒充原生多账本聚合；两个账本与synthetic共享字段由真实DB/widget覆盖。Cloud/iOS未执行。",
-      "implementationStage": "implemented"
+      "acceptance": "同一QA、源码0272614c、APK97819bb8，原59保护，setup原61保留后64笔/原本57笔；后续明确owned批量变更按新基线核对，31表及5附件hash重启精确保持。10图/15文件离线包、三宽、ZIP/manifest/脱敏与root不可变封存通过。Android App范围完成；缺率/异常等相关widget/HTML单列，iOS/Cloud及本轮专门隐私切换未执行。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/tag-detail-r98/index.html",
+      "acceptanceZipSha256": "083d9a5206a46f9cc836c9835b81d660590c096c2d71370a87390bb7b200a697"
     },
     "tag/tag_edit_page.dart": {
       "name": "新增与编辑标签",
@@ -561,13 +563,15 @@
     "transaction/category_detail_page.dart": {
       "name": "分类详情",
       "priority": "P0",
-      "reason": "R55同一产物复核父子自定义图标、独立SQL两笔/15.50、月年全部、滚轮取消、排序、编辑/迁移预填取消、父子范围搜索、记账预填取消及正常launcher重启；56笔/5附件SHA保持。逻辑除整页Scaffold外与R21一致，R21实际新增/删除保留对应版本证据，Q10/Q11不擅自改口径。 用户已确认统一为当前账本币种，保留各账本历史native金额并按查询时汇率汇总；历史账单不回写。当前统一汇总与缺失汇率提示待实施，不能按决定本身计完整页。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "Q10/Q11/Q23及原已确认决定已落地；R98真实当前/全部账本、父子/分类分布、CNY76.80与USD11.00、退款/历史native/已有quotes不回写、周期/滚轮取消与导航及正常launcher重启通过。保留旧R55/R60相应CUD的版本证据，新汇总变更以R98实际覆盖，不冒充全部旧动作重复执行。",
+      "status": "已完成",
       "components": "分类信息/父子展开、统计、日期筛选与账单行",
-      "acceptance": "一级与二级分类图标、跨账本标记、收入/支出、日期/时间、备注/标签与详情导航。",
+      "acceptance": "同一QA、源码0272614c、APK97819bb8，原59保护，setup原61保留后64笔/原本57笔；后续明确owned批量变更按新基线核对，31表及5附件hash重启精确保持。10图/15文件离线包、三宽、ZIP/manifest/脱敏与root不可变封存通过。Android App范围完成；缺率/异常等相关widget/HTML单列，iOS/Cloud及本轮专门隐私切换未执行。",
       "checkpointReport": ".docs/acceptance/v4-migration/2026-10-24/category-r55/index.html",
       "checkpointZipSha256": "a4cfbad0d465a4175bb36755cb51942a7f3a10ee44126ca58a4e86e12ca6d354",
-      "implementationStage": "implemented"
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/category-detail-r98/index.html",
+      "acceptanceZipSha256": "9a0392f6eb2a48cfd203b850134ca2382be085dac73161253ef748caf21b8ee7"
     },
     "transaction/recurring_transaction_edit_page.dart": {
       "name": "周期账单编辑",
@@ -785,17 +789,17 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T14:56:01+08:00",
-    "scheduledReportAt": "2026-10-25T14:54:00+08:00",
-    "engineeringEstimatePercent": 64,
+    "reportedAt": "2026-10-25T15:58:54+08:00",
+    "scheduledReportAt": "2026-10-25T15:54:00+08:00",
+    "engineeringEstimatePercent": 68,
     "engineeringEstimateRange": [
-      61,
-      67
+      65,
+      71
     ],
-    "completedPages": 39,
+    "completedPages": 41,
     "totalPages": 73,
-    "completedP0Pages": 13,
-    "totalExistingP0Pages": 16,
+    "completedP0Pages": 14,
+    "totalExistingP0Pages": 17,
     "completedPageNames": [
       "账户详情",
       "新增与编辑账户",
@@ -834,26 +838,29 @@
       "主题色与自定义配色",
       "记账提醒",
       "智能记账入口与识别偏好",
+      "标签详情",
       "新增与编辑标签",
-      "标签管理"
+      "标签管理",
+      "分类详情"
     ],
-    "newlyCompletedSincePreviousReport": [],
+    "newlyCompletedSincePreviousReport": [
+      "分类详情",
+      "标签详情"
+    ],
     "inProgress": [
-      "本小时无新增严格整页；R96同一QA实际转账保存/取消/编辑/正常重启及原57笔/8数据文件/全部其他表和业务偏好保护已封存为检查点，保留2条自有转账，现59笔/当前55笔。未以检查点替代整页。",
-      "25页代码与本地回归已交付，9页实现/审计中；当前全局526场景/94规范、72组Flutter业务目录、原0..65索引保持、所有设计链接和三宽度已通过。新统一产物排队构建与真实UI验收。",
-      "原产品问题均已答复，汇总按原账本历史金额/查询时汇率，当前周期平均按已发生时间，原模板/授权等保持；5项技术核对单列。",
-      "分工改为两路实现/一路集成准备，root串行真机与Cloud。持久UI驱动真实搜索/输入/返回约2.92秒，6次查询均值约0.046秒，四个拒绝守卫通过，DB/附件不变；尚不按单项基准外推全部工时。",
-      "同一隔离App/数据保留，新增同run隔离Cloud已验证新数据库及路径身份，尚未宣称真实同步通过；v4持续提交，PR575保持关闭。"
+      "记账/编辑/转账、搜索/批量、账单详情继续P0收口；长列表分类展开fix待新统一产物真实UI",
+      "后续32页代码交付，导入/导出/周期/报表/云/支持维护等待对应整页验收",
+      "同一Cloud已有真实Web登录；App往返与附加owned WebDAV transport待根接入，不计通过"
     ],
     "remainingEffortEstimateHours": [
       12,
       24
     ],
-    "remainingEffortChangeReason": "较上次并行暂估12–24小时维持。代码与集成明显增加且设备驱动开销实测降低，但本小时严格整页尚未增加，真实Cloud/角色/同步/原生文件流程与报告仍需串行闭环；不按已写完页面数或单次0.046秒查询基准线性外推，估算不是承诺。",
+    "remainingEffortChangeReason": "与上次12–24小时保持。9个P2代码及集成已交、原生驱动和并行准备提速，但新增发现分类弹窗真实可用性问题，且Cloud往返、文件恢复、原生平台路径仍未闭环；不按32页数量线性外推。",
     "implementationStateCounts": {
-      "done": 39,
-      "implemented": 25,
-      "in_progress": 9
+      "nativeComplete": 41,
+      "implementedPendingAcceptance": 32,
+      "inImplementation": 0
     }
   },
   "pullRequest": {
@@ -864,28 +871,30 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T15:30:48+08:00",
-    "engineeringEstimatePercent": 67,
+    "updatedAt": "2026-10-25T15:58:54+08:00",
+    "engineeringEstimatePercent": 68,
     "engineeringEstimateRange": [
-      64,
-      70
+      65,
+      71
     ],
-    "completedPages": 39,
+    "completedPages": 41,
     "totalPages": 73,
-    "basis": "39/73已通过整页验收；其余34页均代码交付，其中最后9个P2页面已组件化并本地回归。R104候选983个产品文件/产物已匹配但未安装，R98实际收支、批量字段保护、详情附件与跨账本分类复核进行中。Cloud网页准备通过不等于App往返；不把组件或构建计整页。",
+    "totalP0Pages": 17,
+    "completedP0Pages": 14,
+    "basis": "41/73严格整页完成，32页代码交付待整页。R98分类/标签跨本位币与正常重启独立包封存；9个P2与Q20/galleries的R104候选983产品文件匹配及298组合回归通过，未安装。新发现分类弹窗长列表展开问题已有Flutter/HTML修复与22回归待原生；Cloud/导入文件等闭环仍占主要剩余工时。",
     "remainingEffortEstimateHours": [
       12,
       24
     ],
-    "remainingEffortEstimateKind": "并行连续工作小时",
-    "totalP0Pages": 17
+    "remainingEffortEstimateKind": "并行连续工作小时"
   },
   "lastImplementationDelivery": {
     "at": "2026-10-25T15:30:48+08:00",
     "commit": "cabfaff9aa8796f161396a108e2105daa7992532",
-    "completedNativePages": 39,
-    "implementedPendingNativePages": 34,
+    "completedNativePages": 41,
+    "implementedPendingNativePages": 32,
     "inImplementationPages": 0,
-    "candidateInstalled": false
+    "candidateInstalled": false,
+    "latestNativeAuditAt": "2026-10-25T15:58:54+08:00"
   }
 }
