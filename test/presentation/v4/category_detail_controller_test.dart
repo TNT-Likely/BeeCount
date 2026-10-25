@@ -134,7 +134,9 @@ void main() {
     expect(c.count, 4);
     expect(c.currencies, {'CNY', 'USD'});
     expect(c.ledgers[2]!.name, '旅行');
-    // Cross-base aggregation retains the old display rule until Q10 is decided.
+    expect(c.summaryComplete, isFalse);
+    expect(c.currencyProjection!.missingCurrencies, ['USD']);
+    // Q11/Q23: missing quotes must never produce a mixed complete total.
     expect(c.rows.where((r) => r.t.ledgerId == 2), hasLength(1));
   });
   test('分类重命名、实际交易新增删除可刷新，筛选排序不改任何交易字段', () async {

@@ -3,22 +3,26 @@ import 'package:flutter/foundation.dart' show ChangeNotifier;
 import '../../../data/db.dart';
 import '../../../data/repositories/base_repository.dart';
 import 'transaction_search.dart' show SearchTransaction;
+import 'detail_currency_totals.dart';
 
 enum CategoryDetailSort { timeAsc, timeDesc, amountAsc, amountDesc }
 
 enum CategoryDetailPeriod { month, year, all, custom }
 
 /// The same repository supplies historical snapshots and hydrated shared IDs.
-/// No totals are recomputed from today's exchange rates.
+/// Historical native snapshots are retained; query-time cross-ledger display
+/// conversion never changes a transaction.
 class CategoryDetailController extends ChangeNotifier {
   CategoryDetailController(
       {required this.repository,
       required this.categoryId,
       required this.ledgerId,
+      int? summaryLedgerId,
       this.initialStart,
       this.initialEnd,
       DateTime? now})
-      : anchor = initialStart ?? now ?? DateTime.now(),
+      : summaryLedgerId = summaryLedgerId ?? ledgerId,
+        anchor = initialStart ?? now ?? DateTime.now(),
         period = initialStart != null && initialEnd != null
             ? CategoryDetailPeriod.custom
             : CategoryDetailPeriod.all {
@@ -35,6 +39,12 @@ class CategoryDetailController extends ChangeNotifier {
   final BaseRepository repository;
   final int categoryId;
   final int? ledgerId;
+  int? summaryLedgerId;
+  DetailCurrencyContext? _currencyContext;
+  DetailCurrencyProjection? currencyProjection;
+  bool shareComplete = true;
+  bool get summaryComplete => currencyProjection?.complete ?? false;
+  String? get summaryCurrency => currencyProjection?.targetCurrency;
   final DateTime? initialStart, initialEnd;
   DateTime anchor;
   CategoryDetailPeriod period;
@@ -85,13 +95,23 @@ class CategoryDetailController extends ChangeNotifier {
   Future<bool> _resources(int generation) async {
     final categories = await repository.getAllCategoriesIncludingShared();
     final books = await repository.getAllLedgers();
+    final currencyContext = await loadDetailCurrencyContext(repository,
+        targetLedgerId: summaryLedgerId, sourceLedgers: books);
     if (_disposed || generation != _resourceGeneration) return false;
     parent = categories.where((c) => c.id == category?.parentId).firstOrNull;
     children = categories
         .where((c) => c.parentId == categoryId && c.kind == category?.kind)
         .toList();
     ledgers = {for (final book in books) book.id: book};
+    _currencyContext = currencyContext;
     return true;
+  }
+
+  Future<void> setSummaryLedger(int ledgerId) async {
+    if (summaryLedgerId == ledgerId) return;
+    summaryLedgerId = ledgerId;
+    loading = true;
+    await refreshResources();
   }
 
   Future<void> refreshResources() async {
@@ -138,7 +158,12 @@ class CategoryDetailController extends ChangeNotifier {
 
   Future<void> refreshRows() => _refresh();
   Future<void> _refresh() async {
-    if (!_rowsReady || !_categoryReady || _disposed) return;
+    if (!_rowsReady ||
+        !_categoryReady ||
+        _disposed ||
+        _currencyContext == null) {
+      return;
+    }
     final generation = ++_generation;
     try {
       final scope = range;
@@ -166,34 +191,46 @@ class CategoryDetailController extends ChangeNotifier {
       tags = rowTags;
       attachments = counts;
       count = selected.length;
-      double total(Iterable<SearchTransaction> values) =>
-          values.fold(0, (sum, r) => sum + (r.t.nativeAmount ?? r.t.amount));
-      amount = total(selected);
+      final currency = _currencyContext!;
+      final converted = projectDetailCurrencyTransactions(
+          currency, selected.map((row) => row.t));
+      currencyProjection = converted;
+      amount = converted.total(selected.map((row) => row.t)) ?? 0;
       average = count == 0 ? 0 : amount / count;
       final denominator = parent == null
-          ? inRange.where((r) => r.t.type == category?.kind)
-          : inRange.where((r) =>
-              r.category?.id == parent!.id ||
-              r.category?.parentId == parent!.id);
-      final base = total(denominator);
-      share = base == 0 ? 0 : amount / base;
+          ? inRange.where((row) => row.t.type == category?.kind)
+          : inRange.where((row) =>
+              row.category?.id == parent!.id ||
+              row.category?.parentId == parent!.id);
+      final denominatorRows = denominator.toList();
+      final denominatorProjection = projectDetailCurrencyTransactions(
+          currency, denominatorRows.map((row) => row.t));
+      final base =
+          denominatorProjection.total(denominatorRows.map((row) => row.t));
+      shareComplete =
+          converted.complete && denominatorProjection.complete && base != null;
+      share = shareComplete && base != 0 ? amount / base! : 0;
       childAmounts = {
         for (final child in children)
-          child.id: total(selected.where((r) => r.category?.id == child.id))
+          child.id: converted.total(selected
+                  .where((row) => row.category?.id == child.id)
+                  .map((row) => row.t)) ??
+              0
       };
       final buckets = <DateTime, double>{};
       for (final row in selected) {
-        final t = row.t.happenedAt;
+        final date = row.t.happenedAt;
         final key = period == CategoryDetailPeriod.month
-            ? DateTime(t.year, t.month, t.day)
-            : DateTime(t.year, t.month);
-        buckets[key] =
-            (buckets[key] ?? 0) + (row.t.nativeAmount ?? row.t.amount);
+            ? DateTime(date.year, date.month, date.day)
+            : DateTime(date.year, date.month);
+        buckets[key] = (buckets[key] ?? 0) + (converted.amounts[row.t.id] ?? 0);
       }
       final dates = buckets.keys.toList()..sort();
       trendDates = dates;
       var running = 0.0;
-      trend = dates.map((d) => running += buckets[d]!).toList();
+      trend = converted.complete
+          ? dates.map((date) => running += buckets[date]!).toList()
+          : [];
       loading = false;
       error = null;
       notifyListeners();

@@ -10,6 +10,7 @@ import '../../../utils/category_utils.dart';
 import '../../../utils/currencies.dart';
 import '../../../widgets/biz/format_money.dart';
 import 'category_detail.dart';
+import 'detail_currency_notice.dart';
 import 'recording_category_icon.dart';
 import 'transaction_tile.dart';
 
@@ -40,11 +41,19 @@ class CategoryDetailSections extends ConsumerWidget {
     final hide = ref.watch(hideAmountsProvider);
     final accounts =
         ref.watch(accountFeatureEnabledProvider).valueOrNull ?? true;
-    final currency = current?.currency ?? 'CNY',
-        symbol = getDistinctCurrencySymbol(current?.currency ?? 'CNY');
-    String number(double value) =>
-        hide ? '••••' : formatMoneyCompact(value, trimZeros: false);
-    String money(double value) => hide ? '••••' : '$symbol${number(value)}';
+    final currency = c.summaryCurrency ?? current?.currency ?? '—',
+        symbol = getDistinctCurrencySymbol(currency);
+    final complete = c.summaryComplete;
+    String number(double value) => hide
+        ? '••••'
+        : complete
+            ? formatMoneyCompact(value, trimZeros: false)
+            : '—';
+    String money(double value) => hide
+        ? '••••'
+        : complete
+            ? '$symbol${number(value)}'
+            : '—';
     String name(Category cat) =>
         CategoryUtils.getDisplayName(cat.name, context, kind: cat.kind);
     final scope = allLedgers ? l.syncHealthGroupAll : current?.name ?? '';
@@ -59,13 +68,13 @@ class CategoryDetailSections extends ConsumerWidget {
         : category.kind == 'transfer'
             ? l.transferTitle
             : l.exportTypeExpense;
-    final metricLabel = allLedgers ? scope : currency;
+    final metricLabel = currency;
     final rows = showAll ? c.rows : c.rows.take(4).toList();
     final days = <DateTime, ({double expense, double income})>{};
     for (final row in c.rows) {
       final date = DateUtils.dateOnly(row.t.happenedAt);
       final old = days[date] ?? (expense: 0.0, income: 0.0);
-      final value = row.t.nativeAmount ?? row.t.amount;
+      final value = c.currencyProjection?.amounts[row.t.id] ?? 0;
       days[date] = (
         expense: old.expense + (row.t.type == 'expense' ? value : 0),
         income: old.income + (row.t.type == 'income' ? value : 0)
@@ -87,7 +96,7 @@ class CategoryDetailSections extends ConsumerWidget {
               '${c.parent == null ? l.v4DetailCategoryChildren(c.children.length) : name(c.parent!)} · $scope',
           icon: RecordingCategoryIcon(category: category, size: 22),
           amountLabel: l.v4DetailAmountLabel(period, kind),
-          prefix: hide ? '' : symbol,
+          prefix: hide || !complete ? '' : symbol,
           amount: number(c.amount),
           metrics: [
             BeeResourceMetric(
@@ -97,9 +106,19 @@ class CategoryDetailSections extends ConsumerWidget {
                 label: l.categoryDetailAverageAmount, value: money(c.average)),
             BeeResourceMetric(
                 label: l.v4DetailShare,
-                value:
-                    hide ? '••••' : '${(c.share * 100).toStringAsFixed(1)}%'),
+                value: hide
+                    ? '••••'
+                    : c.shareComplete
+                        ? '${(c.share * 100).toStringAsFixed(1)}%'
+                        : '—'),
           ]),
+      if (c.currencyProjection != null &&
+          (allLedgers ||
+              !complete ||
+              c.currencyProjection!.hasForeignSources)) ...[
+        const SizedBox(height: 12),
+        detailCurrencyNotice(context, c.currencyProjection!),
+      ],
       const SizedBox(height: 12),
       if (c.children.isNotEmpty) ...[
         BeeSurface(
@@ -116,13 +135,15 @@ class CategoryDetailSections extends ConsumerWidget {
                     final count = c.rows
                         .where((row) => row.category?.id == child.id)
                         .length;
-                    final fraction = c.amount == 0 ? 0.0 : value / c.amount;
+                    final fraction = hide || !complete || c.amount == 0
+                        ? 0.0
+                        : value / c.amount;
                     return BeeResourceBreakdownItem(
                         id: '${child.id}',
                         label: name(child),
                         amount: money(value),
                         detail:
-                            '${l.tagTransactionCount(count)} · ${hide ? '••••' : '${(fraction * 100).toStringAsFixed(1)}%'}',
+                            '${l.tagTransactionCount(count)} · ${hide ? '••••' : complete ? '${(fraction * 100).toStringAsFixed(1)}%' : '—'}',
                         fraction: fraction,
                         icon: RecordingCategoryIcon(category: child, size: 18));
                   }).toList(),
@@ -145,9 +166,9 @@ class CategoryDetailSections extends ConsumerWidget {
         ]),
         const SizedBox(height: 16),
         BeeResourceTrend(
-            values: hide ? const [] : c.trend,
+            values: hide || !complete ? const [] : c.trend,
             label: l.v4DetailTrend,
-            axisLabels: hide || c.trendDates.isEmpty
+            axisLabels: hide || !complete || c.trendDates.isEmpty
                 ? const []
                 : [
                     c.trendDates.first,
@@ -231,9 +252,9 @@ class CategoryDetailSections extends ConsumerWidget {
                           .formatMediumDate(date),
                       date: '',
                       totals: [
-                        if (totals.expense != 0)
+                        if (!complete || totals.expense != 0)
                           '${l.searchSummaryExpense} ${money(totals.expense)}',
-                        if (totals.income != 0)
+                        if (!complete || totals.income != 0)
                           '${l.searchSummaryIncome} ${money(totals.income)}'
                       ]),
                 TransactionTileBinding(

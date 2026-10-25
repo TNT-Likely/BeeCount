@@ -10,6 +10,7 @@ import '../../../utils/currencies.dart';
 import '../../../widgets/biz/format_money.dart';
 import 'recording_category_icon.dart';
 import 'tag_detail.dart';
+import 'detail_currency_notice.dart';
 import 'transaction_tile.dart';
 
 class TagDetailSections extends ConsumerWidget {
@@ -43,10 +44,21 @@ class TagDetailSections extends ConsumerWidget {
     final totals = stats.valueOrNull;
     final color =
         tagDetailColor(tag.color, Theme.of(context).colorScheme.primary);
-    final symbol = getDistinctCurrencySymbol(book?.currency ?? 'CNY');
-    String number(double value) =>
-        hide ? '••••' : formatMoneyCompact(value, trimZeros: false);
-    String money(double value) => hide ? '••••' : '$symbol${number(value)}';
+    final projection = resource?.currency;
+    final complete =
+        projection?.complete == true && !data.isLoading && !stats.isLoading;
+    final symbol = getDistinctCurrencySymbol(
+        projection?.targetCurrency ?? book?.currency ?? '—');
+    String number(double value) => hide
+        ? '••••'
+        : complete
+            ? formatMoneyCompact(value, trimZeros: false)
+            : '—';
+    String money(double value) => hide
+        ? '••••'
+        : complete
+            ? '$symbol${number(value)}'
+            : '—';
     final categories = {
       for (final row in rows)
         if (row.category != null) row.category!.id: row.category!
@@ -60,7 +72,7 @@ class TagDetailSections extends ConsumerWidget {
       }
       final id = row.category!.id, old = breakdown[row.category!.id];
       breakdown[id] = (
-        amount: (old?.amount ?? 0) + (row.t.nativeAmount ?? row.t.amount),
+        amount: (old?.amount ?? 0) + (projection?.amounts[row.t.id] ?? 0),
         count: (old?.count ?? 0) + 1
       );
     }
@@ -73,7 +85,7 @@ class TagDetailSections extends ConsumerWidget {
       final day = DateUtils.dateOnly(row.t.happenedAt.toLocal()),
           old = days[DateUtils.dateOnly(row.t.happenedAt.toLocal())] ??
               (expense: 0.0, income: 0.0);
-      final amount = row.t.nativeAmount ?? row.t.amount;
+      final amount = projection?.amounts[row.t.id] ?? 0;
       // Keep the original daily grouping and daily totals, including flags.
       days[day] = (
         expense: old.expense + (row.t.type == 'expense' ? amount : 0),
@@ -93,7 +105,7 @@ class TagDetailSections extends ConsumerWidget {
           icon: BeeLineIcon('Tag', color: color),
           amountLabel: l.tagDetailTotalExpense,
           amount: totals == null ? '—' : number(totals.expense),
-          prefix: hide || totals == null ? '' : symbol,
+          prefix: hide || totals == null || !complete ? '' : symbol,
           metrics: [
             BeeResourceMetric(
                 label: l.tagDetailTotalIncome,
@@ -106,12 +118,11 @@ class TagDetailSections extends ConsumerWidget {
                 value:
                     totals == null ? '—' : l.tagTransactionCount(totals.count))
           ]),
-      if (allLedgers)
+      if (projection != null &&
+          (allLedgers || !complete || projection.hasForeignSources))
         Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(l.v4TagOriginalLedgerTotals,
-                style: TextStyle(
-                    fontSize: 11, color: Theme.of(context).hintColor))),
+            padding: const EdgeInsets.only(top: 8),
+            child: detailCurrencyNotice(context, projection)),
       if (stats.hasError || data.hasError)
         BeeStatus(
             label: l.commonError,
@@ -136,8 +147,9 @@ class TagDetailSections extends ConsumerWidget {
                           kind: categories[id]!.kind),
                       amount: money(breakdown[id]!.amount),
                       detail: l.tagTransactionCount(breakdown[id]!.count),
-                      fraction:
-                          expense == 0 ? 0 : breakdown[id]!.amount / expense,
+                      fraction: hide || !complete || expense == 0
+                          ? 0
+                          : breakdown[id]!.amount / expense,
                       icon: RecordingCategoryIcon(
                           category: categories[id]!, size: 18))
               ], onSelected: (id) => onCategory(categories[int.parse(id)]!))
@@ -192,9 +204,9 @@ class TagDetailSections extends ConsumerWidget {
                           .formatMediumDate(date),
                       date: '',
                       totals: [
-                        if (total.expense != 0)
+                        if (!complete || total.expense != 0)
                           '${l.searchSummaryExpense} ${money(total.expense)}',
-                        if (total.income != 0)
+                        if (!complete || total.income != 0)
                           '${l.searchSummaryIncome} ${money(total.income)}'
                       ]),
                 TransactionTileBinding(

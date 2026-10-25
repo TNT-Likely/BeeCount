@@ -4,6 +4,7 @@ import '../../../data/db.dart' as db;
 import '../../../providers.dart';
 import '../../../utils/month_range.dart';
 import 'transaction_search.dart';
+import 'detail_currency_totals.dart';
 
 enum TagDetailPeriod { month, year, all }
 
@@ -29,13 +30,25 @@ final tagDetailTagProvider = StreamProvider.autoDispose.family<db.Tag?, int>(
     (ref, id) => ref.watch(repositoryProvider).watchTag(id));
 
 final tagDetailStatsProvider = FutureProvider.autoDispose
-    .family<TagDetailStats, TagDetailScope>((ref, scope) {
+    .family<TagDetailStats, TagDetailScope>((ref, scope) async {
   ref.watch(tagListRefreshProvider);
-  ref.watch(statsRefreshProvider);
-  ref.watch(syncGenerationProvider);
-  ref.watch(tagDetailTransactionsProvider(scope));
-  return ref.watch(repositoryProvider).getTagStats(scope.tagId,
-      ledgerId: scope.ledgerId, start: scope.start, end: scope.end);
+  final stream = ref.watch(tagDetailTransactionsProvider(scope));
+  final List<db.Transaction> transactions = stream.hasValue
+      ? stream.requireValue
+      : await ref.watch(tagDetailTransactionsProvider(scope).future);
+  final data = await ref.watch(tagDetailRowsProvider(transactions).future);
+  double total(String kind) => transactions
+      .where((transaction) =>
+          transaction.type == kind && !transaction.excludeFromStats)
+      .fold(
+          0.0,
+          (sum, transaction) =>
+              sum + (data.currency.amounts[transaction.id] ?? 0));
+  return (
+    count: transactions.length,
+    expense: total('expense'),
+    income: total('income')
+  );
 });
 
 final tagDetailTransactionsProvider = StreamProvider.autoDispose
@@ -45,15 +58,18 @@ final tagDetailTransactionsProvider = StreamProvider.autoDispose
             ledgerId: scope.ledgerId, start: scope.start, end: scope.end));
 
 class TagDetailRows {
-  const TagDetailRows(this.rows, this.tags, this.attachments, this.ledgers);
+  const TagDetailRows(
+      this.rows, this.tags, this.attachments, this.ledgers, this.currency);
   final List<SearchTransaction> rows;
   final Map<int, List<db.Tag>> tags;
   final Map<int, int> attachments;
   final Map<int, db.Ledger> ledgers;
+  final DetailCurrencyProjection currency;
 }
 
 /// Hydrate in batches, outside business-ui. Original transaction snapshots stay
-/// intact; no conversion using current quotes and no per-row requests.
+/// intact; one read-only currency context converts their ledger-native snapshots
+/// to the current ledger currency, without per-row rate requests.
 final tagDetailRowsProvider = FutureProvider.autoDispose
     .family<TagDetailRows, List<db.Transaction>>((ref, transactions) async {
   ref.watch(syncGenerationProvider);
@@ -61,7 +77,8 @@ final tagDetailRowsProvider = FutureProvider.autoDispose
   final repo = ref.watch(repositoryProvider);
   final categories = await repo.getAllCategoriesIncludingShared();
   final accounts = await repo.getAllAccounts();
-  final ledgers = await repo.getAllLedgers();
+  final currencyContext = await ref.watch(detailCurrencyContextProvider.future);
+  final ledgers = currencyContext.ledgers;
   final ids = transactions.map((t) => t.id).toList();
   final tags = await repo.getTagsForTransactions(ids);
   final attachments = await repo.getAttachmentCountsForTransactions(ids);
@@ -106,7 +123,8 @@ final tagDetailRowsProvider = FutureProvider.autoDispose
       }).toList(),
       tags,
       attachments,
-      {for (final ledger in ledgers) ledger.id: ledger});
+      ledgers,
+      projectDetailCurrencyTransactions(currencyContext, transactions));
 });
 
 Color tagDetailColor(String? hex, Color fallback) {

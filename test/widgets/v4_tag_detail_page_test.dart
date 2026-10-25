@@ -167,17 +167,28 @@ void main() {
     await close(tester);
   });
 
-  testWidgets('当前与全部账本范围保持原金额口径及来源账本', (tester) async {
+  testWidgets('全部范围以当前账本币种折算，明细保留原账本快照', (tester) async {
     await tx(amount: 10, native: 10, currency: 'CNY');
     await tx(amount: 20, native: 20, ledger: 2);
+    await repo.setOverride(base: 'CNY', quote: 'USD', rate: '7.1');
     await open(tester);
     expect(section(tester).stats.requireValue.count, 1);
     await close(tester);
     await open(tester, all: true);
     expect(section(tester).stats.requireValue,
-        (count: 2, expense: 30.0, income: 0.0));
+        (count: 2, expense: 152.0, income: 0.0));
     expect(section(tester).data.requireValue.ledgers[2]!.currency, 'USD');
-    expect(find.text('按原账本金额汇总'), findsOneWidget);
+    final l = AppLocalizations.of(tester.element(find.byType(TagDetailPage)));
+    expect(find.text(l.v4DetailConvertedScope('CNY')), findsOneWidget);
+    expect(
+        section(tester)
+            .data
+            .requireValue
+            .rows
+            .singleWhere((r) => r.t.ledgerId == 2)
+            .t
+            .nativeAmount,
+        20);
     await close(tester);
   });
 

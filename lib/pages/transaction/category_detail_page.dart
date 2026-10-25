@@ -51,12 +51,13 @@ class _CategoryDetailState extends ConsumerState<CategoryDetailPage> {
     super.dispose();
   }
 
-  void _ensure(int? ledgerId) {
+  void _ensure(int? ledgerId, int summaryLedgerId) {
     if (_data != null &&
         _data!.ledgerId == ledgerId &&
         _data!.categoryId == widget.categoryId &&
         _data!.initialStart == widget.startDate &&
         _data!.initialEnd == widget.endDate) {
+      unawaited(_data!.setSummaryLedger(summaryLedgerId));
       return;
     }
     _data?.dispose();
@@ -64,6 +65,7 @@ class _CategoryDetailState extends ConsumerState<CategoryDetailPage> {
         repository: ref.read(repositoryProvider),
         categoryId: widget.categoryId,
         ledgerId: ledgerId,
+        summaryLedgerId: summaryLedgerId,
         initialStart: widget.startDate,
         initialEnd: widget.endDate)
       ..sort = ref.read(categoryDetailSortProvider(widget.categoryId));
@@ -180,7 +182,18 @@ class _CategoryDetailState extends ConsumerState<CategoryDetailPage> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context),
         ledgerId = ref.watch(currentLedgerIdProvider);
-    _ensure(widget.allLedgers ? null : ledgerId);
+    _ensure(widget.allLedgers ? null : ledgerId, ledgerId);
+    ref.listen(rateRefreshTickProvider,
+        (_, __) => unawaited(_data?.refreshResources()));
+    ref.listen(
+        statsRefreshProvider, (_, __) => unawaited(_data?.refreshResources()));
+    ref.listen(syncGenerationProvider,
+        (_, __) => unawaited(_data?.refreshResources()));
+    ref.listen(currentLedgerProvider, (previous, next) {
+      if (previous?.valueOrNull?.currency != next.valueOrNull?.currency) {
+        unawaited(_data?.refreshResources());
+      }
+    });
     final c = _data!;
     return AnimatedBuilder(
         animation: c,
