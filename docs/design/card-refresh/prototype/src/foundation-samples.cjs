@@ -14,3 +14,5 @@ module.exports.choiceChips += `<div style="margin-top:8px;min-height:44px;displa
 
 module.exports.choiceChips += `<div class="v4-wrap" style="margin-top:8px"><span class="v4-info-label" data-accent>内置服务</span><span class="v4-info-label">${icon('circle-check')}已配置</span><span class="v4-info-label" data-muted>未启用</span></div><p class="v4-small">静态信息标签：11号字、8×3内距、8圆角；不承担选择或点击。</p>`;
 module.exports.inputStates += `<label class="v4-input">外置字段标题<input aria-label="外置字段标题" placeholder="标题只出现一次，保留无障碍标签"></label>`;
+module.exports.codeEditor = `<label class="v4-input">代码与模板<textarea class="a83-code" rows="3" style="min-height:84px" aria-label="代码与模板">template {{VALUE}}</textarea></label>`;
+module.exports.codeBlock = `<pre class="a83-code-block">source {{VALUE}}\nSelectable and wrapping</pre>`;

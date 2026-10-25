@@ -549,6 +549,13 @@
         "title": "AI服务商与连接测试",
         "nativeCase": 55,
         "nativeLabel": "AI服务商与连接测试"
+      },
+      {
+        "id": "spec-78",
+        "code": "B53",
+        "title": "提示词草稿与变量",
+        "nativeCase": 56,
+        "nativeLabel": "提示词草稿与变量"
       }
     ]
   }

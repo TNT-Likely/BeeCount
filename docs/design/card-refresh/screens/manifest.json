@@ -971,9 +971,9 @@
   },
   {
     "route": "flow-prompt",
-    "slug": "flow-prompt",
-    "title": "识别提示词",
+    "title": "提示词编辑",
     "group": "补齐 · AI 与助手",
+    "slug": "flow-prompt",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-prompt.png",
     "full": "screens/full/flow-prompt.png",
@@ -3432,5 +3432,65 @@
     "viewport": "screens/viewport/flow-provider-delete.png",
     "full": "screens/full/flow-provider-delete.png",
     "svg": "figma/flow-provider-delete.svg"
+  },
+  {
+    "route": "flow-prompt-draft",
+    "title": "提示词 · 编辑草稿",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-prompt-draft",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-prompt-draft.png",
+    "full": "screens/full/flow-prompt-draft.png",
+    "svg": "figma/flow-prompt-draft.svg"
+  },
+  {
+    "route": "flow-prompt-missing",
+    "title": "提示词 · 缺失能力",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-prompt-missing",
+    "fullHeight": 1052,
+    "viewport": "screens/viewport/flow-prompt-missing.png",
+    "full": "screens/full/flow-prompt-missing.png",
+    "svg": "figma/flow-prompt-missing.svg"
+  },
+  {
+    "route": "flow-prompt-complete",
+    "title": "提示词 · 完整变量",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-prompt-complete",
+    "fullHeight": 1305,
+    "viewport": "screens/viewport/flow-prompt-complete.png",
+    "full": "screens/full/flow-prompt-complete.png",
+    "svg": "figma/flow-prompt-complete.svg"
+  },
+  {
+    "route": "flow-prompt-preview",
+    "title": "提示词预览 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-prompt-preview",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-prompt-preview.png",
+    "full": "screens/full/flow-prompt-preview.png",
+    "svg": "figma/flow-prompt-preview.svg"
+  },
+  {
+    "route": "flow-prompt-reset",
+    "title": "恢复默认 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-prompt-reset",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-prompt-reset.png",
+    "full": "screens/full/flow-prompt-reset.png",
+    "svg": "figma/flow-prompt-reset.svg"
+  },
+  {
+    "route": "flow-prompt-share",
+    "title": "分享提示词 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-prompt-share",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-prompt-share.png",
+    "full": "screens/full/flow-prompt-share.png",
+    "svg": "figma/flow-prompt-share.svg"
   }
 ]
