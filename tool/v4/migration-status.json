@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T22:38:33.093795+08:00",
+  "updated": "2026-10-25T23:55:48.883991+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -127,8 +127,8 @@
     "auth/login_page.dart": {
       "name": "云账号登录",
       "priority": "P1",
-      "reason": "r91六类服务、四配置弹窗、完整教程/登录/记住账号与原服务契约已组件化，41项模拟鉴权/MockClient/widget及9文件静态检查通过；未访问真实网络/Cloud或设备，待统一集成和实服验收。",
-      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
+      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
+      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
       "components": "登录表单、安全输入、验证码与错误反馈",
       "acceptance": "原账号/验证方式、合法输入、加载防重、取消、登录失败/恢复和实际鉴权。",
       "implementationStage": "implemented"
@@ -229,8 +229,8 @@
     "cloud/beecount_cloud_sync_page.dart": {
       "name": "BeeCount Cloud 同步",
       "priority": "P1",
-      "reason": "R111实际A登录/首push book8七笔；Root分别取实际App SQLite、Cloud SQL、正式sync/full及两端真实文件bytes，7identity/历史金额/关系/标签/附件exact0issues。原31本地表财务保护，AI key/models/bindings仅JSON编码次序变且全字段语义相同；唯一刷新清初读404，当前7/7、全局70/7及预算2/0真实差异保留。待Web回拉/角色/正常入口/报告，不计完整页。",
-      "status": "迁移中·App首次真实push与逐字段对照已验，待双向及角色闭环",
+      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
+      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
       "implementationStage": "implemented"
@@ -238,8 +238,8 @@
     "cloud/cloud_service_page.dart": {
       "name": "云服务配置与账号",
       "priority": "P1",
-      "reason": "r91六类服务、四配置弹窗、完整教程/登录/记住账号与原服务契约已组件化，41项模拟鉴权/MockClient/widget及9文件静态检查通过；未访问真实网络/Cloud或设备，待统一集成和实服验收。",
-      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
+      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
+      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
       "implementationStage": "implemented"
@@ -247,8 +247,8 @@
     "cloud/cloud_sync_page.dart": {
       "name": "云端备份与同步",
       "priority": "P1",
-      "reason": "r95保留原八种同步状态、手动上传/下载、v6差异预览、认证/重登与自动同步；61项模拟/真实SQLite回归通过。旧格式仅追加与原清空承诺不符已增加独立事务适配，现代v6和全部旧方法字节保持；真实Cloud/设备尚未执行，不计完成。",
-      "status": "迁移中·备份同步代码与原子旧格式恢复已交付，待实服及整页验收",
+      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
+      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
       "implementationStage": "implemented"
@@ -256,8 +256,8 @@
     "cloud/invite_page.dart": {
       "name": "共享账本邀请",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
+      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
       "implementationStage": "implemented"
@@ -265,8 +265,8 @@
     "cloud/join_shared_ledger_page.dart": {
       "name": "加入共享账本",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
+      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
       "implementationStage": "implemented"
@@ -274,8 +274,8 @@
     "cloud/member_list_page.dart": {
       "name": "共享成员管理",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
+      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
       "implementationStage": "implemented"
@@ -283,8 +283,8 @@
     "cloud/member_stats_page.dart": {
       "name": "共享成员统计",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
+      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
       "implementationStage": "implemented"
@@ -841,12 +841,12 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T22:06:23+08:00",
-    "scheduledReportAt": "2026-10-25T21:54:00+08:00",
-    "engineeringEstimatePercent": 85,
+    "reportedAt": "2026-10-25T23:55:48.883991+08:00",
+    "scheduledReportAt": "2026-10-25T23:54:00+08:00",
+    "engineeringEstimatePercent": 90,
     "engineeringEstimateRange": [
-      82,
-      88
+      88,
+      93
     ],
     "completedPages": 65,
     "totalPages": 73,
@@ -921,23 +921,39 @@
     ],
     "newlyCompletedSincePreviousReport": [],
     "inProgress": [
-      "C2真实Web原图→App主动分钟/备注→Web回验、Root当前8笔/3refs exact，以及原70全字段/8物理文件保护已冻结；首次671ms精度边界和旧7本重复附件排序比较拒绝继续保留。",
-      "R113已合并普通框架与首次Cloud建账月日参数修复，Android1028提交源含SDK18/APKdd56及iOS888签后/SDK源、同QA无损更新完成；135相关回归和iOS3本地原生用例不能当全云页完成。",
-      "C3唯一editor3天邀请、B Web preview取消/接受、A owner月/年/all（6笔/0笔）及移除取消确认、Web失权实际通过；反向A接受B后全局history replay回退原ledger4月日8→1与已推C2 note/time，目标.31缓存正确，后续原退出仅安全清理。",
-      "安全修复两线：邀请/WS只用正式/full水合目标账本，保护pending/NULL/跨本身份，不动普通增量和全局cursor；启动发现新本也只补拉新增syncIds，避免另一处全局replay。原失败/实际SQL与Cloud正确历史全部保留，不回滚清库。",
-      "DAV专用本0.41/月日起8将复用做真实差异取消/恢复与首次Cloud创建8；统一报告和现有原页面备份保留，v4已推f536，PR575仍CLOSED。"
+      "原8个云服务页关键原生/实服链路完成，5页报告在组装，后3页复用已完成C4资料，不重复UI或造环境。",
+      "Root首Cloud创建：App正常后本12=8/Cloud SQL8/最早创建事件8/formal-full8/count1，原故障Q25与Q26转已解决；旧失败不删。",
+      "Root双账本9笔/3附件refs两侧真实字节严格MATCH；最终72仅原71+专用本12的.41，原71全字段与另外29表/8附件3图保持，Auth/DAV/LRU/cursor/runtime6键变化独立审定。",
+      "用户已批准A洞察与B资产新稿：A Flutter38项/21 Dart analyze0已交付待统一安装，主demo10场景定向同步且其他557保留；B独立实现中。",
+      "C明细行用户要求整条最多3行，新版设计按12,288有效组合/布局上下文与最坏场景检查，仍须再确认后才实现。"
     ],
     "remainingEffortEstimateHours": [
-      9,
-      17
+      6,
+      10
     ],
-    "remainingEffortChangeReason": "维持9–17实际并行小时：C2及owner成员/统计/移除、真实Web失权与iOS本地增量推进，但新发现共享加入全局历史重放导致已同步备注/时间及账期回退；属于高风险真实失败，需目标快照水合及启动新本补拉两条安全修复，复验和DAV/最终报告仍待，不因局部步骤/测试数或墙钟时间线性扣减，估算不是承诺。",
+    "remainingEffortChangeReason": "原7–13主线估算收敛：目标快照安全修复、共享实服角色闭环、DAV真实恢复与首Cloud建账月8已完成，旧73收尾估3–6h；本小时新增并已批准A/B Flutter设计实现及增量原生验收纳入后，当前全部已授权实现约6–10h。C还在最多3行设计确认阶段，实现未计。不是按页数/已耗时间扣减，不是承诺。",
     "implementationStateCounts": {
       "nativeComplete": 65,
       "implementedPendingAcceptance": 8,
       "inImplementation": 0,
-      "additionalSyncSafetyFixInImplementation": 1
-    }
+      "nativeCoreFlowsPassedPendingIndependentReports": 8,
+      "additionalSyncSafetyFixInImplementation": 0,
+      "additionalSyncSafetyFixInstalledPendingFinalNativeClosure": 0,
+      "newApprovedUiImplementationReady": 1,
+      "newApprovedUiInImplementation": 1,
+      "newUnapprovedUiDesignRefinement": 1
+    },
+    "originalMigrationRemainingEffortEstimateHours": [
+      3,
+      6
+    ],
+    "newApprovedDesignImplementationIncluded": [
+      "A",
+      "B"
+    ],
+    "unapprovedDesignImplementationExcluded": [
+      "C"
+    ]
   },
   "pullRequest": {
     "number": 575,
@@ -947,20 +963,20 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T22:38:33.093795+08:00",
-    "engineeringEstimatePercent": 85,
+    "updatedAt": "2026-10-25T23:55:48.883991+08:00",
+    "engineeringEstimatePercent": 90,
     "engineeringEstimateRange": [
-      82,
-      88
+      88,
+      93
     ],
     "completedPages": 65,
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "严格65/73（89.0%）、P0 17/17，仍无新增整页封存。R113真实共享加入发现旧foreign历史覆盖原已推账单note/time与账期；R114 c21b378a改为仅目标正式快照，并保护本地待推变更、HTTP期间账本删除竞态及精确override清理，6文件143项通过。单次提交构建/同QA升级完成，1028产品源/SDK18核验，71笔/all31/24持久文件与Prefs升级前后精确保持；原生C2恢复、fresh B加入/退出及C4 DAV/首次Cloud创建8接续中。快速回归不计整页完成。工程85%（82–88），剩余仍9–17小时，待实际同步闭环后调整。",
+    "basis": "严格封存65/73，P0 17/17，本小时新增封存0；其余8云组关键原生与实服对照现已完成，独立报告待封存。R114143快回归+真实共享加入退出/原71/精确override清理与正常启动通过；DAV实际上传/1备注diff取消恢复/重登/首次Cloud新本8与正常持久化通过。Root两本9笔actual SQL/full/3附件双方bytes严格MATCH，原71及其他29表不变，最终72只新增12/79 .41，6个Prefs变化按原源精确归类。新批准A Flutter38项交付待合入安装、主demo同步；B实现中；C最多3行设计修订待再确认。原迁移收尾3–6h，含已批A/B当前总计6–10h，C设计确认后的实现另计，不按页数外推。",
     "remainingEffortEstimateHours": [
-      9,
-      17
+      6,
+      10
     ],
     "remainingEffortEstimateKind": "并行连续工作小时"
   },
@@ -973,28 +989,7 @@
     "candidateInstalled": false,
     "latestNativeAuditAt": "2026-10-25T20:38:19+08:00"
   },
-  "openRegressions": [
-    {
-      "id": "R111-CLOUD-MONTH-START",
-      "page": "cloud/beecount_cloud_sync_page.dart",
-      "status": "首次创建修复已安装·原UI恢复8曾通过，旧重放另见Q26；新建复验待C4",
-      "reportedPlatform": "Android Redmi / c7 R111 / same isolated Cloud",
-      "sourceFix": "f536d6db081c55bb5f6afce2da092ce5ed1a405f",
-      "summary": "首次Cloud创建账本未传已有月账期8，server默认1随后pull覆盖本地；原9b87也存在。正常MAIN实际捕获，必须修复并通过原UI恢复已知8再复验；不修改比较器或直接回灌DB。",
-      "question": "Q25",
-      "detectedAt": "2026-10-25T21:23:15+08:00"
-    },
-    {
-      "id": "R113-CLOUD-INVITE-REPLAY",
-      "page": "cloud/join_shared_ledger_page.dart",
-      "status": "R114目标快照与启动发现修复已安装·原UI恢复和真实加入/退出复验中",
-      "reportedPlatform": "Android R113 f536 / same isolated Cloud",
-      "sourceFix": "c21b378a0322a0b48da631a9ff438f69574474cc",
-      "summary": "接受共享账本时全局since0重放旧foreign事件，最新自身事件被Cloud/App设备过滤，原账期8→1及已同步新账单note/time回退；Cloud最新正确，原70其余交易/8文件保持。",
-      "question": "Q26",
-      "detectedAt": "2026-10-25T22:06:23+08:00"
-    }
-  ],
+  "openRegressions": [],
   "resolvedRegressions": [
     {
       "id": "R108-HOME-KEYBOARD",
@@ -1005,6 +1000,30 @@
       "summary": "备注键盘导致首页跨紧凑布局边界，列表重复订阅；账单数据保存正确，不重复造数据。",
       "resolvedAt": "2026-10-25T18:36:36+08:00",
       "report": "home-keyboard-r108"
+    },
+    {
+      "id": "R111-CLOUD-MONTH-START",
+      "page": "cloud/beecount_cloud_sync_page.dart",
+      "status": "已修复·实际首次新本App/CloudSQL/首事件/full均8且正常入口持久化通过",
+      "reportedPlatform": "Android Redmi / c7 R111 / same isolated Cloud",
+      "sourceFix": "f536d6db081c55bb5f6afce2da092ce5ed1a405f",
+      "summary": "首次Cloud创建账本未传已有月账期8，server默认1随后pull覆盖本地；原9b87也存在。正常MAIN实际捕获，必须修复并通过原UI恢复已知8再复验；不修改比较器或直接回灌DB。",
+      "question": "Q25",
+      "detectedAt": "2026-10-25T21:23:15+08:00",
+      "resolvedAt": "2026-10-25T23:53:37.317569+08:00",
+      "report": "r114-root-C4-first-Cloud-create-month8-SQL-firstevent-full.json"
+    },
+    {
+      "id": "R113-CLOUD-INVITE-REPLAY",
+      "page": "cloud/join_shared_ledger_page.dart",
+      "status": "已修复·R114真实加入/退出/正常入口及Root全部原数据保护通过",
+      "reportedPlatform": "Android R113 f536 / same isolated Cloud",
+      "sourceFix": "c21b378a0322a0b48da631a9ff438f69574474cc",
+      "summary": "接受共享账本时全局since0重放旧foreign事件，最新自身事件被Cloud/App设备过滤，原账期8→1及已同步新账单note/time回退；Cloud最新正确，原70其余交易/8文件保持。",
+      "question": "Q26",
+      "detectedAt": "2026-10-25T22:06:23+08:00",
+      "resolvedAt": "2026-10-25T23:53:37.317569+08:00",
+      "report": "r114-root-C3-full31-original71-and-target-cleanup-final-review.json"
     }
   ],
   "latestInstalledCandidate": {
@@ -1040,7 +1059,31 @@
     "sourceProductFilesVerified": 1028,
     "qaTransactionsBeforeAndAfterInstall": 71,
     "all24PersistentFilesAndPreferencesBeforeNormalLaunchExact": true,
-    "nativeRecoveryAndFreshTargetJoinLeaveValidation": "in_progress",
-    "ordinaryCursorAndDeviceFilterUnchanged": true
-  }
+    "nativeRecoveryAndFreshTargetJoinLeaveValidation": "passed_Root_independent_and_actual_normal",
+    "ordinaryCursorAndDeviceFilterUnchanged": true,
+    "firstNewCloudMonth8Validation": "passed_actual_App_SQL_first_event_and_formal_full"
+  },
+  "parallelDesignTasks": [
+    {
+      "id": "A",
+      "name": "洞察页交互设计",
+      "status": "已确认，Flutter38项交付待统一合入安装；主demo已同步",
+      "branch": "fix/insights-design-review",
+      "flutterBranch": "refactor/insights-card-layout",
+      "flutterCommit": "16b54efc7d9a837ee89b98bb49f37ccce97e8e76"
+    },
+    {
+      "id": "B",
+      "name": "资产页交互设计",
+      "status": "已确认，Flutter独立实现中",
+      "branch": "fix/assets-design-review",
+      "flutterBranch": "refactor/assets-card-layout"
+    },
+    {
+      "id": "C",
+      "name": "交易明细行多状态设计",
+      "status": "用户要求整条最多3行，新版交互稿修订中，仍待再次确认",
+      "branch": "fix/transaction-row-three-lines"
+    }
+  ]
 }
