@@ -8988,6 +8988,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiProviderHideKey => '隐藏密钥';
+
+  @override
+  String get aiPromptShare => '分享提示词';
+
+  @override
+  String get aiPromptPaste => '粘贴提示词';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

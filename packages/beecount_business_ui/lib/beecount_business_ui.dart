@@ -55,3 +55,4 @@ export 'src/analytics_components.dart';
 export 'src/billing_guide.dart';
 export 'src/ai_configuration.dart';
 export 'src/ai_provider_card.dart';
+export 'src/ai_prompt_document.dart';

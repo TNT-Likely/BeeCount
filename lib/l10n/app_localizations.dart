@@ -16927,6 +16927,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide API key'**
   String get aiProviderHideKey;
+
+  /// No description provided for @aiPromptShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share prompt'**
+  String get aiPromptShare;
+
+  /// No description provided for @aiPromptPaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste prompt'**
+  String get aiPromptPaste;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

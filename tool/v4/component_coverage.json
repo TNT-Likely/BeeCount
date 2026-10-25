@@ -705,5 +705,33 @@
     ],
     "page": "business",
     "case": 55
+  },
+  {
+    "design_key": "codeEditor",
+    "components": [
+      "BeeCodeEditor",
+      "BeeField"
+    ],
+    "page": "foundation",
+    "case": 2
+  },
+  {
+    "design_key": "codeBlock",
+    "components": [
+      "BeeCodeBlock"
+    ],
+    "page": "foundation",
+    "case": 2
+  },
+  {
+    "design_key": "aiPrompt",
+    "components": [
+      "BeePromptVariables",
+      "BeePromptDocument",
+      "BeeCodeEditor",
+      "BeeCodeBlock"
+    ],
+    "page": "business",
+    "case": 56
   }
 ]

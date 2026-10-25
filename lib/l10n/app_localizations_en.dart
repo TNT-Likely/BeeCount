@@ -8996,4 +8996,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiProviderHideKey => 'Hide API key';
+
+  @override
+  String get aiPromptShare => 'Share prompt';
+
+  @override
+  String get aiPromptPaste => 'Paste prompt';
 }

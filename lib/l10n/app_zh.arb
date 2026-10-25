@@ -3721,5 +3721,7 @@
   "v4AnalyticsView": "统计视角",
   "v4AnalyticsRecalculate": "补折算",
   "aiProviderShowKey": "显示密钥",
-  "aiProviderHideKey": "隐藏密钥"
+  "aiProviderHideKey": "隐藏密钥",
+  "aiPromptShare": "分享提示词",
+  "aiPromptPaste": "粘贴提示词"
 }
