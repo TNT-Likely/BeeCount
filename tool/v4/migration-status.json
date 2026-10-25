@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T20:38:19+08:00",
+  "updated": "2026-10-25T20:56:56+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -841,14 +841,14 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T19:55:17+08:00",
-    "scheduledReportAt": "2026-10-25T19:54:00+08:00",
-    "engineeringEstimatePercent": 78,
+    "reportedAt": "2026-10-25T20:54:30+08:00",
+    "scheduledReportAt": "2026-10-25T20:54:00+08:00",
+    "engineeringEstimatePercent": 84,
     "engineeringEstimateRange": [
-      75,
-      81
+      81,
+      87
     ],
-    "completedPages": 57,
+    "completedPages": 65,
     "totalPages": 73,
     "completedP0Pages": 17,
     "totalExistingP0Pages": 17,
@@ -859,6 +859,7 @@
       "净资产趋势",
       "AI 活动记录",
       "AI 助手设置",
+      "AI 记忆管理",
       "AI 权限管理",
       "AI 对话与执行",
       "AI 提示词编辑",
@@ -869,6 +870,7 @@
       "PIN 设置与确认",
       "启动页",
       "欢迎与初始化全流程",
+      "Android 自动记账设置",
       "iOS 自动记账设置",
       "预算编辑",
       "预算总览",
@@ -877,11 +879,16 @@
       "分类管理与工具",
       "分类迁移",
       "汇率管理",
+      "账单导出",
+      "导入映射、预览与结果",
+      "账单导入入口",
+      "打赏支持",
       "统计与洞察",
       "首页明细",
       "账本管理与切换",
       "我的、昵称与当前账本",
       "孤儿数据清理",
+      "年度账单",
       "关于与检查更新",
       "应用锁设置",
       "显示与外观设置",
@@ -909,26 +916,34 @@
       "周期账单列表",
       "账单搜索与批量操作",
       "记账、新增、编辑与复制",
-      "账单详情"
+      "账单详情",
+      "分享卡片"
     ],
     "newlyCompletedSincePreviousReport": [
-      "AI 权限管理",
-      "AI 活动记录"
+      "AI 记忆管理",
+      "Android 自动记账设置",
+      "账单导出",
+      "导入映射、预览与结果",
+      "账单导入入口",
+      "打赏支持",
+      "年度账单",
+      "分享卡片"
     ],
     "inProgress": [
-      "R111 iOS确认框/三footer/Q19主题与真实系统分享取消、Donation生产SDK空商品/返回及一次共同正常main已完成4原生case；31表/3财务行/21旧PNG保护，只新增2真实导出PNG。Root已核15增量截图，4独立页报告收尾未提前计页。",
-      "同一Android真实6行导入、7行12列BOM导出（Root84单元格独立SQL一致）及实际双附件选择/保存已完成；原压缩设置JPEG字节保留.png名如实记录，正在实际预览/末重启，再一次更新候选后连贯验自动记账与Cloud。",
-      "原iOS专职切换到同一Cloud真实Web准备，沿用既有普通owner/editor和私有profile；当前只授权真实网页登录/auth会话准备，暂未App首次push或Web业务写入，不把HTTP准备当同步通过。",
-      "Android/iOS(转Web)/报告/Root比较与产物核验四线并行；同一run/旧页面备份和原应用数据持续保护，PR575保持CLOSED，v4已推送至c7d64218。"
+      "C2固定c7：同一Cloud真实Web已新增唯一0.37本币账单和原图1024×768/986065B，Root独立SQL/实际文件一致；原8云端交易/4文件与全部资源保持，Android按syncId实际拉回/预览和仅新备注回推进行中，不提前计Cloud整页。",
+      "C3接续R112：A owner邀请B、B Web加入A、App成员与三scope统计/移除取消确认；A App加入既有B本、editor资源及退出取消确认，沿原owner/editor能力，不新增viewer/转让。",
+      "ea44ac70仅统一9普通弹窗与Auto操作样式，247相关测试/11文件分析/42协议字节保护通过；仍待C2后同环境一次候选更新和原生视觉增量，不将测试量算页数。",
+      "旧云DAV上传/差异恢复待实际App路径；只读发现v6账单JSON原合同不带部分多币种/标记且不备份图片字节，拟仅新C2记录note-only恢复并独立保护原70笔/文件，不用共享镜像本或原book1。",
+      "Android原生、Web联调、报告草稿与Root核对并行；复用同一QA/私有账号/备份，v4已推送ea44ac70，PR575保持CLOSED。"
     ],
     "remainingEffortEstimateHours": [
       9,
       17
     ],
-    "remainingEffortChangeReason": "从10–18略降为9–17：iOS跨本记忆/活动和R111最小视觉/真实SDK空态批次均已实际闭环、原生与独立报告脱钩，OEM PhotoPicker归属/checkbox与真实双附件已跑通；腾出的iOS代理转做同Cloud Web并行。Cloud双向、共享角色、Web回拉与文件恢复仍未真正闭环，保留宽区间，不按页数或测试数线性外推，不是承诺。",
+    "remainingEffortChangeReason": "维持9–17个实际并行工作小时：8页从已执行/报告待封存进入严格完成，App首次推送和Web新账单/原图实链已通过，四线分工减少等待；App回传、共享加入/撤权和旧DAV备份恢复仍未闭环，v6旧格式边界需要保护，R112需一次统一原生增量，因此不按8页或一小时墙钟机械扣减，也不是交付承诺。",
     "implementationStateCounts": {
-      "nativeComplete": 57,
-      "implementedPendingAcceptance": 16,
+      "nativeComplete": 65,
+      "implementedPendingAcceptance": 8,
       "inImplementation": 0
     }
   },
@@ -940,7 +955,7 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T20:38:19+08:00",
+    "updatedAt": "2026-10-25T20:54:30+08:00",
     "engineeringEstimatePercent": 84,
     "engineeringEstimateRange": [
       81,
@@ -950,7 +965,7 @@
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "严格65/73（89.0%），P0全17；Android自动记账设置整页封存。Cloud方向1：真实App7/Cloud SQL7/正式full7与两实际文件bytes独立exact0issues，原70/AI配置保持；UI初读stats404在唯一后续Refresh消失，global70/7差异如实保留。Web A正在新增独立0.37账单/合成PNG作Web→App→Web三向验证，Cloud页尚不提前计，剩余8源页面权重高，ETA仍9–17小时。",
+    "basis": "严格65/73（89.0%），P0全17；本小时8页报告封存。C1真实App→Cloud当前7笔/2附件三份逐字段及物理字节一致；C2真实Web新增0.37/3标签/单原图986065B已完成，原Cloud8笔4文件与资源保持，Android拉回及回推进行中。R112普通框架7产品/4测试已提交，247相关测试与42保护通过，但未安装不算新增原生。余8页已实现，重心为云往返/角色/恢复。 C2首次App拉回仅毫秒不匹配，已证旧Drift秒存储边界Q24；原比较失败保留，未降低比较标准。",
     "remainingEffortEstimateHours": [
       9,
       17
