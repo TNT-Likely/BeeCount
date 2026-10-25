@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
@@ -304,7 +305,7 @@ void main() {
       (await t.runAsync(operation))!;
   scenario('日志四级别三来源均保留，最新在前并响应真实日志监听', (t) async {
     await show(t, const LogCenterPage(), platform: TargetPlatform.macOS);
-    expect(find.byType(FilterChip), findsNWidgets(7));
+    expect(find.byType(BeeChoiceChip), findsNWidgets(7));
     expect(find.text('${l.logCenterFiltered}: 12'), findsOneWidget);
     source.info('new-owned', 'New owned log');
     await flush(t);
@@ -345,7 +346,7 @@ void main() {
   for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
     scenario('日志${platform.name}仅隐藏对方平台筛选入口仍保留原默认所有来源', (t) async {
       await show(t, const LogCenterPage(), platform: platform);
-      expect(find.byType(FilterChip), findsNWidgets(6));
+      expect(find.byType(BeeChoiceChip), findsNWidgets(6));
       expect(
           find.byKey(ValueKey(
               'maintenance-source-${platform == TargetPlatform.android ? 'ios' : 'android'}')),
@@ -353,6 +354,178 @@ void main() {
       expect(find.text('${l.logCenterFiltered}: 12'), findsOneWidget);
     });
   }
+  for (final brightness in Brightness.values) {
+    for (final accent in [const Color(0xfffacb16), const Color(0xff219670)]) {
+      scenario('日志compact标签跟随主题${brightness.name} ${accent.hashCode}',
+          (t) async {
+        await t.pumpWidget(MaterialApp(
+            theme: beeTheme(brightness: brightness, accent: accent),
+            home: Scaffold(
+                body: BeeMaintenanceLogFilters(
+                    levelLabel: 'Level',
+                    sourceLabel: 'Source',
+                    levels: [
+                  BeeMaintenanceFilterChoice(
+                      key: const ValueKey('compact-on'),
+                      label: 'DEBUG',
+                      selected: true,
+                      onSelected: (_) {}),
+                  BeeMaintenanceFilterChoice(
+                      key: const ValueKey('compact-off'),
+                      label: 'INFO',
+                      selected: false,
+                      onSelected: (_) {})
+                ],
+                    sources: const []))));
+        await t.pumpAndSettle();
+        Material visual(Key key) => t.widget<Material>(find.descendant(
+            of: find.byKey(key),
+            matching: find.byKey(const ValueKey('bee-choice-chip-visual'))));
+        expect(visual(const ValueKey('compact-on')).color,
+            accent.withValues(alpha: .14));
+        expect(
+            (visual(const ValueKey('compact-on')).shape!
+                    as RoundedRectangleBorder)
+                .side
+                .color,
+            accent);
+        expect(visual(const ValueKey('compact-off')).color,
+            BeeCardTheme.fromBrightness(brightness).soft);
+        for (final chip
+            in t.widgetList<BeeChoiceChip>(find.byType(BeeChoiceChip))) {
+          expect(chip.compact, isTrue);
+        }
+      });
+    }
+  }
+  scenario('日志compact多选受控回调允许零选并保留checked语义', (t) async {
+    final semantics = t.ensureSemantics();
+    try {
+      final levels = <String>{'DEBUG', 'INFO', 'WARN', 'ERROR'},
+          sources = <String>{'Flutter', 'Android'};
+      final events = <String>[];
+      var acceptChanges = false;
+      await t.pumpWidget(MaterialApp(
+          theme: beeTheme(),
+          home: Scaffold(body: StatefulBuilder(builder: (context, update) {
+            List<BeeMaintenanceFilterChoice> choices(
+                    List<String> labels, Set<String> selected) =>
+                labels
+                    .map((label) => BeeMaintenanceFilterChoice(
+                        key: ValueKey('controlled-$label'),
+                        label: label,
+                        selected: selected.contains(label),
+                        onSelected: (value) {
+                          events.add('$label=$value');
+                          if (acceptChanges) {
+                            update(() => value
+                                ? selected.add(label)
+                                : selected.remove(label));
+                          }
+                        }))
+                    .toList();
+            return BeeMaintenanceLogFilters(
+                levelLabel: 'Level',
+                sourceLabel: 'Source',
+                levels: choices(['DEBUG', 'INFO', 'WARN', 'ERROR'], levels),
+                sources: choices(['Flutter', 'Android'], sources));
+          }))));
+      await t.pumpAndSettle();
+      final debug = find.byKey(const ValueKey('controlled-DEBUG'));
+      expect(t.getSemantics(debug).hasFlag(ui.SemanticsFlag.isChecked), isTrue);
+      expect(
+          t.getSemantics(debug).hasFlag(ui.SemanticsFlag.isSelected), isFalse);
+      await t.tap(debug);
+      await t.pump();
+      expect(events, ['DEBUG=false']);
+      expect(t.widget<BeeChoiceChip>(debug).selected, isTrue);
+      acceptChanges = true;
+      for (final label in [
+        'DEBUG',
+        'INFO',
+        'WARN',
+        'ERROR',
+        'Flutter',
+        'Android'
+      ]) {
+        await t.tap(find.byKey(ValueKey('controlled-$label')));
+        await t.pump();
+      }
+      expect(levels, isEmpty);
+      expect(sources, isEmpty);
+      expect(t.getSemantics(debug).hasFlag(ui.SemanticsFlag.hasCheckedState),
+          isTrue);
+      expect(
+          t.getSemantics(debug).hasFlag(ui.SemanticsFlag.isChecked), isFalse);
+      await t.tap(find.byKey(const ValueKey('controlled-INFO')));
+      await t.pump();
+      expect(levels, {'INFO'});
+      expect(sources, isEmpty);
+      expect(events.last, 'INFO=true');
+    } finally {
+      semantics.dispose();
+    }
+  });
+  scenario('日志compact四级别普通字号同排，34视觉44触控与11字体', (t) async {
+    var directory = File(Platform.resolvedExecutable).parent;
+    while (!Directory('${directory.path}/material_fonts').existsSync() &&
+        directory.parent.path != directory.path) {
+      directory = directory.parent;
+    }
+    final loader = FontLoader('MaintenanceCompactRoboto');
+    for (final weight in ['Regular', 'Bold']) {
+      final bytes = await t.runAsync(() =>
+          File('${directory.path}/material_fonts/Roboto-$weight.ttf')
+              .readAsBytes());
+      loader.addFont(Future.value(ByteData.sublistView(bytes!)));
+    }
+    await t.runAsync(loader.load);
+    t.view.devicePixelRatio = 3;
+    t.view.physicalSize = const Size(406 * 3, 900 * 3);
+    addTearDown(t.view.resetDevicePixelRatio);
+    addTearDown(t.view.resetPhysicalSize);
+    final theme = beeTheme();
+    await t.pumpWidget(MaterialApp(
+        theme: theme.copyWith(
+            textTheme:
+                theme.textTheme.apply(fontFamily: 'MaintenanceCompactRoboto')),
+        home: Scaffold(
+            body: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 17),
+                child: BeeMaintenanceLogFilters(
+                    levelLabel: 'Level',
+                    sourceLabel: 'Source',
+                    levels: [
+                      for (final level in ['DEBUG', 'INFO', 'WARN', 'ERROR'])
+                        BeeMaintenanceFilterChoice(
+                            key: ValueKey('metrics-$level'),
+                            label: level,
+                            selected: true,
+                            onSelected: (_) {})
+                    ],
+                    sources: const [])))));
+    await t.pumpAndSettle();
+    final tops = <double>[];
+    for (final level in ['DEBUG', 'INFO', 'WARN', 'ERROR']) {
+      final chip = find.byKey(ValueKey('metrics-$level'));
+      tops.add(t.getTopLeft(chip).dy);
+      expect(t.getSize(chip).height, greaterThanOrEqualTo(44));
+      expect(
+          t
+              .getSize(find.descendant(
+                  of: chip,
+                  matching:
+                      find.byKey(const ValueKey('bee-choice-chip-visual'))))
+              .height,
+          34);
+      final label =
+          t.widget<Text>(find.descendant(of: chip, matching: find.text(level)));
+      expect(label.style!.fontSize, 11);
+      expect(label.style!.height, 1.5);
+    }
+    expect(tops.toSet(), hasLength(1));
+    expect(t.takeException(), isNull);
+  });
   scenario('日志搜索图标和边框沿用基础搜索规范，避免前缀被输入框撑大', (t) async {
     await show(t, const LogCenterPage());
     final field = find.byKey(const ValueKey('maintenance-log-search'));

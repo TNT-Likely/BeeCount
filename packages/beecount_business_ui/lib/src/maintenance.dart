@@ -124,9 +124,10 @@ class BeeMaintenanceLogFilters extends StatelessWidget {
         const SizedBox(height: 8),
         Wrap(spacing: 8, runSpacing: 4, children: [
           for (final item in levels)
-            FilterChip(
+            BeeChoiceChip(
                 key: item.key,
-                label: Text(item.label),
+                compact: true,
+                label: item.label,
                 selected: item.selected,
                 onSelected: item.onSelected)
         ]),
@@ -136,9 +137,10 @@ class BeeMaintenanceLogFilters extends StatelessWidget {
         const SizedBox(height: 8),
         Wrap(spacing: 8, runSpacing: 4, children: [
           for (final item in sources)
-            FilterChip(
+            BeeChoiceChip(
                 key: item.key,
-                label: Text(item.label),
+                compact: true,
+                label: item.label,
                 selected: item.selected,
                 onSelected: item.onSelected)
         ]),
