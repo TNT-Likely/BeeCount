@@ -2616,6 +2616,252 @@
     "source": "report/share_card_page.dart"
   },
   {
+    "route": "flow-advanced-memory",
+    "title": "本地记忆",
+    "group": "AI高级设置",
+    "source": "ai/agent_memory_page.dart"
+  },
+  {
+    "route": "flow-advanced-memory-empty",
+    "title": "本地记忆",
+    "group": "AI高级设置",
+    "source": "ai/agent_memory_page.dart"
+  },
+  {
+    "route": "flow-advanced-memory-loading",
+    "title": "本地记忆",
+    "group": "AI高级设置",
+    "source": "ai/agent_memory_page.dart"
+  },
+  {
+    "route": "flow-advanced-memory-error",
+    "title": "本地记忆",
+    "group": "AI高级设置",
+    "source": "ai/agent_memory_page.dart"
+  },
+  {
+    "route": "flow-advanced-memory-global",
+    "title": "本地记忆",
+    "group": "AI高级设置",
+    "source": "ai/agent_memory_page.dart"
+  },
+  {
+    "route": "flow-advanced-permissions",
+    "title": "AI助手权限",
+    "group": "AI高级设置",
+    "source": "ai/agent_permissions_page.dart"
+  },
+  {
+    "route": "flow-advanced-permissions-modified",
+    "title": "AI助手权限",
+    "group": "AI高级设置",
+    "source": "ai/agent_permissions_page.dart"
+  },
+  {
+    "route": "flow-advanced-permissions-error",
+    "title": "AI助手权限",
+    "group": "AI高级设置",
+    "source": "ai/agent_permissions_page.dart"
+  },
+  {
+    "route": "flow-advanced-activity",
+    "title": "最近活动",
+    "group": "AI高级设置",
+    "source": "ai/agent_activity_page.dart"
+  },
+  {
+    "route": "flow-advanced-activity-empty",
+    "title": "最近活动",
+    "group": "AI高级设置",
+    "source": "ai/agent_activity_page.dart"
+  },
+  {
+    "route": "flow-advanced-activity-error",
+    "title": "最近活动",
+    "group": "AI高级设置",
+    "source": "ai/agent_activity_page.dart"
+  },
+  {
+    "route": "flow-privacy",
+    "title": "隐私政策",
+    "group": "帮助与信息",
+    "source": "settings/privacy_policy_page.dart"
+  },
+  {
+    "route": "flow-support-about",
+    "title": "关于",
+    "group": "帮助与支持",
+    "source": "settings/about_page.dart"
+  },
+  {
+    "route": "flow-support-about-ios",
+    "title": "关于",
+    "group": "帮助与支持",
+    "source": "settings/about_page.dart"
+  },
+  {
+    "route": "flow-support-about-international",
+    "title": "关于",
+    "group": "帮助与支持",
+    "source": "settings/about_page.dart"
+  },
+  {
+    "route": "flow-support-help",
+    "title": "使用帮助",
+    "group": "帮助与支持",
+    "source": "settings/help_center_page.dart"
+  },
+  {
+    "route": "flow-support-changelog",
+    "title": "更新日志",
+    "group": "帮助与支持",
+    "source": "settings/help_center_page.dart"
+  },
+  {
+    "route": "flow-support-help-error",
+    "title": "使用帮助",
+    "group": "帮助与支持",
+    "source": "settings/help_center_page.dart"
+  },
+  {
+    "route": "flow-support-help-loading",
+    "title": "使用帮助",
+    "group": "帮助与支持",
+    "source": "settings/help_center_page.dart"
+  },
+  {
+    "route": "flow-support-privacy",
+    "title": "隐私政策",
+    "group": "帮助与支持",
+    "source": "settings/privacy_policy_page.dart"
+  },
+  {
+    "route": "flow-support-privacy-error",
+    "title": "隐私政策",
+    "group": "帮助与支持",
+    "source": "settings/privacy_policy_page.dart"
+  },
+  {
+    "route": "flow-support-shortcuts-ios",
+    "title": "快捷指令",
+    "group": "帮助与支持",
+    "source": "settings/shortcuts_guide_page.dart"
+  },
+  {
+    "route": "flow-support-shortcuts-android",
+    "title": "快捷指令",
+    "group": "帮助与支持",
+    "source": "settings/shortcuts_guide_page.dart"
+  },
+  {
+    "route": "flow-support-donation-empty",
+    "title": "捐赠",
+    "group": "帮助与支持",
+    "source": "donation/donation_page.dart"
+  },
+  {
+    "route": "flow-support-donation-loading",
+    "title": "捐赠",
+    "group": "帮助与支持",
+    "source": "donation/donation_page.dart"
+  },
+  {
+    "route": "flow-support-donation-products",
+    "title": "捐赠",
+    "group": "帮助与支持",
+    "source": "donation/donation_page.dart"
+  },
+  {
+    "route": "flow-maintenance-logs",
+    "title": "日志中心",
+    "group": "维护与本地诊断",
+    "source": "settings/log_center_page.dart"
+  },
+  {
+    "route": "flow-maintenance-log-detail",
+    "title": "日志中心",
+    "group": "维护与本地诊断",
+    "source": "settings/log_center_page.dart"
+  },
+  {
+    "route": "flow-maintenance-log-clear",
+    "title": "日志中心",
+    "group": "维护与本地诊断",
+    "source": "settings/log_center_page.dart"
+  },
+  {
+    "route": "flow-maintenance-log-empty",
+    "title": "日志中心",
+    "group": "维护与本地诊断",
+    "source": "settings/log_center_page.dart"
+  },
+  {
+    "route": "flow-maintenance-storage",
+    "title": "存储空间管理",
+    "group": "维护与本地诊断",
+    "source": "settings/storage_management_page.dart"
+  },
+  {
+    "route": "flow-maintenance-storage-ios",
+    "title": "存储空间管理",
+    "group": "维护与本地诊断",
+    "source": "settings/storage_management_page.dart"
+  },
+  {
+    "route": "flow-maintenance-storage-error",
+    "title": "存储空间管理",
+    "group": "维护与本地诊断",
+    "source": "settings/storage_management_page.dart"
+  },
+  {
+    "route": "flow-maintenance-storage-clear",
+    "title": "存储空间管理",
+    "group": "维护与本地诊断",
+    "source": "settings/storage_management_page.dart"
+  },
+  {
+    "route": "flow-maintenance-widgets-android",
+    "title": "桌面小组件",
+    "group": "维护与本地诊断",
+    "source": "settings/widget_management_page.dart"
+  },
+  {
+    "route": "flow-maintenance-widgets-ios",
+    "title": "桌面小组件",
+    "group": "维护与本地诊断",
+    "source": "settings/widget_management_page.dart"
+  },
+  {
+    "route": "flow-maintenance-orphans",
+    "title": "数据清理",
+    "group": "维护与本地诊断",
+    "source": "maintenance/orphan_cleanup_page.dart"
+  },
+  {
+    "route": "flow-maintenance-orphans-empty",
+    "title": "数据清理",
+    "group": "维护与本地诊断",
+    "source": "maintenance/orphan_cleanup_page.dart"
+  },
+  {
+    "route": "flow-maintenance-orphans-error",
+    "title": "数据清理",
+    "group": "维护与本地诊断",
+    "source": "maintenance/orphan_cleanup_page.dart"
+  },
+  {
+    "route": "flow-maintenance-orphans-confirm",
+    "title": "数据清理",
+    "group": "维护与本地诊断",
+    "source": "maintenance/orphan_cleanup_page.dart"
+  },
+  {
+    "route": "flow-maintenance-orphans-partial",
+    "title": "数据清理",
+    "group": "维护与本地诊断",
+    "source": "maintenance/orphan_cleanup_page.dart"
+  },
+  {
     "route": "flow-auto-billing",
     "title": "截图自动记账",
     "group": "自动化与识别",

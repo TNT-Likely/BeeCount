@@ -231,10 +231,10 @@
   },
   {
     "route": "about",
-    "slug": "about",
     "title": "关于 · 完整菜单",
     "group": "设置与管理",
-    "fullHeight": 1079,
+    "slug": "about",
+    "fullHeight": 1133,
     "viewport": "screens/viewport/about.png",
     "full": "screens/full/about.png",
     "svg": "figma/about.svg"
@@ -691,9 +691,9 @@
   },
   {
     "route": "flow-storage",
-    "slug": "flow-storage",
     "title": "存储空间",
     "group": "补齐 · 导入导出与维护",
+    "slug": "flow-storage",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-storage.png",
     "full": "screens/full/flow-storage.png",
@@ -701,10 +701,10 @@
   },
   {
     "route": "flow-orphan",
-    "slug": "flow-orphan",
     "title": "孤儿数据清理",
     "group": "补齐 · 导入导出与维护",
-    "fullHeight": 844,
+    "slug": "flow-orphan",
+    "fullHeight": 2045,
     "viewport": "screens/viewport/flow-orphan.png",
     "full": "screens/full/flow-orphan.png",
     "svg": "figma/flow-orphan.svg"
@@ -861,10 +861,10 @@
   },
   {
     "route": "flow-shortcuts",
-    "slug": "flow-shortcuts",
     "title": "快捷指令指南",
     "group": "补齐 · 自动化与识别",
-    "fullHeight": 844,
+    "slug": "flow-shortcuts",
+    "fullHeight": 1637,
     "viewport": "screens/viewport/flow-shortcuts.png",
     "full": "screens/full/flow-shortcuts.png",
     "svg": "figma/flow-shortcuts.svg"
@@ -991,19 +991,19 @@
   },
   {
     "route": "flow-permissions",
-    "slug": "flow-permissions",
     "title": "助手权限",
     "group": "补齐 · AI 与助手",
-    "fullHeight": 945,
+    "slug": "flow-permissions",
+    "fullHeight": 965,
     "viewport": "screens/viewport/flow-permissions.png",
     "full": "screens/full/flow-permissions.png",
     "svg": "figma/flow-permissions.svg"
   },
   {
     "route": "flow-memory",
-    "slug": "flow-memory",
     "title": "助手记忆",
     "group": "补齐 · AI 与助手",
+    "slug": "flow-memory",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-memory.png",
     "full": "screens/full/flow-memory.png",
@@ -1011,9 +1011,9 @@
   },
   {
     "route": "flow-activity",
-    "slug": "flow-activity",
     "title": "助手活动",
     "group": "补齐 · AI 与助手",
+    "slug": "flow-activity",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-activity.png",
     "full": "screens/full/flow-activity.png",
@@ -1061,10 +1061,10 @@
   },
   {
     "route": "flow-widgets",
-    "slug": "flow-widgets",
     "title": "桌面小组件",
     "group": "补齐 · 外观与辅助",
-    "fullHeight": 844,
+    "slug": "flow-widgets",
+    "fullHeight": 3668,
     "viewport": "screens/viewport/flow-widgets.png",
     "full": "screens/full/flow-widgets.png",
     "svg": "figma/flow-widgets.svg"
@@ -1091,9 +1091,9 @@
   },
   {
     "route": "flow-donation",
-    "slug": "flow-donation",
     "title": "打赏支持",
     "group": "补齐 · 帮助与信息",
+    "slug": "flow-donation",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-donation.png",
     "full": "screens/full/flow-donation.png",
@@ -1101,20 +1101,20 @@
   },
   {
     "route": "flow-logs",
-    "slug": "flow-logs",
     "title": "日志中心",
     "group": "补齐 · 帮助与信息",
-    "fullHeight": 890,
+    "slug": "flow-logs",
+    "fullHeight": 1989,
     "viewport": "screens/viewport/flow-logs.png",
     "full": "screens/full/flow-logs.png",
     "svg": "figma/flow-logs.svg"
   },
   {
     "route": "flow-help",
-    "slug": "flow-help",
     "title": "使用帮助",
     "group": "补齐 · 帮助与信息",
-    "fullHeight": 844,
+    "slug": "flow-help",
+    "fullHeight": 848,
     "viewport": "screens/viewport/flow-help.png",
     "full": "screens/full/flow-help.png",
     "svg": "figma/flow-help.svg"
@@ -1131,9 +1131,9 @@
   },
   {
     "route": "flow-log-detail",
-    "slug": "flow-log-detail",
     "title": "日志详情 · 弹窗",
     "group": "补齐 · 帮助与信息",
+    "slug": "flow-log-detail",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-log-detail.png",
     "full": "screens/full/flow-log-detail.png",
@@ -5282,5 +5282,415 @@
     "viewport": "screens/viewport/flow-auto-billing.png",
     "full": "screens/full/flow-auto-billing.png",
     "svg": "figma/flow-auto-billing.svg"
+  },
+  {
+    "route": "flow-privacy",
+    "title": "隐私政策",
+    "group": "补齐 · 帮助与信息",
+    "slug": "flow-privacy",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-privacy.png",
+    "full": "screens/full/flow-privacy.png",
+    "svg": "figma/flow-privacy.svg"
+  },
+  {
+    "route": "flow-advanced-memory",
+    "title": "本地记忆",
+    "group": "补齐 · AI高级设置",
+    "slug": "flow-advanced-memory",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-advanced-memory.png",
+    "full": "screens/full/flow-advanced-memory.png",
+    "svg": "figma/flow-advanced-memory.svg"
+  },
+  {
+    "route": "flow-advanced-memory-empty",
+    "title": "本地记忆",
+    "group": "补齐 · AI高级设置",
+    "slug": "flow-advanced-memory-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-advanced-memory-empty.png",
+    "full": "screens/full/flow-advanced-memory-empty.png",
+    "svg": "figma/flow-advanced-memory-empty.svg"
+  },
+  {
+    "route": "flow-advanced-memory-loading",
+    "title": "本地记忆",
+    "group": "补齐 · AI高级设置",
+    "slug": "flow-advanced-memory-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-advanced-memory-loading.png",
+    "full": "screens/full/flow-advanced-memory-loading.png",
+    "svg": "figma/flow-advanced-memory-loading.svg"
+  },
+  {
+    "route": "flow-advanced-memory-error",
+    "title": "本地记忆",
+    "group": "补齐 · AI高级设置",
+    "slug": "flow-advanced-memory-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-advanced-memory-error.png",
+    "full": "screens/full/flow-advanced-memory-error.png",
+    "svg": "figma/flow-advanced-memory-error.svg"
+  },
+  {
+    "route": "flow-advanced-memory-global",
+    "title": "本地记忆",
+    "group": "补齐 · AI高级设置",
+    "slug": "flow-advanced-memory-global",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-advanced-memory-global.png",
+    "full": "screens/full/flow-advanced-memory-global.png",
+    "svg": "figma/flow-advanced-memory-global.svg"
+  },
+  {
+    "route": "flow-advanced-permissions",
+    "title": "AI助手权限",
+    "group": "补齐 · AI高级设置",
+    "slug": "flow-advanced-permissions",
+    "fullHeight": 965,
+    "viewport": "screens/viewport/flow-advanced-permissions.png",
+    "full": "screens/full/flow-advanced-permissions.png",
+    "svg": "figma/flow-advanced-permissions.svg"
+  },
+  {
+    "route": "flow-advanced-permissions-modified",
+    "title": "AI助手权限",
+    "group": "补齐 · AI高级设置",
+    "slug": "flow-advanced-permissions-modified",
+    "fullHeight": 965,
+    "viewport": "screens/viewport/flow-advanced-permissions-modified.png",
+    "full": "screens/full/flow-advanced-permissions-modified.png",
+    "svg": "figma/flow-advanced-permissions-modified.svg"
+  },
+  {
+    "route": "flow-advanced-permissions-error",
+    "title": "AI助手权限",
+    "group": "补齐 · AI高级设置",
+    "slug": "flow-advanced-permissions-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-advanced-permissions-error.png",
+    "full": "screens/full/flow-advanced-permissions-error.png",
+    "svg": "figma/flow-advanced-permissions-error.svg"
+  },
+  {
+    "route": "flow-advanced-activity",
+    "title": "最近活动",
+    "group": "补齐 · AI高级设置",
+    "slug": "flow-advanced-activity",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-advanced-activity.png",
+    "full": "screens/full/flow-advanced-activity.png",
+    "svg": "figma/flow-advanced-activity.svg"
+  },
+  {
+    "route": "flow-advanced-activity-empty",
+    "title": "最近活动",
+    "group": "补齐 · AI高级设置",
+    "slug": "flow-advanced-activity-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-advanced-activity-empty.png",
+    "full": "screens/full/flow-advanced-activity-empty.png",
+    "svg": "figma/flow-advanced-activity-empty.svg"
+  },
+  {
+    "route": "flow-advanced-activity-error",
+    "title": "最近活动",
+    "group": "补齐 · AI高级设置",
+    "slug": "flow-advanced-activity-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-advanced-activity-error.png",
+    "full": "screens/full/flow-advanced-activity-error.png",
+    "svg": "figma/flow-advanced-activity-error.svg"
+  },
+  {
+    "route": "flow-support-about",
+    "title": "关于",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-about",
+    "fullHeight": 1133,
+    "viewport": "screens/viewport/flow-support-about.png",
+    "full": "screens/full/flow-support-about.png",
+    "svg": "figma/flow-support-about.svg"
+  },
+  {
+    "route": "flow-support-about-ios",
+    "title": "关于",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-about-ios",
+    "fullHeight": 1068,
+    "viewport": "screens/viewport/flow-support-about-ios.png",
+    "full": "screens/full/flow-support-about-ios.png",
+    "svg": "figma/flow-support-about-ios.svg"
+  },
+  {
+    "route": "flow-support-about-international",
+    "title": "关于",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-about-international",
+    "fullHeight": 1174,
+    "viewport": "screens/viewport/flow-support-about-international.png",
+    "full": "screens/full/flow-support-about-international.png",
+    "svg": "figma/flow-support-about-international.svg"
+  },
+  {
+    "route": "flow-support-help",
+    "title": "使用帮助",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-help",
+    "fullHeight": 848,
+    "viewport": "screens/viewport/flow-support-help.png",
+    "full": "screens/full/flow-support-help.png",
+    "svg": "figma/flow-support-help.svg"
+  },
+  {
+    "route": "flow-support-changelog",
+    "title": "更新日志",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-changelog",
+    "fullHeight": 848,
+    "viewport": "screens/viewport/flow-support-changelog.png",
+    "full": "screens/full/flow-support-changelog.png",
+    "svg": "figma/flow-support-changelog.svg"
+  },
+  {
+    "route": "flow-support-help-error",
+    "title": "使用帮助",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-help-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-support-help-error.png",
+    "full": "screens/full/flow-support-help-error.png",
+    "svg": "figma/flow-support-help-error.svg"
+  },
+  {
+    "route": "flow-support-help-loading",
+    "title": "使用帮助",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-help-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-support-help-loading.png",
+    "full": "screens/full/flow-support-help-loading.png",
+    "svg": "figma/flow-support-help-loading.svg"
+  },
+  {
+    "route": "flow-support-privacy",
+    "title": "隐私政策",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-privacy",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-support-privacy.png",
+    "full": "screens/full/flow-support-privacy.png",
+    "svg": "figma/flow-support-privacy.svg"
+  },
+  {
+    "route": "flow-support-privacy-error",
+    "title": "隐私政策",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-privacy-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-support-privacy-error.png",
+    "full": "screens/full/flow-support-privacy-error.png",
+    "svg": "figma/flow-support-privacy-error.svg"
+  },
+  {
+    "route": "flow-support-shortcuts-ios",
+    "title": "快捷指令",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-shortcuts-ios",
+    "fullHeight": 1637,
+    "viewport": "screens/viewport/flow-support-shortcuts-ios.png",
+    "full": "screens/full/flow-support-shortcuts-ios.png",
+    "svg": "figma/flow-support-shortcuts-ios.svg"
+  },
+  {
+    "route": "flow-support-shortcuts-android",
+    "title": "快捷指令",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-shortcuts-android",
+    "fullHeight": 1584,
+    "viewport": "screens/viewport/flow-support-shortcuts-android.png",
+    "full": "screens/full/flow-support-shortcuts-android.png",
+    "svg": "figma/flow-support-shortcuts-android.svg"
+  },
+  {
+    "route": "flow-support-donation-empty",
+    "title": "捐赠",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-donation-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-support-donation-empty.png",
+    "full": "screens/full/flow-support-donation-empty.png",
+    "svg": "figma/flow-support-donation-empty.svg"
+  },
+  {
+    "route": "flow-support-donation-loading",
+    "title": "捐赠",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-donation-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-support-donation-loading.png",
+    "full": "screens/full/flow-support-donation-loading.png",
+    "svg": "figma/flow-support-donation-loading.svg"
+  },
+  {
+    "route": "flow-support-donation-products",
+    "title": "捐赠",
+    "group": "补齐 · 帮助与支持",
+    "slug": "flow-support-donation-products",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-support-donation-products.png",
+    "full": "screens/full/flow-support-donation-products.png",
+    "svg": "figma/flow-support-donation-products.svg"
+  },
+  {
+    "route": "flow-maintenance-logs",
+    "title": "日志中心",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-logs",
+    "fullHeight": 1989,
+    "viewport": "screens/viewport/flow-maintenance-logs.png",
+    "full": "screens/full/flow-maintenance-logs.png",
+    "svg": "figma/flow-maintenance-logs.svg"
+  },
+  {
+    "route": "flow-maintenance-log-detail",
+    "title": "日志中心",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-log-detail",
+    "fullHeight": 1989,
+    "viewport": "screens/viewport/flow-maintenance-log-detail.png",
+    "full": "screens/full/flow-maintenance-log-detail.png",
+    "svg": "figma/flow-maintenance-log-detail.svg"
+  },
+  {
+    "route": "flow-maintenance-log-clear",
+    "title": "日志中心",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-log-clear",
+    "fullHeight": 1989,
+    "viewport": "screens/viewport/flow-maintenance-log-clear.png",
+    "full": "screens/full/flow-maintenance-log-clear.png",
+    "svg": "figma/flow-maintenance-log-clear.svg"
+  },
+  {
+    "route": "flow-maintenance-log-empty",
+    "title": "日志中心",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-log-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-maintenance-log-empty.png",
+    "full": "screens/full/flow-maintenance-log-empty.png",
+    "svg": "figma/flow-maintenance-log-empty.svg"
+  },
+  {
+    "route": "flow-maintenance-storage",
+    "title": "存储空间管理",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-storage",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-maintenance-storage.png",
+    "full": "screens/full/flow-maintenance-storage.png",
+    "svg": "figma/flow-maintenance-storage.svg"
+  },
+  {
+    "route": "flow-maintenance-storage-ios",
+    "title": "存储空间管理",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-storage-ios",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-maintenance-storage-ios.png",
+    "full": "screens/full/flow-maintenance-storage-ios.png",
+    "svg": "figma/flow-maintenance-storage-ios.svg"
+  },
+  {
+    "route": "flow-maintenance-storage-error",
+    "title": "存储空间管理",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-storage-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-maintenance-storage-error.png",
+    "full": "screens/full/flow-maintenance-storage-error.png",
+    "svg": "figma/flow-maintenance-storage-error.svg"
+  },
+  {
+    "route": "flow-maintenance-storage-clear",
+    "title": "存储空间管理",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-storage-clear",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-maintenance-storage-clear.png",
+    "full": "screens/full/flow-maintenance-storage-clear.png",
+    "svg": "figma/flow-maintenance-storage-clear.svg"
+  },
+  {
+    "route": "flow-maintenance-widgets-android",
+    "title": "桌面小组件",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-widgets-android",
+    "fullHeight": 3668,
+    "viewport": "screens/viewport/flow-maintenance-widgets-android.png",
+    "full": "screens/full/flow-maintenance-widgets-android.png",
+    "svg": "figma/flow-maintenance-widgets-android.svg"
+  },
+  {
+    "route": "flow-maintenance-widgets-ios",
+    "title": "桌面小组件",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-widgets-ios",
+    "fullHeight": 3668,
+    "viewport": "screens/viewport/flow-maintenance-widgets-ios.png",
+    "full": "screens/full/flow-maintenance-widgets-ios.png",
+    "svg": "figma/flow-maintenance-widgets-ios.svg"
+  },
+  {
+    "route": "flow-maintenance-orphans",
+    "title": "数据清理",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-orphans",
+    "fullHeight": 2045,
+    "viewport": "screens/viewport/flow-maintenance-orphans.png",
+    "full": "screens/full/flow-maintenance-orphans.png",
+    "svg": "figma/flow-maintenance-orphans.svg"
+  },
+  {
+    "route": "flow-maintenance-orphans-empty",
+    "title": "数据清理",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-orphans-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-maintenance-orphans-empty.png",
+    "full": "screens/full/flow-maintenance-orphans-empty.png",
+    "svg": "figma/flow-maintenance-orphans-empty.svg"
+  },
+  {
+    "route": "flow-maintenance-orphans-error",
+    "title": "数据清理",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-orphans-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-maintenance-orphans-error.png",
+    "full": "screens/full/flow-maintenance-orphans-error.png",
+    "svg": "figma/flow-maintenance-orphans-error.svg"
+  },
+  {
+    "route": "flow-maintenance-orphans-confirm",
+    "title": "数据清理",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-orphans-confirm",
+    "fullHeight": 2045,
+    "viewport": "screens/viewport/flow-maintenance-orphans-confirm.png",
+    "full": "screens/full/flow-maintenance-orphans-confirm.png",
+    "svg": "figma/flow-maintenance-orphans-confirm.svg"
+  },
+  {
+    "route": "flow-maintenance-orphans-partial",
+    "title": "数据清理",
+    "group": "补齐 · 维护与本地诊断",
+    "slug": "flow-maintenance-orphans-partial",
+    "fullHeight": 2045,
+    "viewport": "screens/viewport/flow-maintenance-orphans-partial.png",
+    "full": "screens/full/flow-maintenance-orphans-partial.png",
+    "svg": "figma/flow-maintenance-orphans-partial.svg"
   }
 ]

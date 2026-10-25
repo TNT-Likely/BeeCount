@@ -12,6 +12,21 @@ if (!routes.length) throw Error('Pass one or more prototype route IDs');
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 736, height: 1900 }, deviceScaleFactor: 2 });
+
+    // QA export/verification never fetches website content. The original iframe
+    // URL remains intact; its controlled body visibly states this limitation.
+    const qaDocumentResponses=[], qaExternalBlocked=[];
+    const qaDocumentNotice='QA 文档占位 · 未请求真实官网正文 / WebView / 法律文案';
+    await page.route('**/*', async route=>{
+      const request=route.request(),url=new URL(request.url());
+      if(!['http:','https:'].includes(url.protocol))return route.continue();
+      if(url.origin==='https://count.beejz.com'&&['/privacy','/docs/intro','/docs/changelog'].includes(url.pathname)&&request.resourceType()==='document'&&request.method()==='GET'){
+        qaDocumentResponses.push(url.pathname);
+        return route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:'<!doctype html><html lang="zh"><meta charset="utf-8"><body style="font:14px sans-serif;padding:16px;color:#777"><p>'+qaDocumentNotice+'</p><p>仅检查原URL、加载/错误状态和页面交互；不代表真实官网或原生WebView验收。</p></body></html>'});
+      }
+      qaExternalBlocked.push({origin:url.origin,path:url.pathname});return route.abort();
+    });
+
     const errors = [];
     page.on('pageerror', e => errors.push(e.message));
     await page.goto(pathToFileURL(path.join(root, 'prototype/demo.html')).href);
@@ -47,6 +62,7 @@ if (!routes.length) throw Error('Pass one or more prototype route IDs');
       }, baseline);
       await picker.selectOption(route);
       await page.evaluate(() => { window.beeImmersiveDemo.freeze(5); document.activeElement?.blur(); });
+      await phone.locator('iframe[src^="https://count.beejz.com/"]').evaluateAll((frames,notice)=>frames.forEach(frame=>{if(!frame.previousElementSibling?.hasAttribute('data-qa-document-note')){const note=document.createElement('p');note.dataset.qaDocumentNote='true';note.textContent=notice;note.style.cssText='font-size:12px;color:#777;padding:8px;overflow-wrap:anywhere';frame.before(note);}}),qaDocumentNotice);
       const fullStyle = await page.addStyleTag({ content: '#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.s80-shell){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .s80-shell{height:auto;display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .s80-scroll{overflow:visible} #bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.a79-shell){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .a79-shell{height:auto;display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .a79-scroll{overflow:visible} #bee-immersive-suite .bc-phone[data-page="home"] .bc-main{height:auto!important;display:block!important}#bee-immersive-suite .bc-phone[data-page="home"] .bc-stream{height:auto!important;display:block!important}#bee-immersive-suite .bc-phone[data-page="home"] .h-journal-list{height:auto!important;overflow:visible!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]){height:auto!important;max-height:none!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main{max-height:none!important;overflow:visible!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.ae-shell){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .ae-shell{display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .ae-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.cm-manager-page){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .cm-manager-page{display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .cm-manager-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.av-shell){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .av-shell{display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .av-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.tl-shell){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .tl-shell{display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .tl-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.fs-shell){height:auto!important;max-height:none!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .fs-shell{display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .fs-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.nw-scroll){height:auto!important;max-height:none!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .nw-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.rd-scroll){height:auto!important;max-height:none!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .rd-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.ap-scroll){height:auto!important;max-height:none!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .ap-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.bgt-shell){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bgt-shell{height:auto;display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bgt-scroll{overflow:visible}' });
       // Expand long provider forms only for the 'full content' design export.
       // The viewport snapshot below retains the actual scrolling dialog.
@@ -74,8 +90,8 @@ if (!routes.length) throw Error('Pass one or more prototype route IDs');
     fs.writeFileSync(path.join(root, 'screens/manifest.json'), JSON.stringify(manifest, null, 2));
     const boards = await require('./build-page-boards.cjs')(root, browser, manifest);
     require('./build-index.cjs');
-    fs.writeFileSync(path.join(root, 'qa/selected-export-report.json'), JSON.stringify({ refreshed: routes, retainedOtherScenes: manifest.length - routes.length, total: manifest.length, boards, errors }, null, 2));
-    console.log(JSON.stringify({ refreshed: routes.length, scenes: manifest.length, errors }));
+    fs.writeFileSync(path.join(root, 'qa/selected-export-report.json'), JSON.stringify({ refreshed: routes, retainedOtherScenes: manifest.length - routes.length, total: manifest.length, boards, errors, qaDocumentResponses, qaExternalBlocked, websiteContentAndNativeWebView: 'NOT_RUN' }, null, 2));
+    console.log(JSON.stringify({ refreshed: routes.length, scenes: manifest.length, errors, qaDocumentResponseCount:qaDocumentResponses.length, externalBlocked:qaExternalBlocked.length, websiteContentAndNativeWebView:'NOT_RUN' }));
   } finally {
     await browser.close();
   }

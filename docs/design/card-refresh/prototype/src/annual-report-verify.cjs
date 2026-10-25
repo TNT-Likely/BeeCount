@@ -10,6 +10,24 @@ for(const file of ['annual-report.js','receipt.js']){
   new vm.Script(source,{filename:file}).runInContext(context);
 }
 assert.equal(Object.keys(definitions).length,9);
+// Freeze only the test clock; the real prototype reads the current local date.
+function elapsed(year,iso,monthStartDay=1){const [y,m,d]=iso.split('-').map(Number);return JSON.parse(JSON.stringify(context.ar89ElapsedPeriod(year,{now:new Date(y,m-1,d),monthStartDay})));}
+assert.deepEqual(elapsed(2026,'2026-10-25'),{days:298,months:10});
+assert.deepEqual(elapsed(2025,'2026-10-25'),{days:365,months:12});
+assert.deepEqual(elapsed(2024,'2026-10-25'),{days:366,months:12});
+assert.deepEqual(elapsed(2027,'2026-10-25'),{days:0,months:0});
+assert.deepEqual(elapsed(2026,'2026-01-01'),{days:1,months:1});
+assert.deepEqual(elapsed(2026,'2026-10-25',28),{days:271,months:9});
+assert.deepEqual(elapsed(2026,'2027-01-15',28),{days:353,months:12});
+assert.deepEqual(elapsed(2026,'2026-01-27',28),{days:0,months:0});
+const beforeElapsed=context.ar89ElapsedPeriod;
+context.ar89ElapsedPeriod=year=>beforeElapsed(year,{now:new Date(2026,9,25)});
+state.ar89Year=2026;state.ar89Chapter=1;
+const insights=context.fRender('annual-report');
+assert.match(insights,/data-ar89-elapsed-days="298"/);assert.match(insights,/data-ar89-elapsed-months="10"/);
+assert.ok(insights.includes(context.ar89Money(32414.75/298)));assert.ok(insights.includes(context.ar89Money(32414.75/10)));
+context.ar89ElapsedPeriod=beforeElapsed;
+
 for(let chapter=0;chapter<7;chapter++){
   state.ar89Chapter=chapter;
   const html=context.fRender('annual-report');

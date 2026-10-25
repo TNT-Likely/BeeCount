@@ -7,4 +7,4 @@ samples.recurringBills=require('../prototype/src/recurring-bills-samples.cjs');f
 Object.assign(samples,require('../prototype/src/migrated-page-modules.cjs').samples);fs.writeFileSync(path.join(root,'components/samples.json'),JSON.stringify(samples,null,2));
 
 // Every registered feature contributes both pure states and its page links.
-for(const key of ['transactionDetail','cloudBackup','autoBilling','detailCurrency','cloudShared','shareCard'])if(!samples[key])throw Error('Missing integrated feature sample '+key);
+for(const key of ['transactionDetail','cloudBackup','autoBilling','detailCurrency','cloudShared','shareCard','aiAdvanced','support','maintenance'])if(!samples[key])throw Error('Missing integrated feature sample '+key);

@@ -668,6 +668,27 @@
         "title": "分享卡与原海报预览",
         "nativeCase": 71,
         "nativeLabel": "分享卡与原海报预览"
+      },
+      {
+        "id": "spec-95",
+        "code": "B70",
+        "title": "AI记忆权限与活动",
+        "nativeCase": 72,
+        "nativeLabel": "AI记忆权限与活动"
+      },
+      {
+        "id": "spec-96",
+        "code": "B71",
+        "title": "关于帮助与支持",
+        "nativeCase": 73,
+        "nativeLabel": "关于帮助与支持"
+      },
+      {
+        "id": "spec-97",
+        "code": "B72",
+        "title": "日志存储与维护",
+        "nativeCase": 74,
+        "nativeLabel": "日志存储与维护"
       }
     ]
   }
